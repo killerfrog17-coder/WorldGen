@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace WorldGen.Core
 {
-    public enum FaunaSoundKind { Cricket, Cicada, Katydid, Frog, UnderstoryBird }
+    public enum FaunaSoundKind { Cricket, Cicada, Katydid, Frog, UnderstoryBird, Cockatoo, Hornbill, Hummingbird, Parrot, Pigeon, Raven, Toucan, Turaco, Woodpecker, Owl }
     public sealed class FaunaVoiceProfile
     {
         public string Id="",Name="";
@@ -25,26 +25,32 @@ namespace WorldGen.Core
     /// saved ecology upgrade. Geography and traits do not depend on camera/chunks.</summary>
     public sealed class FaunaAmbience
     {
-        public const string Version="fauna-ambience-1";
+        public const string Version="fauna-ambience-2";
+        public const int KindCount=15;
+        public static readonly string[] Banks={"cricket","cicada","katydid","frog","bird","cockatoo","hornbill","hummingbird","parrot","pigeon","raven","toucan","turaco","woodpecker","owl"};
+        public static readonly string[] Names={"Crickets","Cicadas","Katydids","Native frogs","Understory birds","Cockatoos","Hornbills","Hummingbirds","Parrots","Pigeons","Ravens","Toucans","Turacos","Woodpeckers","Woodland owls"};
+        static readonly string[] taxonNames={"","","","Anura habitat guild","Understory bird guild","Cacatuidae","Bucerotidae","Trochilidae","Psittaciformes","Columbidae","Corvus","Ramphastidae","Musophagidae","Picidae","Strigidae woodland"};
         static readonly ConditionalWeakTable<World,FaunaAmbience> worlds=new ConditionalWeakTable<World,FaunaAmbience>();
         static readonly V[] normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
-        readonly World world;readonly int frog=-1,bird=-1;
+        readonly World world;readonly int[] taxa=new int[KindCount];
         readonly ConcurrentDictionary<int,FaunaVoiceProfile> profiles=new ConcurrentDictionary<int,FaunaVoiceProfile>();
         public static FaunaAmbience For(World world)=>worlds.GetValue(world,w=>new FaunaAmbience(w));
         FaunaAmbience(World world)
         {
             this.world=world;
+            for(int i=0;i<taxa.Length;i++)taxa[i]=-1;
             if(world.Ecology==null)return;
             foreach(var t in world.Ecology.Taxa)
-            {if(t.ScientificName=="Anura habitat guild")frog=t.Id;if(t.ScientificName=="Understory bird guild")bird=t.Id;}
+                for(int i=3;i<KindCount;i++)if(t.ScientificName==taxonNames[i])taxa[i]=t.Id;
         }
         public bool TryProfile(int cell,FaunaSoundKind kind,out FaunaVoiceProfile profile)
         {
             profile=null;var e=world.Ecology;
             if(e==null||cell<0||cell>=e.Region.Length||e.Region[cell]<0)return false;
-            int taxon=kind==FaunaSoundKind.Frog?frog:kind==FaunaSoundKind.UnderstoryBird?bird:-1;
+            if((int)kind<0||(int)kind>=KindCount)return false;
+            int taxon=taxa[(int)kind];
             if((int)kind>=3&&(taxon<0||!Biogeography.Present(e,cell,taxon)))return false;
-            int region=e.Region[cell];profile=profiles.GetOrAdd(region*8+(int)kind,key=>Create(region,kind,taxon));return true;
+            int region=e.Region[cell];profile=profiles.GetOrAdd(region*KindCount+(int)kind,key=>Create(region,kind,taxon));return true;
         }
         FaunaVoiceProfile Create(int region,FaunaSoundKind kind,int taxon)
         {
@@ -57,19 +63,21 @@ namespace WorldGen.Core
             var e=world.Ecology;int province=e.Regions[region].ProvinceId;
             var founder=new Rng(world.Recipe.Seed,"fauna-guild-call-founder-1",unchecked(province*31+(int)kind));
             var branch=new Rng(world.Recipe.Seed,"fauna-guild-call-branch-1",unchecked(region*31+(int)kind));
-            bool isBird=kind==FaunaSoundKind.UnderstoryBird;
+            bool isBird=kind!=FaunaSoundKind.Frog;
+            double carrier=kind==FaunaSoundKind.Pigeon?380:kind==FaunaSoundKind.Owl?600:kind==FaunaSoundKind.Raven?700:kind==FaunaSoundKind.Hornbill?500:kind==FaunaSoundKind.Cockatoo||kind==FaunaSoundKind.Parrot?1700:kind==FaunaSoundKind.Hummingbird?6500:3500;
             double variation=.97+.06*branch.Unit();
             result.Id=Version+":"+world.Recipe.Seed+":"+region+":"+taxon;result.Name=e.Taxa[taxon].Name+" / regional calling form";
             result.Acoustics=new InsectAcousticTraits{Shape=isBird?InsectSongShape.WhistlePhrase:InsectSongShape.PulsedCroak,
                 Function=isBird?"Contact/territorial song; stronger in breeding activity":"Male breeding call",
-                CarrierHz=D.Q((isBird?2200+2800*founder.Unit():300+650*founder.Unit())*variation,1000),
+                CarrierHz=D.Q((isBird?carrier*(.8+.4*founder.Unit()):300+650*founder.Unit())*variation,1000),
                 RelativeLoudness=.5+.2*founder.Unit(),IndividualPitchSpreadCents=8,IndividualTimingSpreadFraction=.04,
                 PulseOnSeconds=isBird?.18:.35,PulseGapSeconds=.12,PulsesPerPhrase=2+(int)(3*founder.Unit()),PhraseGapSeconds=isBird?4:1.2,
                 AttackSeconds=.015,ReleaseSeconds=.04,HarmonicMix=isBird?.2:.65,NoiseMix=isBird?.02:.15};
             int cell=e.Regions[region].RepresentativeCell;var h=e.Habitat[cell];
-            result.Activity=new InsectActivityTraits{StartSolarHour=isBird?4.5:17,DurationHours=isBird?15:12,MinTemperatureC=isBird?1:7,
+            result.Activity=new InsectActivityTraits{StartSolarHour=isBird?4.5:17,DurationHours=isBird?15:12,MinTemperatureC=kind==FaunaSoundKind.Raven?-30:kind==FaunaSoundKind.Pigeon||kind==FaunaSoundKind.Woodpecker?-12:isBird?1:7,
                 PreferredTemperatureC=isBird?20:23,MaxTemperatureC=38,SeasonCue=h.ColdTenthsC>=180?InsectSeasonCue.WarmMoistOpportunities:InsectSeasonCue.AnnualWarmSeason,
                 SeasonPeakOffsetDays=isBird?-40:-25,AdultDisplayWindowDays=isBird?240:160,RainSuppressionMmPerHour=isBird?2:6,WindSuppressionMps=7};
+            if(kind==FaunaSoundKind.Owl){result.Activity.StartSolarHour=18;result.Activity.DurationHours=12;result.Activity.MinTemperatureC=-18;result.Acoustics.PhraseGapSeconds=20;result.Acoustics.RelativeLoudness=.55;}
             return result;
         }
         public static double HabitatGain(FaunaVoiceProfile p,HabitatCell h,LocalTerrainSample sample)
@@ -78,10 +86,12 @@ namespace WorldGen.Core
             if(p.Candidate!=null)
             {
                 double fit=AmbientFauna.HabitatSuitability(p.Candidate,h);
-                double cover=p.Kind==FaunaSoundKind.Cricket?sample.Cover.Coverage*2:sample.Cover.Coverage+sample.Forest.Coverage;
+                double cover=p.Kind==FaunaSoundKind.Cricket?Math.Max(sample.Cover.Coverage*2,sample.Forest.Coverage*.85+sample.Ground.Organic*.5):sample.Cover.Coverage+sample.Forest.Coverage;
                 return fit*D.Clamp(cover);
             }
-            if(p.Kind==FaunaSoundKind.UnderstoryBird)return D.Clamp(sample.Forest.Coverage*2);
+            if(p.Kind==FaunaSoundKind.Raven)return D.Clamp(.2+sample.Forest.Coverage+sample.Cover.Coverage*.5);
+            if(p.Kind==FaunaSoundKind.Pigeon||p.Kind==FaunaSoundKind.Hummingbird)return D.Clamp(sample.Forest.Coverage*2+sample.Cover.Coverage*.5);
+            if((int)p.Kind>=4)return D.Clamp(sample.Forest.Coverage*2);
             double refuge=Math.Max(sample.RiverInfluence,Math.Max(h.FloodFractionPermille*.001,D.Clamp((180-h.WaterTableCm)/180.0)));
             double dampForest=D.Clamp((h.AridityMilli*.001-.65)/.5)*D.Clamp(sample.Ground.Organic*3)*(1-sample.Ground.Drainage*.7);
             return D.Clamp(Math.Max(refuge,dampForest));
@@ -98,12 +108,12 @@ namespace WorldGen.Core
                 double day=(year-Math.Floor(year))*365,peak=(latitude>=0?.56:.06)*365+a.SeasonPeakOffsetDays;
                 peak=(peak%365+365)%365;double offset=Math.Abs(day-peak);offset=Math.Min(offset,365-offset);
                 season=1-Smooth(a.AdultDisplayWindowDays*.38,a.AdultDisplayWindowDays*.5+12,offset);
-                if(p.Kind==FaunaSoundKind.UnderstoryBird)season=.25+.75*season;
+                if((int)p.Kind>=4)season=.25+.75*season;
             }
             double weather=1/(1+Math.Pow(Math.Max(0,rain)/a.RainSuppressionMmPerHour,2));
             weather/=1+Math.Pow(Math.Max(0,wind)/a.WindSuppressionMps,2);
             if(p.Kind==FaunaSoundKind.Frog)weather*=Smooth(.35,.75,humidity+.1*Math.Min(2,rain));
-            if(p.Kind==FaunaSoundKind.UnderstoryBird)daily*=.35+.65*Math.Exp(-Math.Pow((hour-6.5)/2.3,2))+.3*Math.Exp(-Math.Pow((hour-17)/2.5,2));
+            if((int)p.Kind>=4&&p.Kind!=FaunaSoundKind.Owl)daily*=.35+.65*Math.Exp(-Math.Pow((hour-6.5)/2.3,2))+.3*Math.Exp(-Math.Pow((hour-17)/2.5,2));
             return D.Clamp(daily*thermal*season*weather);
         }
         public static void Anchors(int seed,V center,double renderRadiusM,double rangeM,List<FaunaSoundAnchor> result)
@@ -121,7 +131,9 @@ namespace WorldGen.Core
                     var r=new Rng(seed,"fauna-source-grid-1",unchecked((int)hash));if(r.Unit()>.6)continue;
                     V point=(n+u*((x+.15+.7*r.Unit())*2/side-1)+v*((y+.15+.7*r.Unit())*2/side-1)).Unit;
                     if((point-center).Length>chord)continue;
-                    result.Add(new FaunaSoundAnchor(id,hash,point,(FaunaSoundKind)(hash%5)));
+                    uint bucket=hash%100;
+                    int kind=bucket<25?0:bucket<43?1:bucket<61?2:bucket<75?3:bucket<85?4:5+(int)(Rng.Mix(hash)%10);
+                    result.Add(new FaunaSoundAnchor(id,hash,point,(FaunaSoundKind)kind));
                 }
             }
             result.Sort((a,b)=>{int c=(a.Position-center).Length.CompareTo((b.Position-center).Length);return c!=0?c:a.Id.CompareTo(b.Id);});

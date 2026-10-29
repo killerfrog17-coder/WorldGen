@@ -1,5 +1,108 @@
 # Ecoregions and the Earth starter pack (3.28)
 
+## Wildlife audio overhaul ? 28 October 2026
+
+Release: **1,088 admitted takes in 42 banks** (1,295,005,888 bytes), from 648
+previous plus 636 newly generated candidates; 196 were excluded by screening.
+The accepted cricket/cicada/katydid/frog/understory banks have 93/30/46/63/96
+files. Full counts are in the task media proof. The selected IL2CPP build is
+`player-wildlife-audio-ready`, BuiltUtc `2026-10-29T03:50:20.2026354Z`.
+42 native audio-flow checks and 57 Core catalogue/activity checks passed; all
+1,088 active WAV hashes/formats verified. Existing protected assets and source
+freeze verified. Generator/screen workers stopped; user game left running.
+
+
+The previously empty playback bank is now populated with local Stable Audio 3
+Small-SFX recordings. The original audition batches are retained; no candidate
+folder or owner-deleted audition is restored. The active, shared development
+library is `sounds/fauna/ai/<animal>/`. Its media directory is a junction to
+`E:/WorldGen-audio/wildlife-overhaul-20261028/active`, keeping bulk WAVs off C:.
+All local development players find this shared library through the existing
+sound-root resolver. These external recordings are not embedded in the player
+executable. A standalone export must include the matching `sounds` directory.
+
+Delete any active WAV you dislike. The next automatic catalogue scan (about ten
+seconds) omits it and stops a cached copy if needed. Missing takes do not crash
+or silence the remaining bank. Publishing/resuming never recreates an indexed
+deleted file. Original auditions and stereo masters remain available separately.
+There is **no sound-review/file-management UI**, per the owner's correction;
+Audio settings retain ordinary ambient and animal volume/toggle controls only.
+
+Playback now has fifteen habitat groups: crickets, cicadas, katydids, native
+frogs, understory birds, cockatoos, hornbills, hummingbirds, parrots, pigeons,
+ravens, toucans, turacos, woodpeckers and woodland owls. Native bird/frog taxa must
+actually occur in the source ecoregion. Tree callers use the same planting
+predicate as visible trees. Exposed/open-habitat callers are not forced to perch
+in nonexistent trees. Terrestrial salinity, ice and underwater exclusions remain.
+Fireflies and butterflies have no invented vocalisation.
+
+Callers are spatial mono sources, not a whole-forest recording following the
+camera. Their world addresses survive nearby chunk/camera changes. Regional
+families retain compatible forms; broad insect/frog/understory guilds can have
+three coexisting acoustic forms, with each individual retaining its assigned
+form and alternating takes without an immediate repeat. These are acoustic
+representations of existing lineages/guilds, not newly simulated species or a
+new population census. Small stable individual pitch differences, natural phrase
+gaps and overlapping insect joins add variation. Current finite clips cannot
+reproduce every generated acoustic/genetic trait exactly.
+
+There are 24 ambient caller slots and 16 pooled modeled-animal voices. These are
+audio mixing budgets, not animal population caps. Recordings decode on demand;
+a 96 MiB idle-cache budget evicts unpinned clips (currently playing/scheduled
+clips stay pinned). Hash verification occurs off the main thread. No model
+inference, classifier or Python dependency runs inside the game.
+
+Calling responds to season/hemisphere, local solar time, temperature, humidity,
+rain and wind. Birds emphasize dawn/dusk; woodland owls call at night. Nearby
+walking can briefly hush callers; small birds can alarm before going quiet when
+an appropriate bank is available. Modeled birds suppress a nearby duplicate
+invisible caller of the same family. Animal voices follow the actual rendered
+animal: sparse contact calls, movement/danger alarms, injury cries, defensive
+threats, seasonal male cervid rut calls, occasional pack howls and close wing
+buzz for appropriate flying insects/hummingbirds. Corpses do not resume random
+calling. Calls reuse existing behavior/health state; no new animal navigation,
+mouth animation or complete species-specific communication model is claimed.
+Several modeled relatives use broad compatible voice families as placeholders.
+
+### Prompting and biological basis
+
+Reviewed the [official SA3 prompt guide](https://stability.ai/guides/stable-audio-3-prompt-guide)
+and [upstream guide](https://github.com/Stability-AI/stable-audio-3/blob/main/docs/guides/prompting.md).
+Prompts specify a single caller, the requested action and close dry recording
+character; they avoid scene-wide forest/night/wetland descriptions. `TrackType:
+SFX` and realistic short durations help steer toward isolated effects. CFG1 is
+not a reliable negative-prompt exclusion tool. Prompts do not guarantee clean
+content: unwanted speech/music/weather/other animals are screened afterward.
+
+Natural-history priors draw on [Cornell bird communication](https://www.birds.cornell.edu/k12/bird-communication/),
+[NOAA cricket temperature response](https://www.noaa.gov/education/explainers/can-crickets-tell-temperature-answer-is-in-their-chirp),
+[NPS nocturnal insects](https://www.nps.gov/subjects/sound/upload/Dark-Side-of-Shenandoah_Gross_updated-508.pdf),
+[Indiana DNR cicadas](https://www.in.gov/dnr/entomology/nursery-growers-and-dealers/periodical-cicada/)
+and [Minnesota DNR katydids](https://www.dnr.state.mn.us/insects/katydids.html).
+These support broad timing/call-purpose distinctions, not the exact numerical
+activity windows, gain, range, cooldowns or thresholds, which are game priors.
+No third-party wildlife recordings were downloaded/copied into this bank.
+
+### Asset preparation and evidence
+
+`scripts/audit-wildlife-audio.py` uses the existing local AudioSet classifier to
+flag obvious contamination. It is a diagnostic screen, not human listening
+approval, a biological-identity guarantee or proof of seamless transitions.
+Source prompts, seeds, models, processing and delivered hashes are tracked in
+`sounds/fauna/origins.json`; `library.tsv` admits exact files. New discrete calls
+have empty lead/tails trimmed with short endpoint fades; source performances and
+masters remain intact. Derived clips inherit the screen of their exact parent
+hash. The user can reject takes directly regardless of classifier outcome.
+Model/encoder terms remain the Stability AI Community License and Gemma terms;
+outputs are not described as CC0. No paid service/account was used.
+
+Source generation, screening, raw/processed indices and package/test proof are
+under `artifacts/wildlife-audio-20261028`. Scripts generate, screen, prepare and
+publish deterministically indexed candidates; numerical checks do not imply the
+agent listened to the recordings. No changes to rain, wind, thunder, music,
+fauna models/skins/animations, terrain geometry or construction are intended.
+
+
 ## Remaining audio-first fauna candidates - 22 October 2026
 
 Owner asks whether more noise-only planned implementations remain and requests

@@ -125,6 +125,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!ReachesAnimalContact(attacker,prey))return;
         attacker.TargetSpeed=0;if(Time.unscaledTimeAsDouble<attacker.AttackAt)return;attacker.AttackAt=Time.unscaledTimeAsDouble+1.7;
+        AnimalVoiceEvent(attacker,"threat");
         double damage=Math.Max(2,Math.Min(40,5*Math.Pow(attacker.MassKg,.3)));Vector3 direction;
         if(prey!=null)
         {

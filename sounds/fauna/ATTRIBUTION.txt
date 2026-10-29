@@ -1,37 +1,11 @@
-WORLDGEN FAUNA AUDIO - SOURCE CREDITS
+WORLDGEN WILDLIFE AUDIO
 
-HISTORICAL CANDIDATES: the owner requested removal of all 45 playback clips on
-22 October 2026 after preferring the AI method. The current library.tsv is
-empty. Credits below document the withdrawn comparison set, not active audio.
+Locally generated Stable Audio 3 Small-SFX, existing weights. No paid service and no copied field recordings.
+Model: https://huggingface.co/stabilityai/stable-audio-3-small-sfx
+Model licence: https://stability.ai/license
+Prompting: https://stability.ai/guides/stable-audio-3-prompt-guide
+Encoder: t5gemma_b_b_ul2; Gemma terms apply.
 
-cricket: "Cricket Chirp" by TheWoodlandNomad
-https://freesound.org/people/TheWoodlandNomad/sounds/363111/
-CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
-Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
+origins.json records exact prompts, seeds, models, processing and delivered file hashes. Automated contamination screening is not human listening approval or a guarantee of species accuracy.
 
-cicada: "Japanese Cicada" by macdaddyno1
-https://freesound.org/people/macdaddyno1/sounds/321591/
-CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
-Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
-
-katydid: "SC_Katydid.wav" by timb12957
-https://freesound.org/people/timb12957/sounds/158782/
-CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/
-Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
-
-frog: "Green frog, croaking.wav" by SpliceSound
-https://freesound.org/people/SpliceSound/sounds/188195/
-CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
-Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
-
-bird: "Single bird" by organicmanpl
-https://freesound.org/people/organicmanpl/sounds/518749/
-CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
-Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
-
-AI: Local Stable Audio 3 Small-SFX. Stability AI Community License and Gemma terms apply; not unconditionally public-domain audio. Check commercial registration/revenue requirements before release.
-https://huggingface.co/stabilityai/stable-audio-3-small-sfx
-https://stability.ai/license
-
-Code: independently authored offline DSP in scripts/prepare-fauna-audio.py.
-Media is not backed up in Git. release.json records processing, hashes, prompts and seeds. Waveform checks do not establish biological realism, source purity or seamless listening.
+Delete any active WAV you dislike; it is skipped on the next automatic refresh. The publisher will not recreate indexed deletions. Active library: sounds/fauna/ai. No in-game sound-review UI.

@@ -36,6 +36,7 @@ def main():
     ap.add_argument('--seed-base', type=int, default=192077)
     ap.add_argument('--sampler', default='lcm', choices=['lcm','euler'])
     ap.add_argument('--checkpoint', default='stable_audio_3_medium.safetensors')
+    ap.add_argument('--allow-short-effects', action='store_true', help='Permit discrete SFX shorter than the historical ambience minimum')
     args = ap.parse_args()
     model_id='stabilityai/'+Path(args.checkpoint).stem.replace('_','-')
     args.output.mkdir(parents=True, exist_ok=True)
@@ -140,7 +141,7 @@ def main():
                     rms = float(np.sqrt(np.mean(audio.astype('float64')**2)))
                     wind = track['group'].startswith('wind')
                     transient = track['group'].startswith('footstep')
-                    if rms < .001 or len(audio)/sr < (4 if thunder or wind or transient else 18):
+                    if rms < .001 or len(audio)/sr < (1 if args.allow_short_effects else 4 if thunder or wind or transient else 18):
                         raise ValueError('Silent or short effect')
                     target = -19 if thunder else -32 if wind else -23
                     gain = min(10**(target/20)/rms, .70/max(float(np.max(np.abs(audio))), 1e-8))

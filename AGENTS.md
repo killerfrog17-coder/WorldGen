@@ -1,5 +1,48 @@
 # WorldGen repository instructions
 
+WILDLIFE AUDIO RELEASE,28October2026 late evening:
+Owner authorizes local SA3 sound overhaul, ambient/native callers first then
+behavior cues; asks continue. Later explicitly rejects extra sound-review UI.
+Final Audio settings retain only normal ambient/animal volume+enable controls;
+NO file-management browser/reject UI. Direct WAV deletion auto-respected ~10s;
+publisher never recreates indexed deletions. Common external sounds/fauna/ai
+junction ->E:/WorldGen-audio/wildlife-overhaul-20261028/active, shared by local
+builds via existing sound-root resolver; no standalone media-in-exe claim.
+Reused648 prior audition candidates, generated504 new action+132 new insect/
+bird-alarm candidates.1284screened,1088admitted/196excluded;42banks,1,295,005,888
+bytes PCM16mono44.1kHz.93cricket/30cicada/46katydid/63frog/96understory bird;
+other bank counts in artifacts/wildlife-audio-20261028/media-proof.json. AI audio
+only; no new rain/wind/music/footstep/item Foley. Broad families, not bespoke
+voices for all177models. Screening is automated contamination diagnostic, NOT
+human listening acceptance/guaranteed biological accuracy. Masters preserved;
+discrete-call lead/tail trimming inherits exact parent hash/content screen.
+15native habitat groups with existing biogeography/time/season/temp/rain/wind
+activity; positioned callers, actual-tree predicate,3stable local guild forms,
+compatible take changes/no immediate repeat, insect overlap joins.24ambient+
+16actor mixing slots (not animal caps); lazy96MiB unpinned cache (active clips
+pinned). Existing model health/AI drives contact/flight/pain/threat/rut/howls;
+close-wing buzz for flying bees/flies/hummingbirds. Nearby walking can hush
+callers and trigger available bird alarm. Original fauna art/animation/ecology
+saved taxonomy unchanged; no new navigation, mouth animation or construction.
+Selected existing root shortcut artifacts/player-wildlife-audio-ready, junction
+E:/WorldGen-builds/player-wildlife-audio-ready, IL2CPPBuiltUtc2026-10-29T03:50:
+20.2026354Z. Previous player-scatter-collision-ready kept. Native42checks PASS
+(no runtime errors),57Core catalogue/activity checks PASS. Native verifies actual
+WAV decoding/nonzero samples/scheduling/spatial sources, real deer damage->pain,
+actor-follow/cooldown, live catalogue refresh/deletion using COPIES only. Initial
+review failed because diagnostic spawned while paused; corrected, NOT a pass
+claim for that candidate. Final no extra review UI.578protected original/DLL
+hashes+348frozen production inputs+177collision skin/package/source IDs+18prior
+item audio exact;1088media hashes/WAV formats verified. No FPS/listening claim.
+Owner PID1332 left untouched; both owned native workers exited. Owned Comfy
+server13704 stopped after queue idle/all636 new generations completed; all
+screen workers exited. No paid calls/subagents. Installed soundfile in existing
+Comfy venv via uv; no game Python/inference dependency. Docs ECOREGIONS topsection,
+provenance sounds/fauna/origins.json+library.tsv. User specifically rejected
+unnecessary sound-review UI; do not reintroduce it. Preserve owner prompt deletion
+and two untracked deer scripts. No new Desktop files/icons.
+
+
 PLAYER / SCATTER COLLISION,28October2026 evening:
 Owner asks to stop walking through trees/boulders. Added local source-derived
 solid cache: tree trunk capsules, actual near rock/outcrop/large-stone mesh
