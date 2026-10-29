@@ -37,8 +37,9 @@ public sealed partial class LocalTerrainExplorer
         foreach(var p in new[]{tinder,kindling,wood}){Choose(c=>c.Item==p);QuickFireAction(fire);}
         Check(Inventory.Find(wood.Id)==null&&fire.Materials.Where(WoodCrafting.Wood).Count()>1&&Math.Abs(fire.Materials.Where(WoodCrafting.Wood).Sum(p=>p.MassKg)-woodMass)<1e-8,"Quick feeding consumes the actual branch into mass-conserving short pieces");
         Choose(c=>c.Action==2);QuickFireAction(fire);Check(fire.Burning&&!CampUiOpen,"Lighting from the quick selector opens no campfire menu");
+        var food=Supply(PossessionKind.RawMeat);
         int selected=campChoiceIndex;double zoom=humanCamera.Distance;paused=false;CycleCampChoice(120);paused=true;Check(campChoiceIndex!=selected&&humanCamera.Distance==zoom,"Cycling nearby fire choices preserves camera zoom");
-        var food=Supply(PossessionKind.RawMeat);Choose(c=>c.Item==food);
+        Choose(c=>c.Item==food);
         var oldKeyboard=Keyboard.current;var keyboard=InputSystem.AddDevice<Keyboard>();var background=InputSystem.settings.backgroundBehavior;TestKeyboard(keyboard);keyboard.MakeCurrent();InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
         IEnumerator PressE(){InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.E));yield return null;yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;}
         try

@@ -55,7 +55,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainHandoff.Coordinates(frame,stake.Position,out double tx,out double tz);motion.Place(tx-.5,tz,CampFloor(tx-.5,tz));Aim(tx,tz,1.3);combatGlobalReady=combatRightReady=0;StrikeWithItem(rock,false);
         Check(stake.EmbedM>embed,"Actual rock attack drives the aimed planted stick farther into soil");
         humanCamera.Restore(4,false);Aim(tx,tz,1.3);Check(AimedCamp(out _)==stake,"Third-person camera can target the same physically reachable planted stick");
-        double previousThirdPersonEmbed=stake.EmbedM;combatGlobalReady=combatRightReady=0;StrikeWithItem(rock,false);Check(stake.EmbedM>previousThirdPersonEmbed,"Third-person hammering measures reach from the body, not the distant camera");humanCamera.Restore(0,false);
+        double previousThirdPersonEmbed=stake.EmbedM;combatGlobalReady=combatRightReady=campHammerReady=0;StrikeWithItem(rock,false);Check(stake.EmbedM>previousThirdPersonEmbed,"Third-person hammering measures reach from the body, not the distant camera");humanCamera.Restore(0,false);
         Check(stake.Materials[0].HeightM==branch.HeightM,"Visible post retains its original full length while burial changes");
         campUpdateAt=0;UpdateCamp();var postRoot=campVisuals[stake.Id].Root;float postBottom=postRoot.GetComponentsInChildren<MeshFilter>().SelectMany(f=>f.sharedMesh.vertices.Select(vertex=>transform.InverseTransformPoint(f.transform.TransformPoint(vertex)).y)).Min();
         Check(Math.Abs(postRoot.transform.localPosition.y-VisibleGround(tx,tz,double.NaN))<.001&&postBottom<VisibleGround(tx,tz,double.NaN)-.02,"The rendered post actually enters the visible ground instead of floating above it");
@@ -90,6 +90,7 @@ public sealed partial class LocalTerrainExplorer
         PlayerRules.SetLocalSolarHour(0,longitude);SetDaylight(LocalSolarHour,skyYear);yield return null;var lit=Image("02-camp-firelight");campLightTestOff=true;var dark=Image("03-firelight-disabled-control");campLightTestOff=false;
         int changed=0;for(int i=0;i<lit.Length;i++)if(Math.Abs(lit[i].r-dark[i].r)+Math.Abs(lit[i].g-dark[i].g)+Math.Abs(lit[i].b-dark[i].b)>15)changed++;
         Check(changed>500,"Actual firelight visibly illuminates world pixels, compared with the same frame without the light");Check(fire.Burning,"Debug time changes do not consume hours of physical fire fuel");
+        var sleepFuel=WoodCrafting.Branch(new ScatterInstance{Position=Position,Kind=ScatterKind.Branch,WidthM=2,HeightM=.06,Variant=0});sleepFuel.Id="native-sleep-fuel";sleepFuel.NaturalId=0;Inventory.Items.Add(sleepFuel);inventoryNearbyAt=0;AddCampMaterial(fire,sleepFuel);
         PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);Vitals.Tiredness=80;Vitals.Energy=30;double solar=PlayerRules.SolarDays;
         BeginCampSleep(1,false,bed);Check(campSleeping&&CampTimeRate==32,"Sleeping on bedding begins accelerated time");Check((Position-bed.Position).Length*frame.RadiusM<.1,"Lying down places the player on the chosen bedding");
         paused=false;deadline=Time.unscaledTimeAsDouble+45;while(campSleeping&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
@@ -98,7 +99,7 @@ public sealed partial class LocalTerrainExplorer
         BeginCampSleep(1,false,bed);Vitals.Health-=2;paused=false;UpdateCampSleep();paused=true;Check(!campSleeping,"Actual health loss interrupts sleep");
         CaptureInventoryPhysics();var json=WorldJson.Write(PlayerRules);File.WriteAllText(Path.Combine(output,"camp-play-session.json"),json);var restored=WorldJson.Read<PlaySession>(File.ReadAllText(Path.Combine(output,"camp-play-session.json")));restored.Validate();
         Check(restored.Camp.Objects.Count==3&&restored.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).EmbedM==stake.EmbedM,"Saved/reloaded camp retains exact planted depth and all placed objects");
-        Check(restored.Camp.Objects.Single(c=>c.Kind==CampKind.Fire).Burning&&restored.Survival.Tiredness==Vitals.Tiredness,"Fire state, remaining fuel and tiredness survive the real save serializer");
+        Check(restored.Camp.Objects.Single(c=>c.Kind==CampKind.Fire).Burning==fire.Burning&&Math.Abs(restored.Camp.Objects.Single(c=>c.Kind==CampKind.Fire).MassKg-fire.MassKg)<1e-8&&restored.Survival.Tiredness==Vitals.Tiredness,"Fire state, remaining fuel and tiredness survive the real save serializer");
         var detached=new PlaySession{Settings=PlayerRules.Settings.Copy()};StorePlayer(detached);
         Check(detached.Camp.Objects.Count==3&&detached.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).EmbedM==stake.EmbedM,"Capturing into a fresh session includes the complete camp");
         double originalMass=stake.Materials[0].MassKg;detached.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).Materials[0].MassKg+=1;
