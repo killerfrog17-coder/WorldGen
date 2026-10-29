@@ -7,10 +7,17 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class CampVisual {public GameObject Root;public AudioSource Sound;public double Mass;public bool Burning,Glowing;public double Embed;}
+    sealed class CampVisual {public GameObject Root;public AudioSource Sound;public ParticleSystem Smoke;public Quaternion SurfaceRotation;public double Mass;public bool Burning,Glowing;public double Embed;}
     readonly Dictionary<string,CampVisual> campVisuals=new Dictionary<string,CampVisual>();
-    AudioClip campCrackle;Material campFlameMaterial,campEmberMaterial;
+    Material campFlameMaterial,campEmberMaterial;
     readonly Vector4[] campLightPositions=new Vector4[4],campLightColours=new Vector4[4];bool campLightTestOff;int campLightCount;
+    Quaternion CampSurfaceRotation(CampObject c)
+    {
+        var yaw=Quaternion.Euler(0,(float)c.Heading,0);if(c.Kind!=CampKind.Bedding)return yaw;
+        TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);
+        var normal=new Vector3((float)(Ground(x-.5,z)-Ground(x+.5,z)),1,(float)(Ground(x,z-.5)-Ground(x,z+.5))).normalized;
+        return Quaternion.FromToRotation(Vector3.up,normal)*yaw;
+    }
     void BindCampLights(Camera camera)
     {
         campLightCount=0;
@@ -32,6 +39,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateCamp()
     {
+        if(Ready&&!campAudioStarted){campAudioStarted=true;campAudioLoading=StartCoroutine(LoadCampRecordings());}
         if(Ready&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&(!inventoryOpen||CraftWorking)&&!DeathVisible)Camp.SimulatedSeconds+=Math.Min(.25,Time.unscaledDeltaTime)*CampTimeRate*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
         UpdateCampPlacement();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
         foreach(var c in Camp.Objects)
@@ -42,15 +50,17 @@ public sealed partial class LocalTerrainExplorer
             if(!near){InvalidateCampVisual(c);continue;}
             if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM)){InvalidateCampVisual(c);}
             if(!campVisuals.TryGetValue(c.Id,out var v)){v=CreateCampVisual(c);campVisuals.Add(c.Id,v);}
-            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)Ground(x,z);v.Root.transform.localPosition=new Vector3((float)(x-originX),floor,(float)(z-originZ));v.Root.transform.localRotation=Quaternion.Euler(0,(float)c.Heading,0);
-            if(v.Sound!=null){v.Sound.volume=c.Burning?.18f:0;v.Sound.mute=paused;}
+            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)Ground(x,z);v.Root.transform.localPosition=new Vector3((float)(x-originX),floor,(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
+            UpdateCampVoice(c,v);
+            UpdateCampSmoke(v.Smoke);
         }
+        RetireCampVoices();
         foreach(var id in campVisuals.Keys.Where(id=>!Camp.Objects.Any(c=>c.Id==id)).ToArray()){var v=campVisuals[id];Destroy(v.Root);campVisuals.Remove(id);}
     }
     CampVisual CreateCampVisual(CampObject c)
     {
         var root=new GameObject("Placed "+c.Kind);root.transform.SetParent(transform,false);root.layer=30;
-        var v=new CampVisual{Root=root,Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM};
+        var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM};
         if(c.Kind==CampKind.Stake)
         {
             var p=c.Materials[0];var wood=CreatePossessionVisual(p,30);wood.transform.SetParent(root.transform,false);wood.transform.localPosition=Vector3.down*(float)c.EmbedM;
@@ -84,25 +94,17 @@ public sealed partial class LocalTerrainExplorer
                 var ember=GameObject.CreatePrimitive(PrimitiveType.Quad);Destroy(ember.GetComponent<Collider>());ember.name="Live ember bed";ember.layer=30;ember.transform.SetParent(root.transform,false);ember.transform.localPosition=Vector3.up*.025f;ember.transform.localRotation=Quaternion.Euler(90,0,0);ember.transform.localScale=Vector3.one*.7f;ember.GetComponent<Renderer>().sharedMaterial=campEmberMaterial;ember.GetComponent<Renderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
                 if(c.Burning)
                 {
+                    v.Smoke=CreateCampSmoke(root.transform);
                     if(campFlameMaterial==null)campFlameMaterial=new Material(Resources.Load<Shader>("WorldGenCampFlame"));
                     for(int k=0;k<3;k++)
                     {var flame=GameObject.CreatePrimitive(PrimitiveType.Quad);Destroy(flame.GetComponent<Collider>());flame.name="Flame sheet";flame.layer=30;flame.transform.SetParent(root.transform,false);flame.transform.localPosition=Vector3.up*.35f;flame.transform.localRotation=Quaternion.Euler(0,k*60,0);flame.transform.localScale=new Vector3(.58f,.7f,1);flame.GetComponent<Renderer>().sharedMaterial=campFlameMaterial;flame.GetComponent<Renderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;}
-                    v.Sound=root.AddComponent<AudioSource>();v.Sound.clip=CampCrackle();v.Sound.loop=true;v.Sound.spatialBlend=1;v.Sound.rolloffMode=AudioRolloffMode.Logarithmic;v.Sound.minDistance=1;v.Sound.maxDistance=16;v.Sound.volume=.18f;v.Sound.Play();
                 }
             }
         }
         return v;
     }
-    AudioClip CampCrackle()
-    {
-        if(campCrackle!=null)return campCrackle;const int rate=22050,count=rate*7;var samples=new float[count];var random=new System.Random(73017);double low=0,pop=0;
-        for(int i=0;i<count;i++){double white=random.NextDouble()*2-1;low=low*.94+white*.06;if(random.NextDouble()<.0007)pop=.15+random.NextDouble()*.35;pop*=.96;samples[i]=(float)(low*.25+white*pop);}
-        // Equal-power overlap between independent ends avoids a click on repeat.
-        int overlap=rate/3;for(int i=0;i<overlap;i++){double t=i/(double)overlap;samples[i]=(float)(samples[count-overlap+i]*Math.Cos(t*Math.PI*.5)+samples[i]*Math.Sin(t*Math.PI*.5));}
-        campCrackle=AudioClip.Create("Campfire crackle",count-overlap,1,rate,false);campCrackle.SetData(samples.Take(count-overlap).ToArray(),0);return campCrackle;
-    }
     void DisposeCamp()
-    {CancelCampPlacement();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campCrackle!=null)Destroy(campCrackle);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);campSleeping=campResting=false;}
+    {CancelCampPlacement();DisposeCampAudio();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);campSleeping=campResting=false;}
 }
 
 static partial class LocalScatterMeshes

@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+29Oct~06:55CDT: assetpolicyCOMPLETEcheckpoint4e3a088 pushed+tagged
+checkpoint/camp-water-assets-20261029. ALL4614assetsfresh-cloned/restoredSHA,
+freshUnity6000.6MonoBUILD0successful11:47:14Z withoutoldLibrary/plugins cache.
+FreshplayercampnativeINPROGRESS artifacts/asset-versioning-20261029/fresh-player-check
+exec36049. All47obsoletepackagesdeleted62.010GiB;selectedwaterE+testedcampCretained.
+Cleanupreport artifacts/asset-versioning-20261029/cleanup-report.json.
+NEWuncompiledcampONLYpolish:3AIcrackleloops(28seceach) ownertodeleteifbad,
+external sounds/campfire hashes/provenance, asyncmono loading, persistentvoices
+acrossfuelmeshes/itemvolume/pause/disposal;smoke32particle/wind/no shadows;
+beddinggroundplane+rotatedaimbounds. Needsnewnativeaudio/smoke/slopechecks.
+6localSA3takesmade(3SmallSFX/3Medium),3selected afterASTdiagnostics,nohumanlistening
+claim. ComfyOWNPID21044STOPPED, noGPUinferenceleft. DoNOTlauncholddeletedbuilds.
+Nextpublish7.4MBaudioassetdelta,commit/freeze,newIL2CPPfolder+checks/proofs,
+selectexistingrootshortcutwhenverified. CurrentselectedSTILLOLDwater.
+No paid/subagents. Preserveownerpromptdeletionand2olddeerscripts.
+
 LATEST29Oct06:40CDT: Currentassetlock4614files/122packs, legacylock16745logical
 files/30packs(37historicalsets) uploaded+downloadSHAverified. Publicreleases
 game-assets-20261029-v1/v2 andlegacy-game-assets-20261029-v1. scripts asset restore

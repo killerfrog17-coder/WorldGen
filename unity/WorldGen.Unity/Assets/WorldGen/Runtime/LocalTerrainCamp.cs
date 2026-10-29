@@ -50,6 +50,12 @@ public sealed partial class LocalTerrainExplorer
             if((c.Position-Position).Length*frame.RadiusM>6)continue;
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)Ground(x,z),height=c.Kind==CampKind.Stake?(float)(c.Materials[0].HeightM-c.EmbedM):c.Kind==CampKind.Bedding?(float)c.BeddingDepthM+.1f:.35f;
             var center=new Vector3((float)(x-originX),floor+height*.5f,(float)(z-originZ));var bounds=new Bounds(center,c.Kind==CampKind.Stake?new Vector3(.12f,height,.12f):c.Kind==CampKind.Bedding?new Vector3(1,Mathf.Max(.1f,height),2):new Vector3(.95f,height,.95f));
+            if(c.Kind==CampKind.Bedding)
+            {
+                var rotation=campVisuals.TryGetValue(c.Id,out var visual)?visual.SurfaceRotation:CampSurfaceRotation(c);
+                Vector3 right=rotation*Vector3.right*.65f,up=rotation*Vector3.up*(height*.5f+.025f),forward=rotation*Vector3.forward*1.3f;
+                bounds=new Bounds(new Vector3((float)(x-originX),floor,(float)(z-originZ))+rotation*(Vector3.up*height*.5f),2*new Vector3(Mathf.Abs(right.x)+Mathf.Abs(up.x)+Mathf.Abs(forward.x),Mathf.Abs(right.y)+Mathf.Abs(up.y)+Mathf.Abs(forward.y),Mathf.Abs(right.z)+Mathf.Abs(up.z)+Mathf.Abs(forward.z)));
+            }
             if(bounds.IntersectRay(ray,out float d)&&d<distance&&InventoryReach(ray.GetPoint(d))){distance=d;best=c;}
         }
         return best;

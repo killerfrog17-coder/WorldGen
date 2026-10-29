@@ -1,0 +1,50 @@
+{
+  "execution": "Local Stable Audio 3, existing CUDA models; no paid calls",
+  "license": "https://stability.ai/license",
+  "processing": "Stereo-to-mono fold, endpoint trim, one-second equal-power loop overlap and bounded normalization. No generated procedural audio.",
+  "listening": "Not auditioned by the agent. Automated classification is diagnostic only; owner listening and rejection remain pending.",
+  "clips": [
+    {
+      "path": "sounds/campfire/wood-fire-01.wav",
+      "sha256": "eb09f7f50b2c6fa8479d7244c972b06a8395e27df6686b1688424765dbd3bab0",
+      "seconds": 28.00018140589569,
+      "channels": 1,
+      "sample_rate": 44100,
+      "seam_jump": 0.000335693359375,
+      "model": "stabilityai/stable-audio-3-medium",
+      "seed": 614291,
+      "prompt": "TrackType: SFX. A campfire burning steadily. Continuous natural crackling fire, low flame roar and soft sizzling embers, with occasional wood pops. Close microphone recording of the burning fire.",
+      "source_sha256": "b4e5868dbe8240127ad3b1d08bc44c236f0989083d5a4c4a8fd4ac72d2e22d3c",
+      "automated_fire_score": 0.15821,
+      "automated_crackle_score": 0.03194
+    },
+    {
+      "path": "sounds/campfire/wood-fire-02.wav",
+      "sha256": "e006f15e43b3f467d37dabd2016ce6046bf4647ffbf4a13ee3c9a19ac75980fa",
+      "seconds": 28.00018140589569,
+      "channels": 1,
+      "sample_rate": 44100,
+      "seam_jump": 0.0003662109375,
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "seed": 306864,
+      "prompt": "TrackType: SFX. Small hardwood campfire burning calmly, soft ember rustle and scattered short crisp wood crackles over a subdued flame hiss. Intimate dry source recording, natural irregular timing, even intensity throughout.",
+      "source_sha256": "63ed30db7726120a65f375a1f93a7510bf52fa3b57863336d428fff87c6cd665",
+      "automated_fire_score": 0.08941,
+      "automated_crackle_score": 0.14314
+    },
+    {
+      "path": "sounds/campfire/wood-fire-03.wav",
+      "sha256": "472dac5e8e6f78f3495799214e02cf60abad8b75f6032cfa75aa7be3901b366a",
+      "seconds": 28.00018140589569,
+      "channels": 1,
+      "sample_rate": 44100,
+      "seam_jump": 0.001129150390625,
+      "model": "stabilityai/stable-audio-3-medium",
+      "seed": 622210,
+      "prompt": "TrackType: SFX. The continuous sound of a small wood fire burning. Steady warm fire crackling and a soft underlying rushing flame sound, irregular crackling embers. Close-up sound effect recording.",
+      "source_sha256": "c72811f639fc1f0b9ea437ecbf9f9ca847d2be2188d5788647d66c4afcd5e88c",
+      "automated_fire_score": 0.04816,
+      "automated_crackle_score": 0.05773
+    }
+  ]
+}

@@ -30,6 +30,8 @@ public sealed partial class LocalTerrainExplorer
         CampObject Place(Possession p,CampKind kind,double x,double z)
         {Aim(x,z);BeginCampPlacement(p,kind);Check(campPlaceValid,"Actual placement ray accepts dry soil: "+kind+" / "+campPlaceReason);ConfirmCampPlacement();return Camp.Objects.Last();}
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();humanCamera.Restore(0,false);Vitals.Restore();Inventory.Items.Clear();Camp.Objects.Clear();motion.Flying=false;
+        double audioUntil=Time.unscaledTimeAsDouble+15;while(!CampAudioReady&&Time.unscaledTimeAsDouble<audioUntil)yield return null;
+        Check(CampAudioReady&&CampRecordingCount==3,"Three generated mono campfire recordings load from the editable sound folder");
         Check(terrain.Amplification.UsedCachedRiverDatums,"Player reuses the terrain worker's identical fitted river data");
         WeatherControl.Set("clear");PlayerRules.Settings.RealMinutesPerDay=60;PlayerRules.Settings.ItemCraftingTimeMultiplier=.1;
         bool found=false;double sx=motion.X,sz=motion.Z;
@@ -67,6 +69,10 @@ public sealed partial class LocalTerrainExplorer
         paused=false;double deadline=Time.unscaledTimeAsDouble+15;while(worldToolWork!=null&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
         Check(fire.Burning&&Inventory.AtHand(PossessionPlace.RightHand)==spear,"Timed fire making ignites tinder and restores the original held spear");
         campUpdateAt=0;UpdateCamp();BindCampLights(view);Check(campLightCount>0&&campVisuals[fire.Id].Sound.isPlaying,"A burning fire binds real shader lighting and spatial crackling");
+        var originalVoice=campVisuals[fire.Id].Sound;var originalClip=originalVoice.clip;
+        Check(originalVoice.mute&&originalVoice.spatialBlend==1&&originalVoice.clip.length>20,"Campfire audio is spatial, long-form and muted while paused");
+        InvalidateCampVisual(fire);campUpdateAt=0;UpdateCamp();
+        Check(campVisuals[fire.Id].Sound==originalVoice&&originalVoice.clip==originalClip,"Fuel geometry rebuild retains the playing voice instead of restarting its sound");
         double mass=fire.MassKg;paused=false;yield return new WaitForSecondsRealtime(.6f);paused=true;Check(fire.MassKg<mass,"The live world's camp clock consumes fuel over time");
         double nearHeat=CampWarmth();motion.Place(sx+6,sz,Ground(sx+6,sz));Check(CampWarmth()<nearHeat,"Moving away reduces radiant warmth");motion.Place(sx,sz,Ground(sx,sz));
         PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);humanCamera.Restore(4,false);heading=210;pitch=22;UpdateHumans();UpdateCamera();yield return new WaitForSecondsRealtime(.6f);Image("01-camp-daylight");

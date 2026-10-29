@@ -23,8 +23,14 @@ water release until the combined update is tested and packaged.
 - Firelight uses four nearest local light sources per camera, shared across the
   world's custom shaders. This is a rendering budget, not a cap on placed fires
   or heat simulation. There are no point-light shadow maps. Daylight exposure
-  reduces visible firelight relative to the sun. Crackle is currently a small
-  procedural spatial placeholder, not an AI-generated or audition-approved take.
+  reduces visible firelight relative to the sun. Crackle uses three local Stable
+  Audio 3 mono recordings with independent playback offsets. Files are under
+  `sounds/campfire`; deleting a disliked take skips it at the next world load.
+  Output has automated content diagnostics, not human listening approval.
+  Item effects volume controls it. Voices persist through fuel-mesh rebuilds.
+- A small bounded smoke emitter follows local wind without light/shadow maps.
+  Bedding follows the local ground plane on gentle slopes; its interaction
+  bounds include that rotation.
 - Right-click an actual branch/pole: plant it. Striking the placed stick with a
   rock changes the stored embedding depth, bounded by soil depth and stick
   length. The visible shaft retains its original dimensions and branch variant.
@@ -68,7 +74,9 @@ through the actual timed actions while restoring an originally held spear.
 It also verifies third-person targeting/hammering and exact reuse of the worker's
 fitted river data, plus worn-pack placement and recovery without stale container
 ownership. Evidence is under `artifacts/camp-water-20261029`; failed
-attempts are retained and are not pass claims.
+attempts are retained and are not pass claims. The later recorded-audio,
+smoke and slope-fitting polish is awaiting a new packaged check; the above
+49-check release refers to the preceding tested candidate.
 
 Loose bedding uses material volume, rather than treating a hide as an enormous
 grass bundle. Hide improves insulation/comfort without inflating bed thickness.
