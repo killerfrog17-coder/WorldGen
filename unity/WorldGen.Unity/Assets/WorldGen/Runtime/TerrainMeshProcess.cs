@@ -83,6 +83,15 @@ public sealed class TerrainMeshProcess : IDisposable
             finally{bootstrap?.Stop();bootstrap=null;}
         },lifetime.Token);
     }
+    public void Prepare(CancellationToken token)
+    {
+        // The worker derives cold river-bank levels on CoreCLR, then publishes
+        // their checked cache before acknowledging readiness. Let that finish
+        // before Unity constructs its sampler, avoiding a slow Mono fit winning
+        // the file lease and making the worker repeat it after its wait timeout.
+        using(var linked=CancellationTokenSource.CreateLinkedTokenSource(token,lifetime.Token))
+        {while(!ready.Wait(50,linked.Token)){}ready.GetAwaiter().GetResult();}
+    }
     public LocalTerrainMesh Build(LocalTerrainFrame frame,double east,double north,double size,int segments,CancellationToken token,double[] edges)
     {
         try{

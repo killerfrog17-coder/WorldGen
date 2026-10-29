@@ -231,9 +231,16 @@ public sealed partial class WorldGenRuntime
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
         var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){errors.Add(m);File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};Application.logMessageReceived+=listener;
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check")?TerrainMapViewport.FromDegrees(-2,34):Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check")?TerrainMapViewport.FromDegrees(-17.625665274156873,.6638456954785965):TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
-        while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry");
+        if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))play.HasPlayer=false;ExploreTerrain(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check")?TerrainMapViewport.FromDegrees(-2,34):Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check")?TerrainMapViewport.FromDegrees(-17.625665274156873,.6638456954785965):TerrainMapViewport.FromDegrees(50,10));double terrainStarted=Time.realtimeSinceStartupAsDouble;deadline=terrainStarted+240;
+        double nextTerrainReport=0;
+        while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)
+        {
+            if(Time.realtimeSinceStartupAsDouble>=nextTerrainReport)
+            {nextTerrainReport=Time.realtimeSinceStartupAsDouble+10;Debug.Log("TERRAIN CHECK waiting: "+localTerrainTask?.Status+" / "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer?.Diagnostics);}
+            yield return null;
+        }
+        if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry: "+localTerrainTask?.Status+" / "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer?.Diagnostics);
+        File.WriteAllText(Path.Combine(output,"initial-terrain.txt"),(Time.realtimeSinceStartupAsDouble-terrainStarted).ToString("F3")+" seconds; "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer.Diagnostics);
         if(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check"))yield return terrainExplorer.CheckCampFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))yield return terrainExplorer.CheckRiverRepairFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-water-update-check"))yield return terrainExplorer.CheckWaterUpdateFlow(output,report);

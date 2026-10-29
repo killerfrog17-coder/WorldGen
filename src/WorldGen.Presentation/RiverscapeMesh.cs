@@ -12,10 +12,11 @@ namespace WorldGen.Presentation
     {
         struct Point
         {
-            public double X,Y,Z,U,V,T;
+            public double X,Y,Z,U,V,T,H;
             public static Point Between(Point a,Point b,double t)=>new Point{X=a.X+(b.X-a.X)*t,Y=a.Y+(b.Y-a.Y)*t,
-                Z=a.Z+(b.Z-a.Z)*t,U=a.U+(b.U-a.U)*t,V=a.V+(b.V-a.V)*t,T=a.T+(b.T-a.T)*t};
+                Z=a.Z+(b.Z-a.Z)*t,U=a.U+(b.U-a.U)*t,V=a.V+(b.V-a.V)*t,T=a.T+(b.T-a.T)*t,H=a.H+(b.H-a.H)*t};
         }
+        sealed class JunctionPool {public Point Center;public Point[] Ring=Array.Empty<Point>();public double Radius;public bool Outgoing;}
         public static void Append(LocalTerrainMesh mesh,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] samples,CancellationToken token=default)
         {
             if(patch==null)return;
@@ -25,7 +26,7 @@ namespace WorldGen.Presentation
             // Reusable Sutherland-Hodgman buffers: no per-pixel/vertex noise
             // raster, physics query or dynamic water simulation is involved.
             var input=new Point[20];var output=new Point[20];
-            var junctions=new Dictionary<int,(Point Center,double Radius)>();
+            var junctions=new Dictionary<int,JunctionPool>();
             int Clip(int count,Func<Point,double> signed)
             {
                 int n=0;for(int k=0;k<count;k++)
@@ -35,6 +36,10 @@ namespace WorldGen.Presentation
             var vertices=new Dictionary<(long,long,long),List<int>>();
             int Vertex(Point p)
             {
+                // A kilometre-wide river cannot be approximated by one chord
+                // across the spherical datum. Interpolate its elevation, then
+                // project each final (also clipped) vertex back onto that datum.
+                p.Y=frame.SurfaceY(frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z),p.H);
                 // Weld the coordinates actually delivered to the GPU. At high
                 // elevations different doubles can become the same float on
                 // opposite rounding-bin boundaries, leaving false open edges.
@@ -44,6 +49,23 @@ namespace WorldGen.Presentation
                     {double ex=positions[found*3]-p.X,ey=positions[found*3+1]-p.Y,ez=positions[found*3+2]-p.Z;if(ex*ex+ey*ey+ez*ez<.000004)return found;}
                 int id=positions.Count/3;if(!vertices.TryGetValue(key,out var list)){list=new List<int>();vertices.Add(key,list);}list.Add(id);positions.Add((float)p.X);positions.Add((float)p.Y);positions.Add((float)p.Z);
                 colors.Add((float)p.U);colors.Add((float)p.V);colors.Add((float)p.T);colors.Add(2);return id;
+            }
+            void Final(Point a,Point b,Point c,int depth=0)
+            {
+                double Square(Point p,Point q)=>Math.Pow(p.X-q.X,2)+Math.Pow(p.Z-q.Z,2);
+                // Bound spherical chord sag to about a millimetre, including
+                // coarse tiles. A tile-size-dependent limit left centimetre
+                // steps where a junction fan met its clipped ribbon.
+                double ab=Square(a,b),bc=Square(b,c),ca=Square(c,a),limit=Math.Min(128,Math.Max(4,Math.Sqrt(frame.RadiusM*.008)));
+                if(depth<18&&Math.Max(ab,Math.Max(bc,ca))>limit*limit)
+                {
+                    if(ab>=bc&&ab>=ca){var m=Point.Between(a,b,.5);Final(a,m,c,depth+1);Final(m,b,c,depth+1);}
+                    else if(bc>=ca){var m=Point.Between(b,c,.5);Final(a,b,m,depth+1);Final(a,m,c,depth+1);}
+                    else{var m=Point.Between(c,a,.5);Final(a,b,m,depth+1);Final(m,b,c,depth+1);}return;
+                }
+                double area=(b.X-a.X)*(c.Z-a.Z)-(b.Z-a.Z)*(c.X-a.X);if(Math.Abs(area)<1e-9)return;
+                int first=Vertex(a),second=Vertex(b),third=Vertex(c);if(first==second||first==third||second==third)return;
+                indices.Add(first);indices.Add(area<0?second:third);indices.Add(area<0?third:second);
             }
             void Emit(Point a,Point b,Point c)
             {
@@ -57,20 +79,16 @@ namespace WorldGen.Presentation
                 n=Clip(n,p=>mesh.SizeM-p.X);if(n<3)return;
                 n=Clip(n,p=>p.Z);if(n<3)return;
                 n=Clip(n,p=>mesh.SizeM-p.Z);if(n<3)return;
-                int first=Vertex(input[0]);
                 for(int k=2;k<n;k++)
                 {
-                    var p=input[0];var q=input[k-1];var r=input[k];double area=(q.X-p.X)*(r.Z-p.Z)-(q.Z-p.Z)*(r.X-p.X);
-                    if(Math.Abs(area)<1e-9)continue;int second=Vertex(q),third=Vertex(r);
-                    if(first==second||first==third||second==third)continue;
-                    indices.Add(first);indices.Add(area<0?second:third);indices.Add(area<0?third:second);
+                    Final(input[0],input[k-1],input[k]);
                 }
             }
             Point At(V position,double height,V flow,double speed,double turbulence)
             {
                 TerrainHandoff.Coordinates(frame,position,out double x,out double z);
                 return new Point{X=x-mesh.EastM,Z=z-mesh.NorthM,Y=frame.SurfaceY(position,height),
-                    U=V.Dot(flow,frame.East)*speed,V=V.Dot(flow,frame.North)*speed,T=turbulence};
+                    U=V.Dot(flow,frame.East)*speed,V=V.Dot(flow,frame.North)*speed,T=turbulence,H=height};
             }
             // The terrain refiner includes these same outer bank edges. The
             // bounded underlap reaches the actual raised bank, not the cut bed.
@@ -83,23 +101,23 @@ namespace WorldGen.Presentation
                 {
                     if(id<0||width<.01)return;
                     var center=At(at,level,flow,span.Speed,span.Turbulence);
-                    width+=HiddenBankOverlap(width);
-                    if(!junctions.TryGetValue(id,out var previous)||previous.Radius<width)junctions[id]=(center,width);
+                    width=RiverscapeKernel.JunctionRadius(width);bool outgoing=span.From==id;
+                    if(junctions.TryGetValue(id,out var previous)&&previous.Radius>=width&&(!outgoing||previous.Outgoing))return;
+                    var ring=new Point[RiverscapeKernel.JunctionSides];for(int i=0;i<ring.Length;i++)ring[i]=At(RiverscapeKernel.JunctionPoint(at,width,i*Math.PI*2/ring.Length,frame.RadiusM),level,flow,span.Speed,span.Turbulence);
+                    junctions[id]=new JunctionPool{Center=center,Radius=width,Ring=ring,Outgoing=outgoing};
                 }
                 Junction(span.From,span.A,span.LevelA,span.WidthA);Junction(span.To,span.B,span.LevelB,span.WidthB);
             }
-            void Ribbon(Point a,Point b,Point c,int endpoint)
+            void Ribbon(Point a,Point b,Point c,int endpoint,int other)
             {
-                if(endpoint<0||!junctions.TryGetValue(endpoint,out var pool)){Emit(a,b,c);return;}
+                if(endpoint<0||!junctions.TryGetValue(endpoint,out var pool)){if(other>=0)Ribbon(a,b,c,other,-1);else Emit(a,b,c);return;}
                 // Difference against the convex junction pool: emit each
                 // outside fragment once, discard the remaining inside. This
                 // avoids coplanar ribbon/pool z-fighting at confluences.
                 var polygon=new List<Point>{a,b,c};
-                for(int edge=0;edge<16&&polygon.Count>=3;edge++)
+                for(int edge=0;edge<pool.Ring.Length&&polygon.Count>=3;edge++)
                 {
-                    double angle=edge*Math.PI/8,next=(edge+1)*Math.PI/8;
-                    double ax=pool.Center.X+Math.Cos(angle)*pool.Radius,az=pool.Center.Z+Math.Sin(angle)*pool.Radius;
-                    double bx=pool.Center.X+Math.Cos(next)*pool.Radius,bz=pool.Center.Z+Math.Sin(next)*pool.Radius;
+                    var ra=pool.Ring[edge];var rb=pool.Ring[(edge+1)%pool.Ring.Length];double ax=ra.X,az=ra.Z,bx=rb.X,bz=rb.Z;
                     var inside=new List<Point>();var outside=new List<Point>();
                     for(int k=0;k<polygon.Count;k++)
                     {
@@ -108,7 +126,7 @@ namespace WorldGen.Presentation
                         if(d>=0)inside.Add(p);else outside.Add(p);
                         if((d>=0)!=(e>=0)){var hit=Point.Between(p,q,d/(d-e));inside.Add(hit);outside.Add(hit);}
                     }
-                    for(int k=2;k<outside.Count;k++)Emit(outside[0],outside[k-1],outside[k]);
+                    for(int k=2;k<outside.Count;k++){if(other>=0)Ribbon(outside[0],outside[k-1],outside[k],other,-1);else Emit(outside[0],outside[k-1],outside[k]);}
                     polygon=inside;
                 }
             }
@@ -125,22 +143,16 @@ namespace WorldGen.Presentation
                 var ar=At((span.A-span.SideA*(wa/frame.RadiusM)).Unit,span.LevelA,flow,span.Speed,span.Turbulence);
                 var bl=At((span.B+span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flow,span.Speed,span.Turbulence);
                 var br=At((span.B-span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flow,span.Speed,span.Turbulence);
-                int endpoint=span.From>=0?span.From:span.To;
-                Ribbon(al,bl,ar,endpoint);Ribbon(ar,bl,br,endpoint);
+                Ribbon(al,bl,ar,span.Reach,span.Receiver);Ribbon(ar,bl,br,span.Reach,span.Receiver);
             }
             // Only explicit source graph endpoints get junction pools. Never
             // connect neighbouring but unrelated rivers through terrain cells.
             foreach(var junction in junctions.Values)
             {
-                var center=junction.Center;double width=junction.Radius;
-                for(int k=0;k<16;k++)
+                var center=junction.Center;
+                for(int k=0;k<junction.Ring.Length;k++)
                 {
-                    double angle=k*Math.PI/8,next=(k+1)*Math.PI/8;
-                    var a=center;var b=center;a.X+=Math.Cos(angle)*width;a.Z+=Math.Sin(angle)*width;
-                    b.X+=Math.Cos(next)*width;b.Z+=Math.Sin(next)*width;
-                    // Spherical datum: a flat local fan approximation has only
-                    // submillimetre error at these metre-sized junctions.
-                    Emit(center,a,b);
+                    Emit(center,junction.Ring[k],junction.Ring[(k+1)%junction.Ring.Length]);
                 }
             }
             mesh.WaterPositions=positions.ToArray();mesh.WaterColors=colors.ToArray();mesh.WaterTriangles=indices.ToArray();

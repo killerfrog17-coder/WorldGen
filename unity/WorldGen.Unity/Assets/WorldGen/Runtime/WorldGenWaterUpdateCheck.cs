@@ -59,6 +59,7 @@ public sealed partial class LocalTerrainExplorer
         var river=terrain.Hydrology.Channels.Where(c=>c.WidthM>10&&c.StartM>20&&c.StartM<1500).OrderBy(c=>(c.A-TerrainMapViewport.FromDegrees(30.5,31.2)).Length).First();
         var at=terrain.Amplification.RiverPoint(river.From,.5);Teleport(at);paused=false;deadline=Time.unscaledTimeAsDouble+80;
         while(!PerformanceGroundSettled&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
+        PlayerRules.SetLocalSolarHour(12,Math.Atan2(Position.Y,Position.X)*180/Math.PI);nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
         var spans=walkingPatch.RiverSpans();var span=spans.Where(s=>s.Reach==river.From).OrderBy(s=>((s.A+s.B).Unit-at).Length).First();
         var mid=(span.A+span.B).Unit;TerrainHandoff.Coordinates(frame,mid,out double rx,out double rz);var rs=PlayerWaterSample(rx,rz);
         Check(rs.WaterKind==LocalWaterKind.River&&PlayerWaterQuality(rs).Fresh,"Actual inland flowing river is freshwater");

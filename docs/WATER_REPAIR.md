@@ -51,14 +51,43 @@ combined camp polish run passes 35 native checks, including real contact burns
 and ember-glow expiry. Final release-backend checks and preservation proof remain
 required before shortcut selection.
 
-## River scale follow-up
+## River scale follow-up (source implemented; final native check pending)
 
-Width, depth and velocity should respond together to discharge, with habitat,
-slope and bed roughness producing variation. Major rivers must not all hit a
-120m cap at the default world scale. Network admission and drainage spacing must
-be considered separately from cross-section size; simply widening every current
-stream would make the world excessively wet. No new sizing policy is certified
-by the repair checks above.
+Width, depth and velocity now respond together to discharge. Small catchments
+follow horizontal world compression; major rivers smoothly recover physical
+dimensions over source discharge 100–10,000 m³/s. Width is bounded by available
+reach length and a 4km full-width ceiling, rather than the previous 120m ceiling
+at the default scale. Depth varies continuously through pool/riffle sections,
+with shared node depths and a 55m ceiling. These are game approximations.
+
+Network admission is separate: raising the tiny-channel threshold from 0.02 to
+0.1 scaled m³/s removes about 23% of source proposals in the reproduced world.
+It does not multiply stream occurrence to compensate for wider major rivers.
+The final local network has 48,373 active reaches in that world; a reach is a
+drainage graph segment, not an independently spawned whole river.
+
+Wide junctions use shared circular bed/water footprints, graph-coherent flat
+collars, and bank fitting before graph-level reconciliation. Sparse distant
+water triangles subdivide to follow the spherical datum and avoid visible
+steps against the junction pool. The final core audit passes 10,318 off-grid
+repair probes plus 1,510 major-channel probes, including open-edge bank checks.
+Three actual major-channel samples are 1.32–1.39km wide, 30.7–32.2m deep and
+1.81–1.98m/s. The Earth and procedural regression sets pass 52,420 and 62,441
+checks respectively. Those are geometry/sampling results; rendered acceptance
+is tracked separately.
+
+Cold wide-bank fitting is shared between the player and terrain worker using
+an optional 1.6MB derived cache in `%LOCALAPPDATA%/WorldGen/DerivedTerrain`.
+Source fingerprint, horizontal scale, model version, record length and SHA256
+must match. A file lease prevents duplicate simultaneous fitting; an invalid
+or unavailable cache falls back to derivation. Saved worlds are never modified.
+The 21 cache checks verify concurrency, exact graph and water/ground results,
+corruption recovery, source/scale separation and cancellation. Measured test
+construction was 35.88s cold with concurrent callers and 1.21s warm in the final
+key-format run; this is not a frame-rate guarantee. Native startup confirms the
+player actually reuses the worker's fitted data. Full camp-site terrain settling
+still took 130.22s (104 tiles), with a 15.3s cold tile; startup fitting and tile
+meshing are separate costs. Neither this nor the geometry checks is an FPS claim.
 
 Research for that follow-up:
 

@@ -10,7 +10,8 @@ static class RiverscapeTests
         for(int i=0;i<=100;i++)
         {double x=i/100d;Check(RiverscapeKernel.Weight(x)>=0&&RiverscapeKernel.Weight(x)<=1,"Compact primitive weight");Check(RiverscapeKernel.Smooth(x)>=0&&RiverscapeKernel.Smooth(x)<=1,"C2 longitudinal profile");}
         Check(RiverscapeKernel.Weight(1)==0&&RiverscapeKernel.Weight(2)==0,"No primitive outside compact support");
-        Check(Math.Abs(RiverscapeKernel.HalfWidth(10000,.1)/RiverscapeKernel.HalfWidth(10000,1)-.1)<1e-9,"Channel widths scale horizontally");
+        Check(Math.Abs(RiverscapeKernel.HalfWidth(100,.1)/RiverscapeKernel.HalfWidth(100,1)-.1)<1e-9,"Small channels retain world compression");
+        Check(Math.Abs(RiverscapeKernel.HalfWidth(10000,.1)/RiverscapeKernel.HalfWidth(10000,1)-1)<1e-9,"Major channels recover physical width");
         var w=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(w);var watch=System.Diagnostics.Stopwatch.StartNew();
         var terrain=new LocalTerrain(w,horizontalScale:.1);Console.WriteLine($"prepare {watch.Elapsed.TotalSeconds:F3}s, {terrain.Amplification.RiverscapeReachCount} visible root reaches");
         if(sitesOnly)
@@ -32,7 +33,7 @@ static class RiverscapeTests
             foreach(var s in pieces)
             {
                 spans++;Check(s.LevelA>=s.LevelB-1e-9,"Downstream profile is monotonic");
-                Check(s.WidthA>=0&&s.WidthB>=0&&s.WidthA<=60.001&&s.WidthB<=60.001,"Finite scale-correct water width");
+                Check(s.WidthA>=0&&s.WidthB>=0&&s.WidthA<=2000.001&&s.WidthB<=2000.001,"Finite hydraulic water width");
                 void Junction(int node,double level){if(node<0)return;if(levels.TryGetValue(node,out double old))Check(Math.Abs(old-level)<1e-9,"Actual graph junctions share EXACT datum");else levels.Add(node,level);}
                 Junction(s.From,s.LevelA);Junction(s.To,s.LevelB);
                 var center=(s.A+s.B).Unit;
@@ -77,7 +78,7 @@ static class RiverscapeTests
         Check(StateHash.Compute(w)==hash,"Source world/history unchanged");Check(spans>0&&tiles>0,"Actual river cases exercised");
         Console.WriteLine($"PASS {checks} checks, {spans} spans/{tiles} tiles, max primitive drop {maxDrop:F2}m, cold tile worst {worstTile:F1}ms");
     }
-    static void Boundary(LocalTerrainMesh mesh,Action<bool,string> check,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch patch)
+    internal static void Boundary(LocalTerrainMesh mesh,Action<bool,string> check,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch patch)
     {
         var incidence=new Dictionary<(int,int),int>();
         foreach(int i in Enumerable.Range(0,mesh.WaterTriangles.Length/3))
@@ -135,6 +136,11 @@ static class RiverscapeTests
             foreach(int i in new[]{wa,wb})Console.WriteLine($"   end {mesh.WaterPositions[i*3]:F3},{mesh.WaterPositions[i*3+1]:F3},{mesh.WaterPositions[i*3+2]:F3}");
             foreach(var span in patch.RiverSpans().Where(t=>(ulong)(uint)(t.Reach+1)==s.WaterBodyKey).OrderBy(t=>((t.A+t.B).Unit-p).Length).Take(3))
                 Console.WriteLine($"   section {span.Reach}: {span.LevelA:F3}->{span.LevelB:F3}, width {span.WidthA:F3}->{span.WidthB:F3}, endpoints {span.From},{span.To}");
+            foreach(var span in patch.RiverSpans())
+            {
+                var d=span.B-span.A;var q=p-span.A;double dot(V x,V y)=>x.X*y.X+x.Y*y.Y+x.Z*y.Z;double t=D.Clamp(dot(q,d)/Math.Max(1e-30,dot(d,d))),distance=(q-d*t).Length*frame.RadiusM,width=span.WidthA+(span.WidthB-span.WidthA)*t,level=span.LevelA+(span.LevelB-span.LevelA)*t;
+                if(distance<width+10&&Math.Abs(frame.SurfaceY(p,level)-worstY)<4)Console.WriteLine($"   higher candidate {span.Reach}->{span.Receiver}: L={span.LevelA:F2}->{span.LevelB:F2}, widths={span.WidthA:F2},{span.WidthB:F2}, u={t:F3}, margin={width-distance:F3}, nodeflags={span.From},{span.To}");
+            }
         }
         check(worst<.08,"Finite river edges meet actual drawn terrain (not just original grid estimates)");
     }

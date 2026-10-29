@@ -23,6 +23,7 @@ namespace WorldGen.Presentation
                 // bank approximation of its centre line. Those disagree at
                 // bends, tapered widths and cascade cross-sections.
                 var exact=new List<LocalHydrology.Piece>();
+                var pools=new HashSet<int>();
                 // Every river wide enough to render at this LOD needs its bed
                 // in the same mesh. Otherwise coarse faces bridge the channel
                 // while the water is correctly drawn underneath solid ground.
@@ -31,6 +32,13 @@ namespace WorldGen.Presentation
                     V al=(s.A+s.SideA*(s.WidthA/frame.RadiusM)).Unit,ar=(s.A-s.SideA*(s.WidthA/frame.RadiusM)).Unit;
                     V bl=(s.B+s.SideB*(s.WidthB/frame.RadiusM)).Unit,br=(s.B-s.SideB*(s.WidthB/frame.RadiusM)).Unit;
                     void Edge(V a,V b){exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});}
+                    void Pool(int id,V at,double width)
+                    {
+                        if(id<0||width<=0||!pools.Add(id))return;
+                        foreach(double r in new[]{width,RiverscapeKernel.JunctionRadius(width)})
+                        for(int i=0;i<RiverscapeKernel.JunctionSides;i++)Edge(RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM));
+                    }
+                    Pool(s.From,s.A,s.WidthA);Pool(s.To,s.B,s.WidthB);
                     Edge(s.A,s.B);Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);
                     // Match the water ribbon's two-metre hidden bank overlap.
                     // Without these cuts, its outer strip crossed coarse faces
@@ -137,9 +145,18 @@ namespace WorldGen.Presentation
                         var next=new List<List<Point>>();
                         foreach(var polygon in polygons)
                         {
-                            double minAlong=double.PositiveInfinity,maxAlong=double.NegativeInfinity;
-                            foreach(var p in polygon){double along=(p.X-cut.X)*cut.DX+(p.Z-cut.Z)*cut.DZ;minAlong=Math.Min(minAlong,along);maxAlong=Math.Max(maxAlong,along);}
+                            double minAlong=double.PositiveInfinity,maxAlong=double.NegativeInfinity,minSigned=double.PositiveInfinity,maxSigned=double.NegativeInfinity;
+                            foreach(var p in polygon)
+                            {
+                                double along=(p.X-cut.X)*cut.DX+(p.Z-cut.Z)*cut.DZ,signed=(p.X-cut.X)*(-cut.DZ)+(p.Z-cut.Z)*cut.DX-offset;
+                                minAlong=Math.Min(minAlong,along);maxAlong=Math.Max(maxAlong,along);minSigned=Math.Min(minSigned,signed);maxSigned=Math.Max(maxSigned,signed);
+                            }
                             if(maxAlong<-.001||minAlong>cut.Length+.001){next.Add(polygon);continue;}
+                            // A boundary touch is not a split. Repeated finite
+                            // pieces can share one cutting line; cloning a
+                            // polygon onto both sides of a coincident line
+                            // causes exponential degenerate subdivision.
+                            if(minSigned>=-1e-8||maxSigned<=1e-8){next.Add(polygon);continue;}
                             var left=new List<Point>();var right=new List<Point>();
                             for(int k=0;k<polygon.Count;k++)
                             {

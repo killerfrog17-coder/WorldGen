@@ -13,7 +13,7 @@ namespace WorldGen.Core
         public List<Possession> Materials=new List<Possession>();
         public double MassKg=>Materials.Sum(p=>p.MassKg);
         public double FuelKg=>Materials.Where(CampRules.Fuel).Sum(p=>p.MassKg);
-        public double BeddingDepthM=>Kind==CampKind.Bedding?Math.Min(.4,MassKg/32/1.8):0;
+        public double BeddingDepthM=>Kind==CampKind.Bedding?Math.Min(.4,Materials.Sum(p=>p.MassKg/(p.Kind==PossessionKind.LeafLitter?45:p.Kind==PossessionKind.ReedBundle?40:CampRules.Hide(p)?650:32))/1.8):0;
         public double Stability=>Kind!=CampKind.Stake||Materials.Count==0?0:D.Clamp(EmbedM/Math.Max(.08,Materials[0].HeightM*.2)*Math.Sqrt(Materials[0].WidthM/.03)*SoilFirmness);
         public double FirePowerKw=>!Burning?EmberSeconds>0?.5:0:Math.Min(8,2+Math.Sqrt(FuelKg)*2)*(1-Wetness*.7);
         public CampObject Copy(){var c=(CampObject)MemberwiseClone();c.Materials=Materials.Select(p=>p.Copy()).ToList();return c;}
@@ -41,6 +41,7 @@ namespace WorldGen.Core
         public static bool Kindling(Possession p)=>p!=null&&(p.Kind==PossessionKind.KindlingBundle||WoodCrafting.Wood(p)&&p.WidthM<=.025);
         public static bool Fuel(Possession p)=>p!=null&&(Tinder(p)||Kindling(p)||WoodCrafting.Wood(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle);
         public static bool Bedding(Possession p)=>p!=null&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
+        public static bool Hide(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Plantable(Possession p)=>WoodCrafting.Wood(p)&&p.HeightM>=.35&&p.WidthM<=.09&&p.WoodSoundness>=.35;
         public static string IgniteReason(CampObject fire,bool drillAvailable)
         {
@@ -89,7 +90,8 @@ namespace WorldGen.Core
             if(c.Burning)return 10*D.Clamp((.55-distance)/.2);
             return c.EmberSeconds>0&&feetHeight<.18?3*D.Clamp((.35-distance)/.15):0;
         }
-        public static double BedComfort(CampObject c)=>c==null?.38:D.Clamp(.4+Math.Min(.55,c.BeddingDepthM*8)-c.Wetness*.45);
+        public static double BedComfort(CampObject c)=>c==null?.38:D.Clamp(.4+Math.Min(.55,c.BeddingDepthM*8)+(c.Materials.Any(Hide)?.1:0)-c.Wetness*.45);
+        public static double BedInsulation(CampObject c)=>c==null?0:Math.Min(.75,c.BeddingDepthM*6+(c.Materials.Any(Hide)?.18:0))*(1-c.Wetness*.7);
         public static double Drive(CampObject stake,Possession rock)
         {
             if(stake==null||stake.Kind!=CampKind.Stake||stake.Materials.Count!=1||!StoneCrafting.Rock(rock)||rock.MassKg<.1)return 0;

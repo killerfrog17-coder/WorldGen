@@ -20,9 +20,17 @@ public sealed partial class LocalTerrainExplorer
         }
         void Aim(double x,double z,double up=0){UpdateHumans();UpdateCamera();view.transform.LookAt(transform.TransformPoint(new Vector3((float)(x-originX),(float)Ground(x,z)+(float)up,(float)(z-originZ))));waterAimAt=0;}
         Possession Supply(PossessionKind kind){var p=PortableTechnology.Create(kind,Position);p.Place=PossessionPlace.Ground;Inventory.Items.Add(p);inventoryNearbyAt=0;return p;}
+        Possession Wood(string id){var p=WoodCrafting.Branch(new ScatterInstance{Position=Position,Kind=ScatterKind.Branch,WidthM=.8,HeightM=.035,Variant=0});p.Id=id;p.NaturalId=0;Inventory.Items.Add(p);SetCraftWorkArea(p);return p;}
+        IEnumerator Craft(string recipe,Possession primary,PossessionKind result,Possession original)
+        {
+            RefreshInventoryNearby(true);Check(StartPortableCraft(recipe,primary.Id),"Actual camp resource recipe starts: "+recipe);
+            paused=false;double end=Time.unscaledTimeAsDouble+12;while(Inventory.Crafts.Count>0&&Time.unscaledTimeAsDouble<end)yield return null;paused=true;
+            Check(Inventory.Crafts.Count==0&&primary.Kind==result&&Inventory.AtHand(PossessionPlace.RightHand)==original,"Camp recipe completes and restores occupied hands: "+recipe);Inventory.Validate();
+        }
         CampObject Place(Possession p,CampKind kind,double x,double z)
         {Aim(x,z);BeginCampPlacement(p,kind);Check(campPlaceValid,"Actual placement ray accepts dry soil: "+kind+" / "+campPlaceReason);ConfirmCampPlacement();return Camp.Objects.Last();}
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();humanCamera.Restore(0,false);Vitals.Restore();Inventory.Items.Clear();Camp.Objects.Clear();motion.Flying=false;
+        Check(terrain.Amplification.UsedCachedRiverDatums,"Player reuses the terrain worker's identical fitted river data");
         WeatherControl.Set("clear");PlayerRules.Settings.RealMinutesPerDay=60;PlayerRules.Settings.ItemCraftingTimeMultiplier=.1;
         bool found=false;double sx=motion.X,sz=motion.Z;
         for(int ring=0;ring<10&&!found;ring++)for(int side=0;side<12&&!found;side++)
@@ -42,13 +50,19 @@ public sealed partial class LocalTerrainExplorer
         var rock=new Possession{Id="native-camp-rock",Kind=PossessionKind.SmallRock,Place=PossessionPlace.RightHand,Position=Position,WidthM=.08,HeightM=.07,DepthM=.08,MassKg=.7,Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0)};Inventory.Items.Add(rock);
         TerrainHandoff.Coordinates(frame,stake.Position,out double tx,out double tz);motion.Place(tx-.5,tz,Ground(tx-.5,tz));Aim(tx,tz,1.3);combatGlobalReady=combatRightReady=0;StrikeWithItem(rock,false);
         Check(stake.EmbedM>embed,"Actual rock attack drives the aimed planted stick farther into soil");
+        humanCamera.Restore(4,false);Aim(tx,tz,1.3);Check(AimedCamp(out _)==stake,"Third-person camera can target the same physically reachable planted stick");
+        double previousThirdPersonEmbed=stake.EmbedM;combatGlobalReady=combatRightReady=0;StrikeWithItem(rock,false);Check(stake.EmbedM>previousThirdPersonEmbed,"Third-person hammering measures reach from the body, not the distant camera");humanCamera.Restore(0,false);
         Check(stake.Materials[0].HeightM==branch.HeightM,"Visible post retains its original full length while burial changes");
         double previous=stake.EmbedM;for(int i=0;i<100;i++)CampRules.Drive(stake,rock);Check(stake.EmbedM>previous&&stake.EmbedM<=stake.SoilDepthM,"Repeated hammering respects the site's physical soil depth");InvalidateCampVisual(stake);
         Inventory.Items.Remove(rock);motion.Place(sx,sz,Ground(sx,sz));
-        var fire=Place(Supply(PossessionKind.TinderBundle),CampKind.Fire,sx-1.3,sz-.6);AddCampMaterial(fire,Supply(PossessionKind.KindlingBundle));
+        var spear=Supply(PossessionKind.StoneTippedSpear);spear.Place=PossessionPlace.RightHand;var cutter=Supply(PossessionKind.StoneBlade);
+        var tinder=Supply(PossessionKind.DryGrass);yield return Craft("shred-tinder",tinder,PossessionKind.TinderBundle,spear);
+        var kindling=Wood("native-kindling-source");yield return Craft("split-kindling",kindling,PossessionKind.KindlingBundle,spear);
+        var drill=Wood("native-drill-source");Wood("native-hearthboard-source");yield return Craft("hand-drill",drill,PossessionKind.HandDrillSet,spear);
+        var fire=Place(tinder,CampKind.Fire,sx-1.3,sz-.6);AddCampMaterial(fire,kindling);
         var fuel=WoodCrafting.Branch(new ScatterInstance{Position=Position,Kind=ScatterKind.Branch,WidthM=1.4,HeightM=.04,Variant=0});fuel.Id="native-fuel";fuel.NaturalId=0;Inventory.Items.Add(fuel);inventoryNearbyAt=0;AddCampMaterial(fire,fuel);
         Check(CampRules.IgniteReason(fire,false).Length>0,"Survival cannot light a bare fire lay without a fire-making tool");
-        var drill=Supply(PossessionKind.HandDrillSet);var spear=Supply(PossessionKind.StoneTippedSpear);spear.Place=PossessionPlace.RightHand;PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();
         LightCamp(fire);Check(worldToolWork!=null&&worldToolWork.Tool==drill,"Lighting actually borrows the accessible hand-drill set");
         paused=false;double deadline=Time.unscaledTimeAsDouble+15;while(worldToolWork!=null&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
         Check(fire.Burning&&Inventory.AtHand(PossessionPlace.RightHand)==spear,"Timed fire making ignites tinder and restores the original held spear");

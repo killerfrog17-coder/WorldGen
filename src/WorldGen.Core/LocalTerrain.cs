@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-13";
+        public const string Version = "local-terrain-hyper-14";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -25,7 +25,7 @@ namespace WorldGen.Core
         public GroundFloraRegion FloraRegion(int cell)
         {var e=world.Ecology;int region=e!=null&&cell>=0&&cell<e.Region.Length?e.Region[cell]:0;return GroundFlora.For(world).Region(region);}
 
-        public LocalTerrain(World world, CancellationToken token = default,double horizontalScale=1)
+        public LocalTerrain(World world, CancellationToken token = default,double horizontalScale=1,double[] cachedRiverDatums=null)
         {
             if(double.IsNaN(horizontalScale)||horizontalScale<.01||horizontalScale>2)throw new ArgumentOutOfRangeException(nameof(horizontalScale));
             HorizontalScale=horizontalScale;
@@ -108,7 +108,7 @@ namespace WorldGen.Core
             // preview/test fixtures with no complete drainage retain the small
             // interpolation-only fallback; no fine map is serialized into World.
             if(world.Hydrology.Receiver.Length==profiles.Length&&world.Hydrology.VisitOrder.Length==profiles.Length&&world.Surface.Edges.Length>0)
-                Amplification=new HyperAmplification(world,profiles,horizontalScale,token);
+                Amplification=new HyperAmplification(world,profiles,horizontalScale,token,cachedRiverDatums);
             // Kept as coarse diagnostic/source reach metadata. Amplified terrain
             // and water are generated together; do not fit legacy strips over it.
             Hydrology=new LocalHydrology(world,horizontalScale,token);

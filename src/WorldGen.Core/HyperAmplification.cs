@@ -179,7 +179,7 @@ namespace WorldGen.Core
         static double Random(ulong key, uint stream) => (Rng.Mix((uint)key ^ Rng.Mix((uint)(key >> 32)) ^ stream) >> 8) / 16777216.0;
         static double Lerp(double a, double b, double t) => a + (b - a) * t;
 
-        internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token)
+        internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token,double[] cachedRiverDatums=null)
         {
             var watch = Stopwatch.StartNew(); radius = world.Recipe.RadiusKm * 1000; scale = horizontalScale; seed = world.Recipe.Seed;
             int count = profiles.Length; var nodes = rootNodes = new Vertex[count]; var hydro = world.Hydrology;
@@ -292,7 +292,7 @@ namespace WorldGen.Core
             }
             BuildLakeBasins(world,token);
             ConditionLakeSpills(world,token);
-            BuildRiverscapes(world,token);
+            BuildRiverscapes(world,token,cachedRiverDatums);
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
         }
 

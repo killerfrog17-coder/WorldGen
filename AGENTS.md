@@ -1,5 +1,54 @@
 # WorldGen repository instructions
 
+OVERNIGHT CURRENT,29October2026~04:45CDT:
+ALL ordered scope remains active, userback10-11am, noharddeadline/subagents/paid.
+Main tested fallback7ce05ed remotelyverified. New optional hydraulics+camp fixes
+are UNCOMMITTED, current Mono candidate built09:39:28Z; shortcutstilloldwater.
+Camp-native-crafting4 44PASS/noerrors actual3recipes/occupiedspearrestore,3rdperson
+posttarget+hammer,firelighting/burn/embers/sleep/save. 37CorecampPASS. Mainwater
+water-native-final2 11PASS/noerrors, actualownerProceduralmouth/confluence/major
+GPUimagesinspected; majorunderwateruniformfog expected(no nearbyobjects). Real
+river1.38kmwide/32.15mdeep floatsanddrifts; GPUocean171011displacedvsflatpixels,
+235917timedchanges. Latestsourceafterthat addsworkerfirst/cachebits/clipboundary
+no-duplicate optimization; finalbackendwater regressionneeded. 10318strictrepair
+probes/192indexcomparisons PASS afterlatestcutfix;1510major/52420Earth/62441
+procedural passed beforecutfix.21cachechecksPASS aftercanonicalbits,35.88scold,
+1.21swarm,1.6MB. Cachefilekey usesbitpattern, sharedworker/player nativeconfirmed.
+Initialcampruns1-3 FAILEDrequestedallgeometrytimeout120s; latestwait240s, measured
+130.22s/104tiles, slowcoldtile15.3s. NOTfastloadclaim. Workerready4.76s; sampler
+completesquickly, bottleneck actualcoldtiles. Boundarytouchclippingno-longer
+clonesdegeneratepolygons, strictwatergeometryunchanged. Currentallownednative
+exited(after44checks), noUnity. NeedfinalIL2CPP/freeze/proofs/camp+water regressions,
+shortcutselection/docs/gitpush, thencontinueproductivepolish inclcoldtilecost.
+Userdeletedprompt/2olddeerscripts untouched;177fauna/42human/protectedMPFBsame.
+Noownerappsclosed. SourceONLY fixesnowtested:hidevolume/insulation,cliffgrass,
+campraycache,placementmouse-look,3rdpersonreach. Finalmanualmouseinputtestpending.
+DiskC1.6GB/E1GB. Earliercleanupauto-reviewBLOCKEDbeforeexecution,donotretry/bypass.
+
+
+OVERNIGHT CURRENT,29October2026~04:15CDT:
+User asleep until10-11am; NO invented deadline, continue all ordered scope. No
+subagents/paid. Main camp+water tested safe checkpoint7ce05ed pushed verified.
+Optional river hydraulics now source-only: .1Q threshold removes23%smallchannels;
+major widths recover physical dimensions, depths/pool-riffle and actual circular
+junctions, endpointcollars2.5R, width/reachcap.15 and16minstations. Wide nodebank
+fitting avoids floating rims;161hydraulic/1510major/bank checks priorPASS. Latest
+source requires final combinedCore/native validation, NOTselected. 37campCore now
+PASS inclhidephysicalvolume/insulation. Latest campraycache/slopeadmission and
+3actualcampcraftrecipes added native fixture, uncompiled/unrun. Optional lastnative
+11PASS but major-streamed capture fogged, NOTvisualacceptance. Newfixture3kmview,
+instant diagnosticunderwaterfade andtrueinitialmouth need newruntimecheck.
+DerivedTerrain cache21PASS: coldconcurrent30.28s/warm1.36s,1.6MB,exact200kdatums,
+corruption/scale/source/concurrency/cancel tests. Player+worker share it. No source
+world/save mutation. Versionriver-bank-fit-20261029-1 mustbump onsemanticchange.
+No owned Unity/native jobs; idleMSBuildworkers only. Candidate unselected
+player-camp-prototype canreuse; shortcutSTILLplayer-water-update. Need final
+Mono nativeviews/regressions, IL2CPP/proofs/shortcut/doc/checkpoint/push. Current
+optional changesUNCOMMITTED. Preserve3ownerfiles and original177/42/MPFBassets.
+Disk~1GB each C/E; earliercleanupauto-review rejected beforeexecution, doNOTretry
+sameoperation/bypass. No ownerappclosures. Restore3Unityautochangesaftereditor.
+
+
 CAMP + MAIN WATER CHECKPOINT,29October2026~02:50CDT:
 Owner clarified unlimited overnight work until he returns ~10-11am, ALL task
 parts, not only water. NON-WATER DONE prototype: fire/bedding/sleep/tiredness/

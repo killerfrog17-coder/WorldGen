@@ -20,7 +20,7 @@ static class TerrainWorker
         else if(sourcePath!="")world=WorldFile.ReadFile(sourcePath);
         else{int size=reader.ReadInt32();if(size<0||size>WorldFile.MaximumFileBytes)throw new InvalidDataException("Invalid terrain source size.");var bytes=reader.ReadBytes(size);if(bytes.Length!=size)throw new EndOfStreamException();world=WorldFile.Read(bytes);}
         if(world.Stages.Last().Hash!=expected)throw new InvalidDataException("Terrain worker received a different source world.");
-        var terrain=new LocalTerrain(world,horizontalScale:scale);
+        var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:scale);
         var samples=new TerrainSampleCache();
         var scatter=new LocalScatter(terrain,scale);
         var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();

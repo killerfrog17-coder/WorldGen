@@ -43,7 +43,6 @@ public sealed partial class WorldGenRuntime
         {
             localTerrainCancellation?.Cancel(); localTerrainCancellation?.Dispose(); localTerrainCancellation = new CancellationTokenSource();
             var source = world; var token = localTerrainCancellation.Token; localTerrainWorld = source;var scale=localTerrainScale=play.Settings.HorizontalScale;
-            localTerrainTask = Task.Run(() => new LocalTerrain(source, token,scale), token);
             terrainMeshProcess?.Dispose();terrainMeshProcess=null;
             string worker=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
             if(Application.platform==RuntimePlatform.WindowsPlayer&&File.Exists(worker))
@@ -52,6 +51,19 @@ public sealed partial class WorldGenRuntime
                 if(Environment.GetCommandLineArgs().Contains("--worldgen-terrain-regenerate"))input=null;
                 terrainMeshProcess=new TerrainMeshProcess(worker,source,scale,input);
             }
+            var preparingWorker=terrainMeshProcess;
+            localTerrainTask = Task.Run(() =>
+            {
+                if(preparingWorker!=null)
+                {
+                    try{preparingWorker.Prepare(token);}
+                    catch(OperationCanceledException){throw;}
+                    catch(Exception){token.ThrowIfCancellationRequested();} // Same local fallback if worker startup fails.
+                }
+                return LocalTerrainDerivationCache.Create(source,token,scale);
+            }, token);
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-item-use-check"))
+                Debug.Log("TERRAIN CHECK derive "+source.Surface.Cells.Length+" scaleBits="+BitConverter.DoubleToInt64Bits(scale).ToString("X16")+" cache="+LocalTerrainDerivationCache.FileFor(source,scale,LocalTerrainDerivationCache.DefaultDirectory));
         }
     }
     void ExploreTerrain(V? exactPosition = null)

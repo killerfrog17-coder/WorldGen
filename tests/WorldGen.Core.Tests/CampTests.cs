@@ -28,6 +28,8 @@ static class CampTests
         CampRules.Add(bed,Item(PossessionKind.DryGrass));double thin=CampRules.BedComfort(bed);for(int i=0;i<7;i++)CampRules.Add(bed,Item(PossessionKind.DryGrass));
         Check(thin>bare&&CampRules.BedComfort(bed)>thin&&bed.BeddingDepthM>.08,"Adding loose grass thickens and improves bedding");
         double dryComfort=CampRules.BedComfort(bed);bed.Wetness=1;Check(CampRules.BedComfort(bed)<dryComfort-.3,"Wet bedding loses comfort and insulation");CampRules.Advance(bed,86400,0,.2,4,1);Check(bed.Wetness<.1,"Sun and wind dry placed bedding over time");
+        var hideBed=new CampObject{Kind=CampKind.Bedding,Position=at};CampRules.Add(hideBed,Item(PossessionKind.RawHide));Check(hideBed.BeddingDepthM<.02&&CampRules.BedComfort(hideBed)>bare,"A hide is a thin comfortable layer, not a straw-density mattress");
+        double insulation=CampRules.BedInsulation(hideBed);hideBed.Wetness=1;Check(insulation>.1&&CampRules.BedInsulation(hideBed)<insulation,"A hide adds insulation separately from its small thickness, reduced when wet");
         var branch=WoodCrafting.Branch(new ScatterInstance{Position=at,HeightM=.03,WidthM=1.8,Kind=ScatterKind.Branch,Variant=0});
         var stake=new CampObject{Kind=CampKind.Stake,Position=at,EmbedM=.03,SoilDepthM=.25};CampRules.Add(stake,branch);
         var rock=new Possession{Kind=PossessionKind.SmallRock,MassKg=.7,WidthM=.08,HeightM=.07};double stability=stake.Stability;

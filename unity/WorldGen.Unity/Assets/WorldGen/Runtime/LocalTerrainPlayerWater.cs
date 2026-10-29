@@ -94,12 +94,12 @@ public sealed partial class LocalTerrainExplorer
         finally{RestoreWorkHands(new ItemCraftJob{Equipment=equipment});}
         return true;
     }
-    void UpdatePlayerWater()
+    void UpdatePlayerWater(bool immediate=false)
     {
         if(!Ready||waterScreen==null)return;
         var point=view.transform.localPosition;var sample=PlayerWaterSample(point.x+originX,point.z+originZ);
         var water=SampleMotionWater(point.x+originX,point.z+originZ);var quality=PlayerWaterQuality(sample);
-        waterScreen.Set(view,water.Surface,quality,Mode!=GameMode.Survival,(float)(SkyFrame?.Daylight??0),CurrentWeather.TemperatureC);
+        waterScreen.Set(view,water.Surface,quality,Mode!=GameMode.Survival,(float)(SkyFrame?.Daylight??0),CurrentWeather.TemperatureC,immediate);
         if(!SurvivalActive||paused||inventoryOpen||mapOpen||chatOpen||ecologyOpen||DeathVisible)return;
         double dt=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));var bodyWater=SampleMotionWater(motion.X,motion.Z);
         bool headUnder=double.IsFinite(bodyWater.Surface)&&motion.Y+humanEyeOffset<bodyWater.Surface-.06;

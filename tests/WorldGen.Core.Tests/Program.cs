@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--terrain-derivation-cache")){TerrainDerivationCacheTests.Run(args[1],args[2]);return;}
+if(args.Contains("--river-scale-world")){RiverScaleWorldTests.Run(args[1],args[2]);return;}
+if(args.Contains("--river-hydraulics-only")){RiverHydraulicsTests.Run();return;}
 if(args.Contains("--river-network-stats")){RiverNetworkStats.Run(args[1],args[2]);return;}
 if(args.Contains("--river-repair-probes")){RiverRepairTests.Run(args[1],args[2]);return;}
 if(args.Contains("--water-world-audit")){WaterWorldAudit.Run(args[1],args[2],args[3]);return;}

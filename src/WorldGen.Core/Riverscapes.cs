@@ -11,18 +11,25 @@ namespace WorldGen.Core
     public struct RiverscapeSpan
     {
         public V A,B,SideA,SideB;
-        public double LevelA,LevelB,WidthA,WidthB,Depth,Speed,Turbulence,Bend;
-        public int Reach,From,To;
+        public double LevelA,LevelB,WidthA,WidthB,Depth,DepthA,DepthB,Speed,Turbulence,Bend;
+        public int Reach,From,To,Receiver;
         public RiverFlowPrimitive Primitive;
     }
 
     public static class RiverscapeKernel
     {
+        public const int JunctionSides=32;
+        public static double JunctionRadius(double halfWidth)=>halfWidth<=0?0:(halfWidth+2)/Math.Cos(Math.PI/JunctionSides);
+        public static V JunctionPoint(V at,double radius,double angle,double planetRadius)
+        {
+            V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
+            return (at+east*(radius*Math.Cos(angle)/planetRadius)+north*(radius*Math.Sin(angle)/planetRadius)).Unit;
+        }
         // PG2019 compact C2 primitive support, zero including its boundary.
         public static double Weight(double radius)
         {if(radius>=1||radius<0)return 0;double x=1-radius*radius;return x*x*x;}
         public static double Smooth(double t){t=D.Clamp(t);return t*t*t*(10+t*(-15+6*t));}
-        public static double HalfWidth(double sourceFlow,double scale)=>Math.Max(.6,Math.Min(600,2.4*Math.Sqrt(Math.Max(0,sourceFlow)))*scale);
+        public static double HalfWidth(double sourceFlow,double scale)=>RiverHydraulics.HalfWidth(sourceFlow,scale);
     }
 
     public sealed partial class HyperAmplification
@@ -32,7 +39,7 @@ namespace WorldGen.Core
         // 637km planet has squared length below that quantum. Preserve double
         // precision here, without changing canonical world-generation math.
         static double RiverDot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
-        double[] riverDatums,riverNodeWidths;
+        double[] riverDatums,riverNodeWidths,riverNodeDepths;
         int[] riverReceivers,riverFaceOffsets,riverFaces;
         bool[] riverActive;
         int[] riverIncoming;
@@ -40,16 +47,20 @@ namespace WorldGen.Core
         readonly Dictionary<int,WeakReference<RiverscapeSpan[]>> riverCache=new Dictionary<int,WeakReference<RiverscapeSpan[]>>();
         readonly Queue<RiverscapeSpan[]> riverRetained=new Queue<RiverscapeSpan[]>();
         public int RiverscapeReachCount {get;private set;}
+        public double RiverscapeFittingMilliseconds {get;private set;}
+        public bool UsedCachedRiverDatums {get;private set;}
+        public double[] ExportRiverDatums()=>(double[])riverDatums.Clone();
         public int CachedRiverscapeReaches {get{lock(riverGate)return riverRetained.Count;}}
         // Exact drainage-graph profile for inspection and render validation.
         // Return a copy so callers cannot mutate the cached world derivation.
         public RiverscapeSpan[] RiverReach(int source)
             =>source<0||source>=riverActive.Length||!riverActive[source]?Array.Empty<RiverscapeSpan>():(RiverscapeSpan[])PrepareRiverscape(source).Clone();
 
-        void BuildRiverscapes(World world,CancellationToken token)
+        void BuildRiverscapes(World world,CancellationToken token,double[] cachedDatums)
         {
             int count=rootNodes.Length;riverReceivers=world.Hydrology.Receiver;
-            riverDatums=new double[count];riverNodeWidths=new double[count];riverActive=new bool[count];riverIncoming=new int[count];
+            riverDatums=new double[count];riverNodeWidths=new double[count];riverNodeDepths=new double[count];riverActive=new bool[count];riverIncoming=new int[count];
+            var incidentLengths=new double[count];for(int i=0;i<count;i++)incidentLengths[i]=double.PositiveInfinity;
             riverFaceOffsets=new int[count+1];
             foreach(var f in roots){riverFaceOffsets[f.A+1]++;riverFaceOffsets[f.B+1]++;riverFaceOffsets[f.C+1]++;}
             for(int i=1;i<=count;i++)riverFaceOffsets[i]+=riverFaceOffsets[i-1];
@@ -64,14 +75,57 @@ namespace WorldGen.Core
                 // Discharge represents a source catchment area. Shrinking both
                 // horizontal axes shrinks its visual discharge by scale².
                 riverActive[i]=next>=0&&nodeChannels[i]>=0&&coarseEdges[nodeChannels[i]].Type==Kind.River&&
-                    node.Type!=Kind.Ocean&&node.Flow*scale*scale>=.02;
+                    node.Type!=Kind.Ocean&&node.Flow*scale*scale>=RiverHydraulics.MinimumLocalDischarge;
                 if(!riverActive[i])continue;
                 riverIncoming[next]++;
                 RiverscapeReachCount++;
-                double width=RiverscapeKernel.HalfWidth(node.Flow,scale);
+                double length=(node.Position-rootNodes[next].Position).Length*radius*scale;
+                double width=Math.Min(RiverscapeKernel.HalfWidth(node.Flow,scale),Math.Max(.6,length*.15));
+                incidentLengths[i]=Math.Min(incidentLengths[i],length);incidentLengths[next]=Math.Min(incidentLengths[next],length);
                 riverNodeWidths[i]=Math.Max(riverNodeWidths[i],width);
                 riverNodeWidths[next]=Math.Max(riverNodeWidths[next],width);
+                double depth=RiverHydraulics.Depth(node.Flow,scale,width);riverNodeDepths[i]=Math.Max(riverNodeDepths[i],depth);riverNodeDepths[next]=Math.Max(riverNodeDepths[next],depth);
             }
+            for(int i=0;i<count;i++)if(riverNodeWidths[i]>0)
+            {riverNodeWidths[i]=Math.Min(riverNodeWidths[i],Math.Max(.6,incidentLengths[i]*.15));riverNodeDepths[i]=Math.Min(riverNodeDepths[i],riverNodeWidths[i]*.75);}
+            // Wide junctions must fit their available valley walls BEFORE the
+            // graph levels are reconciled. Fitting the ribbons afterwards cannot
+            // repair a fixed node datum that stands above an outer bank hollow.
+            var fitting=System.Diagnostics.Stopwatch.StartNew();
+            bool cached=cachedDatums!=null&&cachedDatums.Length==count;
+            if(cached)for(int node=0;node<count;node++)
+            {
+                if(!double.IsFinite(cachedDatums[node])){cached=false;break;}
+            }
+            UsedCachedRiverDatums=cached;
+            if(cached)
+            {
+                // The provider checks source/model identity and the complete
+                // array checksum. These are FINAL graph-reconciled levels;
+                // comparing them to the provisional pre-fit lake datums would
+                // reject valid cached graph corrections and repeat the work.
+                Array.Copy(cachedDatums,riverDatums,count);RiverscapeFittingMilliseconds=fitting.Elapsed.TotalMilliseconds;return;
+            }
+            for(int node=0;!cached&&node<count;node++)
+            {
+                if((node&1023)==0)token.ThrowIfCancellationRequested();
+                if(riverNodeWidths[node]<16||rootNodes[node].Type==Kind.Lake||rootNodes[node].Type==Kind.Ocean)continue;
+                var faceSet=new SortedSet<int>();
+                for(int k=riverFaceOffsets[node];k<riverFaceOffsets[node+1];k++)
+                {
+                    var f=roots[riverFaces[k]];
+                    foreach(int v in new[]{f.A,f.B,f.C})for(int j=riverFaceOffsets[v];j<riverFaceOffsets[v+1];j++)faceSet.Add(riverFaces[j]*3);
+                }
+                var ids=new int[faceSet.Count];faceSet.CopyTo(ids);var bare=new Patch(this,ids);double ceiling=riverDatums[node];
+                foreach(double r in new[]{RiverscapeKernel.JunctionRadius(riverNodeWidths[node]),riverNodeWidths[node]*4.5+4})
+                for(int direction=0;direction<16;direction++)
+                {
+                    var p=RiverscapeKernel.JunctionPoint(rootNodes[node].Position,r,direction*Math.PI/8,radius*scale);
+                    ceiling=Math.Min(ceiling,bare.Sample(p,true).Height-.2);
+                }
+                riverDatums[node]=ceiling;
+            }
+            RiverscapeFittingMilliseconds=fitting.Elapsed.TotalMilliseconds;
             // Reconcile ONLY actual graph junctions, once. Standing receiving
             // bodies retain their exact accepted datum. No terrain raising.
             var order=world.Hydrology.VisitOrder;
@@ -92,9 +146,9 @@ namespace WorldGen.Core
                 if(riverCache.TryGetValue(source,out var weak)&&weak.TryGetTarget(out var cached))return cached;
                 int target=riverReceivers[source];var a=rootNodes[source];var b=rootNodes[target];
                 double length=(a.Position-b.Position).Length*radius*scale;
-                double width=RiverscapeKernel.HalfWidth(a.Flow,scale);
-                int n=Math.Max(4,Math.Min(256,(int)Math.Ceiling(length/Math.Max(24,width*1.5))));
-                var points=new V[n+1];var levels=new double[n+1];var widths=new double[n+1];
+                double width=Math.Min(RiverscapeKernel.HalfWidth(a.Flow,scale),Math.Max(.6,length*.15));
+                int n=Math.Max(16,Math.Min(256,(int)Math.Ceiling(length/Math.Max(24,width*1.5))));
+                var points=new V[n+1];var levels=new double[n+1];var widths=new double[n+1];var depths=new double[n+1];
                 var faceSet=new SortedSet<int>();
                 void Include(int node){for(int k=riverFaceOffsets[node];k<riverFaceOffsets[node+1];k++)faceSet.Add(riverFaces[k]*3);}
                 Include(source);Include(target);
@@ -118,6 +172,9 @@ namespace WorldGen.Core
                     levels[i]=Math.Max(end,Math.Min(start,ceiling));
                     double taper=Math.Min(1,Math.Min(i,n-i)/2d);
                     widths[i]=width*taper+(i<n/2?riverNodeWidths[source]:riverNodeWidths[target])*(1-taper);
+                    double phase=Random(a.Key,917)*Math.PI*2;
+                    double pool=.90+.18*Math.Sin(t*Math.PI*4+phase)+.08*Math.Sin(t*Math.PI*10+phase*1.7);
+                    depths[i]=Math.Min(widths[i]*.75,RiverHydraulics.Depth(a.Flow,scale,width)*pool*taper+(i<n/2?riverNodeDepths[source]:riverNodeDepths[target])*(1-taper));
                 }
                 levels[0]=start;levels[n]=end;
                 // Downstream minimum propagation is graph-consistent. Pools
@@ -128,7 +185,7 @@ namespace WorldGen.Core
                 // wider than their explicit bounded junction primitive.
                 levels[1]=levels[0];levels[n-1]=levels[n];
                 for(int i=2;i<n;i++)levels[i]=Math.Min(levels[i-1],levels[i]);
-                if(riverIncoming[source]==0){widths[0]=0;widths[1]*=.5;}
+                if(riverIncoming[source]==0){widths[0]=depths[0]=0;widths[1]*=.5;depths[1]=Math.Min(depths[1],widths[1]*.75);}
                 var result=new RiverscapeSpan[n];
                 for(int i=0;i<n;i++)
                 {
@@ -136,12 +193,12 @@ namespace WorldGen.Core
                     V tangentB=(points[Math.Min(n,i+2)]-points[i]).Unit;
                     double distance=(points[i+1]-points[i]).Length*radius*scale;
                     double slope=(levels[i]-levels[i+1])/Math.Max(.001,distance);
-                    double depth=Math.Min(Math.Min(Depth(a.Flow),width*.65),.25+Math.Pow(a.Flow*scale*scale,.27)*.4);
-                    var section=new RiverSection(levels[i],width,depth,a.Flow*scale*scale,slope,a.Sediment);
+                    double depth=(depths[i]+depths[i+1])*.5;
+                    var section=new RiverSection(levels[i],width,depth,RiverHydraulics.Discharge(a.Flow,scale),slope,a.Sediment);
                     result[i]=new RiverscapeSpan{A=points[i],B=points[i+1],SideA=V.Cross(points[i],tangentA).Unit,SideB=V.Cross(points[i+1],tangentB).Unit,
-                        LevelA=levels[i],LevelB=levels[i+1],WidthA=widths[i],WidthB=widths[i+1],Depth=depth,
+                        LevelA=levels[i],LevelB=levels[i+1],WidthA=widths[i],WidthB=widths[i+1],Depth=depth,DepthA=depths[i],DepthB=depths[i+1],
                         Speed=section.Speed,Turbulence=section.Turbulence,Bend=D.Clamp(RiverDot(tangentB-tangentA,V.Cross(points[i],tangentA))*.8,-.6,.6),
-                        Reach=source,From=i==0?source:-1,To=i==n-1?target:-1,
+                        Reach=source,Receiver=target,From=i==0?source:-1,To=i==n-1?target:-1,
                         Primitive=slope>.08?RiverFlowPrimitive.Cascade:slope>.004?RiverFlowPrimitive.Turbulent:RiverFlowPrimitive.Calm};
                 }
                 // Longitudinal replacement primitive: steep bedrock reaches
@@ -162,6 +219,7 @@ namespace WorldGen.Core
                         double shape(double x)=>Math.Max(x,x*.25+RiverscapeKernel.Smooth(x)*.75);
                         s.LevelA=span.LevelA+(span.LevelB-span.LevelA)*shape(t);s.LevelB=span.LevelA+(span.LevelB-span.LevelA)*shape(u);
                         s.WidthA=span.WidthA+(span.WidthB-span.WidthA)*t;s.WidthB=span.WidthA+(span.WidthB-span.WidthA)*u;
+                        s.DepthA=span.DepthA+(span.DepthB-span.DepthA)*t;s.DepthB=span.DepthA+(span.DepthB-span.DepthA)*u;s.Depth=(s.DepthA+s.DepthB)*.5;
                         s.From=j==0?span.From:-1;s.To=j==3?span.To:-1;refined.Add(s);
                     }
                 }
@@ -206,10 +264,15 @@ namespace WorldGen.Core
                     // here produces a vertical crack along its polygon boundary.
                     // Keep both ends of each collar on the graph datum and
                     // propagate the adjacent station too (no disconnected step).
-                    var first=result[0];first.LevelA=first.LevelB=start;result[0]=first;
-                    if(result.Length>1){var next=result[1];next.LevelA=start;result[1]=next;}
-                    int lastIndex=result.Length-1;var last=result[lastIndex];last.LevelA=last.LevelB=end;result[lastIndex]=last;
-                    if(lastIndex>0){var prior=result[lastIndex-1];prior.LevelB=end;result[lastIndex-1]=prior;}
+                    int firstOutside=0,lastOutside=result.Length;
+                    for(int i=0;i<result.Length;i++)if((result[i].A-a.Position).Length*radius*scale<RiverscapeKernel.JunctionRadius(riverNodeWidths[source])*2.5+3)firstOutside=Math.Max(firstOutside,i+1);
+                    for(int i=result.Length-1;i>=0;i--)if((result[i].B-b.Position).Length*radius*scale<RiverscapeKernel.JunctionRadius(riverNodeWidths[target])*2.5+3)lastOutside=Math.Min(lastOutside,i);
+                    firstOutside=Math.Max(1,Math.Min(result.Length-1,firstOutside));lastOutside=Math.Max(firstOutside,Math.Min(result.Length-1,lastOutside));
+                    for(int i=0;i<result.Length;i++)
+                    {
+                        var s=result[i];if(i<firstOutside)s.LevelA=s.LevelB=start;else if(i==firstOutside)s.LevelA=start;
+                        if(i>=lastOutside)s.LevelA=s.LevelB=end;else if(i==lastOutside-1)s.LevelB=end;result[i]=s;
+                    }
                 }
                 riverCache[source]=new WeakReference<RiverscapeSpan[]>(result);riverRetained.Enqueue(result);
                 while(riverRetained.Count>128)riverRetained.Dequeue();
@@ -303,6 +366,18 @@ namespace WorldGen.Core
                 // chord between two stations. It also made samples change once
                 // RiverSpans() populated this patch during mesh refinement.
                 double physical=owner.radius*owner.scale,best=double.PositiveInfinity;
+                void Pool(int node,V at,double width,ref Surface current)
+                {
+                    if(node<0||width<=.01)return;double distance=(point-at).Length*physical,support=width*3+4;if(distance>=support)return;
+                    double level=owner.riverDatums[node],relative=distance/width;bool inside=relative<1;
+                    double bed=inside?level-owner.riverNodeDepths[node]*(1-relative*relative):level+(distance-width)*.35;
+                    double weight=inside?1:RiverscapeKernel.Weight((distance-width)/(support-width));
+                    current.DetailProtection=Math.Min(current.DetailProtection,1-weight);current.Height=Math.Min(current.Height,current.Height+(Math.Min(current.Height,bed)-current.Height)*weight);
+                    if(!inside||relative>=best)return;best=relative;
+                    current.Kind=LocalWaterKind.River;current.BodyKey=(ulong)(uint)(node+1);current.Water=level;current.Mask=level-current.Height;current.Footprint=width-distance;
+                    current.Minimum=current.Maximum=level;current.Gradient=default;current.RiverInfluence=1;
+                    int next=owner.riverReceivers[node];if(next>=0){current.Flow=(owner.rootNodes[next].Position-at).Unit;var section=new RiverSection(level,width,owner.riverNodeDepths[node],RiverHydraulics.Discharge(owner.rootNodes[node].Flow,owner.scale),0,owner.rootNodes[node].Sediment);current.Speed=section.Speed;current.Turbulence=section.Turbulence;}
+                }
                 void Apply(RiverscapeSpan span,ref Surface current)
                 {
                     V d=span.B-span.A,p=point-span.A;double dd=RiverDot(d,d),raw=RiverDot(p,d)/Math.Max(1e-30,dd),u=D.Clamp(raw);
@@ -347,7 +422,8 @@ namespace WorldGen.Core
                     double signed=RiverDot(p-d*u,span.SideA)*physical/Math.Max(.01,width);
                     // C-type bend cross-section: deeper outer bank and a
                     // shallower point bar, without tilting the water surface.
-                    double bed=level-span.Depth*(1-Math.Min(1,relative*relative))*(1+span.Bend*signed);
+                    double depth=span.DepthA+(span.DepthB-span.DepthA)*u;
+                    double bed=level-depth*(1-Math.Min(1,relative*relative))*(1+span.Bend*signed);
                     if(!inside)bed=level-bankDistance*.35;
                     double weight=inside?1:RiverscapeKernel.Weight(-bankDistance/(support-width));
                     current.DetailProtection=Math.Min(current.DetailProtection,1-weight);
@@ -368,7 +444,8 @@ namespace WorldGen.Core
                 {
                     V offset=point-riverRegionCenter;
                     var bin=((int)Math.Floor(RiverDot(offset,riverEast)*physical/riverBinSize),(int)Math.Floor(RiverDot(offset,riverNorth)*physical/riverBinSize));
-                    if(riverBins.TryGetValue(bin,out var nearby))foreach(int index in nearby)Apply(localRiverscapes[index],ref surface);
+                    if(riverBins.TryGetValue(bin,out var nearby))foreach(int index in nearby)
+                    {var s=localRiverscapes[index];Apply(s,ref surface);Pool(s.From,s.A,s.WidthA,ref surface);Pool(s.To,s.B,s.WidthB,ref surface);}
                 }
                 else
                 {
@@ -383,7 +460,7 @@ namespace WorldGen.Core
                         double t=D.Clamp(RiverDot(p,d)/Math.Max(1e-30,RiverDot(d,d)));
                         double width=Math.Max(owner.riverNodeWidths[id],owner.riverNodeWidths[next]);
                         if((p-d*t).Length*physical>d.Length*physical*.4+width*5+4)continue;
-                        foreach(var span in owner.PrepareRiverscape(id))Apply(span,ref surface);
+                        foreach(var span in owner.PrepareRiverscape(id)){Apply(span,ref surface);Pool(span.From,span.A,span.WidthA,ref surface);Pool(span.To,span.B,span.WidthB,ref surface);}
                     }
                 }
                 if(lake)
