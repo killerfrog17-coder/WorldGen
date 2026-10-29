@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+FINAL HANDOFF29Oct~08:00CDT: requestedcamp/water/river-scalepassCOMPLETEandselected.
+CurrentrootshortcutC:artifacts/player-camp-water-polished, IL2CPP12:36:54Z,
+gameproduction5d461bf,107native(57camp/21save/11river/18water),cleanlogs. No game
+sourcechangesafterfinalchecks. Manifestassets/camp-water-release-verification.json.
+AllgameinputsGit+freeGHReleasepacks4617files/123packs;freshrestore+newLibrary
+build+native49,incremental4617hash/newMonobuild verified. Source+locksremote.
+Old49completepackagesdeleted=original47+supersededwater/initialcamp2. Total
+65.427GiB(~70.25GBdecimal), exactreportartifacts/asset-versioning-20261029/
+final-cleanup-summary.json. ALL39oldassetsets/17953logicalfilespreserved by
+assets/legacy-runtime-assets.lock.json(31packs), index49packages. Lastdelta
+legacy-game-assets-20261029-v2 allpayloadsdownloadSHAverified beforedelete.
+Olddaily/latest3/broadpurgescriptsRETIRED; usecurrentguardedaudit+publishedlocks.
+AUTOAPPROVALblockedTWOdistinctcleanupactions: entiretempfreshrecoverycheckout
+C:/WorldGenBuildArtifacts/recovery-check; oldEgeneratedCpp/PDBarchive. Both
+rejectedbeforeexecution, reasononly'blocked by policy'. AlltargetsLEFTINTACT.
+DoNOTretryorworkaroundblock. Ownerinformedcommentary; mentioninfinal ifneeded.
+RemainingE:/WorldGen-builds/camp-water-native-debug-cpp and
+camp-water-pdb-20261029-d41da60.zip(+json) areobsoletegenerateddebug, not source
+art. Recoverycheckoutcontainsverifiedtemporarysource/media/Mono package. Keep
+itprotectedinanyfuturecleanupplan. Rootoldcampdebugjunctionremovedlink-only,
+oldcampactualpackagealreadydeletedviaapprovedguardedscript. No otherdeletes.
+No test/build/inferenceworkersremain; no userappclosed. C/Efree~30/~27GBdecimal.
+Nextownerfeedback/testing, no additional systems authorized. Authoringinputs
+underartifactsremainREQUIRED/protected; userworlds/sourceart/modelweights/music
+untouched. Ownerpromptdeletion+2olduntrackeddeerscriptsunchanged. No subagents,
+paidcalls or resumedHomo/historynight. NeedfinalGitdocs/tag/pushverification only.
+
 SELECTED29Oct~07:48CDT: rootWorldGenshortcutNOWartifacts/player-camp-water-polished
 IL2CPPBuiltUtc2026-10-29T12:36:54.1326640Z, productioncode5d461bf,107nativePASS:
 final-capture-camp57,camp-save-library-check21,release-water-check11,

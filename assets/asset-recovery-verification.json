@@ -14,8 +14,8 @@
   "native_camp_checks_passed": 49,
   "native_exit_code": 0,
   "runtime_errors": 0,
-  "old_packages_removed": 47,
-  "old_package_bytes_removed": 66582752658,
+  "old_packages_removed": 49,
+  "old_package_bytes_removed": 70251739781,
   "scope": "This proves this complete checkpoint can be rebuilt. Earlier unversioned source commits may not reproduce old binaries exactly; their unique packaged assets were preserved separately. Later asset versions use incremental packs.",
   "incremental_verification": {
     "source_checkpoint": "5d461bf",
@@ -27,5 +27,10 @@
     "build_backend": "Mono",
     "build_exit_code": 0,
     "new_library": false
-  }
+  },
+  "remaining_cleanup_blocked_by_automatic_approval": [
+    "C:/WorldGenBuildArtifacts/recovery-check",
+    "E:/WorldGen-builds/camp-water-native-debug-cpp",
+    "E:/WorldGen-builds/camp-water-pdb-20261029-d41da60.zip"
+  ]
 }
