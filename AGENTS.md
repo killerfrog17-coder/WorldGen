@@ -1,5 +1,62 @@
 # WorldGen repository instructions
 
+LATEST29Oct06:40CDT: Currentassetlock4614files/122packs, legacylock16745logical
+files/30packs(37historicalsets) uploaded+downloadSHAverified. Publicreleases
+game-assets-20261029-v1/v2 andlegacy-game-assets-20261029-v1. scripts asset restore
+13offlinechecksPASS, all4614currentinputsverified,178BlenderspackeddepsPASS.
+TLSfixedwithoptionalnative truststore0.10.5, certchecksremainON. NO LFS/nocharges.
+assets/legacy-builds.json retains47oldpackageassetindices+sourceIDswhenavailable.
+Abouttocommit/pushlocks/scripts/docs,THENguardeddelete47obsoletebuilds~62GiB.
+Selectedoldwater+activeCcamprelease kept;no sourceart/saves/AIweightsdeletion.
+NoobsoletebuilddeletedYET. Remainingcontinuefreshcheckoutrestore/buildtest,
+thenlocalSA3campfirecracklepolish,newpackage/proofs/shortcut. GameD41same,
+IL2CPP49camp+11water+18drinkingPASS. DocsCAMPcountsupdated39Core/49native.
+DoNOTresumehistoricalworkers or spawnsubagents. Ownerreturns10-11am,keepworking.
+
+OWNER NEW ASSET/VERSION POLICY,29Oct~06:10CDT (supersedes daily/latest3 retention):
+Owner explicitly wants required game files tracked/remotelyrestorable, THEN delete
+obsolete localtestbuilds includingE:/WorldGen-builds, retaincurrentplayable+active
+workonly. Continueovernightcamp/waterplanafterstorage. No paidanything. Chose FREE
+GitHubReleaseassetpacks+Gitlock ratherthanmeteredLFS; officialGHdocsunmetered.
+DO NOT deleteapprovedsourceart/userworlds/AIweights. Cleanup guardmustprotect
+allrequiredassetpaths,currentrootshortcuttarget/runningplayers/activecandidate.
+EarlierrejectedcleanupwasbeforeNEWexplicitauthorization; usefreshauditedplan.
+Publisher121packs COMPLETED uploaded+GETdownloadSHAverified; PUBLICrelease
+https://github.com/killerfrog17-coder/WorldGen/releases/tag/game-assets-20261029-v1
+4486ignoreddependencyfiles6.959GiB covers177approved.blends+originalhuman.blend,
+faunaexportinputs/runtimebundles,humanFBX/textures,audio/music/defaultEarth.
+assets/game-assets.lock.json written UNCOMMITTED; scripts/game_asset_inventory.py,
+github_asset_api.py,publish-game-assets.py,restore-game-assets.py newUNCOMMITTED.
+NO secretssaved/printed; API usesexistingGitcredentialhelperinmemory. Githubrepo
+public,tokenworks. scripts/unity-check.ps1 source-only fix nowstagesDelaunatorSharp
+frompinnedNuGetoutput forfreshcheckout, sameexistingDLLhash7ec621...; uncommitted.
+Sourcecode+d41da60 remotelyverified; fullassetlock/scripts mustcommit/push/remote
+verifyBEFOREoldbinarycleanup. Needfreshrestoretestafterspacefreed; uploaderproof
+artifacts/asset-versioning-20261029/publication-proof.json. 178readonlyBlender
+sourceauditsPASS zeroexternalimage/librarydeps, allpacked, no sourcefilewrites.
+Needaddsmallatlas/webstaticinputs (~190MB, duplicateaudio) todeltaassetlock; initial
+inventorydidnotincludethose. NeedauditOLDbuildsforuniqueassets beforedelete;
+warnedusercurrent/futurefullcheckpoints, olderunversionedassetsnotguaranteed.
+No oldversionsdeletedthisturn. Singlepackstaging64MiB avoidsinitialdiskdeadlock.
+PDBarchiveE:/WorldGen-builds/camp-water-pdb-20261029-d41da60.zip175MB verified,
+originalnewPDB603MB STILLPRESENT;EdebugCpp736MB STILLPRESENT underCbackupjunction.
+C~170MB/E90MBfree; newcleanupwillfreeoldbuildsafterverifiedassetcheckpoint.
+Current testedIL2CPP candidateC:artifacts/player-camp-water-release, BuiltUtc
+2026-10-29T10:07:07.5229798Z. 578protectedhash/663source/177collision/18audioPASS.
+Nativecamp-release-check49PASS,water-release-check11PASS,drinking-release-check
+18PASS,noerrors. Imagesinspectedcontinuousmouth/confluence/major/oceans.
+Loading77.418s camp(vs130.220prior),maxcoldtile1.976s(vs15.3),workerready4.71s.
+Procownerworldcold69.162s,worker45.65s,frame513ms max, initial45sbankfitonecache.
+SOURCEGAMEd41da60unchanged; allownednative/UnityjobsEXITED,Comfyoff. Closefinished
+execsessions34753/79582ifneeded. ShortcutSTILLOLD E/player-water-update.
+Nextafterbackup/cleanup: native freshcheckoutrestore+build; campaudio polish
+replaceproceduralcracklewithlocalSA3 variants (ownerbroadpreference), mayalso
+smokelightvisualpolish iftime. ReviewedofficialSA3guidesalready. Modelsinstalled
+E:/AI/ComfyUI; donotdownloadnewweights/pay. scripts/generate-weather-sounds.py
+currentlyrequires1GiBfree; cleanupsolvesthis. No subagents. Userstillasleep until
+10-11am,noinventeddeadline; continueuntilwrap. Preservedeletedprompt+2deerscripts.
+
+
 05:06CDT continuation: finalIL2CPPcopyfailed specificallynonshippingGameAssembly.pdb
 (603MB); sourcecompilation succeeded. OwnnewreleaseC/backup/il2cppOutput736MB moved
 non-destructively to E:/WorldGen-builds/camp-water-native-debug-cpp, Cpathjunction

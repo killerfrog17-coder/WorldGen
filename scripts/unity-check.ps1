@@ -36,6 +36,10 @@ if($BuildPlayer){
     if($LASTEXITCODE -ne 0){throw 'Terrain worker publish failed'}
     # Freeze the same authoritative assembly inputs for worker and IL2CPP.
     foreach($name in @('Core','Serialization','Presentation')){Copy-Item -LiteralPath (Join-Path $repoRoot "src/WorldGen.$name/bin/Release/netstandard2.1/WorldGen.$name.dll") -Destination (Join-Path $project 'Assets/Plugins/WorldGen') -Force}
+    # A clean checkout has no ignored plugin DLLs. Restore the pinned NuGet
+    # dependency alongside our assemblies rather than relying on an old editor
+    # cache to have supplied this fourth runtime assembly.
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/bin/Release/netstandard2.1/DelaunatorSharp.dll') -Destination (Join-Path $project 'Assets/Plugins/WorldGen') -Force
 }
 $method=if($BuildPlayer){'WorldGenBatch.BuildPlayer'}else{'WorldGenBatch.Validate'}
 $log=Join-Path $artifacts $(if($BuildPlayer){'unity-build.log'}else{'unity-validation.log'})

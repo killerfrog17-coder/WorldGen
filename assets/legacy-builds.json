@@ -1,0 +1,2219 @@
+{
+  "version": 1,
+  "note": "Historical packaged asset data only; source and original binary equivalence are not guaranteed for pre-lock commits. No executables uploaded.",
+  "packages": [
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-polished",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-polished"
+      ],
+      "name": "player-item-functionality-polished",
+      "keep": false,
+      "reason": "",
+      "bytes": 2200688510,
+      "asset_snapshot": "fae3b34524d9603a269c431b3b6f6c8fd54eb70ea625b6af04f5e8b41bb032a4",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:05:44.4996415Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "19c511c249e389303c691d60492f2d8de62cac4255d40372ed33a6037d26e5ac"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "32e22aa5828e6e93f7a7d7956eabec1dfec21e912c7f8fc3c926e34e737c296b"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "56c17fd94ed12d92a6c4376978636b2d97560ca6de3b22372190835e94674230"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "1cd2d21f3624572d5db6b49e61d401ca7abe9288"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-woodworking",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-woodworking"
+      ],
+      "name": "player-woodworking",
+      "keep": false,
+      "reason": "",
+      "bytes": 766879742,
+      "asset_snapshot": "017855a00cab207fd5c0129eb99b121966c6007e35c638aa8d217a8c61d5145a",
+      "build": {
+        "BuiltUtc": "2026-10-28T03:11:13.3583576Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "bdf12714a2c6499b895f7c1c48991f01d82a7819cfd5e193b56d9c336735b071"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "35d810399b1032cb8c2ec1beb66444f6d1301152edde768859580a0644b7704d"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "0f30c3954ab7bfc23ffc41c6faa62f168e829747e299132f121a90c5b63707f1"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "b09400209c3d440e2ef69874a7baaa1522e33ed1"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-firefly-target",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-firefly-target",
+        "E:\\WorldGen-builds\\player-firefly-target"
+      ],
+      "name": "player-firefly-target",
+      "keep": false,
+      "reason": "",
+      "bytes": 2208787180,
+      "asset_snapshot": "e76d8d6c935b5e64de80305406f0357be964610f1804c6d1c1a6b55f51e11213",
+      "build": {
+        "BuiltUtc": "2026-10-28T21:54:56.8531193Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "16939612494c86d211d83e206824970c88ff80f95e8e6709d03ce85e940673f2"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "7da4e85144db57e9d8ccfd5ff5c1ff3991ca8de82ff77a29599930751f6601fb"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "04cb492284024ad8bef008a5530aaff41d4c1baf6d3c94de8d21381cf56a0a5e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d4ed9604ca0fb1e6c5dbcf6e5dbed32fc328cc54"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-knapping",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-knapping"
+      ],
+      "name": "player-item-functionality-knapping",
+      "keep": false,
+      "reason": "",
+      "bytes": 2200891131,
+      "asset_snapshot": "6b41efe4a3763384b1a9ef311c63d90866f2401f981f2176ca8106a805c3f425",
+      "build": {
+        "BuiltUtc": "2026-10-28T17:16:12.1864497Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "525d1e252106067fe66189a326b0f17a2bb4c0fcfa4e90542092a639e44101f7"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "23bb4dbe8c36e1e8d0a3ea0592cc4a70e89baec9d83fc0f851affbed1243fc47"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "e3843f265bab75d9f24c16554f709f30c9c90bf3226bb3d160902fe5e01ebdc5"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "9169f5d705aaad3b4d63c6710fc0baeff6d299d6"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-final",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-final"
+      ],
+      "name": "player-item-functionality-final",
+      "keep": false,
+      "reason": "",
+      "bytes": 2200793897,
+      "asset_snapshot": "6f95bdcb068d3a966e4546ce7ebee0bda3671258e935d5e6cb0ae560df7a42f0",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:28:06.7027414Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1e44d06087c71584ea7ac56048ccf39164a1999b768cbd3203f78d9223202473"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "28b5065cc9f33f544501896596a5038df3ebdf45737f48f1da0c592936b4c12e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "f6fe501fd6b063b10f442c57996e90f6b9ab47d3802e1494807719343060003e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-firefly-radar",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-firefly-radar"
+      ],
+      "name": "player-firefly-radar",
+      "keep": false,
+      "reason": "",
+      "bytes": 2208256977,
+      "asset_snapshot": "171f414c0c2b05ee7ac3efb4d9abdc3ca3ab2a7ff3b9036dbb1fe72f95d1dbfd",
+      "build": {
+        "BuiltUtc": "2026-10-28T21:40:15.4578462Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "16939612494c86d211d83e206824970c88ff80f95e8e6709d03ce85e940673f2"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "7da4e85144db57e9d8ccfd5ff5c1ff3991ca8de82ff77a29599930751f6601fb"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "07d4be7b80faeaf13550ae7e2ceaf0cb9def7cd291d3b501947a38cf85ce0326"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d4ed9604ca0fb1e6c5dbcf6e5dbed32fc328cc54"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-wildlife-radar",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-wildlife-radar"
+      ],
+      "name": "player-wildlife-radar",
+      "keep": false,
+      "reason": "",
+      "bytes": 2207550122,
+      "asset_snapshot": "c9559be1e5cb2417004bfa3264153c6c6c698de9eb8e00f9693182f8c9b09d97",
+      "build": {
+        "BuiltUtc": "2026-10-28T20:57:48.2392516Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "2393da4be964f938414ac4a8e53ab2ab4838b1644ad39f296227f2f8e90640ce"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "60bf28f60c36304b20333f5289d24868a07c08902dbffcbb207d29b717384192"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "e69610903bfc3ed16a3055a1f8fa17f04f13d0816111a5c74bcd97913031ebb4"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "dfd2f487dc802c35116dc76c59bd40e67fcce684"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-firefly-radar-final",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-firefly-radar-final"
+      ],
+      "name": "player-firefly-radar-final",
+      "keep": false,
+      "reason": "",
+      "bytes": 2208401355,
+      "asset_snapshot": "554b0757d64c1b0562bbe36fc48f8bdeeb535a38a3c5727fd0914c3f1c5ef3ba",
+      "build": {
+        "BuiltUtc": "2026-10-28T21:45:50.1469055Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "16939612494c86d211d83e206824970c88ff80f95e8e6709d03ce85e940673f2"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "7da4e85144db57e9d8ccfd5ff5c1ff3991ca8de82ff77a29599930751f6601fb"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "04cb492284024ad8bef008a5530aaff41d4c1baf6d3c94de8d21381cf56a0a5e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d4ed9604ca0fb1e6c5dbcf6e5dbed32fc328cc54"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-fauna-ambience",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-fauna-ambience"
+      ],
+      "name": "player-fauna-ambience",
+      "keep": false,
+      "reason": "",
+      "bytes": 247262372,
+      "asset_snapshot": "a1d7cdc0748ff43049fb7f0bfe7e675a6fac34f9643f895daba77fd4ba16be3e",
+      "build": {
+        "BuiltUtc": "2026-10-23T03:21:06.1855266Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "21dc85b9a9d8afacbbc2c479a5dc14f1176c984a2c4c217de9d3a40d72fbadc7"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "e29f221ab5baf4018239bf572c85ba5be12a4abc38fddc61d4b7dd60a6de0033"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "c73d413661814c1f08479f9361abc3ab594d365ddc94563f754975dc1d25bdef"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "16168202ad30f79359cef77939f27ad659c7d84d"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-portable-technology",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-portable-technology"
+      ],
+      "name": "player-portable-technology",
+      "keep": false,
+      "reason": "",
+      "bytes": 767712126,
+      "asset_snapshot": "b5be182d62adebd4f7f75b765887b0cec588c7d4922ac4c934257b5c0faac48e",
+      "build": {
+        "BuiltUtc": "2026-10-28T04:44:36.6850654Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "16d4a251866aa9c0b99189ff0c8ab454cce8871b6c2559776bab91278c6b485f"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "f3b9243f2a4e73ed9f0917b300235a187d88f2620551579d7d7982a84ae2b882"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "5545a95cffeee7af44f9579253e7402d9469bec88a9d7202b70fe35fccfdb9ea"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "6a458f085da4a427cbd9e596c9003646d723b1fb"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-human-refinement",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-human-refinement"
+      ],
+      "name": "player-human-refinement",
+      "keep": false,
+      "reason": "",
+      "bytes": 776000193,
+      "asset_snapshot": "13fcbcc3680915be23ce0e3f56a1d7cf9e7c9bd9aac51be23042a0fb853b99f6",
+      "build": {
+        "BuiltUtc": "2026-10-27T04:12:37.0559529Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "27bdb7b27673bd05690a1d8eadc54b3724daf9d701b2a42a68dd72fdbea376e6"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "e40ca971c531b8a75b5e03912352ce65b015d8a4ef4957c8764372b22fbb8ef4"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "baf89876f4d2bd60bd734dcc1769146fe73cc191c1346c0d4f81ab62dfc2739c"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "StagingDirectory": "E:\\AI\\WorldGen3D\\build-stage-vegetation-communities",
+        "PlayerLaunched": false
+      },
+      "source_commits": [
+        "c2d0905dea3c00b1e3e8cd1c57d06f565e2a3cc9"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-history-32-sovereignty34",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-history-32-sovereignty34"
+      ],
+      "name": "player-history-32-sovereignty34",
+      "keep": false,
+      "reason": "",
+      "bytes": 159881299,
+      "asset_snapshot": "89dc49cddfd0fb6f839c3ca5b56ea4f1da38e62a74a7bdd60ac067cdc5f24b25",
+      "build": {
+        "BuiltUtc": "2026-10-18T00:10:12.7527219Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "36047315dc440e80d38c7b4e0ac0ddaacc6aaf9a2812a87c80618cc0ff5a6eb6"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "8c2d2d7a20cdd1859e9cbf49831f1c199dea2ca9150b1012a1f5f1daf4535074"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "9a7b7b67e7cfa791c5ca72108308e4163dd4ca3a58e9a48b385341f81e41eff9"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "a2498cabc1f39a7535d4756e714665c5a874e347"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-wildlife-audio-ready",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-wildlife-audio-ready",
+        "E:\\WorldGen-builds\\player-wildlife-audio-ready"
+      ],
+      "name": "player-wildlife-audio-ready",
+      "keep": false,
+      "reason": "",
+      "bytes": 2216875091,
+      "asset_snapshot": "4edf6d1efed88e862f5d1da8de75de51b64afbc938ce017f5be80bf3717ec478",
+      "build": {
+        "BuiltUtc": "2026-10-29T03:50:20.2026354Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "b953019cb5da2433e60c06fa9f77d9226ff7fa3b9a33db19420e06af4ed5a4ba"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "40624a7c1b60021e30ea25962982a992fa56edd99ea73f3167f30c4ebd06dd63"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "c7b36d129b5204b644c70236f58b8c8073e94cc706f2c219b648c5dd038aa866"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "f6fdee5b88bc3caa1f6584babec181c5ae1e283f"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-history-32-realms-autowarp",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-history-32-realms-autowarp"
+      ],
+      "name": "player-history-32-realms-autowarp",
+      "keep": false,
+      "reason": "",
+      "bytes": 165215207,
+      "asset_snapshot": "e1296d5ef1965c01b13831d9b63bf0cdd4ac4a81c76b448dbd56cf480a4dd93d",
+      "build": {
+        "BuiltUtc": "2026-10-17T03:35:35.9606181Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "5cc6372eb5b6789ea480172421de9b0b3f964896a6f100034d1926509ef0e182"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "f8faca96ae7935c9c85f35a3eb68e77d21d420e23f586d93082f71b495db92f0"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "08c1572df4069651ac5aa1dd91d3bfc35349a13b3d8335999b4d6c449a6b806e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "36b259910042e67742e6e2344f8c5c062b42df8a"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-complete",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-complete"
+      ],
+      "name": "player-item-functionality-complete",
+      "keep": false,
+      "reason": "",
+      "bytes": 2201053348,
+      "asset_snapshot": "fae3b34524d9603a269c431b3b6f6c8fd54eb70ea625b6af04f5e8b41bb032a4",
+      "build": {
+        "BuiltUtc": "2026-10-28T17:54:13.3472470Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "40e5a434324f80552c6309630f10e3d2bec46708868e57e5679b3d0ebb0ab3bb"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "0e1d171e735dffa6eca392c67f27b343a3f02ac69fac5079e18416477d4c58c5"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "dfecd6a55b4c0826720246bc4a32b6922e9956a21bc42cf4222d5c384294d40b"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d0104ef2e71c6a3ed2808064cafae1cfc3d6040e"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-command-cleanup",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-command-cleanup"
+      ],
+      "name": "player-command-cleanup",
+      "keep": false,
+      "reason": "",
+      "bytes": 2133883238,
+      "asset_snapshot": "63d090ffb290a112ba25acaffaca0b8d97173d06c9035fb1e7416b321ab87927",
+      "build": {
+        "BuiltUtc": "2026-10-28T02:30:56.1510626Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "b328518d05f01c7f7b69257995203d8616caa3f8bb72ccc96b794d7513d52938"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "7da7ac835f15904a2dd291f10b4acab24debedc9fb2c1ccc6d882a482cb62d80"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "2baf2cc2fb7861f24ba9101ab24f208525f414f5108c78093d5fdd34b4268dc6"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "4dff83e3c9e1a97c10708e074646094781b1df10"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-nature-actions-ready",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-nature-actions-ready",
+        "E:\\WorldGen-builds\\player-nature-actions-ready"
+      ],
+      "name": "player-nature-actions-ready",
+      "keep": false,
+      "reason": "",
+      "bytes": 2213332739,
+      "asset_snapshot": "ba04f52338bd96c4fa1dde7c0682d30db8e313776a6d74264ffa0f74617fd95c",
+      "build": {
+        "BuiltUtc": "2026-10-29T00:07:53.2603700Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "d16259b1d406862d0f6f412ca64f8546dcda0c69e1e4f6811d5af6a71992eae1"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "b049cf818c453011b3b0db8800f6a28febf289c19e38c98068c2c458878f49eb"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "337868078c3d0854c9bd2007116e466b3631118ce7664fa36fb6a443597addbd"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "b08b54a7105aa102ebae4bd034bb87f24a7e935f"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-settled",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-settled"
+      ],
+      "name": "player-item-physics-settled",
+      "keep": false,
+      "reason": "",
+      "bytes": 813958197,
+      "asset_snapshot": "8d155ec22562c77863d031dc81a1204bd4e4260148a50ca141926bf3026caf9d",
+      "build": {
+        "BuiltUtc": "2026-10-28T17:40:00.3580049Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "40e5a434324f80552c6309630f10e3d2bec46708868e57e5679b3d0ebb0ab3bb"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "0e1d171e735dffa6eca392c67f27b343a3f02ac69fac5079e18416477d4c58c5"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "09fa6e7d376411982a71c969d0cbd5b35f55a7ac8ac001a3617df5049ab6acab"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d0104ef2e71c6a3ed2808064cafae1cfc3d6040e"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-wildlife-audio",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-wildlife-audio",
+        "E:\\WorldGen-builds\\player-wildlife-audio"
+      ],
+      "name": "player-wildlife-audio",
+      "keep": false,
+      "reason": "",
+      "bytes": 2216715375,
+      "asset_snapshot": "4fcbc9293d5ad064131aa7cc1942131c8b89097f4763c874c287681142ff9918",
+      "build": {
+        "BuiltUtc": "2026-10-29T03:34:25.8383717Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "4297c3b7040db7deeead4cf324df3f44b7edc673175d9cac250fa6af6d4110d9"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "5f3380e7bfc60f4e57abb8791d2afbaf906081bf5685d1f3d466d3cfc8c8ed0e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "dc8b71a797637a801eb9782d89a6a45c37495358cf08e203aee7121c039e812e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "f6fdee5b88bc3caa1f6584babec181c5ae1e283f"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality"
+      ],
+      "name": "player-item-functionality",
+      "keep": false,
+      "reason": "",
+      "bytes": 2199853228,
+      "asset_snapshot": "4fc0587ff7d1bebde6e90770703c36ac3712eb48df2bb1b6043f04678d8e6b93",
+      "build": {
+        "BuiltUtc": "2026-10-28T14:34:45.3169338Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "a1536268163ed18ac52afa323678603393bbe5913afccd38868345830cd1af33"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "2801a62c79be1ee7ddba26f45b9951256ade664e4cb2eaa0c0e4a89db0249271"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "9b4d52d53a815cc756002eaa1d58a10f0eb34d9a1cf6fe1ad20e95ba339a61fd"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "b677840e628418c9bd992b30da3435b5d3da821e"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-rooted",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-rooted"
+      ],
+      "name": "player-item-physics-rooted",
+      "keep": false,
+      "reason": "",
+      "bytes": 813955125,
+      "asset_snapshot": "5ce147501bb4e2bbb074f088b8166e436e46abfdbd51548300c54dd0875d0ee2",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:22:02.5096478Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "19c511c249e389303c691d60492f2d8de62cac4255d40372ed33a6037d26e5ac"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "32e22aa5828e6e93f7a7d7956eabec1dfec21e912c7f8fc3c926e34e737c296b"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "56c17fd94ed12d92a6c4376978636b2d97560ca6de3b22372190835e94674230"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "1cd2d21f3624572d5db6b49e61d401ca7abe9288"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-followup",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-followup"
+      ],
+      "name": "player-item-followup",
+      "keep": false,
+      "reason": "",
+      "bytes": 2201480651,
+      "asset_snapshot": "66ea9a6f778e697ba15dcd6a6f916545b1649531bdd4197e9992b241a7d869ef",
+      "build": {
+        "BuiltUtc": "2026-10-28T19:53:28.2701097Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "9301c0d91cdc8b4b8a9e91597077b850d92d05b88cfce4199d7ca2b706ad5754"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "ef118aecc9cecd25d3c17c632bbd34ce54e023f5fc97b37ad042e34d4b59eeda"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "14972957fa544b9956cbd004ac43299753cf58e9b2ca9645a7e12cfc08350e6f"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "964cbe17fd305393a50f7431f5f4b58f08dfd478"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-nature-actions-final",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-nature-actions-final",
+        "E:\\WorldGen-builds\\player-nature-actions-final"
+      ],
+      "name": "player-nature-actions-final",
+      "keep": false,
+      "reason": "",
+      "bytes": 2213290467,
+      "asset_snapshot": "fe26fb6c42dd9acb422aae82abda7d6680de93c4289bfd6c11f1776b54bf9b0c",
+      "build": {
+        "BuiltUtc": "2026-10-29T00:01:55.9818230Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "d16259b1d406862d0f6f412ca64f8546dcda0c69e1e4f6811d5af6a71992eae1"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "b049cf818c453011b3b0db8800f6a28febf289c19e38c98068c2c458878f49eb"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "337868078c3d0854c9bd2007116e466b3631118ce7664fa36fb6a443597addbd"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "b08b54a7105aa102ebae4bd034bb87f24a7e935f"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-drainage-fractal",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-drainage-fractal"
+      ],
+      "name": "player-terrain-drainage-fractal",
+      "keep": false,
+      "reason": "",
+      "bytes": 162336967,
+      "asset_snapshot": "bfd925f4c1217c3c6d2eb0734a56f4361f5574f6832f7aab0a7fb022b00fe179",
+      "build": {
+        "BuiltUtc": "2026-10-20T04:07:51.3842674Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "de81949b3eb104edfe745f72013cdc10786fe69e9eb18112ad366d49b9999ec2"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "afcc3d089e0fad36f68b485c061d59aa1e2ff848fb325f3d09ecdf428d2e8d0b"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "62a45790f54bdf3a1f27d48166966c139ce5fa3f4b9ed886897e5f9e7593c8b1"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "a07c2ed7133b3653e3de4cee26cf852d5a1b8d36"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-cheap-far",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-cheap-far"
+      ],
+      "name": "player-terrain-cheap-far",
+      "keep": false,
+      "reason": "",
+      "bytes": 245851799,
+      "asset_snapshot": "203f8429eb86f5de51b149705a7e6213ddce9e0a7db83552b79f5fd177737c16",
+      "build": {
+        "BuiltUtc": "2026-10-22T04:31:25.1128580Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "005d72e6ff04ca9f4fec5293b88f512924af8557be9ca645fb91ffcf730e1cdd"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "2ab0ca2b81ab4abf49e5afc69e9ec84fd11fa6e167667d664eefde8d90cec558"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "8889957b0b5b1da0dcae23b4ae6235ec03221438739173a25a8b0d2304cc1fee"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "f4bf96766ea1f86a31e2eccbe3c4c66a335ca33d"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-wildlife-abundance",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-wildlife-abundance"
+      ],
+      "name": "player-wildlife-abundance",
+      "keep": false,
+      "reason": "",
+      "bytes": 2205301684,
+      "asset_snapshot": "fae3b34524d9603a269c431b3b6f6c8fd54eb70ea625b6af04f5e8b41bb032a4",
+      "build": {
+        "BuiltUtc": "2026-10-28T20:43:14.3307935Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "2393da4be964f938414ac4a8e53ab2ab4838b1644ad39f296227f2f8e90640ce"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "60bf28f60c36304b20333f5289d24868a07c08902dbffcbb207d29b717384192"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "e69610903bfc3ed16a3055a1f8fa17f04f13d0816111a5c74bcd97913031ebb4"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "dfd2f487dc802c35116dc76c59bd40e67fcce684"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-surface-refined",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-surface-refined"
+      ],
+      "name": "player-surface-refined",
+      "keep": false,
+      "reason": "",
+      "bytes": 243424911,
+      "asset_snapshot": "ca03ed130f7ede2cb0a27df4014d3b7afc6e018194a7d1844d43545ab0966d02",
+      "build": {
+        "BuiltUtc": "2026-10-21T04:51:06.9579441Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "6f5af545f5c620e75fe084b223ce7c5c7cc45353b8c35032310ca264535629a9"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "6c5eb70f82b074ecac62643b00b461777e21fac167ae4bef644cbe378a2cb08e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "1adb9e2caba6a0d465b579c64e3d6271ae8db54d293251917268992740bd98c0"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "6739317db8f5fa115810c2df4b04da611e80f712"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-conditioned",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-conditioned"
+      ],
+      "name": "player-item-physics-conditioned",
+      "keep": false,
+      "reason": "",
+      "bytes": 813953589,
+      "asset_snapshot": "8d155ec22562c77863d031dc81a1204bd4e4260148a50ca141926bf3026caf9d",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:17:01.1403551Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "19c511c249e389303c691d60492f2d8de62cac4255d40372ed33a6037d26e5ac"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "32e22aa5828e6e93f7a7d7956eabec1dfec21e912c7f8fc3c926e34e737c296b"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "56c17fd94ed12d92a6c4376978636b2d97560ca6de3b22372190835e94674230"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "1cd2d21f3624572d5db6b49e61d401ca7abe9288"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-nature-actions",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-nature-actions",
+        "E:\\WorldGen-builds\\player-nature-actions"
+      ],
+      "name": "player-nature-actions",
+      "keep": false,
+      "reason": "",
+      "bytes": 2213111854,
+      "asset_snapshot": "8b633a6256ae05a727397a3e52463195d8db534ad09c85dced379716f56b06c3",
+      "build": {
+        "BuiltUtc": "2026-10-28T23:52:40.1018165Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "e31f927636a6f297bb2d6990eb00fe0c365d8041c0f566eee480dc7e0597b0f8"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "4f9ac8c1239ae892830f40f635da1740c636c7ade9c43f4e21fca15ee74e6bac"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "210b18831962685b8ec2843c33c848f6723a0956779a18eb870eeab582187147"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "b08b54a7105aa102ebae4bd034bb87f24a7e935f"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-neck",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-neck"
+      ],
+      "name": "player-item-physics-neck",
+      "keep": false,
+      "reason": "",
+      "bytes": 813958197,
+      "asset_snapshot": "e45263ba075dc85055d5093a37d7c67611199ae59e2e001bd42bfadf20fc941b",
+      "build": {
+        "BuiltUtc": "2026-10-28T17:22:56.5046139Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "5fbf502e3800d78f6a12d7dd84e8321f9b225af78497d2b31467ff6de4d1008f"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "0eb6326b6778d6b5aa7757c94b9fd3695d265aea1c71190d4822e076ef80e771"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "31c607d41cff787910941d4081b5c4c419de0b22d87a1980ec95e31315f1ed6a"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "041b6c36752281e4048134898aa9cf152c369fca"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-local-scatter",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-local-scatter"
+      ],
+      "name": "player-local-scatter",
+      "keep": false,
+      "reason": "",
+      "bytes": 161133127,
+      "asset_snapshot": "1b0022326e2db7864b95de46af66242b3ca84de6050160e52264ee65baf51f05",
+      "build": {
+        "BuiltUtc": "2026-10-19T04:12:36.7528184Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "bc41cebfa7d01a6a57139f9ebe63074e708c4b39757836d418b739c080c349bc"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "81192edcf02ea2de5301c955d3f8216492a9b3a14fd88bce2b32aedf805bfd5f"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "077bf3fddad61e69cfde2d6012a12673eafd5ed074a4fc0da99fa6d0d6d67e33"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "c122f45583213982bd945956bac9d68de45b6ff6"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-scatter-collision-ready",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-scatter-collision-ready",
+        "E:\\WorldGen-builds\\player-scatter-collision-ready"
+      ],
+      "name": "player-scatter-collision-ready",
+      "keep": false,
+      "reason": "",
+      "bytes": 2214472922,
+      "asset_snapshot": "0e5f09aff1480e71ea4da945c77891c7979818e781a848b5c9e614af8ac75779",
+      "build": {
+        "BuiltUtc": "2026-10-29T02:22:14.0412436Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "3059b98e7b09015f7fb54868776af2121e9747b7c637631cfa0b896224ed8f80"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "2a92430defc6587bedf6ddcbc36473b2f9fccfebc9257c135a34db8946eda3c2"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "1df20f044e55869b558754807bc3548e460f558f9aea98fb9fae99bba032aa73"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "611cb933ece9c24378256f77d98e91e65a5805eb"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-camp-prototype",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-camp-prototype",
+        "E:\\WorldGen-builds\\player-camp-prototype"
+      ],
+      "name": "player-camp-prototype",
+      "keep": false,
+      "reason": "",
+      "bytes": 814289509,
+      "asset_snapshot": "5d59fbcf356906125508ae66ed6a5a2618757656755851558a66d1ea076d7567",
+      "build": {
+        "BuiltUtc": "2026-10-29T09:39:28.8666241Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "b126ff64142051c5cac96295d3861508eeff450195f26831b4051b1f3a99fc1d"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "7a0f623ec254aaaa4b48646c88281d8e93c5592eecba73aa90284468a5891ab9"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "4236d04243c21667accc4c34b02d906a77414c8ae512f05fd13a14265a4c3f34"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "7ce05ed483994bdf0ee06dbee173f6c4a1a7f6e6"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-ranged-check",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-ranged-check"
+      ],
+      "name": "player-item-ranged-check",
+      "keep": false,
+      "reason": "",
+      "bytes": 813960245,
+      "asset_snapshot": "8d155ec22562c77863d031dc81a1204bd4e4260148a50ca141926bf3026caf9d",
+      "build": {
+        "BuiltUtc": "2026-10-28T17:47:44.7920214Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "40e5a434324f80552c6309630f10e3d2bec46708868e57e5679b3d0ebb0ab3bb"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "0e1d171e735dffa6eca392c67f27b343a3f02ac69fac5079e18416477d4c58c5"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "dfecd6a55b4c0826720246bc4a32b6922e9956a21bc42cf4222d5c384294d40b"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d0104ef2e71c6a3ed2808064cafae1cfc3d6040e"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-lod",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-lod"
+      ],
+      "name": "player-item-physics-lod",
+      "keep": false,
+      "reason": "",
+      "bytes": 813955637,
+      "asset_snapshot": "1c93845fcca2249ce774c3f9974dd35abcf17bf05c0ae349f7ecb40e14d8dda5",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:38:47.6507613Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1e44d06087c71584ea7ac56048ccf39164a1999b768cbd3203f78d9223202473"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "28b5065cc9f33f544501896596a5038df3ebdf45737f48f1da0c592936b4c12e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "f6fe501fd6b063b10f442c57996e90f6b9ab47d3802e1494807719343060003e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-compact",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-compact"
+      ],
+      "name": "player-item-physics-compact",
+      "keep": false,
+      "reason": "",
+      "bytes": 813955125,
+      "asset_snapshot": "e45263ba075dc85055d5093a37d7c67611199ae59e2e001bd42bfadf20fc941b",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:31:12.1166567Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1e44d06087c71584ea7ac56048ccf39164a1999b768cbd3203f78d9223202473"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "28b5065cc9f33f544501896596a5038df3ebdf45737f48f1da0c592936b4c12e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "f6fe501fd6b063b10f442c57996e90f6b9ab47d3802e1494807719343060003e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-tree-branches",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-tree-branches"
+      ],
+      "name": "player-tree-branches",
+      "keep": false,
+      "reason": "",
+      "bytes": 766881278,
+      "asset_snapshot": "bb4902c7ec3d8344b081c9fde2cff23489bf54b629f0f6f10cba49e9545da085",
+      "build": {
+        "BuiltUtc": "2026-10-28T03:37:43.4826338Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1492c82e0055ed4446edb30e248f00df221b7aa25e3bc4fa768f5a56b6adbb54"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "1ec6b945f68b8f5534bf2d9bceaf7939a6299f1fa8ed7977fb9b3970fce0b6fc"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "ed626101efebca50dd6472e9472a530406fe2d0b62fcf721a080f96468959cd3"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "fe31806a78249038fca2fcca4ddf5da88a2fd692"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-small",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-small"
+      ],
+      "name": "player-item-physics-small",
+      "keep": false,
+      "reason": "",
+      "bytes": 813954613,
+      "asset_snapshot": "73649001a3b260b0a4190827cc1467e24dd5437550350a15e9637b185d620d2c",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:19:14.6271729Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "19c511c249e389303c691d60492f2d8de62cac4255d40372ed33a6037d26e5ac"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "32e22aa5828e6e93f7a7d7956eabec1dfec21e912c7f8fc3c926e34e737c296b"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "56c17fd94ed12d92a6c4376978636b2d97560ca6de3b22372190835e94674230"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "1cd2d21f3624572d5db6b49e61d401ca7abe9288"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-surface-art-v1",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-surface-art-v1"
+      ],
+      "name": "player-terrain-surface-art-v1",
+      "keep": false,
+      "reason": "",
+      "bytes": 253684219,
+      "asset_snapshot": "08183b1df6c2a456883c1709b86c16d1ebca82613492647fb81b3ea1020b27b0",
+      "build": {
+        "BuiltUtc": "2026-10-24T07:00:13.2047884Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "441c4a1281091046fbe16edce3d1cab7fa4ade23f26ab531c160c2921b8be612"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "0eef280cc45b7a1feed1f6936d790e542bb69e8ffe5fe4c0e2a8e17ff2f05d44"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "372142ec754346a839e660211bb831446a6b6580241e4234104810f9af5f8bdf"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "2fd2c829e7d7920679753b8ea0dd4f9d3b638d06"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-scatter-collision",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-scatter-collision",
+        "E:\\WorldGen-builds\\player-scatter-collision"
+      ],
+      "name": "player-scatter-collision",
+      "keep": false,
+      "reason": "",
+      "bytes": 2214403975,
+      "asset_snapshot": "332c46feeae6e2fd728e5aad9c5d3a39fb657369297baa2b3219f0c607c97737",
+      "build": {
+        "BuiltUtc": "2026-10-29T02:15:04.2158478Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "3059b98e7b09015f7fb54868776af2121e9747b7c637631cfa0b896224ed8f80"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "2a92430defc6587bedf6ddcbc36473b2f9fccfebc9257c135a34db8946eda3c2"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "1df20f044e55869b558754807bc3548e460f558f9aea98fb9fae99bba032aa73"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "611cb933ece9c24378256f77d98e91e65a5805eb"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-branch-trim-fix",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-branch-trim-fix",
+        "E:\\WorldGen-builds\\player-branch-trim-fix"
+      ],
+      "name": "player-branch-trim-fix",
+      "keep": false,
+      "reason": "",
+      "bytes": 2209136831,
+      "asset_snapshot": "554b0757d64c1b0562bbe36fc48f8bdeeb535a38a3c5727fd0914c3f1c5ef3ba",
+      "build": {
+        "BuiltUtc": "2026-10-28T22:25:30.4807018Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "32db9c0ea76b91c6c09edb4c4da22475178630efeee68aeb06dcb735fa9beb33"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "ecb6e350741743714a5eafbb7e1e07cedc89a8a72efb83adefbc78ae940d0e24"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "8efb171b1581292202e6c9c0656386ead169b3a3db67141fc4297c2966eb0ad8"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "68ad5b2c9192a4fc471e8fe21d272df7b1e6fb92"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-branches",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-branches"
+      ],
+      "name": "player-item-physics-branches",
+      "keep": false,
+      "reason": "",
+      "bytes": 813956149,
+      "asset_snapshot": "8d155ec22562c77863d031dc81a1204bd4e4260148a50ca141926bf3026caf9d",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:42:16.9570060Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1e44d06087c71584ea7ac56048ccf39164a1999b768cbd3203f78d9223202473"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "28b5065cc9f33f544501896596a5038df3ebdf45737f48f1da0c592936b4c12e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "f6fe501fd6b063b10f442c57996e90f6b9ab47d3802e1494807719343060003e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-save-slots-final",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-save-slots-final",
+        "E:\\WorldGen-builds\\player-save-slots-final"
+      ],
+      "name": "player-save-slots-final",
+      "keep": false,
+      "reason": "",
+      "bytes": 2211290890,
+      "asset_snapshot": "554b0757d64c1b0562bbe36fc48f8bdeeb535a38a3c5727fd0914c3f1c5ef3ba",
+      "build": {
+        "BuiltUtc": "2026-10-28T23:19:23.6484202Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "ddd631064fda7e2083da9da8cb43f090aaad6bb0dd6691f557ac3346ecfc3bc3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "5d615961803755f306db95df73a145caab505b028d6af32c7f18388fd930a5ab"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "bd1163a551e702c2f2664842b00a2b7da7c5bf3505b922ce47314b9c6ed614d2"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "716edeb47ffd79ee0a82a27a7eb2ced62a86953c"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-baseline",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-physics-baseline"
+      ],
+      "name": "player-item-physics-baseline",
+      "keep": false,
+      "reason": "",
+      "bytes": 813955637,
+      "asset_snapshot": "8d155ec22562c77863d031dc81a1204bd4e4260148a50ca141926bf3026caf9d",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:35:14.9079865Z",
+        "Backend": "Project default",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1e44d06087c71584ea7ac56048ccf39164a1999b768cbd3203f78d9223202473"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "28b5065cc9f33f544501896596a5038df3ebdf45737f48f1da0c592936b4c12e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "f6fe501fd6b063b10f442c57996e90f6b9ab47d3802e1494807719343060003e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
+      ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-save-slots",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-save-slots",
+        "E:\\WorldGen-builds\\player-save-slots"
+      ],
+      "name": "player-save-slots",
+      "keep": false,
+      "reason": "",
+      "bytes": 2211262806,
+      "asset_snapshot": "c734f54e1c94b416a5d20420e03d4f063e6ebea8c2fa8b74aae5e18ce8fea159",
+      "build": {
+        "BuiltUtc": "2026-10-28T23:04:06.0397507Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "ddd631064fda7e2083da9da8cb43f090aaad6bb0dd6691f557ac3346ecfc3bc3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "a2a036f071c6530c4e24fccb2c872af6c144d612b0dceb1feed6bc4ef97c5cbd"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "bd1163a551e702c2f2664842b00a2b7da7c5bf3505b922ce47314b9c6ed614d2"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "716edeb47ffd79ee0a82a27a7eb2ced62a86953c"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-reviewed",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-reviewed"
+      ],
+      "name": "player-item-functionality-reviewed",
+      "keep": false,
+      "reason": "",
+      "bytes": 2200982152,
+      "asset_snapshot": "a4bbd1f04fc279911f74cf8e9b39d68777e6164d9cbe83b04d4d8cb984e92eb0",
+      "build": {
+        "BuiltUtc": "2026-10-28T17:30:53.1492697Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "5fbf502e3800d78f6a12d7dd84e8321f9b225af78497d2b31467ff6de4d1008f"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "0eb6326b6778d6b5aa7757c94b9fd3695d265aea1c71190d4822e076ef80e771"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "31c607d41cff787910941d4081b5c4c419de0b22d87a1980ec95e31315f1ed6a"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "041b6c36752281e4048134898aa9cf152c369fca"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-release",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-item-functionality-release"
+      ],
+      "name": "player-item-functionality-release",
+      "keep": false,
+      "reason": "",
+      "bytes": 2200820972,
+      "asset_snapshot": "66ea9a6f778e697ba15dcd6a6f916545b1649531bdd4197e9992b241a7d869ef",
+      "build": {
+        "BuiltUtc": "2026-10-28T16:48:19.8179324Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "1e44d06087c71584ea7ac56048ccf39164a1999b768cbd3203f78d9223202473"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "28b5065cc9f33f544501896596a5038df3ebdf45737f48f1da0c592936b4c12e"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "f6fe501fd6b063b10f442c57996e90f6b9ab47d3802e1494807719343060003e"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
+      ]
+    }
+  ],
+  "snapshots": {
+    "fae3b34524d9603a269c431b3b6f6c8fd54eb70ea625b6af04f5e8b41bb032a4": {
+      "packages": [
+        "player-item-functionality-polished",
+        "player-item-functionality-complete",
+        "player-wildlife-abundance"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "017855a00cab207fd5c0129eb99b121966c6007e35c638aa8d217a8c61d5145a": {
+      "packages": [
+        "player-woodworking"
+      ],
+      "files": 427,
+      "bytes": 577269368
+    },
+    "e76d8d6c935b5e64de80305406f0357be964610f1804c6d1c1a6b55f51e11213": {
+      "packages": [
+        "player-firefly-target"
+      ],
+      "files": 604,
+      "bytes": 624047071
+    },
+    "6b41efe4a3763384b1a9ef311c63d90866f2401f981f2176ca8106a805c3f425": {
+      "packages": [
+        "player-item-functionality-knapping"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "6f95bdcb068d3a966e4546ce7ebee0bda3671258e935d5e6cb0ae560df7a42f0": {
+      "packages": [
+        "player-item-functionality-final"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "171f414c0c2b05ee7ac3efb4d9abdc3ca3ab2a7ff3b9036dbb1fe72f95d1dbfd": {
+      "packages": [
+        "player-firefly-radar"
+      ],
+      "files": 604,
+      "bytes": 624045551
+    },
+    "c9559be1e5cb2417004bfa3264153c6c6c698de9eb8e00f9693182f8c9b09d97": {
+      "packages": [
+        "player-wildlife-radar"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "554b0757d64c1b0562bbe36fc48f8bdeeb535a38a3c5727fd0914c3f1c5ef3ba": {
+      "packages": [
+        "player-firefly-radar-final",
+        "player-branch-trim-fix",
+        "player-save-slots-final"
+      ],
+      "files": 604,
+      "bytes": 624047071
+    },
+    "a1d7cdc0748ff43049fb7f0bfe7e675a6fac34f9643f895daba77fd4ba16be3e": {
+      "packages": [
+        "player-fauna-ambience"
+      ],
+      "files": 15,
+      "bytes": 48701837
+    },
+    "b5be182d62adebd4f7f75b765887b0cec588c7d4922ac4c934257b5c0faac48e": {
+      "packages": [
+        "player-portable-technology"
+      ],
+      "files": 427,
+      "bytes": 577981576
+    },
+    "13fcbcc3680915be23ce0e3f56a1d7cf9e7c9bd9aac51be23042a0fb853b99f6": {
+      "packages": [
+        "player-human-refinement"
+      ],
+      "files": 426,
+      "bytes": 576828328
+    },
+    "89dc49cddfd0fb6f839c3ca5b56ea4f1da38e62a74a7bdd60ac067cdc5f24b25": {
+      "packages": [
+        "player-history-32-sovereignty34"
+      ],
+      "files": 14,
+      "bytes": 46473591
+    },
+    "4edf6d1efed88e862f5d1da8de75de51b64afbc938ce017f5be80bf3717ec478": {
+      "packages": [
+        "player-wildlife-audio-ready"
+      ],
+      "files": 604,
+      "bytes": 624047135
+    },
+    "e1296d5ef1965c01b13831d9b63bf0cdd4ac4a81c76b448dbd56cf480a4dd93d": {
+      "packages": [
+        "player-history-32-realms-autowarp"
+      ],
+      "files": 14,
+      "bytes": 58324391
+    },
+    "63d090ffb290a112ba25acaffaca0b8d97173d06c9035fb1e7416b321ab87927": {
+      "packages": [
+        "player-command-cleanup"
+      ],
+      "files": 427,
+      "bytes": 577080296
+    },
+    "ba04f52338bd96c4fa1dde7c0682d30db8e313776a6d74264ffa0f74617fd95c": {
+      "packages": [
+        "player-nature-actions-ready"
+      ],
+      "files": 604,
+      "bytes": 624047135
+    },
+    "8d155ec22562c77863d031dc81a1204bd4e4260148a50ca141926bf3026caf9d": {
+      "packages": [
+        "player-item-physics-settled",
+        "player-item-physics-conditioned",
+        "player-item-ranged-check",
+        "player-item-physics-branches",
+        "player-item-physics-baseline"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "4fcbc9293d5ad064131aa7cc1942131c8b89097f4763c874c287681142ff9918": {
+      "packages": [
+        "player-wildlife-audio"
+      ],
+      "files": 604,
+      "bytes": 624047135
+    },
+    "4fc0587ff7d1bebde6e90770703c36ac3712eb48df2bb1b6043f04678d8e6b93": {
+      "packages": [
+        "player-item-functionality"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "5ce147501bb4e2bbb074f088b8166e436e46abfdbd51548300c54dd0875d0ee2": {
+      "packages": [
+        "player-item-physics-rooted"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "66ea9a6f778e697ba15dcd6a6f916545b1649531bdd4197e9992b241a7d869ef": {
+      "packages": [
+        "player-item-followup",
+        "player-item-functionality-release"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "fe26fb6c42dd9acb422aae82abda7d6680de93c4289bfd6c11f1776b54bf9b0c": {
+      "packages": [
+        "player-nature-actions-final"
+      ],
+      "files": 604,
+      "bytes": 624047119
+    },
+    "bfd925f4c1217c3c6d2eb0734a56f4361f5574f6832f7aab0a7fb022b00fe179": {
+      "packages": [
+        "player-terrain-drainage-fractal"
+      ],
+      "files": 14,
+      "bytes": 47101299
+    },
+    "203f8429eb86f5de51b149705a7e6213ddce9e0a7db83552b79f5fd177737c16": {
+      "packages": [
+        "player-terrain-cheap-far"
+      ],
+      "files": 15,
+      "bytes": 48254141
+    },
+    "ca03ed130f7ede2cb0a27df4014d3b7afc6e018194a7d1844d43545ab0966d02": {
+      "packages": [
+        "player-surface-refined"
+      ],
+      "files": 14,
+      "bytes": 46603453
+    },
+    "8b633a6256ae05a727397a3e52463195d8db534ad09c85dced379716f56b06c3": {
+      "packages": [
+        "player-nature-actions"
+      ],
+      "files": 604,
+      "bytes": 624047119
+    },
+    "e45263ba075dc85055d5093a37d7c67611199ae59e2e001bd42bfadf20fc941b": {
+      "packages": [
+        "player-item-physics-neck",
+        "player-item-physics-compact"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "1b0022326e2db7864b95de46af66242b3ca84de6050160e52264ee65baf51f05": {
+      "packages": [
+        "player-local-scatter"
+      ],
+      "files": 14,
+      "bytes": 47040547
+    },
+    "0e5f09aff1480e71ea4da945c77891c7979818e781a848b5c9e614af8ac75779": {
+      "packages": [
+        "player-scatter-collision-ready"
+      ],
+      "files": 604,
+      "bytes": 624047135
+    },
+    "5d59fbcf356906125508ae66ed6a5a2618757656755851558a66d1ea076d7567": {
+      "packages": [
+        "player-camp-prototype"
+      ],
+      "files": 604,
+      "bytes": 624073919
+    },
+    "1c93845fcca2249ce774c3f9974dd35abcf17bf05c0ae349f7ecb40e14d8dda5": {
+      "packages": [
+        "player-item-physics-lod"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "bb4902c7ec3d8344b081c9fde2cff23489bf54b629f0f6f10cba49e9545da085": {
+      "packages": [
+        "player-tree-branches"
+      ],
+      "files": 427,
+      "bytes": 577269368
+    },
+    "73649001a3b260b0a4190827cc1467e24dd5437550350a15e9637b185d620d2c": {
+      "packages": [
+        "player-item-physics-small"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    },
+    "08183b1df6c2a456883c1709b86c16d1ebca82613492647fb81b3ea1020b27b0": {
+      "packages": [
+        "player-terrain-surface-art-v1"
+      ],
+      "files": 15,
+      "bytes": 55125965
+    },
+    "332c46feeae6e2fd728e5aad9c5d3a39fb657369297baa2b3219f0c607c97737": {
+      "packages": [
+        "player-scatter-collision"
+      ],
+      "files": 604,
+      "bytes": 624047135
+    },
+    "c734f54e1c94b416a5d20420e03d4f063e6ebea8c2fa8b74aae5e18ce8fea159": {
+      "packages": [
+        "player-save-slots"
+      ],
+      "files": 604,
+      "bytes": 624047071
+    },
+    "a4bbd1f04fc279911f74cf8e9b39d68777e6164d9cbe83b04d4d8cb984e92eb0": {
+      "packages": [
+        "player-item-functionality-reviewed"
+      ],
+      "files": 604,
+      "bytes": 624039615
+    }
+  },
+  "asset_lock": "assets/legacy-runtime-assets.lock.json"
+}

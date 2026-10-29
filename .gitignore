@@ -61,3 +61,5 @@ unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans.meta
 *.key
 *.pfx
 *.p12
+.game-asset-download/
+*.asset-pending

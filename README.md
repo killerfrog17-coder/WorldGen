@@ -22,6 +22,10 @@ Version3.22 revises four-season climate geography: coastal/monsoon moisture, war
 
 Requirements: .NET SDK **10.0.401**, wasm-tools, Unity **6000.6.0f1** / URP **17.6.0** for Unity, and Chrome for the automated browser checks.
 
+On a fresh checkout, restore the versioned large game assets before building:
+`python scripts/restore-game-assets.py`. See [asset recovery and checkpoint policy](docs/ASSET_VERSIONING.md)
+for prerequisites, verification and recovery of older packaged assets.
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 dotnet run --project src/WorldGen.Web -c Release --no-build --urls http://127.0.0.1:5080

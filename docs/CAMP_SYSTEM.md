@@ -58,15 +58,16 @@ Research informing this approximation:
   supports staged fire building. The hand-drill workflow is a plausible
   reconstruction, not a claim of universal use by all Paleolithic populations.
 
-Verification: 37 core camp/material/sleep/save checks, 784 earlier portable
+Verification: 39 core camp/material/sleep/save checks, 784 earlier portable
 crafting checks, 75 inventory, 165 fall/death, 37 drinking/swimming, 160 earlier
 thermal/HUD, 67 mode and 33 foraging checks pass. The combined packaged camp pass
-has 44 native checks, including real firelight compared with a same-frame
+has 49 native checks, including real firelight compared with a same-frame
 disabled-light control, contact burns, ember expiry, sleep and save serialization.
 The combined fixture additionally crafts its tinder, kindling and hand drill
 through the actual timed actions while restoring an originally held spear.
 It also verifies third-person targeting/hammering and exact reuse of the worker's
-fitted river data. Evidence is under `artifacts/camp-water-20261029`; failed
+fitted river data, plus worn-pack placement and recovery without stale container
+ownership. Evidence is under `artifacts/camp-water-20261029`; failed
 attempts are retained and are not pass claims.
 
 Loose bedding uses material volume, rather than treating a hide as an enormous

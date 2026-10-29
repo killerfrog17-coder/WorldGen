@@ -1,0 +1,2 @@
+# Native system certificate trust; no cloud SDK or paid service.
+truststore==0.10.5
