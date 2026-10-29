@@ -1,0 +1,98 @@
+[
+  {
+    "id": "pataud",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Abri_Pataud.jpg/1280px-Abri_Pataud.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Abri_Pataud.jpg",
+    "artist": "Didier Descouens",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "Abri Pataud is a prehistoric site that is at the heart of the village of Les Eyzies-de-Tayac in the Dordogne, France.",
+    "file": "docs\\reports\\shelter-images\\pataud.jpg",
+    "width": 1280,
+    "height": 518
+  },
+  {
+    "id": "mammoth",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Dwelling_made_with_mammoth_bones.jpg/1280px-Dwelling_made_with_mammoth_bones.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Dwelling_made_with_mammoth_bones.jpg",
+    "artist": "Momotarou2012",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "description": "Dwelling made with mammoth bones. Reconstruction based on the example of Mezhirich. Exhibit in the National Museum of Nature and Science, Tokyo, Japan.",
+    "file": "docs\\reports\\shelter-images\\mammoth.jpg",
+    "width": 1280,
+    "height": 928
+  },
+  {
+    "id": "tent",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Jielbeaumadier_asnapio_tente_paleolithique_vda_2010.jpg/1280px-Jielbeaumadier_asnapio_tente_paleolithique_vda_2010.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Jielbeaumadier_asnapio_tente_paleolithique_vda_2010.jpg",
+    "artist": "Jiel Beaumadier (http://jiel.b.free.fr)",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "description": "Parc archéologique Asnapio à Villeneuve d'Ascq. Tente paléolithique.",
+    "file": "docs\\reports\\shelter-images\\tent.jpg",
+    "width": 1280,
+    "height": 960
+  },
+  {
+    "id": "wickiup",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Apache_Wickiup%2C_Edward_Curtis%2C_1903.jpg/1280px-Apache_Wickiup%2C_Edward_Curtis%2C_1903.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Apache_Wickiup,_Edward_Curtis,_1903.jpg",
+    "artist": "Edward S. Curtis",
+    "license": "Public domain",
+    "license_url": "",
+    "description": "TITLE:  Apache Wickiup CALL NUMBER:  LOT 12310-A [item] [P&amp;P] Check for an online group record (may link to related items) REPRODUCTION NUMBER:  LC-USZ62-101173 (b&amp;w film copy neg.) SUMMARY:  Rounded structure made out of grass, with baskets in front. MEDIUM:  1 photographic print. CREATED/PUBLISHED:  c1903. CREATOR: NOTES: H37672 U.S. Copyright Office. Edward S. Curtis Collection. Curtis no. 898. SUBJECTS: Indians of North America--Dwellings--Southwest, New--1900-1910. Apache Indians--Dwellings--1900-1910. Wickiups--Southwest, New--1900-1910. FORMAT: Photographic prints 1900-1910. CARD #:  90710167 eo:Vigvamo ru:Вигвам",
+    "file": "docs\\reports\\shelter-images\\wickiup.jpg",
+    "width": 1280,
+    "height": 949
+  },
+  {
+    "id": "pataud-excavation",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Abri_Pataud_-_Les_Eyzies_de_Tayac_-_20090922.jpg/1280px-Abri_Pataud_-_Les_Eyzies_de_Tayac_-_20090922.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Abri_Pataud_-_Les_Eyzies_de_Tayac_-_20090922.jpg",
+    "artist": "Sémhur",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "The Abri Pataud, an archaeological excavation site in Les Eyzies-de-Tayac, Dordogne, Aquitaine, France. Currently, the research is about the gravettian culture, near 29,000 ~ 22,000 BP.",
+    "file": "docs\\reports\\shelter-images\\pataud-excavation.jpg",
+    "width": 1280,
+    "height": 582
+  },
+  {
+    "id": "ohalo",
+    "url": "https://journals.plos.org/plosone/article/figure/image?size=large&id=10.1371/journal.pone.0262434.g001",
+    "source": "https://doi.org/10.1371/journal.pone.0262434.g001",
+    "artist": "Steiner et al. (2022)",
+    "license": "CC BY (publisher statement)",
+    "license_url": "https://creativecommons.org/licenses/by/",
+    "description": "Published archaeological figure; no roof reconstruction.",
+    "file": "docs\\reports\\shelter-images\\ohalo.jpg",
+    "width": 1285,
+    "height": 1200
+  },
+  {
+    "id": "kharaneh",
+    "url": "https://journals.plos.org/plosone/article/figure/image?size=large&id=10.1371/journal.pone.0031447.g005",
+    "source": "https://doi.org/10.1371/journal.pone.0031447.g005",
+    "artist": "Maher et al. (2012)",
+    "license": "CC BY (publisher statement)",
+    "license_url": "https://creativecommons.org/licenses/by/",
+    "description": "Published archaeological figure; no roof reconstruction.",
+    "file": "docs\\reports\\shelter-images\\kharaneh.jpg",
+    "width": 1400,
+    "height": 1140
+  },
+  {
+    "id": "kharaneh-plan",
+    "url": "https://journals.plos.org/plosone/article/figure/image?size=large&id=10.1371/journal.pone.0031447.g003",
+    "source": "https://doi.org/10.1371/journal.pone.0031447.g003",
+    "artist": "Maher et al. (2012)",
+    "license": "CC BY (publisher statement)",
+    "license_url": "https://creativecommons.org/licenses/by/",
+    "description": "Published archaeological figure; no roof reconstruction.",
+    "file": "docs\\reports\\shelter-images\\kharaneh-plan.jpg",
+    "width": 878,
+    "height": 1200
+  }
+]

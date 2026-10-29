@@ -1,6 +1,33 @@
 # WorldGen repository instructions
 
 
+PALEOLITHIC SHELTER RESEARCH PDF,28October2026:
+Owner requested quick researched shelter catalogue with real examples/pictures,
+materials and requirements for dynamic building; clarified PDF and open it.
+Delivered/opened docs/reports/WorldGen - Paleolithic Shelters.pdf:12landscape
+pages,14families/material variants,7distinct credited reference images/9placements,
+original4-stage lean-to diagram,16primary/institutional/context references and56
+clickable source/licence links. Explicitly separates documented floors/foundations,
+inferred roofs and plausible unverified forms. Core window20k-12k years ago;Ohalo
+23k context; late Natufian stone-founded huts included intentionally. Snow-block
+igloos NOT established as Paleo; Monte Verde14.5k traditional interpretation
+flagged with2026chronological critique+response. Bone circles not all certified
+roofed dwellings; Mezhyrich contemporary study/context cited. Later Apache1903
+photo labelled analogy; museum reconstructions NOT ancient surviving buildings.
+Dynamic requirements table +software order:rigid supports/plant/drive/tie,layered
+cover/bedding,sheets/portability,bending,largebone/terrain/caves later. No building
+implementation authorized/performed by this research request. Existing selected
+nature-actions-ready game/shortcut unchanged. No game/build/inference workers
+launched, no owner apps closed, no new Desktop files. PDF opened default viewer.
+Generator scripts/build-paleolithic-shelter-report.py; credited JPEG references
+and metadata docs/reports/shelter-images. All12pages rendered/visually inspected,
+89layoutbounds+text/link checks pass. PDF3,836,549bytes SHA256
+789244a2476cd5aa364059e193e42752d9c31efa522496b77215a2c9ce2d7f45.
+Evidence artifacts/shelter-research-20261028 incl sources/catalogue/layout/render/
+pdf-checks. Preserve owner prompt deletion/two old deer scripts. Report/source/
+reference images checkpoint and remote details in task source-checkpoint.json.
+
+
 NATURE/FOOD + FIRST PERSON ACTION RELEASE SELECTED,28October2026:
 Owner NEW request: rudimentary first-person held-item action motions, obtainable
 natural craft inputs incl reeds/fibres, realistic-ish foraged foods/toxicity and
