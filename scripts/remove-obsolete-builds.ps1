@@ -14,6 +14,7 @@ if($LASTEXITCODE -ne 0){throw 'Dependency locks or build inventory differ from t
 if(Get-Process Unity -ErrorAction SilentlyContinue){throw 'Do not purge build work while Unity is running'}
 $roots=@((Join-Path $repo 'artifacts'),'E:\WorldGen-builds','C:\WorldGenBuildArtifacts') | ForEach-Object {[IO.Path]::GetFullPath($_).TrimEnd('\')}
 $results=@()
+if(Test-Path -LiteralPath $Report){$results=@((Get-Content -LiteralPath $Report -Raw | ConvertFrom-Json).removed)}
 foreach($entry in $audit.packages){
     if($entry.keep){continue}
     $target=[IO.Path]::GetFullPath($entry.path).TrimEnd('\')
@@ -42,7 +43,7 @@ foreach($entry in $audit.packages){
     if($extraWorlds.Count){throw "Non-default world inside $target"}
     # All final absolute paths are checked above, before this recursive operation.
     Remove-Item -LiteralPath $target -Recurse -Force
-    $results+=[ordered]@{path=$target;bytes=$entry.bytes;asset_snapshot=$entry.asset_snapshot}
+    $results+=[pscustomobject][ordered]@{path=$target;bytes=$entry.bytes;asset_snapshot=$entry.asset_snapshot}
     foreach($alias in $entry.aliases){
         $aliasPath=[IO.Path]::GetFullPath($alias).TrimEnd('\')
         if($aliasPath -eq $target -or !$aliasPath.StartsWith((Join-Path $repo 'artifacts')+'\',[StringComparison]::OrdinalIgnoreCase)){continue}
