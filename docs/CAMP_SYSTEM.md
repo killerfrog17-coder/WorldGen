@@ -103,7 +103,9 @@ pass through intervening solids, then becomes available immediately on removing
 the obstruction. A separate 21-check water run verifies shallow-water rest and
 flooded bedding are rejected, with drinking/swimming/underwater paths retained.
 Those candidate runs passed without runtime errors. At the owner's request,
-the existing shortcut now selects the Mono test candidate built at
-2026-10-29T17:27:55Z, including the subsequent general bank-stitching change.
-The final rendered check of that mesh change is pending. The earlier IL2CPP
-package remains the last fully verified release, with its original evidence.
+the existing shortcut initially selected a Mono candidate. The owner rejected
+Mono and requires IL2CPP for every player build. The shortcut now selects its
+IL2CPP replacement built at 2026-10-29T18:07:39Z, including the general bank
+stitching change. It passes native boot/terrain upload and source/asset checks;
+the final rendered bank check remains pending. The earlier fully tested IL2CPP
+package retains its original gameplay evidence.

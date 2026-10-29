@@ -146,10 +146,12 @@ visible. The candidate now stitches all coincident triangle edges using local
 point bins instead of recognizing only grid directions. Fifteen sampled meshes
 have no internal open edges, retain projected area and pass the orientation
 uncertainty guard; the 10,318 river probes and 1,510 major-river probes still
-pass, including the original 8 cm exposed-boundary guard. At the owner's request
-the shortcut selects that compiled Mono candidate for immediate testing. Its
-final native bank render is pending; do not treat the earlier renders as proof
-that this last correction resolved the visible slits.
+pass, including the original 8 cm exposed-boundary guard. The owner subsequently
+required an IL2CPP rebuild: the shortcut selects that replacement, built at
+2026-10-29T18:07:39Z. Source/assets and native boot/terrain upload are verified.
+The final native bank render is pending; do not treat the earlier renders as
+proof that this last correction resolved the visible slits. The loading-time
+regression also remains unresolved; changing backend is not its complete fix.
 
 Research for that follow-up:
 

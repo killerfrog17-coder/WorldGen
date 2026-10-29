@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+SELECTEDIL2CPP29Oct~13:09CDT: ownerrebuild-onlyrequestDONE. Existingrootshortcut
+NOW artifacts/player-camp-water-followup/WorldGen.exe, IL2CPP RELEASE
+BuiltUtc2026-10-29T18:07:39.2457994Z, productioncommit64c1b1a. Allfutureplayer
+buildsMUSTuseIL2CPP(NEVERMono): script/Editor/defaultStandaloneallenforceit.
+Actualdefaultscriptbuild(no -Il2Cppflag)verifiedIL2CPP, nativeGameAssemblypresent,
+noMonoBleedingEdge. BUILD0/noC#/shadererrors. followup-proof:578protectedhashes,
+667frozenproductionfiles,177collision/sourceIDs,18originalaudioEXACT. Native
+il2cpp-followup-boot actualterrainupload/vertex/index/bounds/controller/cancel
+checksPASS/EXIT0/cleanlog. No fullworldrender/nativecamp rerunthisrebuild-only
+turn; generalbankstitchvisualacceptance andloadingregression remainOUTSTANDING.
+DoNOTclaimloadingfixedorallbankseamsgone. Selectedrecord
+artifacts/camp-water-20261029/selected-il2cpp-followup.json; originalpolished
+proofsretainhistoricalmeaning. No runningownworkers/native/Unityleft. Ownerapps
+untouched; previouspackageskeptfornow. NO cleanup/paid/subagents. Owner3files
+untouched. No furtherovernightworkautoresume; awaitownerfeedback.
+
 OWNERMANDATE29Oct: NEVER USE MONO PLAYER BUILDS. Owner rejects Mono even for
 diagnostics/iteration and explicitly requests rebuildnow. SupersedesALLearlier
 Monoiterationguidance. BuildscriptALWAYSrequestsIL2CPP; EditorBuildPlayerALWAYS
