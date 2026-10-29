@@ -57,6 +57,14 @@ namespace WorldGen.Presentation
 
     public static class TerrainAdaptiveLod
     {
+        public static int BackdropLevel(double scale,double viewDistance)
+        {
+            if(!double.IsFinite(scale)||scale<.01||scale>2||!double.IsFinite(viewDistance))throw new ArgumentOutOfRangeException();
+            int maximum=Math.Max(0,(int)Math.Floor(Math.Log(128/scale,2)));
+            double range=Math.Max(1000,Math.Min(250000,viewDistance));
+            int covering=Math.Max(0,(int)Math.Ceiling(Math.Log(range*2/(TerrainLod.BaseSizeM*scale),2)));
+            return Math.Min(maximum,covering);
+        }
         public static double ProjectedError(double metres,double distance,double verticalDistance,int height,double fov)
         {
             double pixels=Math.Max(480,Math.Min(2160,height))/(2*Math.Tan(Math.Max(30,Math.Min(110,fov))*Math.PI/360));

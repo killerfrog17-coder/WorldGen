@@ -80,7 +80,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void PlanBackdrop()
     {
-        backdrops.Clear();backdropRevision++;int root=Math.Max(0,(int)Math.Floor(Math.Log(128/HorizontalScale,2)));
+        backdrops.Clear();backdropRevision++;int root=TerrainAdaptiveLod.BackdropLevel(HorizontalScale,viewDistance);
         double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<root);
         for(int z=(int)Math.Floor((motion.Z-viewDistance)/size);z<=(int)Math.Floor((motion.Z+viewDistance)/size);z++)
             for(int x=(int)Math.Floor((motion.X-viewDistance)/size);x<=(int)Math.Floor((motion.X+viewDistance)/size);x++)

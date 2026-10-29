@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+CURRENT29Oct~04:58CDT: Source791436d pushed/remotelyverified, new backdrop policy
+source now pendingcommit/build. Camp44nativePASS; water11nativePASS; Core37camp,
+161hydraulics,10318repair/192index,1510major,52420Earth/62441procedural,21cachePASS.
+Two IL2CPP packaging failures: firstrefusedMonobackendfolder, second E: diskfull.
+No sourcefailure; final release NOTselected. Safely MOVED ONLYour unfinished new
+E/player-camp-water-ready to artifacts/player-camp-water-release on C:, removed
+its danglingjunction; no selected/fallback/sourceart/savesdeleted. C~.59GBfree,
+E~1.04GBfree. Newreleasefolder partialIL2CPP now C; complete using thatfolder.
+OldMono candidate retained E/player-camp-prototype. Proofscript taskroot points
+newC releasefolder; re-freeze beforebuild (663productionfiles). Sourcechanged
+sincepreviousfreeze becausemeasuredcoldloadfix: four104.9km backdrop tiles cost
+48.50s at1kmview; four3.28km tiles2.90s, sameauthoritativeterrain. Full104detail
+bench22.67s, no profilebottleneck. NewBackdropLevel respectsviewrange/oldmaxhorizon;
+3834coveragechecksPASS. Nativecombinedtimingsandcamp/waterregressionspending.
+No performanceclaim atmaxviewdistance. No other newscope/subagents/paid.
+
+
 OVERNIGHT CURRENT,29October2026~04:45CDT:
 ALL ordered scope remains active, userback10-11am, noharddeadline/subagents/paid.
 Main tested fallback7ce05ed remotelyverified. New optional hydraulics+camp fixes

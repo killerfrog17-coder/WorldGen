@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--backdrop-policy-only")){CampTerrainBench.CheckBackdropPolicy();return;}
+if(args.Contains("--camp-backdrop-bench")){CampTerrainBench.Backdrops(args[1],args[2]);return;}
+if(args.Contains("--camp-terrain-bench")){CampTerrainBench.Run(args[1],args[2]);return;}
 if(args.Contains("--terrain-derivation-cache")){TerrainDerivationCacheTests.Run(args[1],args[2]);return;}
 if(args.Contains("--river-scale-world")){RiverScaleWorldTests.Run(args[1],args[2]);return;}
 if(args.Contains("--river-hydraulics-only")){RiverHydraulicsTests.Run();return;}

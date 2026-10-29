@@ -89,6 +89,14 @@ player actually reuses the worker's fitted data. Full camp-site terrain settling
 still took 130.22s (104 tiles), with a 15.3s cold tile; startup fitting and tile
 meshing are separate costs. Neither this nor the geometry checks is an FPS claim.
 
+The subsequent loading investigation reproduced 48.50s in four 104.9km fallback
+tiles at a requested 1km view range. Four 3.28km fallback tiles took 2.90s, using
+the same terrain sampler, while the 104 requested detail tiles took 22.67s total
+in a sequential core benchmark. Fallback tile level now follows view distance,
+up to the previous far-horizon maximum. 3,834 policy/coverage checks pass. This
+specifically helps short view ranges; it does not claim the same reduction at
+the maximum view distance. Native end-to-end timing after this change is pending.
+
 Research for that follow-up:
 
 - [USGS, hydraulic geometry of stream channels](https://pubs.usgs.gov/publication/pp252):
