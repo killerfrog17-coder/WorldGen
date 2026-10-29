@@ -7,7 +7,7 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class CampVisual {public GameObject Root;public AudioSource Sound;public ParticleSystem Smoke;public Quaternion SurfaceRotation;public double Mass;public bool Burning,Glowing;public double Embed;}
+    sealed class CampVisual {public GameObject Root;public AudioSource Sound;public ParticleSystem Smoke;public Quaternion SurfaceRotation;public int GroundLevel=-1;public double Mass;public bool Burning,Glowing;public double Embed;}
     readonly Dictionary<string,CampVisual> campVisuals=new Dictionary<string,CampVisual>();
     Material campFlameMaterial,campEmberMaterial;
     readonly Vector4[] campLightPositions=new Vector4[4],campLightColours=new Vector4[4];bool campLightTestOff;int campLightCount;
@@ -15,7 +15,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var yaw=Quaternion.Euler(0,(float)c.Heading,0);if(c.Kind!=CampKind.Bedding)return yaw;
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);
-        var normal=new Vector3((float)(Ground(x-.5,z)-Ground(x+.5,z)),1,(float)(Ground(x,z-.5)-Ground(x,z+.5))).normalized;
+        var normal=new Vector3((float)(CampFloor(x-.5,z)-CampFloor(x+.5,z)),1,(float)(CampFloor(x,z-.5)-CampFloor(x,z+.5))).normalized;
         return Quaternion.FromToRotation(Vector3.up,normal)*yaw;
     }
     void BindCampLights(Camera camera)
@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var c in Camp.Objects.Where(c=>c.Kind==CampKind.Fire&&c.FirePowerKw>0).OrderBy(c=>(c.Position-Position).Length))
         {
             if((c.Position-Position).Length*frame.RadiusM>18)continue;
-            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);var p=transform.TransformPoint(new Vector3((float)(x-originX),(float)Ground(x,z)+.45f,(float)(z-originZ)));
+            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);var p=transform.TransformPoint(new Vector3((float)(x-originX),(float)CampFloor(x,z)+.45f,(float)(z-originZ)));
             campLightPositions[campLightCount]=new Vector4(p.x,p.y,p.z,81);float intensity=(float)c.FirePowerKw*3*Mathf.Lerp(1,.08f,(float)(SkyFrame?.Daylight??0))*(.94f+.06f*Mathf.Sin(Time.time*13.7f));campLightColours[campLightCount]=new Vector4(intensity,intensity*.34f,intensity*.075f,1);if(++campLightCount==4)break;
         }
         Shader.SetGlobalInteger("_WorldGenCampLightCount",campLightCount);if(campLightCount>0){Shader.SetGlobalVectorArray("_WorldGenCampLightPositions",campLightPositions);Shader.SetGlobalVectorArray("_WorldGenCampLightColours",campLightColours);}
@@ -50,7 +50,9 @@ public sealed partial class LocalTerrainExplorer
             if(!near){InvalidateCampVisual(c);continue;}
             if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM)){InvalidateCampVisual(c);}
             if(!campVisuals.TryGetValue(c.Id,out var v)){v=CreateCampVisual(c);campVisuals.Add(c.Id,v);}
-            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)Ground(x,z);v.Root.transform.localPosition=new Vector3((float)(x-originX),floor,(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
+            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);
+            if(v.GroundLevel!=level){v.SurfaceRotation=CampSurfaceRotation(c);v.GroundLevel=level;}
+            v.Root.transform.localPosition=new Vector3((float)(x-originX),floor,(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
             UpdateCampVoice(c,v);
             UpdateCampSmoke(v.Smoke);
         }

@@ -1,5 +1,5 @@
 {
-  "verified_utc": "2026-10-29T11:50:00Z",
+  "verified_utc": "2026-10-29T11:54:37.831252Z",
   "checkpoint": "4e3a088a1ad751c994394a7c0d69215a72b17634",
   "tag": "checkpoint/camp-water-assets-20261029",
   "method": "Fresh shallow GitHub clone, full remote asset restore, Unity build with a new Library, actual native player gameplay checks",

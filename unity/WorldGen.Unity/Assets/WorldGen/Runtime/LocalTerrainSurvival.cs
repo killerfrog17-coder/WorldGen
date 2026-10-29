@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var fire in Camp.Objects)
         {
             double distance=(Position-fire.Position).Length*frame.RadiusM;if(distance>.55||fire.Kind!=CampKind.Fire)continue;
-            TerrainHandoff.Coordinates(frame,fire.Position,out double fx,out double fz);double feetHeight=motion.Y-TerrainMotion.EyeHeightM-Ground(fx,fz);
+            TerrainHandoff.Coordinates(frame,fire.Position,out double fx,out double fz);double feetHeight=motion.Y-TerrainMotion.EyeHeightM-CampFloor(fx,fz);
             double burn=CampRules.ContactDamagePerSecond(fire,distance,feetHeight);if(burn>0)PlayerDamageRules.Apply(Vitals,Mode,burn*dt,PlayerDeathCause.Fire);
         }
         if(Vitals.FoodExposures!=null)foreach(var exposure in Vitals.FoodExposures)

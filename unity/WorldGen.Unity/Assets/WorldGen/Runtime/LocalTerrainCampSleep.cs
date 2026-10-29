@@ -14,7 +14,7 @@ public sealed partial class LocalTerrainExplorer
         if(bed!=null)
         {
             if(!Camp.Objects.Contains(bed)||(Position-bed.Position).Length*frame.RadiusM>4){InventoryFeedback("The bedding is out of reach.");return;}
-            TerrainHandoff.Coordinates(frame,bed.Position,out double x,out double z);motion.Place(x,z,Ground(x,z));humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
+            TerrainHandoff.Coordinates(frame,bed.Position,out double x,out double z);motion.Place(x,z,CampFloor(x,z));humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
         }
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);SetInventoryOpen(false);
         campMenu=null;campGroundMenu=campSleepMenu=false;campResting=rest;campSleeping=!rest;campSleepSeconds=Math.Max(1,hours)*3600;campSleepHealth=Vitals.Health;sleepingBed=bed;CaptureMouse();

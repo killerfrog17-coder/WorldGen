@@ -9,6 +9,8 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     CampState Camp=>PlayerRules.Camp??(PlayerRules.Camp=new CampState());
+    double CampFloor(double x,double z)
+    {double visible=VisibleGround(x,z,double.NaN);return double.IsNaN(visible)?Ground(x,z):visible;}
     CampObject campMenu;bool campGroundMenu,campSleepMenu;
     Possession campPlaceMaterial;CampKind campPlaceKind;LineRenderer campPreview;
     Vector3 campPlacePoint;bool campPlaceValid;string campPlaceReason="";
@@ -26,10 +28,10 @@ public sealed partial class LocalTerrainExplorer
         if(ray.direction.y>-.015f)return false;float previous=0;
         for(float t=.2f;t<=4+(float)humanCamera.Distance;t+=.2f)
         {
-            var p=ray.GetPoint(t);double x=p.x+originX,z=p.z+originZ;double floor=Ground(x,z);
+            var p=ray.GetPoint(t);double x=p.x+originX,z=p.z+originZ;double floor=CampFloor(x,z);
             if(p.y>floor){previous=t;continue;}
-            float lo=previous,hi=t;for(int i=0;i<5;i++){float mid=(lo+hi)*.5f;var q=ray.GetPoint(mid);if(q.y>Ground(q.x+originX,q.z+originZ))lo=mid;else hi=mid;}
-            p=ray.GetPoint(hi);x=p.x+originX;z=p.z+originZ;p.y=(float)Ground(x,z);
+            float lo=previous,hi=t;for(int i=0;i<5;i++){float mid=(lo+hi)*.5f;var q=ray.GetPoint(mid);if(q.y>CampFloor(q.x+originX,q.z+originZ))lo=mid;else hi=mid;}
+            p=ray.GetPoint(hi);x=p.x+originX;z=p.z+originZ;p.y=(float)CampFloor(x,z);
             if(Vector3.Distance(PlayerFeet(),p)>3)return false;
             point=campGroundPoint=p;sample=campGroundSample=walkingPatch.Sample(frame.Position(x,z));campGroundHit=true;return true;
         }
@@ -38,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
     bool CampGrassAvailable(Vector3 point,LocalTerrainSample sample)
     {
         if(sample.Underwater||sample.Cover.Grasses.Length<=.08)return false;
-        double x=point.x+originX,z=point.z+originZ,gx=Ground(x+.5,z)-Ground(x-.5,z),gz=Ground(x,z+.5)-Ground(x,z-.5);
+        double x=point.x+originX,z=point.z+originZ,gx=CampFloor(x+.5,z)-CampFloor(x-.5,z),gz=CampFloor(x,z+.5)-CampFloor(x,z-.5);
         return sample.Cover.Grasses.Length*GroundFlora.GrassSlopeAdmission(1/Math.Sqrt(1+gx*gx+gz*gz))>.08;
     }
     CampObject AimedCamp(out float distance)
@@ -48,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var c in Camp.Objects)
         {
             if((c.Position-Position).Length*frame.RadiusM>6)continue;
-            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)Ground(x,z),height=c.Kind==CampKind.Stake?(float)(c.Materials[0].HeightM-c.EmbedM):c.Kind==CampKind.Bedding?(float)c.BeddingDepthM+.1f:.35f;
+            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)CampFloor(x,z),height=c.Kind==CampKind.Stake?(float)(c.Materials[0].HeightM-c.EmbedM):c.Kind==CampKind.Bedding?(float)c.BeddingDepthM+.1f:.35f;
             var center=new Vector3((float)(x-originX),floor+height*.5f,(float)(z-originZ));var bounds=new Bounds(center,c.Kind==CampKind.Stake?new Vector3(.12f,height,.12f):c.Kind==CampKind.Bedding?new Vector3(1,Mathf.Max(.1f,height),2):new Vector3(.95f,height,.95f));
             if(c.Kind==CampKind.Bedding)
             {
@@ -100,7 +102,7 @@ public sealed partial class LocalTerrainExplorer
         if(campPlaceValid)
         {
             double x=campPlacePoint.x+originX,z=campPlacePoint.z+originZ;
-            double grade=Math.Max(Math.Abs(Ground(x+.4,z)-Ground(x-.4,z)),Math.Abs(Ground(x,z+.4)-Ground(x,z-.4)))/.8;
+            double grade=Math.Max(Math.Abs(CampFloor(x+.4,z)-CampFloor(x-.4,z)),Math.Abs(CampFloor(x,z+.4)-CampFloor(x,z-.4)))/.8;
             if(sample.Underwater){campPlaceValid=false;campPlaceReason="Cannot place this in water.";}
             else if(grade>(campPlaceKind==CampKind.Stake?1.1:.35)){campPlaceValid=false;campPlaceReason="Choose flatter ground.";}
             else if(campPlaceKind==CampKind.Stake&&(sample.Ground.DepthM<.035||CurrentWeather.TemperatureC< -4)){campPlaceValid=false;campPlaceReason="This ground is too rocky or frozen to plant the stick.";}
@@ -108,7 +110,7 @@ public sealed partial class LocalTerrainExplorer
             {double distance=(c.Position-frame.Position(x,z)).Length*frame.RadiusM;if(distance<(c.Kind==CampKind.Bedding||campPlaceKind==CampKind.Bedding?1.15:.25)){campPlaceValid=false;campPlaceReason="Leave room around the existing placed materials.";break;}}
         }
         var color=campPlaceValid?new Color(.32f,.8f,.5f):new Color(.95f,.3f,.2f);campPreview.sharedMaterial.SetColor("_BaseColor",color);
-        for(int i=0;i<48;i++){float a=i*Mathf.PI/24;float rx=campPlaceKind==CampKind.Bedding?.5f:campPlaceKind==CampKind.Stake?.075f:.45f,rz=campPlaceKind==CampKind.Bedding?1:rx;campPreview.SetPosition(i,campPlacePoint+new Vector3(Mathf.Sin(a)*rx,.035f,Mathf.Cos(a)*rz));}
+        for(int i=0;i<48;i++){float a=i*Mathf.PI/24;float rx=campPlaceKind==CampKind.Bedding?.5f:campPlaceKind==CampKind.Stake?.075f:.45f,rz=campPlaceKind==CampKind.Bedding?1:rx;var p=campPlacePoint+new Vector3(Mathf.Sin(a)*rx,0,Mathf.Cos(a)*rz);p.y=(float)CampFloor(p.x+originX,p.z+originZ)+.035f;campPreview.SetPosition(i,p);}
     }
     void CancelCampPlacement(){campPlaceMaterial=null;if(campPreview!=null){Destroy(campPreview.sharedMaterial);Destroy(campPreview.gameObject);campPreview=null;}}
     Possession TakeCampMaterial(Possession source)
