@@ -1,5 +1,33 @@
 # WorldGen repository instructions
 
+PLAYER / SCATTER COLLISION,28October2026 evening:
+Owner asks to stop walking through trees/boulders. Added local source-derived
+solid cache: tree trunk capsules, actual near rock/outcrop/large-stone mesh
+copies; grass/leaves/tiny stones nonblocking. Region includes swept movement;
+refresh on movement/source projection/origin/collection; no terrain or scatter
+positions changed. Core TerrainMotion optional per-substep host solver uses
+Unity capsule controller on dedicated layers26/27; support queries allow boulder
+standing. Spectator skips solver/support; Creative flight blocks. Controller
+only enabled during movement to avoid becoming a combat/self obstruction.
+Only solver corrections return to double motor state (no float rounding of free
+high-FPS movement). Combat hits retain scatter source/tree identity; exact nearby
+rock hits replace old coarse AABBs. Player scope, no NPC/animal navigation rewrite.
+745 existing Core terrain movement checks PASS. Final IL2CPP native14 checks PASS
+(no runtime errors): real loaded trunk blocking/sliding, fast Creative no tunnel,
+Spectator passthrough, actual rock mesh/support, combat identity,240FPS walking
+at8km local coords. Earlier candidate13 also passed, NOT selected.
+Existing root shortcut now selects artifacts/player-scatter-collision-ready
+(junction E:/WorldGen-builds/player-scatter-collision-ready), BuiltUtc
+2026-10-29T02:22:14.0412436Z. Previous nature-actions-ready retained as fallback.
+578 protected original/DLL hashes +342 frozen source inputs +177 collision skins/
+source IDs/package hashes +18audio hashes exact. Evidence artifacts/scatter-
+collision-20261028 and overnight-items-20261028/solid-scatter-ready. Isolated
+native physics checks ran alongside owner PID10344; owner app/save untouched;
+both owned test workers exited. No measured FPS/universal mesh precision claim.
+No construction work. Docs SCATTER_COLLISION.md. Preserve owner prompt deletion
+and two untracked deer scripts. No new Desktop icon/file.
+
+
 
 PALEOLITHIC SHELTER RESEARCH PDF,28October2026:
 Owner requested quick researched shelter catalogue with real examples/pictures,

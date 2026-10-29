@@ -11,7 +11,11 @@ public sealed partial class LocalTerrainExplorer
         CombatObstacle hit=null;float closest=reach;
         var ray=new Ray(transform.InverseTransformPoint(worldRay.origin),transform.InverseTransformDirection(worldRay.direction));
         foreach(var physical in Physics.RaycastAll(worldRay,reach,~(1<<29),QueryTriggerInteraction.Ignore))
-            if(physical.collider!=ignore&&physical.distance<=closest){closest=physical.distance;hit=new CombatObstacle{Distance=closest,Point=physical.point,Normal=physical.normal};}
+            if(physical.collider!=ignore&&physical.distance<=closest)
+            {
+                closest=physical.distance;scatterSolidSources.TryGetValue(physical.collider,out var solid);
+                hit=new CombatObstacle{Distance=closest,Point=physical.point,Normal=physical.normal,Tree=solid?.Tree??false,Source=solid==null?default:solid.Source};
+            }
         for(float d=.08f;checkGround&&d<closest;d+=.18f)
         {
             var p=ray.GetPoint(d);double floor=VisibleGround(p.x+originX,p.z+originZ,Ground(p.x+originX,p.z+originZ));
@@ -29,6 +33,9 @@ public sealed partial class LocalTerrainExplorer
                     var p=chunk.Source.Instances[index];bool tree=p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
                     if(!tree&&p.Kind!=ScatterKind.Boulder&&p.Kind!=ScatterKind.Outcrop&&p.Kind!=ScatterKind.Stone)continue;
                     if(!tree&&CollectedRock(p))continue;Vector3 normal;float distance;
+                    // Nearby solids already supplied the actual surface hit.
+                    // Do not replace it with the old oversized rock AABB.
+                    if(scatterSolids.ContainsKey(p.Id))continue;
                     if(tree)
                     {
                         float radius=(float)p.WidthM*(p.Kind==ScatterKind.GeneratedTree?(float)new TreeMorphology(p.Variant).TrunkRadius:.035f);

@@ -10,6 +10,11 @@ namespace WorldGen.Presentation
         public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,JogSpeedMps=3.4,RunSpeedMps=6,JumpHeightM=.45;
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded,NoClip;
+        // Optional host collision solver; invoked for every bounded movement step.
+        // Terrain-only hosts keep their existing analytic movement unchanged.
+        public Action<TerrainMotion,double,double,double>? SolidContact;
+        public void LandOnSolid(double impactSpeed)
+        {LandingSpeedMps=Math.Max(LandingSpeedMps,Math.Max(0,impactSpeed));VerticalSpeed=0;Grounded=true;}
         // Largest actual landing this Move call. Consumed by the owning player,
         // never derived from terrain LOD changes or a remembered takeoff height.
         public double LandingSpeedMps {get;private set;}
@@ -19,7 +24,12 @@ namespace WorldGen.Presentation
         {
             LandingSpeedMps=0;dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
             int steps=(int)Math.Ceiling(dt/.02);double step=dt/steps;
-            for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground,walk,speedScale);
+            for(int i=0;i<steps;i++)
+            {
+                double x=X,y=Y,z=Z;
+                MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground,walk,speedScale);
+                if(!NoClip)SolidContact?.Invoke(this,x,y,z);
+            }
         }
         void MoveStep(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk,double speedScale)
         {

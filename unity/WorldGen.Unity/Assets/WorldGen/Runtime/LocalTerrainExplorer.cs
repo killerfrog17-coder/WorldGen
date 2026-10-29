@@ -150,6 +150,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         UpdatePlayerDeath();
+        PreparePlayerSolids();
         if(!DeathVisible&&!inventoryOpen&&!inventoryInput&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
         {
             if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck&&!inventoryReviewMode){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
@@ -164,7 +165,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
                     alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed&&!keyboard.f3Key.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
-                    heading,pitch,survivalSprinting,jump,Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:(SurvivalActive?Vitals.MovementScale:1)*Inventory.LoadSpeedScale);
+                    heading,pitch,survivalSprinting,jump,PlayerSolidGround,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:(SurvivalActive?Vitals.MovementScale:1)*Inventory.LoadSpeedScale);
                 double moveDt=Math.Max(.001,Math.Min(.25,Time.unscaledDeltaTime));
                 playerDeathVelocity=new Vector3((float)((motion.X-movementStartX)/moveDt),(float)(-Math.Max(-motion.VerticalSpeed,motion.LandingSpeedMps)),(float)((motion.Z-movementStartZ)/moveDt));
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
@@ -172,7 +173,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         if(!Application.isFocused&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
         {
-            survivalSprinting=false;motion.Move(Time.unscaledDeltaTime,0,0,0,heading,pitch,false,false,Ground,speedScale:1);
+            survivalSprinting=false;motion.Move(Time.unscaledDeltaTime,0,0,0,heading,pitch,false,false,PlayerSolidGround,speedScale:1);
             playerDeathVelocity=new Vector3(0,(float)motion.VerticalSpeed,0);
             PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
         }
