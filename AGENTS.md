@@ -48,7 +48,9 @@ Tool-work progress joins craft awareness. Shared food material colour fixed afte
 render review; simple food geometry remains placeholder, no final-art claim.
 Docs docs/NATURE_AND_FIRST_PERSON.md includes controls/research/limitations.
 All owned native/editor workers exited; none left running. Preserve owner's
-unrelated prompt deletion/two untracked deer scripts. Git checkpoint/push to follow.
+unrelated prompt deletion/two untracked deer scripts. Feature checkpoint7ed5e7b
+pushed/remotely verified; exact final handoff SHA in
+artifacts/nature-actions-20261028/source-checkpoint.json.
 Use UTF8 explicitly for all documentation writes; never truncate giant AGENTS.
 
 SAVE SLOTS SELECTED / NEXT NATURE + FP MOTION AUTHORIZED,28October2026:
