@@ -57,7 +57,7 @@ public sealed partial class LocalTerrainExplorer
         humanCamera.Restore(4,false);Aim(tx,tz,1.3);Check(AimedCamp(out _)==stake,"Third-person camera can target the same physically reachable planted stick");
         double previousThirdPersonEmbed=stake.EmbedM;combatGlobalReady=combatRightReady=0;StrikeWithItem(rock,false);Check(stake.EmbedM>previousThirdPersonEmbed,"Third-person hammering measures reach from the body, not the distant camera");humanCamera.Restore(0,false);
         Check(stake.Materials[0].HeightM==branch.HeightM,"Visible post retains its original full length while burial changes");
-        var postRoot=campVisuals[stake.Id].Root;float postBottom=postRoot.GetComponentsInChildren<MeshFilter>().SelectMany(f=>f.sharedMesh.vertices.Select(vertex=>transform.InverseTransformPoint(f.transform.TransformPoint(vertex)).y)).Min();
+        campUpdateAt=0;UpdateCamp();var postRoot=campVisuals[stake.Id].Root;float postBottom=postRoot.GetComponentsInChildren<MeshFilter>().SelectMany(f=>f.sharedMesh.vertices.Select(vertex=>transform.InverseTransformPoint(f.transform.TransformPoint(vertex)).y)).Min();
         Check(Math.Abs(postRoot.transform.localPosition.y-VisibleGround(tx,tz,double.NaN))<.001&&postBottom<VisibleGround(tx,tz,double.NaN)-.02,"The rendered post actually enters the visible ground instead of floating above it");
         double previous=stake.EmbedM;for(int i=0;i<100;i++)CampRules.Drive(stake,rock);Check(stake.EmbedM>previous&&stake.EmbedM<=stake.SoilDepthM,"Repeated hammering respects the site's physical soil depth");InvalidateCampVisual(stake);
         Inventory.Items.Remove(rock);motion.Place(sx,sz,CampFloor(sx,sz));

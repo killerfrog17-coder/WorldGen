@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+LATEST29Oct~07:18CDT: FinalcampIL2CPP BuiltUtc2026-10-29T12:13:28.4738179Z
+artifacts/player-camp-water-polished. Nativefinal-grounded-camp55PASS/noerrorsor
+particlewarnings,day/nightimagesinspected. ThreeoriginalSA3loopsload,voice
+continuity,actualvisible-groundpostburial/bedding,validboundedwindsmoke. Earlier
+polished-camp-check52passedbutparticlevelocityWARNINGSwerefound;NOTfinalrelease.
+final-camp-checkwasdeliberatelyCANCELLEDbeforetests(fixtureaccessedinvalidated
+postvisual);constantvelocity+refreshfixturecorrected. Final55clean. 578protected/
+666source/177collision/18itemaudioPASS. New3campWAVcovered4617fileassetlockv3,
+allremoteverifiedandlockpushedf231f90. Twofinalruntimefixture/smokeeditsstillneed
+commit;gameCoreunchanged/sourceDLL114157d. DoNOTbuildduringnativechecks.
+FinalwaternativeRUNNINGexec95162 outputfinal-water-check, originalownerworld.
+AdditionalgeneratedContinental29101/Glacial29102/Ocean29103 detail80k stress:
+Continental21674geometrychecksPASS;remainingexec73602running. No terrainmodel
+changespending. Afterfinalwater+drinking18checks/proofs:selectexistingrootshortcut,
+docs/handoff/Git,thenbackupauditoldselectedwater+initialcamp beforedisposal.
+CURRENTshortcutSTILLOLDwaterE. Keepcurrenttestplayeruntilnativefinished.
+FULLfreshGitHubclone+restore4614files/122packs+postbuildhashall+newLibraryUnity
+Mono+49nativePASS;tempC:/WorldGenBuildArtifacts/recovery-check STILLPRESENT.
+ItsdeletionAUTOMATICREVIEWREJECTED('blocked by policy', no detailedreason). DoNOT
+retrydeletingthatcheckoutorworkaroundblock. Owneralreadyinformedcommentary;
+mentionremainingtempcheckoutinfinalifstillpresent. Other47oldbuilds62.01GiB
+successfullydeletedwithverifiedbackups. No paid/subagents/AIjobs/userappsclosed.
+All ComfyOWNserversstopped. Sourcepromptdeletion+2deer scriptsuntouched.
+
 29Oct~06:55CDT: assetpolicyCOMPLETEcheckpoint4e3a088 pushed+tagged
 checkpoint/camp-water-assets-20261029. ALL4614assetsfresh-cloned/restoredSHA,
 freshUnity6000.6MonoBUILD0successful11:47:14Z withoutoldLibrary/plugins cache.

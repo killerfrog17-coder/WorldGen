@@ -16,7 +16,7 @@ python scripts/restore-game-assets.py --verify-only
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-check.ps1 -BuildPlayer -PlayerFolder player
 ```
 
-The build additionally needs the Unity editor version in `ProjectVersion.txt`,
+The restore tool uses Python 3.11 or later. The build additionally needs the Unity editor version in `ProjectVersion.txt`,
 its Windows build support, a free activated Unity Personal license and the .NET
 SDK. These tools are installed separately, not uploaded with the game. Use
 `-Il2Cpp` for a release build with Unity's IL2CPP/Windows C++ prerequisites.

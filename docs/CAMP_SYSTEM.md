@@ -67,16 +67,18 @@ Research informing this approximation:
 Verification: 39 core camp/material/sleep/save checks, 784 earlier portable
 crafting checks, 75 inventory, 165 fall/death, 37 drinking/swimming, 160 earlier
 thermal/HUD, 67 mode and 33 foraging checks pass. The combined packaged camp pass
-has 49 native checks, including real firelight compared with a same-frame
+has 55 native checks, including real firelight compared with a same-frame
 disabled-light control, contact burns, ember expiry, sleep and save serialization.
 The combined fixture additionally crafts its tinder, kindling and hand drill
 through the actual timed actions while restoring an originally held spear.
 It also verifies third-person targeting/hammering and exact reuse of the worker's
 fitted river data, plus worn-pack placement and recovery without stale container
 ownership. Evidence is under `artifacts/camp-water-20261029`; failed
-attempts are retained and are not pass claims. The later recorded-audio,
-smoke and slope-fitting polish is awaiting a new packaged check; the above
-49-check release refers to the preceding tested candidate.
+attempts are retained and are not pass claims. The final IL2CPP run additionally
+checks real mono recording loading and continuity, valid bounded smoke curves,
+and visible-terrain support for bedding and buried posts. Visuals, interaction
+rays and contact burns follow the rendered terrain mesh; analytic height is used
+only before a visible mesh is available. This prevents small hovering gaps.
 
 Loose bedding uses material volume, rather than treating a hide as an enormous
 grass bundle. Hide improves insulation/comfort without inflating bed thickness.

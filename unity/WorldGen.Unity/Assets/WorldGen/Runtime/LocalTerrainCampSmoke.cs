@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(smoke==null)return;var velocity=smoke.velocityOverLifetime;velocity.enabled=true;velocity.space=ParticleSystemSimulationSpace.World;
         float east=(float)CurrentWeather.WindEastMps*.09f,north=(float)CurrentWeather.WindNorthMps*.09f;
-        velocity.x=new ParticleSystem.MinMaxCurve(east,east);velocity.y=new ParticleSystem.MinMaxCurve(.4f,.7f);velocity.z=new ParticleSystem.MinMaxCurve(north,north);
+        velocity.x=east;velocity.y=.55f;velocity.z=north;
         if(paused&&smoke.isPlaying)smoke.Pause();else if(!paused&&smoke.isPaused)smoke.Play();
     }
 }
