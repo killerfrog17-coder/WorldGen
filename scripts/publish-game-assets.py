@@ -59,6 +59,12 @@ if set(prior['files'])=={r['path'] for r in records} and all(prior['files'][r['p
     raise SystemExit(0)
 client=GitHubAssets()
 head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+try:
+    client.request('/repos/'+client.repository+'/commits/'+head)
+except urllib.error.HTTPError as error:
+    if error.code==404:
+        raise RuntimeError('Push the source checkpoint to GitHub before publishing its asset release.') from None
+    raise
 state_file=args.work/'publish-state.json'
 state=json.loads(state_file.read_text()) if state_file.exists() else {}
 if state.get('tag',args.tag)!=args.tag:

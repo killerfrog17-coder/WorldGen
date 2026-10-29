@@ -60,7 +60,9 @@ python scripts/publish-game-assets.py --inventory artifacts/asset-publication/in
 python scripts/restore-game-assets.py --verify-only
 ```
 
-Publication deduplicates against the previous lock. Only changed content uploads;
+Commit and push the source change before publication, so the asset release can
+anchor to an existing remote source commit. Publication deduplicates against the
+previous lock. Only changed content uploads;
 every new remote pack is downloaded and hash-verified before publication completes.
 Commit and push the new lock alongside its source change, then verify the remote
 commit. Never remove a locally unique input before that verification.
