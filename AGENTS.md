@@ -1,26 +1,28 @@
 # WorldGen repository instructions
 
-NEWOWNER29Oct SURVIVAL/CAMP overhaulAUTHORIZED: implementday-basedcalories/body
-reserves+felt-hungerHUD,~3daycomfortablefluidloss,earlierstrongthermalglows;
-mass/size/moisturefireburn-down+shortbrokenfuelvisuals,unprocessedgrassfuel,
-quickcontextualfireitemicons/cycling/add/retrievefood(cookingnowauthorized),
-circadiansleepwithnaturalwake/light/daytimebouts/noises(nohourpicker),layered
-bedding,playernonverbalsounds(eat/gut/throat/yawn/pant/pain/shiver),cold/hot/
-lowhealthscreenfeedbackandboundedshivercamera,translucentplacementpreview,
-stakecontactdetection+shortanti-spamcooldown. NOpaid/subagents/newhumanskinned
-animations; preserveallapprovedanimal/humanart+owner3unrelatedfiles. IL2CPPONLY.
-ResearchofficialSA3guide/NASEMphysiology/Yetish2015preindustrialsleep/USDAwood.
-CURRENT29Oct~16:27CDT: sourceimplementationcomplete; focusedCorePASS24new/
-39camp/67modes/161HUD/37water/33foraging. 24localSA3bodyfoleys8groupsx3published
-sounds/player-survival(4.6MB)withassets/player-audio/provenance; trackedGit,notLFS.
-ComfyOWNserverSTOPPED. NewIL2CPPBUILDINPROGRESSexec23691 Unity22352 at
-artifacts/player-survival-experience; oldselected18:07followupUNCHANGED.
-673sourcefreeze artifacts/survival-camp-20261029/package-proof. Nativecampfixture
-addsactualEfeeding/cooking/retrieval,audioload/play,paininterrupt,placementghost,
-heavyrockshortcooldown,noise-wake,actualscreenFXpixelcomparisons. NOTRUNYET.
-Needfinishbuild,restore3knownUnityautochanges,proof/native+visuals,Gitpush,
-existingrootshortcutselection. No loading/waterfixclaim. Owner3filesunchanged.
-No paid/subagents/cleanup/newhumanskinnedanimations. No ownerappsclosed.
+SELECTED29Oct~17:00CDT SURVIVAL/CAMP REVISION COMPLETE. Existing root shortcut now
+artifacts/player-survival-experience/WorldGen.exe, IL2CPP RELEASE BuiltUtc
+2026-10-29T21:53:59.2929376Z; source ff56672. Source+24 new WAVs Git-backed.
+Native-final 97 PASS/EXIT0/cleanlog, actual E cooking/retrieval, short heavy-rock
+hammer interval, sleep/noise/food ownership/audio/rendergraph effects. Final
+images inspected; frost revised after first coarse-tile capture. Core24new+39camp
++67modes+161HUD+37water+33foraging PASS. 578 protected hashes,673 frozen source,
+177 collision/sourceIDs,18 original item WAV and24 new body WAV hashes exact.
+Manifest assets/survival-camp-release-verification.json; task evidence
+artifacts/survival-camp-20261029/native-final and package-proof. New body audio
+sounds/player-survival,8groupsx3 takes, local SA3 Small SFX; automated audit only,
+NO human listening approval. Direct Git tracking(4.6MB), no paid/LFS/upload fees.
+Features: felt stomach vs digestive/body calorie stores; solar-day physiology
+(~3.1 comfortable dry days; hydrated starvation34rest/23active test days), stronger
+thermal HUD glow, mass/moisture fire fade and short broken wood, raw grass fuel,
+quick icons scroll/E fire use+cooking, circadian/no picker sleep+layered bedding,
+noise wake, 24 body cues, bounded shiver/heat/cold/lowHP screens, translucent
+placement ghost, forgiving stake hits with .3-.6s tool cooldown.
+No owner apps closed, no cleanup/subagents/paid; own Unity/native/Comfy jobs
+finished. Preserve owner deleted prompt+2 untracked deer scripts and all original
+animal/human art. NEVER MONO. Old selected camp-water-followup kept. No loading
+or universal river-bank fix claim; earlier water visual issue remains outside
+this revision. Await owner testing; do not resume old overnight tasks.
 
 SELECTEDIL2CPP29Oct~13:09CDT: ownerrebuild-onlyrequestDONE. Existingrootshortcut
 NOW artifacts/player-camp-water-followup/WorldGen.exe, IL2CPP RELEASE

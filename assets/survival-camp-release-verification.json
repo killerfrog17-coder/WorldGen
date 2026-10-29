@@ -1,0 +1,29 @@
+{
+  "selected_utc": "2026-10-29T21:58:01.0696916Z",
+  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-survival-experience\\WorldGen.exe",
+  "previous_target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-camp-water-followup\\WorldGen.exe",
+  "built_utc": "2026-10-29T21:53:59.2929376Z",
+  "backend": "IL2CPP",
+  "production_source": "ff566724ca8adf593d7057027708e35d0d9467cb",
+  "native_checks": 97,
+  "protected_hashes": 578,
+  "source_files": 673,
+  "collision_skins": 177,
+  "original_item_audio_hashes": 18,
+  "new_body_audio_hashes": 24,
+  "native_output": "artifacts/survival-camp-20261029/native-final",
+  "visuals_inspected": true,
+  "water_loading_scope": "Unchanged; no universal water/loading fix claimed",
+  "core_checks": {
+    "survival_experience": 24,
+    "camp": 39,
+    "modes": 67,
+    "hud": 161,
+    "water": 37,
+    "foraging": 33
+  },
+  "native_exit_code": 0,
+  "original_animal_human_assets_unchanged": true,
+  "body_audio_git_tracked": true,
+  "body_audio_human_listening_approval": false
+}

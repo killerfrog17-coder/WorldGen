@@ -1,7 +1,7 @@
 # Placed materials, campfires and sleep
 
-The selected player is the combined camp/water prototype, built with IL2CPP on
-29 October 2026. Construction beyond loose materials and planted sticks remains
+The selected player is the survival/camp revision, built with IL2CPP at
+2026-10-29T21:53:59Z. The existing root shortcut selects it. Construction beyond loose materials and planted sticks remains
 for a later update.
 
 - E on grassy ground: gather a physical grass bundle. Tree resource menus also
@@ -100,8 +100,12 @@ Research for this revision:
 - [Stable Audio 3 prompting guide](https://stability.ai/guides/stable-audio-3-prompt-guide).
 
 Current focused checks pass: 24 physiology/camp-experience, 39 camp, 67 modes,
-161 HUD, 37 water and 33 foraging. Native verification for this revision is pending
-until its new IL2CPP candidate is built. The evidence below is historical.
+161 HUD, 37 water and 33 foraging. The final IL2CPP build passes 97 native checks with a clean log, including actual
+E/scroll fire controls, food ownership/cooking, heavy-rock hammer timing, close
+noise waking, real audio playback and screen-effect pixel comparisons. Final
+captures were inspected, including revised irregular frost. Evidence is under
+`artifacts/survival-camp-20261029/native-final`; failed earlier fixtures are not
+pass claims. The evidence below is historical.
 
 Research informing this approximation:
 
