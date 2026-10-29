@@ -1,0 +1,43 @@
+{
+  "built_utc": "2026-10-29T12:36:54.1326640Z",
+  "backend": "IL2CPP",
+  "production_source_commit": "5d461bfc8f245e2a8ae795563d1e86d3b40066e5",
+  "protected_hashes": 578,
+  "production_source_files": 666,
+  "production_freeze_sha256": "c09118710d6d4f61ce56372376d1818c84ae9855a5b7842c24e95463f0f867b7",
+  "unchanged_animal_collision_skins": 177,
+  "unchanged_item_audio_sources": 18,
+  "camp_recordings": 3,
+  "native_checks": [
+    {
+      "name": "final-capture-camp",
+      "checks": 57,
+      "exit_code": 0,
+      "evidence": "artifacts/camp-water-20261029/final-capture-camp"
+    },
+    {
+      "name": "camp-save-library-check",
+      "checks": 21,
+      "exit_code": 0,
+      "evidence": "artifacts/camp-water-20261029/camp-save-library-check"
+    },
+    {
+      "name": "release-water-check",
+      "checks": 11,
+      "exit_code": 0,
+      "evidence": "artifacts/camp-water-20261029/release-water-check"
+    },
+    {
+      "name": "release-drinking-check",
+      "checks": 18,
+      "exit_code": 0,
+      "evidence": "artifacts/camp-water-20261029/release-drinking-check"
+    }
+  ],
+  "native_checks_total": 107,
+  "asset_files": 4617,
+  "asset_packs": 123,
+  "asset_lock_git_blob": "9e8ec5b110ac9c8b0c4a9a0df0cb1d94db272408",
+  "audio_listening": "Owner audition pending; automatic diagnostics only",
+  "limits": "Sampled river/world coverage, not a universal artifact or frame-rate guarantee."
+}

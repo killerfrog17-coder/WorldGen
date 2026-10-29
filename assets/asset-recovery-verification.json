@@ -16,5 +16,16 @@
   "runtime_errors": 0,
   "old_packages_removed": 47,
   "old_package_bytes_removed": 66582752658,
-  "scope": "This proves this complete checkpoint can be rebuilt. Earlier unversioned source commits may not reproduce old binaries exactly; their unique packaged assets were preserved separately. Later asset versions use incremental packs."
+  "scope": "This proves this complete checkpoint can be rebuilt. Earlier unversioned source commits may not reproduce old binaries exactly; their unique packaged assets were preserved separately. Later asset versions use incremental packs.",
+  "incremental_verification": {
+    "source_checkpoint": "5d461bf",
+    "files": 4617,
+    "unchanged": 4614,
+    "new_files_restored": 3,
+    "post_build_hashes_verified": 4617,
+    "build_utc": "2026-10-29T12:38:22.2405387Z",
+    "build_backend": "Mono",
+    "build_exit_code": 0,
+    "new_library": false
+  }
 }

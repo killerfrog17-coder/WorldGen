@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+SELECTED29Oct~07:48CDT: rootWorldGenshortcutNOWartifacts/player-camp-water-polished
+IL2CPPBuiltUtc2026-10-29T12:36:54.1326640Z, productioncode5d461bf,107nativePASS:
+final-capture-camp57,camp-save-library-check21,release-water-check11,
+release-drinking-check18,allEXIT0/cleanlogs/noParticleVelocitywarnings.
+578protected/666frozenproduction/177collisions/18originalitemaudioPASS.
+NativeCamp57 nowdeepcopiesCamp inStorePlayerfreshcapture;realF5/namedoverwrite/
+fullreentryretainscamp+Tiredness63. Coldsave22.09s,warmoverwrite.265s(testworld).
+FreshGitHubrestore4614/122+cleanLibrarybuild+native49PASS;incremental5dsource
+pull restoredONLY3newWAV,4614unchanged/4617postbuildhashPASS,newMonoBUILD0
+12:38:22Z. assets/asset-recovery-verification.json updated, needscommit.
+Threeadditional80k-worldriversPASS21674/57362/47610;scale.05/.25/1PASS10735/
+18500/55091. Coreallpreviouschecksvalid. OwnerworldbaseSHA18052f... unchanged.
+CurrentgamesourceCLEANexceptowner3unrelatedfiles;doc/releaseproof/shortcutchanges
+needcommitpush. No more mandatorygamechanges; finishremainingoldbuildcleanup,
+checkpoint/tag/handoff,ownerreviewpending. DoNOToverwriteSELECTEDcurrentbinary.
+Cleanupold47freed66582752658bytes;oldwaterE+initialcampCstillpresentuntilnew
+legacyassetdelta+indexverified. NeedremoveONLYinitialcamp'snestedil2cppOutput
+junctionnonrecursively beforeguardedcleanup;itsEgeneratedCpp/PDBzipareobsolete
+nonshippingdebugoutputs. RecoverycheckoutC:/WorldGenBuildArtifacts/recovery-check
+deletionAUTOAPPROVALBLOCKED(no reason beyondpolicy);KEEPit,includingitsnative
+testpackage,doNOTworkaroundblock. Mentionremainingtempcheckoutinfinal.
+No Unity/native/inferencejobsleft(allcompleted);ComfyownserversSTOPPED. No
+paid/subagents/userappsclosed. DoNOTresumeoldHomo/historynight. Preserveprompt
+deletion+2untrackeddeerscripts. Continueaccordownerplan,notstale17UTCdeadline.
+
 LATEST29Oct~07:18CDT: FinalcampIL2CPP BuiltUtc2026-10-29T12:13:28.4738179Z
 artifacts/player-camp-water-polished. Nativefinal-grounded-camp55PASS/noerrorsor
 particlewarnings,day/nightimagesinspected. ThreeoriginalSA3loopsload,voice

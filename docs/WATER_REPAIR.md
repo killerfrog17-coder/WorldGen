@@ -1,7 +1,7 @@
 # River and ocean repair
 
 This pass follows the camp/bedding/sleep/planting implementation. The existing
-shortcut still selects the preceding water release until combined verification.
+shortcut now selects the verified combined IL2CPP player.
 
 ## Reproduction and causes
 
@@ -51,7 +51,7 @@ combined camp polish run passes 35 native checks, including real contact burns
 and ember-glow expiry. Final release-backend checks and preservation proof remain
 required before shortcut selection.
 
-## River scale follow-up (source implemented; final native check pending)
+## River scale follow-up
 
 Width, depth and velocity now respond together to discharge. Small catchments
 follow horizontal world compression; major rivers smoothly recover physical
@@ -95,7 +95,28 @@ the same terrain sampler, while the 104 requested detail tiles took 22.67s total
 in a sequential core benchmark. Fallback tile level now follows view distance,
 up to the previous far-horizon maximum. 3,834 policy/coverage checks pass. This
 specifically helps short view ranges; it does not claim the same reduction at
-the maximum view distance. Native end-to-end timing after this change is pending.
+the maximum view distance. The final packaged Earth camp start settled its 104
+requested tiles in 82.16s (worker ready in 4.99s, worst cold tile 1.92s), compared
+with the earlier 130.22s/15.3s run. The warmed procedural repro settled in 35.46s
+in one later run. These are startup measurements, not general FPS comparisons.
+
+## Final combined checkpoint
+
+The combined IL2CPP camp/water player passes the actual procedural mouth,
+confluence and major-river render checks, deep-river floating/current tests and
+GPU ocean displacement/motion controls. Its 11-check water pass measured 172,490
+pixels differing from the same-frame flat-ocean control and 200,005 changing
+across the timed sequence. Streamed views and three off-grid mesh LODs at each
+site were inspected. Existing naked-eye blur, drowning and fresh/salt drinking
+have a separate 18-check native pass; camp save-library coverage is separate.
+
+Additional 80,000-cell generated worlds (Continental seed29101, Glacial seed29102,
+Ocean world seed29103) pass 21,674 / 57,362 / 47,610 river geometry assertions.
+Continental scale0.05 and0.25 pass 10,735 / 18,500; Earth scale1 passes55,091.
+These retain the exposed-edge clearance guard and source-world identity checks.
+They broaden sampled coverage; they do not prove every possible river or seed.
+
+Exact logs, inputs and captures are under `artifacts/camp-water-20261029`.
 
 Research for that follow-up:
 

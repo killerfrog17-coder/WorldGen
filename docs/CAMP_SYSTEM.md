@@ -1,7 +1,8 @@
 # Placed materials, campfires and sleep
 
-Prototype implementation in progress; the selected player remains the preceding
-water release until the combined update is tested and packaged.
+The selected player is the combined camp/water prototype, built with IL2CPP on
+29 October 2026. Construction beyond loose materials and planted sticks remains
+for a later update.
 
 - E on grassy ground: gather a physical grass bundle. Tree resource menus also
   supply leaf litter; existing reed gathering remains available.
@@ -67,7 +68,7 @@ Research informing this approximation:
 Verification: 39 core camp/material/sleep/save checks, 784 earlier portable
 crafting checks, 75 inventory, 165 fall/death, 37 drinking/swimming, 160 earlier
 thermal/HUD, 67 mode and 33 foraging checks pass. The combined packaged camp pass
-has 55 native checks, including real firelight compared with a same-frame
+has 57 native checks, including real firelight compared with a same-frame
 disabled-light control, contact burns, ember expiry, sleep and save serialization.
 The combined fixture additionally crafts its tinder, kindling and hand drill
 through the actual timed actions while restoring an originally held spear.
@@ -79,6 +80,10 @@ checks real mono recording loading and continuity, valid bounded smoke curves,
 and visible-terrain support for bedding and buried posts. Visuals, interaction
 rays and contact burns follow the rendered terrain mesh; analytic height is used
 only before a visible mesh is available. This prevents small hovering gaps.
+An additional 21-check packaged save-library run exercises actual named saves,
+overwrites, F5, background actions and full world re-entry with bedding, a planted
+post, a burning fire and tiredness. Capturing into a separate session deep-copies
+the camp and its materials, as it already does for inventory and wildlife.
 
 Loose bedding uses material volume, rather than treating a hide as an enormous
 grass bundle. Hide improves insulation/comfort without inflating bed thickness.
