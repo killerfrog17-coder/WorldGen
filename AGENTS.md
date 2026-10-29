@@ -35,7 +35,7 @@ Preservation578original/DLLhashes+629frozen production sources+177collision skin
 and packaged/source IDs+18prioritemaudio PASS. Wildlife audio untouched. All3
 known Unity build-autochanges restored. No inference/test/build workers remain.
 Evidence artifacts/water-update-20261028, docs/WATER_UPDATE.md. Preserve owner
-OneShot prompt deletion and2untracked deer scripts. Source checkpoint/push next.
+OneShot prompt deletion and2untracked deer scripts. Source checkpoint350355d pushed/remotely verified; final handoff commits also sync.
 
 WILDLIFE AUDIO RELEASE,28October2026 late evening:
 Owner authorizes local SA3 sound overhaul, ambient/native callers first then
