@@ -25,7 +25,9 @@ No test/build/inferenceworkersremain; no userappclosed. C/Efree~30/~27GBdecimal.
 Nextownerfeedback/testing, no additional systems authorized. Authoringinputs
 underartifactsremainREQUIRED/protected; userworlds/sourceart/modelweights/music
 untouched. Ownerpromptdeletion+2olduntrackeddeerscriptsunchanged. No subagents,
-paidcalls or resumedHomo/historynight. NeedfinalGitdocs/tag/pushverification only.
+paidcalls or resumedHomo/historynight. Finalsource/docs/locks and annotatedtag
+checkpoint/camp-water-20261029 pushed+remotelyverified (tagtarget29549b2).
+No required development remains; ready for owner review. Blockedcleanupstaysput.
 
 SELECTED29Oct~07:48CDT: rootWorldGenshortcutNOWartifacts/player-camp-water-polished
 IL2CPPBuiltUtc2026-10-29T12:36:54.1326640Z, productioncode5d461bf,107nativePASS:

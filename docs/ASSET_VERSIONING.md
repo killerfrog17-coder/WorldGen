@@ -9,6 +9,10 @@ are not part of these packs.
 
 After cloning or checking out a complete checkpoint:
 
+The tested combined camp/water checkpoint is tagged
+`checkpoint/camp-water-20261029`. Data-release tags hold asset packs; use the
+code checkpoint tag when restoring a playable source version.
+
 ```powershell
 python -m pip install -r scripts/requirements-assets.txt
 python scripts/restore-game-assets.py
