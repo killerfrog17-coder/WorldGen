@@ -23,6 +23,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawPickupCategory(Rect rect,Possession item)
     {
+        if(Foraging.Food(item)){var icon=PortableIcon(item);if(icon!=null)GUI.DrawTexture(rect,icon,ScaleMode.ScaleToFit,true);return;}
         if(pickupCategoryAtlas==null)pickupCategoryAtlas=Resources.Load<Texture2D>("PickupCategoryMasksV1");if(pickupCategoryAtlas==null)return;
         int category=PickupCategory(item);GUI.DrawTextureWithTexCoords(rect,pickupCategoryAtlas,new Rect((category%4)*.25f,(2-category/4)/3f,.25f,1/3f),true);
     }

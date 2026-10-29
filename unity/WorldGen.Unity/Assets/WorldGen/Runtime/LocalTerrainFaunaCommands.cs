@@ -28,6 +28,8 @@ public sealed partial class LocalTerrainExplorer
             // Explicitly clearing command actors also clears their saved bodies;
             // otherwise the next regional plan would restore them immediately.
             var manualIds=new HashSet<ulong>(Wildlife.Individuals.Where(p=>p.Manual).Select(p=>p.Id));
+            Inventory.Items.RemoveAll(p=>p.Place==PossessionPlace.Corpse&&manualIds.Contains(p.CorpseOwner));
+            var lootKeys=new HashSet<string>(manualIds.Select(id=>"loot-"+id.ToString("x16")));Inventory.ToolResources.RemoveAll(r=>lootKeys.Contains(r.Id));
             Wildlife.Individuals.RemoveAll(p=>p.Manual);if(wildlifeRecords!=null)foreach(var id in manualIds)wildlifeRecords.Remove(id);
             animalWanted.RemoveAll(p=>manualIds.Contains(p.Id));
             return new PlayCommandResult(true,"Cleared "+count+" command-spawned/queued animals and humans. Regional wildlife is retained.");

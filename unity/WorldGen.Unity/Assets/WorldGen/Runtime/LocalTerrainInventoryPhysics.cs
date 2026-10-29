@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var ray=new Ray(view.transform.localPosition,view.transform.forward);float closest=float.MaxValue;NearbyPossession target=null;
         foreach(var candidate in inventoryNearby)
-            if(candidate.Bounds.IntersectRay(ray,out float distance)&&distance<closest){closest=distance;target=candidate;}
+            if(candidate.Item.Place!=PossessionPlace.Corpse&&candidate.Bounds.IntersectRay(ray,out float distance)&&distance<closest){closest=distance;target=candidate;}
         return target;
     }
     void DrawPickupPrompt()
@@ -41,11 +41,13 @@ public sealed partial class LocalTerrainExplorer
             GUI.color=new Color(1,1,1,alpha);DrawPickupCategory(new Rect(screen.x-size/2,Screen.height-screen.y-size,size,size),candidate.Item);
         }
         GUI.color=old;
-        var target=AimedPossession();if(target==null)return;
+        var target=AimedPossession();float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
+        string nature=NaturePrompt(itemDistance);if(target==null&&nature==null)return;
         var style=new GUIStyle(GUI.skin.label){fontSize=Mathf.RoundToInt(17*scale),alignment=TextAnchor.MiddleCenter,padding=new RectOffset(),wordWrap=false};
         var rect=new Rect(Screen.width*.5f-180*scale,Screen.height*.5f+31*scale,360*scale,30*scale);
-        style.normal.textColor=Color.black;GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),InventoryDisplayName(target.Item)+"  [E]",style);
-        style.normal.textColor=new Color(.95f,.95f,.89f);GUI.Label(rect,InventoryDisplayName(target.Item)+"  [E]",style);
+        string prompt=nature??(InventoryDisplayName(target.Item)+"  [E]");
+        style.normal.textColor=Color.black;GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),prompt,style);
+        style.normal.textColor=new Color(.95f,.95f,.89f);GUI.Label(rect,prompt,style);
     }
     void ReleasePossession(Possession item,bool fromContainer)
     {

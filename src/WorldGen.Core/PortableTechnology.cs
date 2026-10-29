@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     [Flags] public enum CraftCapability { None=0,Cut=1,Strike=2,Scrape=4,Pierce=8,Chop=16,Sew=32,Grind=64 }
-    public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft }
+    public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft,Food }
     public sealed class PortableItem
     {
         public PossessionKind Kind;public string Name,Aliases;public PortableForm Form;public double Width,Height,Depth,Mass;
@@ -22,6 +22,14 @@ namespace WorldGen.Core
         static PortableItem D(PossessionKind kind,string name,PortableForm form,double w,double h,double d,double mass,CraftCapability capability=0,int sw=0,int sh=0,PossessionPlace? wear=null,string aliases="",int hands=1)
             =>new PortableItem{Kind=kind,Name=name,Form=form,Width=w,Height=h,Depth=d,Mass=mass,Capability=capability,StorageWidth=sw,StorageHeight=sh,Wear=wear,Aliases=aliases,Hands=hands};
         public static readonly PortableItem[] Items={
+            D(PossessionKind.Berries,"Berries",PortableForm.Food,.08,.06,.08,.15,aliases:"berries|berry"),
+            D(PossessionKind.Fruit,"Fruit",PortableForm.Food,.08,.08,.08,.25),
+            D(PossessionKind.Nuts,"Nuts",PortableForm.Food,.08,.05,.08,.15),
+            D(PossessionKind.Mushroom,"Mushroom",PortableForm.Food,.07,.08,.07,.06,aliases:"mushrooms"),
+            D(PossessionKind.EdibleRoot,"Root",PortableForm.Food,.05,.15,.05,.18,aliases:"edible root"),
+            D(PossessionKind.RawMeat,"Raw meat",PortableForm.Food,.15,.08,.1,.5,aliases:"meat"),
+            D(PossessionKind.RawFish,"Raw fish",PortableForm.Food,.08,.2,.05,.4,aliases:"fish"),
+            D(PossessionKind.AnimalFat,"Fat",PortableForm.Food,.08,.06,.06,.15,aliases:"fat"),
             D(PossessionKind.BarkSheet,"Bark sheet",PortableForm.Strip,.35,.45,.04,.35,aliases:"sheet bark"),
             D(PossessionKind.WeavingStrips,"Weaving strips",PortableForm.Reed,.1,.5,.04,.2,aliases:"split reeds"),
             D(PossessionKind.RawFibre,"Raw fibre bundle",PortableForm.Fibre,.12,.25,.08,.18,aliases:"fiber|fibres|fibers|raw fibre|raw fiber"),
@@ -93,6 +101,7 @@ namespace WorldGen.Core
         public static string SpeciesName(string species)=>string.IsNullOrEmpty(species)?"Animal":char.ToUpperInvariant(species[0])+species.Substring(1).Replace('-',' ');
         public static string Name(Possession p)
         {
+            if(Foraging.Food(p))return Foraging.Name(p);
             var d=Item(p.Kind);if(d==null)return null;if(string.IsNullOrEmpty(p.AppearanceSpecies))return d.Name;string species=SpeciesName(p.AppearanceSpecies);
             if(p.Kind==PossessionKind.RawHide)return species+" hide";
             if(p.Kind==PossessionKind.ScrapedHide)return "Scraped "+species.ToLowerInvariant()+" hide";
@@ -125,6 +134,12 @@ namespace WorldGen.Core
                 CellsWide=Math.Max(1,(int)Math.Ceiling(d.Width/.1)),CellsHigh=Math.Max(1,(int)Math.Ceiling(d.Height/.1)),Tint=new V(1,1,1),EdgeSharpness=(d.Capability&(CraftCapability.Cut|CraftCapability.Scrape))!=0?.85:0,Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0),WoodSoundness=.9,WoodStraightness=.9,
                 AppearanceSpecies=species??"",AppearanceCoat=coat,AppearanceSeed=seed,SourceAnimalId=animalId};
             if(!string.IsNullOrEmpty(species))p.MaterialOrigins=new List<MaterialOrigin>{new MaterialOrigin{Species=species,Coat=coat,Seed=seed,AnimalId=animalId}};
+            if(Foraging.Food(p))
+            {
+                p.FoodKcalPerKg=kind==PossessionKind.AnimalFat?8500:kind==PossessionKind.Nuts?5500:kind==PossessionKind.RawMeat?1200:kind==PossessionKind.RawFish?1100:kind==PossessionKind.Mushroom?280:kind==PossessionKind.EdibleRoot?850:500;
+                p.FoodWaterPerKg=kind==PossessionKind.AnimalFat||kind==PossessionKind.Nuts?.06:kind==PossessionKind.RawMeat||kind==PossessionKind.RawFish?.7:.85;
+                p.Tint=kind==PossessionKind.RawMeat?new V(.48,.12,.10):kind==PossessionKind.RawFish?new V(.45,.49,.43):kind==PossessionKind.AnimalFat?new V(.83,.76,.59):kind==PossessionKind.Nuts?new V(.4,.25,.12):kind==PossessionKind.Berries?new V(.25,.13,.29):kind==PossessionKind.Fruit?new V(.53,.33,.13):new V(.6,.47,.3);
+            }
             return p;
         }
     }

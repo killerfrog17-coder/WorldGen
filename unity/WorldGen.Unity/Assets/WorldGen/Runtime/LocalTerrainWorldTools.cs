@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
             // Bring the catch back toward the angler, not forward into the water.
             fish.X=motion.X-Math.Sin(heading*Math.PI/180)*.65;fish.Z=motion.Z-Math.Cos(heading*Math.PI/180)*.65;fish.Planet=frame.Position(fish.X,fish.Z);fish.GroundY=Ground(fish.X,fish.Z);
             fish.Root.transform.localPosition=new Vector3((float)(fish.X-originX),(float)fish.GroundY+.15f,(float)(fish.Z-originZ));
-            fish.CorpseHeightOffset=.15;fish.Health=0;BeginAnimalCorpse(fish,Vector3.zero);RememberAnimal(fish,true);InventoryFeedback("Fish landed whole. Processing is not implemented yet.");
+            fish.CorpseHeightOffset=.15;fish.Health=0;BeginAnimalCorpse(fish,Vector3.zero);RememberAnimal(fish,true);InventoryFeedback("Fish landed. Search the catch to collect it.");
         },()=>fish.FishingTethered=false);
         if(worldToolWork?.Tool==item)
         {

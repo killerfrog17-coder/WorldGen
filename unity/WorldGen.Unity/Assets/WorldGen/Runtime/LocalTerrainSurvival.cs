@@ -77,6 +77,8 @@ public sealed partial class LocalTerrainExplorer
         }
         double speed=Vitals.Incapacitated?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
+        if(Vitals.FoodExposures!=null)foreach(var exposure in Vitals.FoodExposures)
+            if(!exposure.SymptomsNotified&&exposure.DelaySeconds<=0&&exposure.RemainingSeconds<10800){exposure.SymptomsNotified=true;InventoryFeedback("Your stomach is cramping and you feel nauseated.");}
         Vitals.Stamina=Math.Max(0,Vitals.Stamina-dt*Math.Max(0,Inventory.LoadEffort-1)*speed*.3);
     }
     void UpdateSurvivalHud()

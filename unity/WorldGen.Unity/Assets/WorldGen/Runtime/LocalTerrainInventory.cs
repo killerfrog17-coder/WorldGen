@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)PauseItemCraft(job);scatterDirty=true;
         if(Inventory.ToolWorkEquipment!=null){var borrowed=Inventory.ToolWorkEquipment;Inventory.ToolWorkEquipment=null;RestoreWorkHands(new ItemCraftJob{Equipment=borrowed});}
     }
-    bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch)&&inventoryCollected.Contains(p.Id);
+    bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch||p.Kind==ScatterKind.Fungus)&&inventoryCollected.Contains(p.Id);
     static Possession RockPossession(ScatterInstance p)
     {
         if(p.Kind==ScatterKind.Branch)return WoodCrafting.Branch(p);
@@ -92,6 +92,7 @@ public sealed partial class LocalTerrainExplorer
             }
             Candidate(new NearbyPossession{Item=item,Point=point,Bounds=bounds});
         }
+        foreach(var item in Inventory.Items.Where(i=>i.Place==PossessionPlace.Corpse&&CorpseItemReach(i)))inventoryNearby.Add(new NearbyPossession{Item=item});
         inventoryNearby.Sort((a,b)=>(a.Point-player).sqrMagnitude.CompareTo((b.Point-player).sqrMagnitude));
     }
     NearbyPossession InventoryCandidate(string id)
@@ -103,7 +104,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var visited=new HashSet<string>();
         while(item!=null&&visited.Add(item.Id))
-        {if(item.Place==PossessionPlace.Ground)return inventoryNearby.Any(n=>n.Item.Id==item.Id);if(item.Place!=PossessionPlace.Container)return true;item=Inventory.Find(item.ContainerId);}
+        {if(item.Place==PossessionPlace.Corpse)return CorpseItemReach(item);if(item.Place==PossessionPlace.Ground)return inventoryNearby.Any(n=>n.Item.Id==item.Id);if(item.Place!=PossessionPlace.Container)return true;item=Inventory.Find(item.ContainerId);}
         return false;
     }
     void InventoryFeedback(string text)
@@ -157,13 +158,15 @@ public sealed partial class LocalTerrainExplorer
         if(!inventoryOpen&&k.eKey.wasPressedThisFrame&&!k.f3Key.isPressed)
         {
             var target=AimedPossession();
+            float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
+            if(TryNatureInteract(itemDistance))return true;
             if(target!=null)RequestPossession(target.Item.Id,PossessionPlace.RightHand,autoHand:true);
         }
         return inventoryOpen;
     }
     void SetInventoryOpen(bool open)
     {
-        if(open)CancelItemCharge();inventoryOpen=open;inventoryHitTargets.Clear();inventoryDrag=null;inventoryContext=null;inventoryNameEditing=false;
+        if(open)CancelItemCharge();natureMenu=null;corpseMenu=null;inventoryOpen=open;inventoryHitTargets.Clear();inventoryDrag=null;inventoryContext=null;inventoryNameEditing=false;
         if(open){RefreshInventoryNearby(true);PrepareInventoryPreview();}else if(inventoryPreviewRoot!=null)inventoryPreviewRoot.SetActive(false);
         GUIUtility.keyboardControl=0;CaptureMouse();
     }
@@ -210,12 +213,14 @@ public sealed partial class LocalTerrainExplorer
     void UpdateInventoryVisuals()
     {
         if(!inventoryInitialized||humanPlayer==null||!Ready)return;
+        if(viewItemActions.Count>0)foreach(var id in viewItemActions.Where(p=>Time.unscaledTimeAsDouble-p.Value.At>Math.Max(.2,p.Value.Duration)).Select(p=>p.Key).ToArray())viewItemActions.Remove(id);
         var body=humanPlayer.Root.transform;
         if(inventoryBoneOwner!=body){inventoryBoneOwner=body;inventoryBones=body.GetComponentsInChildren<Transform>().GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());}
         if(!deathPresented)PoseInventoryHands(humanPlayer,inventoryBones);
         var present=new HashSet<string>();
         foreach(var item in Inventory.Items)
         {
+            if(item.Place==PossessionPlace.Corpse)continue;
             bool beltItem=item.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(item.ContainerId))&&Inventory.Carried(item);
             if(item.Place==PossessionPlace.Container&&!beltItem)continue;
             bool near=item.InFlight||item.Place!=PossessionPlace.Ground||(item.Position-Position).Length*frame.RadiusM<160;
@@ -249,11 +254,14 @@ public sealed partial class LocalTerrainExplorer
                 {root.transform.position=view.transform.TransformPoint(new Vector3(item.Hands==2?0:right?.29f:-.29f,-.32f,.62f));root.transform.rotation=view.transform.rotation;}
                 else
                 {root.transform.position=(item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position)-Vector3.up*(float)item.HeightM*.35f;root.transform.rotation=body.rotation;}
-                if(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true)
+                if(humanHideBody&&item.Kind==PossessionKind.Bow)
+                {root.transform.rotation=view.transform.rotation*Quaternion.Euler(0,90,0);root.transform.position-=root.transform.up*(float)item.HeightM*.5f;}
+                else if(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true)
                 {
                     root.transform.rotation=(humanHideBody?view.transform.rotation:body.rotation)*Quaternion.Euler(humanHideBody?72:35,0,0);
                     root.transform.position-=root.transform.up*(float)item.HeightM*.35f;
                 }
+                PoseFirstPersonAction(root,item);
             }
         }
         UpdateDroppedBodies();

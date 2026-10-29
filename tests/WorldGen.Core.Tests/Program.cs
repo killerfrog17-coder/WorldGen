@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--foraging-only")){ForagingTests.Run();return;}
 if(args.Contains("--item-use-only")){ItemUseTests.Run();return;}
 if(args.Contains("--save-slots-only")){SaveSlotTests.Run();return;}
 if(args.Contains("--fireflies-only")){FireflyTests.Run(args[1]);return;}

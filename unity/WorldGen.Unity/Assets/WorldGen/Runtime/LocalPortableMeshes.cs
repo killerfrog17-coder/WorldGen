@@ -108,6 +108,16 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.Food:
+                Color food=new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,0);
+                if(item.Kind==PossessionKind.Mushroom)
+                {Tube(Vector3.zero,new Vector3(0,.62f,0),.11f,new Color(.78f,.72f,.58f,0));b.Crown(new Vector3(0,.67f,0),new Vector3(.5f,.22f,.5f),18,6,food,29,.015f);}
+                else if(item.Kind==PossessionKind.Berries||item.Kind==PossessionKind.Nuts)
+                {for(int i=0;i<9;i++)b.Crown(new Vector3((i%3-1)*.26f,.15f+(i%2)*.23f,(i/3-1)*.26f),Vector3.one*.19f,10,5,food,15+i,.025f);}
+                else if(item.Kind==PossessionKind.RawFish)
+                {b.Crown(new Vector3(0,.53f,0),new Vector3(.45f,.44f,.32f),14,7,food,22,.025f);Quad(new Vector3(0,.1f,0),new Vector3(-.45f,0,0),new Vector3(0,.17f,.08f),new Vector3(.45f,0,0),food);}
+                else b.Crown(new Vector3(0,.48f,0),new Vector3(.48f,.43f,.43f),16,7,food,38,.045f);
+                break;
             case PortableForm.Pouch:case PortableForm.Satchel:case PortableForm.Pack:case PortableForm.Quiver:Container(false,false);break;
             case PortableForm.Basket:Container(true,false);break;
             case PortableForm.BarkBox:Container(false,true);break;
@@ -164,6 +174,6 @@ static partial class LocalScatterMeshes
         var mesh=b.Finish();mesh.name=d.Name;
         if(d.Form==PortableForm.Bow){var vertices=mesh.vertices;float depth=(float)(item.WidthM/item.DepthM);for(int i=0;i<vertices.Length;i++)vertices[i].z*=depth;mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();}
         var colors=mesh.colors;var tags=new System.Collections.Generic.List<Vector2>(colors.Length);var palette=new[]{stone,wood,new Color(.3f,.22f,.14f,0),new Color(.65f,.5f,.32f,0),leather,bone,cord,new Color(.57f,.56f,.28f,0)};
-        foreach(var color in colors){int best=0;float error=float.MaxValue;for(int i=0;i<palette.Length;i++){var delta=(Vector4)(color-palette[i]);float e=delta.x*delta.x+delta.y*delta.y+delta.z*delta.z;if(e<error){best=i;error=e;}}if(color.a>.5f)best=4;tags.Add(new Vector2(best,0));}mesh.SetUVs(1,tags);return mesh;
+        foreach(var color in colors){int best=0;float error=float.MaxValue;for(int i=0;i<palette.Length;i++){var delta=(Vector4)(color-palette[i]);float e=delta.x*delta.x+delta.y*delta.y+delta.z*delta.z;if(e<error){best=i;error=e;}}if(color.a>.5f)best=4;if(d.Form==PortableForm.Food)best=8;tags.Add(new Vector2(best,0));}mesh.SetUVs(1,tags);return mesh;
     }
 }

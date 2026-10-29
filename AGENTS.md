@@ -1,5 +1,56 @@
 # WorldGen repository instructions
 
+
+NATURE/FOOD + FIRST PERSON ACTION RELEASE SELECTED,28October2026:
+Owner NEW request: rudimentary first-person held-item action motions, obtainable
+natural craft inputs incl reeds/fibres, realistic-ish foraged foods/toxicity and
+Skyrim-style finite corpse loot. This supersedes earlier no-attack-motion/no-meat
+restrictions. No full skinning/butchery, cooking, raw-meat illness or construction.
+Full CPU/GPU/network authorized; historical competitive-play limits are obsolete.
+No paid calls/subagents. Original177fauna/42human/native rigs/skins/actions intact.
+
+Existing root shortcut NOW selects artifacts/player-nature-actions-ready/WorldGen.exe,
+IL2CPP release BuiltUtc2026-10-29T00:07:53.2603700Z. JUNCTION target
+E:/WorldGen-builds/player-nature-actions-ready. Protect both. Prior selected
+player-save-slots-final retained. No new desktop shortcuts. Native30PASS, no
+runtime errors; 33 Core forage+75inventory+755portable+77item-use+69save checks pass.
+578 original asset/DLL hashes+340 frozen inputs+177 collision source/package IDs+
+18audio hashes verified. Actual food sheet and FP spear/bow views inspected.
+Evidence artifacts/nature-actions-20261028 and overnight-items-20261028/nature-actions-ready.
+Initial26 and intermediate28 native packages also passed, but are not selected.
+No new comprehensive139combat/13shoreline or FPS/ecological field acceptance claim.
+
+Foraging derives from ACTUAL placed regional mid/tree/herb/fungus species, not new
+scatter. Reed bundles from reed stands; woody shrubs/herb forms supply fibres;
+existing bark/tree work and fibrous-root digging retained. Bush fruits/tree fruit/
+nuts/mushrooms + some dug roots have deterministic species traits, calorie/water
+value, seasonal/hemisphere windows and saved per-source/year depletion. Mushroom
+picking removes visible fruiting body; no mushroom regrowth yet. Other vegetation
+stays visibly standing after gathering. Annual windows/yields approximate, no full
+phenology/new global ecology mutation. Useful plant/corpse invisible aim +E opens
+contextual menu. Corpse lazy ledger generates once, with original hide coat and
+mass-based meat, bone/sinew/feather/antler as appropriate. Unclaimed items are new
+PossessionPlace.Corpse, never carried weight/ground clutter; remain saved and
+accessible only near that corpse. Bulk take fits actual carrier/hands; overflow
+stays in corpse. Command clear removes unclaimed contents+ledger, retaining taken
+items. No human harvesting. Existing fishing catch now searchable for fish loot.
+
+Eight appended food enums; optional item kcal/water/toxin/delay/source fields;
+optional saved FoodExposure with delayed dose-based damage/symptoms/death cause
+Poison. Sampling consumes5g, NEVER declares safe. Raw meat deliberately has no
+illness penalty. 2400kcal restores resting-day hunger; existing exertion increases
+needs. No artificial must-eat-meat rule, food spoilage or leaching mechanics.
+
+FP action transforms: windup/thrust/swing/recovery, charged throw/bow/sling/atlatl,
+guard and repeated work. Bow now vertical in FP; third-person rig/actions untouched.
+Body still hidden from owner FP. Not authored hand/arm animation or swept melee.
+Tool-work progress joins craft awareness. Shared food material colour fixed after
+render review; simple food geometry remains placeholder, no final-art claim.
+Docs docs/NATURE_AND_FIRST_PERSON.md includes controls/research/limitations.
+All owned native/editor workers exited; none left running. Preserve owner's
+unrelated prompt deletion/two untracked deer scripts. Git checkpoint/push to follow.
+Use UTF8 explicitly for all documentation writes; never truncate giant AGENTS.
+
 SAVE SLOTS SELECTED / NEXT NATURE + FP MOTION AUTHORIZED,28October2026:
 Owner away ~1hour, explicitly authorizes rudimentary FIRST PERSON held-item action
 motion (wind-up/thrust/throws/tools), comprehensive attainable natural materials

@@ -168,6 +168,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawInventory()
     {
+        if(DrawNatureMenu(Mathf.Clamp(Screen.height/1080f,.65f,1.8f)))return;
         PrepareInventoryIcons();inventoryZones.Clear();inventoryHitTargets.Clear();inventoryHover=null;var e=Event.current;
         float scale=Mathf.Clamp(Screen.height/1080f,.55f,1.8f),pad=24*scale,top=82*scale,bottom=Screen.height-85*scale,gap=18*scale;
         InventoryFill(new Rect(0,0,Screen.width,Screen.height),new Color(.015f,.025f,.03f,.92f));

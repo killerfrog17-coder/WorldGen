@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var profile=ItemUseRules.Profile(item);double weightPenalty=item==null?1:Math.Max(1,Math.Sqrt(item.MassKg/(item.Kind==PossessionKind.LargeRock?.7:1.5)));
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
-        CombatCooldown(left,profile.RecoverySeconds*weightPenalty);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
+        CombatCooldown(left,profile.RecoverySeconds*weightPenalty);AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
         PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole

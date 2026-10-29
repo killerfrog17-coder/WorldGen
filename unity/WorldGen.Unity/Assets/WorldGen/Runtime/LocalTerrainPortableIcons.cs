@@ -18,6 +18,7 @@ public sealed partial class LocalTerrainExplorer
                 float u=(x-31.5f)/29,v=y/63f;bool inside=false;Color color=new Color(.65f,.48f,.28f);
                 switch(d.Form)
                 {
+                    case PortableForm.Food:inside=u*u+(v-.5f)*(v-.5f)*4<.48f;color=Color.white;break;
                     case PortableForm.Pouch:case PortableForm.Satchel:case PortableForm.Pack:case PortableForm.Quiver:case PortableForm.BarkBox:case PortableForm.Basket:
                         inside=v>.13f&&v<.8f&&Mathf.Abs(u)<.65f-.18f*Mathf.Abs(v-.5f);if(d.Form==PortableForm.Basket&&inside)color*=((x/3+y/3)%2==0?1:.72f);if(v>.8f&&v<.95f&&Mathf.Abs(Mathf.Sqrt(u*u+(v-.8f)*(v-.8f)*12)-.5f)<.07f)inside=true;break;
                     case PortableForm.Belt:case PortableForm.Cord:

@@ -50,6 +50,12 @@ public sealed partial class LocalTerrainExplorer
             bool enabled=GUI.enabled;GUI.enabled=enabled&&ready;if(GUILayout.Button(new GUIContent(title,ready?"":reason),InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale)))run();GUI.enabled=enabled;
             if(!ready&&GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))blockedTooltip=reason;
         }
+        if(Foraging.Food(p))
+        {
+            GUILayout.Label(Math.Round(p.MassKg*1000)+" g · "+Math.Round(p.MassKg*p.FoodKcalPerKg)+" kcal",label);
+            ActionButton("Eat a portion",true,"",()=>EatPossession(p,false));
+            ActionButton("Taste a small sample",true,"",()=>EatPossession(p,true));
+        }
         foreach(var action in legacy)
         {
             bool ok=CraftInputs(job?.WorkpieceId??p.Id,out _,out _,out string reason,action);
