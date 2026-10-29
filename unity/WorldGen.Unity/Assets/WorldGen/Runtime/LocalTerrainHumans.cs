@@ -112,6 +112,8 @@ public sealed partial class LocalTerrainExplorer
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
         humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,humanPlayer.Yaw,0);
         AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Swimming&&!motion.Grounded,crouch,dt,motion.Swimming);
+        if(campSleeping||campResting)
+        {humanPlayer.Root.transform.localRotation=Quaternion.Euler(90,humanPlayer.Yaw,0);humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM)+.18f+(float)(sleepingBed?.BeddingDepthM??0),(float)(motion.Z-originZ))-Quaternion.Euler(0,humanPlayer.Yaw,0)*Vector3.forward*.7f;}
         }
         if(!stopped&&CenterReady&&humanSpawnQueued>0)
         {

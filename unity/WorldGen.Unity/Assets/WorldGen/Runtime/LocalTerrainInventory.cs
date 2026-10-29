@@ -137,6 +137,7 @@ public sealed partial class LocalTerrainExplorer
     bool HandleInventoryKeys()
     {
         var k=ActiveKeyboard;if(k==null||!Ready||DeathVisible||Spectating||chatOpen||paused||mapOpen||ecologyOpen||!Application.isFocused&&!inventoryReviewMode)return inventoryOpen;
+        if(HandleCampKeys(k))return true;
         if(!inventoryNameEditing&&(k.iKey.wasPressedThisFrame||k.tabKey.wasPressedThisFrame)){SetInventoryOpen(!inventoryOpen);return true;}
         if(inventoryOpen)
         {
@@ -159,6 +160,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var target=AimedPossession();
             float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
+            if(TryCampInteract(itemDistance))return true;
             if(TryNatureInteract(itemDistance))return true;
             if(TryWaterInteract(itemDistance))return true;
             if(target!=null)RequestPossession(target.Item.Id,PossessionPlace.RightHand,autoHand:true);
@@ -287,6 +289,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventory()
     {
+        DisposeCamp();
         DisposeItemAudio();
         if(worldToolWork?.Line!=null)Destroy(worldToolWork.Line.gameObject);if(tackleLineMaterial!=null)Destroy(tackleLineMaterial);
         ClearInventoryPhysics();DisposeInventoryPreview();DisposePortableAppearance();foreach(var root in inventoryVisuals.Values)if(root!=null)DestroyInventoryVisual(root);inventoryVisuals.Clear();

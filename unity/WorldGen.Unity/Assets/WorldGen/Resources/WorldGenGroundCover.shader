@@ -149,7 +149,7 @@ Shader "WorldGen/GroundCover"
             #endif
             albedo*=.86+.14*(1-abs(i.leaf.x));
             float3 color=WorldGenGrassLight(albedo,i.normal,i.position,VegetationAmbient(_AmbientTint).rgb,VegetationDaylight(_Daylight));
-            color+=SecondaryCelestialLight(i.normal,albedo);
+            color+=SecondaryCelestialLight(i.normal,albedo)+CampDiffuseLight(i.position,normalize(i.normal),albedo);
             return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFog(_FogColor).rgb,VegetationFogDistance(_FogDistance)),1);
         }
         float depth(O i):SV_Target{Fade(i);return i.positionCS.z;}

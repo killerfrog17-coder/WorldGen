@@ -11,7 +11,7 @@ namespace WorldGen.Core
         public string Key,Species;public PossessionKind Kind;public double MassKg,KcalPerKg,WaterPerKg,Toxicity,DelayHours,SeasonCentre,SeasonWidth;public V Tint;
         public bool Available(double year,double latitude,double temperature)
         {
-            if(Kind==PossessionKind.ReedBundle||Kind==PossessionKind.RawFibre)return true;
+            if(Kind==PossessionKind.ReedBundle||Kind==PossessionKind.RawFibre||Kind==PossessionKind.LeafLitter)return true;
             if(temperature< -3)return false;
             double phase=year+(latitude<0?.5:0);phase-=Math.Floor(phase);
             double d=Math.Abs(phase-SeasonCentre);d=Math.Min(d,1-d);
@@ -48,9 +48,10 @@ namespace WorldGen.Core
         public static ForageProduct[] Products(TreeSpecies s)
         {
             var r=s.Reproduction;
-            if(r.Fruit!=TreeFruitForm.FleshyFruit&&r.Fruit!=TreeFruitForm.Nut)return Array.Empty<ForageProduct>();
+            var leaves=Product(s.Name,s.MorphologyCode,PossessionKind.LeafLitter,.4,0,0,0,s.Morphology.Leaf,"leaf-litter");
+            if(r.Fruit!=TreeFruitForm.FleshyFruit&&r.Fruit!=TreeFruitForm.Nut)return new[]{leaves};
             bool nut=r.Fruit==TreeFruitForm.Nut;
-            return new[]{Product(s.Name,s.MorphologyCode,nut?PossessionKind.Nuts:PossessionKind.Fruit,nut?.16:.28,nut?4800+1200*r.SeedNutrition:450+250*r.SeedNutrition,nut?.06:.8,nut?r.SeedToxicity:r.FleshToxicity,s.Morphology.Fruit)};
+            return new[]{leaves,Product(s.Name,s.MorphologyCode,nut?PossessionKind.Nuts:PossessionKind.Fruit,nut?.16:.28,nut?4800+1200*r.SeedNutrition:450+250*r.SeedNutrition,nut?.06:.8,nut?r.SeedToxicity:r.FleshToxicity,s.Morphology.Fruit)};
         }
         public static ForageProduct[] Products(GroundSpecialist s)
         {

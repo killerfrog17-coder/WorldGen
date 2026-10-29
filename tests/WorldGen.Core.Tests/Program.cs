@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--camp-only")){CampTests.Run();return;}
 if(args.Contains("--player-water-only")){PlayerWaterTests.Run();return;}
 if(args.Contains("--wildlife-sounds-only")){WildlifeSoundTests.Run();return;}
 if(args.Contains("--foraging-only")){ForagingTests.Run();return;}

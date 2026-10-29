@@ -56,6 +56,9 @@ public sealed partial class LocalTerrainExplorer
             ActionButton("Eat a portion",true,"",()=>EatPossession(p,false));
             ActionButton("Taste a small sample",true,"",()=>EatPossession(p,true));
         }
+        if(CampRules.Plantable(p))ActionButton("Plant upright in the ground",true,"",()=>BeginCampPlacement(p,CampKind.Stake));
+        if(CampRules.Tinder(p))ActionButton("Lay a campfire here",true,"",()=>BeginCampPlacement(p,CampKind.Fire));
+        if(CampRules.Bedding(p))ActionButton("Spread as bedding",true,"",()=>BeginCampPlacement(p,CampKind.Bedding));
         foreach(var action in legacy)
         {
             bool ok=CraftInputs(job?.WorkpieceId??p.Id,out _,out _,out string reason,action);

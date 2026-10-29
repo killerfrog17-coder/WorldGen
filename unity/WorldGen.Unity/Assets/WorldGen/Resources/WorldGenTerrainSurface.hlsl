@@ -195,7 +195,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         #endif
         color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission,canopyShade),saturate(mid.a)*smoothstep(180,1000,distance));
     }
-    if(!TerrainTest(TD_UNLIT))color+=SecondaryCelestialLight(n,albedo);
+    if(!TerrainTest(TD_UNLIT))color+=SecondaryCelestialLight(n,albedo)+CampDiffuseLight(i.position,n,albedo);
     return half4(TerrainTestAir(color,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
 }
 #endif

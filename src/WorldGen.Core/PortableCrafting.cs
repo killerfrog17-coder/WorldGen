@@ -33,6 +33,9 @@ namespace WorldGen.Core
         static PossessionKind[] P(params PossessionKind[] kinds)=>kinds;
         static CraftCapability[] T(params CraftCapability[] caps)=>caps;
         public static readonly PortableRecipe[] Recipes=new[]{
+            R("shred-tinder","Shred a fine tinder bundle",PossessionKind.TinderBundle,P(PossessionKind.DryGrass,PossessionKind.BarkStrips,PossessionKind.PreparedFibre),90,yield:.9),
+            R("split-kindling","Split thin kindling",PossessionKind.KindlingBundle,P(PossessionKind.Branch,PossessionKind.TrimmedPole),180,tools:T(CraftCapability.Chop|CraftCapability.Cut),yield:.9,thickness:.06),
+            R("hand-drill","Shape spindle and notched hearthboard",PossessionKind.HandDrillSet,P(PossessionKind.Branch,PossessionKind.TrimmedPole),900,materials:new[]{N(1,PossessionKind.Branch,PossessionKind.TrimmedPole)},tools:T(CraftCapability.Cut),yield:.7,length:.35,thickness:.06,wood:true),
             R("prepare-fibres","Separate and prepare fibres",PossessionKind.PreparedFibre,P(PossessionKind.RawFibre),120,yield:.8),
             R("bark-fibres","Scrape inner-bark fibres",PossessionKind.PreparedFibre,P(PossessionKind.BarkStrips),180,tools:T(CraftCapability.Scrape),yield:.65),
             R("twist-cord","Twist a cordage coil",PossessionKind.Cordage,P(PossessionKind.PreparedFibre),360,yield:.95),

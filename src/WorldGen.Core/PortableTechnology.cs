@@ -22,6 +22,11 @@ namespace WorldGen.Core
         static PortableItem D(PossessionKind kind,string name,PortableForm form,double w,double h,double d,double mass,CraftCapability capability=0,int sw=0,int sh=0,PossessionPlace? wear=null,string aliases="",int hands=1)
             =>new PortableItem{Kind=kind,Name=name,Form=form,Width=w,Height=h,Depth=d,Mass=mass,Capability=capability,StorageWidth=sw,StorageHeight=sh,Wear=wear,Aliases=aliases,Hands=hands};
         public static readonly PortableItem[] Items={
+            D(PossessionKind.DryGrass,"Dry grass bundle",PortableForm.Fibre,.25,.4,.2,.6,aliases:"grass|dry grass|bedding grass"),
+            D(PossessionKind.LeafLitter,"Leaf litter",PortableForm.Fibre,.25,.25,.2,.4,aliases:"leaves|leaf litter"),
+            D(PossessionKind.TinderBundle,"Tinder bundle",PortableForm.Fibre,.14,.1,.14,.08,aliases:"tinder"),
+            D(PossessionKind.KindlingBundle,"Kindling bundle",PortableForm.Reed,.18,.35,.14,.4,aliases:"kindling"),
+            D(PossessionKind.HandDrillSet,"Hand-drill fire set",PortableForm.Shaft,.1,.55,.07,.25,aliases:"fire drill|hand drill|fire set"),
             D(PossessionKind.Berries,"Berries",PortableForm.Food,.08,.06,.08,.15,aliases:"berries|berry"),
             D(PossessionKind.Fruit,"Fruit",PortableForm.Food,.08,.08,.08,.25),
             D(PossessionKind.Nuts,"Nuts",PortableForm.Food,.08,.05,.08,.15),

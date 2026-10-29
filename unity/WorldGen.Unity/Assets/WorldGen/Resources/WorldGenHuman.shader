@@ -58,6 +58,7 @@ Shader "WorldGen/Human"
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=1;s.normalTS=half3(0,0,1);s.smoothness=1-_Roughness;
                 half3 color=WorldGenCanopyPbr(UniversalFragmentPBR(input,s).rgb,albedo,input.bakedGI,1,WorldGenCanopyShadow(1,i.world))+SecondaryCelestialLight(n,albedo);
+                color+=CampDiffuseLight(i.world,n,albedo);
                 return half4(ApplyPlanetAir(color,i.world,_WorldSpaceCameraPos,VegetationFogLinear(float3(.285,.434,.539)),VegetationFogDistance(60000)),1);
             }
             ENDHLSL

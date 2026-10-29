@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
 {
     double combatRightReady,combatLeftReady,combatGlobalReady,combatNoticeAt;
     bool combatGuarding;
-    bool CombatStopped=>!Ready||DeathVisible||SurvivalActive&&Vitals.Incapacitated||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||!Application.isFocused&&!inventoryReviewMode;
+    bool CombatStopped=>!Ready||DeathVisible||SurvivalActive&&Vitals.Incapacitated||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||CampBusy||!Application.isFocused&&!inventoryReviewMode;
     void CombatNotice(string text){if(Time.unscaledTimeAsDouble<combatNoticeAt)return;combatNoticeAt=Time.unscaledTimeAsDouble+1.5;InventoryFeedback(text);}
     bool SpendCombatStamina(double amount)
     {
@@ -44,6 +44,7 @@ public sealed partial class LocalTerrainExplorer
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
         CombatCooldown(left,profile.RecoverySeconds*weightPenalty);AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
         PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
+        if(HammerCamp(item,ray,reach))return;
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
         // bounding box as flesh. Each candidate is still a real surface hit.

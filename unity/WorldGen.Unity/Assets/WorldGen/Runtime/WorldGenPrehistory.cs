@@ -58,7 +58,7 @@ public sealed partial class WorldGenRuntime
         humanPlayback.Accumulate(elapsed,run);
         bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
         if(WorldGenPerformance.Enabled)playingLocal=false; // Fixed benchmark sun/weather/calendar; never advance a saved history.
-        if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
+        if(playingLocal)play.Accumulate(Math.Max(0,elapsed)*terrainExplorer.CampTimeRate);
         if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
         long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
         bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);

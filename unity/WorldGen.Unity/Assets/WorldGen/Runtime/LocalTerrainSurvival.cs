@@ -75,15 +75,17 @@ public sealed partial class LocalTerrainExplorer
                 Sunlight=daylight*(1-CurrentWeather.CloudCover*.85)*(1-canopy*.8),
                 Immersed=!double.IsNaN(water)&&water-(sample.ElevationM+feetAboveGround)>.6};
         }
-        double speed=Vitals.Incapacitated?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
-        SurvivalRules.Advance(Vitals,dt,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
+        survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
+        survivalEnvironment.Insulation=campSleeping&&sleepingBed!=null?Math.Min(.6,sleepingBed.BeddingDepthM*6)*(1-sleepingBed.Wetness*.7):0;
+        double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
+        SurvivalRules.Advance(Vitals,dt*CampTimeRate,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
         if(Vitals.FoodExposures!=null)foreach(var exposure in Vitals.FoodExposures)
             if(!exposure.SymptomsNotified&&exposure.DelaySeconds<=0&&exposure.RemainingSeconds<10800){exposure.SymptomsNotified=true;InventoryFeedback("Your stomach is cramping and you feel nauseated.");}
         Vitals.Stamina=Math.Max(0,Vitals.Stamina-dt*Math.Max(0,Inventory.LoadEffort-1)*speed*.3);
     }
     void UpdateSurvivalHud()
     {
-        bool show=SurvivalActive&&!inventoryOpen&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!(debugOpen&&debugFull);
+        bool show=SurvivalActive&&!inventoryOpen&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!campSleeping&&!campResting&&!(debugOpen&&debugFull);
         if(!show){if(survivalHudCanvas!=null)survivalHudCanvas.enabled=false;return;}
         if(survivalHudCanvas==null)
         {

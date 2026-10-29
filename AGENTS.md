@@ -1,5 +1,54 @@
 # WorldGen repository instructions
 
+CAMP + WATER REDO IN PROGRESS,29October2026~01:23CDT:
+Latest owner goes to bed; priority NON-WATER FIRST: campfire, loose bedding,
+independent tiredness/sleep, planting actual sticks and hammering them deeper
+with a rock. THEN fix water defects from owner screenshots, EXTENSIVE REAL
+VISUAL/GAMEPLAY TESTING. Prior water release has owner-confirmed broken fork
+seams/triangles, missing elevated river mouths (water under land at sea level),
+unreadably slow flow, no noticeable ocean waves. Do NOT treat previous core or
+18native checks as proof these are fixed. Optional realistic wide/deep rivers /
+prevalence balancing ONLY when main work is finished and water highly confident.
+No subagents or paid services. Full CPU/GPU authorized; prior competitive limits
+obsolete. Preserve owner prompt deletion and2untracked deer scripts and original
+fauna/human art. Root shortcut STILL water-update release, NOT new camp source.
+New Core CampState saved planet-positioned objects/material ownership/embedding,
+fuel/ash/embers/wetting/drying; separate camp sim clock (debug /time doesn't burn
+fuel).31camp checks,784portable/75inventory/160HUD/67mode/33forage pass. New items:
+DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet, appended enum only;
+3contextual recipes. Natural grass E gathering +actual-tree leaf gathering.
+Right-click materials for bedding/fire/stake placement; E camp context, rock
+attack drives stake; soil/length/depth retained. Fire uses timed WorldToolWork
+hand borrowing/restoration. Shared nearest4camp shader lights (render budget,
+not object cap), no point shadows; shaders terrain/grass/trees/fauna/humans/items
+modified, original assets unchanged. Procedural temporary crackle, not SA3 take.
+Z ground rest/sleep, bedding E; accelerated32x solar/history/needs/fuel. Tiredness
+independent from energy, sleep pressure/comfort and mild severe-fatigue penalties;
+HUD shape unchanged, fatigue visible inventory/dialog. Source still prototype.
+Native camp1 FAILED actual stripped Shader.Find unlit in placement; FIXED explicit
+Resources CampPlacement shader. Native camp2 passed actual gathering/placement/
+hammering/lighting/restored hands/fuel/radiant attenuation/real pixel lighting/
+sleep/day advancement. FAILED final wake-damage DIAGNOSTIC because paused=true;
+fixed test to unpause for that update, final save/model tests not yet reached.
+Night lit-vs-unlit captures inspected: actual firelight works. Bedding looked
+sparse; revised650->1100wider aligned stems, pending capture. Day capture needed
+camera zoom settle; fixed .6s wait. Source/native pending latest iteration.
+Mono camp build FINISHED successfully; artifacts/player-camp-prototype junction
+E:/WorldGen-builds/player-camp-prototype. Latest camp-native3 check RUNNING;
+PID stored artifacts/camp-water-20261029/camp-native3/pid.txt. Check its log/results,
+do not launch competing candidate builds until it exits. No Unity build running. Once finished run --worldgen-item-use-check Earth.world
+--worldgen-camp-check with ISOLATED output/library and1280x800. Native2PID20804
+exited after failure; original selected owner build PID26936 untouched. Do not
+select camp until actual checks pass. Runtime sourcecheck passes. Future source
+checkpoint/push should include only camp changes, exclude owner deletions/scripts.
+Disk C~1.1GB/E~1.0GB. A six-obsolete-E-package cleanup plan is in taskroot; attempted
+computed bulk deletion was BLOCKED BY POLICY BEFORE EXECUTION, NOTHING REMOVED.
+Do not apply that batch again or bypass rejection. Continue with space available /
+reuse UNSELECTED camp candidate folder for iterations; selected/fallback retained.
+Known Unity3autochanges (URP global,ProjectSettings,ground atlas meta) restore
+ONLY after editor exits. No water code changed in this phase yet. docs/CAMP_SYSTEM.
+Source checkpoint backs up this work; selected still previous water release.
+
 WATER UPDATE RELEASE,29October2026~00:08CDT:
 Owner authorizes drinking/fresh-salt safety, river triangles/missing ocean mouths,
 animated rivers/ocean waves, swimming and underwater blur/haze. Selected EXISTING

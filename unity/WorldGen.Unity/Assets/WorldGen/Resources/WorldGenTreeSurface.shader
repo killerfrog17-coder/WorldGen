@@ -109,6 +109,7 @@ Shader "WorldGen/TreeSurface2"
             half diffuse=saturate((dot(n,sun.direction)+foliage*.2)/(1+foliage*.2));
             half transmission=foliage*.14*pow(saturate(dot(-n,sun.direction)),2);
             half3 color=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(n,albedo);
+            color+=CampDiffuseLight(i.position,n,albedo);
             return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
         }
         half4 depthFrag(O i):SV_Target

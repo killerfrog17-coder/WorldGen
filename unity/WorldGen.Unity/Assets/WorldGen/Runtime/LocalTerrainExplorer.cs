@@ -179,7 +179,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
-        UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);
+        UpdateCamp();UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);
         if(Math.Abs(motion.X-originX)>8192||Math.Abs(motion.Z-originZ)>8192)
         {
             double newOriginX=Math.Floor(motion.X/2048)*2048,newOriginZ=Math.Floor(motion.Z/2048)*2048;

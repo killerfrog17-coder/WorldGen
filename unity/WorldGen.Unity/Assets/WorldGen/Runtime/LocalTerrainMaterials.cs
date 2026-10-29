@@ -77,6 +77,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
     {
+        BindCampLights(camera);
         Shader.SetGlobalVector("_WorldGenWaterWind",camera==view?new Vector4((float)CurrentWeather.WindEastMps,(float)CurrentWeather.WindNorthMps,0,0):Vector4.zero);
         BindSharedTreeWind(camera);
         float treeStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(TerrainVideoOptions.TreeQuality),treePixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(TerrainVideoOptions.TreeQuality);

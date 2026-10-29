@@ -56,6 +56,7 @@ Shader "WorldGen/PortableItem"
                 material.smoothness=slot<.5?.28:slot<1.5?.16:slot<2.5?.05:slot<3.5?.1:slot<4.5?.14:slot<5.5?.24:.04;
                 if(_HasFur>.5&&i.color.a>.5)material.smoothness=.04;
                 color=WorldGenCanopyPbr(UniversalFragmentPBR(input,material).rgb,material.albedo,input.bakedGI,1,WorldGenCanopyShadow(1,i.world))+SecondaryCelestialLight(n,material.albedo);
+                color+=CampDiffuseLight(i.world,n,material.albedo);
                 return half4(ApplyPlanetAir(color,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(float3(.57,.69,.76))),VegetationFogDistance(_FogDistance)),1);
             }
             ENDHLSL

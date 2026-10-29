@@ -188,7 +188,7 @@ public sealed partial class LocalTerrainExplorer
         if(e.type==EventType.MouseUp)inventoryOrbit=false;
         if(InventoryButton(new Rect(left.x+inset,left.yMax-95*scale,(left.width-2*inset-gap)/2,30*scale),"Turn left",scale)){inventoryPreviewYaw-=45;RenderInventoryPreview();}
         if(InventoryButton(new Rect(left.center.x+gap/2,left.yMax-95*scale,(left.width-2*inset-gap)/2,30*scale),"Turn right",scale)){inventoryPreviewYaw+=45;RenderInventoryPreview();}
-        InventoryLabel(new Rect(left.x+inset,left.yMax-54*scale,left.width-2*inset,46*scale),Inventory.CarriedMassKg.ToString("F1")+" kg carried  ·  movement "+Mathf.RoundToInt((float)Inventory.LoadSpeedScale*100)+"%",Mathf.RoundToInt(15*scale));
+        InventoryLabel(new Rect(left.x+inset,left.yMax-54*scale,left.width-2*inset,46*scale),Inventory.CarriedMassKg.ToString("F1")+" kg carried  ·  movement "+Mathf.RoundToInt((float)Inventory.LoadSpeedScale*100)+"%\nTiredness "+Vitals.Tiredness.ToString("0")+"%",Mathf.RoundToInt(15*scale));
         InventoryLabel(new Rect(middle.x+inset,middle.y+inset,middle.width-2*inset,32*scale),"HELD & WORN",Mathf.RoundToInt(18*scale),InventoryGold);
         float handWidth=(middle.width-2*inset-gap)/2,handY=middle.y+80*scale;
         foreach(var hand in new[]{PossessionPlace.RightHand,PossessionPlace.LeftHand})

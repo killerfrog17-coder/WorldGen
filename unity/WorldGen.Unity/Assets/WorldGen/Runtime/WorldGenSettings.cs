@@ -98,6 +98,7 @@ public sealed partial class WorldGenRuntime
                 GUILayout.Space(12);GUILayout.Label("MOVEMENT & CAMERA",SectionStyle());
                 GUILayout.Label("WASD: move. C: walk. Shift: sprint. Ctrl: crouch. Space: jump. Mouse wheel: first/third person. Middle mouse: lock camera distance. Creative F: flight; Alt + wheel: flight speed. /gamemode survival | creative | spectator selects mode.");
                 GUILayout.Label("Aim at reachable water and press E to drink. Freshwater is untreated; saltwater dehydrates you. Deep water: WASD/look to swim, Space to rise, Ctrl to dive. Survival vision blurs underwater; Creative/Spectator use a clear mask view. Hold your breath too long and you drown.");
+                GUILayout.Label("Right-click grass, tinder, hides or wood for contextual placement. Aim at placed materials and press E to add fuel/layers, light a fire or sleep. Strike a planted stick with a rock to drive it deeper. Z opens ground sleep/rest. Sleeping accelerates time; Space or Escape wakes you. Tiredness is separate from energy.");
                 GUILayout.Label("F3: debug information. Shift + F3: full debug information. F3 + A: wildlife simulation radar. F3 + E: ecology inspection.");
                 break;
         }

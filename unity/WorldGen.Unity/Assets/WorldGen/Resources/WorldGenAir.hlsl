@@ -1,3 +1,4 @@
+#include "WorldGenCampLight.hlsl"
 #ifndef WORLDGEN_AIR_INCLUDED
 #define WORLDGEN_AIR_INCLUDED
 #include "WorldGenFog.hlsl"
