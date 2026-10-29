@@ -1942,6 +1942,89 @@
       "source_commits": [
         "108b1f4b6ad2ee8b594ecceced43808e0df75af1"
       ]
+    },
+    {
+      "path": "E:\\WorldGen-builds\\player-water-update",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-water-update",
+        "E:\\WorldGen-builds\\player-water-update"
+      ],
+      "name": "player-water-update",
+      "keep": false,
+      "reason": "",
+      "bytes": 2218362997,
+      "asset_snapshot": "a5f244d9f34cc538e36c6574630ef8747fe52648fe437c87e2f89c39a007060d",
+      "build": {
+        "BuiltUtc": "2026-10-29T05:01:46.3573839Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "8c4ca133e8856bf258f5995d6f8c508a68c12c5f23e3b798f8e8ddf1fe6efb6e"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "8c825ba7cff8ab7e504f00bf9486acfd735dd69e629bd287a82948288479e4df"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "22f91b308a5446daa0521144ffeb74a674b0062a335d5215313ed87fec04aa24"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "68a41366ad37ccc67aca0df7cb34e164146dac97"
+      ]
+    },
+    {
+      "path": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-camp-water-release",
+      "aliases": [
+        "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-camp-water-release"
+      ],
+      "name": "player-camp-water-release",
+      "keep": false,
+      "reason": "",
+      "bytes": 1450624126,
+      "asset_snapshot": "ec52d2c8d4e380b151120fc8ae7ea70bed1289fa159d6a9aa01483b1b2e006a0",
+      "build": {
+        "BuiltUtc": "2026-10-29T10:07:07.5229798Z",
+        "Backend": "IL2CPP",
+        "Development": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "a233322f7afa0d3c2a2ceb0314db1670d9f73bfdf6fc4ef06824753bc0bcaffa"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "cd494bc196ec91445733bf4828e3e90b0a8113cbc6dc0a60aa38f57fc130f2ad"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "32ac59c913095ce0f8714703a3fc315a723c7bcea9a2c6dc0a7ad130cdcab2ee"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ]
+      },
+      "source_commits": [
+        "d41da6024bc8d9e5c1422c0f660430e4c2635ba1"
+      ]
     }
   ],
   "snapshots": {
@@ -2213,6 +2296,20 @@
       ],
       "files": 604,
       "bytes": 624039615
+    },
+    "a5f244d9f34cc538e36c6574630ef8747fe52648fe437c87e2f89c39a007060d": {
+      "packages": [
+        "player-water-update"
+      ],
+      "files": 604,
+      "bytes": 624073199
+    },
+    "ec52d2c8d4e380b151120fc8ae7ea70bed1289fa159d6a9aa01483b1b2e006a0": {
+      "packages": [
+        "player-camp-water-release"
+      ],
+      "files": 604,
+      "bytes": 624073919
     }
   },
   "asset_lock": "assets/legacy-runtime-assets.lock.json"
