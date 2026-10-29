@@ -16,12 +16,17 @@ public sealed partial class LocalTerrainExplorer
         waterMaterial=new Material(shader);waterMaterial.SetFloat("_Water",1);
         // A periodic slope DATA texture, not an image projected onto the sea.
         waterNormalField=new Texture2D(128,128,TextureFormat.RGBA32,true,true){name="Periodic water slopes",wrapMode=TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=2};
-        var pixels=new Color[128*128];int[] kx={3,7,1,11,17,23},ky={1,-2,5,8,-5,17};
+        const int harmonics=24;var random=new System.Random(734911);var kx=new int[harmonics];var ky=new int[harmonics];var phases=new double[harmonics];
+        for(int k=0;k<harmonics;k++){kx[k]=random.Next(2,25);ky[k]=random.Next(-23,24);phases[k]=random.NextDouble()*Math.PI*2;}
+        var pixels=new Color[128*128];
         for(int y=0;y<128;y++)for(int x=0;x<128;x++)
         {
-            double sx=0,sz=0;
-            for(int k=0;k<kx.Length;k++){double f=Math.Sqrt(kx[k]*kx[k]+ky[k]*ky[k]),a=.11/Math.Pow(f,.7),c=Math.Cos(Math.PI*2*(kx[k]*x+ky[k]*y)/128+k*1.731);sx+=kx[k]*a*c;sz+=ky[k]*a*c;}
-            pixels[y*128+x]=new Color((float)(.5+.22*sx),(float)(.5+.22*sz),1,1);
+            double sx=0,sz=0,height=0;
+            for(int k=0;k<kx.Length;k++){double f=Math.Sqrt(kx[k]*kx[k]+ky[k]*ky[k]),a=.06/Math.Pow(f,.8),angle=Math.PI*2*(kx[k]*x+ky[k]*y)/128+phases[k],c=Math.Cos(angle);sx+=kx[k]*a*c;sz+=ky[k]*a*c;height+=Math.Sin(angle);}
+            // Sparse, smoothly shaped floating flecks make current direction
+            // readable without painting an entire calm stream white.
+            double flecks=D.Clamp((height/Math.Sqrt(harmonics*.5)-1.2)*.65);
+            pixels[y*128+x]=new Color((float)(.5+.22*sx),(float)(.5+.22*sz),(float)flecks,1);
         }
         waterNormalField.SetPixels(pixels);waterNormalField.Apply(true,true);waterMaterial.SetTexture("_WaterNormals",waterNormalField);
         var data=view.GetUniversalAdditionalCameraData();data.requiresDepthTexture=true;data.requiresColorTexture=true;

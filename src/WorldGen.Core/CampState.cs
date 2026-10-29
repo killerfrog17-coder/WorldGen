@@ -83,6 +83,12 @@ namespace WorldGen.Core
             if(!c.Burning)c.EmberSeconds=Math.Max(0,c.EmberSeconds-remaining*(rain>.1?3:1));
         }
         public static double RadiantWarmth(CampObject c,double distance)=>c.FirePowerKw*10/(.8+distance*distance);
+        public static double ContactDamagePerSecond(CampObject c,double distance,double feetHeight)
+        {
+            if(c==null||c.Kind!=CampKind.Fire||feetHeight<-.25||feetHeight>1.1||distance>=.55)return 0;
+            if(c.Burning)return 10*D.Clamp((.55-distance)/.2);
+            return c.EmberSeconds>0&&feetHeight<.18?3*D.Clamp((.35-distance)/.15):0;
+        }
         public static double BedComfort(CampObject c)=>c==null?.38:D.Clamp(.4+Math.Min(.55,c.BeddingDepthM*8)-c.Wetness*.45);
         public static double Drive(CampObject stake,Possession rock)
         {

@@ -16,9 +16,13 @@ static class CampTests
         CampRules.Add(fire,Item(PossessionKind.KindlingBundle));fire.Wetness=.8;Check(CampRules.IgniteReason(fire,true).Contains("wet"),"Wet tinder cannot be friction-lit");
         fire.Wetness=0;Check(CampRules.IgniteReason(fire,true)=="","Dry tinder plus kindling and drill can ignite");
         double mass=fire.MassKg;CampRules.Ignite(fire,true);Check(fire.Burning&&fire.FirePowerKw>0,"Ignition makes real heat");
+        Check(CampRules.ContactDamagePerSecond(fire,.1,0)>0,"Standing in flames causes contact burns");
+        Check(CampRules.ContactDamagePerSecond(fire,.8,0)==0&&CampRules.ContactDamagePerSecond(fire,.1,2)==0,"Nearby warmth and jumping above the flames are not contact burns");
         CampRules.Advance(fire,600,0,.3,0,1);Check(fire.MassKg<mass&&fire.AshKg>0,"Burning consumes physical fuel into ash");
         Check(Math.Abs((mass-fire.MassKg)*.04-fire.AshKg)<1e-9,"Fuel and ash accounting is conserved");
         CampRules.Advance(fire,86400,0,.3,0,1);Check(!fire.Burning&&fire.MassKg<.001&&fire.EmberSeconds==0,"A fire expires and cools without fuel");
+        Check(CampRules.ContactDamagePerSecond(fire,.1,0)==0,"Cold ash does not burn the player");
+        fire.EmberSeconds=30;Check(CampRules.ContactDamagePerSecond(fire,.1,0)>0&&CampRules.ContactDamagePerSecond(fire,.1,.5)==0,"Live embers burn bare feet only close to the ground");
         var rain=Fire();CampRules.Add(rain,Item(PossessionKind.TinderBundle));CampRules.Add(rain,Item(PossessionKind.KindlingBundle));CampRules.Ignite(rain,true);CampRules.Advance(rain,1,20,.9,5,0);Check(!rain.Burning,"Heavy rain can extinguish an exposed small fire");
         var bed=new CampObject{Kind=CampKind.Bedding,Position=at};double bare=CampRules.BedComfort(null);
         CampRules.Add(bed,Item(PossessionKind.DryGrass));double thin=CampRules.BedComfort(bed);for(int i=0;i<7;i++)CampRules.Add(bed,Item(PossessionKind.DryGrass));

@@ -44,8 +44,12 @@ Baseline native images reproduce the buried mouth and intermittent channel
 triangles. One revised native run failed its initial terrain-loading timeout
 before reaching water; it is not a visual pass. The replacement fixture starts
 at the actual mouth and captures streamed views, three off-grid mesh LODs, river
-motion and a real-time open-ocean sequence. Packaged visual verification and
-combined camp regression remain required before selection.
+motion and a real-time open-ocean sequence. The fixed-camera packaged motion run passes, with 206889 pixels differing
+from a same-frame flat displacement control and 265494 changing over the timed
+ocean sequence. Continuous mouth and junction captures were inspected. The
+combined camp polish run passes 35 native checks, including real contact burns
+and ember-glow expiry. Final release-backend checks and preservation proof remain
+required before shortcut selection.
 
 ## River scale follow-up
 

@@ -70,6 +70,10 @@ public sealed partial class LocalTerrainExplorer
         Check(restored.Camp.Objects.Single(c=>c.Kind==CampKind.Fire).Burning&&restored.Survival.Tiredness==Vitals.Tiredness,"Fire state, remaining fuel and tiredness survive the real save serializer");
         foreach(var kind in new[]{PossessionKind.DryGrass,PossessionKind.LeafLitter,PossessionKind.TinderBundle,PossessionKind.KindlingBundle,PossessionKind.HandDrillSet})
         {var p=PortableTechnology.Create(kind,Position);var mesh=LocalScatterMeshes.BuildPortable(p);Check(mesh.vertexCount>12&&mesh.bounds.size.sqrMagnitude>0,"New resource/tool has renderable item geometry: "+kind);Destroy(mesh);}
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();TerrainHandoff.Coordinates(frame,fire.Position,out double fireX,out double fireZ);motion.Place(fireX,fireZ,Ground(fireX,fireZ));paused=false;UpdatePlayerSurvival(0,0);paused=true;
+        Check(Vitals.Health<100,"Standing in the actual burning fire causes contact damage");motion.Place(sx,sz,Ground(sx,sz));
+        fire.Burning=false;fire.EmberSeconds=30;InvalidateCampVisual(fire);campUpdateAt=0;UpdateCamp();Check(campVisuals[fire.Id].Root.GetComponentsInChildren<Transform>().Any(t=>t.name=="Live ember bed"),"An extinguished fire retains a visible live ember bed");
+        fire.EmberSeconds=0;campUpdateAt=0;UpdateCamp();Check(!campVisuals[fire.Id].Root.GetComponentsInChildren<Transform>().Any(t=>t.name=="Live ember bed"),"Ember glow retires when the saved ember state cools");
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();paused=false;File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
     }
 }

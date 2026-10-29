@@ -158,7 +158,19 @@ static partial class LocalScatterMeshes
             case PortableForm.Axe:
                 for(int i=0;i<6;i++){float t=i/6f,q=(i+1)/6f;Tube(new Vector3(-.16f*t*t,t*.87f,0),new Vector3(-.16f*q*q,q*.87f,0),.09f,wood,10);}
                 AxeHead(item.Kind==PossessionKind.StoneAdze);Wrap(.73f,.17f,5);break;
-            case PortableForm.Shaft:Tube(Vector3.zero,Vector3.up,.3f,wood,8);if(item.Kind==PossessionKind.NotchedShaft){Tube(new Vector3(-.16f,.9f,0),new Vector3(-.16f,1,0),.07f,wood);Tube(new Vector3(.16f,.9f,0),new Vector3(.16f,1,0),.07f,wood);}break;
+            case PortableForm.Shaft:
+                if(item.Kind==PossessionKind.HandDrillSet)
+                {
+                    // A slender spindle rests in the socket of a separate flat
+                    // hearthboard; the generic shaft looked like one fat pole.
+                    Quad(new Vector3(-.48f,.035f,-.34f),new Vector3(-.48f,.035f,.34f),new Vector3(.48f,.035f,.34f),new Vector3(.48f,.035f,-.34f),wood);
+                    Quad(new Vector3(-.48f,0,.34f),new Vector3(-.48f,0,-.34f),new Vector3(.48f,0,-.34f),new Vector3(.48f,0,.34f),wood);
+                    foreach(float x in new[]{-.48f,.48f})Quad(new Vector3(x,0,-.34f),new Vector3(x,.035f,-.34f),new Vector3(x,.035f,.34f),new Vector3(x,0,.34f),wood);
+                    foreach(float z in new[]{-.34f,.34f})Quad(new Vector3(-.48f,0,z),new Vector3(.48f,0,z),new Vector3(.48f,.035f,z),new Vector3(-.48f,.035f,z),wood);
+                    Tube(new Vector3(-.14f,.035f,0),new Vector3(-.1f,1,.035f),.07f,wood,10);
+                    b.Crown(new Vector3(-.14f,.037f,0),new Vector3(.085f,.004f,.12f),12,4,new Color(.12f,.075f,.035f,0),18,.03f);
+                }
+                else{Tube(Vector3.zero,Vector3.up,.3f,wood,8);if(item.Kind==PossessionKind.NotchedShaft){Tube(new Vector3(-.16f,.9f,0),new Vector3(-.16f,1,0),.07f,wood);Tube(new Vector3(.16f,.9f,0),new Vector3(.16f,1,0),.07f,wood);}}break;
             case PortableForm.Spear:Tube(Vector3.zero,new Vector3(0,.9f,0),.16f,wood,8);Head(.88f,.12f,1,item.Kind==PossessionKind.StoneTippedSpear||item.Kind==PossessionKind.LooseStoneSpear?stone:bone,item.Kind==PossessionKind.Harpoon);if(item.Kind!=PossessionKind.LooseStoneSpear)Wrap(.875f,.2f,5);break;
             case PortableForm.Arrow:
                 Tube(Vector3.zero,new Vector3(0,.94f,0),Mathf.Clamp(.0035f/(float)item.WidthM,.07f,.45f),wood);if(item.Kind!=PossessionKind.ArrowShaft)Head(.92f,.08f,.65f,stone);

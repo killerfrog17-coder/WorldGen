@@ -1,5 +1,41 @@
 # WorldGen repository instructions
 
+CAMP + MAIN WATER CHECKPOINT,29October2026~02:50CDT:
+Owner clarified unlimited overnight work until he returns ~10-11am, ALL task
+parts, not only water. NON-WATER DONE prototype: fire/bedding/sleep/tiredness/
+stake depth hammering; latest camp-native-polish35PASS/noerrors, actual day/night
+images inspected.35Corecamp +165death +75inventory +37water pass. Added contact
+burns (deathcauseFire appended), ash/liveember visual with actual expiry, real
+spindle+hearthboard item. No new animations/animal original art changed.
+MAIN WATER DONE to tested local scope: mouth/confluence gaps reproduced then
+fixed; native water-native-motion5PASS/noerrors on actual ownerProceduralworld.
+Images inspected: continuous mouth and junction, fewer regular ripple artifacts,
+visible flecks/current. Fixed-camera ocean +same-frame vertex-displacement OFF
+control:206889changedpixels; timed surface265494pixels. Actual GPU displacement
+proven, not camera drift. Earlier native-repair2 motion capture INVALID (camera
+reset); native-repair3 fixed, then final spectral/movingfleck polish in motionrun.
+6147strictgeometry probes +192lazy/index comparisons PASS, sourceworldhashsame.
+Procedural64831 +Earth66883 prior riverscape topology/bank tests pass. Repair1
+initial50,10 timeout superseded directmouth fixture; all own native jobs exited.
+Current camp candidate Mono latest built includes all these; ROOTSHORTCUT STILL
+previouswaterrelease. FinalIL2CPP/proofs/nativecamp+waterregressions/select remain.
+Sourcecheckpoint a0decbc pushed verified before latestcamp/motionpolish; those
+now need checkpoint/push. Main work has solid checkpoint before OPTIONAL next:
+real riverwidth/depth/frequency. Research docs/WATER_REPAIR; networkstatsbaseline
+local .02Qthreshold:63620reaches/.215rootkm perlandkm2. .1 threshold removes23%
+(48949/.166). LargestQ100396m3/s, currentwidth cap120m atdefault.1 too narrow.
+Plan large rivers regain sourcephysicalwidth smoothly while smallstreams remain
+compressed, varied depth/scour and coherentjunctions; do NOT blindlywiden all or
+undo main seam fixes. Need cross-section/largejunction/curvature tessellation
+work and strict regressions before shipping OPTIONAL changes. Not implementedyet.
+Current live processes: NONEownednative/Unity. Candidate E/player-camp-prototype
+can be reused (unselected), no selectedbinary overwrite. Repro uses read-only
+isolated validGUIDreference, NEVER restore/mutate ownertrash. No subagents/paid.
+Disk C1.1/E1.0GB; earliercomputedcleanup BLOCKED, nothingremoved, do not retry.
+Preserve ownerdeletedprompt +2untrackeddeerscripts and all177fauna/42human/protected
+MPFB unchanged. No ownerapps closed. Alwaysrestore3knownUnityautochangesafterexit.
+
+
 WATER REPAIR CURRENT,29October2026~02:20CDT:
 Camp32native PASS/source18994cf pushed; not selected. Owner explicitly says
 continue all instructions, not only water testing; no fixed deadline, back10-11am.

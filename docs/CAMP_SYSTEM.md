@@ -17,6 +17,9 @@ water release until the combined update is tested and packaged.
   prior hands. Dry tinder and thin kindling are required before thicker fuel.
   Fuel burns down to ash/embers; rain can extinguish an exposed fire. The camp
   simulation clock is independent of debug sun-position commands.
+- Ash remains visible after fuel is consumed. Live embers glow until they cool;
+  standing in the flames burns the player, while nearby radiant warmth is safe.
+  The hand-drill item shows a slender spindle with a separate hearthboard.
 - Firelight uses four nearest local light sources per camera, shared across the
   world's custom shaders. This is a rendering budget, not a cap on placed fires
   or heat simulation. There are no point-light shadow maps. Daylight exposure

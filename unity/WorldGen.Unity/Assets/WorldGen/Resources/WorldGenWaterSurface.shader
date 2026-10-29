@@ -62,7 +62,7 @@ Shader "WorldGen/WaterSurface"
     float river=1-step(.4,abs(i.data.a-2)),ocean=step(2.5,i.data.a);
     float2 p=i.position.xz+_TerrainLocalOrigin.xy,wind=_WorldGenWaterWind.xy;
     float2 flow=lerp(wind*.06,i.data.xy,river);float phase=frac(_Time.y/6),other=frac(phase+.5),blend=abs(phase*2-1);
-    float2 slope=lerp(Slopes((p-flow*(phase*6))*1.4),Slopes((p-flow*(other*6))*1.4),blend);
+    float2 slope=lerp(Slopes((p-flow*(phase*6))*.42),Slopes((p-flow*(other*6))*.42),blend);
     slope+=Slopes((p+float2(-flow.y,flow.x)*_Time.y*.2)*.09)*.4;
     float3 normal=normalize(cross(ddy(i.position),ddx(i.position)));if(normal.y<0)normal=-normal;
     float2 swellSlope=(1-river)*WaterSwellSlope(p,i.data.b,ocean);
@@ -82,7 +82,8 @@ Shader "WorldGen/WaterSurface"
     float fresnel=.02+.98*pow(1-saturate(dot(normal,eye)),5);result=lerp(result,reflected,fresnel);
     Light sun=GetMainLight();float glint=pow(saturate(dot(normal,normalize(eye+sun.direction))),180);
     result+=sun.color*glint*.65*TerrainDaylight();
-    float foam=(1-smoothstep(.03,.5,thickness))*.15+river*saturate(i.data.z)*smoothstep(.45,.8,abs(slope.x+slope.y))*.3;
+    float flecks=lerp(SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,(p-flow*(phase*6))*.17).b,SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,(p-flow*(other*6))*.17).b,blend);
+    float foam=(1-smoothstep(.03,.5,thickness))*.08+river*(flecks*lerp(.22,.6,saturate(i.data.z))*smoothstep(.15,.6,length(flow))+saturate(i.data.z)*smoothstep(.45,.8,abs(slope.x+slope.y))*.3);
     result=lerp(result,float3(.72,.8,.77)*lerp(.035,1,TerrainDaylight()),saturate(foam));
     return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fog,TerrainFogDistance()),1);
    }

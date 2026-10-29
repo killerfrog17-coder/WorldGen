@@ -79,6 +79,12 @@ public sealed partial class LocalTerrainExplorer
         survivalEnvironment.Insulation=campSleeping&&sleepingBed!=null?Math.Min(.6,sleepingBed.BeddingDepthM*6)*(1-sleepingBed.Wetness*.7):0;
         double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt*CampTimeRate,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
+        foreach(var fire in Camp.Objects)
+        {
+            double distance=(Position-fire.Position).Length*frame.RadiusM;if(distance>.55||fire.Kind!=CampKind.Fire)continue;
+            TerrainHandoff.Coordinates(frame,fire.Position,out double fx,out double fz);double feetHeight=motion.Y-TerrainMotion.EyeHeightM-Ground(fx,fz);
+            double burn=CampRules.ContactDamagePerSecond(fire,distance,feetHeight);if(burn>0)PlayerDamageRules.Apply(Vitals,Mode,burn*dt,PlayerDeathCause.Fire);
+        }
         if(Vitals.FoodExposures!=null)foreach(var exposure in Vitals.FoodExposures)
             if(!exposure.SymptomsNotified&&exposure.DelaySeconds<=0&&exposure.RemainingSeconds<10800){exposure.SymptomsNotified=true;InventoryFeedback("Your stomach is cramping and you feel nauseated.");}
         Vitals.Stamina=Math.Max(0,Vitals.Stamina-dt*Math.Max(0,Inventory.LoadEffort-1)*speed*.3);
