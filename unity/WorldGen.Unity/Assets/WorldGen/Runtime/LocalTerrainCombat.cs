@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
 {
     double combatRightReady,combatLeftReady,combatGlobalReady,combatNoticeAt;
     bool combatGuarding;
-    bool CombatStopped=>!Ready||DeathVisible||SurvivalActive&&Vitals.Incapacitated||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||CampBusy||!Application.isFocused&&!inventoryReviewMode;
+    bool CombatStopped=>!Ready||DeathVisible||SurvivalActive&&Vitals.Incapacitated||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||CampBusy||campPointerConsumedFrame==Time.frameCount||!Application.isFocused&&!inventoryReviewMode;
     void CombatNotice(string text){if(Time.unscaledTimeAsDouble<combatNoticeAt)return;combatNoticeAt=Time.unscaledTimeAsDouble+1.5;InventoryFeedback(text);}
     bool SpendCombatStamina(double amount)
     {

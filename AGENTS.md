@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+FOLLOWUP29Oct~12:00CDT: firstnewMono artifacts/player-camp-water-qa BUILD0,
+resumed-camp-check71PASS/EXIT0 inclwood-meshretirement+actualZ/E/Esc/Space/LMB/RMB
+paths. NewsourceAFTERthatbuild addsLOSobstructionplacementguard+twoinputchecks,
+dry-current/flooded-targetbedguards+threeactualcoastregressions; UNCOMPILED.
+OwnedrivernativePID23664/execcell22263 usesfirstQAcandidate, output
+artifacts/camp-water-20261029/resumed-river-views, owner200kworldisolatedsnapshot;
+camera-clearance/standing-bankcapturefixture revised. Waitfornativebeforenewbuild.
+InitialcampownedPID7840/session30584 exited0. CurrentselectedIL2CPPUNCHANGED.
+Needcompile/rerunupdatedcamp+water,inspectactualbankviews,thenNEWIL2CPP/proof/
+shortcutonlyaftervalidation. DonotclaimlatestLOS/floodedbedtestedorsourceclean.
+
+OWNERRESUMED29Oct11:32CDT: challengedprematurestop/99%claim; continue QA/corrections
+within camp/water scope until owner wraps. No99%-bugfreeclaim warranted. Selected
+107-check IL2CPPstaysFROZEN. NewQAchanges requireNEWcandidate, Monoiterationfirst.
+Foundactualraw-woodcampmeshownershipleak: InvalidateCampVisual onlydestroyed
+portableRoots, while rawwoodregisteredinventoryCraftMeshes; fix+nativeallocation
+regressionneeded. Lowriverdiagnosticcamerascanbeinsidebanks; mustfixcamera
+surfaceclearanceandinspectrealstanding-bankviews, notcountinvalidshotsasevidence.
+TestactualinputpathsZ/E/placement/sleepwake. Useraskedriverfollowup: confirmed
+width/depth/prevalenceimplemented, routes/meandersremainexistingnetwork.
+Noownerplayerwasrunningatresume. Checkbeforelaunchingownplayer; nevercloseowner
+apps. No paid/subagents/newbroadsystems. ALLpreviousblockedcleanupstillOFFLIMITS;
+donotretry/workaround. Preserveowner3files, all178approvedBlends/42humanmaps.
+
 FINAL HANDOFF29Oct~08:00CDT: requestedcamp/water/river-scalepassCOMPLETEandselected.
 CurrentrootshortcutC:artifacts/player-camp-water-polished, IL2CPP12:36:54Z,
 gameproduction5d461bf,107native(57camp/21save/11river/18water),cleanlogs. No game

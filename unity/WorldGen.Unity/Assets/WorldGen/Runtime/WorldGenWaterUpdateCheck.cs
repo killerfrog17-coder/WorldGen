@@ -32,6 +32,25 @@ public sealed partial class LocalTerrainExplorer
         Check(AimedWater(float.PositiveInfinity)!=null,"Centre aim reaches actual water from the dry bank");
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.Thirst>50,"Actual E interaction with sea water worsens hydration");
         Check(Inventory.AtHand(PossessionPlace.RightHand)==stone,"Drinking restores the original occupied hand");
+        double dryX=motion.X,dryZ=motion.Z,shallowX=0,shallowZ=0;bool shallow=false;
+        var shoreDirection=new Vector2((float)(nx-dryX),(float)(nz-dryZ)).normalized;
+        for(int step=-40;step<=120&&!shallow;step++)for(int side=-2;side<=2&&!shallow;side++)
+        {
+            var direction=Quaternion.Euler(0,side*15,0)*new Vector3(shoreDirection.x,0,shoreDirection.y);double x=nx+direction.x*step*.1,z=nz+direction.z*step*.1;
+            var water=SampleMotionWater(x,z);double depth=water.Surface-CampFloor(x,z);
+            if(double.IsFinite(depth)&&depth>.06&&depth<.6&&Math.Sqrt((x-dryX)*(x-dryX)+(z-dryZ)*(z-dryZ))<3.5){shallowX=x;shallowZ=z;shallow=true;}
+        }
+        Check(shallow,"A real shallow-water site exists for the dry-ground sleep guard");
+        motion.Place(shallowX,shallowZ,CampFloor(shallowX,shallowZ));BeginCampSleep(1,true);
+        Check(motion.Grounded&&!motion.Swimming&&!campResting&&!campSleeping,"Standing in shallow water cannot start ground rest or sleep");
+        motion.Place(dryX,dryZ,CampFloor(dryX,dryZ));
+        var floodedBed=new CampObject{Kind=CampKind.Bedding,Position=frame.Position(shallowX,shallowZ)};Camp.Objects.Add(floodedBed);
+        try
+        {
+            BeginCampSleep(1,true,floodedBed);
+            Check(!campResting&&!campSleeping&&motion.X==dryX&&motion.Z==dryZ&&inventoryNotice.Contains("underwater"),"Dry-bank player cannot move onto flooded bedding to rest");
+        }
+        finally{Camp.Objects.Remove(floodedBed);}
         double deepX=0,deepZ=0;bool deep=false;var start=new Vector2((float)(nx-motion.X),(float)(nz-motion.Z)).normalized;
         for(int ring=1;ring<=60&&!deep;ring++)for(int side=-2;side<=2&&!deep;side++)
         {

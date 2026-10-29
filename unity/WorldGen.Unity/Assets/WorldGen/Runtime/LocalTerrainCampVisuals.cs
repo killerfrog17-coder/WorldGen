@@ -31,11 +31,13 @@ public sealed partial class LocalTerrainExplorer
         Shader.SetGlobalInteger("_WorldGenCampLightCount",campLightCount);if(campLightCount>0){Shader.SetGlobalVectorArray("_WorldGenCampLightPositions",campLightPositions);Shader.SetGlobalVectorArray("_WorldGenCampLightColours",campLightColours);}
     }
     void InvalidateCampVisual(CampObject c)
+        =>RemoveCampVisual(c.Id);
+    void RemoveCampVisual(string id)
     {
-        if(!campVisuals.TryGetValue(c.Id,out var v))return;
-        foreach(var root in v.Root.GetComponentsInChildren<Transform>().Where(t=>portableRoots.ContainsKey(t.gameObject)).ToArray())DestroyInventoryVisual(root.gameObject);
+        if(!campVisuals.TryGetValue(id,out var v))return;
+        foreach(var root in v.Root.GetComponentsInChildren<Transform>().Where(t=>inventoryCraftMeshes.ContainsKey(t.gameObject)||portableRoots.ContainsKey(t.gameObject)).ToArray())DestroyInventoryVisual(root.gameObject);
         foreach(var filter in v.Root.GetComponentsInChildren<MeshFilter>())if(filter.sharedMesh!=null&&filter.sharedMesh.name.StartsWith("Camp ",StringComparison.Ordinal))Destroy(filter.sharedMesh);
-        Destroy(v.Root);campVisuals.Remove(c.Id);
+        Destroy(v.Root);campVisuals.Remove(id);
     }
     void UpdateCamp()
     {
@@ -57,7 +59,7 @@ public sealed partial class LocalTerrainExplorer
             UpdateCampSmoke(v.Smoke);
         }
         RetireCampVoices();
-        foreach(var id in campVisuals.Keys.Where(id=>!Camp.Objects.Any(c=>c.Id==id)).ToArray()){var v=campVisuals[id];Destroy(v.Root);campVisuals.Remove(id);}
+        foreach(var id in campVisuals.Keys.Where(id=>!Camp.Objects.Any(c=>c.Id==id)).ToArray())RemoveCampVisual(id);
     }
     CampVisual CreateCampVisual(CampObject c)
     {

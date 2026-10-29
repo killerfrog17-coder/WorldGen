@@ -15,6 +15,7 @@ public sealed partial class LocalTerrainExplorer
     Possession campPlaceMaterial;CampKind campPlaceKind;LineRenderer campPreview;
     Vector3 campPlacePoint;bool campPlaceValid;string campPlaceReason="";
     double campUpdateAt;bool campSleeping,campResting;double campSleepSeconds,campSleepHealth;
+    int campPointerConsumedFrame=-1;
     CampObject sleepingBed;
     bool CampUiOpen=>campMenu!=null||campGroundMenu||campSleepMenu;
     bool CampBusy=>CampUiOpen||campPlaceMaterial!=null||campSleeping||campResting;
@@ -33,6 +34,7 @@ public sealed partial class LocalTerrainExplorer
             float lo=previous,hi=t;for(int i=0;i<5;i++){float mid=(lo+hi)*.5f;var q=ray.GetPoint(mid);if(q.y>CampFloor(q.x+originX,q.z+originZ))lo=mid;else hi=mid;}
             p=ray.GetPoint(hi);x=p.x+originX;z=p.z+originZ;p.y=(float)CampFloor(x,z);
             if(Vector3.Distance(PlayerFeet(),p)>3)return false;
+            if(TraceCombatObstacle(new Ray(view.transform.position,view.transform.forward),Math.Max(0,hi-.06f),checkGround:false)!=null)return false;
             point=campGroundPoint=p;sample=campGroundSample=walkingPatch.Sample(frame.Position(x,z));campGroundHit=true;return true;
         }
         return false;
@@ -83,8 +85,10 @@ public sealed partial class LocalTerrainExplorer
         if(CampUiOpen){if(k.escapeKey.wasPressedThisFrame){campMenu=null;campGroundMenu=campSleepMenu=false;CaptureMouse();}return true;}
         if(campPlaceMaterial!=null)
         {
-            if(k.escapeKey.wasPressedThisFrame||Mouse.current?.rightButton.wasPressedThisFrame==true){CancelCampPlacement();return true;}
-            if(Mouse.current?.leftButton.wasPressedThisFrame==true){if(campPlaceValid)ConfirmCampPlacement();else InventoryFeedback(campPlaceReason);}return true;
+            bool primary=Mouse.current?.leftButton.wasPressedThisFrame==true,secondary=Mouse.current?.rightButton.wasPressedThisFrame==true;
+            if(primary||secondary)campPointerConsumedFrame=Time.frameCount;
+            if(k.escapeKey.wasPressedThisFrame||secondary){CancelCampPlacement();return true;}
+            if(primary){if(campPlaceValid)ConfirmCampPlacement();else InventoryFeedback(campPlaceReason);}return true;
         }
         if(!inventoryOpen&&k.zKey.wasPressedThisFrame){campSleepMenu=true;CaptureMouse();return true;}return false;
     }

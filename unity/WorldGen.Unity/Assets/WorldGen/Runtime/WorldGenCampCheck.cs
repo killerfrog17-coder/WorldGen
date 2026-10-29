@@ -59,6 +59,11 @@ public sealed partial class LocalTerrainExplorer
         Check(stake.Materials[0].HeightM==branch.HeightM,"Visible post retains its original full length while burial changes");
         campUpdateAt=0;UpdateCamp();var postRoot=campVisuals[stake.Id].Root;float postBottom=postRoot.GetComponentsInChildren<MeshFilter>().SelectMany(f=>f.sharedMesh.vertices.Select(vertex=>transform.InverseTransformPoint(f.transform.TransformPoint(vertex)).y)).Min();
         Check(Math.Abs(postRoot.transform.localPosition.y-VisibleGround(tx,tz,double.NaN))<.001&&postBottom<VisibleGround(tx,tz,double.NaN)-.02,"The rendered post actually enters the visible ground instead of floating above it");
+        int ownedMeshRoots=inventoryCraftMeshes.Count;var retiredPostMesh=postRoot.GetComponentInChildren<MeshFilter>().sharedMesh;
+        for(int i=0;i<20;i++){InvalidateCampVisual(stake);campUpdateAt=0;UpdateCamp();}
+        Check(inventoryCraftMeshes.Count==ownedMeshRoots,"Repeated post rebuilds retain a constant number of owned item-mesh records");
+        yield return null;
+        Check(retiredPostMesh==null,"A rebuilt raw-wood post releases its previous Unity mesh");
         double previous=stake.EmbedM;for(int i=0;i<100;i++)CampRules.Drive(stake,rock);Check(stake.EmbedM>previous&&stake.EmbedM<=stake.SoilDepthM,"Repeated hammering respects the site's physical soil depth");InvalidateCampVisual(stake);
         Inventory.Items.Remove(rock);motion.Place(sx,sz,CampFloor(sx,sz));
         var spear=Supply(PossessionKind.StoneTippedSpear);spear.Place=PossessionPlace.RightHand;var cutter=Supply(PossessionKind.StoneBlade);
@@ -108,6 +113,8 @@ public sealed partial class LocalTerrainExplorer
         Check(Vitals.Health<100,"Standing in the actual burning fire causes contact damage");motion.Place(sx,sz,CampFloor(sx,sz));
         fire.Burning=false;fire.EmberSeconds=30;InvalidateCampVisual(fire);campUpdateAt=0;UpdateCamp();Check(campVisuals[fire.Id].Root.GetComponentsInChildren<Transform>().Any(t=>t.name=="Live ember bed"),"An extinguished fire retains a visible live ember bed");
         fire.EmberSeconds=0;campUpdateAt=0;UpdateCamp();Check(!campVisuals[fire.Id].Root.GetComponentsInChildren<Transform>().Any(t=>t.name=="Live ember bed"),"Ember glow retires when the saved ember state cools");
-        PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();paused=false;File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
+        PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();paused=false;
+        yield return CheckCampInputFlow(output,report,bed,spear);
+        File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
     }
 }

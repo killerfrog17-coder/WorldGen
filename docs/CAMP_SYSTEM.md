@@ -89,3 +89,15 @@ Loose bedding uses material volume, rather than treating a hide as an enormous
 grass bundle. Hide improves insulation/comfort without inflating bed thickness.
 The ground targeting ray caches short-lived stationary results and grass
 gathering follows the actual grass slope admission, including the cliff veto.
+
+## Follow-up QA candidate
+
+The selected release above remains unchanged while a separate candidate is
+checked. Follow-up fixes release the owned raw-wood meshes when posts/fuel are
+rebuilt or removed, consume placement clicks before weapon input, and interrupt
+sleep on damage even after prior healing. A 71-check Mono run passed those
+paths, including actual virtual keyboard/mouse input through the player loop.
+
+Additional source changes reject placing material through intervening solids,
+resting in shallow water, and lying on flooded bedding from a dry bank. Their
+new native regressions are pending; they are not yet selected or release claims.

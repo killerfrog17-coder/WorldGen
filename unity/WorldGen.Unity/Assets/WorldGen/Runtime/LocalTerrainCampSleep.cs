@@ -9,12 +9,17 @@ public sealed partial class LocalTerrainExplorer
     Vector2 campUiScroll;
     void BeginCampSleep(double hours,bool rest=false,CampObject bed=null)
     {
-        if(Spectating||Vitals.Incapacitated||motion.Flying||motion.Swimming||!motion.Grounded){InventoryFeedback("Lie down on dry, supported ground first.");return;}
+        if(!Ready||Spectating||Vitals.Incapacitated||motion.Flying||motion.Swimming||!motion.Grounded){InventoryFeedback("Lie down on dry, supported ground first.");return;}
+        var water=SampleMotionWater(motion.X,motion.Z);
+        if(double.IsFinite(water.Surface)&&water.Surface>CampFloor(motion.X,motion.Z)+.02){InventoryFeedback("Choose dry ground to lie down.");return;}
         if(!rest&&Vitals.Tiredness<8&&SurvivalActive){InventoryFeedback("You are not sleepy enough. You can still rest.");return;}
         if(bed!=null)
         {
             if(!Camp.Objects.Contains(bed)||(Position-bed.Position).Length*frame.RadiusM>4){InventoryFeedback("The bedding is out of reach.");return;}
-            TerrainHandoff.Coordinates(frame,bed.Position,out double x,out double z);motion.Place(x,z,CampFloor(x,z));humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
+            TerrainHandoff.Coordinates(frame,bed.Position,out double x,out double z);
+            var bedWater=SampleMotionWater(x,z);
+            if(double.IsFinite(bedWater.Surface)&&bedWater.Surface>CampFloor(x,z)+.02){InventoryFeedback("This bedding is underwater. Choose dry ground.");return;}
+            motion.Place(x,z,CampFloor(x,z));humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
         }
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);SetInventoryOpen(false);
         campMenu=null;campGroundMenu=campSleepMenu=false;campResting=rest;campSleeping=!rest;campSleepSeconds=Math.Max(1,hours)*3600;campSleepHealth=Vitals.Health;sleepingBed=bed;CaptureMouse();
@@ -28,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
         if(paused||mapOpen||chatOpen||inventoryOpen)return;
         double seconds=Math.Min(.25,Time.unscaledDeltaTime)*CampTimeRate*86400/(PlayerRules.Settings.RealMinutesPerDay*60);campSleepSeconds=Math.Max(0,campSleepSeconds-seconds);
         if(Vitals.Health<campSleepHealth-.1||Vitals.CoreTemperatureC<35||Vitals.CoreTemperatureC>39||motion.Swimming){WakeCamp("Danger interrupts your rest.");return;}
+        campSleepHealth=Math.Max(campSleepHealth,Vitals.Health);
         if(campSleepSeconds<=0||campSleeping&&SurvivalActive&&Vitals.Tiredness<1)WakeCamp(campResting?"You finish resting.":"You wake feeling rested.");
     }
     double CampWarmth()
