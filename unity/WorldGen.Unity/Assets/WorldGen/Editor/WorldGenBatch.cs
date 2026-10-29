@@ -63,13 +63,10 @@ public static class WorldGenBatch
         {
             if(stripping!=null)stripping.stripUnusedPostProcessingVariants=false;
             if(arguments.Contains("--worldgen-performance-build")){PlayerSettings.enableFrameTimingStats=true;PlayerSettings.productName=priorProduct+".Performance";}
-            // Optional native-code experiment. Restore project preferences even
-            // on failure; ordinary development builds retain their old backend.
-            if(arguments.Contains("--worldgen-il2cpp-player"))
-            {
-                PlayerSettings.SetScriptingBackend(namedTarget,ScriptingImplementation.IL2CPP);
-                PlayerSettings.SetManagedStrippingLevel(namedTarget,ManagedStrippingLevel.Minimal);
-            }
+            // Owner requires IL2CPP for every player, including diagnostics.
+            // Never fall back to Mono to shorten the build.
+            PlayerSettings.SetScriptingBackend(namedTarget,ScriptingImplementation.IL2CPP);
+            PlayerSettings.SetManagedStrippingLevel(namedTarget,ManagedStrippingLevel.Minimal);
             // Ordinary player builds should not silently carry the development
             // runtime/debug overlay. Diagnostic development builds are opt-in.
             var options=arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;

@@ -1,5 +1,17 @@
 # WorldGen repository instructions
 
+OWNERMANDATE29Oct: NEVER USE MONO PLAYER BUILDS. Owner rejects Mono even for
+diagnostics/iteration and explicitly requests rebuildnow. SupersedesALLearlier
+Monoiterationguidance. BuildscriptALWAYSrequestsIL2CPP; EditorBuildPlayerALWAYS
+setsIL2CPP; trackedStandaloneprojectbackendIL2CPPtoo. Old -Il2Cppswitchretained
+onlyforcallercompatibility, false/omitteddoesNOTenableMono. DoNOTreintroduce
+Mono to save build time. RebuildingNEW artifacts/player-camp-water-followup,
+theninput/protectedassetchecks+nativeboot andexistingrootshortcutselection.
+No newgamefeatures/loadingoptimizationrequestedthisturn. DoNOTclaimrebuild
+alonefixestheknownloadingregression. PriorselectedMonoQAretaineduntilready.
+No sourcechangesexceptbuildbackend/enforcement/docs thisturn. Preserveowner3
+files andallprotectedart; no paid/subagents/blockedcleanupretry.
+
 OWNERPAUSE29Oct~12:30CDT: says 'actually you're good for now just update the
 shortcut; ill check out what exists right now'. STOPfurtherQA/builds/cleanup.
 ExistingrootshortcutNOWSELECTS artifacts/player-camp-water-qa/WorldGen.exe,
