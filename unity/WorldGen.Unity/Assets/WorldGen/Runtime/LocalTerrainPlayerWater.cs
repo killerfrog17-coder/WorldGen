@@ -77,7 +77,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 // Analytical recent rainfall survives loading and leaving an area.
                 // Hour-cached; no weather or wildlife sweep in the frame render path.
-                double when=(weatherHour+.5)/24d;
+                double when=weatherHour/24d;
                 var weather=worldWeather.AtPosition(site);
                 double recent=weather.Between(when-1,when).RainMm,week=weather.Between(when-7,when).RainMm;
                 double wetness=1-Math.Exp(-week/65);

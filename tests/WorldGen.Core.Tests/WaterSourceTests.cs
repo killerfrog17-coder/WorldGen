@@ -24,6 +24,15 @@ static class WaterSourceTests
         }
         double waste=At(123,8,new WaterSourceEnvironment(humanWaste:1));
         Check(waste>At(123,8,new WaterSourceEnvironment()),"Actual waste input has a separate strong contamination pathway");
+        var catchment=new World{Surface=new Surface{Cells=new[]{new Cell{Neighbors=new[]{1,2}},new Cell{Neighbors=new[]{0}},new Cell{Neighbors=new[]{0}}}},
+            Hydrology=new HydrologyResult{Receiver=new[]{-1,0,-1},ContributingAreaM2=new long[]{100,90,1000}},
+            Ecology=new EcologyResult{Habitat=new[]{new HabitatCell(),new HabitatCell{ProductivityGCM2Year=2200,Habitat=Habitat.Wetland},new HabitatCell{ProductivityGCM2Year=2200,Habitat=Habitat.Wetland}}}};
+        double upstreamUse=WaterContamination.CatchmentAnimalUse(catchment,0);
+        Check(upstreamUse>0,"Productive upstream habitat contributes without any rendered animal objects");
+        catchment.Ecology.Habitat[2]=new HabitatCell();
+        Check(WaterContamination.CatchmentAnimalUse(catchment,0)==upstreamUse,"A neighbouring catchment that does not drain into the source has no upstream effect");
+        catchment.Hydrology.Receiver[1]=-1;
+        Check(WaterContamination.CatchmentAnimalUse(catchment,0)==0,"Disconnected productive habitat is not falsely upstream of the source");
         double cleanMud=WaterQuality.From(new LocalTerrainSample{WaterKind=LocalWaterKind.River,Sediment=1,WaterTurbulence=1}).Contamination;
         Check(cleanMud==0,"Sediment and turbulence are never themselves infectious material");
         double greatestDelta=0,timeChange=0;
