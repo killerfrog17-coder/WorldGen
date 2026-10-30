@@ -1,6 +1,6 @@
 # Hunting and exertion revision
 
-Phase 1 is the animal/hunting checkpoint; ship it before first-person arms and inventory/HUD refinements in phase 2. All player builds use IL2CPP. Original approved animal/human source art and locomotion bundles remain unchanged.
+Completed in two checkpoints: animal/hunting first, then first-person arms and inventory/HUD refinements. All player builds use IL2CPP. Original approved animal/human source art and locomotion bundles remain unchanged.
 
 Shared exertion has burst capacity, breathing, accumulated physical fatigue and heat strain. Full effort fades continuously; sustainable travel has different demand. Brief jogging only partly recovers a burst. Species profiles alter sustainable fraction, burst duration, recovery and heat tolerance. Flight/gliding have separate costs. These numerical profiles are gameplay priors, not measured laboratory values for every simulated taxon.
 
@@ -24,7 +24,7 @@ Research:
 
 The claim that motionless people are categorically invisible to kangaroos is not supported here. Their response depends on vigilance, context and experience with humans. Real hunting techniques should help without becoming guaranteed success buttons.
 
-Validation so far: Core 23 hunting, 67 modes, 24 metabolism/camp experience, 161 HUD, 103 abundance, 77 item-use and 37 water checks pass. Native hunting check: 22 PASS, EXIT 0, clean log; actual GPU captures of deer eating/rest, wolf rest, kangaroo grazing and wind sectors inspected. Original art hashes exact. Phase 1 shortcut selected; phase 2 arms/inventory/need HUD is in progress.
+Validation so far: Core 23 hunting, 67 modes, 24 metabolism/camp experience, 161 HUD, 103 abundance, 77 item-use and 37 water checks pass. Native hunting check: 22 PASS, EXIT 0, clean log; actual GPU captures of deer eating/rest, wolf rest, kangaroo grazing and wind sectors inspected. Original art hashes exact. The first checkpoint was selected before the follow-up; the current shortcut includes both phases.
 
 
 ## First-person handling and live inventory
@@ -35,4 +35,6 @@ Inventory blocks player input while the world clock, animals, projectiles, dropp
 
 The stomach reflects felt hunger with a small reserve-stage floor until body reserves are depleted. Felt hydration uses actual fluid deficit, distinguishing parched from critical dehydration. Urgent need pulses the empty interior of the appropriate icon. Active food or water illness gradually greens the stomach; delayed, symptom-free poisoning cannot be diagnosed from the HUD. Existing quick fire cooking remains available.
 
-Phase 2 validation in progress: 329 HUD, 75 inventory, 77 item use, 23 hunting, 67 survival modes and 24 metabolism/camp checks pass. Native first-person pass 3 passed all checks including actual arm meshes for six avatars, camera privacy, live inventory needs/time, portrait equipment and GPU HUD states. Grip/action captures inspected; the final nocked-arrow addition still requires its new native pass. These are procedural first-person actions; they are not a full authored mocap library.
+Release validation: 37 first-person/inventory, 22 hunting and 97 camp checks pass on the final IL2CPP package, all EXIT 0 with clean logs. Actual GPU captures were inspected for grips, thrust, throw wind-up, bow/arrow alignment, gathering, wind sectors, need states, animal poses, fire/cooking and placement. This includes native arm meshes for six avatars, local-camera privacy, full world-avatar preservation, live inventory needs/time/gravity, actual portrait-equipment operation, cooking, occupied-hand crafting, sleep disturbance and thermal rendering. The automated portrait test exercises the drop handler; it does not claim manual IMGUI mouse-drag testing in batch mode.
+
+Focused Core checks: 329 HUD, 75 inventory, 77 item use, 23 hunting, 67 survival modes, 24 metabolism/camp, 103 wildlife abundance and 37 water. Original protected art hashes remain exact. Source and all 87 motion banks are Git-backed. These procedural first-person actions are a first pass for playtesting, not a full authored mocap library. The work does not claim a general frame-rate, terrain-loading or water-seam fix.

@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+SELECTED30Oct ~04:03CDT HUNTING + FIRST-PERSON UPDATE COMPLETE. Existing root
+shortcut NOW artifacts/player-hunting-first-person/WorldGen.exe, IL2CPP RELEASE
+BuiltUtc2026-10-30T08:55:38.2986266Z, production e002136. Final same-package native
+156 PASS (37 arms/inventory/needs,22 hunting,97 camp), EXIT0/clean logs; actual
+GPU poses/arrow-rest alignment/thermal/wind/food HUD/camp captures inspected.
+681 frozen production sources,578 protected hashes,177 collision/source skins,
+18 original +24 body WAV and87 supplemental motion banks exact. Source + all
+87 banks ordinary Git-backed; original approved models/rigs/textures untouched.
+Manifest assets/hunting-first-person-release-verification.json; evidence
+artifacts/hunting-first-person-20261030/release-* and package-proof. Core329HUD,
+75inventory,77itemuse,23hunting,67modes,24metabolism/camp,103abundance,37waterPASS.
+Phase1 separately shipped/pushed before phase2 (prior hunting-overhaul checkpoint).
+Shared effort + evidence/memory senses, physical concealment/LOS/hearing/wind
+scent, local herd alarm/spacing, predator responses and feeding/rest routines;
+soft1ms detailed-decision budget. 87 original/supplemental motion banks include
+native fitted deer/wolf rest and kangaroo grazing; missing actions neutral.
+Species values are explicit priors, NOT every taxon's measured exact ethology;
+not all87 actions visually reviewed. Wind HUD subtle source-relative six sectors.
+Private native skinned arms only for local first-person camera; world avatar
+whole. Spear support/one-hand disadvantage, thrust/cut/throw/bow+real nocked arrow,
+gathering, unarmed punch/guard. These are procedural FIRST-PASS poses, not a full
+authored animation library. Inventory no longer pauses clock/physics/AI/needs;
+portrait equipment drop, actual worn storage only, removed turn buttons/footer.
+Felt needs distinguish hungry/parched from critical depletion; empty interiors
+pulse, active sickness gradually green (no delayed-poison foreknowledge).
+Cooking quick selector retained and freshly tested. Portrait handler tested;
+no claim of actual manual IMGUI mouse-drag test in batch. No performance/loading/
+universal water fix claim. All owned Unity/native jobs finished; no user apps
+closed; no cleanup/subagents/paid/Mono. Preserve owner deleted prompt +2 old deer
+scripts. Current scope done, await feedback; do NOT auto-resume old overnight work.
+
+
 SELECTED30Oct HUNTING PHASE1: artifacts/player-hunting-overhaul IL2CPP RELEASE
 BuiltUtc2026-10-30T07:59:54.1136589Z, source774e834, 22native PASS/EXIT0/clean.
 679 frozen sources,578 protected,177 skins,18+24 WAV,87 extra native motion banks
