@@ -9,6 +9,7 @@ stomachtint; images inspected. 668Core assertions: source142/drink37/HUD329/
 experience24/modes67/save69. Proof721frozen/578protected/177collision-source/
 87banks/18item+24bodyaudio EXACT. No changed art/audio. Git sourcepushed;
 release/docs/shortcut checkpoint stillneeds finalcommit/push atthisnote.
+Source/release/docs/shortcut checkpoint1344989 PUSHED; finalhandoffverify/tag.
 Newwater risk is statelesspersistent300mpatches/multidaysolarpulses, bounded
 upstreamhabitat+recentrealrain/cache128, not mud=pathogens. Saved24hvolume
 exposurethreshold; generic55%unnoticed/30%mild/12%moderate/3%severe areGAMEPLAY
