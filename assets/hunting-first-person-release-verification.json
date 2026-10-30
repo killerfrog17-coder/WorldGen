@@ -1,52 +1,66 @@
 {
-  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-hunting-first-person\\WorldGen.exe",
-  "built_utc": "2026-10-30T08:55:38.2986266Z",
+  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-first-person-final\\WorldGen.exe",
+  "built_utc": "2026-10-30T16:22:38.5379636Z",
   "backend": "IL2CPP",
   "development": false,
-  "production_source": "e002136a89365dc927d18c4af5091ae17ff1350f",
-  "native_checks": 156,
+  "production_source": "4ae0eee669fa852c2aacb1a55036f04b43ee3272",
+  "native_checks": 402,
   "native": {
-    "release-first-person": {
-      "assertions": 37,
+    "item-use": {
+      "assertions": 155,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/hunting-first-person-20261030/release-first-person"
+      "output": "artifacts/first-person-rebuild-20261030/native-final-item-use"
     },
-    "release-hunting": {
-      "assertions": 22,
+    "first-person": {
+      "assertions": 81,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/hunting-first-person-20261030/release-hunting"
+      "output": "artifacts/first-person-rebuild-20261030/native-final-first-person"
     },
-    "release-camp": {
+    "hunting": {
+      "assertions": 39,
+      "exit_code": 0,
+      "clean_log": true,
+      "output": "artifacts/first-person-rebuild-20261030/native-final-hunting"
+    },
+    "nature": {
+      "assertions": 30,
+      "exit_code": 0,
+      "clean_log": true,
+      "output": "artifacts/first-person-rebuild-20261030/native-final-nature"
+    },
+    "camp": {
       "assertions": 97,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/hunting-first-person-20261030/release-camp"
+      "output": "artifacts/first-person-rebuild-20261030/native-final-camp"
     }
   },
   "protected_hashes": 578,
-  "source_files": 681,
+  "source_files": 720,
   "collision_skins": 177,
   "original_item_audio_hashes": 18,
   "body_audio_hashes": 24,
   "additional_motion_banks": 87,
   "original_art_unchanged": true,
-  "visuals_inspected": true,
+  "first_person_rig": {
+    "clips": 53,
+    "bones": 66,
+    "source_license": "CC0",
+    "baked_fk": true,
+    "runtime_arm_ik": false
+  },
   "core_checks": {
-    "hunting": 23,
-    "modes": 67,
-    "experience": 24,
-    "hud": 329,
-    "inventory": 75,
+    "hunting": 709,
     "item_use": 77,
-    "abundance": 103,
-    "water": 37
+    "abundance": 103
   },
   "scope_limits": [
-    "Broad sensory/exertion profiles are tunable priors, not laboratory measurements for every species.",
-    "Supplemental motion is unavailable for some species and falls back to neutral poses. Not all 87 banks have been individually visually reviewed.",
-    "First-person actions are a procedural first pass, not a complete authored animation library.",
-    "No new performance, loading or universal water-seam fix is claimed."
+    "Natural-history and physical pace values are conservative game priors, not measured exact ethograms for every taxon.",
+    "Missing activity animations retain neutral fallbacks. Existing approved locomotion meshes, rigs, weights and bundles are unchanged.",
+    "No full reproduction, den/nest or arboreal navigation simulation; submerged animals do not yet use a measured water-temperature field.",
+    "Mechanical checks and sampled visual review are not owner acceptance or a claim of flawless animation.",
+    "Decision-only timing is not total frame rate; no terrain-loading or universal water-seam improvement is claimed."
   ]
 }

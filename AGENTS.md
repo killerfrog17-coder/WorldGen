@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+SELECTED30Oct11:37CDT: existing root WorldGen.exe - Shortcut.lnk NOW targets
+artifacts/player-first-person-final/WorldGen.exe, IL2CPP RELEASE BuiltUtc
+2026-10-30T16:22:38.5379636Z, production4ae0eee (pushed/remotelyverified).
+ALL402native PASS/EXIT0/clean runtime errors: item155/FPS81/hunting39/nature30/
+camp97. final-source-id.txt + package-proof-final720frozen/578protected/177skins/
+87motionbanks/18item+24bodyWAV EXACT. Manifest assets/hunting-first-person-release-
+verification.json updated, docs updated; these +shortcut/AGENTS need commit/push.
+53 baked clips on dedicated CC0 rig, anatomical twist/elbow continuity, visible
+cocked throw, matching release, bow support, actual input windup/contact/cancel,
+small held-pose gait motion. Original full avatar/177animal art unchanged. Owner
+feedback asked async after actual selection; may arrive and steer active work.
+At least8h work mandate STILL ACTIVE through17:09:07Z/12:09CDT; ~30min remain.
+Continue substantive read-only visual/rare-action review, do NOT pad idle or stop
+on passes. Selected package/source MUST STAY FROZEN; if fixing new issue, NEW
+candidate/proof/package. Keep v23release as tested401 fallback; v19review/v18author
+also retained. No cleanup/paid/subagents/Mono. Owner3 untouched. No own workers,
+Unity/player/Blender remain. Native corpse capture03camera clipped nearby slope;
+NOT visual acceptance. Actual recorded corpse geometry independently reviewed in
+Blender, looks coherent side-collapse; regression p99stretch2.265 (<2.5 unchanged).
+Final approach observations walking flee23m (earlier15m), crouch scent-away4.33m
+no flee, still24m no flee, scent-toward flee20.89m. Context-dependent, NOT exact
+guaranteed distances. Decision benchmark62actors median1.198/p951.519/max4.254ms,
+soft1ms not hardcap, NOT totalFPS or uncontended benchmark. Do not claim full
+ethograms, all87clips visually reviewed, full injury/reproduction/arboreal/den
+systems or universal loading/water/FPS fixes. Core709hunting/77item/103abundance.
+
 LATEST30Oct11:17CDT: eight-hour work still ACTIVE until at least12:09CDT.
 41d1daf pushed/verified. v23 artifacts/player-first-person-release IL2CPP
 BuiltUtc16:04:11Z passed ALL401native:155items/80FPS/39hunting/30nature/97camp.
