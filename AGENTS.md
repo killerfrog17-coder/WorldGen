@@ -1,5 +1,55 @@
 # WorldGen repository instructions
 
+FINAL SELECTED30Oct12:21CDT: eight-hour minimum FULFILLED (09:09..17:09UTC);
+continued until corrections/verification done. Existing root shortcut NOW
+artifacts/player-hunting-cover/WorldGen.exe, IL2CPP RELEASE BuiltUtc
+2026-10-30T17:05:41.1273417Z, production7efe691 (already pushed/verified).
+ALL402 distinctnative PASS/EXIT0/clean logs:81FPS/39hunting/30nature/155item/97camp,
+PLUS second successive155itemrun PASS. Six results native-stable-results.json;
+package-proof-stable720frozen/578protected/177skins/87banks/18item+24bodyWAV EXACT.
+GameAssembly47.5MB +native metadata present, NO Mono player runtime. Two corpse
+p99 ratios2.104/2.273 (<unchanged2.5), local chain limits/tight anchors/coherent
+roll; actual recorded geometry independently reviewed (neutral Blender material,
+not game screenshot). Some automatic corpse shots clip slopes; no universal
+ragdoll perfection or visual acceptance claim. Main53clips/66bones and original
+full-world avatar/177animal art preserved. Grass concealment now shares actual
+slope/water grass admission; per-player/.35s, per-animal2.5s cached probes.
+Owner visual feedback async still pending, no owner acceptance inferred.
+Manifest/docs/AGENTS/shortcut now updated and need finalcommit/push/tag.
+No required development remains; after Git verification/handoff await feedback,
+do NOT autonomously resume old8h/Homo/water tasks. Keep current selected frozen;
+new feedback fixes need NEWcandidate/proof. All owned build/native/Blender jobs
+finished; ownerapps untouched. No cleanup/paid/subagents/Mono. Owner3files
+untouched. Repeated source f7 candidate failed variable ragdoll2.562; do not use
+that failed evidence as acceptance. Current stable source is7efe691.
+Primary evidence artifacts/first-person-rebuild-20261030/native-stable-*;
+sourceID stable-source-id.txt. Benchmark62actors median1.449/p951.812/max2.204ms
+forced decision sweeps ONLY, soft1ms; no totalFPS/loading/water claim.
+Secondary crafting gestures remain basic; activity animation fallbacks accepted.
+
+LATEST30Oct12:03CDT: selected shortcut still tested4ae0eee player-first-person-
+final,402checks, unchanged. Continued audit found regional grass concealment
+ignored actual physical slope/water admission. f7a0d4a fixed using existing
+GroundFlora.GrassSlopeAdmission cached4VisibleGround probes. NEW candidate
+artifacts/player-hunting-cover IL2CPP16:57:06Z proof720/578PASS, BUT item-use
+ragdoll p99=2.562 FAILED unchanged2.5 threshold; same physics had passed earlier,
+so this exposed variance, not evidence the cover rule changes corpse physics.
+NOW 7efe691 pushed/verified: conservative local chain angles + tighter physical
+anchor projection (.1..1mm), still pure ragdoll/no original art change. Stable
+IL2CPP rebuild RUNNING session2243, NEW package-proof-stable720frozen. After
+build restore3knownUnityautos/prove-stable-package.py, then run-stable-suite.ps1
+(TWO item-use runs +FPS/hunting/nature/camp). Outputs native-stable-*, results
+native-stable-results.json. write-stable-manifest.py prepared requires6 clean
+exit0runs; main402 distinct checks +separate155repeat. Production source ID
+stable-source-id.txt. If passes, inspect corpse/motion, select existing shortcut
+player-hunting-cover, docs/AGENTS/manifest/shortcut commit+push. No selected
+overwrite/ownerapps closed. Eight-hour minimum at17:09Z/12:09CDT is MINIMUM,
+not deadline; finish current corrections even past it. Owner async feedback on
+selected replacement still pending. No cleanup/paid/subagents/Mono. Owner3
+untouched. Rare14-handling Blender review +fibre-pose study only underartifacts;
+no further source/asset changes from those studies. Secondary crafting gestures
+remain basic. No claim owner accepted visuals or ragdolls universally perfect.
+
 SELECTED30Oct11:37CDT: existing root WorldGen.exe - Shortcut.lnk NOW targets
 artifacts/player-first-person-final/WorldGen.exe, IL2CPP RELEASE BuiltUtc
 2026-10-30T16:22:38.5379636Z, production4ae0eee (pushed/remotelyverified).

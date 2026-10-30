@@ -1,40 +1,40 @@
 {
-  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-first-person-final\\WorldGen.exe",
-  "built_utc": "2026-10-30T16:22:38.5379636Z",
+  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-hunting-cover\\WorldGen.exe",
+  "built_utc": "2026-10-30T17:05:41.1273417Z",
   "backend": "IL2CPP",
   "development": false,
-  "production_source": "4ae0eee669fa852c2aacb1a55036f04b43ee3272",
+  "production_source": "7efe69164b4696b2bce50c89f93737c747941298",
   "native_checks": 402,
   "native": {
     "item-use": {
       "assertions": 155,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/first-person-rebuild-20261030/native-final-item-use"
+      "output": "artifacts/first-person-rebuild-20261030/native-stable-item-use"
     },
     "first-person": {
       "assertions": 81,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/first-person-rebuild-20261030/native-final-first-person"
+      "output": "artifacts/first-person-rebuild-20261030/native-stable-first-person"
     },
     "hunting": {
       "assertions": 39,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/first-person-rebuild-20261030/native-final-hunting"
+      "output": "artifacts/first-person-rebuild-20261030/native-stable-hunting"
     },
     "nature": {
       "assertions": 30,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/first-person-rebuild-20261030/native-final-nature"
+      "output": "artifacts/first-person-rebuild-20261030/native-stable-nature"
     },
     "camp": {
       "assertions": 97,
       "exit_code": 0,
       "clean_log": true,
-      "output": "artifacts/first-person-rebuild-20261030/native-final-camp"
+      "output": "artifacts/first-person-rebuild-20261030/native-stable-camp"
     }
   },
   "protected_hashes": 578,
@@ -62,5 +62,11 @@
     "No full reproduction, den/nest or arboreal navigation simulation; submerged animals do not yet use a measured water-temperature field.",
     "Mechanical checks and sampled visual review are not owner acceptance or a claim of flawless animation.",
     "Decision-only timing is not total frame rate; no terrain-loading or universal water-seam improvement is claimed."
-  ]
+  ],
+  "repeat_item_use": {
+    "assertions": 155,
+    "exit_code": 0,
+    "clean_log": true,
+    "output": "artifacts/first-person-rebuild-20261030/native-stable-item-use-repeat"
+  }
 }
