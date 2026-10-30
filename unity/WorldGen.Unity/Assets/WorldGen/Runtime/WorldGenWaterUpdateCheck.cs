@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
         V near=TerrainMapViewport.FromDegrees(.17924039827946195,117.31312959624624);TerrainHandoff.Coordinates(frame,near,out double nx,out double nz);
         var sample=PlayerWaterSample(nx,nz);var quality=PlayerWaterQuality(sample);Check(sample.Underwater&&!quality.Fresh,"Real sea water is identified as saline");
         Inventory.Items.Clear();InitializeInventory();var stone=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);stone.Place=PossessionPlace.RightHand;Inventory.Items.Add(stone);
-        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();Vitals.Thirst=50;ApplyPlayerMode();UpdateHumans();UpdateCamera();
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1.1);ApplyPlayerMode();UpdateHumans();UpdateCamera();
         var level=SampleMotionWater(nx,nz).Surface;view.transform.LookAt(new Vector3((float)(nx-originX),(float)level,(float)(nz-originZ)));waterAimAt=0;
         Check(AimedWater(float.PositiveInfinity)!=null,"Centre aim reaches actual water from the dry bank");
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.Thirst>50,"Actual E interaction with sea water worsens hydration");
