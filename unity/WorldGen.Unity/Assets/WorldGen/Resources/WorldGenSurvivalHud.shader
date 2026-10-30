@@ -54,10 +54,10 @@ Shader "WorldGen/Survival HUD"
             }
             float WindLine(float2 q,float y,float extent)
             {
-                float line=length(q-float2(clamp(q.x,-extent,4),y))-1;
+                float segment=length(q-float2(clamp(q.x,-extent,4),y))-1;
                 float2 curl=q-float2(4,y-3);float ring=abs(length(curl)-3)-1;
                 if(curl.x<0&&curl.y>0)ring=100;
-                return min(line,ring);
+                return min(segment,ring);
             }
             float4 frag(V i):SV_Target
             {

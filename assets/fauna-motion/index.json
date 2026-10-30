@@ -1,147 +1,159 @@
 {
   "version": 1,
-  "policy": "Additional original authored motion only; approved body/skin/textures/locomotion bundles unchanged",
+  "policy": "Native-rig supplemental motion: original source actions plus documented fitted resting/grazing poses; approved source meshes/rigs/textures/locomotion bundles unchanged.",
   "animals": [
     {
       "slug": "african-hunting-dog",
       "file": "african-hunting-dog.bin.gz",
       "source_sha256": "bb774e1c7e85dc147fdfb8970f27fb0f8023b23bc69720b2dd9e39c1e58283ba",
-      "sha256": "4fd66b0766de2a9b5363f0413b0c665a92c1877060453b25dc0578197d3d9a3e",
-      "bytes": 165039,
+      "sha256": "a9a134a40dafa8430dbfb7648be86d98b5ec1149b6f6f793c2807c5974bbb13b",
+      "bytes": 166862,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.154744237922251
     },
     {
       "slug": "agouti",
       "file": "agouti.bin.gz",
       "source_sha256": "976ee7df0f6d907e1836ef38a90467361bfa00b86f80f37035020a8a7194cbb1",
-      "sha256": "8e1b5ef0b593083807dc49480e0ad1265e60ff1ab1c29e3bcedcbf4010dc95e1",
-      "bytes": 26212,
+      "sha256": "d75d8e3c787d042247aa1d90ea0bb1c7ae2a379d75496c159f14225dd1763723",
+      "bytes": 26542,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.1610231511103144
     },
     {
       "slug": "anteater",
       "file": "anteater.bin.gz",
       "source_sha256": "b240430186014a73b6e827cb75f7e052588c00b455c2533d3bc7b9408cc977f0",
-      "sha256": "7560d88c7282afc56e20d8faab0a7293afb6aedad7b0de75d4c91728ad5cfeb0",
-      "bytes": 147751,
+      "sha256": "e0d72f93f6b4fb41ef089918a00f1eead1ffe62feaaeba27c98e619e231ff6c4",
+      "bytes": 148031,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "baboon",
       "file": "baboon.bin.gz",
       "source_sha256": "776df30df12f12243df748d2b867b8dca22233d21c0aa4179ed7932091d86453",
-      "sha256": "7a71628743712c60860ff5c67101491201f4c1bee92d369e4440e8b378fd6a3f",
-      "bytes": 102200,
+      "sha256": "14d3538c9eb0ad62c813faf986ff37861355cae09cca238cfaba09e3a43940d4",
+      "bytes": 102251,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "badger",
       "file": "badger.bin.gz",
       "source_sha256": "40dcb6bb730c44c6c5813cc274949a1c2525c7d4b2d433e836ab01f38db7f971",
-      "sha256": "4aacf1d1ce891934784d7975a0101706c7eefbc4821ff2dc510352e8d1d317c3",
-      "bytes": 91406,
+      "sha256": "408c3fb2e07e6852b48a1abf075de925c4d9193f33f43e950a20345cacd75df3",
+      "bytes": 92871,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.1069860590804603
     },
     {
       "slug": "bank-vole",
       "file": "bank-vole.bin.gz",
       "source_sha256": "104887d96d5b07e5a151e05901250f85c35bb801c4da30ac86f8f473a1d62f35",
-      "sha256": "e2d7ddedf663d8c0b4a36c47cd0dd05f0bf4f51862fdcebe5f5eab4574227e04",
-      "bytes": 30602,
+      "sha256": "6c9c8b84622bf53a3dfac7620e983d0d30c99b6157309789c85eb721ee8c04f3",
+      "bytes": 30649,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.07865433326494953
     },
     {
       "slug": "bear",
       "file": "bear.bin.gz",
       "source_sha256": "45fd7157c6ccdc47b0d5406ba81c21d8f643f914ce5e7ae9291d734db5a9c106",
-      "sha256": "1d1c6c66abbebf831863e824a63930979f1eb108db8ec95a818c8e20d1675ea2",
-      "bytes": 129680,
+      "sha256": "7b30ed4709ff4bc63b6db751210ba4caeab0d0b728f4ba4c4ce3bed8e44b2b5d",
+      "bytes": 129659,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "beaver",
       "file": "beaver.bin.gz",
       "source_sha256": "e4f51ba579a93ea20ddcbf2dcd47f59e8ced3f3313b4c983e4cdf0a62390af34",
-      "sha256": "a190b7a592d8a4af3bbb1c155ea9c034be60830274110f89414d625bd000369e",
-      "bytes": 35034,
+      "sha256": "7f3e9137196b8778d3427ba1326c44ef718babb11aea3b42ebc41cf57769f1ad",
+      "bytes": 35053,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.0886576001647637
     },
     {
       "slug": "bison",
       "file": "bison.bin.gz",
       "source_sha256": "1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd",
-      "sha256": "0a3be4fd6265a29c682be14b0597278e75ac6fca35b79b1c80d2e1fbf99bb009",
-      "bytes": 166854,
+      "sha256": "7a6e838fe40f81ffc0690eef0a079a4fd2a6e675aa5b93ab9f7831b4902de1af",
+      "bytes": 168638,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "buffalo",
       "file": "buffalo.bin.gz",
       "source_sha256": "6ac121ee38e05586289f4be07956ff93ef54f5afd0f32081a1f70092643515cf",
-      "sha256": "4198d69b350e66b6532d1041d56465ce6fac70c83611af47c791422d57daea48",
-      "bytes": 170783,
+      "sha256": "d902db03aed1a92b3ba376ada546aa8d84fbcc13ef2a03dbc82834e7e1b3a206",
+      "bytes": 176607,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.09251166344793342
     },
     {
       "slug": "camel",
       "file": "camel.bin.gz",
       "source_sha256": "b5cf3b33aed4dabac34168fded77cb29d4d257534ab8f1b660b379352d667a01",
-      "sha256": "0dbf03965326d0675ccbf9ecb0c952dac7ff205c99772e614232877211358ee4",
-      "bytes": 214306,
+      "sha256": "0362b4d1f738b5ba37f2c743c84a1c885a2a50ce5d30640a88ff9e9a8e7c2522",
+      "bytes": 214249,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "civet",
       "file": "civet.bin.gz",
       "source_sha256": "317fbd0b9fad022d555951b7526fa302068ce7be37e707dcbb2e6e83112fc75e",
-      "sha256": "34f12ee616f9b68bf89e85540cc889d279afc1b3f9ff733c1fdc459fd9ec8b17",
-      "bytes": 121931,
+      "sha256": "a5d5795ae2b26bc7d13d2673b7c44b056f8792f1e974144c345affa771008527",
+      "bytes": 121962,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.15156356293579856
     },
     {
       "slug": "coastal-forage-fish-guild",
@@ -157,85 +169,92 @@
       "slug": "collared-peccary",
       "file": "collared-peccary.bin.gz",
       "source_sha256": "71a09144090d4cab468a48129cf988a056878d16792a312307912b43f3f140a6",
-      "sha256": "d06ea1692e11ad4c2df95649377ac6dd8ca9aa142fb368bad2a243fe8db145c5",
-      "bytes": 141698,
+      "sha256": "8c46ba3193f331cc59e5493f99bf7182879c686681aa842970ff2ea24586dc4a",
+      "bytes": 141994,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.09356116676815325
     },
     {
       "slug": "common-brushtail-possum",
       "file": "common-brushtail-possum.bin.gz",
       "source_sha256": "0cbde23563a4af3dd5ad3562f0d4281727ab6871c6e4f3e68400341c4f4690ba",
-      "sha256": "f5e4388bc5ffe8d61bc019bf4c949217cb9feaccefa4aa0fd6b13aa593195900",
-      "bytes": 129056,
+      "sha256": "4ad8e2ece12b203d031f0521352f33d0e4deb8787bb8756baba802599543c537",
+      "bytes": 128735,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.15167452080271632
     },
     {
       "slug": "cotton-rat",
       "file": "cotton-rat.bin.gz",
       "source_sha256": "b92f405fd89fc01e41385a966d4e4ef4f4c67fdf1e1ac759cfaa060e36a79751",
-      "sha256": "ec282a3db473d38635f0793b561c5ffde7508cbaffd2ba1c33d68b71589d8681",
-      "bytes": 44230,
+      "sha256": "23cf3d62b37555fe17725681467fed829e5d758e80a70b073150206aa913afda",
+      "bytes": 44260,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.07296803046834832
     },
     {
       "slug": "crocodile",
       "file": "crocodile.bin.gz",
       "source_sha256": "50164498446a57142684beb3fbaa8cda115e5241852f365b0a27ef261a23203d",
-      "sha256": "bceb755d7e3f0c34d1a23fda7abc172d976aa87fcacad47d85d8890767f6f38c",
-      "bytes": 18115,
+      "sha256": "27f112fbc5af258edd9d10458ac8e08cec165b120dc22049911ec62afd2fa957",
+      "bytes": 18151,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0
     },
     {
       "slug": "deer",
       "file": "deer.bin.gz",
       "source_sha256": "0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1",
-      "sha256": "212776ac01ea39fe23c759ab9a6783dbaa87db30f1b4658c60ab17d0765ab485",
-      "bytes": 168675,
+      "sha256": "e67ca01478093c4d5cf4b7cd3556ce77588e9dee050c6d754f3d95b3ecf65aa7",
+      "bytes": 165848,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "supplementalAuthoring": "Native bind-joint targets; no foreign skeleton transfer; original source and actions untouched"
     },
     {
       "slug": "duiker",
       "file": "duiker.bin.gz",
       "source_sha256": "a28f552ef56e1988fb7c379e8ca9bb17cd7c8ef8c6be4fe8b1fc460e26f12bed",
-      "sha256": "242a7f3801d18d3651b4c375fd218cc011363df57f36ba5e7d1e4035bea8e388",
-      "bytes": 177384,
+      "sha256": "41dd869b90f1bceb6d4b0d00de2ac6297fae14c6e160ac8800134b39ff5e735f",
+      "bytes": 177556,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.06388070514962352
     },
     {
       "slug": "forest-hog",
       "file": "forest-hog.bin.gz",
       "source_sha256": "2657db2e9818e0c056ae14a748c71c735e76d7d21749df269835158e6050137e",
-      "sha256": "61403f6a1b5f04f904c1de5197354cabe07d3cb8b8c01dbc9b50e97aeb9a168d",
-      "bytes": 196366,
+      "sha256": "f2b02a0ed51943569c7b85ee5c7a12f57b7fde9fc31db4bac26818373a5d4595",
+      "bytes": 204266,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.14219689782800332
     },
     {
       "slug": "freshwater-predatory-fish-guild",
@@ -261,170 +280,184 @@
       "slug": "gazelle",
       "file": "gazelle.bin.gz",
       "source_sha256": "4e8b9e287fd8c37f624c0bfd6f8e2aeb5d7077fdc5ac9ba493688f1d5ed55265",
-      "sha256": "dca1f2d2678fe636b1a49ede975e1484f443f68a7ab369f26f55a934a5a5869f",
-      "bytes": 247318,
+      "sha256": "165290684ce70afa0aec216226c551bc176dc0c29d82be230ea5543a8aa7f54b",
+      "bytes": 247007,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.13333483688719563
     },
     {
       "slug": "giant-panda",
       "file": "giant-panda.bin.gz",
       "source_sha256": "4901dbca6319a01cd002076a0f54ec3104659d20000db6cc25f8a025a0287aa7",
-      "sha256": "bdb5ad1d65865562faa706946f1175ea3d2b48b7c7a4d0251fd57fbe5a9df122",
-      "bytes": 77860,
+      "sha256": "58f83ce353a2bb9b0a9bb9a566bc7f55698b23880874357e502a3463a6095f61",
+      "bytes": 77922,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.12272798832292274
     },
     {
       "slug": "giraffe",
       "file": "giraffe.bin.gz",
       "source_sha256": "d8683cc1558d11641fe92b5faebb664e8c3d34652b1aea75e34529fe24f9ba1a",
-      "sha256": "98baa30afc1e06a0fe68c60af8e7ce4a2155ca73753abf64bb5c777ec6b92a6c",
-      "bytes": 218947,
+      "sha256": "7e5ae14de1edfc0014da5da13a01d0c83505e69b37fcc67dc271376b7b6f7cea",
+      "bytes": 219064,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "gorilla",
       "file": "gorilla.bin.gz",
       "source_sha256": "a258ad0167d53e477a322a78d7d770b62a001a7bdf44eda8153bbb2f35ab7a6c",
-      "sha256": "2cd233077b3d12d3f79ad0327e3fb9e9e4387e685012af194396e148b79312ef",
-      "bytes": 109812,
+      "sha256": "d67cb3bad2b894e7890598c0f2147bd32eb928e69592c4598a748c26e3601a1a",
+      "bytes": 109806,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "ground-squirrel",
       "file": "ground-squirrel.bin.gz",
       "source_sha256": "a2cc2f2b01fd0f6e8454b999b7ce49e5c1b418af785298f1c6643618f3641b6f",
-      "sha256": "d7a2b4f6a6809bfd6eac7da010b648b75ec58e6b334b487724fcc6ba77362e75",
-      "bytes": 42204,
+      "sha256": "53fe7281f466b946f0c6c27eacdffbcc9fda77710174da9a648105ae2116a731",
+      "bytes": 42277,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.07608991873519005
     },
     {
       "slug": "guanaco",
       "file": "guanaco.bin.gz",
       "source_sha256": "87bc6a39b7b81cad83882b698ba538bfb47b69d595362534107f2c939ab2d93a",
-      "sha256": "86693a9ee2003e9537f8a8f316ef4edf3b70990b1a6b2f02eb1efc4f50e08309",
-      "bytes": 115115,
+      "sha256": "b03da13af29b6ac546537f6a3fe306d6f9b37e10ea5540c42f145ee7956db5b3",
+      "bytes": 115172,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.12043007564999543
     },
     {
       "slug": "guereza",
       "file": "guereza.bin.gz",
       "source_sha256": "9fdfe2f817aa690f8d96b75ea38020ebee4e6a8c1f94ab096872473f2fece69b",
-      "sha256": "9923896a48fe4d587181159d5e453cf74f6274baa38903e874d77c8a6dc9237f",
-      "bytes": 102687,
+      "sha256": "0176b7022b2f192c564d9c04cdef266358b5249ae364c4ecc25b60e721f4ed70",
+      "bytes": 102728,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "hare",
       "file": "hare.bin.gz",
       "source_sha256": "02a1896ecba74e0b3b6e3c056f3f4c6de4fa670d332ecc3fe4bbdb52ce132857",
-      "sha256": "94ad292c40cbcb568b768e4a13d22a3b1e7c23e98e92abe453af542aa9cbd87e",
-      "bytes": 247923,
+      "sha256": "4bb3879a077e00b42b38b2059568bfdab4263b1a61f345885ca82687714b8ddf",
+      "bytes": 247959,
       "roles": [
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0
     },
     {
       "slug": "hedgehog",
       "file": "hedgehog.bin.gz",
       "source_sha256": "2e47ad316f0949a05393f0e2eef2e57b1bd8889fb3224c4d3a61ca6107859d38",
-      "sha256": "db45a58e69d8421cfaf789a7d6afbde9ad7446597bcca12c7c5d32e84282106b",
-      "bytes": 21549,
+      "sha256": "bf6e6f0bba205678dbfa3b4785e7731dd3c149564614c8fc833a8b16c1b9a172",
+      "bytes": 21607,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.06627092992838116
     },
     {
       "slug": "hippopotamus",
       "file": "hippopotamus.bin.gz",
       "source_sha256": "a48bf770a0970980484093f4060e001c86d1cbe5667586c8dfee8c4064cfcc95",
-      "sha256": "4ca26befdcce53cf9da34b304219834a7aa3fe8041e1db502cd6546f80dbc449",
-      "bytes": 141465,
+      "sha256": "a62110c924d133cf1110746689865573b37c8deb8228b74b1e4b3d2695095b48",
+      "bytes": 156119,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.15190852163100335
     },
     {
       "slug": "horse",
       "file": "horse.bin.gz",
       "source_sha256": "1a5c78587cbc0a3d34c274232031f2e7870073108c1b37f08d322fe0c687c929",
-      "sha256": "3a04555ef93ee46b485d24ea5fb4ece3bcc1c0bfcc8fe41385853352b2ec738c",
-      "bytes": 155007,
+      "sha256": "9c436fc356924fb958effbd4fe24c7ad990bdf76d40b96cfcfe7d85001725420",
+      "bytes": 154979,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "howler-monkey",
       "file": "howler-monkey.bin.gz",
       "source_sha256": "4248ec3164f2f66185dbe5364e0fdf2c8246732d479e15eca47b3a06c1ee5f60",
-      "sha256": "f907d37694b3b77c9d5598648ef4efe5f38ea442ca4f396d028f53d90ef15752",
-      "bytes": 116716,
+      "sha256": "42c4a41d5d41cb9117675d767e0c1e357214b2c6d0d6b8829754a39f550cd73e",
+      "bytes": 116756,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "ibex",
       "file": "ibex.bin.gz",
       "source_sha256": "548ff469fb7a1580909e6223c2f204f5a7caff343d1e27775d2f618d114daa45",
-      "sha256": "99072261b21e162685f874d4f37e26bd0bf5e5f2d7f517b5cc70f3c8af0228c1",
-      "bytes": 140727,
+      "sha256": "97faf823661feacc78c7b34e666fbd550b34b9ffc0b297556ec14940bd60bf7d",
+      "bytes": 147430,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.0919065796079517
     },
     {
       "slug": "impala",
       "file": "impala.bin.gz",
       "source_sha256": "20cc0ed9e33dfe3ca354395cbf3b09d2daecc6b58dae4652ab0c13ee752d723b",
-      "sha256": "e3c154c7936a449abd3f15d810dac0552f75a6e3080b2604d6e647001815fbde",
-      "bytes": 141774,
+      "sha256": "39a6c0886e7711cdd4c0d292d529cf618ea9470d35f9e07483b3118015fdefb9",
+      "bytes": 150315,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.06826239923099559
     },
     {
       "slug": "insectivorous-bat",
@@ -440,346 +473,387 @@
       "slug": "jaguar",
       "file": "jaguar.bin.gz",
       "source_sha256": "eabe4707898493ade75507c933f25375b7f1b2b05932a5eba6a3066b5e0e3c89",
-      "sha256": "ac4be743c628447d8d4dd8145b0daf754f9fdef5b843d54e04eec8d05a696d01",
-      "bytes": 25436,
+      "sha256": "94659d64627eca3d830d929ea17440d4112fb165fff06c2dc581e1523658a077",
+      "bytes": 25482,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.1532730321198431
     },
     {
       "slug": "koala",
       "file": "koala.bin.gz",
       "source_sha256": "314637b58a2f9504c01f99a473372d5093e1e253b4bbc48ecd43f0125b2275bb",
-      "sha256": "f66c6df1ce156480bf928f08191e474b274f3485493b0c845ec4225b45be5e08",
-      "bytes": 105228,
+      "sha256": "cb4ac13ccb41dc252901a07ad62c50d81443ac9acce7e13e92835b6be3e91982",
+      "bytes": 105272,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "lemming",
       "file": "lemming.bin.gz",
       "source_sha256": "12511e1597abf78576b00acc8715497555ee3f3f10245bfbc33530810e7ce0a3",
-      "sha256": "94bd1a90d1bd57e7c010d0e1245942d01d866930f328a6ed84d9beb5dcbaf9dc",
-      "bytes": 29996,
+      "sha256": "711c3b78306d1e0ad45bc5687fc9dd069e182ff0335abdd0cfaeb673e6342a10",
+      "bytes": 30040,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.05385839284443583
     },
     {
       "slug": "lemur",
       "file": "lemur.bin.gz",
       "source_sha256": "3188e234aeea5b69bfa5d1c4a8f170b15cb68994b1f0c8f83702fcba3fffb836",
-      "sha256": "9461a91d548a3495efb25e424239612683a36de3b9745d0d3ea716d8cbc3484e",
-      "bytes": 137728,
+      "sha256": "c8b9edfe110dac2277355442ec24b5ce42e55242d4c17c841b2bee5d204462b6",
+      "bytes": 139228,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.17924014397629218
     },
     {
       "slug": "leopard",
       "file": "leopard.bin.gz",
       "source_sha256": "2bf3dd7d825a1af84c3c8e422bfb6b7ea365f958e35150f9dbe8f41082132194",
-      "sha256": "01317bbb181b00d55d8caa6230f81d5207b85d57d681739953fda379a1ff2297",
-      "bytes": 20098,
+      "sha256": "9f31de8a9fef908c4365236439d1f42c6308fb0692b5aa95467d05eb7984a180",
+      "bytes": 20147,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.13364166674851002
     },
     {
       "slug": "lion",
       "file": "lion.bin.gz",
       "source_sha256": "020a21e11c3664e506558bb239b8d48b33b7209aab92366ad32d9f867b100622",
-      "sha256": "b7375d12127997150d9c9bde70f5d77b59a3bca4145a184c8f45f99ce7ee5ff7",
-      "bytes": 27327,
+      "sha256": "b1282e88a0beb39f7db25e0c58af24d5348ce384810a5c273530cc2d004c9e07",
+      "bytes": 27392,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.16466007337240526
     },
     {
       "slug": "long-nosed-bandicoot",
       "file": "long-nosed-bandicoot.bin.gz",
       "source_sha256": "e128e64b3361b51692059a3d0a69a6dcb7f5935a5f2f0356ffe803f33d9efcb8",
-      "sha256": "ff335fc11811c2a9161f7fb7a25771661c42c2aa49a6c2fb163b4da7f7a39197",
-      "bytes": 151798,
+      "sha256": "82a2aabe83685be1526b2d2de77227538535b599b7589441f7cb283071639a63",
+      "bytes": 151582,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "lynx",
       "file": "lynx.bin.gz",
       "source_sha256": "a0b3f661fbcbc3d9e0a264c094a960e68118373e0a1482f494f0ebb55cbf0e79",
-      "sha256": "f7da9a9ffb56d771a60a41e83cdd14f6a969e0241da6b3acc97932684ca3bd88",
-      "bytes": 19410,
+      "sha256": "59c8d77bf06cf42a5aec43d02247fde6fe7b5d77610a8311a0f9e46f3bf49f2b",
+      "bytes": 19451,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "macaque",
       "file": "macaque.bin.gz",
       "source_sha256": "00a0164b6d057ce71666104edc604322ff0ac2bf6113bd7bb3222cb9342f20c5",
-      "sha256": "0b5795c958f762e134b257ebdc79084f71088fec13abb279f5c7a364b520896d",
-      "bytes": 138897,
+      "sha256": "4d02f030059559dcb3c1eb86528faf29331940a96cec70fec551e98fbc0db468",
+      "bytes": 138882,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "marmot",
       "file": "marmot.bin.gz",
       "source_sha256": "89963ca634303c6d4fa9c27caf28490cea734d67cfc85ab3e785a0bcfd019149",
-      "sha256": "d256098169e60ffb3107155ccd81329fbb1409db9a333194d3d8caa99689d784",
-      "bytes": 34126,
+      "sha256": "b7eb4c6b45eb5c10c80797418db2d23864e3d38cd754fa5ccc50c84b80c9157e",
+      "bytes": 34160,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.08605143646205815
     },
     {
       "slug": "meerkat",
       "file": "meerkat.bin.gz",
       "source_sha256": "89dcff1a00c7adfb0a1631cdbc85b704b3a6d3ab245fa6c4eab6b51f81ef0f20",
-      "sha256": "38e97dbe9fbad5b4ac885fc75b336e176dbc63ea25384df610742f3af9da7ca3",
-      "bytes": 103880,
+      "sha256": "66a073e1e601aeb54a762d9f8ecf7a0474f7d6aefa82b7487aa17c98aa52b0d7",
+      "bytes": 104008,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "mongoose",
       "file": "mongoose.bin.gz",
       "source_sha256": "4cf7c3a1732529385eef5b61e6d7bcd5e97665decc00aee6c9c249ec24871014",
-      "sha256": "7a44a2ce7ffa6ad8e0cb9bf40defb5cce373dfedc28388126fd9d50505ed2384",
-      "bytes": 103736,
+      "sha256": "716294c32df6c2571d02dded4b93979e3ceeb83f0120547c5bf979c840a1e357",
+      "bytes": 104305,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "moose",
       "file": "moose.bin.gz",
       "source_sha256": "74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1",
-      "sha256": "11befef4b6caa23170692820bdd480741f54ecec442b87d339b10655a79403b3",
-      "bytes": 174373,
+      "sha256": "af1984c310961ad65d55420d166abeca78aad48f7d4a2b73c691d2e0117efa43",
+      "bytes": 174453,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "mouflon",
       "file": "mouflon.bin.gz",
       "source_sha256": "88dd4966096e79142573a5e3922f6dcb635747c71b9fab38fbda0733de233687",
-      "sha256": "cf2da4ec5b365760b7c67430142dc5c493b42f2e1ccee8c2833894a34265dd04",
-      "bytes": 104885,
+      "sha256": "75463c4d3780a68d62cd5fa4d42c59a368d5c51ad39e6fecfc8660d94eb8e887",
+      "bytes": 104981,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.08001018110013236
     },
     {
       "slug": "mouse",
       "file": "mouse.bin.gz",
       "source_sha256": "6bda694122187539156734dc828172fba501f67d14745a40ffa048fcbbc97cb2",
-      "sha256": "a08c807f7bfaa30f72eee2761fe986551b9d87e4e310fd04fb7051c44e2f496d",
-      "bytes": 43155,
+      "sha256": "e37b6adffd33dda7437f00d71602ee0195d555f8975d1c5e2586c8fc5a0861f7",
+      "bytes": 43590,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.09511199945823631
     },
     {
       "slug": "musk-ox",
       "file": "musk-ox.bin.gz",
       "source_sha256": "d8b8cf8848d22c4ca62e55d1b0ebfedee7c9eab679d58d240ebd81caf50fa98d",
-      "sha256": "a7f91ae8a3b5cc86d5b05a6e76d5e8642c7d7070e9b0f93a0fd6b7de0ee2a7a9",
-      "bytes": 95703,
+      "sha256": "3308e1a50f476d20c4d24297b9edf626b7880f98a94a14337a924dfa987a9bd4",
+      "bytes": 95748,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.11189642023516688
     },
     {
       "slug": "ocelot",
       "file": "ocelot.bin.gz",
       "source_sha256": "849884eacfcc77c2d0b0fcdaf9d7ad73fc5d0aa9c78cd9d625b38be10c9147ef",
-      "sha256": "993ba7b8de0fb965174b7f4d25630147259d78baaecb1aa90089b20b614250d7",
-      "bytes": 20412,
+      "sha256": "e0314e72d7eddfc7d21811f83a1a48a78c408fc1189f877d2903ef997dcd97bd",
+      "bytes": 20462,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.16165148380808914
     },
     {
       "slug": "orb-weaving-spiders-guild",
       "file": "orb-weaving-spiders-guild.bin.gz",
       "source_sha256": "6fcce76c6a2bb150d7d537edff6bf2b8f826bf517eaf6fb00bbe7a146b351232",
-      "sha256": "2ddf6a8e7003b240e149771f90280512d0cf3e75b298e22e5d797ac8ca5c5a1b",
-      "bytes": 237404,
+      "sha256": "e31d29e0273b7fdcd10cba8c473089ad812117cd6441a591ea37d669e09ce22a",
+      "bytes": 237389,
       "roles": [
         "attack",
         "attack",
         "eating"
-      ]
+      ],
+      "maximumSupportLift": 0.05375612836669008
     },
     {
       "slug": "oryx",
       "file": "oryx.bin.gz",
       "source_sha256": "5eb0032f13c57a5a482961230f40687841960d22780796634da722c67198c9b2",
-      "sha256": "935025a0f11e7bb50285eeac420dc9b4f05f2f38ea1799b4bb26abc453e435cc",
-      "bytes": 97326,
+      "sha256": "eb22e1ccf3295240c4db5782d6f86f24cc44985ff53da1a5a05b24948642525d",
+      "bytes": 97374,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "otter",
       "file": "otter.bin.gz",
       "source_sha256": "1cfe1dddd4f99664f248db55309004aeb6f8ac758866840d89ac9af3da6e75b1",
-      "sha256": "243b9df8df82d6ac5f021df11be168f7cf2c66bd269adcfb8b0c66d922de972c",
-      "bytes": 125185,
+      "sha256": "ca119fcfd032d8b572ab6c6a76bc3747ed09f5e0022c72b482bc3c67195edd74",
+      "bytes": 125331,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.10720496542355079
     },
     {
       "slug": "pangolin",
       "file": "pangolin.bin.gz",
       "source_sha256": "f4f1139744f68b570a01d8b157f48e32f0f3927018510293cbdec013e54c650d",
-      "sha256": "1c8ea46621a4483666799a5926eb9188c8982ce50e80ae35730f861aa61d2ede",
-      "bytes": 39201,
+      "sha256": "6c235a14c896e66068a8b93f3a8793177d33cf4a1af1a3a86291cb8ad38d2109",
+      "bytes": 39311,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.04188316458111234
     },
     {
       "slug": "platypus",
       "file": "platypus.bin.gz",
       "source_sha256": "4522ed8310c0edf7cd09c8a34a28b5c08893e2437e13fcd5eaf5c12db5f5017a",
-      "sha256": "4224835f1446cbfc8468b718f500b5481981107b9c36e806d73701442d248631",
-      "bytes": 128593,
+      "sha256": "d241d00f775c38638dce22720eaff58530e0715286a574fcffef9b4f49da04c8",
+      "bytes": 130719,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.09304552561205909
     },
     {
       "slug": "polar-bear",
       "file": "polar-bear.bin.gz",
       "source_sha256": "fe1f5860745bb67f4bd6b74b845d6676beb0421c1f8142c4ca8b047f6edf4110",
-      "sha256": "89aca2ca47c08dc51a7a0d383a3a2a40693dddd8a2b49fbd6a49ad2552adf010",
-      "bytes": 74468,
+      "sha256": "c6c1dd942427c5510969105c67c82e3077b6af0e43ab4aa23ec15838e1d5de5e",
+      "bytes": 74572,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.17256577212769222
     },
     {
       "slug": "pronghorn",
       "file": "pronghorn.bin.gz",
       "source_sha256": "3842245106fb0d28e7d86cdae5d144ac1d534c21170191e17fdf925a2c8564a7",
-      "sha256": "991f765be92d543aeb08d3c7ffd67ccedb89d05b31344a3a5ebc30a777121a6e",
-      "bytes": 180458,
+      "sha256": "18762ca15d99df906ace87f952ef1b8331700e7d636cb824e1bc6a2be3b5d9f7",
+      "bytes": 180470,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "puma",
       "file": "puma.bin.gz",
       "source_sha256": "68d6166ca42f9e289eedb26ad8ef89189293915f54780e72b0b7e2c0c5da0dff",
-      "sha256": "aa6c254c49a3181b3c73597c15190c3ca5282df1ca8c533b05629fccec5efff0",
-      "bytes": 21932,
+      "sha256": "bb98d8ba614f254bcda9ad440ed7a5c473c8691cc0f5020bf4ebb87610d763bd",
+      "bytes": 21969,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.17973922888173735
     },
     {
       "slug": "rabbit",
       "file": "rabbit.bin.gz",
       "source_sha256": "5d492a95bb0eed6464917f5efea9071cdf2bbc3387ee832c194ae7ed610cd7c3",
-      "sha256": "dabae3d1f2398403c96cefbea0a1c4bae86fd8306e8e73c244b3a99bf7f520fc",
-      "bytes": 162661,
+      "sha256": "0571ae58583d833ff6550eaae95478083d8820ded47876e899067313041f6b8b",
+      "bytes": 162697,
       "roles": [
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0
     },
     {
       "slug": "raccoon",
       "file": "raccoon.bin.gz",
       "source_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44",
-      "sha256": "ac1b54847a91a832492e2a9b348012bde7aa03258009f5c6e947b4f12d32860c",
-      "bytes": 154220,
+      "sha256": "9262e7e5072a16bd6a13e3887fb07796326c35091702c71ff528d5ca7ab8afa3",
+      "bytes": 156427,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.09560651507468582
     },
     {
       "slug": "red-fox",
       "file": "red-fox.bin.gz",
       "source_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60",
-      "sha256": "c1d020dc00392e7668d1808d5297844dc41faa11b10c436081710314fd9fe81a",
-      "bytes": 143545,
+      "sha256": "a0540ef0db9835d4ff01e99b0d030dc44873b69ef7971c4567ac4715658aa339",
+      "bytes": 143751,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
+    },
+    {
+      "slug": "red-kangaroo",
+      "file": "red-kangaroo.bin.gz",
+      "source_sha256": "7db0c683b1597d7ef2c6576e15939994648c6e86d6f38ace62f36ef7b73335cf",
+      "sha256": "14a2e45e2a337abfc8c13199f5f913d1cdcc40d4ceb3dcd50228734b24f61518",
+      "bytes": 30364,
+      "roles": [
+        "eating"
+      ],
+      "supplementalAuthoring": "Native bind-joint targets; no foreign skeleton transfer; original source and actions untouched"
     },
     {
       "slug": "reindeer",
       "file": "reindeer.bin.gz",
       "source_sha256": "a61295b6ebbf91fb8688836acb509251eb50fc0b5a654086d94df0e3fbd9d203",
-      "sha256": "812f8c97ed84bfe230332ea8cd90a3ad9d7ca35e6c991b7d175f210f59905b64",
-      "bytes": 153906,
+      "sha256": "7fdd4ebe18d55cf0620db6aef492bb36776aff81640a14b2a21cd52ee281c763",
+      "bytes": 158842,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.114059721866427
     },
     {
       "slug": "rhinoceros",
       "file": "rhinoceros.bin.gz",
       "source_sha256": "36234dde566188e821f47577636c8c02e9cce87143df102e4688eef9b240dac8",
-      "sha256": "2d6bcd35814ee373ca17eca0bae825ffb19064068299fe221b17d8d50178be8a",
-      "bytes": 227053,
+      "sha256": "bec7ba0c20995441942ea39964863f47c331db18d71406246c47c8ff40ed7fb5",
+      "bytes": 230364,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.10700803581940246
     },
     {
       "slug": "shark",
@@ -795,23 +869,25 @@
       "slug": "shrew",
       "file": "shrew.bin.gz",
       "source_sha256": "7469cd70b23854e133b63da8b59568e7c1623cc3331d784b77005d7c45dc146a",
-      "sha256": "a402e1eab887201ef87aa0004605720312c309007e4c59aca9d0a2a9fc74bd52",
-      "bytes": 30308,
+      "sha256": "9142f6191998af25fe2ab5d44a991b8c664d94b71a2c9fa1e39d0e193e3f18cb",
+      "bytes": 30305,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.050693996468083244
     },
     {
       "slug": "skunk",
       "file": "skunk.bin.gz",
       "source_sha256": "8bade9dcdea784ee1c69db7648d8a2afd001fa890d640d02d05ef9dc898a235b",
-      "sha256": "a811c03a90938eb476bfca2cf3da0057fee2a43a80449ec55671ad54c271096a",
-      "bytes": 113508,
+      "sha256": "32dddb2676ba5caf59645e9213976cca60fe62b06b04e3bd66bab27df7bd92ab",
+      "bytes": 113808,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "small-native-freshwater-fish-guild",
@@ -827,188 +903,204 @@
       "slug": "spotted-hyena",
       "file": "spotted-hyena.bin.gz",
       "source_sha256": "2142c4f0eb6fcac5e64e46fdc5c29135d4d014d5ec5f0ce1ee80ec0bc866244e",
-      "sha256": "8217a82d6414871b5bdf0659387007cb6a67141a6e56dab94597fc3b3f98da2e",
-      "bytes": 122884,
+      "sha256": "332d5d8beeca380989c869e0aa7f11b3739421276b17a5f5141ecbee294d5335",
+      "bytes": 124311,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.17331391455279244
     },
     {
       "slug": "tapir",
       "file": "tapir.bin.gz",
       "source_sha256": "4a187bc7c80e3762da6301ae7f0de78a36f4e32e50647b3653909122cf63d16f",
-      "sha256": "db12447596bf11dae64b0de0a53d3e11996c6c6b1d944a181d3699c4e4a8fe77",
-      "bytes": 151086,
+      "sha256": "8cfe2b3694d0a3c964b1b53b3ff50e5ef93a3c9eaa160bd93f458cba4de08d5f",
+      "bytes": 160117,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.07998284074672736
     },
     {
       "slug": "tiger",
       "file": "tiger.bin.gz",
       "source_sha256": "504c38a0ee83d8bad180c246b8703bf7b27696c0f422bae1964823c308558f9c",
-      "sha256": "17cb23aec37057bf4ba8ec36cabad580c77e96b5ae98edf708e9d984279c1f7e",
-      "bytes": 22896,
+      "sha256": "c016748c28d837276638b39266b046743cc8137af94c194b6e3ecc4a9cc05ae0",
+      "bytes": 22936,
       "roles": [
         "attack"
-      ]
+      ],
+      "maximumSupportLift": 0.11074287826803621
     },
     {
       "slug": "warthog",
       "file": "warthog.bin.gz",
       "source_sha256": "4f8f6c5934dab64d8aee6631265572f3bee93c94206ae5a489db57994c1ed319",
-      "sha256": "16ed2ec23e752508ae68c430e5ce52b3c6f1ae910c5b221a55fc0dac49c0eaf2",
-      "bytes": 100855,
+      "sha256": "602ef97fcff652cf0193adcac6e2e7e476aac8007a6f687594b635bb0c9877b0",
+      "bytes": 100991,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.06849637885570688
     },
     {
       "slug": "weasel",
       "file": "weasel.bin.gz",
       "source_sha256": "00fad34e0dfb4ab1c45b42da1f6bcc75dbb4d228004252888f22c7d8591f384c",
-      "sha256": "ad9edf03926fef1a2dfef5af4c662193856ec3288e2a5b43116aa799c24f8665",
-      "bytes": 140117,
+      "sha256": "01bf6eb879b26073909921f08f026fca19ca6d420268b4623e9865975835e6ed",
+      "bytes": 140172,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "wild-ass",
       "file": "wild-ass.bin.gz",
       "source_sha256": "9b42017b9b86564f908aa95d1b6f7b446b38e38379f4e2e4b766429c8868d0c8",
-      "sha256": "8964720b39389b4bc0a8da87a6bc2a485faaa3452bf28307d2b0efa6411fcb69",
-      "bytes": 111017,
+      "sha256": "57c76aee1b3560ba7e8dd9051836722e10e0f04e237d5fac2e592ef0aa4e286a",
+      "bytes": 110970,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.12649106159360993
     },
     {
       "slug": "wild-boar",
       "file": "wild-boar.bin.gz",
       "source_sha256": "1e3930f82833db9cff156fbbec20411da85871def9463e9c533b735f2837b98d",
-      "sha256": "7b1e5eb477a2b1115b29223299441644314d28f4022a462a4ee1ef2f9e677562",
-      "bytes": 168376,
+      "sha256": "e2875ddc46ab40d2aa667b16cfa9983cadcf27ccf71a81d403724209e880c609",
+      "bytes": 177128,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.12306017393292613
     },
     {
       "slug": "wild-cattle",
       "file": "wild-cattle.bin.gz",
       "source_sha256": "4e2343856798e88d9b35d611d6f51abec71e0c24b6e0ae119c7c0c0843eae9b2",
-      "sha256": "71adebec6c0bd61628116dc326dd3aae6fdad1331ae1182cddb4eca9d2f83c6b",
-      "bytes": 109287,
+      "sha256": "da30c09d4c0e16ba4215852240f63db43412ffce0c8078c682c96de68da18542",
+      "bytes": 116183,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.08641123552863408
     },
     {
       "slug": "wild-goat",
       "file": "wild-goat.bin.gz",
       "source_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b",
-      "sha256": "2a78613654eb4999e585a1f4ed7af3b566495fe3b31920200383f26c6cf8eb14",
-      "bytes": 144664,
+      "sha256": "27d1df257bbbe5d9a0fa59f4ff3cb23246994d3e16bf557b28173ad981608def",
+      "bytes": 144644,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.04219649929552628
     },
     {
       "slug": "wildebeest",
       "file": "wildebeest.bin.gz",
       "source_sha256": "026f5cb96698d43b2f377d695136468aa6f2a4e48e8886aef25243e58c0fb530",
-      "sha256": "7b8c895ccab771aef896bc0e8730f867ab8af6684e574b3fcaeaced4e77f3bf9",
-      "bytes": 181715,
+      "sha256": "730fe7bb5ebe6b8be3fa61e5b6587fac0f7da86c4a69a7b7615f73d282ca809b",
+      "bytes": 181802,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "wolf",
       "file": "wolf.bin.gz",
       "source_sha256": "0e02addf718686a155d099bc0f0c2f331ce7e2adda9b8ee192a01023ec18f2a4",
-      "sha256": "17fc4054d3e69c8d83932f162267e96a84e4e9e6a4c773cb023839de24cb7cd7",
-      "bytes": 124288,
+      "sha256": "609fa551787c577b75b6325054cd24abfbf4669f51397aa97a4c1a5e828fefd8",
+      "bytes": 146743,
       "roles": [
         "attack",
         "alert",
-        "sit"
-      ]
+        "sit",
+        "sleep"
+      ],
+      "supplementalAuthoring": "Native bind-joint targets; no foreign skeleton transfer; original source and actions untouched"
     },
     {
       "slug": "wolverine",
       "file": "wolverine.bin.gz",
       "source_sha256": "dbe2263288a3b9dc107e56aa660abe5e92f04e06b835343411072ea373ba8e96",
-      "sha256": "3bfc7d7c9ccb217fff3e65141853248abd3cea80dc2e798a634ed179f1311bbc",
-      "bytes": 89557,
+      "sha256": "9eb36e1f6fb82c0a8bd6f32ebb7b56dbf9819a73d3ead84ef5cb018075959505",
+      "bytes": 89597,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.1428396287776304
     },
     {
       "slug": "wombat",
       "file": "wombat.bin.gz",
       "source_sha256": "9085100e8f7cee1e005fd875c8bf3b46c779c7f947c10d5d7ef36717d66dee94",
-      "sha256": "d0f8b94c776b67a85fde77c1da16bafe95f50c96f7ac2a625c9ffd46ceff86d9",
-      "bytes": 87598,
+      "sha256": "63ec3cae78ec11db31133b7c89c37727e86d3175c3925810378baefd53892ea8",
+      "bytes": 87577,
       "roles": [
         "attack",
         "alert",
         "sit"
-      ]
+      ],
+      "maximumSupportLift": 0.08781716755297249
     },
     {
       "slug": "yak",
       "file": "yak.bin.gz",
       "source_sha256": "7e010ce773079b8c656c29e56b175f7127688050830afa078b704eca1af16a75",
-      "sha256": "d93061b51bcf18f6b5cdd36f668d3c0623f2bee47a1c5f7703c0de25925ae51e",
-      "bytes": 112281,
+      "sha256": "7e22337f8647ca6f66c4623286efd61980a09e685ba06f08a9a31bd67e00fc37",
+      "bytes": 112315,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.18
     },
     {
       "slug": "zebra",
       "file": "zebra.bin.gz",
       "source_sha256": "e4480b46e1ad853b109968b32b694d9c3c6dfc0fb03b4d874f815fb0ec7eee47",
-      "sha256": "53f831c40103925df0f2c39c0b09f620ff3e3c53a2993e35377554d4b75f40b3",
-      "bytes": 154848,
+      "sha256": "04fe740361d0ad6f3c44f231d59dc101a946b01501d1594cb8c6d5957d2f666c",
+      "bytes": 161003,
       "roles": [
         "eating",
         "attack",
         "attack",
         "sleep"
-      ]
+      ],
+      "maximumSupportLift": 0.14561901393730659
     }
   ],
   "failures": []

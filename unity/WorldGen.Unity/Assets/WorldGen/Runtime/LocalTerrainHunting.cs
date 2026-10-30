@@ -6,6 +6,7 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+    int huntingDecisionFrame=-1;long huntingDecisionTicks;int huntingDecisions,huntingDeferred;
     double huntingCoverAt,huntingCover,huntingLight=1,huntingSpeed,huntingNoiseUntil,huntingNoiseStrength;
     Vector3 huntingNoisePoint;readonly RaycastHit[] huntingRayHits=new RaycastHit[16];
     bool PlayerCrouching=>!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
@@ -72,7 +73,7 @@ public sealed partial class LocalTerrainExplorer
         else huntingNoiseStrength=0;
         WildlifePerception.Observe(animal.Awareness,senses,dt,visual,sound,scent,tx,tz);
         if(animal.Awareness.Suspicion>.5&&Time.unscaledTimeAsDouble>animal.AlertVoiceAt)
-        {animal.AlertVoiceAt=Time.unscaledTimeAsDouble+12+animal.Spawn.Hash%9;AnimalVoiceEvent(animal,"alarm");}
+        {animal.AlertVoiceAt=Time.unscaledTimeAsDouble+12+animal.Spawn.Hash%9;AnimalVoiceEvent(animal,"alert");}
     }
     bool ShareAnimalAlarm(Animal animal,Animal neighbour,double distance)
     {
@@ -102,6 +103,19 @@ public sealed partial class LocalTerrainExplorer
     {
         animal.TargetSpeed=0;animal.BehaviourAction=activity;animal.ActionUntil=animal.Life+seconds;
         AnimalRole(animal,activity=="eat"?AvailableAnimalRole(animal,"eating","eat","graze","grazing"):activity=="sleep"?AvailableAnimalRole(animal,"sleep","rest","sit"):activity=="drink"?AvailableAnimalRole(animal,"drink","drinking","eating"):"idle");
+    }
+    void SpaceHerdMember(Animal animal)
+    {
+        if(animal.TargetSpeed<.1||animal.BehaviourAction=="hunt"||animal.BehaviourAction=="defend")return;
+        double rx=0,rz=0;int checkedCount=0;
+        foreach(var other in NearbyAnimals(animal))
+        {
+            if(other.Dead||other.Spawn.Profile.slug!=animal.Spawn.Profile.slug)continue;if(++checkedCount>12)break;
+            double dx=animal.X-other.X,dz=animal.Z-other.Z,gap=Math.Sqrt(dx*dx+dz*dz),space=(animal.Spawn.Profile.lengthM+other.Spawn.Profile.lengthM)*.28;
+            if(gap<.01||gap>space)continue;rx+=dx/gap*(1-gap/space);rz+=dz/gap*(1-gap/space);
+        }
+        if(rx*rx+rz*rz<.001)return;double heading=animal.TargetHeading*Math.PI/180;
+        animal.TargetHeading=(float)(Math.Atan2(Math.Sin(heading)+rx,Math.Cos(heading)+rz)*180/Math.PI);
     }
     void RoutineAnimal(Animal animal,WildlifeBehaviourProfile b,WildlifeGroup group,double latitude)
     {

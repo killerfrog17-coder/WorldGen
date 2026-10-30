@@ -50,19 +50,25 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!WildlifeBehaviourEnabled||animal.Dead||Time.unscaledTimeAsDouble<animal.BehaviourAt)return;
         var profile=animal.Spawn.Profile;if(profile.tiny)return;
+        if(huntingDecisionFrame!=Time.frameCount){huntingDecisionFrame=Time.frameCount;huntingDecisionTicks=0;}
+        if(huntingDecisionTicks*1000d/System.Diagnostics.Stopwatch.Frequency>=1){huntingDeferred++;animal.BehaviourAt=Time.unscaledTimeAsDouble+.025;return;}
+        long decisionStarted=System.Diagnostics.Stopwatch.GetTimestamp();huntingDecisions++;
+        try {
+
         var behaviour=AnimalBehaviour(profile,animal.Spawn.Taxon);double now=Time.unscaledTimeAsDouble;
         double distance=Math.Sqrt(Math.Pow(animal.X-motion.X,2)+Math.Pow(animal.Z-motion.Z,2));
         double dt=animal.LastPerception==0?.3:Math.Max(0,Math.Min(3,animal.Life-animal.LastPerception));animal.LastPerception=animal.Life;
         animal.BehaviourAt=now+(distance<75?.3:distance<200?1:3)+(animal.Spawn.Hash%7)*.013;
         TerrainMapViewport.Degrees(animal.Planet,out double latitude,out _);
         PerceivePlayer(animal,dt,distance);
+        if(animal.BehaviourAction=="attack"&&animal.Life<animal.ActionUntil){animal.TargetSpeed=0;return;}
         wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group);
         bool hungry=group==null?animal.Life%180>100:group.Hunger>.35;
         Animal threat=null,prey=null;double threatDistance=double.MaxValue,preyDistance=double.MaxValue;int considered=0;
         Taxon taxon=animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[animal.Spawn.Taxon]:null;
         foreach(var other in NearbyAnimals(animal))
         {
-            if(other.Dead||++considered>24)continue;
+            if(other.Dead||other.Spawn.Profile.tiny)continue;if(++considered>24)break;
             double gap=Math.Sqrt(Math.Pow(other.X-animal.X,2)+Math.Pow(other.Z-animal.Z,2));
             if(behaviour.Herd||profile.slug.Contains("kangaroo"))ShareAnimalAlarm(animal,other,gap);
             var ob=AnimalBehaviour(other.Spawn.Profile,other.Spawn.Taxon);
@@ -103,6 +109,7 @@ public sealed partial class LocalTerrainExplorer
         if(dangerous&&hungry&&animal.Awareness.Suspicion>.5&&distance<35&&WildlifeSight(animal,motion.X,motion.Z)&&SurvivalActive)
         {animal.ActionUntil=0;SetAnimalTravel(animal,motion.X,motion.Z,distance<12);animal.BehaviourAction="hunt";if(distance<Math.Max(1.2,profile.lengthM*.6))AnimalContactAttack(animal,null);return;}
         RoutineAnimal(animal,behaviour,group,latitude);
+        } finally {SpaceHerdMember(animal);huntingDecisionTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-decisionStarted;}
     }
     bool ReachesAnimalContact(Animal attacker,Animal prey)
     {
@@ -128,6 +135,7 @@ public sealed partial class LocalTerrainExplorer
         if(!ReachesAnimalContact(attacker,prey))return;
         attacker.TargetSpeed=0;if(Time.unscaledTimeAsDouble<attacker.AttackAt)return;attacker.AttackAt=Time.unscaledTimeAsDouble+1.7;
         AnimalVoiceEvent(attacker,"threat");
+        if(attacker.Model.Asset.Clips.Any(c=>c.role=="attack")){attacker.BehaviourAction="attack";attacker.ActionUntil=attacker.Life+.65;AnimalRole(attacker,"attack");}
         double damage=Math.Max(2,Math.Min(40,5*Math.Pow(attacker.MassKg,.3)));Vector3 direction;
         if(prey!=null)
         {

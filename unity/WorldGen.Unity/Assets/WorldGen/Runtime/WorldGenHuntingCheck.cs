@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     public IEnumerator CheckHuntingFlow(string output,List<string> report)
     {
         void Check(bool ok,string why){if(!ok)throw new InvalidOperationException("HUNTING "+why);report.Add("PASS "+why);Debug.Log("HUNTING PASS "+why);}
-        PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();motion.Place(motion.X,motion.Z,CampFloor(motion.X,motion.Z));humanCamera.Restore(0,false);inventoryReviewMode=true;reviewWildlifeBehaviour=false;
+        PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();motion.Place(motion.X,motion.Z,CampFloor(motion.X,motion.Z));humanCamera.Restore(0,false);reviewWildlifeBehaviour=false;
         TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);
         foreach(string command in new[]{"/spawn red-kangaroo 2","/spawn deer","/spawn wolf"})ExecuteAnimalSpawnCommand(command);
         double end=Time.unscaledTimeAsDouble+90;
@@ -50,10 +50,11 @@ public sealed partial class LocalTerrainExplorer
         void ActorImage(Animal a,string action,string name)
         {
             Place(a,px+4,pz+4);AnimalActivity(a,action,20);a.OldClip=null;a.BlendAge=1;a.Time=a.Clip.duration*.4;a.CollisionFrame=-1;UpdateAnimal(a,0);
-            Check(PosedAnimal(a).All(v=>float.IsFinite(v.x)&&float.IsFinite(v.y)&&float.IsFinite(v.z)),"Native "+name+" palette produces finite skin vertices");
-            var bounds=a.Renderer.bounds;view.transform.position=bounds.center+new Vector3(2,.8f,-2).normalized*(float)Math.Max(1.6,a.Spawn.Profile.lengthM*1.8);view.transform.LookAt(bounds.center);Capture(name);
+            Check(PosedAnimal(a).All(v=>float.IsFinite(v.x)&&float.IsFinite(v.y)&&float.IsFinite(v.z)),"Native "+name+" palette produces finite skin vertices");animalBoneBuffer.SetData(animalBoneData);
+            var hidden=animals.Values.Where(other=>other!=a&&other.Renderer.enabled).ToArray();foreach(var other in hidden)other.Renderer.enabled=false;
+            var bounds=a.Renderer.bounds;view.transform.position=bounds.center+new Vector3(2,.8f,-2).normalized*(float)Math.Max(1.6,a.Spawn.Profile.lengthM*1.8);view.transform.LookAt(bounds.center);Capture(name);foreach(var other in hidden)other.Renderer.enabled=true;
         }
-        ActorImage(deer,"eat","01-deer-eating");ActorImage(deer,"sleep","02-deer-rest");ActorImage(wolf,"sleep","03-wolf-rest");
+        ActorImage(deer,"eat","01-deer-eating");ActorImage(deer,"sleep","02-deer-rest");ActorImage(wolf,"sleep","03-wolf-rest");ActorImage(roo,"eat","03b-kangaroo-grazing");
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();paused=false;UpdatePlayerSurvival(0,0);UpdateSurvivalHud();paused=true;
         Check(survivalHud!=null&&survivalHud.material.shader.isSupported,"The live survival HUD supports the wind shader");
         var mode=survivalHudCanvas.renderMode;var oldCamera=survivalHudCanvas.worldCamera;int mask=view.cullingMask;
@@ -68,7 +69,7 @@ public sealed partial class LocalTerrainExplorer
         finally{survivalHudCanvas.renderMode=mode;survivalHudCanvas.worldCamera=oldCamera;view.cullingMask=mask;}
         reviewWildlifeBehaviour=true;paused=false;
         var timer=System.Diagnostics.Stopwatch.StartNew();for(int frameCount=0;frameCount<60;frameCount++)foreach(var animal in animals.Values.Where(a=>!a.Spawn.Profile.tiny&&!a.Dead)){animal.BehaviourAt=0;animal.LastPerception=Math.Max(0,animal.Life-.3);UpdateAnimalBehaviour(animal);}timer.Stop();
-        File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 60 forced full decision sweeps "+timer.Elapsed.TotalMilliseconds.ToString("F2")+" ms (stress diagnostic, not frame-rate claim)");
+        File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 60 forced full decision sweeps "+timer.Elapsed.TotalMilliseconds.ToString("F2")+" ms; processed "+huntingDecisions+" / deferred "+huntingDeferred+" (stress diagnostic, not frame-rate claim)");
         Check(animals.Values.All(a=>a.Exertion.Burst>=0&&a.Exertion.Burst<=1&&a.Awareness.Suspicion>=0&&a.Awareness.Suspicion<=1),"Mixed actor decisions retain bounded physical and awareness state");reviewWildlifeBehaviour=false;paused=true;
     }
 }

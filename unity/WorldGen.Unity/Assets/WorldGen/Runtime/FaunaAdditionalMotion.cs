@@ -30,6 +30,6 @@ sealed class FaunaAdditionalMotion
         int first=asset.Poses.Length/asset.BoneCount;
         foreach(var clip in header.clips)clip.start+=first;
         asset.Clips=asset.Clips.Concat(header.clips).ToArray();asset.Poses=asset.Poses.Concat(poses).ToArray();
-        var old=asset.Morphs??new float[first];asset.Morphs=old.Concat(morphs).ToArray();
+        var old=new float[first];if(asset.Morphs!=null)Array.Copy(asset.Morphs,old,Math.Min(first,asset.Morphs.Length));asset.Morphs=old.Concat(morphs).ToArray();
     }
 }

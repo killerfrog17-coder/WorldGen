@@ -62,4 +62,6 @@ unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans.meta
 *.pfx
 *.p12
 .game-asset-download/
+unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion/
+unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion.meta
 *.asset-pending
