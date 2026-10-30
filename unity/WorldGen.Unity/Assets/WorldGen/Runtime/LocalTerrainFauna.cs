@@ -88,6 +88,9 @@ public sealed partial class LocalTerrainExplorer
             foreach(var pair in animals.ToArray())
             {
                 var animal=pair.Value;
+                // A long-distance teleport can put old actors outside this
+                // chart's hemisphere. Retire them before reprojecting memories.
+                if((animal.Planet-Position).Length*frame.RadiusM>1000){RemoveAnimal(pair.Key);continue;}
                 if(previousFrame!=null)
                 {
                     var cue=previousFrame.Position(animal.Awareness.LastX,animal.Awareness.LastZ);
@@ -97,7 +100,6 @@ public sealed partial class LocalTerrainExplorer
                     if(animal.HuntMemoryUntil>animal.Life)
                     {var prey=previousFrame.Position(animal.HuntX,animal.HuntZ);TerrainHandoff.Coordinates(frame,prey,out animal.HuntX,out animal.HuntZ);}
                 }
-                if((animal.Planet-Position).Length*frame.RadiusM>1000){RemoveAnimal(pair.Key);continue;}
                 TerrainHandoff.Coordinates(frame,animal.Planet,out animal.X,out animal.Z);
                 TerrainHandoff.Coordinates(frame,animal.Spawn.Position,out animal.HomeX,out animal.HomeZ);
                 animal.GroundY=frame.SurfaceY(animal.Planet,animal.Spawn.GroundM);animal.NextGround=0;
