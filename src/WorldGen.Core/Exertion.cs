@@ -50,7 +50,7 @@ namespace WorldGen.Core
                 s.Breath+=(breath-s.Breath)*(1-Math.Exp(-dt/(breath>s.Breath?7:35)));
                 double strain=(over*.8+effort*.04)/p.FatigueSeconds;
                 s.Fatigue=Unit(s.Fatigue+dt*(effort<.2?-(1-effort/.2)/p.RestSeconds:strain));
-                double heat=Unit(Math.Max(0,heatC-24)/22*effort/p.HeatTolerance+over*.25);
+                double heat=Unit((Math.Max(0,heatC-24)/22*effort+over*.25)/p.HeatTolerance);
                 s.Heat+=(heat-s.Heat)*(1-Math.Exp(-dt/(heat>s.Heat?240:110)));
                 seconds-=dt;
             }

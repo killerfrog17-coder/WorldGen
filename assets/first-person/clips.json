@@ -386,8 +386,8 @@
   ],
   "authoring": "Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.",
   "source_sha256": "8f1afd249569249a3420ee4e9f8b48611893ce7987e5a644a634593700452f93",
-  "generator_sha256": "0701a1c104f599b4defce7a09c8c26e670f939cee60ca71919f8f9d68e2e9810",
-  "fbx_sha256": "27c343da56ece1a799a3c3c12d270c3682d9f308b3b812303177e4932135057b",
+  "generator_sha256": "abb4796ac76b4fe04b14866f506228667ce1c2047ffabc2444384398c82c246f",
+  "fbx_sha256": "901cf513aa47725ae291e52767fa2d4a8bd275efd01bf05f4c77876cbd096b8c",
   "grip_sha256": "928afa451323cb779e4688ae6170a6885422bc589513aae398915c35830488fd",
   "base_sha256": "4f55a0cabbbfd80692dd4fcf7be7f19e1056db5e875410340652a0c3ebe16655"
 }

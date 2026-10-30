@@ -26,6 +26,7 @@ public sealed partial class LocalTerrainExplorer
         public ExertionState Exertion=new ExertionState();public ExertionProfile EffortProfile;public WildlifeSenses Senses;public WildlifeAwarenessState Awareness=new WildlifeAwarenessState();
         public double LastPerception,ActionUntil,NextScan,AlertVoiceAt;public string BehaviourAction="";public Vector3 LastMove;public bool SeekingCover;
         public WildlifeBehaviourProfile Behaviour;public double CoverAt,VisualCover,DefendWarnUntil,CorneredUntil,HuntMemoryUntil,HuntX,HuntZ;public ulong HuntTargetId;public float AirPitch;
+        public double AirWaterM=double.NaN,AirWaterAt;
     }
     FaunaPrototypePlanner animalPlanner;
     Task<List<FaunaPrototypeSpawn>> animalPlan;LocalTerrainFrame animalPlanFrame,animalFrame;
@@ -286,12 +287,18 @@ public sealed partial class LocalTerrainExplorer
         double currentFloor=VisibleGround(animal.X,animal.Z,animal.GroundY);
         double floor=VisibleGround(x,z,currentFloor),vertical=currentFloor;
         V point=frame.Position(x,z);double water=double.IsNaN(animal.Spawn.WaterM)?double.NaN:frame.SurfaceY(point,animal.Spawn.WaterM);
+        if(profile.medium=="air")
+        {
+            if(Time.unscaledTimeAsDouble>=animal.AirWaterAt)
+            {var sample=walkingPatch.Sample(point);animal.AirWaterM=sample.Underwater?sample.WaterSurfaceM:double.NaN;animal.AirWaterAt=Time.unscaledTimeAsDouble+1.25+animal.Spawn.Hash%7*.03;}
+            water=double.IsNaN(animal.AirWaterM)?double.NaN:frame.SurfaceY(point,animal.AirWaterM);
+        }
         bool blocked=profile.medium=="ground"&&(Math.Abs(floor-currentFloor)>Math.Max(.12,Math.Sqrt(dx*dx+dz*dz)*1.2)||!double.IsNaN(water)&&floor<water-.04)
             ||profile.medium=="water"&&(double.IsNaN(water)||floor>water-Math.Max(.2,profile.lengthM*animal.Model.Asset.Height*.6));
         if(blocked){if(animal.Awareness.Mode==WildlifeAwareness.Fleeing)animal.CorneredUntil=animal.Life+2;animal.TargetHeading+=140;animal.TargetSpeed=0;animal.NextDecision=Math.Min(animal.NextDecision,animal.Life+.7);x=animal.X;z=animal.Z;point=animal.Planet;floor=currentFloor;}
-        animal.X=x;animal.Z=z;animal.Planet=point;animal.GroundY=floor;
+        animal.X=x;animal.Z=z;animal.Planet=point;animal.GroundY=profile.medium=="air"&&!double.IsNaN(water)?Math.Max(floor,water):floor;
         if(profile.medium=="air")
-        {animal.AirHeight=Mathf.MoveTowards((float)animal.AirHeight,(float)animal.AirTargetHeight,dt*Math.Max(1,(float)profile.walkMps));double bob=Math.Min(profile.tiny?.15:.65,Math.Max(0,animal.AirHeight)*(profile.tiny?.3:.12));vertical=floor+animal.AirHeight+(animal.PerchSelected?0:Math.Sin(animal.Life*(profile.tiny?1.8:.45)+animal.Spawn.Hash%31)*bob);}
+        {animal.AirHeight=Mathf.MoveTowards((float)animal.AirHeight,(float)animal.AirTargetHeight,dt*Math.Max(1,(float)profile.walkMps));double bob=Math.Min(profile.tiny?.15:.65,Math.Max(0,animal.AirHeight)*(profile.tiny?.3:.12));vertical=animal.GroundY+animal.AirHeight+(animal.PerchSelected?0:Math.Sin(animal.Life*(profile.tiny?1.8:.45)+animal.Spawn.Hash%31)*bob);}
         else if(profile.medium=="water")vertical=Math.Max(floor+.1,water+animal.Spawn.HeightM-profile.lengthM*animal.Model.Asset.Height*.5);
         else vertical=floor;
         var position=new Vector3((float)(x-originX),(float)vertical,(float)(z-originZ));

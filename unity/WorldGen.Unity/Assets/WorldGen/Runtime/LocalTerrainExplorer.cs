@@ -152,7 +152,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         UpdatePlayerDeath();
         PreparePlayerSolids();
         motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;
-        if(!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
+        if(!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&(Application.isFocused||testKeyboard!=null))
         {
             if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck&&!inventoryReviewMode){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 ReadHumanCameraInput(mouse,keyboard);}
@@ -172,7 +172,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
             }
         }
-        if((!Application.isFocused||inventoryOpen)&&!DeathVisible&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
+        if((!Application.isFocused&&testKeyboard==null||inventoryOpen)&&!DeathVisible&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
         {
             survivalSprinting=false;motion.Move(Time.unscaledDeltaTime,0,0,0,heading,pitch,false,false,PlayerSolidGround,speedScale:1);
             playerDeathVelocity=new Vector3(0,(float)motion.VerticalSpeed,0);

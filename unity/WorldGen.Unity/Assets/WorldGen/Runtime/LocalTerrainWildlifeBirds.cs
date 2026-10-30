@@ -40,7 +40,8 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        if(!found)return false;position=frame.Position(chosen.x+originX,chosen.z+originZ);height=chosen.y-VisibleGround(chosen.x+originX,chosen.z+originZ,animal.GroundY);return height>.5;
+        if(!found)return false;position=frame.Position(chosen.x+originX,chosen.z+originZ);double support=VisibleGround(chosen.x+originX,chosen.z+originZ,animal.GroundY);
+        if(!double.IsNaN(animal.AirWaterM))support=Math.Max(support,frame.SurfaceY(position,animal.AirWaterM));height=chosen.y-support;return height>.5;
     }
     bool UpdateBirdBehaviour(Animal animal,WildlifeBehaviourProfile behaviour)
     {
@@ -50,7 +51,19 @@ public sealed partial class LocalTerrainExplorer
         {
             TerrainHandoff.Coordinates(frame,animal.PerchPosition,out double x,out double z);double distance=Math.Sqrt(Math.Pow(x-animal.X,2)+Math.Pow(z-animal.Z,2));animal.AirTargetHeight=animal.PerchHeight;
             if(distance<.15&&Math.Abs(animal.AirHeight-animal.AirTargetHeight)<.15)
-            {animal.X=x;animal.Z=z;animal.Planet=animal.PerchPosition;animal.TargetSpeed=0;animal.Speed=0;animal.Perched=true;AnimalRole(animal,"idle");if(animal.Life>animal.PerchUntil){animal.PerchSelected=animal.Perched=false;animal.AirTargetHeight=animal.Spawn.HeightM+2;animal.NextDecision=animal.Life;}}
+            {
+                bool arrived=!animal.Perched;animal.X=x;animal.Z=z;animal.Planet=animal.PerchPosition;animal.TargetSpeed=0;animal.Speed=0;animal.Perched=true;AnimalRole(animal,"idle");
+                if(animal.Life>animal.PerchUntil){animal.PerchSelected=animal.Perched=false;animal.AirTargetHeight=animal.Spawn.HeightM+2;animal.NextDecision=animal.Life;}
+                else if(arrived)
+                {
+                    double activity=WildlifeBehaviour.Activity(behaviour,LocalSolarHour,WildlifeBehaviour.IsNocturnal(animal.Spawn.Profile.slug,animal.Spawn.Profile.nocturnal),CurrentWeather.RainMmPerHour,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps),SkyFrame?.Daylight??double.NaN);
+                    if(activity<.3||group!=null&&(group.Intent==WildlifeIntent.Rest||group.Intent==WildlifeIntent.Shelter))
+                    {AnimalActivity(animal,"sleep",Math.Min(20,animal.PerchUntil-animal.Life));return true;}
+                    var diet=AnimalTaxon(animal)?.Eats??Food.None;
+                    if(animal.PerchHeight<.1&&WildlifeNaturalHistory.GroundForaging(diet)&&animal.Random.Unit()<.65)
+                    {AnimalActivity(animal,"eat",Math.Min(8,animal.PerchUntil-animal.Life));return true;}
+                }
+            }
             else {SetAnimalTravel(animal,x,z,false);animal.TargetSpeed=Math.Min(animal.TargetSpeed,(float)Math.Max(.15,distance*.9));}
             if(animal.PerchHeight<.1&&animal.AirHeight<.2)
             {

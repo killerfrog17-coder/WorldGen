@@ -148,6 +148,13 @@ public sealed partial class LocalTerrainExplorer
             if(group.Intent==WildlifeIntent.Drink&&gap<3){AnimalActivity(animal,"drink",8+animal.Random.Unit()*9);return;}
             if(group.Intent==WildlifeIntent.Rest||group.Intent==WildlifeIntent.Shelter)
             {
+                if(p.medium=="air"&&!animal.Perched)
+                {
+                    // Roosting needs an actual landing/perch. A missing perch
+                    // must not freeze a sleeping bird in the air.
+                    if(animal.TargetSpeed<.1)SetAnimalTravel(animal,animal.X+Math.Sin(animal.Heading*Math.PI/180)*20,animal.Z+Math.Cos(animal.Heading*Math.PI/180)*20,false);
+                    animal.BehaviourAction="seeking-roost";AnimalRole(animal,"fly");return;
+                }
                 if(group.Intent==WildlifeIntent.Rest&&b.SocialAlarm&&group.Members>=3&&animal.Spawn.GroupIndex==group.Decision%group.Members)
                 {animal.TargetSpeed=0;animal.BehaviourAction="sentry";AnimalRole(animal,"idle");return;}
                 if(!animal.SeekingCover&&p.medium=="ground")

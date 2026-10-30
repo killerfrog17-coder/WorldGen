@@ -76,6 +76,8 @@ static class HuntingTests
         Check(ExertionProfile.Animal("red-kangaroo",60,"ground").Aerobic>ExertionProfile.Human().Aerobic&&ExertionProfile.Animal("pronghorn",50,"ground").BurstSeconds>60,"Efficient hopping and pronghorn endurance retain distinct exertion priors");
         var desert=new ExertionState();var arctic=new ExertionState();ExertionRules.Advance(desert,ExertionProfile.Animal("camel",500,"ground"),300,.8,38);ExertionRules.Advance(arctic,ExertionProfile.Animal("polar-bear",500,"ground"),300,.8,38);
         Check(desert.Heat<arctic.Heat,"Desert adaptations and an Arctic bear's heat sensitivity do not share one heat tolerance");
+        desert=new ExertionState();arctic=new ExertionState();ExertionRules.Advance(desert,ExertionProfile.Animal("camel",500,"ground"),300,1,-10);ExertionRules.Advance(arctic,ExertionProfile.Animal("polar-bear",500,"ground"),300,1,-10);
+        Check(arctic.Heat>desert.Heat*2,"Species heat tolerance also applies to internal exercise heat in cold weather");
         var diurnal=WildlifeBehaviour.Describe("squirrel",.5,Food.Seed);Check(WildlifeBehaviour.Activity(diurnal,12,false,0,0,0)<WildlifeBehaviour.Activity(diurnal,12,false,0,0,1),"Diel activity follows actual illumination during polar day/night");
         individual.HuntTargetId=9;individual.HuntMemorySeconds=12;individual.HuntLastPosition=new V(0,1,0);
         loaded=WorldJson.Read<WildlifeIndividual>(WorldJson.Write(individual));loaded.Validate();Check(loaded.HuntMemorySeconds==12&&loaded.HuntLastPosition.Y==1,"A predator's last seen prey location survives serialization");

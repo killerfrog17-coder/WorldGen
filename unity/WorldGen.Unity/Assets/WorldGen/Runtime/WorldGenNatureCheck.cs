@@ -35,6 +35,9 @@ public sealed partial class LocalTerrainExplorer
         var hide=Inventory.Items.First(p=>p.Kind==PossessionKind.RawHide);Check(hide.AppearanceSpecies==deer.Spawn.Profile.slug&&hide.AppearanceCoat==deer.Coat&&hide.SourceAnimalId==deer.Spawn.Id,"Hide provenance uses this animal's original coat");
         Vitals.Restore();Vitals.Hunger=60;Vitals.Thirst=50;double mass=meat.MassKg;EatPossession(meat,false);Check(meat.MassKg<mass&&Vitals.Hunger<60&&Vitals.FoodExposures==null,"Eating corpse meat consumes mass and supplies food without raw-meat penalties");
         var session=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));session.Validate();Check(session.Inventory.Items.Any(p=>p.Place==PossessionPlace.Corpse)&&session.Inventory.ToolResources.Any(p=>p.Id=="loot-"+deer.Spawn.Id.ToString("x16")&&p.Harvests==1),"Save round-trip preserves remaining corpse loot and generation ledger");
+        // Finish the real eating gesture before inspecting a held weapon. That
+        // gesture intentionally hides private held-item copies while consuming.
+        yield return new WaitForSecondsRealtime(1.3f);humanCamera.Restore(0,false);humanCameraDistance=0;UpdateCamera();
         var spear=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);spear.Place=PossessionPlace.RightHand;Inventory.Items.Add(spear);UpdateInventoryVisuals();humanHideBody=true;
         viewArmPoseImmediate=true;UpdateInventoryVisuals();var root=viewPossessions[spear.Id].Root;var origin=root.transform.position;combatGlobalReady=combatRightReady=0;StrikeWithItem(spear,false);yield return new WaitForSecondsRealtime(.18f);UpdateInventoryVisuals();
         Check(viewItemActions.ContainsKey(spear.Id)&&Vector3.Distance(origin,root.transform.position)>.025f,"Spear strike visibly moves the held model in first person");
@@ -43,7 +46,8 @@ public sealed partial class LocalTerrainExplorer
         Inventory.Items.Remove(spear);viewItemActions.Clear();
         var bow=PortableTechnology.Create(PossessionKind.Bow,Position);bow.Place=PossessionPlace.RightHand;Inventory.Items.Add(bow);UpdateInventoryVisuals();var bowRoot=viewPossessions[bow.Id].Root;var bowRest=bowRoot.transform.position;
         Check(Vector3.Dot(bowRoot.transform.up,view.transform.up)>.95f,"First-person bow remains vertical instead of inheriting the spear's forward tilt");
-        itemCharge=new ItemCharge{Weapon=bow,Ammo=bow,Started=Time.unscaledTimeAsDouble-1.1,Duration=1.05};UpdateInventoryVisuals();Check(Vector3.Distance(bowRoot.GetComponentInChildren<LineRenderer>().GetPosition(1),new Vector3(.38f,.5f,0))>.05f,"Bow drawing moves the string toward the real drawing hand without changing the source rig");Image("bow-draw");CancelItemCharge();Inventory.Items.Remove(bow);
+        var arrow=PortableTechnology.Create(PossessionKind.Arrow,Position);Inventory.Items.Add(arrow);
+        itemCharge=new ItemCharge{Weapon=bow,Ammo=arrow,Started=Time.unscaledTimeAsDouble-1.1,Duration=1.05};UpdateInventoryVisuals();Check(Vector3.Distance(bowRoot.GetComponentInChildren<LineRenderer>().GetPosition(1),new Vector3(.38f,.5f,0))>.05f,"Bow drawing moves the string toward the real drawing hand without changing the source rig");Image("bow-draw");CancelItemCharge();Inventory.Items.Remove(bow);Inventory.Items.Remove(arrow);
         var sourcePlant=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Herb).OrderBy(p=>(p.Position-Position).Length).FirstOrDefault();
         Check(sourcePlant.Id!=0,"Loaded real terrain contains placed resource plants");
         TerrainHandoff.Coordinates(frame,sourcePlant.Position,out double px,out double pz);motion.X=px;motion.Z=pz;motion.Y=VisibleGround(px,pz,Ground(px,pz))+TerrainMotion.EyeHeightM;UpdateCamera();natureRefreshAt=0;RefreshNatureSources();

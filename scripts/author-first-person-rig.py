@@ -262,6 +262,17 @@ def grip_pose(side, center, axis, roll, base, curl=1, pole_weight=.15, grip_styl
         rig.pose.bones[name].matrix = RI @ pose
         bpy.context.view_layer.update()
     desired.translation = target
+    # A camera target must not force a visibly folded wrist. Stage the hand
+    # within a conservative bend limit before baking; held props follow its
+    # resulting native socket. Forearm pronation is distributed separately.
+    forearm_direction=(target-elbow).normalized()
+    wrist_bend=hand_direction.angle(forearm_direction)
+    requested_wrist_bend=wrist_bend
+    if wrist_bend>math.radians(50):
+        correction=Quaternion().slerp(hand_direction.rotation_difference(forearm_direction),(wrist_bend-math.radians(50))/wrist_bend)
+        position=desired.translation.copy()
+        desired=correction.to_matrix().to_4x4() @ desired;desired.translation=position
+        hand_direction=correction @ hand_direction
     hand.matrix = RI @ desired
     # Relaxation interpolates each native finger's own local quaternion. It does
     # not curl every digit around one guessed world axis.
@@ -275,7 +286,7 @@ def grip_pose(side, center, axis, roll, base, curl=1, pole_weight=.15, grip_styl
                     finger_rotation=SPEAR_FINGERS.get(name,BASE_BASIS[name].to_quaternion()) if grip_style=='spear' else BASE_BASIS[name].to_quaternion()
                     bone.rotation_quaternion = Quaternion().slerp(finger_rotation, curl)
     bpy.context.view_layer.update()
-    arm_stats.append(dict(side=side, reach_error_m=max(0, delta.length-distance), wrist_bend_deg=math.degrees((target-elbow).angle(hand_direction)),upperarm_camera_cost=best[2]))
+    arm_stats.append(dict(side=side, reach_error_m=max(0, delta.length-distance), wrist_bend_deg=math.degrees((target-elbow).angle(hand_direction)),requested_wrist_bend_deg=math.degrees(requested_wrist_bend),upperarm_camera_cost=best[2]))
     return grip
 
 
@@ -555,7 +566,7 @@ def bow(t, release=False):
     right_center=(.10,-.08,.42-.17*draw)
     if release:
         right_center=keyed([(0,dict(p=(.10,-.08,.25))),(.25,dict(p=(.20,-.07,.23))),(.6,dict(p=(.26,-.18,.29))),(1,dict(p=(.10,-.08,.42)))],t)['p']
-    grip_pose('R',right_center,(0,1,0),0,base,.48 if not release else .2)
+    grip_pose('R',right_center,(0,1,0),60,base,.48 if not release else .2)
     for digit in ['Index','Middle','Ring','Pinky','Thumb']:
         for i in range(1,4 if digit=='Thumb' else 5):
             bone=rig.pose.bones.get(f'{digit}{i}.R')

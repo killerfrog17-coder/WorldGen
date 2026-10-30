@@ -15,13 +15,29 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string why){if(!ok)throw new InvalidOperationException("HUNTING "+why);report.Add("PASS "+why);Debug.Log("HUNTING PASS "+why);}
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();motion.Place(motion.X,motion.Z,CampFloor(motion.X,motion.Z));humanCamera.Restore(0,false);reviewWildlifeBehaviour=false;
         TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);
-        foreach(string command in new[]{"/spawn red-kangaroo 2","/spawn deer","/spawn wolf"})ExecuteAnimalSpawnCommand(command);
+        foreach(string command in new[]{"/spawn red-kangaroo 2","/spawn deer","/spawn wolf","/spawn duck"})ExecuteAnimalSpawnCommand(command);
         double end=Time.unscaledTimeAsDouble+90;
-        while((animals.Values.Count(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo")<2||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="deer")||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf"))&&Time.unscaledTimeAsDouble<end)yield return null;
+        while((animals.Values.Count(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo")<2||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="deer")||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf")||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="duck"))&&Time.unscaledTimeAsDouble<end)yield return null;
         Check(animals.Values.Count(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo")==2,"Two original kangaroo actors load through the ordinary spawn queue");
         var roos=animals.Values.Where(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo").ToArray();var roo=roos[0];var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer");var wolf=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="wolf");paused=true;
         WriteWildlifeProfileAudit(output,report);
         CheckSmallSchoolDecisions(roo.Model,report);
+        var bird=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="duck");
+        double oldAir=bird.AirHeight,oldTargetAir=bird.AirTargetHeight;ulong oldGroup=bird.Spawn.GroupId;
+        try
+        {
+            // A supplied water plane isolates clearance from a real bird skin;
+            // this is not a claim of a visual ocean acceptance test.
+            bird.AirWaterM=walkingPatch.Sample(bird.Planet).ElevationM+12;bird.AirWaterAt=Time.unscaledTimeAsDouble+100;
+            bird.AirHeight=bird.AirTargetHeight=4;UpdateAnimal(bird,0);
+            Check(bird.Root.transform.localPosition.y>frame.SurfaceY(bird.Planet,bird.AirWaterM)+3,"An actual bird actor clears a supplied water surface rather than following its submerged bed");
+            bird.AirWaterM=double.NaN;bird.AirWaterAt=0;bird.PerchSelected=true;bird.Perched=false;bird.PerchPosition=bird.Planet;bird.PerchHeight=.03;bird.AirHeight=bird.AirTargetHeight=.03;bird.PerchUntil=bird.Life+20;
+            bird.Spawn.GroupId=99112;wildlifeGroups[99112]=new WildlifeGroup{Intent=WildlifeIntent.Rest};
+            UpdateBirdBehaviour(bird,bird.Behaviour);
+            Check(bird.Perched&&bird.BehaviourAction=="sleep"&&bird.TargetSpeed==0,"A resting bird enters its sleep behavior after an actual landing state");
+        }
+        finally
+        {wildlifeGroups.Remove(99112);bird.Spawn.GroupId=oldGroup;bird.AirWaterM=double.NaN;bird.AirWaterAt=0;bird.PerchSelected=bird.Perched=false;bird.AirHeight=oldAir;bird.AirTargetHeight=oldTargetAir;bird.ActionUntil=0;bird.BehaviourAction="";AnimalRole(bird,"fly");UpdateAnimal(bird,0);}
         Check(deer.Model.Asset.Clips.Any(c=>c.role=="eating")&&deer.Model.Asset.Clips.Any(c=>c.role=="sleep"),"Additional original deer eating and sleep palettes load beside unchanged locomotion");
         Check(wolf.Model.Asset.Clips.Any(c=>c.role=="attack")&&wolf.Model.Asset.Clips.Any(c=>c.role=="alert"),"Original wolf attack and alert clips are available");
         double px=motion.X,pz=motion.Z;
@@ -99,6 +115,57 @@ public sealed partial class LocalTerrainExplorer
         }
         costs.Sort();File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 120 frame-separated forced AI sweeps; warm p50 "+costs[costs.Count/2].ToString("F3")+" ms; p95 "+costs[(int)(costs.Count*.95)].ToString("F3")+" ms; maximum "+costs.Last().ToString("F3")+" ms; decisions "+(huntingDecisions-beforeDecisions)+" / deferred "+(huntingDeferred-beforeDeferred)+". This measures decision work with its 1 ms soft budget, not total game frame rate.");
         Check(animals.Values.All(a=>a.Exertion.Burst>=0&&a.Exertion.Burst<=1&&a.Awareness.Suspicion>=0&&a.Awareness.Suspicion<=1),"Mixed actor decisions retain bounded physical and awareness state");reviewWildlifeBehaviour=false;paused=true;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-approach-check"))yield return CheckHuntingApproach(roo,output,report);
+    }
+    IEnumerator CheckHuntingApproach(Animal subject,string output,List<string> report)
+    {
+        // Real frame/input trials complement isolated perception tests. Exact
+        // flight distances are observations, not assertions on procedural cover.
+        var oldKeyboard=UnityEngine.InputSystem.Keyboard.current;var keyboard=UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();
+        var oldBackground=UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior;var weather=TestWeatherOverride;
+        keyboard.MakeCurrent();TestKeyboard(keyboard);UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior=UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
+        var rows=new List<string>{"trial,seconds,player_x,player_z,animal_x,animal_z,distance,awareness,sense,suspicion,animal_speed,burst,breath,wind_north"};
+        var summaries=new List<string>();double px=motion.X,pz=motion.Z;
+        try
+        {
+            foreach(var other in animals.Values.Where(a=>a!=subject).ToArray())RemoveAnimal(other.Spawn.Id);
+            animalWanted.Clear();animalManualWanted.Clear();nextAnimalPlan=Time.realtimeSinceStartupAsDouble+1000;animalPlanAt=Position;
+            PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();humanCamera.Restore(0,false);humanCameraDistance=0;
+            foreach(string trial in new[]{"walk-downwind","crouch-downwind","still-downwind","crouch-upwind"})
+            {
+                paused=true;Vitals.Restore();motion.Flying=false;motion.Place(px,pz,CampFloor(px,pz));heading=0;pitch=0;UpdateCamera();
+                subject.X=px;subject.Z=pz+24;subject.Planet=frame.Position(subject.X,subject.Z);subject.GroundY=CampFloor(subject.X,subject.Z);
+                subject.Heading=subject.TargetHeading=trial.StartsWith("still")?180:0;subject.Health=subject.MaximumHealth;subject.TargetSpeed=subject.Speed=0;
+                subject.Awareness=new WildlifeAwarenessState();subject.Exertion=new ExertionState();subject.ThreatUntil=0;subject.LastPerception=0;subject.BehaviourAt=0;
+                subject.OldClip=null;subject.BlendAge=1;AnimalActivity(subject,"eat",120);UpdateAnimal(subject,0);
+                double wind=trial.EndsWith("upwind")?3:-3;TestWeatherOverride=new WeatherFrame(22,.4,0,0,0,0,1500,500,8000,0,wind,3,0);
+                huntingCoverAt=0;huntingNoiseUntil=0;huntingNoiseStrength=0;nextWildlifeIndex=0;IndexWildlifeNeighbours();
+                var keys=trial.StartsWith("still")?new UnityEngine.InputSystem.LowLevel.KeyboardState():trial.StartsWith("crouch")?new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W,UnityEngine.InputSystem.Key.LeftCtrl):new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W,UnityEngine.InputSystem.Key.C);
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,keys);reviewWildlifeBehaviour=true;paused=false;
+                double started=Time.unscaledTimeAsDouble,due=started,end=started+24,firstFlee=-1,minGap=double.MaxValue;
+                while(Time.unscaledTimeAsDouble<end)
+                {
+                    double elapsed=Time.unscaledTimeAsDouble-started,gap=Math.Sqrt(Math.Pow(subject.X-motion.X,2)+Math.Pow(subject.Z-motion.Z,2));minGap=Math.Min(minGap,gap);
+                    if(subject.Awareness.Mode==WildlifeAwareness.Fleeing&&firstFlee<0)firstFlee=gap;
+                    if(Time.unscaledTimeAsDouble>=due)
+                    {
+                        due+=.25;rows.Add(FormattableString.Invariant($"{trial},{elapsed:F3},{motion.X:F3},{motion.Z:F3},{subject.X:F3},{subject.Z:F3},{gap:F3},{subject.Awareness.Mode},{subject.Awareness.Sense},{subject.Awareness.Suspicion:F4},{subject.Speed:F3},{subject.Exertion.Burst:F4},{subject.Exertion.Breath:F4},{CurrentWeather.WindNorthMps:F2}"));
+                    }
+                    yield return null;
+                }
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;paused=true;
+                double moved=Math.Sqrt(Math.Pow(motion.X-px,2)+Math.Pow(motion.Z-pz,2));
+                summaries.Add(FormattableString.Invariant($"{trial}: player travel {moved:F2}m, closest {minGap:F2}m, first flee distance {firstFlee:F2}m (-1 = no flee)."));
+                if(!trial.StartsWith("still")&&moved<1)throw new InvalidOperationException("Approach trial did not receive actual movement input: "+trial);
+            }
+            File.WriteAllLines(Path.Combine(output,"approach-frames.csv"),rows);File.WriteAllLines(Path.Combine(output,"approach-summary.txt"),summaries);
+            report.Add("PASS Four 24-second actual movement/perception trials completed with recorded cover-dependent outcomes");
+        }
+        finally
+        {
+            TestWeatherOverride=weather;reviewWildlifeBehaviour=false;paused=true;TestKeyboard(null);UnityEngine.InputSystem.InputSystem.RemoveDevice(keyboard);
+            if(oldKeyboard!=null&&oldKeyboard.added)oldKeyboard.MakeCurrent();UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior=oldBackground;
+        }
     }
     void WriteWildlifeProfileAudit(string output,List<string> report)
     {
