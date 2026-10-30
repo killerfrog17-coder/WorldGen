@@ -136,6 +136,13 @@
       "release": 0.24
     },
     {
+      "name": "SlingReady",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
       "name": "SlingWhirl",
       "duration": 0.8,
       "loop": true,
@@ -332,6 +339,13 @@
       "release": 0.24
     },
     {
+      "name": "SlingReady_Left",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
       "name": "SlingWhirl_Left",
       "duration": 0.8,
       "loop": true,
@@ -372,8 +386,8 @@
   ],
   "authoring": "Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.",
   "source_sha256": "8f1afd249569249a3420ee4e9f8b48611893ce7987e5a644a634593700452f93",
-  "generator_sha256": "6082f245bcb60f1852ffdff1a7db554f40a85bc960ff0531aa03b638e680d942",
-  "fbx_sha256": "9121854a37b93cb9d9d36e3f89e5846904abc5fc20047e6575510fc735c67a30",
+  "generator_sha256": "7a5583de66a5cb792875d20fd650ea0a589956bd169bdc2bff3ea50e58c5e6bc",
+  "fbx_sha256": "1634e90805cce928f09fcfdc4db9022a243d6a5ab9be9c0317337f64134b034b",
   "grip_sha256": "928afa451323cb779e4688ae6170a6885422bc589513aae398915c35830488fd",
   "base_sha256": "4f55a0cabbbfd80692dd4fcf7be7f19e1056db5e875410340652a0c3ebe16655"
 }

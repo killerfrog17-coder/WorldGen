@@ -86,7 +86,7 @@ namespace WorldGen.Core
             return season>profile.NaturalHistory.RutStart&&season<profile.NaturalHistory.RutEnd;
         }
         public static bool Defend(WildlifeBehaviourProfile profile,double distance,bool wounded,bool cornered,bool rut)
-            =>profile.Defensive&&distance<profile.DefendM&&(profile.DefendM>2||wounded||cornered||rut);
+            =>profile.Defensive&&distance<profile.DefendM*(rut?1.8:1)&&(profile.DefendM>2||wounded||cornered||rut);
         public static double MigrationHeading(double year,double latitude)
         {
             // Follow the change of season, not whether today's season is cold.

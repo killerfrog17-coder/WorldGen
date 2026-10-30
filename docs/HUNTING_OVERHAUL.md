@@ -19,7 +19,7 @@ Additional natural-history references:
 
 Current limitations include simplified group composition rather than simulated offspring, no complete den/nest or arboreal navigation, no measured water-temperature field for fish, and neutral activity-animation fallbacks where original source clips are unavailable. These limits are separate from the per-species behavior review.
 
-Completed in two checkpoints: animal/hunting first, then first-person arms and inventory/HUD refinements. All player builds use IL2CPP. Original approved animal/human source art and locomotion bundles remain unchanged.
+The earlier animal/hunting and inventory/HUD checkpoints are retained in Git. Their original procedural arm presentation was rejected during owner playtesting. All new player builds use IL2CPP. Original approved animal/human source art and locomotion bundles remain unchanged.
 
 Shared exertion has burst capacity, breathing, accumulated physical fatigue and heat strain. Full effort fades continuously; sustainable travel has different demand. Brief jogging only partly recovers a burst. Species profiles alter sustainable fraction, burst duration, recovery and heat tolerance. Flight/gliding have separate costs. These numerical profiles are gameplay priors, not measured laboratory values for every simulated taxon.
 
@@ -43,17 +43,25 @@ Research:
 
 The claim that motionless people are categorically invisible to kangaroos is not supported here. Their response depends on vigilance, context and experience with humans. Real hunting techniques should help without becoming guaranteed success buttons.
 
-Validation so far: Core 23 hunting, 67 modes, 24 metabolism/camp experience, 161 HUD, 103 abundance, 77 item-use and 37 water checks pass. Native hunting check: 22 PASS, EXIT 0, clean log; actual GPU captures of deer eating/rest, wolf rest, kangaroo grazing and wind sectors inspected. Original art hashes exact. The first checkpoint was selected before the follow-up; the current shortcut includes both phases.
-
+Current follow-up verification: 574 focused hunting checks cover all 177 model families, sensory behavior, alarm expiry, diet/strata, seasonality and saved pursuit state. The 47-clip intermediate candidate passed 26 native hunting checks, but this predates the latest decision-budget, carrion and sleeping-vision changes. The 51-clip candidate is being built and must pass fresh native checks. These counts are mechanical evidence, not visual approval or a total-FPS measurement.
 
 ## First-person handling and live inventory
 
-A private, runtime-only mesh derivative filters the local MPFB avatar to its skinned arms. The original world avatar remains whole and unchanged. Camera callbacks show these arms only to the local first-person view. Two-bone arm targets and native finger joints follow each held grip; wind-up, thrust, cutting, bow draw/release and gathering drive the targets. Free offhand support improves a long spear's thrust; occupying that hand leaves the spear available with shorter reach, less force and slower recovery. Original locomotion and source FBXs/Blends are unchanged.
+The replacement uses a dedicated CC0 first-person mesh and native finger rig from [BigAndCrispy's first-person melee project](https://github.com/BigAndCrispy/Unity-First-Person-Melee), with a locally authored derivative in `assets/first-person`. It has 51 baked handling clips, separate diagonal spear grips, distributed forearm twist weights, supported and single-handed spear poses, tool-specific contacts, loaded bow/sling/atlatl handling, gathering, drinking and crafting poses. Six skin atlases derive from the existing approved body maps; those originals stay untouched. Blender poses are baked to bone animation before import, with no runtime arm or finger IK. The authoring script, native source license, export hashes, grip pose data, FBX and Blender files are tracked.
+
+A private camera-only rig renders the local arms and held item copies. The world avatar remains whole for third person and other viewers. Wind-up precedes actual melee contact, and hand-thrown projectiles stay owned by the hand until the release frame. A loaded projectile leaves from its visible held/nocked position and converges toward the aimed point; the camera-to-hand obstruction check prevents spawning through a nearby wall. Inventory interruption cancels a pending throw without losing its item. These input/contact paths still require the latest package's native regression checks.
 
 Inventory blocks player input while the world clock, animals, projectiles, dropped items, camp fires and survival needs continue. Equipment is dragged onto the portrait; only actually worn equipment supplies named storage entries. Portrait rotation uses dragging. The fixed empty anatomic slots, turn buttons and bottom controls banner are removed.
 
 The stomach reflects felt hunger with a small reserve-stage floor until body reserves are depleted. Felt hydration uses actual fluid deficit, distinguishing parched from critical dehydration. Urgent need pulses the empty interior of the appropriate icon. Active food or water illness gradually greens the stomach; delayed, symptom-free poisoning cannot be diagnosed from the HUD. Existing quick fire cooking remains available.
 
-Release validation: 37 first-person/inventory, 22 hunting and 97 camp checks pass on the final IL2CPP package, all EXIT 0 with clean logs. Actual GPU captures were inspected for grips, thrust, throw wind-up, bow/arrow alignment, gathering, wind sectors, need states, animal poses, fire/cooking and placement. This includes native arm meshes for six avatars, local-camera privacy, full world-avatar preservation, live inventory needs/time/gravity, actual portrait-equipment operation, cooking, occupied-hand crafting, sleep disturbance and thermal rendering. The automated portrait test exercises the drop handler; it does not claim manual IMGUI mouse-drag testing in batch mode.
+The original procedural-arm release passed mechanical first-person, hunting and camp checks, but owner playtesting found unacceptable arm deformation. Those historical passes do not establish quality of this replacement. The current follow-up remains under visual and input review; the shortcut still points to the earlier release until a replacement is accepted for testing. No general terrain-loading, water-seam or total-frame-rate improvement is claimed.
 
-Focused Core checks: 329 HUD, 75 inventory, 77 item use, 23 hunting, 67 survival modes, 24 metabolism/camp, 103 wildlife abundance and 37 water. Original protected art hashes remain exact. Source and all 87 motion banks are Git-backed. These procedural first-person actions are a first pass for playtesting, not a full authored mocap library. The work does not claim a general frame-rate, terrain-loading or water-seam fix.
+Additional review references:
+
+- [NPS: moose warnings and limited defensive pursuit](https://www.nps.gov/wrst/planyourvisit/moose-safety.htm).
+- [Michigan DNR: elk defense, cornering and breeding season](https://www.michigan.gov/dnr/managing-resources/wildlife/nuisance-wildlife/elk).
+- [Cornell Lab: raven diet and live prey](https://www.allaboutbirds.org/guide/common_raven/lifehistory).
+- [Cornell Lab: herring gull foraging and predation](https://www.allaboutbirds.org/guide/Herring_Gull/lifehistory).
+- [NPS: porcupine retreat and close defensive posture](https://www.nps.gov/articles/acadia-porcupines.htm).
+- [Washington wildlife agency: skunk warning behavior](https://wdfw.wa.gov/species-habitats/living/species-facts/skunks).

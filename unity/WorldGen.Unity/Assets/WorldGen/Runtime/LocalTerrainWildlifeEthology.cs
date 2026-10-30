@@ -71,6 +71,13 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!SurvivalActive||!animal.Awareness.ThreatIsPlayer||animal.Awareness.LastCueSeconds>3)return false;
         bool wounded=animal.ThreatWasPlayer&&animal.ThreatUntil>animal.Life;
+        if(profile.Defensive&&animal.MassKg>=250&&!wounded&&animal.DefendWarnUntil>0&&animal.Life<animal.DefendWarnUntil+10&&distance>profile.DefendM&&distance<profile.DefendM*2.5)
+        {
+            // A short defensive charge ends when its space is respected. Hold
+            // watch briefly instead of switching straight into a fleeing run.
+            animal.TargetSpeed=0;animal.BehaviourAction="watch";animal.ActionUntil=0;
+            animal.TargetHeading=(float)(Math.Atan2(animal.Awareness.LastX-animal.X,animal.Awareness.LastZ-animal.Z)*180/Math.PI);AnimalRole(animal,AvailableAnimalRole(animal,"alert","idle"));return true;
+        }
         if(profile.Defensive&&animal.MassKg>800&&!wounded&&distance>profile.DefendM*1.25&&distance<Math.Max(15,profile.DefendM*3)&&animal.Awareness.Suspicion>.5)
         {
             animal.TargetSpeed=0;animal.BehaviourAction="watch";animal.ActionUntil=0;
@@ -82,6 +89,12 @@ public sealed partial class LocalTerrainExplorer
         bool danger=WildlifeBehaviour.Defend(profile,distance,wounded,animal.CorneredUntil>animal.Life,rut)||profile.Predator&&wounded&&distance<4;
         if(!danger)return false;
         if(!WildlifeSight(animal,motion.X,motion.Z))return false;
+        if(animal.Spawn.Profile.slug=="porcupine")
+        {
+            animal.TargetSpeed=0;animal.ActionUntil=0;animal.BehaviourAction="defend";
+            animal.TargetHeading=(float)(Math.Atan2(animal.X-animal.Awareness.LastX,animal.Z-animal.Awareness.LastZ)*180/Math.PI);AnimalRole(animal,"idle");
+            if(distance<.7)AnimalContactAttack(animal,null);return true;
+        }
         if(!wounded&&animal.DefendWarnUntil==0)
         {
             animal.DefendWarnUntil=animal.Life+1.2+(animal.Spawn.Hash%10)*.06;
@@ -124,7 +137,36 @@ public sealed partial class LocalTerrainExplorer
             animal.TargetSpeed=(float)p.runMps;AnimalRole(animal,p.medium=="air"?"fly":p.medium=="water"?"swim":"run");
             animal.NextDecision=animal.Life+2;
         }
-        else if(animal.Life>=animal.NextDecision)DecideAnimal(animal);
+        else if(animal.Life>=animal.NextDecision)
+        {
+            if(p.medium=="water"&&animal.Behaviour.NaturalHistory.Social==WildlifeSocial.School&&UpdateSmallSchool(animal))return;
+            DecideAnimal(animal);
+        }
+    }
+    bool UpdateSmallSchool(Animal animal)
+    {
+        double cx=0,cz=0,hx=0,hz=0;int members=0,checkedCount=0;
+        Animal disturbance=null;double nearest=25;
+        foreach(var other in NearbyAnimals(animal))
+        {
+            if(++checkedCount>16)break;if(other.Dead||other.Spawn.Profile.medium!="water")continue;
+            double dx=other.X-animal.X,dz=other.Z-animal.Z,dy=other.Root.transform.localPosition.y-animal.Root.transform.localPosition.y;
+            double d2=dx*dx+dz*dz+dy*dy;
+            if(other.Behaviour.CanHunt&&other.MassKg>animal.MassKg*3&&(other.Speed>.2||d2<1)&&d2<nearest)
+            {disturbance=other;nearest=d2;}
+            if(other.Spawn.Profile.slug!=animal.Spawn.Profile.slug||d2>64||Math.Abs(dy)>2)continue;
+            cx+=dx;cz+=dz;hx+=Math.Sin(other.Heading*Math.PI/180);hz+=Math.Cos(other.Heading*Math.PI/180);members++;
+            if(d2<Math.Pow(animal.Spawn.Profile.lengthM*1.5,2))
+            {double separation=Math.Max(.01,d2);hx-=dx/separation;hz-=dz/separation;}
+        }
+        if(disturbance!=null)
+        {
+            animal.TargetHeading=(float)(Math.Atan2(animal.X-disturbance.X,animal.Z-disturbance.Z)*180/Math.PI);
+            animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.Life+.5;AnimalRole(animal,"swim");return true;
+        }
+        if(members==0)return false;
+        animal.TargetHeading=(float)(Math.Atan2(hx+cx*.12,hz+cz*.12)*180/Math.PI);
+        animal.TargetSpeed=(float)animal.Spawn.Profile.walkMps;animal.NextDecision=animal.Life+.7+animal.Spawn.Hash%5*.07;AnimalRole(animal,"swim");return true;
     }
     void ApproachCarrion(Animal animal,Animal carcass)
     {

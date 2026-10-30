@@ -165,7 +165,11 @@ public sealed partial class LocalTerrainExplorer
         paused=false;ExecuteAnimalSpawnCommand("/spawn wolf");double wolfDeadline=Time.unscaledTimeAsDouble+35;while(!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf")&&Time.unscaledTimeAsDouble<wolfDeadline)yield return null;paused=true;
         var hunter=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="wolf");hunter.X=motion.X+80;hunter.Z=motion.Z+8;wary.X=hunter.X+3;wary.Z=hunter.Z;
         foreach(var a in new[]{hunter,wary}){a.Planet=frame.Position(a.X,a.Z);a.GroundY=Ground(a.X,a.Z);a.ThreatUntil=0;a.TargetSpeed=a.Speed=0;a.NextDecision=a.Life+1000;a.BehaviourAt=0;UpdateAnimal(a,0);}
-        nextWildlifeIndex=0;IndexWildlifeNeighbours();UpdateAnimalBehaviour(hunter);Check(hunter.TargetSpeed>0&&Math.Sin(hunter.TargetHeading*Math.PI/180)>.8,"A hungry wolf pursues nearby deer rather than wandering independently");
+        // The revised AI needs an actual hungry, perceptive hunter. Do not
+        // depend on spawn age, its random heading or an earlier player's alarm.
+        hunter.Heading=hunter.TargetHeading=90;hunter.Awareness=new WildlifeAwarenessState();hunter.ActionUntil=0;hunter.BehaviourAction="";
+        if(wildlifeGroups.TryGetValue(hunter.Spawn.GroupId,out var huntGroup))huntGroup.Hunger=.85;else hunter.Life=120;
+        huntingDecisionFrame=-1;nextWildlifeIndex=0;IndexWildlifeNeighbours();UpdateAnimalBehaviour(hunter);Check(hunter.BehaviourAction=="hunt"&&hunter.HuntTargetId==wary.Spawn.Id&&hunter.TargetSpeed>0&&Math.Sin(hunter.TargetHeading*Math.PI/180)>.8,"A hungry wolf pursues perceived nearby deer rather than wandering independently");
         wary.X=hunter.X+.3;wary.Z=hunter.Z;wary.Planet=frame.Position(wary.X,wary.Z);wary.GroundY=Ground(wary.X,wary.Z);UpdateAnimal(wary,0);
         double unreachableHealth=wary.Health;var preyRootBefore=wary.Root.transform.localPosition;hunter.AttackAt=0;
         try

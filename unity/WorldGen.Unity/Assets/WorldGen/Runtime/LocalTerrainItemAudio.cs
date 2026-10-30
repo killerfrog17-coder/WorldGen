@@ -10,10 +10,10 @@ public sealed partial class LocalTerrainExplorer
     uint itemEffectChoice=281028;static float itemEffectVolume=-1;
     public static float ItemEffectVolume{get{if(itemEffectVolume<0)itemEffectVolume=PlayerPrefs.GetFloat("item-effects-volume",.7f);return itemEffectVolume;}set{itemEffectVolume=Mathf.Clamp01(value);PlayerPrefs.SetFloat("item-effects-volume",itemEffectVolume);}}
     public void PreviewItemEffect(string category,int take)=>PlayItemEffect(category,view.transform.position,.6f,true,take);
-    void PlayItemEffect(string category,Vector3 position,float volume=.5f,bool owner=false,int variant=-1)
+    void PlayItemEffect(string category,Vector3 position,float volume=.5f,bool owner=false,int variant=-1,bool fromPlayer=true)
     {
         if(!owner)ReportSleepNoise(position,volume*2);
-        if(category=="stone-contact"||category=="wood-chop"||category=="body-hit")ReportHuntingNoise(position,volume*2);
+        if(category=="stone-contact"||category=="wood-chop"||category=="body-hit")ReportHuntingNoise(position,volume*2,fromPlayer);
         if(ItemEffectVolume<=0||!owner&&(position-view.transform.position).sqrMagnitude>65*65)return;
         if(!itemEffectBanks.TryGetValue(category,out var clips))
         {

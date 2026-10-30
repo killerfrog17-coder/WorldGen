@@ -1,6 +1,6 @@
 """Author and bake the private first-person rig, never the approved world avatar.
 
-Run with Blender 4.5: blender -b -t 8 --python scripts/author-first-person-rig.py
+Run: blender -b -t 8 --python-exit-code 1 --python scripts/author-first-person-rig.py
 The CC0 artist's hand topology and weights seed camera-authored grip poses.
 New handling is authored in camera space and baked to FK before Unity export.
 There are no runtime arm targets, stretch constraints or runtime finger solvers.
@@ -32,6 +32,12 @@ AUTHOR_CAMERA_INV=scene.camera.matrix_world.inverted()
 
 def sample_native(label, phase=0):
     action = native[label]
+    # Upstream takes key only the channels they need. Newly authored takes also
+    # move bone locations, so sampling an upstream take without resetting leaves
+    # those unkeyed offsets behind (notably crossing/near-clipping the guard).
+    rig.animation_data_clear()
+    for bone in rig.pose.bones:
+        bone.matrix_basis = Matrix.Identity(4)
     rig.animation_data_create()
     rig.animation_data.action = action
     if action.slots:
@@ -144,6 +150,7 @@ def local_basis(global_pose):
 
 
 BASE_BASIS = local_basis(grasp)
+FIST_BASIS = local_basis(sample_native('Fists_Idle', .3))
 arm_stats = []
 SPEAR_FINGERS = {}
 POSE_ELBOWS = {}
@@ -287,6 +294,14 @@ def palm_pose(side, center, base, curl=.45):
         return Matrix((x,y,z)).transposed()
     rotation=(frame(U((0,0,1)),U((0,1,0))) @ frame(forward,normal).inverted()).to_quaternion()
     return grip_pose(side,center,(0,1,0),0,base,curl,pole_weight=.5,hand_rotation=rotation)
+
+
+def clench(side):
+    for bone in rig.pose.bones:
+        if bone.name.endswith('.'+side) and bone.name.startswith(('Index','Middle','Ring','Pinky','Thumb')):
+            bone.rotation_mode='QUATERNION'
+            bone.rotation_quaternion=FIST_BASIS[bone.name].to_quaternion()
+    bpy.context.view_layer.update()
 
 
 def smooth(t):
@@ -445,6 +460,7 @@ def punch(t):
     p=keyed([(0,dict(center=(.22,-.22,.36),axis=(0,1,0),roll=0.)),(.15,dict(center=(.25,-.21,.30),axis=(0,1,0),roll=0.)),(.38,dict(center=(.05,-.11,.60),axis=(0,1,.15),roll=-15.)),(1,dict(center=(.22,-.22,.36),axis=(0,1,0),roll=0.))],t)
     grip_pose('R',base=base,**p)
     grip_pose('L',(-.2,-.24,.34),(0,1,0),0,base)
+    clench('R');clench('L')
 
 
 bake('Punch',.55,punch,contact=.38)
@@ -482,32 +498,70 @@ bake('SpearThrowRelease',.62,lambda t:throw_release(t,True),release=.24)
 def sling_whirl(t):
     base=reset((0,-.10,0))
     grip_pose('R',(.27,-.075+.007*math.sin(t*math.tau),.29),(0,1,.1),15,base,.85)
+    clench('R')
     grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.25)
 
 
+def sling_ready(t):
+    base=reset((0,-.10,0))
+    grip_pose('R',(.24,-.21+.0015*math.sin(t*math.tau),.40),(0,1,.1),15,base)
+    clench('R')
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.25)
+
+
+bake('SlingReady',3,sling_ready,True)
 bake('SlingWhirl',.8,sling_whirl,True)
-bake('SlingRelease',.62,throw_release,release=.24)
+
+
+def sling_release(t):
+    base=reset((0,-.10,.035*math.sin(t*math.pi)))
+    p=keyed([(0,dict(center=(.27,-.075,.29),axis=(0,1,.1),roll=15.)),(.3,dict(center=(.12,-.05,.42),axis=(-.1,.8,.6),roll=45.)),(.6,dict(center=(.14,-.15,.41),axis=(-.1,.9,.3),roll=30.)),(1,dict(center=(.24,-.21,.40),axis=(0,1,.1),roll=15.))],t)
+    grip_pose('R',base=base,**p);clench('R')
+    opening=keyed([(0,dict(v=0.)),(.18,dict(v=0.)),(.35,dict(v=1.)),(.7,dict(v=.6)),(1,dict(v=0.))],t)['v']
+    for digit in ['Index','Thumb']:
+        for i in range(1,4 if digit=='Thumb' else 5):
+            name=f'{digit}{i}.R';bone=rig.pose.bones.get(name)
+            if bone:bone.rotation_quaternion=FIST_BASIS[name].to_quaternion().slerp(Quaternion(),opening*.7)
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.25)
+
+
+bake('SlingRelease',.62,sling_release,release=.24)
+
+
+BOW_ANCHOR = None
 
 
 def bow(t, release=False):
+    global BOW_ANCHOR
     base=reset((0,-.12,.03))
+    # A view model's hidden shoulder can be staged forward while keeping its
+    # visible arm lengths and skin intact. This permits a meaningful draw rather
+    # than bringing the bow so close that the string hardly moves at all.
+    shoulder=rig.pose.bones['Shoulder.L']
+    shift=RI.to_3x3() @ U((0,-.045,.15))
+    for name in base:
+        bone=rig.pose.bones[name]
+        if name=='Shoulder.L' or any(p.name=='Shoulder.L' for p in bone.parent_recursive):
+            base[name].translation+=shift
+    shoulder.matrix=base['Shoulder.L'];bpy.context.view_layer.update()
     draw=1-t if release else smooth(t)
     # A real drawing hand moves back toward the face. It does not pull the bow
     # forward through its own fingers; the nock and string use this same socket.
     # Leave clearance from the near plane: a thumb passing through that plane
     # appears as a detached oval even though its topology is continuous. The
     # drawing hand belongs near the right cheek, outside the central aim view.
-    right_center=(.02+.08*draw,-.08,.36-.08*draw)
+    right_center=(.10,-.08,.42-.17*draw)
     if release:
-        right_center=keyed([(0,dict(p=(.10,-.08,.28))),(.25,dict(p=(.20,-.07,.25))),(.6,dict(p=(.26,-.18,.29))),(1,dict(p=(.02,-.08,.36)))],t)['p']
+        right_center=keyed([(0,dict(p=(.10,-.08,.25))),(.25,dict(p=(.20,-.07,.23))),(.6,dict(p=(.26,-.18,.29))),(1,dict(p=(.10,-.08,.42)))],t)['p']
     grip_pose('R',right_center,(0,1,0),0,base,.48 if not release else .2)
     for digit in ['Index','Middle','Ring','Pinky','Thumb']:
         for i in range(1,4 if digit=='Thumb' else 5):
             bone=rig.pose.bones.get(f'{digit}{i}.R')
             if bone is None:continue
-            factor=.8 if digit=='Thumb' else .85 if digit=='Pinky' else .4 if i<=2 else .95
+            factor=.95 if digit in ['Thumb','Pinky'] else .4 if i<=2 else .95
             if release:factor*=.4+.6*t
-            bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion().slerp(BASE_BASIS[bone.name].to_quaternion(),factor)
+            finger_basis=FIST_BASIS if digit in ['Thumb','Pinky'] or i>=3 else BASE_BASIS
+            bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion().slerp(finger_basis[bone.name].to_quaternion(),factor)
     bpy.context.view_layer.update()
     # The string sits at the distal finger creases, rather than an arbitrary
     # palm socket. Keep the bow rest on that forward aim line while drawing.
@@ -515,7 +569,9 @@ def bow(t, release=False):
     nock=rig.pose.bones['Nock.R'].matrix.copy();nock.translation=hook
     rig.pose.bones['Nock.R'].matrix=nock;bpy.context.view_layer.update()
     hook_world=R@hook;hook_camera=Vector((-hook_world.x,hook_world.z,-hook_world.y))
-    grip_pose('L',(hook_camera.x,hook_camera.y-.075,.49+.03*draw),(0,1,.05),0,base)
+    if not release:BOW_ANCHOR=(hook_camera.x,hook_camera.y-.075)
+    aim=BOW_ANCHOR or (hook_camera.x,hook_camera.y-.075)
+    grip_pose('L',(aim[0],aim[1],.65+.02*draw),(0,1,.05),0,base)
 
 
 bake('BowReady',3,lambda t:bow(0),True)
@@ -551,11 +607,11 @@ def hand_work(t, kind):
     if kind=='knap':
         grip_pose('L',(-.09,-.16,.43),(.2,.1,.97),270,base,.85,pole_weight=.5,grip_style='spear')
         p=keyed([(0,dict(center=(.16,-.11,.38))),(.24,dict(center=(.17,-.035,.35))),(.45,dict(center=(.07,-.13,.45))),(.56,dict(center=(.07,-.13,.45))),(1,dict(center=(.16,-.11,.38)))],t)
-        grip_pose('R',axis=(0,1,.1),roll=0,base=base,**p)
+        grip_pose('R',axis=(0,1,.1),roll=60,base=base,**p)
     elif kind=='cut':
         grip_pose('L',(-.12,-.16,.43),(.12,.08,.99),270,base,pole_weight=.5,grip_style='spear')
         stroke=math.sin(t*math.pi)**2
-        grip_pose('R',(.18-.06*stroke,-.13-.025*stroke,.42+.025*stroke),(-.85,.1,.52),0,base)
+        grip_pose('R',(.18-.06*stroke,-.13-.025*stroke,.42+.025*stroke),(-.85,.1,.52),315,base)
     else:
         phase=math.sin(t*math.tau)
         grip_pose('L',(-.085,-.15,.43),(.1,.1,.99),270,base,.5,pole_weight=.5,grip_style='spear')
@@ -589,7 +645,7 @@ bake('CarryLarge',3,carrying,True)
 # rest bone rather than reflecting the whole GameObject with a negative scale.
 mirror_names=['ToolReady','ToolWalk','ToolCutA','ToolCutB','ToolBlunt','ToolChop','ToolGuard',
               'SpearReady1','SpearThrust1','SpearReady2','SpearThrust2',
-              'ThrowCharge','ThrowRelease','SpearThrowCharge','SpearThrowRelease','SlingWhirl','SlingRelease','Punch','Gather']
+              'ThrowCharge','ThrowRelease','SpearThrowCharge','SpearThrowRelease','SlingReady','SlingWhirl','SlingRelease','Punch','Gather']
 for label in mirror_names:
     original=bpy.data.actions[label]
     original_info=next(c for c in CLIPS if c['name']==label)

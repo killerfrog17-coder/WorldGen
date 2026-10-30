@@ -74,7 +74,7 @@ namespace WorldGen.Core
             R("otter",A,Family,Water,Carnivore,1,3,1,Defensive);
             R("lynx",C,Solo,Stalk,WildlifeSensoryKind.LargeCat);
             R("owl",N,Solo,Stalk,WildlifeSensoryKind.Owl);
-            R("raven",D,Pair,Scavenge,Bird,1,2);
+            R("raven",D,Pair,Forage,Bird,1,2);
             R("african-hunting-dog",A,Pack,Chase,WildlifeSensoryKind.Canid,4,10,2,Rare);
             R("agouti",D,Pair,Forage,Small,1,2);
             R("bank-vole",A,Solo,Forage,Small,1,2,independent:true);
@@ -176,7 +176,7 @@ namespace WorldGen.Core
             R("giraffe",A,Loose,None,Ungulate,2,7,2,Defensive);
             R("gorilla",D,Family,Forage,Primate,4,9,4,Defensive);
             R("guereza",D,Troop,Forage,Primate,4,10);
-            R("gull",D,Flock,Scavenge,Bird,3,9);
+            R("gull",D,Flock,Forage,Bird,3,9);
             R("hedgehog",N,Solo,Forage,Small,hibernate:true);
             R("hippopotamus",N,Herd,None,Ungulate,3,10,9,Defensive);
             R("howler-monkey",D,Troop,Forage,Primate,3,8);

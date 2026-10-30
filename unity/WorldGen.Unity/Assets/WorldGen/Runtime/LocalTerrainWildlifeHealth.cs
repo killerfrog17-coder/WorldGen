@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
         if(animal==null||animal.Dead||!ItemUseRules.Finite(damage)||damage<=0)return;
         animal.Health=Math.Max(0,animal.Health-damage);PaintAnimalBlood(animal,point,-direction,damage);
         AnimalVoiceEvent(animal,"pain");
-        if(animal.MassKg>.05)PlayItemEffect("body-hit",point,Mathf.Clamp((float)Math.Pow(animal.MassKg/70,.2),.08f,.65f));
+        if(animal.MassKg>.05)PlayItemEffect("body-hit",point,Mathf.Clamp((float)Math.Pow(animal.MassKg/70,.2),.08f,.65f),fromPlayer:fromPlayer);
         if(animal.Dead)
         {animal.CorpseHeightOffset=animal.Root.transform.localPosition.y-VisibleGround(animal.X,animal.Z,animal.GroundY);Vector3 movement=new Vector3(Mathf.Sin(animal.Heading*Mathf.Deg2Rad),0,Mathf.Cos(animal.Heading*Mathf.Deg2Rad))*animal.Speed;BeginAnimalCorpse(animal,movement+direction*(float)Math.Min(5,momentum/Math.Max(.01,animal.MassKg)));}
         else

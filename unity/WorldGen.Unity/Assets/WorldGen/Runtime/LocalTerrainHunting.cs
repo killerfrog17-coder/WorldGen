@@ -9,6 +9,7 @@ public sealed partial class LocalTerrainExplorer
     int huntingDecisionFrame=-1;long huntingDecisionTicks;int huntingDecisions,huntingDeferred;
     double huntingCoverAt,huntingCover,huntingLight=1,huntingSpeed,huntingNoiseUntil,huntingNoiseStrength;
     Vector3 huntingNoisePoint;readonly RaycastHit[] huntingRayHits=new RaycastHit[16];
+    bool huntingNoiseFromPlayer=true;
     bool PlayerCrouching=>!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
     void RefreshHuntingCover()
     {
@@ -38,8 +39,12 @@ public sealed partial class LocalTerrainExplorer
             if(Physics.RaycastNonAlloc(ray,huntingRayHits,60,~((1<<29)|(1<<30)),QueryTriggerInteraction.Ignore)>0)huntingLight*=.35;
         }
     }
-    void ReportHuntingNoise(Vector3 position,double loudness)
-    {if(loudness<=0)return;huntingNoisePoint=transform.InverseTransformPoint(position);huntingNoiseStrength=Math.Max(huntingNoiseStrength,loudness);huntingNoiseUntil=Time.unscaledTimeAsDouble+2;}
+    void ReportHuntingNoise(Vector3 position,double loudness,bool fromPlayer=true)
+    {
+        if(loudness<=0)return;double now=Time.unscaledTimeAsDouble;
+        if(now<huntingNoiseUntil&&loudness<huntingNoiseStrength)return;
+        huntingNoisePoint=transform.InverseTransformPoint(position);huntingNoiseStrength=loudness;huntingNoiseUntil=now+2;huntingNoiseFromPlayer=fromPlayer;
+    }
     void PerceivePlayer(Animal animal,double dt,double distance)
     {
         RefreshHuntingCover();var senses=animal.Senses;double dx=motion.X-animal.X,dz=motion.Z-animal.Z;
@@ -59,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
             // Atmospheric wind is not an underwater chemical plume.
             if(animal.Spawn.Profile.medium!="water")scent=WildlifePerception.Scent(senses,-dx,-dz,CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,CurrentWeather.RainMmPerHour)*WildlifePerception.ScentHeight(playerEye-.65-eye);
         }
-        double tx=motion.X,tz=motion.Z;
+        double tx=motion.X,tz=motion.Z;bool cueFromPlayer=true;
         if(sound*.8>visual&&sound>=scent*.9)
         {double error=Math.Min(12,distance*.18),angle=(animal.Spawn.Hash%628)/100.0;tx+=Math.Sin(angle)*error;tz+=Math.Cos(angle)*error;}
         else if(scent*.75>Math.Max(visual,sound*.8))
@@ -67,15 +72,20 @@ public sealed partial class LocalTerrainExplorer
             double wind=Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps);
             tx=animal.X-CurrentWeather.WindEastMps/Math.Max(.1,wind)*Math.Min(distance,35);tz=animal.Z-CurrentWeather.WindNorthMps/Math.Max(.1,wind)*Math.Min(distance,35);
         }
-        if(playerEligible&&Time.unscaledTimeAsDouble<huntingNoiseUntil&&animal.Spawn.Profile.medium!="water")
+        if((playerEligible||!huntingNoiseFromPlayer)&&Time.unscaledTimeAsDouble<huntingNoiseUntil&&animal.Spawn.Profile.medium!="water")
         {
             double nd=Math.Sqrt(Math.Pow(huntingNoisePoint.x+originX-animal.X,2)+Math.Pow(huntingNoisePoint.z+originZ-animal.Z,2)+Math.Pow(huntingNoisePoint.y-eye,2));
             double noise=WildlifePerception.Hearing(senses,nd,huntingNoiseStrength,0,CurrentWeather.RainMmPerHour);
-            if(noise>sound){sound=noise;tx=huntingNoisePoint.x+originX;tz=huntingNoisePoint.z+originZ;}
+            if(noise>sound)
+            {
+                sound=noise;
+                if(noise*.8>Math.Max(visual,scent*.75))
+                {tx=huntingNoisePoint.x+originX;tz=huntingNoisePoint.z+originZ;cueFromPlayer=huntingNoiseFromPlayer;}
+            }
         }
         else huntingNoiseStrength=0;
         WildlifePerception.Observe(animal.Awareness,senses,dt,visual,sound,scent,tx,tz);
-        if(Math.Max(visual,Math.Max(sound*.8,scent*.75))>.055)animal.Awareness.ThreatIsPlayer=true;
+        if(Math.Max(visual,Math.Max(sound*.8,scent*.75))>.055)animal.Awareness.ThreatIsPlayer=cueFromPlayer;
         if(animal.Awareness.Suspicion>.5&&Time.unscaledTimeAsDouble>animal.AlertVoiceAt)
         {animal.AlertVoiceAt=Time.unscaledTimeAsDouble+12+animal.Spawn.Hash%9;AnimalVoiceEvent(animal,"alert");}
     }

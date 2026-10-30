@@ -52,8 +52,11 @@ static class HuntingTests
         var kangaroo=WildlifeBehaviour.Describe("red-kangaroo",60,Food.Grass);
         Check(!kangaroo.SeasonalRut&&!WildlifeBehaviour.Rut(kangaroo,.8,-35),"Kangaroo mobs do not inherit northern ungulate autumn rut");
         var bison=WildlifeBehaviour.Describe("bison",700,Food.Grass);Check(WildlifeBehaviour.Rut(bison,.6,45)&&!WildlifeBehaviour.Rut(bison,.85,45)&&WildlifeBehaviour.Rut(bison,.1,-45),"Bison rut in local summer rather than inheriting the deer autumn window");
+        Check(!WildlifeBehaviour.Defend(bison,7,false,false,false)&&WildlifeBehaviour.Defend(bison,7,false,false,true),"A rutting male protects a wider personal space without changing the normal encounter rule");
         var snowy=WildlifeBehaviour.Describe("snowy-owl",2,Food.Vertebrate,true);
         var vulture=WildlifeBehaviour.Describe("vulture",6,Food.Vertebrate,true);Check(vulture.CanScavenge&&!vulture.CanHunt&&!vulture.ThreatensPrey,"A carrion specialist seeks carcasses without automatically hunting live nearby animals");
+        foreach(string opportunist in new[]{"raven","gull"})
+        {var p=WildlifeBehaviour.Describe(opportunist,1,Food.Vertebrate|Food.Fish,true);Check(p.CanScavenge&&p.CanHunt&&!p.Predator,"An opportunistic "+opportunist+" can take small live prey and carrion without acquiring apex-predator behavior");}
         Check(WildlifeBehaviour.Describe("goose",4,Food.Grass,true).VFormation&&!WildlifeBehaviour.Describe("tern",.2,Food.Fish,true).VFormation,"Migration does not force terns and other small flocking birds into a goose V");
         Check(!WildlifeBehaviour.IsNocturnal("snowy-owl")&&WildlifeBehaviour.Activity(snowy,12,false,0,0,1)>.3,"Snowy owls retain daytime hunting activity");
         var wolf=WildlifeNaturalHistory.Native("wolf","");

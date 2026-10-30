@@ -11,6 +11,7 @@ public sealed partial class LocalTerrainExplorer
     readonly List<Mesh> viewArmMeshes=new List<Mesh>();
     readonly List<SkinnedMeshRenderer> viewArmRenderers=new List<SkinnedMeshRenderer>();
     double viewReleaseAt=-100,viewGatherAt=-100,viewPunchAt=-100,viewConsumeAt=-100;
+    double viewPunchDuration=.55;
     bool viewReleaseLeft,viewArmsVisible,viewReleaseSpear,viewConsumeDrink;
     ItemPrimaryUse viewReleaseKind;
     Vector3 viewGatherTarget;
@@ -128,6 +129,7 @@ public sealed partial class LocalTerrainExplorer
             return Phase(action.Clip??ViewStrikeClip(item),action.At,action.Duration);
         if(combatGuarding&&item?.Kind!=PossessionKind.Bow)return new ViewPose(Side(item==null?"FistsGuard":"ToolGuard"),10);
         if(item?.Kind==PossessionKind.Bow)return new ViewPose("BowReady",Clock("BowReady"));
+        if(item?.Kind==PossessionKind.Sling)return new ViewPose(Side("SlingReady"),Clock("SlingReady"));
         if(item?.Kind==PossessionKind.SpearThrower)return new ViewPose(Side("SpearReady1"),Clock("SpearReady1"));
         if(item?.Hands==2&&!LongViewSpear(item))return new ViewPose("CarryLarge",Clock("CarryLarge"));
         if(LongViewSpear(item)){string role=SupportSpear(item)?"SpearReady2":"SpearReady1";return new ViewPose(Side(role),Clock(role));}
@@ -152,7 +154,7 @@ public sealed partial class LocalTerrainExplorer
             primary=new ViewPose(role+(viewReleaseLeft?"_Left":""),now-viewReleaseAt,viewReleaseAt);
             off=viewReleaseLeft?right:left;offLeft=!viewReleaseLeft;two=viewReleaseKind==ItemPrimaryUse.Bow;
         }
-        else if(main==null&&now-viewPunchAt<viewArms.Duration("Punch"))primary=new ViewPose("Punch",now-viewPunchAt,viewPunchAt);
+        else if(main==null&&now-viewPunchAt<viewPunchDuration)primary=new ViewPose("Punch",(now-viewPunchAt)/viewPunchDuration*viewArms.Duration("Punch"),viewPunchAt);
         else if(now-viewConsumeAt<viewArms.Duration(viewConsumeDrink?"Drink":"Eat")){primary=new ViewPose(viewConsumeDrink?"Drink":"Eat",now-viewConsumeAt,viewConsumeAt);two=true;}
         else if(now-viewGatherAt<viewArms.Duration("Gather"))
         {

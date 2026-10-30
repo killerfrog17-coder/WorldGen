@@ -9,6 +9,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<string,ViewItemAction> viewItemActions=new Dictionary<string,ViewItemAction>();
     string ViewStrikeClip(Possession item)
     {
+        if(item==null)return "Punch";
         if(LongViewSpear(item))return SupportSpear(item)?"SpearThrust2":"SpearThrust1";
         var kind=ItemUseRules.Profile(item).Primary;
         if(kind==ItemPrimaryUse.Thrust)return "ToolCutB";
@@ -19,12 +20,12 @@ public sealed partial class LocalTerrainExplorer
     {
         string role=ViewStrikeClip(item);
         if(viewArms!=null&&viewArms.Clips.TryGetValue(role,out var clip)&&clip.contact>=0)return clip.contact;
-        return role=="ToolBlunt"?.42:role=="ToolCutA"||role=="ToolChop"?.4:.36;
+        return role=="Punch"?.38:role=="ToolBlunt"?.42:role=="ToolCutA"||role=="ToolChop"?.4:.36;
     }
     void AnimateViewItem(Possession item,bool release=false,double duration=-1)
     {
         viewGatherAt=viewConsumeAt=-100;
-        if(item==null){viewPunchAt=Time.unscaledTimeAsDouble;return;}
+        if(item==null){viewPunchAt=Time.unscaledTimeAsDouble;viewPunchDuration=duration>0?duration:.55;return;}
         if(release)
         {
             viewReleaseAt=Time.unscaledTimeAsDouble;viewReleaseKind=ItemUseRules.Profile(item).Primary;

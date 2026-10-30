@@ -20,6 +20,8 @@ public sealed partial class LocalTerrainExplorer
         while((animals.Values.Count(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo")<2||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="deer")||!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf"))&&Time.unscaledTimeAsDouble<end)yield return null;
         Check(animals.Values.Count(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo")==2,"Two original kangaroo actors load through the ordinary spawn queue");
         var roos=animals.Values.Where(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo").ToArray();var roo=roos[0];var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer");var wolf=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="wolf");paused=true;
+        WriteWildlifeProfileAudit(output,report);
+        CheckSmallSchoolDecisions(roo.Model,report);
         Check(deer.Model.Asset.Clips.Any(c=>c.role=="eating")&&deer.Model.Asset.Clips.Any(c=>c.role=="sleep"),"Additional original deer eating and sleep palettes load beside unchanged locomotion");
         Check(wolf.Model.Asset.Clips.Any(c=>c.role=="attack")&&wolf.Model.Asset.Clips.Any(c=>c.role=="alert"),"Original wolf attack and alert clips are available");
         double px=motion.X,pz=motion.Z;
@@ -47,6 +49,13 @@ public sealed partial class LocalTerrainExplorer
         Check(AnimalVision(wolf,deer,15)==0,"Animal-to-animal vision respects the observer's actual blind direction");
         wolf.Heading=180;deer.CoverAt=Time.unscaledTimeAsDouble+10;deer.VisualCover=0;
         Check(AnimalVision(wolf,deer,15)>.1,"The same moving prey becomes visible when the observer turns toward it");
+        wolf.BehaviourAction="sleep";wolf.ActionUntil=wolf.Life+20;
+        Check(AnimalVision(wolf,deer,15)==0,"An actively sleeping observer has no animal-to-animal visual identification");
+        wolf.BehaviourAction="";wolf.ActionUntil=0;
+        wolf.Heading=0;wolf.Awareness=new WildlifeAwarenessState();huntingSpeed=0;
+        ReportHuntingNoise(wolf.Root.transform.position+Vector3.forward*3,1.2,false);PerceivePlayer(wolf,.3,30);
+        Check(wolf.Awareness.Sense==WildlifeSense.Sound&&!wolf.Awareness.ThreatIsPlayer,"An animal impact is heard at its real source without granting knowledge of the player");
+        huntingNoiseUntil=0;huntingNoiseStrength=0;wolf.Heading=180;
         wolf.HuntTargetId=deer.Spawn.Id;wolf.HuntX=deer.X;wolf.HuntZ=deer.Z;wolf.HuntMemoryUntil=wolf.Life+15;RememberAnimal(wolf,false);
         var pursuit=WorldJson.Read<WildlifeIndividual>(WorldJson.Write(wildlifeRecords[wolf.Spawn.Id]));pursuit.Validate();
         Check(pursuit.HuntTargetId==deer.Spawn.Id&&pursuit.HuntMemorySeconds>14,"Native hunt memory serializes the actual last-seen prey position");
@@ -90,5 +99,43 @@ public sealed partial class LocalTerrainExplorer
         }
         costs.Sort();File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 120 frame-separated forced AI sweeps; warm p50 "+costs[costs.Count/2].ToString("F3")+" ms; p95 "+costs[(int)(costs.Count*.95)].ToString("F3")+" ms; maximum "+costs.Last().ToString("F3")+" ms; decisions "+(huntingDecisions-beforeDecisions)+" / deferred "+(huntingDeferred-beforeDeferred)+". This measures decision work with its 1 ms soft budget, not total game frame rate.");
         Check(animals.Values.All(a=>a.Exertion.Burst>=0&&a.Exertion.Burst<=1&&a.Awareness.Suspicion>=0&&a.Awareness.Suspicion<=1),"Mixed actor decisions retain bounded physical and awareness state");reviewWildlifeBehaviour=false;paused=true;
+    }
+    void WriteWildlifeProfileAudit(string output,List<string> report)
+    {
+        string Csv(object value)=>"\""+Convert.ToString(value,System.Globalization.CultureInfo.InvariantCulture).Replace("\"","\"\"")+"\"";
+        var bindings=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,animalProfiles);
+        var rows=new List<string>{"model,native_taxa,medium,diel,social,min_group,max_group,hunt_style,live_prey,carrion,defend_m,seasonal_rut,hibernates,migrates,sight_m,hearing_m,smell_m,cheap_decisions"};
+        foreach(var model in animalProfiles.OrderBy(p=>p.slug))
+        {
+            var b=AnimalBehaviour(model);var n=b.NaturalHistory;var senses=WildlifeSenses.Describe(model.slug,1,b.Predator,model.medium=="air",model.tiny);
+            var taxa=string.Join("; ",bindings.Where(p=>p.Value.slug==model.slug).Select(p=>sourceWorld.Ecology.Taxa[p.Key].Name));
+            rows.Add(string.Join(",",new object[]{model.slug,taxa,model.medium,n.Diel,n.Social,b.GroupMin,b.GroupMax,n.Hunt,b.CanHunt,b.CanScavenge,b.DefendM,b.SeasonalRut,b.Hibernates,b.Migratory,senses.VisionM,senses.HearingM,senses.SmellM,b.SmallBudget||model.tiny}.Select(Csv)));
+        }
+        File.WriteAllLines(Path.Combine(output,"animal-profile-audit.csv"),rows);
+        if(rows.Count!=178)throw new InvalidOperationException("Wildlife profile audit omitted model families.");
+        report.Add("PASS Exported the active natural-history and sense configuration for all 177 model families");
+    }
+    void CheckSmallSchoolDecisions(AnimalModel model,List<string> report)
+    {
+        // Synthetic decision actors isolate schooling math, not visual fish
+        // acceptance. They reuse a loaded clip container and never render.
+        var saved=wildlifeNeighbours.ToArray();var roots=new List<GameObject>();
+        Animal Fish(double x,double z,bool predator=false)
+        {
+            var root=new GameObject("School decision probe");roots.Add(root);root.transform.localPosition=new Vector3((float)x,0,(float)z);
+            var p=animalProfiles.First(a=>a.slug=="small-native-freshwater-fish-guild");
+            return new Animal{Root=root,Model=model,Spawn=new FaunaPrototypeSpawn{Profile=p},X=x,Z=z,MassKg=predator?2:.02,Heading=90,Speed=predator?1:0,Behaviour=new WildlifeBehaviourProfile{CanHunt=predator}};
+        }
+        void Check(bool ok,string why){if(!ok)throw new InvalidOperationException("SCHOOL "+why);report.Add("PASS "+why);}
+        try
+        {
+            var fish=Fish(5000,5000);var mate=Fish(5002,5001);var predator=Fish(5000,5003,true);
+            var neighbours=new List<Animal>{fish,mate,predator};wildlifeNeighbours.Clear();wildlifeNeighbours[(125,125)]=neighbours;
+            Check(UpdateSmallSchool(fish)&&Math.Abs(fish.TargetSpeed-fish.Spawn.Profile.runMps)<1e-6&&Math.Cos(fish.TargetHeading*Math.PI/180)<-.9,"Cheap schooling reacts away from a nearby moving aquatic predator");
+            predator.Root.transform.localPosition+=Vector3.up*10;
+            Check(UpdateSmallSchool(fish)&&Math.Abs(fish.TargetSpeed-fish.Spawn.Profile.walkMps)<1e-6&&Math.Sin(fish.TargetHeading*Math.PI/180)>.5,"School cohesion resumes and does not sense a vertically distant predator as adjacent");
+            neighbours.Remove(mate);neighbours.Remove(predator);Check(!UpdateSmallSchool(fish),"An isolated small fish falls back to its ordinary bounded wandering decision");
+        }
+        finally{wildlifeNeighbours.Clear();foreach(var pair in saved)wildlifeNeighbours.Add(pair.Key,pair.Value);foreach(var root in roots)DestroyImmediate(root);}
     }
 }

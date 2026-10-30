@@ -8,6 +8,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     readonly Dictionary<(int,int),List<Animal>> wildlifeNeighbours=new Dictionary<(int,int),List<Animal>>();double nextWildlifeIndex;
+    static readonly (int x,int z)[] wildlifeNeighbourOrder={(0,0),(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)};
     double wildlifeVisualCover;
     void IndexWildlifeNeighbours()
     {
@@ -23,7 +24,9 @@ public sealed partial class LocalTerrainExplorer
     IEnumerable<Animal> NearbyAnimals(Animal animal)
     {
         int x=(int)Math.Floor(animal.X/40),z=(int)Math.Floor(animal.Z/40);
-        for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)if(wildlifeNeighbours.TryGetValue((x+dx,z+dz),out var list))foreach(var candidate in list)if(candidate!=animal&&!candidate.Retired&&candidate.Root!=null)yield return candidate;
+        // Spend the bounded candidate allowance in the occupied bucket first,
+        // rather than exhausting it on a diagonal bucket before nearby actors.
+        foreach(var offset in wildlifeNeighbourOrder)if(wildlifeNeighbours.TryGetValue((x+offset.x,z+offset.z),out var list))foreach(var candidate in list)if(candidate!=animal&&!candidate.Retired&&candidate.Root!=null)yield return candidate;
     }
     void AnimalRole(Animal animal,string role)
     {
