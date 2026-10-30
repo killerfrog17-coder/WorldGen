@@ -84,7 +84,7 @@ public sealed partial class LocalTerrainExplorer
             WildlifePerception.Alarm(animal.Awareness,animal.ThreatX,animal.ThreatZ,true);animal.Awareness.ThreatIsPlayer=fromPlayer;animal.BehaviourAt=0;animal.ActionUntil=0;
             animal.TargetHeading=(float)(Math.Atan2(animal.X-animal.ThreatX,animal.Z-animal.ThreatZ)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.ThreatUntil;
             var flee=animal.Model.Asset.Clips.FirstOrDefault(c=>c.role==(animal.Spawn.Profile.medium=="air"?"fly":animal.Spawn.Profile.medium=="water"?"swim":"run"));
-            if(flee!=null&&flee!=animal.Clip){animal.OldClip=animal.Clip;animal.OldTime=animal.Time;animal.Clip=flee;animal.BlendAge=0;animal.Time=0;animal.NominalSpeed=Math.Max(.01f,(float)animal.Spawn.Profile.runMps);}
+            if(flee!=null&&flee!=animal.Clip){animal.OldClip=animal.Clip;animal.OldTime=animal.Time;animal.Clip=flee;animal.BlendAge=0;animal.Time=0;animal.NominalSpeed=Math.Max(.01f,(float)animal.Spawn.Profile.ClipSpeed(flee.role));}
         }
         RememberAnimal(animal,false);
     }

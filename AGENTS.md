@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+IN-PROGRESS30Oct10:32CDT: ACTIVE until at least17:09:07Z/12:09CDT per owner,
+unless owner stops. Progress request was STATUS ONLY. Latest pushed f37a2c8;
+v19 IL2CPP artifacts/player-first-person-review BuiltUtc15:07:31Z is UNSELECTED,
+fresh native77FPS/35hunting/30nature/155items/97camp PASS/EXIT0/clean logs.
+Four ACTUAL24s kangaroo approach trials: walk scent-away flee15.05m; crouch
+scent-away got4.32m with no flee; still24m no flee; crouch scent-toward flee20.89m.
+These are observed cover-dependent trials, not guaranteed detection thresholds.
+Current source AFTER v19 adds v20 back-of-hand bow draw (prior palm/claw looked
+wrong), explicit physical ground locomotion priors, longer bounded obstacle rays,
+close pursuit contact between staggered AI decisions. New709Corehunting PASS.
+New v20 imported via FirstPersonRuntimeBuilder.Build exit0, nativeUNTESTED.
+Need restore3knownUnityautos, source checkpoint/newproof/newIL2CPPfolder,
+native handling+hunting/sprint visuals/item/nature/camp validation before selecting.
+KEEP v19 review and v18 authored packages frozen as fallbacks. Existing shortcut
+STILL OLD REJECTED artifacts/player-hunting-first-person. No new selected claim.
+New source edits UNCOMMITTED incl WildlifeLocomotion.cs; source/assets in git
+except owner3files. No own Unity/native jobs at this moment. No paid/subagents/
+cleanup/Mono; preserve original578assets/177collisions/87banks/18+24audio unchanged.
+Current derived authoring v20 remains53clips/66bones. Speed numbers conservative
+game priors, not measured exact species data. No additional gait reauthoring.
+
 IN-PROGRESS30Oct09:15CDT: eight-hour mandate STILL ACTIVE through at least
 17:09:07Z/12:09CDT. Do not end on mechanical passes. Source bdff909 pushed;
 latest native FPS derivative v17 has53 clips/66 bones/20157 imported vertices.

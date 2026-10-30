@@ -78,6 +78,16 @@ public sealed partial class LocalTerrainExplorer
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();
         Check(!MayHuntPlayer(wolf,wolf.Behaviour,new WildlifeGroup{Hunger=.6,Members=8},10),"An eight-member ordinary wolf pack does not become an automatic human hunter");
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
+        Check(wolf.Spawn.Profile.runMps>12&&roo.Spawn.Profile.runMps>14&&deer.Spawn.Profile.runMps>11,"Loaded adult locomotion uses physical species priors rather than body-length multipliers");
+        Place(wolf,px,pz+10,0);wolf.Speed=14;wolf.TargetSpeed=14;wolf.TargetHeading=0;wolf.ObstacleAt=0;
+        var speedWall=GameObject.CreatePrimitive(PrimitiveType.Cube);speedWall.name="Hunting speed obstacle fixture";
+        speedWall.transform.position=wolf.Root.transform.position+Vector3.forward*6+Vector3.up*1.5f;speedWall.transform.localScale=new Vector3(4,4,.5f);Physics.SyncTransforms();
+        try {AvoidAnimalSolids(wolf);Check(wolf.TargetSpeed<2&&Math.Abs(wolf.TargetHeading)>20,"A sprinting wolf detects a solid beyond the old 1.8 m ray and requests braking/turning");}
+        finally {DestroyImmediate(speedWall);Physics.SyncTransforms();}
+        Place(wolf,px,pz+12,0);Place(deer,px,pz+12,0);wolf.BehaviourAction="hunt";wolf.HuntTargetId=deer.Spawn.Id;wolf.AttackAt=0;
+        double contactHealth=deer.Health;CheckMovingAnimalContact(wolf);
+        Check(deer.Health<contactHealth&&wolf.AttackAt>Time.unscaledTimeAsDouble,"An active predator contacts prey between staggered decisions without passing through it");
+        double afterContact=deer.Health;CheckMovingAnimalContact(wolf);Check(deer.Health==afterContact,"Frame-level proximity checks preserve the existing attack cooldown");
         Color32[] Capture(string name)
         {
             var old=view.targetTexture;var previous=RenderTexture.active;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;var texture=new Texture2D(1280,800,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,800),0,0);texture.Apply();var pixels=texture.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),texture.EncodeToPNG());Destroy(texture);view.targetTexture=old;RenderTexture.active=previous;rt.Release();Destroy(rt);return pixels;
@@ -90,6 +100,18 @@ public sealed partial class LocalTerrainExplorer
             var bounds=a.Renderer.bounds;view.transform.position=bounds.center+new Vector3(2,.8f,-2).normalized*(float)Math.Max(1.6,a.Spawn.Profile.lengthM*1.8);view.transform.LookAt(bounds.center);Capture(name);foreach(var other in hidden)other.Renderer.enabled=true;
         }
         ActorImage(deer,"eat","01-deer-eating");ActorImage(deer,"sleep","02-deer-rest");ActorImage(wolf,"sleep","03-wolf-rest");ActorImage(roo,"eat","03b-kangaroo-grazing");
+        foreach(var runner in new[]{deer,wolf,roo})
+        {
+            Place(runner,px+4,pz+4);AnimalRole(runner,"run");runner.OldClip=null;runner.BlendAge=1;runner.Speed=(float)runner.Spawn.Profile.runMps;
+            var hidden=animals.Values.Where(other=>other!=runner&&other.Renderer.enabled).ToArray();foreach(var other in hidden)other.Renderer.enabled=false;
+            var bounds=runner.Renderer.bounds;view.transform.position=bounds.center+Vector3.right*(float)(runner.Spawn.Profile.lengthM*2.2)+Vector3.up*.3f;view.transform.LookAt(bounds.center);
+            for(int phase=0;phase<12;phase++)
+            {
+                runner.Time=phase/20d*Math.Min(3.2,runner.Speed/runner.NominalSpeed);runner.CollisionFrame=-1;UpdateAnimal(runner,0);animalBoneBuffer.SetData(animalBoneData);
+                Capture("run-"+runner.Spawn.Profile.slug+"-"+phase.ToString("D2"));yield return null;
+            }
+            foreach(var other in hidden)other.Renderer.enabled=true;
+        }
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();paused=false;UpdatePlayerSurvival(0,0);UpdateSurvivalHud();paused=true;
         Check(survivalHud!=null&&survivalHud.material.shader.isSupported,"The live survival HUD supports the wind shader");
         var mode=survivalHudCanvas.renderMode;var oldCamera=survivalHudCanvas.worldCamera;int mask=view.cullingMask;
@@ -171,7 +193,7 @@ public sealed partial class LocalTerrainExplorer
     {
         string Csv(object value)=>"\""+Convert.ToString(value,System.Globalization.CultureInfo.InvariantCulture).Replace("\"","\"\"")+"\"";
         var bindings=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,animalProfiles);
-        var rows=new List<string>{"model,native_taxon,medium,diel,social,min_group,max_group,hunt_style,live_prey,carrion,defend_m,seasonal_rut,hibernates,migrates,sight_m,hearing_m,smell_m,cheap_decisions"};int families=0;
+        var rows=new List<string>{"model,native_taxon,medium,diel,social,min_group,max_group,hunt_style,live_prey,carrion,defend_m,seasonal_rut,hibernates,migrates,sight_m,hearing_m,smell_m,cheap_decisions,walk_mps,burst_mps,source_run_stride_mps"};int families=0;
         foreach(var model in animalProfiles.OrderBy(p=>p.slug))
         {
             families++;var native=bindings.Where(p=>p.Value.slug==model.slug).Select(p=>p.Key).ToArray();if(native.Length==0)native=new[]{-1};
@@ -179,7 +201,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var data=id<0?null:sourceWorld.Ecology.Taxa[id];var b=AnimalBehaviour(model,id);var n=b.NaturalHistory;
                 var senses=WildlifeSenses.Describe(model.slug,data?.MassKg??1,b.Predator,model.medium=="air",model.tiny,data?.Name??"");
-                rows.Add(string.Join(",",new object[]{model.slug,data?.Name??"unbound model",model.medium,n.Diel,n.Social,b.GroupMin,b.GroupMax,n.Hunt,b.CanHunt,b.CanScavenge,b.DefendM,b.SeasonalRut,b.Hibernates,b.Migratory,senses.VisionM,senses.HearingM,senses.SmellM,b.SmallBudget||model.tiny}.Select(Csv)));
+                rows.Add(string.Join(",",new object[]{model.slug,data?.Name??"unbound model",model.medium,n.Diel,n.Social,b.GroupMin,b.GroupMax,n.Hunt,b.CanHunt,b.CanScavenge,b.DefendM,b.SeasonalRut,b.Hibernates,b.Migratory,senses.VisionM,senses.HearingM,senses.SmellM,b.SmallBudget||model.tiny,model.walkMps,model.runMps,model.ClipSpeed("run")}.Select(Csv)));
             }
         }
         File.WriteAllLines(Path.Combine(output,"animal-profile-audit.csv"),rows);

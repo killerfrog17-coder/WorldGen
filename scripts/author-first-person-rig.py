@@ -566,14 +566,16 @@ def bow(t, release=False):
     right_center=(.10,-.08,.42-.17*draw)
     if release:
         right_center=keyed([(0,dict(p=(.10,-.08,.25))),(.25,dict(p=(.20,-.07,.23))),(.6,dict(p=(.26,-.18,.29))),(1,dict(p=(.10,-.08,.42)))],t)['p']
-    grip_pose('R',right_center,(0,1,0),60,base,.48 if not release else .2)
+    # Present the back of the drawing hand to the camera, with the string in
+    # hooked fingers. A palm-facing tool grip looks like an open claw on a bow.
+    grip_pose('R',right_center,(0,1,0),300,base,.48 if not release else .2)
     for digit in ['Index','Middle','Ring','Pinky','Thumb']:
         for i in range(1,4 if digit=='Thumb' else 5):
             bone=rig.pose.bones.get(f'{digit}{i}.R')
             if bone is None:continue
-            factor=.95 if digit in ['Thumb','Pinky'] else .4 if i<=2 else .95
+            factor=.95 if digit in ['Thumb','Pinky'] else .65 if i<=2 else 1
             if release:factor*=.4+.6*t
-            finger_basis=FIST_BASIS if digit in ['Thumb','Pinky'] or i>=3 else BASE_BASIS
+            finger_basis=FIST_BASIS
             bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion().slerp(finger_basis[bone.name].to_quaternion(),factor)
     bpy.context.view_layer.update()
     # The string sits at the distal finger creases, rather than an arbitrary

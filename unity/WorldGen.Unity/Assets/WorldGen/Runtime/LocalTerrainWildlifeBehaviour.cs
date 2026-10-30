@@ -32,7 +32,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var clip=animal.Model.Asset.Clips.FirstOrDefault(c=>c.role.Equals(role,StringComparison.OrdinalIgnoreCase)||c.name.Equals(role,StringComparison.OrdinalIgnoreCase))??animal.Model.Asset.Clips.FirstOrDefault(c=>c.role=="walk")??animal.Model.Asset.Clips.FirstOrDefault(c=>c.role=="idle")??animal.Model.Asset.Clips[0];
         if(clip==animal.Clip)return;double phase=animal.Clip==null?0:animal.Time/Math.Max(.01,animal.Clip.duration)%1;animal.OldClip=animal.Clip;animal.OldTime=animal.Time;animal.Time=phase*clip.duration;animal.Clip=clip;animal.BlendAge=0;
-        animal.NominalSpeed=(float)(clip.role=="run"?animal.Spawn.Profile.runMps:clip.role=="trot"?(animal.Spawn.Profile.runMps+animal.Spawn.Profile.walkMps)*.5:animal.Spawn.Profile.walkMps);animal.NominalSpeed=Math.Max(.01f,animal.NominalSpeed);
+        animal.NominalSpeed=Math.Max(.01f,(float)animal.Spawn.Profile.ClipSpeed(clip.role));
     }
     void SetAnimalTravel(Animal animal,double x,double z,bool run)
     {
@@ -125,7 +125,7 @@ public sealed partial class LocalTerrainExplorer
         // Large opportunistic predators stalk a perceived human, rather than
         // attacking every player anywhere in a hard-coded detection circle.
         if(mayHuntPlayer&&animal.Awareness.ThreatIsPlayer&&animal.Awareness.Suspicion>.5&&animal.Awareness.LastCueSeconds<3)
-        {animal.ActionUntil=0;SetAnimalTravel(animal,animal.Awareness.LastX,animal.Awareness.LastZ,distance<12);animal.BehaviourAction="hunt";if(distance<Math.Max(1.2,profile.lengthM*.6))AnimalContactAttack(animal,null);return;}
+        {animal.HuntTargetId=0;animal.ActionUntil=0;SetAnimalTravel(animal,animal.Awareness.LastX,animal.Awareness.LastZ,distance<12);animal.BehaviourAction="hunt";if(distance<Math.Max(1.2,profile.lengthM*.6))AnimalContactAttack(animal,null);return;}
         RoutineAnimal(animal,behaviour,group,latitude,dt);
         } finally {if(!animal.Behaviour.SmallBudget&&!profile.tiny)SpaceHerdMember(animal);huntingDecisionTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-decisionStarted;}
     }
@@ -176,11 +176,30 @@ public sealed partial class LocalTerrainExplorer
             DamageHuman(humanPlayer,damage,hit,direction,attacker.MassKg*.1);
         }
     }
+    void CheckMovingAnimalContact(Animal animal)
+    {
+        // Decision-making is staggered, but a fast charge must not run through
+        // its target between decisions. This only checks active close attacks;
+        // expensive posed contact/blood work remains limited by AttackAt.
+        if(!WildlifeBehaviourEnabled||animal.Retired||animal.Dead||Time.unscaledTimeAsDouble<animal.AttackAt)return;
+        if(animal.BehaviourAction!="hunt"&&animal.BehaviourAction!="defend")return;
+        if(animal.BehaviourAction=="hunt"&&animal.HuntTargetId!=0)
+        {
+            if(!animals.TryGetValue(animal.HuntTargetId,out var prey)||prey.Dead)return;
+            double reach=Math.Max(1,animal.Spawn.Profile.lengthM+prey.Spawn.Profile.lengthM);
+            if(Math.Abs(prey.X-animal.X)>reach||Math.Abs(prey.Z-animal.Z)>reach)return;
+            AnimalContactAttack(animal,prey);return;
+        }
+        if(!animal.Awareness.ThreatIsPlayer||!SurvivalActive||DeathVisible)return;
+        double playerReach=Math.Max(2,animal.Spawn.Profile.lengthM);
+        if(Math.Abs(motion.X-animal.X)>playerReach||Math.Abs(motion.Z-animal.Z)>playerReach)return;
+        AnimalContactAttack(animal,null);
+    }
     void AvoidAnimalSolids(Animal animal)
     {
         if(!WildlifeBehaviourEnabled||animal.Spawn.Profile.medium!="ground"||animal.TargetSpeed<.1||Time.unscaledTimeAsDouble<animal.ObstacleAt)return;
-        double distance=(animal.Planet-Position).Length*frame.RadiusM;animal.ObstacleAt=Time.unscaledTimeAsDouble+(distance<70?.35:1.2);if(distance>180)return;
-        float radius=Mathf.Clamp((float)animal.Spawn.Profile.lengthM*.13f,.025f,.7f),height=Mathf.Clamp((float)(animal.Spawn.Profile.lengthM*animal.Model.Asset.Height*.4),.08f,1.5f),reach=radius+Mathf.Min(1.8f,animal.Speed*.35f+.4f);
+        double distance=(animal.Planet-Position).Length*frame.RadiusM,interval=distance<70?.35:1.2;animal.ObstacleAt=Time.unscaledTimeAsDouble+interval;if(distance>180)return;
+        float radius=Mathf.Clamp((float)animal.Spawn.Profile.lengthM*.13f,.025f,.7f),height=Mathf.Clamp((float)(animal.Spawn.Profile.lengthM*animal.Model.Asset.Height*.4),.08f,1.5f),reach=(float)WildlifeLocomotion.ObstacleLookahead(animal.Speed,animal.Spawn.Profile.runMps,interval,radius);
         Vector3 direction=transform.TransformDirection(Quaternion.Euler(0,animal.Heading,0)*Vector3.forward),side=Vector3.Cross(direction,Vector3.up),origin=animal.Root.transform.position+Vector3.up*height;
         foreach(float offset in new[]{0f,-radius,radius})
         {

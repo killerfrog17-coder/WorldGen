@@ -49,7 +49,8 @@ public sealed partial class LocalTerrainExplorer
         if(catalogue==null||animalShader==null||!animalShader.isSupported){Debug.LogWarning("Visible fauna assets/shader unavailable.");return;}
         var profiles=JsonUtility.FromJson<FaunaPrototypeCatalogue>(catalogue.text);
         if(profiles.version!=1||profiles.animals.Length!=177)throw new InvalidDataException("Visible fauna catalogue mismatch");
-        animalProfiles=profiles.animals;InitializeWildlifeHealth();animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
+        animalProfiles=profiles.animals;foreach(var profile in animalProfiles)profile.PrepareLocomotion();
+        InitializeWildlifeHealth();animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
         GrowAnimalPalette();animalSceneOwner=this;MergeSavedWildlifeCandidates(animalWanted);
     }
     bool GrowAnimalPalette()
@@ -248,7 +249,7 @@ public sealed partial class LocalTerrainExplorer
         else role=choice<.25?"idle":choice<.4?"run":choice<.6&&animal.Model.Asset.Clips.Any(c=>c.role=="trot")?"trot":"walk";
         var clip=animal.Model.Asset.Clips.FirstOrDefault(c=>c.role==role)??animal.Model.Asset.Clips.FirstOrDefault(c=>c.role=="walk")??animal.Model.Asset.Clips.First(c=>c.role=="idle");
         float speed=clip.role=="idle"?0:clip.role=="run"?(float)profile.runMps:clip.role=="trot"?(float)((profile.walkMps+profile.runMps)*.5):(float)profile.walkMps;
-        animal.TargetSpeed=speed*(float)(.85+.3*rng.Unit());animal.NominalSpeed=Math.Max(.01f,speed);
+        animal.TargetSpeed=speed*(float)(.85+.3*rng.Unit());animal.NominalSpeed=Math.Max(.01f,(float)profile.ClipSpeed(clip.role));
         animal.TargetHeading=animal.Heading+(float)((rng.Unit()-.5)*240);
         double dx=animal.HomeX-animal.X,dz=animal.HomeZ-animal.Z;
         if(dx*dx+dz*dz>Math.Pow(Math.Min(profile.VisibleRadiusM*.45,Math.Max(8,profile.lengthM*20)),2))animal.TargetHeading=(float)(Math.Atan2(dx,dz)*180/Math.PI)+(float)((rng.Unit()-.5)*35);
@@ -305,8 +306,9 @@ public sealed partial class LocalTerrainExplorer
         float pitch=profile.medium=="air"&&!animal.Perched&&animal.Speed>.2?Mathf.Clamp(-Mathf.Atan2(position.y-animal.Root.transform.localPosition.y,Mathf.Max(.01f,animal.Speed*dt))*Mathf.Rad2Deg,-40,40):0;
         animal.AirPitch=Mathf.MoveTowards(animal.AirPitch,pitch,dt*65);
         animal.Root.transform.localPosition=position;animal.Root.transform.localRotation=Quaternion.Euler(animal.AirPitch,animal.Heading,0);
+        if(dt>0)CheckMovingAnimalContact(animal);
         bool stationary=animal.Clip.role!="walk"&&animal.Clip.role!="trot"&&animal.Clip.role!="run"&&animal.Clip.role!="fly"&&animal.Clip.role!="glide"&&animal.Clip.role!="swim";
-        double rate=stationary?1:Math.Max(.2,Math.Min(1.8,animal.Speed/animal.NominalSpeed));
+        double rate=stationary?1:Math.Max(.025,Math.Min(3.2,animal.Speed/animal.NominalSpeed));
         animal.Time+=dt*rate;animal.OldTime+=dt*rate;animal.BlendAge+=dt;
         float distance=(position-view.transform.localPosition).magnitude;
         if(dt<=0||Time.unscaledTimeAsDouble>=animal.NextPoseAt)

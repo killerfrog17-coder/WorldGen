@@ -47,7 +47,16 @@ static class HuntingTests
             var senses=WildlifeSenses.Describe(actor.slug,1,behaviour.Predator,actor.medium=="air",actor.tiny);
             Check(behaviour.HasNaturalHistory&&natural.GroupMin>=1&&natural.GroupMax>=natural.GroupMin&&natural.GroupMax<=64,"Bounded group and explicit profile: "+actor.slug);
             Check(senses.VisionM>0&&senses.HearingM>0&&senses.SmellM>0&&senses.FieldDegrees>0&&senses.FieldDegrees<=360&&senses.ConfirmSeconds>0,"Finite useful senses: "+actor.slug);
+            if(actor.medium=="ground"&&!actor.tiny)
+                Check(WildlifeLocomotion.TryGround(actor.slug,out var pace)&&pace.WalkMps>0&&pace.BurstMps>pace.WalkMps&&pace.BurstMps<=25,"Explicit physical ground pace: "+actor.slug);
         }
+        double Burst(string slug){WildlifeLocomotion.TryGround(slug,out var pace);return pace.BurstMps;}
+        Check(Burst("hare")>12&&Burst("wolf")>12&&Burst("rabbit")>8,"Fast small prey and predators cannot be casually out-jogged because of short model length");
+        Check(Burst("tortoise")<.3&&Burst("sloth")<.2&&Burst("python")<2,"Slow walkers and a long snake cannot inherit absurd body-length running speeds");
+        Check(Burst("elephant")<9&&Burst("pronghorn")>20,"A giant body does not automatically outrun specialized cursorial prey");
+        var paced=catalogue.First(a=>a.slug=="wolf");double sourcePace=paced.runMps;paced.PrepareLocomotion();paced.PrepareLocomotion();
+        Check(paced.runMps>12&&paced.ClipSpeed("run")==sourcePace,"Repeated profile preparation preserves the unchanged animation's nominal stride reference");
+        Check(WildlifeLocomotion.ObstacleLookahead(14,14,.35,.3)>7&&WildlifeLocomotion.ObstacleLookahead(14,14,1.2,.3)>18&&WildlifeLocomotion.ObstacleLookahead(100,1,3,1)<=40,"Fast obstacle lookahead spans the scheduled decision interval and braking with a bounded ray length");
         Check(WildlifeNaturalHistory.Native("deer","Muntjac").Social==WildlifeSocial.Solitary&&WildlifeNaturalHistory.Native("deer","Chital").GroupMax>8,"Different native deer can share a model without sharing herd organization");
         var kangaroo=WildlifeBehaviour.Describe("red-kangaroo",60,Food.Grass);
         Check(!kangaroo.SeasonalRut&&!WildlifeBehaviour.Rut(kangaroo,.8,-35),"Kangaroo mobs do not inherit northern ungulate autumn rut");

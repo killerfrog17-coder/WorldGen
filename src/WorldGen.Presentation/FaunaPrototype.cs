@@ -14,6 +14,18 @@ namespace WorldGen.Presentation
         public string[] aliases=Array.Empty<string>();
         public double lengthM,walkMps,runMps,radiusM,densityPerKm2;
         public bool tiny,derivedFirefly,freshwater,nocturnal;
+        [NonSerialized] double sourceWalkMps,sourceRunMps;
+        public void PrepareLocomotion()
+        {
+            if(sourceRunMps>0)return;
+            sourceWalkMps=walkMps;sourceRunMps=runMps;
+            if(medium=="ground"&&WildlifeLocomotion.TryGround(slug,out var pace)){walkMps=pace.WalkMps;runMps=pace.BurstMps;}
+        }
+        public double ClipSpeed(string role)
+        {
+            double walk=sourceWalkMps>0?sourceWalkMps:walkMps,run=sourceRunMps>0?sourceRunMps:runMps;
+            return role=="run"?run:role=="trot"?(walk+run)*.5:walk;
+        }
         public double VisibleRadiusM=>slug=="butterflies-and-moths-guild"||derivedFirefly?Math.Max(radiusM,220):tiny?radiusM:medium=="air"&&lengthM>=.8?Math.Max(radiusM,600):medium=="water"&&lengthM>=1.5?Math.Max(radiusM,lengthM>=8?1000:450):radiusM;
     }
     public sealed class FaunaPrototypeSpawn
