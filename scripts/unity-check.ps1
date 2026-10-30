@@ -40,6 +40,17 @@ if($BuildPlayer){
     # dependency alongside our assemblies rather than relying on an old editor
     # cache to have supplied this fourth runtime assembly.
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/bin/Release/netstandard2.1/DelaunatorSharp.dll') -Destination (Join-Path $project 'Assets/Plugins/WorldGen') -Force
+    $motionSource=Join-Path $repoRoot 'assets/fauna-motion'
+    if(Test-Path -LiteralPath (Join-Path $motionSource 'index.json')){
+        $motionTarget=Join-Path $project 'Assets/StreamingAssets/fauna-motion'
+        New-Item -ItemType Directory -Force -Path $motionTarget | Out-Null
+        foreach($motion in (Get-Content -Raw -LiteralPath (Join-Path $motionSource 'index.json')|ConvertFrom-Json).animals){
+            $motionFile=Join-Path $motionSource $motion.file
+            if((Get-FileHash -LiteralPath $motionFile).Hash.ToLowerInvariant() -ne $motion.sha256){throw "Animal motion hash mismatch: $($motion.slug)"}
+            Copy-Item -LiteralPath $motionFile -Destination $motionTarget -Force
+        }
+        Copy-Item -LiteralPath (Join-Path $motionSource 'index.json') -Destination $motionTarget -Force
+    }
 }
 $method=if($BuildPlayer){'WorldGenBatch.BuildPlayer'}else{'WorldGenBatch.Validate'}
 $log=Join-Path $artifacts $(if($BuildPlayer){'unity-build.log'}else{'unity-validation.log'})

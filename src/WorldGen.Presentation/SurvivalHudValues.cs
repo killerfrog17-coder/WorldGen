@@ -6,6 +6,7 @@ namespace WorldGen.Presentation
     public struct SurvivalHudValues
     {
         public float Health,Energy,Stamina,Hydration,Fullness,FeelsLikeC,BodyStress;
+        public WindHudValues Wind;
         static float Unit(double n)=>(float)Math.Max(0,Math.Min(1,n));
         public static SurvivalHudValues From(PlayerSurvival s,double feelsLike)
         {

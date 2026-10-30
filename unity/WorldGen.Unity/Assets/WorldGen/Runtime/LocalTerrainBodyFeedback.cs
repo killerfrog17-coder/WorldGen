@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
             view.transform.localRotation*=Quaternion.Euler(Mathf.Sin(t*41)*shake,Mathf.Sin(t*37+1)*shake*.55f,Mathf.Sin(t*29)*shake*.35f);
             view.transform.localPosition+=Vector3.up*Mathf.Sin(t*43)*cold*.0015f;
         }
-        bool breath=moving&&Vitals.Stamina<Math.Min(22,Vitals.Energy*.4)&&Vitals.BreathDebtSeconds<.1;
+        bool breath=moving&&(Vitals.Exertion?.Breath>.55||Vitals.Stamina<Math.Min(22,Vitals.Energy*.4))&&Vitals.BreathDebtSeconds<.1;
         if(breath&&bodyClips.TryGetValue("pant",out var pants)&&pants.Count>0)
         {
             var source=BodyVoice(true);if(!source.isPlaying){bodySoundSequence=Rng.Mix(bodySoundSequence+1);source.clip=pants[(int)(bodySoundSequence%(uint)pants.Count)];source.loop=true;source.Play();}

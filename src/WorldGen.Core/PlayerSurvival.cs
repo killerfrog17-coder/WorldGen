@@ -25,6 +25,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public int MetabolismVersion;
         [System.Runtime.Serialization.OptionalField] public double DigestingKcal,ReserveKcal,WaterDeficitLitres;
         [System.Runtime.Serialization.OptionalField] public double SleepPhaseHour=23,SleepBoutSeconds,LastSleepHour;
+        [System.Runtime.Serialization.OptionalField] public ExertionState Exertion;
         [System.Runtime.Serialization.OptionalField] public System.Collections.Generic.List<PlayerBloodLayer> Blood;
         public bool Exhausted;
         [System.Runtime.Serialization.OptionalField] public bool Unconscious;
@@ -36,13 +37,15 @@ namespace WorldGen.Core
         public bool Incapacitated=>Dead||Unconscious;
         public double MaximumStamina=>Energy;
         public double BodyCondition=>MetabolismVersion==0?1:Math.Max(.45,Math.Min(1,.45+.55*ReserveKcal/PlayerMetabolism.NormalReserveKcal));
-        public bool CanSprint=>!Incapacitated&&!Exhausted&&Stamina>0&&Energy>5&&CoreTemperatureC>33&&CoreTemperatureC<40.5;
+        public bool CanSprint=>!Incapacitated&&Energy>5&&CoreTemperatureC>33&&CoreTemperatureC<40.5;
+        public double SprintPower=>Exertion?.PowerScale??1;
         public double MovementScale=>Incapacitated?0:Math.Max(.25,Math.Min(1,Math.Min(.55+Energy*.045,Math.Min(1-(35-CoreTemperatureC)*.16,1-(CoreTemperatureC-39)*.15))))*(1-.2*Math.Max(0,(Tiredness-70)/30));
-        public PlayerSurvival Copy(){var p=(PlayerSurvival)MemberwiseClone();p.Blood=Blood?.ConvertAll(b=>b.Copy());p.FoodExposures=FoodExposures?.ConvertAll(e=>e.Copy());return p;}
+        public PlayerSurvival Copy(){var p=(PlayerSurvival)MemberwiseClone();p.Exertion=Exertion?.Copy();p.Blood=Blood?.ConvertAll(b=>b.Copy());p.FoodExposures=FoodExposures?.ConvertAll(e=>e.Copy());return p;}
         public void Restore()
-        {Health=Stamina=Energy=100;Hunger=Thirst=Wetness=Tiredness=0;CoreTemperatureC=37;Exhausted=Unconscious=false;DeathCause=PlayerDeathCause.None;Blood?.Clear();FoodExposures?.Clear();WaterSicknessDelaySeconds=WaterSicknessSeconds=WaterSicknessSeverity=BreathDebtSeconds=0;MetabolismVersion=1;DigestingKcal=1000;ReserveKcal=PlayerMetabolism.NormalReserveKcal;WaterDeficitLitres=0;SleepPhaseHour=23;SleepBoutSeconds=LastSleepHour=0;}
+        {Health=Stamina=Energy=100;Hunger=Thirst=Wetness=Tiredness=0;CoreTemperatureC=37;Exhausted=Unconscious=false;DeathCause=PlayerDeathCause.None;Blood?.Clear();FoodExposures?.Clear();WaterSicknessDelaySeconds=WaterSicknessSeconds=WaterSicknessSeverity=BreathDebtSeconds=0;MetabolismVersion=1;DigestingKcal=1000;ReserveKcal=PlayerMetabolism.NormalReserveKcal;WaterDeficitLitres=0;SleepPhaseHour=23;SleepBoutSeconds=LastSleepHour=0;Exertion=new ExertionState();}
         public void Validate()
         {
+            Exertion?.Validate();
             void Range(double v,double lo,double hi){if(double.IsNaN(v)||double.IsInfinity(v)||v<lo||v>hi)throw new ArgumentException("Invalid survival state.");}
             Range(Health,0,100);Range(Stamina,0,100);Range(Energy,0,100);Range(Hunger,0,100);Range(Thirst,0,100);Range(Wetness,0,1);Range(CoreTemperatureC,25,45);
             Range(Tiredness,0,100);

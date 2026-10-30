@@ -49,9 +49,9 @@ static class SurvivalModeTests
         Check(Math.Abs(a.Thirst-b.Thirst)<.001&&Math.Abs(a.CoreTemperatureC-b.CoreTemperatureC)<.001&&Math.Abs(a.Energy-b.Energy)<.001,"Frame subdivisions do not materially change needs");
         var sprint=new PlayerSurvival();double duration=0;
         while(!sprint.Exhausted&&duration<30){SurvivalRules.Advance(sprint,.1,60,mild,6,true);duration+=.1;}
-        Check(sprint.Exhausted&&!sprint.CanSprint&&duration>5&&duration<20,"Sprinting exhausts finite short-term stamina");
+        Check(sprint.Exhausted&&sprint.CanSprint&&sprint.SprintPower<.65&&duration>15&&duration<30,"Sprinting fades to reduced available power rather than an abrupt sprint lock");
         SurvivalRules.Advance(sprint,3,60,mild,0,false);
-        Check(sprint.CanSprint&&sprint.Stamina>25,"Rest recovers stamina without repeated one-frame sprint bursts");
+        Check(sprint.CanSprint&&sprint.Stamina<25,"A few seconds of rest cannot reset an exhausted sprint");
         var blocked=new PlayerSurvival();SurvivalRules.Advance(blocked,10,60,mild,0,true);
         Check(blocked.Stamina==100,"Holding sprint while stationary consumes no sprint stamina");
         var tired=new PlayerSurvival{Energy=10,Stamina=0,Exhausted=true};SurvivalRules.Advance(tired,10,60,mild,0,false);

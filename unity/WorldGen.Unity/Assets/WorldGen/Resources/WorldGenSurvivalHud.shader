@@ -33,7 +33,7 @@ Shader "WorldGen/Survival HUD"
             #include "UnityUI.cginc"
             struct A{float4 vertex:POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;};
             struct V{float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;float4 local:TEXCOORD1;};
-            sampler2D _Shapes;float4 _Resources,_Thermal,_ClipRect;
+            sampler2D _Shapes;float4 _Resources,_Thermal,_ClipRect,_Wind;
             V vert(A a){V o;o.local=a.vertex;o.vertex=UnityObjectToClipPos(a.vertex);o.uv=a.uv;o.color=a.color;return o;}
             float Smooth(float x){x=saturate(x);return x*x*(3-2*x);}
             float Coverage(float d,float aa){return 1-smoothstep(-aa,aa,d);}
@@ -51,6 +51,13 @@ Shader "WorldGen/Survival HUD"
             {
                 float angle=atan2(p.y,p.x);if(start>0&&angle<0)angle+=6.28318530718;
                 float a=clamp(angle,start,end);float2 nearest=radius*float2(cos(a),sin(a));return length(p-nearest)-5;
+            }
+            float WindLine(float2 q,float y,float extent)
+            {
+                float line=length(q-float2(clamp(q.x,-extent,4),y))-1;
+                float2 curl=q-float2(4,y-3);float ring=abs(length(curl)-3)-1;
+                if(curl.x<0&&curl.y>0)ring=100;
+                return min(line,ring);
             }
             float4 frag(V i):SV_Target
             {
@@ -78,6 +85,17 @@ Shader "WorldGen/Survival HUD"
                 Over(c,float3(119,122,128)/255,food);
                 if(_Thermal.x>0)Over(c,1,food*smoothstep(-aa,aa,position.y-(411.65755556-saturate(_Thermal.x)*221.31511112)));
                 Over(c,1,Coverage(abs(shape.g)-.675,aa));
+                if(_Wind.y>.001)
+                for(int sector=0;sector<6;sector++)
+                {
+                    float angle=(-90+sector*60)*radians;
+                    float delta=atan2(sin(angle-_Wind.x),cos(angle-_Wind.x));
+                    float weight=exp(-pow(delta/max(.35,_Wind.z),2)*2.5)*_Wind.y;
+                    float2 centre=195*float2(cos(angle),sin(angle)),q=p-centre;
+                    float stroke=min(WindLine(q,-7,9),min(WindLine(q,0,13),WindLine(q,7,7)));
+                    float pulse=.82+.18*sin(_Time.y*(1+_Wind.y*2)+sector);
+                    Over(c,float3(.84,.9,.91),Coverage(stroke,aa)*weight*pulse*.68);
+                }
                 float alpha=i.color.a;
                 #ifdef UNITY_UI_CLIP_RECT
                 alpha*=UnityGet2DClipping(i.local.xy,_ClipRect);

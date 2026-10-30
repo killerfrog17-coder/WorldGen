@@ -12,8 +12,10 @@ public sealed partial class LocalTerrainExplorer
     void CombatNotice(string text){if(Time.unscaledTimeAsDouble<combatNoticeAt)return;combatNoticeAt=Time.unscaledTimeAsDouble+1.5;InventoryFeedback(text);}
     bool SpendCombatStamina(double amount)
     {
-        if(!SurvivalActive)return true;if(Vitals.Stamina<amount){CombatNotice("Too exhausted for that action.");return false;}
-        Vitals.Stamina=Math.Max(0,Vitals.Stamina-amount);return true;
+        if(!SurvivalActive)return true;if(Vitals.Incapacitated||Vitals.Energy<2){CombatNotice("Too exhausted for that action.");return false;}
+        Vitals.Stamina=Math.Max(0,Vitals.Stamina-amount);
+        if(Vitals.Exertion!=null){ExertionRules.Impulse(Vitals.Exertion,amount/Math.Max(1,Vitals.MaximumStamina));Vitals.Exertion.Fatigue=Math.Min(1,Vitals.Exertion.Fatigue+amount*.0002);}
+        return true;
     }
     bool CombatReady(bool left)=>Time.unscaledTimeAsDouble>=combatGlobalReady&&Time.unscaledTimeAsDouble>=(left?combatLeftReady:combatRightReady);
     void CombatCooldown(bool left,double seconds)
@@ -44,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
         if(StrikeCampStake(item,left))return;
         var profile=ItemUseRules.Profile(item);double weightPenalty=item==null?1:Math.Max(1,Math.Sqrt(item.MassKg/(item.Kind==PossessionKind.LargeRock?.7:1.5)));
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
-        CombatCooldown(left,profile.RecoverySeconds*weightPenalty);AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
+        CombatCooldown(left,profile.RecoverySeconds*weightPenalty*(SurvivalActive?1+(1-(Vitals.Exertion?.Burst??1))*.65:1));AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
         PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
@@ -55,7 +57,7 @@ public sealed partial class LocalTerrainExplorer
             if(hit!=null&&hit.Distance<=nearest){chosen=hit;nearest=hit.Distance;}
             if(wall!=null&&(obstacle==null||wall.Distance<obstacle.Distance))obstacle=wall;
         }
-        double damage=ItemUseRules.MeleeDamage(item,SurvivalActive?.6+.4*Vitals.MovementScale:1);
+        double damage=ItemUseRules.MeleeDamage(item,SurvivalActive?(.6+.4*Vitals.MovementScale)*(.45+.55*Math.Sqrt(Vitals.Exertion?.Burst??1)):1);
         if(chosen!=null)
         {
             ApplyCombatHit(chosen,damage,ray.direction,Math.Sqrt(Math.Max(.01,item?.MassKg??.3)*profile.EnergyJ*2));

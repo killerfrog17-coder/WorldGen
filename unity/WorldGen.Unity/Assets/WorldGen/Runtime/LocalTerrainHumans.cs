@@ -19,6 +19,7 @@ public sealed partial class LocalTerrainExplorer
         public readonly List<Material> OwnedMaterials=new List<Material>();
         public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
+        public ExertionState Exertion=new ExertionState();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
     }
     readonly PlayerCameraRig humanCamera=new PlayerCameraRig();
@@ -135,7 +136,8 @@ public sealed partial class LocalTerrainExplorer
                     double awayX=npc.Motor.X-motion.X,awayZ=npc.Motor.Z-motion.Z;
                     if(awayX*awayX+awayZ*awayZ>70*70)npc.TargetYaw=(float)(Math.Atan2(-awayX,-awayZ)*180/Math.PI);
                 }
-                npc.Yaw=Mathf.MoveTowardsAngle(npc.Yaw,npc.TargetYaw,dt*100);npc.Speed=Mathf.MoveTowards(npc.Speed,npc.TargetSpeed,dt*3);
+                ExertionRules.Advance(npc.Exertion,ExertionProfile.Human(),dt,npc.TargetSpeed>4?1:Math.Pow(Math.Min(1,npc.TargetSpeed/TerrainMotion.RunSpeedMps),1.25),CurrentWeather.TemperatureC);
+                npc.Yaw=Mathf.MoveTowardsAngle(npc.Yaw,npc.TargetYaw,dt*100);npc.Speed=Mathf.MoveTowards(npc.Speed,Math.Min(npc.TargetSpeed,(float)(TerrainMotion.RunSpeedMps*npc.Exertion.PowerScale)),dt*3);
                 if(Time.unscaledTime>=npc.ObstacleAt)
                 {
                     npc.ObstacleAt=Time.unscaledTime+.35;

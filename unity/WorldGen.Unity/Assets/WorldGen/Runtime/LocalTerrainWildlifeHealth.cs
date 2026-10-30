@@ -27,11 +27,17 @@ public sealed partial class LocalTerrainExplorer
         InitializeWildlifeHealth();var profile=animal.Spawn.Profile;
         animal.MassKg=animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[animal.Spawn.Taxon].MassKg:wildlifeMasses.TryGetValue(profile.slug,out var mass)?mass:Math.Max(.0001,8*Math.Pow(profile.lengthM,3));
         animal.MaximumHealth=ItemUseRules.HealthForMass(animal.MassKg);animal.Health=animal.MaximumHealth;
+        var natural=AnimalBehaviour(profile,animal.Spawn.Taxon);animal.Senses=WildlifeSenses.Describe(profile.slug,animal.MassKg,natural.Predator,profile.medium=="air",profile.tiny);animal.EffortProfile=ExertionProfile.Animal(profile.slug,animal.MassKg,profile.medium);
         if(wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved)&&saved.Species==profile.slug)
         {
             animal.Manual=saved.Manual;
             animal.Health=saved.Health;animal.MaximumHealth=saved.MaximumHealth;animal.Planet=saved.Position;TerrainHandoff.Coordinates(frame,saved.Position,out animal.X,out animal.Z);
             animal.Heading=animal.TargetHeading=(float)saved.Heading;animal.CorpseHeightOffset=saved.CorpseHeightOffsetM;animal.Props.SetFloat("_Morph",(float)saved.Morph);
+            animal.Exertion=saved.Exertion?.Copy()??new ExertionState();animal.Awareness=saved.Awareness?.Copy()??new WildlifeAwarenessState();
+            if(saved.ThreatPosition.Length>.9)TerrainHandoff.Coordinates(frame,saved.ThreatPosition,out animal.Awareness.LastX,out animal.Awareness.LastZ);
+            double away=Math.Max(0,Math.Min(3600,(PlayerRules.SolarDays-saved.LastSeenDays)*PlayerRules.Settings.RealMinutesPerDay*60));
+            ExertionRules.Advance(animal.Exertion,animal.EffortProfile,away,animal.Awareness.MemorySeconds>0?.25:0,CurrentWeather.TemperatureC);
+            animal.Awareness.MemorySeconds=Math.Max(0,animal.Awareness.MemorySeconds-away);animal.Awareness.Suspicion=Math.Max(0,animal.Awareness.Suspicion-away/150);
         }
     }
     Matrix4x4[] AnimalPalette(Animal animal)
@@ -72,6 +78,7 @@ public sealed partial class LocalTerrainExplorer
         else
         {
             var source=transform.InverseTransformPoint(point-direction*(float)Math.Max(2,animal.Spawn.Profile.lengthM));animal.ThreatUntil=animal.Life+12;animal.ThreatX=source.x+originX;animal.ThreatZ=source.z+originZ;animal.ThreatWasPlayer=fromPlayer;
+            WildlifePerception.Alarm(animal.Awareness,animal.ThreatX,animal.ThreatZ,true);animal.BehaviourAt=0;animal.ActionUntil=0;
             animal.TargetHeading=(float)(Math.Atan2(animal.X-animal.ThreatX,animal.Z-animal.ThreatZ)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.ThreatUntil;
             var flee=animal.Model.Asset.Clips.FirstOrDefault(c=>c.role==(animal.Spawn.Profile.medium=="air"?"fly":animal.Spawn.Profile.medium=="water"?"swim":"run"));
             if(flee!=null&&flee!=animal.Clip){animal.OldClip=animal.Clip;animal.OldTime=animal.Time;animal.Clip=flee;animal.BlendAge=0;animal.Time=0;animal.NominalSpeed=Math.Max(.01f,(float)animal.Spawn.Profile.runMps);}
@@ -84,13 +91,14 @@ public sealed partial class LocalTerrainExplorer
         {saved=new WildlifeIndividual{Id=animal.Spawn.Id,Species=animal.Spawn.Profile.slug};Wildlife.Individuals.Add(saved);wildlifeRecords.Add(saved.Id,saved);}
         saved.Position=animal.Planet;saved.Heading=animal.Heading;saved.Health=animal.Health;saved.MaximumHealth=animal.MaximumHealth;saved.Coat=animal.Coat;saved.Manual=animal.Manual;saved.LastSeenDays=PlayerRules.SolarDays;
         saved.GroupId=animal.Spawn.GroupId;saved.GroupIndex=animal.Spawn.GroupIndex;saved.GroupSize=animal.Spawn.GroupSize;saved.Taxon=animal.Spawn.Taxon;
+        saved.Exertion=animal.Exertion.Copy();saved.Awareness=animal.Awareness.Copy();saved.ThreatPosition=frame.Position(animal.Awareness.LastX,animal.Awareness.LastZ);
         saved.CorpseHeightOffsetM=animal.CorpseHeightOffset;saved.CorpseSettled=animal.Ragdoll?.Settled??false;saved.Morph=animal.Props.GetFloat("_Morph");
         saved.Parts=new[]{(int)animal.Parts.x,(int)animal.Parts.y,(int)animal.Parts.z,(int)animal.Parts.w};
         if(pose&&animal.Dead){saved.CorpsePose=new double[animal.Model.Asset.BoneCount*16];for(int i=0;i<animal.Model.Asset.BoneCount;i++)for(int j=0;j<16;j++)saved.CorpsePose[i*16+j]=animalBoneData[animal.Slot*AnimalBones+i][j];}
         CaptureAnimalBlood(animal,saved);
     }
     void CaptureWildlife()
-    {foreach(var animal in animals.Values)if(animal.Dead||animal.Health<animal.MaximumHealth||wildlifeRecords?.ContainsKey(animal.Spawn.Id)==true)RememberAnimal(animal,true);}
+    {foreach(var animal in animals.Values)if(animal.Dead||animal.Health<animal.MaximumHealth||animal.Awareness.Suspicion>.15||animal.Exertion.Burst<.95||animal.Exertion.Fatigue>.01||wildlifeRecords?.ContainsKey(animal.Spawn.Id)==true)RememberAnimal(animal,true);}
     void MergeSavedWildlifeCandidates(List<FaunaPrototypeSpawn> candidates)
     {
         // Injured individuals and corpses are physical saved objects, not a new

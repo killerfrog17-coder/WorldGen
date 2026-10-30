@@ -166,7 +166,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
                     alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed&&!keyboard.f3Key.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
-                    heading,pitch,survivalSprinting,jump,PlayerSolidGround,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:(SurvivalActive?Vitals.MovementScale:1)*Inventory.LoadSpeedScale);
+                    heading,pitch,survivalSprinting,jump,PlayerSolidGround,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:(SurvivalActive?Vitals.MovementScale*(survivalSprinting?Vitals.SprintPower:1):1)*Inventory.LoadSpeedScale*(PlayerCrouching?.55:1));
                 double moveDt=Math.Max(.001,Math.Min(.25,Time.unscaledDeltaTime));
                 playerDeathVelocity=new Vector3((float)((motion.X-movementStartX)/moveDt),(float)(-Math.Max(-motion.VerticalSpeed,motion.LandingSpeedMps)),(float)((motion.Z-movementStartZ)/moveDt));
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
@@ -179,6 +179,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
+        huntingSpeed=Math.Sqrt(Math.Pow(motion.X-movementStartX,2)+Math.Pow(motion.Z-movementStartZ,2))/Math.Max(.001,Time.unscaledDeltaTime);
         UpdateCamp();UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);
         if(Math.Abs(motion.X-originX)>8192||Math.Abs(motion.Z-originZ)>8192)
         {

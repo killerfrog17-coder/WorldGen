@@ -32,12 +32,14 @@ public sealed class SurvivalHudView:MaskableGraphic
         current.Stamina=Mathf.Min(current.Energy,Mathf.Lerp(current.Stamina,target.Stamina,a));
         current.Hydration=Mathf.Lerp(current.Hydration,target.Hydration,a);current.Fullness=Mathf.Lerp(current.Fullness,target.Fullness,a);
         current.FeelsLikeC=Mathf.Lerp(current.FeelsLikeC,target.FeelsLikeC,a);
-        current.BodyStress=Mathf.Lerp(current.BodyStress,target.BodyStress,a);Publish();
+        current.BodyStress=Mathf.Lerp(current.BodyStress,target.BodyStress,a);
+        current.Wind=new WindHudValues(current.Wind.Angle+Mathf.DeltaAngle(current.Wind.Angle*Mathf.Rad2Deg,target.Wind.Angle*Mathf.Rad2Deg)*Mathf.Deg2Rad*a,Mathf.Lerp(current.Wind.Strength,target.Wind.Strength,a),target.Wind.Spread);Publish();
     }
     void Publish()
     {
         ownedMaterial.SetVector("_Resources",new Vector4(current.Health,current.Energy,current.Stamina,current.Hydration));
         ownedMaterial.SetVector("_Thermal",new Vector4(current.Fullness,current.FeelsLikeC,current.BodyStress,0));
+        ownedMaterial.SetVector("_Wind",new Vector4(current.Wind.Angle,current.Wind.Strength,current.Wind.Spread,0));
     }
     protected override void OnPopulateMesh(VertexHelper vh)
     {

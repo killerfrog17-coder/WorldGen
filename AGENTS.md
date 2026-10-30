@@ -1,5 +1,16 @@
 # WorldGen repository instructions
 
+OWNER30Oct HUNTING OVERHAUL ACTIVE. Phase1 shared effort/senses/stealth/animal
+routines/herd response/wind HUD -> NEW IL2CPP/native/proof/shortcut/Git checkpoint.
+THEN phase2 first-person actual skinned arms+item actions/two-hand spears/
+foraging, live inventory/drag equipment onto portrait/no controls banner, felt
+need HUD severe-reserve stage/blinking/sickness green; cooking already present.
+No paid/subagents; preserve all original art/owner3files; NEVER MONO. Research
+real sensory/flight/collective behaviour, broad profiles with explicit priors
+where species data is absent. No naive distance omniscience or stamina reset
+when streaming. Current code IN PROGRESS; old selected remains survival-experience.
+
+
 SELECTED29Oct~17:00CDT SURVIVAL/CAMP REVISION COMPLETE. Existing root shortcut now
 artifacts/player-survival-experience/WorldGen.exe, IL2CPP RELEASE BuiltUtc
 2026-10-29T21:53:59.2929376Z; source ff56672. Source+24 new WAVs Git-backed.

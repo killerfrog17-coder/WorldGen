@@ -5,7 +5,7 @@ namespace WorldGen.Presentation
 {
     public struct SurvivalEnvironment
     {
-        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort,LocalHour;
+        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort,LocalHour,EffortLoad,GroundGrade;
         public bool Immersed,Sleeping;
     }
     /// <summary>Approximate gameplay physiology, not a clinical thermoregulation model.</summary>
@@ -50,7 +50,7 @@ namespace WorldGen.Presentation
             Foraging.AdvancePoison(s,day*86400);if(s.Dead)return;
             WaterDrinking.AdvanceIllness(s,day*86400);
             SleepRules.Advance(s,day*86400,e.Sleeping,e.SleepComfort,e.LocalHour,e.Sunlight);
-            double activity=s.Unconscious?0:Clamp(speed/TerrainMotion.RunSpeedMps),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
+            double activity=s.Unconscious?0:Math.Max(Clamp(speed/TerrainMotion.RunSpeedMps),sprinting&&speed>.1?.9:0),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
             double sweat=Clamp((e.AirTemperatureC-20)/12+activity*1.2+sun*.5,0,4);
             if(e.Immersed)s.Wetness=1;
             else s.Wetness=Clamp(s.Wetness+thermal*(Math.Max(0,e.RainMmPerHour)*.003+sweat*.003-(.002+wind*.0003)*(1-humidity)));
@@ -74,11 +74,12 @@ namespace WorldGen.Presentation
             double energyLimit=100*s.BodyCondition*(s.Hunger>90?.9:1)*(1-.25*Clamp((s.Thirst-60)/40));
             if(resting&&s.Thirst<85&&comfortable)s.Energy=Clamp(s.Energy+day*(e.Sleeping?180*Math.Max(.25,e.SleepComfort):65),0,energyLimit);
             else s.Energy=Clamp(s.Energy-day*(8+activity*70+coldLoad*.5+heatLoad*4),0,100);
-            bool exerting=sprinting&&speed>TerrainMotion.JogSpeedMps+.05&&s.CanSprint;
-            double recovery=(1-.55*Clamp((s.Tiredness-70)/30))*s.BodyCondition;
-            s.Stamina=Clamp(s.Stamina+dt*(exerting?-9:(resting?14:speed<=TerrainMotion.WalkSpeedMps+.1?11:4)*recovery),0,s.MaximumStamina);
-            if(s.Stamina<=.01)s.Exhausted=true;
-            else if(s.Exhausted&&s.Stamina>=Math.Min(25,s.MaximumStamina*.4))s.Exhausted=false;
+            if(s.Exertion==null)s.Exertion=new ExertionState{Burst=Clamp(s.Stamina/Math.Max(1,s.MaximumStamina))};
+            s.Exertion.Burst=Math.Min(s.Exertion.Burst,Clamp(s.Stamina/Math.Max(1,s.MaximumStamina)));
+            // Sleep accelerates calendar needs, not the physical rate of a sprint.
+            double effort=resting?0:sprinting?1:Math.Pow(Clamp(speed/TerrainMotion.RunSpeedMps),1.25);
+            ExertionRules.Advance(s.Exertion,ExertionProfile.Human(),dt,effort,e.AirTemperatureC,Math.Max(1,e.EffortLoad),e.GroundGrade);
+            s.Stamina=s.MaximumStamina*s.Exertion.Burst;s.Exhausted=s.Exertion.Burst<.08;
             // Critical exposure can incapacitate before it proves fatal. Mild
             // hypothermia causes impairment, not automatic rapid health loss.
             double coldDamage=Math.Max(0,32-s.CoreTemperatureC)*.12,heatDamage=Math.Max(0,s.CoreTemperatureC-39.5)*.25;

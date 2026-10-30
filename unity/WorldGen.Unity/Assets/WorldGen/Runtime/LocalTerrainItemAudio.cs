@@ -13,6 +13,7 @@ public sealed partial class LocalTerrainExplorer
     void PlayItemEffect(string category,Vector3 position,float volume=.5f,bool owner=false,int variant=-1)
     {
         if(!owner)ReportSleepNoise(position,volume*2);
+        if(category=="stone-contact"||category=="wood-chop"||category=="body-hit")ReportHuntingNoise(position,volume*2);
         if(ItemEffectVolume<=0||!owner&&(position-view.transform.position).sqrMagnitude>65*65)return;
         if(!itemEffectBanks.TryGetValue(category,out var clips))
         {

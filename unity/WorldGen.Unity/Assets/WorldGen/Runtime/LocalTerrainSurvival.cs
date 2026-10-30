@@ -76,6 +76,7 @@ public sealed partial class LocalTerrainExplorer
                 Immersed=!double.IsNaN(water)&&water-(sample.ElevationM+feetAboveGround)>.6};
         }
         survivalEnvironment.LocalHour=LocalSolarHour;survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
+        survivalEnvironment.EffortLoad=Inventory.LoadEffort;
         survivalEnvironment.Insulation=campSleeping?CampRules.BedInsulation(sleepingBed):0;
         double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt*CampTimeRate,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
@@ -105,6 +106,7 @@ public sealed partial class LocalTerrainExplorer
         var size=new Vector2(Screen.width,Screen.height);var safe=Screen.safeArea;
         if(size!=hudScreenSize||safe!=hudSafeArea)
         {hudScreenSize=size;hudSafeArea=safe;float scale=Mathf.Max(.01f,Screen.height/1080f);survivalHud.rectTransform.anchoredPosition=new Vector2(-16-(Screen.width-safe.xMax)/scale,16+safe.yMin/scale);}
-        survivalHud.SetValues(SurvivalHudValues.From(Vitals,FeltTemperatureC),!survivalHudCanvas.enabled);survivalHudCanvas.enabled=true;
+        var hud=SurvivalHudValues.From(Vitals,FeltTemperatureC);hud.Wind=WindHudValues.From(CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,heading);
+        survivalHud.SetValues(hud,!survivalHudCanvas.enabled);survivalHudCanvas.enabled=true;
     }
 }
