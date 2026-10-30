@@ -179,6 +179,7 @@ public sealed partial class LocalTerrainExplorer
             {axis=spear.transform.up;float support=.10f;
                 if(viewItemActions.TryGetValue(main.Id,out var stroke)){float phase=Mathf.Clamp01((float)((now-stroke.At)/Math.Max(.2,stroke.Duration)));support*=1-.9f*Mathf.Sin(phase*Mathf.PI);}
                 target=spear.transform.position+axis*((float)main.HeightM*.35f+support);curl=.9f;}
+            if(combatGuarding&&main==null){target=view.transform.TransformPoint(new Vector3(isRight?.15f:-.15f,-.1f,.4f));curl=.95f;}
             if(now-viewReleaseAt<.5&&viewReleaseLeft==!isRight)
             {
                 float t=(float)((now-viewReleaseAt)/.5);
