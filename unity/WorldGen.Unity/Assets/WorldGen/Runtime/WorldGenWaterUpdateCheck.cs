@@ -117,7 +117,7 @@ public sealed partial class LocalTerrainExplorer
         // The game HUD is an overlay. Camera-mode diagnostic capture would let
         // the very close held rig depth-occlude it, so exclude that rig here.
         bool previousArmsVisible=viewArmsVisible;viewArmsVisible=false;
-        survivalHudCanvas.renderMode=RenderMode.ScreenSpaceCamera;survivalHudCanvas.worldCamera=view;survivalHudCanvas.planeDistance=.4f;view.cullingMask|=1<<5;survivalHudCanvas.enabled=true;
+        survivalHudCanvas.renderMode=RenderMode.ScreenSpaceCamera;survivalHudCanvas.worldCamera=view;survivalHudCanvas.planeDistance=.15f;view.cullingMask|=1<<5;survivalHudCanvas.enabled=true;
         Color32[] Image(string name)
         {
             var previous=RenderTexture.active;var old=view.targetTexture;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
@@ -126,12 +126,13 @@ public sealed partial class LocalTerrainExplorer
         }
         try
         {
-            void Hud(){survivalHud.SetValues(SurvivalHudValues.From(Vitals,22),true);Canvas.ForceUpdateCanvases();}
+            void Hud(){survivalHud.SetValues(SurvivalHudValues.From(Vitals,22),true);survivalHud.SetAllDirty();Canvas.ForceUpdateCanvases();}
             Hud();var faint=Image("05-water-mild");Vitals.WaterSicknessSeverity=0;Hud();var clear=Image("06-water-unnoticed");
             Vitals.WaterSicknessSeverity=.9;Hud();var strong=Image("07-water-severe");
             long faintDifference=0,strongDifference=0;int greenPixels=0;
             for(int i=0;i<clear.Length;i++)
             {faintDifference+=Math.Abs(faint[i].r-clear[i].r)+Math.Abs(faint[i].g-clear[i].g)+Math.Abs(faint[i].b-clear[i].b);strongDifference+=Math.Abs(strong[i].r-clear[i].r)+Math.Abs(strong[i].g-clear[i].g)+Math.Abs(strong[i].b-clear[i].b);if(strong[i].g-strong[i].r>clear[i].g-clear[i].r+8)greenPixels++;}
+            File.WriteAllText(Path.Combine(output,"nausea-hud-metrics.txt"),"mild="+mild+"; displayed severe="+survivalHud.Displayed.Sickness+"; faint difference="+faintDifference+"; strong difference="+strongDifference+"; greener pixels="+greenPixels);
             Check(faintDifference>0&&strongDifference>faintDifference*2&&greenPixels>10,"Real GPU stomach tint distinguishes unnoticed, faint and severe nausea");
         }
         finally{viewArmsVisible=previousArmsVisible;survivalHudCanvas.renderMode=previousMode;survivalHudCanvas.worldCamera=previousCamera;view.cullingMask=mask;}
