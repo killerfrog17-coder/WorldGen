@@ -48,6 +48,8 @@ public sealed partial class LocalTerrainExplorer
         var stone=Hold(PossessionKind.StonePoint,PossessionPlace.LeftHand);UpdateInventoryVisuals();Check(!SupportSpear(spear),"An occupied offhand makes the same spear one-handed");FiniteArms("one-hand spear");Image("02-spear-one-hand");Inventory.Items.Remove(stone);
         AnimateViewItem(spear);viewItemActions[spear.Id].At-=.26;UpdateInventoryVisuals();FiniteArms("thrust");Image("03-spear-thrust");viewItemActions.Clear();
         itemCharge=new ItemCharge{Weapon=spear,Ammo=spear,Started=Time.unscaledTimeAsDouble-.8,Duration=.8,Throw=true};UpdateInventoryVisuals();FiniteArms("throw wind-up");Image("04-spear-wind-up");
+        var throwingWrist=view.transform.InverseTransformPoint(viewArms.Bones["Wrist.R"].position);
+        Check(throwingWrist.z>.15&&Math.Abs(throwingWrist.x)<throwingWrist.z*Math.Tan(view.fieldOfView*Math.PI/360)*view.aspect+.06,"The cocked throwing arm remains visible beside the held spear");
         itemCharge=null;AnimateViewItem(spear,true);Inventory.Items.Remove(spear);UpdateInventoryVisuals();Image("05-throw-follow-through");
         Clear();AnimateViewItem(null);viewPunchAt-=.15;UpdateInventoryVisuals();Image("05b-unarmed-punch");viewPunchAt=-100;combatGuarding=true;UpdateInventoryVisuals();FiniteArms("unarmed guard");Image("05c-unarmed-guard");
         var rightGuard=view.transform.InverseTransformPoint(viewArms.Bones["Wrist.R"].position);var leftGuard=view.transform.InverseTransformPoint(viewArms.Bones["Wrist.L"].position);

@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+LATEST30Oct11:17CDT: eight-hour work still ACTIVE until at least12:09CDT.
+41d1daf pushed/verified. v23 artifacts/player-first-person-release IL2CPP
+BuiltUtc16:04:11Z passed ALL401native:155items/80FPS/39hunting/30nature/97camp.
+Clean exits/logs; proof-gait718source/578protected/177skin/87banks/18+24audio exact.
+Corpse p99 returned2.476<2.5 after local neck/proximal limits. Better but corpse
+can still perch awkwardly on folded limbs, so CURRENT UNCOMMITTED v24 seeds
+coherent small common-body roll instead of a lone root impulse. Needs actual
+native validation. v24 authoring also keeps cocked throwing hand IN CAMERA
+(old pose was entirely off right edge), links release elbow/twist seeds to
+charge endpoints. Export53clips continuity guardPASS. New visible-hand assertion.
+New v24 FBX/Blend/manifest NOT IMPORTED YET. Native v23 suite just finished,
+no own native/Unity/Blender jobs now. Must importv24, commit/freeze, NEW IL2CPP
+player-first-person-final (keep v23release fallback), native FULL suite/real
+windup+collapse views before selecting existing root shortcut. Shortcut STILL
+old rejected hunting-first-person. Continue until minimum or explicit ownerstop.
+No cleanup/paid/subagents/Mono. Owner3untouched. Current v24 game changes
+UNCOMMITTED; AGENTS also needs checkpoint. No new broader systems authorized.
+
 LATEST30Oct10:53CDT ACTIVE minimum through17:09:07Z/12:09CDT. d289836 pushed
 and remotely verified. IL2CPP artifacts/player-first-person-release now v22,
 BuiltUtc15:45:48.9205731Z; proof-continuous718sources/578protected/177skins/

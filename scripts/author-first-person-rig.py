@@ -377,11 +377,17 @@ for name in list(SPEAR_FINGERS):
     left=name[:-2]+'.L';SPEAR_FINGERS[left]=mirrored_basis[left].to_quaternion()
 CLIPS = []
 CONTINUITY = []
+CLIP_END_ELBOWS = {}
+CLIP_END_TWISTS = {}
 
 
 def bake(name, seconds, function, loop=False, contact=-1, release=-1):
     POSE_ELBOWS.clear()
     POSE_TWISTS.clear()
+    predecessor={'ThrowRelease':'ThrowCharge','SpearThrowRelease':'SpearThrowCharge','BowRelease':'BowDraw','SlingRelease':'SlingWhirl'}.get(name)
+    if predecessor:
+        POSE_ELBOWS.update({side:point.copy() for side,point in CLIP_END_ELBOWS[predecessor].items()})
+        POSE_TWISTS.update(CLIP_END_TWISTS[predecessor])
     frames = max(2, round(seconds*FPS)+1)
     action = bpy.data.actions.new(name)
     action.use_fake_user = True
@@ -426,6 +432,8 @@ def bake(name, seconds, function, loop=False, contact=-1, release=-1):
     if worst_rotation>35 or worst_travel>.12:
         raise RuntimeError(f'{name}: discontinuous authored arm motion: {worst_rotation:.2f} deg / {worst_travel:.4f} m per 60 Hz frame')
     CONTINUITY.append(dict(clip=name,max_frame_rotation_deg=worst_rotation,max_frame_travel_m=worst_travel))
+    CLIP_END_ELBOWS[name]={side:point.copy() for side,point in POSE_ELBOWS.items()}
+    CLIP_END_TWISTS[name]=POSE_TWISTS.copy()
     print('AUTHORED', name, frames, flush=True)
     return action
 
@@ -521,7 +529,7 @@ bake('Empty',3,empty,True)
 
 
 def throw_charge(t, long_spear=False):
-    p=keyed([(0,dict(center=(.22,-.16,.28),axis=(-.43,.14,.89),roll=240. if long_spear else 300.)),(1,dict(center=(.43,-.025,.29),axis=(-.06,.04,.998),roll=245. if long_spear else 300.))],t)
+    p=keyed([(0,dict(center=(.22,-.16,.28),axis=(-.43,.14,.89),roll=240. if long_spear else 300.)),(1,dict(center=(.28,-.04,.38),axis=(-.06,.04,.998),roll=245. if long_spear else 300.))],t)
     base=reset((0,-.12,0))
     grip_pose('R',base=base,grip_style='spear' if long_spear else 'tool',**p)
     grip_pose('L',(-.27,-.43,.23),(0,1,0),0,base,.25)
@@ -529,7 +537,7 @@ def throw_charge(t, long_spear=False):
 
 def throw_release(t, long_spear=False):
     base=reset((0,-.12,.10*math.sin(min(1,t/.55)*math.pi)))
-    p=keyed([(0,dict(center=(.43,-.025,.29),axis=(-.06,.04,.998),roll=245. if long_spear else 300.,curl=1.)),(.35,dict(center=(.08,-.06,.44),axis=(-.12,.04,.992),roll=180. if long_spear else 150.,curl=.05)),(.6,dict(center=(.04,-.15,.43),axis=(-.05,-.1,.994),roll=150. if long_spear else 110.,curl=.1)),(1,dict(center=(.27,-.43,.26),axis=(0,-.25,.97) if long_spear else (0,1,0),roll=150. if long_spear else 0.,curl=.28))],t)
+    p=keyed([(0,dict(center=(.28,-.04,.38),axis=(-.06,.04,.998),roll=245. if long_spear else 300.,curl=1.)),(.35,dict(center=(.08,-.06,.44),axis=(-.12,.04,.992),roll=180. if long_spear else 150.,curl=.05)),(.6,dict(center=(.04,-.15,.43),axis=(-.05,-.1,.994),roll=150. if long_spear else 110.,curl=.1)),(1,dict(center=(.27,-.43,.26),axis=(0,-.25,.97) if long_spear else (0,1,0),roll=150. if long_spear else 0.,curl=.28))],t)
     grip_pose('R',base=base,grip_style='spear' if long_spear else 'tool',**p)
     grip_pose('L',(-.27,-.43,.23),(0,1,0),0,base,.25)
 

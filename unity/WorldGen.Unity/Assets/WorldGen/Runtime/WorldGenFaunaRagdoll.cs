@@ -107,7 +107,19 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             if(connected||Physics.ComputePenetration(a,a.transform.position,a.transform.rotation,b,b.transform.position,b.transform.rotation,out _,out _))Physics.IgnoreCollision(a,b);
         }
         BuildGround(ground,model.position,Mathf.Max(8,scale*3));Physics.SyncTransforms();
-        if(freeze)Freeze();else if(parts.Count>0)parts[0].Body.AddForceAtPosition(model.right*(float)Math.Min(2,mass*.05),parts[0].Body.worldCenterOfMass+Vector3.up*.08f,ForceMode.Impulse);
+        if(!freeze&&!lightPhysics&&parts.Count>1)
+        {
+            // Once balance is lost, a standing quadruped should topple rather
+            // than remain propped symmetrically on four locked limb chains.
+            // Seed a small coherent roll, including its matching linear
+            // velocities, so no joint receives a tearing initial impulse.
+            Vector3 center=Vector3.zero;float rollMass=0;
+            foreach(var part in parts){center+=part.Body.worldCenterOfMass*part.Body.mass;rollMass+=part.Body.mass;}
+            center/=Mathf.Max(.00001f,rollMass);
+            Vector3 spin=model.forward*(Vector3.Dot(velocity,model.right)<0?1:-1)*(.45f/Mathf.Sqrt(Mathf.Max(.5f,scale/1.8f)));
+            foreach(var part in parts){part.Body.angularVelocity=spin;part.Body.linearVelocity=Vector3.ClampMagnitude(part.Body.linearVelocity+Vector3.Cross(spin,part.Body.worldCenterOfMass-center),15);}
+        }
+        if(freeze)Freeze();else if(lightPhysics&&parts.Count>0)parts[0].Body.AddForceAtPosition(model.right*(float)Math.Min(2,mass*.05),parts[0].Body.worldCenterOfMass+Vector3.up*.08f,ForceMode.Impulse);
     }
     void Add(int bone,Vector3 start,Vector3 end,float radius,double mass,Dictionary<int,int> map,FaunaPhysicsBone[] descriptions,Vector3 velocity,bool spine=false,bool leg=false,bool tail=false,bool neck=false)
     {
