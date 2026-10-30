@@ -452,7 +452,9 @@ bake('ToolBlunt',.75,lambda t:short_strike(t,'blunt'),contact=.42)
 bake('ToolChop',.85,lambda t:short_strike(t,'chop'),contact=.4)
 bake('ToolGuard', .15, lambda t:native_pose('Sword_Block',t))
 bake('FistsReady', 80/30, lambda t:native_pose('Fists_Idle',t), True)
-bake('FistsGuard', .15, lambda t:native_pose('Fists_Block',t))
+# The upstream block finishes with crossed, open hands close to the camera.
+# A held guard needs its closed-fist middle pose; runtime blends into this hold.
+bake('FistsGuard', .15, lambda t:native_pose('Fists_Block',.35))
 
 
 def punch(t):

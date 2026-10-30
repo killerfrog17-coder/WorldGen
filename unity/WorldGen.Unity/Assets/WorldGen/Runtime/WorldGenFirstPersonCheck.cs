@@ -12,10 +12,10 @@ public sealed partial class LocalTerrainExplorer
     public IEnumerator CheckFirstPersonFlow(string output,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("FIRST PERSON "+text);report.Add("PASS "+text);Debug.Log("FIRST PERSON PASS "+text);}
-        Color32[] Image(string name)
+        Color32[] Image(string name,int width=1280,int height=800)
         {
-            var old=view.targetTexture;var previous=RenderTexture.active;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;
-            var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();var pixels=image.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
+            var old=view.targetTexture;var previous=RenderTexture.active;var rt=new RenderTexture(width,height,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;
+            var image=new Texture2D(width,height,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,width,height),0,0);image.Apply();var pixels=image.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
             RenderTexture.active=previous;view.targetTexture=old;rt.Release();Destroy(rt);Destroy(image);return pixels;
         }
         void Clear()
@@ -86,6 +86,11 @@ public sealed partial class LocalTerrainExplorer
             viewArmDiagnosticClip=role;viewArmDiagnosticTime=viewArms.Duration(role)*.45;UpdateInventoryVisuals();FiniteArms(role);Image("work-"+role);
         }
         Clear();
+        foreach(var size in new[]{(1920,1080),(2560,1080),(1024,768)})
+        {
+            var wideSpear=Hold(PossessionKind.StoneTippedSpear);UpdateInventoryVisuals();Image("aspect-"+size.Item1+"-spear",size.Item1,size.Item2);
+            itemCharge=new ItemCharge{Weapon=wideSpear,Ammo=wideSpear,Started=Time.unscaledTimeAsDouble-.8,Duration=.8,Throw=true};UpdateInventoryVisuals();Image("aspect-"+size.Item1+"-windup",size.Item1,size.Item2);Clear();yield return null;
+        }
         // Visual evidence is a complete sampled sequence through the same
         // animation graph and private held models, not finite-vertex assertions.
         // These captures require human visual review before accepting the work.
@@ -104,7 +109,7 @@ public sealed partial class LocalTerrainExplorer
                 else if(sequence=="throw-charge"||sequence=="bow-draw")itemCharge=new ItemCharge{Weapon=held,Ammo=ammunition??held,Started=now-phase,Duration=1,Throw=sequence=="throw-charge"};
                 else if(sequence=="throw-release"){viewReleaseKind=ItemPrimaryUse.Thrust;viewReleaseLeft=false;viewReleaseSpear=true;viewReleaseAt=now-phase*.62;Inventory.Items.Remove(held);}
                 else viewGatherAt=now-phase*1.05;
-                UpdateInventoryVisuals();Image("motion/"+sequence+"-"+frame.ToString("D3"));
+                UpdateInventoryVisuals();Image("motion/"+sequence+"-"+frame.ToString("D3"));yield return null;
             }
         }
         viewArmDiagnosticDt=-1;viewArmPoseImmediate=true;Clear();

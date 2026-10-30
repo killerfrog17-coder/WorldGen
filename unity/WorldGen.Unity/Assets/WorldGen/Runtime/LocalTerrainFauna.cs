@@ -270,7 +270,9 @@ public sealed partial class LocalTerrainExplorer
         {
             double airBurst=Math.Max(0,Math.Min(1,(wanted-profile.walkMps)/Math.Max(.1,profile.runMps-profile.walkMps)));
             double demand=animal.Perched?0:profile.medium=="air"?animal.Clip.role=="glide"?.08:.48+.47*airBurst:Math.Pow(Math.Min(1,wanted/Math.Max(.1,profile.runMps)),1.3);
-            ExertionRules.Advance(animal.Exertion,animal.EffortProfile,dt,demand,CurrentWeather.TemperatureC);
+            // Water temperature is not yet sampled; hot air above a deep pool
+            // must not impose terrestrial heat strain on its submerged animals.
+            ExertionRules.Advance(animal.Exertion,animal.EffortProfile,dt,demand,profile.medium=="water"?20:CurrentWeather.TemperatureC);
             wanted=Math.Min(wanted,(float)(profile.runMps*animal.Exertion.PowerScale));
         }
         animal.Speed=Mathf.MoveTowards(animal.Speed,wanted,Math.Max(.15f,(float)profile.runMps)*dt*1.5f);

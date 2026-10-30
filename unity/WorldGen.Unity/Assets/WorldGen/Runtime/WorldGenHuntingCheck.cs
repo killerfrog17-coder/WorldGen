@@ -104,15 +104,19 @@ public sealed partial class LocalTerrainExplorer
     {
         string Csv(object value)=>"\""+Convert.ToString(value,System.Globalization.CultureInfo.InvariantCulture).Replace("\"","\"\"")+"\"";
         var bindings=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,animalProfiles);
-        var rows=new List<string>{"model,native_taxa,medium,diel,social,min_group,max_group,hunt_style,live_prey,carrion,defend_m,seasonal_rut,hibernates,migrates,sight_m,hearing_m,smell_m,cheap_decisions"};
+        var rows=new List<string>{"model,native_taxon,medium,diel,social,min_group,max_group,hunt_style,live_prey,carrion,defend_m,seasonal_rut,hibernates,migrates,sight_m,hearing_m,smell_m,cheap_decisions"};int families=0;
         foreach(var model in animalProfiles.OrderBy(p=>p.slug))
         {
-            var b=AnimalBehaviour(model);var n=b.NaturalHistory;var senses=WildlifeSenses.Describe(model.slug,1,b.Predator,model.medium=="air",model.tiny);
-            var taxa=string.Join("; ",bindings.Where(p=>p.Value.slug==model.slug).Select(p=>sourceWorld.Ecology.Taxa[p.Key].Name));
-            rows.Add(string.Join(",",new object[]{model.slug,taxa,model.medium,n.Diel,n.Social,b.GroupMin,b.GroupMax,n.Hunt,b.CanHunt,b.CanScavenge,b.DefendM,b.SeasonalRut,b.Hibernates,b.Migratory,senses.VisionM,senses.HearingM,senses.SmellM,b.SmallBudget||model.tiny}.Select(Csv)));
+            families++;var native=bindings.Where(p=>p.Value.slug==model.slug).Select(p=>p.Key).ToArray();if(native.Length==0)native=new[]{-1};
+            foreach(int id in native)
+            {
+                var data=id<0?null:sourceWorld.Ecology.Taxa[id];var b=AnimalBehaviour(model,id);var n=b.NaturalHistory;
+                var senses=WildlifeSenses.Describe(model.slug,data?.MassKg??1,b.Predator,model.medium=="air",model.tiny,data?.Name??"");
+                rows.Add(string.Join(",",new object[]{model.slug,data?.Name??"unbound model",model.medium,n.Diel,n.Social,b.GroupMin,b.GroupMax,n.Hunt,b.CanHunt,b.CanScavenge,b.DefendM,b.SeasonalRut,b.Hibernates,b.Migratory,senses.VisionM,senses.HearingM,senses.SmellM,b.SmallBudget||model.tiny}.Select(Csv)));
+            }
         }
         File.WriteAllLines(Path.Combine(output,"animal-profile-audit.csv"),rows);
-        if(rows.Count!=178)throw new InvalidOperationException("Wildlife profile audit omitted model families.");
+        if(families!=177)throw new InvalidOperationException("Wildlife profile audit omitted model families.");
         report.Add("PASS Exported the active natural-history and sense configuration for all 177 model families");
     }
     void CheckSmallSchoolDecisions(AnimalModel model,List<string> report)
@@ -124,7 +128,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var root=new GameObject("School decision probe");roots.Add(root);root.transform.localPosition=new Vector3((float)x,0,(float)z);
             var p=animalProfiles.First(a=>a.slug=="small-native-freshwater-fish-guild");
-            return new Animal{Root=root,Model=model,Spawn=new FaunaPrototypeSpawn{Profile=p},X=x,Z=z,MassKg=predator?2:.02,Heading=90,Speed=predator?1:0,Behaviour=new WildlifeBehaviourProfile{CanHunt=predator}};
+            return new Animal{Root=root,Model=model,Spawn=new FaunaPrototypeSpawn{Profile=p},X=x,Z=z,Health=1,MaximumHealth=1,MassKg=predator?2:.02,Heading=90,Speed=predator?1:0,Behaviour=new WildlifeBehaviourProfile{CanHunt=predator}};
         }
         void Check(bool ok,string why){if(!ok)throw new InvalidOperationException("SCHOOL "+why);report.Add("PASS "+why);}
         try

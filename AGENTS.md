@@ -1,21 +1,30 @@
 # WorldGen repository instructions
 
-IN-PROGRESS30Oct07:12CDT: eight-hour mandate BELOW STILL ACTIVE until at least
-17:09:07Z/12:09CDT. Do not stop on this checkpoint. New CC0 native FPS derivative
-47 clips/66 bones/20157 imported vertices, offline FK and forearm twist stations;
-latest v8 Unity import EXIT0. Needs new IL2CPP/native/whole-motion visual review.
-Alpha and twist candidates each43 native PASS but internally rejected visuals:
-first wrist pinching, then bow thumb near-plane clipping. Existing shortcut stays
-old player-hunting-first-person, NOT candidate. Current candidate folder
-player-first-person-authored is unselected/reusable; last binary11:36:34Z is OLD
-33-clip twist revision. Source newer: bow clearance, spear-specific throw,
-sling/atlatl loaded ammo, craft/eat/drink/carry clips, timed melee/throw contact,
-actual-input checks. These newer changes are COMPILED editor but NOT native-tested.
-All177 model families have explicit natural-history priors; Core571 hunting +103
-abundance PASS. Runtime ethology changes need native hunting/performance tests.
-Current own Blender grip-fit diagnostic session43389 may still run; Unity exited.
-Need restore3 Unity autochanges after editor. No source cleanup, paid, subagents,
-Mono or owner3files. Continue main arms refinement and per-species AI audit.
+IN-PROGRESS30Oct09:15CDT: eight-hour mandate STILL ACTIVE through at least
+17:09:07Z/12:09CDT. Do not end on mechanical passes. Source bdff909 pushed;
+latest native FPS derivative v17 has53 clips/66 bones/20157 imported vertices.
+Fixed native take sampling retaining previous authored bone positions (caused
+crossed/near-clipped guards); native closed fists now used for punch/sling.
+Deeper bow draw, independently anchored bow arm during release, revised work
+wrist rolls. Native51 check71PASS+actual mouse paths, but its visuals still had
+bad guard/shallow draw. Native53 IL2CPP14:08:17Z currently RUNNING owned21324/
+exec60337 output native-handling53. Shortcut STILL OLD rejected hunting-first-
+person package. Current authored candidate unselected/reusable, not frozenselected.
+Source AFTER53build adds QA-only fixes: synthetic fish probes needed Health=1;
+new aspect captures/yielding film frames. Needs next build/proof/native53b.
+Native51 hunting26PASS,61 actors/120 forced frame sweeps p50 1.386/p95 1.753ms,
+not totalFPS. Full51 item-use combat/crafting/launcher tests got through all item
+thumbnails then FAILED old hungry-wolf fixture (no actual hunger/facing set).
+53 fixes that fixture; needs rerun, do not call full item-use passed. New bounded
+school response, animal-impact source ownership, sleeping vision and native
+177-family CSV audit need latest hunting native validation. Core577 huntingPASS,
+77item-use/103abundance priorPASS. Original578 protectedhashes/177collision/87motion
+banks/18itemWAV/24bodyWAV EXACT for53. New source authoring tracked; owner3untouched.
+NO cleanup/paid/subagents/Mono. No new locomotion speed system committed: existing
+catalogue speeds still rough length-based placeholders; research found that issue,
+but main priority remains arms and tested cheap behavior. Do not claim exact species
+speed biology. All original fauna/human art untouched. Continue until minimumtime
+or explicit ownerstop; then proper handoff/Git/shortcut only after actual betterQA.
 
 OWNER30Oct ~04:09CDT REJECTED FIRST-PERSON ARMS. New work ACTIVE; minimum EIGHT
 HOURS from 2026-10-30T09:09:07Z, so work through at least17:09:07Z /12:09CDT,

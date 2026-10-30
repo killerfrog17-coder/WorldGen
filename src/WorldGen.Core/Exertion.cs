@@ -22,10 +22,14 @@ namespace WorldGen.Core
             var p=new ExertionProfile{BurstSeconds=22+Math.Min(25,Math.Sqrt(Math.Max(0,mass))),FatigueSeconds=1200,HeatTolerance=.85};
             if(Has("wolf","dog","hyena","horse","wildebeest","reindeer")){p.Aerobic=.64;p.BurstSeconds=55;p.FatigueSeconds=2600;}
             if(Has("cheetah")){p.Aerobic=.28;p.BurstSeconds=18;p.RecoverySeconds=220;p.HeatTolerance=.55;}
-            if(Has("kangaroo","wallaby")){p.Aerobic=.6;p.BurstSeconds=40;p.FatigueSeconds=1800;}
+            if(Has("kangaroo","wallaby")){p.Aerobic=.74;p.BurstSeconds=45;p.FatigueSeconds=2600;p.HeatTolerance=1.2;}
             if(Has("crocodile","alligator","tortoise","turtle")){p.Aerobic=.28;p.BurstSeconds=14;p.RecoverySeconds=170;}
             if(medium=="air"){p.Aerobic=.72;p.BurstSeconds=45;p.FatigueSeconds=3600;p.HeatTolerance=1.1;}
             if(medium=="water"){p.Aerobic=.7;p.BurstSeconds=38;p.FatigueSeconds=2800;p.HeatTolerance=2;}
+            if(slug=="pronghorn"){p.Aerobic=.76;p.BurstSeconds=80;p.FatigueSeconds=3600;}
+            if(slug=="camel"||slug=="oryx"||slug=="wild-ass")p.HeatTolerance=1.6;
+            if(slug=="polar-bear")p.HeatTolerance=.45;
+            if(slug=="reindeer"||slug=="musk-ox")p.HeatTolerance=.65;
             return p;
         }
     }

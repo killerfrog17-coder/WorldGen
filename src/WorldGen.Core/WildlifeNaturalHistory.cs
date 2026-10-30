@@ -248,9 +248,9 @@ namespace WorldGen.Core
         }
         public static double ThermalMobility(WildlifeNaturalHistoryProfile p,double temperatureC,bool water)
         {
-            if(!p.Ectotherm||p.Sensory==WildlifeSensoryKind.Fish)return 1;
-            // Fish use their habitat's water temperature, not the air above it.
-            // Until that field is available, do not chill a deep-water fish from
+            if(!p.Ectotherm||water||p.Sensory==WildlifeSensoryKind.Fish)return 1;
+            // Submerged animals use water temperature, not the air above it.
+            // Until that field is available, do not chill a fish or turtle from
             // a cold breeze. Terrestrial ectotherm mobility is gradual, not dead.
             return Math.Max(.08,Math.Min(1,(temperatureC+2)/22));
         }
