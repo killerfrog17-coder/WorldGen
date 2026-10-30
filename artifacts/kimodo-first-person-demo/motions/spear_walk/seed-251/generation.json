@@ -1,0 +1,24 @@
+{
+  "id": "spear_walk",
+  "label": "Walk \u2014 carrying spear",
+  "frames": 150,
+  "seed": 251,
+  "prompt": "A person walks forward at a steady normal pace carrying a long walking stick upright in their right hand.",
+  "steps": 50,
+  "seconds": 95.95400000002701,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "a4d23cd7283500ebcc82f7b21e16dd12de5a8bc21e733fc2b0a086925390371e",
+  "root_start": [
+    -0.004474851302802563,
+    1.0083884000778198,
+    0.04915083199739456
+  ],
+  "root_end": [
+    -0.5910668969154358,
+    0.9758933782577515,
+    7.572722911834717
+  ],
+  "raw_rotation_sha256": "1e16b5057eb1440251a8bdeb6b2936eaf7ba74a633609fe0d8093f305cee56b6"
+}

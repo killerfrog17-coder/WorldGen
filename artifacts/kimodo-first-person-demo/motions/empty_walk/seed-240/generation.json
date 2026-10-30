@@ -1,0 +1,24 @@
+{
+  "id": "empty_walk",
+  "label": "Walk \u2014 empty hands",
+  "frames": 150,
+  "seed": 240,
+  "prompt": "A person walks forward at a relaxed steady pace with empty hands and natural alternating arm swings.",
+  "steps": 50,
+  "seconds": 77.26500000001397,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "18915add6e1cecfc6b6302f14418891505c998c2c6a0010d6d045701e1cf929e",
+  "root_start": [
+    0.00473962165415287,
+    0.935062050819397,
+    -0.03797079250216484
+  ],
+  "root_end": [
+    -0.25878986716270447,
+    0.9689805507659912,
+    8.141000747680664
+  ],
+  "raw_rotation_sha256": "b94a56ebf903e96c78bbfcf3ea08f4c506d3d7f3858ef5caeb0b0fe9d4c96119"
+}

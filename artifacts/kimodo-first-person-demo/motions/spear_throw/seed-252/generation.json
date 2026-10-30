@@ -1,0 +1,24 @@
+{
+  "id": "spear_throw",
+  "label": "Throw spear",
+  "frames": 120,
+  "seed": 252,
+  "prompt": "A person throws a javelin forwards with a powerful right-handed overarm throw and follows through.",
+  "steps": 50,
+  "seconds": 84.28100000001723,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "7f46d2f993c0a421fe9b02d31709697bd240269279102273126d841e1dda0a95",
+  "root_start": [
+    -0.05361684411764145,
+    0.9858407378196716,
+    -0.00745783094316721
+  ],
+  "root_end": [
+    -0.0061150044202804565,
+    0.9856606721878052,
+    -0.011506657116115093
+  ],
+  "raw_rotation_sha256": "3b2ba6628bd9c78b8b49ab86e2dee885470ad99685fa045d1a8236ad5a91779b"
+}

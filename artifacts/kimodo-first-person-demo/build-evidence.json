@@ -1,0 +1,265 @@
+{
+  "source_sha256": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
+  "people": [
+    {
+      "variant": "A",
+      "rig": "MPFB_A",
+      "clips": [
+        {
+          "label": "empty_walk",
+          "action": "Kimodo A | empty_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240\\generation.json",
+          "source_clip": "empty_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.8544711736800311,
+          "release_frame": 0,
+          "spear_action": "Spear A | empty_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240"
+        },
+        {
+          "label": "spear_walk",
+          "action": "Kimodo A | spear_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251\\generation.json",
+          "source_clip": "spear_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.8544711736800311,
+          "release_frame": 0,
+          "spear_action": "Spear A | spear_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251"
+        },
+        {
+          "label": "spear_throw",
+          "action": "Kimodo A | spear_throw",
+          "frames": 120,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252\\generation.json",
+          "source_clip": "spear_throw",
+          "mapped_bones": 22,
+          "leg_ratio": 0.8544711736800311,
+          "release_frame": 60,
+          "spear_action": "Spear A | spear_throw",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252"
+        }
+      ],
+      "bones": 53
+    },
+    {
+      "variant": "B",
+      "rig": "MPFB_B",
+      "clips": [
+        {
+          "label": "empty_walk",
+          "action": "Kimodo B | empty_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240\\generation.json",
+          "source_clip": "empty_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.979138917979582,
+          "release_frame": 0,
+          "spear_action": "Spear B | empty_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240"
+        },
+        {
+          "label": "spear_walk",
+          "action": "Kimodo B | spear_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251\\generation.json",
+          "source_clip": "spear_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.979138917979582,
+          "release_frame": 0,
+          "spear_action": "Spear B | spear_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251"
+        },
+        {
+          "label": "spear_throw",
+          "action": "Kimodo B | spear_throw",
+          "frames": 120,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252\\generation.json",
+          "source_clip": "spear_throw",
+          "mapped_bones": 22,
+          "leg_ratio": 0.979138917979582,
+          "release_frame": 60,
+          "spear_action": "Spear B | spear_throw",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252"
+        }
+      ],
+      "bones": 53
+    },
+    {
+      "variant": "C",
+      "rig": "MPFB_C",
+      "clips": [
+        {
+          "label": "empty_walk",
+          "action": "Kimodo C | empty_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240\\generation.json",
+          "source_clip": "empty_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9266050918393787,
+          "release_frame": 0,
+          "spear_action": "Spear C | empty_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240"
+        },
+        {
+          "label": "spear_walk",
+          "action": "Kimodo C | spear_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251\\generation.json",
+          "source_clip": "spear_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9266050918393787,
+          "release_frame": 0,
+          "spear_action": "Spear C | spear_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251"
+        },
+        {
+          "label": "spear_throw",
+          "action": "Kimodo C | spear_throw",
+          "frames": 120,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252\\generation.json",
+          "source_clip": "spear_throw",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9266050918393787,
+          "release_frame": 60,
+          "spear_action": "Spear C | spear_throw",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252"
+        }
+      ],
+      "bones": 53
+    },
+    {
+      "variant": "D",
+      "rig": "MPFB_D",
+      "clips": [
+        {
+          "label": "empty_walk",
+          "action": "Kimodo D | empty_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240\\generation.json",
+          "source_clip": "empty_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9582226799991413,
+          "release_frame": 0,
+          "spear_action": "Spear D | empty_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240"
+        },
+        {
+          "label": "spear_walk",
+          "action": "Kimodo D | spear_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251\\generation.json",
+          "source_clip": "spear_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9582226799991413,
+          "release_frame": 0,
+          "spear_action": "Spear D | spear_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251"
+        },
+        {
+          "label": "spear_throw",
+          "action": "Kimodo D | spear_throw",
+          "frames": 120,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252\\generation.json",
+          "source_clip": "spear_throw",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9582226799991413,
+          "release_frame": 60,
+          "spear_action": "Spear D | spear_throw",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252"
+        }
+      ],
+      "bones": 53
+    },
+    {
+      "variant": "E",
+      "rig": "MPFB_E",
+      "clips": [
+        {
+          "label": "empty_walk",
+          "action": "Kimodo E | empty_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240\\generation.json",
+          "source_clip": "empty_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.7274027727110625,
+          "release_frame": 0,
+          "spear_action": "Spear E | empty_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240"
+        },
+        {
+          "label": "spear_walk",
+          "action": "Kimodo E | spear_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251\\generation.json",
+          "source_clip": "spear_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.7274027727110625,
+          "release_frame": 0,
+          "spear_action": "Spear E | spear_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251"
+        },
+        {
+          "label": "spear_throw",
+          "action": "Kimodo E | spear_throw",
+          "frames": 120,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252\\generation.json",
+          "source_clip": "spear_throw",
+          "mapped_bones": 22,
+          "leg_ratio": 0.7274027727110625,
+          "release_frame": 60,
+          "spear_action": "Spear E | spear_throw",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252"
+        }
+      ],
+      "bones": 53
+    },
+    {
+      "variant": "F",
+      "rig": "MPFB_F",
+      "clips": [
+        {
+          "label": "empty_walk",
+          "action": "Kimodo F | empty_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240\\generation.json",
+          "source_clip": "empty_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9298920863235695,
+          "release_frame": 0,
+          "spear_action": "Spear F | empty_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240"
+        },
+        {
+          "label": "spear_walk",
+          "action": "Kimodo F | spear_walk",
+          "frames": 150,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251\\generation.json",
+          "source_clip": "spear_walk",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9298920863235695,
+          "release_frame": 0,
+          "spear_action": "Spear F | spear_walk",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_walk\\seed-251"
+        },
+        {
+          "label": "spear_throw",
+          "action": "Kimodo F | spear_throw",
+          "frames": 120,
+          "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252\\generation.json",
+          "source_clip": "spear_throw",
+          "mapped_bones": 22,
+          "leg_ratio": 0.9298920863235695,
+          "release_frame": 60,
+          "spear_action": "Spear F | spear_throw",
+          "raw_take": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252"
+        }
+      ],
+      "bones": 53
+    }
+  ],
+  "source_unchanged": true,
+  "game_modified": false
+}

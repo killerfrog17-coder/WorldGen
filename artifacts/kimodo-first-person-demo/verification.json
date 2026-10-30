@@ -1,0 +1,149 @@
+{
+  "source_unchanged": true,
+  "results": [
+    {
+      "variant": "A",
+      "clip": "empty_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.031267184764146805,
+      "maximum_local_bone_angle_per_frame_deg": 19.16628387475209,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "A",
+      "clip": "spear_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.020636022090911865,
+      "maximum_local_bone_angle_per_frame_deg": 17.91499385149904,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "A",
+      "clip": "spear_throw",
+      "frames": 120,
+      "minimum_toe_tip_z": 0.030943071469664574,
+      "maximum_local_bone_angle_per_frame_deg": 62.75353873584173,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "B",
+      "clip": "empty_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.028803672641515732,
+      "maximum_local_bone_angle_per_frame_deg": 19.16628387475209,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "B",
+      "clip": "spear_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.009713832288980484,
+      "maximum_local_bone_angle_per_frame_deg": 17.91486224961316,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "B",
+      "clip": "spear_throw",
+      "frames": 120,
+      "minimum_toe_tip_z": 0.028337927535176277,
+      "maximum_local_bone_angle_per_frame_deg": 60.474544797472696,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "C",
+      "clip": "empty_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.03356919065117836,
+      "maximum_local_bone_angle_per_frame_deg": 19.16628387475209,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "C",
+      "clip": "spear_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.015470106154680252,
+      "maximum_local_bone_angle_per_frame_deg": 17.91486224961316,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "C",
+      "clip": "spear_throw",
+      "frames": 120,
+      "minimum_toe_tip_z": 0.032625712454319,
+      "maximum_local_bone_angle_per_frame_deg": 62.65430749216988,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "D",
+      "clip": "empty_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.031177308410406113,
+      "maximum_local_bone_angle_per_frame_deg": 19.16628387475209,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "D",
+      "clip": "spear_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.0167294442653656,
+      "maximum_local_bone_angle_per_frame_deg": 17.914949984310287,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "D",
+      "clip": "spear_throw",
+      "frames": 120,
+      "minimum_toe_tip_z": 0.029883909970521927,
+      "maximum_local_bone_angle_per_frame_deg": 61.74887189187968,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "E",
+      "clip": "empty_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.026814289391040802,
+      "maximum_local_bone_angle_per_frame_deg": 19.16628387475209,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "E",
+      "clip": "spear_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.015946131199598312,
+      "maximum_local_bone_angle_per_frame_deg": 17.914906117014993,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "E",
+      "clip": "spear_throw",
+      "frames": 120,
+      "minimum_toe_tip_z": 0.02497250586748123,
+      "maximum_local_bone_angle_per_frame_deg": 62.64877663832411,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "F",
+      "clip": "empty_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.029279064387083054,
+      "maximum_local_bone_angle_per_frame_deg": 19.166242847285897,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "F",
+      "clip": "spear_walk",
+      "frames": 150,
+      "minimum_toe_tip_z": 0.01863088458776474,
+      "maximum_local_bone_angle_per_frame_deg": 17.914949984310287,
+      "camera_switch_preserves_pose": true
+    },
+    {
+      "variant": "F",
+      "clip": "spear_throw",
+      "frames": 120,
+      "minimum_toe_tip_z": 0.021588223055005074,
+      "maximum_local_bone_angle_per_frame_deg": 62.29664423034169,
+      "camera_switch_preserves_pose": true
+    }
+  ]
+}
