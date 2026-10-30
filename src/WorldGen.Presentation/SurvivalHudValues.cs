@@ -19,7 +19,7 @@ namespace WorldGen.Presentation
             float sick=0;
             if(s.FoodExposures!=null)foreach(var e in s.FoodExposures)
                 if(e.DelaySeconds<=0&&e.RemainingSeconds>0)sick=Math.Max(sick,Unit(e.RemainingDamage/12));
-            if(s.WaterSicknessDelaySeconds<=0&&s.WaterSicknessSeconds>0)sick=Math.Max(sick,Unit(s.WaterSicknessSeverity));
+            sick=Math.Max(sick,Unit(WaterDrinking.SymptomSeverity(s)));
             return new SurvivalHudValues{Health=Unit(s.Health/100),Energy=Unit(s.Energy/100),Stamina=Unit(Math.Min(s.Stamina,s.Energy)/100),
                 Hydration=FeltHydration(water),Fullness=Unit(floor+(1-floor)*(1-s.Hunger/100)),
                 FoodAttention=Unit((s.Hunger-72)/23),WaterAttention=Unit((water-1.25)/1.25),Sickness=sick,

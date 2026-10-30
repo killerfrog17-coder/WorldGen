@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using WorldGen.Core;
@@ -7,7 +8,9 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     Texture2D waterNormalField;LocalWaterScreen waterScreen;
-    double waterSipAt,waterAimAt;int waterSipSequence;WaterTarget aimedWater;
+    double waterSipAt,waterAimAt;WaterTarget aimedWater;
+    readonly Dictionary<(int,LocalWaterKind,ulong,int,int,int),WaterSourceCache> waterSourceCache=new Dictionary<(int,LocalWaterKind,ulong,int,int,int),WaterSourceCache>();
+    sealed class WaterSourceCache {public long SolarHour,WeatherHour;public WaterSourceEnvironment Environment;}
     Vector3 waterAimEye,waterAimDirection;
     sealed class WaterTarget {public Vector3 Point;public float Distance;public WaterQuality Quality;}
     void InitializePlayerWater()
@@ -43,12 +46,49 @@ public sealed partial class LocalTerrainExplorer
         if(sample.WaterKind!=LocalWaterKind.River)level+=WaterSurface.Swell(x,z,Time.time,CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,level-floor,sample.WaterKind==LocalWaterKind.Ocean);
         return new MotionWater(level,V.Dot(sample.WaterFlow,frame.East)*sample.WaterSpeedMPerS,V.Dot(sample.WaterFlow,frame.North)*sample.WaterSpeedMPerS);
     }
-    WaterQuality PlayerWaterQuality(LocalTerrainSample sample)
+    WaterQuality PlayerWaterAppearance(LocalTerrainSample sample)
     {
-        var ecology=sourceWorld?.Ecology;HabitatCell habitat=ecology?.Habitat[sample.Cell];double lakeSalinity=double.NaN;
+        var ecology=sourceWorld?.Ecology;HabitatCell habitat=ecology!=null&&sample.Cell>=0&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;double lakeSalinity=double.NaN;
         if(sample.WaterKind==LocalWaterKind.Lake&&ecology!=null)
         {int body=sourceWorld.Hydrology.WaterBody[sample.Cell];if(body>=0&&body<ecology.WaterSalinityPpt.Length)lakeSalinity=ecology.WaterSalinityPpt[body];}
         return WaterQuality.From(sample,habitat,lakeSalinity);
+    }
+    WaterQuality PlayerWaterQuality(LocalTerrainSample sample,V? at=null)
+    {
+        var water=PlayerWaterAppearance(sample);if(sourceWorld==null||sample.WaterKind==LocalWaterKind.None)return water;
+        V p=at??Position;double radius=frame.RadiusM;
+        int x=(int)Math.Floor(p.X*radius/WaterContamination.PatchM),y=(int)Math.Floor(p.Y*radius/WaterContamination.PatchM),z=(int)Math.Floor(p.Z*radius/WaterContamination.PatchM);
+        var key=(sample.Cell,sample.WaterKind,sample.WaterBodyKey,x,y,z);
+        long solarHour=(long)Math.Floor(PlayerRules.SolarDays*24),weatherHour=(long)Math.Floor(weatherDays*24);
+        if(!waterSourceCache.TryGetValue(key,out var cached)||cached.SolarHour!=solarHour||cached.WeatherHour!=weatherHour)
+        {
+            if(waterSourceCache.Count>=128)waterSourceCache.Clear();
+            // Canonical planetary site: not the camera or floating terrain origin.
+            var site=new V(x+.5,y+.5,z+.5).Unit;
+            int cell=sample.WaterKind==LocalWaterKind.River&&sample.WaterBodyKey>0?(int)(sample.WaterBodyKey-1):sample.Cell;
+            double use=WaterContamination.CatchmentAnimalUse(sourceWorld,cell);
+            if(Wildlife?.Groups!=null)foreach(var group in Wildlife.Groups)
+            {
+                if(group.Intent!=WildlifeIntent.Drink||(group.Position-site).Length*radius>180)continue;
+                use+=Math.Min(.18,group.Members*.012);
+            }
+            double runoff=0;
+            if(worldWeather!=null)
+            {
+                // Analytical recent rainfall survives loading and leaving an area.
+                // Hour-cached; no weather or wildlife sweep in the frame render path.
+                double when=(weatherHour+.5)/24d;
+                var weather=worldWeather.AtPosition(site);
+                double recent=weather.Between(when-1,when).RainMm,week=weather.Between(when-7,when).RainMm;
+                double wetness=1-Math.Exp(-week/65);
+                runoff=D.Clamp(Math.Max(0,recent-12*(1-wetness))/25);
+            }
+            // There is no sanitation/waste or protected spring system yet: do not
+            // invent sewage around every fire, or advertise ordinary streams as springs.
+            cached=new WaterSourceCache{SolarHour=solarHour,WeatherHour=weatherHour,Environment=new WaterSourceEnvironment(use,runoff:runoff)};
+            waterSourceCache[key]=cached;
+        }
+        return WaterContamination.Apply(water,sourceWorld.Recipe.Seed,sample.WaterBodyKey,p,radius,PlayerRules.SolarDays,cached.Environment);
     }
     WaterTarget AimedWater(float maximum)
     {
@@ -68,7 +108,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     point.y=(float)water;var feet=PlayerFeet();if((point-feet).sqrMagnitude>2.8f*2.8f)return null;
                     var obstruction=TraceCombatObstacle(new Ray(view.transform.position,view.transform.forward),t,null,false);if(obstruction!=null&&obstruction.Distance<t-.1)return null;
-                    aimedWater=new WaterTarget{Point=point,Distance=t,Quality=PlayerWaterQuality(sample)};return t<maximum?aimedWater:null;
+                    aimedWater=new WaterTarget{Point=point,Distance=t,Quality=PlayerWaterQuality(sample,frame.Position(x,z))};return t<maximum?aimedWater:null;
                 }
             }
             if(point.y<floor-.03)return null;priorY=point.y;
@@ -87,7 +127,7 @@ public sealed partial class LocalTerrainExplorer
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);var equipment=PrepareWorkHands(Array.Empty<string>());
         try
         {
-            double chance=Rng.Value(sourceWorld.Recipe.Seed,"player-water-sip",unchecked((int)(PlayerRules.SolarDays*86400)+waterSipSequence++));
+            double chance=Rng.Value(sourceWorld.Recipe.Seed,"player-water-exposure",Vitals.WaterExposureSequence);
             WaterDrinking.Drink(Vitals,water.Quality,.25,chance,Mode);
             PlayBodyCue("drink");
             BeginConsumeGesture(true);
@@ -100,7 +140,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!Ready||waterScreen==null)return;
         var point=view.transform.localPosition;var sample=PlayerWaterSample(point.x+originX,point.z+originZ);
-        var water=SampleMotionWater(point.x+originX,point.z+originZ);var quality=PlayerWaterQuality(sample);
+        var water=SampleMotionWater(point.x+originX,point.z+originZ);var quality=PlayerWaterAppearance(sample);
         waterScreen.Set(view,water.Surface,quality,Mode!=GameMode.Survival,(float)(SkyFrame?.Daylight??0),CurrentWeather.TemperatureC,immediate);
         if(!SurvivalActive||paused||inventoryOpen||mapOpen||chatOpen||ecologyOpen||DeathVisible)return;
         double dt=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));var bodyWater=SampleMotionWater(motion.X,motion.Z);

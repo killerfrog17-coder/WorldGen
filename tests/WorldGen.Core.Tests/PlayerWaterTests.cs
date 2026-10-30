@@ -11,19 +11,21 @@ static class PlayerWaterTests
         var stream=new LocalTerrainSample{WaterKind=LocalWaterKind.River,WaterSpeedMPerS=1.5,WaterSurfaceM=40};
         var fresh=WaterQuality.From(stream);var ocean=WaterQuality.From(new LocalTerrainSample{WaterKind=LocalWaterKind.Ocean});
         var pond=WaterQuality.From(new LocalTerrainSample{WaterKind=LocalWaterKind.Lake});
-        Check(fresh.Fresh&&fresh.Contamination>0,"Moving clear freshwater is never guaranteed safe");
-        Check(pond.Contamination>fresh.Contamination,"Stagnant freshwater has higher baseline risk");
+        Check(fresh.Fresh&&fresh.Contamination==0,"Water appearance does not invent infectious material");
+        Check(pond.Contamination==fresh.Contamination,"Lake versus river alone cannot establish contamination");
         Check(!ocean.Fresh&&ocean.SalinityPpt==35,"Ocean water is saline");
         Check(!WaterQuality.From(new LocalTerrainSample{WaterKind=LocalWaterKind.Lake},null,50).Fresh,"Actual saline lake data overrides freshwater defaults");
         var state=new PlayerSurvival{Thirst=60};WaterDrinking.Drink(state,fresh,.25,1,GameMode.Survival);
         Check(state.Thirst<52&&state.WaterSicknessSeconds==0,"A clean sip restores hydration without inevitable sickness");
         double before=state.Thirst;WaterDrinking.Drink(state,ocean,.25,1,GameMode.Survival);Check(state.Thirst>before,"Seawater worsens dehydration");
         before=state.Thirst;WaterDrinking.Drink(state,ocean,.25,0,GameMode.Creative);Check(state.Thirst==before,"Creative water exposure has no survival consequences");
-        WaterDrinking.Drink(state,fresh,.25,0,GameMode.Survival);Check(state.WaterSicknessDelaySeconds>3600&&state.WaterSicknessSeconds>0,"Contamination can cause delayed illness");
+        WaterDrinking.Drink(state,fresh.WithContamination(.5),.25,0,GameMode.Survival);Check(state.WaterSicknessDelaySeconds>3600&&state.WaterSicknessSeconds>0,"Actual contamination can cause delayed infection");
         var options=new JsonSerializerOptions{IncludeFields=true};var saved=JsonSerializer.Deserialize<PlayerSurvival>(JsonSerializer.Serialize(state,options),options);
         Check(saved.WaterSicknessSeconds==state.WaterSicknessSeconds&&saved.WaterSicknessDelaySeconds==state.WaterSicknessDelaySeconds,"Illness survives ordinary field serialization");
         before=state.Thirst;WaterDrinking.AdvanceIllness(state,3600);Check(state.Thirst==before,"Illness has an incubation period");
-        WaterDrinking.AdvanceIllness(state,state.WaterSicknessDelaySeconds+3600);Check(state.Thirst>before&&state.Energy<100,"Active illness costs water and energy");
+        state.WaterSicknessSeverity=.5;
+        WaterDrinking.AdvanceIllness(state,state.WaterSicknessDelaySeconds+3600);Check(state.Thirst>before&&state.Energy<100,"Symptomatic illness costs water and energy");
+        WaterSourceTests.Run();
         foreach(double dt in new[]{1d/240,1d/60,1d/20,.25})
         {
             var m=new TerrainMotion{Y=.5,Water=(x,z)=>new MotionWater(0)};

@@ -11,10 +11,10 @@ Freshwater hydrates; seawater produces a net hydration loss. Ocean salinity is
 35 ppt. Lakes use their existing simulated salinity, including saline lakes.
 Tidal river water can be brackish using the habitat salinity and low-elevation
 tidal influence. This is an approximation, not a transported estuary salinity
-field. Clear moving water has a lower contamination prior than stagnant/muddy
-water, never zero risk. Illness has a saved incubation period and subsequently
-increases water and energy losses. The numerical probabilities are game balance
-priors, not measured pathogen concentrations or a water-safety recommendation.
+field. The original generic contamination priors were replaced on 30 October:
+[natural-source water and illness](WATER_SICKNESS.md) describes persistent local
+source conditions, volume-based exposure and mostly unnoticed/mild courses.
+Clarity, mud and flow do not themselves establish infectious contamination.
 
 Deep water switches the walking motor to buoyancy, swimming and bounded current
 advection. WASD follows the view direction; Space rises and Ctrl dives. Shallows

@@ -71,7 +71,7 @@ namespace WorldGen.Presentation
             PlayerMetabolism.Advance(s,day,activity,coldLoad,2.4+Math.Max(0,e.AirTemperatureC-22)*.09+activity*3+sweat*.6);
             bool resting=speed<.1;
             bool comfortable=s.CoreTemperatureC>=36&&s.CoreTemperatureC<=38;
-            double energyLimit=100*s.BodyCondition*(s.Hunger>90?.9:1)*(1-.25*Clamp((s.Thirst-60)/40));
+            double energyLimit=100*s.BodyCondition*(s.Hunger>90?.9:1)*(1-.25*Clamp((s.Thirst-60)/40))*(1-.18*WaterDrinking.SymptomSeverity(s));
             if(resting&&s.Thirst<85&&comfortable)s.Energy=Clamp(s.Energy+day*(e.Sleeping?180*Math.Max(.25,e.SleepComfort):65),0,energyLimit);
             else s.Energy=Clamp(s.Energy-day*(8+activity*70+coldLoad*.5+heatLoad*4),0,100);
             if(s.Exertion==null)s.Exertion=new ExertionState{Burst=Clamp(s.Stamina/Math.Max(1,s.MaximumStamina))};

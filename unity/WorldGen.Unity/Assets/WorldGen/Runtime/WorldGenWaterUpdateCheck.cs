@@ -84,6 +84,57 @@ public sealed partial class LocalTerrainExplorer
         Check(rs.WaterKind==LocalWaterKind.River&&PlayerWaterQuality(rs).Fresh,"Actual inland flowing river is freshwater");
         motion.Place(rx,rz,Ground(rx,rz),true,5);motion.Y=Math.Max(motion.Y,SampleMotionWater(rx,rz).Surface+4);heading=45;pitch=30;UpdateHumans();UpdateCamera();UpdatePlayerWater();yield return null;Image("04-river-surface");
         Check(waterMaterial.shader.isSupported&&waterNormalField!=null,"Animated river/ocean water shader and periodic slope data are supported");
+        yield return CheckSourceWaterIllness(output,report,rs,mid);
         File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
+    }
+    IEnumerator CheckSourceWaterIllness(string output,List<string> report,LocalTerrainSample river,V at)
+    {
+        void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("SOURCE WATER "+text);report.Add("PASS "+text);Debug.Log("SOURCE WATER PASS "+text);}
+        var quality=PlayerWaterQuality(river,at);var repeated=PlayerWaterQuality(river,at);
+        Check(quality.Contamination==repeated.Contamination,"Actual river source quality persists across repeated queries");
+        var appearance=PlayerWaterAppearance(river);var mud=river;mud.Sediment=1;mud.WaterTurbulence=1;
+        Check(PlayerWaterQuality(mud,at).Contamination==quality.Contamination,"Changing only water sediment/turbulence cannot create pathogens");
+        Check(appearance.Contamination==0&&waterSourceCache.Count<=128,"Frame-render appearance avoids disease queries and source cache is bounded");
+        TerrainHandoff.Coordinates(frame,at,out double x,out double z);motion.Place(x,z,Ground(x,z));
+        motion.Y=SampleMotionWater(x,z).Surface+.35-humanEyeOffset;heading=45;pitch=70;
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1);ApplyPlayerMode();UpdateHumans();UpdateCamera();
+        waterAimAt=waterSipAt=0;double before=Vitals.WaterDeficitLitres;
+        Check(AimedWater(float.PositiveInfinity)?.Quality.Fresh==true,"Actual freshwater surface is reachable through the normal aim path");
+        Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.WaterDeficitLitres<before-.2,"Actual freshwater E interaction hydrates with source-specific exposure");
+        Vitals.Restore();Vitals.WaterExposureThreshold=.1;Vitals.WaterExposureResponse=.65;
+        WaterDrinking.Drink(Vitals,new WaterQuality(LocalWaterKind.River,.08,.5,.05),.25,.99,Mode);
+        Check(Vitals.WaterSicknessSeconds>0&&Vitals.WaterSicknessSeverity>.05&&Vitals.WaterSicknessSeverity<.2,"A controlled contaminated dose produces a genuinely mild illness course");
+        Check(SurvivalHudValues.From(Vitals,22).Sickness==0,"Contaminated exposure stays invisible during incubation in the native player");
+        double incubation=Vitals.WaterSicknessDelaySeconds,duration=Vitals.WaterSicknessSeconds;
+        WaterDrinking.Drink(Vitals,new WaterQuality(LocalWaterKind.River,.08,1,0),1,0,Mode);
+        Check(Vitals.WaterSicknessDelaySeconds==incubation&&Vitals.WaterSicknessSeconds==duration,"Extra contaminated water cannot restart an existing native illness");
+        var checkpoint=new PlaySession();StorePlayer(checkpoint);var saved=WorldJson.Read<PlaySession>(WorldJson.Write(checkpoint));saved.Validate();
+        Check(saved.Survival.WaterSicknessTotalSeconds==Vitals.WaterSicknessTotalSeconds&&saved.Survival.WaterSicknessSeverity==Vitals.WaterSicknessSeverity,"Actual player capture and serializer preserve the new illness course");
+        WaterDrinking.AdvanceIllness(Vitals,incubation+6*3600);double mild=WaterDrinking.SymptomSeverity(Vitals);
+        Check(mild>.05&&mild<.2&&Vitals.WaterDeficitLitres<.05,"Native mild symptoms remain a small physiological setback");
+        var previousMode=survivalHudCanvas.renderMode;var previousCamera=survivalHudCanvas.worldCamera;int mask=view.cullingMask;
+        survivalHudCanvas.renderMode=RenderMode.ScreenSpaceCamera;survivalHudCanvas.worldCamera=view;survivalHudCanvas.planeDistance=.4f;view.cullingMask|=1<<5;survivalHudCanvas.enabled=true;
+        Color32[] Image(string name)
+        {
+            var previous=RenderTexture.active;var old=view.targetTexture;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
+            var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();var pixels=image.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
+            RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);return pixels;
+        }
+        try
+        {
+            void Hud(){survivalHud.SetValues(SurvivalHudValues.From(Vitals,22),true);Canvas.ForceUpdateCanvases();}
+            Hud();var faint=Image("05-water-mild");Vitals.WaterSicknessSeverity=0;Hud();var clear=Image("06-water-unnoticed");
+            Vitals.WaterSicknessSeverity=.9;Hud();var strong=Image("07-water-severe");
+            long faintDifference=0,strongDifference=0;int greenPixels=0;
+            for(int i=0;i<clear.Length;i++)
+            {faintDifference+=Math.Abs(faint[i].r-clear[i].r)+Math.Abs(faint[i].g-clear[i].g)+Math.Abs(faint[i].b-clear[i].b);strongDifference+=Math.Abs(strong[i].r-clear[i].r)+Math.Abs(strong[i].g-clear[i].g)+Math.Abs(strong[i].b-clear[i].b);if(strong[i].g>clear[i].g+4)greenPixels++;}
+            Check(faintDifference>0&&strongDifference>faintDifference*2&&greenPixels>10,"Real GPU stomach tint distinguishes unnoticed, faint and severe nausea");
+        }
+        finally{survivalHudCanvas.renderMode=previousMode;survivalHudCanvas.worldCamera=previousCamera;view.cullingMask=mask;}
+        WaterDrinking.AdvanceIllness(Vitals,10*86400);Check(Vitals.WaterSicknessSeconds==0&&SurvivalHudValues.From(Vitals,22).Sickness==0,"Native illness resolves without direct scripted health loss");
+        Vitals.Restore();Vitals.WaterExposureThreshold=.8;Vitals.WaterExposureHazard=.2;Vitals.WaterExposureResponse=.6;Vitals.WaterExposureAgeSeconds=900;Vitals.WaterExposureSequence=9;
+        checkpoint=new PlaySession();StorePlayer(checkpoint);saved=WorldJson.Read<PlaySession>(WorldJson.Write(checkpoint));saved.Validate();
+        Check(saved.Survival.WaterExposureHazard==.2&&saved.Survival.WaterExposureThreshold==.8&&saved.Survival.WaterExposureSequence==9,"Actual capture preserves partial exposure and its susceptibility draw");
+        Vitals.Restore();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();yield return null;
     }
 }
