@@ -93,7 +93,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateHumans()
     {
         if(humanPlayer==null||!Ready||humanReviewPose)return;
-        bool stopped=inventoryOpen||paused||mapOpen||ecologyOpen||chatOpen;
+        bool stopped=paused||mapOpen||ecologyOpen||chatOpen;
         float dt=stopped?0:Math.Min(.1f,Time.unscaledDeltaTime);
         bool changed=!ReferenceEquals(humanFrame,frame);
         if(changed)

@@ -33,7 +33,7 @@ Shader "WorldGen/Survival HUD"
             #include "UnityUI.cginc"
             struct A{float4 vertex:POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;};
             struct V{float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;float4 local:TEXCOORD1;};
-            sampler2D _Shapes;float4 _Resources,_Thermal,_ClipRect,_Wind;
+            sampler2D _Shapes;float4 _Resources,_Thermal,_ClipRect,_Wind,_Needs;
             V vert(A a){V o;o.local=a.vertex;o.vertex=UnityObjectToClipPos(a.vertex);o.uv=a.uv;o.color=a.color;return o;}
             float Smooth(float x){x=saturate(x);return x*x*(3-2*x);}
             float Coverage(float d,float aa){return 1-smoothstep(-aa,aa,d);}
@@ -79,12 +79,14 @@ Shader "WorldGen/Survival HUD"
                 if(_Resources.y>0)Over(c,float3(41,70,255)/255,Coverage(Arc(p,231,(85-170*saturate(_Resources.y))*radians,85*radians),aa));
                 if(_Resources.z>0)Over(c,float3(0,229,244)/255,Coverage(Arc(p,214,(85-170*saturate(min(_Resources.y,_Resources.z)))*radians,85*radians),aa));
                 float water=Coverage(shape.r,aa),food=Coverage(shape.g,aa);
-                Over(c,float3(89,99,109)/255,water);
+                float pulseNeed=.5+.5*sin(_Time.y*5.1);
+                Over(c,float3(89,99,109)/255,water*(1-_Needs.y*pulseNeed*.7));
                 if(_Resources.w>0)Over(c,float3(36,156,255)/255,water*smoothstep(-aa,aa,position.y-(329.57142857-saturate(_Resources.w)*120)));
                 Over(c,float3(181,234,255)/255,Coverage(abs(shape.r)-1.0,aa));
-                Over(c,float3(119,122,128)/255,food);
-                if(_Thermal.x>0)Over(c,1,food*smoothstep(-aa,aa,position.y-(411.65755556-saturate(_Thermal.x)*221.31511112)));
-                Over(c,1,Coverage(abs(shape.g)-.675,aa));
+                float3 foodColour=lerp(float3(1,1,1),float3(.36,.76,.29),saturate(_Needs.z));
+                Over(c,lerp(float3(119,122,128)/255,float3(.18,.33,.15),saturate(_Needs.z)),food*(1-_Needs.x*pulseNeed*.7));
+                if(_Thermal.x>0)Over(c,foodColour,food*smoothstep(-aa,aa,position.y-(411.65755556-saturate(_Thermal.x)*221.31511112)));
+                Over(c,foodColour,Coverage(abs(shape.g)-.675,aa));
                 if(_Wind.y>.001)
                 for(int sector=0;sector<6;sector++)
                 {

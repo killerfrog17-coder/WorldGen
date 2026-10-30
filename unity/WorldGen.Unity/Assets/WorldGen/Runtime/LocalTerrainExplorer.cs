@@ -161,7 +161,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 MovementSeconds+=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
                 if(Mode==GameMode.Creative&&keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
                 bool alive=!SurvivalActive||!Vitals.Incapacitated;
-                survivalSprinting=keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
+                survivalSprinting=!keyboard.ctrlKey.isPressed&&!keyboard.cKey.isPressed&&keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
                 bool jump=alive&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=12);
                 if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
@@ -172,7 +172,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
             }
         }
-        if(!Application.isFocused&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
+        if((!Application.isFocused||inventoryOpen)&&!DeathVisible&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
         {
             survivalSprinting=false;motion.Move(Time.unscaledDeltaTime,0,0,0,heading,pitch,false,false,PlayerSolidGround,speedScale:1);
             playerDeathVelocity=new Vector3(0,(float)motion.VerticalSpeed,0);

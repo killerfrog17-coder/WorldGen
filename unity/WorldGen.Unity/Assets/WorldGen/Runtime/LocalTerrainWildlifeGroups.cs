@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateWildlifeGroups()
     {
-        if(!WildlifeBehaviourEnabled||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking)return;
+        if(!WildlifeBehaviourEnabled||paused||mapOpen||ecologyOpen||chatOpen)return;
         if(wildlifeGroupWork.Count==0)
         {
             if(Time.unscaledTimeAsDouble<nextWildlifeGroupTick)return;nextWildlifeGroupTick=Time.unscaledTimeAsDouble+1;

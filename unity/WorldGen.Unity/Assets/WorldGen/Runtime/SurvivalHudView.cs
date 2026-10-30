@@ -31,6 +31,8 @@ public sealed class SurvivalHudView:MaskableGraphic
         current.Health=Mathf.Lerp(current.Health,target.Health,a);current.Energy=Mathf.Lerp(current.Energy,target.Energy,a);
         current.Stamina=Mathf.Min(current.Energy,Mathf.Lerp(current.Stamina,target.Stamina,a));
         current.Hydration=Mathf.Lerp(current.Hydration,target.Hydration,a);current.Fullness=Mathf.Lerp(current.Fullness,target.Fullness,a);
+        current.FoodAttention=Mathf.Lerp(current.FoodAttention,target.FoodAttention,a);current.WaterAttention=Mathf.Lerp(current.WaterAttention,target.WaterAttention,a);
+        current.Sickness=Mathf.Lerp(current.Sickness,target.Sickness,1-Mathf.Exp(-Mathf.Min(.1f,Time.unscaledDeltaTime)/3));
         current.FeelsLikeC=Mathf.Lerp(current.FeelsLikeC,target.FeelsLikeC,a);
         current.BodyStress=Mathf.Lerp(current.BodyStress,target.BodyStress,a);
         current.Wind=new WindHudValues(current.Wind.Angle+Mathf.DeltaAngle(current.Wind.Angle*Mathf.Rad2Deg,target.Wind.Angle*Mathf.Rad2Deg)*Mathf.Deg2Rad*a,Mathf.Lerp(current.Wind.Strength,target.Wind.Strength,a),target.Wind.Spread);Publish();
@@ -40,6 +42,7 @@ public sealed class SurvivalHudView:MaskableGraphic
         ownedMaterial.SetVector("_Resources",new Vector4(current.Health,current.Energy,current.Stamina,current.Hydration));
         ownedMaterial.SetVector("_Thermal",new Vector4(current.Fullness,current.FeelsLikeC,current.BodyStress,0));
         ownedMaterial.SetVector("_Wind",new Vector4(current.Wind.Angle,current.Wind.Strength,current.Wind.Spread,0));
+        ownedMaterial.SetVector("_Needs",new Vector4(current.FoodAttention,current.WaterAttention,current.Sickness,0));
     }
     protected override void OnPopulateMesh(VertexHelper vh)
     {

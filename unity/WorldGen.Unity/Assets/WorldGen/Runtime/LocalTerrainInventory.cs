@@ -254,21 +254,23 @@ public sealed partial class LocalTerrainExplorer
                 bool right=item.Place==PossessionPlace.RightHand;string name="hand_"+(right?"r":"l");
                 var hand=inventoryBones[name];
                 if(humanHideBody&&!deathPresented)
-                {root.transform.position=view.transform.TransformPoint(new Vector3(item.Hands==2?0:right?.29f:-.29f,-.32f,.62f));root.transform.rotation=view.transform.rotation;}
+                {root.transform.position=view.transform.TransformPoint(new Vector3(item.Hands==2?0:right?.10f:-.10f,-.16f,.44f));root.transform.rotation=view.transform.rotation;}
                 else
                 {root.transform.position=(item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position)-Vector3.up*(float)item.HeightM*.35f;root.transform.rotation=body.rotation;}
                 if(humanHideBody&&item.Kind==PossessionKind.Bow)
-                {root.transform.rotation=view.transform.rotation*Quaternion.Euler(0,90,0);root.transform.position-=root.transform.up*(float)item.HeightM*.5f;}
+                {root.transform.rotation=view.transform.rotation*Quaternion.Euler(0,90,0);root.transform.position=view.transform.TransformPoint(new Vector3(-.18f,-.18f,.54f))-root.transform.up*(float)item.HeightM*.5f;}
                 else if(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true)
                 {
-                    root.transform.rotation=(humanHideBody?view.transform.rotation:body.rotation)*Quaternion.Euler(humanHideBody?72:35,0,0);
+                    root.transform.rotation=(humanHideBody?view.transform.rotation:body.rotation)*Quaternion.Euler(humanHideBody?75:35,humanHideBody?(right?-10:10):0,0);
                     root.transform.position-=root.transform.up*(float)item.HeightM*.35f;
                 }
                 PoseFirstPersonAction(root,item);
+                if(item.Kind==PossessionKind.Bow)UpdateBowString(root,item);
             }
         }
         UpdateDroppedBodies();
         foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){RemoveDroppedBody(id);DestroyInventoryVisual(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
+        UpdateViewArms();
     }
     void PoseInventoryHands(HumanActor actor,Dictionary<string,Transform> bones)
     {
@@ -289,6 +291,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventory()
     {
+        DisposeViewArms();
+        if(inventoryBowStringMaterial!=null)Destroy(inventoryBowStringMaterial);
         DisposeCamp();
         DisposeItemAudio();
         if(worldToolWork?.Line!=null)Destroy(worldToolWork.Line.gameObject);if(tackleLineMaterial!=null)Destroy(tackleLineMaterial);

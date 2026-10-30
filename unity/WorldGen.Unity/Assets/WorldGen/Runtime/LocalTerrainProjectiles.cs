@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
     void FixedUpdate()
     {
         if(closed||!Ready)return;
-        bool stopped=paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking;
+        bool stopped=paused||mapOpen||ecologyOpen||chatOpen;
         foreach(var p in itemProjectiles.Values.ToArray())
         {
             if(!p.Item.InFlight||p.Item.Place!=PossessionPlace.Ground||p.Drop.Body==null||!inventoryDrops.ContainsKey(p.Item.Id)){itemProjectiles.Remove(p.Item.Id);continue;}

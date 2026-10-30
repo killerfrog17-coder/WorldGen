@@ -46,7 +46,8 @@ public sealed partial class LocalTerrainExplorer
         if(StrikeCampStake(item,left))return;
         var profile=ItemUseRules.Profile(item);double weightPenalty=item==null?1:Math.Max(1,Math.Sqrt(item.MassKg/(item.Kind==PossessionKind.LargeRock?.7:1.5)));
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
-        CombatCooldown(left,profile.RecoverySeconds*weightPenalty*(SurvivalActive?1+(1-(Vitals.Exertion?.Burst??1))*.65:1));AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
+        bool supported=SupportSpear(item);
+        CombatCooldown(left,profile.RecoverySeconds*weightPenalty*(profile.Primary==ItemPrimaryUse.Thrust&&!supported?1.25:1)*(SurvivalActive?1+(1-(Vitals.Exertion?.Burst??1))*.65:1));AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)(profile.ReachM*(profile.Primary==ItemPrimaryUse.Thrust&&!supported?.82:1));
         PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
@@ -58,6 +59,7 @@ public sealed partial class LocalTerrainExplorer
             if(wall!=null&&(obstacle==null||wall.Distance<obstacle.Distance))obstacle=wall;
         }
         double damage=ItemUseRules.MeleeDamage(item,SurvivalActive?(.6+.4*Vitals.MovementScale)*(.45+.55*Math.Sqrt(Vitals.Exertion?.Burst??1)):1);
+        if(profile.Primary==ItemPrimaryUse.Thrust&&!supported)damage*=.72;
         if(chosen!=null)
         {
             ApplyCombatHit(chosen,damage,ray.direction,Math.Sqrt(Math.Max(.01,item?.MassKg??.3)*profile.EnergyJ*2));

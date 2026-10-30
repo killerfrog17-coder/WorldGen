@@ -107,6 +107,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CompleteGatherPlant(NatureSource source,ForageProduct product)
     {
+        BeginGatherGesture(transform.TransformPoint(source.Bounds.center));
         var record=ToolResource(ForageLedgerKey(source,product));record.HarvestYear=ForageYear;record.Harvests=1;
         ReceiveToolMaterial(Foraging.Gather(product,Position));PlayItemEffect("fibre-handle",view.transform.position,.25f,true);
         // Picking the visible mushroom removes that fruiting body. Bushes/reeds

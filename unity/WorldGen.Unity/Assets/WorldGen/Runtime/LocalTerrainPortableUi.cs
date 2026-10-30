@@ -9,14 +9,18 @@ public sealed partial class LocalTerrainExplorer
     Vector2 portableContextScroll;float inventoryMiddleScroll;
     void DrawEquipmentStorage(Rect middle,float y,float inset,float cell,float scale)
     {
-        var slots=new[]{PossessionPlace.Back,PossessionPlace.Shoulder,PossessionPlace.Waist,PossessionPlace.SlungBack};float gap=8*scale,width=(middle.width-2*inset-3*gap)/4;
-        for(int i=0;i<slots.Length;i++)
+        var clip=new Rect(middle.x+inset,y,middle.width-2*inset-14*scale,middle.yMax-y-13*scale);float height=0;
+        // Only equipment actually being worn creates entries. The portrait is the equip target.
+        foreach(var worn in Inventory.Items.Where(p=>PortableTechnology.Worn(p.Place)))
         {
-            var r=new Rect(middle.x+inset+i*(width+gap),y,width,65*scale);InventoryLabel(new Rect(r.x,r.y-25*scale,r.width,24*scale),slots[i]==PossessionPlace.SlungBack?"Slung":slots[i].ToString(),Mathf.RoundToInt(13*scale));
-            InventoryFill(r,new Color(.08f,.11f,.12f));InventoryOutline(r,InventoryLine);inventoryZones.Add(new InventoryZone{Rect=r,Clip=r,Place=slots[i]});
-            var item=Inventory.Items.FirstOrDefault(p=>p.Place==slots[i]);if(item!=null)DrawInventoryItem(r,new NearbyPossession{Item=item},scale);
+            float row=clip.y+height-inventoryMiddleScroll;
+            if(row>=clip.y&&row+54*scale<=clip.yMax)
+            {
+                DrawInventoryItem(new Rect(clip.x,row,54*scale,54*scale),new NearbyPossession{Item=worn},scale);
+                InventoryLabel(new Rect(clip.x+64*scale,row+5*scale,clip.width-64*scale,44*scale),worn.Name,Mathf.RoundToInt(14*scale),InventoryGold);
+            }
+            height+=65*scale;
         }
-        var clip=new Rect(middle.x+inset,y+99*scale,middle.width-2*inset-14*scale,middle.yMax-y-112*scale);float height=0;
         var containers=Inventory.WornContainers.Concat(Inventory.Items.Where(p=>p.ContainerWidth>0&&(p.Place==PossessionPlace.LeftHand||p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(p.ContainerId))&&Inventory.Carried(p)))).Distinct().ToArray();
         foreach(var bag in containers)
         {

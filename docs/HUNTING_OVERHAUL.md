@@ -25,3 +25,14 @@ Research:
 The claim that motionless people are categorically invisible to kangaroos is not supported here. Their response depends on vigilance, context and experience with humans. Real hunting techniques should help without becoming guaranteed success buttons.
 
 Validation so far: Core 23 hunting, 67 modes, 24 metabolism/camp experience, 161 HUD, 103 abundance, 77 item-use and 37 water checks pass. Native hunting check: 22 PASS, EXIT 0, clean log; actual GPU captures of deer eating/rest, wolf rest, kangaroo grazing and wind sectors inspected. Original art hashes exact. Phase 1 shortcut selected; phase 2 arms/inventory/need HUD is in progress.
+
+
+## First-person handling and live inventory
+
+A private, runtime-only mesh derivative filters the local MPFB avatar to its skinned arms. The original world avatar remains whole and unchanged. Camera callbacks show these arms only to the local first-person view. Two-bone arm targets and native finger joints follow each held grip; wind-up, thrust, cutting, bow draw/release and gathering drive the targets. Free offhand support improves a long spear's thrust; occupying that hand leaves the spear available with shorter reach, less force and slower recovery. Original locomotion and source FBXs/Blends are unchanged.
+
+Inventory blocks player input while the world clock, animals, projectiles, dropped items, camp fires and survival needs continue. Equipment is dragged onto the portrait; only actually worn equipment supplies named storage entries. Portrait rotation uses dragging. The fixed empty anatomic slots, turn buttons and bottom controls banner are removed.
+
+The stomach reflects felt hunger with a small reserve-stage floor until body reserves are depleted. Felt hydration uses actual fluid deficit, distinguishing parched from critical dehydration. Urgent need pulses the empty interior of the appropriate icon. Active food or water illness gradually greens the stomach; delayed, symptom-free poisoning cannot be diagnosed from the HUD. Existing quick fire cooking remains available.
+
+Phase 2 validation in progress: 329 HUD, 75 inventory, 77 item use, 23 hunting, 67 survival modes and 24 metabolism/camp checks pass. Native first-person pass 3 passed all checks including actual arm meshes for six avatars, camera privacy, live inventory needs/time, portrait equipment and GPU HUD states. Grip/action captures inspected; the final nocked-arrow addition still requires its new native pass. These are procedural first-person actions; they are not a full authored mocap library.

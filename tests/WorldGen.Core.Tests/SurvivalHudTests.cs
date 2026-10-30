@@ -10,7 +10,19 @@ static class SurvivalHudTests
     {
         int n=0;void Check(bool ok,string s){n++;if(!ok)throw new Exception(s);}
         var v=SurvivalHudValues.From(new PlayerSurvival{Health=90,Energy=90,Stamina=85,Thirst=25,Hunger=35},22);
-        Check(Math.Abs(v.Health-.9)<1e-6&&Math.Abs(v.Hydration-.75)<1e-6&&Math.Abs(v.Fullness-.65)<1e-6,"Resource bindings use remaining water/food, not depletion");
+        Check(Math.Abs(v.Health-.9)<1e-6&&Math.Abs(v.Hydration-.875)<1e-6&&Math.Abs(v.Fullness-.699)<1e-6,"Resource bindings show felt need while preserving a body-reserve floor");
+        var need=new PlayerSurvival();need.Restore();need.Hunger=100;
+        var hungry=SurvivalHudValues.From(need,22);Check(Math.Abs(hungry.Fullness-.14)<1e-6&&hungry.FoodAttention==1,"An empty stomach feels very hungry while normal body reserves remain");
+        need.ReserveKcal=0;Check(SurvivalHudValues.From(need,22).Fullness==0,"Only exhausted reserves plus an empty stomach fully empty the food icon");
+        need.WaterDeficitLitres=2.2;var parched=SurvivalHudValues.From(need,22);need.WaterDeficitLitres=7;
+        Check(parched.Hydration>.35&&SurvivalHudValues.From(need,22).Hydration<.04,"Parched and critically dehydrated remain visibly distinct");
+        for(double water=0;water<=8;water+=.05)Check(SurvivalHudValues.FeltHydration(water)>=SurvivalHudValues.FeltHydration(water+.05),"Felt hydration decreases continuously as the deficit grows");
+        need.FoodExposures=new System.Collections.Generic.List<FoodExposure>{new FoodExposure{DelaySeconds=3600,RemainingDamage=30,RemainingSeconds=10800}};
+        Check(SurvivalHudValues.From(need,22).Sickness==0,"Delayed poison cannot be detected through the HUD before symptoms");
+        need.FoodExposures[0].DelaySeconds=0;Check(SurvivalHudValues.From(need,22).Sickness==1,"Active nausea colours the stomach");
+        need.FoodExposures.Clear();need.WaterSicknessSeconds=3600;need.WaterSicknessSeverity=.7;need.WaterSicknessDelaySeconds=120;
+        Check(SurvivalHudValues.From(need,22).Sickness==0,"Delayed waterborne illness also stays hidden");need.WaterSicknessDelaySeconds=0;
+        Check(Math.Abs(SurvivalHudValues.From(need,22).Sickness-.7)<1e-6,"Active waterborne sickness contributes felt nausea");
         Check(Math.Abs(SurvivalHudValues.ThermalWarning(.5f)-.85f)<.0001&&SurvivalHudValues.ThermalWarning(0)==0&&SurvivalHudValues.ThermalWarning(1)==1,"Thermal warning shows the requested early 50-to85 response with exact endpoints");
         foreach(float temp in new[]{19f,22f,24f}){v.FeelsLikeC=temp;Check(v.SnowOpacity==0&&v.SunOpacity==0,"Comfort has no symbol");}
         v.FeelsLikeC=13;Check(v.SnowOpacity>0&&v.SnowOpacity<1&&v.SunOpacity==0,"Chilly snowflake fades in alone");

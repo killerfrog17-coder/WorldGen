@@ -22,7 +22,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void CreatePortableParts(GameObject root,Possession p,int layer)
     {
-        AddCraftMesh(root,LocalScatterMeshes.BuildPortable(p),PortableMaterial(),p,layer);portableRoots[root]=p;
+        AddCraftMesh(root,LocalScatterMeshes.BuildPortable(p,false),PortableMaterial(),p,layer);portableRoots[root]=p;
+        if(p.Kind==PossessionKind.Bow)CreateBowString(root,layer);
         if(PortableFur(p))portableCoatWanted.Add(p.AppearanceSpecies);RefreshPortableRoot(root,p);
     }
     void RefreshPortableRoot(GameObject root,Possession p)

@@ -181,13 +181,11 @@ public sealed partial class LocalTerrainExplorer
         GUI.SetNextControlName("inventory-player-name");Inventory.PlayerName=GUI.TextField(new Rect(left.x+inset,left.y+inset,left.width-2*inset,34*scale),Inventory.PlayerName,48,InventoryControlStyle(GUI.skin.textField,scale));
         inventoryNameEditing=GUI.GetNameOfFocusedControl()=="inventory-player-name";
         if(inventoryNameEditing&&e.type==EventType.KeyDown&&(e.keyCode==KeyCode.Return||e.keyCode==KeyCode.Tab)){GUI.FocusControl(null);inventoryNameEditing=false;e.Use();}
-        inventoryPreviewRect=new Rect(left.x+inset,left.y+65*scale,left.width-2*inset,left.height-170*scale);
+        inventoryPreviewRect=new Rect(left.x+inset,left.y+65*scale,left.width-2*inset,left.height-130*scale);
         if(inventoryPortrait!=null)GUI.DrawTexture(inventoryPreviewRect,inventoryPortrait,ScaleMode.ScaleToFit,false);
-        if(e.type==EventType.MouseDown&&e.button==0&&inventoryPreviewRect.Contains(e.mousePosition)){inventoryOrbit=true;e.Use();}
+        if(inventoryDrag==null&&e.type==EventType.MouseDown&&e.button==0&&inventoryPreviewRect.Contains(e.mousePosition)){inventoryOrbit=true;e.Use();}
         if(e.type==EventType.MouseDrag&&inventoryOrbit){inventoryPreviewYaw+=e.delta.x*.7f;RenderInventoryPreview();e.Use();}
         if(e.type==EventType.MouseUp)inventoryOrbit=false;
-        if(InventoryButton(new Rect(left.x+inset,left.yMax-95*scale,(left.width-2*inset-gap)/2,30*scale),"Turn left",scale)){inventoryPreviewYaw-=45;RenderInventoryPreview();}
-        if(InventoryButton(new Rect(left.center.x+gap/2,left.yMax-95*scale,(left.width-2*inset-gap)/2,30*scale),"Turn right",scale)){inventoryPreviewYaw+=45;RenderInventoryPreview();}
         InventoryLabel(new Rect(left.x+inset,left.yMax-54*scale,left.width-2*inset,46*scale),Inventory.CarriedMassKg.ToString("F1")+" kg carried  ·  movement "+Mathf.RoundToInt((float)Inventory.LoadSpeedScale*100)+"%\nTiredness "+Vitals.Tiredness.ToString("0")+"%",Mathf.RoundToInt(15*scale));
         InventoryLabel(new Rect(middle.x+inset,middle.y+inset,middle.width-2*inset,32*scale),"HELD & WORN",Mathf.RoundToInt(18*scale),InventoryGold);
         float handWidth=(middle.width-2*inset-gap)/2,handY=middle.y+80*scale;
@@ -232,8 +230,13 @@ public sealed partial class LocalTerrainExplorer
         if(selected!=null&&(StoneCrafting.Rock(selected)||selected.Kind==PossessionKind.StoneFlake))info+="  ·  "+StoneCrafting.Material(selected)+(selected.Kind==PossessionKind.StoneFlake?" · cutting edge":"");
         var activeCraft=ActiveItemCraft;if(activeCraft!=null)info=CraftLabel(activeCraft)+"  ·  "+Mathf.RoundToInt((float)activeCraft.Fraction*100)+"%  ·  "+StoneCrafting.RealSecondsLeft(activeCraft,PlayerRules.Settings).ToString("F1")+" s remaining";
         InventoryLabel(new Rect(pad,bottom+8*scale,Screen.width-pad*2,28*scale),Time.unscaledTime<inventoryNoticeUntil?inventoryNotice:info,Mathf.RoundToInt(15*scale),InventoryGold);
-        InventoryLabel(new Rect(pad,Screen.height-38*scale,Screen.width-pad*2,30*scale),"E Pick up   ·   R Stow / rotate dragged item   ·   G Drop hovered item   ·   Q Swap hands   ·   B Set down / wear bag   ·   I / Tab Close",Mathf.RoundToInt(13*scale));
         DrawInventoryDrag(scale);DrawInventoryContext(scale);
+    }
+    bool EquipFromPortrait(Possession item)
+    {
+        var wear=PortableTechnology.Wear(item);
+        if(wear.HasValue)return MovePossession(item.Id,wear.Value);
+        InventoryFeedback("This item cannot be worn.");return false;
     }
     void DrawInventoryDrag(float scale)
     {
@@ -242,6 +245,11 @@ public sealed partial class LocalTerrainExplorer
         {
             if((e.mousePosition-inventoryDragStart).sqrMagnitude>16)
             {
+                if(inventoryPreviewRect.Contains(e.mousePosition))
+                {
+                    EquipFromPortrait(item);
+                    inventoryDrag=null;e.Use();return;
+                }
                 var zone=inventoryZones.LastOrDefault(z=>z.Rect.Contains(e.mousePosition)&&z.Clip.Contains(e.mousePosition));
                 if(zone!=null)
                 {
@@ -252,6 +260,7 @@ public sealed partial class LocalTerrainExplorer
             inventoryDrag=null;e.Use();return;
         }
         if((e.mousePosition-inventoryDragStart).sqrMagnitude<=16)return;
+        if(inventoryPreviewRect.Contains(e.mousePosition))InventoryOutline(inventoryPreviewRect,PortableTechnology.Wear(item).HasValue?new Color(.5f,.8f,.5f):new Color(.9f,.35f,.3f),2*scale);
         int w=inventoryDragRotated?item.CellsHigh:item.CellsWide,h=inventoryDragRotated?item.CellsWide:item.CellsHigh;
         var over=inventoryZones.LastOrDefault(z=>z.Rect.Contains(e.mousePosition)&&z.Clip.Contains(e.mousePosition));
         if(over!=null&&over.Place==PossessionPlace.Container)

@@ -4,7 +4,7 @@ using WorldGen.Core;
 
 static partial class LocalScatterMeshes
 {
-    public static Mesh BuildPortable(Possession item)
+    public static Mesh BuildPortable(Possession item,bool bowString=true)
     {
         var d=PortableTechnology.Item(item.Kind);var b=new Builder();
         Color wood=new Color(.43f,.28f,.13f,0),bone=new Color(.87f,.8f,.59f,0),cord=new Color(.58f,.45f,.25f,0),leather=new Color(.55f,.34f,.19f,0),fur=new Color(.83f,.7f,.53f,1);
@@ -176,7 +176,7 @@ static partial class LocalScatterMeshes
                 Tube(Vector3.zero,new Vector3(0,.94f,0),Mathf.Clamp(.0035f/(float)item.WidthM,.07f,.45f),wood);if(item.Kind!=PossessionKind.ArrowShaft)Head(.92f,.08f,.65f,stone);
                 if(item.Kind==PossessionKind.Arrow||item.Kind==PossessionKind.SpearDart)for(int i=0;i<3;i++){float a=i*Mathf.PI*2/3;Vector3 side=new Vector3(Mathf.Cos(a)*.45f,0,Mathf.Sin(a)*.45f);Quad(new Vector3(0,.04f,0),side+Vector3.up*.09f,side+Vector3.up*.22f,new Vector3(0,.26f,0),bone);}break;
             case PortableForm.Bow:
-                for(int i=0;i<16;i++){float a=i/16f,c=(i+1)/16f;Tube(new Vector3(.38f*Mathf.Pow(a*2-1,2),a,0),new Vector3(.38f*Mathf.Pow(c*2-1,2),c,0),.027f,wood,8);}if(item.Kind==PossessionKind.Bow)Tube(new Vector3(.38f,0,0),new Vector3(.38f,1,0),.006f,cord);Wrap(.45f,.06f,5);break;
+                for(int i=0;i<16;i++){float a=i/16f,c=(i+1)/16f;Tube(new Vector3(.38f*Mathf.Pow(a*2-1,2),a,0),new Vector3(.38f*Mathf.Pow(c*2-1,2),c,0),.027f,wood,8);}if(item.Kind==PossessionKind.Bow&&bowString)Tube(new Vector3(.38f,0,0),new Vector3(.38f,1,0),.006f,cord);Wrap(.45f,.06f,5);break;
             case PortableForm.Thrower:Tube(Vector3.zero,Vector3.up,.25f,item.MaterialOrigins?.Count>0?bone:wood,8);Tube(new Vector3(0,.95f,0),new Vector3(.4f,1,.2f),.12f,bone);Wrap(.05f,.3f,5);break;
             case PortableForm.Sling:
                 Quad(new Vector3(-.3f,.4f,0),new Vector3(.3f,.4f,0),new Vector3(.2f,.65f,.1f),new Vector3(-.2f,.65f,.1f),leather);Tube(new Vector3(-.3f,.5f,0),new Vector3(-.48f,1,0),.025f,cord);Tube(new Vector3(.3f,.5f,0),new Vector3(.48f,0,0),.025f,cord);break;

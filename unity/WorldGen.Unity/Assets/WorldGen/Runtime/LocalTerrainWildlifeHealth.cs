@@ -61,7 +61,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateAnimalCorpse(Animal animal,float dt)
     {
         if(animal.Ragdoll==null)BeginAnimalCorpse(animal,Vector3.zero,true);
-        animal.Ragdoll.SetPaused(paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking);
+        animal.Ragdoll.SetPaused(paused||mapOpen||ecologyOpen||chatOpen);
         animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)(VisibleGround(animal.X,animal.Z,animal.GroundY)+animal.CorpseHeightOffset),(float)(animal.Z-originZ));
         animal.Ragdoll.Synchronize(animalBoneData,animal.Slot*AnimalBones);
         animal.Props.SetFloat("_Fade",animal.Fade);animal.Renderer.SetPropertyBlock(animal.Props);

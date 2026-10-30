@@ -137,7 +137,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateDroppedBodies()
     {
-        bool pause=inventoryOpen&&!CraftWorking||paused||mapOpen||ecologyOpen||chatOpen;
+        bool pause=paused||mapOpen||ecologyOpen||chatOpen;
         var used=new HashSet<(int,int)>();
         foreach(var drop in inventoryDrops.Values.ToArray())
         {
