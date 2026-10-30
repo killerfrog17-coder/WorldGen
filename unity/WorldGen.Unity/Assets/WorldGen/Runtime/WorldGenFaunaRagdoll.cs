@@ -141,8 +141,10 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             // full generic 35-degree swing can fold a long neck into its torso
             // and stretch the original shoulder skin during an otherwise valid
             // collapse. Keep a freely articulated chain with local limits.
-            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail||neck?-6:-12};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail||neck?6:12};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:neck?18:leg?(proximal?35:70):35};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:neck?12:leg?10:25};
-            joint.enableProjection=true;joint.projectionDistance=Mathf.Clamp(Vector3.Distance(start,end)*.02f,.00025f,.005f);joint.projectionAngle=5;
+            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail||neck?-5:-10};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail||neck?5:10};joint.swing1Limit=new SoftJointLimit{limit=spine?8:tail?25:neck?14:leg?(proximal?30:60):30};joint.swing2Limit=new SoftJointLimit{limit=spine?7:tail?15:neck?10:leg?9:20};
+            // Small anchor separation is conspicuous on a densely weighted
+            // transferred skin, even when the bodies are still connected.
+            joint.enableProjection=true;joint.projectionDistance=Mathf.Clamp(Vector3.Distance(start,end)*.005f,.0001f,.001f);joint.projectionAngle=3;
         }
         map[bone]=parts.Count;parts.Add(new Part{Bone=bone,Body=body,InverseStart=(model.worldToLocalMatrix*body.transform.localToWorldMatrix).inverse});
     }
