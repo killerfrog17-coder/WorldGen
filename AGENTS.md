@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+SELECTED30Oct17:40CDT: water-source/sickness update COMPLETE. Existing root
+WorldGen shortcut NOW artifacts/player-water-sickness/WorldGen.exe, IL2CPP
+Release BuiltUtc2026-10-30T22:36:42.1145956Z, production5691906. 34nativewater
+PASS/EXIT0/cleanlog: realfresh/saltE, hands, swim/drown, sourcepersistence,
+incubation/mildcost/recovery, actualcapture+partialexposure and GPUfaint/strong
+stomachtint; images inspected. 668Core assertions: source142/drink37/HUD329/
+experience24/modes67/save69. Proof721frozen/578protected/177collision-source/
+87banks/18item+24bodyaudio EXACT. No changed art/audio. Git sourcepushed;
+release/docs/shortcut checkpoint stillneeds finalcommit/push atthisnote.
+Newwater risk is statelesspersistent300mpatches/multidaysolarpulses, bounded
+upstreamhabitat+recentrealrain/cache128, not mud=pathogens. Saved24hvolume
+exposurethreshold; generic55%unnoticed/30%mild/12%moderate/3%severe areGAMEPLAY
+tuningamonginfections, not empiricalrates. Symptomtintonly; onset/recovery;
+oldsavecompatible. Waste/protectedgroundwaterhooks NOTconnectedtoabsentsystems.
+Nativecaught oldfar-teleportfaunareprojectionexception: retire >1kmactorsBEFORE
+projectingtheirmemories. Actualcoast/riverteleportsnowPASSwithfaunaenabled.
+Finalevidence artifacts/water-sickness-20261030/native-water-verified;
+manifest assets/water-sickness-release-verification.json. Earliernative-water,
+native-water-final, native-water-release FAILED diagnostics; doNOTcallthose
+passing. Testfixture correctedauthoritativehydration and camera-modeUI depth/
+privatearmocclusion; normalgameHUDstaysOverlay. Oneowncandidatebuildcancelled,
+laterrebuilt+tested; noownerappsclosed. AllownUnity/native/workersfinished.
+No new rivergeometry/loading/wholeFPSclaim. SelectedpackageFROZEN; awaitowner
+feedback, noautoresumeold8h/Homo/riverwork. No cleanup/paid/subagents/Mono.
+Preserveownerpromptdeletion+2untrackeddeerscripts, originalart andblockedpaths.
+
 FINAL SELECTED30Oct12:21CDT: eight-hour minimum FULFILLED (09:09..17:09UTC);
 continued until corrections/verification done. Existing root shortcut NOW
 artifacts/player-hunting-cover/WorldGen.exe, IL2CPP RELEASE BuiltUtc

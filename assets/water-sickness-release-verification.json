@@ -1,0 +1,42 @@
+{
+  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-water-sickness\\WorldGen.exe",
+  "built_utc": "2026-10-30T22:36:42.1145956Z",
+  "backend": "IL2CPP",
+  "development": false,
+  "production_source": "5691906a8c43234b6b5641cf8c942c52bd4d9acd",
+  "native_checks": 34,
+  "native": {
+    "exit_code": 0,
+    "clean_log": true,
+    "output": "artifacts\\water-sickness-20261030\\native-water-verified"
+  },
+  "core_checks": {
+    "source_illness": 142,
+    "drinking_swimming": 37,
+    "hud": 329,
+    "survival_experience": 24,
+    "survival_modes": 67,
+    "save_slots": 69
+  },
+  "package_hash_checks": 578,
+  "frozen_production_files": 721,
+  "original_animal_collision_sources": 177,
+  "supplemental_motion_banks": 87,
+  "original_item_audio": 18,
+  "original_body_audio": 24,
+  "calibration": {
+    "sites": 500,
+    "solar_days": 30,
+    "litres_per_day": 2,
+    "infected_characters": 28,
+    "symptomatic_characters": 11,
+    "empirical_medical_rate": false
+  },
+  "notes": [
+    "Source quality is a bounded catchment/weather proxy, not explicit pathogen transport.",
+    "Human waste and protected groundwater hooks are not connected to absent gameplay systems.",
+    "Native rerun includes the far-teleport fauna retirement correction.",
+    "No claim about water-geometry seams, general loading or whole-game performance.",
+    "Existing running owner session remains on its previous executable."
+  ]
+}

@@ -74,5 +74,28 @@ of 500 varied low-pressure sites, 2 L/day for 30 days, produced 28 infected
 characters and 11 with any symptoms. This is a model check, **not real-world
 safety advice or an empirical infection-rate estimate**.
 
-Native candidate verification and selected-package evidence are recorded
-separately in `assets/water-sickness-release-verification.json` once available.
+Selected package: `artifacts/player-water-sickness`, IL2CPP Release built
+2026-10-30T22:36:42.1145956Z, production source `5691906`. Existing root shortcut
+selects this package. Verification: 668 Core assertions across six targeted
+suites and 34 native water checks, clean exit/log. Actual freshwater/salt-water
+interaction, held-item restoration, swimming, full player capture, partial
+exposure, mild symptoms, recovery and GPU nausea tint were exercised. Native
+images distinguish a faint 0.1 nausea tint from a strong 0.9 tint; both were
+inspected. The diagnostic camera capture excludes private arms and puts its UI
+plane ahead of nearby water; normal game UI remains a screen overlay.
+
+Native testing also exposed a pre-existing long-distance teleport exception:
+far animals were reprojected outside the new chart before retirement. The
+existing distance-retirement check now runs first. The passing coast/river
+sequence exercises those long teleports with live fauna enabled.
+
+All 721 frozen production/authoring files, 578 protected/package hashes, 177
+animal collision/source identities, 87 supplemental motion banks, 18 original
+item and 24 body audio files passed verification. No visual/audio assets were
+changed. Earlier failed diagnostic runs remain distinct from the final passing
+`artifacts/water-sickness-20261030/native-water-verified` evidence. One subsequent
+candidate build was deliberately cancelled to finish its capture correction;
+the selected native package is the later successful rebuild.
+
+Manifest: `assets/water-sickness-release-verification.json`. These checks make
+no new claim about general loading performance or river geometry/bank seams.
