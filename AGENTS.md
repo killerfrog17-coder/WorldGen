@@ -1,5 +1,13 @@
 # WorldGen repository instructions
 
+SELECTED30Oct HUNTING PHASE1: artifacts/player-hunting-overhaul IL2CPP RELEASE
+BuiltUtc2026-10-30T07:59:54.1136589Z, source774e834, 22native PASS/EXIT0/clean.
+679 frozen sources,578 protected,177 skins,18+24 WAV,87 extra native motion banks
+exact. Proof artifacts/hunting-20261030; assets/hunting-release-verification.json.
+Phase2 ACTIVE and REQUIRED next: arms/actions/liveinventory/portrait-wear/feltHUD.
+Do not stop at phase1. Original art untouched. No paid/subagents/Mono/cleanup.
+
+
 OWNER30Oct HUNTING OVERHAUL ACTIVE. Phase1 shared effort/senses/stealth/animal
 routines/herd response/wind HUD -> NEW IL2CPP/native/proof/shortcut/Git checkpoint.
 THEN phase2 first-person actual skinned arms+item actions/two-hand spears/

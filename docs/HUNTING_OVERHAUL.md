@@ -24,4 +24,4 @@ Research:
 
 The claim that motionless people are categorically invisible to kangaroos is not supported here. Their response depends on vigilance, context and experience with humans. Real hunting techniques should help without becoming guaranteed success buttons.
 
-Validation so far: Core 23 hunting, 67 modes, 24 metabolism/camp experience, 161 HUD, 103 abundance, 77 item-use and 37 water checks pass. Native hunting/animation/HUD visuals pending. Phase 2 remains outstanding.
+Validation so far: Core 23 hunting, 67 modes, 24 metabolism/camp experience, 161 HUD, 103 abundance, 77 item-use and 37 water checks pass. Native hunting check: 22 PASS, EXIT 0, clean log; actual GPU captures of deer eating/rest, wolf rest, kangaroo grazing and wind sectors inspected. Original art hashes exact. Phase 1 shortcut selected; phase 2 arms/inventory/need HUD is in progress.

@@ -1,0 +1,29 @@
+{
+    "selected_utc":  "2026-10-30T08:02:55.9754766Z",
+    "target":  "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-hunting-overhaul\\WorldGen.exe",
+    "previous_target":  "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-survival-experience\\WorldGen.exe",
+    "built_utc":  "2026-10-30T07:59:54.1136589Z",
+    "backend":  "IL2CPP",
+    "production_source":  "774e834",
+    "native_checks":  22,
+    "native_exit_code":  0,
+    "protected_hashes":  578,
+    "source_files":  679,
+    "collision_skins":  177,
+    "original_item_audio_hashes":  18,
+    "body_audio_hashes":  24,
+    "additional_motion_banks":  87,
+    "native_output":  "artifacts/hunting-20261030/native-hunting5",
+    "visuals_inspected":  true,
+    "core_checks":  {
+                        "item_use":  77,
+                        "hunting":  23,
+                        "experience":  24,
+                        "abundance":  103,
+                        "hud":  161,
+                        "modes":  67,
+                        "water":  37
+                    },
+    "original_art_unchanged":  true,
+    "phase2":  "In progress, not present in this checkpoint"
+}
