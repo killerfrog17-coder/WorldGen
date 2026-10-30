@@ -52,6 +52,12 @@ public sealed partial class LocalTerrainExplorer
         ApplyPlayerMode();if(Ready)UpdateCamera();
         return new PlayCommandResult(true,"Game mode: "+mode.ToString().ToLowerInvariant()+".");
     }
+    double PlayerEffortSpeedScale(bool sprinting,bool walking)
+    {
+        if(!SurvivalActive)return 1;
+        double requested=sprinting?TerrainMotion.RunSpeedMps:walking?TerrainMotion.WalkSpeedMps:TerrainMotion.JogSpeedMps;
+        return Vitals.MovementScale*Math.Min(1,TerrainMotion.RunSpeedMps*Vitals.SprintPower/requested);
+    }
     void UpdatePlayerSurvival(double dx,double dz)
     {
         if(respawnWaiting){if(!CenterReady)return;respawnWaiting=false;}

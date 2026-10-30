@@ -57,6 +57,14 @@ public sealed partial class LocalTerrainExplorer
         var pack=PortableTechnology.Create(PossessionKind.HidePack,Position);pack.Place=PossessionPlace.RightHand;Inventory.Items.Add(pack);
         Check(EquipFromPortrait(pack),"Portrait equipment drop wears a compatible carrier through normal inventory validation");
         Check(Inventory.WornContainers.Contains(pack)&&pack.Place==PossessionPlace.Back,"Only actual worn equipment supplies named container space");
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();bool capacityConsistent=true;
+        foreach(double burst in new[]{0,.01,.1,.5,1})foreach(double fatigue in new[]{0,.6})
+        {
+            Vitals.Exertion.Burst=burst;Vitals.Exertion.Fatigue=fatigue;
+            double run=TerrainMotion.RunSpeedMps*PlayerEffortSpeedScale(true,false),jog=TerrainMotion.JogSpeedMps*PlayerEffortSpeedScale(false,false);
+            capacityConsistent&=run+1e-6>=jog;
+        }
+        Check(capacityConsistent,"The same exertion limit applies to jogging and sprinting without a control-speed reversal");
         SetInventoryOpen(true);PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();paused=false;
         motion.Y+=2;motion.Grounded=false;motion.VerticalSpeed=0;double airborneY=motion.Y;
         double clock=PlayerRules.SolarDays,hunger=Vitals.Hunger,campClock=Camp.SimulatedSeconds;yield return new WaitForSecondsRealtime(.6f);
