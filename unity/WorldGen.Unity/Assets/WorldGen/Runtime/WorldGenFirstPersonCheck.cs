@@ -45,6 +45,8 @@ public sealed partial class LocalTerrainExplorer
         Clear();var bow=Hold(PossessionKind.Bow);UpdateInventoryVisuals();Image("07-bow-rest");
         var arrow=PortableTechnology.Create(PossessionKind.Arrow,Position);Inventory.Items.Add(arrow);itemCharge=new ItemCharge{Weapon=bow,Ammo=arrow,Started=Time.unscaledTimeAsDouble-1.05,Duration=1.05};UpdateInventoryVisuals();FiniteArms("bow draw");
         Check(viewNockedArrow!=null&&Vector3.Distance(viewNockedArrow.transform.position,BowDrawPoint(1))<.01f,"A real arrow model is nocked at the drawing hand");
+        var bowRest=inventoryVisuals[bow.Id].transform.position+inventoryVisuals[bow.Id].transform.up*(float)bow.HeightM*.55f;
+        Check(Vector3.Cross(viewNockedArrow.transform.up,bowRest-viewNockedArrow.transform.position).magnitude<.01,"The nocked shaft passes through the actual bow rest");
         var line=inventoryVisuals[bow.Id].GetComponentInChildren<LineRenderer>();Image("08-bow-draw");Debug.Log("BOW CHECK line="+(line==null?"missing":line.GetPosition(1).ToString("F3"))+" charge="+(itemCharge!=null)+" first="+humanHideBody);Check(line!=null&&Vector3.Distance(line.GetPosition(1),new Vector3(.38f,.5f,0))>.05,"Bow string follows the drawing hand rather than remaining straight");CancelItemCharge();
         Clear();BeginGatherGesture(view.transform.TransformPoint(new Vector3(.1f,-.2f,1)));viewGatherAt-=.45;UpdateInventoryVisuals();FiniteArms("foraging reach");Image("09-foraging-reach");
         var cameraRoot=new GameObject("Other viewer check",typeof(Camera));var other=cameraRoot.GetComponent<Camera>();BeginViewArmsCamera(default,other);Check(viewArmRenderers.All(r=>!r.enabled),"Private arms are excluded from every other camera");Destroy(cameraRoot);

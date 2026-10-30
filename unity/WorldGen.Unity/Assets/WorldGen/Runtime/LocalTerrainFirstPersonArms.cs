@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
     GameObject viewNockedArrow;string viewNockId;
     Renderer[] viewNockRenderers=Array.Empty<Renderer>();
     Material inventoryBowStringMaterial;
-    Vector3 BowDrawPoint(float draw)=>view.transform.TransformPoint(Vector3.Lerp(new Vector3(.05f,-.15f,.52f),new Vector3(.16f,-.10f,.28f),draw));
+    Vector3 BowDrawPoint(float draw)=>view.transform.TransformPoint(Vector3.Lerp(new Vector3(-.18f,-.15f,.35f),new Vector3(.08f,-.10f,.28f),draw));
     void CreateBowString(GameObject root,int layer)
     {
         if(inventoryBowStringMaterial==null){inventoryBowStringMaterial=new Material(Resources.Load<Shader>("WorldGenInventoryPreview"));inventoryBowStringMaterial.SetColor("_Color",new Color(.59f,.47f,.31f));}
@@ -103,7 +103,9 @@ public sealed partial class LocalTerrainExplorer
         }
         if(inventoryVisuals.TryGetValue(ammo.Id,out var source))source.SetActive(false);
         float draw=Mathf.Clamp01((float)((Time.unscaledTimeAsDouble-itemCharge.Started)/itemCharge.Duration));
-        viewNockedArrow.transform.position=BowDrawPoint(draw);viewNockedArrow.transform.rotation=Quaternion.FromToRotation(Vector3.up,view.transform.forward);
+        viewNockedArrow.transform.position=BowDrawPoint(draw);
+        var bow=inventoryVisuals[itemCharge.Weapon.Id];var rest=bow.transform.position+bow.transform.up*(float)itemCharge.Weapon.HeightM*.55f;
+        viewNockedArrow.transform.rotation=Quaternion.FromToRotation(Vector3.up,(rest-viewNockedArrow.transform.position).normalized);
     }
 
     void BeginGatherGesture(Vector3 worldPoint)

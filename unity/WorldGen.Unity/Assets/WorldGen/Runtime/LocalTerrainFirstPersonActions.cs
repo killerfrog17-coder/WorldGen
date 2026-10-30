@@ -22,7 +22,7 @@ public sealed partial class LocalTerrainExplorer
             if(itemCharge.Throw){offset=new Vector3(-side*.03f,.10f,-.10f)*t;angles=new Vector3(-32,side*-12,side*-12)*t;}
             else if(ItemUseRules.Profile(itemCharge.Weapon).Primary==ItemPrimaryUse.Sling)
             {float a=(float)(now-itemCharge.Started)*11;offset=new Vector3(Mathf.Sin(a)*.1f,Mathf.Cos(a)*.12f,.03f)*t;angles.z=Mathf.Sin(a)*35*t;}
-            else if(item.Kind==PossessionKind.Bow){offset=new Vector3(-side*.03f,.03f,.02f)*t;angles=new Vector3(-3,side*5,-side*3)*t;}
+            else if(item.Kind==PossessionKind.Bow){offset=new Vector3(.27f,.03f,.02f)*t;angles=new Vector3(-3,side*5,-side*3)*t;}
             else{offset=new Vector3(0,.08f,-.24f)*t;angles.x=-18*t;}
         }
         else if(viewItemActions.TryGetValue(item.Id,out var action))
