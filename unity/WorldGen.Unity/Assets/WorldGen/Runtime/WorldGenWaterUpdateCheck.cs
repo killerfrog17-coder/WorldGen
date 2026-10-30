@@ -114,6 +114,9 @@ public sealed partial class LocalTerrainExplorer
         Check(mild>.05&&mild<.2&&Vitals.WaterDeficitLitres<.05,"Native mild symptoms remain a small physiological setback");
         paused=false;UpdatePlayerSurvival(0,0);UpdateSurvivalHud();paused=true;
         var previousMode=survivalHudCanvas.renderMode;var previousCamera=survivalHudCanvas.worldCamera;int mask=view.cullingMask;
+        // The game HUD is an overlay. Camera-mode diagnostic capture would let
+        // the very close held rig depth-occlude it, so exclude that rig here.
+        bool previousArmsVisible=viewArmsVisible;viewArmsVisible=false;
         survivalHudCanvas.renderMode=RenderMode.ScreenSpaceCamera;survivalHudCanvas.worldCamera=view;survivalHudCanvas.planeDistance=.4f;view.cullingMask|=1<<5;survivalHudCanvas.enabled=true;
         Color32[] Image(string name)
         {
@@ -131,7 +134,7 @@ public sealed partial class LocalTerrainExplorer
             {faintDifference+=Math.Abs(faint[i].r-clear[i].r)+Math.Abs(faint[i].g-clear[i].g)+Math.Abs(faint[i].b-clear[i].b);strongDifference+=Math.Abs(strong[i].r-clear[i].r)+Math.Abs(strong[i].g-clear[i].g)+Math.Abs(strong[i].b-clear[i].b);if(strong[i].g-strong[i].r>clear[i].g-clear[i].r+8)greenPixels++;}
             Check(faintDifference>0&&strongDifference>faintDifference*2&&greenPixels>10,"Real GPU stomach tint distinguishes unnoticed, faint and severe nausea");
         }
-        finally{survivalHudCanvas.renderMode=previousMode;survivalHudCanvas.worldCamera=previousCamera;view.cullingMask=mask;}
+        finally{viewArmsVisible=previousArmsVisible;survivalHudCanvas.renderMode=previousMode;survivalHudCanvas.worldCamera=previousCamera;view.cullingMask=mask;}
         WaterDrinking.AdvanceIllness(Vitals,10*86400);Check(Vitals.WaterSicknessSeconds==0&&SurvivalHudValues.From(Vitals,22).Sickness==0,"Native illness resolves without direct scripted health loss");
         Vitals.Restore();Vitals.WaterExposureThreshold=.8;Vitals.WaterExposureHazard=.2;Vitals.WaterExposureResponse=.6;Vitals.WaterExposureAgeSeconds=900;Vitals.WaterExposureSequence=9;
         checkpoint=new PlaySession();StorePlayer(checkpoint);saved=WorldJson.Read<PlaySession>(WorldJson.Write(checkpoint));saved.Validate();
