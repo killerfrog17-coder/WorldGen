@@ -36,12 +36,12 @@ public sealed partial class LocalTerrainExplorer
         Vitals.Restore();Vitals.Hunger=60;Vitals.Thirst=50;double mass=meat.MassKg;EatPossession(meat,false);Check(meat.MassKg<mass&&Vitals.Hunger<60&&Vitals.FoodExposures==null,"Eating corpse meat consumes mass and supplies food without raw-meat penalties");
         var session=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));session.Validate();Check(session.Inventory.Items.Any(p=>p.Place==PossessionPlace.Corpse)&&session.Inventory.ToolResources.Any(p=>p.Id=="loot-"+deer.Spawn.Id.ToString("x16")&&p.Harvests==1),"Save round-trip preserves remaining corpse loot and generation ledger");
         var spear=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);spear.Place=PossessionPlace.RightHand;Inventory.Items.Add(spear);UpdateInventoryVisuals();humanHideBody=true;
-        var root=inventoryVisuals[spear.Id];var origin=root.transform.position;combatGlobalReady=combatRightReady=0;StrikeWithItem(spear,false);yield return new WaitForSecondsRealtime(.18f);UpdateInventoryVisuals();
+        viewArmPoseImmediate=true;UpdateInventoryVisuals();var root=viewPossessions[spear.Id].Root;var origin=root.transform.position;combatGlobalReady=combatRightReady=0;StrikeWithItem(spear,false);yield return new WaitForSecondsRealtime(.18f);UpdateInventoryVisuals();
         Check(viewItemActions.ContainsKey(spear.Id)&&Vector3.Distance(origin,root.transform.position)>.025f,"Spear strike visibly moves the held model in first person");
         Image("spear-thrust");
         itemCharge=new ItemCharge{Weapon=spear,Ammo=spear,Started=Time.unscaledTimeAsDouble-1,Duration=.8,Throw=true};UpdateInventoryVisuals();var wound=root.transform.position;CancelItemCharge();UpdateInventoryVisuals();Check(Vector3.Distance(wound,root.transform.position)>.05f,"Throw wind-up and cancellation have distinct reversible view poses");
         Inventory.Items.Remove(spear);viewItemActions.Clear();
-        var bow=PortableTechnology.Create(PossessionKind.Bow,Position);bow.Place=PossessionPlace.RightHand;Inventory.Items.Add(bow);UpdateInventoryVisuals();var bowRoot=inventoryVisuals[bow.Id];var bowRest=bowRoot.transform.position;
+        var bow=PortableTechnology.Create(PossessionKind.Bow,Position);bow.Place=PossessionPlace.RightHand;Inventory.Items.Add(bow);UpdateInventoryVisuals();var bowRoot=viewPossessions[bow.Id].Root;var bowRest=bowRoot.transform.position;
         Check(Vector3.Dot(bowRoot.transform.up,view.transform.up)>.95f,"First-person bow remains vertical instead of inheriting the spear's forward tilt");
         itemCharge=new ItemCharge{Weapon=bow,Ammo=bow,Started=Time.unscaledTimeAsDouble-1.1,Duration=1.05};UpdateInventoryVisuals();Check(Vector3.Distance(bowRoot.GetComponentInChildren<LineRenderer>().GetPosition(1),new Vector3(.38f,.5f,0))>.05f,"Bow drawing moves the string toward the real drawing hand without changing the source rig");Image("bow-draw");CancelItemCharge();Inventory.Items.Remove(bow);
         var sourcePlant=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Herb).OrderBy(p=>(p.Position-Position).Length).FirstOrDefault();
@@ -62,6 +62,6 @@ public sealed partial class LocalTerrainExplorer
         }
         var clearedIds=new HashSet<ulong>(Wildlife.Individuals.Where(p=>p.Manual).Select(p=>p.Id));ExecuteAnimalSpawnCommand("/spawn clear");
         Check(!Inventory.Items.Any(p=>p.Place==PossessionPlace.Corpse&&clearedIds.Contains(p.CorpseOwner))&&!Inventory.ToolResources.Any(p=>clearedIds.Any(id=>p.Id=="loot-"+id.ToString("x16"))),"Clearing spawned corpses removes only unclaimed contents and prevents stale loot-generation IDs");
-        CaptureWildlife();CaptureInventoryPhysics();PlayerRules.Validate();SetInventoryOpen(false);paused=false;
+        CaptureWildlife();CaptureInventoryPhysics();PlayerRules.Validate();SetInventoryOpen(false);viewArmPoseImmediate=false;paused=false;
     }
 }

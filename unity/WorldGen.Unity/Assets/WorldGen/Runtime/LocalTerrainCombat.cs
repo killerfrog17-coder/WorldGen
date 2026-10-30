@@ -8,6 +8,8 @@ public sealed partial class LocalTerrainExplorer
 {
     double combatRightReady,combatLeftReady,combatGlobalReady,combatNoticeAt;
     bool combatGuarding;
+    sealed class PendingMelee {public Possession Item;public bool Left,Unsupported;public double ContactAt;}
+    readonly PendingMelee[] pendingMelee=new PendingMelee[2];
     bool CombatStopped=>!Ready||DeathVisible||SurvivalActive&&Vitals.Incapacitated||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||CampBusy||campPointerConsumedFrame==Time.frameCount||!Application.isFocused&&!inventoryReviewMode;
     void CombatNotice(string text){if(Time.unscaledTimeAsDouble<combatNoticeAt)return;combatNoticeAt=Time.unscaledTimeAsDouble+1.5;InventoryFeedback(text);}
     bool SpendCombatStamina(double amount)
@@ -47,8 +49,26 @@ public sealed partial class LocalTerrainExplorer
         var profile=ItemUseRules.Profile(item);double weightPenalty=item==null?1:Math.Max(1,Math.Sqrt(item.MassKg/(item.Kind==PossessionKind.LargeRock?.7:1.5)));
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
         bool supported=SupportSpear(item),unsupported=profile.Primary==ItemPrimaryUse.Thrust&&item!=null&&item.HeightM>=1.1&&!supported;
-        CombatCooldown(left,profile.RecoverySeconds*weightPenalty*(unsupported?1.25:1)*(SurvivalActive?1+(1-(Vitals.Exertion?.Burst??1))*.65:1));AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)(profile.ReachM*(unsupported?.82:1));
-        PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
+        double recovery=profile.RecoverySeconds*weightPenalty*(unsupported?1.25:1)*(SurvivalActive?1+(1-(Vitals.Exertion?.Burst??1))*.65:1),duration=Math.Min(1.4,recovery);
+        CombatCooldown(left,recovery);AnimateViewItem(item,false,duration);
+        pendingMelee[left?1:0]=new PendingMelee{Item=item,Left=left,Unsupported=unsupported,ContactAt=Time.unscaledTimeAsDouble+duration*(LongViewSpear(item)?.36:.38)};
+        PlayItemEffect("weapon-swish",PlayerAttackRay().origin,item==null?.12f:.3f,true);
+    }
+    void ResolveMeleeContacts(double now)
+    {
+        for(int i=0;i<pendingMelee.Length;i++)
+        {
+            var pending=pendingMelee[i];if(pending==null||now<pending.ContactAt)continue;pendingMelee[i]=null;
+            // Equipping, swapping or dropping the item during wind-up cannot
+            // leave a remote delayed hit behind. Aim is evaluated at contact.
+            if(Inventory.AtHand(pending.Left?PossessionPlace.LeftHand:PossessionPlace.RightHand)!=pending.Item)continue;
+            CompleteMeleeStrike(pending.Item,pending.Unsupported);
+        }
+    }
+    void CompleteMeleeStrike(Possession item,bool unsupported)
+    {
+        var profile=ItemUseRules.Profile(item);if(!profile.Weapon||ItemUseRules.Condition(item)<=0)return;
+        var ray=PlayerAttackRay();float reach=(float)(profile.ReachM*(unsupported?.82:1));
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
         // bounding box as flesh. Each candidate is still a real surface hit.
@@ -73,7 +93,9 @@ public sealed partial class LocalTerrainExplorer
     void UpdateItemCombat()
     {
         combatGuarding=false;
-        if(CombatStopped){CancelItemCharge();return;}
+        if(CombatStopped){CancelItemCharge();Array.Clear(pendingMelee,0,pendingMelee.Length);return;}
+        ResolveMeleeContacts(Time.unscaledTimeAsDouble);ResolveRangedRelease(Time.unscaledTimeAsDouble);
+        if(pendingRanged!=null)return;
         var mouse=Mouse.current;if(mouse==null)return;
         if(worldToolWork!=null){if(mouse.leftButton.wasPressedThisFrame||mouse.rightButton.wasPressedThisFrame)CancelWorldToolWork();return;}
         if(itemCharge!=null){UpdateItemCharge(mouse);return;}

@@ -48,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
         string key=taxon<0?profile.slug:profile.slug+"/"+taxon;if(wildlifeBehaviours.TryGetValue(key,out var result))return result;
         Taxon data=taxon>=0&&taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[taxon]:null;
         if(data==null){var binding=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,new[]{profile});if(binding.Count>0)data=sourceWorld.Ecology.Taxa[binding.First().Key];}
-        result=WildlifeBehaviour.Describe(profile.slug,data?.MassKg??Math.Max(.0001,8*Math.Pow(profile.lengthM,3)),data?.Eats??Food.None,profile.medium=="air",profile.tiny);wildlifeBehaviours.Add(key,result);return result;
+        result=WildlifeBehaviour.Describe(profile.slug,data?.MassKg??Math.Max(.0001,8*Math.Pow(profile.lengthM,3)),data?.Eats??Food.None,profile.medium=="air",profile.tiny,data?.Name??"");wildlifeBehaviours.Add(key,result);return result;
     }
     void RegisterWildlifeGroups(IEnumerable<FaunaPrototypeSpawn> spawns)
     {
@@ -61,8 +61,9 @@ public sealed partial class LocalTerrainExplorer
             if(!wildlifeGroups.TryGetValue(spawn.GroupId,out var group))
             {
                 TerrainHandoff.Coordinates(frame,spawn.Position,out double gx,out double gz);double a=(spawn.Hash%360)*Math.PI/180;
-                group=new WildlifeGroup{Id=spawn.GroupId,Species=spawn.Profile.slug,Taxon=spawn.Taxon,Sex=behaviour.Herd?(int)(spawn.GroupId%2):-1,Home=spawn.Position,Position=spawn.Position,Goal=frame.Position(gx+Math.Sin(a)*30,gz+Math.Cos(a)*30),Members=spawn.GroupSize,LastSolarDays=PlayerRules.SolarDays,NextDecisionDays=PlayerRules.SolarDays+(3+spawn.Hash%30)/(PlayerRules.Settings.RealMinutesPerDay*60),Intent=WildlifeIntent.Forage,Hunger=(spawn.Hash%23)/100.0,Thirst=(spawn.Hash%17)/100.0};Wildlife.Groups.Add(group);wildlifeGroups.Add(group.Id,group);IndexWildlifeGroup(group);
+                group=new WildlifeGroup{Id=spawn.GroupId,Species=spawn.Profile.slug,Taxon=spawn.Taxon,Sex=behaviour.SeasonalRut?(int)(spawn.GroupId%2):-1,Home=spawn.Position,Position=spawn.Position,Goal=frame.Position(gx+Math.Sin(a)*30,gz+Math.Cos(a)*30),Members=spawn.GroupSize,LastSolarDays=PlayerRules.SolarDays,NextDecisionDays=PlayerRules.SolarDays+(3+spawn.Hash%30)/(PlayerRules.Settings.RealMinutesPerDay*60),Intent=WildlifeIntent.Forage,Hunger=(spawn.Hash%23)/100.0,Thirst=(spawn.Hash%17)/100.0};Wildlife.Groups.Add(group);wildlifeGroups.Add(group.Id,group);IndexWildlifeGroup(group);
             }
+            group.Members=spawn.GroupSize;if(!behaviour.SeasonalRut)group.Sex=-1;else if(group.Sex<0)group.Sex=(int)(group.Id%2);
             spawn.Position=GroupMemberPosition(spawn,group);
         }
     }
@@ -91,7 +92,8 @@ public sealed partial class LocalTerrainExplorer
             TerrainMapViewport.Degrees(group.Position,out double latitude,out _);var habitat=sourceWorld.Ecology.Habitat[terrain.NearestCell(group.Position)];
             if(WildlifeBehaviour.Dormant(behaviour,skyYear,latitude,habitat.ColdTenthsC/10.0,CurrentWeather.TemperatureC)){group.Intent=WildlifeIntent.Shelter;return;}
             double wildlifeDay=WildlifeAbundance.EffectiveDayMinutes(PlayerRules.Settings.RealMinutesPerDay)*60;
-            group.Hunger=Math.Min(1,group.Hunger+dt/(wildlifeDay*.5));group.Thirst=Math.Min(1,group.Thirst+dt/(wildlifeDay*(CurrentWeather.TemperatureC>30?.25:.5)));
+            group.Hunger=Math.Min(1,group.Hunger+dt/(wildlifeDay*.5));
+            group.Thirst=profile.medium=="water"?0:Math.Min(1,group.Thirst+dt*(behaviour.NaturalHistory.WaterIndependent?.25:1)/(wildlifeDay*(CurrentWeather.TemperatureC>30?.25:.5)));
             bool arrived=group.Intent!=WildlifeIntent.Rest&&group.Intent!=WildlifeIntent.Shelter&&(group.Goal-group.Position).Length*radius<(group.Intent==WildlifeIntent.Drink?1:3);if(arrived&&group.Intent==WildlifeIntent.Drink)group.Thirst=Math.Max(0,group.Thirst-.6);
             if(current>=group.NextDecisionDays||arrived)ChooseGroupGoal(group,profile,behaviour);
             if(group.Intent==WildlifeIntent.Rest||group.Intent==WildlifeIntent.Shelter)return;
@@ -108,18 +110,18 @@ public sealed partial class LocalTerrainExplorer
         double now=PlayerRules.SolarDays,distance=(group.Position-Position).Length*frame.RadiusM;
         double pace=WildlifeAbundance.TravelPace(PlayerRules.Settings.RealMinutesPerDay,distance,profile.VisibleRadiusM);
         group.NextDecisionDays=now+(20+random.Unit()*30)/(pace*PlayerRules.Settings.RealMinutesPerDay*60);
-        TerrainMapViewport.Degrees(group.Position,out double latitude,out _);double activity=WildlifeBehaviour.Activity(behaviour,LocalSolarHour,WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal),CurrentWeather.RainMmPerHour,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps));
+        TerrainMapViewport.Degrees(group.Position,out double latitude,out _);double activity=WildlifeBehaviour.Activity(behaviour,LocalSolarHour,WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal),CurrentWeather.RainMmPerHour,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps),SkyFrame?.Daylight??double.NaN);
         if(random.Unit()>activity&&group.Hunger<.7&&group.Thirst<.7){group.Intent=WildlifeIntent.Rest;group.Goal=group.Position;return;}
         TerrainHandoff.Coordinates(frame,group.Position,out double x,out double z);double angle=random.Unit()*Math.PI*2,reach=behaviour.PackHunter?300:behaviour.Herd?150:60;
         group.Intent=WildlifeIntent.Forage;
-        if(behaviour.Herd&&group.Sex==1&&WildlifeBehaviour.Rut(skyYear,latitude)&&group.Hunger<.7&&group.Thirst<.7)
+        if(behaviour.SeasonalRut&&group.Sex==1&&WildlifeBehaviour.Rut(behaviour,skyYear,latitude)&&group.Hunger<.7&&group.Thirst<.7)
         {var females=ActiveWildlifeGroupRecords.Where(g=>g.Species==group.Species&&g.Sex==0&&(g.Position-group.Position).Length*frame.RadiusM<700).OrderBy(g=>(g.Position-group.Position).Length).FirstOrDefault();if(females!=null){group.Intent=WildlifeIntent.Rut;group.Goal=females.Position;return;}}
         if(behaviour.Migratory&&Math.Abs(Math.Sin(skyYear*Math.PI*2))>.75)
         {group.Intent=WildlifeIntent.Migrate;angle=WildlifeBehaviour.MigrationHeading(skyYear,latitude);reach=350;}
-        else if(behaviour.Predator&&group.Hunger>.35)
+        else if(behaviour.CanHunt&&group.Hunger>(behaviour.Predator?.35:.8))
         {
             Taxon hunter=group.Taxon>=0&&group.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[group.Taxon]:null;
-            var prey=ActiveWildlifeGroupRecords.Where(g=>g.Id!=group.Id&&(g.Position-group.Position).Length*frame.RadiusM<700&&wildlifeBehaviours.TryGetValue(g.Species+"/"+g.Taxon,out var b)&&!b.Predator&&b.Herd&&g.Taxon>=0&&g.Taxon<sourceWorld.Ecology.Taxa.Length&&WildlifeBehaviour.EdiblePrey(hunter?.MassKg??40,behaviour.PackHunter,hunter?.MinPreyKg??0,hunter?.MaxPreyKg??0,sourceWorld.Ecology.Taxa[g.Taxon].MassKg)).OrderBy(g=>(g.Position-group.Position).Length).FirstOrDefault();
+            var prey=ActiveWildlifeGroupRecords.Where(g=>g.Id!=group.Id&&(g.Position-group.Position).Length*frame.RadiusM<700&&wildlifeBehaviours.TryGetValue(g.Species+"/"+g.Taxon,out var b)&&!b.Predator&&g.Taxon>=0&&g.Taxon<sourceWorld.Ecology.Taxa.Length&&WildlifeNaturalHistory.CompatiblePrey(hunter,sourceWorld.Ecology.Taxa[g.Taxon])&&WildlifeBehaviour.EdiblePrey(hunter?.MassKg??40,behaviour.PackHunter,hunter?.MinPreyKg??0,hunter?.MaxPreyKg??0,sourceWorld.Ecology.Taxa[g.Taxon].MassKg)).OrderBy(g=>(g.Position-group.Position).Length).FirstOrDefault();
             if(prey!=null){group.Intent=WildlifeIntent.Hunt;group.Goal=prey.Position;return;}
         }
         if(group.Thirst>.45&&profile.medium=="ground")

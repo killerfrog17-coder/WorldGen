@@ -43,6 +43,16 @@ public sealed partial class LocalTerrainExplorer
         WildlifePerception.Alarm(roo.Awareness,px,pz);Weather(0);Place(roos[1],px+8,pz+30,180);Check(ShareAnimalAlarm(roos[1],roo,8),"A nearby herd mate reacts to observed alarm without seeing the original threat");FleeKnownThreat(roos[1]);Check(roos[1].TargetSpeed>roos[1].Spawn.Profile.walkMps,"Social alarm produces a real escape movement request");
         roo.Exertion=new ExertionState{Burst=.12,Fatigue=.3,Breath=.8};RememberAnimal(roo,false);var id=roo.Spawn.Id;var spawn=roo.Spawn;var model=roo.Model;RemoveAnimal(id);Check(AddAnimal(spawn,model,true),"An effort-bearing animal can be streamed back in");roo=animals[id];Check(roo.Exertion.Burst<.2&&roo.Exertion.Fatigue>.25&&roo.Awareness.MemorySeconds>0,"Streaming preserves accumulated effort and threat memory");
         var saved=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));saved.Validate();var record=saved.Wildlife.Individuals.Single(a=>a.Id==id);Check(record.Exertion.Burst<.2&&record.Awareness.MemorySeconds>0,"The full save serializer preserves the active hunt state");
+        Place(wolf,px,pz+30,0);Place(deer,px,pz+15);deer.Speed=3;
+        Check(AnimalVision(wolf,deer,15)==0,"Animal-to-animal vision respects the observer's actual blind direction");
+        wolf.Heading=180;deer.CoverAt=Time.unscaledTimeAsDouble+10;deer.VisualCover=0;
+        Check(AnimalVision(wolf,deer,15)>.1,"The same moving prey becomes visible when the observer turns toward it");
+        wolf.HuntTargetId=deer.Spawn.Id;wolf.HuntX=deer.X;wolf.HuntZ=deer.Z;wolf.HuntMemoryUntil=wolf.Life+15;RememberAnimal(wolf,false);
+        var pursuit=WorldJson.Read<WildlifeIndividual>(WorldJson.Write(wildlifeRecords[wolf.Spawn.Id]));pursuit.Validate();
+        Check(pursuit.HuntTargetId==deer.Spawn.Id&&pursuit.HuntMemorySeconds>14,"Native hunt memory serializes the actual last-seen prey position");
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();
+        Check(!MayHuntPlayer(wolf,wolf.Behaviour,new WildlifeGroup{Hunger=.6,Members=8},10),"An eight-member ordinary wolf pack does not become an automatic human hunter");
+        PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
         Color32[] Capture(string name)
         {
             var old=view.targetTexture;var previous=RenderTexture.active;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;var texture=new Texture2D(1280,800,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,800),0,0);texture.Apply();var pixels=texture.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),texture.EncodeToPNG());Destroy(texture);view.targetTexture=old;RenderTexture.active=previous;rt.Release();Destroy(rt);return pixels;

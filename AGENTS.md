@@ -1,5 +1,41 @@
 # WorldGen repository instructions
 
+IN-PROGRESS30Oct07:12CDT: eight-hour mandate BELOW STILL ACTIVE until at least
+17:09:07Z/12:09CDT. Do not stop on this checkpoint. New CC0 native FPS derivative
+47 clips/66 bones/20157 imported vertices, offline FK and forearm twist stations;
+latest v8 Unity import EXIT0. Needs new IL2CPP/native/whole-motion visual review.
+Alpha and twist candidates each43 native PASS but internally rejected visuals:
+first wrist pinching, then bow thumb near-plane clipping. Existing shortcut stays
+old player-hunting-first-person, NOT candidate. Current candidate folder
+player-first-person-authored is unselected/reusable; last binary11:36:34Z is OLD
+33-clip twist revision. Source newer: bow clearance, spear-specific throw,
+sling/atlatl loaded ammo, craft/eat/drink/carry clips, timed melee/throw contact,
+actual-input checks. These newer changes are COMPILED editor but NOT native-tested.
+All177 model families have explicit natural-history priors; Core571 hunting +103
+abundance PASS. Runtime ethology changes need native hunting/performance tests.
+Current own Blender grip-fit diagnostic session43389 may still run; Unity exited.
+Need restore3 Unity autochanges after editor. No source cleanup, paid, subagents,
+Mono or owner3files. Continue main arms refinement and per-species AI audit.
+
+OWNER30Oct ~04:09CDT REJECTED FIRST-PERSON ARMS. New work ACTIVE; minimum EIGHT
+HOURS from 2026-10-30T09:09:07Z, so work through at least17:09:07Z /12:09CDT,
+unless owner explicitly changes/stops the request. Do NOT stop early because
+functional tests pass. Research/acquire properly licensed quality FPS animation
+sources, create/refine actual camera-authored clips and proper anatomical rigs,
+inspect whole moving sequences and in-game playback. Rejected runtime IK arms
+are not an accepted visual baseline. Preserve full world avatar/original approved
+source art. No paid/subagents/Mono/cleanup. Existing shortcut stays current until
+a better build is truly ready; use NEW candidate folders. Hunting/camp/needs
+features retained. Explain fallback means idle for unavailable activity clips;
+not every species has feeding/sleep/alert authored. Owner then ACCEPTED these
+animation fallbacks and adds an audit of EVERY animal AI for realistic/immersive
+cheap improvements. Keep arms the main priority; do not turn this into generating
+all missing activity clips. Audit species profiles/senses/routines/social/threat
+responses and preserve performance budgets. Do not pass finite-vertex or
+handler tests off as proof of animation quality. Evidence/new work under
+artifacts/first-person-rebuild-20261030. Owner3files must remain untouched.
+
+
 SELECTED30Oct ~04:03CDT HUNTING + FIRST-PERSON UPDATE COMPLETE. Existing root
 shortcut NOW artifacts/player-hunting-first-person/WorldGen.exe, IL2CPP RELEASE
 BuiltUtc2026-10-30T08:55:38.2986266Z, production e002136. Final same-package native

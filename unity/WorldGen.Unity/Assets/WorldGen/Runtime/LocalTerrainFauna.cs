@@ -25,6 +25,7 @@ public sealed partial class LocalTerrainExplorer
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
         public ExertionState Exertion=new ExertionState();public ExertionProfile EffortProfile;public WildlifeSenses Senses;public WildlifeAwarenessState Awareness=new WildlifeAwarenessState();
         public double LastPerception,ActionUntil,NextScan,AlertVoiceAt;public string BehaviourAction="";public Vector3 LastMove;public bool SeekingCover;
+        public WildlifeBehaviourProfile Behaviour;public double CoverAt,VisualCover,DefendWarnUntil,HuntMemoryUntil,HuntX,HuntZ;public ulong HuntTargetId;public float AirPitch;
     }
     FaunaPrototypePlanner animalPlanner;
     Task<List<FaunaPrototypeSpawn>> animalPlan;LocalTerrainFrame animalPlanFrame,animalFrame;
@@ -251,10 +252,11 @@ public sealed partial class LocalTerrainExplorer
     void UpdateAnimal(Animal animal,float dt)
     {
         if(animal.Dead){animal.Renderer.enabled=true;UpdateAnimalCorpse(animal,dt);return;}
-        var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision&&(!WildlifeBehaviourEnabled||profile.tiny))DecideAnimal(animal);if(dt>0){UpdateAnimalBehaviour(animal);AvoidAnimalSolids(animal);}
+        var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision&&!WildlifeBehaviourEnabled)DecideAnimal(animal);if(dt>0){UpdateAnimalBehaviour(animal);AvoidAnimalSolids(animal);}
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
         float wanted=animal.TargetSpeed;
+        if(animal.Behaviour.HasNaturalHistory)wanted*=(float)WildlifeNaturalHistory.ThermalMobility(animal.Behaviour.NaturalHistory,CurrentWeather.TemperatureC,profile.medium=="water");
         if(!profile.tiny&&animal.EffortProfile!=null&&dt>0)
         {
             double demand=animal.Perched?0:profile.medium=="air"?animal.Clip.role=="glide"?.08:animal.Awareness.Mode==WildlifeAwareness.Fleeing?.95:.48:Math.Pow(Math.Min(1,wanted/Math.Max(.1,profile.runMps)),1.3);
@@ -281,7 +283,9 @@ public sealed partial class LocalTerrainExplorer
         else if(profile.medium=="water")vertical=Math.Max(floor+.1,water+animal.Spawn.HeightM-profile.lengthM*animal.Model.Asset.Height*.5);
         else vertical=floor;
         var position=new Vector3((float)(x-originX),(float)vertical,(float)(z-originZ));
-        animal.Root.transform.localPosition=position;animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
+        float pitch=profile.medium=="air"&&!animal.Perched&&animal.Speed>.2?Mathf.Clamp(-Mathf.Atan2(position.y-animal.Root.transform.localPosition.y,Mathf.Max(.01f,animal.Speed*dt))*Mathf.Rad2Deg,-40,40):0;
+        animal.AirPitch=Mathf.MoveTowards(animal.AirPitch,pitch,dt*65);
+        animal.Root.transform.localPosition=position;animal.Root.transform.localRotation=Quaternion.Euler(animal.AirPitch,animal.Heading,0);
         bool stationary=animal.Clip.role!="walk"&&animal.Clip.role!="trot"&&animal.Clip.role!="run"&&animal.Clip.role!="fly"&&animal.Clip.role!="glide"&&animal.Clip.role!="swim";
         double rate=stationary?1:Math.Max(.2,Math.Min(1.8,animal.Speed/animal.NominalSpeed));
         animal.Time+=dt*rate;animal.OldTime+=dt*rate;animal.BlendAge+=dt;
@@ -320,7 +324,7 @@ public sealed partial class LocalTerrainExplorer
     {var result=new Matrix4x4();for(int i=0;i<16;i++)result[i]=a[i]+(b[i]-a[i])*t;return result;}
     void RemoveAnimal(ulong id)
     {
-        var animal=animals[id];animal.Retired=true;if(animal.Dead||animal.Health<animal.MaximumHealth||animal.Awareness.Suspicion>.15||animal.Exertion.Burst<.95||animal.Exertion.Fatigue>.01||wildlifeRecords?.ContainsKey(id)==true)RememberAnimal(animal,true);if(animal.Ragdoll!=null)Destroy(animal.Ragdoll);ClearAnimalBlood(animal);Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
+        var animal=animals[id];animal.Retired=true;if(animal.Dead||animal.Health<animal.MaximumHealth||animal.Awareness.Suspicion>.15||animal.HuntMemoryUntil>animal.Life||animal.Exertion.Burst<.95||animal.Exertion.Fatigue>.01||wildlifeRecords?.ContainsKey(id)==true)RememberAnimal(animal,true);if(animal.Ragdoll!=null)Destroy(animal.Ragdoll);ClearAnimalBlood(animal);Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
     }
     void DisposeAnimalFauna()
     {

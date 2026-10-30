@@ -253,18 +253,12 @@ public sealed partial class LocalTerrainExplorer
             {
                 bool right=item.Place==PossessionPlace.RightHand;string name="hand_"+(right?"r":"l");
                 var hand=inventoryBones[name];
-                if(humanHideBody&&!deathPresented)
-                {root.transform.position=view.transform.TransformPoint(new Vector3(item.Hands==2?0:right?.10f:-.10f,-.16f,.44f));root.transform.rotation=view.transform.rotation;}
-                else
-                {root.transform.position=(item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position)-Vector3.up*(float)item.HeightM*.35f;root.transform.rotation=body.rotation;}
-                if(humanHideBody&&item.Kind==PossessionKind.Bow)
-                {root.transform.rotation=view.transform.rotation*Quaternion.Euler(0,90,0);root.transform.position=view.transform.TransformPoint(new Vector3(-.18f,-.18f,.48f))-root.transform.up*(float)item.HeightM*.5f;}
-                else if(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true)
+                Vector3 grip=item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position;root.transform.rotation=body.rotation;
+                if(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true)
                 {
-                    root.transform.rotation=(humanHideBody?view.transform.rotation:body.rotation)*Quaternion.Euler(humanHideBody?75:35,humanHideBody?(right?-10:10):0,0);
-                    root.transform.position-=root.transform.up*(float)item.HeightM*.35f;
+                    root.transform.rotation=body.rotation*Quaternion.Euler(35,0,0);
                 }
-                PoseFirstPersonAction(root,item);
+                root.transform.position=grip-root.transform.up*(float)item.HeightM*(StoneCrafting.Rock(item)||item.Kind==PossessionKind.Bow?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f);
                 if(item.Kind==PossessionKind.Bow)UpdateBowString(root,item);
             }
         }

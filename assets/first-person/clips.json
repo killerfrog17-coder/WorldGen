@@ -1,0 +1,346 @@
+{
+  "version": 1,
+  "fps": 60,
+  "clips": [
+    {
+      "name": "SpearReady2",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearThrust2",
+      "duration": 0.7166666666666667,
+      "loop": false,
+      "contact": 0.36,
+      "release": -1
+    },
+    {
+      "name": "SpearReady1",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearThrust1",
+      "duration": 0.8333333333333334,
+      "loop": false,
+      "contact": 0.36,
+      "release": -1
+    },
+    {
+      "name": "ToolReady",
+      "duration": 2.6666666666666665,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ToolWalk",
+      "duration": 0.7333333333333333,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ToolCutA",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "contact": 0.38,
+      "release": -1
+    },
+    {
+      "name": "ToolCutB",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "contact": 0.38,
+      "release": -1
+    },
+    {
+      "name": "ToolGuard",
+      "duration": 0.15,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "FistsReady",
+      "duration": 2.6666666666666665,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "FistsGuard",
+      "duration": 0.15,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "Punch",
+      "duration": 0.55,
+      "loop": false,
+      "contact": 0.38,
+      "release": -1
+    },
+    {
+      "name": "Empty",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ThrowCharge",
+      "duration": 0.8,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ThrowRelease",
+      "duration": 0.6166666666666667,
+      "loop": false,
+      "contact": -1,
+      "release": 0.24
+    },
+    {
+      "name": "SpearThrowCharge",
+      "duration": 0.8,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearThrowRelease",
+      "duration": 0.6166666666666667,
+      "loop": false,
+      "contact": -1,
+      "release": 0.24
+    },
+    {
+      "name": "SlingWhirl",
+      "duration": 0.8,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SlingRelease",
+      "duration": 0.6166666666666667,
+      "loop": false,
+      "contact": -1,
+      "release": 0.24
+    },
+    {
+      "name": "BowReady",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "BowDraw",
+      "duration": 1.05,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "BowRelease",
+      "duration": 0.48333333333333334,
+      "loop": false,
+      "contact": -1,
+      "release": 0
+    },
+    {
+      "name": "Gather",
+      "duration": 1.05,
+      "loop": false,
+      "contact": 0.55,
+      "release": -1
+    },
+    {
+      "name": "Drink",
+      "duration": 1.5,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "WorkKnapping",
+      "duration": 1.25,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "WorkCut",
+      "duration": 1.2,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "WorkTwist",
+      "duration": 1.5,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "WorkDig",
+      "duration": 1.4,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "Eat",
+      "duration": 1.2,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "CarryLarge",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ToolReady_Left",
+      "duration": 2.6666666666666665,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ToolWalk_Left",
+      "duration": 0.7333333333333333,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ToolCutA_Left",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "contact": 0.38,
+      "release": -1
+    },
+    {
+      "name": "ToolCutB_Left",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "contact": 0.38,
+      "release": -1
+    },
+    {
+      "name": "ToolGuard_Left",
+      "duration": 0.15,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearReady1_Left",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearThrust1_Left",
+      "duration": 0.8333333333333334,
+      "loop": false,
+      "contact": 0.36,
+      "release": -1
+    },
+    {
+      "name": "SpearReady2_Left",
+      "duration": 3.0,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearThrust2_Left",
+      "duration": 0.7166666666666667,
+      "loop": false,
+      "contact": 0.36,
+      "release": -1
+    },
+    {
+      "name": "ThrowCharge_Left",
+      "duration": 0.8,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "ThrowRelease_Left",
+      "duration": 0.6166666666666667,
+      "loop": false,
+      "contact": -1,
+      "release": 0.24
+    },
+    {
+      "name": "SpearThrowCharge_Left",
+      "duration": 0.8,
+      "loop": false,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SpearThrowRelease_Left",
+      "duration": 0.6166666666666667,
+      "loop": false,
+      "contact": -1,
+      "release": 0.24
+    },
+    {
+      "name": "SlingWhirl_Left",
+      "duration": 0.8,
+      "loop": true,
+      "contact": -1,
+      "release": -1
+    },
+    {
+      "name": "SlingRelease_Left",
+      "duration": 0.6166666666666667,
+      "loop": false,
+      "contact": -1,
+      "release": 0.24
+    },
+    {
+      "name": "Punch_Left",
+      "duration": 0.55,
+      "loop": false,
+      "contact": 0.38,
+      "release": -1
+    },
+    {
+      "name": "Gather_Left",
+      "duration": 1.05,
+      "loop": false,
+      "contact": 0.55,
+      "release": -1
+    }
+  ],
+  "bones": 66,
+  "vertices": 17170,
+  "triangles": 34272,
+  "sockets": [
+    "Grip.R",
+    "Grip.L",
+    "SpearGrip.R",
+    "SpearGrip.L"
+  ],
+  "authoring": "Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.",
+  "source_sha256": "8f1afd249569249a3420ee4e9f8b48611893ce7987e5a644a634593700452f93"
+}

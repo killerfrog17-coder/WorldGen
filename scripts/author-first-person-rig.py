@@ -1,0 +1,566 @@
+"""Author and bake the private first-person rig, never the approved world avatar.
+
+Run with Blender 4.5: blender -b -t 8 --python scripts/author-first-person-rig.py
+The CC0 artist's native hand topology, weights and finger poses are retained.
+New handling is authored in camera space and baked to FK before Unity export.
+There are no runtime arm targets, stretch constraints or runtime finger solvers.
+"""
+from pathlib import Path
+import bpy, math, json, hashlib
+from mathutils import Matrix, Vector, Quaternion
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / 'assets/first-person'
+EVIDENCE = ROOT / 'artifacts/first-person-rebuild-20261030'
+bpy.ops.wm.open_mainfile(filepath=str(OUT / 'FirstPersonBase.blend'))
+scene = bpy.context.scene
+rig = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
+arms = next(o for o in bpy.data.objects if o.type == 'MESH')
+native = {a.name.split('|')[-1]: a for a in bpy.data.actions}
+R = rig.matrix_world.copy()
+RI = R.inverted()
+MIRROR = Matrix.Diagonal((-1, 1, 1, 1))
+U = lambda v: Vector((-v[0], -v[2], v[1]))
+FPS = 60
+scene.render.fps = FPS
+
+
+def sample_native(label, phase=0):
+    action = native[label]
+    rig.animation_data_create()
+    rig.animation_data.action = action
+    if action.slots:
+        rig.animation_data.action_slot = action.slots[0]
+    first, last = action.frame_range
+    scene.frame_set(int(first + (last-first)*phase), subframe=(first+(last-first)*phase) % 1)
+    bpy.context.view_layer.update()
+    return {b.name: b.matrix.copy() for b in rig.pose.bones}
+
+
+rest = {b.name: b.matrix_local.copy() for b in rig.data.bones}
+grasp = sample_native('Sword_Idle')
+# Mirror deformation, rather than Euler angles: left and right bones need not
+# share local axes. This preserves the artist's thumb opposition and knuckles.
+for name in list(grasp):
+    if name.endswith('.L'):
+        other = name[:-2] + '.R'
+        if other in grasp:
+            grasp[name] = RI @ MIRROR @ (R @ grasp[other] @ rest[other].inverted() @ RI) @ MIRROR @ R @ rest[name]
+
+source_grips, offsets = {}, {}
+for side in ['R', 'L']:
+    wrist = R @ grasp['Wrist.'+side]
+    if side == 'R':
+        center = wrist @ Vector((-.0066, .1093, -.0544))
+        y = ((R @ grasp['Index2.R']).translation-(R @ grasp['Pinky2.R']).translation).normalized()
+        z = Vector((0, -1, 0)); z = (z-y*z.dot(y)).normalized()
+        x = y.cross(z).normalized()
+        m = Matrix((x, y, z)).transposed().to_4x4(); m.translation = center
+    else:
+        m = MIRROR @ source_grips['R'] @ MIRROR
+    source_grips[side] = m
+    offsets[side] = wrist.inverted() @ m
+
+# A long shaft rests diagonally across a power grip. Reusing the sword's
+# perpendicular handle axis is what otherwise forces an extended spear wrist
+# into an extreme bend. Keep a separate native socket for each grip style.
+spear_grips, spear_offsets = {}, {}
+for side in ['R','L']:
+    old=source_grips[side]
+    wrist=R @ grasp['Wrist.'+side]
+    forward=((R @ grasp['Middle2.'+side]).translation-wrist.translation).normalized()
+    angle=math.radians(35)
+    y=(old.to_3x3().col[1]*math.cos(angle)+forward*math.sin(angle)).normalized()
+    z=old.to_3x3().col[2];z=(z-y*z.dot(y)).normalized()
+    m=Matrix((y.cross(z).normalized(),y,z)).transposed().to_4x4();m.translation=old.translation
+    spear_grips[side]=m;spear_offsets[side]=wrist.inverted() @ m
+
+# Actual socket bones are exported with the rig. Held view items follow these
+# baked sockets; they never drag a real avatar's hands toward camera targets.
+rig.animation_data_clear()
+bpy.context.view_layer.objects.active = rig
+rig.select_set(True)
+bpy.ops.object.mode_set(mode='EDIT')
+for side in ['R','L']:
+    for prefix in ['ForearmHalf','ForearmFull']:
+        twist=rig.data.edit_bones.new(prefix+'.'+side)
+        twist.length=rig.data.edit_bones['LowerArm.'+side].length
+        twist.matrix=rest['LowerArm.'+side].copy()
+        twist.parent=rig.data.edit_bones['LowerArm.'+side];twist.use_deform=True
+for prefix,style_offsets in [('Grip',offsets),('SpearGrip',spear_offsets)]:
+    for side in ['R', 'L']:
+        bone = rig.data.edit_bones.new(prefix+'.'+side)
+        bone.length = .08
+        bone.matrix = rest['Wrist.'+side] @ style_offsets[side]
+        bone.parent = rig.data.edit_bones['Wrist.'+side]
+        bone.use_deform = False
+bone=rig.data.edit_bones.new('Nock.R')
+bone.length=.035
+bone.matrix=rest['Wrist.R'] @ offsets['R'] @ Matrix.Translation((0,.035,0))
+bone.parent=rig.data.edit_bones['Wrist.R'];bone.use_deform=False
+bpy.ops.object.mode_set(mode='OBJECT')
+rest = {b.name: b.matrix_local.copy() for b in rig.data.bones}
+for side in ['R', 'L']:
+    grasp['Grip.'+side] = grasp['Wrist.'+side] @ offsets[side]
+    grasp['SpearGrip.'+side] = grasp['Wrist.'+side] @ spear_offsets[side]
+    grasp['ForearmHalf.'+side]=grasp['LowerArm.'+side].copy()
+    grasp['ForearmFull.'+side]=grasp['LowerArm.'+side].copy()
+grasp['Nock.R']=grasp['Wrist.R'] @ offsets['R'] @ Matrix.Translation((0,.035,0))
+
+# Three longitudinal rotation stations avoid concentrating pronation in a
+# single wrist ring. The adjacent-station weights also avoid the 180-degree
+# collapse of a two-weight linear-skinned forearm.
+for side in ['R','L']:
+    group=arms.vertex_groups['LowerArm.'+side]
+    half=arms.vertex_groups.new(name='ForearmHalf.'+side)
+    full=arms.vertex_groups.new(name='ForearmFull.'+side)
+    head=(R @ rest['LowerArm.'+side]).translation
+    end=(R @ rest['Wrist.'+side]).translation
+    delta=end-head;length2=delta.length_squared
+    for vertex in arms.data.vertices:
+        weight=next((g.weight for g in vertex.groups if g.group==group.index),0)
+        if weight<=0:continue
+        t=((arms.matrix_world @ vertex.co)-head).dot(delta)/length2
+        f=max(0,min(1,(t-.08)/.82))
+        lower=max(0,1-f*2);middle=1-abs(f*2-1);distal=max(0,f*2-1)
+        if lower>0:group.add([vertex.index],weight*lower,'REPLACE')
+        else:group.remove([vertex.index])
+        if middle>0:half.add([vertex.index],weight*middle,'REPLACE')
+        if distal>0:full.add([vertex.index],weight*distal,'REPLACE')
+
+
+def local_basis(global_pose):
+    result = {}
+    for b in rig.pose.bones:
+        parent_rest = rest[b.parent.name] if b.parent else Matrix.Identity(4)
+        parent_pose = global_pose[b.parent.name] if b.parent else Matrix.Identity(4)
+        result[b.name] = (parent_rest.inverted() @ rest[b.name]).inverted() @ parent_pose.inverted() @ global_pose[b.name]
+    return result
+
+
+BASE_BASIS = local_basis(grasp)
+arm_stats = []
+
+
+def distribute_forearm_twist():
+    """Bake axial wrist rotation into the private derivative's forearm stations."""
+    for side in ['R','L']:
+        lower=rig.pose.bones['LowerArm.'+side]
+        hand=rig.pose.bones['Wrist.'+side]
+        current=(R @ lower.matrix).to_quaternion()
+        desired=(R @ hand.matrix).to_quaternion()
+        reference=(R @ grasp['Wrist.'+side]).to_quaternion().inverted() @ (R @ grasp['LowerArm.'+side]).to_quaternion()
+        candidate=desired @ reference
+        axis=current @ Vector((0,1,0))
+        candidate=(candidate @ Vector((0,1,0))).rotation_difference(axis) @ candidate
+        difference=candidate @ current.inverted()
+        angle=2*math.atan2(Vector((difference.x,difference.y,difference.z)).dot(axis),difference.w)
+        angle=(angle+math.pi)%math.tau-math.pi
+        for prefix,amount in [('ForearmHalf',.5),('ForearmFull',1)]:
+            bone=rig.pose.bones[prefix+'.'+side];bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion((0,1,0),angle*amount)
+    bpy.context.view_layer.update()
+
+
+def reset(shift=(0, -.12, 0)):
+    rig.animation_data_clear()
+    for b in rig.pose.bones:
+        b.matrix_basis = BASE_BASIS[b.name]
+    chest = rig.pose.bones['Chest']
+    pose = grasp['Chest'].copy()
+    pose.translation += RI.to_3x3() @ U(shift)
+    chest.matrix = pose
+    bpy.context.view_layer.update()
+    return {b.name: b.matrix.copy() for b in rig.pose.bones}
+
+
+def grip_pose(side, center, axis, roll, base, curl=1, pole_weight=.15, grip_style='tool', hand_rotation=None):
+    """Offline two-link posing with authored roll and a stable elbow preference.
+
+    The wrist's anatomical direction constrains the elbow plane. This avoids
+    solving a reachable hand position at the cost of folding the wrist backward.
+    Reach is bounded; any clamp is reported for visual correction before export.
+    """
+    axis = U(axis).normalized()
+    source=(spear_grips if grip_style=='spear' else source_grips)[side]
+    offset=(spear_offsets if grip_style=='spear' else offsets)[side]
+    q = source.to_3x3().col[1].rotation_difference(axis)
+    q = hand_rotation if hand_rotation is not None else Quaternion(axis, math.radians(roll)) @ q
+    grip = q.to_matrix().to_4x4() @ source
+    grip.translation = U(center)
+    desired = grip @ offset.inverted()
+    upper = rig.pose.bones['UpperArm.'+side]
+    lower = rig.pose.bones['LowerArm.'+side]
+    hand = rig.pose.bones['Wrist.'+side]
+    shoulder = (R @ base[upper.name]).translation
+    old_elbow = (R @ base[lower.name]).translation
+    old_wrist = (R @ base[hand.name]).translation
+    a, b = (old_elbow-shoulder).length, (old_wrist-old_elbow).length
+    delta = desired.translation-shoulder
+    distance = min(max(.01, delta.length), (a+b)*.985)
+    direction = delta.normalized()
+    target = shoulder + direction*distance
+    hand_local = base[hand.name].inverted().to_3x3() @ (base['Middle2.'+side].translation-base[hand.name].translation)
+    hand_direction = (desired.to_3x3() @ hand_local).normalized()
+    hint = U((.45 if side == 'R' else -.45, -.5, 0))-shoulder
+    pole = (hint-direction*hint.dot(direction)).normalized()
+    anatomical = -hand_direction+direction*hand_direction.dot(direction)
+    if anatomical.length < 1e-5:
+        anatomical = pole.copy()
+    bend = (anatomical.normalized()*(1-pole_weight)+pole*pole_weight).normalized()
+    along = (a*a+distance*distance-b*b)/(2*distance)
+    elbow = shoulder+direction*along+bend*math.sqrt(max(0, a*a-along*along))
+    for name, p, end, new_p, new_end in [
+        (upper.name, shoulder, old_elbow, shoulder, elbow),
+        (lower.name, old_elbow, old_wrist, elbow, target)]:
+        rotation = (end-p).rotation_difference(new_end-new_p)
+        pose = rotation.to_matrix().to_4x4() @ (R @ base[name])
+        pose.translation = new_p
+        rig.pose.bones[name].matrix = RI @ pose
+        bpy.context.view_layer.update()
+    desired.translation = target
+    hand.matrix = RI @ desired
+    # Relaxation interpolates each native finger's own local quaternion. It does
+    # not curl every digit around one guessed world axis.
+    if curl != 1:
+        for digit in ['Index', 'Middle', 'Ring', 'Pinky', 'Thumb']:
+            for index in range(1, 5 if digit != 'Thumb' else 4):
+                name = f'{digit}{index}.{side}'
+                if name in rig.pose.bones:
+                    bone = rig.pose.bones[name]
+                    bone.rotation_mode = 'QUATERNION'
+                    bone.rotation_quaternion = Quaternion().slerp(BASE_BASIS[name].to_quaternion(), curl)
+    bpy.context.view_layer.update()
+    arm_stats.append(dict(side=side, reach_error_m=max(0, delta.length-distance), wrist_bend_deg=math.degrees((target-elbow).angle(hand_direction))))
+    return grip
+
+
+def palm_pose(side, center, base, curl=.45):
+    """Forward-facing fingers and an upward palm, rather than a sideways fist.
+
+    Use the anatomical metacarpal frame directly: turning a tool socket sideways
+    to fake this pose bends the wrist instead of rotating the forearm.
+    """
+    wrist=(R @ grasp['Wrist.'+side]).translation
+    forward=((R @ grasp['Middle2.'+side]).translation-wrist).normalized()
+    across=((R @ grasp['Index2.'+side]).translation-(R @ grasp['Pinky2.'+side]).translation).normalized()
+    normal=forward.cross(across).normalized()*(-1 if side=='R' else 1)
+    def frame(y,z):
+        x=y.cross(z).normalized();z=x.cross(y).normalized()
+        return Matrix((x,y,z)).transposed()
+    rotation=(frame(U((0,0,1)),U((0,1,0))) @ frame(forward,normal).inverted()).to_quaternion()
+    return grip_pose(side,center,(0,1,0),0,base,curl,pole_weight=.5,hand_rotation=rotation)
+
+
+def smooth(t):
+    return t*t*(3-2*t)
+
+
+def keyed(keys, phase):
+    """Camera-authored pose keys, smooth interpolation and explicit contact hold."""
+    if phase <= keys[0][0]:
+        return dict(keys[0][1])
+    for (ta, a), (tb, b) in zip(keys, keys[1:]):
+        if phase <= tb:
+            t = smooth((phase-ta)/(tb-ta))
+            result = {}
+            for name in a:
+                result[name] = tuple(x+(y-x)*t for x, y in zip(a[name], b[name])) if isinstance(a[name], tuple) else a[name]+(b[name]-a[name])*t
+            return result
+    return dict(keys[-1][1])
+
+
+def spear(center=(.22, -.16, .28), axis=(-.43, .14, .89), support=.225, lean=0, two=True, curl=1, left_curl=1, rear_roll=240, front_roll=270):
+    base = reset((0, -.12, lean))
+    axis = Vector(axis).normalized()
+    grip_pose('R', center, axis, rear_roll, base, curl,pole_weight=.35,grip_style='spear')
+    front = Vector(center)+axis*support
+    if two:
+        grip_pose('L', front, axis, front_roll, base, left_curl,pole_weight=.35,grip_style='spear')
+    else:
+        # Empty hand stays relaxed below the image rather than a raised fist.
+        grip_pose('L', (-.28, -.44, .22), (-.1, .8, .3), 0, base, .3)
+
+
+CLIPS = []
+
+
+def bake(name, seconds, function, loop=False, contact=-1, release=-1):
+    frames = max(2, round(seconds*FPS)+1)
+    action = bpy.data.actions.new(name)
+    action.use_fake_user = True
+    previous = {}
+    for frame in range(frames):
+        scene.frame_set(frame+1)
+        first_stat = len(arm_stats)
+        function(frame/(frames-1))
+        distribute_forearm_twist()
+        for row in arm_stats[first_stat:]:
+            row.update(clip=name, phase=frame/(frames-1))
+        # Evaluate authoring, then write FK transforms into a native action.
+        basis = {b.name: b.matrix_basis.copy() for b in rig.pose.bones}
+        rig.animation_data_create(); rig.animation_data.action = action
+        for bone in rig.pose.bones:
+            bone.rotation_mode = 'QUATERNION'
+            position, rotation, scale = basis[bone.name].decompose()
+            if bone.name in previous and rotation.dot(previous[bone.name]) < 0:
+                rotation.negate()
+            previous[bone.name] = rotation.copy()
+            bone.location = position; bone.rotation_quaternion = rotation; bone.scale = scale
+            bone.keyframe_insert('location', frame=frame+1, group=bone.name)
+            bone.keyframe_insert('rotation_quaternion', frame=frame+1, group=bone.name)
+            bone.keyframe_insert('scale', frame=frame+1, group=bone.name)
+    CLIPS.append(dict(name=name, duration=(frames-1)/FPS, loop=loop, contact=contact, release=release))
+    print('AUTHORED', name, frames, flush=True)
+    return action
+
+
+def idle_spear(t):
+    wave = math.sin(t*math.tau)
+    spear(center=(.22, -.16+wave*.0015, .28), axis=(-.43+wave*.003, .14, .89))
+
+
+def thrust(t, two):
+    # The forward hand guides the shaft while the rear hand drives through it.
+    # Its socket slides toward the rear grip during extension, then recovers.
+    ready = dict(center=(.22,-.16,.28), axis=(-.43,.14,.89), support=.225, lean=0.,rear_roll=240.,front_roll=270.)
+    windup = dict(center=(.25,-.17,.24), axis=(-.38,.16,.91), support=.225, lean=-.01,rear_roll=245.,front_roll=270.)
+    contact = dict(center=(.13,-.13,.44 if two else .39), axis=(-.22,.08,.973), support=.15, lean=.09 if two else .05,rear_roll=190.,front_roll=250.)
+    hold = dict(contact); hold['center']=(.13,-.14,.44 if two else .39)
+    p = keyed([(0,ready),(.16,windup),(.36,contact),(.43,hold),(1,ready)], t)
+    spear(**p, two=two)
+
+
+bake('SpearReady2', 3, idle_spear, True)
+bake('SpearThrust2', .72, lambda t: thrust(t,True), contact=.36)
+bake('SpearReady1', 3, lambda t: spear(two=False), True)
+bake('SpearThrust1', .83, lambda t: thrust(t,False), contact=.36)
+
+
+def native_pose(label, phase, offset=(0,0,0)):
+    pose = sample_native(label, phase)
+    # New sockets are not present in the upstream clips, so restore their rest
+    # basis rather than carrying a previous clip's evaluated socket transform.
+    for side in ['R','L']:
+        pose['Grip.'+side] = pose['Wrist.'+side] @ offsets[side]
+        pose['SpearGrip.'+side] = pose['Wrist.'+side] @ spear_offsets[side]
+        pose['ForearmHalf.'+side]=pose['LowerArm.'+side].copy()
+        pose['ForearmFull.'+side]=pose['LowerArm.'+side].copy()
+    pose['Nock.R']=pose['Wrist.R'] @ offsets['R'] @ Matrix.Translation((0,.035,0))
+    for name in pose:
+        pose[name].translation += RI.to_3x3() @ U(offset)
+    rig.animation_data_clear()
+    bases=local_basis(pose)
+    for bone in rig.pose.bones:
+        bone.matrix_basis=bases[bone.name]
+    bpy.context.view_layer.update()
+
+
+bake('ToolReady', 80/30, lambda t:native_pose('Sword_Idle',t), True)
+bake('ToolWalk', 22/30, lambda t:native_pose('Sword_Walk',t), True)
+bake('ToolCutA', 20/30, lambda t:native_pose('Sword_Slash1',t), contact=.38)
+bake('ToolCutB', 20/30, lambda t:native_pose('Sword_Slash2',t), contact=.38)
+bake('ToolGuard', .15, lambda t:native_pose('Sword_Block',t))
+bake('FistsReady', 80/30, lambda t:native_pose('Fists_Idle',t), True)
+bake('FistsGuard', .15, lambda t:native_pose('Fists_Block',t))
+
+
+def punch(t):
+    base=reset((0,-.07,.04*math.sin(t*math.pi)))
+    p=keyed([(0,dict(center=(.22,-.22,.36),axis=(0,1,0),roll=0.)),(.15,dict(center=(.25,-.21,.30),axis=(0,1,0),roll=0.)),(.38,dict(center=(.05,-.11,.60),axis=(0,1,.15),roll=-15.)),(1,dict(center=(.22,-.22,.36),axis=(0,1,0),roll=0.))],t)
+    grip_pose('R',base=base,**p)
+    grip_pose('L',(-.2,-.24,.34),(0,1,0),0,base)
+
+
+bake('Punch',.55,punch,contact=.38)
+
+
+def empty(t):
+    base=reset((0,-.10,0))
+    for side,x in [('R',.28),('L',-.28)]:
+        grip_pose(side,(x,-.47,.25),(0,1,.1),0,base,.28)
+
+
+bake('Empty',3,empty,True)
+
+
+def throw_charge(t, long_spear=False):
+    p=keyed([(0,dict(center=(.22,-.16,.28),axis=(-.43,.14,.89),roll=240. if long_spear else 300.)),(1,dict(center=(.27,.025,.27),axis=(-.06,.04,.998),roll=245. if long_spear else 300.))],t)
+    base=reset((0,-.04,0))
+    grip_pose('R',base=base,grip_style='spear' if long_spear else 'tool',**p)
+    grip_pose('L',(-.27,-.43,.23),(0,1,0),0,base,.25)
+
+
+def throw_release(t, long_spear=False):
+    base=reset((0,-.04,.10*math.sin(min(1,t/.55)*math.pi)))
+    p=keyed([(0,dict(center=(.27,.025,.27),axis=(-.06,.04,.998),roll=245. if long_spear else 300.,curl=1.)),(.35,dict(center=(.08,-.06,.44),axis=(-.12,.04,.992),roll=180. if long_spear else 150.,curl=.05)),(.6,dict(center=(.04,-.15,.43),axis=(-.05,-.1,.994),roll=150. if long_spear else 110.,curl=.1)),(1,dict(center=(.27,-.46,.26),axis=(0,1,0),roll=0.,curl=.28))],t)
+    grip_pose('R',base=base,grip_style='spear' if long_spear else 'tool',**p)
+    grip_pose('L',(-.27,-.43,.23),(0,1,0),0,base,.25)
+
+
+bake('ThrowCharge',.8,throw_charge)
+bake('ThrowRelease',.62,throw_release,release=.24)
+bake('SpearThrowCharge',.8,lambda t:throw_charge(t,True))
+bake('SpearThrowRelease',.62,lambda t:throw_release(t,True),release=.24)
+
+
+def sling_whirl(t):
+    base=reset((0,-.10,0))
+    grip_pose('R',(.27,-.075+.007*math.sin(t*math.tau),.29),(0,1,.1),15,base,.85)
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.25)
+
+
+bake('SlingWhirl',.8,sling_whirl,True)
+bake('SlingRelease',.62,throw_release,release=.24)
+
+
+def bow(t, release=False):
+    base=reset((0,-.12,.03))
+    draw=1-t if release else smooth(t)
+    grip_pose('L',(-.12+.16*draw,-.12,.49+.03*draw),(0,1,.05),0,base)
+    # A real drawing hand moves back toward the face. It does not pull the bow
+    # forward through its own fingers; the nock and string use this same socket.
+    # Leave clearance from the near plane: a thumb passing through that plane
+    # appears as a detached oval even though its topology is continuous. The
+    # drawing hand belongs near the right cheek, outside the central aim view.
+    grip_pose('R',(.02+.20*draw,-.08,.36-.13*draw),(0,1,0),0,base,.48 if not release else .2)
+    for digit in ['Index','Middle','Ring','Pinky','Thumb']:
+        for i in range(1,4 if digit=='Thumb' else 5):
+            bone=rig.pose.bones.get(f'{digit}{i}.R')
+            if bone is None:continue
+            factor=.2 if digit=='Thumb' else .85 if digit=='Pinky' else .4 if i<=2 else .95
+            if release:factor*=.4+.6*t
+            bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion().slerp(BASE_BASIS[bone.name].to_quaternion(),factor)
+    bpy.context.view_layer.update()
+
+
+bake('BowReady',3,lambda t:bow(0),True)
+bake('BowDraw',1.05,bow)
+bake('BowRelease',.48,lambda t:bow(t,True),release=0)
+
+
+def gather(t):
+    base=reset((0,-.11,.045*math.sin(t*math.pi)))
+    p=keyed([(0,dict(center=(.28,-.44,.25),axis=(0,1,0),roll=0.,curl=.25)),(.42,dict(center=(.08,-.13,.54),axis=(0,1,.1),roll=-12.,curl=.12)),(.58,dict(center=(.075,-.14,.54),axis=(0,1,.1),roll=-12.,curl=.55)),(1,dict(center=(.28,-.44,.25),axis=(0,1,0),roll=0.,curl=.25))],t)
+    grip_pose('R',base=base,**p)
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.25)
+
+
+bake('Gather',1.05,gather,contact=.55)
+def drinking(t):
+    base=reset((0,-.13,0))
+    p=keyed([(0,dict(x=.20,y=-.40,z=.36,curl=.35)),(.24,dict(x=.16,y=-.30,z=.47,curl=.6)),(.5,dict(x=.24,y=-.06,z=.30,curl=.6)),(.76,dict(x=.24,y=-.06,z=.30,curl=.6)),(1,dict(x=.20,y=-.40,z=.36,curl=.35))],t)
+    palm_pose('R',(p['x'],p['y'],p['z']),base,p['curl'])
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.3)
+
+
+bake('Drink',1.5,drinking)
+
+
+def hand_work(t, kind):
+    """Close work stays below aim; the left hand supports the workpiece."""
+    base=reset((0,-.13,0))
+    if kind=='dig':
+        stroke=math.sin(t*math.pi)**2
+        spear(center=(.22,-.25-.08*stroke,.30+.035*stroke),axis=(-.22,-.65,.73),support=.19,lean=.02*stroke)
+        return
+    if kind=='knap':
+        grip_pose('L',(-.09,-.16,.43),(.2,.1,.97),270,base,.85,pole_weight=.5,grip_style='spear')
+        p=keyed([(0,dict(center=(.16,-.11,.38))),(.24,dict(center=(.17,-.035,.35))),(.45,dict(center=(.07,-.13,.45))),(.56,dict(center=(.07,-.13,.45))),(1,dict(center=(.16,-.11,.38)))],t)
+        grip_pose('R',axis=(0,1,.1),roll=0,base=base,**p)
+    elif kind=='cut':
+        grip_pose('L',(-.12,-.16,.43),(.12,.08,.99),270,base,pole_weight=.5,grip_style='spear')
+        stroke=math.sin(t*math.pi)**2
+        grip_pose('R',(.18-.06*stroke,-.13-.025*stroke,.42+.025*stroke),(-.85,.1,.52),0,base)
+    else:
+        phase=math.sin(t*math.tau)
+        grip_pose('L',(-.085,-.15,.43),(.1,.1,.99),270,base,.5,pole_weight=.5,grip_style='spear')
+        grip_pose('R',(.085,-.15+.012*phase,.43+.008*phase),(-.1,.1,.99),240,base,.5,pole_weight=.5,grip_style='spear')
+
+
+for label,kind,seconds in [('WorkKnapping','knap',1.25),('WorkCut','cut',1.2),('WorkTwist','twist',1.5),('WorkDig','dig',1.4)]:
+    bake(label,seconds,lambda t,k=kind:hand_work(t,k),True)
+
+
+def eating(t):
+    base=reset((0,-.12,0))
+    p=keyed([(0,dict(center=(.22,-.38,.30),axis=(0,1,0),roll=0.,curl=.35)),(.32,dict(center=(.20,-.035,.21),axis=(0,1,.1),roll=15.,curl=.45)),(.7,dict(center=(.20,-.035,.21),axis=(0,1,.1),roll=15.,curl=.45)),(1,dict(center=(.22,-.38,.30),axis=(0,1,0),roll=0.,curl=.35))],t)
+    grip_pose('R',base=base,**p)
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.25)
+
+
+bake('Eat',1.2,eating)
+
+
+def carrying(t):
+    base=reset((0,-.13,0));breath=.002*math.sin(t*math.tau)
+    palm_pose('R',(.13,-.28+breath,.42),base,.45)
+    palm_pose('L',(-.13,-.28+breath,.42),base,.45)
+
+
+bake('CarryLarge',3,carrying,True)
+
+# Native mirrored takes support left-hand use and independent dual wielding.
+# Keep the mesh and bind pose intact, reflecting deformation onto the opposite
+# rest bone rather than reflecting the whole GameObject with a negative scale.
+mirror_names=['ToolReady','ToolWalk','ToolCutA','ToolCutB','ToolGuard',
+              'SpearReady1','SpearThrust1','SpearReady2','SpearThrust2',
+              'ThrowCharge','ThrowRelease','SpearThrowCharge','SpearThrowRelease','SlingWhirl','SlingRelease','Punch','Gather']
+for label in mirror_names:
+    original=bpy.data.actions[label]
+    original_info=next(c for c in CLIPS if c['name']==label)
+    cached=[]
+    for frame in range(round(original_info['duration']*FPS)+1):
+        rig.animation_data_create();rig.animation_data.action=original
+        if original.slots:rig.animation_data.action_slot=original.slots[0]
+        scene.frame_set(frame+1);bpy.context.view_layer.update()
+        pose={b.name:b.matrix.copy() for b in rig.pose.bones};reflected={}
+        for bone in rig.pose.bones:
+            if bone.name=='Nock.R':
+                reflected[bone.name]=pose[bone.name].copy();continue
+            other=bone.name[:-2]+('.R' if bone.name.endswith('.L') else '.L') if bone.name.endswith(('.L','.R')) else bone.name
+            reflected[bone.name]=RI @ MIRROR @ (R @ pose[other] @ rest[other].inverted() @ RI) @ MIRROR @ R @ rest[bone.name]
+        cached.append(local_basis(reflected))
+    def mirrored(t,poses=cached):
+        rig.animation_data_clear()
+        for bone in rig.pose.bones:bone.matrix_basis=poses[round(t*(len(poses)-1))][bone.name]
+        bpy.context.view_layer.update()
+    bake(label+'_Left',original_info['duration'],mirrored,original_info['loop'],original_info['contact'],original_info['release'])
+
+# Bake once more through Blender's native exporter. Runtime contains no controls
+# or constraints, only native rig transforms and the artist's weighted mesh.
+rig.animation_data_clear()
+rig.data.pose_position='REST'
+for bone in rig.pose.bones:
+    bone.matrix_basis=Matrix.Identity(4)
+bpy.context.view_layer.objects.active=arms
+for obj in bpy.context.selected_objects:obj.select_set(False)
+arms.select_set(True)
+for modifier in list(arms.modifiers):
+    if modifier.type=='SUBSURF':bpy.ops.object.modifier_apply(modifier=modifier.name)
+# Match the player's four-influence GPU skinning exactly, including vertices
+# created by subdivision, instead of reviewing a higher-influence Blender skin.
+for vertex in arms.data.vertices:
+    influences=sorted([(g.group,g.weight) for g in vertex.groups if g.weight>.00001],key=lambda x:x[1],reverse=True)
+    total=sum(w for _,w in influences[:4])
+    for group,weight in influences[4:]:arms.vertex_groups[group].remove([vertex.index])
+    for group,weight in influences[:4]:arms.vertex_groups[group].add([vertex.index],weight/total,'REPLACE')
+rig.data.pose_position='POSE'
+for action in list(bpy.data.actions):
+    if action.name not in {c['name'] for c in CLIPS}:
+        bpy.data.actions.remove(action)
+for material in list(bpy.data.materials):
+    if material.users==0:bpy.data.materials.remove(material)
+bpy.data.orphans_purge(do_recursive=True)
+bpy.ops.file.pack_all()
+rig.animation_data_create()
+rig.animation_data.action=bpy.data.actions['SpearReady2']
+if rig.animation_data.action.slots:
+    rig.animation_data.action_slot=rig.animation_data.action.slots[0]
+scene.frame_set(1)
+bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'FirstPersonAuthored.blend'),compress=True)
+rig.select_set(True);arms.select_set(True)
+bpy.ops.export_scene.fbx(filepath=str(OUT/'Arms.fbx'),use_selection=True,object_types={'ARMATURE','MESH'},apply_unit_scale=True,apply_scale_options='FBX_SCALE_ALL',axis_forward='-Z',axis_up='Y',use_mesh_modifiers=True,mesh_smooth_type='FACE',add_leaf_bones=False,bake_anim=True,bake_anim_use_all_bones=True,bake_anim_use_nla_strips=False,bake_anim_use_all_actions=True,bake_anim_force_startend_keying=True,bake_anim_step=1,bake_anim_simplify_factor=0,path_mode='STRIP',embed_textures=False)
+manifest=dict(version=1,fps=FPS,clips=CLIPS,bones=len(rig.data.bones),vertices=len(arms.data.vertices),triangles=sum(len(p.vertices)-2 for p in arms.data.polygons),sockets=['Grip.R','Grip.L','SpearGrip.R','SpearGrip.L'],authoring='Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.',source_sha256=hashlib.sha256((OUT/'source/Arms.fbx').read_bytes()).hexdigest())
+(OUT/'clips.json').write_text(json.dumps(manifest,indent=2)+'\n')
+(EVIDENCE/'authored-pose-diagnostics.json').write_text(json.dumps(arm_stats,indent=2))
+print('NATIVE FIRST-PERSON RIG EXPORTED',manifest,flush=True)

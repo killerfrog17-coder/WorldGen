@@ -1,5 +1,24 @@
 # Hunting and exertion revision
 
+**October 30 follow-up in progress:** the owner rejected the previous procedural first-person arms after playtesting. Earlier mechanical passes below do not establish acceptable animation quality. A dedicated CC0 first-person rig, camera-authored clips, forearm twist distribution and six derived skin atlases replace that approach. The replacement is still under visual review; the existing shortcut has not been switched to this candidate.
+
+The animal follow-up explicitly reviews all 177 visible model families in `WildlifeNaturalHistory`, with native-taxon overrides for animals sharing a mesh. Profiles distinguish social structure, diel rhythm, hunting style, response to people and sensory group. These are ecological/gameplay priors, not a claim to have reproduced every species' complete ethogram. Habitat/resource population accounting and bounded encounter pacing remain authoritative.
+
+Changes under validation include sight-constrained animal-to-animal encounters, finite prey-location memory, physical hunting strata, defensive warnings, non-circulating herd alarms, actual-daylight activity, independent water needs, terrestrial ectotherm mobility and cheap local disturbance responses for small actors. Packs alone do not make wolves hunt people, and sea lions cannot inherit big-cat behavior from their name. Predatory human encounters depend on the species' response, hunger, individual boldness and perceived opportunity. Exact numeric thresholds are tuning choices.
+
+Additional natural-history references:
+- [NPS wolf behavior and human encounters](https://www.nps.gov/dena/learn/nature/upload/Annual-Wolf-Report-2024.pdf).
+- [California wildlife agency: solitary mountain lions and ambush predation](https://wildlife.ca.gov/Conservation/Mammals/Mountain-Lion).
+- [NPS: mountain-lion encounter context](https://www.nps.gov/gumo/planyourvisit/mountain-lion-safety.htm).
+- [NPS: bear safety and different attack contexts](https://www.nps.gov/subjects/bears/safety.htm).
+- [Cornell Lab: snowy owls hunt during Arctic daylight](https://www.allaboutbirds.org/guide/Snowy_Owl/).
+- [NPS: bison summer rut](https://www.nps.gov/articles/bison-bellows-7-27-16.htm).
+- [Queensland government: kangaroo mobs and responses to people](https://www.qld.gov.au/environment/plants-animals/animals/living-with/kangaroos).
+- [Macropus rufus species account](https://academic.oup.com/mspecies/article/52/998/143/6046133).
+- [Cornell Lab: turkey-vulture olfaction](https://academy.allaboutbirds.org/in-defense-of-turkey-vultures/).
+
+Current limitations include simplified group composition rather than simulated offspring, no complete den/nest or arboreal navigation, no measured water-temperature field for fish, and neutral activity-animation fallbacks where original source clips are unavailable. These limits are separate from the per-species behavior review.
+
 Completed in two checkpoints: animal/hunting first, then first-person arms and inventory/HUD refinements. All player builds use IL2CPP. Original approved animal/human source art and locomotion bundles remain unchanged.
 
 Shared exertion has burst capacity, breathing, accumulated physical fatigue and heat strain. Full effort fades continuously; sustainable travel has different demand. Brief jogging only partly recovers a burst. Species profiles alter sustainable fraction, burst duration, recovery and heat tolerance. Flight/gliding have separate costs. These numerical profiles are gameplay priors, not measured laboratory values for every simulated taxon.

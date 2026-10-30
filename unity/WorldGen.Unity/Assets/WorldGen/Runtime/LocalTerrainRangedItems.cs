@@ -12,6 +12,8 @@ public sealed partial class LocalTerrainExplorer
         public double Started,Duration;public CraftEquipmentState Equipment;
     }
     ItemCharge itemCharge;
+    sealed class PendingRanged {public ItemCharge Charge;public double FireAt;public float Speed,Spread;}
+    PendingRanged pendingRanged;
     readonly System.Random combatRandom=new System.Random();
     Possession FindRangedAmmo(Possession weapon)
     {
@@ -23,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BeginItemCharge(Possession weapon,bool left,int button,bool throwing)
     {
-        if(weapon==null||!CombatReady(left)||ItemUseRules.Condition(weapon)<=0)return;
+        if(weapon==null||pendingRanged!=null||!CombatReady(left)||ItemUseRules.Condition(weapon)<=0)return;
         var ammo=throwing?weapon:FindRangedAmmo(weapon);
         if(ammo==null){CombatNotice(ItemUseRules.Profile(weapon).Primary==ItemPrimaryUse.Bow?"Carry a finished or unfletched arrow in your hands or worn equipment.":ItemUseRules.Profile(weapon).Primary==ItemPrimaryUse.Sling?"A sling needs a carried small stone (15-300 g).":"Carry a spear-thrower dart.");return;}
         if(!SpendCombatStamina(1))return;
@@ -31,8 +33,10 @@ public sealed partial class LocalTerrainExplorer
         if(!throwing)
         {
             charge.Equipment=PrepareWorkHands(new[]{weapon.Id,ammo.Id});
-            if(!Inventory.Move(weapon.Id,left?PossessionPlace.LeftHand:PossessionPlace.RightHand,"",0,0,false,out _))
+            if(!Inventory.Move(weapon.Id,left?PossessionPlace.LeftHand:PossessionPlace.RightHand,"",0,0,false,out _)||
+               !Inventory.Move(ammo.Id,left?PossessionPlace.RightHand:PossessionPlace.LeftHand,"",0,0,false,out _))
             {var failed=new ItemCraftJob{Equipment=charge.Equipment};RestoreWorkHands(failed);return;}
+            RemoveDroppedBody(ammo.Id);ammo.GroundMoving=false;
         }
         itemCharge=charge;combatGuarding=false;
     }
@@ -47,8 +51,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void CancelItemCharge()
     {
-        var charge=itemCharge;if(charge==null)return;itemCharge=null;
-        if(charge.Equipment!=null)RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});
+        var charge=itemCharge;var released=pendingRanged?.Charge;itemCharge=null;pendingRanged=null;
+        if(charge?.Equipment!=null)RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});
+        if(released?.Equipment!=null)RestoreWorkHands(new ItemCraftJob{Equipment=released.Equipment});
     }
     void ReleaseItemCharge()
     {
@@ -56,14 +61,29 @@ public sealed partial class LocalTerrainExplorer
         if(held<.12||Inventory.Find(charge.Ammo.Id)==null){CancelItemCharge();return;}
         double strength=Math.Max(0,Math.Min(1,held/charge.Duration));var profile=ItemUseRules.Profile(charge.Weapon);
         if(!SpendCombatStamina(Math.Max(1,profile.Stamina))){CancelItemCharge();return;}
-        var ray=PlayerAttackRay();double fatigue=SurvivalActive?Math.Max(.15,Vitals.Stamina/100):1;
+        double fatigue=SurvivalActive?Math.Max(.15,Vitals.Stamina/100):1;
         double speed=charge.Throw?ItemUseRules.ThrowSpeed(charge.Ammo,strength,fatigue):profile.Primary==ItemPrimaryUse.Bow?ItemUseRules.BowSpeed(charge.Ammo,strength,ItemUseRules.Condition(charge.Weapon)):ItemUseRules.ThrowSpeed(charge.Ammo,strength,fatigue,profile.Primary==ItemPrimaryUse.Sling,profile.Primary==ItemPrimaryUse.SpearThrower);
         float spread=(float)((charge.Ammo.Kind==PossessionKind.UnfletchedArrow?1.6:.3)+(1-strength)*1.1);
-        Vector3 direction=Quaternion.Euler((float)(combatRandom.NextDouble()*2-1)*spread,(float)(combatRandom.NextDouble()*2-1)*spread,0)*ray.direction;
+        itemCharge=null;AnimateViewItem(charge.Weapon,true);
+        // An already drawn bow releases immediately. A hand throw follows the
+        // authored forward stroke and lets go when its fingers actually open.
+        bool bow=!charge.Throw&&profile.Primary==ItemPrimaryUse.Bow;
+        pendingRanged=new PendingRanged{Charge=charge,FireAt=Time.unscaledTimeAsDouble+(bow?0:.62*.24),Speed=(float)speed,Spread=spread};
+        CombatCooldown(charge.Left,Math.Max(.35,profile.RecoverySeconds));
+        if(bow)ResolveRangedRelease(Time.unscaledTimeAsDouble);
+    }
+    void ResolveRangedRelease(double now)
+    {
+        var pending=pendingRanged;if(pending==null||now<pending.FireAt)return;
+        var charge=pending.Charge;
+        if(Inventory.Find(charge.Ammo.Id)!=charge.Ammo||Inventory.AtHand(charge.Left?PossessionPlace.LeftHand:PossessionPlace.RightHand)!=charge.Weapon)
+        {CancelItemCharge();return;}
+        pendingRanged=null;
+        var ray=PlayerAttackRay();var profile=ItemUseRules.Profile(charge.Weapon);
+        Vector3 direction=Quaternion.Euler((float)(combatRandom.NextDouble()*2-1)*pending.Spread,(float)(combatRandom.NextDouble()*2-1)*pending.Spread,0)*ray.direction;
         if(charge.Equipment!=null)charge.Equipment.PreviousHands.RemoveAll(p=>p.Id==charge.Ammo.Id);
-        itemCharge=null;AnimateViewItem(charge.Weapon,true);LaunchItemProjectile(charge.Ammo,ray.origin+direction*.4f,direction,(float)speed);
+        LaunchItemProjectile(charge.Ammo,ray.origin+direction*.4f,direction,pending.Speed);
         PlayItemEffect(!charge.Throw&&profile.Primary==ItemPrimaryUse.Bow?"bow-release":"weapon-swish",ray.origin,.6f,true);
         if(!charge.Throw){charge.Weapon.UseDamage=Math.Min(1,charge.Weapon.UseDamage+.0008);RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});}
-        CombatCooldown(charge.Left,Math.Max(.35,profile.RecoverySeconds));
     }
 }

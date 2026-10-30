@@ -49,67 +49,66 @@ public sealed partial class LocalTerrainExplorer
     void UpdateAnimalBehaviour(Animal animal)
     {
         if(!WildlifeBehaviourEnabled||animal.Dead||Time.unscaledTimeAsDouble<animal.BehaviourAt)return;
-        var profile=animal.Spawn.Profile;if(profile.tiny)return;
+        var profile=animal.Spawn.Profile;
         if(huntingDecisionFrame!=Time.frameCount){huntingDecisionFrame=Time.frameCount;huntingDecisionTicks=0;}
         if(huntingDecisionTicks*1000d/System.Diagnostics.Stopwatch.Frequency>=1){huntingDeferred++;animal.BehaviourAt=Time.unscaledTimeAsDouble+.025;return;}
         long decisionStarted=System.Diagnostics.Stopwatch.GetTimestamp();huntingDecisions++;
         try {
 
-        var behaviour=AnimalBehaviour(profile,animal.Spawn.Taxon);double now=Time.unscaledTimeAsDouble;
+        var behaviour=animal.Behaviour;double now=Time.unscaledTimeAsDouble;
         double distance=Math.Sqrt(Math.Pow(animal.X-motion.X,2)+Math.Pow(animal.Z-motion.Z,2));
         double dt=animal.LastPerception==0?.3:Math.Max(0,Math.Min(3,animal.Life-animal.LastPerception));animal.LastPerception=animal.Life;
         animal.BehaviourAt=now+(distance<75?.3:distance<200?1:3)+(animal.Spawn.Hash%7)*.013;
+        if(profile.tiny||behaviour.SmallBudget){UpdateSmallAnimal(animal,dt);return;}
         TerrainMapViewport.Degrees(animal.Planet,out double latitude,out _);
         PerceivePlayer(animal,dt,distance);
         if(animal.BehaviourAction=="attack"&&animal.Life<animal.ActionUntil){animal.TargetSpeed=0;return;}
         wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group);
-        bool hungry=group==null?animal.Life%180>100:group.Hunger>.35;
+        bool hungry=group==null?animal.Life%180>100:group.Hunger>(behaviour.Predator?.35:.8);
         Animal threat=null,prey=null;double threatDistance=double.MaxValue,preyDistance=double.MaxValue;int considered=0;
         Taxon taxon=animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[animal.Spawn.Taxon]:null;
         foreach(var other in NearbyAnimals(animal))
         {
-            if(other.Dead||other.Spawn.Profile.tiny)continue;if(++considered>24)break;
+            if(other.Dead)continue;if(++considered>24)break;
             double gap=Math.Sqrt(Math.Pow(other.X-animal.X,2)+Math.Pow(other.Z-animal.Z,2));
-            if(behaviour.Herd||profile.slug.Contains("kangaroo"))ShareAnimalAlarm(animal,other,gap);
-            var ob=AnimalBehaviour(other.Spawn.Profile,other.Spawn.Taxon);
-            if(ob.Predator&&other.Spawn.Profile.slug!=profile.slug&&other.MassKg>animal.MassKg*.3&&gap<threatDistance){threat=other;threatDistance=gap;}
-            if(behaviour.Predator&&hungry&&!ob.Predator&&other.Spawn.Profile.slug!=profile.slug&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??0,taxon?.MaxPreyKg??0,other.MassKg)&&gap<preyDistance){prey=other;preyDistance=gap;}
+            if(behaviour.SocialAlarm)ShareAnimalAlarm(animal,other,gap);
+            var ob=other.Behaviour;
+            if(ob.ThreatensPrey&&other.Spawn.Profile.slug!=profile.slug&&other.MassKg>animal.MassKg*.3&&ReachablePrey(other,animal)&&gap<threatDistance){threat=other;threatDistance=gap;}
+            if(behaviour.CanHunt&&hungry&&other.Spawn.Profile.slug!=profile.slug&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??0,taxon?.MaxPreyKg??0,other.MassKg)&&ReachablePrey(animal,other)&&gap<preyDistance)
+            {if(AnimalVision(animal,other,gap)>.12){prey=other;preyDistance=gap;}}
         }
         if(threat!=null)
         {
             double hearing=WildlifePerception.Hearing(animal.Senses,threatDistance,Math.Min(1.5,threat.Speed/3),0,CurrentWeather.RainMmPerHour);
-            double scent=WildlifePerception.Scent(animal.Senses,animal.X-threat.X,animal.Z-threat.Z,CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,CurrentWeather.RainMmPerHour);
-            if(threatDistance<animal.Senses.VisionM&&(hearing>.35||scent>.65||AnimalSight(animal,threat)))
+            double scent=profile.medium=="water"?0:WildlifePerception.Scent(animal.Senses,animal.X-threat.X,animal.Z-threat.Z,CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,CurrentWeather.RainMmPerHour)*WildlifePerception.ScentHeight(AnimalEye(animal)-AnimalEye(threat));
+            double vision=AnimalVision(animal,threat,threatDistance);
+            if(hearing>.2||scent>.45||vision>.055)
             {
-                if(threatDistance<Math.Max(10,behaviour.FlightM)||hearing>.65)WildlifePerception.Alarm(animal.Awareness,threat.X,threat.Z);
-                else WildlifePerception.Observe(animal.Awareness,animal.Senses,dt,.35,hearing,scent,threat.X,threat.Z);
+                // Preserve an identified position, rather than giving every
+                // creature perfect sight merely because another is nearby.
+                if(threatDistance<Math.Max(6,behaviour.FlightM)&&Math.Max(vision,hearing)>.35)WildlifePerception.Alarm(animal.Awareness,threat.X,threat.Z);
+                else WildlifePerception.Observe(animal.Awareness,animal.Senses,dt,vision,hearing,scent,threat.X,threat.Z);
+                animal.Awareness.ThreatIsPlayer=false;
                 if(behaviour.Defensive&&threatDistance<behaviour.DefendM&&animal.MassKg>threat.MassKg)
                 {SetAnimalTravel(animal,threat.X,threat.Z,true);AnimalContactAttack(animal,threat);return;}
             }
         }
-        bool dangerous=profile.slug.Contains("lion")||profile.slug.Contains("tiger")||profile.slug.Contains("polar-bear")||behaviour.PackHunter&&group?.Members>=3;
-        bool mayHuntPlayer=behaviour.Predator&&dangerous&&hungry&&!animal.ThreatWasPlayer&&animal.Health>animal.MaximumHealth*.6;
+        bool mayHuntPlayer=MayHuntPlayer(animal,behaviour,group,distance);
+        if(DefendPlayer(animal,behaviour,distance))return;
+        if(distance>behaviour.DefendM*1.5)animal.DefendWarnUntil=0;
         if(animal.Awareness.Mode==WildlifeAwareness.Fleeing&&!mayHuntPlayer)
         {
-            bool lastPlayer=animal.Awareness.Sense!=WildlifeSense.Social&&Math.Sqrt(Math.Pow(animal.Awareness.LastX-motion.X,2)+Math.Pow(animal.Awareness.LastZ-motion.Z,2))<15;
-            bool defence=behaviour.Defensive&&distance<behaviour.DefendM||behaviour.Predator&&animal.ThreatWasPlayer&&distance<4;
-            if(lastPlayer&&defence&&WildlifeSight(animal,motion.X,motion.Z))
-            {animal.ActionUntil=0;animal.BehaviourAction="defend";SetAnimalTravel(animal,animal.Awareness.LastX,animal.Awareness.LastZ,true);AnimalContactAttack(animal,null);return;}
             FleeKnownThreat(animal);return;
         }
-        if(prey!=null&&preyDistance<animal.Senses.VisionM&&AnimalSight(animal,prey))
-        {
-            animal.ActionUntil=0;animal.BehaviourAction="hunt";
-            bool charge=preyDistance<16||prey.Awareness.Mode==WildlifeAwareness.Fleeing;
-            SetAnimalTravel(animal,prey.X,prey.Z,charge);if(!charge)animal.TargetSpeed*=.65f;
-            if(preyDistance<Math.Max(.7,profile.lengthM*.7))AnimalContactAttack(animal,prey);return;
-        }
+        if(prey!=null){PursuePrey(animal,prey,preyDistance,behaviour);return;}
+        if(hungry&&animal.HuntTargetId!=0&&animal.HuntMemoryUntil>animal.Life)
+        {double gap=Math.Sqrt(Math.Pow(animal.HuntX-animal.X,2)+Math.Pow(animal.HuntZ-animal.Z,2));if(gap>2){SetAnimalTravel(animal,animal.HuntX,animal.HuntZ,false);animal.BehaviourAction="search";return;}animal.HuntMemoryUntil=0;}
         // Large opportunistic predators stalk a perceived human, rather than
         // attacking every player anywhere in a hard-coded detection circle.
-        if(dangerous&&hungry&&animal.Awareness.Suspicion>.5&&distance<35&&WildlifeSight(animal,motion.X,motion.Z)&&SurvivalActive)
-        {animal.ActionUntil=0;SetAnimalTravel(animal,motion.X,motion.Z,distance<12);animal.BehaviourAction="hunt";if(distance<Math.Max(1.2,profile.lengthM*.6))AnimalContactAttack(animal,null);return;}
-        RoutineAnimal(animal,behaviour,group,latitude);
-        } finally {SpaceHerdMember(animal);huntingDecisionTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-decisionStarted;}
+        if(mayHuntPlayer&&animal.Awareness.ThreatIsPlayer&&animal.Awareness.Suspicion>.5&&animal.Awareness.LastCueSeconds<3)
+        {animal.ActionUntil=0;SetAnimalTravel(animal,animal.Awareness.LastX,animal.Awareness.LastZ,distance<12);animal.BehaviourAction="hunt";if(distance<Math.Max(1.2,profile.lengthM*.6))AnimalContactAttack(animal,null);return;}
+        RoutineAnimal(animal,behaviour,group,latitude,dt);
+        } finally {if(!animal.Behaviour.SmallBudget&&!profile.tiny)SpaceHerdMember(animal);huntingDecisionTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-decisionStarted;}
     }
     bool ReachesAnimalContact(Animal attacker,Animal prey)
     {
@@ -141,7 +140,11 @@ public sealed partial class LocalTerrainExplorer
         {
             direction=(prey.Root.transform.position-attacker.Root.transform.position).normalized;
             DamageAnimal(prey,damage,prey.Renderer.bounds.ClosestPoint(attacker.Root.transform.position+Vector3.up*.5f),direction,attacker.MassKg*.1);
-            if(prey.Dead&&wildlifeGroups.TryGetValue(attacker.Spawn.GroupId,out var group)){group.Hunger=Math.Max(0,group.Hunger-.6);group.Intent=WildlifeIntent.Rest;group.NextDecisionDays=PlayerRules.SolarDays+25/(PlayerRules.Settings.RealMinutesPerDay*60);}
+            if(prey.Dead)
+            {
+                attacker.HuntMemoryUntil=0;attacker.HuntTargetId=0;AnimalActivity(attacker,"eat",25);
+                if(wildlifeGroups.TryGetValue(attacker.Spawn.GroupId,out var group)){group.Hunger=Math.Max(0,group.Hunger-.35);group.Intent=WildlifeIntent.Forage;group.NextDecisionDays=PlayerRules.SolarDays+25/(PlayerRules.Settings.RealMinutesPerDay*60);}
+            }
         }
         else
         {

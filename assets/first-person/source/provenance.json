@@ -1,0 +1,8 @@
+{
+  "upstream": "https://github.com/BigAndCrispy/Unity-First-Person-Melee",
+  "commit": "592b08e2e1fe81a51f712fa65d806fa3621e2032",
+  "license": "CC0-1.0",
+  "asset": "Assets/Models/Arms.fbx",
+  "sha256": "8f1afd249569249a3420ee4e9f8b48611893ce7987e5a644a634593700452f93",
+  "use": "Native first-person mesh, rig and authored motion. New derivative skin UVs and camera-authored paleolithic handling clips; approved full-world humans unchanged."
+}

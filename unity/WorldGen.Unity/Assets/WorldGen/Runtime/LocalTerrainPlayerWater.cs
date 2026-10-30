@@ -90,6 +90,7 @@ public sealed partial class LocalTerrainExplorer
             double chance=Rng.Value(sourceWorld.Recipe.Seed,"player-water-sip",unchecked((int)(PlayerRules.SolarDays*86400)+waterSipSequence++));
             WaterDrinking.Drink(Vitals,water.Quality,.25,chance,Mode);
             PlayBodyCue("drink");
+            BeginConsumeGesture(true);
             InventoryFeedback(water.Quality.Fresh?"You drink freshwater. It is untreated.":"You taste salty water. It cannot be relied on for hydration.");
         }
         finally{RestoreWorkHands(new ItemCraftJob{Equipment=equipment});}

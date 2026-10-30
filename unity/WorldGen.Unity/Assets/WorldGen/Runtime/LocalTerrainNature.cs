@@ -125,6 +125,7 @@ public sealed partial class LocalTerrainExplorer
         RefreshInventoryNearby(true);if(!Foraging.Food(item)||!AccessiblePossession(item)||Inventory.Crafts.Any(j=>j.Running&&PortableCrafting.Affects(j,item.Id)))return;
         double eaten=Foraging.Consume(Vitals,item,sample);if(eaten<=0)return;
         PlayBodyCue("eat");
+        BeginConsumeGesture(false);
         if(item.MassKg<.00001){Inventory.Items.Remove(item);}
         inventoryContext=null;inventoryNearbyAt=0;
         InventoryFeedback(sample?"Tasted a small portion. Taste and the absence of immediate symptoms do not establish safety.":"Ate "+Math.Round(eaten*1000)+" g of "+item.Name.ToLowerInvariant()+".");

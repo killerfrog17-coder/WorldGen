@@ -66,7 +66,7 @@ public sealed partial class LocalTerrainExplorer
         ClearItems();
         yield return Deer();var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);yield return CheckWildlifeRadar(deer,report);Aim(deer,1.15f);deer.MaximumHealth=deer.Health=Math.Max(200,deer.MaximumHealth);paused=true;
         ExecuteGive(new[]{"/give","wooden","spear"});var spear=Inventory.QuickHeld;Check(spear?.Kind==PossessionKind.WoodenSpear,"A real held spear is selected for melee");yield return Image("01-before-hit");
-        double health=deer.Health;StrikeWithItem(spear,false);Check(deer.Health<health&&deer.Health>0,"Spear melee damages the visible surface without an instant generic kill");
+        double health=deer.Health;StrikeWithItem(spear,false);Check(deer.Health==health,"Spear wind-up does not deal damage before visible contact");ResolveMeleeContacts(Time.unscaledTimeAsDouble+2);Check(deer.Health<health&&deer.Health>0,"Spear contact damages the visible surface without an instant generic kill");
         Check(deer.ThreatUntil>deer.Life&&deer.TargetSpeed>0,"A surviving struck deer immediately attempts to flee");
         Check(deer.Blood!=null&&deer.Blood.Capture().Any(b=>b>0),"Impact paints a nonempty local UV stain without repainting the original coat");yield return Image("02-blood-hit");
         var beforeCorpse=(Vector3[])PosedAnimal(deer).Clone();
@@ -118,7 +118,7 @@ public sealed partial class LocalTerrainExplorer
             else ammunition=Hold(PossessionKind.SpearDart);
             health=arrowTarget.Health;BeginItemCharge(launcher,false,0,false);
             Check(itemCharge!=null&&itemCharge.Ammo==ammunition,ranged.Item1+" selects its actual carried ammunition");
-            itemCharge.Started-=1.2;ReleaseItemCharge();paused=false;double shotDeadline=Time.unscaledTimeAsDouble+4;
+            itemCharge.Started-=1.2;ReleaseItemCharge();Check(!ammunition.InFlight&&pendingRanged!=null,ranged.Item1+" retains its ammunition until the release stroke");ResolveRangedRelease(Time.unscaledTimeAsDouble+1);paused=false;double shotDeadline=Time.unscaledTimeAsDouble+4;
             while(arrowTarget.Health>=health&&ammunition.InFlight&&Time.unscaledTimeAsDouble<shotDeadline)yield return null;
             paused=true;
             Check(arrowTarget.Health<health,ranged.Item1+" launches a physical projectile that damages the visible animal surface");

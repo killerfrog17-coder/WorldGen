@@ -171,7 +171,7 @@ static partial class LocalScatterMeshes
                     b.Crown(new Vector3(-.14f,.037f,0),new Vector3(.085f,.004f,.12f),12,4,new Color(.12f,.075f,.035f,0),18,.03f);
                 }
                 else{Tube(Vector3.zero,Vector3.up,.3f,wood,8);if(item.Kind==PossessionKind.NotchedShaft){Tube(new Vector3(-.16f,.9f,0),new Vector3(-.16f,1,0),.07f,wood);Tube(new Vector3(.16f,.9f,0),new Vector3(.16f,1,0),.07f,wood);}}break;
-            case PortableForm.Spear:Tube(Vector3.zero,new Vector3(0,.9f,0),.16f,wood,8);Head(.88f,.12f,1,item.Kind==PossessionKind.StoneTippedSpear||item.Kind==PossessionKind.LooseStoneSpear?stone:bone,item.Kind==PossessionKind.Harpoon);if(item.Kind!=PossessionKind.LooseStoneSpear)Wrap(.875f,.2f,5);break;
+            case PortableForm.Spear:Tube(Vector3.zero,new Vector3(0,.9f,0),.19f,wood,12);Head(.88f,.12f,1,item.Kind==PossessionKind.StoneTippedSpear||item.Kind==PossessionKind.LooseStoneSpear?stone:bone,item.Kind==PossessionKind.Harpoon);if(item.Kind!=PossessionKind.LooseStoneSpear)Wrap(.875f,.22f,5);break;
             case PortableForm.Arrow:
                 Tube(Vector3.zero,new Vector3(0,.94f,0),Mathf.Clamp(.0035f/(float)item.WidthM,.07f,.45f),wood);if(item.Kind!=PossessionKind.ArrowShaft)Head(.92f,.08f,.65f,stone);
                 if(item.Kind==PossessionKind.Arrow||item.Kind==PossessionKind.SpearDart)for(int i=0;i<3;i++){float a=i*Mathf.PI*2/3;Vector3 side=new Vector3(Mathf.Cos(a)*.45f,0,Mathf.Sin(a)*.45f);Quad(new Vector3(0,.04f,0),side+Vector3.up*.09f,side+Vector3.up*.22f,new Vector3(0,.26f,0),bone);}break;
@@ -184,6 +184,15 @@ static partial class LocalScatterMeshes
                 for(int i=0;i<9;i++){float t=i/8f;Tube(new Vector3(-.45f,t,Mathf.Sin(t*8)*.12f),new Vector3(.45f,t,Mathf.Sin(t*8)*.12f),.012f,cord);Tube(new Vector3(t-.5f,0,0),new Vector3(t-.5f,1,.1f),.012f,cord);}break;
         }
         var mesh=b.Finish();mesh.name=d.Name;
+        if(d.Form==PortableForm.Spear)
+        {
+            // Width describes the broad stone head; depth is its thickness.
+            // The wooden shaft still needs a round physical section, rather
+            // than inheriting that head's flattened width/depth ratio.
+            var vertices=mesh.vertices;var pigmentColors=mesh.colors;float ratio=(float)(item.WidthM/item.DepthM);
+            for(int i=0;i<vertices.Length;i++)if(pigmentColors[i]==wood||pigmentColors[i]==cord)vertices[i].z*=ratio;
+            mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();
+        }
         if(d.Form==PortableForm.Bow){var vertices=mesh.vertices;float depth=(float)(item.WidthM/item.DepthM);for(int i=0;i<vertices.Length;i++)vertices[i].z*=depth;mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();}
         var colors=mesh.colors;var tags=new System.Collections.Generic.List<Vector2>(colors.Length);var palette=new[]{stone,wood,new Color(.3f,.22f,.14f,0),new Color(.65f,.5f,.32f,0),leather,bone,cord,new Color(.57f,.56f,.28f,0)};
         foreach(var color in colors){int best=0;float error=float.MaxValue;for(int i=0;i<palette.Length;i++){var delta=(Vector4)(color-palette[i]);float e=delta.x*delta.x+delta.y*delta.y+delta.z*delta.z;if(e<error){best=i;error=e;}}if(color.a>.5f)best=4;if(d.Form==PortableForm.Food)best=8;tags.Add(new Vector2(best,0));}mesh.SetUVs(1,tags);return mesh;

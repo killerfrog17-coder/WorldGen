@@ -7,6 +7,8 @@ namespace WorldGen.Core
     public sealed class WildlifeBehaviourProfile
     {
         public WildlifeTrackingTier Tier;public bool Predator,PackHunter,Herd,Defensive,Hibernates,Migratory,Perches,Crepuscular;
+        public bool HasNaturalHistory,SmallBudget,CanHunt,SocialAlarm,SeasonalRut,ThreatensPrey;
+        public WildlifeNaturalHistoryProfile NaturalHistory;
         public double NoticeM,FlightM,DefendM,TrackingM;public int GroupMin=1,GroupMax=1;
     }
     /// <summary>Broad natural-history priors for prototype behaviour. They do
@@ -14,8 +16,8 @@ namespace WorldGen.Core
     public static class WildlifeBehaviour
     {
         public static bool IsNocturnal(string slug,bool catalogued=false)
-            =>catalogued||slug=="civet"||slug=="badger"||slug=="hedgehog"||slug=="porcupine";
-        public static WildlifeBehaviourProfile Describe(string slug,double mass,Food eats,bool flying=false,bool tiny=false)
+            =>WildlifeNaturalHistory.TryGet(slug,out var profile)?profile.Diel==WildlifeDiel.Nocturnal:catalogued||slug=="civet"||slug=="badger"||slug=="hedgehog"||slug=="porcupine";
+        public static WildlifeBehaviourProfile Describe(string slug,double mass,Food eats,bool flying=false,bool tiny=false,string nativeName="")
         {
             slug=(slug??"").ToLowerInvariant();bool Has(params string[] words){foreach(var word in words)if(slug.Contains(word))return true;return false;}
             bool predator=(eats&Food.Vertebrate)!=0&&!Has("boar","pig","bear","rat","mouse","chicken","duck");
@@ -33,6 +35,22 @@ namespace WorldGen.Core
                 p.Perches=!Has("swift","albatross","frigate","goose","duck","swan","flamingo","pelican","crane","bat","flying-fox");
                 p.Migratory=Has("goose","swan","crane","stork","swallow","tern");
                 if(p.Migratory){p.GroupMin=4;p.GroupMax=12;p.TrackingM=2000;p.Tier=WildlifeTrackingTier.Resident;}
+            }
+            p.CanHunt=p.ThreatensPrey=p.Predator;p.SocialAlarm=p.Herd||p.PackHunter;p.SeasonalRut=p.Herd;
+            if(WildlifeNaturalHistory.TryGet(slug,out _))
+            {
+                var n=WildlifeNaturalHistory.Native(slug,nativeName);p.HasNaturalHistory=true;p.NaturalHistory=n;
+                p.GroupMin=n.GroupMin;p.GroupMax=n.GroupMax;p.SmallBudget=n.SmallBudget;
+                p.PackHunter=n.Social==WildlifeSocial.Pack||slug=="orca";
+                p.Herd=n.Social==WildlifeSocial.Herd||n.Social==WildlifeSocial.Family||n.Social==WildlifeSocial.Loose||n.Social==WildlifeSocial.Troop;
+                p.SocialAlarm=n.Social!=WildlifeSocial.Solitary;p.SeasonalRut=n.SeasonalRut;
+                p.Defensive=n.DefendM>0;p.DefendM=n.DefendM;p.Hibernates=n.Hibernates;p.Crepuscular=n.Diel==WildlifeDiel.Crepuscular;
+                bool carnivorous=(eats&(Food.Vertebrate|Food.Fish))!=0;
+                p.Predator=carnivorous&&(n.Hunt==WildlifeHuntStyle.Chase||n.Hunt==WildlifeHuntStyle.Stalk||n.Hunt==WildlifeHuntStyle.Ambush||n.Hunt==WildlifeHuntStyle.Aquatic);
+                p.CanHunt=carnivorous&&n.Hunt!=WildlifeHuntStyle.None&&n.Hunt!=WildlifeHuntStyle.Scavenge;
+                p.ThreatensPrey=carnivorous&&n.Hunt!=WildlifeHuntStyle.None;
+                if(n.SmallBudget&&slug!="butterflies-and-moths-guild"&&slug!="fireflies-derived-lineage")p.Tier=WildlifeTrackingTier.Fleeting;
+                if(p.PackHunter){p.Tier=WildlifeTrackingTier.Notable;p.TrackingM=Math.Max(p.TrackingM,2400);}
             }
             return p;
         }
@@ -58,6 +76,13 @@ namespace WorldGen.Core
             =>!p.Migratory||Math.Abs(latitude)<28||nativeColdC>2||Winter(year,latitude)<.45;
         public static bool Rut(double year,double latitude)
         {double season=(year+(latitude<0?.5:0))%1;return season>.65&&season<.91;}
+        public static bool Rut(WildlifeBehaviourProfile profile,double year,double latitude)
+        {
+            if(!profile.SeasonalRut||Math.Abs(latitude)<=20)return false;
+            if(!profile.HasNaturalHistory)return Rut(year,latitude);
+            double season=(year+(latitude<0?.5:0))%1;
+            return season>profile.NaturalHistory.RutStart&&season<profile.NaturalHistory.RutEnd;
+        }
         public static double MigrationHeading(double year,double latitude)
         {
             // Follow the change of season, not whether today's season is cold.
@@ -65,10 +90,20 @@ namespace WorldGen.Core
             bool north=latitude>=0,poleward=Math.Sin(year*Math.PI*2)*(north?1:-1)>0;
             return poleward==north?0:Math.PI;
         }
-        public static double Activity(WildlifeBehaviourProfile p,double hour,bool nocturnal,double rain,double wind)
+        public static double Activity(WildlifeBehaviourProfile p,double hour,bool nocturnal,double rain,double wind,double daylight=double.NaN)
         {
-            double light=hour>=6&&hour<18?1:.25,activity=nocturnal?1.25-light:light;
-            if(p.Crepuscular)activity=.3+.7*Math.Max(Math.Exp(-Math.Pow((hour-6)/2,2)),Math.Exp(-Math.Pow((hour-18)/2,2)));
+            double light=double.IsNaN(daylight)?(hour>=6&&hour<18?1:0):Math.Max(0,Math.Min(1,daylight)),activity=nocturnal?1-light:light;
+            if(p.HasNaturalHistory)
+            {
+                switch(p.NaturalHistory.Diel)
+                {
+                    case WildlifeDiel.Cathemeral:activity=.6+.2*Math.Cos(hour*Math.PI/3);break;
+                    case WildlifeDiel.Nocturnal:activity=.1+.9*(1-light);break;
+                    case WildlifeDiel.Diurnal:activity=.12+.88*light;break;
+                    case WildlifeDiel.Crepuscular:activity=double.IsNaN(daylight)?.25+.75*Math.Max(Math.Exp(-Math.Pow((hour-6)/2,2)),Math.Exp(-Math.Pow((hour-18)/2,2))):.25+.75*Math.Exp(-Math.Pow((light-.2)/.25,2));break;
+                }
+            }
+            else if(p.Crepuscular)activity=.3+.7*Math.Max(Math.Exp(-Math.Pow((hour-6)/2,2)),Math.Exp(-Math.Pow((hour-18)/2,2)));
             return Math.Max(.1,activity/(1+Math.Max(0,rain)*.04+Math.Max(0,wind-8)*.025));
         }
     }

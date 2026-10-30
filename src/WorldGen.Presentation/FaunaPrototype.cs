@@ -105,7 +105,7 @@ namespace WorldGen.Presentation
                     foreach(int id in Pool(e.Region[neighbor]))if(!candidates.Contains(id))candidates.Add(id);
                 foreach(int id in candidates)
                 {
-                    var profile=models[id];var behaviour=WildlifeBehaviour.Describe(profile.slug,e.Taxa[id].MassKg,e.Taxa[id].Eats,profile.medium=="air",profile.tiny);
+                    var profile=models[id];var behaviour=WildlifeBehaviour.Describe(profile.slug,e.Taxa[id].MassKg,e.Taxa[id].Eats,profile.medium=="air",profile.tiny,e.Taxa[id].Name);
                     if(detail!=(behaviour.Tier<WildlifeTrackingTier.Resident&&profile.VisibleRadiusM<250))continue;
                     if((middle-center).Length*radius>Math.Max(profile.VisibleRadiusM,behaviour.TrackingM)+(detail?100:800))continue;
                     var taxon=e.Taxa[id];int nativeRegion=region;
@@ -122,7 +122,8 @@ namespace WorldGen.Presentation
             return result.OrderBy(s=>(s.Position-center).Length/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id).ToList();
             void Add(FaunaPrototypeProfile profile,Taxon? taxon,int id,int region,ScatterKey key)
             {
-                if(!profile.derivedFirefly&&WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal)&&hour>6&&hour<18)return;
+                bool daylightNocturnal=!profile.derivedFirefly&&WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal)&&hour>6&&hour<18;
+                if(daylightNocturnal&&profile.medium=="air")return;
                 uint rank=Rng.Mix((uint)key.Id(0,0)^(uint)(key.Id(0,0)>>32)^(uint)(id+9127)*19349663u);
                 var rng=new Rng(world.Recipe.Seed,"local-fauna-prototype-1",unchecked((int)rank));
                 double density;
@@ -137,13 +138,14 @@ namespace WorldGen.Presentation
                     density=Math.Max(0,profile.densityPerKm2)*habitatFit*activity*.15;
                 }
                 if(density<=0)return;
+                if(daylightNocturnal)density*=.08;
                 var habitat=e.Habitat[e.Regions[region].RepresentativeCell];
-                var behaviour=WildlifeBehaviour.Describe(profile.slug,taxon?.MassKg??.001,taxon?.Eats??Food.None,profile.medium=="air",profile.tiny);
+                var behaviour=WildlifeBehaviour.Describe(profile.slug,taxon?.MassKg??.001,taxon?.Eats??Food.None,profile.medium=="air",profile.tiny,taxon?.Name??"");
                 if(WildlifeBehaviour.Dormant(behaviour,year,latitude,habitat.ColdTenthsC/10.0,temperatureC)||!WildlifeBehaviour.SeasonallyPresent(behaviour,year,latitude,habitat.ColdTenthsC/10.0))return;
                 V a=lattice.Position(key,0,0),b=lattice.Position(key,1,0),c=lattice.Position(key,0,1);
                 double area=V.Cross(b-a,c-a).Length*radius*radius;
                 int groupSize=behaviour.GroupMin+(int)(rank%(uint)(behaviour.GroupMax-behaviour.GroupMin+1));
-                if(groupSize==1)groupSize=profile.tiny?3:profile.medium=="water"&&profile.lengthM<1?5:1;
+                if(groupSize==1&&!behaviour.HasNaturalHistory)groupSize=profile.tiny?3:profile.medium=="water"&&profile.lengthM<1?5:1;
                 double expected=area*density/1000000/groupSize;
                 int groups=(int)Math.Floor(expected)+(rng.Unit()<expected-Math.Floor(expected)?1:0);
                 for(int g=0;g<groups;g++)
