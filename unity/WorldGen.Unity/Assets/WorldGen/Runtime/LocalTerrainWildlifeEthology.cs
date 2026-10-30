@@ -15,7 +15,8 @@ public sealed partial class LocalTerrainExplorer
         if(animal.Spawn.Profile.medium!="ground")return animal.VisualCover=0;
         var sample=walkingPatch.Sample(animal.Planet);
         double height=Math.Max(.1,animal.Spawn.Profile.lengthM*animal.Model.Asset.Height);
-        return animal.VisualCover=Math.Min(.8,(sample.Cover.Stature*sample.Cover.Grasses.Length+sample.MidCover.Coverage*.25)/height);
+        double grass=HuntingGrassAdmission(animal.X,animal.Z,animal.GroundY,sample);
+        return animal.VisualCover=Math.Min(.8,(sample.Cover.Stature*sample.Cover.Grasses.Length*grass+sample.MidCover.Coverage*.25)/height);
     }
 
     double AnimalVision(Animal observer,Animal target,double horizontal)

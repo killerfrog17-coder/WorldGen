@@ -11,11 +11,22 @@ public sealed partial class LocalTerrainExplorer
     Vector3 huntingNoisePoint;readonly RaycastHit[] huntingRayHits=new RaycastHit[16];
     bool huntingNoiseFromPlayer=true;
     bool PlayerCrouching=>!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
+    double HuntingGrassAdmission(double x,double z,double floor,LocalTerrainSample sample)
+    {
+        if(sample.Underwater||sample.Cover.Grasses.Length<=0)return 0;
+        // Match the physical grass rule, rather than granting regional grass
+        // camouflage on a bare cliff. Cached cover refreshes own these four
+        // local probes; no per-observer vegetation or terrain scan is added.
+        double gx=VisibleGround(x+.5,z,floor)-VisibleGround(x-.5,z,floor);
+        double gz=VisibleGround(x,z+.5,floor)-VisibleGround(x,z-.5,floor);
+        return GroundFlora.GrassSlopeAdmission(1/Math.Sqrt(1+gx*gx+gz*gz));
+    }
     void RefreshHuntingCover()
     {
         if(Time.unscaledTimeAsDouble<huntingCoverAt)return;huntingCoverAt=Time.unscaledTimeAsDouble+.35;
         var s=walkingPatch.Sample(Position);double height=PlayerCrouching?1.05:1.7;
-        huntingCover=Math.Min(.8,s.Cover.Grasses.Length*Math.Max(0,s.Cover.Stature-.12)/height);
+        double grass=HuntingGrassAdmission(motion.X,motion.Z,motion.Y-TerrainMotion.EyeHeightM,s);
+        huntingCover=Math.Min(.8,s.Cover.Grasses.Length*Math.Max(0,s.Cover.Stature-.12)*grass/height);
         var feet=PlayerFeet();
         foreach(var chunk in scatterChunks.Values)
         {
