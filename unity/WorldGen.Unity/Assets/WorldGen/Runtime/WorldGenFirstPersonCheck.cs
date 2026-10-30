@@ -58,8 +58,10 @@ public sealed partial class LocalTerrainExplorer
         Check(EquipFromPortrait(pack),"Portrait equipment drop wears a compatible carrier through normal inventory validation");
         Check(Inventory.WornContainers.Contains(pack)&&pack.Place==PossessionPlace.Back,"Only actual worn equipment supplies named container space");
         SetInventoryOpen(true);PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();paused=false;
+        motion.Y+=2;motion.Grounded=false;motion.VerticalSpeed=0;double airborneY=motion.Y;
         double clock=PlayerRules.SolarDays,hunger=Vitals.Hunger,campClock=Camp.SimulatedSeconds;yield return new WaitForSecondsRealtime(.6f);
         Check(inventoryOpen&&!Paused&&PlayerRules.SolarDays>clock,"Opening inventory leaves the world clock running");
+        Check(motion.Y<airborneY-.3,"Opening inventory in midair does not suspend gravity");
         Check(Vitals.Hunger>hunger&&Camp.SimulatedSeconds>campClock,"Survival needs and camp time continue with inventory open");
         SetInventoryOpen(false);paused=true;UpdateInventoryVisuals();
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();paused=false;UpdatePlayerSurvival(0,0);UpdateSurvivalHud();paused=true;
