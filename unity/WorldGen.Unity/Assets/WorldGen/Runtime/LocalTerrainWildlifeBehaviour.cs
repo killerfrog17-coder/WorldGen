@@ -203,7 +203,9 @@ public sealed partial class LocalTerrainExplorer
         Vector3 direction=transform.TransformDirection(Quaternion.Euler(0,animal.Heading,0)*Vector3.forward),side=Vector3.Cross(direction,Vector3.up),origin=animal.Root.transform.position+Vector3.up*height;
         foreach(float offset in new[]{0f,-radius,radius})
         {
-            var obstacle=TraceCombatObstacle(new Ray(origin+side*offset,direction),reach);if(obstacle==null)continue;
+            // Terrain step/water admission is already checked for every move.
+            // Long obstacle lookahead must not march the ground every 18 cm.
+            var obstacle=TraceCombatObstacle(new Ray(origin+side*offset,direction),reach,null,false);if(obstacle==null)continue;
             var normal=transform.InverseTransformDirection(obstacle.Normal);float angle=Mathf.Atan2(normal.x,normal.z)*Mathf.Rad2Deg,turn=(animal.Spawn.Hash&1)==0?80:-80;
             if(animal.Awareness.Mode==WildlifeAwareness.Fleeing)animal.CorneredUntil=animal.Life+1;
             animal.TargetHeading=angle+turn;animal.TargetSpeed=Math.Min(animal.TargetSpeed,Math.Max(.1f,(float)animal.Spawn.Profile.walkMps*.35f));break;

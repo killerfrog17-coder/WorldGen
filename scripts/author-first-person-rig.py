@@ -154,6 +154,7 @@ FIST_BASIS = local_basis(sample_native('Fists_Idle', .3))
 arm_stats = []
 SPEAR_FINGERS = {}
 POSE_ELBOWS = {}
+POSE_TWISTS = {}
 
 
 def distribute_forearm_twist():
@@ -170,6 +171,12 @@ def distribute_forearm_twist():
         difference=candidate @ current.inverted()
         angle=2*math.atan2(Vector((difference.x,difference.y,difference.z)).dot(axis),difference.w)
         angle=(angle+math.pi)%math.tau-math.pi
+        # Half-twist skin stations are not invariant under a whole revolution:
+        # choosing +179 then -179 makes the half station flip by 179 degrees.
+        # Unwrap the authored twist over the take before distributing it.
+        if side in POSE_TWISTS:
+            angle+=round((POSE_TWISTS[side]-angle)/math.tau)*math.tau
+        POSE_TWISTS[side]=angle
         for prefix,amount in [('ForearmHalf',.5),('ForearmFull',1)]:
             bone=rig.pose.bones[prefix+'.'+side];bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion((0,1,0),angle*amount)
     bpy.context.view_layer.update()
@@ -243,8 +250,15 @@ def grip_pose(side, center, axis, roll, base, curl=1, pole_weight=.15, grip_styl
         continuity=(candidate-POSE_ELBOWS[side]).length_squared*.001 if side in POSE_ELBOWS else 0
         cost=exposure*.25+max(0,wrist_angle-math.radians(50))**2*.002+wrist_angle*wrist_angle*.00003+(candidate_bend-preferred).length_squared*.000005+continuity
         return cost,candidate,exposure
-    best_angle=min((step*math.tau/24 for step in range(24)),key=lambda angle:elbow_cost(angle)[0])
-    low,high=best_angle-math.tau/24,best_angle+math.tau/24
+    if side in POSE_ELBOWS:
+        prior=POSE_ELBOWS[side]-shoulder-direction*along
+        previous_angle=math.atan2(prior.dot(side_axis),prior.dot(preferred))
+        # Follow the same anatomical elbow branch. A fresh global minimum every
+        # frame can jump across the arm even with smooth hand targets.
+        low,high=previous_angle-math.radians(8),previous_angle+math.radians(8)
+    else:
+        best_angle=min((step*math.tau/24 for step in range(24)),key=lambda angle:elbow_cost(angle)[0])
+        low,high=best_angle-math.tau/24,best_angle+math.tau/24
     # Continuous refinement avoids quantized fifteen-degree elbow jumps.
     for _ in range(15):
         a1=low+(high-low)*.381966;a2=low+(high-low)*.618034
@@ -362,20 +376,33 @@ mirrored_basis=local_basis(fitted)
 for name in list(SPEAR_FINGERS):
     left=name[:-2]+'.L';SPEAR_FINGERS[left]=mirrored_basis[left].to_quaternion()
 CLIPS = []
+CONTINUITY = []
 
 
 def bake(name, seconds, function, loop=False, contact=-1, release=-1):
     POSE_ELBOWS.clear()
+    POSE_TWISTS.clear()
     frames = max(2, round(seconds*FPS)+1)
     action = bpy.data.actions.new(name)
     action.use_fake_user = True
     previous = {}
+    previous_world = None
+    worst_rotation = 0.
+    worst_travel = 0.
     first_basis=None
     for frame in range(frames):
         scene.frame_set(frame+1)
         first_stat = len(arm_stats)
         function(frame/(frames-1))
         distribute_forearm_twist()
+        world_pose={name:(R @ rig.pose.bones[name].matrix).copy() for side in ['R','L'] for name in [f'{prefix}.{side}' for prefix in ['UpperArm','LowerArm','Wrist','ForearmHalf','ForearmFull']]}
+        if previous_world is not None:
+            for bone_name, matrix in world_pose.items():
+                prior=previous_world[bone_name]
+                angle=math.degrees(prior.to_quaternion().rotation_difference(matrix.to_quaternion()).angle)
+                worst_rotation=max(worst_rotation,min(angle,360-angle))
+                worst_travel=max(worst_travel,(matrix.translation-prior.translation).length)
+        previous_world=world_pose
         for row in arm_stats[first_stat:]:
             row.update(clip=name, phase=frame/(frames-1))
         # Evaluate authoring, then write FK transforms into a native action.
@@ -394,6 +421,11 @@ def bake(name, seconds, function, loop=False, contact=-1, release=-1):
             bone.keyframe_insert('rotation_quaternion', frame=frame+1, group=bone.name)
             bone.keyframe_insert('scale', frame=frame+1, group=bone.name)
     CLIPS.append(dict(name=name, duration=(frames-1)/FPS, loop=loop, contact=contact, release=release))
+    # Mechanical continuity is necessary, but remains separate from reviewing
+    # the actual moving skin and prop contacts in the game camera.
+    if worst_rotation>35 or worst_travel>.12:
+        raise RuntimeError(f'{name}: discontinuous authored arm motion: {worst_rotation:.2f} deg / {worst_travel:.4f} m per 60 Hz frame')
+    CONTINUITY.append(dict(clip=name,max_frame_rotation_deg=worst_rotation,max_frame_travel_m=worst_travel))
     print('AUTHORED', name, frames, flush=True)
     return action
 
@@ -719,4 +751,5 @@ bpy.ops.export_scene.fbx(filepath=str(OUT/'Arms.fbx'),use_selection=True,object_
 manifest=dict(version=2,fps=FPS,clips=CLIPS,bones=len(rig.data.bones),vertices=len(arms.data.vertices),triangles=sum(len(p.vertices)-2 for p in arms.data.polygons),sockets=['Grip.R','Grip.L','SpearGrip.R','SpearGrip.L','Nock.R'],authoring='Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.',source_sha256=hashlib.sha256((OUT/'source/Arms.fbx').read_bytes()).hexdigest(),generator_sha256=GENERATOR_SHA,fbx_sha256=hashlib.sha256((OUT/'Arms.fbx').read_bytes()).hexdigest(),grip_sha256=hashlib.sha256((OUT/'spear-grip.json').read_text().replace('\r\n','\n').encode('utf-8')).hexdigest(),base_sha256=hashlib.sha256((OUT/'FirstPersonBase.blend').read_bytes()).hexdigest())
 (OUT/'clips.json').write_text(json.dumps(manifest,indent=2)+'\n')
 (EVIDENCE/'authored-pose-diagnostics.json').write_text(json.dumps(arm_stats,indent=2))
+(EVIDENCE/'authored-continuity.json').write_text(json.dumps(CONTINUITY,indent=2))
 print('NATIVE FIRST-PERSON RIG EXPORTED',manifest,flush=True)

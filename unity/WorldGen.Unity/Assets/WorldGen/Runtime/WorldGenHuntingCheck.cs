@@ -81,13 +81,15 @@ public sealed partial class LocalTerrainExplorer
         Check(wolf.Spawn.Profile.runMps>12&&roo.Spawn.Profile.runMps>14&&deer.Spawn.Profile.runMps>11,"Loaded adult locomotion uses physical species priors rather than body-length multipliers");
         Place(wolf,px,pz+10,0);wolf.Speed=14;wolf.TargetSpeed=14;wolf.TargetHeading=0;wolf.ObstacleAt=0;
         var speedWall=GameObject.CreatePrimitive(PrimitiveType.Cube);speedWall.name="Hunting speed obstacle fixture";
-        speedWall.transform.position=wolf.Root.transform.position+Vector3.forward*6+Vector3.up*1.5f;speedWall.transform.localScale=new Vector3(4,4,.5f);Physics.SyncTransforms();
+        speedWall.transform.position=wolf.Root.transform.position+transform.TransformDirection(Vector3.forward*6+Vector3.up*1.5f);speedWall.transform.rotation=transform.rotation;speedWall.transform.localScale=new Vector3(4,4,.5f);Physics.SyncTransforms();
+        reviewWildlifeBehaviour=true;
         try {AvoidAnimalSolids(wolf);Check(wolf.TargetSpeed<2&&Math.Abs(wolf.TargetHeading)>20,"A sprinting wolf detects a solid beyond the old 1.8 m ray and requests braking/turning");}
-        finally {DestroyImmediate(speedWall);Physics.SyncTransforms();}
+        finally {reviewWildlifeBehaviour=false;DestroyImmediate(speedWall);Physics.SyncTransforms();}
         Place(wolf,px,pz+12,0);Place(deer,px,pz+12,0);wolf.BehaviourAction="hunt";wolf.HuntTargetId=deer.Spawn.Id;wolf.AttackAt=0;
+        reviewWildlifeBehaviour=true;
         double contactHealth=deer.Health;CheckMovingAnimalContact(wolf);
         Check(deer.Health<contactHealth&&wolf.AttackAt>Time.unscaledTimeAsDouble,"An active predator contacts prey between staggered decisions without passing through it");
-        double afterContact=deer.Health;CheckMovingAnimalContact(wolf);Check(deer.Health==afterContact,"Frame-level proximity checks preserve the existing attack cooldown");
+        double afterContact=deer.Health;CheckMovingAnimalContact(wolf);Check(deer.Health==afterContact,"Frame-level proximity checks preserve the existing attack cooldown");reviewWildlifeBehaviour=false;
         Color32[] Capture(string name)
         {
             var old=view.targetTexture;var previous=RenderTexture.active;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;var texture=new Texture2D(1280,800,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,800),0,0);texture.Apply();var pixels=texture.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),texture.EncodeToPNG());Destroy(texture);view.targetTexture=old;RenderTexture.active=previous;rt.Release();Destroy(rt);return pixels;
