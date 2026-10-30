@@ -1,16 +1,28 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 public static class FirstPersonRuntimeBuilder
 {
-    [Serializable] sealed class Manifest {public Motion[] clips;}
+    [Serializable] sealed class Manifest {public Motion[] clips;public string generator_sha256,fbx_sha256,grip_sha256,base_sha256;}
     [Serializable] sealed class Motion {public string name;public bool loop;}
     const string Folder="Assets/WorldGen/Resources/FirstPerson";
+    static string Hash(byte[] bytes){using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-","").ToLowerInvariant();}
+    static string TextHash(string file)=>Hash(Encoding.UTF8.GetBytes(File.ReadAllText(file).Replace("\r\n","\n")));
+    public static void ValidateSource()
+    {
+        string root=Path.GetFullPath(Path.Combine(Application.dataPath,"../../..")),source=Path.Combine(root,"assets/first-person");
+        var manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText(Path.Combine(source,"clips.json")));
+        if(manifest.generator_sha256!=TextHash(Path.Combine(root,"scripts/author-first-person-rig.py"))||manifest.fbx_sha256!=Hash(File.ReadAllBytes(Path.Combine(source,"Arms.fbx")))||manifest.grip_sha256!=TextHash(Path.Combine(source,"spear-grip.json"))||manifest.base_sha256!=Hash(File.ReadAllBytes(Path.Combine(source,"FirstPersonBase.blend"))))
+            throw new InvalidDataException("First-person export is stale or incomplete. Re-run Blender with --python-exit-code 1 and author-first-person-rig.py before importing.");
+    }
     public static void Build()
     {
+        ValidateSource();
         string root=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));string source=Path.Combine(root,"assets/first-person");
         Directory.CreateDirectory(Folder);
         foreach(string name in new[]{"Arms.fbx","clips.json","A.png","B.png","C.png","D.png","E.png","F.png"})

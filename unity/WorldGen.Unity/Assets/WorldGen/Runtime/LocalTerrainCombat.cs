@@ -51,7 +51,7 @@ public sealed partial class LocalTerrainExplorer
         bool supported=SupportSpear(item),unsupported=profile.Primary==ItemPrimaryUse.Thrust&&item!=null&&item.HeightM>=1.1&&!supported;
         double recovery=profile.RecoverySeconds*weightPenalty*(unsupported?1.25:1)*(SurvivalActive?1+(1-(Vitals.Exertion?.Burst??1))*.65:1),duration=Math.Min(1.4,recovery);
         CombatCooldown(left,recovery);AnimateViewItem(item,false,duration);
-        pendingMelee[left?1:0]=new PendingMelee{Item=item,Left=left,Unsupported=unsupported,ContactAt=Time.unscaledTimeAsDouble+duration*(LongViewSpear(item)?.36:.38)};
+        pendingMelee[left?1:0]=new PendingMelee{Item=item,Left=left,Unsupported=unsupported,ContactAt=Time.unscaledTimeAsDouble+duration*ViewStrikeContact(item)};
         PlayItemEffect("weapon-swish",PlayerAttackRay().origin,item==null?.12f:.3f,true);
     }
     void ResolveMeleeContacts(double now)
@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
     void CompleteMeleeStrike(Possession item,bool unsupported)
     {
         var profile=ItemUseRules.Profile(item);if(!profile.Weapon||ItemUseRules.Condition(item)<=0)return;
-        var ray=PlayerAttackRay();float reach=(float)(profile.ReachM*(unsupported?.82:1));
+        var ray=PlayerAttackRay();float reach=(float)Math.Max(.1,profile.ReachM-(unsupported?.1:0));
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
         // bounding box as flesh. Each candidate is still a real surface hit.

@@ -78,8 +78,17 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{survivalHudCanvas.renderMode=mode;survivalHudCanvas.worldCamera=oldCamera;view.cullingMask=mask;}
         reviewWildlifeBehaviour=true;paused=false;
-        var timer=System.Diagnostics.Stopwatch.StartNew();for(int frameCount=0;frameCount<60;frameCount++)foreach(var animal in animals.Values.Where(a=>!a.Spawn.Profile.tiny&&!a.Dead)){animal.BehaviourAt=0;animal.LastPerception=Math.Max(0,animal.Life-.3);UpdateAnimalBehaviour(animal);}timer.Stop();
-        File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 60 forced full decision sweeps "+timer.Elapsed.TotalMilliseconds.ToString("F2")+" ms; processed "+huntingDecisions+" / deferred "+huntingDeferred+" (stress diagnostic, not frame-rate claim)");
+        var costs=new List<double>();int beforeDecisions=huntingDecisions,beforeDeferred=huntingDeferred;
+        for(int sample=0;sample<120;sample++)
+        {
+            // Reset a dedicated forced sweep, then let the player advance to
+            // another actual frame. The former one-frame loop measured mostly
+            // already-deferred work and could not describe a typical decision.
+            huntingDecisionFrame=-1;var timer=System.Diagnostics.Stopwatch.StartNew();
+            foreach(var animal in animals.Values){if(animal.Dead)continue;animal.BehaviourAt=0;animal.LastPerception=Math.Max(0,animal.Life-.3);UpdateAnimalBehaviour(animal);}
+            timer.Stop();if(sample>=10)costs.Add(timer.Elapsed.TotalMilliseconds);yield return null;
+        }
+        costs.Sort();File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 120 frame-separated forced AI sweeps; warm p50 "+costs[costs.Count/2].ToString("F3")+" ms; p95 "+costs[(int)(costs.Count*.95)].ToString("F3")+" ms; maximum "+costs.Last().ToString("F3")+" ms; decisions "+(huntingDecisions-beforeDecisions)+" / deferred "+(huntingDeferred-beforeDeferred)+". This measures decision work with its 1 ms soft budget, not total game frame rate.");
         Check(animals.Values.All(a=>a.Exertion.Burst>=0&&a.Exertion.Burst<=1&&a.Awareness.Suspicion>=0&&a.Awareness.Suspicion<=1),"Mixed actor decisions retain bounded physical and awareness state");reviewWildlifeBehaviour=false;paused=true;
     }
 }

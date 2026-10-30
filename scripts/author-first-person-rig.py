@@ -1,7 +1,7 @@
 """Author and bake the private first-person rig, never the approved world avatar.
 
 Run with Blender 4.5: blender -b -t 8 --python scripts/author-first-person-rig.py
-The CC0 artist's native hand topology, weights and finger poses are retained.
+The CC0 artist's hand topology and weights seed camera-authored grip poses.
 New handling is authored in camera space and baked to FK before Unity export.
 There are no runtime arm targets, stretch constraints or runtime finger solvers.
 """
@@ -12,7 +12,9 @@ from mathutils import Matrix, Vector, Quaternion
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'assets/first-person'
 EVIDENCE = ROOT / 'artifacts/first-person-rebuild-20261030'
+GENERATOR_SHA=hashlib.sha256(Path(__file__).read_text().replace('\r\n','\n').encode('utf-8')).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(OUT / 'FirstPersonBase.blend'))
+bpy.context.preferences.filepaths.save_version=0
 scene = bpy.context.scene
 rig = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
 arms = next(o for o in bpy.data.objects if o.type == 'MESH')
@@ -23,6 +25,9 @@ MIRROR = Matrix.Diagonal((-1, 1, 1, 1))
 U = lambda v: Vector((-v[0], -v[2], v[1]))
 FPS = 60
 scene.render.fps = FPS
+scene.camera.data.sensor_fit='VERTICAL';scene.camera.data.sensor_height=32
+scene.camera.data.lens=32/(2*math.tan(math.radians(68)/2));scene.camera.data.clip_start=.1
+AUTHOR_CAMERA_INV=scene.camera.matrix_world.inverted()
 
 
 def sample_native(label, phase=0):
@@ -140,6 +145,8 @@ def local_basis(global_pose):
 
 BASE_BASIS = local_basis(grasp)
 arm_stats = []
+SPEAR_FINGERS = {}
+POSE_ELBOWS = {}
 
 
 def distribute_forearm_twist():
@@ -208,7 +215,37 @@ def grip_pose(side, center, axis, roll, base, curl=1, pole_weight=.15, grip_styl
         anatomical = pole.copy()
     bend = (anatomical.normalized()*(1-pole_weight)+pole*pole_weight).normalized()
     along = (a*a+distance*distance-b*b)/(2*distance)
-    elbow = shoulder+direction*along+bend*math.sqrt(max(0, a*a-along*along))
+    radius=math.sqrt(max(0,a*a-along*along))
+    # Camera-authored elbows must remain below or outside the close view. A
+    # mathematically reachable palm alone can otherwise put an upper arm across
+    # the near plane. Search only during baking, never in the running game.
+    preferred=bend.copy();side_axis=direction.cross(bend).normalized()
+    def elbow_cost(theta):
+        candidate_bend=preferred*math.cos(theta)+side_axis*math.sin(theta)
+        candidate=shoulder+direction*along+candidate_bend*radius
+        wrist_angle=(target-candidate).angle(hand_direction)
+        exposure=0
+        for t in [.2,.5,.8,1.0]:
+            point=AUTHOR_CAMERA_INV @ shoulder.lerp(candidate,t);depth=-point.z
+            if depth+.07<.1 or abs(point.x)-.07>max(.05,depth)*math.tan(math.radians(34))*2.5:continue
+            exposure+=max(0,point.y+.07+depth*math.tan(math.radians(34)))**2
+        for t in [0,.2,.4,.6,.8]:
+            point=AUTHOR_CAMERA_INV @ candidate.lerp(target,t);depth=-point.z
+            if depth+.05<.1 or depth>.23 or abs(point.x)-.05>max(.05,depth)*math.tan(math.radians(34))*2.5:continue
+            exposure+=max(0,point.y+.05+depth*math.tan(math.radians(34)))**2*2
+        continuity=(candidate-POSE_ELBOWS[side]).length_squared*.001 if side in POSE_ELBOWS else 0
+        cost=exposure*.25+max(0,wrist_angle-math.radians(50))**2*.002+wrist_angle*wrist_angle*.00003+(candidate_bend-preferred).length_squared*.000005+continuity
+        return cost,candidate,exposure
+    best_angle=min((step*math.tau/24 for step in range(24)),key=lambda angle:elbow_cost(angle)[0])
+    low,high=best_angle-math.tau/24,best_angle+math.tau/24
+    # Continuous refinement avoids quantized fifteen-degree elbow jumps.
+    for _ in range(15):
+        a1=low+(high-low)*.381966;a2=low+(high-low)*.618034
+        if elbow_cost(a1)[0]<elbow_cost(a2)[0]:high=a2
+        else:low=a1
+    best=elbow_cost((low+high)*.5)
+    elbow=best[1]
+    POSE_ELBOWS[side]=elbow.copy()
     for name, p, end, new_p, new_end in [
         (upper.name, shoulder, old_elbow, shoulder, elbow),
         (lower.name, old_elbow, old_wrist, elbow, target)]:
@@ -221,16 +258,17 @@ def grip_pose(side, center, axis, roll, base, curl=1, pole_weight=.15, grip_styl
     hand.matrix = RI @ desired
     # Relaxation interpolates each native finger's own local quaternion. It does
     # not curl every digit around one guessed world axis.
-    if curl != 1:
+    if curl != 1 or grip_style=='spear':
         for digit in ['Index', 'Middle', 'Ring', 'Pinky', 'Thumb']:
             for index in range(1, 5 if digit != 'Thumb' else 4):
                 name = f'{digit}{index}.{side}'
                 if name in rig.pose.bones:
                     bone = rig.pose.bones[name]
                     bone.rotation_mode = 'QUATERNION'
-                    bone.rotation_quaternion = Quaternion().slerp(BASE_BASIS[name].to_quaternion(), curl)
+                    finger_rotation=SPEAR_FINGERS.get(name,BASE_BASIS[name].to_quaternion()) if grip_style=='spear' else BASE_BASIS[name].to_quaternion()
+                    bone.rotation_quaternion = Quaternion().slerp(finger_rotation, curl)
     bpy.context.view_layer.update()
-    arm_stats.append(dict(side=side, reach_error_m=max(0, delta.length-distance), wrist_bend_deg=math.degrees((target-elbow).angle(hand_direction))))
+    arm_stats.append(dict(side=side, reach_error_m=max(0, delta.length-distance), wrist_bend_deg=math.degrees((target-elbow).angle(hand_direction)),upperarm_camera_cost=best[2]))
     return grip
 
 
@@ -281,14 +319,32 @@ def spear(center=(.22, -.16, .28), axis=(-.43, .14, .89), support=.225, lean=0, 
         grip_pose('L', (-.28, -.44, .22), (-.1, .8, .3), 0, base, .3)
 
 
+finger_source=json.loads((OUT/'spear-grip.json').read_text())
+if finger_source['source_sha256']!=hashlib.sha256((OUT/'source/Arms.fbx').read_bytes()).hexdigest():
+    raise RuntimeError('Authored grip belongs to a different native hand skeleton')
+for bone in rig.pose.bones:bone.matrix_basis=BASE_BASIS[bone.name]
+for name,rotation in finger_source['rotations'].items():
+    rig.pose.bones[name].rotation_mode='QUATERNION';rig.pose.bones[name].rotation_quaternion=Quaternion(rotation)
+    SPEAR_FINGERS[name]=Quaternion(rotation)
+bpy.context.view_layer.update()
+fitted={b.name:b.matrix.copy() for b in rig.pose.bones}
+for name in list(fitted):
+    if name.endswith('.L'):
+        other=name[:-2]+'.R'
+        if other in fitted:fitted[name]=RI @ MIRROR @ (R @ fitted[other] @ rest[other].inverted() @ RI) @ MIRROR @ R @ rest[name]
+mirrored_basis=local_basis(fitted)
+for name in list(SPEAR_FINGERS):
+    left=name[:-2]+'.L';SPEAR_FINGERS[left]=mirrored_basis[left].to_quaternion()
 CLIPS = []
 
 
 def bake(name, seconds, function, loop=False, contact=-1, release=-1):
+    POSE_ELBOWS.clear()
     frames = max(2, round(seconds*FPS)+1)
     action = bpy.data.actions.new(name)
     action.use_fake_user = True
     previous = {}
+    first_basis=None
     for frame in range(frames):
         scene.frame_set(frame+1)
         first_stat = len(arm_stats)
@@ -298,6 +354,8 @@ def bake(name, seconds, function, loop=False, contact=-1, release=-1):
             row.update(clip=name, phase=frame/(frames-1))
         # Evaluate authoring, then write FK transforms into a native action.
         basis = {b.name: b.matrix_basis.copy() for b in rig.pose.bones}
+        if first_basis is None:first_basis={n:m.copy() for n,m in basis.items()}
+        if loop and frame==frames-1:basis=first_basis
         rig.animation_data_create(); rig.animation_data.action = action
         for bone in rig.pose.bones:
             bone.rotation_mode = 'QUATERNION'
@@ -324,7 +382,7 @@ def thrust(t, two):
     # Its socket slides toward the rear grip during extension, then recovers.
     ready = dict(center=(.22,-.16,.28), axis=(-.43,.14,.89), support=.225, lean=0.,rear_roll=240.,front_roll=270.)
     windup = dict(center=(.25,-.17,.24), axis=(-.38,.16,.91), support=.225, lean=-.01,rear_roll=245.,front_roll=270.)
-    contact = dict(center=(.13,-.13,.44 if two else .39), axis=(-.22,.08,.973), support=.15, lean=.09 if two else .05,rear_roll=190.,front_roll=250.)
+    contact = dict(center=(.13,-.13,.44 if two else .39), axis=(-.105,.105,.989), support=.15, lean=.09 if two else .05,rear_roll=190.,front_roll=250.)
     hold = dict(contact); hold['center']=(.13,-.14,.44 if two else .39)
     p = keyed([(0,ready),(.16,windup),(.36,contact),(.43,hold),(1,ready)], t)
     spear(**p, two=two)
@@ -357,8 +415,26 @@ def native_pose(label, phase, offset=(0,0,0)):
 
 bake('ToolReady', 80/30, lambda t:native_pose('Sword_Idle',t), True)
 bake('ToolWalk', 22/30, lambda t:native_pose('Sword_Walk',t), True)
-bake('ToolCutA', 20/30, lambda t:native_pose('Sword_Slash1',t), contact=.38)
-bake('ToolCutB', 20/30, lambda t:native_pose('Sword_Slash2',t), contact=.38)
+
+
+def short_strike(t,kind):
+    base=reset((0,-.08,0))
+    ready=dict(center=(.236,-.184,.504),axis=(0,1,0),roll=0.)
+    if kind=='cut':
+        keys=[(0,ready),(.16,dict(center=(.30,-.14,.42),axis=(.35,.90,.25),roll=-15.)),(.4,dict(center=(.12,-.10,.58),axis=(-.52,.43,.74),roll=-15.)),(.57,dict(center=(-.05,-.17,.49),axis=(-.85,.20,.49),roll=-35.)),(1,ready)]
+    elif kind=='thrust':
+        keys=[(0,ready),(.15,dict(center=(.25,-.17,.42),axis=(0,.8,.6),roll=0.)),(.36,dict(center=(.03,-.07,.60),axis=(-.27,.63,.73),roll=-10.)),(.46,dict(center=(.03,-.07,.60),axis=(-.27,.63,.73),roll=-10.)),(1,ready)]
+    else:
+        contact=.4 if kind=='chop' else .42
+        keys=[(0,ready),(.20,dict(center=(.36,.015,.36),axis=(.2,.94,.28),roll=0.)),(contact,dict(center=(.08,-.14,.52),axis=(-.18,.40,.90),roll=-12.)),(.60,dict(center=(-.03,-.24,.45),axis=(-.3,.1,.95),roll=-25.)),(1,ready)]
+    grip_pose('R',base=base,**keyed(keys,t))
+    grip_pose('L',(-.28,-.44,.25),(0,1,0),0,base,.3)
+
+
+bake('ToolCutA',.64,lambda t:short_strike(t,'cut'),contact=.4)
+bake('ToolCutB',.60,lambda t:short_strike(t,'thrust'),contact=.36)
+bake('ToolBlunt',.75,lambda t:short_strike(t,'blunt'),contact=.42)
+bake('ToolChop',.85,lambda t:short_strike(t,'chop'),contact=.4)
 bake('ToolGuard', .15, lambda t:native_pose('Sword_Block',t))
 bake('FistsReady', 80/30, lambda t:native_pose('Fists_Idle',t), True)
 bake('FistsGuard', .15, lambda t:native_pose('Fists_Block',t))
@@ -384,15 +460,15 @@ bake('Empty',3,empty,True)
 
 
 def throw_charge(t, long_spear=False):
-    p=keyed([(0,dict(center=(.22,-.16,.28),axis=(-.43,.14,.89),roll=240. if long_spear else 300.)),(1,dict(center=(.27,.025,.27),axis=(-.06,.04,.998),roll=245. if long_spear else 300.))],t)
-    base=reset((0,-.04,0))
+    p=keyed([(0,dict(center=(.22,-.16,.28),axis=(-.43,.14,.89),roll=240. if long_spear else 300.)),(1,dict(center=(.43,-.025,.29),axis=(-.06,.04,.998),roll=245. if long_spear else 300.))],t)
+    base=reset((0,-.12,0))
     grip_pose('R',base=base,grip_style='spear' if long_spear else 'tool',**p)
     grip_pose('L',(-.27,-.43,.23),(0,1,0),0,base,.25)
 
 
 def throw_release(t, long_spear=False):
-    base=reset((0,-.04,.10*math.sin(min(1,t/.55)*math.pi)))
-    p=keyed([(0,dict(center=(.27,.025,.27),axis=(-.06,.04,.998),roll=245. if long_spear else 300.,curl=1.)),(.35,dict(center=(.08,-.06,.44),axis=(-.12,.04,.992),roll=180. if long_spear else 150.,curl=.05)),(.6,dict(center=(.04,-.15,.43),axis=(-.05,-.1,.994),roll=150. if long_spear else 110.,curl=.1)),(1,dict(center=(.27,-.46,.26),axis=(0,1,0),roll=0.,curl=.28))],t)
+    base=reset((0,-.12,.10*math.sin(min(1,t/.55)*math.pi)))
+    p=keyed([(0,dict(center=(.43,-.025,.29),axis=(-.06,.04,.998),roll=245. if long_spear else 300.,curl=1.)),(.35,dict(center=(.08,-.06,.44),axis=(-.12,.04,.992),roll=180. if long_spear else 150.,curl=.05)),(.6,dict(center=(.04,-.15,.43),axis=(-.05,-.1,.994),roll=150. if long_spear else 110.,curl=.1)),(1,dict(center=(.27,-.43,.26),axis=(0,-.25,.97) if long_spear else (0,1,0),roll=150. if long_spear else 0.,curl=.28))],t)
     grip_pose('R',base=base,grip_style='spear' if long_spear else 'tool',**p)
     grip_pose('L',(-.27,-.43,.23),(0,1,0),0,base,.25)
 
@@ -416,21 +492,30 @@ bake('SlingRelease',.62,throw_release,release=.24)
 def bow(t, release=False):
     base=reset((0,-.12,.03))
     draw=1-t if release else smooth(t)
-    grip_pose('L',(-.12+.16*draw,-.12,.49+.03*draw),(0,1,.05),0,base)
     # A real drawing hand moves back toward the face. It does not pull the bow
     # forward through its own fingers; the nock and string use this same socket.
     # Leave clearance from the near plane: a thumb passing through that plane
     # appears as a detached oval even though its topology is continuous. The
     # drawing hand belongs near the right cheek, outside the central aim view.
-    grip_pose('R',(.02+.20*draw,-.08,.36-.13*draw),(0,1,0),0,base,.48 if not release else .2)
+    right_center=(.02+.08*draw,-.08,.36-.08*draw)
+    if release:
+        right_center=keyed([(0,dict(p=(.10,-.08,.28))),(.25,dict(p=(.20,-.07,.25))),(.6,dict(p=(.26,-.18,.29))),(1,dict(p=(.02,-.08,.36)))],t)['p']
+    grip_pose('R',right_center,(0,1,0),0,base,.48 if not release else .2)
     for digit in ['Index','Middle','Ring','Pinky','Thumb']:
         for i in range(1,4 if digit=='Thumb' else 5):
             bone=rig.pose.bones.get(f'{digit}{i}.R')
             if bone is None:continue
-            factor=.2 if digit=='Thumb' else .85 if digit=='Pinky' else .4 if i<=2 else .95
+            factor=.8 if digit=='Thumb' else .85 if digit=='Pinky' else .4 if i<=2 else .95
             if release:factor*=.4+.6*t
             bone.rotation_mode='QUATERNION';bone.rotation_quaternion=Quaternion().slerp(BASE_BASIS[bone.name].to_quaternion(),factor)
     bpy.context.view_layer.update()
+    # The string sits at the distal finger creases, rather than an arbitrary
+    # palm socket. Keep the bow rest on that forward aim line while drawing.
+    hook=(rig.pose.bones['Index3.R'].tail+rig.pose.bones['Middle3.R'].tail)*.5
+    nock=rig.pose.bones['Nock.R'].matrix.copy();nock.translation=hook
+    rig.pose.bones['Nock.R'].matrix=nock;bpy.context.view_layer.update()
+    hook_world=R@hook;hook_camera=Vector((-hook_world.x,hook_world.z,-hook_world.y))
+    grip_pose('L',(hook_camera.x,hook_camera.y-.075,.49+.03*draw),(0,1,.05),0,base)
 
 
 bake('BowReady',3,lambda t:bow(0),True)
@@ -502,7 +587,7 @@ bake('CarryLarge',3,carrying,True)
 # Native mirrored takes support left-hand use and independent dual wielding.
 # Keep the mesh and bind pose intact, reflecting deformation onto the opposite
 # rest bone rather than reflecting the whole GameObject with a negative scale.
-mirror_names=['ToolReady','ToolWalk','ToolCutA','ToolCutB','ToolGuard',
+mirror_names=['ToolReady','ToolWalk','ToolCutA','ToolCutB','ToolBlunt','ToolChop','ToolGuard',
               'SpearReady1','SpearThrust1','SpearReady2','SpearThrust2',
               'ThrowCharge','ThrowRelease','SpearThrowCharge','SpearThrowRelease','SlingWhirl','SlingRelease','Punch','Gather']
 for label in mirror_names:
@@ -560,7 +645,7 @@ scene.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'FirstPersonAuthored.blend'),compress=True)
 rig.select_set(True);arms.select_set(True)
 bpy.ops.export_scene.fbx(filepath=str(OUT/'Arms.fbx'),use_selection=True,object_types={'ARMATURE','MESH'},apply_unit_scale=True,apply_scale_options='FBX_SCALE_ALL',axis_forward='-Z',axis_up='Y',use_mesh_modifiers=True,mesh_smooth_type='FACE',add_leaf_bones=False,bake_anim=True,bake_anim_use_all_bones=True,bake_anim_use_nla_strips=False,bake_anim_use_all_actions=True,bake_anim_force_startend_keying=True,bake_anim_step=1,bake_anim_simplify_factor=0,path_mode='STRIP',embed_textures=False)
-manifest=dict(version=1,fps=FPS,clips=CLIPS,bones=len(rig.data.bones),vertices=len(arms.data.vertices),triangles=sum(len(p.vertices)-2 for p in arms.data.polygons),sockets=['Grip.R','Grip.L','SpearGrip.R','SpearGrip.L'],authoring='Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.',source_sha256=hashlib.sha256((OUT/'source/Arms.fbx').read_bytes()).hexdigest())
+manifest=dict(version=2,fps=FPS,clips=CLIPS,bones=len(rig.data.bones),vertices=len(arms.data.vertices),triangles=sum(len(p.vertices)-2 for p in arms.data.polygons),sockets=['Grip.R','Grip.L','SpearGrip.R','SpearGrip.L','Nock.R'],authoring='Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.',source_sha256=hashlib.sha256((OUT/'source/Arms.fbx').read_bytes()).hexdigest(),generator_sha256=GENERATOR_SHA,fbx_sha256=hashlib.sha256((OUT/'Arms.fbx').read_bytes()).hexdigest(),grip_sha256=hashlib.sha256((OUT/'spear-grip.json').read_text().replace('\r\n','\n').encode('utf-8')).hexdigest(),base_sha256=hashlib.sha256((OUT/'FirstPersonBase.blend').read_bytes()).hexdigest())
 (OUT/'clips.json').write_text(json.dumps(manifest,indent=2)+'\n')
 (EVIDENCE/'authored-pose-diagnostics.json').write_text(json.dumps(arm_stats,indent=2))
 print('NATIVE FIRST-PERSON RIG EXPORTED',manifest,flush=True)

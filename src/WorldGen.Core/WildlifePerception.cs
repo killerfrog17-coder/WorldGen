@@ -63,9 +63,9 @@ namespace WorldGen.Core
     public static class WildlifePerception
     {
         static double Unit(double x)=>Math.Max(0,Math.Min(1,x));
-        public static double Vision(WildlifeSenses p,double distance,double facingDot,double speed,double posture,double cover,double light,bool clear,bool feeding=false)
+        public static double Vision(WildlifeSenses p,double distance,double facingDot,double speed,double posture,double cover,double light,bool clear,bool feeding=false,bool sleeping=false)
         {
-            if(!clear||distance>p.VisionM||facingDot<Math.Cos(p.FieldDegrees*Math.PI/360))return 0;
+            if(sleeping||!clear||distance>p.VisionM||facingDot<Math.Cos(p.FieldDegrees*Math.PI/360))return 0;
             double motion=Unit(speed/2.5),detail=p.StaticDetail+(1-p.StaticDetail)*motion;
             double illumination=p.NightVision+(1-p.NightVision)*Unit(light);
             double near=Unit((12-distance)/10);

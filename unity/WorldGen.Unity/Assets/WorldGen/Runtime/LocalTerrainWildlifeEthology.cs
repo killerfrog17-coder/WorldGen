@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
@@ -23,7 +24,7 @@ public sealed partial class LocalTerrainExplorer
         double facing=(Math.Sin(observer.Heading*Math.PI/180)*dx+Math.Cos(observer.Heading*Math.PI/180)*dz)/Math.Max(.01,horizontal);
         double dy=AnimalEye(target)-AnimalEye(observer),range=Math.Sqrt(horizontal*horizontal+dy*dy);
         double light=(SkyFrame?.Daylight??1)*(1-CurrentWeather.CloudCover*.55)*(1-wildlifeVisualCover*.6);
-        double evidence=WildlifePerception.Vision(observer.Senses,range,facing,target.Speed,1,AnimalCover(target),light,true,observer.BehaviourAction=="eat"||observer.BehaviourAction=="sleep");
+        double evidence=WildlifePerception.Vision(observer.Senses,range,facing,target.Speed,1,AnimalCover(target),light,true,observer.BehaviourAction=="eat",observer.BehaviourAction=="sleep"&&observer.Life<observer.ActionUntil);
         return evidence>.035&&AnimalSight(observer,target)?evidence:0;
     }
 
@@ -75,7 +76,10 @@ public sealed partial class LocalTerrainExplorer
             animal.TargetSpeed=0;animal.BehaviourAction="watch";animal.ActionUntil=0;
             animal.TargetHeading=(float)(Math.Atan2(animal.Awareness.LastX-animal.X,animal.Awareness.LastZ-animal.Z)*180/Math.PI);AnimalRole(animal,"idle");return true;
         }
-        bool danger=profile.Defensive&&distance<profile.DefendM||profile.Predator&&wounded&&distance<4;
+        TerrainMapViewport.Degrees(animal.Planet,out double latitude,out _);
+        bool male=wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var social)&&social.Sex>=0?social.Sex==1:(animal.Spawn.Hash&1)!=0;
+        bool rut=male&&WildlifeBehaviour.Rut(profile,skyYear,latitude);
+        bool danger=WildlifeBehaviour.Defend(profile,distance,wounded,animal.CorneredUntil>animal.Life,rut)||profile.Predator&&wounded&&distance<4;
         if(!danger)return false;
         if(!WildlifeSight(animal,motion.X,motion.Z))return false;
         if(!wounded&&animal.DefendWarnUntil==0)
@@ -121,5 +125,24 @@ public sealed partial class LocalTerrainExplorer
             animal.NextDecision=animal.Life+2;
         }
         else if(animal.Life>=animal.NextDecision)DecideAnimal(animal);
+    }
+    void ApproachCarrion(Animal animal,Animal carcass)
+    {
+        double angle=animal.Spawn.Hash%628/100d,margin=carcass.Spawn.Profile.lengthM*.25+animal.Spawn.Profile.lengthM*.18;
+        double x=carcass.X+Math.Sin(angle)*margin,z=carcass.Z+Math.Cos(angle)*margin;
+        double gap=Math.Sqrt(Math.Pow(x-animal.X,2)+Math.Pow(z-animal.Z,2));
+        if(animal.Spawn.Profile.medium=="air")
+        {
+            animal.Perched=animal.PerchSelected=false;animal.AirTargetHeight=gap>8?Math.Min(6,gap*.15):.08;
+        }
+        if(gap>Math.Max(.3,animal.Spawn.Profile.lengthM*.2)||animal.Spawn.Profile.medium=="air"&&animal.AirHeight>.4)
+        {SetAnimalTravel(animal,x,z,false);if(animal.Spawn.Profile.medium=="air"&&gap<5)animal.TargetSpeed=Math.Min(animal.TargetSpeed,(float)Math.Max(.1,gap*.8));animal.BehaviourAction="scavenge";return;}
+        animal.HuntTargetId=0;animal.HuntMemoryUntil=0;
+        if(animal.Spawn.Profile.medium=="air")
+        {
+            animal.Perched=animal.PerchSelected=true;animal.PerchPosition=animal.Planet;animal.PerchHeight=.03;animal.PerchUntil=animal.Life+25;animal.AirTargetHeight=.03;
+        }
+        animal.TargetHeading=(float)(Math.Atan2(carcass.X-animal.X,carcass.Z-animal.Z)*180/Math.PI);
+        AnimalActivity(animal,"eat",18+animal.Random.Unit()*12);
     }
 }

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "fps": 60,
   "clips": [
     {
@@ -46,16 +46,30 @@
     },
     {
       "name": "ToolCutA",
-      "duration": 0.6666666666666666,
+      "duration": 0.6333333333333333,
       "loop": false,
-      "contact": 0.38,
+      "contact": 0.4,
       "release": -1
     },
     {
       "name": "ToolCutB",
-      "duration": 0.6666666666666666,
+      "duration": 0.6,
       "loop": false,
-      "contact": 0.38,
+      "contact": 0.36,
+      "release": -1
+    },
+    {
+      "name": "ToolBlunt",
+      "duration": 0.75,
+      "loop": false,
+      "contact": 0.42,
+      "release": -1
+    },
+    {
+      "name": "ToolChop",
+      "duration": 0.85,
+      "loop": false,
+      "contact": 0.4,
       "release": -1
     },
     {
@@ -228,16 +242,30 @@
     },
     {
       "name": "ToolCutA_Left",
-      "duration": 0.6666666666666666,
+      "duration": 0.6333333333333333,
       "loop": false,
-      "contact": 0.38,
+      "contact": 0.4,
       "release": -1
     },
     {
       "name": "ToolCutB_Left",
-      "duration": 0.6666666666666666,
+      "duration": 0.6,
       "loop": false,
-      "contact": 0.38,
+      "contact": 0.36,
+      "release": -1
+    },
+    {
+      "name": "ToolBlunt_Left",
+      "duration": 0.75,
+      "loop": false,
+      "contact": 0.42,
+      "release": -1
+    },
+    {
+      "name": "ToolChop_Left",
+      "duration": 0.85,
+      "loop": false,
+      "contact": 0.4,
       "release": -1
     },
     {
@@ -339,8 +367,13 @@
     "Grip.R",
     "Grip.L",
     "SpearGrip.R",
-    "SpearGrip.L"
+    "SpearGrip.L",
+    "Nock.R"
   ],
   "authoring": "Native CC0 first-person skin/rig; camera-authored FK clips. No runtime arm IK.",
-  "source_sha256": "8f1afd249569249a3420ee4e9f8b48611893ce7987e5a644a634593700452f93"
+  "source_sha256": "8f1afd249569249a3420ee4e9f8b48611893ce7987e5a644a634593700452f93",
+  "generator_sha256": "6082f245bcb60f1852ffdff1a7db554f40a85bc960ff0531aa03b638e680d942",
+  "fbx_sha256": "9121854a37b93cb9d9d36e3f89e5846904abc5fc20047e6575510fc735c67a30",
+  "grip_sha256": "928afa451323cb779e4688ae6170a6885422bc589513aae398915c35830488fd",
+  "base_sha256": "4f55a0cabbbfd80692dd4fcf7be7f19e1056db5e875410340652a0c3ebe16655"
 }

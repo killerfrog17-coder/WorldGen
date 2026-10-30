@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
         public ExertionState Exertion=new ExertionState();public ExertionProfile EffortProfile;public WildlifeSenses Senses;public WildlifeAwarenessState Awareness=new WildlifeAwarenessState();
         public double LastPerception,ActionUntil,NextScan,AlertVoiceAt;public string BehaviourAction="";public Vector3 LastMove;public bool SeekingCover;
-        public WildlifeBehaviourProfile Behaviour;public double CoverAt,VisualCover,DefendWarnUntil,HuntMemoryUntil,HuntX,HuntZ;public ulong HuntTargetId;public float AirPitch;
+        public WildlifeBehaviourProfile Behaviour;public double CoverAt,VisualCover,DefendWarnUntil,CorneredUntil,HuntMemoryUntil,HuntX,HuntZ;public ulong HuntTargetId;public float AirPitch;
     }
     FaunaPrototypePlanner animalPlanner;
     Task<List<FaunaPrototypeSpawn>> animalPlan;LocalTerrainFrame animalPlanFrame,animalFrame;
@@ -82,10 +82,19 @@ public sealed partial class LocalTerrainExplorer
         double now=Time.realtimeSinceStartupAsDouble;
         if(!ReferenceEquals(animalFrame,frame))
         {
-            animalFrame=frame;nextAnimalPlan=0;
+            var previousFrame=animalFrame;animalFrame=frame;nextAnimalPlan=0;nextWildlifeIndex=0;
             foreach(var pair in animals.ToArray())
             {
                 var animal=pair.Value;
+                if(previousFrame!=null)
+                {
+                    var cue=previousFrame.Position(animal.Awareness.LastX,animal.Awareness.LastZ);
+                    TerrainHandoff.Coordinates(frame,cue,out animal.Awareness.LastX,out animal.Awareness.LastZ);
+                    var threat=previousFrame.Position(animal.ThreatX,animal.ThreatZ);
+                    TerrainHandoff.Coordinates(frame,threat,out animal.ThreatX,out animal.ThreatZ);
+                    if(animal.HuntMemoryUntil>animal.Life)
+                    {var prey=previousFrame.Position(animal.HuntX,animal.HuntZ);TerrainHandoff.Coordinates(frame,prey,out animal.HuntX,out animal.HuntZ);}
+                }
                 if((animal.Planet-Position).Length*frame.RadiusM>1000){RemoveAnimal(pair.Key);continue;}
                 TerrainHandoff.Coordinates(frame,animal.Planet,out animal.X,out animal.Z);
                 TerrainHandoff.Coordinates(frame,animal.Spawn.Position,out animal.HomeX,out animal.HomeZ);
@@ -259,7 +268,8 @@ public sealed partial class LocalTerrainExplorer
         if(animal.Behaviour.HasNaturalHistory)wanted*=(float)WildlifeNaturalHistory.ThermalMobility(animal.Behaviour.NaturalHistory,CurrentWeather.TemperatureC,profile.medium=="water");
         if(!profile.tiny&&animal.EffortProfile!=null&&dt>0)
         {
-            double demand=animal.Perched?0:profile.medium=="air"?animal.Clip.role=="glide"?.08:animal.Awareness.Mode==WildlifeAwareness.Fleeing?.95:.48:Math.Pow(Math.Min(1,wanted/Math.Max(.1,profile.runMps)),1.3);
+            double airBurst=Math.Max(0,Math.Min(1,(wanted-profile.walkMps)/Math.Max(.1,profile.runMps-profile.walkMps)));
+            double demand=animal.Perched?0:profile.medium=="air"?animal.Clip.role=="glide"?.08:.48+.47*airBurst:Math.Pow(Math.Min(1,wanted/Math.Max(.1,profile.runMps)),1.3);
             ExertionRules.Advance(animal.Exertion,animal.EffortProfile,dt,demand,CurrentWeather.TemperatureC);
             wanted=Math.Min(wanted,(float)(profile.runMps*animal.Exertion.PowerScale));
         }
@@ -276,10 +286,10 @@ public sealed partial class LocalTerrainExplorer
         V point=frame.Position(x,z);double water=double.IsNaN(animal.Spawn.WaterM)?double.NaN:frame.SurfaceY(point,animal.Spawn.WaterM);
         bool blocked=profile.medium=="ground"&&(Math.Abs(floor-currentFloor)>Math.Max(.12,Math.Sqrt(dx*dx+dz*dz)*1.2)||!double.IsNaN(water)&&floor<water-.04)
             ||profile.medium=="water"&&(double.IsNaN(water)||floor>water-Math.Max(.2,profile.lengthM*animal.Model.Asset.Height*.6));
-        if(blocked){animal.TargetHeading+=140;animal.TargetSpeed=0;animal.NextDecision=Math.Min(animal.NextDecision,animal.Life+.7);x=animal.X;z=animal.Z;point=animal.Planet;floor=currentFloor;}
+        if(blocked){if(animal.Awareness.Mode==WildlifeAwareness.Fleeing)animal.CorneredUntil=animal.Life+2;animal.TargetHeading+=140;animal.TargetSpeed=0;animal.NextDecision=Math.Min(animal.NextDecision,animal.Life+.7);x=animal.X;z=animal.Z;point=animal.Planet;floor=currentFloor;}
         animal.X=x;animal.Z=z;animal.Planet=point;animal.GroundY=floor;
         if(profile.medium=="air")
-        {animal.AirHeight=Mathf.MoveTowards((float)animal.AirHeight,(float)animal.AirTargetHeight,dt*Math.Max(1,(float)profile.walkMps));vertical=floor+animal.AirHeight+(animal.PerchSelected?0:Math.Sin(animal.Life*(profile.tiny?1.8:.45)+animal.Spawn.Hash%31)*(profile.tiny?.15:.65));}
+        {animal.AirHeight=Mathf.MoveTowards((float)animal.AirHeight,(float)animal.AirTargetHeight,dt*Math.Max(1,(float)profile.walkMps));double bob=Math.Min(profile.tiny?.15:.65,Math.Max(0,animal.AirHeight)*(profile.tiny?.3:.12));vertical=floor+animal.AirHeight+(animal.PerchSelected?0:Math.Sin(animal.Life*(profile.tiny?1.8:.45)+animal.Spawn.Hash%31)*bob);}
         else if(profile.medium=="water")vertical=Math.Max(floor+.1,water+animal.Spawn.HeightM-profile.lengthM*animal.Model.Asset.Height*.5);
         else vertical=floor;
         var position=new Vector3((float)(x-originX),(float)vertical,(float)(z-originZ));

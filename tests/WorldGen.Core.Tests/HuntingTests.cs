@@ -20,6 +20,7 @@ static class HuntingTests
         var flap=new ExertionState();var glide=new ExertionState();var bird=ExertionProfile.Animal("eagle",4,"air");ExertionRules.Advance(flap,bird,300,.95);ExertionRules.Advance(glide,bird,300,.08);Check(glide.Burst>flap.Burst&&glide.Fatigue<flap.Fatigue,"Flapping escape and gliding have distinct costs");
         var s=WildlifeSenses.Describe("red-kangaroo",50,false,false,false);
         double moving=WildlifePerception.Vision(s,25,1,3,1,0,1,true),still=WildlifePerception.Vision(s,25,1,0,1,0,1,true);
+        Check(WildlifePerception.Vision(s,2,1,3,1,0,1,true,false,true)==0&&WildlifePerception.Hearing(s,2,1,0,0)>0,"Sleeping animals can be disturbed by sound without seeing through closed eyes");
         Check(moving>still*3,"Movement is substantially more conspicuous than a stationary form");
         double hidden=WildlifePerception.Vision(s,25,1,.5,.55,.8,.2,true);Check(hidden<still,"Crouching, cover and darkness compound concealment");
         Check(WildlifePerception.Vision(s,10,1,3,1,0,1,false)==0,"Hard line-of-sight obstruction blocks vision");
@@ -52,6 +53,8 @@ static class HuntingTests
         Check(!kangaroo.SeasonalRut&&!WildlifeBehaviour.Rut(kangaroo,.8,-35),"Kangaroo mobs do not inherit northern ungulate autumn rut");
         var bison=WildlifeBehaviour.Describe("bison",700,Food.Grass);Check(WildlifeBehaviour.Rut(bison,.6,45)&&!WildlifeBehaviour.Rut(bison,.85,45)&&WildlifeBehaviour.Rut(bison,.1,-45),"Bison rut in local summer rather than inheriting the deer autumn window");
         var snowy=WildlifeBehaviour.Describe("snowy-owl",2,Food.Vertebrate,true);
+        var vulture=WildlifeBehaviour.Describe("vulture",6,Food.Vertebrate,true);Check(vulture.CanScavenge&&!vulture.CanHunt&&!vulture.ThreatensPrey,"A carrion specialist seeks carcasses without automatically hunting live nearby animals");
+        Check(WildlifeBehaviour.Describe("goose",4,Food.Grass,true).VFormation&&!WildlifeBehaviour.Describe("tern",.2,Food.Fish,true).VFormation,"Migration does not force terns and other small flocking birds into a goose V");
         Check(!WildlifeBehaviour.IsNocturnal("snowy-owl")&&WildlifeBehaviour.Activity(snowy,12,false,0,0,1)>.3,"Snowy owls retain daytime hunting activity");
         var wolf=WildlifeNaturalHistory.Native("wolf","");
         Check(!WildlifeNaturalHistory.HuntPerson(wolf,.7,1,true,false)&&!WildlifeNaturalHistory.HuntPerson(wolf,1,.9,true,false),"Ordinary hungry wolves do not automatically hunt people because they have a pack");

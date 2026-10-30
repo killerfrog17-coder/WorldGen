@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
             if(saved.ThreatPosition.Length>.9)TerrainHandoff.Coordinates(frame,saved.ThreatPosition,out animal.Awareness.LastX,out animal.Awareness.LastZ);
             double away=Math.Max(0,Math.Min(3600,(PlayerRules.SolarDays-saved.LastSeenDays)*PlayerRules.Settings.RealMinutesPerDay*60));
             ExertionRules.Advance(animal.Exertion,animal.EffortProfile,away,animal.Awareness.MemorySeconds>0?.25:0,CurrentWeather.TemperatureC);
-            animal.Awareness.MemorySeconds=Math.Max(0,animal.Awareness.MemorySeconds-away);animal.Awareness.Suspicion=Math.Max(0,animal.Awareness.Suspicion-away/150);
+            animal.Awareness.MemorySeconds=Math.Max(0,animal.Awareness.MemorySeconds-away);animal.Awareness.LastCueSeconds+=away;animal.Awareness.Suspicion=Math.Max(0,animal.Awareness.Suspicion-away/150);
             animal.HuntTargetId=saved.HuntTargetId;animal.HuntMemoryUntil=animal.Life+Math.Max(0,saved.HuntMemorySeconds-away);
             if(saved.HuntLastPosition.Length>.9)TerrainHandoff.Coordinates(frame,saved.HuntLastPosition,out animal.HuntX,out animal.HuntZ);
         }

@@ -65,18 +65,32 @@ public sealed partial class LocalTerrainExplorer
         if(animal.BehaviourAction=="attack"&&animal.Life<animal.ActionUntil){animal.TargetSpeed=0;return;}
         wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group);
         bool hungry=group==null?animal.Life%180>100:group.Hunger>(behaviour.Predator?.35:.8);
-        Animal threat=null,prey=null;double threatDistance=double.MaxValue,preyDistance=double.MaxValue;int considered=0;
+        Animal threat=null,prey=null,secondPrey=null,carrion=null;double threatDistance=double.MaxValue,preyDistance=double.MaxValue,secondPreyDistance=double.MaxValue,carrionDistance=double.MaxValue;int considered=0;
         Taxon taxon=animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[animal.Spawn.Taxon]:null;
         foreach(var other in NearbyAnimals(animal))
         {
-            if(other.Dead)continue;if(++considered>24)break;
+            if(++considered>24)break;
             double gap=Math.Sqrt(Math.Pow(other.X-animal.X,2)+Math.Pow(other.Z-animal.Z,2));
+            if(other.Dead)
+            {
+                if(behaviour.CanScavenge&&(group?.Hunger??.5)>.25&&other.MassKg>animal.MassKg*.03&&gap<carrionDistance&&ReachablePrey(animal,other))
+                {carrion=other;carrionDistance=gap;}
+                continue;
+            }
             if(behaviour.SocialAlarm)ShareAnimalAlarm(animal,other,gap);
             var ob=other.Behaviour;
             if(ob.ThreatensPrey&&other.Spawn.Profile.slug!=profile.slug&&other.MassKg>animal.MassKg*.3&&ReachablePrey(other,animal)&&gap<threatDistance){threat=other;threatDistance=gap;}
-            if(behaviour.CanHunt&&hungry&&other.Spawn.Profile.slug!=profile.slug&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??0,taxon?.MaxPreyKg??0,other.MassKg)&&ReachablePrey(animal,other)&&gap<preyDistance)
-            {if(AnimalVision(animal,other,gap)>.12){prey=other;preyDistance=gap;}}
+            if(behaviour.CanHunt&&hungry&&other.Spawn.Profile.slug!=profile.slug&&gap<secondPreyDistance&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??0,taxon?.MaxPreyKg??0,other.MassKg)&&ReachablePrey(animal,other))
+            {
+                if(gap<preyDistance){secondPrey=prey;secondPreyDistance=preyDistance;prey=other;preyDistance=gap;}
+                else {secondPrey=other;secondPreyDistance=gap;}
+            }
         }
+        // At most two prey LOS probes per decision, even in a dense mixed herd.
+        // If the closest is concealed, one alternative can still be noticed.
+        if(prey!=null&&AnimalVision(animal,prey,preyDistance)<=.12)
+        {prey=secondPrey;preyDistance=secondPreyDistance;if(prey!=null&&AnimalVision(animal,prey,preyDistance)<=.12)prey=null;}
+        if(carrion!=null&&AnimalVision(animal,carrion,carrionDistance)<=.075)carrion=null;
         if(threat!=null)
         {
             double hearing=WildlifePerception.Hearing(animal.Senses,threatDistance,Math.Min(1.5,threat.Speed/3),0,CurrentWeather.RainMmPerHour);
@@ -100,6 +114,8 @@ public sealed partial class LocalTerrainExplorer
         {
             FleeKnownThreat(animal);return;
         }
+        if(animal.BehaviourAction=="eat"&&animal.Life<animal.ActionUntil){RoutineAnimal(animal,behaviour,group,latitude,dt);return;}
+        if(carrion!=null&&(prey==null||carrionDistance<preyDistance)){ApproachCarrion(animal,carrion);return;}
         if(prey!=null){PursuePrey(animal,prey,preyDistance,behaviour);return;}
         if(hungry&&animal.HuntTargetId!=0&&animal.HuntMemoryUntil>animal.Life)
         {double gap=Math.Sqrt(Math.Pow(animal.HuntX-animal.X,2)+Math.Pow(animal.HuntZ-animal.Z,2));if(gap>2){SetAnimalTravel(animal,animal.HuntX,animal.HuntZ,false);animal.BehaviourAction="search";return;}animal.HuntMemoryUntil=0;}
@@ -167,6 +183,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var obstacle=TraceCombatObstacle(new Ray(origin+side*offset,direction),reach);if(obstacle==null)continue;
             var normal=transform.InverseTransformDirection(obstacle.Normal);float angle=Mathf.Atan2(normal.x,normal.z)*Mathf.Rad2Deg,turn=(animal.Spawn.Hash&1)==0?80:-80;
+            if(animal.Awareness.Mode==WildlifeAwareness.Fleeing)animal.CorneredUntil=animal.Life+1;
             animal.TargetHeading=angle+turn;animal.TargetSpeed=Math.Min(animal.TargetSpeed,Math.Max(.1f,(float)animal.Spawn.Profile.walkMps*.35f));break;
         }
     }

@@ -228,6 +228,7 @@ namespace WorldGen.Core
             if(slug=="deer"&&name.Contains("muntjac")){p.Social=WildlifeSocial.Solitary;p.GroupMin=1;p.GroupMax=2;p.SeasonalRut=false;}
             if(slug=="deer"&&name.Contains("chital")){p.Diel=WildlifeDiel.Cathemeral;p.GroupMin=5;p.GroupMax=14;p.SeasonalRut=false;}
             if(slug=="deer"&&name.Contains("sambar")){p.Diel=WildlifeDiel.Crepuscular;p.Social=WildlifeSocial.Loose;p.GroupMin=1;p.GroupMax=4;p.SeasonalRut=false;}
+            if(slug=="deer"&&(name.Contains("elk")||name.Contains("wapiti")||name.Contains("red deer")))p.DefendM=3.5;
             if(slug=="bear"&&name.Contains("black")){p.Diel=WildlifeDiel.Crepuscular;p.DefendM=4;}
             return p;
         }

@@ -28,9 +28,11 @@ namespace WorldGen.Core
                 case PossessionKind.HaftedKnife:return P(ItemPrimaryUse.Edge,ItemSecondaryUse.Block,.85,20,.85,.52,3,.35);
                 case PossessionKind.StoneChopper:case PossessionKind.Handaxe:return P(ItemPrimaryUse.Edge,ItemSecondaryUse.Block,.82,40,.45,.8,5,.48);
                 case PossessionKind.StoneAxe:case PossessionKind.StoneAdze:return P(ItemPrimaryUse.Edge,ItemSecondaryUse.Block,1.1,65,.55,.95,6,.55);
-                case PossessionKind.WoodenSpear:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(1.1,item.HeightM*.78),55,.6,.85,5,.55);
-                case PossessionKind.StoneTippedSpear:case PossessionKind.BoneTippedSpear:case PossessionKind.Harpoon:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(1.1,item.HeightM*.78),65,.95,.85,5,.55);
-                case PossessionKind.LooseStoneSpear:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(1.1,item.HeightM*.78),35,.5,1,5,.25);
+                // The grip is 35% from the butt: 65% projects forward, plus
+                // approximately forty centimetres of supported arm extension.
+                case PossessionKind.WoodenSpear:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(1.1,item.HeightM*.65+.4),55,.6,.85,5,.55);
+                case PossessionKind.StoneTippedSpear:case PossessionKind.BoneTippedSpear:case PossessionKind.Harpoon:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(1.1,item.HeightM*.65+.4),65,.95,.85,5,.55);
+                case PossessionKind.LooseStoneSpear:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(1.1,item.HeightM*.65+.4),35,.5,1,5,.25);
                 case PossessionKind.Branch:case PossessionKind.TrimmedPole:case PossessionKind.NotchedShaft:case PossessionKind.DartShaft:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,Math.Max(.8,Math.Min(1.7,item.HeightM*.75)),25,0,.85,4,.45);
                 case PossessionKind.DiggingStick:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Dig,Math.Max(.8,item.HeightM*.8),25,.25,.8,4,.4);
                 case PossessionKind.Bone:case PossessionKind.Antler:case PossessionKind.AntlerRetoucher:case PossessionKind.WoodHandle:case PossessionKind.BowStave:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,.75,16,0,.7,3,.3);

@@ -185,7 +185,7 @@ public sealed partial class LocalTerrainExplorer
     {
         TerrainHandoff.Coordinates(frame,group.Position,out double x,out double z);var behaviour=AnimalBehaviour(spawn.Profile,spawn.Taxon);
         double index=spawn.GroupIndex,side=spawn.GroupIndex%2==0?1:-1,a=group.Heading*Math.PI/180;
-        if(behaviour.Migratory&&group.Intent==WildlifeIntent.Migrate){double rank=Math.Ceiling(index/2);return frame.Position(x+Math.Cos(a)*side*rank*2.5-Math.Sin(a)*rank*2,z-Math.Sin(a)*side*rank*2.5-Math.Cos(a)*rank*2);}
+        if(behaviour.VFormation&&group.Intent==WildlifeIntent.Migrate){double rank=Math.Ceiling(index/2);return frame.Position(x+Math.Cos(a)*side*rank*2.5-Math.Sin(a)*rank*2,z-Math.Sin(a)*side*rank*2.5-Math.Cos(a)*rank*2);}
         double angle=index*2.399963+group.Id%41,spread=Math.Sqrt(index)*Math.Max(1.5,spawn.Profile.lengthM*1.4);return frame.Position(x+Math.Sin(angle)*spread,z+Math.Cos(angle)*spread);
     }
     void PlaceTrackedAnimal(Animal animal)

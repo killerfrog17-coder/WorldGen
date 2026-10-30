@@ -51,7 +51,7 @@ public sealed partial class LocalTerrainExplorer
         {
             double posture=PlayerCrouching?.55:1,cover=huntingCover;
             // Concealment is physical vegetation, not a graphics-quality switch.
-            double potential=WildlifePerception.Vision(senses,range,facing,huntingSpeed,posture,cover,huntingLight,true,animal.BehaviourAction=="eat"||animal.BehaviourAction=="sleep");
+            double potential=WildlifePerception.Vision(senses,range,facing,huntingSpeed,posture,cover,huntingLight,true,animal.BehaviourAction=="eat",animal.BehaviourAction=="sleep"&&animal.Life<animal.ActionUntil);
             if(potential>.035&&WildlifeSight(animal,motion.X,motion.Z,motion.Y+humanEyeOffset))visual=potential;
             double footstep=huntingSpeed<.08?0:Math.Min(1.8,Math.Pow(huntingSpeed/3,1.3))*(PlayerCrouching?.25:1);
             double wind=Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps);
@@ -81,7 +81,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool ShareAnimalAlarm(Animal animal,Animal neighbour,double distance)
     {
-        if(neighbour.Awareness.Mode!=WildlifeAwareness.Fleeing||neighbour.Awareness.LastCueSeconds>10||distance>28)return false;
+        if(animal.Awareness.Suspicion>=.78||neighbour.Awareness.Mode!=WildlifeAwareness.Fleeing||neighbour.Awareness.LastCueSeconds>10||distance>28)return false;
         bool related=neighbour.Spawn.GroupId!=0&&neighbour.Spawn.GroupId==animal.Spawn.GroupId||neighbour.Spawn.Profile.slug==animal.Spawn.Profile.slug;
         if(!related&&(!AnimalBehaviour(animal.Spawn.Profile,animal.Spawn.Taxon).Herd||!AnimalBehaviour(neighbour.Spawn.Profile,neighbour.Spawn.Taxon).Herd))return false;
         if(!AnimalSight(animal,neighbour)&&distance>12)return false;
@@ -127,7 +127,7 @@ public sealed partial class LocalTerrainExplorer
         {
             animal.TargetHeading=(float)(Math.Atan2(animal.Awareness.LastX-animal.X,animal.Awareness.LastZ-animal.Z)*180/Math.PI);animal.BehaviourAction="watch";animal.ActionUntil=0;
             if(p.medium=="air"&&!animal.Perched&&p.slug!="hummingbird"){animal.TargetSpeed=(float)p.walkMps;AnimalRole(animal,"fly");}
-            else {animal.TargetSpeed=0;AnimalRole(animal,"idle");}return;
+            else {animal.TargetSpeed=0;AnimalRole(animal,AvailableAnimalRole(animal,"alert","idle"));}return;
         }
         if(animal.Life<animal.ActionUntil){animal.TargetSpeed=0;if(group!=null&&animal.BehaviourAction=="eat")group.Hunger=Math.Max(0,group.Hunger-elapsed*.006/Math.Max(1,group.Members));return;}
         if(p.medium=="air"&&UpdateBirdBehaviour(animal,b))return;

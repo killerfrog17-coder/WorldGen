@@ -104,6 +104,15 @@ public sealed partial class LocalTerrainExplorer
     {viewGatherAt=Time.unscaledTimeAsDouble;viewGatherTarget=view.transform.InverseTransformPoint(worldPoint);}
     void BeginConsumeGesture(bool drink)
     {viewConsumeAt=Time.unscaledTimeAsDouble;viewConsumeDrink=drink;}
+    bool ViewLaunchCentre(ItemCharge charge,out Vector3 centre)
+    {
+        centre=default;if(!humanCamera.FirstPerson||!viewArmsVisible||viewArms==null)return false;
+        UpdateViewArms();GameObject source=null;
+        if(charge.Throw){if(viewPossessions.TryGetValue(charge.Ammo.Id,out var held))source=held.Root;}
+        else source=viewNockedArrow;
+        if(source==null)return false;
+        centre=source.transform.position+source.transform.up*(float)charge.Ammo.HeightM*.5f;return true;
+    }
     struct ViewPose {public string Clip;public double Time,Key;public ViewPose(string clip,double time,double key=0){Clip=clip;Time=time;Key=key;}}
     ViewPose PoseForHand(Possession item,bool left,double now)
     {
@@ -116,7 +125,7 @@ public sealed partial class LocalTerrainExplorer
             return new ViewPose(role=="BowDraw"?role:Side(role),role=="SlingWhirl"?(now-itemCharge.Started)%viewArms.Duration(role):Math.Min(1,(now-itemCharge.Started)/itemCharge.Duration)*viewArms.Duration(role),itemCharge.Started);
         }
         if(item!=null&&viewItemActions.TryGetValue(item.Id,out var action)&&!action.Release&&now-action.At<action.Duration)
-            return Phase(LongViewSpear(item)?SupportSpear(item)?"SpearThrust2":"SpearThrust1":action.Kind==ItemPrimaryUse.Thrust?"ToolCutB":"ToolCutA",action.At,action.Duration);
+            return Phase(action.Clip??ViewStrikeClip(item),action.At,action.Duration);
         if(combatGuarding&&item?.Kind!=PossessionKind.Bow)return new ViewPose(Side(item==null?"FistsGuard":"ToolGuard"),10);
         if(item?.Kind==PossessionKind.Bow)return new ViewPose("BowReady",Clock("BowReady"));
         if(item?.Kind==PossessionKind.SpearThrower)return new ViewPose(Side("SpearReady1"),Clock("SpearReady1"));
@@ -189,7 +198,8 @@ public sealed partial class LocalTerrainExplorer
                 visual=new ViewPossession{Root=root,Kind=item.Kind,Renderers=root.GetComponentsInChildren<Renderer>()};viewPossessions[item.Id]=visual;
                 foreach(var renderer in visual.Renderers){renderer.enabled=false;renderer.shadowCastingMode=ShadowCastingMode.Off;}
             }
-            bool bow=item.Kind==PossessionKind.Bow;bool longItem=LongViewSpear(item)||item.Kind==PossessionKind.SpearThrower;
+            bool bow=item.Kind==PossessionKind.Bow;bool workWood=item.Place==PossessionPlace.LeftHand&&(ActiveItemCraft!=null||viewArmDiagnosticClip=="WorkCut")&&(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true);
+            bool longItem=LongViewSpear(item)||item.Kind==PossessionKind.SpearThrower||workWood;
             string side=item.Place==PossessionPlace.LeftHand?"L":"R";var socket=viewArms.Bones[(longItem?"SpearGrip.":"Grip.")+(bow?"L":side)];
             visual.Root.transform.rotation=socket.rotation*(bow?Quaternion.Euler(0,90,0):Quaternion.identity);
             float grip=(float)item.HeightM*(bow?.5f:StoneCrafting.Rock(item)?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f);

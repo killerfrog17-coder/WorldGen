@@ -39,7 +39,7 @@ static class ItemUseTests
         Check(inventorySave.ToolResources[0].Bark==2&&inventorySave.ToolResources[0].Work==30,"Actual tree extraction/depletion persists");var inventoryCopy=inventory.Copy();inventoryCopy.ToolResources[0].Bark=0;Check(inventory.ToolResources[0].Bark==2,"Tool-resource ledgers do not alias across copied saves");
         var wolf=WildlifeBehaviour.Describe("wolf",40,Food.Vertebrate);var deer=WildlifeBehaviour.Describe("deer",80,Food.Browse);var moose=WildlifeBehaviour.Describe("moose",450,Food.Browse);var bear=WildlifeBehaviour.Describe("bear",200,Food.Fruit);var goose=WildlifeBehaviour.Describe("goose",4,Food.Grass,true);
         Check(wolf.PackHunter&&wolf.TrackingM>deer.TrackingM&&wolf.GroupMin>1,"Pack predators retain wider regional tracking than ordinary prey");
-        Check(deer.Herd&&!deer.Defensive&&moose.Defensive&&!moose.Herd,"Moose defence/solitary priors differ from ordinary deer herds");
+        Check(deer.Herd&&moose.DefendM>deer.DefendM*2&&moose.Defensive&&!moose.Herd&&!WildlifeBehaviour.Defend(deer,1,false,false,false)&&WildlifeBehaviour.Defend(deer,1,true,false,false),"Ordinary deer favour escape but can retaliate when wounded; solitary moose have a wider defensive boundary");
         Check(WildlifeBehaviour.EdiblePrey(.7,false,.05,.08,.05)&&WildlifeBehaviour.EdiblePrey(.7,false,.05,.08,.08),"Native prey limits include their exact boundary masses");
         Check(!WildlifeBehaviour.EdiblePrey(.7,false,.001,.08,.5),"A small-prey specialist does not inherit a larger body-mass fallback limit");
         Check(!WildlifeBehaviour.EdiblePrey(40,true,1,180,200),"Pack hunting does not silently override a known native upper prey limit");

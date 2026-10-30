@@ -51,6 +51,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CancelItemCharge()
     {
+        Array.Clear(pendingMelee,0,pendingMelee.Length);
         var charge=itemCharge;var released=pendingRanged?.Charge;itemCharge=null;pendingRanged=null;
         if(charge?.Equipment!=null)RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});
         if(released?.Equipment!=null)RestoreWorkHands(new ItemCraftJob{Equipment=released.Equipment});
@@ -78,11 +79,21 @@ public sealed partial class LocalTerrainExplorer
         var charge=pending.Charge;
         if(Inventory.Find(charge.Ammo.Id)!=charge.Ammo||Inventory.AtHand(charge.Left?PossessionPlace.LeftHand:PossessionPlace.RightHand)!=charge.Weapon)
         {CancelItemCharge();return;}
-        pendingRanged=null;
         var ray=PlayerAttackRay();var profile=ItemUseRules.Profile(charge.Weapon);
+        Vector3 origin=ray.origin+ray.direction*.4f;
+        if(ViewLaunchCentre(charge,out var visibleCentre))
+        {
+            var offset=visibleCentre-ray.origin;float distance=offset.magnitude;
+            var guard=distance>.01f?TraceCombatObstacle(new Ray(ray.origin,offset/distance),distance,null,false):null;
+            origin=guard==null?visibleCentre:ray.origin+offset/distance*Mathf.Max(.02f,guard.Distance-.04f);
+        }
+        var wall=TraceCombatObstacle(ray,120);var target=TraceLiving(ray,wall?.Distance??120);
+        Vector3 aim=(target?.Point??wall?.Point??ray.GetPoint(120))-origin;
+        if(aim.sqrMagnitude>.0001f)ray=new Ray(origin,aim.normalized);
         Vector3 direction=Quaternion.Euler((float)(combatRandom.NextDouble()*2-1)*pending.Spread,(float)(combatRandom.NextDouble()*2-1)*pending.Spread,0)*ray.direction;
+        pendingRanged=null;
         if(charge.Equipment!=null)charge.Equipment.PreviousHands.RemoveAll(p=>p.Id==charge.Ammo.Id);
-        LaunchItemProjectile(charge.Ammo,ray.origin+direction*.4f,direction,pending.Speed);
+        LaunchItemProjectile(charge.Ammo,origin,direction,pending.Speed);
         PlayItemEffect(!charge.Throw&&profile.Primary==ItemPrimaryUse.Bow?"bow-release":"weapon-swish",ray.origin,.6f,true);
         if(!charge.Throw){charge.Weapon.UseDamage=Math.Min(1,charge.Weapon.UseDamage+.0008);RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});}
     }

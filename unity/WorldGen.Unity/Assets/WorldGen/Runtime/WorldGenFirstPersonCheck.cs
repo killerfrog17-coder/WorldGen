@@ -25,9 +25,11 @@ public sealed partial class LocalTerrainExplorer
         }
         Possession Hold(PossessionKind kind,PossessionPlace hand=PossessionPlace.RightHand)
         {
+            bool wood=kind==PossessionKind.Branch||kind==PossessionKind.TrimmedPole||kind==PossessionKind.DiggingStick||kind==PossessionKind.WoodenSpear;
             var p=kind==PossessionKind.SmallRock||kind==PossessionKind.LargeRock?
                 new Possession{Id="view-rock-"+Guid.NewGuid().ToString("N"),Kind=kind,Position=Position,WidthM=kind==PossessionKind.LargeRock?.32:.07,HeightM=kind==PossessionKind.LargeRock?.24:.06,DepthM=kind==PossessionKind.LargeRock?.27:.06,MassKg=kind==PossessionKind.LargeRock?8:.15,CellsWide=kind==PossessionKind.LargeRock?4:1,CellsHigh=kind==PossessionKind.LargeRock?3:1,Tint=new V(1,1,1),Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0)}:
-                PortableTechnology.Create(kind,Position);
+                wood?WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=Position,WidthM=1.5,HeightM=.032,Variant=0}):PortableTechnology.Create(kind,Position);
+            if(wood){p.Kind=kind;p.Id="view-wood-"+Guid.NewGuid().ToString("N");p.NaturalId=0;}
             Inventory.Items.Add(p);Check(Inventory.Move(p.Id,hand,"",0,0,false,out _),"Hold "+kind+" in "+hand);return p;
         }
         void FiniteArms(string action)

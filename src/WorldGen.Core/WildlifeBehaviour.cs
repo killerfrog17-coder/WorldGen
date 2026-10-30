@@ -6,8 +6,8 @@ namespace WorldGen.Core
     public enum WildlifeIntent { Rest,Forage,Travel,Hunt,Drink,Flee,Migrate,Shelter,Rut }
     public sealed class WildlifeBehaviourProfile
     {
-        public WildlifeTrackingTier Tier;public bool Predator,PackHunter,Herd,Defensive,Hibernates,Migratory,Perches,Crepuscular;
-        public bool HasNaturalHistory,SmallBudget,CanHunt,SocialAlarm,SeasonalRut,ThreatensPrey;
+        public WildlifeTrackingTier Tier;public bool Predator,PackHunter,Herd,Defensive,Hibernates,Migratory,VFormation,Perches,Crepuscular;
+        public bool HasNaturalHistory,SmallBudget,CanHunt,CanScavenge,SocialAlarm,SeasonalRut,ThreatensPrey;
         public WildlifeNaturalHistoryProfile NaturalHistory;
         public double NoticeM,FlightM,DefendM,TrackingM;public int GroupMin=1,GroupMax=1;
     }
@@ -34,6 +34,7 @@ namespace WorldGen.Core
             {
                 p.Perches=!Has("swift","albatross","frigate","goose","duck","swan","flamingo","pelican","crane","bat","flying-fox");
                 p.Migratory=Has("goose","swan","crane","stork","swallow","tern");
+                p.VFormation=Has("goose","swan","crane","stork");
                 if(p.Migratory){p.GroupMin=4;p.GroupMax=12;p.TrackingM=2000;p.Tier=WildlifeTrackingTier.Resident;}
             }
             p.CanHunt=p.ThreatensPrey=p.Predator;p.SocialAlarm=p.Herd||p.PackHunter;p.SeasonalRut=p.Herd;
@@ -48,7 +49,8 @@ namespace WorldGen.Core
                 bool carnivorous=(eats&(Food.Vertebrate|Food.Fish))!=0;
                 p.Predator=carnivorous&&(n.Hunt==WildlifeHuntStyle.Chase||n.Hunt==WildlifeHuntStyle.Stalk||n.Hunt==WildlifeHuntStyle.Ambush||n.Hunt==WildlifeHuntStyle.Aquatic);
                 p.CanHunt=carnivorous&&n.Hunt!=WildlifeHuntStyle.None&&n.Hunt!=WildlifeHuntStyle.Scavenge;
-                p.ThreatensPrey=carnivorous&&n.Hunt!=WildlifeHuntStyle.None;
+                p.CanScavenge=n.Hunt==WildlifeHuntStyle.Scavenge||carnivorous&&n.Hunt!=WildlifeHuntStyle.None;
+                p.ThreatensPrey=p.CanHunt;
                 if(n.SmallBudget&&slug!="butterflies-and-moths-guild"&&slug!="fireflies-derived-lineage")p.Tier=WildlifeTrackingTier.Fleeting;
                 if(p.PackHunter){p.Tier=WildlifeTrackingTier.Notable;p.TrackingM=Math.Max(p.TrackingM,2400);}
             }
@@ -83,6 +85,8 @@ namespace WorldGen.Core
             double season=(year+(latitude<0?.5:0))%1;
             return season>profile.NaturalHistory.RutStart&&season<profile.NaturalHistory.RutEnd;
         }
+        public static bool Defend(WildlifeBehaviourProfile profile,double distance,bool wounded,bool cornered,bool rut)
+            =>profile.Defensive&&distance<profile.DefendM&&(profile.DefendM>2||wounded||cornered||rut);
         public static double MigrationHeading(double year,double latitude)
         {
             // Follow the change of season, not whether today's season is cold.

@@ -154,7 +154,7 @@ static partial class LocalScatterMeshes
             case PortableForm.Feather:
                 for(int j=0;j<3;j++){float x=(j-1)*.2f;Tube(new Vector3(x,0,0),new Vector3(x,1,0),.012f,bone);for(int i=0;i<8;i++){float y=.2f+i*.08f;Quad(new Vector3(x,y,0),new Vector3(x-.16f,y+.12f,.02f),new Vector3(x,y+.08f,0),new Vector3(x+.16f,y+.12f,.02f),new Color(.74f,.65f,.43f,0));}}break;
             case PortableForm.Blade:case PortableForm.Point:case PortableForm.Chopper:Head(0,1,1,(item.Kind==PossessionKind.BonePoint||item.Kind==PossessionKind.BarbedPoint)?bone:stone,item.Kind==PossessionKind.BarbedPoint);break;
-            case PortableForm.Knife:Tube(Vector3.zero,new Vector3(0,.45f,0),.22f,wood,8);Head(.4f,.6f,.9f,stone);Wrap(.38f,.26f,5);break;
+            case PortableForm.Knife:Tube(Vector3.zero,new Vector3(0,.45f,0),.28f,wood,12);Head(.4f,.6f,.9f,stone);Wrap(.38f,.30f,5);break;
             case PortableForm.Axe:
                 for(int i=0;i<6;i++){float t=i/6f,q=(i+1)/6f;Tube(new Vector3(-.16f*t*t,t*.87f,0),new Vector3(-.16f*q*q,q*.87f,0),.09f,wood,10);}
                 AxeHead(item.Kind==PossessionKind.StoneAdze);Wrap(.73f,.17f,5);break;
@@ -184,7 +184,7 @@ static partial class LocalScatterMeshes
                 for(int i=0;i<9;i++){float t=i/8f;Tube(new Vector3(-.45f,t,Mathf.Sin(t*8)*.12f),new Vector3(.45f,t,Mathf.Sin(t*8)*.12f),.012f,cord);Tube(new Vector3(t-.5f,0,0),new Vector3(t-.5f,1,.1f),.012f,cord);}break;
         }
         var mesh=b.Finish();mesh.name=d.Name;
-        if(d.Form==PortableForm.Spear)
+        if(d.Form==PortableForm.Spear||d.Form==PortableForm.Knife||d.Form==PortableForm.Axe||d.Form==PortableForm.Thrower||d.Form==PortableForm.Arrow)
         {
             // Width describes the broad stone head; depth is its thickness.
             // The wooden shaft still needs a round physical section, rather

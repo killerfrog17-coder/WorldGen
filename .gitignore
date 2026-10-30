@@ -65,3 +65,4 @@ unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans.meta
 unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion/
 unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion.meta
 *.asset-pending
+/assets/first-person/*.blend[0-9]*
