@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+LATEST30Oct10:53CDT ACTIVE minimum through17:09:07Z/12:09CDT. d289836 pushed
+and remotely verified. IL2CPP artifacts/player-first-person-release now v22,
+BuiltUtc15:45:48.9205731Z; proof-continuous718sources/578protected/177skins/
+87banks/18item+24bodyaudio EXACT. New authored continuity audit found v20 BAD
+elbow branch jumps and half-twist wrap flips up to179.8deg/frame. Fixed following
+same elbow branch + unwrapping twist before half distribution. v22 all53clips
+pass export guard35deg/.12m per60Hzframe; worst27.05deg/.083m. Actual v22 FPS
+77PASS/EXIT0 clean, bow back-hand and spear poses inspected. This is necessary
+mechanical evidence, not owner visual approval. Hunting/nature/items/camp suite
+RUNNING session28038; hunting current owned21148,104tile startup. Output
+native-continuous-<check>. Includes new speed/obstacle/contact tests and four24s
+approach trials; inspect new run images. v20 hunting FAILED fixture because
+reviewWildlifeBehaviour disabled; fixed. Avoid long rays now checkGround=false
+because per-step terrain admission exists; no 18cm terrain marching on40m rays.
+Core709huntingPASS. Current gamesource CLEAN except owner3files. Existing root
+shortcut STILL OLD REJECTED hunting-first-person; v18 authored/v19review retained
+frozen. After latest suite passes/real motion review select only better release,
+manifest/docs/git/push, continue substantive work until minimum or owner stop.
+No Unity/native jobs beyond above owned suite. No paid/subagents/cleanup/Mono.
+
 IN-PROGRESS30Oct10:32CDT: ACTIVE until at least17:09:07Z/12:09CDT per owner,
 unless owner stops. Progress request was STATUS ONLY. Latest pushed f37a2c8;
 v19 IL2CPP artifacts/player-first-person-review BuiltUtc15:07:31Z is UNSELECTED,

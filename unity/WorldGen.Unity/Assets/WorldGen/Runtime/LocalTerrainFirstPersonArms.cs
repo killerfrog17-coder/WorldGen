@@ -12,6 +12,8 @@ public sealed partial class LocalTerrainExplorer
     readonly List<SkinnedMeshRenderer> viewArmRenderers=new List<SkinnedMeshRenderer>();
     double viewReleaseAt=-100,viewGatherAt=-100,viewPunchAt=-100,viewConsumeAt=-100;
     double viewPunchDuration=.55;
+    double viewTravelPhase;
+    float viewTravelAmount;
     bool viewReleaseLeft,viewArmsVisible,viewReleaseSpear,viewConsumeDrink;
     ItemPrimaryUse viewReleaseKind;
     Vector3 viewGatherTarget;
@@ -183,7 +185,27 @@ public sealed partial class LocalTerrainExplorer
             var secondary=gatherOff?new ViewPose("Gather_Left",now-viewGatherAt,viewGatherAt):PoseForHand(off,offLeft,now);
             viewArms.Pose(1,secondary.Clip,secondary.Time,secondary.Key,dt,viewArmPoseImmediate);
         }
-        viewArms.Evaluate();UpdateViewPossessions(right,left);UpdateViewNock();
+        viewArms.Evaluate();PoseViewTravel(dt,main);UpdateViewPossessions(right,left);UpdateViewNock();
+    }
+    void PoseViewTravel(float dt,Possession main)
+    {
+        // Move the complete private pose a little with the player's gait.
+        // Hands, the supporting grip and loaded ammunition stay together;
+        // camera motion and the world avatar are unaffected.
+        if(viewArmPoseImmediate||viewArmDiagnosticClip!=null)
+        {viewArms.Root.transform.localPosition=Vector3.zero;viewArms.Root.transform.localRotation=Quaternion.identity;viewTravelAmount=0;return;}
+        float speed=motion.Grounded&&!motion.Swimming&&!motion.Flying?(float)Math.Min(6,huntingSpeed):0;
+        bool busy=itemCharge!=null||pendingRanged!=null||CraftWorking||Time.unscaledTimeAsDouble-viewGatherAt<1.05||Time.unscaledTimeAsDouble-viewConsumeAt<1.2||main!=null&&viewItemActions.TryGetValue(main.Id,out var action)&&Time.unscaledTimeAsDouble-action.At<action.Duration;
+        float amount=Mathf.Clamp01(speed/1.6f)*Mathf.Lerp(.65f,1.45f,speed/6)*(busy?.15f:1);
+        if(dt>0)
+        {
+            viewTravelAmount=Mathf.Lerp(viewTravelAmount,amount,1-Mathf.Exp(-dt*12));
+            float stride=Mathf.Lerp(1.5f,2.5f,Mathf.InverseLerp(1.5f,6,speed));
+            viewTravelPhase=(viewTravelPhase+speed/stride*dt*Math.PI*2)%(Math.PI*2);
+        }
+        float wave=(float)Math.Sin(viewTravelPhase),doubleWave=(float)Math.Cos(viewTravelPhase*2);
+        viewArms.Root.transform.localPosition=new Vector3(wave*.006f,doubleWave*.012f,0)*viewTravelAmount;
+        viewArms.Root.transform.localRotation=Quaternion.Euler(doubleWave*.45f*viewTravelAmount,0,wave*.35f*viewTravelAmount);
     }
     void UpdateViewPossessions(Possession right,Possession left)
     {

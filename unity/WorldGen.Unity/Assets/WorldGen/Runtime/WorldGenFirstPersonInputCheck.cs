@@ -40,6 +40,14 @@ public sealed partial class LocalTerrainExplorer
             Check(pendingRanged!=null&&!cancelled.InFlight,"A hand-thrown item stays held until its authored release frame");
             SetInventoryOpen(true);ResolveRangedRelease(Time.unscaledTimeAsDouble+1);
             Check(pendingRanged==null&&!cancelled.InFlight&&Inventory.AtHand(PossessionPlace.RightHand)==cancelled,"Opening inventory during release cancels the pending throw without losing or firing its item");
+            SetInventoryOpen(false);viewArmPoseImmediate=false;
+            double startX=motion.X,startZ=motion.Z;float travel=0;
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.W));
+            for(int frame=0;frame<90;frame++){yield return null;travel=Mathf.Max(travel,viewArms.Root.transform.localPosition.magnitude);}
+            Check(Math.Sqrt(Math.Pow(motion.X-startX,2)+Math.Pow(motion.Z-startZ,2))>.5&&travel>.001&&travel<.025,"Actual walking carries the held pose with a small bounded gait motion");
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return new WaitForSecondsRealtime(.8f);
+            Check(viewArms.Root.transform.localPosition.magnitude<.001,"The held pose settles smoothly after movement stops");
+            Check(Inventory.AtHand(PossessionPlace.RightHand)==cancelled&&SupportSpear(cancelled),"Travel motion preserves spear ownership and the supporting grip");
         }
         finally
         {

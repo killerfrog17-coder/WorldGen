@@ -78,7 +78,8 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             bool spine=central&&(limbBearing||Mathf.Abs(Point(b.tail).y-Point(b.head).y)<Mathf.Abs(Point(b.tail).z-Point(b.head).z)*.4f);
             var restAxis=Point(b.tail)-Point(b.head);bool leg=!central&&Mathf.Abs(restAxis.y)>Mathf.Abs(restAxis.x)*.6f&&(Point(b.head).y+Point(b.tail).y)*.5f<Point(descriptions[0].head).y+.04f;
             bool tail=central&&headBones.Count>0&&!headChain.Contains(i);
-            Add(i,start,end,radius,Math.Max(.00001,mass),map,descriptions,velocity,spine&&!tail,leg,tail);
+            bool neck=headChain.Contains(i)&&!headBones.Contains(i)&&!spine&&!tail;
+            Add(i,start,end,radius,Math.Max(.00001,mass),map,descriptions,velocity,spine&&!tail,leg,tail,neck);
         }
         if(parts.Count==0)
         {
@@ -108,7 +109,7 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         BuildGround(ground,model.position,Mathf.Max(8,scale*3));Physics.SyncTransforms();
         if(freeze)Freeze();else if(parts.Count>0)parts[0].Body.AddForceAtPosition(model.right*(float)Math.Min(2,mass*.05),parts[0].Body.worldCenterOfMass+Vector3.up*.08f,ForceMode.Impulse);
     }
-    void Add(int bone,Vector3 start,Vector3 end,float radius,double mass,Dictionary<int,int> map,FaunaPhysicsBone[] descriptions,Vector3 velocity,bool spine=false,bool leg=false,bool tail=false)
+    void Add(int bone,Vector3 start,Vector3 end,float radius,double mass,Dictionary<int,int> map,FaunaPhysicsBone[] descriptions,Vector3 velocity,bool spine=false,bool leg=false,bool tail=false,bool neck=false)
     {
         var obj=new GameObject("Corpse bone "+bone);obj.transform.SetParent(physicsRoot.transform,false);obj.transform.position=(start+end)*.5f;
         var axis=(end-start).normalized;var forward=Vector3.ProjectOnPlane(model.forward,axis);if(forward.sqrMagnitude<.001f)forward=Vector3.ProjectOnPlane(model.up,axis);
@@ -124,7 +125,11 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             bool proximal=leg&&descriptions!=null&&Mathf.Abs(Point(descriptions[parent].head).x-centerX)<.025f&&Mathf.Abs(Point(descriptions[parent].tail).x-centerX)<.025f;
             var joint=obj.AddComponent<CharacterJoint>();joint.connectedBody=parts[connected].Body;joint.autoConfigureConnectedAnchor=false;
             joint.anchor=obj.transform.InverseTransformPoint(start);joint.connectedAnchor=joint.connectedBody.transform.InverseTransformPoint(start);joint.axis=Vector3.up;joint.swingAxis=Vector3.right;
-            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail?-6:-12};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail?6:12};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:leg?(proximal?45:85):35};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:leg?10:25};
+            // Several neck joints compound their rotations. Giving each the
+            // full generic 35-degree swing can fold a long neck into its torso
+            // and stretch the original shoulder skin during an otherwise valid
+            // collapse. Keep a freely articulated chain with local limits.
+            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail||neck?-6:-12};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail||neck?6:12};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:neck?18:leg?(proximal?35:70):35};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:neck?12:leg?10:25};
             joint.enableProjection=true;joint.projectionDistance=Mathf.Clamp(Vector3.Distance(start,end)*.02f,.00025f,.005f);joint.projectionAngle=5;
         }
         map[bone]=parts.Count;parts.Add(new Part{Bone=bone,Body=body,InverseStart=(model.worldToLocalMatrix*body.transform.localToWorldMatrix).inverse});
