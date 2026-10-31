@@ -33,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
                         yield return null;
                         var record=ExportNaturalPose(item,"Carry-"+gait.Item1,frame/30f,true);records.Add(record);
                         string name=humanPlayer.Definition.Variant+"-"+kind+"-"+gait.Item1+"-"+frame;
-                        CaptureNaturalImage(output,name+"-front",0);CaptureNaturalImage(output,name+"-side",1);
+                        if(frame==19){CaptureNaturalImage(output,name+"-front",0);CaptureNaturalImage(output,name+"-side",1);}
                     }
                     yield return null;
                 }

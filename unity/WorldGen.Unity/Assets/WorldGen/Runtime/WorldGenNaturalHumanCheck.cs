@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
                         yield return null;
                         var record=ExportNaturalPose(item,sample.Item2,t,variant!=1&&variant!=4||frame%2==0);records.Add(record);
                         int hip=Array.IndexOf(record.BoneNames,"pelvis");if(frame==0)firstPelvis=record.Bones[hip];else pelvisExcursion=Mathf.Max(pelvisExcursion,Mathf.Abs(record.Bones[hip].y-firstPelvis.y));
-                        if((variant==1||variant==4)&&sample.Item2!="SpearReady1")
+                        if((variant==1||variant==4)&&sample.Item2!="SpearReady1"&&frame%2==0)
                         {
                             string name=humanPlayer.Definition.Variant+"-"+sample.Item1+"-"+sample.Item2+"-"+frame.ToString("D2");Image(name+"-front",0);Image(name+"-side",1);
                             if(sample.Item2=="BowDraw"||sample.Item2=="SpearThrust2"||sample.Item2=="ToolCutB")Image(name+"-first",-1);

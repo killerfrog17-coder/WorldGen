@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
     float naturalHandlingDt;
     Vector3 naturalBowHook;bool naturalBowHookValid;
     Vector3 naturalBowUp=Vector3.up;
+    float naturalBowCant;
     Vector3 NaturalBowStringGrip=>naturalBowHookValid?inventoryBones["hand_r"].TransformPoint(naturalBowHook):SharedGripPosition("r");
     void CacheNaturalBowHook()
     {
@@ -246,6 +247,40 @@ public sealed partial class LocalTerrainExplorer
         if(!motion.Swimming)vertical=Mathf.Min(vertical,Mathf.Clamp((grip.y-body.position.y-.04f*NaturalScale)/((float)bow.HeightM*.5f),.15f,1));
         return (Vector3.up*vertical+body.forward*Mathf.Sqrt(1-vertical*vertical)).normalized;
     }
+    Vector3 NaturalAimedBowUp(Possession bow,Vector3 anchor,Vector3 forward,Vector3 up)
+    {
+        float s=NaturalScale,height=(float)bow.HeightM,width=(float)bow.WidthM;
+        float Clearance(Vector3 candidate)
+        {
+            Vector3 origin=anchor-candidate*height*.05f;
+            float reach=WorldGenPropClearance.FurthestReach(origin,forward,inventoryBones["upperarm_l"].position,NaturalReach("l")+.08f*s);
+            Vector3 grip=origin+forward*Mathf.Max(.20f*s,Mathf.Min(reach,.72f*s));
+            Vector3 Point(float t)=>grip+candidate*((t-.5f)*height)-forward*(width*.38f*Mathf.Pow(t*2-1,2));
+            float result=float.PositiveInfinity;Vector3 previous=Point(0);
+            for(int i=1;i<=8;i++)
+            {
+                Vector3 next=Point(i/8f);
+                result=Mathf.Min(result,NaturalBodyClearance(previous,next,.012f*s));
+                result=Mathf.Min(result,Mathf.Min(previous.y,next.y)-humanPlayer.Root.transform.position.y-.025f*s);previous=next;
+            }
+            return result;
+        }
+        float chosen=0,best=Clearance(up);
+        if(best<.012f*s)
+            for(int step=1;step<=6;step++)
+            {
+                // Smallest useful cant, trying both sides, rather than assuming
+                // every body has enough reach for a vertical full-size bow.
+                float angle=((step+1)/2)*20*(step%2==1?1:-1);
+                float score=Clearance(Quaternion.AngleAxis(angle,forward)*up);
+                if(score>best){best=score;chosen=angle;}
+                if(best>=.012f*s)break;
+            }
+        naturalBowCant=Mathf.MoveTowards(naturalBowCant,chosen,naturalHandlingDt*240);
+        Vector3 result=Quaternion.AngleAxis(naturalBowCant,forward)*up;
+        if(Clearance(result)<0){naturalBowCant=chosen;result=Quaternion.AngleAxis(chosen,forward)*up;}
+        return result;
+    }
     void FitNaturalBow(Possession bow)
     {
         var body=humanPlayer.Root.transform;float s=NaturalScale;double now=Time.unscaledTimeAsDouble;
@@ -254,7 +289,7 @@ public sealed partial class LocalTerrainExplorer
         if(itemCharge?.Weapon==bow&&!itemCharge.Throw)progress=Mathf.Clamp01((float)((now-itemCharge.Started)/itemCharge.Duration));
         else if(releasing)progress=1;
         if(viewArmDiagnosticClip=="BowDraw")progress=Mathf.Clamp01((float)(viewArmDiagnosticTime/HumanActionDuration("BowDraw")));
-        if(sharedBowItem!=bow.Id){sharedBowItem=bow.Id;sharedBowDraw=sharedBowRaise=0;naturalBowHookValid=false;}
+        if(sharedBowItem!=bow.Id){sharedBowItem=bow.Id;sharedBowDraw=sharedBowRaise=0;naturalBowHookValid=false;naturalBowCant=0;}
         float raised=releasing?1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.12f,.6f,releaseAge)):Mathf.SmoothStep(0,1,Mathf.Clamp01(progress/.3f));
         float draw=releasing?1-Mathf.SmoothStep(0,1,Mathf.Clamp01(releaseAge/.06f)):Mathf.SmoothStep(0,1,Mathf.InverseLerp(.2f,1,progress));
         sharedBowRaise=Mathf.MoveTowards(sharedBowRaise,raised,naturalHandlingDt/.2f);sharedBowDraw=Mathf.MoveTowards(sharedBowDraw,draw,naturalHandlingDt/.15f);
@@ -275,6 +310,7 @@ public sealed partial class LocalTerrainExplorer
             float clearance=Mathf.Max(.05f,anchor.y-body.position.y-(float)bow.HeightM*.05f-.04f*s);
             float height=(float)bow.HeightM*.5f*Mathf.Abs(up.y);
             if(height>clearance)up=Quaternion.AngleAxis(Mathf.Acos(Mathf.Clamp(clearance/height,.15f,1))*Mathf.Rad2Deg,forward)*up;
+            if(sharedBowRaise>.1f)up=NaturalAimedBowUp(bow,anchor,forward,up);
         }
         Vector3 rayBase=anchor-up*(float)bow.HeightM*.05f;
         float available=WorldGenPropClearance.FurthestReach(rayBase,forward,inventoryBones["upperarm_l"].position,NaturalReach("l")+.08f*s);

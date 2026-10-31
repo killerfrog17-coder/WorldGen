@@ -1,21 +1,22 @@
 # WorldGen repository instructions
 
-ACTIVE31Oct05:51CDT: HUMAN minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
-8766b0d native4 IL2CPP10:42:36Z:257natural/45water PASS/EXIT0; BVH480skin/
-546prop meshes found3 crossings (down from26), so NOT final visual acceptance.
-Heavy carry balance/Drink mouth on all6 now pass; actual coastal armed swimming
-works/free arm moves. Remaining late spear wrist solve oscillated between palm
-offsets. NEW source holds chosen wrist world rotation during position fitting;
-conservative measured thigh bounds. Adds up/down bow/spear native evidence and
-holds each test pose through a normal render before manual captures (old immediate
-screenshots could show stale skin). Needs new checkpoint/freeze/build5 SAME
-unselected D: player-human-natural-review, full native/regression/visual proof.
-Bank70x6 mechanicalE PASS, original1038art/30Legacy/sourceSHA exact in proof4.
-Native5 evidence junction task/native-contact5 -> artifacts/human-natural-native5
-on C: to avoid filling D: (~1.3GB free); no extra player package. No cleanup.
-Selected terrain package/shortcut FROZEN; owner3 untouched. No paid/signup/
-subagents/Mono. No owned Unity/native/generation jobs; BVH audit may be finishing.
-Continue meaningful work through minimum, no early finish or idle padding.
+ACTIVE31Oct06:03CDT: HUMAN minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
+1b95be4 native5 IL2CPP10:55:06Z:275natural/45water PASS/EXIT0. All prior
+neutral/gait spear/large-carry intersections gone. New steep-down aim tests found
+3 lower-bow/leg intersections on short A/C/E in actual534skin/618prop BVH, so not
+final. NEW source chooses smallest useful measured-body/ground-clearance bow
+cant, with smooth return and immediate penetration prevention. Needs checkpoint,
+freeze/build6 SAME unselected D: player-human-natural-review. Source/bank models
+original1038 +30Legacy unchanged. No new motion takes beyond68 raw auditions;
+70x6 current bank. Actual screenshots now held through normal frame (previous
+immediate images could show stale skin); current hand contacts visible. Reduce
+redundant screenshot count only, retaining all actual numeric/surface samples.
+Native6 evidence task/native-contact6 -> C: artifacts/human-natural-native6;
+Native5 evidence also C: as below. Disk tight: C~2GB/D~1.3GB, no new packages or
+cleanup. Selected terrain shortcut/package FROZEN. Owner3 untouched. No paid/
+signup/subagents/Mono; no own native/Unity/generation workers at checkpoint.
+Need final up/down/body/BVH/water + full input/Legacy/items/nature/hunting suites,
+actual visual checks, selection/docs/Git. Continue real work through minimum.
 
 ACTIVE31Oct05:10CDT: HUMAN work minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
 Native2 c2454a1 IL2CPP09:34:21Z FAILED actual-face measurement gate; NOT accepted.
