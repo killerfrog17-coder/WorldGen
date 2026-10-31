@@ -65,5 +65,15 @@
     "player-human-natural-review",
     "player-world-feedback"
   ],
-  "layout_policy_source": "assets/project-layout.json"
+  "layout_policy_source": "assets/project-layout.json",
+  "current_selection": {
+    "recorded_utc": "2026-10-31T23:25:51.808836+00:00",
+    "slot": "builds/slot-b",
+    "player": "builds/slot-b/WorldGen.exe",
+    "gameassembly_sha256": "3d50a5c7b4398cc0935bf561cd5884e0093184c475faef122b33e0f80e0306e4",
+    "verification": "assets/verification/human-appearance-verification.json",
+    "known_issue": "Existing cricket decoding check fails; owner requested actual update after candidate-only delivery.",
+    "previous_running_slot": "builds/slot-a",
+    "preserve_running_packages": true
+  }
 }

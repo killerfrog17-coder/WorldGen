@@ -1,6 +1,6 @@
 {
   "recorded_utc": "2026-10-31T23:07:42.264440+00:00",
-  "status": "implemented in slot-b; appearance, both animation systems, shaders and Items passed; existing combat/audio failure blocks default selection",
+  "status": "selected for the owner-requested update; known combat/audio cricket decode failure remains unresolved",
   "source_checkpoint": "dc2909882a6594ff6c250d33a5a204b0ee3f0a84",
   "runtime_library": "HumanAppearance/Library",
   "fallback_library": "Humans/HumanLibrary",
@@ -123,21 +123,15 @@
     }
   },
   "observed_failure": "InvalidOperationException: WILDLIFE AUDIO Actual mono44.1kHz cricket file decodes through the native audio loader",
-  "selected_slot": "builds/slot-a",
-  "selected_gameassembly_sha256": "5bf6b4bf748bd526193a82e93ffe740b6b42f6b06ddb0d91ae306f178c692fc6",
-  "candidate_selected": false,
-  "owner_small_carry_work_in_build_but_not_committed_here": {
-    "LocalTerrainFirstPersonArms": "c82a70ebe6b3d2f77ed70b81ffe27d6341a997f9475c0e2c88499b22b360dc27",
-    "LocalTerrainNaturalHandling": "e34c45918ef3e740e588e0a4c889595bb223160b63d8a0f0bf5861035a8a94bc",
-    "LocalTerrainSharedHumanActions": "9ac38f4693ef049a05843d781844b3f09ae999a4ef27af3f95d1b318e548941d",
-    "WorldGenSharedHumanMotion": "1ea7862cbb32dab73f6f9689e85ad1869c033dbc989883fb69208cadc6e1ec45"
-  },
+  "selected_slot": "builds/slot-b",
+  "selected_gameassembly_sha256": "3d50a5c7b4398cc0935bf561cd5884e0093184c475faef122b33e0f80e0306e4",
+  "candidate_selected": true,
   "limitations": [
     "Editor55-check fixture logged a constructor error; diagnostic only, not release proof. Native appearance55 checks completed without that error.",
     "Appearance fixture images within each character are same-frame renderer snapshots; actual animated game views were inspected from the separate Kimodo run.",
     "Original Legacy references and complete Kimodo bank retained; existing animation quality is not redesigned by this appearance change.",
-    "Four owner small-carry runtime diffs remain unstaged; do not claim the whole player source is clean on the remote.",
-    "Known combat/audio cricket decode check still fails. Current Items156 checks PASS, so the previously recorded deer cue failure did not recur. No AI changes or assertion weakening."
+    "Known combat/audio cricket decode check still fails. Current Items156 checks PASS, so the previously recorded deer cue failure did not recur. No AI changes or assertion weakening.",
+    "Owner game process7748 in slot-a was left running at activation; it must be exited and relaunched normally to use slot-b. No in-process executable replacement or owner application closure."
   ],
   "reproduction": {
     "export": "Blender background scripts/export-human-appearance.py",
@@ -153,5 +147,45 @@
     "animal_sources": 177,
     "errors": []
   },
-  "passing_checks": 417
+  "passing_checks": 417,
+  "selection_updated_utc": "2026-10-31T23:25:51.808836+00:00",
+  "selection_reason": "Owner explicitly requested updating the actual game after being told the candidate had not been selected; current shortcut now selects that checked build.",
+  "previous_selected_slot": "builds/slot-a",
+  "previous_selected_gameassembly_sha256": "5bf6b4bf748bd526193a82e93ffe740b6b42f6b06ddb0d91ae306f178c692fc6",
+  "runtime_source_checkpoint": "24be3304dddadd2f2a19279347dd30bab284fd5a",
+  "reviewed_small_carry_runtime_hashes": {
+    "LocalTerrainFirstPersonArms": "c82a70ebe6b3d2f77ed70b81ffe27d6341a997f9475c0e2c88499b22b360dc27",
+    "LocalTerrainNaturalHandling": "e34c45918ef3e740e588e0a4c889595bb223160b63d8a0f0bf5861035a8a94bc",
+    "LocalTerrainSharedHumanActions": "9ac38f4693ef049a05843d781844b3f09ae999a4ef27af3f95d1b318e548941d",
+    "WorldGenSharedHumanMotion": "1ea7862cbb32dab73f6f9689e85ad1869c033dbc989883fb69208cadc6e1ec45"
+  },
+  "editor_small_carry": {
+    "passed": true,
+    "checks": 144,
+    "libraries": [
+      "HumanAppearance/Library",
+      "Humans/HumanLibrary"
+    ],
+    "speeds": [
+      0,
+      1.5,
+      3.4
+    ],
+    "hands": [
+      "right",
+      "left"
+    ],
+    "body_rotation_error_degrees": 0,
+    "grip_error_degrees": 0,
+    "weapon_layer_still_applies": true,
+    "checks_sha256": "4e192a368e736c39301c52d91b894970d28194072b46e9fa2d77f7547ed0238e"
+  },
+  "latest_asset_verification": {
+    "files": 5048,
+    "passed": 5048,
+    "missing_or_changed": [],
+    "manifest_sha256": "42bc18135a59156e5d43fbe24a309b2d6c5eb320a7aca25259ffcc91cf92dd2c"
+  },
+  "normal_launcher": "WorldGen.exe - Shortcut.lnk",
+  "launcher_working_directory": "repository root"
 }

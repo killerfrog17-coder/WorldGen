@@ -31,32 +31,42 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-LATEST: owner explicitly approved implementing the revised human appearances
-into the game (supersedes the earlier unaccepted-authoring-only restriction).
-Integration: six appearance skins/textures exported under
+LATEST: owner explicitly requested updating the actual launched game after the
+previous candidate-only delivery. The normal root shortcut NOW selects
+builds/slot-b/WorldGen.exe, native IL2CPP BuiltUtc2026-10-31T22:58:21.8587435Z,
+GameAssembly SHA3d50a5c7b4398cc0935bf561cd5884e0093184c475faef122b33e0f80e0306e4.
+The owner was informed of the existing cricket audio failure and then requested
+actual activation; it remains a known issue, NOT a passing combat/audio suite.
+Six appearance skins/textures exported under
 assets-source/humans/appearance-runtime and rebound onto unchanged production
 rigs in new Resources/HumanAppearance. Stable original character IDs/legacy
 clip references retained; new library preferred with original library fallback.
-No original art/rig/motion overwritten. Slot-a selected remains frozen; only
-slot-b may be reused. Editor images exist, but an Editor-only fixture constructor
+No original art/rig/motion overwritten. Slot-b is selected and must not be
+overwritten. At activation the owner still had slot-a process7748 open: leave
+it untouched and do not rebuild slot-a until it exits. unity-check now protects
+running slots as well as the selected slot. Editor images exist, but a fixture constructor
 warning means its55-check run is diagnostic, NOT clean native release proof.
 Native IL2CPP candidate built22:58:21Z in slot-b: appearance55, Kimodo86,
 Legacy81 and shader39 checks PASS. Actual gameplay movement/item captures
 inspected. Current Items156 checks PASS (prior deer cue failure did not recur).
-Combat/audio STILL FAILS the native cricket decode check; do not select it.
+Combat/audio STILL FAILS the native cricket decode check; do not claim it passed.
+Both revised and original character libraries passed144 Editor carry-mask
+checks: idle/walk/run arms stay unchanged, fingers grip, weapon actions apply.
+Exact four carry runtime hashes match the native selected build. Their reviewed
+carry-only hunks were adopted for the owner's explicit small-item fix request,
+committed as24be330; no runtime source bytes needed changing or rebaking.
 5048/5048 asset hashes verified; all prior4709 paths/hashes preserved. Five new
 asset packs uploaded/download-verified in game-assets-human-appearance-20261031-v1.
-Source checkpointdc290988 pushed. Canonical final candidate evidence is in
-assets/verification/human-appearance-verification.json; appearance417 passing
-native checks including Items, but not a clean complete gameplay release.
-Four prepared small-carry runtime diffs remain untouched/unstaged.
+Source checkpointdc290988 and lock1776c72 pushed. Current selection and known
+limitations are in assets/verification/human-appearance-verification.json:
+417 passing native checks including Items, plus144 Editor carry checks.
 
 Owner deleted `WorldGen_OneShot_Prompt.md`; two untracked old deer scripts
 `scripts/deer-review-controls.py` and `scripts/prepare-deer-review.py` must stay
-untouched/unstaged. Other-thread prepared small-carry changes in these four
-runtime files are not ours to revert or stage wholesale: LocalTerrainFirstPersonArms,
-LocalTerrainNaturalHandling, LocalTerrainSharedHumanActions, WorldGenSharedHumanMotion.
-They preserve gait arms for small carried items and are still uncommitted.
+untouched/unstaged. The previously prepared small-carry patches in
+LocalTerrainFirstPersonArms, LocalTerrainNaturalHandling,
+LocalTerrainSharedHumanActions and WorldGenSharedHumanMotion were reviewed and
+committed as described above for the current request; preserve their behavior.
 Original human art and animation sources remain preserved. The owner has now
 authorized the revised appearance library, using unchanged production rigs.
 Original approved human source SHA is
@@ -66,18 +76,18 @@ Do not close owner applications. No automatic resumption of old Homo/history,
 animal-generation or overnight tasks. The old broad hunting wind/scent suite
 has a known historical failure; do not change AI or hide it to force a pass.
 
-## Completed layout migration; pending gameplay candidate
+## Completed layout migration; historical gameplay candidate
 
 Owner explicitly authorized the complete filing redesign31Oct, including moving
 required inputs out of artifacts. Both existing player aliases moved to builds;
-selected root shortcut NOW `builds/slot-a/WorldGen.exe`, physical D package
+selected root shortcut THEN `builds/slot-a/WorldGen.exe`, physical D package
 unchanged, GameAssembly SHA5bf6b4bf748bd526193a82e93ffe740b6b42f6b06ddb0d91ae306f178c692fc6.
 The same previously tested native human release remains selected. Source fixes
 e004624/runner6dba20c (night lighting, audio attenuation/dawn, melee and bleeding)
 have an IL2CPP candidate in slot-b, BuiltUtc2026-10-31T21:35:47.1776397Z.
 39 native shader/skin-scale/audio-settings checks PASS. Broader Combat/audio
 and Items checks FAILED: cricket decode timeout and deer cue-before-flight
-assertion. Do not claim those suites passed or select the candidate. No AI
+assertion. That older candidate was not selected. Do not claim those suites passed. No AI
 changes were made to force the old perception assertion green. Pending gameplay
 validation is separate from the completed filing redesign.
 
@@ -110,7 +120,8 @@ package copied/read-verified into the installed tools environment (old blocked
 environment preserved). CPU preflight passes without scratch or GPU inference.
 The build preflight now rejects lock/source/build/tool dependencies in scratch,
 including shared physical output-junction targets and Python .pth fallbacks.
-All owned Unity/Blender/native jobs finished. Selected slot-a remains unchanged.
+All migration-owned Unity/Blender/native jobs finished. Slot-a remained unchanged
+at migration completion; current owner-requested selection is recorded above.
 
 Old artifacts cleanup removed17 obsolete player packages and10267 disposable
 captures/geometry dumps. Earlier45GB figure was across drives, not an assertion
