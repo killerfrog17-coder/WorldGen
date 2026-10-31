@@ -74,8 +74,9 @@ sounds/fauna/ai directory with their original locked hashes. No clips lost.
 
 Asset delta game-assets-layout-20261031-v1 published:4 new remote packs uploaded
 and downloaded/hash-verified; existing immutable packs reused. Final current
-lock4709/4709 SHA matches. Source checkpoint86233d9 already pushed; final layout
-proof/lock update needs its closing commit at this note. No tracked artifacts.
+lock4709/4709 SHA matches. Source checkpoint86233d9 and final lock/proof85bd5e6
+PUSHED and remote main verified. No tracked artifacts; owner four runtime diffs
+remain separate/uncommitted, so do not claim the whole workspace remotely clean.
 OLD artifacts was renamed/unavailable for the full IL2CPP build, original deer
 and human scene opens, exact fresh deer mesh/motion export (12skin checks), tool
 CPU imports and final lock checks. Both dependency checks passed;13 offline

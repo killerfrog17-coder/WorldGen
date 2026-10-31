@@ -3,7 +3,7 @@
 Run after relocating the checkout. External AI installations/weights stay in
 their existing locations. Use Scripts/python.exe -m pip, not old pip launchers.
 """
-from pathlib import Path
+import re
 from project_layout import ROOT
 
 env=ROOT/'tools/triposg-review-venv'
@@ -15,6 +15,11 @@ pth.write_text('\n'.join(kept)+'\n',encoding='utf-8')
 for name in ['activate','activate.bat','pyvenv.cfg']:
     path=env/('Scripts/'+name if name!='pyvenv.cfg' else name)
     text=path.read_text(encoding='utf-8')
-    text=text.replace(str(ROOT/'artifacts/tools/triposg-review-venv'),str(env))
+    if name=='activate':
+        text=re.sub(r'(?m)^VIRTUAL_ENV=.*$',lambda _:f'VIRTUAL_ENV="{env}"',text)
+    elif name=='activate.bat':
+        text=re.sub(r'(?m)^set VIRTUAL_ENV=.*$',lambda _:f'set VIRTUAL_ENV={env}',text)
+    else:
+        text=re.sub(r'(?m)^(command = .* -m venv ).*$',lambda m:m[1]+str(env),text)
     path.write_text(text,encoding='utf-8')
 print('TripoSG environment uses permanent tool paths; scratch fallback removed.')
