@@ -52,10 +52,10 @@ namespace WorldGen.Presentation
     }
     public readonly struct TerrainProductKey:IEquatable<TerrainProductKey>
     {
-        public readonly TerrainTileKey Tile;public readonly int Segments;readonly double a,b,c,d;
-        public TerrainProductKey(TerrainTileKey tile,int segments,double[] edges){Tile=tile;Segments=segments;a=edges[0];b=edges[1];c=edges[2];d=edges[3];}
-        public bool Equals(TerrainProductKey k)=>Tile.Equals(k.Tile)&&Segments==k.Segments&&a==k.a&&b==k.b&&c==k.c&&d==k.d;
+        public readonly TerrainTileKey Tile;public readonly int Segments;readonly double[] edges;readonly int hash;
+        public TerrainProductKey(TerrainTileKey tile,int segments,double[] edges,bool snapshot=true){Tile=tile;Segments=segments;this.edges=snapshot?(double[])edges.Clone():edges;int h=unchecked(tile.GetHashCode()*31+segments);foreach(double value in edges)h=unchecked(h*31+value.GetHashCode());hash=h;}
+        public bool Equals(TerrainProductKey k)=>Tile.Equals(k.Tile)&&Segments==k.Segments&&(ReferenceEquals(edges,k.edges)||edges!=null&&k.edges!=null&&TerrainEdges.Equal(edges,k.edges));
         public override bool Equals(object o)=>o is TerrainProductKey k&&Equals(k);
-        public override int GetHashCode()=>unchecked(Tile.GetHashCode()*31+Segments^a.GetHashCode()^b.GetHashCode()^c.GetHashCode()^d.GetHashCode());
+        public override int GetHashCode()=>hash;
     }
 }

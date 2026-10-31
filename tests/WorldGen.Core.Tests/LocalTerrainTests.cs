@@ -110,6 +110,15 @@ static class LocalTerrainTests
         var neighbour = LocalTerrainMesh.Build(systems[1], frame, 2048, 0, 2048, 64);
         var low = LocalTerrainMesh.Build(systems[1], frame, 2048, 0, 2048, 16);
         var stitched=LocalTerrainMesh.Build(systems[1],frame,0,0,2048,64,edgeSteps:new[]{0.0,128,0,0});
+        var seamPlan=new Dictionary<TerrainTileKey,int>{{new TerrainTileKey(-1,0,1),64},{new TerrainTileKey(0,0,0),64},{new TerrainTileKey(0,1,0),16}};
+        var seamEdges=TerrainEdges.Build(seamPlan);
+        var seamLeft=LocalTerrainMesh.Build(systems[1],frame,-2048,0,2048,64,edgeSteps:seamEdges[new TerrainTileKey(-1,0,1)]);
+        var seamRight=LocalTerrainMesh.Build(systems[1],frame,0,0,1024,64,edgeSteps:seamEdges[new TerrainTileKey(0,0,0)]);
+        double crack=0;
+        for(int z=0;z<=64;z++){double t=z*.5;int lo=Math.Min(63,(int)t);double w=t-lo;double leftY=seamLeft.Positions[(lo*65+64)*3+1]*(1-w)+seamLeft.Positions[((lo+1)*65+64)*3+1]*w;crack=Math.Max(crack,Math.Abs(leftY-seamRight.Positions[z*65*3+1]));}
+        Console.WriteLine($"Mixed-neighbour boundary baseline: max physical gap {crack:F6}m");
+        check(crack<.001,"Mixed-resolution neighbours meet along the entire shared edge, not only its coarsest half");
+        TerrainBoundaryTests.Run(systems[1],frame,check);
         for(int z=0;z<=64;z++)
         {
             int lo=z/4,hi=Math.Min(16,lo+1);double t=(z%4)/4.0,expected=low.Positions[lo*17*3+1]*(1-t)+low.Positions[hi*17*3+1]*t;

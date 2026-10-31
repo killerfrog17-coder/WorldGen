@@ -32,9 +32,10 @@ static class TerrainWorkerTests
                 var frame=new LocalTerrainFrame(at,terrain.RadiusM,terrain.Patch(at).Sample(0,0).ElevationM,.1);
                 using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);
                 using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
-                w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,0,0,size,32,null);
+                double step=size/32;var intervals=new[]{0d,step*2,0,0,1,0,size*.5,step*.5,1,size*.5,size,step*2};
+                w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,0,0,size,32,intervals);
                 if(!r.ReadBoolean())throw new Exception("Worker rejected valid request.");
-                var actual=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();var expected=LocalTerrainMesh.Build(terrain,frame,0,0,size,32);
+                var actual=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();var expected=LocalTerrainMesh.Build(terrain,frame,0,0,size,32,edgeSteps:intervals);
                 if(size<150&&expected.GroundCover.Length==0)throw new Exception("Fine worker flora sidecar missing.");
                 var pairs=new[]{(actual.Positions,expected.Positions),(actual.Normals,expected.Normals),(actual.Colors,expected.Colors),(actual.SurfaceWeights,expected.SurfaceWeights),(actual.GroundWeightsB,expected.GroundWeightsB),(actual.Lithology,expected.Lithology),(actual.WaterPositions,expected.WaterPositions),(actual.WaterColors,expected.WaterColors),(actual.GroundCover,expected.GroundCover)};
                 foreach(var pair in pairs){if(!pair.Item1.SequenceEqual(pair.Item2))throw new Exception("Worker changed mesh float data at "+at.X+","+at.Y+","+at.Z);count+=pair.Item1.Length;}

@@ -261,7 +261,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             int detail=wanted[key];
             if(handoffDue&&!ImmediateTerrain(key))continue;
             if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
-            if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key]))){RestoreTerrain(key,detail,wantedEdges[key]);continue;}
+            if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key],false))){RestoreTerrain(key,detail,wantedEdges[key]);continue;}
             if(!CanRequest||ActiveWorkerCount>=WorkerLimit||HasMatchingTerrainJob(key))continue;
             RequestTerrain(key,detail,wantedEdges[key]);
         }

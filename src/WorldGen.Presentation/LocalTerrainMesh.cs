@@ -101,12 +101,12 @@ namespace WorldGen.Presentation
             // This prevents exposed vertical skirts/sawteeth; the authoritative height function is unchanged.
             if(edgeSteps!=null)
             {
-                if(edgeSteps.Length!=4)throw new ArgumentException("Four edge sample spacings required.",nameof(edgeSteps));
+                TerrainEdges.Validate(edgeSteps);
                 for(int boundary=0;boundary<4;boundary++)
                 {
-                    double coarse=edgeSteps[boundary];if(coarse<=step*1.001)continue;
                     for(int i=0;i<side;i++)
                     {
+                        double coarse=TerrainEdges.At(edgeSteps,boundary,i*step);if(coarse<=step*1.001)continue;
                         int x=boundary==0?0:boundary==1?segments:i,z=boundary==2?0:boundary==3?segments:i;
                         double along=(boundary<2?northM:eastM)+i*step,lo=Math.Floor(along/coarse)*coarse,t=(along-lo)/coarse;
                         double Height(double a){double xx=boundary<2?eastM+x*step:a,zz=boundary<2?a:northM+z*step;var p=frame.Position(xx,zz);return frame.SurfaceY(p,Sample(xx,zz,p).ElevationM);}

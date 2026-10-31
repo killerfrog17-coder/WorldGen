@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     /// Core/Presentation assemblies, never an approximate second generator.</summary>
     public static class TerrainMeshWire
     {
-        public const int Version=7;
+        public const int Version=8;
         [ThreadStatic] static byte[]? scratch;
         static byte[] Scratch=>scratch??(scratch=new byte[65536]);
         static void ArrayOut(BinaryWriter writer,Array data)
@@ -29,13 +29,14 @@ namespace WorldGen.Presentation
         public static void WriteRequest(BinaryWriter w,LocalTerrainFrame frame,double east,double north,double size,int segments,double[] edges)
         {
             w.Write(Version);Vector(w,frame.Origin);Vector(w,frame.East);Vector(w,frame.North);w.Write(frame.RadiusM);w.Write(frame.AltitudeM);w.Write(frame.HorizontalScale);
-            w.Write(east);w.Write(north);w.Write(size);w.Write(segments);for(int i=0;i<4;i++)w.Write(edges==null?size/segments:edges[i]);w.Flush();
+            var intervals=edges??new[]{size/segments,size/segments,size/segments,size/segments};TerrainEdges.Validate(intervals);
+            w.Write(east);w.Write(north);w.Write(size);w.Write(segments);w.Write(intervals.Length);foreach(double value in intervals)w.Write(value);w.Flush();
         }
         public static LocalTerrainFrame ReadRequest(BinaryReader r,out double east,out double north,out double size,out int segments,out double[] edges)
         {
             if(r.ReadInt32()!=Version)throw new InvalidDataException("Terrain transport version mismatch.");
             var origin=Vector(r);var e=Vector(r);var n=Vector(r);double radius=r.ReadDouble(),altitude=r.ReadDouble(),scale=r.ReadDouble();
-            east=r.ReadDouble();north=r.ReadDouble();size=r.ReadDouble();segments=r.ReadInt32();edges=new double[4];for(int i=0;i<4;i++)edges[i]=r.ReadDouble();
+            east=r.ReadDouble();north=r.ReadDouble();size=r.ReadDouble();segments=r.ReadInt32();int count=r.ReadInt32();if(count<4||count>16388||(count-4)%4!=0)throw new InvalidDataException("Invalid terrain edge interval count.");edges=new double[count];for(int i=0;i<count;i++)edges[i]=r.ReadDouble();TerrainEdges.Validate(edges);
             return LocalTerrainFrame.FromExactBasis(origin,e,n,radius,altitude,scale);
         }
         public static void WriteMesh(BinaryWriter w,LocalTerrainMesh m)

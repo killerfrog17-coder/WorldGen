@@ -141,18 +141,7 @@ namespace WorldGen.Presentation
         }
         public static bool Immediate(TerrainTileKey k,double x,double z)=>DistanceSquared(k,x,z)<=2.25*BaseSizeM*BaseSizeM*k.Scale*k.Scale;
         public static double[] EdgeSteps(TerrainTileKey tile,IReadOnlyDictionary<TerrainTileKey,int> leaves)
-        {
-            var steps=new double[4];double x=tile.X*tile.SizeM,z=tile.Z*tile.SizeM;
-            foreach(var p in leaves)
-            {
-                var k=p.Key;double a=k.X*k.SizeM,b=k.Z*k.SizeM,step=k.SizeM/p.Value;
-                if(Math.Max(z,b)<Math.Min(z+tile.SizeM,b+k.SizeM))
-                {if(a+k.SizeM==x)steps[0]=Math.Max(steps[0],step);if(a==x+tile.SizeM)steps[1]=Math.Max(steps[1],step);}
-                if(Math.Max(x,a)<Math.Min(x+tile.SizeM,a+k.SizeM))
-                {if(b+k.SizeM==z)steps[2]=Math.Max(steps[2],step);if(b==z+tile.SizeM)steps[3]=Math.Max(steps[3],step);}
-            }
-            return steps;
-        }
+            =>TerrainEdges.For(tile,leaves);
         public static Dictionary<TerrainTileKey,int> Plan(double x,double z,double aboveGround,double distanceM=200000,double scale=1)
         {
             if(scale<.01||scale>2||double.IsNaN(scale))throw new ArgumentOutOfRangeException(nameof(scale));

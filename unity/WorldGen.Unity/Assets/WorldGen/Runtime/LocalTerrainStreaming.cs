@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool RestoreTerrain(TerrainTileKey key,int segments,double[] edges)
     {
-        if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges),out var tile))return false;
+        if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges,false),out var tile))return false;
         tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,tile,old);
         tile.Root.transform.SetParent(terrainRoot.transform,false);
         tile.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
@@ -105,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var key in prefetchPriority)
         {
             int detail=prefetchWanted[key];var edges=prefetchEdges[key];
-            if(wanted.ContainsKey(key)||tiles.ContainsKey(key)||TerrainProducts.Contains(new TerrainProductKey(key,detail,edges))||jobs.Any(j=>j.Prepared==null&&j.Key.Equals(key)))continue;
+            if(wanted.ContainsKey(key)||tiles.ContainsKey(key)||TerrainProducts.Contains(new TerrainProductKey(key,detail,edges,false))||jobs.Any(j=>j.Prepared==null&&j.Key.Equals(key)))continue;
             RequestTerrain(key,detail,edges,true);break;
         }
     }
