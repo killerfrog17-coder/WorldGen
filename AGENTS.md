@@ -31,6 +31,18 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+LATEST: owner explicitly approved implementing the revised human appearances
+into the game (supersedes the earlier unaccepted-authoring-only restriction).
+Integration IN PROGRESS: six appearance skins/textures exported under
+assets-source/humans/appearance-runtime and rebound onto unchanged production
+rigs in new Resources/HumanAppearance. Stable original character IDs/legacy
+clip references retained; new library preferred with original library fallback.
+No original art/rig/motion overwritten. Slot-a selected remains frozen; only
+slot-b may be reused. Editor images exist, but an Editor-only fixture constructor
+warning means its55-check run is diagnostic, NOT clean native release proof.
+Native appearance/gameplay checks and package/asset-lock proof still required.
+Four prepared small-carry runtime diffs remain untouched/unstaged.
+
 Owner deleted `WorldGen_OneShot_Prompt.md`; two untracked old deer scripts
 `scripts/deer-review-controls.py` and `scripts/prepare-deer-review.py` must stay
 untouched/unstaged. Other-thread prepared small-carry changes in these four

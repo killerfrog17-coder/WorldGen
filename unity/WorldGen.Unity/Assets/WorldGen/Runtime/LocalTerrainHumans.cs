@@ -40,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
     void InitializeHumans()
     {
         if(humansInitialized)return;humansInitialized=true;
-        humanLibrary=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
+        humanLibrary=Resources.Load<WorldGenHumanLibrary>("HumanAppearance/Library")??Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
         kimodoHumanLibrary=Resources.Load<WorldGenHumanMotionBank>("HumanKimodo/Library");
         if(humanLibrary==null||humanLibrary.People==null||humanLibrary.People.Length!=6){Debug.LogWarning("MPFB human library unavailable");return;}
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);

@@ -58,11 +58,13 @@ def inventory():
         expected[path.relative_to(ROOT).as_posix()]=texture['sha256']
     tree('assets-source/animals/exports','animal-export-inputs',{'.bin','.json','.png'})
     tree('assets-source/humans/exports','human-sources',{'.fbx','.png','.json'})
+    add('assets-source/humans/appearance-review/Human physique comparison.blend','human-appearance-source',True)
+    tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/motion/legacy','human-motion-inputs',{'.fbx'})
     tree('assets-source/humans/motion/source-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
     tree('assets-source/humans/motion/animation-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
     tree('unity/WorldGen.Unity/Assets/StreamingAssets/fauna','animal-runtime',{'','.fauna','.json','.manifest','.meta','.md','.txt'})
-    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans']:
+    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance']:
         tree(directory,'human-runtime',{'.asset','.prefab','.mat','.meta','.fbx','.png','.json'})
         add(directory+'.meta','human-runtime')
     add('unity/WorldGen.Unity/Assets/StreamingAssets/fauna.meta','animal-runtime')
