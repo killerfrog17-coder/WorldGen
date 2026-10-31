@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
         // Preserve every float/triangle while avoiding hundreds of MB of repeated
         // JSON keys in each review. This is diagnostic output only.
         using(var file=new FileStream(path+".gz",FileMode.CreateNew,FileAccess.Write))
-        using(var compressed=new GZipStream(file,CompressionLevel.Fastest))
+        using(var compressed=new GZipStream(file,System.IO.Compression.CompressionLevel.Fastest))
         using(var writer=new StreamWriter(compressed))
         {
             writer.Write('[');bool first=true;
