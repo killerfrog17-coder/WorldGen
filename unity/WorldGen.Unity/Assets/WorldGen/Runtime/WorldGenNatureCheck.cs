@@ -45,6 +45,7 @@ public sealed partial class LocalTerrainExplorer
         viewArmPoseImmediate=true;PresentHeld();var root=HeldRoot(spear);var origin=root.transform.position;combatGlobalReady=combatRightReady=0;StrikeWithItem(spear,false);yield return new WaitForSecondsRealtime(.18f);PresentHeld();
         Check(viewItemActions.ContainsKey(spear.Id)&&Vector3.Distance(origin,root.transform.position)>.025f,"Spear strike visibly moves the held model in first person");
         Image("spear-thrust");
+        yield return new WaitForSecondsRealtime((float)Math.Max(.01,Math.Max(combatGlobalReady,combatRightReady)-Time.unscaledTimeAsDouble+.02));
         viewItemActions.Remove(spear.Id);BeginItemCharge(spear,false,1,true);Check(itemCharge?.Weapon==spear,"Held spear enters its real throw wind-up");itemCharge.Started-=itemCharge.Duration;PresentHeld();var wound=root.transform.position;CancelItemCharge();PresentHeld();Check(Vector3.Distance(wound,root.transform.position)>.05f,"Throw wind-up and cancellation have distinct reversible view poses");
         Inventory.Items.Remove(spear);viewItemActions.Clear();
         var bow=PortableTechnology.Create(PossessionKind.Bow,Position);bow.Place=PossessionPlace.RightHand;Inventory.Items.Add(bow);PresentHeld();var bowRoot=HeldRoot(bow);
