@@ -354,6 +354,7 @@ public sealed partial class LocalTerrainExplorer
     void FitNaturalHeldHands()
     {
         naturalHandlingDt=SharedGripDelta();var main=SharedMainHeld;
+        if(NaturalBow==null){sharedBowDraw=sharedBowRaise=0;sharedBowItem=null;naturalBowHookValid=false;}
         if(humanPlayer.Shared.ActionRole=="Drink"||humanPlayer.Shared.ActionRole=="Eat")
         {sharedBowDraw=sharedBowRaise=0;FitNaturalConsume();return;}
         if(main==null){sharedBowDraw=sharedBowRaise=0;sharedBowItem=null;return;}

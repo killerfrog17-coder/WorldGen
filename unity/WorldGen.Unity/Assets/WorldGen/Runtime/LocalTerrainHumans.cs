@@ -124,7 +124,7 @@ public sealed partial class LocalTerrainExplorer
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
         bool crouch=(Application.isFocused||testKeyboard!=null)&&!motion.Flying&&!motion.Swimming&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
         if(!deathPresented){
-        if(SharedHumanMotion&&(humanCamera.FirstPerson||SharedDeliberateAim||sharedBowRaise>.02f))humanPlayer.TargetYaw=heading+NaturalBowYaw;
+        if(SharedHumanMotion&&(humanCamera.FirstPerson||SharedDeliberateAim||NaturalBow!=null&&sharedBowRaise>.02f))humanPlayer.TargetYaw=heading+NaturalBowYaw;
         else if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
         humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
@@ -258,7 +258,7 @@ public sealed partial class LocalTerrainExplorer
             // the head-removal boundary from inside the neck.
             // A raised bow already places the eye at its measured head anchor.
             // Extra collar clearance would put the camera into nearby fletching.
-            eye.z+=.11f*(humanPlayer.Definition.EyeHeight/1.65f)*Mathf.InverseLerp(10,65,pitch)*(1-sharedBowRaise);
+            eye.z+=.11f*(humanPlayer.Definition.EyeHeight/1.65f)*Mathf.InverseLerp(10,65,pitch)*(1-(NaturalBow!=null?sharedBowRaise:0));
             if(motion.Swimming)eye.y=humanPlayer.Definition.EyeHeight;
             if(!sharedCameraEyeValid){sharedCameraEye=eye;sharedCameraEyeValid=true;}
             sharedCameraEye=Vector3.Lerp(sharedCameraEye,eye,1-Mathf.Exp(-dt*9));

@@ -108,7 +108,14 @@ public sealed partial class LocalTerrainExplorer
             Check(Vector3.Distance(nock,NaturalBowStringGrip)<.015f,"The actual arrow tail follows the hooked drawing fingers");
             var bowRoot=inventoryVisuals[bow.Id];Vector3 brace=bowRoot.transform.TransformPoint(new Vector3(.38f,.5f,0));
             Check(Vector3.Distance(SharedGripPosition("r"),brace)>.2f,"Full charge visibly draws the actual bowstring");Image("shared-bow-drawn",true);Image("first-bow-drawn");
-            CancelItemCharge();Clear();
+            CancelItemCharge();
+            Inventory.Move(bow.Id,PossessionPlace.Ground,"",0,0,false,out _);Inventory.Move(arrow.Id,PossessionPlace.Ground,"",0,0,false,out _);
+            Hold(PossessionKind.StoneTippedSpear);UpdateInventoryVisuals();
+            Check(sharedBowRaise<.001f&&sharedBowDraw<.001f,"Replacing a drawn bow directly with a spear clears the bow aim state");
+            humanCamera.Restore(3.4,false);humanCameraDistance=3.4f;yield return new WaitForSecondsRealtime(.2f);
+            float swapFacing=humanPlayer.Yaw;heading+=80;yield return new WaitForSecondsRealtime(.25f);
+            Check(Mathf.Abs(Mathf.DeltaAngle(swapFacing,humanPlayer.Yaw))<.5f,"Camera orbit after a bow-to-spear swap cannot re-lock the idle body");
+            humanCamera.Restore(0,false);humanCameraDistance=0;heading=pitch=0;Clear();
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.Space));yield return new WaitForSecondsRealtime(.12f);
             Check(!motion.Grounded,"Actual jump input enters the generated airborne motion");Image("shared-jump",true);
             InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return new WaitForSecondsRealtime(.85f);Check(motion.Grounded,"Generated jump playback returns to grounded movement");
