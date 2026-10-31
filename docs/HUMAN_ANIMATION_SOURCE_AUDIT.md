@@ -1,6 +1,31 @@
 # Free human animation inventory
 
-Current running revision (27 October): the selected runtime bank has one jog
+## Human bank, 31 October
+
+The Kimodo option uses 70 animation roles fitted to the six original MPFB
+characters, from 42 selected local raw takes. Roles include mirrored actions
+and three armed-swimming variants; they are not 70 independently generated
+motions. Generation and fitting are offline; the game performs no AI inference.
+Models, skin weights, textures and the original Legacy arms remain unchanged.
+
+Relaxed carrying follows the body independently of look pitch and third-person
+camera orbit. Deliberate attacks and draws still aim. Ordinary spear/knife/tool
+strikes retain locomotion legs rather than importing generated squats. Bow
+handling fits actual grips, string, arrow tail and face anchors, and cants for
+body/ground clearance. Armed swimming retains a free propulsion arm. Drinking
+reaches the measured lip region. Equipment swaps clear bow aim immediately.
+
+**Settings > Debug > Character animation** switches immediately between Kimodo
+and Legacy and persists. The release record and actual native evidence are in
+[human-natural-release-verification.json](../assets/human-natural-release-verification.json).
+Geometry audits cover sampled poses, not every possible contact. Shared-body
+first-person framing and secondary crafting remain prototype work; owner visual
+acceptance is not implied by automated checks.
+
+## Earlier library inventory, 26?27 October
+
+
+The 27 October revision used one jog
 (CMU 16_35) and a separate fast sprint (CMU 143_01), replacing the previous
 run-style audition. KayKit runs and Quaternius jog/sprint remain rejected.
 CMU has free-for-all-uses permission, **not CC0**; attribution ships in

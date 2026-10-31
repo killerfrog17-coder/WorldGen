@@ -1,0 +1,150 @@
+{
+  "production_source": "bf4de2103e0c468ea7e9a187f1fe6f4e378786aa",
+  "player": "artifacts/player-human-natural-review/WorldGen.exe",
+  "backend": "IL2CPP",
+  "built_utc": "2026-10-31T17:01:01.2951406Z",
+  "recorded_utc": "2026-10-31T17:23:56.796243+00:00",
+  "game_assembly_sha256": "5bf6b4bf748bd526193a82e93ffe740b6b42f6b06ddb0d91ae306f178c692fc6",
+  "bank_sha256": "749275471dde3888ad4c76f77e37cf80f1d244c0175045f8eae77d3f9be503e7",
+  "original_source_sha256": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
+  "roles_per_character": 70,
+  "characters": 6,
+  "native_takes": 420,
+  "selected_raw_sources": 42,
+  "new_raw_auditions": 68,
+  "runtime_inference": false,
+  "setting": "Settings > Debug > Character animation",
+  "legacy_fallback": "Immediate and persisted",
+  "features": [
+    "Relaxed body-relative carrying independent of camera pitch/orbit; deliberate actions still aim",
+    "Ordinary spear/knife/tool attacks preserve grounded locomotion without imported squats",
+    "Bow stance, measured draw-hand anchor, hooked string, actual arrow tail, release/lower and body/floor cant",
+    "Two-hand support, reachable same-side spear wind-up and stable palm positioning",
+    "Moving armed swim variants with a free propulsion arm; real lip contact while drinking",
+    "Bow-to-spear equipment swap clears aiming without restoring camera-locked third-person orientation"
+  ],
+  "native_checks": [
+    {
+      "pid": 27788,
+      "mode": "Natural",
+      "exit_code": 0,
+      "checks": 275,
+      "suppressed_natural_images": true,
+      "hunting_revision": false,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:15:58.5937511Z",
+      "evidence": "artifacts/human-natural-20261031/native-contact8"
+    },
+    {
+      "pid": 6948,
+      "mode": "Kimodo",
+      "exit_code": 0,
+      "checks": 86,
+      "suppressed_natural_images": false,
+      "hunting_revision": false,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:17:55.1330669Z",
+      "evidence": "artifacts/human-natural-20261031/native-final8-kimodo"
+    },
+    {
+      "pid": 8428,
+      "mode": "Legacy",
+      "exit_code": 0,
+      "checks": 81,
+      "suppressed_natural_images": false,
+      "hunting_revision": false,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:19:40.6009743Z",
+      "evidence": "artifacts/human-natural-20261031/native-final8-legacy"
+    },
+    {
+      "pid": 11396,
+      "mode": "Items",
+      "exit_code": 0,
+      "checks": 156,
+      "suppressed_natural_images": false,
+      "hunting_revision": false,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:20:57.5766959Z",
+      "evidence": "artifacts/human-natural-20261031/native-final8-items"
+    },
+    {
+      "pid": 4148,
+      "mode": "Water",
+      "exit_code": 0,
+      "checks": 45,
+      "suppressed_natural_images": false,
+      "hunting_revision": false,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:23:01.1153659Z",
+      "evidence": "artifacts/human-natural-20261031/native-final8-water"
+    },
+    {
+      "pid": 3920,
+      "mode": "Nature",
+      "exit_code": 0,
+      "checks": 32,
+      "suppressed_natural_images": false,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:03:38.3933130Z",
+      "evidence": "artifacts/human-natural-20261031/native-final8-nature"
+    },
+    {
+      "pid": 2760,
+      "mode": "Hunting",
+      "exit_code": 0,
+      "checks": 14,
+      "suppressed_natural_images": false,
+      "hunting_revision": true,
+      "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+      "finished_utc": "2026-10-31T17:13:36.5753060Z",
+      "evidence": "artifacts/human-natural-20261031/native-final8-hunting-revision"
+    }
+  ],
+  "native_check_total": 689,
+  "actual_geometry": {
+    "surface_frames": 534,
+    "prop_and_ammunition_meshes": 618,
+    "water_surface_frames": 20,
+    "water_prop_meshes": 20,
+    "sampled_crossings": 0,
+    "format": "Lossless gzip JSON; native exported skin and actual rigid prop/ammunition triangles"
+  },
+  "package_proof": {
+    "backend": "IL2CPP",
+    "BuiltUtc": "2026-10-31T17:01:01.2951406Z",
+    "frozen_inputs": 943,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 1038,
+    "native_character_banks": 6,
+    "clips_per_character": [
+      70,
+      70,
+      70,
+      70,
+      70,
+      70
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true
+  },
+  "previous_selected_terrain_package_unchanged": true,
+  "review_state": "Ready for owner review; no owner visual acceptance inferred",
+  "limits": [
+    "Sampled mesh/contact checks do not guarantee every possible pose or universal foot contact",
+    "Shared-body first-person framing and secondary crafting gestures remain prototype work",
+    "No whole-game frame-rate or loading-performance claim"
+  ],
+  "known_diagnostics": [
+    {
+      "evidence": "artifacts/human-natural-20261031/native-final8-hunting",
+      "result": "FAILED older broad hunting scent assertion; AI and hunting fixture source unchanged from pre-task baseline. Not claimed passing."
+    }
+  ],
+  "diagnostic_history": [
+    "Initial skin audit invalidated for double FBX scaling; corrected native-scale evidence replaces it",
+    "Intermediate prop crossings corrected before final audit",
+    "Old one-update deer-flight fixture replaced with real cues and confirmation time; AI thresholds unchanged",
+    "One compression enum compile failure corrected; one owned build canceled for equipment-swap regression"
+  ]
+}

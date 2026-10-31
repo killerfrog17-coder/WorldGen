@@ -1,22 +1,42 @@
 # WorldGen repository instructions
 
-ACTIVE31Oct11:24CDT RESUMED after interruption; minimum12:27:07Z is past.
-7b81bc7 native6 IL2CPP11:07:05Z:275natural +83Kimodo +81Legacy PASS/EXIT0;
-actual534skin/618prop BVH0 crossings including steep aimed bow/spears/all6 bodies.
-Full Items FAILED old uninjured-deer one-update flee fixture. Current Core uses
-confirmation/reaction time; fixture now actual audible player cue and repeated
-.3s observations with fresh decision budgets, no forced alarm/AI threshold edits.
-Native6 corpse p99=1.83 passed. Water/Nature/Hunting suite6 NOT completed after
-Items failure. NEW source7 lowers draw hook3cm (knuckles then at mouth, not nose),
-removes bow-only extra collar camera push while raised, losslessly gzips native
-geometry diagnostic JSON to avoid disk bloat. Bank/art/weights/textures unchanged.
-Need checkpoint/freeze/build7 SAME unselected D: player-human-natural-review;
-new native275/BVH + full83/81/Items156/Water/Nature/Hunting and actual FPS views.
-Native7 output C: artifacts/human-natural-native7 via task/native-contact7 junction.
-C~1.3GB/D~1.1GB: no extra player copies or cleanup. Original1038/30Legacy/source
-SHA verified6; selected terrain shortcut/package stays FROZEN until final proof.
-No paid/signup/subagents/Mono; owner3 untouched. No owned Unity/native/Blender jobs.
-Finish remaining checks/actual visual selection/docs/Git promptly; no idle padding.
+SELECTED31Oct12:25CDT: HUMAN NATURAL ANIMATION REVISION COMPLETE. Existing root
+WorldGen.exe - Shortcut.lnk NOW artifacts/player-human-natural-review/WorldGen.exe
+(physical D:/WorldGenBuildArtifacts/player-human-natural-review), IL2CPP RELEASE
+BuiltUtc2026-10-31T17:01:01.2951406Z, productionbf4de21 pushed. Human runtime9499d21;
+later commits only QA compatibility/diagnostics. Shortcut workingdir REPO for
+external audio, no args/new icons. Selected package FROZEN; future feedback needs
+NEW candidate/proof. ALL689 LISTED final8 checks PASS/EXIT0/clean runtime logs:
+275natural/86Kimodo/81Legacy/156items/45water/32nature/14CURRENT hunting-revision.
+Actual native BVH534skin/618prop+ammo meshes +20water/20props ZERO sampled
+crossings, native metre scale. Fresh final8 land/aim data gzip lossless(no repeated
+PNGs); final8 real-input FPS/bow/body/orbit/activities and water images inspected.
+KEY EXCEPTION: OLD BROAD HUNTING SUITE FAILED its wind/scent assertion; NOT claimed
+passing. AI/perception/hunting test source unchanged from pre-task9a87ae5. Current
+hunting-revision14 passes; older discrepancy recorded in release manifest. Do NOT
+autonomously change AI to force that test green or hide the failure.
+Bank70roles x6 original MPFB skins,42selected raw sources/68new raw auditions;
+no runtime AI/paid/signup. Relaxed carry body-relative; explicit actions aim;
+ordinary attacks no imported squats; stable palm+two-hand support, reachable
+same-side spear cock; measured eye/lip/draw anchors, hooked string/actual arrow
+tail, jaw-level draw, bow cant/body+floor clearance, genuine moving armed swims,
+lip-contact Drink, direct bow-to-spear swap cannot restore TPS camera lock.
+Settings > Debug > Character animation immediate persisted Kimodo/Legacy.
+Proof8:943 frozen inputs/1038 original assets/30Legacy files/6original bodies/
+sourceSHA0946d797.../fauna+collision+motion/audio EXACT. Prior terrain package SHA
+44cd65... exact and retained. No model/rig/weight/texture/audio or Core changes.
+Manifest assets/human-natural-release-verification.json; evidence task
+artifacts/human-natural-20261031/native-final8-*, native-contact8(C junction),
+package-proof-final8, selected-release.json. 689 is scoped checks, NOT every old
+suite or proof of universal visual quality/FPS/foot contact. Shared-body FPS
+framing and secondary craft remain prototype; no owner visual acceptance inferred.
+Final source/release checkpoint: verify Git push and remote before handoff.
+All owned generation/Unity/Blender/native jobs FINISHED; owner apps untouched.
+Owner deleted prompt +2untracked deer scripts untouched/unstaged. No cleanup,
+paid/subagents/Mono. No more work authorized here: await owner feedback, do NOT
+resume old animal/Homo/overnight tasks. Interrupted/resumed clock recorded;
+minimum passed, no idle padding. Early invalid scale audits, intermediate
+intersections, compression compile failure and canceled own builds NOT finalproof.
 
 ACTIVE31Oct05:10CDT: HUMAN work minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
 Native2 c2454a1 IL2CPP09:34:21Z FAILED actual-face measurement gate; NOT accepted.
