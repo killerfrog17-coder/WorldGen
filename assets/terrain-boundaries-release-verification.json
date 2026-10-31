@@ -1,0 +1,39 @@
+{
+  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-terrain-boundaries\\WorldGen.exe",
+  "physical_package": "D:\\WorldGenBuildArtifacts\\player-terrain-boundaries",
+  "production_source": "2d4105d7a0b8212acfec922809bdeadfe8fa8250",
+  "built_utc": "2026-10-31T07:11:01.8378143Z",
+  "backend": "IL2CPP",
+  "terrain_transport_version": 8,
+  "native_boundary_checks": 10,
+  "native_suites": [
+    "terrain-boundary",
+    "coverage-shader",
+    "upload"
+  ],
+  "native_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "pure_checks": {
+    "local_terrain": 814,
+    "adaptive_detail": 1382,
+    "streaming_cache": 6241,
+    "fog_frontier": 5990
+  },
+  "tcp_worker_exact_data_records": 189547,
+  "packaged_worker_sha256": "b06b3a9a7c00b4868683bf29c1388da908aca381b88feeed6bb0e10fb2247397",
+  "legacy_gap_m": 4.296082,
+  "corrected_native_gap_m": 9.54e-07,
+  "fixture_changed_pixels": 53068,
+  "frozen_inputs": 767,
+  "protected_original_assets": 1038,
+  "legacy_files_unchanged": 30,
+  "fauna_package_exact": true,
+  "original_audio_exact": true,
+  "game_assembly_sha256": "44cd65fdeeefaf016938b0b7d4e5043cf991f9af7bd3fef695f624997cb790b1",
+  "evidence": "artifacts/terrain-boundaries-20261031",
+  "verification_limits": "Controlled mixed-LOD mountain fixture with uniform pigment; not every natural water/transient/shading boundary. No whole-game FPS claim.",
+  "storage": "New candidate and partial generated debug copy moved to D with hash verification; no old versions or source assets deleted."
+}

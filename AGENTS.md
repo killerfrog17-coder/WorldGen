@@ -1,5 +1,38 @@
 # WorldGen repository instructions
 
+SELECTED31Oct~02:15CDT: SKY-BLUE TERRAIN CHUNK CRACK REPAIR COMPLETE.
+Root shortcut NOW artifacts/player-terrain-boundaries/WorldGen.exe, junction to
+D:/WorldGenBuildArtifacts/player-terrain-boundaries. IL2CPP RELEASE BuiltUtc
+2026-10-31T07:11:01.8378143Z, production2d4105d pushed. Owner clarified lines are
+sky coloured. Reproduced4.296082m physical crack: one edge borders neighbours
+with mixed grid spacing; old max-for-entire-edge rule mismatched the finer half.
+Now compact piecewise edge intervals, integer quadtree adjacency (non-binary
+scale safe), full interval cache keys, allocation-free lookup keys, wireVERSION8
+for complete worker requests. Sampler/LOD/populations/vertex budgets unchanged.
+814 localterrain/1382adaptive/6241streaming-cache/5990fogPASS. Actual TCP worker
+189547 exact data records plus indices/bounds/cancelPASS; packaged worker exact.
+Final SAME PACKAGE native10 boundaryPASS +existing productionshader coverage/
+transition suite +native upload/index/bounds/cancellation suite, allEXIT0/clean
+error logs. Broken fixture4.296082m ->native gap.000000954m; shaderimages inspected,
+53068changedpixels. Uniform pigment fixture isolates geometry; NOT fullworld/
+all natural seams/transient reanchor acceptance or all lighting seams claim.
+Evidence artifacts/terrain-boundaries-20261031/native-terrain-boundary,
+native-coverage-shader,native-upload,package-proof; manifest assets/terrain-
+boundaries-release-verification.json, docs/TERRAIN_BOUNDARIES.md.767frozen/
+1038original/30legacy exact; fauna/motion,67rolesx6 human, audio unchanged.
+Existing saves work after restarting/regenerating presentation meshes.
+Storage: first C candidate build FAILED disk-full while copying generatedCpp;
+partial MoveItem of NEW activeCpp to E also disk-full. No asset loss. All NEW
+candidate +partial debug files SHA-verified relocated to D; missing Cpp restored,
+then final build succeeded. Root candidate C path now D junction. Extra generated
+partial copy D:/WorldGenBuildArtifacts/terrain-boundaries-active-debug retained,
+NOT runtime/source dependency. Two generated Bee GameAssembly PDB caches compacted
+(actual resolvedD unity-cache), bytes unchanged. No old packages/sourceart/saves/
+AIweights/blocked targets deleted. Previous playable effort-hunting E retained.
+All owned Unity/native/worker jobs exited; owner apps untouched. No Mono, paid,
+subagents or cleanup. Owner3files unchanged. Final docs/manifest/shortcut need
+commit+push at note time. Await owner feedback; no old overnight autoresume.
+
 SELECTED31Oct~01:42CDT: EFFORT / CONCEALMENT / DISTANT WILDLIFE FIX COMPLETE.
 Root shortcut NOW artifacts/player-effort-hunting/WorldGen.exe, junction to NEW
 E:/WorldGen-builds/player-effort-hunting. IL2CPP RELEASE BuiltUtc
