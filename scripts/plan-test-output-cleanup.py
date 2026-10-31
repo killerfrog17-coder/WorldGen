@@ -8,7 +8,7 @@ for name in ['game-assets.lock.json','legacy-runtime-assets.lock.json']:
     protected.update((ROOT/p).resolve() for p in json.loads((ROOT/'assets'/name).read_text())['files'])
 protected.update((ROOT/p).resolve() for p in subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0') if p)
 keep={'player-human-natural-review','player-world-feedback','world-feedback-20261031','player-retention-20261031','human-physique-review','climate-learning'}
-extensions={'.png','.jpg','.jpeg','.webp','.bin','.raw','.obj','.ply','.exr','.mp4','.gif','.gz','.npy','.npz'}
+extensions={'.png','.jpg','.jpeg','.webp','.bin','.raw','.obj','.ply','.exr','.mp4','.gif','.gz','.npy','.npz','.f32'}
 rows=[];sizes=collections.defaultdict(int)
 for entry in ART.iterdir():
     if not entry.is_dir() or entry.name in keep or entry.name.startswith('player-'):continue
@@ -22,8 +22,9 @@ for entry in ART.iterdir():
         for name in files:
             p=Path(base)/name
             if p.resolve() in protected:continue
-            if p.suffix.lower() in {'.world','.blend','.fbx','.glb','.gltf','.f32','.safetensors','.pt','.pth','.ckpt','.onnx'}:continue
-            if cache or diagnostic and p.suffix.lower() in extensions and '.world' not in name:
+            if p.suffix.lower() in {'.world','.blend','.fbx','.glb','.gltf','.safetensors','.pt','.pth','.ckpt','.onnx'}:continue
+            large_geometry_json=p.suffix.lower()=='.json' and p.stat().st_size>1024*1024 and not any(word in name.lower() for word in ['world','library','save'])
+            if cache or diagnostic and (p.suffix.lower() in extensions or large_geometry_json) and '.world' not in name:
                 size=p.stat().st_size;rows.append({'path':str(p),'bytes':size});sizes[entry.name]+=size
 report={'roots':[str(ART.resolve()),'D:/WorldGenBuildArtifacts','E:/WorldGen-builds'],'protected':[str(p) for p in protected],'files':rows,'bytes':sum(r['bytes'] for r in rows),'groups':dict(sizes)}
 (OUT/'test-output-plan.json').write_text(json.dumps(report,indent=2))

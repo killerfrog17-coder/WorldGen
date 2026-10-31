@@ -40,5 +40,25 @@
   "required_input_missing": 0,
   "existing_selected_player_retained": true,
   "new_gameplay_fixes_native_validation": "PENDING; interruption occurred before final build completion and stamp. Current shortcut unchanged.",
-  "blocked_diagnostic_relocation": "Not executed; left untouched. No retry."
+  "blocked_diagnostic_relocation": "Not executed; left untouched. No retry.",
+  "verification_followup": {
+    "recorded_utc": "2026-10-31T20:33:36.093072+00:00",
+    "extra_test_files_removed": 634,
+    "extra_test_logical_bytes_removed": 1756902301,
+    "remaining_artifacts_before_extra_pass": {
+      "logical_bytes": 48146337794,
+      "allocated_bytes": 47672875254,
+      "allocated_C_bytes": 39512234899,
+      "allocated_D_bytes": 5155042832,
+      "allocated_E_bytes": 3005597523
+    },
+    "latest_free_bytes": {
+      "C": 62056312832,
+      "D": 37221363712,
+      "E": 10505003008
+    },
+    "free_space_note": "Readings changed during verification; do not attribute unrelated changes on the machine to this cleanup. Extra pass removed only the recorded634 diagnostic files.",
+    "blocked_action": "Removal of C:/Users/kille/Desktop/WorldGen/artifacts/tools/trellis2-venv rejected before execution: blocked by policy. Left intact; no retry.",
+    "locked_inputs_present": 4617
+  }
 }
