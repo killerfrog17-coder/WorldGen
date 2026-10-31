@@ -1,0 +1,47 @@
+{
+  "target": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-effort-hunting\\WorldGen.exe",
+  "physical_package": "E:/WorldGen-builds/player-effort-hunting",
+  "production_source": "ee9d36aef85053daab1b6820bb97036f113dd451",
+  "built_utc": "2026-10-31T06:35:45.0311413Z",
+  "backend": "IL2CPP",
+  "native_checks": {
+    "native-hunting3": 14,
+    "native-water": 35
+  },
+  "native_exit_codes": [
+    0,
+    0
+  ],
+  "core_checks": {
+    "reported_problems": 38,
+    "hunting": 709,
+    "survival_modes": 67,
+    "hud": 329,
+    "item_use": 77,
+    "wildlife_abundance": 103,
+    "survival_experience": 24,
+    "water_sources": 142,
+    "water_and_swimming": 37
+  },
+  "frozen_inputs": 766,
+  "protected_original_assets": 1038,
+  "legacy_files_unchanged": 30,
+  "human_roles_per_character": [
+    67,
+    67,
+    67,
+    67,
+    67,
+    67
+  ],
+  "fauna_package_exact": true,
+  "original_audio_exact": true,
+  "game_assembly_sha256": "5d7305f0aabe93334c4b187cfd4e6cc254537492fd412dcde5a555c2873237db",
+  "evidence": "artifacts/effort-hunting-20261031",
+  "verification_limits": [
+    "Controlled native grass fixture, not all natural biomes or species.",
+    "Isolated GPU deer at 550m and duck at 200m have 1 and 2 pixels at 1280x800; no universal recognizability or fog-bypass claim.",
+    "No uncontended full-game FPS measurement.",
+    "Earlier failed test-harness attempts retained and excluded from release counts."
+  ]
+}

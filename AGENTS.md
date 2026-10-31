@@ -1,5 +1,42 @@
 # WorldGen repository instructions
 
+SELECTED31Oct~01:42CDT: EFFORT / CONCEALMENT / DISTANT WILDLIFE FIX COMPLETE.
+Root shortcut NOW artifacts/player-effort-hunting/WorldGen.exe, junction to NEW
+E:/WorldGen-builds/player-effort-hunting. IL2CPP RELEASE BuiltUtc
+2026-10-31T06:35:45.0311413Z, production ee9d36a. No Mono player. Previous selected
+spatial-audio package retained untouched; no cleanup or owner app closures.
+Human effort reserve now minutes (fresh sprint test220.9s); jump2points, fresh
+recovery .65s standing/.9s walking/3.3s jogging. Swimming duplicate flat drain
+removed; shared actual-stroke exertion, current drift not strokes. One-time old
+short-budget save migration preserves fatigue/breath/heat. Canonical spending
+for jumping/combat/bow. Animals have differentiated effort capacities too.
+Resident GPU grass placement channels now sampled along bounded8-probe LOS with
+slope/stature; night light physically sampled. Weak cues converge to bounded
+suspicion; vigilance distinct from flight, confirmation/distance/individual
+caution gates flight, close surprise/injury/credible social alarms still escape.
+Native radar tooltip includes awareness mode/sense. No heavy small-creature AI.
+Draw/preload differentiated: large land1.1/1.6km, birds650m/1.2km, tiny ground
+unchanged (mouse/small lizard/spider70m); butterflies/fireflies220m retained.
+Tracked current group positions determine admission; unrelated busy terrain no
+longer blocks loading; preload models not immediately evicted. Density unchanged.
+Final SAME PACKAGE native14 hunting+35 water=49PASS/EXIT0/clean error logs,
+artifacts/effort-hunting-20261031/native-hunting3 +native-water. Actual Space jump,
+real10s sea swimming full code paths, controlled resident grass/reaction fixture,
+tracked-position admission and raw GPU deer550m/duck200m. At1280x800 skins occupy
+1/2pixels: drawing proof, NOT universal recognizability/fog bypass or complete
+natural-biome/species acceptance. Early native1 failed because fixture tracking
+disabled; native2 captured saved cloud debug overlay. Those attempts retained,
+excluded from release passes; final isolated capture disables/restores overlay.
+1526 focused Core/Presentation checksPASS incl38 new,709 hunting,67 modes,329HUD,
+77 items,103 abundance,24 survival experience,142 sources+37 swimming. Proof766
+frozen/1038 original assets/30 legacy arms exact; allfauna/motion,67rolesx6 human,
+original audio unchanged. Manifest assets/effort-hunting-release-verification.json;
+docs/HUNTING_OVERHAUL.md current correction section. Shortcut working dir repo
+root for external sounds/music; backup under task artifacts. All owned native/
+Unity/worker jobs finished. No uncontended FPS claim. Source frozen since tests.
+Final handoff docs/manifest/shortcut need commit+push at note time. Owner3files
+untouched. No subagents/paid/deletion. Await feedback, no old overnight autoresume.
+
 SELECTED31Oct00:29CDT: SPATIAL AUDIO LISTENER FIX COMPLETE. Root shortcut now
 artifacts/player-spatial-audio/WorldGen.exe (junction to NEW E:/WorldGen-builds/
 player-spatial-audio), IL2CPP Release BuiltUtc2026-10-31T05:26:29.8848822Z,
