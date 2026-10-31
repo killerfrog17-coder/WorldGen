@@ -58,6 +58,8 @@ public sealed partial class LocalTerrainExplorer
         return role!=null&&!role.Contains("Ready")&&role!="ToolWalk"&&role!="CarryLarge"&&role!="Empty"&&role!="Idle"||CraftWorking;
     }
     bool NaturalPole(Possession item)=>LongViewSpear(item)||WoodCrafting.Wood(item)&&item.HeightM>1||item.Kind==PossessionKind.BowStave;
+    bool RelaxedSmallCarry(Possession item)=>item!=null&&item.Hands<2&&item.HeightM<=.65&&
+        !NaturalPole(item)&&item.Kind!=PossessionKind.Bow&&item.Kind!=PossessionKind.Sling&&item.Kind!=PossessionKind.SpearThrower;
     NaturalGripFrame NaturalFrame(Possession item)=>NaturalSide(item)=="r"?naturalRight:naturalLeft;
     Vector3 NaturalCarryAxis(Possession item)
     {
@@ -225,6 +227,18 @@ public sealed partial class LocalTerrainExplorer
                 safe=Clearance(outward)>Clearance(front)?outward:front;
             }
             NaturalGrip(side,safe,axis);return;
+        }
+        if(RelaxedSmallCarry(item))
+        {
+            // Keep the ordinary idle/gait arm, closing only the fingers. Move
+            // the palm slightly out only when the rigid item needs clearance.
+            var state=NaturalFrame(item);state.HasGrip=false;
+            Vector3 raw=SharedGripPosition(side),safe=raw,axis=SharedGripAxis(side);
+            float length=(float)item.HeightM,radius=Mathf.Clamp((float)item.WidthM*.18f,.012f*s,.07f*s);
+            for(int i=0;i<5&&NaturalBodyClearance(safe-axis*length*.18f,safe+axis*length*.82f,radius)<.008f*s;i++)
+                safe+=body.right*(sign*.012f*s);
+            if((safe-raw).sqrMagnitude>1e-7f)NaturalGrip(side,safe,axis);
+            return;
         }
         float outside=.29f*s+Mathf.Min(.1f,(float)item.WidthM*.3f);
         Vector3 target=body.position+body.right*(outside*sign)+body.forward*.14f*s+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.15f*s);
@@ -395,7 +409,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void PoseNaturalHeldItem(GameObject root,Possession item)
     {
-        string side=NaturalSide(item);Vector3 grip=SharedGripPosition(side),axis=NaturalWeaponDirection(item);bool bow=item.Kind==PossessionKind.Bow;
+        string side=NaturalSide(item);Vector3 grip=SharedGripPosition(side),axis=RelaxedSmallCarry(item)&&!NaturalActing(item)&&!motion.Swimming?SharedGripAxis(side):NaturalWeaponDirection(item);bool bow=item.Kind==PossessionKind.Bow;
         if(bow)
         {
             Vector3 up=sharedBowItem==item.Id?naturalBowUp:NaturalCarryBowUp(item,grip);

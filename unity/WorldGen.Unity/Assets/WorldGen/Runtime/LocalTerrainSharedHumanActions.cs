@@ -81,7 +81,11 @@ public sealed partial class LocalTerrainExplorer
             if(!SharedDeliberateAim&&now-viewConsumeAt>HumanActionDuration(viewConsumeDrink?"Drink":"Eat"))
             {primary=new ViewPose("Empty",0);other=null;}
         }
-        humanPlayer.Shared.Action(primary.Clip,primary.Time,primary.Clip!="Empty",fullBody,other,otherTime,offLeft,dt);
+        bool smallFingers=RelaxedSmallCarry(main)&&!NaturalActing(main)&&
+            (primary.Clip=="ToolReady"||primary.Clip=="ToolReady_Left");
+        bool otherSmallFingers=RelaxedSmallCarry(off)&&!NaturalActing(off)&&
+            (other=="ToolReady"||other=="ToolReady_Left");
+        humanPlayer.Shared.Action(primary.Clip,primary.Time,primary.Clip!="Empty",fullBody,other,otherTime,offLeft,dt,smallFingers,otherSmallFingers,mainLeft);
         humanPlayer.Graph.Evaluate(0);
     }
     Vector3 SharedGripPosition(string side)

@@ -45,6 +45,18 @@ if($BuildPlayer){
     if(!$PlayerFolder){$PlayerFolder=if($selectedSlot -eq $playerSlots[0]){$playerSlots[1]}else{$playerSlots[0]}}
     if($PlayerFolder -notin $playerSlots){throw 'Per-update player folders are retired. Omit -PlayerFolder to reuse the inactive fixed slot.'}
     if($PlayerFolder -eq $selectedSlot){throw 'Refusing to overwrite the selected playable game. Omit -PlayerFolder to build in the other reusable slot.'}
+    # A launcher can be switched while the previous game is still open. That
+    # older process also protects its slot until the owner exits it normally.
+    $runningSlotDirectory=[IO.Path]::GetFullPath((Join-Path $repoRoot ('builds/'+$PlayerFolder)))
+    $runningSlotPaths=@($runningSlotDirectory)
+    if(Test-Path -LiteralPath $runningSlotDirectory){
+        $runningSlotItem=Get-Item -LiteralPath $runningSlotDirectory
+        if($runningSlotItem.LinkType -eq 'Junction'){$runningSlotPaths+=@($runningSlotItem.Target | ForEach-Object {[IO.Path]::GetFullPath($_)})}
+    }
+    $runningSlotPlayer=Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'" | Where-Object {
+        $_.ExecutablePath -and [IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($_.ExecutablePath)) -in $runningSlotPaths
+    }
+    if($runningSlotPlayer){throw ('The owner still has '+$PlayerFolder+' running. Leave it untouched; wait until the owner exits it before reusing this slot.')}
     Write-Output ('Reusing player workspace: '+$PlayerFolder)
 }
 $workerOutput=Join-Path $repoRoot 'artifacts/terrain-worker'

@@ -14,14 +14,14 @@ sealed class WorldGenSharedHumanMotion : IDisposable
     readonly PlayableGraph graph;
     readonly Track locomotion,body,upper,offhand;
     readonly List<AvatarMask> masks=new List<AvatarMask>();
-    readonly AvatarMask leftMask,rightMask;
+    readonly AvatarMask leftMask,rightMask,upperMask,leftFingerMask,rightFingerMask;
     readonly Transform root,head;
     readonly Vector3 eyeInHead;
     readonly Quaternion headBindRotation;
     public Vector3 LocalEye=>root.InverseTransformPoint(head.TransformPoint(eyeInHead));
     double phase,clock,jumpAt;
     float bodyWeight,upperWeight,offWeight;
-    bool airborne,maskLeft;
+    bool airborne,maskLeft,maskFingers,upperFingers,upperLeft;
     public string ActionRole {get;private set;}="Empty";
     public double ActionTime {get;private set;}
     public float MoveSpeed {get;private set;}
@@ -51,18 +51,20 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         body=MakeTrack(actions);upper=MakeTrack(actions);offhand=MakeTrack(actions);
         graph.Connect(body.Mixer,0,Output,1);graph.Connect(upper.Mixer,0,Output,2);graph.Connect(offhand.Mixer,0,Output,3);
         var spine=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="spine_01");
-        Output.SetLayerMaskFromAvatarMask(2,MakeMask(root,spine));
+        upperMask=MakeMask(root,spine);Output.SetLayerMaskFromAvatarMask(2,upperMask);
         leftMask=MakeMask(root,root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="clavicle_l"));
         rightMask=MakeMask(root,root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="clavicle_r"));
+        leftFingerMask=MakeMask(root,root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="hand_l"),true);
+        rightFingerMask=MakeMask(root,root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="hand_r"),true);
         Output.SetLayerMaskFromAvatarMask(3,rightMask);
     }
-    AvatarMask MakeMask(Transform root,Transform pivot)
+    AvatarMask MakeMask(Transform root,Transform pivot,bool fingersOnly=false)
     {
         var transforms=root.GetComponentsInChildren<Transform>(true);var mask=new AvatarMask();mask.transformCount=transforms.Length;
         for(int i=0;i<transforms.Length;i++)
         {
             string path="";for(var t=transforms[i];t!=root&&t!=null;t=t.parent)path=t.name+(path.Length==0?"":"/"+path);
-            mask.SetTransformPath(i,path);mask.SetTransformActive(i,transforms[i]==pivot||transforms[i].IsChildOf(pivot));
+            mask.SetTransformPath(i,path);mask.SetTransformActive(i,fingersOnly?transforms[i]!=pivot&&transforms[i].IsChildOf(pivot):transforms[i]==pivot||transforms[i].IsChildOf(pivot));
         }
         masks.Add(mask);return mask;
     }
@@ -145,10 +147,18 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         }
         for(int i=0;i<track.Nodes.Length;i++)track.Mixer.SetInputWeight(i,track.Weights[i]/Math.Max(.0001f,total));
     }
-    public void Action(string role,double seconds,bool active,bool fullBody,string other,double otherSeconds,bool otherLeft,float dt)
+    public void Action(string role,double seconds,bool active,bool fullBody,string other,double otherSeconds,bool otherLeft,float dt,bool fingersOnly=false,bool otherFingersOnly=false,bool primaryLeft=false)
     {
         if(body==null)return;
         ActionRole=role;ActionTime=seconds;
+        if(upperFingers!=fingersOnly||upperLeft!=primaryLeft)
+        {
+            // An arm pose that was masked out during small-item carrying must
+            // not briefly appear when switching back to a weapon/action layer.
+            upper.Current=null;upperWeight=0;
+            upperFingers=fingersOnly;upperLeft=primaryLeft;
+            Output.SetLayerMaskFromAvatarMask(2,fingersOnly?(primaryLeft?leftFingerMask:rightFingerMask):upperMask);
+        }
         Pose(body,role,seconds,dt);Pose(upper,role,seconds,dt);
         float smoothing=1-Mathf.Exp(-dt*16);
         upperWeight=Mathf.Lerp(upperWeight,active?1:0,smoothing);
@@ -158,7 +168,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         Output.SetInputWeight(1,bodyWeight);Output.SetInputWeight(2,upperWeight);Output.SetInputWeight(3,offWeight);
         if(other!=null)
         {
-            if(maskLeft!=otherLeft){maskLeft=otherLeft;Output.SetLayerMaskFromAvatarMask(3,otherLeft?leftMask:rightMask);}
+            if(maskLeft!=otherLeft||maskFingers!=otherFingersOnly){maskLeft=otherLeft;maskFingers=otherFingersOnly;Output.SetLayerMaskFromAvatarMask(3,otherFingersOnly?(otherLeft?leftFingerMask:rightFingerMask):(otherLeft?leftMask:rightMask));}
             Pose(offhand,other,otherSeconds,dt);
         }
     }

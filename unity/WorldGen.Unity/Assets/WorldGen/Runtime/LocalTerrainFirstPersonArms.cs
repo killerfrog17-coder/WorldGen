@@ -145,7 +145,7 @@ public sealed partial class LocalTerrainExplorer
         if(item?.Kind==PossessionKind.SpearThrower)return new ViewPose(Side("SpearReady1"),Clock("SpearReady1"));
         if(item?.Hands==2&&!LongViewSpear(item))return new ViewPose("CarryLarge",Clock("CarryLarge"));
         if(LongViewSpear(item)){string role=SupportSpear(item)?"SpearReady2":"SpearReady1";return new ViewPose(Side(role),Clock(role));}
-        if(item!=null){string role=huntingSpeed>.4?"ToolWalk":"ToolReady";return new ViewPose(Side(role),Clock(role));}
+        if(item!=null){string role=SharedHumanMotion&&RelaxedSmallCarry(item)?"ToolReady":huntingSpeed>.4?"ToolWalk":"ToolReady";return new ViewPose(Side(role),Clock(role));}
         return new ViewPose("Empty",Clock("Empty"));
     }
     void UpdateViewArms()
