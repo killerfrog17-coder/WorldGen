@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+ACTIVE31Oct02:27CDT HUMAN ANIMATION OVERNIGHT REVISION. Owner explicitly
+requests at least5-6h: started2026-10-31T07:27:07Z; minimum work through12:27:07Z
+(07:27CDT), aim handoff by13:27:07Z (08:27CDT), unless owner changes/stops.
+Do not stop on early mechanical passes or idle to pad time. Review ALL person
+animation groups with actual props; prioritize terrible bow, natural body-relative
+carry independent of look pitch, safe spear clearance, ordinary upright knife/
+spear strikes without arbitrary squat, and armed swimming. Generate restrained
+new takes as needed; constraint fitting must enforce actual grips/prop clearance,
+not rely on prompts. Same full-body first/third-person, correct free third-person
+orbit/turn-toward-travel and Debug Legacy fallback retained. Preserve latest
+terrain-boundary/effort/hunting/spatial-audio work and ALL original character/
+animal art/weights/textures. Selected player-terrain-boundaries stays FROZEN;
+eventual NEW IL2CPP candidate/proof/shortcut only after real visual/input checks.
+No paid/signup/subagents/Mono/cleanup. Owner3 files untouched. Generation initial
+33 actions x2 takes queued using installed public local Kimodo runtime, CPU8
+normal memory. Worker0 running exec66643 (33 first takes), worker1 can follow
+after worker0 to avoid shared embedding writes. Task artifacts/human-natural-
+20261031 is NEW junction to D:/WorldGenBuildArtifacts/human-natural-20261031.
+Session time/bounds in session.json. D~6.4GiB,C~2.5GiB,E~.4GiB free: reuse weights,
+bounded derivatives; no old package or blocked-path cleanup. Current code baseline
+9a87ae5. Need raw metric screening + whole-sequence prop review, constrained
+bow/spear/carry/swim fitting + layering, regenerate/refine deficient actions,
+final fitted bank6 variants/native checks/protected latest-source proofs/Git.
+
 SELECTED31Oct~02:15CDT: SKY-BLUE TERRAIN CHUNK CRACK REPAIR COMPLETE.
 Root shortcut NOW artifacts/player-terrain-boundaries/WorldGen.exe, junction to
 D:/WorldGenBuildArtifacts/player-terrain-boundaries. IL2CPP RELEASE BuiltUtc
