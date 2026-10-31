@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "86233d9d526b4315badbcf9b14751cf395a3ddff",
+  "source_checkpoint": "dc2909882a6594ff6c250d33a5a204b0ee3f0a84",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -12435,6 +12435,324 @@
       "bytes": 44393535,
       "pack": "game-assets-20261029-v1/assets-4d46b81b70f4589600f917712eacaed22a6d8b8457abca8475984a62974de8f8.zip",
       "member": "objects/3a0fcba397a868a89e453cb75b5c8f3480afb71bafe91533aa6acc1fa5b21ff9"
+    },
+    "assets-source/humans/appearance-review/Human physique comparison.blend": {
+      "sha256": "c46a3ecd71d65ba6ef4d5a84e50c9ea52824638ba80e004e4f610a66e2896dda",
+      "bytes": 65645343,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip",
+      "member": "objects/c46a3ecd71d65ba6ef4d5a84e50c9ea52824638ba80e004e4f610a66e2896dda"
+    },
+    "assets-source/humans/appearance-runtime/export-report.json": {
+      "sha256": "ea87aa77bf198b95aea8ac60a0218c3099fe8e2de2573418ea70f3c979eabe96",
+      "bytes": 15619,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ea87aa77bf198b95aea8ac60a0218c3099fe8e2de2573418ea70f3c979eabe96"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/afro01.png": {
+      "sha256": "9cb0430b8f10c65cb51899466b69072aa59b659a577665963701de38c0381136",
+      "bytes": 1022310,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/9cb0430b8f10c65cb51899466b69072aa59b659a577665963701de38c0381136"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/body.png": {
+      "sha256": "bc61cb99d420c9077dbbae215e0e1fb5621f5a451e69413ae5d2039dcaa3624a",
+      "bytes": 15154654,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/bc61cb99d420c9077dbbae215e0e1fb5621f5a451e69413ae5d2039dcaa3624a"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/eyebrow001.png": {
+      "sha256": "b9b1bd5e67d61cb337861b5b1329abdf258ee13eb1a3ee3f0f65a3f1e3cee79f",
+      "bytes": 94718,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b9b1bd5e67d61cb337861b5b1329abdf258ee13eb1a3ee3f0f65a3f1e3cee79f"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/high-poly.png": {
+      "sha256": "d5d7d8ff3a892c9a3153349f0ab6069aaaa2ae63ec689ada560c898dad5bd7eb",
+      "bytes": 32193,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip",
+      "member": "objects/d5d7d8ff3a892c9a3153349f0ab6069aaaa2ae63ec689ada560c898dad5bd7eb"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/human-a.fbx": {
+      "sha256": "2a1a8196ea8989b34a48a1ac1c856009f9ab8e7bb384e7532e433f3f0e96ab16",
+      "bytes": 2010620,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/2a1a8196ea8989b34a48a1ac1c856009f9ab8e7bb384e7532e433f3f0e96ab16"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/human.json": {
+      "sha256": "a5436b9742e6566091f45697f6ce5aeb372f10d802387d5bcd69f1091d07e772",
+      "bytes": 2751,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/a5436b9742e6566091f45697f6ce5aeb372f10d802387d5bcd69f1091d07e772"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-a/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/body.png": {
+      "sha256": "b4538fe3d8da209b0f26dc2e6992254fa11124b4287541ef490d6ca99fc14cbe",
+      "bytes": 19594983,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b4538fe3d8da209b0f26dc2e6992254fa11124b4287541ef490d6ca99fc14cbe"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/cortu_short_messy_hair.png": {
+      "sha256": "3d546f670dfd1ce067f9653b6d00639985b8b8d5e25e0782afce1ab204e30de5",
+      "bytes": 1046473,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/3d546f670dfd1ce067f9653b6d00639985b8b8d5e25e0782afce1ab204e30de5"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/eyebrow001.png": {
+      "sha256": "16d407d1b89c4c8fcb7b674504ae43634a6eea664447cb28c8a8b23593197ef9",
+      "bytes": 94749,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/16d407d1b89c4c8fcb7b674504ae43634a6eea664447cb28c8a8b23593197ef9"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/grinsegold_beard_sigmund_wip.png": {
+      "sha256": "df06329c740a5086a7f07e80dbbe779bf218069193e533a4c3558a129d4dfe45",
+      "bytes": 810877,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/df06329c740a5086a7f07e80dbbe779bf218069193e533a4c3558a129d4dfe45"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/high-poly.png": {
+      "sha256": "37f904b0c4579111cc62d822e877b1afd16649a07442177d303af6db168bd7c2",
+      "bytes": 32572,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/37f904b0c4579111cc62d822e877b1afd16649a07442177d303af6db168bd7c2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/human-b.fbx": {
+      "sha256": "bb1fac2f3a53f97f259d492f28b771e557cec1d613fba3ba6465984f36df86c8",
+      "bytes": 2038508,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/bb1fac2f3a53f97f259d492f28b771e557cec1d613fba3ba6465984f36df86c8"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/human.json": {
+      "sha256": "0edaef86b4bd727ca3eec38d5f9c8d95c6992d836c20763f3c92497a12cf77d2",
+      "bytes": 3032,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/0edaef86b4bd727ca3eec38d5f9c8d95c6992d836c20763f3c92497a12cf77d2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-b/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/body.png": {
+      "sha256": "e6e96d8ac53d1d9b63f6151c0847a7bd7095709f61c8b51a97608647fa06efd7",
+      "bytes": 16076720,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e6e96d8ac53d1d9b63f6151c0847a7bd7095709f61c8b51a97608647fa06efd7"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/elvs_unkempt_french_braid.png": {
+      "sha256": "e54ca7ed5face06dd8406d6c0562d39d8415cd53ae55a870e69762653b4cca1b",
+      "bytes": 492863,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e54ca7ed5face06dd8406d6c0562d39d8415cd53ae55a870e69762653b4cca1b"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/eyebrow001.png": {
+      "sha256": "56a7f50b89b5e00f647beae77dd544145615d5df1435858a68bf69354b0bab27",
+      "bytes": 94720,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/56a7f50b89b5e00f647beae77dd544145615d5df1435858a68bf69354b0bab27"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/high-poly.png": {
+      "sha256": "64a60b212371ec7e627b0d25eccc30e24aeaa9b70a8dee1e3e9d22eff9c2562e",
+      "bytes": 32764,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/64a60b212371ec7e627b0d25eccc30e24aeaa9b70a8dee1e3e9d22eff9c2562e"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/human-c.fbx": {
+      "sha256": "b2f41dafe09a9cd07cdf86ce0c9dac2a0dfa3835e2885c4af2bf910cf857a4ca",
+      "bytes": 2324796,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/b2f41dafe09a9cd07cdf86ce0c9dac2a0dfa3835e2885c4af2bf910cf857a4ca"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/human.json": {
+      "sha256": "50d2188d81b37b3ff1615f959ee71625615305d4cb65df6a9552f7c24826dd1e",
+      "bytes": 2804,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/50d2188d81b37b3ff1615f959ee71625615305d4cb65df6a9552f7c24826dd1e"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-c/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/body.png": {
+      "sha256": "1634c69b03f289e4693b1118fcddc14e052151173ba079182b0863bfee355ba3",
+      "bytes": 18291823,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/1634c69b03f289e4693b1118fcddc14e052151173ba079182b0863bfee355ba3"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/eyebrow001.png": {
+      "sha256": "acb89d6f08349d4b5f88e79962b73c9c6165d9d4277c4a534b767b673aee9901",
+      "bytes": 94772,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/acb89d6f08349d4b5f88e79962b73c9c6165d9d4277c4a534b767b673aee9901"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/grinsegold_beard_sigmund_wip.png": {
+      "sha256": "c8849e3307a720f81d30076aaa229bff170ec632d5b8d73ae443b616c3388c40",
+      "bytes": 825610,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip",
+      "member": "objects/c8849e3307a720f81d30076aaa229bff170ec632d5b8d73ae443b616c3388c40"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/high-poly.png": {
+      "sha256": "3cc15c46e0c76279d25096ecbae10ab6cf26517ded9a87640e3477b565f0673b",
+      "bytes": 32586,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/3cc15c46e0c76279d25096ecbae10ab6cf26517ded9a87640e3477b565f0673b"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/human-d.fbx": {
+      "sha256": "eeae7063a13ae69ead19f0a8525e1df517dbc3c48af0308e2fe78dee511c0929",
+      "bytes": 2225580,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/eeae7063a13ae69ead19f0a8525e1df517dbc3c48af0308e2fe78dee511c0929"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/human.json": {
+      "sha256": "7155447b5626001cbea1d29024249f0aabab8d8e9e6862d1aa72e603fca028b8",
+      "bytes": 3049,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/7155447b5626001cbea1d29024249f0aabab8d8e9e6862d1aa72e603fca028b8"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/long01.png": {
+      "sha256": "71dd70116e753a3608ea0317054d5752e5d5edd1f137de1f9705d05bea2ca3e8",
+      "bytes": 373568,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/71dd70116e753a3608ea0317054d5752e5d5edd1f137de1f9705d05bea2ca3e8"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-d/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/body.png": {
+      "sha256": "17f9c4ab618b3816c578ab7afadd75fe7d05bb27ab847e40fedf3231269b6fc1",
+      "bytes": 15372115,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/17f9c4ab618b3816c578ab7afadd75fe7d05bb27ab847e40fedf3231269b6fc1"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/braid01.png": {
+      "sha256": "2fd8b66ed95fc06242a52569a5ec3d7ae0be2ed7d2f95891a54d53aff13492bb",
+      "bytes": 338638,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/2fd8b66ed95fc06242a52569a5ec3d7ae0be2ed7d2f95891a54d53aff13492bb"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/eyebrow001.png": {
+      "sha256": "7c594926708d6018b11712051ecbba630b0443e7e4a9a1517e3b6269b413982d",
+      "bytes": 94734,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/7c594926708d6018b11712051ecbba630b0443e7e4a9a1517e3b6269b413982d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/high-poly.png": {
+      "sha256": "ae5c9a5cbed512869c5aadfe133f322e3dbab29e794c6780f6f93f3c2bb6aac3",
+      "bytes": 32508,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/ae5c9a5cbed512869c5aadfe133f322e3dbab29e794c6780f6f93f3c2bb6aac3"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/human-e.fbx": {
+      "sha256": "5dc84e092014a3248fe670cceed5db1e55aa8c8293d28a3d9b7e3dd3dc72be44",
+      "bytes": 2207692,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/5dc84e092014a3248fe670cceed5db1e55aa8c8293d28a3d9b7e3dd3dc72be44"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/human.json": {
+      "sha256": "fa836a501c0397d594811b28b1a09edcbb64cd38a6ebda99d038887069fd3b77",
+      "bytes": 2807,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/fa836a501c0397d594811b28b1a09edcbb64cd38a6ebda99d038887069fd3b77"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-e/teeth_base.png": {
+      "sha256": "066ea53058ffa174e14140cbcba2cd40b844b332b400692b833428dcb1d003c2",
+      "bytes": 337988,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/066ea53058ffa174e14140cbcba2cd40b844b332b400692b833428dcb1d003c2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/body.png": {
+      "sha256": "d90c5143ea3de427bb9f190e2cd4053c95fe1ffbcba2190bb9ac9371013ecf38",
+      "bytes": 21199403,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d90c5143ea3de427bb9f190e2cd4053c95fe1ffbcba2190bb9ac9371013ecf38"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/cortu_short_messy_hair.png": {
+      "sha256": "76d7ddbcbe192ea37dbb207c32911273dcbcac71365da40fcbff304009691df5",
+      "bytes": 1261264,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/76d7ddbcbe192ea37dbb207c32911273dcbcac71365da40fcbff304009691df5"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/eyebrow001.png": {
+      "sha256": "4162eb51bb7f00bd390ee75b6c5542ccfc80a5e0a2f34f3590a40ae5dedf9da5",
+      "bytes": 94747,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/4162eb51bb7f00bd390ee75b6c5542ccfc80a5e0a2f34f3590a40ae5dedf9da5"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/grinsegold_beard_sigmund_wip.png": {
+      "sha256": "82f1c3ac2d22699349fa19552725d437d243718ce6964c4a6ca6675e0d79c40c",
+      "bytes": 938661,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/82f1c3ac2d22699349fa19552725d437d243718ce6964c4a6ca6675e0d79c40c"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/high-poly.png": {
+      "sha256": "bd655a4722fa85baad692e6f71cb792471f152b0f5bfa05fed1887430ae88547",
+      "bytes": 32221,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/bd655a4722fa85baad692e6f71cb792471f152b0f5bfa05fed1887430ae88547"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/human-f.fbx": {
+      "sha256": "1957dd9650ce8962e0eb829277ff68760d41339a79121c7e31fae7df746d4dc2",
+      "bytes": 2037388,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/1957dd9650ce8962e0eb829277ff68760d41339a79121c7e31fae7df746d4dc2"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/human.json": {
+      "sha256": "b4edf87cb70fc59eb1ed9bd3ea7f8eb4083b550533c6abc0c64bc41a86f1662d",
+      "bytes": 3070,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b4edf87cb70fc59eb1ed9bd3ea7f8eb4083b550533c6abc0c64bc41a86f1662d"
+    },
+    "assets-source/humans/appearance-runtime/exports/human-f/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
     },
     "assets-source/humans/base/Human - Animation Comparison.blend": {
       "sha256": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
@@ -26974,6 +27292,660 @@
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/898462ca91c03d2763ed5df7e0d668412e4046384d2ff5659277d35a0946d6a3"
     },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance.meta": {
+      "sha256": "ba93bcc15b21629b2976527ac49a1350e0b533a4a6a7de93b8e33751b1ed43b7",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ba93bcc15b21629b2976527ac49a1350e0b533a4a6a7de93b8e33751b1ed43b7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a.meta": {
+      "sha256": "ab23b5536ab2a044ca81b55c088da4a147850be7094655385c74721834654bd9",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ab23b5536ab2a044ca81b55c088da4a147850be7094655385c74721834654bd9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/afro01.png": {
+      "sha256": "9cb0430b8f10c65cb51899466b69072aa59b659a577665963701de38c0381136",
+      "bytes": 1022310,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/9cb0430b8f10c65cb51899466b69072aa59b659a577665963701de38c0381136"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/afro01.png.meta": {
+      "sha256": "44b8d6bc920be5e51da0299cb0624fcd7fb648926b0315d11d2fb253943a5d1b",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/44b8d6bc920be5e51da0299cb0624fcd7fb648926b0315d11d2fb253943a5d1b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/body.png": {
+      "sha256": "bc61cb99d420c9077dbbae215e0e1fb5621f5a451e69413ae5d2039dcaa3624a",
+      "bytes": 15154654,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/bc61cb99d420c9077dbbae215e0e1fb5621f5a451e69413ae5d2039dcaa3624a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/body.png.meta": {
+      "sha256": "cb4e2ee7a958e303404d204fe81446237773163fcb65de838d0dfffabfbffeb8",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cb4e2ee7a958e303404d204fe81446237773163fcb65de838d0dfffabfbffeb8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/eyebrow001.png": {
+      "sha256": "b9b1bd5e67d61cb337861b5b1329abdf258ee13eb1a3ee3f0f65a3f1e3cee79f",
+      "bytes": 94718,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b9b1bd5e67d61cb337861b5b1329abdf258ee13eb1a3ee3f0f65a3f1e3cee79f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/eyebrow001.png.meta": {
+      "sha256": "058a0181f6313fb8597c220852b110f1d03de0426d06708b94c34518bcd1995a",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/058a0181f6313fb8597c220852b110f1d03de0426d06708b94c34518bcd1995a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/eyelashes01.png.meta": {
+      "sha256": "7161137e5108902cec909931e182aa262affdb6cd05b0d3a3b534261cf583251",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/7161137e5108902cec909931e182aa262affdb6cd05b0d3a3b534261cf583251"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/high-poly.png": {
+      "sha256": "d5d7d8ff3a892c9a3153349f0ab6069aaaa2ae63ec689ada560c898dad5bd7eb",
+      "bytes": 32193,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip",
+      "member": "objects/d5d7d8ff3a892c9a3153349f0ab6069aaaa2ae63ec689ada560c898dad5bd7eb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/high-poly.png.meta": {
+      "sha256": "29160bad411f90773da3fe551ba8f1bbf34e7b0310f3a2577383405604259f3b",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/29160bad411f90773da3fe551ba8f1bbf34e7b0310f3a2577383405604259f3b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/human-a.fbx": {
+      "sha256": "2a1a8196ea8989b34a48a1ac1c856009f9ab8e7bb384e7532e433f3f0e96ab16",
+      "bytes": 2010620,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/2a1a8196ea8989b34a48a1ac1c856009f9ab8e7bb384e7532e433f3f0e96ab16"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/human-a.fbx.meta": {
+      "sha256": "f7e406b7ca2ea76163340aea154e3eee50b693f6a8660e96f93de201c7e6cbeb",
+      "bytes": 3063,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f7e406b7ca2ea76163340aea154e3eee50b693f6a8660e96f93de201c7e6cbeb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/human.json": {
+      "sha256": "a5436b9742e6566091f45697f6ce5aeb372f10d802387d5bcd69f1091d07e772",
+      "bytes": 2751,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/a5436b9742e6566091f45697f6ce5aeb372f10d802387d5bcd69f1091d07e772"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/human.json.meta": {
+      "sha256": "1e94d87a9c090f53b22f7c551a5cd170db103680bad31b562d54e12a9feb0d78",
+      "bytes": 158,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1e94d87a9c090f53b22f7c551a5cd170db103680bad31b562d54e12a9feb0d78"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-a/teeth_base.png.meta": {
+      "sha256": "70fafc019442a21147ee20970d092ed51bf7dcff9f41d1753667c3b57a436262",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/70fafc019442a21147ee20970d092ed51bf7dcff9f41d1753667c3b57a436262"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b.meta": {
+      "sha256": "ad8615873caec6741244254d78d195ec94bbf36e3c9af5b8e196eaa2b9a08cf0",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ad8615873caec6741244254d78d195ec94bbf36e3c9af5b8e196eaa2b9a08cf0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/body.png": {
+      "sha256": "b4538fe3d8da209b0f26dc2e6992254fa11124b4287541ef490d6ca99fc14cbe",
+      "bytes": 19594983,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b4538fe3d8da209b0f26dc2e6992254fa11124b4287541ef490d6ca99fc14cbe"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/body.png.meta": {
+      "sha256": "a4721c1e2dc7f2773321e4bca4ec915cdcdef7f0bac7619e7f4aa805c85b586a",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a4721c1e2dc7f2773321e4bca4ec915cdcdef7f0bac7619e7f4aa805c85b586a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/cortu_short_messy_hair.png": {
+      "sha256": "3d546f670dfd1ce067f9653b6d00639985b8b8d5e25e0782afce1ab204e30de5",
+      "bytes": 1046473,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/3d546f670dfd1ce067f9653b6d00639985b8b8d5e25e0782afce1ab204e30de5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/cortu_short_messy_hair.png.meta": {
+      "sha256": "75f08b9fcc30aaf0cbbdeb3aea66c4e6d7b43eb4cbee8abc7a89de503bb74c11",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/75f08b9fcc30aaf0cbbdeb3aea66c4e6d7b43eb4cbee8abc7a89de503bb74c11"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/eyebrow001.png": {
+      "sha256": "16d407d1b89c4c8fcb7b674504ae43634a6eea664447cb28c8a8b23593197ef9",
+      "bytes": 94749,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/16d407d1b89c4c8fcb7b674504ae43634a6eea664447cb28c8a8b23593197ef9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/eyebrow001.png.meta": {
+      "sha256": "6034bc73e24793bb835bc772a2131012c6c75e5d2cc49485afd69fe971405ff9",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6034bc73e24793bb835bc772a2131012c6c75e5d2cc49485afd69fe971405ff9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/eyelashes01.png.meta": {
+      "sha256": "5bcc141fce5c6d4616a324c4242ba8808336c25194dd425150b3c193bb469015",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5bcc141fce5c6d4616a324c4242ba8808336c25194dd425150b3c193bb469015"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/grinsegold_beard_sigmund_wip.png": {
+      "sha256": "df06329c740a5086a7f07e80dbbe779bf218069193e533a4c3558a129d4dfe45",
+      "bytes": 810877,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/df06329c740a5086a7f07e80dbbe779bf218069193e533a4c3558a129d4dfe45"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/grinsegold_beard_sigmund_wip.png.meta": {
+      "sha256": "8b237ba4e2ddb56c0087c07a5001f1d96774e72a27e7f8ac2432c655b368de0c",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8b237ba4e2ddb56c0087c07a5001f1d96774e72a27e7f8ac2432c655b368de0c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/high-poly.png": {
+      "sha256": "37f904b0c4579111cc62d822e877b1afd16649a07442177d303af6db168bd7c2",
+      "bytes": 32572,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/37f904b0c4579111cc62d822e877b1afd16649a07442177d303af6db168bd7c2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/high-poly.png.meta": {
+      "sha256": "1daa1dcd1f943865895ec77acd9ae458b509a5a2e00b646b6af040ff779e5efc",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1daa1dcd1f943865895ec77acd9ae458b509a5a2e00b646b6af040ff779e5efc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/human-b.fbx": {
+      "sha256": "bb1fac2f3a53f97f259d492f28b771e557cec1d613fba3ba6465984f36df86c8",
+      "bytes": 2038508,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/bb1fac2f3a53f97f259d492f28b771e557cec1d613fba3ba6465984f36df86c8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/human-b.fbx.meta": {
+      "sha256": "e9dc57c5557affbac08ebb9470a2ec0776d9bd48eb79b83ddb2d6af3684d53d8",
+      "bytes": 3063,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e9dc57c5557affbac08ebb9470a2ec0776d9bd48eb79b83ddb2d6af3684d53d8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/human.json": {
+      "sha256": "0edaef86b4bd727ca3eec38d5f9c8d95c6992d836c20763f3c92497a12cf77d2",
+      "bytes": 3032,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/0edaef86b4bd727ca3eec38d5f9c8d95c6992d836c20763f3c92497a12cf77d2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/human.json.meta": {
+      "sha256": "67b7ace164537e1bf6f497a68941349941ebe2942a0469aa71095e23e2979c78",
+      "bytes": 158,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/67b7ace164537e1bf6f497a68941349941ebe2942a0469aa71095e23e2979c78"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-b/teeth_base.png.meta": {
+      "sha256": "80cff9163c8a474e8c7a2fe1ad9807f376cffc1ff94168aacb92234322a01f74",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/80cff9163c8a474e8c7a2fe1ad9807f376cffc1ff94168aacb92234322a01f74"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c.meta": {
+      "sha256": "8b26846f38b5a0444616b13e92cfba22f987515fbf65e792f64f8d5e952d2402",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8b26846f38b5a0444616b13e92cfba22f987515fbf65e792f64f8d5e952d2402"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/body.png": {
+      "sha256": "e6e96d8ac53d1d9b63f6151c0847a7bd7095709f61c8b51a97608647fa06efd7",
+      "bytes": 16076720,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e6e96d8ac53d1d9b63f6151c0847a7bd7095709f61c8b51a97608647fa06efd7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/body.png.meta": {
+      "sha256": "519e7c8eb8cd177bab7d91be3dde5af47cca17fe52d06563f89f8f670d9e6c56",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/519e7c8eb8cd177bab7d91be3dde5af47cca17fe52d06563f89f8f670d9e6c56"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/elvs_unkempt_french_braid.png": {
+      "sha256": "e54ca7ed5face06dd8406d6c0562d39d8415cd53ae55a870e69762653b4cca1b",
+      "bytes": 492863,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e54ca7ed5face06dd8406d6c0562d39d8415cd53ae55a870e69762653b4cca1b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/elvs_unkempt_french_braid.png.meta": {
+      "sha256": "f89f983b83637030549dea2fc1ed023d498dcf020ebf8968b067ee7927b1f7bc",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f89f983b83637030549dea2fc1ed023d498dcf020ebf8968b067ee7927b1f7bc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/eyebrow001.png": {
+      "sha256": "56a7f50b89b5e00f647beae77dd544145615d5df1435858a68bf69354b0bab27",
+      "bytes": 94720,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/56a7f50b89b5e00f647beae77dd544145615d5df1435858a68bf69354b0bab27"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/eyebrow001.png.meta": {
+      "sha256": "ba5513d3c0b783c8c8c55697f7f37e0444545cf9c7cb33a4634269372b211d32",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ba5513d3c0b783c8c8c55697f7f37e0444545cf9c7cb33a4634269372b211d32"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/eyelashes01.png.meta": {
+      "sha256": "5b307a232b66b6c14f60044a43ba2f8e968945484bc7d977944252a76157a102",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5b307a232b66b6c14f60044a43ba2f8e968945484bc7d977944252a76157a102"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/high-poly.png": {
+      "sha256": "64a60b212371ec7e627b0d25eccc30e24aeaa9b70a8dee1e3e9d22eff9c2562e",
+      "bytes": 32764,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/64a60b212371ec7e627b0d25eccc30e24aeaa9b70a8dee1e3e9d22eff9c2562e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/high-poly.png.meta": {
+      "sha256": "ad80007333db9a4ef32aecaebc2eaab49e88fe22c3e6b7c327fefaa810db1038",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ad80007333db9a4ef32aecaebc2eaab49e88fe22c3e6b7c327fefaa810db1038"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/human-c.fbx": {
+      "sha256": "b2f41dafe09a9cd07cdf86ce0c9dac2a0dfa3835e2885c4af2bf910cf857a4ca",
+      "bytes": 2324796,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/b2f41dafe09a9cd07cdf86ce0c9dac2a0dfa3835e2885c4af2bf910cf857a4ca"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/human-c.fbx.meta": {
+      "sha256": "932904fa38c9247191f7724db7a18981b9f4315277cb74dd18d46e8c7c25a23d",
+      "bytes": 3063,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/932904fa38c9247191f7724db7a18981b9f4315277cb74dd18d46e8c7c25a23d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/human.json": {
+      "sha256": "50d2188d81b37b3ff1615f959ee71625615305d4cb65df6a9552f7c24826dd1e",
+      "bytes": 2804,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/50d2188d81b37b3ff1615f959ee71625615305d4cb65df6a9552f7c24826dd1e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/human.json.meta": {
+      "sha256": "73da20da552d462a4367625241111b2f087af6c2ca57dcc355a47c9f7d6e765f",
+      "bytes": 158,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/73da20da552d462a4367625241111b2f087af6c2ca57dcc355a47c9f7d6e765f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-c/teeth_base.png.meta": {
+      "sha256": "a59f58c9daa14f0b39c984583c60bbe61fc0c75651a67712f70a61c57aad799a",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a59f58c9daa14f0b39c984583c60bbe61fc0c75651a67712f70a61c57aad799a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d.meta": {
+      "sha256": "f09f855eb3803263ff3369337886795d5e9ef1f265f824bc39dd79c1bc904cbe",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/f09f855eb3803263ff3369337886795d5e9ef1f265f824bc39dd79c1bc904cbe"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/body.png": {
+      "sha256": "1634c69b03f289e4693b1118fcddc14e052151173ba079182b0863bfee355ba3",
+      "bytes": 18291823,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/1634c69b03f289e4693b1118fcddc14e052151173ba079182b0863bfee355ba3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/body.png.meta": {
+      "sha256": "7527b86045f4989f33bc1ec62145e3bf16bcc1a4bb07d491f133d7247d715c37",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/7527b86045f4989f33bc1ec62145e3bf16bcc1a4bb07d491f133d7247d715c37"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/eyebrow001.png": {
+      "sha256": "acb89d6f08349d4b5f88e79962b73c9c6165d9d4277c4a534b767b673aee9901",
+      "bytes": 94772,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/acb89d6f08349d4b5f88e79962b73c9c6165d9d4277c4a534b767b673aee9901"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/eyebrow001.png.meta": {
+      "sha256": "620d8acfcb6febdea3fb88f1a8a4ecdf2a983edad7633adf0ecacd2cc0537e2f",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/620d8acfcb6febdea3fb88f1a8a4ecdf2a983edad7633adf0ecacd2cc0537e2f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/eyelashes01.png.meta": {
+      "sha256": "c0823d6d47a84097a8699996bcd7660da3935f5bdd890405ed4194bcb978fccd",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c0823d6d47a84097a8699996bcd7660da3935f5bdd890405ed4194bcb978fccd"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/grinsegold_beard_sigmund_wip.png": {
+      "sha256": "c8849e3307a720f81d30076aaa229bff170ec632d5b8d73ae443b616c3388c40",
+      "bytes": 825610,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip",
+      "member": "objects/c8849e3307a720f81d30076aaa229bff170ec632d5b8d73ae443b616c3388c40"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/grinsegold_beard_sigmund_wip.png.meta": {
+      "sha256": "a50a25ee32df9c8b0b8c48c7fd911d9c369999641126d580c0a7c2580d41be7e",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a50a25ee32df9c8b0b8c48c7fd911d9c369999641126d580c0a7c2580d41be7e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/high-poly.png": {
+      "sha256": "3cc15c46e0c76279d25096ecbae10ab6cf26517ded9a87640e3477b565f0673b",
+      "bytes": 32586,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/3cc15c46e0c76279d25096ecbae10ab6cf26517ded9a87640e3477b565f0673b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/high-poly.png.meta": {
+      "sha256": "0d316e4f709551125975e3f410726492dce3d8c220921faa1336b955b031e8b3",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0d316e4f709551125975e3f410726492dce3d8c220921faa1336b955b031e8b3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/human-d.fbx": {
+      "sha256": "eeae7063a13ae69ead19f0a8525e1df517dbc3c48af0308e2fe78dee511c0929",
+      "bytes": 2225580,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/eeae7063a13ae69ead19f0a8525e1df517dbc3c48af0308e2fe78dee511c0929"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/human-d.fbx.meta": {
+      "sha256": "01f8929dcd6ccb4c042b9b1574d7a58b8f321c32a7930d37e0c383a101294cec",
+      "bytes": 3063,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/01f8929dcd6ccb4c042b9b1574d7a58b8f321c32a7930d37e0c383a101294cec"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/human.json": {
+      "sha256": "7155447b5626001cbea1d29024249f0aabab8d8e9e6862d1aa72e603fca028b8",
+      "bytes": 3049,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/7155447b5626001cbea1d29024249f0aabab8d8e9e6862d1aa72e603fca028b8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/human.json.meta": {
+      "sha256": "b1ffb6585ddeaacd0e9471f19fc7b13599ed8898f3a3fb32e6f66092516c3093",
+      "bytes": 158,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b1ffb6585ddeaacd0e9471f19fc7b13599ed8898f3a3fb32e6f66092516c3093"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/long01.png": {
+      "sha256": "71dd70116e753a3608ea0317054d5752e5d5edd1f137de1f9705d05bea2ca3e8",
+      "bytes": 373568,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/71dd70116e753a3608ea0317054d5752e5d5edd1f137de1f9705d05bea2ca3e8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/long01.png.meta": {
+      "sha256": "2f59d94e6a08769e1385fe8d99e75f92b24bd6fd4696d0cf65a6c6664a9d0dbf",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2f59d94e6a08769e1385fe8d99e75f92b24bd6fd4696d0cf65a6c6664a9d0dbf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-d/teeth_base.png.meta": {
+      "sha256": "62c61f01da138bb013916808fa63073a0916bf384e4ac370be4e23cd470d269e",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/62c61f01da138bb013916808fa63073a0916bf384e4ac370be4e23cd470d269e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e.meta": {
+      "sha256": "88e7ac7b5d138b7d51753010132ea9d1ff5a90458f5a93441714a557d5f3edca",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/88e7ac7b5d138b7d51753010132ea9d1ff5a90458f5a93441714a557d5f3edca"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/body.png": {
+      "sha256": "17f9c4ab618b3816c578ab7afadd75fe7d05bb27ab847e40fedf3231269b6fc1",
+      "bytes": 15372115,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/17f9c4ab618b3816c578ab7afadd75fe7d05bb27ab847e40fedf3231269b6fc1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/body.png.meta": {
+      "sha256": "28b39e8ff9fdaf392ca0c3440a441b3d52ecd306b0fa05451a89ced18a112f15",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/28b39e8ff9fdaf392ca0c3440a441b3d52ecd306b0fa05451a89ced18a112f15"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/braid01.png": {
+      "sha256": "2fd8b66ed95fc06242a52569a5ec3d7ae0be2ed7d2f95891a54d53aff13492bb",
+      "bytes": 338638,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/2fd8b66ed95fc06242a52569a5ec3d7ae0be2ed7d2f95891a54d53aff13492bb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/braid01.png.meta": {
+      "sha256": "eb8a48d5081962f7aff116c65d8ff96975be4abf0822d4aa43e9840c677c9b89",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/eb8a48d5081962f7aff116c65d8ff96975be4abf0822d4aa43e9840c677c9b89"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/eyebrow001.png": {
+      "sha256": "7c594926708d6018b11712051ecbba630b0443e7e4a9a1517e3b6269b413982d",
+      "bytes": 94734,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/7c594926708d6018b11712051ecbba630b0443e7e4a9a1517e3b6269b413982d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/eyebrow001.png.meta": {
+      "sha256": "feb0c26179cd79cfda770b248f08d25aaa6e4d738c644b1e995038333b51af7d",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/feb0c26179cd79cfda770b248f08d25aaa6e4d738c644b1e995038333b51af7d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/eyelashes01.png.meta": {
+      "sha256": "b5b3bbadf17f7b0c9784fb9495accb0b1f9c9a7c5b51f3c48dbf51d544929084",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b5b3bbadf17f7b0c9784fb9495accb0b1f9c9a7c5b51f3c48dbf51d544929084"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/high-poly.png": {
+      "sha256": "ae5c9a5cbed512869c5aadfe133f322e3dbab29e794c6780f6f93f3c2bb6aac3",
+      "bytes": 32508,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/ae5c9a5cbed512869c5aadfe133f322e3dbab29e794c6780f6f93f3c2bb6aac3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/high-poly.png.meta": {
+      "sha256": "4e5db741c7b17f146040d26cbf3fe89aaec51291e9a249dd566658c85fd4a601",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4e5db741c7b17f146040d26cbf3fe89aaec51291e9a249dd566658c85fd4a601"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/human-e.fbx": {
+      "sha256": "5dc84e092014a3248fe670cceed5db1e55aa8c8293d28a3d9b7e3dd3dc72be44",
+      "bytes": 2207692,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/5dc84e092014a3248fe670cceed5db1e55aa8c8293d28a3d9b7e3dd3dc72be44"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/human-e.fbx.meta": {
+      "sha256": "cf992c80f2b198eeed416014305ab2d406d99d2ebe8c9e3a46bbaec05955857c",
+      "bytes": 3063,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cf992c80f2b198eeed416014305ab2d406d99d2ebe8c9e3a46bbaec05955857c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/human.json": {
+      "sha256": "fa836a501c0397d594811b28b1a09edcbb64cd38a6ebda99d038887069fd3b77",
+      "bytes": 2807,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/fa836a501c0397d594811b28b1a09edcbb64cd38a6ebda99d038887069fd3b77"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/human.json.meta": {
+      "sha256": "097c2c189258f8871cd9c841d7aca1cf7f9b8cb5ac18a07b4b453ea5274988ee",
+      "bytes": 158,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/097c2c189258f8871cd9c841d7aca1cf7f9b8cb5ac18a07b4b453ea5274988ee"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/teeth_base.png": {
+      "sha256": "066ea53058ffa174e14140cbcba2cd40b844b332b400692b833428dcb1d003c2",
+      "bytes": 337988,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/066ea53058ffa174e14140cbcba2cd40b844b332b400692b833428dcb1d003c2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-e/teeth_base.png.meta": {
+      "sha256": "9e812257642d5fd342ec7356338aad8e0bbc1e7dcbc19b8c8bb4c31ccaf1239f",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9e812257642d5fd342ec7356338aad8e0bbc1e7dcbc19b8c8bb4c31ccaf1239f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f.meta": {
+      "sha256": "fb8ec5fa3fa8bf66657750a0aad96b16a9ab82a0c94cb686bf29eca1a8d0871d",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/fb8ec5fa3fa8bf66657750a0aad96b16a9ab82a0c94cb686bf29eca1a8d0871d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/body.png": {
+      "sha256": "d90c5143ea3de427bb9f190e2cd4053c95fe1ffbcba2190bb9ac9371013ecf38",
+      "bytes": 21199403,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d90c5143ea3de427bb9f190e2cd4053c95fe1ffbcba2190bb9ac9371013ecf38"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/body.png.meta": {
+      "sha256": "4942d4e07f600a1f0521a4aa873f26b5dfe25d509469a5826026d67e4107acd7",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4942d4e07f600a1f0521a4aa873f26b5dfe25d509469a5826026d67e4107acd7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/cortu_short_messy_hair.png": {
+      "sha256": "76d7ddbcbe192ea37dbb207c32911273dcbcac71365da40fcbff304009691df5",
+      "bytes": 1261264,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/76d7ddbcbe192ea37dbb207c32911273dcbcac71365da40fcbff304009691df5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/cortu_short_messy_hair.png.meta": {
+      "sha256": "a81007644fc86190f3cc61e50e75bfe487ce4113685b3a8474d2ba19094128de",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a81007644fc86190f3cc61e50e75bfe487ce4113685b3a8474d2ba19094128de"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/eyebrow001.png": {
+      "sha256": "4162eb51bb7f00bd390ee75b6c5542ccfc80a5e0a2f34f3590a40ae5dedf9da5",
+      "bytes": 94747,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/4162eb51bb7f00bd390ee75b6c5542ccfc80a5e0a2f34f3590a40ae5dedf9da5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/eyebrow001.png.meta": {
+      "sha256": "76ac71ca2176d97b831c502c94aefad2d3cf3bd26549b04896663acd96542215",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/76ac71ca2176d97b831c502c94aefad2d3cf3bd26549b04896663acd96542215"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/eyelashes01.png": {
+      "sha256": "b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d",
+      "bytes": 135786,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b99872f0113a3a3ff6e6db9417e04ad95b97d0722dcef1ac30f7dc5bc7b9357d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/eyelashes01.png.meta": {
+      "sha256": "462a840e12c6f53873e61df474e96f42e4d20a98eff4b49639bf00ea948e8026",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/462a840e12c6f53873e61df474e96f42e4d20a98eff4b49639bf00ea948e8026"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/grinsegold_beard_sigmund_wip.png": {
+      "sha256": "82f1c3ac2d22699349fa19552725d437d243718ce6964c4a6ca6675e0d79c40c",
+      "bytes": 938661,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/82f1c3ac2d22699349fa19552725d437d243718ce6964c4a6ca6675e0d79c40c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/grinsegold_beard_sigmund_wip.png.meta": {
+      "sha256": "81ad4932a10c7fe145ac355247fc9cc29e16fada120099c3050e1ebe50041583",
+      "bytes": 3069,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/81ad4932a10c7fe145ac355247fc9cc29e16fada120099c3050e1ebe50041583"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/high-poly.png": {
+      "sha256": "bd655a4722fa85baad692e6f71cb792471f152b0f5bfa05fed1887430ae88547",
+      "bytes": 32221,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/bd655a4722fa85baad692e6f71cb792471f152b0f5bfa05fed1887430ae88547"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/high-poly.png.meta": {
+      "sha256": "52e29c8a80c9fc3e86e1fb64e83ca535b65051351badf6c0fbecff58b81a8b2b",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/52e29c8a80c9fc3e86e1fb64e83ca535b65051351badf6c0fbecff58b81a8b2b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/human-f.fbx": {
+      "sha256": "1957dd9650ce8962e0eb829277ff68760d41339a79121c7e31fae7df746d4dc2",
+      "bytes": 2037388,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/1957dd9650ce8962e0eb829277ff68760d41339a79121c7e31fae7df746d4dc2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/human-f.fbx.meta": {
+      "sha256": "8bc3f0a82cf145f96e1905c51a269a8efba60587b90219c010f5a5010e793a99",
+      "bytes": 3063,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8bc3f0a82cf145f96e1905c51a269a8efba60587b90219c010f5a5010e793a99"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/human.json": {
+      "sha256": "b4edf87cb70fc59eb1ed9bd3ea7f8eb4083b550533c6abc0c64bc41a86f1662d",
+      "bytes": 3070,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "member": "objects/b4edf87cb70fc59eb1ed9bd3ea7f8eb4083b550533c6abc0c64bc41a86f1662d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/human.json.meta": {
+      "sha256": "2011524b32e006860ba5776dce987a15b6bb99e927f93a6602273043b56f77e0",
+      "bytes": 158,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2011524b32e006860ba5776dce987a15b6bb99e927f93a6602273043b56f77e0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/teeth_base.png": {
+      "sha256": "39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2",
+      "bytes": 337989,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "member": "objects/39a7f06149e53e3b9b03e35319f2efe2a96c343f335de1504a31974fe22625a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/human-f/teeth_base.png.meta": {
+      "sha256": "273adaad1261b93ab13d9d5f04bfbbf9640be00cef1195559e08d7b5fb33f119",
+      "bytes": 3068,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/273adaad1261b93ab13d9d5f04bfbbf9640be00cef1195559e08d7b5fb33f119"
+    },
     "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans.meta": {
       "sha256": "7e48709f07295cec17a1491a8c23887640429268401d0b7f3547fd2e0283d1a3",
       "bytes": 172,
@@ -27663,6 +28635,1068 @@
       "bytes": 3069,
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/ed1fd0a7471cf8b5133873e1fc46587b8bdc36928607c5587644e98007ea47fb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance.meta": {
+      "sha256": "3c98ec6276d742ed9d17442ddb0f067b201515563975e7ca2c9ce59f9632617c",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/3c98ec6276d742ed9d17442ddb0f067b201515563975e7ca2c9ce59f9632617c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A.meta": {
+      "sha256": "2b3143c5b8c1cfcee7cbc5be388d0b7d2b86f04877d1a33fb758f6908c9e94d7",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2b3143c5b8c1cfcee7cbc5be388d0b7d2b86f04877d1a33fb758f6908c9e94d7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/afro01.asset": {
+      "sha256": "0eb95015a9fa35238907ecd36bc1da6e928b1bf95724f9a4700934fb56743374",
+      "bytes": 428633,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0eb95015a9fa35238907ecd36bc1da6e928b1bf95724f9a4700934fb56743374"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/afro01.asset.meta": {
+      "sha256": "f257dcf7e0ca4520bf71527aeb6623711f1c3fdd797385e56ecaf54f33f9f577",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/f257dcf7e0ca4520bf71527aeb6623711f1c3fdd797385e56ecaf54f33f9f577"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/afro01.mat": {
+      "sha256": "c629b2d321c27906c5697a05669e9564a8a0dc1d824f57631181e0cc4f6e6cb0",
+      "bytes": 1196,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c629b2d321c27906c5697a05669e9564a8a0dc1d824f57631181e0cc4f6e6cb0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/afro01.mat.meta": {
+      "sha256": "5057da3a7ca1bda6f9cac53c395f0f71f0d6be1876123b0dad6ee989a62b0b73",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5057da3a7ca1bda6f9cac53c395f0f71f0d6be1876123b0dad6ee989a62b0b73"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/body.asset": {
+      "sha256": "f37ff401ce63054a759b06357700bfd046d442d855bf57f66425f50faaba1489",
+      "bytes": 3055404,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f37ff401ce63054a759b06357700bfd046d442d855bf57f66425f50faaba1489"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/body.asset.meta": {
+      "sha256": "62654cf62c524a5a9b94315e4c7871b8d4a3d654a261618992540d2f69780251",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/62654cf62c524a5a9b94315e4c7871b8d4a3d654a261618992540d2f69780251"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/body.mat": {
+      "sha256": "674532d33f0028451cacd90ec92e282725cbdb7c2df2ec53b042c71c0e9d3971",
+      "bytes": 1192,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/674532d33f0028451cacd90ec92e282725cbdb7c2df2ec53b042c71c0e9d3971"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/body.mat.meta": {
+      "sha256": "9c703015f005e82ada5d503e7731b0340f98db991524caa5fedbec20f90904df",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9c703015f005e82ada5d503e7731b0340f98db991524caa5fedbec20f90904df"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyebrow001.asset": {
+      "sha256": "3b9439d319783175c10be78cc247ef7ba69e466c5c28902c0254cee047e1de24",
+      "bytes": 42089,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/3b9439d319783175c10be78cc247ef7ba69e466c5c28902c0254cee047e1de24"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyebrow001.asset.meta": {
+      "sha256": "889f004e69f9648ae98234de8809fb90883b9230d0d62f91d5f456222b3caab4",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/889f004e69f9648ae98234de8809fb90883b9230d0d62f91d5f456222b3caab4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyebrow001.mat": {
+      "sha256": "546474211be6d3bc5e30daa6090a492e31241668233109b68c393433cf2f9e0c",
+      "bytes": 1200,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/546474211be6d3bc5e30daa6090a492e31241668233109b68c393433cf2f9e0c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyebrow001.mat.meta": {
+      "sha256": "2cef089fc0dab69f9d557a3b5bb5668fece5c8f46fb3059342cae8f555c10efe",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2cef089fc0dab69f9d557a3b5bb5668fece5c8f46fb3059342cae8f555c10efe"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyelashes01.asset": {
+      "sha256": "b51764e43e571a8aa520bd605a9adb5e1af16b0493831219dad54900132cd166",
+      "bytes": 58334,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b51764e43e571a8aa520bd605a9adb5e1af16b0493831219dad54900132cd166"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyelashes01.asset.meta": {
+      "sha256": "338917e9a62506fcb4e5403fa067b617c4382669c6e063277365698ae53fe9ec",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/338917e9a62506fcb4e5403fa067b617c4382669c6e063277365698ae53fe9ec"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyelashes01.mat": {
+      "sha256": "e95be5b1fa26e5a9956129512f6a244b406befdb4c90cd105260e4bc41aa0597",
+      "bytes": 1201,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e95be5b1fa26e5a9956129512f6a244b406befdb4c90cd105260e4bc41aa0597"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/eyelashes01.mat.meta": {
+      "sha256": "c5a3a8f3adc532a4d3a7afbd40cfbb6f9fb7851ec05de8bc24b491c4bac771f6",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c5a3a8f3adc532a4d3a7afbd40cfbb6f9fb7851ec05de8bc24b491c4bac771f6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/high-poly.asset": {
+      "sha256": "4a2988ceb698d1a8bd9ffa84411c071bf031090ae7ac78bb0ba778b9984f0c45",
+      "bytes": 170928,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4a2988ceb698d1a8bd9ffa84411c071bf031090ae7ac78bb0ba778b9984f0c45"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/high-poly.asset.meta": {
+      "sha256": "5150e22cbbfc6aaaefe0e7b86eb85307061f16a98de74007a11fd1d0b880d32d",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5150e22cbbfc6aaaefe0e7b86eb85307061f16a98de74007a11fd1d0b880d32d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/high-poly.mat": {
+      "sha256": "6a7e77f65a573f8e3f2f73069a32124173a7b063a8bd754f4087c386ad98e5d4",
+      "bytes": 1199,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6a7e77f65a573f8e3f2f73069a32124173a7b063a8bd754f4087c386ad98e5d4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/high-poly.mat.meta": {
+      "sha256": "7537e0307d4547834a6d499660b938d1fdec759dc7c777b246ac5af637ea6728",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/7537e0307d4547834a6d499660b938d1fdec759dc7c777b246ac5af637ea6728"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/teeth_base.asset": {
+      "sha256": "1824fef51f2c2c6a20f2525a5b6929b4fdbdf34533b35080a2b41975f7dac5a8",
+      "bytes": 614721,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1824fef51f2c2c6a20f2525a5b6929b4fdbdf34533b35080a2b41975f7dac5a8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/teeth_base.asset.meta": {
+      "sha256": "6ca9ccfe2729a5e580f427046ca20978af61796cef639a14efbaaaec88957b92",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6ca9ccfe2729a5e580f427046ca20978af61796cef639a14efbaaaec88957b92"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/teeth_base.mat": {
+      "sha256": "927a0962640630682d8f51e399b5f33b4685bdce8f000e7c9f3fb11a20960e1b",
+      "bytes": 1198,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/927a0962640630682d8f51e399b5f33b4685bdce8f000e7c9f3fb11a20960e1b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/A/teeth_base.mat.meta": {
+      "sha256": "c61c4e19f8572ddbcdc5e7994d53b8f6e875de5436ef4be8e4300aacb8f50298",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c61c4e19f8572ddbcdc5e7994d53b8f6e875de5436ef4be8e4300aacb8f50298"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B.meta": {
+      "sha256": "99799713fd0bf209efc625c5663e645bc1f98aeb0e9bdaafcac77bb90c1e05f1",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/99799713fd0bf209efc625c5663e645bc1f98aeb0e9bdaafcac77bb90c1e05f1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/body.asset": {
+      "sha256": "7093dcfa9b00823e740735f8dd89e30abae36a8874bdc58ee023aa1337a6e23d",
+      "bytes": 3056325,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/7093dcfa9b00823e740735f8dd89e30abae36a8874bdc58ee023aa1337a6e23d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/body.asset.meta": {
+      "sha256": "2c7864cfb6b9b515b29f569dbb853c37727e37ec29aadf00bdc993353cc6c900",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2c7864cfb6b9b515b29f569dbb853c37727e37ec29aadf00bdc993353cc6c900"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/body.mat": {
+      "sha256": "c0491701c0df4b67d8862f62d5b0c072db0286456597bfe4c2852cae37863f4d",
+      "bytes": 1192,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c0491701c0df4b67d8862f62d5b0c072db0286456597bfe4c2852cae37863f4d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/body.mat.meta": {
+      "sha256": "1eaf9faa95f4db61300cfd99b04d8b60ec49f5cd6d6e0a983d9c8d5bdf679351",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1eaf9faa95f4db61300cfd99b04d8b60ec49f5cd6d6e0a983d9c8d5bdf679351"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/cortu_short_messy_hair.asset": {
+      "sha256": "81d22bde0f8f9cb4e03efb8b8ba53b22c379d4b895a722c04bbc996a0b2cddc0",
+      "bytes": 178877,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/81d22bde0f8f9cb4e03efb8b8ba53b22c379d4b895a722c04bbc996a0b2cddc0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/cortu_short_messy_hair.asset.meta": {
+      "sha256": "0dd9e70b105956c12c0e16e36756e8c39014c2e26deaa9ef3d7e1e3fbb5df4c1",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0dd9e70b105956c12c0e16e36756e8c39014c2e26deaa9ef3d7e1e3fbb5df4c1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/cortu_short_messy_hair.mat": {
+      "sha256": "5046433bfc0458bab78ecc0526962eb0fba0715325f1baca2fb42760f4c9e2ad",
+      "bytes": 1212,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5046433bfc0458bab78ecc0526962eb0fba0715325f1baca2fb42760f4c9e2ad"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/cortu_short_messy_hair.mat.meta": {
+      "sha256": "c814058b03910f282e0c973ad4318b577da088cf8c19db2d3d590dbb2250998b",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c814058b03910f282e0c973ad4318b577da088cf8c19db2d3d590dbb2250998b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyebrow001.asset": {
+      "sha256": "721aa8bc638547c11bfaa5c234ae7c1987df46e7af674348f604529fe32de8b6",
+      "bytes": 42324,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/721aa8bc638547c11bfaa5c234ae7c1987df46e7af674348f604529fe32de8b6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyebrow001.asset.meta": {
+      "sha256": "4a38edf5fc1b1f7b16c7486a44e219a811b76ed87389e0cc3eadc316a0ebdddc",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4a38edf5fc1b1f7b16c7486a44e219a811b76ed87389e0cc3eadc316a0ebdddc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyebrow001.mat": {
+      "sha256": "e2690cfb2933beb33abd9d038d739e011b12de1419e2291875dd8efaa0251736",
+      "bytes": 1200,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e2690cfb2933beb33abd9d038d739e011b12de1419e2291875dd8efaa0251736"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyebrow001.mat.meta": {
+      "sha256": "0aa5b8b8a08fcda48af0283a5748552e29e44eb11aa30d4e04e0ad38ffd17e44",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0aa5b8b8a08fcda48af0283a5748552e29e44eb11aa30d4e04e0ad38ffd17e44"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyelashes01.asset": {
+      "sha256": "9ece1d7160bf76e7a3244be532802d32c3935b1d0b90ad2f99f082609a065f8a",
+      "bytes": 58332,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9ece1d7160bf76e7a3244be532802d32c3935b1d0b90ad2f99f082609a065f8a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyelashes01.asset.meta": {
+      "sha256": "ce6aa7d2f1314d0099690810431c11a1e04534b552a73df23a787feb570d4602",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ce6aa7d2f1314d0099690810431c11a1e04534b552a73df23a787feb570d4602"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyelashes01.mat": {
+      "sha256": "91ae5c8e97f8129db2a32122cba74265ce3fa6038b2619fc40ccd1b1d2236a0f",
+      "bytes": 1201,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/91ae5c8e97f8129db2a32122cba74265ce3fa6038b2619fc40ccd1b1d2236a0f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/eyelashes01.mat.meta": {
+      "sha256": "e23b80246eb00751f7c4d11f85787d45f749166eec6b981969a7339f71dfdbff",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e23b80246eb00751f7c4d11f85787d45f749166eec6b981969a7339f71dfdbff"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/grinsegold_beard_sigmund_wip.asset": {
+      "sha256": "1a587cbf003a345e8bd9edcfe3cb7745b86d01287508139527701d7106a0eb0a",
+      "bytes": 122053,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1a587cbf003a345e8bd9edcfe3cb7745b86d01287508139527701d7106a0eb0a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/grinsegold_beard_sigmund_wip.asset.meta": {
+      "sha256": "6e1f7de51d5930a9ccc9352dc1df0accc6f40243abd4d8f2a6528ff1249664fc",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6e1f7de51d5930a9ccc9352dc1df0accc6f40243abd4d8f2a6528ff1249664fc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/grinsegold_beard_sigmund_wip.mat": {
+      "sha256": "3a4b51e90efdf3ebe51592359e7691294b67a1c6c5115b6de801190f11abd7c5",
+      "bytes": 1218,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/3a4b51e90efdf3ebe51592359e7691294b67a1c6c5115b6de801190f11abd7c5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/grinsegold_beard_sigmund_wip.mat.meta": {
+      "sha256": "b13523d9fa30e17545bd9c963add594070e8e6477661209c1b323d06a740787d",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b13523d9fa30e17545bd9c963add594070e8e6477661209c1b323d06a740787d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/high-poly.asset": {
+      "sha256": "266efc77d4677b9334ee2d85e6a8d11957a0b1d3bea0f15bce69b1a48fc4b084",
+      "bytes": 170926,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/266efc77d4677b9334ee2d85e6a8d11957a0b1d3bea0f15bce69b1a48fc4b084"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/high-poly.asset.meta": {
+      "sha256": "1ebc0ed3dc081d2d152e07cb828bf5530fc34a34c1609a3d4587a3f483cb99cc",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1ebc0ed3dc081d2d152e07cb828bf5530fc34a34c1609a3d4587a3f483cb99cc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/high-poly.mat": {
+      "sha256": "5968fba5c5cf5e8795350f2a06cbc6beabc30327a8a2d14102211177556eb990",
+      "bytes": 1199,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5968fba5c5cf5e8795350f2a06cbc6beabc30327a8a2d14102211177556eb990"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/high-poly.mat.meta": {
+      "sha256": "9fb2f640aa67cb9622bf81289751cd514912e2d5a10962df3cb11696bb802d4e",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9fb2f640aa67cb9622bf81289751cd514912e2d5a10962df3cb11696bb802d4e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/teeth_base.asset": {
+      "sha256": "0a66a1cb5318f7b6f1709e44ca6e862942675e42a93e95734ecaf1c3d3051200",
+      "bytes": 614714,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0a66a1cb5318f7b6f1709e44ca6e862942675e42a93e95734ecaf1c3d3051200"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/teeth_base.asset.meta": {
+      "sha256": "420f8fd641a2e544baec846b209cd42be9d2d08da07e38ee8c61c2e69c90bcdc",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/420f8fd641a2e544baec846b209cd42be9d2d08da07e38ee8c61c2e69c90bcdc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/teeth_base.mat": {
+      "sha256": "0d2ebb97dd98738f2fb2d3a1a00c454d882df6a7ad17216a525dc005a3496007",
+      "bytes": 1198,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0d2ebb97dd98738f2fb2d3a1a00c454d882df6a7ad17216a525dc005a3496007"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/B/teeth_base.mat.meta": {
+      "sha256": "d098e3a3d2b22e64c4500ab46e70bf48b22e9c2bf903125ed87a92320df14fc3",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d098e3a3d2b22e64c4500ab46e70bf48b22e9c2bf903125ed87a92320df14fc3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C.meta": {
+      "sha256": "1fca39db2f6214a1fde32ef61b95a547f2644d4a1becf2ec56471169823248ba",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1fca39db2f6214a1fde32ef61b95a547f2644d4a1becf2ec56471169823248ba"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/body.asset": {
+      "sha256": "6367d222ba5b6d0fd5fc717797a3287e2b7f437d1cbdbebedacaf3deb0e072a3",
+      "bytes": 3055782,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6367d222ba5b6d0fd5fc717797a3287e2b7f437d1cbdbebedacaf3deb0e072a3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/body.asset.meta": {
+      "sha256": "0e2eaf5ed421870ce04fd61708a6ed69f5cb621bf73d7003d6cb59b8a55fe061",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0e2eaf5ed421870ce04fd61708a6ed69f5cb621bf73d7003d6cb59b8a55fe061"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/body.mat": {
+      "sha256": "1766ebae8acc5c048d98ebddbb4ce247c296978b66676f47dc7bbf14f90f010d",
+      "bytes": 1192,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1766ebae8acc5c048d98ebddbb4ce247c296978b66676f47dc7bbf14f90f010d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/body.mat.meta": {
+      "sha256": "412f9e806cc68b0d681d19af8a32adeba7e3063ad590c3860327ada53add733c",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/412f9e806cc68b0d681d19af8a32adeba7e3063ad590c3860327ada53add733c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/elvs_unkempt_french_braid.asset": {
+      "sha256": "ebbac45a4cfc484e65626e61bed15a9b0ccec2e8b1a2230804c9618846d3afc4",
+      "bytes": 1296206,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ebbac45a4cfc484e65626e61bed15a9b0ccec2e8b1a2230804c9618846d3afc4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/elvs_unkempt_french_braid.asset.meta": {
+      "sha256": "f75c6cef871861dfe10d6aa15e59df6482ad610f73fb5dccedf97e96ab41c7dd",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f75c6cef871861dfe10d6aa15e59df6482ad610f73fb5dccedf97e96ab41c7dd"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/elvs_unkempt_french_braid.mat": {
+      "sha256": "90dbfdf1cf14157f1da085e91867989c5fcb39314b9544bd8512d14dc068ef0d",
+      "bytes": 1215,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/90dbfdf1cf14157f1da085e91867989c5fcb39314b9544bd8512d14dc068ef0d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/elvs_unkempt_french_braid.mat.meta": {
+      "sha256": "8e851a825b1dab1229795a3ea212cff0f047b3e4a87056104a078af9c57706ae",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8e851a825b1dab1229795a3ea212cff0f047b3e4a87056104a078af9c57706ae"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyebrow001.asset": {
+      "sha256": "05079134cf2cf805d007b642e0cc229ce1c179023a5ee7baa482a9c3a9b93837",
+      "bytes": 42085,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/05079134cf2cf805d007b642e0cc229ce1c179023a5ee7baa482a9c3a9b93837"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyebrow001.asset.meta": {
+      "sha256": "2881621acabb19ead3248b8eb0633dcea7626c994809de437a2f3f3ed89441e7",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2881621acabb19ead3248b8eb0633dcea7626c994809de437a2f3f3ed89441e7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyebrow001.mat": {
+      "sha256": "69dc0b0aaec289cc87889b329ae37a2556b7f0180161130400a2bc9c59bcb21f",
+      "bytes": 1200,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/69dc0b0aaec289cc87889b329ae37a2556b7f0180161130400a2bc9c59bcb21f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyebrow001.mat.meta": {
+      "sha256": "18c832426f8aedc5af24e34b5af11c40671a0520b128bac00316a8dddc481d9f",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/18c832426f8aedc5af24e34b5af11c40671a0520b128bac00316a8dddc481d9f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyelashes01.asset": {
+      "sha256": "039200a769a923c3115d32d27ba5bdf9113a595c148027856b11226176e0593a",
+      "bytes": 58334,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/039200a769a923c3115d32d27ba5bdf9113a595c148027856b11226176e0593a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyelashes01.asset.meta": {
+      "sha256": "c185e04587ab497f2e9232231c700fd56c3a92c643a4e4153a09f3ac5e6150d1",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c185e04587ab497f2e9232231c700fd56c3a92c643a4e4153a09f3ac5e6150d1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyelashes01.mat": {
+      "sha256": "d68e8b1744582876599748ce29959ddb697e9c845ff66a08a3193f5856ab8889",
+      "bytes": 1201,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d68e8b1744582876599748ce29959ddb697e9c845ff66a08a3193f5856ab8889"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/eyelashes01.mat.meta": {
+      "sha256": "f97eaf8dc5cd0b2ab5a148117499c661255aff27cd98bc022f6d02dd82372ca6",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f97eaf8dc5cd0b2ab5a148117499c661255aff27cd98bc022f6d02dd82372ca6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/high-poly.asset": {
+      "sha256": "bc1c5d85a5bacd1b99d36b64d34b30d0203542afdcfb184cc356f4ab398c70c8",
+      "bytes": 170929,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/bc1c5d85a5bacd1b99d36b64d34b30d0203542afdcfb184cc356f4ab398c70c8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/high-poly.asset.meta": {
+      "sha256": "86cb4911fea7b52e0930ed09fcee9cdb344e65cb1a678abedc319cfc595f0a75",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/86cb4911fea7b52e0930ed09fcee9cdb344e65cb1a678abedc319cfc595f0a75"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/high-poly.mat": {
+      "sha256": "e2dc0b4219342c8252b3e7174e7d12b94c805d140d141bbd42591db940a72fbf",
+      "bytes": 1199,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/e2dc0b4219342c8252b3e7174e7d12b94c805d140d141bbd42591db940a72fbf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/high-poly.mat.meta": {
+      "sha256": "695fa746cc4f25438c99824e5d966ee09f7fb7c27530292b1741a5d3f8f75a0a",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/695fa746cc4f25438c99824e5d966ee09f7fb7c27530292b1741a5d3f8f75a0a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/teeth_base.asset": {
+      "sha256": "524e4fe2e7c731d6fc52badc05e2779b4a9c7a0d4154b7e962ea181273937ea1",
+      "bytes": 614714,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/524e4fe2e7c731d6fc52badc05e2779b4a9c7a0d4154b7e962ea181273937ea1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/teeth_base.asset.meta": {
+      "sha256": "b12f45d8a25fae4648ceecfa84cc3a350f774f588f155a0163ac591f32101a18",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b12f45d8a25fae4648ceecfa84cc3a350f774f588f155a0163ac591f32101a18"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/teeth_base.mat": {
+      "sha256": "3e7b45537219daa6fabc77413c9c14ce64377735cbc7f8445a234f4ca99da7e8",
+      "bytes": 1198,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/3e7b45537219daa6fabc77413c9c14ce64377735cbc7f8445a234f4ca99da7e8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/C/teeth_base.mat.meta": {
+      "sha256": "45fc88edc8a0d6c8df8f4061b4439aa7e2a5eb1a35c8cb2efbb14fccb69add39",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/45fc88edc8a0d6c8df8f4061b4439aa7e2a5eb1a35c8cb2efbb14fccb69add39"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D.meta": {
+      "sha256": "1b89d4ab7432c556c7abe1599a53eb38d53bc298afe845fd5e1adc84513b46f0",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1b89d4ab7432c556c7abe1599a53eb38d53bc298afe845fd5e1adc84513b46f0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/body.asset": {
+      "sha256": "a9c944a1fe15e29c127771ccbbed27de7bf7ab6a17f1fd606e72276ef67eb4aa",
+      "bytes": 3056323,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a9c944a1fe15e29c127771ccbbed27de7bf7ab6a17f1fd606e72276ef67eb4aa"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/body.asset.meta": {
+      "sha256": "128d4c5b1a53be1b6b2638b4e0cb9e215eb39b7b5ea9c6e801412b04f48815a2",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/128d4c5b1a53be1b6b2638b4e0cb9e215eb39b7b5ea9c6e801412b04f48815a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/body.mat": {
+      "sha256": "ff0c9fb75b0ebfe865c946b4ae6eeda19162c566494038094ace43dae88aa9ee",
+      "bytes": 1192,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/ff0c9fb75b0ebfe865c946b4ae6eeda19162c566494038094ace43dae88aa9ee"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/body.mat.meta": {
+      "sha256": "9b4576b4492fe9a628f4ff4ba8cd4c501227f733655a0520c11957f569d0412e",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9b4576b4492fe9a628f4ff4ba8cd4c501227f733655a0520c11957f569d0412e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyebrow001.asset": {
+      "sha256": "5c6b84314017d31ae685f4aad0b38568cee0a93a53f4b11271a733ab4b15f1ba",
+      "bytes": 42074,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5c6b84314017d31ae685f4aad0b38568cee0a93a53f4b11271a733ab4b15f1ba"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyebrow001.asset.meta": {
+      "sha256": "a920387bb7f6b22788086441de0eafb9c5dc344a600e90193b420714b7daf741",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a920387bb7f6b22788086441de0eafb9c5dc344a600e90193b420714b7daf741"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyebrow001.mat": {
+      "sha256": "cb6633a3a91214f34b31f36e5c9b44e3104b3e0c5e22bcc3b98348f605db7551",
+      "bytes": 1200,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cb6633a3a91214f34b31f36e5c9b44e3104b3e0c5e22bcc3b98348f605db7551"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyebrow001.mat.meta": {
+      "sha256": "fd4c35a8bddcbeeed991fdf62f913f186536e996705bbc9f8774dc0a68157f56",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/fd4c35a8bddcbeeed991fdf62f913f186536e996705bbc9f8774dc0a68157f56"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyelashes01.asset": {
+      "sha256": "2c697a57781a2b34023ee38c01beb1409fdbe8b7ed6b1bc71ae0458478fdb575",
+      "bytes": 58322,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/2c697a57781a2b34023ee38c01beb1409fdbe8b7ed6b1bc71ae0458478fdb575"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyelashes01.asset.meta": {
+      "sha256": "baef91bc643f350c24040258d65c06578e8a4a90d834baaa946bf33f87fbaaca",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/baef91bc643f350c24040258d65c06578e8a4a90d834baaa946bf33f87fbaaca"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyelashes01.mat": {
+      "sha256": "fb3d6772581d0b283033b38b4e522f7f2e00d4bfdafbd98745ec6f27a3208522",
+      "bytes": 1201,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/fb3d6772581d0b283033b38b4e522f7f2e00d4bfdafbd98745ec6f27a3208522"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/eyelashes01.mat.meta": {
+      "sha256": "be7a11ef6e2c4a4acf362762c558a6a230063cb9eaf8efbb495190133c494a06",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/be7a11ef6e2c4a4acf362762c558a6a230063cb9eaf8efbb495190133c494a06"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/grinsegold_beard_sigmund_wip.asset": {
+      "sha256": "5da080eb67cfdc66abad78145e8cd6321f45652ce7128f9dbe6915dfec4fd759",
+      "bytes": 122039,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5da080eb67cfdc66abad78145e8cd6321f45652ce7128f9dbe6915dfec4fd759"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/grinsegold_beard_sigmund_wip.asset.meta": {
+      "sha256": "b2233b158bab04d19ab468fd081b4e6b73ecea8a1aa2c36358c60a622e494178",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b2233b158bab04d19ab468fd081b4e6b73ecea8a1aa2c36358c60a622e494178"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/grinsegold_beard_sigmund_wip.mat": {
+      "sha256": "f11fe82cfd0b426e5df476e94076f0011a72239978e32fd903a8e82cfd70f330",
+      "bytes": 1218,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/f11fe82cfd0b426e5df476e94076f0011a72239978e32fd903a8e82cfd70f330"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/grinsegold_beard_sigmund_wip.mat.meta": {
+      "sha256": "26f29156bdad35701a030eabecd86fb0008635f7cb58190adf857c37a76d0dee",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/26f29156bdad35701a030eabecd86fb0008635f7cb58190adf857c37a76d0dee"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/high-poly.asset": {
+      "sha256": "70c4fbb7768e7f9c8084d8be6964a406ebe0aa743e802b7fa239ca877b337fc9",
+      "bytes": 170878,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/70c4fbb7768e7f9c8084d8be6964a406ebe0aa743e802b7fa239ca877b337fc9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/high-poly.asset.meta": {
+      "sha256": "feb284943f4e7bf0e2b140b5ef900ab5fe90940ed0639c53a6a7df21f993f13a",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/feb284943f4e7bf0e2b140b5ef900ab5fe90940ed0639c53a6a7df21f993f13a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/high-poly.mat": {
+      "sha256": "79d5374b97dbf108a6cb4a1b3629a6bd266a907a15bb2091587fd0039e24b36b",
+      "bytes": 1199,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/79d5374b97dbf108a6cb4a1b3629a6bd266a907a15bb2091587fd0039e24b36b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/high-poly.mat.meta": {
+      "sha256": "f67e3b95b390f0b1429269ee8daadcfb149d72a3ba1c2b0e553822c42d9dd0fb",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f67e3b95b390f0b1429269ee8daadcfb149d72a3ba1c2b0e553822c42d9dd0fb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/long01.asset": {
+      "sha256": "cbad32edba7dc9df73fc61812fa6accd546997f14e491d3145ac29a00ff6b5b0",
+      "bytes": 631863,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cbad32edba7dc9df73fc61812fa6accd546997f14e491d3145ac29a00ff6b5b0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/long01.asset.meta": {
+      "sha256": "f2b92ab6baf4f879b96159d60e83b8274ac995be43368caa2b0e5972d4b31558",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/f2b92ab6baf4f879b96159d60e83b8274ac995be43368caa2b0e5972d4b31558"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/long01.mat": {
+      "sha256": "0cfa2125fbbe584d7f02b6aca1aa5b81985f2e9fcd24b8572016c7254b96f1d6",
+      "bytes": 1196,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0cfa2125fbbe584d7f02b6aca1aa5b81985f2e9fcd24b8572016c7254b96f1d6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/long01.mat.meta": {
+      "sha256": "a8059d118bc514ff6caa9a80df228a1760b956bdf3828376fe3813c4bfc03901",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a8059d118bc514ff6caa9a80df228a1760b956bdf3828376fe3813c4bfc03901"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/teeth_base.asset": {
+      "sha256": "fb5859a2c83969e275abb6460fe869b03a95c35b1a530c7184d4fde98457470f",
+      "bytes": 614708,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/fb5859a2c83969e275abb6460fe869b03a95c35b1a530c7184d4fde98457470f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/teeth_base.asset.meta": {
+      "sha256": "81c1a63312bf0fcba5a7565d4b7a229804c45ece591fd90b6e49d3957c4b7bb1",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/81c1a63312bf0fcba5a7565d4b7a229804c45ece591fd90b6e49d3957c4b7bb1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/teeth_base.mat": {
+      "sha256": "07473a92a9fa71336f70ecc5e0ba65a24dda59e3831c189d6fcfa76a81fb40aa",
+      "bytes": 1198,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/07473a92a9fa71336f70ecc5e0ba65a24dda59e3831c189d6fcfa76a81fb40aa"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/D/teeth_base.mat.meta": {
+      "sha256": "cdffb2f68b00241e147fd4fd04232f53561360c9d52d424cf02a40987f84d54a",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cdffb2f68b00241e147fd4fd04232f53561360c9d52d424cf02a40987f84d54a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E.meta": {
+      "sha256": "06c5be4a2c319e9bd1fcf6627f7359bed794667bd243552a887f511273db27ee",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/06c5be4a2c319e9bd1fcf6627f7359bed794667bd243552a887f511273db27ee"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/body.asset": {
+      "sha256": "34d9304cc62b2ffa4e79286c8b8345803939e86a1c5ab7ae770912552162db17",
+      "bytes": 3054994,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/34d9304cc62b2ffa4e79286c8b8345803939e86a1c5ab7ae770912552162db17"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/body.asset.meta": {
+      "sha256": "82c5da585a86eff5dd67695ba33be10ef86b122d35ea753556c6fa1d2aaee639",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/82c5da585a86eff5dd67695ba33be10ef86b122d35ea753556c6fa1d2aaee639"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/body.mat": {
+      "sha256": "ace2bbb119a94ed2e037b089019f71dce2d5182b0ff98c96b6c2d4d0c9512af3",
+      "bytes": 1192,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ace2bbb119a94ed2e037b089019f71dce2d5182b0ff98c96b6c2d4d0c9512af3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/body.mat.meta": {
+      "sha256": "23f1c41bbb550d98d63283d103e0b9901d68473c4b081f6ce580da0373e774c4",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/23f1c41bbb550d98d63283d103e0b9901d68473c4b081f6ce580da0373e774c4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/braid01.asset": {
+      "sha256": "c939758f69cc83f8a2aed7017d0ff9094b59ccff5116a3b439156bb870fcfd95",
+      "bytes": 882780,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c939758f69cc83f8a2aed7017d0ff9094b59ccff5116a3b439156bb870fcfd95"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/braid01.asset.meta": {
+      "sha256": "db1dcbfffe0c6861b4921ba04efaa0770be98a09453dbb3d3a741c1a95ccc558",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/db1dcbfffe0c6861b4921ba04efaa0770be98a09453dbb3d3a741c1a95ccc558"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/braid01.mat": {
+      "sha256": "0833cae3964d3a1395ea4e57d1bc2ffabbedda5e1aaf1ea966da4d967f967832",
+      "bytes": 1197,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0833cae3964d3a1395ea4e57d1bc2ffabbedda5e1aaf1ea966da4d967f967832"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/braid01.mat.meta": {
+      "sha256": "43c8714a7081b6302818b1184bdcc16c929cf9966ef73c120116ebc293c11eee",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/43c8714a7081b6302818b1184bdcc16c929cf9966ef73c120116ebc293c11eee"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyebrow001.asset": {
+      "sha256": "361a032f67f58280765d4ecbc6a08d57e3cf13e115f303b956f79dbb439e0225",
+      "bytes": 42037,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/361a032f67f58280765d4ecbc6a08d57e3cf13e115f303b956f79dbb439e0225"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyebrow001.asset.meta": {
+      "sha256": "9ca402139bb746213fe9e70424101e26d5c225e11137609b17071e32386596e7",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9ca402139bb746213fe9e70424101e26d5c225e11137609b17071e32386596e7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyebrow001.mat": {
+      "sha256": "cee67e62e6d54eb905ecbbe1bbaf0c1f6c41271fd9ed272698a057bdf8ab04cf",
+      "bytes": 1200,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cee67e62e6d54eb905ecbbe1bbaf0c1f6c41271fd9ed272698a057bdf8ab04cf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyebrow001.mat.meta": {
+      "sha256": "b076aa7d8178c0b0c9bc271c6256015d492400555fa8e94de3a2e4f410a9cd6c",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b076aa7d8178c0b0c9bc271c6256015d492400555fa8e94de3a2e4f410a9cd6c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyelashes01.asset": {
+      "sha256": "ee8814ab09eab01d1b180b8c6bb57428e8670c2860651a0f7c8e0ac44f42ee4b",
+      "bytes": 58284,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ee8814ab09eab01d1b180b8c6bb57428e8670c2860651a0f7c8e0ac44f42ee4b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyelashes01.asset.meta": {
+      "sha256": "81f61595f51a751aadac609c14da55aadab97978bf386ff9c91ca02cc0cbb588",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/81f61595f51a751aadac609c14da55aadab97978bf386ff9c91ca02cc0cbb588"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyelashes01.mat": {
+      "sha256": "151129e918185d80e831b3e2fa1a765e211dc6b43dde657911179785729a34f1",
+      "bytes": 1201,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/151129e918185d80e831b3e2fa1a765e211dc6b43dde657911179785729a34f1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/eyelashes01.mat.meta": {
+      "sha256": "6f3b03723c69b4816689ba97147375f9fffb78184db6233deee3384c3f9df08a",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6f3b03723c69b4816689ba97147375f9fffb78184db6233deee3384c3f9df08a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/high-poly.asset": {
+      "sha256": "4677df22029272d87bb56bb6afe045bb5f32c6f5a5d44a4d6590404275133284",
+      "bytes": 170873,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4677df22029272d87bb56bb6afe045bb5f32c6f5a5d44a4d6590404275133284"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/high-poly.asset.meta": {
+      "sha256": "6aedc97abe37424ae51e940d36c542fbc7ca9a134ab237424c6bff9528982176",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6aedc97abe37424ae51e940d36c542fbc7ca9a134ab237424c6bff9528982176"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/high-poly.mat": {
+      "sha256": "4b614434316d6a14a3c37433e902cd976ad022ca7a4e6f350151836acec2ecaf",
+      "bytes": 1199,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4b614434316d6a14a3c37433e902cd976ad022ca7a4e6f350151836acec2ecaf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/high-poly.mat.meta": {
+      "sha256": "019e111ac47294d0c7940b3afad78e455ad02d5055e02982a40ac57c059f2fe7",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/019e111ac47294d0c7940b3afad78e455ad02d5055e02982a40ac57c059f2fe7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/teeth_base.asset": {
+      "sha256": "d8fa1d62719a1f895c4436b595d5ad3c0c83d3a842b56965350513b570d0ee16",
+      "bytes": 614668,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d8fa1d62719a1f895c4436b595d5ad3c0c83d3a842b56965350513b570d0ee16"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/teeth_base.asset.meta": {
+      "sha256": "32dcdea2093f41a4b18ba1d4d869c577a132c2aeeb2ff3c58bbf8e400660fdfc",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/32dcdea2093f41a4b18ba1d4d869c577a132c2aeeb2ff3c58bbf8e400660fdfc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/teeth_base.mat": {
+      "sha256": "0758a1442f94131fbe265723f1dc4e09911252dea7066576524e3015ebe17e2a",
+      "bytes": 1198,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0758a1442f94131fbe265723f1dc4e09911252dea7066576524e3015ebe17e2a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/E/teeth_base.mat.meta": {
+      "sha256": "6e6fc291b6573aae6c7971d101cb49069b9adbe6457f3c6a2bc76fa4c7d12ae5",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6e6fc291b6573aae6c7971d101cb49069b9adbe6457f3c6a2bc76fa4c7d12ae5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F.meta": {
+      "sha256": "7da8c1b6b307dfed1bcd78504bdaafa11f73276d5c89acead38ec45e7b240aa0",
+      "bytes": 172,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/7da8c1b6b307dfed1bcd78504bdaafa11f73276d5c89acead38ec45e7b240aa0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/body.asset": {
+      "sha256": "8390f393dc9402ffa18519c1f55573afd32a512bc82d1129ae51da82ce6b0afe",
+      "bytes": 3055189,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8390f393dc9402ffa18519c1f55573afd32a512bc82d1129ae51da82ce6b0afe"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/body.asset.meta": {
+      "sha256": "71a392ef23c4ba246bd42f78a415e3fd30006171a9bdffbdc0e9a682779f8a4b",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/71a392ef23c4ba246bd42f78a415e3fd30006171a9bdffbdc0e9a682779f8a4b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/body.mat": {
+      "sha256": "5e45b15561188b8225804f344ddee29359355f61f2d011e49c9b20ec5c75ba57",
+      "bytes": 1192,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/5e45b15561188b8225804f344ddee29359355f61f2d011e49c9b20ec5c75ba57"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/body.mat.meta": {
+      "sha256": "4dc8d0f7e38493576ad473d525ef8a9023ddf241b435f80bc7f1b8a852a6bb33",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4dc8d0f7e38493576ad473d525ef8a9023ddf241b435f80bc7f1b8a852a6bb33"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/cortu_short_messy_hair.asset": {
+      "sha256": "52b491f3b308c2be96d27320d50e07836f55586e6d1f31b7aacb41ad01cb4a5d",
+      "bytes": 178847,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/52b491f3b308c2be96d27320d50e07836f55586e6d1f31b7aacb41ad01cb4a5d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/cortu_short_messy_hair.asset.meta": {
+      "sha256": "aa4c0d4febfc4154839c4b874d4480925cbfd089c20ac10c6bd5159a14ce6550",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/aa4c0d4febfc4154839c4b874d4480925cbfd089c20ac10c6bd5159a14ce6550"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/cortu_short_messy_hair.mat": {
+      "sha256": "b8b99286585c81c2582cb80ed9b1ab9e69162f78b306b9deb8c40773ec0c69e5",
+      "bytes": 1212,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b8b99286585c81c2582cb80ed9b1ab9e69162f78b306b9deb8c40773ec0c69e5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/cortu_short_messy_hair.mat.meta": {
+      "sha256": "ce0ebe85a7a54ef01bd9c1d4565ca14ee8f94c699a1aad6d5c440f292dd51f15",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ce0ebe85a7a54ef01bd9c1d4565ca14ee8f94c699a1aad6d5c440f292dd51f15"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyebrow001.asset": {
+      "sha256": "f24d026891e0df7cd936313ac10ddd8c795fadd5d83593eaa19b58de64f2c93e",
+      "bytes": 42094,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/f24d026891e0df7cd936313ac10ddd8c795fadd5d83593eaa19b58de64f2c93e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyebrow001.asset.meta": {
+      "sha256": "9b79885c44a2a9d72001c464e17871227ef3bf01afbd5c219e1b2a06a8a57d4b",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/9b79885c44a2a9d72001c464e17871227ef3bf01afbd5c219e1b2a06a8a57d4b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyebrow001.mat": {
+      "sha256": "05355eb8c8057715890bd40b2e6d764851aae2491db0cd4e3a501dc165205679",
+      "bytes": 1200,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/05355eb8c8057715890bd40b2e6d764851aae2491db0cd4e3a501dc165205679"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyebrow001.mat.meta": {
+      "sha256": "ef21865cd3aaa06aaa18227879f29aede9e32dd246b8c8d0e0f1ab970053b854",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ef21865cd3aaa06aaa18227879f29aede9e32dd246b8c8d0e0f1ab970053b854"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyelashes01.asset": {
+      "sha256": "598d775c9a19bf7efc52ad44d71873173a83bfb6158970f606713b413b403290",
+      "bytes": 58302,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/598d775c9a19bf7efc52ad44d71873173a83bfb6158970f606713b413b403290"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyelashes01.asset.meta": {
+      "sha256": "767f4f047f78e13ca09cd9024a973b4fbce49a528278b42b09ff46fecb4d9451",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/767f4f047f78e13ca09cd9024a973b4fbce49a528278b42b09ff46fecb4d9451"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyelashes01.mat": {
+      "sha256": "0250f8d9f468aee5f4360e36d83f54fe5efb07ca8011c1b759e25af3a58d8f10",
+      "bytes": 1201,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0250f8d9f468aee5f4360e36d83f54fe5efb07ca8011c1b759e25af3a58d8f10"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/eyelashes01.mat.meta": {
+      "sha256": "6cc5b99e476d998968946e1bb59c7d0a9dab8719ac1f1f153ae8c1b6280449e1",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6cc5b99e476d998968946e1bb59c7d0a9dab8719ac1f1f153ae8c1b6280449e1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/grinsegold_beard_sigmund_wip.asset": {
+      "sha256": "296aeef4aaf6dca4e5285315c25e37107a564088a4215bfc563d67920c1226d6",
+      "bytes": 122032,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/296aeef4aaf6dca4e5285315c25e37107a564088a4215bfc563d67920c1226d6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/grinsegold_beard_sigmund_wip.asset.meta": {
+      "sha256": "1da191ef434b47a8460937a8759c5fcce0f5d3d636543e12576746f4e022ce86",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/1da191ef434b47a8460937a8759c5fcce0f5d3d636543e12576746f4e022ce86"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/grinsegold_beard_sigmund_wip.mat": {
+      "sha256": "dc110641ea414a2d2305e6ee0905ed9339011922f679d0885de3b1fab538d6d7",
+      "bytes": 1218,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/dc110641ea414a2d2305e6ee0905ed9339011922f679d0885de3b1fab538d6d7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/grinsegold_beard_sigmund_wip.mat.meta": {
+      "sha256": "8ae4a7d16ea6c49e1be781db3ffa686e8f64e989fdcba4965456bd49501930b6",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8ae4a7d16ea6c49e1be781db3ffa686e8f64e989fdcba4965456bd49501930b6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/high-poly.asset": {
+      "sha256": "ec846d8e534d10031ea418e3f1b094843d5c8b46b23f555798143506f424b71b",
+      "bytes": 170860,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/ec846d8e534d10031ea418e3f1b094843d5c8b46b23f555798143506f424b71b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/high-poly.asset.meta": {
+      "sha256": "33966d68d3a493e6fb38d346362aa5773422dad77e97ffd6a8ae8a1b8752ae91",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/33966d68d3a493e6fb38d346362aa5773422dad77e97ffd6a8ae8a1b8752ae91"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/high-poly.mat": {
+      "sha256": "06faad2db389be9493dc48440a2f139811d2e621fa6366dad16816d94af7ee0d",
+      "bytes": 1199,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/06faad2db389be9493dc48440a2f139811d2e621fa6366dad16816d94af7ee0d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/high-poly.mat.meta": {
+      "sha256": "02b7e11941063ebe331dd57b34756e37e6f0828d43283ff4da55ec0aeadb6146",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/02b7e11941063ebe331dd57b34756e37e6f0828d43283ff4da55ec0aeadb6146"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/teeth_base.asset": {
+      "sha256": "6c764cd838210e60e7ee47624d4c7fc69774d2a5c521544e308171e212a9d0ae",
+      "bytes": 614686,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/6c764cd838210e60e7ee47624d4c7fc69774d2a5c521544e308171e212a9d0ae"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/teeth_base.asset.meta": {
+      "sha256": "c900011ba0dce819a1805cf738d77c61a2dfdfa8d03e62c8f0ca1fec3b659841",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/c900011ba0dce819a1805cf738d77c61a2dfdfa8d03e62c8f0ca1fec3b659841"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/teeth_base.mat": {
+      "sha256": "d42875cc7f803feaa980a1a1fd45613aa283634bafda45ff3fb92cb1064786c5",
+      "bytes": 1198,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d42875cc7f803feaa980a1a1fd45613aa283634bafda45ff3fb92cb1064786c5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/F/teeth_base.mat.meta": {
+      "sha256": "0ce6c1d437283dfd615ce0525d309cf7ebd89fe997361dbd4c093821f4888834",
+      "bytes": 188,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0ce6c1d437283dfd615ce0525d309cf7ebd89fe997361dbd4c093821f4888834"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-A.prefab": {
+      "sha256": "d1dcc76db5f96796224264a1cb96d48a36c3caf0a8d4957b5de97d52cf4054ec",
+      "bytes": 82324,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d1dcc76db5f96796224264a1cb96d48a36c3caf0a8d4957b5de97d52cf4054ec"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-A.prefab.meta": {
+      "sha256": "f6512fc68d6b1eff78f8524bd03a91a51e79a0a015957dc4ab63048b20704524",
+      "bytes": 154,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f6512fc68d6b1eff78f8524bd03a91a51e79a0a015957dc4ab63048b20704524"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-B.prefab": {
+      "sha256": "dd6bdd4694f373d325c996ebb8202695a2cb7238b0d72501808504eb59e72881",
+      "bytes": 86939,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/dd6bdd4694f373d325c996ebb8202695a2cb7238b0d72501808504eb59e72881"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-B.prefab.meta": {
+      "sha256": "f80c8a024974157e13de45be6f5fc9bd201c6857444a5dac7c8959f07145ad0c",
+      "bytes": 154,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/f80c8a024974157e13de45be6f5fc9bd201c6857444a5dac7c8959f07145ad0c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-C.prefab": {
+      "sha256": "4eef940ade361c7792908194d07ab00677fef5bec552a371a745ca4b0cf348c6",
+      "bytes": 82266,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/4eef940ade361c7792908194d07ab00677fef5bec552a371a745ca4b0cf348c6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-C.prefab.meta": {
+      "sha256": "d446f5b7c82472228698b9b54ea6213e3b4e8d9fc5f0e4d3192fbf69a9901400",
+      "bytes": 154,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/d446f5b7c82472228698b9b54ea6213e3b4e8d9fc5f0e4d3192fbf69a9901400"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-D.prefab": {
+      "sha256": "74689c1f4814e3b6f64db5d96f561f4f91a5f284de55e1f1b8ac5774a643bd96",
+      "bytes": 86804,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/74689c1f4814e3b6f64db5d96f561f4f91a5f284de55e1f1b8ac5774a643bd96"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-D.prefab.meta": {
+      "sha256": "dc0a193d85a2cef4ffbb22d8fded5b54f701478af8182e2fd13ac648913b8e73",
+      "bytes": 154,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/dc0a193d85a2cef4ffbb22d8fded5b54f701478af8182e2fd13ac648913b8e73"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-E.prefab": {
+      "sha256": "a1a1e3dafe888696e5e0730a9848ef38d7741d3ce2b0d9c2eba358dbbe3272f2",
+      "bytes": 82363,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/a1a1e3dafe888696e5e0730a9848ef38d7741d3ce2b0d9c2eba358dbbe3272f2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-E.prefab.meta": {
+      "sha256": "cfbdf0b01e660d53ce274031f1ebb4e1cae4ae0ece469107a129c4f8c298b4bb",
+      "bytes": 154,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/cfbdf0b01e660d53ce274031f1ebb4e1cae4ae0ece469107a129c4f8c298b4bb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-F.prefab": {
+      "sha256": "ff566bbf5ff350af374b57d6d63048f54abdb6e7516b05e764c88bb4b222c7ba",
+      "bytes": 86979,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "member": "objects/ff566bbf5ff350af374b57d6d63048f54abdb6e7516b05e764c88bb4b222c7ba"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Human-F.prefab.meta": {
+      "sha256": "b08bd81bf63a7b8d41ce71e0a67947f03a0e589fc7f612a825d9ebbd58106cbc",
+      "bytes": 154,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/b08bd81bf63a7b8d41ce71e0a67947f03a0e589fc7f612a825d9ebbd58106cbc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Library.asset": {
+      "sha256": "8dd045c294f096d49e12c4d4dbe017a96989b55d2bf62686346b25a7f451915d",
+      "bytes": 6456,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/8dd045c294f096d49e12c4d4dbe017a96989b55d2bf62686346b25a7f451915d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/Library.asset.meta": {
+      "sha256": "0b705fb905aaceee072f4b33782ca9cc1d0d16d6f5ce2577096a1126e054730f",
+      "bytes": 189,
+      "pack": "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "member": "objects/0b705fb905aaceee072f4b33782ca9cc1d0d16d6f5ce2577096a1126e054730f"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans.meta": {
       "sha256": "1cb284bf87b3a30634f3f56f4d1a0df2704570a90ffc7081838ff5aa7d24bb6f",
@@ -29242,6 +31276,46 @@
       "asset_id": 688402117,
       "sha256": "ef6d73af7367b8f89899bc3b87e9e6436142f4847ac2cfe0e9999a557d613374",
       "bytes": 5141447,
+      "encoding": "zip"
+    },
+    "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip": {
+      "tag": "game-assets-human-appearance-20261031-v1",
+      "name": "assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip",
+      "asset_id": 696693879,
+      "sha256": "dfc882a4d66d71c99b6b2fe9f4c72e00cb946592fb11a01ffdcc47f7417fe332",
+      "bytes": 36442188,
+      "encoding": "zip"
+    },
+    "game-assets-human-appearance-20261031-v1/assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip": {
+      "tag": "game-assets-human-appearance-20261031-v1",
+      "name": "assets-876533d3fa6ea24253ed8d461eb92e4ad29b2942238e484bf9ade052f6457d5b.zip",
+      "asset_id": 696694348,
+      "sha256": "2a9ea540263b9fe9db4467e1609fac6869179631fc3aaf451cec5f0c57866bad",
+      "bytes": 48405063,
+      "encoding": "zip"
+    },
+    "game-assets-human-appearance-20261031-v1/assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip": {
+      "tag": "game-assets-human-appearance-20261031-v1",
+      "name": "assets-90ef747735c1ee3181d88e0493cb6fe3ba7ea7f8139fe6acd41c38fe8f330bcf.zip",
+      "asset_id": 696693599,
+      "sha256": "2e1a49096be87d959c4e313e5edb5728c13141009ddbc03a855b15d702b592f5",
+      "bytes": 46519408,
+      "encoding": "zip"
+    },
+    "game-assets-human-appearance-20261031-v1/assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip": {
+      "tag": "game-assets-human-appearance-20261031-v1",
+      "name": "assets-a8569e749f042457a761cbeef8ef82f70164dfb6d2bc315b8332a4a7d5b77893.zip",
+      "asset_id": 696694497,
+      "sha256": "5a173c29c1bad13c2707e45eb544886a909bf0f5d223b059c6bb8ea43054b4bb",
+      "bytes": 1265784,
+      "encoding": "zip"
+    },
+    "game-assets-human-appearance-20261031-v1/assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip": {
+      "tag": "game-assets-human-appearance-20261031-v1",
+      "name": "assets-aa89554530ce73592008a4b82efa823ec99f9ff0e8503132f4ad93625c58ce8f.zip",
+      "asset_id": 696694032,
+      "sha256": "03e5407debb942e7e28684a43068602b1993a700c0e63e6925c1b8046be32142",
+      "bytes": 66180543,
       "encoding": "zip"
     },
     "game-assets-layout-20261031-v1/assets-07c497cd81be1b8d21d1ef7b52b9a6c52ee119fc9140130c93154b5ae82b2491.zip": {

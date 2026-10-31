@@ -33,14 +33,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 LATEST: owner explicitly approved implementing the revised human appearances
 into the game (supersedes the earlier unaccepted-authoring-only restriction).
-Integration IN PROGRESS: six appearance skins/textures exported under
+Integration: six appearance skins/textures exported under
 assets-source/humans/appearance-runtime and rebound onto unchanged production
 rigs in new Resources/HumanAppearance. Stable original character IDs/legacy
 clip references retained; new library preferred with original library fallback.
 No original art/rig/motion overwritten. Slot-a selected remains frozen; only
 slot-b may be reused. Editor images exist, but an Editor-only fixture constructor
 warning means its55-check run is diagnostic, NOT clean native release proof.
-Native appearance/gameplay checks and package/asset-lock proof still required.
+Native IL2CPP candidate built22:58:21Z in slot-b: appearance55, Kimodo86,
+Legacy81 and shader39 checks PASS. Actual gameplay movement/item captures
+inspected. Current Items156 checks PASS (prior deer cue failure did not recur).
+Combat/audio STILL FAILS the native cricket decode check; do not select it.
+5048/5048 asset hashes verified; all prior4709 paths/hashes preserved. Five new
+asset packs uploaded/download-verified in game-assets-human-appearance-20261031-v1.
+Source checkpointdc290988 pushed. Canonical final candidate evidence is in
+assets/verification/human-appearance-verification.json; appearance417 passing
+native checks including Items, but not a clean complete gameplay release.
 Four prepared small-carry runtime diffs remain untouched/unstaged.
 
 Owner deleted `WorldGen_OneShot_Prompt.md`; two untracked old deer scripts
@@ -49,9 +57,9 @@ untouched/unstaged. Other-thread prepared small-carry changes in these four
 runtime files are not ours to revert or stage wholesale: LocalTerrainFirstPersonArms,
 LocalTerrainNaturalHandling, LocalTerrainSharedHumanActions, WorldGenSharedHumanMotion.
 They preserve gait arms for small carried items and are still uncommitted.
-Unaccepted human physique/appearance work and its scripts are separate authoring
-work, not an approved game model replacement. Preserve it without integrating
-its geometry/materials. Original approved human source SHA is
+Original human art and animation sources remain preserved. The owner has now
+authorized the revised appearance library, using unchanged production rigs.
+Original approved human source SHA is
 0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229.
 
 Do not close owner applications. No automatic resumption of old Homo/history,
