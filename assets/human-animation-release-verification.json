@@ -1,0 +1,88 @@
+{
+  "source_commit": "6c9bb86135d767b7ba639b3143d3f46831940c66",
+  "player": "artifacts/player-human-kimodo/WorldGen.exe",
+  "backend": "IL2CPP",
+  "built_utc": "2026-10-31T01:50:55.9008745Z",
+  "recorded_utc": "2026-10-31T01:58:38.090136+00:00",
+  "game_assembly_sha256": "98dc9db6f8729e779ba612be94822506b44bad05c6d83401ad0fbca99de7ba14",
+  "bank_sha256": "79d6f6d8b755fefa57de6b01ed6cdd5bb591ea58d2b8d86f406cdb3d0fd80f9b",
+  "roles_per_character": 67,
+  "characters": 6,
+  "native_takes": 402,
+  "selected_raw_motion_takes": 43,
+  "runtime_inference": false,
+  "setting": "Settings > Debug > Character animation",
+  "legacy_fallback": "Immediate, persisted; original body movement and separate first-person arms retained",
+  "features": [
+    "Shared full-body pose for first and third person",
+    "Directional walk/run, sprint, crouch, jump, swimming",
+    "Charge, hold, release and cancel while moving",
+    "Spear support, bowstring and loaded ammunition follow actual hands",
+    "Tools, guards, unarmed combat, gathering, eating/drinking, basic crafting",
+    "Mirrored one-hand actions"
+  ],
+  "native_checks": [
+    {
+      "mode": "kimodo",
+      "checks": 69,
+      "exit_code": 0,
+      "finished_utc": "2026-10-31T01:53:09.1412991Z",
+      "evidence": "artifacts/kimodo-human-bank/native-release-kimodo",
+      "checks_sha256": "cb661e2e08a46cf37cbeaf35e29412b97fd80a064f6462794af27df9b16a82df"
+    },
+    {
+      "mode": "legacy",
+      "checks": 81,
+      "exit_code": 0,
+      "finished_utc": "2026-10-31T01:54:48.8938118Z",
+      "evidence": "artifacts/kimodo-human-bank/native-release-legacy",
+      "checks_sha256": "fa26a09d4455389e9713e6d62389daa26ed307ccff93020c8061fe59c302d9e0"
+    },
+    {
+      "mode": "items",
+      "checks": 155,
+      "exit_code": 0,
+      "finished_utc": "2026-10-31T01:56:07.1652154Z",
+      "evidence": "artifacts/kimodo-human-bank/native-release-items",
+      "checks_sha256": "5ce142231012d7d8dd5001f682a8a0b93780ca820812379df049aa70c449802b"
+    },
+    {
+      "mode": "water",
+      "checks": 34,
+      "exit_code": 0,
+      "finished_utc": "2026-10-31T01:58:06.3503042Z",
+      "evidence": "artifacts/kimodo-human-bank/native-release-water",
+      "checks_sha256": "bf6a430b5dd00cebb531366043edc22f0456a07d1eda2c1249f1a39c22329702"
+    }
+  ],
+  "native_checks_total": 339,
+  "package_proof": {
+    "backend": "IL2CPP",
+    "BuiltUtc": "2026-10-31T01:50:55.9008745Z",
+    "frozen_inputs": 766,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 1038,
+    "native_character_banks": 6,
+    "clips_per_character": [
+      67,
+      67,
+      67,
+      67,
+      67,
+      67
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true
+  },
+  "mechanical_audit": "artifacts/kimodo-human-bank/bank-mechanical-audit.json",
+  "source_freeze": "artifacts/kimodo-human-bank/package-proof/source-freeze.json",
+  "original_character_source_unchanged": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
+  "previous_selected_player_retained": "artifacts/player-water-sickness/WorldGen.exe",
+  "limitations": [
+    "Initial review bank; no owner visual approval inferred",
+    "Secondary crafting gestures remain basic",
+    "Full-body motion can move hands outside the first-person view; dedicated first-person framing is not authored for every gesture",
+    "Representative fitted sequences inspected; not every clip, body, terrain and equipment combination visually approved",
+    "No frame-rate or universal foot-contact/animation-quality claim"
+  ]
+}

@@ -1,0 +1,34 @@
+PASS Actual coastal terrain loads without modifying the world
+PASS Real sea water is identified as saline
+PASS Centre aim reaches actual water from the dry bank
+PASS Actual E interaction with sea water worsens hydration
+PASS Drinking restores the original occupied hand
+PASS A real shallow-water site exists for the dry-ground sleep guard
+PASS Standing in shallow water cannot start ground rest or sleep
+PASS Dry-bank player cannot move onto flooded bedding to rest
+PASS A genuine deep-water site exists near this coast
+PASS Actual coast supports floating instead of sinking to the seabed
+PASS Player uses the active animation mode's native swimming clip
+PASS Looking/down input can swim and submerge in actual sea water
+PASS Swimming moves through real terrain coordinates
+PASS Survival underwater view has full water absorption and naked-eye defocus
+PASS Underwater render-graph passes actually execute
+PASS Creative retains water haze but bypasses eye blur
+PASS Remaining submerged after breath runs out damages health
+PASS Breath state round-trips in the real play-session save format
+PASS Actual inland flowing river is freshwater
+PASS Animated river/ocean water shader and periodic slope data are supported
+PASS Actual river source quality persists across repeated queries
+PASS Changing only water sediment/turbulence cannot create pathogens
+PASS Frame-render appearance avoids disease queries and source cache is bounded
+PASS Actual freshwater surface is reachable through the normal aim path
+PASS Actual freshwater E interaction hydrates with source-specific exposure
+PASS A controlled contaminated dose produces a genuinely mild illness course
+PASS Contaminated exposure stays invisible during incubation in the native player
+PASS Extra contaminated water cannot restart an existing native illness
+PASS Actual player capture and serializer preserve the new illness course
+PASS Native mild symptoms remain a small physiological setback
+PASS Real GPU stomach tint distinguishes unnoticed, faint and severe nausea
+PASS Native illness resolves without direct scripted health loss
+PASS Actual capture preserves partial exposure and its susceptibility draw
+PASS no runtime errors or exceptions

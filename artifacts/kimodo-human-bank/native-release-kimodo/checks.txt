@@ -1,0 +1,69 @@
+PASS Six separately fitted native character banks are packaged
+PASS Complete nonduplicate initial bank for A
+PASS Finite bounded native clip durations for A
+PASS Charge endpoints stay clamped instead of looping for A
+PASS Complete nonduplicate initial bank for B
+PASS Finite bounded native clip durations for B
+PASS Charge endpoints stay clamped instead of looping for B
+PASS Complete nonduplicate initial bank for C
+PASS Finite bounded native clip durations for C
+PASS Charge endpoints stay clamped instead of looping for C
+PASS Complete nonduplicate initial bank for D
+PASS Finite bounded native clip durations for D
+PASS Charge endpoints stay clamped instead of looping for D
+PASS Complete nonduplicate initial bank for E
+PASS Finite bounded native clip durations for E
+PASS Charge endpoints stay clamped instead of looping for E
+PASS Complete nonduplicate initial bank for F
+PASS Finite bounded native clip durations for F
+PASS Charge endpoints stay clamped instead of looping for F
+PASS Fixture holds StoneTippedSpear in RightHand
+PASS Legacy debug selection restores the original separate first-person arms
+PASS Legacy selection persists in settings
+PASS Kimodo selection disables private arms and uses the world character
+PASS Kimodo selection persists in settings
+PASS Changing animation mode preserves every original character mesh
+PASS Shared first-person eye stays at the character's actual authored eye height
+PASS Generated clips do not overwrite controller-owned world position
+PASS Both supporting spear grips lie along the same physical shaft
+PASS Moving spear support retains contact with the physical shaft
+PASS Drinking frees the visible hands while preserving held-item ownership
+PASS Actual right mouse begins the shared spear wind-up
+PASS A fully wound-up spear remains held beyond the generated clip duration
+PASS Holding charge retains the cocked endpoint without replaying the throw
+PASS Actual walking keeps the held throw active
+PASS The walking legs continue animating underneath the held upper body
+PASS Actual running keeps the held throw active
+PASS Releasing the actual mouse button begins the shared release stroke
+PASS The authored release event launches the physical spear once while moving
+PASS Fixture holds StoneTippedSpear in RightHand
+PASS The opposite button cancels wind-up without firing or losing the spear
+PASS Fixture holds Bow in RightHand
+PASS Fixture holds Arrow in LeftHand
+PASS An actual bow charge borrows its real arrow
+PASS The shared bow has one loaded arrow without an offhand duplicate
+PASS Loaded ammunition follows the real drawing-hand grip
+PASS Full charge visibly draws the actual bowstring
+PASS Actual jump input enters the generated airborne motion
+PASS Generated jump playback returns to grounded movement
+PASS Fixture holds HaftedKnife in RightHand
+PASS Shared controller samples ToolCutA
+PASS Fixture holds StoneAxe in RightHand
+PASS Shared controller samples ToolChop
+PASS Fixture holds SmallRock in RightHand
+PASS Shared controller samples ThrowCharge
+PASS Fixture holds Bow in RightHand
+PASS Shared controller samples BowDraw
+PASS Fixture holds Sling in RightHand
+PASS Shared controller samples SlingWhirl
+PASS Fixture holds SpearThrower in RightHand
+PASS Shared controller samples SpearThrowCharge
+PASS Shared controller samples Gather
+PASS Shared controller samples Drink
+PASS Shared controller samples Eat
+PASS Shared controller samples WorkKnapping
+PASS Shared controller samples WorkCut
+PASS Shared controller samples WorkTwist
+PASS Shared controller samples WorkDig
+PASS Shared controller samples CarryLarge
+PASS no runtime errors or exceptions

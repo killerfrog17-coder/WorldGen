@@ -1,0 +1,155 @@
+PASS Wildlife encounter pacing clamps to15minutes..24hours independently of the actual clock
+PASS Nearby animals retain normal travel while offscreen groups receive bounded encounter pacing
+PASS All eighteen local AI Foley transients load as short spatial mono clips
+PASS Knapping fixture supplies two ordinary compatible stones
+PASS Real inventory knapping starts with occupied hands
+PASS Freshly chipped flake receives physical drop collision in the same frame as creation
+PASS Fresh flake visual has no deferred empty mesh children
+PASS Worked source stone also drops immediately with valid surface geometry
+PASS Original deer bundle loads as a live health-bearing actor
+PASS F3 then A opens the radar without changing ordinary F3 visibility
+PASS Radar reads the actual live actor without spawning replacements
+PASS Expanded radar distance rings preserve near/far order within the3km plot
+PASS F3+A closes the radar and keeps the standard debug overlay state
+PASS A real held spear is selected for melee
+PASS Spear wind-up does not deal damage before visible contact
+PASS Spear contact damages the visible surface without an instant generic kill
+PASS A surviving struck deer immediately attempts to flee
+PASS Impact paints a nonempty local UV stain without repainting the original coat
+PASS Lethal damage starts articulated ragdoll physics, no death animation
+PASS Corpse palette remains finite after physics simulation
+PASS Articulated corpse avoids widespread extreme skin stretching (99th percentile 2.11)
+PASS Health, original identity, corpse pose and stain survive full save
+PASS Upgrading population proposals preserves the actual saved corpse and clears obsolete procedural groups
+PASS Saved corpse is admitted at its current location without its original planner candidate
+PASS Streaming the same saved identity restores its death and manual ownership
+PASS Original deer bundle loads as a live health-bearing actor
+PASS Thrown stone is the same physical inventory item with live mass/velocity
+PASS Swept thrown-stone flight actually damages an animal
+PASS Thrown stone remains recoverable, not consumed as a hit effect
+PASS Original deer bundle loads as a live health-bearing actor
+PASS Bow charge selects carried ammunition and borrows the off hand
+PASS Saving a drawn bow restores borrowed hands and preserves unfired ammunition
+PASS Bow launches a damaging physical arrow
+PASS Penetrating arrow embeds into the actual hit animal
+PASS Embedded arrow follows the current skin-bone pose
+PASS Embedded arrow can be physically retrieved within reach
+PASS Pebble command supplies an ordinary, realistically sized sling stone
+PASS Sling selects its actual carried ammunition
+PASS Sling retains its ammunition until the release stroke
+PASS Sling launches a physical projectile that damages the visible animal surface
+PASS Sling retains the launcher without recalling its fired ammunition
+PASS Spear-thrower selects its actual carried ammunition
+PASS Spear-thrower retains its ammunition until the release stroke
+PASS Spear-thrower launches a physical projectile that damages the visible animal surface
+PASS Spear-thrower retains the launcher without recalling its fired ammunition
+PASS A vanished temporary human releases its arrow at the last recorded pose without deleting or relaunching it
+PASS Streaming out a saved animal retains its embedded arrow attachment
+PASS World tool work borrows occupied hands without extra storage or retaining a stowed weapon's guard
+PASS Timed world action completes
+PASS Timed world action restores the displaced spear; actual place=RightHand
+PASS Interrupted gathering restores equipment and clears temporary work state
+PASS Starting a craft cancels gathering before borrowing hands again
+PASS Cancelling the replacement craft restores the original spear, not the borrowed digging stick
+PASS Actual textured model thumbnail renders: DryGrass
+PASS Actual textured model thumbnail renders: LeafLitter
+PASS Actual textured model thumbnail renders: TinderBundle
+PASS Actual textured model thumbnail renders: KindlingBundle
+PASS Actual textured model thumbnail renders: HandDrillSet
+PASS Actual textured model thumbnail renders: Berries
+PASS Actual textured model thumbnail renders: Fruit
+PASS Actual textured model thumbnail renders: Nuts
+PASS Actual textured model thumbnail renders: Mushroom
+PASS Actual textured model thumbnail renders: EdibleRoot
+PASS Actual textured model thumbnail renders: RawMeat
+PASS Actual textured model thumbnail renders: RawFish
+PASS Actual textured model thumbnail renders: AnimalFat
+PASS Actual textured model thumbnail renders: BarkSheet
+PASS Actual textured model thumbnail renders: WeavingStrips
+PASS Actual textured model thumbnail renders: RawFibre
+PASS Actual textured model thumbnail renders: PreparedFibre
+PASS Actual textured model thumbnail renders: Cordage
+PASS Actual textured model thumbnail renders: Thread
+PASS Actual textured model thumbnail renders: BarkStrips
+PASS Actual textured model thumbnail renders: ReedBundle
+PASS Actual textured model thumbnail renders: RawHide
+PASS Actual textured model thumbnail renders: ScrapedHide
+PASS Actual textured model thumbnail renders: WorkedHide
+PASS Actual textured model thumbnail renders: RawhideStrips
+PASS Actual textured model thumbnail renders: Sinew
+PASS Actual textured model thumbnail renders: SinewCord
+PASS Actual textured model thumbnail renders: Feather
+PASS Actual textured model thumbnail renders: Bone
+PASS Actual textured model thumbnail renders: Antler
+PASS Actual textured model thumbnail renders: StoneBlade
+PASS Actual textured model thumbnail renders: StoneScraper
+PASS Actual textured model thumbnail renders: StoneChopper
+PASS Actual textured model thumbnail renders: Handaxe
+PASS Actual textured model thumbnail renders: StonePoint
+PASS Actual textured model thumbnail renders: Arrowhead
+PASS Actual textured model thumbnail renders: StoneBorer
+PASS Actual textured model thumbnail renders: BoneAwl
+PASS Actual textured model thumbnail renders: BoneNeedle
+PASS Actual textured model thumbnail renders: BonePoint
+PASS Actual textured model thumbnail renders: BarbedPoint
+PASS Actual textured model thumbnail renders: FishingGorge
+PASS Actual textured model thumbnail renders: Fishhook
+PASS Actual textured model thumbnail renders: AntlerRetoucher
+PASS Actual textured model thumbnail renders: WoodHandle
+PASS Actual textured model thumbnail renders: NotchedShaft
+PASS Actual textured model thumbnail renders: LooseStoneSpear
+PASS Actual textured model thumbnail renders: StoneTippedSpear
+PASS Actual textured model thumbnail renders: BoneTippedSpear
+PASS Actual textured model thumbnail renders: Harpoon
+PASS Actual textured model thumbnail renders: HaftedKnife
+PASS Actual textured model thumbnail renders: StoneAxe
+PASS Actual textured model thumbnail renders: StoneAdze
+PASS Actual textured model thumbnail renders: ArrowShaft
+PASS Actual textured model thumbnail renders: UnfletchedArrow
+PASS Actual textured model thumbnail renders: Arrow
+PASS Actual textured model thumbnail renders: BowStave
+PASS Actual textured model thumbnail renders: Bow
+PASS Actual textured model thumbnail renders: SpearThrower
+PASS Actual textured model thumbnail renders: DartShaft
+PASS Actual textured model thumbnail renders: SpearDart
+PASS Actual textured model thumbnail renders: Sling
+PASS Actual textured model thumbnail renders: FishingLine
+PASS Actual textured model thumbnail renders: HandLine
+PASS Actual textured model thumbnail renders: FibreNet
+PASS Actual textured model thumbnail renders: HidePouch
+PASS Actual textured model thumbnail renders: BarkContainer
+PASS Actual textured model thumbnail renders: WovenBasket
+PASS Actual textured model thumbnail renders: HideSatchel
+PASS Actual textured model thumbnail renders: HidePack
+PASS Actual textured model thumbnail renders: CarryFrame
+PASS Actual textured model thumbnail renders: Quiver
+PASS Actual textured model thumbnail renders: FibreBelt
+PASS Actual textured model thumbnail renders: HideBelt
+PASS Actual textured model thumbnail renders: NeedleCase
+PASS Actual textured model thumbnail renders: KnifeSheath
+PASS A display-name fragment cannot turn an owl into a migratory tern
+PASS Original deer bundle loads as a live health-bearing actor
+PASS Uninjured deer notices and flees a nearby player
+PASS A hungry wolf pursues perceived nearby deer rather than wandering independently
+PASS An animal cannot bite vertically unreachable prey or spend a contact cooldown on it
+PASS Predator contact attacks use actual animal health and ragdoll death
+PASS A background group advances without rendering or individual bone poses
+PASS Saved groups rebuild their spatial index and retain their actual goal
+PASS Regional wildlife ground loads asynchronously beyond the walking patch without an out-of-range terrain query
+PASS A tracked animal outside visual range cannot trigger mesh/texture/collision-skin loading
+PASS The same animal becomes eligible for its visual model when it enters range
+PASS Representative ragdoll subject loads: ground-squirrel
+PASS Every corpse limb remains connected to its common root: ground-squirrel
+PASS Corpse avoids sharp skin spikes relative to animal size: ground-squirrel
+PASS Original bird/root-head skeleton retains multiple stable corpse bodies: ground-squirrel
+PASS Representative ragdoll subject loads: goose
+PASS Every corpse limb remains connected to its common root: goose
+PASS Corpse avoids sharp skin spikes relative to animal size: goose
+PASS Original bird/root-head skeleton retains multiple stable corpse bodies: goose
+PASS Session inventory initialization detaches an old NPC arrow even if a live NPC has reused its ID
+PASS Manually spawned human NPC also supports combat death and ragdoll
+PASS Explicit spawn clearing removes saved command corpses so they cannot reappear
+PASS Survival unconsciousness stops item combat independently of the death screen
+PASS Facing weapon guard reduces incoming damage at a stamina cost
+PASS Combat can kill the player through the existing ragdoll/death screen
+PASS no runtime errors or exceptions

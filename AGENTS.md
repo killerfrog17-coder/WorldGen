@@ -1,28 +1,35 @@
 # WorldGen repository instructions
 
-ACTIVE30Oct evening: owner approved the free/local Kimodo demo and NOW requests
-the WHOLE initial human animation bank integrated into the game, shared first/
-third-person body pose, dynamic wind-up/hold/cancel/release while walking/running,
-plus immediate Legacy fallback under Settings > Debug. Do not stop at generation.
-Current selected water-sickness package/shortcut stays frozen until NEW IL2CPP
-candidate is tested. No paid calls, signup, subagents, cleanup, Mono, or original
-character/animal art changes. Owner3 files remain untouched. Local runtime and
-weights already installed by a64ac04 (public kimodo.cpp/SOMA30, text encoder Q8;
-motion F32, CPU8 threads). Model weights live only on E:. Work evidence under
-artifacts/kimodo-human-bank; new source exports assets/human-motion-kimodo.
-Generation/refinements FINISHED:43 selected raw motions produce67 roles per
-character,6 native MPFB exports/402 takes. Original skin bone paths matched in
-all6 imports (unity-import-final exit0). audit-final67PASS, exact loop seams and
-shared charge/release boundaries; original source SHA unchanged. Reviewed real
-native sequence sheets; new swim/crouch/jump rerolls replace rejected takes.
-Shared controller/debug/head-only camera mask and Legacy paths IN PROGRESS.
-NEW IL2CPP candidate artifacts/player-human-kimodo is a junction to NEW
-E:/WorldGen-builds/player-human-kimodo; build running. Selected water-sickness
-is UNCHANGED. Freeze766 inputs under task/package-proof. Native validation NOT
-yet run. Need actual dynamic input/Legacy/items/water regression, actual shared
-camera/grips images, package proofs, Git/persistence and shortcut selection.
-Restore only known Unity whitespace auto-rewrites after checking diff; do not
-touch owner prompt deletion or2 old deer scripts. Do not claim visual acceptance.
+SELECTED30Oct evening: WHOLE INITIAL KIMODO HUMAN BANK integrated and selected.
+Existing root WorldGen shortcut NOW artifacts/player-human-kimodo/WorldGen.exe,
+IL2CPP RELEASE BuiltUtc2026-10-31T01:50:55.9008745Z, production6c9bb86 pushed.
+43 selected raw local Kimodo takes ->67 animation roles x6 native MPFB characters
+(402 fitted takes),14 movement+53 action roles including mirrors. Same world
+body for first/third person; wind-up/hold/cancel/release while walking/running,
+real spear supporting grips, bowstring/one loaded projectile, tools/gather/eat/
+drink/basic craft. Settings > Debug > Character animation immediately switches
+Kimodo/Legacy and persists; original legacy movement/private arms retained.
+ALL339 SAME FINAL PACKAGE native checks PASS/EXIT0/cleanlogs:69Kimodo,81Legacy,
+155Items,34Water. Final evidence native-release-* under artifacts/kimodo-human-
+bank.67 mechanical auditPASS; loop seams/charge-release boundaries exact.
+766 frozen inputs/30 original legacy arm files/1038 original art assets exact;
+fauna/collision/motion packages +18item/24body audio exact. Original human source
+SHA0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229 unchanged.
+Manifest assets/human-animation-release-verification.json; bank/source/raw takes
+ordinary Git-backed, no paid calls/signup/runtime AI. Source under assets/human-
+motion-kimodo; original art/rigs/weights/textures untouched. Eye anchor calibrated
+AFTER native idle evaluation; actual camera height and no-neck-cut capture checked.
+Final moving captures include LateUpdate-equivalent grip fitting and contact
+assertion. Earlier Water failure was an obsolete LEGACY-only mixer assertion;
+final checks inspect active mode's native Swim weight, all original physics and
+illness assertions retained. Earlier screenshot/eye/terrain issues are historical,
+not final proof. Secondary craft gestures and some first-person framing remain
+basic; no owner visual acceptance, universal foot contact or frame-rate claim.
+Previous selected player-water-sickness retained. No owned generation/Blender/
+Unity/native jobs remain; user apps and owner3files untouched. No cleanup/paid/
+subagents/Mono. Scope complete: await owner feedback; do NOT autonomously resume
+old animal/Homo/overnight mandates. Selected package stays frozen; future feedback
+requires a new candidate/proof.
 
 SELECTED30Oct17:40CDT: water-source/sickness update COMPLETE. Existing root
 WorldGen shortcut NOW artifacts/player-water-sickness/WorldGen.exe, IL2CPP

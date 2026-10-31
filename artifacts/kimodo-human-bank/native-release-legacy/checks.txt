@@ -1,0 +1,81 @@
+PASS Hold StoneTippedSpear in RightHand
+PASS Private first-person arms contain actual native skinned geometry
+PASS Dedicated native first-person mesh and all 53 baked handling takes are present
+PASS World avatar meshes stay unmodified for third person and other viewers
+PASS An empty offhand supports the spear without forcing its inventory ownership to change
+PASS Finite skinned arm geometry: two-hand spear
+PASS Hold StonePoint in LeftHand
+PASS An occupied offhand makes the same spear one-handed
+PASS Finite skinned arm geometry: one-hand spear
+PASS Finite skinned arm geometry: thrust
+PASS Finite skinned arm geometry: throw wind-up
+PASS The cocked throwing arm remains visible beside the held spear
+PASS Finite skinned arm geometry: unarmed guard
+PASS Unarmed guard wrists stay separated beyond the camera near plane
+PASS Hold HaftedKnife in RightHand
+PASS Finite skinned arm geometry: knife cut
+PASS Hold Bow in RightHand
+PASS Finite skinned arm geometry: bow draw
+PASS A real arrow model is nocked at the drawing hand
+PASS The nocked shaft passes through the actual bow rest
+PASS Bow string follows the drawing hand rather than remaining straight
+PASS Full draw visibly displaces the string from its actual brace position
+PASS Bow arm stays steady while the drawing hand recoils
+PASS Finite skinned arm geometry: foraging reach
+PASS Private arms are excluded from every other camera
+PASS Third person hides private arms and retains the full world avatar
+PASS Native arms available for body variant A
+PASS Native arms available for body variant B
+PASS Native arms available for body variant C
+PASS Native arms available for body variant D
+PASS Native arms available for body variant E
+PASS Native arms available for body variant F
+PASS Hold LargeRock in RightHand
+PASS Finite skinned arm geometry: large rock carry
+PASS Hold Sling in RightHand
+PASS Hold SmallRock in LeftHand
+PASS A sling has its own moving cords/pouch and one loaded stone, with no duplicate offhand projectile
+PASS Hold SpearThrower in RightHand
+PASS Hold SpearDart in LeftHand
+PASS Spear-thrower visibly carries its real dart at the hook before release
+PASS Hold SmallRock in RightHand
+PASS Hold SmallRock in LeftHand
+PASS Finite skinned arm geometry: WorkKnapping
+PASS Hold HaftedKnife in RightHand
+PASS Hold DartShaft in LeftHand
+PASS Finite skinned arm geometry: WorkCut
+PASS Hold Cordage in RightHand
+PASS Hold RawFibre in LeftHand
+PASS Finite skinned arm geometry: WorkTwist
+PASS Hold DiggingStick in RightHand
+PASS Finite skinned arm geometry: WorkDig
+PASS Finite skinned arm geometry: Eat
+PASS Finite skinned arm geometry: Drink
+PASS Hold StoneTippedSpear in RightHand
+PASS Hold StoneTippedSpear in RightHand
+PASS Hold StoneTippedSpear in RightHand
+PASS Hold StoneTippedSpear in RightHand
+PASS Hold HaftedKnife in RightHand
+PASS Hold StoneTippedSpear in RightHand
+PASS Hold StoneTippedSpear in RightHand
+PASS Hold Bow in RightHand
+PASS Portrait equipment drop wears a compatible carrier through normal inventory validation
+PASS Only actual worn equipment supplies named container space
+PASS The same exertion limit applies to jogging and sprinting without a control-speed reversal
+PASS Opening inventory leaves the world clock running
+PASS Opening inventory in midair does not suspend gravity
+PASS Survival needs and camp time continue with inventory open
+PASS Hungry/parched warnings retain visible reserves before critical depletion
+PASS Critical depletion visibly empties both need icons
+PASS Active illness produces a real green stomach in the GPU HUD
+PASS Actual left mouse starts the authored wind-up and queues contact
+PASS Ordinary frame updates resolve the strike without dropping the held weapon
+PASS Actual right mouse holds a spear for a hand throw
+PASS Releasing the button advances from wind-up into the release stroke
+PASS Actual release launches the physical spear and relinquishes its hand ownership
+PASS A hand-thrown item stays held until its authored release frame
+PASS Opening inventory during release cancels the pending throw without losing or firing its item
+PASS Actual walking carries the held pose with a small bounded gait motion
+PASS The held pose settles smoothly after movement stops
+PASS Travel motion preserves spear ownership and the supporting grip
+PASS no runtime errors or exceptions

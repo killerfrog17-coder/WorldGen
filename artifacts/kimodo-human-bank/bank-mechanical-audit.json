@@ -1,0 +1,626 @@
+{
+  "clips": [
+    {
+      "role": "Idle",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.9675191281792241,
+      "bone": "clavicle_l",
+      "frame": 26,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.377216100692749e-08
+    },
+    {
+      "role": "Walk",
+      "frames": 33,
+      "max_angle_per_frame_deg": 16.069113353607598,
+      "bone": "ball_r",
+      "frame": 6,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.0978193283081055e-08
+    },
+    {
+      "role": "Run",
+      "frames": 23,
+      "max_angle_per_frame_deg": 20.69249761621674,
+      "bone": "calf_r",
+      "frame": 9,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.67872416973114e-08
+    },
+    {
+      "role": "Sprint",
+      "frames": 21,
+      "max_angle_per_frame_deg": 24.476790968667828,
+      "bone": "foot_r",
+      "frame": 19,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.5390257835388184e-08
+    },
+    {
+      "role": "Crouch",
+      "frames": 47,
+      "max_angle_per_frame_deg": 11.57913353631928,
+      "bone": "calf_r",
+      "frame": 22,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.725290298461914e-08
+    },
+    {
+      "role": "CrouchIdle",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.503576592336557,
+      "bone": "hand_r",
+      "frame": 48,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 2.9802322387695312e-08
+    },
+    {
+      "role": "Jump",
+      "frames": 19,
+      "max_angle_per_frame_deg": 31.589766569600286,
+      "bone": "foot_r",
+      "frame": 17,
+      "loop_seam_deg": 46.05377109235331,
+      "horizontal_root_range": 3.073364496231079e-08
+    },
+    {
+      "role": "Swim",
+      "frames": 44,
+      "max_angle_per_frame_deg": 33.991622858082664,
+      "bone": "calf_r",
+      "frame": 16,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 5.960464477539063e-08
+    },
+    {
+      "role": "WalkBack",
+      "frames": 32,
+      "max_angle_per_frame_deg": 12.359106979103075,
+      "bone": "calf_r",
+      "frame": 29,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.0512531995773315e-08
+    },
+    {
+      "role": "StrafeLeft",
+      "frames": 28,
+      "max_angle_per_frame_deg": 24.263572479717013,
+      "bone": "foot_r",
+      "frame": 25,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.585591912269592e-08
+    },
+    {
+      "role": "StrafeRight",
+      "frames": 31,
+      "max_angle_per_frame_deg": 21.843966146633715,
+      "bone": "foot_l",
+      "frame": 14,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.748573362827301e-08
+    },
+    {
+      "role": "RunBack",
+      "frames": 20,
+      "max_angle_per_frame_deg": 19.889421662914053,
+      "bone": "calf_l",
+      "frame": 5,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.306195139884949e-08
+    },
+    {
+      "role": "RunLeft",
+      "frames": 23,
+      "max_angle_per_frame_deg": 24.495150131325627,
+      "bone": "foot_r",
+      "frame": 13,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.4924596548080444e-08
+    },
+    {
+      "role": "RunRight",
+      "frames": 26,
+      "max_angle_per_frame_deg": 20.411039729590318,
+      "bone": "foot_r",
+      "frame": 20,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.725290298461914e-08
+    },
+    {
+      "role": "Empty",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.9675191281792241,
+      "bone": "clavicle_l",
+      "frame": 26,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.377216100692749e-08
+    },
+    {
+      "role": "FistsReady",
+      "frames": 94,
+      "max_angle_per_frame_deg": 1.0935937141996792,
+      "bone": "calf_l",
+      "frame": 4,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.377216100692749e-08
+    },
+    {
+      "role": "FistsGuard",
+      "frames": 94,
+      "max_angle_per_frame_deg": 1.548603959767329,
+      "bone": "hand_r",
+      "frame": 25,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.470348358154297e-08
+    },
+    {
+      "role": "Punch",
+      "frames": 42,
+      "max_angle_per_frame_deg": 33.86596385688916,
+      "bone": "lowerarm_r",
+      "frame": 17,
+      "loop_seam_deg": 6.75658295076136,
+      "horizontal_root_range": 3.91155481338501e-08
+    },
+    {
+      "role": "Punch_Left",
+      "frames": 42,
+      "max_angle_per_frame_deg": 33.86596385688916,
+      "bone": "lowerarm_l",
+      "frame": 17,
+      "loop_seam_deg": 6.75658295076136,
+      "horizontal_root_range": 3.91155481338501e-08
+    },
+    {
+      "role": "ToolReady",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.3165175555172581,
+      "bone": "hand_r",
+      "frame": 2,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 3.94647940993309e-08
+    },
+    {
+      "role": "ToolReady_Left",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.3165175555172581,
+      "bone": "hand_l",
+      "frame": 2,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.4121406972408295e-08
+    },
+    {
+      "role": "ToolWalk",
+      "frames": 37,
+      "max_angle_per_frame_deg": 16.061977163728734,
+      "bone": "calf_l",
+      "frame": 35,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.237517714500427e-08
+    },
+    {
+      "role": "ToolWalk_Left",
+      "frames": 37,
+      "max_angle_per_frame_deg": 16.061977163728734,
+      "bone": "calf_r",
+      "frame": 35,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.702007234096527e-08
+    },
+    {
+      "role": "ToolCutA",
+      "frames": 42,
+      "max_angle_per_frame_deg": 14.62059001573894,
+      "bone": "calf_r",
+      "frame": 24,
+      "loop_seam_deg": 34.425315829707934,
+      "horizontal_root_range": 4.470348358154297e-08
+    },
+    {
+      "role": "ToolCutA_Left",
+      "frames": 42,
+      "max_angle_per_frame_deg": 14.62059001573894,
+      "bone": "calf_l",
+      "frame": 24,
+      "loop_seam_deg": 34.425315829707934,
+      "horizontal_root_range": 4.0978193283081055e-08
+    },
+    {
+      "role": "ToolCutB",
+      "frames": 42,
+      "max_angle_per_frame_deg": 38.863207438222005,
+      "bone": "hand_r",
+      "frame": 14,
+      "loop_seam_deg": 20.413198390499186,
+      "horizontal_root_range": 4.284083843231201e-08
+    },
+    {
+      "role": "ToolCutB_Left",
+      "frames": 42,
+      "max_angle_per_frame_deg": 38.863207438222005,
+      "bone": "hand_l",
+      "frame": 14,
+      "loop_seam_deg": 20.413198390499186,
+      "horizontal_root_range": 3.818422555923462e-08
+    },
+    {
+      "role": "ToolBlunt",
+      "frames": 42,
+      "max_angle_per_frame_deg": 23.81296768488371,
+      "bone": "lowerarm_r",
+      "frame": 17,
+      "loop_seam_deg": 41.773939075240754,
+      "horizontal_root_range": 4.190951585769653e-08
+    },
+    {
+      "role": "ToolBlunt_Left",
+      "frames": 42,
+      "max_angle_per_frame_deg": 23.81296768488371,
+      "bone": "lowerarm_l",
+      "frame": 17,
+      "loop_seam_deg": 41.773939075240754,
+      "horizontal_root_range": 4.190951585769653e-08
+    },
+    {
+      "role": "ToolChop",
+      "frames": 26,
+      "max_angle_per_frame_deg": 8.07431977548027,
+      "bone": "upperarm_r",
+      "frame": 16,
+      "loop_seam_deg": 94.59334787447399,
+      "horizontal_root_range": 3.096647560596466e-08
+    },
+    {
+      "role": "ToolChop_Left",
+      "frames": 26,
+      "max_angle_per_frame_deg": 8.07431977548027,
+      "bone": "upperarm_l",
+      "frame": 16,
+      "loop_seam_deg": 94.59334787447399,
+      "horizontal_root_range": 3.934837877750397e-08
+    },
+    {
+      "role": "ToolGuard",
+      "frames": 94,
+      "max_angle_per_frame_deg": 11.20560220273305,
+      "bone": "pelvis",
+      "frame": 16,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.284083843231201e-08
+    },
+    {
+      "role": "ToolGuard_Left",
+      "frames": 94,
+      "max_angle_per_frame_deg": 11.20560220273305,
+      "bone": "pelvis",
+      "frame": 16,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.0978193283081055e-08
+    },
+    {
+      "role": "SpearReady1",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.26540801378059237,
+      "bone": "hand_r",
+      "frame": 72,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 3.969762474298477e-08
+    },
+    {
+      "role": "SpearReady1_Left",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.26540801378059237,
+      "bone": "hand_l",
+      "frame": 72,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.109460860490799e-08
+    },
+    {
+      "role": "SpearThrust1",
+      "frames": 36,
+      "max_angle_per_frame_deg": 19.93339264662656,
+      "bone": "lowerarm_l",
+      "frame": 12,
+      "loop_seam_deg": 91.56157525818865,
+      "horizontal_root_range": 2.60770320892334e-08
+    },
+    {
+      "role": "SpearThrust1_Left",
+      "frames": 36,
+      "max_angle_per_frame_deg": 19.93339264662656,
+      "bone": "lowerarm_r",
+      "frame": 12,
+      "loop_seam_deg": 91.56157525818865,
+      "horizontal_root_range": 2.9802322387695312e-08
+    },
+    {
+      "role": "SpearReady2",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.4149581108462635,
+      "bone": "calf_l",
+      "frame": 84,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 3.3527612686157227e-08
+    },
+    {
+      "role": "SpearReady2_Left",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.4149581108462635,
+      "bone": "calf_r",
+      "frame": 84,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 3.3527612686157227e-08
+    },
+    {
+      "role": "SpearThrust2",
+      "frames": 42,
+      "max_angle_per_frame_deg": 16.605672122822973,
+      "bone": "hand_r",
+      "frame": 25,
+      "loop_seam_deg": 34.00162246734299,
+      "horizontal_root_range": 2.9802322387695312e-08
+    },
+    {
+      "role": "SpearThrust2_Left",
+      "frames": 42,
+      "max_angle_per_frame_deg": 16.605672122822973,
+      "bone": "hand_l",
+      "frame": 25,
+      "loop_seam_deg": 34.00162246734299,
+      "horizontal_root_range": 2.9802322387695312e-08
+    },
+    {
+      "role": "ThrowCharge",
+      "frames": 34,
+      "max_angle_per_frame_deg": 9.721179752093255,
+      "bone": "upperarm_r",
+      "frame": 23,
+      "loop_seam_deg": 127.92582627172798,
+      "horizontal_root_range": 3.795139491558075e-08
+    },
+    {
+      "role": "ThrowCharge_Left",
+      "frames": 34,
+      "max_angle_per_frame_deg": 9.721179752093255,
+      "bone": "upperarm_l",
+      "frame": 23,
+      "loop_seam_deg": 127.92582627172798,
+      "horizontal_root_range": 3.3527612686157227e-08
+    },
+    {
+      "role": "ThrowRelease",
+      "frames": 38,
+      "max_angle_per_frame_deg": 47.165584614894755,
+      "bone": "hand_r",
+      "frame": 9,
+      "loop_seam_deg": 131.86009033254714,
+      "horizontal_root_range": 3.026798367500305e-08
+    },
+    {
+      "role": "ThrowRelease_Left",
+      "frames": 38,
+      "max_angle_per_frame_deg": 47.165584614894755,
+      "bone": "hand_l",
+      "frame": 9,
+      "loop_seam_deg": 131.86009033254714,
+      "horizontal_root_range": 4.1211023926734924e-08
+    },
+    {
+      "role": "SpearThrowCharge",
+      "frames": 53,
+      "max_angle_per_frame_deg": 9.980516738051211,
+      "bone": "hand_r",
+      "frame": 53,
+      "loop_seam_deg": 98.41878959084579,
+      "horizontal_root_range": 4.272442311048508e-08
+    },
+    {
+      "role": "SpearThrowCharge_Left",
+      "frames": 53,
+      "max_angle_per_frame_deg": 9.980516738051211,
+      "bone": "hand_l",
+      "frame": 53,
+      "loop_seam_deg": 98.41878959084579,
+      "horizontal_root_range": 3.864988684654236e-08
+    },
+    {
+      "role": "SpearThrowRelease",
+      "frames": 38,
+      "max_angle_per_frame_deg": 14.548160479279833,
+      "bone": "lowerarm_r",
+      "frame": 7,
+      "loop_seam_deg": 131.2156202811796,
+      "horizontal_root_range": 3.7834979593753815e-08
+    },
+    {
+      "role": "SpearThrowRelease_Left",
+      "frames": 38,
+      "max_angle_per_frame_deg": 14.548160479279833,
+      "bone": "lowerarm_l",
+      "frame": 7,
+      "loop_seam_deg": 131.2156202811796,
+      "horizontal_root_range": 3.003515303134918e-08
+    },
+    {
+      "role": "SlingReady",
+      "frames": 94,
+      "max_angle_per_frame_deg": 10.490468209440845,
+      "bone": "upperarm_r",
+      "frame": 80,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.284083843231201e-08
+    },
+    {
+      "role": "SlingReady_Left",
+      "frames": 94,
+      "max_angle_per_frame_deg": 10.490468209440845,
+      "bone": "upperarm_l",
+      "frame": 80,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.551839083433151e-08
+    },
+    {
+      "role": "SlingWhirl",
+      "frames": 77,
+      "max_angle_per_frame_deg": 23.629227842940683,
+      "bone": "hand_r",
+      "frame": 20,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.0279701352119446e-08
+    },
+    {
+      "role": "SlingWhirl_Left",
+      "frames": 77,
+      "max_angle_per_frame_deg": 23.629227842940683,
+      "bone": "hand_l",
+      "frame": 20,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 4.2957253754138947e-08
+    },
+    {
+      "role": "SlingRelease",
+      "frames": 38,
+      "max_angle_per_frame_deg": 13.59029443610398,
+      "bone": "lowerarm_r",
+      "frame": 7,
+      "loop_seam_deg": 103.1046351181708,
+      "horizontal_root_range": 3.6670826375484467e-08
+    },
+    {
+      "role": "SlingRelease_Left",
+      "frames": 38,
+      "max_angle_per_frame_deg": 13.59029443610398,
+      "bone": "lowerarm_l",
+      "frame": 7,
+      "loop_seam_deg": 103.1046351181708,
+      "horizontal_root_range": 3.096647560596466e-08
+    },
+    {
+      "role": "BowReady",
+      "frames": 94,
+      "max_angle_per_frame_deg": 0.45110707090124846,
+      "bone": "hand_l",
+      "frame": 88,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.0512531995773315e-08
+    },
+    {
+      "role": "BowDraw",
+      "frames": 40,
+      "max_angle_per_frame_deg": 10.885674891421335,
+      "bone": "hand_l",
+      "frame": 25,
+      "loop_seam_deg": 135.8697377169989,
+      "horizontal_root_range": 4.353933036327362e-08
+    },
+    {
+      "role": "BowRelease",
+      "frames": 141,
+      "max_angle_per_frame_deg": 6.328061394692745,
+      "bone": "lowerarm_l",
+      "frame": 67,
+      "loop_seam_deg": 101.23250535043452,
+      "horizontal_root_range": 4.470348358154297e-08
+    },
+    {
+      "role": "Gather",
+      "frames": 113,
+      "max_angle_per_frame_deg": 5.8209388193844465,
+      "bone": "thigh_r",
+      "frame": 72,
+      "loop_seam_deg": 87.82587005299068,
+      "horizontal_root_range": 4.190951585769653e-08
+    },
+    {
+      "role": "Gather_Left",
+      "frames": 113,
+      "max_angle_per_frame_deg": 5.8209388193844465,
+      "bone": "thigh_l",
+      "frame": 72,
+      "loop_seam_deg": 87.82587005299068,
+      "horizontal_root_range": 4.7031790018081665e-08
+    },
+    {
+      "role": "Drink",
+      "frames": 73,
+      "max_angle_per_frame_deg": 5.971535416547212,
+      "bone": "lowerarm_r",
+      "frame": 4,
+      "loop_seam_deg": 45.39020777046088,
+      "horizontal_root_range": 4.423782229423523e-08
+    },
+    {
+      "role": "Eat",
+      "frames": 138,
+      "max_angle_per_frame_deg": 6.8163587016953215,
+      "bone": "lowerarm_r",
+      "frame": 2,
+      "loop_seam_deg": 64.22176305445912,
+      "horizontal_root_range": 4.4587068259716034e-08
+    },
+    {
+      "role": "WorkKnapping",
+      "frames": 48,
+      "max_angle_per_frame_deg": 11.894509499600534,
+      "bone": "hand_r",
+      "frame": 39,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.0279701352119446e-08
+    },
+    {
+      "role": "WorkCut",
+      "frames": 77,
+      "max_angle_per_frame_deg": 3.714188431170863,
+      "bone": "hand_l",
+      "frame": 5,
+      "loop_seam_deg": 0.03956468205889273,
+      "horizontal_root_range": 3.771856427192688e-08
+    },
+    {
+      "role": "WorkTwist",
+      "frames": 43,
+      "max_angle_per_frame_deg": 12.418229638216564,
+      "bone": "hand_r",
+      "frame": 36,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.0512531995773315e-08
+    },
+    {
+      "role": "WorkDig",
+      "frames": 30,
+      "max_angle_per_frame_deg": 10.762275167786957,
+      "bone": "lowerarm_r",
+      "frame": 22,
+      "loop_seam_deg": 0.05595291023658669,
+      "horizontal_root_range": 3.725290298461914e-08
+    },
+    {
+      "role": "CarryLarge",
+      "frames": 94,
+      "max_angle_per_frame_deg": 3.262217578188554,
+      "bone": "lowerarm_l",
+      "frame": 94,
+      "loop_seam_deg": 0.0,
+      "horizontal_root_range": 4.1443854570388794e-08
+    }
+  ],
+  "boundaries": [
+    {
+      "role": "Throw",
+      "boundary_quaternion_error": 0
+    },
+    {
+      "role": "SpearThrow",
+      "boundary_quaternion_error": 0
+    },
+    {
+      "role": "Throw_Left",
+      "boundary_quaternion_error": 0
+    },
+    {
+      "role": "SpearThrow_Left",
+      "boundary_quaternion_error": 0
+    }
+  ],
+  "source_unchanged": true
+}
