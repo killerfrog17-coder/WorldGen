@@ -78,6 +78,11 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         return track;
     }
     public double Duration(string role)=>Clips.TryGetValue(role,out var c)?c.Duration:1;
+    public float LocomotionWeight(string role)
+    {
+        int index=Array.FindIndex(locomotion.Clips,c=>c.Role==role);
+        return index<0?0:locomotion.Mixer.GetInputWeight(index);
+    }
     public void AimHead(Quaternion look)=>head.rotation=look*headBindRotation;
     public void Locomotion(float speed,bool inAir,bool crouch,bool swimming,float dt,Vector2 direction=default)
     {

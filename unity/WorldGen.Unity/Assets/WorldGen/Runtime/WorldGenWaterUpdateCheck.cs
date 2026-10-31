@@ -62,7 +62,9 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<300;i++)motion.Move(1d/60,0,0,0,heading,0,false,false,PlayerSolidGround);
         Check(motion.Swimming&&Math.Abs(motion.Y+humanEyeOffset-SampleMotionWater(motion.X,motion.Z).Surface-.12)<.15,"Actual coast supports floating instead of sinking to the seabed");
         UpdateHumans();AnimateHuman(humanPlayer,1,false,false,.3f,true);
-        int swim=Array.IndexOf(humanPlayer.Definition.Roles,"Swim");Check(swim>=0&&humanPlayer.Weights[swim]>.9f,"Player uses the existing authored swimming clip");
+        int swim=Array.IndexOf(humanPlayer.Definition.Roles,"Swim");
+        bool swimPlaying=SharedHumanMotion?humanPlayer.Shared.Clips.ContainsKey("Swim")&&humanPlayer.Shared.LocomotionWeight("Swim")>.9f:swim>=0&&humanPlayer.Weights[swim]>.9f;
+        Check(swimPlaying,"Player uses the active animation mode's native swimming clip");
         pitch=14;UpdateCamera();UpdatePlayerWater();yield return null;Image("01-ocean-surface");
         double x0=motion.X,z0=motion.Z;for(int i=0;i<120;i++)motion.Move(1d/60,1,0,-1,heading,15,false,false,PlayerSolidGround);
         Check(motion.Swimming&&motion.Y+humanEyeOffset<SampleMotionWater(motion.X,motion.Z).Surface-1,"Looking/down input can swim and submerge in actual sea water");

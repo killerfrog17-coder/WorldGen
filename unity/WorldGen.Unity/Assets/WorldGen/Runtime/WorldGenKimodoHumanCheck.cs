@@ -15,6 +15,9 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("KIMODO HUMAN "+text);report.Add("PASS "+text);Debug.Log("KIMODO HUMAN PASS "+text);}
         void Image(string name,bool outside=false)
         {
+            // Coroutines resume before LateUpdate's final grip fitting. Sample
+            // that same final presentation before manually rendering a camera.
+            UpdateInventoryVisuals();UpdateCamera();
             var position=view.transform.position;var rotation=view.transform.rotation;var old=view.targetTexture;var active=RenderTexture.active;int mask=humanReviewBodyMask;
             if(outside)humanReviewBodyMask=0;
             if(outside)
@@ -69,6 +72,7 @@ public sealed partial class LocalTerrainExplorer
             Image("shared-spear-ready",true);pitch=65;UpdateCamera();Image("shared-look-down");pitch=0;UpdateCamera();
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.W,Key.C));
             for(int frame=0;frame<6;frame++){yield return new WaitForSecondsRealtime(.12f);Image("walk-"+frame.ToString("D2"),true);}
+            Check(Vector3.Cross(SharedGripPosition("l")-SharedGripPosition("r"),SharedSpearDirection).magnitude<.06f,"Moving spear support retains contact with the physical shaft");
             InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return new WaitForSecondsRealtime(.25f);
             BeginConsumeGesture(true);yield return new WaitForSecondsRealtime(.35f);UpdateInventoryVisuals();
             Check(humanPlayer.Shared.ActionRole=="Drink"&&!inventoryVisuals[spear.Id].activeSelf&&Inventory.AtHand(PossessionPlace.RightHand)==spear,"Drinking frees the visible hands while preserving held-item ownership");
