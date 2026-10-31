@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+SELECTED31Oct00:29CDT: SPATIAL AUDIO LISTENER FIX COMPLETE. Root shortcut now
+artifacts/player-spatial-audio/WorldGen.exe (junction to NEW E:/WorldGen-builds/
+player-spatial-audio), IL2CPP Release BuiltUtc2026-10-31T05:26:29.8848822Z,
+productionb085ca9 pushed. Gameplay camera now owns the one active AudioListener;
+previous active listeners disabled on entry/restored on Close and OnDestroy,
+idempotent. No per-frame scans. Fixes old ears left on disabled world-map camera.
+Native isolated --worldgen-listener-check:12PASS/EXIT0/cleanlog, actual component
+attachment, right/left listener-coordinate flip, distance, shared-origin shift,
+original camera pose retained, restoration/re-entry/no duplicates. This checks
+listener geometry/state, NOT captured stereo PCM or a full world audio session.
+Proof766frozen/1038originalassets/30legacyarms exact; same67rolesx6 Kimodo bank,
+allfauna/motion/item+bodyaudio exact. No animation/art/audio file changes.
+Evidence artifacts/spatial-audio-20261031/native-listener +package-proof;
+manifest assets/spatial-audio-release-verification.json. Previous human-facing
+package untouched/retained; owner running player not closed. Shortcut working
+directory repo root preserves external sounds/music with E-drive packaging.
+Owned Unity/native jobs finished; source/assets frozen since test. Final docs/
+manifest/shortcut commit+push needed at note time. No cleanup/paid/subagents/
+Mono. Owner3 unrelated files untouched. Await feedback; no auto overnight work.
+
 SELECTED30Oct21:25CDT: THIRD-PERSON FACING REGRESSION FIXED. Owner preliminarily
 likes Kimodo bank but rejected camera-locked third-person orientation. Existing
 root WorldGen shortcut NOW artifacts/player-human-facing/WorldGen.exe, NEW

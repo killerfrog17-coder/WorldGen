@@ -1,0 +1,18 @@
+﻿{
+    "target":  "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-spatial-audio\\WorldGen.exe",
+    "physical_package":  "E:/WorldGen-builds/player-spatial-audio",
+    "production_source":  "b085ca9ecba68a57fbb214df89e8de1c99696bbe",
+    "built_utc":  "2026-10-31T05:26:29.8848822Z",
+    "backend":  "IL2CPP",
+    "native_checks":  12,
+    "native_exit_code":  0,
+    "native_output":  "artifacts/spatial-audio-20261031/native-listener",
+    "frozen_inputs":  766,
+    "protected_original_assets":  1038,
+    "legacy_files_unchanged":  30,
+    "character_banks":  6,
+    "roles_per_character":  67,
+    "fauna_package_exact":  true,
+    "original_audio_exact":  true,
+    "verification_scope":  "Native listener attachment, source-relative coordinates, movement, origin shifts, idempotent exit and re-entry; no stereo PCM capture."
+}
