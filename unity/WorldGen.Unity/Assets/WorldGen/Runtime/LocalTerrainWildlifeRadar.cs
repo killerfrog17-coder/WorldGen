@@ -44,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
             if(animal.Retired||animal.Root==null||(animal.Planet-Position).Length*frame.RadiusM>WildlifeRadarRange)continue;
             var tier=AnimalBehaviour(animal.Spawn.Profile,animal.Spawn.Taxon).Tier;
             wildlifeRadarDots.Add(new WildlifeRadarDot{Position=animal.Planet,Tier=tier,Dead=animal.Dead,Members=1,
-                Label=animal.Spawn.Profile.name+(animal.Dead?" / corpse":" / rendered actor")});
+                Label=animal.Spawn.Profile.name+(animal.Dead?" / corpse":" / "+animal.Awareness.Mode+" / "+animal.Awareness.Sense)});
             wildlifeRadarActors++;if(!animal.Dead)wildlifeRadarTierCounts[(int)tier]++;
             if(!animal.Dead&&animal.Spawn.GroupId!=0){represented.TryGetValue(animal.Spawn.GroupId,out int count);represented[animal.Spawn.GroupId]=count+1;}
         }

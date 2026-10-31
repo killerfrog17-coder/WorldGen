@@ -61,6 +61,16 @@ public sealed partial class LocalTerrainExplorer
         motion.Place(deepX,deepZ,Ground(deepX,deepZ));motion.Y=SampleMotionWater(deepX,deepZ).Surface-.5-humanEyeOffset;motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;
         for(int i=0;i<300;i++)motion.Move(1d/60,0,0,0,heading,0,false,false,PlayerSolidGround);
         Check(motion.Swimming&&Math.Abs(motion.Y+humanEyeOffset-SampleMotionWater(motion.X,motion.Z).Surface-.12)<.15,"Actual coast supports floating instead of sinking to the seabed");
+        Vitals.Restore();var swimEnvironment=new SurvivalEnvironment{AirTemperatureC=24,Humidity=.4};
+        paused=false;
+        for(int i=0;i<600;i++)
+        {
+            motion.Move(1d/60,1,0,0,heading,0,false,false,PlayerSolidGround);
+            swimEnvironment.Swimming=motion.Swimming;swimEnvironment.SwimEffort=motion.SwimEffort;
+            SurvivalRules.Advance(Vitals,1d/60,60,swimEnvironment,1.45,false);UpdatePlayerWater();
+        }
+        paused=true;Check(motion.Swimming&&Vitals.Stamina>98&&Vitals.Exertion.Burst>.99,"Ten seconds of actual sea swimming retains stamina through the full water and survival code paths");
+        motion.Place(deepX,deepZ,Ground(deepX,deepZ));motion.Y=SampleMotionWater(deepX,deepZ).Surface+.12-humanEyeOffset;Vitals.Restore();
         UpdateHumans();AnimateHuman(humanPlayer,1,false,false,.3f,true);
         int swim=Array.IndexOf(humanPlayer.Definition.Roles,"Swim");
         bool swimPlaying=SharedHumanMotion?humanPlayer.Shared.Clips.ContainsKey("Swim")&&humanPlayer.Shared.LocomotionWeight("Swim")>.9f:swim>=0&&humanPlayer.Weights[swim]>.9f;

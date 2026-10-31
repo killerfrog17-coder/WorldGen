@@ -48,8 +48,8 @@ static class SurvivalModeTests
         for(int i=0;i<600;i++)SurvivalRules.Advance(b,.1,60,mild,3.4,false);
         Check(Math.Abs(a.Thirst-b.Thirst)<.001&&Math.Abs(a.CoreTemperatureC-b.CoreTemperatureC)<.001&&Math.Abs(a.Energy-b.Energy)<.001,"Frame subdivisions do not materially change needs");
         var sprint=new PlayerSurvival();double duration=0;
-        while(!sprint.Exhausted&&duration<30){SurvivalRules.Advance(sprint,.1,60,mild,6,true);duration+=.1;}
-        Check(sprint.Exhausted&&sprint.CanSprint&&sprint.SprintPower<.65&&duration>15&&duration<30,"Sprinting fades to reduced available power rather than an abrupt sprint lock");
+        while(!sprint.Exhausted&&duration<600){SurvivalRules.Advance(sprint,.1,60,mild,6,true);duration+=.1;}
+        Check(sprint.Exhausted&&sprint.CanSprint&&sprint.SprintPower<.65&&duration>180&&duration<500,"Sustained hard running takes minutes to exhaust and fades to reduced available power");
         SurvivalRules.Advance(sprint,3,60,mild,0,false);
         Check(sprint.CanSprint&&sprint.Stamina<25,"A few seconds of rest cannot reset an exhausted sprint");
         var blocked=new PlayerSurvival();SurvivalRules.Advance(blocked,10,60,mild,0,true);

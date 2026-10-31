@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
@@ -47,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
         if(charge.Weapon.Place!=PossessionPlace.RightHand&&charge.Weapon.Place!=PossessionPlace.LeftHand){CancelItemCharge();return;}
         var button=charge.Button==0?mouse.leftButton:mouse.rightButton;var other=charge.Button==0?mouse.rightButton:mouse.leftButton;
         if(other.wasPressedThisFrame){CancelItemCharge();return;}
-        if(SurvivalActive){Vitals.Stamina=Math.Max(0,Vitals.Stamina-Math.Min(.1,Time.unscaledDeltaTime)*2);if(Vitals.Stamina<=0){CancelItemCharge();return;}}
+        if(SurvivalActive){SurvivalRules.SpendStamina(Vitals,Math.Min(.1,Time.unscaledDeltaTime)*2);if(Vitals.Stamina<=0){CancelItemCharge();return;}}
         if(button.wasReleasedThisFrame)ReleaseItemCharge();
     }
     void CancelItemCharge()

@@ -76,8 +76,10 @@ public sealed partial class LocalTerrainExplorer
     FaunaPrototypeSpawn NextVisibleAnimalModel()
     {
         V at=Position;double radius=frame.RadiusM;
-        return animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug)&&(s.Position-at).Length*radius<=s.Profile.VisibleRadiusM);
+        return animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug)&&SpawnViewDistance(s)<=s.Profile.PreloadRadiusM);
     }
+    double SpawnViewDistance(FaunaPrototypeSpawn spawn)
+    {var at=WildlifeBehaviourEnabled&&!spawn.Profile.tiny&&wildlifeGroups.TryGetValue(spawn.GroupId,out var group)?GroupMemberPosition(spawn,group):spawn.Position;return (at-Position).Length*frame.RadiusM;}
     void UpdateAnimalFauna()
     {
         if(animalPlanner==null||animalDisposed||!Ready)return;
@@ -90,7 +92,7 @@ public sealed partial class LocalTerrainExplorer
                 var animal=pair.Value;
                 // A long-distance teleport can put old actors outside this
                 // chart's hemisphere. Retire them before reprojecting memories.
-                if((animal.Planet-Position).Length*frame.RadiusM>1000){RemoveAnimal(pair.Key);continue;}
+                if((animal.Planet-Position).Length*frame.RadiusM>Math.Max(1000,animal.Spawn.Profile.VisibleRadiusM*1.25)){RemoveAnimal(pair.Key);continue;}
                 if(previousFrame!=null)
                 {
                     var cue=previousFrame.Position(animal.Awareness.LastX,animal.Awareness.LastZ);
@@ -116,16 +118,16 @@ public sealed partial class LocalTerrainExplorer
                 RegisterWildlifeGroups(animalPlan.Result);MergeSavedWildlifeCandidates(animalPlan.Result);animalWanted.Clear();
                 // Regional records retain distant groups. Only visual candidates
                 // belong in the per-frame admission/model-loading list.
-                animalWanted.AddRange(animalPlan.Result.Where(s=>(s.Position-playerAt).Length*radius<=s.Profile.VisibleRadiusM*1.15).OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
+                animalWanted.AddRange(animalPlan.Result.Where(s=>SpawnViewDistance(s)<=s.Profile.PreloadRadiusM*1.15).OrderBy(s=>SpawnViewDistance(s)/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
                 var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
             }
             animalPlan=null;
         }
         bool stopped=paused||mapOpen||ecologyOpen||chatOpen;
-        if(!stopped&&CenterReady&&!NearTerrainPending()&&HeightAboveGround<1200&&animalPlan==null&&ActiveWorkerCount<WorkerLimit&&
-           (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>80))
+        if(!stopped&&CenterReady&&HeightAboveGround<1200&&animalPlan==null&&
+           (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>50))
         {
-            nextAnimalPlan=now+8;animalPlanAt=Position;animalPlanFrame=frame;
+            nextAnimalPlan=now+4;animalPlanAt=Position;animalPlanFrame=frame;
             V at=Position;var weather=CurrentWeather;double hour=LocalSolarHour,scale=HorizontalScale,year=skyYear,temperature=weather.TemperatureC;
             double humidity=weather.Humidity, rain=weather.RainMmPerHour,wind=Math.Sqrt(weather.WindEastMps*weather.WindEastMps+weather.WindNorthMps*weather.WindNorthMps);var planner=animalPlanner;var token=cancellation.Token;
             animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token,year,temperature,humidity,rain,wind),token);
@@ -139,11 +141,11 @@ public sealed partial class LocalTerrainExplorer
             foreach(var spawn in animalWanted)
             {
                 if(animals.ContainsKey(spawn.Id)||!animalModels.TryGetValue(spawn.Profile.slug,out var model))continue;
-                if((spawn.Position-Position).Length*frame.RadiusM>spawn.Profile.VisibleRadiusM)continue;
+                if(SpawnViewDistance(spawn)>spawn.Profile.VisibleRadiusM)continue;
                 if(!AddAnimal(spawn,model))break;
                 if((System.Diagnostics.Stopwatch.GetTimestamp()-admission)*1000d/System.Diagnostics.Stopwatch.Frequency>1.5)break;
             }
-            if(animalLoading==null&&CenterReady&&(animalManualWanted.Count>0||PendingPortableCoats||!NearTerrainPending()))
+            if(animalLoading==null&&CenterReady)
             {
                 var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??NextVisibleAnimalModel();
                 var profile=animalProfiles.FirstOrDefault(p=>portableCoatWanted.Contains(p.slug)&&!animalModels.ContainsKey(p.slug)&&!animalLoadFailures.Contains(p.slug))??next?.Profile;
@@ -201,7 +203,10 @@ public sealed partial class LocalTerrainExplorer
     }
     bool EvictAnimalModel()
     {
-        var old=animalModels.Where(p=>p.Value.Users==0&&!portableCoatWanted.Contains(p.Key)).OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
+        var old=animalModels.Where(p=>p.Value.Users==0&&!portableCoatWanted.Contains(p.Key)&&
+            !animalManualWanted.Any(s=>s.Profile.slug==p.Key)&&
+            !animalWanted.Any(s=>s.Profile.slug==p.Key&&SpawnViewDistance(s)<=s.Profile.PreloadRadiusM))
+            .OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
         Destroy(old.Value.Material);old.Value.Bundle.Unload(true);animalModels.Remove(old.Key);return true;
     }
     bool AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model,bool manual=false)

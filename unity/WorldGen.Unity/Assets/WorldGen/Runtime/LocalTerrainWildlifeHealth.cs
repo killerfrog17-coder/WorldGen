@@ -29,6 +29,7 @@ public sealed partial class LocalTerrainExplorer
         animal.MaximumHealth=ItemUseRules.HealthForMass(animal.MassKg);animal.Health=animal.MaximumHealth;
         var natural=animal.Behaviour=AnimalBehaviour(profile,animal.Spawn.Taxon);string nativeName=animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[animal.Spawn.Taxon].Name:"";
         animal.Senses=WildlifeSenses.Describe(profile.slug,animal.MassKg,natural.Predator,profile.medium=="air",profile.tiny,nativeName);animal.EffortProfile=ExertionProfile.Animal(profile.slug,animal.MassKg,profile.medium);
+        animal.Senses.Individual(animal.Spawn.Hash);
         if(wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved)&&saved.Species==profile.slug)
         {
             animal.Manual=saved.Manual;

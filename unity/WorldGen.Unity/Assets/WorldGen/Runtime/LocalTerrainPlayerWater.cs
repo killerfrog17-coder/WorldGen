@@ -147,7 +147,7 @@ public sealed partial class LocalTerrainExplorer
         bool headUnder=double.IsFinite(bodyWater.Surface)&&motion.Y+humanEyeOffset<bodyWater.Surface-.06;
         Vitals.BreathDebtSeconds=Math.Max(0,Math.Min(3600,Vitals.BreathDebtSeconds+dt*(headUnder?(motion.Swimming&&survivalMovementSpeed>1?1.3:1):-5)));
         if(headUnder&&Vitals.BreathDebtSeconds>45)PlayerDamageRules.Apply(Vitals,Mode,dt*8,PlayerDeathCause.Drowning);
-        if(motion.Swimming){Vitals.Wetness=1;Vitals.Stamina=Math.Max(0,Vitals.Stamina-dt*(survivalSprinting?9:survivalMovementSpeed>.1?3.5:.8));}
+        if(motion.Swimming)Vitals.Wetness=1;
     }
     void DisposePlayerWater(){motion.Water=null;if(waterScreen!=null)Destroy(waterScreen);if(waterNormalField!=null)Destroy(waterNormalField);}
 }

@@ -7,12 +7,13 @@ static class HuntingTests
     public static void Run()
     {
         int count=0;void Check(bool ok,string why){count++;if(!ok)throw new Exception(why);}
-        var human=ExertionProfile.Human();var tired=new ExertionState();ExertionRules.Advance(tired,human,60,1);
+        var human=ExertionProfile.Human();var tired=new ExertionState();ExertionRules.Advance(tired,human,300,1);
         Check(tired.Burst==0&&tired.PowerScale>.2&&tired.PowerScale<.5,"Exhaustion progressively reduces available speed instead of toggling a sprint permission");
         double power=tired.PowerScale;ExertionRules.Advance(tired,human,8,.4);Check(tired.Burst<.15,"Eight seconds of jogging cannot refill maximal sprint capacity");
         ExertionRules.Advance(tired,human,5,1);Check(tired.PowerScale<.7,"Another burst after brief jogging cannot reproduce a fresh sprint");
-        var intervals=new ExertionState();for(int i=0;i<12;i++){ExertionRules.Advance(intervals,human,8,1);ExertionRules.Advance(intervals,human,8,.4);}
-        Check(intervals.Fatigue>0&&intervals.PowerScale<.7,"Repeated short bursts accumulate fatigue across the recovery intervals");
+        var intervals=new ExertionState();for(int i=0;i<60;i++){ExertionRules.Advance(intervals,human,8,1);ExertionRules.Advance(intervals,human,8,.4);}
+        Console.WriteLine($"Repeated-effort sample: reserve={intervals.Burst:F3}, fatigue={intervals.Fatigue:F3}, power={intervals.PowerScale:F3}");
+        Check(intervals.Fatigue>.1&&intervals.PowerScale<.85,"Repeated efforts accumulate fatigue and cannot reproduce fresh power indefinitely");
         ExertionRules.Advance(intervals,human,600,0);Check(intervals.Burst>.95&&intervals.Breath<.01,"Substantial rest restores burst capacity and breathing");
         var jog=new ExertionState();ExertionRules.Advance(jog,human,300,.45);Check(jog.Burst>.99&&jog.Fatigue<.03,"A sustainable jog is fundamentally cheaper than maximal sprinting");
         var heavy=new ExertionState();ExertionRules.Advance(heavy,human,90,.45,20,1.8,.3);Check(heavy.Burst<jog.Burst,"Load and climbing increase physical demand");
@@ -30,7 +31,7 @@ static class HuntingTests
         Check(WildlifePerception.Hearing(s,20,1,0,0)>WildlifePerception.Hearing(s,20,1,8,4),"Wind and rain mask movement sounds");
         Check(WildlifePerception.Hearing(s,20,0,0,0)==0,"A motionless silent character does not create movement sound");
         var aware=new WildlifeAwarenessState();WildlifePerception.Observe(aware,s,.3,.4,0,0,10,20);Check(aware.Suspicion<.1,"First noticing something is not instant complete identification");
-        for(int i=0;i<30;i++)WildlifePerception.Observe(aware,s,.3,.4,0,0,10,20);
+        for(int i=0;i<40;i++)WildlifePerception.Observe(aware,s,.3,.4,0,0,10,20,15,30);
         Check(aware.Mode==WildlifeAwareness.Fleeing&&aware.MemorySeconds>0,"Sustained evidence confirms a threat");
         double x=aware.LastX,z=aware.LastZ;WildlifePerception.Observe(aware,s,5,0,0,0,999,999);Check(aware.LastX==x&&aware.LastZ==z&&aware.MemorySeconds>0,"Losing contact preserves last-known position, without following an unseen player");
         var individual=new WildlifeIndividual{Id=7,Species="red-kangaroo",Position=new V(1,0,0),MaximumHealth=100,Health=100,Exertion=hot.Copy(),Awareness=aware.Copy(),ThreatPosition=new V(1,0,0)};

@@ -40,13 +40,21 @@ public sealed partial class LocalTerrainExplorer
         AnimalRole(animal,animal.Spawn.Profile.medium=="air"?"fly":animal.Spawn.Profile.medium=="water"?"swim":run?"run":"walk");
     }
     bool WildlifeSight(Animal animal,double x,double z,double targetY=double.NaN)
+        =>WildlifeVisibility(animal,x,z,targetY)>.03;
+    double WildlifeVisibility(Animal animal,double x,double z,double targetY=double.NaN)
     {
         if(double.IsNaN(targetY))targetY=motion.Y;
         double y=animal.Root.transform.localPosition.y+Math.Max(.1,animal.Spawn.Profile.lengthM*animal.Model.Asset.Height*.6);
-        for(int i=1;i<6;i++){double t=i/6.0,px=animal.X+(x-animal.X)*t,pz=animal.Z+(z-animal.Z)*t,py=y+(targetY-y)*t;
-            if(VisibleGround(px,pz,double.NegativeInfinity)>py+.1)return false;}
+        double distance=Math.Sqrt((x-animal.X)*(x-animal.X)+(z-animal.Z)*(z-animal.Z)),depth=0;
+        for(int i=0;i<8;i++)
+        {
+            double t=(i+.5)/8,px=animal.X+(x-animal.X)*t,pz=animal.Z+(z-animal.Z)*t,py=y+(targetY-y)*t;
+            if(HuntingColumn(px,pz,out var cover,out var ground,out var slope))
+            {if(ground>py+.1)return 0;depth+=WildlifePerception.GrassDepth(cover,py-ground,distance/8,slope);if(depth>6)return 0;}
+            else if(VisibleGround(px,pz,double.NegativeInfinity)>py+.1)return 0;
+        }
         Vector3 start=transform.TransformPoint(new Vector3((float)(animal.X-originX),(float)y,(float)(animal.Z-originZ))),end=transform.TransformPoint(new Vector3((float)(x-originX),(float)targetY,(float)(z-originZ)));
-        var delta=end-start;return TraceCombatObstacle(new Ray(start,delta.normalized),Mathf.Max(0,delta.magnitude-.3f),null,false)==null;
+        var delta=end-start;return TraceCombatObstacle(new Ray(start,delta.normalized),Mathf.Max(0,delta.magnitude-.3f),null,false)==null?Math.Exp(-depth):0;
     }
     bool AnimalSight(Animal observer,Animal target)=>!target.Retired&&target.Root!=null&&WildlifeSight(observer,target.X,target.Z,target.Root.transform.localPosition.y+Math.Max(.1,target.Spawn.Profile.lengthM*target.Model.Asset.Height*.55));
     void UpdateAnimalBehaviour(Animal animal)
@@ -103,8 +111,8 @@ public sealed partial class LocalTerrainExplorer
             {
                 // Preserve an identified position, rather than giving every
                 // creature perfect sight merely because another is nearby.
-                if(threatDistance<Math.Max(6,behaviour.FlightM)&&Math.Max(vision,hearing)>.35)WildlifePerception.Alarm(animal.Awareness,threat.X,threat.Z);
-                else WildlifePerception.Observe(animal.Awareness,animal.Senses,dt,vision,hearing,scent,threat.X,threat.Z);
+                double a=threat.Heading*Math.PI/180,approach=((animal.X-threat.X)*Math.Sin(a)+(animal.Z-threat.Z)*Math.Cos(a))*threat.Speed/Math.Max(.1,threatDistance);
+                WildlifePerception.Observe(animal.Awareness,animal.Senses,dt,vision,hearing,scent,threat.X,threat.Z,threatDistance,behaviour.FlightM,approach);
                 animal.Awareness.ThreatIsPlayer=false;
                 if(behaviour.Defensive&&threatDistance<behaviour.DefendM&&animal.MassKg>threat.MassKg)
                 {SetAnimalTravel(animal,threat.X,threat.Z,true);AnimalContactAttack(animal,threat);return;}

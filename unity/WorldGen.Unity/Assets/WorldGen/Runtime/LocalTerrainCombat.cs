@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
@@ -15,8 +16,8 @@ public sealed partial class LocalTerrainExplorer
     bool SpendCombatStamina(double amount)
     {
         if(!SurvivalActive)return true;if(Vitals.Incapacitated||Vitals.Energy<2){CombatNotice("Too exhausted for that action.");return false;}
-        Vitals.Stamina=Math.Max(0,Vitals.Stamina-amount);
-        if(Vitals.Exertion!=null){ExertionRules.Impulse(Vitals.Exertion,amount/Math.Max(1,Vitals.MaximumStamina));Vitals.Exertion.Fatigue=Math.Min(1,Vitals.Exertion.Fatigue+amount*.0002);}
+        SurvivalRules.SpendStamina(Vitals,amount);
+        Vitals.Exertion.Fatigue=Math.Min(1,Vitals.Exertion.Fatigue+amount*.0002);
         return true;
     }
     bool CombatReady(bool left)=>Time.unscaledTimeAsDouble>=combatGlobalReady&&Time.unscaledTimeAsDouble>=(left?combatLeftReady:combatRightReady);

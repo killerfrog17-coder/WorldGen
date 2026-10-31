@@ -16,6 +16,7 @@ namespace WorldGen.Presentation
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded,NoClip;
         public bool Swimming {get;private set;}
+        public double SwimEffort {get;private set;}
         public double WaterEyeOffset;
         public Func<double,double,MotionWater>? Water;
         // Optional host collision solver; invoked for every bounded movement step.
@@ -51,7 +52,7 @@ namespace WorldGen.Presentation
                 if(double.IsFinite(water.Surface)&&water.Surface-bed>(Swimming?.75:1.15)&&feet<water.Surface-(Swimming?.35:.65))
                 {if(!Swimming){LandingSpeedMps=Math.Max(LandingSpeedMps,Math.Max(0,-VerticalSpeed-5));VerticalSpeed=Math.Max(-3,Math.Min(2,VerticalSpeed));}Swimming=true;SwimStep(dt,forward,right,up,yaw,tilt,sprint,ground,speedScale,water);return;}
             }
-            Swimming=false;
+            Swimming=false;SwimEffort=0;
             if(Flying)
             {
                 double cp=Math.Cos(tilt),fx=Math.Sin(yaw)*forward*cp+Math.Cos(yaw)*right,fz=Math.Cos(yaw)*forward*cp-Math.Sin(yaw)*right,fy=-Math.Sin(tilt)*forward+up;
@@ -98,6 +99,8 @@ namespace WorldGen.Presentation
         }
         void SwimStep(double dt,double forward,double right,double up,double yaw,double tilt,bool sprint,Func<double,double,double> ground,double scale,MotionWater water)
         {
+            double strokes=Math.Min(1,Math.Sqrt(forward*forward+right*right+up*up));
+            SwimEffort=.22+strokes*(sprint?.63:.28); // Drift is not a swimming stroke.
             double dx=Math.Sin(yaw)*Math.Cos(tilt)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*Math.Cos(tilt)*forward-Math.Sin(yaw)*right;
             double vertical=-Math.Sin(tilt)*forward+up,magnitude=Math.Sqrt(dx*dx+dz*dz+vertical*vertical);
             if(magnitude>1){dx/=magnitude;dz/=magnitude;vertical/=magnitude;}

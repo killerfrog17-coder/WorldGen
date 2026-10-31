@@ -5,14 +5,27 @@ namespace WorldGen.Presentation
 {
     public struct SurvivalEnvironment
     {
-        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort,LocalHour,EffortLoad,GroundGrade;
-        public bool Immersed,Sleeping;
+        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort,LocalHour,EffortLoad,GroundGrade,SwimEffort;
+        public bool Immersed,Sleeping,Swimming;
     }
     /// <summary>Approximate gameplay physiology, not a clinical thermoregulation model.</summary>
     public static class SurvivalRules
     {
         static double Clamp(double n,double lo=0,double hi=1)=>Math.Max(lo,Math.Min(hi,n));
         public const double ColdDeathC=30,HeatCollapseC=40.5;
+        public const double JumpStaminaCost=2;
+        static void PrepareEffort(PlayerSurvival s)
+        {
+            if(s.Exertion==null)s.Exertion=new ExertionState{Burst=Clamp(s.Stamina/Math.Max(1,s.MaximumStamina))};
+            if(ExertionRules.Upgrade(s.Exertion,ExertionProfile.Human()))s.Stamina=s.MaximumStamina*s.Exertion.Burst;
+            s.Exertion.Burst=Math.Min(s.Exertion.Burst,Clamp(s.Stamina/Math.Max(1,s.MaximumStamina)));
+        }
+        public static void SpendStamina(PlayerSurvival s,double amount)
+        {
+            PrepareEffort(s);
+            ExertionRules.Impulse(s.Exertion,Math.Max(0,amount)/Math.Max(1,s.MaximumStamina));
+            s.Stamina=s.MaximumStamina*s.Exertion.Burst;
+        }
         static bool ResolveFatalCold(PlayerSurvival state)
         {
             // No rescue/rewarming gameplay exists yet. Also resolve a saved
@@ -37,6 +50,7 @@ namespace WorldGen.Presentation
         {
             if(!double.IsFinite(seconds)||seconds<0||seconds>86400||!double.IsFinite(minutesPerDay)||minutesPerDay<1||minutesPerDay>10080)throw new ArgumentOutOfRangeException(nameof(seconds));
             if(!double.IsFinite(speed)||speed<0)throw new ArgumentOutOfRangeException(nameof(speed));
+            if(!double.IsFinite(environment.SwimEffort)||environment.SwimEffort<0||environment.SwimEffort>1)throw new ArgumentException("Invalid swimming effort.");
             if(!double.IsFinite(environment.AirTemperatureC)||!double.IsFinite(environment.Humidity)||!double.IsFinite(environment.WindMps)||!double.IsFinite(environment.RainMmPerHour)||!double.IsFinite(environment.Sunlight)||!double.IsFinite(environment.Insulation)||!double.IsFinite(environment.RadiantHeatC)||!double.IsFinite(environment.SleepComfort))throw new ArgumentException("Invalid survival environment.");
             if(state.Dead)return;
             if(seconds>0&&ResolveFatalCold(state))return;
@@ -50,7 +64,7 @@ namespace WorldGen.Presentation
             Foraging.AdvancePoison(s,day*86400);if(s.Dead)return;
             WaterDrinking.AdvanceIllness(s,day*86400);
             SleepRules.Advance(s,day*86400,e.Sleeping,e.SleepComfort,e.LocalHour,e.Sunlight);
-            double activity=s.Unconscious?0:Math.Max(Clamp(speed/TerrainMotion.RunSpeedMps),sprinting&&speed>.1?.9:0),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
+            double activity=s.Unconscious?0:e.Swimming?Clamp(e.SwimEffort):Math.Max(Clamp(speed/TerrainMotion.RunSpeedMps),sprinting&&speed>.1?.9:0),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
             double sweat=Clamp((e.AirTemperatureC-20)/12+activity*1.2+sun*.5,0,4);
             if(e.Immersed)s.Wetness=1;
             else s.Wetness=Clamp(s.Wetness+thermal*(Math.Max(0,e.RainMmPerHour)*.003+sweat*.003-(.002+wind*.0003)*(1-humidity)));
@@ -69,15 +83,14 @@ namespace WorldGen.Presentation
             if(s.CoreTemperatureC>=HeatCollapseC)s.Unconscious=true;
             else if(s.Unconscious&&s.CoreTemperatureC>=32&&s.CoreTemperatureC<=39.5)s.Unconscious=false;
             PlayerMetabolism.Advance(s,day,activity,coldLoad,2.4+Math.Max(0,e.AirTemperatureC-22)*.09+activity*3+sweat*.6);
-            bool resting=speed<.1;
+            bool resting=speed<.1&&(!e.Swimming||e.SwimEffort<.3);
             bool comfortable=s.CoreTemperatureC>=36&&s.CoreTemperatureC<=38;
             double energyLimit=100*s.BodyCondition*(s.Hunger>90?.9:1)*(1-.25*Clamp((s.Thirst-60)/40))*(1-.18*WaterDrinking.SymptomSeverity(s));
             if(resting&&s.Thirst<85&&comfortable)s.Energy=Clamp(s.Energy+day*(e.Sleeping?180*Math.Max(.25,e.SleepComfort):65),0,energyLimit);
             else s.Energy=Clamp(s.Energy-day*(8+activity*70+coldLoad*.5+heatLoad*4),0,100);
-            if(s.Exertion==null)s.Exertion=new ExertionState{Burst=Clamp(s.Stamina/Math.Max(1,s.MaximumStamina))};
-            s.Exertion.Burst=Math.Min(s.Exertion.Burst,Clamp(s.Stamina/Math.Max(1,s.MaximumStamina)));
+            PrepareEffort(s);
             // Sleep accelerates calendar needs, not the physical rate of a sprint.
-            double effort=resting?0:sprinting?1:Math.Pow(Clamp(speed/TerrainMotion.RunSpeedMps),1.25);
+            double effort=e.Swimming?Clamp(e.SwimEffort):resting?0:sprinting?1:Math.Pow(Clamp(speed/TerrainMotion.RunSpeedMps),1.25);
             ExertionRules.Advance(s.Exertion,ExertionProfile.Human(),dt,effort,e.AirTemperatureC,Math.Max(1,e.EffortLoad),e.GroundGrade);
             s.Stamina=s.MaximumStamina*s.Exertion.Burst;s.Exhausted=s.Exertion.Burst<.08;
             // Critical exposure can incapacitate before it proves fatal. Mild

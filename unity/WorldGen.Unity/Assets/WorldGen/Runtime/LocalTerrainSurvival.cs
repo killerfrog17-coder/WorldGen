@@ -83,6 +83,7 @@ public sealed partial class LocalTerrainExplorer
         }
         survivalEnvironment.LocalHour=LocalSolarHour;survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
         survivalEnvironment.EffortLoad=Inventory.LoadEffort;
+        survivalEnvironment.Swimming=motion.Swimming;survivalEnvironment.SwimEffort=motion.SwimEffort;
         survivalEnvironment.Insulation=campSleeping?CampRules.BedInsulation(sleepingBed):0;
         double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt*CampTimeRate,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
@@ -94,7 +95,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(Vitals.FoodExposures!=null)foreach(var exposure in Vitals.FoodExposures)
             if(!exposure.SymptomsNotified&&exposure.DelaySeconds<=0&&exposure.RemainingSeconds<10800){exposure.SymptomsNotified=true;InventoryFeedback("Your stomach is cramping and you feel nauseated.");}
-        Vitals.Stamina=Math.Max(0,Vitals.Stamina-dt*Math.Max(0,Inventory.LoadEffort-1)*speed*.3);
+        // Carrying load is already included in the shared exertion demand.
     }
     void UpdateSurvivalHud()
     {

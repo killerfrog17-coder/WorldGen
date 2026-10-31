@@ -164,8 +164,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 if(Mode==GameMode.Creative&&keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
                 bool alive=!SurvivalActive||!Vitals.Incapacitated;
                 survivalSprinting=!keyboard.ctrlKey.isPressed&&!keyboard.cKey.isPressed&&keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
-                bool jump=alive&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=12);
-                if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
+                bool jump=alive&&!motion.Flying&&!motion.Swimming&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=SurvivalRules.JumpStaminaCost);
+                if(SurvivalActive&&jump&&motion.Grounded)SurvivalRules.SpendStamina(Vitals,SurvivalRules.JumpStaminaCost);
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
                     alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed&&!keyboard.f3Key.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
                     heading,pitch,survivalSprinting,jump,PlayerSolidGround,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:PlayerEffortSpeedScale(survivalSprinting,keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed)*Inventory.LoadSpeedScale*(PlayerCrouching?.55:1));

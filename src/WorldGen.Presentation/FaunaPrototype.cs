@@ -26,7 +26,12 @@ namespace WorldGen.Presentation
             double walk=sourceWalkMps>0?sourceWalkMps:walkMps,run=sourceRunMps>0?sourceRunMps:runMps;
             return role=="run"?run:role=="trot"?(walk+run)*.5:walk;
         }
-        public double VisibleRadiusM=>slug=="butterflies-and-moths-guild"||derivedFirefly?Math.Max(radiusM,220):tiny?radiusM:medium=="air"&&lengthM>=.8?Math.Max(radiusM,600):medium=="water"&&lengthM>=1.5?Math.Max(radiusM,lengthM>=8?1000:450):radiusM;
+        public double VisibleRadiusM=>slug=="butterflies-and-moths-guild"||derivedFirefly?Math.Max(radiusM,220):tiny?radiusM:
+            medium=="air"?Math.Max(radiusM,lengthM>=.8?1200:650):
+            medium=="water"&&lengthM>=1.5?Math.Max(radiusM,lengthM>=8?1600:650):
+            medium=="ground"&&lengthM>=1?Math.Max(radiusM,lengthM>=3?1600:1100):
+            medium=="ground"&&lengthM>=.5?Math.Max(radiusM,300):radiusM;
+        public double PreloadRadiusM=>VisibleRadiusM+(tiny?10:Math.Min(250,Math.Max(70,VisibleRadiusM*.2)));
     }
     public sealed class FaunaPrototypeSpawn
     {
@@ -119,7 +124,7 @@ namespace WorldGen.Presentation
                 {
                     var profile=models[id];var behaviour=WildlifeBehaviour.Describe(profile.slug,e.Taxa[id].MassKg,e.Taxa[id].Eats,profile.medium=="air",profile.tiny,e.Taxa[id].Name);
                     if(detail!=(behaviour.Tier<WildlifeTrackingTier.Resident&&profile.VisibleRadiusM<250))continue;
-                    if((middle-center).Length*radius>Math.Max(profile.VisibleRadiusM,behaviour.TrackingM)+(detail?100:800))continue;
+                    if((middle-center).Length*radius>Math.Max(profile.PreloadRadiusM,behaviour.TrackingM)+(detail?100:800))continue;
                     var taxon=e.Taxa[id];int nativeRegion=region;
                     if(!Pool(nativeRegion).Contains(id))
                     {nativeRegion=-1;foreach(int neighbor in world.Surface.Cells[cell].Neighbors)if(Pool(e.Region[neighbor]).Contains(id)){nativeRegion=e.Region[neighbor];break;}}
@@ -131,7 +136,7 @@ namespace WorldGen.Presentation
             }
             // Ecology supplies population; admission is sliced across frames,
             // instead of discarding members to fit a fixed entity count.
-            return result.OrderBy(s=>(s.Position-center).Length/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id).ToList();
+            return result.OrderBy(s=>(s.Position-center).Length/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id).ToList();
             void Add(FaunaPrototypeProfile profile,Taxon? taxon,int id,int region,ScatterKey key)
             {
                 bool daylightNocturnal=!profile.derivedFirefly&&WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal)&&hour>6&&hour<18;
@@ -169,7 +174,7 @@ namespace WorldGen.Presentation
                         token.ThrowIfCancellationRequested();
                         double spread=(detailSize(key)?8:25)/Math.Max(64,Math.Sqrt(area));
                         V position=lattice.Position(key,Math.Max(.01,Math.Min(.99,u+(rng.Unit()-.5)*spread)),Math.Max(.01,Math.Min(.99,v+(rng.Unit()-.5)*spread)));
-                        if((position-center).Length*radius>Math.Max(profile.VisibleRadiusM,behaviour.TrackingM))continue;
+                        if((position-center).Length*radius>Math.Max(profile.PreloadRadiusM,behaviour.TrackingM))continue;
                         int actualCell=terrain.NearestCell(position);if(e.Region[actualCell]!=region&&!world.Hydrology.OceanConnected[actualCell])continue;
                         var sample=patch.Sample(position);bool wet=sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.03;
                         if(profile.derivedFirefly&&FireflyDisplay.HabitatGain(AmbientFauna.For(world).Region(region).First(s=>s.Family==AmbientFaunaFamily.Firefly),e.Habitat[sample.Cell],sample)<=0)continue;

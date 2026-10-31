@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public IEnumerator CheckHuntingFlow(string output,List<string> report)
     {
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-revision-check")){yield return CheckHuntingRevisionFlow(output,report);yield break;}
         void Check(bool ok,string why){if(!ok)throw new InvalidOperationException("HUNTING "+why);report.Add("PASS "+why);Debug.Log("HUNTING PASS "+why);}
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();motion.Place(motion.X,motion.Z,CampFloor(motion.X,motion.Z));humanCamera.Restore(0,false);reviewWildlifeBehaviour=false;
         TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);
@@ -140,6 +141,87 @@ public sealed partial class LocalTerrainExplorer
         costs.Sort();File.WriteAllText(Path.Combine(output,"behaviour-cost.txt"),animals.Count+" actors; 120 frame-separated forced AI sweeps; warm p50 "+costs[costs.Count/2].ToString("F3")+" ms; p95 "+costs[(int)(costs.Count*.95)].ToString("F3")+" ms; maximum "+costs.Last().ToString("F3")+" ms; decisions "+(huntingDecisions-beforeDecisions)+" / deferred "+(huntingDeferred-beforeDeferred)+". This measures decision work with its 1 ms soft budget, not total game frame rate.");
         Check(animals.Values.All(a=>a.Exertion.Burst>=0&&a.Exertion.Burst<=1&&a.Awareness.Suspicion>=0&&a.Awareness.Suspicion<=1),"Mixed actor decisions retain bounded physical and awareness state");reviewWildlifeBehaviour=false;paused=true;
         if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-approach-check"))yield return CheckHuntingApproach(roo,output,report);
+    }
+    IEnumerator CheckHuntingRevisionFlow(string output,List<string> report)
+    {
+        void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("HUNT REVISION "+text);report.Add("PASS "+text);Debug.Log("HUNT REVISION PASS "+text);}
+        PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();humanCamera.Restore(0,false);paused=false;
+        TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);
+        foreach(string name in new[]{"red-kangaroo","deer","duck"})ExecuteAnimalSpawnCommand("/spawn "+name);
+        double end=Time.unscaledTimeAsDouble+90;
+        while(new[]{"red-kangaroo","deer","duck"}.Any(s=>!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug==s))&&Time.unscaledTimeAsDouble<end)yield return null;
+        var roo=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="red-kangaroo");var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer");var duck=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="duck");
+        paused=true;Check(roo!=null&&deer!=null&&duck!=null,"Original kangaroo, deer and duck load through normal asset admission");
+        double px=motion.X,pz=motion.Z;var oldTiles=tiles;var weather=CurrentWeather;double oldCoverAt=huntingCoverAt;
+        // Controlled resident placement-grid fixture. It exercises the native
+        // runtime sampler/perception, not an assertion about a natural biome.
+        double floor=Ground(px,pz)+200;var fixture=new Dictionary<TerrainTileKey,Tile>();
+        double size=TerrainLod.BaseSizeM*HorizontalScale;int cx=(int)Math.Floor(px/size),cz=(int)Math.Floor(pz/size);
+        for(int x=cx-2;x<=cx+2;x++)for(int z=cz-2;z<=cz+12;z++)
+        {var cover=new float[64];for(int k=0;k<4;k++){cover[k*16+3]=.8f;cover[k*16+5]=.8f;cover[k*16+13]=3;cover[k*16+15]=(float)floor;}fixture[new TerrainTileKey(x,z,0,HorizontalScale)]=new Tile{Segments=1,Heights=new[]{(float)floor,(float)floor,(float)floor,(float)floor},Cover=cover};}
+        try
+        {
+            tiles=fixture;motion.Place(px,pz,floor);motion.Flying=false;
+            CurrentWeather=new WeatherFrame(24,.4,0,0,0,0,1500,500,8000,0,0,0,0);
+            void Place(double distance)
+            {roo.X=px;roo.Z=pz+distance;roo.Planet=frame.Position(roo.X,roo.Z);roo.GroundY=floor;roo.Heading=roo.TargetHeading=180;roo.Speed=roo.TargetSpeed=0;roo.Awareness=new WildlifeAwarenessState();UpdateAnimal(roo,0);}
+            void Observe(double speed,int count)
+            {huntingSpeed=speed;huntingCover=0;huntingLight=1;huntingCoverAt=Time.unscaledTimeAsDouble+100;huntingNoiseUntil=0;for(int i=0;i<count;i++)PerceivePlayer(roo,.3,Math.Abs(roo.Z-pz));}
+            Place(50);Check(HuntingColumn(px,pz,out var field,out var ground,out var slope)&&field.Stature==3&&slope>.9&&Math.Abs(ground-floor)<.001,"Native perception reads the exact resident grass placement channels and surface");
+            Check(WildlifeVisibility(roo,px,pz,motion.Y+humanEyeOffset)==0,"A 50m eye-level sight line through tall dense grass is actually blocked");
+            Observe(0,200);Check(roo.Awareness.Mode==WildlifeAwareness.Relaxed&&roo.Awareness.Sense!=WildlifeSense.Sight,"A motionless silent concealed person remains unseen after a full minute");
+            roo.Awareness=new WildlifeAwarenessState();Observe(3,100);Check(roo.Awareness.Mode!=WildlifeAwareness.Fleeing&&roo.Awareness.Sense!=WildlifeSense.Sight,"Audible movement in occluding grass does not become visual knowledge or automatic distant flight");
+            foreach(var tile in fixture.Values)for(int k=0;k<4;k++){tile.Cover[k*16+3]=0;tile.Cover[k*16+5]=0;}
+            Place(50);Check(WildlifeVisibility(roo,px,pz,motion.Y+humanEyeOffset)>.99,"Removing the grass obstruction restores the same geometric sight line");
+            Observe(3,100);Check(roo.Awareness.Mode!=WildlifeAwareness.Fleeing&&roo.Awareness.Suspicion>.45,"A clearly visible distant moving person is watched without an immediate full-speed escape");
+            Place(20);Observe(3,1);Check(roo.Awareness.Mode!=WildlifeAwareness.Fleeing,"A nearby first sighting allows a reaction interval");
+            Observe(3,40);Check(roo.Awareness.Mode==WildlifeAwareness.Fleeing,"Sustained credible nearby approach still triggers escape");
+        }
+        finally{tiles=oldTiles;CurrentWeather=weather;huntingCoverAt=oldCoverAt;motion.Place(px,pz,Ground(px,pz));roo.X=px;roo.Z=pz+20;roo.Planet=frame.Position(roo.X,roo.Z);roo.GroundY=Ground(roo.X,roo.Z);roo.Awareness=new WildlifeAwarenessState();UpdateAnimal(roo,0);UpdateHumans();UpdateCamera();}
+        ulong gid=991990;wildlifeGroups[gid]=new WildlifeGroup{Position=frame.Position(px,pz+150),Heading=0,Members=1};
+        try{var moved=new FaunaPrototypeSpawn{Profile=deer.Spawn.Profile,GroupId=gid,Position=frame.Position(px,pz+2300)};Check(SpawnViewDistance(moved)<250,"Model admission uses a tracked group's current position rather than its distant original home");}
+        finally{wildlifeGroups.Remove(gid);}
+        int oldMask=view.cullingMask;var oldRotation=view.transform.localRotation;var oldPosition=view.transform.localPosition;var oldClear=view.clearFlags;var oldColour=view.backgroundColor;
+        Color32[] Pixels(string name)
+        {
+            var prior=RenderTexture.active;var old=view.targetTexture;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;
+            var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();var pixels=image.GetPixels32();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
+            RenderTexture.active=prior;view.targetTexture=old;rt.Release();Destroy(rt);Destroy(image);return pixels;
+        }
+        try
+        {
+            view.cullingMask=1<<26;view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=Color.black;
+            view.transform.localPosition=oldPosition+Vector3.up*200;view.transform.localRotation=Quaternion.identity;
+            foreach(var pair in new[]{(deer,550f),(duck,200f)})
+            {
+                var a=pair.Item1;int layer=a.Root.layer;var oldPos=a.Root.transform.localPosition;var oldRot=a.Root.transform.localRotation;
+                try
+                {
+                    a.Fade=1;AnimalRole(a,a==duck?"fly":"idle");UpdateAnimal(a,0);animalBoneBuffer.SetData(animalBoneData);
+                    a.Root.layer=26;a.Root.transform.localPosition=view.transform.localPosition+Vector3.forward*pair.Item2;a.Root.transform.localRotation=Quaternion.Euler(0,a==duck?0:90,0);
+                    float fade=Mathf.Clamp01(((float)a.Spawn.Profile.VisibleRadiusM-pair.Item2)/Math.Max(4,(float)a.Spawn.Profile.VisibleRadiusM*.12f));a.Props.SetFloat("_Fade",fade);a.Renderer.SetPropertyBlock(a.Props);
+                    a.Renderer.enabled=false;var empty=Pixels(a.Spawn.Profile.slug+"-empty");a.Renderer.enabled=true;var present=Pixels(a.Spawn.Profile.slug+"-far");
+                    int changed=present.Where((p,i)=>Math.Abs(p.r-empty[i].r)+Math.Abs(p.g-empty[i].g)+Math.Abs(p.b-empty[i].b)>2).Count();
+                    Check(fade>.99&&changed>0,"Actual GPU "+a.Spawn.Profile.slug+" skin remains rendered at "+pair.Item2+"m; changed pixels="+changed);
+                }
+                finally{a.Renderer.enabled=true;a.Root.layer=layer;a.Root.transform.localPosition=oldPos;a.Root.transform.localRotation=oldRot;}
+            }
+        }
+        finally{view.cullingMask=oldMask;view.transform.localPosition=oldPosition;view.transform.localRotation=oldRotation;view.clearFlags=oldClear;view.backgroundColor=oldColour;}
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();motion.Place(px,pz,Ground(px,pz));UpdateHumans();UpdateCamera();
+        var keyboard=UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();var oldKeyboard=testKeyboard;testKeyboard=keyboard;
+        var oldBackground=UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior;UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior=UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
+        try
+        {
+            paused=false;double start=motion.Y;float lowest=100;bool airborne=false;
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.Space));yield return null;yield return null;
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());
+            end=Time.unscaledTimeAsDouble+3;
+            while(Time.unscaledTimeAsDouble<end){airborne|=motion.Y>start+.1;lowest=Math.Min(lowest,(float)(Vitals.Stamina/Math.Max(1,Vitals.MaximumStamina)*100));yield return null;}
+            Check(airborne&&lowest>95&&Vitals.Exertion.Burst>.99,"A real Space-key jump has a small cost and recovers within three seconds");
+        }
+        finally{paused=true;testKeyboard=oldKeyboard;UnityEngine.InputSystem.InputSystem.RemoveDevice(keyboard);UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior=oldBackground;}
+        Vitals.Restore();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
     }
     IEnumerator CheckHuntingApproach(Animal subject,string output,List<string> report)
     {

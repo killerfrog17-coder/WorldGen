@@ -11,6 +11,26 @@ public sealed partial class LocalTerrainExplorer
     Vector3 huntingNoisePoint;readonly RaycastHit[] huntingRayHits=new RaycastHit[16];
     bool huntingNoiseFromPlayer=true;
     bool PlayerCrouching=>!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
+    bool HuntingColumn(double x,double z,out GroundCoverProfile cover,out double ground,out double admission)
+    {
+        cover=default;ground=0;admission=0;
+        // Read the resident grass placement grid, not a new noisy terrain query
+        // for each observer. The triangle interpolation matches the GPU placer.
+        for(int level=0;level<=16;level++)
+        {
+            double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);var key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
+            if(!tiles.TryGetValue(key,out var tile)||tile.Cover==null||tile.Segments<=0)continue;
+            int n=tile.Segments,side=n+1;double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;
+            int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
+            double Node(int xx,int zz,int c)=>tile.Cover[(zz*side+xx)*16+c];
+            double At(int c){double h00=Node(a,b,c),h10=Node(a+1,b,c),h01=Node(a,b+1,c),h11=Node(a+1,b+1,c);return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);}
+            cover=new GroundCoverProfile{Grasses=new V(At(4),At(5),At(6)),Herbs=new V(At(7),At(8),At(9)),Stature=At(13)};ground=At(15);
+            double step=size/n,sx=u+v<=1?(Node(a+1,b,15)-Node(a,b,15))/step:(Node(a+1,b+1,15)-Node(a,b+1,15))/step;
+            double sz=u+v<=1?(Node(a,b+1,15)-Node(a,b,15))/step:(Node(a+1,b+1,15)-Node(a+1,b,15))/step;
+            admission=GroundFlora.GrassSlopeAdmission(1/Math.Sqrt(1+sx*sx+sz*sz));return true;
+        }
+        return false;
+    }
     double HuntingGrassAdmission(double x,double z,double floor,LocalTerrainSample sample)
     {
         if(sample.Underwater||sample.Cover.Grasses.Length<=0)return 0;
@@ -26,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
         if(Time.unscaledTimeAsDouble<huntingCoverAt)return;huntingCoverAt=Time.unscaledTimeAsDouble+.35;
         var s=walkingPatch.Sample(Position);double height=PlayerCrouching?1.05:1.7;
         double grass=HuntingGrassAdmission(motion.X,motion.Z,motion.Y-TerrainMotion.EyeHeightM,s);
-        huntingCover=Math.Min(.8,s.Cover.Grasses.Length*Math.Max(0,s.Cover.Stature-.12)*grass/height);
+        huntingCover=HuntingColumn(motion.X,motion.Z,out var physical,out _,out var slope)?WildlifePerception.BodyCover(physical,height,slope):WildlifePerception.BodyCover(s.Cover,height,grass);
         var feet=PlayerFeet();
         foreach(var chunk in scatterChunks.Values)
         {
@@ -43,7 +63,8 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         double canopy=TreeFlora.CanopyShade(s.Forest,Position,terrain.SourceSeed,frame.RadiusM);
-        huntingLight=(SkyFrame?.Daylight??1)*(1-CurrentWeather.CloudCover*.65)*(1-canopy*.75);
+        double light=SkyFrame==null?1:Math.Min(1,SkyFrame.Daylight+SkyFrame.NightIlluminanceLux*.08);
+        huntingLight=light*(1-CurrentWeather.CloudCover*.65)*(1-canopy*.75);
         if(weatherScreen!=null&&huntingLight>.12)
         {
             var ray=new Ray(view.transform.position,weatherScreen.SunDirection);
@@ -68,17 +89,17 @@ public sealed partial class LocalTerrainExplorer
             double posture=PlayerCrouching?.55:1,cover=huntingCover;
             // Concealment is physical vegetation, not a graphics-quality switch.
             double potential=WildlifePerception.Vision(senses,range,facing,huntingSpeed,posture,cover,huntingLight,true,animal.BehaviourAction=="eat",animal.BehaviourAction=="sleep"&&animal.Life<animal.ActionUntil);
-            if(potential>.035&&WildlifeSight(animal,motion.X,motion.Z,motion.Y+humanEyeOffset))visual=potential;
-            double footstep=huntingSpeed<.08?0:Math.Min(1.8,Math.Pow(huntingSpeed/3,1.3))*(PlayerCrouching?.25:1);
+            if(potential>.02)visual=potential*WildlifeVisibility(animal,motion.X,motion.Z,motion.Y+humanEyeOffset);
+            double footstep=!motion.Grounded||motion.Swimming||huntingSpeed<.08?0:Math.Min(1.8,Math.Pow(huntingSpeed/3,1.3))*(PlayerCrouching?.25:1);
             double wind=Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps);
             sound=WildlifePerception.Hearing(senses,range,footstep,wind,CurrentWeather.RainMmPerHour);
             // Atmospheric wind is not an underwater chemical plume.
             if(animal.Spawn.Profile.medium!="water")scent=WildlifePerception.Scent(senses,-dx,-dz,CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,CurrentWeather.RainMmPerHour)*WildlifePerception.ScentHeight(playerEye-.65-eye);
         }
         double tx=motion.X,tz=motion.Z;bool cueFromPlayer=true;
-        if(sound*.8>visual&&sound>=scent*.9)
+        if(sound*.65>visual&&sound*.65>=scent*.6)
         {double error=Math.Min(12,distance*.18),angle=(animal.Spawn.Hash%628)/100.0;tx+=Math.Sin(angle)*error;tz+=Math.Cos(angle)*error;}
-        else if(scent*.75>Math.Max(visual,sound*.8))
+        else if(scent*.6>Math.Max(visual,sound*.65))
         {
             double wind=Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps);
             tx=animal.X-CurrentWeather.WindEastMps/Math.Max(.1,wind)*Math.Min(distance,35);tz=animal.Z-CurrentWeather.WindNorthMps/Math.Max(.1,wind)*Math.Min(distance,35);
@@ -90,19 +111,21 @@ public sealed partial class LocalTerrainExplorer
             if(noise>sound)
             {
                 sound=noise;
-                if(noise*.8>Math.Max(visual,scent*.75))
+                if(noise*.65>Math.Max(visual,scent*.6))
                 {tx=huntingNoisePoint.x+originX;tz=huntingNoisePoint.z+originZ;cueFromPlayer=huntingNoiseFromPlayer;}
             }
         }
         else huntingNoiseStrength=0;
-        WildlifePerception.Observe(animal.Awareness,senses,dt,visual,sound,scent,tx,tz);
-        if(Math.Max(visual,Math.Max(sound*.8,scent*.75))>.055)animal.Awareness.ThreatIsPlayer=cueFromPlayer;
+        double flight=animal.Behaviour.FlightM;
+        double approach=-(dx*playerDeathVelocity.x+dz*playerDeathVelocity.z)/Math.Max(.1,distance);
+        WildlifePerception.Observe(animal.Awareness,senses,dt,visual,sound,scent,tx,tz,range,flight,approach);
+        if(Math.Max(visual,Math.Max(sound*.65,scent*.6))>.055)animal.Awareness.ThreatIsPlayer=cueFromPlayer;
         if(animal.Awareness.Suspicion>.5&&Time.unscaledTimeAsDouble>animal.AlertVoiceAt)
         {animal.AlertVoiceAt=Time.unscaledTimeAsDouble+12+animal.Spawn.Hash%9;AnimalVoiceEvent(animal,"alert");}
     }
     bool ShareAnimalAlarm(Animal animal,Animal neighbour,double distance)
     {
-        if(animal.Awareness.Suspicion>=.78||neighbour.Awareness.Mode!=WildlifeAwareness.Fleeing||neighbour.Awareness.LastCueSeconds>10||distance>28)return false;
+        if(animal.Awareness.Mode==WildlifeAwareness.Fleeing||neighbour.Awareness.Mode!=WildlifeAwareness.Fleeing||neighbour.Awareness.LastCueSeconds>10||distance>28)return false;
         bool related=neighbour.Spawn.GroupId!=0&&neighbour.Spawn.GroupId==animal.Spawn.GroupId||neighbour.Spawn.Profile.slug==animal.Spawn.Profile.slug;
         if(!related&&(!AnimalBehaviour(animal.Spawn.Profile,animal.Spawn.Taxon).Herd||!AnimalBehaviour(neighbour.Spawn.Profile,neighbour.Spawn.Taxon).Herd))return false;
         if(!AnimalSight(animal,neighbour)&&distance>12)return false;
@@ -116,7 +139,8 @@ public sealed partial class LocalTerrainExplorer
         if(animal.Spawn.Profile.medium=="air")animal.AirTargetHeight=Math.Max(6,animal.Spawn.HeightM);
         // Escape headings retain the last sensed location; no hidden-player tracking.
         SetAnimalTravel(animal,animal.X+dx/range*70,animal.Z+dz/range*70,true);
-        if(a.MemorySeconds>0&&a.LastCueSeconds>10&&range>65){animal.TargetSpeed=Math.Min(animal.TargetSpeed,(float)Math.Max(animal.Spawn.Profile.walkMps,animal.Spawn.Profile.runMps*.45));AnimalRole(animal,"trot");}
+        if(range>Math.Max(30,animal.Behaviour.FlightM*1.3)||a.LastCueSeconds>3)
+        {animal.TargetSpeed=Math.Min(animal.TargetSpeed,(float)Math.Max(animal.Spawn.Profile.walkMps,animal.Spawn.Profile.runMps*.45));AnimalRole(animal,AvailableAnimalRole(animal,"trot","walk"));}
         animal.ThreatUntil=Math.Max(animal.ThreatUntil,animal.Life+2);animal.ThreatX=a.LastX;animal.ThreatZ=a.LastZ;
         if(wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group))
         {group.Intent=WildlifeIntent.Flee;group.Goal=frame.Position(animal.X+dx/range*100,animal.Z+dz/range*100);group.NextDecisionDays=Math.Max(group.NextDecisionDays,PlayerRules.SolarDays+20/(PlayerRules.Settings.RealMinutesPerDay*60));}

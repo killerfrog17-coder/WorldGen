@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
         var sample=walkingPatch.Sample(animal.Planet);
         double height=Math.Max(.1,animal.Spawn.Profile.lengthM*animal.Model.Asset.Height);
         double grass=HuntingGrassAdmission(animal.X,animal.Z,animal.GroundY,sample);
-        return animal.VisualCover=Math.Min(.8,(sample.Cover.Stature*sample.Cover.Grasses.Length*grass+sample.MidCover.Coverage*.25)/height);
+        return animal.VisualCover=HuntingColumn(animal.X,animal.Z,out var physical,out _,out var slope)?WildlifePerception.BodyCover(physical,height,slope):WildlifePerception.BodyCover(sample.Cover,height,grass);
     }
 
     double AnimalVision(Animal observer,Animal target,double horizontal)
@@ -24,9 +24,9 @@ public sealed partial class LocalTerrainExplorer
         double dx=target.X-observer.X,dz=target.Z-observer.Z;
         double facing=(Math.Sin(observer.Heading*Math.PI/180)*dx+Math.Cos(observer.Heading*Math.PI/180)*dz)/Math.Max(.01,horizontal);
         double dy=AnimalEye(target)-AnimalEye(observer),range=Math.Sqrt(horizontal*horizontal+dy*dy);
-        double light=(SkyFrame?.Daylight??1)*(1-CurrentWeather.CloudCover*.55)*(1-wildlifeVisualCover*.6);
+        double light=(SkyFrame==null?1:Math.Min(1,SkyFrame.Daylight+SkyFrame.NightIlluminanceLux*.08))*(1-CurrentWeather.CloudCover*.55)*(1-wildlifeVisualCover*.6);
         double evidence=WildlifePerception.Vision(observer.Senses,range,facing,target.Speed,1,AnimalCover(target),light,true,observer.BehaviourAction=="eat",observer.BehaviourAction=="sleep"&&observer.Life<observer.ActionUntil);
-        return evidence>.035&&AnimalSight(observer,target)?evidence:0;
+        return evidence>.02?evidence*WildlifeVisibility(observer,target.X,target.Z,AnimalEye(target)):0;
     }
 
     bool ReachablePrey(Animal hunter,Animal prey)
