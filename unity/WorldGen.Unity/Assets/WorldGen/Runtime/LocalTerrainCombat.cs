@@ -59,38 +59,41 @@ public sealed partial class LocalTerrainExplorer
     {
         for(int i=0;i<pendingMelee.Length;i++)
         {
-            var pending=pendingMelee[i];if(pending==null||now<pending.ContactAt)continue;pendingMelee[i]=null;
+            var pending=pendingMelee[i];if(pending==null||now<pending.ContactAt)continue;
             // Equipping, swapping or dropping the item during wind-up cannot
             // leave a remote delayed hit behind. Aim is evaluated at contact.
-            if(Inventory.AtHand(pending.Left?PossessionPlace.LeftHand:PossessionPlace.RightHand)!=pending.Item)continue;
-            CompleteMeleeStrike(pending.Item,pending.Unsupported);
+            if(Inventory.AtHand(pending.Left?PossessionPlace.LeftHand:PossessionPlace.RightHand)!=pending.Item){pendingMelee[i]=null;continue;}
+            if(CompleteMeleeStrike(pending.Item,pending.Unsupported)||now>=pending.ContactAt+.12)pendingMelee[i]=null;
         }
     }
-    void CompleteMeleeStrike(Possession item,bool unsupported)
+    bool CompleteMeleeStrike(Possession item,bool unsupported)
     {
-        var profile=ItemUseRules.Profile(item);if(!profile.Weapon||ItemUseRules.Condition(item)<=0)return;
+        var profile=ItemUseRules.Profile(item);if(!profile.Weapon||ItemUseRules.Condition(item)<=0)return true;
         var ray=PlayerAttackRay();float reach=(float)Math.Max(.1,profile.ReachM-(unsupported?.1:0));
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
         // bounding box as flesh. Each candidate is still a real surface hit.
-        foreach(var offset in new[]{Vector3.zero,view.transform.right*.045f,-view.transform.right*.045f,view.transform.up*.045f,-view.transform.up*.045f})
+        float width=profile.Primary==ItemPrimaryUse.Thrust?.07f:.09f;
+        foreach(var offset in new[]{Vector3.zero,view.transform.right*width,-view.transform.right*width,view.transform.up*width,-view.transform.up*width})
         {
             var stroke=new Ray(ray.origin+offset,ray.direction);var wall=TraceCombatObstacle(stroke,reach);var hit=TraceLiving(stroke,wall?.Distance??reach);
-            if(hit!=null&&hit.Distance<=nearest){chosen=hit;nearest=hit.Distance;}
+            if(hit!=null&&hit.Distance<=nearest){chosen=hit;nearest=hit.Distance;break;}
             if(wall!=null&&(obstacle==null||wall.Distance<obstacle.Distance))obstacle=wall;
         }
         double damage=ItemUseRules.MeleeDamage(item,SurvivalActive?(.6+.4*Vitals.MovementScale)*(.45+.55*Math.Sqrt(Vitals.Exertion?.Burst??1)):1);
         if(unsupported)damage*=.72;
         if(chosen!=null)
         {
-            ApplyCombatHit(chosen,damage,ray.direction,Math.Sqrt(Math.Max(.01,item?.MassKg??.3)*profile.EnergyJ*2));
+            ApplyCombatHit(chosen,damage,ray.direction,Math.Sqrt(Math.Max(.01,item?.MassKg??.3)*profile.EnergyJ*2),item);
             ApplyItemImpactWear(item,profile.EnergyJ,false);SplitLooseSpear(item);
+            return true;
         }
         else if(obstacle!=null)
-        {PlayItemEffect(obstacle.Tree?"wood-chop":"stone-contact",obstacle.Point,.4f);ApplyItemImpactWear(item,profile.EnergyJ,true);if(obstacle.Tree)ToolHitTree(item,obstacle,profile.EnergyJ);SplitLooseSpear(item);}
+        {PlayItemEffect(obstacle.Tree?"wood-chop":"stone-contact",obstacle.Point,.4f);ApplyItemImpactWear(item,profile.EnergyJ,true);if(obstacle.Tree)ToolHitTree(item,obstacle,profile.EnergyJ);SplitLooseSpear(item);return true;}
+        return false;
     }
-    void ApplyCombatHit(CombatHit hit,double damage,Vector3 direction,double momentum)
-    {if(hit.Animal!=null)DamageAnimal(hit.Animal,damage,hit.Point,direction,momentum,true);else if(hit.Human!=null)DamageHuman(hit.Human,damage,hit,direction,momentum);}
+    void ApplyCombatHit(CombatHit hit,double damage,Vector3 direction,double momentum,Possession weapon=null)
+    {RegisterCombatWound(hit,weapon,damage,direction);if(hit.Animal!=null)DamageAnimal(hit.Animal,damage,hit.Point,direction,momentum,true);else if(hit.Human!=null)DamageHuman(hit.Human,damage,hit,direction,momentum);}
     void UpdateItemCombat()
     {
         combatGuarding=false;

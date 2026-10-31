@@ -71,6 +71,8 @@ public sealed partial class LocalTerrainExplorer
         Check(faunaPreview.clip!=null&&faunaPreview.clip.name!=previous,"Next preview advances to a different take");StopFaunaPreview();
         var sites=BuildFaunaSites(Position,frame.RadiusM,HorizontalScale,new HashSet<ulong>(),faunaCancel.Token);
         Check(sites.Any(s=>s.Profile!=null),"Actual local ecology and ground produce sound opportunities");
+        Check(sites.Where(s=>s.Profile!=null).Select(s=>s.Anchor.Id).Distinct().Count()==sites.Count(s=>s.Profile!=null),"An actual tree/caller identity cannot receive stacked duplicate speakers");
+        Check(sites.Where(s=>s.Profile!=null).All(s=>(s.Position-Position).Length*frame.RadiusM<=WildlifeAcoustics.AmbientRange(s.Anchor.Kind)+80),"Habitat work remains bounded by audible neighbourhoods including nearby tree offsets");
         foreach(var site in sites.Where(s=>s.Profile!=null&&s.Profile.NativeTaxonId>=0))
             Check(Biogeography.Present(sourceWorld.Ecology,terrain.NearestCell(site.Position),site.Profile.NativeTaxonId),"Native caller belongs to its actual ecoregion");
         var insect=sites.FirstOrDefault(s=>s.Profile!=null&&(int)s.Anchor.Kind<3);
@@ -84,6 +86,16 @@ public sealed partial class LocalTerrainExplorer
         StopFaunaVoice(voice);voice.Site=insect;voice.Sequence=1;ScheduleFauna(voice,AudioSettings.dspTime);
         Check(voice.Sources.Any(s=>s.clip!=null)&&voice.End.Max()>AudioSettings.dspTime,"An actual habitat caller schedules its own positioned recording");
         Check(voice.Sources.All(s=>s.spatialBlend==1&&!s.loop&&s.dopplerLevel==0),"Ambient callers are spatial one-shots with overlap scheduling, not a looping stereo soundtrack");
+        var priorCamera=view.transform.position;double priorMix=nextFaunaMix,priorPlan=nextFaunaPlan;
+        nextFaunaMix=nextFaunaPlan=Time.unscaledTime+100;voice.Gain=1;insect.Target=1;voice.Next=AudioSettings.dspTime+100;ConfigureWildlifeProjection(voice.Sources[0],WildlifeAcoustics.AmbientRange(insect.Anchor.Kind));
+        for(int b=0;b<2;b++){voice.Start[b]=AudioSettings.dspTime-1;voice.End[b]=AudioSettings.dspTime+5;}
+        var callerPosition=transform.TransformPoint(FaunaPoint(insect));view.transform.position=callerPosition+Vector3.right*2;UpdateFaunaAudio(false);float near=voice.Sources[0].volume;
+        view.transform.position=callerPosition+Vector3.right*20;UpdateFaunaAudio(false);float far=voice.Sources[0].volume;
+        Check(near>0&&far<near*.15f&&(voice.Root.transform.position-callerPosition).sqrMagnitude<.0001,"Actual fixed habitat AudioSource gets quieter when walking away without following the listener");
+        view.transform.position=callerPosition+Vector3.right*200;UpdateFaunaAudio(false);Check(voice.Site==null&&voice.Sources.All(s=>s.volume==0&&!s.isPlaying),"Leaving audible range releases the native caller slot and stops playback");
+        view.transform.position=priorCamera;nextFaunaMix=(float)priorMix;nextFaunaPlan=(float)priorPlan;
+        double maxStep=0;for(int step=0;step<1440;step++){double h=step/60d;double a=FaunaAmbience.ActivityGain(insect.Profile,WildlifeAcoustics.CallingHour(h,insect.Anchor.Hash),skyYear,50,20,.7,0,0),b=FaunaAmbience.ActivityGain(insect.Profile,WildlifeAcoustics.CallingHour(h+1d/60,insect.Anchor.Hash),skyYear,50,20,.7,0,0);maxStep=Math.Max(maxStep,Math.Abs(a-b));}
+        Check(maxStep<.03,"Real local insect profile crosses dawn and midnight gradually rather than a shared hard cutoff");
         StopFaunaVoice(voice);voice.Site=null;
         paused=false;ExecuteAnimalSpawnCommand("/spawn deer");deadline=Time.unscaledTimeAsDouble+30;
         while(!animals.Values.Any(a=>a.Manual&&!a.Dead&&a.Model.Asset.Slug=="deer")&&Time.unscaledTimeAsDouble<deadline)yield return null;

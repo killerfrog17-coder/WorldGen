@@ -182,7 +182,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
         huntingSpeed=Math.Sqrt(Math.Pow(motion.X-movementStartX,2)+Math.Pow(motion.Z-movementStartZ,2))/Math.Max(.001,Time.unscaledDeltaTime);
-        UpdateCamp();UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);
+        UpdateCamp();UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);UpdateCombatBleeding();
         if(Math.Abs(motion.X-originX)>8192||Math.Abs(motion.Z-originZ)>8192)
         {
             double newOriginX=Math.Floor(motion.X/2048)*2048,newOriginZ=Math.Floor(motion.Z/2048)*2048;
@@ -196,7 +196,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         UpdatePlayerDeath();
         if(!TerrainDiagnostics.HoldTerrain&&!DeathVisible)UpdatePreparedFrame();
-        UpdateHumans();UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateFootsteps();UpdateBodyFeedback();UpdateSurvivalHud();double altitude=HeightAboveGround;
+        UpdateHumans();UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateBloodSigns();UpdateFootsteps();UpdateBodyFeedback();UpdateSurvivalHud();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);

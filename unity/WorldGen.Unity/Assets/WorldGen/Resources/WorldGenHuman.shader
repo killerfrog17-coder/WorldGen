@@ -6,6 +6,7 @@ Shader "WorldGen/Human"
         _BaseMap("Pigment and opacity",2D)="white"{}
         _Roughness("Roughness",Range(.05,1))=.72
         _Cutoff("Alpha threshold",Range(0,1))=0
+        _VegetationSceneEnabled("World day/night lighting",Float)=1
         [PerRendererData] _HumanViewId("Human view identity",Float)=0
     }
     SubShader

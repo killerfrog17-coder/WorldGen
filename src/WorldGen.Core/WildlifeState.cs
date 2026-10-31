@@ -15,16 +15,17 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public int GroupIndex,GroupSize;
         [System.Runtime.Serialization.OptionalField] public int Taxon=-1;
         [System.Runtime.Serialization.OptionalField] public ExertionState Exertion;
+        [System.Runtime.Serialization.OptionalField] public BleedingState Bleeding;
         [System.Runtime.Serialization.OptionalField] public WildlifeAwarenessState Awareness;
         [System.Runtime.Serialization.OptionalField] public V ThreatPosition;
         [System.Runtime.Serialization.OptionalField] public ulong HuntTargetId;
         [System.Runtime.Serialization.OptionalField] public V HuntLastPosition;
         [System.Runtime.Serialization.OptionalField] public double HuntMemorySeconds;
         public bool Dead=>Health<=0;
-        public WildlifeIndividual Copy(){var p=(WildlifeIndividual)MemberwiseClone();p.Exertion=Exertion?.Copy();p.Awareness=Awareness?.Copy();p.BloodMask=BloodMask==null?null:(byte[])BloodMask.Clone();p.Parts=Parts==null?null:(int[])Parts.Clone();p.CorpsePose=CorpsePose==null?null:(double[])CorpsePose.Clone();return p;}
+        public WildlifeIndividual Copy(){var p=(WildlifeIndividual)MemberwiseClone();p.Exertion=Exertion?.Copy();p.Bleeding=Bleeding?.Copy();p.Awareness=Awareness?.Copy();p.BloodMask=BloodMask==null?null:(byte[])BloodMask.Clone();p.Parts=Parts==null?null:(int[])Parts.Clone();p.CorpsePose=CorpsePose==null?null:(double[])CorpsePose.Clone();return p;}
         public void Validate()
         {
-            Exertion?.Validate();Awareness?.Validate();
+            Exertion?.Validate();Awareness?.Validate();Bleeding?.Validate();
             if(!ItemUseRules.Finite(HuntMemorySeconds)||HuntMemorySeconds<0||HuntMemorySeconds>300||HuntMemorySeconds>0&&(!ItemUseRules.Finite(HuntLastPosition.Length)||Math.Abs(HuntLastPosition.Length-1)>1e-5))throw new ArgumentException("Invalid wildlife hunt memory.");
             if(BloodMask!=null&&BloodMask.Length!=256*256)throw new ArgumentException("Invalid saved wildlife blood mask.");
             if(!ItemUseRules.Finite(CorpseHeightOffsetM)||!ItemUseRules.Finite(Morph))throw new ArgumentException("Invalid corpse offset.");
@@ -36,13 +37,15 @@ namespace WorldGen.Core
     [Serializable] public sealed class WildlifeState
     {
         public List<WildlifeIndividual> Individuals=new List<WildlifeIndividual>();
+        [System.Runtime.Serialization.OptionalField] public List<BloodSign> BloodSigns=new List<BloodSign>();
         [System.Runtime.Serialization.OptionalField] public int PopulationVersion;
         [System.Runtime.Serialization.OptionalField] public List<WildlifeGroup> Groups=new List<WildlifeGroup>();
-        public WildlifeState Copy()=>new WildlifeState{PopulationVersion=PopulationVersion,Individuals=Individuals.Select(p=>p.Copy()).ToList(),Groups=(Groups??new List<WildlifeGroup>()).Select(g=>g.Copy()).ToList()};
+        public WildlifeState Copy()=>new WildlifeState{PopulationVersion=PopulationVersion,Individuals=Individuals.Select(p=>p.Copy()).ToList(),BloodSigns=(BloodSigns??new List<BloodSign>()).Select(p=>p.Copy()).ToList(),Groups=(Groups??new List<WildlifeGroup>()).Select(g=>g.Copy()).ToList()};
         public void Validate()
         {
             if(Individuals==null||Individuals.Any(p=>p==null)||Individuals.Select(p=>p.Id).Distinct().Count()!=Individuals.Count)throw new ArgumentException("Invalid wildlife records.");
             foreach(var p in Individuals)p.Validate();
+            BloodSigns=BloodSigns??new List<BloodSign>();foreach(var sign in BloodSigns){if(sign==null)throw new ArgumentException("Missing blood sign.");sign.Validate();}
             Groups=Groups??new List<WildlifeGroup>();if(Groups.Any(g=>g==null)||Groups.Select(g=>g.Id).Distinct().Count()!=Groups.Count)throw new ArgumentException("Invalid wildlife groups.");foreach(var g in Groups)g.Validate();
         }
     }

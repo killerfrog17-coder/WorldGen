@@ -33,7 +33,8 @@ public sealed partial class LocalTerrainExplorer
         if(wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved)&&saved.Species==profile.slug)
         {
             animal.Manual=saved.Manual;
-            animal.Health=saved.Health;animal.MaximumHealth=saved.MaximumHealth;animal.Planet=saved.Position;TerrainHandoff.Coordinates(frame,saved.Position,out animal.X,out animal.Z);
+            animal.Health=saved.Health;animal.MaximumHealth=saved.MaximumHealth;animal.Bleeding=saved.Bleeding?.Copy();animal.Planet=saved.Position;TerrainHandoff.Coordinates(frame,saved.Position,out animal.X,out animal.Z);
+            if(animal.Bleeding!=null&&!saved.Dead){double bloodAway=Math.Max(0,(PlayerRules.SolarDays-animal.Bleeding.LastUpdatedDays)*PlayerRules.Settings.RealMinutesPerDay*60);AdvanceWound(animal.Bleeding,Math.Min(1e9,bloodAway),0);animal.Health=Math.Min(animal.Health,BleedingRules.HealthLimit(animal.Bleeding,animal.MaximumHealth));}
             animal.Heading=animal.TargetHeading=(float)saved.Heading;animal.CorpseHeightOffset=saved.CorpseHeightOffsetM;animal.Props.SetFloat("_Morph",(float)saved.Morph);
             animal.Exertion=saved.Exertion?.Copy()??new ExertionState();animal.Awareness=saved.Awareness?.Copy()??new WildlifeAwarenessState();
             if(saved.ThreatPosition.Length>.9)TerrainHandoff.Coordinates(frame,saved.ThreatPosition,out animal.Awareness.LastX,out animal.Awareness.LastZ);
@@ -93,7 +94,7 @@ public sealed partial class LocalTerrainExplorer
     {
         InitializeWildlifeHealth();if(!wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved))
         {saved=new WildlifeIndividual{Id=animal.Spawn.Id,Species=animal.Spawn.Profile.slug};Wildlife.Individuals.Add(saved);wildlifeRecords.Add(saved.Id,saved);}
-        saved.Position=animal.Planet;saved.Heading=animal.Heading;saved.Health=animal.Health;saved.MaximumHealth=animal.MaximumHealth;saved.Coat=animal.Coat;saved.Manual=animal.Manual;saved.LastSeenDays=PlayerRules.SolarDays;
+        saved.Bleeding=animal.Bleeding?.Copy();saved.Position=animal.Planet;saved.Heading=animal.Heading;saved.Health=animal.Health;saved.MaximumHealth=animal.MaximumHealth;saved.Coat=animal.Coat;saved.Manual=animal.Manual;saved.LastSeenDays=PlayerRules.SolarDays;
         saved.GroupId=animal.Spawn.GroupId;saved.GroupIndex=animal.Spawn.GroupIndex;saved.GroupSize=animal.Spawn.GroupSize;saved.Taxon=animal.Spawn.Taxon;
         saved.Exertion=animal.Exertion.Copy();saved.Awareness=animal.Awareness.Copy();saved.ThreatPosition=frame.Position(animal.Awareness.LastX,animal.Awareness.LastZ);
         saved.HuntTargetId=animal.HuntTargetId;saved.HuntMemorySeconds=Math.Max(0,Math.Min(300,animal.HuntMemoryUntil-animal.Life));

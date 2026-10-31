@@ -22,7 +22,7 @@ public sealed partial class LocalTerrainExplorer
         public readonly List<Material> OwnedMaterials=new List<Material>();
         public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
-        public ExertionState Exertion=new ExertionState();
+        public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
     }
     readonly PlayerCameraRig humanCamera=new PlayerCameraRig();

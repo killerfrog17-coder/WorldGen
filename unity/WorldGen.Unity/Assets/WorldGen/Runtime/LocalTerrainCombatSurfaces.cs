@@ -27,6 +27,9 @@ public sealed partial class LocalTerrainExplorer
         if(!humanCombatSurfaces.TryGetValue(renderer,out var surface)){surface=new HumanCombatSurface{Mesh=new Mesh{name="Temporary combat skin pose"}};humanCombatSurfaces.Add(renderer,surface);}
         if(surface.Frame!=Time.frameCount)
         {
+            // MPFB's imported renderer carries a scale100 transform. Native
+            // bone-matrix checks require useScale=true for renderer-local
+            // vertices here; false would enlarge these hit skins by100.
             renderer.BakeMesh(surface.Mesh,true);surface.Vertices=surface.Mesh.vertices;for(int i=0;i<surface.Vertices.Length;i++)surface.Vertices[i]=renderer.transform.TransformPoint(surface.Vertices[i]);
             surface.Uvs=surface.Mesh.uv;surface.Triangles=surface.Mesh.triangles;surface.Frame=Time.frameCount;
         }
@@ -37,8 +40,8 @@ public sealed partial class LocalTerrainExplorer
         CombatHit hit=null;float closest=reach;
         foreach(var animal in animals.Values)
         {
-            if(animal.Dead||animal.Fade<.15f)continue;var bounds=FaunaCollisionSurface.WorldBounds(animal.Model.Asset.Mesh.bounds,animal.Root.transform.localToWorldMatrix);bounds.Expand(.04f);
-            if(!bounds.IntersectRay(ray,out float entry)||entry>closest)continue;var surface=AnimalSurface(animal);var vertices=PosedAnimal(animal);
+            if(animal.Dead||animal.Fade<.15f)continue;var bounds=animal.Renderer.bounds;bounds.Expand(.1f);
+            if(!bounds.Contains(ray.origin)&&(!bounds.IntersectRay(ray,out float entry)||entry>closest))continue;var surface=AnimalSurface(animal);var vertices=PosedAnimal(animal);
             if(surface.Raycast(ray,vertices,animal.Parts,closest,out float distance,out int face,out Vector3 normal,out Vector2 uv))
             {closest=distance;hit=new CombatHit{Animal=animal,Face=face,Distance=distance,Point=ray.GetPoint(distance),Normal=normal,Uv=uv,Vertices=vertices,Uvs=surface.Uv,Triangles=surface.Triangles};}
         }
@@ -48,13 +51,14 @@ public sealed partial class LocalTerrainExplorer
             if(human==humanPlayer?DeathVisible:human.Health<=0)continue;
             foreach(var renderer in human.Root.GetComponentsInChildren<SkinnedMeshRenderer>())
             {
-                if(!renderer.bounds.IntersectRay(ray,out float entry)||entry>closest)continue;var surface=PosedHuman(renderer);
+                var bounds=renderer.bounds;bounds.Expand(.12f);
+                if(!bounds.Contains(ray.origin)&&(!bounds.IntersectRay(ray,out float entry)||entry>closest))continue;var surface=PosedHuman(renderer);
                 for(int t=0;t<surface.Triangles.Length;t+=3)
                 {
                     int a=surface.Triangles[t],b=surface.Triangles[t+1],c=surface.Triangles[t+2];
                     if(!FaunaCollisionSurface.RayTriangle(ray,surface.Vertices[a],surface.Vertices[b],surface.Vertices[c],closest,out float distance,out float u,out float v))continue;
                     Vector3 normal=Vector3.Cross(surface.Vertices[b]-surface.Vertices[a],surface.Vertices[c]-surface.Vertices[a]).normalized;if(Vector3.Dot(normal,ray.direction)>0)normal=-normal;
-                    closest=distance;hit=new CombatHit{Human=human,HumanRenderer=renderer,Distance=distance,Point=ray.GetPoint(distance),Normal=normal,Uv=surface.Uvs[a]*(1-u-v)+surface.Uvs[b]*u+surface.Uvs[c]*v,Vertices=surface.Vertices,Uvs=surface.Uvs,Triangles=surface.Triangles};
+                    closest=distance;hit=new CombatHit{Human=human,HumanRenderer=renderer,Face=t/3,Distance=distance,Point=ray.GetPoint(distance),Normal=normal,Uv=surface.Uvs[a]*(1-u-v)+surface.Uvs[b]*u+surface.Uvs[c]*v,Vertices=surface.Vertices,Uvs=surface.Uvs,Triangles=surface.Triangles};
                 }
             }
         }

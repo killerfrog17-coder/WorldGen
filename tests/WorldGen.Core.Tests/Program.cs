@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--bleeding-only")){BleedingTests.Run();return;}
 if(args.Contains("--effort-cover-only")){EffortCoverRevisionTests.Run();return;}
 if(args.Contains("--hunting-only")){HuntingTests.Run();return;}
 if(args.Contains("--survival-experience-only")){SurvivalExperienceTests.Run();return;}

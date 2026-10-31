@@ -28,6 +28,9 @@ public sealed partial class LocalTerrainExplorer
     readonly CancellationTokenSource faunaCancel=new CancellationTokenSource();
     Task<List<FaunaSite>> faunaPlan;V faunaPlanCenter;bool faunaPlanned,faunaDisposed,faunaWasPaused;
     float nextFaunaMix,nextFaunaPlan;int faunaPreviewSequence;Coroutine faunaPreviewFade;AudioSource faunaPreview;
+    static readonly AnimationCurve wildlifeFlatRolloff=AnimationCurve.Linear(0,1,1,1);
+    static void ConfigureWildlifeProjection(AudioSource source,double range)
+    {source.rolloffMode=AudioRolloffMode.Custom;source.SetCustomCurve(AudioSourceCurveType.CustomRolloff,wildlifeFlatRolloff);source.minDistance=.01f;source.maxDistance=(float)range;}
     WildlifeSoundTake faunaPendingPreview;float faunaPreviewLevel;
     public string FaunaAudioDebug
     {
@@ -48,7 +51,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var child=new GameObject("Call overlap "+b);child.transform.SetParent(v.Root.transform,false);
                 var audio=v.Sources[b]=child.AddComponent<AudioSource>();audio.playOnAwake=false;audio.loop=false;audio.spatialBlend=1;audio.dopplerLevel=0;
-                audio.rolloffMode=AudioRolloffMode.Linear;audio.minDistance=3;audio.maxDistance=190;audio.volume=0;audio.priority=170;
+                ConfigureWildlifeProjection(audio,180);audio.volume=0;audio.priority=170;
                 v.Filters[b]=child.AddComponent<AudioLowPassFilter>();v.Filters[b].cutoffFrequency=14000;
             }
         }
@@ -58,10 +61,10 @@ public sealed partial class LocalTerrainExplorer
     List<FaunaSite> BuildFaunaSites(V center,double radius,double scale,HashSet<ulong> known,CancellationToken token)
     {
         var anchors=new List<FaunaSoundAnchor>();FaunaAmbience.Anchors(sourceWorld.Recipe.Seed,center,radius,210,anchors);
-        var result=new List<FaunaSite>();var patch=terrain.Patch(center,640/scale);var ecology=sourceWorld.Ecology;var model=FaunaAmbience.For(sourceWorld);
+        var result=new List<FaunaSite>();var patch=terrain.Patch(center,250/scale);var ecology=sourceWorld.Ecology;var model=FaunaAmbience.For(sourceWorld);var emitters=new HashSet<ulong>();
         foreach(var anchor in anchors)
         {
-            token.ThrowIfCancellationRequested();if(known.Contains(anchor.Id))continue;
+            token.ThrowIfCancellationRequested();if(known.Contains(anchor.Id)||(anchor.Position-center).Length*radius>WildlifeAcoustics.AmbientRange(anchor.Kind)+16)continue;
             var site=new FaunaSite{Anchor=anchor,Position=anchor.Position};result.Add(site);
             int cell=terrain.NearestCell(anchor.Position);if(!model.TryProfile(cell,anchor.Kind,out var p))continue;
             var sample=patch.Sample(anchor.Position);cell=sample.Cell;if(!model.TryProfile(cell,anchor.Kind,out p))continue;
@@ -74,10 +77,15 @@ public sealed partial class LocalTerrainExplorer
                 // when graphics toggles/LODs hide them. Never perch in bare air.
                 int treeCell=terrain.NearestCell(tree.Position);if(!model.TryProfile(treeCell,anchor.Kind,out p))continue;
                 var treeSample=patch.Sample(tree.Position);gain=FaunaAmbience.HabitatGain(p,ecology.Habitat[treeSample.Cell],treeSample);if(gain<.075)continue;
-                site.Position=tree.Position;site.Ground=tree.GroundM;
-                site.Height=Math.Max(.5,Math.Min(tree.HeightM*.65,anchor.Kind==FaunaSoundKind.Cicada?18:7));
+                ulong id=WildlifeAcoustics.TreeIdentity(tree.Id,anchor.Kind);if(known.Contains(id)||!emitters.Add(id))continue;
+                uint identity=Rng.Mix((uint)id^(uint)(id>>32));
+                // The tree owns this caller, not the grid opportunity that
+                // discovered it. Nearby queries cannot stack or relocate it.
+                site=new FaunaSite{Anchor=new FaunaSoundAnchor(id,identity,tree.Position,anchor.Kind),Position=tree.Position,Ground=tree.GroundM};result.Add(site);
+                site.Height=Math.Max(.5,Math.Min(tree.HeightM*(anchor.Kind==FaunaSoundKind.Cicada?.3:.55),anchor.Kind==FaunaSoundKind.Cicada?12:20));
             }
-            else if(anchor.Kind==FaunaSoundKind.Katydid)site.Height=.3+(anchor.Hash%1000)*.001;
+            else if(anchor.Kind==FaunaSoundKind.Katydid)
+            {if(sample.Cover.Coverage<.08&&sample.MidCover.Coverage<.08)continue;site.Height=Math.Max(.2,Math.Min(1.4,sample.Cover.Stature*.5));}
             site.Profile=p;site.Habitat=gain;
         }
         return result;
@@ -127,7 +135,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 float previousTarget=s.Target;s.Target=0;if(s.Profile==null)continue;int kind=(int)s.Anchor.Kind;string bank=FaunaAmbience.Banks[kind];
                 if(!o.Enabled||!o.GroupsEnabled[kind]||!wildlifeSounds.Has(bank))continue;
-                Vector3 point=FaunaPoint(s);float distance=Vector3.Distance(transform.TransformPoint(point),view.transform.position);if(distance>=190)continue;
+                Vector3 point=FaunaPoint(s);float distance=Vector3.Distance(transform.TransformPoint(point),view.transform.position);double range=WildlifeAcoustics.AmbientRange(s.Anchor.Kind);if(distance>=range)continue;
                 if(!Spectating&&motion.Grounded&&distance<(kind<3?6:10)&&Math.Abs(playerDeathVelocity.x)+Math.Abs(playerDeathVelocity.z)>.2)
                 {
                     if(kind>=4&&previousTarget>.003f&&now>=s.SilentUntil&&wildlifeSounds.Has(bank,"alert")){s.AlarmPending=true;s.AlarmUntil=now+8;}
@@ -137,13 +145,13 @@ public sealed partial class LocalTerrainExplorer
                 if(now<s.SilentUntil&&now>=s.AlarmUntil)continue;
                 if(kind>=4&&ModeledCallerNear(bank,point,24))continue;
                 double temperature=CurrentWeather.TemperatureC-(s.Ground-profileElevation)*.006;
-                double activity=FaunaAmbience.ActivityGain(s.Profile,LocalSolarHour,skyYear,latitude,temperature,CurrentWeather.Humidity,CurrentWeather.RainMmPerHour,wind);
-                s.Target=(float)(s.Habitat*activity*s.Profile.Acoustics.RelativeLoudness)*o.Volume*(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(145,190,distance)));
-                if(s.Target>.003f)faunaRanked.Add(s);
+                double activity=FaunaAmbience.ActivityGain(s.Profile,WildlifeAcoustics.CallingHour(LocalSolarHour,s.Anchor.Hash),skyYear,latitude,temperature,CurrentWeather.Humidity,CurrentWeather.RainMmPerHour,wind);
+                s.Target=(float)(s.Habitat*activity*s.Profile.Acoustics.RelativeLoudness*WildlifeAcoustics.AmbientLevel(s.Anchor.Kind))*o.Volume;
+                if(s.Target*WildlifeAcoustics.Gain(distance,WildlifeAcoustics.AmbientReference(s.Anchor.Kind),range)>.001)faunaRanked.Add(s);
             }
             faunaRanked.Sort((a,b)=>
             {
-                float Score(FaunaSite s)=>s.Target/(10+Vector3.Distance(transform.TransformPoint(FaunaPoint(s)),view.transform.position));
+                double Score(FaunaSite s)=>s.Target*WildlifeAcoustics.Gain(Vector3.Distance(transform.TransformPoint(FaunaPoint(s)),view.transform.position),WildlifeAcoustics.AmbientReference(s.Anchor.Kind),WildlifeAcoustics.AmbientRange(s.Anchor.Kind));
                 int comparison=Score(b).CompareTo(Score(a));return comparison!=0?comparison:a.Anchor.Id.CompareTo(b.Anchor.Id);
             });
             foreach(var v in faunaVoices)if(v.Site!=null)
@@ -154,11 +162,12 @@ public sealed partial class LocalTerrainExplorer
             var perGroup=new int[FaunaAmbience.KindCount];foreach(var v in faunaVoices)if(v.Site!=null&&v.Site.Target>.003f)perGroup[(int)v.Site.Anchor.Kind]++;
             foreach(var site in faunaRanked)
             {
-                int kind=(int)site.Anchor.Kind;if(perGroup[kind]>=(kind<3?8:kind==3?5:kind==(int)FaunaSoundKind.Owl?1:3))continue;
+                int kind=(int)site.Anchor.Kind;if(perGroup[kind]>=(kind==1?2:kind==(int)FaunaSoundKind.Owl?1:3))continue;
                 bool occupied=false;foreach(var v in faunaVoices)if(v.Site==site){occupied=true;break;}if(occupied)continue;
                 foreach(var v in faunaVoices)if((v.Site==null||v.Site.Target<=.003f)&&v.Gain<.001f)
                 {
                     StopFaunaVoice(v);v.Site=site;v.Sequence=(int)(site.Anchor.Hash%65521);v.LastFile="";
+                    foreach(var source in v.Sources)ConfigureWildlifeProjection(source,WildlifeAcoustics.AmbientRange(site.Anchor.Kind));
                     double reference=kind==0?4300:kind==1?5200:kind==2?6500:kind==3?650:kind==(int)FaunaSoundKind.Pigeon?380:kind==(int)FaunaSoundKind.Owl?600:kind==(int)FaunaSoundKind.Raven?700:kind==(int)FaunaSoundKind.Hornbill?500:kind==(int)FaunaSoundKind.Hummingbird?6500:kind==(int)FaunaSoundKind.Parrot||kind==(int)FaunaSoundKind.Cockatoo?1700:3500;
                     v.Pitch=(float)Math.Max(.88,Math.Min(1.12,Math.Pow(site.Profile.Acoustics.CarrierHz/reference,.18)));
                     v.Pitch*=(float)Math.Pow(2,((site.Anchor.Hash%101)*.02-1)*site.Profile.Acoustics.IndividualPitchSpreadCents/1200);
@@ -169,16 +178,19 @@ public sealed partial class LocalTerrainExplorer
         double dsp=AudioSettings.dspTime;float smooth=1-Mathf.Exp(-Time.unscaledDeltaTime*1.4f);
         foreach(var v in faunaVoices)
         {
-            float target=v.Site==null?0:v.Site.Target*(v.Site.Occluded?.32f:1);v.Gain=Mathf.Lerp(v.Gain,target,smooth);
+            float target=v.Site==null?0:v.Site.Target*(v.Site.Occluded?.25f:1);v.Gain=Mathf.Lerp(v.Gain,target,1-Mathf.Exp(-Time.unscaledDeltaTime/(target<v.Gain?12:2.5f)));
             if(v.Site!=null)v.Root.transform.localPosition=FaunaPoint(v.Site);
+            float distance=Vector3.Distance(v.Root.transform.position,view.transform.position);
+            double range=v.Site==null?0:WildlifeAcoustics.AmbientRange(v.Site.Anchor.Kind);
+            if(v.Site!=null&&distance>=range){StopFaunaVoice(v);v.Site=null;continue;}
             if(v.Gain<.001f&&target<=.001f){StopFaunaVoice(v);continue;}
-            if(v.Site!=null)ScheduleFauna(v,dsp);
+            if(v.Site!=null&&v.Site.Target>.001f)ScheduleFauna(v,dsp);
             float fadeSeconds=v.Site!=null&&(int)v.Site.Anchor.Kind<3?.5f:.1f;
             for(int b=0;b<2;b++)
             {
                 double age=dsp-v.Start[b],remaining=v.End[b]-dsp;
                 float fade=age<=0||remaining<=0?0:Mathf.Sin(Mathf.Min(1,(float)Math.Min(age/fadeSeconds,remaining/fadeSeconds))*Mathf.PI*.5f);
-                v.Sources[b].volume=v.Gain*fade;
+                v.Sources[b].volume=v.Gain*fade*(float)(v.Site==null?0:WildlifeAcoustics.Gain(distance,WildlifeAcoustics.AmbientReference(v.Site.Anchor.Kind),range));
                 if(remaining<-.1&&v.Sources[b].clip!=null){v.Sources[b].Stop();v.Sources[b].clip=null;}
                 float cutoff=v.Site!=null&&v.Site.Occluded?2400:Mathf.Lerp(16000,6500,Mathf.Clamp01(Vector3.Distance(v.Root.transform.position,view.transform.position)/190));
                 v.Filters[b].cutoffFrequency=Mathf.Lerp(v.Filters[b].cutoffFrequency,cutoff,smooth);
@@ -199,7 +211,7 @@ public sealed partial class LocalTerrainExplorer
         bool bed=(int)site.Anchor.Kind<3;double begin=Math.Max(dsp+.06,v.Next);
         float offset=v.Next==0&&bed?clip.length*(site.Anchor.Hash%601)*.001f:0;
         source.time=offset;v.Start[b]=begin;v.End[b]=begin+(clip.length-offset)/v.Pitch;source.PlayScheduled(begin);source.SetScheduledEndTime(v.End[b]);
-        if(bed)v.Next=v.End[b]-.5;else v.Next=v.End[b]+site.Profile.Acoustics.PhraseGapSeconds*(.7+(Rng.Mix(site.Anchor.Hash+(uint)v.Sequence)%1000)*.001);
+        if(bed)v.Next=v.End[b]+2+(Rng.Mix(site.Anchor.Hash+(uint)v.Sequence)%700)*.01;else v.Next=v.End[b]+site.Profile.Acoustics.PhraseGapSeconds*(.7+(Rng.Mix(site.Anchor.Hash+(uint)v.Sequence)%1000)*.001);
         if(cue=="alert"){site.AlarmPending=false;site.AlarmUntil=Time.unscaledTimeAsDouble+clip.length/v.Pitch;site.SilentUntil=Math.Max(site.SilentUntil,site.AlarmUntil+8);v.Next=v.End[b]+8;}
     }
     static void StopFaunaVoice(FaunaVoice v)

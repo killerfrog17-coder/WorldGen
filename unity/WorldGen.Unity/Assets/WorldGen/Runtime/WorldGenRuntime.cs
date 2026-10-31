@@ -54,6 +54,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Start()
     {
         Application.runInBackground = true;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-feedback-shader-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckFeedbackShaders(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-terrain-boundary-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckTerrainBoundaries(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-listener-check")){enabled=false;LocalTerrainExplorer.CheckAudioListener(Argument("--worldgen-output",""));return;}
         // Isolated packaged-shader regression: no display prefs, world or music.

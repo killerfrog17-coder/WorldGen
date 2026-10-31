@@ -8,20 +8,20 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class CreatureVoice
-    {public AudioSource Source;public AudioLowPassFilter Filter;public Animal Actor;public WildlifeSoundTake Pending;public double Expires;public int Priority;public float Level;public bool Flight;}
+    {public AudioSource Source;public AudioLowPassFilter Filter;public Animal Actor;public WildlifeSoundTake Pending;public double Expires,Range,Reference;public int Priority;public float Level;public bool Flight,ActivityScaled,Nocturnal;}
     sealed class CreatureVoiceState
     {public Animal Actor;public string Bank,LastFile="";public double Next,EventAt;public int Sequence;public bool Fleeing;}
     readonly List<CreatureVoice> creatureVoices=new List<CreatureVoice>();
     readonly Dictionary<ulong,CreatureVoiceState> creatureVoiceStates=new Dictionary<ulong,CreatureVoiceState>();
     readonly Dictionary<string,List<Vector3>> modeledCallers=new Dictionary<string,List<Vector3>>(StringComparer.Ordinal);
-    double creatureThinkAt;
+    double creatureThinkAt,creatureSolarAltitude;
     int ActiveCreatureVoices=>creatureVoices.Count(v=>v.Source.isPlaying);
     void InitializeCreatureAudio()
     {
         for(int i=0;i<16;i++)
         {
             var root=new GameObject("Animal vocalisation "+i);root.transform.SetParent(transform,false);
-            var source=root.AddComponent<AudioSource>();source.playOnAwake=false;source.spatialBlend=1;source.loop=false;source.dopplerLevel=.15f;source.minDistance=2;source.maxDistance=200;source.rolloffMode=AudioRolloffMode.Linear;source.priority=100;
+            var source=root.AddComponent<AudioSource>();source.playOnAwake=false;source.spatialBlend=1;source.loop=false;source.dopplerLevel=.15f;ConfigureWildlifeProjection(source,150);source.priority=100;
             var filter=root.AddComponent<AudioLowPassFilter>();filter.cutoffFrequency=18000;creatureVoices.Add(new CreatureVoice{Source=source,Filter=filter});
         }
     }
@@ -43,14 +43,16 @@ public sealed partial class LocalTerrainExplorer
         if(now>=creatureThinkAt)
         {
             creatureThinkAt=now+.65;
-            bool night=ExplorationMusicContext.SolarAltitude(Math.Asin(Position.Z)*180/Math.PI,LocalSolarHour,skyYear)<-3;
+            creatureSolarAltitude=ExplorationMusicContext.SolarAltitude(Math.Asin(Position.Z)*180/Math.PI,LocalSolarHour,skyYear);bool night=creatureSolarAltitude< -3;
             foreach(var list in modeledCallers.Values)list.Clear();
             foreach(var pair in creatureVoiceStates.Where(p=>p.Value.Actor.Retired||p.Value.Actor.Root==null).ToArray())creatureVoiceStates.Remove(pair.Key);
             foreach(var animal in animals.Values)
             {
                 if(animal.Dead||animal.Retired||animal.Root==null)continue;
-                float distance=Vector3.Distance(animal.Root.transform.position,view.transform.position);if(distance>210)continue;
-                var state=AnimalVoice(animal);if(state.Bank==null)continue;
+                string audibleBank=WildlifeVocalisation.Bank(animal.Model.Asset.Slug);if(audibleBank==null)continue;
+                float distance=Vector3.Distance(animal.Root.transform.position,view.transform.position);
+                if(distance>WildlifeAcoustics.Range(audibleBank,audibleBank=="wolf"?"howl":"ambient"))continue;
+                var state=AnimalVoice(animal);
                 if(!modeledCallers.TryGetValue(state.Bank,out var points)){points=new List<Vector3>();modeledCallers[state.Bank]=points;}
                 points.Add(animal.Root.transform.localPosition);
                 bool flight=WildlifeVocalisation.FlightNoise(state.Bank),fleeing=animal.ThreatUntil>animal.Life&&animal.TargetSpeed>animal.Spawn.Profile.walkMps*1.2;
@@ -58,7 +60,7 @@ public sealed partial class LocalTerrainExplorer
                 if(now<state.Next||fleeing)continue;
                 double gap=state.Bank=="hummingbird"&&distance<7&&FlightBuzzing(animal)?1:WildlifeVocalisation.CalmGap(state.Bank);state.Next=now+gap*(.65+(Rng.Mix(animal.Spawn.Hash+(uint)state.Sequence)%1000)*.001);
                 bool nocturnal=state.Bank=="owl"||WildlifeBehaviour.IsNocturnal(animal.Model.Asset.Slug,animal.Spawn.Profile.nocturnal);
-                if(!flight&&(nocturnal?!night:night))continue;
+                if(!flight&&WildlifeAcoustics.DayActivity(creatureSolarAltitude,nocturnal)<.02)continue;
                 if(CurrentWeather.RainMmPerHour>6)continue;
                 string cue="contact";
                 if(wildlifeSounds.Has(state.Bank,"ambient"))
@@ -68,7 +70,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 else if(state.Bank=="rabbit")continue;
                 else if(animal.Speed>animal.Spawn.Profile.walkMps*1.2)continue;
-                if(flight){if(distance>10||!FlightBuzzing(animal))continue;cue="flight";}
+                if(flight){if(WildlifeAcoustics.DayActivity(creatureSolarAltitude,false)<.02||distance>WildlifeAcoustics.Range(state.Bank,"flight")||!FlightBuzzing(animal))continue;cue="flight";}
                 if((state.Bank=="deer"||state.Bank=="moose")&&(animal.Spawn.Hash&1)==0&&WildlifeBehaviour.Rut(skyYear,Math.Asin(animal.Planet.Z)*180/Math.PI))cue="rut";
                 if(state.Bank=="wolf"&&night&&animal.Spawn.GroupSize>1&&animal.Speed<.1f)cue="howl";
                 string bank=state.Bank;
@@ -88,14 +90,15 @@ public sealed partial class LocalTerrainExplorer
                 if(clip!=null)
                 {
                     voice.Source.clip=clip;voice.Source.pitch=(float)Math.Max(.88,Math.Min(1.12,Math.Pow(WildlifeVocalisation.ReferenceMass(AnimalVoice(animal).Bank)/Math.Max(.001,animal.MassKg),.05)));
-                    voice.Source.priority=voice.Priority;voice.Source.maxDistance=voice.Flight?20:voice.Pending.Cue=="howl"?300:200;
+                    voice.Source.priority=voice.Priority;
                     ReportSleepNoise(animal.Renderer.bounds.center,voice.Flight?.2f:voice.Level*2);voice.Source.Play();voice.Pending=null;
                 }
             }
             else if(!voice.Source.isPlaying){voice.Source.clip=null;voice.Actor=null;continue;}
             Vector3 point=animal.Renderer.bounds.center;voice.Source.transform.position=point;
-            float distance=Vector3.Distance(point,view.transform.position);float target=options.CreatureVolume*voice.Level;
-            if(voice.Flight&&(!FlightBuzzing(animal)||distance>12))target=0;
+            float distance=Vector3.Distance(point,view.transform.position);float target=options.CreatureVolume*voice.Level*(float)WildlifeAcoustics.Gain(distance,voice.Reference,voice.Range);
+            if(voice.ActivityScaled)target*=(float)WildlifeAcoustics.DayActivity(creatureSolarAltitude,voice.Nocturnal);
+            if(voice.Flight&&!FlightBuzzing(animal))target=0;
             voice.Source.volume=Mathf.MoveTowards(voice.Source.volume,target,Time.unscaledDeltaTime*3);
             if(target==0&&voice.Source.volume<=.001f){voice.Source.Stop();voice.Source.clip=null;voice.Actor=null;voice.Pending=null;}
             voice.Filter.cutoffFrequency=Mathf.Lerp(18000,5000,Mathf.Clamp01(distance/200));
@@ -113,6 +116,9 @@ public sealed partial class LocalTerrainExplorer
     }
     bool QueueAnimalVoice(Animal animal,string bank,string cue,int priority,bool flight)
     {
+        double range=WildlifeAcoustics.Range(bank,cue),reference=WildlifeAcoustics.Reference(bank,cue);
+        double distance=Vector3.Distance(animal.Renderer.bounds.center,view.transform.position);
+        if(WildlifeAcoustics.Gain(distance,reference,range)<.001)return false;
         var state=AnimalVoice(animal);var list=wildlifeSounds.Compatible(bank,cue,(uint)animal.Spawn.Region^(uint)sourceWorld.Recipe.Seed);
         if(list.Count==0)return false;
         int choice=(int)(Rng.Mix(animal.Spawn.Hash+(uint)state.Sequence*7919u)%(uint)list.Count);
@@ -127,7 +133,9 @@ public sealed partial class LocalTerrainExplorer
         if(selected==null)selected=creatureVoices.Where(v=>v.Priority>priority).OrderByDescending(v=>v.Priority).FirstOrDefault();
         if(selected==null)return false;
         state.Sequence++;state.LastFile=list[choice].File;selected.Source.Stop();selected.Source.clip=null;selected.Source.volume=0;selected.Actor=animal;selected.Pending=list[choice];selected.Expires=Time.unscaledTimeAsDouble+3;
-        selected.Priority=priority;selected.Flight=flight;selected.Level=flight?.35f:cue=="contact"?.55f:cue=="ambient"?.65f:.9f;WildlifeClip(selected.Pending,priority<100);return true;
+        selected.Priority=priority;selected.Flight=flight;selected.Range=range;selected.Reference=reference;ConfigureWildlifeProjection(selected.Source,range);
+        selected.ActivityScaled=flight||cue=="ambient"||cue=="contact";selected.Nocturnal=bank=="owl"||WildlifeBehaviour.IsNocturnal(animal.Model.Asset.Slug,animal.Spawn.Profile.nocturnal);
+        selected.Level=flight?.28f:cue=="contact"?.38f:cue=="ambient"?.45f:.8f;WildlifeClip(selected.Pending,priority<100);return true;
     }
     void DisposeCreatureAudio()
     {foreach(var voice in creatureVoices){voice.Source.Stop();Destroy(voice.Source.gameObject);}creatureVoices.Clear();creatureVoiceStates.Clear();modeledCallers.Clear();}

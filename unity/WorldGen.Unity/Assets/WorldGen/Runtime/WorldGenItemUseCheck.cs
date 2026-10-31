@@ -277,6 +277,7 @@ public sealed partial class WorldGenRuntime
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check"))yield return terrainExplorer.CheckCampFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))yield return terrainExplorer.CheckRiverRepairFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-water-update-check"))yield return terrainExplorer.CheckWaterUpdateFlow(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-feedback-check"))yield return terrainExplorer.CheckFeedbackCombat(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-wildlife-audio-check"))yield return terrainExplorer.CheckWildlifeAudioFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-solid-scatter-check"))yield return terrainExplorer.CheckSolidScatterFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-nature-check"))yield return terrainExplorer.CheckNatureFlow(output,report);

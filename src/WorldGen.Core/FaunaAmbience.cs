@@ -99,8 +99,11 @@ namespace WorldGen.Core
         static double Smooth(double a,double b,double v){double x=D.Clamp((v-a)/(b-a));return x*x*(3-2*x);}
         public static double ActivityGain(FaunaVoiceProfile p,double hour,double year,double latitude,double temperature,double humidity,double rain,double wind)
         {
-            var a=p.Activity;double elapsed=(hour-a.StartSolarHour+48)%24;
-            double daily=Smooth(0,.8,elapsed)*(1-Smooth(a.DurationHours-.8,a.DurationHours,elapsed));
+            var a=p.Activity;double elapsed=((hour-a.StartSolarHour)%24+24)%24;
+            // Include the preceding edge of the next day's calling window.
+            // A wrapped start must not jump from silence to a full chorus.
+            if(elapsed>a.DurationHours+1.5)elapsed-=24;
+            double daily=a.DurationHours>=23?1:Smooth(-1,.9,elapsed)*(1-Smooth(a.DurationHours-1.5,a.DurationHours+1.5,elapsed));
             double thermal=Smooth(a.MinTemperatureC,a.PreferredTemperatureC,temperature)*(1-Smooth(a.MaxTemperatureC-3,a.MaxTemperatureC,temperature));
             double season=1;
             if(a.SeasonCue==InsectSeasonCue.AnnualWarmSeason)

@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
         public V Planet;public Rng Random;public AmbientFaunaSpecies Firefly;public float FireflyGlow;
         public double BehaviourAt,ObstacleAt,NextPoseAt,AttackAt,AirHeight,AirTargetHeight,PerchHeight,PerchUntil,NextPerch;public bool PerchSelected,Perched,ThreatWasPlayer,FishingTethered;public V PerchPosition,FishingAnchor;public double FishingReach;
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
-        public ExertionState Exertion=new ExertionState();public ExertionProfile EffortProfile;public WildlifeSenses Senses;public WildlifeAwarenessState Awareness=new WildlifeAwarenessState();
+        public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();public ExertionProfile EffortProfile;public WildlifeSenses Senses;public WildlifeAwarenessState Awareness=new WildlifeAwarenessState();
         public double LastPerception,ActionUntil,NextScan,AlertVoiceAt;public string BehaviourAction="";public Vector3 LastMove;public bool SeekingCover;
         public WildlifeBehaviourProfile Behaviour;public double CoverAt,VisualCover,DefendWarnUntil,CorneredUntil,HuntMemoryUntil,HuntX,HuntZ;public ulong HuntTargetId;public float AirPitch;
         public double AirWaterM=double.NaN,AirWaterAt;
@@ -119,7 +119,7 @@ public sealed partial class LocalTerrainExplorer
                 // Regional records retain distant groups. Only visual candidates
                 // belong in the per-frame admission/model-loading list.
                 animalWanted.AddRange(animalPlan.Result.Where(s=>SpawnViewDistance(s)<=s.Profile.PreloadRadiusM*1.15).OrderBy(s=>SpawnViewDistance(s)/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
-                var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
+                var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id)||!animal.Dead&&animal.Bleeding?.Rate>1e-7;
             }
             animalPlan=null;
         }
@@ -164,7 +164,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var animal=pair.Value;
             double distance=(animal.Planet-Position).Length*frame.RadiusM;
-            if(distance>animal.Spawn.Profile.VisibleRadiusM*1.25)animal.Wanted=false;
+            if(distance>animal.Spawn.Profile.VisibleRadiusM*1.25&&(animal.Dead||!(animal.Bleeding?.Rate>1e-7)))animal.Wanted=false;
             animal.Fade=Mathf.MoveTowards(animal.Fade,animal.Wanted?1:0,Math.Max(.001f,dt)*2);
             if(!animal.Wanted&&animal.Fade<=0){animalRemoval.Add(pair.Key);continue;}
             UpdateAnimal(animal,dt);
@@ -273,7 +273,7 @@ public sealed partial class LocalTerrainExplorer
         var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision&&!WildlifeBehaviourEnabled)DecideAnimal(animal);if(dt>0){UpdateAnimalBehaviour(animal);AvoidAnimalSolids(animal);}
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
-        float wanted=animal.TargetSpeed;
+        float wanted=animal.TargetSpeed;if(animal.Bleeding!=null)wanted*=(float)BleedingRules.Mobility(animal.Bleeding);
         if(animal.Behaviour.HasNaturalHistory)wanted*=(float)WildlifeNaturalHistory.ThermalMobility(animal.Behaviour.NaturalHistory,CurrentWeather.TemperatureC,profile.medium=="water");
         if(!profile.tiny&&animal.EffortProfile!=null&&dt>0)
         {
@@ -356,6 +356,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeAnimalFauna()
     {
+        DisposeBloodSigns();
         animalDisposed=true;
         DisposeWildlifeRadar();
         DisposeFireflyGlows();

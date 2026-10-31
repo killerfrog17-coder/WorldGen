@@ -36,6 +36,17 @@ static class WildlifeSoundTests
         Check(Gain(12,26,0,20)<Gain(12,26)*.2,"Wind suppresses exposed calling");
         p.Kind=FaunaSoundKind.Frog;p.Activity.StartSolarHour=17;p.Activity.DurationHours=12;
         Check(FaunaAmbience.ActivityGain(p,22,.5,40,25,.9,0,0)>FaunaAmbience.ActivityGain(p,22,.5,40,25,.2,0,0),"Frog chorus opportunity responds to humidity");
+        Check(WildlifeAcoustics.Gain(6,1.5,90)==WildlifeAcoustics.Gain(3,1.5,90)*.5,"Free-field pressure halves when distance doubles outside the reference distance");
+        Check(WildlifeAcoustics.Gain(60,1.5,65)<.015&&WildlifeAcoustics.Gain(65,1.5,65)==0,"Distant callers fade to zero rather than retaining near-source volume");
+        Check(WildlifeAcoustics.Range("bee-wings","flight")<4&&WildlifeAcoustics.Range("fly-wings","flight")<2,"Wing buzzes have metre-scale audibility, not hundred-metre voice ranges");
+        Check(WildlifeAcoustics.Gain(1,WildlifeAcoustics.Reference("bee-wings","flight"),3.5)<.15,"A bee a metre away is already much quieter than an adjacent bee");
+        Check(WildlifeAcoustics.DayActivity(-.001,true)-WildlifeAcoustics.DayActivity(.001,true)<.001,"Day/night actor calls have no binary switch at sunrise");
+        p.Kind=FaunaSoundKind.Cricket;p.Activity.StartSolarHour=18;p.Activity.DurationHours=12;
+        double last=FaunaAmbience.ActivityGain(p,0,.5,40,25,.9,0,0),jump=0;
+        for(int minute=1;minute<=1440;minute++){double next=FaunaAmbience.ActivityGain(p,minute/60d,.5,40,25,.9,0,0);jump=Math.Max(jump,Math.Abs(next-last));last=next;}
+        Check(jump<.03,"Calling envelope is continuous across dawn, dusk and midnight");
+        Check(WildlifeAcoustics.CallingHour(6,0)!=WildlifeAcoustics.CallingHour(6,1000),"Individual callers have staggered daily schedules");
+        Check(WildlifeAcoustics.TreeIdentity(55,FaunaSoundKind.Cicada)==WildlifeAcoustics.TreeIdentity(55,FaunaSoundKind.Cicada)&&WildlifeAcoustics.TreeIdentity(55,FaunaSoundKind.Cicada)!=WildlifeAcoustics.TreeIdentity(55,FaunaSoundKind.Owl),"A tree's acoustic occupants have stable distinct identities");
         Console.WriteLine("PASS "+checks+" wildlife sound catalogue/activity checks");
     }
 }
