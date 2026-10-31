@@ -178,9 +178,10 @@ public sealed partial class LocalTerrainExplorer
             Observe(3,40);Check(roo.Awareness.Mode==WildlifeAwareness.Fleeing,"Sustained credible nearby approach still triggers escape");
         }
         finally{tiles=oldTiles;CurrentWeather=weather;huntingCoverAt=oldCoverAt;motion.Place(px,pz,Ground(px,pz));roo.X=px;roo.Z=pz+20;roo.Planet=frame.Position(roo.X,roo.Z);roo.GroundY=Ground(roo.X,roo.Z);roo.Awareness=new WildlifeAwarenessState();UpdateAnimal(roo,0);UpdateHumans();UpdateCamera();}
+        bool oldReview=reviewWildlifeBehaviour;reviewWildlifeBehaviour=true;
         ulong gid=991990;wildlifeGroups[gid]=new WildlifeGroup{Position=frame.Position(px,pz+150),Heading=0,Members=1};
         try{var moved=new FaunaPrototypeSpawn{Profile=deer.Spawn.Profile,GroupId=gid,Position=frame.Position(px,pz+2300)};Check(SpawnViewDistance(moved)<250,"Model admission uses a tracked group's current position rather than its distant original home");}
-        finally{wildlifeGroups.Remove(gid);}
+        finally{wildlifeGroups.Remove(gid);reviewWildlifeBehaviour=oldReview;}
         int oldMask=view.cullingMask;var oldRotation=view.transform.localRotation;var oldPosition=view.transform.localPosition;var oldClear=view.clearFlags;var oldColour=view.backgroundColor;
         Color32[] Pixels(string name)
         {

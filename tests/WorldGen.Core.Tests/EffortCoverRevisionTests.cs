@@ -69,6 +69,9 @@ static class EffortCoverRevisionTests
         Check(old.Exertion.ModelVersion==1&&old.Exertion.Burst>=.9&&old.Exertion.Fatigue>.19,"Old depleted short-budget saves retain work/fatigue without inheriting false total exhaustion");
         var migrated=WorldJson.Read<PlayerSurvival>(WorldJson.Write(old));double reserve=migrated.Exertion.Burst;
         Check(!ExertionRules.Upgrade(migrated.Exertion,ExertionProfile.Human())&&migrated.Exertion.Burst==reserve,"Saving the migrated reserve cannot apply the conversion twice");
+        var legacyJson=System.Text.Json.Nodes.JsonNode.Parse(WorldJson.Write(new ExertionState{Burst=.2,Breath=.4}))!.AsObject();legacyJson.Remove("ModelVersion");
+        var legacyState=WorldJson.Read<ExertionState>(legacyJson.ToJsonString());
+        Check(legacyState.ModelVersion==0&&ExertionRules.Upgrade(legacyState,ExertionProfile.Human())&&Math.Abs(legacyState.Burst-.92)<1e-12&&legacyState.Breath==.4,"A real old-format JSON record with no version field takes the one-time migration");
         Console.WriteLine("PASS "+n+" reported jump/swimming, weak-cue, tall-grass, reaction and draw-band regressions");
     }
 }
