@@ -15,7 +15,9 @@ public sealed partial class LocalTerrainExplorer
     {
         public HumanRuntimeDefinition Definition;public GameObject Root;public Animator Animator;
         public PlayableGraph Graph;public AnimationMixerPlayable Mixer;public AnimationClipPlayable[] Inputs;
+        public AnimationPlayableOutput Output;public WorldGenSharedHumanMotion Shared;
         public float[] Weights;public int Jump=-1;public bool Airborne;
+        public Vector2 LocalVelocity;
         public readonly List<Material> OwnedMaterials=new List<Material>();
         public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
@@ -26,15 +28,19 @@ public sealed partial class LocalTerrainExplorer
     readonly List<HumanActor> humanNpcs=new List<HumanActor>();
     readonly System.Random humanRandom=new System.Random();
     WorldGenHumanLibrary humanLibrary;HumanActor humanPlayer;LocalTerrainFrame humanFrame;
+    WorldGenHumanMotionBank kimodoHumanLibrary;
+    bool SharedHumanMotion=>HumanAnimationOptions.Kimodo&&humanPlayer?.Shared!=null;
     bool humansInitialized,humanReviewPose;int humanNextId=2,humanReviewBodyMask=-1;
     float humanCameraDistance,humanEyeOffset;double humanCameraProbeAt;Vector3 humanProbePivot,humanProbeDirection;float humanClearDistance=12;
     double humanLastX,humanLastZ;bool humanHideBody;
     long humanSpawnQueued;
+    Vector3 sharedCameraEye;bool sharedCameraEyeValid;
     public string HumanDebug=>humanPlayer==null?"Humans unavailable":"Human "+humanPlayer.Definition.Variant+"; "+humanNpcs.Count+" demo NPCs; "+(humanCamera.FirstPerson?"first person":"third person "+humanCamera.Distance.ToString("F1")+"m")+(humanCamera.Locked?" (zoom locked)":"");
     void InitializeHumans()
     {
         if(humansInitialized)return;humansInitialized=true;
         humanLibrary=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
+        kimodoHumanLibrary=Resources.Load<WorldGenHumanMotionBank>("HumanKimodo/Library");
         if(humanLibrary==null||humanLibrary.People==null||humanLibrary.People.Length!=6){Debug.LogWarning("MPFB human library unavailable");return;}
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;
@@ -50,7 +56,7 @@ public sealed partial class LocalTerrainExplorer
         var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
         actor.Graph=PlayableGraph.Create(root.name+" movement");actor.Graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         actor.Mixer=AnimationMixerPlayable.Create(actor.Graph,actor.Inputs.Length);
-        var output=AnimationPlayableOutput.Create(actor.Graph,"Native MPFB skin",animator);output.SetSourcePlayable(actor.Mixer);
+        actor.Output=AnimationPlayableOutput.Create(actor.Graph,"Native MPFB skin",animator);actor.Output.SetSourcePlayable(actor.Mixer);
         for(int i=0;i<actor.Inputs.Length;i++)
         {
             actor.Inputs[i]=AnimationClipPlayable.Create(actor.Graph,definition.Clips[i]);actor.Inputs[i].SetApplyFootIK(false);
@@ -70,13 +76,16 @@ public sealed partial class LocalTerrainExplorer
             var props=new MaterialPropertyBlock();props.SetFloat("_HumanViewId",id);renderer.SetPropertyBlock(props);
             renderer.shadowCastingMode=ShadowCastingMode.On;renderer.receiveShadows=true;
         }
+        var generated=kimodoHumanLibrary?.Find(definition.Variant);
+        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight);
         actor.Graph.Play();actor.Graph.Evaluate(0);return actor;
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
     {
         float id=camera==view&&(humanReviewBodyMask<0?humanHideBody:humanReviewBodyMask==1)?1:0;
         Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",id);
-        var commands=CommandBufferPool.Get("Human camera visibility");commands.SetGlobalFloat("_WorldGenFirstPersonHumanId",id);
+        Shader.SetGlobalFloat("_WorldGenFirstPersonBodyVisible",SharedHumanMotion?1:0);
+        var commands=CommandBufferPool.Get("Human camera visibility");commands.SetGlobalFloat("_WorldGenFirstPersonHumanId",id);commands.SetGlobalFloat("_WorldGenFirstPersonBodyVisible",SharedHumanMotion?1:0);
         context.ExecuteCommandBuffer(commands);CommandBufferPool.Release(commands);
     }
     void ReadHumanCameraInput(Mouse mouse,Keyboard keyboard)
@@ -109,11 +118,15 @@ public sealed partial class LocalTerrainExplorer
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
         bool crouch=(Application.isFocused||testKeyboard!=null)&&!motion.Flying&&!motion.Swimming&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
         if(!deathPresented){
-        if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
+        if(SharedHumanMotion)humanPlayer.TargetYaw=heading;
+        else if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
         humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
         humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,humanPlayer.Yaw,0);
+        var localVelocity=Quaternion.Inverse(humanPlayer.Root.transform.localRotation)*new Vector3((float)dx,0,(float)dz);
+        humanPlayer.LocalVelocity=new Vector2(localVelocity.x,localVelocity.z);
         AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Swimming&&!motion.Grounded,crouch,dt,motion.Swimming);
+        AimSharedHead();
         if(campSleeping||campResting)
         {humanPlayer.Root.transform.localRotation=Quaternion.Euler(90,humanPlayer.Yaw,0);humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM)+.18f+(float)(sleepingBed?.BeddingDepthM??0),(float)(motion.Z-originZ))-Quaternion.Euler(0,humanPlayer.Yaw,0)*Vector3.forward*.7f;}
         }
@@ -161,6 +174,9 @@ public sealed partial class LocalTerrainExplorer
     }
     static void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
     {
+        if(HumanAnimationOptions.Kimodo&&actor.Shared!=null)
+        {actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity);actor.Graph.Evaluate(dt);return;}
+        actor.Output.SetSourcePlayable(actor.Mixer);
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
         actor.Airborne=airborne;float total=0;
         // Keep left/right foot phases aligned when mixing clips with different
@@ -220,6 +236,17 @@ public sealed partial class LocalTerrainExplorer
         var pivot=new Vector3((float)(motion.X-originX),(float)motion.Y+humanEyeOffset-pivotDrop,(float)(motion.Z-originZ));
         // Eyes sit forward of the neck axis, avoiding a camera inside the collar.
         pivot+=Quaternion.Euler(0,heading,0)*Vector3.forward*(.30f*(1-Mathf.Clamp01(humanCameraDistance)));
+        if(SharedHumanMotion&&!deathPresented)
+        {
+            var eye=humanPlayer.Shared.LocalEye;
+            if(motion.Swimming)eye.y=humanPlayer.Definition.EyeHeight;
+            if(!sharedCameraEyeValid){sharedCameraEye=eye;sharedCameraEyeValid=true;}
+            sharedCameraEye=Vector3.Lerp(sharedCameraEye,eye,1-Mathf.Exp(-dt*9));
+            sharedCameraEye.z=Mathf.Max(sharedCameraEye.z,eye.z-.06f);sharedCameraEye.y=Mathf.Max(sharedCameraEye.y,eye.y-.06f);
+            var physicalEye=transform.InverseTransformPoint(humanPlayer.Root.transform.TransformPoint(sharedCameraEye));
+            pivot=Vector3.Lerp(pivot,physicalEye,1-Mathf.Clamp01(humanCameraDistance));
+        }
+        else sharedCameraEyeValid=false;
         var back=rotation*Vector3.back;
         if(humanCameraDistance>.05f&&(Time.unscaledTime>=humanCameraProbeAt||(pivot-humanProbePivot).sqrMagnitude>.25f||Vector3.Dot(back,humanProbeDirection)<.995f))
         {
@@ -246,10 +273,10 @@ public sealed partial class LocalTerrainExplorer
         if(arguments.Length>1||arguments.Length==1&&(!int.TryParse(arguments[0],out count)||count<1))return new PlayCommandResult(false,"Usage: /spawn human [positive count] or /spawn human clear.");
         humanSpawnQueued+=count;return new PlayCommandResult(true,"Queued "+count+" humans on nearby dry, gentle ground. /spawn clear cancels pending spawns.");
     }
-    void DestroyHuman(HumanActor human){DisposeHumanCombatSurface(human);if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
+    void DestroyHuman(HumanActor human){DisposeHumanCombatSurface(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()
     {
-        RenderPipelineManager.beginCameraRendering-=BindHumanCamera;Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",0);
+        RenderPipelineManager.beginCameraRendering-=BindHumanCamera;Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",0);Shader.SetGlobalFloat("_WorldGenFirstPersonBodyVisible",0);
         if(humanPlayer!=null)DestroyHuman(humanPlayer);humanPlayer=null;
         foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanLibrary=null;
     }

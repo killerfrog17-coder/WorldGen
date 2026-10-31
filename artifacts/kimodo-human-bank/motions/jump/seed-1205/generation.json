@@ -1,0 +1,24 @@
+{
+  "id": "jump",
+  "label": "jump",
+  "frames": 90,
+  "seed": 1205,
+  "prompt": "A person performs one small vertical jump on the spot, taking off with both feet together and landing with both feet together.",
+  "steps": 50,
+  "seconds": 81.625,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "dec283b71eae1f4dc39930f253e15190637b78552a502c62635d6a7b11ce1374",
+  "root_start": [
+    -0.022248048335313797,
+    0.9933719635009766,
+    -0.057958584278821945
+  ],
+  "root_end": [
+    -0.35265785455703735,
+    0.9932870864868164,
+    -1.3099414110183716
+  ],
+  "raw_rotation_sha256": "31da1bc739570c7440758acdd8aefac13c8e37c1b0216dc53766e7d6a061ff57"
+}

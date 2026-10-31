@@ -1,0 +1,24 @@
+{
+  "id": "jog",
+  "label": "jog",
+  "frames": 150,
+  "seed": 901,
+  "prompt": "A person jogs forwards at a steady moderate pace.",
+  "steps": 50,
+  "seconds": 73.39100000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "08e2841e072f1484a1e3c022352c3beadc80de7876fa2756d8d413660ecc17bf",
+  "root_start": [
+    -0.0009589934488758445,
+    1.007869839668274,
+    0.052604809403419495
+  ],
+  "root_end": [
+    0.06206434965133667,
+    0.9449986219406128,
+    10.905102729797363
+  ],
+  "raw_rotation_sha256": "ef28e45652efd73cd8e28bb7e98f58cdfe5887d414db46b7f6f28f9141194209"
+}

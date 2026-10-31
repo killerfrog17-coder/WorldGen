@@ -1,0 +1,24 @@
+{
+  "id": "spear_thrust_one",
+  "label": "spear_thrust_one",
+  "frames": 90,
+  "seed": 918,
+  "prompt": "A person makes a strong forwards thrust with a spear in their right hand and pulls it back.",
+  "steps": 50,
+  "seconds": 84.90600000001723,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "ad27e8155a5c1d59e505f3e0a79617579796647062c24688331c8cbfe7bd9259",
+  "root_start": [
+    0.032719578593969345,
+    0.8007118105888367,
+    -0.0017717796145007014
+  ],
+  "root_end": [
+    0.02216402441263199,
+    0.7441508173942566,
+    0.0033645955845713615
+  ],
+  "raw_rotation_sha256": "dd113a4eae1c69517c908c04184f207c20d633e749a5b25917ad717c894082b5"
+}

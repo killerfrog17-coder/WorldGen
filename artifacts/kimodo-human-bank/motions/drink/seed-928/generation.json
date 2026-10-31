@@ -1,0 +1,24 @@
+{
+  "id": "drink",
+  "label": "drink",
+  "frames": 150,
+  "seed": 928,
+  "prompt": "A person cups both hands, brings them to their mouth to drink water, and lowers their hands.",
+  "steps": 50,
+  "seconds": 108.79700000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "05ab2a79f41429c3fbf115e4613876bfb4606dbe6e31ca17d0a71b75dce0a58c",
+  "root_start": [
+    0.0037021245807409286,
+    1.0014766454696655,
+    0.014775299467146397
+  ],
+  "root_end": [
+    -0.005031334236264229,
+    1.0070215463638306,
+    -0.021808916702866554
+  ],
+  "raw_rotation_sha256": "a51d12a1c92f232f32d099890419619b15ae2606d205528b93f0bd3023baad23"
+}

@@ -245,7 +245,12 @@ public sealed partial class WorldGenRuntime
         }
         if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry: "+localTerrainTask?.Status+" / "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer?.Diagnostics);
         File.WriteAllText(Path.Combine(output,"initial-terrain.txt"),(Time.realtimeSinceStartupAsDouble-terrainStarted).ToString("F3")+" seconds; "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer.Diagnostics);
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-first-person-check"))yield return terrainExplorer.CheckFirstPersonFlow(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-first-person-check"))
+        {
+            bool keep=HumanAnimationOptions.Kimodo;HumanAnimationOptions.Kimodo=false;
+            try{yield return terrainExplorer.CheckFirstPersonFlow(output,report);}finally{HumanAnimationOptions.Kimodo=keep;}
+        }
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-kimodo-human-check"))yield return terrainExplorer.CheckKimodoHumanFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-check"))yield return terrainExplorer.CheckHuntingFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check"))yield return terrainExplorer.CheckCampFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))yield return terrainExplorer.CheckRiverRepairFlow(output,report);

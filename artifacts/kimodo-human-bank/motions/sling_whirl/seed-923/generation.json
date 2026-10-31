@@ -1,0 +1,24 @@
+{
+  "id": "sling_whirl",
+  "label": "sling_whirl",
+  "frames": 150,
+  "seed": 923,
+  "prompt": "A person swings a sling continuously in a vertical circle beside their right shoulder, ready to throw.",
+  "steps": 50,
+  "seconds": 83.14100000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "922049ba1338f6da26dde96aa2bd0f7e052b4cc01291956d724c576c94dbdc3a",
+  "root_start": [
+    -0.022604575380682945,
+    0.9960628747940063,
+    -0.03033352456986904
+  ],
+  "root_end": [
+    -0.0006319656386040151,
+    0.996456503868103,
+    -0.036254964768886566
+  ],
+  "raw_rotation_sha256": "83a5ad07116c235ea6350080daa8499759d55f76ee013deb3cf0a4dbbb535d58"
+}

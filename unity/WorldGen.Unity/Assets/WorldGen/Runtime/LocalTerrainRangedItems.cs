@@ -38,6 +38,7 @@ public sealed partial class LocalTerrainExplorer
             {var failed=new ItemCraftJob{Equipment=charge.Equipment};RestoreWorkHands(failed);return;}
             RemoveDroppedBody(ammo.Id);ammo.GroundMoving=false;
         }
+        if(SharedHumanMotion)viewReleaseAt=-100;
         itemCharge=charge;combatGuarding=false;
     }
     void UpdateItemCharge(Mouse mouse)
@@ -51,6 +52,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CancelItemCharge()
     {
+        if(SharedHumanMotion)viewReleaseAt=-100;
         Array.Clear(pendingMelee,0,pendingMelee.Length);
         var charge=itemCharge;var released=pendingRanged?.Charge;itemCharge=null;pendingRanged=null;
         if(charge?.Equipment!=null)RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});
@@ -69,7 +71,7 @@ public sealed partial class LocalTerrainExplorer
         // An already drawn bow releases immediately. A hand throw follows the
         // authored forward stroke and lets go when its fingers actually open.
         bool bow=!charge.Throw&&profile.Primary==ItemPrimaryUse.Bow;
-        pendingRanged=new PendingRanged{Charge=charge,FireAt=Time.unscaledTimeAsDouble+(bow?0:.62*.24),Speed=(float)speed,Spread=spread};
+        pendingRanged=new PendingRanged{Charge=charge,FireAt=Time.unscaledTimeAsDouble+(bow?0:HumanReleaseDelay(charge)),Speed=(float)speed,Spread=spread};
         CombatCooldown(charge.Left,Math.Max(.35,profile.RecoverySeconds));
         if(bow)ResolveRangedRelease(Time.unscaledTimeAsDouble);
     }

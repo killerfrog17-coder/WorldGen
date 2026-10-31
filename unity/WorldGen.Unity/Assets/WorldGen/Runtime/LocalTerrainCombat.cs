@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
     {
         Vector3 eye=transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y+humanEyeOffset,(float)(motion.Z-originZ)));
         Vector3 aim=view.transform.forward;
-        if(!humanCamera.FirstPerson)
+        if(!humanCamera.FirstPerson||SharedHumanMotion)
         {
             // Aim from the camera, but make the actual attack originate at the
             // body. A camera behind a wall cannot turn into a remote weapon.

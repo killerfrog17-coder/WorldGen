@@ -1,0 +1,24 @@
+{
+  "id": "sling_release",
+  "label": "sling_release",
+  "frames": 120,
+  "seed": 924,
+  "prompt": "A person throws a stone forwards with a sling in their right hand and follows through.",
+  "steps": 50,
+  "seconds": 105.98499999998603,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "814c122a9cd42cd026e1abdde3222281aeb78051a93aad1b12409e9df0feb119",
+  "root_start": [
+    -0.03766733035445213,
+    0.9970397353172302,
+    0.00617957953363657
+  ],
+  "root_end": [
+    -0.03101191855967045,
+    0.9953978061676025,
+    0.03104529343545437
+  ],
+  "raw_rotation_sha256": "5185685628c7b0ec9606f3f5c8e08ff3bb5d3d5309ffc79ee6db1ed1ca8fd24b"
+}

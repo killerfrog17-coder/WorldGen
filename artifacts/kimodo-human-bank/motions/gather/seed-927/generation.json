@@ -1,0 +1,24 @@
+{
+  "id": "gather",
+  "label": "gather",
+  "frames": 120,
+  "seed": 927,
+  "prompt": "A person bends down, reaches with their right hand to pick up a small object from the ground, and stands up.",
+  "steps": 50,
+  "seconds": 75.78200000000652,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "ebb820e6b4690557f905c503e0ac9a6fd853f4d286c97e2e029699248248fae7",
+  "root_start": [
+    0.0013103149831295013,
+    1.00852632522583,
+    0.061175134032964706
+  ],
+  "root_end": [
+    0.000743648037314415,
+    1.006319284439087,
+    0.06049290671944618
+  ],
+  "raw_rotation_sha256": "8a107baa794842052513ef08acf77e72da91c71d359098efcfe5878b000b82ed"
+}

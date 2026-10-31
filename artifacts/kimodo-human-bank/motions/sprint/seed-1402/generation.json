@@ -1,0 +1,24 @@
+{
+  "id": "sprint",
+  "label": "sprint",
+  "frames": 150,
+  "seed": 1402,
+  "prompt": "A person sprints forwards as fast as possible, taking long bounding running strides with powerful arm swings.",
+  "steps": 50,
+  "seconds": 124.18800000002375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "6937105cbb164f85f16c30fbc765ea7013c22376a9713a30467c6b77ea65413a",
+  "root_start": [
+    -0.012927311472594738,
+    1.0029786825180054,
+    0.05221576988697052
+  ],
+  "root_end": [
+    -0.24537381529808044,
+    1.0017595291137695,
+    12.474678993225098
+  ],
+  "raw_rotation_sha256": "f214042cb86ac44a9642f061de6ada4a386bbb511a38edc54061ab77caf527f1"
+}

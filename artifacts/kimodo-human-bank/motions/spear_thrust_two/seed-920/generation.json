@@ -1,0 +1,24 @@
+{
+  "id": "spear_thrust_two",
+  "label": "spear_thrust_two",
+  "frames": 120,
+  "seed": 920,
+  "prompt": "A person thrusts a long spear forwards with both hands, steps into the thrust, then withdraws it.",
+  "steps": 50,
+  "seconds": 96.70299999997951,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "2907543fc6cb7e0869573ea5d18b632dd94b7c16acad28c2d5be171cfb4c7363",
+  "root_start": [
+    0.036953434348106384,
+    0.7705549001693726,
+    0.04844493418931961
+  ],
+  "root_end": [
+    0.044703710824251175,
+    0.7527885437011719,
+    0.10057269781827927
+  ],
+  "raw_rotation_sha256": "9dbd982c2e041271152a3bcc4125fb670763ced4f340466ba1fa53cf2adc39ec"
+}

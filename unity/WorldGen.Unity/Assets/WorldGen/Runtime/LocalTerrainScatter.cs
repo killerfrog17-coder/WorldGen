@@ -496,7 +496,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void LateUpdate()
     {
-        if(closed)return;CaptureMouse();UpdateAttachedProjectiles();UpdateInventoryVisuals();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);
+        if(closed)return;CaptureMouse();UpdateAttachedProjectiles();UpdateInventoryVisuals();if(SharedHumanMotion)UpdateCamera();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);
         bool completion=WorldGenPerformance.Measuring&&WorldGenPerformance.ProfileRenderCompletion&&weatherCheckTarget!=null&&view!=null;
         long renderStarted=completion?System.Diagnostics.Stopwatch.GetTimestamp():0;
         long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);

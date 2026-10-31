@@ -42,6 +42,7 @@ public static partial class TerrainVideoOptions
     public static bool ScatterFrustum=true,VegetationOcclusion=true,VegetationShadows=true;
     public static void Load()
     {
+        HumanAnimationOptions.Load();
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
         Current.Effort=Mathf.Clamp(PlayerPrefs.GetInt("terrain-effort",1),0,3);
         Current.ViewDistanceM=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-distance",200000),1000,250000);
@@ -64,7 +65,7 @@ public static partial class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Terrain lab","Character & help"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Terrain lab","Character & help","Debug"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
@@ -83,6 +84,13 @@ public sealed partial class WorldGenRuntime
             case 4:DrawWeatherVideoOptions();break;
             case 5:DrawVegetationOptions();break;
             case 6:DrawTerrainLab();break;
+            case 8:
+                GUILayout.Label("CHARACTER ANIMATION",SectionStyle());
+                int animation=GUILayout.SelectionGrid(HumanAnimationOptions.Kimodo?0:1,new[]{"Kimodo · shared body","Legacy · separate first-person arms"},1);
+                if((animation==0)!=HumanAnimationOptions.Kimodo)HumanAnimationOptions.Set(animation==0);
+                GUILayout.Label("Applies immediately to the player and human NPCs. Kimodo uses the same body animation in first and third person; look down to see your body. This choice is saved.",MutedStyle());
+                GUILayout.Space(14);GUILayout.Label("Rendering diagnostics are under Terrain lab.",MutedStyle());
+                break;
             case 7:
                 GUILayout.Label("INVENTORY & EQUIPMENT",SectionStyle());
                 GUILayout.Label("F5: quicksave for this playthrough. Save game: keep the name to overwrite that slot, or change it for a separate save. Gameplay continues while the window is unfocused; pause explicitly when needed.");

@@ -1,0 +1,24 @@
+{
+  "id": "work_dig",
+  "label": "work_dig",
+  "frames": 150,
+  "seed": 933,
+  "prompt": "A person bends forwards and repeatedly pushes a digging stick into the ground with both hands and levers it backwards.",
+  "steps": 50,
+  "seconds": 75.34400000004098,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "e472cbdca15872dc0c91896f66965768bf40546904ea9f7220d19fc9510b75f8",
+  "root_start": [
+    -0.03842572495341301,
+    0.9928498268127441,
+    0.0397280752658844
+  ],
+  "root_end": [
+    -0.07737690210342407,
+    0.8940904140472412,
+    -0.24755443632602692
+  ],
+  "raw_rotation_sha256": "8d645c4c68a85ce97c7ab2f025af1f1b445883746a8c3a03b41014d32110301c"
+}

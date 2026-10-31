@@ -1,0 +1,24 @@
+{
+  "id": "bow_ready",
+  "label": "bow_ready",
+  "frames": 120,
+  "seed": 925,
+  "prompt": "A person stands holding a bow vertically in their left hand, with their right hand resting near the bowstring.",
+  "steps": 50,
+  "seconds": 66.85999999998603,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "98ad6678b97be8b27b204ed03bcdd2d7d48cd372545a0be13457c84f31914a93",
+  "root_start": [
+    0.007923112250864506,
+    1.0012775659561157,
+    -0.028705226257443428
+  ],
+  "root_end": [
+    -0.00011806096881628036,
+    0.9986376762390137,
+    -0.03925909101963043
+  ],
+  "raw_rotation_sha256": "21dc01b6a9cea73906e53e5c5269b8385b7ec23ce8dbec569dfdd66cbd2d27a2"
+}

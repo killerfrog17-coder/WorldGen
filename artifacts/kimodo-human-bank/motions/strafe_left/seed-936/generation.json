@@ -1,0 +1,24 @@
+{
+  "id": "strafe_left",
+  "label": "strafe_left",
+  "frames": 150,
+  "seed": 936,
+  "prompt": "A person sidesteps continuously to their left while keeping their chest and face pointing forwards.",
+  "steps": 50,
+  "seconds": 120.95299999997951,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "7dd4be834800791c9b5948c71f4d6498ed5981d1742dfdcec96ba513c04d8c4c",
+  "root_start": [
+    0.018210772424936295,
+    0.9908345937728882,
+    -0.01752428337931633
+  ],
+  "root_end": [
+    7.235037803649902,
+    0.9826231598854065,
+    -1.0220345258712769
+  ],
+  "raw_rotation_sha256": "04a4b3499c41055bd277bd2973d149038a68cdfcf4556b80de872c0362a90479"
+}

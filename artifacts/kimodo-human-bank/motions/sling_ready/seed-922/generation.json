@@ -1,0 +1,24 @@
+{
+  "id": "sling_ready",
+  "label": "sling_ready",
+  "frames": 120,
+  "seed": 922,
+  "prompt": "A person stands holding a sling in their right hand, ready to throw a stone.",
+  "steps": 50,
+  "seconds": 104.98399999999674,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "583f6a01a0b8bc58eab18846a574d5f39c55540bc53637b152aa71f175a15c57",
+  "root_start": [
+    0.006411627400666475,
+    0.9915547966957092,
+    -0.017184188589453697
+  ],
+  "root_end": [
+    -0.034703079611063004,
+    0.9890855550765991,
+    -0.04376104474067688
+  ],
+  "raw_rotation_sha256": "cfbc8d986c81dceb722b56cdfc95921c586b1ad14b4de9a264ce1065d6012ea8"
+}

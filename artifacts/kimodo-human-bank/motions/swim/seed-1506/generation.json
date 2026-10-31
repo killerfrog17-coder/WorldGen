@@ -1,0 +1,24 @@
+{
+  "id": "swim",
+  "label": "swim",
+  "frames": 180,
+  "seed": 1506,
+  "prompt": "A person swims forward with big alternating arm strokes.",
+  "steps": 50,
+  "seconds": 133.0470000000205,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "f02d961370df966e06887c6dc08f5613b94fa25a1bd76c35abb696e5098a8ef5",
+  "root_start": [
+    0.03437488526105881,
+    0.3518962264060974,
+    0.016683708876371384
+  ],
+  "root_end": [
+    0.05352957919239998,
+    0.20572155714035034,
+    3.5558416843414307
+  ],
+  "raw_rotation_sha256": "cd6a00aa8342b6b72b2262e1550d757cf9d49fad6572f92341716cd7bff903c5"
+}

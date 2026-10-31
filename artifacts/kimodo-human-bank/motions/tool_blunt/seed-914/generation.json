@@ -1,0 +1,24 @@
+{
+  "id": "tool_blunt",
+  "label": "tool_blunt",
+  "frames": 90,
+  "seed": 914,
+  "prompt": "A person strikes forwards and downwards with a hammer in their right hand and recovers.",
+  "steps": 50,
+  "seconds": 90.93800000002375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "90261431d824f1640e8c4631a7e475d18d6e5c157ca2501a560843e5fa6498e9",
+  "root_start": [
+    -0.006174985785037279,
+    0.9555246829986572,
+    -0.013380590826272964
+  ],
+  "root_end": [
+    -0.003925690893083811,
+    0.9503112435340881,
+    -0.003691696561872959
+  ],
+  "raw_rotation_sha256": "1c9b830aba48806198ba2f5a1a852986944182b47f03cd158ee737f245fb3ecc"
+}

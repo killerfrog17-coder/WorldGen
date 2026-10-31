@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+ACTIVE30Oct evening: owner approved the free/local Kimodo demo and NOW requests
+the WHOLE initial human animation bank integrated into the game, shared first/
+third-person body pose, dynamic wind-up/hold/cancel/release while walking/running,
+plus immediate Legacy fallback under Settings > Debug. Do not stop at generation.
+Current selected water-sickness package/shortcut stays frozen until NEW IL2CPP
+candidate is tested. No paid calls, signup, subagents, cleanup, Mono, or original
+character/animal art changes. Owner3 files remain untouched. Local runtime and
+weights already installed by a64ac04 (public kimodo.cpp/SOMA30, text encoder Q8;
+motion F32, CPU8 threads). Model weights live only on E:. Work evidence under
+artifacts/kimodo-human-bank; new source exports assets/human-motion-kimodo.
+Generation/refinements FINISHED:43 selected raw motions produce67 roles per
+character,6 native MPFB exports/402 takes. Original skin bone paths matched in
+all6 imports (unity-import-final exit0). audit-final67PASS, exact loop seams and
+shared charge/release boundaries; original source SHA unchanged. Reviewed real
+native sequence sheets; new swim/crouch/jump rerolls replace rejected takes.
+Shared controller/debug/head-only camera mask and Legacy paths IN PROGRESS.
+NEW IL2CPP candidate artifacts/player-human-kimodo is a junction to NEW
+E:/WorldGen-builds/player-human-kimodo; build running. Selected water-sickness
+is UNCHANGED. Freeze766 inputs under task/package-proof. Native validation NOT
+yet run. Need actual dynamic input/Legacy/items/water regression, actual shared
+camera/grips images, package proofs, Git/persistence and shortcut selection.
+Restore only known Unity whitespace auto-rewrites after checking diff; do not
+touch owner prompt deletion or2 old deer scripts. Do not claim visual acceptance.
+
 SELECTED30Oct17:40CDT: water-source/sickness update COMPLETE. Existing root
 WorldGen shortcut NOW artifacts/player-water-sickness/WorldGen.exe, IL2CPP
 Release BuiltUtc2026-10-30T22:36:42.1145956Z, production5691906. 34nativewater

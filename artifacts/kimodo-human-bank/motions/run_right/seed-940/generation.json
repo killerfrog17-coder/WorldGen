@@ -1,0 +1,24 @@
+{
+  "id": "run_right",
+  "label": "run_right",
+  "frames": 150,
+  "seed": 940,
+  "prompt": "A person runs sideways to their right with quick lateral shuffling steps, keeping their chest pointing forwards.",
+  "steps": 50,
+  "seconds": 116.375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "53c8ad0b78eb2f20dd41f076581c5686d27c4f20ffca975db967aa78aa383323",
+  "root_start": [
+    -0.01867816224694252,
+    1.0128259658813477,
+    -0.023927006870508194
+  ],
+  "root_end": [
+    -9.228466033935547,
+    0.9186728000640869,
+    -0.06339623034000397
+  ],
+  "raw_rotation_sha256": "14023b6afac085e055765b41a6c16fd0dba29a65030f34e5f92390c0f9091223"
+}

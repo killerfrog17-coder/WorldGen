@@ -1,0 +1,24 @@
+{
+  "id": "walk_back",
+  "label": "walk_back",
+  "frames": 150,
+  "seed": 935,
+  "prompt": "A person walks backwards steadily while keeping their chest and face pointing forwards.",
+  "steps": 50,
+  "seconds": 117.89100000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "8d1999eb79d141890260a42bd9185b4fbd177a1cf4d79743d0608afa3dc86bee",
+  "root_start": [
+    -0.003293920075520873,
+    1.0099104642868042,
+    -0.052649255841970444
+  ],
+  "root_end": [
+    0.059247590601444244,
+    1.0022766590118408,
+    -5.234981536865234
+  ],
+  "raw_rotation_sha256": "7b080fa129ffa9847abc355c9e82e3f85f3e06f3693c165ec83bba06105e3fc8"
+}

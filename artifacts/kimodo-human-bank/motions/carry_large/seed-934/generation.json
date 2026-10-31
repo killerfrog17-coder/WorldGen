@@ -1,0 +1,24 @@
+{
+  "id": "carry_large",
+  "label": "carry_large",
+  "frames": 120,
+  "seed": 934,
+  "prompt": "A person stands carrying a heavy large rock in both hands in front of their waist, keeping both elbows bent.",
+  "steps": 50,
+  "seconds": 63.32800000003772,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "fd3557459e9705587ea5e70a7f5b8fc1049412cc07a6eea1dc97f4eef7a5ab7a",
+  "root_start": [
+    -0.04517122358083725,
+    0.9721254110336304,
+    0.021998146548867226
+  ],
+  "root_end": [
+    -0.09014185518026352,
+    0.9625653028488159,
+    0.05338848754763603
+  ],
+  "raw_rotation_sha256": "1a0bccce616427832175d1abef6458608134c19d4b8ea08dee520fe3dabeb102"
+}

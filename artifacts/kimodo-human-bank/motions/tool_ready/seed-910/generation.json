@@ -1,0 +1,24 @@
+{
+  "id": "tool_ready",
+  "label": "tool_ready",
+  "frames": 120,
+  "seed": 910,
+  "prompt": "A person stands holding a small tool in their right hand beside their waist, with a relaxed bent elbow.",
+  "steps": 50,
+  "seconds": 80.25,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "06201f64acb99de5e14bcae3bed670ed21b72b1549504362f0781347c5fea28b",
+  "root_start": [
+    -0.017636962234973907,
+    0.9909981489181519,
+    -0.01939087174832821
+  ],
+  "root_end": [
+    -0.005685713142156601,
+    0.9888314604759216,
+    0.0024111210368573666
+  ],
+  "raw_rotation_sha256": "9c640d902d4ca1ac2b4c8d99027836fb6fcf57fb69ec40cdf8fe9038cf908e63"
+}

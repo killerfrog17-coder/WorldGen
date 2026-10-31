@@ -1,0 +1,24 @@
+{
+  "id": "fists_guard",
+  "label": "fists_guard",
+  "frames": 120,
+  "seed": 908,
+  "prompt": "A person raises both forearms to protect their face and holds a defensive boxing guard.",
+  "steps": 50,
+  "seconds": 71.25,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "cba05ab1c3dec1f564a2135284934f3613e734b249a60455e83af0b010a5541d",
+  "root_start": [
+    -0.01592252217233181,
+    0.9550845623016357,
+    0.0006890496588312089
+  ],
+  "root_end": [
+    -0.0010782289318740368,
+    0.9555976986885071,
+    -0.0023763147182762623
+  ],
+  "raw_rotation_sha256": "8d4d096082394d98abc534bae3c69c4125ef3bdf5ef37da9e63f2d42f7038d57"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "spear_ready_two",
+  "label": "spear_ready_two",
+  "frames": 120,
+  "seed": 919,
+  "prompt": "A person holds a long spear horizontally in both hands, pointing it forwards, ready to thrust.",
+  "steps": 50,
+  "seconds": 96.67200000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "e743f66ce6392e808bdc4dd809743a8a704fa7eb031ec9b4b9485eb3275a4967",
+  "root_start": [
+    -0.04289982095360756,
+    0.8217856884002686,
+    -0.03439624235033989
+  ],
+  "root_end": [
+    -0.06416428089141846,
+    0.8622622489929199,
+    -0.03840258717536926
+  ],
+  "raw_rotation_sha256": "6c82064acae55cef0af67fe060e769f6b8c551609cf7a26864b9c61db715e212"
+}

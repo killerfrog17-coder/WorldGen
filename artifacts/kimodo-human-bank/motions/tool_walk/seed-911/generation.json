@@ -1,0 +1,24 @@
+{
+  "id": "tool_walk",
+  "label": "tool_walk",
+  "frames": 150,
+  "seed": 911,
+  "prompt": "A person walks forwards carrying a small tool in their right hand, keeping it beside their waist.",
+  "steps": 50,
+  "seconds": 116.0,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "0532cec7dc895106e37aa45239fb62275692ed2b71af95ebf0d45f6e485f93bb",
+  "root_start": [
+    -0.04770626500248909,
+    0.9789372086524963,
+    -0.03278256207704544
+  ],
+  "root_end": [
+    0.4121600389480591,
+    0.9526850581169128,
+    5.713388919830322
+  ],
+  "raw_rotation_sha256": "927cf5cea1591d3708d4e32807cfb3e9640a667bd2dfa4fb6947625677f64cb3"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "punch",
+  "label": "punch",
+  "frames": 90,
+  "seed": 909,
+  "prompt": "A person throws a straight right-handed punch forwards and brings their fist back to guard.",
+  "steps": 50,
+  "seconds": 51.51600000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "cb29150402a07e6e7161f045d5296906637217f3f02525dc8e245323e7b755ff",
+  "root_start": [
+    0.011311439797282219,
+    0.9582458138465881,
+    -0.009012029506266117
+  ],
+  "root_end": [
+    0.012267334386706352,
+    0.9579183459281921,
+    -0.012852566316723824
+  ],
+  "raw_rotation_sha256": "7eefbbbea01e6568ac5334ba86f74dd2d8d748951edcb282aa52dc459fad748d"
+}

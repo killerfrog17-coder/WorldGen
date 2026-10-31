@@ -1,0 +1,24 @@
+{
+  "id": "tool_cut",
+  "label": "tool_cut",
+  "frames": 90,
+  "seed": 912,
+  "prompt": "A person makes a controlled right-handed diagonal knife slash in front of their body and recovers.",
+  "steps": 50,
+  "seconds": 77.96899999998277,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "36d343497fb7a3c1661ea9b106e0a4530c004b1ef789fb82d009b4ca299d316c",
+  "root_start": [
+    0.029519181698560715,
+    0.8654590249061584,
+    -0.0586177222430706
+  ],
+  "root_end": [
+    0.3379610478878021,
+    0.8560757040977478,
+    -0.4190136790275574
+  ],
+  "raw_rotation_sha256": "5c19ac5798d262ca0b84b634f8d05e9a2359c2d3662ac6b0a1bc77e7bcd5ccea"
+}

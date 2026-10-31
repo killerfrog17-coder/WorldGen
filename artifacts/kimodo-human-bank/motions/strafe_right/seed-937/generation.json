@@ -1,0 +1,24 @@
+{
+  "id": "strafe_right",
+  "label": "strafe_right",
+  "frames": 150,
+  "seed": 937,
+  "prompt": "A person sidesteps continuously to their right while keeping their chest and face pointing forwards.",
+  "steps": 50,
+  "seconds": 115.95300000003772,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "18bafb665f05da6910de04ce64cd82a2eb6e9481152c588ec206b90a6293a0a2",
+  "root_start": [
+    -0.04106679558753967,
+    1.0013532638549805,
+    -0.015113028697669506
+  ],
+  "root_end": [
+    -6.14408016204834,
+    0.9787063002586365,
+    -0.6460736989974976
+  ],
+  "raw_rotation_sha256": "6453df2084cba0732020b187d31a880f8e1650d70e0bb26cbb99f4f8bd446f49"
+}

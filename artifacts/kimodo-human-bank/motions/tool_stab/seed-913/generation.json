@@ -1,0 +1,24 @@
+{
+  "id": "tool_stab",
+  "label": "tool_stab",
+  "frames": 90,
+  "seed": 913,
+  "prompt": "A person thrusts a small knife forwards with their right hand and withdraws it.",
+  "steps": 50,
+  "seconds": 80.01600000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "297aab75fce3976834dc46b6ec229d372153054f4bf9318c53af4f70ce36aa57",
+  "root_start": [
+    -0.054967835545539856,
+    0.9244799017906189,
+    0.0029610777273774147
+  ],
+  "root_end": [
+    -0.10143056511878967,
+    0.9161205887794495,
+    -0.05182664096355438
+  ],
+  "raw_rotation_sha256": "5c7fb3b173b484ff3de5ef8b56d0fd612a1a8639c44767249cb6f393e17dafb0"
+}

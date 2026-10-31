@@ -1,0 +1,2445 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da9b3a0c4a68ed047b6a0e53c47bcd4f, type: 3}
+  m_Name: Library
+  m_EditorClassIdentifier: Assembly-CSharp::WorldGenHumanMotionBank
+  People:
+  - Variant: A
+    EyeForward: 0.13005576
+    Clips:
+    - Role: Idle
+      Clip: {fileID: -2340177427315394052, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.007923433
+    - Role: Walk
+      Clip: {fileID: 7308926854716584771, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4721183
+    - Role: Run
+      Clip: {fileID: 6499701298943736123, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.7551625
+    - Role: Sprint
+      Clip: {fileID: 6497468440146430882, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.1010778
+    - Role: Crouch
+      Clip: {fileID: 2486057636625926398, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2322413
+    - Role: CrouchIdle
+      Clip: {fileID: -3925061623513200772, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012117027
+    - Role: Jump
+      Clip: {fileID: -6843340202277140273, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.7126462
+    - Role: Swim
+      Clip: {fileID: -5421135849542003585, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.7331436
+    - Role: WalkBack
+      Clip: {fileID: -9137502086950974870, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.1104957
+    - Role: StrafeLeft
+      Clip: {fileID: -3730470530897076342, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2242664
+    - Role: StrafeRight
+      Clip: {fileID: -2311714820820918271, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.1997457
+    - Role: RunBack
+      Clip: {fileID: 6578568949787373939, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2963818
+    - Role: RunLeft
+      Clip: {fileID: 6339181158188828135, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6748502
+    - Role: RunRight
+      Clip: {fileID: 1116289014903132418, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4378833
+    - Role: Empty
+      Clip: {fileID: -6821553232003202473, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.007923433
+    - Role: FistsReady
+      Clip: {fileID: 2288142466130603605, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.046218995
+    - Role: FistsGuard
+      Clip: {fileID: 2636987049905740946, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.029665349
+    - Role: Punch
+      Clip: {fileID: 7946868825411272667, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.0102083925
+    - Role: Punch_Left
+      Clip: {fileID: 7710916721392952048, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.010196155
+    - Role: ToolReady
+      Clip: {fileID: -4268474752702968156, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020285342
+    - Role: ToolReady_Left
+      Clip: {fileID: 3187949722621190683, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020261023
+    - Role: ToolWalk
+      Clip: {fileID: -1511033063193324100, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.1663303
+    - Role: ToolWalk_Left
+      Clip: {fileID: 7618398499827652569, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.1649321
+    - Role: ToolCutA
+      Clip: {fileID: -7220158386182981527, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.56635284
+    - Role: ToolCutA_Left
+      Clip: {fileID: -7184636414749736341, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.5656739
+    - Role: ToolCutB
+      Clip: {fileID: -3966977605645811069, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.047688864
+    - Role: ToolCutB_Left
+      Clip: {fileID: -7811310781598851964, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.047631696
+    - Role: ToolBlunt
+      Clip: {fileID: -1790276877867498753, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.03196354
+    - Role: ToolBlunt_Left
+      Clip: {fileID: 2086505047802676310, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.03192522
+    - Role: ToolChop
+      Clip: {fileID: -679239568018208567, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.051490024
+    - Role: ToolChop_Left
+      Clip: {fileID: 4578088023424559241, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.0514283
+    - Role: ToolGuard
+      Clip: {fileID: -833156125930778397, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.026263233
+    - Role: ToolGuard_Left
+      Clip: {fileID: 4317857858173708560, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02623175
+    - Role: SpearReady1
+      Clip: {fileID: -6368992242104755060, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0025206122
+    - Role: SpearReady1_Left
+      Clip: {fileID: 8115746755322368327, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0025175905
+    - Role: SpearThrust1
+      Clip: {fileID: 8803033621908623301, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.21506265
+    - Role: SpearThrust1_Left
+      Clip: {fileID: 8985985340704473580, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.21480483
+    - Role: SpearReady2
+      Clip: {fileID: -8976021749616859486, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0191228
+    - Role: SpearReady2_Left
+      Clip: {fileID: -4687605032267579018, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.019099876
+    - Role: SpearThrust2
+      Clip: {fileID: -3275946878105156912, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.055718385
+    - Role: SpearThrust2_Left
+      Clip: {fileID: 9212088975789401310, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.05565159
+    - Role: ThrowCharge
+      Clip: {fileID: 16659094764063154, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.07536436
+    - Role: ThrowCharge_Left
+      Clip: {fileID: 4453652785393867578, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.07527401
+    - Role: ThrowRelease
+      Clip: {fileID: -7625748014938648758, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.051943105
+    - Role: ThrowRelease_Left
+      Clip: {fileID: -1239942083828994552, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.051880836
+    - Role: SpearThrowCharge
+      Clip: {fileID: 918323570708737267, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.15780526
+    - Role: SpearThrowCharge_Left
+      Clip: {fileID: 651424104150501901, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.15761608
+    - Role: SpearThrowRelease
+      Clip: {fileID: -7532512980750201039, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.117695555
+    - Role: SpearThrowRelease_Left
+      Clip: {fileID: 6705946201098817223, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.11755447
+    - Role: SlingReady
+      Clip: {fileID: -6320726843056822931, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.045616303
+    - Role: SlingReady_Left
+      Clip: {fileID: 6607349433188383403, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04556162
+    - Role: SlingWhirl
+      Clip: {fileID: -5247302781411336691, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.039070986
+    - Role: SlingWhirl_Left
+      Clip: {fileID: 5636754241513913830, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.039024148
+    - Role: SlingRelease
+      Clip: {fileID: 2917319280993911422, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.11616091
+    - Role: SlingRelease_Left
+      Clip: {fileID: 212197046950258389, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.116021655
+    - Role: BowReady
+      Clip: {fileID: 9075427986236671360, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.011709327
+    - Role: BowDraw
+      Clip: {fileID: 2209536803395617831, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.037830308
+    - Role: BowRelease
+      Clip: {fileID: -626615976850885483, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0
+      TravelMeters: 0.023404611
+    - Role: Gather
+      Clip: {fileID: -8788510769854268836, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.019764176
+    - Role: Gather_Left
+      Clip: {fileID: 2743414725447000815, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.019740483
+    - Role: Drink
+      Clip: {fileID: 3344311036164471838, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.018546095
+    - Role: Eat
+      Clip: {fileID: 3442572419247335166, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.024395224
+    - Role: WorkKnapping
+      Clip: {fileID: -5017561225700465121, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03129776
+    - Role: WorkCut
+      Clip: {fileID: -4472399047777475436, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0029411856
+    - Role: WorkTwist
+      Clip: {fileID: -6099073695503769200, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0059331004
+    - Role: WorkDig
+      Clip: {fileID: 5549033174839601282, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03715903
+    - Role: CarryLarge
+      Clip: {fileID: 2448187036881432708, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0065699676
+  - Variant: B
+    EyeForward: 0.15475094
+    Clips:
+    - Role: Idle
+      Clip: {fileID: 7413657432023875127, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.009079465
+    - Role: Walk
+      Clip: {fileID: -964704924613747588, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6869011
+    - Role: Run
+      Clip: {fileID: -1594565783206535331, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.0112417
+    - Role: Sprint
+      Clip: {fileID: 5263936689475601126, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.4076262
+    - Role: Crouch
+      Clip: {fileID: -8580867156820665899, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4120259
+    - Role: CrouchIdle
+      Clip: {fileID: 4958446677455409744, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.013884908
+    - Role: Jump
+      Clip: {fileID: 614760600404972649, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.8166216
+    - Role: Swim
+      Clip: {fileID: -3498161459834681114, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.84010965
+    - Role: WalkBack
+      Clip: {fileID: -4215667718191206928, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2725176
+    - Role: StrafeLeft
+      Clip: {fileID: 5723046558430027332, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4028875
+    - Role: StrafeRight
+      Clip: {fileID: -6908184814542098300, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.374789
+    - Role: RunBack
+      Clip: {fileID: 8758379063303611288, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4855245
+    - Role: RunLeft
+      Clip: {fileID: 41515790662197031, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.9192116
+    - Role: RunRight
+      Clip: {fileID: -1406740263048840214, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6476711
+    - Role: Empty
+      Clip: {fileID: -5090261612084949307, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.009079465
+    - Role: FistsReady
+      Clip: {fileID: 864528045982799833, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.05296237
+    - Role: FistsGuard
+      Clip: {fileID: -1411707629861090416, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.033993535
+    - Role: Punch
+      Clip: {fileID: 4317887921079592179, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.011697801
+    - Role: Punch_Left
+      Clip: {fileID: 1094058761010074175, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.011683778
+    - Role: ToolReady
+      Clip: {fileID: -7813894948001789567, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.023244983
+    - Role: ToolReady_Left
+      Clip: {fileID: -4830511863641881785, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.023217117
+    - Role: ToolWalk
+      Clip: {fileID: -2327415078376907136, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3364984
+    - Role: ToolWalk_Left
+      Clip: {fileID: 7563486628691948900, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3348962
+    - Role: ToolCutA
+      Clip: {fileID: -7782583874434565640, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.64898396
+    - Role: ToolCutA_Left
+      Clip: {fileID: 5530429542618728420, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.648206
+    - Role: ToolCutB
+      Clip: {fileID: 4743564526219571338, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.054646693
+    - Role: ToolCutB_Left
+      Clip: {fileID: -8353381149194438460, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.054581184
+    - Role: ToolBlunt
+      Clip: {fileID: -395429698872132314, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.036627032
+    - Role: ToolBlunt_Left
+      Clip: {fileID: -6288136721647911303, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.036583126
+    - Role: ToolChop
+      Clip: {fileID: 3096572198646679447, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.05900244
+    - Role: ToolChop_Left
+      Clip: {fileID: -1254656446993135701, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.058931712
+    - Role: ToolGuard
+      Clip: {fileID: -7693501973249169328, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.030095052
+    - Role: ToolGuard_Left
+      Clip: {fileID: -9164407322452981884, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.030058974
+    - Role: SpearReady1
+      Clip: {fileID: 4669834610615511072, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0028883708
+    - Role: SpearReady1_Left
+      Clip: {fileID: -5910009144006965121, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0028849083
+    - Role: SpearThrust1
+      Clip: {fileID: 5962390996076148483, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.24644038
+    - Role: SpearThrust1_Left
+      Clip: {fileID: -8304804604144061714, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.24614497
+    - Role: SpearReady2
+      Clip: {fileID: -8050624552558690122, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021912824
+    - Role: SpearReady2_Left
+      Clip: {fileID: 4745835130085739308, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021886555
+    - Role: SpearThrust2
+      Clip: {fileID: 6559717536655930039, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.06384772
+    - Role: SpearThrust2_Left
+      Clip: {fileID: 2592693497816647548, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.06377118
+    - Role: ThrowCharge
+      Clip: {fileID: -3341456195327666861, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.08636005
+    - Role: ThrowCharge_Left
+      Clip: {fileID: -4175427738678392891, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.08625653
+    - Role: ThrowRelease
+      Clip: {fileID: 6768264204234711634, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.059521627
+    - Role: ThrowRelease_Left
+      Clip: {fileID: -3578101430488221410, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.059450272
+    - Role: SpearThrowCharge
+      Clip: {fileID: -6409960001645333556, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.18082912
+    - Role: SpearThrowCharge_Left
+      Clip: {fileID: 6603818136085989459, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.18061234
+    - Role: SpearThrowRelease
+      Clip: {fileID: -9115174827296052100, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.1348674
+    - Role: SpearThrowRelease_Left
+      Clip: {fileID: -5549578175089102048, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13470572
+    - Role: SlingReady
+      Clip: {fileID: -7921254858339921140, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.052271742
+    - Role: SlingReady_Left
+      Clip: {fileID: -6764502828283879355, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.05220908
+    - Role: SlingWhirl
+      Clip: {fileID: 1285666259366088596, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04477146
+    - Role: SlingWhirl_Left
+      Clip: {fileID: 325123852764916330, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04471779
+    - Role: SlingRelease
+      Clip: {fileID: -7093166606291075705, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13310884
+    - Role: SlingRelease_Left
+      Clip: {fileID: -7143291049923612008, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13294926
+    - Role: BowReady
+      Clip: {fileID: 2897103065027717224, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.013417723
+    - Role: BowDraw
+      Clip: {fileID: -5872518178446082371, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04334977
+    - Role: BowRelease
+      Clip: {fileID: 5197958539051322496, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0
+      TravelMeters: 0.026819354
+    - Role: Gather
+      Clip: {fileID: -291787920511133827, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022647778
+    - Role: Gather_Left
+      Clip: {fileID: 4701602589616337387, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022620628
+    - Role: Drink
+      Clip: {fileID: -164070934605468486, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021251978
+    - Role: Eat
+      Clip: {fileID: -3624654051311490629, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.027954498
+    - Role: WorkKnapping
+      Clip: {fileID: -4293738114671683997, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03586412
+    - Role: WorkCut
+      Clip: {fileID: 2265641747769439615, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.003370306
+    - Role: WorkTwist
+      Clip: {fileID: 2203933064812494076, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0067987423
+    - Role: WorkDig
+      Clip: {fileID: 2990185766193961915, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04258055
+    - Role: CarryLarge
+      Clip: {fileID: 4087343012105886636, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0075285286
+  - Variant: C
+    EyeForward: 0.13799669
+    Clips:
+    - Role: Idle
+      Clip: {fileID: 7452279093314766426, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.008592323
+    - Role: Walk
+      Clip: {fileID: 4091030574680903877, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.5963936
+    - Role: Run
+      Clip: {fileID: -8833328465033831426, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.9033322
+    - Role: Sprint
+      Clip: {fileID: 2119463791573081928, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.2784495
+    - Role: Crouch
+      Clip: {fileID: 5552206768903235331, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3362664
+    - Role: CrouchIdle
+      Clip: {fileID: -3770185826016800310, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.013139939
+    - Role: Jump
+      Clip: {fileID: -7238094035026503122, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.7728073
+    - Role: Swim
+      Clip: {fileID: -3829236893102697829, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.7950352
+    - Role: WalkBack
+      Clip: {fileID: -6986064863040745216, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2042431
+    - Role: StrafeLeft
+      Clip: {fileID: 3073239963355163190, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3276182
+    - Role: StrafeRight
+      Clip: {fileID: 393423073315562862, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3010274
+    - Role: RunBack
+      Clip: {fileID: 4999212149848685506, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4058216
+    - Role: RunLeft
+      Clip: {fileID: 8989089835453191713, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.8162401
+    - Role: RunRight
+      Clip: {fileID: 354767586117113017, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.5592685
+    - Role: Empty
+      Clip: {fileID: -3320424452964407257, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.008592323
+    - Role: FistsReady
+      Clip: {fileID: 3662866422016989373, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.050120775
+    - Role: FistsGuard
+      Clip: {fileID: -6306469873048878349, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.032169677
+    - Role: Punch
+      Clip: {fileID: 3628845906541626605, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.011070178
+    - Role: Punch_Left
+      Clip: {fileID: 925053712003654397, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.0110569075
+    - Role: ToolReady
+      Clip: {fileID: -451189280216369957, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021997817
+    - Role: ToolReady_Left
+      Clip: {fileID: -555713119862289650, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021971447
+    - Role: ToolWalk
+      Clip: {fileID: -5029493737106941699, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2647911
+    - Role: ToolWalk_Left
+      Clip: {fileID: -53451488704640831, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2632749
+    - Role: ToolCutA
+      Clip: {fileID: 4284942326980515118, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.614164
+    - Role: ToolCutA_Left
+      Clip: {fileID: -5973043247565464401, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.6134277
+    - Role: ToolCutB
+      Clip: {fileID: 9099743821429048328, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.05171473
+    - Role: ToolCutB_Left
+      Clip: {fileID: 3400654522320710309, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.051652733
+    - Role: ToolBlunt
+      Clip: {fileID: -4356379159365053587, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.034661878
+    - Role: ToolBlunt_Left
+      Clip: {fileID: -2960606297350853307, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.034620326
+    - Role: ToolChop
+      Clip: {fileID: -6658950096063525637, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.055836778
+    - Role: ToolChop_Left
+      Clip: {fileID: -6050144145736881062, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.055769842
+    - Role: ToolGuard
+      Clip: {fileID: 906082166631156907, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.028480358
+    - Role: ToolGuard_Left
+      Clip: {fileID: 552032114251370506, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.028446218
+    - Role: SpearReady1
+      Clip: {fileID: -5787057616311378346, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0027334008
+    - Role: SpearReady1_Left
+      Clip: {fileID: -7146171705556718620, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.002730124
+    - Role: SpearThrust1
+      Clip: {fileID: 7240227521309803673, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.2332181
+    - Role: SpearThrust1_Left
+      Clip: {fileID: -641140142620901169, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.23293853
+    - Role: SpearReady2
+      Clip: {fileID: 9090046582634667118, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020737134
+    - Role: SpearReady2_Left
+      Clip: {fileID: -5777886594261693385, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020712275
+    - Role: SpearThrust2
+      Clip: {fileID: 4308394758988197847, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.060422093
+    - Role: SpearThrust2_Left
+      Clip: {fileID: 3315540463612179333, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.06034966
+    - Role: ThrowCharge
+      Clip: {fileID: 2518699097752876654, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.081726566
+    - Role: ThrowCharge_Left
+      Clip: {fileID: -1530466882232693046, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0816286
+    - Role: ThrowRelease
+      Clip: {fileID: 4484591761977087231, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.056328107
+    - Role: ThrowRelease_Left
+      Clip: {fileID: 3124496023083933230, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.056260582
+    - Role: SpearThrowCharge
+      Clip: {fileID: 5484871284517069996, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.17112708
+    - Role: SpearThrowCharge_Left
+      Clip: {fileID: -4276192498195451688, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.17092194
+    - Role: SpearThrowRelease
+      Clip: {fileID: 2437871632950066690, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12763134
+    - Role: SpearThrowRelease_Left
+      Clip: {fileID: 4765892200632033664, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12747835
+    - Role: SlingReady
+      Clip: {fileID: 6654735427145448910, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.049467202
+    - Role: SlingReady_Left
+      Clip: {fileID: 6803277380470916171, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0494079
+    - Role: SlingWhirl
+      Clip: {fileID: 5611990594330386382, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.042369332
+    - Role: SlingWhirl_Left
+      Clip: {fileID: -3012044417342314597, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04231854
+    - Role: SlingRelease
+      Clip: {fileID: -7096830162095032015, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12596714
+    - Role: SlingRelease_Left
+      Clip: {fileID: -2159593241070920022, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12581614
+    - Role: BowReady
+      Clip: {fileID: 3386063476811226458, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012697821
+    - Role: BowDraw
+      Clip: {fileID: -6906001329335955997, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04102392
+    - Role: BowRelease
+      Clip: {fileID: -6109906757102405203, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0
+      TravelMeters: 0.025380414
+    - Role: Gather
+      Clip: {fileID: 6627341874006546836, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021432653
+    - Role: Gather_Left
+      Clip: {fileID: 1465269444470856186, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021406962
+    - Role: Drink
+      Clip: {fileID: -8724840753408381518, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020111745
+    - Role: Eat
+      Clip: {fileID: 5959930455832868966, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.026454652
+    - Role: WorkKnapping
+      Clip: {fileID: 2928657429979055776, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.033939898
+    - Role: WorkCut
+      Clip: {fileID: -5939299698902927407, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0031894788
+    - Role: WorkTwist
+      Clip: {fileID: 3035037905843157601, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.006433969
+    - Role: WorkDig
+      Clip: {fileID: -8293945392459931954, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.040295973
+    - Role: CarryLarge
+      Clip: {fileID: -6894445672134166256, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0071246
+  - Variant: D
+    EyeForward: 0.15524624
+    Clips:
+    - Role: Idle
+      Clip: {fileID: 1034005543153664623, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.00888551
+    - Role: Walk
+      Clip: {fileID: -2602889472942694390, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6508657
+    - Role: Run
+      Clip: {fileID: 5278979605530055194, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.9682777
+    - Role: Sprint
+      Clip: {fileID: 3417051112597762827, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.3561947
+    - Role: Crouch
+      Clip: {fileID: -6748027539665591478, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3818624
+    - Role: CrouchIdle
+      Clip: {fileID: 5623643070081015366, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0135883
+    - Role: Jump
+      Clip: {fileID: 2118886272062571870, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.799177
+    - Role: Swim
+      Clip: {fileID: -6218574138333979551, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.82216334
+    - Role: WalkBack
+      Clip: {fileID: -2038442832560634097, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2453343
+    - Role: StrafeLeft
+      Clip: {fileID: 722417655925734946, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3729191
+    - Role: StrafeRight
+      Clip: {fileID: -7410306167550120257, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.345421
+    - Role: RunBack
+      Clip: {fileID: 2638928319618925214, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4537909
+    - Role: RunLeft
+      Clip: {fileID: 328082014210329399, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.8782136
+    - Role: RunRight
+      Clip: {fileID: 5932596101547710446, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6124737
+    - Role: Empty
+      Clip: {fileID: -2863488998549726180, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.00888551
+    - Role: FistsReady
+      Clip: {fileID: -1188934768120367034, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.051830992
+    - Role: FistsGuard
+      Clip: {fileID: 7953543964366881984, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03326737
+    - Role: Punch
+      Clip: {fileID: -5027910381593771818, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.011447914
+    - Role: Punch_Left
+      Clip: {fileID: 7778888208734646063, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.011434191
+    - Role: ToolReady
+      Clip: {fileID: -3649247722453609901, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022748426
+    - Role: ToolReady_Left
+      Clip: {fileID: -1043298965862446069, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022721155
+    - Role: ToolWalk
+      Clip: {fileID: -2468224545678354579, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3079484
+    - Role: ToolWalk_Left
+      Clip: {fileID: 6547557609669777292, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3063804
+    - Role: ToolCutA
+      Clip: {fileID: -8602470678599055183, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.63512045
+    - Role: ToolCutA_Left
+      Clip: {fileID: 3001396316986607819, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.63435906
+    - Role: ToolCutB
+      Clip: {fileID: -6778128310189327435, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.053479336
+    - Role: ToolCutB_Left
+      Clip: {fileID: 3719235334437096192, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.053415228
+    - Role: ToolBlunt
+      Clip: {fileID: 3210172233526354619, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.03584461
+    - Role: ToolBlunt_Left
+      Clip: {fileID: -8448697308722861777, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.03580164
+    - Role: ToolChop
+      Clip: {fileID: -1973132810704338054, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.057742037
+    - Role: ToolChop_Left
+      Clip: {fileID: -3639394251754530660, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.057672817
+    - Role: ToolGuard
+      Clip: {fileID: -7047016200033732022, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.029452166
+    - Role: ToolGuard_Left
+      Clip: {fileID: -8494137546055324769, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02941686
+    - Role: SpearReady1
+      Clip: {fileID: -6815551997795701615, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0028266697
+    - Role: SpearReady1_Left
+      Clip: {fileID: -4333899896816617320, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.002823281
+    - Role: SpearThrust1
+      Clip: {fileID: -5407490565659950534, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.24117596
+    - Role: SpearThrust1_Left
+      Clip: {fileID: 4214608546851919374, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.24088684
+    - Role: SpearReady2
+      Clip: {fileID: -4351848759623653268, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021444727
+    - Role: SpearReady2_Left
+      Clip: {fileID: -4422272522301601706, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021419019
+    - Role: SpearThrust2
+      Clip: {fileID: 5480284019471125595, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.062483814
+    - Role: SpearThrust2_Left
+      Clip: {fileID: 7936373720357508986, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.06240891
+    - Role: ThrowCharge
+      Clip: {fileID: -6010887335472636761, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.08451524
+    - Role: ThrowCharge_Left
+      Clip: {fileID: 348147438775173333, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.08441392
+    - Role: ThrowRelease
+      Clip: {fileID: -2037862396909296979, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.058250133
+    - Role: ThrowRelease_Left
+      Clip: {fileID: -7832480286898959864, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.058180302
+    - Role: SpearThrowCharge
+      Clip: {fileID: 5827900110877962021, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.17696626
+    - Role: SpearThrowCharge_Left
+      Clip: {fileID: -8455670785225760960, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.17675413
+    - Role: SpearThrowRelease
+      Clip: {fileID: 5127356296766820667, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13198638
+    - Role: SpearThrowRelease_Left
+      Clip: {fileID: 7960423158490183949, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13182816
+    - Role: SlingReady
+      Clip: {fileID: 5680241386919595309, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.05115512
+    - Role: SlingReady_Left
+      Clip: {fileID: -7566390051976383616, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.051093794
+    - Role: SlingWhirl
+      Clip: {fileID: 6529628934282741552, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.043815058
+    - Role: SlingWhirl_Left
+      Clip: {fileID: -8411615779119189477, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.043762535
+    - Role: SlingRelease
+      Clip: {fileID: -8280960296820877904, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13026538
+    - Role: SlingRelease_Left
+      Clip: {fileID: -7803612549052118803, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.13010922
+    - Role: BowReady
+      Clip: {fileID: -327145204284499438, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.013131095
+    - Role: BowDraw
+      Clip: {fileID: -7493428828063804701, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.042423736
+    - Role: BowRelease
+      Clip: {fileID: -6927287063711473868, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0
+      TravelMeters: 0.026246443
+    - Role: Gather
+      Clip: {fileID: -7351703984954067494, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022163978
+    - Role: Gather_Left
+      Clip: {fileID: -2389042259890190520, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02213741
+    - Role: Drink
+      Clip: {fileID: -3271779401377678224, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020797998
+    - Role: Eat
+      Clip: {fileID: 1201252390363913197, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.027357338
+    - Role: WorkKnapping
+      Clip: {fileID: 1837081992382925776, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.035097994
+    - Role: WorkCut
+      Clip: {fileID: 211233546769889417, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.00329831
+    - Role: WorkTwist
+      Clip: {fileID: -3007328860800153826, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0066535086
+    - Role: WorkDig
+      Clip: {fileID: 1449870424391873633, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04167095
+    - Role: CarryLarge
+      Clip: {fileID: -4619749244912153440, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0073677055
+  - Variant: E
+    EyeForward: 0.12710363
+    Clips:
+    - Role: Idle
+      Clip: {fileID: -8659991716568402555, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0067451387
+    - Role: Walk
+      Clip: {fileID: 1250449261856297941, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2531996
+    - Role: Run
+      Clip: {fileID: 7814013807929092126, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4941523
+    - Role: Sprint
+      Clip: {fileID: 5679349770660574703, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.7886266
+    - Role: Crouch
+      Clip: {fileID: 7300455203806191861, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.0489948
+    - Role: CrouchIdle
+      Clip: {fileID: -4829890867950884563, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.010315104
+    - Role: Jump
+      Clip: {fileID: -7426705806063737797, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.60666853
+    - Role: Swim
+      Clip: {fileID: 8965169336368667558, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.62411785
+    - Role: WalkBack
+      Clip: {fileID: -5384217904491135559, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.9453539
+    - Role: StrafeLeft
+      Clip: {fileID: -374224066937590047, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.0422057
+    - Role: StrafeRight
+      Clip: {fileID: -3810995461795243993, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.0213314
+    - Role: RunBack
+      Clip: {fileID: -2842001231530285679, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.1035969
+    - Role: RunLeft
+      Clip: {fileID: 3595635724588885448, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4257833
+    - Role: RunRight
+      Clip: {fileID: -3465492618899161770, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2240556
+    - Role: Empty
+      Clip: {fileID: -4938959499428398200, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0067451387
+    - Role: FistsReady
+      Clip: {fileID: -502970395287199107, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03934577
+    - Role: FistsGuard
+      Clip: {fileID: -2961842122357744110, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.025253816
+    - Role: Punch
+      Clip: {fileID: 6483590820857607024, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.008690302
+    - Role: Punch_Left
+      Clip: {fileID: 2402771682284400629, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.0086798845
+    - Role: ToolReady
+      Clip: {fileID: 1593646120044494652, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.017268708
+    - Role: ToolReady_Left
+      Clip: {fileID: -1562619913726764511, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.017248007
+    - Role: ToolWalk
+      Clip: {fileID: 1475946596328716674, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.9928853
+    - Role: ToolWalk_Left
+      Clip: {fileID: -2983901651461696802, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.99169505
+    - Role: ToolCutA
+      Clip: {fileID: 7366393909225034523, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.4821305
+    - Role: ToolCutA_Left
+      Clip: {fileID: -5165813902218595566, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.48155254
+    - Role: ToolCutB
+      Clip: {fileID: -65661817838971635, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.040597055
+    - Role: ToolCutB_Left
+      Clip: {fileID: 5150901048927995351, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.040548388
+    - Role: ToolBlunt
+      Clip: {fileID: -2625542822873942497, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.02721024
+    - Role: ToolBlunt_Left
+      Clip: {fileID: -268437084386124039, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.02717762
+    - Role: ToolChop
+      Clip: {fileID: -8827216776611297451, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.043832943
+    - Role: ToolChop_Left
+      Clip: {fileID: -975901666396706664, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.043780398
+    - Role: ToolGuard
+      Clip: {fileID: 4671192276439401893, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022357628
+    - Role: ToolGuard_Left
+      Clip: {fileID: 8212923018832860912, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022330826
+    - Role: SpearReady1
+      Clip: {fileID: 8762027092219396483, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.002145772
+    - Role: SpearReady1_Left
+      Clip: {fileID: -1886353392489762816, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0021431998
+    - Role: SpearThrust1
+      Clip: {fileID: 2338228766314867890, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.18308069
+    - Role: SpearThrust1_Left
+      Clip: {fileID: 7722209774969233543, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.18286121
+    - Role: SpearReady2
+      Clip: {fileID: 2335419824095666992, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.016279047
+    - Role: SpearReady2_Left
+      Clip: {fileID: 7059838962539851085, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.016259532
+    - Role: SpearThrust2
+      Clip: {fileID: -5250589275857271576, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.0474325
+    - Role: SpearThrust2_Left
+      Clip: {fileID: -5379165746225615378, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.04737564
+    - Role: ThrowCharge
+      Clip: {fileID: 8153604989484418041, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.06415692
+    - Role: ThrowCharge_Left
+      Clip: {fileID: 4040750049024116041, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.064080015
+    - Role: ThrowRelease
+      Clip: {fileID: -1618049944029526232, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.044218644
+    - Role: ThrowRelease_Left
+      Clip: {fileID: 6847568107649756310, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.044165637
+    - Role: SpearThrowCharge
+      Clip: {fileID: -6916209038605203221, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.13433804
+    - Role: SpearThrowCharge_Left
+      Clip: {fileID: -914169296501801921, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.134177
+    - Role: SpearThrowRelease
+      Clip: {fileID: -7345966206343292095, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.10019305
+    - Role: SpearThrowRelease_Left
+      Clip: {fileID: -2208898192888421163, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.10007294
+    - Role: SlingReady
+      Clip: {fileID: 4029997081666661831, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0388327
+    - Role: SlingReady_Left
+      Clip: {fileID: -2214370305461820213, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03878615
+    - Role: SlingWhirl
+      Clip: {fileID: 3180317441399558423, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03326074
+    - Role: SlingWhirl_Left
+      Clip: {fileID: -3654026220823553964, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.03322087
+    - Role: SlingRelease
+      Clip: {fileID: 1190344520521279507, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.09888662
+    - Role: SlingRelease_Left
+      Clip: {fileID: -625656417637603607, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.09876808
+    - Role: BowReady
+      Clip: {fileID: 2492626622542141804, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.009968033
+    - Role: BowDraw
+      Clip: {fileID: -211040674702642653, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.032204565
+    - Role: BowRelease
+      Clip: {fileID: -4911816263511089350, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0
+      TravelMeters: 0.019924112
+    - Role: Gather
+      Clip: {fileID: 4721328118463584091, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.016825045
+    - Role: Gather_Left
+      Clip: {fileID: -8580666581976116601, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.016804876
+    - Role: Drink
+      Clip: {fileID: 4589274557664436148, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.015788106
+    - Role: Eat
+      Clip: {fileID: 2576814817214683618, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02076741
+    - Role: WorkKnapping
+      Clip: {fileID: 5531957425154279229, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02664347
+    - Role: WorkCut
+      Clip: {fileID: -8463415801062408704, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.002503802
+    - Role: WorkTwist
+      Clip: {fileID: 2136261907668029611, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.005050789
+    - Role: WorkDig
+      Clip: {fileID: -7409971998032211869, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.031633113
+    - Role: CarryLarge
+      Clip: {fileID: -7428448568865169320, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.005592948
+  - Variant: F
+    EyeForward: 0.15112229
+    Clips:
+    - Role: Idle
+      Clip: {fileID: 5290100214472828946, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.008622804
+    - Role: Walk
+      Clip: {fileID: 80033440298256028, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6020565
+    - Role: Run
+      Clip: {fileID: 3343531982320297012, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.910084
+    - Role: Sprint
+      Clip: {fileID: -6879296200439179850, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.286532
+    - Role: Crouch
+      Clip: {fileID: -5763488245483467349, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3410065
+    - Role: CrouchIdle
+      Clip: {fileID: -5973746172604382466, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.013186552
+    - Role: Jump
+      Clip: {fileID: 8612752908479559088, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.7755487
+    - Role: Swim
+      Clip: {fileID: 6600799909796044347, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.79785544
+    - Role: WalkBack
+      Clip: {fileID: 4932706014207624996, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2085149
+    - Role: StrafeLeft
+      Clip: {fileID: -831529194261140775, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3323277
+    - Role: StrafeRight
+      Clip: {fileID: -4361164769864715273, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.3056426
+    - Role: RunBack
+      Clip: {fileID: 5549922942130368731, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.4108084
+    - Role: RunLeft
+      Clip: {fileID: -2634709475209454821, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.8226829
+    - Role: RunRight
+      Clip: {fileID: 7547838124121176062, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.5647998
+    - Role: Empty
+      Clip: {fileID: 1155610376227606156, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.008622804
+    - Role: FistsReady
+      Clip: {fileID: 4983092283425335986, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.05029857
+    - Role: FistsGuard
+      Clip: {fileID: -5322438156771619195, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.032283794
+    - Role: Punch
+      Clip: {fileID: -135266233772996054, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.011109448
+    - Role: Punch_Left
+      Clip: {fileID: -7165765186003733840, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.01109613
+    - Role: ToolReady
+      Clip: {fileID: -3427960144981389389, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02207585
+    - Role: ToolReady_Left
+      Clip: {fileID: 1730206546319928992, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.022049388
+    - Role: ToolWalk
+      Clip: {fileID: 7754844775477390539, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2692778
+    - Role: ToolWalk_Left
+      Clip: {fileID: -6231994467457042113, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.2677562
+    - Role: ToolCutA
+      Clip: {fileID: 7112590807244654044, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.6163426
+    - Role: ToolCutA_Left
+      Clip: {fileID: -343289308241664015, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.61560374
+    - Role: ToolCutB
+      Clip: {fileID: 505608722517549628, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.051898178
+    - Role: ToolCutB_Left
+      Clip: {fileID: -1057558227455885742, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.051835965
+    - Role: ToolBlunt
+      Clip: {fileID: 1217192455022535500, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.03478484
+    - Role: ToolBlunt_Left
+      Clip: {fileID: 1450390632008244092, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.034743138
+    - Role: ToolChop
+      Clip: {fileID: -3044636449574254377, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.05603485
+    - Role: ToolChop_Left
+      Clip: {fileID: 3759288401201762661, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.1
+      Release: -1
+      TravelMeters: 0.055967677
+    - Role: ToolGuard
+      Clip: {fileID: 8757495183977991848, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.028581388
+    - Role: ToolGuard_Left
+      Clip: {fileID: 7121709394381393562, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.028547127
+    - Role: SpearReady1
+      Clip: {fileID: -1342949850210585963, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.002743097
+    - Role: SpearReady1_Left
+      Clip: {fileID: -4848852718511860557, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0027398088
+    - Role: SpearThrust1
+      Clip: {fileID: 8503688419369247172, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.2340454
+    - Role: SpearThrust1_Left
+      Clip: {fileID: 7830451431868977213, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.34285715
+      Release: -1
+      TravelMeters: 0.23376484
+    - Role: SpearReady2
+      Clip: {fileID: 3461742188788917597, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020810695
+    - Role: SpearReady2_Left
+      Clip: {fileID: 7668735415358154390, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020785749
+    - Role: SpearThrust2
+      Clip: {fileID: -7376465471960378381, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.06063643
+    - Role: SpearThrust2_Left
+      Clip: {fileID: 873099515974868008, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: 0.4390244
+      Release: -1
+      TravelMeters: 0.060563743
+    - Role: ThrowCharge
+      Clip: {fileID: 187560352495455405, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.08201648
+    - Role: ThrowCharge_Left
+      Clip: {fileID: -4219222018438632925, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.08191816
+    - Role: ThrowRelease
+      Clip: {fileID: 8810960366060111363, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.056527924
+    - Role: ThrowRelease_Left
+      Clip: {fileID: 9193718220002796106, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.056460157
+    - Role: SpearThrowCharge
+      Clip: {fileID: 2389466853782255077, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.17173412
+    - Role: SpearThrowCharge_Left
+      Clip: {fileID: 774938183659310656, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.17152825
+    - Role: SpearThrowRelease
+      Clip: {fileID: 1272246925893953391, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.1280841
+    - Role: SpearThrowRelease_Left
+      Clip: {fileID: 3949650665239076300, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12793055
+    - Role: SlingReady
+      Clip: {fileID: -8807595689051173129, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04964268
+    - Role: SlingReady_Left
+      Clip: {fileID: -6620934598677397952, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.049583167
+    - Role: SlingWhirl
+      Clip: {fileID: 6101867369151020587, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.042519633
+    - Role: SlingWhirl_Left
+      Clip: {fileID: -2979009944456766229, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.04246866
+    - Role: SlingRelease
+      Clip: {fileID: -7682185829577223571, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12641399
+    - Role: SlingRelease_Left
+      Clip: {fileID: -2918250706038979770, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0.23333333
+      TravelMeters: 0.12626244
+    - Role: BowReady
+      Clip: {fileID: -7407289963561683384, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012742865
+    - Role: BowDraw
+      Clip: {fileID: 8955986081997040074, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.041169446
+    - Role: BowRelease
+      Clip: {fileID: 5321468483903056739, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: 0
+      TravelMeters: 0.025470447
+    - Role: Gather
+      Clip: {fileID: -2980896833100214734, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.021508683
+    - Role: Gather_Left
+      Clip: {fileID: -7536512884471330726, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0214829
+    - Role: Drink
+      Clip: {fileID: 6433368382164750226, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.020183088
+    - Role: Eat
+      Clip: {fileID: -994740488662950431, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 0
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.026548496
+    - Role: WorkKnapping
+      Clip: {fileID: 8066562324191920756, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.034060296
+    - Role: WorkCut
+      Clip: {fileID: -8622486069300575355, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.003200793
+    - Role: WorkTwist
+      Clip: {fileID: -5721515824716236800, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0064567924
+    - Role: WorkDig
+      Clip: {fileID: 7236001803440424908, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.040438917
+    - Role: CarryLarge
+      Clip: {fileID: 5840842601778704514, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0071498733

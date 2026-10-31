@@ -19,11 +19,13 @@ public sealed partial class LocalTerrainExplorer
     double ViewStrikeContact(Possession item)
     {
         string role=ViewStrikeClip(item);
+        if(SharedHumanMotion&&humanPlayer.Shared.Clips.TryGetValue(role,out var generated)&&generated.Contact>=0)return generated.Contact;
         if(viewArms!=null&&viewArms.Clips.TryGetValue(role,out var clip)&&clip.contact>=0)return clip.contact;
         return role=="Punch"?.38:role=="ToolBlunt"?.42:role=="ToolCutA"||role=="ToolChop"?.4:.36;
     }
     void AnimateViewItem(Possession item,bool release=false,double duration=-1)
     {
+        if(SharedHumanMotion&&!release)viewReleaseAt=-100;
         viewGatherAt=viewConsumeAt=-100;
         if(item==null){viewPunchAt=Time.unscaledTimeAsDouble;viewPunchDuration=duration>0?duration:.55;return;}
         if(release)

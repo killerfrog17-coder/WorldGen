@@ -1,0 +1,24 @@
+{
+  "id": "fists_ready",
+  "label": "fists_ready",
+  "frames": 120,
+  "seed": 907,
+  "prompt": "A person stands in a boxing stance with both fists raised in front of their chest.",
+  "steps": 50,
+  "seconds": 69.23399999999674,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "f28fc842acc43c001dafab07d43b9bf88957ac643184761a9e70704466e0ab71",
+  "root_start": [
+    -0.051597338169813156,
+    0.9586424827575684,
+    -0.027459196746349335
+  ],
+  "root_end": [
+    0.04260408133268356,
+    0.9647496938705444,
+    0.0013044518418610096
+  ],
+  "raw_rotation_sha256": "3d3a4f971791c771dc7c2f15fa76f203f995a147718e381ed5cd4c81ee4dbd40"
+}

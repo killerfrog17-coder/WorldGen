@@ -1,0 +1,24 @@
+{
+  "id": "bow_shoot",
+  "label": "bow_shoot",
+  "frames": 180,
+  "seed": 926,
+  "prompt": "A person raises a bow in their left hand, draws the string back to their cheek with their right hand, holds the aim briefly, releases an arrow and lowers the bow.",
+  "steps": 50,
+  "seconds": 83.59299999999348,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "dc6277846148b60142f36fa087888d527199ba2385a902430cbb184bec36fec4",
+  "root_start": [
+    0.011212879791855812,
+    0.9701223969459534,
+    -0.022875485941767693
+  ],
+  "root_end": [
+    -0.0005709875840693712,
+    0.9612460136413574,
+    -0.010548588819801807
+  ],
+  "raw_rotation_sha256": "08fcaac016a082347d38f79a8a0b16fd22098463ab42a414cfc5a9567a763242"
+}

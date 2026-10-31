@@ -1,0 +1,24 @@
+{
+  "id": "tool_chop",
+  "label": "tool_chop",
+  "frames": 120,
+  "seed": 915,
+  "prompt": "A person swings a small axe downwards with their right hand to chop wood, then raises it again.",
+  "steps": 50,
+  "seconds": 104.28200000000652,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "a2b8c4a33c2401378984950168169de5958c6079286d0af0bd49fc45d8a27f23",
+  "root_start": [
+    0.012302475050091743,
+    0.9787801504135132,
+    -0.018974745646119118
+  ],
+  "root_end": [
+    0.06094762310385704,
+    0.917738139629364,
+    -0.03624659776687622
+  ],
+  "raw_rotation_sha256": "f765c9afae5fe9d813079648b23aefdbb0fb6756d0d3c40b57d3c57780fcf54a"
+}

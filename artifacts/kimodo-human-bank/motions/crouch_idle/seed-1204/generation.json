@@ -1,0 +1,24 @@
+{
+  "id": "crouch_idle",
+  "label": "crouch_idle",
+  "frames": 120,
+  "seed": 1204,
+  "prompt": "A person stands still in a half crouch, with their knees slightly bent and their back upright.",
+  "steps": 50,
+  "seconds": 97.45299999997951,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "31a068e569abf8138f71026fe9f782c9e6cb55baf4ffede7a84cd9be27b4f3e7",
+  "root_start": [
+    0.04512736201286316,
+    0.788114070892334,
+    0.032808464020490646
+  ],
+  "root_end": [
+    0.04327771067619324,
+    0.7344878911972046,
+    0.013594312593340874
+  ],
+  "raw_rotation_sha256": "8e9483f2466bffec5e541b2a5f617bb17aa3de4782979a155a50c22aa46707f1"
+}

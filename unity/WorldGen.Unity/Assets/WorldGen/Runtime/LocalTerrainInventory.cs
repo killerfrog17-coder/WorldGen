@@ -219,7 +219,11 @@ public sealed partial class LocalTerrainExplorer
         if(viewItemActions.Count>0)foreach(var id in viewItemActions.Where(p=>Time.unscaledTimeAsDouble-p.Value.At>Math.Max(.2,p.Value.Duration)).Select(p=>p.Key).ToArray())viewItemActions.Remove(id);
         var body=humanPlayer.Root.transform;
         if(inventoryBoneOwner!=body){inventoryBoneOwner=body;inventoryBones=body.GetComponentsInChildren<Transform>().GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());}
-        if(!deathPresented)PoseInventoryHands(humanPlayer,inventoryBones);
+        if(!deathPresented)
+        {
+            if(SharedHumanMotion){UpdateSharedHumanAction();FitSharedHeldHands();AimSharedHead();}
+            else {ClearSharedAmmo();RestoreSharedSlings();PoseInventoryHands(humanPlayer,inventoryBones);}
+        }
         var present=new HashSet<string>();
         foreach(var item in Inventory.Items)
         {
@@ -230,6 +234,11 @@ public sealed partial class LocalTerrainExplorer
             if(!near)continue;present.Add(item.Id);
             if(!inventoryVisuals.TryGetValue(item.Id,out var root)){root=CreatePossessionVisual(item,30);root.transform.SetParent(transform,false);inventoryVisuals[item.Id]=root;}
             root.SetActive(!Spectating||item.Place==PossessionPlace.Ground);
+            if(SharedHumanMotion&&(item.Place==PossessionPlace.RightHand||item.Place==PossessionPlace.LeftHand)&&Time.unscaledTimeAsDouble-viewConsumeAt<HumanActionDuration(viewConsumeDrink?"Drink":"Eat"))
+            {root.SetActive(false);continue;}
+            var sharedCharge=itemCharge??pendingRanged?.Charge;
+            if(SharedHumanMotion&&sharedCharge!=null&&!sharedCharge.Throw&&sharedCharge.Ammo==item)
+            {root.SetActive(false);continue;}
             if(PortableTechnology.Item(item.Kind)!=null&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var priorPortable)||priorPortable!=item.Place)){root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)item.DepthM);RefreshPortableRoot(root,item);inventoryVisualPlaces[item.Id]=item.Place;}
             if(item.Kind==PossessionKind.TestBag&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var previous)||previous!=item.Place))
             {
@@ -251,6 +260,7 @@ public sealed partial class LocalTerrainExplorer
             {root.transform.position=inventoryBones["spine_02"].position-body.forward*.18f-Vector3.up*.2f;root.transform.rotation=body.rotation;}
             else
             {
+                if(SharedHumanMotion){PoseSharedHeldItem(root,item);continue;}
                 bool right=item.Place==PossessionPlace.RightHand;string name="hand_"+(right?"r":"l");
                 var hand=inventoryBones[name];
                 Vector3 grip=item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position;root.transform.rotation=body.rotation;
@@ -264,6 +274,7 @@ public sealed partial class LocalTerrainExplorer
         }
         UpdateDroppedBodies();
         foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){RemoveDroppedBody(id);DestroyInventoryVisual(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
+        if(SharedHumanMotion)UpdateSharedAmmo();
         UpdateViewArms();
     }
     void PoseInventoryHands(HumanActor actor,Dictionary<string,Transform> bones)
@@ -285,6 +296,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventory()
     {
+        ClearSharedAmmo();RestoreSharedSlings();
         DisposeViewArms();
         if(inventoryBowStringMaterial!=null)Destroy(inventoryBowStringMaterial);
         DisposeCamp();

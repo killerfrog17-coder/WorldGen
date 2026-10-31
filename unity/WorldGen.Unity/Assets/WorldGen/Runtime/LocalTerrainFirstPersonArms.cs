@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<string,ViewPossession> viewPossessions=new Dictionary<string,ViewPossession>();
     readonly HashSet<string> viewPossessionsPresent=new HashSet<string>();
 
-    Vector3 BowDrawPoint(float draw)=>viewArms!=null&&viewArms.Bones.TryGetValue("Nock.R",out var nock)?nock.position:view.transform.TransformPoint(new Vector3(.02f,-.045f,.36f-.2f*draw));
+    Vector3 BowDrawPoint(float draw)=>SharedHumanMotion&&inventoryBones.ContainsKey("hand_r")?SharedGripPosition("r"):viewArms!=null&&viewArms.Bones.TryGetValue("Nock.R",out var nock)?nock.position:view.transform.TransformPoint(new Vector3(.02f,-.045f,.36f-.2f*draw));
     void CreateBowString(GameObject root,int layer)
     {
         if(inventoryBowStringMaterial==null){inventoryBowStringMaterial=new Material(Resources.Load<Shader>("WorldGenInventoryPreview"));inventoryBowStringMaterial.SetColor("_Color",new Color(.59f,.47f,.31f));}
@@ -40,11 +40,11 @@ public sealed partial class LocalTerrainExplorer
     void UpdateBowString(GameObject root,Possession item,bool firstPerson=false)
     {
         var line=root.GetComponentInChildren<LineRenderer>();if(line==null)return;
-        if(firstPerson&&itemCharge?.Weapon==item&&!itemCharge.Throw)line.SetPosition(1,root.transform.InverseTransformPoint(BowDrawPoint(1)));
+        if((firstPerson||SharedHumanMotion)&&itemCharge?.Weapon==item&&!itemCharge.Throw)line.SetPosition(1,root.transform.InverseTransformPoint(BowDrawPoint(1)));
         else line.SetPosition(1,new Vector3(.38f,.5f,0));
     }
     bool SupportSpear(Possession item)=>item!=null&&ItemUseRules.Profile(item).Primary==ItemPrimaryUse.Thrust&&item.HeightM>=1.1&&
-        (Inventory.AtHand(item.Place==PossessionPlace.LeftHand?PossessionPlace.RightHand:PossessionPlace.LeftHand)==null||item.Hands==2)&&!(itemCharge?.Throw??false);
+        (Inventory.AtHand(item.Place==PossessionPlace.LeftHand?PossessionPlace.RightHand:PossessionPlace.LeftHand)==null||item.Hands==2)&&!(itemCharge?.Throw??false)&&(!SharedHumanMotion||pendingRanged?.Charge.Throw!=true);
     static bool LongViewSpear(Possession item)=>item!=null&&item.HeightM>=1.1&&ItemUseRules.Profile(item).Primary==ItemPrimaryUse.Thrust;
     void EnsureViewArms()
     {
@@ -58,6 +58,7 @@ public sealed partial class LocalTerrainExplorer
     void BeginViewArmsCamera(ScriptableRenderContext context,Camera camera)
     {
         RestoreWorldHeldRendering();bool show=viewArmsVisible&&camera==view;
+        if(SharedHumanMotion)return;
         foreach(var r in viewArmRenderers)if(r!=null)r.enabled=show;
         foreach(var p in viewPossessions.Values)foreach(var r in p.Renderers)if(r!=null)r.enabled=show;
         foreach(var r in viewNockRenderers)if(r!=null)r.enabled=show;
@@ -104,11 +105,19 @@ public sealed partial class LocalTerrainExplorer
         {viewNockedArrow.transform.rotation=view.transform.rotation;viewNockedArrow.transform.position=SlingPouch(launcher,charge.Weapon)-view.transform.up*(float)ammo.HeightM*.5f;}
     }
     void BeginGatherGesture(Vector3 worldPoint)
-    {viewGatherAt=Time.unscaledTimeAsDouble;viewGatherTarget=view.transform.InverseTransformPoint(worldPoint);}
+    {if(SharedHumanMotion)CancelItemCharge();viewGatherAt=Time.unscaledTimeAsDouble;viewGatherTarget=view.transform.InverseTransformPoint(worldPoint);}
     void BeginConsumeGesture(bool drink)
-    {viewConsumeAt=Time.unscaledTimeAsDouble;viewConsumeDrink=drink;}
+    {if(SharedHumanMotion)CancelItemCharge();viewConsumeAt=Time.unscaledTimeAsDouble;viewConsumeDrink=drink;}
     bool ViewLaunchCentre(ItemCharge charge,out Vector3 centre)
     {
+        if(SharedHumanMotion)
+        {
+            UpdateSharedHumanAction();FitSharedHeldHands();AimSharedHead();
+            if(charge.Throw&&inventoryVisuals.TryGetValue(charge.Ammo.Id,out var held))
+            {PoseSharedHeldItem(held,charge.Ammo);centre=held.transform.position+held.transform.up*(float)charge.Ammo.HeightM*.5f;return true;}
+            UpdateSharedAmmo();if(sharedLoadedAmmo!=null){centre=sharedLoadedAmmo.transform.position+sharedLoadedAmmo.transform.up*(float)charge.Ammo.HeightM*.5f;return true;}
+            centre=default;return false;
+        }
         centre=default;if(!humanCamera.FirstPerson||!viewArmsVisible||viewArms==null)return false;
         UpdateViewArms();GameObject source=null;
         if(charge.Throw){if(viewPossessions.TryGetValue(charge.Ammo.Id,out var held))source=held.Root;}
@@ -120,12 +129,12 @@ public sealed partial class LocalTerrainExplorer
     ViewPose PoseForHand(Possession item,bool left,double now)
     {
         string Side(string role)=>left?role+"_Left":role;
-        double Clock(string role)=>now%viewArms.Duration(role);
-        ViewPose Phase(string role,double at,double duration)=>new ViewPose(Side(role),Math.Max(0,(now-at)/Math.Max(.1,duration))*viewArms.Duration(role),at);
+        double Clock(string role)=>SharedHumanMotion&&role=="ToolWalk"?humanPlayer.Shared.GaitPhase*HumanActionDuration(role):now%HumanActionDuration(role);
+        ViewPose Phase(string role,double at,double duration)=>new ViewPose(Side(role),Math.Max(0,(now-at)/Math.Max(.1,duration))*HumanActionDuration(role),at);
         if(itemCharge?.Weapon==item&&item!=null)
         {
             string role=itemCharge.Throw?LongViewSpear(item)?"SpearThrowCharge":"ThrowCharge":item.Kind==PossessionKind.Bow?"BowDraw":item.Kind==PossessionKind.SpearThrower?"SpearThrowCharge":"SlingWhirl";
-            return new ViewPose(role=="BowDraw"?role:Side(role),role=="SlingWhirl"?(now-itemCharge.Started)%viewArms.Duration(role):Math.Min(1,(now-itemCharge.Started)/itemCharge.Duration)*viewArms.Duration(role),itemCharge.Started);
+            return new ViewPose(role=="BowDraw"?role:Side(role),role=="SlingWhirl"?(now-itemCharge.Started)%HumanActionDuration(role):Math.Min(1,(now-itemCharge.Started)/itemCharge.Duration)*HumanActionDuration(role),itemCharge.Started);
         }
         if(item!=null&&viewItemActions.TryGetValue(item.Id,out var action)&&!action.Release&&now-action.At<action.Duration)
             return Phase(action.Clip??ViewStrikeClip(item),action.At,action.Duration);
@@ -141,7 +150,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateViewArms()
     {
         if(humanPlayer==null||!inventoryInitialized)return;
-        bool visible=humanHideBody&&!DeathVisible&&!Spectating&&!inventoryOpen&&!campSleeping&&!campResting;
+        bool visible=!SharedHumanMotion&&humanHideBody&&!DeathVisible&&!Spectating&&!inventoryOpen&&!campSleeping&&!campResting;
         if(!visible){viewArmsVisible=false;if(viewArms!=null)viewArms.Root.SetActive(false);return;}
         EnsureViewArms();viewArms.Root.SetActive(true);viewArmsVisible=true;
         var right=Inventory.AtHand(PossessionPlace.RightHand);var left=Inventory.AtHand(PossessionPlace.LeftHand);var main=itemCharge?.Weapon??pendingRanged?.Charge.Weapon??right??left;

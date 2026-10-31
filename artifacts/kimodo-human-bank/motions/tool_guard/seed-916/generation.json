@@ -1,0 +1,24 @@
+{
+  "id": "tool_guard",
+  "label": "tool_guard",
+  "frames": 120,
+  "seed": 916,
+  "prompt": "A person holds a club diagonally in front of their upper body with their right hand to block an attack.",
+  "steps": 50,
+  "seconds": 95.45299999997951,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "f50472bf2a8cf24a1c05ddfc586785edf33c58355e4a4bbd97ebd993f19edaa5",
+  "root_start": [
+    0.006352143827825785,
+    0.9013555645942688,
+    -0.009273651987314224
+  ],
+  "root_end": [
+    -0.006032626610249281,
+    0.9071308374404907,
+    -0.024121440947055817
+  ],
+  "raw_rotation_sha256": "7467c925c42438ea7b1a15250fa654e478d9bf8a3a816a351c22691690e62eb6"
+}

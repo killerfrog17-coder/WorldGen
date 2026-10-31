@@ -1,0 +1,24 @@
+{
+  "id": "work_knapping",
+  "label": "work_knapping",
+  "frames": 150,
+  "seed": 930,
+  "prompt": "A person holds a stone in their left hand and repeatedly taps it with a small hammerstone in their right hand.",
+  "steps": 50,
+  "seconds": 72.81199999997625,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "37c9338d3c8846d346809d1aef2c9d6705d7dafa554ff12229ad8d2bc4625fa7",
+  "root_start": [
+    -0.04020985588431358,
+    0.9985746145248413,
+    -0.018594106659293175
+  ],
+  "root_end": [
+    -0.025360319763422012,
+    0.9953694939613342,
+    0.024216650053858757
+  ],
+  "raw_rotation_sha256": "29371476259d729961b8cc41f8b8bd0905b56c003aaf278c2f58dd4bfbbbc08b"
+}

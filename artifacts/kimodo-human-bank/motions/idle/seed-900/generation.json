@@ -1,0 +1,24 @@
+{
+  "id": "idle",
+  "label": "idle",
+  "frames": 120,
+  "seed": 900,
+  "prompt": "A person stands relaxed, breathing gently, with their arms resting naturally at their sides.",
+  "steps": 50,
+  "seconds": 61.5,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "4493102342d224120ff3bd5d5176d92941e9817498420dcf4c0b8a421229c2ac",
+  "root_start": [
+    -0.005873110145330429,
+    0.9957306385040283,
+    8.797476766631007e-05
+  ],
+  "root_end": [
+    0.002832661150023341,
+    0.9945785403251648,
+    0.004486207850277424
+  ],
+  "raw_rotation_sha256": "556651ccd3e85ea229c530922d2b367606d82f7dbe60058badc025e0033e9da9"
+}

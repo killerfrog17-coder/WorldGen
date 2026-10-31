@@ -1,0 +1,24 @@
+{
+  "id": "work_cut",
+  "label": "work_cut",
+  "frames": 150,
+  "seed": 931,
+  "prompt": "A person holds a piece of wood in their left hand and repeatedly carves it with a small knife in their right hand.",
+  "steps": 50,
+  "seconds": 73.96899999998277,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "86ff09695fa90ddc1b93a5faf468bba41e2de6dbd40cd652560173290cbd5dca",
+  "root_start": [
+    -0.045011602342128754,
+    0.9967727065086365,
+    0.01648654416203499
+  ],
+  "root_end": [
+    -0.05220653861761093,
+    0.9954480528831482,
+    -0.0023724217899143696
+  ],
+  "raw_rotation_sha256": "ac4b0c3ab753ef3246f43edd0924ecacc1e7b422ac8f560758fafcade64bde46"
+}

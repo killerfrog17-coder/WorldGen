@@ -1,0 +1,24 @@
+{
+  "id": "spear_ready_one",
+  "label": "spear_ready_one",
+  "frames": 120,
+  "seed": 917,
+  "prompt": "A person stands holding a long spear in their right hand beside their hip, pointing it forwards.",
+  "steps": 50,
+  "seconds": 79.23399999999674,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "cf935e5541ebd6df82ab5f9f46c232e392ed27e22bbd0c9fa3a30ff4f77045dc",
+  "root_start": [
+    4.892523429589346e-05,
+    0.992506742477417,
+    0.000947017571888864
+  ],
+  "root_end": [
+    0.0023531257174909115,
+    0.9919829964637756,
+    -0.0012402221327647567
+  ],
+  "raw_rotation_sha256": "2149b375d0f42f040bc7360f96298e24add4646c1e4e179923695d4b9cc69dd3"
+}

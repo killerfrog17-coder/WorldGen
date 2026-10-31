@@ -1,0 +1,24 @@
+{
+  "id": "crouch_walk",
+  "label": "crouch_walk",
+  "frames": 150,
+  "seed": 1203,
+  "prompt": "A person walks forward cautiously with their knees slightly bent and their back upright, keeping their head at chest height.",
+  "steps": 50,
+  "seconds": 117.35899999999674,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "04dac7bbfd7396e7bedeacec9a8d40e8836544e9cf0e2e61ee3a44956210b157",
+  "root_start": [
+    -0.032898470759391785,
+    0.846858024597168,
+    0.0017917824443429708
+  ],
+  "root_end": [
+    -0.5054656863212585,
+    0.9026415944099426,
+    4.903601169586182
+  ],
+  "raw_rotation_sha256": "84b8028eda86a93e8864dfb5438e680f1370eb5168badc27377b2e9eeec1eb58"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "eat",
+  "label": "eat",
+  "frames": 150,
+  "seed": 929,
+  "prompt": "A person brings a small piece of food to their mouth with their right hand, eats it and lowers their hand.",
+  "steps": 50,
+  "seconds": 73.14100000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "79660913fb96b36c67652a564f6158c1e188a3e44f953b470439de781aa75cbb",
+  "root_start": [
+    0.001573700923472643,
+    0.9955012798309326,
+    -0.004554025363177061
+  ],
+  "root_end": [
+    -0.002956526819616556,
+    0.9930889010429382,
+    0.015442886389791965
+  ],
+  "raw_rotation_sha256": "6f75997180fe44e089557b7216dc46706f5a658790de2be99d656fd8957d0e17"
+}

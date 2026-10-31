@@ -1,0 +1,24 @@
+{
+  "id": "run_back",
+  "label": "run_back",
+  "frames": 150,
+  "seed": 938,
+  "prompt": "A person jogs backwards steadily while keeping their chest and face pointing forwards.",
+  "steps": 50,
+  "seconds": 114.21899999998277,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "1e3d9d116dfb92e5d1b81ab0d6bf9910992cf7a387dc74d53721ef536c7f7f3c",
+  "root_start": [
+    -0.01946072280406952,
+    1.007567286491394,
+    -0.03947396203875542
+  ],
+  "root_end": [
+    0.5248914361000061,
+    0.9966037273406982,
+    -9.81086540222168
+  ],
+  "raw_rotation_sha256": "eb568223d62208dfb4f1b5cdcfdc1516ee6dc29a2f4ad61e6f986c96d82f9d06"
+}

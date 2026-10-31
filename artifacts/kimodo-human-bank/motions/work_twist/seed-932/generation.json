@@ -1,0 +1,24 @@
+{
+  "id": "work_twist",
+  "label": "work_twist",
+  "frames": 150,
+  "seed": 932,
+  "prompt": "A person holds plant fibres in both hands near their waist and repeatedly twists and rolls them together to make cord.",
+  "steps": 50,
+  "seconds": 81.67200000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "9044aa551d1f9840efe907f1b63aca51fe92c5e020b0941dfaaf11f124bd99a2",
+  "root_start": [
+    -0.034822117537260056,
+    1.0007747411727905,
+    0.042525794357061386
+  ],
+  "root_end": [
+    0.0027068955823779106,
+    1.0021864175796509,
+    0.021988335996866226
+  ],
+  "raw_rotation_sha256": "c6811d1e68f5aa5537030904c240b14b7d5da27ac96ea096be0a85fbe7009924"
+}
