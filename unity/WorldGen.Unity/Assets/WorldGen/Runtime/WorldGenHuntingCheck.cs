@@ -183,6 +183,8 @@ public sealed partial class LocalTerrainExplorer
         try{var moved=new FaunaPrototypeSpawn{Profile=deer.Spawn.Profile,GroupId=gid,Position=frame.Position(px,pz+2300)};Check(SpawnViewDistance(moved)<250,"Model admission uses a tracked group's current position rather than its distant original home");}
         finally{wildlifeGroups.Remove(gid);reviewWildlifeBehaviour=oldReview;}
         int oldMask=view.cullingMask;var oldRotation=view.transform.localRotation;var oldPosition=view.transform.localPosition;var oldClear=view.clearFlags;var oldColour=view.backgroundColor;
+        bool oldWeatherReady=weatherScreen!=null&&weatherScreen.Ready;
+        var cameraData=view.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();bool oldPost=cameraData.renderPostProcessing;
         Color32[] Pixels(string name)
         {
             var prior=RenderTexture.active;var old=view.targetTexture;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;
@@ -191,6 +193,9 @@ public sealed partial class LocalTerrainExplorer
         }
         try
         {
+            // Isolate mesh drawing from the owner's saved cloud/depth debug
+            // view and postprocessing; those can replace every geometry pixel.
+            if(weatherScreen!=null)weatherScreen.Ready=false;cameraData.renderPostProcessing=false;
             view.cullingMask=1<<26;view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=Color.black;
             view.transform.localPosition=oldPosition+Vector3.up*200;view.transform.localRotation=Quaternion.identity;
             foreach(var pair in new[]{(deer,550f),(duck,200f)})
@@ -208,7 +213,7 @@ public sealed partial class LocalTerrainExplorer
                 finally{a.Renderer.enabled=true;a.Root.layer=layer;a.Root.transform.localPosition=oldPos;a.Root.transform.localRotation=oldRot;}
             }
         }
-        finally{view.cullingMask=oldMask;view.transform.localPosition=oldPosition;view.transform.localRotation=oldRotation;view.clearFlags=oldClear;view.backgroundColor=oldColour;}
+        finally{view.cullingMask=oldMask;view.transform.localPosition=oldPosition;view.transform.localRotation=oldRotation;view.clearFlags=oldClear;view.backgroundColor=oldColour;if(weatherScreen!=null)weatherScreen.Ready=oldWeatherReady;cameraData.renderPostProcessing=oldPost;}
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();motion.Place(px,pz,Ground(px,pz));UpdateHumans();UpdateCamera();
         var keyboard=UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();var oldKeyboard=testKeyboard;testKeyboard=keyboard;
         var oldBackground=UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior;UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior=UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;

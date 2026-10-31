@@ -62,10 +62,11 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<300;i++)motion.Move(1d/60,0,0,0,heading,0,false,false,PlayerSolidGround);
         Check(motion.Swimming&&Math.Abs(motion.Y+humanEyeOffset-SampleMotionWater(motion.X,motion.Z).Surface-.12)<.15,"Actual coast supports floating instead of sinking to the seabed");
         Vitals.Restore();var swimEnvironment=new SurvivalEnvironment{AirTemperatureC=24,Humidity=.4};
+        double swimHeading=Math.Atan2(deepX-dryX,deepZ-dryZ)*180/Math.PI;
         paused=false;
         for(int i=0;i<600;i++)
         {
-            motion.Move(1d/60,1,0,0,heading,0,false,false,PlayerSolidGround);
+            motion.Move(1d/60,1,0,0,swimHeading,0,false,false,PlayerSolidGround);
             swimEnvironment.Swimming=motion.Swimming;swimEnvironment.SwimEffort=motion.SwimEffort;
             SurvivalRules.Advance(Vitals,1d/60,60,swimEnvironment,1.45,false);UpdatePlayerWater();
         }
