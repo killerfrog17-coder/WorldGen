@@ -1,17 +1,28 @@
 # WorldGen repository instructions
 
-ACTIVE30Oct facing feedback: owner likes initial bank but rejects forcing third-
-person body/head toward camera. Restore original idle facing + turn toward actual
-travel; keep first-person alignment and bank/Legacy selector. Source fix gates
-camera body/head alignment to first person, keeps idle held-item/spine orientation
-with third-person body (explicit aiming still uses camera). Expanded Kimodo native
-input flow covers idle orbit/head/carry + side/back travel in BOTH modes and
-return to first person. NEW artifacts/player-human-facing -> NEW E:/WorldGen-
-builds/player-human-facing; do NOT overwrite selected player-human-kimodo.
-New proof path human-facing-fix/package-proof via parameterized verification
-script. Owner closed their player for testing. Need IL2CPP build/native expanded
-Kimodo+Legacy checks, actual third-person images, protected/bank proof, new selected
-shortcut and Git handoff. No new clips/art/cleanup/paid/subagents/Mono.
+SELECTED30Oct21:25CDT: THIRD-PERSON FACING REGRESSION FIXED. Owner preliminarily
+likes Kimodo bank but rejected camera-locked third-person orientation. Existing
+root WorldGen shortcut NOW artifacts/player-human-facing/WorldGen.exe, NEW
+IL2CPP RELEASE BuiltUtc2026-10-31T02:20:03.3318103Z, production4966519 pushed.
+Idle third-person camera orbit leaves body/head facing unchanged; moving turns
+toward actual travel (including side/back input), matching original Legacy.
+Idle carried weapons/torso stay body-aligned. First-person alignment and explicit
+action aiming retained. SAME67roles x6 character bank, art/weights/textures exact.
+Final expanded native83 +Legacy81 =164PASS/EXIT0/clean logs; actual before/after
+orbit and side-travel images inspected. Evidence artifacts/kimodo-human-bank/
+native-facing-*; proof artifacts/human-facing-fix/package-proof.766frozen/
+1038originalassets/30legacyarms/source-bank/allfauna-motion/audio exact; previous
+selected player-human-kimodo GameAssembly SHA unchanged and package retained.
+Manifest assets/human-facing-release-verification.json. No game source edits
+since build; restore3knownUnityautos already done. Initial native compile attempt
+failed a float literal in the NEW test fixture, corrected before final build;
+not accepted as successful evidence. Current package tests focus human/camera/
+Legacy; original339 item/water/etc results remain historical, not freshly rerun.
+No new source animation generation or model changes. Owner3files untouched;
+owner closed their game themselves for testing. All owned Unity/native jobs
+finished. No cleanup/paid/subagents/Mono. Await owner feedback; do NOT resume
+old animal/Homo/overnight tasks. Keep selected package frozen; new feedback
+needs a new candidate/proof. Broader initial-bank limits below still apply.
 
 SELECTED30Oct evening: WHOLE INITIAL KIMODO HUMAN BANK integrated and selected.
 Existing root WorldGen shortcut NOW artifacts/player-human-kimodo/WorldGen.exe,

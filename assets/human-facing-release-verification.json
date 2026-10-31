@@ -1,0 +1,63 @@
+{
+  "source_commit": "496651900a6cec372865c2679be98a86ee6bc8e1",
+  "player": "artifacts/player-human-facing/WorldGen.exe",
+  "backend": "IL2CPP",
+  "built_utc": "2026-10-31T02:20:03.3318103Z",
+  "recorded_utc": "2026-10-31T02:26:09.254142+00:00",
+  "game_assembly_sha256": "40c23045215967a8caefae7b112e965de39a80e6edf91f73841a5e3834f9c5d2",
+  "previous_selected_player_unchanged": "artifacts/player-human-kimodo/WorldGen.exe",
+  "animation_bank_unchanged": "79d6f6d8b755fefa57de6b01ed6cdd5bb591ea58d2b8d86f406cdb3d0fd80f9b",
+  "roles_per_character": 67,
+  "characters": 6,
+  "behavior": [
+    "Idle third-person camera orbit preserves character body and head facing",
+    "Third-person movement turns toward actual travel, including side/back input, matching Legacy",
+    "Idle carried weapons and torso stay with their third-person carrier",
+    "First-person viewing alignment and explicit action aiming retained",
+    "Existing dynamic charge/hold/cancel/release and Debug Legacy switch retained"
+  ],
+  "native_checks": [
+    {
+      "mode": "kimodo",
+      "checks": 83,
+      "exit_code": 0,
+      "evidence": "artifacts/kimodo-human-bank/native-facing-kimodo",
+      "checks_sha256": "10b316a9e13dc66860619f06ba0d37b16c42fcd70c17761c227fb5a1c9cf5c88"
+    },
+    {
+      "mode": "legacy",
+      "checks": 81,
+      "exit_code": 0,
+      "evidence": "artifacts/kimodo-human-bank/native-facing-legacy",
+      "checks_sha256": "fa26a09d4455389e9713e6d62389daa26ed307ccff93020c8061fe59c302d9e0"
+    }
+  ],
+  "native_checks_total": 164,
+  "package_proof": {
+    "backend": "IL2CPP",
+    "BuiltUtc": "2026-10-31T02:20:03.3318103Z",
+    "frozen_inputs": 766,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 1038,
+    "native_character_banks": 6,
+    "clips_per_character": [
+      67,
+      67,
+      67,
+      67,
+      67,
+      67
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true
+  },
+  "validation_scope": "Expanded human input/camera tests and existing Legacy regression on this package; earlier item/water results remain historical, not newly rerun",
+  "visual_evidence": "artifacts/kimodo-human-bank/native-facing-kimodo/third-Kimodo-*-orbit.png",
+  "limitations": [
+    "Initial review bank; no owner visual approval inferred",
+    "Secondary crafting gestures remain basic",
+    "Full-body motion can move hands outside the first-person view; dedicated first-person framing is not authored for every gesture",
+    "Representative fitted sequences inspected; not every clip, body, terrain and equipment combination visually approved",
+    "No frame-rate or universal foot-contact/animation-quality claim"
+  ]
+}
