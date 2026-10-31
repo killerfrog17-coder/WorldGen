@@ -1,5 +1,18 @@
 # WorldGen repository instructions
 
+ACTIVE30Oct facing feedback: owner likes initial bank but rejects forcing third-
+person body/head toward camera. Restore original idle facing + turn toward actual
+travel; keep first-person alignment and bank/Legacy selector. Source fix gates
+camera body/head alignment to first person, keeps idle held-item/spine orientation
+with third-person body (explicit aiming still uses camera). Expanded Kimodo native
+input flow covers idle orbit/head/carry + side/back travel in BOTH modes and
+return to first person. NEW artifacts/player-human-facing -> NEW E:/WorldGen-
+builds/player-human-facing; do NOT overwrite selected player-human-kimodo.
+New proof path human-facing-fix/package-proof via parameterized verification
+script. Owner closed their player for testing. Need IL2CPP build/native expanded
+Kimodo+Legacy checks, actual third-person images, protected/bank proof, new selected
+shortcut and Git handoff. No new clips/art/cleanup/paid/subagents/Mono.
+
 SELECTED30Oct evening: WHOLE INITIAL KIMODO HUMAN BANK integrated and selected.
 Existing root WorldGen shortcut NOW artifacts/player-human-kimodo/WorldGen.exe,
 IL2CPP RELEASE BuiltUtc2026-10-31T01:50:55.9008745Z, production6c9bb86 pushed.

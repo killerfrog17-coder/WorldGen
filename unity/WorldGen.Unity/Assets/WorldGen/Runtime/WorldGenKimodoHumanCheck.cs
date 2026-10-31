@@ -124,6 +124,39 @@ public sealed partial class LocalTerrainExplorer
                 for(int i=0;i<8;i++)UpdateInventoryVisuals();Image("shared-"+role,true);
                 Check(humanPlayer.Shared.ActionRole==role,"Shared controller samples "+role);Clear();
             }
+            foreach(bool generated in new[]{true,false})
+            {
+                Clear();HumanAnimationOptions.Set(generated);string mode=generated?"Kimodo":"Legacy";
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState());
+                humanCamera.Restore(3.4,false);humanCameraDistance=3.4;heading=0;pitch=12;
+                humanPlayer.Yaw=humanPlayer.TargetYaw=0;
+                var carried=Hold(PossessionKind.StoneTippedSpear);
+                yield return new WaitForSecondsRealtime(.3f);UpdateInventoryVisuals();
+                var facing=humanPlayer.Yaw;
+                var headBefore=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*inventoryBones["head"].rotation;
+                Image("third-"+mode+"-before-orbit");
+                heading=110;pitch=-18;yield return new WaitForSecondsRealtime(.35f);UpdateInventoryVisuals();
+                Check(Mathf.Abs(Mathf.DeltaAngle(facing,humanPlayer.Yaw))<.5f,mode+" third-person camera orbit leaves an idle body facing unchanged");
+                var headAfter=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*inventoryBones["head"].rotation;
+                Check(Quaternion.Angle(headBefore,headAfter)<12,mode+" idle head does not turn to follow the orbiting third-person camera");
+                if(generated)Check(Vector3.Dot(SharedSpearDirection,humanPlayer.Root.transform.forward)>.999f,"Third-person idle spear stays aligned with its carrier instead of the camera");
+                Image("third-"+mode+"-after-orbit");
+                double fromX=motion.X,fromZ=motion.Z;
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D,Key.C));yield return new WaitForSecondsRealtime(.7f);
+                double travelX=motion.X-fromX,travelZ=motion.Z-fromZ;
+                float travelYaw=(float)(Math.Atan2(travelX,travelZ)*180/Math.PI);
+                Check(travelX*travelX+travelZ*travelZ>.03&&Mathf.Abs(Mathf.DeltaAngle(travelYaw,humanPlayer.Yaw))<12,mode+" third-person side movement turns the body toward actual travel");
+                Check(Mathf.Abs(Mathf.DeltaAngle(heading,humanPlayer.Yaw))>45,mode+" third-person movement facing is independent of camera heading");
+                Image("third-"+mode+"-moving-side");
+                fromX=motion.X;fromZ=motion.Z;
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.S,Key.C));yield return new WaitForSecondsRealtime(.7f);
+                travelX=motion.X-fromX;travelZ=motion.Z-fromZ;travelYaw=(float)(Math.Atan2(travelX,travelZ)*180/Math.PI);
+                Check(travelX*travelX+travelZ*travelZ>.03&&Mathf.Abs(Mathf.DeltaAngle(travelYaw,humanPlayer.Yaw))<12,mode+" third-person backward input retains the original turn-toward-travel behavior");
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return new WaitForSecondsRealtime(.25f);
+            }
+            Clear();HumanAnimationOptions.Set(true);humanCamera.Restore(0,false);humanCameraDistance=0;heading=220;pitch=0;
+            yield return new WaitForSecondsRealtime(.6f);
+            Check(Mathf.Abs(Mathf.DeltaAngle(heading,humanPlayer.Yaw))<1,"Returning to shared first person still aligns the body with the viewing direction");
         }
         finally
         {

@@ -122,7 +122,7 @@ public sealed partial class LocalTerrainExplorer
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
         bool crouch=(Application.isFocused||testKeyboard!=null)&&!motion.Flying&&!motion.Swimming&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
         if(!deathPresented){
-        if(SharedHumanMotion)humanPlayer.TargetYaw=heading;
+        if(SharedHumanMotion&&humanCamera.FirstPerson)humanPlayer.TargetYaw=heading;
         else if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
         humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));

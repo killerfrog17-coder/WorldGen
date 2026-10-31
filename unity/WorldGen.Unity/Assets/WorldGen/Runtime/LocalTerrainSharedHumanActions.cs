@@ -161,11 +161,13 @@ public sealed partial class LocalTerrainExplorer
             FitSharedSupport(support,supportTarget-(SharedGripPosition(support)-inventoryBones["hand_"+support].position));FitSharedWrist(support,axis,weight);
         }
     }
+    bool SharedCameraAim=>humanCamera.FirstPerson||itemCharge!=null||pendingRanged!=null||combatGuarding||viewItemActions.Count>0;
     Vector3 SharedSpearDirection
     {
         get
         {
             if(humanPlayer.Shared.ActionRole=="WorkDig")return Vector3.down;
+            if(!SharedCameraAim)return humanPlayer.Root.transform.forward;
             float raised=0;
             if(itemCharge?.Throw==true)raised=12*(float)Math.Min(1,(Time.unscaledTimeAsDouble-itemCharge.Started)/itemCharge.Duration);
             else if(pendingRanged?.Charge.Throw==true)
@@ -189,7 +191,7 @@ public sealed partial class LocalTerrainExplorer
         }
         else {sharedSpearBlend=0;sharedSpearItem=null;}
         if(consuming)return;
-        if(!CraftWorking&&Time.unscaledTimeAsDouble-viewGatherAt>HumanActionDuration("Gather")&&Time.unscaledTimeAsDouble-viewConsumeAt>HumanActionDuration(viewConsumeDrink?"Drink":"Eat"))
+        if(SharedCameraAim&&!CraftWorking&&Time.unscaledTimeAsDouble-viewGatherAt>HumanActionDuration("Gather")&&Time.unscaledTimeAsDouble-viewConsumeAt>HumanActionDuration(viewConsumeDrink?"Drink":"Eat"))
         {
             var spine=inventoryBones["spine_02"];spine.rotation=Quaternion.AngleAxis(Mathf.Clamp(pitch,-55,55)*.45f,humanPlayer.Root.transform.right)*spine.rotation;
         }
@@ -284,7 +286,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void AimSharedHead()
     {
-        if(!SharedHumanMotion||DeathVisible||motion.Swimming)return;
+        if(!SharedHumanMotion||!humanCamera.FirstPerson||DeathVisible||motion.Swimming)return;
         string role=humanPlayer.Shared.ActionRole;
         if(role.StartsWith("Work",StringComparison.Ordinal)||role.StartsWith("Gather",StringComparison.Ordinal)||role=="Eat"||role=="Drink")return;
         float yaw=humanPlayer.Yaw+Mathf.Clamp(Mathf.DeltaAngle(humanPlayer.Yaw,heading),-70,70);

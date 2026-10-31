@@ -1,13 +1,19 @@
 """Freeze the new package inputs and prove original art/legacy assets unchanged."""
 import concurrent.futures
+import argparse
 import hashlib
 import json
 from pathlib import Path
 import sys
 
 ROOT=Path(__file__).resolve().parent.parent
-TASK=ROOT/'artifacts/kimodo-human-bank/package-proof'
-PLAYER=ROOT/'artifacts/player-human-kimodo'
+parser=argparse.ArgumentParser()
+parser.add_argument('--player-folder',default='player-human-kimodo')
+parser.add_argument('--proof-folder',default='kimodo-human-bank/package-proof')
+parser.add_argument('--freeze',action='store_true')
+args=parser.parse_args()
+TASK=ROOT/'artifacts'/args.proof_folder
+PLAYER=ROOT/'artifacts'/args.player_folder
 TASK.mkdir(parents=True,exist_ok=True)
 def sha(path):
     h=hashlib.sha256()
@@ -15,7 +21,7 @@ def sha(path):
         for block in iter(lambda:stream.read(4*1024*1024),b''):h.update(block)
     return h.hexdigest()
 old=json.loads((ROOT/'artifacts/water-sickness-20261030/package-proof/camp-water-source-freeze.json').read_text())
-if '--freeze' in sys.argv:
+if args.freeze:
     paths=set(old)
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Runtime','unity/WorldGen.Unity/Assets/WorldGen/Editor','unity/WorldGen.Unity/Assets/WorldGen/Resources']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file() and p.suffix in {'.cs','.shader','.hlsl'})
