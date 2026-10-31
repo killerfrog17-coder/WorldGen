@@ -19,6 +19,8 @@ public sealed partial class LocalTerrainExplorer
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
             RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);
         }
+        void PresentHeld(){for(int i=0;i<(SharedHumanMotion?6:1);i++)UpdateInventoryVisuals();}
+        GameObject HeldRoot(Possession item)=>SharedHumanMotion?inventoryVisuals[item.Id]:viewPossessions[item.Id].Root;
         InitializeInventory();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();ClearInventoryPhysics();Inventory.Items.Clear();Inventory.Crafts.Clear();
         ExecuteAnimalSpawnCommand("/spawn deer");double deadline=Time.unscaledTimeAsDouble+35;
         while(!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead)&&Time.unscaledTimeAsDouble<deadline)yield return null;
@@ -37,17 +39,18 @@ public sealed partial class LocalTerrainExplorer
         var session=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));session.Validate();Check(session.Inventory.Items.Any(p=>p.Place==PossessionPlace.Corpse)&&session.Inventory.ToolResources.Any(p=>p.Id=="loot-"+deer.Spawn.Id.ToString("x16")&&p.Harvests==1),"Save round-trip preserves remaining corpse loot and generation ledger");
         // Finish the real eating gesture before inspecting a held weapon. That
         // gesture intentionally hides private held-item copies while consuming.
-        yield return new WaitForSecondsRealtime(1.3f);humanCamera.Restore(0,false);humanCameraDistance=0;UpdateCamera();
-        var spear=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);spear.Place=PossessionPlace.RightHand;Inventory.Items.Add(spear);UpdateInventoryVisuals();humanHideBody=true;
-        viewArmPoseImmediate=true;UpdateInventoryVisuals();var root=viewPossessions[spear.Id].Root;var origin=root.transform.position;combatGlobalReady=combatRightReady=0;StrikeWithItem(spear,false);yield return new WaitForSecondsRealtime(.18f);UpdateInventoryVisuals();
+        yield return new WaitForSecondsRealtime((float)Math.Max(.01,viewConsumeAt+HumanActionDuration("Eat")-Time.unscaledTimeAsDouble+.1));humanCamera.Restore(0,false);humanCameraDistance=0;UpdateCamera();
+        float previousPresentationDt=viewArmDiagnosticDt;viewArmDiagnosticDt=.1f;
+        var spear=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);spear.Place=PossessionPlace.RightHand;Inventory.Items.Add(spear);humanHideBody=true;
+        viewArmPoseImmediate=true;PresentHeld();var root=HeldRoot(spear);var origin=root.transform.position;combatGlobalReady=combatRightReady=0;StrikeWithItem(spear,false);yield return new WaitForSecondsRealtime(.18f);PresentHeld();
         Check(viewItemActions.ContainsKey(spear.Id)&&Vector3.Distance(origin,root.transform.position)>.025f,"Spear strike visibly moves the held model in first person");
         Image("spear-thrust");
-        itemCharge=new ItemCharge{Weapon=spear,Ammo=spear,Started=Time.unscaledTimeAsDouble-1,Duration=.8,Throw=true};UpdateInventoryVisuals();var wound=root.transform.position;CancelItemCharge();UpdateInventoryVisuals();Check(Vector3.Distance(wound,root.transform.position)>.05f,"Throw wind-up and cancellation have distinct reversible view poses");
+        viewItemActions.Remove(spear.Id);BeginItemCharge(spear,false,1,true);Check(itemCharge?.Weapon==spear,"Held spear enters its real throw wind-up");itemCharge.Started-=itemCharge.Duration;PresentHeld();var wound=root.transform.position;CancelItemCharge();PresentHeld();Check(Vector3.Distance(wound,root.transform.position)>.05f,"Throw wind-up and cancellation have distinct reversible view poses");
         Inventory.Items.Remove(spear);viewItemActions.Clear();
-        var bow=PortableTechnology.Create(PossessionKind.Bow,Position);bow.Place=PossessionPlace.RightHand;Inventory.Items.Add(bow);UpdateInventoryVisuals();var bowRoot=viewPossessions[bow.Id].Root;var bowRest=bowRoot.transform.position;
-        Check(Vector3.Dot(bowRoot.transform.up,view.transform.up)>.95f,"First-person bow remains vertical instead of inheriting the spear's forward tilt");
-        var arrow=PortableTechnology.Create(PossessionKind.Arrow,Position);Inventory.Items.Add(arrow);
-        itemCharge=new ItemCharge{Weapon=bow,Ammo=arrow,Started=Time.unscaledTimeAsDouble-1.1,Duration=1.05};UpdateInventoryVisuals();Check(Vector3.Distance(bowRoot.GetComponentInChildren<LineRenderer>().GetPosition(1),new Vector3(.38f,.5f,0))>.05f,"Bow drawing moves the string toward the real drawing hand without changing the source rig");Image("bow-draw");CancelItemCharge();Inventory.Items.Remove(bow);Inventory.Items.Remove(arrow);
+        var bow=PortableTechnology.Create(PossessionKind.Bow,Position);bow.Place=PossessionPlace.RightHand;Inventory.Items.Add(bow);PresentHeld();var bowRoot=HeldRoot(bow);
+        Check(SharedHumanMotion?Vector3.Dot(bowRoot.transform.up,Vector3.up)>.5f:Vector3.Dot(bowRoot.transform.up,view.transform.up)>.95f,"Carried bow stays upright with the active mode's intended ground-clearance tilt");
+        var arrow=PortableTechnology.Create(PossessionKind.Arrow,Position);arrow.Place=PossessionPlace.LeftHand;Inventory.Items.Add(arrow);
+        BeginItemCharge(bow,false,0,false);Check(itemCharge?.Ammo==arrow,"Bow inspection borrows an actual held arrow");itemCharge.Started-=itemCharge.Duration;PresentHeld();Check(Vector3.Distance(bowRoot.GetComponentInChildren<LineRenderer>().GetPosition(1),new Vector3(.38f,.5f,0))>.05f,"Bow drawing moves the string toward the real drawing hand without changing the source rig");Image("bow-draw");CancelItemCharge();Inventory.Items.Remove(bow);Inventory.Items.Remove(arrow);viewArmDiagnosticDt=previousPresentationDt;
         var sourcePlant=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Herb).OrderBy(p=>(p.Position-Position).Length).FirstOrDefault();
         Check(sourcePlant.Id!=0,"Loaded real terrain contains placed resource plants");
         TerrainHandoff.Coordinates(frame,sourcePlant.Position,out double px,out double pz);motion.X=px;motion.Z=pz;motion.Y=VisibleGround(px,pz,Ground(px,pz))+TerrainMotion.EyeHeightM;UpdateCamera();natureRefreshAt=0;RefreshNatureSources();

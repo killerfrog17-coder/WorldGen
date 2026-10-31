@@ -40,6 +40,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CaptureNaturalImage(string output,string name,int angle)
     {
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-natural-no-images"))return;
         var p=view.transform.position;var r=view.transform.rotation;int mask=humanReviewBodyMask;
         if(angle>=0)
         {
