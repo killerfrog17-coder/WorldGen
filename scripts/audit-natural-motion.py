@@ -40,6 +40,7 @@ def measure(folder):
     'knee_flex_p95':float(np.percentile(np.concatenate((flex('Left'),flex('Right'))),95)),
     'right_hand_excursion':excursion('RightHand'),'left_hand_excursion':excursion('LeftHand'),
     'right_hand_above_hip_p95':float(np.percentile(relative['RightHand'][:,1],95)),
+    'right_hand_vertical_range':float(np.ptp(relative['RightHand'][:,1])),
     'left_hand_above_hip_p95':float(np.percentile(relative['LeftHand'][:,1],95)),
     'root_horizontal_travel':float(np.linalg.norm((hip[-1]-hip[0])[[0,2]])),
     'right_hand_acceleration_p99':float(np.percentile(np.linalg.norm(np.diff(relative['RightHand'],n=2,axis=0)*900,axis=1),99))}
@@ -57,6 +58,11 @@ def measure(folder):
   score+=max(0,m['right_hand_excursion']-.35)*4+max(0,m['left_hand_excursion']-.35)*4
  if upper and case not in {'drink','eat','bow_shoot','sling_whirl'}:
   if m['right_hand_excursion']<.25:flags.append('weak arm action');score+=(.25-m['right_hand_excursion'])*20
+ if case in {'tool_blunt','tool_chop'} and m['right_hand_vertical_range']<.25:
+  flags.append('insufficient downward strike');score+=(.25-m['right_hand_vertical_range'])*40
+ if case=='tool_stab':
+  peak=int(np.argmax(relative['RightHand'][:,2]));height=relative['RightHand'][peak,1]
+  if height<.22:flags.append('thrust excessively low for level aiming');score+=(.22-height)*15
  if case.startswith('work_') and case!='work_dig':
   if m['right_hand_above_hip_p95']>.42:flags.append('work hands excessively high');score+=(m['right_hand_above_hip_p95']-.42)*20
   if m['right_hand_excursion']<.045:flags.append('almost static hand task');score+=(.045-m['right_hand_excursion'])*30

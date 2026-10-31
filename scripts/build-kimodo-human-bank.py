@@ -79,6 +79,7 @@ def prepare(source, name, role, loop, overrides):
     release = int(np.argmax(score)) + 1
     release = max(15, min(count - 15, release))
     begin, end = 0, count - 1
+    attack_frame=None
     jump_air=[]
     if role=='Jump':
         floor=min(min(r['LeftToeBase'].translation.z,r['RightToeBase'].translation.z) for r in rows)
@@ -104,7 +105,11 @@ def prepare(source, name, role, loop, overrides):
         if active:begin,end=max(0,active[0]-6),min(count-1,active[-1]+12)
     elif role in {'Punch','ToolCutA','ToolCutB','ToolBlunt','ToolChop','SpearThrust1','SpearThrust2'}:
         reach = points[:, 1] - np.array([r['Hips'].translation.y for r in rows])
-        contact = int(np.argmin(reach))
+        if role in {'ToolBlunt','ToolChop'}:
+            height=points[:,2]-np.array([r['Hips'].translation.z for r in rows])
+            contact=int(np.argmin(np.diff(height)))+1
+        else:contact = int(np.argmin(reach))
+        attack_frame=contact
         begin = max(0, contact - 18)
         end = min(count - 1, max(begin + 20, contact + 23))
     elif loop and role in {'Walk','Run','Sprint','Crouch','Swim','SwimCarry','SwimCarryTwo','WalkBack','StrafeLeft','StrafeRight','RunBack','RunLeft','RunRight','ToolWalk','SlingWhirl','WorkKnapping','WorkCut','WorkTwist','WorkDig'}:
@@ -164,7 +169,7 @@ def prepare(source, name, role, loop, overrides):
     root_travel.z = 0
     contact = -1
     if role in {'Punch','ToolCutA','ToolCutB','ToolBlunt','ToolChop','SpearThrust1','SpearThrust2'}:
-        contact = max(.1,min(.9,(int(np.argmin(points[:,1]-np.array([r['Hips'].translation.y for r in rows])))-begin)/(end-begin)))
+        contact = max(.1,min(.9,(int(override.get('contact_frame',attack_frame))-begin)/(end-begin)))
     release_seconds = max(0,min(duration,(release-begin)/30)) if role.endswith('Release') else -1
     if role == 'BowRelease': release_seconds = 0
     return selected, {'role':role,'source':str(source.folder.relative_to(REPO)),'begin':begin,'end':end,
@@ -181,7 +186,7 @@ def main():
     if args.output:OUTPUT=REPO/args.output
     if args.natural:
         LOCO.update({'SwimCarry','SwimCarryLeft','SwimCarryTwo'})
-        ROLE_SOURCE.update({'SwimCarry':('swim_carry',True),'SwimCarryTwo':('swim_carry_two',True),'SpearThrowCharge':('spear_throw',False),'SpearThrowRelease':('spear_throw',False)})
+        ROLE_SOURCE.update({'SwimCarry':('swim',True),'SwimCarryTwo':('swim',True)})
     OUTPUT.mkdir(parents=True,exist_ok=True)
     overrides=json.loads((ROOT/'authoring.json').read_text()) if (ROOT/'authoring.json').exists() else {}
     sources={};prepared={}
@@ -225,10 +230,11 @@ def main():
         for role,(motion,metadata) in prepared.items():
             record=retarget.animate(rig,'MPFB',(role,motion,role),motion.samples);action=bpy.data.actions[record['action']]
             if args.natural:
-                from natural_human_bake import pin_ordinary_legs,restrain_ordinary_torso,ground_action,is_upper
+                from natural_human_bake import pin_ordinary_legs,restrain_ordinary_torso,smooth_ordinary_arms,ground_action,is_upper
                 if natural_idle is not None and is_upper(role,LOCO):
                     pin_ordinary_legs(rig,action,natural_idle,len(motion.samples))
                     restrain_ordinary_torso(action,natural_idle,role)
+                    smooth_ordinary_arms(action,metadata['loop'])
                 if role in LOCO and role!='Jump' and not role.startswith('Swim'):
                     metadata={**metadata,'ground_offset_m':ground_action(rig,action,len(motion.samples))}
                 if role=='Idle':natural_idle=action

@@ -1,0 +1,24 @@
+{
+  "id": "sling_ready",
+  "label": "sling_ready",
+  "frames": 120,
+  "prompt": "A person stands upright calmly holding a sling in the right hand low beside the right thigh, with the elbow relaxed. Feet planted and quiet breathing.",
+  "seed": 3321,
+  "steps": 50,
+  "seconds": 79.29700000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "4d6f265b6a111ce9b59bc47dab16219b1c8477f633456eabe8cd5a6fdfadfa15",
+  "root_start": [
+    0.00025750635541044176,
+    0.9913907051086426,
+    0.019783513620495796
+  ],
+  "root_end": [
+    -0.0021306683775037527,
+    0.9903467893600464,
+    0.014682663604617119
+  ],
+  "raw_rotation_sha256": "22aedbb258b7c3e53b3f4cd5ea2dbfaaa4de215119af67234e6ec41646ee8af4"
+}

@@ -61,6 +61,26 @@ def restrain_ordinary_torso(action,idle,role):
   for i in range(4):
    for key,q in zip(dst[path,i].keyframe_points,rows):key.co.y=q[i]
 
+def smooth_ordinary_arms(action,loop):
+ dst=mapping(action)
+ for name in ['upperarm_l','lowerarm_l','hand_l','upperarm_r','lowerarm_r','hand_r']:
+  path=f'pose.bones["{name}"].rotation_quaternion';fc=dst[path,0];count=len(fc.keyframe_points)
+  source=[Quaternion([dst[path,i].keyframe_points[k].co.y for i in range(4)]).normalized() for k in range(count)]
+  if loop:source=source[:-1]
+  filtered=[]
+  for k,q in enumerate(source):
+   total=Vector((0,0,0,0));weight=0
+   for offset,w in [(-2,1),(-1,2),(0,3),(1,2),(2,1)]:
+    index=(k+offset)%len(source) if loop else max(0,min(len(source)-1,k+offset));other=source[index]
+    if q.dot(other)<0:other=-other
+    total+=Vector(tuple(other))*w;weight+=w
+   average=Quaternion(tuple(total/weight)).normalized()
+   strength=1 if loop else min(1,k/2,(len(source)-1-k)/2)
+   filtered.append(q.slerp(average,strength))
+  if loop:filtered.append(filtered[0])
+  for i in range(4):
+   for key,q in zip(dst[path,i].keyframe_points,filtered):key.co.y=q[i]
+
 def ground_action(rig,action,frames):
  rest={name:(rig.matrix_world@rig.data.bones[name].head_local).z for name in ['foot_l','foot_r','ball_l','ball_r']}
  rig.animation_data.action=action;rig.animation_data.action_slot=action.slots[0]

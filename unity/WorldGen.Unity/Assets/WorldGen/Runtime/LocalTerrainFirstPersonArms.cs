@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<string,ViewPossession> viewPossessions=new Dictionary<string,ViewPossession>();
     readonly HashSet<string> viewPossessionsPresent=new HashSet<string>();
 
-    Vector3 BowDrawPoint(float draw)=>SharedHumanMotion&&inventoryBones.ContainsKey("hand_r")?SharedGripPosition("r"):viewArms!=null&&viewArms.Bones.TryGetValue("Nock.R",out var nock)?nock.position:view.transform.TransformPoint(new Vector3(.02f,-.045f,.36f-.2f*draw));
+    Vector3 BowDrawPoint(float draw)=>SharedHumanMotion&&inventoryBones.ContainsKey("hand_r")?NaturalBowStringGrip:viewArms!=null&&viewArms.Bones.TryGetValue("Nock.R",out var nock)?nock.position:view.transform.TransformPoint(new Vector3(.02f,-.045f,.36f-.2f*draw));
     void CreateBowString(GameObject root,int layer)
     {
         if(inventoryBowStringMaterial==null){inventoryBowStringMaterial=new Material(Resources.Load<Shader>("WorldGenInventoryPreview"));inventoryBowStringMaterial.SetColor("_Color",new Color(.59f,.47f,.31f));}

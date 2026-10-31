@@ -140,11 +140,17 @@ public sealed partial class LocalTerrainExplorer
         }
         Vector3 center=SharedGripPosition("r"),direction=SharedSpearDirection;
         if(charge.Weapon.Kind==PossessionKind.Bow&&inventoryVisuals.TryGetValue(charge.Weapon.Id,out var bow))
-        {Vector3 rest=bow.transform.position+bow.transform.up*(float)charge.Weapon.HeightM*.55f;direction=(rest-center).normalized;}
+        {
+            center=NaturalBowStringGrip;
+            Vector3 rest=bow.transform.position+bow.transform.up*(float)charge.Weapon.HeightM*.55f+bow.transform.forward*.02f*NaturalScale;
+            direction=(rest-center).normalized;
+        }
         else if(charge.Weapon.Kind==PossessionKind.SpearThrower&&inventoryVisuals.TryGetValue(charge.Weapon.Id,out var thrower))center=thrower.transform.TransformPoint(new Vector3(.4f,1,.2f));
         else if(charge.Weapon.Kind==PossessionKind.Sling)center=SharedSlingPouch(charge.Weapon);
         sharedLoadedAmmo.transform.rotation=Quaternion.FromToRotation(Vector3.up,direction);
-        sharedLoadedAmmo.transform.position=center-direction*(float)ammo.HeightM*.5f;
+        // Arrow/dart meshes start at their tail (y=0); that tail belongs at the
+        // string/hook. Only a sling's stone is centred around its pouch.
+        sharedLoadedAmmo.transform.position=center-(charge.Weapon.Kind==PossessionKind.Sling?direction*(float)ammo.HeightM*.5f:Vector3.zero);
     }
     Vector3 SharedSlingPouch(Possession item)
     {

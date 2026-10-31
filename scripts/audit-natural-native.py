@@ -23,11 +23,14 @@ def main():
   for frame in data:
    hits=[]
    if frame.get('Vertices') and frame.get('CoreTriangles') and frame.get('PropPoints'):
-    vertices=xyz(frame['Vertices']);triangles=vertices[np.array(frame['CoreTriangles']).reshape(-1,3)];points=xyz(frame['PropPoints'])
-    for j,(start,end) in enumerate(zip(points[:-1],points[1:])):
-     for t in intersections(start,end,triangles):hits.append({'segment':j,'t':float(t),'point':(start+(end-start)*t).tolist()})
+    vertices=xyz(frame['Vertices']);triangles=vertices[np.array(frame['CoreTriangles']).reshape(-1,3)]
+    for label,raw in [('prop',frame['PropPoints']),('ammunition',frame.get('AmmoPoints'))]:
+     if not raw:continue
+     points=xyz(raw)
+     for j,(start,end) in enumerate(zip(points[:-1],points[1:])):
+      for t in intersections(start,end,triangles):hits.append({'part':label,'segment':j,'t':float(t),'point':(start+(end-start)*t).tolist()})
    records.append({'file':path.name,'variant':frame['Variant'],'role':frame['Role'],'time':frame['Time'],'item':frame['Item'],
-                   'actual_skin_crossings':len(hits),'hits':hits,'capsule_clearance':frame['Clearance'],'grip_error':frame['GripError']})
+                   'actual_skin_crossings':len(hits),'hits':hits,'capsule_clearance':frame['Clearance'],'grip_error':frame['GripError'],'support_error':frame.get('SupportError',0)})
  result={'frames':len(records),'surface_frames':sum(bool(f.get('Vertices')) for path in folder.glob('*.json') if not path.name.startswith('audit') for f in (json.loads(path.read_text(encoding='utf-8-sig')) if path.name[0:1] in 'ABCDEF' else []) if isinstance(f,dict)),
          'crossing_frames':[r for r in records if r['actual_skin_crossings']], 'worst_grip_error':max((r['grip_error'] for r in records),default=0),'records':records,
          'scope':'Native centerline/actual torso-thigh-head skin intersections. Separate image/moving review required; not a universal contact guarantee.'}

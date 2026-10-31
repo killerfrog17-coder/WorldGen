@@ -1,0 +1,24 @@
+{
+  "id": "tool_guard",
+  "label": "tool_guard",
+  "frames": 120,
+  "prompt": "A person stands steadily with feet hip width apart, holding a short club diagonally across their chest in their right hand. Elbows softly bent, a compact protective stance with quiet breathing.",
+  "seed": 3231,
+  "steps": 50,
+  "seconds": 67.59299999999348,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "8c2f31a7422daf19ea50137e641f010f0b31edb28a238411e122c988050583d0",
+  "root_start": [
+    0.002107020700350404,
+    0.9632171392440796,
+    -3.7519275792874396e-05
+  ],
+  "root_end": [
+    -0.005745366215705872,
+    0.9619251489639282,
+    0.014694440178573132
+  ],
+  "raw_rotation_sha256": "8a9dd159eff82d083c6a197f52c28774d8f9d1823769bafcc8c7efde8cf5039a"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "tool_cut",
+  "label": "tool_cut",
+  "frames": 90,
+  "prompt": "A standing person makes one short controlled diagonal right handed knife cut across the space in front of their chest, then returns to a relaxed ready position. Upright pelvis, feet planted, restrained shoulder rotation.",
+  "seed": 3201,
+  "steps": 50,
+  "seconds": 59.90600000001723,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "6c17cd7a150fc2aedee1aade0f373b31b1c49e2ecc0723cff776153566cc1aee",
+  "root_start": [
+    -0.019784647971391678,
+    0.9509280920028687,
+    -0.006338522769510746
+  ],
+  "root_end": [
+    -0.0021196019370108843,
+    0.9418673515319824,
+    -0.01619790866971016
+  ],
+  "raw_rotation_sha256": "9cdba667c7a45a525f33aa3353ee66e6673af97fd6a97feb3df7ab9b2a7f9e11"
+}

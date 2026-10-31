@@ -51,7 +51,7 @@ class PropFit:
   axis=(FORWARD*.76-RIGHT*(.65 if two else .16)*sign+UP*.06).normalized();intent=1 if active else 0
   if active:axis=FORWARD.copy()
   attack=smooth(t/max(.01,contact)) if t<contact else 1-smooth((t-contact)/max(.01,1-contact));extension=.22*attack if active else 0
-  height=self.p('spine_03').z-((.27 if two else .31)*(1-intent)+.1*intent)*s
+  height=(self.p('pelvis').z+(.18 if two else .14)*s)*(1-intent)+((self.p('upperarm_l').z+self.p('upperarm_r').z)*.5-.06*s)*intent
   z=(.16*(1-intent)-.08*intent+extension) if two else .13+extension
   target=RIGHT*((.28 if two else .34)*sign*s)+FORWARD*(z*s)+UP*height
   if two:
@@ -83,7 +83,7 @@ class PropFit:
    brace=self.grip('l')+UP*.075-forward*.35*.38
    right=brace.lerp(anchor,draw)
    if role=='BowRelease':right=(RIGHT*.29*s+FORWARD*.14*s+UP*(self.p('pelvis').z+.15*s)).lerp(anchor-forward*(.045*s*math.sin(clamp(t/.3,0,1)*math.pi))+RIGHT*.025*s,raised)
-   self.fit('r',right,UP,RIGHT-FORWARD*.55+UP*.1)
+   self.fit('r',right,-UP,RIGHT-FORWARD*.55+UP*.1)
   return {'kind':'bow','grip':tuple(self.grip('l')),'forward':tuple(forward),'up':tuple(bow_up),'draw_grip':tuple(self.grip('r')),'raised':raised,'draw':draw,'length':1.5,'width':.35}
  def tool(self,role,t):
   side='l' if role.endswith('_Left') else 'r';sign=1 if side=='r' else -1;s=self.s

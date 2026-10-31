@@ -935,7 +935,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SpearThrowCharge
       internalID: 918323570708737267
       firstFrame: 0
-      lastFrame: 59
+      lastFrame: 52
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -964,7 +964,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SpearThrowCharge_Left
       internalID: 651424104150501901
       firstFrame: 0
-      lastFrame: 59
+      lastFrame: 52
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1283,7 +1283,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SwimCarry
       internalID: -8198900453826995937
       firstFrame: 0
-      lastFrame: 76
+      lastFrame: 66
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1312,7 +1312,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SwimCarryLeft
       internalID: -7016660821373065589
       firstFrame: 0
-      lastFrame: 76
+      lastFrame: 66
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1341,7 +1341,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SwimCarryTwo
       internalID: 6991847249399060494
       firstFrame: 0
-      lastFrame: 76
+      lastFrame: 66
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1486,7 +1486,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolBlunt
       internalID: -1790276877867498753
       firstFrame: 0
-      lastFrame: 27
+      lastFrame: 39
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1515,7 +1515,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolBlunt_Left
       internalID: 2086505047802676310
       firstFrame: 0
-      lastFrame: 27
+      lastFrame: 39
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1660,7 +1660,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolCutB
       internalID: -3966977605645811069
       firstFrame: 0
-      lastFrame: 34
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1689,7 +1689,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolCutB_Left
       internalID: -7811310781598851964
       firstFrame: 0
-      lastFrame: 34
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

@@ -104,8 +104,8 @@ public sealed partial class LocalTerrainExplorer
             BeginItemCharge(bow,false,0,false);Check(itemCharge?.Ammo==arrow,"An actual bow charge borrows its real arrow");itemCharge.Started-=itemCharge.Duration;
             yield return new WaitForSecondsRealtime(.2f);UpdateInventoryVisuals();
             Check(sharedLoadedAmmo!=null&&!inventoryVisuals[arrow.Id].activeSelf,"The shared bow has one loaded arrow without an offhand duplicate");
-            Vector3 nock=sharedLoadedAmmo.transform.position+sharedLoadedAmmo.transform.up*(float)arrow.HeightM*.5f;
-            Check(Vector3.Distance(nock,SharedGripPosition("r"))<.015f,"Loaded ammunition follows the real drawing-hand grip");
+            Vector3 nock=sharedLoadedAmmo.transform.position;
+            Check(Vector3.Distance(nock,NaturalBowStringGrip)<.015f,"The actual arrow tail follows the hooked drawing fingers");
             var bowRoot=inventoryVisuals[bow.Id];Vector3 brace=bowRoot.transform.TransformPoint(new Vector3(.38f,.5f,0));
             Check(Vector3.Distance(SharedGripPosition("r"),brace)>.2f,"Full charge visibly draws the actual bowstring");Image("shared-bow-drawn",true);Image("first-bow-drawn");
             CancelItemCharge();Clear();

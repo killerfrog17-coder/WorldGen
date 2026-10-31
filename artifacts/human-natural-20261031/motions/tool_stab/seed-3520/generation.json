@@ -1,0 +1,24 @@
+{
+  "id": "tool_stab",
+  "label": "tool_stab",
+  "frames": 90,
+  "prompt": "A person standing upright makes one compact right handed knife thrust straight forward at lower chest height, clearly extends the right elbow, then retracts the arm to the chest. The left hand stays in a loose guard. Feet planted, hips level, quiet controlled movement.",
+  "seed": 3520,
+  "steps": 50,
+  "seconds": 141.34399999998277,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "2c9f95e89f0e77029ab8d005d42abf2d7ee9d1ee1306a315ea8c3efa47867781",
+  "root_start": [
+    0.029050568118691444,
+    1.0057953596115112,
+    -0.0026482967659831047
+  ],
+  "root_end": [
+    -0.022783948108553886,
+    1.0059022903442383,
+    -0.005631785374134779
+  ],
+  "raw_rotation_sha256": "b0024a44f4ad5b3ebca7d0a7f71d32944586791623c82e0326fe0c7d24a175cd"
+}

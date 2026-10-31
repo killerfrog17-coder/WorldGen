@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+ACTIVE31Oct04:27CDT HUMAN NATURAL REVISION CONTINUES through at least12:27:07Z/
+07:27CDT (minimum5h, aim finish08:27CDT). Initial c37be19 IL2CPP unselected
+artifacts/player-human-natural-review BuiltUtc08:56:14.7480742Z: native98PASS,
+420 poses/140 actual skin exports, zero centreline intersections; NOT visual
+acceptance. Review caught low spear grips/support loss, misplaced arrow midpoint,
+static armed-swim takes, bad blunt crop and poor new javelin take. Source now
+raises spear grips, places actual arrow tail at hooked fingers, samples real
+mouth/eye surfaces, derives armed swimming from moving Swim, retains better
+original javelin, smooths restrained arm tracks, fixes downward-strike cropping.
+68 new raw auditions finished; no generation workers remain. Current latest
+source pending checkpoint/build2 and actual native checks. Same unselected D:
+candidate folder reused to bound disk; selected terrain package/shortcut FROZEN.
+All6 banks70roles, original meshes/weights/textures untouched; Legacy retained.
+Task artifacts/human-natural-20261031 (D: junction); scripts/run-native.ps1 there
+supports Natural/Kimodo/Legacy/Items/Water/Nature/Hunting. Native1 finished exit0.
+No owner apps closed. No paid/signup/subagents/Mono/cleanup; owner3 untouched.
+Remaining: actual face/string/support/gait/swim/crouch review, remaining groups,
+new final source proof/native regressions/shortcut/Git, substantive work until
+minimum time or owner stop. Do not call initial native98 a final visual pass.
+
 ACTIVE31Oct02:27CDT HUMAN ANIMATION OVERNIGHT REVISION. Owner explicitly
 requests at least5-6h: started2026-10-31T07:27:07Z; minimum work through12:27:07Z
 (07:27CDT), aim handoff by13:27:07Z (08:27CDT), unless owner changes/stops.

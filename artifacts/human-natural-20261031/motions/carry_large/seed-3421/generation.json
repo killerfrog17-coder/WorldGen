@@ -1,0 +1,24 @@
+{
+  "id": "carry_large",
+  "label": "carry_large",
+  "frames": 150,
+  "prompt": "An upright person carries a large heavy rock close in front of their abdomen with both hands under it, elbows tucked near the sides. Slight backward counterbalance, quiet steady feet and very small breathing motion.",
+  "seed": 3421,
+  "steps": 50,
+  "seconds": 76.89100000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "44a0e9fc4e3a486ff05961cab69c63510b6e366fc0aa6403d9eae660b05b0393",
+  "root_start": [
+    0.047093767672777176,
+    0.9921779036521912,
+    0.038294468075037
+  ],
+  "root_end": [
+    0.07288385927677155,
+    0.9857724905014038,
+    0.026573114097118378
+  ],
+  "raw_rotation_sha256": "2e5084cb92b2fd58ba188fac6a793c3552c16b743f690a1c2b87e845de86805d"
+}

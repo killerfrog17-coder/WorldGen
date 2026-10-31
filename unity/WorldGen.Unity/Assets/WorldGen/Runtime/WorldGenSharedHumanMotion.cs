@@ -36,12 +36,12 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         public float[] Weights;
         public string Current;
     }
-    public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight)
+    public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight,Vector3? nativeEyeInHead=null)
     {
         this.graph=graph;
         this.root=root;head=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="head");
         headBindRotation=Quaternion.Inverse(root.rotation)*head.rotation;
-        eyeInHead=head.InverseTransformPoint(root.TransformPoint(new Vector3(0,eyeHeight,person.EyeForward>.05f?person.EyeForward:.15f)));
+        eyeInHead=nativeEyeInHead??head.InverseTransformPoint(root.TransformPoint(new Vector3(0,eyeHeight,person.EyeForward>.05f?person.EyeForward:.15f)));
         Clips=person.Clips.ToDictionary(c=>c.Role,StringComparer.Ordinal);
         locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)).ToArray());
         Output=AnimationLayerMixerPlayable.Create(graph,player?4:1);

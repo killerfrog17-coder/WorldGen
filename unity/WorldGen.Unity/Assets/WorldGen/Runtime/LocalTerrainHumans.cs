@@ -81,9 +81,9 @@ public sealed partial class LocalTerrainExplorer
         // Calibrate the eye/head offsets only after the original native skin
         // has actually been posed, otherwise that initial offset is added twice.
         actor.Graph.Play();actor.Graph.Evaluate(0);
-        if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight);
         var generated=kimodoHumanLibrary?.Find(definition.Variant);
-        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight);
+        if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight,generated?.EyeForward??.15f);
+        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null);
         actor.Graph.Play();actor.Graph.Evaluate(0);return actor;
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
