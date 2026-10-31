@@ -128,14 +128,14 @@ public sealed partial class LocalTerrainExplorer
             {
                 Clear();HumanAnimationOptions.Set(generated);string mode=generated?"Kimodo":"Legacy";
                 InputSystem.QueueStateEvent(keyboard,new KeyboardState());
-                humanCamera.Restore(3.4,false);humanCameraDistance=3.4;heading=0;pitch=12;
+                humanCamera.Restore(3.4,false);humanCameraDistance=3.4f;heading=0;pitch=12;
                 humanPlayer.Yaw=humanPlayer.TargetYaw=0;
-                var carried=Hold(PossessionKind.StoneTippedSpear);
+                Hold(PossessionKind.StoneTippedSpear);
                 yield return new WaitForSecondsRealtime(.3f);UpdateInventoryVisuals();
                 var facing=humanPlayer.Yaw;
                 var headBefore=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*inventoryBones["head"].rotation;
                 Image("third-"+mode+"-before-orbit");
-                heading=110;pitch=-18;yield return new WaitForSecondsRealtime(.35f);UpdateInventoryVisuals();
+                heading=110;pitch=18;yield return new WaitForSecondsRealtime(.35f);UpdateInventoryVisuals();
                 Check(Mathf.Abs(Mathf.DeltaAngle(facing,humanPlayer.Yaw))<.5f,mode+" third-person camera orbit leaves an idle body facing unchanged");
                 var headAfter=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*inventoryBones["head"].rotation;
                 Check(Quaternion.Angle(headBefore,headAfter)<12,mode+" idle head does not turn to follow the orbiting third-person camera");
