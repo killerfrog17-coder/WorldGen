@@ -17,7 +17,12 @@ public sealed partial class LocalTerrainExplorer
         {
             var position=view.transform.position;var rotation=view.transform.rotation;var old=view.targetTexture;var active=RenderTexture.active;int mask=humanReviewBodyMask;
             if(outside)humanReviewBodyMask=0;
-            if(outside){view.transform.position=humanPlayer.Root.transform.position+Quaternion.Euler(0,heading,0)*new Vector3(2.8f,2,-4.4f);view.transform.LookAt(humanPlayer.Root.transform.position+Vector3.up*.95f);}
+            if(outside)
+            {
+                var cameraLocal=humanPlayer.Root.transform.localPosition+Quaternion.Euler(0,heading,0)*new Vector3(1.9f,1.7f,-2.5f);
+                cameraLocal.y=Mathf.Max(cameraLocal.y,(float)Ground(cameraLocal.x+originX,cameraLocal.z+originZ)+.5f);
+                view.transform.position=transform.TransformPoint(cameraLocal);view.transform.LookAt(humanPlayer.Root.transform.position+Vector3.up*.95f);
+            }
             var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
             RenderTexture.active=active;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);view.transform.SetPositionAndRotation(position,rotation);humanReviewBodyMask=mask;
@@ -59,6 +64,9 @@ public sealed partial class LocalTerrainExplorer
             Vector3 shaft=SharedSpearDirection,grips=SharedGripPosition("l")-SharedGripPosition("r");
             Check(Vector3.Cross(grips,shaft).magnitude<.06f&&Vector3.Dot(grips,shaft)>.08f,"Both supporting spear grips lie along the same physical shaft");
             Image("shared-spear-ready",true);pitch=65;UpdateCamera();Image("shared-look-down");pitch=0;UpdateCamera();
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.W,Key.C));
+            for(int frame=0;frame<6;frame++){yield return new WaitForSecondsRealtime(.12f);Image("walk-"+frame.ToString("D2"),true);}
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return new WaitForSecondsRealtime(.25f);
             BeginConsumeGesture(true);yield return new WaitForSecondsRealtime(.35f);UpdateInventoryVisuals();
             Check(humanPlayer.Shared.ActionRole=="Drink"&&!inventoryVisuals[spear.Id].activeSelf&&Inventory.AtHand(PossessionPlace.RightHand)==spear,"Drinking frees the visible hands while preserving held-item ownership");
             Image("shared-drink-occupied",true);viewConsumeAt=-100;yield return new WaitForSecondsRealtime(.15f);

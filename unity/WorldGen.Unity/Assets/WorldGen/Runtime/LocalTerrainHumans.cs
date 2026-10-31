@@ -239,6 +239,10 @@ public sealed partial class LocalTerrainExplorer
         if(SharedHumanMotion&&!deathPresented)
         {
             var eye=humanPlayer.Shared.LocalEye;
+            // Looking down rotates the eye anchor back towards the collar.
+            // Keep the local camera in front of that collar instead of exposing
+            // the head-removal boundary from inside the neck.
+            eye.z+=.11f*(humanPlayer.Definition.EyeHeight/1.65f)*Mathf.InverseLerp(10,65,pitch);
             if(motion.Swimming)eye.y=humanPlayer.Definition.EyeHeight;
             if(!sharedCameraEyeValid){sharedCameraEye=eye;sharedCameraEyeValid=true;}
             sharedCameraEye=Vector3.Lerp(sharedCameraEye,eye,1-Mathf.Exp(-dt*9));
