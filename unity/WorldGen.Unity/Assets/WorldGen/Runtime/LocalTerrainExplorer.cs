@@ -25,6 +25,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     readonly List<TerrainTileKey> priority=new List<TerrainTileKey>(); readonly List<Work> jobs=new List<Work>();
     readonly CancellationTokenSource cancellation=new CancellationTokenSource();
     Action close; Camera view; Material landMaterial,waterMaterial;
+    ExplorationAudioListener audioListener;
     Action drawPause;World sourceWorld;PlaySession playState;PlaySettings explorationSettings=new PlaySettings{HorizontalScale=1};
     public double HorizontalScale=>explorationSettings.HorizontalScale;
     public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
@@ -77,6 +78,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=new Color(.57f,.69f,.76f);
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Local terrain shader is missing or unsupported.");
         landMaterial=new Material(shader);landMaterial.SetFloat("_GroundFlora",1);InitializePlayerWater();SetFog();CaptureMouse();
+        audioListener=new ExplorationAudioListener(view);
     }
     float publishedFog=float.NaN;int publishedFogMaterials=-1;Material publishedFogLand,publishedFogWater;
     public void ConfigureExplorationRenderer(bool original)
@@ -375,6 +377,30 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         throw new InvalidOperationException("No resolved western shore near the nominated coastal review site.");
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
-    public void Close(){if(closed)return;RestoreTerrainDiagnostics();closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){DisposeInventory();RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeHumans();DisposeAnimalFauna();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    public void Close(){if(closed)return;audioListener?.Dispose();RestoreTerrainDiagnostics();closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
+    void OnDestroy(){audioListener?.Dispose();DisposeInventory();RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeHumans();DisposeAnimalFauna();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+}
+
+/// <summary>Transfer the ears with the active exploration view, including
+/// third-person orbit and floating-origin changes. No per-frame listener scan.</summary>
+sealed class ExplorationAudioListener : IDisposable
+{
+    readonly List<AudioListener> previous=new List<AudioListener>();
+    public readonly AudioListener Listener;
+    bool disposed;
+    public ExplorationAudioListener(Camera camera)
+    {
+        if(camera==null)throw new ArgumentNullException(nameof(camera));
+        foreach(var listener in UnityEngine.Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None))
+            if(listener.isActiveAndEnabled){previous.Add(listener);listener.enabled=false;}
+        Listener=camera.GetComponent<AudioListener>()??camera.gameObject.AddComponent<AudioListener>();
+        Listener.enabled=true;
+    }
+    public void Dispose()
+    {
+        if(disposed)return;disposed=true;
+        if(Listener!=null)Listener.enabled=false;
+        foreach(var listener in previous)if(listener!=null)listener.enabled=true;
+        previous.Clear();
+    }
 }

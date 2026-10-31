@@ -9,6 +9,42 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+    public static void CheckAudioListener(string output)
+    {
+        Directory.CreateDirectory(output);var report=new List<string>();GameObject root=null;ExplorationAudioListener binding=null;
+        void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("AUDIO LISTENER "+text);report.Add("PASS "+text);}
+        var original=UnityEngine.Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Where(l=>l.isActiveAndEnabled).ToArray();
+        try
+        {
+            Check(original.Length==1,"Scene begins with one active world-map listener");
+            root=new GameObject("Listener regression fixture");
+            var cameraRoot=new GameObject("Gameplay camera",typeof(Camera));cameraRoot.transform.SetParent(root.transform,false);
+            var camera=cameraRoot.GetComponent<Camera>();camera.enabled=false;camera.transform.position=new Vector3(100,4,20);
+            var sourceRoot=new GameObject("Fixed world caller",typeof(AudioSource));sourceRoot.transform.SetParent(root.transform,false);
+            var source=sourceRoot.GetComponent<AudioSource>();source.playOnAwake=false;source.spatialBlend=1;source.transform.position=new Vector3(108,4,20);
+            var originalPosition=original[0].transform.position;var originalRotation=original[0].transform.rotation;
+            binding=new ExplorationAudioListener(camera);
+            int Count()=>UnityEngine.Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Count(l=>l.isActiveAndEnabled);
+            Check(Count()==1&&original.All(l=>!l.enabled),"Entering gameplay disables old ears without duplicate active listeners");
+            Check(binding.Listener.gameObject==camera.gameObject&&binding.Listener.isActiveAndEnabled,"Actual AudioListener is attached to the gameplay camera");
+            var emitter=source.transform.position;var right=binding.Listener.transform.InverseTransformPoint(emitter);
+            camera.transform.rotation=Quaternion.Euler(0,180,0);var left=binding.Listener.transform.InverseTransformPoint(emitter);
+            Check(right.x>7.9f&&left.x< -7.9f,"A fixed caller changes from right to left in the real listener coordinates after turning");
+            Check(source.transform.position==emitter&&source.spatialBlend==1,"Turning moves the ears while the spatial world source stays fixed");
+            camera.transform.position+=Vector3.right*3;
+            Check(Math.Abs(Vector3.Distance(binding.Listener.transform.position,emitter)-5)<.001,"Walking changes listener-to-source distance");
+            var relative=binding.Listener.transform.InverseTransformPoint(source.transform.position);root.transform.position+=new Vector3(-1000,0,800);
+            Check((binding.Listener.transform.InverseTransformPoint(source.transform.position)-relative).sqrMagnitude<.0001,"A shared origin shift preserves source direction and distance");
+            binding.Dispose();Check(Count()==1&&original.All(l=>l.enabled)&&!binding.Listener.enabled,"Leaving gameplay restores the original world-map listener");
+            Check(original[0].transform.position==originalPosition&&original[0].transform.rotation==originalRotation,"Listener switching never moves or turns the world-map camera");
+            binding.Dispose();Check(Count()==1,"Close followed by scene destruction can restore audio twice safely");
+            binding=new ExplorationAudioListener(camera);Check(Count()==1&&binding.Listener.isActiveAndEnabled,"Re-entering gameplay reuses the camera listener without duplicates");
+            binding.Dispose();Check(Count()==1&&original.All(l=>l.enabled),"A second exit restores normal menu/world audio");
+            File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Debug.Log("AUDIO LISTENER PASS "+report.Count);Application.Quit(0);
+        }
+        catch(Exception e){File.WriteAllText(Path.Combine(output,"failure.txt"),e.ToString());Debug.LogException(e);Application.Quit(1);}
+        finally{binding?.Dispose();if(root!=null)UnityEngine.Object.Destroy(root);}
+    }
     public IEnumerator CheckWildlifeAudioFlow(string output,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("WILDLIFE AUDIO "+text);report.Add("PASS "+text);Debug.Log("WILDLIFE AUDIO PASS "+text);}
