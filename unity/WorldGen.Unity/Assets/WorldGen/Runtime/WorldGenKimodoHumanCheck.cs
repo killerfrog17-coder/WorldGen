@@ -139,7 +139,7 @@ public sealed partial class LocalTerrainExplorer
                 Check(Mathf.Abs(Mathf.DeltaAngle(facing,humanPlayer.Yaw))<.5f,mode+" third-person camera orbit leaves an idle body facing unchanged");
                 var headAfter=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*inventoryBones["head"].rotation;
                 Check(Quaternion.Angle(headBefore,headAfter)<12,mode+" idle head does not turn to follow the orbiting third-person camera");
-                if(generated)Check(Vector3.Dot(SharedSpearDirection,humanPlayer.Root.transform.forward)>.999f,"Third-person idle spear stays aligned with its carrier instead of the camera");
+                if(generated)Check(Vector3.Angle(SharedSpearDirection,NaturalCarryAxis(SharedMainHeld))<.1f,"Third-person idle spear retains its relaxed body-relative carry angle independently of the camera");
                 Image("third-"+mode+"-after-orbit");
                 double fromX=motion.X,fromZ=motion.Z;
                 InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D,Key.C));yield return new WaitForSecondsRealtime(.7f);

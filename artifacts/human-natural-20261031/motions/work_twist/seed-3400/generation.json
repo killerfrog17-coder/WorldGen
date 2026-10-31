@@ -1,0 +1,24 @@
+{
+  "id": "work_twist",
+  "label": "work_twist",
+  "frames": 180,
+  "prompt": "A standing person calmly twists and rolls plant fibres between both hands at waist height. Small precise repeated finger and wrist movements, elbows close to the sides, quiet steady legs.",
+  "seed": 3400,
+  "steps": 50,
+  "seconds": 93.81300000002375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "b88712b2482acf4182ab90d01533ef48cd9774990fca3182f7c1771b94ea7d4b",
+  "root_start": [
+    -0.007173783611506224,
+    0.998727023601532,
+    0.0039023503195494413
+  ],
+  "root_end": [
+    -0.0011144746094942093,
+    0.9996148943901062,
+    -0.006739314645528793
+  ],
+  "raw_rotation_sha256": "cc7939e67257d776a323366d2b4e7ec53c062f960375eff6b43e9585ece92b9b"
+}

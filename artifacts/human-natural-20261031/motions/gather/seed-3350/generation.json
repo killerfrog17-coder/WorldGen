@@ -1,0 +1,24 @@
+{
+  "id": "gather",
+  "label": "gather",
+  "frames": 150,
+  "prompt": "A person calmly bends at hips and knees, reaches down to pick a small object from the ground with the right hand, then stands upright smoothly. One ordinary unhurried pickup.",
+  "seed": 3350,
+  "steps": 50,
+  "seconds": 84.29700000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "d91f09115b01e754b33c7693f5621c68c913a7f6aa75c4cc430342ad87f4d59b",
+  "root_start": [
+    -0.039729468524456024,
+    1.0036685466766357,
+    0.045466598123311996
+  ],
+  "root_end": [
+    -0.03673937916755676,
+    1.0039646625518799,
+    0.08047482371330261
+  ],
+  "raw_rotation_sha256": "45fa4f97172ec6cdf9593ce06817b2026da7240551e50a08de082a74baf2754d"
+}

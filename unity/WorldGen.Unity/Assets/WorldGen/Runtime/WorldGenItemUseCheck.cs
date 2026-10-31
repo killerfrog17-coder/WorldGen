@@ -255,7 +255,11 @@ public sealed partial class WorldGenRuntime
             bool keep=HumanAnimationOptions.Kimodo;HumanAnimationOptions.Kimodo=false;
             try{yield return terrainExplorer.CheckFirstPersonFlow(output,report);}finally{HumanAnimationOptions.Kimodo=keep;}
         }
-        else if(Environment.GetCommandLineArgs().Contains("--worldgen-kimodo-human-check"))yield return terrainExplorer.CheckKimodoHumanFlow(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-kimodo-human-check"))
+        {
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-natural-review"))yield return terrainExplorer.CheckNaturalHumanFlow(output,report);
+            else yield return terrainExplorer.CheckKimodoHumanFlow(output,report);
+        }
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-check"))yield return terrainExplorer.CheckHuntingFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check"))yield return terrainExplorer.CheckCampFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))yield return terrainExplorer.CheckRiverRepairFlow(output,report);

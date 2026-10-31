@@ -74,7 +74,7 @@ public sealed partial class LocalTerrainExplorer
         motion.Place(deepX,deepZ,Ground(deepX,deepZ));motion.Y=SampleMotionWater(deepX,deepZ).Surface+.12-humanEyeOffset;Vitals.Restore();
         UpdateHumans();AnimateHuman(humanPlayer,1,false,false,.3f,true);
         int swim=Array.IndexOf(humanPlayer.Definition.Roles,"Swim");
-        bool swimPlaying=SharedHumanMotion?humanPlayer.Shared.Clips.ContainsKey("Swim")&&humanPlayer.Shared.LocomotionWeight("Swim")>.9f:swim>=0&&humanPlayer.Weights[swim]>.9f;
+        bool swimPlaying=SharedHumanMotion?humanPlayer.Shared.Clips.ContainsKey("Swim")&&humanPlayer.Shared.LocomotionWeight("Swim")+humanPlayer.Shared.LocomotionWeight("SwimCarry")+humanPlayer.Shared.LocomotionWeight("SwimCarryLeft")+humanPlayer.Shared.LocomotionWeight("SwimCarryTwo")>.9f:swim>=0&&humanPlayer.Weights[swim]>.9f;
         Check(swimPlaying,"Player uses the active animation mode's native swimming clip");
         pitch=14;UpdateCamera();UpdatePlayerWater();yield return null;Image("01-ocean-surface");
         double x0=motion.X,z0=motion.Z;for(int i=0;i<120;i++)motion.Move(1d/60,1,0,-1,heading,15,false,false,PlayerSolidGround);

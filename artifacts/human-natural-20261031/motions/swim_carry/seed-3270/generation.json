@@ -1,0 +1,24 @@
+{
+  "id": "swim_carry",
+  "label": "swim_carry",
+  "frames": 180,
+  "prompt": "A person swims slowly with a horizontal body, using the left arm and alternating leg kicks. The right arm stays extended forward at the water surface carrying a long pole. Smooth continuous calm swimming.",
+  "seed": 3270,
+  "steps": 50,
+  "seconds": 101.93700000003446,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "0ad16230eb2220de76958f006be2f561e3305e3b87033061f01aeff6494f3ad8",
+  "root_start": [
+    -0.0035242661833763123,
+    0.13982689380645752,
+    0.0002027750015258789
+  ],
+  "root_end": [
+    0.004675988107919693,
+    0.14295530319213867,
+    0.012022837996482849
+  ],
+  "raw_rotation_sha256": "68953f6f504d8b06119ee2dd8e05bffdfe7448928d0a4a282adefac7b970622c"
+}

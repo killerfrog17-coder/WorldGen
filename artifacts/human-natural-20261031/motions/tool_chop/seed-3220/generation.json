@@ -1,0 +1,24 @@
+{
+  "id": "tool_chop",
+  "label": "tool_chop",
+  "frames": 120,
+  "prompt": "A standing person makes one deliberate right handed hatchet chop downward into wood at waist height. A moderate shoulder swing and slight forward lean, planted feet, no deep knee bend, then a calm recovery.",
+  "seed": 3220,
+  "steps": 50,
+  "seconds": 73.35999999998603,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "bfe034bc74b65f985c900cbb25dd697fa50c6b19392d08403f5df9ad59207010",
+  "root_start": [
+    -0.03608269989490509,
+    1.0004339218139648,
+    0.005282064434140921
+  ],
+  "root_end": [
+    -0.014514515176415443,
+    0.9992428421974182,
+    0.05872681364417076
+  ],
+  "raw_rotation_sha256": "d36b2f0e5b24212ac6fc12eee16800de5e340d1868113389b803ebf5908d62b7"
+}

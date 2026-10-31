@@ -1,0 +1,24 @@
+{
+  "id": "tool_ready",
+  "label": "tool_ready",
+  "frames": 120,
+  "prompt": "A person stands comfortably upright holding a small knife loosely beside their right hip, elbow slightly bent. Calm ordinary posture, steady legs.",
+  "seed": 3110,
+  "steps": 50,
+  "seconds": 65.57800000003772,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "5d028b64df4d16135e10f3c26f439cbaf1d47615baa9ce18098a3e55933ccf0f",
+  "root_start": [
+    0.037617746740579605,
+    0.8732218742370605,
+    0.013875948265194893
+  ],
+  "root_end": [
+    0.03809833154082298,
+    0.9244621396064758,
+    0.0061937011778354645
+  ],
+  "raw_rotation_sha256": "5193a95ceef199b82a3f851cb632ca8df560b54ac0532a6beee13889eba98941"
+}

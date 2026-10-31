@@ -1,0 +1,24 @@
+{
+  "id": "spear_thrust_two",
+  "label": "spear_thrust_two",
+  "frames": 90,
+  "prompt": "An upright person makes one compact forward spear thrust with both hands at chest height, extends the elbows, then retracts. Feet stay planted, pelvis stays level, a small forward weight shift.",
+  "seed": 3151,
+  "steps": 50,
+  "seconds": 64.01600000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "4ac0942e1ed6e149e523b81f53d78c17d9d82400ecd0e188ba15130ec8e06706",
+  "root_start": [
+    -0.0232410728931427,
+    0.8528866171836853,
+    -0.012843005359172821
+  ],
+  "root_end": [
+    0.01565402001142502,
+    0.8372431993484497,
+    -0.04575930908322334
+  ],
+  "raw_rotation_sha256": "21367d97fe424110de5f1bc16b66122da4742051bcb7dab8cf2a90831650f48b"
+}

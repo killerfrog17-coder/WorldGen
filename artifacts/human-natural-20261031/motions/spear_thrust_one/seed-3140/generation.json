@@ -1,0 +1,24 @@
+{
+  "id": "spear_thrust_one",
+  "label": "spear_thrust_one",
+  "frames": 90,
+  "prompt": "An upright person makes one controlled straight forward thrust with a spear in their right hand at chest height, then retracts. Feet remain planted and knees stay softly bent at the same height.",
+  "seed": 3140,
+  "steps": 50,
+  "seconds": 56.21899999998277,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "c24e7a1715075a2471413fd88055961fbdea8cd2b15ff12065ff2ad5b0ed650b",
+  "root_start": [
+    -0.00543254753574729,
+    0.7831943035125732,
+    -0.028627313673496246
+  ],
+  "root_end": [
+    -0.06508143246173859,
+    0.7688146829605103,
+    -0.044279005378484726
+  ],
+  "raw_rotation_sha256": "2bf84b43826a78946103dbd1218c8af22ad59cbd98e589ad8aca8530e21ff50f"
+}

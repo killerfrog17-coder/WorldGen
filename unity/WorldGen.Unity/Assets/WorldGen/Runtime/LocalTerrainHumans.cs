@@ -16,6 +16,7 @@ public sealed partial class LocalTerrainExplorer
         public HumanRuntimeDefinition Definition;public GameObject Root;public Animator Animator;
         public PlayableGraph Graph;public AnimationMixerPlayable Mixer;public AnimationClipPlayable[] Inputs;
         public AnimationPlayableOutput Output;public WorldGenSharedHumanMotion Shared;
+        public WorldGenPropClearance.BodyShape PropShape;
         public float[] Weights;public int Jump=-1;public bool Airborne;
         public Vector2 LocalVelocity;
         public readonly List<Material> OwnedMaterials=new List<Material>();
@@ -80,6 +81,7 @@ public sealed partial class LocalTerrainExplorer
         // Calibrate the eye/head offsets only after the original native skin
         // has actually been posed, otherwise that initial offset is added twice.
         actor.Graph.Play();actor.Graph.Evaluate(0);
+        if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight);
         var generated=kimodoHumanLibrary?.Find(definition.Variant);
         if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight);
         actor.Graph.Play();actor.Graph.Evaluate(0);return actor;
@@ -122,7 +124,7 @@ public sealed partial class LocalTerrainExplorer
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
         bool crouch=(Application.isFocused||testKeyboard!=null)&&!motion.Flying&&!motion.Swimming&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
         if(!deathPresented){
-        if(SharedHumanMotion&&humanCamera.FirstPerson)humanPlayer.TargetYaw=heading;
+        if(SharedHumanMotion&&(humanCamera.FirstPerson||SharedDeliberateAim||sharedBowRaise>.02f))humanPlayer.TargetYaw=heading+NaturalBowYaw;
         else if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
         humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
@@ -176,10 +178,18 @@ public sealed partial class LocalTerrainExplorer
         humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.
     }
-    static void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
+    void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
     {
         if(HumanAnimationOptions.Kimodo&&actor.Shared!=null)
-        {actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity);actor.Graph.Evaluate(dt);return;}
+        {
+            string swimRole="Swim";
+            if(swimming&&actor==humanPlayer)
+            {
+                var held=SharedMainHeld;
+                if(held!=null)swimRole=held.Hands==2||held.Kind==PossessionKind.Bow&&NaturalActing(held)?"SwimCarryTwo":NaturalSide(held)=="l"?"SwimCarryLeft":"SwimCarry";
+            }
+            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);actor.Graph.Evaluate(dt);return;
+        }
         actor.Output.SetSourcePlayable(actor.Mixer);
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
         actor.Airborne=airborne;float total=0;

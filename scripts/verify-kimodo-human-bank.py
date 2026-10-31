@@ -4,12 +4,15 @@ import json
 import math
 from pathlib import Path
 import sys
+import argparse
 import bpy
 from mathutils import Vector
 
 REPO=Path(__file__).resolve().parent.parent
 ROOT=REPO/'artifacts/kimodo-human-bank'
-bpy.ops.wm.open_mainfile(filepath=str(ROOT/'Kimodo bank B.blend'))
+p=argparse.ArgumentParser();p.add_argument('--root');p.add_argument('--variant',default='B');opts=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+if opts.root:ROOT=REPO/opts.root
+bpy.ops.wm.open_mainfile(filepath=str(ROOT/f'Kimodo bank {opts.variant}.blend'))
 rig=next(o for o in bpy.data.objects if o.type=='ARMATURE')
 clips=json.loads(rig['kimodo_bank_clips'])
 records=[]
@@ -53,6 +56,6 @@ for side in ['', '_Left']:
         boundaries.append({'role':stem+side,'boundary_quaternion_error':error})
 source=REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 assert hashlib.sha256(source.read_bytes()).hexdigest()=='0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229'
-(ROOT/'bank-mechanical-audit.json').write_text(json.dumps({'clips':records,'boundaries':boundaries,'source_unchanged':True},indent=2))
+(ROOT/f'bank-mechanical-audit-{opts.variant}.json').write_text(json.dumps({'clips':records,'boundaries':boundaries,'source_unchanged':True},indent=2))
 print('KIMODO BANK MECHANICAL AUDIT PASS',len(records),flush=True)
 for r in sorted(records,key=lambda r:r['max_angle_per_frame_deg'],reverse=True)[:12]:print(r,flush=True)

@@ -17,6 +17,18 @@ public static class KimodoHumanBankBuilder
     static string Repo=>Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
     public static void Probe()=>Import(false);
     public static void Build()=>Import(true);
+    public static void ProbeAnatomyAxes()
+    {
+        var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var lines=new List<string>();
+        foreach(var person in library.People)
+        {
+            var obj=UnityEngine.Object.Instantiate(person.Prefab);var idle=Array.IndexOf(person.Roles,"Idle");person.Clips[idle].SampleAnimation(obj,0);
+            var bones=obj.GetComponentsInChildren<Transform>().GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
+            foreach(string name in new[]{"pelvis","head","upperarm_r","upperarm_l","hand_r","hand_l"})lines.Add(person.Variant+" "+name+" "+obj.transform.InverseTransformPoint(bones[name].position).ToString("F5"));
+            UnityEngine.Object.DestroyImmediate(obj);
+        }
+        File.WriteAllLines(Path.Combine(Repo,"artifacts/human-natural-20261031/native-anatomy-axes.txt"),lines);Debug.Log(string.Join(" / ",lines));
+    }
     static void Import(bool complete)
     {
         var source=Path.Combine(Repo,"assets/human-motion-kimodo");var manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText(Path.Combine(source,"bank.json")));

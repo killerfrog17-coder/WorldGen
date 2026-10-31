@@ -1,0 +1,24 @@
+{
+  "id": "work_dig",
+  "label": "work_dig",
+  "frames": 180,
+  "prompt": "A person uses a short digging stick with both hands to loosen soil in front of the feet. Modest forward bend at the hips, a short downward push and lever motion, calm steady rhythm and no deep squat.",
+  "seed": 3410,
+  "steps": 50,
+  "seconds": 94.23500000004424,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "381e18aa9282e2ea78a760b6bd61e5fdb06e03dc0e3fa5644aaf611c01a4d742",
+  "root_start": [
+    -0.024673499166965485,
+    1.0027788877487183,
+    0.05256853625178337
+  ],
+  "root_end": [
+    -0.04603027179837227,
+    1.0034141540527344,
+    0.06444212049245834
+  ],
+  "raw_rotation_sha256": "59e551cee6da4677cae793b3404081d1e295f08379fcd6f03abf7da09ed674fc"
+}

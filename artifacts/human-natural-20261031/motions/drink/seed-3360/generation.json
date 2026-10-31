@@ -1,0 +1,24 @@
+{
+  "id": "drink",
+  "label": "drink",
+  "frames": 150,
+  "prompt": "An upright person brings both cupped hands from waist height to their mouth, takes a small drink, and lowers the hands. Steady feet and a small head inclination, no crouching.",
+  "seed": 3360,
+  "steps": 50,
+  "seconds": 83.60999999998603,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "23739ad8b5aea314dcaaab2c99138f92127e1fd3235a22b3add188f24714acee",
+  "root_start": [
+    -0.0011125041637569666,
+    0.9987677335739136,
+    0.005884446669369936
+  ],
+  "root_end": [
+    0.005375543609261513,
+    1.000144124031067,
+    0.005828069988638163
+  ],
+  "raw_rotation_sha256": "2693222f31b2107c872b2de00892b3b5480677809f52bde778de808fef59568b"
+}

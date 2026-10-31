@@ -1,0 +1,24 @@
+{
+  "id": "sling_release",
+  "label": "sling_release",
+  "frames": 120,
+  "prompt": "A standing person releases a sling throw with one controlled forward right arm swing, follows through across the body and returns upright. Small torso rotation, feet planted, no deep knee bend.",
+  "seed": 3340,
+  "steps": 50,
+  "seconds": 69.20300000003772,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "66391904f04eee32b05cb2e07660ae8e1bb6f72dd4c5984623caec77fca3cea4",
+  "root_start": [
+    -0.04271036013960838,
+    0.999021053314209,
+    -0.019245175644755363
+  ],
+  "root_end": [
+    -0.07635466754436493,
+    0.9975311160087585,
+    0.02133137360215187
+  ],
+  "raw_rotation_sha256": "51b69d08cdef6b3f6fc1696c4b91884b185dbe124d0c0bdd0c49953cad034723"
+}

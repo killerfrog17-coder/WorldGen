@@ -1,0 +1,24 @@
+{
+  "id": "work_cut",
+  "label": "work_cut",
+  "frames": 180,
+  "prompt": "An upright person holds a small piece of wood at waist height in the left hand and makes short careful whittling strokes away from the body with a knife in the right hand. Quiet planted feet, small precise hand movements.",
+  "seed": 3390,
+  "steps": 50,
+  "seconds": 93.84399999998277,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "c826f1329ef26cb855bfa6475bfef3e571d04dd39ffbceea801028d4c5901db2",
+  "root_start": [
+    -0.004051515832543373,
+    0.9995543360710144,
+    0.00959073193371296
+  ],
+  "root_end": [
+    0.006789954844862223,
+    0.9996873140335083,
+    0.01470434945076704
+  ],
+  "raw_rotation_sha256": "5c3e9081af5bce0e0f8406f493e4173d1c4917cc3f5ac9a163ab77a0bf08aaa8"
+}

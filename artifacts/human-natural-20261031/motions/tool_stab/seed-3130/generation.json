@@ -1,0 +1,24 @@
+{
+  "id": "tool_stab",
+  "label": "tool_stab",
+  "frames": 90,
+  "prompt": "An upright person makes one short quick right handed knife thrust at chest height, then retracts their hand. Feet stay planted, knees remain almost straight. Small controlled torso rotation.",
+  "seed": 3130,
+  "steps": 50,
+  "seconds": 57.375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "2a3449dabc9f394e06997ed739e24aaffda66df3635927c1faad1a0fcbbcf0f1",
+  "root_start": [
+    0.020489457994699478,
+    0.9976730942726135,
+    0.05136188864707947
+  ],
+  "root_end": [
+    -0.007485484704375267,
+    0.9989590644836426,
+    0.041775673627853394
+  ],
+  "raw_rotation_sha256": "85390df7d4d5057124f88ad9964239e9e6ce58a7e37f3172865b1fafd3fc39e0"
+}

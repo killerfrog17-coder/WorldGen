@@ -1,0 +1,24 @@
+{
+  "id": "fists_ready",
+  "label": "fists_ready",
+  "frames": 120,
+  "prompt": "A person stands upright with a relaxed practical guard, elbows close to the ribs and loosely closed hands at upper chest height. Feet planted with gentle quiet breathing.",
+  "seed": 3250,
+  "steps": 50,
+  "seconds": 73.54700000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "b16ad27ebcb4cb76e720ca4e6230622a5d11efed4ac0f47f7b74fe1cf13f2a90",
+  "root_start": [
+    -0.033464957028627396,
+    0.9154375791549683,
+    0.03884099796414375
+  ],
+  "root_end": [
+    0.029921963810920715,
+    0.9547208547592163,
+    0.06425818800926208
+  ],
+  "raw_rotation_sha256": "6909bd3f4c664fec78851525c1b07d003f1ad4295baccb60264da9b9f58cf77a"
+}

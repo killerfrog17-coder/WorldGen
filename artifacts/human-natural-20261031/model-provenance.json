@@ -1,0 +1,131 @@
+{
+  "created_unix": 1793402322.1766462,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "encoder": "LLM2Vec Q8_0",
+  "repositories": [
+    {
+      "repository": "LocalAI-io/Llama-3-Kimodo-GGML",
+      "revision": "f583f3ee2b093f6d9ec524463b4152622abf11a6",
+      "manifest": {
+        "component": "text",
+        "default_variant": "q8_0",
+        "files": [
+          {
+            "bytes": 7295054,
+            "path": "tokenizer.gguf",
+            "sha256": "81614aca62a98846c02b72cc2e5378e5bdce8b4d507b88f96eb1faa90dae607e"
+          },
+          {
+            "bytes": 15177675936,
+            "path": "Llama-3-Kimodo-BF16.gguf",
+            "sha256": "d9a60017b3981bac874c4d118fc7e34f05b41763a12f0c0c7ee1e3b84eebb20f"
+          },
+          {
+            "bytes": 8142058752,
+            "path": "Llama-3-Kimodo-Q8_0.gguf",
+            "sha256": "b26d0e74b115b33a7f2df5aca04426548365e99217cd590986f8abc4172e4c5c"
+          },
+          {
+            "bytes": 6324524288,
+            "path": "Llama-3-Kimodo-Q6_K.gguf",
+            "sha256": "656b790e44f90f27d746c48342aee066e3cf078db0322f98667c1a89be3ad7a2"
+          },
+          {
+            "bytes": 5327811840,
+            "path": "Llama-3-Kimodo-Q5_K.gguf",
+            "sha256": "7b4d8524d2a9298d4087a684c0ea2042f8d6e86881bc7ecdb99fee920a784211"
+          },
+          {
+            "bytes": 4389729536,
+            "path": "Llama-3-Kimodo-Q4_K.gguf",
+            "sha256": "b47f3d57c72660df7faa18338749be945e725032f1db467fe3cabf580a80e012"
+          },
+          {
+            "bytes": 5058327904,
+            "path": "Llama-3-Kimodo-Q4_K_M.gguf",
+            "sha256": "c06f2cb6a7615e949bcbb5b582ad35a191338b68b5a51abe17d259ebe574c005"
+          }
+        ],
+        "format": "kimodo-gguf-manifest-v1",
+        "repository": "LocalAI-io/Llama-3-Kimodo-GGML",
+        "source_revisions": {
+          "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp": "31474e395ada192e8ed1586db6be79fb3b70c9c0",
+          "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised": "baa8ebf04a1c2500e61288e7dad65e8ae42601a7",
+          "meta-llama/Meta-Llama-3-8B-Instruct": "8afb486c1db24fe5011ec46dfbe5b5dccdb575c2"
+        },
+        "variants": {
+          "bf16": {
+            "tokenizer": "tokenizer.gguf",
+            "weights": "Llama-3-Kimodo-BF16.gguf"
+          },
+          "q4_k": {
+            "tokenizer": "tokenizer.gguf",
+            "weights": "Llama-3-Kimodo-Q4_K.gguf"
+          },
+          "q4_k_m": {
+            "tokenizer": "tokenizer.gguf",
+            "weights": "Llama-3-Kimodo-Q4_K_M.gguf"
+          },
+          "q5_k": {
+            "tokenizer": "tokenizer.gguf",
+            "weights": "Llama-3-Kimodo-Q5_K.gguf"
+          },
+          "q6_k": {
+            "tokenizer": "tokenizer.gguf",
+            "weights": "Llama-3-Kimodo-Q6_K.gguf"
+          },
+          "q8_0": {
+            "tokenizer": "tokenizer.gguf",
+            "weights": "Llama-3-Kimodo-Q8_0.gguf"
+          }
+        }
+      },
+      "directory": "E:\\AI\\WorldGen3D\\models\\Kimodo\\text"
+    },
+    {
+      "repository": "LocalAI-io/Kimodo-SOMA-RP-v1.1-GGML",
+      "revision": "65f8b8ab34ee7524161cc87b20ae4cb4f5d3a12d",
+      "manifest": {
+        "component": "motion",
+        "files": [
+          {
+            "bytes": 1133166784,
+            "path": "models/kimodo-soma-rp-v1.1-f32.gguf",
+            "sha256": "3bf1229f4c1eff1d28f5196a854113da2df9a11a5e21c60694630903bf948ee4"
+          }
+        ],
+        "format": "kimodo-gguf-manifest-v1",
+        "repository": "LocalAI-io/Kimodo-SOMA-RP-v1.1-GGML",
+        "source_revisions": {
+          "nvidia/Kimodo-SOMA-RP-v1.1": "6c9233af1180b8151e3c4703477104af5dce9dd5"
+        }
+      },
+      "directory": "E:\\AI\\WorldGen3D\\models\\Kimodo\\motion"
+    }
+  ],
+  "files": [
+    {
+      "path": "E:\\AI\\WorldGen3D\\models\\Kimodo\\text\\Llama-3-Kimodo-Q8_0.gguf",
+      "bytes": 8142058752,
+      "sha256": "b26d0e74b115b33a7f2df5aca04426548365e99217cd590986f8abc4172e4c5c"
+    },
+    {
+      "path": "E:\\AI\\WorldGen3D\\models\\Kimodo\\text\\tokenizer.gguf",
+      "bytes": 7295054,
+      "sha256": "81614aca62a98846c02b72cc2e5378e5bdce8b4d507b88f96eb1faa90dae607e"
+    },
+    {
+      "path": "E:\\AI\\WorldGen3D\\models\\Kimodo\\motion\\models\\kimodo-soma-rp-v1.1-f32.gguf",
+      "bytes": 1133166784,
+      "sha256": "3bf1229f4c1eff1d28f5196a854113da2df9a11a5e21c60694630903bf948ee4"
+    }
+  ],
+  "source": {
+    "kimodo": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+    "kimodo-cpp": "75ed52d2d3ec767a9bac79d11060b65d99f61a89"
+  },
+  "paid_calls": 0,
+  "login_required": false,
+  "note": "SOMA motion weights are F32. Only the text encoder is quantized."
+}

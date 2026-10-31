@@ -11,6 +11,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument('--player-folder',default='player-human-kimodo')
 parser.add_argument('--proof-folder',default='kimodo-human-bank/package-proof')
 parser.add_argument('--freeze',action='store_true')
+parser.add_argument('--baseline-freeze',default='artifacts/terrain-boundaries-20261031/package-proof/source-freeze.json')
 args=parser.parse_args()
 TASK=ROOT/'artifacts'/args.proof_folder
 PLAYER=ROOT/'artifacts'/args.player_folder
@@ -20,7 +21,7 @@ def sha(path):
     with path.open('rb') as stream:
         for block in iter(lambda:stream.read(4*1024*1024),b''):h.update(block)
     return h.hexdigest()
-old=json.loads((ROOT/'artifacts/water-sickness-20261030/package-proof/camp-water-source-freeze.json').read_text())
+old=json.loads((ROOT/args.baseline_freeze).read_text())
 if args.freeze:
     paths=set(old)
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Runtime','unity/WorldGen.Unity/Assets/WorldGen/Editor','unity/WorldGen.Unity/Assets/WorldGen/Resources']:
@@ -28,6 +29,13 @@ if args.freeze:
     for directory in ['assets/human-motion-kimodo','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanKimodo','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanKimodo']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file())
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*kimodo*.py'))
+    paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*natural*human*.py'))
+    paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('natural_human*.py'))
+    for person in json.loads((ROOT/'assets/human-motion-kimodo/bank.json').read_text())['people']:
+        for clip in person['clips']:
+            folder=Path(clip['source'].replace('\\','/'))
+            paths.update((folder/name).as_posix() for name in ['generation.json','root_positions.f32','local_rotations_xyzw.f32'])
+            if (ROOT/folder.parent/'selected.json').exists():paths.add((folder.parent/'selected.json').as_posix())
     (TASK/'source-freeze.json').write_text(json.dumps({p:sha(ROOT/p) for p in sorted(paths)},indent=2))
     print('FROZEN',len(paths));sys.exit(0)
 frozen=json.loads((TASK/'source-freeze.json').read_text())

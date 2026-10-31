@@ -1,0 +1,24 @@
+{
+  "id": "fists_guard",
+  "label": "fists_guard",
+  "frames": 120,
+  "prompt": "A person stands upright and steadily protects their face with both forearms, elbows close to the ribs, without bouncing. Feet hip width apart and knees only slightly bent.",
+  "seed": 3260,
+  "steps": 50,
+  "seconds": 72.79599999997299,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "8beb414f6c856422c6dd6dea5db6a3444245e9df7a4952f57576b2bef2afccfc",
+  "root_start": [
+    -0.0017476099310442805,
+    0.9547043442726135,
+    -0.011301130056381226
+  ],
+  "root_end": [
+    -0.061061661690473557,
+    0.9632893800735474,
+    0.0011231452226638794
+  ],
+  "raw_rotation_sha256": "4568bf9aa50ed917aea554765ed4ec0069aaa58e8eb4d798eda1a7057ad6024c"
+}

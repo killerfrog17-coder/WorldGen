@@ -1,0 +1,24 @@
+{
+  "id": "spear_throw",
+  "label": "spear_throw",
+  "frames": 180,
+  "prompt": "An upright person holds a javelin beside the right ear, draws the right elbow back, makes a controlled forward overarm javelin throw and follows through. One small step forward, a steady pelvis and no deep squat.",
+  "seed": 3310,
+  "steps": 50,
+  "seconds": 95.67200000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "7b19a8cd8dcc61b958c0b11a3bce317df1541675cef897f117c2a5ad76c00832",
+  "root_start": [
+    -0.02283194102346897,
+    0.994862973690033,
+    0.001305176061578095
+  ],
+  "root_end": [
+    -0.014509696513414383,
+    0.9927050471305847,
+    0.03422375023365021
+  ],
+  "raw_rotation_sha256": "29600a609e33c99c1d8f4a7a87ddcdf9445771bc801edf048eb0c6c15ae19111"
+}

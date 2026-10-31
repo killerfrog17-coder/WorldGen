@@ -24,16 +24,1072 @@
   ],
   "source_character_sha256": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
   "baked_roles_per_character": [
-    67,
-    67,
-    67,
-    67,
-    67,
-    67
+    70,
+    70,
+    70,
+    70,
+    70,
+    70
   ],
   "selected_raw_sources": [
     {
-      "path": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240",
+      "path": "artifacts/human-natural-20261031/motions/bow_ready/seed-3170",
+      "generation": {
+        "id": "bow_ready",
+        "label": "bow_ready",
+        "frames": 120,
+        "prompt": "A person stands upright holding an undrawn bow low beside their left thigh with the left arm relaxed and slightly bent. The right hand rests loosely near their waist. Calm still posture.",
+        "seed": 3170,
+        "steps": 50,
+        "seconds": 69.43699999997625,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "3b727e1ccc2864c2484fd71b09cadb28243d8d5a8a319f37ade8189884ce4dbe",
+        "root_start": [
+          0.023997347801923752,
+          0.9962790012359619,
+          0.015566556714475155
+        ],
+        "root_end": [
+          0.07977217435836792,
+          0.9426900148391724,
+          0.13352437317371368
+        ],
+        "raw_rotation_sha256": "8cf7d3eb2d589051e1fd89f875ee0bf5fc534768f1753da0df40e68128798677"
+      },
+      "files": {
+        "generation.json": "8fc1e2cd9ff72b7a92b60298c673078a90ff7a3ce84ee9fd4d2112d9079f569b",
+        "root_positions.f32": "7168671f63dee66a804154a978a702966d4d9f20d9649412a180fc83a576cede",
+        "local_rotations_xyzw.f32": "8cf7d3eb2d589051e1fd89f875ee0bf5fc534768f1753da0df40e68128798677"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/bow_shoot/seed-3160",
+      "generation": {
+        "id": "bow_shoot",
+        "label": "bow_shoot",
+        "frames": 180,
+        "prompt": "A standing archer turns slightly side on, smoothly raises a bow with the left arm, draws the string to the right cheek, holds still, releases, and calmly lowers the bow. Upright spine, steady pelvis, planted feet.",
+        "seed": 3160,
+        "steps": 50,
+        "seconds": 92.79700000002049,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "d5133cec5fe341a414c96ed8398cafb7f900f31d051dbee3484f9924ea4897d4",
+        "root_start": [
+          0.04956536367535591,
+          0.9801099896430969,
+          -0.016298232600092888
+        ],
+        "root_end": [
+          0.027785448357462883,
+          0.9702653884887695,
+          -0.004988778382539749
+        ],
+        "raw_rotation_sha256": "b7a70a53beb0ee86626ac1bff9b8b0feaf68d0eb2c802d51fff182966f421f14"
+      },
+      "files": {
+        "generation.json": "1ad195a55f43166fff1a95ef163185f606c99cb90f41499b63bcf89d976c7563",
+        "root_positions.f32": "023e71a7cd79073bcd7ca405a6071889655073d040f5d70b88761a0d781fcfae",
+        "local_rotations_xyzw.f32": "b7a70a53beb0ee86626ac1bff9b8b0feaf68d0eb2c802d51fff182966f421f14"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/carry_large/seed-3420",
+      "generation": {
+        "id": "carry_large",
+        "label": "carry_large",
+        "frames": 150,
+        "prompt": "An upright person carries a large heavy rock close in front of their abdomen with both hands under it, elbows tucked near the sides. Slight backward counterbalance, quiet steady feet and very small breathing motion.",
+        "seed": 3420,
+        "steps": 50,
+        "seconds": 82.51499999995576,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "062724a6d28fc2290844c9309f61cf628c99cd1f3b35536df16971d8a36d02d4",
+        "root_start": [
+          0.002366103697568178,
+          1.000398874282837,
+          -0.027753936126828194
+        ],
+        "root_end": [
+          -0.12642902135849,
+          0.9921181797981262,
+          -0.01914878934621811
+        ],
+        "raw_rotation_sha256": "eb705d600e18626654885651ef68b07f91d37cefa167945591d2659e76be983d"
+      },
+      "files": {
+        "generation.json": "8b3690b9d88f16bc70f6d3fdfe22e4cdd460026449e5d40fd3d870c30db52dfe",
+        "root_positions.f32": "c59d9a607b6871e3fe79551709036a1b71bb1e62dcbef67d9cf0100dc3b5e5c0",
+        "local_rotations_xyzw.f32": "eb705d600e18626654885651ef68b07f91d37cefa167945591d2659e76be983d"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/drink/seed-3360",
+      "generation": {
+        "id": "drink",
+        "label": "drink",
+        "frames": 150,
+        "prompt": "An upright person brings both cupped hands from waist height to their mouth, takes a small drink, and lowers the hands. Steady feet and a small head inclination, no crouching.",
+        "seed": 3360,
+        "steps": 50,
+        "seconds": 83.60999999998603,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "23739ad8b5aea314dcaaab2c99138f92127e1fd3235a22b3add188f24714acee",
+        "root_start": [
+          -0.0011125041637569666,
+          0.9987677335739136,
+          0.005884446669369936
+        ],
+        "root_end": [
+          0.005375543609261513,
+          1.000144124031067,
+          0.005828069988638163
+        ],
+        "raw_rotation_sha256": "2693222f31b2107c872b2de00892b3b5480677809f52bde778de808fef59568b"
+      },
+      "files": {
+        "generation.json": "5881e7e241dda71b86b927fe1450189ede998a8c89b2402e5fb98eb22cbbf52e",
+        "root_positions.f32": "f206c7f519ecb6104cb00394f1f4eae634bc6575b897524d6579aac00a9a5288",
+        "local_rotations_xyzw.f32": "2693222f31b2107c872b2de00892b3b5480677809f52bde778de808fef59568b"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/eat/seed-3370",
+      "generation": {
+        "id": "eat",
+        "label": "eat",
+        "frames": 150,
+        "prompt": "An upright person brings a small bite of food from chest height to their mouth with the right hand, eats it calmly, and lowers the hand. The pelvis stays level and the feet remain planted.",
+        "seed": 3370,
+        "steps": 50,
+        "seconds": 82.39100000000326,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "9bce14283a7d89e634106511b42a00781bb1aeb4a1d3ebc8b490fa8873c5fb23",
+        "root_start": [
+          0.0014547161990776658,
+          0.9966251850128174,
+          -0.0005897722439840436
+        ],
+        "root_end": [
+          0.011098405346274376,
+          0.9969905614852905,
+          0.009984008967876434
+        ],
+        "raw_rotation_sha256": "1ed235c54067159bd289448d544008b0e539992e1680d07d1348c0dfb830fd23"
+      },
+      "files": {
+        "generation.json": "8e61f293d5375a085cbbbd4cd90a427820ed53b51ae9861cc4edbc9cba04240a",
+        "root_positions.f32": "348850df5746b5966f928f5fe650bc4fb30e57ad938ad14f2eabb3f61a3dd47d",
+        "local_rotations_xyzw.f32": "1ed235c54067159bd289448d544008b0e539992e1680d07d1348c0dfb830fd23"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/fists_guard/seed-3260",
+      "generation": {
+        "id": "fists_guard",
+        "label": "fists_guard",
+        "frames": 120,
+        "prompt": "A person stands upright and steadily protects their face with both forearms, elbows close to the ribs, without bouncing. Feet hip width apart and knees only slightly bent.",
+        "seed": 3260,
+        "steps": 50,
+        "seconds": 72.79599999997299,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "8beb414f6c856422c6dd6dea5db6a3444245e9df7a4952f57576b2bef2afccfc",
+        "root_start": [
+          -0.0017476099310442805,
+          0.9547043442726135,
+          -0.011301130056381226
+        ],
+        "root_end": [
+          -0.061061661690473557,
+          0.9632893800735474,
+          0.0011231452226638794
+        ],
+        "raw_rotation_sha256": "4568bf9aa50ed917aea554765ed4ec0069aaa58e8eb4d798eda1a7057ad6024c"
+      },
+      "files": {
+        "generation.json": "73e44b4c56a40afbbeb4d9cbc9b95c957ee407145306e06515b98b2ae6059ef8",
+        "root_positions.f32": "c389ad25f379940a971e811fb15ce7d868cefc3ad6c2375480b27c3f16f25d94",
+        "local_rotations_xyzw.f32": "4568bf9aa50ed917aea554765ed4ec0069aaa58e8eb4d798eda1a7057ad6024c"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/fists_ready/seed-3250",
+      "generation": {
+        "id": "fists_ready",
+        "label": "fists_ready",
+        "frames": 120,
+        "prompt": "A person stands upright with a relaxed practical guard, elbows close to the ribs and loosely closed hands at upper chest height. Feet planted with gentle quiet breathing.",
+        "seed": 3250,
+        "steps": 50,
+        "seconds": 73.54700000002049,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "b16ad27ebcb4cb76e720ca4e6230622a5d11efed4ac0f47f7b74fe1cf13f2a90",
+        "root_start": [
+          -0.033464957028627396,
+          0.9154375791549683,
+          0.03884099796414375
+        ],
+        "root_end": [
+          0.029921963810920715,
+          0.9547208547592163,
+          0.06425818800926208
+        ],
+        "raw_rotation_sha256": "6909bd3f4c664fec78851525c1b07d003f1ad4295baccb60264da9b9f58cf77a"
+      },
+      "files": {
+        "generation.json": "d094fb5d4e9fb7194be9baf66b0b4eef80beb936782fe077e8759a9048e4f278",
+        "root_positions.f32": "f58367c4eb8409123257179039257155e3c7ca783a1bb7abbf9e301a16071bf9",
+        "local_rotations_xyzw.f32": "6909bd3f4c664fec78851525c1b07d003f1ad4295baccb60264da9b9f58cf77a"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/gather/seed-3350",
+      "generation": {
+        "id": "gather",
+        "label": "gather",
+        "frames": 150,
+        "prompt": "A person calmly bends at hips and knees, reaches down to pick a small object from the ground with the right hand, then stands upright smoothly. One ordinary unhurried pickup.",
+        "seed": 3350,
+        "steps": 50,
+        "seconds": 84.29700000002049,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "d91f09115b01e754b33c7693f5621c68c913a7f6aa75c4cc430342ad87f4d59b",
+        "root_start": [
+          -0.039729468524456024,
+          1.0036685466766357,
+          0.045466598123311996
+        ],
+        "root_end": [
+          -0.03673937916755676,
+          1.0039646625518799,
+          0.08047482371330261
+        ],
+        "raw_rotation_sha256": "45fa4f97172ec6cdf9593ce06817b2026da7240551e50a08de082a74baf2754d"
+      },
+      "files": {
+        "generation.json": "fc2b7e68d86a98c2c0d90421c841eaeb235e6f8cd24239ff0e9e8bcf8c090259",
+        "root_positions.f32": "b1125045cae53d5fe23d1acc636d912b9e0a89d9fc51f983aa21310a1dc77108",
+        "local_rotations_xyzw.f32": "45fa4f97172ec6cdf9593ce06817b2026da7240551e50a08de082a74baf2754d"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/idle/seed-3100",
+      "generation": {
+        "id": "idle",
+        "label": "idle",
+        "frames": 120,
+        "prompt": "A person stands comfortably upright, feet hip width apart, with relaxed arms beside the body. Quiet breathing and very small natural weight shifts.",
+        "seed": 3100,
+        "steps": 50,
+        "seconds": 69.20299999997951,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "5d166337aef27414c4e6f19e9f5e512a1a2e3c109dc05be67d6e2317cec9a327",
+        "root_start": [
+          0.0066111721098423,
+          1.001253604888916,
+          0.007238338235765696
+        ],
+        "root_end": [
+          0.003705943003296852,
+          1.0010930299758911,
+          0.010404031723737717
+        ],
+        "raw_rotation_sha256": "cf2d1f9c20dd00fa2f2a3d6e06059fec20bb6445c5bf28ffdba6b579c0f9eb2d"
+      },
+      "files": {
+        "generation.json": "2da55ea17cf18ea76321facdaeb97173b3ddcd9aafe87eef3b3b0f98d4614453",
+        "root_positions.f32": "0a98fd310f89cbbc5dd7c336134f6a0f25e41a1919dbe0ae5d5a74f78669cb9d",
+        "local_rotations_xyzw.f32": "cf2d1f9c20dd00fa2f2a3d6e06059fec20bb6445c5bf28ffdba6b579c0f9eb2d"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/punch/seed-3240",
+      "generation": {
+        "id": "punch",
+        "label": "punch",
+        "frames": 90,
+        "prompt": "A standing person makes one short straight right handed punch at face height and retracts smoothly to chest level. The feet stay planted, small shoulder and torso rotation, pelvis remains level.",
+        "seed": 3240,
+        "steps": 50,
+        "seconds": 60.375,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "d93474aec2fe94943b65f62d5ad4e94fc9c32d1c47d44e2ff6e7c9130b2e7db1",
+        "root_start": [
+          0.003124999813735485,
+          0.946926474571228,
+          -0.018256930634379387
+        ],
+        "root_end": [
+          -0.010196787305176258,
+          0.9363289475440979,
+          0.015460412949323654
+        ],
+        "raw_rotation_sha256": "947f513df04157c00dd00cf35b64b5a9f2088f54722d803a5aa6a071b778eef8"
+      },
+      "files": {
+        "generation.json": "98bb466c90f0028529c46aedea5b16227beccccbce36daef0a9f3c3f6a21a5ea",
+        "root_positions.f32": "a20646b1b1f6ba2c6eb4f86d7ed15460a8ce3dbe97f54d0ddb45bab940ec0b6c",
+        "local_rotations_xyzw.f32": "947f513df04157c00dd00cf35b64b5a9f2088f54722d803a5aa6a071b778eef8"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/sling_ready/seed-3320",
+      "generation": {
+        "id": "sling_ready",
+        "label": "sling_ready",
+        "frames": 120,
+        "prompt": "A person stands upright calmly holding a sling in the right hand low beside the right thigh, with the elbow relaxed. Feet planted and quiet breathing.",
+        "seed": 3320,
+        "steps": 50,
+        "seconds": 69.17199999996228,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "f42ef33b4e0c8d4761d24e331e74bf1f4829af6052dc76e9954cc44a8ec98a18",
+        "root_start": [
+          -0.001910230377689004,
+          0.996008574962616,
+          0.006305846385657787
+        ],
+        "root_end": [
+          0.0027447822503745556,
+          0.994003176689148,
+          0.007834126241505146
+        ],
+        "raw_rotation_sha256": "aab4d9d3d10568f62e7ace9c5de941d36c4b93616b913b7a805323b54534c66e"
+      },
+      "files": {
+        "generation.json": "e26b05ebf956347ef05017bc2af18aa75183539a3bb1e2b2c7cc1331879ee777",
+        "root_positions.f32": "1af0bc638e37c6c840ba3d08bd68dbf544aa5e8c57e65d7ca14f4e9e300ce673",
+        "local_rotations_xyzw.f32": "aab4d9d3d10568f62e7ace9c5de941d36c4b93616b913b7a805323b54534c66e"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/sling_release/seed-3340",
+      "generation": {
+        "id": "sling_release",
+        "label": "sling_release",
+        "frames": 120,
+        "prompt": "A standing person releases a sling throw with one controlled forward right arm swing, follows through across the body and returns upright. Small torso rotation, feet planted, no deep knee bend.",
+        "seed": 3340,
+        "steps": 50,
+        "seconds": 69.20300000003772,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "66391904f04eee32b05cb2e07660ae8e1bb6f72dd4c5984623caec77fca3cea4",
+        "root_start": [
+          -0.04271036013960838,
+          0.999021053314209,
+          -0.019245175644755363
+        ],
+        "root_end": [
+          -0.07635466754436493,
+          0.9975311160087585,
+          0.02133137360215187
+        ],
+        "raw_rotation_sha256": "51b69d08cdef6b3f6fc1696c4b91884b185dbe124d0c0bdd0c49953cad034723"
+      },
+      "files": {
+        "generation.json": "79e18c6be0e195ce159ba8914b576d1213f149d2b81f2fcabb343a1b0e975e5c",
+        "root_positions.f32": "25f7aceaa4b96a45004acd90f1aec8a3ddbe49432e182e76a3634a0b5adca41f",
+        "local_rotations_xyzw.f32": "51b69d08cdef6b3f6fc1696c4b91884b185dbe124d0c0bdd0c49953cad034723"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/sling_whirl/seed-3330",
+      "generation": {
+        "id": "sling_whirl",
+        "label": "sling_whirl",
+        "frames": 180,
+        "prompt": "An upright person smoothly rotates a sling in a compact vertical circle beside the right shoulder. The feet stay planted and the pelvis remains level, with restrained shoulder motion.",
+        "seed": 3330,
+        "steps": 50,
+        "seconds": 95.31300000002375,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "66ef70dca0a25df50fe43df2d0147fa2473cdc323e59b07ac097942333968e56",
+        "root_start": [
+          -0.019720615819096565,
+          1.0018552541732788,
+          0.00024260528152808547
+        ],
+        "root_end": [
+          -0.006160711869597435,
+          1.0005176067352295,
+          0.016543203964829445
+        ],
+        "raw_rotation_sha256": "571bb8a396caaf825d76ac0f751f31ac4c6683eb39b80cde52ca70c76fb1cd59"
+      },
+      "files": {
+        "generation.json": "a216f67dc37bfd006679ab0e5e145e7e8b02c8495cfb90bb19273d61faa8e636",
+        "root_positions.f32": "e14e6eb6b6bd7bf4a4ad5499c08f1df788033be2d698de99c166e926d108f082",
+        "local_rotations_xyzw.f32": "571bb8a396caaf825d76ac0f751f31ac4c6683eb39b80cde52ca70c76fb1cd59"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/spear_ready_one/seed-3180",
+      "generation": {
+        "id": "spear_ready_one",
+        "label": "spear_ready_one",
+        "frames": 120,
+        "prompt": "A person stands upright casually carrying a long spear in their right hand just outside the right hip, with a relaxed bent elbow. Feet hip width apart, calm steady posture.",
+        "seed": 3180,
+        "steps": 50,
+        "seconds": 69.95400000002701,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "1544b952d5a1750822e288342fe449bdb6eae0f7ef6cfe089c71197f09ec4e2d",
+        "root_start": [
+          0.0027575017884373665,
+          0.9853384494781494,
+          -0.010967768728733063
+        ],
+        "root_end": [
+          -0.003605486126616597,
+          0.9843211770057678,
+          -0.008897367864847183
+        ],
+        "raw_rotation_sha256": "e78b6fa939dabef6336503990a4644e8a54b564d45426319bed89f4ef232bcbd"
+      },
+      "files": {
+        "generation.json": "e53b462aa90c72e5b148666bd7a218209e967827a81789c2a0fd67c7ab2ff79a",
+        "root_positions.f32": "2a7805b3b9740a32d5d951cee097db1a9f264412fb65cbf25ffbf5b402fd1d3e",
+        "local_rotations_xyzw.f32": "e78b6fa939dabef6336503990a4644e8a54b564d45426319bed89f4ef232bcbd"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/spear_ready_two/seed-3190",
+      "generation": {
+        "id": "spear_ready_two",
+        "label": "spear_ready_two",
+        "frames": 120,
+        "prompt": "An upright person carries a spear comfortably across the front of their lower ribs in both hands, elbows softly bent down. The spear is clear of the belly. Relaxed steady legs and small natural breathing.",
+        "seed": 3190,
+        "steps": 50,
+        "seconds": 71.79700000002049,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "0128ece702eaaf267029deb031c6ecdbcc7e14853706ee393690891b54c15f05",
+        "root_start": [
+          0.06132638826966286,
+          0.868503749370575,
+          0.006208354141563177
+        ],
+        "root_end": [
+          -0.18811658024787903,
+          1.0047924518585205,
+          -0.1377333253622055
+        ],
+        "raw_rotation_sha256": "5fc68f192f33199657f63d16b9cf54d61960d30f3a4086b90451797fa1257af4"
+      },
+      "files": {
+        "generation.json": "88f44526c7fd1056f7cec7813b72bb8605f55128a59b2a28c2cda212c7184bcc",
+        "root_positions.f32": "ca2ef2c308e846996a66fb583baca820cc9d7fde8bb1c042f6c0e6ff472eee10",
+        "local_rotations_xyzw.f32": "5fc68f192f33199657f63d16b9cf54d61960d30f3a4086b90451797fa1257af4"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/spear_throw/seed-3310",
+      "generation": {
+        "id": "spear_throw",
+        "label": "spear_throw",
+        "frames": 180,
+        "prompt": "An upright person holds a javelin beside the right ear, draws the right elbow back, makes a controlled forward overarm javelin throw and follows through. One small step forward, a steady pelvis and no deep squat.",
+        "seed": 3310,
+        "steps": 50,
+        "seconds": 95.67200000002049,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "7b19a8cd8dcc61b958c0b11a3bce317df1541675cef897f117c2a5ad76c00832",
+        "root_start": [
+          -0.02283194102346897,
+          0.994862973690033,
+          0.001305176061578095
+        ],
+        "root_end": [
+          -0.014509696513414383,
+          0.9927050471305847,
+          0.03422375023365021
+        ],
+        "raw_rotation_sha256": "29600a609e33c99c1d8f4a7a87ddcdf9445771bc801edf048eb0c6c15ae19111"
+      },
+      "files": {
+        "generation.json": "15f519cff1a67c6d9bd585e5db73269411f871e00813026dda95413067063ccd",
+        "root_positions.f32": "34e78d4d1f90ec619ac7262469c1dc153c8f168aa77ac50359c580433c84390a",
+        "local_rotations_xyzw.f32": "29600a609e33c99c1d8f4a7a87ddcdf9445771bc801edf048eb0c6c15ae19111"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/spear_thrust_one/seed-3140",
+      "generation": {
+        "id": "spear_thrust_one",
+        "label": "spear_thrust_one",
+        "frames": 90,
+        "prompt": "An upright person makes one controlled straight forward thrust with a spear in their right hand at chest height, then retracts. Feet remain planted and knees stay softly bent at the same height.",
+        "seed": 3140,
+        "steps": 50,
+        "seconds": 56.21899999998277,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "c24e7a1715075a2471413fd88055961fbdea8cd2b15ff12065ff2ad5b0ed650b",
+        "root_start": [
+          -0.00543254753574729,
+          0.7831943035125732,
+          -0.028627313673496246
+        ],
+        "root_end": [
+          -0.06508143246173859,
+          0.7688146829605103,
+          -0.044279005378484726
+        ],
+        "raw_rotation_sha256": "2bf84b43826a78946103dbd1218c8af22ad59cbd98e589ad8aca8530e21ff50f"
+      },
+      "files": {
+        "generation.json": "995c7e6292c6538a483bcd8659051ef4aa08a755d1af8fb4a4af0f9b75479b53",
+        "root_positions.f32": "1e652067c8aee81fdbb3e8109176161c8c3b0a261233ae787224c7eb250a5f2f",
+        "local_rotations_xyzw.f32": "2bf84b43826a78946103dbd1218c8af22ad59cbd98e589ad8aca8530e21ff50f"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/spear_thrust_two/seed-3151",
+      "generation": {
+        "id": "spear_thrust_two",
+        "label": "spear_thrust_two",
+        "frames": 90,
+        "prompt": "An upright person makes one compact forward spear thrust with both hands at chest height, extends the elbows, then retracts. Feet stay planted, pelvis stays level, a small forward weight shift.",
+        "seed": 3151,
+        "steps": 50,
+        "seconds": 64.01600000000326,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "4ac0942e1ed6e149e523b81f53d78c17d9d82400ecd0e188ba15130ec8e06706",
+        "root_start": [
+          -0.0232410728931427,
+          0.8528866171836853,
+          -0.012843005359172821
+        ],
+        "root_end": [
+          0.01565402001142502,
+          0.8372431993484497,
+          -0.04575930908322334
+        ],
+        "raw_rotation_sha256": "21367d97fe424110de5f1bc16b66122da4742051bcb7dab8cf2a90831650f48b"
+      },
+      "files": {
+        "generation.json": "3aa925d4b6c6e0623e1ed5cfc371b049397f470d19c214f8e2e41e2131526b70",
+        "root_positions.f32": "25c02bdab40bda98267f408dba5a9ed658853a946b5f82fa037206c7fe5d834f",
+        "local_rotations_xyzw.f32": "21367d97fe424110de5f1bc16b66122da4742051bcb7dab8cf2a90831650f48b"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/swim/seed-3290",
+      "generation": {
+        "id": "swim",
+        "label": "swim",
+        "frames": 180,
+        "prompt": "A person swims forward with smooth alternating front crawl arm strokes and gentle flutter kicks, body horizontal in the water. Natural continuous movement at a moderate pace.",
+        "seed": 3290,
+        "steps": 50,
+        "seconds": 99.0,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "257a18ae1beb926a3ba709dc59261e36d906110b6c4f3ffc188df67650abcfe7",
+        "root_start": [
+          0.010594463907182217,
+          0.16062581539154053,
+          0.04948926717042923
+        ],
+        "root_end": [
+          -0.10546737909317017,
+          0.13970518112182617,
+          2.632996082305908
+        ],
+        "raw_rotation_sha256": "ec4484181e7a3f5739b4ffd0b636af825ccba35219ab5ff14601700e43e335d2"
+      },
+      "files": {
+        "generation.json": "d413c5643daedf7d2505ffdf3dd29b7c7b0cd102dfc7753069d63d3594ef5386",
+        "root_positions.f32": "de38bddb9ca5078daf039d2bcfee0012f1618607c18c726f54401143b910082d",
+        "local_rotations_xyzw.f32": "ec4484181e7a3f5739b4ffd0b636af825ccba35219ab5ff14601700e43e335d2"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/swim_carry/seed-3270",
+      "generation": {
+        "id": "swim_carry",
+        "label": "swim_carry",
+        "frames": 180,
+        "prompt": "A person swims slowly with a horizontal body, using the left arm and alternating leg kicks. The right arm stays extended forward at the water surface carrying a long pole. Smooth continuous calm swimming.",
+        "seed": 3270,
+        "steps": 50,
+        "seconds": 101.93700000003446,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "0ad16230eb2220de76958f006be2f561e3305e3b87033061f01aeff6494f3ad8",
+        "root_start": [
+          -0.0035242661833763123,
+          0.13982689380645752,
+          0.0002027750015258789
+        ],
+        "root_end": [
+          0.004675988107919693,
+          0.14295530319213867,
+          0.012022837996482849
+        ],
+        "raw_rotation_sha256": "68953f6f504d8b06119ee2dd8e05bffdfe7448928d0a4a282adefac7b970622c"
+      },
+      "files": {
+        "generation.json": "e74292c227370b0d93d956f862da81265c707bce5fc7d8bde834c4aa149de66a",
+        "root_positions.f32": "de71e1ce9c4ea5b8dcf3703c05a9ece98c9c4a89dc6c2f89e97c2c6390e3fd8d",
+        "local_rotations_xyzw.f32": "68953f6f504d8b06119ee2dd8e05bffdfe7448928d0a4a282adefac7b970622c"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/swim_carry_two/seed-3280",
+      "generation": {
+        "id": "swim_carry_two",
+        "label": "swim_carry_two",
+        "frames": 180,
+        "prompt": "A person floats horizontally and swims slowly with alternating leg kicks, keeping both arms extended forward holding a floating object. Calm smooth kicking, steady upper body, face just above the water.",
+        "seed": 3280,
+        "steps": 50,
+        "seconds": 100.93800000002375,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "4aa802f6c163665b254cd13c8164fd9b350c7945c9a99dbb24dba2f2ba1f3978",
+        "root_start": [
+          -0.0014113677898421884,
+          0.09339731931686401,
+          0.0017091920599341393
+        ],
+        "root_end": [
+          -0.004449283704161644,
+          0.10400044918060303,
+          -0.003947006072849035
+        ],
+        "raw_rotation_sha256": "e0d988a4347b59eecb9e0b3b39327122c50865f955a2a30441fea724bdd12c79"
+      },
+      "files": {
+        "generation.json": "45641a98bea3463bcb888a37ba8a07cb25ebbd75c0d89d828a774b8402f91fcd",
+        "root_positions.f32": "2007b23650676eb1390d62a9ba2290bc093bb92acac54bb853fb96fd26360c95",
+        "local_rotations_xyzw.f32": "e0d988a4347b59eecb9e0b3b39327122c50865f955a2a30441fea724bdd12c79"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/throw/seed-3300",
+      "generation": {
+        "id": "throw",
+        "label": "throw",
+        "frames": 150,
+        "prompt": "A person calmly draws a stone back beside the right ear and throws it forward overarm, follows through and returns upright. A small weight shift between planted feet, no deep squat or jump.",
+        "seed": 3300,
+        "steps": 50,
+        "seconds": 87.48399999999674,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "b13837cb85c2cddb40b2c56f98c0e8c02f4549ed0b925bdae1b1992416e435bb",
+        "root_start": [
+          -0.016601858660578728,
+          0.9861993193626404,
+          -0.05124334245920181
+        ],
+        "root_end": [
+          -0.036128975450992584,
+          0.9954029321670532,
+          -0.04546268284320831
+        ],
+        "raw_rotation_sha256": "78a29df5a8d174f38c382a45dd77ca035db57f517975a93f2dd87fd52f5d8406"
+      },
+      "files": {
+        "generation.json": "3c731b831a55cb1978d74a28c596963e2490030f55fd3d80496486aa7eab25f1",
+        "root_positions.f32": "4a64a4484bde62edb094dbc349b7e00e6f07b9736c97e9ec0d66a56458f30d37",
+        "local_rotations_xyzw.f32": "78a29df5a8d174f38c382a45dd77ca035db57f517975a93f2dd87fd52f5d8406"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_blunt/seed-3210",
+      "generation": {
+        "id": "tool_blunt",
+        "label": "tool_blunt",
+        "frames": 90,
+        "prompt": "A standing person makes one compact right handed hammer strike forward and downward from shoulder height, then recovers. The knees stay softly bent at a constant height, feet remain planted.",
+        "seed": 3210,
+        "steps": 50,
+        "seconds": 60.59399999998277,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "4e5202eb5e6926e2d195f0fc8128661ddfb33e55b9f814ca317804111a116942",
+        "root_start": [
+          0.010820130817592144,
+          0.9645237326622009,
+          -0.015436789020895958
+        ],
+        "root_end": [
+          -0.01938609406352043,
+          0.96608567237854,
+          -0.020362230017781258
+        ],
+        "raw_rotation_sha256": "a89d5c2c91c6152b31acf997f1b91c3874c05640dd7b7d7420b08ad17e336ad0"
+      },
+      "files": {
+        "generation.json": "82393ad695550fc91961ef8860fd4a0610de95dfea6f42f02785ed2da4857a1d",
+        "root_positions.f32": "cac53ef15bf1eaf508f848d077347a9e4c25b8db0c4006001f036310129fdea1",
+        "local_rotations_xyzw.f32": "a89d5c2c91c6152b31acf997f1b91c3874c05640dd7b7d7420b08ad17e336ad0"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_chop/seed-3220",
+      "generation": {
+        "id": "tool_chop",
+        "label": "tool_chop",
+        "frames": 120,
+        "prompt": "A standing person makes one deliberate right handed hatchet chop downward into wood at waist height. A moderate shoulder swing and slight forward lean, planted feet, no deep knee bend, then a calm recovery.",
+        "seed": 3220,
+        "steps": 50,
+        "seconds": 73.35999999998603,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "bfe034bc74b65f985c900cbb25dd697fa50c6b19392d08403f5df9ad59207010",
+        "root_start": [
+          -0.03608269989490509,
+          1.0004339218139648,
+          0.005282064434140921
+        ],
+        "root_end": [
+          -0.014514515176415443,
+          0.9992428421974182,
+          0.05872681364417076
+        ],
+        "raw_rotation_sha256": "d36b2f0e5b24212ac6fc12eee16800de5e340d1868113389b803ebf5908d62b7"
+      },
+      "files": {
+        "generation.json": "ea803d4f03f998d4dd166359151528210ee0ed8495f4f80cecb5706ae7268b9d",
+        "root_positions.f32": "9502e1aa24ba58602101b7167e87617657b19fb6ab92696081c19ce7e55fd522",
+        "local_rotations_xyzw.f32": "d36b2f0e5b24212ac6fc12eee16800de5e340d1868113389b803ebf5908d62b7"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_cut/seed-3200",
+      "generation": {
+        "id": "tool_cut",
+        "label": "tool_cut",
+        "frames": 90,
+        "prompt": "A standing person makes one short controlled diagonal right handed knife cut across the space in front of their chest, then returns to a relaxed ready position. Upright pelvis, feet planted, restrained shoulder rotation.",
+        "seed": 3200,
+        "steps": 50,
+        "seconds": 59.07800000003772,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "27787954a6d073669837926409a6817b1a2c8e5508f89b444a477b5fe0fae938",
+        "root_start": [
+          0.003524510422721505,
+          0.9007219076156616,
+          0.0007044983794912696
+        ],
+        "root_end": [
+          0.013249289244413376,
+          0.9069098234176636,
+          -0.024637838825583458
+        ],
+        "raw_rotation_sha256": "02c06c5c485a59ff27173472bc0463d4c80dd46bebbab761b0e6332ef2f87e85"
+      },
+      "files": {
+        "generation.json": "1eb286472a55bd4398ef27223505dececd59712bba2ff2f6621dd81d9b462a87",
+        "root_positions.f32": "222de5cbd1073fba2fe862a72f011bf6df9d200f28c4589d2676b3d8430d74c6",
+        "local_rotations_xyzw.f32": "02c06c5c485a59ff27173472bc0463d4c80dd46bebbab761b0e6332ef2f87e85"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_guard/seed-3230",
+      "generation": {
+        "id": "tool_guard",
+        "label": "tool_guard",
+        "frames": 120,
+        "prompt": "A person stands steadily with feet hip width apart, holding a short club diagonally across their chest in their right hand. Elbows softly bent, a compact protective stance with quiet breathing.",
+        "seed": 3230,
+        "steps": 50,
+        "seconds": 73.45299999997951,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "afbcc203caea33b3d9c420cb5cf73a6323667b5bd7892a84b22557096d63b114",
+        "root_start": [
+          0.007344168610870838,
+          0.9218432903289795,
+          -0.04753540828824043
+        ],
+        "root_end": [
+          0.08456195890903473,
+          0.9487760663032532,
+          0.03558767959475517
+        ],
+        "raw_rotation_sha256": "258d6b1ae33b8b26131e95f8dd18ed62a9eb1550af0466ca9bd8ccafd75765ab"
+      },
+      "files": {
+        "generation.json": "b7ee6956c209e60802e06cbdf4ed939fe44cf48cf87f60e6a46f3eabc7ff5850",
+        "root_positions.f32": "cafc81b8d2b5df4c5c5d84c2927f4bff78cce9b4298c1dd0d70fc398e8c5d98a",
+        "local_rotations_xyzw.f32": "258d6b1ae33b8b26131e95f8dd18ed62a9eb1550af0466ca9bd8ccafd75765ab"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_ready/seed-3110",
+      "generation": {
+        "id": "tool_ready",
+        "label": "tool_ready",
+        "frames": 120,
+        "prompt": "A person stands comfortably upright holding a small knife loosely beside their right hip, elbow slightly bent. Calm ordinary posture, steady legs.",
+        "seed": 3110,
+        "steps": 50,
+        "seconds": 65.57800000003772,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "5d028b64df4d16135e10f3c26f439cbaf1d47615baa9ce18098a3e55933ccf0f",
+        "root_start": [
+          0.037617746740579605,
+          0.8732218742370605,
+          0.013875948265194893
+        ],
+        "root_end": [
+          0.03809833154082298,
+          0.9244621396064758,
+          0.0061937011778354645
+        ],
+        "raw_rotation_sha256": "5193a95ceef199b82a3f851cb632ca8df560b54ac0532a6beee13889eba98941"
+      },
+      "files": {
+        "generation.json": "6d434068a4206bc769560ecaa0e7b8451582243f1940e9bbe0767f3ad5665491",
+        "root_positions.f32": "ca664bc4fa33b1f556644ebef644a3f6af17d917cc725594c0d1a5786fb4f3ba",
+        "local_rotations_xyzw.f32": "5193a95ceef199b82a3f851cb632ca8df560b54ac0532a6beee13889eba98941"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_stab/seed-3130",
+      "generation": {
+        "id": "tool_stab",
+        "label": "tool_stab",
+        "frames": 90,
+        "prompt": "An upright person makes one short quick right handed knife thrust at chest height, then retracts their hand. Feet stay planted, knees remain almost straight. Small controlled torso rotation.",
+        "seed": 3130,
+        "steps": 50,
+        "seconds": 57.375,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "2a3449dabc9f394e06997ed739e24aaffda66df3635927c1faad1a0fcbbcf0f1",
+        "root_start": [
+          0.020489457994699478,
+          0.9976730942726135,
+          0.05136188864707947
+        ],
+        "root_end": [
+          -0.007485484704375267,
+          0.9989590644836426,
+          0.041775673627853394
+        ],
+        "raw_rotation_sha256": "85390df7d4d5057124f88ad9964239e9e6ce58a7e37f3172865b1fafd3fc39e0"
+      },
+      "files": {
+        "generation.json": "e06dd7a3359f8c40ed7dffe6d6bc4e072640b76d00f9740f424a0b9d8fd16800",
+        "root_positions.f32": "fa760dd44619880b5d1ed0c103278f485c006c723e2d4f1f1e11998ff1822557",
+        "local_rotations_xyzw.f32": "85390df7d4d5057124f88ad9964239e9e6ce58a7e37f3172865b1fafd3fc39e0"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/tool_walk/seed-3120",
+      "generation": {
+        "id": "tool_walk",
+        "label": "tool_walk",
+        "frames": 150,
+        "prompt": "A person walks casually forward carrying a small tool low beside their right hip. The right elbow stays softly bent with a small restrained arm swing.",
+        "seed": 3120,
+        "steps": 50,
+        "seconds": 81.25,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "81d6bfe1a5792f569465a023af57889a3b1c80abaae3db1343312508d80b1a34",
+        "root_start": [
+          -0.02660440094769001,
+          0.9975930452346802,
+          0.048936039209365845
+        ],
+        "root_end": [
+          -0.055534183979034424,
+          0.9696637392044067,
+          5.225396156311035
+        ],
+        "raw_rotation_sha256": "8ef49cca711b1b40c4dee90fff767530ad84e6136270876f59d29b4d687bcd50"
+      },
+      "files": {
+        "generation.json": "51b4b79dfa9a72a79d8f52a40e9bb96c84e6801a940549481b6577c3f6ba7ded",
+        "root_positions.f32": "ab8a235db43c05e16d5fb2c4c9b9173b303add12f9df82d6b57e563826de9e94",
+        "local_rotations_xyzw.f32": "8ef49cca711b1b40c4dee90fff767530ad84e6136270876f59d29b4d687bcd50"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/work_cut/seed-3390",
+      "generation": {
+        "id": "work_cut",
+        "label": "work_cut",
+        "frames": 180,
+        "prompt": "An upright person holds a small piece of wood at waist height in the left hand and makes short careful whittling strokes away from the body with a knife in the right hand. Quiet planted feet, small precise hand movements.",
+        "seed": 3390,
+        "steps": 50,
+        "seconds": 93.84399999998277,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "c826f1329ef26cb855bfa6475bfef3e571d04dd39ffbceea801028d4c5901db2",
+        "root_start": [
+          -0.004051515832543373,
+          0.9995543360710144,
+          0.00959073193371296
+        ],
+        "root_end": [
+          0.006789954844862223,
+          0.9996873140335083,
+          0.01470434945076704
+        ],
+        "raw_rotation_sha256": "5c3e9081af5bce0e0f8406f493e4173d1c4917cc3f5ac9a163ab77a0bf08aaa8"
+      },
+      "files": {
+        "generation.json": "a0dc72021c561b2bbb1727340191131429b716c989168c38487c625c26af22a0",
+        "root_positions.f32": "12aa09f59508d42666e543d8cdff31d046f16cc471133660912f6735539bf7d7",
+        "local_rotations_xyzw.f32": "5c3e9081af5bce0e0f8406f493e4173d1c4917cc3f5ac9a163ab77a0bf08aaa8"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/work_dig/seed-3410",
+      "generation": {
+        "id": "work_dig",
+        "label": "work_dig",
+        "frames": 180,
+        "prompt": "A person uses a short digging stick with both hands to loosen soil in front of the feet. Modest forward bend at the hips, a short downward push and lever motion, calm steady rhythm and no deep squat.",
+        "seed": 3410,
+        "steps": 50,
+        "seconds": 94.23500000004424,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "381e18aa9282e2ea78a760b6bd61e5fdb06e03dc0e3fa5644aaf611c01a4d742",
+        "root_start": [
+          -0.024673499166965485,
+          1.0027788877487183,
+          0.05256853625178337
+        ],
+        "root_end": [
+          -0.04603027179837227,
+          1.0034141540527344,
+          0.06444212049245834
+        ],
+        "raw_rotation_sha256": "59e551cee6da4677cae793b3404081d1e295f08379fcd6f03abf7da09ed674fc"
+      },
+      "files": {
+        "generation.json": "32a6498ba75585de52348cc1060c3621de6c8dbe777a60c6d520d838bb01460c",
+        "root_positions.f32": "dca0b9ffbe382ec0238c184219088715f4d0eba7936f43fbb763efafd2dfa3b5",
+        "local_rotations_xyzw.f32": "59e551cee6da4677cae793b3404081d1e295f08379fcd6f03abf7da09ed674fc"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/work_knapping/seed-3380",
+      "generation": {
+        "id": "work_knapping",
+        "label": "work_knapping",
+        "frames": 180,
+        "prompt": "A seated-height hand task performed standing: a person holds a stone near the waist in the left palm and gives it small precise taps with a hammerstone in the right hand. Hands stay below the chest, torso upright, steady legs.",
+        "seed": 3380,
+        "steps": 50,
+        "seconds": 94.59299999999348,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "cd1afa58ef7f573ee41a1b78b13edc6b3f45ec85301048127ac6dec2ea312bb5",
+        "root_start": [
+          0.00038682942977175117,
+          0.9980008006095886,
+          -0.002771236002445221
+        ],
+        "root_end": [
+          -0.07231241464614868,
+          0.9925159811973572,
+          -0.026382500305771828
+        ],
+        "raw_rotation_sha256": "4bd86d7d367bb510f2cd7151baa1c1c7ea51f4f05f04bc9cd0d265e91bf49516"
+      },
+      "files": {
+        "generation.json": "c17a2c4137412987a6cfa7197ad121435bc04c771551f5c9c82cf8829203b959",
+        "root_positions.f32": "ea57d078ab8ffa172ffbf291ccaba50281e561ca59015419392662b7225c749e",
+        "local_rotations_xyzw.f32": "4bd86d7d367bb510f2cd7151baa1c1c7ea51f4f05f04bc9cd0d265e91bf49516"
+      }
+    },
+    {
+      "path": "artifacts/human-natural-20261031/motions/work_twist/seed-3400",
+      "generation": {
+        "id": "work_twist",
+        "label": "work_twist",
+        "frames": 180,
+        "prompt": "A standing person calmly twists and rolls plant fibres between both hands at waist height. Small precise repeated finger and wrist movements, elbows close to the sides, quiet steady legs.",
+        "seed": 3400,
+        "steps": 50,
+        "seconds": 93.81300000002375,
+        "model": "Kimodo-SOMA-RP-v1.1",
+        "runtime": "kimodo.cpp",
+        "fps": 30,
+        "initial_noise_sha256": "b88712b2482acf4182ab90d01533ef48cd9774990fca3182f7c1771b94ea7d4b",
+        "root_start": [
+          -0.007173783611506224,
+          0.998727023601532,
+          0.0039023503195494413
+        ],
+        "root_end": [
+          -0.0011144746094942093,
+          0.9996148943901062,
+          -0.006739314645528793
+        ],
+        "raw_rotation_sha256": "cc7939e67257d776a323366d2b4e7ec53c062f960375eff6b43e9585ece92b9b"
+      },
+      "files": {
+        "generation.json": "ecc6a09ef49b1006ef3aa3c6171698352b8e595613ac6ee1e8c71cd1b77ed7ea",
+        "root_positions.f32": "f58af397a595eca67a156bbfdf4dbc9eb563671aaed069a42d29d61b699364b9",
+        "local_rotations_xyzw.f32": "cc7939e67257d776a323366d2b4e7ec53c062f960375eff6b43e9585ece92b9b"
+      }
+    },
+    {
+      "path": "artifacts/kimodo-first-person-demo/motions/empty_walk/seed-240",
       "generation": {
         "id": "empty_walk",
         "label": "Walk \u2014 empty hands",
@@ -59,136 +1115,13 @@
         "raw_rotation_sha256": "b94a56ebf903e96c78bbfcf3ea08f4c506d3d7f3858ef5caeb0b0fe9d4c96119"
       },
       "files": {
+        "generation.json": "7040e7def3fcb65546e8a6ada881cfc01aecf0a6a4573058356cf0a6bf6b9aa9",
         "root_positions.f32": "090c1225b061b867359c9ccbd89fe58048e4dd97485c63dd44c96c32fdbe9414",
         "local_rotations_xyzw.f32": "b94a56ebf903e96c78bbfcf3ea08f4c506d3d7f3858ef5caeb0b0fe9d4c96119"
       }
     },
     {
-      "path": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252",
-      "generation": {
-        "id": "spear_throw",
-        "label": "Throw spear",
-        "frames": 120,
-        "seed": 252,
-        "prompt": "A person throws a javelin forwards with a powerful right-handed overarm throw and follows through.",
-        "steps": 50,
-        "seconds": 84.28100000001723,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "7f46d2f993c0a421fe9b02d31709697bd240269279102273126d841e1dda0a95",
-        "root_start": [
-          -0.05361684411764145,
-          0.9858407378196716,
-          -0.00745783094316721
-        ],
-        "root_end": [
-          -0.0061150044202804565,
-          0.9856606721878052,
-          -0.011506657116115093
-        ],
-        "raw_rotation_sha256": "3b2ba6628bd9c78b8b49ab86e2dee885470ad99685fa045d1a8236ad5a91779b"
-      },
-      "files": {
-        "root_positions.f32": "a57be6e45306b2d593f64ad48dd19e8432d56b9b39269dc45f3f80558125c600",
-        "local_rotations_xyzw.f32": "3b2ba6628bd9c78b8b49ab86e2dee885470ad99685fa045d1a8236ad5a91779b"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\bow_ready\\seed-925",
-      "generation": {
-        "id": "bow_ready",
-        "label": "bow_ready",
-        "frames": 120,
-        "seed": 925,
-        "prompt": "A person stands holding a bow vertically in their left hand, with their right hand resting near the bowstring.",
-        "steps": 50,
-        "seconds": 66.85999999998603,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "98ad6678b97be8b27b204ed03bcdd2d7d48cd372545a0be13457c84f31914a93",
-        "root_start": [
-          0.007923112250864506,
-          1.0012775659561157,
-          -0.028705226257443428
-        ],
-        "root_end": [
-          -0.00011806096881628036,
-          0.9986376762390137,
-          -0.03925909101963043
-        ],
-        "raw_rotation_sha256": "21dc01b6a9cea73906e53e5c5269b8385b7ec23ce8dbec569dfdd66cbd2d27a2"
-      },
-      "files": {
-        "root_positions.f32": "283d3fd7c2e09cede807ca41f4c61365d9a248823826d93ce0a4aca53bc87e79",
-        "local_rotations_xyzw.f32": "21dc01b6a9cea73906e53e5c5269b8385b7ec23ce8dbec569dfdd66cbd2d27a2"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\bow_shoot\\seed-926",
-      "generation": {
-        "id": "bow_shoot",
-        "label": "bow_shoot",
-        "frames": 180,
-        "seed": 926,
-        "prompt": "A person raises a bow in their left hand, draws the string back to their cheek with their right hand, holds the aim briefly, releases an arrow and lowers the bow.",
-        "steps": 50,
-        "seconds": 83.59299999999348,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "dc6277846148b60142f36fa087888d527199ba2385a902430cbb184bec36fec4",
-        "root_start": [
-          0.011212879791855812,
-          0.9701223969459534,
-          -0.022875485941767693
-        ],
-        "root_end": [
-          -0.0005709875840693712,
-          0.9612460136413574,
-          -0.010548588819801807
-        ],
-        "raw_rotation_sha256": "08fcaac016a082347d38f79a8a0b16fd22098463ab42a414cfc5a9567a763242"
-      },
-      "files": {
-        "root_positions.f32": "0b387ac07b9ee5109b62f5d454df7db70549268f61534da700985df2cecaf472",
-        "local_rotations_xyzw.f32": "08fcaac016a082347d38f79a8a0b16fd22098463ab42a414cfc5a9567a763242"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\carry_large\\seed-934",
-      "generation": {
-        "id": "carry_large",
-        "label": "carry_large",
-        "frames": 120,
-        "seed": 934,
-        "prompt": "A person stands carrying a heavy large rock in both hands in front of their waist, keeping both elbows bent.",
-        "steps": 50,
-        "seconds": 63.32800000003772,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "fd3557459e9705587ea5e70a7f5b8fc1049412cc07a6eea1dc97f4eef7a5ab7a",
-        "root_start": [
-          -0.04517122358083725,
-          0.9721254110336304,
-          0.021998146548867226
-        ],
-        "root_end": [
-          -0.09014185518026352,
-          0.9625653028488159,
-          0.05338848754763603
-        ],
-        "raw_rotation_sha256": "1a0bccce616427832175d1abef6458608134c19d4b8ea08dee520fe3dabeb102"
-      },
-      "files": {
-        "root_positions.f32": "e601b3bb503fbd40882a5806b350ad99bde3995209370374f218775afdb04f41",
-        "local_rotations_xyzw.f32": "1a0bccce616427832175d1abef6458608134c19d4b8ea08dee520fe3dabeb102"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\crouch_idle\\seed-1204",
+      "path": "artifacts/kimodo-human-bank/motions/crouch_idle/seed-1204",
       "generation": {
         "id": "crouch_idle",
         "label": "crouch_idle",
@@ -214,12 +1147,13 @@
         "raw_rotation_sha256": "8e9483f2466bffec5e541b2a5f617bb17aa3de4782979a155a50c22aa46707f1"
       },
       "files": {
+        "generation.json": "39f1ffdae0d1cd3514f4864fa94c7b7425f153aa75f3aec33eec88608c63fb2b",
         "root_positions.f32": "1685dfcebc5fa76e651d6c5b0b5e0d02c6fcdde7ab771a5b11783a20003b62a3",
         "local_rotations_xyzw.f32": "8e9483f2466bffec5e541b2a5f617bb17aa3de4782979a155a50c22aa46707f1"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\crouch_walk\\seed-1203",
+      "path": "artifacts/kimodo-human-bank/motions/crouch_walk/seed-1203",
       "generation": {
         "id": "crouch_walk",
         "label": "crouch_walk",
@@ -245,198 +1179,13 @@
         "raw_rotation_sha256": "84b8028eda86a93e8864dfb5438e680f1370eb5168badc27377b2e9eeec1eb58"
       },
       "files": {
+        "generation.json": "d3001578245d47aed98647c4d81ce6ddb74eb87955274088f8423b74ca19284f",
         "root_positions.f32": "06f39056f19ea1a71cdbcf73a79451a14899a0410af85ffb8453b4ecb01bfe97",
         "local_rotations_xyzw.f32": "84b8028eda86a93e8864dfb5438e680f1370eb5168badc27377b2e9eeec1eb58"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\drink\\seed-928",
-      "generation": {
-        "id": "drink",
-        "label": "drink",
-        "frames": 150,
-        "seed": 928,
-        "prompt": "A person cups both hands, brings them to their mouth to drink water, and lowers their hands.",
-        "steps": 50,
-        "seconds": 108.79700000002049,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "05ab2a79f41429c3fbf115e4613876bfb4606dbe6e31ca17d0a71b75dce0a58c",
-        "root_start": [
-          0.0037021245807409286,
-          1.0014766454696655,
-          0.014775299467146397
-        ],
-        "root_end": [
-          -0.005031334236264229,
-          1.0070215463638306,
-          -0.021808916702866554
-        ],
-        "raw_rotation_sha256": "a51d12a1c92f232f32d099890419619b15ae2606d205528b93f0bd3023baad23"
-      },
-      "files": {
-        "root_positions.f32": "65722d156ad1de05ba3c5b0535d20f0d744896a72c25323ab957a04a9223104d",
-        "local_rotations_xyzw.f32": "a51d12a1c92f232f32d099890419619b15ae2606d205528b93f0bd3023baad23"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\eat\\seed-929",
-      "generation": {
-        "id": "eat",
-        "label": "eat",
-        "frames": 150,
-        "seed": 929,
-        "prompt": "A person brings a small piece of food to their mouth with their right hand, eats it and lowers their hand.",
-        "steps": 50,
-        "seconds": 73.14100000000326,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "79660913fb96b36c67652a564f6158c1e188a3e44f953b470439de781aa75cbb",
-        "root_start": [
-          0.001573700923472643,
-          0.9955012798309326,
-          -0.004554025363177061
-        ],
-        "root_end": [
-          -0.002956526819616556,
-          0.9930889010429382,
-          0.015442886389791965
-        ],
-        "raw_rotation_sha256": "6f75997180fe44e089557b7216dc46706f5a658790de2be99d656fd8957d0e17"
-      },
-      "files": {
-        "root_positions.f32": "21eafff0b880a9c4a3231443ddc1cf087e25e5f7705d8ea471e40b7d55009b4b",
-        "local_rotations_xyzw.f32": "6f75997180fe44e089557b7216dc46706f5a658790de2be99d656fd8957d0e17"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\fists_guard\\seed-908",
-      "generation": {
-        "id": "fists_guard",
-        "label": "fists_guard",
-        "frames": 120,
-        "seed": 908,
-        "prompt": "A person raises both forearms to protect their face and holds a defensive boxing guard.",
-        "steps": 50,
-        "seconds": 71.25,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "cba05ab1c3dec1f564a2135284934f3613e734b249a60455e83af0b010a5541d",
-        "root_start": [
-          -0.01592252217233181,
-          0.9550845623016357,
-          0.0006890496588312089
-        ],
-        "root_end": [
-          -0.0010782289318740368,
-          0.9555976986885071,
-          -0.0023763147182762623
-        ],
-        "raw_rotation_sha256": "8d4d096082394d98abc534bae3c69c4125ef3bdf5ef37da9e63f2d42f7038d57"
-      },
-      "files": {
-        "root_positions.f32": "ba983893beb922cb09ee3f52bb5df3f1a80138e6fe2a442033aed7ff93aea486",
-        "local_rotations_xyzw.f32": "8d4d096082394d98abc534bae3c69c4125ef3bdf5ef37da9e63f2d42f7038d57"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\fists_ready\\seed-907",
-      "generation": {
-        "id": "fists_ready",
-        "label": "fists_ready",
-        "frames": 120,
-        "seed": 907,
-        "prompt": "A person stands in a boxing stance with both fists raised in front of their chest.",
-        "steps": 50,
-        "seconds": 69.23399999999674,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "f28fc842acc43c001dafab07d43b9bf88957ac643184761a9e70704466e0ab71",
-        "root_start": [
-          -0.051597338169813156,
-          0.9586424827575684,
-          -0.027459196746349335
-        ],
-        "root_end": [
-          0.04260408133268356,
-          0.9647496938705444,
-          0.0013044518418610096
-        ],
-        "raw_rotation_sha256": "3d3a4f971791c771dc7c2f15fa76f203f995a147718e381ed5cd4c81ee4dbd40"
-      },
-      "files": {
-        "root_positions.f32": "a214cc120809e72b5188c2305663596fb77dd7f6400b60dcfe8fbee12d4b5425",
-        "local_rotations_xyzw.f32": "3d3a4f971791c771dc7c2f15fa76f203f995a147718e381ed5cd4c81ee4dbd40"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\gather\\seed-927",
-      "generation": {
-        "id": "gather",
-        "label": "gather",
-        "frames": 120,
-        "seed": 927,
-        "prompt": "A person bends down, reaches with their right hand to pick up a small object from the ground, and stands up.",
-        "steps": 50,
-        "seconds": 75.78200000000652,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "ebb820e6b4690557f905c503e0ac9a6fd853f4d286c97e2e029699248248fae7",
-        "root_start": [
-          0.0013103149831295013,
-          1.00852632522583,
-          0.061175134032964706
-        ],
-        "root_end": [
-          0.000743648037314415,
-          1.006319284439087,
-          0.06049290671944618
-        ],
-        "raw_rotation_sha256": "8a107baa794842052513ef08acf77e72da91c71d359098efcfe5878b000b82ed"
-      },
-      "files": {
-        "root_positions.f32": "042830c390543ce3560f135762fe6cb7588b31b004bf9c3dcee73b445c94909e",
-        "local_rotations_xyzw.f32": "8a107baa794842052513ef08acf77e72da91c71d359098efcfe5878b000b82ed"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\idle\\seed-900",
-      "generation": {
-        "id": "idle",
-        "label": "idle",
-        "frames": 120,
-        "seed": 900,
-        "prompt": "A person stands relaxed, breathing gently, with their arms resting naturally at their sides.",
-        "steps": 50,
-        "seconds": 61.5,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "4493102342d224120ff3bd5d5176d92941e9817498420dcf4c0b8a421229c2ac",
-        "root_start": [
-          -0.005873110145330429,
-          0.9957306385040283,
-          8.797476766631007e-05
-        ],
-        "root_end": [
-          0.002832661150023341,
-          0.9945785403251648,
-          0.004486207850277424
-        ],
-        "raw_rotation_sha256": "556651ccd3e85ea229c530922d2b367606d82f7dbe60058badc025e0033e9da9"
-      },
-      "files": {
-        "root_positions.f32": "83b45e57028a5c0508433048569e82608ce32e4dbe242631a5c92ac6b4b23e94",
-        "local_rotations_xyzw.f32": "556651ccd3e85ea229c530922d2b367606d82f7dbe60058badc025e0033e9da9"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\jog\\seed-901",
+      "path": "artifacts/kimodo-human-bank/motions/jog/seed-901",
       "generation": {
         "id": "jog",
         "label": "jog",
@@ -462,12 +1211,13 @@
         "raw_rotation_sha256": "ef28e45652efd73cd8e28bb7e98f58cdfe5887d414db46b7f6f28f9141194209"
       },
       "files": {
+        "generation.json": "383554f0a3adb4d07af67ee23d939b424945292ecba2f0b666a9bdd0a7c27351",
         "root_positions.f32": "5279c24bf971a97c5783ad263e98c4a3e0c7cdb30298098123f06f49d05465e2",
         "local_rotations_xyzw.f32": "ef28e45652efd73cd8e28bb7e98f58cdfe5887d414db46b7f6f28f9141194209"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\jump\\seed-1205",
+      "path": "artifacts/kimodo-human-bank/motions/jump/seed-1205",
       "generation": {
         "id": "jump",
         "label": "jump",
@@ -493,43 +1243,13 @@
         "raw_rotation_sha256": "31da1bc739570c7440758acdd8aefac13c8e37c1b0216dc53766e7d6a061ff57"
       },
       "files": {
+        "generation.json": "bcb091e92c89f264e715474b95dc69a7c6d704ef28e712958ccff72541cbc147",
         "root_positions.f32": "a78a5e815c7404e7d5638a06020edca6decb4a0bc8fbf262d916a08dc432e0e2",
         "local_rotations_xyzw.f32": "31da1bc739570c7440758acdd8aefac13c8e37c1b0216dc53766e7d6a061ff57"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\punch\\seed-909",
-      "generation": {
-        "id": "punch",
-        "label": "punch",
-        "frames": 90,
-        "seed": 909,
-        "prompt": "A person throws a straight right-handed punch forwards and brings their fist back to guard.",
-        "steps": 50,
-        "seconds": 51.51600000000326,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "cb29150402a07e6e7161f045d5296906637217f3f02525dc8e245323e7b755ff",
-        "root_start": [
-          0.011311439797282219,
-          0.9582458138465881,
-          -0.009012029506266117
-        ],
-        "root_end": [
-          0.012267334386706352,
-          0.9579183459281921,
-          -0.012852566316723824
-        ],
-        "raw_rotation_sha256": "7eefbbbea01e6568ac5334ba86f74dd2d8d748951edcb282aa52dc459fad748d"
-      },
-      "files": {
-        "root_positions.f32": "0081ac8f26236dcaa82b90d77614bc6e480b53148b16211a3ceb1caa86e8d387",
-        "local_rotations_xyzw.f32": "7eefbbbea01e6568ac5334ba86f74dd2d8d748951edcb282aa52dc459fad748d"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\run_back\\seed-938",
+      "path": "artifacts/kimodo-human-bank/motions/run_back/seed-938",
       "generation": {
         "id": "run_back",
         "label": "run_back",
@@ -555,12 +1275,13 @@
         "raw_rotation_sha256": "eb568223d62208dfb4f1b5cdcfdc1516ee6dc29a2f4ad61e6f986c96d82f9d06"
       },
       "files": {
+        "generation.json": "1bb7b5e2aad88045401ea3c04159314c0685513e1c7b8dffc306c54c16034e53",
         "root_positions.f32": "4f8b888a1842763a2ffafe4418cb103e8727826b544f634fdf091e2d1deeb991",
         "local_rotations_xyzw.f32": "eb568223d62208dfb4f1b5cdcfdc1516ee6dc29a2f4ad61e6f986c96d82f9d06"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\run_left\\seed-939",
+      "path": "artifacts/kimodo-human-bank/motions/run_left/seed-939",
       "generation": {
         "id": "run_left",
         "label": "run_left",
@@ -586,12 +1307,13 @@
         "raw_rotation_sha256": "f7aa1804916cb0acb5a59d17740fc0336311658efa9f0b26138d1554500eb105"
       },
       "files": {
+        "generation.json": "7e9c9ba642e5c14140ceca038366cb4e8cdf240ee56556c4e1511a7144e9ca70",
         "root_positions.f32": "80f9431f47931ca3468b9bc36586eeb2c5eddc95edec4a4485e28e267f045884",
         "local_rotations_xyzw.f32": "f7aa1804916cb0acb5a59d17740fc0336311658efa9f0b26138d1554500eb105"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\run_right\\seed-940",
+      "path": "artifacts/kimodo-human-bank/motions/run_right/seed-940",
       "generation": {
         "id": "run_right",
         "label": "run_right",
@@ -617,229 +1339,13 @@
         "raw_rotation_sha256": "14023b6afac085e055765b41a6c16fd0dba29a65030f34e5f92390c0f9091223"
       },
       "files": {
+        "generation.json": "1930e8394b92a0767da4b35aedad15c521efb6df0c894e343e82d3098dc82429",
         "root_positions.f32": "8dba5b96a06b190b19418c468b48b8e2a0bed23be2e73f5d2e7423b23449e514",
         "local_rotations_xyzw.f32": "14023b6afac085e055765b41a6c16fd0dba29a65030f34e5f92390c0f9091223"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\sling_ready\\seed-922",
-      "generation": {
-        "id": "sling_ready",
-        "label": "sling_ready",
-        "frames": 120,
-        "seed": 922,
-        "prompt": "A person stands holding a sling in their right hand, ready to throw a stone.",
-        "steps": 50,
-        "seconds": 104.98399999999674,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "583f6a01a0b8bc58eab18846a574d5f39c55540bc53637b152aa71f175a15c57",
-        "root_start": [
-          0.006411627400666475,
-          0.9915547966957092,
-          -0.017184188589453697
-        ],
-        "root_end": [
-          -0.034703079611063004,
-          0.9890855550765991,
-          -0.04376104474067688
-        ],
-        "raw_rotation_sha256": "cfbc8d986c81dceb722b56cdfc95921c586b1ad14b4de9a264ce1065d6012ea8"
-      },
-      "files": {
-        "root_positions.f32": "bfbef8bd0149f5f66970fdc3fb3f5096067f101ba229cc835dcff0aef39cfdc4",
-        "local_rotations_xyzw.f32": "cfbc8d986c81dceb722b56cdfc95921c586b1ad14b4de9a264ce1065d6012ea8"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\sling_release\\seed-924",
-      "generation": {
-        "id": "sling_release",
-        "label": "sling_release",
-        "frames": 120,
-        "seed": 924,
-        "prompt": "A person throws a stone forwards with a sling in their right hand and follows through.",
-        "steps": 50,
-        "seconds": 105.98499999998603,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "814c122a9cd42cd026e1abdde3222281aeb78051a93aad1b12409e9df0feb119",
-        "root_start": [
-          -0.03766733035445213,
-          0.9970397353172302,
-          0.00617957953363657
-        ],
-        "root_end": [
-          -0.03101191855967045,
-          0.9953978061676025,
-          0.03104529343545437
-        ],
-        "raw_rotation_sha256": "5185685628c7b0ec9606f3f5c8e08ff3bb5d3d5309ffc79ee6db1ed1ca8fd24b"
-      },
-      "files": {
-        "root_positions.f32": "a498658a576186bc8918819c2f90f55c5c5a3bf4c3f0c0ee94364c5be99c5d01",
-        "local_rotations_xyzw.f32": "5185685628c7b0ec9606f3f5c8e08ff3bb5d3d5309ffc79ee6db1ed1ca8fd24b"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\sling_whirl\\seed-923",
-      "generation": {
-        "id": "sling_whirl",
-        "label": "sling_whirl",
-        "frames": 150,
-        "seed": 923,
-        "prompt": "A person swings a sling continuously in a vertical circle beside their right shoulder, ready to throw.",
-        "steps": 50,
-        "seconds": 83.14100000000326,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "922049ba1338f6da26dde96aa2bd0f7e052b4cc01291956d724c576c94dbdc3a",
-        "root_start": [
-          -0.022604575380682945,
-          0.9960628747940063,
-          -0.03033352456986904
-        ],
-        "root_end": [
-          -0.0006319656386040151,
-          0.996456503868103,
-          -0.036254964768886566
-        ],
-        "raw_rotation_sha256": "83a5ad07116c235ea6350080daa8499759d55f76ee013deb3cf0a4dbbb535d58"
-      },
-      "files": {
-        "root_positions.f32": "0c0c335b632de72aa971b96826205c80e3c8c0cde2058c467bc55a3680779e02",
-        "local_rotations_xyzw.f32": "83a5ad07116c235ea6350080daa8499759d55f76ee013deb3cf0a4dbbb535d58"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\spear_ready_one\\seed-917",
-      "generation": {
-        "id": "spear_ready_one",
-        "label": "spear_ready_one",
-        "frames": 120,
-        "seed": 917,
-        "prompt": "A person stands holding a long spear in their right hand beside their hip, pointing it forwards.",
-        "steps": 50,
-        "seconds": 79.23399999999674,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "cf935e5541ebd6df82ab5f9f46c232e392ed27e22bbd0c9fa3a30ff4f77045dc",
-        "root_start": [
-          4.892523429589346e-05,
-          0.992506742477417,
-          0.000947017571888864
-        ],
-        "root_end": [
-          0.0023531257174909115,
-          0.9919829964637756,
-          -0.0012402221327647567
-        ],
-        "raw_rotation_sha256": "2149b375d0f42f040bc7360f96298e24add4646c1e4e179923695d4b9cc69dd3"
-      },
-      "files": {
-        "root_positions.f32": "6260508bf9df8b35c13b6a447c93fd3c0faabbf352f8164a6d072c2a1e6abaf4",
-        "local_rotations_xyzw.f32": "2149b375d0f42f040bc7360f96298e24add4646c1e4e179923695d4b9cc69dd3"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\spear_ready_two\\seed-919",
-      "generation": {
-        "id": "spear_ready_two",
-        "label": "spear_ready_two",
-        "frames": 120,
-        "seed": 919,
-        "prompt": "A person holds a long spear horizontally in both hands, pointing it forwards, ready to thrust.",
-        "steps": 50,
-        "seconds": 96.67200000002049,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "e743f66ce6392e808bdc4dd809743a8a704fa7eb031ec9b4b9485eb3275a4967",
-        "root_start": [
-          -0.04289982095360756,
-          0.8217856884002686,
-          -0.03439624235033989
-        ],
-        "root_end": [
-          -0.06416428089141846,
-          0.8622622489929199,
-          -0.03840258717536926
-        ],
-        "raw_rotation_sha256": "6c82064acae55cef0af67fe060e769f6b8c551609cf7a26864b9c61db715e212"
-      },
-      "files": {
-        "root_positions.f32": "dd76f27aad71c78e72fc7e43ba3d375f903c76d4218957e5fe5137b4e932546d",
-        "local_rotations_xyzw.f32": "6c82064acae55cef0af67fe060e769f6b8c551609cf7a26864b9c61db715e212"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\spear_thrust_one\\seed-918",
-      "generation": {
-        "id": "spear_thrust_one",
-        "label": "spear_thrust_one",
-        "frames": 90,
-        "seed": 918,
-        "prompt": "A person makes a strong forwards thrust with a spear in their right hand and pulls it back.",
-        "steps": 50,
-        "seconds": 84.90600000001723,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "ad27e8155a5c1d59e505f3e0a79617579796647062c24688331c8cbfe7bd9259",
-        "root_start": [
-          0.032719578593969345,
-          0.8007118105888367,
-          -0.0017717796145007014
-        ],
-        "root_end": [
-          0.02216402441263199,
-          0.7441508173942566,
-          0.0033645955845713615
-        ],
-        "raw_rotation_sha256": "dd113a4eae1c69517c908c04184f207c20d633e749a5b25917ad717c894082b5"
-      },
-      "files": {
-        "root_positions.f32": "b30cfa33f0b8844066189b44afbc769cf88cce5817b94ed2ba84bf135695d17b",
-        "local_rotations_xyzw.f32": "dd113a4eae1c69517c908c04184f207c20d633e749a5b25917ad717c894082b5"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\spear_thrust_two\\seed-920",
-      "generation": {
-        "id": "spear_thrust_two",
-        "label": "spear_thrust_two",
-        "frames": 120,
-        "seed": 920,
-        "prompt": "A person thrusts a long spear forwards with both hands, steps into the thrust, then withdraws it.",
-        "steps": 50,
-        "seconds": 96.70299999997951,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "2907543fc6cb7e0869573ea5d18b632dd94b7c16acad28c2d5be171cfb4c7363",
-        "root_start": [
-          0.036953434348106384,
-          0.7705549001693726,
-          0.04844493418931961
-        ],
-        "root_end": [
-          0.044703710824251175,
-          0.7527885437011719,
-          0.10057269781827927
-        ],
-        "raw_rotation_sha256": "9dbd982c2e041271152a3bcc4125fb670763ced4f340466ba1fa53cf2adc39ec"
-      },
-      "files": {
-        "root_positions.f32": "cc6565280e22a12b5b13f490c17772ac45510ad88f914668c664d02b58ffe731",
-        "local_rotations_xyzw.f32": "9dbd982c2e041271152a3bcc4125fb670763ced4f340466ba1fa53cf2adc39ec"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\sprint\\seed-1402",
+      "path": "artifacts/kimodo-human-bank/motions/sprint/seed-1402",
       "generation": {
         "id": "sprint",
         "label": "sprint",
@@ -865,12 +1371,13 @@
         "raw_rotation_sha256": "f214042cb86ac44a9642f061de6ada4a386bbb511a38edc54061ab77caf527f1"
       },
       "files": {
+        "generation.json": "53d56ad3d950076f0cfda725455cf59f7d0ff7d036285d04a61fedefc0296d5d",
         "root_positions.f32": "0fcc42b37b8701fb14093493e89ec86a7d4256d58898bc46b64d3673cfd9aa60",
         "local_rotations_xyzw.f32": "f214042cb86ac44a9642f061de6ada4a386bbb511a38edc54061ab77caf527f1"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\strafe_left\\seed-936",
+      "path": "artifacts/kimodo-human-bank/motions/strafe_left/seed-936",
       "generation": {
         "id": "strafe_left",
         "label": "strafe_left",
@@ -896,12 +1403,13 @@
         "raw_rotation_sha256": "04a4b3499c41055bd277bd2973d149038a68cdfcf4556b80de872c0362a90479"
       },
       "files": {
+        "generation.json": "1e6e6f7fbd87d0227c4919a6fd82fc45f6b9f96aca7edf24783b06d7730bdd3f",
         "root_positions.f32": "bf603b9d65a38af297b82115b1c13447a00334a506a1a368047fcaf12d6ce480",
         "local_rotations_xyzw.f32": "04a4b3499c41055bd277bd2973d149038a68cdfcf4556b80de872c0362a90479"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\strafe_right\\seed-937",
+      "path": "artifacts/kimodo-human-bank/motions/strafe_right/seed-937",
       "generation": {
         "id": "strafe_right",
         "label": "strafe_right",
@@ -927,291 +1435,13 @@
         "raw_rotation_sha256": "6453df2084cba0732020b187d31a880f8e1650d70e0bb26cbb99f4f8bd446f49"
       },
       "files": {
+        "generation.json": "fa63ee11da0ea4bfb0e627a05e4bf0a0fe5b60d1c3599b1a429cd6208185105a",
         "root_positions.f32": "7f3175ee67980c391a91fb6c424bfb2c63b77258289be0712bf0625f98d9277d",
         "local_rotations_xyzw.f32": "6453df2084cba0732020b187d31a880f8e1650d70e0bb26cbb99f4f8bd446f49"
       }
     },
     {
-      "path": "artifacts\\kimodo-human-bank\\motions\\swim\\seed-1506",
-      "generation": {
-        "id": "swim",
-        "label": "swim",
-        "frames": 180,
-        "seed": 1506,
-        "prompt": "A person swims forward with big alternating arm strokes.",
-        "steps": 50,
-        "seconds": 133.0470000000205,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "f02d961370df966e06887c6dc08f5613b94fa25a1bd76c35abb696e5098a8ef5",
-        "root_start": [
-          0.03437488526105881,
-          0.3518962264060974,
-          0.016683708876371384
-        ],
-        "root_end": [
-          0.05352957919239998,
-          0.20572155714035034,
-          3.5558416843414307
-        ],
-        "raw_rotation_sha256": "cd6a00aa8342b6b72b2262e1550d757cf9d49fad6572f92341716cd7bff903c5"
-      },
-      "files": {
-        "root_positions.f32": "36b47f18671acdc6d8319f601ff6e998b7e9c049443d1e365fa07af3f7515cd6",
-        "local_rotations_xyzw.f32": "cd6a00aa8342b6b72b2262e1550d757cf9d49fad6572f92341716cd7bff903c5"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\throw\\seed-921",
-      "generation": {
-        "id": "throw",
-        "label": "throw",
-        "frames": 120,
-        "seed": 921,
-        "prompt": "A person throws a stone forwards with a right-handed overarm throw and follows through.",
-        "steps": 50,
-        "seconds": 88.20300000003772,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "85ff8a6309f851ff4128a682f85e0e28265c460b0f2db2756cdb3c0ac54bc28c",
-        "root_start": [
-          -0.012335699051618576,
-          1.001459002494812,
-          -0.01655164547264576
-        ],
-        "root_end": [
-          -0.006736792158335447,
-          1.0012025833129883,
-          -0.022267717868089676
-        ],
-        "raw_rotation_sha256": "1ad2eb1cff3e1901a9355c97a4e604d02acf947a529f7c23c2c44148e15cfe52"
-      },
-      "files": {
-        "root_positions.f32": "f3a24d751d804e70d06921685547a0f0dfdbe924cec103e1b426ab24ccfad275",
-        "local_rotations_xyzw.f32": "1ad2eb1cff3e1901a9355c97a4e604d02acf947a529f7c23c2c44148e15cfe52"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_blunt\\seed-914",
-      "generation": {
-        "id": "tool_blunt",
-        "label": "tool_blunt",
-        "frames": 90,
-        "seed": 914,
-        "prompt": "A person strikes forwards and downwards with a hammer in their right hand and recovers.",
-        "steps": 50,
-        "seconds": 90.93800000002375,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "90261431d824f1640e8c4631a7e475d18d6e5c157ca2501a560843e5fa6498e9",
-        "root_start": [
-          -0.006174985785037279,
-          0.9555246829986572,
-          -0.013380590826272964
-        ],
-        "root_end": [
-          -0.003925690893083811,
-          0.9503112435340881,
-          -0.003691696561872959
-        ],
-        "raw_rotation_sha256": "1c9b830aba48806198ba2f5a1a852986944182b47f03cd158ee737f245fb3ecc"
-      },
-      "files": {
-        "root_positions.f32": "70d2983bc7c41186064f66a82a6d7f8771f912d06630447f113dce4b302b9b3e",
-        "local_rotations_xyzw.f32": "1c9b830aba48806198ba2f5a1a852986944182b47f03cd158ee737f245fb3ecc"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_chop\\seed-915",
-      "generation": {
-        "id": "tool_chop",
-        "label": "tool_chop",
-        "frames": 120,
-        "seed": 915,
-        "prompt": "A person swings a small axe downwards with their right hand to chop wood, then raises it again.",
-        "steps": 50,
-        "seconds": 104.28200000000652,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "a2b8c4a33c2401378984950168169de5958c6079286d0af0bd49fc45d8a27f23",
-        "root_start": [
-          0.012302475050091743,
-          0.9787801504135132,
-          -0.018974745646119118
-        ],
-        "root_end": [
-          0.06094762310385704,
-          0.917738139629364,
-          -0.03624659776687622
-        ],
-        "raw_rotation_sha256": "f765c9afae5fe9d813079648b23aefdbb0fb6756d0d3c40b57d3c57780fcf54a"
-      },
-      "files": {
-        "root_positions.f32": "67214c622388909c6419451573b7573a4420c270563429ea5183d60213c2ba84",
-        "local_rotations_xyzw.f32": "f765c9afae5fe9d813079648b23aefdbb0fb6756d0d3c40b57d3c57780fcf54a"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_cut\\seed-912",
-      "generation": {
-        "id": "tool_cut",
-        "label": "tool_cut",
-        "frames": 90,
-        "seed": 912,
-        "prompt": "A person makes a controlled right-handed diagonal knife slash in front of their body and recovers.",
-        "steps": 50,
-        "seconds": 77.96899999998277,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "36d343497fb7a3c1661ea9b106e0a4530c004b1ef789fb82d009b4ca299d316c",
-        "root_start": [
-          0.029519181698560715,
-          0.8654590249061584,
-          -0.0586177222430706
-        ],
-        "root_end": [
-          0.3379610478878021,
-          0.8560757040977478,
-          -0.4190136790275574
-        ],
-        "raw_rotation_sha256": "5c19ac5798d262ca0b84b634f8d05e9a2359c2d3662ac6b0a1bc77e7bcd5ccea"
-      },
-      "files": {
-        "root_positions.f32": "7f2b50f2ad459a959ca1e8be0e7e0ab9c0ee3b9951be4570d665e6e28d5dde9c",
-        "local_rotations_xyzw.f32": "5c19ac5798d262ca0b84b634f8d05e9a2359c2d3662ac6b0a1bc77e7bcd5ccea"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_guard\\seed-916",
-      "generation": {
-        "id": "tool_guard",
-        "label": "tool_guard",
-        "frames": 120,
-        "seed": 916,
-        "prompt": "A person holds a club diagonally in front of their upper body with their right hand to block an attack.",
-        "steps": 50,
-        "seconds": 95.45299999997951,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "f50472bf2a8cf24a1c05ddfc586785edf33c58355e4a4bbd97ebd993f19edaa5",
-        "root_start": [
-          0.006352143827825785,
-          0.9013555645942688,
-          -0.009273651987314224
-        ],
-        "root_end": [
-          -0.006032626610249281,
-          0.9071308374404907,
-          -0.024121440947055817
-        ],
-        "raw_rotation_sha256": "7467c925c42438ea7b1a15250fa654e478d9bf8a3a816a351c22691690e62eb6"
-      },
-      "files": {
-        "root_positions.f32": "e5bec6273fa0d06668a607dfbd8ef257910ec71d1f8c7ba48ba39240b4da24ac",
-        "local_rotations_xyzw.f32": "7467c925c42438ea7b1a15250fa654e478d9bf8a3a816a351c22691690e62eb6"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_ready\\seed-910",
-      "generation": {
-        "id": "tool_ready",
-        "label": "tool_ready",
-        "frames": 120,
-        "seed": 910,
-        "prompt": "A person stands holding a small tool in their right hand beside their waist, with a relaxed bent elbow.",
-        "steps": 50,
-        "seconds": 80.25,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "06201f64acb99de5e14bcae3bed670ed21b72b1549504362f0781347c5fea28b",
-        "root_start": [
-          -0.017636962234973907,
-          0.9909981489181519,
-          -0.01939087174832821
-        ],
-        "root_end": [
-          -0.005685713142156601,
-          0.9888314604759216,
-          0.0024111210368573666
-        ],
-        "raw_rotation_sha256": "9c640d902d4ca1ac2b4c8d99027836fb6fcf57fb69ec40cdf8fe9038cf908e63"
-      },
-      "files": {
-        "root_positions.f32": "f9c7d3bd282b6cf91d0df180d4c6b2dfcf7766d644627ae9bd2c2ba19f9eb561",
-        "local_rotations_xyzw.f32": "9c640d902d4ca1ac2b4c8d99027836fb6fcf57fb69ec40cdf8fe9038cf908e63"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_stab\\seed-913",
-      "generation": {
-        "id": "tool_stab",
-        "label": "tool_stab",
-        "frames": 90,
-        "seed": 913,
-        "prompt": "A person thrusts a small knife forwards with their right hand and withdraws it.",
-        "steps": 50,
-        "seconds": 80.01600000000326,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "297aab75fce3976834dc46b6ec229d372153054f4bf9318c53af4f70ce36aa57",
-        "root_start": [
-          -0.054967835545539856,
-          0.9244799017906189,
-          0.0029610777273774147
-        ],
-        "root_end": [
-          -0.10143056511878967,
-          0.9161205887794495,
-          -0.05182664096355438
-        ],
-        "raw_rotation_sha256": "5c7fb3b173b484ff3de5ef8b56d0fd612a1a8639c44767249cb6f393e17dafb0"
-      },
-      "files": {
-        "root_positions.f32": "0a2ab3970403a3d6949f1f97932e495613b23b8d7b2857b09f1174e8333fe50e",
-        "local_rotations_xyzw.f32": "5c7fb3b173b484ff3de5ef8b56d0fd612a1a8639c44767249cb6f393e17dafb0"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\tool_walk\\seed-911",
-      "generation": {
-        "id": "tool_walk",
-        "label": "tool_walk",
-        "frames": 150,
-        "seed": 911,
-        "prompt": "A person walks forwards carrying a small tool in their right hand, keeping it beside their waist.",
-        "steps": 50,
-        "seconds": 116.0,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "0532cec7dc895106e37aa45239fb62275692ed2b71af95ebf0d45f6e485f93bb",
-        "root_start": [
-          -0.04770626500248909,
-          0.9789372086524963,
-          -0.03278256207704544
-        ],
-        "root_end": [
-          0.4121600389480591,
-          0.9526850581169128,
-          5.713388919830322
-        ],
-        "raw_rotation_sha256": "927cf5cea1591d3708d4e32807cfb3e9640a667bd2dfa4fb6947625677f64cb3"
-      },
-      "files": {
-        "root_positions.f32": "2394bdb03abed26df50c2185e1a205dbb3586a00059fe0ede6a7846c9ae68da2",
-        "local_rotations_xyzw.f32": "927cf5cea1591d3708d4e32807cfb3e9640a667bd2dfa4fb6947625677f64cb3"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\walk_back\\seed-935",
+      "path": "artifacts/kimodo-human-bank/motions/walk_back/seed-935",
       "generation": {
         "id": "walk_back",
         "label": "walk_back",
@@ -1237,132 +1467,9 @@
         "raw_rotation_sha256": "7b080fa129ffa9847abc355c9e82e3f85f3e06f3693c165ec83bba06105e3fc8"
       },
       "files": {
+        "generation.json": "b469022c58c11b35fcb532f55320878cee95a709089d9722eff1aacc80264025",
         "root_positions.f32": "c14af0c289fa0117443028a4dd23e23bd564cd42dc3f84db17f7a00d06713334",
         "local_rotations_xyzw.f32": "7b080fa129ffa9847abc355c9e82e3f85f3e06f3693c165ec83bba06105e3fc8"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\work_cut\\seed-931",
-      "generation": {
-        "id": "work_cut",
-        "label": "work_cut",
-        "frames": 150,
-        "seed": 931,
-        "prompt": "A person holds a piece of wood in their left hand and repeatedly carves it with a small knife in their right hand.",
-        "steps": 50,
-        "seconds": 73.96899999998277,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "86ff09695fa90ddc1b93a5faf468bba41e2de6dbd40cd652560173290cbd5dca",
-        "root_start": [
-          -0.045011602342128754,
-          0.9967727065086365,
-          0.01648654416203499
-        ],
-        "root_end": [
-          -0.05220653861761093,
-          0.9954480528831482,
-          -0.0023724217899143696
-        ],
-        "raw_rotation_sha256": "ac4b0c3ab753ef3246f43edd0924ecacc1e7b422ac8f560758fafcade64bde46"
-      },
-      "files": {
-        "root_positions.f32": "752ffe2fb025c65e996ad5340907dd4680c9d30d9c85a3c1fe43e77c16c1248a",
-        "local_rotations_xyzw.f32": "ac4b0c3ab753ef3246f43edd0924ecacc1e7b422ac8f560758fafcade64bde46"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\work_dig\\seed-933",
-      "generation": {
-        "id": "work_dig",
-        "label": "work_dig",
-        "frames": 150,
-        "seed": 933,
-        "prompt": "A person bends forwards and repeatedly pushes a digging stick into the ground with both hands and levers it backwards.",
-        "steps": 50,
-        "seconds": 75.34400000004098,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "e472cbdca15872dc0c91896f66965768bf40546904ea9f7220d19fc9510b75f8",
-        "root_start": [
-          -0.03842572495341301,
-          0.9928498268127441,
-          0.0397280752658844
-        ],
-        "root_end": [
-          -0.07737690210342407,
-          0.8940904140472412,
-          -0.24755443632602692
-        ],
-        "raw_rotation_sha256": "8d645c4c68a85ce97c7ab2f025af1f1b445883746a8c3a03b41014d32110301c"
-      },
-      "files": {
-        "root_positions.f32": "9e6f5909db4bd39cdfb726d1dca3fa070db7ef709a03f26b079bdeb63b660622",
-        "local_rotations_xyzw.f32": "8d645c4c68a85ce97c7ab2f025af1f1b445883746a8c3a03b41014d32110301c"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\work_knapping\\seed-930",
-      "generation": {
-        "id": "work_knapping",
-        "label": "work_knapping",
-        "frames": 150,
-        "seed": 930,
-        "prompt": "A person holds a stone in their left hand and repeatedly taps it with a small hammerstone in their right hand.",
-        "steps": 50,
-        "seconds": 72.81199999997625,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "37c9338d3c8846d346809d1aef2c9d6705d7dafa554ff12229ad8d2bc4625fa7",
-        "root_start": [
-          -0.04020985588431358,
-          0.9985746145248413,
-          -0.018594106659293175
-        ],
-        "root_end": [
-          -0.025360319763422012,
-          0.9953694939613342,
-          0.024216650053858757
-        ],
-        "raw_rotation_sha256": "29371476259d729961b8cc41f8b8bd0905b56c003aaf278c2f58dd4bfbbbc08b"
-      },
-      "files": {
-        "root_positions.f32": "7ce79cac656432259fecae384daaf27802d52d4ff1abf126b65290138b86833a",
-        "local_rotations_xyzw.f32": "29371476259d729961b8cc41f8b8bd0905b56c003aaf278c2f58dd4bfbbbc08b"
-      }
-    },
-    {
-      "path": "artifacts\\kimodo-human-bank\\motions\\work_twist\\seed-932",
-      "generation": {
-        "id": "work_twist",
-        "label": "work_twist",
-        "frames": 150,
-        "seed": 932,
-        "prompt": "A person holds plant fibres in both hands near their waist and repeatedly twists and rolls them together to make cord.",
-        "steps": 50,
-        "seconds": 81.67200000002049,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "9044aa551d1f9840efe907f1b63aca51fe92c5e020b0941dfaaf11f124bd99a2",
-        "root_start": [
-          -0.034822117537260056,
-          1.0007747411727905,
-          0.042525794357061386
-        ],
-        "root_end": [
-          0.0027068955823779106,
-          1.0021864175796509,
-          0.021988335996866226
-        ],
-        "raw_rotation_sha256": "c6811d1e68f5aa5537030904c240b14b7d5da27ac96ea096be0a85fbe7009924"
-      },
-      "files": {
-        "root_positions.f32": "3bab5890711a228b77bccd5031a48c99c9cc1312811daec995b977621a204d7a",
-        "local_rotations_xyzw.f32": "c6811d1e68f5aa5537030904c240b14b7d5da27ac96ea096be0a85fbe7009924"
       }
     }
   ],
@@ -1377,5 +1484,22 @@
   "runtime_inference": false,
   "paid_calls": 0,
   "account_required": false,
-  "legacy_strategy": "Original movement/arms retained; immediate persisted Debug selector"
+  "legacy_strategy": "Original movement/arms retained; immediate persisted Debug selector",
+  "natural_revision": {
+    "task": "human-natural-20261031",
+    "shared_first_third_person": true,
+    "runtime_ai": false,
+    "authoring": [
+      "Retain approved locomotion where suitable; restrained replacement action auditions.",
+      "Ordinary upper-body actions preserve grounded locomotion legs; no imported action squat.",
+      "Restrained local torso/clavicle rotations relative to relaxed native idle; original skin weights untouched."
+    ],
+    "runtime_fitting": [
+      "Relaxed body-relative carry independent of view pitch; explicit actions aim.",
+      "Real prop dimensions, measured character surface bounds, anatomical arm reach and two-grip contacts.",
+      "Bow whole-body side-on stance, cheek anchor, draw/hold/cancel/release/lower sequence.",
+      "Separate one/two-hand armed swimming poses; free limb remains available for propulsion."
+    ],
+    "review_limits": "Automated screening and mechanical audits do not constitute owner visual acceptance."
+  }
 }

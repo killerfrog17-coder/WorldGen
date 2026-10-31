@@ -1,0 +1,24 @@
+{
+  "id": "idle",
+  "label": "idle",
+  "frames": 120,
+  "prompt": "A person stands comfortably upright, feet hip width apart, with relaxed arms beside the body. Quiet breathing and very small natural weight shifts.",
+  "seed": 3100,
+  "steps": 50,
+  "seconds": 69.20299999997951,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "5d166337aef27414c4e6f19e9f5e512a1a2e3c109dc05be67d6e2317cec9a327",
+  "root_start": [
+    0.0066111721098423,
+    1.001253604888916,
+    0.007238338235765696
+  ],
+  "root_end": [
+    0.003705943003296852,
+    1.0010930299758911,
+    0.010404031723737717
+  ],
+  "raw_rotation_sha256": "cf2d1f9c20dd00fa2f2a3d6e06059fec20bb6445c5bf28ffdba6b579c0f9eb2d"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "swim",
+  "label": "swim",
+  "frames": 180,
+  "prompt": "A person swims forward with smooth alternating front crawl arm strokes and gentle flutter kicks, body horizontal in the water. Natural continuous movement at a moderate pace.",
+  "seed": 3290,
+  "steps": 50,
+  "seconds": 99.0,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "257a18ae1beb926a3ba709dc59261e36d906110b6c4f3ffc188df67650abcfe7",
+  "root_start": [
+    0.010594463907182217,
+    0.16062581539154053,
+    0.04948926717042923
+  ],
+  "root_end": [
+    -0.10546737909317017,
+    0.13970518112182617,
+    2.632996082305908
+  ],
+  "raw_rotation_sha256": "ec4484181e7a3f5739b4ffd0b636af825ccba35219ab5ff14601700e43e335d2"
+}

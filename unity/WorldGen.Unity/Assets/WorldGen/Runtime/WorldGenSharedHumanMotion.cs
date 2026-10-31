@@ -26,7 +26,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
     public double ActionTime {get;private set;}
     public float MoveSpeed {get;private set;}
     public double GaitPhase=>phase;
-    static readonly HashSet<string> MovementRoles=new HashSet<string>{"Idle","Walk","Run","Sprint","Crouch","CrouchIdle","Jump","Swim","WalkBack","StrafeLeft","StrafeRight","RunBack","RunLeft","RunRight"};
+    static readonly HashSet<string> MovementRoles=new HashSet<string>{"Idle","Walk","Run","Sprint","Crouch","CrouchIdle","Jump","Swim","SwimCarry","SwimCarryLeft","SwimCarryTwo","WalkBack","StrafeLeft","StrafeRight","RunBack","RunLeft","RunRight"};
 
     sealed class Track
     {
@@ -84,7 +84,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         return index<0?0:locomotion.Mixer.GetInputWeight(index);
     }
     public void AimHead(Quaternion look)=>head.rotation=look*headBindRotation;
-    public void Locomotion(float speed,bool inAir,bool crouch,bool swimming,float dt,Vector2 direction=default)
+    public void Locomotion(float speed,bool inAir,bool crouch,bool swimming,float dt,Vector2 direction=default,string swimRole="Swim")
     {
         MoveSpeed=speed;clock+=dt;
         if(inAir&&!airborne)jumpAt=clock;
@@ -110,7 +110,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         for(int i=0;i<locomotion.Nodes.Length;i++)
         {
             var c=locomotion.Clips[i];float goal=0;
-            if(swimming)goal=c.Role=="Swim"?1:0;
+            if(swimming)goal=c.Role==(Clips.ContainsKey(swimRole)?swimRole:"Swim")?1:0;
             else if(inAir)goal=c.Role=="Jump"?1:0;
             else if(crouch)goal=c.Role==(speed<.08f?"CrouchIdle":"Crouch")?1:0;
             else if(speed<1.5f){float w=Mathf.Clamp01(speed/1.5f);goal=c.Role=="Idle"?1-w:c.Role=="Walk"?w:0;}

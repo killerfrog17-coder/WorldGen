@@ -1,0 +1,24 @@
+{
+  "id": "sling_whirl",
+  "label": "sling_whirl",
+  "frames": 180,
+  "prompt": "An upright person smoothly rotates a sling in a compact vertical circle beside the right shoulder. The feet stay planted and the pelvis remains level, with restrained shoulder motion.",
+  "seed": 3330,
+  "steps": 50,
+  "seconds": 95.31300000002375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "66ef70dca0a25df50fe43df2d0147fa2473cdc323e59b07ac097942333968e56",
+  "root_start": [
+    -0.019720615819096565,
+    1.0018552541732788,
+    0.00024260528152808547
+  ],
+  "root_end": [
+    -0.006160711869597435,
+    1.0005176067352295,
+    0.016543203964829445
+  ],
+  "raw_rotation_sha256": "571bb8a396caaf825d76ac0f751f31ac4c6683eb39b80cde52ca70c76fb1cd59"
+}

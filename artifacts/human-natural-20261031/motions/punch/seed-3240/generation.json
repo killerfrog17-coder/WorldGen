@@ -1,0 +1,24 @@
+{
+  "id": "punch",
+  "label": "punch",
+  "frames": 90,
+  "prompt": "A standing person makes one short straight right handed punch at face height and retracts smoothly to chest level. The feet stay planted, small shoulder and torso rotation, pelvis remains level.",
+  "seed": 3240,
+  "steps": 50,
+  "seconds": 60.375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "d93474aec2fe94943b65f62d5ad4e94fc9c32d1c47d44e2ff6e7c9130b2e7db1",
+  "root_start": [
+    0.003124999813735485,
+    0.946926474571228,
+    -0.018256930634379387
+  ],
+  "root_end": [
+    -0.010196787305176258,
+    0.9363289475440979,
+    0.015460412949323654
+  ],
+  "raw_rotation_sha256": "947f513df04157c00dd00cf35b64b5a9f2088f54722d803a5aa6a071b778eef8"
+}

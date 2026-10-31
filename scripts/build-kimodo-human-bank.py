@@ -51,6 +51,7 @@ def selected_take(name):
     if name == 'demo_walk': return DEMO / 'motions/empty_walk/seed-240'
     if name == 'demo_spear_throw': return DEMO / 'motions/spear_throw/seed-252'
     folder = ROOT / 'motions' / name
+    if not folder.exists():folder=REPO/'artifacts/kimodo-human-bank/motions'/name
     marker = folder / 'selected.json'
     if marker.exists(): return folder / json.loads(marker.read_text())['take']
     return next(iter(sorted(folder.glob('seed-*/generation.json'))), Path('missing')).parent
@@ -106,9 +107,9 @@ def prepare(source, name, role, loop, overrides):
         contact = int(np.argmin(reach))
         begin = max(0, contact - 18)
         end = min(count - 1, max(begin + 20, contact + 23))
-    elif loop and role in {'Walk','Run','Sprint','Crouch','Swim','WalkBack','StrafeLeft','StrafeRight','RunBack','RunLeft','RunRight','ToolWalk','SlingWhirl','WorkKnapping','WorkCut','WorkTwist','WorkDig'}:
+    elif loop and role in {'Walk','Run','Sprint','Crouch','Swim','SwimCarry','SwimCarryTwo','WalkBack','StrafeLeft','StrafeRight','RunBack','RunLeft','RunRight','ToolWalk','SlingWhirl','WorkKnapping','WorkCut','WorkTwist','WorkDig'}:
         names = ['LeftFoot','RightFoot','LeftLeg','RightLeg','LeftHand','RightHand']
-        if role in {'Swim','SlingWhirl','WorkKnapping','WorkCut','WorkTwist','WorkDig'}:
+        if role in {'Swim','SwimCarry','SwimCarryTwo','SlingWhirl','WorkKnapping','WorkCut','WorkTwist','WorkDig'}:
             names=['LeftHand','RightHand','LeftForeArm','RightForeArm']
         features = np.array([[tuple(r[n].translation-r['Hips'].translation) for n in names] for r in rows])
         low, high = (17, 44) if role in {'Run','Sprint','RunBack','RunLeft','RunRight'} else (24, 76)
@@ -129,7 +130,7 @@ def prepare(source, name, role, loop, overrides):
     assert 0 <= begin < end < count, (role,begin,end,count)
     release = int(override.get('release', release))
     selected = [{n:m.copy() for n,m in r.items()} for r in rows[begin:end+1]]
-    swim_lift = source.rest['Head'].translation.z-float(np.median([r['Head'].translation.z for r in selected])) if role=='Swim' else 0
+    swim_lift = source.rest['Head'].translation.z-float(np.median([r['Head'].translation.z for r in selected])) if role.startswith('Swim') else 0
     # Controller owns horizontal travel. Preserve generated vertical body motion.
     for row in selected:
         offset = row['Hips'].translation.copy();offset.z = 0
@@ -172,8 +173,15 @@ def prepare(source, name, role, loop, overrides):
 
 
 def main():
+    global ROOT,OUTPUT
     parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF');parser.add_argument('--partial',action='store_true');parser.add_argument('--save-review',action='store_true')
+    parser.add_argument('--take-root');parser.add_argument('--output');parser.add_argument('--natural',action='store_true');parser.add_argument('--review-variants',default='B')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    if args.take_root:ROOT=REPO/args.take_root
+    if args.output:OUTPUT=REPO/args.output
+    if args.natural:
+        LOCO.update({'SwimCarry','SwimCarryLeft','SwimCarryTwo'})
+        ROLE_SOURCE.update({'SwimCarry':('swim_carry',True),'SwimCarryTwo':('swim_carry_two',True),'SpearThrowCharge':('spear_throw',False),'SpearThrowRelease':('spear_throw',False)})
     OUTPUT.mkdir(parents=True,exist_ok=True)
     overrides=json.loads((ROOT/'authoring.json').read_text()) if (ROOT/'authoring.json').exists() else {}
     sources={};prepared={}
@@ -188,6 +196,7 @@ def main():
         prepared[role]=(FittedMotion(sources[name],samples),record)
         if role in MIRROR:
             prepared[role+'_Left']=(FittedMotion(sources[name],samples,True),{**record,'role':role+'_Left','mirrored':True})
+        if role=='SwimCarry':prepared['SwimCarryLeft']=(FittedMotion(sources[name],samples,True),{**record,'role':'SwimCarryLeft','mirrored':True})
     (ROOT/'authoring-decisions.json').write_text(json.dumps([v[1] for v in prepared.values()],indent=2))
     spec=importlib.util.spec_from_file_location('kimodo_retarget',REPO/'scripts/build-human-animation-preview.py');retarget=importlib.util.module_from_spec(spec);spec.loader.exec_module(retarget)
     retarget.source_map=lambda source:SOMA_MAP
@@ -198,7 +207,7 @@ def main():
         col=bpy.data.collections['MPFB_'+letter];rig=next(o for o in col.objects if o.type=='ARMATURE')
         col.hide_viewport=False;col.hide_render=False;rig.hide_viewport=False
         # Keep the review meshes in memory only when requested. FBX is skeleton-only.
-        review=args.save_review and letter=='B'
+        review=args.save_review and letter in args.review_variants
         keep={rig}|(set(col.objects) if review else set())
         for obj in list(bpy.data.objects):
             if obj not in keep:bpy.data.objects.remove(obj,do_unlink=True)
@@ -212,9 +221,17 @@ def main():
         for kind,action,frame in [('relaxed',relaxed_action,1),('grip',grip_action,12)]:
             rig.animation_data.action=action;rig.animation_data.action_slot=action.slots[0];bpy.context.scene.frame_set(frame);bpy.context.view_layer.update()
             fingers[kind]={b.name:b.rotation_quaternion.copy() for b in rig.pose.bones if b.name.startswith(('index_','middle_','ring_','pinky_','thumb_'))}
-        records=[]
+        records=[];natural_idle=None
         for role,(motion,metadata) in prepared.items():
             record=retarget.animate(rig,'MPFB',(role,motion,role),motion.samples);action=bpy.data.actions[record['action']]
+            if args.natural:
+                from natural_human_bake import pin_ordinary_legs,restrain_ordinary_torso,ground_action,is_upper
+                if natural_idle is not None and is_upper(role,LOCO):
+                    pin_ordinary_legs(rig,action,natural_idle,len(motion.samples))
+                    restrain_ordinary_torso(action,natural_idle,role)
+                if role in LOCO and role!='Jump' and not role.startswith('Swim'):
+                    metadata={**metadata,'ground_offset_m':ground_action(rig,action,len(motion.samples))}
+                if role=='Idle':natural_idle=action
             # Calm hands, or a power grip. Fingers are fitted, not generated SOMA30 data.
             bag=action.layers[0].strips[0].channelbag(action.slots[0]);left=role.endswith('_Left')
             for curve in bag.fcurves:
@@ -222,12 +239,18 @@ def main():
                 if bone not in fingers['relaxed']:continue
                 both=role.startswith(('SpearReady2','SpearThrust2','Bow','Work','Drink','Carry'))
                 gripping=role not in LOCO|{'Empty','Gather','Gather_Left','SlingRelease','SlingRelease_Left'} and (both or bone.endswith('_l' if left else '_r'))
+                if args.natural and role in {'SwimCarry','SwimCarryLeft','SwimCarryTwo'}:
+                    gripping=role=='SwimCarryTwo' or bone.endswith('_l' if role=='SwimCarryLeft' else '_r')
                 desired=fingers['grip' if gripping else 'relaxed'][bone]
                 # The source attack's opposite hand is relaxed; mirror the right curl
                 # in the native local finger frame for left-dominant grip auditions.
                 if gripping and bone.endswith('_l'):
                     other=fingers['grip'][bone[:-1]+'r'];desired=Quaternion((other.w,other.x,-other.y,-other.z))
                 if role in {'Drink','WorkTwist'}:desired=fingers['relaxed'][bone].slerp(desired,.45)
+                if args.natural and role in {'CarryLarge','SwimCarryTwo'}:desired=fingers['relaxed'][bone].slerp(desired,.45)
+                if args.natural and role.startswith('Bow') and bone.endswith('_r'):
+                    amount=0 if role=='BowReady' else .65 if bone.startswith(('index_','middle_','ring_')) else .12
+                    desired=fingers['relaxed'][bone].slerp(desired,amount)
                 if role=='Eat' and not bone.startswith(('thumb_','index_')):desired=fingers['relaxed'][bone].slerp(desired,.35)
                 for key in curve.keyframe_points:
                     q=desired
@@ -247,7 +270,7 @@ def main():
         sibling=bpy.data.objects.new('Animation bank binding sibling',None);bpy.context.scene.collection.objects.link(sibling)
         for obj in bpy.context.selected_objects:obj.select_set(False)
         rig.select_set(True);sibling.select_set(True);bpy.context.view_layer.objects.active=rig
-        bpy.ops.export_scene.fbx(filepath=str(OUTPUT/(letter+'.fbx')),use_selection=True,object_types={'ARMATURE','EMPTY'},add_leaf_bones=False,axis_forward='-Z',axis_up='Y',bake_anim=True,bake_anim_use_all_actions=True,bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0,bake_anim_step=1,use_custom_props=False,path_mode='STRIP')
+        bpy.ops.export_scene.fbx(filepath=str(OUTPUT/(letter+'.fbx')),use_selection=True,object_types={'ARMATURE','EMPTY'},add_leaf_bones=False,axis_forward='-Z',axis_up='Y',bake_anim=True,bake_anim_use_all_actions=True,bake_anim_use_nla_strips=False,bake_anim_simplify_factor=.05 if args.natural else 0,bake_anim_step=1,use_custom_props=False,path_mode='STRIP')
         if review:
             for obj in col.objects:obj.hide_set(False);obj.hide_render=False
             rig['kimodo_bank_clips']=json.dumps(records)

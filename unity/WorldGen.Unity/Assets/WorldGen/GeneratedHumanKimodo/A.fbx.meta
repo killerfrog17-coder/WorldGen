@@ -36,7 +36,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | BowDraw
       internalID: 2209536803395617831
       firstFrame: 0
-      lastFrame: 39
+      lastFrame: 42
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -94,7 +94,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | BowRelease
       internalID: -626615976850885483
       firstFrame: 0
-      lastFrame: 140
+      lastFrame: 137
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -123,7 +123,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | CarryLarge
       internalID: 2448187036881432708
       firstFrame: 0
-      lastFrame: 93
+      lastFrame: 123
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -210,7 +210,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | Drink
       internalID: 3344311036164471838
       firstFrame: 0
-      lastFrame: 72
+      lastFrame: 108
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -239,7 +239,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | Eat
       internalID: 3442572419247335166
       firstFrame: 0
-      lastFrame: 137
+      lastFrame: 132
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -355,7 +355,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | Gather
       internalID: -8788510769854268836
       firstFrame: 0
-      lastFrame: 112
+      lastFrame: 101
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -384,7 +384,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | Gather_Left
       internalID: 2743414725447000815
       firstFrame: 0
-      lastFrame: 112
+      lastFrame: 101
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -935,7 +935,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SpearThrowCharge
       internalID: 918323570708737267
       firstFrame: 0
-      lastFrame: 52
+      lastFrame: 59
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -964,7 +964,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SpearThrowCharge_Left
       internalID: 651424104150501901
       firstFrame: 0
-      lastFrame: 52
+      lastFrame: 59
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1051,7 +1051,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SpearThrust1
       internalID: 8803033621908623301
       firstFrame: 0
-      lastFrame: 35
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1080,7 +1080,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | SpearThrust1_Left
       internalID: 8985985340704473580
       firstFrame: 0
-      lastFrame: 35
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1254,7 +1254,94 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | Swim
       internalID: -5421135849542003585
       firstFrame: 0
-      lastFrame: 43
+      lastFrame: 66
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 1
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: SwimCarry
+      takeName: MPFB_A|Kimodo A | SwimCarry
+      internalID: -8198900453826995937
+      firstFrame: 0
+      lastFrame: 76
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 1
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: SwimCarryLeft
+      takeName: MPFB_A|Kimodo A | SwimCarryLeft
+      internalID: -7016660821373065589
+      firstFrame: 0
+      lastFrame: 76
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 1
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: SwimCarryTwo
+      takeName: MPFB_A|Kimodo A | SwimCarryTwo
+      internalID: 6991847249399060494
+      firstFrame: 0
+      lastFrame: 76
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1283,7 +1370,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ThrowCharge
       internalID: 16659094764063154
       firstFrame: 0
-      lastFrame: 33
+      lastFrame: 61
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1312,7 +1399,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ThrowCharge_Left
       internalID: 4453652785393867578
       firstFrame: 0
-      lastFrame: 33
+      lastFrame: 61
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1399,7 +1486,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolBlunt
       internalID: -1790276877867498753
       firstFrame: 0
-      lastFrame: 41
+      lastFrame: 27
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1428,7 +1515,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolBlunt_Left
       internalID: 2086505047802676310
       firstFrame: 0
-      lastFrame: 41
+      lastFrame: 27
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1457,7 +1544,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolChop
       internalID: -679239568018208567
       firstFrame: 0
-      lastFrame: 25
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1486,7 +1573,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolChop_Left
       internalID: 4578088023424559241
       firstFrame: 0
-      lastFrame: 25
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1573,7 +1660,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolCutB
       internalID: -3966977605645811069
       firstFrame: 0
-      lastFrame: 41
+      lastFrame: 34
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1602,7 +1689,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolCutB_Left
       internalID: -7811310781598851964
       firstFrame: 0
-      lastFrame: 41
+      lastFrame: 34
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1747,7 +1834,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolWalk
       internalID: -1511033063193324100
       firstFrame: 0
-      lastFrame: 36
+      lastFrame: 38
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1776,7 +1863,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | ToolWalk_Left
       internalID: 7618398499827652569
       firstFrame: 0
-      lastFrame: 36
+      lastFrame: 38
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1863,7 +1950,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | WorkCut
       internalID: -4472399047777475436
       firstFrame: 0
-      lastFrame: 76
+      lastFrame: 63
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1892,7 +1979,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | WorkDig
       internalID: 5549033174839601282
       firstFrame: 0
-      lastFrame: 29
+      lastFrame: 35
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1921,7 +2008,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | WorkKnapping
       internalID: -5017561225700465121
       firstFrame: 0
-      lastFrame: 47
+      lastFrame: 74
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1950,7 +2037,7 @@ ModelImporter:
       takeName: MPFB_A|Kimodo A | WorkTwist
       internalID: -6099073695503769200
       firstFrame: 0
-      lastFrame: 42
+      lastFrame: 74
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

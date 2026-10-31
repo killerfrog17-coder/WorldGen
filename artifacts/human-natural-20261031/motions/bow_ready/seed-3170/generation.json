@@ -1,0 +1,24 @@
+{
+  "id": "bow_ready",
+  "label": "bow_ready",
+  "frames": 120,
+  "prompt": "A person stands upright holding an undrawn bow low beside their left thigh with the left arm relaxed and slightly bent. The right hand rests loosely near their waist. Calm still posture.",
+  "seed": 3170,
+  "steps": 50,
+  "seconds": 69.43699999997625,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "3b727e1ccc2864c2484fd71b09cadb28243d8d5a8a319f37ade8189884ce4dbe",
+  "root_start": [
+    0.023997347801923752,
+    0.9962790012359619,
+    0.015566556714475155
+  ],
+  "root_end": [
+    0.07977217435836792,
+    0.9426900148391724,
+    0.13352437317371368
+  ],
+  "raw_rotation_sha256": "8cf7d3eb2d589051e1fd89f875ee0bf5fc534768f1753da0df40e68128798677"
+}

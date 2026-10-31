@@ -1,0 +1,24 @@
+{
+  "id": "spear_ready_one",
+  "label": "spear_ready_one",
+  "frames": 120,
+  "prompt": "A person stands upright casually carrying a long spear in their right hand just outside the right hip, with a relaxed bent elbow. Feet hip width apart, calm steady posture.",
+  "seed": 3180,
+  "steps": 50,
+  "seconds": 69.95400000002701,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "1544b952d5a1750822e288342fe449bdb6eae0f7ef6cfe089c71197f09ec4e2d",
+  "root_start": [
+    0.0027575017884373665,
+    0.9853384494781494,
+    -0.010967768728733063
+  ],
+  "root_end": [
+    -0.003605486126616597,
+    0.9843211770057678,
+    -0.008897367864847183
+  ],
+  "raw_rotation_sha256": "e78b6fa939dabef6336503990a4644e8a54b564d45426319bed89f4ef232bcbd"
+}

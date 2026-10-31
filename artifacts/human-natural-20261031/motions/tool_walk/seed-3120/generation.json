@@ -1,0 +1,24 @@
+{
+  "id": "tool_walk",
+  "label": "tool_walk",
+  "frames": 150,
+  "prompt": "A person walks casually forward carrying a small tool low beside their right hip. The right elbow stays softly bent with a small restrained arm swing.",
+  "seed": 3120,
+  "steps": 50,
+  "seconds": 81.25,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "81d6bfe1a5792f569465a023af57889a3b1c80abaae3db1343312508d80b1a34",
+  "root_start": [
+    -0.02660440094769001,
+    0.9975930452346802,
+    0.048936039209365845
+  ],
+  "root_end": [
+    -0.055534183979034424,
+    0.9696637392044067,
+    5.225396156311035
+  ],
+  "raw_rotation_sha256": "8ef49cca711b1b40c4dee90fff767530ad84e6136270876f59d29b4d687bcd50"
+}

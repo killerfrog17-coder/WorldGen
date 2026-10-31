@@ -1,0 +1,24 @@
+{
+  "id": "swim_carry_two",
+  "label": "swim_carry_two",
+  "frames": 180,
+  "prompt": "A person floats horizontally and swims slowly with alternating leg kicks, keeping both arms extended forward holding a floating object. Calm smooth kicking, steady upper body, face just above the water.",
+  "seed": 3280,
+  "steps": 50,
+  "seconds": 100.93800000002375,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "4aa802f6c163665b254cd13c8164fd9b350c7945c9a99dbb24dba2f2ba1f3978",
+  "root_start": [
+    -0.0014113677898421884,
+    0.09339731931686401,
+    0.0017091920599341393
+  ],
+  "root_end": [
+    -0.004449283704161644,
+    0.10400044918060303,
+    -0.003947006072849035
+  ],
+  "raw_rotation_sha256": "e0d988a4347b59eecb9e0b3b39327122c50865f955a2a30441fea724bdd12c79"
+}

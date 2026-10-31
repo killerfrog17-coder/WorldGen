@@ -1,0 +1,24 @@
+{
+  "id": "bow_shoot",
+  "label": "bow_shoot",
+  "frames": 180,
+  "prompt": "A standing archer turns slightly side on, smoothly raises a bow with the left arm, draws the string to the right cheek, holds still, releases, and calmly lowers the bow. Upright spine, steady pelvis, planted feet.",
+  "seed": 3160,
+  "steps": 50,
+  "seconds": 92.79700000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "d5133cec5fe341a414c96ed8398cafb7f900f31d051dbee3484f9924ea4897d4",
+  "root_start": [
+    0.04956536367535591,
+    0.9801099896430969,
+    -0.016298232600092888
+  ],
+  "root_end": [
+    0.027785448357462883,
+    0.9702653884887695,
+    -0.004988778382539749
+  ],
+  "raw_rotation_sha256": "b7a70a53beb0ee86626ac1bff9b8b0feaf68d0eb2c802d51fff182966f421f14"
+}

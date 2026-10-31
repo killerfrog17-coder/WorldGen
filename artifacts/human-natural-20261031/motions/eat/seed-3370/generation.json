@@ -1,0 +1,24 @@
+{
+  "id": "eat",
+  "label": "eat",
+  "frames": 150,
+  "prompt": "An upright person brings a small bite of food from chest height to their mouth with the right hand, eats it calmly, and lowers the hand. The pelvis stays level and the feet remain planted.",
+  "seed": 3370,
+  "steps": 50,
+  "seconds": 82.39100000000326,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "9bce14283a7d89e634106511b42a00781bb1aeb4a1d3ebc8b490fa8873c5fb23",
+  "root_start": [
+    0.0014547161990776658,
+    0.9966251850128174,
+    -0.0005897722439840436
+  ],
+  "root_end": [
+    0.011098405346274376,
+    0.9969905614852905,
+    0.009984008967876434
+  ],
+  "raw_rotation_sha256": "1ed235c54067159bd289448d544008b0e539992e1680d07d1348c0dfb830fd23"
+}

@@ -40,7 +40,8 @@ public sealed partial class LocalTerrainExplorer
     void UpdateBowString(GameObject root,Possession item,bool firstPerson=false)
     {
         var line=root.GetComponentInChildren<LineRenderer>();if(line==null)return;
-        if((firstPerson||SharedHumanMotion)&&itemCharge?.Weapon==item&&!itemCharge.Throw)line.SetPosition(1,root.transform.InverseTransformPoint(BowDrawPoint(1)));
+        bool drawing=SharedHumanMotion?sharedBowItem==item.Id&&sharedBowDraw>.002f&&!(viewReleaseKind==ItemPrimaryUse.Bow&&Time.unscaledTimeAsDouble-viewReleaseAt<.65):firstPerson&&itemCharge?.Weapon==item&&!itemCharge.Throw;
+        if(drawing)line.SetPosition(1,root.transform.InverseTransformPoint(BowDrawPoint(1)));
         else line.SetPosition(1,new Vector3(.38f,.5f,0));
     }
     bool SupportSpear(Possession item)=>item!=null&&ItemUseRules.Profile(item).Primary==ItemPrimaryUse.Thrust&&item.HeightM>=1.1&&

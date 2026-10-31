@@ -9,7 +9,7 @@ public sealed partial class LocalTerrainExplorer
     GameObject sharedLoadedAmmo;
     string sharedAmmoId;
     int sharedActionFrame=-1;
-    int sharedGripFrame=-1;float sharedSpearBlend,sharedBowDraw;string sharedSpearItem,sharedBowItem;
+    int sharedGripFrame=-1;float sharedBowDraw,sharedBowRaise;string sharedBowItem;
     readonly Dictionary<string,ViewPossession> sharedSlings=new Dictionary<string,ViewPossession>();
     double HumanActionDuration(string role)=>SharedHumanMotion?humanPlayer.Shared.Duration(role):viewArms?.Duration(role)??1;
     double HumanReleaseDelay(ItemCharge charge)
@@ -27,9 +27,10 @@ public sealed partial class LocalTerrainExplorer
         bool mainLeft=main?.Place==PossessionPlace.LeftHand;
         var primary=PoseForHand(main,mainLeft,Time.unscaledTimeAsDouble);
         Possession off=mainLeft?right:left;bool offLeft=!mainLeft;
-        bool two=main?.Kind==PossessionKind.Bow||main?.Hands==2||SupportSpear(main);
+        bool two=main?.Hands==2||SupportSpear(main);
         double now=Time.unscaledTimeAsDouble;
         if(itemCharge!=null&&!itemCharge.Throw||pendingRanged!=null&&!pendingRanged.Charge.Throw)two=true;
+        if(main?.Kind==PossessionKind.Bow&&!two)offLeft=false;
         string release=viewReleaseKind==ItemPrimaryUse.Bow?"BowRelease":viewReleaseSpear?"SpearThrowRelease":viewReleaseKind==ItemPrimaryUse.Sling?"SlingRelease":"ThrowRelease";
         if(now-viewReleaseAt<HumanActionDuration(release))
         {
@@ -41,8 +42,15 @@ public sealed partial class LocalTerrainExplorer
         {primary=new ViewPose(viewConsumeDrink?"Drink":"Eat",now-viewConsumeAt,viewConsumeAt);two=true;}
         else if(now-viewGatherAt<HumanActionDuration("Gather"))
         {
-            if(right==null)primary=new ViewPose("Gather",now-viewGatherAt,viewGatherAt);
-            else if(left==null){off=null;offLeft=true;two=false;}
+            if(main==null)primary=new ViewPose("Gather",now-viewGatherAt,viewGatherAt);
+            else if(off==null)
+            {
+                // Let the free physical hand pick up, including when a bow is
+                // logically in the right slot but carried in the left hand.
+                string occupied=NaturalSide(main),free=occupied=="r"?"l":"r";
+                primary=new ViewPose(free=="l"?"Gather_Left":"Gather",now-viewGatherAt,viewGatherAt);
+                off=main;offLeft=occupied=="l";two=false;
+            }
         }
         else if(CraftWorking)
         {
@@ -56,16 +64,23 @@ public sealed partial class LocalTerrainExplorer
             primary=new ViewPose(work,now%HumanActionDuration(work));two=true;
         }
         if(viewArmDiagnosticClip!=null){primary=new ViewPose(viewArmDiagnosticClip,viewArmDiagnosticTime);two=true;}
-        bool gatherOff=right!=null&&left==null&&!two&&now-viewGatherAt<HumanActionDuration("Gather");
         string other=null;double otherTime=0;
-        if(!two&&(off!=null||gatherOff))
+        if(!two&&off!=null)
         {
-            var pose=gatherOff?new ViewPose("Gather_Left",now-viewGatherAt,viewGatherAt):PoseForHand(off,offLeft,now);
+            var pose=PoseForHand(off,offLeft,now);
             other=pose.Clip;otherTime=pose.Time;
         }
         float dt=viewArmDiagnosticDt>=0?viewArmDiagnosticDt:sharedActionFrame==Time.frameCount||paused?0:Math.Min(.1f,Time.unscaledDeltaTime);sharedActionFrame=Time.frameCount;
-        bool fullBody=primary.Clip.StartsWith("Work",StringComparison.Ordinal)||primary.Clip=="Gather"||primary.Clip=="Eat"||primary.Clip=="Drink"||
-            humanPlayer.Shared.Clips.TryGetValue(primary.Clip,out var metadata)&&!metadata.Loop;
+        // Ordinary strikes/drawing a bow must not import a generated squat.
+        // Legs remain in the actual grounded locomotion pose for those actions.
+        bool fullBody=primary.Clip=="Gather"||primary.Clip=="Gather_Left"||primary.Clip=="WorkDig"||
+            primary.Clip.StartsWith("Throw",StringComparison.Ordinal)||primary.Clip.StartsWith("SpearThrow",StringComparison.Ordinal);
+        if(motion.Swimming)
+        {
+            fullBody=false;
+            if(!SharedDeliberateAim&&now-viewConsumeAt>HumanActionDuration(viewConsumeDrink?"Drink":"Eat"))
+            {primary=new ViewPose("Empty",0);other=null;}
+        }
         humanPlayer.Shared.Action(primary.Clip,primary.Time,primary.Clip!="Empty",fullBody,other,otherTime,offLeft,dt);
         humanPlayer.Graph.Evaluate(0);
     }
@@ -82,11 +97,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void FitSharedWrist(string side,Vector3 direction,float weight=1)
     {
-        var hand=inventoryBones["hand_"+side];
-        Vector3 width=inventoryBones["index_01_"+side].position-inventoryBones["pinky_01_"+side].position;
-        if(side=="r")width=-width;
-        if(width.sqrMagnitude>.000001&&direction.sqrMagnitude>.000001)hand.rotation=Quaternion.Slerp(hand.rotation,Quaternion.FromToRotation(width,direction)*hand.rotation,weight);
+        OrientNaturalWrist(side,direction,weight);
     }
+
     Vector3 SharedGripAxis(string side)
     {
         Vector3 axis=inventoryBones["index_01_"+side].position-inventoryBones["pinky_01_"+side].position;
@@ -100,136 +113,21 @@ public sealed partial class LocalTerrainExplorer
             return role.StartsWith("ToolCut",StringComparison.Ordinal)||role.StartsWith("ToolBlunt",StringComparison.Ordinal)||role.StartsWith("ToolChop",StringComparison.Ordinal)||role.StartsWith("Work",StringComparison.Ordinal);
         }
     }
-    void FitSharedSupport(string side,Vector3 target,Vector3? hint=null)
+    void FitSharedSupport(string side,Vector3 target,Vector3? hint=null,float extension=.98f)
     {
         var body=humanPlayer.Root.transform;var upper=inventoryBones["upperarm_"+side];var lower=inventoryBones["lowerarm_"+side];var hand=inventoryBones["hand_"+side];
         float a=Vector3.Distance(upper.position,lower.position),b=Vector3.Distance(lower.position,hand.position);
-        Vector3 delta=target-upper.position;float distance=Mathf.Clamp(delta.magnitude,Mathf.Abs(a-b)+.002f,(a+b)*.98f);
+        Vector3 delta=target-upper.position;float distance=Mathf.Clamp(delta.magnitude,Mathf.Abs(a-b)+.002f,(a+b)*extension);
         Vector3 axis=delta.normalized,bend=Vector3.ProjectOnPlane(hint??(body.right*(side=="r"?1:-1)-body.up*.8f),axis).normalized;
         float along=(a*a+distance*distance-b*b)/(2*distance),height=Mathf.Sqrt(Mathf.Max(0,a*a-along*along));
         Vector3 elbow=upper.position+axis*along+bend*height;
         upper.rotation=Quaternion.FromToRotation(lower.position-upper.position,elbow-upper.position)*upper.rotation;
         lower.rotation=Quaternion.FromToRotation(hand.position-lower.position,upper.position+axis*distance-lower.position)*lower.rotation;
     }
-    void FitSharedBowHands(Possession bow)
-    {
-        // The motion supplies the torso/shoulders; these world-space constraints
-        // fit the existing bow dimensions and the current player's proportions.
-        var body=humanPlayer.Root.transform;float scale=humanPlayer.Definition.EyeHeight/1.65f;
-        float draw=0;double now=Time.unscaledTimeAsDouble;
-        if(itemCharge?.Weapon==bow&&!itemCharge.Throw)draw=Mathf.Clamp01((float)((now-itemCharge.Started)/itemCharge.Duration));
-        else if(viewReleaseKind==ItemPrimaryUse.Bow&&now-viewReleaseAt<.3)draw=1-Mathf.Clamp01((float)((now-viewReleaseAt)/.3));
-        if(viewArmDiagnosticClip=="BowDraw")draw=Mathf.Clamp01((float)(viewArmDiagnosticTime/HumanActionDuration("BowDraw")));
-        if(sharedBowItem!=bow.Id){sharedBowItem=bow.Id;sharedBowDraw=0;}
-        sharedBowDraw=Mathf.MoveTowards(sharedBowDraw,draw,SharedGripDelta()/.12f);draw=sharedBowDraw;
-        Vector3 forward=SharedSpearDirection,up=Vector3.ProjectOnPlane(Vector3.up,forward).normalized;
-        Vector3 anchor=inventoryBones["head"].position+body.right*.14f*scale+forward*.02f*scale;
-        Vector3 left=anchor+forward*.55f*scale-up*(float)bow.HeightM*.05f;
-        Vector3 right=anchor+forward*(.38f*(1-draw))*scale;
-        for(int i=0;i<2;i++)
-        {
-            FitSharedSupport("l",left-(SharedGripPosition("l")-inventoryBones["hand_l"].position));FitSharedWrist("l",up);
-            FitSharedSupport("r",right-(SharedGripPosition("r")-inventoryBones["hand_r"].position),body.right-body.forward*.6f);FitSharedWrist("r",up);
-        }
-    }
-    void FitSharedSpearHands(Possession spear,float weight)
-    {
-        var body=humanPlayer.Root.transform;float scale=humanPlayer.Definition.EyeHeight/1.65f;
-        string main=spear.Place==PossessionPlace.LeftHand?"l":"r",support=main=="r"?"l":"r";
-        string role=humanPlayer.Shared.ActionRole;float extension=0,swing=0;
-        if(role.StartsWith("SpearThrust",StringComparison.Ordinal)&&humanPlayer.Shared.Clips.TryGetValue(role,out var action))
-        {
-            float phase=Mathf.Clamp01((float)(humanPlayer.Shared.ActionTime/action.Duration));float contact=Mathf.Clamp(action.Contact,.1f,.9f);
-            swing=phase<=contact?Mathf.SmoothStep(0,1,phase/contact):Mathf.SmoothStep(1,0,(phase-contact)/(1-contact));extension=.22f*swing;
-        }
-        Vector3 axis=SharedSpearDirection;
-        float height=Mathf.Lerp(inventoryBones["pelvis"].position.y+.15f*scale,inventoryBones["head"].position.y-.05f*scale,swing);
-        Vector3 target=body.position+Vector3.up*(height-body.position.y)+body.right*(main=="r"?.11f:-.11f)*scale+axis*(.15f+extension)*scale;
-        target=Vector3.Lerp(SharedGripPosition(main),target,weight);
-        for(int i=0;i<2;i++)
-        {
-            FitSharedSupport(main,target-(SharedGripPosition(main)-inventoryBones["hand_"+main].position));FitSharedWrist(main,axis,weight);
-        }
-        Vector3 grip=SharedGripPosition(main),shoulder=inventoryBones["upperarm_"+support].position;
-        float reach=(Vector3.Distance(shoulder,inventoryBones["lowerarm_"+support].position)+Vector3.Distance(inventoryBones["lowerarm_"+support].position,inventoryBones["hand_"+support].position))*.97f;
-        Vector3 from=grip-shoulder;float along=Vector3.Dot(from,axis),perpendicular=Mathf.Max(0,from.sqrMagnitude-along*along);
-        float furthest=-along+Mathf.Sqrt(Mathf.Max(0,reach*reach-perpendicular));
-        float spacing=Mathf.Clamp(furthest,.12f,.3f*scale);
-        Vector3 supportTarget=Vector3.Lerp(SharedGripPosition(support),grip+axis*spacing,weight);
-        for(int i=0;i<2;i++)
-        {
-            FitSharedSupport(support,supportTarget-(SharedGripPosition(support)-inventoryBones["hand_"+support].position));FitSharedWrist(support,axis,weight);
-        }
-    }
-    bool SharedCameraAim=>humanCamera.FirstPerson||itemCharge!=null||pendingRanged!=null||combatGuarding||viewItemActions.Count>0;
-    Vector3 SharedSpearDirection
-    {
-        get
-        {
-            if(humanPlayer.Shared.ActionRole=="WorkDig")return Vector3.down;
-            if(!SharedCameraAim)return humanPlayer.Root.transform.forward;
-            float raised=0;
-            if(itemCharge?.Throw==true)raised=12*(float)Math.Min(1,(Time.unscaledTimeAsDouble-itemCharge.Started)/itemCharge.Duration);
-            else if(pendingRanged?.Charge.Throw==true)
-            {double delay=HumanReleaseDelay(pendingRanged.Charge);raised=12*Mathf.Clamp01((float)((pendingRanged.FireAt-Time.unscaledTimeAsDouble)/Math.Max(.01,delay)));}
-            return Quaternion.Euler(Mathf.Clamp(pitch-raised,-72,65),heading,0)*Vector3.forward;
-        }
-    }
-    void FitSharedHeldHands()
-    {
-        var main=itemCharge?.Weapon??pendingRanged?.Charge.Weapon??Inventory.AtHand(PossessionPlace.RightHand)??Inventory.AtHand(PossessionPlace.LeftHand);
-        if(main==null){sharedSpearBlend=sharedBowDraw=0;sharedSpearItem=sharedBowItem=null;return;}
-        bool longSpear=LongViewSpear(main),longTool=longSpear||main.Kind==PossessionKind.SpearThrower;string side=main.Place==PossessionPlace.LeftHand?"l":"r";
-        bool consuming=humanPlayer.Shared.ActionRole=="Drink"||humanPlayer.Shared.ActionRole=="Eat";
-        bool gathering=Time.unscaledTimeAsDouble-viewGatherAt<HumanActionDuration("Gather");
-        if(longSpear)
-        {
-            if(sharedSpearItem!=main.Id){sharedSpearItem=main.Id;sharedSpearBlend=0;}
-            bool support=SupportSpear(main)&&!gathering&&!consuming&&humanPlayer.Shared.ActionRole!="WorkDig";
-            sharedSpearBlend=Mathf.MoveTowards(sharedSpearBlend,support?1:0,SharedGripDelta()/.15f);
-            if(sharedSpearBlend>.001f){FitSharedSpearHands(main,sharedSpearBlend);return;}
-        }
-        else {sharedSpearBlend=0;sharedSpearItem=null;}
-        if(consuming)return;
-        if(SharedCameraAim&&!CraftWorking&&Time.unscaledTimeAsDouble-viewGatherAt>HumanActionDuration("Gather")&&Time.unscaledTimeAsDouble-viewConsumeAt>HumanActionDuration(viewConsumeDrink?"Drink":"Eat"))
-        {
-            var spine=inventoryBones["spine_02"];spine.rotation=Quaternion.AngleAxis(Mathf.Clamp(pitch,-55,55)*.45f,humanPlayer.Root.transform.right)*spine.rotation;
-        }
-        if(main.Hands==2&&!longSpear&&main.Kind!=PossessionKind.Bow)return;
-        if(main.Kind==PossessionKind.Bow){FitSharedBowHands(main);return;}
-        if(longTool||!SharedToolFollowsHand&&main.Kind!=PossessionKind.Sling)FitSharedWrist(side,longTool?SharedSpearDirection:Vector3.up);
-        if(longSpear&&SupportSpear(main)&&!gathering)
-        {
-            string support=side=="r"?"l":"r";
-            Vector3 target=SharedGripPosition(side)+SharedSpearDirection*.25f;
-            for(int i=0;i<2;i++){FitSharedSupport(support,target-(SharedGripPosition(support)-inventoryBones["hand_"+support].position));FitSharedWrist(support,SharedSpearDirection);}
-        }
-    }
-    void PoseSharedHeldItem(GameObject root,Possession item)
-    {
-        bool left=item.Place==PossessionPlace.LeftHand;string side=left?"l":"r";
-        Vector3 grip=SharedGripPosition(item.Kind==PossessionKind.Bow?"l":side);
-        bool longItem=LongViewSpear(item)||item.Kind==PossessionKind.SpearThrower;
-        Vector3 axis=longItem?SharedSpearDirection:SharedToolFollowsHand&&item.Kind!=PossessionKind.Bow?SharedGripAxis(side):Vector3.up;
-        if(item.Kind==PossessionKind.Bow)
-        {
-            Vector3 shot=SharedSpearDirection,up=Vector3.ProjectOnPlane(Vector3.up,shot).normalized;
-            root.transform.rotation=Quaternion.LookRotation(Vector3.Cross(-shot,up),up);
-        }
-        else if(longItem)root.transform.rotation=Quaternion.FromToRotation(Vector3.up,axis);
-        else if(SharedToolFollowsHand)
-        {
-            Vector3 fingers=inventoryBones["middle_01_"+side].position-inventoryBones["hand_"+side].position;
-            Vector3 normal=Vector3.Cross(fingers,axis).normalized;
-            root.transform.rotation=normal.sqrMagnitude>.01f?Quaternion.LookRotation(normal,axis):humanPlayer.Root.transform.rotation;
-        }
-        else root.transform.rotation=humanPlayer.Root.transform.rotation;
-        float amount=StoneCrafting.Rock(item)||item.Kind==PossessionKind.Bow?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f;
-        if(item.Hands==2&&!longItem&&item.Kind!=PossessionKind.Bow)grip=(SharedGripPosition("r")+SharedGripPosition("l"))*.5f;
-        root.transform.position=grip-root.transform.up*(float)item.HeightM*amount;
-        if(item.Kind==PossessionKind.Bow)UpdateBowString(root,item,true);
-        if(item.Kind==PossessionKind.Sling)PoseSharedSling(root,item);
-    }
+    bool SharedDeliberateAim=>itemCharge!=null||pendingRanged!=null||viewItemActions.Count>0||Time.unscaledTimeAsDouble-viewPunchAt<viewPunchDuration;
+    Vector3 SharedSpearDirection=>NaturalWeaponDirection(SharedMainHeld);
+    void FitSharedHeldHands()=>FitNaturalHeldHands();
+    void PoseSharedHeldItem(GameObject root,Possession item)=>PoseNaturalHeldItem(root,item);
     void ClearSharedAmmo()
     {if(sharedLoadedAmmo!=null)DestroyInventoryVisual(sharedLoadedAmmo);sharedLoadedAmmo=null;sharedAmmoId=null;}
     void UpdateSharedAmmo()
@@ -243,7 +141,7 @@ public sealed partial class LocalTerrainExplorer
         Vector3 center=SharedGripPosition("r"),direction=SharedSpearDirection;
         if(charge.Weapon.Kind==PossessionKind.Bow&&inventoryVisuals.TryGetValue(charge.Weapon.Id,out var bow))
         {Vector3 rest=bow.transform.position+bow.transform.up*(float)charge.Weapon.HeightM*.55f;direction=(rest-center).normalized;}
-        else if(charge.Weapon.Kind==PossessionKind.SpearThrower)center=SharedGripPosition(charge.Left?"l":"r")+direction*.25f;
+        else if(charge.Weapon.Kind==PossessionKind.SpearThrower&&inventoryVisuals.TryGetValue(charge.Weapon.Id,out var thrower))center=thrower.transform.TransformPoint(new Vector3(.4f,1,.2f));
         else if(charge.Weapon.Kind==PossessionKind.Sling)center=SharedSlingPouch(charge.Weapon);
         sharedLoadedAmmo.transform.rotation=Quaternion.FromToRotation(Vector3.up,direction);
         sharedLoadedAmmo.transform.position=center-direction*(float)ammo.HeightM*.5f;
@@ -286,7 +184,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void AimSharedHead()
     {
-        if(!SharedHumanMotion||!humanCamera.FirstPerson||DeathVisible||motion.Swimming)return;
+        if(!SharedHumanMotion||DeathVisible||motion.Swimming)return;
+        if(!humanCamera.FirstPerson&&!SharedDeliberateAim&&!NaturalActing(SharedMainHeld))return;
         string role=humanPlayer.Shared.ActionRole;
         if(role.StartsWith("Work",StringComparison.Ordinal)||role.StartsWith("Gather",StringComparison.Ordinal)||role=="Eat"||role=="Drink")return;
         float yaw=humanPlayer.Yaw+Mathf.Clamp(Mathf.DeltaAngle(humanPlayer.Yaw,heading),-70,70);

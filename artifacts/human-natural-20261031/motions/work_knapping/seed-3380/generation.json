@@ -1,0 +1,24 @@
+{
+  "id": "work_knapping",
+  "label": "work_knapping",
+  "frames": 180,
+  "prompt": "A seated-height hand task performed standing: a person holds a stone near the waist in the left palm and gives it small precise taps with a hammerstone in the right hand. Hands stay below the chest, torso upright, steady legs.",
+  "seed": 3380,
+  "steps": 50,
+  "seconds": 94.59299999999348,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "cd1afa58ef7f573ee41a1b78b13edc6b3f45ec85301048127ac6dec2ea312bb5",
+  "root_start": [
+    0.00038682942977175117,
+    0.9980008006095886,
+    -0.002771236002445221
+  ],
+  "root_end": [
+    -0.07231241464614868,
+    0.9925159811973572,
+    -0.026382500305771828
+  ],
+  "raw_rotation_sha256": "4bd86d7d367bb510f2cd7151baa1c1c7ea51f4f05f04bc9cd0d265e91bf49516"
+}

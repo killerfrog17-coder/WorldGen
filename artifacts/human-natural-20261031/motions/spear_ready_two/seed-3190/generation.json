@@ -1,0 +1,24 @@
+{
+  "id": "spear_ready_two",
+  "label": "spear_ready_two",
+  "frames": 120,
+  "prompt": "An upright person carries a spear comfortably across the front of their lower ribs in both hands, elbows softly bent down. The spear is clear of the belly. Relaxed steady legs and small natural breathing.",
+  "seed": 3190,
+  "steps": 50,
+  "seconds": 71.79700000002049,
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "runtime": "kimodo.cpp",
+  "fps": 30,
+  "initial_noise_sha256": "0128ece702eaaf267029deb031c6ecdbcc7e14853706ee393690891b54c15f05",
+  "root_start": [
+    0.06132638826966286,
+    0.868503749370575,
+    0.006208354141563177
+  ],
+  "root_end": [
+    -0.18811658024787903,
+    1.0047924518585205,
+    -0.1377333253622055
+  ],
+  "raw_rotation_sha256": "5fc68f192f33199657f63d16b9cf54d61960d30f3a4086b90451797fa1257af4"
+}
