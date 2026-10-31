@@ -3,12 +3,12 @@ import argparse,json,subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 OUT=ROOT/'artifacts/player-retention-20261031'
-OUT.mkdir(exist_ok=True)
+OUT.mkdir(parents=True,exist_ok=True)
 state=json.loads(subprocess.check_output(['powershell','-NoProfile','-Command',"$s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path (Get-Location) 'WorldGen.exe - Shortcut.lnk')); [ordered]@{selected=$s.TargetPath;running=@(Get-CimInstance Win32_Process -Filter \"Name='WorldGen.exe' OR Name='WorldGen.Cli.exe'\" | ForEach-Object {$_.ExecutablePath})}|ConvertTo-Json -Compress"],cwd=ROOT,text=True))
-roots=[ROOT/'artifacts',Path('D:/WorldGenBuildArtifacts'),Path('E:/WorldGen-builds')]
-parser=argparse.ArgumentParser();parser.add_argument('--active',action='append',default=[]);args=parser.parse_args()
+roots=[ROOT/'builds',Path('D:/WorldGenBuildArtifacts'),Path('E:/WorldGen-builds')]
+parser=argparse.ArgumentParser();parser.add_argument('--active',choices=['slot-a','slot-b'],action='append',default=[]);args=parser.parse_args()
 protected={Path(state['selected']).parent.resolve()}
-protected.update((ROOT/'artifacts'/p).resolve() for p in args.active)
+protected.update((ROOT/'builds'/p).resolve() for p in ['slot-a','slot-b',*args.active])
 protected.update(Path(p).parent.resolve() for p in state['running'] if p)
 inputs=[]
 for name in ['game-assets.lock.json','legacy-runtime-assets.lock.json']:

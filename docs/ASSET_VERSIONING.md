@@ -26,6 +26,21 @@ migration; path-bearing JSON and scripts are rebased. Unity asset GUIDs are kept
 Historical paths can be interpreted through `scripts/project_layout.py`; no
 compatibility link inside `artifacts` is required.
 
+The 31 Oct migration is recorded in
+`assets/verification/project-layout-verification.json`. With the old scratch
+directory temporarily unavailable, the inactive slot built with IL2CPP, both
+original deer/human scenes opened, and a fresh deer export reproduced the exact
+mesh and motion bytes. All 4,709 locked files passed SHA256 checks. The selected
+playable package stayed unchanged. Unrelated gameplay regression failures are
+recorded separately; this filing verification is not their release approval.
+
+Raw sound auditions are retained with authoring files; current playback clips
+live in a real `sounds/fauna/ai` directory. They no longer share the former
+scratch audio-directory junction. Optional discarded auditions and older
+authoring studies are preserved locally, but are not automatically dependencies
+of the current asset lock. The lock covers the required current game and
+approved authoring inputs, not every local experiment.
+
 `python scripts/audit-project-layout.py` checks the permanent dependency boundary.
 It runs before player builds. The migration is additionally checked with the
 old artifacts directory temporarily unavailable and a newly created scratch
@@ -56,6 +71,12 @@ its Windows build support, a free activated Unity Personal license and the .NET
 SDK. These tools are installed separately, not uploaded with the game. Every
 player build uses IL2CPP and needs Unity's Windows C++ prerequisites; Mono is
 never an iteration fallback.
+
+The existing local TripoSG installation uses permanent paths under `tools` and
+the owner's external AI installations/weights. After moving the checkout, run
+`python scripts/configure-local-generation-env.py`; use its `Scripts/python.exe -m pip`
+for package management. Its CPU import preflight passed with old scratch
+unavailable. This check does not generate a new model or change model weights.
 
 Restoration downloads one pack at a time, checks both pack and individual file
 SHA256 hashes, then removes the temporary download. Unchanged local files are

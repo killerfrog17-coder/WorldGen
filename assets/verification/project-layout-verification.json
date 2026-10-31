@@ -1,0 +1,100 @@
+{
+  "recorded_utc": "2026-10-31T21:51:39.878222+00:00",
+  "invariant": "artifacts is disposable output only; no required source, tool, runtime, player or user-save inputs belong there",
+  "layout": "assets/project-layout.json",
+  "source_checkpoint": "86233d9d526b4315badbcf9b14751cf395a3ddff",
+  "asset_release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/game-assets-layout-20261031-v1",
+  "locked_files": {
+    "files": 4709,
+    "passed": 4709,
+    "missing_or_changed": [],
+    "manifest_sha256": "7926d9582366015122ec6e9be43a4c9b57e06b29b044cb8971fbf0f6cba8e0e1"
+  },
+  "old_artifacts_temporarily_unavailable_during_build_and_final_input_checks": true,
+  "original_source_scenes": {
+    "passed": true,
+    "scenes": [
+      {
+        "source": "assets-source/animals/prototypes/deer/Deer - Prototype.blend",
+        "original_sha256": "0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1",
+        "missing_images": [],
+        "missing_libraries": [],
+        "objects": 14
+      },
+      {
+        "source": "assets-source/humans/base/Human - Animation Comparison.blend",
+        "original_sha256": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
+        "missing_images": [],
+        "missing_libraries": [],
+        "objects": 65
+      }
+    ]
+  },
+  "fresh_deer_export": {
+    "passed": true,
+    "files": [
+      {
+        "file": "mesh.bin",
+        "source_sha256": "d5e9b7fc6dd518c24b0af53589bd505d645013235583a1f48f95498ed4477c0f",
+        "fresh_sha256": "d5e9b7fc6dd518c24b0af53589bd505d645013235583a1f48f95498ed4477c0f",
+        "equal": true
+      },
+      {
+        "file": "motion.bin",
+        "source_sha256": "18eb7bd78de2cdb35e9ef8ebfe817fa4c7d3efdbb8da8c36c1c8ad0919678a9f",
+        "fresh_sha256": "18eb7bd78de2cdb35e9ef8ebfe817fa4c7d3efdbb8da8c36c1c8ad0919678a9f",
+        "equal": true
+      }
+    ],
+    "fresh_receipt_complete": true,
+    "skin_checks": 12
+  },
+  "offline_restore_checks": 13,
+  "candidate_backend": "IL2CPP",
+  "candidate_built_utc": "2026-10-31T21:35:47.1776397Z",
+  "candidate_gameassembly_sha256": "5333f2891bc16b2852ed4a0f23f3d98767c6b5e5ed85a37365da937fb3e2ad37",
+  "native_shader_audio_settings": {
+    "pid": 2888,
+    "mode": "Shader",
+    "exit_code": 0,
+    "checks": 39,
+    "built_utc": "2026-10-31T21:35:47.1776397Z",
+    "finished_utc": "2026-10-31T21:37:48.7068039Z"
+  },
+  "package_proof": {
+    "backend": "IL2CPP",
+    "BuiltUtc": "2026-10-31T21:35:47.1776397Z",
+    "frozen_inputs": 948,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 3201,
+    "native_character_banks": 6,
+    "clips_per_character": [
+      70,
+      70,
+      70,
+      70,
+      70,
+      70
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true
+  },
+  "selected_slot": "builds/slot-a",
+  "selected_gameassembly_unchanged": "5bf6b4bf748bd526193a82e93ffe740b6b42f6b06ddb0d91ae306f178c692fc6",
+  "runtime_audio_is_real_directory": true,
+  "source_media_preservation_manifest": "assets/verification/layout-source-media.json",
+  "additional_sources": "assets/verification/layout-preserved-extras.json",
+  "gameplay_candidate_selected": false,
+  "pending_gameplay_regressions": {
+    "combat_audio": "Native cricket decode did not complete in the audio check; suite failed, not accepted.",
+    "items": "Uninjured deer cue-before-flight assertion failed; AI unchanged, not accepted."
+  },
+  "limitations": "Representative source/export/runtime tests, not a clean operating-system/toolchain installation. Optional authoring studies are local permanent files; current required game/authoring dependencies use the published lock.",
+  "dependency_audit": {
+    "passed": true,
+    "checks": 5316,
+    "locked_files": 4709,
+    "animal_sources": 177,
+    "errors": []
+  }
+}

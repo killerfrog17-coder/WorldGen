@@ -3,7 +3,10 @@
   "source_assets": "assets-source",
   "tools": "tools",
   "builds": "builds",
-  "build_slots": ["slot-a", "slot-b"],
+  "build_slots": [
+    "slot-a",
+    "slot-b"
+  ],
   "scratch": "artifacts",
   "reports": "docs/reports",
   "migration_prefixes": {
@@ -49,6 +52,16 @@
     "artifacts/tools": "tools",
     "artifacts/player-human-natural-review": "builds/slot-a",
     "artifacts/player-world-feedback": "builds/slot-b",
-    "artifacts/climate-learning/wild-20261002-174123-921/selected.recipe.json": "assets/presets/approved-climate.recipe.json"
+    "artifacts/climate-learning/wild-20261002-174123-921/selected.recipe.json": "assets/presets/approved-climate.recipe.json",
+    "artifacts/wildlife-audio-20261028": "assets-source/audio/wildlife",
+    "artifacts/stone-crafting/audio-candidates": "assets-source/audio/stone-working",
+    "artifacts/woodworking/audio-candidates": "assets-source/audio/wood-working",
+    "artifacts/survival-camp-20261029/audio-candidates": "assets-source/audio/body",
+    "artifacts/camp-water-20261029/fire-audio-candidates": "assets-source/audio/fire/small",
+    "artifacts/camp-water-20261029/fire-medium-candidates": "assets-source/audio/fire/medium",
+    "artifacts/overnight-items-20261028/audio-bow-candidates": "assets-source/audio/items/bow",
+    "artifacts/overnight-items-20261028/audio-candidates": "assets-source/audio/items/initial",
+    "artifacts/overnight-items-20261028/audio-small-candidates": "assets-source/audio/items/alternate",
+    "artifacts/wildlife-audio-20261028/active": "sounds/fauna/ai"
   }
 }

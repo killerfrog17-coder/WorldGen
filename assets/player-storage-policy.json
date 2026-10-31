@@ -2,8 +2,8 @@
   "recorded_utc": "2026-10-31T20:23:41.990934+00:00",
   "policy": "One selected playable package and one reusable build workspace; Git and immutable asset packs provide history. No per-update binary archives.",
   "fixed_slots": [
-    "player-human-natural-review",
-    "player-world-feedback"
+    "builds/slot-a",
+    "builds/slot-b"
   ],
   "removed_obsolete_packages": [
     "player-camp-water-followup",
@@ -39,7 +39,7 @@
   "required_locked_inputs_present": 4617,
   "required_input_missing": 0,
   "existing_selected_player_retained": true,
-  "new_gameplay_fixes_native_validation": "PENDING; interruption occurred before final build completion and stamp. Current shortcut unchanged.",
+  "new_gameplay_fixes_native_validation": "IL2CPP candidate built;39 shader/settings checks passed; Combat audio and Items perception regressions still failed. Prior selected slot-a retained.",
   "blocked_diagnostic_relocation": "Not executed; left untouched. No retry.",
   "verification_followup": {
     "recorded_utc": "2026-10-31T20:33:36.093072+00:00",
@@ -60,5 +60,10 @@
     "free_space_note": "Readings changed during verification; do not attribute unrelated changes on the machine to this cleanup. Extra pass removed only the recorded634 diagnostic files.",
     "blocked_action": "Removal of C:/Users/kille/Desktop/WorldGen/artifacts/tools/trellis2-venv rejected before execution: blocked by policy. Left intact; no retry.",
     "locked_inputs_present": 4617
-  }
+  },
+  "historical_fixed_slots": [
+    "player-human-natural-review",
+    "player-world-feedback"
+  ],
+  "layout_policy_source": "assets/project-layout.json"
 }

@@ -1,0 +1,68 @@
+[
+  {
+    "original": "fauna-motion-sources/ice-age-source/download/ToExport/obj/Mammoth.mtl",
+    "path": "assets-source/animals/motion-library/ice-age-source/download/ToExport/obj/Mammoth.mtl",
+    "sha256": "439adccc4d3421e6b4938f3848879774af9eb7dbf4b3d2b326024dc43e7c6369",
+    "bytes": 414
+  },
+  {
+    "original": "fauna-motion-sources/ice-age-source/download/ToExport/obj/Mammoth.obj",
+    "path": "assets-source/animals/motion-library/ice-age-source/download/ToExport/obj/Mammoth.obj",
+    "sha256": "d3d15f52001eb0490dc77a504d0b113ceaf201142a9ef541f1b7d7d96177a7ad",
+    "bytes": 41370
+  },
+  {
+    "original": "fauna-motion-sources/ice-age-source/download/ToExport/obj/SabreTooth.mtl",
+    "path": "assets-source/animals/motion-library/ice-age-source/download/ToExport/obj/SabreTooth.mtl",
+    "sha256": "73303bf7efe42e6c7791f2f264a755e6198a647214f24c74ec208c681a3f3002",
+    "bytes": 597
+  },
+  {
+    "original": "fauna-motion-sources/ice-age-source/download/ToExport/obj/SabreTooth.obj",
+    "path": "assets-source/animals/motion-library/ice-age-source/download/ToExport/obj/SabreTooth.obj",
+    "sha256": "9a264a22f6c4d41d265819109b106a30db43b0b065931dcee02491117929db20",
+    "bytes": 90167
+  },
+  {
+    "original": "fauna-motion-sources/ice-age-source/download/ToExport/obj/Sloth.mtl",
+    "path": "assets-source/animals/motion-library/ice-age-source/download/ToExport/obj/Sloth.mtl",
+    "sha256": "f9b7555117830abe6d2ee654e16aefd10a01a9eb02fe8ce3e467be86902ff783",
+    "bytes": 769
+  },
+  {
+    "original": "fauna-motion-sources/ice-age-source/download/ToExport/obj/Sloth.obj",
+    "path": "assets-source/animals/motion-library/ice-age-source/download/ToExport/obj/Sloth.obj",
+    "sha256": "2862e04e6a6dc79af293142cc9f8f26f63435903ada77776af8a9a3f0574ef5d",
+    "bytes": 63416
+  },
+  {
+    "original": "climate-learning/run-20261002-165708-866/baseline.world",
+    "path": "assets-source/worlds/climate-studies/run-20261002-165708-866/baseline.world",
+    "sha256": "8e4a76509ae471faa716c9a769edb83a9afd937d3f0655f4a0a1c048ab31ebf7",
+    "bytes": 13800602
+  },
+  {
+    "original": "climate-learning/run-20261002-165708-866/selected.world",
+    "path": "assets-source/worlds/climate-studies/run-20261002-165708-866/selected.world",
+    "sha256": "1a8d7fc08c6d3ae053c3cf2ced1a18fd7679a6a64a89bfebb39b767d38c267d3",
+    "bytes": 13791164
+  },
+  {
+    "original": "climate-learning/wild-20261002-174123-921/baseline.world",
+    "path": "assets-source/worlds/climate-studies/wild-20261002-174123-921/baseline.world",
+    "sha256": "7c002ef7970af54abf348c6320cc8b5eae430fcd57f6fb45f6648f6c4bcc0e50",
+    "bytes": 13800607
+  },
+  {
+    "original": "climate-learning/wild-20261002-174123-921/selected.world",
+    "path": "assets-source/worlds/climate-studies/wild-20261002-174123-921/selected.world",
+    "sha256": "2481abf8fb98c7ded39acc1fd6b6631f9a4ccc77300ad6775db0d60ede78fef3",
+    "bytes": 13780481
+  },
+  {
+    "original": "hominin-research/legacy-canonical.world",
+    "path": "assets-source/worlds/history-reference/legacy-canonical.world",
+    "sha256": "7d23b65168b4b0036f6483f1130a293094b42e5fb790b9a8e3df545cbc0a026c",
+    "bytes": 6593459
+  }
+]

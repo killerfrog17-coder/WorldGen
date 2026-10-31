@@ -35,6 +35,7 @@ args=parser.parse_args()
 args.output.parent.mkdir(parents=True,exist_ok=True)
 state=json.loads(subprocess.check_output(['powershell','-NoProfile','-Command',"$s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path (Get-Location) 'WorldGen.exe - Shortcut.lnk')); [ordered]@{selected=$s.TargetPath; running=@(Get-CimInstance Win32_Process -Filter \"Name='WorldGen.exe' OR Name='WorldGen.Cli.exe'\" | ForEach-Object {$_.ExecutablePath})} | ConvertTo-Json -Compress"],cwd=ROOT,text=True))
 protected={p.resolve() for p in args.keep}
+protected.update((ROOT/'builds'/slot).resolve() for slot in ['slot-a','slot-b'])
 if state['selected']:
     protected.add(Path(state['selected']).parent.resolve())
 for p in state['running']:
@@ -44,7 +45,7 @@ for p in state['running']:
         protected.add(package)
 manifest=json.loads((ROOT/'assets/game-assets.lock.json').read_text())
 inputs=[(ROOT/p).resolve() for p in manifest['files']]
-roots=[ROOT/'artifacts',Path('E:/WorldGen-builds'),Path('C:/WorldGenBuildArtifacts')]
+roots=[ROOT/'builds',Path('D:/WorldGenBuildArtifacts'),Path('E:/WorldGen-builds'),Path('C:/WorldGenBuildArtifacts')]
 packages={}
 discovered=[]
 for root in roots:

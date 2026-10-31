@@ -46,7 +46,7 @@ Do not close owner applications. No automatic resumption of old Homo/history,
 animal-generation or overnight tasks. The old broad hunting wind/scent suite
 has a known historical failure; do not change AI or hide it to force a pass.
 
-## Current migration / validation checkpoint
+## Completed layout migration; pending gameplay candidate
 
 Owner explicitly authorized the complete filing redesign31Oct, including moving
 required inputs out of artifacts. Both existing player aliases moved to builds;
@@ -54,7 +54,12 @@ selected root shortcut NOW `builds/slot-a/WorldGen.exe`, physical D package
 unchanged, GameAssembly SHA5bf6b4bf748bd526193a82e93ffe740b6b42f6b06ddb0d91ae306f178c692fc6.
 The same previously tested native human release remains selected. Source fixes
 e004624/runner6dba20c (night lighting, audio attenuation/dawn, melee and bleeding)
-are still PENDING fresh native proof; slot-b is the unselected candidate.
+have an IL2CPP candidate in slot-b, BuiltUtc2026-10-31T21:35:47.1776397Z.
+39 native shader/skin-scale/audio-settings checks PASS. Broader Combat/audio
+and Items checks FAILED: cricket decode timeout and deer cue-before-flight
+assertion. Do not claim those suites passed or select the candidate. No AI
+changes were made to force the old perception assertion green. Pending gameplay
+validation is separate from the completed filing redesign.
 
 29686 authoring/metadata files24.888GiB relocated with byte preservation; 26
 supporting mesh/material files followed. 331 Git-tracked inputs moved out of
@@ -62,8 +67,29 @@ scratch. References rebased; metadata hash references refreshed; approved model,
 texture, motion-array and audio bytes unchanged. Ten active tool directories
 and report dependencies moved to tools. Details in artifacts/layout-migration
 are disposable evidence; canonical paths and immutable hashes must be stored
-outside scratch. A new metadata-only/legacy-motion asset delta and final
-artifact-free build/export/native tests remain before claiming migration done.
+outside scratch. Additional11 model/material/world reference files and3590
+audio/source-media files preserved, SHA checked. An old shared sound junction
+was exposed by the final verification; all1088 runtime clips restored to a real
+sounds/fauna/ai directory with their original locked hashes. No clips lost.
+
+Asset delta game-assets-layout-20261031-v1 published:4 new remote packs uploaded
+and downloaded/hash-verified; existing immutable packs reused. Final current
+lock4709/4709 SHA matches. Source checkpoint86233d9 already pushed; final layout
+proof/lock update needs its closing commit at this note. No tracked artifacts.
+OLD artifacts was renamed/unavailable for the full IL2CPP build, original deer
+and human scene opens, exact fresh deer mesh/motion export (12skin checks), tool
+CPU imports and final lock checks. Both dependency checks passed;13 offline
+restore checks passed. All original scratch restored; no temporary root remains.
+Permanent proof assets/verification/project-layout-verification.json records
+scope and known gameplay failures. Source art/motion/audio bytes unchanged.
+Local optional studies/auditions are retained, not all are cloud-lock inputs.
+
+TripoSG's old scratch package fallback removed; its compatible torchvision
+package copied/read-verified into the installed tools environment (old blocked
+environment preserved). CPU preflight passes without scratch or GPU inference.
+The build preflight now rejects lock/source/build/tool dependencies in scratch,
+including shared physical output-junction targets and Python .pth fallbacks.
+All owned Unity/Blender/native jobs finished. Selected slot-a remains unchanged.
 
 Old artifacts cleanup removed17 obsolete player packages and10267 disposable
 captures/geometry dumps. Earlier45GB figure was across drives, not an assertion

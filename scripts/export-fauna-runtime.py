@@ -14,7 +14,7 @@ export_root=repo/'assets-source/animals/exports'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--partition',type=int,default=0);ap.add_argument('--partitions',type=int,default=1)
 ap.add_argument('--surface',choices=['cpu','cycles'],default='cpu');ap.add_argument('--reuse-bakes',action='store_true');ap.add_argument('--output-root',type=Path)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
-if a.output_root:export_root=a.output_root
+if a.output_root:export_root=a.output_root.resolve()
 plan=json.loads((root/'export-plan.json').read_text())['animals']
 sys.path.insert(0,str(repo/'scripts'))
 import fauna_runtime_surface as cpu_surface
