@@ -1,21 +1,21 @@
 # WorldGen repository instructions
 
-ACTIVE31Oct05:38CDT: HUMAN minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
-fe04cc8 native3 IL2CPP10:20:11Z:245mechanical PASS but actual BVH480skin/
-546prop meshes found26 penetrating part frames, mostly heavy carry plus spear
-wind-up/return. NOT accepted visually. ROOT CAUSE: AtHand(opposite) returns the
-SAME two-handed item; fitter reapplied it one-handed after fitting both grips.
-Corrected same-ID exclusion, heavy object actual-depth clearance, reachable
-same-side spear cocking. Added actual lip contact for Drink, tucked bow fingers,
-shorter bow recovery; bank70x6 rebaked/imported, mechanicalE70PASS. New source
-needs checkpoint/freeze + build4 SAME unselected player-human-natural-review.
-Water3 failed NEW review fixture because Place resets Swimming; restored-position
-water Move now included before review; original assertions retained. No new
-water pass claim. Earlier native1 geometry invalidated/native2 failed as below.
-Selected terrain package/shortcut FROZEN. Owner3 untouched. No cleanup/paid/
-signup/subagents/Mono. No owned native/Unity/Blender jobs at this checkpoint.
-Next: build4, native natural/BVH+actual water then full regression/visual QA;
-continue substantive work until minimum, no early finish or idle padding.
+ACTIVE31Oct05:51CDT: HUMAN minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
+8766b0d native4 IL2CPP10:42:36Z:257natural/45water PASS/EXIT0; BVH480skin/
+546prop meshes found3 crossings (down from26), so NOT final visual acceptance.
+Heavy carry balance/Drink mouth on all6 now pass; actual coastal armed swimming
+works/free arm moves. Remaining late spear wrist solve oscillated between palm
+offsets. NEW source holds chosen wrist world rotation during position fitting;
+conservative measured thigh bounds. Adds up/down bow/spear native evidence and
+holds each test pose through a normal render before manual captures (old immediate
+screenshots could show stale skin). Needs new checkpoint/freeze/build5 SAME
+unselected D: player-human-natural-review, full native/regression/visual proof.
+Bank70x6 mechanicalE PASS, original1038art/30Legacy/sourceSHA exact in proof4.
+Native5 evidence junction task/native-contact5 -> artifacts/human-natural-native5
+on C: to avoid filling D: (~1.3GB free); no extra player package. No cleanup.
+Selected terrain package/shortcut FROZEN; owner3 untouched. No paid/signup/
+subagents/Mono. No owned Unity/native/generation jobs; BVH audit may be finishing.
+Continue meaningful work through minimum, no early finish or idle padding.
 
 ACTIVE31Oct05:10CDT: HUMAN work minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
 Native2 c2454a1 IL2CPP09:34:21Z FAILED actual-face measurement gate; NOT accepted.

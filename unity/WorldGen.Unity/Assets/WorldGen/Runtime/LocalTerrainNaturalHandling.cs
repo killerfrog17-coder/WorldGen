@@ -116,8 +116,9 @@ public sealed partial class LocalTerrainExplorer
         float result=WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["pelvis"].position,inventoryBones["spine_01"].position,hips);
         result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["spine_01"].position,inventoryBones["neck_01"].position,chest));
         result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["neck_01"].position,inventoryBones["head"].position,humanPlayer.PropShape?.Head??.10f*s));
-        result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["thigh_l"].position,inventoryBones["calf_l"].position,.08f*s));
-        result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["thigh_r"].position,inventoryBones["calf_r"].position,.08f*s));
+        float thigh=Mathf.Max(.085f*s,hips*.55f);
+        result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["thigh_l"].position,inventoryBones["calf_l"].position,thigh));
+        result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["thigh_r"].position,inventoryBones["calf_r"].position,thigh));
         return result;
     }
     float NaturalPoleClearance(Possession item,Vector3 grip,Vector3 axis)
@@ -142,10 +143,17 @@ public sealed partial class LocalTerrainExplorer
     {
         Vector3 Grip()=>stringGrip?NaturalBowStringGrip:SharedGripPosition(side);
         target=Vector3.Lerp(Grip(),target,weight);
+        var hand=inventoryBones["hand_"+side];
+        FitSharedSupport(side,target-(Grip()-hand.position),elbow,extension);
+        OrientNaturalWrist(side,axis,weight);
+        var rotation=hand.rotation;
         for(int i=0;i<3;i++)
         {
-            FitSharedSupport(side,target-(Grip()-inventoryBones["hand_"+side].position),elbow,extension);
-            OrientNaturalWrist(side,axis,weight);
+            // Keep the chosen wrist orientation while positioning the palm.
+            // Re-solving its roll after every elbow solve made a folded arm
+            // oscillate between two palm offsets, shifting the prop into skin.
+            FitSharedSupport(side,target-(Grip()-hand.position),elbow,extension);
+            hand.rotation=rotation;
         }
     }
     void FitNaturalPole(Possession item,bool two)

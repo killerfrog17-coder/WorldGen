@@ -29,6 +29,8 @@ public sealed partial class LocalTerrainExplorer
                     AnimateHuman(humanPlayer,gait.Item2,false,gait.Item3,1f/30);UpdateInventoryVisuals();UpdateCamera();
                     if(frame==9||frame==19||frame==29)
                     {
+                        // Hold this exact pose through one normal render before a manual capture.
+                        yield return null;
                         var record=ExportNaturalPose(item,"Carry-"+gait.Item1,frame/30f,true);records.Add(record);
                         string name=humanPlayer.Definition.Variant+"-"+kind+"-"+gait.Item1+"-"+frame;
                         CaptureNaturalImage(output,name+"-front",0);CaptureNaturalImage(output,name+"-side",1);
@@ -62,6 +64,8 @@ public sealed partial class LocalTerrainExplorer
                     AnimateHuman(humanPlayer,1,false,false,1f/30,true);UpdateInventoryVisuals();UpdateCamera();
                     if(frame%12==0)
                     {
+                        // Hold this exact pose through one normal render before a manual capture.
+                        yield return null;
                         var record=ExportNaturalPose(item,sample.Item3,frame/30f,true);records.Add(record);
                         string name="water-"+sample.Item1+"-"+sample.Item2+"-"+frame;
                         CaptureNaturalImage(output,name+"-surface",3);CaptureNaturalImage(output,name+"-first",-1);
@@ -83,5 +87,39 @@ public sealed partial class LocalTerrainExplorer
             ClearNaturalReviewHands();Inventory.Items.AddRange(saved);humanReviewPose=oldReview;HumanAnimationOptions.Set(oldMode);paused=oldPause;viewArmDiagnosticDt=oldDt;
             AnimateHuman(humanPlayer,1,false,false,.5f,true);UpdateInventoryVisuals();UpdateCamera();
         }
+    }
+    IEnumerator ReviewNaturalAim(string output,List<string> report,bool images)
+    {
+        var body=humanPlayer.Root.transform;
+        foreach(var sample in new[]{(PossessionKind.Bow,"BowDraw"),(PossessionKind.StoneTippedSpear,"SpearThrowCharge"),(PossessionKind.StoneTippedSpear,"SpearThrust2")})
+        {
+            ClearNaturalReviewHands();var item=CreateNaturalReviewHeld(sample.Item1);viewArmDiagnosticDt=1f/30;
+            if(sample.Item1==PossessionKind.Bow){CreateNaturalReviewHeld(PossessionKind.Arrow,PossessionPlace.LeftHand);BeginItemCharge(item,false,0,false);}
+            var records=new List<NaturalPoseEvidence>();viewArmDiagnosticClip=sample.Item2;
+            var clip=humanPlayer.Shared.Clips[sample.Item2];
+            viewArmDiagnosticTime=clip.Duration*(sample.Item2=="SpearThrust2"?clip.Contact:1);
+            foreach(float look in new[]{-45f,0f,45f})
+            {
+                pitch=look;
+                for(int settle=0;settle<12;settle++)
+                {
+                    if(itemCharge!=null)itemCharge.Started=Time.unscaledTimeAsDouble-itemCharge.Duration;
+                    body.localRotation=Quaternion.Euler(0,heading+NaturalBowYaw,0);UpdateInventoryVisuals();UpdateCamera();
+                }
+                // Hold this exact pose through one normal render before a manual capture.
+                        yield return null;
+                var record=ExportNaturalPose(item,sample.Item2,look,true);records.Add(record);
+                if(SupportSpear(item)&&sample.Item2=="SpearThrust2"&&record.SupportError>.035f)throw new InvalidOperationException("Aimed spear loses supporting grip on "+humanPlayer.Definition.Variant+" at "+look);
+                if(images)
+                {
+                    string key=humanPlayer.Definition.Variant+"-aim-"+sample.Item2+"-"+look;
+                    CaptureNaturalImage(output,key+"-front",0);CaptureNaturalImage(output,key+"-side",1);CaptureNaturalImage(output,key+"-first",-1);
+                }
+                yield return null;
+            }
+            File.WriteAllText(Path.Combine(output,humanPlayer.Definition.Variant+"-aim-"+sample.Item2+".json"),"["+string.Join(",",records.Select(r=>JsonUtility.ToJson(r)))+"]");
+            report.Add("PASS Native aimed "+sample.Item2+" sampled at three look pitches on "+humanPlayer.Definition.Variant);
+        }
+        pitch=0;ClearNaturalReviewHands();
     }
 }

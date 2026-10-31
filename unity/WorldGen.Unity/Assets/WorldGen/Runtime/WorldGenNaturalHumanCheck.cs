@@ -78,6 +78,8 @@ public sealed partial class LocalTerrainExplorer
                             UpdateInventoryVisuals();
                         }
                         UpdateCamera();
+                        // Hold this exact pose through one normal render before a manual capture.
+                        yield return null;
                         var record=ExportNaturalPose(item,sample.Item2,t,variant!=1&&variant!=4||frame%2==0);records.Add(record);
                         int hip=Array.IndexOf(record.BoneNames,"pelvis");if(frame==0)firstPelvis=record.Bones[hip];else pelvisExcursion=Mathf.Max(pelvisExcursion,Mathf.Abs(record.Bones[hip].y-firstPelvis.y));
                         if((variant==1||variant==4)&&sample.Item2!="SpearReady1")
@@ -102,6 +104,8 @@ public sealed partial class LocalTerrainExplorer
                 {
                     float phase=frame/6f;viewArmDiagnosticTime=HumanActionDuration("Drink")*phase;
                     for(int settle=0;settle<5;settle++)UpdateInventoryVisuals();UpdateCamera();
+                    // Hold this exact pose through one normal render before a manual capture.
+                        yield return null;
                     if(frame==3)
                     {
                         Vector3 mouth=inventoryBones["head"].TransformPoint(humanPlayer.PropShape.MouthInHead);
@@ -111,6 +115,7 @@ public sealed partial class LocalTerrainExplorer
                     yield return null;
                 }
                 Clear();
+                yield return ReviewNaturalAim(output,report,variant==1||variant==4);
                 if(variant==1||variant==4)yield return ReviewNaturalGaits(output,report);
                 Clear();var spear=Hold(PossessionKind.StoneTippedSpear);viewArmDiagnosticClip="SpearReady2";viewArmDiagnosticTime=.4;viewArmDiagnosticDt=.1f;
                 for(int i=0;i<6;i++)UpdateInventoryVisuals();var carried=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*SharedSpearDirection;var grip=humanPlayer.Root.transform.InverseTransformPoint(SharedGripPosition("r"));
