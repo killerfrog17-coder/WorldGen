@@ -81,6 +81,14 @@ def smooth_ordinary_arms(action,loop):
   for i in range(4):
    for key,q in zip(dst[path,i].keyframe_points,filtered):key.co.y=q[i]
 
+def stable_bow_wrists(action,idle):
+ dst=mapping(action);src=mapping(idle)
+ for side in 'lr':
+  path=f'pose.bones["hand_{side}"].rotation_quaternion'
+  for i in range(4):
+   value=src[path,i].evaluate(1)
+   for key in dst[path,i].keyframe_points:key.co.y=value
+
 def ground_action(rig,action,frames):
  rest={name:(rig.matrix_world@rig.data.bones[name].head_local).z for name in ['foot_l','foot_r','ball_l','ball_r']}
  rig.animation_data.action=action;rig.animation_data.action_slot=action.slots[0]

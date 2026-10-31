@@ -25,6 +25,14 @@ public static class KimodoHumanBankBuilder
             var obj=UnityEngine.Object.Instantiate(person.Prefab);var idle=Array.IndexOf(person.Roles,"Idle");person.Clips[idle].SampleAnimation(obj,0);
             var bones=obj.GetComponentsInChildren<Transform>().GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
             foreach(string name in new[]{"pelvis","head","upperarm_r","upperarm_l","hand_r","hand_l"})lines.Add(person.Variant+" "+name+" "+obj.transform.InverseTransformPoint(bones[name].position).ToString("F5"));
+            var measure=typeof(LocalTerrainExplorer).Assembly.GetType("WorldGenPropClearance").GetMethod("Measure");
+            var shape=measure.Invoke(null,new object[]{obj.transform,person.EyeHeight,.15f});
+            lines.Add(person.Variant+" SHAPE "+string.Join(" ",shape.GetType().GetFields().Select(f=>f.Name+"="+f.GetValue(shape))));
+            foreach(var renderer in obj.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                var mesh=new Mesh();renderer.BakeMesh(mesh,true);var vertices=mesh.vertices;var center=Vector3.zero;foreach(var v in vertices)center+=obj.transform.InverseTransformPoint(renderer.transform.TransformPoint(v));
+                lines.Add(person.Variant+" MESH "+renderer.name+" "+renderer.sharedMesh.vertexCount+" weights="+renderer.sharedMesh.boneWeights.Length+" mean="+(center/vertices.Length).ToString("F5"));UnityEngine.Object.DestroyImmediate(mesh);
+            }
             UnityEngine.Object.DestroyImmediate(obj);
         }
         File.WriteAllLines(Path.Combine(Repo,"artifacts/human-natural-20261031/native-anatomy-axes.txt"),lines);Debug.Log(string.Join(" / ",lines));

@@ -186,7 +186,7 @@ def main():
     if args.output:OUTPUT=REPO/args.output
     if args.natural:
         LOCO.update({'SwimCarry','SwimCarryLeft','SwimCarryTwo'})
-        ROLE_SOURCE.update({'SwimCarry':('swim',True),'SwimCarryTwo':('swim',True)})
+        ROLE_SOURCE.update({'SwimCarry':('swim',True),'SwimCarryTwo':('swim',True),'ToolBlunt':('tool_chop',False)})
     OUTPUT.mkdir(parents=True,exist_ok=True)
     overrides=json.loads((ROOT/'authoring.json').read_text()) if (ROOT/'authoring.json').exists() else {}
     sources={};prepared={}
@@ -230,11 +230,12 @@ def main():
         for role,(motion,metadata) in prepared.items():
             record=retarget.animate(rig,'MPFB',(role,motion,role),motion.samples);action=bpy.data.actions[record['action']]
             if args.natural:
-                from natural_human_bake import pin_ordinary_legs,restrain_ordinary_torso,smooth_ordinary_arms,ground_action,is_upper
+                from natural_human_bake import pin_ordinary_legs,restrain_ordinary_torso,smooth_ordinary_arms,stable_bow_wrists,ground_action,is_upper
                 if natural_idle is not None and is_upper(role,LOCO):
                     pin_ordinary_legs(rig,action,natural_idle,len(motion.samples))
                     restrain_ordinary_torso(action,natural_idle,role)
                     smooth_ordinary_arms(action,metadata['loop'])
+                    if role.startswith('Bow'):stable_bow_wrists(action,natural_idle)
                 if role in LOCO and role!='Jump' and not role.startswith('Swim'):
                     metadata={**metadata,'ground_offset_m':ground_action(rig,action,len(motion.samples))}
                 if role=='Idle':natural_idle=action
@@ -243,7 +244,7 @@ def main():
             for curve in bag.fcurves:
                 bone=curve.data_path.split('"')[1]
                 if bone not in fingers['relaxed']:continue
-                both=role.startswith(('SpearReady2','SpearThrust2','Bow','Work','Drink','Carry'))
+                both=role.startswith(('SpearReady2','SpearThrust2','Bow','Work','Drink','Carry','Fists','Punch'))
                 gripping=role not in LOCO|{'Empty','Gather','Gather_Left','SlingRelease','SlingRelease_Left'} and (both or bone.endswith('_l' if left else '_r'))
                 if args.natural and role in {'SwimCarry','SwimCarryLeft','SwimCarryTwo'}:
                     gripping=role=='SwimCarryTwo' or bone.endswith('_l' if role=='SwimCarryLeft' else '_r')

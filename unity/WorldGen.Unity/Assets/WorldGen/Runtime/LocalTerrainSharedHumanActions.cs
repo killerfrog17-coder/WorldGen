@@ -145,7 +145,8 @@ public sealed partial class LocalTerrainExplorer
             Vector3 rest=bow.transform.position+bow.transform.up*(float)charge.Weapon.HeightM*.55f+bow.transform.forward*.02f*NaturalScale;
             direction=(rest-center).normalized;
         }
-        else if(charge.Weapon.Kind==PossessionKind.SpearThrower&&inventoryVisuals.TryGetValue(charge.Weapon.Id,out var thrower))center=thrower.transform.TransformPoint(new Vector3(.4f,1,.2f));
+        else if(charge.Weapon.Kind==PossessionKind.SpearThrower&&inventoryVisuals.TryGetValue(charge.Weapon.Id,out var thrower))
+        {center=thrower.transform.TransformPoint(new Vector3(.4f,1,.2f));direction=NaturalLookAxis;}
         else if(charge.Weapon.Kind==PossessionKind.Sling)center=SharedSlingPouch(charge.Weapon);
         sharedLoadedAmmo.transform.rotation=Quaternion.FromToRotation(Vector3.up,direction);
         // Arrow/dart meshes start at their tail (y=0); that tail belongs at the
@@ -156,7 +157,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var charge=itemCharge??pendingRanged?.Charge;Vector3 grip=SharedGripPosition(item.Place==PossessionPlace.LeftHand?"l":"r");
         float length=Mathf.Clamp((float)item.WidthM*3.7f,.4f,.7f);
-        if(charge?.Weapon!=item||charge.Throw)return grip-Vector3.up*length;
+        if(charge?.Weapon!=item||charge.Throw)return grip-Vector3.up*Mathf.Min(length,Mathf.Max(.12f,grip.y-humanPlayer.Root.transform.position.y-.025f));
         float phase=(float)(Time.unscaledTimeAsDouble-charge.Started)*Mathf.PI*2*1.7f;
         return grip+(humanPlayer.Root.transform.forward*Mathf.Sin(phase)+Vector3.up*Mathf.Cos(phase))*length;
     }

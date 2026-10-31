@@ -15,8 +15,8 @@ static class WorldGenPropClearance
         float scale=eyeHeight/1.65f;var result=new BodyShape{Torso=.20f*scale,Hips=.18f*scale,Head=.105f*scale,HeadHalfWidth=.08f*scale};
         // Called once in the evaluated native idle pose, before camera aiming.
         // Weight labels select the actual torso/head surface on this body.
-        var bones=root.GetComponentsInChildren<Transform>();Transform pelvis=null,lower=null,upper=null,head=null;
-        foreach(var bone in bones){if(bone.name=="pelvis")pelvis=bone;else if(bone.name=="spine_01")lower=bone;else if(bone.name=="spine_03")upper=bone;else if(bone.name=="head")head=bone;}
+        var bones=root.GetComponentsInChildren<Transform>();Transform pelvis=null,lower=null,upper=null,head=null,neck=null;
+        foreach(var bone in bones){if(bone.name=="pelvis")pelvis=bone;else if(bone.name=="spine_01")lower=bone;else if(bone.name=="spine_03")upper=bone;else if(bone.name=="head")head=bone;else if(bone.name=="neck_01")neck=bone;}
         if(pelvis==null||lower==null||upper==null||head==null)return result;
         var mesh=new Mesh();var up=root.up;var headSurface=new System.Collections.Generic.List<Vector3>();
         Vector3 eyeSum=Vector3.zero;int eyeCount=0;
@@ -32,7 +32,7 @@ static class WorldGenPropClearance
                     string name=bind[i].name;
                     flags[i]=(byte)(name.StartsWith("spine_",System.StringComparison.Ordinal)?1:name=="pelvis"||name.StartsWith("thigh_",System.StringComparison.Ordinal)?2:name=="head"?4:0);
                 }
-                renderer.BakeMesh(mesh);var vertices=mesh.vertices;
+                renderer.BakeMesh(mesh,true);var vertices=mesh.vertices;
                 bool eyeMesh=renderer.name.IndexOf("high-poly",System.StringComparison.OrdinalIgnoreCase)>=0||original.name.IndexOf("high-poly",System.StringComparison.OrdinalIgnoreCase)>=0;
                 for(int i=0;i<vertices.Length&&i<weights.Length;i++)
                 {
@@ -42,13 +42,13 @@ static class WorldGenPropClearance
                     var point=renderer.transform.TransformPoint(vertices[i]);
                     if(eyeMesh){eyeSum+=point;eyeCount++;}
                     if(skull>.55f&&original.vertexCount>10000)headSurface.Add(root.InverseTransformPoint(point));
-                    if(torso>.55f)result.Torso=Mathf.Max(result.Torso,Segments(point,point,lower.position,upper.position));
+                    if(torso>.55f&&original.vertexCount>10000)result.Torso=Mathf.Max(result.Torso,Vector3.ProjectOnPlane(point-lower.position,((neck??upper).position-lower.position).normalized).magnitude);
                     if(hips>.55f&&Mathf.Abs(Vector3.Dot(point-pelvis.position,up))<.13f*scale)result.Hips=Mathf.Max(result.Hips,Vector3.ProjectOnPlane(point-pelvis.position,up).magnitude);
                     if(skull>.55f){result.Head=Mathf.Max(result.Head,Vector3.ProjectOnPlane(point-head.position,up).magnitude);result.HeadHalfWidth=Mathf.Max(result.HeadHalfWidth,Mathf.Abs(Vector3.Dot(point-head.position,root.right)));}
                 }
             }
         }
-        finally{UnityEngine.Object.Destroy(mesh);}
+        finally{if(Application.isPlaying)UnityEngine.Object.Destroy(mesh);else UnityEngine.Object.DestroyImmediate(mesh);}
         result.Torso=Mathf.Min(result.Torso,.32f*scale);result.Hips=Mathf.Min(result.Hips,.28f*scale);result.Head=Mathf.Min(result.Head,Mathf.Max(.18f,.18f*scale));result.HeadHalfWidth=Mathf.Min(result.HeadHalfWidth,Mathf.Max(.13f,.13f*scale));
         Vector3 eye=eyeCount>0?root.InverseTransformPoint(eyeSum/eyeCount):new Vector3(0,eyeHeight,eyeForward-.025f);
         if(eyeCount>0){result.EyeInHead=head.InverseTransformPoint(root.TransformPoint(eye+Vector3.forward*.025f));result.HasNativeEye=true;}

@@ -181,15 +181,15 @@ MonoBehaviour:
     - Role: ToolBlunt
       Clip: {fileID: -1790276877867498753, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.00796429
+      TravelMeters: 0.05836056
     - Role: ToolBlunt_Left
       Clip: {fileID: 2086505047802676310, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.007954742
+      TravelMeters: 0.0582906
     - Role: ToolChop
       Clip: {fileID: -679239568018208567, guid: 09d6a7c587df4094b8ed04cfc9eba723, type: 3}
       Loop: 0
@@ -604,15 +604,15 @@ MonoBehaviour:
     - Role: ToolBlunt
       Clip: {fileID: -395429698872132314, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.009126283
+      TravelMeters: 0.06687539
     - Role: ToolBlunt_Left
       Clip: {fileID: -6288136721647911303, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.009115343
+      TravelMeters: 0.06679522
     - Role: ToolChop
       Clip: {fileID: 3096572198646679447, guid: 9e4c14f06e689f540915c10b2b72d407, type: 3}
       Loop: 0
@@ -1027,15 +1027,15 @@ MonoBehaviour:
     - Role: ToolBlunt
       Clip: {fileID: -4356379159365053587, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.00863663
+      TravelMeters: 0.063287325
     - Role: ToolBlunt_Left
       Clip: {fileID: -2960606297350853307, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.008626277
+      TravelMeters: 0.063211456
     - Role: ToolChop
       Clip: {fileID: -6658950096063525637, guid: ac3eaa237c146964e95483bbb2287f29, type: 3}
       Loop: 0
@@ -1450,15 +1450,15 @@ MonoBehaviour:
     - Role: ToolBlunt
       Clip: {fileID: 3210172233526354619, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.008931329
+      TravelMeters: 0.06544681
     - Role: ToolBlunt_Left
       Clip: {fileID: -8448697308722861777, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.008920622
+      TravelMeters: 0.065368354
     - Role: ToolChop
       Clip: {fileID: -1973132810704338054, guid: cd524dfdd6c8aa84194d3a938d4b1b7c, type: 3}
       Loop: 0
@@ -1873,15 +1873,15 @@ MonoBehaviour:
     - Role: ToolBlunt
       Clip: {fileID: -2625542822873942497, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.00677992
+      TravelMeters: 0.049681764
     - Role: ToolBlunt_Left
       Clip: {fileID: -268437084386124039, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.006771792
+      TravelMeters: 0.049622204
     - Role: ToolChop
       Clip: {fileID: -8827216776611297451, guid: a4b4a95a18fc77548853baf27f1c2527, type: 3}
       Loop: 0
@@ -2296,15 +2296,15 @@ MonoBehaviour:
     - Role: ToolBlunt
       Clip: {fileID: 1217192455022535500, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.008667267
+      TravelMeters: 0.063511826
     - Role: ToolBlunt_Left
       Clip: {fileID: 1450390632008244092, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
       Loop: 0
-      Contact: 0.41025642
+      Contact: 0.4390244
       Release: -1
-      TravelMeters: 0.008656877
+      TravelMeters: 0.06343569
     - Role: ToolChop
       Clip: {fileID: -3044636449574254377, guid: 7e6fe2ebadf9f4e4fbf34b92e0227067, type: 3}
       Loop: 0

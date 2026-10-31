@@ -641,38 +641,6 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_blunt/seed-3211",
-      "generation": {
-        "id": "tool_blunt",
-        "label": "tool_blunt",
-        "frames": 90,
-        "prompt": "A standing person makes one compact right handed hammer strike forward and downward from shoulder height, then recovers. The knees stay softly bent at a constant height, feet remain planted.",
-        "seed": 3211,
-        "steps": 50,
-        "seconds": 59.45299999997951,
-        "model": "Kimodo-SOMA-RP-v1.1",
-        "runtime": "kimodo.cpp",
-        "fps": 30,
-        "initial_noise_sha256": "6bbe9f802c4bc306fa6e4513e90b8ad2251b0dfd978766fd82b4396e09044ca3",
-        "root_start": [
-          -0.005334928166121244,
-          0.9583977460861206,
-          -0.021587304770946503
-        ],
-        "root_end": [
-          -0.011801810003817081,
-          0.9626998901367188,
-          -0.009101269766688347
-        ],
-        "raw_rotation_sha256": "47ecabd337e2cc346c879ba5d2be55a5c2283e24257b2dcd8cbef1dcfed8f5d8"
-      },
-      "files": {
-        "generation.json": "3362fbaa35bbc8ee61e431e0bfdbaf1966ec91eb035e9b87d8a1ee7b0e2b3efa",
-        "root_positions.f32": "40f8f52b7c835cb1d26d795f91c2afd930303d8d636382a2308db70ba8ad50fa",
-        "local_rotations_xyzw.f32": "47ecabd337e2cc346c879ba5d2be55a5c2283e24257b2dcd8cbef1dcfed8f5d8"
-      }
-    },
-    {
       "path": "artifacts/human-natural-20261031/motions/tool_chop/seed-3220",
       "generation": {
         "id": "tool_chop",

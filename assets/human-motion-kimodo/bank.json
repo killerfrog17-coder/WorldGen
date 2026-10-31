@@ -404,32 +404,32 @@
         },
         {
           "role": "ToolBlunt",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.00796428944646047,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.05836056104541407,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "action": "Kimodo A | ToolBlunt",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolBlunt_Left",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.00795474204185779,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.05829059976476428,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "mirrored": true,
           "action": "Kimodo A | ToolBlunt_Left",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolChop",
@@ -1022,7 +1022,7 @@
         }
       ],
       "file": "A.fbx",
-      "fbx_sha256": "1ae1282de1bf1b64cd09ec40f8e878011fc55c4454c83753e03f28cdb046a79f"
+      "fbx_sha256": "cea1c64f3710c403836e2984298b0f2d921f15419ddd3f82c765c74661becb94"
     },
     {
       "variant": "B",
@@ -1425,32 +1425,32 @@
         },
         {
           "role": "ToolBlunt",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.00912628300554424,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.06687539422609722,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "action": "Kimodo B | ToolBlunt",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolBlunt_Left",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.009115342630139977,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.06679522556184507,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "mirrored": true,
           "action": "Kimodo B | ToolBlunt_Left",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolChop",
@@ -2043,7 +2043,7 @@
         }
       ],
       "file": "B.fbx",
-      "fbx_sha256": "b2843682d96dbd064540412af563851fdaa063491146eba2da6564c1664e72a8"
+      "fbx_sha256": "55bc84641d852dde660287a9688573aa11586b1f4633e1636059f9e2c1e931f3"
     },
     {
       "variant": "C",
@@ -2446,32 +2446,32 @@
         },
         {
           "role": "ToolBlunt",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.008636629743973494,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.06328732284131278,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "action": "Kimodo C | ToolBlunt",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolBlunt_Left",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.008626276353489186,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.06321145547342662,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "mirrored": true,
           "action": "Kimodo C | ToolBlunt_Left",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolChop",
@@ -3064,7 +3064,7 @@
         }
       ],
       "file": "C.fbx",
-      "fbx_sha256": "d7a7be614c937e2f1ddf52647eea3fd58596718a3ce792efdf9d63ae83312ff2"
+      "fbx_sha256": "100c28a7926bc60c3dff4674cc207262050d095c81d7641de46f04a79aa1c264"
     },
     {
       "variant": "D",
@@ -3467,32 +3467,32 @@
         },
         {
           "role": "ToolBlunt",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.00893132853716839,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.0654468107687517,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "action": "Kimodo D | ToolBlunt",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolBlunt_Left",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.00892062186863794,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.06536835465705901,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "mirrored": true,
           "action": "Kimodo D | ToolBlunt_Left",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolChop",
@@ -4085,7 +4085,7 @@
         }
       ],
       "file": "D.fbx",
-      "fbx_sha256": "082da51cd88ab6170009a435183fa360bf79b472a3dfa88efee92afe532a05b8"
+      "fbx_sha256": "48e05be7c8b150be4188c1c4e3ec27dc7baccd909c774ebb589e6480d6f2276e"
     },
     {
       "variant": "E",
@@ -4488,32 +4488,32 @@
         },
         {
           "role": "ToolBlunt",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.0067799200306295675,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.049681762508824,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "action": "Kimodo E | ToolBlunt",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolBlunt_Left",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.0067717924204841315,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.04962220516962448,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "mirrored": true,
           "action": "Kimodo E | ToolBlunt_Left",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolChop",
@@ -5106,7 +5106,7 @@
         }
       ],
       "file": "E.fbx",
-      "fbx_sha256": "4b8e2ca92ff34911fdb809490edb3a627121b297ca0bcb07235471432fd7c991"
+      "fbx_sha256": "f91a7fd0641c7574e8406ce9c7d38cf8277a395b40be0f8422aabb90afd42065"
     },
     {
       "variant": "F",
@@ -5509,32 +5509,32 @@
         },
         {
           "role": "ToolBlunt",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.00866726691031378,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.0635118252565603,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "action": "Kimodo F | ToolBlunt",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolBlunt_Left",
-          "source": "artifacts\\human-natural-20261031\\motions\\tool_blunt\\seed-3211",
-          "begin": 0,
-          "end": 39,
+          "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+          "begin": 18,
+          "end": 59,
           "loop": false,
-          "contact": 0.41025641025641024,
+          "contact": 0.43902439024390244,
           "release": -1,
-          "travel_m": 0.008656876792708379,
-          "duration": 1.3,
-          "raw_name": "tool_blunt",
+          "travel_m": 0.06343568876041016,
+          "duration": 1.3666666666666667,
+          "raw_name": "tool_chop",
           "mirrored": true,
           "action": "Kimodo F | ToolBlunt_Left",
-          "frames": 40
+          "frames": 42
         },
         {
           "role": "ToolChop",
@@ -6127,7 +6127,7 @@
         }
       ],
       "file": "F.fbx",
-      "fbx_sha256": "f9bac489fbb5636878f4da8ee370fa220b26369810f74682865aac9949275ebc"
+      "fbx_sha256": "7b2a2896dd97ca50aae84bda3722c2f8e85521dff540300f87ef2ac1640d1777"
     }
   ]
 }

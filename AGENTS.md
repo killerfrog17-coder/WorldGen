@@ -1,9 +1,31 @@
 # WorldGen repository instructions
 
+ACTIVE31Oct05:10CDT: HUMAN work minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
+Native2 c2454a1 IL2CPP09:34:21Z FAILED actual-face measurement gate; NOT accepted.
+Editor probe found BakeMesh defaultfalse + renderer.TransformPoint doubled FBX
+scale100. Fixed our measurements/exports with BakeMesh(true), checked all6 actual
+eye/mouth flags TRUE and metre coordinates. Initial native1 skin0-crossing claim
+INVALIDATED (140 wrongly scaled surfaces); native1/audit invalid flags now fail.
+Same preexisting scale error in HUMAN PosedHuman combat skin now corrected and
+new all6 posed-torso ray checks required. Fauna/collision SOURCE assets unchanged.
+Corrected radial torso bounds (not distance to short spine endpoint), crouched
+bow/tool floor clearance, finger-hook string/actual arrow TAIL, mesh-calibrated
+actual eye camera and mouth anchor, atlatl rear hook/forward dart direction,
+moving armed swims. Bank latest calibrated70x6 imported, 70mechanicalPASS, raw
+bow wrist spikes removed, closed fist guards, useful chop source for blunt.
+Native evidence helpers extracted; added actual mesh BVH audit, carry gait/crouch
+and real coastal swimming QA. Need new checkpoint/freeze + build3 in SAME
+unselected player-human-natural-review D: folder, then actual native/visual tests.
+No current Unity/native/Blender/generation jobs. C~1.6GB/D~3.1GB free; avoid extra
+packages/FBX churn. Selected terrain shortcut/package FROZEN; owner3 untouched.
+No paid/signup/subagents/Mono/cleanup. New full regression/actual face closeups,
+all6 shaft support/mesh intersections, Legacy/inputs/water/animal compatibility,
+final source/proof/selection/Git remain. Do not finish before minimum or idle-pad.
+
 ACTIVE31Oct04:27CDT HUMAN NATURAL REVISION CONTINUES through at least12:27:07Z/
 07:27CDT (minimum5h, aim finish08:27CDT). Initial c37be19 IL2CPP unselected
 artifacts/player-human-natural-review BuiltUtc08:56:14.7480742Z: native98PASS,
-420 poses/140 actual skin exports, zero centreline intersections; NOT visual
+420 poses/140 skin exports; GEOMETRY INVALIDATED later due FBX scale, NOT visual
 acceptance. Review caught low spear grips/support loss, misplaced arrow midpoint,
 static armed-swim takes, bad blunt crop and poor new javelin take. Source now
 raises spear grips, places actual arrow tail at hooked fingers, samples real

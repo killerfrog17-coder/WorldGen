@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
         if(!humanCombatSurfaces.TryGetValue(renderer,out var surface)){surface=new HumanCombatSurface{Mesh=new Mesh{name="Temporary combat skin pose"}};humanCombatSurfaces.Add(renderer,surface);}
         if(surface.Frame!=Time.frameCount)
         {
-            renderer.BakeMesh(surface.Mesh);surface.Vertices=surface.Mesh.vertices;for(int i=0;i<surface.Vertices.Length;i++)surface.Vertices[i]=renderer.transform.TransformPoint(surface.Vertices[i]);
+            renderer.BakeMesh(surface.Mesh,true);surface.Vertices=surface.Mesh.vertices;for(int i=0;i<surface.Vertices.Length;i++)surface.Vertices[i]=renderer.transform.TransformPoint(surface.Vertices[i]);
             surface.Uvs=surface.Mesh.uv;surface.Triangles=surface.Mesh.triangles;surface.Frame=Time.frameCount;
         }
         return surface;

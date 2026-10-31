@@ -16,6 +16,7 @@ public sealed partial class LocalTerrainExplorer
     readonly NaturalGripFrame naturalRight=new NaturalGripFrame(),naturalLeft=new NaturalGripFrame();
     float naturalHandlingDt;
     Vector3 naturalBowHook;bool naturalBowHookValid;
+    Vector3 naturalBowUp=Vector3.up;
     Vector3 NaturalBowStringGrip=>naturalBowHookValid?inventoryBones["hand_r"].TransformPoint(naturalBowHook):SharedGripPosition("r");
     void CacheNaturalBowHook()
     {
@@ -64,7 +65,10 @@ public sealed partial class LocalTerrainExplorer
         if(item.Kind==PossessionKind.Bow)return body.forward;
         if(NaturalPole(item))return (body.forward*.76f-body.right*(SupportSpear(item)?.65f:.16f)*side+Vector3.up*.06f).normalized;
         if(item.Hands==2)return Vector3.up;
-        return (body.forward*.32f-Vector3.up*.94f+body.right*.06f*side).normalized;
+        float above=inventoryBones["pelvis"].position.y-body.position.y+.15f*NaturalScale;
+        float down=Mathf.Min(.94f,Mathf.Clamp01((above-.04f*NaturalScale)/Mathf.Max(.02f,(float)item.HeightM*.82f)));
+        float horizontal=Mathf.Sqrt(1-down*down);
+        return (body.forward*(horizontal*.985f)-Vector3.up*down+body.right*(horizontal*.17f*side)).normalized;
     }
     Vector3 NaturalLookAxis
     {
@@ -84,7 +88,15 @@ public sealed partial class LocalTerrainExplorer
         bool active=NaturalActing(item);state.Intent=Mathf.MoveTowards(state.Intent,active?1:0,naturalHandlingDt/.2f);
         Vector3 target;
         if(active&&humanPlayer.Shared.ActionRole=="WorkDig")target=Vector3.down;
-        else if(NaturalPole(item)||item.Kind==PossessionKind.Bow||item.Kind==PossessionKind.SpearThrower)target=Vector3.Slerp(carry,NaturalLookAxis,Mathf.SmoothStep(0,1,state.Intent));
+        else if(item.Kind==PossessionKind.SpearThrower)
+        {
+            float release=0;
+            if(pendingRanged?.Charge.Weapon==item)release=1-Mathf.Clamp01((float)((pendingRanged.FireAt-Time.unscaledTimeAsDouble)/Math.Max(.01,HumanReleaseDelay(pendingRanged.Charge))));
+            Vector3 aim=NaturalLookAxis,right=Vector3.Cross(Vector3.up,aim).normalized;
+            Vector3 lever=Quaternion.AngleAxis(180*release,right)*-aim;
+            target=Vector3.Slerp(carry,lever,Mathf.SmoothStep(0,1,state.Intent));
+        }
+        else if(NaturalPole(item)||item.Kind==PossessionKind.Bow)target=Vector3.Slerp(carry,NaturalLookAxis,Mathf.SmoothStep(0,1,state.Intent));
         else target=Vector3.Slerp(carry,humanPlayer.Shared.ActionRole.StartsWith("ToolCutB",StringComparison.Ordinal)?NaturalLookAxis:SharedGripAxis(NaturalSide(item)),Mathf.SmoothStep(0,1,state.Intent));
         // A weapon follows its carrier, not the camera, during relaxed carrying.
         state.Axis=target.normalized;
@@ -102,7 +114,7 @@ public sealed partial class LocalTerrainExplorer
         float chest=humanPlayer.PropShape?.Torso??.20f*s;
         float hips=humanPlayer.PropShape?.Hips??.18f*s;
         float result=WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["pelvis"].position,inventoryBones["spine_01"].position,hips);
-        result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["spine_01"].position,inventoryBones["spine_03"].position,chest));
+        result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["spine_01"].position,inventoryBones["neck_01"].position,chest));
         result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["neck_01"].position,inventoryBones["head"].position,humanPlayer.PropShape?.Head??.10f*s));
         result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["thigh_l"].position,inventoryBones["calf_l"].position,.08f*s));
         result=Mathf.Min(result,WorldGenPropClearance.Capsule(a,b,radius,inventoryBones["thigh_r"].position,inventoryBones["calf_r"].position,.08f*s));
@@ -156,21 +168,24 @@ public sealed partial class LocalTerrainExplorer
         float resting=inventoryBones["pelvis"].position.y+(two?.18f:.14f)*s;
         float active=(inventoryBones["upperarm_l"].position.y+inventoryBones["upperarm_r"].position.y)*.5f-.06f*s;
         float height=Mathf.Lerp(resting,active,state.Intent);
-        float forward=two?Mathf.Lerp(.16f,-.08f,state.Intent)+extension:.13f+extension;
+        float forward=two?Mathf.Lerp(.16f,-.08f,state.Intent):.13f;
         Vector3 target=body.position+Vector3.up*(height-body.position.y)+body.right*((two?.28f:.34f)*side*s)+body.forward*(forward*s);
         for(int i=0;i<6&&NaturalPoleClearance(item,target,axis)<.025f*s;i++)target+=body.right*(side*.02f*s);
+        float guideSpacing=.4f*s;
         if(two)
         {
-            float available=WorldGenPropClearance.FurthestReach(target,axis,inventoryBones["upperarm_"+support].position,NaturalReach(support)-.025f*s);
-            // Shorten the extension before stretching the supporting arm.
-            if(available<.28f*s&&extension>0){target-=body.forward*Mathf.Min(extension*s,.28f*s-available);}
+            guideSpacing=Mathf.Clamp(WorldGenPropClearance.FurthestReach(target,axis,inventoryBones["upperarm_"+support].position,NaturalReach(support)-.015f*s),.14f*s,.4f*s);
+            extension=Mathf.Min(extension,Mathf.Max(0,guideSpacing/s-.14f));
         }
+        target+=axis*(extension*s);
         NaturalGrip(main,target,axis);
         if(two)
         {
             Vector3 rear=SharedGripPosition(main);
-            float reach=WorldGenPropClearance.FurthestReach(rear,axis,inventoryBones["upperarm_"+support].position,NaturalReach(support)-.015f*s);
-            float spacing=Mathf.Clamp(reach,.24f*s,.4f*s);
+            // The rear hand pushes the shaft through a comparatively quiet
+            // guiding front hand. Moving both hands forward caused a reach
+            // clamp that erased the thrust or stretched the support arm.
+            float spacing=Mathf.Max(.14f*s,guideSpacing-extension*s);
             NaturalGrip(support,rear+axis*spacing,axis);
         }
     }
@@ -211,6 +226,12 @@ public sealed partial class LocalTerrainExplorer
         NaturalGrip("r",center+body.right*half,body.right,body.right-body.up*.6f);
         NaturalGrip("l",center-body.right*half,body.right,-body.right-body.up*.6f);
     }
+    Vector3 NaturalCarryBowUp(Possession bow,Vector3 grip)
+    {
+        var body=humanPlayer.Root.transform;float vertical=.94f;
+        if(!motion.Swimming)vertical=Mathf.Min(vertical,Mathf.Clamp((grip.y-body.position.y-.04f*NaturalScale)/((float)bow.HeightM*.5f),.15f,1));
+        return (Vector3.up*vertical+body.forward*Mathf.Sqrt(1-vertical*vertical)).normalized;
+    }
     void FitNaturalBow(Possession bow)
     {
         var body=humanPlayer.Root.transform;float s=NaturalScale;double now=Time.unscaledTimeAsDouble;
@@ -235,20 +256,27 @@ public sealed partial class LocalTerrainExplorer
         Vector3 eye=body.TransformPoint(humanPlayer.Shared.LocalEye);
         Vector3 aimRight=Vector3.Cross(up,forward).normalized;
         Vector3 anchor=humanPlayer.PropShape?.HasBowAnchor==true?inventoryBones["head"].TransformPoint(humanPlayer.PropShape.BowAnchorInHead):eye+aimRight*.045f*s-Vector3.up*.07f*s+forward*.02f*s;
+        if(!motion.Swimming)
+        {
+            float clearance=Mathf.Max(.05f,anchor.y-body.position.y-(float)bow.HeightM*.05f-.04f*s);
+            float height=(float)bow.HeightM*.5f*Mathf.Abs(up.y);
+            if(height>clearance)up=Quaternion.AngleAxis(Mathf.Acos(Mathf.Clamp(clearance/height,.15f,1))*Mathf.Rad2Deg,forward)*up;
+        }
         Vector3 rayBase=anchor-up*(float)bow.HeightM*.05f;
         float available=WorldGenPropClearance.FurthestReach(rayBase,forward,inventoryBones["upperarm_l"].position,NaturalReach("l")+.08f*s);
         float length=Mathf.Max(.20f*s,Mathf.Min(available,.72f*s));
         Vector3 aimLeft=rayBase+forward*length;
         Vector3 relaxed=body.position-body.right*.32f*s+body.forward*.18f*s+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.19f*s);
-        Vector3 carryUp=(Vector3.up+body.forward*.35f-body.right*.08f).normalized;
+        Vector3 carryUp=NaturalCarryBowUp(bow,relaxed);
         Vector3 bowUp=Vector3.Slerp(carryUp,up,sharedBowRaise).normalized;
+        naturalBowUp=bowUp;
         NaturalGrip("l",Vector3.Lerp(relaxed,aimLeft,sharedBowRaise),bowUp,extension:Mathf.Lerp(.98f,.993f,sharedBowRaise));
         if(sharedBowRaise>.001f)
         {
             CacheNaturalBowHook();
             // String starts at the real brace, ends at a cheek anchor. The bow
             // arm is limited by its measured reach rather than an assumed .55m.
-            Vector3 grip=SharedGripPosition("l");Vector3 brace=grip+up*(float)bow.HeightM*.05f-forward*(float)bow.WidthM*.38f;
+            Vector3 grip=SharedGripPosition("l");Vector3 brace=grip+bowUp*(float)bow.HeightM*.05f-forward*(float)bow.WidthM*.38f;
             Vector3 right=Vector3.Lerp(brace,anchor,sharedBowDraw);
             if(releasing)
             {
@@ -256,7 +284,7 @@ public sealed partial class LocalTerrainExplorer
                 Vector3 rest=body.position+body.right*.29f*s+body.forward*.14f*s+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.15f*s);
                 right=Vector3.Lerp(rest,follow,sharedBowRaise);
             }
-            NaturalGrip("r",right,-up,aimRight-forward*.55f+Vector3.up*.1f,sharedBowRaise,stringGrip:true);
+            NaturalGrip("r",right,-bowUp,aimRight-forward*.55f+Vector3.up*.1f,sharedBowRaise,stringGrip:true);
         }
     }
     void FitNaturalSwimming(Possession main,Possession other)
@@ -268,7 +296,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var item=i==0?main:other;
             if(item==null)continue;string side=NaturalSide(item);float sign=side=="r"?1:-1;
-            Vector3 target=inventoryBones["head"].position+body.right*(sign*.42f*s)+body.forward*.10f*s-Vector3.up*.10f*s;
+            Vector3 target=body.TransformPoint(humanPlayer.Shared.LocalEye)+body.right*(sign*.35f*s)+body.forward*.08f*s+Vector3.up*.015f*s;
             Vector3 axis=item.Kind==PossessionKind.Bow?(Vector3.up+body.forward*.35f).normalized:NaturalWeaponDirection(item);
             NaturalGrip(side,target,axis,body.forward+body.right*(sign*.25f)-Vector3.up*.1f);
         }
@@ -299,8 +327,7 @@ public sealed partial class LocalTerrainExplorer
         string side=NaturalSide(item);Vector3 grip=SharedGripPosition(side),axis=NaturalWeaponDirection(item);bool bow=item.Kind==PossessionKind.Bow;
         if(bow)
         {
-            Vector3 carryUp=(Vector3.up+humanPlayer.Root.transform.forward*.35f-humanPlayer.Root.transform.right*.08f).normalized;
-            Vector3 up=Vector3.Slerp(carryUp,Vector3.ProjectOnPlane(Vector3.up,axis).normalized,sharedBowRaise).normalized;
+            Vector3 up=sharedBowItem==item.Id?naturalBowUp:NaturalCarryBowUp(item,grip);
             root.transform.rotation=Quaternion.LookRotation(Vector3.Cross(-axis,up),up);
         }
         else

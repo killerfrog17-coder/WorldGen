@@ -76,6 +76,7 @@ public sealed partial class LocalTerrainExplorer
         int swim=Array.IndexOf(humanPlayer.Definition.Roles,"Swim");
         bool swimPlaying=SharedHumanMotion?humanPlayer.Shared.Clips.ContainsKey("Swim")&&humanPlayer.Shared.LocomotionWeight("Swim")+humanPlayer.Shared.LocomotionWeight("SwimCarry")+humanPlayer.Shared.LocomotionWeight("SwimCarryLeft")+humanPlayer.Shared.LocomotionWeight("SwimCarryTwo")>.9f:swim>=0&&humanPlayer.Weights[swim]>.9f;
         Check(swimPlaying,"Player uses the active animation mode's native swimming clip");
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-natural-water-review"))yield return ReviewNaturalSwimming(output,report);
         pitch=14;UpdateCamera();UpdatePlayerWater();yield return null;Image("01-ocean-surface");
         double x0=motion.X,z0=motion.Z;for(int i=0;i<120;i++)motion.Move(1d/60,1,0,-1,heading,15,false,false,PlayerSolidGround);
         Check(motion.Swimming&&motion.Y+humanEyeOffset<SampleMotionWater(motion.X,motion.Z).Surface-1,"Looking/down input can swim and submerge in actual sea water");

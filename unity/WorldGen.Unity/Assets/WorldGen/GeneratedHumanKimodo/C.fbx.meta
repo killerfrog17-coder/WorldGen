@@ -1486,7 +1486,7 @@ ModelImporter:
       takeName: MPFB_C|Kimodo C | ToolBlunt
       internalID: -4356379159365053587
       firstFrame: 0
-      lastFrame: 39
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1515,7 +1515,7 @@ ModelImporter:
       takeName: MPFB_C|Kimodo C | ToolBlunt_Left
       internalID: -2960606297350853307
       firstFrame: 0
-      lastFrame: 39
+      lastFrame: 41
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

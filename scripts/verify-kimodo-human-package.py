@@ -31,6 +31,7 @@ if args.freeze:
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*kimodo*.py'))
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*natural*human*.py'))
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('natural_human*.py'))
+    paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*natural*.py'))
     for person in json.loads((ROOT/'assets/human-motion-kimodo/bank.json').read_text())['people']:
         for clip in person['clips']:
             folder=Path(clip['source'].replace('\\','/'))
