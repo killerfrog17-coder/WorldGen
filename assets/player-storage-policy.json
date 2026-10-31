@@ -1,0 +1,44 @@
+{
+  "recorded_utc": "2026-10-31T20:23:41.990934+00:00",
+  "policy": "One selected playable package and one reusable build workspace; Git and immutable asset packs provide history. No per-update binary archives.",
+  "fixed_slots": [
+    "player-human-natural-review",
+    "player-world-feedback"
+  ],
+  "removed_obsolete_packages": [
+    "player-camp-water-followup",
+    "player-camp-water-polished",
+    "player-camp-water-qa",
+    "player-effort-hunting",
+    "player-first-person-authored",
+    "player-first-person-final",
+    "player-first-person-release",
+    "player-first-person-review",
+    "player-human-facing",
+    "player-human-kimodo",
+    "player-hunting-cover",
+    "player-hunting-first-person",
+    "player-hunting-overhaul",
+    "player-spatial-audio",
+    "player-survival-experience",
+    "player-terrain-boundaries",
+    "player-water-sickness"
+  ],
+  "removed_test_files": 9633,
+  "removed_test_logical_bytes": 5715941546,
+  "free_before_bytes": {
+    "C": 917241856,
+    "E": 404516864,
+    "D": 791904256
+  },
+  "free_after_bytes": {
+    "C": 30700216320,
+    "D": 5607579648,
+    "E": 10505003008
+  },
+  "required_locked_inputs_present": 4617,
+  "required_input_missing": 0,
+  "existing_selected_player_retained": true,
+  "new_gameplay_fixes_native_validation": "PENDING; interruption occurred before final build completion and stamp. Current shortcut unchanged.",
+  "blocked_diagnostic_relocation": "Not executed; left untouched. No retry."
+}

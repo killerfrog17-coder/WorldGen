@@ -51,7 +51,11 @@ public static class WorldGenBatch
     public static void BuildPlayer()
     {
         var arguments=Environment.GetCommandLineArgs();int outputArgument=Array.IndexOf(arguments,"--worldgen-build-output");
-        var output=outputArgument>=0&&outputArgument+1<arguments.Length?arguments[outputArgument+1]:Path.Combine(Root,"artifacts/player/WorldGen.exe");Directory.CreateDirectory(Path.GetDirectoryName(output));
+        if(outputArgument<0||outputArgument+1>=arguments.Length)throw new InvalidOperationException("Use scripts/unity-check.ps1 -BuildPlayer to reuse the inactive player slot.");
+        var output=Path.GetFullPath(arguments[outputArgument+1]);
+        var allowed=new[]{"player-human-natural-review","player-world-feedback"}.Select(slot=>Path.GetFullPath(Path.Combine(Root,"artifacts",slot,"WorldGen.exe")));
+        if(!allowed.Contains(output,StringComparer.OrdinalIgnoreCase))throw new InvalidOperationException("Per-update player copies are retired. Use the two reusable build slots.");
+        Directory.CreateDirectory(Path.GetDirectoryName(output));
         // Runtime-created cameras are invisible to scene-only postprocess stripping analysis.
         var stripping=UnityEngine.Rendering.GraphicsSettings.GetRenderPipelineSettings<UnityEngine.Rendering.Universal.URPShaderStrippingSetting>();
         bool prior=stripping!=null&&stripping.stripUnusedPostProcessingVariants;

@@ -6,9 +6,10 @@ param(
     [switch]$Il2Cpp, # Retained for old callers; every player build now uses IL2CPP.
     [switch]$PlayerCheck,
     [switch]$Isolated,
-    [string]$PlayerFolder="player"
+    [string]$PlayerFolder=""
 )
 $ErrorActionPreference='Stop'
+if($BuildPlayer -and $Isolated){throw 'Full isolated player copies are retired. Build in the inactive reusable slot; isolated source validation remains available.'}
 $repoRoot=Split-Path -Parent $PSScriptRoot
 $sourceProject=Join-Path $repoRoot 'unity/WorldGen.Unity'
 $validationRoot=if($Isolated){Join-Path $repoRoot 'artifacts/unity-v2'}else{$repoRoot}
@@ -30,6 +31,19 @@ if($Isolated){
 }
 $artifacts=Join-Path $validationRoot 'artifacts'
 New-Item -ItemType Directory -Force $artifacts | Out-Null
+if($BuildPlayer){
+    # Two fixed slots, reused forever. Never create a per-feature player copy.
+    # Retain their existing names to avoid copying/renaming installed packages.
+    $playerSlots=@('player-human-natural-review','player-world-feedback')
+    $selectedPlayer=''
+    $playerShortcut=Join-Path $repoRoot 'WorldGen.exe - Shortcut.lnk'
+    if(Test-Path -LiteralPath $playerShortcut){$selectedPlayer=(New-Object -ComObject WScript.Shell).CreateShortcut($playerShortcut).TargetPath}
+    $selectedSlot=if($selectedPlayer){Split-Path -Leaf (Split-Path -Parent $selectedPlayer)}else{''}
+    if(!$PlayerFolder){$PlayerFolder=if($selectedSlot -eq $playerSlots[0]){$playerSlots[1]}else{$playerSlots[0]}}
+    if($PlayerFolder -notin $playerSlots){throw 'Per-update player folders are retired. Omit -PlayerFolder to reuse the inactive fixed slot.'}
+    if($PlayerFolder -eq $selectedSlot){throw 'Refusing to overwrite the selected playable game. Omit -PlayerFolder to build in the other reusable slot.'}
+    Write-Output ('Reusing player workspace: '+$PlayerFolder)
+}
 $workerOutput=Join-Path $repoRoot 'artifacts/terrain-worker'
 if($BuildPlayer){
     dotnet publish (Join-Path $repoRoot 'src/WorldGen.Cli') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o $workerOutput --nologo

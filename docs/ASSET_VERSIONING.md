@@ -17,7 +17,7 @@ code checkpoint tag when restoring a playable source version.
 python -m pip install -r scripts/requirements-assets.txt
 python scripts/restore-game-assets.py
 python scripts/restore-game-assets.py --verify-only
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-check.ps1 -BuildPlayer -PlayerFolder player
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-check.ps1 -BuildPlayer
 ```
 
 The restore tool uses Python 3.11 or later. The build additionally needs the Unity editor version in `ProjectVersion.txt`,
@@ -71,8 +71,14 @@ every new remote pack is downloaded and hash-verified before publication complet
 Commit and push the new lock alongside its source change, then verify the remote
 commit. Never remove a locally unique input before that verification.
 
-Keep the selected playable package and current build work. Old compiled players
-are disposable after the dependency audit and remote checkpoint are complete.
+Keep the selected playable package and current build work. The build script
+automatically reuses the inactive one of two fixed slots (their existing names
+are `player-human-natural-review` and `player-world-feedback`). It refuses new
+per-feature folder names and refuses to overwrite the selected playable slot.
+After checking and selecting an update, remove the superseded compiled player;
+its slot becomes the workspace for the next update. Never retain old players
+as version history. Git source and immutable dependency packs serve that purpose.
+Old compiled players are disposable after the dependency audit and remote checkpoint are complete.
 Do not retain one build per day, duplicate source ZIPs, or caches of historical
 packs. `plan-build-cleanup.py` audits only explicit build roots; the guarded
 PowerShell cleanup refuses selected/running packages and saves. Original source
