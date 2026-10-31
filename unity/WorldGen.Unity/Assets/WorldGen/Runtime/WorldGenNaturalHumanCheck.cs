@@ -90,7 +90,7 @@ public sealed partial class LocalTerrainExplorer
                         }
                         yield return null;
                     }
-                    File.WriteAllText(Path.Combine(output,humanPlayer.Definition.Variant+"-"+sample.Item1+"-"+sample.Item2+".json"),"["+string.Join(",",records.Select(r=>JsonUtility.ToJson(r)))+"]");
+                    WriteNaturalPoses(Path.Combine(output,humanPlayer.Definition.Variant+"-"+sample.Item1+"-"+sample.Item2+".json"),records);
                     if(sample.Item2=="SpearReady2"||sample.Item2=="SpearThrust2")
                     {
                         float error=records.Max(r=>r.SupportError);

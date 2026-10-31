@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,19 @@ using WorldGen.Core;
 
 public sealed partial class LocalTerrainExplorer
 {
+    void WriteNaturalPoses(string path,IEnumerable<NaturalPoseEvidence> records)
+    {
+        // Preserve every float/triangle while avoiding hundreds of MB of repeated
+        // JSON keys in each review. This is diagnostic output only.
+        using(var file=new FileStream(path+".gz",FileMode.CreateNew,FileAccess.Write))
+        using(var compressed=new GZipStream(file,CompressionLevel.Fastest))
+        using(var writer=new StreamWriter(compressed))
+        {
+            writer.Write('[');bool first=true;
+            foreach(var row in records){if(!first)writer.Write(',');writer.Write(JsonUtility.ToJson(row));first=false;}
+            writer.Write(']');
+        }
+    }
     Possession CreateNaturalReviewHeld(PossessionKind kind,PossessionPlace hand=PossessionPlace.RightHand)
     {
         var item=kind==PossessionKind.SmallRock||kind==PossessionKind.LargeRock?new Possession{Id="natural-"+Guid.NewGuid().ToString("N"),Kind=kind,Place=PossessionPlace.Ground,Position=Position,

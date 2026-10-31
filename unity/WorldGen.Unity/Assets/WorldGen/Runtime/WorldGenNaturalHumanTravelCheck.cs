@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
                     yield return null;
                 }
                 string key=humanPlayer.Definition.Variant+"-"+kind+"-carry-"+gait.Item1;
-                File.WriteAllText(Path.Combine(output,key+".json"),"["+string.Join(",",records.Select(r=>JsonUtility.ToJson(r)))+"]");
+                WriteNaturalPoses(Path.Combine(output,key+".json"),records);
                 Check(records.All(r=>r.PropVertices!=null&&r.PropVertices.Length>0&&r.Vertices.Length>1000),"Actual prop and skin exported for "+key);
                 Check(records.All(r=>r.PropVertices.Min(p=>p.y)>-.035f),"Held "+kind+" clears the floor during "+gait.Item1+" on "+humanPlayer.Definition.Variant);
                 if(kind==PossessionKind.StoneTippedSpear)Check(records.Max(r=>r.SupportError)<.035f,"Spear support stays on shaft during "+gait.Item1+" on "+humanPlayer.Definition.Variant);
@@ -79,7 +79,7 @@ public sealed partial class LocalTerrainExplorer
                     float excursion=points.Max(p=>Vector3.Distance(p,points[0]));Check(excursion>.08f,"The free arm propels the swimmer while carrying "+sample.Item1);
                 }
                 string key="water-"+humanPlayer.Definition.Variant+"-"+sample.Item1+"-"+sample.Item2;
-                File.WriteAllText(Path.Combine(output,key+".json"),"["+string.Join(",",records.Select(r=>JsonUtility.ToJson(r)))+"]");
+                WriteNaturalPoses(Path.Combine(output,key+".json"),records);
             }
         }
         finally
@@ -107,7 +107,7 @@ public sealed partial class LocalTerrainExplorer
                     body.localRotation=Quaternion.Euler(0,heading+NaturalBowYaw,0);UpdateInventoryVisuals();UpdateCamera();
                 }
                 // Hold this exact pose through one normal render before a manual capture.
-                        yield return null;
+                yield return null;
                 var record=ExportNaturalPose(item,sample.Item2,look,true);records.Add(record);
                 if(SupportSpear(item)&&sample.Item2=="SpearThrust2"&&record.SupportError>.035f)throw new InvalidOperationException("Aimed spear loses supporting grip on "+humanPlayer.Definition.Variant+" at "+look);
                 if(images)
@@ -117,7 +117,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 yield return null;
             }
-            File.WriteAllText(Path.Combine(output,humanPlayer.Definition.Variant+"-aim-"+sample.Item2+".json"),"["+string.Join(",",records.Select(r=>JsonUtility.ToJson(r)))+"]");
+            WriteNaturalPoses(Path.Combine(output,humanPlayer.Definition.Variant+"-aim-"+sample.Item2+".json"),records);
             report.Add("PASS Native aimed "+sample.Item2+" sampled at three look pitches on "+humanPlayer.Definition.Variant);
         }
         pitch=0;ClearNaturalReviewHands();

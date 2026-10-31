@@ -52,14 +52,15 @@ static class WorldGenPropClearance
         result.Torso=Mathf.Min(result.Torso,.32f*scale);result.Hips=Mathf.Min(result.Hips,.28f*scale);result.Head=Mathf.Min(result.Head,Mathf.Max(.18f,.18f*scale));result.HeadHalfWidth=Mathf.Min(result.HeadHalfWidth,Mathf.Max(.13f,.13f*scale));
         Vector3 eye=eyeCount>0?root.InverseTransformPoint(eyeSum/eyeCount):new Vector3(0,eyeHeight,eyeForward-.025f);
         if(eyeCount>0){result.EyeInHead=head.InverseTransformPoint(root.TransformPoint(eye+Vector3.forward*.025f));result.HasNativeEye=true;}
-        float mouthY=eye.y-.07f*scale,cornerX=eye.x+.045f*scale,mouthFront=float.NegativeInfinity;
+        float mouthY=eye.y-.07f*scale,anchorY=mouthY-.03f*scale,cornerX=eye.x+.045f*scale,jawFront=float.NegativeInfinity;
         foreach(var local in headSurface)
-            if(Mathf.Abs(local.y-mouthY)<.02f*scale&&Mathf.Abs(local.x-cornerX)<.018f*scale)mouthFront=Mathf.Max(mouthFront,local.z);
-        if(!float.IsNegativeInfinity(mouthFront))
+            if(Mathf.Abs(local.y-anchorY)<.018f*scale&&Mathf.Abs(local.x-cornerX)<.018f*scale)jawFront=Mathf.Max(jawFront,local.z);
+        if(!float.IsNegativeInfinity(jawFront))
         {
-            // A real surface sample at the mouth corner, not the outside of a
-            // generic skull sphere. Fingers contact just in front of this skin.
-            result.BowAnchorInHead=head.InverseTransformPoint(root.TransformPoint(new Vector3(cornerX,mouthY,mouthFront+.008f*scale)));result.HasBowAnchor=true;
+            // The hook is below the mouth corner: the index knuckle is higher
+            // than the curled fingertips. Anchoring fingertips at the mouth
+            // instead pushed the knuckles across the nose and eye.
+            result.BowAnchorInHead=head.InverseTransformPoint(root.TransformPoint(new Vector3(cornerX,anchorY,jawFront+.008f*scale)));result.HasBowAnchor=true;
         }
         float lipFront=float.NegativeInfinity;
         foreach(var local in headSurface)

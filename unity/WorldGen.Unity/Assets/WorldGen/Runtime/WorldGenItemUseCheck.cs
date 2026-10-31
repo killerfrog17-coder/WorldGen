@@ -160,7 +160,20 @@ public sealed partial class LocalTerrainExplorer
             Check(!AnimalBehaviour(labelOwl,0).Migratory,"A display-name fragment cannot turn an owl into a migratory tern");
         }
         finally{labelledTaxon.Name=originalTaxonLabel;if(hadLabelCache)wildlifeBehaviours[labelCacheKey]=priorLabelBehaviour;else wildlifeBehaviours.Remove(labelCacheKey);}
-        ClearItems();reviewWildlifeBehaviour=true;paused=false;yield return Deer();var wary=animals.Values.First(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug=="deer");paused=true;Aim(wary,8);wary.BehaviourAt=0;wary.ThreatUntil=0;UpdateAnimalBehaviour(wary);
+        ClearItems();reviewWildlifeBehaviour=true;paused=false;yield return Deer();var wary=animals.Values.First(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug=="deer");paused=true;Aim(wary,8);
+        // Detection now has real confirmation/reaction time. Give an uninjured
+        // animal a perceivable approaching-player cue, not a preloaded alarm or
+        // a single update that may be deferred by the shared decision budget.
+        wary.Heading=wary.TargetHeading=(float)(Math.Atan2(motion.X-wary.X,motion.Z-wary.Z)*180/Math.PI);
+        wary.Awareness=new WildlifeAwarenessState();wary.LastPerception=0;wary.ThreatUntil=0;wary.ActionUntil=0;wary.BehaviourAction="";
+        double perceptionElapsed=0;
+        for(int step=0;step<40&&wary.Awareness.Mode!=WildlifeAwareness.Fleeing;step++)
+        {
+            wary.Life+=.3;perceptionElapsed+=.3;wary.BehaviourAt=0;huntingDecisionFrame=-1;
+            ReportHuntingNoise(PlayerFeet(),4);UpdateAnimalBehaviour(wary);
+        }
+        File.WriteAllText(Path.Combine(output,"uninjured-deer-perception.json"),JsonUtility.ToJson(wary.Awareness));
+        Check(wary.Awareness.ThreatIsPlayer&&wary.Awareness.LastCueSeconds<.5,"Uninjured deer identifies an actual nearby player cue before flight ("+perceptionElapsed.ToString("F1")+"s)");
         double awayX=wary.X-motion.X,awayZ=wary.Z-motion.Z;Check(wary.TargetSpeed>0&&Math.Sin(wary.TargetHeading*Math.PI/180)*awayX+Math.Cos(wary.TargetHeading*Math.PI/180)*awayZ>0,"Uninjured deer notices and flees a nearby player");
         paused=false;ExecuteAnimalSpawnCommand("/spawn wolf");double wolfDeadline=Time.unscaledTimeAsDouble+35;while(!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf")&&Time.unscaledTimeAsDouble<wolfDeadline)yield return null;paused=true;
         var hunter=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="wolf");hunter.X=motion.X+80;hunter.Z=motion.Z+8;wary.X=hunter.X+3;wary.Z=hunter.Z;

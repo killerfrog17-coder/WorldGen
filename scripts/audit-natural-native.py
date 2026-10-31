@@ -1,6 +1,7 @@
 """Independent actual-skin/prop review. Uses exported native triangles rather
 than the runtime clearance capsule approximation. Reports, never hides failures.
 """
+import gzip
 import argparse,json
 from pathlib import Path
 import numpy as np
@@ -16,9 +17,9 @@ def intersections(a,b,triangles):
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('folder');a=p.parse_args();folder=Path(a.folder);records=[];invalid=[];surface_count=0
- for path in sorted(folder.glob('*.json')):
+ for path in sorted([*folder.glob('*.json'),*folder.glob('*.json.gz')]):
   if path.name.startswith('audit'):continue
-  data=json.loads(path.read_text(encoding='utf-8-sig'))
+  data=json.loads((gzip.decompress(path.read_bytes()) if path.suffix=='.gz' else path.read_bytes()).decode('utf-8-sig'))
   if not isinstance(data,list) or not data or 'BoneNames' not in data[0]:continue
   for frame in data:
    hits=[]

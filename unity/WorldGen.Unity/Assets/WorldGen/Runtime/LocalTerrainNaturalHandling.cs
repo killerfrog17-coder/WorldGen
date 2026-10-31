@@ -304,7 +304,7 @@ public sealed partial class LocalTerrainExplorer
         AimSharedHead();
         Vector3 eye=body.TransformPoint(humanPlayer.Shared.LocalEye);
         Vector3 aimRight=Vector3.Cross(up,forward).normalized;
-        Vector3 anchor=humanPlayer.PropShape?.HasBowAnchor==true?inventoryBones["head"].TransformPoint(humanPlayer.PropShape.BowAnchorInHead):eye+aimRight*.045f*s-Vector3.up*.07f*s+forward*.02f*s;
+        Vector3 anchor=humanPlayer.PropShape?.HasBowAnchor==true?inventoryBones["head"].TransformPoint(humanPlayer.PropShape.BowAnchorInHead):eye+aimRight*.045f*s-Vector3.up*.10f*s+forward*.02f*s;
         if(!motion.Swimming)
         {
             float clearance=Mathf.Max(.05f,anchor.y-body.position.y-(float)bow.HeightM*.05f-.04f*s);

@@ -1,22 +1,22 @@
 # WorldGen repository instructions
 
-ACTIVE31Oct06:03CDT: HUMAN minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
-1b95be4 native5 IL2CPP10:55:06Z:275natural/45water PASS/EXIT0. All prior
-neutral/gait spear/large-carry intersections gone. New steep-down aim tests found
-3 lower-bow/leg intersections on short A/C/E in actual534skin/618prop BVH, so not
-final. NEW source chooses smallest useful measured-body/ground-clearance bow
-cant, with smooth return and immediate penetration prevention. Needs checkpoint,
-freeze/build6 SAME unselected D: player-human-natural-review. Source/bank models
-original1038 +30Legacy unchanged. No new motion takes beyond68 raw auditions;
-70x6 current bank. Actual screenshots now held through normal frame (previous
-immediate images could show stale skin); current hand contacts visible. Reduce
-redundant screenshot count only, retaining all actual numeric/surface samples.
-Native6 evidence task/native-contact6 -> C: artifacts/human-natural-native6;
-Native5 evidence also C: as below. Disk tight: C~2GB/D~1.3GB, no new packages or
-cleanup. Selected terrain shortcut/package FROZEN. Owner3 untouched. No paid/
-signup/subagents/Mono; no own native/Unity/generation workers at checkpoint.
-Need final up/down/body/BVH/water + full input/Legacy/items/nature/hunting suites,
-actual visual checks, selection/docs/Git. Continue real work through minimum.
+ACTIVE31Oct11:24CDT RESUMED after interruption; minimum12:27:07Z is past.
+7b81bc7 native6 IL2CPP11:07:05Z:275natural +83Kimodo +81Legacy PASS/EXIT0;
+actual534skin/618prop BVH0 crossings including steep aimed bow/spears/all6 bodies.
+Full Items FAILED old uninjured-deer one-update flee fixture. Current Core uses
+confirmation/reaction time; fixture now actual audible player cue and repeated
+.3s observations with fresh decision budgets, no forced alarm/AI threshold edits.
+Native6 corpse p99=1.83 passed. Water/Nature/Hunting suite6 NOT completed after
+Items failure. NEW source7 lowers draw hook3cm (knuckles then at mouth, not nose),
+removes bow-only extra collar camera push while raised, losslessly gzips native
+geometry diagnostic JSON to avoid disk bloat. Bank/art/weights/textures unchanged.
+Need checkpoint/freeze/build7 SAME unselected D: player-human-natural-review;
+new native275/BVH + full83/81/Items156/Water/Nature/Hunting and actual FPS views.
+Native7 output C: artifacts/human-natural-native7 via task/native-contact7 junction.
+C~1.3GB/D~1.1GB: no extra player copies or cleanup. Original1038/30Legacy/source
+SHA verified6; selected terrain shortcut/package stays FROZEN until final proof.
+No paid/signup/subagents/Mono; owner3 untouched. No owned Unity/native/Blender jobs.
+Finish remaining checks/actual visual selection/docs/Git promptly; no idle padding.
 
 ACTIVE31Oct05:10CDT: HUMAN work minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
 Native2 c2454a1 IL2CPP09:34:21Z FAILED actual-face measurement gate; NOT accepted.

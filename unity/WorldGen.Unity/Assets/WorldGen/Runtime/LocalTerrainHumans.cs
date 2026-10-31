@@ -256,7 +256,9 @@ public sealed partial class LocalTerrainExplorer
             // Looking down rotates the eye anchor back towards the collar.
             // Keep the local camera in front of that collar instead of exposing
             // the head-removal boundary from inside the neck.
-            eye.z+=.11f*(humanPlayer.Definition.EyeHeight/1.65f)*Mathf.InverseLerp(10,65,pitch);
+            // A raised bow already places the eye at its measured head anchor.
+            // Extra collar clearance would put the camera into nearby fletching.
+            eye.z+=.11f*(humanPlayer.Definition.EyeHeight/1.65f)*Mathf.InverseLerp(10,65,pitch)*(1-sharedBowRaise);
             if(motion.Swimming)eye.y=humanPlayer.Definition.EyeHeight;
             if(!sharedCameraEyeValid){sharedCameraEye=eye;sharedCameraEyeValid=true;}
             sharedCameraEye=Vector3.Lerp(sharedCameraEye,eye,1-Mathf.Exp(-dt*9));

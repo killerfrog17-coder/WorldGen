@@ -2,6 +2,7 @@
 Run in Blender. BVH narrows candidate pairs; segment/triangle tests confirm them.
 No claim about unsampled frames or an artist's visual acceptance.
 """
+import gzip
 import argparse,json,sys
 from pathlib import Path
 from mathutils import Vector
@@ -26,9 +27,9 @@ def triangle_hit(a,b):
 def main():
  p=argparse.ArgumentParser();p.add_argument('folder');a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
  folder=Path(a.folder);bad=[];frames=0;parts=0;invalid=[]
- for path in sorted(folder.glob('*.json')):
+ for path in sorted([*folder.glob('*.json'),*folder.glob('*.json.gz')]):
   if path.name.startswith('audit'):continue
-  data=json.loads(path.read_text(encoding='utf-8-sig'))
+  data=json.loads((gzip.decompress(path.read_bytes()) if path.suffix=='.gz' else path.read_bytes()).decode('utf-8-sig'))
   if not isinstance(data,list):continue
   for row in data:
    if not isinstance(row,dict) or not row.get('Vertices'):continue
