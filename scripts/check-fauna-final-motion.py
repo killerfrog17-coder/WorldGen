@@ -2,7 +2,7 @@
 import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
-repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True,choices=['tiger','capuchin']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);slug=a.slug;folder=repo/'artifacts/fauna-repairs'/slug;record=json.loads((folder/'run-repair.json').read_text());source=repo/record['source'];output=repo/record['output'];changed=set(record['changes']);assert hashlib.sha256(source.read_bytes()).hexdigest()==record['source_sha256']
+repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True,choices=['tiger','capuchin']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);slug=a.slug;folder=repo/'assets-source/animals/repairs'/slug;record=json.loads((folder/'run-repair.json').read_text());source=repo/record['source'];output=repo/record['output'];changed=set(record['changes']);assert hashlib.sha256(source.read_bytes()).hexdigest()==record['source_sha256']
 def read():
  s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];h=hashlib.sha256()
  for name in [e['body'],*e['facial_objects'],*e.get('appendage_objects',[])]:

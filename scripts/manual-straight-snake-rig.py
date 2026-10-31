@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np,trimesh
 repo=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);a=p.parse_args();root=a.root.resolve()
-assert root.parent==repo/'artifacts/fauna-overnight-20261024' and root.name in ('python','venomous-snake')
+assert root.parent==repo/'assets-source/animals/generation' and root.name in ('python','venomous-snake')
 assert (root/'manual-straight-snake-request.json').exists()
 for number in range(1,5):
     folder=root/f'candidate-{number}';out=folder/'generated-rig.npz'

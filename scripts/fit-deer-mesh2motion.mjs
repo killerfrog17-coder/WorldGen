@@ -5,7 +5,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 
 const root=path.resolve(process.argv[2]??'artifacts/deer-mesh2motion-20261023');
-const tool=path.resolve(process.argv[3]??'artifacts/tools/mesh2motion-cli/node_modules/afk-rig');
+const tool=path.resolve(process.argv[3]??'tools/mesh2motion-cli/node_modules/afk-rig');
 const {RigSession}=await import(pathToFileURL(path.join(tool,'dist/index.js')).href);
 const data=JSON.parse(fs.readFileSync(path.join(root,'input-landmarks.json'),'utf8'));
 const marker=data.joints;

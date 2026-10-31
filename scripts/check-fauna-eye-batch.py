@@ -1,8 +1,8 @@
 """Finite current-eye attachment checks and fresh body/coat views. No native writes."""
 import argparse,hashlib,json,subprocess,time,os
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024';out=root/'inspection'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted';out=root/'inspection'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--watch',action='store_true');a=ap.parse_args();jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];jobs=[j for j in jobs if not a.slugs or j['slug'] in a.slugs]
 from fauna_eye_profiles import pipeline_signature
 expected_pipeline=pipeline_signature(repo)

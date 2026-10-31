@@ -2,7 +2,7 @@
 import csv,json
 from pathlib import Path
 from fauna_motion_sources import source_for,transfer_trial_note
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-overnight-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/generation'
 plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows'];rows=[]
 for animal in plan:
     if animal['asset_status']!='queued':continue

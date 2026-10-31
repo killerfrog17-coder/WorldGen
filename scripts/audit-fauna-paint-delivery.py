@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-painted-20261024'
+root=repo/'assets-source/animals/painted'
 queue=json.loads((root/'paint-queue.json').read_text())
 out=root/'inspection';out.mkdir(exist_ok=True)
 rows=[]

@@ -5,7 +5,7 @@ No new gait curves: incompatible upper-body channels are held at target bind.
 import hashlib,json,shutil
 from pathlib import Path
 import numpy as np
-r=Path(__file__).resolve().parent.parent/'artifacts/fauna-motion-sources';src=r/'rabbit';dst=r/'hind-hopper-trial';dst.mkdir(exist_ok=True)
+r=Path(__file__).resolve().parent.parent/'assets-source/animals/motion-library';src=r/'rabbit';dst=r/'hind-hopper-trial';dst.mkdir(exist_ok=True)
 assert not (dst/'source-rig.json').exists(),'Do not overwrite an inspected bank'
 s=json.loads((src/'source-rig.json').read_text());arrays=np.load(src/'source-motions.npz')
 clips=[c for c in s['clips'] if c['label'] in {'Idle','Run'}];assert len(clips)==2

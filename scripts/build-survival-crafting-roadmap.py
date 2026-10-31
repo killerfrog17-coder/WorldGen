@@ -3,7 +3,7 @@ from pathlib import Path
 import sys, math
 from urllib.parse import quote
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'artifacts/report-tools/python'))
+sys.path.insert(0,str(ROOT/'tools/reporting/python'))
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle

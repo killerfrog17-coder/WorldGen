@@ -9,7 +9,7 @@ for bank in index['animals']:
     if medium.get(bank['slug'])!='ground':continue
     path=folder/bank['file'];raw=gzip.decompress(path.read_bytes());bones,frames,js=struct.unpack('<III',raw[40:52]);header=json.loads(raw[52:52+js])
     if header.get('groundSupport'):continue
-    base=root/'artifacts/fauna-runtime-20261026/exports'/bank['slug'];model=json.loads((base/'model.json').read_text());mesh=(base/'mesh.bin').read_bytes();n,indices,_,_=struct.unpack('<4i',mesh[8:24]);stride=(len(mesh)-24-indices*4)//n//4
+    base=root/'assets-source/animals/exports'/bank['slug'];model=json.loads((base/'model.json').read_text());mesh=(base/'mesh.bin').read_bytes();n,indices,_,_=struct.unpack('<4i',mesh[8:24]);stride=(len(mesh)-24-indices*4)//n//4
     vertices=np.frombuffer(mesh,dtype='<f4',offset=24,count=n*stride).reshape(n,stride);influences=model['influences'];ids=vertices[:,8:8+influences].astype(int);weights=vertices[:,8+influences:8+2*influences]
     poses=np.frombuffer(raw,dtype='<f4',offset=52+js,count=frames*bones*16).copy().reshape(frames,bones,4,4)
     morph=np.frombuffer(raw,dtype='<f4',offset=52+js+frames*bones*64,count=frames).copy();max_lift=0

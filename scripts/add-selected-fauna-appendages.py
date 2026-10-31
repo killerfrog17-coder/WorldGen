@@ -12,7 +12,7 @@ from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'wild-boar','mouflon','wild-goat','bear','bison'}
-root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
+root=(a.root or repo/'assets-source/animals/painted'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']]
@@ -39,7 +39,7 @@ def surface(target):
 
 def texture_material():
     if land.get('anatomical_orbit') and a.slug in {'mouflon','wild-goat'}:
-        source=repo/'artifacts/fauna-assets/textures/keratin-hard-v1.png';material=bpy.data.materials.new(a.slug+' generated keratin and growth relief');material.use_nodes=True;nodes=material.node_tree.nodes;links=material.node_tree.links;shader=nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.58
+        source=repo/'assets-source/animals/prototypes/textures/keratin-hard-v1.png';material=bpy.data.materials.new(a.slug+' generated keratin and growth relief');material.use_nodes=True;nodes=material.node_tree.nodes;links=material.node_tree.links;shader=nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.58
         im=bpy.data.images.load(str(source),check_existing=True).copy();im.name=a.slug+' compact generated horn grain';im.scale(512,512);im.pack();tex=nodes.new('ShaderNodeTexImage');tex.image=im;tint=nodes.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.40;tint.inputs['Value'].default_value=.55 if a.slug=='mouflon' else .85;links.new(tex.outputs['Color'],tint.inputs['Color']);links.new(tint.outputs['Color'],shader.inputs['Base Color'])
         grain=nodes.new('ShaderNodeBump');grain.inputs['Strength'].default_value=.20;grain.inputs['Distance'].default_value=.0007;links.new(tex.outputs['Color'],grain.inputs['Height']);uv=nodes.new('ShaderNodeUVMap');uv.uv_map='UVMap';wave=nodes.new('ShaderNodeTexWave');wave.bands_direction='Y';wave.inputs['Scale'].default_value=18;wave.inputs['Distortion'].default_value=1.3;links.new(uv.outputs['UV'],wave.inputs['Vector']);ridge=nodes.new('ShaderNodeBump');ridge.inputs['Strength'].default_value=.22;ridge.inputs['Distance'].default_value=.0014;links.new(wave.outputs['Fac'],ridge.inputs['Height']);links.new(grain.outputs['Normal'],ridge.inputs['Normal']);links.new(ridge.outputs['Normal'],shader.inputs['Normal'])
         state['appendage_texture_source']={'path':str(source.relative_to(repo)),'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'method':'Shared generated longitudinal keratin grain and restrained irregular transverse growth relief; no broad painted sine bands.','limits':'Artistic colour/relief, not measured PBR.'}

@@ -6,7 +6,7 @@ from mathutils import Matrix,Vector
 
 root=Path(__file__).resolve().parents[1]
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
-inventory=json.loads((root/'artifacts/fauna-runtime-20261026/native-inventory.json').read_text())['animals']
+inventory=json.loads((root/'assets-source/animals/export-metadata/native-inventory.json').read_text())['animals']
 destination=root/'assets/fauna-motion';destination.mkdir(parents=True,exist_ok=True)
 records=[];failures=[]
 def role(label):
@@ -24,7 +24,7 @@ for animal in inventory:
     if not selected:continue
     source=root/animal['source'];digest=hashlib.sha256(source.read_bytes()).hexdigest();assert digest==animal['sha256']
     try:
-        model=json.loads((root/'artifacts/fauna-runtime-20261026/exports'/slug/'model.json').read_text())
+        model=json.loads((root/'assets-source/animals/exports'/slug/'model.json').read_text())
         bpy.ops.wm.open_mainfile(filepath=str(source));scene=bpy.context.scene;entry=animal['entry'];rig=bpy.data.objects[entry['rig']];body=bpy.data.objects[entry['body']]
         C=Matrix(model['source_to_runtime']);inverseC=C.inverted();inverseRig=rig.matrix_world.inverted();bones=list(rig.data.bones);assert len(bones)==model['bones'] if 'bones' in model else len(bones)<=128
         inverseBind=[b.matrix_local.inverted() for b in bones];root_bone=next(b for b in bones if b.parent is None)

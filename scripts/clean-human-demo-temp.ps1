@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$demoRoot = (Resolve-Path (Join-Path $repoRoot 'artifacts/human-builder-demo')).Path
-$umaRoot = (Resolve-Path (Join-Path $repoRoot 'artifacts/tools/UMA/UMAProject')).Path
+$demoRoot = (Resolve-Path (Join-Path $repoRoot 'assets-source/humans/research/builders')).Path
+$umaRoot = (Resolve-Path (Join-Path $repoRoot 'tools/UMA/UMAProject')).Path
 $demoProcesses = @(Get-CimInstance Win32_Process | Where-Object {
     $_.Name -eq 'Unity.exe' -and $_.CommandLine.Replace('/','\') -like "*$umaRoot*"
 })

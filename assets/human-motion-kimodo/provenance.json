@@ -33,7 +33,7 @@
   ],
   "selected_raw_sources": [
     {
-      "path": "artifacts/human-natural-20261031/motions/bow_ready/seed-3170",
+      "path": "assets-source/humans/motion/natural/motions/bow_ready/seed-3170",
       "generation": {
         "id": "bow_ready",
         "label": "bow_ready",
@@ -65,7 +65,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/bow_shoot/seed-3160",
+      "path": "assets-source/humans/motion/natural/motions/bow_shoot/seed-3160",
       "generation": {
         "id": "bow_shoot",
         "label": "bow_shoot",
@@ -97,7 +97,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/carry_large/seed-3421",
+      "path": "assets-source/humans/motion/natural/motions/carry_large/seed-3421",
       "generation": {
         "id": "carry_large",
         "label": "carry_large",
@@ -129,7 +129,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/drink/seed-3360",
+      "path": "assets-source/humans/motion/natural/motions/drink/seed-3360",
       "generation": {
         "id": "drink",
         "label": "drink",
@@ -161,7 +161,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/eat/seed-3370",
+      "path": "assets-source/humans/motion/natural/motions/eat/seed-3370",
       "generation": {
         "id": "eat",
         "label": "eat",
@@ -193,7 +193,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/fists_guard/seed-3260",
+      "path": "assets-source/humans/motion/natural/motions/fists_guard/seed-3260",
       "generation": {
         "id": "fists_guard",
         "label": "fists_guard",
@@ -225,7 +225,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/fists_ready/seed-3251",
+      "path": "assets-source/humans/motion/natural/motions/fists_ready/seed-3251",
       "generation": {
         "id": "fists_ready",
         "label": "fists_ready",
@@ -257,7 +257,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/gather/seed-3350",
+      "path": "assets-source/humans/motion/natural/motions/gather/seed-3350",
       "generation": {
         "id": "gather",
         "label": "gather",
@@ -289,7 +289,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/idle/seed-3100",
+      "path": "assets-source/humans/motion/natural/motions/idle/seed-3100",
       "generation": {
         "id": "idle",
         "label": "idle",
@@ -321,7 +321,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/punch/seed-3240",
+      "path": "assets-source/humans/motion/natural/motions/punch/seed-3240",
       "generation": {
         "id": "punch",
         "label": "punch",
@@ -353,7 +353,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/sling_ready/seed-3321",
+      "path": "assets-source/humans/motion/natural/motions/sling_ready/seed-3321",
       "generation": {
         "id": "sling_ready",
         "label": "sling_ready",
@@ -385,7 +385,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/sling_release/seed-3341",
+      "path": "assets-source/humans/motion/natural/motions/sling_release/seed-3341",
       "generation": {
         "id": "sling_release",
         "label": "sling_release",
@@ -417,7 +417,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/sling_whirl/seed-3330",
+      "path": "assets-source/humans/motion/natural/motions/sling_whirl/seed-3330",
       "generation": {
         "id": "sling_whirl",
         "label": "sling_whirl",
@@ -449,7 +449,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/spear_ready_one/seed-3180",
+      "path": "assets-source/humans/motion/natural/motions/spear_ready_one/seed-3180",
       "generation": {
         "id": "spear_ready_one",
         "label": "spear_ready_one",
@@ -481,7 +481,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/spear_ready_two/seed-3190",
+      "path": "assets-source/humans/motion/natural/motions/spear_ready_two/seed-3190",
       "generation": {
         "id": "spear_ready_two",
         "label": "spear_ready_two",
@@ -513,7 +513,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/spear_thrust_one/seed-3140",
+      "path": "assets-source/humans/motion/natural/motions/spear_thrust_one/seed-3140",
       "generation": {
         "id": "spear_thrust_one",
         "label": "spear_thrust_one",
@@ -545,7 +545,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/spear_thrust_two/seed-3151",
+      "path": "assets-source/humans/motion/natural/motions/spear_thrust_two/seed-3151",
       "generation": {
         "id": "spear_thrust_two",
         "label": "spear_thrust_two",
@@ -577,7 +577,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/swim/seed-3290",
+      "path": "assets-source/humans/motion/natural/motions/swim/seed-3290",
       "generation": {
         "id": "swim",
         "label": "swim",
@@ -609,7 +609,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/throw/seed-3300",
+      "path": "assets-source/humans/motion/natural/motions/throw/seed-3300",
       "generation": {
         "id": "throw",
         "label": "throw",
@@ -641,7 +641,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_chop/seed-3220",
+      "path": "assets-source/humans/motion/natural/motions/tool_chop/seed-3220",
       "generation": {
         "id": "tool_chop",
         "label": "tool_chop",
@@ -673,7 +673,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_cut/seed-3201",
+      "path": "assets-source/humans/motion/natural/motions/tool_cut/seed-3201",
       "generation": {
         "id": "tool_cut",
         "label": "tool_cut",
@@ -705,7 +705,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_guard/seed-3231",
+      "path": "assets-source/humans/motion/natural/motions/tool_guard/seed-3231",
       "generation": {
         "id": "tool_guard",
         "label": "tool_guard",
@@ -737,7 +737,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_ready/seed-3110",
+      "path": "assets-source/humans/motion/natural/motions/tool_ready/seed-3110",
       "generation": {
         "id": "tool_ready",
         "label": "tool_ready",
@@ -769,7 +769,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_stab/seed-3520",
+      "path": "assets-source/humans/motion/natural/motions/tool_stab/seed-3520",
       "generation": {
         "id": "tool_stab",
         "label": "tool_stab",
@@ -801,7 +801,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/tool_walk/seed-3120",
+      "path": "assets-source/humans/motion/natural/motions/tool_walk/seed-3120",
       "generation": {
         "id": "tool_walk",
         "label": "tool_walk",
@@ -833,7 +833,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/work_cut/seed-3390",
+      "path": "assets-source/humans/motion/natural/motions/work_cut/seed-3390",
       "generation": {
         "id": "work_cut",
         "label": "work_cut",
@@ -865,7 +865,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/work_dig/seed-3410",
+      "path": "assets-source/humans/motion/natural/motions/work_dig/seed-3410",
       "generation": {
         "id": "work_dig",
         "label": "work_dig",
@@ -897,7 +897,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/work_knapping/seed-3380",
+      "path": "assets-source/humans/motion/natural/motions/work_knapping/seed-3380",
       "generation": {
         "id": "work_knapping",
         "label": "work_knapping",
@@ -929,7 +929,7 @@
       }
     },
     {
-      "path": "artifacts/human-natural-20261031/motions/work_twist/seed-3400",
+      "path": "assets-source/humans/motion/natural/motions/work_twist/seed-3400",
       "generation": {
         "id": "work_twist",
         "label": "work_twist",
@@ -961,7 +961,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-first-person-demo/motions/empty_walk/seed-240",
+      "path": "assets-source/humans/motion/first-person/motions/empty_walk/seed-240",
       "generation": {
         "id": "empty_walk",
         "label": "Walk \u2014 empty hands",
@@ -993,7 +993,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-first-person-demo/motions/spear_throw/seed-252",
+      "path": "assets-source/humans/motion/first-person/motions/spear_throw/seed-252",
       "generation": {
         "id": "spear_throw",
         "label": "Throw spear",
@@ -1025,7 +1025,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/crouch_idle/seed-1204",
+      "path": "assets-source/humans/motion/bank/motions/crouch_idle/seed-1204",
       "generation": {
         "id": "crouch_idle",
         "label": "crouch_idle",
@@ -1057,7 +1057,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/crouch_walk/seed-1203",
+      "path": "assets-source/humans/motion/bank/motions/crouch_walk/seed-1203",
       "generation": {
         "id": "crouch_walk",
         "label": "crouch_walk",
@@ -1089,7 +1089,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/jog/seed-901",
+      "path": "assets-source/humans/motion/bank/motions/jog/seed-901",
       "generation": {
         "id": "jog",
         "label": "jog",
@@ -1121,7 +1121,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/jump/seed-1205",
+      "path": "assets-source/humans/motion/bank/motions/jump/seed-1205",
       "generation": {
         "id": "jump",
         "label": "jump",
@@ -1153,7 +1153,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/run_back/seed-938",
+      "path": "assets-source/humans/motion/bank/motions/run_back/seed-938",
       "generation": {
         "id": "run_back",
         "label": "run_back",
@@ -1185,7 +1185,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/run_left/seed-939",
+      "path": "assets-source/humans/motion/bank/motions/run_left/seed-939",
       "generation": {
         "id": "run_left",
         "label": "run_left",
@@ -1217,7 +1217,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/run_right/seed-940",
+      "path": "assets-source/humans/motion/bank/motions/run_right/seed-940",
       "generation": {
         "id": "run_right",
         "label": "run_right",
@@ -1249,7 +1249,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/sprint/seed-1402",
+      "path": "assets-source/humans/motion/bank/motions/sprint/seed-1402",
       "generation": {
         "id": "sprint",
         "label": "sprint",
@@ -1281,7 +1281,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/strafe_left/seed-936",
+      "path": "assets-source/humans/motion/bank/motions/strafe_left/seed-936",
       "generation": {
         "id": "strafe_left",
         "label": "strafe_left",
@@ -1313,7 +1313,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/strafe_right/seed-937",
+      "path": "assets-source/humans/motion/bank/motions/strafe_right/seed-937",
       "generation": {
         "id": "strafe_right",
         "label": "strafe_right",
@@ -1345,7 +1345,7 @@
       }
     },
     {
-      "path": "artifacts/kimodo-human-bank/motions/walk_back/seed-935",
+      "path": "assets-source/humans/motion/bank/motions/walk_back/seed-935",
       "generation": {
         "id": "walk_back",
         "label": "walk_back",

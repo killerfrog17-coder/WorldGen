@@ -41,7 +41,7 @@ def main():
     if manifest['version']!=1 or not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',manifest['repository']):
         raise ValueError('Unknown asset lock schema or repository')
     destination=args.destination.resolve()
-    records={p:r for p,r in manifest['files'].items() if args.subset=='all' or p.startswith('artifacts/')==(args.subset=='authoring')}
+    records={p:r for p,r in manifest['files'].items() if args.subset=='all' or p.startswith('assets-source/')==(args.subset=='authoring')}
     targets={p:target_path(destination,p,read_only=True) for p in records}
     def present(path):
         target=targets[path];record=records[path]

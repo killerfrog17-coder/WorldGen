@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
 
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];jobs=[j for j in jobs if not a.slugs or j['slug'] in a.slugs]
 progress=root/'inspection/eye-audit-capture.json';status={'total':len(jobs),'completed':[],'errors':{},'current':None}

@@ -3,7 +3,7 @@ import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-visual-corrections'/a.slug
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/corrections'/a.slug
 path=root/'Animal - Painted Species Review.blend';state=json.loads((root/'paint-state.json').read_text());assert not state.get('manual_head_positions'),'Already applied'
 picks=json.loads((root/'inspected-face-picks.json').read_text());ids=np.array(sorted({i for face in picks for i in face['vertices']}));assert len(ids)<=16
 bpy.ops.wm.open_mainfile(filepath=str(path));entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']];p=np.array([v.co[:] for v in body.data.vertices]);before=p.copy();neighbors=[set() for _ in p]

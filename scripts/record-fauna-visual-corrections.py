@@ -7,9 +7,9 @@ import argparse,hashlib,json
 from pathlib import Path
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('slugs',nargs='+');ap.add_argument('--confirm-inspected',action='store_true');ap.add_argument('--root-base',type=Path);ap.add_argument('--critic-report',type=Path);a=ap.parse_args();assert a.confirm_inspected
-base=(a.root_base or repo/'artifacts/fauna-visual-corrections').resolve();assert base.is_relative_to(repo)
+base=(a.root_base or repo/'assets-source/animals/corrections').resolve();assert base.is_relative_to(repo)
 critic_path=a.critic_report.resolve() if a.critic_report else None
-if base!=repo/'artifacts/fauna-visual-corrections':assert critic_path and critic_path.is_relative_to(repo),'New anatomy publication requires a source-bound independent critic gate'
+if base!=repo/'assets-source/animals/corrections':assert critic_path and critic_path.is_relative_to(repo),'New anatomy publication requires a source-bound independent critic gate'
 critic=json.loads(critic_path.read_text()) if critic_path else None
 feedback_path=repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json';feedback=json.loads(feedback_path.read_text());index_path=repo/'docs/fauna/VISUAL_CORRECTIONS.json';index=json.loads(index_path.read_text())
 references={

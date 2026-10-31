@@ -175,7 +175,7 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--mpfb-probe',action='store_true');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     ROOT.mkdir(exist_ok=True)
     bpy.context.preferences.filepaths.save_version=0
-    bpy.ops.wm.open_mainfile(filepath=str(REPO/'artifacts/human-builder-demo/Human - Character Builder Comparison.blend'))
+    bpy.ops.wm.open_mainfile(filepath=str(REPO/'assets-source/humans/research/builders/Human - Character Builder Comparison.blend'))
     scene=bpy.context.scene;scene.render.fps=30
     for c in bpy.data.collections:
         c.hide_viewport=False;c.hide_render=False

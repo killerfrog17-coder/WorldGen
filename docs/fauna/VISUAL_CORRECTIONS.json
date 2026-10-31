@@ -18,20 +18,20 @@
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\hare",
+        "root": "assets-source\\animals\\anatomy\\hare",
         "native_sha256": "ba83b20065889c52b9f10734b6b5f94c0f80f500b4f5afe0ff4059e16ec16097",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
       },
       "source_sha256": "07d83ad4112966f06f97ddc85ea88be6bd651b80d13b2cd25898deafaa68ad77",
       "reference": [
-        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/hare-front.jpg",
-        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/hare-profile-side.jpg"
+        "assets-source/animals/anatomy/critic-reports/prey-gate-references/hare-front.jpg",
+        "assets-source/animals/anatomy/critic-reports/prey-gate-references/hare-profile-side.jpg"
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\prey-final-fresh-complete.json",
-        "sha256": "b28b00f75ef332413ca3d173f58786f38731559919e57b7457e88c268f147d5b",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\prey-final-fresh-complete.json",
+        "sha256": "e0a4665881ea5f01775f7bf5443595716062f9462947f01d84cf5d5a6f3e851f",
         "native_sha256": "07d83ad4112966f06f97ddc85ea88be6bd651b80d13b2cd25898deafaa68ad77",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -69,20 +69,20 @@
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\rabbit",
+        "root": "assets-source\\animals\\anatomy\\rabbit",
         "native_sha256": "8c4d7b701686fa60fd9bf666ac6aaa70ab7582b07a7ae5b154f75a5bb1d60782",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
       },
       "source_sha256": "3d36b5d738011a8cb9dbd440231777b857aedfa01c788e489ff6df7f6ad3958d",
       "reference": [
-        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/rabbit-front.jpg",
-        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/rabbit-profile-alt.jpg"
+        "assets-source/animals/anatomy/critic-reports/prey-gate-references/rabbit-front.jpg",
+        "assets-source/animals/anatomy/critic-reports/prey-gate-references/rabbit-profile-alt.jpg"
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\prey-final-fresh-complete.json",
-        "sha256": "b28b00f75ef332413ca3d173f58786f38731559919e57b7457e88c268f147d5b",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\prey-final-fresh-complete.json",
+        "sha256": "e0a4665881ea5f01775f7bf5443595716062f9462947f01d84cf5d5a6f3e851f",
         "native_sha256": "3d36b5d738011a8cb9dbd440231777b857aedfa01c788e489ff6df7f6ad3958d",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -122,8 +122,8 @@
       "appearance_approved": false,
       "source_sha256": "75cdb0f0a23664b09c02753984f7c7d9652906f78acf6507bbe004dc54b96bad",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
-        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "09f5025e6efc88932e9c569a489dd8c257e9760204909e22226a7187c189609e",
         "native_sha256": "75cdb0f0a23664b09c02753984f7c7d9652906f78acf6507bbe004dc54b96bad",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
       },
@@ -138,8 +138,8 @@
       "appearance_approved": false,
       "source_sha256": "955e39dbe5968b0e592382089db604826295f0fa53d033559da9687cee3676b4",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
-        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "09f5025e6efc88932e9c569a489dd8c257e9760204909e22226a7187c189609e",
         "native_sha256": "955e39dbe5968b0e592382089db604826295f0fa53d033559da9687cee3676b4",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
       },
@@ -154,43 +154,43 @@
       "appearance_approved": false,
       "source_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60",
       "reference": [
-        "artifacts/fauna-visual-corrections/references/fox.jpg",
-        "artifacts/fauna-visual-corrections/references/fox-profile.jpg"
+        "assets-source/animals/corrections/references/fox.jpg",
+        "assets-source/animals/corrections/references/fox-profile.jpg"
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic_pass": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\red-fox",
+        "root": "assets-source\\animals\\anatomy\\red-fox",
         "native_sha256": "19f1014a6a64597ff570d679883f6c502dc5835aafd0586a619de3ce813766d2",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
       },
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\fox-raccoon-fresh-final-gate.json",
-        "sha256": "7239f2b7cb1d5c313c2e104f65f464a6e55ca7580aa105e647a0945234439473",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\fox-raccoon-fresh-final-gate.json",
+        "sha256": "665f7a6344c598a56e1bc9f745b043a2239fa65ab27f99091f5060327dd37579",
         "native_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
           {
             "finding": "Alternate-coat cheek boundaries and pale inner-ear patches are more abrupt than the red woodland coat. Dark cross, silver, pale and russet variants would benefit from a softer fur-edged pigment transition. This remains a secondary material issue at the supplied full-body scale.",
             "evidence_paths": [
-              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-01-front.png",
-              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-02-front.png",
-              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-04-front.png",
-              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-05-front.png"
+              "assets-source/animals/anatomy/red-fox/eye-audit/coat-01-front.png",
+              "assets-source/animals/anatomy/red-fox/eye-audit/coat-02-front.png",
+              "assets-source/animals/anatomy/red-fox/eye-audit/coat-04-front.png",
+              "assets-source/animals/anatomy/red-fox/eye-audit/coat-05-front.png"
             ]
           },
           {
             "finding": "Close-profile eye has a small exposed grey crescent and very regular vertical pupil. Slightly subtler rim integration would improve the close-up; paired position and general slit-pupil appearance are plausible.",
             "evidence_paths": [
-              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/right-after.png"
+              "assets-source/animals/anatomy/red-fox/eye-audit/right-after.png"
             ]
           },
           {
             "finding": "Body fur has less detail than the painted head, particularly around the rear neck. The join is sufficiently blended for this prototype; matching texture frequency would improve polish.",
             "evidence_paths": [
-              "artifacts/fauna-anatomy-revision/red-fox/appearance-options/coat-00-extra-00-rear.png",
-              "artifacts/fauna-anatomy-revision/red-fox/appearance-options/coat-00-extra-00-side.png"
+              "assets-source/animals/anatomy/red-fox/appearance-options/coat-00-extra-00-rear.png",
+              "assets-source/animals/anatomy/red-fox/appearance-options/coat-00-extra-00-side.png"
             ]
           }
         ]
@@ -211,14 +211,14 @@
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic_pass": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\wolf",
+        "root": "assets-source\\animals\\anatomy\\wolf",
         "native_sha256": "7cae8db7e26e12e708061a92a3390f7aa7f697f314f7a74084a6924c0ccd7160",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
       },
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\wolf-latest-full-appearance.json",
-        "sha256": "9afbebe86d80ac26dac9d06cd216aeaa89ccfad5c5441df4f0f8bbd5e9d3b8a8",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\wolf-latest-full-appearance.json",
+        "sha256": "1a7c56792e8128b8b8fd763d43a63ace715572d961fc5e7bc0d56da33ad28bf7",
         "native_sha256": "138b230452d62cc325f8417f41e698da21c0cf96cedc83fe3af7177df045e8a6",
         "verdict": "pass_no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -253,7 +253,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\wild-boar",
+        "root": "assets-source\\animals\\anatomy\\wild-boar",
         "native_sha256": "487f303662a601c3f0a5bd4390f25ec42dd592edaebfeac3364123e5bc056232",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -267,7 +267,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\mouflon",
+        "root": "assets-source\\animals\\anatomy\\mouflon",
         "native_sha256": "210d5677f33515a87702a73a5ef4c41aab6f8061c25b66d26fc729b1d71514a1",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -281,22 +281,22 @@
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\wild-goat",
+        "root": "assets-source\\animals\\anatomy\\wild-goat",
         "native_sha256": "6612180b2141cf3ac3a29f389d0c4d8cb0135322c42c956cb3aefad629d154bc",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
       },
       "source_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b",
       "reference": [
-        "artifacts/fauna-visual-corrections/references/wild-goat-front.jpg",
-        "artifacts/fauna-visual-corrections/references/wild-goat-profile.jpg",
-        "artifacts/fauna-anatomy-revision/critic-reports/reference-photos/goat-full.jpg",
-        "artifacts/fauna-anatomy-revision/critic-reports/reference-photos/goat-cretan-full.jpg"
+        "assets-source/animals/corrections/references/wild-goat-front.jpg",
+        "assets-source/animals/corrections/references/wild-goat-profile.jpg",
+        "assets-source/animals/anatomy/critic-reports/reference-photos/goat-full.jpg",
+        "assets-source/animals/anatomy/critic-reports/reference-photos/goat-cretan-full.jpg"
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\goat-fresh-final-visual.json",
-        "sha256": "53548bc3c44663f1cce896a701e9b4a0173f08edffb301406cd8f99ebdecce5d",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\goat-fresh-final-visual.json",
+        "sha256": "0cbc5f7a12d365b024055450e6f9254ab75296a4fabf8e7c20c3b21a45ab3ea7",
         "native_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b",
         "verdict": "pass_no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -331,7 +331,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\bear",
+        "root": "assets-source\\animals\\anatomy\\bear",
         "native_sha256": "8f2495413776fa3ecf5741a3313c030c30db2dcbd6d0c9299f32c569ee41b019",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
@@ -345,7 +345,7 @@
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\bison",
+        "root": "assets-source\\animals\\anatomy\\bison",
         "native_sha256": "b82fa83122e765bf8287212c579ef918e9273a3a18ef7eac3e931a5323ffc955",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
@@ -358,8 +358,8 @@
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\current-full-ungulates-gate.json",
-        "sha256": "e891f79ac42b5345892b779fe74e1d274409bcb5d704a38bfefa55307ca9634c",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\current-full-ungulates-gate.json",
+        "sha256": "d8a7167844af8ccdcee1ddeacdc12978c31f05f84e6503ff32936fa9f27696c5",
         "native_sha256": "1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -379,8 +379,8 @@
       "appearance_approved": false,
       "source_sha256": "2938715e347f9de0ad4adc36f20dbd0ebf13892360eb2fe1ca648839fa21b14b",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
-        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "09f5025e6efc88932e9c569a489dd8c257e9760204909e22226a7187c189609e",
         "native_sha256": "2938715e347f9de0ad4adc36f20dbd0ebf13892360eb2fe1ca648839fa21b14b",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
       },
@@ -395,8 +395,8 @@
       "appearance_approved": false,
       "source_sha256": "45e17c0bffe9f5acbeaef5980f4fa15156f23f7a2091db9e7d8e428a3301be5d",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
-        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "09f5025e6efc88932e9c569a489dd8c257e9760204909e22226a7187c189609e",
         "native_sha256": "45e17c0bffe9f5acbeaef5980f4fa15156f23f7a2091db9e7d8e428a3301be5d",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
       },
@@ -417,8 +417,8 @@
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\fly-compact-fresh-visual.json",
-        "sha256": "72e9abe1284cff2f1aac15d724a66b7872568a61e5abf07266d84db7f672b259",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\fly-compact-fresh-visual.json",
+        "sha256": "8481afb8a5df2c918aae2e4d64e8e14b4d32cc694e21be4b8a70cca399bbd4f4",
         "native_sha256": "b454c1fa1e784a0b9dc5ec4d6817940d477e383b0aa217593fae8ab9bf4d8652",
         "verdict": "pass_at_tiny_ambient_standard",
         "secondary_polish": [
@@ -444,8 +444,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
-        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "48d80edb2b07266853e6d7f942fff8ac27dfa923523672b4fe7c85e31a4a9b8e",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -467,7 +467,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\mouse",
+        "root": "assets-source\\animals\\anatomy\\mouse",
         "native_sha256": "2360118316963dd4a662d7acbb02af31ec374240dfcc7d0dd7e2a7439701799a",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -481,7 +481,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\squirrel",
+        "root": "assets-source\\animals\\anatomy\\squirrel",
         "native_sha256": "0b26e2fcc0e70fc1d910b26e01b2e865890bfe1fca864c4cfdf3cede8977ceca",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -495,7 +495,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\horse",
+        "root": "assets-source\\animals\\anatomy\\horse",
         "native_sha256": "67c356789ee8bb86795614dde28c58ca1d4b73ff0d5c897313d0d6883416ca00",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -509,7 +509,7 @@
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\reindeer",
+        "root": "assets-source\\animals\\anatomy\\reindeer",
         "native_sha256": "5e05cbb7e880b4fd5c8a136eb2df89a559fc266eaffaca605f27d3213aed626c",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -518,12 +518,12 @@
       "reference": [
         "https://images.squarespace-cdn.com/content/v1/54a3efb4e4b0243cdd445408/1573820909866-MBGIDH01ZE7OEM3W6DWG/Reindeer%2BTromso%2BNorway.jpg",
         "https://www.sprucemeadows.com/data_assets/headers/1666024491040_Reindeer.jpg",
-        "artifacts/fauna-anatomy-revision/references/reindeer-fresh-critic-full-antlers.jpg"
+        "assets-source/animals/anatomy/references/reindeer-fresh-critic-full-antlers.jpg"
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\reindeer-branching-final-fresh.json",
-        "sha256": "342b4846fe6e176c92fcc286d704f34ffd136c156d1368a96029a394bde97c3a",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\reindeer-branching-final-fresh.json",
+        "sha256": "14a89de03f829a5b03f277c182bf46a00fb53efba816067986b47d571a24d90e",
         "native_sha256": "a61295b6ebbf91fb8688836acb509251eb50fc0b5a654086d94df0e3fbd9d203",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -542,7 +542,7 @@
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\moose",
+        "root": "assets-source\\animals\\anatomy\\moose",
         "native_sha256": "707af2ac978e2030e8ab25f71d30e9270e28153819b2934c7bee0bfdb51a8ed4",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -556,8 +556,8 @@
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\moose-fresh-complete-visual.json",
-        "sha256": "98e4b925606bb7575aa273cead2ff25fb10afc4af1b433caa241a1bae024d18d",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\moose-fresh-complete-visual.json",
+        "sha256": "c5188fcadd13f946f6db496d08f8638975e55936b103d3286e1ac979a092df2c",
         "native_sha256": "74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
@@ -609,8 +609,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -624,8 +624,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
-        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "48d80edb2b07266853e6d7f942fff8ac27dfa923523672b4fe7c85e31a4a9b8e",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -639,8 +639,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
-        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "48d80edb2b07266853e6d7f942fff8ac27dfa923523672b4fe7c85e31a4a9b8e",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -654,8 +654,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
-        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "48d80edb2b07266853e6d7f942fff8ac27dfa923523672b4fe7c85e31a4a9b8e",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -669,8 +669,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
-        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "48d80edb2b07266853e6d7f942fff8ac27dfa923523672b4fe7c85e31a4a9b8e",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -685,41 +685,41 @@
       "appearance_approved": false,
       "source_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44",
       "reference": [
-        "artifacts/fauna-visual-corrections/references/raccoon.jpg",
-        "artifacts/fauna-visual-corrections/references/raccoon-profile.jpg"
+        "assets-source/animals/corrections/references/raccoon.jpg",
+        "assets-source/animals/corrections/references/raccoon-profile.jpg"
       ],
       "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic_pass": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\raccoon",
+        "root": "assets-source\\animals\\anatomy\\raccoon",
         "native_sha256": "c91fd9ffc6a80bca24de423309354fafde8f3d34488735617c51038e59bc0d4e",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
       },
       "independent_critic": {
-        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\fox-raccoon-fresh-final-gate.json",
-        "sha256": "7239f2b7cb1d5c313c2e104f65f464a6e55ca7580aa105e647a0945234439473",
+        "file": "assets-source\\animals\\anatomy\\critic-reports\\fox-raccoon-fresh-final-gate.json",
+        "sha256": "665f7a6344c598a56e1bc9f745b043a2239fa65ab27f99091f5060327dd37579",
         "native_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44",
         "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
         "secondary_polish": [
           {
             "finding": "Eyes are very glossy and nearly uniformly black, with limited visible lid structure. They look slightly bead-like in close-up. A subtler highlight and more evident narrow upper lid would improve realism; placement and dark round-eye appearance remain plausible.",
             "evidence_paths": [
-              "artifacts/fauna-anatomy-revision/raccoon/eye-audit/front-after.png",
-              "artifacts/fauna-anatomy-revision/raccoon/eye-audit/right-after.png"
+              "assets-source/animals/anatomy/raccoon/eye-audit/front-after.png",
+              "assets-source/animals/anatomy/raccoon/eye-audit/right-after.png"
             ]
           },
           {
             "finding": "Detailed brownish head/nape fur changes to simpler grey-brown body fur behind the ears. The small brown nape patch and texture-frequency shift are noticeable in rear/side inspection; soften this transition for polish. It does not form a dominant complete collar or obscure the silhouette.",
             "evidence_paths": [
-              "artifacts/fauna-anatomy-revision/raccoon/appearance-options/coat-00-extra-00-rear.png",
-              "artifacts/fauna-anatomy-revision/raccoon/appearance-options/coat-00-extra-00-side.png"
+              "assets-source/animals/anatomy/raccoon/appearance-options/coat-00-extra-00-rear.png",
+              "assets-source/animals/anatomy/raccoon/appearance-options/coat-00-extra-00-side.png"
             ]
           },
           {
             "finding": "Tail rings are unusually clean and uniform. Mild edge variation would make the pattern less graphic while retaining clear recognition.",
             "evidence_paths": [
-              "artifacts/fauna-anatomy-revision/raccoon/appearance-options/coat-00-extra-00-side.png"
+              "assets-source/animals/anatomy/raccoon/appearance-options/coat-00-extra-00-side.png"
             ]
           }
         ]
@@ -733,7 +733,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\badger",
+        "root": "assets-source\\animals\\anatomy\\badger",
         "native_sha256": "9853ebb731639af63c79f88f5df423a2daa398920b920d0333a8c38d14bd80cd",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -747,7 +747,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\beaver",
+        "root": "assets-source\\animals\\anatomy\\beaver",
         "native_sha256": "04a9617c610e3a0a7444d4e5f38c165705e5d75ae840e1fb6bbca1b1076e8cca",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -761,7 +761,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\otter",
+        "root": "assets-source\\animals\\anatomy\\otter",
         "native_sha256": "22b61b1cd77ce98cb04fb356f62042926ec94e52fc86245d5744e9cb01711fcc",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -775,7 +775,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\lynx",
+        "root": "assets-source\\animals\\anatomy\\lynx",
         "native_sha256": "34c3bb0b60e9eb8f0a756af2d1d17e7b5ff765efd5a12910b5e02f0cc7495ab2",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
@@ -805,8 +805,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -820,8 +820,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -835,8 +835,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -850,7 +850,7 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "latest_anatomy_work": {
-        "root": "artifacts\\fauna-anatomy-revision\\buffalo",
+        "root": "assets-source\\animals\\anatomy\\buffalo",
         "native_sha256": "3f943d8671f41d0b9c514f7926e11a1bac9cd81e2ad47ee1c44676185a609347",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
@@ -864,8 +864,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -887,8 +887,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -918,8 +918,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -941,8 +941,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
-        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "e42a64fec39ccc0be01505bedcb1cef28de0c958b20a0c2b775cbca0526b86f4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1012,8 +1012,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
-        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "e42a64fec39ccc0be01505bedcb1cef28de0c958b20a0c2b775cbca0526b86f4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1027,8 +1027,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
-        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "48d80edb2b07266853e6d7f942fff8ac27dfa923523672b4fe7c85e31a4a9b8e",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1042,8 +1042,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1073,8 +1073,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1088,8 +1088,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1127,8 +1127,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
-        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "e42a64fec39ccc0be01505bedcb1cef28de0c958b20a0c2b775cbca0526b86f4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1142,8 +1142,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
-        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "e42a64fec39ccc0be01505bedcb1cef28de0c958b20a0c2b775cbca0526b86f4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1165,8 +1165,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
-        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "b954aca490af36c31d5d9f807381bc0b2851a117af094e8e33d6f771dfe4a8db",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1180,8 +1180,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1211,8 +1211,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1226,8 +1226,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
-        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "b954aca490af36c31d5d9f807381bc0b2851a117af094e8e33d6f771dfe4a8db",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1241,8 +1241,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
-        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "b954aca490af36c31d5d9f807381bc0b2851a117af094e8e33d6f771dfe4a8db",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1256,8 +1256,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
-        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "7f31eeabb71e0e83dc94be526b893f06b8755fd1276ed32dda4fd8b568a185c0",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1271,8 +1271,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1286,8 +1286,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1301,8 +1301,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1332,8 +1332,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
-        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "b954aca490af36c31d5d9f807381bc0b2851a117af094e8e33d6f771dfe4a8db",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1347,8 +1347,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
-        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "e42a64fec39ccc0be01505bedcb1cef28de0c958b20a0c2b775cbca0526b86f4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1418,8 +1418,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
-        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "e42a64fec39ccc0be01505bedcb1cef28de0c958b20a0c2b775cbca0526b86f4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1433,8 +1433,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
-        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "b954aca490af36c31d5d9f807381bc0b2851a117af094e8e33d6f771dfe4a8db",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1472,8 +1472,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1495,8 +1495,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1542,8 +1542,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
-        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "b954aca490af36c31d5d9f807381bc0b2851a117af094e8e33d6f771dfe4a8db",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1597,8 +1597,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1612,8 +1612,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1627,8 +1627,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1642,8 +1642,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
-        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "1c043254203ccdb4ee3ee33950a58376ece79204afd4b6f172ad8badbf3e7d49",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1673,8 +1673,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
@@ -1688,8 +1688,8 @@
       "reference_comparison_completed": false,
       "appearance_approved": false,
       "independent_baseline_review": {
-        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
-        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "report": "assets-source\\animals\\anatomy\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "e5085b79f693fd2e7a32d5af8793da14a3bb5c532e9ca3cad1edcb7a31c89eb4",
         "critic_without_inherited_history": true,
         "front_and_profile_real_photos_viewed": true,
         "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."

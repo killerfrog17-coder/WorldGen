@@ -3,7 +3,7 @@ import argparse,json,sys
 from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=(a.root or repo/'artifacts/fauna-anatomy-revision'/a.slug).resolve()
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=(a.root or repo/'assets-source/animals/anatomy'/a.slug).resolve()
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'));entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];result=[]
 for ob in bpy.context.scene.objects:
  if ob.type!='MESH' or ob.hide_render:continue

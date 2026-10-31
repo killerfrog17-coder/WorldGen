@@ -1,0 +1,28 @@
+﻿{
+    "Tools":  [
+                  "blender-4.5.15",
+                  "kimodo",
+                  "kimodo-cpp",
+                  "mesh2motion-cli",
+                  "mpfb2",
+                  "Puppeteer",
+                  "SkinTokens",
+                  "TripoSG",
+                  "triposg-review-venv",
+                  "UMA"
+              ],
+    "Builds":  [
+                   {
+                       "Old":  "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-human-natural-review",
+                       "New":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a",
+                       "GameAssembly":  "5BF6B4BF748BD526193A82E93FFE740B6B42F6B06DDB0D91AE306F178C692FC6"
+                   },
+                   {
+                       "Old":  "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-world-feedback",
+                       "New":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b",
+                       "GameAssembly":  "5333F2891BC16B2852ED4A0F23F3D98767C6B5E5ED85A37365DA937FB3E2AD37"
+                   }
+               ],
+    "SelectedBefore":  "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\player-human-natural-review\\WorldGen.exe",
+    "SelectedAfter":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe"
+}

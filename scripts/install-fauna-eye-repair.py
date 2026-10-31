@@ -2,7 +2,7 @@
 import argparse,hashlib,json,os,shutil,subprocess
 from pathlib import Path
 
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-eye-closure-repair'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/eye-repair'
 ap=argparse.ArgumentParser();ap.add_argument('--players',nargs='+',required=True);args=ap.parse_args()
 validation=json.loads((root/'export-repair-validation.json').read_text());bundles=json.loads((root/'bundle-validation.json').read_text())
 assert validation['count']==bundles['count']==177

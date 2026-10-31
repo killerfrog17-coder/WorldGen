@@ -8,7 +8,7 @@ from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-overnight-20261024'/a.slug
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/generation'/a.slug
 evidence=json.loads((root/'owner-fix.json').read_text());number=evidence['candidate']
 report={'slug':a.slug,'candidate':number,'samples':{},'not_gait_or_collision_acceptance':True}
 for version,filename in [('raw','Animal - Raw Audition.blend'),('corrected','Animal - Owner Corrected.blend')]:
@@ -31,5 +31,5 @@ for version,filename in [('raw','Animal - Raw Audition.blend'),('corrected','Ani
     report['samples'][version]=clips
 report['inspection_clip']='Run' if 'Run' in report['samples']['raw'] else 'Walk'
 report['inspection_phase']=report['samples']['raw'][report['inspection_clip']]['worst_phase']
-dest=repo/'artifacts/fauna-owner-fixes-20261025'/a.slug;dest.mkdir(exist_ok=True,parents=True);(dest/'edge-diagnostics.json').write_text(json.dumps(report,indent=2)+'\n')
+dest=repo/'assets-source/animals/owner-revisions'/a.slug;dest.mkdir(exist_ok=True,parents=True);(dest/'edge-diagnostics.json').write_text(json.dumps(report,indent=2)+'\n')
 print(a.slug,report['inspection_clip'],'worst raw phase',report['inspection_phase'],[(label,round(report['samples']['raw'][label]['max_p95'],3),round(report['samples']['corrected'][label]['max_p95'],3)) for label in report['samples']['raw']],flush=True)

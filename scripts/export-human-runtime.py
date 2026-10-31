@@ -10,9 +10,9 @@ import numpy as np
 import importlib.util
 
 REPO = Path(__file__).resolve().parent.parent
-SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
-OUTPUT = REPO/'artifacts/human-runtime/exports'
-EVIDENCE = REPO/'artifacts/human-runtime'
+SOURCE = REPO/'assets-source/humans/base/Human - Animation Comparison.blend'
+OUTPUT = REPO/'assets-source/humans/exports'
+EVIDENCE = REPO/'assets-source/humans/reference-metadata'
 CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim'}
 REUSE_TEXTURES = False
 CMU_MOTIONS = {}
@@ -71,13 +71,13 @@ def export(letter):
     spec=importlib.util.spec_from_file_location('human_retarget',REPO/'scripts/build-human-animation-preview.py')
     retarget=importlib.util.module_from_spec(spec);spec.loader.exec_module(retarget)
     from human_cmu_motion import CmuMotion
-    reference=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual1').rglob('UAL1_Standard.glb')))
+    reference=Motion(next((REPO/'assets-source/humans/motion/animation-library/quaternius-ual1').rglob('UAL1_Standard.glb')))
     for original in list(clips):
         if original['label'] in {'Run','Sprint'}:
             bpy.data.actions.remove(bpy.data.actions[original['action']]);clips.remove(original)
     for label,filename in [('Run','16_35'),('Sprint','143_01')]:
         if filename not in CMU_MOTIONS:
-            motion=CmuMotion(REPO/'artifacts/human-running-sources/cmu'/f'{filename}.bvh');motion.align_to(reference);CMU_MOTIONS[filename]=motion
+            motion=CmuMotion(REPO/'assets-source/humans/motion/source-library/cmu'/f'{filename}.bvh');motion.align_to(reference);CMU_MOTIONS[filename]=motion
         motion=CMU_MOTIONS[filename]
         samples=[motion.sample(filename,min(i/30,motion.seconds)) for i in range(round(motion.seconds*30)+1)]
         record=retarget.animate(rig,'MPFB',(label,motion,filename),samples)

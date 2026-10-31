@@ -4,9 +4,9 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-eye-closure-repair'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/eye-repair'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='+',default=['raccoon','wolf','red-fox','buffalo','rabbit','deer']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-plan={r['slug']:r for r in json.loads((repo/'artifacts/fauna-runtime-20261026/export-plan.json').read_text())['animals']}
+plan={r['slug']:r for r in json.loads((repo/'assets-source/animals/export-metadata/export-plan.json').read_text())['animals']}
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=4;scene.cycles.use_denoising=False
 scene.render.threads_mode='FIXED';scene.render.threads=2;scene.render.resolution_x=512;scene.render.resolution_y=512
@@ -21,7 +21,7 @@ for slug in a.slugs:
     source=Path(plan[slug]['path']);landpath=source.parent/'face-landmarks.json'
     if not landpath.exists():continue
     land=json.loads(landpath.read_text())
-    current=repo/'artifacts/fauna-runtime-20261026/exports'/slug
+    current=repo/'assets-source/animals/exports'/slug
     metadata=json.loads((current/'model.json').read_text())
     if 'source_to_runtime' not in metadata:print('SKIP_NOT_READY',slug,flush=True);continue
     C=Matrix(metadata['source_to_runtime']);eye=land['right_eye'];center=B@C@Vector(eye['point'])

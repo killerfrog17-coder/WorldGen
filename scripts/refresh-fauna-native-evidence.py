@@ -7,8 +7,8 @@ import concurrent.futures, datetime, json, subprocess, sys
 from pathlib import Path
 
 repo = Path(__file__).resolve().parent.parent
-batch = repo/'artifacts/fauna-overnight-20261024'
-blender = repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+batch = repo/'assets-source/animals/generation'
+blender = repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 audit = json.loads((batch/'full-readiness-audit.json').read_text())
 slugs = [row['slug'] for row in audit['rows'] if row.get('native_evidence_matches') is False]
 results = []

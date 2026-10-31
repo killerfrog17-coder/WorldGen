@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser();p.add_argument('--slug',choices=['python','venomous-snake'],required=True)
-a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-overnight-20261024'/a.slug;path=root/'Animal - Motion Revision.blend'
+a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/generation'/a.slug;path=root/'Animal - Motion Revision.blend'
 digest=hashlib.sha256(path.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(path));s=bpy.context.scene;entries=json.loads(s['deer_four_rigs']);rows=[]
 for e in entries:
     body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];body.hide_set(False);rig.hide_set(False);rig.data.pose_position='POSE';rig.animation_data_create()

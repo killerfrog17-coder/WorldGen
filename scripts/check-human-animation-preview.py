@@ -27,7 +27,7 @@ def digest(rig,collection):
 
 
 def main():
-    baseline=REPO/'artifacts/human-builder-demo/Human - Character Builder Comparison.blend'
+    baseline=REPO/'assets-source/humans/research/builders/Human - Character Builder Comparison.blend'
     baseline_sha=hashlib.sha256(baseline.read_bytes()).hexdigest()
     assert baseline_sha=='6a688775b591065c5d690cd6105e45d03a1662c669fad08cc7ea9dd8ed2e0cd6'
     bpy.ops.wm.open_mainfile(filepath=str(baseline))

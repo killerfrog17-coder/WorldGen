@@ -1,7 +1,7 @@
 """Reprepare exact unapproved night candidates after a verified reduction bug."""
 import argparse,json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;base=repo/'artifacts/fauna-overnight-20261024'
+repo=Path(__file__).resolve().parent.parent;base=repo/'assets-source/animals/generation'
 ap=argparse.ArgumentParser();ap.add_argument('--animal',required=True);ap.add_argument('--candidates',nargs='+',type=int,required=True);ap.add_argument('--reason',required=True)
 a=ap.parse_args();folder=(base/a.animal).resolve();assert folder.parent==base.resolve() and not (base/'worker.lock').exists()
 meta=folder/'audition.json'

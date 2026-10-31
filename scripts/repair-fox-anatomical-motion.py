@@ -8,10 +8,10 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Quaternion,Vector
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'));from deer_behaviour_core import blend_pose,smooth
-source=repo/'artifacts/fauna-review-revisions/red-fox/Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest();folder=repo/'artifacts/fauna-repairs/red-fox';folder.mkdir(exist_ok=True,parents=True)
+source=repo/'assets-source/animals/revisions/red-fox/Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest();folder=repo/'assets-source/animals/repairs/red-fox';folder.mkdir(exist_ok=True,parents=True)
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[e['rig']];body=bpy.data.objects[e['body']];names=e['joint_names'];parents=e['parents'];rest=[rig.data.bones[n].matrix_local.copy() for n in names];local=[rest[p].inverted()@m if p>=0 else m for p,m in zip(parents,rest)];joints=np.array([m.translation[:] for m in rest]);bind=np.array([v.co[:] for v in body.data.vertices]);rig.animation_data_clear();rig.data.pose_position='POSE';rig.hide_set(False)
 assert len(names)==34 and parents[5]==0 and parents[26]==0
-bank=repo/'artifacts/fauna-motion-sources/fox';donor=json.loads((bank/'source-rig.json').read_text());motion=np.load(bank/'source-motions.npz');sn=[b['name'] for b in donor['bones']];si={n:i for i,n in enumerate(sn)};reference=motion[next(c['key'] for c in donor['clips'] if c['label']=='Idle')][0,:,:3,3]
+bank=repo/'assets-source/animals/motion-library/fox';donor=json.loads((bank/'source-rig.json').read_text());motion=np.load(bank/'source-motions.npz');sn=[b['name'] for b in donor['bones']];si={n:i for i,n in enumerate(sn)};reference=motion[next(c['key'] for c in donor['clips'] if c['label']=='Idle')][0,:,:3,3]
 def binding(chain,path):
  ids=[si[n] for n in donor['paths'][path]];ss=np.r_[0,np.cumsum(np.linalg.norm(np.diff(reference[ids],axis=0),axis=1))];ss/=ss[-1];tt=np.r_[0,np.cumsum(np.linalg.norm(np.diff(joints[chain],axis=0),axis=1))];tt/=tt[-1];rows=[]
  for t in tt:

@@ -2,7 +2,7 @@
 import argparse,datetime,hashlib,json,shutil
 from pathlib import Path
 
-repo=Path(__file__).resolve().parent.parent;batch=repo/'artifacts/fauna-overnight-20261024'
+repo=Path(__file__).resolve().parent.parent;batch=repo/'assets-source/animals/generation'
 p=argparse.ArgumentParser();p.add_argument('--slug',required=True);p.add_argument('--reason',required=True);p.add_argument('--reference',type=Path)
 p.add_argument('--repeat',action='store_true',help='Explicit subsequent owner rejection; retain earlier compact rejection evidence')
 p.add_argument('--allow-unrelated-worker',action='store_true',help='Prepare a different animal while the sole producer owns another root')

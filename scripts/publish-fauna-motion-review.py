@@ -9,7 +9,7 @@ repo=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser();p.add_argument('--slugs',nargs='+',required=True);p.add_argument('--inspection',required=True)
 a=p.parse_args();choices_path=repo/'docs/fauna/OWNER_SELECTIONS.json';choices=json.loads(choices_path.read_text())
 for slug in a.slugs:
-    root=repo/'artifacts/fauna-overnight-20261024'/slug;path=root/'Animal - Motion Revision.blend';digest=hashlib.sha256(path.read_bytes()).hexdigest()
+    root=repo/'assets-source/animals/generation'/slug;path=root/'Animal - Motion Revision.blend';digest=hashlib.sha256(path.read_bytes()).hexdigest()
     native=json.loads((root/'motion-native-checks.json').read_text());render=json.loads((root/'owner-motion-render-evidence.json').read_text())
     assert digest==native['checked_blend_sha256']==render['checked_blend_sha256'] and native['controls'] and len(native['candidates'])==4
     for filename in ('rodent-deformation-checks.json','snake-deformation-checks.json'):

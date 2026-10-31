@@ -38,7 +38,7 @@ SPECS = {
 ap=argparse.ArgumentParser(); ap.add_argument('--slug',required=True,choices=SPECS)
 ap.add_argument('--replace-unpublished',action='store_true')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]); spec=SPECS[a.slug]
-root=repo/'artifacts/fauna-overnight-20261024'/a.slug
+root=repo/'assets-source/animals/generation'/a.slug
 choice=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals'][a.slug]
 number,=choice['selected_models']; source=root/'Animal - Raw Audition.blend'; out=root/'Animal - Owner Corrected.blend'
 assert not out.exists() or (a.replace_unpublished and not choice.get('manual_fix_blend')),'Preserve a published correction'

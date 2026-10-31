@@ -11,7 +11,7 @@ from mathutils import Matrix, Vector, Quaternion
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'assets/first-person'
-EVIDENCE = ROOT / 'artifacts/first-person-rebuild-20261030'
+EVIDENCE = ROOT / 'assets-source/humans/first-person'
 GENERATOR_SHA=hashlib.sha256(Path(__file__).read_text().replace('\r\n','\n').encode('utf-8')).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(OUT / 'FirstPersonBase.blend'))
 bpy.context.preferences.filepaths.save_version=0

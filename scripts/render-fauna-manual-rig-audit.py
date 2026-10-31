@@ -2,10 +2,10 @@
 import argparse,concurrent.futures,hashlib,json,subprocess
 from pathlib import Path
 from PIL import Image,ImageDraw
-repo=Path(__file__).resolve().parent.parent;blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 p=argparse.ArgumentParser();p.add_argument('--slugs',nargs='+',required=True);a=p.parse_args()
 def work(slug):
-    root=repo/'artifacts/fauna-overnight-20261024'/slug;workroot=repo/'artifacts/fauna-owner-fixes-20261025'/slug;proof=json.loads((root/'owner-fix.json').read_text());number=proof.get('review_model_number',proof['candidate']);digest=hashlib.sha256((root/'Animal - Owner Corrected.blend').read_bytes()).hexdigest()
+    root=repo/'assets-source/animals/generation'/slug;workroot=repo/'assets-source/animals/owner-revisions'/slug;proof=json.loads((root/'owner-fix.json').read_text());number=proof.get('review_model_number',proof['candidate']);digest=hashlib.sha256((root/'Animal - Owner Corrected.blend').read_bytes()).hexdigest()
     clip='Swim Vertical' if slug=='whale' else 'Walk';images=[]
     for y,phase in enumerate([0,.25,.5,.75]):
         for x,view in enumerate(['side','front']):

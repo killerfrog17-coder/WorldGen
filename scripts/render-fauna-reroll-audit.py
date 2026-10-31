@@ -2,8 +2,8 @@
 import argparse,concurrent.futures,hashlib,json,subprocess
 from pathlib import Path
 from PIL import Image,ImageDraw
-repo=Path(__file__).resolve().parent.parent;batch=repo/'artifacts/fauna-overnight-20261024'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;batch=repo/'assets-source/animals/generation'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 p=argparse.ArgumentParser();p.add_argument('--slugs',nargs='+',required=True)
 p.add_argument('--motion-revision',action='store_true',help='Inspect Walk and Run at four phases on each revised candidate')
 p.add_argument('--snake-revision',action='store_true',help='Inspect Slither and Side winding at four phases from above')

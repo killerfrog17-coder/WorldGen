@@ -20,7 +20,7 @@ def check(ok,text):
 
 with tempfile.TemporaryDirectory(prefix='worldgen-asset-check-') as directory:
     root=Path(directory);destination=root/'checkout';lock=root/'lock.json'
-    data={'sounds/test.wav':b'runtime bytes','artifacts/model/source.bin':b'authoring bytes'}
+    data={'sounds/test.wav':b'runtime bytes','assets-source/model/source.bin':b'authoring bytes'}
     buffer=io.BytesIO()
     with zipfile.ZipFile(buffer,'w') as archive:
         for payload in data.values():

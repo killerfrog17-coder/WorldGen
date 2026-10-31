@@ -7,7 +7,7 @@ import sys
 import bpy
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
 sys.path.insert(0, str(REPO / 'scripts'))
 import kimodo_demo_stage as stage
 
@@ -49,7 +49,7 @@ for rig in stage.rigs():
                         'frames': record['frames'], 'minimum_toe_tip_z': toe_min,
                         'maximum_local_bone_angle_per_frame_deg': max_angle,
                         'camera_switch_preserves_pose': True})
-source = REPO / 'artifacts/human-animation-preview/Human - Animation Comparison.blend'
+source = REPO / 'assets-source/humans/base/Human - Animation Comparison.blend'
 assert hashlib.sha256(source.read_bytes()).hexdigest() == scene['kimodo_source_sha']
 assert len(results) == len(scene['kimodo_variants']) * 3
 (ROOT / 'verification.json').write_text(json.dumps({'source_unchanged': True, 'results': results}, indent=2))

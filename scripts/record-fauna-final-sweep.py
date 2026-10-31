@@ -2,7 +2,7 @@
 import argparse,hashlib,json
 from pathlib import Path
 import cv2
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-review-revisions/final-sweep';ap=argparse.ArgumentParser();ap.add_argument('--confirm-inspected',action='store_true',required=True);a=ap.parse_args()
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/revisions/final-sweep';ap=argparse.ArgumentParser();ap.add_argument('--confirm-inspected',action='store_true',required=True);a=ap.parse_args()
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 audit=json.loads((root/'review.json').read_text());assert len(audit['animals'])==177 and len(audit['sheets'])==60
 for sheet in audit['sheets']:assert sha(repo/sheet['file'])==sheet['sha256'];sheet['actually_inspected']=True
@@ -11,7 +11,7 @@ for row in audit['animals']:row.update(actually_inspected=True,issues=issues.get
 audit.update(actually_inspected=True,owner_approved=False,sampled_motion_frames=177*2*4,limits='A last visual sweep, not a collision/contact simulation or universal natural-gait acceptance. Remaining raw sculpt and prototype motion limitations are retained for owner review.')
 feedback_path=repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json';feedback=json.loads(feedback_path.read_text())
 for slug in ['capuchin','tiger']:
- folder=repo/'artifacts/fauna-repairs'/slug;record=json.loads((folder/'run-repair.json').read_text());proof_path=folder/'native-check.json';proof=json.loads(proof_path.read_text());native=repo/record['output'];digest=sha(native);assert proof['all_checks_passed'] and proof['checked_blend_sha256']==digest
+ folder=repo/'assets-source/animals/repairs'/slug;record=json.loads((folder/'run-repair.json').read_text());proof_path=folder/'native-check.json';proof=json.loads(proof_path.read_text());native=repo/record['output'];digest=sha(native);assert proof['all_checks_passed'] and proof['checked_blend_sha256']==digest
  item=json.loads((folder/'review-plan.json').read_text())['animals'][0];assert item['source_sha256']==digest;media=folder/'media'/slug;receipt=json.loads((media/'receipt.json').read_text());assert receipt['complete'] and receipt['source_sha256']==digest and len(receipt['videos'])==2
  for file in [*receipt['stills'],*receipt['videos']]:assert sha(media/file['file'])==file['sha256']
  for clip in receipt['videos']:

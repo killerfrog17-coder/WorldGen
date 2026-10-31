@@ -8,7 +8,7 @@ import numpy as np
 from mathutils import Matrix, Quaternion, Vector
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/human-animation-preview'
+ROOT = REPO / 'assets-source/humans/base'
 C = Matrix.Rotation(math.pi / 2, 4, 'X')
 
 
@@ -73,7 +73,7 @@ class Motion:
 
 
 def sources():
-    base = REPO/'artifacts/human-animation-sources'
+    base = REPO/'assets-source/humans/motion/animation-library'
     q1 = Motion(next((base/'quaternius-ual1').rglob('UAL1_Standard.glb')))
     q2 = Motion(next((base/'quaternius-ual2').rglob('UAL2_Standard.glb')))
     kay = Motion(next((base/'kaykit').rglob('Rig_Medium_MovementBasic.glb')))

@@ -1,7 +1,7 @@
 """Record an actually inspected socket table; drafts alone are never approved."""
 import argparse,copy,json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('table',type=Path);a=ap.parse_args()
 drafts=json.loads((root/'inspection/eye-audit-sheets/drafts.json').read_text())
 for line in a.table.read_text().splitlines():

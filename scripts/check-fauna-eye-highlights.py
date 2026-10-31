@@ -3,7 +3,7 @@ import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);repo=Path(__file__).resolve().parent.parent;folder=repo/'artifacts/fauna-painted-20261024'/a.slug;out=repo/'artifacts/fauna-review-revisions'/a.slug/'highlight-audit';out.mkdir(parents=True,exist_ok=True);source=folder/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest()
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);repo=Path(__file__).resolve().parent.parent;folder=repo/'assets-source/animals/painted'/a.slug;out=repo/'assets-source/animals/revisions'/a.slug/'highlight-audit';out.mkdir(parents=True,exist_ok=True);source=folder/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
 for ob in list(s.objects):
  if ob.type=='LIGHT':bpy.data.objects.remove(ob,do_unlink=True)

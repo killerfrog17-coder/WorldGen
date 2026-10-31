@@ -27,9 +27,9 @@ for item in manifest['jobs']:
     os.chdir(initial_dir)
     if a.kind=='shape':
         memory_flags=['--resident-gpu','--cache-resident'] if shape_mode=='resident' else ['--shared-gpu']
-        sys.argv=[str(script),'--source',manifest['reference'],'--repo',str(repo/'artifacts/tools/TripoSG'),'--weights','E:/AI/WorldGen3D/models/TripoSG','--output',str(out),'--seed',str(item['seed']),'--steps','50','--depth','8',*memory_flags,'--infer']
+        sys.argv=[str(script),'--source',manifest['reference'],'--repo',str(repo/'tools/TripoSG'),'--weights','E:/AI/WorldGen3D/models/TripoSG','--output',str(out),'--seed',str(item['seed']),'--steps','50','--depth','8',*memory_flags,'--infer']
     else:
-        sys.argv=[str(script),'--repo',str(repo/'artifacts/tools/SkinTokens'),'--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',item['mesh'],'--output',str(out),'--seed',str(item['seed']),'--beams','5','--cache-model']
+        sys.argv=[str(script),'--repo',str(repo/'tools/SkinTokens'),'--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',item['mesh'],'--output',str(out),'--seed',str(item['seed']),'--beams','5','--cache-model']
     if a.kind=='shape':
         print('BATCH',a.kind,item['candidate'],'seed',item['seed'],'memory',shape_mode,flush=True);module.main()
         if shape_mode=='shared_gpu':

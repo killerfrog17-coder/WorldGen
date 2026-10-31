@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-painted-20261024'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+root=repo/'assets-source/animals/painted'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe')
 ap=argparse.ArgumentParser();ap.add_argument('--phase',choices=['guides','finish'],required=True)
 ap.add_argument('--slugs',nargs='*');ap.add_argument('--limit',type=int)

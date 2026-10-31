@@ -9,7 +9,7 @@ from pathlib import Path
 from tkinter import ttk
 
 repo=Path(__file__).resolve().parent.parent
-batch=repo/'artifacts/fauna-overnight-20261024'; manifest=batch/'owner-review-progress.json'
+batch=repo/'assets-source/animals/generation'; manifest=batch/'owner-review-progress.json'
 def read(path):
     try: return json.loads(path.read_text())
     except (OSError,ValueError): return {}

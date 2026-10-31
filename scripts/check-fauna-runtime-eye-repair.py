@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-eye-closure-repair';runtime=repo/'artifacts/fauna-runtime-20261026'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/eye-repair';runtime=repo/'assets-source/animals/export-metadata'
 baseline={r['slug']:r for r in json.loads((root/'baseline.json').read_text())['animals']}
 inventory={r['slug']:r for r in json.loads((runtime/'native-inventory.json').read_text())['animals']}
 signature=hashlib.sha256(b''.join((repo/'scripts'/n).read_bytes() for n in ['export-fauna-runtime.py','fauna_runtime_surface.py','fauna_runtime_uv.py'])).hexdigest()

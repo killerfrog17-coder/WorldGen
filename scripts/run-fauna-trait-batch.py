@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from fauna_trait_catalog import TRAITS
-root=repo/'artifacts/fauna-painted-20261024';blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+root=repo/'assets-source/animals/painted';blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 lock=root/'traits.worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY);os.write(fd,str(os.getpid()).encode());os.close(fd)
 status={'pid':os.getpid(),'total':len(TRAITS),'completed':[],'errors':{},'current':None}
 def save():

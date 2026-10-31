@@ -7,7 +7,7 @@ from pathlib import Path
 import gzip, hashlib, json, struct
 
 root = Path(__file__).resolve().parents[1]
-exports = root / 'artifacts/fauna-runtime-20261026/exports'
+exports = root / 'assets-source/animals/exports'
 output = root / 'unity/WorldGen.Unity/Assets/StreamingAssets/fauna-collision'
 output.mkdir(parents=True, exist_ok=True)
 total = 0

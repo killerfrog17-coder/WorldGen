@@ -9,7 +9,7 @@ ap.add_argument('--output',type=Path,required=True)
 ap.add_argument('--stills-only',action='store_true')
 args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
 repo=Path(__file__).resolve().parent.parent
-source=repo/'artifacts/fauna-assets/deer/Deer - Prototype.blend'
+source=repo/'assets-source/animals/prototypes/deer/Deer - Prototype.blend'
 digest=hashlib.sha256(source.read_bytes()).hexdigest()
 assert digest=='0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1'
 out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)

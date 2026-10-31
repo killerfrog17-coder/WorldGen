@@ -3,7 +3,7 @@ import argparse,hashlib,json,math,sys
 from pathlib import Path
 import bpy,numpy as np
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['hare','rabbit'],default='hare');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
-repo=Path(__file__).resolve().parent.parent;folder=repo/'artifacts/fauna-repairs'/a.slug;record=json.loads((folder/'run-repair.json').read_text());source=repo/record['source'];repaired=repo/record['output'];torso_end=4 if a.slug=='hare' else 2
+repo=Path(__file__).resolve().parent.parent;folder=repo/'assets-source/animals/repairs'/a.slug;record=json.loads((folder/'run-repair.json').read_text());source=repo/record['source'];repaired=repo/record['output'];torso_end=4 if a.slug=='hare' else 2
 def action_signature(action):
  h=hashlib.sha256()
  for layer in action.layers:

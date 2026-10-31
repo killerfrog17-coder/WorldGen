@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy
 repo=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser();p.add_argument('--slug',choices=['whale','tern'],required=True);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
-root=repo/'artifacts/fauna-overnight-20261024'/a.slug;out=root/'Animal - Owner Corrected.blend';proof=json.loads((root/'owner-fix.json').read_text())
+root=repo/'assets-source/animals/generation'/a.slug;out=root/'Animal - Owner Corrected.blend';proof=json.loads((root/'owner-fix.json').read_text())
 choices=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text());assert not choices['animals'][a.slug].get('manual_fix_blend')
 bpy.ops.wm.open_mainfile(filepath=str(out));entries=json.loads(bpy.context.scene['deer_four_rigs']);index=proof.get('review_model_number',proof['candidate'])-1;e=entries[index]
 e['review_forward_direction']=[0,-1,0]

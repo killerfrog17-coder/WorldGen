@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-natural-20261031'
+ROOT=REPO/'assets-source/humans/motion/natural'
 
 def multiply(a,b):
  x,y,z,w=np.moveaxis(a,-1,0);u,v,t,s=np.moveaxis(b,-1,0)

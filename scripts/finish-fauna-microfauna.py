@@ -12,8 +12,8 @@ from fauna_hypothetical_coats import mottling
 KINDS={'butterflies-and-moths-guild':'butterfly','fireflies-derived-lineage':'firefly','bees-guild':'bee','dragonflies-guild':'dragonfly','native-detritivorous-flies-guild':'fly'}
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=KINDS,required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);kind=KINDS[a.slug]
-source=repo/'artifacts/fauna-overnight-20261024'/a.slug/'Animal - Raw Audition.blend'
-root=repo/'artifacts/fauna-painted-20261024'/a.slug;root.mkdir(exist_ok=True)
+source=repo/'assets-source/animals/generation'/a.slug/'Animal - Raw Audition.blend'
+root=repo/'assets-source/animals/painted'/a.slug;root.mkdir(exist_ok=True)
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;entries=json.loads(s['deer_four_rigs'])
 source_sha=hashlib.sha256(source.read_bytes()).hexdigest()
 def snapshot(entry):

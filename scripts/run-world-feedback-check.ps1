@@ -4,7 +4,7 @@ $feedbackRepo=Split-Path -Parent $PSScriptRoot
 $feedbackTask=Join-Path $feedbackRepo 'artifacts/world-feedback-20261031'
 $feedbackOutput=Join-Path $feedbackTask $OutputName
 if(Test-Path -LiteralPath (Join-Path $feedbackOutput 'player.log')){throw 'Use a fresh evidence output name.'}
-$feedbackPlayer=Join-Path $feedbackRepo 'artifacts/player-world-feedback/WorldGen.exe'
+$feedbackPlayer=Join-Path $feedbackRepo 'builds/slot-b/WorldGen.exe'
 $feedbackBuild=Join-Path (Split-Path -Parent $feedbackPlayer) 'build-inputs.json'
 if(!(Test-Path -LiteralPath $feedbackBuild)){throw 'Player package is incomplete.'}
 $feedbackInputs=Get-Content -Raw -LiteralPath $feedbackBuild | ConvertFrom-Json

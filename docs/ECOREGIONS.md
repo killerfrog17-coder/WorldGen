@@ -142,7 +142,7 @@ Time/disk are extrapolations, not a finished new-batch benchmark. All648 total
 candidates are review material, not an accepted shipped bank or live animal count.
 The current in-game bank remains empty pending selection/cache/placement work.
 
-New folder: artifacts/fauna-ai-review-additional-20261022. Started04:31:19UTC
+New folder: assets-source/animals/research/additional. Started04:31:19UTC
 23October, first four groups prepared at publication of this note. A tool-managed
 terminal session runs the worker after the compound detached-launch command was
 rejected; no permissions or shared-server configuration changed. Existing
@@ -157,7 +157,7 @@ the owned jobs/PAUSE marker after publishing the current clip, without any share
 server interrupt or file cleanup. Resume an IDLE additional producer only with:
 
 ```powershell
-python scripts/generate-fauna-batch.py --collection additional --seed-base 21103017 --batch-root artifacts/fauna-ai-review-additional-20261022
+python scripts/generate-fauna-batch.py --collection additional --seed-base 21103017 --batch-root assets-source/animals/research/additional
 ```
 
 Biological sound references, used for broad source/action distinctions, NOT
@@ -184,7 +184,7 @@ families, NOT claimed real species, guaranteed stable AI voice identities or new
 saved world taxa. Audition for compatible takes before binding to regional flora/
 fauna. No automatic listening approval or selection based on merely valid PCM.
 
-Current batch: `artifacts/fauna-ai-review-20261022`, started03:51:27UTC23October
+Current batch: `assets-source/animals/research/review`, started03:51:27UTC23October
 (22October local). Five initial clips completed at publication of this note;
 this is an IN-PROGRESS checkpoint, not a claim288 jobs succeeded. The detached
 hidden Python worker uses existing local ComfyUI + RTX4060/Small-SFX, one
@@ -192,7 +192,7 @@ inference at a time; GPU use may compete with the game. It does not start/kill
 the shared service or install/download new models. Output layout:
 
 ```text
-artifacts/fauna-ai-review-20261022/
+assets-source/animals/research/review/
   audition/<group>/*.wav      Mono44.1k PCM16 listening candidates; delete rejects here
   candidates-stereo/*.wav     Preserved stereo candidates, NOT runtime media
   audition-index.json         Form/take, prompt/seed/model/master, exact hashes, processing
@@ -218,7 +218,7 @@ After any failure, inspect status/current-job.json and the shared Comfy queue
 before resuming, to avoid duplicating still-running inference. Same-root resume:
 
 ```powershell
-python scripts/generate-fauna-batch.py --batch-root artifacts/fauna-ai-review-20261022
+python scripts/generate-fauna-batch.py --batch-root assets-source/animals/research/review
 ```
 
 Both wrapper and generator have file locks. Resume is for an idle/stopped

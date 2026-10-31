@@ -8,7 +8,7 @@ import numpy as np
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('slugs',nargs='+');a=ap.parse_args()
 for slug in a.slugs:
- root=repo/'artifacts/fauna-anatomy-revision'/slug;path=root/'face-landmarks.json';land=json.loads(path.read_text());mid=(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2;F=np.array(land['nose']['point'])-mid;F[2]=0;F/=np.linalg.norm(F);S=np.cross(F,[0.,0.,1.]);old=land['front_axis'];backup=root/'legacy-eye-cameras';backup.mkdir(exist_ok=True)
+ root=repo/'assets-source/animals/anatomy'/slug;path=root/'face-landmarks.json';land=json.loads(path.read_text());mid=(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2;F=np.array(land['nose']['point'])-mid;F[2]=0;F/=np.linalg.norm(F);S=np.cross(F,[0.,0.,1.]);old=land['front_axis'];backup=root/'legacy-eye-cameras';backup.mkdir(exist_ok=True)
  source=json.loads((root/'visual-source.json').read_text())
  for view,direction in [('front',F),('right',S),('left',-S)]:
   guide_path=root/'eye-audit'/f'{view}.json'

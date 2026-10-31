@@ -7,7 +7,7 @@ import numpy as np
 from mathutils import Matrix, Quaternion, Vector
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
 C = Matrix.Rotation(math.pi / 2, 4, 'X')
 SOMA_MAP = {'pelvis': 'Hips', 'spine_01': 'Spine1', 'spine_02': 'Spine2',
             'spine_03': 'Chest', 'neck_01': 'Neck1', 'head': 'Head'}

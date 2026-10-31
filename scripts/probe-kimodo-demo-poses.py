@@ -6,7 +6,7 @@ import bpy
 from mathutils import Vector
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
 sys.path.insert(0, str(REPO / 'scripts'))
 import kimodo_demo_stage as stage
 from kimodo_demo_motion import SomaMotion

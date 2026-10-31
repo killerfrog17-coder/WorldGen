@@ -3,7 +3,7 @@ import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--camera-scale',type=float,default=1.);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--object-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--clay',action='store_true');ap.add_argument('--studio-clay',action='store_true');ap.add_argument('--paint-source',action='store_true');ap.add_argument('--albedo',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
 assert a.camera_scale==1 or a.output_root,'Use a separate output root for wider camera diagnostics'
 source=(a.blend or folder/'Animal - Painted Species Review.blend').resolve();digest=hashlib.sha256(source.read_bytes()).hexdigest()

@@ -31,7 +31,7 @@ settings={
 }
 for slug in a.slugs:
  assert slug in settings,slug
- src=repo/'artifacts/fauna-review-revisions'/slug;dest=repo/'artifacts/fauna-anatomy-revision'/slug
+ src=repo/'assets-source/animals/revisions'/slug;dest=repo/'assets-source/animals/anatomy'/slug
  assert not (dest/'visual-source.json').exists(),'Already prepared: '+slug
  dest.mkdir(parents=True,exist_ok=True)
  for name in ['paint-state.json','coat-bake.json','face-landmarks.json','paint-anatomy.npz','coat-roughness.png','coat-normal.png']:

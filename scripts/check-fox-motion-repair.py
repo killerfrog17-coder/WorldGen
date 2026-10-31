@@ -2,7 +2,7 @@
 import hashlib,json
 from pathlib import Path
 import bpy,numpy as np
-repo=Path(__file__).resolve().parent.parent;folder=repo/'artifacts/fauna-repairs/red-fox';record=json.loads((folder/'run-repair.json').read_text())
+repo=Path(__file__).resolve().parent.parent;folder=repo/'assets-source/animals/repairs/red-fox';record=json.loads((folder/'run-repair.json').read_text())
 def snapshot(path):
  bpy.ops.wm.open_mainfile(filepath=str(path));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];h=hashlib.sha256()
  for name in [e['body'],*e['facial_objects']]:

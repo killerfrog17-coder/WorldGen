@@ -6,7 +6,8 @@ import argparse,hashlib,json,shutil
 from pathlib import Path
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-runtime-20261026'
+root=repo/'assets-source/animals/export-metadata'
+export_root=repo/'assets-source/animals/exports'
 ap=argparse.ArgumentParser();ap.add_argument('--player-folder');a=ap.parse_args()
 plan=json.loads((root/'export-plan.json').read_text())['animals']
 catalogue=json.loads((repo/'unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenFaunaCatalogue.json').read_text())['animals']
@@ -16,9 +17,9 @@ signature=hashlib.sha256((repo/'scripts/export-fauna-runtime.py').read_bytes()+(
 output=repo/'unity/WorldGen.Unity/Assets/StreamingAssets/fauna';output.mkdir(parents=True,exist_ok=True)
 rows=[];worst=0;clips=0;coats=0
 for item in plan:
-    slug=item['slug'];folder=root/'exports'/slug;receipt=json.loads((folder/'receipt.json').read_text());model=json.loads((folder/'model.json').read_text())
+    slug=item['slug'];folder=export_root/slug;receipt=json.loads((folder/'receipt.json').read_text());model=json.loads((folder/'model.json').read_text())
     assert receipt['complete'] and receipt['exporter_sha256']==signature,slug
-    assert receipt['source_sha256']==item['source_sha256']==model['source_sha256']==hashlib.sha256(Path(item['path']).read_bytes()).hexdigest(),slug
+    assert receipt['source_sha256']==item['source_sha256']==model['source_sha256']==hashlib.sha256((repo/item['path']).read_bytes()).hexdigest(),slug
     for name,digest in receipt['files'].items():assert hashlib.sha256((folder/name).read_bytes()).hexdigest()==digest,(slug,name)
     assert all(c['role'] in {'idle','walk','trot','run','fly','glide','swim'} for c in model['clips']),slug
     assert model['bones']<=128 and model['parts']<=64 and model['influences'] in {4,8},slug
@@ -34,7 +35,7 @@ for item in plan:
                  'motion_license_note':model['sourceLicense'],'clips':model['clips'],'coat_count':len(model['coats']),
                  'native_skin_sample_max_error':error,'influences':model['influences'],'has_native_motion_morph':model.get('hasMorph',False)})
 licenses=output/'licenses';licenses.mkdir(exist_ok=True)
-source_root=repo/'artifacts/fauna-motion-sources'
+source_root=repo/'assets-source/animals/motion-library'
 # These small source-side records preserve the upstream URLs and license
 # statements. No donor geometry, source video or neural checkpoint is shipped.
 for file in source_root.rglob('*'):
@@ -68,7 +69,7 @@ manifest={'version':1,'animals':rows,'count':len(rows),'movement_clips':clips,'c
 (output/'assets.json').write_text(json.dumps(manifest,indent=2)+'\n')
 (root/'package-audit.json').write_text(json.dumps(manifest,indent=2)+'\n')
 if a.player_folder:
-    player=(repo/'artifacts'/a.player_folder).resolve();assert player.is_relative_to((repo/'artifacts').resolve())
+    assert a.player_folder in {'slot-a','slot-b'};player=repo/'builds'/a.player_folder
     dest=player/'WorldGen_Data/StreamingAssets/fauna';dest.mkdir(parents=True,exist_ok=True)
     for file in output.rglob('*'):
         if not file.is_file() or file.suffix=='.meta' or file.suffix=='.manifest' or file.name=='fauna':continue

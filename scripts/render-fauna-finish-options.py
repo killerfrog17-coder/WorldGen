@@ -1,8 +1,8 @@
 """Render selected hypothetical/sex trait and bounded-morph combinations."""
 import hashlib,json,subprocess
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 cases=[(slug,-1,2 if slug in {'hare','rabbit','red-fox','wolf'} else 0,'lineage') for slug in ['hare','rabbit','red-fox','wolf','horse','reindeer','moose','wild-cattle','bison','duck']]
 cases += [('moose',0,2,'female'),('reindeer',0,2,'female')]
 evidence=[]

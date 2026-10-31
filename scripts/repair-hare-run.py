@@ -4,9 +4,9 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Quaternion,Vector
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['hare','rabbit'],default='hare');ap.add_argument('--source',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
-repo=Path(__file__).resolve().parent.parent;folder=repo/'artifacts/fauna-repairs'/a.slug;folder.mkdir(parents=True,exist_ok=True)
+repo=Path(__file__).resolve().parent.parent;folder=repo/'assets-source/animals/repairs'/a.slug;folder.mkdir(parents=True,exist_ok=True)
 sys.path.insert(0,str(repo/'scripts'));from deer_behaviour_core import blend_pose,smooth as blend_smooth
-source=(a.source or repo/'artifacts/fauna-painted-20261024'/a.slug/'Animal - Painted Species Review.blend').resolve();assert source.is_relative_to(repo);digest=hashlib.sha256(source.read_bytes()).hexdigest()
+source=(a.source or repo/'assets-source/animals/painted'/a.slug/'Animal - Painted Species Review.blend').resolve();assert source.is_relative_to(repo);digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[e['rig']];body=bpy.data.objects[e['body']]
 rig.animation_data_clear();rig.data.pose_position='POSE';original=bpy.data.actions[e['actions']['Run']];rig.animation_data_create().action=original;rig.animation_data.action_slot=original.slots[0]
 names=e['joint_names'];torso_end=4 if a.slug=='hare' else 2;neck_indices=[5,6,7] if a.slug=='hare' else [3,4];hind_slice=slice(27,35) if a.slug=='hare' else slice(19,27)

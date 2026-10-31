@@ -9,6 +9,9 @@
 unity/**/*.csproj
 unity/**/*.sln
 artifacts/
+/builds/
+/tools/
+/assets-source/
 music/*.mp3
 music/*.ogg
 music/*.wav

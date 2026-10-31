@@ -65,7 +65,7 @@ Bounded8x8 parent probes plus small woodland background; no per-frame scan or
 changes to tree admission, stone placement, art, ownership/crafting or shadows.
 Fast Mono package player-tree-branches; prior player-woodworking retained. No
 new game launch/capture/performance run; owner review pending. Evidence under
-artifacts/tree-branches; source/docs/shortcut checkpoint retained.
+assets-source/vegetation/branches; source/docs/shortcut checkpoint retained.
 
 ## Tool stone, woodworking and right-first input - 27 October 2026
 
@@ -380,7 +380,7 @@ renders inspected for all six adults.22 focused camera/save/help tests +334
 Unity skin/pose/visibility/command assertions pass. The initial editor command
 fixture lost a stack-only Resources asset during NewScene; reloading it fixes
 the fixture. No runtime asset workaround was added. Build evidence under
-`artifacts/human-sprint-runtime`; animation contact IK remains absent.
+`assets-source/humans/motion/sprint`; animation contact IK remains absent.
 
 Release IL2CPP `player-human-sprint` built2026-10-27T18:10:01.8902259Z,
 Build Finished Result Success with no C#/shader errors. Four frozen assembly
@@ -409,7 +409,7 @@ full first-person body hiding, full retained shadows and another camera's full
 person. Initial same-frame cached skins were rejected; the editor-only review
 forces skin matrices per render. Inspected actual new run poses for all six
 variants and the visibility/shadow images. No all-animation contact-IK, FPS or
-multiplayer claim. Evidence: `artifacts/human-running-runtime`.
+multiplayer claim. Evidence: `assets-source/humans/motion/legacy`.
 
 Release IL2CPP `player-upright-running` built2026-10-27T17:45:30.8700811Z,
 Build Finished Result Success, no C#/shader errors. Four assembly inputs verified
@@ -442,7 +442,7 @@ camera head/full-other-camera/shadow-caster/lock checks. Actual eyes/body varian
 five run pose options and first-person body viewed. No runtime exceptions/errors;
 input snapshot unchanged.177repaired wildlife bundles retained. Existing shortcut
 updated, previous player retained. No FPS or better-animation guarantee; owner
-can choose the authored style. Evidence artifacts/human-refinement. Existing
+can choose the authored style. Evidence assets-source/humans/research/refinement. Existing
 pre-human terrain macro-anchor test failure remains separate (below).
 
 ## MPFB human player, demo NPCs and body camera - 26 October 2026
@@ -469,7 +469,7 @@ Existing broad --play-session-only still fails physical-noise macro-anchor
 equivalence at PlaySessionTests.cs:32. Isolated archived pre-human HEAD reproduces
 that same failure; no terrain fix included here. New camera/save tests pass.
 No all-terrain foot-contact, full multiplayer, swimming mechanic or FPS guarantee.
-Evidence: ignored artifacts/human-runtime; source/asset pipeline details in
+Evidence: ignored assets-source/humans/reference-metadata; source/asset pipeline details in
 HUMAN_PLAYER_PROTOTYPE.md. Prior player-daylight-fill retained for rollback.
 
 ## Daytime ambient/direct balance - 26 October 2026
@@ -1124,7 +1124,7 @@ bird96 rows, all20s, with explicit acoustic-form/take fields. Calls use official
 guide source-isolated prompts and different named/sequenced seeds via existing
 SA3 Small-SFX8-step/CFG1 CUDA generator. No new model/API/install. Initially
 shared Comfy queue was empty and device reports RTX4060. Hidden detached worker
-started03:51:27Z23October in artifacts/fauna-ai-review-20261022. First five
+started03:51:27Z23October in assets-source/animals/research/review. First five
 jobs completed/prepared (one/group), batch-status state generating, error null.
 This is actual partial offline generation evidence, NOT completion of288 jobs,
 listening acceptance, measured realistic identity or source-purity proof.

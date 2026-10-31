@@ -5,8 +5,8 @@ import numpy as np
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='+',required=True);ap.add_argument('--use-current-landmarks',action='store_true');a=ap.parse_args()
 for slug in a.slugs:
- source=repo/'artifacts/fauna-painted-20261024'/slug;out=repo/'artifacts/fauna-review-revisions'/slug;out.mkdir(parents=True,exist_ok=True)
- assert out.resolve().is_relative_to((repo/'artifacts/fauna-review-revisions').resolve())
+ source=repo/'assets-source/animals/painted'/slug;out=repo/'assets-source/animals/revisions'/slug;out.mkdir(parents=True,exist_ok=True)
+ assert out.resolve().is_relative_to((repo/'assets-source/animals/revisions').resolve())
  for name in ['Animal - Painted Species Review.blend','paint-state.json','face-landmarks.json','paint-anatomy.npz','selected-source-entry.json','coat-bake.json']:
   path=source/name
   if name=='Animal - Painted Species Review.blend':

@@ -7,8 +7,8 @@ import hashlib,json,os,subprocess,time
 from pathlib import Path
 from datetime import datetime
 
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 out=root/'inspection';out.mkdir(exist_ok=True)
 lock=out/'render.worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY)
 os.write(fd,str(os.getpid()).encode());os.close(fd)
@@ -24,7 +24,7 @@ try:
         if source_path.exists():source=json.loads(source_path.read_text())
         else:
             state=json.loads((folder/'paint-state.json').read_text())
-            raw=json.loads((repo/'artifacts/fauna-overnight-20261024'/slug/'audition.json').read_text())
+            raw=json.loads((repo/'assets-source/animals/generation'/slug/'audition.json').read_text())
             source=next(e for e in raw['candidates'] if e['number']==state['source_candidate'])
         actions=source['actions'];clip=next((c for c in ['Run','Walk','Swim','Flight','Flap','Slither','Idle'] if c in actions),next(iter(actions)))
         blend=folder/'Animal - Painted Species Review.blend'

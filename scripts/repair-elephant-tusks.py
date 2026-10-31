@@ -2,7 +2,7 @@
 import hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-overnight-20261024/elephant'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/generation/elephant'
 path=root/'Animal - Owner Corrected.blend';before=hashlib.sha256(path.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(path));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0]
 body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];body.hide_set(False);rig.hide_set(False);rig.data.pose_position='REST';rig.animation_data_clear()

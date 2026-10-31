@@ -93,7 +93,7 @@ editor is running. The current launcher target must be checked at installation;
 do not assume an earlier player package is still selected. No full game copy
 is created by this repair.
 
-Evidence is under ignored `artifacts/fauna-eye-closure-repair`: baseline
+Evidence is under ignored `assets-source/animals/eye-repair`: baseline
 identity, regression, export validation, paired renders, bundle validation and
 installation receipts. A source checkpoint alone does not back up these binary
 game assets. The canonical bundles remain inputs to subsequent main-thread

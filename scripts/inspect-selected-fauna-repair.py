@@ -4,8 +4,8 @@ from pathlib import Path
 import bpy,bmesh,numpy as np
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--candidate',type=int,default=2)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);raw=repo/'artifacts/fauna-overnight-20261024'/a.slug
-root=repo/'artifacts/fauna-owner-fixes-20261025'/a.slug;root.mkdir(parents=True,exist_ok=True)
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);raw=repo/'assets-source/animals/generation'/a.slug
+root=repo/'assets-source/animals/owner-revisions'/a.slug;root.mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.open_mainfile(filepath=str(raw/'Animal - Raw Audition.blend'));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[a.candidate-1]
 body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
 p=np.array([v.co[:] for v in body.data.vertices]);faces=np.array([f.vertices[:] for f in body.data.polygons]);names=e['joint_names'];w=np.zeros((len(p),len(names)))

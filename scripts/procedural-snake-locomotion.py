@@ -11,7 +11,7 @@ from mathutils import Quaternion,Vector
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from deer_behaviour_core import blend_pose,smooth
 p=argparse.ArgumentParser();p.add_argument('--slug',choices=['python','venomous-snake'],required=True)
-a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-overnight-20261024'/a.slug
+a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/generation'/a.slug
 source=root/'Animal - Raw Audition.blend';out=root/'Animal - Motion Revision.blend'
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;entries=json.loads(s['deer_four_rigs'])
 proof={'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'method':'Project-authored smooth traveling tangent wave; exact rest segment lengths, existing adjacent skin,60Hz keys','mocap':False,'physics_contact_simulation':False,'candidates':[]}

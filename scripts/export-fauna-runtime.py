@@ -9,10 +9,12 @@ import bpy,numpy as np
 from mathutils import Matrix,Vector
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-runtime-20261026'
+root=repo/'assets-source/animals/export-metadata'
+export_root=repo/'assets-source/animals/exports'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--partition',type=int,default=0);ap.add_argument('--partitions',type=int,default=1)
-ap.add_argument('--surface',choices=['cpu','cycles'],default='cpu');ap.add_argument('--reuse-bakes',action='store_true')
+ap.add_argument('--surface',choices=['cpu','cycles'],default='cpu');ap.add_argument('--reuse-bakes',action='store_true');ap.add_argument('--output-root',type=Path)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+if a.output_root:export_root=a.output_root
 plan=json.loads((root/'export-plan.json').read_text())['animals']
 sys.path.insert(0,str(repo/'scripts'))
 import fauna_runtime_surface as cpu_surface
@@ -27,8 +29,8 @@ def curves_off(rig):
         bone.matrix_basis=Matrix.Identity(4)
 
 def export(item):
-    started=time.monotonic();source=Path(item['path']);digest=hashlib.sha256(source.read_bytes()).hexdigest();assert digest==item['source_sha256']
-    out=root/'exports'/item['slug'];out.mkdir(parents=True,exist_ok=True)
+    started=time.monotonic();source=repo/item['path'];digest=hashlib.sha256(source.read_bytes()).hexdigest();assert digest==item['source_sha256']
+    out=export_root/item['slug'];out.mkdir(parents=True,exist_ok=True)
     receipt=out/'receipt.json'
     reusable={}
     if receipt.exists():

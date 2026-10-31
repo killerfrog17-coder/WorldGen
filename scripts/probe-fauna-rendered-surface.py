@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
-repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-anatomy-revision'/a.slug;bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
+repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/anatomy'/a.slug;bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
 coat=e['painting_coats'][0];choices=coat.get('appendage_variants');variant=choices[0] if choices else {}
 if e.get('body_morph_traits') and body.data.shape_keys:
  for key,meta in e['body_morph_traits'].items():body.data.shape_keys.key_blocks[meta['shape_key']].value=variant.get('body_morphs',{}).get(key,0.)

@@ -7,7 +7,7 @@ from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from fauna_surface_components import components
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['red-fox','wolf','raccoon','buffalo','hare','rabbit'],required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-root=repo/'artifacts/fauna-visual-corrections'/a.slug
+root=repo/'assets-source/animals/corrections'/a.slug
 land=json.loads((root/'face-landmarks.json').read_text());guide=json.loads((root/'eye-audit/front.json').read_text())
 source=json.loads((root/'visual-source.json').read_text())
 bpy.ops.wm.open_mainfile(filepath=str(repo/source['source']))

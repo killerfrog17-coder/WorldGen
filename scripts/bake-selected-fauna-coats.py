@@ -21,11 +21,11 @@ if family(a.slug) in {'avian','fish'}:
     runpy.run_path(str(repo/'scripts'/script),run_name='__main__')
     raise SystemExit
 kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
-root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve();started=time.perf_counter()
+root=(a.root or repo/'assets-source/animals/painted'/a.slug).resolve();started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 physical_eye=bool(land.get('physical_eye_revision'))
 d=dict(np.load(root/'paint-anatomy.npz'));d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
-raw=json.loads((root/'selected-source-entry.json').read_text()) if (root/'selected-source-entry.json').exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
+raw=json.loads((root/'selected-source-entry.json').read_text()) if (root/'selected-source-entry.json').exists() else json.loads((repo/'assets-source/animals/generation'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
 groups=np.asarray(raw['groups']);weights=d['weights']
 for channel,group_kind in [(0,'spine'),(1,'neck'),(2,'neck'),(5,'tail')]:d['region_weights'][:,channel]=weights[:,groups==group_kind].sum(1)
 spec=importlib.util.spec_from_file_location('coat_raster',repo/'scripts/bake-deer-masked-coat.py');raster=importlib.util.module_from_spec(spec);spec.loader.exec_module(raster)
@@ -45,7 +45,7 @@ hair=(sample(p[:,1]*fur_frequency,p[:,2]*fur_frequency)*blend[:,0]+sample(p[:,0]
 extra_fur_sources=[];shag=np.zeros(len(p))
 if a.slug=='squirrel':
     # Follow the selected generated tail chain instead of using world-up hair.
-    tail_path=repo/'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
+    tail_path=repo/'assets-source/animals/prototypes/textures/fur-coarse-guard-v1.png'
     tuft=np.asarray(Image.open(tail_path).convert('RGB').resize((768,768)),np.float32)/255
     tl=tuft@np.array([.2126,.7152,.0722]);td=tl-gaussian_filter(tl,15,mode='wrap');td/=max(float(np.std(td))*3,1e-5)
     nearest=np.full(len(p),np.inf);arc=np.zeros(len(p));theta=np.zeros(len(p));length=0.;segments=0
@@ -67,7 +67,7 @@ if a.slug=='bison':
     # Forequarter shag and shorter hindquarter fibres share continuous surface
     # coordinates. The blending boundary never follows a UV island or neck seam.
     shag=smooth(-.28,.20,p[:,1])*smooth(.38,.72,p[:,2])
-    short_path=repo/'artifacts/fauna-assets/deer/fur-source.png'
+    short_path=repo/'assets-source/animals/prototypes/deer/fur-source.png'
     short=np.asarray(Image.open(short_path).convert('RGB').resize((768,768)),np.float32)/255
     short_lum=short@np.array([.2126,.7152,.0722]);short_detail=short_lum-gaussian_filter(short_lum,15,mode='wrap')
     short_detail/=max(float(np.std(short_detail))*3,1e-4)

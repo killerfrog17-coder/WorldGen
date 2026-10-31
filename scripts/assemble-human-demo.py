@@ -9,7 +9,7 @@ import bpy
 from mathutils import Vector
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-builder-demo'
+ROOT=REPO/'assets-source/humans/research/builders'
 
 
 def material(info,directory,recipe):

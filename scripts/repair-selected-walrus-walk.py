@@ -9,7 +9,7 @@ import bpy,numpy as np
 from mathutils import Quaternion,Vector
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from deer_behaviour_core import blend_pose,smooth
-root=repo/'artifacts/fauna-overnight-20261024/walrus';source=root/'Animal - Raw Audition.blend';out=root/'Animal - Owner Corrected.blend'
+root=repo/'assets-source/animals/generation/walrus';source=root/'Animal - Raw Audition.blend';out=root/'Animal - Owner Corrected.blend'
 choice=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals']['walrus']
 assert not out.exists() or ('--replace-unpublished' in sys.argv and not choice.get('manual_fix_blend'))
 digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(source));scene=bpy.context.scene;entries=json.loads(scene['deer_four_rigs']);entry=entries[0]

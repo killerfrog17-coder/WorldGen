@@ -13,7 +13,7 @@ ap.add_argument('--rebuild-unreviewed',action='store_true')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve();root.mkdir(parents=True,exist_ok=True);out=root/'Animal - Raw Audition.blend';rebuild=out.exists()
 if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
-    assert root.parent==Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024'
+    assert root.parent==Path(__file__).resolve().parent.parent/'assets-source/animals/generation'
 bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene;entries=[]
 
 def material(name,colour,alpha=1,emission=False):

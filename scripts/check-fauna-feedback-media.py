@@ -3,7 +3,7 @@ import argparse,hashlib,json
 from pathlib import Path
 import cv2
 from PIL import Image
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-review-revisions';ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args();report={'checked':[],'pending':{},'errors':{}}
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/revisions';ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args();report={'checked':[],'pending':{},'errors':{}}
 for folder in root.iterdir():
  if not folder.is_dir() or (a.slugs and folder.name not in a.slugs):continue
  plan=folder/'phone-review-plan.json'

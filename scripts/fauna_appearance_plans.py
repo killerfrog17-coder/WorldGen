@@ -18,7 +18,7 @@ def apply_refinements(rows,directory):
         row['texture_plan']['anatomical_paint_details']=detail['paint_details']
         row['sex_age_season']=detail['sex_age_season'];row['extras']=detail['extras']
         row['hypothetical_variation']=detail['hypotheses']
-        row['second_pass_status']='Targeted appearance/speciation planning with linked sources. Colouring is authorized for owner-selected models; live finishing status is in artifacts/fauna-painted-20261024/paint-queue.json. Motion and appearance approvals remain separate.'
+        row['second_pass_status']='Targeted appearance/speciation planning with linked sources. Colouring is authorized for owner-selected models; live finishing status is in assets-source/animals/painted/paint-queue.json. Motion and appearance approvals remain separate.'
         if row['asset_status']=='audio_existing':
             row['second_pass_status']='Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.'
         elif row['asset_status']=='accepted_baseline':

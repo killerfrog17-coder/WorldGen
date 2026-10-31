@@ -1,7 +1,7 @@
 """Record inspected guide coordinates against exact selected model hashes."""
 import argparse,json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('table',type=Path);a=ap.parse_args()
 for line in a.table.read_text().splitlines():
     if not line.strip() or line.startswith('#'):continue

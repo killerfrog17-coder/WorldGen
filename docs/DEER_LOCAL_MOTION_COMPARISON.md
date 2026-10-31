@@ -144,11 +144,11 @@ assets. Do not describe the whole comparison as CC0 or generally shippable.
 ## Reproduction and evidence
 
 All generated media, models, environments, scores, logs and `.blend` files are
-ignored under `artifacts/deer-motion-comparison-20261023` or `artifacts/tools`.
+ignored under `artifacts/deer-motion-comparison-20261023` or `tools`.
 Source checkpoints do not back up those large assets. Model inventory resumes
 against the recorded revision, verifies existing hashes and writes atomically.
 
-The isolated `artifacts/tools/motion-eval-venv` uses Python 3.11 with bpy 4.5.3,
+The isolated `tools/motion-eval-venv` uses Python 3.11 with bpy 4.5.3,
 NumPy 1.26.4, pandas 2.2.3, Motion, SciPy, Transformers, torchdiffeq,
 torch-geometric, roma, OpenCV and imageio-ffmpeg. A `.pth` reads the existing
 Torch/CUDA/transformer packages from the rig and Comfy environments; neither

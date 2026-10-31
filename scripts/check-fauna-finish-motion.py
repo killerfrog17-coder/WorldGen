@@ -9,7 +9,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];out=root/'inspection'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*')
 args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])

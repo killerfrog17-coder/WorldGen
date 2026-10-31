@@ -5,7 +5,7 @@ and the changed body-pattern previews. Hash gates prevent stale render reuse.
 """
 import argparse,hashlib,json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-review-revisions'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/revisions'
 ap=argparse.ArgumentParser();ap.add_argument('--confirm-inspected',action='store_true',required=True);a=ap.parse_args()
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 media=json.loads((root/'feedback-media-check.json').read_text());assert not media['pending'] and not media['errors']

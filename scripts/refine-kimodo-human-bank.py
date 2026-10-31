@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/kimodo-human-bank'
+ROOT=REPO/'assets-source/humans/motion/bank'
 jobs=[
     ('crouch_walk',1203,150,'A person walks forward cautiously with their knees slightly bent and their back upright, keeping their head at chest height.'),
     ('crouch_idle',1204,120,'A person stands still in a half crouch, with their knees slightly bent and their back upright.'),

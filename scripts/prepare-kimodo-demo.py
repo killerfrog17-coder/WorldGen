@@ -15,7 +15,7 @@ import threading
 import urllib.request
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
 MODELS = Path('E:/AI/WorldGen3D/models/Kimodo')
 os.environ.setdefault('HF_HOME', 'E:/AI/WorldGen3D/kimodo-hf')
 os.environ['HF_HUB_DISABLE_XET'] = '1'
@@ -128,7 +128,7 @@ def main():
     source = {}
     for name in ['kimodo', 'kimodo-cpp']:
         source[name] = subprocess.check_output(
-            ['git', '-C', str(REPO / 'artifacts/tools' / name), 'rev-parse', 'HEAD'],
+            ['git', '-C', str(REPO / 'tools' / name), 'rev-parse', 'HEAD'],
             text=True).strip()
     record = {'created_unix': time.time(), 'model': 'Kimodo-SOMA-RP-v1.1',
               'runtime': 'kimodo.cpp', 'encoder': 'LLM2Vec Q8_0',

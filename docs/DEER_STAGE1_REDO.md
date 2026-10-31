@@ -196,7 +196,7 @@ quality sacrifice.
 Several earlier attempts failed while loading CPU checkpoints, before sampling.
 Mapped safetensors access, Rust deserialization and later dtype-copy paths were
 unstable under the old environment/available commit. The successful isolated
-`artifacts/tools/triposg-review-venv` reads Torch2.8.0+cu128 from the task's D:
+`tools/triposg-review-venv` reads Torch2.8.0+cu128 from the task's D:
 runtime and existing Diffusers0.32.2/Transformers4.49 dependencies. The owned reader
 uses tensor header/offset validation and NumPy allocations, casting each requested
 FP32 weight to FP16 before retaining it. This avoids keeping the5.36GiB FP32

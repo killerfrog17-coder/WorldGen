@@ -2,7 +2,7 @@
 import hashlib,json
 from pathlib import Path
 from PIL import Image,ImageDraw
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024';out=root/'inspection'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted';out=root/'inspection'
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];ledger=[]
 def sheet(rows,path,cols=6,width=240):
     im=Image.new('RGB',(cols*width,((len(rows)+cols-1)//cols)*(width+28)),(27,29,32));draw=ImageDraw.Draw(im)

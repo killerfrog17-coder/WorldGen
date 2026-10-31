@@ -3,7 +3,7 @@ import argparse,json
 import numpy as np
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args()
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];jobs=[j for j in jobs if (not a.slugs or j['slug'] in a.slugs) and (root/j['slug']/'eye-audit/capture.json').exists()]
 font=ImageFont.truetype('C:/Windows/Fonts/segoeuib.ttf',18);small=ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf',12)

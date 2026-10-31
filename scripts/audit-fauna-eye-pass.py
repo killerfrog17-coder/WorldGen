@@ -2,7 +2,7 @@
 import hashlib,json
 from pathlib import Path
 from fauna_eye_profiles import pipeline_signature
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024';jobs=json.loads((root/'paint-queue.json').read_text())['jobs']
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted';jobs=json.loads((root/'paint-queue.json').read_text())['jobs']
 signature=pipeline_signature(repo);errors={};verified=[];samples=0
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 for job in jobs:
@@ -22,6 +22,6 @@ for job in jobs:
   assert final['lineage_render_sha256']==sha(repo/final['lineage_render']),'stale alternate coat'
   samples+=len(motion['samples']);verified.append(slug)
  except Exception as exc:errors[slug]=str(exc)
-deer=repo/'artifacts/fauna-assets/deer/Deer - Prototype.blend';protected=sha(deer)=='0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1'
+deer=repo/'assets-source/animals/prototypes/deer/Deer - Prototype.blend';protected=sha(deer)=='0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1'
 report={'total':len(jobs),'verified':len(verified),'animals':verified,'errors':errors,'sampled_clip_phases':samples,'accepted_deer_unchanged':protected,'appearance_approved':False,'limits':'Agent eye-focused review and source-preservation/attachment checks. Existing selected-body sculpt, gait and collision limitations remain. Owner appearance acceptance is independent.'}
 (root/'inspection/eye-pass-completion.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:v for k,v in report.items() if k!='animals'}));assert not errors and protected

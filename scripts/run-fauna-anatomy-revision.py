@@ -1,7 +1,7 @@
 """Finite appearance rebuild/check/render queue. No animation mutation or GUI."""
 import argparse,concurrent.futures,hashlib,json,os,subprocess,threading,time
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('slugs',nargs='+');ap.add_argument('--workers',type=int,default=2);a=ap.parse_args();base=repo/'artifacts/fauna-anatomy-revision';blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe');progress=base/'anatomy-revision-progress.json';lock=threading.Lock();jobs={s:{'stage':'queued','appearance_approved':False} for s in a.slugs};start=time.time()
+repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('slugs',nargs='+');ap.add_argument('--workers',type=int,default=2);a=ap.parse_args();base=repo/'assets-source/animals/anatomy';blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe');progress=base/'anatomy-revision-progress.json';lock=threading.Lock();jobs={s:{'stage':'queued','appearance_approved':False} for s in a.slugs};start=time.time()
 def update(slug,stage,**extra):
  with lock:
   jobs[slug].update(stage=stage,**extra);progress.write_text(json.dumps({'scope':'Finite appearance-only queue; technical completion never implies appearance approval.','elapsed_seconds':round(time.time()-start),'jobs':jobs},indent=2)+'\n');print(slug,stage,flush=True)

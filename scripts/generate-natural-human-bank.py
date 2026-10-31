@@ -11,7 +11,7 @@ import sys
 import time
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-natural-20261031'
+ROOT=REPO/'assets-source/humans/motion/natural'
 CASES=[
  ('idle',120,'A person stands comfortably upright, feet hip width apart, with relaxed arms beside the body. Quiet breathing and very small natural weight shifts.'),
  ('tool_ready',120,'A person stands comfortably upright holding a small knife loosely beside their right hip, elbow slightly bent. Calm ordinary posture, steady legs.'),
@@ -52,7 +52,7 @@ def main():
  p=argparse.ArgumentParser();p.add_argument('--worker-index',type=int,default=0);p.add_argument('--worker-count',type=int,default=1);p.add_argument('--attempts',type=int,default=2);p.add_argument('--case');p.add_argument('--run-one',action='store_true');p.add_argument('--seed',type=int);p.add_argument('--prompt');p.add_argument('--frames',type=int);p.add_argument('--steps',type=int,default=50);p.add_argument('--encode-only',action='store_true');a=p.parse_args()
  spec=importlib.util.spec_from_file_location('natural_generate',REPO/'scripts/run-kimodo-demo-generation.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
  m.ROOT=ROOT;m.CASES=[{'id':n,'label':n,'frames':f,'prompt':s,'seed':3100+i*10} for i,(n,f,s) in enumerate(CASES)]
- if not (ROOT/'model-provenance.json').exists():(ROOT/'model-provenance.json').write_bytes((REPO/'artifacts/kimodo-first-person-demo/model-provenance.json').read_bytes())
+ if not (ROOT/'model-provenance.json').exists():(ROOT/'model-provenance.json').write_bytes((REPO/'assets-source/humans/motion/first-person/model-provenance.json').read_bytes())
  (ROOT/'queue.json').write_text(json.dumps(m.CASES,indent=2))
  if a.run_one:
   sys.argv=[sys.argv[0],'--case',a.case,'--seed',str(a.seed),'--steps',str(a.steps)]

@@ -3,7 +3,7 @@ import hashlib,json
 from datetime import datetime
 from pathlib import Path
 
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 choices_path=repo/'docs/fauna/OWNER_SELECTIONS.json';choices=json.loads(choices_path.read_text())
 plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows'];rank={x['slug']:x['priority_rank'] for x in plan}
 queue=json.loads((root/'paint-queue.json').read_text());ready=[]
@@ -49,7 +49,7 @@ for slug,revision in choices.get('procedural_revisions',{}).items():
     proof=json.loads(proof_path.read_text())
     if proof['checked_blend_sha256']!=hashlib.sha256(blend.read_bytes()).hexdigest():continue
     if not proof.get('source_bind_geometry_skin_rig_actions_exact') or not proof.get('all_coats_reachable'):continue
-    raw=repo/'artifacts/fauna-overnight-20261024'/slug/'Animal - Raw Audition.blend'
+    raw=repo/'assets-source/animals/generation'/slug/'Animal - Raw Audition.blend'
     if hashlib.sha256(raw.read_bytes()).hexdigest()!=proof['source_blend_sha256']:continue
     row=next(r for r in plan if r['slug']==slug)
     procedural_ready.append({'slug':slug,'name':row.get('animal',slug),'priority':rank[slug],'path':str(blend),'candidates':proof['candidate_count'],'coats':proof['coats_per_candidate'],'procedural':True,'appearance_approved':False,'motion_approved':False,'appearance_scope':proof['scope']})

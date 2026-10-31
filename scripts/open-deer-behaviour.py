@@ -13,7 +13,7 @@ parser.add_argument('--root',type=Path,default=repo/'artifacts/deer-behaviour-20
 args=parser.parse_args()
 root=args.root.resolve()
 blend=root/'Deer - Game Ready Prototype.blend'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 viewer=repo/'scripts/deer-behaviour-viewer.py'
 if not blend.is_file():
     raise FileNotFoundError(blend)

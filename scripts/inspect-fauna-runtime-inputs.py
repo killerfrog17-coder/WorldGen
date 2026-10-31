@@ -7,8 +7,8 @@ from mathutils import Vector
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--limit',type=int,default=0)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
-rows=json.loads((repo/'artifacts/fauna-anatomy-revision/review-index.json').read_text())['ready']
-out=repo/'artifacts/fauna-runtime-20261026';out.mkdir(parents=True,exist_ok=True)
+rows=json.loads((repo/'assets-source/animals/anatomy/review-index.json').read_text())['ready']
+out=repo/'assets-source/animals/export-metadata';out.mkdir(parents=True,exist_ok=True)
 result=[]
 for row in rows[:a.limit or None]:
     path=Path(row['path']);digest=hashlib.sha256(path.read_bytes()).hexdigest()

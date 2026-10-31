@@ -9,7 +9,7 @@ import numpy as np
 import trimesh
 
 repo = Path(__file__).resolve().parent.parent
-root = repo / 'artifacts/fauna-overnight-20261024/tamarin'
+root = repo / 'assets-source/animals/generation/tamarin'
 candidate = root / 'candidate-3'
 archive = root / 'candidate-3-agent-rejected-yaw-2'
 assert candidate.resolve().parent == root.resolve() and not archive.exists()

@@ -3,7 +3,7 @@ import argparse,hashlib,json
 from pathlib import Path
 import cv2,numpy as np
 from PIL import Image,ImageDraw,ImageFont
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media';plan=json.loads((root/'plan.json').read_text());out=root/'checks';out.mkdir(exist_ok=True)
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/reference-media';plan=json.loads((root/'plan.json').read_text());out=root/'checks';out.mkdir(exist_ok=True)
 ap=argparse.ArgumentParser();ap.add_argument('--partial',action='store_true');a=ap.parse_args();report={'total':177,'completed':[],'errors':{},'edge_warnings':[],'clips_checked':0,'stills_checked':0};thumbs=[];font=ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf',17)
 check_signature=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 for item in plan['animals']:

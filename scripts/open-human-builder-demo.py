@@ -7,11 +7,11 @@ import subprocess
 import time
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-builder-demo'
+ROOT=REPO/'assets-source/humans/research/builders'
 blend=ROOT/'Human - Character Builder Comparison.blend'
 assert blend.is_file()
 with (ROOT/'viewer.log').open('w') as log:
-    process=subprocess.Popen([str(REPO/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'),'--factory-startup','--disable-autoexec',str(blend),'--python',str(REPO/'scripts/human-builder-demo-viewer.py')],stdout=log,stderr=subprocess.STDOUT,cwd=REPO)
+    process=subprocess.Popen([str(REPO/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'),'--factory-startup','--disable-autoexec',str(blend),'--python',str(REPO/'scripts/human-builder-demo-viewer.py')],stdout=log,stderr=subprocess.STDOUT,cwd=REPO)
 (ROOT/'viewer-process.json').write_text(json.dumps({'pid':process.pid,'blend':str(blend)}))
 user=ctypes.windll.user32
 user.GetWindowThreadProcessId.argtypes=[wintypes.HWND,ctypes.POINTER(wintypes.DWORD)]

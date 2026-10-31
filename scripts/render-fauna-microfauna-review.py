@@ -1,8 +1,8 @@
 """Actual tiny-fauna coat and flight-frame render sheet inputs; no native edits."""
 import json,subprocess
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 slugs=['butterflies-and-moths-guild','fireflies-derived-lineage','bees-guild','dragonflies-guild','native-detritivorous-flies-guild']
 results=[]
 for slug in slugs:

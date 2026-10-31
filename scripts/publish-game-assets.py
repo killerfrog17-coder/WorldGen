@@ -52,6 +52,8 @@ def source_file(record):
     return source
 for record in records:
     path=PurePosixPath(record['path'])
+    if path.parts and path.parts[0]=='artifacts':
+        raise ValueError('Artifacts is disposable output, not a publishable permanent dependency: '+str(path))
     if path.is_absolute() or '..' in path.parts or path.suffix.lower() in {'.exe','.dll','.pdb','.key','.pem','.pfx','.p12'} or path.name.startswith('.env'):
         raise ValueError('Unsafe dependency path')
 prior=json.loads(args.lock.read_text()) if args.lock.exists() else {'files':{},'packs':{}}

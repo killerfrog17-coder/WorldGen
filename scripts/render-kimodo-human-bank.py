@@ -7,7 +7,7 @@ import bpy
 from mathutils import Vector
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/kimodo-human-bank'
+ROOT=REPO/'assets-source/humans/motion/bank'
 parser=argparse.ArgumentParser();parser.add_argument('--variant',default='B');parser.add_argument('--roles',default='');parser.add_argument('--steps',type=int,default=8)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
 bpy.ops.wm.open_mainfile(filepath=str(ROOT/('Kimodo bank '+args.variant+'.blend')))
@@ -28,7 +28,7 @@ light.rotation_euler=(Vector((0,0,1))-light.location).to_track_quat('-Z','Y').to
 bpy.ops.object.light_add(type='SUN');bpy.context.object.rotation_euler=(.4,-.3,-.5);bpy.context.object.data.energy=1.2
 scene.render.engine='BLENDER_EEVEE_NEXT';scene.render.resolution_x=384;scene.render.resolution_y=512;scene.render.resolution_percentage=100
 scene.view_settings.view_transform='AgX';scene.render.image_settings.file_format='PNG'
-folder=ROOT/'review';folder.mkdir(exist_ok=True)
+folder=REPO/'artifacts/human-animation-review/kimodo';folder.mkdir(parents=True,exist_ok=True)
 records=[]
 for clip in clips:
     if clip.get('mirrored'):continue

@@ -7,7 +7,7 @@ import hashlib,json,math
 from pathlib import Path
 import cv2
 from PIL import Image,ImageDraw,ImageFont,ImageOps
-repo=Path(__file__).resolve().parent.parent;site=repo/'artifacts/fauna-phone-review/dist';out=repo/'artifacts/fauna-review-revisions/final-sweep';out.mkdir(exist_ok=True)
+repo=Path(__file__).resolve().parent.parent;site=repo/'artifacts/fauna-phone-review/dist';out=repo/'assets-source/animals/revisions/final-sweep';out.mkdir(exist_ok=True)
 data=json.loads((site/'animals/index.json').read_text(encoding='utf-8'));font=ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf',15);manifest={'source_manifest_sha256':hashlib.sha256((site/'animals/index.json').read_bytes()).hexdigest(),'sheets':[],'animals':[],'actually_inspected':False,'owner_approved':False}
 def tile(sheet,im,x,y,w,h):
  im=ImageOps.contain(im.convert('RGB'),(w,h));sheet.paste(im,(x+(w-im.width)//2,y+(h-im.height)//2))

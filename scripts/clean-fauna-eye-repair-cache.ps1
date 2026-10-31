@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$taskRoot = (Resolve-Path (Join-Path $repoRoot 'artifacts/fauna-eye-closure-repair')).Path
+$taskRoot = (Resolve-Path (Join-Path $repoRoot 'assets-source/animals/eye-repair')).Path
 $receipt = Get-Content -LiteralPath (Join-Path $taskRoot 'installation.json') -Raw | ConvertFrom-Json
 if ($receipt.count -ne 177) { throw 'A complete verified installation is required before cleanup.' }
 $canonical = [IO.Path]::GetFullPath($receipt.canonical)

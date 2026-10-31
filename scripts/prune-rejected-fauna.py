@@ -16,7 +16,7 @@ def digest(path):
 
 def main():
     repo = Path(__file__).resolve().parent.parent
-    batch = (repo / 'artifacts/fauna-overnight-20261024').resolve()
+    batch = (repo / 'assets-source/animals/generation').resolve()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--animal-root', required=True, type=Path)
     parser.add_argument('--apply', action='store_true')

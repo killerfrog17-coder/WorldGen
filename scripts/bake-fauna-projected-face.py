@@ -13,7 +13,7 @@ from scipy.spatial import cKDTree
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'));from fauna_paint_recipes import profiles,SUPPORTED
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(SUPPORTED),required=True);ap.add_argument('--root',type=Path);ap.add_argument('--probe-file',type=Path);a=ap.parse_args()
-root=(a.root or repo/'artifacts/fauna-visual-corrections'/a.slug).resolve()
+root=(a.root or repo/'assets-source/animals/corrections'/a.slug).resolve()
 land=json.loads((root/('projection-landmarks.json' if (root/'projection-landmarks.json').exists() else 'face-landmarks.json')).read_text());guide=json.loads((root/'eye-audit/front.json').read_text());bake=json.loads((root/'coat-bake.json').read_text())
 paint_path=root/'front-paint-guide.png';paint=np.asarray(Image.open(paint_path).convert('RGB'),np.float32)/255
 anatomy_path=root/('projection-anatomy.npz' if (root/'projection-anatomy.npz').exists() else 'paint-anatomy.npz');d=dict(np.load(anatomy_path));has_source_uv='source_uv' in d

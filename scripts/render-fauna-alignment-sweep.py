@@ -15,12 +15,12 @@ import time
 
 repo = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--root', type=Path, default=repo / 'artifacts/fauna-overnight-20261024')
+parser.add_argument('--root', type=Path, default=repo / 'assets-source/animals/generation')
 parser.add_argument('--limit', type=int)
 args = parser.parse_args()
 root = args.root.resolve()
 assert root.is_relative_to(repo / 'artifacts')
-blender = repo / 'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+blender = repo / 'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 report_path = root / 'alignment-sweep.json'
 report = json.loads(report_path.read_text()) if report_path.exists() else {'images': {}, 'failures': []}
 report.update(pid=os.getpid(), status='running', art_approved=False,

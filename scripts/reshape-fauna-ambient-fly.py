@@ -9,8 +9,8 @@ import bpy,numpy as np
 
 repo=Path(__file__).resolve().parent.parent
 slug='native-detritivorous-flies-guild'
-root=repo/'artifacts/fauna-anatomy-revision'/slug;root.mkdir(exist_ok=True)
-source=repo/'artifacts/fauna-painted-20261024'/slug/'Animal - Painted Species Review.blend'
+root=repo/'assets-source/animals/anatomy'/slug;root.mkdir(exist_ok=True)
+source=repo/'assets-source/animals/painted'/slug/'Animal - Painted Species Review.blend'
 source_sha=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));scene=bpy.context.scene
 entries=json.loads(scene['deer_four_rigs'])

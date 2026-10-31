@@ -14,7 +14,7 @@ def main():
         default=repo/'artifacts/deer-motion-comparison-20261023')
     a=ap.parse_args();root=a.root.resolve()
     blend=root/'Deer - AI Motion Comparison.blend'
-    blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+    blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
     assert blend.is_file()
     log=root/'viewer.log'
     with log.open('w') as f:

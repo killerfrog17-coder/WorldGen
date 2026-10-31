@@ -8,13 +8,13 @@ import sys
 
 ROOT=Path(__file__).resolve().parent.parent
 parser=argparse.ArgumentParser()
-parser.add_argument('--player-folder',default='player-human-kimodo')
+parser.add_argument('--player-folder',choices=['slot-a','slot-b'],default='slot-b')
 parser.add_argument('--proof-folder',default='kimodo-human-bank/package-proof')
 parser.add_argument('--freeze',action='store_true')
-parser.add_argument('--baseline-freeze',default='artifacts/terrain-boundaries-20261031/package-proof/source-freeze.json')
+parser.add_argument('--baseline-freeze',default='assets/verification/terrain-boundaries/source-freeze.json')
 args=parser.parse_args()
 TASK=ROOT/'artifacts'/args.proof_folder
-PLAYER=ROOT/'artifacts'/args.player_folder
+PLAYER=ROOT/'builds'/args.player_folder
 TASK.mkdir(parents=True,exist_ok=True)
 def sha(path):
     h=hashlib.sha256()
@@ -44,7 +44,7 @@ assert all(sha(ROOT/p)==expected for p,expected in frozen.items()),'Frozen build
 legacy={p:h for p,h in old.items() if p.startswith(('assets/first-person/','unity/WorldGen.Unity/Assets/WorldGen/Resources/FirstPerson/'))}
 assert all(sha(ROOT/p)==expected for p,expected in legacy.items()),'Original legacy arm assets changed'
 lock=json.loads((ROOT/'assets/game-assets.lock.json').read_text())['files']
-preserved={p:r for p,r in lock.items() if p.startswith(('artifacts/human-','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans/','unity/WorldGen.Unity/Assets/StreamingAssets/fauna/','unity/WorldGen.Unity/Assets/StreamingAssets/fauna-collision/'))}
+preserved={p:r for p,r in lock.items() if p.startswith(('assets-source/','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans/','unity/WorldGen.Unity/Assets/StreamingAssets/fauna/','unity/WorldGen.Unity/Assets/StreamingAssets/fauna-collision/'))}
 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
     checks=list(pool.map(lambda pair:sha(ROOT/pair[0])==pair[1]['sha256'],preserved.items()))
 assert all(checks),[p for (p,_),ok in zip(preserved.items(),checks) if not ok]

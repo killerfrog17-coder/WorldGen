@@ -2,10 +2,10 @@
 import argparse,hashlib,json,os,subprocess,time,threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 from fauna_eye_profiles import pipeline_signature
 code_signature=pipeline_signature(repo)
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';python='E:/AI/WorldGen3D/rig-venv/Scripts/python.exe'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';python='E:/AI/WorldGen3D/rig-venv/Scripts/python.exe'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--workers',type=int,choices=[1,2],default=1);a=ap.parse_args()
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];jobs=[j for j in jobs if not a.slugs or j['slug'] in a.slugs]
 lock=root/'eye.worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY);os.write(fd,str(os.getpid()).encode());os.close(fd)

@@ -195,14 +195,14 @@ def eye_radius(slug):
     return {'hare':(.038,.032),'rabbit':(.040,.034),'red-fox':(.029,.019),'wolf':(.032,.021),'wild-boar':(.027,.018),'mouflon':(.026,.019),'wild-goat':(.026,.019),'bear':(.025,.017),'bison':(.027,.020),'duck':(.021,.018),'pheasant':(.017,.015),'small-native-freshwater-fish-guild':(.043,.039),'mouse':(.035,.031),'squirrel':(.031,.027)}[slug]
 
 def fur_source(slug):
-    if slug in EXTENDED:return 'artifacts/fauna-assets/textures/'+finish_surface(slug)
-    if slug in {'grouse','quail','turkey','junglefowl'}:return 'artifacts/fauna-assets/textures/feather-contour-v1.png'
-    if slug=='small-native-freshwater-fish-guild':return 'artifacts/fauna-assets/textures/scale-fish-v1.png'
-    if slug in {'duck','pheasant'}:return 'artifacts/fauna-assets/textures/feather-contour-v1.png'
-    if slug=='bison':return 'artifacts/fauna-assets/textures/fur-wool-shag-v1.png'
-    if slug in {'wild-boar','bear'}:return 'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
-    if slug in {'mouflon','wild-goat'}:return 'artifacts/fauna-assets/deer/fur-source.png'
-    return 'artifacts/fauna-assets/deer/fur-source.png' if family(slug)=='canid' else 'artifacts/fauna-assets/textures/fur-dense-fine-v1.png'
+    if slug in EXTENDED:return 'assets-source/animals/prototypes/textures/'+finish_surface(slug)
+    if slug in {'grouse','quail','turkey','junglefowl'}:return 'assets-source/animals/prototypes/textures/feather-contour-v1.png'
+    if slug=='small-native-freshwater-fish-guild':return 'assets-source/animals/prototypes/textures/scale-fish-v1.png'
+    if slug in {'duck','pheasant'}:return 'assets-source/animals/prototypes/textures/feather-contour-v1.png'
+    if slug=='bison':return 'assets-source/animals/prototypes/textures/fur-wool-shag-v1.png'
+    if slug in {'wild-boar','bear'}:return 'assets-source/animals/prototypes/textures/fur-coarse-guard-v1.png'
+    if slug in {'mouflon','wild-goat'}:return 'assets-source/animals/prototypes/deer/fur-source.png'
+    return 'assets-source/animals/prototypes/deer/fur-source.png' if family(slug)=='canid' else 'assets-source/animals/prototypes/textures/fur-dense-fine-v1.png'
 
 def profiles(slug):
     from fauna_hypothetical_coats import EXTRA

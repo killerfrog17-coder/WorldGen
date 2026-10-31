@@ -8,8 +8,8 @@ import bpy,numpy as np
 
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-painted-20261024'/a.slug
-state=json.loads((root/'paint-state.json').read_text());source=repo/'artifacts/fauna-overnight-20261024'/a.slug/'Animal - Raw Audition.blend'
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/painted'/a.slug
+state=json.loads((root/'paint-state.json').read_text());source=repo/'assets-source/animals/generation'/a.slug/'Animal - Raw Audition.blend'
 if state.get('source_blend_path'):source=repo/state['source_blend_path']
 
 def snapshot(entry):

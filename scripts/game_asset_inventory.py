@@ -42,22 +42,25 @@ def inventory():
             for p in path.rglob('*'):
                 if p.is_file() and p.suffix.lower() in suffixes:
                     add(p,group)
-    native=ROOT/'artifacts/fauna-runtime-20261026/native-inventory.json'
+    native=ROOT/'assets-source/animals/export-metadata/native-inventory.json'
     add(native,'authoring-metadata',True)
+    add('assets-source/animals/export-metadata/export-plan.json','authoring-metadata',True)
     for animal in json.loads(native.read_text())['animals']:
         path=ROOT/animal['source'];add(path,'animal-sources',True)
         expected[path.relative_to(ROOT).as_posix()]=animal['sha256']
-    human='artifacts/human-animation-preview/Human - Animation Comparison.blend'
+    human='assets-source/humans/base/Human - Animation Comparison.blend'
     add(human,'human-sources',True)
     expected[human]='0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229'
-    baseline=ROOT/'artifacts/human-running-runtime/texture-baseline.json'
+    baseline=ROOT/'assets-source/humans/motion/legacy/texture-baseline.json'
     add(baseline,'authoring-metadata',True)
     for texture in json.loads(baseline.read_text()):
-        path=ROOT/'artifacts/human-runtime/exports'/texture['path'];add(path,'human-sources',True)
+        path=ROOT/'assets-source/humans/exports'/texture['path'];add(path,'human-sources',True)
         expected[path.relative_to(ROOT).as_posix()]=texture['sha256']
-    tree('artifacts/fauna-runtime-20261026/exports','animal-export-inputs',{'.bin','.json','.png'})
-    tree('artifacts/human-runtime/exports','human-sources',{'.fbx','.png','.json'})
-    tree('artifacts/human-running-runtime','human-motion-inputs',{'.fbx'})
+    tree('assets-source/animals/exports','animal-export-inputs',{'.bin','.json','.png'})
+    tree('assets-source/humans/exports','human-sources',{'.fbx','.png','.json'})
+    tree('assets-source/humans/motion/legacy','human-motion-inputs',{'.fbx'})
+    tree('assets-source/humans/motion/source-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
+    tree('assets-source/humans/motion/animation-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
     tree('unity/WorldGen.Unity/Assets/StreamingAssets/fauna','animal-runtime',{'','.fauna','.json','.manifest','.meta','.md','.txt'})
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans']:
         tree(directory,'human-runtime',{'.asset','.prefab','.mat','.meta','.fbx','.png','.json'})

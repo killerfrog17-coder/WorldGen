@@ -3,10 +3,10 @@ import argparse,concurrent.futures,json,subprocess,sys
 from pathlib import Path
 from PIL import Image,ImageDraw
 repo=Path(__file__).resolve().parent.parent
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='+',required=True);a=ap.parse_args()
 def work(slug):
-    root=repo/'artifacts/fauna-overnight-20261024'/slug;proof=json.loads((root/'owner-fix.json').read_text());number=proof['candidate'];logs=repo/'artifacts/fauna-owner-fixes-20261025'/slug;logs.mkdir(exist_ok=True,parents=True)
+    root=repo/'assets-source/animals/generation'/slug;proof=json.loads((root/'owner-fix.json').read_text());number=proof['candidate'];logs=repo/'assets-source/animals/owner-revisions'/slug;logs.mkdir(exist_ok=True,parents=True)
     with (logs/'edge-diagnostics.log').open('w') as log:
         subprocess.run([str(blender),'--background','--threads','2','--python-exit-code','1','--python',str(repo/'scripts/measure-fauna-owner-repair.py'),'--','--slug',slug],stdout=log,stderr=subprocess.STDOUT,check=True)
     data=json.loads((logs/'edge-diagnostics.json').read_text());clip=data['inspection_clip'];phase=data['inspection_phase'];images=[]

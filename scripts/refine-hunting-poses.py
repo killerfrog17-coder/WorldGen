@@ -13,7 +13,7 @@ def palette(heads,targets,rotations):
     p=np.tile(np.eye(4),(len(heads),1,1));p[:,:3,:3]=rotations
     p[:,:3,3]=targets-np.einsum('nij,nj->ni',rotations,heads);return p
 def support(slug,p):
-    base=root/'artifacts/fauna-runtime-20261026/exports'/slug;meta=json.loads((base/'model.json').read_text());raw=(base/'mesh.bin').read_bytes();n,ix,_,_=struct.unpack('<4i',raw[8:24]);stride=(len(raw)-24-ix*4)//n//4;v=np.frombuffer(raw,dtype='<f4',offset=24,count=n*stride).reshape(n,stride);k=meta['influences'];ids=v[:,8:8+k].astype(int);w=v[:,8+k:8+2*k];xyz=np.c_[v[:,:3],np.ones(n)];height=sum(np.einsum('nj,nj->n',p[ids[:,i],1,:],xyz)*w[:,i] for i in range(k));lift=max(0,-float(height.min()));p[:,1,3]+=min(.08,lift);return p
+    base=root/'assets-source/animals/exports'/slug;meta=json.loads((base/'model.json').read_text());raw=(base/'mesh.bin').read_bytes();n,ix,_,_=struct.unpack('<4i',raw[8:24]);stride=(len(raw)-24-ix*4)//n//4;v=np.frombuffer(raw,dtype='<f4',offset=24,count=n*stride).reshape(n,stride);k=meta['influences'];ids=v[:,8:8+k].astype(int);w=v[:,8+k:8+2*k];xyz=np.c_[v[:,:3],np.ones(n)];height=sum(np.einsum('nj,nj->n',p[ids[:,i],1,:],xyz)*w[:,i] for i in range(k));lift=max(0,-float(height.min()));p[:,1,3]+=min(.08,lift);return p
 for slug in ['deer','red-kangaroo','wolf']:
     skel=next(s for s in skeletons if s['slug']==slug);heads=np.array([b['head'] for b in skel['bones']]);n=len(heads);targets=heads.copy();rot=np.tile(np.eye(3),(n,1,1));duration=4;frames=[]
     for frame in range(121):

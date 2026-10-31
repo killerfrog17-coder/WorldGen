@@ -25,7 +25,7 @@ public static class FaunaRuntimeBuilder
     public static void Build()
     {
         string root=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
-        string input=Path.Combine(root,"artifacts/fauna-runtime-20261026/exports");
+        string input=Path.Combine(root,"assets-source/animals/exports");
         var catalogue=JsonUtility.FromJson<WorldGen.Presentation.FaunaPrototypeCatalogue>(File.ReadAllText("Assets/WorldGen/Resources/WorldGenFaunaCatalogue.json"));
         var mapped=WorldGen.Presentation.FaunaPrototypePlanner.BindProfiles(WorldGen.Core.EarthFaunaPack.Create(),catalogue.animals);
         var missing=catalogue.animals.Where(p=>!p.derivedFirefly&&!mapped.Values.Contains(p)).Select(p=>p.slug).ToArray();

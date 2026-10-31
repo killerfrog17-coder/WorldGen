@@ -2,7 +2,7 @@
 import hashlib,json,shutil
 from pathlib import Path
 import numpy as np
-repo=Path(__file__).resolve().parent.parent;folder=repo/'artifacts/fauna-overnight-20261024/peafowl/candidate-1'
+repo=Path(__file__).resolve().parent.parent;folder=repo/'assets-source/animals/generation/peafowl/candidate-1'
 original=folder/'generated-rig.before-manual-legs.npz';meta_backup=original.with_suffix('.json')
 if not original.exists():shutil.copy2(folder/'generated-rig.npz',original);shutil.copy2(folder/'generated-rig.json',meta_backup)
 d=np.load(original);data={k:d[k].copy() for k in d.files};v=data['source_vertices'];upper=v[v[:,2]>.78*1.65];torso=v[(v[:,2]>.25*1.65)&(v[:,2]<.65*1.65)];sign=1 if upper[:,0].mean()>=torso[:,0].mean() else -1

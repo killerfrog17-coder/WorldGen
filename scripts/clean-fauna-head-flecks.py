@@ -5,7 +5,7 @@ import bpy,bmesh,numpy as np
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from fauna_surface_components import components
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--apply',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-root=repo/'artifacts/fauna-visual-corrections'/a.slug;path=root/'Animal - Painted Species Review.blend';land=json.loads((root/'face-landmarks.json').read_text())
+root=repo/'assets-source/animals/corrections'/a.slug;path=root/'Animal - Painted Species Review.blend';land=json.loads((root/'face-landmarks.json').read_text())
 if a.apply and (root/'head-fleck-cleanup.json').exists():
     print('Head fleck cleanup already applied; preserving original face-index proof',a.slug);raise SystemExit
 bpy.ops.wm.open_mainfile(filepath=str(path));entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']]

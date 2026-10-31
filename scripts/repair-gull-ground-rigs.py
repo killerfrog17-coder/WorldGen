@@ -6,7 +6,7 @@ four own model surfaces, replace those graphs with compact manual ground rigs.
 import datetime,hashlib,json,shutil
 from pathlib import Path
 import numpy as np
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-overnight-20261024/gull'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/generation/gull'
 state=json.loads((root.parent/'queue-state.json').read_text());assert state.get('current')!='gull'
 meta=json.loads((root/'audition.json').read_text());assert all(e['canonical_axis_correction'] is None for e in meta['candidates'])
 config={'reason':'Own manually placed two-leg gull ground rigs; avoid duplicated neural feet and toe-only motion. Folded-wing ground review, no flight claim.','skin_ceiling_m':.58,'candidates':{}}

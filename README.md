@@ -1,5 +1,11 @@
 # WorldGen
 
+Permanent editable content lives in `assets-source/`; runtime Unity content is
+in `unity/WorldGen.Unity/Assets/`, with external audio in `sounds/` and `music/`.
+Tools live in `tools/`, and the two reusable players live in `builds/slot-a` and
+`builds/slot-b`. **The entire `artifacts/` directory is disposable output.** See
+[project layout and recovery](docs/ASSET_VERSIONING.md) before adding dependencies.
+
 History15 separates rare independent domestication/state origins from locally transmitted traditions. Productive foraging can remain a mixed livelihood, cultivation no longer receives guaranteed rounded progress, and sustained neighboring state experience is recorded in city articles. Early administrative reach depends more strongly on transport and institutions. Regional simulation indexes remain; older saves retain their rules unless explicitly updated.
 
 The game shell opens to **Set Up World / Load World / Options / Exit**. Choose a preset (default **Continents plus**), generate, place humans, then **Start world** to run human expansion, regional cultures, cities and states. History now includes capabilities through modern communications and medicine; a saved technology limit can instead stop development at Medieval, Early Modern or Industrial. Completed plate, terrain, climate and ecological views become available during generation. Plates have their own view; dragging a flat map wraps longitude. Inspection is view-specific, with ecological details and linked historical records.

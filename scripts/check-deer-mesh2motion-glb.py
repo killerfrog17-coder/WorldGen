@@ -57,7 +57,7 @@ class GLB:
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True)
-    ap.add_argument('--tool',type=Path,default=Path('artifacts/tools/mesh2motion-cli/node_modules/afk-rig'))
+    ap.add_argument('--tool',type=Path,default=Path('tools/mesh2motion-cli/node_modules/afk-rig'))
     a=ap.parse_args();root=a.root.resolve();source=GLB(root/'Deer-Unrigged-Forward.glb')
     native=GLB(a.tool/'assets/animations/horse-animations.glb');original=native.curves()
     report=[]

@@ -10,10 +10,10 @@
       "updated_at": "2026-10-25T19:45:04.259966-05:00",
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\hare\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\hare\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\hare\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\hare\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\hare\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\hare\\Animal - Painted Species Review.blend",
         "blend_sha256": "07d83ad4112966f06f97ddc85ea88be6bd651b80d13b2cd25898deafaa68ad77"
       },
       "correction": "Levelled the transferred torso pitch, distributed neck compensation to retain gaze, bounded body bob and removed hind-limb influence from332 upper rear torso vertices. Rebuilt native review demos. Lower-leg skin and original non-Run individual actions retained.",
@@ -32,10 +32,10 @@
       "updated_at": "2026-10-25T19:54:04.091517-05:00",
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\rabbit\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\rabbit\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\rabbit\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\rabbit\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\rabbit\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\rabbit\\Animal - Painted Species Review.blend",
         "blend_sha256": "3d36b5d738011a8cb9dbd440231777b857aedfa01c788e489ff6df7f6ad3958d"
       },
       "correction": "Retained the existing CC0 quadruped rabbit bank after rejecting an unsuitable upright-character donor. Levelled torso, compensated neck and world leg swing, confined rear-core and hind-paw skin, removed hind-paw axial flips. Original bind geometry and non-Run individual actions retained.",
@@ -55,10 +55,10 @@
       "updated_at": "2026-10-25T19:54:04.091517-05:00",
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\red-fox\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\red-fox\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\red-fox\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\red-fox\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\red-fox\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\red-fox\\Animal - Painted Species Review.blend",
         "blend_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60"
       },
       "correction": "Retargeted the real right hind leg and tail from explicit physical paths in the existing CC0 fox bank; confined whole paws and stabilized axial frames. Closed walk/run cycles and fitted ground clearance. Original bind geometry, appearance and rest skeleton retained.",
@@ -75,10 +75,10 @@
       "updated_at": "2026-10-25T19:54:04.091517-05:00",
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\wolf\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\wolf\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\wolf\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\wolf\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\wolf\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\wolf\\Animal - Painted Species Review.blend",
         "blend_sha256": "138b230452d62cc325f8417f41e698da21c0cf96cedc83fe3af7177df045e8a6"
       },
       "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
@@ -93,7 +93,7 @@
         "Identify whether central white eye dots are lighting reflections or painted/material defects; correct distracting appearance."
       ],
       "updated_at": "2026-10-25T19:54:04.092517-05:00",
-      "checked_revisions_index": "artifacts\\fauna-review-revisions\\checked-review-revisions.json",
+      "checked_revisions_index": "assets-source\\animals\\revisions\\checked-review-revisions.json",
       "correction": "Paired skull-plane/surface fits, source-specific manual adjustments, seam-free fur surround sampling and softer corneal highlights. All 177 visual entries audited; 168 added-eye bodies revised. Nine tiny/protected/surface-only entries retain appropriate original treatment.",
       "remaining_limits": [
         "Horse original asymmetric sockets retained; rejected skull edits excluded.",
@@ -129,10 +129,10 @@
       "owner_approved": false,
       "review_update": "Run rebuilt on the actual four limbs with a stable torso; original selected Walk and skin retained.",
       "repair_review": {
-        "plan": "artifacts\\fauna-repairs\\capuchin\\review-plan.json",
-        "media_root": "artifacts\\fauna-repairs\\capuchin\\media",
-        "check": "artifacts\\fauna-repairs\\capuchin\\native-check.json",
-        "blend": "artifacts\\fauna-repairs\\capuchin\\Animal - Final Motion.blend",
+        "plan": "assets-source\\animals\\repairs\\capuchin\\review-plan.json",
+        "media_root": "assets-source\\animals\\repairs\\capuchin\\media",
+        "check": "assets-source\\animals\\repairs\\capuchin\\native-check.json",
+        "blend": "assets-source\\animals\\repairs\\capuchin\\Animal - Final Motion.blend",
         "blend_sha256": "3a0fcba397a868a89e453cb75b5c8f3480afb71bafe91533aa6acc1fa5b21ff9"
       }
     },
@@ -143,10 +143,10 @@
       "owner_approved": false,
       "review_update": "Tail skin/sway and walk/run loops stabilized; true white coat added. Original limb gait remains prototype.",
       "repair_review": {
-        "plan": "artifacts\\fauna-repairs\\tiger\\review-plan.json",
-        "media_root": "artifacts\\fauna-repairs\\tiger\\media",
-        "check": "artifacts\\fauna-repairs\\tiger\\native-check.json",
-        "blend": "artifacts\\fauna-repairs\\tiger\\Animal - Final Motion.blend",
+        "plan": "assets-source\\animals\\repairs\\tiger\\review-plan.json",
+        "media_root": "assets-source\\animals\\repairs\\tiger\\media",
+        "check": "assets-source\\animals\\repairs\\tiger\\native-check.json",
+        "blend": "assets-source\\animals\\repairs\\tiger\\Animal - Final Motion.blend",
         "blend_sha256": "508cca10ea6cf5f68cdc608812d8f5f975d217ecfa67b70a6469568c092bd075"
       }
     },
@@ -156,10 +156,10 @@
       "owner_approved": false,
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\raccoon\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\raccoon\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\raccoon\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\raccoon\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\raccoon\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\raccoon\\Animal - Painted Species Review.blend",
         "blend_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44"
       },
       "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
@@ -171,10 +171,10 @@
       "owner_approved": false,
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\bison\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\bison\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\bison\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\bison\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\bison\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\bison\\Animal - Painted Species Review.blend",
         "blend_sha256": "1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd"
       }
     },
@@ -184,10 +184,10 @@
       "owner_approved": false,
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\wild-goat\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\wild-goat\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\wild-goat\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\wild-goat\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\wild-goat\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\wild-goat\\Animal - Painted Species Review.blend",
         "blend_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b"
       }
     },
@@ -197,10 +197,10 @@
       "owner_approved": false,
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\native-detritivorous-flies-guild\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\native-detritivorous-flies-guild\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\native-detritivorous-flies-guild\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\native-detritivorous-flies-guild\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\native-detritivorous-flies-guild\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\native-detritivorous-flies-guild\\Animal - Painted Species Review.blend",
         "blend_sha256": "b454c1fa1e784a0b9dc5ec4d6817940d477e383b0aa217593fae8ab9bf4d8652"
       }
     },
@@ -210,10 +210,10 @@
       "owner_approved": false,
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\moose\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\moose\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\moose\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\moose\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\moose\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\moose\\Animal - Painted Species Review.blend",
         "blend_sha256": "74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1"
       }
     },
@@ -223,10 +223,10 @@
       "owner_approved": false,
       "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-anatomy-revision\\reindeer\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
-        "check": "artifacts\\fauna-anatomy-revision\\reindeer\\visual-native-check.json",
-        "blend": "artifacts\\fauna-anatomy-revision\\reindeer\\Animal - Painted Species Review.blend",
+        "plan": "assets-source\\animals\\anatomy\\reindeer\\phone-review-plan.json",
+        "media_root": "assets-source\\animals\\anatomy\\phone-media",
+        "check": "assets-source\\animals\\anatomy\\reindeer\\visual-native-check.json",
+        "blend": "assets-source\\animals\\anatomy\\reindeer\\Animal - Painted Species Review.blend",
         "blend_sha256": "a61295b6ebbf91fb8688836acb509251eb50fc0b5a654086d94df0e3fbd9d203"
       }
     }
@@ -239,7 +239,7 @@
     "owner_approval_inferred": false
   },
   "last_sweep": {
-    "report": "artifacts\\fauna-review-revisions\\final-sweep\\review.json",
+    "report": "assets-source\\animals\\revisions\\final-sweep\\review.json",
     "animals_visually_inspected": 177,
     "sampled_motion_frames": 1416,
     "motion_corrections": [

@@ -3,7 +3,7 @@ import hashlib,json,shutil
 from pathlib import Path
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-eye-closure-repair'
+root=repo/'assets-source/animals/eye-repair'
 project=root/'bundle-project'
 editor=project/'Assets/Editor';editor.mkdir(parents=True,exist_ok=True)
 runtime=repo/'unity/WorldGen.Unity/Assets/WorldGen'
@@ -49,7 +49,7 @@ public static class FaunaBundleRepairAudit {
             var asset=bundle.LoadAllAssets<WorldGenFaunaAsset>().Single();
             if(asset.Mesh==null||asset.Poses.Length==0||asset.Coats==null||asset.Mask==null||asset.Normal==null)throw new Exception("Incomplete "+path);
             if(asset.Mesh.vertexCount>200000)throw new Exception("Mesh limit "+path);
-            string export=Path.Combine(@"'''+str(repo/'artifacts/fauna-runtime-20261026/exports')+'''",asset.Slug,"model.json");
+            string export=Path.Combine(@"'''+str(repo/'assets-source/animals/exports')+'''",asset.Slug,"model.json");
             var model=JsonUtility.FromJson<CheckModel>(File.ReadAllText(export));
             if(asset.SourceSha256!=model.source_sha256||asset.Mesh.vertexCount!=model.vertices)throw new Exception("Wrong source/mesh "+path);
             var cached=AssetDatabase.LoadAssetAtPath<WorldGenFaunaAsset>("Assets/WorldGen/Editor/GeneratedFauna/"+asset.Slug+".asset");

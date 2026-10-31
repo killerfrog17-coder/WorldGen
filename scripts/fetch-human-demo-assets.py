@@ -9,7 +9,7 @@ import zipfile
 
 import requests
 
-ROOT = Path(__file__).resolve().parent.parent / 'artifacts/human-builder-demo'
+ROOT = Path(__file__).resolve().parent.parent / 'assets-source/humans/research/builders'
 DEST = ROOT / 'mpfb-assets'
 
 

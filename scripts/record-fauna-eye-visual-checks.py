@@ -1,7 +1,7 @@
 """Record only explicitly viewed result sheets whose native and PNG hashes match."""
 import argparse,hashlib,json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('--pages',nargs='+',type=int,required=True);a=ap.parse_args()
 for page in a.pages:
  path=root/f'inspection/eye-result-sheets/eyes-{page:02}.json';sheet=json.loads(path.read_text());groups={}

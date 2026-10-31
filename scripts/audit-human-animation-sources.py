@@ -7,7 +7,7 @@ import struct
 import numpy as np
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-animation-sources'
+ROOT=REPO/'assets-source/humans/motion/animation-library'
 
 
 def inspect(path):

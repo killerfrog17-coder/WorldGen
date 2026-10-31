@@ -1,7 +1,7 @@
 [
   {
     "role": "Idle",
-    "source": "artifacts\\human-natural-20261031\\motions\\idle\\seed-3100",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\idle\\seed-3100",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -13,7 +13,7 @@
   },
   {
     "role": "Walk",
-    "source": "artifacts\\kimodo-first-person-demo\\motions\\empty_walk\\seed-240",
+    "source": "assets-source\\humans\\motion\\first-person\\motions\\empty_walk\\seed-240",
     "begin": 102,
     "end": 134,
     "loop": true,
@@ -25,7 +25,7 @@
   },
   {
     "role": "Run",
-    "source": "artifacts\\kimodo-human-bank\\motions\\jog\\seed-901",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\jog\\seed-901",
     "begin": 89,
     "end": 111,
     "loop": true,
@@ -37,7 +37,7 @@
   },
   {
     "role": "Sprint",
-    "source": "artifacts\\kimodo-human-bank\\motions\\sprint\\seed-1402",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\sprint\\seed-1402",
     "begin": 61,
     "end": 81,
     "loop": true,
@@ -49,7 +49,7 @@
   },
   {
     "role": "Crouch",
-    "source": "artifacts\\kimodo-human-bank\\motions\\crouch_walk\\seed-1203",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\crouch_walk\\seed-1203",
     "begin": 12,
     "end": 58,
     "loop": true,
@@ -61,7 +61,7 @@
   },
   {
     "role": "CrouchIdle",
-    "source": "artifacts\\kimodo-human-bank\\motions\\crouch_idle\\seed-1204",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\crouch_idle\\seed-1204",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -73,7 +73,7 @@
   },
   {
     "role": "Jump",
-    "source": "artifacts\\kimodo-human-bank\\motions\\jump\\seed-1205",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\jump\\seed-1205",
     "begin": 22,
     "end": 40,
     "loop": false,
@@ -85,7 +85,7 @@
   },
   {
     "role": "Swim",
-    "source": "artifacts\\human-natural-20261031\\motions\\swim\\seed-3290",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\swim\\seed-3290",
     "begin": 14,
     "end": 80,
     "loop": true,
@@ -97,7 +97,7 @@
   },
   {
     "role": "WalkBack",
-    "source": "artifacts\\kimodo-human-bank\\motions\\walk_back\\seed-935",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\walk_back\\seed-935",
     "begin": 104,
     "end": 135,
     "loop": true,
@@ -109,7 +109,7 @@
   },
   {
     "role": "StrafeLeft",
-    "source": "artifacts\\kimodo-human-bank\\motions\\strafe_left\\seed-936",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\strafe_left\\seed-936",
     "begin": 95,
     "end": 122,
     "loop": true,
@@ -121,7 +121,7 @@
   },
   {
     "role": "StrafeRight",
-    "source": "artifacts\\kimodo-human-bank\\motions\\strafe_right\\seed-937",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\strafe_right\\seed-937",
     "begin": 70,
     "end": 100,
     "loop": true,
@@ -133,7 +133,7 @@
   },
   {
     "role": "RunBack",
-    "source": "artifacts\\kimodo-human-bank\\motions\\run_back\\seed-938",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\run_back\\seed-938",
     "begin": 34,
     "end": 53,
     "loop": true,
@@ -145,7 +145,7 @@
   },
   {
     "role": "RunLeft",
-    "source": "artifacts\\kimodo-human-bank\\motions\\run_left\\seed-939",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\run_left\\seed-939",
     "begin": 77,
     "end": 99,
     "loop": true,
@@ -157,7 +157,7 @@
   },
   {
     "role": "RunRight",
-    "source": "artifacts\\kimodo-human-bank\\motions\\run_right\\seed-940",
+    "source": "assets-source\\humans\\motion\\bank\\motions\\run_right\\seed-940",
     "begin": 104,
     "end": 129,
     "loop": true,
@@ -169,7 +169,7 @@
   },
   {
     "role": "Empty",
-    "source": "artifacts\\human-natural-20261031\\motions\\idle\\seed-3100",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\idle\\seed-3100",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -181,7 +181,7 @@
   },
   {
     "role": "FistsReady",
-    "source": "artifacts\\human-natural-20261031\\motions\\fists_ready\\seed-3251",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\fists_ready\\seed-3251",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -193,7 +193,7 @@
   },
   {
     "role": "FistsGuard",
-    "source": "artifacts\\human-natural-20261031\\motions\\fists_guard\\seed-3260",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\fists_guard\\seed-3260",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -205,7 +205,7 @@
   },
   {
     "role": "Punch",
-    "source": "artifacts\\human-natural-20261031\\motions\\punch\\seed-3240",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\punch\\seed-3240",
     "begin": 9,
     "end": 50,
     "loop": false,
@@ -217,7 +217,7 @@
   },
   {
     "role": "Punch_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\punch\\seed-3240",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\punch\\seed-3240",
     "begin": 9,
     "end": 50,
     "loop": false,
@@ -230,7 +230,7 @@
   },
   {
     "role": "ToolReady",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_ready\\seed-3110",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_ready\\seed-3110",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -242,7 +242,7 @@
   },
   {
     "role": "ToolReady_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_ready\\seed-3110",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_ready\\seed-3110",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -255,7 +255,7 @@
   },
   {
     "role": "ToolWalk",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_walk\\seed-3120",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_walk\\seed-3120",
     "begin": 46,
     "end": 84,
     "loop": true,
@@ -267,7 +267,7 @@
   },
   {
     "role": "ToolWalk_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_walk\\seed-3120",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_walk\\seed-3120",
     "begin": 46,
     "end": 84,
     "loop": true,
@@ -280,7 +280,7 @@
   },
   {
     "role": "ToolCutA",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_cut\\seed-3201",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_cut\\seed-3201",
     "begin": 47,
     "end": 88,
     "loop": false,
@@ -292,7 +292,7 @@
   },
   {
     "role": "ToolCutA_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_cut\\seed-3201",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_cut\\seed-3201",
     "begin": 47,
     "end": 88,
     "loop": false,
@@ -305,7 +305,7 @@
   },
   {
     "role": "ToolCutB",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_stab\\seed-3520",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_stab\\seed-3520",
     "begin": 13,
     "end": 54,
     "loop": false,
@@ -317,7 +317,7 @@
   },
   {
     "role": "ToolCutB_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_stab\\seed-3520",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_stab\\seed-3520",
     "begin": 13,
     "end": 54,
     "loop": false,
@@ -330,7 +330,7 @@
   },
   {
     "role": "ToolBlunt",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_chop\\seed-3220",
     "begin": 18,
     "end": 59,
     "loop": false,
@@ -342,7 +342,7 @@
   },
   {
     "role": "ToolBlunt_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_chop\\seed-3220",
     "begin": 18,
     "end": 59,
     "loop": false,
@@ -355,7 +355,7 @@
   },
   {
     "role": "ToolChop",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_chop\\seed-3220",
     "begin": 18,
     "end": 59,
     "loop": false,
@@ -367,7 +367,7 @@
   },
   {
     "role": "ToolChop_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_chop\\seed-3220",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_chop\\seed-3220",
     "begin": 18,
     "end": 59,
     "loop": false,
@@ -380,7 +380,7 @@
   },
   {
     "role": "ToolGuard",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_guard\\seed-3231",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_guard\\seed-3231",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -392,7 +392,7 @@
   },
   {
     "role": "ToolGuard_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\tool_guard\\seed-3231",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\tool_guard\\seed-3231",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -405,7 +405,7 @@
   },
   {
     "role": "SpearReady1",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_ready_one\\seed-3180",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_ready_one\\seed-3180",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -417,7 +417,7 @@
   },
   {
     "role": "SpearReady1_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_ready_one\\seed-3180",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_ready_one\\seed-3180",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -430,7 +430,7 @@
   },
   {
     "role": "SpearThrust1",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_thrust_one\\seed-3140",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_thrust_one\\seed-3140",
     "begin": 30,
     "end": 71,
     "loop": false,
@@ -442,7 +442,7 @@
   },
   {
     "role": "SpearThrust1_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_thrust_one\\seed-3140",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_thrust_one\\seed-3140",
     "begin": 30,
     "end": 71,
     "loop": false,
@@ -455,7 +455,7 @@
   },
   {
     "role": "SpearReady2",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_ready_two\\seed-3190",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_ready_two\\seed-3190",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -467,7 +467,7 @@
   },
   {
     "role": "SpearReady2_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_ready_two\\seed-3190",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_ready_two\\seed-3190",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -480,7 +480,7 @@
   },
   {
     "role": "SpearThrust2",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_thrust_two\\seed-3151",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_thrust_two\\seed-3151",
     "begin": 1,
     "end": 42,
     "loop": false,
@@ -492,7 +492,7 @@
   },
   {
     "role": "SpearThrust2_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\spear_thrust_two\\seed-3151",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\spear_thrust_two\\seed-3151",
     "begin": 1,
     "end": 42,
     "loop": false,
@@ -505,7 +505,7 @@
   },
   {
     "role": "ThrowCharge",
-    "source": "artifacts\\human-natural-20261031\\motions\\throw\\seed-3300",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\throw\\seed-3300",
     "begin": 0,
     "end": 61,
     "loop": false,
@@ -517,7 +517,7 @@
   },
   {
     "role": "ThrowCharge_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\throw\\seed-3300",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\throw\\seed-3300",
     "begin": 0,
     "end": 61,
     "loop": false,
@@ -530,7 +530,7 @@
   },
   {
     "role": "ThrowRelease",
-    "source": "artifacts\\human-natural-20261031\\motions\\throw\\seed-3300",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\throw\\seed-3300",
     "begin": 61,
     "end": 98,
     "loop": false,
@@ -542,7 +542,7 @@
   },
   {
     "role": "ThrowRelease_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\throw\\seed-3300",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\throw\\seed-3300",
     "begin": 61,
     "end": 98,
     "loop": false,
@@ -555,7 +555,7 @@
   },
   {
     "role": "SpearThrowCharge",
-    "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252",
+    "source": "assets-source\\humans\\motion\\first-person\\motions\\spear_throw\\seed-252",
     "begin": 0,
     "end": 52,
     "loop": false,
@@ -567,7 +567,7 @@
   },
   {
     "role": "SpearThrowCharge_Left",
-    "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252",
+    "source": "assets-source\\humans\\motion\\first-person\\motions\\spear_throw\\seed-252",
     "begin": 0,
     "end": 52,
     "loop": false,
@@ -580,7 +580,7 @@
   },
   {
     "role": "SpearThrowRelease",
-    "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252",
+    "source": "assets-source\\humans\\motion\\first-person\\motions\\spear_throw\\seed-252",
     "begin": 52,
     "end": 89,
     "loop": false,
@@ -592,7 +592,7 @@
   },
   {
     "role": "SpearThrowRelease_Left",
-    "source": "artifacts\\kimodo-first-person-demo\\motions\\spear_throw\\seed-252",
+    "source": "assets-source\\humans\\motion\\first-person\\motions\\spear_throw\\seed-252",
     "begin": 52,
     "end": 89,
     "loop": false,
@@ -605,7 +605,7 @@
   },
   {
     "role": "SlingReady",
-    "source": "artifacts\\human-natural-20261031\\motions\\sling_ready\\seed-3321",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\sling_ready\\seed-3321",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -617,7 +617,7 @@
   },
   {
     "role": "SlingReady_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\sling_ready\\seed-3321",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\sling_ready\\seed-3321",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -630,7 +630,7 @@
   },
   {
     "role": "SlingWhirl",
-    "source": "artifacts\\human-natural-20261031\\motions\\sling_whirl\\seed-3330",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\sling_whirl\\seed-3330",
     "begin": 40,
     "end": 116,
     "loop": true,
@@ -642,7 +642,7 @@
   },
   {
     "role": "SlingWhirl_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\sling_whirl\\seed-3330",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\sling_whirl\\seed-3330",
     "begin": 40,
     "end": 116,
     "loop": true,
@@ -655,7 +655,7 @@
   },
   {
     "role": "SlingRelease",
-    "source": "artifacts\\human-natural-20261031\\motions\\sling_release\\seed-3341",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\sling_release\\seed-3341",
     "begin": 29,
     "end": 66,
     "loop": false,
@@ -667,7 +667,7 @@
   },
   {
     "role": "SlingRelease_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\sling_release\\seed-3341",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\sling_release\\seed-3341",
     "begin": 29,
     "end": 66,
     "loop": false,
@@ -680,7 +680,7 @@
   },
   {
     "role": "BowReady",
-    "source": "artifacts\\human-natural-20261031\\motions\\bow_ready\\seed-3170",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\bow_ready\\seed-3170",
     "begin": 15,
     "end": 108,
     "loop": true,
@@ -692,7 +692,7 @@
   },
   {
     "role": "BowDraw",
-    "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\bow_shoot\\seed-3160",
     "begin": 0,
     "end": 42,
     "loop": false,
@@ -704,7 +704,7 @@
   },
   {
     "role": "BowRelease",
-    "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\bow_shoot\\seed-3160",
     "begin": 42,
     "end": 72,
     "loop": false,
@@ -716,7 +716,7 @@
   },
   {
     "role": "Gather",
-    "source": "artifacts\\human-natural-20261031\\motions\\gather\\seed-3350",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\gather\\seed-3350",
     "begin": 8,
     "end": 109,
     "loop": false,
@@ -728,7 +728,7 @@
   },
   {
     "role": "Gather_Left",
-    "source": "artifacts\\human-natural-20261031\\motions\\gather\\seed-3350",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\gather\\seed-3350",
     "begin": 8,
     "end": 109,
     "loop": false,
@@ -741,7 +741,7 @@
   },
   {
     "role": "Drink",
-    "source": "artifacts\\human-natural-20261031\\motions\\drink\\seed-3360",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\drink\\seed-3360",
     "begin": 21,
     "end": 129,
     "loop": false,
@@ -753,7 +753,7 @@
   },
   {
     "role": "Eat",
-    "source": "artifacts\\human-natural-20261031\\motions\\eat\\seed-3370",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\eat\\seed-3370",
     "begin": 8,
     "end": 140,
     "loop": false,
@@ -765,7 +765,7 @@
   },
   {
     "role": "WorkKnapping",
-    "source": "artifacts\\human-natural-20261031\\motions\\work_knapping\\seed-3380",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\work_knapping\\seed-3380",
     "begin": 103,
     "end": 177,
     "loop": true,
@@ -777,7 +777,7 @@
   },
   {
     "role": "WorkCut",
-    "source": "artifacts\\human-natural-20261031\\motions\\work_cut\\seed-3390",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\work_cut\\seed-3390",
     "begin": 59,
     "end": 122,
     "loop": true,
@@ -789,7 +789,7 @@
   },
   {
     "role": "WorkTwist",
-    "source": "artifacts\\human-natural-20261031\\motions\\work_twist\\seed-3400",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\work_twist\\seed-3400",
     "begin": 23,
     "end": 97,
     "loop": true,
@@ -801,7 +801,7 @@
   },
   {
     "role": "WorkDig",
-    "source": "artifacts\\human-natural-20261031\\motions\\work_dig\\seed-3410",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\work_dig\\seed-3410",
     "begin": 35,
     "end": 70,
     "loop": true,
@@ -813,7 +813,7 @@
   },
   {
     "role": "CarryLarge",
-    "source": "artifacts\\human-natural-20261031\\motions\\carry_large\\seed-3421",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\carry_large\\seed-3421",
     "begin": 15,
     "end": 138,
     "loop": true,
@@ -825,7 +825,7 @@
   },
   {
     "role": "SwimCarry",
-    "source": "artifacts\\human-natural-20261031\\motions\\swim\\seed-3290",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\swim\\seed-3290",
     "begin": 14,
     "end": 80,
     "loop": true,
@@ -837,7 +837,7 @@
   },
   {
     "role": "SwimCarryLeft",
-    "source": "artifacts\\human-natural-20261031\\motions\\swim\\seed-3290",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\swim\\seed-3290",
     "begin": 14,
     "end": 80,
     "loop": true,
@@ -850,7 +850,7 @@
   },
   {
     "role": "SwimCarryTwo",
-    "source": "artifacts\\human-natural-20261031\\motions\\swim\\seed-3290",
+    "source": "assets-source\\humans\\motion\\natural\\motions\\swim\\seed-3290",
     "begin": 14,
     "end": 80,
     "loop": true,

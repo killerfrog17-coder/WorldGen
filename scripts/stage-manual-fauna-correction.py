@@ -2,7 +2,7 @@
 import argparse,hashlib,json,shutil
 from pathlib import Path
 repo=Path(__file__).resolve().parent.parent;p=argparse.ArgumentParser();p.add_argument('--slug',required=True,choices=['iguana','monitor-lizard','whale','elephant']);a=p.parse_args()
-root=repo/'artifacts/fauna-overnight-20261024'/a.slug;work=repo/'artifacts/fauna-owner-fixes-20261025'/a.slug
+root=repo/'assets-source/animals/generation'/a.slug;work=repo/'assets-source/animals/owner-revisions'/a.slug
 choice=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals'][a.slug];number,=choice['selected_models']
 out=root/'Animal - Owner Corrected.blend';assert not out.exists()
 shutil.copy2(work/'Animal - Raw Audition.blend',out)

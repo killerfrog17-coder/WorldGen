@@ -6,7 +6,7 @@ import argparse,hashlib,json,os,subprocess,time,threading
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-review-revisions';blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--exclude',nargs='*',default=[]);a=ap.parse_args();queue=json.loads((repo/'artifacts/fauna-painted-20261024/paint-queue.json').read_text())['jobs'];jobs=[]
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/revisions';blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--exclude',nargs='*',default=[]);a=ap.parse_args();queue=json.loads((repo/'assets-source/animals/painted/paint-queue.json').read_text())['jobs'];jobs=[]
 for row in queue:
  slug=row['slug'];folder=root/slug;check=folder/'revision-native-check.json';native=folder/'Animal - Painted Species Review.blend'
  if slug in a.exclude or (a.slugs and slug not in a.slugs) or not check.exists():continue

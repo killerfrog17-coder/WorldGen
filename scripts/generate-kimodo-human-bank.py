@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-human-bank'
-DEMO = REPO / 'artifacts/kimodo-first-person-demo'
+ROOT = REPO / 'assets-source/humans/motion/bank'
+DEMO = REPO / 'assets-source/humans/motion/first-person'
 
 # Simple motion-capture descriptions work better than long prop/scene instructions.
 DESCRIPTIONS = [

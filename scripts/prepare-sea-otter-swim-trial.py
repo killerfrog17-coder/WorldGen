@@ -2,7 +2,7 @@
 import hashlib,json,shutil
 from pathlib import Path
 import numpy as np
-repo=Path(__file__).resolve().parent.parent;bank=repo/'artifacts/fauna-motion-sources'
+repo=Path(__file__).resolve().parent.parent;bank=repo/'assets-source/animals/motion-library'
 src=bank/'fish';dst=bank/'sea-otter-swim-trial';dst.mkdir(exist_ok=True)
 assert not (dst/'source-rig.json').exists(),'Keep an existing source trial intact'
 s=json.loads((src/'source-rig.json').read_text());arrays=np.load(src/'source-motions.npz')

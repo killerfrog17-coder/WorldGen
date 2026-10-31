@@ -24,7 +24,7 @@ if extended:
 if a.slug=='sea-otter':kind='small-carnivore'
 surface_only_arthropod=extended and category in {'ground_insect','spider'}
 canid=kind=='canid';compact=kind!='lagomorph'
-root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
+root=(a.root or repo/'assets-source/animals/painted'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 assert state['status'] in {'anatomical_colouring_started','atlas_and_face_fitted_working'}
 bake=json.loads((root/'coat-bake.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
@@ -248,7 +248,7 @@ if physical_eye:
         pupil=np.clip((r-.72)/.06,0,1)
     elif a.slug=='hare':pupil=np.clip((r-.51)/.06,0,1)
     elif a.slug=='rabbit':pupil=np.clip((r-.79)/.05,0,1)
-    source=repo/'artifacts/fauna-assets/textures/iris-neutral-radial-v2.png'
+    source=repo/'assets-source/animals/prototypes/textures/iris-neutral-radial-v2.png'
     if source.exists():
         # Read the generated pigment field into circular physical coordinates.
         # Its original circular black centre is excluded before applying each

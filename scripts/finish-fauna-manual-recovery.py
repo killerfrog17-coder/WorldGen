@@ -1,7 +1,7 @@
 """Publish an unrelated target's checked manual recovery without editing live worker state."""
 import argparse,hashlib,json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;batch=repo/'artifacts/fauna-overnight-20261024'
+repo=Path(__file__).resolve().parent.parent;batch=repo/'assets-source/animals/generation'
 p=argparse.ArgumentParser();p.add_argument('--slug',required=True);p.add_argument('--reason',required=True);a=p.parse_args();root=(batch/a.slug).resolve();assert root.parent==batch.resolve()
 state=json.loads((batch/'queue-state.json').read_text());assert state.get('current')!=a.slug
 checks=json.loads((root/'native-checks.json').read_text());meta=json.loads((root/'audition.json').read_text());assert checks['controls'] and len(checks['candidates'])==len(meta['candidates'])==4 and not meta.get('art_approved')

@@ -121,7 +121,7 @@ while the owner plays, retaining FP16/50 steps/depth8. These later instructions
 supersede the historical ordering and resident-only statements below.
 
 Hare3 and Rabbit1 have separate first colour passes under
-`artifacts/fauna-painted-20261024`, with six/five palettes, 1K colour/roughness,
+`assets-source/animals/painted`, with six/five palettes, 1K colour/roughness,
 512 normal detail, fitted glossy eyes, surface-fitted bare lid rims and sparse
 whiskers. The selected body geometry, skin, rest rig and all seven source actions
 per animal are exact against raw. Extras add780 triangles to3420/3430-triangle
@@ -187,17 +187,17 @@ Use the active instructions above and current owner messages for ongoing work.
 
 The owner accepts the finished deer comparison as good enough for a game
 prototype, with known motion imperfections. The single retained asset is now
-`artifacts/fauna-assets/deer/Deer - Prototype.blend` (75.1MiB), using the initially
+`assets-source/animals/prototypes/deer/Deer - Prototype.blend` (75.1MiB), using the initially
 displayed candidate1 rig because no preferred rig was named. It includes the
 approved body, all eight packed coats, eyes, hair, four optional antler racks,
 ear/tail keys, one generated rig and the existing authored motions/demos. The
 reference/fur swatch and one rig prediction remain beside it. Reusable original
-motion arrays and license/provenance are in `artifacts/fauna-assets/motion-bank/deer`.
+motion arrays and license/provenance are in `assets-source/animals/prototypes/motion-bank/deer`.
 This is visual prototype acceptance, not completed game spawning/AI integration.
 
 Open with:
 ```
-python scripts/open-deer-mesh2motion.py --root artifacts/fauna-assets/deer --four-rigs --blend-name "Deer - Prototype.blend" --rightmost
+python scripts/open-deer-mesh2motion.py --root assets-source/animals/prototypes/deer --four-rigs --blend-name "Deer - Prototype.blend" --rightmost
 ```
 The viewer retains1/2/3/4, Pause/Play, individual clips and Show/Hide Skeleton;
 the model/rig selector now correctly says1/1. Native reload, packed-map and

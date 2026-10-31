@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 
 repo=Path(__file__).resolve().parent.parent
-dest=repo/'artifacts/fauna-motion-sources/procedural-squid';dest.mkdir(exist_ok=True)
+dest=repo/'assets-source/animals/motion-library/procedural-squid';dest.mkdir(exist_ok=True)
 names=['Pelvis','Head','Fin_L','Fin_R',*[f'Arm_{n}' for n in range(10)]]
 positions=[(0,0,.8),(0,.35,.8),(-.35,-.5,.8),(.35,-.5,.8)]
 positions += [(.17*math.cos(n*math.tau/10),.8,.8+.17*math.sin(n*math.tau/10)) for n in range(10)]

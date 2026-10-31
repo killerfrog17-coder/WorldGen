@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 repo=Path(__file__).resolve().parent.parent
 for slug in ['hare','rabbit']:
- root=repo/'artifacts/fauna-visual-corrections'/slug;land=json.loads((root/'face-landmarks.json').read_text())
+ root=repo/'assets-source/animals/corrections'/slug;land=json.loads((root/'face-landmarks.json').read_text())
  def pixel(point,view):
   guide=json.loads((root/'eye-audit'/f'{view}.json').read_text());M=np.array(guide['camera_matrix']);p=(np.array(point)-M[:3,3])@M[:3,:3]
   return ((p[:2]/guide['scale']*[1,-1]+.5)*guide['size']).tolist()

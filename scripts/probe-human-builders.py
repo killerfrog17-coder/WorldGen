@@ -6,8 +6,8 @@ from pathlib import Path
 import bpy
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/human-builder-demo'
-sys.path.insert(0, str(REPO / 'artifacts/tools/mpfb2/src'))
+ROOT = REPO / 'assets-source/humans/research/builders'
+sys.path.insert(0, str(REPO / 'tools/mpfb2/src'))
 original_extension_path = bpy.utils.extension_path_user
 bpy.utils.extension_path_user = lambda package, **kwargs: str(ROOT / 'mpfb-user') if package == 'mpfb' else original_extension_path(package, **kwargs)
 import mpfb

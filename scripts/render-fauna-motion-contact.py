@@ -3,7 +3,7 @@ import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--clip',default='Run');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);repo=Path(__file__).resolve().parent.parent;folder=repo/'artifacts/fauna-repairs'/a.slug;record=json.loads((folder/'run-repair.json').read_text());dest=folder/('contact' if a.clip=='Run' else 'contact-'+a.clip.lower());dest.mkdir(exist_ok=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--clip',default='Run');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);repo=Path(__file__).resolve().parent.parent;folder=repo/'assets-source/animals/repairs'/a.slug;record=json.loads((folder/'run-repair.json').read_text());dest=folder/('contact' if a.clip=='Run' else 'contact-'+a.clip.lower());dest.mkdir(exist_ok=True)
 for version,path in [('before',record['source']),('after',record['output'])]:
  source=repo/path;digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[e['rig']];body=bpy.data.objects[e['body']];rig.hide_set(False);rig.hide_render=True;rig.animation_data_clear();rig.data.pose_position='POSE';action=bpy.data.actions[e['actions'][a.clip]];rig.animation_data_create().action=action;rig.animation_data.action_slot=action.slots[0]
  for ob in list(s.objects):

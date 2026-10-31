@@ -39,7 +39,7 @@ def add(slug,land,body,root,repo,obj,sample,bvh,coat_material,coat_objects):
             A,B,D=[points[k] for k in face]
             if np.cross(B-A,D-A)@((A+B+D)/3-interior)<0:faces[index]=tuple(reversed(face))
         mat=bpy.data.materials.new(slug+' paired-nostril nasal disc');mat.use_nodes=True;n=mat.node_tree.nodes;l=mat.node_tree.links;bs=n.get('Principled BSDF');bs.inputs['Roughness'].default_value=.55 if slug=='bear' else .47;bs.inputs['Specular IOR Level'].default_value=.30
-        tex=n.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(repo/'artifacts/fauna-assets/textures/skin-nasal-lid-v1.png'),check_existing=True);tex.image.pack()
+        tex=n.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(repo/'assets-source/animals/prototypes/textures/skin-nasal-lid-v1.png'),check_existing=True);tex.image.pack()
         tint=n.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.30;tint.inputs['Value'].default_value=.14 if slug=='bear' else .26;l.new(tex.outputs['Color'],tint.inputs['Color'])
         attr=n.new('ShaderNodeAttribute');attr.attribute_name='Nasal nostril';mix=n.new('ShaderNodeMixRGB');mix.inputs[2].default_value=(.003,.0025,.002,1);l.new(attr.outputs['Fac'],mix.inputs[0]);l.new(tint.outputs['Color'],mix.inputs[1]);l.new(mix.outputs[0],bs.inputs['Base Color'])
         bump=n.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.12;bump.inputs['Distance'].default_value=.0005;l.new(tex.outputs['Color'],bump.inputs['Height']);l.new(bump.outputs['Normal'],bs.inputs['Normal'])

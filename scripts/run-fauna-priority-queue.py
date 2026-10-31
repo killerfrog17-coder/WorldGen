@@ -1,7 +1,7 @@
 """Run a finite owner-requested redo list before resuming the full serial queue."""
 import argparse,datetime,json,subprocess,sys
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;batch=repo/'artifacts/fauna-overnight-20261024'
+repo=Path(__file__).resolve().parent.parent;batch=repo/'assets-source/animals/generation'
 p=argparse.ArgumentParser();p.add_argument('--jobs',type=Path,required=True);p.add_argument('--resume-full',action='store_true');a=p.parse_args()
 request=json.loads(a.jobs.read_text());assert not (batch/'worker.lock').exists()
 for slug in request['slugs']:

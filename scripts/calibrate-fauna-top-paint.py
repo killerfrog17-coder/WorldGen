@@ -6,7 +6,7 @@ from PIL import Image
 from fauna_face_projection import neutral_exterior_coverage
 
 ap=argparse.ArgumentParser();ap.add_argument('slugs',nargs='+');a=ap.parse_args()
-base=Path(__file__).resolve().parent.parent/'artifacts/fauna-anatomy-revision'
+base=Path(__file__).resolve().parent.parent/'assets-source/animals/anatomy'
 for slug in a.slugs:
  root=base/slug
  def sections(path):

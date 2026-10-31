@@ -2,7 +2,7 @@
 import ctypes,json,subprocess,time
 from ctypes import wintypes
 from pathlib import Path
-root=Path(__file__).resolve().parent.parent/'artifacts/fauna-eye-closure-repair'
+root=Path(__file__).resolve().parent.parent/'assets-source/animals/eye-repair'
 record=json.loads((root/'benchmark-pause.json').read_text());pid=int(record['pid'])
 quiet=0
 while quiet<3:

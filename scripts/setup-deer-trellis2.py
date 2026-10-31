@@ -13,7 +13,7 @@ import urllib.request
 
 ROOT=Path(__file__).resolve().parent.parent
 OUT=ROOT/'artifacts/deer-trellis2-20261023'
-WEIGHTS=ROOT/'artifacts/tools/trellis2-models'
+WEIGHTS=ROOT/'tools/trellis2-models'
 FLOWS=Path('E:/AI/WorldGen3D/trellis2-flows')
 REV='af44b45f2e35a493886929c6d786e563ec68364d'
 DINO_REV='30c1109559f65dea34316b0d4842d35c5771fe11'

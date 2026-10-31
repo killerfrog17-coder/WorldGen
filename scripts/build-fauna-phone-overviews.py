@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-painted-20261024'
+root=repo/'assets-source/animals/painted'
 site=repo/'artifacts/fauna-phone-review/dist'
 out=site/'overview';out.mkdir(exist_ok=True)
 font=ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf',18)

@@ -9,19 +9,19 @@ from fauna_motion_sources import source_for as resolve_source
 from fauna_rig_topology import minimum_leaves,topology,quarantine
 
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true');ap.add_argument('--motion-root',type=Path)
+ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'assets-source/animals/generation');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true');ap.add_argument('--motion-root',type=Path)
 a=ap.parse_args();root=a.root.resolve();root.mkdir(parents=True,exist_ok=True)
 if a.motion_root:
     if not a.only:ap.error('--motion-root is a single-animal technical trial and requires --only')
     a.motion_root=a.motion_root.resolve()
-    assert a.motion_root.is_relative_to(repo/'artifacts/fauna-motion-sources')
+    assert a.motion_root.is_relative_to(repo/'assets-source/animals/motion-library')
     assert all((a.motion_root/n).exists() for n in ('source-rig.json','source-motions.npz'))
 plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']
 # Finish motion-backed auditions before spending GPU time on source-gap animals.
 # Those still receive independent raw meshes/rigs, but never a false "animated"
 # completion label or permission to paint.
 plan.sort(key=lambda row:(row['asset_status']=='queued' and row['family']!='microfly' and resolve_source(row,repo) is None,row['priority_rank']))
-blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';shape_python=repo/'artifacts/tools/triposg-review-venv/Scripts/python.exe';rig_python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe')
+blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';shape_python=repo/'tools/triposg-review-venv/Scripts/python.exe';rig_python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe')
 env=os.environ.copy();temp=root/'temp';temp.mkdir(exist_ok=True);env['TMP']=str(temp);env['TEMP']=str(temp);env['OMP_NUM_THREADS']='3'
 lock=root/'worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY);os.write(fd,str(os.getpid()).encode());os.close(fd)
 state={'pid':os.getpid(),'started':datetime.datetime.now().astimezone().isoformat(),'animals':{},'current':None,'inference_serial':True,'painted':False}
@@ -183,9 +183,9 @@ try:
                 for i in range(1,5):
                     candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed,rig_seed=candidate_seeds(entry,i,candidate)
                     if not (candidate/'raw.glb').exists() and not (candidate/'model.glb').exists():
-                        run([shape_python,repo/'scripts/generate-deer-local.py','--source',reference,'--repo',repo/'artifacts/tools/TripoSG','--weights','E:/AI/WorldGen3D/models/TripoSG','--output',candidate/'raw.glb','--seed',seed,'--steps','50','--depth','8','--shared-gpu' if shape_memory_mode()=='shared_gpu' else '--resident-gpu','--infer'],candidate/'shape.log')
+                        run([shape_python,repo/'scripts/generate-deer-local.py','--source',reference,'--repo',repo/'tools/TripoSG','--weights','E:/AI/WorldGen3D/models/TripoSG','--output',candidate/'raw.glb','--seed',seed,'--steps','50','--depth','8','--shared-gpu' if shape_memory_mode()=='shared_gpu' else '--resident-gpu','--infer'],candidate/'shape.log')
                     if not (candidate/'model.glb').exists():prepare_candidate(candidate,entry)
-                    if not (candidate/'generated-rig.npz').exists():run([rig_python,repo/'scripts/deer-skin-ai.py','--repo',repo/'artifacts/tools/SkinTokens','--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',candidate/'model.glb','--output',candidate/'generated-rig.npz','--beams','5','--seed',rig_seed],candidate/'rig.log')
+                    if not (candidate/'generated-rig.npz').exists():run([rig_python,repo/'scripts/deer-skin-ai.py','--repo',repo/'tools/SkinTokens','--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',candidate/'model.glb','--output',candidate/'generated-rig.npz','--beams','5','--seed',rig_seed],candidate/'rig.log')
                     state['animals'][slug]['completed_raw_candidates']=i;save()
                     if pause_requested():break
                 if pause_requested():break
@@ -202,7 +202,7 @@ try:
                     print('RAW MODELS/RIGS READY; MOTION STILL MISSING',slug,flush=True)
                     subprocess.run([sys.executable,str(repo/'scripts/index-fauna-auditions.py'),'--root',str(root)],cwd=repo,env=env,check=True)
                     continue
-                if not (folder/'Animal - Raw Audition.blend').exists() or rebuild_marker.exists():native('build-fauna-audition.py',['--root',folder,'--motion-root',source,'--animal',entry['animal'],'--fur',repo/'artifacts/fauna-assets/deer/fur-source.png',*(['--rebuild-unreviewed'] if (folder/'Animal - Raw Audition.blend').exists() else [])],folder/'assemble.log')
+                if not (folder/'Animal - Raw Audition.blend').exists() or rebuild_marker.exists():native('build-fauna-audition.py',['--root',folder,'--motion-root',source,'--animal',entry['animal'],'--fur',repo/'assets-source/animals/prototypes/deer/fur-source.png',*(['--rebuild-unreviewed'] if (folder/'Animal - Raw Audition.blend').exists() else [])],folder/'assemble.log')
                 native('check-fauna-audition.py',['--root',folder],folder/'check.log')
                 # Only exact intermediate names created by this worker; no
                 # recursive deletion or broad cleanup inside generated assets.

@@ -5,7 +5,7 @@ repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='+',required=True);ap.add_argument('--inspection',required=True)
 a=ap.parse_args();p=repo/'docs/fauna/OWNER_SELECTIONS.json';choices=json.loads(p.read_text())
 for slug in a.slugs:
-    root=repo/'artifacts/fauna-overnight-20261024'/slug;out=root/'Animal - Owner Corrected.blend'
+    root=repo/'assets-source/animals/generation'/slug;out=root/'Animal - Owner Corrected.blend'
     evidence=json.loads((root/'owner-fix.json').read_text());checks=json.loads((root/'owner-fix-native-checks.json').read_text())
     sha=hashlib.sha256(out.read_bytes()).hexdigest();assert sha==evidence['output_sha256']==checks['checked_blend_sha256'] and checks['controls']
     source=root/'Animal - Raw Audition.blend';assert hashlib.sha256(source.read_bytes()).hexdigest()==evidence['source_sha256']

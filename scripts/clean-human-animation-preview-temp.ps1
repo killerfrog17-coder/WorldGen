@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$previewRoot = (Resolve-Path (Join-Path $repoRoot 'artifacts/human-animation-preview')).Path
+$previewRoot = (Resolve-Path (Join-Path $repoRoot 'assets-source/humans/base')).Path
 $allowed = @('MPFB - Motion Probe.blend','probe-renders','probe-evidence.json','probe-sheet.jpg')
 $removed = @()
 foreach ($name in $allowed) {

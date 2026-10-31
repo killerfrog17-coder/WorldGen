@@ -18,8 +18,8 @@ import numpy as np
 from mathutils import Matrix, Quaternion, Vector
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
-SOURCE = REPO / 'artifacts/human-animation-preview/Human - Animation Comparison.blend'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
+SOURCE = REPO / 'assets-source/humans/base/Human - Animation Comparison.blend'
 sys.path.insert(0, str(REPO / 'scripts'))
 from kimodo_demo_motion import SomaMotion, SOMA_MAP, retarget_fix, movement_report
 

@@ -2,7 +2,7 @@
 import argparse,json
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-review-revisions';ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args();queue=json.loads((repo/'artifacts/fauna-painted-20261024/paint-queue.json').read_text())['jobs'];rows=[]
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/revisions';ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');a=ap.parse_args();queue=json.loads((repo/'assets-source/animals/painted/paint-queue.json').read_text())['jobs'];rows=[]
 for job in queue:
  slug=job['slug'];folder=root/slug
  if a.slugs and slug not in a.slugs:continue

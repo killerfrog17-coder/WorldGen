@@ -2,9 +2,9 @@
 import hashlib,json,shutil
 from pathlib import Path
 import numpy as np
-repo=Path(__file__).resolve().parent.parent;slug='whale';source=repo/'artifacts/fauna-overnight-20261024'/slug
+repo=Path(__file__).resolve().parent.parent;slug='whale';source=repo/'assets-source/animals/generation'/slug
 choice=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals'][slug];number,=choice['selected_models'];assert number==4
-root=repo/'artifacts/fauna-owner-fixes-20261025'/slug;folder=root/'candidate-1';folder.mkdir(parents=True,exist_ok=True)
+root=repo/'assets-source/animals/owner-revisions'/slug;folder=root/'candidate-1';folder.mkdir(parents=True,exist_ok=True)
 assert not (folder/'generated-rig.npz').exists()
 raw=np.load(source/f'candidate-{number}'/'generated-rig.npz');data={key:raw[key].copy() for key in raw.files}
 v=data['source_vertices'];points=data['sample_points'];j=data['joints'];w=data['sample_skin'];tail=list(range(11,26))

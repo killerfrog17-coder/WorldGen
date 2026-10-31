@@ -2,7 +2,7 @@
 import argparse,hashlib,json,shutil
 from pathlib import Path
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--view',choices=['front','right'],required=True);ap.add_argument('--guide-pixels',nargs='+',type=float,required=True);ap.add_argument('--only-wide',action='store_true');ap.add_argument('--camera-directory',default='head-paint-source');a=ap.parse_args();root=repo/'artifacts/fauna-anatomy-revision'/a.slug
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--view',choices=['front','right'],required=True);ap.add_argument('--guide-pixels',nargs='+',type=float,required=True);ap.add_argument('--only-wide',action='store_true');ap.add_argument('--camera-directory',default='head-paint-source');a=ap.parse_args();root=repo/'assets-source/animals/anatomy'/a.slug
 meta_path=root/f'wide-{a.view}-paint-source.json';meta=json.loads(meta_path.read_text());source=Path(meta['generated_source']);assert meta['actually_visually_inspected'];dest=root/f'wide-{a.view}-paint-guide.png';shutil.copy2(source,dest)
 target_image=root/a.camera_directory/f'{a.view}-clay.png';assert target_image.resolve().is_relative_to(root.resolve());meta.update(sha256=hashlib.sha256(dest.read_bytes()).hexdigest(),edit_target=str(target_image.relative_to(repo)),edit_target_sha256=hashlib.sha256(target_image.read_bytes()).hexdigest());meta_path.write_text(json.dumps(meta,indent=2)+'\n')
 points=[a.guide_pixels[i:i+2] for i in range(0,len(a.guide_pixels),2)];expected=3 if a.view=='front' else 2;assert len(points)==expected

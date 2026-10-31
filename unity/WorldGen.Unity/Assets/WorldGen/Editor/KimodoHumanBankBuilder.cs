@@ -88,7 +88,7 @@ public static class KimodoHumanBankBuilder
             if(bank==null){bank=ScriptableObject.CreateInstance<WorldGenHumanMotionBank>();AssetDatabase.CreateAsset(bank,path);}
             bank.People=result.ToArray();EditorUtility.SetDirty(bank);AssetDatabase.SaveAssets();
         }
-        File.WriteAllLines(Path.Combine(Repo,"artifacts/kimodo-human-bank/unity-"+(complete?"import":"probe")+".txt"),report);
+        File.WriteAllLines(Path.Combine(Repo,"assets-source/humans/motion/bank/unity-"+(complete?"import":"probe")+".txt"),report);
         Debug.Log("KIMODO HUMAN BANK "+(complete?"READY ":"PROBE ")+string.Join(" / ",report));
     }
 }

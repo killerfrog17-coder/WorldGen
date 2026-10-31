@@ -22,7 +22,7 @@ a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve();out=roo
 rebuild=out.exists()
 if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
-    assert any(root.is_relative_to(Path(__file__).resolve().parent.parent/parent) for parent in ('artifacts/fauna-overnight-20261024','artifacts/fauna-owner-fixes-20261025'))
+    assert any(root.is_relative_to(Path(__file__).resolve().parent.parent/parent) for parent in ('assets-source/animals/generation','assets-source/animals/owner-revisions'))
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
 repair_file=Path(__file__).resolve().parent.parent/'docs/fauna/MOTION_REPAIR_OVERRIDES.json'
 repair=json.loads(repair_file.read_text()).get(root.name,{}) if repair_file.exists() else {}
@@ -30,7 +30,7 @@ local_policy=root/'owner-manual-motion-policy.json'
 if local_policy.exists():repair=json.loads(local_policy.read_text())
 if repair.get('motion_bank'):
     a.motion_root=Path(__file__).resolve().parent.parent/repair['motion_bank']
-    assert a.motion_root.resolve().is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-motion-sources')
+    assert a.motion_root.resolve().is_relative_to(Path(__file__).resolve().parent.parent/'assets-source/animals/motion-library')
     source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
 source.update(repair.get('source_flags',{}))
 manual_path=root/'manual-ground-walk.json'

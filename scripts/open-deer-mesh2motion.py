@@ -48,7 +48,7 @@ def main():
         viewer='deer-raw-audition-viewer.py';ready='Raw deer numbered viewer ready.'
     if a.four_rigs:
         viewer='deer-four-rigs-viewer.py';ready='Four generated deer rigs viewer ready.'
-    blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+    blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
     assert blend.is_file()
     running=subprocess.check_output(['tasklist','/FO','CSV','/NH'],text=True,errors='replace').lower()
     playing='theforest.exe' in running or 'sonsoftheforest.exe' in running

@@ -9,9 +9,9 @@ repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('slugs',nargs='+');a=ap.parse_args()
 feedback=json.loads((repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json').read_text())
 overrides={i['slug']:i['repair_review']['blend'] for i in feedback['items'] if i.get('repair_review')}
-base=repo/'artifacts/fauna-visual-corrections'
+base=repo/'assets-source/animals/corrections'
 for slug in a.slugs:
-    src=repo/'artifacts/fauna-review-revisions'/slug
+    src=repo/'assets-source/animals/revisions'/slug
     dest=base/slug
     assert src.is_dir(),slug
     dest.mkdir(parents=True,exist_ok=True)

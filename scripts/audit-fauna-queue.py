@@ -26,7 +26,7 @@ def read(path):
 def main():
     repo = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--root', type=Path, default=repo / 'artifacts/fauna-overnight-20261024')
+    parser.add_argument('--root', type=Path, default=repo / 'assets-source/animals/generation')
     args = parser.parse_args()
     root = args.root.resolve()
     rows = read(repo / 'docs/fauna/asset-plan.json')['rows']
@@ -69,7 +69,7 @@ def main():
                     row['animal'] + ': editable table allocation/coat mismatch')
         require(set(choices['animals']).issubset({r['slug'] for r in rows if r['asset_status'] == 'queued'}),
                 'Owner choice outside the new visual roster')
-        baseline = repo / 'artifacts/fauna-assets/deer'
+        baseline = repo / 'assets-source/animals/prototypes/deer'
         require(digest(baseline / 'Deer - Prototype.blend') == read(baseline / 'asset.json')['blend_sha256'],
                 'Accepted deer changed')
     except (KeyError, OSError, ValueError) as exc:
@@ -101,7 +101,7 @@ def main():
                       'native_checks_sha256': digest(folder / 'native-checks.json'), 'candidates': []}
             if row['family'] != 'microfly':
                 bank = Path(meta['motion_bank']).resolve()
-                require(bank.is_relative_to(repo / 'artifacts/fauna-motion-sources'), 'Unexpected motion root')
+                require(bank.is_relative_to(repo / 'assets-source/animals/motion-library'), 'Unexpected motion root')
                 rig_hash, array_hash = digest(bank / 'source-rig.json'), digest(bank / 'source-motions.npz')
                 require((rig_hash, array_hash) ==
                         (meta['motion_rig_sha256'], meta['motion_array_sha256']), 'Motion source changed')
@@ -143,7 +143,7 @@ def main():
                         require(rig.get('manual_rig') and candidate.get('rig_origin')=='manual body centerline','Undeclared manual snake rig')
                         require(rig['source_mesh_sha256']==digest(directory/'model.glb'),'Manual rig source mesh changed')
                     elif row['slug']=='pronghorn' and number==4 and rig['method']=='Owner-permitted accepted deer model reuse':
-                        require(rig['source_rig_sha256']==digest(repo/'artifacts/fauna-assets/deer/generated-rig.npz'),'Deer fallback provenance changed')
+                        require(rig['source_rig_sha256']==digest(repo/'assets-source/animals/prototypes/deer/generated-rig.npz'),'Deer fallback provenance changed')
                         require(digest(directory/'generated-rig.npz')==rig['source_rig_sha256'],'Deer fallback rig changed')
                     elif row['slug']=='peafowl' and number==1 and rig['method']=='Neural rig with owner-requested manual leg additions':
                         require(rig['source_mesh_sha256']==digest(directory/'model.glb'),'Manual bird legs belong to another mesh')

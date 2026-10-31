@@ -2,7 +2,7 @@
 import argparse,hashlib,json,os,subprocess,threading,time
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media';plan=json.loads((root/'plan.json').read_text());blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/reference-media';plan=json.loads((root/'plan.json').read_text());blender=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');ap.add_argument('--workers',type=int,default=2,choices=[1,2]);a=ap.parse_args();jobs=[x for x in plan['animals'] if not a.slugs or x['slug'] in a.slugs]
 lock=root/'worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY);os.write(fd,str(os.getpid()).encode());os.close(fd)
 status={'pid':os.getpid(),'total':len(jobs),'completed':[],'errors':{},'active':{},'expected_clips':sum(len(x['clips']) for x in jobs)};mutex=threading.RLock();started=time.monotonic()

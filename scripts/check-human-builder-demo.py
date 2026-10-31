@@ -8,7 +8,7 @@ from pathlib import Path
 import bpy
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-builder-demo'
+ROOT=REPO/'assets-source/humans/research/builders'
 spec=importlib.util.spec_from_file_location('stage',REPO/'scripts/assemble-human-demo.py')
 stage=importlib.util.module_from_spec(spec);spec.loader.exec_module(stage)
 native=ROOT/'Human - Character Builder Comparison.blend'

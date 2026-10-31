@@ -9,7 +9,7 @@ import bpy, numpy as np
 
 repo=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser();p.add_argument('--slug',choices=['iguana','monitor-lizard'],required=True)
-a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-overnight-20261024'/a.slug
+a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/generation'/a.slug
 path=root/'Animal - Owner Corrected.blend'
 original=hashlib.sha256(path.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(path));s=bpy.context.scene

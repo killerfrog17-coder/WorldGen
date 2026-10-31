@@ -11,6 +11,10 @@ param(
 $ErrorActionPreference='Stop'
 if($BuildPlayer -and $Isolated){throw 'Full isolated player copies are retired. Build in the inactive reusable slot; isolated source validation remains available.'}
 $repoRoot=Split-Path -Parent $PSScriptRoot
+if($BuildPlayer){
+    python (Join-Path $repoRoot 'scripts/audit-project-layout.py')
+    if($LASTEXITCODE -ne 0){throw 'A permanent input depends on disposable scratch; repair the project layout before building.'}
+}
 $sourceProject=Join-Path $repoRoot 'unity/WorldGen.Unity'
 $validationRoot=if($Isolated){Join-Path $repoRoot 'artifacts/unity-v2'}else{$repoRoot}
 $project=Join-Path $validationRoot 'unity/WorldGen.Unity'
@@ -32,9 +36,8 @@ if($Isolated){
 $artifacts=Join-Path $validationRoot 'artifacts'
 New-Item -ItemType Directory -Force $artifacts | Out-Null
 if($BuildPlayer){
-    # Two fixed slots, reused forever. Never create a per-feature player copy.
-    # Retain their existing names to avoid copying/renaming installed packages.
-    $playerSlots=@('player-human-natural-review','player-world-feedback')
+    # Permanent players are outside disposable scratch. Reuse two slots forever.
+    $playerSlots=@('slot-a','slot-b')
     $selectedPlayer=''
     $playerShortcut=Join-Path $repoRoot 'WorldGen.exe - Shortcut.lnk'
     if(Test-Path -LiteralPath $playerShortcut){$selectedPlayer=(New-Object -ComObject WScript.Shell).CreateShortcut($playerShortcut).TargetPath}
@@ -68,8 +71,9 @@ if($BuildPlayer){
 }
 $method=if($BuildPlayer){'WorldGenBatch.BuildPlayer'}else{'WorldGenBatch.Validate'}
 $log=Join-Path $artifacts $(if($BuildPlayer){'unity-build.log'}else{'unity-validation.log'})
-$playerOutput=[IO.Path]::GetFullPath((Join-Path $artifacts ($PlayerFolder+'/WorldGen.exe')))
-if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($artifacts)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside validation artifacts'}
+$buildRoot=Join-Path $repoRoot 'builds'
+$playerOutput=[IO.Path]::GetFullPath((Join-Path $buildRoot ($PlayerFolder+'/WorldGen.exe')))
+if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($buildRoot)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside the permanent build root'}
 $arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
 if($DevelopmentPlayer){$arguments+='--worldgen-development-player'}
 if($PerformancePlayer){$arguments+='--worldgen-performance-build'}

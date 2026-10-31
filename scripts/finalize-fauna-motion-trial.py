@@ -6,7 +6,7 @@ animal can defer worker-state synchronization while the producer keeps running.
 import argparse,datetime,hashlib,json,subprocess,sys
 from pathlib import Path
 
-repo=Path(__file__).resolve().parent.parent;batch=repo/'artifacts/fauna-overnight-20261024'
+repo=Path(__file__).resolve().parent.parent;batch=repo/'assets-source/animals/generation'
 ap=argparse.ArgumentParser();ap.add_argument('--animal-root',type=Path,required=True)
 ap.add_argument('--decision',choices=['usable_for_raw_audition','rejected'],required=True)
 ap.add_argument('--reason',required=True);ap.add_argument('--defer-worker-state',action='store_true');a=ap.parse_args();root=a.animal_root.resolve()
@@ -21,7 +21,7 @@ previous_pending=root/'raw-motion-pending.json';previous_archive=root/'raw-motio
 if a.decision=='usable_for_raw_audition' and previous_pending.exists():assert not previous_archive.exists()
 meta=json.loads((root/'audition.json').read_text());checks=json.loads((root/'native-checks.json').read_text())
 assert not meta.get('art_approved') and len(meta['candidates'])==4 and len(checks['candidates'])==4 and checks['controls']
-motion_source=Path(trial['motion_source']).resolve();assert motion_source.is_relative_to(repo/'artifacts/fauna-motion-sources')
+motion_source=Path(trial['motion_source']).resolve();assert motion_source.is_relative_to(repo/'assets-source/animals/motion-library')
 assert str(motion_source)==meta['motion_bank']
 assert hashlib.sha256((motion_source/'source-rig.json').read_bytes()).hexdigest()==meta['motion_rig_sha256']
 assert hashlib.sha256((motion_source/'source-motions.npz').read_bytes()).hexdigest()==meta['motion_array_sha256']

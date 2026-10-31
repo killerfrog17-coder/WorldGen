@@ -120,7 +120,7 @@
         "generated-rig.npz": "af717e1a6c18544940f089b88d2fc2a47e88d71ddb21b3e60b68957386b46f87"
       }
     },
-    "motion_bank": "artifacts/fauna-motion-sources/hind-hopper-trial",
+    "motion_bank": "assets-source/animals/motion-library/hind-hopper-trial",
     "hind_chains": {
       "1": [
         [
@@ -647,13 +647,13 @@
   },
   "hornbill": {
     "reason": "Owner rejects spread-wing ground audition; new folded-wing reference and full leg chains.",
-    "motion_bank": "artifacts/fauna-motion-sources/folded-ground-bird-stable",
+    "motion_bank": "assets-source/animals/motion-library/folded-ground-bird-stable",
     "anatomical_bird": true,
     "folded_bird_axis": true
   },
   "peafowl": {
     "reason": "Owner rejects spread-wing ground audition; new folded-wing reference and full leg chains.",
-    "motion_bank": "artifacts/fauna-motion-sources/folded-ground-bird-stable",
+    "motion_bank": "assets-source/animals/motion-library/folded-ground-bird-stable",
     "anatomical_bird": true,
     "folded_bird_axis": true,
     "chains": {
@@ -687,7 +687,7 @@
       "hold_core_bind": true,
       "reference_pose": "source_bind"
     },
-    "motion_bank": "artifacts/fauna-motion-sources/rat"
+    "motion_bank": "assets-source/animals/motion-library/rat"
   },
   "capybara": {
     "reason": "Owner full redo; bilateral four-leg correspondence and neutral core avoid foreign head folds. Owner selected2; local rigid paw skin cleanup removes a stray moving foot tip without changing the model or NN rig; no re-show.",
@@ -696,7 +696,7 @@
       "hold_core_bind": true,
       "reference_pose": "source_bind"
     },
-    "motion_bank": "artifacts/fauna-motion-sources/rat",
+    "motion_bank": "assets-source/animals/motion-library/rat",
     "pin_distal_skin_candidates": [
       2
     ]
@@ -1751,7 +1751,7 @@
     }
   },
   "sea-otter": {
-    "motion_bank": "artifacts\\fauna-motion-sources\\sea-otter-swim-trial",
+    "motion_bank": "assets-source\\animals\\motion-library\\sea-otter-swim-trial",
     "anatomical_quadruped": true,
     "source_flags": {
       "hold_core_bind": true,

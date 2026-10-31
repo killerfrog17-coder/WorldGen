@@ -33,7 +33,7 @@ public static class HumanMotionRevisionCheck
     {
         string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
         var args=Environment.GetCommandLineArgs();int outputAt=Array.IndexOf(args,"--worldgen-review-output");
-        string output=outputAt>=0?Path.GetFullPath(args[outputAt+1]):Path.Combine(repo,"artifacts/human-running-runtime/review");Directory.CreateDirectory(output);
+        string output=outputAt>=0?Path.GetFullPath(args[outputAt+1]):Path.Combine(repo,"assets-source/humans/motion/legacy/review");Directory.CreateDirectory(output);
         bool reviewOnly=args.Contains("--worldgen-review-only");
         var priorLibrary=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
         float[] Jog(AnimationClip clip)=>AnimationUtility.GetCurveBindings(clip).OrderBy(b=>b.path+"/"+b.propertyName,StringComparer.Ordinal).SelectMany(b=>AnimationUtility.GetEditorCurve(clip,b).keys.SelectMany(k=>new[]{k.time,k.value})).ToArray();

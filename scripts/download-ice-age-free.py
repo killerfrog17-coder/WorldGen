@@ -5,7 +5,7 @@ Fresh anonymous cookies only. Never submits /purchase, payment, email or login.
 import hashlib,http.cookiejar,json,re,urllib.parse,urllib.request,zipfile
 from html.parser import HTMLParser
 from pathlib import Path
-base='https://rkuhlf-assets.itch.io/ice-age';root=Path(__file__).resolve().parent.parent/'artifacts/fauna-motion-sources/ice-age-source';root.mkdir(exist_ok=True)
+base='https://rkuhlf-assets.itch.io/ice-age';root=Path(__file__).resolve().parent.parent/'assets-source/animals/motion-library/ice-age-source';root.mkdir(exist_ok=True)
 client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
 html=client.open(base+'/purchase',timeout=30).read().decode()
 assert '"actual_price":0' in html and '"min_price":0' in html

@@ -19,12 +19,12 @@ public static class HumanRuntimeBuilder
         var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var rows=new List<string>();
         foreach(var person in library.People)foreach(var renderer in person.Prefab.GetComponentsInChildren<SkinnedMeshRenderer>())
         {var colors=renderer.sharedMesh.colors;rows.Add(person.Variant+" "+renderer.name+" head="+colors.Count(c=>c.r>.5f)+"/"+colors.Length+" red="+(colors.Length>0?colors.Max(c=>c.r):0));}
-        string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));File.WriteAllLines(Path.Combine(repo,"artifacts/human-runtime/head-mask-audit.txt"),rows);
+        string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));File.WriteAllLines(Path.Combine(repo,"assets-source/humans/reference-metadata/head-mask-audit.txt"),rows);
     }
     public static void Build()
     {
         string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
-        string source=Path.Combine(repo,"artifacts/human-runtime/exports");
+        string source=Path.Combine(repo,"assets-source/humans/exports");
         Directory.CreateDirectory(Input);Directory.CreateDirectory(Output);
         foreach(string directory in Directory.GetDirectories(source))
         {
@@ -94,7 +94,7 @@ public static class HumanRuntimeBuilder
         string libraryPath=Output+"/HumanLibrary.asset";var library=AssetDatabase.LoadAssetAtPath<WorldGenHumanLibrary>(libraryPath);
         if(library==null){library=ScriptableObject.CreateInstance<WorldGenHumanLibrary>();AssetDatabase.CreateAsset(library,libraryPath);}
         library.People=people.ToArray();EditorUtility.SetDirty(library);AssetDatabase.SaveAssets();
-        File.WriteAllLines(Path.Combine(repo,"artifacts/human-runtime/unity-import.txt"),checks);
+        File.WriteAllLines(Path.Combine(repo,"assets-source/humans/reference-metadata/unity-import.txt"),checks);
         Debug.Log("HUMANS READY "+string.Join(" / ",checks));
     }
 }

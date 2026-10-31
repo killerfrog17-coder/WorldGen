@@ -101,7 +101,7 @@ publisher pages. No paid Source/Pro archive was requested.
 - <https://kaylousberg.itch.io/kaykit-character-animations>
   public upload 15799903, Free 1.1 ZIP 14,858,957 bytes.
 
-Ignored `artifacts/human-animation-sources/*-provenance.json` records archive
+Ignored `assets-source/humans/motion/animation-library/*-provenance.json` records archive
 SHA256, original source URL, exact file list and zero cost. `inventory.json` /
 `inventory.tsv` list every clip and exact GLB SHA. Reproduce with:
 

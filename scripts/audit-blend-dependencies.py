@@ -7,9 +7,9 @@ from pathlib import Path
 arguments=sys.argv[sys.argv.index('--')+1:]
 root=Path(arguments[0]).resolve()
 output=Path(arguments[1]).resolve()
-inventory=json.loads((root/'artifacts/fauna-runtime-20261026/native-inventory.json').read_text())
+inventory=json.loads((root/'assets-source/animals/export-metadata/native-inventory.json').read_text())
 sources=[root/a['source'] for a in inventory['animals']]
-sources.append(root/'artifacts/human-animation-preview/Human - Animation Comparison.blend')
+sources.append(root/'assets-source/humans/base/Human - Animation Comparison.blend')
 records=[]
 for index,source in enumerate(sources):
     bpy.ops.wm.open_mainfile(filepath=str(source),load_ui=False,use_scripts=False)

@@ -3,7 +3,7 @@ import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'));from fauna_phone_clips import review_clip_labels
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=repo/'artifacts/fauna-review-revisions'/a.slug;meta=json.loads((folder/'revision-source.json').read_text());source=repo/meta['source'];output=folder/'Animal - Painted Species Review.blend'
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=repo/'assets-source/animals/revisions'/a.slug;meta=json.loads((folder/'revision-source.json').read_text());source=repo/meta['source'];output=folder/'Animal - Painted Species Review.blend'
 def signature(entry):
  body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']];h=hashlib.sha256();h.update(np.array([v.co[:] for v in body.data.vertices],'<f4').tobytes());h.update(json.dumps([p.vertices[:] for p in body.data.polygons]).encode());h.update(json.dumps([[(body.vertex_groups[g.group].name,g.weight) for g in v.groups] for v in body.data.vertices]).encode())
  for uv in body.data.uv_layers:h.update(np.array([x.uv[:] for x in uv.data],'<f4').tobytes())

@@ -32,7 +32,7 @@ if (args.Contains("--self-test"))
     Check(another.ClimateWeights[0] == -0.687057, "Default recipes own separate arrays");
     foreach (var preset in new[] { "Preview", "Earth", "Continental", "Glacial", "Ocean world" })
         Check(Recipe.Preset(preset).ClimateWeights.SequenceEqual(ClimateCalibration.DefaultWeights()), "Presets use approved weights");
-    string approvedPath = "artifacts/climate-learning/wild-20261002-174123-921/selected.recipe.json";
+    string approvedPath = "assets/presets/approved-climate.recipe.json";
     if (File.Exists(approvedPath)) Check(WorldJson.ReadRecipe(File.ReadAllText(approvedPath)).ClimateWeights.SequenceEqual(another.ClimateWeights), "Defaults exactly match approved iteration277");
     var r = RecipeFor(ClimateCalibration.Baseline); var copy = r.Clone(); copy.ClimateWeights[0] = 2;
     ClimateCalibration.Upgrade(r); Check(r.AlgorithmVersion == Recipe.CurrentAlgorithm, "Reapply upgrades controls while preserving weights");

@@ -87,7 +87,7 @@ Start in roster order: Hare3, Rabbit1, then other chosen models. Existing model
 selection supplies the body approval; animation_approved=false is not a painting
 gate, since the owner may replace the motion method later. Preserve every raw
 audition and the accepted deer. New colouring/UV/materials live separately under
-artifacts/fauna-painted-20261024. Only selected models may be finished; coloured
+assets-source/animals/painted. Only selected models may be finished; coloured
 appearance still needs owner review. Reuse accepted sources first, generate only
 needed shared swatches, and use CPU painting/baking while the game stays open.
 No runtime/game integration, automatic new model choice or appearance approval.
@@ -129,14 +129,14 @@ The earlier painting hold is superseded above; gameplay integration remains out 
 
 Owner authorizes the full overnight queue. No runtime game integration; painting
 now proceeds on owner-selected bodies as authorized above. Accepted deer remains unchanged under
-artifacts/fauna-assets/deer. The editable full roster is FAUNA_ASSET_PLAN.csv;
+assets-source/animals/prototypes/deer. The editable full roster is FAUNA_ASSET_PLAN.csv;
 asset-plan.json has fuller paint/material/variation/motion plans for all188 entries.
 One accepted deer,176 new visual queues,5 existing audio-only entries and6 deferred.
 Birds previously audio-first can receive future visual auditions; no audible or
 visible game populations are changed by generating these review assets.
 
 WORK / REVIEW
-artifacts/fauna-overnight-20261024/<animal-slug>/Animal - Raw Audition.blend
+assets-source/animals/generation/<animal-slug>/Animal - Raw Audition.blend
 Each new visual audition contains4 distinct raw candidate meshes and individual
 rigs with suitable available motions. Neural shape: local TripoSG50steps/depth8,
 resident GPU, no low-memory offload. Neural rig: SkinTokens5beams, native SDPA,
@@ -170,7 +170,7 @@ remain missing; rabbit source has Idle/Rest/Run/Jump/Death but no dedicated walk
 Rebuild index:
   python scripts/index-fauna-auditions.py
 Open a completed animal (replace hare with its slug):
-  python scripts/open-deer-mesh2motion.py --root artifacts/fauna-overnight-20261024/hare --four-rigs --blend-name "Animal - Raw Audition.blend" --rightmost
+  python scripts/open-deer-mesh2motion.py --root assets-source/animals/generation/hare --four-rigs --blend-name "Animal - Raw Audition.blend" --rightmost
 REVIEW_INDEX.csv and review-index.json list ready files, priorities and motion gaps.
 No per-animal Desktop shortcuts and no flood of review windows overnight.
 
@@ -215,7 +215,7 @@ Installed afk-rig0.1.2 retains its MIT tool and CC0 animation assets. The separa
 licensed human-model variations are not used as animal donor assets.
 Dedicated rabbit by CDmir/TinyWorlds, CC0, creator confirms motion/commercial use:
 https://opengameart.org/content/rabbit-0
-Rabbit bank provenance and source hash: artifacts/fauna-motion-sources/rabbit.
+Rabbit bank provenance and source hash: assets-source/animals/motion-library/rabbit.
 Only skeleton/motion is exported; donor body meshes never enter our auditions.
 Additional dedicated CC0 banks: squirrel and rat by CDmir/TinyWorlds
 https://opengameart.org/content/undead-squirrel-animated

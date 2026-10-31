@@ -14,9 +14,9 @@ import numpy as np
 from mathutils import Matrix, Quaternion, Vector
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-human-bank'
-DEMO = REPO / 'artifacts/kimodo-first-person-demo'
-SOURCE = REPO / 'artifacts/human-animation-preview/Human - Animation Comparison.blend'
+ROOT = REPO / 'assets-source/humans/motion/bank'
+DEMO = REPO / 'assets-source/humans/motion/first-person'
+SOURCE = REPO / 'assets-source/humans/base/Human - Animation Comparison.blend'
 OUTPUT = REPO / 'assets/human-motion-kimodo'
 sys.path.insert(0, str(REPO / 'scripts'))
 from kimodo_demo_motion import SomaMotion, SOMA_MAP, retarget_fix
@@ -51,7 +51,7 @@ def selected_take(name):
     if name == 'demo_walk': return DEMO / 'motions/empty_walk/seed-240'
     if name == 'demo_spear_throw': return DEMO / 'motions/spear_throw/seed-252'
     folder = ROOT / 'motions' / name
-    if not folder.exists():folder=REPO/'artifacts/kimodo-human-bank/motions'/name
+    if not folder.exists():folder=REPO/'assets-source/humans/motion/bank/motions'/name
     marker = folder / 'selected.json'
     if marker.exists(): return folder / json.loads(marker.read_text())['take']
     return next(iter(sorted(folder.glob('seed-*/generation.json'))), Path('missing')).parent

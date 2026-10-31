@@ -9,7 +9,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Quaternion,Vector
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'));from deer_behaviour_core import blend_pose
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True,choices=['capuchin','tiger']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);slug=a.slug;source=repo/'artifacts/fauna-review-revisions'/slug/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest();folder=repo/'artifacts/fauna-repairs'/slug;folder.mkdir(exist_ok=True,parents=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True,choices=['capuchin','tiger']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);slug=a.slug;source=repo/'assets-source/animals/revisions'/slug/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest();folder=repo/'assets-source/animals/repairs'/slug;folder.mkdir(exist_ok=True,parents=True)
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[e['rig']];body=bpy.data.objects[e['body']];names=e['joint_names'];parents=e['parents'];rest=[rig.data.bones[n].matrix_local.copy() for n in names];local=[rest[p].inverted()@m if p>=0 else m for p,m in zip(parents,rest)];heads=np.array([m.translation[:] for m in rest]);bind=np.array([v.co[:] for v in body.data.vertices]);rig.hide_set(False);rig.animation_data_clear();rig.data.pose_position='POSE';source_actions=e['actions'].copy();changed=[];cache={};changes={}
 def bake(label,poses,times):
  action=bpy.data.actions.new(rig.name+' | '+label+' | Final motion repair');action.use_fake_user=True;slot=action.slots.new(id_type='OBJECT',name=rig.name);bag=action.layers.new('Physical motion correction').strips.new(type='KEYFRAME').channelbag(slot,ensure=True);locations=np.array([p[0] for p in poses]);rotations=np.array([p[1] for p in poses])
@@ -27,7 +27,7 @@ def bases(matrices):
  return np.array(locations),np.array(rotations)
 if slug=='capuchin':
  assert len(names)==76
- bank=repo/'artifacts/fauna-motion-sources/fox';donor=json.loads((bank/'source-rig.json').read_text());motion=np.load(bank/'source-motions.npz');si={b['name']:i for i,b in enumerate(donor['bones'])};reference=motion[next(c['key'] for c in donor['clips'] if c['label']=='Idle')][0,:,:3,3];clip=next(c for c in donor['clips'] if c['label']=='Run');frames=motion[clip['key']];turn=np.diag([-1.,-1.,1.]);configs=[([9,10,11],'fore_R'),([28,29,30],'fore_L'),([55,56,57],'hind_R'),([66,67,68],'hind_L')];palms=[11,30,57,68]
+ bank=repo/'assets-source/animals/motion-library/fox';donor=json.loads((bank/'source-rig.json').read_text());motion=np.load(bank/'source-motions.npz');si={b['name']:i for i,b in enumerate(donor['bones'])};reference=motion[next(c['key'] for c in donor['clips'] if c['label']=='Idle')][0,:,:3,3];clip=next(c for c in donor['clips'] if c['label']=='Run');frames=motion[clip['key']];turn=np.diag([-1.,-1.,1.]);configs=[([9,10,11],'fore_R'),([28,29,30],'fore_L'),([55,56,57],'hind_R'),([66,67,68],'hind_L')];palms=[11,30,57,68]
  # Existing selected skin is retained: correcting the actual physical bone
  # tracks avoids disturbing the already selected Walk deformation.
  action=bpy.data.actions[source_actions['Run']];first,last=map(float,action.frame_range);times=np.linspace(first,last,97);poses=[]

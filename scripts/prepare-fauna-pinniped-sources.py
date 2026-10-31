@@ -6,7 +6,7 @@ propulsion maps an unchanged fish tail stroke to both hind-flipper chains.
 import hashlib,json,shutil
 from pathlib import Path
 import numpy as np
-root=Path(__file__).resolve().parent.parent/'artifacts/fauna-motion-sources'
+root=Path(__file__).resolve().parent.parent/'assets-source/animals/motion-library'
 
 def provenance(src,dst):
     for name in ('LICENSE-CC0.md','provenance.json'):shutil.copy2(src/name,dst/name)

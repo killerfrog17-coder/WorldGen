@@ -8,7 +8,7 @@ from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-root=(a.root or repo/'artifacts/fauna-visual-corrections'/a.slug).resolve();meta=json.loads((root/'visual-source.json').read_text());source=repo/meta['source'];output=root/'Animal - Painted Species Review.blend'
+root=(a.root or repo/'assets-source/animals/corrections'/a.slug).resolve();meta=json.loads((root/'visual-source.json').read_text());source=repo/meta['source'];output=root/'Animal - Painted Species Review.blend'
 def digest(data):return hashlib.sha256(data).hexdigest()
 def snapshot():
     entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']]

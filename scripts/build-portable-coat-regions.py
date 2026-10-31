@@ -4,7 +4,7 @@ import json,struct,hashlib
 import numpy as np
 from PIL import Image,ImageDraw
 from scipy.ndimage import distance_transform_cdt
-root=Path(__file__).resolve().parents[1];exports=root/'artifacts/fauna-runtime-20261026/exports'
+root=Path(__file__).resolve().parents[1];exports=root/'assets-source/animals/exports'
 rows=[]
 for folder in sorted(exports.iterdir()):
     if not (folder/'model.json').exists():continue

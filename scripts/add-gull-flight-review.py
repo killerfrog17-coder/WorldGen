@@ -9,9 +9,9 @@ import bpy,numpy as np
 from mathutils import Quaternion,Vector
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from deer_behaviour_core import blend_pose,smooth
-root=repo/'artifacts/fauna-overnight-20261024/gull';source=root/'Animal - Raw Audition.blend';out=root/'Animal - Motion Revision.blend'
+root=repo/'assets-source/animals/generation/gull';source=root/'Animal - Raw Audition.blend';out=root/'Animal - Motion Revision.blend'
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;entries=json.loads(s['deer_four_rigs'])
-bank=repo/'artifacts/fauna-motion-sources/bird';donor=json.loads((bank/'source-rig.json').read_text());motions=np.load(bank/'source-motions.npz');di={b['name']:i for i,b in enumerate(donor['bones'])}
+bank=repo/'assets-source/animals/motion-library/bird';donor=json.loads((bank/'source-rig.json').read_text());motions=np.load(bank/'source-motions.npz');di={b['name']:i for i,b in enumerate(donor['bones'])}
 proof={'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'body_geometry_retained':True,'wing_geometry':'Own low-poly tapered cambered wing panels with shaped primary tips, three articulated sections per side','flight_motion':'CC0 bird Flap and Glide; source angle tracks fitted to own wings','motion_bank':str(bank),'motion_rig_sha256':hashlib.sha256((bank/'source-rig.json').read_bytes()).hexdigest(),'motion_array_sha256':hashlib.sha256((bank/'source-motions.npz').read_bytes()).hexdigest(),'takeoff_landing_supplied':False,'candidates':[]}
 
 def solve(seed,target):

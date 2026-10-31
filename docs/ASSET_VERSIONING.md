@@ -1,5 +1,36 @@
 # Restoring a WorldGen checkpoint
 
+## Permanent files and disposable output
+
+`artifacts/` is output-only. Deleting the entire directory must not remove a
+playable game, an editable asset, a build input, an installed authoring tool,
+a reference baseline, an approved preset, or a personal save. Build and review
+commands recreate scratch directories when needed. Never add a permanent input
+there, publish one in an asset lock, or force-track it in Git.
+
+| Location | Contents |
+|---|---|
+| `assets-source/` | Editable models, textures, source motions and export inputs |
+| `assets/` | Versioned manifests, recipes, provenance and retained verification contracts |
+| `unity/WorldGen.Unity/Assets/` | Unity-imported game content and source code |
+| `sounds/`, `music/` | Current externally loaded runtime audio libraries |
+| `tools/` | Local authoring tools and their installations; not game asset packs |
+| `builds/slot-a`, `builds/slot-b` | The only two reusable player locations |
+| `docs/reports/` | Finished reports and their reference images |
+| `artifacts/` | Disposable logs, test captures, previews and temporary worker output |
+
+Animal `export-metadata/native-inventory.json` identifies the actual approved
+source for each runtime model. Retained authoring studies are not automatically
+runtime dependencies. Model/texture/audio bytes are preserved during the layout
+migration; path-bearing JSON and scripts are rebased. Unity asset GUIDs are kept.
+Historical paths can be interpreted through `scripts/project_layout.py`; no
+compatibility link inside `artifacts` is required.
+
+`python scripts/audit-project-layout.py` checks the permanent dependency boundary.
+It runs before player builds. The migration is additionally checked with the
+old artifacts directory temporarily unavailable and a newly created scratch
+directory, using the existing inactive player slot. No extra player is cloned.
+
 Source, project settings, recipes and ordinary assets use Git. Large source art
 and runtime media use free GitHub Release packs, referenced by the **checked-out
 version** of `assets/game-assets.lock.json`. No Git LFS subscription is required.
@@ -22,13 +53,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-check.ps1 -Bui
 
 The restore tool uses Python 3.11 or later. The build additionally needs the Unity editor version in `ProjectVersion.txt`,
 its Windows build support, a free activated Unity Personal license and the .NET
-SDK. These tools are installed separately, not uploaded with the game. Use
-`-Il2Cpp` for a release build with Unity's IL2CPP/Windows C++ prerequisites.
+SDK. These tools are installed separately, not uploaded with the game. Every
+player build uses IL2CPP and needs Unity's Windows C++ prerequisites; Mono is
+never an iteration fallback.
 
 Restoration downloads one pack at a time, checks both pack and individual file
 SHA256 hashes, then removes the temporary download. Unchanged local files are
 reused. Modified local assets are refused unless `--replace` is explicitly given.
-`--subset runtime` skips original authoring files under `artifacts`; use the
+`--subset runtime` skips original authoring files under `assets-source`; use the
 default complete restore when rebuilding animal/human exports. Public release
 downloads work without a GitHub account. Publishing uses the existing local Git
 credential helper without writing or printing its token. Native system TLS trust
@@ -72,8 +104,7 @@ Commit and push the new lock alongside its source change, then verify the remote
 commit. Never remove a locally unique input before that verification.
 
 Keep the selected playable package and current build work. The build script
-automatically reuses the inactive one of two fixed slots (their existing names
-are `player-human-natural-review` and `player-world-feedback`). It refuses new
+automatically reuses the inactive one of `builds/slot-a` and `builds/slot-b`. It refuses new
 per-feature folder names and refuses to overwrite the selected playable slot.
 After checking and selecting an update, remove the superseded compiled player;
 its slot becomes the workspace for the next update. Never retain old players

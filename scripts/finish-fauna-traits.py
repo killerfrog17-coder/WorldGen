@@ -13,7 +13,7 @@ repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'
 from fauna_trait_catalog import TRAITS,SOURCES,configurations
 from fauna_surface_components import components
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(TRAITS),required=True);ap.add_argument('--root',type=Path)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=(a.root or repo/'assets-source/animals/painted'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());blend=root/'Animal - Painted Species Review.blend'
 bpy.ops.wm.open_mainfile(filepath=str(blend));s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0]
@@ -29,7 +29,7 @@ gap=np.linalg.norm(np.array(land['right_eye']['point'])-land['left_eye']['point'
 names={g.index:g.name for g in body.vertex_groups};objects=[];libraries={};evidence=[]
 material=bpy.data.materials.new(a.slug+' fitted horn/antler texture');material.use_nodes=True
 nodes=material.node_tree.nodes;links=material.node_tree.links;shader=nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.61
-image=bpy.data.images.load(str(repo/'artifacts/fauna-assets/textures/keratin-hard-v1.png'),check_existing=True).copy();image.name=a.slug+' compact keratin texture';image.scale(512 if a.slug=='buffalo' else 256,512 if a.slug=='buffalo' else 256);image.pack()
+image=bpy.data.images.load(str(repo/'assets-source/animals/prototypes/textures/keratin-hard-v1.png'),check_existing=True).copy();image.name=a.slug+' compact keratin texture';image.scale(512 if a.slug=='buffalo' else 256,512 if a.slug=='buffalo' else 256);image.pack()
 tex=nodes.new('ShaderNodeTexImage');tex.image=image
 tint=nodes.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.35;tint.inputs['Value'].default_value=.75 if TRAITS[a.slug][0] in {'antler','palmate','tusk'} else .35
 if a.slug=='buffalo' and land.get('physical_eye_revision'):tint.inputs['Value'].default_value=.09

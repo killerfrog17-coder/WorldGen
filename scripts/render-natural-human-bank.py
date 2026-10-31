@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
 
-REPO=Path(__file__).resolve().parent.parent;ROOT=REPO/'artifacts/human-natural-20261031'
+REPO=Path(__file__).resolve().parent.parent;ROOT=REPO/'assets-source/humans/motion/natural'
 sys.path.insert(0,str(REPO/'scripts'))
 from natural_human_prop_fit import apply,UP,FORWARD
 
@@ -12,7 +12,8 @@ p=argparse.ArgumentParser();p.add_argument('--variant',default='B');p.add_argume
 bpy.ops.wm.open_mainfile(filepath=str(ROOT/f'Kimodo bank {a.variant}.blend'))
 rig=next(o for o in bpy.data.objects if o.type=='ARMATURE');clips=json.loads(rig['kimodo_bank_clips'])
 structure=[{'name':o.name,'type':o.type,'vertices':len(o.data.vertices) if o.type=='MESH' else 0,'props':list(o.keys()),'modifiers':[{'name':m.name,'type':m.type,'group':getattr(m,'vertex_group',''),'invert':getattr(m,'invert_vertex_group',False)} for m in o.modifiers]} for o in bpy.data.objects]
-(ROOT/f'structure-{a.variant}.json').write_text(json.dumps(structure,indent=2))
+review_root=REPO/'artifacts/human-animation-review';review_root.mkdir(parents=True,exist_ok=True)
+(review_root/f'structure-{a.variant}.json').write_text(json.dumps(structure,indent=2))
 if a.inspect:
  print(json.dumps(structure,indent=2));sys.exit(0)
 scene=bpy.context.scene;scene.render.engine='BLENDER_EEVEE_NEXT';scene.render.resolution_x=384;scene.render.resolution_y=512;scene.render.resolution_percentage=100;scene.render.image_settings.file_format='PNG';scene.view_settings.view_transform='AgX'
@@ -51,7 +52,7 @@ def draw_prop(prop):
   axis=Vector(prop['axis']);base=grip-axis*length*prop['fraction'];tip=base+axis*length
   line([base,tip],.0133 if prop['kind']=='spear' else .012,wood)
   if prop['kind']=='spear':line([tip-axis*.16,tip],.025,stone)
-folder=ROOT/a.folder;folder.mkdir(exist_ok=True);records=[]
+folder=review_root/a.folder;folder.mkdir(parents=True,exist_ok=True);records=[]
 for clip in clips:
  if clip.get('mirrored') and clip['role']!='SwimCarryLeft':continue
  if a.roles and clip['role'] not in a.roles.split(','):continue

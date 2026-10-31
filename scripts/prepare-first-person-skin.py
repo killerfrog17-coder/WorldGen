@@ -4,13 +4,13 @@ Never alter the approved human or animal sources. No runtime retarget/IK involve
 from pathlib import Path
 import bpy,bmesh,math,json,hashlib
 from mathutils import Matrix,Vector
-root=Path(__file__).resolve().parent.parent;task=root/'artifacts/first-person-rebuild-20261030';output=root/'assets/first-person';output.mkdir(parents=True,exist_ok=True)
+root=Path(__file__).resolve().parent.parent;task=root/'assets-source/humans/first-person';output=root/'assets/first-person';output.mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.fbx(filepath=str(root/'assets/first-person/source/Arms.fbx'));scene=bpy.context.scene
 fps=next(o for o in bpy.data.objects if o.type=='ARMATURE');arms=next(o for o in bpy.data.objects if o.type=='MESH');fps.animation_data_clear();fps.data.pose_position='REST'
 original_actions=list(bpy.data.actions)
 for a in original_actions:a.use_fake_user=True
 before=set(bpy.data.objects)
-source=root/'artifacts/human-runtime/exports/human-f/human-f.fbx';digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.import_scene.fbx(filepath=str(source));imported=set(bpy.data.objects)-before
+source=root/'assets-source/humans/exports/human-f/human-f.fbx';digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.import_scene.fbx(filepath=str(source));imported=set(bpy.data.objects)-before
 human=next(o for o in imported if o.type=='ARMATURE');human.animation_data_clear();human.data.pose_position='REST'
 for p in human.pose.bones:p.matrix_basis=Matrix.Identity(4)
 body=next(o for o in imported if o.type=='MESH' and 'body' in o.name);bpy.context.view_layer.update()
@@ -48,7 +48,7 @@ arms.select_set(True);bpy.context.view_layer.objects.active=arms
 scene.render.engine='CYCLES';scene.cycles.samples=8
 arms.data.uv_layers.new(name='ArmSkin');arms.data.uv_layers.active_index=len(arms.data.uv_layers)-1;arms.data.uv_layers.active.active_render=True
 bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT');bpy.ops.uv.smart_project(angle_limit=math.radians(66),island_margin=.012);bpy.ops.object.mode_set(mode='OBJECT')
-original=bpy.data.images.load(str(root/'artifacts/human-runtime/exports/human-f/body.png'))
+original=bpy.data.images.load(str(root/'assets-source/humans/exports/human-f/body.png'))
 donor_mat=bpy.data.materials.new('Read-only UV donor');donor_mat.use_nodes=True;nodes=donor_mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');texture=nodes.new('ShaderNodeTexImage');texture.image=original;donor_mat.node_tree.links.new(texture.outputs['Color'],em.inputs['Color']);donor_mat.node_tree.links.new(em.outputs[0],out.inputs['Surface']);body.data.materials.clear();body.data.materials.append(donor_mat)
 for modifier in list(body.modifiers):body.modifiers.remove(modifier)
 mat=bpy.data.materials.new('Baked original skin');mat.use_nodes=True;bs=mat.node_tree.nodes['Principled BSDF'];bs.inputs['Roughness'].default_value=.58
@@ -56,7 +56,7 @@ image=bpy.data.images.new('FPS arm skin F',width=2048,height=2048);image.generat
 # Nearest-surface correspondence is robust to the donor's different hand shape.
 # Rasterise target UVs then sample donor UVs per texel, never across UV seams.
 import sys
-sys.path.append(str(root/'artifacts/first-person-rebuild-20261030/python-packages'))
+sys.path.append(str(root/'tools/python/first-person'))
 import numpy as np,time
 from mathutils.bvhtree import BVHTree
 from mathutils.geometry import barycentric_transform
@@ -86,7 +86,7 @@ for dilation in range(24):
 np.savez_compressed(task/'arm-skin-correspondence.npz',uv=correspondence,filled=filled)
 # One anatomical correspondence, six original pigments; bilinear source sampling.
 for variant in 'abcdef':
- source_image=bpy.data.images.load(str(root/f'artifacts/human-runtime/exports/human-{variant}/body.png'),check_existing=False);data=np.array(source_image.pixels[:],np.float32).reshape(source_image.size[1],source_image.size[0],4)
+ source_image=bpy.data.images.load(str(root/f'assets-source/humans/exports/human-{variant}/body.png'),check_existing=False);data=np.array(source_image.pixels[:],np.float32).reshape(source_image.size[1],source_image.size[0],4)
  x=np.clip(correspondence[:,:,0]*(source_image.size[0]-1),0,source_image.size[0]-1);y=np.clip(correspondence[:,:,1]*(source_image.size[1]-1),0,source_image.size[1]-1);ix=x.astype(np.int32);iy=y.astype(np.int32);jx=np.minimum(ix+1,source_image.size[0]-1);jy=np.minimum(iy+1,source_image.size[1]-1);fx=(x-ix)[:,:,None];fy=(y-iy)[:,:,None];pixels=(data[iy,ix]*(1-fx)+data[iy,jx]*fx)*(1-fy)+(data[jy,ix]*(1-fx)+data[jy,jx]*fx)*fy;pixels[~filled]=(.5,.32,.22,1)
  skin=bpy.data.images.new('First person skin '+variant.upper(),width=N,height=N);skin.pixels.foreach_set(pixels.astype(np.float32).ravel());skin.update();skin.filepath_raw=str(output/(variant.upper()+'.png'));skin.file_format='PNG';skin.save()
  if variant=='f':tex.image=skin

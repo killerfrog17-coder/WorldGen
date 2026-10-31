@@ -11,10 +11,10 @@ from mathutils import Matrix, Quaternion, Vector
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from deer_behaviour_core import blend_pose,smooth
 p=argparse.ArgumentParser();p.add_argument('--slug',choices=['nutria','porcupine','echidna'],required=True)
-a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-overnight-20261024'/a.slug
+a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/generation'/a.slug
 source=root/'Animal - Raw Audition.blend';out=root/'Animal - Motion Revision.blend'
 bpy.ops.wm.open_mainfile(filepath=str(source));scene=bpy.context.scene
-entries=json.loads(scene['deer_four_rigs']);bank=repo/'artifacts/fauna-motion-sources/rat'
+entries=json.loads(scene['deer_four_rigs']);bank=repo/'assets-source/animals/motion-library/rat'
 donor=json.loads((bank/'source-rig.json').read_text());arrays=np.load(bank/'source-motions.npz')
 dn=[b['name'] for b in donor['bones']];di={n:i for i,n in enumerate(dn)}
 drest=np.array([b['rest'] for b in donor['bones']]);droot=di[donor['root']]

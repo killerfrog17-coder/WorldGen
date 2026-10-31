@@ -120,7 +120,7 @@ Pinned weight revisions (download manifests also record file sizes/hashes):
 
 ## Repeating the offline pipeline
 
-Use the portable Blender 4.5.15 already installed under `artifacts/tools`.
+Use the portable Blender 4.5.15 already installed under `tools`.
 CPU UV/raster/bake runs in `E:/AI/WorldGen3D/venv`; inference runs in the existing
 `E:/AI/WorldGen3D/rig-venv` with Diffusers 0.35.2 and Accelerate 1.4.0. Do not
 install into or restart the shared ComfyUI server.

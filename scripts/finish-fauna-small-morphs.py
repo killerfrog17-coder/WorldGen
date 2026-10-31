@@ -9,7 +9,7 @@ from pathlib import Path
 import bpy,numpy as np
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['hare','rabbit','red-fox','wolf'],required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-painted-20261024'/a.slug
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/painted'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 bake=json.loads((root/'coat-bake.json').read_text());land=json.loads((root/'face-landmarks.json').read_text());d=dict(np.load(root/'paint-anatomy.npz'))
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'));entry=json.loads(bpy.context.scene['deer_four_rigs'])[0]
@@ -34,7 +34,7 @@ key=body.data.shape_keys.key_blocks.get(name) or body.shape_key_add(name=name)
 key.data.foreach_set('co',(p+delta).astype(np.float32).ravel());key.slider_min=-1;key.slider_max=1;key.value=0
 traits['ear_length']={'shape_key':name,'bounds':[-1,1],'maximum_tip_fraction':.085,'selected_vertices':int((ear_mask>.1).sum())}
 source_path=root/'selected-source-entry.json'
-raw=json.loads(source_path.read_text()) if source_path.exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
+raw=json.loads(source_path.read_text()) if source_path.exists() else json.loads((repo/'assets-source/animals/generation'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
 groups=np.array(raw['groups']);tail=d['weights'][:,groups=='tail'].sum(1)
 rear=(p[:,1]<np.quantile(p[:,1],.30))
 mask=smooth(.32,.78,tail)*rear

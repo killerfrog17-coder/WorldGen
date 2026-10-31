@@ -8,9 +8,9 @@ from pathlib import Path
 import numpy as np
 repo=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser();p.add_argument('--slug',choices=['iguana','monitor-lizard'],required=True);a=p.parse_args()
-source=repo/'artifacts/fauna-overnight-20261024'/a.slug
+source=repo/'assets-source/animals/generation'/a.slug
 choice=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals'][a.slug];number,=choice['selected_models']
-root=repo/'artifacts/fauna-owner-fixes-20261025'/a.slug;folder=root/'candidate-1';folder.mkdir(exist_ok=True,parents=True)
+root=repo/'assets-source/animals/owner-revisions'/a.slug;folder=root/'candidate-1';folder.mkdir(exist_ok=True,parents=True)
 assert not (folder/'generated-rig.npz').exists(),'Inspect an existing manual rig before replacement'
 raw=np.load(root/'repair-baseline.npz');v=raw['vertices'];faces=raw['faces'];old=raw['joints']
 if a.slug=='iguana':

@@ -9,12 +9,12 @@ from mathutils import Matrix
 
 root=Path(__file__).resolve().parents[1]
 task=root/'artifacts/overnight-items-20261028';task.mkdir(parents=True,exist_ok=True)
-plan=json.loads((root/'artifacts/fauna-runtime-20261026/export-plan.json').read_text())['animals']
+plan=json.loads((root/'assets-source/animals/export-metadata/export-plan.json').read_text())['animals']
 rows=[];started=time.monotonic()
 for item in plan:
     source=Path(item['path']);digest=hashlib.sha256(source.read_bytes()).hexdigest()
     assert digest==item['source_sha256'],('Source changed',item['slug'])
-    exported=json.loads((root/'artifacts/fauna-runtime-20261026/exports'/item['slug']/'model.json').read_text())
+    exported=json.loads((root/'assets-source/animals/exports'/item['slug']/'model.json').read_text())
     bpy.ops.wm.open_mainfile(filepath=str(source),load_ui=False)
     entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];rig=bpy.data.objects[entry['rig']]
     bones=list(rig.data.bones);assert len(bones)==exported['bones']

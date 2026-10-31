@@ -1,15 +1,15 @@
 """Resumable, bounded CPU workers; each native gets an isolated Blender process."""
 import argparse,concurrent.futures,hashlib,json,os,subprocess,time
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-runtime-20261026'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/export-metadata'
 ap=argparse.ArgumentParser();ap.add_argument('--workers',type=int,default=3);ap.add_argument('--slugs',nargs='*');ap.add_argument('--reuse-bakes',action='store_true');a=ap.parse_args()
-plan=json.loads((root/'export-plan.json').read_text())['animals'];script=repo/'scripts/export-fauna-runtime.py'
+plan=json.loads((root/'export-plan.json').read_text())['animals'];script=repo/'scripts/export-fauna-runtime.py';export_root=repo/'assets-source/animals/exports'
 surface=repo/'scripts/fauna_runtime_surface.py'
 uv=repo/'scripts/fauna_runtime_uv.py'
-signature=hashlib.sha256(script.read_bytes()+surface.read_bytes()+uv.read_bytes()).hexdigest();exe=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+signature=hashlib.sha256(script.read_bytes()+surface.read_bytes()+uv.read_bytes()).hexdigest();exe=repo/'tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
 env=dict(os.environ,OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='2',MKL_NUM_THREADS='2',OPENIMAGEIO_THREADS='2')
 def run(row):
-    slug=row['slug'];folder=root/'exports'/slug;folder.mkdir(parents=True,exist_ok=True)
+    slug=row['slug'];folder=export_root/slug;folder.mkdir(parents=True,exist_ok=True)
     assert hashlib.sha256(script.read_bytes()+surface.read_bytes()+uv.read_bytes()).hexdigest()==signature,'Exporter changed during queue'
     previous=folder/'receipt.json'
     reuse=bool(a.reuse_bakes and previous.exists() and json.loads(previous.read_text()).get('exporter_sha256')==signature)

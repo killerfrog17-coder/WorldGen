@@ -10,7 +10,7 @@ import bpy,numpy as np
 from mathutils import Quaternion
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True,choices=['duiker','aardvark'])
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-overnight-20261024'/a.slug
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'assets-source/animals/generation'/a.slug
 choice=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals'][a.slug];assert choice['selected_models']==[2]
 source=root/'Animal - Raw Audition.blend';out=root/'Animal - Owner Corrected.blend';assert not out.exists(),'Keep an existing owner correction intact'
 source_hash=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;entries=json.loads(s['deer_four_rigs']);e=entries[1]

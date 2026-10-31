@@ -2,7 +2,7 @@
 import json,shutil
 from pathlib import Path
 import numpy as np
-r=Path(__file__).resolve().parent.parent/'artifacts/fauna-motion-sources'
+r=Path(__file__).resolve().parent.parent/'assets-source/animals/motion-library'
 src=r/'fish';dst=r/'cetacean';dst.mkdir(exist_ok=True)
 s=json.loads((src/'source-rig.json').read_text());a=np.load(src/'source-motions.npz')
 clip=next(c for c in s['clips'] if c['label']=='Swim Vertical');poses=a[clip['key']]

@@ -3,7 +3,7 @@ import argparse,hashlib,json,math,re,sys,time
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector,Matrix
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/reference-media'
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--clip');ap.add_argument('--stills-only',action='store_true');ap.add_argument('--plan',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
 item=next(x for x in json.loads((a.plan or root/'plan.json').read_text())['animals'] if x['slug']==a.slug);source=repo/item['source'];digest=hashlib.sha256(source.read_bytes()).hexdigest();assert digest==item['source_sha256']
 out=((a.output_root or root)/a.slug).resolve();out.mkdir(exist_ok=True,parents=True);receipt_path=out/'receipt.json';signature=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()

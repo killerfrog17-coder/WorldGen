@@ -2,8 +2,8 @@
 import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024';out=repo/'artifacts/fauna-phone-media';out.mkdir(exist_ok=True)
-rows=[{'slug':'deer','name':'Deer','path':str(repo/'artifacts/fauna-assets/deer/Deer - Prototype.blend'),'accepted':True}]+json.loads((root/'review-index.json').read_text())['ready']
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted';out=repo/'assets-source/animals/reference-media';out.mkdir(exist_ok=True)
+rows=[{'slug':'deer','name':'Deer','path':str(repo/'assets-source/animals/prototypes/deer/Deer - Prototype.blend'),'accepted':True}]+json.loads((root/'review-index.json').read_text())['ready']
 plan=[]
 for number,row in enumerate(rows,1):
  source=Path(row['path']);digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0]

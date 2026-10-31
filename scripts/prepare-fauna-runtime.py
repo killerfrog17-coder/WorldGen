@@ -3,8 +3,8 @@ import hashlib,json,math,re
 from pathlib import Path
 
 repo=Path(__file__).resolve().parent.parent
-root=repo/'artifacts/fauna-runtime-20261026';root.mkdir(parents=True,exist_ok=True)
-rows=json.loads((repo/'artifacts/fauna-anatomy-revision/review-index.json').read_text())['ready']
+root=repo/'assets-source/animals/export-metadata';root.mkdir(parents=True,exist_ok=True)
+rows=json.loads((repo/'assets-source/animals/anatomy/review-index.json').read_text())['ready']
 inventory={r['slug']:r for r in json.loads((root/'native-inventory.json').read_text())['animals']}
 plans={r['slug']:r for r in json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']}
 roles={'Idle':'idle','Walk':'walk','Trot':'trot','Run':'run','Flight':'fly','Flap':'fly','Glide':'glide',

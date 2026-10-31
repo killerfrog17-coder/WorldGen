@@ -4,11 +4,11 @@ from pathlib import Path
 import bpy,numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from fauna_eye_socket_lining import seal
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-eye-closure-repair';runtime=repo/'artifacts/fauna-runtime-20261026'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/eye-repair';runtime=repo/'assets-source/animals/export-metadata'
 if (root/'native-lining-repairs.json').exists():
     previous=json.loads((root/'native-lining-repairs.json').read_text())['animals']
     for record in previous:
-        path=repo/'artifacts/fauna-anatomy-revision'/record['slug']/'Animal - Painted Species Review.blend'
+        path=repo/'assets-source/animals/anatomy'/record['slug']/'Animal - Painted Species Review.blend'
         assert hashlib.sha256(path.read_bytes()).hexdigest()==record['after_sha256'],'Previously repaired native changed; require a fresh scoped inspection'
     print('CANONICAL_SOCKET_INTERIORS_ALREADY_SEALED',len(previous),flush=True)
     raise SystemExit(0)

@@ -1,6 +1,6 @@
 {
   "production_source": "bf4de2103e0c468ea7e9a187f1fe6f4e378786aa",
-  "player": "artifacts/player-human-natural-review/WorldGen.exe",
+  "player": "builds/slot-a/WorldGen.exe",
   "backend": "IL2CPP",
   "built_utc": "2026-10-31T17:01:01.2951406Z",
   "recorded_utc": "2026-10-31T17:23:56.796243+00:00",

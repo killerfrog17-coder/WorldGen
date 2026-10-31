@@ -2,7 +2,7 @@
 import hashlib,json
 from pathlib import Path
 from PIL import Image
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024';site=repo/'artifacts/fauna-phone-review/dist';dest=site/'eyes';dest.mkdir(exist_ok=True)
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted';site=repo/'artifacts/fauna-phone-review/dist';dest=site/'eyes';dest.mkdir(exist_ok=True)
 rows=json.loads((site/'overview/index.json').read_text())['modes']['side']['pages'];number={}
 for row in rows:
  for offset,name in enumerate(row['names']):number[name]=row['first']+offset

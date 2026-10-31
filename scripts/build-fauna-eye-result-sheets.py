@@ -2,7 +2,7 @@
 import argparse,hashlib,json
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 ap=argparse.ArgumentParser();ap.add_argument('--pages',nargs='*',type=int);a=ap.parse_args()
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];out=root/'inspection/eye-result-sheets';out.mkdir(exist_ok=True)
 font=ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf',18)

@@ -3,7 +3,7 @@ import argparse,csv,json,datetime,hashlib
 from pathlib import Path
 from fauna_motion_sources import source_for
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024')
+ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'assets-source/animals/generation')
 a=ap.parse_args();root=a.root.resolve();plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']
 ready=[];pending=[];rows=[];raw_motion_pending=[];motion_trials_pending=[]
 choices=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())
@@ -64,7 +64,7 @@ for item in plan:
                 rejection=folder/'motion-trial-rejection.json'
                 if rejection.exists():notes+='; '+json.loads(rejection.read_text())['reason']
             elif item['family']!='microfly' and source_for(item,repo) is None:status='waiting_for_motion_source';notes='Suitable CC0 motion still needed; see MOTION_COVERAGE.csv'
-    elif status=='accepted_baseline':path=str(repo/'artifacts/fauna-assets/deer/Deer - Prototype.blend')
+    elif status=='accepted_baseline':path=str(repo/'assets-source/animals/prototypes/deer/Deer - Prototype.blend')
     rows.append([item['priority_rank'],item['animal'],status,path,notes])
 index={'ready':ready,'pending':pending,'raw_motion_pending':raw_motion_pending,'motion_trials_pending':motion_trials_pending,'counts':{'catalogue':len(plan),'new_reviews_ready':len(ready),'new_candidates_ready':sum(x['candidates'] for x in ready),'models_rigged_motion_pending':len(raw_motion_pending),'motion_trials_pending':len(motion_trials_pending),'accepted_deer_baseline':1,'unpainted':True},'notes':'File/controls pass is not visual acceptance. Motion-pending raw assets and uninspected source trials do not count as animated reviews. Individual motions may be missing; see per-animal audition.json.'}
 (root/'review-index.json').write_text(json.dumps(index,indent=2))

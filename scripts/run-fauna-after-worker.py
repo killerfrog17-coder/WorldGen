@@ -12,7 +12,7 @@ while psutil.pid_exists(a.after_pid):
         if psutil.Process(a.after_pid).create_time()!=identity:break
     except psutil.NoSuchProcess:break
     time.sleep(3)
-batch=repo/'artifacts/fauna-overnight-20261024'
+batch=repo/'assets-source/animals/generation'
 assert not (batch/'worker.lock').exists(),'A producer remains; never launch another'
 if json.loads((batch/'run-control.json').read_text()).get('mode')!='run':
     print('Control is no longer RUN; pending queue left untouched',flush=True);sys.exit(0)

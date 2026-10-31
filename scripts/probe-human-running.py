@@ -8,10 +8,10 @@ sys.path.insert(0,str(REPO/'scripts'))
 from human_cmu_motion import CmuMotion
 from human_motion_common import Motion
 import human_animation_stage as stage
-ap=argparse.ArgumentParser();ap.add_argument('--candidates',default='16_35,16_36,16_55,35_17,127_03');ap.add_argument('--output',default='artifacts/human-running-review')
+ap=argparse.ArgumentParser();ap.add_argument('--candidates',default='16_35,16_36,16_55,35_17,127_03');ap.add_argument('--output',default='assets-source/humans/research/running')
 args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
 OUT=REPO/args.output;OUT.mkdir(parents=True,exist_ok=True)
-SOURCE=REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
+SOURCE=REPO/'assets-source/humans/base/Human - Animation Comparison.blend'
 digest=hashlib.sha256(SOURCE.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
 spec=importlib.util.spec_from_file_location('retarget',REPO/'scripts/build-human-animation-preview.py')
@@ -24,9 +24,9 @@ for obj in bpy.data.collections['MPFB_A'].objects:
     for modifier in list(obj.modifiers):
         if modifier.type=='SUBSURF' or modifier.type=='MASK' and modifier.name.startswith('Delete.'):obj.modifiers.remove(modifier)
 records=[];clips=json.loads(rig['preview_clips'])
-reference=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual1').rglob('UAL1_Standard.glb')))
+reference=Motion(next((REPO/'assets-source/humans/motion/animation-library/quaternius-ual1').rglob('UAL1_Standard.glb')))
 for filename in args.candidates.split(','):
-    motion=CmuMotion(REPO/'artifacts/human-running-sources/cmu'/f'{filename}.bvh')
+    motion=CmuMotion(REPO/'assets-source/humans/motion/source-library/cmu'/f'{filename}.bvh')
     motion.align_to(reference)
     samples=[motion.sample(filename,min(i/30,motion.seconds)) for i in range(round(motion.seconds*30)+1)]
     record=retarget.animate(rig,'MPFB',('CMU '+filename,motion,filename),samples)

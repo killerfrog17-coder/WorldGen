@@ -2,7 +2,7 @@
 import argparse,hashlib,json,shutil
 from pathlib import Path
 from fauna_phone_clips import review_clip_labels
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media';site=repo/'artifacts/fauna-phone-review/dist'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/reference-media';site=repo/'artifacts/fauna-phone-review/dist'
 ap=argparse.ArgumentParser();ap.add_argument('--partial',action='store_true');a=ap.parse_args();plan=json.loads((root/'plan.json').read_text());animals=[];ledger=[];complete=0
 feedback_path=repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json';feedback=json.loads(feedback_path.read_text()) if feedback_path.exists() else {'items':[]}
 repairs={}

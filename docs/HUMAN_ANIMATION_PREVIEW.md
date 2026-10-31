@@ -3,7 +3,7 @@
 The two accepted appearance samples now have an isolated Blender animation
 comparison, before any game implementation. Six MPFB people and six UMA people
 play identical downloaded CC0 clips. Native output lives in ignored
-`artifacts/human-animation-preview/Human - Animation Comparison.blend`.
+`assets-source/humans/base/Human - Animation Comparison.blend`.
 
 Run `scripts/open-human-animation-preview.py` with the local rig Python to open
 one new review on the rightmost monitor. The visible Item sidebar has MPFB,
@@ -16,7 +16,7 @@ remain visible; characters are not resized to an identical height.
 ## Sources and retargeting
 
 The free downloads, exact clip inventory, license evidence and checksums are in
-`artifacts/human-animation-sources` and `HUMAN_ANIMATION_SOURCE_AUDIT.md`.
+`assets-source/humans/motion/animation-library` and `HUMAN_ANIMATION_SOURCE_AUDIT.md`.
 Quaternius supplies Idle, Walk, Run (Jog), Sprint, Crouch, Sit down, Sitting,
 Stand up, Sword attack, Chop wood and Swim. KayKit supplies its alternate walk,
 alternate run, Jump and Dig. Fifteen motion choices are not fifteen finished

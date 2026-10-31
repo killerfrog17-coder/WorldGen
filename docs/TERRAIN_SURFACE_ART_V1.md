@@ -11,7 +11,7 @@ which material appears where.
 The built-in imagegen tool generated two square, orthographic, evenly lit
 albedo swatches: fine mineral loam and fractured granular granite. Exact prompts
 are in `unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/prompts.json`.
-Masters and repeat previews are ignored in `artifacts/terrain-surface-art-20261024`;
+Masters and repeat previews are ignored in `assets-source/terrain/surfaces`;
 the processed PNGs and published arrays are source assets. Deer inference and
 reviews are left to the other conversation.
 
@@ -59,7 +59,7 @@ FPS claim or runtime SRP capture is made.
 
 1. Keep the generated masters as `soil-source.png` and `granite-source.png` in
    the artifact root, alongside its prompt file.
-2. Run `python scripts/bake-terrain-surface-art.py --root artifacts/terrain-surface-art-20261024 --output unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1`.
+2. Run `python scripts/bake-terrain-surface-art.py --root assets-source/terrain/surfaces --output unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1`.
 3. Run Unity in batchmode/nographics with `-executeMethod TerrainSurfaceArtBuilder.Build`.
    It copies the procedural fallback's other slots, compresses all arrays with
    Unity's BC7 encoder, includes every mip and updates LocalTerrainArtSet.

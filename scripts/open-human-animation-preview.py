@@ -3,7 +3,7 @@ from pathlib import Path
 
 REPO=Path(__file__).resolve().parent.parent
 source=(REPO/'scripts/open-human-builder-demo.py').read_text()
-source=source.replace("ROOT=REPO/'artifacts/human-builder-demo'","ROOT=REPO/'artifacts/human-animation-preview'")
+source=source.replace("ROOT=REPO/'assets-source/humans/research/builders'","ROOT=REPO/'assets-source/humans/base'")
 source=source.replace('Human - Character Builder Comparison.blend','Human - Animation Comparison.blend')
 source=source.replace('human-builder-demo-viewer.py','human-animation-preview-viewer.py')
 source=source.replace('Human builder comparison viewer ready.','Human animation comparison viewer ready.')

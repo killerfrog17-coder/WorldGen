@@ -20,8 +20,8 @@ assert a.slug in SUPPORTED,'No inspected body-family paint recipe yet'
 choices = json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals']
 choice = choices[a.slug]; assert choice['model_selected'] and len(choice['selected_models']) == 1
 number = choice['selected_models'][0]
-source_root = repo/'artifacts/fauna-overnight-20261024'/a.slug
-root = repo/'artifacts/fauna-painted-20261024'/a.slug; root.mkdir(parents=True, exist_ok=True)
+source_root = repo/'assets-source/animals/generation'/a.slug
+root = repo/'assets-source/animals/painted'/a.slug; root.mkdir(parents=True, exist_ok=True)
 out = root/'Animal - Painted Species Review.blend'
 if out.exists():
     prior=json.loads((root/'paint-state.json').read_text())
@@ -121,7 +121,7 @@ tail = smooth(-.58,-.72,p[:,1]) * smooth(.20,.04,np.abs(p[:,0]-center_x))
 
 profiles=coat_profiles(a.slug)
 fur_path=repo/fur_source(a.slug)
-if not fur_path.exists():fur_path=repo/'artifacts/fauna-assets/deer/fur-source.png'
+if not fur_path.exists():fur_path=repo/'assets-source/animals/prototypes/deer/fur-source.png'
 fur = bpy.data.images.load(str(fur_path), check_existing=True); fur.pack()
 coats=[]
 for index,(label,base,pale,dark_tips) in enumerate(profiles):

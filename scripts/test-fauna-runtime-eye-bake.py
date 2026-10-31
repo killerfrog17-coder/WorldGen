@@ -6,7 +6,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 from fauna_runtime_uv import prepare,projected_area
 from fauna_runtime_surface import Surface
 
-root=Path(__file__).resolve().parent.parent/'artifacts/fauna-eye-closure-repair/tests';root.mkdir(exist_ok=True)
+root=Path(__file__).resolve().parent.parent/'assets-source/animals/eye-repair/tests';root.mkdir(exist_ok=True)
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 
 def quad(name,uvs,transparent=False):

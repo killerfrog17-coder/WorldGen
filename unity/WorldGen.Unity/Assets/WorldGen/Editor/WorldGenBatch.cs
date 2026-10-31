@@ -53,7 +53,7 @@ public static class WorldGenBatch
         var arguments=Environment.GetCommandLineArgs();int outputArgument=Array.IndexOf(arguments,"--worldgen-build-output");
         if(outputArgument<0||outputArgument+1>=arguments.Length)throw new InvalidOperationException("Use scripts/unity-check.ps1 -BuildPlayer to reuse the inactive player slot.");
         var output=Path.GetFullPath(arguments[outputArgument+1]);
-        var allowed=new[]{"player-human-natural-review","player-world-feedback"}.Select(slot=>Path.GetFullPath(Path.Combine(Root,"artifacts",slot,"WorldGen.exe")));
+        var allowed=new[]{"slot-a","slot-b"}.Select(slot=>Path.GetFullPath(Path.Combine(Root,"builds",slot,"WorldGen.exe")));
         if(!allowed.Contains(output,StringComparer.OrdinalIgnoreCase))throw new InvalidOperationException("Per-update player copies are retired. Use the two reusable build slots.");
         Directory.CreateDirectory(Path.GetDirectoryName(output));
         // Runtime-created cameras are invisible to scene-only postprocess stripping analysis.

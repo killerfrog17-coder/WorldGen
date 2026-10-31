@@ -1,7 +1,7 @@
 """Back up curated socket picks and their cameras, without model/image binaries."""
 import json
 from pathlib import Path
-repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
+repo=Path(__file__).resolve().parent.parent;root=repo/'assets-source/animals/painted'
 jobs=json.loads((root/'paint-queue.json').read_text())['jobs'];records={}
 for job in jobs:
  slug=job['slug'];folder=root/slug;review=json.loads((folder/'eye-review.json').read_text());cameras={}

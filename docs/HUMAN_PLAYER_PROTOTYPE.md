@@ -399,13 +399,13 @@ Cancellation commands clear queued requests as well as existing explicit spawns.
 
 ## Reproduction and sources
 
-1. Preserve `artifacts/human-animation-preview/Human - Animation Comparison.blend`
+1. Preserve `assets-source/humans/base/Human - Animation Comparison.blend`
    (SHA256 `0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229`).
 2. Run `scripts/export-human-runtime.py` in Blender background mode. It reads the
    audition without saving it, bakes unlit material colour/opacity on CPU, writes
-   native FBX skins/actions and metadata to `artifacts/human-runtime/exports`.
+   native FBX skins/actions and metadata to `assets-source/humans/exports`.
    `--reuse-textures` retains existing accepted pigment/opacity maps. The three
-   CMU BVHs listed below must be in `artifacts/human-running-sources/cmu`.
+   CMU BVHs listed below must be in `assets-source/humans/motion/source-library/cmu`.
 3. Stage the current Core/Presentation/Serialization DLLs, then run Unity batch
    `-executeMethod HumanRuntimeBuilder.Build`. It creates the six prefabs and
    `Resources/Humans/HumanLibrary.asset`. Generated data stays ignored by Git.
@@ -430,7 +430,7 @@ shared foot phase. Runtime cadence uses measured travel distance. These are
 retargeted captures, without contact IK or a guarantee against all foot sliding.
 
 Exact earlier downloaded files and provenance remain in
-`artifacts/human-animation-sources`. No tool code, paid service or neural inference
+`assets-source/humans/motion/animation-library`. No tool code, paid service or neural inference
 is required in the game. See the earlier HUMAN_CHARACTER_BUILDER_DEMO and
 HUMAN_ANIMATION_PREVIEW documents for the original foundation and retargeting.
 
@@ -462,7 +462,7 @@ with first-person body and head/other-camera checks.20focused camera/save/large-
 request parser checks pass. No claim that every alternative run is better;
 the style selector lets the owner compare. No multiplayer or unlimited-hardware
 claim is implied by removing population caps. Evidence is under ignored
-`artifacts/human-refinement`.
+`assets-source/humans/research/refinement`.
 
 ## Pre-night rollback and upright running revision - 27 October
 
@@ -489,8 +489,8 @@ all six people and three new runs at two phases. A 335-check review verifies
 skin channels, changing evaluated poses, measured stride metadata, whole local
 body hiding, retained full shadows and another camera seeing the same person.
 Same-frame editor captures need `forceMatrixRecalculationPerRender`; initial
-cached-pose captures were rejected. Evidence: `artifacts/human-running-runtime`
-and the Blender motion audition under `artifacts/human-running-review`. This
+cached-pose captures were rejected. Evidence: `assets-source/humans/motion/legacy`
+and the Blender motion audition under `assets-source/humans/research/running`. This
 does not establish perfect foot contacts or owner acceptance of the new runs.
 
 ## Manual human spawning and dedicated sprint - 27 October
@@ -513,7 +513,7 @@ The faster source has a short complete stride, so the offline stride selector
 now admits periods down to 0.35 s. Checked raw endpoints before accepting that
 cycle; the retained jog still selects the same frames 51..146.
 
-Evidence is under `artifacts/human-sprint-runtime`: source candidate metadata,
+Evidence is under `assets-source/humans/motion/sprint`: source candidate metadata,
 stride diagnostics, CPU Blender auditions and actual Unity renders of all six
 sprints. 22 camera/save/help assertions and 334 Unity skin/render/command checks
 pass. The opt-in editor review reloads Resources after NewScene, which can
@@ -523,7 +523,7 @@ The broader `--play-session-only` check fails at its existing physical-noise
 macro-anchor assertion. An isolated archive of the pre-human HEAD reproduced
 the same failure at PlaySessionTests.cs:32; this is not a new human/save regression
 and was not changed here. New camera/identity round-trip tests pass. Evidence
-is ignored under `artifacts/human-runtime`, with rejected first mask/collar
+is ignored under `assets-source/humans/reference-metadata`, with rejected first mask/collar
 captures retained separately from `final-review`. No FPS improvement is claimed.
 
 ## Catalogue and give commands - 27 October

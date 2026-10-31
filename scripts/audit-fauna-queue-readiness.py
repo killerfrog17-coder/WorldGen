@@ -7,7 +7,7 @@ import collections, datetime, hashlib, json
 from pathlib import Path
 
 repo = Path(__file__).resolve().parent.parent
-batch = repo/'artifacts/fauna-overnight-20261024'
+batch = repo/'assets-source/animals/generation'
 plan = json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']
 variation = json.loads((repo/'docs/fauna/SPECIES_VARIATION_PLANS.json').read_text())
 choices = json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())

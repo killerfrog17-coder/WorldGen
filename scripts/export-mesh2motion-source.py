@@ -6,7 +6,7 @@ from mathutils import Matrix,Vector
 
 ap=argparse.ArgumentParser();ap.add_argument('--family',required=True);ap.add_argument('--output',type=Path,required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);a.output.mkdir(parents=True,exist_ok=True)
-repo=Path(__file__).resolve().parent.parent;assets=repo/'artifacts/tools/mesh2motion-cli/node_modules/afk-rig/assets'
+repo=Path(__file__).resolve().parent.parent;assets=repo/'tools/mesh2motion-cli/node_modules/afk-rig/assets'
 family_file={'fish':'shark','human':'human-base'}.get(a.family,a.family);source=assets/'animations'/f'{family_file}-animations.glb'
 bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source))
 s=bpy.context.scene;objects=[o for o in s.objects if o.type=='EMPTY' and o.name not in ('Armature','Fox-Mesh','Horse-Mesh')]

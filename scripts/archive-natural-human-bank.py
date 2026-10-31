@@ -3,7 +3,7 @@ import hashlib,json
 from pathlib import Path
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/human-natural-20261031';BANK=REPO/'assets/human-motion-kimodo'
+ROOT=REPO/'assets-source/humans/motion/natural';BANK=REPO/'assets/human-motion-kimodo'
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 bank=json.loads((BANK/'bank.json').read_text());old=json.loads((BANK/'provenance.json').read_text())
 paths=sorted({clip['source'].replace('\\','/') for person in bank['people'] for clip in person['clips']})
@@ -26,6 +26,6 @@ old.update({'baked_roles_per_character':[len(person['clips']) for person in bank
  'Separate one/two-hand armed swimming poses; free limb remains available for propulsion.'],
  'review_limits':'Automated screening and mechanical audits do not constitute owner visual acceptance.'}})
 (BANK/'provenance.json').write_text(json.dumps(old,indent=2))
-tracked.extend([f'artifacts/human-natural-20261031/{name}' for name in ['skeleton.json','model-provenance.json','authoring-decisions.json','session.json']])
+tracked.extend([f'assets-source/humans/motion/natural/{name}' for name in ['skeleton.json','model-provenance.json','authoring-decisions.json','session.json']])
 (ROOT/'selected-source-files.txt').write_text('\n'.join(sorted(set(tracked)))+'\n')
 print('ARCHIVED',len(sources),'selected raw sources;',len(tracked),'reproducibility inputs')

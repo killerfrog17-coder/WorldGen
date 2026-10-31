@@ -5,8 +5,8 @@ from pathlib import Path
 import bpy
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
-SOURCE = REPO / 'artifacts/human-animation-preview/Human - Animation Comparison.blend'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
+SOURCE = REPO / 'assets-source/humans/base/Human - Animation Comparison.blend'
 ROOT.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
 report = {'source': str(SOURCE), 'sha256': hashlib.sha256(SOURCE.read_bytes()).hexdigest(), 'people': []}

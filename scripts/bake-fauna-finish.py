@@ -17,10 +17,10 @@ from fauna_paint_recipes import eye_frame
 from fauna_hypothetical_coats import treatment,rationale,organic_stripes
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path);ap.add_argument('--source-atlases',action='store_true')
 a=ap.parse_args();assert a.slug in SUPPORTED;started=time.monotonic()
-root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
+root=(a.root or repo/'assets-source/animals/painted'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 d=dict(np.load(root/'paint-anatomy.npz'));entry_path=root/'selected-source-entry.json'
-entry=json.loads(entry_path.read_text()) if entry_path.exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
+entry=json.loads(entry_path.read_text()) if entry_path.exists() else json.loads((repo/'assets-source/animals/generation'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
 groups=np.asarray(entry['groups']);weights=d['weights'];assert weights.shape[1]==len(groups)
 kind=category(a.slug)
 if kind=='snake':
@@ -66,10 +66,10 @@ foot=1-smooth(float(zlo+.035),float(zlo+.14),p[:,2])
 back=smooth(.05,.75,n[:,2])*(1-face)
 wing=np.maximum(wing_weight,smooth(bodywidth*.72,bodywidth*1.1,np.abs(p[:,0]-state['center_x']))*(1-face)) if kind=='bird' else wing_weight
 if kind=='bird':
-    flight=detail_source('artifacts/fauna-assets/textures/feather-flight-v1.png',2.1)
+    flight=detail_source('assets-source/animals/prototypes/textures/feather-flight-v1.png',2.1)
     detail=detail*(1-wing*.8)+flight*wing*.8
 if kind=='bat':
-    fur=detail_source('artifacts/fauna-assets/textures/fur-dense-fine-v1.png',3.2)
+    fur=detail_source('assets-source/animals/prototypes/textures/fur-dense-fine-v1.png',3.2)
     membrane=np.maximum(wing_weight,smooth(bodywidth*.5,bodywidth*.9,np.abs(p[:,0]-state['center_x'])))
     detail=detail*membrane+fur*(1-membrane)
 

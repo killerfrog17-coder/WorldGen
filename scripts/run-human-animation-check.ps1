@@ -1,11 +1,11 @@
-param([ValidateSet('Kimodo','Legacy','Items','Water')][string]$Mode='Kimodo',[string]$PlayerFolder='player-human-kimodo',[Parameter(Mandatory=$true)][string]$OutputName)
+param([ValidateSet('Kimodo','Legacy','Items','Water')][string]$Mode='Kimodo',[ValidateSet('slot-a','slot-b')][string]$PlayerFolder='slot-b',[Parameter(Mandatory=$true)][string]$OutputName)
 $ErrorActionPreference='Stop'
 $kimodoRepo=Split-Path -Parent $PSScriptRoot
-$kimodoTask=Join-Path $kimodoRepo 'artifacts/kimodo-human-bank'
+$kimodoTask=Join-Path $kimodoRepo 'artifacts/human-animation-check'
 $kimodoOutput=Join-Path $kimodoTask $OutputName
 if(Test-Path -LiteralPath (Join-Path $kimodoOutput 'player.log')){throw 'Choose a new evidence output name.'}
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'A WorldGen player is already running; leave it untouched.'}
-$kimodoPlayer=Join-Path $kimodoRepo ('artifacts/'+$PlayerFolder+'/WorldGen.exe')
+$kimodoPlayer=Join-Path $kimodoRepo ('builds/'+$PlayerFolder+'/WorldGen.exe')
 if(!(Test-Path -LiteralPath (Join-Path (Split-Path -Parent $kimodoPlayer) 'build-inputs.json'))){throw 'Player packaging is not complete.'}
 New-Item -ItemType Directory -Force $kimodoOutput | Out-Null
 $kimodoArgs=@('-batchmode','-force-d3d11','-screen-width','1280','-screen-height','800','--worldgen-item-use-check',('"'+$kimodoRepo+'/unity/WorldGen.Unity/Assets/StreamingAssets/world/Earth.world"'),'--worldgen-output',('"'+$kimodoOutput+'"'),'--worldgen-library-root',('"'+$kimodoTask+'/native-library"'),'-logFile',('"'+$kimodoOutput+'/player.log"'))

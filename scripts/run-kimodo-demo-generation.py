@@ -11,7 +11,7 @@ import time
 import numpy as np
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = REPO / 'artifacts/kimodo-first-person-demo'
+ROOT = REPO / 'assets-source/humans/motion/first-person'
 NATIVE = Path('E:/AI/WorldGen3D/kimodo-native-build')
 MODELS = Path('E:/AI/WorldGen3D/models/Kimodo')
 CASES = [
@@ -27,7 +27,7 @@ CASES = [
 def source_skeleton():
     """Read the official Apache-2.0 hierarchy and trusted neutral joint tensor."""
     import torch
-    source = REPO / 'artifacts/tools/kimodo/kimodo'
+    source = REPO / 'tools/kimodo/kimodo'
     module = ast.parse((source / 'skeleton/definitions.py').read_text())
     cls = next(x for x in module.body if isinstance(x, ast.ClassDef) and x.name == 'SOMASkeleton30')
     assignment = next(x for x in cls.body if isinstance(x, ast.Assign) and

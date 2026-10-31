@@ -6,7 +6,7 @@ not modify the game, accepted animal assets or the first-person controller.
 
 ## Deliverable
 
-`artifacts/human-builder-demo/Human - Character Builder Comparison.blend`
+`assets-source/humans/research/builders/Human - Character Builder Comparison.blend`
 contains six adults from each builder, with packed image maps. Open with:
 
 ```powershell
@@ -40,7 +40,7 @@ in that population. Pigmentation and shape are independently configurable.
 
 MPFB keeps its fitted eyes/lids, skin, clothes, hair, modelling shape keys and
 53-bone game-engine rig. UMA is generated in the isolated downloaded
-`artifacts/tools/UMA/UMAProject`, using the installed Unity 6000.6.0f1. This project
+`tools/UMA/UMAProject`, using the installed Unity 6000.6.0f1. This project
 is independent of `unity/WorldGen.Unity`. The exporter uses native UMA generation
 and saves the appearance recipe and applied DNA alongside the frozen mesh.
 

@@ -6,10 +6,10 @@ from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
 
 REPO=Path(__file__).resolve().parent.parent
-ROOT=REPO/'artifacts/fauna-eye-closure-repair'
+ROOT=REPO/'assets-source/animals/eye-repair'
 ROOT.mkdir(exist_ok=True)
 ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='*');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-runtime=REPO/'artifacts/fauna-runtime-20261026'
+runtime=REPO/'assets-source/animals/export-metadata'
 inventory={r['slug']:r for r in json.loads((runtime/'native-inventory.json').read_text())['animals']}
 plan=json.loads((runtime/'export-plan.json').read_text())['animals']
 rows=[]

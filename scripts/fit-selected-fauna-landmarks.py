@@ -14,7 +14,7 @@ sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in SUPPORTED
-root=repo/'artifacts/fauna-painted-20261024'/a.slug
+root=repo/'assets-source/animals/painted'/a.slug
 state=json.loads((root/'paint-state.json').read_text())
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']]
