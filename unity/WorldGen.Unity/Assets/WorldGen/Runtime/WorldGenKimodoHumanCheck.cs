@@ -59,6 +59,9 @@ public sealed partial class LocalTerrainExplorer
             Check(SharedHumanMotion&&!viewArmsVisible&&!viewArms.Root.activeSelf,"Kimodo selection disables private arms and uses the world character");
             Check(PlayerPrefs.GetInt("human-kimodo-animation",-1)==1,"Kimodo selection persists in settings");
             Check(original.SequenceEqual(humanPlayer.Root.GetComponentsInChildren<SkinnedMeshRenderer>().Select(r=>r.sharedMesh)),"Changing animation mode preserves every original character mesh");
+            var localEye=humanPlayer.Shared.LocalEye;var localHead=humanPlayer.Root.transform.InverseTransformPoint(inventoryBones["head"].position);
+            Debug.Log("KIMODO EYE local="+localEye.ToString("F4")+" head="+localHead.ToString("F4")+" expectedHeight="+humanPlayer.Definition.EyeHeight+" camera="+humanPlayer.Root.transform.InverseTransformPoint(view.transform.position).ToString("F4"));
+            Check(Mathf.Abs(localEye.y-humanPlayer.Definition.EyeHeight)<.15f,"Shared first-person eye stays at the character's actual authored eye height");
             var expectedRoot=new Vector3((float)(motion.X-originX),(float)(motion.Y-WorldGen.Presentation.TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
             Check(Vector3.Distance(expectedRoot,humanPlayer.Root.transform.localPosition)<.03f,"Generated clips do not overwrite controller-owned world position");
             Vector3 shaft=SharedSpearDirection,grips=SharedGripPosition("l")-SharedGripPosition("r");

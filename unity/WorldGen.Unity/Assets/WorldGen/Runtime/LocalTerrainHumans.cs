@@ -76,6 +76,10 @@ public sealed partial class LocalTerrainExplorer
             var props=new MaterialPropertyBlock();props.SetFloat("_HumanViewId",id);renderer.SetPropertyBlock(props);
             renderer.shadowCastingMode=ShadowCastingMode.On;renderer.receiveShadows=true;
         }
+        // FBX prefab transforms need not start in the evaluated idle pose.
+        // Calibrate the eye/head offsets only after the original native skin
+        // has actually been posed, otherwise that initial offset is added twice.
+        actor.Graph.Play();actor.Graph.Evaluate(0);
         var generated=kimodoHumanLibrary?.Find(definition.Variant);
         if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight);
         actor.Graph.Play();actor.Graph.Evaluate(0);return actor;
