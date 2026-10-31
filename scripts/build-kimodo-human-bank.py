@@ -94,7 +94,7 @@ def prepare(source, name, role, loop, overrides):
         distance = np.array([(r['RightHand'].translation-r['LeftHand'].translation).length for r in rows])
         draw = int(np.argmax(distance[15:-15])) + 15
         if role == 'BowDraw': end = draw
-        else: begin = draw
+        else: begin,end = draw,min(count-1,draw+30)
     elif role in {'Gather','Drink','Eat'}:
         if role=='Gather':
             relative=np.array([tuple(r['RightHand'].translation-r['Hips'].translation) for r in rows])
@@ -256,7 +256,7 @@ def main():
                 if role in {'Drink','WorkTwist'}:desired=fingers['relaxed'][bone].slerp(desired,.45)
                 if args.natural and role in {'CarryLarge','SwimCarryTwo'}:desired=fingers['relaxed'][bone].slerp(desired,.45)
                 if args.natural and role.startswith('Bow') and bone.endswith('_r'):
-                    amount=0 if role=='BowReady' else .65 if bone.startswith(('index_','middle_','ring_')) else .12
+                    amount=0 if role=='BowReady' else .8
                     desired=fingers['relaxed'][bone].slerp(desired,amount)
                 if role=='Eat' and not bone.startswith(('thumb_','index_')):desired=fingers['relaxed'][bone].slerp(desired,.35)
                 for key in curve.keyframe_points:

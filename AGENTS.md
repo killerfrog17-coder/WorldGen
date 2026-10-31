@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+ACTIVE31Oct05:38CDT: HUMAN minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
+fe04cc8 native3 IL2CPP10:20:11Z:245mechanical PASS but actual BVH480skin/
+546prop meshes found26 penetrating part frames, mostly heavy carry plus spear
+wind-up/return. NOT accepted visually. ROOT CAUSE: AtHand(opposite) returns the
+SAME two-handed item; fitter reapplied it one-handed after fitting both grips.
+Corrected same-ID exclusion, heavy object actual-depth clearance, reachable
+same-side spear cocking. Added actual lip contact for Drink, tucked bow fingers,
+shorter bow recovery; bank70x6 rebaked/imported, mechanicalE70PASS. New source
+needs checkpoint/freeze + build4 SAME unselected player-human-natural-review.
+Water3 failed NEW review fixture because Place resets Swimming; restored-position
+water Move now included before review; original assertions retained. No new
+water pass claim. Earlier native1 geometry invalidated/native2 failed as below.
+Selected terrain package/shortcut FROZEN. Owner3 untouched. No cleanup/paid/
+signup/subagents/Mono. No owned native/Unity/Blender jobs at this checkpoint.
+Next: build4, native natural/BVH+actual water then full regression/visual QA;
+continue substantive work until minimum, no early finish or idle padding.
+
 ACTIVE31Oct05:10CDT: HUMAN work minimum STILL12:27:07Z/07:27CDT, aim08:27CDT.
 Native2 c2454a1 IL2CPP09:34:21Z FAILED actual-face measurement gate; NOT accepted.
 Editor probe found BakeMesh defaultfalse + renderer.TransformPoint doubled FBX

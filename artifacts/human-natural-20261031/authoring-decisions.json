@@ -706,12 +706,12 @@
     "role": "BowRelease",
     "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
     "begin": 42,
-    "end": 179,
+    "end": 72,
     "loop": false,
     "contact": -1,
     "release": 0,
-    "travel_m": 0.015947318684986524,
-    "duration": 4.566666666666666,
+    "travel_m": 0.06599071791619325,
+    "duration": 1.0,
     "raw_name": "bow_shoot"
   },
   {

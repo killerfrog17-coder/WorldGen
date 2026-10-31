@@ -72,6 +72,9 @@ public sealed partial class LocalTerrainExplorer
         }
         paused=true;Check(motion.Swimming&&Vitals.Stamina>98&&Vitals.Exertion.Burst>.99,"Ten seconds of actual sea swimming retains stamina through the full water and survival code paths");
         motion.Place(deepX,deepZ,Ground(deepX,deepZ));motion.Y=SampleMotionWater(deepX,deepZ).Surface+.12-humanEyeOffset;Vitals.Restore();
+        // Place deliberately resets controller state; evaluate the water at the
+        // restored floating position before reviewing an actual swimming pose.
+        motion.Move(1d/60,0,0,0,heading,0,false,false,PlayerSolidGround);
         UpdateHumans();AnimateHuman(humanPlayer,1,false,false,.3f,true);
         int swim=Array.IndexOf(humanPlayer.Definition.Roles,"Swim");
         bool swimPlaying=SharedHumanMotion?humanPlayer.Shared.Clips.ContainsKey("Swim")&&humanPlayer.Shared.LocomotionWeight("Swim")+humanPlayer.Shared.LocomotionWeight("SwimCarry")+humanPlayer.Shared.LocomotionWeight("SwimCarryLeft")+humanPlayer.Shared.LocomotionWeight("SwimCarryTwo")>.9f:swim>=0&&humanPlayer.Weights[swim]>.9f;

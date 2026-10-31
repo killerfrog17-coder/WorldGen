@@ -161,8 +161,12 @@ public sealed partial class LocalTerrainExplorer
         bool throwing=itemCharge?.Weapon==item&&itemCharge.Throw||pendingRanged?.Charge.Weapon==item&&pendingRanged.Charge.Throw||role.StartsWith("SpearThrow",StringComparison.Ordinal)||role.StartsWith("Throw",StringComparison.Ordinal);
         if(throwing)
         {
-            var raw=SharedGripPosition(main);Vector3 safe=raw;
-            for(int i=0;i<8&&NaturalPoleClearance(item,safe,axis)<.025f*s;i++)safe+=body.right*(side*.025f*s);
+            var raw=SharedGripPosition(main);Vector3 local=body.InverseTransformPoint(raw);
+            // A generated wind-up can sweep the hand behind the opposite shoulder.
+            // Keep the rigid shaft on the throwing side, within a reachable cock.
+            local.x=side*Mathf.Max(local.x*side,.28f*s);local.z=Mathf.Max(local.z,-.25f*s);
+            Vector3 safe=body.TransformPoint(local);
+            for(int i=0;i<12&&NaturalPoleClearance(item,safe,axis)<.025f*s;i++)safe+=body.right*(side*.025f*s);
             NaturalGrip(main,safe,axis,weight:Mathf.Clamp01(state.Intent));return;
         }
         float resting=inventoryBones["pelvis"].position.y+(two?.18f:.14f)*s;
@@ -221,8 +225,10 @@ public sealed partial class LocalTerrainExplorer
     {
         var body=humanPlayer.Root.transform;float s=NaturalScale;
         float half=Mathf.Clamp((float)item.WidthM*.35f,.11f*s,.27f*s);
+        float depth=StoneCrafting.Rock(item)?(float)item.WidthM:(float)item.DepthM;
+        float forward=Mathf.Max(.30f*s+Mathf.Min(.1f,depth*.25f),(humanPlayer.PropShape?.Torso??.20f*s)+depth*.55f+.025f*s);
         Vector3 center=swimming?inventoryBones["head"].position+body.forward*.28f*s-Vector3.up*.12f*s:
-            body.position+body.forward*(.30f*s+Mathf.Min(.1f,(float)item.DepthM*.25f))+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.15f*s);
+            body.position+body.forward*forward+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.22f*s);
         NaturalGrip("r",center+body.right*half,body.right,body.right-body.up*.6f);
         NaturalGrip("l",center-body.right*half,body.right,-body.right-body.up*.6f);
     }
@@ -304,10 +310,14 @@ public sealed partial class LocalTerrainExplorer
     void FitNaturalHeldHands()
     {
         naturalHandlingDt=SharedGripDelta();var main=SharedMainHeld;
+        if(humanPlayer.Shared.ActionRole=="Drink"||humanPlayer.Shared.ActionRole=="Eat")
+        {sharedBowDraw=sharedBowRaise=0;FitNaturalConsume();return;}
         if(main==null){sharedBowDraw=sharedBowRaise=0;sharedBowItem=null;return;}
         var other=Inventory.AtHand(main.Place==PossessionPlace.LeftHand?PossessionPlace.RightHand:PossessionPlace.LeftHand);
+        // A two-handed possession is returned from either hand slot. It is one
+        // physical prop, and must not receive a second one-handed pose override.
+        if(other?.Id==main.Id)other=null;
         UpdateNaturalFrame(main);UpdateNaturalFrame(other);
-        if(humanPlayer.Shared.ActionRole=="Eat"||humanPlayer.Shared.ActionRole=="Drink")return;
         if(motion.Swimming){FitNaturalSwimming(main,other);return;}
         bool gather=Time.unscaledTimeAsDouble-viewGatherAt<HumanActionDuration("Gather");
         if(main.Kind==PossessionKind.Bow)FitNaturalBow(main);
@@ -320,6 +330,22 @@ public sealed partial class LocalTerrainExplorer
             if(other.Kind==PossessionKind.Bow)FitNaturalBow(other);
             else if(NaturalPole(other))FitNaturalPole(other,false);
             else FitNaturalSmallItem(other);
+        }
+    }
+    void FitNaturalConsume()
+    {
+        if(humanPlayer.Shared.ActionRole!="Drink"||!humanPlayer.Shared.Clips.TryGetValue("Drink",out var clip))return;
+        var body=humanPlayer.Root.transform;float s=NaturalScale;
+        float phase=Mathf.Clamp01((float)(humanPlayer.Shared.ActionTime/clip.Duration));
+        float weight=Mathf.SmoothStep(0,1,Mathf.Clamp01(phase/.22f))*Mathf.SmoothStep(0,1,Mathf.Clamp01((1-phase)/.22f));
+        Vector3 mouth=inventoryBones["head"].TransformPoint(humanPlayer.PropShape.MouthInHead);
+        foreach(string side in new[]{"l","r"})
+        {
+            var hand=inventoryBones["hand_"+side];var rotation=hand.rotation;
+            Vector3 target=mouth+body.forward*.025f*s-Vector3.up*.027f*s+body.right*((side=="r"?1:-1)*.035f*s);
+            target=Vector3.Lerp(SharedGripPosition(side),target,weight);
+            for(int i=0;i<3;i++)
+            {FitSharedSupport(side,target-(SharedGripPosition(side)-hand.position),body.right*(side=="r"?1:-1)-Vector3.up*.8f);hand.rotation=rotation;}
         }
     }
     void PoseNaturalHeldItem(GameObject root,Possession item)

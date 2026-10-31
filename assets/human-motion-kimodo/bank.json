@@ -840,15 +840,15 @@
           "role": "BowRelease",
           "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
           "begin": 42,
-          "end": 179,
+          "end": 72,
           "loop": false,
           "contact": -1,
           "release": 0,
-          "travel_m": 0.013626524113809926,
-          "duration": 4.566666666666666,
+          "travel_m": 0.0563871661898375,
+          "duration": 1.0,
           "raw_name": "bow_shoot",
           "action": "Kimodo A | BowRelease",
-          "frames": 138
+          "frames": 31
         },
         {
           "role": "Gather",
@@ -1022,7 +1022,7 @@
         }
       ],
       "file": "A.fbx",
-      "fbx_sha256": "cea1c64f3710c403836e2984298b0f2d921f15419ddd3f82c765c74661becb94"
+      "fbx_sha256": "2fbc0f17179492531071a0c9e0d616ebe75d2073d1a316d510cf585458364c7d"
     },
     {
       "variant": "B",
@@ -1861,15 +1861,15 @@
           "role": "BowRelease",
           "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
           "begin": 42,
-          "end": 179,
+          "end": 72,
           "loop": false,
           "contact": -1,
           "release": 0,
-          "travel_m": 0.015614640361893275,
-          "duration": 4.566666666666666,
+          "travel_m": 0.06461408013715728,
+          "duration": 1.0,
           "raw_name": "bow_shoot",
           "action": "Kimodo B | BowRelease",
-          "frames": 138
+          "frames": 31
         },
         {
           "role": "Gather",
@@ -2043,7 +2043,7 @@
         }
       ],
       "file": "B.fbx",
-      "fbx_sha256": "55bc84641d852dde660287a9688573aa11586b1f4633e1636059f9e2c1e931f3"
+      "fbx_sha256": "b8cd281bdc9cc2c626fd189e66751f2843bc91fe9a088226958635ac0388912d"
     },
     {
       "variant": "C",
@@ -2882,15 +2882,15 @@
           "role": "BowRelease",
           "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
           "begin": 42,
-          "end": 179,
+          "end": 72,
           "loop": false,
           "contact": -1,
           "release": 0,
-          "travel_m": 0.014776866694693778,
-          "duration": 4.566666666666666,
+          "travel_m": 0.06114733523528078,
+          "duration": 1.0,
           "raw_name": "bow_shoot",
           "action": "Kimodo C | BowRelease",
-          "frames": 138
+          "frames": 31
         },
         {
           "role": "Gather",
@@ -3064,7 +3064,7 @@
         }
       ],
       "file": "C.fbx",
-      "fbx_sha256": "100c28a7926bc60c3dff4674cc207262050d095c81d7641de46f04a79aa1c264"
+      "fbx_sha256": "04a81963f8c12e2ca603e0cb776bc01b0969b70252b18e0f65ac3ef4228c6789"
     },
     {
       "variant": "D",
@@ -3903,15 +3903,15 @@
           "role": "BowRelease",
           "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
           "begin": 42,
-          "end": 179,
+          "end": 72,
           "loop": false,
           "contact": -1,
           "release": 0,
-          "travel_m": 0.01528108244912817,
-          "duration": 4.566666666666666,
+          "travel_m": 0.06323380257672205,
+          "duration": 1.0,
           "raw_name": "bow_shoot",
           "action": "Kimodo D | BowRelease",
-          "frames": 138
+          "frames": 31
         },
         {
           "role": "Gather",
@@ -4085,7 +4085,7 @@
         }
       ],
       "file": "D.fbx",
-      "fbx_sha256": "48e05be7c8b150be4188c1c4e3ec27dc7baccd909c774ebb589e6480d6f2276e"
+      "fbx_sha256": "9a26aa156b82a940a2a71065cb70dc2f20dd9107a1ef18f372d6a88b4d6dbb0d"
     },
     {
       "variant": "E",
@@ -4924,15 +4924,15 @@
           "role": "BowRelease",
           "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
           "begin": 42,
-          "end": 179,
+          "end": 72,
           "loop": false,
           "contact": -1,
           "release": 0,
-          "travel_m": 0.011600123828766132,
-          "duration": 4.566666666666666,
+          "travel_m": 0.04800183118543256,
+          "duration": 1.0,
           "raw_name": "bow_shoot",
           "action": "Kimodo E | BowRelease",
-          "frames": 138
+          "frames": 31
         },
         {
           "role": "Gather",
@@ -5106,7 +5106,7 @@
         }
       ],
       "file": "E.fbx",
-      "fbx_sha256": "f91a7fd0641c7574e8406ce9c7d38cf8277a395b40be0f8422aabb90afd42065"
+      "fbx_sha256": "4587be9f6ef570c79b36fd5aede5cdb423c3677f47f95f04e644b5c0a90e546c"
     },
     {
       "variant": "F",
@@ -5945,15 +5945,15 @@
           "role": "BowRelease",
           "source": "artifacts\\human-natural-20261031\\motions\\bow_shoot\\seed-3160",
           "begin": 42,
-          "end": 179,
+          "end": 72,
           "loop": false,
           "contact": -1,
           "release": 0,
-          "travel_m": 0.014829285443248961,
-          "duration": 4.566666666666666,
+          "travel_m": 0.061364246361079094,
+          "duration": 1.0,
           "raw_name": "bow_shoot",
           "action": "Kimodo F | BowRelease",
-          "frames": 138
+          "frames": 31
         },
         {
           "role": "Gather",
@@ -6127,7 +6127,7 @@
         }
       ],
       "file": "F.fbx",
-      "fbx_sha256": "7b2a2896dd97ca50aae84bda3722c2f8e85521dff540300f87ef2ac1640d1777"
+      "fbx_sha256": "4630d102e5114934750fb8cb0f34b5549caf08bca2a4ed662b119bfd16c7f741"
     }
   ]
 }

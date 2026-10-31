@@ -8,7 +8,7 @@ static class WorldGenPropClearance
     {
         public float Torso,Hips,Head,HeadHalfWidth;
         public Vector3 BowAnchorInHead;public bool HasBowAnchor;
-        public Vector3 EyeInHead;public bool HasNativeEye;
+        public Vector3 EyeInHead,MouthInHead;public bool HasNativeEye;
     }
     public static BodyShape Measure(Transform root,float eyeHeight,float eyeForward)
     {
@@ -61,6 +61,10 @@ static class WorldGenPropClearance
             // generic skull sphere. Fingers contact just in front of this skin.
             result.BowAnchorInHead=head.InverseTransformPoint(root.TransformPoint(new Vector3(cornerX,mouthY,mouthFront+.008f*scale)));result.HasBowAnchor=true;
         }
+        float lipFront=float.NegativeInfinity;
+        foreach(var local in headSurface)
+            if(Mathf.Abs(local.y-mouthY)<.018f*scale&&Mathf.Abs(local.x-eye.x)<.018f*scale)lipFront=Mathf.Max(lipFront,local.z);
+        result.MouthInHead=head.InverseTransformPoint(root.TransformPoint(new Vector3(eye.x,mouthY,float.IsNegativeInfinity(lipFront)?eye.z:lipFront+.008f*scale)));
         return result;
     }
     public static float Segments(Vector3 a,Vector3 b,Vector3 c,Vector3 d)

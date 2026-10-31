@@ -94,8 +94,23 @@ public sealed partial class LocalTerrainExplorer
                         float error=records.Max(r=>r.SupportError);
                         if(error>.035f)badSupports.Add(humanPlayer.Definition.Variant+" "+sample.Item2+" "+error.ToString("F4"));
                     }
+                    if(sample.Item2=="CarryLarge")Check(records.All(r=>Mathf.Abs(r.RightGrip.z-r.LeftGrip.z)<.04f&&Mathf.Abs(r.RightGrip.y-r.LeftGrip.y)<.04f),"Both hands share a balanced heavy carry on "+humanPlayer.Definition.Variant);
                     if(sample.Item2.StartsWith("Tool",StringComparison.Ordinal)||sample.Item2.StartsWith("SpearThrust",StringComparison.Ordinal)||sample.Item2.StartsWith("Bow",StringComparison.Ordinal))Check(pelvisExcursion<.035f,"No imported squat during "+sample.Item2+" on "+humanPlayer.Definition.Variant);
                 }
+                Clear();viewArmDiagnosticClip="Drink";viewArmDiagnosticDt=1f/30;
+                for(int frame=0;frame<7;frame++)
+                {
+                    float phase=frame/6f;viewArmDiagnosticTime=HumanActionDuration("Drink")*phase;
+                    for(int settle=0;settle<5;settle++)UpdateInventoryVisuals();UpdateCamera();
+                    if(frame==3)
+                    {
+                        Vector3 mouth=inventoryBones["head"].TransformPoint(humanPlayer.PropShape.MouthInHead);
+                        Check(Vector3.Distance((SharedGripPosition("l")+SharedGripPosition("r"))*.5f,mouth)<.075f*NaturalScale,"Cupped hands actually reach the mouth while drinking on "+humanPlayer.Definition.Variant);
+                    }
+                    if(variant==1||variant==4){Image(humanPlayer.Definition.Variant+"-Drink-"+frame+"-front",0);Image(humanPlayer.Definition.Variant+"-Drink-"+frame+"-side",1);}
+                    yield return null;
+                }
+                Clear();
                 if(variant==1||variant==4)yield return ReviewNaturalGaits(output,report);
                 Clear();var spear=Hold(PossessionKind.StoneTippedSpear);viewArmDiagnosticClip="SpearReady2";viewArmDiagnosticTime=.4;viewArmDiagnosticDt=.1f;
                 for(int i=0;i<6;i++)UpdateInventoryVisuals();var carried=Quaternion.Inverse(humanPlayer.Root.transform.rotation)*SharedSpearDirection;var grip=humanPlayer.Root.transform.InverseTransformPoint(SharedGripPosition("r"));
