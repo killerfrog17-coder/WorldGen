@@ -50,8 +50,10 @@ namespace WorldGen.Core
             V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;double delta=1.5/(terrain.RadiusM*scale);
             double sx=(patch.Elevation((at+east*delta).Unit)-patch.Elevation((at-east*delta).Unit))/3,sz=(patch.Elevation((at+north*delta).Unit)-patch.Elevation((at-north*delta).Unit))/3;
             if(sx*sx+sz*sz>.64)return false;
-            result.Add(new ScatterInstance{Id=id,Kind=ScatterKind.Branch,Variant=(int)(random.Unit()*8),Position=at,Normal=(at-east*sx-north*sz).Unit,
-                GroundM=sample.ElevationM,WidthM=D.Q(.35+1.95*random.Unit(),1000),HeightM=D.Q(.014+.035*random.Unit(),1000),YawDegrees=random.Unit()*360,Color=new V(1,1,1)});
+            int variant=(int)(random.Unit()*8);double length=D.Q(.35+4.15*Math.Pow(random.Unit(),2),1000);
+            double thickness=D.Q(.014+.035*random.Unit()+Math.Max(0,length-2)*.006,1000);
+            result.Add(new ScatterInstance{Id=id,Kind=ScatterKind.Branch,Variant=variant,Position=at,Normal=(at-east*sx-north*sz).Unit,
+                GroundM=sample.ElevationM,WidthM=length,HeightM=thickness,YawDegrees=random.Unit()*360,Color=new V(1,1,1)});
             return true;
         }
     }

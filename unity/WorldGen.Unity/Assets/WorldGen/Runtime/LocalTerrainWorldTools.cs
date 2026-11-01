@@ -52,7 +52,7 @@ public sealed partial class LocalTerrainExplorer
         record.Work+=energy;if(record.Work<(chop?180:65)){CombatNotice(chop?"Cutting a reachable branch...":"Loosening a patch of bark...");return;}record.Work=0;
         if(chop)
         {
-            record.Branches++;var branch=new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=Math.Min(2,Math.Max(.6,tree.HeightM*.14)),HeightM=.026+record.Branches*.004,Variant=0};
+            record.Branches++;double length=Math.Min(4.5,Math.Max(.6,tree.HeightM*.18));var branch=new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=length,HeightM=.026+record.Branches*.003+Math.Max(0,length-2)*.004,Variant=0};
             var output=WoodCrafting.Branch(branch);output.Id="cut-branch-"+Guid.NewGuid().ToString("N");output.NaturalId=0;output.Position=Position;ReceiveToolMaterial(output);
         }
         else{record.Bark++;ReceiveToolMaterial(PortableTechnology.Create(PossessionKind.BarkSheet,Position));}

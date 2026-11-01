@@ -37,9 +37,12 @@ public sealed partial class LocalTerrainExplorer
             double startX=motion.X,startZ=motion.Z;
             foreach(CampDesign design in Enum.GetValues(typeof(CampDesign)))
             {
-                var plan=CampBlueprints.Create(design,2,2);Vector3 site=default;bool found=false;
-                for(int ring=0;ring<25&&!found;ring++)for(int step=0;step<24&&!found;step++)
-                {double a=step*Math.PI/12,x=startX+Math.Sin(a)*(ring+1)*3,z=startZ+Math.Cos(a)*(ring+1)*3;var point=Floor(x,z);if(BlueprintSite(plan,point,0,out _)){site=point;found=true;}}
+                var plan=CampBlueprints.Create(design,2,2);Vector3 site=default;bool found=false;double bestGrade=double.MaxValue;
+                for(int ring=0;ring<60&&bestGrade>.3;ring++)for(int step=0;step<24&&bestGrade>.3;step++)
+                {
+                    double a=step*Math.PI/12,x=startX+Math.Sin(a)*(ring+1)*3,z=startZ+Math.Cos(a)*(ring+1)*3;var at=frame.Position(x,z);if(made.Any(other=>(other.Position-at).Length*frame.RadiusM<8))continue;
+                    var point=Floor(x,z);if(BlueprintSite(plan,point,0,out _)){double grade=plan.FloorHeights.Max()-plan.FloorHeights.Min();if(grade<bestGrade){site=point;found=true;bestGrade=grade;}}
+                }
                 Check(found,"A clear dry footprint can be found for "+design);
                 double cx=site.x+originX,cz=site.z+originZ;motion.Place(cx-2,cz-2,Ground(cx-2,cz-2));heading=0;pitch=45;UpdateHumans();UpdateCamera();
                 BeginBlueprint(design);blueprintYaw=0;bool round=design==CampDesign.BrushHut;bool line=design==CampDesign.Windbreak||design==CampDesign.DryingRack;
@@ -86,6 +89,7 @@ public sealed partial class LocalTerrainExplorer
                     motion.Place(ax,az,Ground(ax,az));heading=180;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftCtrl));yield return null;PreparePlayerSolids();
                     Check(playerSolid.height<1.4f,"Crouching reduces the actual movement collider for small shelter entrances");
                     for(int step=0;step<150;step++){PreparePlayerSolids();motion.Move(1d/60,1,0,0,180,0,false,false,PlayerSolidGround,walk:true,speedScale:.55);}
+                    File.WriteAllText(Path.Combine(output,"hut-entry.txt"),"origin="+origin+" feet="+PlayerFeet()+" colliderHeight="+playerSolid.height+" footing="+string.Join(",",c.Blueprint.FloorHeights)+"\nContacts: "+string.Join(",",Physics.OverlapCapsule(transform.TransformPoint(PlayerFeet()+Vector3.up*.26f),transform.TransformPoint(PlayerFeet()+Vector3.up*1.08f),.24f,1<<ScatterSolidLayer).Select(hit=>hit.name)));
                     Check((PlayerFeet()-origin).sqrMagnitude<.8f*.8f,"The actual character motor can enter the small hut through its doorway");
                     InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
                     var slab=new GameObject("Controlled low headroom",typeof(BoxCollider));slab.layer=ScatterSolidLayer;slab.transform.SetParent(transform,false);slab.transform.localPosition=PlayerFeet()+Vector3.up*1.6f;slab.GetComponent<BoxCollider>().size=new Vector3(1,.08f,1);Physics.SyncTransforms();PreparePlayerSolids();
