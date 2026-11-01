@@ -53,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
         if(campPlaceMaterial!=null)
         {
             var style=new GUIStyle(GUI.skin.label){alignment=TextAnchor.MiddleCenter,wordWrap=true};
-            GUI.Label(new Rect(Screen.width*.25f,Screen.height-100,Screen.width*.5f,60),campPlaceValid?"Place "+campPlaceMaterial.Name.ToLowerInvariant()+"  [LMB]   Cancel [RMB]":campPlaceReason,style);return;
+            GUI.Label(new Rect(Screen.width*.25f,Screen.height-100,Screen.width*.5f,60),campPlaceKind==CampKind.FrameWood?campPlaceReason:campPlaceValid?"Place "+campPlaceMaterial.Name.ToLowerInvariant()+"  [LMB]   Rotate [wheel]   Cancel [RMB]":campPlaceReason,style);return;
         }
         if(campSleeping||campResting)
         {
@@ -78,8 +78,18 @@ public sealed partial class LocalTerrainExplorer
         else if(campMenu!=null)
         {
             var c=campMenu;if(!Camp.Objects.Contains(c)||(c.Position-Position).Length*frame.RadiusM>4){campMenu=null;CaptureMouse();GUILayout.EndScrollView();GUILayout.EndArea();return;}
-            GUILayout.Label(c.Kind==CampKind.Fire?"Campfire":c.Kind==CampKind.Bedding?"Bedding":"Planted stick");
-            if(c.Kind==CampKind.Stake)GUILayout.Label("Embedded "+c.EmbedM.ToString("0.00")+" m   ·   Stability "+(c.Stability*100).ToString("0")+"%");
+            GUILayout.Label(c.Kind==CampKind.Fire?"Campfire":c.Kind==CampKind.Bedding?"Bedding":c.Kind==CampKind.FrameWood?"Frame wood":"Planted stick");
+            if(c.Kind==CampKind.FrameWood)
+            {
+                GUILayout.Label(FrameSummary(c));
+                for(int i=0;i<c.FrameJoints.Count;i++)
+                {
+                    var joint=c.FrameJoints[i];GUILayout.Label("Joint "+(i+1)+" · "+FrameRules.JointName(joint));
+                    if(joint.Lashed){if(GUILayout.Button("Untie joint "+(i+1),GUILayout.Height(30))){UntieFrameJoint(c,joint);break;}}
+                    else if(GUILayout.Button("Lash joint "+(i+1),GUILayout.Height(30))){LashFrameJoint(c,joint);break;}
+                }
+            }
+            else if(c.Kind==CampKind.Stake)GUILayout.Label("Embedded "+c.EmbedM.ToString("0.00")+" m   ·   Stability "+(c.Stability*100).ToString("0")+"%");
             else GUILayout.Label(c.MassKg.ToString("0.00")+" kg   ·   Wetness "+(c.Wetness*100).ToString("0")+"%"+(c.Kind==CampKind.Bedding?"   ·   Depth "+(c.BeddingDepthM*100).ToString("0")+" cm":""));
             if(c.Kind==CampKind.Fire)
             {
@@ -89,7 +99,8 @@ public sealed partial class LocalTerrainExplorer
             RefreshInventoryNearby();var candidates=CraftAccessible().Where(p=>c.Kind==CampKind.Fire?CampRules.Fuel(p):c.Kind==CampKind.Bedding&&CampRules.Bedding(p)).ToArray();
             foreach(var p in candidates)if(GUILayout.Button("Add "+p.Name.ToLowerInvariant()+" ("+p.MassKg.ToString("0.00")+" kg)",GUILayout.Height(32)))AddCampMaterial(c,p);
             if(c.Kind==CampKind.Bedding&&GUILayout.Button("Sleep here",GUILayout.Height(36)))BeginCampSleep(0,false,c);
-            if(GUILayout.Button(c.Kind==CampKind.Stake?"Pull stick out":"Gather remaining materials",GUILayout.Height(32)))RemoveCamp(c);
+            if(c.Kind==CampKind.Stake&&c.EmbedM<=.08&&!Camp.Objects.Any(p=>p.FrameJoints.Any(j=>j.ParentId==c.Id))&&GUILayout.Button("Turn support 90°",GUILayout.Height(30))){c.Heading+=90;InvalidateCampVisual(c);frameDirty=true;}
+            if(GUILayout.Button(c.Kind==CampKind.Stake?"Pull stick out":c.Kind==CampKind.FrameWood?"Remove this frame piece":"Gather remaining materials",GUILayout.Height(32)))RemoveCamp(c);
         }
         GUILayout.EndScrollView();GUILayout.FlexibleSpace();if(GUILayout.Button("Close",GUILayout.Height(32))){campMenu=null;campGroundMenu=campSleepMenu=false;CaptureMouse();}GUILayout.EndArea();
     }

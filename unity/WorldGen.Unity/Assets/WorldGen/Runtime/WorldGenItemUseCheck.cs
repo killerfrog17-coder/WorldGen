@@ -252,7 +252,7 @@ public sealed partial class WorldGenRuntime
         bool humanAnimationCheck=Environment.GetCommandLineArgs().Contains("--worldgen-first-person-check")||Environment.GetCommandLineArgs().Contains("--worldgen-kimodo-human-check");
         play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=humanAnimationCheck?500:1000;TerrainVideoOptions.Revision++;
         if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))play.HasPlayer=false;
-        ExploreTerrain((Environment.GetCommandLineArgs().Contains("--worldgen-camp-check")||Environment.GetCommandLineArgs().Contains("--worldgen-hunting-check")||humanAnimationCheck)?TerrainMapViewport.FromDegrees(-2,34):Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check")?TerrainMapViewport.FromDegrees(-17.625665274156873,.6638456954785965):TerrainMapViewport.FromDegrees(50,10));
+        ExploreTerrain((Environment.GetCommandLineArgs().Contains("--worldgen-camp-check")||Environment.GetCommandLineArgs().Contains("--worldgen-frame-check")||Environment.GetCommandLineArgs().Contains("--worldgen-hunting-check")||humanAnimationCheck)?TerrainMapViewport.FromDegrees(-2,34):Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check")?TerrainMapViewport.FromDegrees(-17.625665274156873,.6638456954785965):TerrainMapViewport.FromDegrees(50,10));
         double terrainStarted=Time.realtimeSinceStartupAsDouble;deadline=terrainStarted+240;
         double nextTerrainReport=0;
         while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)
@@ -274,6 +274,7 @@ public sealed partial class WorldGenRuntime
             else yield return terrainExplorer.CheckKimodoHumanFlow(output,report);
         }
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-check"))yield return terrainExplorer.CheckHuntingFlow(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-frame-check"))yield return terrainExplorer.CheckFrameFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check"))yield return terrainExplorer.CheckCampFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))yield return terrainExplorer.CheckRiverRepairFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-water-update-check"))yield return terrainExplorer.CheckWaterUpdateFlow(output,report);

@@ -274,5 +274,5 @@ public sealed partial class LocalTerrainExplorer
         var r=new Rect(e.mousePosition.x+10*scale,e.mousePosition.y+10*scale,w*48*scale,h*48*scale);InventoryFill(r,new Color(.25f,.3f,.26f,.8f));InventoryOutline(r,InventoryGold);GUI.DrawTexture(r,InventoryItemIcon(item),ScaleMode.ScaleToFit,true);
     }
     void DrawInventoryContext(float scale)=>DrawPortableContext(scale);
-    string WoodDescription(Possession p)=>p.HeightM.ToString("F2")+" m long, "+(p.WidthM*100).ToString("F1")+" cm thick; "+(p.WoodStraightness>=.7?"straight":"crooked")+", "+(p.WoodSoundness>=.65?"sound wood":"weathered/fragile wood")+(p.BarkRemoved?", bark removed.":", bark intact.");
+    string WoodDescription(Possession p)=>p.HeightM.ToString("F2")+" m long, "+(p.WidthM*100).ToString("F1")+" cm thick; "+(FrameRules.Fork(p)?"forked, ":"")+(p.WoodStraightness>=.7?"straight":"crooked")+", "+(p.WoodSoundness>=.65?"sound wood":"weathered/fragile wood")+(p.BarkRemoved?", bark removed.":", bark intact.");
 }

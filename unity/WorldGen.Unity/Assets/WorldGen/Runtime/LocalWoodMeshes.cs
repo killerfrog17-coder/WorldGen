@@ -21,6 +21,11 @@ static partial class LocalScatterMeshes
         if(!pointed)b.Crown(Point(1),new Vector3(.405f,.002f,.405f),8,2,wood,11,0);
         if(raw)for(int j=0;j<2;j++)
         {float t=.32f+j*.34f;b.Tube(Point(t),Point(t)+new Vector3(j==0?.9f:-.7f,.08f,.05f),.15f,.04f,6,bark);}
+        if(raw&&shape==2)
+        {
+            float t=(float)FrameRules.ForkT;var start=Point(t);var end=Point(1)+new Vector3(2.8f,0,0);
+            b.Tube(start,end,.32f,.2f,8,bark);b.Crown(end,new Vector3(.2f,.002f,.2f),8,2,wood,12,0);
+        }
         var mesh=b.Finish();mesh.name=kind.ToString();
         if(ground){var vertices=mesh.vertices;for(int i=0;i<vertices.Length;i++)vertices[i]=new Vector3(vertices[i].y-.5f,vertices[i].x+.5f,vertices[i].z);mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();}
         return mesh;

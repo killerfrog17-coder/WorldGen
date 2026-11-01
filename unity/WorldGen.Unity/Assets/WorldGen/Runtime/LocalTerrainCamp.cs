@@ -54,6 +54,11 @@ public sealed partial class LocalTerrainExplorer
         foreach(var c in Camp.Objects)
         {
             if((c.Position-Position).Length*frame.RadiusM>6)continue;
+            if(c.Kind==CampKind.FrameWood)
+            {
+                if(FrameRaySegment(ray,FrameStart(c),FramePoint(c,1),(float)c.Materials[0].WidthM*.5f+.055f,out float contact,out _)&&contact<distance&&InventoryReach(ray.GetPoint(contact))){distance=contact;best=c;}
+                continue;
+            }
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);float floor=(float)CampFloor(x,z),height=c.Kind==CampKind.Stake?(float)(c.Materials[0].HeightM-c.EmbedM):c.Kind==CampKind.Bedding?(float)c.BeddingDepthM+.1f:.35f;
             var center=new Vector3((float)(x-originX),floor+height*.5f,(float)(z-originZ));var bounds=new Bounds(center,c.Kind==CampKind.Stake?new Vector3(.2f,height+.08f,.2f):c.Kind==CampKind.Bedding?new Vector3(1,Mathf.Max(.1f,height),2):new Vector3(.95f,height,.95f));
             if(c.Kind==CampKind.Bedding)
@@ -69,7 +74,7 @@ public sealed partial class LocalTerrainExplorer
     string CampPrompt(float maximum)
     {
         if(CampBusy)return null;var c=AimedCamp(out float d);
-        if(c!=null&&d<maximum)return c.Kind==CampKind.Fire?QuickFirePrompt(c):(c.Kind==CampKind.Stake?"Planted stick - "+c.EmbedM.ToString("0.00")+" m embedded":"Bedding - "+(c.BeddingDepthM*100).ToString("0")+" cm")+"  [E]";
+        if(c!=null&&d<maximum)return c.Kind==CampKind.Fire?QuickFirePrompt(c):(c.Kind==CampKind.FrameWood?"Frame wood - "+FrameSummary(c):c.Kind==CampKind.Stake?(FrameRules.Fork(c.Materials[0])?"Forked post - ":"Planted stick - ")+c.EmbedM.ToString("0.00")+" m embedded":"Bedding - "+(c.BeddingDepthM*100).ToString("0")+" cm")+"  [E]";
         if(maximum<float.MaxValue||!CampGround(out var point,out var s)||!CampGrassAvailable(point,s))return null;
         if(AimedNature(out _)!=null||AimedCorpse(out _)!=null||AimedWater(maximum)!=null)return null;
         return "Grass and ground materials  [E]";
@@ -90,18 +95,19 @@ public sealed partial class LocalTerrainExplorer
             bool primary=Mouse.current?.leftButton.wasPressedThisFrame==true,secondary=Mouse.current?.rightButton.wasPressedThisFrame==true;
             if(primary||secondary)campPointerConsumedFrame=Time.frameCount;
             if(k.escapeKey.wasPressedThisFrame||secondary){CancelCampPlacement();return true;}
-            if(primary){if(campPlaceValid)ConfirmCampPlacement();else InventoryFeedback(campPlaceReason);}return true;
+            if(primary){if(campPlaceKind==CampKind.FrameWood)FramePlacementClick();else if(campPlaceValid)ConfirmCampPlacement();else InventoryFeedback(campPlaceReason);}return true;
         }
         if(!inventoryOpen&&k.zKey.wasPressedThisFrame){campSleepMenu=true;CaptureMouse();return true;}return false;
     }
     void BeginCampPlacement(Possession material,CampKind kind)
     {
+        CancelCampPlacement();frameFirst=null;frameDraft=null;campPlacementYaw=heading;framePlacementRoll=0;
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);campMenu=null;campGroundMenu=campSleepMenu=false;
         campPlaceMaterial=material;campPlaceKind=kind;SetInventoryOpen(false);
         var root=new GameObject("Material placement footprint");root.layer=30;root.transform.SetParent(transform,false);campPreview=root.AddComponent<LineRenderer>();campPreview.useWorldSpace=false;campPreview.loop=true;campPreview.positionCount=48;campPreview.widthMultiplier=.022f;
         campPreview.sharedMaterial=new Material(Resources.Load<Shader>("WorldGenCampPlacement"));campPreview.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;UpdateCampPlacement();
         campGhostMaterial=new Material(Resources.Load<Shader>("WorldGenCampPlacement"));
-        if(kind==CampKind.Stake)campGhost=CreatePossessionVisual(material,30);
+        if(kind==CampKind.Stake||kind==CampKind.FrameWood)campGhost=CreatePossessionVisual(material,30);
         else {campGhost=new GameObject("Loose material placement ghost",typeof(MeshFilter),typeof(MeshRenderer));campGhost.GetComponent<MeshFilter>().sharedMesh=kind==CampKind.Bedding?LocalScatterMeshes.BuildCampMat(.025f,false,1):LocalScatterMeshes.BuildCampAsh(.42f);}
         campGhost.layer=30;campGhost.transform.SetParent(transform,false);
         foreach(var renderer in campGhost.GetComponentsInChildren<MeshRenderer>()){renderer.sharedMaterials=Enumerable.Repeat(campGhostMaterial,renderer.sharedMaterials.Length).ToArray();renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;renderer.receiveShadows=false;}
@@ -110,6 +116,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateCampPlacement()
     {
         if(campPlaceMaterial==null||campPreview==null)return;
+        if(campPlaceKind==CampKind.FrameWood){UpdateFramePlacement();return;}
         campPlaceValid=CampGround(out campPlacePoint,out var sample);campPlaceReason="Aim at reachable ground.";
         campPreview.enabled=campGroundHit;
         if(campPlaceValid)
@@ -123,13 +130,13 @@ public sealed partial class LocalTerrainExplorer
             {double distance=(c.Position-frame.Position(x,z)).Length*frame.RadiusM;if(distance<(c.Kind==CampKind.Bedding||campPlaceKind==CampKind.Bedding?1.15:.25)){campPlaceValid=false;campPlaceReason="Leave room around the existing placed materials.";break;}}
         }
         var color=campPlaceValid?new Color(.32f,.8f,.5f):new Color(.95f,.3f,.2f);campPreview.sharedMaterial.SetColor("_BaseColor",color);
-        if(campGhost!=null){campGhost.SetActive(campGroundHit);campGhost.transform.localPosition=campPlacePoint+Vector3.up*.015f;campGhost.transform.localRotation=Quaternion.Euler(0,heading,0);color.a=.22f;campGhostMaterial.SetColor("_BaseColor",color);}
+        if(campGhost!=null){campGhost.SetActive(campGroundHit);campGhost.transform.localPosition=campPlacePoint+Vector3.up*.015f;campGhost.transform.localRotation=Quaternion.Euler(0,campPlacementYaw,0);color.a=.22f;campGhostMaterial.SetColor("_BaseColor",color);}
         for(int i=0;i<48;i++){float a=i*Mathf.PI/24;float rx=campPlaceKind==CampKind.Bedding?.5f:campPlaceKind==CampKind.Stake?.075f:.45f,rz=campPlaceKind==CampKind.Bedding?1:rx;var p=campPlacePoint+new Vector3(Mathf.Sin(a)*rx,0,Mathf.Cos(a)*rz);p.y=(float)CampFloor(p.x+originX,p.z+originZ)+.035f;campPreview.SetPosition(i,p);}
     }
     void CancelCampPlacement()
     {
-        campPlaceMaterial=null;if(campPreview!=null){Destroy(campPreview.sharedMaterial);Destroy(campPreview.gameObject);campPreview=null;}
-        if(campGhost!=null){if(campPlaceKind==CampKind.Stake)DestroyInventoryVisual(campGhost);else{var mesh=campGhost.GetComponent<MeshFilter>().sharedMesh;Destroy(mesh);Destroy(campGhost);}campGhost=null;}
+        campPlaceMaterial=null;frameFirst=null;frameDraft=null;frameHover=null;if(campPreview!=null){Destroy(campPreview.sharedMaterial);Destroy(campPreview.gameObject);campPreview=null;}
+        if(campGhost!=null){if(campPlaceKind==CampKind.Stake||campPlaceKind==CampKind.FrameWood)DestroyInventoryVisual(campGhost);else{var mesh=campGhost.GetComponent<MeshFilter>().sharedMesh;Destroy(mesh);Destroy(campGhost);}campGhost=null;}
         if(campGhostMaterial!=null){Destroy(campGhostMaterial);campGhostMaterial=null;}
     }
     Possession TakeCampMaterial(Possession source)
@@ -143,8 +150,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!campPlaceValid||campPlaceMaterial==null)return;var p=TakeCampMaterial(campPlaceMaterial);if(p==null){CancelCampPlacement();return;}
         double x=campPlacePoint.x+originX,z=campPlacePoint.z+originZ;var s=walkingPatch.Sample(frame.Position(x,z));
-        var c=new CampObject{Kind=campPlaceKind,Position=frame.Position(x,z),Heading=heading,SoilDepthM=s.Ground.DepthM,SoilFirmness=.8+s.Ground.Gravel,EmbedM=campPlaceKind==CampKind.Stake?Math.Min(.035,s.Ground.DepthM):0,Wetness=Math.Min(.8,CurrentWeather.RainMmPerHour*.12),LastSimulatedSeconds=Camp.SimulatedSeconds};
-        CampRules.Add(c,p);Camp.Objects.Add(c);CancelCampPlacement();campUpdateAt=0;UpdateCamp();InventoryFeedback(c.Kind==CampKind.Stake?"Stick planted. Strike it with a rock to drive it deeper.":c.Kind==CampKind.Fire?"Tinder placed. Add kindling and fuel before lighting.":"Bedding material spread.");
+        var c=new CampObject{Kind=campPlaceKind,Position=frame.Position(x,z),Heading=campPlacementYaw,SoilDepthM=s.Ground.DepthM,SoilFirmness=.8+s.Ground.Gravel,EmbedM=campPlaceKind==CampKind.Stake?Math.Min(.035,s.Ground.DepthM):0,Wetness=Math.Min(.8,CurrentWeather.RainMmPerHour*.12),LastSimulatedSeconds=Camp.SimulatedSeconds};
+        CampRules.Add(c,p);Camp.Objects.Add(c);CancelCampPlacement();frameDirty=true;campUpdateAt=0;UpdateCamp();InventoryFeedback(c.Kind==CampKind.Stake?"Stick planted. Strike it with a rock to drive it deeper.":c.Kind==CampKind.Fire?"Tinder placed. Add kindling and fuel before lighting.":"Bedding material spread.");
     }
     void AddCampMaterial(CampObject c,Possession p)
     {if(c==null||p==null)return;var owned=TakeCampMaterial(p);if(owned==null)return;CampRules.Add(c,owned);InvalidateCampVisual(c);campUpdateAt=0;}
@@ -156,7 +163,7 @@ public sealed partial class LocalTerrainExplorer
         if(bodyDistance>1.65f)return false;Collider own=campVisuals.TryGetValue(c.Id,out var visual)?visual.Root.GetComponent<Collider>():null;
         var obstruction=TraceCombatObstacle(new Ray(hand,direction.normalized),bodyDistance,own);
         if(obstruction!=null&&obstruction.Distance<bodyDistance-.12f)return false;
-        double moved=CampRules.Drive(c,rock);PlayItemEffect("stone-contact",contact,.5f);ApplyItemImpactWear(rock,3,false);InvalidateCampVisual(c);
+        double moved=CampRules.Drive(c,rock);frameDirty=true;PlayItemEffect("stone-contact",contact,.5f);ApplyItemImpactWear(rock,3,false);InvalidateCampVisual(c);
         InventoryFeedback(moved>0?"Driven "+(moved*100).ToString("0.0")+" cm; embedded "+c.EmbedM.ToString("0.00")+" m.":"The stick cannot go deeper here.");return true;
     }
     bool StrikeCampStake(Possession rock,bool left)
@@ -181,8 +188,9 @@ public sealed partial class LocalTerrainExplorer
     void RemoveCamp(CampObject c)
     {
         if(c.Burning||c.EmberSeconds>0){InventoryFeedback("Extinguish and cool the fire first.");return;}
-        foreach(var p in c.Materials.Concat(c.CookingItems)){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundVelocity=p.GroundSpin=new V();p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}
-        c.Materials.Clear();Camp.Objects.Remove(c);InvalidateCampVisual(c);campMenu=null;inventoryNearbyAt=0;CaptureMouse();
+        if(c.Kind==CampKind.FrameWood){foreach(var p in c.Materials)DropFrameMaterial(c,p,true);foreach(var j in c.FrameJoints)foreach(var p in j.Bindings)DropFrameBinding(c,j,p);}
+        else foreach(var p in c.Materials.Concat(c.CookingItems)){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundVelocity=p.GroundSpin=new V();p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}
+        c.Materials.Clear();Camp.Objects.Remove(c);InvalidateCampVisual(c);frameDirty=true;RefreshFrameStructure();campMenu=null;inventoryNearbyAt=0;CaptureMouse();
     }
     void GatherCampGrass()
     {

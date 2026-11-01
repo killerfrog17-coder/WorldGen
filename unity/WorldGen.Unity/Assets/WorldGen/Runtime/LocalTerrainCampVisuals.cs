@@ -14,6 +14,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Vector4[] campLightPositions=new Vector4[4],campLightColours=new Vector4[4];bool campLightTestOff;int campLightCount;
     Quaternion CampSurfaceRotation(CampObject c)
     {
+        if(c.Kind==CampKind.FrameWood)return FrameRotation(c);
         var yaw=Quaternion.Euler(0,(float)c.Heading,0);if(c.Kind!=CampKind.Bedding)return yaw;
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);
         var normal=new Vector3((float)(CampFloor(x-.5,z)-CampFloor(x+.5,z)),1,(float)(CampFloor(x,z-.5)-CampFloor(x,z+.5))).normalized;
@@ -36,6 +37,7 @@ public sealed partial class LocalTerrainExplorer
     void RemoveCampVisual(string id)
     {
         if(!campVisuals.TryGetValue(id,out var v))return;
+        v.Root.SetActive(false);
         foreach(var root in v.Root.GetComponentsInChildren<Transform>().Where(t=>inventoryCraftMeshes.ContainsKey(t.gameObject)||portableRoots.ContainsKey(t.gameObject)).ToArray())DestroyInventoryVisual(root.gameObject);
         foreach(var filter in v.Root.GetComponentsInChildren<MeshFilter>())if(filter.sharedMesh!=null&&filter.sharedMesh.name.StartsWith("Camp ",StringComparison.Ordinal))Destroy(filter.sharedMesh);
         Destroy(v.Root);campVisuals.Remove(id);
@@ -45,6 +47,7 @@ public sealed partial class LocalTerrainExplorer
         if(Ready&&!campAudioStarted){campAudioStarted=true;campAudioLoading=StartCoroutine(LoadCampRecordings());}
         if(Ready&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&!DeathVisible)Camp.SimulatedSeconds+=Math.Min(.25,Time.unscaledDeltaTime)*CampTimeRate*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
         UpdateCampPlacement();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
+        RefreshFrameStructure();
         foreach(var c in Camp.Objects)
         {
             double elapsed=Math.Max(0,Camp.SimulatedSeconds-c.LastSimulatedSeconds);c.LastSimulatedSeconds=Camp.SimulatedSeconds;
@@ -56,7 +59,8 @@ public sealed partial class LocalTerrainExplorer
             if(!campVisuals.TryGetValue(c.Id,out var v)){v=CreateCampVisual(c);campVisuals.Add(c.Id,v);}
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);
             if(v.GroundLevel!=level){v.SurfaceRotation=CampSurfaceRotation(c);v.GroundLevel=level;}
-            v.Root.transform.localPosition=new Vector3((float)(x-originX),floor,(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
+            if(c.Kind==CampKind.FrameWood)v.SurfaceRotation=FrameRotation(c);
+            v.Root.transform.localPosition=new Vector3((float)(x-originX),floor+(c.Kind==CampKind.FrameWood?(float)c.FrameHeightM:0),(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
             UpdateCampVoice(c,v);
             UpdateCampSmoke(v.Smoke);
             if(c.Kind==CampKind.Fire)
@@ -76,7 +80,8 @@ public sealed partial class LocalTerrainExplorer
     {
         var root=new GameObject("Placed "+c.Kind);root.transform.SetParent(transform,false);root.layer=30;
         var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM,FoodState=CampFoodState(c)};
-        if(c.Kind==CampKind.Stake)
+        if(c.Kind==CampKind.FrameWood)CreateFrameVisual(c,root);
+        else if(c.Kind==CampKind.Stake)
         {
             var p=c.Materials[0];var wood=CreatePossessionVisual(p,30);wood.transform.SetParent(root.transform,false);wood.transform.localPosition=Vector3.down*(float)c.EmbedM;
             var collider=root.AddComponent<CapsuleCollider>();collider.radius=(float)p.WidthM*.5f;collider.height=(float)(p.HeightM-c.EmbedM);collider.center=Vector3.up*collider.height*.5f;root.layer=27;
@@ -121,7 +126,7 @@ public sealed partial class LocalTerrainExplorer
         v.FlameRenderers=root.GetComponentsInChildren<MeshRenderer>().Where(r=>r.name=="Flame sheet"||r.name=="Live ember bed").ToArray();return v;
     }
     void DisposeCamp()
-    {CancelCampPlacement();DisposeCampAudio();DisposeBodyFeedback();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);campSleeping=campResting=false;}
+    {CancelCampPlacement();DisposeCampAudio();DisposeBodyFeedback();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);if(frameBindingMaterial!=null)Destroy(frameBindingMaterial);campSleeping=campResting=false;}
 }
 
 static partial class LocalScatterMeshes
