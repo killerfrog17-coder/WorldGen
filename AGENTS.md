@@ -31,7 +31,41 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-CURRENT1Nov FRAME / PLAYER COMFORT SELECTED: normal root shortcut NOW
+CURRENT1Nov CAMP BLUEPRINTS SELECTED: normal root shortcut NOW builds/slot-a/
+WorldGen.exe, IL2CPP Release BuiltUtc2026-11-01T23:29:49.5781554Z, production
+6c457f9 pushed. V opens five plans: lean-to, windbreak, drying rack, material
+store, brush hut. First corner/end then size+confirm; hut centre/radius; R15deg,
+ShiftR reverse, RMB back/cancel. E supplies actual suitable material and timed
+component labour; ShiftE details. Partial work, materials, terrain footings and
+stock save. Creative supplies components instantly. Finished weapons excluded
+from construction wood; shortening needs cutting edge and returns real offcuts.
+Shelter weather protection, solid two-sided collision, physical low-roof crouch,
+usable hut doorway; dimensional stores feed Nearby crafting without carry mass.
+Weather-driven rack drying/smoking preserves calories/source animal identity.
+Dynamic fire/bedding retained, extra covering/layers and recoverable stone ring.
+Normal free-form frame placement entry replaced; existing saved frames retained.
+Longer branch resources (mostly short, max4.5m) preserve positions/counts/IDs/tree
+proximity. First-pass procedural structure art, no new construction animations,
+NPC camps, general spoilage or wildfire. Offscreen weather catch-up approximate.
+160 SAME FINAL PLAYER native checks PASS/exit0/clean runtime error logs:62 plan
+and98 camp. Actual mouse/keyboard sizing/rotation, survival labour/occupied hands,
+partial/full save, hut entry, crouch/headroom, protection, stock/drying/dismantling,
+fire/cooking/sleep/hammering. All5 completed structure renders inspected; diagnostic
+avatar head hidden by retained FPS mask, not an art edit. Focused Core1788 plan/
+3658 branch/33forage/39camp/82inventory/69save PASS. Branch fixture95.1% tree-derived.
+Proof955frozen/3254protected/30Legacy/6x70banks exact; original fauna/audio exact.
+Layout5655PASS/5048locked inputs. Manifest assets/verification/camp-blueprints-
+20261101.json; docs/CAMP_SYSTEM.md. Final evidence artifacts/camp-blueprints-
+20261101/native-final-verified,native-camp-verified,package-proof-verified.
+Earlier flat-ground fixture/obstructing test rack/legacy feet-based aim failures
+excluded. Last rebuild changes only calibrated-camera QA aiming, assertions kept.
+Old cricket decode and standalone Earth golden discrepancy remain NOT passing;
+no universal visual/FPS/audio regression claim. Two fixed build slots reused,
+no player copies or cleanup, all artifacts disposable. Owner apps untouched;
+owner prompt deletion and2 deer scripts preserved. All owned jobs finished.
+No remaining task development; await feedback, no old overnight task resume.
+
+HISTORICAL1Nov FRAME / PLAYER COMFORT SELECTED: normal root shortcut THEN
 builds/slot-b/WorldGen.exe, IL2CPP Release BuiltUtc2026-11-01T21:29:46.1664161Z,
 production337cc40 pushed. Wooden frames use two real contacts: driven forked
 posts / post tops, ground feet, resting beams and timed lashed side joints.

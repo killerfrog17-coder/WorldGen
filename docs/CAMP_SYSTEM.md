@@ -1,8 +1,60 @@
 # Placed materials, campfires and sleep
 
-The selected player is the survival/camp revision, built with IL2CPP at
-2026-10-29T21:53:59Z. The existing root shortcut selects it. Construction beyond loose materials and planted sticks remains
-for a later update.
+The current camping system combines directly placed fire/bedding with adjustable
+structure blueprints. Release evidence is recorded in
+`assets/verification/camp-blueprints-20261101.json`; the existing root shortcut
+selects the verified IL2CPP player in one of the two fixed build slots.
+
+## Adjustable camp plans
+
+Press **V** to select a plan. B remains the backpack key. Choose vegetation,
+hide or bark covering for a shelter/screen, or the material-store category.
+Click the first corner/end, look toward the opposite corner/end, then click to
+confirm. A hut uses centre and radius instead. R rotates in 15-degree steps;
+Shift+R reverses rotation. Right-click backs up one placement step, then cancels.
+The translucent preview shows the actual dimensions and current requirements.
+
+| Plan | Adjustable dimensions | Function |
+| --- | --- | --- |
+| Lean-to | Width 1.5–4 m; depth 1.5–3 m | Directional wind shelter, shade and rain cover |
+| Windbreak | Length 1–6 m | Directional shelter on the lee side; adjacent ends can join |
+| Drying rack | Length 1–3 m | Two rails accepting suitably sized meat/fish pieces |
+| Material store | Width 1–4 m; depth 0.75–3 m | Physical wood, stone or vegetation storage |
+| Brush hut | Diameter 2–4 m | Enclosed shelter with an open doorway and low curved roof |
+
+Dimensions snap to quarter-metre increments. Larger plans require more or longer
+real pieces, more binding, and more covering. Supports follow a saved terrain
+survey; placement rejects water, solid obstructions and excessively uneven
+ground. A branch is never stretched into a longer beam. Wider lean-tos introduce
+additional support bays.
+
+Aim at an unfinished plan and press **E** to add a suitable held/nearby material
+and work on a component. Construction proceeds through supports, frame,
+bindings and covering. Labour uses solar time and the item-crafting multiplier.
+Movement, E, Escape or death interrupts work without discarding progress;
+previous hands are restored. **Shift+E** opens details and disassembly controls.
+Creative mode supplies components without material or labour costs.
+
+Wood must have suitable length, thickness and condition. Trimming excessive
+length requires a cutting edge and returns an actual offcut. Bindings consume
+part of a real cordage/sinew/rawhide item. Finished weapons are not automatically
+consumed as construction wood. Completed coverings can receive extra material,
+with diminishing protection gains. Dismantling returns installed materials and
+stored contents at their physical positions.
+
+Completed structures have solid two-sided collision. The player crouches under
+low roofs and cannot stand through them. Shelter protection affects the existing
+wind, rain and solar-exposure calculations. Overlapping shelters do not multiply
+protection without limit.
+
+E on a completed store/rack opens its contents. Stored items appear in Nearby,
+can be used for nearby crafting, and do not count as carried weight. Capacity is
+based on the plan dimensions and actual item sizes. Rack drying accumulates with
+temperature, wind, humidity and rain; a nearby modest fire assists smoking.
+Drying preserves calories and source-animal identity while reducing water/mass.
+This does not introduce a general food-spoilage simulation.
+
+Fire and bedding remain direct material placement, rather than blueprints:
 
 - E on grassy ground: gather a physical grass bundle. Tree resource menus also
   supply leaf litter; existing reed gathering remains available.
@@ -40,7 +92,8 @@ for a later update.
 - Right-click an actual branch/pole: plant it. Striking the placed stick with a
   rock changes the stored embedding depth, bounded by soil depth and stick
   length. The visible shaft retains its original dimensions and branch variant.
-  Later structural loading/tying of members is outside this update.
+  Existing saved free-form frames remain supported; the normal construction
+  path is now the adjustable plan system.
 - Placement shows a translucent object at the aimed ground point. Rock strikes
   use forgiving post bounds and a separate 0.3–0.6 second anti-spam interval,
   independent of the rock's slower combat recovery.
@@ -63,8 +116,9 @@ the owner's existing survival HUD design is retained.
 Camp objects store planet positions, exact embedded depth and original material
 identities. Save snapshots deep-copy them and reject ownership duplication
 between carried and placed items. Old saves default to an empty camp and zero
-tiredness. There are no global building blueprints, NPC camp generation, full
-wildfire spread, water containers or new shelter system in this pass.
+tiredness. Partial and completed blueprints, terrain footings, stored materials
+and drying progress also round-trip through saves. NPC camp generation, full
+wildfire spread and new character construction animations are outside this pass.
 
 One grass bundle gives modest comfort. Further layers improve it with diminishing
 returns; a hide improves insulation without becoming a thick mattress.
