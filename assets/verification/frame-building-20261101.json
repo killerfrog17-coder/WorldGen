@@ -1,0 +1,189 @@
+{
+  "recorded_utc": "2026-11-01T21:32:47.863984+00:00",
+  "source_checkpoint": "337cc40aab664660eb35e89ca0ac383bc18037aa",
+  "selected_slot": "builds/slot-b",
+  "build": {
+    "BuiltUtc": "2026-11-01T21:29:46.1664161Z",
+    "Backend": "IL2CPP",
+    "Development": false,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "ee4aa27809923b30af41c9586b11f29286f4ffb8d84be8cc3cbfd493a6c0fd0e"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "498c86ca1f7744d5e2080b7b942361ad4207f8b5a3f6353b2f038505a87b8d8c"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "94b4a7fdba4c7943aba49be0da950828e760697ed238b1afec751af3e21c901d"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ]
+  },
+  "gameassembly_sha256": "1a25d92cca5b7f57c6270c7270ff5c1ac1ea857f5ffed2cc243bc1d0d639ad9a",
+  "native": {
+    "frame_and_comfort": {
+      "count": 41,
+      "checks": [
+        "PASS Player has the shared native human animation graph",
+        "PASS Idle comfort samples a real Empty clip",
+        "PASS Idle Empty no longer rocks the head or upper body: 0",
+        "PASS Idle comfort samples a real ToolReady clip",
+        "PASS Idle ToolReady no longer rocks the head or upper body: 0",
+        "PASS Idle comfort samples a real CarryLarge clip",
+        "PASS Idle CarryLarge no longer rocks the head or upper body: 0",
+        "PASS First-person camera has no animated gait bob at 1.5m/s: 0",
+        "PASS Body locomotion remains animated at 1.5m/s",
+        "PASS First-person camera has no animated gait bob at 3.4m/s: 0",
+        "PASS Body locomotion remains animated at 3.4m/s",
+        "PASS First-person camera has no animated gait bob at 6m/s: 0",
+        "PASS Body locomotion remains animated at 6m/s",
+        "PASS Fresh breathing is quiet and sustained exhaustion gradually raises it",
+        "PASS Dry ground accepts an actual fork post: Aim at reachable ground.",
+        "PASS Dry ground accepts an actual fork post: Aim at reachable ground.",
+        "PASS Real fork geometry and driven depth remain on the saved posts",
+        "PASS The first placement ray selects the fork post",
+        "PASS First click retains an actual structural contact",
+        "PASS A full-length ridge spans the two posts: Rest wood in place [LMB] \u00c2\u00b7 Roll [wheel] \u00c2\u00b7 Cancel [RMB]",
+        "PASS Placement shows a translucent full wood ghost",
+        "PASS Placing transfers the exact wood from inventory into the frame",
+        "PASS Aligned forks support the ridge without imaginary rope",
+        "PASS A beam is not stretched to fit its supports",
+        "PASS Placed wood has a real solid collider",
+        "PASS The horizontal beam can be targeted at its actual surface",
+        "PASS A leaning rib can start on reachable dry ground",
+        "PASS A ground foot and ridge accept the leaning rib: Rest wood in place [LMB] \u00c2\u00b7 Roll [wheel] \u00c2\u00b7 Cancel [RMB]",
+        "PASS The rib records both its ground foot and ridge contact",
+        "PASS The supported lean-to rib remains standing",
+        "PASS Lashing starts real timed work rather than consuming on menu click",
+        "PASS Completed lashing consumes part of the actual coil",
+        "PASS A visible rope wrap marks the chosen joint",
+        "PASS The real player save round-trips the frame and its lashing",
+        "PASS Rendered ridge and actual fork support meet within5mm",
+        "PASS A small support adjustment re-seats the connected frame",
+        "PASS Removing a supporting post brings down dependent wood",
+        "PASS Fallen pieces enter the existing item physics system",
+        "PASS Collapse preserves the binding material instead of deleting it",
+        "PASS The collapsed state has no dangling saved joints",
+        "PASS no runtime errors or exceptions"
+      ],
+      "evidence": "artifacts/frame-building-20261101/native-release",
+      "exit_code": 0
+    },
+    "pickup_icons": {
+      "count": 15,
+      "checks": [
+        "PASS Compact3kg stones use one hand in the native player",
+        "PASS Actual inventory can carry a3kg stone in each hand",
+        "PASS Pickup distinction matches real flaking eligibility including depleted pieces",
+        "PASS Original white pickup atlas is packaged",
+        "PASS Flakeable stones use their own single imported icon",
+        "PASS Habitat ambience contains no fly/bee buzz sources",
+        "PASS A fully drawn actual insect can emit its local wing sound",
+        "PASS A faded placeholder insect cannot buzz",
+        "PASS An invisible insect cannot buzz",
+        "PASS Inactive insect stops being an audible caller",
+        "PASS Offscreen cricket habitat callers remain allowed",
+        "PASS Native pickup selection supplies stone 0",
+        "PASS Native pickup selection supplies stone 1",
+        "PASS Native pickup selection supplies stone 2",
+        "PASS The native GPU rendered the pickup textures at large and normal pickup size"
+      ],
+      "evidence": "artifacts/frame-building-20261101/native-icons-release",
+      "exit_code": 0
+    }
+  },
+  "core_checks": {
+    "frames": 25,
+    "effort_cover": 41,
+    "camp": 39,
+    "woodworking": 37,
+    "save_slots": 69,
+    "inventory": 82
+  },
+  "package_proof": {
+    "backend": "IL2CPP",
+    "BuiltUtc": "2026-11-01T21:29:46.1664161Z",
+    "frozen_inputs": 952,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 3254,
+    "native_character_banks": 6,
+    "clips_per_character": [
+      70,
+      70,
+      70,
+      70,
+      70,
+      70
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true
+  },
+  "source_and_new_asset_hashes": {
+    "assets/item-art/flakeable-stone-pickup-v1.json": "bf00de07d68f3636b85399b9649d07c994e938e6733512b4b0123956d7f32b9a",
+    "src/WorldGen.Core/CampState.cs": "290532f45758a2478918b70718952dc00ede1c3edfc838e340ef2e4d251a144f",
+    "src/WorldGen.Core/FrameStructure.cs": "3e6d731b3c2dfc6847f6af5d4fafa30a5193140dfa45425f42201379e7d57409",
+    "src/WorldGen.Core/PlaySession.cs": "92b539413850e27b20d55465be75c7ab78c0bf8f737b5f6f94cf7965d6dc19e3",
+    "src/WorldGen.Presentation/BreathingFeedback.cs": "4e4a868f297524639530d32b4f8a12547c66dc584ebf07360c56c081777c96ad",
+    "tests/WorldGen.Core.Tests/EffortCoverRevisionTests.cs": "061136cf787fdfb87449add5b0f120d64e3fac38f26828ed3f9ac86cf21b20c1",
+    "tests/WorldGen.Core.Tests/FrameStructureTests.cs": "84650af9c952fec0117a080c43063190964daa366174a7dc230858caf2e6ee0a",
+    "tests/WorldGen.Core.Tests/Program.cs": "783158769ddd4c9683c72058d07f58aff7b0b954d976f76a8ed25f6438ed0a7b",
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/PortableItemTextureImport.cs": "010c87930426bee0b924827e33003a6f22dd6be9e3f1cdef6c3dedc7046b6909",
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/FlakeableStonePickupV1.png": "87d5a1b529306c4612dd5a936cc2a61227bd7559a6efa4c7c1b18c3c042846bd",
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/FlakeableStonePickupV1.png.meta": "b4d48d31e03a37dec624875878d3cdc4ef327ced658880b3fc4e16765aae9a10",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainBodyFeedback.cs": "1340e52243c4c4f11ece61396430167f290d8e97a19cd5a6f57d1df0a16aa9a6",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainCamp.cs": "c2536528b2e194ea5c901f8554c5a1eaa8aee15ee05a38fe5c9d86e57e62528c",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainCampSleep.cs": "1edb453f59e4bc47063d8ca4c38447ef167bcd2b63cdf44945db7286e4a591ff",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainCampVisuals.cs": "fbb48257a0159b9e27ef29f3b508d225d72693001a00540d693d789d9a186dd3",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainFrames.cs": "f818a3041632a67c719a188ddd7fc7978b0f69fe7d3c11f3bc5c84b2c6b8c737",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainFrames.cs.meta": "caf8357347d344334d2898cfbf38ac69fa59eaec6f9f93c94885349937e66f18",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainHumans.cs": "011191d5aad3a80eebfd737f6502a9fae34291df69656b0d4d983d1b445621a8",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainInventory.cs": "48c5e6b2620a54237ca168275f05abdc7614784f44dd2cbb9c2927491300d435",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainInventoryUi.cs": "0fe6f9fd6ffe5ecd3d0f4aae7aa5dbbd8440925cd5917323a529d33383d2ca48",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainPickupIcons.cs": "566a2e93eda7117700179ce042183a8bc1e7ddc4d3cbc42d5f660503400949a8",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainPortableUi.cs": "c55c96a274cc54417846ddcb780170bff6bb0e65723e110184bb341692c68ba9",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalWoodMeshes.cs": "a4bb8b0030aba88218f9de56603c9831ecf6f8c5c76c21ab7ddafaa9cd96bec9",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenFeedbackCheck.cs": "68e2a5fe9a44be7961b79d88c49b6b2092b44ff7797e98eed88f38945b3a54aa",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenFrameCheck.cs": "892b022f13bf98836f6bca22f682857975719cdcaad6771db4cdb070698f7402",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenFrameCheck.cs.meta": "e54a8f2655c4a82152290c03feccf64dbe1b28c53ba3d46bc943610f57707714",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenItemUseCheck.cs": "b1d9a523794f122f3c6f5ac596c11d2e37079fd0d913b5044674d25a5976c11c",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenSharedHumanMotion.cs": "07981179c83e144d131d488e75de4e0b0758da9b323d8d3c981d0c24eab94c6d"
+  },
+  "images": {
+    "native-release/frame-with-lashing.png": {
+      "sha256": "f82cf3b1ec8cd43c11d7360ee7c639833385bab2e43f2d2ef8abfbc617d01f8f",
+      "visually_inspected": true
+    },
+    "native-icons-release/stone-pickup-icons.png": {
+      "sha256": "61c93e4d15f6395b25a0c879f033a2fdef8713ec8ad31e2b6577f8833bc7dacf",
+      "visually_inspected": true
+    }
+  },
+  "features": [
+    "Two-contact wooden frames: fork seats, post tops, ground feet and lashed side joints",
+    "Actual cordage/sinew/rawhide consumption, recoverable lashings and saved dependency graph",
+    "Load and footing checks; unsupported wood falls through existing item physics",
+    "Quiet early breathing; smooth exhaustion-dependent gain and filtering",
+    "Static player idle and idle carry poses; first-person movement camera no longer follows animated head bob",
+    "One separately generated flakeable-stone pickup icon"
+  ],
+  "limits": [
+    "Frame only; no coverings or new construction animations",
+    "Directed grounded support graph; no mutually supporting floating joint cycles",
+    "Capacities are bounded gameplay rules, not engineering simulation",
+    "Earlier hidden-window GUI captures failed to repaint; final icon proof uses offscreen native GPU drawing with shared gameplay texture/UV selection",
+    "Existing cricket native decode failure and old Earth stage-hash golden discrepancy are not claimed fixed or passing"
+  ],
+  "new_icon_provenance": "assets/item-art/flakeable-stone-pickup-v1.json",
+  "owner_running_slot_a_left_untouched": true,
+  "only_two_build_slots": true
+}

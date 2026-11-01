@@ -31,7 +31,40 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-CURRENT1Nov ITEM TOUCHUPS SELECTED: normal root shortcut NOW builds/slot-a/
+CURRENT1Nov FRAME / PLAYER COMFORT SELECTED: normal root shortcut NOW
+builds/slot-b/WorldGen.exe, IL2CPP Release BuiltUtc2026-11-01T21:29:46.1664161Z,
+production337cc40 pushed. Wooden frames use two real contacts: driven forked
+posts / post tops, ground feet, resting beams and timed lashed side joints.
+Cordage/sinew/rawhide consumed by actual mass and saved in recoverable joints;
+support/load graph evaluated after edits, unsupported wood falls using existing
+item physics. No coverings, construction animations or engineering simulation.
+Right-click wood > Position as frame wood; click two contacts; wheel rolls;
+E frame menu lashes/unties. Raw fork branches retain Y; trimmed poles do not.
+Round fork/twig geometry fixed for anisotropic wood scaling. Geographic frame
+axes survive chart shifts and convert correctly when a piece falls.
+Breathing now quiet at fresh exertion and smoothly rises with reserve depletion;
+gain/filter smoothing replaces early heavy threshold, stamina itself unchanged.
+Player idle/idle carry hold steady; FPS eye anchored to stable body origin rather
+than animated gait/head, crouch/jump/terrain motion retained. NPC idle unchanged.
+Separate single white flakeable-stone PNG (ordinary Git asset) replaces composite
+marker; generated image/prompt in assets/item-art/flakeable-stone-pickup-v1.json.
+56 SAME FINAL PLAYER native PASS/exit0/clean error logs:41 frame+comfort,15 icons.
+293 focused Core checks PASS:25frame/41effort/39camp/37wood/69save/82inventory.
+Frame/lashing and native GPU34px icon images inspected. Head is hidden in the
+diagnostic frame capture because it retains the FPS mask. Final icon fixture
+uses shared runtime texture/UV selection with offscreen GPU drawing: earlier
+hidden-window GUI repaint attempts FAILED and are excluded. Intermediate builds
+and proofs are diagnostic, final evidence artifacts/frame-building-20261101/
+native-release,native-icons-release,package-proof-release. Proof952frozen/
+3254protected/30Legacy/all6x70banks exact; original audio/fauna exact. Layout
+audit5655PASS including5048 locked inputs. Manifest assets/verification/frame-
+building-20261101.json. Earlier standalone Validate stage-hash discrepancy and
+known cricket audio decode failure remain NOT passing/unresolved; no full
+audio/world-hash regression claim. Owner apps untouched; all own jobs finished.
+Only two permanent build slots; no full player copies or cleanup this task.
+Owner prompt deletion/deer scripts preserved. Await feedback; no old task resume.
+
+HISTORICAL1Nov ITEM TOUCHUPS SELECTED: normal root shortcut THEN builds/slot-a/
 WorldGen.exe, IL2CPP Release BuiltUtc2026-11-01T06:41:04.5110214Z, source9f309e9
 pushed. Compact3kg stones use one hand; two-hand support from8kg or middle
 span>.24m / longest>.55m, independent of saved small/large label. Flaking marker
