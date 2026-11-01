@@ -205,7 +205,7 @@ public sealed partial class LocalTerrainExplorer
     void DropFrameMaterial(CampObject c,Possession p,bool wood)
     {
         p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundOffsetM=wood?c.FrameHeightM:.08;
-        var axis=new Vector3((float)c.FrameAxis.X,(float)c.FrameAxis.Y,(float)c.FrameAxis.Z);var rotation=wood?Quaternion.FromToRotation(Vector3.up,axis)*Quaternion.Euler(0,(float)c.FrameRoll,0):Quaternion.identity;
+        var axis=LocalFrameVector(c.Position,c.FrameAxis);var rotation=wood?Quaternion.FromToRotation(Vector3.up,axis)*Quaternion.Euler(0,(float)c.FrameRoll,0):Quaternion.identity;
         p.GroundRotation=new V(rotation.eulerAngles.x,rotation.eulerAngles.y,rotation.eulerAngles.z);p.GroundVelocity=p.GroundSpin=new V();p.GroundMoving=true;
         if(!Inventory.Items.Any(i=>i.Id==p.Id))Inventory.Items.Add(p);
     }

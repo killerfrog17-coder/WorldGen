@@ -12,22 +12,6 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class TouchupIconPreview:MonoBehaviour
-    {
-        public LocalTerrainExplorer Owner;public Possession[] Stones;public int PaintedFrames;
-        void OnGUI()
-        {
-            if(Event.current.type==EventType.Repaint)PaintedFrames++;
-            GUI.color=Color.black;GUI.DrawTexture(new Rect(0,0,Screen.width,Screen.height),Texture2D.whiteTexture);GUI.color=Color.white;
-            string[] labels={"Ordinary stone","Flakeable stone","Too small to flake"};
-            for(int i=0;i<Stones.Length;i++)
-            {
-                GUI.Label(new Rect(35+i*240,30,220,30),labels[i]);
-                Owner.DrawPickupCategory(new Rect(65+i*240,85,100,100),Stones[i]);
-                Owner.DrawPickupCategory(new Rect(100+i*240,220,34,34),Stones[i]);
-            }
-        }
-    }
     public static IEnumerator CheckItemTouchups(string output)
     {
         Directory.CreateDirectory(output);var report=new List<string>();
@@ -54,10 +38,19 @@ public sealed partial class LocalTerrainExplorer
         animal.Renderer.enabled=false;Check(!DrawnWingCaller(animal,"bee-wings"),"An invisible insect cannot buzz");animal.Renderer.enabled=true;
         cube.SetActive(false);Check(!DrawnWingCaller(animal,"fly-wings"),"Inactive insect stops being an audible caller");
         Check(DrawnWingCaller(animal,"cricket"),"Offscreen cricket habitat callers remain allowed");
-        var preview=new GameObject("Pickup icon preview").AddComponent<TouchupIconPreview>();preview.Owner=owner;preview.Stones=new[]{ordinary,core,spent};
-        yield return null;yield return null;yield return new WaitForEndOfFrame();
-        Check(preview.PaintedFrames>0,"Actual pickup icons have painted before the screenshot");
-        var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"stone-pickup-icons.png"),image.EncodeToPNG());Destroy(image);
+        // Use the exact runtime texture/UV selection, without relying on an
+        // invisible test window receiving desktop GUI repaint events.
+        var priorTarget=RenderTexture.active;var target=new RenderTexture(800,400,0);target.Create();RenderTexture.active=target;GL.Clear(true,true,Color.black);GL.PushMatrix();GL.LoadPixelMatrix(0,800,400,0);
+        var stones=new[]{ordinary,core,spent};
+        for(int i=0;i<stones.Length;i++)
+        {
+            Check(owner.PickupGraphic(stones[i],out var texture,out var uv),"Native pickup selection supplies stone "+i);
+            Graphics.DrawTexture(new Rect(65+i*240,65,100,100),texture,uv,0,0,0,0);
+            Graphics.DrawTexture(new Rect(100+i*240,220,34,34),texture,uv,0,0,0,0);
+        }
+        GL.PopMatrix();var image=new Texture2D(800,400,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,800,400),0,0);image.Apply();
+        Check(image.GetPixels().Any(c=>c.r>.5f),"The native GPU rendered the pickup textures at large and normal pickup size");
+        File.WriteAllBytes(Path.Combine(output,"stone-pickup-icons.png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=priorTarget;target.Release();Destroy(target);
         File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Debug.Log("ITEM TOUCHUP PASS "+report.Count);Application.Quit(0);
     }
     public static IEnumerator CheckFeedbackShaders(string output)

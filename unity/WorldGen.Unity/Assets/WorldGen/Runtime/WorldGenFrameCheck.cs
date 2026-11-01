@@ -90,9 +90,9 @@ public sealed partial class LocalTerrainExplorer
                 for(int i=0;i<120;i++)
                 {
                     shared.Locomotion(0,false,false,false,1f/30);
-                    shared.Action(role,i/30d,role!="Empty",false,null,0,false,1f/30);actor.Graph.Evaluate(0);
-                    if(i==60){anchor=head.localPosition;angle=head.localRotation;}
-                    if(i>60)worst=Mathf.Max(worst,Vector3.Distance(anchor,head.localPosition),Quaternion.Angle(angle,head.localRotation));
+                    shared.Action(role,i/30d,role!="Empty",role=="CarryLarge",null,0,false,1f/30);actor.Graph.Evaluate(0);
+                    if(i==60){anchor=head.position;angle=head.rotation;}
+                    if(i>60)worst=Mathf.Max(worst,Vector3.Distance(anchor,head.position),Quaternion.Angle(angle,head.rotation));
                 }
                 check(worst<.001f,"Idle "+role+" no longer rocks the head or upper body: "+worst);
             }
