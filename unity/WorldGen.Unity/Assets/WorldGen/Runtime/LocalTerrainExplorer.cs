@@ -154,7 +154,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         UpdatePlayerDeath();
         PreparePlayerSolids();
         motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;
-        if(!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&(Application.isFocused||testKeyboard!=null))
+        if(!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null||blueprintPlacement!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&(Application.isFocused||testKeyboard!=null))
         {
             if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck&&!inventoryReviewMode){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 ReadHumanCameraInput(mouse,keyboard);}

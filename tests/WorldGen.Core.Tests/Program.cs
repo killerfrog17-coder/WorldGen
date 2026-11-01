@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--blueprints-only")){CampBlueprintTests.Run();return;}
 if(args.Contains("--frames-only")){FrameStructureTests.Run();return;}
 if(args.Contains("--bleeding-only")){BleedingTests.Run();return;}
 if(args.Contains("--effort-cover-only")){EffortCoverRevisionTests.Run();return;}

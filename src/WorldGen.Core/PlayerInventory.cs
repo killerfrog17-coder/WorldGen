@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
-    public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack,Corpse }
+    public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack,Corpse,CampStorage }
     public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet }
     [Serializable] public sealed class NaturalToolRecord
     {
@@ -47,6 +47,9 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double FoodKcalPerKg,FoodWaterPerKg,FoodToxicity,FoodDelayHours;
         [System.Runtime.Serialization.OptionalField] public bool Cooked,Burnt;
         [System.Runtime.Serialization.OptionalField] public double CookingSeconds;
+        [System.Runtime.Serialization.OptionalField] public string CampOwner;
+        [System.Runtime.Serialization.OptionalField] public double DryingSeconds;
+        [System.Runtime.Serialization.OptionalField] public bool Dried,Smoked;
         public string Name=>PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
         public int Hands=>StoneCrafting.Rock(this)?StoneCrafting.CarryHands(this):PortableTechnology.Item(Kind)?.Hands??1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
@@ -75,7 +78,7 @@ namespace WorldGen.Core
         {
             var seen=new HashSet<string>();
             while(item!=null&&seen.Add(item.Id))
-            {if(item.Place==PossessionPlace.Ground||item.Place==PossessionPlace.Corpse)return false;if(item.Place!=PossessionPlace.Container)return true;item=Find(item.ContainerId);}
+            {if(item.Place==PossessionPlace.Ground||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage)return false;if(item.Place!=PossessionPlace.Container)return true;item=Find(item.ContainerId);}
             return false;
         }
         public bool InWornEquipment(Possession item)
@@ -96,6 +99,7 @@ namespace WorldGen.Core
             reason="";var item=Find(id);if(item==null){reason="Item is no longer available.";return false;}
             if(!Enum.IsDefined(typeof(PossessionPlace),place)){reason="Invalid destination.";return false;}
             if(place==PossessionPlace.Corpse&&(item.Place!=PossessionPlace.Corpse||item.CorpseOwner==0)){reason="Items cannot be put into a corpse.";return false;}
+            if(place==PossessionPlace.CampStorage&&(item.Place!=place||string.IsNullOrEmpty(item.CampOwner))){reason="Choose an actual camp store or rack.";return false;}
             if(PortableTechnology.Worn(place))
             {if(PortableTechnology.Wear(item)!=place){reason="This item does not attach there.";return false;}if(Items.Any(p=>p!=item&&p.Place==place)){reason="That attachment is occupied.";return false;}}
             if(place==PossessionPlace.RightHand||place==PossessionPlace.LeftHand)
@@ -123,7 +127,7 @@ namespace WorldGen.Core
             var item=Find(id);
             if(place==PossessionPlace.Container){var carrier=Find(container);if(PortableTechnology.Belt(carrier)||PortableTechnology.Item(carrier.Kind)?.Form==PortableForm.Case||carrier.Kind==PossessionKind.Quiver)item.BoundContainerId=container;}
             if(place!=PossessionPlace.Ground){item.InFlight=false;item.AttachedAnimal=0;item.AttachedHuman=0;}
-            item.Place=place;item.ContainerId=place==PossessionPlace.Container?container:"";item.X=x;item.Y=y;item.Rotated=rotated;return true;
+            item.Place=place;if(place!=PossessionPlace.CampStorage)item.CampOwner=null;item.ContainerId=place==PossessionPlace.Container?container:"";item.X=x;item.Y=y;item.Rotated=rotated;return true;
         }
         public bool Stow(string id,out string reason)
         {
@@ -157,6 +161,7 @@ namespace WorldGen.Core
                 if(item.AppearanceSpecies!=null&&(item.AppearanceSpecies.Length>80||item.AppearanceSpecies.Any(c=>!char.IsLetterOrDigit(c)&&c!='-'&&c!='_'))||item.AppearanceCoat<0||item.AppearanceCoat>4095||item.MaterialOrigins!=null&&item.MaterialOrigins.Any(o=>o==null||o.Species==null||o.Species.Length>80||o.Coat<0||o.Coat>4095))throw new ArgumentException("Invalid material provenance.");
                 if(!Finite(item.UseDamage)||item.UseDamage<0||item.UseDamage>1)throw new ArgumentException("Invalid item wear.");
                 Foraging.ValidateFood(item);
+                if(!Finite(item.DryingSeconds)||item.DryingSeconds<0||item.CampOwner!=null&&item.CampOwner.Length>80)throw new ArgumentException("Invalid stored food or camp ownership.");
                 if(!Finite(item.WoodStraightness)||item.WoodStraightness<0||item.WoodStraightness>1||!Finite(item.WoodSoundness)||item.WoodSoundness<0||item.WoodSoundness>1)throw new ArgumentException("Invalid wood traits.");
                 if(!Finite(item.GroundVelocity.Length)||!Finite(item.GroundSpin.Length)||!Finite(item.AttachedLocalPoint.Length)||!Finite(item.AttachedDirection.Length)||item.AttachedBone<0||item.AttachedBone>=128||item.AttachedHuman<0)throw new ArgumentException("Invalid projectile pose.");
                 if(!Finite(item.GroundOffsetM)||Math.Abs(item.GroundOffsetM)>1e7||!Finite(item.GroundRotation.X)||!Finite(item.GroundRotation.Y)||!Finite(item.GroundRotation.Z))throw new ArgumentException("Invalid dropped item pose.");

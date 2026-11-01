@@ -53,6 +53,7 @@ namespace WorldGen.Core
             Survival=Survival??new PlayerSurvival();Survival.Validate();
             Inventory=Inventory??new PlayerInventory();Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
             Camp=Camp??new CampState();Camp.Validate();
+            CampBlueprints.ValidateContents(Camp,Inventory);
             var carriedIds=new System.Collections.Generic.HashSet<string>(Inventory.Items.ConvertAll(p=>p.Id));
             foreach(var c in Camp.Objects)foreach(var p in c.OwnedMaterials())if(carriedIds.Contains(p.Id))throw new ArgumentException("A placed material cannot also be in the inventory.");
             if(PlayerHumanVariant< -1||PlayerHumanVariant>5||HumanRunStyle<0||HumanRunStyle>3||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");

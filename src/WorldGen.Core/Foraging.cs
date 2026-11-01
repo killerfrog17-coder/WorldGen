@@ -26,7 +26,8 @@ namespace WorldGen.Core
             if(!Food(p))return null;
             string name=PortableTechnology.Item(p.Kind)?.Name??p.Kind.ToString();
             if(p.Cooked)name=name.Replace("Raw ","").Replace("raw ","");
-            string prefix=p.Burnt?"Charred ":p.Cooked?"Cooked ":"";
+            string prefix=p.Burnt?"Charred ":p.Dried?(p.Smoked?"Smoke-dried ":"Dried "):p.Cooked?"Cooked ":"";
+            if(p.Dried)name=name.Replace("Raw ","").Replace("raw ","");
             if(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.AnimalFat)return prefix+(string.IsNullOrEmpty(p.AppearanceSpecies)?name:PortableTechnology.SpeciesName(p.AppearanceSpecies)+" "+name.ToLowerInvariant());
             return prefix+(string.IsNullOrEmpty(p.FoodSpecies)?name:p.FoodSpecies+" "+name.ToLowerInvariant());
         }

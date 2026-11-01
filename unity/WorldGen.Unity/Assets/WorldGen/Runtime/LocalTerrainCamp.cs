@@ -19,8 +19,8 @@ public sealed partial class LocalTerrainExplorer
     int campPointerConsumedFrame=-1;
     double campHammerReady;
     CampObject sleepingBed;
-    bool CampUiOpen=>campMenu!=null||campGroundMenu||campSleepMenu;
-    bool CampBusy=>CampUiOpen||campPlaceMaterial!=null||campSleeping||campResting;
+    bool CampUiOpen=>campMenu!=null||campGroundMenu||campSleepMenu||campPlansOpen;
+    bool CampBusy=>CampUiOpen||campPlaceMaterial!=null||blueprintPlacement!=null||blueprintJob!=null||campSleeping||campResting;
     public double CampTimeRate=>campSleeping||campResting?32:1;
     double campGroundAt;Vector3 campGroundEye,campGroundDirection,campGroundPoint;LocalTerrainSample campGroundSample;bool campGroundHit;
     bool CampGround(out Vector3 point,out LocalTerrainSample sample,bool refresh=false)
@@ -53,7 +53,8 @@ public sealed partial class LocalTerrainExplorer
         var ray=new Ray(view.transform.localPosition,view.transform.forward);
         foreach(var c in Camp.Objects)
         {
-            if((c.Position-Position).Length*frame.RadiusM>6)continue;
+            if((c.Position-Position).Length*frame.RadiusM>(IsBlueprint(c)?12:6))continue;
+            if(IsBlueprint(c)){if(BlueprintRay(c,ray,out float hit)&&hit<distance){distance=hit;best=c;}continue;}
             if(c.Kind==CampKind.FrameWood)
             {
                 if(FrameRaySegment(ray,FrameStart(c),FramePoint(c,1),(float)c.Materials[0].WidthM*.5f+.055f,out float contact,out _)&&contact<distance&&InventoryReach(ray.GetPoint(contact))){distance=contact;best=c;}
@@ -73,7 +74,8 @@ public sealed partial class LocalTerrainExplorer
     }
     string CampPrompt(float maximum)
     {
-        if(CampBusy)return null;var c=AimedCamp(out float d);
+        if(CampBusy&&blueprintJob==null)return null;var c=AimedCamp(out float d);
+        if(IsBlueprint(c)&&d<maximum)return BlueprintPrompt(c);
         if(c!=null&&d<maximum)return c.Kind==CampKind.Fire?QuickFirePrompt(c):(c.Kind==CampKind.FrameWood?"Frame wood - "+FrameSummary(c):c.Kind==CampKind.Stake?(FrameRules.Fork(c.Materials[0])?"Forked post - ":"Planted stick - ")+c.EmbedM.ToString("0.00")+" m embedded":"Bedding - "+(c.BeddingDepthM*100).ToString("0")+" cm")+"  [E]";
         if(maximum<float.MaxValue||!CampGround(out var point,out var s)||!CampGrassAvailable(point,s))return null;
         if(AimedNature(out _)!=null||AimedCorpse(out _)!=null||AimedWater(maximum)!=null)return null;
@@ -81,13 +83,15 @@ public sealed partial class LocalTerrainExplorer
     }
     bool TryCampInteract(float maximum)
     {
-        var c=AimedCamp(out float d);if(c!=null&&d<maximum){if(c.Kind==CampKind.Fire)return QuickFireAction(c);campMenu=c;CaptureMouse();return true;}
+        var c=AimedCamp(out float d);if(c!=null&&d<maximum){if(IsBlueprint(c))return BlueprintInteract(c);if(c.Kind==CampKind.Fire)return QuickFireAction(c);if(c.Kind==CampKind.Bedding&&CampRules.Bedding(Inventory.QuickHeld)){AddCampMaterial(c,Inventory.QuickHeld);return true;}campMenu=c;CaptureMouse();return true;}
         if(AimedNature(out _)!=null||AimedCorpse(out _)!=null||AimedWater(maximum)!=null)return false;
         if(maximum<float.MaxValue||!CampGround(out var point,out var sample,true)||!CampGrassAvailable(point,sample))return false;
         campGroundMenu=true;CaptureMouse();return true;
     }
     bool HandleCampKeys(Keyboard k)
     {
+        if(HandleBlueprintKeys(k))return true;
+        if(blueprintJob!=null&&k.escapeKey.wasPressedThisFrame){CancelBlueprintWork();return true;}
         if(campSleeping||campResting){if(k.escapeKey.wasPressedThisFrame||k.spaceKey.wasPressedThisFrame)WakeCamp("You wake up.");return true;}
         if(CampUiOpen){if(k.escapeKey.wasPressedThisFrame){campMenu=null;campGroundMenu=campSleepMenu=false;CaptureMouse();}return true;}
         if(campPlaceMaterial!=null)
@@ -127,7 +131,7 @@ public sealed partial class LocalTerrainExplorer
             else if(grade>(campPlaceKind==CampKind.Stake?1.1:.35)){campPlaceValid=false;campPlaceReason="Choose flatter ground.";}
             else if(campPlaceKind==CampKind.Stake&&(sample.Ground.DepthM<.035||CurrentWeather.TemperatureC< -4)){campPlaceValid=false;campPlaceReason="This ground is too rocky or frozen to plant the stick.";}
             foreach(var c in Camp.Objects)
-            {double distance=(c.Position-frame.Position(x,z)).Length*frame.RadiusM;if(distance<(c.Kind==CampKind.Bedding||campPlaceKind==CampKind.Bedding?1.15:.25)){campPlaceValid=false;campPlaceReason="Leave room around the existing placed materials.";break;}}
+            {if(IsBlueprint(c))continue;double distance=(c.Position-frame.Position(x,z)).Length*frame.RadiusM;if(distance<(c.Kind==CampKind.Bedding||campPlaceKind==CampKind.Bedding?1.15:.25)){campPlaceValid=false;campPlaceReason="Leave room around the existing placed materials.";break;}}
         }
         var color=campPlaceValid?new Color(.32f,.8f,.5f):new Color(.95f,.3f,.2f);campPreview.sharedMaterial.SetColor("_BaseColor",color);
         if(campGhost!=null){campGhost.SetActive(campGroundHit);campGhost.transform.localPosition=campPlacePoint+Vector3.up*.015f;campGhost.transform.localRotation=Quaternion.Euler(0,campPlacementYaw,0);color.a=.22f;campGhostMaterial.SetColor("_BaseColor",color);}
@@ -189,6 +193,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(c.Burning||c.EmberSeconds>0){InventoryFeedback("Extinguish and cool the fire first.");return;}
         if(c.Kind==CampKind.FrameWood){foreach(var p in c.Materials)DropFrameMaterial(c,p,true);foreach(var j in c.FrameJoints)foreach(var p in j.Bindings)DropFrameBinding(c,j,p);}
+        else if(IsBlueprint(c)){CancelBlueprintWork();foreach(var p in c.OwnedMaterials().Concat(StoredAt(c)).ToArray())DropBlueprintMaterial(c,p);}
         else foreach(var p in c.Materials.Concat(c.CookingItems)){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundVelocity=p.GroundSpin=new V();p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}
         c.Materials.Clear();Camp.Objects.Remove(c);InvalidateCampVisual(c);frameDirty=true;RefreshFrameStructure();campMenu=null;inventoryNearbyAt=0;CaptureMouse();
     }

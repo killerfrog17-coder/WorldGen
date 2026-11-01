@@ -46,15 +46,15 @@ public sealed partial class LocalTerrainExplorer
     {
         if(Ready&&!campAudioStarted){campAudioStarted=true;campAudioLoading=StartCoroutine(LoadCampRecordings());}
         if(Ready&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&!DeathVisible)Camp.SimulatedSeconds+=Math.Min(.25,Time.unscaledDeltaTime)*CampTimeRate*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
-        UpdateCampPlacement();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
+        UpdateCampPlacement();UpdateBlueprintPlacement();UpdateBlueprintWork();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
         RefreshFrameStructure();
         foreach(var c in Camp.Objects)
         {
             double elapsed=Math.Max(0,Camp.SimulatedSeconds-c.LastSimulatedSeconds);c.LastSimulatedSeconds=Camp.SimulatedSeconds;
-            if(!paused)CampRules.Advance(c,elapsed,CurrentWeather.RainMmPerHour,CurrentWeather.Humidity,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps),SkyFrame?.Daylight??0);
+            if(!paused){var shelter=BlueprintProtectionAt(c.Position);CampRules.Advance(c,elapsed,CurrentWeather.RainMmPerHour*(1-shelter.Rain),CurrentWeather.Humidity,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps)*(1-shelter.Wind),SkyFrame?.Daylight??0);if(IsBlueprint(c))UpdateBlueprintContents(c,elapsed);}
             bool near=(Position-c.Position).Length*frame.RadiusM<250;
             if(!near){InvalidateCampVisual(c);continue;}
-            int foodState=CampFoodState(c);
+            int foodState=IsBlueprint(c)?BlueprintContentsState(c):CampFoodState(c);
             if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM||old.FoodState!=foodState)){InvalidateCampVisual(c);}
             if(!campVisuals.TryGetValue(c.Id,out var v)){v=CreateCampVisual(c);campVisuals.Add(c.Id,v);}
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);
@@ -79,8 +79,9 @@ public sealed partial class LocalTerrainExplorer
     CampVisual CreateCampVisual(CampObject c)
     {
         var root=new GameObject("Placed "+c.Kind);root.transform.SetParent(transform,false);root.layer=30;
-        var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM,FoodState=CampFoodState(c)};
-        if(c.Kind==CampKind.FrameWood)CreateFrameVisual(c,root);
+        var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM,FoodState=IsBlueprint(c)?BlueprintContentsState(c):CampFoodState(c)};
+        if(IsBlueprint(c))CreateBlueprintVisual(c,root);
+        else if(c.Kind==CampKind.FrameWood)CreateFrameVisual(c,root);
         else if(c.Kind==CampKind.Stake)
         {
             var p=c.Materials[0];var wood=CreatePossessionVisual(p,30);wood.transform.SetParent(root.transform,false);wood.transform.localPosition=Vector3.down*(float)c.EmbedM;
@@ -104,6 +105,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var p in c.Materials)
             {
                 var part=CreatePossessionVisual(p,30);part.transform.SetParent(root.transform,false);float angle=i*2.39996f;
+                if(StoneCrafting.Rock(p)){part.transform.localPosition=new Vector3(Mathf.Sin(angle)*.44f,.02f,Mathf.Cos(angle)*.44f);part.transform.localRotation=Quaternion.Euler(0,i++*137,0);continue;}
                 float radius=WoodCrafting.Wood(p)?.18f:.07f;part.transform.localPosition=new Vector3(Mathf.Sin(angle)*radius,.035f+(i%3)*.018f,Mathf.Cos(angle)*radius);
                 part.transform.localRotation=Quaternion.Euler(78+(i%4)*6,i*137,0);
                 i++;
@@ -126,7 +128,7 @@ public sealed partial class LocalTerrainExplorer
         v.FlameRenderers=root.GetComponentsInChildren<MeshRenderer>().Where(r=>r.name=="Flame sheet"||r.name=="Live ember bed").ToArray();return v;
     }
     void DisposeCamp()
-    {CancelCampPlacement();DisposeCampAudio();DisposeBodyFeedback();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);if(frameBindingMaterial!=null)Destroy(frameBindingMaterial);campSleeping=campResting=false;}
+    {CancelBlueprintWork();CancelBlueprintPlacement();blueprintProtectionCache.Clear();campPlansOpen=false;CancelCampPlacement();DisposeCampAudio();DisposeBodyFeedback();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(blueprintPlacementMaterial!=null)Destroy(blueprintPlacementMaterial);if(blueprintGhostMaterial!=null)Destroy(blueprintGhostMaterial);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);if(frameBindingMaterial!=null)Destroy(frameBindingMaterial);campSleeping=campResting=false;}
 }
 
 static partial class LocalScatterMeshes

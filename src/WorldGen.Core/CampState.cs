@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
-    public enum CampKind { Fire,Bedding,Stake,FrameWood }
+    public enum CampKind { Fire,Bedding,Stake,FrameWood,Blueprint }
     [Serializable] public sealed class CampObject
     {
         public string Id="camp-"+Guid.NewGuid().ToString("N");public CampKind Kind;public V Position;
@@ -17,14 +17,15 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double FrameHeightM,FrameRoll;
         [System.Runtime.Serialization.OptionalField] public bool FrameGrounded;
         [System.Runtime.Serialization.OptionalField] public List<FrameJoint> FrameJoints=new List<FrameJoint>();
-        public double MassKg=>Materials.Sum(p=>p.MassKg)+(FrameJoints??new List<FrameJoint>()).Sum(j=>(j.Bindings??new List<Possession>()).Sum(p=>p.MassKg));
+        [System.Runtime.Serialization.OptionalField] public CampBlueprint Blueprint;
+        public double MassKg=>Materials.Sum(p=>p.MassKg)+(FrameJoints??new List<FrameJoint>()).Sum(j=>(j.Bindings??new List<Possession>()).Sum(p=>p.MassKg))+(Blueprint?.Parts?.Sum(s=>s.Materials.Sum(p=>p.MassKg))??0);
         public double FuelKg=>Materials.Where(CampRules.Fuel).Sum(p=>p.MassKg);
         public double BeddingDepthM=>Kind==CampKind.Bedding?Math.Min(.4,Materials.Sum(p=>p.MassKg/(p.Kind==PossessionKind.LeafLitter?45:p.Kind==PossessionKind.ReedBundle?40:CampRules.Hide(p)?650:32))/1.8):0;
         public double Stability=>Kind!=CampKind.Stake||Materials.Count==0?0:D.Clamp(EmbedM/Math.Max(.08,Materials[0].HeightM*.2)*Math.Sqrt(Materials[0].WidthM/.03)*SoilFirmness);
         public double FuelEnergyKg=>Materials.Where(CampRules.Fuel).Sum(p=>p.MassKg*CampRules.FuelEnergy(p));
         public double FirePowerKw=>!Burning?EmberSeconds>0?.8*D.Clamp(EmberSeconds/1800):0:8*(1-Math.Exp(-FuelEnergyKg/2))*(1-Wetness*.7);
-        public IEnumerable<Possession> OwnedMaterials()=>Materials.Concat(CookingItems??Enumerable.Empty<Possession>()).Concat((FrameJoints??new List<FrameJoint>()).SelectMany(j=>j.Bindings??new List<Possession>()));
-        public CampObject Copy(){var c=(CampObject)MemberwiseClone();c.Materials=Materials.Select(p=>p.Copy()).ToList();c.CookingItems=(CookingItems??new List<Possession>()).Select(p=>p.Copy()).ToList();c.FrameJoints=(FrameJoints??new List<FrameJoint>()).Select(j=>j.Copy()).ToList();return c;}
+        public IEnumerable<Possession> OwnedMaterials()=>Materials.Concat(CookingItems??Enumerable.Empty<Possession>()).Concat((FrameJoints??new List<FrameJoint>()).SelectMany(j=>j.Bindings??new List<Possession>())).Concat(Blueprint?.Parts.SelectMany(p=>p.Materials)??Enumerable.Empty<Possession>());
+        public CampObject Copy(){var c=(CampObject)MemberwiseClone();c.Materials=Materials.Select(p=>p.Copy()).ToList();c.CookingItems=(CookingItems??new List<Possession>()).Select(p=>p.Copy()).ToList();c.FrameJoints=(FrameJoints??new List<FrameJoint>()).Select(j=>j.Copy()).ToList();c.Blueprint=Blueprint?.Copy();return c;}
     }
     [Serializable] public sealed class CampState
     {
@@ -41,6 +42,7 @@ namespace WorldGen.Core
                 if(c.CookingItems==null)c.CookingItems=new List<Possession>();
                 if(c.FrameJoints==null)c.FrameJoints=new List<FrameJoint>();
                 if(c.FrameJoints.Any(j=>j==null||j.Bindings==null))throw new ArgumentException("Invalid frame joint.");
+                CampBlueprints.Validate(c);
                 foreach(var p in c.OwnedMaterials())if(p==null||string.IsNullOrEmpty(p.Id)||!materials.Add(p.Id)||!Finite(p.MassKg)||p.MassKg<=0||!Finite(p.HeightM)||p.HeightM<=0||!Finite(p.WidthM)||p.WidthM<=0)throw new ArgumentException("Invalid camp material.");
                 if(c.CookingItems.Any(p=>!CampRules.Cookable(p)||!Finite(p.CookingSeconds)||p.CookingSeconds<0))throw new ArgumentException("Invalid camp food.");
                 if(c.Kind==CampKind.Stake&&(c.Materials.Count!=1||c.EmbedM>c.Materials[0].HeightM*.7+.001))throw new ArgumentException("Invalid planted stick.");
@@ -50,6 +52,7 @@ namespace WorldGen.Core
     }
     public static class CampRules
     {
+        public static bool FireStone(Possession p)=>StoneCrafting.Rock(p)&&p.MassKg>=.1&&p.MassKg<=12;
         public static bool Tinder(Possession p)=>p!=null&&(p.Kind==PossessionKind.TinderBundle||p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.PreparedFibre||p.Kind==PossessionKind.BarkStrips);
         public static bool Kindling(Possession p)=>p!=null&&(p.Kind==PossessionKind.KindlingBundle||WoodCrafting.Wood(p)&&p.WidthM<=.025);
         public static bool Fuel(Possession p)=>p!=null&&(Tinder(p)||Kindling(p)||WoodCrafting.Wood(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle);
@@ -72,7 +75,7 @@ namespace WorldGen.Core
         }
         public static void Add(CampObject c,Possession material)
         {
-            if(material==null||material.MassKg<=0||c.Materials.Any(p=>p.Id==material.Id)||!(c.Kind==CampKind.Fire?Fuel(material):c.Kind==CampKind.Bedding?Bedding(material):c.Kind==CampKind.FrameWood?FrameRules.Material(material):Plantable(material))||(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood)&&c.Materials.Count>0)throw new ArgumentException("Unsuitable placed material.");
+            if(material==null||material.MassKg<=0||c.Materials.Any(p=>p.Id==material.Id)||!(c.Kind==CampKind.Fire?Fuel(material)||FireStone(material):c.Kind==CampKind.Bedding?Bedding(material):c.Kind==CampKind.FrameWood?FrameRules.Material(material):c.Kind==CampKind.Stake&&Plantable(material))||(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood)&&c.Materials.Count>0)throw new ArgumentException("Unsuitable placed material.");
             var placed=material.Copy();placed.Place=PossessionPlace.Ground;placed.ContainerId="";placed.GroundMoving=false;placed.InFlight=false;placed.GroundVelocity=placed.GroundSpin=new V();
             if(c.Kind==CampKind.Fire&&WoodCrafting.Wood(placed)&&placed.HeightM>.5)
             {
@@ -86,7 +89,7 @@ namespace WorldGen.Core
         public static void Advance(CampObject c,double seconds,double rain,double humidity,double wind,double sun)
         {
             if(!double.IsFinite(seconds)||seconds<0||seconds>1e12)throw new ArgumentOutOfRangeException(nameof(seconds));
-            if(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood)return;
+            if(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood||c.Kind==CampKind.Blueprint)return;
             // Analytic environmental relaxation; streaming catch-up is O(materials),
             // not a replay of every elapsed simulation frame.
             double wetTarget=rain>.1?D.Clamp(.35+rain*.12):D.Clamp(humidity*.25-sun*.2);
@@ -100,7 +103,7 @@ namespace WorldGen.Core
                 double fine=c.Materials.Where(Tinder).Sum(p=>p.MassKg*FuelEnergy(p))/Math.Max(.001,c.FuelEnergyKg);
                 double burnRate=(.25+.12*Math.Min(8,power))/3600*(1+Math.Min(1,Math.Max(0,wind)/15))*(1+fine*2);
                 double needed=remaining*burnRate,burned=0,burnedEnergy=0;
-                foreach(var p in c.Materials.OrderBy(p=>Tinder(p)?0:Kindling(p)?1:2).ToArray())
+                foreach(var p in c.Materials.Where(Fuel).OrderBy(p=>Tinder(p)?0:Kindling(p)?1:2).ToArray())
                 {double take=Math.Min(needed/FuelEnergy(p),p.MassKg);p.MassKg-=take;needed-=take*FuelEnergy(p);burned+=take;burnedEnergy+=take*FuelEnergy(p);if(p.MassKg<.000001)c.Materials.Remove(p);if(needed<=0)break;}
                 c.AshKg+=burned*.04;c.EmberSeconds=600+3600*(1-Math.Exp(-c.AshKg*6));
                 heated=Math.Min(seconds,burnedEnergy/burnRate);

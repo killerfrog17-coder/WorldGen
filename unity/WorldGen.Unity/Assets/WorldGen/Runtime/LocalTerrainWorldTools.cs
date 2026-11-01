@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
         InventoryFeedback(label+"...");PlayItemEffect(label.StartsWith("Digging",StringComparison.Ordinal)?"soil-dig":"fibre-handle",view.transform.position,.4f,true);craftSoundAt=Time.unscaledTimeAsDouble+1;
     }
     void CancelWorldToolWork()
-    {var work=worldToolWork;if(work==null)return;worldToolWork=null;Inventory.ToolWorkEquipment=null;if(work.Line!=null)Destroy(work.Line.gameObject);work.Cancelled?.Invoke();RestoreWorkHands(new ItemCraftJob{Equipment=work.Equipment});if(stoneCraftVoice!=null)stoneCraftVoice.Stop();}
+    {CancelBlueprintWork();var work=worldToolWork;if(work==null)return;worldToolWork=null;Inventory.ToolWorkEquipment=null;if(work.Line!=null)Destroy(work.Line.gameObject);work.Cancelled?.Invoke();RestoreWorkHands(new ItemCraftJob{Equipment=work.Equipment});if(stoneCraftVoice!=null)stoneCraftVoice.Stop();}
     void UpdateWorldToolWork()
     {
         var work=worldToolWork;if(work==null)return;

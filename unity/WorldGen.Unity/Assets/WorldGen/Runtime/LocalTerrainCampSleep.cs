@@ -49,6 +49,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawCampUi()
     {
+        DrawBlueprintUi();if(campPlansOpen||blueprintPlacement!=null)return;
         DrawQuickFire();
         if(campPlaceMaterial!=null)
         {
@@ -77,7 +78,11 @@ public sealed partial class LocalTerrainExplorer
         }
         else if(campMenu!=null)
         {
-            var c=campMenu;if(!Camp.Objects.Contains(c)||(c.Position-Position).Length*frame.RadiusM>4){campMenu=null;CaptureMouse();GUILayout.EndScrollView();GUILayout.EndArea();return;}
+            var c=campMenu;if(!Camp.Objects.Contains(c)||(IsBlueprint(c)?!InventoryReach(BlueprintNearest(c,PlayerFeet())):(c.Position-Position).Length*frame.RadiusM>4)){campMenu=null;CaptureMouse();GUILayout.EndScrollView();GUILayout.EndArea();return;}
+            if(IsBlueprint(c))
+            {
+                DrawBlueprintDetails(c);GUILayout.EndScrollView();GUILayout.FlexibleSpace();if(GUILayout.Button("Close",GUILayout.Height(32))){campMenu=null;CaptureMouse();}GUILayout.EndArea();return;
+            }
             GUILayout.Label(c.Kind==CampKind.Fire?"Campfire":c.Kind==CampKind.Bedding?"Bedding":c.Kind==CampKind.FrameWood?"Frame wood":"Planted stick");
             if(c.Kind==CampKind.FrameWood)
             {

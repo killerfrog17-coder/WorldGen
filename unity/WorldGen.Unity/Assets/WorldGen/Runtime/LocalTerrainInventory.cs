@@ -93,6 +93,7 @@ public sealed partial class LocalTerrainExplorer
             Candidate(new NearbyPossession{Item=item,Point=point,Bounds=bounds});
         }
         foreach(var item in Inventory.Items.Where(i=>i.Place==PossessionPlace.Corpse&&CorpseItemReach(i)))inventoryNearby.Add(new NearbyPossession{Item=item});
+        foreach(var item in Inventory.Items.Where(i=>i.Place==PossessionPlace.CampStorage&&CampStoreReach(i)))inventoryNearby.Add(new NearbyPossession{Item=item});
         inventoryNearby.Sort((a,b)=>(a.Point-player).sqrMagnitude.CompareTo((b.Point-player).sqrMagnitude));
     }
     NearbyPossession InventoryCandidate(string id)
@@ -104,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var visited=new HashSet<string>();
         while(item!=null&&visited.Add(item.Id))
-        {if(item.Place==PossessionPlace.Corpse)return CorpseItemReach(item);if(item.Place==PossessionPlace.Ground)return inventoryNearby.Any(n=>n.Item.Id==item.Id);if(item.Place!=PossessionPlace.Container)return true;item=Inventory.Find(item.ContainerId);}
+        {if(item.Place==PossessionPlace.CampStorage)return CampStoreReach(item);if(item.Place==PossessionPlace.Corpse)return CorpseItemReach(item);if(item.Place==PossessionPlace.Ground)return inventoryNearby.Any(n=>n.Item.Id==item.Id);if(item.Place!=PossessionPlace.Container)return true;item=Inventory.Find(item.ContainerId);}
         return false;
     }
     void InventoryFeedback(string text)
@@ -227,7 +228,7 @@ public sealed partial class LocalTerrainExplorer
         var present=new HashSet<string>();
         foreach(var item in Inventory.Items)
         {
-            if(item.Place==PossessionPlace.Corpse)continue;
+            if(item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage)continue;
             bool beltItem=item.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(item.ContainerId))&&Inventory.Carried(item);
             if(item.Place==PossessionPlace.Container&&!beltItem)continue;
             bool near=item.InFlight||item.Place!=PossessionPlace.Ground||(item.Position-Position).Length*frame.RadiusM<160;

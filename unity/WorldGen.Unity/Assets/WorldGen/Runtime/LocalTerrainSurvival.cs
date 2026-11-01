@@ -80,6 +80,7 @@ public sealed partial class LocalTerrainExplorer
                 RainMmPerHour=CurrentWeather.RainMmPerHour*(1-canopy*.75),
                 Sunlight=daylight*(1-CurrentWeather.CloudCover*.85)*(1-canopy*.8),
                 Immersed=!double.IsNaN(water)&&water-(sample.ElevationM+feetAboveGround)>.6};
+            var campShelter=BlueprintProtectionAt(at);survivalEnvironment.WindMps*=1-campShelter.Wind;survivalEnvironment.RainMmPerHour*=1-campShelter.Rain;survivalEnvironment.Sunlight*=1-campShelter.Shade;
         }
         survivalEnvironment.LocalHour=LocalSolarHour;survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
         survivalEnvironment.EffortLoad=Inventory.LoadEffort;

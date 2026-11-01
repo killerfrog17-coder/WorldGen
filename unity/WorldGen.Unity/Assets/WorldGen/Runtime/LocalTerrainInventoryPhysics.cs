@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var ray=new Ray(view.transform.localPosition,view.transform.forward);float closest=float.MaxValue;NearbyPossession target=null;
         foreach(var candidate in inventoryNearby)
-            if(candidate.Item.Place!=PossessionPlace.Corpse&&candidate.Bounds.IntersectRay(ray,out float distance)&&distance<closest){closest=distance;target=candidate;}
+            if(candidate.Item.Place!=PossessionPlace.Corpse&&candidate.Item.Place!=PossessionPlace.CampStorage&&candidate.Bounds.IntersectRay(ray,out float distance)&&distance<closest){closest=distance;target=candidate;}
         return target;
     }
     void DrawPickupPrompt()

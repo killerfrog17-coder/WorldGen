@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var food in fire.CookingItems??Enumerable.Empty<Possession>())campChoices.Add(new CampChoice{Item=food,Label="Take "+food.Name.ToLowerInvariant(),Action=1});
         if(!fire.Burning)campChoices.Add(new CampChoice{Label=fire.EmberSeconds>0?"Revive fire":"Light fire",Action=2});
         var held=Inventory.QuickHeld;
-        foreach(var item in CraftAccessible().Where(p=>CampRules.Fuel(p)||CampRules.Cookable(p)&&!p.Burnt&&!p.Cooked).OrderBy(p=>p==held?0:1).GroupBy(p=>p.Kind).Select(g=>g.First()))
+        foreach(var item in CraftAccessible().Where(p=>CampRules.Fuel(p)||CampRules.FireStone(p)&&fire.Materials.Count(CampRules.FireStone)<12||CampRules.Cookable(p)&&!p.Burnt&&!p.Cooked).OrderBy(p=>p==held?0:1).GroupBy(p=>p.Kind).Select(g=>g.First()))
             campChoices.Add(new CampChoice{Item=item,Label=(CampRules.Cookable(item)?"Cook ":"Add ")+item.Name.ToLowerInvariant(),Action=0});
         if(fire.Burning||fire.EmberSeconds>0)campChoices.Add(new CampChoice{Label="Smother fire",Action=3});
         int retained=changed?-1:campChoices.FindIndex(c=>(c.Item?.Id??"action-"+c.Action)==campChoiceId);
