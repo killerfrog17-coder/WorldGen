@@ -274,6 +274,7 @@ public sealed partial class WorldGenRuntime
             else yield return terrainExplorer.CheckKimodoHumanFlow(output,report);
         }
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-hunting-check"))yield return terrainExplorer.CheckHuntingFlow(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-throw-latency-check"))yield return terrainExplorer.CheckThrowLatency(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-blueprint-check"))yield return terrainExplorer.CheckBlueprintFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-frame-check"))yield return terrainExplorer.CheckFrameFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-camp-check"))yield return terrainExplorer.CheckCampFlow(output,report);

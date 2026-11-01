@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
             }
         for(float d=.08f;checkGround&&d<closest;d+=.18f)
         {
-            var p=ray.GetPoint(d);double floor=VisibleGround(p.x+originX,p.z+originZ,Ground(p.x+originX,p.z+originZ));
+            var p=ray.GetPoint(d);double floor=SurfaceGround(p.x+originX,p.z+originZ);
             if(p.y<floor){closest=d;hit=new CombatObstacle{Distance=d,Point=worldRay.GetPoint(d),Normal=Vector3.up};break;}
         }
         foreach(var chunk in scatterChunks.Values)

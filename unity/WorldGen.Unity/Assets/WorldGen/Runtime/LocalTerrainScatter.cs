@@ -187,6 +187,15 @@ public sealed partial class LocalTerrainExplorer
         var source=scatter;var producer=meshProcess;var token=cancellation.Token;
         scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});
     }
+    // Query resident triangles before evaluating the analytic sampler. Passing
+    // Ground(...) as a fallback evaluates it eagerly, even for a resident tile.
+    double SurfaceGround(double x,double z)
+    {
+        double resident=VisibleGround(x,z,double.NaN);
+        if(!double.IsNaN(resident))return resident;
+        surfaceGroundFallbacks++;return Ground(x,z);
+    }
+    int surfaceGroundFallbacks;
     double VisibleGround(double x,double z,double fallback)
         =>VisibleGround(x,z,fallback,out _);
     double VisibleGround(double x,double z,double fallback,out int groundLevel)
