@@ -15,7 +15,12 @@ public sealed partial class LocalTerrainExplorer
     {
         void Check(bool ok,string why){if(!ok)throw new InvalidOperationException("CAMP REVISION "+why);report.Add("PASS "+why);Debug.Log("CAMP REVISION PASS "+why);}
         void Aim(double x,double z,double height=0)
-        {heading=Mathf.Atan2((float)(x-motion.X),(float)(z-motion.Z))*Mathf.Rad2Deg;UpdateHumans();UpdateCamera();var q=new Vector3((float)(x-originX),(float)CampFloor(x,z)+(float)height,(float)(z-originZ));pitch=-Mathf.Asin((q-view.transform.localPosition).normalized.y)*Mathf.Rad2Deg;UpdateCamera();campGroundAt=0;}
+        {
+            var target=new Vector3((float)(x-originX),(float)CampFloor(x,z)+(float)height,(float)(z-originZ));
+            // The calibrated shared-body eye is offset from the feet and need
+            // not align with body yaw while paused. Aim from the real camera.
+            for(int iteration=0;iteration<8;iteration++){UpdateHumans();UpdateCamera();var direction=(target-view.transform.localPosition).normalized;heading=Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;UpdateCamera();}campGroundAt=0;
+        }
         Color32[] Capture(string name)
         {
             var old=view.targetTexture;var previous=RenderTexture.active;var rt=new RenderTexture(1280,800,24);rt.Create();view.targetTexture=rt;view.Render();RenderTexture.active=rt;
@@ -60,6 +65,7 @@ public sealed partial class LocalTerrainExplorer
         Aim(px,pz,(post.Materials[0].HeightM-post.EmbedM)*.75);var rock=new Possession{Id="revision-heavy-hammer",Kind=PossessionKind.LargeRock,MassKg=15,WidthM=.24,HeightM=.18,DepthM=.2};
         foreach(var p in Inventory.Items.Where(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand)){p.Place=PossessionPlace.Ground;p.Position=Position;}
         rock.Place=PossessionPlace.RightHand;Inventory.Items.Add(rock);double embedded=post.EmbedM;combatGlobalReady=campHammerReady=0;combatRightReady=Time.unscaledTimeAsDouble+5;
+        Check(AimedCamp(out _)==post,"The actual camera ray is aimed at the stake before testing hammering");
         PrimaryItemAction(rock,false,0);Check(post.EmbedM>embedded&&combatRightReady-Time.unscaledTimeAsDouble<=.61,"A 15 kg rock drives the aimed post with a short tool cooldown, even after an old heavy-weapon recovery");
         embedded=post.EmbedM;PrimaryItemAction(rock,false,0);Check(post.EmbedM==embedded,"Same-frame hammer spam is rejected");
         yield return new WaitForSecondsRealtime(.7f);Aim(px,pz,(post.Materials[0].HeightM-post.EmbedM)*.75);PrimaryItemAction(rock,false,0);Check(post.EmbedM>embedded,"Hammering is available again within well under a second");
