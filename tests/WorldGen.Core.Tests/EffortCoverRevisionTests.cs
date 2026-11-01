@@ -8,6 +8,11 @@ static class EffortCoverRevisionTests
     {
         int n=0;void Check(bool ok,string why){n++;if(!ok)throw new Exception(why);}
         var mild=new SurvivalEnvironment{AirTemperatureC=24,Humidity=.4};
+        var breathing=new ExertionState{Burst=1,Breath=.8};double freshBreathing=BreathingFeedback.Intensity(breathing);
+        Check(freshBreathing<.025,"Fresh exercise only produces very quiet breathing");
+        breathing.Burst=.5;double halfway=BreathingFeedback.Intensity(breathing);breathing.Burst=0;double exhausted=BreathingFeedback.Intensity(breathing);
+        Check(freshBreathing<halfway&&halfway<exhausted&&exhausted>.75,"Breathing grows continuously with sustained depletion");
+        breathing.Breath=0;Check(BreathingFeedback.Intensity(breathing)==0,"Recovered breathing is silent even before the effort reserve fully refills");
         foreach(double speed in new[]{0d,1.5,3.4})
         {
             var p=new PlayerSurvival();p.Restore();SurvivalRules.SpendStamina(p,SurvivalRules.JumpStaminaCost);

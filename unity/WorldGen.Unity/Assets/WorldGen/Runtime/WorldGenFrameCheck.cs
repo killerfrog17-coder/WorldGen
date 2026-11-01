@@ -14,6 +14,7 @@ public sealed partial class LocalTerrainExplorer
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("FRAME "+text);report.Add("PASS "+text);Debug.Log("FRAME PASS "+text);}
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();paused=true;TestHumanView(0);
+        CheckPlayerComfort(Check);
         TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
         double sx=motion.X,sz=motion.Z;
         void Aim(Vector3 local)
@@ -72,5 +73,47 @@ public sealed partial class LocalTerrainExplorer
         Check(Math.Abs(bindings.Sum(id=>Inventory.Find(id)?.MassKg??0)-bindingMass)<1e-9,"Collapse preserves the binding material instead of deleting it");
         PlayerRules.Validate();Check(Camp.Objects.All(c=>c.Kind!=CampKind.FrameWood),"The collapsed state has no dangling saved joints");
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();PlayerRules.Settings.ItemCraftingTimeMultiplier=1;paused=false;
+    }
+    void CheckPlayerComfort(Action<bool,string> check)
+    {
+        bool oldReview=humanReviewPose,oldMode=HumanAnimationOptions.Kimodo;
+        humanReviewPose=true;HumanAnimationOptions.Kimodo=true;
+        try
+        {
+            var actor=humanPlayer;var shared=actor.Shared;
+            check(shared!=null,"Player has the shared native human animation graph");
+            var head=actor.Root.GetComponentsInChildren<Transform>().First(t=>t.name=="head");
+            foreach(string role in new[]{"Empty","ToolReady","CarryLarge"})
+            {
+                check(shared.Clips.ContainsKey(role),"Idle comfort samples a real "+role+" clip");
+                Vector3 anchor=default;Quaternion angle=default;float worst=0;
+                for(int i=0;i<120;i++)
+                {
+                    shared.Locomotion(0,false,false,false,1f/30);
+                    shared.Action(role,i/30d,role!="Empty",false,null,0,false,1f/30);actor.Graph.Evaluate(0);
+                    if(i==60){anchor=head.localPosition;angle=head.localRotation;}
+                    if(i>60)worst=Mathf.Max(worst,Vector3.Distance(anchor,head.localPosition),Quaternion.Angle(angle,head.localRotation));
+                }
+                check(worst<.001f,"Idle "+role+" no longer rocks the head or upper body: "+worst);
+            }
+            TestHumanView(0);pitch=0;sharedCameraEyeValid=false;
+            foreach(float speed in new[]{1.5f,3.4f,6f})
+            {
+                Vector3 cameraStart=default,footStart=default;float cameraMotion=0,footMotion=0;
+                var foot=actor.Root.GetComponentsInChildren<Transform>().First(t=>t.name=="foot_l");
+                for(int i=0;i<100;i++)
+                {
+                    shared.Locomotion(speed,false,false,false,1f/30);shared.Action("Empty",0,false,false,null,0,false,1f/30);actor.Graph.Evaluate(0);UpdateHumanCamera();
+                    if(i==30){cameraStart=view.transform.localPosition;footStart=foot.position;}
+                    if(i>30){cameraMotion=Mathf.Max(cameraMotion,Vector3.Distance(cameraStart,view.transform.localPosition));footMotion=Mathf.Max(footMotion,Vector3.Distance(footStart,foot.position));}
+                }
+                check(cameraMotion<.001f,"First-person camera has no animated gait bob at "+speed+"m/s: "+cameraMotion);
+                check(footMotion>.01f,"Body locomotion remains animated at "+speed+"m/s");
+            }
+            var effort=new ExertionState{Breath=.8,Burst=1,Fatigue=0};
+            double fresh=BreathingFeedback.Intensity(effort);effort.Burst=.1;effort.Fatigue=.6;
+            check(fresh<.025&&BreathingFeedback.Intensity(effort)>fresh*20,"Fresh breathing is quiet and sustained exhaustion gradually raises it");
+        }
+        finally{humanReviewPose=oldReview;HumanAnimationOptions.Kimodo=oldMode;sharedCameraEyeValid=false;UpdateHumans();UpdateCamera();}
     }
 }

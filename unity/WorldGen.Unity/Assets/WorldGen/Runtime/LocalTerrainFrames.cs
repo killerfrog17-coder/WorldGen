@@ -145,7 +145,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 campPlaceValid=FrameClear(frameDraft,out reason)&&FrameDraftSupported(frameDraft,out reason);
                 double needed=RequiredFrameBinding(frameDraft);
-                if(campPlaceValid&&!UnlimitedResources&&FrameBindings().Sum(p=>p.MassKg)<needed){campPlaceValid=false;reason="Bring cordage, sinew cord or rawhide strips to lash these side joints.";}
+                if(campPlaceValid&&!UnlimitedResources&&FrameBindings().Sum(p=>p.MassKg)+1e-8<needed){campPlaceValid=false;reason="Bring cordage, sinew cord or rawhide strips to lash these side joints.";}
                 campPlaceReason=campPlaceValid?(needed>0?"Lash into place [LMB]":"Rest wood in place [LMB]")+" · Roll [wheel] · Cancel [RMB]":reason;
                 if(campGhost!=null){campGhost.SetActive(true);campGhost.transform.localPosition=FrameStart(frameDraft);campGhost.transform.localRotation=FrameRotation(frameDraft);}
                 campPreview.enabled=true;campPreview.positionCount=2;campPreview.loop=false;campPreview.SetPosition(0,FrameStart(frameDraft));campPreview.SetPosition(1,FramePoint(frameDraft,1));
@@ -189,7 +189,7 @@ public sealed partial class LocalTerrainExplorer
     void LashFrameJoint(CampObject member,FrameJoint joint)
     {
         var parent=Camp.Objects.FirstOrDefault(c=>c.Id==joint.ParentId);if(parent==null||joint.Lashed)return;
-        var sources=FrameBindings();if(!UnlimitedResources&&sources.Sum(p=>p.MassKg)<FrameRules.BindingKg(member,parent)){InventoryFeedback("Requires cordage, sinew cord or rawhide strips.");return;}
+        var sources=FrameBindings();if(!UnlimitedResources&&sources.Sum(p=>p.MassKg)+1e-8<FrameRules.BindingKg(member,parent)){InventoryFeedback("Requires cordage, sinew cord or rawhide strips.");return;}
         void Finish()
         {
             if(!Camp.Objects.Contains(member)||!Camp.Objects.Contains(parent)||joint.Lashed)return;

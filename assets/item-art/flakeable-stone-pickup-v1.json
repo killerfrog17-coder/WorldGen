@@ -1,0 +1,8 @@
+{
+  "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/FlakeableStonePickupV1.png",
+  "sha256": "87d5a1b529306c4612dd5a936cc2a61227bd7559a6efa4c7c1b18c3c042846bd",
+  "generator": "built-in image_gen; imagegen skill",
+  "prompt": "One coherent pure-white flint/chert core stone on solid black. Distinctive tapered asymmetric oval/teardrop silhouette, broad shoulders, blunt point; three broad conchoidal scars in black negative space. Crisp readable at24?34px. No detached flakes, tools, hands, extra icons, badges, text, shading, gradients or color.",
+  "import": "256px; black/luminance becomes alpha, no mipmaps; white pickup tint",
+  "original": "C:/Users/kille/.codex/generated_images/01a0fa13-856b-7f40-ab01-51bc91fe8f33/exec-fdadddc6-4fe9-4020-94f2-b36d3e5017b0.png"
+}

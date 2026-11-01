@@ -215,6 +215,7 @@ public sealed partial class LocalTerrainExplorer
             if(role=="Sprint")rate=Mathf.Clamp(speed/6,.6f,1.3f);
             if(role=="Crouch")rate=speed<.05f?0:Mathf.Clamp(speed/1.5f,.3f,1.5f);
             if(role=="Jump")rate=actor.Definition.Clips[i].length/.61f;
+            if(actor==humanPlayer&&role=="Idle"){actor.Inputs[i].SetTime(0);rate=0;}
             if(role=="Walk"||role=="Run"||role=="Sprint"||role=="Crouch")
             {actor.Inputs[i].SetTime(actor.GaitPhase*actor.Definition.Clips[i].length);rate=0;}
             actor.Inputs[i].SetSpeed(rate);actor.Weights[i]=Mathf.Lerp(actor.Weights[i],target,1-Mathf.Exp(-dt*12));total+=actor.Weights[i];
@@ -253,7 +254,11 @@ public sealed partial class LocalTerrainExplorer
         pivot+=Quaternion.Euler(0,heading,0)*Vector3.forward*(.30f*(1-Mathf.Clamp01(humanCameraDistance)));
         if(SharedHumanMotion&&!deathPresented)
         {
-            var eye=humanPlayer.Shared.LocalEye;
+            // Camera position follows the stable character origin, never the
+            // gait/idle head animation. Keep calibrated eye height and smooth
+            // crouching without importing hip sway or running head bob.
+            var eye=humanPlayer.Shared.RestEye;
+            eye.y+=humanEyeOffset-(humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM);
             // Looking down rotates the eye anchor back towards the collar.
             // Keep the local camera in front of that collar instead of exposing
             // the head-removal boundary from inside the neck.

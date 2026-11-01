@@ -2,7 +2,7 @@ using UnityEngine;
 using WorldGen.Core;
 public sealed partial class LocalTerrainExplorer
 {
-    Texture2D pickupCategoryAtlas;
+    Texture2D pickupCategoryAtlas,flakeableStonePickup;
     int PickupCategory(Possession item)
     {
         if(StoneCrafting.Rock(item))return 0;if(WoodCrafting.Wood(item))return item.Kind==PossessionKind.WoodenSpear?3:1;if(item.Kind==PossessionKind.StoneFlake)return 2;
@@ -28,11 +28,8 @@ public sealed partial class LocalTerrainExplorer
         void Mask(Rect at,int category)=>GUI.DrawTextureWithTexCoords(at,pickupCategoryAtlas,new Rect((category%4)*.25f,(2-category/4)/3f,.25f,1/3f),true);
         if(StoneCrafting.Rock(item)&&StoneCrafting.WorkpieceReason(item).Length==0)
         {
-            // Same white category artwork: a smaller core and a detached cutting
-            // flake. Qualification follows the actual workpiece, not random shape
-            // or whether the player happens to carry a striking stone right now.
-            Mask(new Rect(rect.x,rect.y,rect.width*.77f,rect.height*.9f),0);
-            Mask(new Rect(rect.x+rect.width*.62f,rect.y+rect.height*.43f,rect.width*.4f,rect.height*.58f),2);
+            if(flakeableStonePickup==null)flakeableStonePickup=Resources.Load<Texture2D>("FlakeableStonePickupV1");
+            if(flakeableStonePickup!=null)GUI.DrawTexture(rect,flakeableStonePickup,ScaleMode.ScaleToFit,true);else Mask(rect,0);
         }
         else Mask(rect,PickupCategory(item));
     }

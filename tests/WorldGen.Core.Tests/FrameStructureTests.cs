@@ -15,6 +15,7 @@ static class FrameStructureTests
         {var c=new CampObject{Id=id,Kind=CampKind.FrameWood,Position=at,FrameAxis=new V(1,0,0),FrameHeightM=1.5};CampRules.Add(c,Wood(id+"-wood",0));c.FrameJoints.Add(new FrameJoint{ParentId=left,ParentT=.9,SelfT=.08,Kind=FrameJointKind.ForkRest});c.FrameJoints.Add(new FrameJoint{ParentId=right,ParentT=.9,SelfT=.85,Kind=FrameJointKind.ForkRest});return c;}
         var state=new CampState();var a=Post("a");var b=Post("b");var ridge=Beam("ridge",a.Id,b.Id);state.Objects.AddRange(new[]{a,b,ridge});state.Validate();
         var result=FrameRules.Analyse(state);Check(result.Nodes[ridge.Id].Supported,"Two driven fork posts support a loose ridgepole");
+        ridge.FrameJoints[1].SelfT=.4;Check(!FrameRules.Analyse(state).Nodes[ridge.Id].Supported,"An unsecured beam tips when its mass overhangs both supports");ridge.FrameJoints[1].SelfT=.85;
         Check(result.Order.IndexOf(a)<result.Order.IndexOf(ridge),"Supports are evaluated before dependent wood");
         double supported=result.Nodes[a.Id].LoadKg-a.MassKg;Check(Math.Abs(supported-ridge.MassKg*.5)<1e-9,"Ridge weight is divided between the actual supports");
         Check(FrameRules.Fork(a.Materials[0])&&!FrameRules.Fork(new Possession{Kind=PossessionKind.TrimmedPole,Variant=2}),"Trimming removes the useful fork");

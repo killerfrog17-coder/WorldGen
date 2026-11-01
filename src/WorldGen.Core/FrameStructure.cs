@@ -87,6 +87,11 @@ namespace WorldGen.Core
                         n.Stability=Math.Min(n.Stability,support.Stability*grip);
                     }
                     if(high-low<.25){n.Supported=false;n.Reason="Supports are too close together along the wood.";}
+                    if(low>.5||high<.5)
+                    {
+                        if(!c.FrameJoints.Any(j=>j.Lashed)){n.Supported=false;n.Reason="The overhang would tip this loose piece off its supports.";}
+                        else n.Stability*=.55;
+                    }
                     n.Stability*=Math.Min(1,p.WoodSoundness/.65);n.CapacityKg=7000*p.WidthM*p.WidthM*p.WoodSoundness*Math.Min(1.5,1.8/p.HeightM)*Math.Max(.2,n.Stability);
                     if(n.Stability<.045){n.Supported=false;if(n.Reason.Length==0)n.Reason="The loose connections cannot support this piece.";}
                 }

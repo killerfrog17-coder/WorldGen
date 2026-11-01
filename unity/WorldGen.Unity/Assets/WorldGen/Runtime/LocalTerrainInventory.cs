@@ -195,7 +195,7 @@ public sealed partial class LocalTerrainExplorer
         else if(WoodCrafting.Wood(item))
         {
             var art=Art(ScatterKind.Branch,item.Variant,0);inventoryPinnedArt.Add(art);
-            AddCraftMesh(root,LocalScatterMeshes.BuildWood(item.Variant,item.Kind,item.BarkRemoved),art.Parts[0].Material,item,layer);
+            AddCraftMesh(root,LocalScatterMeshes.BuildWood(item.Variant,item.Kind,item.BarkRemoved,aspect:(float)(item.HeightM/Math.Max(.001,item.WidthM))),art.Parts[0].Material,item,layer);
         }
         else
         {

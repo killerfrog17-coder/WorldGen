@@ -3,12 +3,15 @@ using WorldGen.Core;
 
 static partial class LocalScatterMeshes
 {
-    public static Mesh BuildWood(int variant,PossessionKind kind,bool peeled,bool ground=false)
+    public static Mesh BuildWood(int variant,PossessionKind kind,bool peeled,bool ground=false,float aspect=60)
     {
         var b=new Builder();int shape=variant%4;
         Color bark=variant<4?new Color(.38f,.25f,.14f):new Color(.48f,.45f,.37f),wood=new Color(.72f,.55f,.32f);
         bool raw=kind==PossessionKind.Branch,pointed=kind==PossessionKind.WoodenSpear||kind==PossessionKind.DiggingStick;
-        Vector3 Point(float t)=>new Vector3((shape==0?0:shape*.027f)*Mathf.Sin(t*Mathf.PI),t,shape==3?.035f*Mathf.Sin(t*5):0);
+        // Construct round limbs in metric proportion before normalizing the
+        // trunk. Otherwise nonuniform item scaling turns side tubes into fins.
+        aspect=Mathf.Max(2,aspect);
+        Vector3 Point(float t)=>new Vector3((shape==0?0:shape*.027f)*Mathf.Sin(t*Mathf.PI),t*aspect,shape==3?.035f*Mathf.Sin(t*5):0);
         for(int j=0;j<8;j++)
         {
             float a=j/8f,c=(j+1)/8f,ra=.5f*(1-.17f*a),rc=.5f*(1-.17f*c);
@@ -17,17 +20,17 @@ static partial class LocalScatterMeshes
             var color=(peeled||pointed&&a>=.75f)?wood:bark;
             b.Tube(Point(a),Point(c),ra,rc,8,color*(j%2==0?1:.94f));
         }
-        b.Crown(Point(0),new Vector3(.49f,.002f,.49f),8,2,wood,10,0);
-        if(!pointed)b.Crown(Point(1),new Vector3(.405f,.002f,.405f),8,2,wood,11,0);
+        b.Crown(Point(0),new Vector3(.49f,.002f*aspect,.49f),8,2,wood,10,0);
+        if(!pointed)b.Crown(Point(1),new Vector3(.405f,.002f*aspect,.405f),8,2,wood,11,0);
         if(raw)for(int j=0;j<2;j++)
-        {float t=.32f+j*.34f;b.Tube(Point(t),Point(t)+new Vector3(j==0?.9f:-.7f,.08f,.05f),.15f,.04f,6,bark);}
+        {float t=.32f+j*.34f;b.Tube(Point(t),Point(t)+new Vector3(j==0?.9f:-.7f,.08f*aspect,.05f),.15f,.04f,6,bark);}
         if(raw&&shape==2)
         {
             float t=(float)FrameRules.ForkT;var start=Point(t);var end=Point(1)+new Vector3(2.8f,0,0);
-            b.Tube(start,end,.32f,.2f,8,bark);b.Crown(end,new Vector3(.2f,.002f,.2f),8,2,wood,12,0);
+            b.Tube(start,end,.32f,.2f,8,bark);b.Crown(end,new Vector3(.2f,.002f*aspect,.2f),8,2,wood,12,0);
         }
         var mesh=b.Finish();mesh.name=kind.ToString();
-        if(ground){var vertices=mesh.vertices;for(int i=0;i<vertices.Length;i++)vertices[i]=new Vector3(vertices[i].y-.5f,vertices[i].x+.5f,vertices[i].z);mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();}
+        var vertices=mesh.vertices;for(int i=0;i<vertices.Length;i++){var v=vertices[i];v.y/=aspect;vertices[i]=ground?new Vector3(v.y-.5f,v.x+.5f,v.z):v;}mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();
         return mesh;
     }
 }

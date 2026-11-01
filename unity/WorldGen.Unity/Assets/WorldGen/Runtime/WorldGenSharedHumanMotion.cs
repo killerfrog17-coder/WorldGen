@@ -18,6 +18,8 @@ sealed class WorldGenSharedHumanMotion : IDisposable
     readonly Transform root,head;
     readonly Vector3 eyeInHead;
     readonly Quaternion headBindRotation;
+    readonly bool playerIdle;
+    public readonly Vector3 RestEye;
     public Vector3 LocalEye=>root.InverseTransformPoint(head.TransformPoint(eyeInHead));
     double phase,clock,jumpAt;
     float bodyWeight,upperWeight,offWeight;
@@ -42,6 +44,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         this.root=root;head=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="head");
         headBindRotation=Quaternion.Inverse(root.rotation)*head.rotation;
         eyeInHead=nativeEyeInHead??head.InverseTransformPoint(root.TransformPoint(new Vector3(0,eyeHeight,person.EyeForward>.05f?person.EyeForward:.15f)));
+        RestEye=LocalEye;playerIdle=player;
         Clips=person.Clips.ToDictionary(c=>c.Role,StringComparer.Ordinal);
         locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)).ToArray());
         Output=AnimationLayerMixerPlayable.Create(graph,player?4:1);
@@ -129,6 +132,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
             }
             locomotion.Weights[i]=Mathf.Lerp(locomotion.Weights[i],goal,1-Mathf.Exp(-dt*14));total+=locomotion.Weights[i];
             double time=c.Role=="Jump"?Math.Min(c.Duration-.0001,(clock-jumpAt)/.61*c.Duration):c.Role=="Walk"||c.Role.StartsWith("Run",StringComparison.Ordinal)||c.Role=="Sprint"||c.Role=="Crouch"||c.Role=="WalkBack"||c.Role.StartsWith("Strafe",StringComparison.Ordinal)?phase*c.Duration:clock%c.Duration;
+            if(playerIdle&&(c.Role=="Idle"||c.Role=="CrouchIdle"))time=0;
             locomotion.Nodes[i].SetTime(Math.Max(0,time));
         }
         if(total<.001f){int idle=Array.FindIndex(locomotion.Clips,c=>c.Role=="Idle");locomotion.Weights[idle]=total=1;}
@@ -143,6 +147,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
             float goal=track.Clips[i].Role==role?1:0;
             track.Weights[i]=initial?goal:Mathf.MoveTowards(track.Weights[i],goal,dt/.12f);total+=track.Weights[i];
             var c=track.Clips[i];double time=goal>0?seconds:track.Nodes[i].GetTime()+dt;
+            if(playerIdle&&MoveSpeed<.08f&&(c.Role.Contains("Ready")||c.Role=="CarryLarge"||c.Role=="ToolWalk"))time=0;
             track.Nodes[i].SetTime(c.Loop?Math.Max(0,time)%c.Duration:Math.Max(0,Math.Min(c.Duration-.00001,time)));
         }
         for(int i=0;i<track.Nodes.Length;i++)track.Mixer.SetInputWeight(i,track.Weights[i]/Math.Max(.0001f,total));

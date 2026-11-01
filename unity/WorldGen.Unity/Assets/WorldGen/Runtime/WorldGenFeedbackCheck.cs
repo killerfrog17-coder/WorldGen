@@ -42,6 +42,8 @@ public sealed partial class LocalTerrainExplorer
         Check(inventory.Hold(core.Id,out _)&&inventory.Hold(ordinary.Id,out _)&&inventory.AtHand(PossessionPlace.LeftHand)==ordinary,"Actual inventory can carry a3kg stone in each hand");inventory.Validate();
         Check(StoneCrafting.WorkpieceReason(core)==""&&StoneCrafting.WorkpieceReason(ordinary)!=""&&StoneCrafting.WorkpieceReason(spent)!="","Pickup distinction matches real flaking eligibility including depleted pieces");
         Check(Resources.Load<Texture2D>("PickupCategoryMasksV1")!=null,"Original white pickup atlas is packaged");
+        var coreIcon=Resources.Load<Texture2D>("FlakeableStonePickupV1");
+        Check(coreIcon!=null&&coreIcon.width<=256&&coreIcon!=Resources.Load<Texture2D>("PickupCategoryMasksV1"),"Flakeable stones use their own single imported icon");
         Check(!FaunaAmbience.Banks.Any(WildlifeVocalisation.RequiresVisibleCaller),"Habitat ambience contains no fly/bee buzz sources");
         var cube=GameObject.CreatePrimitive(PrimitiveType.Cube);cube.layer=29;cube.transform.position=new Vector3(10000,10000,10000);cube.transform.localScale=Vector3.one*.1f;
         var camera=new GameObject("Insect visibility fixture",typeof(Camera),typeof(UniversalAdditionalCameraData)).GetComponent<Camera>();camera.cullingMask=1<<29;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.black;camera.farClipPlane=10;camera.transform.position=cube.transform.position+Vector3.back*2;camera.transform.LookAt(cube.transform);

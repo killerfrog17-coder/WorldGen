@@ -6,12 +6,14 @@ using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
     readonly Dictionary<string,List<AudioClip>> bodyClips=new Dictionary<string,List<AudioClip>>();
     readonly Dictionary<ulong,Vector3> sleepingAnimalPositions=new Dictionary<ulong,Vector3>();
     AudioSource bodyVoice,pantVoice;LocalSurvivalScreen bodyScreen;Coroutine bodyAudioLoading;
+    AudioLowPassFilter pantFilter;
     UnityWebRequest bodyAudioRequest;bool bodyAudioStarted;double nextBodyCue,nextPainCue,nextSleepNoise;float bodyLastHealth=-1,bodyPain,bodyDamage;uint bodySoundSequence=29283;
     IEnumerator LoadBodyAudio()
     {
@@ -38,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
         var source=pant?pantVoice:bodyVoice;if(source!=null)return source;
         var root=new GameObject(pant?"Recovery breathing":"Player body foley");root.transform.SetParent(transform,false);
         source=root.AddComponent<AudioSource>();source.playOnAwake=false;source.spatialBlend=0;source.dopplerLevel=0;source.priority=pant?90:35;source.volume=0;
-        if(pant)pantVoice=source;else bodyVoice=source;return source;
+        if(pant){pantVoice=source;pantFilter=root.AddComponent<AudioLowPassFilter>();pantFilter.cutoffFrequency=3000;}else bodyVoice=source;return source;
     }
     void PlayBodyCue(string category,bool urgent=false)
     {
@@ -68,11 +70,13 @@ public sealed partial class LocalTerrainExplorer
             view.transform.localRotation*=Quaternion.Euler(Mathf.Sin(t*41)*shake,Mathf.Sin(t*37+1)*shake*.55f,Mathf.Sin(t*29)*shake*.35f);
             view.transform.localPosition+=Vector3.up*Mathf.Sin(t*43)*cold*.0015f;
         }
-        bool breath=moving&&(Vitals.Exertion?.Breath>.55||Vitals.Stamina<Math.Min(22,Vitals.Energy*.4))&&Vitals.BreathDebtSeconds<.1;
-        if(breath&&bodyClips.TryGetValue("pant",out var pants)&&pants.Count>0)
+        float breath=active&&!campSleeping&&Vitals.BreathDebtSeconds<.1?(float)BreathingFeedback.Intensity(Vitals.Exertion):0;
+        if(breath>.001f&&bodyClips.TryGetValue("pant",out var pants)&&pants.Count>0)
         {
             var source=BodyVoice(true);if(!source.isPlaying){bodySoundSequence=Rng.Mix(bodySoundSequence+1);source.clip=pants[(int)(bodySoundSequence%(uint)pants.Count)];source.loop=true;source.Play();}
-            source.volume=Mathf.MoveTowards(source.volume,.35f*ItemEffectVolume,Time.unscaledDeltaTime*.4f);
+            float target=.35f*ItemEffectVolume*breath;
+            source.volume=Mathf.Lerp(source.volume,target,1-Mathf.Exp(-Mathf.Min(.1f,Time.unscaledDeltaTime)/(target>source.volume?2.5f:4)));
+            source.pitch=Mathf.Lerp(.85f,1.05f,Mathf.Sqrt(breath));if(pantFilter!=null)pantFilter.cutoffFrequency=Mathf.Lerp(3000,12000,breath);
         }
         else if(pantVoice!=null){pantVoice.volume=Mathf.MoveTowards(pantVoice.volume,0,Time.unscaledDeltaTime*.4f);if(pantVoice.volume<.001f)pantVoice.Stop();}
         if(!active){if(bodyVoice!=null)bodyVoice.Stop();return;}
