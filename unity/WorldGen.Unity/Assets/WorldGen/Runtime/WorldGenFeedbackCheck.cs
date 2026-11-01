@@ -14,9 +14,10 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class TouchupIconPreview:MonoBehaviour
     {
-        public LocalTerrainExplorer Owner;public Possession[] Stones;
+        public LocalTerrainExplorer Owner;public Possession[] Stones;public int PaintedFrames;
         void OnGUI()
         {
+            if(Event.current.type==EventType.Repaint)PaintedFrames++;
             GUI.color=Color.black;GUI.DrawTexture(new Rect(0,0,Screen.width,Screen.height),Texture2D.whiteTexture);GUI.color=Color.white;
             string[] labels={"Ordinary stone","Flakeable stone","Too small to flake"};
             for(int i=0;i<Stones.Length;i++)
@@ -52,7 +53,9 @@ public sealed partial class LocalTerrainExplorer
         cube.SetActive(false);Check(!DrawnWingCaller(animal,"fly-wings"),"Inactive insect stops being an audible caller");
         Check(DrawnWingCaller(animal,"cricket"),"Offscreen cricket habitat callers remain allowed");
         var preview=new GameObject("Pickup icon preview").AddComponent<TouchupIconPreview>();preview.Owner=owner;preview.Stones=new[]{ordinary,core,spent};
-        yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"stone-pickup-icons.png"),image.EncodeToPNG());Destroy(image);
+        yield return null;yield return null;yield return new WaitForEndOfFrame();
+        Check(preview.PaintedFrames>0,"Actual pickup icons have painted before the screenshot");
+        var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"stone-pickup-icons.png"),image.EncodeToPNG());Destroy(image);
         File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Debug.Log("ITEM TOUCHUP PASS "+report.Count);Application.Quit(0);
     }
     public static IEnumerator CheckFeedbackShaders(string output)

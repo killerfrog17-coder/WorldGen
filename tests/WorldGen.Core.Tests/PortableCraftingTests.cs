@@ -13,6 +13,8 @@ static class PortableCraftingTests
         {
             var p=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,ground):null;
             if(p==null)p=new Possession{Id=Guid.NewGuid().ToString("N"),Kind=kind,Position=ground,WidthM=.04,HeightM=1.8,DepthM=.04,MassKg=.8,CellsWide=1,CellsHigh=18,WoodSoundness=1,WoodStraightness=1,EdgeSharpness=.9,Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0)};
+            // Raw stones need stone dimensions, not the branch-shaped fallback.
+            if(StoneCrafting.Rock(p)){p.WidthM=.14;p.HeightM=.1;p.DepthM=.12;p.CellsWide=2;p.CellsHigh=1;}
             return p;
         }
         PlayerInventory Fixture(PortableRecipe recipe)
