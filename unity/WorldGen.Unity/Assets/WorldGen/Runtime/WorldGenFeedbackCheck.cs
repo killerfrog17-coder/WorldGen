@@ -12,6 +12,49 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
+    sealed class TouchupIconPreview:MonoBehaviour
+    {
+        public LocalTerrainExplorer Owner;public Possession[] Stones;
+        void OnGUI()
+        {
+            GUI.color=Color.black;GUI.DrawTexture(new Rect(0,0,Screen.width,Screen.height),Texture2D.whiteTexture);GUI.color=Color.white;
+            string[] labels={"Ordinary stone","Flakeable stone","Too small to flake"};
+            for(int i=0;i<Stones.Length;i++)
+            {
+                GUI.Label(new Rect(35+i*240,30,220,30),labels[i]);
+                Owner.DrawPickupCategory(new Rect(65+i*240,85,100,100),Stones[i]);
+                Owner.DrawPickupCategory(new Rect(100+i*240,220,34,34),Stones[i]);
+            }
+        }
+    }
+    public static IEnumerator CheckItemTouchups(string output)
+    {
+        Directory.CreateDirectory(output);var report=new List<string>();
+        Application.logMessageReceived+=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};
+        void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("ITEM TOUCHUP "+text);report.Add("PASS "+text);}
+        yield return null;Application.targetFrameRate=30;QualitySettings.vSyncCount=0;
+        var owner=new GameObject("Item touchup fixture").AddComponent<LocalTerrainExplorer>();owner.enabled=false;
+        Possession Stone(string id,ToolStoneMaterial material,double mass)=>new Possession{Id=id,Kind=PossessionKind.LargeRock,MassKg=mass,WidthM=.18,HeightM=.13,DepthM=.15,Position=new V(1,0,0),Variant=ToolStone.Encode(material,0)};
+        var ordinary=Stone("granite",ToolStoneMaterial.Granite,3);var core=Stone("chert",ToolStoneMaterial.Chert,3);var spent=Stone("spent",ToolStoneMaterial.Chert,.03);
+        Check(ordinary.Hands==1&&core.Hands==1,"Compact3kg stones use one hand in the native player");
+        var inventory=new PlayerInventory();inventory.Items.Add(core);inventory.Items.Add(ordinary);
+        Check(inventory.Hold(core.Id,out _)&&inventory.Hold(ordinary.Id,out _)&&inventory.AtHand(PossessionPlace.LeftHand)==ordinary,"Actual inventory can carry a3kg stone in each hand");inventory.Validate();
+        Check(StoneCrafting.WorkpieceReason(core)==""&&StoneCrafting.WorkpieceReason(ordinary)!=""&&StoneCrafting.WorkpieceReason(spent)!="","Pickup distinction matches real flaking eligibility including depleted pieces");
+        Check(Resources.Load<Texture2D>("PickupCategoryMasksV1")!=null,"Original white pickup atlas is packaged");
+        Check(!FaunaAmbience.Banks.Any(WildlifeVocalisation.RequiresVisibleCaller),"Habitat ambience contains no fly/bee buzz sources");
+        var cube=GameObject.CreatePrimitive(PrimitiveType.Cube);cube.layer=29;cube.transform.position=new Vector3(10000,10000,10000);cube.transform.localScale=Vector3.one*.1f;
+        var camera=new GameObject("Insect visibility fixture",typeof(Camera),typeof(UniversalAdditionalCameraData)).GetComponent<Camera>();camera.cullingMask=1<<29;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.black;camera.farClipPlane=10;camera.transform.position=cube.transform.position+Vector3.back*2;camera.transform.LookAt(cube.transform);
+        var animal=new Animal{Root=cube,Renderer=cube.GetComponent<MeshRenderer>(),Props=new MaterialPropertyBlock(),Fade=1};animal.Props.SetFloat("_Fade",1);
+        yield return null;camera.Render();
+        Check(DrawnWingCaller(animal,"fly-wings"),"A fully drawn actual insect can emit its local wing sound");
+        animal.Fade=.2f;Check(!DrawnWingCaller(animal,"fly-wings"),"A faded placeholder insect cannot buzz");animal.Fade=1;
+        animal.Renderer.enabled=false;Check(!DrawnWingCaller(animal,"bee-wings"),"An invisible insect cannot buzz");animal.Renderer.enabled=true;
+        cube.SetActive(false);Check(!DrawnWingCaller(animal,"fly-wings"),"Inactive insect stops being an audible caller");
+        Check(DrawnWingCaller(animal,"cricket"),"Offscreen cricket habitat callers remain allowed");
+        var preview=new GameObject("Pickup icon preview").AddComponent<TouchupIconPreview>();preview.Owner=owner;preview.Stones=new[]{ordinary,core,spent};
+        yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"stone-pickup-icons.png"),image.EncodeToPNG());Destroy(image);
+        File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Debug.Log("ITEM TOUCHUP PASS "+report.Count);Application.Quit(0);
+    }
     public static IEnumerator CheckFeedbackShaders(string output)
     {
         Directory.CreateDirectory(output);var report=new List<string>();

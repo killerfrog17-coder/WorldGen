@@ -29,6 +29,10 @@ static class WildlifeSoundTests
         foreach(string model in new[]{"sea-lion","spider-monkey","human","fireflies-derived-lineage","small-native-freshwater-fish-guild"})
             Check(WildlifeVocalisation.Bank(model)==null,"Unrelated/silent models do not match animal-name substrings");
         Check(WildlifeVocalisation.FlightNoise("bee-wings")&&!WildlifeVocalisation.FlightNoise("fireflies-derived-lineage"),"Wing sounds apply only to supported audible insects");
+        Check(WildlifeVocalisation.RequiresVisibleCaller("fly-wings")&&WildlifeVocalisation.RequiresVisibleCaller("bee-wings"),"Nearby insect buzzing requires a drawn actor");
+        Check(!FaunaAmbience.Banks.Any(WildlifeVocalisation.RequiresVisibleCaller),"Fixed habitat ambience contains no fly or bee wing banks");
+        Check(!WildlifeVocalisation.RequiresVisibleCaller("cricket")&&!WildlifeVocalisation.RequiresVisibleCaller("frog"),"Crickets and frogs retain stationary offscreen calling");
+        Check(WildlifeAcoustics.Gain(1,WildlifeAcoustics.Reference("fly-wings","flight"),WildlifeAcoustics.Range("fly-wings","flight"))==0,"Fly buzzing cannot follow a listener from beyond arm's reach");
         var p=new FaunaVoiceProfile{Kind=FaunaSoundKind.Cicada,Activity=new InsectActivityTraits{StartSolarHour=8,DurationHours=10,MinTemperatureC=10,PreferredTemperatureC=25,MaxTemperatureC=40,RainSuppressionMmPerHour=2,WindSuppressionMps=7,SeasonCue=InsectSeasonCue.WarmMoistOpportunities}};
         double Gain(double hour,double temp,double rain=0,double wind=0)=>FaunaAmbience.ActivityGain(p,hour,.5,40,temp,.7,rain,wind);
         Check(Gain(12,26)>.9&&Gain(0,26)==0,"Diurnal cicadas are active in warm daylight and quiet at midnight");

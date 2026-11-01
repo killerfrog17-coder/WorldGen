@@ -27,6 +27,7 @@ namespace WorldGen.Core
         // Canonical exported model ID, never a translated/display species name.
         public static string Bank(string model)=>model!=null&&banks.TryGetValue(model,out string bank)?bank:null;
         public static bool FlightNoise(string bank)=>bank=="bee-wings"||bank=="fly-wings"||bank=="hummingbird-wings";
+        public static bool RequiresVisibleCaller(string bank)=>bank=="bee-wings"||bank=="fly-wings";
         public static double ReferenceMass(string bank)=>bank=="deer"?90:bank=="moose"?400:bank=="wolf"?40:bank=="fox"?6:bank=="bear"?200:bank=="boar"?80:bank=="bovid"?500:bank=="goat"||bank=="sheep"?45:bank=="horse"?350:bank=="big-cat"?60:bank=="lion"?170:1;
         public static double CalmGap(string bank)=>bank=="owl"?65:bank=="wolf"?95:bank=="deer"||bank=="moose"?90:bank=="rabbit"?300:bank=="howler"?90:bank=="bee-wings"||bank=="fly-wings"?1:24;
     }

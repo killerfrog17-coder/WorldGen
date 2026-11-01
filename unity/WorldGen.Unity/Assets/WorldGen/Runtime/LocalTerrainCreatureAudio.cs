@@ -28,6 +28,8 @@ public sealed partial class LocalTerrainExplorer
     bool ModeledCallerNear(string bank,Vector3 point,float distance)
     {if(!modeledCallers.TryGetValue(bank,out var list))return false;foreach(var position in list)if((point-position).sqrMagnitude<distance*distance)return true;return false;}
     static bool FlightBuzzing(Animal animal)=>!animal.Dead&&!animal.Perched&&animal.Clip?.role=="fly";
+    static bool DrawnWingCaller(Animal animal,string bank)=>!WildlifeVocalisation.RequiresVisibleCaller(bank)||
+        (animal.Root.activeInHierarchy&&animal.Renderer.enabled&&animal.Renderer.isVisible&&animal.Fade>.9f&&animal.Props.GetFloat("_Fade")>.9f);
     CreatureVoiceState AnimalVoice(Animal animal)
     {
         if(creatureVoiceStates.TryGetValue(animal.Spawn.Id,out var state))return state;
@@ -70,7 +72,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 else if(state.Bank=="rabbit")continue;
                 else if(animal.Speed>animal.Spawn.Profile.walkMps*1.2)continue;
-                if(flight){if(WildlifeAcoustics.DayActivity(creatureSolarAltitude,false)<.02||distance>WildlifeAcoustics.Range(state.Bank,"flight")||!FlightBuzzing(animal))continue;cue="flight";}
+                if(flight){if(WildlifeAcoustics.DayActivity(creatureSolarAltitude,false)<.02||distance>WildlifeAcoustics.Range(state.Bank,"flight")||!FlightBuzzing(animal)||!DrawnWingCaller(animal,state.Bank))continue;cue="flight";}
                 if((state.Bank=="deer"||state.Bank=="moose")&&(animal.Spawn.Hash&1)==0&&WildlifeBehaviour.Rut(skyYear,Math.Asin(animal.Planet.Z)*180/Math.PI))cue="rut";
                 if(state.Bank=="wolf"&&night&&animal.Spawn.GroupSize>1&&animal.Speed<.1f)cue="howl";
                 string bank=state.Bank;
@@ -98,7 +100,7 @@ public sealed partial class LocalTerrainExplorer
             Vector3 point=animal.Renderer.bounds.center;voice.Source.transform.position=point;
             float distance=Vector3.Distance(point,view.transform.position);float target=options.CreatureVolume*voice.Level*(float)WildlifeAcoustics.Gain(distance,voice.Reference,voice.Range);
             if(voice.ActivityScaled)target*=(float)WildlifeAcoustics.DayActivity(creatureSolarAltitude,voice.Nocturnal);
-            if(voice.Flight&&!FlightBuzzing(animal))target=0;
+            if(voice.Flight&&(!FlightBuzzing(animal)||!DrawnWingCaller(animal,AnimalVoice(animal).Bank)))target=0;
             voice.Source.volume=Mathf.MoveTowards(voice.Source.volume,target,Time.unscaledDeltaTime*3);
             if(target==0&&voice.Source.volume<=.001f){voice.Source.Stop();voice.Source.clip=null;voice.Actor=null;voice.Pending=null;}
             voice.Filter.cutoffFrequency=Mathf.Lerp(18000,5000,Mathf.Clamp01(distance/200));
@@ -116,6 +118,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool QueueAnimalVoice(Animal animal,string bank,string cue,int priority,bool flight)
     {
+        if(!DrawnWingCaller(animal,bank))return false;
         double range=WildlifeAcoustics.Range(bank,cue),reference=WildlifeAcoustics.Reference(bank,cue);
         double distance=Vector3.Distance(animal.Renderer.bounds.center,view.transform.position);
         if(WildlifeAcoustics.Gain(distance,reference,range)<.001)return false;

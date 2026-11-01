@@ -200,6 +200,7 @@ public sealed partial class LocalTerrainExplorer
     void ScheduleFauna(FaunaVoice v,double dsp)
     {
         var site=v.Site;if(v.Next>dsp+.3&&!site.AlarmPending)return;string bank=FaunaAmbience.Banks[(int)site.Anchor.Kind],cue=site.AlarmPending?"alert":"ambient";
+        if(WildlifeVocalisation.RequiresVisibleCaller(bank))return; // No disembodied fly/bee ambience.
         uint species=Rng.Mix((uint)site.Profile.RegionId^(uint)site.Profile.NativeTaxonId*7919u^(uint)sourceWorld.Recipe.Seed);
         // Existing broad calling guilds can contain several coexisting voices.
         // Each world-addressed individual retains its own form across takes.

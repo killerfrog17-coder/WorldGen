@@ -9,8 +9,8 @@ namespace WorldGen.Core
         public static double AmbientRange(FaunaSoundKind kind)=>kind==FaunaSoundKind.Cricket||kind==FaunaSoundKind.Katydid?45:kind==FaunaSoundKind.Cicada?90:kind==FaunaSoundKind.Frog?65:kind==FaunaSoundKind.Owl?180:120;
         public static double AmbientReference(FaunaSoundKind kind)=>kind==FaunaSoundKind.Cricket||kind==FaunaSoundKind.Katydid?1.5:kind==FaunaSoundKind.Cicada?3:3;
         public static double AmbientLevel(FaunaSoundKind kind)=>kind==FaunaSoundKind.Cicada?.42:kind==FaunaSoundKind.Cricket||kind==FaunaSoundKind.Katydid?.5:.65;
-        public static double Range(string bank,string cue)=>bank=="bee-wings"?3.5:bank=="fly-wings"?1.8:bank=="hummingbird-wings"?6:cue=="howl"?350:cue=="ambient"?120:cue=="contact"?65:150;
-        public static double Reference(string bank,string cue)=>bank=="bee-wings"?.14:bank=="fly-wings"?.09:bank=="hummingbird-wings"?.35:cue=="howl"?7:cue=="contact"?1.5:3;
+        public static double Range(string bank,string cue)=>bank=="bee-wings"?1.5:bank=="fly-wings"?.9:bank=="hummingbird-wings"?6:cue=="howl"?350:cue=="ambient"?120:cue=="contact"?65:150;
+        public static double Reference(string bank,string cue)=>bank=="bee-wings"?.06:bank=="fly-wings"?.035:bank=="hummingbird-wings"?.35:cue=="howl"?7:cue=="contact"?1.5:3;
         public static double Gain(double distance,double reference,double range)
         {
             if(distance>=range||range<=0)return 0;

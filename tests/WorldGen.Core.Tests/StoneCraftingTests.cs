@@ -17,6 +17,7 @@ static class StoneCraftingTests
         Check(StoneCrafting.PairReason(state.Find("work"),state.Find("work"))!="","Cannot strike a stone with itself");
         Check(StoneCrafting.WorkpieceReason(state.Find("tool"))!="","Coarse granite does not become a cutting flake recipe");
         var thin=Rock("thin",0,.5);thin.HeightM=.01;Check(!StoneCrafting.StrikingStone(thin),"Thin shape is unsuitable for striking");
+        var carryable=Rock("heavy-striker",0,3);carryable.Kind=PossessionKind.LargeRock;Check(carryable.Hands==1&&!StoneCrafting.StrikingStone(carryable),"Being carryable in one hand does not make an excessively heavy flaking hammer suitable");
         var large=Rock("large",0,3);large.Kind=PossessionKind.LargeRock;Check(!StoneCrafting.StrikingStone(large),"Two-handed stone cannot be the handheld striker");
         var job=StoneCrafting.Start(state,"work","tool",out var reason);
         Check(job!=null&&reason==""&&state.Items.Count==2,"Starting work does not consume or convert input stones");

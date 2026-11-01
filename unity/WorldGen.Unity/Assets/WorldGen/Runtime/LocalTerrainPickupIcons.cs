@@ -25,6 +25,15 @@ public sealed partial class LocalTerrainExplorer
     {
         if(Foraging.Food(item)){var icon=PortableIcon(item);if(icon!=null)GUI.DrawTexture(rect,icon,ScaleMode.ScaleToFit,true);return;}
         if(pickupCategoryAtlas==null)pickupCategoryAtlas=Resources.Load<Texture2D>("PickupCategoryMasksV1");if(pickupCategoryAtlas==null)return;
-        int category=PickupCategory(item);GUI.DrawTextureWithTexCoords(rect,pickupCategoryAtlas,new Rect((category%4)*.25f,(2-category/4)/3f,.25f,1/3f),true);
+        void Mask(Rect at,int category)=>GUI.DrawTextureWithTexCoords(at,pickupCategoryAtlas,new Rect((category%4)*.25f,(2-category/4)/3f,.25f,1/3f),true);
+        if(StoneCrafting.Rock(item)&&StoneCrafting.WorkpieceReason(item).Length==0)
+        {
+            // Same white category artwork: a smaller core and a detached cutting
+            // flake. Qualification follows the actual workpiece, not random shape
+            // or whether the player happens to carry a striking stone right now.
+            Mask(new Rect(rect.x,rect.y,rect.width*.77f,rect.height*.9f),0);
+            Mask(new Rect(rect.x+rect.width*.62f,rect.y+rect.height*.43f,rect.width*.4f,rect.height*.58f),2);
+        }
+        else Mask(rect,PickupCategory(item));
     }
 }

@@ -20,6 +20,15 @@ namespace WorldGen.Core
     public static class StoneCrafting
     {
         public static bool Rock(Possession p)=>p!=null&&(p.Kind==PossessionKind.SmallRock||p.Kind==PossessionKind.LargeRock);
+        // Carrying thresholds, not a strength limit or a material/name category.
+        // A compact 3kg cobble can share the hands with another item; bulky slabs
+        // and heavy stones need support even when their saved label says small.
+        public static int CarryHands(Possession p)
+        {
+            double longest=Math.Max(p.WidthM,Math.Max(p.HeightM,p.DepthM));
+            double middle=Math.Max(Math.Min(p.WidthM,p.HeightM),Math.Min(Math.Max(p.WidthM,p.HeightM),p.DepthM));
+            return p.MassKg>=8||middle>.24||longest>.55?2:1;
+        }
         public static double FractureQuality(Possession p)=>Rock(p)?ToolStone.Quality(p.Variant):0;
         public static string Material(Possession p)=>ToolStone.Name(p.Variant);
         public static string WorkpieceReason(Possession p)
@@ -30,7 +39,7 @@ namespace WorldGen.Core
             if(p.MassKg>10||p.WidthM>.45)return "This piece is too large for this hand-flaking method.";
             return "";
         }
-        public static bool StrikingStone(Possession p)=>Rock(p)&&p.Hands==1&&p.MassKg>=.06&&p.WidthM>=.035&&p.WidthM<=.22&&p.HeightM/p.WidthM>=.22&&(ToolStone.Family(p.Variant)!=RockFamily.Mudstone);
+        public static bool StrikingStone(Possession p)=>Rock(p)&&p.Hands==1&&p.MassKg>=.06&&p.MassKg<=2&&p.WidthM>=.035&&p.WidthM<=.22&&p.HeightM/p.WidthM>=.22&&(ToolStone.Family(p.Variant)!=RockFamily.Mudstone);
         public static string PairReason(Possession workpiece,Possession tool)
         {
             var reason=WorkpieceReason(workpiece);if(reason.Length>0)return reason;

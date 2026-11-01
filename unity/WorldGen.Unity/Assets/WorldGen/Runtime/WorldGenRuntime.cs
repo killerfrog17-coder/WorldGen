@@ -54,6 +54,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Start()
     {
         Application.runInBackground = true;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-item-touchup-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckItemTouchups(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-human-appearance-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckHumanAppearance(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-feedback-shader-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckFeedbackShaders(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-terrain-boundary-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckTerrainBoundaries(Argument("--worldgen-output","")));return;}

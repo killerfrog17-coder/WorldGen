@@ -24,6 +24,15 @@ static class PlayerInventoryTests
         s.SwapHands();Check(s.AtHand(PossessionPlace.RightHand)?.Id=="large"&&s.AtHand(PossessionPlace.LeftHand)?.Id=="large","Two-hand item remains reserved during swap");
         Check(!s.Hold("a",out _),"Both-hand hold excludes another one-hand item");
         Check(s.Stow("large",out _),"Large item fits an appropriate bag");s.Validate();
+        var cobbles=new PlayerInventory();var cobble=Rock("compact",true);cobble.MassKg=3;cobble.WidthM=.18;cobble.HeightM=.13;cobble.DepthM=.15;cobbles.Items.Add(cobble);cobbles.Items.Add(Rock("other"));
+        Check(cobble.Hands==1&&cobbles.Hold("compact",out _)&&cobbles.Hold("other",out _),"A compact3kg large-labelled stone shares the hands with another item");
+        cobbles.SwapHands();Check(cobbles.AtHand(PossessionPlace.LeftHand)==cobble&&cobbles.AtHand(PossessionPlace.RightHand)?.Id=="other","One-hand stone swaps between actual hands");
+        var savedCobbles=WorldJson.Read<PlayerInventory>(WorldJson.Write(cobbles));savedCobbles.Validate();Check(savedCobbles.Find("compact").Hands==1,"Saved stone carrying derives from physical properties without a save migration");
+        var slab=Rock("slab");slab.WidthM=.4;slab.HeightM=.05;slab.DepthM=.3;slab.MassKg=3;
+        Check(slab.Hands==2,"Broad slab needs support despite a small-rock label and modest mass");
+        slab.WidthM=.3;slab.HeightM=.4;slab.DepthM=.05;Check(slab.Hands==2,"Rotating stone dimensions does not change hand requirements");
+        var heavy=Rock("heavy");heavy.MassKg=8;Check(heavy.Hands==2,"A heavy compact stone still reserves both hands");
+        var longStone=Rock("long-stone");longStone.WidthM=.6;longStone.MassKg=3;Check(longStone.Hands==2,"Unwieldy length requires support independently of mass");
         var a=s.Find("a");int oldX=a.X,oldY=a.Y;
         var big=s.Find("large");Check(!s.Move("a",PossessionPlace.Container,s.Bag.Id,big.X,big.Y,false,out _)&&a.X==oldX&&a.Y==oldY,"Overlapping transfer preserves prior placement");
         Check(!s.Move("a",PossessionPlace.Container,s.Bag.Id,6,0,false,out _),"Reject outside container");
