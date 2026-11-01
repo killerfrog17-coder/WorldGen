@@ -1,0 +1,85 @@
+{
+  "recorded_utc": "2026-11-01T09:01:00.181787+00:00",
+  "source_checkpoint": "9f309e9c4cbc702e68f3a71e09c9d8fdd603c7de",
+  "selected_slot": "builds/slot-a",
+  "build": {
+    "BuiltUtc": "2026-11-01T06:41:04.5110214Z",
+    "Backend": "IL2CPP",
+    "Development": false,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "849a9ad70b0a74ca91b4b9e6a90970eb20a58101248b9c0bb6dca9c6876eedcf"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "06c366fdd2a52900b63153f9bbac73fce8212988fa77e00e134d965192b0ac36"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "192dc2694946a54f32451cbabd940e8d2b697e863a665af4df31c01c0a3979e3"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ]
+  },
+  "gameassembly_sha256": "b3ef8d5afe6d36373a02a1314877dcb2b47541d9ade8304620ca35406d3ddac9",
+  "native_checks": [
+    "PASS Compact3kg stones use one hand in the native player",
+    "PASS Actual inventory can carry a3kg stone in each hand",
+    "PASS Pickup distinction matches real flaking eligibility including depleted pieces",
+    "PASS Original white pickup atlas is packaged",
+    "PASS Habitat ambience contains no fly/bee buzz sources",
+    "PASS A fully drawn actual insect can emit its local wing sound",
+    "PASS A faded placeholder insect cannot buzz",
+    "PASS An invisible insect cannot buzz",
+    "PASS Inactive insect stops being an audible caller",
+    "PASS Offscreen cricket habitat callers remain allowed",
+    "PASS Actual pickup icons have painted before the screenshot"
+  ],
+  "native_exit_code": 0,
+  "core_checks": {
+    "inventory": 82,
+    "stone_crafting": 38,
+    "wildlife_sounds": 69,
+    "item_use": 77,
+    "portable_crafting": 784
+  },
+  "package_proof": {
+    "backend": "IL2CPP",
+    "BuiltUtc": "2026-11-01T06:41:04.5110214Z",
+    "frozen_inputs": 950,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 3254,
+    "native_character_banks": 6,
+    "clips_per_character": [
+      70,
+      70,
+      70,
+      70,
+      70,
+      70
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true
+  },
+  "rendered_icon_image": {
+    "path": "artifacts/item-touchups-20261101/native-final/stone-pickup-icons.png",
+    "sha256": "e18fb2c00266f5f6fa4395cd9630e59584953b9695eec3322de71297b60f1b7e",
+    "visually_inspected": true
+  },
+  "carrying_tuning": {
+    "two_hands_from_kg": 8,
+    "two_hands_if_middle_dimension_over_m": 0.24,
+    "two_hands_if_longest_dimension_over_m": 0.55,
+    "note": "Game carry/grip rules, not physiological strength limits. Large/small stone names do not reserve hands."
+  },
+  "scope": "Stone-and-detached-flake ground marker uses actual flaking rules; bee/fly wing audio requires a drawn nearby actor, at reduced range/gain. No new art or audio assets.",
+  "known_limitations": "Earlier cricket decoding failure is not fixed or claimed passing. Native touchup fixture tests sound admission, not recorded stereo output. First capture preceded GUI repaint and is excluded; final capture waits for a real repaint. Owner running slot-b left untouched."
+}

@@ -31,7 +31,25 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-LATEST: owner explicitly requested updating the actual launched game after the
+CURRENT1Nov ITEM TOUCHUPS SELECTED: normal root shortcut NOW builds/slot-a/
+WorldGen.exe, IL2CPP Release BuiltUtc2026-11-01T06:41:04.5110214Z, source9f309e9
+pushed. Compact3kg stones use one hand; two-hand support from8kg or middle
+span>.24m / longest>.55m, independent of saved small/large label. Flaking marker
+shows core + detached flake using the original white category atlas and actual
+WorkpieceReason. Bee/fly buzz requires an active enabled actually drawn/faded-in
+model; range1.5m/.9m, quieter inverse-distance level. No new source art/audio.
+1050 scoped Core checks PASS (82inventory/38stone/69sound/77use/784craft), native
+11PASS/exit0/clean error log. Actual icon screenshot inspected after GUI repaint;
+earlier10-check image was captured early and is NOT visual proof. Package proof
+950 frozen/3254 protected/30 Legacy files/all6x70 banks exact. Prior cricket
+native decode failure remains known; do not claim full audio regression passed.
+Manifest assets/verification/item-touchups-20261101.json. Owner slot-b process
+was left running; do not overwrite any selected OR running slot. Only two fixed
+slots, no player copies. All owned Unity/native jobs finished. Final manifest/
+shortcut note needs closing push; owner prompt deletion remains untouched.
+
+
+HISTORICAL31Oct: owner explicitly requested updating the actual launched game after the
 previous candidate-only delivery. The normal root shortcut NOW selects
 builds/slot-b/WorldGen.exe, native IL2CPP BuiltUtc2026-10-31T22:58:21.8587435Z,
 GameAssembly SHA3d50a5c7b4398cc0935bf561cd5884e0093184c475faef122b33e0f80e0306e4.
@@ -41,8 +59,7 @@ Six appearance skins/textures exported under
 assets-source/humans/appearance-runtime and rebound onto unchanged production
 rigs in new Resources/HumanAppearance. Stable original character IDs/legacy
 clip references retained; new library preferred with original library fallback.
-No original art/rig/motion overwritten. Slot-b is selected and must not be
-overwritten. At activation the owner still had slot-a process7748 open: leave
+No original art/rig/motion overwritten. Slot-b was selected for that release. At activation the owner still had slot-a process7748 open: leave
 it untouched and do not rebuild slot-a until it exits. unity-check now protects
 running slots as well as the selected slot. Editor images exist, but a fixture constructor
 warning means its55-check run is diagnostic, NOT clean native release proof.
