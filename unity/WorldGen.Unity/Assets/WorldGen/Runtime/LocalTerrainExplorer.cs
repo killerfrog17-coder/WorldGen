@@ -163,12 +163,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 MovementSeconds+=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
                 if(Mode==GameMode.Creative&&keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
                 bool alive=!SurvivalActive||!Vitals.Incapacitated;
-                survivalSprinting=!keyboard.ctrlKey.isPressed&&!keyboard.cKey.isPressed&&keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
+                survivalSprinting=!PlayerCrouching&&!keyboard.cKey.isPressed&&keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
                 bool jump=alive&&!motion.Flying&&!motion.Swimming&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=SurvivalRules.JumpStaminaCost);
                 if(SurvivalActive&&jump&&motion.Grounded)SurvivalRules.SpendStamina(Vitals,SurvivalRules.JumpStaminaCost);
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
                     alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed&&!keyboard.f3Key.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
-                    heading,pitch,survivalSprinting,jump,PlayerSolidGround,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:PlayerEffortSpeedScale(survivalSprinting,keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed)*Inventory.LoadSpeedScale*(PlayerCrouching?.55:1));
+                    heading,pitch,survivalSprinting,jump,PlayerSolidGround,walk:keyboard.cKey.isPressed||PlayerCrouching,speedScale:PlayerEffortSpeedScale(survivalSprinting,keyboard.cKey.isPressed||PlayerCrouching)*Inventory.LoadSpeedScale*(PlayerCrouching?.55:1));
                 double moveDt=Math.Max(.001,Math.Min(.25,Time.unscaledDeltaTime));
                 playerDeathVelocity=new Vector3((float)((motion.X-movementStartX)/moveDt),(float)(-Math.Max(-motion.VerticalSpeed,motion.LandingSpeedMps)),(float)((motion.Z-movementStartZ)/moveDt));
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);

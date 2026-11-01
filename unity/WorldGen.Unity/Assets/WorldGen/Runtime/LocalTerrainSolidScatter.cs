@@ -14,6 +14,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<Mesh,Mesh> scatterSolidMeshes=new Dictionary<Mesh,Mesh>();
     readonly List<ulong> retiredScatterSolids=new List<ulong>();
     CharacterController playerSolid;
+    bool playerForcedCrouch;
     Vector3 solidCacheCenter;
     int solidStamp,solidRevision=-1,solidCollected=-1;
     double solidOriginX=double.NaN,solidOriginZ,solidRefreshAt;
@@ -32,6 +33,10 @@ public sealed partial class LocalTerrainExplorer
             for(int layer=0;layer<32;layer++)Physics.IgnoreLayerCollision(PlayerSolidLayer,layer,layer!=ScatterSolidLayer);
             motion.SolidContact=ResolvePlayerSolidContact;
         }
+        bool requested=!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
+        playerForcedCrouch=!requested&&!motion.NoClip&&!motion.Flying&&!motion.Swimming&&Physics.CheckCapsule(transform.TransformPoint(PlayerFeet()+Vector3.up*1.36f),transform.TransformPoint(PlayerFeet()+Vector3.up*1.5f),.23f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
+        float bodyHeight=requested||playerForcedCrouch?1.35f:1.75f;
+        if(Mathf.Abs(playerSolid.height-bodyHeight)>.01f){playerSolid.height=bodyHeight;playerSolid.center=Vector3.up*(bodyHeight*.5f);}
         if(!motion.NoClip)RefreshPlayerSolids(PlayerFeet(),PlayerFeet());
     }
     Vector3 PlayerFeet()=>new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));

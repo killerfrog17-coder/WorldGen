@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
         IEnumerator Picture(CampObject c,string name)
         {
             campUpdateAt=0;UpdateCamp();yield return null;var origin=BlueprintOrigin(c);var prior=view.targetTexture;var active=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;
-            float size=(float)Math.Max(c.Blueprint.WidthM,c.Blueprint.DepthM);view.transform.localPosition=origin+new Vector3(size*1.2f,2.2f,-size*1.8f);view.transform.LookAt(transform.TransformPoint(origin+Vector3.up*.8f));view.Render();RenderTexture.active=target;
+            float size=(float)Math.Max(c.Blueprint.WidthM,c.Blueprint.DepthM);view.transform.localPosition=origin+new Vector3(size*1.2f,2.2f,(c.Blueprint.Design==CampDesign.BrushHut?1:-1)*size*1.8f);view.transform.LookAt(transform.TransformPoint(origin+Vector3.up*.8f));view.Render();RenderTexture.active=target;
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=active;view.targetTexture=prior;target.Release();Destroy(target);UpdateCamera();
         }
         try
@@ -80,6 +80,18 @@ public sealed partial class LocalTerrainExplorer
                 }
                 campUpdateAt=0;UpdateCamp();Physics.SyncTransforms();Check(campVisuals[c.Id].Root.GetComponent<MeshCollider>()?.sharedMesh.vertexCount>0,"Completed "+design+" has a solid fitted mesh collider");
                 yield return Picture(c,"complete-"+design);
+                if(design==CampDesign.BrushHut)
+                {
+                    var origin=BlueprintOrigin(c);float radius=(float)c.Blueprint.WidthM*.5f;double ax=origin.x+originX,az=origin.z+originZ+radius+.6;
+                    motion.Place(ax,az,Ground(ax,az));heading=180;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftCtrl));yield return null;PreparePlayerSolids();
+                    Check(playerSolid.height<1.4f,"Crouching reduces the actual movement collider for small shelter entrances");
+                    for(int step=0;step<150;step++){PreparePlayerSolids();motion.Move(1d/60,1,0,0,180,0,false,false,PlayerSolidGround,walk:true,speedScale:.55);}
+                    Check((PlayerFeet()-origin).sqrMagnitude<.8f*.8f,"The actual character motor can enter the small hut through its doorway");
+                    InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+                    var slab=new GameObject("Controlled low headroom",typeof(BoxCollider));slab.layer=ScatterSolidLayer;slab.transform.SetParent(transform,false);slab.transform.localPosition=PlayerFeet()+Vector3.up*1.6f;slab.GetComponent<BoxCollider>().size=new Vector3(1,.08f,1);Physics.SyncTransforms();PreparePlayerSolids();
+                    Check(playerForcedCrouch&&PlayerCrouching&&playerSolid.height<1.4f,"Low headroom prevents standing into the roof after releasing crouch");DestroyImmediate(slab);
+                    motion.Place(ax,az+2,Ground(ax,az+2));PreparePlayerSolids();Check(!playerForcedCrouch&&playerSolid.height>1.7f,"Standing height returns when the player leaves low headroom");
+                }
             }
             var shelter=made.First(c=>c.Blueprint.Design==CampDesign.LeanTo);Check(BlueprintProtectionAt(shelter.Position).Rain>.7,"The completed shelter contributes actual local weather protection");
             var store=made.First(c=>c.Blueprint.Design==CampDesign.MaterialStore);TerrainHandoff.Coordinates(frame,store.Position,out double sx,out double sz);motion.Place(sx,sz-1.5,Ground(sx,sz-1.5));UpdateHumans();

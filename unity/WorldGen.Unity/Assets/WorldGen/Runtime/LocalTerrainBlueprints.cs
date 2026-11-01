@@ -55,7 +55,7 @@ public sealed partial class LocalTerrainExplorer
     void BeginBlueprint(CampDesign design)
     {
         CancelBlueprintPlacement();CancelCampPlacement();CancelWorldToolWork();CancelBlueprintWork();CancelItemCharge();PauseItemCraft(ActiveItemCraft);
-        campPlansOpen=false;campMenu=null;SetInventoryOpen(false);blueprintPlacement=CampBlueprints.Create(design,design==CampDesign.Windbreak?2:2,2,blueprintCover,blueprintStore);blueprintYaw=heading;blueprintAnchored=false;CaptureMouse();UpdateBlueprintPlacement();
+        campPlansOpen=false;campMenu=null;SetInventoryOpen(false);blueprintPlacement=CampBlueprints.Create(design,2,2,blueprintCover,blueprintStore);blueprintYaw=heading+(design==CampDesign.BrushHut?180:0);blueprintAnchored=false;CaptureMouse();UpdateBlueprintPlacement();
     }
     bool BlueprintGround(out Vector3 point)
     {
@@ -88,7 +88,7 @@ public sealed partial class LocalTerrainExplorer
         }
         blueprintPoint.y=(float)CampFloor(blueprintPoint.x+originX,blueprintPoint.z+originZ);
         blueprintValid=BlueprintSite(p,blueprintPoint,blueprintYaw,out blueprintReason);
-        string key=p.Design+"/"+p.Cover+"/"+p.Store+"/"+p.WidthM+"/"+p.DepthM;
+        string key=p.Design+"/"+p.Cover+"/"+p.Store+"/"+p.WidthM+"/"+p.DepthM+"/"+string.Join(",",p.FloorHeights??Array.Empty<double>());
         if(key!=blueprintGhostKey||blueprintGhost==null)
         {
             DestroyBlueprintGhost();blueprintGhostKey=key;blueprintGhost=new GameObject("Camp blueprint preview");blueprintGhost.transform.SetParent(transform,false);blueprintGhost.layer=30;
@@ -100,20 +100,30 @@ public sealed partial class LocalTerrainExplorer
     }
     bool BlueprintSite(CampBlueprint p,Vector3 center,float yaw,out string reason)
     {
-        reason="";var rot=Quaternion.Euler(0,yaw,0);float low=float.MaxValue,high=float.MinValue;
+        reason="";var rot=Quaternion.Euler(0,yaw,0);float low=float.MaxValue,high=float.MinValue;p.FloorHeights=new double[9];int footing=0;
         foreach(float x in new[]{-.5f,0,.5f})foreach(float z in new[]{-.5f,0,.5f})
         {
-            if(p.Design==CampDesign.BrushHut&&x!=0&&z!=0)continue;
             var v=center+rot*new Vector3(x*(float)p.WidthM,0,z*(float)p.DepthM);var sample=walkingPatch.Sample(frame.Position(v.x+originX,v.z+originZ));
-            var water=SampleMotionWater(v.x+originX,v.z+originZ);float ground=(float)CampFloor(v.x+originX,v.z+originZ);if(sample.Underwater||double.IsFinite(water.Surface)&&water.Surface>ground+.01){reason="The footprint must be above water.";return false;}low=Math.Min(low,ground);high=Math.Max(high,ground);
+            var water=SampleMotionWater(v.x+originX,v.z+originZ);float ground=(float)CampFloor(v.x+originX,v.z+originZ);if(sample.Underwater||double.IsFinite(water.Surface)&&water.Surface>ground+.01){reason="The footprint must be above water.";return false;}low=Math.Min(low,ground);high=Math.Max(high,ground);p.FloorHeights[footing++]=Math.Round((ground-center.y)*50)/50;
         }
-        if(high-low>.22){reason="Choose flatter ground or a smaller footprint.";return false;}
+        if(high-low>1){reason="Choose flatter ground or a smaller footprint.";return false;}
         float h=(float)CampBlueprints.Height(p);
         var colliders=Physics.OverlapBox(transform.TransformPoint(center+Vector3.up*(h*.5f+.1f)),new Vector3((float)p.WidthM*.5f,h*.5f,(float)p.DepthM*.5f),transform.rotation*rot,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
-        if(colliders.Length>0){reason="The frame would intersect a tree, rock or existing structure.";return false;}
+        foreach(var collider in colliders)
+        {
+            bool joined=Camp.Objects.Where(IsBlueprint).Any(c=>BlueprintWindJoin(p,center,yaw,c)&&campVisuals.TryGetValue(c.Id,out var visual)&&collider.transform.IsChildOf(visual.Root.transform));
+            if(!joined){reason="The frame would intersect a tree, rock or existing structure.";return false;}
+        }
         foreach(var c in Camp.Objects.Where(c=>c.Kind==CampKind.Blueprint))
-        {if((c.Position-Position).Length*frame.RadiusM>40)continue;var offset=Quaternion.Inverse(rot)*(BlueprintOrigin(c)-center);if(Math.Abs(offset.x)<(p.WidthM+c.Blueprint.WidthM)*.5&&Math.Abs(offset.z)<(p.DepthM+c.Blueprint.DepthM)*.5){reason="Leave room for the existing blueprint.";return false;}}
+        {if((c.Position-Position).Length*frame.RadiusM>40||CampBlueprints.Complete(c.Blueprint)||BlueprintWindJoin(p,center,yaw,c))continue;var offset=Quaternion.Inverse(rot)*(BlueprintOrigin(c)-center);if(Math.Abs(offset.x)<(p.WidthM+c.Blueprint.WidthM)*.5&&Math.Abs(offset.z)<(p.DepthM+c.Blueprint.DepthM)*.5){reason="Leave room for the existing blueprint.";return false;}}
         return true;
+    }
+    bool BlueprintWindJoin(CampBlueprint plan,Vector3 center,float yaw,CampObject other)
+    {
+        if(plan.Design!=CampDesign.Windbreak||other.Blueprint.Design!=CampDesign.Windbreak)return false;
+        var old=BlueprintOrigin(other);if(Vector3.Distance(center,old)<(plan.WidthM+other.Blueprint.WidthM)*.3)return false;
+        var axis=Quaternion.Euler(0,yaw,0)*Vector3.right*(float)plan.WidthM*.5f;var oldAxis=Quaternion.Euler(0,(float)other.Heading,0)*Vector3.right*(float)other.Blueprint.WidthM*.5f;
+        return new[]{Vector3.Distance(center+axis,old+oldAxis),Vector3.Distance(center+axis,old-oldAxis),Vector3.Distance(center-axis,old+oldAxis),Vector3.Distance(center-axis,old-oldAxis)}.Min()<.2f;
     }
     void BlueprintPlacementClick()
     {
@@ -193,10 +203,24 @@ public sealed partial class LocalTerrainExplorer
     {
         if(StoredAt(c).Length>0){InventoryFeedback("Empty the rack or store first.");return;}CancelBlueprintWork();var p=c.Blueprint;
         var last=CampBlueprints.Components(p).LastOrDefault(d=>CampBlueprints.State(p,d)!=null);if(last==null){RemoveCamp(c);return;}
-        var state=CampBlueprints.State(p,last);foreach(var item in state.Materials)DropBlueprintMaterial(c,item);p.Parts.Remove(state);p.Revision++;InvalidateCampVisual(c);inventoryNearbyAt=0;
+        var state=CampBlueprints.State(p,last);int index=0;foreach(var item in state.Materials)DropBlueprintMaterial(c,item,last,index++);p.Parts.Remove(state);p.Revision++;InvalidateCampVisual(c);inventoryNearbyAt=0;
     }
-    void DropBlueprintMaterial(CampObject c,Possession item)
-    {item.Place=PossessionPlace.Ground;item.CampOwner=null;item.ContainerId="";item.Position=c.Position;item.GroundOffsetM=.1;item.GroundMoving=true;item.InFlight=false;item.GroundVelocity=item.GroundSpin=new V();if(!Inventory.Items.Any(p=>p.Id==item.Id))Inventory.Items.Add(item);}
+    void DropBlueprintMaterial(CampObject c,Possession item,CampComponent component=null,int index=0)
+    {
+        var rotation=Quaternion.Euler(0,(float)c.Heading,0);var local=component==null?new Vector3((index%5-2)*.28f,.2f,(index/5)*.28f):PlanVector(component.Points.Aggregate(new V(),(a,b)=>a+b)/component.Points.Length);
+        bool wood=component!=null&&component.Kg==0;
+        if(wood)local=PlanVector(component.Points[0]);else local+=new Vector3((index%3-1)*.3f,.08f,(index/3)*.3f);
+        var point=BlueprintOrigin(c)+rotation*local;double x=point.x+originX,z=point.z+originZ;
+        item.Place=PossessionPlace.Ground;item.CampOwner=null;item.ContainerId="";item.Position=frame.Position(x,z);item.GroundOffsetM=Math.Max(.08,point.y-Ground(x,z));item.GroundMoving=true;item.InFlight=false;item.GroundVelocity=item.GroundSpin=new V();
+        var pose=wood?rotation*Quaternion.FromToRotation(Vector3.up,PlanVector(component.Points[component.Points.Length-1]-component.Points[0]).normalized):Quaternion.identity;item.GroundRotation=new V(pose.eulerAngles.x,pose.eulerAngles.y,pose.eulerAngles.z);
+        if(!Inventory.Items.Any(p=>p.Id==item.Id))Inventory.Items.Add(item);
+    }
+    void ReleaseBlueprintMaterials(CampObject c)
+    {
+        var definitions=CampBlueprints.Components(c.Blueprint).ToDictionary(p=>p.Key);
+        foreach(var part in c.Blueprint.Parts){int index=0;foreach(var item in part.Materials)DropBlueprintMaterial(c,item,definitions[part.Key],index++);}
+        int stock=0;foreach(var item in StoredAt(c))DropBlueprintMaterial(c,item,null,stock++);
+    }
     CampProtection BlueprintProtectionAt(V at)
     {
         TerrainHandoff.Coordinates(frame,at,out double x,out double z);double rain=0,wind=0,shade=0;

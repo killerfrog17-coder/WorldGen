@@ -124,7 +124,7 @@ public sealed partial class LocalTerrainExplorer
         }
         double dx=motion.X-humanLastX,dz=motion.Z-humanLastZ;humanLastX=motion.X;humanLastZ=motion.Z;
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
-        bool crouch=(Application.isFocused||testKeyboard!=null)&&!motion.Flying&&!motion.Swimming&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
+        bool crouch=(Application.isFocused||testKeyboard!=null)&&PlayerCrouching;
         if(!deathPresented){
         if(SharedHumanMotion&&(humanCamera.FirstPerson||SharedDeliberateAim||NaturalBow!=null&&sharedBowRaise>.02f))humanPlayer.TargetYaw=heading+NaturalBowYaw;
         else if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);

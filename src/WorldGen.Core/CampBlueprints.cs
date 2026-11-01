@@ -17,7 +17,8 @@ namespace WorldGen.Core
     {
         public int Version=1,Revision;public CampDesign Design;public CampCover Cover;public CampStore Store;
         public double WidthM=2,DepthM=2;public List<CampPartState> Parts=new List<CampPartState>();
-        public CampBlueprint Copy(){var p=(CampBlueprint)MemberwiseClone();p.Parts=Parts.Select(s=>s.Copy()).ToList();return p;}
+        [System.Runtime.Serialization.OptionalField] public double[] FloorHeights;
+        public CampBlueprint Copy(){var p=(CampBlueprint)MemberwiseClone();p.Parts=Parts.Select(s=>s.Copy()).ToList();p.FloorHeights=FloorHeights==null?null:(double[])FloorHeights.Clone();return p;}
     }
     public sealed class CampComponent
     {
@@ -39,16 +40,21 @@ namespace WorldGen.Core
             width=Math.Max(l.minW,Math.Min(l.maxW,Snap(width)));depth=Math.Max(l.minD,Math.Min(l.maxD,Snap(depth)));
             return new CampBlueprint{Design=d,WidthM=width,DepthM=d==CampDesign.BrushHut?width:depth,Cover=cover,Store=store};
         }
-        public static double Height(CampBlueprint p)=>p.Design==CampDesign.Windbreak?1.35:p.Design==CampDesign.DryingRack?1.15:p.Design==CampDesign.MaterialStore?.65:p.Design==CampDesign.BrushHut?Math.Min(2.2,p.WidthM*.65):Math.Min(2,p.DepthM*.5+.7);
+        public static double Height(CampBlueprint p)=>(p.Design==CampDesign.Windbreak?1.35:p.Design==CampDesign.DryingRack?1.15:p.Design==CampDesign.MaterialStore?.65:p.Design==CampDesign.BrushHut?Math.Max(1.6,Math.Min(2.2,p.WidthM*.65)):Math.Min(2,p.DepthM*.5+.7))+Math.Max(0,p.FloorHeights?.Max()??0);
+        public static double FloorAt(CampBlueprint p,double x,double z)
+        {
+            if(p.FloorHeights==null)return 0;double u=Math.Max(0,Math.Min(2,(x/p.WidthM+.5)*2)),v=Math.Max(0,Math.Min(2,(z/p.DepthM+.5)*2));int a=Math.Min(1,(int)u),b=Math.Min(1,(int)v);u-=a;v-=b;
+            var f=p.FloorHeights;return (f[a*3+b]*(1-u)+f[(a+1)*3+b]*u)*(1-v)+(f[a*3+b+1]*(1-u)+f[(a+1)*3+b+1]*u)*v;
+        }
         public static List<CampComponent> Components(CampBlueprint p)
         {
-            var list=new List<CampComponent>();double w=p.WidthM,d=p.DepthM,h=Height(p);int sequence=0;
+            var list=new List<CampComponent>();double w=p.WidthM,d=p.DepthM,h=Height(p),front=.35+Math.Max(0,p.FloorHeights?.Max()??0);int sequence=0;
             void Wood(CampPartKind kind,V[] points,double width,int stage=1)
             {
                 double length=0;for(int i=1;i<points.Length;i++)length+=(points[i]-points[i-1]).Length;
                 list.Add(new CampComponent{Key="p"+sequence++,Name=kind==CampPartKind.Post?"Support":kind==CampPartKind.Rib?"Roof rib":"Crosspiece",Kind=kind,Stage=stage,Points=points,LengthM=length+(kind==CampPartKind.Post?.12:0),WidthM=width,Kg=0,Seconds=kind==CampPartKind.Post?120:90});
             }
-            void Bar(V a,V b,double width=.025,CampPartKind kind=CampPartKind.Beam,int stage=1)=>Wood(kind,new[]{a,b},width,stage);
+            void Bar(V a,V b,double width=.025,CampPartKind kind=CampPartKind.Beam,int stage=1){if(kind==CampPartKind.Post)a=new V(a.X,FloorAt(p,a.X,a.Z)-.1,a.Z);Wood(kind,new[]{a,b},width,stage);}
             void Bind(V at)=>list.Add(new CampComponent{Key="p"+sequence++,Name="Lashing",Kind=CampPartKind.Binding,Stage=2,Points=new[]{at},Kg=.02,Seconds=90});
             void Panel(V a,V b,V c,V e)
             {
@@ -60,15 +66,17 @@ namespace WorldGen.Core
                 int n=(int)Math.Ceiling(w*2.5);if(n%2!=0)n++;
                 for(int i=0;i<n;i++)
                 {
-                    double a=i*Math.PI*2/n;var path=new V[7];
-                    for(int j=0;j<7;j++){double t=j/6d*Math.PI/2;path[j]=new V(Math.Sin(a)*w*.5*Math.Cos(t),h*Math.Sin(t),Math.Cos(a)*w*.5*Math.Cos(t));}
-                    Wood(CampPartKind.Rib,path,.018,0);Bind(path[5]);
-                    if(i!=0)
+                    double a=(i-1)*Math.PI*2/n;var path=new V[7];
+                    for(int j=0;j<7;j++){double t=j/6d*Math.PI/2;double x=Math.Sin(a)*w*.5*Math.Cos(t),z=Math.Cos(a)*w*.5*Math.Cos(t);path[j]=new V(x,h*Math.Sin(t)+FloorAt(p,x,z)*(1-Math.Sin(t)),z);}
+                    if(i!=1){Wood(CampPartKind.Rib,path,.018,0);Bind(path[5]);}
+                    // Two lower sectors form a usable doorway, with the roof
+                    // continuing overhead and no rib across the entrance.
                     {
-                        double b=(i+1)*Math.PI*2/n;
+                        double b=i*Math.PI*2/n;
                         for(int j=0;j<3;j++)
                         {
-                            V P(double angle,double t)=>new V(Math.Sin(angle)*w*.5*Math.Cos(t),h*Math.Sin(t),Math.Cos(angle)*w*.5*Math.Cos(t));
+                            if(i<2&&j<2)continue;
+                            V P(double angle,double t){double x=Math.Sin(angle)*w*.5*Math.Cos(t),z=Math.Cos(angle)*w*.5*Math.Cos(t);return new V(x,h*Math.Sin(t)+FloorAt(p,x,z)*(1-Math.Sin(t)),z);}
                             double lo=j*Math.PI/6,hi=(j+1)*Math.PI/6;
                             Panel(P(a,lo),P(b,lo),P(b,hi),P(a,hi));
                         }
@@ -81,13 +89,13 @@ namespace WorldGen.Core
                 int bays=(int)Math.Ceiling(w/1.7);
                 for(int i=0;i<=bays;i++)
                 {
-                    double x=-w*.5+w*i/bays;Bar(new V(x,-.1,-d*.5),new V(x,h,-d*.5),.035,CampPartKind.Post,0);Bar(new V(x,-.1,d*.5),new V(x,.35,d*.5),.025,CampPartKind.Post,0);
-                    Bind(new V(x,h,-d*.5));Bind(new V(x,.35,d*.5));
+                    double x=-w*.5+w*i/bays;Bar(new V(x,-.1,-d*.5),new V(x,h,-d*.5),.035,CampPartKind.Post,0);Bar(new V(x,-.1,d*.5),new V(x,front,d*.5),.025,CampPartKind.Post,0);
+                    Bind(new V(x,h,-d*.5));Bind(new V(x,front,d*.5));
                 }
                 for(int i=0;i<bays;i++)
-                {double a=-w*.5+w*i/bays,b=-w*.5+w*(i+1)/bays;Bar(new V(a,h,-d*.5),new V(b,h,-d*.5),.035);Bar(new V(a,.35,d*.5),new V(b,.35,d*.5));}
+                {double a=-w*.5+w*i/bays,b=-w*.5+w*(i+1)/bays;Bar(new V(a,h,-d*.5),new V(b,h,-d*.5),.035);Bar(new V(a,front,d*.5),new V(b,front,d*.5));}
                 int ribs=(int)Math.Ceiling(w/.45);
-                for(int i=0;i<=ribs;i++){double x=-w*.5+w*i/ribs;Bar(new V(x,h,-d*.5),new V(x,.35,d*.5),.018,CampPartKind.Rib);if(i<ribs){double b=-w*.5+w*(i+1)/ribs;Panel(new V(x,h,-d*.5),new V(b,h,-d*.5),new V(b,.35,d*.5),new V(x,.35,d*.5));}}
+                for(int i=0;i<=ribs;i++){double x=-w*.5+w*i/ribs;Bar(new V(x,h,-d*.5),new V(x,front,d*.5),.018,CampPartKind.Rib);if(i<ribs){double b=-w*.5+w*(i+1)/ribs;Panel(new V(x,h,-d*.5),new V(b,h,-d*.5),new V(b,front,d*.5),new V(x,front,d*.5));}}
             }
             else
             {
@@ -98,7 +106,7 @@ namespace WorldGen.Core
                 {
                     double a=-w*.5+w*i/bays,b=-w*.5+w*(i+1)/bays;
                     for(int side=0;side<(screen?1:2);side++){double z=screen?0:(side==0?-d*.5:d*.5);Bar(new V(a,h,z),new V(b,h,z));if(p.Design==CampDesign.MaterialStore)Bar(new V(a,.2,z),new V(b,.2,z));}
-                    if(screen)Panel(new V(a,0,0),new V(b,0,0),new V(b,h,0),new V(a,h,0));
+                    if(screen)Panel(new V(a,FloorAt(p,a,0),0),new V(b,FloorAt(p,b,0),0),new V(b,h,0),new V(a,h,0));
                 }
                 if(!screen)for(int i=0;i<=bays;i++){double x=-w*.5+w*i/bays;Bar(new V(x,h,-d*.5),new V(x,h,d*.5));}
             }
@@ -210,6 +218,7 @@ namespace WorldGen.Core
             var p=c.Blueprint;if(c.Kind!=CampKind.Blueprint){if(p!=null)throw new ArgumentException("Unexpected construction plan.");return;}
             if(p==null||p.Version!=1||!Enum.IsDefined(typeof(CampDesign),p.Design)||!Enum.IsDefined(typeof(CampCover),p.Cover)||!Enum.IsDefined(typeof(CampStore),p.Store)||p.Parts==null||p.Revision<0||c.Materials.Count>0||(c.CookingItems?.Count??0)>0)throw new ArgumentException("Invalid construction plan.");
             var l=Limits(p.Design);if(!double.IsFinite(p.WidthM)||!double.IsFinite(p.DepthM)||p.WidthM<l.minW||p.WidthM>l.maxW||p.DepthM<l.minD||p.DepthM>l.maxD||p.Design==CampDesign.BrushHut&&p.DepthM!=p.WidthM)throw new ArgumentException("Invalid construction dimensions.");
+            if(p.FloorHeights!=null&&(p.FloorHeights.Length!=9||p.FloorHeights.Any(f=>!double.IsFinite(f)||Math.Abs(f)>2)))throw new ArgumentException("Invalid construction footing survey.");
             var defs=Components(p).ToDictionary(d=>d.Key);var keys=new HashSet<string>();
             foreach(var s in p.Parts)
             {if(s==null||!keys.Add(s.Key)||!defs.TryGetValue(s.Key,out var d)||s.Materials==null||!double.IsFinite(s.WorkSeconds)||s.WorkSeconds<0||s.WorkSeconds>d.Seconds+.001||s.Materials.Any(i=>!Suitable(p,d,i))||d.Kg==0&&s.Materials.Count>1||d.Kg>0&&s.Materials.Sum(i=>i.MassKg)>d.Kg*(d.Kind==CampPartKind.Cover?2.5:1)+.001)throw new ArgumentException("Invalid construction contribution.");}

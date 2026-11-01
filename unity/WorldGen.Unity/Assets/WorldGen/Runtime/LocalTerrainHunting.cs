@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     double huntingCoverAt,huntingCover,huntingLight=1,huntingSpeed,huntingNoiseUntil,huntingNoiseStrength;
     Vector3 huntingNoisePoint;readonly RaycastHit[] huntingRayHits=new RaycastHit[16];
     bool huntingNoiseFromPlayer=true;
-    bool PlayerCrouching=>!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
+    bool PlayerCrouching=>!motion.Flying&&!motion.Swimming&&(ActiveKeyboard?.ctrlKey.isPressed==true||playerForcedCrouch);
     bool HuntingColumn(double x,double z,out GroundCoverProfile cover,out double ground,out double admission)
     {
         cover=default;ground=0;admission=0;

@@ -62,7 +62,11 @@ public sealed partial class LocalTerrainExplorer
     void CreateBlueprintVisual(CampObject c,GameObject root)
     {
         var plan=c.Blueprint;var mesh=LocalScatterMeshes.BuildBlueprint(plan,true);AddBlueprintMesh(root,mesh,PortableMaterial(),"Fitted camp components");
-        if(mesh.vertexCount>0){root.layer=ScatterSolidLayer;var collider=root.AddComponent<MeshCollider>();collider.sharedMesh=mesh;}
+        if(mesh.vertexCount>0)
+        {
+            root.layer=ScatterSolidLayer;var collision=Instantiate(mesh);collision.name="Camp blueprint two-sided collision";var triangles=mesh.triangles;var both=new int[triangles.Length*2];Array.Copy(triangles,both,triangles.Length);for(int i=0;i<triangles.Length;i+=3){both[triangles.Length+i]=triangles[i];both[triangles.Length+i+1]=triangles[i+2];both[triangles.Length+i+2]=triangles[i+1];}collision.triangles=both;
+            var cache=new GameObject("Camp collision mesh",typeof(MeshFilter));cache.transform.SetParent(root.transform,false);cache.GetComponent<MeshFilter>().sharedMesh=collision;var collider=root.AddComponent<MeshCollider>();collider.sharedMesh=collision;
+        }
         if(!CampBlueprints.Complete(plan))
         {
             if(blueprintGhostMaterial==null){blueprintGhostMaterial=new Material(Resources.Load<Shader>("WorldGenCampPlacement"));blueprintGhostMaterial.SetColor("_BaseColor",new Color(.7f,.85f,.9f,.13f));}
@@ -80,7 +84,10 @@ public sealed partial class LocalTerrainExplorer
             else
             {
                 float x=(float)((i*.61803398875)%1-.5)*w*.65f,z=(float)((i*.41421356237)%1-.5)*d*.65f;
-                float y=.08f+(i/8)*.045f;part.transform.localPosition=new Vector3(x,y,z);part.transform.localRotation=WoodCrafting.Wood(item)?Quaternion.Euler(90,90,0):Quaternion.Euler(i*17,i*137,0);
+                float y=.08f+(i/8)*.045f;
+                if(WoodCrafting.Wood(item))
+                {bool alongX=w>=d;var axis=alongX?Vector3.right:Vector3.forward;float length=(float)item.HeightM;if(alongX)x=(float)((i*.61803398875)%1-.5)*Math.Max(0,w-length);else z=(float)((i*.41421356237)%1-.5)*Math.Max(0,d-length);part.transform.localPosition=new Vector3(x,y,z)-axis*length*.5f;part.transform.localRotation=Quaternion.FromToRotation(Vector3.up,axis);}
+                else{part.transform.localPosition=new Vector3(x,y,z);part.transform.localRotation=Quaternion.Euler(i*17,i*137,0);}
             }
         }
     }
