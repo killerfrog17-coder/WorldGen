@@ -20,14 +20,21 @@ public sealed partial class LocalTerrainExplorer
     bool ReadyItemAudio(string category,out AudioClip[] clips)
     {
         if(itemEffectBanks.TryGetValue(category,out clips))return true;
-        QueueItemAudio(category);var requests=itemEffectLoads[category];
-        if(requests.Any(r=>!r.isDone))return false;
-        var found=requests.Select(r=>r.asset as AudioClip).Where(c=>c!=null).ToArray();
-        if(found.Any(c=>c.loadState==AudioDataLoadState.Loading))return false;
-        clips=found.Where(c=>c.loadState==AudioDataLoadState.Loaded).ToArray();itemEffectBanks[category]=clips;itemEffectLoads.Remove(category);return true;
+        QueueItemAudio(category);return false;
     }
     void UpdateItemAudioLoads()
-    {foreach(var category in itemEffectLoads.Keys.ToArray())ReadyItemAudio(category,out _);}
+    {
+        foreach(var category in itemEffectLoads.Keys.ToArray())
+        {
+            var requests=itemEffectLoads[category];if(requests.Any(r=>!r.isDone))continue;
+            var found=requests.Select(r=>r.asset as AudioClip).Where(c=>c!=null).ToArray();
+            // Compatibility fallback belongs to loading, never PlayItemEffect.
+            if(found.Length==0)found=(category=="stone-contact"?Resources.LoadAll<AudioClip>("Crafting/Stone"):Resources.LoadAll<AudioClip>("Items/Audio").Where(c=>c.name.StartsWith(category+"-",StringComparison.Ordinal)).ToArray());
+            foreach(var clip in found)if(clip.loadState==AudioDataLoadState.Unloaded)clip.LoadAudioData();
+            if(found.Any(c=>c.loadState==AudioDataLoadState.Loading||c.loadState==AudioDataLoadState.Unloaded))continue;
+            itemEffectBanks[category]=found.Where(c=>c.loadState==AudioDataLoadState.Loaded).OrderBy(c=>c.name).ToArray();itemEffectLoads.Remove(category);
+        }
+    }
     uint itemEffectChoice=281028;static float itemEffectVolume=-1;
     public static float ItemEffectVolume{get{if(itemEffectVolume<0)itemEffectVolume=PlayerPrefs.GetFloat("item-effects-volume",.7f);return itemEffectVolume;}set{itemEffectVolume=Mathf.Clamp01(value);PlayerPrefs.SetFloat("item-effects-volume",itemEffectVolume);}}
     public void PreviewItemEffect(string category,int take)=>PlayItemEffect(category,view.transform.position,.6f,true,take);

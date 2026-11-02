@@ -20,7 +20,9 @@ public sealed partial class LocalTerrainExplorer
         var timing=new List<string>();
         double audioDeadline=Time.unscaledTimeAsDouble+10;
         while(!ReadyItemAudio("weapon-swish",out _)&&Time.unscaledTimeAsDouble<audioDeadline)yield return null;
-        Check(ReadyItemAudio("weapon-swish",out var swishes)&&swishes.Length==3,"All original throw sounds are decoded before the first action");
+        bool audioReady=ReadyItemAudio("weapon-swish",out var swishes);
+        File.WriteAllText(Path.Combine(output,"audio-readiness.txt"),"ready="+audioReady+"; count="+(swishes?.Length??-1)+"; pending="+string.Join(",",itemEffectLoads.Keys)+"; bank="+string.Join(",",(swishes??Array.Empty<AudioClip>()).Select(c=>c.name+":"+c.loadState)));
+        Check(audioReady&&swishes.Length==3,"All original throw sounds are decoded before the first action");
         recordThrowTiming=true;
         // Compare the former eager fallback with identical resident heights.
         var watch=Stopwatch.StartNew();var expected=new double[81];
