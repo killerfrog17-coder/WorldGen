@@ -47,21 +47,21 @@ namespace WorldGen.Core
         }
         void SetForagerRates(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
         {
+            bool legacyConcave=f.Version=="foragers-2";
             foreach(var group in f.Cohorts.Where(c=>c.Population>0).GroupBy(c=>c.District))
             {
                 if((group.Key&127)==0)token.ThrowIfCancellationRequested();var d=f.Districts[group.Key];var e=environment[group.Key];var resources=f.Resources[group.Key];var people=group.ToArray();
                 var lives=people.Select(c=>ForagerEcology.Livelihood(d,e,f.Lineages[c.Lineage],c,f.Cultures[c.Culture],resources)).ToArray();
                 var demand=new double[5];double total=people.Sum(c=>c.Population);
-                // Additional bands do not monopolise every shared resource in
-                // proportion to headcount. Spatially separate home ranges and
-                // reciprocal access give diminishing additional claims. All
-                // allocations still sum to one resource budget.
-                for(int i=0;i<people.Length;i++)for(int k=0;k<5;k++)demand[k]+=ForagerEcology.ResourceClaim(people[i].Population,lives[i].Diet[k]);
+                // Dietary/resource niches and actual toolkit returns determine
+                // competition. A database split is not extra habitat or food.
+                // Legacy2 keeps its concave rule for faithful saved replay.
+                for(int i=0;i<people.Length;i++)for(int k=0;k<5;k++)demand[k]+=ForagerEcology.ResourceClaim(people[i].Population,lives[i].Diet[k],legacyConcave);
                 var districtDiet=new double[5];
                 for(int i=0;i<people.Length;i++)
                 {
                     var c=people[i];double allocated=0;
-                    for(int k=0;k<5;k++){double share=demand[k]>0?ForagerEcology.ResourceClaim(c.Population,lives[i].Diet[k])/demand[k]:0;allocated+=lives[i].Capacity*lives[i].Diet[k]*share;districtDiet[k]+=c.Population/total*lives[i].Diet[k];}
+                    for(int k=0;k<5;k++){double share=demand[k]>0?ForagerEcology.ResourceClaim(c.Population,lives[i].Diet[k],legacyConcave)/demand[k]:0;allocated+=lives[i].Capacity*lives[i].Diet[k]*share;districtDiet[k]+=c.Population/total*lives[i].Diet[k];}
                     ForagerDemography.Rates(c,lives[i],e,f.Cultures[c.Culture],allocated);
                     double speed=ForagerPassages.FrontierKmPerYear(c,f.Cultures[c.Culture],d,e);c.FrontierKm=Math.Min(d.RadiusKm*1.5,c.FrontierKm+speed*elapsed);
                     c.Occupation=D.Q(D.Clamp(c.Population/Math.Max(30,lives[i].Capacity),.005,1),1000000);

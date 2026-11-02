@@ -10,7 +10,7 @@ namespace WorldGen.Core
     // records remain unchanged for old-save replay, never silently reinterpreted.
     [Serializable] public sealed class ForagerState
     {
-        public string Version="foragers-2";
+        public string Version="foragers-3";
         public double InitialPopulation;
         public long Seconds,BoundarySeconds,NextReviewSeconds;
         public int NextCohort,NextCulture,NextLanguage,NextBelief,NextFamily,NextPeople;

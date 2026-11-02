@@ -17,7 +17,13 @@ namespace WorldGen.Core
     }
     public static class ForagerEcology
     {
-        public static double ResourceClaim(double population,double dietShare)=>Math.Pow(Math.Max(0,population)*Math.Max(0,dietShare),.75);
+        public static double ResourceClaim(double population,double dietShare,bool legacyConcave=false)
+        {
+            double claim=Math.Max(0,population)*Math.Max(0,dietShare);
+            // Resource access cannot improve merely by splitting an identical
+            // population into more records. Old checkpoints retain their rules.
+            return legacyConcave?Math.Pow(claim,.75):claim;
+        }
         public static double Smooth(int seed,string channel,int location,double years,double period)
         {
             int epoch=(int)Math.Floor(years/period);double t=years/period-epoch;t=t*t*(3-2*t);

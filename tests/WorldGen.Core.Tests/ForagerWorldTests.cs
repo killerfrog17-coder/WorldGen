@@ -19,7 +19,7 @@ static class ForagerWorldTests
                 if(year<s.Years)records.Add(row.Clone());
             }
         }
-        File.WriteAllText(Path.Combine(output,"run.json"),System.Text.Json.JsonSerializer.Serialize(new{source=Environment.GetEnvironmentVariable("WORLDGEN_FORAGER_SOURCE")??"working tree",startedUtc=DateTime.UtcNow,preset=previousRun.HasValue?previousRun.Value.GetProperty("preset").GetString():preset,recipe.Seed,recipe.Detail,requestedYears=years,continuedFrom=from,previousRun}));
+        File.WriteAllText(Path.Combine(output,"run.json"),System.Text.Json.JsonSerializer.Serialize(new{source=Environment.GetEnvironmentVariable("WORLDGEN_FORAGER_SOURCE")??"working tree",startedUtc=DateTime.UtcNow,preset=previousRun.HasValue?previousRun.Value.GetProperty("preset").GetString():preset,recipe.Seed,recipe.Detail,rulesVersion=s.Foragers.Version,requestedYears=years,continuedFrom=from,previousRun}));
         void Record()
         {
             var f=s.Foragers;var live=f.Cohorts.Where(c=>c.Population>=1).ToArray();

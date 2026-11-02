@@ -39,6 +39,26 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov17:35Z OWNER BACK: finish genuine remaining work thenhandoff, no
+mandatory indefinite continuation. New key diagnosis: concave(pop*diet)^.75
+subsidises record splitting, artificially persistent smallgroups. Newworlds now
+ForagerStateVersionforagers-3 linear/additiveclaims; legacy2retainsoldrules.
+Currently UNCOMMITTED.38mechanism checksPASS (4partition/diet regression);
+temporalnewrules result see session90970. Neednewlonghistory/sourcecommit/build15.
+OldContinents190k COMPLETE but RETIRED LEGACY COMPARISON, notnew-modelacceptance.
+OldEarthPID13412STOPPED at125kmetrics/120ksnapshot;run.jsonannotated INCOMPLETE.
+No longhistoryjobs remain. optimized-runner nowunlockedfrozen2e33oldmodel;
+useNEWsmalllinear-runner fornewmodel (notfullplayer). Needrunnewhistory promptly.
+Candidate14 slot-a built17:31Z9a85faf: proof-planetary-14 PASS1008/3254original/
+177fauna+audio exact +workerSHAd4c129...; newplanet-only transport33x2tests,
+186077TCPexactgeometry,13datedmapcache,69save49legacyPASS. ItpredatesVersion3.
+Selectedslot-b/rootshortcutstillunchangedrejected. CurrentCorefirstnewdefault3
+sourceuncommitted; sampler06eb0da (multilingual+genuine specialists2176PASS) and
+terrainworkerseparation9a85faf pushed. Neednewrules outcomes, latestnative
+maps/playback +realGameplayNature onForagerworld, finalproof/shortcut/Git.
+No paid/subagents/cleanup/ownerapps; owner3 untouched. Do notcalllegacy190k
+acurrentmodelpass. Most historical notesbelow are superseded diagnostics.
+
 ACTIVE2Nov17:30Z OWNER RETURNED. Latest owner explicitly revokes mandatory
 until-wrap work: continue until genuinely finished, then handoff; no padding.
 Goal stillactive. Latestpushed06eb0da sampled bilingual residents/actual trained

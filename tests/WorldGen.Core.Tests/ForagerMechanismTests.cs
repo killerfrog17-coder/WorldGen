@@ -4,6 +4,12 @@ static class ForagerMechanismTests
     public static void Run()
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+        double Claim(double population,double diet)=>ForagerEcology.ResourceClaim(population,diet);
+        Check(Math.Abs(Claim(100,.6)-Claim(40,.6)-Claim(60,.6))<1e-12,"Splitting one identical population into extra records cannot create extra resource claims");
+        double originalShare=Claim(100,.6)/(Claim(100,.6)+Claim(100,.6)),splitShare=(Claim(40,.6)+Claim(60,.6))/(Claim(40,.6)+Claim(60,.6)+Claim(100,.6));
+        Check(originalShare==splitShare,"Resource allocation is invariant to arbitrary record partitions");
+        Check(Claim(100,.1)<Claim(100,.8)&&Claim(0,.8)==0,"Real dietary participation affects claims; absent people make none");
+        Check(ForagerEcology.ResourceClaim(40,.6,true)+ForagerEcology.ResourceClaim(60,.6,true)>ForagerEcology.ResourceClaim(100,.6,true),"The diagnosed legacy subdivision subsidy remains reproducible for old checkpoints, not silently changed");
         Check(ForagerTechnology.Count==43&&ForagerTechnology.ValidGraph(),"Expanded toolkit graph is acyclic, with stable original item IDs");
         Check(!ForagerTechnology.All[17].Prerequisites.Contains(16),"A bow is not incorrectly gated on a pressure-flaked stone arrowhead");
         var dugout=new double[ForagerTechnology.Count];dugout[3]=dugout[5]=dugout[38]=1;

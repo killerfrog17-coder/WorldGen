@@ -556,3 +556,29 @@ warm8->10tiles. That failure is retained, not counted as an earlier pass.
 Build stamps now pin the packaged worker executable hash, and source freezes
 include CLI source. The next player/package14 and real gameplay checks remain
 pending. Main selected shortcut is still unchanged.
+
+
+### Resource-competition diagnosis and version3 (17:35Z active)
+
+The completed190k Continents run is now a LEGACY COMPARISON, not final-model
+acceptance. Earth was stopped after125k of validated metrics (last saved120k);
+it remains explicitly incomplete. Both useforagers-2's concave resource claims.
+
+A concrete aggregation defect explains part of their excessive persistence:
+claim=(population*diet)^0.75 grants one population extra food access when its
+records split, even with identical people, diet, place and tools.100 identical
+people competing against100 receive50%; splitting one side into40+60 records
+raises its share without adding people or habitat. This subsidises fragmented
+small groups independently of real niches.
+
+New worlds useforagers-3 with additive population*diet claims. Actual technology
+returns, resource guilds, climate and culture still determine relative success;
+there is no sapiens-specific victory bonus or forced extinction date. Version2
+checkpoints retain their original rule for faithful legacy replay. Four explicit
+partition/diet regression checks pass alongside34 other mechanisms; temporal
+checks use the new rules. New-model full-history outcomes are PENDING and must
+not be substituted with the completed legacy run.
+
+Candidate14 (9a85faf, built17:31Z) has passed its frozen-input/original-asset and
+new packaged-worker-hash proof but predates version3. The selected shortcut
+remains the rejected old baseline. A further candidate is required for version3.
