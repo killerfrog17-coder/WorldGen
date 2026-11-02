@@ -39,6 +39,32 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov14:45Z: Owner NO-STOP mandate remains; no wrap request. Minimum16:19:52Z
+is NOT a stopping point. Latest e045fdd PUSHED; rare-teacher correction aeabd3e
+separates expertise/access,34 mechanism/12 temporal PASS. Regional speech churn
+fixed674d7eb (real community/cooldown); no contact-created native dialect crumbs.
+Dead cohorts retain genealogy/final toolkit but clear incoming caches. Older
+50bcc0a/2999fa3 long runs FAILED256MB save at140k/120k; do NOT call complete.
+Fresh teacher-runner aeabd3e histories teaching-continents/Earth190k and99173
+30k RUNNING (sessions72210/87448/51029); latest~30k/25k/20k, NOT final acceptance.
+Optimized-runner e045fdd teaching-archipelago30k/seed61819/detail5000 just started
+session64183. First invalid2500-detail invocation rejected, corrected5000.
+674d7eb verified-continents190k remains PRE-TEACHING comparison session82794,
+~60k; other verified-* stopped. No current long-history final-save proof yet.
+Measured250yr10k fixture exactcc3dbfcb... hash before/after optimizations:
+contact allocations519MB->194MB; demography161MB->33MB. Concurrent timings NOT
+uncontended total-FPS evidence. New outcome audit exports real population/range
+retreats, toolkit/habitat contrasts, near/far speech, ancestry and biota.
+Slot-a NEW managed nondev e045 candidate built~14:44Z; proof-teaching-6 RUNNING
+session87138, frozen1003/3254originals. Native view-teaching-6-20k PID14292 running
+real global/atlas/three regional map captures, now also checks loaded default
+Cultures. Prior674 player20nativePASS/clean/images inspected but UNSELECTED.
+Selected slot-b/shortcut unchanged. Need current full histories/save/reload,
+statistical and actual map review, final package/selection/Git; continue after
+minimum until EXPLICIT owner wrap. All3known Unity autos restored. No paid,
+subagents/cleanup/owner apps closed. Owner deleted prompt+2deer scripts untouched.
+
+
 ACTIVE2Nov13:00Z (no wrap-up request): New current source adds dated habitat/map
 projection, current ecology roster/colonists and native palette refresh;1679
 controlled habitat checks PASS. Real internal slot-a observer2 (50bcc0a, managed
