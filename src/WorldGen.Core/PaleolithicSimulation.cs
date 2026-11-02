@@ -171,7 +171,7 @@ namespace WorldGen.Core
             for(int t=0;t<band.Techniques.Length;t++){double prevalence=PaleolithicRules.Adoption(s.Paleolithic,c,t);band.Techniques[t]=prevalence>=q;band.Practice[t]=D.Clamp(.5+4*(prevalence-q));}
             bool Available(int t)=>band.Techniques[t]&&PaleolithicRules.Prerequisites((PaleolithicTechnique)t).All(k=>Available(k));
             for(int t=0;t<band.Techniques.Length;t++)band.Techniques[t]=Available(t);
-            for(int k=0;k<4;k++)band.Speech[k]=PaleolithicRules.SpeechAt(s.Paleolithic,c,k);
+            for(int k=0;k<4;k++)band.Speech[k]=D.Clamp(.5+4*(PaleolithicRules.SpeechAt(s.Paleolithic,c,k)-q));
             band.Appearance=HistoryHumanVariation.Sample(HistoryHumanVariation.Read(s,patch,cell,"Paleolithic regional ancestry distribution"),World.Recipe.Seed,unchecked(cell*397+localBand));return band;
         }
         void ValidatePaleolithic(PrehistoryState s)

@@ -22,6 +22,7 @@ static class PaleolithicTests
         var c=start.Paleolithic.Communities[0];int cell=engine.Patches[c.Patch].Cell;
         var band=engine.PaleolithicBandAt(start,cell,10);var bandAgain=engine.PaleolithicBandAt(start,cell,10);Check(StateHash.Compute(band)==StateHash.Compute(bandAgain),"Band identity, knowledge, language and appearance are stable across revisits");
         Check(band.Appearance.Available&&SapientSpecies.Find(band.Species)==SapientSpecies.Human,"Bands share the human appearance system and explicit sapient registry");
+        int expressive=Enumerable.Range(0,2000).Count(i=>PaleolithicRules.CanExpress(engine.PaleolithicBandAt(start,cell,i),PaleolithicSpeech.ClauseCombination));Check(expressive>0&&expressive<1800,"Speech capabilities spread through stable local cohorts instead of all bands crossing a shared threshold on one day");
         Check(!PaleolithicRules.CanName(band,"iron")&&!PaleolithicRules.CanName(band,"writing"),"Primitive speech cannot silently name unimplemented later-age concepts");
         var probe=start.Copy();probe.Paleolithic.Communities[0].Knowledge[(int)PaleolithicTechnique.HideWraps]=.9;probe.Paleolithic.Communities[0].Targets[(int)PaleolithicTechnique.HideWraps]=.9;
         int knowing=0;for(int i=0;i<2000;i++)if(engine.PaleolithicBandAt(probe,cell,i).Knows(PaleolithicTechnique.HideWraps))knowing++;
