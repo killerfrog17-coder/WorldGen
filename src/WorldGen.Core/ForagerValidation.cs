@@ -35,9 +35,9 @@ namespace WorldGen.Core
                 Require(c.Parent<0||c.Parent<c.Id&&ids.Contains(c.Parent),"demographic ancestry");
                 Require(c.FoundedYear<=year&&c.LastContactYear<=year&&c.LastMigrationYear<=year,"resident dates");
                 Require(f.Districts[c.District].Cells.Contains(c.HomeCell)&&f.Districts[c.District].Cells.Contains(c.FrontierCell),"resident home and entry cells");
-                Require(Values(c.Knowledge,ForagerTechnology.Count)&&Values(c.Skill,ForagerTechnology.Count)&&Values(c.Use,ForagerTechnology.Count)&&Values(c.Teaching,ForagerTechnology.Count,10)&&Values(c.Innovation,ForagerTechnology.Count),"technique values");
+                Require(Values(c.Knowledge,ForagerTechnology.Count)&&Values(c.Skill,ForagerTechnology.Count)&&Values(c.Use,ForagerTechnology.Count)&&(c.Population==0&&c.Teaching.Length==0||Values(c.Teaching,ForagerTechnology.Count,10))&&(c.Population==0&&c.Innovation.Length==0||Values(c.Innovation,ForagerTechnology.Count)),"technique values");
                 Require(Years(c.FirstKnownYear)&&Years(c.FirstSkilledYear)&&Years(c.LastLossYear),"persistent learning history");
-                Require(Values(c.TeachingFrom,ForagerTechnology.Count)&&Finite(c.ContactTeaching)&&Finite(c.TeachingAdults),"saved incoming teaching context");
+                Require((c.Population==0&&c.TeachingFrom.Length==0||Values(c.TeachingFrom,ForagerTechnology.Count))&&Finite(c.ContactTeaching)&&Finite(c.TeachingAdults),"saved incoming teaching context");
                 for(int k=0;k<ForagerTechnology.Count;k++)Require(c.Skill[k]<=c.Knowledge[k]+.000001&&c.Use[k]<=c.Skill[k]+.000001,"use <= skill <= familiarity");
                 Require(Finite(c.Children)&&Finite(c.Adults)&&Finite(c.Elders)&&Math.Abs(c.Children-c.Ages[0]-c.Ages[1])<.000001&&Math.Abs(c.Adults-c.Ages[2]-c.Ages[3])<.000001&&Math.Abs(c.Elders-c.Ages[4])<.000001,"age-stock aggregates");
                 Require(Finite(c.Births)&&Finite(c.Deaths)&&Finite(c.Immigration)&&Finite(c.Emigration)&&Finite(c.Capacity)&&Finite(c.MatingContacts)&&Finite(c.BirthRate)&&Finite(c.AdultMortality)&&Finite(c.ChildMortality)&&Finite(c.ElderMortality),"vital rates and totals");

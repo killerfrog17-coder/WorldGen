@@ -69,8 +69,8 @@ namespace WorldGen.Core
             foreach(var l in state.Languages.OrderBy(l=>l.Id))
             {
                 if(l.Family<0){if(l.Parent>=0&&byId.TryGetValue(l.Parent,out var ancestor)&&ancestor.Family>=0)l.Family=ancestor.Family;else{NewFamily(l,-1);continue;}}
-                var previous=families[l.Family];if(SharedRoots(l,previous)>=.32)continue;
-                int match=-1;double best=.42;var candidates=new HashSet<int>();
+                var previous=families[l.Family];if(SharedRoots(l,previous)>=.20)continue;
+                int match=-1;double best=.28;var candidates=new HashSet<int>();
                 // Recognition of related speech is not contingent on current
                 // contact. Minority varieties and isolated cousins retain their
                 // recorded genealogy and can share a younger recognisable branch.

@@ -5,7 +5,7 @@ namespace WorldGen.Core
 {
     public static class ForagerSociality
     {
-        public static void Review(int seed,ForagerState state,ForagerEnvironment[] environment,int year,int elapsed,IDictionary<long,double> languageCache=null,Func<ForagerCohort,V> home=null)
+        public static void Review(int seed,ForagerState state,ForagerEnvironment[] environment,int year,int elapsed,IDictionary<long,double> languageCache=null,Func<ForagerCohort,V> home=null,double radiusKm=6371)
         {
             var occupied=state.Cohorts.Where(c=>c.Population>=1).ToArray();var at=occupied.GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.ToArray());
             var position=occupied.ToDictionary(c=>c.Id,c=>home==null?state.Districts[c.District].Center:home(c));
@@ -33,7 +33,7 @@ namespace WorldGen.Core
                     double kin=c.Identity==other.Identity?.8:related?.55:c.Lineage==other.Lineage?.25:.1;
                     double complementary=Math.Abs(district.Stone-state.Districts[other.District].Stone)+Math.Abs(district.Fiber-state.Districts[other.District].Fiber);
                     double hospitality=(ca.GuestAccess+cb.GuestAccess)*.5,trade=(ca.ExchangeOpenness+cb.ExchangeOpenness)*.5;
-                    double distance=6371*Math.Acos(D.Clamp(V.Dot(position[c.Id],position[other.Id]),-1,1));
+                    double distance=radiusKm*Math.Acos(D.Clamp(V.Dot(position[c.Id],position[other.Id]),-1,1));
                     double cost=target.Key==c.District?distance:Math.Max(distance,target.Value*.5);
                     double targetStrength=Math.Exp(-cost/180.0)*(.2+.8*hospitality)*(.3+.45*kin+.25*D.Clamp(complementary));
                     var link=old.TryGetValue(key,out var saved)?saved.Copy():new ForagerExchange{A=first,B=second,SinceYear=year,Kinship=kin,Hospitality=hospitality,Trade=trade};

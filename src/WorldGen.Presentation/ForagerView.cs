@@ -78,7 +78,7 @@ namespace WorldGen.Presentation
             }
             if(kind=="language-family")
             {
-                var liveFamilies=active.SelectMany(c=>c.Speech.Where(x=>x.Share*P(c)>=.1).Select(x=>f.Languages[x.Id].Family)).ToHashSet();
+                var liveFamilies=active.SelectMany(c=>c.Speech.Select(x=>(family:f.Languages[x.Id].Family,number:x.Share*P(c)))).GroupBy(x=>x.family).Where(g=>g.Sum(x=>x.number)>=.5).Select(g=>g.Key).ToHashSet();
                 rows=f.LanguageFamilies.Where(l=>past||liveFamilies.Contains(l.Id)).Select(l=>new AtlasLink{Kind=kind,Id=l.Id,Cell=Cell(l.OriginDistrict),Name=l.Name,Historical=!liveFamilies.Contains(l.Id)});
             }
             return rows.Where(r=>r.Name.IndexOf(search??"",StringComparison.OrdinalIgnoreCase)>=0).OrderByDescending(r=>r.Value).ThenBy(r=>r.Name).ToArray();
@@ -89,7 +89,7 @@ namespace WorldGen.Presentation
             var f=s.Foragers;var map=ForagerMaps.For(s);double P(ForagerCohort p)=>map.Population(p);var live=f.Cohorts.Where(c=>P(c)>=1).ToArray();var doc=new AtlasDocument{Kind=kind,Id=id,Year=s.Years,EpochYear=-1,Title="Paleolithic world",Subtitle=Year(s.Years)+" · "+Age(s)};var sections=new List<AtlasSection>();
             if(kind=="world")
             {
-                doc.Facts=new[]{F("All human lineages",live.Sum(c=>P(c)).ToString("N0")),F("Homo sapiens",live.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).Sum(c=>P(c)).ToString("N0")),F("Resident districts",live.Select(c=>c.District).Distinct().Count().ToString()),F("Speech varieties / families",live.SelectMany(c=>c.Speech.Where(x=>x.Share*P(c)>=1).Select(x=>x.Id)).Distinct().Count()+" / "+live.SelectMany(c=>c.Speech.Where(x=>x.Share*P(c)>=1).Select(x=>f.Languages[x.Id].Family)).Distinct().Count()),F("Local traditions",live.SelectMany(c=>c.Traditions.Where(x=>x.Share*P(c)>=1).Select(x=>x.Id)).Distinct().Count().ToString()),F("States / farms","0")};
+                doc.Facts=new[]{F("All human lineages",live.Sum(c=>P(c)).ToString("N0")),F("Homo sapiens",live.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).Sum(c=>P(c)).ToString("N0")),F("Resident districts",live.Select(c=>c.District).Distinct().Count().ToString()),F("Speech varieties / families",Directory(s,"language","",false).Length+" / "+Directory(s,"language-family","",false).Length),F("Local traditions",Directory(s,"religion","",false).Length.ToString()),F("States / farms","0")};
                 sections.Add(new AtlasSection{Title="Human lineages",Links=Directory(s,"human-species","",false)});sections.Add(new AtlasSection{Title="People and local toolkits",Links=Directory(s,"people","",false)});sections.Add(new AtlasSection{Title="Recorded speech communities",Links=Directory(s,"language","",false)});sections.Add(new AtlasSection{Title="Local spiritual traditions",Links=Directory(s,"religion","",false)});doc.Sections=sections.ToArray();return doc;
             }
             var entry=Directory(s,kind,"",true).FirstOrDefault(r=>r.Id==id);if(entry==null){doc.Title="Record unavailable";return doc;}doc.Title=entry.Name;doc.Cell=entry.Cell;

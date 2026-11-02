@@ -79,6 +79,8 @@ static class ForagerMechanismTests
         var destination=c.Copy();ForagerDemography.SetPopulation(destination,0);double total=demographic.Population+destination.Population;ForagerDemography.MovePopulation(demographic,destination,25);
         Check(Math.Abs(demographic.Population+destination.Population-total)<.0000001&&Math.Abs(destination.Population-25)<.0000001,"Migration transfers age stocks instead of spawning or deleting people");
         var doomed=demographic.Copy();ForagerDemography.Rates(doomed,basic,warm,culture,0);Check(ForagerDemography.Project(doomed,5,0).Population<doomed.Population*.01,"An uninhabitable district cannot sustain a permanent residual population");
+        double oldSkill=doomed.Skill[0];for(int year=0;year<100;year+=5)ForagerDemography.Materialize(doomed,5,year);
+        Check(doomed.Population==0&&doomed.Teaching.Length==0&&doomed.Innovation.Length==0&&doomed.TeachingFrom.Length==0&&doomed.Skill[0]==oldSkill,"Retired communities retain historical skills and ancestry without live teaching/invention caches");
         Console.WriteLine($"PASS {checks} forager mechanism checks; warm capacity={basic.Capacity:F1}; cold unprotected={unprotected.Capacity:F4}; protected={protectedLife.Capacity:F1}; warm fitted={warmLearner.Use[13]:F3}; cold fitted={coldLearner.Use[13]:F3}");
     }
 }

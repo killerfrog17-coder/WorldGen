@@ -64,7 +64,7 @@ namespace WorldGen.Core
                 s.Origin=f.Districts[f.Cohorts.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).OrderByDescending(c=>c.Population).First().District].Patch;
             }
             ForagerLanguages.ReviewFamilies(f,0,null);
-            var environments=ForagerEnvironments(f,0);ForagerSociality.Review(World.Recipe.Seed,f,environments,0,200,home:c=>ForagerBandHome(f,c,0).position);RefreshForagerTeachers(f);
+            var environments=ForagerEnvironments(f,0);ForagerSociality.Review(World.Recipe.Seed,f,environments,0,200,home:c=>ForagerBandHome(f,c,0).position,radiusKm:World.Recipe.RadiusKm);RefreshForagerTeachers(f);
             PublishForagers(s);s.Seal();return s;
         }
         double DistanceKm(V a,V b)=>World.Recipe.RadiusKm*Math.Acos(D.Clamp(V.Dot(a,b),-1,1));

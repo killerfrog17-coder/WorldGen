@@ -58,7 +58,14 @@ namespace WorldGen.Core
         {
             var p=Project(c,years,absoluteYear);for(int i=0;i<5;i++)c.Ages[i]=D.Q(Math.Max(0,p.Ages[i]),1000000000);
             Sync(c);c.Births=D.Q(c.Births+p.Births,1000000);c.Deaths=D.Q(c.Deaths+p.Deaths,1000000);
-            if(c.Population<.5){c.Deaths+=c.Population;Array.Clear(c.Ages,0,5);Sync(c);}
+            if(c.Population<.5)
+            {
+                c.Deaths+=c.Population;Array.Clear(c.Ages,0,5);Sync(c);
+                // Keep ancestry, migration/vital totals, affiliations and the
+                // last toolkit/history. A dead community has no future incoming
+                // teachers or invention hazards to cache in every later save.
+                c.Teaching=c.Innovation=c.TeachingFrom=Array.Empty<double>();c.ContactTeaching=c.TeachingAdults=c.MatingContacts=0;
+            }
         }
         public static void MovePopulation(ForagerCohort from,ForagerCohort to,double number)
         {

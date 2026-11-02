@@ -28,6 +28,7 @@ static class ForagerLanguageTests
         var copy=a.Copy();copy.Roots[0]=0;Check(a.Roots[0]!=0,"Published language copies isolate inherited lexical ancestry");
         var ancestral=ForagerLanguages.Create(11,0,0,0);var cousins=new ForagerState{Languages=new[]{ancestral}};ForagerLanguages.ReviewFamilies(cousins,0,null);
         var left=ForagerLanguages.Create(11,1,1,500,ancestral);var right=ForagerLanguages.Create(11,2,2,500,ancestral);cousins.Languages=new[]{ancestral,left,right};
+        Check(ForagerLanguages.Concepts.All(concept=>ForagerLanguages.Word(ancestral,concept).Text==ForagerLanguages.Word(left,concept).Text),"Registering a regional dialect initially preserves actual words; later evolution causes the differences");
         foreach(var speech in cousins.Languages)for(int k=0;k<speech.Roots.Length;k++)speech.Roots[k]=100000+k;
         ForagerLanguages.ReviewFamilies(cousins,8000,null);
         Check(cousins.Languages.Select(x=>x.Family).Distinct().Count()==1&&cousins.LanguageFamilies.Length==2,"Uncontacted cousin and minority varieties share a recognisable younger family instead of each inventing a separate one");
