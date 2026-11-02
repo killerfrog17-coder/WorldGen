@@ -42,6 +42,7 @@ public sealed partial class LocalTerrainExplorer
         bool hasWater;
         public bool HasWater=>hasWater;
         static SynchronizationContext mainContext;static int mainThread,pendingReleases;
+        public static int PendingReleases=>Volatile.Read(ref pendingReleases);
         static TerrainUpload Allocate()
         {
             var context=SynchronizationContext.Current;
@@ -179,8 +180,8 @@ public sealed partial class LocalTerrainExplorer
         var cancelledTask=TerrainUpload.Schedule(()=>source,new CancellationToken(true));while(!cancelledTask.IsCompleted)yield return null;
         cancelled=false;try{cancelledTask.GetAwaiter().GetResult();}catch(OperationCanceledException){cancelled=true;}
         if(!cancelled)throw new InvalidOperationException("Queued cancelled upload retained its native allocation.");
-        double releaseDeadline=Time.realtimeSinceStartupAsDouble+3;while(TerrainUpload.pendingReleases>0&&Time.realtimeSinceStartupAsDouble<releaseDeadline)yield return null;
-        if(TerrainUpload.pendingReleases!=0)throw new InvalidOperationException("Cancelled mesh containers did not release on the Unity main thread.");
+        double releaseDeadline=Time.realtimeSinceStartupAsDouble+3;while(TerrainUpload.PendingReleases>0&&Time.realtimeSinceStartupAsDouble<releaseDeadline)yield return null;
+        if(TerrainUpload.PendingReleases!=0)throw new InvalidOperationException("Cancelled mesh containers did not release on the Unity main thread.");
         foreach(int count in new[]{65535,65536,70003})
         {
             var large=new LocalTerrainMesh{GroundVertices=3,Segments=4,Positions=new float[count*3],Normals=new float[count*3],Colors=new float[count*4],SurfaceWeights=new float[count*4],GroundWeightsB=new float[count*4],Lithology=new float[count*6],Triangles=new[]{0,count-2,count-1}};

@@ -60,9 +60,11 @@ if($BuildPlayer){
     if($runningSlotPlayer){throw ('The owner still has '+$PlayerFolder+' running. Leave it untouched; wait until the owner exits it before reusing this slot.')}
     $oldStamp=Join-Path $runningSlotDirectory 'build-inputs.json'
     if($ScriptsOnly){
-        if($Il2Cpp -or !(Test-Path -LiteralPath $oldStamp)){throw 'Scripts-only iteration requires an existing managed development player in this inactive slot.'}
-        $priorBuild=Get-Content -Raw -LiteralPath $oldStamp|ConvertFrom-Json
-        if($priorBuild.Backend -ne 'Mono' -or !$priorBuild.Development){throw 'Scripts-only iteration requires an existing managed development player.'}
+        if($Il2Cpp -or !(Test-Path -LiteralPath (Join-Path $runningSlotDirectory 'MonoBleedingEdge')) -or !(Test-Path -LiteralPath (Join-Path $runningSlotDirectory 'WorldGen_Data/Managed/Assembly-CSharp.dll'))){throw 'Scripts-only iteration requires an existing managed development player in this inactive slot.'}
+        # A failed script compilation invalidates our completion stamp, while
+        # leaving the previous packed data in place. Unity verifies that data's
+        # own scripts-only baseline; never invent a new successful-build stamp.
+        if(Test-Path -LiteralPath $oldStamp){$priorBuild=Get-Content -Raw -LiteralPath $oldStamp|ConvertFrom-Json;if($priorBuild.Backend -ne 'Mono' -or !$priorBuild.Development){throw 'Scripts-only iteration requires an existing managed development player.'}}
     }
     if(Test-Path -LiteralPath $oldStamp){Remove-Item -LiteralPath $oldStamp -Force}
     Write-Output ('Reusing player workspace: '+$PlayerFolder)
