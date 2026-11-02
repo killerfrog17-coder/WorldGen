@@ -84,21 +84,22 @@ namespace WorldGen.Core
                 Aggregation=D.Clamp(.2+.35*(d.Coast+d.River)+.25*c.Connectivity),FoodSecurity=c.FoodSecurity,Hospitality=culture.GuestAccess,Residence=culture.Residence,Techniques=new bool[ForagerTechnology.Count]};
             band.Language=ForagerAffiliations.Pick(c.Speech,Rng.Value(World.Recipe.Seed,"band-minority-language",key));
             band.Belief=ForagerAffiliations.Pick(c.Traditions,Rng.Value(World.Recipe.Seed,"band-minority-belief",key));
-            // Technique-specific, spatially correlated prevalence. One rank for
-            // all tools incorrectly makes every skilled band know the same set.
-            for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=Rng.Value(World.Recipe.Seed,"band-technique-"+k,key)<c.Skill[k];
+            // Individual makers, rather than an average weak proficiency
+            // assigned to everybody. Band availability follows actual residents.
+            band.Members=ForagerHouseholds(f,c,band,years,key);
+            for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=band.Members.Any(p=>p.Skills[k]>=.35);
             bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
             for(int k=0;k<band.Techniques.Length;k++)Can(k);
             var environment=ForagerEcology.At(World.Recipe.Seed,d,years,World.ElevationM[home.cell]);
             band.RoutineTechniques=new bool[ForagerTechnology.Count];band.WinterTechniques=new bool[ForagerTechnology.Count];
             for(int k=0;k<band.Techniques.Length;k++)
             {
-                // Conditional sampling keeps the population fraction at Use,
-                // rather than erroneously multiplying Use by Skill a second time.
-                double rank=Rng.Value(World.Recipe.Seed,"band-practice-"+k,key),skill=Math.Max(.000000001,c.Skill[k]);
-                band.RoutineTechniques[k]=band.Techniques[k]&&rank<D.Clamp(c.Use[k]/skill);
+                // Knowing a maker does not imply routinely using every tool.
+                // Group availability is distinct from individual skill prevalence.
+                double rank=Rng.Value(World.Recipe.Seed,"band-practice-"+k,key);
+                band.RoutineTechniques[k]=band.Techniques[k]&&rank<c.Use[k];
                 bool winter=k==5||k==8||k==13||k==14||k==31||k==34||k==35||k==36;
-                band.WinterTechniques[k]=winter?band.Techniques[k]&&rank<D.Clamp(ForagerTechnology.WinterPractice(d,environment,c,k)/skill):band.RoutineTechniques[k];
+                band.WinterTechniques[k]=winter?band.Techniques[k]&&rank<ForagerTechnology.WinterPractice(d,environment,c,k):band.RoutineTechniques[k];
             }
             band.SeasonalCamps=ForagerSeasonalCamps(s,c,band,home.cell,key);
             int camps=band.SeasonalCamps.Length;double season=((years-59/365d+Rng.Value(World.Recipe.Seed,"camp-calendar-phase",c.Id)*.08)%1+1)%1*camps;int current=(int)season,next=(current+1)%camps;
@@ -107,7 +108,6 @@ namespace WorldGen.Core
             double travel=Math.Min(.8,DistanceKm(band.SeasonalCamps[current].Position,band.SeasonalCamps[next].Position)/18/(365d/camps));
             double fraction=season-current,t=travel>0?D.Clamp((fraction-(1-travel))/travel):0;
             band.Position=(band.SeasonalCamps[current].Position*(1-t)+band.SeasonalCamps[next].Position*t).Unit;
-            band.Members=ForagerHouseholds(f,c,band,years,key);
             var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(value));
             var contacts=residents.Contacts.TryGetValue(c.Id,out var nearby)?nearby:Array.Empty<ForagerExchange>();
             band.ContactBands=contacts.Where(e=>e.Strength>.005).OrderByDescending(e=>e.Strength).Take(8).Select(e=>e.A==c.Id?e.B:e.A).Select(other=>ForagerResident(f,other)).Where(other=>ForagerBandCount(s,other)>0).Select(other=>ForagerBandId(other.Id,(int)(Rng.Value(World.Recipe.Seed,"band-marriage-contact",key^other.Id)*ForagerBandCount(s,other)))).ToArray();
@@ -145,6 +145,23 @@ namespace WorldGen.Core
         }
         ForagerPersonSample[] ForagerHouseholds(ForagerState f,ForagerCohort c,ForagerBandSample band,double years,int key)
         {
+            var languageAccess=new Dictionary<int,double>();
+            void LanguageAccess(int language,double value)
+            {
+                if(language==band.Language||value<=0)return;
+                languageAccess.TryGetValue(language,out double before);languageAccess[language]=D.Clamp(before+value);
+            }
+            // Other resident households can supply a second home language;
+            // external access follows actual saved contacts, not random colours
+            // or every language anywhere in the district.
+            foreach(var speech in c.Speech)LanguageAccess(speech.Id,.5*speech.Share);
+            var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(value));
+            if(residents.Contacts.TryGetValue(c.Id,out var contacts))foreach(var contact in contacts)
+            {
+                var other=ForagerResident(f,contact.A==c.Id?contact.B:contact.A);if(other==null||other.Population<1)continue;
+                foreach(var speech in other.Speech)LanguageAccess(speech.Id,contact.Bilingualism*(1-.75*contact.Hostility)*speech.Share);
+            }
+            var languageOpportunities=languageAccess.OrderBy(p=>p.Key).ToArray();
             var records=new Dictionary<long,ForagerPersonRecord>();int now=(int)Math.Floor(years);int familyCount=Math.Max(2,(int)Math.Ceiling(band.People/5.0));
             ForagerPersonRecord Record(long id,int birth,bool female,long household,bool adultFounder=false,long mother=-1,long father=-1)
             {
@@ -197,9 +214,34 @@ namespace WorldGen.Core
                 long id=record.Id;double age=years-record.BirthYear;
                 var person=new ForagerPersonSample{Id=id,Household=record.Household,Mother=record.Mother,Father=record.Father,Partner=age>=18?record.Partner:-1,Female=record.Female,AgeYears=age,BirthYear=record.BirthYear,DeathYear=record.DeathYear,
                     Name=LanguageGenerator.WordWithRootSeed(f.Languages[band.Language].Sounds,"person",unchecked((int)id)).Text,
-                    Role=age<5?"Young child":age<13?"Child and learner":age<19?"Apprentice forager":age>58?"Experienced elder":"Adult forager",Appearance=new double[8],Skills=new double[ForagerTechnology.Count]};
+                    Role=age<5?"Young child":age<13?"Child and learner":age<19?"Apprentice forager":age>58?"Experienced elder":"Adult forager",Appearance=new double[8],Knowledge=new double[ForagerTechnology.Count],Skills=new double[ForagerTechnology.Count]};
+                var languages=new List<ForagerLanguageKnowledge>{new ForagerLanguageKnowledge{Language=band.Language,Native=true,Fluency=D.Clamp((age-.7)/5)}};
+                foreach(var opportunity in languageOpportunities)
+                {
+                    double maturity=D.Clamp((age-4)/12),rank=Rng.Value(World.Recipe.Seed,"household-contact-language-"+opportunity.Key,unchecked((int)record.Household^(int)(record.Household>>32)));
+                    if(rank>=opportunity.Value*maturity)continue;
+                    double fluency=maturity*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-language-fluency-"+opportunity.Key,(int)id));
+                    languages.Add(new ForagerLanguageKnowledge{Language=opportunity.Key,Fluency=fluency});
+                }
+                person.Languages=languages.ToArray();
                 for(int k=0;k<8;k++)person.Appearance[k]=D.Clamp(c.Appearance[k]+(Rng.Value(World.Recipe.Seed,"household-appearance-"+k,(int)record.Household)-.5)*.12+(Rng.Value(World.Recipe.Seed,"individual-appearance-"+k,(int)id)-.5)*.08);
-                for(int k=0;k<person.Skills.Length;k++)person.Skills[k]=band.Techniques[k]?D.Clamp(c.Skill[k]*D.Clamp((age-5)/18)*(.7+.6*Rng.Value(World.Recipe.Seed,"individual-skill-"+k,(int)id))):0;
+                double apprenticeship=D.Clamp((age-5)/18);
+                void Skilled(int technique,double proficiency)
+                {
+                    if(person.Skills[technique]>=proficiency)return;
+                    person.Skills[technique]=proficiency;person.Knowledge[technique]=Math.Max(person.Knowledge[technique],proficiency);
+                    var method=ForagerTechnology.All[technique];foreach(int prerequisite in method.Prerequisites)Skilled(prerequisite,proficiency);
+                    if(method.AlternativePaths.Length>0)
+                    {
+                        var path=method.AlternativePaths.OrderByDescending(option=>option.Min(k=>c.Skill[k])).First();
+                        foreach(int prerequisite in path)Skilled(prerequisite,proficiency);
+                    }
+                }
+                for(int k=0;k<person.Skills.Length;k++)
+                {
+                    if(Rng.Value(World.Recipe.Seed,"individual-familiarity-"+k,(int)id)<c.Knowledge[k])person.Knowledge[k]=Math.Max(person.Knowledge[k],D.Clamp((age-2)/12)*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-familiarity-depth-"+k,(int)id)));
+                    if(Rng.Value(World.Recipe.Seed,"individual-trained-"+k,(int)id)<c.Skill[k])Skilled(k,apprenticeship*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-skill-"+k,(int)id)));
+                }
                 return person;
             }
         }

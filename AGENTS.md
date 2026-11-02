@@ -39,6 +39,23 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov17:10Z NO WRAP; KEEP WORKING. Latestpushed87e1902 journal/routes.
+Internal slot-a candidate13 built16:49Z, proof-journal-13 PASS1008/3254/177+audio
+exact. Native150k03=38PASS/EXIT0, UIto150050 exactd0187a35..., currentclimate6002,
+imagesinspected. Selectedslot-b/shortcutUNCHANGED. New individual multilingual
+knowledge + true craft specialists currentlyUNCOMMITTED:2176samplingPASS120k,
+30bands687people190multilingual;37proficientbowmakersin8bands. ExplicitXYZ JSON
+exportfixed priorrecursiveV.Unitfailure; failedlogretained. Sourceglobalhistory
+numerics unchanged (queryproducts only). Needcommit/build14/proof/native.
+Two190k runsstillINCOMPLETE, frozen2e33 optimized-runner locked: EarthPID13412/
+session85012 ~114k; ContinentsPID17604/session50349 ~169k. Logs*-optimized,
+NOToldcurrent. Keepgoinguntilownerwrap. Existingdocscontainmodel/runtime
+limitsandunaccepted outcomes. Do not claim complete physicalNPCs/vegetation
+reconstruction or full190k pass. Owner3 untouched; no paid/subagents/cleanup/apps.
+Considering next worthwhile integrationcheck: terrainworker currently reloads
+fullhistoricalarchives just forgeometry. Need investigate smallplanet-only read
+withoutlosing datedlocalmap colours; not implementedyet.
+
 ACTIVE2Nov16:47Z NO OWNER WRAP; continue. Source2298e25 query/equipment PUSHED.
 Slot-a internal candidate12 built16:37Z managed nondev, proof-resident-queries-12
 PASS1007/3254original/177fauna/audio exact. Native12 seed99173 original01 at30k

@@ -2,7 +2,7 @@ using WorldGen.Core;
 using WorldGen.Serialization;
 static class ForagerSamplingTests
 {
-    public static void Run(string path)
+    public static void Run(string path,string output="")
     {
         var w=WorldFile.ReadFile(path);var engine=new Prehistory(w);var s=w.Prehistory;var f=s.Foragers;int checks=0;
         void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
@@ -14,6 +14,15 @@ static class ForagerSamplingTests
             Check(a.Id==b.Id&&a.Members.Select(p=>p.Id).SequenceEqual(b.Members.Select(p=>p.Id)),"Repeated local queries preserve bands, people and household IDs");
             Check(a.Members.Length>=4&&a.Members.Any(p=>p.AgeYears>=18),"Sampled resident bands include an adult population");
             Check(a.Members.Select(p=>p.Id).Distinct().Count()==a.Members.Length,"No duplicated people within a band");
+            Check(a.Members.All(p=>p.Languages.Length>0&&p.Languages[0].Native&&p.Languages[0].Language==a.Language),"Individuals retain their own band/home language rather than only an unassigned bilingual percentage");
+            Check(a.Members.All(p=>p.Languages.Select(l=>l.Language).Distinct().Count()==p.Languages.Length&&p.Languages.All(l=>l.Language>=0&&l.Language<f.Languages.Length&&double.IsFinite(l.Fluency)&&l.Fluency>=0&&l.Fluency<=1)),"Sampled language knowledge has unique real language identities and bounded fluency");
+            Check(a.Members.Where(p=>p.AgeYears<4).All(p=>p.Languages.Length==1&&p.Languages[0].Fluency<.7),"Young children do not appear as fluent adult multilingual speakers");
+            var accessibleLanguages=new HashSet<int>(cohort.Speech.Select(x=>x.Id));
+            foreach(var exchange in f.Exchanges.Where(e=>e.A==cohort.Id||e.B==cohort.Id))
+            {
+                var other=f.Cohorts[exchange.A==cohort.Id?exchange.B:exchange.A];foreach(var speech in other.Speech)accessibleLanguages.Add(speech.Id);
+            }
+            Check(a.Members.All(p=>p.Languages.All(l=>accessibleLanguages.Contains(l.Language))),"No sampled person learns a language from an absent/distant uncontacted group");
             Check(a.Members.All(p=>p.AgeYears>=0&&p.AgeYears<100&&p.Skills.Length==ForagerTechnology.Count),"Age and taught-skill samples stay plausible");
             Check(a.SeasonalCamps.Length==(int)Math.Round(a.MoveFrequencyPerYear)&&a.SeasonalCamps.All(c=>c.Season>=0&&c.Season<4&&f.CellDistrict[c.Cell]==cohort.District&&c.RequiresLocalGroundValidation),"Residence-specific seasonal itineraries remain in real accessible land districts and require local placement checks");
             var habitat=ForagerHabitat.For(w,s);
@@ -24,6 +33,8 @@ static class ForagerSamplingTests
             Check(a.RoutineTechniques.Length==ForagerTechnology.Count&&a.WinterTechniques.Length==ForagerTechnology.Count,"NPC samples expose routine and prepared winter equipment separately from capability");
             Check(Enumerable.Range(0,ForagerTechnology.Count).All(k=>(!a.RoutineTechniques[k]||a.Techniques[k])&&(!a.WinterTechniques[k]||a.Techniques[k])),"Routine/winter loadouts never invent techniques unknown to the band");
             Check(Enumerable.Range(0,ForagerTechnology.Count).All(k=>!a.RoutineTechniques[k]||a.WinterTechniques[k]),"Winter preparation retains ordinary equipment instead of rerolling it away");
+            Check(Enumerable.Range(0,ForagerTechnology.Count).All(k=>a.Techniques[k]==a.Members.Any(p=>p.Skills[k]>=.35)),"Band making capability is supported by actual capable resident makers");
+            Check(a.Members.All(p=>p.Knowledge.Length==ForagerTechnology.Count&&Enumerable.Range(0,ForagerTechnology.Count).All(k=>p.Knowledge[k]>=p.Skills[k]&&ForagerTechnology.All[k].Prerequisites.All(q=>p.Skills[q]>=p.Skills[k]))),"Familiarity differs from trained proficiency; makers retain their prerequisite skills");
             var records=a.FamilyRecords.ToDictionary(p=>p.Id);
             foreach(var child in a.Members.Where(p=>p.Mother>=0))
             {
@@ -72,8 +83,26 @@ static class ForagerSamplingTests
         var expanded=s.Copy();var expandedCohort=expanded.Foragers.Cohorts.First(c=>c.Id==first.Cohort);expandedCohort.FrontierKm*=1.5;ForagerDemography.SetPopulation(expandedCohort,expandedCohort.Population*1.4);
         var expandedBand=engine.ForagerBand(expanded,first.Cohort);
         Check(expandedBand.Home.X==first.Home.X&&expandedBand.Home.Y==first.Home.Y&&expandedBand.Home.Z==first.Home.Z,"Population growth/frontier expansion do not reroll an existing band's home");
+        // A low aggregate share of makers must yield rare competent specialists,
+        // not universally weak workers unable to make the community's tools.
+        ForagerDemography.SetPopulation(expandedCohort,500);Array.Fill(expandedCohort.Skill,.9);Array.Fill(expandedCohort.Knowledge,.95);expandedCohort.Skill[17]=.1;expandedCohort.Knowledge[17]=.6;
+        var specialists=Enumerable.Range(0,Math.Min(12,engine.ForagerBandCount(expanded,expandedCohort))).SelectMany(ordinal=>engine.ForagerBand(expanded,expandedCohort.Id,ordinal).Members).Where(p=>p.AgeYears>=23).ToArray();
+        Check(specialists.Any(p=>p.Skills[17]>=.6)&&specialists.Count(p=>p.Skills[17]>=.35)<specialists.Length*.4,"Rare bow-making prevalence creates actual proficient specialists among many non-makers");
         Check(s.Hash==s.ComputeHash(),"Sampling and future snapshots cannot alter source history");
+        if(output.Length>0)
+        {
+            Directory.CreateDirectory(output);
+            File.WriteAllText(Path.Combine(output,"band-samples.json"),System.Text.Json.JsonSerializer.Serialize(new{s.Years,s.Hash,checks,bands=samples},new System.Text.Json.JsonSerializerOptions{IncludeFields=true,Converters={new SampleVectorConverter()}}));
+        }
+        Console.WriteLine($"Language samples: {samples.Sum(b=>b.Members.Count(p=>p.Languages.Length>1))} multilingual / {samples.Sum(b=>b.Members.Length)} people");
         Console.WriteLine($"Six exact local queries: exhaustive={referenceMilliseconds:F2}ms indexed={indexedMilliseconds:F2}ms, records={f.Cohorts.Length}, active={f.Cohorts.Count(c=>c.Population>=1)}");
         Console.WriteLine($"PASS {checks} band/household/seasonal-camp checks across {samples.Count} communities");
     }
+    sealed class SampleVectorConverter:System.Text.Json.Serialization.JsonConverter<V>
+    {
+        public override V Read(ref System.Text.Json.Utf8JsonReader reader,Type type,System.Text.Json.JsonSerializerOptions options)=>throw new NotSupportedException();
+        public override void Write(System.Text.Json.Utf8JsonWriter writer,V value,System.Text.Json.JsonSerializerOptions options)
+        {writer.WriteStartObject();writer.WriteNumber("X",value.X);writer.WriteNumber("Y",value.Y);writer.WriteNumber("Z",value.Z);writer.WriteEndObject();}
+    }
+
 }

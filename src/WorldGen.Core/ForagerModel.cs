@@ -191,11 +191,16 @@ namespace WorldGen.Core
         public long Id,Household,Mother=-1,Father=-1,Partner=-1;
         public bool Female;public double BirthYear,DeathYear;
     }
+    public sealed class ForagerLanguageKnowledge
+    {
+        public int Language;public double Fluency;public bool Native;
+    }
     public sealed class ForagerPersonSample
     {
         public long Id,Household,Mother=-1,Father=-1,Partner=-1;
         public string Name="",Role="";public bool Female;public double AgeYears,BirthYear,DeathYear;
-        public double[] Appearance=Array.Empty<double>(),Skills=Array.Empty<double>();
+        public double[] Appearance=Array.Empty<double>(),Knowledge=Array.Empty<double>(),Skills=Array.Empty<double>();
+        public ForagerLanguageKnowledge[] Languages=Array.Empty<ForagerLanguageKnowledge>();
     }
     public sealed class ForagerCampSample
     {

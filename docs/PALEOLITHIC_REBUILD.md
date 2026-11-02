@@ -496,3 +496,34 @@ lineage and an immediately intelligible dialect are distinct measures.
 uses171 forager/fisher societies and estimates several thousand early-Holocene
 languages; modern post-state family/language counts are not a census target for
 the Paleolithic. No model parameter was changed just to force a modern count.
+
+
+### Individual language knowledge and actual makers (17:10Z active)
+
+Local person samples now carry explicit native/contact-language identities and
+age-dependent fluency. Secondary languages derive only from resident households
+and actual saved exchange links; they are stable ID-based samples. In the reviewed
+30 largest120k communities,190 of687 sampled people are multilingual. This is a
+selected-community sample, not a claimed worldwide or ethnographic rate.
+
+A further query defect assigned every resident the community's low average craft
+proficiency, so a rare specialist appeared as many incapable weak workers. Samples
+now draw actual trained makers with age-dependent proficiency and necessary related
+skills; familiarity is a separate array. Band capability requires actual resident
+makers, while routine/winter equipment remain separate. This supersedes the prior
+2298e25 band-skill quantile and conditional Use/Skill equipment sampling. No global
+demographic/technology trajectory changes.2,176 sampling checks pass at120k,
+including actual expertise under rare-maker prevalence, prerequisites, household
+relations, locality and reference-query equality. Reviewed output has37 proficient
+adult bow makers, across8 of30 bands, rather than uniformly weak bow skill.
+
+A reproducible1.45MB band/person/camp sample export is under npc-data-review-120k.
+The first export FAILED because generic JSON followed V.Unit recursively; the
+corrected explicit XYZ converter writes real vector fields and passes. Keep the
+failed export log as a diagnostic, not a successful run.
+
+Internal candidate13 (87e1902,16:49Z) passes38 actual150k native checks including
+UI playback to150050, direct-reference hashd0187a35..., current human/climate
+palettes, explicitexit0/cleanlog. Regional language and winter images inspected.
+Proof1008 frozen/3254 original assets/177fauna/audio exact. It predates the newest
+individual sampling changes, which still need their own candidate/proof.
