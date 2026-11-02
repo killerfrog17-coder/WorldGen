@@ -199,6 +199,6 @@ namespace WorldGen.Core
     {
         public long Id;public V Position;public int Cell,Season;
         public string Purpose="";public double DurationDays,WaterAccess,Exposure,FoodOpportunity;
-        public bool RequiresLocalGroundValidation=true;
+        public bool RequiresLocalGroundValidation=true,ClimateSuitable=true;
     }
 }

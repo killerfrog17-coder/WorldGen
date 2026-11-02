@@ -81,7 +81,10 @@ public sealed partial class WorldGenRuntime
             while(!reference.IsCompleted&&Time.realtimeSinceStartupAsDouble<until)yield return null;
             if(!reference.IsCompleted||reference.IsFaulted||reference.Result.Hash!=final.Hash){Debug.LogError("FORAGER PLAYBACK differs from direct reference");Application.Quit(1);yield break;}checks++;
             while((humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null)&&Time.realtimeSinceStartupAsDouble<until)yield return null;
-            if(legendState?.Hash!=final.Hash||!historyLandscapeEpochs.TryGetValue(Layer.Climate,out long epoch)||epoch!=LandscapeEpoch(final)){Debug.LogError("FORAGER PLAYBACK left stale human/climate palettes");Application.Quit(1);yield break;}checks++;
+            historyLandscapeEpochs.TryGetValue(Layer.Climate,out long observedEpoch);
+            string observer="{\"finalSeconds\":"+SimulationTime.Seconds(final)+",\"legendSeconds\":"+(legendState==null?-1:SimulationTime.Seconds(legendState))+",\"sameDomain\":"+(SameHumanDomain(legendState,final)?"true":"false")+",\"observedEpoch\":"+observedEpoch+",\"expectedEpoch\":"+LandscapeEpoch(final)+",\"pending\":"+(humanPalettePending?"true":"false")+",\"job\":"+(humanPaletteJob!=null?"true":"false")+",\"ready\":"+(humanPaletteReady!=null?"true":"false")+"}";
+            File.WriteAllText(Path.Combine(folder,"playback-observer.json"),observer);Debug.Log("FORAGER PLAYBACK observer "+observer);
+            if(!SameHumanDomain(legendState,final)||legendState==null||SimulationTime.Seconds(final)-SimulationTime.Seconds(legendState)>=5*SimulationTime.Year||!historyLandscapeEpochs.TryGetValue(Layer.Climate,out long epoch)||epoch!=LandscapeEpoch(final)){Debug.LogError("FORAGER PLAYBACK left stale human/climate palettes");Application.Quit(1);yield break;}checks++;
             File.WriteAllText(Path.Combine(folder,"playback.json"),"{\"startYear\":"+s.Years+",\"endYear\":"+final.Years+",\"hash\":\""+final.Hash+"\"}");
             for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(Path.Combine(folder,"live-playback.png"));for(int frame=0;frame<4;frame++)yield return new WaitForEndOfFrame();
         }

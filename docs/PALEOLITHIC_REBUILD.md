@@ -357,3 +357,31 @@ cancellation after worker arithmetic. Empty retired populations now avoid useles
 fractional-date projection allocations. A new native check will advance real UI
 playback, compare its result with direct simulation, and require current human
 and dated landscape palettes; this proof is pending, not yet claimed passing.
+
+
+### Live-observer diagnostic and dated camp candidates (15:40Z WIP)
+
+The first live-playback run advanced the actual UI world and matched direct
+simulation, then FAILED an overly strict observer assertion. The diagnostic9
+rerun records finalSeconds1893741791202 / legendSeconds1893737477708,
+sameDomain=true, observed/expected climate epoch2402, no pending/job/ready work.
+This is about50 simulated days of clock-only reuse, with no intervening five-year
+demographic review. It is not evidence that population/climate failed to update.
+The revised assertion requires the same demographic domain, less than a five-year
+clock gap, and the exact current climate epoch. A fresh native passing rerun is
+STILL REQUIRED. Keep8/9 failures as diagnostics; do not count them as passes.
+
+Seasonal camp candidates now score dated local vegetation, water and ice instead
+of source-modern habitat. Actual food opportunities include the saved local biota.
+Unusable fallback climates are marked ClimateSuitable=false with zero food/water
+and maximum exposure; all candidates still require physical ground validation.
+This changes query products for the next NPC pass, not historical demography or
+learning trajectories.1344 actual20k household/camp checks pass. Further checking
+of full histories and local projection remains in progress.
+
+Additional primary language references: [Bouckaert et al.2018](https://www.nature.com/articles/s41559-018-0489-3)
+and the [authors' model/results](https://pamanyungan.compevol.auckland.ac.nz/what-we-found/)
+show that a large forager language-family expansion need not require farming.
+[Hua et al.2019](https://www.nature.com/articles/s41467-019-09842-2) cautions against
+attributing every ecological language-diversity correlation to isolation. These
+are checks on model assumptions, not grounds for enforcing a fixed family count.

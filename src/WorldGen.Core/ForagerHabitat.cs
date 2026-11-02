@@ -10,7 +10,7 @@ namespace WorldGen.Core
         public sealed class Local
         {
             public HabitatCell Habitat;public WeatherClimate Weather;public Koppen Classification;
-            public double ForestCover,IceCover;
+            public double ForestCover,IceCover,WaterAccess;
         }
         static readonly ConditionalWeakTable<PrehistoryState,ForagerHabitat> Cache=new ConditionalWeakTable<PrehistoryState,ForagerHabitat>();
         public static ForagerHabitat For(World world,PrehistoryState state=null)
@@ -50,7 +50,7 @@ namespace WorldGen.Core
             a.Biome=e.IceCover>.6?Biome.Ice:Ecology.Classify(a,false,world.Hydrology.LakeCoverageFraction[cell],world.ElevationM[cell]);a.Habitat=Ecology.HabitatOf(a.Biome);
             double districtPotential=ForagerEcology.At(world.Recipe.Seed,d,years,world.ElevationM[d.Cell]).Canopy;
             return new Local{Habitat=a,Weather=climate,Classification=Climate.ClassifySeasons(climate.TemperatureC,climate.MonthlyPrecipitationMm.Select(p=>p*3).ToArray(),point.Z>=0),
-                ForestCover=D.Clamp(e.Canopy*f.Biota[d.Id].ForestCover/Math.Max(.02,districtPotential)),IceCover=e.IceCover};
+                WaterAccess=e.Water,ForestCover=D.Clamp(e.Canopy*f.Biota[d.Id].ForestCover/Math.Max(.02,districtPotential)),IceCover=e.IceCover};
         }
     }
 }
