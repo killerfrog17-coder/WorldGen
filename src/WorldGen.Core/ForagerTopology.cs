@@ -38,6 +38,7 @@ namespace WorldGen.Core
                     double canopy=AnimalEcotypes.Canopy(h)/1000.0,aridity=h.AridityMilli/1000.0;
                     d.Productivity+=weight*h.ProductivityGCM2Year;d.WinterC+=weight*h.ColdTenthsC/10.0;d.SummerC+=weight*h.WarmTenthsC/10.0;d.MeanC+=weight*h.MeanTenthsC/10.0;
                     d.Aridity+=weight*aridity;d.GrowingDays+=weight*h.GrowingDays;d.Canopy+=weight*canopy;d.Coast+=weight*coast;d.River+=weight*river;d.Relief+=weight*h.ReliefM;
+                    d.PetMm+=weight*h.PetMm;d.AnnualRainMm+=weight*h.PetMm*aridity;
                     d.Water+=weight*D.Clamp(.65*D.Clamp(aridity/.8)+.45*river+.15*(h.WaterTableCm<150?1:0));
                     d.Pathogens+=weight*D.Clamp((h.MeanTenthsC/10.0-10)/20)*D.Clamp(aridity/1.1)*(.65+.35*canopy);
                     int material=ToolStone.Encode(ToolStone.Source(soil,cells[cell].Position,World.Recipe.Seed,World.Recipe.RadiusKm*1000),0);
@@ -80,6 +81,27 @@ namespace WorldGen.Core
                 Link(assigned[from],assigned[to],from,to,route.DistanceM,true,route.Shallow,route.SeaDropM);Link(assigned[to],assigned[from],to,from,route.DistanceM,true,route.Shallow,route.SeaDropM);
             }
             for(int i=0;i<districts.Count;i++)districts[i].Passages=links[i].Values.OrderBy(p=>p.To).ToArray();
+            // Moisture potential is connected to warm seas, with a mountain
+            // crossing cost. A nearby cold upwelling coast must not make a
+            // rain-shadow desert a generic Green-Sahara analogue.
+            var wetCost=Enumerable.Repeat(double.PositiveInfinity,districts.Count).ToArray();var wetQueue=new Heap();
+            foreach(var d in districts)
+            {
+                double warmest=double.NegativeInfinity;
+                foreach(int cell in d.Cells)foreach(int neighbour in cells[cell].Neighbors)
+                    if(World.Hydrology.OceanConnected[neighbour]&&Math.Abs(cells[neighbour].Position.Z)<.45)warmest=Math.Max(warmest,World.Ecology.Habitat[neighbour].MeanTenthsC/10d);
+                if(warmest<22)continue;double penalty=Math.Ceiling(Math.Max(0,27-warmest)*100000);wetCost[d.Id]=penalty;wetQueue.Push((int)penalty,d.Id);
+            }
+            while(wetQueue.Count>0)
+            {
+                var current=wetQueue.Pop();if(current.Key>wetCost[current.Id])continue;
+                foreach(var pass in districts[current.Id].Passages)
+                {
+                    if(pass.Sea)continue;double cost=Math.Ceiling(current.Key+pass.DistanceM*(1+4*pass.MountainBarrier));if(cost>=wetCost[pass.To])continue;
+                    wetCost[pass.To]=cost;wetQueue.Push((int)Math.Min(int.MaxValue,cost),pass.To);
+                }
+            }
+            foreach(var d in districts)d.OceanMoistureAccess=double.IsFinite(wetCost[d.Id])?D.Q(Math.Exp(-wetCost[d.Id]/3500000d),1000000):0;
             int realm=0;foreach(var seed in districts)if(seed.Realm<0)
             {
                 var queue=new Queue<int>();queue.Enqueue(seed.Id);seed.Realm=realm;
