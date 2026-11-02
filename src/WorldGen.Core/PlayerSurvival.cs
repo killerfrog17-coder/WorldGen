@@ -24,6 +24,8 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double Tiredness;
         [System.Runtime.Serialization.OptionalField] public int MetabolismVersion;
         [System.Runtime.Serialization.OptionalField] public double DigestingKcal,ReserveKcal,WaterDeficitLitres;
+        [System.Runtime.Serialization.OptionalField] public int FoodFeelingVersion;
+        [System.Runtime.Serialization.OptionalField] public double FoodNeedDays;
         [System.Runtime.Serialization.OptionalField] public double SleepPhaseHour=23,SleepBoutSeconds,LastSleepHour;
         [System.Runtime.Serialization.OptionalField] public ExertionState Exertion;
         [System.Runtime.Serialization.OptionalField] public BleedingState Bleeding;
@@ -45,7 +47,7 @@ namespace WorldGen.Core
         public double MovementScale=>Incapacitated?0:Math.Max(.25,Math.Min(1,Math.Min(.55+Energy*.045,Math.Min(1-(35-CoreTemperatureC)*.16,1-(CoreTemperatureC-39)*.15))))*(1-.2*Math.Max(0,(Tiredness-70)/30))*(Bleeding==null?1:BleedingRules.Mobility(Bleeding));
         public PlayerSurvival Copy(){var p=(PlayerSurvival)MemberwiseClone();p.Exertion=Exertion?.Copy();p.Bleeding=Bleeding?.Copy();p.Blood=Blood?.ConvertAll(b=>b.Copy());p.FoodExposures=FoodExposures?.ConvertAll(e=>e.Copy());return p;}
         public void Restore()
-        {Bleeding=null;Health=Stamina=Energy=100;Hunger=Thirst=Wetness=Tiredness=0;CoreTemperatureC=37;Exhausted=Unconscious=false;DeathCause=PlayerDeathCause.None;Blood?.Clear();FoodExposures?.Clear();WaterSicknessDelaySeconds=WaterSicknessSeconds=WaterSicknessSeverity=BreathDebtSeconds=0;WaterExposureHazard=WaterExposureThreshold=WaterExposureResponse=WaterExposureAgeSeconds=WaterSicknessTotalSeconds=0;WaterExposureSequence=0;MetabolismVersion=1;DigestingKcal=1000;ReserveKcal=PlayerMetabolism.NormalReserveKcal;WaterDeficitLitres=0;SleepPhaseHour=23;SleepBoutSeconds=LastSleepHour=0;Exertion=new ExertionState();}
+        {Bleeding=null;Health=Stamina=Energy=100;Hunger=Thirst=Wetness=Tiredness=0;CoreTemperatureC=37;Exhausted=Unconscious=false;DeathCause=PlayerDeathCause.None;Blood?.Clear();FoodExposures?.Clear();WaterSicknessDelaySeconds=WaterSicknessSeconds=WaterSicknessSeverity=BreathDebtSeconds=0;WaterExposureHazard=WaterExposureThreshold=WaterExposureResponse=WaterExposureAgeSeconds=WaterSicknessTotalSeconds=0;WaterExposureSequence=0;MetabolismVersion=FoodFeelingVersion=1;FoodNeedDays=0;DigestingKcal=1000;ReserveKcal=PlayerMetabolism.NormalReserveKcal;WaterDeficitLitres=0;SleepPhaseHour=23;SleepBoutSeconds=LastSleepHour=0;Exertion=new ExertionState();}
         public void Validate()
         {
             Exertion?.Validate();Bleeding?.Validate();
@@ -53,7 +55,8 @@ namespace WorldGen.Core
             Range(Health,0,100);Range(Stamina,0,100);Range(Energy,0,100);Range(Hunger,0,100);Range(Thirst,0,100);Range(Wetness,0,1);Range(CoreTemperatureC,25,45);
             Range(Tiredness,0,100);
             if(MetabolismVersion<0||MetabolismVersion>1)throw new ArgumentException("Unknown metabolism state.");
-            PlayerMetabolism.Initialize(this);Range(DigestingKcal,0,30000);Range(ReserveKcal,0,130000);Range(WaterDeficitLitres,0,20);Range(SleepPhaseHour,0,24);Range(SleepBoutSeconds,0,1e9);Range(LastSleepHour,0,24);
+            if(FoodFeelingVersion<0||FoodFeelingVersion>1)throw new ArgumentException("Unknown food feeling state.");
+            PlayerMetabolism.Initialize(this);Range(FoodNeedDays,0,1e6);Range(DigestingKcal,0,30000);Range(ReserveKcal,0,130000);Range(WaterDeficitLitres,0,20);Range(SleepPhaseHour,0,24);Range(SleepBoutSeconds,0,1e9);Range(LastSleepHour,0,24);
             Range(WaterSicknessDelaySeconds,0,1e8);Range(WaterSicknessSeconds,0,1e8);Range(WaterSicknessSeverity,0,1);Range(BreathDebtSeconds,0,3600);
             Range(WaterExposureHazard,0,1e8);Range(WaterExposureThreshold,0,100);Range(WaterExposureResponse,0,1);Range(WaterExposureAgeSeconds,0,86400);Range(WaterSicknessTotalSeconds,0,1e8);
             if(WaterExposureSequence<0||WaterSicknessTotalSeconds>0&&WaterSicknessSeconds>WaterSicknessTotalSeconds)throw new ArgumentException("Invalid water exposure state.");

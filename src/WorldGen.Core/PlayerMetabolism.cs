@@ -9,15 +9,22 @@ namespace WorldGen.Core
         static double Clamp(double x,double lo,double hi)=>Math.Max(lo,Math.Min(hi,x));
         public static void Initialize(PlayerSurvival s)
         {
-            if(s.MetabolismVersion!=0)return;
-            // Legacy empty stomachs are not retroactively treated as starvation.
-            s.MetabolismVersion=1;s.ReserveKcal=NormalReserveKcal;
-            s.DigestingKcal=Math.Max(0,1000*(1-s.Hunger/100));s.WaterDeficitLitres=s.Thirst/100*2;
-            s.SleepPhaseHour=23;
+            if(s.MetabolismVersion==0)
+            {
+                // Legacy empty stomachs are not retroactively treated as starvation.
+                s.MetabolismVersion=1;s.ReserveKcal=NormalReserveKcal;
+                s.DigestingKcal=Math.Max(0,1000*(1-s.Hunger/100));s.WaterDeficitLitres=s.Thirst/100*2;
+                s.SleepPhaseHour=23;
+            }
+            if(s.FoodFeelingVersion==0){s.FoodNeedDays=EstimatedFoodNeedDays(s);s.FoodFeelingVersion=1;}
         }
+        public static double EstimatedFoodNeedDays(PlayerSurvival s)=>s.FoodFeelingVersion>0?s.FoodNeedDays:Math.Max(s.Hunger/280,Math.Max(0,NormalReserveKcal-(s.MetabolismVersion==0?NormalReserveKcal:s.ReserveKcal))/2200);
         public static void Eat(PlayerSurvival s,double kg,double kcal,double waterLitres)
         {
             Initialize(s);s.DigestingKcal=Clamp(s.DigestingKcal+Math.Max(0,kcal),0,30000);
+            // A few berries must not reset a whole day's appetite. This saved
+            // feeling signal is independent of the existing lethal reserve model.
+            s.FoodNeedDays=Clamp(s.FoodNeedDays-Math.Max(0,kcal)/2200,0,1e6);
             s.Hunger=Clamp(s.Hunger-Math.Max(0,kg)/.65*100-Math.Max(0,kcal)/40,0,100);
             Hydrate(s,Math.Max(0,waterLitres));
         }
@@ -27,6 +34,7 @@ namespace WorldGen.Core
         {
             Initialize(s);if(days<=0||s.Dead)return;
             double kcal=(2200+activity*2200+Math.Min(1500,coldLoad*18))*days;
+            s.FoodNeedDays=Clamp(s.FoodNeedDays+kcal/2200,0,1e6);
             double absorbed=Math.Min(s.DigestingKcal,days*24*300);s.DigestingKcal-=absorbed;
             s.ReserveKcal=Clamp(s.ReserveKcal+absorbed-kcal,0,130000);
             s.Hunger=Clamp(s.Hunger+days*(280+activity*50),0,100);

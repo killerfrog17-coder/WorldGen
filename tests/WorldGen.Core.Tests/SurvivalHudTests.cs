@@ -10,12 +10,20 @@ static class SurvivalHudTests
     {
         int n=0;void Check(bool ok,string s){n++;if(!ok)throw new Exception(s);}
         var v=SurvivalHudValues.From(new PlayerSurvival{Health=90,Energy=90,Stamina=85,Thirst=25,Hunger=35},22);
-        Check(Math.Abs(v.Health-.9)<1e-6&&Math.Abs(v.Hydration-.875)<1e-6&&Math.Abs(v.Fullness-.699)<1e-6,"Resource bindings show felt need while preserving a body-reserve floor");
-        var need=new PlayerSurvival();need.Restore();need.Hunger=100;
-        var hungry=SurvivalHudValues.From(need,22);Check(Math.Abs(hungry.Fullness-.14)<1e-6&&hungry.FoodAttention==1,"An empty stomach feels very hungry while normal body reserves remain");
-        need.ReserveKcal=0;Check(SurvivalHudValues.From(need,22).Fullness==0,"Only exhausted reserves plus an empty stomach fully empty the food icon");
-        need.WaterDeficitLitres=2.2;var parched=SurvivalHudValues.From(need,22);need.WaterDeficitLitres=7;
-        Check(parched.Hydration>.35&&SurvivalHudValues.From(need,22).Hydration<.04,"Parched and critically dehydrated remain visibly distinct");
+        Check(Math.Abs(v.Health-.9)<1e-6&&Math.Abs(v.Hydration-(.9-.15/.65*.4))<1e-6&&Math.Abs(v.Fullness-.925)<1e-6,"Early appetite/thirst remain distinct from starvation or severe dehydration");
+        var need=new PlayerSurvival();need.Restore();PlayerMetabolism.Advance(need,1,0,0,2.4);
+        var hungry=SurvivalHudValues.From(need,22);Check(Math.Abs(hungry.Fullness-.5)<1e-6&&hungry.FoodAttention>0,"One comfortable day without food shows half a stomach and intermittent attention");
+        PlayerMetabolism.Advance(need,2,0,0,0);Check(SurvivalHudValues.From(need,22).Fullness>.28,"Several fasting days do not display an empty icon while ordinary reserves remain");
+        need.ReserveKcal=0;Check(SurvivalHudValues.From(need,22).Fullness<=.06,"True reserve depletion leaves only a critical sliver");
+        need.Health=0;Check(SurvivalHudValues.From(need,22).Fullness==0,"Lethal starvation fully empties the food icon");need.Health=100;
+        need.WaterDeficitLitres=2.2;var parched=SurvivalHudValues.From(need,22);need.WaterDeficitLitres=7.4;
+        Check(parched.Hydration>.35&&SurvivalHudValues.From(need,22).Hydration<.02,"Parched and critically dehydrated remain visibly distinct");
+        Check(Math.Abs(SurvivalHudValues.FeltHydration(1)-.5)<1e-6,"A one-litre deficit is the quite-thirsty half-icon tuning point");
+        foreach(double minutes in new[]{15d,60d,1440d})
+        {var day=new PlayerSurvival();day.Restore();SurvivalRules.Advance(day,minutes*60,minutes,new SurvivalEnvironment{AirTemperatureC=24,Humidity=.5},0,false);Check(Math.Abs(SurvivalHudValues.From(day,22).Fullness-.5)<.001,"Food feeling follows solar days at day length "+minutes);}
+        var fed=new PlayerSurvival();fed.Restore();PlayerMetabolism.Advance(fed,1,0,0,0);double daysBefore=fed.FoodNeedDays;
+        PlayerMetabolism.Eat(fed,.02,50,0);Check(fed.FoodNeedDays>daysBefore-.03,"A few berries do not reset a whole day of hunger");
+        var feelingSave=WorldJson.Read<PlayerSurvival>(WorldJson.Write(fed));feelingSave.Validate();Check(feelingSave.FoodNeedDays==fed.FoodNeedDays,"Felt food deficit persists through saves");
         for(double water=0;water<=8;water+=.05)Check(SurvivalHudValues.FeltHydration(water)>=SurvivalHudValues.FeltHydration(water+.05),"Felt hydration decreases continuously as the deficit grows");
         need.FoodExposures=new System.Collections.Generic.List<FoodExposure>{new FoodExposure{DelaySeconds=3600,RemainingDamage=30,RemainingSeconds=10800}};
         Check(SurvivalHudValues.From(need,22).Sickness==0,"Delayed poison cannot be detected through the HUD before symptoms");

@@ -79,12 +79,17 @@ Shader "WorldGen/Survival HUD"
                 if(_Resources.y>0)Over(c,float3(41,70,255)/255,Coverage(Arc(p,231,(85-170*saturate(_Resources.y))*radians,85*radians),aa));
                 if(_Resources.z>0)Over(c,float3(0,229,244)/255,Coverage(Arc(p,214,(85-170*saturate(min(_Resources.y,_Resources.z)))*radians,85*radians),aa));
                 float water=Coverage(shape.r,aa),food=Coverage(shape.g,aa);
-                float pulseNeed=.5+.5*sin(_Time.y*5.1);
-                Over(c,float3(89,99,109)/255,water*(1-_Needs.y*pulseNeed*.7));
+                // Short, smooth bouts of throbbing, with quiet intervals between
+                // reminders. Severe need makes the bouts more frequent.
+                float foodPhase=fmod(_Time.y,lerp(15,5,saturate(_Needs.x)));
+                float waterPhase=fmod(_Time.y+2,lerp(15,5,saturate(_Needs.y)));
+                float foodPulse=pow(.5-.5*cos(foodPhase*6.2831853),2)*(1-smoothstep(1.6,2,foodPhase));
+                float waterPulse=pow(.5-.5*cos(waterPhase*6.2831853),2)*(1-smoothstep(1.6,2,waterPhase));
+                Over(c,float3(89,99,109)/255,water*(1-_Needs.y*waterPulse*.7));
                 if(_Resources.w>0)Over(c,float3(36,156,255)/255,water*smoothstep(-aa,aa,position.y-(329.57142857-saturate(_Resources.w)*120)));
                 Over(c,float3(181,234,255)/255,Coverage(abs(shape.r)-1.0,aa));
                 float3 foodColour=lerp(float3(1,1,1),float3(.36,.76,.29),saturate(_Needs.z));
-                Over(c,lerp(float3(119,122,128)/255,float3(.18,.33,.15),saturate(_Needs.z)),food*(1-_Needs.x*pulseNeed*.7));
+                Over(c,lerp(float3(119,122,128)/255,float3(.18,.33,.15),saturate(_Needs.z)),food*(1-_Needs.x*foodPulse*.7));
                 if(_Thermal.x>0)Over(c,foodColour,food*smoothstep(-aa,aa,position.y-(411.65755556-saturate(_Thermal.x)*221.31511112)));
                 Over(c,foodColour,Coverage(abs(shape.g)-.675,aa));
                 if(_Wind.y>.001)

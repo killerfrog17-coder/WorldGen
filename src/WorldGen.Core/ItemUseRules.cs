@@ -67,6 +67,16 @@ namespace WorldGen.Core
             double effort=(.2+.8*Clamp(charge))*(.35+.65*Clamp(staminaFraction));
             return Math.Min(maxSpeed,Math.Min(Math.Sqrt(2*energy/item.MassKg),impulse/item.MassKg))*Math.Sqrt(effort);
         }
+        // Holding a light spear ready is mostly local arm work, not the same
+        // whole-body effort as a drawn bow or a repeated forceful melee strike.
+        public static double ThrowReadyStamina(Possession item)=>Math.Max(.08,Math.Min(.4,.12*Math.Sqrt(Math.Max(.01,item?.MassKg??.7)/.7)));
+        public static double ThrowHoldStaminaPerSecond(Possession item)=>Math.Min(.8,.04+.09*Math.Sqrt(Math.Max(.01,item?.MassKg??.7))+.025*Math.Max(0,(item?.HeightM??0)-1));
+        public static double ThrowReleaseStamina(Possession item,double charge)
+        {
+            if(item==null)return 0;
+            double work=KineticEnergy(item.MassKg,ThrowSpeed(item,charge));
+            return Math.Max(.3,Math.Min(3,.3+work/400+.35*Math.Sqrt(Math.Max(.01,item.MassKg))));
+        }
         public static double BowSpeed(Possession arrow,double draw,double condition=1)
             =>arrow==null||arrow.MassKg<=0?0:Math.Min(65,Math.Sqrt(2*55*Clamp(draw)*Clamp(draw)*(.4+.6*Clamp(condition))/arrow.MassKg));
         public static double DragAcceleration(double massKg,double areaM2,double speedMps,double coefficient=.47)

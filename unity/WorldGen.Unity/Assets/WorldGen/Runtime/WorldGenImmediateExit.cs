@@ -80,6 +80,7 @@ public sealed class WorldGenImmediateExit : MonoBehaviour
         File.WriteAllText(Path.Combine(checkOutput,"alt-alone-survived.txt"),"PASS");
         InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.F4));yield return null;yield return null;
         File.WriteAllText(Path.Combine(checkOutput,"f4-alone-survived.txt"),"PASS");
+        yield return new WaitForSecondsRealtime(2);
         nativeCheck=true;
         File.WriteAllText(Path.Combine(checkOutput,"armed.txt"),DateTime.UtcNow.ToString("O"));
         InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftAlt,Key.F4));

@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         if(weapon==null||pendingRanged!=null||!CombatReady(left)||ItemUseRules.Condition(weapon)<=0)return;
         var ammo=throwing?weapon:FindRangedAmmo(weapon);
         if(ammo==null){CombatNotice(ItemUseRules.Profile(weapon).Primary==ItemPrimaryUse.Bow?"Carry a finished or unfletched arrow in your hands or worn equipment.":ItemUseRules.Profile(weapon).Primary==ItemPrimaryUse.Sling?"A sling needs a carried small stone (15-300 g).":"Carry a spear-thrower dart.");return;}
-        if(!SpendCombatStamina(1))return;
+        if(!SpendCombatStamina(throwing?ItemUseRules.ThrowReadyStamina(ammo):1))return;
         var charge=new ItemCharge{Weapon=weapon,Ammo=ammo,Left=left,Button=button,Throw=throwing,Started=Time.unscaledTimeAsDouble,Duration=throwing?.8:ItemUseRules.Profile(weapon).Primary==ItemPrimaryUse.Bow?1.05:.8};
         if(!throwing)
         {
@@ -48,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
         if(charge.Weapon.Place!=PossessionPlace.RightHand&&charge.Weapon.Place!=PossessionPlace.LeftHand){CancelItemCharge();return;}
         var button=charge.Button==0?mouse.leftButton:mouse.rightButton;var other=charge.Button==0?mouse.rightButton:mouse.leftButton;
         if(other.wasPressedThisFrame){CancelItemCharge();return;}
-        if(SurvivalActive){SurvivalRules.SpendStamina(Vitals,Math.Min(.1,Time.unscaledDeltaTime)*2);if(Vitals.Stamina<=0){CancelItemCharge();return;}}
+        if(SurvivalActive){SurvivalRules.SpendStamina(Vitals,Math.Min(.1,Time.unscaledDeltaTime)*(charge.Throw?ItemUseRules.ThrowHoldStaminaPerSecond(charge.Ammo):2));if(Vitals.Stamina<=0){CancelItemCharge();return;}}
         if(button.wasReleasedThisFrame)ReleaseItemCharge();
     }
     void CancelItemCharge()
@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
         var charge=itemCharge;if(charge==null)return;double held=Time.unscaledTimeAsDouble-charge.Started;
         if(held<.12||Inventory.Find(charge.Ammo.Id)==null){CancelItemCharge();return;}
         double strength=Math.Max(0,Math.Min(1,held/charge.Duration));var profile=ItemUseRules.Profile(charge.Weapon);
-        if(!SpendCombatStamina(Math.Max(1,profile.Stamina))){CancelItemCharge();return;}
+        if(!SpendCombatStamina(charge.Throw?ItemUseRules.ThrowReleaseStamina(charge.Ammo,strength):Math.Max(1,profile.Stamina))){CancelItemCharge();return;}
         double fatigue=SurvivalActive?Math.Max(.15,Vitals.Stamina/100):1;
         double speed=charge.Throw?ItemUseRules.ThrowSpeed(charge.Ammo,strength,fatigue):profile.Primary==ItemPrimaryUse.Bow?ItemUseRules.BowSpeed(charge.Ammo,strength,ItemUseRules.Condition(charge.Weapon)):ItemUseRules.ThrowSpeed(charge.Ammo,strength,fatigue,profile.Primary==ItemPrimaryUse.Sling,profile.Primary==ItemPrimaryUse.SpearThrower);
         float spread=(float)((charge.Ammo.Kind==PossessionKind.UnfletchedArrow?1.6:.3)+(1-strength)*1.1);

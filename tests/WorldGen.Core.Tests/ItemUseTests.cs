@@ -23,6 +23,14 @@ static class ItemUseTests
         Check(ItemUseRules.KineticEnergy(arrow.MassKg,ItemUseRules.BowSpeed(arrow,1))<=55+1e-8,"Bow energy is bounded");
         var spear=new Possession{Id="spear",Kind=PossessionKind.WoodenSpear,Position=ground,HeightM=1.9,MassKg=.9};Check(ItemUseRules.Profile(spear).ReachM>ItemUseRules.Profile(light).ReachM,"Spear reach differs from a stone in hand");
         Check(ItemUseRules.Profile(spear).Secondary==ItemSecondaryUse.Throw,"Spear secondary throws");
+        double ready=ItemUseRules.ThrowReadyStamina(spear),hold=ItemUseRules.ThrowHoldStaminaPerSecond(spear),release=ItemUseRules.ThrowReleaseStamina(spear,1);
+        Check(ready<.2&&hold<.2&&release<1.2,"A normal spear has a light wind-up, hold and release cost");
+        Check(ready+hold*10+release<3.5,"Ten seconds of aiming and a full throw do not consume a large part of a fresh reserve");
+        Check(ItemUseRules.ThrowReleaseStamina(spear,.25)<release,"A softer throw spends less effort than a full throw");
+        var heavySpear=spear.Copy();heavySpear.MassKg=3;heavySpear.HeightM=2.4;
+        Check(ItemUseRules.ThrowHoldStaminaPerSecond(heavySpear)>hold&&ItemUseRules.ThrowReleaseStamina(heavySpear,1)>release,"Heavy long shafts still take more effort");
+        var reserve=new PlayerSurvival();SurvivalRules.SpendStamina(reserve,ready+hold*10+release);
+        Check(reserve.Stamina>96&&reserve.Exertion.Breath<.02,"A ten-second aimed throw does not empty the canonical reserve or trigger heavy breathing");
         Check(ItemUseRules.Profile(PortableTechnology.Create(PossessionKind.Bone,ground)).Secondary==ItemSecondaryUse.Block,"Bone secondary blocks rather than becoming an unexplained missile");
         foreach(var kind in new[]{PossessionKind.RawFibre,PossessionKind.Cordage,PossessionKind.RawHide,PossessionKind.WorkedHide,PossessionKind.Feather,PossessionKind.BoneNeedle,PossessionKind.HidePack})Check(!ItemUseRules.Profile(PortableTechnology.Create(kind,ground)).Weapon,"Nonweapon component/carrier does not become a generic club: "+kind);
         double stamina=30,unblocked=40;double front=ItemUseRules.BlockDamage(unblocked,spear,1,ref stamina);Check(front<unblocked&&stamina<30,"Facing block absorbs damage and consumes stamina");
