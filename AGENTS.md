@@ -39,6 +39,8 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov22:17Z RESUMED. Version3 full Continents190k COMPLETE, hash0ed1be60a1e7f099e1456d1ce6fcdd46d68c790cf1b7e045ed382a6c8537c824, packed33PASS. However substantive outcome review found fitted/insulated clothing never established and rare makers' prevalence is incorrectly treated as their competence in teaching. Correct this with version-gated rules4; NO correction implemented yet at this note. Preserve old2/3 replay. Earlier ETA withdrawn; owner told30-60min focused correction plus~2h new full-history validation. Current16 old3 is control ONLY, not new-model acceptance. Native190k exited0 without result/playback proof (INCOMPLETE, not PASS);180k36PASS. Runtime parity16 PID30188/session46219 running, do not overwrite default testDLL before reference done. No selectedshortcut change. Production b326d2f pushed, docs8014a45 pushed; recordscript tiny edits uncommitted. All prior source/art preserved; owner3 untouched. No subagents/paid/cleanup/ownerapps.
+
 ACTIVE2Nov21:31Z RESUMED verification: fullcurrent3 history PID7900/session18754
 ~157k, loglinear-continents-resumed.log; numericalsource41f4bd7. Remaining watcher
 session92433 waits for completion, then behaviorfinal +packed33 +native190k.

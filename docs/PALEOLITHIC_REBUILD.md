@@ -5,7 +5,38 @@ New worlds use a new rule version. Source consistency is necessary, but it is
 not evidence of realistic behaviour. Do not select a player until the behavioural
 and visual review below has been completed.
 
-## Current release review (2 November, 18:15 UTC)
+## Current release review (2 November, 22:30 UTC)
+
+The version3 Continents190k history is now complete, hash
+`0ed1be60a1e7f099e1456d1ce6fcdd46d68c790cf1b7e045ed382a6c8537c824`.
+Its broad behavioural gates and33 packed-world checks pass, and actual managed
+runtime37-year continuation exactly matches CoreCLR
+`21b46a1bbfd1b70baba74cb57fd182a72f6b554ed07588c3cbf676978a6b7d16`.
+However, the detailed outcome is **not accepted as final calibration**: no fitted
+or insulated clothing is established in that run. Rare-maker teaching treated
+maker prevalence as each maker's proficiency. The earlier high-prevalence tests
+did not cover that error. The190k visible map run exited0 without its completion
+record and is incomplete evidence;180k completed36 checks. Neither an exit code
+alone nor a broad consistency gate establishes final visual/behavioural quality.
+
+New worlds now use version4, with version2/3 numerical replay preserved. Teacher
+access depends on actual expected maker counts, while conditional proficiency is
+separate. Prerequisite experts can enable an invention without an arbitrary22%
+population threshold. Complex explanation uses the language's practised technical
+register as well as mutual comprehension. Shared language registers develop from
+all speaker communities rather than one largest demographic record. These are
+model priors; the numeric access scale is not an empirical three-teacher law.
+The mechanisms follow the distinction between learning networks and individual
+skills in [Migliano et al.](https://doi.org/10.1126/sciadv.aax5913) and the multiple
+transmission paths reviewed by [Hewlett et al.](https://doi.org/10.1073/pnas.2322883121).
+
+Focused43 mechanism and12 temporal/save/budget checks pass. Old version3 full
+190k37-year continuation remains exact. Fresh version4 histories, outcomes and
+packaged views are still required. Candidate16 remains an unselected version3
+control, and the shortcut remains unchanged. No sapiens-only demographic bonus
+or scripted extinction has been added to force a preferred species outcome.
+
+### Superseded version3 review checkpoint (18:15 UTC)
 
 Production source `41f4bd7` is pushed. New worlds use `foragers-3`; existing
 version2 saves deliberately preserve their original resource-competition rule.

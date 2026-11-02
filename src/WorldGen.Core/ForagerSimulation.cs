@@ -94,7 +94,7 @@ namespace WorldGen.Core
                 {
                     var c=active[index];if((c.Id&63)==0)token.ThrowIfCancellationRequested();Array.Copy(c.Skill,previous,previous.Length);
                     communication.TryGetValue(c.Id,out var access);double comprehension=access.weight>0?access.score/access.weight:1;
-                    ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District],comprehension),gained=0,lost=0;
+                    ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District],comprehension,f.Version=="foragers-4"),gained=0,lost=0;
                     for(int k=0;k<previous.Length;k++)
                     {
                         if(c.Knowledge[k]>=.2&&c.FirstKnownYear[k]<0)c.FirstKnownYear[k]=year;
@@ -131,7 +131,9 @@ namespace WorldGen.Core
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1))
             {
                 double weight=0,adults=0;
-                c.TeachingFrom=ForagerTechnology.TeacherContext(neighbours[c.Id].Where(x=>x.people.Population>=1).Select(x=>(x.people.Skill,x.relation.Strength*(1-.75*x.relation.Hostility))));
+                c.TeachingFrom=f.Version=="foragers-4"?
+                    ForagerTechnology.SpecialistTeacherContext(neighbours[c.Id].Where(x=>x.people.Population>=1).Select(x=>(x.people.Skill,x.people.Knowledge,x.people.Adults,x.relation.Strength*(1-.75*x.relation.Hostility)))):
+                    ForagerTechnology.TeacherContext(neighbours[c.Id].Where(x=>x.people.Population>=1).Select(x=>(x.people.Skill,x.relation.Strength*(1-.75*x.relation.Hostility))));
                 foreach(var contact in neighbours[c.Id])
                 {
                     if(contact.people.Population<1)continue;double strength=contact.relation.Strength*(1-.75*contact.relation.Hostility);weight+=strength;adults+=contact.people.Adults*strength;
@@ -232,8 +234,9 @@ namespace WorldGen.Core
             // Exactly one update per language, even when multiple districts share
             // it. Mutable owner iteration never makes a widespread language age
             // faster merely because more people speak it.
-            using(ProfileWork("forager speech change",f.Languages.Length))foreach(var speechOwner in f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Speech.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.weight).First()))
+            using(ProfileWork("forager speech change",f.Languages.Length))foreach(var speechCommunity in f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Speech.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id))
             {
+                var speechOwner=speechCommunity.OrderByDescending(x=>x.weight).First();
                 var owner=speechOwner.people;int languageId=speechOwner.id;
                 var peer=neighbours[owner.Id].Where(p=>p.people.Language!=languageId).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
                 ForagerLanguages.Evolve(World.Recipe.Seed,f.Languages[languageId],year,elapsed,owner.Isolation,peer.people==null?0:peer.relation.Strength,peer.people==null?null:oldLanguages[peer.people.Language]);
@@ -242,6 +245,24 @@ namespace WorldGen.Core
                 double technical=D.Clamp(.2+.032*owner.Skill.Count(x=>x>.5)+.25*owner.Connectivity+.15*culture.ChildcareCooperation);
                 double narrative=D.Clamp(.35+.3*owner.Connectivity+.2*culture.GuestAccess+.15*owner.Use[5]+.15*f.Beliefs[owner.Belief].CollectiveRites);
                 double ritual=D.Clamp(.2+.55*f.Beliefs[owner.Belief].CollectiveRites+.2*owner.Connectivity);
+                if(f.Version=="foragers-4")
+                {
+                    // A language belongs to its whole speaker community. Its
+                    // technical register cannot be capped by whichever single
+                    // demographic record happens to be largest this century.
+                    double total=0,technicalSum=0,narrativeSum=0,ritualSum=0;
+                    foreach(var speaker in speechCommunity)
+                    {
+                        var resident=speaker.people;var customs=f.Cultures[resident.Culture];
+                        double capacity=.25+.75*ForagerSociality.Capacity(f,resident,true);
+                        double trained=resident.Skill.Count(x=>ForagerTechnology.MakerAccess(resident.Adults,x)>.5);
+                        technicalSum+=speaker.weight*capacity*D.Clamp(.2+.032*trained+.25*resident.Connectivity+.15*customs.ChildcareCooperation);
+                        narrativeSum+=speaker.weight*capacity*D.Clamp(.35+.3*resident.Connectivity+.2*customs.GuestAccess+.15*resident.Use[5]+.15*f.Beliefs[resident.Belief].CollectiveRites);
+                        ritualSum+=speaker.weight*capacity*D.Clamp(.2+.55*f.Beliefs[resident.Belief].CollectiveRites+.2*resident.Connectivity);
+                        total+=speaker.weight;
+                    }
+                    potential=1;technical=technicalSum/total;narrative=narrativeSum/total;ritual=ritualSum/total;
+                }
                 language.TechnicalRegister=D.Q(PaleolithicRules.Approach(language.TechnicalRegister,technical*potential,1/12000d,elapsed),1000000);
                 language.NarrativePractice=D.Q(PaleolithicRules.Approach(language.NarrativePractice,narrative*potential,1/15000d,elapsed),1000000);
                 language.RitualRegister=D.Q(PaleolithicRules.Approach(language.RitualRegister,ritual*potential,1/15000d,elapsed),1000000);

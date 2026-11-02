@@ -46,6 +46,33 @@ static class ForagerMechanismTests
         }
         Check(frequentAt100>rareAt100*3,"Technique-specific access makes rare instruction slower than frequent instruction");
         Check(rareLearner.Knowledge[17]>.6&&rareLearner.Skill[17]>.35,"Repeated rare expert visits can eventually establish a useful practice without an artificial averaged-expertise ceiling");
+        // The old tests above used ninety-percent maker prevalence and missed
+        // the real specialist case: twenty competent makers among a thousand.
+        var specialists=new double[ForagerTechnology.Count];specialists[21]=.02;
+        var known=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray();
+        var oldSpecialists=ForagerTechnology.TeacherContext(new[]{(specialists,.8)});
+        var actualSpecialists=ForagerTechnology.SpecialistTeacherContext(new[]{(specialists,known,1000d,.8),(nobody,known,1000d,.7)});
+        Check(oldSpecialists[21]==0&&actualSpecialists[21]>.96&&Math.Abs(actualSpecialists[ForagerTechnology.Count+21]-.8)<1e-8,"Rare proficient makers can teach; twenty experts are not zero-percent teachers, and unskilled contacts do not dilute them");
+        var absentMakers=ForagerTechnology.SpecialistTeacherContext(new[]{(nobody,known,1000d,1d)});
+        Check(absentMakers.All(x=>x==0),"Hearing of a method without any proficient maker creates no expert teacher");
+        Check(ForagerTechnology.MakerAccess(1000,.02)==1&&ForagerTechnology.MakerAccess(10,.02)<.1,"Actual numbers of makers distinguish a viable expert pool from a tiny endangered practice");
+        var minority=c.Copy();minority.Adults=1000;minority.Skill[21]=.02;minority.Knowledge[21]=.8;
+        minority.FirstKnownYear=Enumerable.Repeat(1,ForagerTechnology.Count).ToArray();
+        var oldMinority=minority.Copy();
+        for(int year=50000;year<=52000;year+=5)
+        {
+            ForagerTechnology.Advance(42,minority,d,experimentEnvironment,culture,5,year,null,0,specialistTeaching:true);
+            ForagerTechnology.Advance(42,oldMinority,d,experimentEnvironment,culture,5,year,null,0);
+        }
+        Check(minority.Skill[21]>oldMinority.Skill[21]+.2&&minority.Skill[21]>.65,$"A living pool of rare needle makers sustains proficient transmission even when the original discovery is ancient; corrected={minority.Skill[21]:R}, legacy={oldMinority.Skill[21]:R}");
+        var articulate=c.Copy();var demonstrative=c.Copy();
+        articulate.Knowledge[17]=articulate.Skill[17]=articulate.Use[17]=demonstrative.Knowledge[17]=demonstrative.Skill[17]=demonstrative.Use[17]=0;
+        for(int year=5;year<=100;year+=5)
+        {
+            ForagerTechnology.Advance(42,articulate,d,experimentEnvironment,culture,5,year,frequentContext,0,explanationPractice:1,specialistTeaching:true);
+            ForagerTechnology.Advance(42,demonstrative,d,experimentEnvironment,culture,5,year,frequentContext,0,explanationPractice:0,specialistTeaching:true);
+        }
+        Check(articulate.Knowledge[17]>demonstrative.Knowledge[17]*2&&demonstrative.Knowledge[17]>0,"A shared language needs practised technical explanation for rapid complex teaching; demonstration still transmits some knowledge");
         var resources=new ForagerResources();var warm=ForagerEcology.At(42,d,0);var basic=ForagerEcology.Livelihood(d,warm,lineage,c,culture,resources);
         Check(basic.Capacity>50&&basic.Capacity<3000,"Warm productive district has a bounded forager carrying opportunity, not agricultural density");
         var cold=d.Copy();cold.Center=new V(.6,0,.8);cold.WinterC=-28;cold.SummerC=14;cold.MeanC=-7;cold.GrowingDays=100;
