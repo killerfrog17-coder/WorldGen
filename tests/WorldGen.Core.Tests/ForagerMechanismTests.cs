@@ -4,11 +4,13 @@ static class ForagerMechanismTests
     public static void Run()
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
-        Check(ForagerTechnology.Count==33&&ForagerTechnology.ValidGraph(),"Expanded toolkit graph is acyclic, with stable original item IDs");
+        Check(ForagerTechnology.Count==43&&ForagerTechnology.ValidGraph(),"Expanded toolkit graph is acyclic, with stable original item IDs");
         Check(!ForagerTechnology.All[17].Prerequisites.Contains(16),"A bow is not incorrectly gated on a pressure-flaked stone arrowhead");
+        var dugout=new double[ForagerTechnology.Count];dugout[3]=dugout[5]=dugout[38]=1;
+        Check(ForagerTechnology.Prerequisites(dugout,30)==1,"A dugout-making pathway is not incorrectly forced through a raft or hide-container tradition");
         var d=new ForagerDistrict{Id=0,AreaKm2=10000,Center=new V(1,0,0),Productivity=700,WinterC=12,SummerC=28,MeanC=21,Aridity=1,GrowingDays=300,Water=.8,Coast=.2,River=.3,Canopy=.6,Stone=.8,Fiber=.8,Wood=.8,Resin=.5,Food=new[]{.8,.5,.5,.3,.2},Seasonality=new[]{.2,.1,.2,.2,.1}};
-        var culture=new ForagerCulture{FoodPreference=Enumerable.Repeat(.6,5).ToArray(),TechniquePreference=Enumerable.Repeat(.6,33).ToArray(),ExchangeOpenness=.7};
-        var lineage=new HomininLineage();var c=new ForagerCohort{Adults=90,Children=50,Elders=10,Knowledge=Enumerable.Repeat(.9,33).ToArray(),Skill=Enumerable.Repeat(.9,33).ToArray(),Use=new double[33],Teaching=new double[33],Innovation=new double[33]};
+        var culture=new ForagerCulture{FoodPreference=Enumerable.Repeat(.6,5).ToArray(),TechniquePreference=Enumerable.Repeat(.6,ForagerTechnology.Count).ToArray(),ExchangeOpenness=.7};
+        var lineage=new HomininLineage();var c=new ForagerCohort{Adults=90,Children=50,Elders=10,Knowledge=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),Skill=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),Use=new double[ForagerTechnology.Count],Teaching=new double[ForagerTechnology.Count],Innovation=new double[ForagerTechnology.Count]};
         var resources=new ForagerResources();var warm=ForagerEcology.At(42,d,0);var basic=ForagerEcology.Livelihood(d,warm,lineage,c,culture,resources);
         Check(basic.Capacity>50&&basic.Capacity<3000,"Warm productive district has a bounded forager carrying opportunity, not agricultural density");
         var cold=d.Copy();cold.Center=new V(.6,0,.8);cold.WinterC=-28;cold.SummerC=14;cold.MeanC=-7;cold.GrowingDays=100;
@@ -24,7 +26,7 @@ static class ForagerMechanismTests
         var hunted=new ForagerResources();ForagerEcology.RecoverResources(hunted,100,1000,200,new[]{0d,0d,1d,0d,0d});
         Check(hunted.Stock[2]<.4&&hunted.Stock[0]>.99,"Repeated game pressure affects game rather than indiscriminately deleting all resources");
         double low=hunted.Stock[2];ForagerEcology.RecoverResources(hunted,100,10,200,new[]{0d,0d,1d,0d,0d});Check(hunted.Stock[2]>low,"Depleted resources recover when pressure is removed");
-        var warmLearner=c.Copy();var coldLearner=c.Copy();var teachers=Enumerable.Repeat(.9,33).ToArray();
+        var warmLearner=c.Copy();var coldLearner=c.Copy();var teachers=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray();
         var productiveCold=cold.Copy();productiveCold.WinterC=-14;productiveCold.SummerC=22;productiveCold.MeanC=4;var viableCold=ForagerEcology.At(42,productiveCold,75000);
         for(int year=50;year<=10000;year+=50)
         {
@@ -35,8 +37,12 @@ static class ForagerMechanismTests
         Check(warmLearner.Knowledge[13]>warmLearner.Use[13],"Knowing clothing exists is distinct from routinely making/using it");
         Check(warmLearner.Skill[0]>.8&&warmLearner.Skill[3]>.7&&coldLearner.Skill[14]>.7,"Daily practised methods retain expert transmission instead of eroding through multiplied prerequisite/material caps");
         var lost=c.Copy();Array.Fill(lost.Use,.1);double prior=lost.Skill[24];var dryInland=arid.Copy();dryInland.Coast=dryInland.River=0;dryInland.Food[3]=dryInland.Food[4]=0;
-        for(int year=50;year<=10000;year+=50)ForagerTechnology.Advance(79,lost,dryInland,ForagerEcology.At(79,dryInland,year),culture,50,year,new double[33],0);
+        for(int year=50;year<=10000;year+=50)ForagerTechnology.Advance(79,lost,dryInland,ForagerEcology.At(79,dryInland,year),culture,50,year,new double[ForagerTechnology.Count],0);
         Check(lost.Skill[24]<prior*.5,"Unneeded specialised skills can be lost in isolation");
+        var visitor=c.Copy();visitor.Knowledge[4]=visitor.Skill[4]=visitor.Use[4]=0;var regular=visitor.Copy();
+        double slowEarly=0,fastEarly=0;
+        for(int year=50;year<=20000;year+=50){ForagerTechnology.Advance(42,visitor,d,warm,culture,50,year,teachers,10,.025);ForagerTechnology.Advance(42,regular,d,warm,culture,50,year,teachers,150,1);if(year==500){slowEarly=visitor.Knowledge[4];fastEarly=regular.Knowledge[4];}}
+        Check(visitor.Knowledge[4]>.6&&fastEarly>slowEarly+.1,"Rare skilled visitors teach slowly rather than having their expertise permanently diluted into an unlearnable ceiling");
         var copy=c.Copy();copy.Skill[0]=0;Check(c.Skill[0]==.9,"Cohort copy isolates skill arrays");
         var before=ForagerEcology.At(42,cold,180000);var after=ForagerEcology.At(42,cold,180000+1/365.0);
         Check(Math.Abs(before.WinterC-after.WinterC)<.01&&Math.Abs(before.Moisture-after.Moisture)<.01,"Climate/resources do not jump on a gameplay day boundary");

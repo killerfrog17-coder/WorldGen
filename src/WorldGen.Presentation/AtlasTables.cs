@@ -33,6 +33,20 @@ namespace WorldGen.Presentation
         }
         public static AtlasMeasure[] Measures(PrehistoryState s,AtlasLink row)
         {
+            if(Prehistory.Foraging(s))
+            {
+                var f=s.Foragers;var live=f.Cohorts.Where(c=>c.Population>=1);int key=row.Id;
+                if(row.Kind=="technology"||row.Kind=="people")
+                {
+                    var residents=live.Where(c=>c.Culture==key).ToArray();var culture=f.Cultures[key];
+                    if(row.Kind=="technology")return new[]{T("Era",ForagerView.Age(s)),N("Capabilities",residents.Select(c=>c.Skill.Count(v=>v>=.5)).DefaultIfEmpty(0).Max()),N("Population",residents.Sum(c=>c.Population)),T("Active projects","Practice and teaching")};
+                    return new[]{N("Population",residents.Sum(c=>c.Population)),N("Area km²",s.Society.Cultures[key].AreaKm2),T("Way of life",ForagerView.Residence(culture.Residence)),T("Stage","Foragers"),Y(s,"Founded",Math.Max(0,culture.FoundedYear))};
+                }
+                if(row.Kind=="language"){var l=f.Languages[key];return new[]{Y(s,"Recorded",Math.Max(0,l.FoundedYear)),T("Parent language",l.Parent<0?"Ancestral speech":f.Languages[l.Parent].Name),T("Script","Oral"),T("Word order",l.Sounds.WordOrder)};}
+                if(row.Kind=="religion"){var b=f.Beliefs[key];return new[]{Y(s,"Founded",Math.Max(0,b.FoundedYear)),T("Parent tradition",b.Parent<0?"Ancestral local tradition":f.Beliefs[b.Parent].Name),T("Ethos",b.SacredLandscape),T("Ritual",b.SeasonalRite)};}
+                if(row.Kind=="human-species")return new[]{N("Population",live.Where(c=>c.Lineage==key).Sum(c=>c.Population)),T("Details",f.Lineages[key].Basis)};
+                return new[]{T("Details",row.Detail)};
+            }
             if(Prehistory.Paleolithic(s))
             {
                 var map=PaleolithicMaps.For(s);var community=map.Community(row.Cell);

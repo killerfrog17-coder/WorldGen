@@ -32,7 +32,7 @@ namespace WorldGen.Presentation
             if(Prehistory.Paleolithic(world.Prehistory))
             {
                 int mask=HumanRangeState.Mask(world.Prehistory,cell);
-                if(mask!=0)articles.Add(new EcologyArticle{Title="Human species",Category="Fauna",Body=HumanRangeState.MaskName(mask)+"\n\nResident ranges from the live human population records. Distinct human species may coexist in the same ecological patch; sapiens communities do not replace another species' range record."});
+                if(mask!=0)articles.Add(new EcologyArticle{Title="Human species",Category="Fauna",Body=HumanRangeState.MaskName(world.Prehistory,mask)+"\n\nResident ranges from the live human population records. Distinct human species may coexist in the same ecological patch; sapiens communities do not replace another species' range record."});
             }
             string Name(int id)=>id>=0&&id<e.Taxa.Length?e.Taxa[id].Name:"Unknown taxon #"+id;
             var byConsumer=r.FoodWeb.GroupBy(l=>l.ConsumerId).ToDictionary(g=>g.Key,g=>g.ToArray());

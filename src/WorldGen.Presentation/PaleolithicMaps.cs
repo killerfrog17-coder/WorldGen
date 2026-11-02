@@ -14,6 +14,7 @@ namespace WorldGen.Presentation
         public static PaleolithicMaps For(PrehistoryState s)
         {var e=Cache.GetValue(s,_=>new Entry());lock(e){if(e.View==null||e.Hash!=s.Hash){e.View=new PaleolithicMaps(s);e.Hash=s.Hash;}return e.View;}}
         readonly PrehistoryState state;
+        readonly ForagerMaps? foragers;
         readonly Dictionary<int,PaleolithicCommunity> communities;
         readonly Dictionary<int,int> speech=new Dictionary<int,int>(),technology=new Dictionary<int,int>();
         readonly Dictionary<int,LanguageProfile> varieties=new Dictionary<int,LanguageProfile>();
@@ -22,6 +23,7 @@ namespace WorldGen.Presentation
         {int id=cell>=0&&cell<state.Society.CellCulture.Length?state.Society.CellCulture[cell]:-1;return communities.TryGetValue(id,out var c)?c:null;}
         PaleolithicMaps(PrehistoryState s)
         {
+            if(Prehistory.Foraging(s)){state=s;communities=new Dictionary<int,PaleolithicCommunity>();foragers=ForagerMaps.For(s);return;}
             state=s;communities=s.Paleolithic.Communities.ToDictionary(c=>c.Identity);
             foreach(var c in s.Paleolithic.Communities.OrderBy(c=>c.Identity))
             {
@@ -45,15 +47,17 @@ namespace WorldGen.Presentation
         static string Signature(LanguageProfile l)=>StateHash.Compute(new object[]{l.FamilySeed,l.Onsets,l.Codas,l.Vowels,l.SoundMap,l.WordOrder,l.ModifierFirst,l.CodaPercent,l.ClusterPercent,l.InitialStress,l.Loans.Select(x=>new object[]{x.Concept,x.Sounds}).ToArray()});
         public int Id(int cell,HistoryOverlay overlay)
         {
+            if(foragers!=null)return foragers.Id(cell,overlay);
             if(cell<0||cell>=state.Society.CellCulture.Length)return -1;
             if(overlay==HistoryOverlay.HumanSpecies){int mask=HumanRangeState.Mask(state,cell);return mask==0?-1:mask;}
             var c=Community(cell);if(c==null)return -1;
             switch(overlay){case HistoryOverlay.Cultures:return c.Identity;case HistoryOverlay.Languages:return speech[c.Identity];case HistoryOverlay.Technology:return technology[c.Identity];default:return -1;}
         }
-        public LanguageProfile? Language(int key)=>varieties.TryGetValue(key,out var l)?l:null;
-        public string Name(int key,HistoryOverlay overlay)=>overlay==HistoryOverlay.HumanSpecies?HumanRangeState.MaskName(key):overlay==HistoryOverlay.Technology?key+" established practices":overlay==HistoryOverlay.Languages?(names.TryGetValue(key,out var n)?n:""):state.Society.Cultures[key].Name;
+        public LanguageProfile? Language(int key)=>foragers!=null&&key>=0&&key<state.Foragers.Languages.Length?state.Foragers.Languages[key].Sounds:varieties.TryGetValue(key,out var l)?l:null;
+        public string Name(int key,HistoryOverlay overlay)=>foragers!=null?foragers.Name(key,overlay):overlay==HistoryOverlay.HumanSpecies?HumanRangeState.MaskName(key):overlay==HistoryOverlay.Technology?key+" established practices":overlay==HistoryOverlay.Languages?(names.TryGetValue(key,out var n)?n:""):state.Society.Cultures[key].Name;
         public V Color(int id,HistoryOverlay overlay)
         {
+            if(foragers!=null)return foragers.Color(id,overlay);
             if(overlay==HistoryOverlay.Technology){double t=id/(double)PaleolithicRules.TechniqueCount;return new V(.73-.51*t,.40+.40*t,.19+.61*t);}
             if(overlay==HistoryOverlay.HumanSpecies)
             {V c=new V();int count=0;var colors=new[]{new V(.25,.8,.62),new V(.45,.55,.95),new V(.95,.59,.28)};for(int i=0;i<colors.Length;i++)if((id&(1<<i))!=0){c+=colors[i];count++;}return count>0?c/count:new V();}
@@ -63,6 +67,7 @@ namespace WorldGen.Presentation
         }
         public HistoryLegendEntry[] Legend(HistoryOverlay overlay,string sort,Prehistory? engine=null)
         {
+            if(foragers!=null)return foragers.Legend(overlay,sort);
             var groups=new Dictionary<int,HistoryLegendEntry>();
             var counted=new HashSet<int>();
             for(int cell=0;cell<state.Society.CellCulture.Length;cell++)

@@ -28,11 +28,13 @@ namespace WorldGen.Core
         public static int Mask(PrehistoryState s,int cell)
         {
             if(cell<0||s?.Society==null||cell>=s.Society.CellCulture.Length)return 0;
+            if(s.Foragers!=null){int district=s.Foragers.CellDistrict[cell],result=0;if(district>=0)foreach(var c in s.Foragers.Cohorts)if(c.District==district&&c.Population>=1)result|=1<<c.Lineage;return result;}
             int mask=s.Society.CellCulture[cell]>=0?1:0;var ranges=s.HumanRanges;
             if(ranges==null||cell>=ranges.CellPatch.Length)return mask;int patch=ranges.CellPatch[cell];
             foreach(var l in ranges.Lineages){int id=Array.IndexOf(Species,l.Species);if(id>0&&ResidentsAt(s,l,patch)>=1)mask|=1<<id;}return mask;
         }
         public static string MaskName(int mask)=>string.Join(" + ",Species.Where((id,i)=>(mask&(1<<i))!=0).Select(Name));
+        public static string MaskName(PrehistoryState s,int mask)=>s?.Foragers==null?MaskName(mask):string.Join(" + ",s.Foragers.Lineages.Where(l=>(mask&(1<<l.Id))!=0).Select(l=>l.Name));
     }
     public sealed partial class Prehistory
     {

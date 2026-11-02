@@ -3,10 +3,10 @@ namespace WorldGen.Core
 {
     public readonly struct ForagerEnvironment
     {
-        public readonly double Years,WinterC,SummerC,MeanC,IceCover,Moisture,Productivity,Canopy,Water,Pathogens,Drought,Disturbance;
+        public readonly double Years,WinterC,SummerC,MeanC,IceCover,Moisture,Productivity,Canopy,Water,Pathogens,Drought,Disturbance,Aridity,RainMm;
         public readonly double[] Food,LeanSeason;
-        public ForagerEnvironment(double years,double winter,double summer,double mean,double ice,double moisture,double productivity,double canopy,double water,double pathogens,double drought,double disturbance,double[] food,double[] lean)
-        {Years=years;WinterC=winter;SummerC=summer;MeanC=mean;IceCover=ice;Moisture=moisture;Productivity=productivity;Canopy=canopy;Water=water;Pathogens=pathogens;Drought=drought;Disturbance=disturbance;Food=food;LeanSeason=lean;}
+        public ForagerEnvironment(double years,double winter,double summer,double mean,double ice,double moisture,double productivity,double canopy,double water,double pathogens,double drought,double disturbance,double[] food,double[] lean,double aridity=1,double rainMm=0)
+        {Years=years;WinterC=winter;SummerC=summer;MeanC=mean;IceCover=ice;Moisture=moisture;Productivity=productivity;Canopy=canopy;Water=water;Pathogens=pathogens;Drought=drought;Disturbance=disturbance;Food=food;LeanSeason=lean;Aridity=aridity;RainMm=rainMm;}
     }
     public readonly struct ForagerLivelihood
     {
@@ -17,6 +17,7 @@ namespace WorldGen.Core
     }
     public static class ForagerEcology
     {
+        public static double ResourceClaim(double population,double dietShare)=>Math.Pow(Math.Max(0,population)*Math.Max(0,dietShare),.75);
         public static double Smooth(int seed,string channel,int location,double years,double period)
         {
             int epoch=(int)Math.Floor(years/period);double t=years/period-epoch;t=t*t*(3-2*t);
@@ -29,14 +30,20 @@ namespace WorldGen.Core
             double severe=Smooth(seed,"forager-refugial-drought",d.Province,years,420);
             double drought=D.Clamp((.18-severe)/.18)*D.Clamp((1.2-d.Aridity)/1.2);
             double moisture=D.Clamp(glacial.PrecipitationMultiplier*(.72+.5*province)*(.82+.36*local)*(1-.75*drought),.12,1.6);
+            double pulse=MonsoonRain(d,years,glacial.Ice);
+            double rain=d.PetMm>0?Math.Max(0,d.AnnualRainMm*moisture+pulse):0;
+            double aridity=d.PetMm>0?rain/(d.PetMm*D.Clamp(1+.025*glacial.TemperatureDeltaC,.65,1.3)):d.Aridity*moisture;
             double winter=d.WinterC+glacial.TemperatureDeltaC,summer=d.SummerC+glacial.TemperatureDeltaC,mean=d.MeanC+glacial.TemperatureDeltaC;
             double latitude=Math.Abs(d.Center.Z),snow=D.Clamp((6-summer)/8)*D.Clamp((latitude-.43)/.3);
             double mountain=D.Clamp((elevationM-(3300-1700*glacial.Ice))/1500)*D.Clamp((10-summer)/15);
             double ice=D.Clamp(Math.Max(snow,mountain)*(.4+.6*glacial.Ice));
             double growth=D.Clamp((summer+2)/20)*D.Clamp((mean+16)/24);
             double npp=d.Productivity*growth*Math.Pow(moisture,.7)*(1-.9*ice);
-            double trees=D.Clamp((winter+30)/25)*D.Clamp((summer-5)/14)*D.Clamp((d.Aridity*moisture-.25)/.9);
-            double canopy=d.Canopy*trees,water=D.Clamp(d.Water*moisture+.2*d.River*(1-.5*drought));
+            if(pulse>25)npp=Math.Max(npp,900*(1-Math.Exp(-rain/900))*growth*(1-.9*ice));
+            double trees=D.Clamp((winter+30)/25)*D.Clamp((summer-5)/14)*D.Clamp((aridity-.25)/.9);
+            double forestPotential=Math.Max(d.Canopy,.7*D.Clamp((npp-250)/700)*D.Clamp((aridity-.3)/.9));
+            double canopy=forestPotential*trees,water=D.Clamp(d.Water*moisture+.2*d.River*(1-.5*drought));
+            if(pulse>25)water=Math.Max(water,D.Clamp((rain-180)/700)*.65);
             double pathogens=d.Pathogens*D.Clamp((mean-6)/18)*D.Clamp(moisture/.8);
             double disturbance=.7+.6*Smooth(seed,"forager-resource-mosaic",d.Id,years,650);
             var food=new double[5];var lean=new double[5];
@@ -48,7 +55,25 @@ namespace WorldGen.Core
                 food[k]=Math.Max(0,d.Food[k]*climate*habitat*disturbance);
                 lean[k]=D.Clamp(1-d.Seasonality[k]*(.45+.55*D.Clamp((15-winter)/35)),.04,1);
             }
-            return new ForagerEnvironment(years,winter,summer,mean,ice,moisture,npp,canopy,water,pathogens,drought,disturbance,food,lean);
+            if(pulse>25)
+            {
+                double green=D.Clamp(npp/850d),baseGreen=D.Clamp(d.Productivity/850d),days=D.Clamp((d.GrowingDays+glacial.TemperatureDeltaC*5)/240d);
+                food[0]=Math.Max(food[0],(.06+.9*green)*D.Clamp(aridity/.7)*(.4+.6*days)*disturbance);
+                food[1]=Math.Max(food[1],d.Food[1]*(.06+.5*green)/(.06+.5*baseGreen)*disturbance);
+                food[2]=Math.Max(food[2],d.Food[2]*(.08+.6*green)/(.08+.6*baseGreen)*(1+.7*open)*disturbance);
+                lean[0]*=1-.3*D.Clamp(pulse/Math.Max(1,rain));
+            }
+            return new ForagerEnvironment(years,winter,summer,mean,ice,moisture,npp,canopy,water,pathogens,drought,disturbance,food,lean,aridity,rain);
+        }
+        public static double MonsoonRain(ForagerDistrict d,double years,double ice)
+        {
+            if(d.OceanMoistureAccess<=0)return 0;
+            double latitude=Math.Abs(Math.Asin(d.Center.Z)*180/Math.PI),age=200000-years;
+            double insolation=.5+.5*Math.Cos((age-8000)/23000*Math.PI*2+(d.Center.Z<0?Math.PI:0));
+            double summer=D.Clamp((insolation-.35)/.65),belt=10+13*insolation;
+            double monsoon=900*summer*Math.Exp(-Math.Pow((latitude-belt)/9,2))*(1-.65*ice);
+            double winterStorms=220*insolation*Math.Exp(-Math.Pow((latitude-31)/6,2))*(1-.5*ice);
+            return (monsoon+winterStorms)*d.OceanMoistureAccess;
         }
         public static double Sigmoid(double x)=>x>35?1:x< -35?0:1/(1+Math.Exp(-x));
         // Returns are person-support equivalents per km², not raw plant biomass.
@@ -59,7 +84,9 @@ namespace WorldGen.Core
             double Use(int k)=>k<c.Use.Length?D.Clamp(c.Use[k]):0;
             double flake=Use(0),haft=Use(4),fire=Use(5),hide=Use(8),fitted=Use(13),insulated=Use(14),bow=Use(17),barbs=Use(18),line=Use(19),atlatl=Use(22),preserve=Use(23);
             double nets=Use(24),snares=Use(25),grinding=Use(26),plants=Use(27),baskets=Use(28),containers=Use(29),boats=Use(30),shelter=Use(31),storage=Use(32);
-            double[] returns={.038*(.35+.2*flake+.35*plants+.25*grinding+.1*baskets),.014*(.2+.45*snares+.3*bow+.1*haft),.034*(.2+.3*haft+.25*atlatl+.12*bow+.1*Use(3)),.075*(.08+.3*line+.5*nets+.2*barbs),.13*(.18+.22*line+.3*nets+.45*boats)};
+            double handtools=Use(33),frames=Use(34),coverings=Math.Max(Use(35),Use(36)),hooks=Use(37),axes=Use(38),pots=Use(39),slings=Use(40);
+            containers=D.Clamp(containers+.35*pots);plants=D.Clamp(plants+.08*handtools+.1*pots);
+            double[] returns={.038*(.35+.2*flake+.35*plants+.25*grinding+.1*baskets+.06*axes),.014*(.2+.45*snares+.3*bow+.1*haft+.15*slings),.034*(.2+.3*haft+.25*atlatl+.12*bow+.1*Use(3)+.06*handtools),.075*(.08+.3*line+.5*nets+.2*barbs+.18*hooks),.13*(.18+.22*line+.3*nets+.45*boats+.1*hooks)};
             var diet=new double[5];double annual=0,lean=0;
             for(int k=0;k<5;k++)
             {
@@ -67,15 +94,19 @@ namespace WorldGen.Core
                 diet[k]=e.Food[k]*returns[k]*stock*(.65+.7*preference);annual+=diet[k];
                 double stored=D.Clamp(.28*preserve+.27*storage+.08*baskets);lean+=diet[k]*D.Clamp(e.LeanSeason[k]+stored,0,1);
             }
-            double protection=5*fire+8*hide+10*fitted+13*insulated+7*shelter+2*(lineage.Compactness-.5);
+            double protection=5*fire+8*hide+10*fitted+13*insulated+7*shelter+3*frames*(.2+.8*coverings)+2*(lineage.Compactness-.5);
             double winter=Sigmoid((e.WinterC+protection+4)/3.5);
             double summer=1-D.Clamp((e.SummerC-34)/13)*(1-D.Clamp(e.Water+.3*containers+.15*e.Canopy));
             double water=D.Clamp((e.Water+.15*containers)/.33);
             double terrain=.55+.45*Math.Exp(-d.Relief/1400.0),disease=1-.55*e.Pathogens;
             double seasonal=D.Clamp(lean/Math.Max(.00001,annual),.03,1);
             double effective=annual*(.25+.75*seasonal)*winter*summer*water*terrain*disease*(1-e.IceCover);
-            double massCost=Math.Pow(lineage.AdultMassKg/65.0,.7);
-            double capacity=d.AreaKm2*effective/Math.Max(.65,massCost);
+            // Body size changes an individual's energy needs, strength and
+            // foraging ability together. Applying only its metabolic penalty
+            // here made the lightest lineage inevitably replace every other
+            // human over deep time. Regional efficiency follows the actual
+            // toolkit, diet, climate and resource access instead.
+            double capacity=d.AreaKm2*effective;
             double population=c.Population,security=population>0?D.Clamp(capacity/Math.Max(1,population),0,1.5):1;
             for(int k=0;k<5;k++)diet[k]=annual>0?diet[k]/annual:0;
             double health=D.Clamp((.85-.3*e.Pathogens)*(.25+.75*D.Clamp(security))*(.5+.5*winter));

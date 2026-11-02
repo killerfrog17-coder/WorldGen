@@ -155,6 +155,7 @@ namespace WorldGen.Core
         }
         public int ChooseOrigin(int variant=0)
         {
+            if(Foraging(World.Prehistory))return ChooseForagerOrigin(variant);
             int best=-1;double score=double.MinValue;
             for(int i=0;i<Patches.Length;i++)if(Patches[i].Capacity>=200&&!Patches[i].Island)
             {

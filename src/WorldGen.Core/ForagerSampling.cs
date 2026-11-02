@@ -29,11 +29,12 @@ namespace WorldGen.Core
         (V position,int cell) ForagerBandHome(ForagerState f,ForagerCohort c,int ordinal)
         {
             var d=f.Districts[c.District];var cells=World.Surface.Cells;int key=unchecked(c.Id*104729+ordinal*7919);
-            // Occupation grows from an actual land entry/home cell. Unsettled
-            // sides of a large district do not immediately gain random camps.
-            int[] eligible=d.Cells.Where(i=>DistanceKm(cells[i].Position,cells[c.HomeCell].Position)<=Math.Max(20,c.FrontierKm)).ToArray();
-            if(eligible.Length==0)eligible=new[]{c.HomeCell};
-            int cell=eligible[(int)(Rng.Value(World.Recipe.Seed,"band-home-cell",key)*eligible.Length)%eligible.Length];
+            // A fixed spiral of potential homes expands from the entry place.
+            // New ordinal bands reach farther; changing population/frontier
+            // never reindexes an existing band's home onto another source cell.
+            double spacing=6+20/(1+d.Productivity/150d),bearing=ordinal*2.399963229728653+Rng.Value(World.Recipe.Seed,"community-home-bearing",c.Id)*Math.PI*2;
+            V proposed=ForagerOffset(cells[c.HomeCell].Position,spacing*Math.Sqrt(ordinal),bearing);
+            int cell=d.Cells.OrderByDescending(i=>V.Dot(proposed,cells[i].Position)).First();
             double clearance=cells[cell].DistanceM.Length>0?cells[cell].DistanceM.Min()/1000.0*.35:5;
             double radius=Math.Min(clearance,Math.Max(1,Math.Sqrt(cells[cell].AreaM2/1e6/Math.PI)*.7));
             double distance=Math.Sqrt(Rng.Value(World.Recipe.Seed,"band-home-radius",key))*radius;
@@ -58,7 +59,7 @@ namespace WorldGen.Core
             // Technique-specific, spatially correlated prevalence. One rank for
             // all tools incorrectly makes every skilled band know the same set.
             for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=Rng.Value(World.Recipe.Seed,"band-technique-"+k,key)<c.Skill[k];
-            bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;return band.Techniques[k]=band.Techniques[k]&&ForagerTechnology.All[k].Prerequisites.All(Can);}
+            bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
             for(int k=0;k<band.Techniques.Length;k++)Can(k);
             band.SeasonalCamps=ForagerSeasonalCamps(f,c,band,home.cell,key);
             double season=(years%1+1)%1*4;int current=(int)season,next=(current+1)%4;

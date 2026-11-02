@@ -74,3 +74,66 @@ Additional demographic evidence:
 NPC spawning and full agent AI are the next owner-supervised pass. This rebuild
 must provide their inputs and stable sampling contracts; it must not claim those
 actors have been implemented merely because the data exists.
+
+
+## Working implementation, 2 November
+
+New-world ledger: `prehistory-8` / `foragers-1` (unselected, still under development).
+The selected slot-b player and both earlier Paleolithic save rules remain intact.
+The 43-technique graph preserves the original item-tech IDs, supports alternative
+manufacturing pathways, and separates familiarity, trained practice and use.
+Learning advances with the five-year demographic review. Incoming teaching
+contexts are saved at contact reviews, so caller budgets and reloads do not
+choose different teachers. Local invention provenance and first-learning/loss
+dates survive the bounded recent-event feed.
+
+Demographic communities can share a district, species and heritage without being
+merged into one population. Resource claims have diminishing marginal access,
+with a conserved per-food allocation. This replaces a fully mixed competitive
+model that incorrectly turned a small body-mass difference into a universal
+winner over deep time. Body mass is not an arbitrary species fitness multiplier.
+Distinct cultural communities retain their knowledge and speech after migration.
+
+Climate now includes a geographically constrained wet-period envelope. Warm-ocean
+moisture access follows connected land paths with mountain costs; orbital-season
+forcing changes rainfall amounts, not only a multiplier on modern desert rain.
+Water opportunity, plant productivity, habitat suitability and dispersal costs
+respond together. This is a regional game climate model, not a GCM or a claim of
+planetary moisture-budget closure. All numerical amplitudes are model priors.
+Original terrain, source ecoregion boundaries and native provenance stay unchanged.
+
+Sparse saved biota record local relative abundance, thermal/moisture/habitat
+limits, refuges and recolonisation. A region cannot conjure a missing species
+because it becomes suitable. Extinction removes that food opportunity. Native
+visible-fauna admission now reads the historical roster; complete in-game
+vegetation/hydrology geometry reconstruction remains a separate integration
+question to audit, not an implied consequence of these records.
+
+### Evidence added during implementation
+
+- [Groucutt et al.2021, repeated dispersals into Southwest Asia](https://www.nature.com/articles/s41586-021-03863-y): wet windows, different material cultures, local population discontinuity and mixed faunal opportunities.
+- [African climate response to orbital/glacial forcing](https://www.pnas.org/content/pnas/117/5/2255.full.pdf): seasonally distinct rainfall regimes can narrow Saharo-Arabian barriers; not merely a colder modern map.
+- [Humid Sahara corridor evidence](https://pmc.ncbi.nlm.nih.gov/articles/PMC2575439/), [Green Sahara dynamics](https://pmc.ncbi.nlm.nih.gov/articles/PMC3797788/): regional freshwater/vegetation corridors matter to dispersal.
+- [Lorenzen et al.2011](https://www.nature.com/articles/nature10574): different large mammals respond differently to climate, habitat redistribution and human pressure.
+- [Postglacial tree-range simulations](https://www.frontiersin.org/journals/ecology-and-evolution/articles/10.3389/fevo.2023.1321104/full): dispersal/establishment lags differ from instantaneous climatic suitability.
+- [Madjedbebe primary report](https://www.nature.com/articles/nature22968), [grinding/use-wear study](https://pmc.ncbi.nlm.nih.gov/articles/PMC9273753/): axes, grinding and pigments are not a universal Neolithic package.
+- [Early pottery primary report](https://pubmed.ncbi.nlm.nih.gov/22745428/): fired vessels can belong to forager lifeways, not an automatic farming unlock. Exact earliest dates are not simulation triggers.
+- [Jerimalai fishing primary report](https://researchportalplus.anu.edu.au/en/publications/pelagic-fishing-at-42000-years-before-the-present-and-the-maritim/): maritime fishing and hooks have distinct evidence; the42ka fish assemblage does not date every hook to42ka.
+- [Blombos ochre processing](https://pubmed.ncbi.nlm.nih.gov/21998386/): local material-processing and social traditions need not wait for a universal modernity switch.
+- [Neanderthal speech reassessment](https://pubmed.ncbi.nlm.nih.gov/23847571/): do not use a fictional inability to speak as an empirical explanation for all archaic-human outcomes. Starting registers are gameplay priors; no claim of reconstructed prehistoric grammar.
+
+### Diagnostic history: not final acceptance
+
+Early40k and190k runs identified compounding skill loss, diluted teacher quality,
+body-mass-driven competitive exclusion and automatic newcomer assimilation.
+Those mechanisms were changed; their older metrics are experimental evidence,
+not acceptance of the current revision. The first native observer capture also
+failed: its fixture left the pause panel open and selected an invalid atlas
+section, producing UI exceptions. The fixture and atlas guard are corrected;
+fresh clean native screenshots are still required.
+
+Latest short coexistence run validates births/deaths/migration and multiple
+resident communities. Long-run calibration, distribution/multilingual details,
+wet/dry corridor tests, several seeds/detail levels, performance, save/budget
+invariance, old-rule replay and clean actual UI capture remain in progress.
+The owner has explicitly forbidden stopping without a wrap-up request.

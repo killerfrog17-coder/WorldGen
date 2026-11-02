@@ -9,14 +9,14 @@ namespace WorldGen.Core
         public static bool Foraging(PrehistoryState state)=>state?.Foragers!=null;
         public PrehistoryState PrepareForagers(int origin=-1,CancellationToken token=default)
         {
-            bool automatic=origin<0;if(automatic)origin=ChooseOrigin();
+            bool automatic=origin<0;if(automatic)origin=ChooseForagerOrigin();
             if(origin<0||origin>=Patches.Length||Patches[origin].Capacity<25)throw new ArgumentException("Choose a viable ancestral land region.");
             var s=new PrehistoryState{Version="prehistory-8",Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=new int[Patches.Length*8],Paleolithic=new PaleolithicState{Version="paleolithic-3"},Foragers=new ForagerState{NextReviewSeconds=5*SimulationTime.Year},Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray()}};
             BuildForagerTopology(s.Foragers,token);var f=s.Foragers;
             int originDistrict=f.CellDistrict[Patches[origin].Cell];if(originDistrict<0)originDistrict=f.Districts.Where(d=>d.Patch==origin).Select(d=>d.Id).DefaultIfEmpty(-1).First();
             if(originDistrict<0)throw new ArgumentException("The selected region has no habitable land district.");
             var sapiens=SeedForagerLineages(f,originDistrict);
-            f.Resources=f.Districts.Select(d=>new ForagerResources{District=d.Id}).ToArray();var people=new List<ForagerCohort>();
+            f.Resources=f.Districts.Select(d=>new ForagerResources{District=d.Id}).ToArray();f.Biota=ForagerBiota.Seed(World,f,token);var people=new List<ForagerCohort>();
             var distances=f.Lineages.Select(l=>ForagerDistances(f,l.OriginDistrict,true,true).costs).ToArray();
             foreach(var district in f.Districts.OrderBy(d=>d.Id))
             {
@@ -35,7 +35,7 @@ namespace WorldGen.Core
                     ForagerLanguages.Evolve(World.Recipe.Seed,speech,0,500+(int)(2500*Rng.Value(World.Recipe.Seed,"prior-speech-separation",district.Id)),.6,.15);
                     f.Languages[cohort.Language]=speech;
                 }
-                var environment=ForagerEcology.At(World.Recipe.Seed,district,0,World.ElevationM[district.Cell]);
+                var environment=ForagerBiota.Apply(ForagerEcology.At(World.Recipe.Seed,district,0,World.ElevationM[district.Cell]),f.Biota[district.Id]);
                 var life=ForagerEcology.Livelihood(district,environment,f.Lineages[lineage],cohort,f.Cultures[cohort.Culture],f.Resources[district.Id]);
                 if(life.Capacity<35||life.WinterSecurity<.07)continue;
                 double population=life.Capacity*(.14+.25*Rng.Value(World.Recipe.Seed,"ancestral-regional-density",district.Id));
@@ -47,6 +47,7 @@ namespace WorldGen.Core
                 ForagerDemography.Rates(cohort,life,environment,f.Cultures[cohort.Culture],life.Capacity);people.Add(cohort);
             }
             f.Cohorts=people.OrderBy(c=>c.Id).ToArray();
+            f.InitialPopulation=f.Cohorts.Sum(c=>c.Population);
             if(!f.Cohorts.Any(c=>f.Lineages[c.Lineage].PlayerSpecies))throw new InvalidOperationException("The ancestral region cannot support established sapiens under the starting climate.");
             if(!f.Cohorts.Any(c=>f.Lineages[c.Lineage].PlayerSpecies&&f.Districts[c.District].Patch==s.Origin))
             {
@@ -54,11 +55,11 @@ namespace WorldGen.Core
                 s.Origin=f.Districts[f.Cohorts.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).OrderByDescending(c=>c.Population).First().District].Patch;
             }
             ForagerLanguages.ReviewFamilies(f,0,null);
-            var environments=ForagerEnvironments(f,0);ForagerSociality.Review(World.Recipe.Seed,f,environments,0,200);
+            var environments=ForagerEnvironments(f,0);ForagerSociality.Review(World.Recipe.Seed,f,environments,0,200,home:c=>ForagerBandHome(f,c,0).position);RefreshForagerTeachers(f);
             PublishForagers(s);s.Seal();return s;
         }
         double DistanceKm(V a,V b)=>World.Recipe.RadiusKm*Math.Acos(D.Clamp(V.Dot(a,b),-1,1));
-        ForagerEnvironment[] ForagerEnvironments(ForagerState f,double year)=>f.Districts.Select(d=>ForagerEcology.At(World.Recipe.Seed,d,year,World.ElevationM[d.Cell])).ToArray();
+        ForagerEnvironment[] ForagerEnvironments(ForagerState f,double year)=>f.Districts.Select(d=>ForagerBiota.Apply(ForagerEcology.At(World.Recipe.Seed,d,year,World.ElevationM[d.Cell]),f.Biota.Length>d.Id?f.Biota[d.Id]:null)).ToArray();
         public PrehistoryState StartForagers(PrehistoryState source)
         {ValidateForagers(source);if(source.Started)return source;var s=source.Copy();s.Started=true;s.Seal();return s;}
         void PublishForagers(PrehistoryState s)
@@ -93,11 +94,12 @@ namespace WorldGen.Core
                 if(c.District<0||c.District>=f.Districts.Length||c.Lineage<0||c.Lineage>=f.Lineages.Length||c.Culture<0||c.Culture>=f.Cultures.Length||c.Identity<0||c.Identity>=f.Peoples.Length||c.Language<0||c.Language>=f.Languages.Length||c.Belief<0||c.Belief>=f.Beliefs.Length||!Finite(c.Ages,5)||!Finite(c.Knowledge,ForagerTechnology.Count)||!Finite(c.Skill,ForagerTechnology.Count)||!Finite(c.Use,ForagerTechnology.Count)||!Finite(c.Appearance,8)||!Finite(c.Admixture,f.Lineages.Length)||Math.Abs(c.Ages.Sum()-c.Population)>.00001)throw new ArgumentException("Invalid foraging population/cohort.");
             }
             // Extinct resident records remain in the genealogy. Recolonisation
-            // can found a new community; only simultaneous living residents of
-            // the same lineage/district must be represented by one age ledger.
-            if(f.Cohorts.Select(c=>c.Id).Distinct().Count()!=f.Cohorts.Length||f.Cohorts.Where(c=>c.Population>0).GroupBy(c=>(c.District,c.Lineage)).Any(g=>g.Count()>1))throw new ArgumentException("Duplicate demographic cohort.");
+            // can found a new community. Shared heritage or species does not
+            // make two distinct communities the same demographic ledger.
+            if(f.Cohorts.Select(c=>c.Id).Distinct().Count()!=f.Cohorts.Length)throw new ArgumentException("Duplicate demographic cohort.");
             foreach(var l in f.Languages)if(l.Id<0||l.Id>=f.Languages.Length||!LanguageGenerator.Valid(l.Sounds)||l.Roots.Length!=ForagerLanguages.Concepts.Length||l.Rates.Length!=l.Roots.Length||l.Family<0||l.Family>=f.LanguageFamilies.Length)throw new ArgumentException("Invalid foraging speech ancestry.");
             if(s.Society.Settlements.Length!=0||s.Society.Cultures.Any(c=>c.Stage!=SocietyStage.Foragers||c.Farming!=0))throw new ArgumentException("Later-age institutions are not part of this foraging model.");
+            ValidateForagerLedger(s);
         }
     }
 }

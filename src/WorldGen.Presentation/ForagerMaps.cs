@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using WorldGen.Core;
+namespace WorldGen.Presentation
+{
+    public sealed class ForagerMaps
+    {
+        static readonly ConditionalWeakTable<PrehistoryState,ForagerMaps> Cache=new ConditionalWeakTable<PrehistoryState,ForagerMaps>();
+        public static ForagerMaps For(PrehistoryState s)=>Cache.GetValue(s,x=>new ForagerMaps(x));
+        readonly PrehistoryState state;
+        readonly ForagerCohort[][] residents;
+        public ForagerCohort[] Residents(int cell)=>cell>=0&&cell<state.Foragers.CellDistrict.Length&&state.Foragers.CellDistrict[cell]>=0?residents[state.Foragers.CellDistrict[cell]]:Array.Empty<ForagerCohort>();
+        public ForagerCohort? Dominant(int cell)=>Residents(cell).FirstOrDefault();
+        ForagerMaps(PrehistoryState s)
+        {
+            state=s;var byDistrict=s.Foragers.Cohorts.Where(c=>c.Population>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).ToArray());
+            residents=s.Foragers.Districts.Select(d=>byDistrict.TryGetValue(d.Id,out var c)?c:Array.Empty<ForagerCohort>()).ToArray();
+        }
+        public static int Toolkit(ForagerCohort c)
+        {
+            int key=0;if(c.Use[13]+c.Use[14]+c.Use[31]>.65)key|=1;
+            if(c.Use[19]+c.Use[24]+c.Use[30]>.5)key|=2;
+            if(c.Use[17]+c.Use[22]>.45)key|=4;
+            if(c.Use[4]+c.Use[10]>.8)key|=8;
+            if(c.Use[26]+c.Use[27]+c.Use[28]>1.25)key|=16;
+            if(c.Use[23]+c.Use[32]>.65)key|=32;if(c.Use[1]>.45)key|=64;if(c.Use.Length>33&&c.Use[33]>.4)key|=128;return key;
+        }
+        public int Id(int cell,HistoryOverlay overlay)
+        {
+            var local=Residents(cell);if(local.Length==0)return -1;var c=local[0];
+            switch(overlay)
+            {
+                case HistoryOverlay.Cultures:return c.Culture;
+                case HistoryOverlay.Ethnicities:return c.Identity;
+                case HistoryOverlay.Languages:return c.Language;
+                case HistoryOverlay.Religions:return c.Belief;
+                case HistoryOverlay.Technology:return Toolkit(c);
+                case HistoryOverlay.HumanSpecies:int mask=0;foreach(var p in local)mask|=1<<p.Lineage;return mask;
+                default:return -1;
+            }
+        }
+        public string Name(int id,HistoryOverlay overlay)
+        {
+            var f=state.Foragers;if(id<0)return "";
+            switch(overlay)
+            {
+                case HistoryOverlay.Cultures:return f.Cultures[id].Name;
+                case HistoryOverlay.Ethnicities:return f.Peoples[id].Name;
+                case HistoryOverlay.Languages:var l=f.Languages[id];return l.Name+(l.Parent>=0&&ForagerLanguages.Intelligibility(l,f.Languages[l.Parent])>.72?" dialect":" language")+" · "+f.LanguageFamilies[l.Family].Name;
+                case HistoryOverlay.Religions:return f.Beliefs[id].Name;
+                case HistoryOverlay.HumanSpecies:return string.Join(" / ",f.Lineages.Where(l=>(id&(1<<l.Id))!=0).Select(l=>l.Name));
+                case HistoryOverlay.Technology:var names=new List<string>();if((id&1)!=0)names.Add("cold-weather");if((id&2)!=0)names.Add("aquatic");if((id&4)!=0)names.Add("projectile");if((id&8)!=0)names.Add("composite tools");if((id&16)!=0)names.Add("plant-processing");if((id&32)!=0)names.Add("preservation");if((id&64)!=0)names.Add("prepared-core");if((id&128)!=0)names.Add("bifacial");return names.Count==0?"Generalist foraging toolkit":string.Join(" + ",names);
+                default:return "";
+            }
+        }
+        public V Color(int id,HistoryOverlay overlay)
+        {
+            if(overlay==HistoryOverlay.HumanSpecies)
+            {V sum=new V();int n=0;foreach(var l in state.Foragers.Lineages)if((id&(1<<l.Id))!=0){sum+=SocietyView.CivilizationColor(l.Id+3);n++;}return n>0?sum/n:new V();}
+            if(overlay==HistoryOverlay.Languages)
+            {var l=state.Foragers.Languages[id];V family=SocietyView.CivilizationColor(l.Family+11);double shade=.72+.28*Rng.Value(l.Seed,"speech-shade",id);return family*shade+new V(.12,.12,.12)*(1-shade);}
+            if(overlay==HistoryOverlay.Religions)
+            {var b=state.Foragers.Beliefs[id];V family=SocietyView.CivilizationColor(b.Family+31);return family*(.72+.28*Rng.Value(b.Seed,"tradition-shade",id));}
+            if(overlay==HistoryOverlay.Technology)return SocietyView.CivilizationColor(id*7+19);
+            if(overlay==HistoryOverlay.Ethnicities)return SocietyView.CivilizationColor(id+67);
+            return SocietyView.CivilizationColor(id);
+        }
+        public HistoryLegendEntry[] Legend(HistoryOverlay overlay,string sort)
+        {
+            var entries=new Dictionary<int,HistoryLegendEntry>();
+            foreach(var d in state.Foragers.Districts)
+            {
+                var people=residents[d.Id];if(people.Length==0)continue;double total=people.Sum(c=>c.Population),area=d.AreaKm2*people.Max(c=>c.Occupation);
+                if(overlay==HistoryOverlay.HumanSpecies){Add(Id(d.Cell,overlay),total,area);continue;}
+                foreach(var c in people)
+                {
+                    double minority=overlay==HistoryOverlay.Languages&&c.MinorityLanguage>=0?c.MinorityLanguageShare:overlay==HistoryOverlay.Religions&&c.MinorityBelief>=0?c.MinorityBeliefShare:0;
+                    int id=overlay==HistoryOverlay.Cultures?c.Culture:overlay==HistoryOverlay.Ethnicities?c.Identity:overlay==HistoryOverlay.Languages?c.Language:overlay==HistoryOverlay.Religions?c.Belief:overlay==HistoryOverlay.Technology?Toolkit(c):-1;
+                    Add(id,c.Population*(1-minority),area*c.Population/total*(1-minority));
+                    if(minority>0)Add(overlay==HistoryOverlay.Languages?c.MinorityLanguage:c.MinorityBelief,c.Population*minority,area*c.Population/total*minority);
+                }
+                void Add(int id,double population,double shareArea)
+                {
+                    if(id<0)return;if(!entries.TryGetValue(id,out var e))entries[id]=e=new HistoryLegendEntry{Name=Name(id,overlay),ColorId=id,Cell=d.Cell,CustomColor=true,Color=Color(id,overlay)};
+                    e.Population+=(long)Math.Round(population);e.AreaKm2+=(long)Math.Round(shareArea);
+                }
+            }
+            return entries.Values.OrderByDescending(e=>sort=="Land area"?e.AreaKm2:e.Population).ThenBy(e=>e.Name).ToArray();
+        }
+    }
+}

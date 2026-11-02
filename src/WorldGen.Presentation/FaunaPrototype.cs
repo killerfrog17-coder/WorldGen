@@ -47,6 +47,7 @@ namespace WorldGen.Presentation
         readonly Dictionary<int,FaunaPrototypeProfile> models=new Dictionary<int,FaunaPrototypeProfile>();
         readonly Dictionary<int,List<int>> pools=new Dictionary<int,List<int>>();
         readonly Dictionary<int,Taxon[]> communities=new Dictionary<int,Taxon[]>();
+        long biotaEpoch=long.MinValue;
         readonly FaunaPrototypeProfile? firefly;
         public int MappedTaxa=>models.Count;
         static string Key(string value)=>new string(value.ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
@@ -73,23 +74,27 @@ namespace WorldGen.Presentation
                 if(!taxon.Producer&&!taxon.BasalResource&&(aliases.TryGetValue(Key(taxon.Name),out var profile)||aliases.TryGetValue(Key(taxon.ScientificName),out profile)))result[taxon.Id]=profile;
             return result;
         }
-        List<int> Pool(int region)
+        List<int> Pool(int region,int cell=-1)
         {
-            if(pools.TryGetValue(region,out var found))return found;
+            var f=world.Prehistory?.Foragers;int district=cell>=0&&f!=null&&f.Biota.Length>0?f.CellDistrict[cell]:-1;int cacheKey=district>=0?-district-2:region;
+            if(pools.TryGetValue(cacheKey,out var found))return found;
             found=new List<int>();var e=world.Ecology;
-            if(region>=0&&region<e.Regions.Length)foreach(var presence in e.Regions[region].Species)if(models.ContainsKey(presence.TaxonId))found.Add(presence.TaxonId);
-            pools[region]=found;return found;
+            if(district>=0){var row=f!.Biota[district];foreach(int id in row.Taxa)if(row.Presence(id)>.03&&models.ContainsKey(id))found.Add(id);}
+            else if(region>=0&&region<e.Regions.Length)foreach(var presence in e.Regions[region].Species)if(models.ContainsKey(presence.TaxonId))found.Add(presence.TaxonId);
+            pools[cacheKey]=found;return found;
         }
-        Taxon[] Community(int region)
+        Taxon[] Community(int region,int cell)
         {
-            if(communities.TryGetValue(region,out var found))return found;
-            var e=world.Ecology;found=region>=0&&region<e.Regions.Length?e.Regions[region].Species
-                .Select(p=>e.Taxa[p.TaxonId]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():Array.Empty<Taxon>();
-            communities[region]=found;return found;
+            var f=world.Prehistory?.Foragers;int district=f!=null&&f.Biota.Length>0?f.CellDistrict[cell]:-1;int cacheKey=district>=0?-district-2:region;
+            if(communities.TryGetValue(cacheKey,out var found))return found;
+            var e=world.Ecology;found=district>=0?f!.Biota[district].Taxa.Where(id=>f.Biota[district].Presence(id)>.03).Select(id=>e.Taxa[id]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():region>=0&&region<e.Regions.Length?e.Regions[region].Species.Select(p=>e.Taxa[p.TaxonId]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():Array.Empty<Taxon>();
+            communities[cacheKey]=found;return found;
         }
         public List<FaunaPrototypeSpawn> Build(V center,double scale,double hour,CancellationToken token,double year=0,double temperatureC=15,double humidity=.7,double rain=0,double wind=0)
         {
             var result=new List<FaunaPrototypeSpawn>();var e=world.Ecology;if(e==null)return result;
+            long epoch=world.Prehistory?.Foragers?.Biota.FirstOrDefault()?.ReviewedYear??-1;
+            if(epoch!=biotaEpoch){pools.Clear();communities.Clear();biotaEpoch=epoch;}
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
             var communityCache=new Dictionary<(ScatterKey,int),WildlifeCommunity>();
             var siteCache=new Dictionary<ScatterKey,WildlifeHabitat>();
@@ -109,25 +114,25 @@ namespace WorldGen.Presentation
                     foreach(double u in new[]{.2,.8})foreach(double v in new[]{.2,.8})site.Add(Site(lattice.Position(key,u,v)),.2);
                     siteCache[key]=site;
                 }
-                found=WildlifeAbundance.Allocate(Community(region),site);communityCache[(key,region)]=found;return found;
+                found=WildlifeAbundance.Allocate(Community(region,terrain.NearestCell(lattice.Position(key))),site);communityCache[(key,region)]=found;return found;
             }
             double latitude=Math.Asin(center.Z)*180/Math.PI;
             foreach(bool detail in new[]{false,true})foreach(var key in lattice.Around(center,detail?220:2400,detail))
             {
                 token.ThrowIfCancellationRequested();V middle=lattice.Position(key);int cell=terrain.NearestCell(middle),region=e.Region[cell];
-                var candidates=new List<int>(Pool(region));
+                var candidates=new List<int>(Pool(region,cell));
                 // Marine feeding pools are recorded on coastal land regions.
                 // Consult bounded neighboring cells, never a global coast scan.
                 if(world.Hydrology.OceanConnected[cell])foreach(int neighbor in world.Surface.Cells[cell].Neighbors)
-                    foreach(int id in Pool(e.Region[neighbor]))if(!candidates.Contains(id))candidates.Add(id);
+                    foreach(int id in Pool(e.Region[neighbor],neighbor))if(!candidates.Contains(id))candidates.Add(id);
                 foreach(int id in candidates)
                 {
                     var profile=models[id];var behaviour=WildlifeBehaviour.Describe(profile.slug,e.Taxa[id].MassKg,e.Taxa[id].Eats,profile.medium=="air",profile.tiny,e.Taxa[id].Name);
                     if(detail!=(behaviour.Tier<WildlifeTrackingTier.Resident&&profile.VisibleRadiusM<250))continue;
                     if((middle-center).Length*radius>Math.Max(profile.PreloadRadiusM,behaviour.TrackingM)+(detail?100:800))continue;
                     var taxon=e.Taxa[id];int nativeRegion=region;
-                    if(!Pool(nativeRegion).Contains(id))
-                    {nativeRegion=-1;foreach(int neighbor in world.Surface.Cells[cell].Neighbors)if(Pool(e.Region[neighbor]).Contains(id)){nativeRegion=e.Region[neighbor];break;}}
+                    if(!Pool(nativeRegion,cell).Contains(id))
+                    {nativeRegion=-1;foreach(int neighbor in world.Surface.Cells[cell].Neighbors)if(Pool(e.Region[neighbor],neighbor).Contains(id)){nativeRegion=e.Region[neighbor];break;}}
                     if(nativeRegion<0)continue;
                     Add(profile,taxon,id,nativeRegion,key);
                 }
@@ -145,7 +150,7 @@ namespace WorldGen.Presentation
                 var rng=new Rng(world.Recipe.Seed,"local-fauna-prototype-1",unchecked((int)rank));
                 double density;
                 if(taxon!=null)
-                    density=Population(key,region).Density(id)*WildlifeAbundance.ExposedFraction(taxon.MassKg,profile.medium=="air",profile.tiny);
+                    density=Population(key,region).Density(id)*WildlifeAbundance.ExposedFraction(taxon.MassKg,profile.medium=="air",profile.tiny)*(world.Prehistory?.Foragers!=null?ForagerBiota.Presence(world,terrain.NearestCell(lattice.Position(key)),id):1);
                 else
                 {
                     V at=lattice.Position(key);var sample=patch.Sample(at);var climate=e.Habitat[sample.Cell];

@@ -14,6 +14,7 @@ namespace WorldGen.Core
         {
             var l=new ForagerLanguage{Id=id,Parent=parent?.Id??-1,Family=parent?.Family??-1,OriginDistrict=district,FoundedYear=year,LastChangeYear=year,Seed=Seed(seed,"speech",id),Sounds=parent==null?LanguageGenerator.Create(seed,id,Math.Max(0,year)):parent.Sounds.Copy(),Roots=parent==null?new int[Concepts.Length]:(int[])parent.Roots.Clone(),RootYears=parent==null?new int[Concepts.Length]:(int[])parent.RootYears.Clone(),Rates=new double[Concepts.Length],Grammar=parent==null?new double[10]:(double[])parent.Grammar.Clone(),NarrativePractice=parent?.NarrativePractice??.6,TechnicalRegister=parent?.TechnicalRegister??.35,RitualRegister=parent?.RitualRegister??.4};
             l.Sounds.Id=id;l.Sounds.ParentId=parent?.Sounds.Id??-1;l.Sounds.FoundedYear=l.Sounds.ChangedYear=Math.Max(0,year);l.Sounds.Revision=0;l.Sounds.Loans=Array.Empty<LanguageLoan>();
+            if(parent==null){l.NarrativePractice=.24+.18*Rng.Value(seed,"ancestral-narrative-practice",district);l.TechnicalRegister=.24+.14*Rng.Value(seed,"ancestral-technical-register",district);l.RitualRegister=.25+.25*Rng.Value(seed,"ancestral-ritual-register",district);}
             for(int k=0;k<Concepts.Length;k++)
             {
                 if(parent==null){l.Roots[k]=Seed(seed,"root",unchecked(id*104729+k*193));l.RootYears[k]=year;}
@@ -82,5 +83,14 @@ namespace WorldGen.Core
         }
         public static string Sentence(ForagerLanguage l,string subject,string verb,string obj)
         {string a=Word(l,subject).Text,b=Word(l,verb).Text,c=Word(l,obj).Text;return LanguageGenerator.Capitalize(l.Sounds.WordOrder=="SVO"?a+" "+b+" "+c:l.Sounds.WordOrder=="VSO"?b+" "+a+" "+c:a+" "+c+" "+b);}
+        public static string Utterance(ForagerLanguage l,ForagerCohort c,string subject,string verb,string obj,string when="",string reason="")
+        {
+            bool Known(string concept){int k=concept=="bow"||concept=="arrow"?17:concept=="needle"?21:concept=="boat"?30:concept=="clothing"?8:concept=="rope"?7:-1;return k<0||c.Knowledge[k]>=.2;}
+            string W(string concept)=>Word(l,Known(concept)?concept:"thing").Text;
+            string phrase=l.NarrativePractice<.3?W(verb)+" "+W(obj):l.Sounds.WordOrder=="SVO"?W(subject)+" "+W(verb)+" "+W(obj):l.Sounds.WordOrder=="VSO"?W(verb)+" "+W(subject)+" "+W(obj):W(subject)+" "+W(obj)+" "+W(verb);
+            if(when.Length>0&&l.NarrativePractice>.45)phrase=W(when)+" "+phrase;
+            if(reason.Length>0&&l.NarrativePractice>.65&&l.TechnicalRegister>.65)phrase+=" "+W("because")+" "+W(reason);
+            return LanguageGenerator.Capitalize(phrase);
+        }
     }
 }

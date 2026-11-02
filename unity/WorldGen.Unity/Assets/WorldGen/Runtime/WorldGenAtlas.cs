@@ -98,6 +98,7 @@ public sealed partial class WorldGenRuntime
         }
         // A narrow table of contents keeps each deep section one click away.
         var allContents=new[]{"Overview"}.Concat(atlasDocument.Sections.Select(s=>s.Title)).ToArray();
+        if(!allContents.Contains(atlasSection))atlasSection="Overview";
         var groups=AtlasNavigation.Groups.Where(g=>allContents.Any(t=>AtlasNavigation.Group(t)==g)).ToArray();
         int activeGroup=Math.Max(0,Array.IndexOf(groups,AtlasNavigation.Group(atlasSection)));
         int chosenGroup=GUILayout.SelectionGrid(activeGroup,groups,groups.Length,new GUIStyle(GUI.skin.button){fontSize=11,padding=new RectOffset(4,4,7,7)});

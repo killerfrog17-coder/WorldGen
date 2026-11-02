@@ -10,7 +10,8 @@ public sealed partial class WorldGenRuntime
     HistoryOverlay historyOverlay=HistoryOverlay.States;
     SettlementMarkerMode settlementMarkerMode=SettlementMarkerMode.CapitalsOnly;
     SettlementMarker[][] cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();Texture2D settlementDot;
-    Prehistory humans;World humanWorld;Task<Prehistory> humanPreparation;
+    sealed class HumanPreparation {public Prehistory Engine;public PrehistoryState State;}
+    Prehistory humans;World humanWorld;Task<HumanPreparation> humanPreparation;
     SimulationSession humanSession;
     sealed class HumanPlaybackWork { public Task<PrehistoryState> Task;public SimulationSession Session; }
     HumanPlaybackWork humanPlaybackWork;System.Threading.CancellationTokenSource humanCancellation;
@@ -36,12 +37,13 @@ public sealed partial class WorldGenRuntime
             humanCancellation?.Cancel();humanCancellation?.Dispose();humanCancellation=new System.Threading.CancellationTokenSource();
             humanSession=null;humanPlaybackWork=null;
             cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();cachedHeadlines=Array.Empty<ChronicleEvent>();legendState=null;legendEngine=null;
-            var captured=world;humanPreparation=Task.Run(()=>new Prehistory(captured));
+            var captured=world;var preparationToken=humanCancellation.Token;
+            humanPreparation=Task.Run(()=>{var engine=new Prehistory(captured,preparationToken);var state=captured.Prehistory??engine.PrepareForagers(token:preparationToken);if(captured.Prehistory!=null)engine.Validate(state);preparationToken.ThrowIfCancellationRequested();return new HumanPreparation{Engine=engine,State=state};},preparationToken);
         }
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
         {
             var task=humanPreparation;humanPreparation=null;
-            try{humans=task.GetAwaiter().GetResult();if(world.Prehistory==null){world.Prehistory=humans.PreparePaleolithic();if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else{humans.Validate(world.Prehistory);if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;}UpdateHumanPalette();}
+            try{var prepared=task.GetAwaiter().GetResult();humans=prepared.Engine;bool fresh=world.Prehistory==null;world.Prehistory=prepared.State;if(fresh){historyOverlay=HistoryOverlay.Cultures;if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;UpdateHumanPalette();}
             catch(Exception ex){error=ex.Message;humans=null;}
         }
         if(humanStep!=null&&humanStep.IsCompleted)

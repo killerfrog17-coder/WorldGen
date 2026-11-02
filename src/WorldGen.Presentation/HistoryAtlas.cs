@@ -98,7 +98,7 @@ namespace WorldGen.Presentation
         }
         public static AtlasLink[] ProfilesAt(PrehistoryState? s,int cell)
         {
-            if(Prehistory.Paleolithic(s))return new[]{HistoryOverlay.Cultures,HistoryOverlay.Languages,HistoryOverlay.Technology,HistoryOverlay.HumanSpecies}.Select(o=>PaleolithicView.Selection(s!,cell,o)).Where(l=>l!=null).Select(l=>l!).ToArray();
+            if(Prehistory.Paleolithic(s))return (Prehistory.Foraging(s)?new[]{HistoryOverlay.Cultures,HistoryOverlay.Ethnicities,HistoryOverlay.Languages,HistoryOverlay.Religions,HistoryOverlay.Technology,HistoryOverlay.HumanSpecies}:new[]{HistoryOverlay.Cultures,HistoryOverlay.Languages,HistoryOverlay.Technology,HistoryOverlay.HumanSpecies}).Select(o=>PaleolithicView.Selection(s!,cell,o)).Where(l=>l!=null).Select(l=>l!).ToArray();
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
             int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)links.Add(ClaimLink(s,claim));

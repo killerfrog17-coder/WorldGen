@@ -11,11 +11,13 @@ namespace WorldGen.Core
     [Serializable] public sealed class ForagerState
     {
         public string Version="foragers-1";
+        public double InitialPopulation;
         public long Seconds,BoundarySeconds,NextReviewSeconds;
         public int NextCohort,NextCulture,NextLanguage,NextBelief,NextFamily,NextPeople;
         public int[] CellDistrict=Array.Empty<int>();
         public ForagerDistrict[] Districts=Array.Empty<ForagerDistrict>();
         public ForagerResources[] Resources=Array.Empty<ForagerResources>();
+        public ForagerBiotaDistrict[] Biota=Array.Empty<ForagerBiotaDistrict>();
         public HomininLineage[] Lineages=Array.Empty<HomininLineage>();
         public ForagerCohort[] Cohorts=Array.Empty<ForagerCohort>();
         public ForagerCulture[] Cultures=Array.Empty<ForagerCulture>();
@@ -25,8 +27,23 @@ namespace WorldGen.Core
         public ForagerBelief[] Beliefs=Array.Empty<ForagerBelief>();
         public ForagerExchange[] Exchanges=Array.Empty<ForagerExchange>();
         public ForagerEvent[] Events=Array.Empty<ForagerEvent>();
-        public ForagerState Copy()=>new ForagerState{Version=Version,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,
-            CellDistrict=(int[])CellDistrict.Clone(),Districts=Districts.Select(x=>x.Copy()).ToArray(),Resources=Resources.Select(x=>x.Copy()).ToArray(),Lineages=Lineages.Select(x=>x.Copy()).ToArray(),Cohorts=Cohorts.Select(x=>x.Copy()).ToArray(),Cultures=Cultures.Select(x=>x.Copy()).ToArray(),Peoples=Peoples.Select(x=>x.Copy()).ToArray(),Languages=Languages.Select(x=>x.Copy()).ToArray(),LanguageFamilies=LanguageFamilies.Select(x=>x.Copy()).ToArray(),Beliefs=Beliefs.Select(x=>x.Copy()).ToArray(),Exchanges=Exchanges.Select(x=>x.Copy()).ToArray(),Events=Events.Select(x=>x.Copy()).ToArray()};
+        public ForagerDiscovery[] Discoveries=Array.Empty<ForagerDiscovery>();
+        public ForagerState Copy()=>new ForagerState{Version=Version,InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
+            CellDistrict=(int[])CellDistrict.Clone(),Districts=Districts.Select(x=>x.Copy()).ToArray(),Resources=Resources.Select(x=>x.Copy()).ToArray(),Biota=Biota.Select(x=>x.Copy()).ToArray(),Lineages=Lineages.Select(x=>x.Copy()).ToArray(),Cohorts=Cohorts.Select(x=>x.Copy()).ToArray(),Cultures=Cultures.Select(x=>x.Copy()).ToArray(),Peoples=Peoples.Select(x=>x.Copy()).ToArray(),Languages=Languages.Select(x=>x.Copy()).ToArray(),LanguageFamilies=LanguageFamilies.Select(x=>x.Copy()).ToArray(),Beliefs=Beliefs.Select(x=>x.Copy()).ToArray(),Exchanges=Exchanges.Select(x=>x.Copy()).ToArray(),Events=Events.Select(x=>x.Copy()).ToArray()};
+    }
+    [Serializable] public sealed class ForagerDiscovery
+    {
+        public int Id,Technique,Cohort,District,Year;
+        public ForagerDiscovery Copy()=>(ForagerDiscovery)MemberwiseClone();
+    }
+    [Serializable] public sealed class ForagerBiotaDistrict
+    {
+        public int District,ReviewedYear;
+        public int[] Taxa=Array.Empty<int>();
+        public double[] Abundance=Array.Empty<double>(),BaselineFood=new double[5],FoodAvailability=new[]{1d,1d,1d,1d,1d};
+        public double ForestCover;
+        public ForagerBiotaDistrict Copy(){var c=(ForagerBiotaDistrict)MemberwiseClone();c.Taxa=(int[])Taxa.Clone();c.Abundance=(double[])Abundance.Clone();c.BaselineFood=(double[])BaselineFood.Clone();c.FoodAvailability=(double[])FoodAvailability.Clone();return c;}
+        public double Presence(int taxon){int k=Array.BinarySearch(Taxa,taxon);return k<0?0:Abundance[k];}
     }
     [Serializable] public sealed class ForagerResources
     {
@@ -43,6 +60,7 @@ namespace WorldGen.Core
         public ForagerPassage[] Passages=Array.Empty<ForagerPassage>();
         public V Center;
         public double AreaKm2,RadiusKm,Productivity,WinterC,SummerC,MeanC,Aridity,GrowingDays,Water,Coast,River,Relief,Canopy,Stone,Fiber,Wood,Resin,Pathogens;
+        public double PetMm,AnnualRainMm,OceanMoistureAccess;
         public double[] Food=new double[5],Seasonality=new double[5];
         public ForagerDistrict Copy(){var c=(ForagerDistrict)MemberwiseClone();c.Cells=(int[])Cells.Clone();c.Passages=Passages.Select(x=>x.Copy()).ToArray();c.Food=(double[])Food.Clone();c.Seasonality=(double[])Seasonality.Clone();return c;}
     }
@@ -73,6 +91,8 @@ namespace WorldGen.Core
         public double FoodSecurity,WinterSecurity,Health,ResourcePressure,ConflictPressure,Isolation,Connectivity,CarryingPractice;
         public double Births,Deaths,Immigration,Emigration;
         public double[] Knowledge=Array.Empty<double>(),Skill=Array.Empty<double>(),Use=Array.Empty<double>(),Teaching=Array.Empty<double>(),Innovation=Array.Empty<double>();
+        public int[] FirstKnownYear=Array.Empty<int>(),FirstSkilledYear=Array.Empty<int>(),LastLossYear=Array.Empty<int>();
+        public double[] TeachingFrom=Array.Empty<double>();public double ContactTeaching,TeachingAdults;
         public double[] Diet=new double[5],Appearance=new double[8],Admixture=Array.Empty<double>();
         public long ShockStart,ShockEnd;
         public double ShockSeverity,ShockRecovery;
@@ -80,7 +100,7 @@ namespace WorldGen.Core
         public int HomeCell,FrontierCell;
         public double FrontierKm;
         public double Population=>Children+Adults+Elders;
-        public ForagerCohort Copy(){var c=(ForagerCohort)MemberwiseClone();c.Ages=(double[])Ages.Clone();c.Knowledge=(double[])Knowledge.Clone();c.Skill=(double[])Skill.Clone();c.Use=(double[])Use.Clone();c.Teaching=(double[])Teaching.Clone();c.Innovation=(double[])Innovation.Clone();c.Diet=(double[])Diet.Clone();c.Appearance=(double[])Appearance.Clone();c.Admixture=(double[])Admixture.Clone();return c;}
+        public ForagerCohort Copy(){var c=(ForagerCohort)MemberwiseClone();c.Ages=(double[])Ages.Clone();c.Knowledge=(double[])Knowledge.Clone();c.Skill=(double[])Skill.Clone();c.Use=(double[])Use.Clone();c.Teaching=(double[])Teaching.Clone();c.Innovation=(double[])Innovation.Clone();c.FirstKnownYear=(int[])FirstKnownYear.Clone();c.FirstSkilledYear=(int[])FirstSkilledYear.Clone();c.LastLossYear=(int[])LastLossYear.Clone();c.TeachingFrom=(double[])TeachingFrom.Clone();c.Diet=(double[])Diet.Clone();c.Appearance=(double[])Appearance.Clone();c.Admixture=(double[])Admixture.Clone();return c;}
     }
     [Serializable] public sealed class ForagerPeopleIdentity
     {

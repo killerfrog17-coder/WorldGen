@@ -1,8 +1,11 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--forager-audit")){ForagerHistoryAudit.Run(args[1],args[2]);return;}
+if(args.Contains("--forager-biota-only")){ForagerBiotaTests.Run();return;}
+if(args.Contains("--forager-presentation")){ForagerPresentationTests.Run(args[1]);return;}
 if(args.Contains("--forager-sampling")){ForagerSamplingTests.Run(args[1]);return;}
-if(args.Contains("--forager-history")){ForagerWorldTests.History(args[1],args.Length>2?int.Parse(args[2]):40000,args.Length>3?int.Parse(args[3]):0);return;}
+if(args.Contains("--forager-history")){ForagerWorldTests.History(args[1],args.Length>2?int.Parse(args[2]):40000,args.Length>3?int.Parse(args[3]):0,args.Length>4?args[4]:"Continents",args.Length>5?int.Parse(args[5]):5000);return;}
 if(args.Contains("--forager-mechanisms-only")){ForagerMechanismTests.Run();return;}
 if(args.Contains("--forager-initial-only")){ForagerWorldTests.Initial();return;}
 if(args.Contains("--forager-languages-only")){ForagerLanguageTests.Run();return;}

@@ -7,12 +7,14 @@ namespace WorldGen.Presentation
     {
         public static string Age(PrehistoryState s)
         {
+            if(Prehistory.Foraging(s))return ForagerView.Age(s);
             if(!Prehistory.Paleolithic(s))return "";var c=s.Paleolithic.Communities;
             double complex=c.Where(x=>x.Residents>=25).Select(x=>PaleolithicRules.Adoption(s.Paleolithic,x,(int)PaleolithicTechnique.Bows)+PaleolithicRules.Adoption(s.Paleolithic,x,(int)PaleolithicTechnique.Needles)).DefaultIfEmpty(0).Max();
             return complex>.8?"Late Paleolithic":"Middle Paleolithic";
         }
         public static string Describe(Prehistory engine,PrehistoryState s,int cell,HistoryOverlay overlay=HistoryOverlay.Cultures)
         {
+            if(Prehistory.Foraging(s))return ForagerView.Describe(engine,s,cell,overlay);
             if(engine==null||s==null||cell<0||cell>=engine.CellPatch.Length)return "Select a location";
             int patch=engine.CellPatch[cell];if(patch<0)return "No habitable land patch";var climate=engine.PaleolithicClimateAt(s,cell);
             string text=engine.PatchName(patch)+"\n"+Age(s)+" · "+SimulationClockView.Year(s,s.Years)+"\nClimate anomaly "+climate.TemperatureDeltaC.ToString("+0.0;-0.0;0.0")+" °C · moisture ×"+climate.PrecipitationMultiplier.ToString("0.00")+"\nSea-level fall "+climate.SeaFallM.ToString("0")+" m (migration model)";
@@ -31,6 +33,7 @@ namespace WorldGen.Presentation
         static AtlasLink[] Knowledge(PrehistoryState s,PaleolithicCommunity c)=>Enumerable.Range(0,PaleolithicRules.TechniqueCount).Select(k=>new AtlasLink{Name=PaleolithicRules.Names[k],Value=(int)Math.Round(1000*PaleolithicRules.Adoption(s.Paleolithic,c,k)),Detail=string.Join(", ",PaleolithicRules.Prerequisites((PaleolithicTechnique)k).Select(t=>PaleolithicRules.Names[t]))}).ToArray();
         public static SelectionCard Card(PrehistoryState s,int cell,HistoryOverlay overlay,Prehistory? engine)
         {
+            if(Prehistory.Foraging(s))return ForagerView.Card(s,cell,overlay,engine);
             var card=new SelectionCard{Title="Select a location",Subtitle=overlay==HistoryOverlay.HumanSpecies?"Human species":overlay.ToString()};if(cell<0||cell>=s.Society.CellCulture.Length)return card;
             var map=PaleolithicMaps.For(s);int id=map.Id(cell,overlay);var c=map.Community(cell);
             if(id<0){card.Title="No recorded "+(overlay==HistoryOverlay.HumanSpecies?"human species":overlay.ToString().ToLowerInvariant());card.Note=overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories||overlay==HistoryOverlay.Provinces||overlay==HistoryOverlay.Civilizations?"No centralized state or administrative territory exists here.":"No population record for this layer at this location.";return card;}
@@ -59,11 +62,13 @@ namespace WorldGen.Presentation
         }
         public static AtlasLink? Selection(PrehistoryState s,int cell,HistoryOverlay overlay)
         {
+            if(Prehistory.Foraging(s))return ForagerView.Selection(s,cell,overlay);
             var map=PaleolithicMaps.For(s);int id=map.Id(cell,overlay);if(id<0)return null;var c=map.Community(cell);
             return new AtlasLink{Kind=overlay==HistoryOverlay.Technology?"technology":overlay==HistoryOverlay.Languages?"language":overlay==HistoryOverlay.HumanSpecies?"human-species":"people",Id=overlay==HistoryOverlay.Technology?c!.Identity:id,Cell=cell,Name=map.Name(id,overlay)};
         }
         public static AtlasLink[] Directory(PrehistoryState s,string kind,string search,bool past)
         {
+            if(Prehistory.Foraging(s))return ForagerView.Directory(s,kind,search,past);
             HistoryOverlay overlay=kind=="technology"?HistoryOverlay.Technology:kind=="language"?HistoryOverlay.Languages:kind=="human-species"?HistoryOverlay.HumanSpecies:HistoryOverlay.Cultures;
             if(kind!="technology"&&kind!="language"&&kind!="people"&&kind!="human-species")return Array.Empty<AtlasLink>();
             var entries=kind=="technology"?s.Society.Cultures.Where(c=>past||c.Population>0).Select(c=>new AtlasLink{Kind=kind,Id=c.Id,Cell=c.OriginCell,Name=c.Name+" technology"}):PaleolithicMaps.For(s).Legend(overlay,"Default").Select(e=>new AtlasLink{Kind=kind,Id=e.ColorId,Cell=e.Cell,Name=e.Name});
@@ -71,6 +76,7 @@ namespace WorldGen.Presentation
         }
         public static AtlasDocument Document(PrehistoryState s,string kind,int id,Prehistory? engine)
         {
+            if(Prehistory.Foraging(s))return ForagerView.Document(s,kind,id,engine);
             var d=new AtlasDocument{Kind=kind,Id=id,Year=s.Years,Subtitle=SimulationClockView.Year(s,s.Years)+" · "+Age(s),Title="Paleolithic world"};
             if(kind=="world")
             {d.Facts=new[]{Fact("Homo sapiens",SocietyView.Population(s).ToString("N0")),Fact("Resident communities",s.Society.Cultures.Count(c=>c.Population>0).ToString()),Fact("States","0")};d.Sections=new[]{new AtlasSection{Title="Local knowledge",Text="Open a community's technology profile for all techniques and their adoption shares.",Links=Directory(s,"technology","",false)},new AtlasSection{Title="Recorded speech communities",Links=Directory(s,"language","",false)},new AtlasSection{Title="Human species",Links=Directory(s,"human-species","",false)}};return d;}

@@ -39,6 +39,20 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov~10:50Z REBUILD CONTINUES, NO WRAP-UP REQUEST. Latest source checkpoint
+adds43-technique alternative-path graph, five-year learning/saved teacher context,
+demographic mass-balance/deep validation, connected lineage genealogies, sparse
+biota/refugia, geography-dependent orbital wet corridors, coexisting cultural
+communities, gradual beliefs/speech, stable spatial samples and new observer.
+Slot-b selected stays FROZEN. Slot-a only EARLY internal managed candidate exists;
+its first native view produced UI exceptions/obscured screenshots and is NOT
+accepted. Fixture/atlas guard corrected in source, NEW build/view pending. Old
+190k runs diagnosed several defects subsequently corrected; do not call those
+final current-model proof. Short5k coexistence runs validate accounting; current
+broader schema/interaction/performance checks pending. Owner deleted prompt and
+2untracked deer scripts untouched. No paid/subagents/cleanup/owner app closures.
+Minimum16:19:52Z is NOT a stop; continue substantive work until EXPLICIT wrap-up.
+
 ACTIVE2Nov OVERNIGHT PALEOLITHIC REBUILD AUTHORIZED. Owner REJECTED fb4b6ac
 simulation as homogeneous/unrealistic and requests substantive ground-up revision
 of ALL relevant systems with primary research, behavioural/statistical tests and
