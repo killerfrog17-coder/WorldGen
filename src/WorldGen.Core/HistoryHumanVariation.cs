@@ -133,7 +133,7 @@ namespace WorldGen.Core
         }
         internal static HumanAppearance Read(PrehistoryState s,int region,int sampleCell,string basis)
         {
-            if(s?.History?.Version!=Prehistory.LivingWorldHistoryVersion||s.Species!="Homo sapiens"||region<0||region>=s.Population.Length)return new HumanAppearance{Basis="Appearance traits are unavailable under the saved historical rules."};
+            if((!Prehistory.Paleolithic(s)&&s?.History?.Version!=Prehistory.LivingWorldHistoryVersion)||s.Species!="Homo sapiens"||region<0||region>=s.Population.Length)return new HumanAppearance{Basis="Appearance traits are unavailable under the saved historical rules."};
             int at=region*8;var a=s.Ancestry;
             var result=new HumanAppearance{Available=true,Region=region,SampleCell=sampleCell,Basis=basis,SkinPigmentation=a[at],HairPigmentation=a[at+1],IrisPigmentation=a[at+2],HairCurl=a[at+3],BodyCompactness=a[at+4],FacialVariation=a[at+5],NasalVariation=a[at+6],StaturePotential=a[at+7]};
             result.SkinColor=SkinSwatch(result.SkinPigmentation);result.HairColor=HairSwatch(result.HairPigmentation);result.IrisColor=IrisSwatch(result.IrisPigmentation);return result;

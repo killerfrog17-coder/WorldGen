@@ -38,6 +38,23 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov PALEOLITHIC SIMULATION OVERHAUL AUTHORIZED. Owner chose~200ka,
+one sapiens species for now, gradual local technology/speech, climate-dependent
+dispersal, Paleolithic-only progression.3-page PDF in docs/reports opened before
+implementation; source scripts/build-paleolithic-sim-plan.py. Rollback tag
+pre-paleolithic-overhaul-20261102 PUSHED. New prehistory7/paleolithic1 sparse
+engine bypasses later-age engines; old saves retain old rules. Local stable band
+API,24-tech DAG, continuous adoption/speech, glacial routes/capacity, local weather,
+ancestry, existing language generator. Core small-world188300yr~4s;26 focused
+checks passing before latest minor additions,267 language checksPASS. Broad old
+prehistory suite FAILS city emergence, not claimedpassing. Exact200000yr legacy
+hash matches untouched selected slot-b Core ce6bbbbc...; regressionpredates change.
+Need finalCore/native/UI/serialization checks, inactive slot-a build and proof,
+map captures, manifest/shortcut/Git checkpoint. Current selected slot-b untouched.
+No real NPC tribal spawning/dialogue or physical moving ice/ocean/ecosystem assets
+promised. Docs/PALEOLITHIC_SIMULATION.md distinguishes these limits. Source edits
+currentlyUNCOMMITTED; no subagents/paid/newfullplayers. Preserve owner3files.
+
 SELECTED2Nov OWNER SHELTER REVISION: root shortcut builds/slot-b/WorldGen.exe,
 Mono DEVELOPMENT BuiltUtc2026-11-02T05:18:51.2766531Z, production07075cd pushed.
 12 minimal menu entries: material store/bone lodge/stone hut hidden, legacy IDs

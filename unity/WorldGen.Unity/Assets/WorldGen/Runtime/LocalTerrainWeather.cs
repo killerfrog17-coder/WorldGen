@@ -92,6 +92,8 @@ public sealed partial class LocalTerrainExplorer
             // different wind regime for two visitors at the same date/place.
             if(!TestWeatherOverride.HasValue&&WeatherControl.Mode=="auto"&&sampledDays!=days)
                 CurrentWeather=CurrentWeather.WithWind(weatherProvider.At(days,LocalSolarHour,includeFog:false));
+            if(!TestWeatherOverride.HasValue&&WeatherControl.Mode=="auto"&&Prehistory.Paleolithic(sourceWorld.Prehistory))
+                CurrentWeather=PaleolithicRules.Weather(CurrentWeather,PaleolithicRules.Climate(sourceWorld.Recipe.Seed,SimulationTime.Seconds(sourceWorld.Prehistory)/(double)SimulationTime.Year,at.Z,(int)profileElevation));
             appliedWeatherRevision=WeatherControl.Revision;nextWeatherAt=Time.realtimeSinceStartupAsDouble+.1;
         }
         weatherScreen.Weather=CurrentWeather;weatherScreen.Days=days;weatherScreen.GroundM=profileElevation;

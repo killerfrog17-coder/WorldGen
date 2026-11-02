@@ -59,8 +59,8 @@ namespace WorldGen.Presentation
         }
         public static string YearNumber(int year,int epochYear=-1)
         {long relative=(long)year-(epochYear>=0?epochYear:0);return relative<0?(-relative).ToString("N0",CultureInfo.InvariantCulture)+" before civilization":relative.ToString("N0",CultureInfo.InvariantCulture);}
-        public static string Year(PrehistoryState? state,int year)=>"Year "+YearNumber(year,EpochYear(state));
-        public static string Date(PrehistoryState state,double rate)=>Date(SimulationTime.Seconds(state),rate,EpochYear(state));
+        public static string Year(PrehistoryState? state,int year)=>Prehistory.Paleolithic(state)?((state!.Paleolithic.StartYearsBeforePresent-year)>0?(state.Paleolithic.StartYearsBeforePresent-year).ToString("N0",CultureInfo.InvariantCulture)+" years BP":"Paleolithic year "+year.ToString("N0",CultureInfo.InvariantCulture)):"Year "+YearNumber(year,EpochYear(state));
+        public static string Date(PrehistoryState state,double rate)=>Prehistory.Paleolithic(state)?Year(state,state.Years)+" ? "+PaleolithicView.Age(state):Date(SimulationTime.Seconds(state),rate,EpochYear(state));
         public static string Rate(double seconds)
         {int unit=seconds>=SimulationTime.Year?6:seconds>=30*SimulationTime.Day?5:seconds>=7*SimulationTime.Day?4:seconds>=SimulationTime.Day?3:seconds>=SimulationTime.Hour?2:seconds>=60?1:0;double value=seconds/UnitSeconds[unit];return value.ToString("0.###",CultureInfo.InvariantCulture)+" "+(value==1?Units[unit].TrimEnd('s'):Units[unit])+"/s";}
         public static string Date(long seconds,double rate,int epochYear=-1)

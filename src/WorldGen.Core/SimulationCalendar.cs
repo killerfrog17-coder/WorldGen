@@ -10,7 +10,7 @@ namespace WorldGen.Core
     public static class SimulationTime
     {
         public const long Minute=60,Hour=3600,Day=86400,Year=365*Day,Maximum=10000000*Year;
-        public static long Seconds(PrehistoryState state)=>state.Timeline?.Seconds??state.Years*Year;
+        public static long Seconds(PrehistoryState state)=>state.Paleolithic?.Seconds??state.Timeline?.Seconds??state.Years*Year;
     }
     [Serializable] public sealed class SimulationEvent
     {
@@ -101,20 +101,21 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeScheduling(PrehistoryState source)
         {
             if(source==null)throw new ArgumentNullException(nameof(source));
-            if(AggregateHistory(source))return source;
+            if(Paleolithic(source)||AggregateHistory(source))return source;
             if(source.Timeline?.Version!="event-calendar-1"||source.History==null)return source;
             Validate(source);
             var s=source.CopyClockOnly();s.Timeline=InitialTimeline(source);s.Seal();return s;
         }
         public long NextSimulationEvent(PrehistoryState source)
-        {Validate(source);var timeline=source.Timeline??InitialTimeline(source);return timeline.Events[0].Due;}
-        internal long NextOwnedSimulationEvent(PrehistoryState source)=>(source.Timeline??InitialTimeline(source)).Events[0].Due;
+        {Validate(source);if(Paleolithic(source))return NextPaleolithicEvent(source);var timeline=source.Timeline??InitialTimeline(source);return timeline.Events[0].Due;}
+        internal long NextOwnedSimulationEvent(PrehistoryState source)=>Paleolithic(source)?NextPaleolithicEvent(source):(source.Timeline??InitialTimeline(source)).Events[0].Due;
         public PrehistoryState AdvanceSeconds(PrehistoryState source,long seconds,int maximumEvents=int.MaxValue,CancellationToken token=default)
             =>AdvanceCalendar(source,seconds,maximumEvents,token,true);
         internal PrehistoryState AdvanceOwnedSeconds(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,int maximumGlobalWork=int.MaxValue)
             =>AdvanceCalendar(source,seconds,maximumEvents,token,false,maximumGlobalWork);
         PrehistoryState AdvanceCalendar(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validateInput,int maximumGlobalWork=int.MaxValue)
         {
+            if(Paleolithic(source))return AdvancePaleolithic(source,seconds,maximumEvents,token,validateInput,maximumGlobalWork);
             if(AggregateHistory(source))return AdvanceAggregateCalendar(source,seconds,maximumEvents,token,validateInput,maximumGlobalWork);
             if(validateInput)using(ProfileWork("checkpoint validation"))Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             long now=SimulationTime.Seconds(source);if(seconds<1||seconds>SimulationTime.Maximum-now||maximumEvents<1||maximumGlobalWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));

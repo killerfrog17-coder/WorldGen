@@ -18,7 +18,8 @@ public sealed partial class WorldGenRuntime
         inspectionScroll=GUILayout.BeginScrollView(inspectionScroll);
         if(foodPortraitWorld!=displayedWorld||foodPortraitCell!=selectedCell){foodPortraitWorld=displayedWorld;foodPortraitCell=selectedCell;foodPortrait=HabitatPortrait.At(displayedWorld,selectedCell);}
         DrawHabitatPortrait(foodPortrait,false);
-        string text=EcologyView.Summary(displayedWorld,selectedCell)+"\n\n"+EcologyView.Describe(displayedWorld,selectedCell);int cut=text.IndexOf("\n\nFOOD WEB",StringComparison.Ordinal);GUILayout.Label(cut<0?text:text.Substring(0,cut),new GUIStyle(GUI.skin.label){wordWrap=true});GUILayout.EndScrollView();GUILayout.EndArea();
+        string text=EcologyView.Summary(displayedWorld,selectedCell)+"\n\n"+EcologyView.Describe(displayedWorld,selectedCell);if(Prehistory.Paleolithic(displayedWorld.Prehistory)&&humans!=null&&displayedWorld==world){var band=humans.PaleolithicBandAt(displayedWorld.Prehistory,selectedCell);text="SAPIENT FAUNA\n"+(band==null?"No resident sapient bands.":"Homo sapiens ? "+band.Name+" ? "+band.LanguageName+" speech")+"\n\n"+text;}
+        int cut=text.IndexOf("\n\nFOOD WEB",StringComparison.Ordinal);GUILayout.Label(cut<0?text:text.Substring(0,cut),new GUIStyle(GUI.skin.label){wordWrap=true});GUILayout.EndScrollView();GUILayout.EndArea();
         int region=displayedWorld.Ecology.Region[selectedCell];
         if(foodGraph==null || foodWorld!=displayedWorld || foodRegion!=region){foodWorld=displayedWorld;foodRegion=region;foodGraph=FoodWebDiagram.Build(displayedWorld,selectedCell);foodScroll=Vector2.zero;foodFocus=-1;}
         var area=new Rect(rect.x+textWidth,rect.y+48,rect.width-textWidth-12,rect.height-60);

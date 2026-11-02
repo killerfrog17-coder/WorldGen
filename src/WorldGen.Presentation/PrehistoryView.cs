@@ -52,6 +52,7 @@ namespace WorldGen.Presentation
             $"{SimulationClockView.Year(state,state.Years)} · {SocietyView.Population(state):N0} people · {SocietyView.Stage(state.Society?.Phase??SocietyStage.Foragers)}";
         public static string Describe(Prehistory engine,PrehistoryState state,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
+            if(Prehistory.Paleolithic(state))return PaleolithicView.Describe(engine,state,cell);
             string society=SocietyView.Describe(state,cell,overlay);if(society.Length>0)return society;
             if(engine==null||state==null||cell<0||cell>=engine.CellPatch.Length)return "Select a human population";
             int p=engine.CellPatch[cell];if(p<0)return "Uninhabited water";

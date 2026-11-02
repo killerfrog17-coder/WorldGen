@@ -41,7 +41,7 @@ public sealed partial class WorldGenRuntime
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
         {
             var task=humanPreparation;humanPreparation=null;
-            try{humans=task.GetAwaiter().GetResult();if(world.Prehistory==null){world.Prehistory=humans.Prepare();if(preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else{humans.Validate(world.Prehistory);if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;}UpdateHumanPalette();}
+            try{humans=task.GetAwaiter().GetResult();if(world.Prehistory==null){world.Prehistory=humans.PreparePaleolithic();if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else{humans.Validate(world.Prehistory);if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;}UpdateHumanPalette();}
             catch(Exception ex){error=ex.Message;humans=null;}
         }
         if(humanStep!=null&&humanStep.IsCompleted)
@@ -192,6 +192,7 @@ public sealed partial class WorldGenRuntime
         double deadline=Time.realtimeSinceStartupAsDouble+300;
         while((!worldReady||Busy||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(humans==null||Busy){Debug.LogError("PREHISTORY CHECK initialization failed "+error);Application.Quit(1);yield break;}
+        if(!Prehistory.Paleolithic(world.Prehistory)){Debug.LogError("PREHISTORY CHECK expected new Paleolithic default");Application.Quit(1);yield break;}
         SetProjection(Projection.Globe);FocusHumanOrigin();yield return null;
         var originPatch=humans.Patches[world.Prehistory.Origin];int originCell=originPatch.Cells[originPatch.Cells.Length/2];var point=world.Surface.Cells[originCell].Position;
         Pick(cameraView.WorldToScreenPoint(globe.transform.TransformPoint(new Vector3((float)point.X,(float)point.Z,(float)-point.Y))));
@@ -205,7 +206,12 @@ public sealed partial class WorldGenRuntime
         StepHumans(150000/Prehistory.YearsPerStep(world.Prehistory));while(humanStep!=null)yield return null;
         satelliteOpacity=.35f;ApplyCachedDisplay();selectedCell=humans.Patches[world.Prehistory.Origin].Cell;UpdateHumanPalette();
         yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-200000.png"));yield return null;
-        var checkpoint=world.Prehistory;var saved=Task.Run(()=>WorldGen.Serialization.WorldFile.Write(world));while(!saved.IsCompleted)yield return null;
+        var checkpoint=world.Prehistory;
+        humans.Validate(checkpoint);
+        var sampleCell=humans.Patches[checkpoint.Origin].Cell;var sampleA=humans.PaleolithicBandAt(checkpoint,sampleCell,4);var sampleB=humans.PaleolithicBandAt(checkpoint,sampleCell,4);
+        if(checkpoint.History!=null||checkpoint.Society.Settlements.Length!=0||sampleA==null||StateHash.Compute(sampleA)!=StateHash.Compute(sampleB)||!CurrentHumanInspection().Contains("LOCAL KNOWLEDGE")){Debug.LogError("PREHISTORY CHECK Paleolithic state/inspection/band coherence failed");Application.Quit(1);yield break;}
+        System.IO.File.WriteAllText(System.IO.Path.Combine(folder,"paleolithic-checks.txt"),"PASS new Paleolithic default; globe picking; real50k/200k playback; continuous epoch; no later-age societies; deterministic local band; live knowledge inspection; actual map captures; binary checkpoint.\n");
+        var saved=Task.Run(()=>WorldGen.Serialization.WorldFile.Write(world));while(!saved.IsCompleted)yield return null;
         if(saved.IsFaulted){Debug.LogError(saved.Exception);Application.Quit(1);yield break;}
         System.IO.File.WriteAllBytes(System.IO.Path.Combine(folder,"prehistory.world"),saved.Result);
         System.IO.File.WriteAllText(System.IO.Path.Combine(folder,"state.json"),WorldGen.Serialization.WorldJson.Write(checkpoint));

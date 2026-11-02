@@ -69,6 +69,7 @@ namespace WorldGen.Presentation
         public int OverlayId(int cell,HistoryOverlay overlay)
         {
             if(cell<0||cell>=Count||source.Society==null)return -1;int culture=Culture(cell),p=Polity(cell);var h=source.History;
+            if(Prehistory.Paleolithic(source))return culture;
             if(h==null)return culture>=0&&source.Society.Cultures[culture].Stage==SocietyStage.Civilization?culture:-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(source,cell);
             if(overlay==HistoryOverlay.Languages)return languages[cell];

@@ -86,6 +86,7 @@ namespace WorldGen.Presentation
         public static int OverlayId(PrehistoryState s,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
             if(s==null)return -1;
+            if(Prehistory.Paleolithic(s))return Culture(s,cell)?.Id??-1;
             if(s.History!=null)return HistoricalMapSnapshot.For(s).OverlayId(cell,overlay);
             var culture=Culture(s,cell);return culture?.Stage==SocietyStage.Civilization?culture.Id:-1;
         }
