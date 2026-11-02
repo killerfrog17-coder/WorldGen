@@ -8,13 +8,13 @@ namespace WorldGen.Core
     {
         internal PrehistoryState AdvanceForagers(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validate,int maximumWork=int.MaxValue)
         {
-            if(validate)ValidateForagers(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
+            if(validate)using(ProfileWork("forager input validation"))ValidateForagers(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             if(seconds<1||seconds>SimulationTime.Maximum-source.Foragers.Seconds||maximumEvents<1||maximumWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));
-            var s=source.Copy();var f=s.Foragers;long target=f.Seconds+seconds;int processed=0;var intelligibility=new Dictionary<long,double>();
+            PrehistoryState s;using(ProfileWork("forager checkpoint copy"))s=source.Copy();var f=s.Foragers;long target=f.Seconds+seconds;int processed=0;var intelligibility=new Dictionary<long,double>();
             while(f.NextReviewSeconds<=target&&processed<Math.Min(maximumEvents,maximumWork))
             {
                 token.ThrowIfCancellationRequested();long next=f.NextReviewSeconds;int year=(int)(next/SimulationTime.Year);double previousYear=f.BoundarySeconds/(double)SimulationTime.Year;
-                foreach(var c in f.Cohorts)
+                using(ProfileWork("forager demography",f.Cohorts.Length))foreach(var c in f.Cohorts)
                 {
                     if((c.Id&127)==0)token.ThrowIfCancellationRequested();double previous=c.Population;if(previous<=0)continue;
                     ForagerDemography.Materialize(c,5,previousYear);
@@ -22,21 +22,21 @@ namespace WorldGen.Core
                     else if(c.Population<previous*.7)AddForagerEvent(f,ForagerEventKind.Decline,year,c,c.WinterSecurity<.3?"Severe winter exposure has broken up the local population.":c.FoodSecurity<.5?"A food crisis has sharply reduced the resident population.":"Illness and hardship have sharply reduced the local population.");
                 }
                 f.Seconds=f.BoundarySeconds=next;f.NextReviewSeconds=next+5*SimulationTime.Year;
-                var environment=ForagerEnvironments(f,year);
-                if(year%250==0){ForagerBiota.Advance(World,f,environment,year,250,token);environment=ForagerEnvironments(f,year);}
+                ForagerEnvironment[] environment;using(ProfileWork("forager environments",f.Districts.Length))environment=ForagerEnvironments(f,year);
+                if(year%250==0){using(ProfileWork("forager biota",f.Biota.Length))ForagerBiota.Advance(World,f,environment,year,250,token);environment=ForagerEnvironments(f,year);}
                 if(year%25==0)
                 {
-                    ForagerSociality.Review(World.Recipe.Seed,f,environment,year,25,intelligibility,c=>ForagerBandHome(f,c,0).position);
-                    MigrateForagers(f,environment,year,25,token);
-                    RefreshForagerTeachers(f);
-                    ReviewForagerShocks(f,environment,year);
+                    using(ProfileWork("forager contacts",f.Cohorts.Length))ForagerSociality.Review(World.Recipe.Seed,f,environment,year,25,intelligibility,c=>ForagerBandHome(f,c,0).position);
+                    using(ProfileWork("forager migration",f.Cohorts.Length))MigrateForagers(f,environment,year,25,token);
+                    using(ProfileWork("forager teachers",f.Cohorts.Length))RefreshForagerTeachers(f);
+                    using(ProfileWork("forager shocks",f.Cohorts.Length))ReviewForagerShocks(f,environment,year);
                 }
-                LearnForagers(f,environment,year,5,token);
-                if(year%250==0){ChangeForagerSocieties(f,environment,year,250,token);intelligibility.Clear();}
-                SetForagerRates(f,environment,year,5,token);processed++;
+                using(ProfileWork("forager practices",f.Cohorts.Length))LearnForagers(f,environment,year,5,token);
+                if(year%250==0){using(ProfileWork("forager societies",f.Cohorts.Length))ChangeForagerSocieties(f,environment,year,250,token);intelligibility.Clear();}
+                using(ProfileWork("forager livelihood",f.Cohorts.Length))SetForagerRates(f,environment,year,5,token);processed++;
             }
             f.Seconds=f.NextReviewSeconds<=target?Math.Min(target,f.NextReviewSeconds-1):target;
-            PublishForagers(s);if(processed==0)s.DomainToken=source.DomainToken;token.ThrowIfCancellationRequested();s.Seal();return s;
+            using(ProfileWork("forager publication",f.Cohorts.Length))PublishForagers(s);if(processed==0)s.DomainToken=source.DomainToken;token.ThrowIfCancellationRequested();using(ProfileWork("forager checkpoint hash"))s.Seal();return s;
         }
         static void AddForagerEvent(ForagerState f,ForagerEventKind kind,int year,ForagerCohort c,string text,int other=-1)
         {f.Events=f.Events.Concat(new[]{new ForagerEvent{Seconds=year*SimulationTime.Year,Kind=kind,Cohort=c?.Id??-1,District=c?.District??-1,Other=other,Text=text}}).TakeLast(2048).ToArray();}
@@ -69,10 +69,11 @@ namespace WorldGen.Core
         void LearnForagers(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
         {
             var previous=new double[ForagerTechnology.Count];
+            var materials=f.Cohorts.Where(c=>c.Population>=1).Select(c=>c.District).Distinct().ToDictionary(id=>id,id=>Enumerable.Range(0,ForagerTechnology.Count).Select(k=>ForagerTechnology.Materials(f.Districts[id],environment[id],k)).ToArray());
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1))
             {
                 if((c.Id&63)==0)token.ThrowIfCancellationRequested();Array.Copy(c.Skill,previous,previous.Length);
-                ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true));
+                ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District]);
                 for(int k=0;k<previous.Length;k++)
                 {
                     if(c.Knowledge[k]>=.2&&c.FirstKnownYear[k]<0)c.FirstKnownYear[k]=year;
@@ -136,8 +137,8 @@ namespace WorldGen.Core
                     ForagerAffiliations.Refresh(c);c.LastLanguageReviewYear=year;
                 }
                 var peer=neighbours[c.Id].OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
-                ChangeForagerCulture(f,c,environment[c.District],year,elapsed,peer.people==null?null:oldCultures[peer.people.Culture],peer.people==null?0:peer.relation.Strength);
-                ReviewForagerAffiliations(f,c,neighbours[c.Id],oldSpeech,oldTraditions,year,elapsed);
+                using(ProfileWork("forager culture",1))ChangeForagerCulture(f,c,environment[c.District],year,elapsed,peer.people==null?null:oldCultures[peer.people.Culture],peer.people==null?0:peer.relation.Strength);
+                using(ProfileWork("forager affiliations",1))ReviewForagerAffiliations(f,c,neighbours[c.Id],oldSpeech,oldTraditions,year,elapsed);
                 if(c.Identity>=0&&f.Peoples[c.Identity].OriginDistrict!=c.District&&year-c.FoundedYear>3000)
                 {
                     var prior=f.Peoples[c.Identity];double originDistance=DistanceKm(district.Center,f.Districts[prior.OriginDistrict].Center);
@@ -171,7 +172,7 @@ namespace WorldGen.Core
             // which happens to practise it. Local branches spread through a
             // changing minority share before becoming the local majority.
             var beliefOwners=f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Traditions.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.weight).First());
-            foreach(var item in beliefOwners)
+            using(ProfileWork("forager belief change",f.Beliefs.Length))foreach(var item in beliefOwners)
             {
                 var c=item.people;var peer=neighbours[c.Id].Where(p=>p.people.Belief!=item.id).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
                 ForagerBeliefs.Change(World.Recipe.Seed,f.Beliefs[item.id],f.Districts[c.District],year,elapsed,c.Isolation,peer.people==null?0:peer.relation.Strength,peer.people==null?null:oldBeliefs.TryGetValue(peer.people.Belief,out var prior)?prior:null);
@@ -179,7 +180,7 @@ namespace WorldGen.Core
             // Exactly one update per language, even when multiple districts share
             // it. Mutable owner iteration never makes a widespread language age
             // faster merely because more people speak it.
-            foreach(var speechOwner in f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Speech.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.weight).First()))
+            using(ProfileWork("forager speech change",f.Languages.Length))foreach(var speechOwner in f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Speech.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.weight).First()))
             {
                 var owner=speechOwner.people;int languageId=speechOwner.id;
                 var peer=neighbours[owner.Id].Where(p=>p.people.Language!=languageId).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
@@ -193,7 +194,7 @@ namespace WorldGen.Core
                 language.NarrativePractice=D.Q(PaleolithicRules.Approach(language.NarrativePractice,narrative*potential,1/15000d,elapsed),1000000);
                 language.RitualRegister=D.Q(PaleolithicRules.Approach(language.RitualRegister,ritual*potential,1/15000d,elapsed),1000000);
             }
-            ForagerLanguages.ReviewFamilies(f,year,languageContacts.ToDictionary(p=>p.Key,p=>p.Value.OrderBy(x=>x).ToArray()));
+            using(ProfileWork("forager family change",f.Languages.Length))ForagerLanguages.ReviewFamilies(f,year,languageContacts.ToDictionary(p=>p.Key,p=>p.Value.OrderBy(x=>x).ToArray()));
         }
         void ReviewForagerAffiliations(ForagerState f,ForagerCohort c,List<(ForagerCohort people,ForagerExchange relation)> contacts,
             Dictionary<int,ForagerAffiliation[]> oldSpeech,Dictionary<int,ForagerAffiliation[]> oldTraditions,int year,int elapsed)

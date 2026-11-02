@@ -9,17 +9,21 @@ namespace WorldGen.Core
     {
         public static ForagerAffiliation[] Single(int id)=>new[]{new ForagerAffiliation{Id=id,Share=1}};
         public static double Share(ForagerAffiliation[] profile,int id)=>profile.FirstOrDefault(x=>x.Id==id)?.Share??0;
-        public static ForagerAffiliation[] Normalize(IEnumerable<ForagerAffiliation> profile)
+        static void Add(Dictionary<int,double> values,int id,double share)
+        {if(id<0||!double.IsFinite(share)||share<=0)return;values.TryGetValue(id,out double previous);values[id]=previous+share;}
+        static ForagerAffiliation[] FromWeights(Dictionary<int,double> weights)
         {
-            var values=profile.Where(x=>x.Id>=0&&double.IsFinite(x.Share)&&x.Share>0).GroupBy(x=>x.Id)
-                .Select(g=>new ForagerAffiliation{Id=g.Key,Share=g.Sum(x=>x.Share)}).OrderBy(x=>x.Id).ToArray();
-            double total=values.Sum(x=>x.Share);if(total<=0)return Array.Empty<ForagerAffiliation>();
-            foreach(var x in values)x.Share/=total;
-            return values;
+            var keys=weights.Keys.OrderBy(x=>x).ToArray();double total=0;foreach(int id in keys)total+=weights[id];
+            if(total<=0)return Array.Empty<ForagerAffiliation>();
+            var result=new ForagerAffiliation[keys.Length];for(int i=0;i<keys.Length;i++)result[i]=new ForagerAffiliation{Id=keys[i],Share=weights[keys[i]]/total};return result;
         }
+        public static ForagerAffiliation[] Normalize(IEnumerable<ForagerAffiliation> profile)
+        {var weights=new Dictionary<int,double>();foreach(var x in profile)Add(weights,x.Id,x.Share);return FromWeights(weights);}
         public static ForagerAffiliation[] Blend(ForagerAffiliation[] a,double massA,ForagerAffiliation[] b,double massB)
-            =>Normalize(a.Select(x=>new ForagerAffiliation{Id=x.Id,Share=x.Share*Math.Max(0,massA)})
-                .Concat(b.Select(x=>new ForagerAffiliation{Id=x.Id,Share=x.Share*Math.Max(0,massB)})));
+        {
+            var weights=new Dictionary<int,double>();massA=Math.Max(0,massA);massB=Math.Max(0,massB);
+            foreach(var x in a)Add(weights,x.Id,x.Share*massA);foreach(var x in b)Add(weights,x.Id,x.Share*massB);return FromWeights(weights);
+        }
         public static ForagerAffiliation[] Replace(ForagerAffiliation[] profile,int before,int after)
             =>Normalize(profile.Select(x=>new ForagerAffiliation{Id=x.Id==before?after:x.Id,Share=x.Share}));
         public static ForagerAffiliation[] Transfer(ForagerAffiliation[] profile,int from,int to,double fraction)
@@ -37,7 +41,7 @@ namespace WorldGen.Core
             var largest=combined.OrderByDescending(x=>x.Share).ThenBy(x=>x.Id).First();
             double cutoff=Math.Min(.001,.1/Math.Max(1,population));
             foreach(var x in combined)if(x.Id!=largest.Id&&x.Share<cutoff){largest.Share+=x.Share;x.Share=0;}
-            return Normalize(combined);
+            var kept=combined.Where(x=>x.Share>0).ToArray();double sum=kept.Sum(x=>x.Share);foreach(var x in kept)x.Share/=sum;return kept;
         }
         public static int Pick(ForagerAffiliation[] profile,double quantile)
         {
@@ -61,7 +65,7 @@ namespace WorldGen.Core
             foreach(var c in contacts)Add(c.profile,Math.Sqrt(Math.Max(0,c.population))*c.strength);
             // A regional convention can become attractive without making every
             // contact an instant conversion or allowing distant speakers to vote.
-            return Normalize(votes.Select(p=>new ForagerAffiliation{Id=p.Key,Share=Math.Pow(p.Value,1.3)}));
+            var powered=new Dictionary<int,double>();foreach(var p in votes)powered[p.Key]=Math.Pow(p.Value,1.3);return FromWeights(powered);
         }
     }
 }

@@ -11,6 +11,14 @@ static class ForagerMechanismTests
         var d=new ForagerDistrict{Id=0,AreaKm2=10000,Center=new V(1,0,0),Productivity=700,WinterC=12,SummerC=28,MeanC=21,Aridity=1,GrowingDays=300,Water=.8,Coast=.2,River=.3,Canopy=.6,Stone=.8,Fiber=.8,Wood=.8,Resin=.5,Food=new[]{.8,.5,.5,.3,.2},Seasonality=new[]{.2,.1,.2,.2,.1}};
         var culture=new ForagerCulture{FoodPreference=Enumerable.Repeat(.6,5).ToArray(),TechniquePreference=Enumerable.Repeat(.6,ForagerTechnology.Count).ToArray(),ExchangeOpenness=.7};
         var lineage=new HomininLineage();var c=new ForagerCohort{Adults=90,Children=50,Elders=10,Knowledge=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),Skill=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),Use=new double[ForagerTechnology.Count],Teaching=new double[ForagerTechnology.Count],Innovation=new double[ForagerTechnology.Count]};
+        var experiment=c.Copy();experiment.Adults=40;experiment.Children=0;experiment.Elders=0;Array.Fill(experiment.Knowledge,.9);Array.Fill(experiment.Skill,.9);experiment.Knowledge[17]=experiment.Skill[17]=experiment.Use[17]=0;
+        experiment.FirstKnownYear=Enumerable.Repeat(-1,ForagerTechnology.Count).ToArray();
+        var experimentEnvironment=ForagerEcology.At(42,d,0);
+        ulong learned=ForagerTechnology.Advance(42,experiment,d,experimentEnvironment,culture,5,5,null,1e9);
+        Check((learned&(1UL<<17))!=0&&experiment.Skill[17]>0,"An observed invention introduces actual trained makers rather than only knowledge with no possible teacher");
+        experiment.FirstKnownYear[17]=5;
+        for(int year=10;year<=1500;year+=5)ForagerTechnology.Advance(42,experiment,d,experimentEnvironment,culture,5,year,null,0);
+        Check(experiment.Skill[17]>.35,"A useful new practice can become self-sustaining after temporary experimentation support ends");
         var resources=new ForagerResources();var warm=ForagerEcology.At(42,d,0);var basic=ForagerEcology.Livelihood(d,warm,lineage,c,culture,resources);
         Check(basic.Capacity>50&&basic.Capacity<3000,"Warm productive district has a bounded forager carrying opportunity, not agricultural density");
         var cold=d.Copy();cold.Center=new V(.6,0,.8);cold.WinterC=-28;cold.SummerC=14;cold.MeanC=-7;cold.GrowingDays=100;

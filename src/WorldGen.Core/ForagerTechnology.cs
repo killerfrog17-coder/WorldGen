@@ -62,6 +62,8 @@ namespace WorldGen.Core
             new ForagerTechnique(42,"Pigment preparation",new[]{0},150000,130,110,3000)
         };
         public static int Count=>All.Length;
+        static readonly uint[] InventionStreams=Enumerable.Range(0,All.Length).Select(k=>Rng.StreamHash("forager-invention-"+k)).ToArray();
+        static readonly uint[] InsightStreams=Enumerable.Range(0,All.Length).Select(k=>Rng.StreamHash("forager-insight-"+k)).ToArray();
         public static double Prerequisites(double[] skill,int technique)
         {var t=All[technique];double value=1;foreach(int p in t.Prerequisites)value=Math.Min(value,skill[p]);if(t.AlternativePaths.Length>0){double best=0;foreach(var path in t.AlternativePaths){double available=1;foreach(int p in path)available=Math.Min(available,skill[p]);best=Math.Max(best,available);}value=Math.Min(value,best);}return value;}
         public static string Requirements(int technique)
@@ -110,26 +112,38 @@ namespace WorldGen.Core
                 case 41:case 42:return .15+.5*c.Connectivity;default:return .5;
             }
         }
-        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1)
+        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1,double[] materialProfile=null)
         {
             ulong inventions=0;
             for(int k=0;k<Count;k++)
             {
-                var t=All[k];double prerequisites=Prerequisites(c.Skill,k),materials=Materials(d,e,k),need=Demand(d,e,c,k);
+                var t=All[k];double prerequisites=Prerequisites(c.Skill,k),materials=materialProfile==null?Materials(d,e,k):materialProfile[k],need=Demand(d,e,c,k);
                 double preference=culture.TechniquePreference.Length>k?culture.TechniquePreference[k]:.5;
                 double foundation=D.Clamp((prerequisites-.22)/.48);
                 double opportunity=foundation*(.2+.8*materials)*(.15+.85*need);
-                double practitioners=c.Adults*c.Use[k],network=Math.Max(0,c.Adults+connectedAdults*.2)/2500.0;
+                double practitioners=c.Adults*c.Skill[k],network=Math.Max(0,c.Adults+connectedAdults*.2)/2500.0;
                 // No inherited discovery clock. Realised innovations are rare
                 // opportunities; failing to invent this century does not grant
                 // inevitable discovery credit to every descendant everywhere.
                 double complexity=D.Clamp((t.InnovationYears-60000)/640000d);
                 double innovationCapacity=(1-complexity)+complexity*(.25+.75*D.Clamp(symbolicPotential));
                 double hazard=1-Math.Exp(-years/t.InnovationYears*network*opportunity*innovationCapacity);
-                if(Rng.Value(seed,"forager-invention-"+k,unchecked(c.Id*104729+year))<hazard){if(c.Knowledge[k]<.5)inventions|=1UL<<k;c.Knowledge[k]=Math.Max(c.Knowledge[k],.7+.2*Rng.Value(seed,"forager-insight-"+k,c.Id^year));}
+                bool invented=c.Adults>=1&&Rng.ValueFromStreamHash(seed,InventionStreams[k],unchecked(c.Id*104729+year))<hazard;
+                if(invented)
+                {
+                    if(c.Knowledge[k]<.5)inventions|=1UL<<k;
+                    double insight=Rng.ValueFromStreamHash(seed,InsightStreams[k],c.Id^year);
+                    c.Knowledge[k]=Math.Max(c.Knowledge[k],.7+.2*insight);
+                    // An invention has actual makers, not just an abstract rumour
+                    // followed by certain loss because nobody yet counts as skilled.
+                    c.Skill[k]=Math.Max(c.Skill[k],Math.Min(.35,(2+2*insight)/Math.Max(1,c.Adults)));
+                    practitioners=c.Adults*c.Skill[k];
+                }
                 double teacher=teachers!=null&&teachers.Length>k?teachers[k]:0;
-                double localTeaching=D.Clamp(c.Skill[k]*Math.Min(1,practitioners/8));
+                double localTeaching=D.Clamp(c.Skill[k]*Math.Min(1,practitioners/3));
                 double learning=teacher*(.35+.65*culture.ExchangeOpenness)*D.Clamp(contactStrength)+localTeaching;
+                double recentLearning=c.FirstKnownYear.Length>k&&c.FirstKnownYear[k]>0&&year>=c.FirstKnownYear[k]?Math.Exp(-(year-c.FirstKnownYear[k])/140d):0;
+                learning+=.8*Math.Max(invented?1:0,recentLearning);
                 learning*=(.55+.45*D.Clamp(explanationPractice))*(.4+.6*D.Clamp(learningCapacity));
                 // Repeated successful practice can refine a familiar method.
                 // Material scarcity reduces opportunity and use; it does not

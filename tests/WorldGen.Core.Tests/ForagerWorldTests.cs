@@ -3,11 +3,11 @@ using WorldGen.Core;
 using WorldGen.Serialization;
 static class ForagerWorldTests
 {
-    public static void History(string output,int years=40000,int seed=0,string preset="Continents",int detail=5000)
+    public static void History(string output,int years=40000,int seed=0,string preset="Continents",int detail=5000,string from="")
     {
         Directory.CreateDirectory(output);var recipe=Recipe.Preset(preset);recipe.Detail=detail;if(seed!=0)recipe.Seed=seed;
         File.WriteAllText(Path.Combine(output,"run.json"),System.Text.Json.JsonSerializer.Serialize(new{source=Environment.GetEnvironmentVariable("WORLDGEN_FORAGER_SOURCE")??"working tree",startedUtc=DateTime.UtcNow,preset,recipe.Seed,recipe.Detail,requestedYears=years}));
-        var watch=Stopwatch.StartNew();var w=new WorldPipeline().Generate(recipe);var engine=new Prehistory(w);var s=engine.StartForagers(engine.PrepareForagers());
+        var watch=Stopwatch.StartNew();var w=from.Length>0?WorldFile.ReadFile(from):new WorldPipeline().Generate(recipe);var engine=new Prehistory(w);var s=from.Length>0?w.Prehistory:engine.StartForagers(engine.PrepareForagers());
         var records=new List<object>();
         void Record()
         {
@@ -18,7 +18,7 @@ static class ForagerWorldTests
             var techniques=ForagerTechnology.All.Select(t=>new{id=t.Id,name=t.Name,known=live.Count(c=>c.Knowledge[t.Id]>=.5),skilled=live.Count(c=>c.Skill[t.Id]>=.5),used=live.Count(c=>c.Use[t.Id]>=.5),meanUse=live.Length==0?0:live.Average(c=>c.Use[t.Id]),maximum=live.Length==0?0:live.Max(c=>c.Skill[t.Id])}).ToArray();
             File.WriteAllText(Path.Combine(output,"techniques.json"),System.Text.Json.JsonSerializer.Serialize(techniques,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         }
-        Record();w.Prehistory=s;File.WriteAllBytes(Path.Combine(output,"year-0.world"),WorldFile.Write(w));
+        Record();w.Prehistory=s;File.WriteAllBytes(Path.Combine(output,$"year-{s.Years}.world"),WorldFile.Write(w));
         while(s.Years<years)
         {
             s=engine.AdvanceSeconds(s,Math.Min(1000,years-s.Years)*SimulationTime.Year);engine.ValidateForagers(s);Record();
@@ -26,6 +26,14 @@ static class ForagerWorldTests
         }
         if(years>0)ForagerHistoryAudit.Run(Path.Combine(output,$"year-{s.Years}.world"),Path.Combine(output,"audit"));
         Console.WriteLine("PASS complete forager history validation");
+    }
+    public static void Cost(string file,int years)
+    {
+        var w=WorldFile.ReadFile(file);var engine=new Prehistory(w);var stages=new Dictionary<string,(int calls,double ms,long bytes)>();
+        engine.WorkObserver=m=>{stages.TryGetValue(m.Stage,out var old);stages[m.Stage]=(old.calls+1,old.ms+m.Milliseconds,old.bytes+m.AllocatedBytes);};
+        var timer=Stopwatch.StartNew();var s=engine.AdvanceYears(w.Prehistory,years);
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new{years,elapsed=timer.Elapsed.TotalSeconds,s.Hash,records=s.Foragers.Cohorts.Length,active=s.Foragers.Cohorts.Count(c=>c.Population>=1)}));
+        foreach(var row in stages.OrderByDescending(p=>p.Value.ms))Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new{stage=row.Key,calls=row.Value.calls,ms=row.Value.ms,bytes=row.Value.bytes}));
     }
     public static void Initial()
     {

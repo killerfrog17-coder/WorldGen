@@ -137,3 +137,53 @@ resident communities. Long-run calibration, distribution/multilingual details,
 wet/dry corridor tests, several seeds/detail levels, performance, save/budget
 invariance, old-rule replay and clean actual UI capture remain in progress.
 The owner has explicitly forbidden stopping without a wrap-up request.
+
+
+### Working checkpoint, 2 November 12:10 UTC
+
+Canonical speech and ritual affiliation distributions now preserve three or more
+resident communities through migration; cached majority/minority fields are only
+observer conveniences. Local contact can gradually change the main language,
+while isolation cannot draw from a global popularity list. Regional mutually
+intelligible varieties can share a dialect. The first20k run of this revision
+has409 dominant speech varieties/112 families at19k, versus thousands of tiny
+families in the previous diagnostic. This is not final calibration or an exact
+reconstruction of prehistoric language counts.
+
+Family sampling now includes stable birth/death and parent records, checks
+parental survival at conception/birth, conditions introduced adult parents on
+reaching adulthood, keeps household units and provides foster guardians. Homes
+remain exactly unchanged under frontier/population expansion.1,152 sampled
+household/camp assertions passed across30 communities at20k. A failed earlier
+home test compared a rounded vector dot product at finer precision than its
+representation; the corrected test compares coordinates exactly.
+
+Nine temporal checks pass: split/public/private advances, event/work budgets,
+real save/reload, deep-copy isolation, and cancellation after migration. Nine
+climate/weather checks verify seasonal rain conservation, southern seasons,
+new rain in dry baselines, snow and stationary weather-provider refresh. The
+playable weather generator now receives historical seasonal inputs; physical
+river/shore/vegetation geometry is not thereby reconstructed.
+
+The20k technique audit exposed a separate establishment failure: an invention
+created familiarity without trained makers, then lost the nascent practice.
+New insights now introduce a few makers and a temporary learning/experimentation
+window, with skilled makers counted separately from daily use.26 isolated
+mechanism checks pass. Fresh long histories of this change remain REQUIRED.
+
+Read-only profiling of a250-year20k checkpoint measured8.63s on this PC.
+Caching unchanged RNG stream hashes/material opportunities removed about98% of
+practice-stage allocation (753MB to12MB). More direct affiliation normalization
+reduced its allocation1,048MB to623MB. The before/after full simulation hash was
+EXACTLY9e1f5096045a18a9a1c32a1acb88386f3845c5e661aab56a33379c166352d75d.
+These are scoped allocation/profile measurements, not a promised full-world
+runtime. The subsequent invention-establishment change intentionally changes
+model outcomes and is not covered by that unchanged-hash comparison.
+
+Additional sources: [Hill et al.2011 co-residence](https://doi.org/10.1126/science.1199071),
+[Gurven/Kaplan life histories](https://doi.org/10.1111/j.1728-4457.2007.00171.x),
+[Evans2017 multilingual settings](https://openresearch-repository.anu.edu.au/handle/1885/227220),
+[Conde-Valverde et al.2021 speech capacities](https://www.nature.com/articles/s41559-021-01391-6).
+Only the designated sapiens lineage is marked sapient in the current fictional
+preset. Other lineages' symbolic/learning capacities are explicit world-design
+priors, not empirical claims that real archaic humans lacked speech or culture.

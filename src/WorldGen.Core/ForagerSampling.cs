@@ -101,44 +101,65 @@ namespace WorldGen.Core
         }
         ForagerPersonSample[] ForagerHouseholds(ForagerState f,ForagerCohort c,ForagerBandSample band,double years,int key)
         {
-            var candidates=new List<ForagerPersonSample>();int now=(int)Math.Floor(years);int familyCount=Math.Max(2,(int)Math.Ceiling(band.People/5.0));
+            var records=new Dictionary<long,ForagerPersonRecord>();int now=(int)Math.Floor(years);int familyCount=Math.Max(2,(int)Math.Ceiling(band.People/5.0));
+            ForagerPersonRecord Record(long id,int birth,bool female,long household,bool adultFounder=false,long mother=-1,long father=-1)
+            {
+                if(records.TryGetValue(id,out var existing))return existing;
+                double born=birth+Rng.Value(World.Recipe.Seed,"individual-birthday",unchecked((int)id));
+                var record=new ForagerPersonRecord{Id=id,Household=household,Female=female,Mother=mother,Father=father,BirthYear=born,DeathYear=born+ForagerLifeHistory.Lifetime(World.Recipe.Seed,id,adultFounder)};
+                records[id]=record;return record;
+            }
             for(int family=0;family<familyCount;family++)
             {
                 int phase=(int)(Rng.Value(World.Recipe.Seed,"household-generation-phase",key^family*7919)*28);
-                for(int generation=(now-phase-90)/28-1;generation<=(now-phase)/28;generation++)
+                for(int generation=(now-phase-100)/28-1;generation<=(now-phase)/28;generation++)
                 {
                     int motherBirth=generation*28+phase;long household=PersonId(band.Id,family,motherBirth,19);
                     int fatherBirth=motherBirth-2-(int)(Rng.Value(World.Recipe.Seed,"partner-age",key^family^motherBirth)*5);
                     long mother=PersonId(band.Id,family,motherBirth,0),father=PersonId(band.Id,family,fatherBirth,1);
-                    var a=Person(mother,motherBirth,true,household,-1,-1);var b=Person(father,fatherBirth,false,household,-1,-1);
-                    if(a!=null){a.Partner=father;candidates.Add(a);}if(b!=null){b.Partner=mother;candidates.Add(b);}
+                    var a=Record(mother,motherBirth,true,household,true);var b=Record(father,fatherBirth,false,household,true);
+                    double union=a.BirthYear+18;
+                    if(b.DeathYear<=union)continue;
+                    if(years>=union){a.Partner=father;b.Partner=mother;}
                     int children=2+(int)(Rng.Value(World.Recipe.Seed,"household-births",key^family^motherBirth)*4);
                     for(int child=0;child<children;child++)
                     {
                         int birth=motherBirth+19+child*3;long id=PersonId(band.Id,family,birth,child+4);
-                        var person=Person(id,birth,Rng.Value(World.Recipe.Seed,"child-sex",(int)id)>.5,household,mother,father);if(person!=null)candidates.Add(person);
+                        double born=birth+Rng.Value(World.Recipe.Seed,"individual-birthday",unchecked((int)id));
+                        if(born>=a.DeathYear||born-.75>=b.DeathYear)continue;
+                        Record(id,birth,Rng.Value(World.Recipe.Seed,"child-sex",(int)id)>.5,household,false,mother,father);
                     }
                 }
             }
-            var selected=candidates.OrderBy(p=>Rng.Value(World.Recipe.Seed,"household-resident-rank",unchecked((int)p.Id^(int)(p.Id>>32)))).Take(band.People).OrderBy(p=>p.Household).ThenByDescending(p=>p.AgeYears).ToArray();
-            // Parent and partner references may refer to deceased people or to
-            // relatives living in neighbouring bands; they are not dangling
-            // indexes into this display's member array.
-            return selected;
-            ForagerPersonSample Person(long id,int birth,bool female,long household,long mother,long father)
+            var alive=records.Values.Where(p=>p.BirthYear<=years&&p.DeathYear>years).ToArray();
+            var households=alive.GroupBy(p=>p.Household).Where(g=>g.Any(p=>years-p.BirthYear>=18)).OrderBy(g=>Rng.Value(World.Recipe.Seed,"household-resident-rank",unchecked((int)g.Key^(int)(g.Key>>32)))).Take(familyCount).ToArray();
+            var selected=households.SelectMany(g=>g).ToList();
+            // Children whose parents have died can live with another household;
+            // never leave a generated camp consisting solely of orphan children.
+            if(households.Length>0)
             {
-                double birthday=Rng.Value(World.Recipe.Seed,"individual-birthday",unchecked((int)id));double age=years-birth-birthday;
-                if(age<0||age>95)return null;double draw=Rng.Value(World.Recipe.Seed,"individual-lifetime",unchecked((int)id^(int)(id>>32)));
-                double survival=age<5?Math.Exp(-.085*age):age<15?.654*Math.Exp(-.012*(age-5)):age<50?.58*Math.Exp(-.011*(age-15)):.395*Math.Exp(-.035*(Math.Exp((age-50)/8)-1));
-                if(draw>survival)return null;
-                var person=new ForagerPersonSample{Id=id,Household=household,Mother=mother,Father=father,Female=female,AgeYears=age,
+                var orphaned=alive.GroupBy(p=>p.Household).Where(g=>!g.Any(p=>years-p.BirthYear>=18));
+                foreach(var group in orphaned)
+                {
+                    long guardian=households[(int)(Rng.Value(World.Recipe.Seed,"foster-household",(int)group.Key)*households.Length)].Key;
+                    foreach(var child in group){child.Household=guardian;selected.Add(child);}
+                }
+            }
+            var related=selected.SelectMany(p=>new[]{p.Id,p.Mother,p.Father,p.Partner}).Where(id=>id>=0).ToHashSet();
+            band.FamilyRecords=records.Values.Where(p=>related.Contains(p.Id)).OrderBy(p=>p.Id).ToArray();
+            return selected.OrderBy(p=>p.Household).ThenBy(p=>p.BirthYear).Select(Person).ToArray();
+            ForagerPersonSample Person(ForagerPersonRecord record)
+            {
+                long id=record.Id;double age=years-record.BirthYear;
+                var person=new ForagerPersonSample{Id=id,Household=record.Household,Mother=record.Mother,Father=record.Father,Partner=age>=18?record.Partner:-1,Female=record.Female,AgeYears=age,BirthYear=record.BirthYear,DeathYear=record.DeathYear,
                     Name=LanguageGenerator.WordWithRootSeed(f.Languages[band.Language].Sounds,"person",unchecked((int)id)).Text,
                     Role=age<5?"Young child":age<13?"Child and learner":age<19?"Apprentice forager":age>58?"Experienced elder":"Adult forager",Appearance=new double[8],Skills=new double[ForagerTechnology.Count]};
-                for(int k=0;k<8;k++)person.Appearance[k]=D.Clamp(c.Appearance[k]+(Rng.Value(World.Recipe.Seed,"household-appearance-"+k,(int)household)-.5)*.12+(Rng.Value(World.Recipe.Seed,"individual-appearance-"+k,(int)id)-.5)*.08);
+                for(int k=0;k<8;k++)person.Appearance[k]=D.Clamp(c.Appearance[k]+(Rng.Value(World.Recipe.Seed,"household-appearance-"+k,(int)record.Household)-.5)*.12+(Rng.Value(World.Recipe.Seed,"individual-appearance-"+k,(int)id)-.5)*.08);
                 for(int k=0;k<person.Skills.Length;k++)person.Skills[k]=band.Techniques[k]?D.Clamp(c.Skill[k]*D.Clamp((age-5)/18)*(.7+.6*Rng.Value(World.Recipe.Seed,"individual-skill-"+k,(int)id))):0;
                 return person;
             }
         }
+
         public ForagerBandSample[] ForagerBandsNear(PrehistoryState s,V position,double radiusKm,int maximum=32)
         {
             if(!Foraging(s)||radiusKm<0||maximum<1)return Array.Empty<ForagerBandSample>();var result=new List<(int cohort,int ordinal,double distance)>();

@@ -11,13 +11,16 @@ namespace WorldGen.Presentation
         public static ForagerMaps For(PrehistoryState s)=>Cache.GetValue(s,x=>new ForagerMaps(x));
         readonly PrehistoryState state;
         readonly ForagerCohort[][] residents;
-        public double Population(ForagerCohort c)=>ForagerDemography.Present(state.Foragers,c);
+        readonly Dictionary<int,double> population;
+        readonly int[] speech,beliefs;
+        public double Population(ForagerCohort c)=>population[c.Id];
         public ForagerCohort[] Residents(int cell)=>cell>=0&&cell<state.Foragers.CellDistrict.Length&&state.Foragers.CellDistrict[cell]>=0?residents[state.Foragers.CellDistrict[cell]]:Array.Empty<ForagerCohort>();
         public ForagerCohort? Dominant(int cell)=>Residents(cell).FirstOrDefault();
         ForagerMaps(PrehistoryState s)
         {
-            state=s;var byDistrict=s.Foragers.Cohorts.Where(c=>Population(c)>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>Population(c)).ThenBy(c=>c.Id).ToArray());
+            state=s;population=s.Foragers.Cohorts.ToDictionary(c=>c.Id,c=>ForagerDemography.Present(s.Foragers,c));var byDistrict=s.Foragers.Cohorts.Where(c=>Population(c)>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>Population(c)).ThenBy(c=>c.Id).ToArray());
             residents=s.Foragers.Districts.Select(d=>byDistrict.TryGetValue(d.Id,out var c)?c:Array.Empty<ForagerCohort>()).ToArray();
+            speech=residents.Select(c=>c.Length>0?Majority(c,true):-1).ToArray();beliefs=residents.Select(c=>c.Length>0?Majority(c,false):-1).ToArray();
         }
         public static int Toolkit(ForagerCohort c)
         {
@@ -35,8 +38,8 @@ namespace WorldGen.Presentation
             {
                 case HistoryOverlay.Cultures:return c.Culture;
                 case HistoryOverlay.Ethnicities:return c.Identity;
-                case HistoryOverlay.Languages:return Majority(local,true);
-                case HistoryOverlay.Religions:return Majority(local,false);
+                case HistoryOverlay.Languages:return speech[c.District];
+                case HistoryOverlay.Religions:return beliefs[c.District];
                 case HistoryOverlay.Technology:return Toolkit(c);
                 case HistoryOverlay.HumanSpecies:int mask=0;foreach(var p in local)mask|=1<<p.Lineage;return mask;
                 default:return -1;
@@ -71,7 +74,7 @@ namespace WorldGen.Presentation
         }
         public HistoryLegendEntry[] Legend(HistoryOverlay overlay,string sort)
         {
-            var entries=new Dictionary<int,HistoryLegendEntry>();
+            var entries=new Dictionary<int,HistoryLegendEntry>();var sums=new Dictionary<int,(double population,double area)>();
             foreach(var d in state.Foragers.Districts)
             {
                 var people=residents[d.Id];if(people.Length==0)continue;double total=people.Sum(c=>Population(c)),area=d.AreaKm2*people.Max(c=>c.Occupation);
@@ -87,10 +90,11 @@ namespace WorldGen.Presentation
                 void Add(int id,double population,double shareArea)
                 {
                     if(id<0)return;if(!entries.TryGetValue(id,out var e))entries[id]=e=new HistoryLegendEntry{Name=Name(id,overlay),ColorId=id,Cell=d.Cell,CustomColor=true,Color=Color(id,overlay)};
-                    e.Population+=(long)Math.Round(population);e.AreaKm2+=(long)Math.Round(shareArea);
+                    sums.TryGetValue(id,out var prior);sums[id]=(prior.population+population,prior.area+shareArea);
                 }
             }
-            return entries.Values.OrderByDescending(e=>sort=="Land area"?e.AreaKm2:e.Population).ThenBy(e=>e.Name).ToArray();
+            foreach(var pair in sums){entries[pair.Key].Population=(long)Math.Round(pair.Value.population);entries[pair.Key].AreaKm2=(long)Math.Round(pair.Value.area);}
+            return entries.Values.Where(e=>e.Population>0).OrderByDescending(e=>sort=="Land area"?e.AreaKm2:e.Population).ThenBy(e=>e.Name).ToArray();
         }
     }
 }

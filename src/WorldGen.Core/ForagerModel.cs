@@ -179,13 +179,19 @@ namespace WorldGen.Core
         public ForagerResidence Residence;
         public bool[] Techniques=Array.Empty<bool>();
         public ForagerPersonSample[] Members=Array.Empty<ForagerPersonSample>();
+        public ForagerPersonRecord[] FamilyRecords=Array.Empty<ForagerPersonRecord>();
         public ForagerCampSample[] SeasonalCamps=Array.Empty<ForagerCampSample>();
         public long[] ContactBands=Array.Empty<long>();
+    }
+    public sealed class ForagerPersonRecord
+    {
+        public long Id,Household,Mother=-1,Father=-1,Partner=-1;
+        public bool Female;public double BirthYear,DeathYear;
     }
     public sealed class ForagerPersonSample
     {
         public long Id,Household,Mother=-1,Father=-1,Partner=-1;
-        public string Name="",Role="";public bool Female;public double AgeYears;
+        public string Name="",Role="";public bool Female;public double AgeYears,BirthYear,DeathYear;
         public double[] Appearance=Array.Empty<double>(),Skills=Array.Empty<double>();
     }
     public sealed class ForagerCampSample

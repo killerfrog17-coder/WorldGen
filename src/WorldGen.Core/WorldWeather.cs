@@ -15,7 +15,7 @@ namespace WorldGen.Core
         public V WindDisplacement(double days)=>flow.WindDisplacement(days);
         public static V Position(int longitude,int latitude)
         {double a=latitude*D.Pi/180,b=longitude*D.Pi/180;return new V(Math.Cos(a)*Math.Cos(b),Math.Cos(a)*Math.Sin(b),Math.Sin(a));}
-        public WeatherClimate Climate(int longitude,int latitude)
+        WeatherClimate BaseClimate(int longitude,int latitude)
         {
             longitude=((longitude%360)+360)%360;latitude=Math.Max(-90,Math.Min(90,latitude));if(Math.Abs(latitude)==90)longitude=0;
             int key=(latitude+90)*360+longitude;lock(gate){if(profiles.TryGetValue(key,out var cached))return cached;}
@@ -33,14 +33,27 @@ namespace WorldGen.Core
             var climate=new WeatherClimate(t,p,h,ground/total,e,n);
             lock(gate){if(profiles.TryGetValue(key,out var cached))return cached;while(profiles.Count>=CacheLimit)profiles.Remove(eviction.Dequeue());profiles.Add(key,climate);eviction.Enqueue(key);}return climate;
         }
+        public WeatherClimate Climate(int longitude,int latitude)
+        {
+            var climate=BaseClimate(longitude,latitude);var f=world.Prehistory?.Foragers;if(f==null)return climate;
+            var point=Position(longitude,latitude);int cell=locator.Nearest(point),id=f.CellDistrict[cell];if(id<0)return climate;
+            var d=f.Districts[id];double years=f.Seconds/(double)SimulationTime.Year;
+            var environment=ForagerEcology.At(world.Recipe.Seed,d,years,world.ElevationM[cell]);
+            double delta=PaleolithicRules.Climate(world.Recipe.Seed,years,point.Z,world.ElevationM[cell],d.Province).TemperatureDeltaC;
+            return ForagerClimate.Apply(climate,d,environment,delta);
+        }
         public WeatherFrame Node(int longitude,int latitude,double days)
         {var p=Position(longitude,latitude);return new ProceduralWeather(world.Recipe.Seed,p,Climate(longitude,latitude)).At(days,includeFog:false);}
         public Sample AtPosition(V position,double? groundM=null)=>new Sample(this,position,groundM);
         public sealed class Sample
         {
-            readonly ProceduralWeather[] nodes=new ProceduralWeather[4];readonly double[] weights=new double[4];readonly double ground,regionalGround;
+            readonly ProceduralWeather[] nodes=new ProceduralWeather[4];readonly double[] weights=new double[4];readonly double ground;double regionalGround;
+            readonly WorldWeather owner;readonly V position;readonly double? actualGround;double historicalYear;
             internal Sample(WorldWeather owner,V position,double? actualGround)
+            {this.owner=owner;this.position=position;this.actualGround=actualGround;Build();ground=actualGround??regionalGround;}
+            void Build()
             {
+                regionalGround=0;historicalYear=owner.world.Prehistory?.Foragers?.Seconds/(double)SimulationTime.Year??-1;
                 double lon=Math.Atan2(position.Y,position.X)*180/D.Pi,lat=Math.Asin(D.Clamp(position.Z,-1,1))*180/D.Pi;
                 int x=(int)Math.Floor(lon),y=Math.Min(89,(int)Math.Floor(lat));double u=lon-x,v=lat-y;
                 for(int i=0;i<4;i++)
@@ -49,18 +62,23 @@ namespace WorldGen.Core
                     if(actualGround.HasValue){var t=(double[])climate.TemperatureC.Clone();for(int s=0;s<4;s++)t[s]-=(Math.Max(0,actualGround.Value)-climate.ElevationM)*.006;climate=new WeatherClimate(t,climate.MonthlyPrecipitationMm,climate.Humidity,climate.ElevationM,climate.EastWind,climate.NorthWind);}
                     nodes[i]=new ProceduralWeather(owner.world.Recipe.Seed,Position(x+dx,y+dy),climate);
                 }
-                ground=actualGround??regionalGround;
+            }
+            void EnsureClimate()
+            {
+                double year=owner.world.Prehistory?.Foragers?.Seconds/(double)SimulationTime.Year??-1;
+                if(Math.Abs(year-historicalYear)>1/3650d)Build();
             }
             public WeatherFrame At(double days,double? localSolarHour=null,bool includeFog=true)
             {
+                EnsureClimate();
                 double t=0,h=0,r=0,s=0,c=0,ci=0,b=0,th=0,cb=0,e=0,n=0,g=0,storm=0,fog=0,chance=0,duration=0,turbulence=0;
                 for(int i=0;i<4;i++){var f=nodes[i].At(days,localSolarHour,includeFog);double w=weights[i];t+=f.TemperatureC*w;h+=f.Humidity*w;r+=f.RainMmPerHour*w;s+=f.SnowWaterMmPerHour*w;c+=f.CloudCover*w;ci+=f.CirrusCover*w;b+=f.CloudBaseM*w;th+=f.CloudThicknessM*w;cb+=f.CirrusBaseM*w;e+=f.WindEastMps*w;n+=f.WindNorthMps*w;g+=f.GustMps*w;storm+=f.Thunderstorm*w;fog+=f.Fog*w;chance+=f.WindGustChance*w;duration+=f.WindGustDurationS*w;turbulence+=f.WindTurbulence*w;}
                 c=Math.Max(c,ProceduralWeather.RainCover(r+s));fog*=.35+.65*D.Clamp((regionalGround-ground+180)/360);
                 return new WeatherFrame(t,h,r,s,c,ci,b,th,cb,e,n,g,storm,fog,chance,duration,turbulence);
             }
-            public WeatherWater Between(double start,double end){WeatherWater value=default;for(int i=0;i<4;i++)value+=nodes[i].Between(start,end)*weights[i];return value;}
+            public WeatherWater Between(double start,double end){EnsureClimate();WeatherWater value=default;for(int i=0;i<4;i++)value+=nodes[i].Between(start,end)*weights[i];return value;}
             public WeatherSurfaceEstimate SurfaceAt(double days)
-            {double snow=0,liquid=0,wet=0,runoff=0;for(int i=0;i<4;i++){var f=nodes[i].SurfaceAt(days);snow+=f.SnowWaterMm*weights[i];liquid+=f.RecentLiquidMm*weights[i];wet+=f.SoilWetness*weights[i];runoff+=f.RunoffPotentialMm*weights[i];}return new WeatherSurfaceEstimate(snow,liquid,wet,runoff);}
+            {EnsureClimate();double snow=0,liquid=0,wet=0,runoff=0;for(int i=0;i<4;i++){var f=nodes[i].SurfaceAt(days);snow+=f.SnowWaterMm*weights[i];liquid+=f.RecentLiquidMm*weights[i];wet+=f.SoilWetness*weights[i];runoff+=f.RunoffPotentialMm*weights[i];}return new WeatherSurfaceEstimate(snow,liquid,wet,runoff);}
         }
     }
 }

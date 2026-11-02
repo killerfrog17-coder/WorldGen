@@ -39,6 +39,20 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov12:10Z: Owner NO-STOP mandate still active (minimum16:19:52Z is NOT a
+stop).631c9d4 pushed full resident speech/tradition shares and gradual regional
+shift, explicit fictional sapient/learning traits, compatible mating contacts.
+New household lifetime/parent/foster records and current observer/weather bridge
+now pass1,152 sampling/9 temporal/9 weather/26 mechanism checks; NOT final proof.
+250-year allocation optimizations preserve exact9e1f5096... hash. Latest20k audit
+found nascent inventions losing skill before teachers establish; prototype maker/
+recent-learning correction now in source, FRESH long histories required. Previous
+50k/20k runs are diagnostic baselines, not current-model acceptance. Slot-b stays
+frozen; slot-a early candidate still requires NEW build/clean native maps. No
+selection, cleanup, paid calls, subagents or owner-app closures. Owner3files stay
+untouched. See docs/PALEOLITHIC_REBUILD.md for source/evidence and caveats.
+
+
 ACTIVE2Nov~10:50Z REBUILD CONTINUES, NO WRAP-UP REQUEST. Latest source checkpoint
 adds43-technique alternative-path graph, five-year learning/saved teacher context,
 demographic mass-balance/deep validation, connected lineage genealogies, sparse
