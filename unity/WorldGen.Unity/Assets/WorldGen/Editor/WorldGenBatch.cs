@@ -79,6 +79,8 @@ public static class WorldGenBatch
             // Ordinary player builds should not silently carry the development
             // runtime/debug overlay. Diagnostic development builds are opt-in.
             var options=!native||arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
+            if(arguments.Contains("--worldgen-scripts-only"))
+            {if(native)throw new InvalidOperationException("Scripts-only iteration is reserved for the managed development workspace.");options|=BuildOptions.BuildScriptsOnly;}
             // Unity requires a clean build when reusing an output directory
             // from the other backend. Only this transition drops build caches;
             // ordinary follow-up builds retain incremental compilation.
