@@ -76,13 +76,13 @@ namespace WorldGen.Core
         }
         static void CheckConcept(string concept)
         {if(string.IsNullOrWhiteSpace(concept)||concept.Length>128)throw new ArgumentException("Use a stable sense ID of 1-128 characters, not arbitrary English text.",nameof(concept));}
-        static int[] Root(LanguageProfile p,string concept,bool shortRoot=false)
+        static int[] Root(LanguageProfile p,string concept,bool shortRoot=false,int? rootSeed=null)
         {
             CheckConcept(concept);
             // A root has one canonical form regardless of the API requesting it.
             shortRoot=concept=="people"||concept=="settlement"||concept=="land"||concept=="house"||concept=="region"||concept=="continent"||concept=="ocean"||concept=="sea"||concept=="river"||concept=="lake"||concept=="religion"||concept=="ford"||concept=="port"||concept=="hold"||concept=="grove";
-            foreach(var loan in p.Loans)if(loan.Concept==concept)return (int[])loan.Sounds.Clone();
-            var r=new Rng(p.FamilySeed,"language.root.v1/"+concept);
+            if(!rootSeed.HasValue)foreach(var loan in p.Loans)if(loan.Concept==concept)return (int[])loan.Sounds.Clone();
+            var r=new Rng(rootSeed??p.FamilySeed,"language.root.v1/"+concept);
             int syllables=shortRoot?1:1+(r.Next()%100<(uint)p.LongWordPercent?2:1);
             var sounds=new int[syllables*5];int count=0;
             for(int s=0;s<syllables;s++)
@@ -97,6 +97,7 @@ namespace WorldGen.Core
             Array.Resize(ref sounds,count);return sounds;
         }
         public static LanguageWord Word(LanguageProfile p,string concept)=>Render(p,Root(p,concept));
+        public static LanguageWord WordWithRootSeed(LanguageProfile p,string concept,int rootSeed)=>Render(p,Root(p,concept,false,rootSeed));
         public static LanguageWord Compound(LanguageProfile p,string specific,string generic)
             =>Render(p,Join(p,Root(p,specific),Root(p,generic,true)));
         static int[] Join(LanguageProfile p,int[] specific,int[] generic)
