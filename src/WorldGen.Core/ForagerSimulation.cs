@@ -69,7 +69,7 @@ namespace WorldGen.Core
         }
         void LearnForagers(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token,IDictionary<long,double> intelligibility)
         {
-            var people=f.Cohorts.ToDictionary(c=>c.Id);var communication=new Dictionary<int,(double score,double weight)>();
+            var people=f.Cohorts.Where(c=>c.Population>=1).ToDictionary(c=>c.Id);var communication=new Dictionary<int,(double score,double weight)>();
             foreach(var edge in f.Exchanges)
             {
                 if(!people.TryGetValue(edge.A,out var a)||!people.TryGetValue(edge.B,out var b)||a.Population<1||b.Population<1)continue;

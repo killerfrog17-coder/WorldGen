@@ -385,3 +385,27 @@ show that a large forager language-family expansion need not require farming.
 [Hua et al.2019](https://www.nature.com/articles/s41467-019-09842-2) cautions against
 attributing every ecological language-diversity correlation to isolation. These
 are checks on model assumptions, not grounds for enforcing a fixed family count.
+
+
+### Current native playback and late-record performance (16:00Z active)
+
+The7ac7ab8 managed internal candidate (built15:42Z) passes38 native checks at60k,
+including actual UI playback to60050, direct-reference hash equality and current
+human/climate palettes. Live image inspected; clean runtime log.1005 frozen inputs,
+3254 original assets/177fauna/audio exact. Still UNSELECTED. The8/9 strict-clock
+failures remain recorded; the corrected assertion follows the existing domain
+cache contract and still requires current climate and bounded clock skew.
+
+A true0->80k same-world comparison has28,170 taxon-district arrivals,463 local
+disappearances and1,597 changed districts, with maximum forest-cover change0.645.
+These are local relative-presence records, not absolute wildlife census counts.
+
+Further allocation changes skip retired groups in teaching lookups, use stack
+buffers for demographic integration, and use checked dense-ID event lookup.
+The large70k fixture (125,383 total/19,920 active records), advanced25yr, retains
+exactad373830... versus3041073. Process allocation1.962GB->1.480GB; measured wall
+11.28->8.50s under concurrent work, not an uncontended speed guarantee. The10k
+250yr fixture remains exactcc3dbfcb..., demographic allocations33MB->2.4MB.
+34 mechanism and12 temporal checks pass. The new allocation source has not yet
+been rebuilt into a native candidate. Full190k runs are still active/incomplete;
+no60-second full-world generation claim.

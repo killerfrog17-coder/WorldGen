@@ -39,6 +39,40 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov16:00Z, NO WRAP REQUEST. Owner says never stop until explicit wrap;
+minimum16:19:52Z is not a stop. Latest pushed7ac7ab8; new stack-demography/retired
+teaching filter/event lookup source verified but currently UNCOMMITTED. Large
+70k125,383record25yr exactad373830... matches304; allocation1.962->1.480GB.
+10k250yr cc3dbfcb exact,34mechanism/12temporalPASS. Need current commit/proof.
+Slot-a internal7ac candidate built15:42Z managed nondev scripts-only, proof-
+dated-camps-10 PASS1005frozen/3254originals/177fauna/audio exact. Native view-
+dated-camps-10-continents60k38PASS including actual60000->60050 playback, direct
+reference and current palettes, clean log/live image inspected. Native8/9 FAILED
+strict clock/hash assertion:9 diagnostic shows sameDomain true, exactepoch2402,
+~50dayclock-only map reuse, not stale demography. Keep failures, corrected test
+matches existing domain contract. Prior304 native35 each Earth40k packed,
+99173/Archipelago30k old format passed/images reviewed. Slot-b andshortcut FROZEN.
+Full histories STILL RUNNING source3041073 (mechanically same teacher aeabd3):
+current-runner DLLs locked by EarthPID6320/session14800, logteaching-earth-current
+~80k; ContinentsPID28692/session61494, logteaching-continents-current~110k. Paths
+teaching-earth/teaching-continents preserve0..prefix metrics, source chains inrun.
+DO NOT overwrite current-runner. Third99173 +Archipelago30k finished/pass; native
+105 scoped static checks previous package, not latest-model full-history proof.
+Old674 pre-teaching baseline stopped~75k, no final pass. Earlier50bcc/2999 runs
+FAILED256MB cap140k/120k. Source304 introduces WGWRLD02/WGHIST02 lossless vector
+packing+1GB compressed/4GB decoded guards;13 exact numeric/fullworld/future25yr/
+actualnamed-save tests and69 legacy slot checksPASS. Normal named history packing
+wired, old01formats stillreadable/nonforagerwrites unchanged. Earth30k77->62MB.
+Current largestEarth80k~231MiB, actor histories costly: copying/hashing/serialization
+remain a serious performance limitation. No fast-gen claim. Potential next work:
+pack hot cohort/culture transport to reduce DataContract object/field overhead;
+NOT IMPLEMENTED at this note. Preserve all logical records/oldsave compatibility,
+require raw-bit roundtrip +native proof if doing it. All3Unityautosrestored.
+No paid/subagents/cleanup/ownerappsclosed. Owner3files untouched. Full190k outcomes,
+late tech/language/refugia/ancestry review +final package/selection/Git stillneeded;
+continue substantive work after minimum until EXPLICIT wrap, no final handoff.
+
+
 ACTIVE2Nov14:45Z: Owner NO-STOP mandate remains; no wrap request. Minimum16:19:52Z
 is NOT a stopping point. Latest e045fdd PUSHED; rare-teacher correction aeabd3e
 separates expertise/access,34 mechanism/12 temporal PASS. Regional speech churn
