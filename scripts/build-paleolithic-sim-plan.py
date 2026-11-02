@@ -1,54 +1,75 @@
-"""Rebuild the concise owner-facing Paleolithic simulation plan."""
+﻿"""Generate the concise owner-facing architecture report; no scratch inputs required."""
 from pathlib import Path
-import sys,math
-R=Path(__file__).resolve().parents[1];sys.path.insert(0,str(R/'tools/reporting/python'))
+import sys
+root=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(root/'tools/reporting/python'))
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor,white
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-for name,file in [('Body','calibri.ttf'),('Bold','calibrib.ttf')]:pdfmetrics.registerFont(TTFont(name,'C:/Windows/Fonts/'+file))
+for name,file in [('Body','calibri.ttf'),('Bold','calibrib.ttf')]:
+    pdfmetrics.registerFont(TTFont(name,'C:/Windows/Fonts/'+file))
 pdfmetrics.registerFontFamily('Body',normal='Body',bold='Bold')
-O=R/'docs/reports/WorldGen - Paleolithic Simulation Plan.pdf';O.parent.mkdir(parents=True,exist_ok=True)
-C=canvas.Canvas(str(O),pagesize=(595,842));C.setTitle('WorldGen | Paleolithic simulation plan')
-ink=HexColor('#183c38');muted=HexColor('#516864');green=HexColor('#267d6a');pale=HexColor('#eef4ef');gold=HexColor('#a66a26')
-def text(s,x,y,w=507,size=11,color=ink):
- p=Paragraph(s,ParagraphStyle('x',fontName='Body',fontSize=size,leading=size*1.3,textColor=color));_,h=p.wrap(w,2000);assert y-h>35,(s,y,h);p.drawOn(C,x,y-h);return y-h
-def page(n,title,subtitle):
- if n>1:C.showPage()
- C.setFillColor(ink);C.rect(0,830,595,12,fill=1,stroke=0)
- text('WORLDGEN / DESIGN & IMPLEMENTATION',44,803,size=9,color=green)
- text(title,44,774,size=26);text(subtitle,44,732,size=11,color=muted)
- C.setFont('Body',8);C.setFillColor(muted);C.drawString(44,20,f'PALEOLITHIC FOUNDATION   /   02 NOV 2026                                     {n} / 3')
+output=root/'docs/reports/WorldGen - Paleolithic Simulation Plan.pdf'
+output.parent.mkdir(parents=True,exist_ok=True)
+c=canvas.Canvas(str(output),pagesize=(595,842))
+c.setTitle('WorldGen | Paleolithic simulation foundation')
+ink=HexColor('#183c38');muted=HexColor('#516864');green=HexColor('#267d6a');pale=HexColor('#eef4ef');gold=HexColor('#9c6824')
+def text(value,x,y,width=507,size=10.5,color=ink):
+    p=Paragraph(value,ParagraphStyle('body',fontName='Body',fontSize=size,leading=size*1.28,textColor=color))
+    _,height=p.wrap(width,2000)
+    assert y-height>35,(value,y,height)
+    p.drawOn(c,x,y-height)
+    return y-height
+
+def page(number,title,subtitle):
+    if number>1:c.showPage()
+    c.setFillColor(ink);c.rect(0,830,595,12,fill=1,stroke=0)
+    text('WORLDGEN / PALEOLITHIC FOUNDATION',44,805,size=9,color=green)
+    text(title,44,776,size=25)
+    text(subtitle,44,736,size=10.5,color=muted)
+    c.setFillColor(muted);c.setFont('Body',8)
+    c.drawString(44,20,f'REBUILD ARCHITECTURE  /  02 NOV 2026                                                {number} / 2')
 def block(title,body,y):
- y=text('<b>'+title+'</b>',44,y,size=13);return text(body,44,y-7,size=11)-22
-page(1,'A living Paleolithic world','Start about 200,000 years ago. Stop technological progression before the Mesolithic.')
-y=block('The starting world', 'One culturally simulated sapient species: <b>Homo sapiens</b>. Separate lightweight warm- and cold-adapted archaic lineages can share ecological patches with later sapiens. Choose a warm, productive, well-watered ancestral area using the existing ecological geography; seed a small connected population of established foraging bands, not a single newly evolved couple. Geography can keep them on one continent. Other sapient profiles can be added later.',695)
-y=block('Basic inherited knowledge', 'Flake cutting, prepared-core stoneworking, scrapers, wooden spears, basic spearhead hafting, fire tending and elementary hide working. Communities inherit different levels of practice. More specialized clothing, composite adhesives, bone tools, boats and projectile technologies remain local developments, not global calendar unlocks.',y)
-y=block('Ice ages change opportunities', 'Keep region IDs and terrain fixed. Smooth glacial/interglacial forcing changes regional temperature, moisture, forage capacity and cold exposure. Shelves become migration corridors only when their actual depth permits it; lower sea level never turns a deep ocean into a land bridge. Clothing, fire and shelter affect winter survival. Expansion can stall, retreat or resume.',y)
-# Small schematic: climate -> local survival -> routes -> expansion.
-for i,(a,b) in enumerate([('CLIMATE','cold / moisture'),('HABITABILITY','food / warmth'),('CONNECTIVITY','passes / shelves'),('POPULATION','spread / retreat')]):
- x=44+i*129;C.setFillColor(pale);C.roundRect(x,246,120,68,5,fill=1,stroke=0);text('<b>'+a+'</b>',x+9,299,104,9);text(b,x+9,278,104,9)
-text('<b>In game:</b> the same coordinates keep their identity, but their communities and knowledge can change across generations. This pass exposes climate/ecology state for gameplay; it does not promise moving ice-sheet terrain or a complete visual vegetation replacement system.',44,219,size=11)
-text('Basis: African population structure [1], glacial forcing [2]. The seeded origin and numerical rates are explicit world-generation priors.',44,110,size=9,color=muted)
-page(2,'Knowledge travels with people','Regional percentages describe adoption; persistent local identities decide who actually knows what.')
-y=block('Discovery → learning → established practice','Each technique has prerequisites, experimentation and teaching. Local familiarity grows gradually; isolation, lost practitioners and resource shortages can cause decline. Knowing how and having the required material are separate. A hide wrap, fitted garment and insulated outfit are different capabilities.',695)
-y=block('90% does not mean a reroll at every encounter','Store local adoption and stable community identities. A spatially coherent, seeded community sample gives the same band the same access when revisited. Neighbouring bands tend to share traditions. Local discovery and contact spread practice within and across regions; there is no whole-region on/off switch.',y)
-# coherent adoption example
-for i in range(20):
- x=48+(i%10)*49;y0=424-(i//10)*29;C.setFillColor(green if i<18 else HexColor('#d8dfdc'));C.roundRect(x,y0,38,17,4,fill=1,stroke=0)
-text('Example: 18 of 20 local community samples know hide clothing. Their positions are stable; grey communities do not randomly swap on reload.',44,368,size=9,color=muted)
-y=block('Languages exist from the beginning','Reuse the existing sound and word generator. Save language families, local varieties, inherited vocabulary, contact borrowing and divergence. Add separate gradual capacities for expressive vocabulary, sequencing, displaced reference and clause combination; future dialogue can ask what a speaker can express, rather than counting modern words.',317)
-y=block('A deliberate historical abstraction','Early expressive limits are a configurable game hypothesis, not a reconstructed 200,000-year-old grammar. Development is local and continuous, not an intelligence ladder between living peoples. No writing, literacy or automatic modern-language date unlock. Later communities can reach fully expressive speech while retaining a simple material toolkit.',y)
-text('Basis: multicamp learning networks [3]; language-origin hypothesis [4]; hide working [5]. The language generator is a foundation, not finished voiced dialogue.',44,100,size=9,color=muted)
-page(3,'Build the foundation, then connect it','A versioned replacement for new simulations; old saves retain their original rules.')
-y=block('1 / Preserve the escape hatch','Push a named Git baseline before changing simulation rules. Add a separate Paleolithic state version, copied and hashed with saves. Existing historical saves remain loadable without silent conversion. New worlds use the new model; later ages are disabled, not merely hidden from the menu.',695)
-y=block('2 / Implement the shared simulation','Use stable ecological patches and sparse occupied community records. Bound migration and contact by actual routes. Track continuous population, local technique adoption, language development and climate. Give the existing calendar a deterministic work budget; fast-forward and ordinary gameplay advance the same state.',y)
-y=block('3 / Connect the observer and gameplay','Use the existing in-world Year 0 calendar. Culture, language/dialect, technology and human-species maps show their own records; state and territory layers stay empty before institutions exist. Inspection shows adoption shares. A stable band query returns identity, language, capabilities and appearance for future NPC spawns. Existing NPCs are not silently respawned with new equipment. Preserve the current day/year conversion rather than adding a second competing clock.',y)
-y=block('4 / Prove it with focused checks','Check smooth adoption, local coherence, no ocean teleportation, cold exposure, advancing/receding corridors, no post-Paleolithic unlocks, deterministic stepping, save/reload continuation and old-save compatibility. Time a long run and real gameplay updates. Build in the inactive reusable slot, inspect the actual map, then update the existing shortcut.',y)
-y=block('What this delivery does not claim','No new hominin bodies, complete NPC tribes/dialogue, genetically detailed speciation, planetary ice-sheet physics or later ages. The new foundations make those additions possible without treating every band as an independent full-world simulation.',y)
-text('<b>Research links</b>',44,224,size=12)
-refs=[('1  African origins / connected ancestral populations','https://www.nature.com/articles/s41586-023-06055-y'),('2  Glacial cycles and global temperature','https://www.nature.com/articles/nature19798'),('3  Hunter-gatherer networks and cumulative culture','https://pubmed.ncbi.nlm.nih.gov/32158935/'),('4  Language capacity: a proposed early bound, not a consensus date','https://doi.org/10.3389/fpsyg.2025.1503900'),('5  Specialized hide-working tools, 120–90 ka','https://doi.org/10.1016/j.isci.2021.102988')]
-for i,(title,url) in enumerate(refs):text(f'<link href="{url}" color="#267d6a">{title}</link>',44,198-i*22,size=9)
-C.save();print(O)
+    y=text('<b>'+title+'</b>',44,y,size=12)
+    return text(body,44,y-6,size=10.5)-18
+
+page(1,'A world with a history','Established humans at the start. Changing opportunities, cultures and populations afterward.')
+y=block('The starting point','World Year 0 represents established <b>Homo sapiens</b> around the equivalent of 200,000 years ago. Other hominin lineages have their own connected ancestral dispersal, isolation, physical traits and ancestry. There are no invented states or universal calendar-based technology unlocks.',699)
+rows=[
+('Climate and ecology','Stable ecological boundaries; changing temperature, rain, ice, vegetation potential and local species presence. Wet corridors, refugia and real shelf depths affect movement.'),
+('People and resources','Age structure, births, deaths, food, winter protection, mating contacts and local shocks. Populations can retreat or disappear. Splitting a population record creates no extra food access.'),
+('Technology','43 techniques with separate familiarity, trained prevalence and actual use. Prerequisites, materials, teachers, innovation and forgetting matter. Useful technologies spread through real contact.'),
+('Language','Inherited words and grammar change at different rates. Borrowing, bilingual contact, local varieties and recognisable families are separate from deep common ancestry.'),
+('Culture and belief','Distinct social norms, exchange relationships and residence patterns. Local rites, sacred places/animals, mortuary practices and spiritual themes vary and spread without churches or states.'),
+('Human lineages','Different body/face profiles, cultural capacities, geographic histories and mixed ancestry. Competition and survival depend on actual conditions; extinction is not scheduled by date.'),
+('Local inhabitants','Stable bands, households, birthdays, parents, seasonal camps and contacts. Samples contain actual proficient makers, individual language knowledge and separate routine/winter equipment.'),
+]
+y=text('<b>What the model tracks</b>',44,y,size=13)-12
+for i,(title,body) in enumerate(rows):
+    height=65
+    if i%2==0:c.setFillColor(pale);c.roundRect(40,y-height+4,515,height,5,fill=1,stroke=0)
+    text('<b>'+title+'</b>',49,y-4,width=116,size=10.5,color=green)
+    text(body,173,y-4,width=373,size=10)
+    y-=height
+
+page(2,'How this reaches the game','The simulation produces local evidence for the next supervised NPC implementation.')
+y=block('From a district to a camp','A local query supplies a band, related people, appearance, spoken languages, capable craft specialists, equipment practices and a seasonal itinerary. The NPC host must retain instantiated people and player edits. Camp candidates still need physical ground, water and collision validation.',699)
+y=block('Observe the actual differences','Language/family, cultural identity, spiritual tradition, toolkit and human-species layers read different data. Political territories remain empty. Climate/ecology maps follow the dated world. Technology inspection distinguishes knowing a method, being able to make it and routinely using it.',y)
+y=block('World continuity and performance','Small demographic reviews and slower network/ecology reviews share one saved timeline. Long histories remain computationally expensive. Nearby queries use district/contact indexes. Terrain workers read the exact planet without duplicating the population archive; dated local-map colours stay with the player.',y)
+y=block('Use a new world or restart its simulation','New worlds use the corrected <b>foragers-3</b> resource rules. Existing saves retain their older model for reproducible continuation. Compact saves preserve every historical field; earlier save formats remain readable. Old source and required assets remain restorable through Git and the asset packs.',y)
+y=block('Validation and scope','Check several seeds and dates, expansion <i>and</i> retreat, local technique differences, real vocabulary divergence, household consistency, save/reload, live map playback and entering gameplay. Physical NPC camps/dialogue, new hominin art, moving shorelines/ice-sheet terrain and post-Paleolithic progression are separate implementation stages.',y)
+y=text('<b>Selected research behind the mechanisms</b>',44,y,size=12)-12
+refs=[
+('Structured African ancestry and connected populations','https://www.nature.com/articles/s41586-023-06055-y'),
+('Climate, habitats and hominin distributions','https://www.nature.com/articles/s41586-022-04600-9'),
+('Forager networks and cumulative culture','https://pmc.ncbi.nlm.nih.gov/articles/PMC7048420/'),
+('Language change: unequal rates across features','https://pmc.ncbi.nlm.nih.gov/articles/PMC5651730/'),
+('Forager belief systems and their variation','https://pmc.ncbi.nlm.nih.gov/articles/PMC4958132/'),
+('Culture-linked competition and assimilation','https://pubmed.ncbi.nlm.nih.gov/29032037/'),
+]
+for title,url in refs:
+    y=text(f'<link href="{url}" color="#267d6a">{title}</link>',44,y,size=9)-8
+c.save();print(output)

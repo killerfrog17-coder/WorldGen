@@ -5,6 +5,42 @@ New worlds use a new rule version. Source consistency is necessary, but it is
 not evidence of realistic behaviour. Do not select a player until the behavioural
 and visual review below has been completed.
 
+## Current release review (2 November, 18:15 UTC)
+
+Production source `41f4bd7` is pushed. New worlds use `foragers-3`; existing
+version2 saves deliberately preserve their original resource-competition rule.
+Internal candidate15 is a non-development managed build in slot-a. The existing
+shortcut still selects the rejected baseline until the remaining review finishes.
+
+Current-model evidence, distinct from the historical experiments below:
+
+- Continents40k:38 actual player map/atlas/playback checks, exit0; live playback
+  to40050 exactly matches direct simulation. Actual regional screenshots inspected.
+- Archipelago30k:35 actual player checks, exit0, clean runtime log.
+- Earth20k:32 actual gameplay/nature checks, exit0: terrain-worker loading,
+  gathering, corpse loot, eating, held-tool/weapon use and save round-trip.
+- Complete Earth30k and Archipelago30k histories pass the9 broad coupled-world
+  error gates each. They show1,244 and823 actual-use toolkit combinations,
+  respectively. These gates are not a claim of scientific calibration by themselves.
+- Earth30k local samples:1,807 checks over30 bands/656 people, including227
+  multilingual residents. These are selected-community samples, not global rates.
+- Same-world0->60k comparison:23,708 dated species arrivals and2,510 local
+  disappearances across1,595 changed districts; actual species/abundance records,
+  not merely recoloured map layers.
+- Package proof:1,008 frozen inputs;3,254 original assets and all fauna/audio
+  unchanged. The packaged terrain worker hash is pinned. Current production source
+  has not changed since this build.
+
+The new-model190k Continents history is still running. The completed old-rule
+190k comparison is explicitly retired; it does not satisfy this pending check.
+The owner has returned and revoked mandatory until-wrap continuation: finish
+substantive remaining verification, then hand off without time padding.
+
+Physical NPC camps/dialogue, new hominin meshes, physical vegetation/shoreline
+reconstruction and post-Paleolithic progression are not part of this implementation.
+Long high-detail histories are still computationally expensive; no60-second full
+history performance claim is made.
+
 ## Changes to the model
 
 | System | Failure being removed | Replacement and NPC-facing result |
@@ -76,7 +112,12 @@ must provide their inputs and stable sampling contracts; it must not claim those
 actors have been implemented merely because the data exists.
 
 
-## Working implementation, 2 November
+## Historical development ledger (superseded checkpoints)
+
+The dated notes below document experiments and failures. They are not the current
+release status; use the current review and final manifest above.
+
+### Working implementation, 2 November
 
 New-world ledger: `prehistory-8` / `foragers-1` (unselected, still under development).
 The selected slot-b player and both earlier Paleolithic save rules remain intact.

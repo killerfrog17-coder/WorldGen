@@ -39,6 +39,26 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov18:15Z OWNER RETURNED: finish remaining substantive checks then handoff;
+no mandatory indefinite continuation. Latest production41f4bd7 PUSHED. Default
+foragers-3 additive resource claims fix concave split-population food subsidy;
+old2 saves retain old rules. Candidate15 slot-a built17:42:49Z NON-DEVELOPMENT
+managed, proof-resource-sharing-15 PASS1008frozen/3254original/177fauna+audio exact,
+workerSHA71e2dba... . Native current3 Continents40k38PASS+playback40050exact,
+Archipelago30k35PASS, actualEarth20k gameplay32PASS/EXIT0/cleanlogs. Current-map
+and2pagePDF actual images inspected. Selectedslot-b/rootshortcutSTILL rejected
+baseline; no final selection yet. Earth30k andArchipelago30k new3 COMPLETE,
+9broad outcome gates each; Earth1807sample checks/30bands/656people pass,227
+multilingual.0->60k actual biota23708arrivals/2510local disappearances/1595districts.
+One current3 full190k history RUNNING: PID2332/session79442 linear-continents,
+~97k at18:15Z. Frozen linear-runner DO NOT overwrite. Oldteaching190k RETIRED
+legacy comparison; oldEarth125kmetrics/120ksaved explicitly incomplete.
+Needcurrent3late/outcomes+finalnative, finalmanifest/docs/shortcut/push. Source
+frozen; reportgenerator/PDF/session/docs changes may be uncommitted. Owner3files
+untouched, no paid/subagents/cleanup/ownerapps. Physical NPC camps/dialogue,
+newhomininart and movingvegetation/shoreline terrain NOT implemented. Highdetail
+fullhistory still costly; no60secondclaim. Old mandatorytime notes below superseded.
+
 ACTIVE2Nov17:35Z OWNER BACK: finish genuine remaining work thenhandoff, no
 mandatory indefinite continuation. New key diagnosis: concave(pop*diet)^.75
 subsidises record splitting, artificially persistent smallgroups. Newworlds now

@@ -1,7 +1,7 @@
 {
   "started_utc": "2026-11-02T08:19:52Z",
   "minimum_review_utc": "2026-11-02T16:19:52Z",
-  "continue_until": "Owner explicitly requests wrap-up; eight hours is not an automatic stopping point",
+  "continue_until": "Finish substantive remaining implementation and verification, then hand off; owner returned and explicitly revoked mandatory until-wrap continuation.",
   "baseline_commit": "fb4b6ac304a8acbc04a7e73cdf58300089192968",
   "selected_slot_frozen": "builds/slot-b",
   "candidate_slot": "builds/slot-a",
@@ -13,5 +13,7 @@
     "Local spiritual traditions, identities and social networks",
     "Stable cheap band/camp/household/seasonal-route generation for future NPC integration",
     "Multiseed/multidate behavioural and visual validation; no source consistency-only acceptance"
-  ]
+  ],
+  "owner_returned_utc": "2026-11-02T17:30:00Z",
+  "owner_return_time_precision": "Approximate recorded status time; latest owner instruction is authoritative."
 }
