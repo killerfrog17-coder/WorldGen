@@ -260,7 +260,7 @@ public sealed partial class WorldGenRuntime
         while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)
         {
             if(Time.realtimeSinceStartupAsDouble>=nextTerrainReport)
-            {nextTerrainReport=Time.realtimeSinceStartupAsDouble+10;Debug.Log("TERRAIN CHECK waiting: "+localTerrainTask?.Status+" / "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer?.Diagnostics);}
+            {nextTerrainReport=Time.realtimeSinceStartupAsDouble+10;Debug.Log("TERRAIN CHECK waiting: "+localTerrainTask?.Status+" / "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer?.Diagnostics+" / "+terrainExplorer?.CheckStreamingState);}
             yield return null;
         }
         if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry: "+localTerrainTask?.Status+" / "+terrainMeshProcess?.Diagnostics+" / "+terrainExplorer?.Diagnostics);
