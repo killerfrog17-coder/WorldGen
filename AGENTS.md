@@ -20,8 +20,15 @@ Canonical locations are defined in `assets/project-layout.json`:
 
 NEVER create per-feature/per-update full player folders. Invoke
 `scripts/unity-check.ps1 -BuildPlayer` to reuse the inactive fixed slot; it must
-reject other names and overwriting the selected slot. All player builds MUST
-use IL2CPP, NEVER Mono, even for diagnostics. Do not make isolated full player
+reject other names and overwriting the selected slot. OWNER1Nov BUILD POLICY
+SUPERSEDES all older IL2CPP-only/never-Mono notes: use fast compiler/Editor
+iteration and development players as appropriate. Only make IL2CPP players for
+major playable updates when the owner explicitly requests one; the first planned
+milestone is Alpha1.0.0 when the Paleolithic feature set is first complete. Do not
+repeat native packaging after each small edit. Existing scripts/editor builder
+still enforce the previous backend policy and need adaptation before the next
+development-player build; no build/backend change is requested in this discussion.
+Do not make isolated full player
 copies. Retire superseded binaries after checks/selection. Git and immutable
 GitHub Release asset packs provide history; do not keep daily binary archives.
 Run `scripts/audit-project-layout.py` before builds. Source/project settings use
