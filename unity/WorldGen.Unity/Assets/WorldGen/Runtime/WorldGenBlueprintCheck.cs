@@ -37,13 +37,16 @@ public sealed partial class LocalTerrainExplorer
                 var rock=new Possession{Kind=PossessionKind.SmallRock,WidthM=sample.Item1,HeightM=sample.Item1*.6,DepthM=sample.Item1*.8,MassKg=sample.Item2,Variant=ToolStone.Encode(ToolStoneMaterial.Granite,0)};
                 Check(rock.Name==sample.Item3,"Physical stone category appears as "+sample.Item3);
                 Check(PickupGraphic(rock,out var icon,out _)&&icon.name==sample.Item4&&InventoryItemIcon(rock)==icon,"Pickup and inventory share the correct "+sample.Item3+" silhouette");
+                var alphaTarget=RenderTexture.GetTemporary(64,64,0,RenderTextureFormat.ARGB32);var previousTarget=RenderTexture.active;Graphics.Blit(icon,alphaTarget);RenderTexture.active=alphaTarget;var alphaImage=new Texture2D(64,64,TextureFormat.RGBA32,false);alphaImage.ReadPixels(new Rect(0,0,64,64),0,0);alphaImage.Apply();Check(alphaImage.GetPixel(0,0).a<.05f&&alphaImage.GetPixels().Count(p=>p.a>.8f)>100,"Imported "+sample.Item3+" icon keeps transparent corners and a solid white stone");RenderTexture.active=previousTarget;RenderTexture.ReleaseTemporary(alphaTarget);Destroy(alphaImage);
             }
             var chip=new Possession{Kind=PossessionKind.SmallRock,WidthM=.1,HeightM=.07,DepthM=.08,MassKg=.7,Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0)};
             Check(PickupGraphic(chip,out var chipIcon,out _)&&chipIcon.name=="FlakeableStonePickupV1","Only an actually suitable stone uses the taller chipping icon");
             chip.MassKg=.025;chip.WidthM=.03;chip.HeightM=.02;chip.DepthM=.025;
             Check(PickupGraphic(chip,out chipIcon,out _)&&chipIcon.name=="PickupPebbleV1","An unsuitable chert pebble keeps its ordinary wide pebble icon");
             TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
-            yield return KeyPress(Key.V);Check(campPlansOpen&&!paused,"V opens camp plans through actual keyboard input");yield return KeyPress(Key.Escape);Check(!campPlansOpen&&!paused,"Escape closes plans without pausing");
+            yield return KeyPress(Key.B);Check(campPlansOpen&&!paused,"B opens camp plans through actual keyboard input");yield return KeyPress(Key.Escape);Check(!campPlansOpen&&!paused,"Escape closes plans without pausing");
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftCtrl));for(int crouchFrame=0;crouchFrame<30;crouchFrame++)yield return null;
+            var sneakAxis=(humanPlayer.SneakNeck.position-humanPlayer.SneakSpine.position).normalized;Check(Vector3.Dot(sneakAxis,Vector3.up)>.9f,"Crouching keeps an upright sneaking torso instead of a folded riding posture");CaptureNaturalImage(output,"crouch-revised-front",0);CaptureNaturalImage(output,"crouch-revised-side",1);InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
             double startX=motion.X,startZ=motion.Z;
             foreach(CampDesign design in Enum.GetValues(typeof(CampDesign)))
             {

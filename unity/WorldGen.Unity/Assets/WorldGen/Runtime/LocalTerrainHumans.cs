@@ -19,6 +19,8 @@ public sealed partial class LocalTerrainExplorer
         public WorldGenPropClearance.BodyShape PropShape;
         public float[] Weights;public int Jump=-1;public bool Airborne;
         public Vector2 LocalVelocity;
+        public readonly Dictionary<Transform,Quaternion> RelaxedArms=new Dictionary<Transform,Quaternion>();
+        public Transform SneakSpine,SneakNeck;
         public readonly List<Material> OwnedMaterials=new List<Material>();
         public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
@@ -81,6 +83,8 @@ public sealed partial class LocalTerrainExplorer
         // Calibrate the eye/head offsets only after the original native skin
         // has actually been posed, otherwise that initial offset is added twice.
         actor.Graph.Play();actor.Graph.Evaluate(0);
+        actor.SneakSpine=root.GetComponentsInChildren<Transform>().First(t=>t.name=="spine_01");actor.SneakNeck=root.GetComponentsInChildren<Transform>().First(t=>t.name=="neck_01");
+        foreach(var t in root.GetComponentsInChildren<Transform>())if(t.name=="upperarm_l"||t.name=="upperarm_r"||t.name=="lowerarm_l"||t.name=="lowerarm_r")actor.RelaxedArms[t]=t.localRotation;
         var generated=kimodoHumanLibrary?.Find(definition.Variant);
         if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight,generated?.EyeForward??.15f);
         if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null);
@@ -98,7 +102,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(mouse==null)return;
         if(!Spectating&&mouse.middleButton.wasPressedThisFrame)humanCamera.ToggleLock();
-        float scroll=mouse.scroll.ReadValue().y;if(scroll==0)return;
+        float scroll=mouse.scroll.ReadValue().y;if(scroll==0||blueprintPlacement!=null)return;
         if(blueprintPlacement!=null)return;
         if(CycleFramePlacement(scroll))return;
         if(CycleCampChoice(scroll))return;
@@ -190,7 +194,8 @@ public sealed partial class LocalTerrainExplorer
                 var held=SharedMainHeld;
                 if(held!=null)swimRole=held.Hands==2||held.Kind==PossessionKind.Bow&&NaturalActing(held)?"SwimCarryTwo":NaturalSide(held)=="l"?"SwimCarryLeft":"SwimCarry";
             }
-            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);actor.Graph.Evaluate(dt);return;
+            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);actor.Graph.Evaluate(dt);
+            if(crouch&&!swimming){var spine=actor.SneakSpine;var direction=(actor.SneakNeck.position-spine.position).normalized;var desired=(Vector3.up+actor.Root.transform.forward*.2f).normalized;spine.rotation=Quaternion.FromToRotation(direction,desired)*spine.rotation;foreach(var pair in actor.RelaxedArms)pair.Key.localRotation=pair.Value;}return;
         }
         actor.Output.SetSourcePlayable(actor.Mixer);
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
@@ -266,6 +271,7 @@ public sealed partial class LocalTerrainExplorer
             // A raised bow already places the eye at its measured head anchor.
             // Extra collar clearance would put the camera into nearby fletching.
             eye.z+=.11f*(humanPlayer.Definition.EyeHeight/1.65f)*Mathf.InverseLerp(10,65,pitch)*(1-(NaturalBow!=null?sharedBowRaise:0));
+            if(PlayerCrouching){eye=humanPlayer.Shared.LocalEye;eye.z+=.06f;}
             if(motion.Swimming)eye.y=humanPlayer.Definition.EyeHeight;
             if(!sharedCameraEyeValid){sharedCameraEye=eye;sharedCameraEyeValid=true;}
             sharedCameraEye=Vector3.Lerp(sharedCameraEye,eye,1-Mathf.Exp(-dt*9));

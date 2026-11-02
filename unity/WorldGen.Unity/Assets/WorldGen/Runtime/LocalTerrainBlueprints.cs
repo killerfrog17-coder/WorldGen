@@ -45,10 +45,12 @@ public sealed partial class LocalTerrainExplorer
             if(k.escapeKey.wasPressedThisFrame){CancelBlueprintPlacement();return true;}
             if(secondary){if(blueprintAnchored){blueprintAnchored=false;blueprintGhostKey="";}else CancelBlueprintPlacement();return true;}
             if(k.rKey.wasPressedThisFrame){blueprintYaw+=k.shiftKey.isPressed?-15:15;blueprintGhostKey="";}
+            if(blueprintPlacement.Design==CampDesign.Windbreak||blueprintPlacement.Design==CampDesign.StoneWindbreak)
+            {float wheel=Mouse.current?.scroll.ReadValue().y??0;if(wheel!=0){blueprintPlacement.ScreenHeightM=Math.Clamp(CampBlueprints.NominalHeight(blueprintPlacement)+Math.Sign(wheel)*.1,.5,blueprintPlacement.Design==CampDesign.Windbreak?2.2:1.5);blueprintGhostKey="";}}
             UpdateBlueprintPlacement();if(primary)BlueprintPlacementClick();return true;
         }
-        if(campPlansOpen){if(k.escapeKey.wasPressedThisFrame||k.vKey.wasPressedThisFrame){campPlansOpen=false;CaptureMouse();}return true;}
-        if(!inventoryOpen&&!CampUiOpen&&k.vKey.wasPressedThisFrame&&!campSleeping&&!campResting)
+        if(campPlansOpen){if(k.escapeKey.wasPressedThisFrame||k.bKey.wasPressedThisFrame){campPlansOpen=false;CaptureMouse();}return true;}
+        if(!inventoryOpen&&!CampUiOpen&&k.bKey.wasPressedThisFrame&&!campSleeping&&!campResting)
         {CancelWorldToolWork();CancelBlueprintWork();CancelCampPlacement();campPlansOpen=true;CaptureMouse();return true;}
         return false;
     }
@@ -82,13 +84,13 @@ public sealed partial class LocalTerrainExplorer
             TerrainHandoff.Coordinates(frame,blueprintAnchor,out double x,out double z);var start=new Vector3((float)(x-originX),(float)CampFloor(x,z),(float)(z-originZ));var delta=Quaternion.Inverse(rotation)*(hover-start);
             double w=Math.Abs(delta.x),d=Math.Abs(delta.z);
             if(CampBlueprints.Round(p.Design))w=d=Vector3.Distance(new Vector3(start.x,0,start.z),new Vector3(hover.x,0,hover.z))*2;
-            p=blueprintPlacement=CampBlueprints.Create(p.Design,w,d,p.Cover,p.Store);
+            var screenHeight=p.ScreenHeightM;p=blueprintPlacement=CampBlueprints.Create(p.Design,w,d,p.Cover,p.Store);p.ScreenHeightM=screenHeight;
             if(CampBlueprints.Round(p.Design))blueprintPoint=start;
             else blueprintPoint=start+rotation*new Vector3((float)p.WidthM*.5f*(delta.x<0?-1:1),0,CampBlueprints.Line(p.Design)?0:(float)p.DepthM*.5f*(delta.z<0?-1:1));
         }
         blueprintPoint.y=(float)CampFloor(blueprintPoint.x+originX,blueprintPoint.z+originZ);
         blueprintValid=BlueprintSite(p,blueprintPoint,blueprintYaw,out blueprintReason);
-        string key=p.Design+"/"+p.Cover+"/"+p.Store+"/"+p.WidthM+"/"+p.DepthM+"/"+string.Join(",",p.FloorHeights??Array.Empty<double>());
+        string key=p.Design+"/"+p.Cover+"/"+p.Store+"/"+p.WidthM+"/"+p.DepthM+"/"+p.ScreenHeightM+"/"+string.Join(",",p.FloorHeights??Array.Empty<double>());
         if(key!=blueprintGhostKey||blueprintGhost==null)
         {
             DestroyBlueprintGhost();blueprintGhostKey=key;blueprintGhost=new GameObject("Camp blueprint preview");blueprintGhost.transform.SetParent(transform,false);blueprintGhost.layer=30;
@@ -149,7 +151,11 @@ public sealed partial class LocalTerrainExplorer
     }
     void BuildBlueprintPart(CampObject c)
     {
-        var p=c.Blueprint;var defs=CampBlueprints.Components(p);int stage=CampBlueprints.Stage(p);var next=defs.FirstOrDefault(d=>d.Stage==stage&&!CampBlueprints.Done(p,d));if(next==null)return;
+        var p=c.Blueprint;
+        if(CampBlueprints.Stage(p)==3&&!p.Parts.Any(s=>s.Materials.Any(m=>CampRules.Hide(m)||m.Kind==PossessionKind.BarkSheet||m.Kind==PossessionKind.DryGrass||m.Kind==PossessionKind.LeafLitter||m.Kind==PossessionKind.ReedBundle)))
+        {var covering=Inventory.QuickHeld; if(!UnlimitedResources&&(covering==null||!(CampRules.Hide(covering)||covering.Kind==PossessionKind.BarkSheet||covering.Kind==PossessionKind.ReedBundle||covering.Kind==PossessionKind.DryGrass||covering.Kind==PossessionKind.LeafLitter)))covering=CraftAccessible().FirstOrDefault(i=>CampRules.Hide(i)||i.Kind==PossessionKind.BarkSheet||i.Kind==PossessionKind.ReedBundle||i.Kind==PossessionKind.DryGrass||i.Kind==PossessionKind.LeafLitter);
+        p.Cover=covering!=null&&CampRules.Hide(covering)?CampCover.Hide:covering?.Kind==PossessionKind.BarkSheet?CampCover.Bark:covering?.Kind==PossessionKind.ReedBundle?CampCover.Reed:CampCover.Brush;p.Revision++;}
+        var defs=CampBlueprints.Components(p);int stage=CampBlueprints.Stage(p);var next=defs.FirstOrDefault(d=>d.Stage==stage&&!CampBlueprints.Done(p,d));if(next==null)return;
         var available=CraftAccessible();bool cut=UnlimitedResources||available.Any(i=>(PortableTechnology.Capabilities(i)&(CraftCapability.Cut|CraftCapability.Chop))!=0&&ItemUseRules.Condition(i)>0);
         // Prefer a component fitting the held material, then accessible nearby supplies.
         if(!CampBlueprints.HasMaterial(p,next))
@@ -157,7 +163,7 @@ public sealed partial class LocalTerrainExplorer
             var held=Inventory.QuickHeld;
             var candidates=available.OrderBy(i=>i==held?0:1).ThenBy(i=>i.MassKg).ToArray();
             var found=(from item in candidates from component in defs where component.Stage==stage&&!CampBlueprints.HasMaterial(p,component)&&CampBlueprints.Suitable(p,component,item)&&(cut||component.Kg>0||item.HeightM<=component.LengthM+.1) select (item,component)).FirstOrDefault();
-            if(found.item!=null){next=found.component;var item=found.item;if(Inventory.Find(item.Id)==null&&!MovePossession(item.Id,PossessionPlace.Ground))return;
+            if(found.item!=null){next=found.component;var item=found.item;if(UnlimitedResources){item=item.Copy();item.Id="creative-copy-"+Guid.NewGuid().ToString("N");item.Place=PossessionPlace.Ground;Inventory.Items.Add(item);}if(Inventory.Find(item.Id)==null&&!MovePossession(item.Id,PossessionPlace.Ground))return;
                 if(!CampBlueprints.Supply(p,next.Key,Inventory,item.Id,cut,out var offcut,out var why)){InventoryFeedback(why);return;}
                 RemoveDroppedBody(item.Id);if(offcut!=null){offcut.Position=c.Position;offcut.GroundOffsetM=.08;offcut.GroundMoving=true;}inventoryNearbyAt=0;InvalidateCampVisual(c);
             }
@@ -257,12 +263,12 @@ public sealed partial class LocalTerrainExplorer
             var bar=new Rect(Screen.width*.5f-150,Screen.height-70,300,8);InventoryFill(bar,new Color(.08f,.1f,.1f,.85f));bar.width*=progress;InventoryFill(bar,new Color(.75f,.68f,.4f));GUI.Label(new Rect(Screen.width*.5f-150,Screen.height-100,300,24),"Fitting "+d.Name.ToLowerInvariant());
         }
         if(!campPlansOpen)return;float menuHeight=Math.Min(Screen.height-48,700);var rect=new Rect(Screen.width*.5f-260,(Screen.height-menuHeight)*.5f,520,menuHeight);GUI.Box(rect,"");GUILayout.BeginArea(new Rect(rect.x+18,rect.y+15,rect.width-36,rect.height-30));GUILayout.Label("Camp plans",new GUIStyle(GUI.skin.label){fontSize=24});
-        GUILayout.Label("Covering");blueprintCover=(CampCover)GUILayout.SelectionGrid((int)blueprintCover,new[]{"Vegetation","Hide","Bark","Reeds"},4,GUILayout.Height(30));
-        GUILayout.Label("Material store");blueprintStore=(CampStore)GUILayout.SelectionGrid((int)blueprintStore,new[]{"Wood","Stone","Plants"},3,GUILayout.Height(30));GUILayout.Space(10);
+        
+        
         blueprintMenuScroll=GUILayout.BeginScrollView(blueprintMenuScroll);
         foreach(var entry in CampBlueprints.Catalogue)
-        {if(GUILayout.Button(new GUIContent(entry.Name,entry.Description),GUILayout.Height(36)))BeginBlueprint(entry.Design);GUILayout.Label(entry.Description,new GUIStyle(GUI.skin.label){wordWrap=true,fontSize=12});}
-        GUILayout.EndScrollView();GUILayout.Space(8);GUILayout.Label("Fire: lay tinder directly.\nBedding: spread material, then add layers.");if(GUILayout.Button("Close",GUILayout.Height(30))){campPlansOpen=false;CaptureMouse();}GUILayout.EndArea();
+        {if(entry.Design==CampDesign.MaterialStore||entry.Design==CampDesign.BoneLodge||entry.Design==CampDesign.StoneShelter)continue;if(GUILayout.Button(entry.Name,GUILayout.Height(36)))BeginBlueprint(entry.Design);}
+        GUILayout.EndScrollView();GUILayout.Space(8);if(GUILayout.Button("Close",GUILayout.Height(30))){campPlansOpen=false;CaptureMouse();}GUILayout.EndArea();
     }
     void DrawBlueprintDetails(CampObject c)
     {

@@ -50,9 +50,9 @@ namespace WorldGen.Core
         {
             switch(p.Design)
             {
-                case CampDesign.Windbreak:return 1.35;
-                case CampDesign.StoneWindbreak:return 1;
-                case CampDesign.DryingRack:return 1.15;
+                case CampDesign.Windbreak:return p.ScreenHeightM>0?Math.Max(.6,Math.Min(2.2,p.ScreenHeightM)):1.35;
+                case CampDesign.StoneWindbreak:return p.ScreenHeightM>0?Math.Max(.5,Math.Min(1.5,p.ScreenHeightM)):1;
+                case CampDesign.DryingRack:return 1.65;
                 case CampDesign.MaterialStore:return .65;
                 case CampDesign.RaisedBed:return .45;
                 case CampDesign.HideFrame:return 1.8;
@@ -98,7 +98,7 @@ namespace WorldGen.Core
             {
                 int bays=(int)Math.Ceiling(w/.65);
                 for(int level=0;level<4;level++)for(int i=0;i<bays;i++)
-                {double x=-w*.5+w*i/bays,y=level*.25;Bulk(CampPartKind.Stonework,Ground(x,0)+new V(0,y,0),Ground(x+w/bays,0)+new V(0,y,0),.45,.25,w/bays*.45*.25*1550,level);}
+                {double x=-w*.5+w*i/bays,y=level*h/4;Bulk(CampPartKind.Stonework,Ground(x,0)+new V(0,y,0),Ground(x+w/bays,0)+new V(0,y,0),.45,h/4,w/bays*.45*h/4*1550,level);}
             }
             else if(p.Design==CampDesign.ConicalTent)
             {
@@ -111,7 +111,7 @@ namespace WorldGen.Core
                 {var foot=At(Angle(i),0);Member(foot,At(Angle(i),1.025),.035,CampPartKind.Post,0);Bind(At(Angle(i),.92));Ballast(foot);}
                 for(int i=0;i<sides;i++)for(int band=0;band<3;band++)
                 {
-                    double lo=band/3d,hi=(band+1)/3d*.96;
+                    double lo=band/3d*.96,hi=(band+1)/3d*.96;
                     // Front sectors open to a crouch-height doorway, not a full
                     // roof-height slit or a pole through the entrance.
                     if(i==0||i==sides-1)lo=Math.Max(lo,1.45/h);
@@ -181,6 +181,12 @@ namespace WorldGen.Core
                 double gap=Math.Min(.6,w*.28),door=1.5;
                 for(int side=-1;side<=1;side+=2){var outer=Ground(side*w*.5,d*.5);var inner=Ground(side*gap,d*.5);double y=h*(1-gap/(w*.5));Panel(outer,inner,new V(inner.X,y,d*.5),outer);}
                 if(h>door){double topGap=w*.5*(1-door/h);Panel(new V(-topGap,door,d*.5),new V(topGap,door,d*.5),new V(0,h,d*.5),new V(0,h,d*.5));}
+                if(p.Version>=2)
+                {
+                    var covers=result.Where(c=>c.Kind==CampPartKind.Cover).ToArray();int folds=h>door?3:2;
+                    var wings=covers.Skip(covers.Length-folds).ToArray();
+                    foreach(var wing in wings){double x=wing.Points.Average(v=>v.X);var roof=covers.Take(covers.Length-folds-1).Where(c=>c.Points.Average(v=>v.X)*x>=0).OrderByDescending(c=>c.Points.Average(v=>v.Z)).First();roof.Points=roof.Points.Concat(wing.Points).ToArray();roof.Kg+=wing.Kg;result.Remove(wing);}
+                }
             }
             else if(p.Design==CampDesign.OpenCanopy||p.Design==CampDesign.RaisedCache||p.Design==CampDesign.RaisedBed)
             {

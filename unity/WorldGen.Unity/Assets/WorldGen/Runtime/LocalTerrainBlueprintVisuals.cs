@@ -21,7 +21,7 @@ static partial class LocalScatterMeshes
             {
                 surface=plan.Cover==CampCover.Hide?4:plan.Cover==CampCover.Bark?2:7;
                 var color=plan.Cover==CampCover.Hide?new Color(.55f,.4f,.27f,0):plan.Cover==CampCover.Bark?new Color(.42f,.32f,.22f,0):new Color(.54f,.46f,.24f,0);
-                Quad(points[0],points[1],points[2],points[3],color);
+                for(int face=0;face<points.Length;face+=4)Quad(points[face],points[face+1],points[face+2],points[face+3],color);
                 if(plan.Cover==CampCover.Brush||plan.Cover==CampCover.Reed)
                 {
                     // Overlapping uneven bundles break up the roof edge and
@@ -71,11 +71,12 @@ static partial class LocalScatterMeshes
             }
             else if(c.Kind==CampPartKind.Binding)
             {
-                surface=6;var center=points[0];for(int i=0;i<40;i++){float a=i/12f*Mathf.PI*2,z=(i+1)/12f*Mathf.PI*2;b.Tube(center+new Vector3(Mathf.Cos(a)*.043f,(i/40f-.5f)*.04f,Mathf.Sin(a)*.043f),center+new Vector3(Mathf.Cos(z)*.043f,((i+1)/40f-.5f)*.04f,Mathf.Sin(z)*.043f),.003f,.003f,4,new Color(.55f,.43f,.27f,0));}
+                // Bindings remain required material, without ornamental coils.
+                continue;
             }
             else
             {
-                var source=CampBlueprints.State(plan,c)?.Materials.FirstOrDefault();float radius=(float)(source?.WidthM??c.WidthM)*.5f;
+                var source=CampBlueprints.State(plan,c)?.Materials.FirstOrDefault();if(source?.Kind==PossessionKind.Bone)surface=5;float radius=(float)(source?.WidthM??c.WidthM)*.5f;
                 for(int i=1;i<points.Length;i++)b.Tube(points[i-1],points[i],radius,radius*.9f,8,new Color(.39f,.28f,.17f,0));
                 b.Crown(points[points.Length-1],Vector3.one*radius*.9f,8,2,new Color(.68f,.54f,.32f,0),start,.05f);
             }
@@ -86,6 +87,11 @@ static partial class LocalScatterMeshes
     // One patch per actual contributed hide, with normalized coat coordinates.
     public static Mesh BuildCampHide(V[] points,float from,float to)
     {
+        if(points.Length>4)
+        {
+            var pieces=new List<Mesh>();for(int i=0;i<points.Length;i+=4)pieces.Add(BuildCampHide(points.Skip(i).Take(4).ToArray(),from,to));
+            var combined=new Mesh();combined.CombineMeshes(pieces.Select(m=>new CombineInstance{mesh=m,transform=Matrix4x4.identity}).ToArray());foreach(var piece in pieces)UnityEngine.Object.Destroy(piece);return combined;
+        }
         var b=new Builder();Vector3 P(V v)=>new Vector3((float)v.X,(float)v.Y,(float)v.Z);
         var a=Vector3.Lerp(P(points[0]),P(points[1]),from);var c=Vector3.Lerp(P(points[0]),P(points[1]),to);var d=Vector3.Lerp(P(points[3]),P(points[2]),to);var e=Vector3.Lerp(P(points[3]),P(points[2]),from);
         // Modest sag without moving the anchored perimeter; also avoids a
@@ -150,7 +156,7 @@ public sealed partial class LocalTerrainExplorer
             else if(plan.Design==CampDesign.DryingRack)
             {
                 float span=Math.Max(.15f,(float)item.WidthM+.08f);bool left=rackLeft+span<=w;float cursor=left?rackLeft:rackRight,x=-w*.5f+cursor+span*.5f;if(left)rackLeft+=span;else rackRight+=span;
-                part.transform.localPosition=new Vector3(x,h-(float)item.HeightM*.65f,left?-d*.5f:d*.5f);part.transform.localRotation=Quaternion.Euler(0,i*37,0);
+                part.transform.localPosition=new Vector3(x,h-(float)item.HeightM*.65f,0);part.transform.localRotation=Quaternion.Euler(0,i*37,0);
             }
             else
             {

@@ -152,7 +152,7 @@ public sealed partial class LocalTerrainExplorer
         var drop=inventoryOpen?HoveredInventoryPossession():held;
         if(k.gKey.wasPressedThisFrame&&drop!=null&&drop.Place!=PossessionPlace.Ground)RequestPossession(drop.Id,PossessionPlace.Ground);
         if(k.rKey.wasPressedThisFrame&&held!=null)RequestPossession(held.Id,PossessionPlace.Container,autoStow:true);
-        if(k.bKey.wasPressedThisFrame)
+        if(inventoryOpen&&k.shiftKey.isPressed&&k.bKey.wasPressedThisFrame)
         {
             var pack=Inventory.Bag;if(pack!=null)RequestPossession(pack.Id,PossessionPlace.Ground);
             else {pack=inventoryNearby.FirstOrDefault(n=>PortableTechnology.Wear(n.Item)==PossessionPlace.Back)?.Item;if(pack!=null)RequestPossession(pack.Id,PossessionPlace.Back);}

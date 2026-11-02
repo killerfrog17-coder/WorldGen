@@ -17,6 +17,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class CampBlueprint
     {
         public int Version=1,Revision;public CampDesign Design;public CampCover Cover;public CampStore Store;
+        [System.Runtime.Serialization.OptionalField] public double ScreenHeightM;
         public double WidthM=2,DepthM=2;public List<CampPartState> Parts=new List<CampPartState>();
         [System.Runtime.Serialization.OptionalField] public double[] FloorHeights;
         public CampBlueprint Copy(){var p=(CampBlueprint)MemberwiseClone();p.Parts=Parts.Select(s=>s.Copy()).ToList();p.FloorHeights=FloorHeights==null?null:(double[])FloorHeights.Clone();return p;}
@@ -39,7 +40,7 @@ namespace WorldGen.Core
         {
             var l=Limits(d);double Snap(double x)=>Math.Round(x*4)/4;
             width=Math.Max(l.minW,Math.Min(l.maxW,Snap(width)));depth=Math.Max(l.minD,Math.Min(l.maxD,Snap(depth)));
-            return new CampBlueprint{Design=d,WidthM=width,DepthM=Round(d)?width:depth,Cover=cover,Store=store};
+            return new CampBlueprint{Version=2,Design=d,WidthM=width,DepthM=Round(d)?width:depth,Cover=cover,Store=store};
         }
         public static double Height(CampBlueprint p)=>NominalHeight(p)+Math.Max(0,p.FloorHeights?.Max()??0);
         public static double FloorAt(CampBlueprint p,double x,double z)
@@ -99,6 +100,13 @@ namespace WorldGen.Core
                 int ribs=(int)Math.Ceiling(w/.45);
                 for(int i=0;i<=ribs;i++){double x=-w*.5+w*i/ribs;Bar(new V(x,h,-d*.5),new V(x,front,d*.5),.018,CampPartKind.Rib);if(i<ribs){double b=-w*.5+w*(i+1)/ribs;Panel(new V(x,h,-d*.5),new V(b,h,-d*.5),new V(b,front,d*.5),new V(x,front,d*.5));}}
             }
+            else if(p.Design==CampDesign.DryingRack)
+            {
+                for(int side=-1;side<=1;side+=2){double x=side*w*.5;
+                    Bar(new V(x,FloorAt(p,x,-d*.5)-.1,-d*.5),new V(x,h+.18,d*.18),.035,CampPartKind.Post,0);
+                    Bar(new V(x,FloorAt(p,x,d*.5)-.1,d*.5),new V(x,h+.18,-d*.18),.035,CampPartKind.Post,0);Bind(new V(x,h,0));}
+                Bar(new V(-w*.5-.12,h,0),new V(w*.5+.12,h,0),.035);
+            }
             else
             {
                 int bays=(int)Math.Ceiling(w/1.4);bool screen=p.Design==CampDesign.Windbreak;
@@ -128,6 +136,7 @@ namespace WorldGen.Core
             if(c.Kind==CampPartKind.Cover)return CoverMaterial(p,item);
             if(c.Kind==CampPartKind.Stonework)return StoneCrafting.Rock(item);
             if(c.Kind==CampPartKind.Bonework)return item.Kind==PossessionKind.Bone||item.Kind==PossessionKind.Antler;
+            if((c.Kind==CampPartKind.Post||c.Kind==CampPartKind.Beam)&&item.Kind==PossessionKind.Bone)return item.HeightM+.035>=c.LengthM&&item.WidthM>=c.WidthM&&item.UseDamage<.8;
             if(c.Kind==CampPartKind.Deck)return (item.Kind==PossessionKind.Branch||item.Kind==PossessionKind.TrimmedPole)&&item.HeightM>=.25&&item.WidthM>=.012&&item.UseDamage<.8&&item.WoodSoundness>=.45;
             return (item.Kind==PossessionKind.Branch||item.Kind==PossessionKind.TrimmedPole)&&item.UseDamage<.8&&item.WoodSoundness>=.45&&item.HeightM+.035>=c.LengthM&&item.WidthM>=c.WidthM&&item.WidthM<=Math.Max(.085,c.WidthM*2.8)&&
                 (p.Design!=CampDesign.BrushHut||item.Kind==PossessionKind.Branch&&item.WidthM<=.04);
@@ -224,7 +233,7 @@ namespace WorldGen.Core
         public static void Validate(CampObject c)
         {
             var p=c.Blueprint;if(c.Kind!=CampKind.Blueprint){if(p!=null)throw new ArgumentException("Unexpected construction plan.");return;}
-            if(p==null||p.Version!=1||!Enum.IsDefined(typeof(CampDesign),p.Design)||!Enum.IsDefined(typeof(CampCover),p.Cover)||!Enum.IsDefined(typeof(CampStore),p.Store)||p.Parts==null||p.Revision<0||c.Materials.Count>0||(c.CookingItems?.Count??0)>0)throw new ArgumentException("Invalid construction plan.");
+            if(p==null||(p.Version!=1&&p.Version!=2)||!double.IsFinite(p.ScreenHeightM)||p.ScreenHeightM<0||p.ScreenHeightM>2.2||!Enum.IsDefined(typeof(CampDesign),p.Design)||!Enum.IsDefined(typeof(CampCover),p.Cover)||!Enum.IsDefined(typeof(CampStore),p.Store)||p.Parts==null||p.Revision<0||c.Materials.Count>0||(c.CookingItems?.Count??0)>0)throw new ArgumentException("Invalid construction plan.");
             var l=Limits(p.Design);if(!double.IsFinite(p.WidthM)||!double.IsFinite(p.DepthM)||p.WidthM<l.minW||p.WidthM>l.maxW||p.DepthM<l.minD||p.DepthM>l.maxD||p.Design==CampDesign.BrushHut&&p.DepthM!=p.WidthM)throw new ArgumentException("Invalid construction dimensions.");
             if(Round(p.Design)&&p.DepthM!=p.WidthM)throw new ArgumentException("Invalid round construction footprint.");
             if(p.FloorHeights!=null&&(p.FloorHeights.Length!=9||p.FloorHeights.Any(f=>!double.IsFinite(f)||Math.Abs(f)>2)))throw new ArgumentException("Invalid construction footing survey.");
