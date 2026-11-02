@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
         readonly PrehistoryState state;
         readonly ForagerCohort[][] residents;
         readonly Dictionary<int,double> population;
-        readonly int[] speech,beliefs;
+        readonly int[] speech;
         public double Population(ForagerCohort c)=>population[c.Id];
         public ForagerCohort[] Residents(int cell)=>cell>=0&&cell<state.Foragers.CellDistrict.Length&&state.Foragers.CellDistrict[cell]>=0?residents[state.Foragers.CellDistrict[cell]]:Array.Empty<ForagerCohort>();
         public ForagerCohort? Dominant(int cell)=>Residents(cell).FirstOrDefault();
@@ -20,7 +20,7 @@ namespace WorldGen.Presentation
         {
             state=s;population=s.Foragers.Cohorts.ToDictionary(c=>c.Id,c=>ForagerDemography.Present(s.Foragers,c));var byDistrict=s.Foragers.Cohorts.Where(c=>Population(c)>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>Population(c)).ThenBy(c=>c.Id).ToArray());
             residents=s.Foragers.Districts.Select(d=>byDistrict.TryGetValue(d.Id,out var c)?c:Array.Empty<ForagerCohort>()).ToArray();
-            speech=residents.Select(c=>c.Length>0?Majority(c,true):-1).ToArray();beliefs=residents.Select(c=>c.Length>0?Majority(c,false):-1).ToArray();
+            speech=residents.Select(c=>c.Length>0?Majority(c,true):-1).ToArray();
         }
         public static int Toolkit(ForagerCohort c)
         {
@@ -39,7 +39,10 @@ namespace WorldGen.Presentation
                 case HistoryOverlay.Cultures:return c.Culture;
                 case HistoryOverlay.Ethnicities:return c.Identity;
                 case HistoryOverlay.Languages:return speech[c.District];
-                case HistoryOverlay.Religions:return beliefs[c.District];
+                // Match the local-community scale of the culture layer. A
+                // shared ancestral minority across many different communities
+                // is not one uniform district-wide religion.
+                case HistoryOverlay.Religions:return c.Belief;
                 case HistoryOverlay.Technology:return Toolkit(c);
                 case HistoryOverlay.HumanSpecies:int mask=0;foreach(var p in local)mask|=1<<p.Lineage;return mask;
                 default:return -1;
@@ -100,6 +103,17 @@ namespace WorldGen.Presentation
             }
             foreach(var pair in sums){entries[pair.Key].Population=(long)Math.Round(pair.Value.population);entries[pair.Key].AreaKm2=(long)Math.Round(pair.Value.area);}
             return entries.Values.Where(e=>e.Population>0).OrderByDescending(e=>sort=="Land area"?e.AreaKm2:e.Population).ThenBy(e=>e.Name).ToArray();
+        }
+        public HistoryLegendEntry[] MapLabels(HistoryOverlay overlay)
+        {
+            // The full legend includes household minorities. Labels instead
+            // belong on cells whose actual colour represents that identity.
+            return state.Foragers.Districts.Where(d=>residents[d.Id].Length>0)
+                .GroupBy(d=>Id(d.Cell,overlay)).Where(g=>g.Key>=0).Select(g=>
+                {
+                    var district=g.OrderByDescending(d=>residents[d.Id].Sum(Population)).ThenBy(d=>d.Id).First();
+                    return new HistoryLegendEntry{Name=Name(g.Key,overlay),Cell=district.Cell,LabelCell=district.Cell,ColorId=g.Key,CustomColor=true,Color=Color(g.Key,overlay)};
+                }).ToArray();
         }
     }
 }

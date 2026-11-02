@@ -13,6 +13,7 @@ namespace WorldGen.Presentation
         // Political colors, labels and borders identify individual sovereign states.
         public static HistoryLegendEntry[] MapLabels(World w,PrehistoryState? s,HistoryOverlay overlay,Prehistory? engine=null)
         {
+            if(Prehistory.Foraging(s))return ForagerMaps.For(s!).MapLabels(overlay);
             if(s?.History==null||s.Society==null)return Legend(s,overlay,engine:engine);
             if(overlay!=HistoryOverlay.Civilizations&&overlay!=HistoryOverlay.States&&overlay!=HistoryOverlay.Territories)return Legend(s,overlay,engine:engine);
             var labels=Legend(s,overlay==HistoryOverlay.Territories?overlay:HistoryOverlay.States,engine:engine).ToList();

@@ -39,7 +39,13 @@ namespace WorldGen.Presentation
                 facts.Add(F("Example",ForagerLanguages.Utterance(l,c,"we","gather","food","tomorrow","food")));card.Note="Related dialects share inherited vocabulary. Old ancestry remains recorded when accumulated change makes a remote family unrecognisable.";
             }
             else if(overlay==HistoryOverlay.Religions)
-            {var b=f.Beliefs[map.Id(cell,overlay)];facts.Add(F("Sacred places",b.SacredLandscape));facts.Add(F("Seasonal gathering",b.SeasonalRite));facts.Add(F("Mortuary custom",b.MortuaryPractice));if(c.MinorityBelief>=0&&c.MinorityBeliefShare>.001)facts.Add(F("Other local tradition",f.Beliefs[c.MinorityBelief].Name+" · "+Percent(c.MinorityBeliefShare)));card.Note="Local oral traditions, household practices and shared rites; no church or state religion is implied.";}
+            {
+                var b=f.Beliefs[map.Id(cell,overlay)];facts.Add(F("Community",f.Cultures[c.Culture].Name));facts.Add(F("Sacred places",b.SacredLandscape));facts.Add(F("Seasonal gathering",b.SeasonalRite));facts.Add(F("Mortuary custom",b.MortuaryPractice));
+                double total=local.Sum(P);
+                foreach(var share in local.SelectMany(p=>p.Traditions.Select(x=>(x.Id,number:P(p)*x.Share))).GroupBy(x=>x.Id).Select(g=>(id:g.Key,number:g.Sum(x=>x.number))).OrderByDescending(x=>x.number).Take(4))
+                    facts.Add(F("District tradition",f.Beliefs[share.id].Name+" · "+Percent(share.number/total)));
+                card.Note="Colours show the largest local community's primary tradition. District household shares include other traditions; these are not church territories.";
+            }
             else
             {facts.Add(F("Residence",Residence(f.Cultures[c.Culture].Residence)));facts.Add(F("Food security",Percent(c.FoodSecurity)));facts.Add(F("Winter protection",Percent(c.WinterSecurity)));facts.Add(F("Speech",f.Languages[c.Language].Name));facts.Add(F("Tradition",f.Beliefs[c.Belief].Name));card.Note="Seasonal camps and kin/exchange connections generate local bands and household candidates.";}
             if(engine!=null)

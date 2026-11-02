@@ -14,6 +14,8 @@ static class ForagerPresentationTests
             Check(political?legend.Length==0:legend.Length>0,"Political layers stay empty; actual cultural/language/belief/toolkit/species layers have records: "+overlay);
             if(!political)Check(Math.Abs(legend.Sum(e=>e.Population)-population)<active.Length*2,"Overlay totals account for all human lineages and minorities exactly once: "+overlay);
             var codes=PrehistoryView.Codes(w,engine,s,overlay:overlay);Check(codes.Length==w.Surface.Cells.Length,"Actual renderer codes cover the whole surface");
+            var labels=SocietyView.MapLabels(w,s,overlay,engine);
+            Check(labels.All(e=>map.Id(e.Cell,overlay)==e.ColorId),"Every map label is anchored to a cell actually displaying that identity: "+overlay);
             foreach(var e in legend.Take(12))
             {
                 var card=HistoryAtlas.Card(s,e.Cell,overlay,engine);Check(card.Title.Length>0&&card.Facts.Length>0,"Visible map cards expose real observer data: "+overlay);
@@ -27,6 +29,14 @@ static class ForagerPresentationTests
             Check(!document.Subtitle.Contains("BC")&&!document.Subtitle.Contains("BP"),"Calendar is the world's own elapsed year");AtlasTables.Measures(s,entry);
         }
         foreach(var c in active.Take(50))Check(map.Id(f.Districts[c.District].Cell,HistoryOverlay.States)==-1,"A population home range never masquerades as a state");
+        foreach(var district in f.Districts.Where(d=>map.Dominant(d.Cell)!=null).Take(50))
+            Check(map.Id(district.Cell,HistoryOverlay.Religions)==map.Dominant(district.Cell).Belief,"Religion colour represents the largest community rather than combining many unrelated local branches into an ancestral plurality");
+        var mixed=s.Copy();var first=active[0].Copy();var second=active[1].Copy();second.District=first.District;
+        ForagerDemography.SetPopulation(first,100);ForagerDemography.SetPopulation(second,90);
+        first.Traditions=new[]{new ForagerAffiliation{Id=0,Share=.4},new ForagerAffiliation{Id=1,Share=.6}};
+        second.Traditions=new[]{new ForagerAffiliation{Id=0,Share=.4},new ForagerAffiliation{Id=2,Share=.6}};
+        ForagerAffiliations.Refresh(first);ForagerAffiliations.Refresh(second);mixed.Foragers.Cohorts=new[]{first,second};
+        Check(ForagerMaps.For(mixed).Id(f.Districts[first.District].Cell,HistoryOverlay.Religions)==1,"Two distinct community traditions must not render as their shared40-percent ancestral minority");
         var relatedTraditions=f.Beliefs.GroupBy(b=>b.Family).FirstOrDefault(g=>g.Count()>1)?.Take(2).ToArray();
         if(relatedTraditions!=null)
         {
