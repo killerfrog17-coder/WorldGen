@@ -1,0 +1,109 @@
+{
+  "recorded_utc": "2026-11-02T08:00:26.723483+00:00",
+  "production_source": "2ef991117deb62ac0bcc1f0af246a604aa52beee",
+  "selected_slot": "builds/slot-b",
+  "build": {
+    "BuiltUtc": "2026-11-02T07:52:23.5068390Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "194926dd114800acc3e866dbe8d2d663062e65d6681f2cf910ec669d65b35acd"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "a9f0c27ff0464db11f8d412e9b18798ce6b43a559b34232ef3b65eed2f2efe18"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "bef30d00c5a6c59736dfb48f84831491b12425c05464dc3dd6933b355473a474"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ]
+  },
+  "package_proof": {
+    "backend": "Mono",
+    "BuiltUtc": "2026-11-02T07:52:23.5068390Z",
+    "frozen_inputs": 978,
+    "legacy_files_unchanged": 30,
+    "protected_original_assets": 3254,
+    "character_banks": 6,
+    "clips_per_character": [
+      70,
+      70,
+      70,
+      70,
+      70,
+      70
+    ],
+    "fauna_package_exact": true,
+    "original_audio_exact": true,
+    "processed_managed_assemblies": {
+      "WorldGen.Core": "194926dd114800acc3e866dbe8d2d663062e65d6681f2cf910ec669d65b35acd",
+      "WorldGen.Serialization": "a9f0c27ff0464db11f8d412e9b18798ce6b43a559b34232ef3b65eed2f2efe18",
+      "WorldGen.Presentation": "bef30d00c5a6c59736dfb48f84831491b12425c05464dc3dd6933b355473a474",
+      "DelaunatorSharp": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+    }
+  },
+  "core_checks": {
+    "paleolithic": 49,
+    "world_interface": 334,
+    "legacy_language": 267
+  },
+  "actual_visible_player_check": {
+    "exit_code": 0,
+    "seconds": 54.9871163,
+    "built_utc": "2026-11-02T07:52:23.5068390Z",
+    "backend": "Mono",
+    "development": false
+  },
+  "saved_world_replay": {
+    "exit_code": 0,
+    "built_utc": "2026-11-02T07:52:23.5068390Z",
+    "core_runtime_parity": true,
+    "hash": "e7aeee80eba33aaa0c88f3ea0d488813d4a6923241d9eef893ae4ce02fb2c9c3"
+  },
+  "old_paleolithic_save_exact_resume_hash": "81e859521efb335fc800a317099a13d7af4d2e3b3c926288a74c30c905a57837",
+  "overlay_results": [
+    "States: 0 legend entries; 0 occupied cells",
+    "Territories: 0 legend entries; 0 occupied cells",
+    "Cultures: 152 legend entries; 599 occupied cells",
+    "Technology: 1 legend entries; 599 occupied cells",
+    "Languages: 152 legend entries; 599 occupied cells",
+    "HumanSpecies: 3 legend entries; 1340 occupied cells",
+    "Development build: False",
+    "Calendar: Year 200,000",
+    "Visible technology card:24 bars; atlas:24 adoption records; no state/territory aliases"
+  ],
+  "features": [
+    "Original in-world Year calendar; no BC/BP presentation",
+    "Observer era label Paleolithic",
+    "Independent culture, speech, technology and species projections; no fabricated states or territories",
+    "Existing technology inspection and atlas show all24 local adoption shares and prerequisites",
+    "Paleolithic v2 bounded continuing sound/lexical/grammar divergence; old v1 rules retained",
+    "New worlds seed independent climate/route-constrained archaic human ranges; shared patches and food competition",
+    "Non-development managed player; development packaging explicit opt-in"
+  ],
+  "limitations": [
+    "Archaic humans are procedural warm/cold lineage analogues with coarse population ledgers, not new bodies or tribal NPC AI",
+    "Species overlap verified by controlled real demographic update; isolated-continent visual fixture has separate ranges",
+    "Old saves preserve original rules and recorded populations; no retroactively fabricated archaic populations",
+    "Technology colours count techniques established in at least half local bands; all percentages in inspection/atlas",
+    "Numerical niche, demography and speech-change rates are explicit gameplay priors",
+    "No new whole-game FPS, complete ecosystem evolution or later-age simulation claim",
+    "Earlier955c0dd long-run speech convergence was corrected; superseded by2ef9911",
+    "Hidden-window HUD captures black; visual acceptance uses visible-final instead"
+  ],
+  "evidence_root": "artifacts/paleolithic-maps-20261102",
+  "source_frozen": true,
+  "rollback_tag": "pre-paleolithic-overhaul-20261102"
+}

@@ -39,6 +39,35 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED2Nov PALEOLITHIC MAP/CALENDAR FEEDBACK COMPLETE: root shortcut NOW
+builds/slot-b/WorldGen.exe, Mono NON-DEVELOPMENT BuiltUtc2026-11-02T07:52:23.5068390Z,
+production2ef9911 pushed. Original Year0/calendar restored (no BC/BP),
+Prehistory era now Paleolithic; default managed builds no development watermark.
+Independent culture/language/technology/species colours, legends, selection cards
++existing atlas connected to actual data. Political layers EMPTY before real
+institutions; unsupported religion/ethnicity layers are not culture aliases.
+24-tech adoption bars +requirements visible. New worlds paleolithic2: bounded
+continuing sound/lexical/rare grammar changes prevent old finite-merger convergence.
+V1 worlds retain original language rules/hash. Optional saved HumanRanges:
+separate procedural cold/warm archaic lineages seeded via real ecology/routes,
+climate demography/shared food; coexistence without replacing sapiens records.
+No new bodies/NPC tribes/dialogue/physical ice/vegetation replacement. Old saves
+are not silently populated with unrecorded species. Core49 +interface334 +legacy
+language267 PASS. SAME final visible player actual globe pick,50k/200k playback,
+6 overlay captures, real technology HUD/atlas, no watermark, save PASS/exit0/clean
+errors.152 cultures/152 speech varieties/3 separate species ranges in visual
+fixture; mixed species verified via controlled demographic update, not claimed
+in isolated-continent capture. Final packaged save/reload/37yr replay matches
+CoreCLR e7aeee80eba33aaa... exactly. Older v1 save still81e85952...
+978 frozen inputs/3254 original assets/30legacy/6x70 bank/fauna/audio EXACT.
+Evidence artifacts/paleolithic-maps-20261102/visible-final,replay,final-proof;
+manifest assets/verification/paleolithic-maps-20261102.json. Hidden-window HUD
+captures black; excluded from visual acceptance. Earlier955c0dd sound convergence
+found/fixed, not accepted. Both fixed slots only. All owned jobs ended,
+owner apps/3files untouched, no paid/subagents/cleanup. Selected source/package
+FROZEN. Await feedback; do not resume old overnight tasks automatically.
+
+HISTORICAL PREVIOUS SELECTED FOUNDATION:
 SELECTED2Nov PALEOLITHIC FOUNDATION: root shortcut NOW builds/slot-a/WorldGen.exe,
 Mono DEVELOPMENT BuiltUtc2026-11-02T07:03:54.9195930Z, production1b219bd pushed.
 New Unity worlds prehistory7/paleolithic1,~200ka established sapiens,24-tech DAG,
