@@ -97,7 +97,7 @@ public sealed partial class LocalTerrainExplorer
         var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
         TerrainBuildRequests++;if(prefetch)TerrainPrefetchRequests++;nextRequestAt=Time.realtimeSinceStartupAsDouble+detailOptions.RequestInterval;
         jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prefetch=prefetch,Backdrop=backdrop,Cancellation=stop,
-            Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges,localSampleCache):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
+            Task=TerrainUpload.Schedule(()=>producer==null?LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges,localSampleCache):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
     }
     void SchedulePredictiveTerrain()
     {

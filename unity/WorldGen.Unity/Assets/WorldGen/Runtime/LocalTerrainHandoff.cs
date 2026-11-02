@@ -193,7 +193,7 @@ public sealed partial class LocalTerrainExplorer
             var producer=meshProcess;
             TerrainBuildRequests++;nextRequestAt=Time.realtimeSinceStartupAsDouble+detailOptions.RequestInterval;
             jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prepared=pending,Cancellation=jobCancellation,
-                Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
+                Task=TerrainUpload.Schedule(()=>producer==null?LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
             if(reserveCurrentSlot)return;
         }
     }

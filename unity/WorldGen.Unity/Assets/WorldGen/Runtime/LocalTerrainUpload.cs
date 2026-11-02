@@ -18,9 +18,8 @@ public sealed partial class LocalTerrainExplorer
         public Vector2 RockB;
     }
 
-    // MeshData is explicitly thread-accessible. Build native upload buffers on
-    // the existing terrain worker; the main thread only applies them and binds
-    // Unity objects. Do not force synchronous UploadMeshData on every new tile.
+    // Allocate the native container on the main thread. Its MeshData can then
+    // be filled by the existing worker without constructing Unity objects there.
     sealed class TerrainUpload : IDisposable
     {
         static readonly VertexAttributeDescriptor[] Layout={
@@ -40,20 +39,34 @@ public sealed partial class LocalTerrainExplorer
         public int Segments;
         public long BufferBytes;
         public float[] Heights,Cover,MidCover,ForestCover;
-        public bool HasWater=>bounds.Length==2;
+        bool hasWater;
+        public bool HasWater=>hasWater;
+
+        static TerrainUpload Allocate()=>new TerrainUpload{buffers=Mesh.AllocateWritableMeshData(2),live=1};
+        public static System.Threading.Tasks.Task<TerrainUpload> Schedule(Func<LocalTerrainMesh> build,CancellationToken token)
+        {
+            var allocated=Allocate();
+            // Always execute the cleanup path, including cancellation before the
+            // task starts. Passing token to Task.Run could strand its container.
+            return System.Threading.Tasks.Task.Run(()=>{try{token.ThrowIfCancellationRequested();return Prepare(build(),token,allocated);}catch{allocated.Dispose();throw;}});
+        }
 
         public static TerrainUpload Prepare(LocalTerrainMesh source,CancellationToken token)
+        {token.ThrowIfCancellationRequested();return Prepare(source,token,Allocate());}
+        static TerrainUpload Prepare(LocalTerrainMesh source,CancellationToken token,TerrainUpload result)
         {
             var watch=System.Diagnostics.Stopwatch.StartNew();
-            var result=new TerrainUpload{EastM=source.EastM,NorthM=source.NorthM,Segments=source.Segments,BuildMilliseconds=source.BuildMilliseconds,
-                Heights=new float[source.GroundVertices],Cover=source.GroundCover,MidCover=source.MidCover,ForestCover=source.ForestCover,bounds=new Bounds[source.WaterTriangles.Length>0?2:1]};
-            result.formats=new IndexFormat[result.bounds.Length];result.buffers=Mesh.AllocateWritableMeshData(result.bounds.Length);result.live=1;
+            result.EastM=source.EastM;result.NorthM=source.NorthM;result.Segments=source.Segments;result.BuildMilliseconds=source.BuildMilliseconds;
+            result.Heights=new float[source.GroundVertices];result.Cover=source.GroundCover;result.MidCover=source.MidCover;result.ForestCover=source.ForestCover;result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
+            result.formats=new IndexFormat[2];
             try
             {
                 for(int i=0;i<result.Heights.Length;i++)result.Heights[i]=source.Positions[i*3+1];
                 for(int part=0;part<result.bounds.Length;part++)
                 {
                     bool water=part==1;
+                    if(water&&!result.hasWater)
+                    {var empty=result.buffers[part];empty.SetVertexBufferParams(0,Layout);empty.SetIndexBufferParams(0,IndexFormat.UInt16);empty.subMeshCount=0;continue;}
                     var positions=water?source.WaterPositions:source.Positions;
                     var colors=water?source.WaterColors:source.Colors;
                     var indices=water?source.WaterTriangles:source.Triangles;
@@ -98,7 +111,8 @@ public sealed partial class LocalTerrainExplorer
             var meshes=new Mesh[bounds.Length];for(int i=0;i<meshes.Length;i++)meshes[i]=new Mesh{indexFormat=formats[i]};
             try{Mesh.ApplyAndDisposeWritableMeshData(buffers,meshes,MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);}
             catch{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);throw;}
-            live=0;for(int i=0;i<meshes.Length;i++)meshes[i].bounds=bounds[i];return meshes;
+            live=0;for(int i=0;i<meshes.Length;i++)meshes[i].bounds=bounds[i];
+            if(!hasWater){UnityEngine.Object.Destroy(meshes[1]);return new[]{meshes[0]};}return meshes;
         }
         public void Dispose(){if(Interlocked.Exchange(ref live,0)!=0)buffers.Dispose();}
     }
@@ -126,7 +140,7 @@ public sealed partial class LocalTerrainExplorer
             Lithology=new float[]{.1f,.2f,.3f,.1f,.2f,.1f,.1f,.2f,.3f,.1f,.2f,.1f,.1f,.2f,.3f,.1f,.2f,.1f},
             Triangles=new[]{0,1,2},WaterPositions=new float[]{0,3,0,3,3,0,0,3,3},
             WaterColors=new float[]{0,0,1,1,0,0,1,1,0,0,1,1},WaterTriangles=new[]{0,1,2}};
-        var task=System.Threading.Tasks.Task.Run(()=>TerrainUpload.Prepare(source,CancellationToken.None));
+        var task=TerrainUpload.Schedule(()=>source,CancellationToken.None);
         while(!task.IsCompleted)yield return null;
         using(var upload=task.GetAwaiter().GetResult())
         {
@@ -146,6 +160,9 @@ public sealed partial class LocalTerrainExplorer
         bool cancelled=false;
         try{using(var ignored=TerrainUpload.Prepare(source,new CancellationToken(true))){} }catch(OperationCanceledException){cancelled=true;}
         if(!cancelled)throw new InvalidOperationException("Cancelled native buffer preparation was not cancelled/disposed.");
+        var cancelledTask=TerrainUpload.Schedule(()=>source,new CancellationToken(true));while(!cancelledTask.IsCompleted)yield return null;
+        cancelled=false;try{cancelledTask.GetAwaiter().GetResult();}catch(OperationCanceledException){cancelled=true;}
+        if(!cancelled)throw new InvalidOperationException("Queued cancelled upload retained its native allocation.");
         foreach(int count in new[]{65535,65536,70003})
         {
             var large=new LocalTerrainMesh{GroundVertices=3,Segments=4,Positions=new float[count*3],Normals=new float[count*3],Colors=new float[count*4],SurfaceWeights=new float[count*4],GroundWeightsB=new float[count*4],Lithology=new float[count*6],Triangles=new[]{0,count-2,count-1}};
