@@ -47,6 +47,25 @@ checks underway, NOT selected yet. Next player is fast managed DEVELOPMENT
 slot-a per new owner build policy; slot-b/shortcut frozen until actual checks.
 No NPC spawning/interactions or historical-simulation overhaul authorized yet.
 Owner prompt deletion and two untracked deer scripts preserved. No subagents.
+Latest source7a440cf plus in-progress build: 15 plans / 4 cover choices; 13429
+Core blueprint,69camp,69save,82inventory,24physiology checks pass. New Mono
+development path uncovered original stripped serializer configuration and a
+MaterialPropertyBlock field initializer; both corrected. Actual world loading
+works, but tile upload failed development-thread checks (CreateNewMeshDatas).
+Current fix allocates native containers on main, fills off-thread, posts canceled
+ReleaseMeshDatas back to main via Unity synchronization context. First focused
+upload test caught background release too; fixed, verification still PENDING.
+Source/shortcut slot-b remains selected/frozen. Candidate slot-a current build
+must pass quick --worldgen-upload-check THEN scripts/run-shelter-check.ps1.
+Native checks1..6 failed startup, check7 intentionally terminated OWN26804 after
+identifying tile error; NONE are acceptance. Owner slot-b process5296 left open.
+No shelter images or collision accepted yet. No additional geometry polishing
+until actual play flow works. New scripts-only flag is guarded to inactive Mono
+development workspace; Unity verifies its existing baseline. Test outputs in
+artifacts/shelters-20261102; dump files there disposable; optional diagnostics
+tools in tools/dotnet-diagnostics. CLI worker transport189547 exact values PASS
+(control CoreCLR client), not evidence of the failed Mono upload path. Package
+proof963/3254/30/6x70 passed on previous candidate; rerun for final source.
 
 CURRENT1Nov EXIT / THROW / NEEDS / FIRE SELECTED: normal root shortcut NOW
 builds/slot-b/WorldGen.exe, IL2CPP Release BuiltUtc2026-11-02T01:21:11.3166520Z,

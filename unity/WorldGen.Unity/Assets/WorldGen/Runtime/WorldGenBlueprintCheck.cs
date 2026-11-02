@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
         IEnumerator KeyPress(Key key){InputSystem.QueueStateEvent(keyboard,new KeyboardState(key));yield return null;yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;}
         IEnumerator Click(bool right=false){InputSystem.QueueStateEvent(mouse,new MouseState().WithButton(right?MouseButton.Right:MouseButton.Left));yield return null;yield return null;InputSystem.QueueStateEvent(mouse,new MouseState());yield return null;}
         void Aim(Vector3 target)
-        {UpdateHumans();UpdateCamera();var delta=(target-view.transform.localPosition).normalized;heading=Mathf.Atan2(delta.x,delta.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(delta.y)*Mathf.Rad2Deg;UpdateCamera();}
+        {for(int i=0;i<8;i++){UpdateHumans();UpdateCamera();var delta=(target-view.transform.localPosition).normalized;heading=Mathf.Atan2(delta.x,delta.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(delta.y)*Mathf.Rad2Deg;UpdateCamera();}}
         Vector3 Floor(double x,double z)=>new Vector3((float)(x-originX),(float)CampFloor(x,z),(float)(z-originZ));
         var made=new List<CampObject>();
         IEnumerator Picture(CampObject c,string name)
@@ -46,7 +46,13 @@ public sealed partial class LocalTerrainExplorer
                 Check(found,"A clear dry footprint can be found for "+design);
                 double cx=site.x+originX,cz=site.z+originZ;motion.Place(cx-2,cz-2,Ground(cx-2,cz-2));heading=0;pitch=45;UpdateHumans();UpdateCamera();
                 BeginBlueprint(design);blueprintYaw=0;bool round=CampBlueprints.Round(design);bool line=CampBlueprints.Line(design);
-                var anchor=site-(round?Vector3.zero:new Vector3(1,0,line?0:1));anchor.y=(float)CampFloor(anchor.x+originX,anchor.z+originZ);Aim(anchor);UpdateBlueprintPlacement();Check(blueprintValid,"First anchor preview is valid for "+design+": "+blueprintReason);
+                var anchor=site-(round?Vector3.zero:new Vector3(1,0,line?0:1));anchor.y=(float)CampFloor(anchor.x+originX,anchor.z+originZ);Aim(anchor);UpdateBlueprintPlacement();
+                // A clear footprint does not guarantee that the initial viewing
+                // point outside it is clear of a nearby tree/rock. Keep the real
+                // placement checks and approach from another unobstructed side.
+                for(int approach=0;approach<8&&!blueprintValid;approach++)
+                {float a=approach*Mathf.PI*.25f;double px=anchor.x+originX+Mathf.Sin(a)*2,pz=anchor.z+originZ+Mathf.Cos(a)*2;var feet=Floor(px,pz);if(Physics.CheckCapsule(transform.TransformPoint(feet+Vector3.up*.3f),transform.TransformPoint(feet+Vector3.up*1.4f),.28f,1<<ScatterSolidLayer))continue;motion.Place(px,pz,Ground(px,pz));Aim(anchor);UpdateBlueprintPlacement();}
+                Check(blueprintValid,"First anchor preview is valid for "+design+": "+blueprintReason);
                 yield return Click();Check(blueprintAnchored,"First mouse click anchors "+design);
                 if(design==CampDesign.LeanTo)
                 {
