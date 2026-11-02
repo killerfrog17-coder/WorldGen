@@ -20,18 +20,21 @@ public sealed partial class LocalTerrainExplorer
             RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);
         }
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();humanCamera.Restore(0,false);
-        Teleport(TerrainMapViewport.FromDegrees(.17930170506363216,117.31300341710354));paused=false;
+        var coast=TerrainMapViewport.FromDegrees(.17930170506363216,117.31300341710354);if((Position-coast).Length*frame.RadiusM>.5)Teleport(coast);paused=false;
         double deadline=Time.unscaledTimeAsDouble+80;while(!PerformanceGroundSettled&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
         Check(CenterReady,"Actual coastal terrain loads without modifying the world");
         PlayCommands.Execute(PlayerRules,0,"/time set noon",Math.Atan2(Position.Y,Position.X)*180/Math.PI);WeatherControl.Set("clear");SetDaylight(LocalSolarHour,skyYear);
         V near=TerrainMapViewport.FromDegrees(.17924039827946195,117.31312959624624);TerrainHandoff.Coordinates(frame,near,out double nx,out double nz);
         var sample=PlayerWaterSample(nx,nz);var quality=PlayerWaterQuality(sample);Check(sample.Underwater&&!quality.Fresh,"Real sea water is identified as saline");
         Inventory.Items.Clear();InitializeInventory();var stone=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);stone.Place=PossessionPlace.RightHand;Inventory.Items.Add(stone);
+        var blade=PortableTechnology.Create(PossessionKind.StoneBlade,Position);blade.Place=PossessionPlace.LeftHand;Inventory.Items.Add(blade);
+        Check(!Inventory.WornContainers.Any(),"Water regression starts with a stone spear and blade, without a bag");
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1.1);ApplyPlayerMode();UpdateHumans();UpdateCamera();
         var level=SampleMotionWater(nx,nz).Surface;view.transform.LookAt(new Vector3((float)(nx-originX),(float)level,(float)(nz-originZ)));waterAimAt=0;
         Check(AimedWater(float.PositiveInfinity)!=null,"Centre aim reaches actual water from the dry bank");
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.Thirst>50,"Actual E interaction with sea water worsens hydration");
         Check(Inventory.AtHand(PossessionPlace.RightHand)==stone,"Drinking restores the original occupied hand");
+        Check(Inventory.AtHand(PossessionPlace.LeftHand)==blade&&!inventoryDrops.ContainsKey(stone.Id)&&!inventoryDrops.ContainsKey(blade.Id),"Drinking does not drop either occupied hand onto the seabed");
         double dryX=motion.X,dryZ=motion.Z,shallowX=0,shallowZ=0;bool shallow=false;
         var shoreDirection=new Vector2((float)(nx-dryX),(float)(nz-dryZ)).normalized;
         for(int step=-40;step<=120&&!shallow;step++)for(int side=-2;side<=2&&!shallow;side++)
@@ -116,8 +119,12 @@ public sealed partial class LocalTerrainExplorer
         motion.Y=SampleMotionWater(x,z).Surface+.35-humanEyeOffset;heading=45;pitch=70;
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1);ApplyPlayerMode();UpdateHumans();UpdateCamera();
         waterAimAt=waterSipAt=0;double before=Vitals.WaterDeficitLitres;
+        var handItems=Inventory.Items.Where(i=>i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand).ToArray();var handPlaces=handItems.Select(i=>i.Place).ToArray();string beforeInventory=WorldJson.Write(Inventory);
         Check(AimedWater(float.PositiveInfinity)?.Quality.Fresh==true,"Actual freshwater surface is reachable through the normal aim path");
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.WaterDeficitLitres<before-.2,"Actual freshwater E interaction hydrates with source-specific exposure");
+        Check(WorldJson.Write(Inventory)==beforeInventory,"A freshwater sip leaves the entire no-bag inventory unchanged");
+        yield return null;yield return null;
+        Check(handItems.Length==2&&handItems.Select((item,i)=>Inventory.Find(item.Id)==item&&item.Place==handPlaces[i]&&!inventoryDrops.ContainsKey(item.Id)).All(ok=>ok),"Spear and blade remain in their original hands during the drink animation");
         Vitals.Restore();Vitals.WaterExposureThreshold=.1;Vitals.WaterExposureResponse=.65;
         WaterDrinking.Drink(Vitals,new WaterQuality(LocalWaterKind.River,.08,.5,.05),.25,.99,Mode);
         Check(Vitals.WaterSicknessSeconds>0&&Vitals.WaterSicknessSeverity>.05&&Vitals.WaterSicknessSeverity<.2,"A controlled contaminated dose produces a genuinely mild illness course");

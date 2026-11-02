@@ -1,4 +1,4 @@
-param([ValidateSet('slot-a','slot-b')][string]$PlayerFolder='slot-a',[string]$OutputName='player-check')
+param([ValidateSet('slot-a','slot-b')][string]$PlayerFolder='slot-a',[string]$OutputName='player-check',[switch]$Water)
 $ErrorActionPreference='Stop'
 $shelterRepo=Split-Path -Parent $PSScriptRoot
 $shelterOutput=Join-Path $shelterRepo ('artifacts/shelters-20261102/'+$OutputName)
@@ -11,7 +11,7 @@ if($shelterBuild.Backend -notin @('Mono','IL2CPP')){throw 'Unknown or unfinished
 New-Item -ItemType Directory -Force -Path $shelterOutput | Out-Null
 $shelterArgs=@('-batchmode','-force-d3d11','-screen-width','1280','-screen-height','800','-screen-fullscreen','0',
     '--worldgen-item-use-check',('"'+$shelterRepo+'/unity/WorldGen.Unity/Assets/StreamingAssets/world/Earth.world"'),
-    '--worldgen-blueprint-check','--worldgen-output',('"'+$shelterOutput+'"'),
+    $(if($Water){'--worldgen-water-update-check'}else{'--worldgen-blueprint-check'}),'--worldgen-output',('"'+$shelterOutput+'"'),
     '--worldgen-library-root',('"'+$shelterRepo+'/artifacts/shelters-20261102/test-library"'),
     '-logFile',('"'+$shelterOutput+'/player.log"'))
 $shelterRun=Start-Process -FilePath $shelterPlayer -ArgumentList $shelterArgs -WorkingDirectory $shelterRepo -WindowStyle Hidden -PassThru

@@ -1,5 +1,15 @@
 # Item use and wildlife interaction
 
+Ordinary stones display three physical size categories: pebble (longest span
+up to 6.4 cm), small rock (up to 20 cm and 2 kg), and large rock. Existing saved
+stones use the same categories without changing their IDs, material or mass.
+Carrying requirements remain separate: a large rock is not automatically
+two-handed. Pickup and inventory glyphs share three distinct wide silhouettes;
+only stones passing the actual flaking-workpiece requirements use the existing
+taller chipping glyph. New editable glyph sources are under
+`assets-source/items/icon-masks`; `scripts/build-rock-pickup-icons.py` reproduces
+the imported transparent white PNGs.
+
 Owner-authorized overnight update, 28 October 2026. The selected player and exact
 validation status are recorded in [ITEM_USE_OVERNIGHT.md](ITEM_USE_OVERNIGHT.md).
 No skinning, butchery or processing of animals is included. No in-game recipe

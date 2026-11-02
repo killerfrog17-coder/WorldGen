@@ -50,7 +50,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public string CampOwner;
         [System.Runtime.Serialization.OptionalField] public double DryingSeconds;
         [System.Runtime.Serialization.OptionalField] public bool Dried,Smoked;
-        public string Name=>PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
+        public string Name=>StoneCrafting.Rock(this)?StoneCrafting.SizeName(this):PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
         public int Hands=>StoneCrafting.Rock(this)?StoneCrafting.CarryHands(this):PortableTechnology.Item(Kind)?.Hands??1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
         public int PackedHeight=>Rotated?CellsWide:CellsHigh;

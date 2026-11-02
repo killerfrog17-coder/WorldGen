@@ -44,7 +44,9 @@ public sealed partial class LocalTerrainExplorer
         string key=new string(string.Join("",words.Skip(1).Take(end-1)).Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
         PossessionKind kind;int variant=3;double sizeM=1.9;
         switch(key){case "chert":variant=ToolStone.Encode(ToolStoneMaterial.Chert,0);kind=PossessionKind.SmallRock;break;case "quartzite":variant=ToolStone.Encode(ToolStoneMaterial.Quartzite,0);kind=PossessionKind.SmallRock;break;case "shortbranch":sizeM=.9;kind=PossessionKind.Branch;variant=0;break;case "branch":kind=PossessionKind.Branch;variant=0;break;case "pole":kind=PossessionKind.TrimmedPole;variant=0;break;case "diggingstick":sizeM=.9;kind=PossessionKind.DiggingStick;variant=0;break;case "woodenspear":case "spear":kind=PossessionKind.WoodenSpear;variant=0;break;case "pebble":sizeM=.04;kind=PossessionKind.SmallRock;break;case "rock":case "stone":case "smallrock":kind=PossessionKind.SmallRock;break;case "largerock":kind=PossessionKind.LargeRock;break;case "flake":case "stoneflake":kind=PossessionKind.StoneFlake;break;case "bag":case "testbag":case "testingbag":kind=PossessionKind.TestBag;break;default:return new PlayCommandResult(false,"Usage: /give <small rock | pebble | chert | quartzite | stone flake | branch | short branch | pole | digging stick | wooden spear | bag> [count]");}
-        InitializeInventory();giveRequests.Enqueue((kind,count,variant,sizeM));UpdateGiveItems();return new PlayCommandResult(true,"Giving "+count+" "+kind+". Items use free hands/bag space; overflow drops nearby.");
+        string label=kind==PossessionKind.SmallRock?(sizeM<.1?"pebble":"small rock"):kind==PossessionKind.LargeRock?"large rock":kind.ToString();
+        if(count!=1&&(kind==PossessionKind.SmallRock||kind==PossessionKind.LargeRock))label+="s";
+        InitializeInventory();giveRequests.Enqueue((kind,count,variant,sizeM));UpdateGiveItems();return new PlayCommandResult(true,"Giving "+count+" "+label+". Items use free hands/bag space; overflow drops nearby.");
     }
     void UpdateGiveItems()
     {

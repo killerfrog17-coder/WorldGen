@@ -3,6 +3,7 @@ using WorldGen.Core;
 public sealed partial class LocalTerrainExplorer
 {
     Texture2D pickupCategoryAtlas,flakeableStonePickup;
+    readonly Texture2D[] rockSizePickups=new Texture2D[3];
     int PickupCategory(Possession item)
     {
         if(StoneCrafting.Rock(item))return 0;if(WoodCrafting.Wood(item))return item.Kind==PossessionKind.WoodenSpear?3:1;if(item.Kind==PossessionKind.StoneFlake)return 2;
@@ -29,6 +30,12 @@ public sealed partial class LocalTerrainExplorer
         {
             if(flakeableStonePickup==null)flakeableStonePickup=Resources.Load<Texture2D>("FlakeableStonePickupV1");
             if(flakeableStonePickup!=null){texture=flakeableStonePickup;return true;}
+        }
+        if(StoneCrafting.Rock(item))
+        {
+            int size=(int)StoneCrafting.Size(item);
+            if(rockSizePickups[size]==null)rockSizePickups[size]=Resources.Load<Texture2D>(size==0?"PickupPebbleV1":size==1?"PickupSmallRockV1":"PickupLargeRockV1");
+            if(rockSizePickups[size]!=null){texture=rockSizePickups[size];return true;}
         }
         if(pickupCategoryAtlas==null)pickupCategoryAtlas=Resources.Load<Texture2D>("PickupCategoryMasksV1");
         texture=pickupCategoryAtlas;int category=PickupCategory(item);uv=new Rect((category%4)*.25f,(2-category/4)/3f,.25f,1/3f);return texture!=null;

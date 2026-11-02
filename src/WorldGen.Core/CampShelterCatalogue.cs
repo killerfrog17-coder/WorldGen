@@ -180,7 +180,7 @@ namespace WorldGen.Core
                 // Narrow front wings leave a human-sized centre opening.
                 double gap=Math.Min(.6,w*.28),door=1.5;
                 for(int side=-1;side<=1;side+=2){var outer=Ground(side*w*.5,d*.5);var inner=Ground(side*gap,d*.5);double y=h*(1-gap/(w*.5));Panel(outer,inner,new V(inner.X,y,d*.5),outer);}
-                if(h>door)Panel(new V(-gap,door,d*.5),new V(gap,door,d*.5),new V(0,h,d*.5),new V(0,h,d*.5));
+                if(h>door){double topGap=w*.5*(1-door/h);Panel(new V(-topGap,door,d*.5),new V(topGap,door,d*.5),new V(0,h,d*.5),new V(0,h,d*.5));}
             }
             else if(p.Design==CampDesign.OpenCanopy||p.Design==CampDesign.RaisedCache||p.Design==CampDesign.RaisedBed)
             {

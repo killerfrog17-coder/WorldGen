@@ -4,8 +4,10 @@
 
 Aim at a water surface within 2.8 m of the character and press E. The existing
 contextual pickup prompt identifies freshwater or saline water; it does not
-certify potability. Each sip is 250 ml. Temporary hand borrowing restores the
-previous equipment. There are no water containers or purification actions yet.
+certify potability. Each sip is 250 ml. Drinking leaves both held items in their
+original inventory slots; the animation temporarily hides their visuals. It does
+not drop them and attempt to retrieve them from a stream bed when no bag is
+worn. There are no water containers or purification actions yet.
 
 Freshwater hydrates; seawater produces a net hydration loss. Ocean salinity is
 35 ppt. Lakes use their existing simulated salinity, including saline lakes.

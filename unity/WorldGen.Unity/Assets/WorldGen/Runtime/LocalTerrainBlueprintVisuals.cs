@@ -44,7 +44,16 @@ static partial class LocalScatterMeshes
                 for(int k=0;k<pieces;k++)
                 {
                     var at=Vector3.Lerp(a,e,(k+.5f)/pieces)+Vector3.up*height*.48f;
-                    if(!bone)b.Crown(at,new Vector3(width*.6f,height*.54f,length/pieces*.64f),7,3,new Color(.47f,.46f,.41f,0),k+start,.15f);
+                    if(!bone)
+                    {
+                        int courses=Mathf.Max(1,Mathf.CeilToInt(height/.22f));float course=height/courses;
+                        for(int row=0;row<courses;row++)
+                        {
+                            int first=b.V.Count;var center=Vector3.Lerp(a,e,Mathf.Clamp01((k+.5f+(row%2)*.22f)/pieces))+Vector3.up*(row+.48f)*course;
+                            b.Crown(Vector3.zero,new Vector3(length/pieces*.64f,course*.54f,width*.6f),8,4,new Color(.47f,.46f,.41f,0),k+row*17+start,.13f);
+                            for(int vertex=first;vertex<b.V.Count;vertex++){var q=b.V[vertex];q.y=Mathf.Clamp(q.y,-course*.48f,course*.44f);b.V[vertex]=center+direction*q.x+Vector3.up*q.y+across*q.z;}
+                        }
+                    }
                     else
                     {
                         b.Tube(at-across*width*.4f-direction*.09f,at+across*width*.4f+direction*.09f,.06f,.045f,7,new Color(.76f,.7f,.55f,0));

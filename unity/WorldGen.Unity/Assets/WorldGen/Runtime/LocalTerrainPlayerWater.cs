@@ -124,16 +124,15 @@ public sealed partial class LocalTerrainExplorer
     {
         var water=AimedWater(itemDistance);if(water==null||Spectating||Vitals.Incapacitated)return false;
         if(Time.unscaledTimeAsDouble<waterSipAt)return true;waterSipAt=Time.unscaledTimeAsDouble+1.15;
-        CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);var equipment=PrepareWorkHands(Array.Empty<string>());
-        try
-        {
-            double chance=Rng.Value(sourceWorld.Recipe.Seed,"player-water-exposure",Vitals.WaterExposureSequence);
-            WaterDrinking.Drink(Vitals,water.Quality,.25,chance,Mode);
-            PlayBodyCue("drink");
-            BeginConsumeGesture(true);
-            InventoryFeedback(water.Quality.Fresh?"You drink freshwater. It is untreated.":"You taste salty water. It cannot be relied on for hydration.");
-        }
-        finally{RestoreWorkHands(new ItemCraftJob{Equipment=equipment});}
+        CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);
+        // The consume gesture already hides held props. Moving their ownership
+        // to the ground for an instantaneous sip could strand them below a bank
+        // (especially with no bag), where the retrieval sight check then fails.
+        double chance=Rng.Value(sourceWorld.Recipe.Seed,"player-water-exposure",Vitals.WaterExposureSequence);
+        WaterDrinking.Drink(Vitals,water.Quality,.25,chance,Mode);
+        PlayBodyCue("drink");
+        BeginConsumeGesture(true);
+        InventoryFeedback(water.Quality.Fresh?"You drink freshwater. It is untreated.":"You taste salty water. It cannot be relied on for hydration.");
         return true;
     }
     void UpdatePlayerWater(bool immediate=false)

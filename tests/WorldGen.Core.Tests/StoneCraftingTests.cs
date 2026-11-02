@@ -52,6 +52,14 @@ static class StoneCraftingTests
         Check(!first.Running&&second.Running&&multiple.Crafts.Count==2&&first.WorkSeconds>0,"One worker can keep multiple paused projects without concurrent work");multiple.Validate();
         var corrupt=multiple.Copy();corrupt.Crafts[0].WorkSeconds=double.NaN;Reject(corrupt.Validate,"Reject nonfinite saved progress");
         corrupt=multiple.Copy();corrupt.Crafts[0].ToolId="missing";Reject(corrupt.Validate,"Reject dangling work input");
+        foreach(var size in new[]{(.04,.04,"Pebble"),(.1,.7,"Small rock"),(.25,4.0,"Large rock")})
+        {
+            var specimen=Rock("size",ToolStone.Encode(ToolStoneMaterial.Granite,0),size.Item2);specimen.WidthM=size.Item1;specimen.HeightM=size.Item1*.6;specimen.DepthM=size.Item1*.8;
+            Check(specimen.Name==size.Item3,"Rock name follows real dimensions: "+size.Item3);
+            var saved=WorldJson.Read<PlayerInventory>(WorldJson.Write(new PlayerInventory{Items=new(){specimen}}));Check(saved.Items[0].Name==size.Item3,"Rock category survives existing save representation");
+        }
+        var tiny=Rock("tiny",ToolStone.Encode(ToolStoneMaterial.Chert,0),.04);tiny.WidthM=.04;tiny.HeightM=.028;tiny.DepthM=.03;
+        Check(tiny.Name=="Pebble"&&StoneCrafting.WorkpieceReason(tiny)!="","Fine-grained material alone does not qualify a tiny pebble for the chipping icon");
         Console.WriteLine("PASS "+count+" stone crafting, timing, roles and persistence checks");
     }
 }

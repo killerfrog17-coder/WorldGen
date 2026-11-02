@@ -32,6 +32,16 @@ public sealed partial class LocalTerrainExplorer
         try
         {
             paused=false;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();motion.Flying=false;campMenu=null;SetInventoryOpen(false);TestHumanView(0);
+            foreach(var sample in new[]{(.04,.045,"Pebble","PickupPebbleV1"),(.1,.7,"Small rock","PickupSmallRockV1"),(.25,4.0,"Large rock","PickupLargeRockV1")})
+            {
+                var rock=new Possession{Kind=PossessionKind.SmallRock,WidthM=sample.Item1,HeightM=sample.Item1*.6,DepthM=sample.Item1*.8,MassKg=sample.Item2,Variant=ToolStone.Encode(ToolStoneMaterial.Granite,0)};
+                Check(rock.Name==sample.Item3,"Physical stone category appears as "+sample.Item3);
+                Check(PickupGraphic(rock,out var icon,out _)&&icon.name==sample.Item4&&InventoryItemIcon(rock)==icon,"Pickup and inventory share the correct "+sample.Item3+" silhouette");
+            }
+            var chip=new Possession{Kind=PossessionKind.SmallRock,WidthM=.1,HeightM=.07,DepthM=.08,MassKg=.7,Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0)};
+            Check(PickupGraphic(chip,out var chipIcon,out _)&&chipIcon.name=="FlakeableStonePickupV1","Only an actually suitable stone uses the taller chipping icon");
+            chip.MassKg=.025;chip.WidthM=.03;chip.HeightM=.02;chip.DepthM=.025;
+            Check(PickupGraphic(chip,out chipIcon,out _)&&chipIcon.name=="PickupPebbleV1","An unsuitable chert pebble keeps its ordinary wide pebble icon");
             TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
             yield return KeyPress(Key.V);Check(campPlansOpen&&!paused,"V opens camp plans through actual keyboard input");yield return KeyPress(Key.Escape);Check(!campPlansOpen&&!paused,"Escape closes plans without pausing");
             double startX=motion.X,startZ=motion.Z;
@@ -129,6 +139,11 @@ public sealed partial class LocalTerrainExplorer
             var block=new MaterialPropertyBlock();var textures=new HashSet<Texture>();foreach(var renderer in hideRenderers){renderer.GetPropertyBlock(block);Check(block.GetFloat("_HasFur")>.5f&&block.GetTexture("_SourceCoats")!=null,"Hide roof renderer uses its source coat, not a fixed tan material");textures.Add(block.GetTexture("_SourceCoats"));}
             Check(textures.Count==2,"Mixed species use two distinct donor coat textures on one shelter");yield return Picture(tent,"mixed-donor-hide-tent");
             var cache=made.First(c=>c.Blueprint.Design==CampDesign.RaisedCache);var tool=PortableTechnology.Create(PossessionKind.HaftedKnife,cache.Position);Inventory.Items.Add(tool);Check(CampBlueprints.Deposit(cache,Inventory,tool.Id,out _),"Raised cache stores an actual tool");campUpdateAt=0;UpdateCamp();
+            var hideFrame=made.First(c=>c.Blueprint.Design==CampDesign.HideFrame);var hanging=PortableTechnology.Create(PossessionKind.WorkedHide,hideFrame.Position,"deer",0,53,1053);Inventory.Items.Add(hanging);
+            Check(CampBlueprints.Deposit(hideFrame,Inventory,hanging.Id,out _)&&hanging.SourceAnimalId==1053,"The hide-working frame holds a real donor hide");campUpdateAt=0;UpdateCamp();yield return Picture(hideFrame,"hide-frame-occupied");
+            Check(!CampBlueprints.Fits(hideFrame.Blueprint,StoredAt(hideFrame),PortableTechnology.Create(PossessionKind.WorkedHide,hideFrame.Position)),"An occupied hide frame cannot overlap a second hide");
+            var platform=made.First(c=>c.Blueprint.Design==CampDesign.RaisedBed);TerrainHandoff.Coordinates(frame,platform.Position,out double bx,out double bz);motion.Place(bx,bz-1.8,Ground(bx,bz-1.8));UpdateHumans();UpdateCamera();
+            BeginCampSleep(0,true,platform);Check(campResting&&sleepingBed==platform&&Math.Abs(PlayerFeet().y-CampFloor(bx,bz)-CampBlueprints.Height(platform.Blueprint)-.06)<.02,"Platform rest uses the actual elevated sleeping surface");WakeCamp("Platform review complete.");
             var roundtrip=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));roundtrip.Validate();Check(roundtrip.Camp.Objects.Count(c=>c.Kind==CampKind.Blueprint)==Enum.GetValues(typeof(CampDesign)).Length&&roundtrip.Inventory.Find(food.Id).CampOwner==rack.Id&&roundtrip.Camp.Objects.Single(c=>c.Id==tent.Id).Blueprint.Parts.SelectMany(s=>s.Materials).Any(i=>i.AppearanceSpecies=="zebra"),"Every plan, mixed donor hides, stock and preserved food round-trip a player save");
             int fitted=store.Blueprint.Parts.Count;UndoBlueprintPart(store);Check(store.Blueprint.Parts.Count==fitted-1&&!CampBlueprints.Complete(store.Blueprint),"Dismantling removes a component and exposes the remaining plan");
             RemoveCamp(rack);PlayerRules.Validate();Check(food.Place==PossessionPlace.Ground&&food.CampOwner==null&&!Camp.Objects.Contains(rack),"Dismantling a rack safely releases its food and all materials");

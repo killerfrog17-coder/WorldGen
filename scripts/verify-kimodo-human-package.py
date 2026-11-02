@@ -29,6 +29,7 @@ if args.freeze:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file() and p.suffix in {'.cs','.shader','.hlsl'})
     for directory in ['src/WorldGen.Core','src/WorldGen.Serialization','src/WorldGen.Presentation']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*.cs') if not {'obj','bin'}.intersection(p.parts))
+    paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'unity/WorldGen.Unity/Assets/WorldGen/Resources').glob('Pickup*V1.png*'))
     for directory in ['assets/human-motion-kimodo','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanKimodo','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanKimodo']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file())
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*kimodo*.py'))

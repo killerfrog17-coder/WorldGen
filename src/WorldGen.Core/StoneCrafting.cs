@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
+    public enum RockSize { Pebble,Small,Large }
     [Serializable]
     public sealed class ItemCraftJob
     {
@@ -20,6 +21,15 @@ namespace WorldGen.Core
     public static class StoneCrafting
     {
         public static bool Rock(Possession p)=>p!=null&&(p.Kind==PossessionKind.SmallRock||p.Kind==PossessionKind.LargeRock);
+        // Physical categories also apply to old saves and depleted cores; the
+        // two original possession-kind IDs remain compatible with every tool
+        // and construction recipe. Category is independent of flaking suitability.
+        public static RockSize Size(Possession p)
+        {
+            double span=Math.Max(p.WidthM,Math.Max(p.HeightM,p.DepthM));
+            return span<=.064?RockSize.Pebble:span<=.2&&p.MassKg<=2?RockSize.Small:RockSize.Large;
+        }
+        public static string SizeName(Possession p)=>Size(p)==RockSize.Pebble?"Pebble":Size(p)==RockSize.Small?"Small rock":"Large rock";
         // Carrying thresholds, not a strength limit or a material/name category.
         // A compact 3kg cobble can share the hands with another item; bulky slabs
         // and heavy stones need support even when their saved label says small.
