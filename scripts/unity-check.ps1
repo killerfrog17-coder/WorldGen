@@ -57,6 +57,8 @@ if($BuildPlayer){
         $_.ExecutablePath -and [IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($_.ExecutablePath)) -in $runningSlotPaths
     }
     if($runningSlotPlayer){throw ('The owner still has '+$PlayerFolder+' running. Leave it untouched; wait until the owner exits it before reusing this slot.')}
+    $oldStamp=Join-Path $runningSlotDirectory 'build-inputs.json'
+    if(Test-Path -LiteralPath $oldStamp){Remove-Item -LiteralPath $oldStamp -Force}
     Write-Output ('Reusing player workspace: '+$PlayerFolder)
 }
 $workerOutput=Join-Path $repoRoot 'artifacts/terrain-worker'

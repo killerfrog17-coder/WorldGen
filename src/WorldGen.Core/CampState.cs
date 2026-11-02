@@ -97,7 +97,7 @@ namespace WorldGen.Core
         public static void Advance(CampObject c,double seconds,double rain,double humidity,double wind,double sun)
         {
             if(!double.IsFinite(seconds)||seconds<0||seconds>1e12)throw new ArgumentOutOfRangeException(nameof(seconds));
-            if(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood||c.Kind==CampKind.Blueprint)return;
+            if(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood||c.Kind==CampKind.Blueprint&&c.Blueprint?.Design!=CampDesign.RaisedBed)return;
             // Analytic environmental relaxation; streaming catch-up is O(materials),
             // not a replay of every elapsed simulation frame.
             double wetTarget=rain>.1?D.Clamp(.35+rain*.12):D.Clamp(humidity*.25-sun*.2);

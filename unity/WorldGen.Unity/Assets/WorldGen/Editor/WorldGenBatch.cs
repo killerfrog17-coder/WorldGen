@@ -76,6 +76,11 @@ public static class WorldGenBatch
             // Ordinary player builds should not silently carry the development
             // runtime/debug overlay. Diagnostic development builds are opt-in.
             var options=!native||arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
+            // Unity requires a clean build when reusing an output directory
+            // from the other backend. Only this transition drops build caches;
+            // ordinary follow-up builds retain incremental compilation.
+            var directory=Path.GetDirectoryName(output);
+            if(native&&Directory.Exists(Path.Combine(directory,"MonoBleedingEdge"))||!native&&File.Exists(Path.Combine(directory,"GameAssembly.dll")))options|=BuildOptions.CleanBuildCache;
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),locationPathName=output,target=BuildTarget.StandaloneWindows64,options=options});
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Player build failed: "+report.summary.result);
         }
