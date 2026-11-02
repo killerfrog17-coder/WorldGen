@@ -11,7 +11,7 @@ namespace WorldGen.Core
         {
             if(origin<0)origin=ChooseOrigin();if(origin<0||origin>=Patches.Length||Patches[origin].Island||Patches[origin].Capacity<25)throw new ArgumentException("Choose a viable ancestral land region.");
             var s=new PrehistoryState{Version="prehistory-7",Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=new int[Patches.Length*8],Paleolithic=new PaleolithicState(),Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray()}};
-            s.Seal();return s;
+            s.HumanRanges=PrepareHumanRanges(s);s.Seal();return s;
         }
         PrehistoryState StartPaleolithic(PrehistoryState source)
         {
@@ -45,7 +45,9 @@ namespace WorldGen.Core
             double winter=D.Clamp((cold+protection+6)/12,0,1),food=D.Clamp(climate.PrecipitationMultiplier,.4,1.2)*(1-climate.Ice*.28);
             double latitude=Math.Abs(World.Surface.Cells[patch.Cell].Position.Z);
             if(latitude>.55&&cold< -15)winter*=D.Clamp(1-climate.Ice*(latitude-.55)*3,0,1);
-            return patch.Capacity*winter*food*(.7+.25*c.Knowledge[(int)PaleolithicTechnique.Hafting]+.15*c.Knowledge[(int)PaleolithicTechnique.FoodPreservation]);
+            double capacity=patch.Capacity*winter*food*(.7+.25*c.Knowledge[(int)PaleolithicTechnique.Hafting]+.15*c.Knowledge[(int)PaleolithicTechnique.FoodPreservation]);
+            int target=destination<0?c.Patch:destination;double other=s.HumanRanges?.Lineages.Sum(l=>HumanRangeState.ResidentsAt(s,l,target))??0;
+            return Math.Max(capacity*.1,capacity-.4*other);
         }
         internal long NextPaleolithicEvent(PrehistoryState s)=>s.Paleolithic.BoundarySeconds+PaleolithicRules.DecisionYears*SimulationTime.Year;
         internal PrehistoryState AdvancePaleolithic(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validate,int maximumWork=int.MaxValue)
@@ -63,13 +65,13 @@ namespace WorldGen.Core
                     for(int k=0;k<learned.Length;k++)if(c.Knowledge[k]<.1&&learned[k]>=.1){var e=new ChronicleEvent{Year=s.Years,Cell=Patches[c.Patch].Cell,CultureId=c.Identity,Category=ChronicleCategory.Discoveries,Text=PaleolithicRules.Names[k]+" is becoming established among local bands."};s.Society.Events=s.Society.Events.Concat(new[]{e}).TakeLast(256).ToArray();}c.Knowledge=learned;
                     for(int k=0;k<4;k++)c.Speech[k]=PaleolithicRules.SpeechAt(s.Paleolithic,c,k);
                 }
-                s.Paleolithic.BoundarySeconds=next;
+                MaterializeHumanRanges(s);s.Paleolithic.BoundarySeconds=next;
                 foreach(var c in s.Paleolithic.Communities)if(c.Residents>=1)
                 {
                     var h=World.Ecology.Habitat[Patches[c.Patch].Cell];var climate=PaleolithicClimateAt(s,Patches[c.Patch].Cell);HumanAppearanceEnvironment(c.Patch,out _,out double uv,out _);
                     for(int k=0;k<8;k++)s.Ancestry[c.Patch*8+k]=HistoryHumanVariation.Evolve(World.Recipe.Seed,c.Patch,s.Years,(HumanAppearanceTrait)k,s.Ancestry[c.Patch*8+k],50,(long)c.Residents,uv,h.MeanTenthsC+(int)(climate.TemperatureDeltaC*10),c.Knowledge[14]);
                 }
-                MigratePaleolithic(s,token);SetPaleolithicRates(s);events++;
+                MigratePaleolithic(s,token);AdvanceHumanRanges(s);SetPaleolithicRates(s);events++;
             }
             s.Paleolithic.Seconds=NextPaleolithicEvent(s)<=target?Math.Min(target,NextPaleolithicEvent(s)-1):target;
             s.Years=(int)(s.Paleolithic.Seconds/SimulationTime.Year);PublishPaleolithic(s);if(events==0)s.DomainToken=source.DomainToken;token.ThrowIfCancellationRequested();s.Seal();return s;
@@ -177,6 +179,7 @@ namespace WorldGen.Core
         void ValidatePaleolithic(PrehistoryState s)
         {
             var p=s.Paleolithic;
+            ValidateHumanRanges(s);
             if(s.Version!="prehistory-7"||p==null||p.Version!="paleolithic-1"||s.Species!="Homo sapiens"||s.History!=null||s.Timeline!=null||s.WorldHash!=World.Stages.Last().Hash||s.Origin<0||s.Origin>=Patches.Length||p.StartYearsBeforePresent!=200000||p.NextIdentity<0||p.BoundarySeconds%(50*SimulationTime.Year)!=0||p.Seconds<0||p.Seconds>SimulationTime.Maximum||p.BoundarySeconds<0||p.BoundarySeconds>p.Seconds||p.Seconds-p.BoundarySeconds>=50*SimulationTime.Year||s.Years!=p.Seconds/SimulationTime.Year||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Society.Settlements.Length!=0||s.Society.Cultures.Length!=p.NextIdentity||p.Communities.Length!=p.NextIdentity||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid Paleolithic checkpoint.");
             var ids=new HashSet<int>();int previous=-1;
             foreach(var c in p.Communities)

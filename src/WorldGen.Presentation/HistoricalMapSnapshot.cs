@@ -55,6 +55,7 @@ namespace WorldGen.Presentation
         public int Boundary(int cell)=>boundaries[cell];
         public int Boundary(int cell,HistoryOverlay overlay)
         {
+            if(Prehistory.Paleolithic(source))return OverlayId(cell,overlay);
             if(overlay==HistoryOverlay.Languages)return languages[cell];
             if(overlay==HistoryOverlay.Ethnicities)return ethnicities[cell];
             if(overlay==HistoryOverlay.ReligiousInstitutions)return ReligiousInstitutionIdentity(source,cell);
@@ -69,7 +70,8 @@ namespace WorldGen.Presentation
         public int OverlayId(int cell,HistoryOverlay overlay)
         {
             if(cell<0||cell>=Count||source.Society==null)return -1;int culture=Culture(cell),p=Polity(cell);var h=source.History;
-            if(Prehistory.Paleolithic(source))return culture;
+            if(Prehistory.Paleolithic(source))return PaleolithicMaps.For(source).Id(cell,overlay);
+            if(overlay==HistoryOverlay.HumanSpecies)return -1;
             if(h==null)return culture>=0&&source.Society.Cultures[culture].Stage==SocietyStage.Civilization?culture:-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(source,cell);
             if(overlay==HistoryOverlay.Languages)return languages[cell];
@@ -97,6 +99,7 @@ namespace WorldGen.Presentation
         }
         public int SelectionId(int cell,HistoryOverlay overlay)
         {
+            if(Prehistory.Paleolithic(source))return OverlayId(cell,overlay);
             if(cell<0||cell>=Count||source.History==null)return -1;
             int culture=Culture(cell);
             if(overlay==HistoryOverlay.Technology)

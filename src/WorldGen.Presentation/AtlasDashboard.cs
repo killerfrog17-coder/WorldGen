@@ -73,7 +73,7 @@ namespace WorldGen.Presentation
                 default:return "";
             }
         }
-        public static long Maximum(AtlasSection s)=>s.Unit=="/ 1,000"?1000:Math.Max(1,s.Links.Select(x=>Math.Abs(x.Value)).DefaultIfEmpty(1).Max());
+        public static long Maximum(AtlasSection s)=>s.Unit=="/ 1,000"?1000:s.Unit=="% of local bands"?100:Math.Max(1,s.Links.Select(x=>Math.Abs(x.Value)).DefaultIfEmpty(1).Max());
         public static string BarLabel(AtlasSection s,AtlasLink link)
             =>s.Unit=="/ 1,000"?link.Value+" / 1,000":link.Value.ToString("N0",System.Globalization.CultureInfo.InvariantCulture)+(s.Unit.Length>0?" "+s.Unit:"");
         public static string Color(int index)=>new[]{"#8ebba8","#d2b577","#83abc9","#c897a5","#b2a4cb","#a6b980","#cb9374","#8cbfc0"}[Math.Abs(index%8)];

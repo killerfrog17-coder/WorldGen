@@ -29,6 +29,11 @@ namespace WorldGen.Presentation
             d.Overview=EcologyView.Summary(world,cell)+"\n\nREGION RECORD\nID "+r.Id+" · province "+r.ProvinceId+" · representative cell "+r.RepresentativeCell+"\nArea "+(r.AreaM2/1e6).ToString("N2",CultureInfo.InvariantCulture)+" km² · "+r.Cells.Length+" source cells · "+r.PatchCount+" patches\nNeighbor regions: "+string.Join(", ",r.Neighbors)+"\n\nLOCAL HABITAT RECORD\n"+Known(e.Habitat[cell],token)+
                 "\n\nRecorded taxa and feeding opportunities are distinct from derived procedural plant and small-fauna candidates. Neither is a live population census. Potential feeding links are not measured diets or energy fluxes. Fictional plant hazards are relative indices, not doses, food safety or animal-specific tolerance. Unmodelled information is not fabricated.";
             var articles=new List<EcologyArticle>();
+            if(Prehistory.Paleolithic(world.Prehistory))
+            {
+                int mask=HumanRangeState.Mask(world.Prehistory,cell);
+                if(mask!=0)articles.Add(new EcologyArticle{Title="Human species",Category="Fauna",Body=HumanRangeState.MaskName(mask)+"\n\nResident ranges from the live human population records. Distinct human species may coexist in the same ecological patch; sapiens communities do not replace another species' range record."});
+            }
             string Name(int id)=>id>=0&&id<e.Taxa.Length?e.Taxa[id].Name:"Unknown taxon #"+id;
             var byConsumer=r.FoodWeb.GroupBy(l=>l.ConsumerId).ToDictionary(g=>g.Key,g=>g.ToArray());
             var byResource=r.FoodWeb.GroupBy(l=>l.ResourceId).ToDictionary(g=>g.Key,g=>g.ToArray());

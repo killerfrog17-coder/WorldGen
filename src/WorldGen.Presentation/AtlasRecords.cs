@@ -14,6 +14,7 @@ namespace WorldGen.Presentation
     {
         public static AtlasFact NewsDetail(PrehistoryState state,int year,int culture,int cell,ChronicleCategory category)
         {
+            if(Prehistory.Paleolithic(state))return new AtlasFact{Label=SimulationClockView.Year(state,year),Value=state.Society.Events.LastOrDefault(e=>e.Year==year&&e.CultureId==culture&&e.Cell==cell&&e.Category==category)?.Text??"No matching local event recorded."};
             if(state?.History==null)return new AtlasFact();var archive=state.History.Archive;var news=new ChronicleNews(state);
             int first=ChronicleFeed.FirstAtOrAfter(archive,year);
             HistoricalEvent? chosen=null;int priority=int.MinValue;

@@ -60,11 +60,11 @@ if($BuildPlayer){
     if($runningSlotPlayer){throw ('The owner still has '+$PlayerFolder+' running. Leave it untouched; wait until the owner exits it before reusing this slot.')}
     $oldStamp=Join-Path $runningSlotDirectory 'build-inputs.json'
     if($ScriptsOnly){
-        if($Il2Cpp -or !(Test-Path -LiteralPath (Join-Path $runningSlotDirectory 'MonoBleedingEdge')) -or !(Test-Path -LiteralPath (Join-Path $runningSlotDirectory 'WorldGen_Data/Managed/Assembly-CSharp.dll'))){throw 'Scripts-only iteration requires an existing managed development player in this inactive slot.'}
+        if($Il2Cpp -or !(Test-Path -LiteralPath (Join-Path $runningSlotDirectory 'MonoBleedingEdge')) -or !(Test-Path -LiteralPath (Join-Path $runningSlotDirectory 'WorldGen_Data/Managed/Assembly-CSharp.dll'))){throw 'Scripts-only iteration requires an existing managed player in this inactive slot.'}
         # A failed script compilation invalidates our completion stamp, while
         # leaving the previous packed data in place. Unity verifies that data's
         # own scripts-only baseline; never invent a new successful-build stamp.
-        if(Test-Path -LiteralPath $oldStamp){$priorBuild=Get-Content -Raw -LiteralPath $oldStamp|ConvertFrom-Json;if($priorBuild.Backend -ne 'Mono' -or !$priorBuild.Development){throw 'Scripts-only iteration requires an existing managed development player.'}}
+        if(Test-Path -LiteralPath $oldStamp){$priorBuild=Get-Content -Raw -LiteralPath $oldStamp|ConvertFrom-Json;if($priorBuild.Backend -ne 'Mono' -or [bool]$priorBuild.Development -ne [bool]$DevelopmentPlayer){throw 'Scripts-only iteration requires a managed player with the same development setting. Use a full build when changing that setting.'}}
     }
     if(Test-Path -LiteralPath $oldStamp){Remove-Item -LiteralPath $oldStamp -Force}
     Write-Output ('Reusing player workspace: '+$PlayerFolder)
@@ -97,7 +97,7 @@ $buildRoot=Join-Path $repoRoot 'builds'
 $playerOutput=[IO.Path]::GetFullPath((Join-Path $buildRoot ($PlayerFolder+'/WorldGen.exe')))
 if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($buildRoot)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside the permanent build root'}
 $arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
-if($DevelopmentPlayer -or ($BuildPlayer -and !$Il2Cpp)){$arguments+='--worldgen-development-player'}
+if($DevelopmentPlayer){$arguments+='--worldgen-development-player'}
 if($PerformancePlayer){$arguments+='--worldgen-performance-build'}
 if($ScriptsOnly){if(!$BuildPlayer){throw '-ScriptsOnly requires -BuildPlayer.'};$arguments+='--worldgen-scripts-only'}
 if($Il2Cpp -and !$BuildPlayer){throw '-Il2Cpp is a player-build option.'}
@@ -114,7 +114,7 @@ if($BuildPlayer){
     New-Item -ItemType Directory -Path $packagedWorker -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $workerOutput 'WorldGen.Cli.exe') -Destination $packagedWorker -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
-    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]($DevelopmentPlayer -or !$Il2Cpp);ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
+    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]$DevelopmentPlayer;ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
 }
 if($PlayerCheck){
     $output=Join-Path $artifacts 'unity-player'

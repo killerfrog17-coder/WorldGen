@@ -6,7 +6,7 @@ namespace WorldGen.Presentation
 {
     [Serializable] public sealed class HistoryLegendEntry
     {
-        public string Name="",LabelName=""; public int Cell,ColorId,LabelCell=-1; public long Population,AreaKm2;public bool EraColor;
+        public string Name="",LabelName=""; public int Cell,ColorId,LabelCell=-1; public long Population,AreaKm2;public bool EraColor,CustomColor;public V Color;
     }
     public static partial class SocietyView
     {
@@ -33,6 +33,8 @@ namespace WorldGen.Presentation
         public static HistoryLegendEntry[] Legend(PrehistoryState? s,HistoryOverlay overlay,string sort="Default",Prehistory? engine=null)
         {
             if(s?.Society==null)return Array.Empty<HistoryLegendEntry>();
+            if(Prehistory.Paleolithic(s))return PaleolithicMaps.For(s).Legend(overlay,sort,engine);
+            if(overlay==HistoryOverlay.HumanSpecies)return Array.Empty<HistoryLegendEntry>();
             var h=s.History;System.Collections.Generic.IEnumerable<HistoryLegendEntry> entries;
             var faithSites=new System.Collections.Generic.Dictionary<int,int>();
             var faithPopulation=new long[h?.Religions.Length??0];var faithArea=new long[faithPopulation.Length];

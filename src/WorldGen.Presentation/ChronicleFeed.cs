@@ -11,6 +11,7 @@ namespace WorldGen.Presentation
         int processed,lastYear=-1;bool initialized;
         public ChronicleEvent[] Read(PrehistoryState state)
         {
+            if(Prehistory.Paleolithic(state))return SocietyView.Headlines(state);
             if(state?.History==null)return Array.Empty<ChronicleEvent>();
             var archive=state.History.Archive;int oldest=state.Years-(state.History.Polities.Length>0?300:2000);
             if(!initialized||archive.Count<processed||state.Years<lastYear)

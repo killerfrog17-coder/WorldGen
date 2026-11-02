@@ -27,7 +27,7 @@ namespace WorldGen.Presentation
         // Observer-era colors are a readable categorical key, not political identities.
         static readonly int[] EraColors={0xa6adb5,0xd2c488,0xc78c4a,0x938aa9,0x6384b9,0x3ca8a4,0xd4b347,0xd36d58,0x9d65bb};
         static V EraColor(int era){int rgb=EraColors[Math.Max(0,Math.Min(EraColors.Length-1,era-2))];return new V((rgb>>16)/255.0,((rgb>>8)&255)/255.0,(rgb&255)/255.0);}
-        public static V OverlayColor(PrehistoryState state,int id,HistoryOverlay overlay)=>overlay==HistoryOverlay.Technology&&state.History?.Aggregates?.Empires!=null?EraColor(id):CivilizationColor(id);
+        public static V OverlayColor(PrehistoryState state,int id,HistoryOverlay overlay)=>Prehistory.Paleolithic(state)?PaleolithicMaps.For(state).Color(id,overlay):overlay==HistoryOverlay.Technology&&state.History?.Aggregates?.Empires!=null?EraColor(id):CivilizationColor(id);
         public const string PoliticalClaimLegend="Colors identify states; recognized claims share their holder's color.";
         public const string PoliticalClaimShortLegend="Colors: individual states";
         public const string PoliticalClaimNote="Recognized claim only; no local state administration is recorded here.";
@@ -43,7 +43,7 @@ namespace WorldGen.Presentation
         // Claims retain their holder's color. Inspection still distinguishes control from title.
         public static V OverlayColor(PrehistoryState state,int id,HistoryOverlay overlay,bool claimOnly)
             =>OverlayColor(state,id,overlay);
-        public static V LegendColor(HistoryLegendEntry entry)=>entry.EraColor?EraColor(entry.ColorId):CivilizationColor(entry.ColorId);
+        public static V LegendColor(HistoryLegendEntry entry)=>entry.CustomColor?entry.Color:entry.EraColor?EraColor(entry.ColorId):CivilizationColor(entry.ColorId);
         public static string LegendColorHex(HistoryLegendEntry entry){var c=LegendColor(entry);return "#"+((int)Math.Round(c.X*255)).ToString("X2")+((int)Math.Round(c.Y*255)).ToString("X2")+((int)Math.Round(c.Z*255)).ToString("X2");}
         public static void ColorPalette(PrehistoryState state,byte[] bytes,int offset,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
@@ -63,6 +63,7 @@ namespace WorldGen.Presentation
         // -1 alone means no subject. This read never builds a world-sized export.
         public static int SelectionId(PrehistoryState? s,int cell,HistoryOverlay overlay)
         {
+            if(Prehistory.Paleolithic(s))return PaleolithicMaps.For(s!).Id(cell,overlay);
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return -1;
             int p=HistoricalCells.Polity(s,cell),culture=HistoricalCells.Culture(s,cell);
             if(p>=0&&s.History.Polities[p].EndedYear>=0)p=-1;
@@ -86,7 +87,7 @@ namespace WorldGen.Presentation
         public static int OverlayId(PrehistoryState s,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
             if(s==null)return -1;
-            if(Prehistory.Paleolithic(s))return Culture(s,cell)?.Id??-1;
+            if(Prehistory.Paleolithic(s))return PaleolithicMaps.For(s).Id(cell,overlay);
             if(s.History!=null)return HistoricalMapSnapshot.For(s).OverlayId(cell,overlay);
             var culture=Culture(s,cell);return culture?.Stage==SocietyStage.Civilization?culture.Id:-1;
         }

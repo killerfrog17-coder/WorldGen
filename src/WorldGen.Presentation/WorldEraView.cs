@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     {
         public static string Name(int era)=>era switch
         {
-            1=>"Planet creation",2=>"Prehistory",3=>"Neolithic",4=>"Bronze Age",5=>"Iron Age",
+            1=>"Planet creation",2=>"Paleolithic",3=>"Neolithic",4=>"Bronze Age",5=>"Iron Age",
             6=>"Medieval",7=>"Early Modern",8=>"Industrial",9=>"Modern",10=>"Postmodern",
             _=>throw new ArgumentOutOfRangeException(nameof(era))
         };

@@ -13,6 +13,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public HistoryState History;
         [System.Runtime.Serialization.OptionalField] public SimulationTimeline Timeline;
         [System.Runtime.Serialization.OptionalField] public PaleolithicState Paleolithic;
+        [System.Runtime.Serialization.OptionalField] public HumanRangeState HumanRanges;
         public int Origin, Years; public bool Started;
         public long[] Population=Array.Empty<long>();
         public int[] ArrivalYear=Array.Empty<int>(), Ancestry=Array.Empty<int>();
@@ -21,13 +22,14 @@ namespace WorldGen.Core
         // It is neither serialized, hashed, nor consulted by simulation rules.
         [NonSerialized] internal object DomainToken=new object();
         public static bool SameDomain(PrehistoryState a,PrehistoryState b)=>ReferenceEquals(a,b)||a!=null&&b!=null&&a.DomainToken!=null&&ReferenceEquals(a.DomainToken,b.DomainToken);
-        public PrehistoryState Copy(bool copySociety=true){var s=(PrehistoryState)MemberwiseClone();s.DomainToken=new object();s.Timeline=Timeline?.Copy();s.Paleolithic=Paleolithic?.Copy();s.Population=(long[])Population.Clone();s.ArrivalYear=(int[])ArrivalYear.Clone();s.Ancestry=(int[])Ancestry.Clone();if(copySociety){s.Society=Society?.Copy();s.History=History?.Copy();}return s;}
+        public PrehistoryState Copy(bool copySociety=true){var s=(PrehistoryState)MemberwiseClone();s.DomainToken=new object();s.Timeline=Timeline?.Copy();s.Paleolithic=Paleolithic?.Copy();s.HumanRanges=HumanRanges?.Copy();s.Population=(long[])Population.Clone();s.ArrivalYear=(int[])ArrivalYear.Clone();s.Ancestry=(int[])Ancestry.Clone();if(copySociety){s.Society=Society?.Copy();s.History=History?.Copy();}return s;}
         internal PrehistoryState CopyClockOnly(){var s=(PrehistoryState)MemberwiseClone();s.Timeline=Timeline?.Copy();return s;}
         internal PrehistoryState CopyAggregateOwned()
         {
             var copy=Copy(false);copy.Society=Society.CopyOwned(History.Aggregates.Living);copy.History=History.CopyOwned();return copy;
         }
-        public string ComputeHash()=>Paleolithic!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,Paleolithic}):History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
+        public string ComputeHash()=>HumanRanges!=null?StateHash.Compute(new object[]{ComputeBaseHash(),HumanRanges}):ComputeBaseHash();
+        string ComputeBaseHash()=>Paleolithic!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,Paleolithic}):History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
         public void Seal(){Hash=ComputeHash();}
     }
     /// <summary>Independent demographic state on connected ecoregion patches. Never alters generated geography.</summary>

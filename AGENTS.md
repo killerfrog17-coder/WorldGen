@@ -26,7 +26,8 @@ iteration and development players as appropriate. Only make IL2CPP players for
 major playable updates when the owner explicitly requests one; the first planned
 milestone is Alpha1.0.0 when the Paleolithic feature set is first complete. Do not
 repeat native packaging after each small edit. The build script/editor builder
-now default to managed development players. Pass -Il2Cpp explicitly for an
+now default to managed NON-DEVELOPMENT players (no watermark). Use explicit
+-DevelopmentPlayer only for requested diagnostics. Pass -Il2Cpp for an
 owner-requested major native release.
 Do not make isolated full player
 copies. Retire superseded binaries after checks/selection. Git and immutable

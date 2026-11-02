@@ -201,7 +201,7 @@ public sealed partial class WorldGenRuntime
         layer=preferredLayer=Layer.Simulation;SetProjection(Projection.Map);gridSpacing=0;Refresh();UpdateHumanPalette();
         while(Busy)yield return null;
         yield return PaletteReady();yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"starting-region.png"));yield return null;
-        StartHumanWorld();satelliteOpacity=0;ApplyCachedDisplay();StepHumans(50000/Prehistory.YearsPerStep(world.Prehistory));
+        StartHumanWorld();historyOverlay=HistoryOverlay.Cultures;satelliteOpacity=0;ApplyCachedDisplay();StepHumans(50000/Prehistory.YearsPerStep(world.Prehistory));
         while(humanStep!=null)yield return null;
         yield return PaletteReady();yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-50000.png"));yield return null;
         StepHumans(150000/Prehistory.YearsPerStep(world.Prehistory));while(humanStep!=null)yield return null;
@@ -209,9 +209,28 @@ public sealed partial class WorldGenRuntime
         yield return PaletteReady();yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-200000.png"));yield return null;
         var checkpoint=world.Prehistory;
         humans.Validate(checkpoint);
+        var rows=new System.Collections.Generic.List<string>();
+        if(Debug.isDebugBuild){Debug.LogError("PREHISTORY CHECK ordinary player must not be a development build");Application.Quit(1);yield break;}
+        foreach(var mode in new[]{HistoryOverlay.States,HistoryOverlay.Territories,HistoryOverlay.Cultures,HistoryOverlay.Technology,HistoryOverlay.Languages,HistoryOverlay.HumanSpecies})
+        {
+            historyOverlay=mode;selectedCell=humans.Patches[checkpoint.Origin].Cell;UpdateHumanPalette();
+            yield return PaletteReady();yield return new WaitForEndOfFrame();
+            var entries=SocietyView.Legend(checkpoint,mode);var codes=PrehistoryView.Codes(world,humans,checkpoint,overlay:mode);int painted=codes.Count(x=>x==235||x==50);
+            bool political=mode==HistoryOverlay.States||mode==HistoryOverlay.Territories;
+            if(political?(entries.Length!=0||painted!=0):(entries.Length==0||painted==0)){Debug.LogError("PREHISTORY CHECK incorrect overlay "+mode);Application.Quit(1);yield break;}
+            CaptureHumanMap(System.IO.Path.Combine(folder,mode+"-map.png"));
+            rows.Add(mode+": "+entries.Length+" legend entries; "+painted+" occupied cells");
+        }
+        historyOverlay=HistoryOverlay.Technology;detailsOpen=peoplesOpen=true;chronicleOpen=mapSettings=false;UpdateHumanPalette();yield return PaletteReady();
+        var actualCard=CurrentSelectionCard();var actualSubject=HistoryAtlas.Selection(checkpoint,selectedCell,historyOverlay);
+        var actualDocument=HistoryAtlas.Read(checkpoint,"technology",actualSubject.Id,world,humans);
+        if(actualCard.Bars.Length!=24||!actualDocument.Sections.Any(x=>x.Bars&&x.Links.Length==24)){Debug.LogError("PREHISTORY CHECK visible technology card/atlas disconnected");Application.Quit(1);yield break;}
+        yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,"technology-hud.png"));for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+        OpenAtlas("technology",actualSubject.Id);for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,"technology-atlas.png"));for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();atlasOpen=false;
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(folder,"overlay-checks.txt"),rows.Concat(new[]{"Development build: "+Debug.isDebugBuild,"Calendar: "+SimulationClockView.Date(checkpoint,humanPlayback.Rate),"Visible technology card:24 bars; atlas:24 adoption records; no state/territory aliases"}));
         var sampleCell=humans.Patches[checkpoint.Origin].Cell;var sampleA=humans.PaleolithicBandAt(checkpoint,sampleCell,4);var sampleB=humans.PaleolithicBandAt(checkpoint,sampleCell,4);
         if(checkpoint.History!=null||checkpoint.Society.Settlements.Length!=0||sampleA==null||StateHash.Compute(sampleA)!=StateHash.Compute(sampleB)||!CurrentHumanInspection().Contains("LOCAL KNOWLEDGE")){Debug.LogError("PREHISTORY CHECK Paleolithic state/inspection/band coherence failed");Application.Quit(1);yield break;}
-        System.IO.File.WriteAllText(System.IO.Path.Combine(folder,"paleolithic-checks.txt"),"PASS new Paleolithic default; globe picking; real50k/200k playback; continuous epoch; no later-age societies; deterministic local band; live knowledge inspection; actual map captures; binary checkpoint.\n");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(folder,"paleolithic-checks.txt"),"PASS new Paleolithic default; globe picking; real50k/200k playback; in-world Year calendar; distinct overlays and real technology panel; no development watermark; no later-age societies; deterministic local band; live knowledge inspection; actual map captures; binary checkpoint.\n");
         var saved=Task.Run(()=>WorldGen.Serialization.WorldFile.Write(world));while(!saved.IsCompleted)yield return null;
         if(saved.IsFaulted){Debug.LogError(saved.Exception);Application.Quit(1);yield break;}
         System.IO.File.WriteAllBytes(System.IO.Path.Combine(folder,"prehistory.world"),saved.Result);

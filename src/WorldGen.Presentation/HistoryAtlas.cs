@@ -53,6 +53,7 @@ namespace WorldGen.Presentation
         }
         public static AtlasLink? Selection(PrehistoryState? s,int cell,HistoryOverlay overlay)
         {
+            if(Prehistory.Paleolithic(s))return PaleolithicView.Selection(s!,cell,overlay);
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
             int id=SocietyView.SelectionId(s,cell,overlay);if(id==-1)return null;
             if(id<=-2)return CultureLink(s.Society.Cultures[-2-id]);
@@ -71,6 +72,7 @@ namespace WorldGen.Presentation
         }
         public static string Summary(PrehistoryState? s,AtlasLink? link)
         {
+            if(Prehistory.Paleolithic(s)&&link!=null)return link.Name;
             if(s?.History==null||s.Society==null||link==null)return "Select an inhabited location to explore its history.";
             switch(link.Kind)
             {
@@ -96,6 +98,7 @@ namespace WorldGen.Presentation
         }
         public static AtlasLink[] ProfilesAt(PrehistoryState? s,int cell)
         {
+            if(Prehistory.Paleolithic(s))return new[]{HistoryOverlay.Cultures,HistoryOverlay.Languages,HistoryOverlay.Technology,HistoryOverlay.HumanSpecies}.Select(o=>PaleolithicView.Selection(s!,cell,o)).Where(l=>l!=null).Select(l=>l!).ToArray();
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
             int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)links.Add(ClaimLink(s,claim));
@@ -107,9 +110,10 @@ namespace WorldGen.Presentation
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));int voice=Prehistory.PrimarySpokenLanguageAt(s,cell);if(voice>=0)links.Add(SpokenLanguageLink(s,voice,cell));int identity=Prehistory.PrimaryEthnicityAt(s,cell);if(identity>=0)links.Add(EthnicLink(s,identity,cell));return links.ToArray();
         }
-        public static string ProfileLabel(AtlasLink link)=>link.Kind=="notable"?"Notable person":link.Kind=="ethnicity"?"Ethnic identity":link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="human-species"?"Human species":link.Kind=="notable"?"Notable person":link.Kind=="ethnicity"?"Ethnic identity":link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
+            if(Prehistory.Paleolithic(s))return PaleolithicView.Directory(s!,kind,search,past);
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
             var h=s.History;IEnumerable<AtlasLink> entries;
             switch(kind)
@@ -135,6 +139,7 @@ namespace WorldGen.Presentation
             var d=new AtlasDocument{Kind=kind,Id=id,Year=s?.Years??0,EpochYear=SimulationClockView.EpochYear(s),Subtitle=SimulationClockView.Year(s,s?.Years??0),Note="Generated history. Indicators are model estimates; populations use aggregate accounts, not an individual census."};
             if(AtlasNavigation.IsDirectory(kind)){d.Title=AtlasNavigation.CategoryName(kind);d.Note="";return d;}
             if(kind=="view"){d.Title="Map settings";d.Note="";return d;}
+            if(Prehistory.Paleolithic(s))return PaleolithicView.Document(s!,kind,id,engine);
             if(s?.Society==null||s.History==null){d.Introduction=(s==null?"":N(SocietyView.Population(s))+" people are currently present. ")+"Human history has not yet produced recorded cultures, cities, or states. Run the simulation to begin building this world's atlas.";if(s!=null)d.Facts=new[]{F("People",N(SocietyView.Population(s)))};return d;}
             var h=s.History;var sections=new List<AtlasSection>();
             switch(kind)

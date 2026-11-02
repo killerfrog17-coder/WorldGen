@@ -17,6 +17,7 @@ namespace WorldGen.Presentation
         static AtlasLink TechnologyLink(PrehistoryState s,int culture,int cell)=>new AtlasLink{Kind="technology",Id=culture,Cell=cell,Name=s.Society.Cultures[culture].Name+" technology"};
         public static SelectionCard Card(PrehistoryState? s,int cell,HistoryOverlay overlay,Prehistory? engine=null)
         {
+            if(Prehistory.Paleolithic(s))return PaleolithicView.Card(s!,cell,overlay,engine);
             var link=Selection(s,cell,overlay);var card=new SelectionCard{Title=link?.Name??"No recorded "+overlay.ToString().ToLowerInvariant(),Subtitle=overlay.ToString()};
             if(cell<0){card.Title="Select a location";return card;}
             if(link==null||s?.History==null)

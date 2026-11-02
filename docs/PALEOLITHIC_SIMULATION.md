@@ -11,8 +11,11 @@ reproduced by `scripts/build-paleolithic-sim-plan.py`.
 
 `PrehistoryState.Paleolithic` owns the new sparse communities. The old farming,
 urban, state and industrial engines are bypassed, rather than allowed to run
-behind an artificial era label. Only Homo sapiens is currently registered;
-species IDs are separate from culture, language, appearance and behaviour.
+behind an artificial era label. Homo sapiens has the cultural/knowledge engine.
+Separate warm- and cold-adapted archaic human lineages have lightweight regional
+population ledgers, independently seeded in suitable reachable ecological patches.
+These are procedural analogues, not fixed Earth species or real-world maps.
+Species IDs are separate from culture, language, appearance and behaviour.
 
 `SimulationTime.Seconds` and `SimulationSession` are shared with gameplay.
 There is no second day/year conversion. Every 50 simulated years a deterministic
@@ -86,8 +89,23 @@ the old generator's writing scaffold grants no literacy.
 
 ## Observer and compatibility
 
-The map displays a BP epoch, Paleolithic phase, resident communities, climate
-anomalies and local adoption percentages. Ecoregion inspection includes a dynamic
+The map uses the existing in-world Year 0 calendar, with no BC/BP epoch.
+The observer era is labelled Paleolithic. Culture, language/dialect, technology
+and human-species overlays have independent identities, colours, legends and
+inspection cards. State/territory/province/civilization layers remain empty
+until actual institutions exist; other unmodelled identity layers are also empty.
+Technology colours count techniques established in at least half the local bands;
+the existing technology panel and atlas show all 24 adoption percentages and
+prerequisites. This does not turn those percentages into global on/off unlocks.
+Human-species ranges use independent saved populations, gradual climate-sensitive
+demography and shared-food pressure. Overlap has a mixed colour and lists every
+resident lineage; no sapiens-arrival replacement or calendar-forced extinction.
+New worlds seed them outside the initial sapiens patch through accessible routes.
+Old Paleolithic saves without the optional range ledger keep their original
+hash and behaviour; their maps honestly contain only their recorded sapiens.
+No new bodies, tribal AI or dialogue are implied.
+
+The map also exposes climate anomalies and local adoption percentages. Ecoregion inspection includes a dynamic
 sapient-fauna section sourced from the population state; no duplicated static
 human spawn range is added to the immutable ecological pack.
 
@@ -104,3 +122,9 @@ determinism, continuity, geography, local sampling, ownership, saves and ceiling
 - Multicamp learning: https://pubmed.ncbi.nlm.nih.gov/32158935/
 - Language-origin hypothesis: https://doi.org/10.3389/fpsyg.2025.1503900
 - Hide-working tools: https://doi.org/10.1016/j.isci.2021.102988
+
+- Human coexistence and interbreeding: https://humanorigins.si.edu/evidence/human-fossils/species/homo-neanderthalensis
+
+Archaic thermal envelopes, initial dispersion, density and competition rates are
+explicit procedural gameplay priors. They are not empirically fitted population
+estimates or claims about the cognitive capabilities of extinct human groups.

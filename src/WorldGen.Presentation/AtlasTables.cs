@@ -33,6 +33,14 @@ namespace WorldGen.Presentation
         }
         public static AtlasMeasure[] Measures(PrehistoryState s,AtlasLink row)
         {
+            if(Prehistory.Paleolithic(s))
+            {
+                var map=PaleolithicMaps.For(s);var community=map.Community(row.Cell);
+                if(row.Kind=="technology"&&community!=null)return new[]{T("Era",PaleolithicView.Age(s)),N("Capabilities",Enumerable.Range(0,PaleolithicRules.TechniqueCount).Count(k=>PaleolithicRules.Adoption(s.Paleolithic,community,k)>=.5)),N("Population",s.Population[community.Patch]),T("Active projects","Gradual local learning")};
+                if(row.Kind=="language"){var profile=map.Language(row.Id);return profile==null?Array.Empty<AtlasMeasure>():new[]{Y(s,"Recorded",profile.FoundedYear),T("Parent language","Inherited oral tradition"),T("Script","Oral"),T("Word order",profile.WordOrder)};}
+                if(row.Kind=="people"&&community!=null){var identity=s.Society.Cultures[community.Identity];return new[]{N("Population",identity.Population),N("Area km²",identity.AreaKm2),T("Way of life",identity.Subsistence),T("Stage","Foragers"),Y(s,"Founded",identity.FoundedYear)};}
+                return new[]{T("Details",row.Detail)};
+            }
             var h=s.History;int id=row.Id;
             switch(row.Kind)
             {

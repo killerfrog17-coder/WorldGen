@@ -78,7 +78,7 @@ public static class WorldGenBatch
             PlayerSettings.SetManagedStrippingLevel(namedTarget,native?ManagedStrippingLevel.Minimal:ManagedStrippingLevel.Disabled);
             // Ordinary player builds should not silently carry the development
             // runtime/debug overlay. Diagnostic development builds are opt-in.
-            var options=!native||arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
+            var options=arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
             if(arguments.Contains("--worldgen-scripts-only"))
             {if(native)throw new InvalidOperationException("Scripts-only iteration is reserved for the managed development workspace.");options|=BuildOptions.BuildScriptsOnly;}
             // Unity requires a clean build when reusing an output directory

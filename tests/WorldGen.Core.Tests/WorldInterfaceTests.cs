@@ -53,7 +53,7 @@ public static class WorldInterfaceTests
         AutoSpeed(2000,"No cultures starts at2000 years/s");
         autoState.Society.Cultures=new[]{new CultureIdentity()};
         AutoSpeed(500,"Advanced cultures slow Auto to500 independently of the era name");
-        check(WorldEraView.Of(autoState)==2&&WorldEraView.Name(2)=="Prehistory","Advanced cultures do not change the observer/music era");
+        check(WorldEraView.Of(autoState)==2&&WorldEraView.Name(2)=="Paleolithic","Advanced cultures do not change the observer/music era");
         autoState.History.RegionalTraditions.FirstProtoYear=120000;
         AutoSpeed(100,"First embryonic civilization slows Auto to100");
         autoState.History.Polities=new[]{new HistoricalPolity{EndedYear=130000}};

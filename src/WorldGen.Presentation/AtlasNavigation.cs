@@ -7,7 +7,7 @@ namespace WorldGen.Presentation
             ("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),
             ("ethnicity","Ethnicities"),("language","Languages"),("religion","Religions"),
             ("religious-body","Ritual bodies"),("technology","Technology"),("ruler","Rulers"),
-            ("notable","Notable people"),("organization","Organizations")};
+            ("notable","Notable people"),("organization","Organizations"),("human-species","Human species")};
         public static bool IsDirectory(string kind)=>kind.StartsWith("directory:",StringComparison.Ordinal);
         public static string DirectoryKind(string kind)=>IsDirectory(kind)?kind.Substring(10):kind;
         public static string CategoryName(string kind)

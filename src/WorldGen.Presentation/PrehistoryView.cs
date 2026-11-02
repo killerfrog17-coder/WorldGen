@@ -12,6 +12,17 @@ namespace WorldGen.Presentation
         public static byte[] Codes(World w,Prehistory engine=null,PrehistoryState state=null,int selectedCell=-1,HistoryOverlay overlay=HistoryOverlay.Civilizations,byte[] destination=null,bool optimized=true)
         {
             var result=destination??new byte[w.Surface.Cells.Length];if(result.Length!=w.Surface.Cells.Length)throw new ArgumentException("Overlay buffer must match the surface.",nameof(destination));var clusters=engine!=null&&state!=null?engine.Clusters(state):null;
+            if(Prehistory.Paleolithic(state))
+            {
+                var map=PaleolithicMaps.For(state);int focusKey=map.Id(selectedCell,overlay);
+                for(int i=0;i<result.Length;i++)
+                {
+                    bool water=w.Hydrology.OceanConnected[i]||w.Hydrology.LakeCoverageFraction.Length>i&&w.Hydrology.LakeCoverageFraction[i]>=.9;
+                    int id=map.Id(i,overlay);bool chosen=id>=0&&focusKey==id;
+                    result[i]=(byte)(id<0?(water?0:85):water?(chosen?60:50):chosen?245:235);
+                }
+                return result;
+            }
             var display=optimized&&engine!=null&&state!=null?HistoricalMapSnapshot.For(state):null;
             int selected=selectedCell>=0&&selectedCell<result.Length&&engine!=null?engine.CellPatch[selectedCell]:-1;
             int cluster=selected>=0&&clusters!=null?clusters[selected]:-1;var selectedCulture=SocietyView.Culture(state,selectedCell);
@@ -52,7 +63,7 @@ namespace WorldGen.Presentation
             $"{SimulationClockView.Year(state,state.Years)} · {SocietyView.Population(state):N0} people · {SocietyView.Stage(state.Society?.Phase??SocietyStage.Foragers)}";
         public static string Describe(Prehistory engine,PrehistoryState state,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
-            if(Prehistory.Paleolithic(state))return PaleolithicView.Describe(engine,state,cell);
+            if(Prehistory.Paleolithic(state))return PaleolithicView.Describe(engine,state,cell,overlay);
             string society=SocietyView.Describe(state,cell,overlay);if(society.Length>0)return society;
             if(engine==null||state==null||cell<0||cell>=engine.CellPatch.Length)return "Select a human population";
             int p=engine.CellPatch[cell];if(p<0)return "Uninhabited water";
