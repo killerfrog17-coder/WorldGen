@@ -34,7 +34,8 @@ namespace WorldGen.Core
             // never reindexes an existing band's home onto another source cell.
             double spacing=6+20/(1+d.Productivity/150d),bearing=ordinal*2.399963229728653+Rng.Value(World.Recipe.Seed,"community-home-bearing",c.Id)*Math.PI*2;
             V proposed=ForagerOffset(cells[c.HomeCell].Position,spacing*Math.Sqrt(ordinal),bearing);
-            int cell=d.Cells.OrderByDescending(i=>V.Dot(proposed,cells[i].Position)).First();
+            int cell=d.Cells[0];double bestDot=V.Dot(proposed,cells[cell].Position);
+            for(int index=1;index<d.Cells.Length;index++){int candidate=d.Cells[index];double dot=V.Dot(proposed,cells[candidate].Position);if(dot>bestDot){bestDot=dot;cell=candidate;}}
             double clearance=cells[cell].DistanceM.Length>0?cells[cell].DistanceM.Min()/1000.0*.35:5;
             double radius=Math.Min(clearance,Math.Max(1,Math.Sqrt(cells[cell].AreaM2/1e6/Math.PI)*.7));
             double distance=Math.Sqrt(Rng.Value(World.Recipe.Seed,"band-home-radius",key))*radius;

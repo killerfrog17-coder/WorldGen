@@ -132,7 +132,7 @@ namespace WorldGen.Core
         void ChangeForagerSocieties(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
         {
             var neighbours=ForagerSociality.Neighbours(f);var languageContacts=new Dictionary<int,HashSet<int>>();
-            var oldSpeech=f.Cohorts.ToDictionary(c=>c.Id,c=>c.Speech.Select(x=>x.Copy()).ToArray());var oldTraditions=f.Cohorts.ToDictionary(c=>c.Id,c=>c.Traditions.Select(x=>x.Copy()).ToArray());
+            var oldSpeech=f.Cohorts.Where(c=>c.Population>=1).ToDictionary(c=>c.Id,c=>c.Speech.Select(x=>x.Copy()).ToArray());var oldTraditions=f.Cohorts.Where(c=>c.Population>=1).ToDictionary(c=>c.Id,c=>c.Traditions.Select(x=>x.Copy()).ToArray());
             var oldLanguages=f.Languages.Select(l=>l.Copy()).ToDictionary(l=>l.Id);var oldBeliefs=f.Beliefs.Select(b=>b.Copy()).ToDictionary(b=>b.Id);var oldCultures=f.Cultures.Select(x=>x.Copy()).ToArray();
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1).ToArray())
             {

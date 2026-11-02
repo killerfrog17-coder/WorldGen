@@ -36,12 +36,13 @@ namespace WorldGen.Core
             if(years<0||!double.IsFinite(years))throw new ArgumentOutOfRangeException(nameof(years));
             var ages=(double[])c.Ages.Clone();double births=0,deaths=0;
             if(ages[0]+ages[1]+ages[2]+ages[3]+ages[4]<=0&&c.Population>0)ages=new[]{c.Children*.4,c.Children*.6,c.Adults*.67,c.Adults*.33,c.Elders};
-            double remaining=years,at=absoluteYear;
+            double remaining=years,at=absoluteYear;var next=new double[5];
+            double[] mortality={c.ChildMortality*1.55,c.ChildMortality*.65,c.AdultMortality,c.AdultMortality*1.35,c.ElderMortality};
             while(remaining>1e-10)
             {
                 double dt=Math.Min(1,remaining),shock=0;double midpoint=(at+dt*.5)*SimulationTime.Year;
                 if(c.ShockEnd>c.ShockStart&&midpoint>=c.ShockStart&&midpoint<c.ShockEnd)shock=c.ShockSeverity;
-                var next=new double[5];double[] mortality={c.ChildMortality*1.55,c.ChildMortality*.65,c.AdultMortality,c.AdultMortality*1.35,c.ElderMortality};
+                Array.Clear(next,0,next.Length);
                 for(int k=0;k<5;k++)
                 {
                     double death=mortality[k]+shock*(k==0||k==4?1.4:1),hazard=death+Ageing[k];
@@ -50,7 +51,7 @@ namespace WorldGen.Core
                 }
                 double born=(ages[2]+ages[3]*.18)*c.BirthRate*dt;
                 double newborns=born*Math.Exp(-(mortality[0]+shock)*dt*.5);next[0]+=newborns;births+=born;deaths+=born-newborns;
-                ages=next;at+=dt;remaining-=dt;
+                var previous=ages;ages=next;next=previous;at+=dt;remaining-=dt;
             }
             return new ForagerDemographicProjection(ages,births,deaths);
         }

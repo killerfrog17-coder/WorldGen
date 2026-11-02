@@ -15,6 +15,8 @@ namespace WorldGen.Core
                 if(!known.TryGetValue(edge.A,out var a))known[edge.A]=a=new List<(int,double)>();a.Add((edge.B,edge.Strength));
                 if(!known.TryGetValue(edge.B,out var b))known[edge.B]=b=new List<(int,double)>();b.Add((edge.A,edge.Strength));
             }
+            var closestFriends=known.ToDictionary(p=>p.Key,p=>p.Value.OrderByDescending(x=>x.strength).Take(2).ToArray());
+            var candidateScratch=new List<ForagerCohort>(8);var rankPeople=new ForagerCohort[4];var rankValues=new uint[4];
             languageCache=languageCache??new Dictionary<long,double>();
             var old=state.Exchanges.ToDictionary(e=>((long)e.A<<32)|(uint)e.B);var edges=new Dictionary<long,ForagerExchange>();
             foreach(var c in occupied)
@@ -57,13 +59,26 @@ namespace WorldGen.Core
             IEnumerable<ForagerCohort> Candidates(ForagerCohort source,ForagerCohort[] people,bool local)
             {
                 if(people.Length<=6)return people;
-                var selected=new Dictionary<int,ForagerCohort>();
-                uint Rank(ForagerCohort other)=>Rng.Mix(unchecked((uint)source.Id*104729u^(uint)other.Id*7919u^(uint)seed));
-                if(known.TryGetValue(source.Id,out var friends))foreach(var friend in friends.OrderByDescending(x=>x.strength).Take(2))
-                {var person=people.FirstOrDefault(p=>p.Id==friend.other);if(person!=null)selected[person.Id]=person;}
-                foreach(var person in people.Where(p=>p.Id!=source.Id&&p.Identity==source.Identity).OrderBy(Rank).Take(2))selected[person.Id]=person;
-                foreach(var person in people.Where(p=>p.Id!=source.Id).OrderBy(Rank).Take(local?4:2))selected[person.Id]=person;
-                return selected.Values.OrderBy(p=>p.Id);
+                candidateScratch.Clear();
+                void Add(ForagerCohort person){foreach(var previous in candidateScratch)if(previous.Id==person.Id)return;candidateScratch.Add(person);}
+                if(closestFriends.TryGetValue(source.Id,out var friends))foreach(var friend in friends)
+                {foreach(var person in people)if(person.Id==friend.other){Add(person);break;}}
+                void Ranked(bool kin,int count)
+                {
+                    int filled=0;
+                    foreach(var person in people)
+                    {
+                        if(person.Id==source.Id||kin&&person.Identity!=source.Identity)continue;
+                        uint rank=Rng.Mix(unchecked((uint)source.Id*104729u^(uint)person.Id*7919u^(uint)seed));
+                        int at=0;while(at<filled&&rankValues[at]<=rank)at++;
+                        if(at>=count)continue;
+                        for(int j=Math.Min(filled,count-1);j>at;j--){rankPeople[j]=rankPeople[j-1];rankValues[j]=rankValues[j-1];}
+                        rankPeople[at]=person;rankValues[at]=rank;if(filled<count)filled++;
+                    }
+                    for(int i=0;i<filled;i++)Add(rankPeople[i]);
+                }
+                Ranked(true,2);Ranked(false,local?4:2);
+                candidateScratch.Sort((a,b)=>a.Id.CompareTo(b.Id));return candidateScratch;
             }
         }
         public static double ReproductiveContact(ForagerState f,ForagerCohort a,ForagerCohort b)=>ForagerAncestry.Contact(a,b,ForagerAncestry.Compatibility(f));
@@ -71,7 +86,7 @@ namespace WorldGen.Core
         {double value=0;for(int i=0;i<c.Admixture.Length;i++)value+=c.Admixture[i]*(symbolic?f.Lineages[i].SymbolicPotential:f.Lineages[i].CulturalLearning);return D.Clamp(value);}
         public static Dictionary<int,List<(ForagerCohort people,ForagerExchange relation)>> Neighbours(ForagerState state)
         {
-            var cohorts=state.Cohorts.ToDictionary(c=>c.Id);var result=cohorts.ToDictionary(p=>p.Key,_=>new List<(ForagerCohort,ForagerExchange)>());
+            var cohorts=state.Cohorts.Where(c=>c.Population>=1).ToDictionary(c=>c.Id);var result=cohorts.ToDictionary(p=>p.Key,_=>new List<(ForagerCohort,ForagerExchange)>());
             foreach(var link in state.Exchanges)if(cohorts.TryGetValue(link.A,out var a)&&cohorts.TryGetValue(link.B,out var b)){result[a.Id].Add((b,link));result[b.Id].Add((a,link));}return result;
         }
     }
