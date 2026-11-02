@@ -10,7 +10,7 @@ namespace WorldGen.Core
         public PrehistoryState PreparePaleolithic(int origin=-1)
         {
             if(origin<0)origin=ChooseOrigin();if(origin<0||origin>=Patches.Length||Patches[origin].Island||Patches[origin].Capacity<25)throw new ArgumentException("Choose a viable ancestral land region.");
-            var s=new PrehistoryState{Version="prehistory-7",Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=new int[Patches.Length*8],Paleolithic=new PaleolithicState(),Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray()}};
+            var s=new PrehistoryState{Version="prehistory-7",Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=new int[Patches.Length*8],Paleolithic=new PaleolithicState{Version="paleolithic-2"},Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray()}};
             s.HumanRanges=PrepareHumanRanges(s);s.Seal();return s;
         }
         PrehistoryState StartPaleolithic(PrehistoryState source)
@@ -23,7 +23,7 @@ namespace WorldGen.Core
         }
         PaleolithicCommunity NewPaleolithicCommunity(PrehistoryState s,int patch,PaleolithicCommunity parent)
         {
-            var p=s.Paleolithic;int id=p.NextIdentity++;var c=new PaleolithicCommunity{Patch=patch,Identity=id,Parent=parent?.Identity??-1,FoundedYear=s.Years,NextSpeechChange=s.Years+1500+(int)(Rng.Value(World.Recipe.Seed,"paleo-speech-period",id)*1500),Language=LanguageGenerator.Create(World.Recipe.Seed,id,s.Years,parent?.Language)};
+            var p=s.Paleolithic;int id=p.NextIdentity++;var c=new PaleolithicCommunity{Patch=patch,Identity=id,Parent=parent?.Identity??-1,FoundedYear=s.Years,NextSpeechChange=s.Years+1500+(int)(Rng.Value(World.Recipe.Seed,"paleo-speech-period",id)*1500),Language=s.Paleolithic.Version=="paleolithic-2"&&parent!=null?PaleolithicLanguage.Branch(id,s.Years,parent.Language):LanguageGenerator.Create(World.Recipe.Seed,id,s.Years,parent?.Language)};
             if(parent==null)
             {
                 for(int k=0;k<8;k++)c.Knowledge[k]=.82+.16*Rng.Value(World.Recipe.Seed,"paleo-foundation-"+k,patch);
@@ -132,7 +132,7 @@ namespace WorldGen.Core
                 for(int k=0;k<4;k++)c.SpeechRates[k]=c.Residents>=25?(1+Math.Min(4,peers.Count)*.15+peers.Select(x=>x.Speech[k]).DefaultIfEmpty(0).Max()*.5)/(55000.0+k*9000):0;
                 if(s.Years>=c.NextSpeechChange&&c.Residents>=25)
                 {
-                    c.PreviousLanguage=c.Language.Copy();c.LanguageChangeSeconds=s.Paleolithic.Seconds;c.Language=LanguageGenerator.Evolve(c.Language,s.Years);c.NextSpeechChange=s.Years+1500+(int)(Rng.Value(World.Recipe.Seed,"paleo-dialect-"+c.Language.Revision,c.Identity)*1500);
+                    c.PreviousLanguage=c.Language.Copy();c.LanguageChangeSeconds=s.Paleolithic.Seconds;c.Language=s.Paleolithic.Version=="paleolithic-2"?PaleolithicLanguage.Evolve(c.Language,s.Years):LanguageGenerator.Evolve(c.Language,s.Years);c.NextSpeechChange=s.Years+1500+(int)(Rng.Value(World.Recipe.Seed,"paleo-dialect-"+c.Language.Revision,c.Identity)*1500);
                     var contact=peers.OrderByDescending(p=>p.Residents).FirstOrDefault();if(contact!=null){int concept=(c.Language.Revision%4);c.Language=LanguageGenerator.Borrow(c.Language,contact.Language,new[]{"water","fire","hide","spear"}[concept],s.Years);}
                 }
             }
@@ -180,7 +180,7 @@ namespace WorldGen.Core
         {
             var p=s.Paleolithic;
             ValidateHumanRanges(s);
-            if(s.Version!="prehistory-7"||p==null||p.Version!="paleolithic-1"||s.Species!="Homo sapiens"||s.History!=null||s.Timeline!=null||s.WorldHash!=World.Stages.Last().Hash||s.Origin<0||s.Origin>=Patches.Length||p.StartYearsBeforePresent!=200000||p.NextIdentity<0||p.BoundarySeconds%(50*SimulationTime.Year)!=0||p.Seconds<0||p.Seconds>SimulationTime.Maximum||p.BoundarySeconds<0||p.BoundarySeconds>p.Seconds||p.Seconds-p.BoundarySeconds>=50*SimulationTime.Year||s.Years!=p.Seconds/SimulationTime.Year||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Society.Settlements.Length!=0||s.Society.Cultures.Length!=p.NextIdentity||p.Communities.Length!=p.NextIdentity||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid Paleolithic checkpoint.");
+            if(s.Version!="prehistory-7"||p==null||(p.Version!="paleolithic-1"&&p.Version!="paleolithic-2")||s.Species!="Homo sapiens"||s.History!=null||s.Timeline!=null||s.WorldHash!=World.Stages.Last().Hash||s.Origin<0||s.Origin>=Patches.Length||p.StartYearsBeforePresent!=200000||p.NextIdentity<0||p.BoundarySeconds%(50*SimulationTime.Year)!=0||p.Seconds<0||p.Seconds>SimulationTime.Maximum||p.BoundarySeconds<0||p.BoundarySeconds>p.Seconds||p.Seconds-p.BoundarySeconds>=50*SimulationTime.Year||s.Years!=p.Seconds/SimulationTime.Year||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Society.Settlements.Length!=0||s.Society.Cultures.Length!=p.NextIdentity||p.Communities.Length!=p.NextIdentity||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid Paleolithic checkpoint.");
             var ids=new HashSet<int>();int previous=-1;
             foreach(var c in p.Communities)
             {

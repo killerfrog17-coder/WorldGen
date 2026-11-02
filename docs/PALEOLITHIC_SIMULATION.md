@@ -1,6 +1,6 @@
 # Paleolithic simulation
 
-New Unity simulations start in `prehistory-7 / paleolithic-1`, about 200,000
+New Unity simulations start in `prehistory-7 / paleolithic-2`, about 200,000
 years before the present. Existing historical saves retain their original
 rules. The rollback tag is `pre-paleolithic-overhaul-20261102`.
 
@@ -77,7 +77,11 @@ contract for future real NPC tribes; it does not spawn those tribes yet.
 ## Language
 
 The existing language generator supplies inherited roots, sound systems, word
-order, sound changes and bounded borrowing. New speech capacities represent
+order and bounded borrowing. New Paleolithic v2 branches use bounded regular
+chain shifts, local lexical replacement and rare grammatical changes. These
+preserve differences through long histories rather than exhausting the old
+finite one-way sound-merger list and converging everyone to identical speech.
+The previous Paleolithic v1 language evolution is retained for existing saves. New speech capacities represent
 vocabulary, sequencing, displaced reference and clause combination. These evolve
 gradually, with contact influencing development. Simple utterance generation
 demonstrates the distinction; finished dialogue/audio is not included.

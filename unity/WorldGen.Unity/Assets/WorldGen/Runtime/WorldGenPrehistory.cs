@@ -218,6 +218,7 @@ public sealed partial class WorldGenRuntime
             var entries=SocietyView.Legend(checkpoint,mode);var codes=PrehistoryView.Codes(world,humans,checkpoint,overlay:mode);int painted=codes.Count(x=>x==235||x==50);
             bool political=mode==HistoryOverlay.States||mode==HistoryOverlay.Territories;
             if(political?(entries.Length!=0||painted!=0):(entries.Length==0||painted==0)){Debug.LogError("PREHISTORY CHECK incorrect overlay "+mode);Application.Quit(1);yield break;}
+            if(mode==HistoryOverlay.Languages&&entries.Length<4){Debug.LogError("PREHISTORY CHECK long-run speech collapsed into one variety");Application.Quit(1);yield break;}
             CaptureHumanMap(System.IO.Path.Combine(folder,mode+"-map.png"));
             rows.Add(mode+": "+entries.Length+" legend entries; "+painted+" occupied cells");
         }
