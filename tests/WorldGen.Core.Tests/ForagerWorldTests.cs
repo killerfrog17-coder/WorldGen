@@ -6,15 +6,26 @@ static class ForagerWorldTests
     public static void History(string output,int years=40000,int seed=0,string preset="Continents",int detail=5000,string from="")
     {
         Directory.CreateDirectory(output);var recipe=Recipe.Preset(preset);recipe.Detail=detail;if(seed!=0)recipe.Seed=seed;
-        File.WriteAllText(Path.Combine(output,"run.json"),System.Text.Json.JsonSerializer.Serialize(new{source=Environment.GetEnvironmentVariable("WORLDGEN_FORAGER_SOURCE")??"working tree",startedUtc=DateTime.UtcNow,preset,recipe.Seed,recipe.Detail,requestedYears=years}));
+        System.Text.Json.JsonElement? previousRun=null;
+        if(from.Length>0&&File.Exists(Path.Combine(output,"run.json")))previousRun=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(output,"run.json"))).RootElement.Clone();
         var watch=Stopwatch.StartNew();var w=from.Length>0?WorldFile.ReadFile(from):new WorldPipeline().Generate(recipe);var engine=new Prehistory(w);var s=from.Length>0?w.Prehistory:engine.StartForagers(engine.PrepareForagers());
-        var records=new List<object>();
+        recipe=w.Recipe;double elapsedOffset=0;var records=new List<object>();
+        if(from.Length>0&&File.Exists(Path.Combine(output,"metrics.json")))
+        {
+            var prior=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(output,"metrics.json"))).RootElement;
+            foreach(var row in prior.EnumerateArray())
+            {
+                int year=row.GetProperty("year").GetInt32();if(year<=s.Years)elapsedOffset=row.GetProperty("elapsed").GetDouble();
+                if(year<s.Years)records.Add(row.Clone());
+            }
+        }
+        File.WriteAllText(Path.Combine(output,"run.json"),System.Text.Json.JsonSerializer.Serialize(new{source=Environment.GetEnvironmentVariable("WORLDGEN_FORAGER_SOURCE")??"working tree",startedUtc=DateTime.UtcNow,preset=previousRun.HasValue?previousRun.Value.GetProperty("preset").GetString():preset,recipe.Seed,recipe.Detail,requestedYears=years,continuedFrom=from,previousRun}));
         void Record()
         {
             var f=s.Foragers;var live=f.Cohorts.Where(c=>c.Population>=1).ToArray();
             var environments=live.Select(c=>c.District).Distinct().ToDictionary(id=>id,id=>ForagerEcology.At(w.Recipe.Seed,f.Districts[id],s.Years,w.ElevationM[f.Districts[id].Cell]));
             var speech=live.SelectMany(c=>c.Speech.Select(x=>(id:x.Id,population:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>(id:g.Key,population:g.Sum(x=>x.population))).Where(x=>x.population>=1).ToArray();
-            var record=new{year=s.Years,residentSpeechVarieties=speech.Length,residentFamilies=speech.Select(x=>f.Languages[x.id].Family).Distinct().Count(),coldPopulation=live.Where(c=>environments[c.District].WinterC<0).Sum(c=>c.Population),capacity=live.Sum(c=>c.Capacity),sapiensAncestry=live.Sum(c=>c.Population*c.Admixture[0]),establishedTaxa=f.Biota.Sum(b=>b.Abundance.Count(x=>x>.03)),population=live.Sum(c=>c.Population),sapiens=live.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).Sum(c=>c.Population),districts=live.Select(c=>c.District).Distinct().Count(),cohorts=live.Length,families=live.Select(c=>f.Languages[c.Language].Family).Distinct().Count(),languages=live.Select(c=>c.Language).Distinct().Count(),beliefs=live.Select(c=>c.Belief).Distinct().Count(),extinctions=f.Cohorts.Count(c=>c.Population==0),meanSkill=live.Length==0?0:live.Average(c=>c.Skill.Sum()),minSkill=live.Length==0?0:live.Min(c=>c.Skill.Sum()),maxSkill=live.Length==0?0:live.Max(c=>c.Skill.Sum()),meanWinter=live.Length==0?0:live.Average(c=>c.WinterSecurity),births=f.Cohorts.Sum(c=>c.Births),deaths=f.Cohorts.Sum(c=>c.Deaths),elapsed=watch.Elapsed.TotalSeconds};
+            var record=new{year=s.Years,residentSpeechVarieties=speech.Length,residentFamilies=speech.Select(x=>f.Languages[x.id].Family).Distinct().Count(),coldPopulation=live.Where(c=>environments[c.District].WinterC<0).Sum(c=>c.Population),capacity=live.Sum(c=>c.Capacity),sapiensAncestry=live.Sum(c=>c.Population*c.Admixture[0]),establishedTaxa=f.Biota.Sum(b=>b.Abundance.Count(x=>x>.03)),population=live.Sum(c=>c.Population),sapiens=live.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).Sum(c=>c.Population),districts=live.Select(c=>c.District).Distinct().Count(),cohorts=live.Length,families=live.Select(c=>f.Languages[c.Language].Family).Distinct().Count(),languages=live.Select(c=>c.Language).Distinct().Count(),beliefs=live.Select(c=>c.Belief).Distinct().Count(),extinctions=f.Cohorts.Count(c=>c.Population==0),meanSkill=live.Length==0?0:live.Average(c=>c.Skill.Sum()),minSkill=live.Length==0?0:live.Min(c=>c.Skill.Sum()),maxSkill=live.Length==0?0:live.Max(c=>c.Skill.Sum()),meanWinter=live.Length==0?0:live.Average(c=>c.WinterSecurity),births=f.Cohorts.Sum(c=>c.Births),deaths=f.Cohorts.Sum(c=>c.Deaths),elapsed=elapsedOffset+watch.Elapsed.TotalSeconds};
             records.Add(record);Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(record));
             File.WriteAllText(Path.Combine(output,"metrics.json"),System.Text.Json.JsonSerializer.Serialize(records,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
             var techniques=ForagerTechnology.All.Select(t=>new{id=t.Id,name=t.Name,known=live.Count(c=>c.Knowledge[t.Id]>=.5),skilled=live.Count(c=>c.Skill[t.Id]>=.5),used=live.Count(c=>c.Use[t.Id]>=.5),meanUse=live.Length==0?0:live.Average(c=>c.Use[t.Id]),maximum=live.Length==0?0:live.Max(c=>c.Skill[t.Id])}).ToArray();
@@ -33,8 +44,8 @@ static class ForagerWorldTests
     {
         var w=WorldFile.ReadFile(file);var engine=new Prehistory(w);var stages=new Dictionary<string,(int calls,double ms,long bytes)>();
         engine.WorkObserver=m=>{stages.TryGetValue(m.Stage,out var old);stages[m.Stage]=(old.calls+1,old.ms+m.Milliseconds,old.bytes+m.AllocatedBytes);};
-        var timer=Stopwatch.StartNew();var s=engine.AdvanceYears(w.Prehistory,years);
-        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new{years,elapsed=timer.Elapsed.TotalSeconds,s.Hash,records=s.Foragers.Cohorts.Length,active=s.Foragers.Cohorts.Count(c=>c.Population>=1)}));
+        long allocated=GC.GetTotalAllocatedBytes(true);var cpu=Process.GetCurrentProcess().TotalProcessorTime;var timer=Stopwatch.StartNew();var s=engine.AdvanceYears(w.Prehistory,years);
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new{years,elapsed=timer.Elapsed.TotalSeconds,cpuSeconds=(Process.GetCurrentProcess().TotalProcessorTime-cpu).TotalSeconds,processAllocatedBytes=GC.GetTotalAllocatedBytes(true)-allocated,s.Hash,records=s.Foragers.Cohorts.Length,active=s.Foragers.Cohorts.Count(c=>c.Population>=1)}));
         foreach(var row in stages.OrderByDescending(p=>p.Value.ms))Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new{stage=row.Key,calls=row.Value.calls,ms=row.Value.ms,bytes=row.Value.bytes}));
     }
     public static void Initial()

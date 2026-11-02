@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 namespace WorldGen.Core
 {
     public sealed partial class Prehistory
@@ -68,7 +69,6 @@ namespace WorldGen.Core
         }
         void LearnForagers(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token,IDictionary<long,double> intelligibility)
         {
-            var previous=new double[ForagerTechnology.Count];
             var people=f.Cohorts.ToDictionary(c=>c.Id);var communication=new Dictionary<int,(double score,double weight)>();
             foreach(var edge in f.Exchanges)
             {
@@ -80,21 +80,43 @@ namespace WorldGen.Core
                 communication.TryGetValue(b.Id,out var bb);communication[b.Id]=(bb.score+mutual*weight,bb.weight+weight);
             }
             var materials=f.Cohorts.Where(c=>c.Population>=1).Select(c=>c.District).Distinct().ToDictionary(id=>id,id=>Enumerable.Range(0,ForagerTechnology.Count).Select(k=>ForagerTechnology.Materials(f.Districts[id],environment[id],k)).ToArray());
-            foreach(var c in f.Cohorts.Where(c=>c.Population>=1))
+            var active=f.Cohorts.Where(c=>c.Population>=1).ToArray();
+            var changes=new (ulong inventions,ulong gained,ulong lost)[active.Length];
+            int workers=active.Length>=1024?Math.Min(4,Environment.ProcessorCount):1;
+            void Work(int worker)
             {
-                if((c.Id&63)==0)token.ThrowIfCancellationRequested();Array.Copy(c.Skill,previous,previous.Length);
-                communication.TryGetValue(c.Id,out var access);double comprehension=access.weight>0?access.score/access.weight:1;
-                ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District],comprehension);
-                for(int k=0;k<previous.Length;k++)
+                var previous=new double[ForagerTechnology.Count];
+                for(int index=worker;index<active.Length;index+=workers)
                 {
-                    if(c.Knowledge[k]>=.2&&c.FirstKnownYear[k]<0)c.FirstKnownYear[k]=year;
-                    if(c.Skill[k]>=.5&&c.FirstSkilledYear[k]<0)c.FirstSkilledYear[k]=year;
-                    if((inventions&(1UL<<k))!=0)f.Discoveries=f.Discoveries.Concat(new[]{new ForagerDiscovery{Id=f.Discoveries.Length,Technique=k,Cohort=c.Id,District=c.District,Year=year}}).ToArray();
-                    if(previous[k]<.5&&c.Skill[k]>=.5)AddForagerEvent(f,ForagerEventKind.Innovation,year,c,ForagerTechnology.All[k].Name+" is becoming a trained local practice.");
-                    if(previous[k]>=.25&&c.Skill[k]<.25){c.LastLossYear[k]=year;AddForagerEvent(f,ForagerEventKind.KnowledgeLoss,year,c,"Trained practice in "+ForagerTechnology.All[k].Name.ToLowerInvariant()+" has become scarce.");}
+                    var c=active[index];if((c.Id&63)==0)token.ThrowIfCancellationRequested();Array.Copy(c.Skill,previous,previous.Length);
+                    communication.TryGetValue(c.Id,out var access);double comprehension=access.weight>0?access.score/access.weight:1;
+                    ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District],comprehension),gained=0,lost=0;
+                    for(int k=0;k<previous.Length;k++)
+                    {
+                        if(c.Knowledge[k]>=.2&&c.FirstKnownYear[k]<0)c.FirstKnownYear[k]=year;
+                        if(c.Skill[k]>=.5&&c.FirstSkilledYear[k]<0)c.FirstSkilledYear[k]=year;
+                        if(previous[k]<.5&&c.Skill[k]>=.5)gained|=1UL<<k;
+                        if(previous[k]>=.25&&c.Skill[k]<.25){c.LastLossYear[k]=year;lost|=1UL<<k;}
+                    }
+                    changes[index]=(inventions,gained,lost);
+                }
+            }
+            // Cohorts learn from the saved contact context, not from another
+            // cohort's partially updated skills. Independent arithmetic can run
+            // concurrently; authoritative records/events remain in original order.
+            if(workers==1)Work(0);else Parallel.For(0,workers,new ParallelOptions{MaxDegreeOfParallelism=workers,CancellationToken=token},Work);
+            for(int index=0;index<active.Length;index++)
+            {
+                var c=active[index];var change=changes[index];
+                for(int k=0;k<ForagerTechnology.Count;k++)
+                {
+                    if((change.inventions&(1UL<<k))!=0)f.Discoveries=f.Discoveries.Concat(new[]{new ForagerDiscovery{Id=f.Discoveries.Length,Technique=k,Cohort=c.Id,District=c.District,Year=year}}).ToArray();
+                    if((change.gained&(1UL<<k))!=0)AddForagerEvent(f,ForagerEventKind.Innovation,year,c,ForagerTechnology.All[k].Name+" is becoming a trained local practice.");
+                    if((change.lost&(1UL<<k))!=0)AddForagerEvent(f,ForagerEventKind.KnowledgeLoss,year,c,"Trained practice in "+ForagerTechnology.All[k].Name.ToLowerInvariant()+" has become scarce.");
                 }
             }
         }
+
         void RefreshForagerTeachers(ForagerState f)
         {
             // Contact opportunities are reviewed every25 years; individual

@@ -298,3 +298,39 @@ reports now export habitat/toolkit contrasts, density, ice exposure, near/far
 speech similarity, ancestry and changed biota. A passing broad error gate does
 not establish universal realism. No full physical glacial terrain/coast/river
 or vegetation reconstruction is claimed; dated data/weather/fauna/maps are wired.
+
+
+### Current outcome and transport checks (15:00Z, still active)
+
+The e045fdd internal managed player passes35 real map/atlas checks at20k, including
+three separated regional closeups and loaded-world default Cultures. Actual
+language, toolkit, species and ritual images inspected.1314 household/camp and
+423 observer checks pass against the corrected-teacher20k snapshot. These are
+scoped results, not full-history acceptance; long histories are still running.
+
+At20k the coupled audit has453 distinct actual-use toolkits,770 resident speech
+varieties and461 recognisable families. Singleton families account for24.4% of
+people; several larger families have10-20 living varieties. Fishing-line use is
+24.7% in aquatic communities versus0.52% inland. Invented techniques now establish
+and spread rather than being limited by unskilled neighbours. Full190k behaviour,
+late toolkits, refugia, ancestry and all-map review remain required.
+
+Independent cohort learning now uses up to four CPU workers, with all discoveries
+and events published in original order. The measured250yr10k fixture retains
+exactcc3dbfcb... after sequential allocation changes and parallel arithmetic.
+12 temporal/reload/budget/cancellation checks retain89ff1c09... . Allocation
+profiles on the calling thread no longer represent worker-thread allocation;
+the diagnostic now also records process-wide allocation and CPU time.
+
+Lossless transport prototype passes13 actual numeric/world/named-save checks:
+Earth30k77,348,664 ->61,654,755 bytes, identical complete historical hash and
+identical future25yr hash. New forager snapshots identifyWGWRLD02; separated
+named histories useWGHIST02. OriginalWGWRLD01/WGHIST01 stay readable; non-forager
+writes retain their old formats. Already-quantised doubles use32-bit integers
+only when reconstruction preserves every IEEE64 bit; otherwise raw64-bit values
+remain. Signed zero, NaN/infinities and unquantised values round-trip.69 existing
+named/quicksave/legacy/shared-base checks pass. Native packed-format proof is
+still pending. The old256MB compressed cap was inadequate for a legitimate rich
+history; supported compressed size is now1GB, with the existing4GB decoded guard
+unchanged. Packing and cache retirement reduce size; this is not a claim that
+all-detail worlds fit arbitrary memory budgets or now generate in60seconds.

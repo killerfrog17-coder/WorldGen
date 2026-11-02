@@ -12,7 +12,10 @@ namespace WorldGen.Serialization
     public static partial class WorldFile
     {
         static readonly byte[] Magic = { 87, 71, 87, 82, 76, 68, 48, 49 }; // WGWRLD01
-        public const int MaximumFileBytes = 256000000;
+        static readonly byte[] PackedMagic = { 87, 71, 87, 82, 76, 68, 48, 50 }; // WGWRLD02
+        // Rich deep-time ledgers legitimately exceed the former 256MB cap.
+        // The separate four-GB decoded guard remains in force.
+        public const int MaximumFileBytes = 1000000000;
         static DataContractSerializer Serializer(ISerializationSurrogateProvider transport)
         {
             var serializer=new DataContractSerializer(typeof(World),new DataContractSerializerSettings{MaxItemsInObjectGraph=int.MaxValue});
@@ -22,20 +25,19 @@ namespace WorldGen.Serialization
         {
             cancellation.ThrowIfCancellationRequested();
             using (var memory = new MemoryStream())
-            using (var transport=HistoricalCellTree.CreateBinaryTransport(cancellation))
+            using (var transport=new BinaryWorldTransport(cancellation,world.Prehistory?.Foragers!=null))
             {
-                memory.Write(Magic, 0, Magic.Length);
-                // Keep the existing format and safety limits. Long dense
-                // histories exceeded the file cap with Fastest despite fitting
-                // comfortably with ordinary lossless compression. No history
-                // records, terrain or integrity checks are discarded.
+                memory.Write(world.Prehistory?.Foragers!=null?PackedMagic:Magic, 0, Magic.Length);
+                // Old worlds retain version1. New forager worlds use version2
+                // with bit-exact numeric packing; gzip and integrity checks still
+                // cover the whole record. No historical records are discarded.
                 using (var gzip = new GZipStream(memory, compression, true))
                 using (var guarded = new GuardedStream(gzip, cancellation))
                 using (var buffered = new BufferedStream(guarded, 65536))
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(buffered, null, null, false))
                     Serializer(transport).WriteObject(writer, world);
                 cancellation.ThrowIfCancellationRequested();
-                if (memory.Length > MaximumFileBytes) throw new ArgumentException("This snapshot exceeds the 256 MB compressed world-file limit.");
+                if (memory.Length > MaximumFileBytes) throw new ArgumentException("This snapshot exceeds the supported compressed world-file size.");
                 return memory.ToArray();
             }
         }
@@ -43,7 +45,9 @@ namespace WorldGen.Serialization
         {
             cancellation.ThrowIfCancellationRequested();
             if (bytes == null || bytes.Length < Magic.Length + 18 || bytes.Length > MaximumFileBytes) throw new ArgumentException("Invalid compact world-file size.");
-            for (int i = 0; i < Magic.Length; i++) if (bytes[i] != Magic[i]) throw new ArgumentException("Unsupported world-file format; use a .world snapshot or the JSON import option.");
+            for (int i = 0; i < Magic.Length-1; i++) if (bytes[i] != Magic[i]) throw new ArgumentException("Unsupported world-file format; use a .world snapshot or the JSON import option.");
+            if(bytes[Magic.Length-1]!=Magic[Magic.Length-1]&&bytes[Magic.Length-1]!=PackedMagic[Magic.Length-1])throw new ArgumentException("Unsupported compact world-file version.");
+            bool packed=bytes[Magic.Length-1]==PackedMagic[Magic.Length-1];
             using (var memory = new MemoryStream(bytes, Magic.Length, bytes.Length - Magic.Length, false))
             using (var gzip = new GZipStream(memory, CompressionMode.Decompress))
             using (var guarded = new GuardedStream(gzip, cancellation))
@@ -53,11 +57,11 @@ namespace WorldGen.Serialization
             // A maximum-detail triangle array alone is about61MB. Match the
             // existing array-item allowance (largest primitive is an8-byte double)
             // instead of rejecting valid worlds above roughly40k terrain cells.
-            { MaxArrayLength = 80000000, MaxDepth = 64, MaxStringContentLength = 1000000, MaxBytesPerRead = 640000000, MaxNameTableCharCount = 1048576 }))
+            { MaxArrayLength = packed?640000000:80000000, MaxDepth = 64, MaxStringContentLength = 1000000, MaxBytesPerRead = 640000000, MaxNameTableCharCount = 1048576 }))
             {
                 status?.Invoke("Reading terrain and saved history");
                 World world;
-                using(var transport=HistoricalCellTree.CreateBinaryTransport(cancellation))
+                using(var transport=new BinaryWorldTransport(cancellation,packed))
                 using(HistoricalCellTree.BeginReadInterning(cancellation))world=(World)Serializer(transport).ReadObject(reader);
                 status?.Invoke("Checking world and history integrity");
                 return WorldJson.ValidateWorld(world, cancellation, status);
