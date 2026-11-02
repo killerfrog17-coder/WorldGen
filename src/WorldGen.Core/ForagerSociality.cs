@@ -49,9 +49,11 @@ namespace WorldGen.Core
                 }
             }
             state.Exchanges=edges.Values.OrderBy(e=>e.A).ThenBy(e=>e.B).ToArray();
-            var strength=occupied.ToDictionary(c=>c.Id,_=>0d);var conflict=occupied.ToDictionary(c=>c.Id,_=>0d);var bilingual=occupied.ToDictionary(c=>c.Id,_=>0d);
-            foreach(var edge in state.Exchanges){strength[edge.A]+=edge.Strength;strength[edge.B]+=edge.Strength;conflict[edge.A]+=edge.Hostility;conflict[edge.B]+=edge.Hostility;bilingual[edge.A]+=edge.Bilingualism;bilingual[edge.B]+=edge.Bilingualism;}
-            foreach(var c in occupied){c.Connectivity=D.Q(D.Clamp(strength[c.Id]),1000000);c.Isolation=D.Q(D.Clamp((year-c.LastContactYear)/1000.0),1000000);c.ConflictPressure=D.Q(D.Clamp(conflict[c.Id]),1000000);c.BilingualShare=D.Q(D.Clamp(bilingual[c.Id]),1000000);}
+            var strength=occupied.ToDictionary(c=>c.Id,_=>0d);var conflict=occupied.ToDictionary(c=>c.Id,_=>0d);var bilingual=occupied.ToDictionary(c=>c.Id,_=>0d);var mates=occupied.ToDictionary(c=>c.Id,_=>0d);var byId=occupied.ToDictionary(c=>c.Id);
+            foreach(var edge in state.Exchanges){strength[edge.A]+=edge.Strength;strength[edge.B]+=edge.Strength;conflict[edge.A]+=edge.Hostility;conflict[edge.B]+=edge.Hostility;bilingual[edge.A]+=edge.Bilingualism;bilingual[edge.B]+=edge.Bilingualism;
+                var a=byId[edge.A];var b=byId[edge.B];double compatibility=ReproductiveContact(state,a,b)*edge.Strength*(1-edge.Hostility);
+                mates[a.Id]+=b.Adults*compatibility*.3;mates[b.Id]+=a.Adults*compatibility*.3;}
+            foreach(var c in occupied){c.MatingContacts=D.Q(Math.Min(100,mates[c.Id]),1000000);c.Connectivity=D.Q(D.Clamp(strength[c.Id]),1000000);c.Isolation=D.Q(D.Clamp((year-c.LastContactYear)/1000.0),1000000);c.ConflictPressure=D.Q(D.Clamp(conflict[c.Id]),1000000);c.BilingualShare=D.Q(D.Clamp(bilingual[c.Id]),1000000);}
             IEnumerable<ForagerCohort> Candidates(ForagerCohort source,ForagerCohort[] people,bool local)
             {
                 if(people.Length<=6)return people;
@@ -64,6 +66,17 @@ namespace WorldGen.Core
                 return selected.Values.OrderBy(p=>p.Id);
             }
         }
+        public static double ReproductiveContact(ForagerState f,ForagerCohort a,ForagerCohort b)
+        {
+            if(a.Lineage==b.Lineage)return 1;
+            var x=f.Lineages[a.Lineage];var y=f.Lineages[b.Lineage];
+            // An assortative-contact prior allows rare introgression rather than
+            // treating every trade encounter as equally likely interbreeding.
+            double separation=Math.Max(x.SeparationYears,y.SeparationYears);
+            return .25*Math.Exp(-separation/650000d);
+        }
+        public static double Capacity(ForagerState f,ForagerCohort c,bool symbolic)
+        {double value=0;for(int i=0;i<c.Admixture.Length;i++)value+=c.Admixture[i]*(symbolic?f.Lineages[i].SymbolicPotential:f.Lineages[i].CulturalLearning);return D.Clamp(value);}
         public static Dictionary<int,List<(ForagerCohort people,ForagerExchange relation)>> Neighbours(ForagerState state)
         {
             var cohorts=state.Cohorts.ToDictionary(c=>c.Id);var result=cohorts.ToDictionary(p=>p.Key,_=>new List<(ForagerCohort,ForagerExchange)>());

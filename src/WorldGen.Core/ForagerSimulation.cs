@@ -72,7 +72,7 @@ namespace WorldGen.Core
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1))
             {
                 if((c.Id&63)==0)token.ThrowIfCancellationRequested();Array.Copy(c.Skill,previous,previous.Length);
-                ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister);
+                ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true));
                 for(int k=0;k<previous.Length;k++)
                 {
                     if(c.Knowledge[k]>=.2&&c.FirstKnownYear[k]<0)c.FirstKnownYear[k]=year;
@@ -121,22 +121,23 @@ namespace WorldGen.Core
         void ChangeForagerSocieties(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
         {
             var neighbours=ForagerSociality.Neighbours(f);var languageContacts=new Dictionary<int,HashSet<int>>();
+            var oldSpeech=f.Cohorts.ToDictionary(c=>c.Id,c=>c.Speech.Select(x=>x.Copy()).ToArray());var oldTraditions=f.Cohorts.ToDictionary(c=>c.Id,c=>c.Traditions.Select(x=>x.Copy()).ToArray());
             var oldLanguages=f.Languages.Select(l=>l.Copy()).ToDictionary(l=>l.Id);var oldBeliefs=f.Beliefs.Select(b=>b.Copy()).ToDictionary(b=>b.Id);var oldAdmixture=f.Cohorts.ToDictionary(c=>c.Id,c=>(double[])c.Admixture.Clone());var oldAppearance=f.Cohorts.ToDictionary(c=>c.Id,c=>(double[])c.Appearance.Clone());var oldCultures=f.Cultures.Select(x=>x.Copy()).ToArray();
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1).ToArray())
             {
                 if((c.Id&63)==0)token.ThrowIfCancellationRequested();var speech=f.Languages[c.Language];var district=f.Districts[c.District];
                 double speechDistance=DistanceKm(district.Center,f.Districts[speech.OriginDistrict].Center);
                 double speechHomelandTies=neighbours[c.Id].Where(p=>p.people.Language==c.Language&&DistanceKm(f.Districts[p.people.District].Center,f.Districts[speech.OriginDistrict].Center)<250).Sum(p=>p.relation.Strength);
-                if(speech.OriginDistrict!=c.District&&year-c.FoundedYear>1000&&(c.Connectivity<.3||speechDistance>300&&speechHomelandTies<.1))
+                if(c.Population>=60&&speech.OriginDistrict!=c.District&&year-c.FoundedYear>1500&&speechDistance>250&&speechHomelandTies<.1)
                 {
-                    var shared=neighbours[c.Id].Where(p=>p.relation.Strength>.025&&f.Languages[p.people.Language].Parent==speech.Id&&DistanceKm(district.Center,f.Districts[p.people.District].Center)<200).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
-                    if(shared.people!=null)c.Language=shared.people.Language;
-                    else{var daughter=ForagerLanguages.Create(World.Recipe.Seed,f.NextLanguage++,c.District,year,speech);f.Languages=f.Languages.Concat(new[]{daughter}).ToArray();oldLanguages[daughter.Id]=daughter.Copy();c.Language=daughter.Id;AddForagerEvent(f,ForagerEventKind.LanguageBranch,year,c,"A locally distinct speech community is becoming established.");}
-                    c.LastLanguageReviewYear=year;
+                    var shared=neighbours[c.Id].Where(p=>p.relation.Strength>.025&&p.people.Language!=speech.Id&&ForagerLanguages.Intelligibility(speech,f.Languages[p.people.Language])>.75&&DistanceKm(district.Center,f.Districts[p.people.District].Center)<250).OrderByDescending(p=>p.people.Population*p.relation.Strength).FirstOrDefault();
+                    if(shared.people!=null)c.Speech=ForagerAffiliations.Replace(c.Speech,c.Language,shared.people.Language);
+                    else{var daughter=ForagerLanguages.Create(World.Recipe.Seed,f.NextLanguage++,c.District,year,speech);f.Languages=f.Languages.Concat(new[]{daughter}).ToArray();oldLanguages[daughter.Id]=daughter.Copy();c.Speech=ForagerAffiliations.Replace(c.Speech,c.Language,daughter.Id);AddForagerEvent(f,ForagerEventKind.LanguageBranch,year,c,"A locally distinct speech community is becoming established.");}
+                    ForagerAffiliations.Refresh(c);c.LastLanguageReviewYear=year;
                 }
                 var peer=neighbours[c.Id].OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
                 ChangeForagerCulture(f,c,environment[c.District],year,elapsed,peer.people==null?null:oldCultures[peer.people.Culture],peer.people==null?0:peer.relation.Strength);
-                ReviewForagerMinorities(f,c,neighbours[c.Id],year,elapsed);
+                ReviewForagerAffiliations(f,c,neighbours[c.Id],oldSpeech,oldTraditions,year,elapsed);
                 if(c.Identity>=0&&f.Peoples[c.Identity].OriginDistrict!=c.District&&year-c.FoundedYear>3000)
                 {
                     var prior=f.Peoples[c.Identity];double originDistance=DistanceKm(district.Center,f.Districts[prior.OriginDistrict].Center);
@@ -150,12 +151,16 @@ namespace WorldGen.Core
                 }
                 foreach(var contact in neighbours[c.Id])
                 {
-                    if(!languageContacts.TryGetValue(c.Language,out var list))languageContacts[c.Language]=list=new HashSet<int>();list.Add(contact.people.Language);
-                    double marriage=elapsed/30000.0*contact.relation.Strength*(f.Cultures[c.Culture].MarriageMobility+f.Cultures[contact.people.Culture].MarriageMobility)*.5;
+                    foreach(var local in c.Speech.Where(x=>x.Share>.05))
+                    {if(!languageContacts.TryGetValue(local.Id,out var list))languageContacts[local.Id]=list=new HashSet<int>();foreach(var other in contact.people.Speech.Where(x=>x.Share>.05))list.Add(other.Id);}
+                    double marriage=elapsed/30000.0*ForagerSociality.ReproductiveContact(f,c,contact.people)*contact.relation.Strength*(f.Cultures[c.Culture].MarriageMobility+f.Cultures[contact.people.Culture].MarriageMobility)*.5;
                     for(int k=0;k<c.Admixture.Length;k++)c.Admixture[k]+=marriage*(oldAdmixture[contact.people.Id][k]-c.Admixture[k]);
                     for(int k=0;k<8;k++)c.Appearance[k]+=marriage*(oldAppearance[contact.people.Id][k]-c.Appearance[k]);
                 }
                 double sum=c.Admixture.Sum();for(int k=0;k<c.Admixture.Length;k++)c.Admixture[k]=D.Q(D.Clamp(c.Admixture[k]/Math.Max(.000001,sum)),1000000000);
+                int predominant=Array.IndexOf(c.Admixture,c.Admixture.Max());
+                if(predominant!=c.Lineage&&c.Admixture[predominant]>.7)
+                {c.Lineage=predominant;AddForagerEvent(f,ForagerEventKind.Admixture,year,c,"The resident population now has predominantly "+f.Lineages[predominant].Name+" ancestry; earlier ancestry remains represented.");}
                 for(int k=0;k<8;k++)
                 {
                     double uv=HistoryHumanVariation.UvExposure(district.Center.Z,World.ElevationM[district.Cell],(int)(district.Aridity*1000),(int)(environment[c.District].Canopy*1000));
@@ -165,7 +170,7 @@ namespace WorldGen.Core
             // A shared tradition ages once, rather than once per community
             // which happens to practise it. Local branches spread through a
             // changing minority share before becoming the local majority.
-            var beliefOwners=f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.MinorityBelief>=0&&c.MinorityBeliefShare>.01?new[]{(id:c.Belief,people:c),(id:c.MinorityBelief,people:c)}:new[]{(id:c.Belief,people:c)}).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.people.Population).First());
+            var beliefOwners=f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Traditions.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.weight).First());
             foreach(var item in beliefOwners)
             {
                 var c=item.people;var peer=neighbours[c.Id].Where(p=>p.people.Belief!=item.id).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
@@ -174,45 +179,42 @@ namespace WorldGen.Core
             // Exactly one update per language, even when multiple districts share
             // it. Mutable owner iteration never makes a widespread language age
             // faster merely because more people speak it.
-            foreach(var owner in f.Cohorts.Where(c=>c.Population>=1).GroupBy(c=>c.Language).Select(g=>g.OrderByDescending(c=>c.Population).First()))
+            foreach(var speechOwner in f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Speech.Select(x=>(id:x.Id,people:c,weight:c.Population*x.Share))).GroupBy(x=>x.id).Select(g=>g.OrderByDescending(x=>x.weight).First()))
             {
-                var peer=neighbours[owner.Id].Where(p=>p.people.Language!=owner.Language).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
-                ForagerLanguages.Evolve(World.Recipe.Seed,f.Languages[owner.Language],year,elapsed,owner.Isolation,peer.people==null?0:peer.relation.Strength,peer.people==null?null:oldLanguages[peer.people.Language]);
-                var language=f.Languages[owner.Language];var culture=f.Cultures[owner.Culture];
+                var owner=speechOwner.people;int languageId=speechOwner.id;
+                var peer=neighbours[owner.Id].Where(p=>p.people.Language!=languageId).OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
+                ForagerLanguages.Evolve(World.Recipe.Seed,f.Languages[languageId],year,elapsed,owner.Isolation,peer.people==null?0:peer.relation.Strength,peer.people==null?null:oldLanguages[peer.people.Language]);
+                var language=f.Languages[languageId];var culture=f.Cultures[owner.Culture];
+                double potential=.25+.75*ForagerSociality.Capacity(f,owner,true);
                 double technical=D.Clamp(.2+.032*owner.Skill.Count(x=>x>.5)+.25*owner.Connectivity+.15*culture.ChildcareCooperation);
                 double narrative=D.Clamp(.35+.3*owner.Connectivity+.2*culture.GuestAccess+.15*owner.Use[5]+.15*f.Beliefs[owner.Belief].CollectiveRites);
                 double ritual=D.Clamp(.2+.55*f.Beliefs[owner.Belief].CollectiveRites+.2*owner.Connectivity);
-                language.TechnicalRegister=D.Q(PaleolithicRules.Approach(language.TechnicalRegister,technical,1/12000d,elapsed),1000000);
-                language.NarrativePractice=D.Q(PaleolithicRules.Approach(language.NarrativePractice,narrative,1/15000d,elapsed),1000000);
-                language.RitualRegister=D.Q(PaleolithicRules.Approach(language.RitualRegister,ritual,1/15000d,elapsed),1000000);
+                language.TechnicalRegister=D.Q(PaleolithicRules.Approach(language.TechnicalRegister,technical*potential,1/12000d,elapsed),1000000);
+                language.NarrativePractice=D.Q(PaleolithicRules.Approach(language.NarrativePractice,narrative*potential,1/15000d,elapsed),1000000);
+                language.RitualRegister=D.Q(PaleolithicRules.Approach(language.RitualRegister,ritual*potential,1/15000d,elapsed),1000000);
             }
             ForagerLanguages.ReviewFamilies(f,year,languageContacts.ToDictionary(p=>p.Key,p=>p.Value.OrderBy(x=>x).ToArray()));
         }
-        void ReviewForagerMinorities(ForagerState f,ForagerCohort c,List<(ForagerCohort people,ForagerExchange relation)> contacts,int year,int elapsed)
+        void ReviewForagerAffiliations(ForagerState f,ForagerCohort c,List<(ForagerCohort people,ForagerExchange relation)> contacts,
+            Dictionary<int,ForagerAffiliation[]> oldSpeech,Dictionary<int,ForagerAffiliation[]> oldTraditions,int year,int elapsed)
         {
-            var belief=f.Beliefs[c.Belief];
-            bool migrant=belief.OriginDistrict!=c.District;
-            if(c.MinorityBelief<0&&year-belief.FoundedYear>1500&&year-c.FoundedYear>1000&&Rng.Value(World.Recipe.Seed,"local-belief-branch",c.Id^year)<1-Math.Exp(-elapsed*(.3+c.Isolation)/(migrant?3500d:12000d)))
+            var culture=f.Cultures[c.Culture];double exposure=contacts.Sum(p=>p.relation.Strength*(1-.8*p.relation.Hostility));
+            var speechNorm=ForagerAffiliations.ContactNorm(c.Speech,c.Population,contacts.Select(p=>(oldSpeech[p.people.Id],p.people.Population,p.relation.Strength*(1-.8*p.relation.Hostility))),culture.GuestAccess);
+            double shift=1-Math.Exp(-elapsed*D.Clamp(exposure)*(.25+.75*culture.GuestAccess)/1400d);
+            c.Speech=ForagerAffiliations.Approach(c.Speech,speechNorm,shift,c.Population);
+            var belief=f.Beliefs[c.Belief];bool migrant=belief.OriginDistrict!=c.District;
+            bool existingDaughter=c.Traditions.Any(x=>f.Beliefs[x.Id].Parent==belief.Id&&f.Beliefs[x.Id].OriginDistrict==c.District);
+            if(!existingDaughter&&c.Population>=35&&year-belief.FoundedYear>1500&&year-c.FoundedYear>1000&&Rng.Value(World.Recipe.Seed,"local-belief-branch",c.Id^year)<1-Math.Exp(-elapsed*(.3+c.Isolation)/(migrant?3500d:12000d)))
             {
-                var daughter=ForagerBeliefs.Create(World.Recipe.Seed,f.NextBelief++,c.District,year,f.Districts[c.District],f.Languages[c.Language],belief);f.Beliefs=f.Beliefs.Concat(new[]{daughter}).ToArray();c.MinorityBelief=daughter.Id;c.MinorityBeliefShare=.02;
+                var daughter=ForagerBeliefs.Create(World.Recipe.Seed,f.NextBelief++,c.District,year,f.Districts[c.District],f.Languages[c.Language],belief);
+                f.Beliefs=f.Beliefs.Concat(new[]{daughter}).ToArray();c.Traditions=ForagerAffiliations.Transfer(c.Traditions,belief.Id,daughter.Id,.02);
                 AddForagerEvent(f,ForagerEventKind.BeliefBranch,year,c,"Some households are developing a distinct local ritual tradition.");
             }
-            if(c.MinorityBelief>=0)
-            {
-                var minority=f.Beliefs[c.MinorityBelief];bool emerging=minority.Parent==c.Belief&&minority.OriginDistrict==c.District;
-                double outside=contacts.Where(p=>p.people.Belief==c.MinorityBelief).Sum(p=>p.relation.Strength)/Math.Max(.000001,contacts.Sum(p=>p.relation.Strength));
-                double target=emerging?.85:belief.Parent==c.MinorityBelief?0:.25*outside*f.Cultures[c.Culture].GuestAccess;
-                c.MinorityBeliefShare=D.Q(PaleolithicRules.Approach(c.MinorityBeliefShare,target,1/(emerging?1800d:5000d),elapsed),1000000);
-                if(c.MinorityBeliefShare>.5){int previous=c.Belief;c.Belief=c.MinorityBelief;c.MinorityBelief=previous;c.MinorityBeliefShare=1-c.MinorityBeliefShare;}
-                if(c.MinorityBeliefShare<.005){c.MinorityBelief=-1;c.MinorityBeliefShare=0;}
-            }
-            if(c.MinorityLanguage>=0)
-            {
-                double total=contacts.Sum(p=>p.relation.Strength),speakers=contacts.Where(p=>p.people.Language==c.MinorityLanguage).Sum(p=>p.relation.Strength);
-                double external=total>0?speakers/total:0;double target=.4*external*f.Cultures[c.Culture].GuestAccess;
-                c.MinorityLanguageShare=D.Q(PaleolithicRules.Approach(c.MinorityLanguageShare,target,1/2500d,elapsed),1000000);
-                if(c.MinorityLanguageShare<.005){c.MinorityLanguage=-1;c.MinorityLanguageShare=0;}
-            }
+            var traditionNorm=ForagerAffiliations.ContactNorm(c.Traditions,c.Population,contacts.Select(p=>(oldTraditions[p.people.Id],p.people.Population,p.relation.Strength*.5*(1-p.relation.Hostility))),culture.GuestAccess*.5);
+            var emerging=c.Traditions.Where(x=>f.Beliefs[x.Id].Parent==belief.Id&&f.Beliefs[x.Id].OriginDistrict==c.District).OrderByDescending(x=>x.Share).FirstOrDefault();
+            if(emerging!=null)traditionNorm=ForagerAffiliations.Blend(traditionNorm,.2,ForagerAffiliations.Single(emerging.Id),.8);
+            c.Traditions=ForagerAffiliations.Approach(c.Traditions,traditionNorm,1-Math.Exp(-elapsed*(emerging!=null?1:.2+.4*D.Clamp(exposure))/1800d),c.Population);
+            ForagerAffiliations.Refresh(c);
         }
         void ChangeForagerCulture(ForagerState f,ForagerCohort people,ForagerEnvironment e,int year,int elapsed,ForagerCulture donor,double contact)
         {

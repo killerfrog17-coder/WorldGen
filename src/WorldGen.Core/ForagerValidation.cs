@@ -40,9 +40,12 @@ namespace WorldGen.Core
                 Require(Values(c.TeachingFrom,ForagerTechnology.Count)&&Finite(c.ContactTeaching)&&Finite(c.TeachingAdults),"saved incoming teaching context");
                 for(int k=0;k<ForagerTechnology.Count;k++)Require(c.Skill[k]<=c.Knowledge[k]+.000001&&c.Use[k]<=c.Skill[k]+.000001,"use <= skill <= familiarity");
                 Require(Finite(c.Children)&&Finite(c.Adults)&&Finite(c.Elders)&&Math.Abs(c.Children-c.Ages[0]-c.Ages[1])<.000001&&Math.Abs(c.Adults-c.Ages[2]-c.Ages[3])<.000001&&Math.Abs(c.Elders-c.Ages[4])<.000001,"age-stock aggregates");
-                Require(Finite(c.Births)&&Finite(c.Deaths)&&Finite(c.Immigration)&&Finite(c.Emigration)&&Finite(c.Capacity)&&Finite(c.BirthRate)&&Finite(c.AdultMortality)&&Finite(c.ChildMortality)&&Finite(c.ElderMortality),"vital rates and totals");
+                Require(Finite(c.Births)&&Finite(c.Deaths)&&Finite(c.Immigration)&&Finite(c.Emigration)&&Finite(c.Capacity)&&Finite(c.MatingContacts)&&Finite(c.BirthRate)&&Finite(c.AdultMortality)&&Finite(c.ChildMortality)&&Finite(c.ElderMortality),"vital rates and totals");
                 Require(Unit(c.Occupation)&&Unit(c.WinterSecurity)&&Unit(c.Health)&&Unit(c.Isolation)&&Unit(c.Connectivity)&&Unit(c.ConflictPressure)&&Finite(c.FoodSecurity)&&c.FoodSecurity<=1.500001,"livelihood constraints");
                 Require(Values(c.Appearance,8)&&Values(c.Admixture,f.Lineages.Length)&&Math.Abs(c.Admixture.Sum()-1)<.000001,"appearance and mixed ancestry");
+                bool Affiliations(ForagerAffiliation[] profile,int count)=>profile!=null&&profile.Length>0&&profile.All(x=>x.Id>=0&&x.Id<count&&Unit(x.Share)&&x.Share>0)&&profile.Select(x=>x.Id).SequenceEqual(profile.Select(x=>x.Id).OrderBy(x=>x).Distinct())&&Math.Abs(profile.Sum(x=>x.Share)-1)<.000001;
+                Require(Affiliations(c.Speech,f.Languages.Length)&&Affiliations(c.Traditions,f.Beliefs.Length),"complete resident affiliations");
+                Require(c.Language==c.Speech.OrderByDescending(x=>x.Share).ThenBy(x=>x.Id).First().Id&&c.Belief==c.Traditions.OrderByDescending(x=>x.Share).ThenBy(x=>x.Id).First().Id,"derived majority affiliations");
                 Require(c.MinorityLanguage>=-1&&c.MinorityLanguage<f.Languages.Length&&c.MinorityBelief>=-1&&c.MinorityBelief<f.Beliefs.Length&&Unit(c.MinorityLanguageShare)&&Unit(c.MinorityBeliefShare)&&Unit(c.BilingualShare),"resident minorities");
                 Require(c.ShockStart>=0&&c.ShockEnd>=c.ShockStart&&Finite(c.ShockSeverity),"shock timing");
             }
@@ -51,6 +54,7 @@ namespace WorldGen.Core
             foreach(var l in f.Lineages)
             {
                 Require(l.Id>=0&&l.Id<f.Lineages.Length&&ReferenceEquals(l,f.Lineages[l.Id])&&l.Parent<l.Id&&l.OriginDistrict>=0&&l.OriginDistrict<f.Districts.Length,"lineage identity/parent");
+                Require(Unit(l.CulturalLearning)&&Unit(l.SymbolicPotential),"explicit lineage capacities");
                 Require(Finite(l.AdultMassKg)&&l.AdultMassKg>=25&&l.AdultMassKg<120&&Finite(l.StatureM)&&l.StatureM>1&&l.StatureM<2.3&&Unit(l.Compactness)&&Unit(l.LimbRatio)&&Unit(l.FaceProjection)&&Unit(l.BrowRidge)&&Unit(l.JawBreadth)&&Unit(l.NoseForm),"human phenotype");
                 Require(l.AncestralRoute.Length>0&&l.AncestralRoute[0]==l.AncestorOrigin&&l.AncestralRoute.Last()==l.OriginDistrict&&l.AncestralRoute.Zip(l.AncestralRoute.Skip(1),(a,b)=>f.Districts[a].Passages.Any(p=>p.To==b)).All(x=>x),"connected ancestral human dispersal");
                 Require(l.Parent<0||l.SeparationYears<f.Lineages[l.Parent].SeparationYears,"descendant separation must follow its ancestral separation");

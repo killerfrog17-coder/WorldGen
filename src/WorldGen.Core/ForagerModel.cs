@@ -10,7 +10,7 @@ namespace WorldGen.Core
     // records remain unchanged for old-save replay, never silently reinterpreted.
     [Serializable] public sealed class ForagerState
     {
-        public string Version="foragers-1";
+        public string Version="foragers-2";
         public double InitialPopulation;
         public long Seconds,BoundarySeconds,NextReviewSeconds;
         public int NextCohort,NextCulture,NextLanguage,NextBelief,NextFamily,NextPeople;
@@ -75,17 +75,29 @@ namespace WorldGen.Core
     {
         public int Id,Parent=-1,OriginDistrict,AncestorOrigin,SeparationYears;
         public string Name="",ScientificName="",Basis="";
-        public bool PlayerSpecies;
+        public bool PlayerSpecies,Sapient;
+        // Explicit fictional-world capacities, not diagnoses inferred from fossil
+        // skulls. More than one lineage may be designated sapient in later presets.
+        public double CulturalLearning=1,SymbolicPotential=1;
         public double GenerationYears=27,AdultMassKg=65,StatureM=1.68,Compactness=.5,LimbRatio=.5,FaceProjection=.5,BrowRidge=.5,JawBreadth=.5,NoseForm=.5;
         public double[] Ancestry=new double[8];
         public int[] AncestralRoute=Array.Empty<int>();
         public HomininLineage Copy(){var c=(HomininLineage)MemberwiseClone();c.Ancestry=(double[])Ancestry.Clone();c.AncestralRoute=(int[])AncestralRoute.Clone();return c;}
     }
+    [Serializable] public sealed class ForagerAffiliation
+    {
+        public int Id; public double Share;
+        public ForagerAffiliation Copy()=>(ForagerAffiliation)MemberwiseClone();
+    }
     [Serializable] public sealed class ForagerCohort
     {
         public int Id,District,Lineage,Culture,Identity,Language,Belief,Parent=-1,FoundedYear,LastMigrationYear,LastContactYear,LastLanguageReviewYear;
+        // Canonical distributions retain every represented resident community.
+        // Primary/runner-up fields below are derived observer caches only.
+        public ForagerAffiliation[] Speech=Array.Empty<ForagerAffiliation>(),Traditions=Array.Empty<ForagerAffiliation>();
         public int MinorityLanguage=-1,MinorityBelief=-1;
         public double MinorityLanguageShare,MinorityBeliefShare,BilingualShare;
+        public double MatingContacts;
         public double Children,Adults,Elders,Capacity,Occupation,BirthRate,AdultMortality,ChildMortality,ElderMortality;
         public double[] Ages=new double[5];
         public double FoodSecurity,WinterSecurity,Health,ResourcePressure,ConflictPressure,Isolation,Connectivity,CarryingPractice;
@@ -100,7 +112,7 @@ namespace WorldGen.Core
         public int HomeCell,FrontierCell;
         public double FrontierKm;
         public double Population=>Children+Adults+Elders;
-        public ForagerCohort Copy(){var c=(ForagerCohort)MemberwiseClone();c.Ages=(double[])Ages.Clone();c.Knowledge=(double[])Knowledge.Clone();c.Skill=(double[])Skill.Clone();c.Use=(double[])Use.Clone();c.Teaching=(double[])Teaching.Clone();c.Innovation=(double[])Innovation.Clone();c.FirstKnownYear=(int[])FirstKnownYear.Clone();c.FirstSkilledYear=(int[])FirstSkilledYear.Clone();c.LastLossYear=(int[])LastLossYear.Clone();c.TeachingFrom=(double[])TeachingFrom.Clone();c.Diet=(double[])Diet.Clone();c.Appearance=(double[])Appearance.Clone();c.Admixture=(double[])Admixture.Clone();return c;}
+        public ForagerCohort Copy(){var c=(ForagerCohort)MemberwiseClone();c.Speech=Speech.Select(x=>x.Copy()).ToArray();c.Traditions=Traditions.Select(x=>x.Copy()).ToArray();c.Ages=(double[])Ages.Clone();c.Knowledge=(double[])Knowledge.Clone();c.Skill=(double[])Skill.Clone();c.Use=(double[])Use.Clone();c.Teaching=(double[])Teaching.Clone();c.Innovation=(double[])Innovation.Clone();c.FirstKnownYear=(int[])FirstKnownYear.Clone();c.FirstSkilledYear=(int[])FirstSkilledYear.Clone();c.LastLossYear=(int[])LastLossYear.Clone();c.TeachingFrom=(double[])TeachingFrom.Clone();c.Diet=(double[])Diet.Clone();c.Appearance=(double[])Appearance.Clone();c.Admixture=(double[])Admixture.Clone();return c;}
     }
     [Serializable] public sealed class ForagerPeopleIdentity
     {

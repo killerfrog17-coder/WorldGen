@@ -76,7 +76,9 @@ namespace WorldGen.Core
                 double island=state.Districts.Where(x=>x.Realm==d.Realm).Sum(x=>x.AreaKm2)<50000?.85:1;
                 var profile=LanguageGenerator.Create(World.Recipe.Seed^0x47213,i,0);
                 string root=LanguageGenerator.Word(profile,"land").Text.Replace(" ","").ToLowerInvariant();
-                var l=new HomininLineage{Id=i,Parent=parent,OriginDistrict=d.Id,AncestorOrigin=originDistrict,PlayerSpecies=i==0,
+                var l=new HomininLineage{Id=i,Parent=parent,OriginDistrict=d.Id,AncestorOrigin=originDistrict,PlayerSpecies=i==0,Sapient=i==0,
+                    CulturalLearning=i==0?1:.72+.22*Rng.Value(World.Recipe.Seed,"lineage-cultural-learning",d.Id),
+                    SymbolicPotential=i==0?1:.38+.42*Rng.Value(World.Recipe.Seed,"lineage-symbolic-potential",d.Id),
                     Name=i==0?"Homo sapiens":"Homo "+root+"ensis",ScientificName=i==0?"Homo sapiens":"Homo "+root+"ensis",
                     SeparationYears=i==0?300000:Math.Max(180000,(int)(350000+ancestral.costs[d.Id]/35+100000*Noise("isolation"))),
                     Compactness=compact,AdultMassKg=D.Q((ancestor?.AdultMassKg??(58+18*compact))+9*Noise("mass"),1000)*island,
@@ -116,6 +118,8 @@ namespace WorldGen.Core
             culture.Name=LanguageGenerator.Capitalize(LanguageGenerator.WordWithRootSeed(speech.Sounds,"people",culture.Seed).Text)+" "+ForagerLanguages.Word(speech,d.Coast>.5?"sea":d.River>.4?"river":d.Relief>800?"mountain":d.Canopy>.5?"tree":"grass").Text;
             var c=new ForagerCohort{Id=state.NextCohort++,District=district,Lineage=lineage,Culture=culture.Id,Language=speech.Id,Belief=parent?.Belief??-1,Parent=parent?.Id??-1,FoundedYear=year,LastMigrationYear=year,LastContactYear=year,LastLanguageReviewYear=year,
                 Knowledge=new double[ForagerTechnology.Count],Skill=new double[ForagerTechnology.Count],Use=new double[ForagerTechnology.Count],Teaching=new double[ForagerTechnology.Count],Innovation=new double[ForagerTechnology.Count],Admixture=new double[state.Lineages.Length],HomeCell=d.Cell,FrontierCell=d.Cell,Occupation=.08,FrontierKm=10,Health=.75,FoodSecurity=1};
+            c.Speech=parent==null?ForagerAffiliations.Single(speech.Id):parent.Speech.Select(x=>x.Copy()).ToArray();
+            c.Traditions=parent==null?Array.Empty<ForagerAffiliation>():parent.Traditions.Select(x=>x.Copy()).ToArray();
             c.Admixture[lineage]=1;
             if(parent==null)
             {

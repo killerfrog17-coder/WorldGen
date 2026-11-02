@@ -110,7 +110,7 @@ namespace WorldGen.Core
                 case 41:case 42:return .15+.5*c.Connectivity;default:return .5;
             }
         }
-        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1)
+        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1)
         {
             ulong inventions=0;
             for(int k=0;k<Count;k++)
@@ -123,12 +123,14 @@ namespace WorldGen.Core
                 // No inherited discovery clock. Realised innovations are rare
                 // opportunities; failing to invent this century does not grant
                 // inevitable discovery credit to every descendant everywhere.
-                double hazard=1-Math.Exp(-years/t.InnovationYears*network*opportunity);
+                double complexity=D.Clamp((t.InnovationYears-60000)/640000d);
+                double innovationCapacity=(1-complexity)+complexity*(.25+.75*D.Clamp(symbolicPotential));
+                double hazard=1-Math.Exp(-years/t.InnovationYears*network*opportunity*innovationCapacity);
                 if(Rng.Value(seed,"forager-invention-"+k,unchecked(c.Id*104729+year))<hazard){if(c.Knowledge[k]<.5)inventions|=1UL<<k;c.Knowledge[k]=Math.Max(c.Knowledge[k],.7+.2*Rng.Value(seed,"forager-insight-"+k,c.Id^year));}
                 double teacher=teachers!=null&&teachers.Length>k?teachers[k]:0;
                 double localTeaching=D.Clamp(c.Skill[k]*Math.Min(1,practitioners/8));
                 double learning=teacher*(.35+.65*culture.ExchangeOpenness)*D.Clamp(contactStrength)+localTeaching;
-                learning*=.55+.45*D.Clamp(explanationPractice);
+                learning*=(.55+.45*D.Clamp(explanationPractice))*(.4+.6*D.Clamp(learningCapacity));
                 // Repeated successful practice can refine a familiar method.
                 // Material scarcity reduces opportunity and use; it does not
                 // multiply down every descendant technique's maximum skill.

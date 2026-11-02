@@ -54,14 +54,9 @@ namespace WorldGen.Core
                 for(int k=0;k<ForagerTechnology.Count;k++){receiver.Knowledge[k]=(receiver.Knowledge[k]*old+source.Knowledge[k]*number)/total;receiver.Skill[k]=(receiver.Skill[k]*old+source.Skill[k]*number)/total;receiver.Use[k]=(receiver.Use[k]*old+source.Use[k]*number)/total;}
                 for(int k=0;k<8;k++)receiver.Appearance[k]=(receiver.Appearance[k]*old+source.Appearance[k]*number)/total;
                 for(int k=0;k<receiver.Admixture.Length;k++)receiver.Admixture[k]=(receiver.Admixture[k]*old+source.Admixture[k]*number)/total;
-                if(source.Language!=receiver.Language)
-                {
-                    if(receiver.MinorityLanguage!=source.Language){receiver.MinorityLanguage=source.Language;receiver.MinorityLanguageShare=0;}
-                    receiver.MinorityLanguageShare=(receiver.MinorityLanguageShare*old+number)/total;
-                    if(receiver.MinorityLanguageShare>.65){int prior=receiver.Language;receiver.Language=receiver.MinorityLanguage;receiver.MinorityLanguage=prior;receiver.MinorityLanguageShare=1-receiver.MinorityLanguageShare;}
-                }
-                if(source.Belief!=receiver.Belief)
-                {if(receiver.MinorityBelief!=source.Belief){receiver.MinorityBelief=source.Belief;receiver.MinorityBeliefShare=0;}receiver.MinorityBeliefShare=(receiver.MinorityBeliefShare*old+number)/total;if(receiver.MinorityBeliefShare>.5){int prior=receiver.Belief;receiver.Belief=receiver.MinorityBelief;receiver.MinorityBelief=prior;receiver.MinorityBeliefShare=1-receiver.MinorityBeliefShare;}}
+                receiver.Speech=ForagerAffiliations.Blend(receiver.Speech,old,source.Speech,number);
+                receiver.Traditions=ForagerAffiliations.Blend(receiver.Traditions,old,source.Traditions,number);
+                ForagerAffiliations.Refresh(receiver);
                 ForagerDemography.MovePopulation(source,receiver,number);source.LastMigrationYear=receiver.LastMigrationYear=year;
                 receiver.FrontierKm=Math.Max(10,receiver.FrontierKm);receiver.Occupation=Math.Max(.01,receiver.Occupation);
                 if(source.FoodSecurity<.5)AddForagerEvent(f,ForagerEventKind.Refuge,year,source,"Families have sought refuge in neighbouring hunting and gathering grounds.",receiver.Id);

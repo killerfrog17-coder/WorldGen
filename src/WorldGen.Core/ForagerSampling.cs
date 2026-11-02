@@ -54,8 +54,8 @@ namespace WorldGen.Core
                 Name=culture.Name+" · "+LanguageGenerator.WordWithRootSeed(f.Languages[c.Language].Sounds,"home",key).Text,
                 HomeRangeKm=range,MoveFrequencyPerYear=culture.Residence==ForagerResidence.AquaticResidence?2:culture.Residence==ForagerResidence.CollectorCamps?4:5+5*d.Seasonality[0],
                 Aggregation=D.Clamp(.2+.35*(d.Coast+d.River)+.25*c.Connectivity),FoodSecurity=c.FoodSecurity,Hospitality=culture.GuestAccess,Residence=culture.Residence,Techniques=new bool[ForagerTechnology.Count]};
-            if(c.MinorityLanguage>=0&&Rng.Value(World.Recipe.Seed,"band-minority-language",key)<c.MinorityLanguageShare)band.Language=c.MinorityLanguage;
-            if(c.MinorityBelief>=0&&Rng.Value(World.Recipe.Seed,"band-minority-belief",key)<c.MinorityBeliefShare)band.Belief=c.MinorityBelief;
+            band.Language=ForagerAffiliations.Pick(c.Speech,Rng.Value(World.Recipe.Seed,"band-minority-language",key));
+            band.Belief=ForagerAffiliations.Pick(c.Traditions,Rng.Value(World.Recipe.Seed,"band-minority-belief",key));
             // Technique-specific, spatially correlated prevalence. One rank for
             // all tools incorrectly makes every skilled band know the same set.
             for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=Rng.Value(World.Recipe.Seed,"band-technique-"+k,key)<c.Skill[k];

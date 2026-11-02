@@ -11,11 +11,12 @@ namespace WorldGen.Presentation
         public static ForagerMaps For(PrehistoryState s)=>Cache.GetValue(s,x=>new ForagerMaps(x));
         readonly PrehistoryState state;
         readonly ForagerCohort[][] residents;
+        public double Population(ForagerCohort c)=>ForagerDemography.Present(state.Foragers,c);
         public ForagerCohort[] Residents(int cell)=>cell>=0&&cell<state.Foragers.CellDistrict.Length&&state.Foragers.CellDistrict[cell]>=0?residents[state.Foragers.CellDistrict[cell]]:Array.Empty<ForagerCohort>();
         public ForagerCohort? Dominant(int cell)=>Residents(cell).FirstOrDefault();
         ForagerMaps(PrehistoryState s)
         {
-            state=s;var byDistrict=s.Foragers.Cohorts.Where(c=>c.Population>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).ToArray());
+            state=s;var byDistrict=s.Foragers.Cohorts.Where(c=>Population(c)>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>Population(c)).ThenBy(c=>c.Id).ToArray());
             residents=s.Foragers.Districts.Select(d=>byDistrict.TryGetValue(d.Id,out var c)?c:Array.Empty<ForagerCohort>()).ToArray();
         }
         public static int Toolkit(ForagerCohort c)
@@ -34,13 +35,14 @@ namespace WorldGen.Presentation
             {
                 case HistoryOverlay.Cultures:return c.Culture;
                 case HistoryOverlay.Ethnicities:return c.Identity;
-                case HistoryOverlay.Languages:return c.Language;
-                case HistoryOverlay.Religions:return c.Belief;
+                case HistoryOverlay.Languages:return Majority(local,true);
+                case HistoryOverlay.Religions:return Majority(local,false);
                 case HistoryOverlay.Technology:return Toolkit(c);
                 case HistoryOverlay.HumanSpecies:int mask=0;foreach(var p in local)mask|=1<<p.Lineage;return mask;
                 default:return -1;
             }
         }
+        int Majority(ForagerCohort[] local,bool speech)=>local.SelectMany(c=>(speech?c.Speech:c.Traditions).Select(x=>(x.Id,people:Population(c)*x.Share))).GroupBy(x=>x.Id).OrderByDescending(g=>g.Sum(x=>x.people)).ThenBy(g=>g.Key).First().Key;
         public string Name(int id,HistoryOverlay overlay)
         {
             var f=state.Foragers;if(id<0)return "";
@@ -72,14 +74,15 @@ namespace WorldGen.Presentation
             var entries=new Dictionary<int,HistoryLegendEntry>();
             foreach(var d in state.Foragers.Districts)
             {
-                var people=residents[d.Id];if(people.Length==0)continue;double total=people.Sum(c=>c.Population),area=d.AreaKm2*people.Max(c=>c.Occupation);
+                var people=residents[d.Id];if(people.Length==0)continue;double total=people.Sum(c=>Population(c)),area=d.AreaKm2*people.Max(c=>c.Occupation);
                 if(overlay==HistoryOverlay.HumanSpecies){Add(Id(d.Cell,overlay),total,area);continue;}
                 foreach(var c in people)
                 {
-                    double minority=overlay==HistoryOverlay.Languages&&c.MinorityLanguage>=0?c.MinorityLanguageShare:overlay==HistoryOverlay.Religions&&c.MinorityBelief>=0?c.MinorityBeliefShare:0;
-                    int id=overlay==HistoryOverlay.Cultures?c.Culture:overlay==HistoryOverlay.Ethnicities?c.Identity:overlay==HistoryOverlay.Languages?c.Language:overlay==HistoryOverlay.Religions?c.Belief:overlay==HistoryOverlay.Technology?Toolkit(c):-1;
-                    Add(id,c.Population*(1-minority),area*c.Population/total*(1-minority));
-                    if(minority>0)Add(overlay==HistoryOverlay.Languages?c.MinorityLanguage:c.MinorityBelief,c.Population*minority,area*c.Population/total*minority);
+                    double population=Population(c);
+                    if(overlay==HistoryOverlay.Languages||overlay==HistoryOverlay.Religions)
+                    {foreach(var x in overlay==HistoryOverlay.Languages?c.Speech:c.Traditions)Add(x.Id,population*x.Share,area*population/total*x.Share);continue;}
+                    int id=overlay==HistoryOverlay.Cultures?c.Culture:overlay==HistoryOverlay.Ethnicities?c.Identity:overlay==HistoryOverlay.Technology?Toolkit(c):-1;
+                    Add(id,population,area*population/total);
                 }
                 void Add(int id,double population,double shareArea)
                 {

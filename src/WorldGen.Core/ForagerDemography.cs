@@ -13,6 +13,8 @@ namespace WorldGen.Core
         // priors calibrated against broad forager demography, with independent
         // environmental/food/trauma modifiers and explicit mass balance.
         static readonly double[] Ageing={1/5d,1/10d,1/25d,1/20d,0};
+        public static double Present(ForagerState state,ForagerCohort c)
+        {double elapsed=(state.Seconds-state.BoundarySeconds)/(double)SimulationTime.Year;return elapsed>0?Project(c,elapsed,state.BoundarySeconds/(double)SimulationTime.Year).Population:c.Population;}
         public static void SetPopulation(ForagerCohort c,double population)
         {c.Ages=new[]{population*.13,population*.2,population*.4,population*.2,population*.07};Sync(c);}
         static void Sync(ForagerCohort c){c.Children=c.Ages[0]+c.Ages[1];c.Adults=c.Ages[2]+c.Ages[3];c.Elders=c.Ages[4];}
@@ -21,7 +23,7 @@ namespace WorldGen.Core
             c.Capacity=Math.Max(0,sharedCapacity);c.WinterSecurity=life.WinterSecurity;c.Health=life.Health;c.Diet=(double[])life.Diet.Clone();
             double load=c.Population/Math.Max(1,sharedCapacity),nutrition=D.Clamp(sharedCapacity/Math.Max(1,c.Population),0,1.05);
             c.FoodSecurity=nutrition;double stress=D.Clamp((1-nutrition)/.65),cold=1-life.WinterSecurity;
-            double mates=D.Clamp((c.Adults+20*c.Connectivity-3)/15),care=.88+.12*culture.ChildcareCooperation;
+            double mates=D.Clamp((c.Adults+c.MatingContacts-3)/15),care=.88+.12*culture.ChildcareCooperation;
             c.BirthRate=.096*D.Clamp(nutrition*1.08,0,1)*D.Clamp(1-.22*load,.25,1)*care*mates;
             c.ChildMortality=.035+.025*environment.Pathogens+.12*stress*stress+.10*cold+.02*c.ConflictPressure;
             c.AdultMortality=.009+.007*environment.Pathogens+.055*stress*stress+.07*cold+.012*c.ConflictPressure;
