@@ -64,7 +64,7 @@ namespace WorldGen.Core
             var families=state.LanguageFamilies.ToList();var byId=state.Languages.ToDictionary(l=>l.Id);
             foreach(var l in state.Languages.OrderBy(l=>l.Id))
             {
-                if(l.Family<0){NewFamily(l,-1);continue;}
+                if(l.Family<0){if(l.Parent>=0&&byId.TryGetValue(l.Parent,out var ancestor)&&ancestor.Family>=0)l.Family=ancestor.Family;else{NewFamily(l,-1);continue;}}
                 var previous=families[l.Family];if(SharedRoots(l,previous)>=.32)continue;
                 int match=-1;
                 if(neighbours!=null&&neighbours.TryGetValue(l.Id,out var contacts))foreach(int other in contacts)

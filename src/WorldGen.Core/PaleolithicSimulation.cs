@@ -49,9 +49,10 @@ namespace WorldGen.Core
             int target=destination<0?c.Patch:destination;double other=s.HumanRanges?.Lineages.Sum(l=>HumanRangeState.ResidentsAt(s,l,target))??0;
             return Math.Max(capacity*.1,capacity-.4*other);
         }
-        internal long NextPaleolithicEvent(PrehistoryState s)=>s.Paleolithic.BoundarySeconds+PaleolithicRules.DecisionYears*SimulationTime.Year;
+        internal long NextPaleolithicEvent(PrehistoryState s)=>s.Foragers?.NextReviewSeconds??s.Paleolithic.BoundarySeconds+PaleolithicRules.DecisionYears*SimulationTime.Year;
         internal PrehistoryState AdvancePaleolithic(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validate,int maximumWork=int.MaxValue)
         {
+            if(Foraging(source))return AdvanceForagers(source,seconds,maximumEvents,token,validate,maximumWork);
             if(validate)Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             if(seconds<1||seconds>SimulationTime.Maximum-source.Paleolithic.Seconds||maximumEvents<1||maximumWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));
             var s=source.Copy();long target=s.Paleolithic.Seconds+seconds;int events=0;

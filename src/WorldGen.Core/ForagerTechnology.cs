@@ -92,24 +92,30 @@ namespace WorldGen.Core
             {
                 var t=All[k];double prerequisites=Prerequisites(c.Skill,k),materials=Materials(d,e,k),need=Demand(d,e,c,k);
                 double preference=culture.TechniquePreference.Length>k?culture.TechniquePreference[k]:.5;
-                double opportunity=D.Clamp((prerequisites-.22)/.48)*(.2+.8*materials)*(.15+.85*need);
-                double practitioners=c.Adults*(.1+.9*c.Skill[k]),network=Math.Log(1+Math.Max(0,c.Adults+connectedAdults)/40.0)/4;
+                double foundation=D.Clamp((prerequisites-.22)/.48);
+                double opportunity=foundation*(.2+.8*materials)*(.15+.85*need);
+                double practitioners=c.Adults*c.Use[k],network=Math.Max(0,c.Adults+connectedAdults*.2)/2500.0;
                 // No inherited discovery clock. Realised innovations are rare
                 // opportunities; failing to invent this century does not grant
                 // inevitable discovery credit to every descendant everywhere.
-                double hazard=(1-Math.Exp(-years/t.InnovationYears))*(.3+1.7*D.Clamp(network,0,2))*opportunity;
+                double hazard=1-Math.Exp(-years/t.InnovationYears*network*opportunity);
                 if(Rng.Value(seed,"forager-invention-"+k,unchecked(c.Id*104729+year))<hazard)c.Knowledge[k]=Math.Max(c.Knowledge[k],.7+.2*Rng.Value(seed,"forager-insight-"+k,c.Id^year));
                 double teacher=teachers!=null&&teachers.Length>k?teachers[k]:0;
                 double localTeaching=D.Clamp(c.Skill[k]*Math.Min(1,practitioners/8));
                 double learning=teacher*(.35+.65*culture.ExchangeOpenness)+localTeaching;
-                double familiarityTarget=Math.Max(c.Knowledge[k],Math.Max(teacher*.95,c.Skill[k]));
+                // Repeated successful practice can refine a familiar method.
+                // Material scarcity reduces opportunity and use; it does not
+                // multiply down every descendant technique's maximum skill.
+                double practice=D.Clamp(need*(.65+.7*preference)*materials);
+                double familiarityTarget=Math.Max(c.Knowledge[k],Math.Max(teacher*.98,c.Skill[k]));
+                if(c.Knowledge[k]>.35&&foundation>.2)familiarityTarget=Math.Max(familiarityTarget,c.Knowledge[k]+.15*practice);
                 c.Knowledge[k]=PaleolithicRules.Approach(c.Knowledge[k],familiarityTarget,learning/t.TeachingYears,years);
                 if(c.Knowledge[k]>.12&&opportunity>.03)
                 {
-                    double progress=(.15+.85*c.Knowledge[k])*opportunity*(.12+learning);
-                    c.Skill[k]=PaleolithicRules.Approach(c.Skill[k],Math.Min(c.Knowledge[k],prerequisites)*(.72+.28*materials),progress/t.PracticeYears,years);
+                    double progress=(.15+.85*c.Knowledge[k])*foundation*practice*(.12+learning);
+                    c.Skill[k]=PaleolithicRules.Approach(c.Skill[k],c.Knowledge[k]*foundation,progress/t.PracticeYears,years);
                 }
-                double expectedUse=D.Clamp(need*(.65+.7*preference)*materials)*c.Skill[k];
+                double expectedUse=practice*c.Skill[k];
                 c.Use[k]=PaleolithicRules.Approach(c.Use[k],expectedUse,1/80.0,years);
                 double loss=(1-D.Clamp(c.Use[k]*1.8))*(.25+.75*(1-D.Clamp(learning)))/t.LossYears;
                 if(practitioners<3)loss+=1/Math.Max(250,t.LossYears*.35);

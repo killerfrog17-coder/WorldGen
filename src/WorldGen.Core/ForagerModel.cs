@@ -48,7 +48,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class ForagerPassage
     {
-        public int To,FromCell,ToCell,DistanceM,SeaFallM;
+        public int To,FromCell,ToCell,DistanceM,SeaFallM,WaterDistanceM;
         public bool Sea,Shelf;
         public double Exposure,MountainBarrier,WaterCost;
         public ForagerPassage Copy()=>(ForagerPassage)MemberwiseClone();

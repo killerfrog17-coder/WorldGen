@@ -33,12 +33,18 @@ static class ForagerMechanismTests
         }
         Check(coldLearner.Use[13]>warmLearner.Use[13]*5&&coldLearner.Use[14]>warmLearner.Use[14]*5,"Equal population/contact/time does not force identical clothing use in different climates");
         Check(warmLearner.Knowledge[13]>warmLearner.Use[13],"Knowing clothing exists is distinct from routinely making/using it");
-        var lost=c.Copy();Array.Fill(lost.Use,.1);double prior=lost.Skill[24];
-        for(int year=50;year<=10000;year+=50)ForagerTechnology.Advance(79,lost,arid,ForagerEcology.At(79,arid,year),culture,50,year,new double[33],0);
+        Check(warmLearner.Skill[0]>.8&&warmLearner.Skill[3]>.7&&coldLearner.Skill[14]>.7,"Daily practised methods retain expert transmission instead of eroding through multiplied prerequisite/material caps");
+        var lost=c.Copy();Array.Fill(lost.Use,.1);double prior=lost.Skill[24];var dryInland=arid.Copy();dryInland.Coast=dryInland.River=0;dryInland.Food[3]=dryInland.Food[4]=0;
+        for(int year=50;year<=10000;year+=50)ForagerTechnology.Advance(79,lost,dryInland,ForagerEcology.At(79,dryInland,year),culture,50,year,new double[33],0);
         Check(lost.Skill[24]<prior*.5,"Unneeded specialised skills can be lost in isolation");
         var copy=c.Copy();copy.Skill[0]=0;Check(c.Skill[0]==.9,"Cohort copy isolates skill arrays");
         var before=ForagerEcology.At(42,cold,180000);var after=ForagerEcology.At(42,cold,180000+1/365.0);
         Check(Math.Abs(before.WinterC-after.WinterC)<.01&&Math.Abs(before.Moisture-after.Moisture)<.01,"Climate/resources do not jump on a gameplay day boundary");
+        var demographic=c.Copy();ForagerDemography.SetPopulation(demographic,200);ForagerDemography.Rates(demographic,basic,warm,culture,500);
+        var projection=ForagerDemography.Project(demographic,5,0);Check(Math.Abs(projection.Population-(200+projection.Births-projection.Deaths))<.0000001,"Births, deaths and ageing conserve population without a hidden capacity clamp");
+        var destination=c.Copy();ForagerDemography.SetPopulation(destination,0);double total=demographic.Population+destination.Population;ForagerDemography.MovePopulation(demographic,destination,25);
+        Check(Math.Abs(demographic.Population+destination.Population-total)<.0000001&&Math.Abs(destination.Population-25)<.0000001,"Migration transfers age stocks instead of spawning or deleting people");
+        var doomed=demographic.Copy();ForagerDemography.Rates(doomed,basic,warm,culture,0);Check(ForagerDemography.Project(doomed,5,0).Population<doomed.Population*.01,"An uninhabitable district cannot sustain a permanent residual population");
         Console.WriteLine($"PASS {checks} forager mechanism checks; warm capacity={basic.Capacity:F1}; cold unprotected={unprotected.Capacity:F4}; protected={protectedLife.Capacity:F1}; warm fitted={warmLearner.Use[13]:F3}; cold fitted={coldLearner.Use[13]:F3}");
     }
 }

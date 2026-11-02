@@ -10,7 +10,7 @@ namespace WorldGen.Core
     public static class SimulationTime
     {
         public const long Minute=60,Hour=3600,Day=86400,Year=365*Day,Maximum=10000000*Year;
-        public static long Seconds(PrehistoryState state)=>state.Paleolithic?.Seconds??state.Timeline?.Seconds??state.Years*Year;
+        public static long Seconds(PrehistoryState state)=>state.Foragers?.Seconds??state.Paleolithic?.Seconds??state.Timeline?.Seconds??state.Years*Year;
     }
     [Serializable] public sealed class SimulationEvent
     {

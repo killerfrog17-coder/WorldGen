@@ -14,24 +14,25 @@ namespace WorldGen.Core
             double Distance(V a,V b)=>World.Recipe.RadiusKm*Math.Acos(D.Clamp(V.Dot(a,b),-1,1));
             foreach(var patch in Patches.Select((p,id)=>(p,id)))foreach(int seed in patch.p.Cells)
             {
-                if(assigned[seed]>=0)continue;token.ThrowIfCancellationRequested();int id=districts.Count;var members=new List<int>();var queue=new Queue<int>();queue.Enqueue(seed);assigned[seed]=id;
+                if(assigned[seed]>=0||!patch.p.Island&&World.Hydrology.LakeCoverageFraction[seed]>=.9)continue;token.ThrowIfCancellationRequested();int id=districts.Count;var members=new List<int>();var queue=new Queue<int>();queue.Enqueue(seed);assigned[seed]=id;
+                double LandArea(int cell)=>patch.p.Island?(SubcellGeography.Find(World,cell)?.LargestIslandAreaM2??cells[cell].AreaM2)/1e6:cells[cell].AreaM2/1e6*(1-World.Hydrology.LakeCoverageFraction[cell]);
                 double area=0;
                 while(queue.Count>0)
                 {
-                    int at=queue.Dequeue();members.Add(at);area+=cells[at].AreaM2/1e6;
+                    int at=queue.Dequeue();members.Add(at);area+=LandArea(at);
                     foreach(int next in cells[at].Neighbors.OrderBy(x=>x))
                     {
-                        if(assigned[next]>=0||CellPatch[next]!=patch.id||members.Count+queue.Count>=16||area>80000||Distance(cells[seed].Position,cells[next].Position)>220)continue;
+                        if(assigned[next]>=0||CellPatch[next]!=patch.id||!patch.p.Island&&World.Hydrology.LakeCoverageFraction[next]>=.9||members.Count+queue.Count>=16||area>80000||Distance(cells[seed].Position,cells[next].Position)>220)continue;
                         assigned[next]=id;queue.Enqueue(next);
                     }
                 }
                 var d=new ForagerDistrict{Id=id,Patch=patch.id,Province=World.Ecology.Province[seed],Realm=-1,Cell=seed,Cells=members.OrderBy(x=>x).ToArray(),AreaKm2=area};V center=new V();
-                foreach(int cell in d.Cells)center+=cells[cell].Position*(cells[cell].AreaM2/1e6);d.Center=center.Unit;
+                foreach(int cell in d.Cells)center+=cells[cell].Position*LandArea(cell);d.Center=center.Unit;
                 d.Cell=d.Cells.OrderByDescending(c=>V.Dot(cells[c].Position,d.Center)).First();d.RadiusKm=Math.Sqrt(area/Math.PI);
                 var ground=GroundEnvironment.For(World);
                 foreach(int cell in d.Cells)
                 {
-                    double weight=cells[cell].AreaM2/1e6/area;var h=World.Ecology.Habitat[cell];var soil=ground.Cell(cell);
+                    double weight=LandArea(cell)/area;var h=World.Ecology.Habitat[cell];var soil=ground.Cell(cell);
                     double coast=cells[cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n])?1:0;
                     double river=D.Clamp(HistoricalRiverAccess(cell)*8+h.FloodFractionPermille/1000.0);
                     double canopy=AnimalEcotypes.Canopy(h)/1000.0,aridity=h.AridityMilli/1000.0;
@@ -65,7 +66,7 @@ namespace WorldGen.Core
             {
                 if(a<0||b<0||a==b)return;
                 var da=districts[a];var db=districts[b];int metres=(int)Math.Max(distance,Distance(da.Center,db.Center)*1000);
-                var pass=new ForagerPassage{To=b,FromCell=from,ToCell=to,DistanceM=metres,Sea=sea,Shelf=shelf,SeaFallM=fall,MountainBarrier=D.Clamp((Math.Max(da.Relief,db.Relief)-500)/1800),WaterCost=D.Clamp(1-(da.Water+db.Water)*.5),Exposure=(da.Seasonality[0]+db.Seasonality[0])*.5};
+                var pass=new ForagerPassage{To=b,FromCell=from,ToCell=to,DistanceM=metres,WaterDistanceM=sea?distance:0,Sea=sea,Shelf=shelf,SeaFallM=fall,MountainBarrier=D.Clamp((Math.Max(da.Relief,db.Relief)-500)/1800),WaterCost=D.Clamp(1-(da.Water+db.Water)*.5),Exposure=(da.Seasonality[0]+db.Seasonality[0])*.5};
                 var key=(b,!sea?-1:shelf?fall:0);if(!links[a].TryGetValue(key,out var existing)||pass.DistanceM<existing.DistanceM)links[a][key]=pass;
             }
             foreach(var edge in World.Surface.Edges)

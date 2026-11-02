@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+namespace WorldGen.Core
+{
+    public sealed partial class Prehistory
+    {
+        void MigrateForagers(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
+        {
+            var active=f.Cohorts.Where(c=>c.Population>0).ToArray();var byPlace=active.ToDictionary(c=>(c.District,c.Lineage));var at=active.GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.ToArray());
+            var planned=new List<(ForagerCohort source,ForagerPassage pass,double people)>();
+            foreach(var c in active)
+            {
+                if((c.Id&63)==0)token.ThrowIfCancellationRequested();if(c.Adults<18||c.Population<45)continue;
+                var d=f.Districts[c.District];var culture=f.Cultures[c.Culture];ForagerPassage best=null;double bestScore=0,number=0;
+                foreach(var pass in d.Passages.GroupBy(p=>p.To).Select(g=>g.Where(p=>ForagerPassages.Open(World.Recipe.Seed,p,d,environment[c.District],environment[p.To],c)).OrderBy(ForagerPassages.TravelCostKm).FirstOrDefault()).Where(p=>p!=null))
+                {
+                    var destination=f.Districts[pass.To];var targetEnvironment=environment[pass.To];
+                    var possible=ForagerEcology.Livelihood(destination,targetEnvironment,f.Lineages[c.Lineage],c,culture,f.Resources[pass.To]);
+                    if(possible.Capacity<40||possible.WinterSecurity<.08)continue;
+                    byPlace.TryGetValue((pass.To,c.Lineage),out var recipient);bool founding=recipient==null||recipient.Population<1;
+                    double cost=ForagerPassages.TravelCostKm(pass),speed=ForagerPassages.FrontierKmPerYear(c,culture,destination,targetEnvironment);
+                    if(founding&&(year-c.FoundedYear<cost/Math.Max(.03,speed)||c.FrontierKm<Math.Min(d.RadiusKm,cost*.35)))continue;
+                    double neighbours=at.TryGetValue(pass.To,out var hosts)?hosts.Sum(x=>x.Population):0;
+                    double room=possible.Capacity-neighbours*.85;if(room<25&&founding||recipient!=null&&recipient.Population>possible.Capacity*1.1)continue;
+                    double urgency=D.Clamp((.9-c.FoodSecurity)/.7),crowding=D.Clamp(c.Population/Math.Max(1,c.Capacity));
+                    double connection=recipient!=null?.35:.08;
+                    double chance=(1-Math.Exp(-elapsed/(founding?240:120.0)))*(.15+.7*crowding+.9*urgency)*(connection+.6*culture.ExchangeOpenness);
+                    if(pass.Sea&&!pass.Shelf)chance*=.03*Math.Exp(-(pass.WaterDistanceM>0?pass.WaterDistanceM:pass.DistanceM)/140000.0);
+                    if(Rng.Value(World.Recipe.Seed,"forager-dispersal",unchecked(c.Id*104729+pass.To*193+year))>=chance)continue;
+                    double travellers=Math.Min(c.Population*(urgency>.5?.18:.08),Math.Max(0,room)*.15);
+                    travellers=Math.Min(travellers,80+80*urgency);if(founding&&travellers<18||travellers<1)continue;
+                    double score=(.3+urgency+crowding)*Math.Log(1+Math.Max(0,room))/(1+cost/300)*( .8+.4*Rng.Value(World.Recipe.Seed,"forager-route-choice",c.Id^pass.To^year));
+                    if(score>bestScore){bestScore=score;best=pass;number=travellers;}
+                }
+                if(best!=null)planned.Add((c,best,number));
+            }
+            var additions=new List<ForagerCohort>();
+            foreach(var move in planned)
+            {
+                var source=move.source;var pass=move.pass;
+                if(!byPlace.TryGetValue((pass.To,source.Lineage),out var receiver))
+                {
+                    receiver=NewForagerCohort(f,pass.To,source.Lineage,year,source);receiver.HomeCell=receiver.FrontierCell=pass.ToCell;ForagerDemography.SetPopulation(receiver,0);
+                    var belief=ForagerBeliefs.Create(World.Recipe.Seed,f.NextBelief++,pass.To,year,f.Districts[pass.To],f.Languages[receiver.Language],f.Beliefs[source.Belief]);f.Beliefs=f.Beliefs.Concat(new[]{belief}).ToArray();receiver.Belief=belief.Id;
+                    byPlace[(pass.To,source.Lineage)]=receiver;additions.Add(receiver);
+                    AddForagerEvent(f,ForagerEventKind.Settlement,year,receiver,"A travelling group has established new seasonal camps.",source.Id);
+                }
+                double number=Math.Min(move.people,source.Population*.18),old=receiver.Population,total=old+number;if(number<=0)continue;
+                for(int k=0;k<ForagerTechnology.Count;k++){receiver.Knowledge[k]=(receiver.Knowledge[k]*old+source.Knowledge[k]*number)/total;receiver.Skill[k]=(receiver.Skill[k]*old+source.Skill[k]*number)/total;receiver.Use[k]=(receiver.Use[k]*old+source.Use[k]*number)/total;}
+                for(int k=0;k<8;k++)receiver.Appearance[k]=(receiver.Appearance[k]*old+source.Appearance[k]*number)/total;
+                for(int k=0;k<receiver.Admixture.Length;k++)receiver.Admixture[k]=(receiver.Admixture[k]*old+source.Admixture[k]*number)/total;
+                if(source.Language!=receiver.Language)
+                {
+                    if(receiver.MinorityLanguage!=source.Language){receiver.MinorityLanguage=source.Language;receiver.MinorityLanguageShare=0;}
+                    receiver.MinorityLanguageShare=(receiver.MinorityLanguageShare*old+number)/total;
+                    if(receiver.MinorityLanguageShare>.65){int prior=receiver.Language;receiver.Language=receiver.MinorityLanguage;receiver.MinorityLanguage=prior;receiver.MinorityLanguageShare=1-receiver.MinorityLanguageShare;}
+                }
+                if(source.Belief!=receiver.Belief)
+                {if(receiver.MinorityBelief!=source.Belief){receiver.MinorityBelief=source.Belief;receiver.MinorityBeliefShare=0;}receiver.MinorityBeliefShare=(receiver.MinorityBeliefShare*old+number)/total;}
+                ForagerDemography.MovePopulation(source,receiver,number);source.LastMigrationYear=receiver.LastMigrationYear=year;
+                receiver.FrontierKm=Math.Max(10,receiver.FrontierKm);receiver.Occupation=Math.Max(.01,receiver.Occupation);
+                if(source.FoodSecurity<.5)AddForagerEvent(f,ForagerEventKind.Refuge,year,source,"Families have sought refuge in neighbouring hunting and gathering grounds.",receiver.Id);
+            }
+            if(additions.Count>0)f.Cohorts=f.Cohorts.Concat(additions).OrderBy(c=>c.Id).ToArray();
+        }
+    }
+}
