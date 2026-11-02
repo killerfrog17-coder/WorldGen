@@ -17,9 +17,13 @@ namespace WorldGen.Serialization
         internal const string SlotMagic="WGWSLOT1";
         internal static bool ValidBase(string id)=>id!=null&&id.Length==64&&id.All(c=>c>='0'&&c<='9'||c>='a'&&c<='f');
         public static World ReadFile(string path,CancellationToken token=default,Action<string> status=null)
+            =>ReadFileContents(path,token,status,false);
+        public static World ReadPlanetaryFile(string path,CancellationToken token=default,Action<string> status=null)
+            =>ReadFileContents(path,token,status,true);
+        static World ReadFileContents(string path,CancellationToken token,Action<string> status,bool terrainOnly)
         {
             token.ThrowIfCancellationRequested();path=Path.GetFullPath(path);if(new FileInfo(path).Length>MaximumFileBytes)throw new InvalidDataException("World snapshot exceeds the supported file size.");var header=new byte[8];using(var stream=File.OpenRead(path))stream.Read(header,0,8);
-            if(Encoding.ASCII.GetString(header)!=SlotMagic)return Read(File.ReadAllBytes(path),token,status);
+            if(Encoding.ASCII.GetString(header)!=SlotMagic)return terrainOnly?ReadPlanetary(File.ReadAllBytes(path),token,status):Read(File.ReadAllBytes(path),token,status);
             if(new FileInfo(path).Length>4096)throw new InvalidDataException("Invalid world reference size.");
             var reference=WorldJson.Read<SharedWorldReference>(Encoding.UTF8.GetString(File.ReadAllBytes(path),8,(int)new FileInfo(path).Length-8));
             if(reference==null||reference.Version!=1||!ValidBase(reference.BaseId))throw new InvalidDataException("Invalid world reference.");
@@ -28,8 +32,8 @@ namespace WorldGen.Serialization
             status?.Invoke("Loading shared planetary data");string basePath=Path.Combine(library.FullName,".bases",reference.BaseId+".world");
             if(!File.Exists(basePath))throw new FileNotFoundException("This save's shared planetary data is missing.",basePath);
             if(new FileInfo(basePath).Length>MaximumFileBytes)throw new InvalidDataException("Shared world exceeds the supported file size.");
-            var world=Read(File.ReadAllBytes(basePath),token,status);if(world.Stages.Last().Hash!=reference.BaseId)throw new InvalidDataException("Shared world identity mismatch.");
-            if(!string.IsNullOrEmpty(reference.HistoryHash))
+            var world=terrainOnly?ReadPlanetary(File.ReadAllBytes(basePath),token,status):Read(File.ReadAllBytes(basePath),token,status);if(world.Stages.Last().Hash!=reference.BaseId)throw new InvalidDataException("Shared world identity mismatch.");
+            if(!terrainOnly&&!string.IsNullOrEmpty(reference.HistoryHash))
             {
                 status?.Invoke("Loading saved history");world.Prehistory=SaveStateFile.Read<PrehistoryState>(Path.Combine(revision.FullName,"history.bin"),"WGHIST01",4000000000L,token);
                 if(world.Prehistory.Hash!=reference.HistoryHash)throw new InvalidDataException("Saved historical identity mismatch.");

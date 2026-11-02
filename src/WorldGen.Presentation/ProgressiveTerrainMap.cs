@@ -20,7 +20,7 @@ namespace WorldGen.Presentation
         sealed class Worker
         {public readonly SemaphoreSlim Gate=new SemaphoreSlim(1);public readonly TerrainMapContext Context;public Worker(LocalTerrain t){Context=new TerrainMapContext(t);}}
         sealed class CachedTile {public (int,int,int,int,int,int) Key;public TerrainMapImage Image=null!;}
-        sealed class CachedView {public int Id;public Layer Layer;public TerrainMapViewport View=null!;}
+        sealed class CachedView {public int Id;public Layer Layer;public long ClimateEpoch;public TerrainMapViewport View=null!;}
         public delegate void RemoteProducer(int revision,TerrainMapViewport view,Layer layer,int width,Action<Update> publish,CancellationToken token);
         readonly LocalTerrain terrain;readonly World? world;readonly Worker[] workers;readonly RemoteProducer? remote;
         readonly CancellationToken lifetime;CancellationTokenSource? request;
@@ -28,7 +28,7 @@ namespace WorldGen.Presentation
         readonly object cacheGate=new object();readonly List<CachedView> views=new List<CachedView>();int nextView,cacheBytes;
         readonly LinkedList<CachedTile> lru=new LinkedList<CachedTile>();
         readonly Dictionary<(int,int,int,int,int,int),LinkedListNode<CachedTile>> tiles=new Dictionary<(int,int,int,int,int,int),LinkedListNode<CachedTile>>();
-        Layer paletteLayer=(Layer)(-1);float[]? palette;long tileHits,tilesBuilt;int previewWidth=16,tileSide=8;
+        Layer paletteLayer=(Layer)(-1);long paletteEpoch=-1;float[]? palette;long tileHits,tilesBuilt;int previewWidth=16,tileSide=8;
         public int WorkerCount=>remote!=null?4:workers.Length;
         public long TileHits=>Interlocked.Read(ref tileHits);public long TilesBuilt=>Interlocked.Read(ref tilesBuilt);
         public ProgressiveTerrainMap(LocalTerrain terrain,World? world,CancellationToken lifetime,RemoteProducer? remote=null)
@@ -37,11 +37,16 @@ namespace WorldGen.Presentation
         {
             Cancel();while(TryTake(out _)){};
             var source=CancellationTokenSource.CreateLinkedTokenSource(lifetime);request=source;
+            // Snapshot just the World shell. Planetary arrays and published
+            // history are immutable; later UI/gameplay publications must not
+            // change the date halfway through a progressive map request.
+            World? captured=null;
+            if(world!=null){captured=new World();foreach(var field in WorldFields)field.SetValue(captured,field.GetValue(world));}
             _=Task.Run(async()=>
             {
                 try
                 {
-                    if(remote==null)await Produce(revision,view.Clone(),layer,targetWidth,source.Token).ConfigureAwait(false);
+                    if(remote==null)await Produce(revision,view.Clone(),layer,targetWidth,source.Token,captured).ConfigureAwait(false);
                     else remote(revision,view.Clone(),layer,targetWidth,u=>{Interlocked.Exchange(ref tileHits,u.TileHits);Interlocked.Exchange(ref tilesBuilt,u.TilesBuilt);Publish(u,source.Token).GetAwaiter().GetResult();},source.Token);
                 }
                 catch(OperationCanceledException){}
@@ -56,20 +61,21 @@ namespace WorldGen.Presentation
             await outputSlots.WaitAsync(token).ConfigureAwait(false);
             if(token.IsCancellationRequested){outputSlots.Release();token.ThrowIfCancellationRequested();}output.Enqueue(value);
         }
-        int ViewKey(TerrainMapViewport view,Layer layer)
+        static readonly System.Reflection.FieldInfo[] WorldFields=typeof(World).GetFields(System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public);
+        int ViewKey(TerrainMapViewport view,Layer layer,long epoch)
         {
             lock(cacheGate)
             {
                 double tolerance=Math.Max(1e-14,view.LongitudeSpan*1e-8);
-                foreach(var entry in views)if(entry.Layer==layer&&Math.Abs(entry.View.Latitude-view.Latitude)<tolerance&&Math.Abs(TerrainMapViewport.Wrap(entry.View.Longitude-view.Longitude))<tolerance&&Math.Abs(entry.View.LongitudeSpan-view.LongitudeSpan)<tolerance)return entry.Id;
-                if(views.Count>=8)views.RemoveAt(0);int id=++nextView;views.Add(new CachedView{Id=id,Layer=layer,View=view.Clone()});return id;
+                foreach(var entry in views)if(entry.Layer==layer&&entry.ClimateEpoch==epoch&&Math.Abs(entry.View.Latitude-view.Latitude)<tolerance&&Math.Abs(TerrainMapViewport.Wrap(entry.View.Longitude-view.Longitude))<tolerance&&Math.Abs(entry.View.LongitudeSpan-view.LongitudeSpan)<tolerance)return entry.Id;
+                if(views.Count>=8)views.RemoveAt(0);int id=++nextView;views.Add(new CachedView{Id=id,Layer=layer,ClimateEpoch=epoch,View=view.Clone()});return id;
             }
         }
-        TerrainMapImage Tile(Worker worker,int viewId,TerrainMapViewport view,Layer layer,int width,int x,int y,int w,int h,float[]? colors,CancellationToken token)
+        TerrainMapImage Tile(Worker worker,int viewId,TerrainMapViewport view,Layer layer,int width,int x,int y,int w,int h,float[]? colors,CancellationToken token,World? captured)
         {
             var key=(viewId,width,x,y,w,h);
             lock(cacheGate)if(tiles.TryGetValue(key,out var found)){lru.Remove(found);lru.AddLast(found);Interlocked.Increment(ref tileHits);return found.Value.Image;}
-            var result=worker.Context.BuildTile(view,width,width/2,x,y,w,h,token,layer,colors,world);token.ThrowIfCancellationRequested();
+            var result=worker.Context.BuildTile(view,width,width/2,x,y,w,h,token,layer,colors,captured);token.ThrowIfCancellationRequested();
             Interlocked.Increment(ref tilesBuilt);
             lock(cacheGate)
             {
@@ -81,22 +87,23 @@ namespace WorldGen.Presentation
             }
             return result;
         }
-        async Task Produce(int revision,TerrainMapViewport view,Layer layer,int targetWidth,CancellationToken token)
+        async Task Produce(int revision,TerrainMapViewport view,Layer layer,int targetWidth,CancellationToken token,World? captured)
         {
+            long epoch=captured?.Prehistory?.Foragers==null?0:1+captured.Prehistory.Foragers.Seconds/(25*SimulationTime.Year);
             int first=Math.Max(4,Volatile.Read(ref previewWidth));var watch=Stopwatch.StartNew();
-            var preview=TerrainMapPreview.Build(terrain,world,view,first,layer,token);
+            var preview=TerrainMapPreview.Build(terrain,captured,view,first,layer,token);
             // Target well below half a second; adapt future first previews to
             // observed cost, rather than requiring a fixed sharp first raster.
             double elapsed=Math.Max(.001,watch.Elapsed.TotalSeconds);
             Volatile.Write(ref previewWidth,Math.Max(4,Math.Min(32,(int)(first*Math.Sqrt(.15/elapsed)))));
             await Publish(new Update{Revision=revision,Image=preview,CanvasWidth=first,CanvasHeight=first/2,Preview=true,Layer=layer},token).ConfigureAwait(false);
             float[]? colors=null;
-            if(!TerrainMapSampling.Continuous(layer)&&world!=null)
+            if(!TerrainMapSampling.Continuous(layer)&&captured!=null)
             {
-                lock(cacheGate)if(paletteLayer==layer)colors=palette;
-                if(colors==null){colors=GlobeView.CellValues(world,layer,token:token).Colors;token.ThrowIfCancellationRequested();lock(cacheGate){palette=colors;paletteLayer=layer;}}
+                lock(cacheGate)if(paletteLayer==layer&&paletteEpoch==epoch)colors=palette;
+                if(colors==null){colors=GlobeView.CellValues(captured,layer,token:token).Colors;token.ThrowIfCancellationRequested();lock(cacheGate){palette=colors;paletteLayer=layer;paletteEpoch=epoch;}}
             }
-            int viewId=ViewKey(view,layer);
+            int viewId=ViewKey(view,layer,epoch);
             for(int resolution=32;;resolution=Math.Min(targetWidth,resolution*2))
             {
                 token.ThrowIfCancellationRequested();int width=Math.Min(targetWidth,resolution),height=width/2;
@@ -115,7 +122,7 @@ namespace WorldGen.Presentation
                             for(int at=Interlocked.Increment(ref next);at<work.Count;at=Interlocked.Increment(ref next))
                             {
                                 token.ThrowIfCancellationRequested();var p=work[at];var clock=Stopwatch.StartNew();
-                                var image=Tile(worker,viewId,view,layer,width,p.x,p.y,p.w,p.h,colors,token);
+                                var image=Tile(worker,viewId,view,layer,width,p.x,p.y,p.w,p.h,colors,token,captured);
                                 double seconds=Math.Max(.001,clock.Elapsed.TotalSeconds);
                                 if(seconds>.15)Volatile.Write(ref tileSide,Math.Max(4,side/2));else if(seconds<.03)Volatile.Write(ref tileSide,Math.Min(32,side*2));
                                 await Publish(new Update{Revision=revision,Image=image,X=p.x,Y=p.y,CanvasWidth=width,CanvasHeight=height,Layer=layer},token).ConfigureAwait(false);

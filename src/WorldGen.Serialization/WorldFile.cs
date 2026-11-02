@@ -42,6 +42,12 @@ namespace WorldGen.Serialization
             }
         }
         public static World Read(byte[] bytes, CancellationToken cancellation = default, Action<string> status = null)
+            =>ReadSnapshot(bytes,cancellation,status,false);
+        // Geometry workers need the exact original planet, never its potentially
+        // enormous human archive. Normal game/save reads always retain history.
+        public static World ReadPlanetary(byte[] bytes,CancellationToken cancellation=default,Action<string> status=null)
+            =>ReadSnapshot(bytes,cancellation,status,true);
+        static World ReadSnapshot(byte[] bytes,CancellationToken cancellation,Action<string> status,bool terrainOnly)
         {
             cancellation.ThrowIfCancellationRequested();
             if (bytes == null || bytes.Length < Magic.Length + 18 || bytes.Length > MaximumFileBytes) throw new ArgumentException("Invalid compact world-file size.");
@@ -61,7 +67,7 @@ namespace WorldGen.Serialization
             {
                 status?.Invoke("Reading terrain and saved history");
                 World world;
-                using(var transport=new BinaryWorldTransport(cancellation,version))
+                using(var transport=new BinaryWorldTransport(cancellation,version,terrainOnly))
                 using(HistoricalCellTree.BeginReadInterning(cancellation))world=(World)Serializer(transport).ReadObject(reader);
                 status?.Invoke("Checking world and history integrity");
                 return WorldJson.ValidateWorld(world, cancellation, status);

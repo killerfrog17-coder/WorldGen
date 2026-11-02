@@ -27,7 +27,7 @@ if args.freeze:
     paths=set(old)
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Runtime','unity/WorldGen.Unity/Assets/WorldGen/Editor','unity/WorldGen.Unity/Assets/WorldGen/Resources']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file() and p.suffix in {'.cs','.shader','.hlsl'})
-    for directory in ['src/WorldGen.Core','src/WorldGen.Serialization','src/WorldGen.Presentation']:
+    for directory in ['src/WorldGen.Core','src/WorldGen.Serialization','src/WorldGen.Presentation','src/WorldGen.Cli']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*.cs') if not {'obj','bin'}.intersection(p.parts))
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'unity/WorldGen.Unity/Assets/WorldGen/Resources').glob('Pickup*V1.png*'))
     for directory in ['assets/human-motion-kimodo','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanKimodo','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanKimodo']:
@@ -80,6 +80,10 @@ for person in bank['people']:
     assert len(person['clips'])>=67
     for base in [ROOT/'assets/human-motion-kimodo',ROOT/'unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanKimodo']:
         assert sha(base/person['file'])==person['fbx_sha256']
-report={'backend':backend,'BuiltUtc':inputs['BuiltUtc'],'frozen_inputs':len(frozen),'legacy_files_unchanged':len(legacy),'protected_original_assets':len(preserved),'character_banks':6,'clips_per_character':[len(p['clips']) for p in bank['people']],'fauna_package_exact':True,'original_audio_exact':True}
+worker=PLAYER/'TerrainWorker/WorldGen.Cli.exe'
+assert worker.is_file(),'Missing packaged terrain worker'
+worker_hash=sha(worker)
+assert inputs.get('TerrainWorkerSha256')==worker_hash,'Packaged terrain worker differs from its build stamp'
+report={'backend':backend,'BuiltUtc':inputs['BuiltUtc'],'frozen_inputs':len(frozen),'legacy_files_unchanged':len(legacy),'protected_original_assets':len(preserved),'character_banks':6,'clips_per_character':[len(p['clips']) for p in bank['people']],'fauna_package_exact':True,'original_audio_exact':True,'terrain_worker_sha256':worker_hash}
 if backend=='Mono':report['processed_managed_assemblies']={r['Assembly']:sha(PLAYER/'WorldGen_Data/Managed'/(r['Assembly']+'.dll')) for r in inputs['Inputs']}
 (TASK/'package-proof.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))

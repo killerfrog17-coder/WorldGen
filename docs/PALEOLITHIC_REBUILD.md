@@ -527,3 +527,32 @@ UI playback to150050, direct-reference hashd0187a35..., current human/climate
 palettes, explicitexit0/cleanlog. Regional language and winter images inspected.
 Proof1008 frozen/3254 original assets/177fauna/audio exact. It predates the newest
 individual sampling changes, which still need their own candidate/proof.
+
+
+### Planet-only terrain input and dated local-map cache (17:30Z WIP)
+
+The owner has returned and revoked the mandatory keep-working-until-wrap rule:
+finish the remaining substantive work/checks, then hand off; no time padding.
+
+Terrain workers now read the exact saved planet while streaming past the human
+archive. Shared named saves read their planetary base without opening history.bin.
+Normal game reads still require and validate history.01/02/03 worlds remain
+readable; no save formats or planetary geometry change in this step.
+Two actual migrations each pass33 checks, including missing-history separation
+and full-history/future replay. The60k planetary read measures0.836s versus2.806s
+for full03 history under concurrent work. The real TCP worker matches186,077
+mesh/scatter values plus terrain/water indices/bounds/cancellation on a saved
+Earth40k forager world.69 save and49 legacy Paleolithic checks still pass.
+
+Because the worker no longer owns historical climate, dated forager local-map
+colours render from the player's captured historical snapshot. Progressive tile
+and palette cache keys include the25yr climate epoch; each request captures an
+immutable World shell before asynchronous rendering.13 actual map/cache checks
+pass: warmed reuse, date invalidation, exact fresh-reference pixels and mid-render
+publication isolation. The first fixture failed by assuming adaptive tile sizes
+never change; corrected diagnostics show0 changed pixel bytes while partitions
+warm8->10tiles. That failure is retained, not counted as an earlier pass.
+
+Build stamps now pin the packaged worker executable hash, and source freezes
+include CLI source. The next player/package14 and real gameplay checks remain
+pending. Main selected shortcut is still unchanged.

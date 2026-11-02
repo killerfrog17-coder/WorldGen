@@ -39,6 +39,26 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov17:30Z OWNER RETURNED. Latest owner explicitly revokes mandatory
+until-wrap work: continue until genuinely finished, then handoff; no padding.
+Goal stillactive. Latestpushed06eb0da sampled bilingual residents/actual trained
+makers;2176sample checks120k pass,1.45MBactualexport(inspected),37proficientbow
+makers/8bands vsoldweakaverage. CurrentUNCOMMITTED planet-only worker input +
+datedlocalmapcache:33tests each10k/60k;69save49legacyPASS;186077exactTCPworker
+geometry/scatter/indices/bounds/cancelsEarth40k;13actualmapcachechecksPASS. First
+mapfixturefailedfixedadaptivepartitionassumption:0pixelchanges8->10tiles; old
+failedlogretained. Current source compiled. Needcommit/build14/proof (new worker
+SHA stamp+CLIfreeze), native finalmaps/playback and gameplayNature onforagerworld.
+Slot-a stillcandidate13 87e1902 built16:49, native150k38PASS/EXIT0 proof1008/3254
+original/177fauna/audioexact. Selectedslot-b/rootshortcutstillrejectedbaseline.
+Two190k historiesINCOMPLETE: ContinentsPID17604/session50349 ~184k, EarthPID13412/
+session85012 ~122k; frozen2e33 optimized-runner DO NOT overwrite. Logs*-optimized.
+One full190k+final outcomes/native mapreview stillrequired; Earthpartialmustnot
+be claimedcomplete. Currentquery/workerchanges don't alterhistoricaltrajectories.
+Currentlanguagefamily/speciesbalanceoutcomesnotfullyvalidated; meaningfulregional
+tech/ecology/populationchanges proven. Do not add scripted extinction/counts to
+forceacceptance. Owner3 untouched,no paid/subagents/cleanup/owner apps.
+
 ACTIVE2Nov17:10Z NO WRAP; KEEP WORKING. Latestpushed87e1902 journal/routes.
 Internal slot-a candidate13 built16:49Z, proof-journal-13 PASS1008/3254/177+audio
 exact. Native150k03=38PASS/EXIT0, UIto150050 exactd0187a35..., currentclimate6002,

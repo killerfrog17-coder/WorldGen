@@ -52,13 +52,18 @@ namespace WorldGen.Serialization
             return result;
         }
     }
+    // Same wire contract name, intentionally no members: the terrain-only reader
+    // streams past the historical subtree instead of allocating its records.
+    [DataContract(Name="PrehistoryState",Namespace="http://schemas.datacontract.org/2004/07/WorldGen.Core")]
+    public sealed class OmittedTerrainHistory { }
     sealed class BinaryWorldTransport:ISerializationSurrogateProvider,IDisposable
     {
         readonly HistoricalCellTree.BinaryTransportScope trees;
-        readonly int version;readonly CancellationToken cancellation;
-        public BinaryWorldTransport(CancellationToken token,int format){cancellation=token;version=format;trees=HistoricalCellTree.CreateBinaryTransport(token);}
+        readonly int version;readonly CancellationToken cancellation;readonly bool omitHistory;
+        public BinaryWorldTransport(CancellationToken token,int format,bool terrainOnly=false){cancellation=token;version=format;omitHistory=terrainOnly;trees=HistoricalCellTree.CreateBinaryTransport(token);}
         public Type GetSurrogateType(Type type)
         {
+            if(omitHistory&&type==typeof(PrehistoryState))return typeof(OmittedTerrainHistory);
             if(version>=3&&type==typeof(ForagerCohort))return typeof(PackedForagerCohort);
             if(version>=3&&type==typeof(ForagerCulture))return typeof(PackedForagerCulture);
             return version>=2&&type==typeof(double[])?typeof(PackedDoubleVector):trees.GetSurrogateType(type);
@@ -71,6 +76,7 @@ namespace WorldGen.Serialization
         }
         public object GetDeserializedObject(object value,Type targetType)
         {
+            if(omitHistory&&value is OmittedTerrainHistory&&targetType==typeof(PrehistoryState))return null;
             if(version>=3&&value is PackedForagerCohort cohort&&targetType==typeof(ForagerCohort))return PackedForagerRecords.UnpackCohort(cohort.Data,cancellation);
             if(version>=3&&value is PackedForagerCulture culture&&targetType==typeof(ForagerCulture))return PackedForagerRecords.UnpackCulture(culture.Data,cancellation);
             return version>=2&&value is PackedDoubleVector vector&&targetType==typeof(double[])?vector.Unpack(cancellation):trees.GetDeserializedObject(value,targetType);

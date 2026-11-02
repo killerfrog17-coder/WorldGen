@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--forager-map-cache")){ForagerMapCacheTests.Run(args[1]);return;}
 if(args.Contains("--forager-changes")){ForagerChangeAudit.Run(args[1],args[2],args[3]);return;}
 if(args.Contains("--forager-hash-check")){ForagerHashTests.Run(args[1]);return;}
 if(args.Contains("--forager-hash-schema")){File.WriteAllText(args[1],System.Text.Json.JsonSerializer.Serialize(new[]{typeof(ForagerCohort),typeof(ForagerCulture),typeof(ForagerAffiliation)}.Select(t=>new{name=t.Name,fields=t.GetFields().OrderBy(f=>f.Name,StringComparer.Ordinal).Select(f=>new{name=f.Name,type=f.FieldType.FullName})})));return;}

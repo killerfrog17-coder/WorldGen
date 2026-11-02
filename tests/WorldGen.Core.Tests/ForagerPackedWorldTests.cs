@@ -20,6 +20,9 @@ static class ForagerPackedWorldTests
         Check(bytes[7]==51,"New forager saves identify the new lossless transport version");
         watch.Restart();var reload=WorldFile.Read(bytes);double readNew=watch.Elapsed.TotalSeconds;Check(reload.Prehistory.Hash==before&&reload.Prehistory.ComputeHash()==before,"An actual old snapshot rewrites and reloads with the exact same complete historical hash");
         Check(ForagerRecordTransportTests.Fingerprint(w.Prehistory.Foragers)==ForagerRecordTransportTests.Fingerprint(reload.Prehistory.Foragers),"Every field of the full real-world history preserves its raw representation, beyond the quantised canonical hash");
+        watch.Restart();var planet=WorldFile.ReadPlanetary(bytes);double planetaryReadSeconds=watch.Elapsed.TotalSeconds;
+        Check(planet.Prehistory==null&&StateHash.Compute(planet)==StateHash.Compute(w),"Terrain-only read preserves the exact canonical planet while omitting the population archive");
+        var oldPlanet=WorldFile.ReadPlanetaryFile(file);Check(oldPlanet.Prehistory==null&&StateHash.Compute(oldPlanet)==StateHash.Compute(w),"Original-format terrain files support the same separate planetary read");
         var expected=new Prehistory(w).AdvanceYears(w.Prehistory,25);var actual=new Prehistory(reload).AdvanceYears(reload.Prehistory,25);
         Check(expected.Hash==actual.Hash,"Future simulation remains identical after a lossless format migration");
         Directory.CreateDirectory(output);File.WriteAllBytes(Path.Combine(output,"packed.world"),bytes);
@@ -27,7 +30,16 @@ static class ForagerPackedWorldTests
         string historyFile=Path.Combine(Path.GetDirectoryName(saved.SnapshotPath)!,"history.bin");
         Check(System.Text.Encoding.ASCII.GetString(File.ReadAllBytes(historyFile),0,8)=="WGHIST03","Actual named saves use the lossless history transport, not only test snapshots");
         Check(library.Load(saved.Id).Prehistory.Hash==before,"The player's shared-base save/load path preserves the full historical ledger");
-        File.WriteAllText(Path.Combine(output,"result.json"),JsonSerializer.Serialize(new{checks,before,after=actual.Hash,originalBytes=new FileInfo(file).Length,packedBytes=bytes.Length,readOld,writeSeconds,readNew},new JsonSerializerOptions{WriteIndented=true}));
+        string withheld=historyFile+".withheld";File.Move(historyFile,withheld);
+        try
+        {
+            var baseOnly=WorldFile.ReadPlanetaryFile(saved.SnapshotPath);
+            Check(baseOnly.Prehistory==null&&StateHash.Compute(baseOnly)==StateHash.Compute(w),"Named-save terrain loading reads the shared base independently of a missing large history file");
+            bool fullRejected=false;try{library.Load(saved.Id);}catch(FileNotFoundException){fullRejected=true;}Check(fullRejected,"Normal game loading still requires and validates its historical file");
+        }
+        finally{File.Move(withheld,historyFile);}
+        Check(library.Load(saved.Id).Prehistory.Hash==before,"Separating the planetary worker path does not alter the actual saved game");
+        File.WriteAllText(Path.Combine(output,"result.json"),JsonSerializer.Serialize(new{checks,before,after=actual.Hash,originalBytes=new FileInfo(file).Length,packedBytes=bytes.Length,readOld,writeSeconds,readNew,planetaryReadSeconds},new JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {checks} lossless numeric/world compatibility checks; {new FileInfo(file).Length} -> {bytes.Length} bytes");
     }
 }

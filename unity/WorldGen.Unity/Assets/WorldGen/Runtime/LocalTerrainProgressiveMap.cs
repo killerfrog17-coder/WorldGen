@@ -16,7 +16,9 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!mapOpen){if(mapRefining){mapStream?.Cancel();mapRefining=false;}return;}
         if(terrain==null)return;
-        if(mapStream==null)mapStream=new ProgressiveTerrainMap(terrain,sourceWorld,cancellation.Token,meshProcess==null?null:new ProgressiveTerrainMap.RemoteProducer(meshProcess.Map));
+        // The geometry worker owns only the immutable planet. Dated forager
+        // climate/ecology colours stay with the player's current historical state.
+        if(mapStream==null)mapStream=new ProgressiveTerrainMap(terrain,sourceWorld,cancellation.Token,meshProcess==null||sourceWorld?.Prehistory?.Foragers!=null?null:new ProgressiveTerrainMap.RemoteProducer(meshProcess.Map));
         if(mapDirty&&Time.realtimeSinceStartupAsDouble>=mapDue)
         {
             mapDirty=false;mapRefining=true;MapBuildCount++;

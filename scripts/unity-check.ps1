@@ -114,7 +114,7 @@ if($BuildPlayer){
     New-Item -ItemType Directory -Path $packagedWorker -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $workerOutput 'WorldGen.Cli.exe') -Destination $packagedWorker -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
-    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]$DevelopmentPlayer;ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
+    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]$DevelopmentPlayer;ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs;TerrainWorkerSha256=(Get-FileHash -LiteralPath (Join-Path $packagedWorker 'WorldGen.Cli.exe')).Hash.ToLowerInvariant()}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
 }
 if($PlayerCheck){
     $output=Join-Path $artifacts 'unity-player'
