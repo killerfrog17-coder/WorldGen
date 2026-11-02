@@ -11,7 +11,10 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<GameObject,Possession> portableRoots=new Dictionary<GameObject,Possession>();
     readonly HashSet<string> portableCoatWanted=new HashSet<string>(),portableCoatPins=new HashSet<string>();
     Dictionary<string,PortableCoatRegion> portableCoatRegions;Material portableItemMaterial;double portableAppearanceAt;
-    readonly MaterialPropertyBlock portableItemProps=new MaterialPropertyBlock();
+    MaterialPropertyBlock portableItemPropsCache;
+    // Unity development players enforce the native allocation rule on component
+    // constructors. Create the block on first real use, on the main thread.
+    MaterialPropertyBlock portableItemProps=>portableItemPropsCache??(portableItemPropsCache=new MaterialPropertyBlock());
     bool PendingPortableCoats=>portableCoatWanted.Any(s=>!animalModels.ContainsKey(s)&&!animalLoadFailures.Contains(s));
     bool PortableFur(Possession p)
     {var form=PortableTechnology.Item(p.Kind)?.Form;return !string.IsNullOrEmpty(p.AppearanceSpecies)&&(form==PortableForm.Hide||form==PortableForm.Pouch||form==PortableForm.Pack||form==PortableForm.Satchel||form==PortableForm.Quiver);}

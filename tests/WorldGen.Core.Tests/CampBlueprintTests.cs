@@ -80,6 +80,8 @@ static class CampBlueprintTests
         var cache=CampBlueprints.Create(CampDesign.RaisedCache,2,2);var frame=CampBlueprints.Create(CampDesign.HideFrame,2,2);
         Check(CampBlueprints.StoreAccepts(cache,PortableTechnology.Create(PossessionKind.RawMeat,at))&&CampBlueprints.StoreAccepts(cache,PortableTechnology.Create(PossessionKind.HaftedKnife,at)),"Raised cache accepts food and equipment");
         Check(CampBlueprints.StoreAccepts(frame,donorB)&&!CampBlueprints.StoreAccepts(frame,PortableTechnology.Create(PossessionKind.RawMeat,at)),"Hide frame holds real hides, not food");
+        var outdoorBed=new CampObject{Kind=CampKind.Blueprint,Position=at,Blueprint=CampBlueprints.Create(CampDesign.RaisedBed,2,2)};double dryComfort=CampRules.BedComfort(outdoorBed);
+        CampRules.Advance(outdoorBed,3600,5,.8,2,0);Check(outdoorBed.Wetness>.8&&CampRules.BedComfort(outdoorBed)<dryComfort,"An uncovered platform wets in rain and loses comfort");
         Console.WriteLine("PASS "+n+" camp blueprint dimensions, construction, ownership, drying, weather and save checks");
     }
 }
