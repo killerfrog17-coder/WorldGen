@@ -22,9 +22,11 @@ static class ForagerMechanismTests
         var resources=new ForagerResources();var warm=ForagerEcology.At(42,d,0);var basic=ForagerEcology.Livelihood(d,warm,lineage,c,culture,resources);
         Check(basic.Capacity>50&&basic.Capacity<3000,"Warm productive district has a bounded forager carrying opportunity, not agricultural density");
         var cold=d.Copy();cold.Center=new V(.6,0,.8);cold.WinterC=-28;cold.SummerC=14;cold.MeanC=-7;cold.GrowingDays=100;
-        var coldEnvironment=ForagerEcology.At(42,cold,179000);var unprotected=ForagerEcology.Livelihood(cold,coldEnvironment,lineage,c,culture,resources);
+        var coldEnvironment=ForagerEcology.At(42,cold,179000);var unprepared=c.Copy();Array.Clear(unprepared.Skill);var unprotected=ForagerEcology.Livelihood(cold,coldEnvironment,lineage,unprepared,culture,resources);
         var equipped=c.Copy();Array.Fill(equipped.Use,1);var protectedLife=ForagerEcology.Livelihood(cold,coldEnvironment,lineage,equipped,culture,resources);
         Check(protectedLife.Capacity>unprotected.Capacity*20&&protectedLife.WinterSecurity>unprotected.WinterSecurity,"Clothing/fire/shelter materially change winter habitability; body form alone cannot substitute");
+        var seasonalEquipment=ForagerEcology.Livelihood(cold,coldEnvironment,lineage,c,culture,resources);
+        Check(seasonalEquipment.WinterSecurity>unprotected.WinterSecurity&&seasonalEquipment.Capacity>unprotected.Capacity*20,"Skilled people prepare known winter gear; low annual use does not force them to enter winter naked");
         var frozen=cold.Copy();frozen.SummerC=-4;frozen.WinterC=-45;frozen.MeanC=-22;
         var ice=ForagerEcology.At(42,frozen,179000);Check(ice.IceCover>.5&&ForagerEcology.Livelihood(frozen,ice,lineage,equipped,culture,resources).Capacity<protectedLife.Capacity,"Perennial ice suppresses settlement even with a complete cold toolkit");
         var arid=d.Copy();arid.Water=.01;arid.Aridity=.1;

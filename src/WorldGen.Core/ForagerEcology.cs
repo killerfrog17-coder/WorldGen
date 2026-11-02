@@ -94,7 +94,13 @@ namespace WorldGen.Core
                 diet[k]=e.Food[k]*returns[k]*stock*(.65+.7*preference);annual+=diet[k];
                 double stored=D.Clamp(.28*preserve+.27*storage+.08*baskets);lean+=diet[k]*D.Clamp(e.LeanSeason[k]+stored,0,1);
             }
-            double protection=5*fire+8*hide+10*fitted+13*insulated+7*shelter+3*frames*(.2+.8*coverings)+2*(lineage.Compactness-.5);
+            // Annual routine use is not the fraction of protection people wear
+            // in winter. A trained community can prepare its known winter gear
+            // before entering a colder district. Material access still matters;
+            // no knowledge/skill means no hypothetical future protection.
+            double WinterPractice(int k)=>Math.Max(Use(k),c.Skill.Length>k?c.Skill[k]*D.Clamp((12-e.WinterC)/18d)*D.Clamp(ForagerTechnology.Materials(d,e,k)*3):0);
+            double winterCover=Math.Max(WinterPractice(35),WinterPractice(36));
+            double protection=7*WinterPractice(5)+12*WinterPractice(8)+13*WinterPractice(13)+16*WinterPractice(14)+9*WinterPractice(31)+3*WinterPractice(34)*(.2+.8*winterCover)+2*(lineage.Compactness-.5);
             double winter=Sigmoid((e.WinterC+protection+4)/3.5);
             double summer=1-D.Clamp((e.SummerC-34)/13)*(1-D.Clamp(e.Water+.3*containers+.15*e.Canopy));
             double water=D.Clamp((e.Water+.15*containers)/.33);
