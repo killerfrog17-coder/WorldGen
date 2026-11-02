@@ -69,11 +69,17 @@ Fire and bedding remain direct material placement, rather than blueprints:
   edge; shred grass/bark/fibre into tinder; split wood into kindling. These are
   existing contextual, timed crafting actions, not a new recipe browser.
 - Lighting with a hand drill is timed work, borrows the actual tool and restores
-  prior hands. Dry tinder and thin kindling are required before thicker fuel.
+  prior hands. A cold fire lay needs dry tinder and thin kindling before thicker fuel.
   Long branches become short fuel pieces with exactly the same total mass.
   Fuel mass, moisture and wind control burn time and flame strength; a substantial
-  load lasts hours of solar time and dwindles into embers. Live embers can kindle
-  fresh thin wood. Rain can extinguish an exposed fire. The camp
+  load lasts hours of solar time and dwindles into embers. Feeding live coals
+  eligible dry tinder or kindling revives flames directly, without a drill or
+  a separate ignition action. A healthy coal bed can also catch thin wood.
+  Dry grass, leaf litter, reeds, bark strips and raw/prepared fibre are eligible
+  alongside prepared tinder, using the same rules as fire-lay placement. Wet fuel
+  cannot bypass ignition checks; cold ash is not an ignition source.
+  Tending intervals are roughly twice the former duration for fine fuel and
+  three times for wood, with longer-lived coals. Rain can extinguish an exposed fire. The camp
   simulation clock is independent of debug sun-position commands.
 - Ash remains visible after fuel is consumed. Live embers glow until they cool;
   standing in the flames burns the player, while nearby radiant warmth is safe.
@@ -152,6 +158,29 @@ Research for this revision:
 - [Yetish et al.: natural sleep in preindustrial societies](https://teams.semel.ucla.edu/sleep-research/publication/natural-sleep-and-its-seasonal-variations-three-pre-industrial-societies).
 - [US Forest Products Laboratory: wood energy](https://www.fpl.fs.usda.gov/documnts/fpmu/biomass_energy/basic_wood_energy_information.pdf).
 - [Stable Audio 3 prompting guide](https://stability.ai/guides/stable-audio-3-prompt-guide).
+
+## Felt hunger and thirst HUD
+
+The stomach is approximately half-full after one comfortable solar day without
+food. Activity and cold can advance that need faster. Ordinary fasting then
+levels off above empty while usable body reserves remain; the last sliver goes
+during actual reserve depletion and starvation damage. A saved food-need signal
+tracks adequate intake, so a few berries do not reset a whole day. Older saves
+initialize it from existing hunger and reserve data. These display changes do
+not shorten the existing starvation/dehydration survival times.
+
+The droplet reaches half at about one litre of water deficit: roughly ten
+comfortable hours with the current baseline losses, sooner when sweating or
+exercising. At a full comfortable day without water it still has a discernible
+fill. Near-empty is reserved for severe dehydration. Need reminders throb in
+short bouts, with quiet gaps that shorten as need increases. The original icon
+shapes, nausea tint, temperature display and health/energy/stamina rings remain.
+
+[A water-restriction study](https://www.sciencedirect.com/science/article/pii/S0031938420305254)
+reported rising thirst/mouth dryness from about four hours, while
+[24-hour deprivation research](https://pubmed.ncbi.nlm.nih.gov/7001928/)
+found marked thirst and unpleasant dry-mouth sensations. The half-icon mapping
+is gameplay tuning based on water deficit, rather than a universal human clock.
 
 Current focused checks pass: 24 physiology/camp-experience, 39 camp, 67 modes,
 161 HUD, 37 water and 33 foraging. The final IL2CPP build passes 97 native checks with a clean log, including actual

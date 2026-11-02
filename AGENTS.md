@@ -31,7 +31,46 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-CURRENT1Nov CAMP BLUEPRINTS SELECTED: normal root shortcut NOW builds/slot-a/
+CURRENT1Nov EXIT / THROW / NEEDS / FIRE SELECTED: normal root shortcut NOW
+builds/slot-b/WorldGen.exe, IL2CPP Release BuiltUtc2026-11-02T01:21:11.3166520Z,
+production1abf493 pushed. AltF4 explicit discard exits self immediately, no save
+or Unity/native resource teardown; focused input only. Final native111ms/exit0,
+single Alt/F4 do not exit, existing save sentinel unchanged. Own terrain worker
+already has parent-death watchdog. Combat aim/collision-floor reads resident
+height before analytic fallback, saved ground-offset datum retained. Original
+item sounds prepared asynchronously during loading with explicit sample decode;
+24 importer background flags changed, original WAV bytes/GUIDs unchanged.
+Loading-time inactive disposable collider/body initialization removes first-use
+cost from first release; creates no saved inventory/world item. Final instrumented
+first wooden throw21.477ms, next stone/bone1.813/1.580ms, actual original swish
+plays.50ms gate kept. Stamina ready/hold/release much lighter and mass-dependent;
+normal full spear throw~1point,10s aimed throw<3.5. Bow/melee unchanged.
+HUD food half after1comfortable solar day, thirst half at1L deficit(~10h baseline);
+saved FoodNeedDays, proportional meal relief, old-save migration, low fill reserved
+for severe deprivation. Intermittent need pulses; existing lethal needs unchanged.
+Fires roughly2x fine-fuel/3x wood tending time, longer coals. Feeding dry tinder or
+kindling to live coals automatically revives fire; shared placement/relight predicate
+includes grass/leaves/reeds/bark/raw+prepared fibre/tinder. Wet/cold ash blocked.
+136 SAME FINAL PLAYER native PASS/exit0/clean runtime errors:131 throw/HUD/fire,
+5exit. Throw test normal hidden windowed D3D11(real audio), exit batch. HUD half/
+critical images inspected. Native fuel fixture burns8h then grass->kindling->wood
+and kindling-only coals revive via actual survival material transfer.581 scoped
+Core PASS:82item/337HUD/24physiology/69save/69camp.957frozen/3254protected/30Legacy/
+6x70banks exact; original fauna/audio data exact. Layout5655/5048locked PASS.
+Manifest assets/verification/throw-exit-20261101.json; evidence artifacts/throw-exit-
+20261101/native-throw-warm,native-quit-warm,package-proof-warm. Earlier fixture
+factory mistake, readiness failure and824ms/89ms intermediate timings excluded
+from final hitch acceptance. Old broad items suite failed uninjured deer cue at
+0.6s: AI unchanged, NOT claimed passing. Prior cricket decode/Earth golden remain
+outside this fix. No universal FPS/perception/audio listening quality claim.
+Owner criticized90+min turnaround: avoidable test mistakes and repeated native
+packaging cycles. Future fixes: use cheaper compiler/Editor checks, group edits,
+package once when reviewable; keep IL2CPP ONLY. No further polish/testing this
+task after final checks. Two slots only, artifacts disposable, no cleanup/player
+copies. Owner apps and prompt deletion/2deer scripts untouched. All owned jobs
+finished. Await feedback; no old overnight work resumption.
+
+HISTORICAL1Nov CAMP BLUEPRINTS SELECTED: normal root shortcut THEN builds/slot-a/
 WorldGen.exe, IL2CPP Release BuiltUtc2026-11-01T23:29:49.5781554Z, production
 6c457f9 pushed. V opens five plans: lean-to, windbreak, drying rack, material
 store, brush hut. First corner/end then size+confirm; hut centre/radius; R15deg,
