@@ -39,6 +39,24 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov21:31Z RESUMED verification: fullcurrent3 history PID7900/session18754
+~157k, loglinear-continents-resumed.log; numericalsource41f4bd7. Remaining watcher
+session92433 waits for completion, then behaviorfinal +packed33 +native190k.
+Do notoverwritefrozenlinear-runner or startduplicatehistory. Candidate16 b326d2f
+slot-a remainsfrozen/proved; rootshortcutstilloldslot-b. ALLlatest16early/middle/
+Archipelago images nowreviewed;21rawmapimagesexact15->16. Fresh actualgeneration
+36PASS/EXIT0/cleanlog, year0hash38762966..., capturesinspected; new3defaultcorrect.
+PDF opened forowner; text now clearlyrequiresGenerateNewWorld (no oldsaveupgrade).
+Finalrecordscript now alsoREQUIRES actual180kglacial map case36 +37yearactual
+runtime/CoreCLR parity, in addition to existing190k/fullsave33. Runthese AFTER main
+history/native190k tolimitmemory. Existing --worldgen-history-resume <190k.world>
+--worldgen-history-years37 --worldgen-output <actual-hash.txt> selfquits; compare
+Core test --forager-cost <190k.world>37 firstJSON Hash. Foldernative-runtime-parity-16
+needsreference.log/player.log/exit-code.txt/actual-hash.txt. Native180k viewcase
+view-resource-sharing-16-continents180k (no playback needed), visibleNormal.
+Latestestimate60-90min from21:05Z; qualify iflateissues. No furthercodefeatures
+beingadded; productionunchanged. Owner3 preserved, no subagents/paid/cleanup.
+
 RESUMED2Nov21:05Z OWNER EXPLICITLY SAID CONTINUE. Pause revoked; finish genuine
 remaining work andhandoff whenfinished, no old mandatory8h/untilwrap requirement.
 130kcheckpointSHAexactf562f1... and actualread/validation9PASS, statehash308f68...

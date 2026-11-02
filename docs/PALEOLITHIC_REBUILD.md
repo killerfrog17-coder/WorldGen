@@ -695,3 +695,23 @@ Candidate16 actual-player reviews passed39 checks at40k (including live playback
 all exit0 with clean runtime errors. Final16 image review and later-history checks
 remain. Selected slot-b shortcut stays unchanged pending completion. Resume only
 when the owner authorizes it.
+
+
+### Resumed review and fresh-world entry (21:22 UTC)
+
+The130k checkpoint survived restart with its exact recorded file hash and passed
+full read/structural/accounting validation; statehash308f68bcb6b501ff3595da8ba5f7f089e8084903f595255b18ce814cefc440d3.
+Continuation preserves the existing metrics/source chain and is still running.
+
+Candidate16's actual early/middle and Archipelago captures have now been reviewed,
+including culture, ethnicity, language, belief, toolkit, lineage, winter climate
+and atlas details. All21 raw overlay map PNGs are byte-identical to the previously
+reviewed candidate15 counterparts; the new locator does not alter the world maps.
+
+A fresh generation through the actual player also passes36 map/atlas/local-camp
+checks, exit0 and clean errors. It starts atYear0 with83,662 people,32,794 sapiens,
+214 resident districts,214 recorded speech varieties/82 families and214 local
+traditions. Actual initial toolkit/species/region/atlas images inspected. This is
+fresh preparation and map entry, not a claim to have completed its long history.
+Generate a new world to test the revision: loading/continuing an older save keeps
+that save's simulation model. The concise report has been updated and opened.

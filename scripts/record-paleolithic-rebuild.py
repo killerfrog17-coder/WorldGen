@@ -74,7 +74,7 @@ for name, requested in (("linear-continents", 190000), ("linear-earth", 30000), 
     })
 
 native = []
-for suffix in ("continents40k", "archipelago30k", "continents100k", "continents190k"):
+for suffix in ("fresh0", "continents40k", "archipelago30k", "continents100k", "continents180k", "continents190k"):
     name=f"view-resource-sharing-{args.candidate}-{suffix}"
     folder = evidence / name
     assert int(read(folder / "exit-code.txt")) == 0
@@ -120,6 +120,14 @@ assert "72b0e4c696c18cc2d91bde47d169671e229e8b06160c710541ae456b7e12e9f0" in tem
 changes = load(evidence / "linear-changes-0-60k/changes.json")
 sample = load(evidence / "linear-earth/npc-review-fixed/band-samples.json")
 assert sample["Years"] == 30000 and sample["Hash"] == histories[1]["hash"]
+large_save = load(evidence / "linear-packed-final/result.json")
+assert large_save["checks"] == 33 and large_save["before"] == histories[0]["hash"]
+parity = evidence / f"native-runtime-parity-{args.candidate}"
+assert int(read(parity / "exit-code.txt")) == 0
+runtime_hash = read(parity / "actual-hash.txt").strip()
+core_probe = json.loads(read(parity / "reference.log").splitlines()[0])
+assert core_probe["years"] == 37 and core_probe["Hash"] == runtime_hash
+assert "HISTORY RESUME PASS " + runtime_hash in read(parity / "player.log")
 
 manifest = {
     "recorded_utc": datetime.now(timezone.utc).isoformat(), "production_source": args.production_source,
@@ -131,6 +139,8 @@ manifest = {
     "mechanism_checks": 38, "temporal_budget_save_checks": 12,
     "dated_weather_checks": 9, "dated_habitat_assemblage_checks": 1679,
     "temporal_hash": "72b0e4c696c18cc2d91bde47d169671e229e8b06160c710541ae456b7e12e9f0",
+    "large_world_save": large_save,
+    "actual_runtime_parity": {"years_advanced": 37, "hash": runtime_hash, "exit_code": 0},
     "histories": histories, "actual_player_maps": native,
     "actual_gameplay": {"case": game.name, "exit_code": 0, "checks": checks, "terrain_loading": read(game / "initial-terrain.txt")},
     "dated_ecology": {key: changes[key] for key in ("fromYear", "toYear", "arrivals", "localExtinctions", "changedDistricts", "maximumForestDelta")},
