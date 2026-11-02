@@ -13,6 +13,11 @@ static class ForagerAffiliationTests
         Check(ForagerAffiliations.Share(replaced,1)==.3&&ForagerAffiliations.Share(replaced,2)==.1&&Math.Abs(replaced.Sum(x=>x.Share)-1)<1e-12,"Local dialect branching retains unrelated residents");
         var branch=ForagerAffiliations.Transfer(mixed,0,3,.02);
         Check(branch.Length==4&&Math.Abs(ForagerAffiliations.Share(branch,3)-.012)<1e-12,"A new ritual tradition starts among households instead of instantly replacing the district");
+        var visitors=ForagerAffiliations.Normalize(new[]{new ForagerAffiliation{Id=1,Share=.99},new ForagerAffiliation{Id=2,Share=.01}});
+        var speechTarget=ForagerAffiliations.SpeechTarget(a,30,new[]{(visitors,1000d,.8)},.8);
+        Check(speechTarget.Length==1&&speechTarget[0].Id==1,"Regional language adoption does not fabricate native-language minorities for every dialect known by a visitor");
+        var partial=ForagerAffiliations.Approach(a,speechTarget,.1,30);
+        Check(partial.Length==2&&partial.All(x=>x.Id!=2)&&ForagerAffiliations.Share(partial,0)>.8,"Bilingual contact causes gradual majority-language shift without inventing people or erasing a previous community overnight");
         var target=ForagerAffiliations.ContactNorm(a,30,new[]{(b,1000d,.8)},.8);
         var step=ForagerAffiliations.Approach(a,target,1-Math.Exp(-250/1400d),30);
         Check(ForagerAffiliations.Share(step,1)>0&&ForagerAffiliations.Share(step,1)<.2,"Contact adoption is gradual rather than a one-tick majority replacement");

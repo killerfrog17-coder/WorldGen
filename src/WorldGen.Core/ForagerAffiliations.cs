@@ -67,5 +67,19 @@ namespace WorldGen.Core
             // contact an instant conversion or allowing distant speakers to vote.
             var powered=new Dictionary<int,double>();foreach(var p in votes)powered[p.Key]=Math.Pow(p.Value,1.3);return FromWeights(powered);
         }
+        public static ForagerAffiliation[] SpeechTarget(ForagerAffiliation[] own,double population,
+            IEnumerable<(ForagerAffiliation[] profile,double population,double strength)> contacts,double openness)
+        {
+            var votes=new Dictionary<int,double>();
+            foreach(var x in own)Add(votes,x.Id,x.Share*Math.Sqrt(Math.Max(1,population))*(1.25-.75*D.Clamp(openness)));
+            foreach(var c in contacts)foreach(var x in c.profile)Add(votes,x.Id,x.Share*Math.Sqrt(Math.Max(0,c.population))*c.strength);
+            var best=votes.OrderByDescending(p=>p.Value).ThenBy(p=>p.Key).First();
+            // Contact teaches other languages; it does not create a fraction of
+            // new native speakers of every visitor's minority dialect. A strong
+            // regional convention can attract a gradual community language shift.
+            // Actual migration and local forks retain full minority distributions.
+            if(best.Value>=votes.Values.Sum()*.45)return Single(best.Key);
+            return Normalize(own.Select(x=>new ForagerAffiliation{Id=x.Id,Share=Math.Pow(x.Share,1.15)}));
+        }
     }
 }

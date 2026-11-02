@@ -249,3 +249,17 @@ unowned initial cultures/peoples/languages. New histories start from scratch.
 The0834d5d managed internal landscape candidate completed20 real native map/
 atlas captures with clean logs. Satellite/climate/aridity images were inspected.
 This proves UI wiring for that checkpoint, not final current-model realism.
+
+
+### Speech affiliations versus bilingual knowledge
+
+The ecad71e runs showed that improved family classification alone was insufficient:
+contact with visitors was generating small native-speaking fractions of every
+minority dialect they knew. This conflated bilingual competence with mother-tongue
+community membership. New speech affiliation targets are a clear local convention
+or the existing resident distribution; actual migrants still preserve all their
+minorities. Choosing another regional language is gradual. A new regional dialect
+starts with identical words across neighbouring camps and diverges afterwards,
+instead of creating a separate language record for each band. Existing distinct
+local varieties attract gradual adoption rather than an immediate relabel.
+The ecad71e runs are retained as rejected diagnostics. Fresh long runs follow.

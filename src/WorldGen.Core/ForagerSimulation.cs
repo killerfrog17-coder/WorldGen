@@ -142,9 +142,19 @@ namespace WorldGen.Core
                 double speechHomelandTies=neighbours[c.Id].Where(p=>p.people.Language==c.Language&&DistanceKm(f.Districts[p.people.District].Center,f.Districts[speech.OriginDistrict].Center)<250).Sum(p=>p.relation.Strength);
                 if(c.Population>=60&&speech.OriginDistrict!=c.District&&year-c.FoundedYear>1500&&speechDistance>250&&speechHomelandTies<.1)
                 {
-                    var shared=neighbours[c.Id].Where(p=>p.relation.Strength>.025&&p.people.Language!=speech.Id&&ForagerLanguages.Intelligibility(speech,f.Languages[p.people.Language])>.75&&DistanceKm(district.Center,f.Districts[p.people.District].Center)<250).OrderByDescending(p=>p.people.Population*p.relation.Strength).FirstOrDefault();
-                    if(shared.people!=null)c.Speech=ForagerAffiliations.Replace(c.Speech,c.Language,shared.people.Language);
-                    else{var daughter=ForagerLanguages.Create(World.Recipe.Seed,f.NextLanguage++,c.District,year,speech);f.Languages=f.Languages.Concat(new[]{daughter}).ToArray();oldLanguages[daughter.Id]=daughter.Copy();c.Speech=ForagerAffiliations.Replace(c.Speech,c.Language,daughter.Id);AddForagerEvent(f,ForagerEventKind.LanguageBranch,year,c,"A locally distinct speech community is becoming established.");}
+                    var shared=neighbours[c.Id].Where(p=>p.people.Population>=30&&p.relation.Strength>.025&&p.people.Language!=speech.Id&&f.Languages[p.people.Language].Parent==speech.Id&&ForagerLanguages.SharedRoots(speech,f.Languages[p.people.Language])>.42&&DistanceKm(district.Center,f.Districts[p.people.District].Center)<350).OrderByDescending(p=>p.people.Population*p.relation.Strength).FirstOrDefault();
+                    if(shared.people==null)
+                    {
+                        var daughter=ForagerLanguages.Create(World.Recipe.Seed,f.NextLanguage++,c.District,year,speech);f.Languages=f.Languages.Concat(new[]{daughter}).ToArray();oldLanguages[daughter.Id]=daughter.Copy();
+                        // A newly recorded regional dialect initially has the same
+                        // words. It evolves locally afterwards; registering it is
+                        // not an overnight replacement of everyone's vocabulary.
+                        foreach(var local in f.Cohorts.Where(p=>p.Population>=1&&p.Language==speech.Id&&year-p.FoundedYear>750&&DistanceKm(district.Center,f.Districts[p.District].Center)<250&&DistanceKm(f.Districts[p.District].Center,f.Districts[speech.OriginDistrict].Center)>250))
+                        {local.Speech=ForagerAffiliations.Replace(local.Speech,speech.Id,daughter.Id);ForagerAffiliations.Refresh(local);local.LastLanguageReviewYear=year;}
+                        AddForagerEvent(f,ForagerEventKind.LanguageBranch,year,c,"A regional speech variety is becoming established across neighbouring camps.");
+                    }
+                    // Joining an already distinct local language uses gradual
+                    // affiliation change below, rather than an instant relabel.
                     ForagerAffiliations.Refresh(c);c.LastLanguageReviewYear=year;
                 }
                 var peer=neighbours[c.Id].OrderByDescending(p=>p.relation.Strength).FirstOrDefault();
@@ -211,7 +221,7 @@ namespace WorldGen.Core
             Dictionary<int,ForagerAffiliation[]> oldSpeech,Dictionary<int,ForagerAffiliation[]> oldTraditions,int year,int elapsed)
         {
             var culture=f.Cultures[c.Culture];double exposure=contacts.Sum(p=>p.relation.Strength*(1-.8*p.relation.Hostility));
-            var speechNorm=ForagerAffiliations.ContactNorm(c.Speech,c.Population,contacts.Select(p=>(oldSpeech[p.people.Id],p.people.Population,p.relation.Strength*(1-.8*p.relation.Hostility))),culture.GuestAccess);
+            var speechNorm=ForagerAffiliations.SpeechTarget(c.Speech,c.Population,contacts.Select(p=>(oldSpeech[p.people.Id],p.people.Population,p.relation.Strength*(1-.8*p.relation.Hostility))),culture.GuestAccess);
             double shift=1-Math.Exp(-elapsed*D.Clamp(exposure)*(.25+.75*culture.GuestAccess)/1400d);
             c.Speech=ForagerAffiliations.Approach(c.Speech,speechNorm,shift,c.Population);
             var belief=f.Beliefs[c.Belief];bool migrant=belief.OriginDistrict!=c.District;
