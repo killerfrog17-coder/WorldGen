@@ -189,6 +189,7 @@ public sealed partial class WorldGenRuntime
     System.Collections.IEnumerator CheckPrehistory()
     {
         string folder=Argument("--worldgen-prehistory-check","");System.IO.Directory.CreateDirectory(folder);
+        System.Collections.IEnumerator PaletteReady(){double until=Time.realtimeSinceStartupAsDouble+60;while((humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null)&&Time.realtimeSinceStartupAsDouble<until)yield return null;if(humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null)throw new InvalidOperationException("Paleolithic map palette did not finish uploading");yield return null;}
         double deadline=Time.realtimeSinceStartupAsDouble+300;
         while((!worldReady||Busy||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(humans==null||Busy){Debug.LogError("PREHISTORY CHECK initialization failed "+error);Application.Quit(1);yield break;}
@@ -199,13 +200,13 @@ public sealed partial class WorldGenRuntime
         if(selectedCell!=originCell){Debug.LogError("PREHISTORY CHECK globe picking mismatch "+selectedCell+" / "+originCell);Application.Quit(1);yield break;}
         layer=preferredLayer=Layer.Simulation;SetProjection(Projection.Map);gridSpacing=0;Refresh();UpdateHumanPalette();
         while(Busy)yield return null;
-        yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"starting-region.png"));yield return null;
+        yield return PaletteReady();yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"starting-region.png"));yield return null;
         StartHumanWorld();satelliteOpacity=0;ApplyCachedDisplay();StepHumans(50000/Prehistory.YearsPerStep(world.Prehistory));
         while(humanStep!=null)yield return null;
-        yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-50000.png"));yield return null;
+        yield return PaletteReady();yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-50000.png"));yield return null;
         StepHumans(150000/Prehistory.YearsPerStep(world.Prehistory));while(humanStep!=null)yield return null;
         satelliteOpacity=.35f;ApplyCachedDisplay();selectedCell=humans.Patches[world.Prehistory.Origin].Cell;UpdateHumanPalette();
-        yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-200000.png"));yield return null;
+        yield return PaletteReady();yield return new WaitForEndOfFrame();CaptureHumanMap(System.IO.Path.Combine(folder,"year-200000.png"));yield return null;
         var checkpoint=world.Prehistory;
         humans.Validate(checkpoint);
         var sampleCell=humans.Patches[checkpoint.Origin].Cell;var sampleA=humans.PaleolithicBandAt(checkpoint,sampleCell,4);var sampleB=humans.PaleolithicBandAt(checkpoint,sampleCell,4);

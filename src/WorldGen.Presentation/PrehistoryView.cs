@@ -26,7 +26,7 @@ namespace WorldGen.Presentation
                 else if(state.Population[patch]>0||state.History?.Aggregates!=null&&((state.History.Aggregates.Living?.Regions[patch].SettledPopulation??0)>0||(display!=null?display.RemotePopulation(i):RemotePopulation(state,i))>0))
                 {
                     int local=display!=null?display.Culture(i):HistoricalCells.Culture(state,i);var culture=local>=0?state.Society.Cultures[local]:null;bool chosen=populationFocus&&(selectedCulture!=null?selection<0&&culture?.Id==selectedCulture.Id:selection==-1&&culture==null&&cluster>=0&&clusters[patch]==cluster);
-                    result[i]=(byte)(chosen?(water?65:culture?.Stage==SocietyStage.Civilization?245:255):water?42:culture==null?170:195+20*((int)culture.Stage-1));
+                    result[i]=(byte)(Prehistory.Paleolithic(state)&&culture!=null?(water?(chosen?60:50):(chosen?245:235)):chosen?(water?65:culture?.Stage==SocietyStage.Civilization?245:255):water?42:culture==null?170:195+20*((int)culture.Stage-1));
                 }
             }
             if(engine!=null&&state?.History!=null&&state.Started)

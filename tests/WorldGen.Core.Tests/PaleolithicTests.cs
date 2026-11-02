@@ -11,6 +11,7 @@ static class PaleolithicTests
         var old=engine.Prepare();engine.Validate(old);var legacyHash=old.Hash;
         var ready=engine.PreparePaleolithic();engine.Validate(ready);Check(!ready.Started&&ready.Population.Sum()==0,"Preparation does not advance or populate the world");
         var start=engine.Start(ready);engine.Validate(start);Check(start.Version=="prehistory-7"&&start.History==null&&start.Population.Sum()>=25,"New version begins with viable established sapiens foragers");
+        var colored=PrehistoryView.Codes(world,engine,start);Check(engine.Patches[start.Origin].Cells.All(i=>colored[i]==235),"Paleolithic bands use actual identity colours rather than the old primitive grayscale decoder");
         Check(SimulationClockView.Date(start,SimulationTime.Year).Contains("200,000"),"Paleolithic calendar has an explicit200ka starting epoch");
         var one=engine.AdvanceSeconds(start,60);Check(SimulationTime.Seconds(one)==60&&one.Years==0,"Minute-scale background history is not rounded away");
         var fifty=engine.AdvanceYears(start,50);var split=engine.AdvanceYears(engine.AdvanceYears(start,17),33);Check(fifty.Hash==split.Hash,"One large interval equals split playback across a decision boundary");
