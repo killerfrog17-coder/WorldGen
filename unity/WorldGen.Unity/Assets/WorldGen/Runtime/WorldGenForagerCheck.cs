@@ -35,14 +35,14 @@ public sealed partial class WorldGenRuntime
             File.WriteAllText(Path.Combine(folder,"atlas-"+category+".json"),WorldGen.Serialization.WorldJson.Write(atlasDocument));
             if(category=="technology"){atlasSection="Local knowledge and use";for(int i=0;i<8;i++)yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(Path.Combine(folder,"atlas-toolkit.png"));for(int i=0;i<6;i++)yield return new WaitForEndOfFrame();}
         }
-        atlasOpen=false;peoplesOpen=detailsOpen=false;selectedCell=-1;humanOverlayOpacity=0;
+        atlasOpen=false;peoplesOpen=detailsOpen=false;selectedCell=-1;humanOverlayOpacity=0;satelliteOpacity=1;
         foreach(var landscape in new[]{Layer.Climate,Layer.Satellite,Layer.Biomes,Layer.Aridity,Layer.Permafrost,Layer.TemperatureWinter,Layer.PrecipitationSummer})
         {
             layer=preferredLayer=landscape;Refresh();double until=Time.realtimeSinceStartupAsDouble+90;
             do{yield return null;}while((Busy||humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null||paletteLoading.Contains(landscape))&&Time.realtimeSinceStartupAsDouble<until);
             for(int i=0;i<8;i++)yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(Path.Combine(folder,"landscape-"+landscape+".png"));for(int i=0;i<4;i++)yield return new WaitForEndOfFrame();checks++;
         }
-        layer=preferredLayer=Layer.Climate;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.Languages;UpdateHumanPalette();
+        layer=preferredLayer=Layer.Climate;humanOverlayOpacity=1;satelliteOpacity=.55f;historyOverlay=HistoryOverlay.Languages;UpdateHumanPalette();
         foreach(float longitude in new[]{-120f,0f,120f})
         {
             centerLongitude=longitude;Refresh();for(int i=0;i<14;i++)yield return new WaitForEndOfFrame();CaptureHumanMap(Path.Combine(folder,"language-longitude-"+longitude+".png"),true);

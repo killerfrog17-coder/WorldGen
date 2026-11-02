@@ -27,7 +27,16 @@ namespace WorldGen.Core
                     double nearest=double.PositiveInfinity;
                     for(int k=1;k<f.Lineages.Length;k++)if(distances[k][district.Id]<nearest&&distances[k][district.Id]<4200000){nearest=distances[k][district.Id];lineage=k;}
                 }
-                if(lineage<0)continue;var cohort=NewForagerCohort(f,district.Id,lineage,0);
+                if(lineage<0)continue;
+                int priorCohort=f.NextCohort,priorCulture=f.Cultures.Length,priorLanguage=f.Languages.Length,priorPeople=f.Peoples.Length;
+                var cohort=NewForagerCohort(f,district.Id,lineage,0);
+                void DiscardCandidate()
+                {
+                    // Testing habitat viability must not fabricate historical
+                    // cultures/languages/peoples for camps that never existed.
+                    f.NextCohort=priorCohort;f.Cultures=f.Cultures.Take(priorCulture).ToArray();f.NextCulture=priorCulture;
+                    f.Languages=f.Languages.Take(priorLanguage).ToArray();f.NextLanguage=priorLanguage;f.Peoples=f.Peoples.Take(priorPeople).ToArray();f.NextPeople=priorPeople;
+                }
                 var nearby=people.Where(c=>c.Lineage==lineage).Select(c=>(people:c,distance:DistanceKm(f.Districts[c.District].Center,district.Center))).Where(x=>x.distance<650).OrderBy(x=>x.distance).FirstOrDefault();
                 if(nearby.people!=null&&Rng.Value(World.Recipe.Seed,"initial-speech-relatedness",district.Id)>.35)
                 {
@@ -37,9 +46,9 @@ namespace WorldGen.Core
                 }
                 var environment=ForagerBiota.Apply(ForagerEcology.At(World.Recipe.Seed,district,0,World.ElevationM[district.Cell]),f.Biota[district.Id]);
                 var life=ForagerEcology.Livelihood(district,environment,f.Lineages[lineage],cohort,f.Cultures[cohort.Culture],f.Resources[district.Id]);
-                if(life.Capacity<35||life.WinterSecurity<.07)continue;
+                if(life.Capacity<35||life.WinterSecurity<.07){DiscardCandidate();continue;}
                 double population=life.Capacity*(.14+.25*Rng.Value(World.Recipe.Seed,"ancestral-regional-density",district.Id));
-                if(population<18)continue;
+                if(population<18){DiscardCandidate();continue;}
                 ForagerDemography.SetPopulation(cohort,population);cohort.Occupation=D.Clamp(population/life.Capacity,.03,1);cohort.FrontierKm=Math.Max(15,district.RadiusKm*cohort.Occupation);
                 cohort.FoundedYear=-3000-(int)(12000*Rng.Value(World.Recipe.Seed,"ancestral-residence",district.Id));cohort.LastMigrationYear=cohort.FoundedYear;
                 var belief=ForagerBeliefs.Create(World.Recipe.Seed,f.NextBelief++,district.Id,0,district,f.Languages[cohort.Language],nearby.people==null?null:f.Beliefs[nearby.people.Belief]);

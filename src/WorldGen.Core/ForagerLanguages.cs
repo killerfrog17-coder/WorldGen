@@ -65,22 +65,28 @@ namespace WorldGen.Core
         public static void ReviewFamilies(ForagerState state,int year,IReadOnlyDictionary<int,int[]> neighbours)
         {
             var families=state.LanguageFamilies.ToList();var byId=state.Languages.ToDictionary(l=>l.Id);
+            var descendantFamilies=families.Where(f=>f.Parent>=0).GroupBy(f=>f.Parent).ToDictionary(g=>g.Key,g=>g.Select(f=>f.Id).ToList());
             foreach(var l in state.Languages.OrderBy(l=>l.Id))
             {
                 if(l.Family<0){if(l.Parent>=0&&byId.TryGetValue(l.Parent,out var ancestor)&&ancestor.Family>=0)l.Family=ancestor.Family;else{NewFamily(l,-1);continue;}}
                 var previous=families[l.Family];if(SharedRoots(l,previous)>=.32)continue;
-                int match=-1;
+                int match=-1;double best=.42;var candidates=new HashSet<int>();
+                // Recognition of related speech is not contingent on current
+                // contact. Minority varieties and isolated cousins retain their
+                // recorded genealogy and can share a younger recognisable branch.
+                if(descendantFamilies.TryGetValue(l.Family,out var descendants))foreach(int id in descendants)candidates.Add(id);
+                if(l.Parent>=0&&byId.TryGetValue(l.Parent,out var parent)&&parent.Family>=0&&parent.Family!=l.Family)candidates.Add(parent.Family);
                 if(neighbours!=null&&neighbours.TryGetValue(l.Id,out var contacts))foreach(int other in contacts)
-                {
-                    if(!byId.TryGetValue(other,out var donor)||donor.Family==l.Family||donor.Family<0)continue;var f=families[donor.Family];
-                    if(f.Parent==l.Family&&SharedRoots(l,f)>.55){match=f.Id;break;}
-                }
+                {if(byId.TryGetValue(other,out var donor)&&donor.Family>=0&&families[donor.Family].Parent==l.Family)candidates.Add(donor.Family);}
+                foreach(int candidate in candidates.OrderBy(id=>id))
+                {double shared=SharedRoots(l,families[candidate]);if(shared>best){best=shared;match=candidate;}}
                 if(match>=0)l.Family=match;else NewFamily(l,l.Family);
             }
             state.LanguageFamilies=families.ToArray();
             void NewFamily(ForagerLanguage language,int parent)
             {
                 int id=state.NextFamily++;var f=new ForagerLanguageFamily{Id=id,Parent=parent,FounderLanguage=language.Id,FoundedYear=year,OriginDistrict=language.OriginDistrict,Name=language.Name+" family",ReferenceRoots=(int[])language.Roots.Clone()};families.Add(f);language.Family=id;
+                if(parent>=0){if(!descendantFamilies.TryGetValue(parent,out var children))descendantFamilies[parent]=children=new List<int>();children.Add(id);}
             }
         }
         public static string Sentence(ForagerLanguage l,string subject,string verb,string obj)

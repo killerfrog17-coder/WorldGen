@@ -48,6 +48,7 @@ static class ForagerWorldTests
         foreach(var l in f.Lineages)foreach(var pair in l.AncestralRoute.Zip(l.AncestralRoute.Skip(1)))Check(f.Districts[pair.First].Passages.Any(p=>p.To==pair.Second),"Every lineage origin has a real connected ancestral dispersal path");
         Check(f.Lineages.All(l=>l.AncestralRoute[0]==l.AncestorOrigin),"Ancestral routes start from the actual ancestral geography");
         Check(f.Cohorts.GroupBy(c=>c.District).All(g=>g.Select(c=>f.Lineages[c.Lineage].PlayerSpecies).Distinct().Count()==1),"Initial sapiens range does not simply overwrite an already occupied archaic range");
+        Check(f.Cultures.All(x=>f.Cohorts.Any(c=>c.Culture==x.Id))&&f.Peoples.All(x=>f.Cohorts.Any(c=>c.Identity==x.Id))&&f.Languages.All(x=>f.Cohorts.Any(c=>c.Speech.Any(a=>a.Id==x.Id))),"Uninhabitable founding candidates do not fabricate historical peoples or speech communities");
         Check(f.LanguageFamilies.Length>1&&f.Beliefs.Length>1,"Initial world is not one newly invented universal speech/religion");
         Check(f.Cohorts.All(c=>c.Knowledge.Length==ForagerTechnology.Count&&c.Skill.Length==ForagerTechnology.Count&&c.Use.Length==ForagerTechnology.Count),"Every resident cohort has separate knowledge/skill/use records");
         Check(f.Cohorts.All(c=>f.Districts[c.District].AreaKm2>0&&c.Capacity>0),"No population is seeded into a zero-area water district");

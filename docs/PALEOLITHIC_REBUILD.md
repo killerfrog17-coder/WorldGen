@@ -229,3 +229,23 @@ of copying/resealing all ancestral records every two real seconds. This does not
 change five-year demographic reviews, continuous weather/needs/time, or the
 older save engines. Current full temporal/budget/save/cancellation tests must be
 rerun after the final interaction checkpoint.
+
+
+### Minority-family correction
+
+The first complete minority totals exposed a classification defect hidden by
+majority-only counts: at16k, the0834d5d diagnostic recorded136 dominant families
+but2,080 families among all represented minorities. Closely related varieties
+were only allowed to share a new recognisable family if currently in direct
+contact. Family recognition now uses recorded ancestry and reference-root
+similarity even for isolated cousins/minorities; it does not relabel unrelated
+languages to hit a target. A direct no-contact cousin test passes.11 independent
+language checks pass. The three0834d5d runs were stopped and marked rejected;
+they are not final validation. Failed initial habitat candidates now roll back
+provisional registry entries, so historical directories do not invent peoples
+who never lived anywhere. Initial test:214 real communities,89 families; no
+unowned initial cultures/peoples/languages. New histories start from scratch.
+
+The0834d5d managed internal landscape candidate completed20 real native map/
+atlas captures with clean logs. Satellite/climate/aridity images were inspected.
+This proves UI wiring for that checkpoint, not final current-model realism.
