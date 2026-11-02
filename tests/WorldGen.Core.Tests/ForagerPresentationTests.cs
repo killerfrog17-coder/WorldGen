@@ -16,6 +16,7 @@ static class ForagerPresentationTests
             var codes=PrehistoryView.Codes(w,engine,s,overlay:overlay);Check(codes.Length==w.Surface.Cells.Length,"Actual renderer codes cover the whole surface");
             var labels=SocietyView.MapLabels(w,s,overlay,engine);
             Check(labels.All(e=>map.Id(e.Cell,overlay)==e.ColorId),"Every map label is anchored to a cell actually displaying that identity: "+overlay);
+            Check(labels.All(e=>e.Population>0&&e.AreaKm2>=0),"Labels retain actual population/area for viewport ranking and culling: "+overlay);
             foreach(var e in legend.Take(12))
             {
                 var card=HistoryAtlas.Card(s,e.Cell,overlay,engine);Check(card.Title.Length>0&&card.Facts.Length>0,"Visible map cards expose real observer data: "+overlay);

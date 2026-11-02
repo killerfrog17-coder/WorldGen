@@ -108,11 +108,13 @@ namespace WorldGen.Presentation
         {
             // The full legend includes household minorities. Labels instead
             // belong on cells whose actual colour represents that identity.
+            var totals=Legend(overlay,"Default").ToDictionary(e=>e.ColorId);
             return state.Foragers.Districts.Where(d=>residents[d.Id].Length>0)
                 .GroupBy(d=>Id(d.Cell,overlay)).Where(g=>g.Key>=0).Select(g=>
                 {
                     var district=g.OrderByDescending(d=>residents[d.Id].Sum(Population)).ThenBy(d=>d.Id).First();
-                    return new HistoryLegendEntry{Name=Name(g.Key,overlay),Cell=district.Cell,LabelCell=district.Cell,ColorId=g.Key,CustomColor=true,Color=Color(g.Key,overlay)};
+                    var total=totals[g.Key];
+                    return new HistoryLegendEntry{Name=total.Name,Population=total.Population,AreaKm2=total.AreaKm2,Cell=district.Cell,LabelCell=district.Cell,ColorId=g.Key,CustomColor=true,Color=total.Color};
                 }).ToArray();
         }
     }
