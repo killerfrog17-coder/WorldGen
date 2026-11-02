@@ -27,6 +27,12 @@ static class ForagerPresentationTests
             Check(!document.Subtitle.Contains("BC")&&!document.Subtitle.Contains("BP"),"Calendar is the world's own elapsed year");AtlasTables.Measures(s,entry);
         }
         foreach(var c in active.Take(50))Check(map.Id(f.Districts[c.District].Cell,HistoryOverlay.States)==-1,"A population home range never masquerades as a state");
+        var relatedTraditions=f.Beliefs.GroupBy(b=>b.Family).FirstOrDefault(g=>g.Count()>1)?.Take(2).ToArray();
+        if(relatedTraditions!=null)
+        {
+            var a=map.Color(relatedTraditions[0].Id,HistoryOverlay.Religions);var b=map.Color(relatedTraditions[1].Id,HistoryOverlay.Religions);
+            Check((a/a.Length-b/b.Length).Length>.1,"Separate local traditions have distinct hues, not brightness shades of one ancestral religion");
+        }
         Check(s.Hash==s.ComputeHash(),"All map/card/directory/atlas queries leave the simulation unchanged");
         Console.WriteLine($"PASS {checks} forager observer integration checks");
     }

@@ -67,7 +67,12 @@ namespace WorldGen.Presentation
             if(overlay==HistoryOverlay.Languages)
             {var l=state.Foragers.Languages[id];V family=SocietyView.CivilizationColor(l.Family+11);double shade=.72+.28*Rng.Value(l.Seed,"speech-shade",id);return family*shade+new V(.12,.12,.12)*(1-shade);}
             if(overlay==HistoryOverlay.Religions)
-            {var b=state.Foragers.Beliefs[id];V family=SocietyView.CivilizationColor(b.Family+31);return family*(.72+.28*Rng.Value(b.Seed,"tradition-shade",id));}
+            {
+                // A distant founding tradition is genealogy, not a single
+                // continent-wide religion. The legend and selection identify
+                // local traditions, so the map must distinguish those records.
+                return SocietyView.CivilizationColor(id+31);
+            }
             if(overlay==HistoryOverlay.Technology)return SocietyView.CivilizationColor(id*7+19);
             if(overlay==HistoryOverlay.Ethnicities)return SocietyView.CivilizationColor(id+67);
             return SocietyView.CivilizationColor(id);
