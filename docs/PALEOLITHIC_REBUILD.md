@@ -31,10 +31,32 @@ skills in [Migliano et al.](https://doi.org/10.1126/sciadv.aax5913) and the mult
 transmission paths reviewed by [Hewlett et al.](https://doi.org/10.1073/pnas.2322883121).
 
 Focused43 mechanism and12 temporal/save/budget checks pass. Old version3 full
-190k37-year continuation remains exact. Fresh version4 histories, outcomes and
-packaged views are still required. Candidate16 remains an unselected version3
-control, and the shortcut remains unchanged. No sapiens-only demographic bonus
-or scripted extinction has been added to force a preferred species outcome.
+190k37-year continuation remains exact, including the packaged version4 reader.
+The numerical source is `f16c75f`. Earth30k and Archipelago30k are complete; the
+Continents190k run remains in progress. Actual candidate17 views at Year0,
+Continents20k/40k and Archipelago30k pass, including40k->40050 live playback.
+The same build passes32 gameplay/nature checks and the existing69 named-save
+checks. Those are mechanical evidence, separate from the outcome review.
+
+Substantive interim findings: Earth30k has5,095 fitted-clothing-trained communities
+and9,490 needle-trained communities, compared with no established fitted clothing
+in the completed version3 run. Continents60k shows fitted-clothing routine use
+about4.1times higher in cold than warm habitats, and cold-weather shelter use
+about24times higher. Aquatic and inland populations have clearly different
+fishing/boat use. Both30k worlds have more than1,000 actual-use toolkit patterns,
+distinct local speech communities/families, and real population/range retreats.
+These are measured contrasts, not a requirement to force every seed into those
+exact counts. The long-run outcome remains pending.
+
+The actual screenshots exposed another display error: the religion map shaded
+remote founding families rather than distinguishing its named local traditions.
+Presentation-only source `bb5efed` fixes the hues; candidate18 is being packaged
+and its maps require fresh inspection. The numerical model and histories are
+unchanged. A412-check observer review includes a regression against disguising
+different local traditions as brightness shades of one ancestral religion.
+
+The shortcut remains unchanged. No sapiens-only demographic bonus or scripted
+extinction has been added to force a preferred species outcome.
 
 ### Superseded version3 review checkpoint (18:15 UTC)
 
