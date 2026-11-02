@@ -134,7 +134,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 // The hanging hide remains the owner's real item. Its donor
                 // appearance is refreshed by the same system as worn hides.
-                part.transform.localPosition=new Vector3(0,.2f,0);part.transform.localScale=new Vector3(Mathf.Min(w*.8f/(float)item.WidthM,4),Mathf.Min((h-.35f)/(float)item.HeightM,4),1);part.transform.localRotation=Quaternion.identity;
+                part.transform.localPosition=new Vector3(0,.2f+(float)Math.Max(0,plan.FloorHeights?.Max()??0),0);part.transform.localScale=new Vector3(Mathf.Min(w*.8f/(float)item.WidthM,4),Mathf.Min(((float)CampBlueprints.NominalHeight(plan)-.35f)/(float)item.HeightM,4),1);part.transform.localRotation=Quaternion.identity;
             }
             else if(plan.Design==CampDesign.DryingRack)
             {
@@ -144,7 +144,7 @@ public sealed partial class LocalTerrainExplorer
             else
             {
                 float x=(float)((i*.61803398875)%1-.5)*w*.65f,z=(float)((i*.41421356237)%1-.5)*d*.65f;
-                float y=(plan.Design==CampDesign.RaisedCache?1.32f:.08f)+(i/8)*.045f;
+                float y=(plan.Design==CampDesign.RaisedCache?1.32f+(float)Math.Max(0,plan.FloorHeights?.Max()??0):.08f)+(i/8)*.045f;
                 if(WoodCrafting.Wood(item))
                 {bool alongX=w>=d;var axis=alongX?Vector3.right:Vector3.forward;float length=(float)item.HeightM;if(alongX)x=(float)((i*.61803398875)%1-.5)*Math.Max(0,w-length);else z=(float)((i*.41421356237)%1-.5)*Math.Max(0,d-length);part.transform.localPosition=new Vector3(x,y,z)-axis*length*.5f;part.transform.localRotation=Quaternion.FromToRotation(Vector3.up,axis);}
                 else{part.transform.localPosition=new Vector3(x,y,z);part.transform.localRotation=Quaternion.Euler(i*17,i*137,0);}

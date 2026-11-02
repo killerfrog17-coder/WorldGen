@@ -72,7 +72,10 @@ public static class WorldGenBatch
             // requested major playable releases only.
             bool native=arguments.Contains("--worldgen-il2cpp-player");
             PlayerSettings.SetScriptingBackend(namedTarget,native?ScriptingImplementation.IL2CPP:ScriptingImplementation.Mono2x);
-            PlayerSettings.SetManagedStrippingLevel(namedTarget,ManagedStrippingLevel.Minimal);
+            // Mono's serializer/configuration code resolves framework types by
+            // name; a stripped development player removed those types and
+            // could not open .world files. Normal managed iteration is unstripped.
+            PlayerSettings.SetManagedStrippingLevel(namedTarget,native?ManagedStrippingLevel.Minimal:ManagedStrippingLevel.Disabled);
             // Ordinary player builds should not silently carry the development
             // runtime/debug overlay. Diagnostic development builds are opt-in.
             var options=!native||arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
