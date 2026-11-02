@@ -39,6 +39,24 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov16:47Z NO OWNER WRAP; continue. Source2298e25 query/equipment PUSHED.
+Slot-a internal candidate12 built16:37Z managed nondev, proof-resident-queries-12
+PASS1007/3254original/177fauna/audio exact. Native12 seed99173 original01 at30k
+38PASS inclplayback/directreference, explicitEXIT0/cleanlog. Current source adds
+UNCOMMITTED private journal/migration-route batching: exact10k250yrcc3dbfcb/
+70k25yrad373830 hashes and12 temporalPASS. Large transaction test sessionpending
+see artifacts/.../large-transactions-journal.log. Need currentcommit/build/proof.
+Two190k histories stillINCOMPLETE, frozen2e33 optimized-runner locked: Earth
+PID13412/session85012 ~105k, ContinentsPID17604/session50349 ~149k; logs*-optimized
+not old*-current. Do not overwrite optimized-runner. Both preserve exact prefix
+metrics/sourcechain, newest Earth100k03 ~322MB. Selected slot-b/rootshortcut
+UNCHANGED. Current120k language audit82.6%singleton-family pop and low cross-
+variety corecognacy are explicit review concerns, NOT validated realworldtargets.
+43techniques regionaluse/climatevariety genuine; no forced racial extinction
+or modernfamilycounts added. See new primary references in rebuilddoc. Full
+190k outcomes/native late maps/final source/proof/shortcut still outstanding.
+Owner3 untouched; no paid/subagents/cleanup/apps. Keep working after minimum.
+
 ACTIVE2Nov16:35Z, NO OWNER WRAP. Eight-hour minimum passed; KEEP WORKING until
 explicit owner wrap. Pushed2e33aa2 record transport03; internal slot-a built16:15
 managed nondev/scripts-only, proof-record-transport-11 PASS1007frozen/3254original

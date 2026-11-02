@@ -462,3 +462,37 @@ source chains are retained; all measured prefix records match, excluding elapsed
 test time. The initial zero-year cost probe failed because zero advancement is
 invalid, AFTER the130k snapshot read/validation succeeded; it is not a passing
 advance test. Both190k histories remain incomplete.
+
+
+### Journal/migration allocation and interpretive checks (16:47Z active)
+
+Private advancement now batches recent-event ring writes and persistent discovery
+appends, publishing the same ordered records once per transaction. Migration
+groups immutable route alternatives and resident totals once per planning review,
+retaining first-minimum tie order and all existing choices. The10k250yr cc3dbfcb...
+and70k25yr ad373830... hashes remain exact. Migration allocations137.2->88.2MB
+in the former fixture; large-world migration157.0->127.7MB. Whole-kernel wall
+time is not claimed improved beyond measurement noise.12 temporal/budget/cancel
+checks pass; native build13 and large transaction rerun remain pending.
+
+The2298e25 internal candidate12 (built16:37Z) passes38 native checks on original
+01-format seed99173 at30k, actual UI playback/direct comparison, exit0/clean log;
+proof1007 frozen inputs/3254 original assets exact. It predates the journal and
+route batching source. The current selected game remains the rejected baseline.
+
+Additional calibration references: [Wakano et al.2018](https://pubmed.ncbi.nlm.nih.gov/29032037/)
+models cultural/resource-linked replacement and assimilation without requiring
+intrinsic demographic or cognitive superiority. [Burke et al.2026](https://www.repository.cam.ac.uk/items/c6f5abe3-fec1-4783-ade6-cbbcb994fd8d)
+finds regionally different refugia/connectivity and cautions against climate-only
+replacement. These support investigating the actual connected resource network,
+rather than adding a scripted species extinction date or universal racial bonus.
+
+The120k world currently has about82.6% of people in singleton recognised language
+families and very low between-variety core cognacy even nearby. That remains an
+explicit outcome to review, not a claimed realistic target. A deep-time isolated
+lineage and an immediately intelligible dialect are distinct measures.
+[Blasi et al.2026](https://doi.org/10.1126/science.adx4343), as described by the
+[authors' institute](https://www.mpg.de/26871018/the-lost-golden-age-of-language-diversity),
+uses171 forager/fisher societies and estimates several thousand early-Holocene
+languages; modern post-state family/language counts are not a census target for
+the Paleolithic. No model parameter was changed just to force a modern count.

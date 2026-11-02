@@ -11,7 +11,7 @@ namespace WorldGen.Core
         {
             if(validate)using(ProfileWork("forager input validation"))ValidateForagers(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             if(seconds<1||seconds>SimulationTime.Maximum-source.Foragers.Seconds||maximumEvents<1||maximumWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));
-            PrehistoryState s;using(ProfileWork("forager checkpoint copy"))s=source.Copy();var f=s.Foragers;long target=f.Seconds+seconds;int processed=0;var intelligibility=new Dictionary<long,double>();
+            PrehistoryState s;using(ProfileWork("forager checkpoint copy"))s=source.Copy();var f=s.Foragers;using var journal=new ForagerJournal(f);long target=f.Seconds+seconds;int processed=0;var intelligibility=new Dictionary<long,double>();
             while(f.NextReviewSeconds<=target&&processed<Math.Min(maximumEvents,maximumWork))
             {
                 token.ThrowIfCancellationRequested();long next=f.NextReviewSeconds;int year=(int)(next/SimulationTime.Year);double previousYear=f.BoundarySeconds/(double)SimulationTime.Year;
@@ -37,10 +37,14 @@ namespace WorldGen.Core
                 using(ProfileWork("forager livelihood",f.Cohorts.Length))SetForagerRates(f,environment,year,5,token);processed++;
             }
             f.Seconds=f.NextReviewSeconds<=target?Math.Min(target,f.NextReviewSeconds-1):target;
-            using(ProfileWork("forager publication",f.Cohorts.Length))PublishForagers(s);if(processed==0)s.DomainToken=source.DomainToken;token.ThrowIfCancellationRequested();using(ProfileWork("forager checkpoint hash"))s.Seal();return s;
+            journal.Flush();using(ProfileWork("forager publication",f.Cohorts.Length))PublishForagers(s);if(processed==0)s.DomainToken=source.DomainToken;token.ThrowIfCancellationRequested();using(ProfileWork("forager checkpoint hash"))s.Seal();return s;
         }
         static void AddForagerEvent(ForagerState f,ForagerEventKind kind,int year,ForagerCohort c,string text,int other=-1)
-        {f.Events=f.Events.Concat(new[]{new ForagerEvent{Seconds=year*SimulationTime.Year,Kind=kind,Cohort=c?.Id??-1,District=c?.District??-1,Other=other,Text=text}}).TakeLast(2048).ToArray();}
+        {
+            var item=new ForagerEvent{Seconds=year*SimulationTime.Year,Kind=kind,Cohort=c?.Id??-1,District=c?.District??-1,Other=other,Text=text};
+            if(ForagerJournals.TryGetValue(f,out var journal))journal.Append(item);
+            else f.Events=f.Events.Concat(new[]{item}).TakeLast(2048).ToArray();
+        }
         void SetForagerRates(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
         {
             foreach(var group in f.Cohorts.Where(c=>c.Population>0).GroupBy(c=>c.District))
@@ -110,7 +114,7 @@ namespace WorldGen.Core
                 var c=active[index];var change=changes[index];
                 for(int k=0;k<ForagerTechnology.Count;k++)
                 {
-                    if((change.inventions&(1UL<<k))!=0)f.Discoveries=f.Discoveries.Concat(new[]{new ForagerDiscovery{Id=f.Discoveries.Length,Technique=k,Cohort=c.Id,District=c.District,Year=year}}).ToArray();
+                    if((change.inventions&(1UL<<k))!=0)RecordForagerDiscovery(f,k,c,year);
                     if((change.gained&(1UL<<k))!=0)AddForagerEvent(f,ForagerEventKind.Innovation,year,c,ForagerTechnology.All[k].Name+" is becoming a trained local practice.");
                     if((change.lost&(1UL<<k))!=0)AddForagerEvent(f,ForagerEventKind.KnowledgeLoss,year,c,"Trained practice in "+ForagerTechnology.All[k].Name.ToLowerInvariant()+" has become scarce.");
                 }

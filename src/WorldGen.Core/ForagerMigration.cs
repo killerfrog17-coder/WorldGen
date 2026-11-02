@@ -9,22 +9,35 @@ namespace WorldGen.Core
         void MigrateForagers(ForagerState f,ForagerEnvironment[] environment,int year,int elapsed,CancellationToken token)
         {
             var active=f.Cohorts.Where(c=>c.Population>0).ToArray();var byPlace=active.GroupBy(c=>(c.District,c.Lineage,c.Identity)).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>c.Population).First());var at=active.GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.ToArray());
+            // Geography and resident totals are unchanged during planning.
+            // Group routes once, then retain the original first-minimum/tie order.
+            var paths=f.Districts.Select(d=>d.Passages.GroupBy(p=>p.To).Select(g=>g.ToArray()).ToArray()).ToArray();
+            var residentPopulation=at.ToDictionary(p=>p.Key,p=>p.Value.Sum(c=>c.Population));
+            var residentAccess=at.ToDictionary(p=>p.Key,p=>p.Value.Average(c=>f.Cultures[c.Culture].GuestAccess));
             var planned=new List<(ForagerCohort source,ForagerPassage pass,double people)>();
             foreach(var c in active)
             {
                 if((c.Id&63)==0)token.ThrowIfCancellationRequested();if(c.Adults<18||c.Population<45)continue;
                 var d=f.Districts[c.District];var culture=f.Cultures[c.Culture];ForagerPassage best=null;double bestScore=0,number=0;
-                foreach(var pass in d.Passages.GroupBy(p=>p.To).Select(g=>g.Where(p=>ForagerPassages.Open(World.Recipe.Seed,p,d,environment[c.District],environment[p.To],c)).OrderBy(ForagerPassages.TravelCostKm).FirstOrDefault()).Where(p=>p!=null))
+                foreach(var alternatives in paths[c.District])
                 {
+                    ForagerPassage pass=null;double minimum=double.PositiveInfinity;
+                    foreach(var option in alternatives)
+                    {
+                        if(!ForagerPassages.Open(World.Recipe.Seed,option,d,environment[c.District],environment[option.To],c))continue;
+                        double candidateCost=ForagerPassages.TravelCostKm(option);
+                        if(pass==null||candidateCost<minimum){pass=option;minimum=candidateCost;}
+                    }
+                    if(pass==null)continue;
                     var destination=f.Districts[pass.To];var targetEnvironment=environment[pass.To];
                     var possible=ForagerEcology.Livelihood(destination,targetEnvironment,f.Lineages[c.Lineage],c,culture,f.Resources[pass.To]);
                     if(possible.Capacity<40||possible.WinterSecurity<.08)continue;
                     byPlace.TryGetValue((pass.To,c.Lineage,c.Identity),out var recipient);bool founding=recipient==null||recipient.Population<1;
                     double cost=ForagerPassages.TravelCostKm(pass,environment[c.District],targetEnvironment);
                     if(founding&&c.FrontierKm<Math.Min(d.RadiusKm,cost*.35))continue;
-                    double neighbours=at.TryGetValue(pass.To,out var hosts)?hosts.Sum(x=>x.Population):0;
+                    double neighbours=residentPopulation.TryGetValue(pass.To,out double present)?present:0;
                     double room=possible.Capacity-neighbours*.85;
-                    double access=at.TryGetValue(pass.To,out var residents)?residents.Average(r=>f.Cultures[r.Culture].GuestAccess):culture.GuestAccess;
+                    double access=residentAccess.TryGetValue(pass.To,out double welcome)?welcome:culture.GuestAccess;
                     room=Math.Max(room,possible.Capacity*.12*access);
                     if(founding&&(possible.Capacity<80||neighbours>possible.Capacity*1.3)||recipient!=null&&recipient.Population>possible.Capacity*1.1)continue;
                     double urgency=D.Clamp((.9-c.FoodSecurity)/.7),crowding=D.Clamp(c.Population/Math.Max(1,c.Capacity));
