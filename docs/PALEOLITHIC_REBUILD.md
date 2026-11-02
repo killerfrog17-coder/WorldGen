@@ -409,3 +409,27 @@ exactad373830... versus3041073. Process allocation1.962GB->1.480GB; measured wal
 34 mechanism and12 temporal checks pass. The new allocation source has not yet
 been rebuilt into a native candidate. Full190k runs are still active/incomplete;
 no60-second full-world generation claim.
+
+
+### Lossless record transport and continuing full histories (16:25Z WIP)
+
+The new WGWRLD03/WGHIST03 transport writes the numerous cohort/culture records
+as checked binary blobs, retaining all fields and raw floating-point bits. The
+01 and 02 readers remain available; non-forager writes retain their old format.
+The generated codec checks the complete public schema and embeds a schema stamp;
+record/collection sizes, cancellation, truncation and trailing data are bounded.
+It preserves null arrays, signed zero, NaN/infinities and UTF16 code units.
+
+Two actual migrations pass28 checks each, including a raw-bit fingerprint of
+the ENTIRE forager state, unchanged canonical hashes, identical future25yr
+simulation and the real named-save path. Seed99173 at10k shrinks32,179,388 to
+26,454,857bytes, read4.03 to1.61s; Continents60k shrinks65,147,162 to60,801,325,
+read5.86 to2.54s. These are concurrent-work measurements, not uncontended promises.
+69 named-save/legacy and49 old Paleolithic checks pass. Native Mono proof for
+the03 format remains PENDING. The selected game and shortcut remain unchanged.
+
+The two current190k histories have reached approximately Earth90k/Continents122k;
+these are NOT complete-history passes. Current plotted histories show real
+contractions and retreats. Large late-world records remain expensive; no claim
+that the full current simulation finishes in60seconds or that NPC camps are
+already physically spawned.

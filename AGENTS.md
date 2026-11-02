@@ -39,6 +39,21 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov16:25Z, OWNER HAS NOT REQUESTED WRAP. Continue meaningful work after
+16:19:52Z minimum; NEVER stop automatically. Pushedf52344d exact allocation fixes.
+Current uncommitted WGWRLD03/WGHIST03 lossless hot-record transport passes28checks
+each10k/60k, full raw-bit state/future25yr/named-save equality; 69save/49legacyPASS.
+Native03/package proof PENDING. Source generator/schema guard retained;01/02
+readers preserved. Slot-a remains7ac internal managed candidate/native10 38PASS;
+slot-b rejected selected and root shortcut unchanged. Two current190k runs304
+STILL ACTIVE: EarthPID6320/session14800 ~90k; ContinentsPID28692/session61494
+~122k. DO NOT overwrite current-runner while these run. Original logs+metrics
+complete prefix retained. Current30k99173/Archipelago completed/audited/native35
+each; all incomplete/old failed histories clearly recorded. Art/fauna/audio
+unchanged. No subagents/paid/cleanup/owner apps. Owner3 unrelated files untouched.
+Need current transport commit/build/proof/native, full late190k outcomes+map
+review, then proper release source/proof/shortcut only when ready.
+
 ACTIVE2Nov16:00Z, NO WRAP REQUEST. Owner says never stop until explicit wrap;
 minimum16:19:52Z is not a stop. Latest pushed7ac7ab8; new stack-demography/retired
 teaching filter/event lookup source verified but currently UNCOMMITTED. Large

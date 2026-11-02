@@ -12,7 +12,7 @@ namespace WorldGen.Serialization
     public static partial class WorldFile
     {
         static readonly byte[] Magic = { 87, 71, 87, 82, 76, 68, 48, 49 }; // WGWRLD01
-        static readonly byte[] PackedMagic = { 87, 71, 87, 82, 76, 68, 48, 50 }; // WGWRLD02
+        static readonly byte[] PackedMagic = { 87, 71, 87, 82, 76, 68, 48, 51 }; // WGWRLD03
         // Rich deep-time ledgers legitimately exceed the former 256MB cap.
         // The separate four-GB decoded guard remains in force.
         public const int MaximumFileBytes = 1000000000;
@@ -25,11 +25,11 @@ namespace WorldGen.Serialization
         {
             cancellation.ThrowIfCancellationRequested();
             using (var memory = new MemoryStream())
-            using (var transport=new BinaryWorldTransport(cancellation,world.Prehistory?.Foragers!=null))
+            using (var transport=new BinaryWorldTransport(cancellation,world.Prehistory?.Foragers!=null?3:1))
             {
                 memory.Write(world.Prehistory?.Foragers!=null?PackedMagic:Magic, 0, Magic.Length);
-                // Old worlds retain version1. New forager worlds use version2
-                // with bit-exact numeric packing; gzip and integrity checks still
+                // Old worlds retain version1. New forager worlds use version3
+                // with bit-exact numeric and record packing; gzip and integrity checks still
                 // cover the whole record. No historical records are discarded.
                 using (var gzip = new GZipStream(memory, compression, true))
                 using (var guarded = new GuardedStream(gzip, cancellation))
@@ -46,8 +46,8 @@ namespace WorldGen.Serialization
             cancellation.ThrowIfCancellationRequested();
             if (bytes == null || bytes.Length < Magic.Length + 18 || bytes.Length > MaximumFileBytes) throw new ArgumentException("Invalid compact world-file size.");
             for (int i = 0; i < Magic.Length-1; i++) if (bytes[i] != Magic[i]) throw new ArgumentException("Unsupported world-file format; use a .world snapshot or the JSON import option.");
-            if(bytes[Magic.Length-1]!=Magic[Magic.Length-1]&&bytes[Magic.Length-1]!=PackedMagic[Magic.Length-1])throw new ArgumentException("Unsupported compact world-file version.");
-            bool packed=bytes[Magic.Length-1]==PackedMagic[Magic.Length-1];
+            if(bytes[Magic.Length-1]<49||bytes[Magic.Length-1]>51)throw new ArgumentException("Unsupported compact world-file version.");
+            int version=bytes[Magic.Length-1]-48;bool packed=version>=2;
             using (var memory = new MemoryStream(bytes, Magic.Length, bytes.Length - Magic.Length, false))
             using (var gzip = new GZipStream(memory, CompressionMode.Decompress))
             using (var guarded = new GuardedStream(gzip, cancellation))
@@ -61,7 +61,7 @@ namespace WorldGen.Serialization
             {
                 status?.Invoke("Reading terrain and saved history");
                 World world;
-                using(var transport=new BinaryWorldTransport(cancellation,packed))
+                using(var transport=new BinaryWorldTransport(cancellation,version))
                 using(HistoricalCellTree.BeginReadInterning(cancellation))world=(World)Serializer(transport).ReadObject(reader);
                 status?.Invoke("Checking world and history integrity");
                 return WorldJson.ValidateWorld(world, cancellation, status);

@@ -55,11 +55,26 @@ namespace WorldGen.Serialization
     sealed class BinaryWorldTransport:ISerializationSurrogateProvider,IDisposable
     {
         readonly HistoricalCellTree.BinaryTransportScope trees;
-        readonly bool packed;readonly CancellationToken cancellation;
-        public BinaryWorldTransport(CancellationToken token,bool pack){cancellation=token;packed=pack;trees=HistoricalCellTree.CreateBinaryTransport(token);}
-        public Type GetSurrogateType(Type type)=>packed&&type==typeof(double[])?typeof(PackedDoubleVector):trees.GetSurrogateType(type);
-        public object GetObjectToSerialize(object value,Type targetType)=>packed&&value is double[] values?PackedDoubleVector.Pack(values,cancellation):trees.GetObjectToSerialize(value,targetType);
-        public object GetDeserializedObject(object value,Type targetType)=>packed&&value is PackedDoubleVector vector&&targetType==typeof(double[])?vector.Unpack(cancellation):trees.GetDeserializedObject(value,targetType);
+        readonly int version;readonly CancellationToken cancellation;
+        public BinaryWorldTransport(CancellationToken token,int format){cancellation=token;version=format;trees=HistoricalCellTree.CreateBinaryTransport(token);}
+        public Type GetSurrogateType(Type type)
+        {
+            if(version>=3&&type==typeof(ForagerCohort))return typeof(PackedForagerCohort);
+            if(version>=3&&type==typeof(ForagerCulture))return typeof(PackedForagerCulture);
+            return version>=2&&type==typeof(double[])?typeof(PackedDoubleVector):trees.GetSurrogateType(type);
+        }
+        public object GetObjectToSerialize(object value,Type targetType)
+        {
+            if(version>=3&&value is ForagerCohort cohort)return new PackedForagerCohort{Data=PackedForagerRecords.Pack(cohort,cancellation)};
+            if(version>=3&&value is ForagerCulture culture)return new PackedForagerCulture{Data=PackedForagerRecords.Pack(culture,cancellation)};
+            return version>=2&&value is double[] values?PackedDoubleVector.Pack(values,cancellation):trees.GetObjectToSerialize(value,targetType);
+        }
+        public object GetDeserializedObject(object value,Type targetType)
+        {
+            if(version>=3&&value is PackedForagerCohort cohort&&targetType==typeof(ForagerCohort))return PackedForagerRecords.UnpackCohort(cohort.Data,cancellation);
+            if(version>=3&&value is PackedForagerCulture culture&&targetType==typeof(ForagerCulture))return PackedForagerRecords.UnpackCulture(culture.Data,cancellation);
+            return version>=2&&value is PackedDoubleVector vector&&targetType==typeof(double[])?vector.Unpack(cancellation):trees.GetDeserializedObject(value,targetType);
+        }
         public void Dispose()=>trees.Dispose();
     }
 }

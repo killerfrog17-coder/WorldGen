@@ -16,13 +16,13 @@ namespace WorldGen.Serialization
         {
             using(var file=new FileStream(path,FileMode.CreateNew,FileAccess.Write,FileShare.None))
             {
-                bool packed=magic=="WGHIST01"&&state is PrehistoryState history&&history.Foragers!=null;
-                var header=Encoding.ASCII.GetBytes(packed?"WGHIST02":magic);file.Write(header,0,header.Length);
+                int version=magic=="WGHIST01"&&state is PrehistoryState history&&history.Foragers!=null?3:1;
+                var header=Encoding.ASCII.GetBytes(version==3?"WGHIST03":magic);file.Write(header,0,header.Length);
                 using(var gzip=new GZipStream(file,compression,true))
                 using(var bounded=new Bounded(gzip,decodedLimit,token))
                 using(var buffered=new BufferedStream(bounded,65536))
                 using(var writer=XmlDictionaryWriter.CreateBinaryWriter(buffered,null,null,false))
-                using(var transport=new BinaryWorldTransport(token,packed))
+                using(var transport=new BinaryWorldTransport(token,version))
                 {var serializer=new DataContractSerializer(typeof(T),new DataContractSerializerSettings{MaxItemsInObjectGraph=int.MaxValue});serializer.SetSerializationSurrogateProvider(transport);serializer.WriteObject(writer,state);}
                 if(file.Length>WorldFile.MaximumFileBytes)throw new InvalidDataException("Save state exceeds the supported file size.");
                 file.Flush(true);
@@ -34,13 +34,13 @@ namespace WorldGen.Serialization
             using(var file=File.OpenRead(path))
             {
                 var header=new byte[magic.Length];if(file.Read(header,0,header.Length)!=header.Length)throw new InvalidDataException("Truncated save state header.");
-                string actual=Encoding.ASCII.GetString(header);bool packed=magic=="WGHIST01"&&actual=="WGHIST02";
+                string actual=Encoding.ASCII.GetString(header);int version=magic=="WGHIST01"&&actual=="WGHIST03"?3:magic=="WGHIST01"&&actual=="WGHIST02"?2:1;bool packed=version>=2;
                 if(actual!=magic&&!packed)throw new InvalidDataException("Unsupported save state format.");
                 using(var gzip=new GZipStream(file,CompressionMode.Decompress))
                 using(var bounded=new Bounded(gzip,decodedLimit,token))
                 using(var buffered=new BufferedStream(bounded,65536))
                 using(var reader=XmlDictionaryReader.CreateBinaryReader(buffered,new XmlDictionaryReaderQuotas{MaxArrayLength=packed?640000000:80000000,MaxBytesPerRead=640000000,MaxDepth=64,MaxStringContentLength=1000000,MaxNameTableCharCount=1048576}))
-                using(var transport=new BinaryWorldTransport(token,packed))
+                using(var transport=new BinaryWorldTransport(token,version))
                 using(HistoricalCellTree.BeginReadInterning(token))
                 {var serializer=new DataContractSerializer(typeof(T),new DataContractSerializerSettings{MaxItemsInObjectGraph=int.MaxValue});serializer.SetSerializationSurrogateProvider(transport);return (T)serializer.ReadObject(reader);}
             }
