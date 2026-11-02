@@ -39,6 +39,19 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+RESUMED2Nov21:05Z OWNER EXPLICITLY SAID CONTINUE. Pause revoked; finish genuine
+remaining work andhandoff whenfinished, no old mandatory8h/untilwrap requirement.
+130kcheckpointSHAexactf562f1... and actualread/validation9PASS, statehash308f68...
+Now full190k current3 history RESUMED PID7900/session18754, loglinear-continents-
+resumed.log, frozenlinear-runner41f4bd7 DO NOT overwrite. Sourcechain/earliermetrics
+preserved by --forager-continue. Latestproductionb326d2f, checkpoint60cca95 pushed.
+Candidate16 slot-a unchanged managed nondev18:33Z/proofPASS; selectedslot-b/root
+shortcutstillrejectedbaseline. Latest16 100k language/tech/lineage/toolkit images
+now actually inspected. Needrest of16images +full190k/audit/packed33/nativeview/
+playback/lateoutcomes/finalmanifest/docs/shortcut/push. No owned Unity/nativejobs
+onresume. Owner3filesunchanged,no paid/subagents/cleanup/ownerapps. Earlierpause
+andactivejobPIDs below HISTORICAL. Finalrun stillINCOMPLETE, donotclaimfinished.
+
 PAUSED2Nov18:38Z OWNER EXPLICITLY REQUESTED PAUSE FOR PC RESTART. Do NOT
 resume until owner returns/resumes. Stopped only own watcherPID14616, history2332
 andparent27028 after verifying commands; NO owned Unity/native/dotnet jobs remain.

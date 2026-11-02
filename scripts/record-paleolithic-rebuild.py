@@ -142,7 +142,7 @@ manifest = {
         "No scripted sapiens victory, fixed extinction year or exact historical language count.",
         "Long high-detail histories remain computationally expensive; no 60-second full-history claim.",
         "Physical NPC camps/dialogue/AI, new hominin bodies and moving vegetation/coastline terrain are separate implementation stages.",
-        "Existing version2 saves retain original competition rules; create a new world or restart its simulation for version3.",
+        "Existing saves retain their original simulation model; generate a new world for this revision.",
         "Old completed version2 histories and failed diagnostic captures are excluded from current-model acceptance.",
     ],
 }

@@ -16,11 +16,14 @@
   ],
   "owner_returned_utc": "2026-11-02T17:30:00Z",
   "owner_return_time_precision": "Approximate recorded status time; latest owner instruction is authoritative.",
-  "status": "paused at owner request for PC restart",
+  "status": "resumed by owner; finishing substantive remaining verification",
   "paused_utc": "2026-11-02T18:39:34.891069+00:00",
   "resume_checkpoint": "artifacts/paleolithic-rebuild-20261102/linear-continents/year-130000.world",
   "resume_checkpoint_sha256": "f562f1a894a425f51598971292136f2b921aaa2384d7f8d99295d270b8f1dc8f",
   "candidate_production_source": "b326d2f",
   "candidate_built_utc": "2026-11-02T18:33:14.2724008Z",
-  "shortcut_unchanged": true
+  "shortcut_unchanged": true,
+  "resumed_utc": "2026-11-02T21:04:49.637641+00:00",
+  "checkpoint_read_validated": true,
+  "checkpoint_state_hash": "308f68bcb6b501ff3595da8ba5f7f089e8084903f595255b18ce814cefc440d3"
 }
