@@ -39,6 +39,23 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov OVERNIGHT PALEOLITHIC REBUILD AUTHORIZED. Owner REJECTED fb4b6ac
+simulation as homogeneous/unrealistic and requests substantive ground-up revision
+of ALL relevant systems with primary research, behavioural/statistical tests and
+actual multi-date/multi-world maps. Started08:19:52Z2Nov; at least8h work, minimum
+review16:19:52Z, AND do not stop until owner EXPLICITLY asks to wrap. No idle
+padding or cosmetic-only work. Preserve selected slot-b; only slot-a candidate.
+No subagents, paid/signup, new player slots, owner-app closures or blocked cleanup.
+Scope: ecology/resource/cold/ice limits, demographic shocks/retreat/recolonisation,
+regional tech discovery/teaching/use/loss, recognisable divergent languages and
+family histories, local belief traditions, diverse ancestral hominin ranges,
+identity/kin/social networks; cheap coherent bands/camps/seasonal routes ready for
+next NPC pass. Do not claim NPC actors/AI integrated unless actually implemented.
+Requirements/clock: assets/verification/paleolithic-rebuild-session.json.
+Owner3 files remain untouched. Keep Git checkpoints; report behaviour/evidence,
+not a large consistency-check count as realism acceptance.
+
+
 SELECTED2Nov PALEOLITHIC MAP/CALENDAR FEEDBACK COMPLETE: root shortcut NOW
 builds/slot-b/WorldGen.exe, Mono NON-DEVELOPMENT BuiltUtc2026-11-02T07:52:23.5068390Z,
 production2ef9911 pushed. Original Year0/calendar restored (no BC/BP),
