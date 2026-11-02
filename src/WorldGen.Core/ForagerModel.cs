@@ -104,6 +104,7 @@ namespace WorldGen.Core
         public double Births,Deaths,Immigration,Emigration;
         public double[] Knowledge=Array.Empty<double>(),Skill=Array.Empty<double>(),Use=Array.Empty<double>(),Teaching=Array.Empty<double>(),Innovation=Array.Empty<double>();
         public int[] FirstKnownYear=Array.Empty<int>(),FirstSkilledYear=Array.Empty<int>(),LastLossYear=Array.Empty<int>();
+        // Saved per-technique expertise/access blocks; see TeacherContext.
         public double[] TeachingFrom=Array.Empty<double>();public double ContactTeaching,TeachingAdults;
         public double[] Diet=new double[5],Appearance=new double[8],Admixture=Array.Empty<double>();
         public long ShockStart,ShockEnd;

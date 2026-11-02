@@ -263,3 +263,38 @@ starts with identical words across neighbouring camps and diverges afterwards,
 instead of creating a separate language record for each band. Existing distinct
 local varieties attract gradual adoption rather than an immediate relabel.
 The ecad71e runs are retained as rejected diagnostics. Fresh long runs follow.
+
+
+### Regional communities, retired data and rare teachers (14:30Z WIP)
+
+The missing speech-review cooldown allowed repeated regional forks. Current
+registration requires a real connected speech community (or sustained isolation),
+reuses existing local branches, and preserves the identical vocabulary at the
+moment a regional variety is first recorded. The 15k diagnostic now has614
+resident varieties rather than the10,397 produced by the rejected churn run.
+This is a mechanism correction, not a language-count target or final acceptance.
+
+The older50bcc0a/2999fa3 histories FAILED at140k/120k when compressed saves crossed
+256MB; their incomplete outputs are not passes. Retired communities now discard
+only incoming teaching/invention caches, preserving ancestry, demographic totals,
+final toolkits and learning dates. Native674d7eb candidate (managed nondev,
+14:27Z) has1003 frozen inputs/3254 original assets verified,20 real map/atlas
+checks and clean logs; it remains UNSELECTED and precedes the next teacher fix.
+
+A20k audit found a further real defect: rare expert instruction was averaged
+with people who did not know a technique, imposing a permanent low familiarity
+ceiling. Saved incoming context now separates technique-specific teacher quality
+from access frequency. Rare contacts teach slowly; unrelated unskilled neighbours
+cannot reduce the expert's competence.34 mechanism checks pass, including rare
+expert establishment, and12 temporal/budget/reload checks pass. These broad
+mechanisms are consistent with [Hewlett et al.2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11621818/)
+and [Migliano et al.2020](https://pmc.ncbi.nlm.nih.gov/articles/PMC7048420/);
+those papers do not establish the game's numerical rates. Observation remains
+possible without fluent shared speech; teaching and observation coexist in
+[Garfield et al.2025](https://pmc.ncbi.nlm.nih.gov/articles/PMC11982242/).
+
+Current long histories must be rerun for the teacher correction. Coupled outcome
+reports now export habitat/toolkit contrasts, density, ice exposure, near/far
+speech similarity, ancestry and changed biota. A passing broad error gate does
+not establish universal realism. No full physical glacial terrain/coast/river
+or vegetation reconstruction is claimed; dated data/weather/fauna/maps are wired.

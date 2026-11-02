@@ -145,7 +145,7 @@ namespace WorldGen.Core
                 for(int k=0;k<8;k++)c.Appearance[k]=HistoryHumanVariation.FounderValue(World.Recipe.Seed,d.Id,(HumanAppearanceTrait)k,uv,(int)(d.MeanC*10))/10000.0;
             }
             c.FirstKnownYear=c.Knowledge.Select(v=>v>=.2?year:-1).ToArray();c.FirstSkilledYear=c.Skill.Select(v=>v>=.5?year:-1).ToArray();c.LastLossYear=Enumerable.Repeat(-1,ForagerTechnology.Count).ToArray();
-            c.TeachingFrom=new double[ForagerTechnology.Count];
+            c.TeachingFrom=new double[ForagerTechnology.Count*2];
             return c;
         }
     }

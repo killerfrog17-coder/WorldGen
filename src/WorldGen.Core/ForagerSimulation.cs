@@ -104,13 +104,12 @@ namespace WorldGen.Core
             var neighbours=ForagerSociality.Neighbours(f);
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1))
             {
-                Array.Clear(c.TeachingFrom,0,c.TeachingFrom.Length);double weight=0,adults=0;
+                double weight=0,adults=0;
+                c.TeachingFrom=ForagerTechnology.TeacherContext(neighbours[c.Id].Where(x=>x.people.Population>=1).Select(x=>(x.people.Skill,x.relation.Strength*(1-.75*x.relation.Hostility))));
                 foreach(var contact in neighbours[c.Id])
                 {
                     if(contact.people.Population<1)continue;double strength=contact.relation.Strength*(1-.75*contact.relation.Hostility);weight+=strength;adults+=contact.people.Adults*strength;
-                    for(int k=0;k<c.TeachingFrom.Length;k++)c.TeachingFrom[k]+=contact.people.Skill[k]*strength;
                 }
-                for(int k=0;k<c.TeachingFrom.Length;k++)c.TeachingFrom[k]=D.Q(c.TeachingFrom[k]/Math.Max(.000001,weight),1000000000);
                 c.ContactTeaching=D.Q(weight,1000000);c.TeachingAdults=D.Q(adults,1000000);
             }
         }

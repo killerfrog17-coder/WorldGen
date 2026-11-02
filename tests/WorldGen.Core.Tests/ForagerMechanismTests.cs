@@ -26,6 +26,20 @@ static class ForagerMechanismTests
             ForagerTechnology.Advance(42,unfamiliar,d,experimentEnvironment,culture,5,year,Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),0,explanatoryAccess:0);
         }
         Check(fluent.Knowledge[17]>unfamiliar.Knowledge[17]*2&&unfamiliar.Knowledge[17]>0,"Shared language/bilingual explanation speeds complex teaching while observation still allows slower learning");
+        var expert=new double[ForagerTechnology.Count];expert[17]=.9;
+        var nobody=new double[ForagerTechnology.Count];
+        var rareContext=ForagerTechnology.TeacherContext(new[]{(expert,.025),(nobody,.8),(nobody,.7)});
+        Check(rareContext[17]>.89&&Math.Abs(rareContext[ForagerTechnology.Count+17]-.025)<1e-8,"A rare expert retains expertise while unrelated unskilled contacts add no teaching access for that method");
+        var rareLearner=c.Copy();var frequentLearner=c.Copy();rareLearner.Adults=frequentLearner.Adults=40;rareLearner.Knowledge[17]=rareLearner.Skill[17]=rareLearner.Use[17]=frequentLearner.Knowledge[17]=frequentLearner.Skill[17]=frequentLearner.Use[17]=0;
+        var frequentContext=ForagerTechnology.TeacherContext(new[]{(expert,.8)});double rareAt100=0,frequentAt100=0;
+        for(int year=5;year<=20000;year+=5)
+        {
+            ForagerTechnology.Advance(42,rareLearner,d,experimentEnvironment,culture,5,year,rareContext,0,1);
+            ForagerTechnology.Advance(42,frequentLearner,d,experimentEnvironment,culture,5,year,frequentContext,0,1);
+            if(year==100){rareAt100=rareLearner.Knowledge[17];frequentAt100=frequentLearner.Knowledge[17];}
+        }
+        Check(frequentAt100>rareAt100*3,"Technique-specific access makes rare instruction slower than frequent instruction");
+        Check(rareLearner.Knowledge[17]>.6&&rareLearner.Skill[17]>.35,"Repeated rare expert visits can eventually establish a useful practice without an artificial averaged-expertise ceiling");
         var resources=new ForagerResources();var warm=ForagerEcology.At(42,d,0);var basic=ForagerEcology.Livelihood(d,warm,lineage,c,culture,resources);
         Check(basic.Capacity>50&&basic.Capacity<3000,"Warm productive district has a bounded forager carrying opportunity, not agricultural density");
         var cold=d.Copy();cold.Center=new V(.6,0,.8);cold.WinterC=-28;cold.SummerC=14;cold.MeanC=-7;cold.GrowingDays=100;

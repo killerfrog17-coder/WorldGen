@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 namespace WorldGen.Core
 {
@@ -112,6 +113,23 @@ namespace WorldGen.Core
                 case 41:case 42:return .15+.5*c.Connectivity;default:return .5;
             }
         }
+        // First block: expertise of people who can demonstrate this method.
+        // Second block: actual access to those teachers. Unskilled neighbours
+        // cannot dilute a rare expert's skill into an unlearnable ceiling.
+        // Older internal checkpoints with one block retain their saved context
+        // until the next scheduled contact review; their hashes remain readable.
+        public static double[] TeacherContext(IEnumerable<(double[] skills,double strength)> contacts)
+        {
+            var context=new double[Count*2];
+            foreach(var contact in contacts)for(int k=0;k<Count;k++)
+            {
+                double skill=contact.skills[k],available=contact.strength*D.Clamp((skill-.05)/.35);
+                context[k]+=skill*available;context[Count+k]+=available;
+            }
+            for(int k=0;k<Count;k++)
+            {context[k]=D.Q(context[k]/Math.Max(.000001,context[Count+k]),1000000000);context[Count+k]=D.Q(D.Clamp(context[Count+k]),1000000000);}
+            return context;
+        }
         public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1,double[] materialProfile=null,double explanatoryAccess=1)
         {
             ulong inventions=0;
@@ -144,7 +162,8 @@ namespace WorldGen.Core
                 double communicationComplexity=D.Clamp((t.TeachingYears-60)/320d);
                 double demonstration=.5*(1-communicationComplexity)+.1*communicationComplexity;
                 double communication=demonstration+(1-demonstration)*D.Clamp(explanatoryAccess);
-                double learning=teacher*(.35+.65*culture.ExchangeOpenness)*D.Clamp(contactStrength)*communication+localTeaching;
+                double teachingAccess=teachers!=null&&teachers.Length>=Count*2?teachers[Count+k]:D.Clamp(contactStrength);
+                double learning=teacher*(.35+.65*culture.ExchangeOpenness)*teachingAccess*communication+localTeaching;
                 double recentLearning=c.FirstKnownYear.Length>k&&c.FirstKnownYear[k]>0&&year>=c.FirstKnownYear[k]?Math.Exp(-(year-c.FirstKnownYear[k])/140d):0;
                 learning+=.8*Math.Max(invented?1:0,recentLearning);
                 learning*=(.55+.45*D.Clamp(explanationPractice))*(.4+.6*D.Clamp(learningCapacity));
