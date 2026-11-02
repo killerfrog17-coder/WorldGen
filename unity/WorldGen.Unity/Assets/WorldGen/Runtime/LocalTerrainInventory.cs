@@ -22,7 +22,7 @@ public sealed partial class LocalTerrainExplorer
     Transform inventoryBoneOwner;Dictionary<string,Transform> inventoryBones;
     void InitializeInventory()
     {
-        if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();PrepareItemAudio();
+        if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();PrepareItemAudio();PrepareItemPhysics();
         // Demo NPC humans are not restored with the session. Their numeric
         // IDs can be reused, so an old arrow must not bind to a new person.
         foreach(var item in Inventory.Items.Where(p=>p.AttachedHuman!=0))ReleaseProjectileAttachment(item);

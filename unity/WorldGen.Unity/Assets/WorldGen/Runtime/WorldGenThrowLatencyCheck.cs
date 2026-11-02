@@ -59,7 +59,7 @@ public sealed partial class LocalTerrainExplorer
             double releaseMs=watch.Elapsed.TotalMilliseconds;timing.Add(kind+" complete release ms="+releaseMs.ToString("F3"));
             timing.AddRange(throwStageTimings);throwStageTimings.Clear();
             File.WriteAllLines(Path.Combine(output,"timing.txt"),timing);
-            Check(releaseMs<100,"Complete first-use release stays below100ms "+kind+": "+releaseMs.ToString("F3"));
+            Check(releaseMs<50,"Complete first-use release stays below50ms "+kind+": "+releaseMs.ToString("F3"));
             Check(itemEffectVoices.Exists(v=>v.isPlaying&&v.clip!=null&&v.clip.name.StartsWith("weapon-swish",StringComparison.Ordinal)),"Prepared original swish actually plays on release "+kind);
             Check(spear.InFlight&&itemProjectiles.ContainsKey(spear.Id)&&inventoryDrops.ContainsKey(spear.Id),"Release creates recoverable physical projectile "+kind);
             Check(surfaceGroundFallbacks==before,"Actual spear release has no analytic aim/floor sampling "+kind);

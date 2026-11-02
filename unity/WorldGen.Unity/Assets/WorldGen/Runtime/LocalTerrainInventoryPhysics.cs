@@ -13,6 +13,18 @@ public sealed partial class LocalTerrainExplorer
         public float Quiet;public bool Paused;public Vector3 Velocity,Spin;
     }
     sealed class DropFloor {public GameObject Root;public Mesh Mesh;}
+    void PrepareItemPhysics()
+    {
+        if(inventoryDropMaterial!=null)return;
+        inventoryDropMaterial=new PhysicsMaterial("Loose item friction"){dynamicFriction=.65f,staticFriction=.75f,bounciness=.12f};
+        // Initialize Unity's first-use collider/body bindings during world
+        // loading, rather than in the first release frame. Never enters physics
+        // or rendering and never becomes a saved inventory/world object.
+        var warm=new GameObject("Loose item physics preparation");warm.SetActive(false);warm.transform.SetParent(transform,false);
+        var collider=warm.AddComponent<BoxCollider>();collider.sharedMaterial=inventoryDropMaterial;collider.size=Vector3.one*.02f;
+        var body=warm.AddComponent<Rigidbody>();body.detectCollisions=false;body.mass=1;body.linearDamping=.1f;body.angularDamping=.55f;body.interpolation=RigidbodyInterpolation.Interpolate;body.collisionDetectionMode=CollisionDetectionMode.ContinuousDynamic;body.maxDepenetrationVelocity=2;
+        warm.AddComponent<WorldGenProjectileContact>();Destroy(warm);
+    }
     readonly Dictionary<string,DroppedPossession> inventoryDrops=new Dictionary<string,DroppedPossession>();
     readonly Dictionary<(int,int),DropFloor> inventoryFloors=new Dictionary<(int,int),DropFloor>();
     PhysicsMaterial inventoryDropMaterial;
