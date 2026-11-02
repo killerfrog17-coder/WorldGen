@@ -1,9 +1,9 @@
 # Placed materials, campfires and sleep
 
 The current camping system combines directly placed fire/bedding with adjustable
-structure blueprints. Release evidence is recorded in
-`assets/verification/camp-blueprints-20261101.json`; the existing root shortcut
-selects the verified IL2CPP player in one of the two fixed build slots.
+structure blueprints. Current shelter review evidence is recorded in
+`assets/verification/paleolithic-shelters-20261102.json`; the existing root shortcut
+selects the checked managed development player in one of the two fixed build slots.
 
 ## Adjustable camp plans
 
@@ -35,7 +35,9 @@ their separate rawhide appearance.
 | Hide-working frame | Width 1–3 m | Braced upright frame holding one actual retrievable hide |
 | Raised cache | Width 1–3 m, depth 1–2.5 m | Elevated roofed food/equipment stock; physical, dimension-limited storage |
 
-E builds, uses stores/racks or opens the completed structure details. Sleeping
+V opens camp plans. E builds, uses stores/racks or opens the completed structure
+details; Shift+E inspects an unfinished plan. Creative mode also provides a
+"Complete plan (creative)" button for fast review. Sleeping
 platform details offer rest/sleep. The plans list scrolls. Existing fireplaces
 and bedding remain direct placement. Existing saved structures keep their
 original component keys. A footprint requiring unsupported pole lengths is

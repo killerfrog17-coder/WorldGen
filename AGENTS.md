@@ -38,34 +38,32 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-ACTIVE2Nov PALEOLITHIC SHELTER EXPANSION: owner deferred worldgen/evolution/
-borders and requests the complete grouped shelter/camp-structure pass before
-NPC work. Shared design catalog, scalable geometry/costs, donor-coat hide roof
-patches, stone/bone footings, platforms/cache/hide frame in progress. Existing
-five designs/save keys retained; new designs append enum IDs. Source/Core
-checks underway, NOT selected yet. Next player is fast managed DEVELOPMENT
-slot-a per new owner build policy; slot-b/shortcut frozen until actual checks.
-No NPC spawning/interactions or historical-simulation overhaul authorized yet.
-Owner prompt deletion and two untracked deer scripts preserved. No subagents.
-Latest source7a440cf plus in-progress build: 15 plans / 4 cover choices; 13429
-Core blueprint,69camp,69save,82inventory,24physiology checks pass. New Mono
-development path uncovered original stripped serializer configuration and a
-MaterialPropertyBlock field initializer; both corrected. Actual world loading
-works, but tile upload failed development-thread checks (CreateNewMeshDatas).
-Current fix allocates native containers on main, fills off-thread, posts canceled
-ReleaseMeshDatas back to main via Unity synchronization context. First focused
-upload test caught background release too; fixed, verification still PENDING.
-Source/shortcut slot-b remains selected/frozen. Candidate slot-a current build
-must pass quick --worldgen-upload-check THEN scripts/run-shelter-check.ps1.
-Native checks1..6 failed startup, check7 intentionally terminated OWN26804 after
-identifying tile error; NONE are acceptance. Owner slot-b process5296 left open.
-No shelter images or collision accepted yet. No additional geometry polishing
-until actual play flow works. New scripts-only flag is guarded to inactive Mono
-development workspace; Unity verifies its existing baseline. Test outputs in
-artifacts/shelters-20261102; dump files there disposable; optional diagnostics
-tools in tools/dotnet-diagnostics. CLI worker transport189547 exact values PASS
-(control CoreCLR client), not evidence of the failed Mono upload path. Package
-proof963/3254/30/6x70 passed on previous candidate; rerun for final source.
+SELECTED2Nov PALEOLITHIC SHELTER REVIEW: existing root shortcut NOW
+builds/slot-a/WorldGen.exe, Mono DEVELOPMENT BuiltUtc2026-11-02T04:25:23.4377564Z,
+productionfa67c7d pushed. Owner's newer fast-iteration policy applies. Shared
+15-design catalog /4covers, bounded dimensions/costs, actual donor-coat roof
+patches and fitted working hides, stone/bone footings, elevated beds/cache,
+storage/drying and original five save keys retained. Pebble/small/large naming
+and separate wide glyphs; taller chipping glyph ONLY actual eligible stones.
+Instant drink no longer stages/drops held items: no-bag spear+stone blade tested
+through real freshwater/sea input and animation, exact inventory/hand identity.
+Final SAME PACKAGE 257shelter/39water checks PASS/exit0/clean errors;
+quick upload/main-thread cancellation and10terrain boundary checks PASS. All15
+plan captures and mixed donor roof reviewed; final working-frame screenshot
+reviewed after correcting normalized hide scale. Core13429blueprint/45stone/
+82inventory/69camp/69save/24physiology PASS. Proof971frozen/3254original/30legacy/
+6x70bank/fauna+originalaudio EXACT. Manifest assets/verification/paleolithic-
+shelters-20261102.json. Source/selected package FROZEN; no owner visual approval
+inferred. Surface-built architecture only: caves terrain; excavation/storage pits
+and snow refuges deferred pending terrain/snow editing. NPC work awaits approval.
+Mono thread guards exposed original MeshData allocate/release off-thread use:
+main-thread preallocation + SynchronizationContext deferred release corrected.
+Earlier failed checks1..8 excluded; later final results only above. No whole-world
+FPS claim or all historical hunting suites passing. Two temporary terrain dump
+deletions rejected by automatic approval review; left intact, do NOT retry.
+Owner slot-b process5296 untouched; while running it protects old build slot.
+No owned build/test jobs remain. Preserve owner prompt deletion and2untracked
+deer scripts; no subagents/paid/extra full player folders. Await feedback.
 
 CURRENT1Nov EXIT / THROW / NEEDS / FIRE SELECTED: normal root shortcut NOW
 builds/slot-b/WorldGen.exe, IL2CPP Release BuiltUtc2026-11-02T01:21:11.3166520Z,
