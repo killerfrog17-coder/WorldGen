@@ -26,7 +26,8 @@ namespace WorldGen.Core
         {
             double bp=200000-elapsed;double[] age={0,12000,21000,70000,115000,125000,145000,190000,200000};double[] ice={.03,.25,1,.72,.65,.04,1,.12,.55};double amount;
             if(bp>=0&&bp<=200000){int i=0;while(i<age.Length-2&&bp>age[i+1])i++;double f=(bp-age[i])/(age[i+1]-age[i]);f=f*f*(3-2*f);amount=ice[i]+(ice[i+1]-ice[i])*f;}
-            else amount=.5-.48*Math.Cos(2*Math.PI*(bp-125000)/100000);
+            else if(bp<0)amount=.03+.47*(1-Math.Cos(2*Math.PI*bp/100000));
+            else amount=.55+.215*(1-Math.Cos(2*Math.PI*(bp-200000)/100000));
             double lat=Math.Abs(sineLatitude),regional=Rng.Value(seed,"paleo-moisture",province)*2-1;
             return new PaleolithicClimate(amount,-amount*(2.5+8*lat*lat+Math.Max(0,elevationM-2000)*.0003),Math.Max(.45,1-amount*(.2+.15*lat)+regional*.1*amount),amount*125);
         }

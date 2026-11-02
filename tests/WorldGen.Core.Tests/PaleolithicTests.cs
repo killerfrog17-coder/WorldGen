@@ -30,6 +30,7 @@ static class PaleolithicTests
         var warm=PaleolithicRules.Climate(73421,75000,.8);var ice=PaleolithicRules.Climate(73421,179000,.8);
         Check(ice.Ice>warm.Ice&&ice.TemperatureDeltaC<warm.TemperatureDeltaC&&ice.SeaFallM>warm.SeaFallM,"Dated glacial forcing changes northern cold exposure and sea level");
         var a=PaleolithicRules.Climate(73421,50000,.4);var b=PaleolithicRules.Climate(73421,50000+1/365.0,.4);Check(Math.Abs(a.TemperatureDeltaC-b.TemperatureDeltaC)<.001,"Climate cannot jump on an ordinary game day");
+        Check(Math.Abs(PaleolithicRules.Climate(73421,200000-1/365.0,.4).TemperatureDeltaC-PaleolithicRules.Climate(73421,200000+1/365.0,.4).TemperatureDeltaC)<.001,"Continuing the Paleolithic sandbox past the reference present cannot abruptly reset the glacial forcing");
         var shelf=new Prehistory.Route{Sea=true,Shallow=true,SeaDropM=70,DistanceM=200000};var ocean=new Prehistory.Route{Sea=true,DistanceM=100000};
         Check(!PaleolithicRules.RouteOpen(shelf,warm,0)&&PaleolithicRules.RouteOpen(shelf,ice,0),"Actual shallow shelf threshold controls a glacial land corridor");
         Check(!PaleolithicRules.RouteOpen(ocean,ice,1),"Ice and raft knowledge never unlock a100km deep-water crossing");
