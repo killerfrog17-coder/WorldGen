@@ -8,6 +8,7 @@ public sealed partial class LocalTerrainExplorer
     {public float Distance;public Vector3 Point,Normal;public bool Tree;public ScatterInstance Source;}
     CombatObstacle TraceCombatObstacle(Ray worldRay,float reach,Collider ignore=null,bool checkGround=true)
     {
+        long timing=recordThrowTiming?System.Diagnostics.Stopwatch.GetTimestamp():0;
         CombatObstacle hit=null;float closest=reach;
         var ray=new Ray(transform.InverseTransformPoint(worldRay.origin),transform.InverseTransformDirection(worldRay.direction));
         foreach(var physical in Physics.RaycastAll(worldRay,reach,~(1<<29),QueryTriggerInteraction.Ignore))
@@ -16,11 +17,13 @@ public sealed partial class LocalTerrainExplorer
                 closest=physical.distance;scatterSolidSources.TryGetValue(physical.collider,out var solid);
                 hit=new CombatObstacle{Distance=closest,Point=physical.point,Normal=physical.normal,Tree=solid?.Tree??false,Source=solid==null?default:solid.Source};
             }
+        ThrowTiming("obstacle physics",ref timing);
         for(float d=.08f;checkGround&&d<closest;d+=.18f)
         {
             var p=ray.GetPoint(d);double floor=SurfaceGround(p.x+originX,p.z+originZ);
             if(p.y<floor){closest=d;hit=new CombatObstacle{Distance=d,Point=worldRay.GetPoint(d),Normal=Vector3.up};break;}
         }
+        ThrowTiming("obstacle terrain",ref timing);
         foreach(var chunk in scatterChunks.Values)
         {
             if(chunk.Roots==null||chunk.AllBounds.SqrDistance(ray.origin)>closest*closest+4)continue;
@@ -50,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        Ground(motion.X,motion.Z);return hit;
+        ThrowTiming("obstacle scatter",ref timing);Ground(motion.X,motion.Z);ThrowTiming("obstacle restore datum",ref timing);return hit;
     }
     static bool RayTrunk(Ray ray,Vector3 root,float radius,float height,float maximum,out float distance,out Vector3 normal)
     {

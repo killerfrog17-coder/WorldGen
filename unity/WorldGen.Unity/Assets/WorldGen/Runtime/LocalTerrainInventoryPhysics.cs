@@ -65,6 +65,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BeginDroppedBody(Possession item,GameObject root,Vector3 velocity)
     {
+        long timing=recordThrowTiming?System.Diagnostics.Stopwatch.GetTimestamp():0;
         if(inventoryDrops.TryGetValue(item.Id,out var existing))
         {if(existing.Body!=null&&existing.Collider!=null)return;RemoveDroppedBody(item.Id);}
         if(inventoryDropMaterial==null)inventoryDropMaterial=new PhysicsMaterial("Loose item friction"){dynamicFriction=.65f,staticFriction=.75f,bounciness=.12f};
@@ -81,13 +82,15 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         collider.center=bounds.center;collider.size=bounds.size*.94f;collider.sharedMaterial=inventoryDropMaterial;collider.enabled=true;
+        ThrowTiming("body bounds and box",ref timing);
         var body=root.GetComponent<Rigidbody>();if(body==null)body=root.AddComponent<Rigidbody>();body.isKinematic=false;body.detectCollisions=true;body.mass=(float)item.MassKg;
         body.linearDamping=.1f;body.angularDamping=.55f;body.interpolation=RigidbodyInterpolation.Interpolate;
         body.collisionDetectionMode=CollisionDetectionMode.ContinuousDynamic;body.maxDepenetrationVelocity=2;
         body.linearVelocity=velocity;body.angularVelocity=new Vector3(1.1f,.4f,.7f);
         inventoryDrops.Add(item.Id,new DroppedPossession{Item=item,Body=body,Collider=collider});
         var contact=root.GetComponent<WorldGenProjectileContact>();if(contact==null)contact=root.AddComponent<WorldGenProjectileContact>();contact.Owner=this;contact.ItemId=item.Id;
-        EnsureDropFloors(root.transform.localPosition,Mathf.Max((float)item.WidthM,(float)item.HeightM));Physics.SyncTransforms();
+        ThrowTiming("body rigid setup",ref timing);
+        EnsureDropFloors(root.transform.localPosition,Mathf.Max((float)item.WidthM,(float)item.HeightM));ThrowTiming("body floor meshes",ref timing);Physics.SyncTransforms();ThrowTiming("body physics sync",ref timing);
     }
     void CaptureInventoryPhysics()
     {

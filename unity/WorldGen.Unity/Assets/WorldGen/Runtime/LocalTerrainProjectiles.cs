@@ -20,12 +20,15 @@ public sealed partial class LocalTerrainExplorer
     Vector3 ProjectileTip(ItemProjectile p)=>PointedProjectile(p.Item)?p.Drop.Body.position+p.Drop.Body.rotation*Vector3.up*(float)p.Item.HeightM:p.Drop.Body.worldCenterOfMass;
     void LaunchItemProjectile(Possession item,Vector3 origin,Vector3 direction,float speed)
     {
+        long timing=recordThrowTiming?System.Diagnostics.Stopwatch.GetTimestamp():0;
         RemoveDroppedBody(item.Id);Inventory.Move(item.Id,PossessionPlace.Ground,"",0,0,false,out _);item.AttachedAnimal=0;item.AttachedHuman=0;item.InFlight=item.GroundMoving=true;
         if(!inventoryVisuals.TryGetValue(item.Id,out var root)){root=CreatePossessionVisual(item,30);root.transform.SetParent(transform,false);inventoryVisuals[item.Id]=root;}
         root.transform.rotation=PointedProjectile(item)?Quaternion.FromToRotation(Vector3.up,direction):UnityEngine.Random.rotation;
         root.transform.position=origin-(PointedProjectile(item)?direction*(float)item.HeightM*.5f:Vector3.zero);
+        ThrowTiming("launch item transform",ref timing);
         item.GroundVelocity=CoreVector(direction*speed);var local=root.transform.localPosition;item.Position=frame.Position(local.x+originX,local.z+originZ);item.GroundOffsetM=local.y-Ground(local.x+originX,local.z+originZ);
-        item.GroundRotation=CoreVector(root.transform.localEulerAngles);BeginDroppedBody(item,root,direction*speed);RegisterProjectile(item);inventoryNearbyAt=0;
+        ThrowTiming("launch saved datum",ref timing);
+        item.GroundRotation=CoreVector(root.transform.localEulerAngles);BeginDroppedBody(item,root,direction*speed);ThrowTiming("launch collision body",ref timing);RegisterProjectile(item);inventoryNearbyAt=0;
         if(itemProjectiles.TryGetValue(item.Id,out var launch))launch.Previous=origin-direction*.4f;
     }
     void RegisterProjectile(Possession item)

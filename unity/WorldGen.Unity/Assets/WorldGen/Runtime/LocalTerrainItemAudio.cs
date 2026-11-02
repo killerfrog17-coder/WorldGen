@@ -7,6 +7,27 @@ using WorldGen.Core;
 public sealed partial class LocalTerrainExplorer
 {
     readonly Dictionary<string,AudioClip[]> itemEffectBanks=new Dictionary<string,AudioClip[]>();readonly List<AudioSource> itemEffectVoices=new List<AudioSource>();
+    readonly Dictionary<string,ResourceRequest[]> itemEffectLoads=new Dictionary<string,ResourceRequest[]>();
+    void PrepareItemAudio()
+    {foreach(var category in new[]{"weapon-swish","bow-release","body-hit","wood-chop","fibre-handle","soil-dig","stone-contact"})QueueItemAudio(category);}
+    void QueueItemAudio(string category)
+    {
+        if(itemEffectBanks.ContainsKey(category)||itemEffectLoads.ContainsKey(category))return;
+        int count=category=="stone-contact"?6:3;var requests=new ResourceRequest[count];
+        for(int i=0;i<count;i++)requests[i]=Resources.LoadAsync<AudioClip>((category=="stone-contact"?"Crafting/Stone/knap":"Items/Audio/"+category)+"-"+(i+1).ToString("00"));
+        itemEffectLoads.Add(category,requests);
+    }
+    bool ReadyItemAudio(string category,out AudioClip[] clips)
+    {
+        if(itemEffectBanks.TryGetValue(category,out clips))return true;
+        QueueItemAudio(category);var requests=itemEffectLoads[category];
+        if(requests.Any(r=>!r.isDone))return false;
+        var found=requests.Select(r=>r.asset as AudioClip).Where(c=>c!=null).ToArray();
+        if(found.Any(c=>c.loadState==AudioDataLoadState.Loading))return false;
+        clips=found.Where(c=>c.loadState==AudioDataLoadState.Loaded).ToArray();itemEffectBanks[category]=clips;itemEffectLoads.Remove(category);return true;
+    }
+    void UpdateItemAudioLoads()
+    {foreach(var category in itemEffectLoads.Keys.ToArray())ReadyItemAudio(category,out _);}
     uint itemEffectChoice=281028;static float itemEffectVolume=-1;
     public static float ItemEffectVolume{get{if(itemEffectVolume<0)itemEffectVolume=PlayerPrefs.GetFloat("item-effects-volume",.7f);return itemEffectVolume;}set{itemEffectVolume=Mathf.Clamp01(value);PlayerPrefs.SetFloat("item-effects-volume",itemEffectVolume);}}
     public void PreviewItemEffect(string category,int take)=>PlayItemEffect(category,view.transform.position,.6f,true,take);
@@ -15,10 +36,9 @@ public sealed partial class LocalTerrainExplorer
         if(!owner)ReportSleepNoise(position,volume*2);
         if(category=="stone-contact"||category=="wood-chop"||category=="body-hit")ReportHuntingNoise(position,volume*2,fromPlayer);
         if(ItemEffectVolume<=0||!owner&&(position-view.transform.position).sqrMagnitude>65*65)return;
-        if(!itemEffectBanks.TryGetValue(category,out var clips))
-        {
-            clips=category=="stone-contact"?Resources.LoadAll<AudioClip>("Crafting/Stone"):Resources.LoadAll<AudioClip>("Items/Audio").Where(c=>c.name.StartsWith(category+"-",StringComparison.Ordinal)).OrderBy(c=>c.name).ToArray();itemEffectBanks[category]=clips;
-        }
+        // Never deserialize/decode an entire Resources sound directory in the
+        // release/contact frame. Requests start while the world is loading.
+        if(!ReadyItemAudio(category,out var clips))return;
         if(clips.Length==0)return;var voice=itemEffectVoices.FirstOrDefault(v=>!v.isPlaying);
         if(voice==null){var root=new GameObject("Item sound");root.transform.SetParent(transform,false);voice=root.AddComponent<AudioSource>();voice.playOnAwake=false;voice.loop=false;voice.dopplerLevel=0;voice.rolloffMode=AudioRolloffMode.Logarithmic;voice.minDistance=1.5f;voice.maxDistance=65;voice.priority=125;itemEffectVoices.Add(voice);}
         itemEffectChoice=Rng.Mix(itemEffectChoice+1);voice.transform.position=position;voice.spatialBlend=owner?0:1;voice.panStereo=0;voice.volume=volume*ItemEffectVolume;voice.pitch=variant>=0?1:.96f+(itemEffectChoice%9)*.01f;voice.clip=clips[variant>=0?variant%clips.Length:(int)(itemEffectChoice%(uint)clips.Length)];voice.Play();
@@ -29,5 +49,5 @@ public sealed partial class LocalTerrainExplorer
         string group=StoneCrafting.Rock(item)||item.Kind==PossessionKind.StoneFlake?"stone-contact":PortableTechnology.Item(item.Kind)?.Form==PortableForm.Hide?"fibre-handle":"wood-chop";
         PlayItemEffect(group,collision.GetContact(0).point,Mathf.Clamp((float)Math.Sqrt(item.MassKg)*collision.relativeVelocity.magnitude*.1f,.08f,.5f));
     }
-    void DisposeItemAudio(){foreach(var voice in itemEffectVoices)if(voice!=null){voice.Stop();Destroy(voice.gameObject);}itemEffectVoices.Clear();itemEffectBanks.Clear();}
+    void DisposeItemAudio(){foreach(var voice in itemEffectVoices)if(voice!=null){voice.Stop();Destroy(voice.gameObject);}itemEffectVoices.Clear();itemEffectBanks.Clear();itemEffectLoads.Clear();}
 }

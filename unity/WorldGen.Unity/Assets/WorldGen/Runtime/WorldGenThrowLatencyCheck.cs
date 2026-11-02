@@ -13,10 +13,15 @@ public sealed partial class LocalTerrainExplorer
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("THROW LATENCY "+text);report.Add("PASS "+text);}
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();TestHumanView(0);
+        float previousEffectsVolume=itemEffectVolume;itemEffectVolume=.7f;
         SetInventoryOpen(false);paused=true;CancelItemCharge();ClearInventoryPhysics();
         foreach(var root in inventoryVisuals.Values)DestroyInventoryVisual(root);
         inventoryVisuals.Clear();inventoryVisualPlaces.Clear();Inventory.Items.Clear();
         var timing=new List<string>();
+        double audioDeadline=Time.unscaledTimeAsDouble+10;
+        while(!ReadyItemAudio("weapon-swish",out _)&&Time.unscaledTimeAsDouble<audioDeadline)yield return null;
+        Check(ReadyItemAudio("weapon-swish",out var swishes)&&swishes.Length==3,"All original throw sounds are decoded before the first action");
+        recordThrowTiming=true;
         // Compare the former eager fallback with identical resident heights.
         var watch=Stopwatch.StartNew();var expected=new double[81];
         for(int z=0;z<9;z++)for(int x=0;x<9;x++)
@@ -29,6 +34,7 @@ public sealed partial class LocalTerrainExplorer
         var ray=new Ray(transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y+1000,(float)(motion.Z-originZ))),transform.TransformDirection(Vector3.forward));
         before=surfaceGroundFallbacks;watch.Restart();var obstruction=TraceCombatObstacle(ray,120);
         timing.Add("Cold 120m aim trace ms="+watch.Elapsed.TotalMilliseconds.ToString("F3"));
+        timing.AddRange(throwStageTimings);throwStageTimings.Clear();
         Check(obstruction==null,"Long clear aim ray is not obstructed by ground below it");
         Check(surfaceGroundFallbacks==before,"Long resident aim trace performs no analytic terrain fallback");
         before=surfaceGroundFallbacks;watch.Restart();EnsureDropFloors(new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ)),2.5f);
@@ -46,9 +52,12 @@ public sealed partial class LocalTerrainExplorer
             Check(Inventory.Move(spear.Id,PossessionPlace.RightHand,"",0,0,false,out _),"Equip "+kind);
             UpdateHumans();UpdateCamera();UpdateInventoryVisuals();
             BeginItemCharge(spear,false,1,true);Check(itemCharge!=null,"Begin actual wind-up "+kind);
-            itemCharge.Started-=1;before=surfaceGroundFallbacks;watch.Restart();ReleaseItemCharge();ResolveRangedRelease(Time.unscaledTimeAsDouble+5);
-            timing.Add(kind+" complete release ms="+watch.Elapsed.TotalMilliseconds.ToString("F3"));
+            itemCharge.Started-=1;before=surfaceGroundFallbacks;throwStageTimings.Clear();watch.Restart();ReleaseItemCharge();ResolveRangedRelease(Time.unscaledTimeAsDouble+5);
+            double releaseMs=watch.Elapsed.TotalMilliseconds;timing.Add(kind+" complete release ms="+releaseMs.ToString("F3"));
+            timing.AddRange(throwStageTimings);throwStageTimings.Clear();
             File.WriteAllLines(Path.Combine(output,"timing.txt"),timing);
+            Check(releaseMs<100,"Complete first-use release stays below100ms "+kind+": "+releaseMs.ToString("F3"));
+            Check(itemEffectVoices.Exists(v=>v.isPlaying&&v.clip!=null&&v.clip.name.StartsWith("weapon-swish",StringComparison.Ordinal)),"Prepared original swish actually plays on release "+kind);
             Check(spear.InFlight&&itemProjectiles.ContainsKey(spear.Id)&&inventoryDrops.ContainsKey(spear.Id),"Release creates recoverable physical projectile "+kind);
             Check(surfaceGroundFallbacks==before,"Actual spear release has no analytic aim/floor sampling "+kind);
             var projectile=itemProjectiles[spear.Id];
@@ -61,6 +70,7 @@ public sealed partial class LocalTerrainExplorer
         before=surfaceGroundFallbacks;double missing=SurfaceGround(motion.X+10000,motion.Z+10000);
         Check(!double.IsNaN(missing)&&!double.IsInfinity(missing)&&surfaceGroundFallbacks==before+1,"Unloaded terrain retains the analytic safety fallback");
         Ground(motion.X,motion.Z);ClearInventoryPhysics();CancelItemCharge();
+        recordThrowTiming=false;
         Vitals.Restore();PlayerRules.Mode=GameMode.Survival;ApplyPlayerMode();combatGlobalReady=combatRightReady=combatLeftReady=0;
         ExecuteGive(new[]{"/give","wooden","spear"});var held=Inventory.QuickHeld;double stamina=Vitals.Stamina;
         BeginItemCharge(held,false,1,true);
@@ -109,5 +119,6 @@ public sealed partial class LocalTerrainExplorer
         fire.LastSimulatedSeconds=Camp.SimulatedSeconds;
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();
         File.WriteAllLines(Path.Combine(output,"timing.txt"),timing);
+        itemEffectVolume=previousEffectsVolume;
     }
 }

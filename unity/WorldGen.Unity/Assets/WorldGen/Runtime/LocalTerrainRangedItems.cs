@@ -16,6 +16,9 @@ public sealed partial class LocalTerrainExplorer
     sealed class PendingRanged {public ItemCharge Charge;public double FireAt;public float Speed,Spread;}
     PendingRanged pendingRanged;
     readonly System.Random combatRandom=new System.Random();
+    bool recordThrowTiming;readonly System.Collections.Generic.List<string> throwStageTimings=new System.Collections.Generic.List<string>();
+    void ThrowTiming(string stage,ref long started)
+    {if(!recordThrowTiming)return;long now=System.Diagnostics.Stopwatch.GetTimestamp();throwStageTimings.Add(stage+" ms="+((now-started)*1000d/System.Diagnostics.Stopwatch.Frequency).ToString("F3"));started=now;}
     Possession FindRangedAmmo(Possession weapon)
     {
         var mode=ItemUseRules.Profile(weapon).Primary;
@@ -79,10 +82,12 @@ public sealed partial class LocalTerrainExplorer
     void ResolveRangedRelease(double now)
     {
         var pending=pendingRanged;if(pending==null||now<pending.FireAt)return;
+        long timing=recordThrowTiming?System.Diagnostics.Stopwatch.GetTimestamp():0;
         var charge=pending.Charge;
         if(Inventory.Find(charge.Ammo.Id)!=charge.Ammo||Inventory.AtHand(charge.Left?PossessionPlace.LeftHand:PossessionPlace.RightHand)!=charge.Weapon)
         {CancelItemCharge();return;}
         var ray=PlayerAttackRay();var profile=ItemUseRules.Profile(charge.Weapon);
+        ThrowTiming("release attack ray",ref timing);
         Vector3 origin=ray.origin+ray.direction*.4f;
         if(ViewLaunchCentre(charge,out var visibleCentre))
         {
@@ -90,14 +95,18 @@ public sealed partial class LocalTerrainExplorer
             var guard=distance>.01f?TraceCombatObstacle(new Ray(ray.origin,offset/distance),distance,null,false):null;
             origin=guard==null?visibleCentre:ray.origin+offset/distance*Mathf.Max(.02f,guard.Distance-.04f);
         }
+        ThrowTiming("release hand anchor and guard",ref timing);
         var wall=TraceCombatObstacle(ray,120);var target=TraceLiving(ray,wall?.Distance??120);
+        ThrowTiming("release target trace",ref timing);
         Vector3 aim=(target?.Point??wall?.Point??ray.GetPoint(120))-origin;
         if(aim.sqrMagnitude>.0001f)ray=new Ray(origin,aim.normalized);
         Vector3 direction=Quaternion.Euler((float)(combatRandom.NextDouble()*2-1)*pending.Spread,(float)(combatRandom.NextDouble()*2-1)*pending.Spread,0)*ray.direction;
         pendingRanged=null;
         if(charge.Equipment!=null)charge.Equipment.PreviousHands.RemoveAll(p=>p.Id==charge.Ammo.Id);
         LaunchItemProjectile(charge.Ammo,origin,direction,pending.Speed);
+        ThrowTiming("release physical launch",ref timing);
         PlayItemEffect(!charge.Throw&&profile.Primary==ItemPrimaryUse.Bow?"bow-release":"weapon-swish",ray.origin,.6f,true);
+        ThrowTiming("release audio",ref timing);
         if(!charge.Throw){charge.Weapon.UseDamage=Math.Min(1,charge.Weapon.UseDamage+.0008);RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});}
     }
 }
