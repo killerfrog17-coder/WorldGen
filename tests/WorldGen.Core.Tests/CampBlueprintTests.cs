@@ -82,6 +82,7 @@ static class CampBlueprintTests
         Check(CampBlueprints.StoreAccepts(frame,donorB)&&!CampBlueprints.StoreAccepts(frame,PortableTechnology.Create(PossessionKind.RawMeat,at)),"Hide frame holds real hides, not food");
         var outdoorBed=new CampObject{Kind=CampKind.Blueprint,Position=at,Blueprint=CampBlueprints.Create(CampDesign.RaisedBed,2,2)};double dryComfort=CampRules.BedComfort(outdoorBed);
         CampRules.Advance(outdoorBed,3600,5,.8,2,0);Check(outdoorBed.Wetness>.8&&CampRules.BedComfort(outdoorBed)<dryComfort,"An uncovered platform wets in rain and loses comfort");
+        var legacyRack=CampBlueprints.Create(CampDesign.DryingRack,2,2);legacyRack.Version=1;Check(CampBlueprints.Height(legacyRack)==1.15&&CampBlueprints.Components(legacyRack).Count(c=>c.Kind==CampPartKind.Post)==6,"Saved version1 racks retain original support heights and component layout");
         var adjustable=CampBlueprints.Create(CampDesign.Windbreak,2,2);adjustable.ScreenHeightM=.8;var lowMass=CampBlueprints.Components(adjustable).Where(c=>c.Kind==CampPartKind.Cover).Sum(c=>c.Kg);adjustable.ScreenHeightM=2;
         Check(CampBlueprints.Height(adjustable)==2&&CampBlueprints.Components(adjustable).Where(c=>c.Kind==CampPartKind.Cover).Sum(c=>c.Kg)>lowMass*2,"Windbreak height changes actual geometry and covering cost");
         var rigid=CampBlueprints.Components(adjustable).First(c=>c.Kind==CampPartKind.Post);var supportBone=PortableTechnology.Create(PossessionKind.Bone,at);supportBone.HeightM=rigid.LengthM;supportBone.WidthM=rigid.WidthM;

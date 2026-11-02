@@ -100,7 +100,7 @@ namespace WorldGen.Core
                 int ribs=(int)Math.Ceiling(w/.45);
                 for(int i=0;i<=ribs;i++){double x=-w*.5+w*i/ribs;Bar(new V(x,h,-d*.5),new V(x,front,d*.5),.018,CampPartKind.Rib);if(i<ribs){double b=-w*.5+w*(i+1)/ribs;Panel(new V(x,h,-d*.5),new V(b,h,-d*.5),new V(b,front,d*.5),new V(x,front,d*.5));}}
             }
-            else if(p.Design==CampDesign.DryingRack)
+            else if(p.Design==CampDesign.DryingRack&&p.Version>=2)
             {
                 for(int side=-1;side<=1;side+=2){double x=side*w*.5;
                     Bar(new V(x,FloorAt(p,x,-d*.5)-.1,-d*.5),new V(x,h+.18,d*.18),.035,CampPartKind.Post,0);

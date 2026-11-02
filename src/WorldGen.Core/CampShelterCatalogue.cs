@@ -52,7 +52,7 @@ namespace WorldGen.Core
             {
                 case CampDesign.Windbreak:return p.ScreenHeightM>0?Math.Max(.6,Math.Min(2.2,p.ScreenHeightM)):1.35;
                 case CampDesign.StoneWindbreak:return p.ScreenHeightM>0?Math.Max(.5,Math.Min(1.5,p.ScreenHeightM)):1;
-                case CampDesign.DryingRack:return 1.65;
+                case CampDesign.DryingRack:return p.Version>=2?1.65:1.15;
                 case CampDesign.MaterialStore:return .65;
                 case CampDesign.RaisedBed:return .45;
                 case CampDesign.HideFrame:return 1.8;
