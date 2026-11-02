@@ -7,6 +7,20 @@ selects the checked managed development player in one of the two fixed build slo
 
 ## Adjustable camp plans
 
+The active menu has twelve plans. Material stores, bone-supported lodges and
+stone-founded huts are retired from placement; their identifiers remain readable
+for existing saves. There is no covering selector or descriptive menu text.
+Supply covering directly: the first suitable covering determines vegetation,
+hide, bark or reed construction. Creative copies the held material without
+consuming it, and defaults to vegetation. Windbreak height adjusts with the
+scroll wheel during placement (wood/organic screen 0.6–2.2 m, stone 0.5–1.5 m).
+Appropriately sized sound bones can replace rigid wooden posts and beams;
+bent roof ribs still require flexible wood. Lashings remain a material cost,
+without visible decorative coil meshes. Drying racks use crossed trestles and
+one elevated hanging rail, leaving space underneath for a separately placed fire.
+New A-frame front folds share adjacent side coverings. Old saved plans retain
+their original separate component layout.
+
 The expanded shared catalog also provides conical tents, ridge/A-frame tents,
 oval/long communal huts, open canopies, bone-footed lodges, stone-founded huts,
 stone windbreaks, sleeping platforms, raised caches and hide-working frames.
@@ -35,7 +49,7 @@ their separate rawhide appearance.
 | Hide-working frame | Width 1–3 m | Braced upright frame holding one actual retrievable hide |
 | Raised cache | Width 1–3 m, depth 1–2.5 m | Elevated roofed food/equipment stock; physical, dimension-limited storage |
 
-V opens camp plans. E builds, uses stores/racks or opens the completed structure
+B opens camp plans. E builds, uses stores/racks or opens the completed structure
 details; Shift+E inspects an unfinished plan. Creative mode also provides a
 "Complete plan (creative)" button for fast review. Sleeping
 platform details offer rest/sleep. The plans list scrolls. Existing fireplaces

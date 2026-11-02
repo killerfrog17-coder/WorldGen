@@ -1,9 +1,9 @@
 {
   "recorded_utc": "2026-11-02T04:30:50.977735+00:00",
-  "production_source": "fa67c7deea6897846a3f96bf002df127261b215b",
-  "selected_slot": "builds/slot-a",
+  "production_source": "07075cdb9512d1d7b3f3b34d85be0288b2eb591a",
+  "selected_slot": "builds/slot-b",
   "build": {
-    "BuiltUtc": "2026-11-02T04:25:23.4377564Z",
+    "BuiltUtc": "2026-11-02T05:18:51.2766531Z",
     "Backend": "Mono",
     "Development": true,
     "ScriptsOnly": true,
@@ -11,17 +11,17 @@
       {
         "Assembly": "WorldGen.Core",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
-        "Sha256": "9f3a523eeb08f8aa8f066578b493152ee765c7718c737362c5b137ae47e28044"
+        "Sha256": "18894d90abdc50bc0c367433e3b516d5a2491b1230836071dd0d23129739a9c6"
       },
       {
         "Assembly": "WorldGen.Serialization",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
-        "Sha256": "e9b8e8eccdeb902f7570a3d00b2eb3c007781432db57e34f49b03ecdfeb0dc7d"
+        "Sha256": "785006253b74862a21d08c58dda6163575ba8b4acfb191f6aa1f3724c34ab1dc"
       },
       {
         "Assembly": "WorldGen.Presentation",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
-        "Sha256": "c98bbfa54a4fbd0160a45e2be7841b769842eb3bfde055c5bec13a004f4ebfed"
+        "Sha256": "0266e8d7041f4d5ac722ad17643b5c398ae7092287964ecd68ff5dc7c2e3ef6e"
       },
       {
         "Assembly": "DelaunatorSharp",
@@ -30,35 +30,23 @@
       }
     ]
   },
-  "assembly_csharp_sha256": "884ca8ea067b86d5a7915c62710015c621c6f83ed3658b43934fd0f607980bd4",
+  "assembly_csharp_sha256": "9bfd5ce858219faecdc80f7ba364a359d44116953781b1a962733d081f5ec957",
   "functional_checks": {
-    "shelter-frame": {
+    "prior_candidate_revision": {
       "backend": "Mono",
-      "built_utc": "2026-11-02T04:25:23.4377564Z",
+      "built_utc": "2026-11-02T05:10:49.2704854Z",
       "exit_code": 0,
-      "checks": 257,
-      "finished_utc": "2026-11-02T04:29:49.7918652Z"
+      "checks": 261,
+      "finished_utc": "2026-11-02T05:16:08.0099972Z"
     },
-    "water-frame": {
-      "backend": "Mono",
-      "built_utc": "2026-11-02T04:25:23.4377564Z",
+    "final_candidate_upload": {
       "exit_code": 0,
-      "checks": 39,
-      "finished_utc": "2026-11-02T04:28:06.1942648Z"
-    },
-    "upload-frame": {
-      "exit_code": 0,
-      "built_utc": "2026-11-02T04:25:23.4377564Z"
-    },
-    "boundary-frame": {
-      "exit_code": 0,
-      "built_utc": "2026-11-02T04:25:23.4377564Z",
-      "checks": 10
+      "built_utc": "2026-11-02T05:18:51.2766531Z"
     }
   },
   "package_proof": {
     "backend": "Mono",
-    "BuiltUtc": "2026-11-02T04:25:23.4377564Z",
+    "BuiltUtc": "2026-11-02T05:18:51.2766531Z",
     "frozen_inputs": 971,
     "legacy_files_unchanged": 30,
     "protected_original_assets": 3254,
@@ -74,19 +62,14 @@
     "fauna_package_exact": true,
     "original_audio_exact": true,
     "processed_managed_assemblies": {
-      "WorldGen.Core": "9f3a523eeb08f8aa8f066578b493152ee765c7718c737362c5b137ae47e28044",
-      "WorldGen.Serialization": "e9b8e8eccdeb902f7570a3d00b2eb3c007781432db57e34f49b03ecdfeb0dc7d",
-      "WorldGen.Presentation": "c98bbfa54a4fbd0160a45e2be7841b769842eb3bfde055c5bec13a004f4ebfed",
+      "WorldGen.Core": "18894d90abdc50bc0c367433e3b516d5a2491b1230836071dd0d23129739a9c6",
+      "WorldGen.Serialization": "785006253b74862a21d08c58dda6163575ba8b4acfb191f6aa1f3724c34ab1dc",
+      "WorldGen.Presentation": "0266e8d7041f4d5ac722ad17643b5c398ae7092287964ecd68ff5dc7c2e3ef6e",
       "DelaunatorSharp": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
     }
   },
   "core_checks": {
-    "blueprints": 13429,
-    "stone_crafting": 45,
-    "inventory": 82,
-    "camp": 69,
-    "save_slots": 69,
-    "physiology": 24
+    "blueprints": 13102
   },
   "design_count": 15,
   "covering_count": 4,
@@ -100,17 +83,17 @@
   ],
   "evidence_root": "artifacts/shelters-20261102",
   "visual_review": [
-    "All 15 completed structure captures",
-    "Mixed deer/zebra donor roof",
-    "Occupied working hide frame after normalized-scale correction"
+    "Revised crouch front/profile and structure screenshots in revision-check; owner acceptance pending"
   ],
   "controls": {
-    "plans": "V",
+    "plans": "B",
     "rotate": "R; Shift+R reverse",
     "size": "Anchor and drag; bounded dimensions per family",
     "supply_or_work": "E",
     "inspect": "Shift+E",
-    "creative_review": "Complete plan (creative) in unfinished plan details"
+    "creative_review": "Complete plan (creative) in unfinished plan details",
+    "screen_height": "Scroll wheel during windbreak placement",
+    "bag_shortcut": "Shift+B while inventory is open"
   },
   "limitations": [
     "Surface-built architecture only: caves are terrain; excavation/pits and snow-volume refuges require additional systems",
@@ -120,5 +103,62 @@
     "Previously lost drinking equipment is not reconstructed; fix prevents further temporary-drop losses",
     "Working-hide reverse-facing screenshot is very dark; appearance remains subject to owner review."
   ],
-  "cleanup": "Automatic approval review rejected removing terrain-mini.dmp and terrain-heap.dmp; left intact, no retry."
+  "cleanup": "Automatic approval review rejected removing terrain-mini.dmp and terrain-heap.dmp; left intact, no retry.",
+  "prior_review": {
+    "production_source": "4010298e37055b8a9b160af551f1a278b3a1bec2",
+    "selected_slot": "builds/slot-b",
+    "build": {
+      "BuiltUtc": "2026-11-02T05:10:49.2704854Z",
+      "Backend": "Mono",
+      "Development": true,
+      "ScriptsOnly": true,
+      "Inputs": [
+        {
+          "Assembly": "WorldGen.Core",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+          "Sha256": "82c09657471547283d4491544456f9c5b145f8d84ac0fa9e204fd6730807dbe0"
+        },
+        {
+          "Assembly": "WorldGen.Serialization",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+          "Sha256": "c4440a2da7bac76a44b1c92ae7338cb1beb4ef004810b9cb0d2bc366ff0ba6c6"
+        },
+        {
+          "Assembly": "WorldGen.Presentation",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+          "Sha256": "d9215a1c847cc0db702abc690440024a880d398b09c59009b3cd947ec5024b97"
+        },
+        {
+          "Assembly": "DelaunatorSharp",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+          "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+        }
+      ]
+    },
+    "functional_checks": {
+      "revision": {
+        "backend": "Mono",
+        "built_utc": "2026-11-02T05:10:49.2704854Z",
+        "exit_code": 0,
+        "checks": 261,
+        "finished_utc": "2026-11-02T05:16:08.0099972Z"
+      }
+    },
+    "core_checks": {
+      "blueprints": 13101
+    }
+  },
+  "active_menu_designs": 12,
+  "owner_revision": [
+    "Alpha from input fixes opaque white rock icons; GPU transparent-corner checks",
+    "Minimal menu: no cover selector, descriptions, material store, bone lodge or stone hut; old save IDs retained",
+    "First supplied covering selects cover type; creative copies held material without consuming it, otherwise vegetation",
+    "Height-adjustable windbreaks with proportional geometry and cover cost",
+    "Crossed-trestle single-rail drying rack; fire remains independently placed",
+    "Sound dimension-matching bones accepted for rigid posts/beams, flexible ribs remain wood",
+    "Continuous conical band boundaries; A-frame front folds share adjoining side contributions on version2 plans",
+    "Binding materials retained without visible ornamental coils",
+    "Crouch torso aligned upright with relaxed arms; first-person eye follows crouched anatomy"
+  ],
+  "final_delta": "Only legacy version1 drying-rack geometry compatibility; 261 gameplay checks on preceding candidate, focused final upload and13102 Core checks. Human/runtime/texture source unchanged by final delta."
 }

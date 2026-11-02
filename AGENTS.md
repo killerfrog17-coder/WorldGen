@@ -38,6 +38,26 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED2Nov OWNER SHELTER REVISION: root shortcut builds/slot-b/WorldGen.exe,
+Mono DEVELOPMENT BuiltUtc2026-11-02T05:18:51.2766531Z, production07075cd pushed.
+12 minimal menu entries: material store/bone lodge/stone hut hidden, legacy IDs
+retained. B opens; windbreak scroll adjusts height. No covering menu; supplied
+material determines cover, creative copies held material without consuming it.
+Crossed trestles/one hanging rail; cone band gaps fixed; new version2 A-frame
+front folds share side panels, old v1 save layout retained. Sized sound bones
+substitute for rigid posts/beams; bent ribs wood. Ornamental binding coils
+removed, material requirements retained. Ordinary stone icons input alpha fixed.
+Crouch upright torso/relaxed arms, anatomical crouched camera. Core13102 PASS;
+preceding candidate 261 shelter/icon/crouch checks PASS/exit0; final player
+focused upload PASS. Final delta only restores legacy v1 rack geometry; new
+plan and human/runtime code unchanged. Do NOT claim261 on final package.
+971 source inputs/3254 original assets/30 legacy/6x70 bank/fauna/audio exact.
+Evidence artifacts/shelters-20261102/revision-check +compatible-proof. Manifest
+assets/verification/paleolithic-shelters-20261102.json. Owner visual review pending;
+no original animation assets changed. No NPC work, paid/subagents/extra players.
+Selected package FROZEN. Preserve owner3 files; no dump cleanup retries.
+
+HISTORICAL PRIOR REVIEW:
 SELECTED2Nov PALEOLITHIC SHELTER REVIEW: existing root shortcut NOW
 builds/slot-a/WorldGen.exe, Mono DEVELOPMENT BuiltUtc2026-11-02T04:25:23.4377564Z,
 productionfa67c7d pushed. Owner's newer fast-iteration policy applies. Shared
