@@ -272,6 +272,8 @@ public sealed partial class LocalTerrainExplorer
         {
             int stage=CampBlueprints.Stage(p);foreach(var group in components.Where(d=>d.Stage==stage&&!CampBlueprints.Done(p,d)).GroupBy(d=>CampBlueprints.Requirement(d)))GUILayout.Label(group.Count()+" × "+group.Key);
             if(GUILayout.Button("Add material / continue work",GUILayout.Height(36))){campMenu=null;CaptureMouse();BuildBlueprintPart(c);}
+            if(UnlimitedResources&&GUILayout.Button("Complete plan (creative)",GUILayout.Height(34)))
+            {int remaining=components.Count*2+1;while(!CampBlueprints.Complete(p)&&remaining-->0)BuildBlueprintPart(c);campMenu=null;CaptureMouse();}
         }
         else if(CampBlueprints.HasStorage(p.Design))
         {

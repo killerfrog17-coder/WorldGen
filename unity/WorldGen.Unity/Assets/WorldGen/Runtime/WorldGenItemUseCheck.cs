@@ -247,8 +247,10 @@ public sealed partial class WorldGenRuntime
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
         var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception||m.StartsWith("Particle Velocity curves",StringComparison.Ordinal)){errors.Add(m);File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};Application.logMessageReceived+=listener;
-        double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");
+        double deadline=Time.realtimeSinceStartupAsDouble+180,nextLoadReport=0;
+        while((Busy||!worldReady||humans==null)&&error.Length==0&&Time.realtimeSinceStartupAsDouble<deadline)
+        {if(Time.realtimeSinceStartupAsDouble>=nextLoadReport){nextLoadReport=Time.realtimeSinceStartupAsDouble+10;Debug.Log("ITEM CHECK loading: "+progress+" · job="+job?.Status+" · world="+worldReady+" · humans="+(humans!=null));}yield return null;}
+        if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable: "+error+" / "+progress+" / "+job?.Status);
         bool humanAnimationCheck=Environment.GetCommandLineArgs().Contains("--worldgen-first-person-check")||Environment.GetCommandLineArgs().Contains("--worldgen-kimodo-human-check");
         play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=humanAnimationCheck?500:1000;TerrainVideoOptions.Revision++;
         if(Environment.GetCommandLineArgs().Contains("--worldgen-river-repair-check"))play.HasPlayer=false;
