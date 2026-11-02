@@ -97,6 +97,20 @@ stamp = load(ROOT / "builds/slot-a/build-inputs.json")
 assert proof["BuiltUtc"] == stamp["BuiltUtc"] and not stamp["Development"]
 assert proof["terrain_worker_sha256"] == stamp["TerrainWorkerSha256"]
 assert proof["fauna_package_exact"] and proof["original_audio_exact"]
+before_freeze = load(evidence / "proof-resource-sharing-15/source-freeze.json")
+after_freeze = load(evidence / f"proof-camp-query-{args.candidate}/source-freeze.json")
+assert before_freeze.keys() == after_freeze.keys()
+changed_inputs = sorted(key for key in before_freeze if before_freeze[key] != after_freeze[key])
+assert changed_inputs == [
+    "src/WorldGen.Core/ForagerSampling.cs",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenForagerCheck.cs",
+], "The completed histories cannot validate unreviewed numerical model changes"
+before_probe = json.loads(read(evidence / "query-history-before.log").splitlines()[0])
+after_probe = json.loads(read(evidence / "query-history-parity.log").splitlines()[0])
+assert before_probe["Hash"] == after_probe["Hash"] == "133e6446580b1808e6e23aeb085fdbab5406edf16bc421b36921c93511a1af5c"
+old_sample = load(evidence / "linear-earth/npc-review/band-samples.json")
+new_sample = load(evidence / "linear-earth/npc-review-fixed/band-samples.json")
+assert old_sample["bands"] == new_sample["bands"], "The locator correction must preserve original band/person contents"
 
 mechanisms = read(evidence / "linear-mechanisms.log")
 temporal = read(evidence / "linear-temporal.log")
@@ -110,6 +124,8 @@ assert sample["Years"] == 30000 and sample["Hash"] == histories[1]["hash"]
 manifest = {
     "recorded_utc": datetime.now(timezone.utc).isoformat(), "production_source": args.production_source,
     "historical_rules_source": source,
+    "query_revision": {"changed_frozen_inputs": changed_inputs, "unchanged_history_probe_hash": after_probe["Hash"],
+        "earth_person_export_exact": True},
     "selected_slot": "builds/slot-a", "rules": "foragers-3", "build": stamp,
     "rollback_tag": "before-paleolithic-rebuild-20261102", "package_proof": proof,
     "mechanism_checks": 38, "temporal_budget_save_checks": 12,

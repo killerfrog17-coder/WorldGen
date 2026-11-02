@@ -669,3 +669,29 @@ actual-player candidate/check follow. Exact40000->40050 history hash before/afte
 `133e6446580b1808e6e23aeb085fdbab5406edf16bc421b36921c93511a1af5c`.
 This is an integer50-year probe; native playback advances a fractional final year
 and is checked separately against its own exact elapsed interval.
+
+
+Final locator sampling also passes2,369 checks on Continents100k (706 people)
+and1,994 on Archipelago30k (678 people). The exhaustive comparison prepares
+26,148 and17,375 actual band layouts respectively, without using the production
+query's spatial pruning or result cap. Six indexed queries measure36.4ms and
+54.5ms total under concurrent work; these are query timings, not whole-game FPS.
+Frozen-input comparison between candidates15 and16 identifies exactly two changed
+files: the local sampler and its native verification fixture. All historical
+numerical model sources are unchanged. New candidate16 built18:33:14Z,
+proof1008/3254/177+audio exact; actual-player verification is in progress.
+
+
+### Owner-requested restart pause (18:38 UTC)
+
+The owner explicitly requested a pause. All owned history/native/Unity jobs are
+stopped. Current-rule Continents history is incomplete at130k of190k; a130k world
+checkpoint and120k fallback are retained. The130k file SHA256 is
+`f562f1a894a425f51598971292136f2b921aaa2384d7f8d99295d270b8f1dc8f`;
+read validation remains the first resume step. This is not a full-history pass.
+
+Candidate16 actual-player reviews passed39 checks at40k (including live playback),
+36 atArchipelago30k,36 atContinents100k and32 gameplay/nature checks atEarth20k;
+all exit0 with clean runtime errors. Final16 image review and later-history checks
+remain. Selected slot-b shortcut stays unchanged pending completion. Resume only
+when the owner authorizes it.

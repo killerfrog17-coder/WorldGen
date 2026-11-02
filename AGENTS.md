@@ -39,25 +39,51 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-ACTIVE2Nov18:15Z OWNER RETURNED: finish remaining substantive checks then handoff;
-no mandatory indefinite continuation. Latest production41f4bd7 PUSHED. Default
-foragers-3 additive resource claims fix concave split-population food subsidy;
-old2 saves retain old rules. Candidate15 slot-a built17:42:49Z NON-DEVELOPMENT
-managed, proof-resource-sharing-15 PASS1008frozen/3254original/177fauna+audio exact,
-workerSHA71e2dba... . Native current3 Continents40k38PASS+playback40050exact,
-Archipelago30k35PASS, actualEarth20k gameplay32PASS/EXIT0/cleanlogs. Current-map
-and2pagePDF actual images inspected. Selectedslot-b/rootshortcutSTILL rejected
-baseline; no final selection yet. Earth30k andArchipelago30k new3 COMPLETE,
-9broad outcome gates each; Earth1807sample checks/30bands/656people pass,227
-multilingual.0->60k actual biota23708arrivals/2510local disappearances/1595districts.
-One current3 full190k history RUNNING: PID2332/session79442 linear-continents,
-~97k at18:15Z. Frozen linear-runner DO NOT overwrite. Oldteaching190k RETIRED
-legacy comparison; oldEarth125kmetrics/120ksaved explicitly incomplete.
-Needcurrent3late/outcomes+finalnative, finalmanifest/docs/shortcut/push. Source
-frozen; reportgenerator/PDF/session/docs changes may be uncommitted. Owner3files
-untouched, no paid/subagents/cleanup/ownerapps. Physical NPC camps/dialogue,
-newhomininart and movingvegetation/shoreline terrain NOT implemented. Highdetail
-fullhistory still costly; no60secondclaim. Old mandatorytime notes below superseded.
+PAUSED2Nov18:38Z OWNER EXPLICITLY REQUESTED PAUSE FOR PC RESTART. Do NOT
+resume until owner returns/resumes. Stopped only own watcherPID14616, history2332
+andparent27028 after verifying commands; NO owned Unity/native/dotnet jobs remain.
+New3full190k history INCOMPLETE, paused after130k checkpoint (203870579 bytes),
+SHAf562f1a894a425f51598971292136f2b921aaa2384d7f8d99295d270b8f1dc8f.
+First validate file on resume;120k fallback retained. Continue --forager-continue
+<year-130000.world> <linear-continents>190000; preserve source/rules provenance.
+Frozen linear-runner41f4bd7 or current numerical-equivalent b326d2f runner; NEVER
+claim130k a completed190k run. Oldversion2teaching190k RETIRED comparison only.
+Latest candidate16 slot-a built18:33:14Z b326d2f PUSHED, proof-camp-query-16 PASS.
+Actual16 maps40k39/Archipelago30k36/Continents100k36 +Earth20k gameplay32 ALL
+EXIT0/cleanlogs; actual100m nearby-camp check included. Current16 images still
+need final actual inspection (15 reviewed). All original art/fauna/audio exact.
+Remaining: full190k finish/audit, final huge save33checks +native190k/playback,
+review late outcomes/maps, record-paleolithic-rebuild.py --production-source b326d2f
+(defaultcandidate16), final docs/manifest/shortcut/push. Currentmainshortcutstill
+REJECTED slot-b unchanged. Do not select prematurely.2pagePDF current/inspected,
+not yet opened for owner. Recordscript/docs checkpoint pendingcommit at note time.
+Owner3 files untouched; no cleanup/subagents/paid/ownerapps. All furtherworkPAUSED.
+
+ACTIVE2Nov18:37Z OWNER BACK; no mandatory indefinite continuation. Finish actual
+remaining verification then handoff. Production b326d2f PUSHED. Defaultforagers-3
+numeric rules41f4bd7; legacy2 retained. New verified query defect: rounded dot/
+acos distance has~200m floor; nearest-home pre-cap also unsafe. Query-only raw
+atan2, actual conservative bounds, lightweight layout/current-position sorting.
+FullEarth30band/656person export EXACT before/after; historical40k+50yr hash
+133e644... EXACT vs frozen oldrunner. Earth1867/Continents100k2369/Archipelago1994
+sample checks PASS, complete unpruned actual-band-position references. Initial
+100m test and first partial fix FAILED; retained, not acceptance. Numerics unchanged.
+Candidate16 slot-a managed NON-DEVELOPMENT ScriptsOnly built18:33:14Z; proof-
+camp-query-16 PASS1008frozen/3254original/177fauna+audioexact, workerSHA430d709... .
+Frozen15->16 exactly2 changedfiles (ForagerSampling +nativecheckfixture).
+Native16 batchRUNNING session86693:40k39PASS/EXIT0 +realplayback, Archipelago30k
+36PASS/EXIT0; current100k thenEarth20k gameplay. Earlier15 allcurrentmodelmaps/
+32gameplayPASS, notlatestpackage. Existingrootshortcut/selectedslot-b UNCHANGED
+rejectedbaseline. Need final190k/native/proof/manifest/selection/push beforehandoff.
+Full new3 Continents190k RUNNING PID2332/session79442, frozenlinear-runnerDO NOT
+overwrite,~129k18:37Z. Earth30k/Archipelago30k complete; 9broadoutcomegates each,
+100k9 +actualweather9/habitat1679 PASS. Oldteaching190k RETIREDlegacycomparison;
+oldEarth125kmetrics/120ksaved explicitly incomplete. No scriptedSapiensvictory.
+Finalrecordscript scripts/record-paleolithic-rebuild.py refuses incomplete/stale
+histories; candidate16/default sourceargument needed. Some docs/recordscript edits
+uncommitted; production frozen. PhysicalNPC camps/dialogue/newhomininart, moving
+vegetation/shorelineterrain NOTimplemented; highdetailhistory stillcostly, no60sclaim.
+Owner3files untouched, no paid/subagents/cleanup/ownerapps. Oldtime notes superseded.
 
 ACTIVE2Nov17:35Z OWNER BACK: finish genuine remaining work thenhandoff, no
 mandatory indefinite continuation. New key diagnosis: concave(pop*diet)^.75
