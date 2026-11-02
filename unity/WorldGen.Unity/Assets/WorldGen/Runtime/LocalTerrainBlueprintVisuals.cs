@@ -143,7 +143,9 @@ public sealed partial class LocalTerrainExplorer
             {
                 // The hanging hide remains the owner's real item. Its donor
                 // appearance is refreshed by the same system as worn hides.
-                part.transform.localPosition=new Vector3(0,.2f+(float)Math.Max(0,plan.FloorHeights?.Max()??0),0);part.transform.localScale=new Vector3(Mathf.Min(w*.8f/(float)item.WidthM,4),Mathf.Min(((float)CampBlueprints.NominalHeight(plan)-.35f)/(float)item.HeightM,4),1);part.transform.localRotation=Quaternion.identity;
+                // Portable hide geometry is normalized to one unit. Replacing
+                // its item scale needs frame dimensions, not item/frame ratios.
+                part.transform.localPosition=new Vector3(0,.2f+(float)Math.Max(0,plan.FloorHeights?.Max()??0),0);part.transform.localScale=new Vector3(w*.8f,(float)CampBlueprints.NominalHeight(plan)-.35f,.05f);part.transform.localRotation=Quaternion.identity;
             }
             else if(plan.Design==CampDesign.DryingRack)
             {

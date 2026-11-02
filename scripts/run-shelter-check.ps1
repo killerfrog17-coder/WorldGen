@@ -12,7 +12,7 @@ New-Item -ItemType Directory -Force -Path $shelterOutput | Out-Null
 $shelterArgs=@('-batchmode','-force-d3d11','-screen-width','1280','-screen-height','800','-screen-fullscreen','0',
     '--worldgen-item-use-check',('"'+$shelterRepo+'/unity/WorldGen.Unity/Assets/StreamingAssets/world/Earth.world"'),
     $(if($Water){'--worldgen-water-update-check'}else{'--worldgen-blueprint-check'}),'--worldgen-output',('"'+$shelterOutput+'"'),
-    '--worldgen-library-root',('"'+$shelterRepo+'/artifacts/shelters-20261102/test-library"'),
+    '--worldgen-library-root',('"'+$shelterRepo+'/artifacts/shelters-20261102/test-library-'+$OutputName+'"'),
     '-logFile',('"'+$shelterOutput+'/player.log"'))
 $shelterRun=Start-Process -FilePath $shelterPlayer -ArgumentList $shelterArgs -WorkingDirectory $shelterRepo -WindowStyle Hidden -PassThru
 Write-Output ('Shelter gameplay check PID '+$shelterRun.Id)
