@@ -98,7 +98,7 @@ namespace WorldGen.Core
             // in winter. A trained community can prepare its known winter gear
             // before entering a colder district. Material access still matters;
             // no knowledge/skill means no hypothetical future protection.
-            double WinterPractice(int k)=>Math.Max(Use(k),c.Skill.Length>k?c.Skill[k]*D.Clamp((12-e.WinterC)/18d)*D.Clamp(ForagerTechnology.Materials(d,e,k)*3):0);
+            double WinterPractice(int k)=>ForagerTechnology.WinterPractice(d,e,c,k);
             double winterCover=Math.Max(WinterPractice(35),WinterPractice(36));
             double protection=7*WinterPractice(5)+12*WinterPractice(8)+13*WinterPractice(13)+16*WinterPractice(14)+9*WinterPractice(31)+3*WinterPractice(34)*(.2+.8*winterCover)+2*(lineage.Compactness-.5);
             double winter=Sigmoid((e.WinterC+protection+4)/3.5);

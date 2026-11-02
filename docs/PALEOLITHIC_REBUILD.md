@@ -411,7 +411,7 @@ been rebuilt into a native candidate. Full190k runs are still active/incomplete;
 no60-second full-world generation claim.
 
 
-### Lossless record transport and continuing full histories (16:25Z WIP)
+### Lossless record transport and continuing full histories (16:13Z WIP)
 
 The new WGWRLD03/WGHIST03 transport writes the numerous cohort/culture records
 as checked binary blobs, retaining all fields and raw floating-point bits. The
@@ -433,3 +433,32 @@ these are NOT complete-history passes. Current plotted histories show real
 contractions and retreats. Large late-world records remain expensive; no claim
 that the full current simulation finishes in60seconds or that NPC camps are
 already physically spawned.
+
+
+### Native late-world and NPC query preparation (16:35Z active)
+
+The2e33aa2 internal managed candidate (built16:15Z) passes38 native checks on
+the60k03-format snapshot, including real UI playback/direct replay. It also
+passes35 native checks on the120k02-format world; actual regional species,
+religion and technology images inspected, clean error logs. The selected slot-b
+and shortcut remain frozen. A genuine previous WGHIST02 named save loads with
+its original full hash; the compatibility test does not manufacture that fixture.
+
+For local NPC/atlas sampling, snapshot-owned district/contact indexes replace
+repeated all-world/retired scans. Six complete query results match the former
+exhaustive lookup bit-for-bit, including sampled families and contact tie order.
+On115,535 records/14,872 active groups, six queries measure69.47 vs30.07ms under
+concurrent work.1,968 household/camp/equipment checks pass across30 communities.
+Routine equipment and prepared winter equipment now have separate band sample
+arrays, both constrained to actual knowledge. Conditional prevalence preserves
+routine Use rather than multiplying it by Skill twice; winter preparation shares
+the demographic protection rule. The exact250yr cc3dbfcb... and12 temporal
+89ff1c09... results remain unchanged;34 mechanism checks pass. This prepares
+data for the next supervised NPC phase, not physical NPC camp generation.
+
+The long histories resume from verified persisted Earth100k/Continents130k
+checkpoints using2e33aa2's exact arithmetic and smaller transport. Old logs and
+source chains are retained; all measured prefix records match, excluding elapsed
+test time. The initial zero-year cost probe failed because zero advancement is
+invalid, AFTER the130k snapshot read/validation succeeded; it is not a passing
+advance test. Both190k histories remain incomplete.

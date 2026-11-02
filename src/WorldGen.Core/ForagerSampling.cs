@@ -1,10 +1,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 namespace WorldGen.Core
 {
     public sealed partial class Prehistory
     {
+        // Query caches belong to an immutable published ledger. A new gameplay
+        // snapshot gets its own index; no index is serialized or hashed. Avoid
+        // scanning every retired population on each local NPC/atlas query.
+        sealed class ForagerResidentIndex
+        {
+            public readonly ForagerCohort[][] Districts;
+            public readonly Dictionary<int,ForagerExchange[]> Contacts;
+            public ForagerResidentIndex(ForagerState f)
+            {
+                var lists=new List<ForagerCohort>[f.Districts.Length];
+                foreach(var c in f.Cohorts)if(c.Population>=1)
+                {var list=lists[c.District]??(lists[c.District]=new List<ForagerCohort>());list.Add(c);}
+                Districts=lists.Select(list=>list?.ToArray()??Array.Empty<ForagerCohort>()).ToArray();
+                var contacts=new Dictionary<int,List<ForagerExchange>>();
+                void Add(int id,ForagerExchange exchange)
+                {if(!contacts.TryGetValue(id,out var list))contacts[id]=list=new List<ForagerExchange>();list.Add(exchange);}
+                foreach(var exchange in f.Exchanges){Add(exchange.A,exchange);Add(exchange.B,exchange);}
+                Contacts=contacts.ToDictionary(p=>p.Key,p=>p.Value.ToArray());
+            }
+        }
+        static readonly ConditionalWeakTable<ForagerState,ForagerResidentIndex> ForagerResidents=new ConditionalWeakTable<ForagerState,ForagerResidentIndex>();
+        static ForagerCohort ForagerResident(ForagerState f,int id)
+        {
+            if(id>=0&&id<f.Cohorts.Length&&f.Cohorts[id].Id==id)return f.Cohorts[id];
+            return f.Cohorts.FirstOrDefault(c=>c.Id==id);
+        }
         // These are demographic candidates, not authoritative spawned NPCs.
         // A host retains people/camp edits once instantiated. Identifiers use
         // ancestry and birth cohorts, never request order, date or frame RNG.
@@ -44,7 +71,7 @@ namespace WorldGen.Core
         }
         public ForagerBandSample ForagerBand(PrehistoryState s,int cohortId,int ordinal=0)
         {
-            if(!Foraging(s)||ordinal<0)return null;var f=s.Foragers;var c=f.Cohorts.FirstOrDefault(x=>x.Id==cohortId);
+            if(!Foraging(s)||ordinal<0)return null;var f=s.Foragers;var c=ForagerResident(f,cohortId);
             if(c==null)return null;int count=ForagerBandCount(s,c);if(ordinal>=count)return null;
             var d=f.Districts[c.District];var culture=f.Cultures[c.Culture];double years=f.Seconds/(double)SimulationTime.Year;
             int key=unchecked(c.Id*104729+ordinal*7919);long id=ForagerBandId(c.Id,ordinal);var home=ForagerBandHome(f,c,ordinal);
@@ -62,6 +89,17 @@ namespace WorldGen.Core
             for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=Rng.Value(World.Recipe.Seed,"band-technique-"+k,key)<c.Skill[k];
             bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
             for(int k=0;k<band.Techniques.Length;k++)Can(k);
+            var environment=ForagerEcology.At(World.Recipe.Seed,d,years,World.ElevationM[home.cell]);
+            band.RoutineTechniques=new bool[ForagerTechnology.Count];band.WinterTechniques=new bool[ForagerTechnology.Count];
+            for(int k=0;k<band.Techniques.Length;k++)
+            {
+                // Conditional sampling keeps the population fraction at Use,
+                // rather than erroneously multiplying Use by Skill a second time.
+                double rank=Rng.Value(World.Recipe.Seed,"band-practice-"+k,key),skill=Math.Max(.000000001,c.Skill[k]);
+                band.RoutineTechniques[k]=band.Techniques[k]&&rank<D.Clamp(c.Use[k]/skill);
+                bool winter=k==5||k==8||k==13||k==14||k==31||k==34||k==35||k==36;
+                band.WinterTechniques[k]=winter?band.Techniques[k]&&rank<D.Clamp(ForagerTechnology.WinterPractice(d,environment,c,k)/skill):band.RoutineTechniques[k];
+            }
             band.SeasonalCamps=ForagerSeasonalCamps(s,c,band,home.cell,key);
             int camps=band.SeasonalCamps.Length;double season=((years-59/365d+Rng.Value(World.Recipe.Seed,"camp-calendar-phase",c.Id)*.08)%1+1)%1*camps;int current=(int)season,next=(current+1)%camps;
             // Most time is spent at camp; movement takes actual travel days.
@@ -70,7 +108,9 @@ namespace WorldGen.Core
             double fraction=season-current,t=travel>0?D.Clamp((fraction-(1-travel))/travel):0;
             band.Position=(band.SeasonalCamps[current].Position*(1-t)+band.SeasonalCamps[next].Position*t).Unit;
             band.Members=ForagerHouseholds(f,c,band,years,key);
-            band.ContactBands=f.Exchanges.Where(e=>e.A==c.Id||e.B==c.Id).Where(e=>e.Strength>.005).OrderByDescending(e=>e.Strength).Take(8).Select(e=>e.A==c.Id?e.B:e.A).Select(other=>f.Cohorts.First(x=>x.Id==other)).Where(other=>ForagerBandCount(s,other)>0).Select(other=>ForagerBandId(other.Id,(int)(Rng.Value(World.Recipe.Seed,"band-marriage-contact",key^other.Id)*ForagerBandCount(s,other)))).ToArray();
+            var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(value));
+            var contacts=residents.Contacts.TryGetValue(c.Id,out var nearby)?nearby:Array.Empty<ForagerExchange>();
+            band.ContactBands=contacts.Where(e=>e.Strength>.005).OrderByDescending(e=>e.Strength).Take(8).Select(e=>e.A==c.Id?e.B:e.A).Select(other=>ForagerResident(f,other)).Where(other=>ForagerBandCount(s,other)>0).Select(other=>ForagerBandId(other.Id,(int)(Rng.Value(World.Recipe.Seed,"band-marriage-contact",key^other.Id)*ForagerBandCount(s,other)))).ToArray();
             return band;
         }
         ForagerCampSample[] ForagerSeasonalCamps(PrehistoryState state,ForagerCohort c,ForagerBandSample band,int homeCell,int key)
@@ -167,14 +207,19 @@ namespace WorldGen.Core
         public ForagerBandSample[] ForagerBandsNear(PrehistoryState s,V position,double radiusKm,int maximum=32)
         {
             if(!Foraging(s)||radiusKm<0||maximum<1)return Array.Empty<ForagerBandSample>();var result=new List<(int cohort,int ordinal,double distance)>();
-            foreach(var c in s.Foragers.Cohorts.Where(x=>x.Population>=12))
+            var index=ForagerResidents.GetValue(s.Foragers,f=>new ForagerResidentIndex(f));
+            foreach(var d in s.Foragers.Districts)
             {
-                var d=s.Foragers.Districts[c.District];if(DistanceKm(position,d.Center)>radiusKm+d.RadiusKm*2+30)continue;
-                int count=ForagerBandCount(s,c);
-                for(int ordinal=0;ordinal<count;ordinal++)
-                {var home=ForagerBandHome(s.Foragers,c,ordinal);double distance=DistanceKm(position,home.position);if(distance<=radiusKm+Math.Max(10,d.RadiusKm/Math.Sqrt(Math.Max(1,count))))result.Add((c.Id,ordinal,distance));}
+                if(DistanceKm(position,d.Center)>radiusKm+d.RadiusKm*2+30)continue;
+                foreach(var c in index.Districts[d.Id])
+                {
+                    if(c.Population<12)continue;
+                    int count=ForagerBandCount(s,c);
+                    for(int ordinal=0;ordinal<count;ordinal++)
+                    {var home=ForagerBandHome(s.Foragers,c,ordinal);double distance=DistanceKm(position,home.position);if(distance<=radiusKm+Math.Max(10,d.RadiusKm/Math.Sqrt(Math.Max(1,count))))result.Add((c.Id,ordinal,distance));}
+                }
             }
-            return result.OrderBy(x=>x.distance).Take(maximum*2).Select(x=>ForagerBand(s,x.cohort,x.ordinal)).Where(b=>b!=null&&DistanceKm(position,b.Position)<=radiusKm).Take(maximum).ToArray();
+            return result.OrderBy(x=>x.distance).ThenBy(x=>x.cohort).ThenBy(x=>x.ordinal).Take(maximum*2).Select(x=>ForagerBand(s,x.cohort,x.ordinal)).Where(b=>b!=null&&DistanceKm(position,b.Position)<=radiusKm).Take(maximum).ToArray();
         }
     }
 }

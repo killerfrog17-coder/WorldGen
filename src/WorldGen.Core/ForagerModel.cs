@@ -179,6 +179,8 @@ namespace WorldGen.Core
         public double HomeRangeKm,MoveFrequencyPerYear,Aggregation,FoodSecurity,Hospitality;
         public ForagerResidence Residence;
         public bool[] Techniques=Array.Empty<bool>();
+        // Capability, ordinary practice and prepared winter equipment are distinct.
+        public bool[] RoutineTechniques=Array.Empty<bool>(),WinterTechniques=Array.Empty<bool>();
         public ForagerPersonSample[] Members=Array.Empty<ForagerPersonSample>();
         public ForagerPersonRecord[] FamilyRecords=Array.Empty<ForagerPersonRecord>();
         public ForagerCampSample[] SeasonalCamps=Array.Empty<ForagerCampSample>();

@@ -113,6 +113,13 @@ namespace WorldGen.Core
                 case 41:case 42:return .15+.5*c.Connectivity;default:return .5;
             }
         }
+        // Shared by demographic winter survival and local NPC equipment samples.
+        // Skill/materials allow preparation even when annual routine use is low.
+        public static double WinterPractice(ForagerDistrict d,ForagerEnvironment e,ForagerCohort c,int k)
+        {
+            double use=k<c.Use.Length?D.Clamp(c.Use[k]):0;
+            return Math.Max(use,c.Skill.Length>k?c.Skill[k]*D.Clamp((12-e.WinterC)/18d)*D.Clamp(Materials(d,e,k)*3):0);
+        }
         // First block: expertise of people who can demonstrate this method.
         // Second block: actual access to those teachers. Unskilled neighbours
         // cannot dilute a rare expert's skill into an unlearnable ceiling.

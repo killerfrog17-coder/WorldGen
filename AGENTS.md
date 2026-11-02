@@ -39,6 +39,24 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov16:35Z, NO OWNER WRAP. Eight-hour minimum passed; KEEP WORKING until
+explicit owner wrap. Pushed2e33aa2 record transport03; internal slot-a built16:15
+managed nondev/scripts-only, proof-record-transport-11 PASS1007frozen/3254original
+assets/177fauna/audio exact. Native11 60k03=38PASS includingUIplayback;120k02=35PASS
+clean logs/actual regional images inspected. Selected slot-b/shortcut UNCHANGED.
+New district/contact query indexes + routine/winter equipment sample arrays are
+currently UNCOMMITTED.1968sampling checks at120kPASS, exact exhaustive query
+results; six queries69.47->30.07ms.34mechanism/12temporal/exact250yrcc3dbfcbPASS.
+Two190k histories still activeINCOMPLETE, frozen2e33aa2 optimized-runner DO NOT
+overwrite: EarthPID13412/session85012 resumed100k, ContinentsPID17604/session50349
+resumed130k. Old304logs preserved, all prefix metric records exact; run.json
+source chain retained. Earth100k now03~322MB vs old02~352MB. Original snapshots
+remain forotherdates. Snapshot zero-year COST probe FAILED invalidseconds after
+validread; not a pass.30k99173/Archipelago previous passed histories retained.
+Need commit currentquery source/build/proof/native, full190k outcomes and family/
+technology/climate reviews. No NPC spawn implementation yet; sampling only.
+No subagents/paid/cleanup/owner apps. Owner3 unrelated files untouched.
+
 ACTIVE2Nov16:25Z, OWNER HAS NOT REQUESTED WRAP. Continue meaningful work after
 16:19:52Z minimum; NEVER stop automatically. Pushedf52344d exact allocation fixes.
 Current uncommitted WGWRLD03/WGHIST03 lossless hot-record transport passes28checks

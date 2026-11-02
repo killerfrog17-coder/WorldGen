@@ -5,6 +5,14 @@ if(args.Contains("--forager-changes")){ForagerChangeAudit.Run(args[1],args[2],ar
 if(args.Contains("--forager-hash-check")){ForagerHashTests.Run(args[1]);return;}
 if(args.Contains("--forager-hash-schema")){File.WriteAllText(args[1],System.Text.Json.JsonSerializer.Serialize(new[]{typeof(ForagerCohort),typeof(ForagerCulture),typeof(ForagerAffiliation)}.Select(t=>new{name=t.Name,fields=t.GetFields().OrderBy(f=>f.Name,StringComparer.Ordinal).Select(f=>new{name=f.Name,type=f.FieldType.FullName})})));return;}
 if(args.Contains("--forager-large-transactions")){ForagerLargeTransactionTests.Run(args[1]);return;}
+if(args.Contains("--forager-legacy-named"))
+{
+    var library=new WorldLibrary(args[1]);var entry=library.Entries().Single();
+    string history=Path.Combine(Path.GetDirectoryName(entry.SnapshotPath)!,"history.bin");
+    if(System.Text.Encoding.ASCII.GetString(File.ReadAllBytes(history),0,8)!="WGHIST02")throw new Exception("Fixture is not a genuine earlier-format named history");
+    var world=library.Load(entry.Id);if(world.Prehistory.Hash!=args[2]||world.Prehistory.ComputeHash()!=args[2])throw new Exception("Legacy named history changed");
+    Console.WriteLine("PASS actual WGHIST02 named-save compatibility "+world.Prehistory.Hash);return;
+}
 if(args.Contains("--forager-record-transport-only")){ForagerRecordTransportTests.Run();return;}
 if(args.Contains("--forager-packed-world")){ForagerPackedWorldTests.Run(args[1],args[2]);return;}
 if(args.Contains("--forager-behavior")){ForagerBehaviorAudit.Run(args[1],args[2]);return;}
