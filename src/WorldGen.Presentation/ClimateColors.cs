@@ -33,7 +33,14 @@ namespace WorldGen.Presentation
         public static V Satellite(World w, int i)
         {
             int h = w.ElevationM[i]; if (w.Hydrology.OceanConnected[i]) return GlobeView.Elevation(h);
-            var climate = w.Climate; var kind = climate.Classification[i]; V color;
+            var climate = w.Climate;var historical=ForagerHabitat.For(w)?.Cell(i);
+            var kind=historical?.Classification??climate.Classification[i];
+            double hot=historical?.Habitat.WarmTenthsC/10d??Math.Max(Math.Max(climate.NorthernSpring.TemperatureTenthsC[i],climate.NorthernAutumn.TemperatureTenthsC[i]),Math.Max(climate.NorthernSummer.TemperatureTenthsC[i],climate.NorthernWinter.TemperatureTenthsC[i]))/10d;
+            return Satellite(kind,h,hot);
+        }
+        public static V Satellite(Koppen kind,int h,double hot)
+        {
+            V color;
             switch (kind)
             {
                 case Koppen.Af: color = new V(.08, .23, .09); break;
@@ -45,7 +52,7 @@ namespace WorldGen.Presentation
                 case Koppen.EF: color = new V(.92, .95, .94); break;
                 default: color = (int)kind >= (int)Koppen.Dsa ? new V(.19, .3, .22) : new V(.28, .4, .18); break;
             }
-            double hot = Math.Max(Math.Max(climate.NorthernSpring.TemperatureTenthsC[i], climate.NorthernAutumn.TemperatureTenthsC[i]), Math.Max(climate.NorthernSummer.TemperatureTenthsC[i], climate.NorthernWinter.TemperatureTenthsC[i])) / 10.0;
+
             color = Mix(color, new V(.52, .5, .46), D.Clamp((h - 1800) / 2200.0) * .65);
             return Mix(color, new V(.94, .96, .97), D.Clamp((3 - hot) / 8.0));
         }

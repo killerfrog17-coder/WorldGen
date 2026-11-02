@@ -9,7 +9,7 @@ namespace WorldGen.Core
         public readonly int[][] AlternativePaths;
         public readonly double InnovationYears,TeachingYears,PracticeYears,LossYears;
         public ForagerTechnique(int id,string name,int[] prerequisites,double innovation,double teaching=180,double practice=100,double loss=1400,int[][] alternatives=null)
-        {Id=id;Name=name;Prerequisites=prerequisites;AlternativePaths=alternatives??Array.Empty<int[]>();InnovationYears=innovation;TeachingYears=teaching;PracticeYears=practice;LossYears=loss;}
+        {Id=id;Name=name;Prerequisites=prerequisites;AlternativePaths=alternatives??Array.Empty<int[]>();InnovationYears=innovation;TeachingYears=teaching;PracticeYears=practice*.1;LossYears=loss;}
     }
     public static class ForagerTechnology
     {
@@ -112,7 +112,7 @@ namespace WorldGen.Core
                 case 41:case 42:return .15+.5*c.Connectivity;default:return .5;
             }
         }
-        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1,double[] materialProfile=null)
+        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1,double[] materialProfile=null,double explanatoryAccess=1)
         {
             ulong inventions=0;
             for(int k=0;k<Count;k++)
@@ -141,7 +141,10 @@ namespace WorldGen.Core
                 }
                 double teacher=teachers!=null&&teachers.Length>k?teachers[k]:0;
                 double localTeaching=D.Clamp(c.Skill[k]*Math.Min(1,practitioners/3));
-                double learning=teacher*(.35+.65*culture.ExchangeOpenness)*D.Clamp(contactStrength)+localTeaching;
+                double communicationComplexity=D.Clamp((t.TeachingYears-60)/320d);
+                double demonstration=.5*(1-communicationComplexity)+.1*communicationComplexity;
+                double communication=demonstration+(1-demonstration)*D.Clamp(explanatoryAccess);
+                double learning=teacher*(.35+.65*culture.ExchangeOpenness)*D.Clamp(contactStrength)*communication+localTeaching;
                 double recentLearning=c.FirstKnownYear.Length>k&&c.FirstKnownYear[k]>0&&year>=c.FirstKnownYear[k]?Math.Exp(-(year-c.FirstKnownYear[k])/140d):0;
                 learning+=.8*Math.Max(invented?1:0,recentLearning);
                 learning*=(.55+.45*D.Clamp(explanationPractice))*(.4+.6*D.Clamp(learningCapacity));

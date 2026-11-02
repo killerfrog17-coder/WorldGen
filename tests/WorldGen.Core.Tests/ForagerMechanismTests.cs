@@ -19,6 +19,13 @@ static class ForagerMechanismTests
         experiment.FirstKnownYear[17]=5;
         for(int year=10;year<=1500;year+=5)ForagerTechnology.Advance(42,experiment,d,experimentEnvironment,culture,5,year,null,0);
         Check(experiment.Skill[17]>.35,"A useful new practice can become self-sustaining after temporary experimentation support ends");
+        var fluent=c.Copy();var unfamiliar=c.Copy();fluent.Adults=unfamiliar.Adults=40;fluent.Knowledge[17]=unfamiliar.Knowledge[17]=0;fluent.Skill[17]=unfamiliar.Skill[17]=0;fluent.Use[17]=unfamiliar.Use[17]=0;
+        for(int year=5;year<=100;year+=5)
+        {
+            ForagerTechnology.Advance(42,fluent,d,experimentEnvironment,culture,5,year,Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),0,explanatoryAccess:1);
+            ForagerTechnology.Advance(42,unfamiliar,d,experimentEnvironment,culture,5,year,Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),0,explanatoryAccess:0);
+        }
+        Check(fluent.Knowledge[17]>unfamiliar.Knowledge[17]*2&&unfamiliar.Knowledge[17]>0,"Shared language/bilingual explanation speeds complex teaching while observation still allows slower learning");
         var resources=new ForagerResources();var warm=ForagerEcology.At(42,d,0);var basic=ForagerEcology.Livelihood(d,warm,lineage,c,culture,resources);
         Check(basic.Capacity>50&&basic.Capacity<3000,"Warm productive district has a bounded forager carrying opportunity, not agricultural density");
         var cold=d.Copy();cold.Center=new V(.6,0,.8);cold.WinterC=-28;cold.SummerC=14;cold.MeanC=-7;cold.GrowingDays=100;
@@ -62,6 +69,11 @@ static class ForagerMechanismTests
         Check(wetWindow.Productivity>dryWindow.Productivity*3&&wetWindow.Food[0]>dryWindow.Food[0]*4&&wetWindow.Water>dryWindow.Water,"Wet corridors change vegetation/food/water together");
         var blocked=corridor.Copy();blocked.OceanMoistureAccess=0;Check(ForagerEcology.At(42,blocked,75000).RainMm<wetWindow.RainMm*.3,"Warm-sea access and mountain isolation constrain the wet envelope");
         var nextDay=ForagerEcology.At(42,corridor,75000+1/365d);Check(Math.Abs(wetWindow.RainMm-nextDay.RainMm)<.01&&Math.Abs(wetWindow.Productivity-nextDay.Productivity)<.01,"Wet-period ecology changes smoothly at gameplay day scales");
+        var coastal=d.Copy();coastal.Coast=1;var coastEnvironment=ForagerEcology.At(42,coastal,0);
+        var shortWater=new ForagerPassage{Sea=true,DistanceM=240000,WaterDistanceM=12000};var deepWater=new ForagerPassage{Sea=true,DistanceM=400000,WaterDistanceM=250000};
+        var navigator=c.Copy();Array.Clear(navigator.Use);var noBoat=navigator.Copy();Array.Clear(noBoat.Skill);
+        Check(ForagerPassages.Open(42,shortWater,coastal,coastEnvironment,coastEnvironment,navigator)&&!ForagerPassages.Open(42,shortWater,coastal,coastEnvironment,coastEnvironment,noBoat),"Known boat-building competence prepares a short crossing even when boats were not used every day; untrained people cannot do so");
+        Check(!ForagerPassages.Open(42,deepWater,coastal,coastEnvironment,coastEnvironment,navigator),"Paleolithic boats do not unlock arbitrary deep-ocean continent hopping");
         var demographic=c.Copy();ForagerDemography.SetPopulation(demographic,200);ForagerDemography.Rates(demographic,basic,warm,culture,500);
         var projection=ForagerDemography.Project(demographic,5,0);Check(Math.Abs(projection.Population-(200+projection.Births-projection.Deaths))<.0000001,"Births, deaths and ageing conserve population without a hidden capacity clamp");
         var destination=c.Copy();ForagerDemography.SetPopulation(destination,0);double total=demographic.Population+destination.Population;ForagerDemography.MovePopulation(demographic,destination,25);

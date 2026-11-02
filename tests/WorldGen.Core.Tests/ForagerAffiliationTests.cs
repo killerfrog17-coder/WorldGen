@@ -25,6 +25,17 @@ static class ForagerAffiliationTests
         Check(cohort.Language==0&&cohort.Belief==0&&cohort.Speech[0].Share==.6,"Derived majority caches and deep-copy isolation retain canonical data");
         var f=new ForagerState{Lineages=new[]{new HomininLineage{Id=0,SeparationYears=300000},new HomininLineage{Id=1,SeparationYears=600000}}};
         Check(ForagerSociality.ReproductiveContact(f,new ForagerCohort{Lineage=0},new ForagerCohort{Lineage=0})==1&&ForagerSociality.ReproductiveContact(f,new ForagerCohort{Lineage=0},new ForagerCohort{Lineage=1})>0&&ForagerSociality.ReproductiveContact(f,new ForagerCohort{Lineage=0},new ForagerCohort{Lineage=1})<.2,"Assortative cross-lineage contact permits rare admixture without treating trade as universal interbreeding");
+        f.Cultures=new[]{new ForagerCulture{Id=0,MarriageMobility=.8},new ForagerCulture{Id=1,MarriageMobility=.8}};
+        var small=new ForagerCohort{Id=0,Lineage=0,Culture=0,Admixture=new[]{1d,0}};ForagerDemography.SetPopulation(small,100);
+        var large=new ForagerCohort{Id=1,Lineage=1,Culture=1,Admixture=new[]{0d,1}};ForagerDemography.SetPopulation(large,1000);
+        var island=new ForagerCohort{Id=2,Lineage=0,Culture=0,Admixture=new[]{1d,0}};ForagerDemography.SetPopulation(island,80);
+        f.Cohorts=new[]{small,large,island};f.Exchanges=new[]{new ForagerExchange{A=0,B=1,Strength=.8}};
+        double beforeGene=f.Cohorts.Sum(x=>x.Population*x.Admixture[0]);ForagerAncestry.Exchange(f,250);
+        Check(Math.Abs(f.Cohorts.Sum(x=>x.Population*x.Admixture[0])-beforeGene)<1e-5,"Intergenerational admixture conserves population-weighted ancestry");
+        Check(small.Admixture[1]>0&&Math.Abs(small.Admixture[1]/large.Admixture[0]-10)<.001,"The same exchanged ancestry changes a small population more than a large one");
+        Check(island.Admixture[0]==1&&island.Admixture[1]==0,"An isolated population cannot receive genes through a global mixing pool");
+        var mixedContact=ForagerAncestry.Contact(small,large,ForagerAncestry.Compatibility(f));
+        Check(mixedContact>ForagerSociality.ReproductiveContact(new ForagerState{Lineages=f.Lineages},new ForagerCohort{Lineage=0},new ForagerCohort{Lineage=1}),"Mixed ancestry changes contact compatibility gradually before a species label changes");
         Console.WriteLine($"PASS {checks} affiliation, contact-shift and lineage checks");
     }
 }

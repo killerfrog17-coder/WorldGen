@@ -1,5 +1,6 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
+using WorldGen.Presentation;
 static class ForagerTemporalTests
 {
     public static void Run()
@@ -34,6 +35,11 @@ static class ForagerTemporalTests
         var partial=engine.AdvanceSeconds(start,SimulationTime.Year);var c=partial.Foragers.Cohorts[0];
         Check(Math.Abs(ForagerDemography.Present(partial.Foragers,c)-ForagerDemography.Project(start.Foragers.Cohorts[0],1,0).Population)<1e-10,"Fractional-date observer population uses actual projected demographics");
         Check(start.Hash==start.ComputeHash(),"All alternate histories leave their original checkpoint intact");
+        var play=new PlaySession{PendingHistorySeconds=SimulationTime.Day*.75};
+        Check(!SimulationClockView.PlayPublicationDue(start,(long)play.PendingHistorySeconds,1000)&&SimulationClockView.PlayPublicationDue(start,SimulationTime.Day,1),"Ordinary gameplay batches complete day publications instead of copying all ancestry every two real seconds");
+        double displayed=PlayCalendar.Seconds(play,SimulationTime.Seconds(start));play.Consume(SimulationTime.Day*.5);
+        Check(PlayCalendar.Seconds(play,SimulationTime.Seconds(start)+SimulationTime.Day/2)==displayed,"Consuming a batched publication cannot jump or lose the displayed gameplay date");
+        Check(SimulationClockView.PlayPublicationDue(new PrehistoryState(),60,0),"The publication optimization does not alter old-history scheduling");
         engine.ValidateForagers(full);engine.ValidateForagers(resumed);
         Console.WriteLine($"PASS {checks} temporal, budget, isolation, cancellation and save/reload checks; hash={full.Hash}");
     }

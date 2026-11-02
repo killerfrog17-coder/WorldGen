@@ -17,17 +17,18 @@ namespace WorldGen.Presentation
             }
             if(layer==Layer.Microplates)return "Plate "+(w.CellMicroplate[i]+1);
             if(layer==Layer.Continents)return w.Continent[i]<0?"Ocean":"Continent "+(w.Continent[i]+1);
+            var historical=ForagerHabitat.For(w)?.Cell(i);
             if(layer==Layer.Climate)return GlobeView.TryVisibleWater(w,i,out var climateWater)&&climateWater.Kind!=WaterKind.Ocean
-                ? climateWater.Kind==WaterKind.TectonicInlandSea?"Inland sea":"Lake":w.Climate.Classification[i].ToString();
-            if(layer==Layer.Ecoregions){if(w.Ecology==null)return "Unavailable in this saved world";int id=w.Ecology.Region[i];return id<0?"Ocean":w.Ecology.Regions[id].Name+" — "+w.Ecology.Regions[id].Biome;}
+                ? climateWater.Kind==WaterKind.TectonicInlandSea?"Inland sea":"Lake":(historical?.Classification??w.Climate.Classification[i]).ToString();
+            if(layer==Layer.Ecoregions){if(w.Ecology==null)return "Unavailable in this saved world";int id=w.Ecology.Region[i];return id<0?"Ocean":w.Ecology.Regions[id].Name+" — "+(historical?.Habitat.Biome??w.Ecology.Regions[id].Biome);}
             if(EcologyView.IsLayer(layer))
             {
-                if(w.Ecology==null)return "Unavailable in this saved world";var a=w.Ecology.Habitat[i];
+                if(w.Ecology==null)return "Unavailable in this saved world";var a=historical?.Habitat??w.Ecology.Habitat[i];
                 switch(layer){case Layer.Biomes:return a.Biome.ToString();case Layer.Soils:return GroundEnvironment.For(w).Cell(i).TextureName;case Layer.Aridity:return Number(a.AridityMilli/1000.0," P/PET");case Layer.Floodplains:return Number(a.FloodFractionPermille/10.0,"% floodplain");case Layer.WaterTable:return Number(a.WaterTableCm/100.0," m water-table depth");case Layer.Permafrost:return Number(a.PermafrostPermille/10.0,"% permafrost potential");case Layer.Salinity:return Number(a.SalinityMilliPpt/1000.0," ppt");case Layer.FirePotential:return Number(a.FirePotentialPermille/10.0,"% fire potential");}
             }
             var season=layer.ToString().EndsWith("Spring")?w.Climate.NorthernSpring:layer.ToString().EndsWith("Autumn")?w.Climate.NorthernAutumn:layer.ToString().EndsWith("Winter")?w.Climate.NorthernWinter:w.Climate.NorthernSummer;
             if(layer.ToString().StartsWith("Temperature"))return Number(season.TemperatureTenthsC[i]/10.0," °C");
-            if(layer.ToString().StartsWith("Precipitation"))return Number(season.PrecipitationMm[i]," mm / season");
+            if(layer.ToString().StartsWith("Precipitation"))return Number(historical!=null?historical.Weather.MonthlyPrecipitationMm[layer.ToString().EndsWith("Spring")?0:layer.ToString().EndsWith("Autumn")?2:layer.ToString().EndsWith("Winter")?3:1]*3:season.PrecipitationMm[i]," mm / season");
             if(layer.ToString().StartsWith("Wind"))return Number(Math.Sqrt((double)season.WindEastMilli[i]*season.WindEastMilli[i]+(double)season.WindNorthMilli[i]*season.WindNorthMilli[i])/1000," wind index");
             if(layer.ToString().StartsWith("OceanCurrents"))return Number(season.OceanWarmthMilli[i]/1000.0," current warmth index");
             switch(layer)

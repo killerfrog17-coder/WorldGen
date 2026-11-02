@@ -9,6 +9,15 @@ namespace WorldGen.Presentation
         public readonly struct PlaybackSlice
         {public readonly long Seconds;public readonly int MaximumEvents,MaximumGlobalWork;public PlaybackSlice(long seconds,int events,int globals=int.MaxValue){Seconds=seconds;MaximumEvents=events;MaximumGlobalWork=globals;}}
         public const int FastMaximumEvents=16384,FastMaximumGlobalWork=2048;
+        public static bool PlayPublicationDue(PrehistoryState state,long pending,double secondsSincePublication)
+        {
+            if(pending<1)return false;
+            // PlayCalendar already includes saved pending time: weather, needs,
+            // sleep and daylight remain continuous. The forager ledger has
+            // five-year reviews, so resealing its entire ancestry every two real
+            // seconds during ordinary play does no useful demographic work.
+            return Prehistory.Foraging(state)?pending>=SimulationTime.Day:pending>=60||secondsSincePublication>=2;
+        }
         public static PlaybackSlice Publication(long now,long requested,double rate)
         {
             if(now<0||requested<1)throw new ArgumentOutOfRangeException(nameof(requested));

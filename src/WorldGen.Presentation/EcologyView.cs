@@ -13,7 +13,7 @@ namespace WorldGen.Presentation
         {
             if(w?.Ecology==null||cell<0||cell>=w.Surface.Cells.Length)return "Select an ecoregion";
             int id=w.Ecology.Region[cell];if(id<0)return "Open ocean. The current life pack describes terrestrial and freshwater communities, not a complete marine ecosystem.";
-            var r=w.Ecology.Regions[id];var h=w.Ecology.Habitat[cell];var b=new StringBuilder();
+            var r=w.Ecology.Regions[id];var historical=ForagerHabitat.For(w)?.Cell(cell);var h=historical?.Habitat??w.Ecology.Habitat[cell];var b=new StringBuilder();
             string F(double value)=>value.ToString("0.#",CultureInfo.InvariantCulture);
             b.Append(r.Name).Append("\n").Append(h.Biome).Append(" · ").Append(F(r.AreaM2/1e6)).Append(" km² across ").Append(r.PatchCount).Append(" connected habitat patches.\n\n");
             b.Append("At this location, the growing season lasts about ").Append(h.GrowingDays).Append(" days. Seasonal temperature estimates range from ").Append(F(h.ColdTenthsC/10.0)).Append(" to ").Append(F(h.WarmTenthsC/10.0)).Append(" °C. ");
@@ -23,15 +23,20 @@ namespace WorldGen.Presentation
             if(h.FloodDaysPerYear>0)b.Append("Potential flooding affects ").Append(F(h.FloodFractionPermille/10.0)).Append("% of the cell for about ").Append(h.FloodDaysPerYear).Append(" days a year. ");
             if(h.PermafrostPermille>=100)b.Append("Permafrost potential is ").Append(F(h.PermafrostPermille/10.0)).Append("%. ");
             if(h.SalinityMilliPpt>1000)b.Append("Estimated water salinity is ").Append(F(h.SalinityMilliPpt/1000.0)).Append(" ppt. ");
+            if(historical!=null)
+            {
+                var f=w.Prehistory.Foragers;var bio=f.Biota[f.CellDistrict[cell]];
+                b.Append("\n\nYear ").Append(w.Prehistory.Years.ToString("N0")).Append(": ").Append(bio.Abundance.Count(x=>x>.02)).Append(" locally established taxa; forest cover ").Append(F(historical.ForestCover*100)).Append("%; persistent ice ").Append(F(historical.IceCover*100)).Append("%. Ecoregion boundaries are retained; climate and residents change.");
+            }
             var species=r.Species.Select(p=>w.Ecology.Taxa[p.TaxonId]).ToArray();
             b.Append("\n\nThe representative life pack records ").Append(species.Length).Append(" taxa and ").Append(r.FoodWeb.Length).Append(" potential feeding links here. ");
             b.Append("Examples include ").Append(string.Join(", ",species.Where(t=>!t.BasalResource).OrderBy(t=>t.Id).Take(8).Select(t=>t.Name))).Append(".\n\nThese are habitat and food-web estimates, not a census of living animal populations.");return b.ToString();
         }
         static V Mix(V a,V b,double fraction) => a*(1-D.Clamp(fraction))+b*D.Clamp(fraction);
-        public static V Color(World w,int i,Layer layer)
+        public static V Color(World w,int i,Layer layer,HabitatCell? projected=null)
         {
             if(w.Ecology==null) return new V(.24,.24,.24);
-            var e=w.Ecology; var a=e.Habitat[i];
+            var e=w.Ecology; var a=projected??ForagerHabitat.For(w)?.Cell(i)?.Habitat??e.Habitat[i];
             if(w.Hydrology.OceanConnected[i]) return new V(.025,.09,.17);
             switch(layer)
             {
@@ -75,7 +80,7 @@ namespace WorldGen.Presentation
         {
             if(w.Ecology==null) return "\nEcology: this older save has no ecoregion data. Regenerate, then save a new copy.";
             var e=w.Ecology; int id=e.Region[cell]; if(id<0) return "\nEcology: open-ocean communities are not included in the terrestrial starter pack.";
-            var a=e.Habitat[cell]; var r=e.Regions[id]; var b=new StringBuilder(); var culture=CultureInfo.InvariantCulture;
+            var a=ForagerHabitat.For(w)?.Cell(cell)?.Habitat??e.Habitat[cell]; var r=e.Regions[id]; var b=new StringBuilder(); var culture=CultureInfo.InvariantCulture;
             string F(double x)=>x.ToString("0.##",culture);
             string Mass(double kg)=>kg<.001 ? F(kg*1000000)+" mg" : kg<1 ? F(kg*1000)+" g" : F(kg)+" kg";
             b.Append("\n\nECOREGION ").Append(id+1).Append(": ").Append(r.Name).Append("\nBiome: ").Append(a.Biome).Append(" | ").Append(F(r.AreaM2/1e6)).Append(" km2 | ").Append(r.PatchCount).Append(" patches");

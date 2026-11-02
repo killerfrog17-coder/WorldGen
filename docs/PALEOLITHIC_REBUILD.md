@@ -187,3 +187,45 @@ Additional sources: [Hill et al.2011 co-residence](https://doi.org/10.1126/scien
 Only the designated sapiens lineage is marked sapient in the current fictional
 preset. Other lineages' symbolic/learning capacities are explicit world-design
 priors, not empirical claims that real archaic humans lacked speech or culture.
+
+
+### Working checkpoint, 2 November 13:00 UTC
+
+Clean actual managed player capture of the50bcc0a observer completed13 scoped
+checks and no runtime errors; language/toolkit HUDs and the language atlas were
+visually inspected. This is an internal UI checkpoint using the earlier20k
+history, not acceptance of the latest model or the final release. The original
+selected slot-b remains frozen. The next candidate additionally projects dated
+climate/biome/aridity/permafrost backgrounds and current ecology assemblages,
+including later colonists absent from the source regional roster.1,679 derived
+habitat/map/assemblage checks pass: the isolated warm/glacial comparison changes
+1,030/1,674 land climate classes and91 cells gain persistent ice. These are
+controlled climate-date probes, not claims about independently simulated people.
+Native screenshots of the new backgrounds remain required.
+
+Population-weighted, conservative intergenerational ancestry exchange replaces
+equal fractional mixing. Smaller groups change more from the same exchanged
+ancestry; islands cannot receive distant genes without contacts. Compatibility
+uses actual lineage genealogy and mixed ancestry rather than a binary nominal
+label.14 affiliation/contact/ancestry checks pass. The implementation deliberately
+does not infer interbreeding rates from skull form or claim an exact Earth
+reconstruction. [Li et al.2024 recurrent gene flow](https://pubmed.ncbi.nlm.nih.gov/38991054/)
+and [ancient modern genomes2024](https://www.nature.com/articles/s41586-024-08420-x)
+support contact/assimilation as distinct from simple immediate replacement.
+
+Complex teaching now depends on mutual speech/bilingual access, while observation
+still permits slower learning across language barriers. Earlier long runs also
+showed that apprenticeship within a small community was taking implausibly many
+generations; practice periods are now10% of the old regional-scale defaults
+(typically several to a few dozen years). Rare invention and geographical spread
+remain separate. Travel gates use the ability to prepare boats/winter equipment,
+not their annual routine-use fraction.30 component mechanism checks now pass.
+New long histories are REQUIRED for these interactions; the earlier50bcc0a and
+2999fa3 histories are diagnostic baselines only.
+
+Playable time continues through saved pending calendar seconds. New forager
+worlds publish full historical checkpoints in day-sized gameplay batches instead
+of copying/resealing all ancestral records every two real seconds. This does not
+change five-year demographic reviews, continuous weather/needs/time, or the
+older save engines. Current full temporal/budget/save/cancellation tests must be
+rerun after the final interaction checkpoint.

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -20,7 +21,7 @@ public sealed partial class WorldGenRuntime
     Task<HumanPaletteResult> humanPaletteJob;bool humanPalettePending;int humanPaletteUpload;
     HumanPaletteResult humanPaletteReady;
     Color32[] humanSpareColors,humanUploadBlock,humanUploadTail;byte[] humanCodesScratch;
-    sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public HistoryLegendEntry[] Legend,MapLabels;public SettlementMarker[][] Markers;public ChronicleEvent[] Headlines; }
+    sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public Dictionary<Layer,Color32[]> Landscape;public long LandscapeEpoch;public HistoryLegendEntry[] Legend,MapLabels;public SettlementMarker[][] Markers;public ChronicleEvent[] Headlines; }
     readonly SimulationPlayback humanPlayback=new SimulationPlayback();double humanClockSample,calendarWorkStarted;
     bool simulationPaused,resumeHumanPlayback;string simulationTab="";
     bool technologyCeilingOpen;
@@ -63,7 +64,7 @@ public sealed partial class WorldGenRuntime
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed)*terrainExplorer.CampTimeRate);
         if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
         long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
-        bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);
+        bool localDue=playingLocal&&SimulationClockView.PlayPublicationDue(world.Prehistory,pending,clockNow-playPublicationAt);
         if((run||localDue)&&humanStep==null&&pending>0)
         {
             var engine=humans;var state=engine.UpgradeScheduling(world.Prehistory);if(!state.Started){state=engine.Start(state);world.Prehistory=state;UpdateHumanPalette();}
@@ -107,13 +108,21 @@ public sealed partial class WorldGenRuntime
                 if(rows!=64&&(humanUploadTail==null||humanUploadTail.Length!=rows*2048))humanUploadTail=new Color32[rows*2048];
                 var block=rows==64?humanUploadBlock:humanUploadTail;Array.Copy(ready.Colors,humanPaletteUpload*2048,block,0,block.Length);
                 texture.SetPixels32(0,humanPaletteUpload,2048,rows,block);humanPaletteUpload+=rows;
-                if(humanPaletteUpload==texture.height){texture.Apply(false,false);humanSpareColors=humanColors;humanColors=ready.Colors;legendState=ready.State;legendEngine=humans;legendOverlay=ready.Overlay;legendSort=ready.Sort;cachedHistoryLegend=ready.Legend;cachedMapLabels=ready.MapLabels;cachedSettlementMarkers=ready.Markers;cachedHeadlines=ready.Headlines;humanPaletteReady=null;}
+                if(humanPaletteUpload==texture.height){texture.Apply(false,false);
+                    if(ready.Landscape!=null)foreach(var item in ready.Landscape)
+                    {
+                        var replacement=new Texture2D(2048,item.Value.Length/2048,TextureFormat.RGBA32,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};replacement.SetPixels32(item.Value);replacement.Apply(false,true);
+                        if(palettes.TryGetValue(item.Key,out var previous))Destroy(previous);palettes[item.Key]=replacement;historyLandscapeEpochs[item.Key]=ready.LandscapeEpoch;
+                    }
+                    if(ready.Landscape?.Count>0)ApplyCachedDisplay();humanSpareColors=humanColors;humanColors=ready.Colors;legendState=ready.State;legendEngine=humans;legendOverlay=ready.Overlay;legendSort=ready.Sort;cachedHistoryLegend=ready.Legend;cachedMapLabels=ready.MapLabels;cachedSettlementMarkers=ready.Markers;cachedHeadlines=ready.Headlines;humanPaletteReady=null;}
             }
         }
         if(!humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null||humans==null||humanColors==null||displayedWorld!=world)return;
         humanPalettePending=false;var captured=world;var state=world.Prehistory;var engine=humans;int selection=selectedCell;var overlay=historyOverlay;string sort=societySort;var baseline=humanColors;
         var colors=humanSpareColors!=null&&humanSpareColors.Length==baseline.Length?humanSpareColors:new Color32[baseline.Length];humanSpareColors=null;
         if(humanCodesScratch==null||humanCodesScratch.Length!=captured.Surface.Cells.Length)humanCodesScratch=new byte[captured.Surface.Cells.Length];var scratch=humanCodesScratch;
+        long landscapeEpoch=LandscapeEpoch(state);bool linearLandscape=QualitySettings.activeColorSpace==ColorSpace.Linear;
+        var landscapes=Prehistory.Foraging(state)?palettes.Keys.Where(candidate=>ForagerLandscape.Affected(candidate)&&(candidate==layer||candidate==Layer.Climate||candidate==Layer.Satellite||candidate==Layer.Ecoregions)&&(!historyLandscapeEpochs.TryGetValue(candidate,out long epoch)||epoch!=landscapeEpoch)).ToArray():Array.Empty<Layer>();
         humanPaletteJob=Task.Run(()=>{
             Array.Copy(baseline,colors,baseline.Length);var codes=PrehistoryView.Codes(captured,engine,state,selection,overlay,scratch);
             var display=HistoricalMapSnapshot.For(state);
@@ -125,7 +134,15 @@ public sealed partial class WorldGenRuntime
                 if(!tint.TryGetValue(tintKey,out var rgb)){var v=SocietyView.OverlayColor(state,owner,overlay);rgb=new Color32((byte)Math.Round(v.X*255),(byte)Math.Round(v.Y*255),(byte)Math.Round(v.Z*255),0);tint.Add(tintKey,rgb);}
                 colors[i].r=rgb.r;colors[i].g=rgb.g;colors[i].b=rgb.b;
             }
-            return new HumanPaletteResult{World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Headlines=SocietyView.Headlines(state,engine),Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine),Markers=SettlementMarkers.Build(state)};
+            var landscapeColors=new Dictionary<Layer,Color32[]>();
+            foreach(var candidate in landscapes)
+            {
+                var values=GlobeView.CellValues(captured,candidate,history:state).Colors;var pixels=new Color32[baseline.Length];
+                byte Channel(float value)=>(byte)Mathf.Clamp(Mathf.RoundToInt((linearLandscape?Mathf.GammaToLinearSpace(value):value)*255),0,255);
+                for(int i=0;i<values.Length/3;i++)pixels[i]=new Color32(Channel(values[i*3]),Channel(values[i*3+1]),Channel(values[i*3+2]),255);
+                landscapeColors[candidate]=pixels;
+            }
+            return new HumanPaletteResult{Landscape=landscapeColors,LandscapeEpoch=landscapeEpoch,World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Headlines=SocietyView.Headlines(state,engine),Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine),Markers=SettlementMarkers.Build(state)};
         });
     }
     void StepHumans(int steps)

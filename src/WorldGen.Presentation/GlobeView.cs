@@ -48,8 +48,9 @@ namespace WorldGen.Presentation
         internal static bool TryVisibleWater(World w, int cell, out WaterBody water)
             => TryWater(w, cell, out water) && (water.Kind == WaterKind.Ocean
                 || (cell < w.Hydrology.LakeCoverageFraction.Length && w.Hydrology.LakeCoverageFraction[cell] >= WholeCellLakeCoverage));
-        public static ViewData CellValues(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75, System.Threading.CancellationToken token = default, int[]? selectedCells = null)
+        public static ViewData CellValues(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75, System.Threading.CancellationToken token = default, int[]? selectedCells = null,PrehistoryState? history=null)
         {
+            history=history??w.Prehistory;
             int total=w.Surface.Cells.Length,n=selectedCells?.Length??total; var view = new ViewData { Positions = new float[n * 3], Colors = new float[n * 3], Triangles = selectedCells==null?w.Surface.Triangles:Array.Empty<int>(), CellIds = selectedCells==null?Enumerable.Range(0,n).ToArray():(int[])selectedCells.Clone(), Unlit = layer == Layer.Heightmap || layer == Layer.Climate || layer == Layer.Relief || EcologyView.IsLayer(layer) };
             bool needsBoundary=layer==Layer.BoundaryType||layer==Layer.CollisionContext;
             var boundary = new Boundary[needsBoundary?total:0]; if(needsBoundary)foreach (var b in w.Boundaries) { var e = w.Surface.Edges[b.EdgeId]; foreach (int c in new[] { e.A, e.B }) if (boundary[c] == null || b.Stress > boundary[c].Stress) boundary[c] = b; }
@@ -63,7 +64,7 @@ namespace WorldGen.Presentation
                 int h = w.ElevationM[i], mp = w.CellMicroplate[i]; var p = w.Surface.Cells[i].Position; double radius = 1 + Math.Max(h - seaLevel, 0) / 6371000.0 * 14;
                 view.Positions[at * 3] = (float)(p.X * radius); view.Positions[at * 3 + 1] = (float)(p.Z * radius); view.Positions[at * 3 + 2] = (float)(-p.Y * radius);
                 V color = TerrainColor(w, i, h, seaLevel); var b = needsBoundary?boundary[i]:null;
-                switch (layer)
+                if(!ForagerLandscape.TryColor(w,history??w.Prehistory,i,layer,out var historicalColor))switch (layer)
                 {
                     case Layer.Relief:
                         double relief=TerrainRelief.For(w,i).DetailM;
@@ -121,6 +122,7 @@ namespace WorldGen.Presentation
                         color = !w.Hydrology.OceanConnected[i] ? new V(.19, .25, .2) : Blend(new V(.16, .3, .75), new V(.95, .3, .1), .5 + current.OceanWarmthMilli[i] / 1200.0); break;
                     case Layer.Mantle: color = Blend(new V(.2, .3, .8), new V(.95, .3, .15), .5 + w.MantlePermille[i] / 1200.0); break;
                 }
+                else color=historicalColor;
                 view.Colors[at * 3] = (float)color.X; view.Colors[at * 3 + 1] = (float)color.Y; view.Colors[at * 3 + 2] = (float)color.Z;
             }
             return view;

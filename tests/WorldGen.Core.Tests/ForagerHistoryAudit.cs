@@ -7,7 +7,7 @@ static class ForagerHistoryAudit
     {
         Directory.CreateDirectory(output);var w=WorldFile.ReadFile(file);var s=w.Prehistory;var f=s.Foragers;
         double Lat(V p)=>Math.Asin(p.Z)*180/Math.PI;double Lon(V p)=>Math.Atan2(p.Y,p.X)*180/Math.PI;
-        var lineages=f.Lineages.Select(l=>new{l.Id,l.Name,originLat=Lat(f.Districts[l.OriginDistrict].Center),originLon=Lon(f.Districts[l.OriginDistrict].Center),people=f.Cohorts.Where(c=>c.Lineage==l.Id).Sum(c=>c.Population),districts=f.Cohorts.Count(c=>c.Lineage==l.Id&&c.Population>=1),l.AdultMassKg,l.Compactness}).ToArray();
+        var lineages=f.Lineages.Select(l=>new{l.Id,l.Name,originLat=Lat(f.Districts[l.OriginDistrict].Center),originLon=Lon(f.Districts[l.OriginDistrict].Center),people=f.Cohorts.Where(c=>c.Lineage==l.Id).Sum(c=>c.Population),districts=f.Cohorts.Where(c=>c.Lineage==l.Id&&c.Population>=1).Select(c=>c.District).Distinct().Count(),l.AdultMassKg,l.Compactness}).ToArray();
         File.WriteAllText(Path.Combine(output,"lineages.json"),System.Text.Json.JsonSerializer.Serialize(lineages,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         foreach(var l in lineages)Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(l));
         Console.WriteLine("Ocean moisture access: "+f.Districts.Count(d=>d.OceanMoistureAccess>.01)+" / "+f.Districts.Length+" districts; maximum "+f.Districts.Max(d=>d.OceanMoistureAccess).ToString("0.000"));
@@ -19,6 +19,13 @@ static class ForagerHistoryAudit
             lines.Add(string.Join(",",values.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));
         }
         File.WriteAllLines(Path.Combine(output,"cohorts.csv"),lines);
+        var skillLines=new List<string>{"cohort,district,technique,known,skill,use,firstKnown,firstSkilled,lastLoss"};
+        foreach(var c in f.Cohorts.Where(c=>c.Population>=1))for(int k=0;k<ForagerTechnology.Count;k++)skillLines.Add(string.Join(",",new double[]{c.Id,c.District,k,c.Knowledge[k],c.Skill[k],c.Use[k],c.FirstKnownYear[k],c.FirstSkilledYear[k],c.LastLossYear[k]}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));
+        File.WriteAllLines(Path.Combine(output,"technique-residents.csv"),skillLines);
+        var speakers=f.Cohorts.Where(c=>c.Population>=1).SelectMany(c=>c.Speech.Select(x=>(x.Id,number:x.Share*c.Population))).GroupBy(x=>x.Id).ToDictionary(g=>g.Key,g=>g.Sum(x=>x.number));
+        var languages=f.Languages.Select(l=>new{l.Id,l.Parent,l.Name,l.Family,l.OriginDistrict,l.FoundedYear,speakers=speakers.TryGetValue(l.Id,out double number)?number:0,l.NarrativePractice,l.TechnicalRegister,l.RitualRegister,l.Roots,l.Grammar,words=new[]{"water","fire","spear","mother","hunt","tomorrow","because"}.ToDictionary(concept=>concept,concept=>ForagerLanguages.Word(l,concept).Text)});
+        File.WriteAllText(Path.Combine(output,"languages.json"),System.Text.Json.JsonSerializer.Serialize(languages));
+        File.WriteAllText(Path.Combine(output,"beliefs.json"),System.Text.Json.JsonSerializer.Serialize(f.Beliefs,new System.Text.Json.JsonSerializerOptions{IncludeFields=true}));
         var technologies=ForagerTechnology.All.Select(t=>new{t.Id,t.Name,skilled=f.Cohorts.Count(c=>c.Population>=1&&c.Skill[t.Id]>.5),used=f.Cohorts.Count(c=>c.Population>=1&&c.Use[t.Id]>.5),sapiens=f.Cohorts.Count(c=>c.Population>=1&&c.Lineage==0&&c.Skill[t.Id]>.5),origins=f.Discoveries.Where(d=>d.Technique==t.Id).Select(d=>new{d.Year,d.District,d.Cohort}).ToArray()});
         File.WriteAllText(Path.Combine(output,"technologies.json"),System.Text.Json.JsonSerializer.Serialize(technologies,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         var districts=f.Districts.Select(d=>new{d.Id,d.Patch,d.Cells,latitude=Lat(d.Center),longitude=Lon(d.Center),d.AreaKm2,d.Canopy,d.Productivity,d.Water,d.Coast,d.River,d.Stone,d.Relief,d.PetMm,d.AnnualRainMm,d.OceanMoistureAccess,environment=ForagerEcology.At(w.Recipe.Seed,d,s.Years,w.ElevationM[d.Cell]),biota=f.Biota[d.Id]}).ToArray();

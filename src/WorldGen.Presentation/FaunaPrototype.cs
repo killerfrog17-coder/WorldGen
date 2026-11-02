@@ -100,7 +100,7 @@ namespace WorldGen.Presentation
             var siteCache=new Dictionary<ScatterKey,WildlifeHabitat>();
             WildlifeHabitat Site(V point)
             {
-                var sample=patch.Sample(point);var climate=e.Habitat[sample.Cell];
+                var sample=patch.Sample(point);var climate=ForagerHabitat.For(world)?.Cell(sample.Cell)?.Habitat??e.Habitat[sample.Cell];
                 double canopy=TreeFlora.CanopyShade(sample.Forest,point,terrain.SourceSeed,radius);
                 return WildlifeHabitat.From(sample,climate,canopy,0,temperatureC);
             }
@@ -153,7 +153,7 @@ namespace WorldGen.Presentation
                     density=Population(key,region).Density(id)*WildlifeAbundance.ExposedFraction(taxon.MassKg,profile.medium=="air",profile.tiny)*(world.Prehistory?.Foragers!=null?ForagerBiota.Presence(world,terrain.NearestCell(lattice.Position(key)),id):1);
                 else
                 {
-                    V at=lattice.Position(key);var sample=patch.Sample(at);var climate=e.Habitat[sample.Cell];
+                    V at=lattice.Position(key);var sample=patch.Sample(at);var climate=ForagerHabitat.For(world)?.Cell(sample.Cell)?.Habitat??e.Habitat[sample.Cell];
                     var lineage=AmbientFauna.For(world).Region(region).FirstOrDefault(s=>s.Family==AmbientFaunaFamily.Firefly);
                     double habitatFit=FireflyDisplay.HabitatGain(lineage,climate,sample);
                     double activity=FireflyDisplay.ActivityGain(lineage,hour,year,latitude,temperatureC,humidity,rain,wind);
@@ -161,7 +161,7 @@ namespace WorldGen.Presentation
                 }
                 if(density<=0)return;
                 if(daylightNocturnal)density*=.08;
-                var habitat=e.Habitat[e.Regions[region].RepresentativeCell];
+                int habitatCell=terrain.NearestCell(lattice.Position(key));var habitat=ForagerHabitat.For(world)?.Cell(habitatCell)?.Habitat??e.Habitat[habitatCell];
                 var behaviour=WildlifeBehaviour.Describe(profile.slug,taxon?.MassKg??.001,taxon?.Eats??Food.None,profile.medium=="air",profile.tiny,taxon?.Name??"");
                 if(WildlifeBehaviour.Dormant(behaviour,year,latitude,habitat.ColdTenthsC/10.0,temperatureC)||!WildlifeBehaviour.SeasonallyPresent(behaviour,year,latitude,habitat.ColdTenthsC/10.0))return;
                 V a=lattice.Position(key,0,0),b=lattice.Position(key,1,0),c=lattice.Position(key,0,1);

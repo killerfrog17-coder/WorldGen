@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using WorldGen.Core;
@@ -10,6 +11,8 @@ public sealed partial class WorldGenRuntime
     World displayedWorld;
     Projection VisibleProjection => committedOptions?.Projection ?? projection;
     Dictionary<Layer,Color32[]> pendingPalettes;
+    readonly Dictionary<Layer,long> historyLandscapeEpochs=new Dictionary<Layer,long>();
+    long LandscapeEpoch(PrehistoryState state)=>state?.Foragers==null?-1:state.Foragers.Seconds/(25*SimulationTime.Year);
     readonly Dictionary<Layer,Texture2D> palettes=new Dictionary<Layer,Texture2D>();
     static Dictionary<Layer,Color32[]> BuildPalettes(World w,Layer selected,bool linear,CancellationToken token,bool main=true)
     {
@@ -31,7 +34,7 @@ public sealed partial class WorldGenRuntime
     }
     void InstallPalettes()
     {
-        foreach(var texture in palettes.Values)Destroy(texture);palettes.Clear();
+        foreach(var texture in palettes.Values)Destroy(texture);palettes.Clear();historyLandscapeEpochs.Clear();
         foreach(var item in pendingPalettes)
         {
             if(item.Key==Layer.Simulation)humanColors=(Color32[])item.Value.Clone();
@@ -50,6 +53,7 @@ public sealed partial class WorldGenRuntime
             if(job!=null)return true;
             StartCoroutine(LoadDiagnosticPalette(layer));return true;
         }
+        if(Prehistory.Foraging(world.Prehistory)&&ForagerLandscape.Affected(layer)&&(!historyLandscapeEpochs.TryGetValue(layer,out long epoch)||epoch!=LandscapeEpoch(world.Prehistory)))humanPalettePending=true;
         surfaceMaterial.SetTexture("_Palette",texture);surfaceMaterial.SetFloat("_UsePalette",layer==Layer.Heightmap?0:1);
         foreach(var material in new[]{surfaceMaterial,naturalMaterial,smallFeatureMaterial})
         {
@@ -86,7 +90,8 @@ public sealed partial class WorldGenRuntime
         if(task.IsFaulted){error=task.Exception.GetBaseException().Message;yield break;}
         if(world!=captured || displayedWorld!=captured)yield break;
         var colors=task.Result[candidate];var texture=new Texture2D(2048,colors.Length/2048,TextureFormat.RGBA32,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
-        texture.SetPixels32(colors);texture.Apply(false,true);palettes[candidate]=texture;
+        texture.SetPixels32(colors);texture.Apply(false,true);if(palettes.TryGetValue(candidate,out var old))Destroy(old);palettes[candidate]=texture;
+        if(Prehistory.Foraging(captured.Prehistory))historyLandscapeEpochs[candidate]=LandscapeEpoch(captured.Prehistory);
         if(layer==candidate)ApplyCachedDisplay();
     }
 }

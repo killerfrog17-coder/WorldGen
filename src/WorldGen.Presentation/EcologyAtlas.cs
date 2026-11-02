@@ -37,10 +37,14 @@ namespace WorldGen.Presentation
             string Name(int id)=>id>=0&&id<e.Taxa.Length?e.Taxa[id].Name:"Unknown taxon #"+id;
             var byConsumer=r.FoodWeb.GroupBy(l=>l.ConsumerId).ToDictionary(g=>g.Key,g=>g.ToArray());
             var byResource=r.FoodWeb.GroupBy(l=>l.ResourceId).ToDictionary(g=>g.Key,g=>g.ToArray());
-            foreach(var presence in r.Species)
+            var foragers=world.Prehistory?.Foragers;var liveBiota=foragers!=null&&foragers.CellDistrict[cell]>=0?foragers.Biota[foragers.CellDistrict[cell]]:null;
+            var recorded=r.Species.ToDictionary(p=>p.TaxonId);var roster=r.Species.Select(p=>p.TaxonId).Concat(liveBiota?.Taxa??Array.Empty<int>()).Distinct().OrderBy(x=>x);
+            foreach(int taxonId in roster)
             {
+                var presence=recorded.TryGetValue(taxonId,out var originalPresence)?originalPresence:new SpeciesPresence{TaxonId=taxonId};
                 token.ThrowIfCancellationRequested();if(presence.TaxonId<0||presence.TaxonId>=e.Taxa.Length)continue;var t=e.Taxa[presence.TaxonId];
                 var b=new StringBuilder(t.Name+"\n"+t.ScientificName+"\n\nRecorded regional "+t.Rank+". "+(Biogeography.Present(e,cell,t.Id)?"Suitable and accessible in this source cell.":"Recorded elsewhere in this ecoregion; not confirmed in this source cell.")+"\n\nTAXON\n"+Known(t,token)+"\nREGIONAL PRESENCE / VARIANT\n"+Known(presence,token));
+                if(liveBiota!=null)b.Insert(0,"CURRENT ASSEMBLAGE ? Year "+world.Prehistory!.Years.ToString("N0")+"\n"+(liveBiota.Presence(t.Id)>.02?"Established locally ? relative abundance "+(liveBiota.Presence(t.Id)*100).ToString("0")+"%":liveBiota.Presence(t.Id)>0?"Rare or contracting local population":"Not currently established here")+(recorded.ContainsKey(t.Id)?"":" ? arrived after the source ecology was generated")+"\n\n");
                 if(byConsumer.TryGetValue(t.Id,out var diet)){b.Append("\nFEEDING OPPORTUNITIES\n");foreach(var link in diet)b.Append(Name(link.ResourceId)).Append(" → ").Append(t.Name).Append(" · ").Append(link.Resource).Append(" · ").Append((link.OverlapPermille*.1).ToString("0.#",CultureInfo.InvariantCulture)).Append("% regional overlap\n");}
                 if(byResource.TryGetValue(t.Id,out var consumers)){b.Append("\nPOTENTIAL CONSUMERS\n");foreach(var link in consumers)b.Append(Name(link.ConsumerId)).Append(" · ").Append(link.Resource).Append('\n');}
                 if(t.ScientificName=="Anura habitat guild"||t.ScientificName=="Understory bird guild")

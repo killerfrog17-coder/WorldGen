@@ -39,6 +39,23 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE2Nov13:00Z (no wrap-up request): New current source adds dated habitat/map
+projection, current ecology roster/colonists and native palette refresh;1679
+controlled habitat checks PASS. Real internal slot-a observer2 (50bcc0a, managed
+nondev12:12Z)13checks/clean logs, languages/technology HUD +atlas images inspected;
+1000frozen/3254original/177fauna/audio proof exact. This candidate is UNSELECTED
+and now behind latest source. Slot-b unchanged. New source ancestry exchange is
+population-weighted/conservative;14affiliation/ancestry PASS. Complex teaching
+uses speech/bilingual access; apprenticeships no longer span many generations;
+boat/winter preparation uses skill rather than annual-use frequency.30mechanism
+PASS. Full final temporal/long-run/native verification STILL REQUIRED. Three
+older diagnostic histories running (check-runner50bcc0a190k/Earth50k, thermal-
+runner2999fa3190k); these are NOT final-model acceptance. New frozen latest runner/
+histories/build next. No cleanup, paid, subagents, owner app closures. Owner3files
+remain untouched. Continue substantive work until EXPLICIT owner wrap-up; minimum
+16:19:52Z is not a stop. Goal registered active for continuation.
+
+
 ACTIVE2Nov12:10Z: Owner NO-STOP mandate still active (minimum16:19:52Z is NOT a
 stop).631c9d4 pushed full resident speech/tradition shares and gradual regional
 shift, explicit fictional sapient/learning traits, compatible mating contacts.
