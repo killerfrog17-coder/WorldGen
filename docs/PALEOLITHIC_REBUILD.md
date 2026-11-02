@@ -56,6 +56,30 @@ history performance claim is made.
 | Gameplay bridge | A query rerolls arbitrary traits per cell | Stateless spatial sampling from saved district/cohort data, persistent identities, seasonal itineraries and explicit material/knowledge availability |
 | Observer | Identical maps and meaningless technology counts | Distinct layers, minority inspection, meaningful toolkit composition and individual-technique views, language/family and belief/local-tradition detail |
 
+## NPC implementation contract
+
+Use one captured, immutable published `PrehistoryState` for a streaming request.
+`Prehistory.ForagerBandsNear(state, unitSpherePosition, radiusKm, maximum)` returns
+nearby **current seasonal positions**, ordered by distance, then stable IDs.
+`maximum` is a caller work limit, not a population/spawn cap. The locator uses
+snapshot-owned district/contact indexes and generates households only for selected
+results. `ForagerBand(state, cohortId, ordinal)` retrieves a specific stable band.
+
+| Product | Meaning for the NPC host |
+|---|---|
+| `Id`, `Members`, `FamilyRecords` | Stable band/person/household identity and parent/partner records; preserve instantiated NPC edits rather than rerolling them |
+| `Position`, `Home`, `SeasonalCamps`, `ContactBands` | Current itinerary position, remembered home, seasonal destinations and actual social contacts |
+| `ClimateSuitable`, `RequiresLocalGroundValidation` | Reject unusable climate; still validate real ground, water, slope and collisions before placing a physical camp |
+| `Techniques` | At least one actual resident can make this; does not mean everybody can or everybody carries it |
+| `RoutineTechniques`, `WinterTechniques` | Ordinary equipment practice versus winter preparation; map these to existing game item/structure IDs |
+| Person `Knowledge`, `Skills` | Familiarity and trained proficiency are separate; a low community prevalence creates rare competent makers |
+| Person `Languages` | Individual language identities, native status and fluency, including real contact-derived multilingual access |
+| `Culture`, `Belief`, `Lineage` | References into saved culture, spiritual-tradition and ancestry/body-profile data; no fictional political state |
+
+The next phase must persist instantiated camps, inventory and relationships, then
+reconcile player changes with aggregate population/resource budgets. This pass
+supplies candidate data; it does not secretly spawn the physical tribes yet.
+
 ## Evidence ledger
 
 Summaries below support mechanisms, not exact numerical game coefficients.
@@ -623,3 +647,25 @@ not be substituted with the completed legacy run.
 Candidate14 (9a85faf, built17:31Z) has passed its frozen-input/original-asset and
 new packaged-worker-hash proof but predates version3. The selected shortcut
 remains the rejected old baseline. A further candidate is required for version3.
+
+
+### Current-camp lookup correction (18:31 UTC)
+
+A new100m/one-result regression failed on a known real Earth30k camp. The local
+locator had two independent defects: rounded dot-product/acos distance can have
+an approximately200m floor even at the same point, and it capped nearest permanent
+homes before testing current seasonal positions. Its area-equivalent district
+radius was also not a reliable enclosing bound for irregular coastal districts.
+
+Local admission now uses raw atan2 angular distance, actual geometry-derived
+conservative bounds, and ranks current itinerary positions before applying the
+caller limit. A shared lightweight layout avoids generating whole households for
+rejected candidates. The historical migration/contact distance arithmetic is
+unchanged. New tests compare against all25,935 Earth band positions without
+spatial pruning. The actual30-band/656-person export is exactly unchanged.
+Earth30k passes1,867 sample/household/nearest-camp checks; the earlier initial and
+first partial-fix failures are retained. Other-world final sampling and a new
+actual-player candidate/check follow. Exact40000->40050 history hash before/after:
+`133e6446580b1808e6e23aeb085fdbab5406edf16bc421b36921c93511a1af5c`.
+This is an integer50-year probe; native playback advances a fractional final year
+and is checked separately against its own exact elapsed interval.

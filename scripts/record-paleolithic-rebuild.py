@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--evidence", type=Path, default=ROOT / "artifacts/paleolithic-rebuild-20261102")
 parser.add_argument("--output", type=Path, default=ROOT / "assets/verification/paleolithic-rebuild-20261102.json")
+parser.add_argument("--candidate", type=int, default=16)
+parser.add_argument("--production-source", required=True)
 args = parser.parse_args()
 evidence = args.evidence.resolve()
 
@@ -72,22 +74,25 @@ for name, requested in (("linear-continents", 190000), ("linear-earth", 30000), 
     })
 
 native = []
-for name in ("view-resource-sharing-15-continents40k", "view-resource-sharing-15-archipelago30k", "view-resource-sharing-15-continents190k"):
+for suffix in ("continents40k", "archipelago30k", "continents100k", "continents190k"):
+    name=f"view-resource-sharing-{args.candidate}-{suffix}"
     folder = evidence / name
     assert int(read(folder / "exit-code.txt")) == 0
     log = read(folder / "player.log")
     assert "FORAGER VIEW PASS" in log and not re.search(r"Exception:|FORAGER VIEW FAIL", log)
     result = load(folder / "result.json")
+    local_query = load(folder / "nearby-camp.json")
+    assert local_query["radiusMeters"] == 100
     images = {p.name: sha(p) for p in folder.glob("*.png")}
     assert all(key in images for key in ("Languages-map.png", "Technology-map.png", "Territories-map.png", "atlas-human-species.png"))
-    native.append({"case": name, **result, "exit_code": 0, "image_sha256": images})
+    native.append({"case": name, **result, "exit_code": 0, "nearby_camp": local_query, "image_sha256": images})
 
-game = evidence / "native-gameplay-15-earth20k"
+game = evidence / f"native-gameplay-{args.candidate}-earth20k"
 assert int(read(game / "exit-code.txt")) == 0
 checks = read(game / "checks.txt").splitlines()
 assert len(checks) == 32 and all(line.startswith("PASS ") for line in checks)
 assert not re.search(r"Exception:|FAIL ", read(game / "player.log"))
-proof = load(evidence / "proof-resource-sharing-15/package-proof.json")
+proof = load(evidence / f"proof-camp-query-{args.candidate}/package-proof.json")
 stamp = load(ROOT / "builds/slot-a/build-inputs.json")
 assert proof["BuiltUtc"] == stamp["BuiltUtc"] and not stamp["Development"]
 assert proof["terrain_worker_sha256"] == stamp["TerrainWorkerSha256"]
@@ -99,14 +104,16 @@ assert "PASS 38 forager mechanism checks" in mechanisms
 assert "PASS 12 temporal" in temporal
 assert "72b0e4c696c18cc2d91bde47d169671e229e8b06160c710541ae456b7e12e9f0" in temporal
 changes = load(evidence / "linear-changes-0-60k/changes.json")
-sample = load(evidence / "linear-earth/npc-review/band-samples.json")
+sample = load(evidence / "linear-earth/npc-review-fixed/band-samples.json")
 assert sample["Years"] == 30000 and sample["Hash"] == histories[1]["hash"]
 
 manifest = {
-    "recorded_utc": datetime.now(timezone.utc).isoformat(), "production_source": source,
+    "recorded_utc": datetime.now(timezone.utc).isoformat(), "production_source": args.production_source,
+    "historical_rules_source": source,
     "selected_slot": "builds/slot-a", "rules": "foragers-3", "build": stamp,
     "rollback_tag": "before-paleolithic-rebuild-20261102", "package_proof": proof,
     "mechanism_checks": 38, "temporal_budget_save_checks": 12,
+    "dated_weather_checks": 9, "dated_habitat_assemblage_checks": 1679,
     "temporal_hash": "72b0e4c696c18cc2d91bde47d169671e229e8b06160c710541ae456b7e12e9f0",
     "histories": histories, "actual_player_maps": native,
     "actual_gameplay": {"case": game.name, "exit_code": 0, "checks": checks, "terrain_loading": read(game / "initial-terrain.txt")},

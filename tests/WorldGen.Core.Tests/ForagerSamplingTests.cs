@@ -49,26 +49,30 @@ static class ForagerSamplingTests
             samples.Add(a);
         }
         Check(samples.Select(b=>b.Id).Distinct().Count()==samples.Count,"Neighbouring bands do not share identity IDs");
-        // Compare the indexed query against the pre-index exhaustive lookup on
-        // actual long-history inputs, including ties/order and complete samples.
-        var homeMethod=typeof(Prehistory).GetMethod("ForagerBandHome",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
-        double Distance(V a,V b)=>w.Recipe.RadiusKm*Math.Acos(D.Clamp(V.Dot(a,b),-1,1));
-        ForagerBandSample[] Reference(V position,double radius,int maximum)
+        // Independent exhaustive spatial lookup: no district/home pruning and
+        // no candidate cap before checking the actual seasonal positions.
+        var layoutMethod=typeof(Prehistory).GetMethod("ForagerBandLayout",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
+        double Distance(V a,V b)
         {
-            var candidates=new List<(int cohort,int ordinal,double distance)>();
-            foreach(var c in f.Cohorts.Where(x=>x.Population>=12))
-            {
-                var d=f.Districts[c.District];if(Distance(position,d.Center)>radius+d.RadiusKm*2+30)continue;
-                int count=engine.ForagerBandCount(s,c);
-                for(int ordinal=0;ordinal<count;ordinal++)
-                {
-                    var home=((V position,int cell))homeMethod.Invoke(engine,new object[]{f,c,ordinal})!;
-                    double distance=Distance(position,home.position);
-                    if(distance<=radius+Math.Max(10,d.RadiusKm/Math.Sqrt(Math.Max(1,count))))candidates.Add((c.Id,ordinal,distance));
-                }
-            }
-            return candidates.OrderBy(x=>x.distance).Take(maximum*2).Select(x=>engine.ForagerBand(s,x.cohort,x.ordinal)).Where(b=>b!=null&&Distance(position,b.Position)<=radius).Take(maximum).ToArray();
+            double latA=Math.Atan2(a.Z,Math.Sqrt(a.X*a.X+a.Y*a.Y)),latB=Math.Atan2(b.Z,Math.Sqrt(b.X*b.X+b.Y*b.Y));
+            double longitude=Math.Atan2(a.Y,a.X)-Math.Atan2(b.Y,b.X);
+            double h=Math.Pow(Math.Sin((latA-latB)*.5),2)+Math.Cos(latA)*Math.Cos(latB)*Math.Pow(Math.Sin(longitude*.5),2);
+            return 2*w.Recipe.RadiusKm*Math.Atan2(Math.Sqrt(Math.Max(0,h)),Math.Sqrt(Math.Max(0,1-h)));
         }
+        var allPositions=new List<(int cohort,int ordinal,V position)>();
+        var positionTimer=System.Diagnostics.Stopwatch.StartNew();
+        foreach(var c in f.Cohorts.Where(x=>x.Population>=12))
+        {
+            int count=engine.ForagerBandCount(s,c);
+            for(int ordinal=0;ordinal<count;ordinal++)
+            {
+                var layout=(ForagerBandSample)layoutMethod.Invoke(engine,new object[]{s,c,ordinal,count})!;
+                allPositions.Add((c.Id,ordinal,layout.Position));
+            }
+        }
+        positionTimer.Stop();
+        ForagerBandSample[] Reference(V position,double radius,int maximum)
+            =>allPositions.Select(x=>(x.cohort,x.ordinal,distance:Distance(position,x.position))).Where(x=>x.distance<=radius).OrderBy(x=>x.distance).ThenBy(x=>x.cohort).ThenBy(x=>x.ordinal).Take(maximum).Select(x=>engine.ForagerBand(s,x.cohort,x.ordinal)).ToArray();
         double referenceMilliseconds=0,indexedMilliseconds=0;
         foreach(var band in samples.Take(3))foreach(double radius in new[]{2d,100d})
         {
@@ -77,6 +81,11 @@ static class ForagerSamplingTests
             Check(ForagerRecordTransportTests.Fingerprint(expected)==ForagerRecordTransportTests.Fingerprint(actual),"District-index queries preserve the complete exhaustive query result, resident identities and ordering");
         }
         var first=samples[0];var near=engine.ForagerBandsNear(s,first.Position,2,64);Check(near.Any(b=>b.Id==first.Id),"Spatial lookup finds an actual resident at its current camp");
+        foreach(var band in samples)
+        {
+            Check(engine.ForagerBandsNear(s,band.Position,.1,1).Length>0,"A 100m one-band local query must not miss a known camp through rounded angular distance or premature home ranking");
+            Check(ForagerRecordTransportTests.Fingerprint(Reference(band.Position,2,1))==ForagerRecordTransportTests.Fingerprint(engine.ForagerBandsNear(s,band.Position,2,1)),"One-band queries return the nearest current camp, regardless of permanent-home order");
+        }
         var later=engine.AdvanceSeconds(s,SimulationTime.Day);var tomorrow=engine.ForagerBand(later,first.Cohort);
         var common=first.Members.Join(tomorrow.Members,p=>p.Id,p=>p.Id,(a,b)=>(a,b)).ToArray();
         Check(common.Length>=first.Members.Length-1&&common.All(p=>Math.Abs(p.b.AgeYears-p.a.AgeYears-1/365d)<.000001),"A gameplay day ages the same residents instead of rerolling them");
@@ -95,7 +104,7 @@ static class ForagerSamplingTests
             File.WriteAllText(Path.Combine(output,"band-samples.json"),System.Text.Json.JsonSerializer.Serialize(new{s.Years,s.Hash,checks,bands=samples},new System.Text.Json.JsonSerializerOptions{IncludeFields=true,Converters={new SampleVectorConverter()}}));
         }
         Console.WriteLine($"Language samples: {samples.Sum(b=>b.Members.Count(p=>p.Languages.Length>1))} multilingual / {samples.Sum(b=>b.Members.Length)} people");
-        Console.WriteLine($"Six exact local queries: exhaustive={referenceMilliseconds:F2}ms indexed={indexedMilliseconds:F2}ms, records={f.Cohorts.Length}, active={f.Cohorts.Count(c=>c.Population>=1)}");
+        Console.WriteLine($"Six exact local queries: cached exhaustive={referenceMilliseconds:F2}ms indexed={indexedMilliseconds:F2}ms; exhaustive layout preparation={positionTimer.Elapsed.TotalMilliseconds:F2}ms/{allPositions.Count} bands; records={f.Cohorts.Length}, active={f.Cohorts.Count(c=>c.Population>=1)}");
         Console.WriteLine($"PASS {checks} band/household/seasonal-camp checks across {samples.Count} communities");
     }
     sealed class SampleVectorConverter:System.Text.Json.Serialization.JsonConverter<V>

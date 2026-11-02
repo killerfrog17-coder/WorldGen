@@ -16,6 +16,11 @@ public sealed partial class WorldGenRuntime
         int runtimeErrors=0;Application.LogCallback errorCapture=(message,trace,type)=>{if(type==LogType.Exception||type==LogType.Error||type==LogType.Assert)runtimeErrors++;};Application.logMessageReceived+=errorCapture;
         layer=preferredLayer=Layer.Climate;satelliteOpacity=.55f;humanOverlayOpacity=1;gridSpacing=30;Refresh();
         peoplesOpen=true;detailsOpen=true;chronicleOpen=false;mapSettings=false;int checks=0;
+        var resident=s.Foragers.Cohorts.Where(c=>c.Population>=60).OrderByDescending(c=>c.Population).First();
+        var residentBand=humans.ForagerBand(s,resident.Id);var queryTimer=System.Diagnostics.Stopwatch.StartNew();
+        var localBands=humans.ForagerBandsNear(s,residentBand.Position,.1,1);queryTimer.Stop();
+        if(localBands.Length!=1||(localBands[0].Position-residentBand.Position).Length>1e-7){Debug.LogError("FORAGER VIEW local camp query missed a known current resident");Application.Quit(1);yield break;}checks++;
+        File.WriteAllText(Path.Combine(folder,"nearby-camp.json"),"{\"cohort\":"+resident.Id+",\"band\":"+residentBand.Id+",\"returned\":"+localBands[0].Id+",\"radiusMeters\":100,\"milliseconds\":"+queryTimer.Elapsed.TotalMilliseconds.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+"}");
         foreach(var mode in new[]{HistoryOverlay.Cultures,HistoryOverlay.Languages,HistoryOverlay.Religions,HistoryOverlay.Ethnicities,HistoryOverlay.Technology,HistoryOverlay.HumanSpecies,HistoryOverlay.Territories})
         {
             historyOverlay=mode;var entries=SocietyView.Legend(s,mode,engine:humans);selectedCell=entries.FirstOrDefault()?.Cell??-1;UpdateHumanPalette();ApplyCachedDisplay();

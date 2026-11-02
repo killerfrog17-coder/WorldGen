@@ -12,9 +12,19 @@ namespace WorldGen.Core
         sealed class ForagerResidentIndex
         {
             public readonly ForagerCohort[][] Districts;
+            public readonly double[] CampBoundsKm;
             public readonly Dictionary<int,ForagerExchange[]> Contacts;
-            public ForagerResidentIndex(ForagerState f)
+            public ForagerResidentIndex(World world,ForagerState f)
             {
+                CampBoundsKm=new double[f.Districts.Length];
+                foreach(var d in f.Districts)foreach(int cell in d.Cells)
+                {
+                    var ground=world.Surface.Cells[cell];
+                    double clearance=ground.DistanceM.Length>0?ground.DistanceM.Min()/1000.0*.35:5;
+                    double homeRadius=Math.Min(clearance,Math.Max(1,Math.Sqrt(ground.AreaM2/1e6/Math.PI)*.7));
+                    double distance=world.Recipe.RadiusKm*ForagerSpatialAngle(d.Center,ground.Position);
+                    CampBoundsKm[d.Id]=Math.Max(CampBoundsKm[d.Id],distance+homeRadius+8.05);
+                }
                 var lists=new List<ForagerCohort>[f.Districts.Length];
                 foreach(var c in f.Cohorts)if(c.Population>=1)
                 {var list=lists[c.District]??(lists[c.District]=new List<ForagerCohort>());list.Add(c);}
@@ -42,6 +52,14 @@ namespace WorldGen.Core
             return population<12?0:Math.Max(1,(int)Math.Round(population/(24+12*Rng.Value(World.Recipe.Seed,"resident-band-size",c.Id))));
         }
         static long ForagerBandId(int cohort,int ordinal)=>((long)(cohort+1)<<32)|(uint)(ordinal+1);
+        // Quantized V.Dot plus acos has a ~200m numerical floor at Earth
+        // radius, even for the same point. Use raw atan2 for local admission;
+        // historical migration/contact arithmetic deliberately stays unchanged.
+        static double ForagerSpatialAngle(V a,V b)
+        {
+            double x=a.Y*b.Z-a.Z*b.Y,y=a.Z*b.X-a.X*b.Z,z=a.X*b.Y-a.Y*b.X;
+            return Math.Atan2(Math.Sqrt(x*x+y*y+z*z),a.X*b.X+a.Y*b.Y+a.Z*b.Z);
+        }
         static long PersonId(long band,int household,int birthYear,int role)
         {
             uint a=Rng.Mix((uint)band^unchecked((uint)birthYear*104729u)^(uint)household*193u^(uint)role*7919u);
@@ -73,15 +91,8 @@ namespace WorldGen.Core
         {
             if(!Foraging(s)||ordinal<0)return null;var f=s.Foragers;var c=ForagerResident(f,cohortId);
             if(c==null)return null;int count=ForagerBandCount(s,c);if(ordinal>=count)return null;
-            var d=f.Districts[c.District];var culture=f.Cultures[c.Culture];double years=f.Seconds/(double)SimulationTime.Year;
-            int key=unchecked(c.Id*104729+ordinal*7919);long id=ForagerBandId(c.Id,ordinal);var home=ForagerBandHome(f,c,ordinal);
-            double population=ForagerDemography.Project(c,(f.Seconds-f.BoundarySeconds)/(double)SimulationTime.Year,f.BoundarySeconds/(double)SimulationTime.Year).Population;
-            int people=Math.Max(12,(int)Math.Round(population/count));
-            double range=Math.Sqrt(Math.Max(20,d.AreaKm2*c.Occupation/count)/Math.PI);
-            var band=new ForagerBandSample{Id=id,Cohort=c.Id,District=d.Id,Lineage=c.Lineage,Culture=c.Culture,Language=c.Language,Belief=c.Belief,Home=home.position,People=people,
-                Name=culture.Name+" · "+LanguageGenerator.WordWithRootSeed(f.Languages[c.Language].Sounds,"home",key).Text,
-                HomeRangeKm=range,MoveFrequencyPerYear=culture.Residence==ForagerResidence.AquaticResidence?2:culture.Residence==ForagerResidence.CollectorCamps?4:5+5*d.Seasonality[0],
-                Aggregation=D.Clamp(.2+.35*(d.Coast+d.River)+.25*c.Connectivity),FoodSecurity=c.FoodSecurity,Hospitality=culture.GuestAccess,Residence=culture.Residence,Techniques=new bool[ForagerTechnology.Count]};
+            var band=ForagerBandLayout(s,c,ordinal,count);var d=f.Districts[c.District];double years=f.Seconds/(double)SimulationTime.Year;
+            int key=unchecked(c.Id*104729+ordinal*7919);
             band.Language=ForagerAffiliations.Pick(c.Speech,Rng.Value(World.Recipe.Seed,"band-minority-language",key));
             band.Belief=ForagerAffiliations.Pick(c.Traditions,Rng.Value(World.Recipe.Seed,"band-minority-belief",key));
             // Individual makers, rather than an average weak proficiency
@@ -90,7 +101,8 @@ namespace WorldGen.Core
             for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=band.Members.Any(p=>p.Skills[k]>=.35);
             bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
             for(int k=0;k<band.Techniques.Length;k++)Can(k);
-            var environment=ForagerEcology.At(World.Recipe.Seed,d,years,World.ElevationM[home.cell]);
+            int homeCell=ForagerBandHome(f,c,ordinal).cell;
+            var environment=ForagerEcology.At(World.Recipe.Seed,d,years,World.ElevationM[homeCell]);
             band.RoutineTechniques=new bool[ForagerTechnology.Count];band.WinterTechniques=new bool[ForagerTechnology.Count];
             for(int k=0;k<band.Techniques.Length;k++)
             {
@@ -101,6 +113,24 @@ namespace WorldGen.Core
                 bool winter=k==5||k==8||k==13||k==14||k==31||k==34||k==35||k==36;
                 band.WinterTechniques[k]=winter?band.Techniques[k]&&rank<ForagerTechnology.WinterPractice(d,environment,c,k):band.RoutineTechniques[k];
             }
+            var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(World,value));
+            var contacts=residents.Contacts.TryGetValue(c.Id,out var nearby)?nearby:Array.Empty<ForagerExchange>();
+            band.ContactBands=contacts.Where(e=>e.Strength>.005).OrderByDescending(e=>e.Strength).Take(8).Select(e=>e.A==c.Id?e.B:e.A).Select(other=>ForagerResident(f,other)).Where(other=>ForagerBandCount(s,other)>0).Select(other=>ForagerBandId(other.Id,(int)(Rng.Value(World.Recipe.Seed,"band-marriage-contact",key^other.Id)*ForagerBandCount(s,other)))).ToArray();
+            return band;
+        }
+        // Spatial queries need current itineraries, not thousands of fully
+        // generated households. This layout is shared with full band sampling.
+        ForagerBandSample ForagerBandLayout(PrehistoryState s,ForagerCohort c,int ordinal,int count)
+        {
+            var f=s.Foragers;var d=f.Districts[c.District];var culture=f.Cultures[c.Culture];double years=f.Seconds/(double)SimulationTime.Year;
+            int key=unchecked(c.Id*104729+ordinal*7919);long id=ForagerBandId(c.Id,ordinal);var home=ForagerBandHome(f,c,ordinal);
+            double population=ForagerDemography.Project(c,(f.Seconds-f.BoundarySeconds)/(double)SimulationTime.Year,f.BoundarySeconds/(double)SimulationTime.Year).Population;
+            int people=Math.Max(12,(int)Math.Round(population/count));
+            double range=Math.Sqrt(Math.Max(20,d.AreaKm2*c.Occupation/count)/Math.PI);
+            var band=new ForagerBandSample{Id=id,Cohort=c.Id,District=d.Id,Lineage=c.Lineage,Culture=c.Culture,Language=c.Language,Belief=c.Belief,Home=home.position,People=people,
+                Name=culture.Name+" · "+LanguageGenerator.WordWithRootSeed(f.Languages[c.Language].Sounds,"home",key).Text,
+                HomeRangeKm=range,MoveFrequencyPerYear=culture.Residence==ForagerResidence.AquaticResidence?2:culture.Residence==ForagerResidence.CollectorCamps?4:5+5*d.Seasonality[0],
+                Aggregation=D.Clamp(.2+.35*(d.Coast+d.River)+.25*c.Connectivity),FoodSecurity=c.FoodSecurity,Hospitality=culture.GuestAccess,Residence=culture.Residence,Techniques=new bool[ForagerTechnology.Count]};
             band.SeasonalCamps=ForagerSeasonalCamps(s,c,band,home.cell,key);
             int camps=band.SeasonalCamps.Length;double season=((years-59/365d+Rng.Value(World.Recipe.Seed,"camp-calendar-phase",c.Id)*.08)%1+1)%1*camps;int current=(int)season,next=(current+1)%camps;
             // Most time is spent at camp; movement takes actual travel days.
@@ -108,9 +138,6 @@ namespace WorldGen.Core
             double travel=Math.Min(.8,DistanceKm(band.SeasonalCamps[current].Position,band.SeasonalCamps[next].Position)/18/(365d/camps));
             double fraction=season-current,t=travel>0?D.Clamp((fraction-(1-travel))/travel):0;
             band.Position=(band.SeasonalCamps[current].Position*(1-t)+band.SeasonalCamps[next].Position*t).Unit;
-            var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(value));
-            var contacts=residents.Contacts.TryGetValue(c.Id,out var nearby)?nearby:Array.Empty<ForagerExchange>();
-            band.ContactBands=contacts.Where(e=>e.Strength>.005).OrderByDescending(e=>e.Strength).Take(8).Select(e=>e.A==c.Id?e.B:e.A).Select(other=>ForagerResident(f,other)).Where(other=>ForagerBandCount(s,other)>0).Select(other=>ForagerBandId(other.Id,(int)(Rng.Value(World.Recipe.Seed,"band-marriage-contact",key^other.Id)*ForagerBandCount(s,other)))).ToArray();
             return band;
         }
         ForagerCampSample[] ForagerSeasonalCamps(PrehistoryState state,ForagerCohort c,ForagerBandSample band,int homeCell,int key)
@@ -155,7 +182,7 @@ namespace WorldGen.Core
             // external access follows actual saved contacts, not random colours
             // or every language anywhere in the district.
             foreach(var speech in c.Speech)LanguageAccess(speech.Id,.5*speech.Share);
-            var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(value));
+            var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(World,value));
             if(residents.Contacts.TryGetValue(c.Id,out var contacts))foreach(var contact in contacts)
             {
                 var other=ForagerResident(f,contact.A==c.Id?contact.B:contact.A);if(other==null||other.Population<1)continue;
@@ -249,19 +276,25 @@ namespace WorldGen.Core
         public ForagerBandSample[] ForagerBandsNear(PrehistoryState s,V position,double radiusKm,int maximum=32)
         {
             if(!Foraging(s)||radiusKm<0||maximum<1)return Array.Empty<ForagerBandSample>();var result=new List<(int cohort,int ordinal,double distance)>();
-            var index=ForagerResidents.GetValue(s.Foragers,f=>new ForagerResidentIndex(f));
+            var index=ForagerResidents.GetValue(s.Foragers,f=>new ForagerResidentIndex(World,f));
             foreach(var d in s.Foragers.Districts)
             {
-                if(DistanceKm(position,d.Center)>radiusKm+d.RadiusKm*2+30)continue;
+                if(World.Recipe.RadiusKm*ForagerSpatialAngle(position,d.Center)>radiusKm+index.CampBoundsKm[d.Id])continue;
                 foreach(var c in index.Districts[d.Id])
                 {
                     if(c.Population<12)continue;
                     int count=ForagerBandCount(s,c);
                     for(int ordinal=0;ordinal<count;ordinal++)
-                    {var home=ForagerBandHome(s.Foragers,c,ordinal);double distance=DistanceKm(position,home.position);if(distance<=radiusKm+Math.Max(10,d.RadiusKm/Math.Sqrt(Math.Max(1,count))))result.Add((c.Id,ordinal,distance));}
+                    {
+                        var home=ForagerBandHome(s.Foragers,c,ordinal);
+                        double range=Math.Sqrt(Math.Max(20,d.AreaKm2*c.Occupation/count)/Math.PI);
+                        if(World.Recipe.RadiusKm*ForagerSpatialAngle(position,home.position)>radiusKm+Math.Max(10,range*1.4)+8.05)continue;
+                        var layout=ForagerBandLayout(s,c,ordinal,count);double distance=World.Recipe.RadiusKm*ForagerSpatialAngle(position,layout.Position);
+                        if(distance<=radiusKm)result.Add((c.Id,ordinal,distance));
+                    }
                 }
             }
-            return result.OrderBy(x=>x.distance).ThenBy(x=>x.cohort).ThenBy(x=>x.ordinal).Take(maximum*2).Select(x=>ForagerBand(s,x.cohort,x.ordinal)).Where(b=>b!=null&&DistanceKm(position,b.Position)<=radiusKm).Take(maximum).ToArray();
+            return result.OrderBy(x=>x.distance).ThenBy(x=>x.cohort).ThenBy(x=>x.ordinal).Take(maximum).Select(x=>ForagerBand(s,x.cohort,x.ordinal)).ToArray();
         }
     }
 }
