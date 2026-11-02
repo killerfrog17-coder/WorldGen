@@ -68,6 +68,23 @@ public sealed partial class WorldGenRuntime
         {
             centerLongitude=longitude;Refresh();for(int i=0;i<14;i++)yield return new WaitForEndOfFrame();CaptureHumanMap(Path.Combine(folder,"language-longitude-"+longitude+".png"),true);
         }
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-forager-playback"))
+        {
+            atlasOpen=peoplesOpen=detailsOpen=false;selectedCell=-1;humanPlayback.SetRate(100d*SimulationTime.Year);humanClockSample=Time.realtimeSinceStartupAsDouble;humanPlaying=true;
+            long beginning=SimulationTime.Seconds(s);double until=Time.realtimeSinceStartupAsDouble+180;
+            while(SimulationTime.Seconds(world.Prehistory)<beginning+30*SimulationTime.Year&&Time.realtimeSinceStartupAsDouble<until&&string.IsNullOrEmpty(error))yield return null;
+            humanPlaying=false;
+            while(humanStep!=null&&Time.realtimeSinceStartupAsDouble<until)yield return null;
+            if(humanStep!=null||SimulationTime.Seconds(world.Prehistory)<beginning+30*SimulationTime.Year||!string.IsNullOrEmpty(error)){Debug.LogError("FORAGER PLAYBACK failed to publish live progress: "+error);Application.Quit(1);yield break;}checks++;
+            var final=world.Prehistory;long advanced=SimulationTime.Seconds(final)-beginning;
+            var reference=System.Threading.Tasks.Task.Run(()=>humans.AdvanceSeconds(s,advanced));
+            while(!reference.IsCompleted&&Time.realtimeSinceStartupAsDouble<until)yield return null;
+            if(!reference.IsCompleted||reference.IsFaulted||reference.Result.Hash!=final.Hash){Debug.LogError("FORAGER PLAYBACK differs from direct reference");Application.Quit(1);yield break;}checks++;
+            while((humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null)&&Time.realtimeSinceStartupAsDouble<until)yield return null;
+            if(legendState?.Hash!=final.Hash||!historyLandscapeEpochs.TryGetValue(Layer.Climate,out long epoch)||epoch!=LandscapeEpoch(final)){Debug.LogError("FORAGER PLAYBACK left stale human/climate palettes");Application.Quit(1);yield break;}checks++;
+            File.WriteAllText(Path.Combine(folder,"playback.json"),"{\"startYear\":"+s.Years+",\"endYear\":"+final.Years+",\"hash\":\""+final.Hash+"\"}");
+            for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(Path.Combine(folder,"live-playback.png"));for(int frame=0;frame<4;frame++)yield return new WaitForEndOfFrame();
+        }
         Application.logMessageReceived-=errorCapture;
         if(s.Hash!=s.ComputeHash()||s.Hash!=original||runtimeErrors>0){Debug.LogError("FORAGER VIEW failed: hash or "+runtimeErrors+" runtime errors");Application.Quit(1);yield break;}
         File.WriteAllText(Path.Combine(folder,"result.json"),"{\"checks\":"+checks+",\"year\":"+s.Years+",\"hash\":\""+s.Hash+"\"}");Debug.Log("FORAGER VIEW PASS "+checks+" "+s.Hash);Application.Quit(0);

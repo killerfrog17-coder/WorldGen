@@ -78,6 +78,7 @@ namespace WorldGen.Core
             var dominant=new Dictionary<int,(ForagerCohort people,double population)>();
             foreach(var c in f.Cohorts)
             {
+                if(c.Population<=0)continue;
                 double population=elapsed>0?ForagerDemography.Project(c,elapsed,f.BoundarySeconds/(double)SimulationTime.Year).Population:c.Population;if(population<.5)continue;
                 var district=f.Districts[c.District];int patch=district.Patch;
                 s.Population[patch]+=(long)Math.Round(population);if(s.ArrivalYear[patch]<0)s.ArrivalYear[patch]=Math.Max(0,c.FoundedYear);

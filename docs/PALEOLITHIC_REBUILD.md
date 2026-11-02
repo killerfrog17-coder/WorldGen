@@ -334,3 +334,26 @@ still pending. The old256MB compressed cap was inadequate for a legitimate rich
 history; supported compressed size is now1GB, with the existing4GB decoded guard
 unchanged. Packing and cache retirement reduce size; this is not a claim that
 all-detail worlds fit arbitrary memory budgets or now generate in60seconds.
+
+
+### Native multi-world review and canonical cost (15:20Z WIP)
+
+The same3041073 internal managed package passes35 native map/atlas checks each
+for Earth40k (new packed snapshot), seed99173 at30k and Archipelago30k (original
+snapshot format). Runtime logs clean; actual regional toolkit/language/species
+and climate images inspected. Neither the selected slot-b nor shortcut changed.
+The two30k histories complete and pass coupled-world error gates. The two190k
+histories remain INCOMPLETE. Continuations preserve prior metrics/source metadata;
+Earth40k/41k outcome records match the original serial run exactly. The former
+674d7eb pre-teaching comparison was stopped; it is not a final-model pass.
+
+New typed canonical writers read live cohort/culture/affiliation fields in the
+same checked order as the original reflection writer.328 exact-reference tests
+pass, including null/empty arrays and mutation; full saved hashes unchanged.
+The generator reproduces its source exactly. The250yr10k fixture remains exact
+cc3dbfcb... and the12 temporal checks remain89ff1c09... . Five large-cohort
+transaction tests cover the concurrent path, split callers/work budgets and
+cancellation after worker arithmetic. Empty retired populations now avoid useless
+fractional-date projection allocations. A new native check will advance real UI
+playback, compare its result with direct simulation, and require current human
+and dated landscape palettes; this proof is pending, not yet claimed passing.

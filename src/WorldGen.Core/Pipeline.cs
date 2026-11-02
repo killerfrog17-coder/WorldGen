@@ -20,6 +20,7 @@ namespace WorldGen.Core
         static readonly ConcurrentDictionary<Type, FieldInfo[]> Fields = new ConcurrentDictionary<Type, FieldInfo[]>();
         static StateHash()
         {
+            CheckForagerHashRecords();
             CheckWideHistoricalRecords();
             CheckOptionalHistoricalRecords();
             CheckGeographicRecords();
@@ -80,6 +81,7 @@ namespace WorldGen.Core
         static void Write(BinaryWriter w, object o)
         {
             if (o == null) { w.Write((byte)0); return; }
+            if(!literalAggregateRecords&&TryWriteForagerValue(w,o))return;
             // LeaderHead already contains the ordinary non-null/type framing.
             // Arrays and single live records share the same checked templates.
             if(!literalAggregateRecords&&o is HistoricalLeader singleLeader){LeaderRecordBody(w,singleLeader);return;}
