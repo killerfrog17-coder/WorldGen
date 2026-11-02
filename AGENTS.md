@@ -25,9 +25,9 @@ SUPERSEDES all older IL2CPP-only/never-Mono notes: use fast compiler/Editor
 iteration and development players as appropriate. Only make IL2CPP players for
 major playable updates when the owner explicitly requests one; the first planned
 milestone is Alpha1.0.0 when the Paleolithic feature set is first complete. Do not
-repeat native packaging after each small edit. Existing scripts/editor builder
-still enforce the previous backend policy and need adaptation before the next
-development-player build; no build/backend change is requested in this discussion.
+repeat native packaging after each small edit. The build script/editor builder
+now default to managed development players. Pass -Il2Cpp explicitly for an
+owner-requested major native release.
 Do not make isolated full player
 copies. Retire superseded binaries after checks/selection. Git and immutable
 GitHub Release asset packs provide history; do not keep daily binary archives.
@@ -37,6 +37,16 @@ release packs. No paid services, LFS charges, signup or subagents. Installed AI
 weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
+
+ACTIVE2Nov PALEOLITHIC SHELTER EXPANSION: owner deferred worldgen/evolution/
+borders and requests the complete grouped shelter/camp-structure pass before
+NPC work. Shared design catalog, scalable geometry/costs, donor-coat hide roof
+patches, stone/bone footings, platforms/cache/hide frame in progress. Existing
+five designs/save keys retained; new designs append enum IDs. Source/Core
+checks underway, NOT selected yet. Next player is fast managed DEVELOPMENT
+slot-a per new owner build policy; slot-b/shortcut frozen until actual checks.
+No NPC spawning/interactions or historical-simulation overhaul authorized yet.
+Owner prompt deletion and two untracked deer scripts preserved. No subagents.
 
 CURRENT1Nov EXIT / THROW / NEEDS / FIRE SELECTED: normal root shortcut NOW
 builds/slot-b/WorldGen.exe, IL2CPP Release BuiltUtc2026-11-02T01:21:11.3166520Z,

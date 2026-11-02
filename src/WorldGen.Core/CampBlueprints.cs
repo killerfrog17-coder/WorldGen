@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 namespace WorldGen.Core
 {
-    public enum CampDesign { LeanTo,Windbreak,DryingRack,MaterialStore,BrushHut }
-    public enum CampCover { Brush,Hide,Bark }
+    // Append only: existing saves store the numeric design and component keys.
+    public enum CampDesign { LeanTo,Windbreak,DryingRack,MaterialStore,BrushHut,ConicalTent,RidgeTent,LongHut,OpenCanopy,BoneLodge,StoneShelter,RaisedBed,HideFrame,RaisedCache,StoneWindbreak }
+    public enum CampCover { Brush,Hide,Bark,Reed }
     public enum CampStore { Wood,Stone,Vegetation }
-    public enum CampPartKind { Post,Beam,Rib,Binding,Cover }
+    public enum CampPartKind { Post,Beam,Rib,Binding,Cover,Stonework,Bonework,Deck }
     [Serializable] public sealed class CampPartState
     {
         public string Key=""; public double WorkSeconds;
@@ -30,17 +31,17 @@ namespace WorldGen.Core
         public readonly double Rain,Wind,Shade;
         public CampProtection(double rain,double wind,double shade){Rain=rain;Wind=wind;Shade=shade;}
     }
-    public static class CampBlueprints
+    public static partial class CampBlueprints
     {
-        public static string Name(CampDesign d)=>d==CampDesign.LeanTo?"Lean-to":d==CampDesign.Windbreak?"Windbreak":d==CampDesign.DryingRack?"Drying rack":d==CampDesign.MaterialStore?"Material store":"Brush hut";
-        public static (double minW,double maxW,double minD,double maxD) Limits(CampDesign d)=>d==CampDesign.Windbreak?(1,6,.25,.25):d==CampDesign.DryingRack?(1,3,.7,.7):d==CampDesign.MaterialStore?(1,4,.75,3):d==CampDesign.BrushHut?(2,4,2,4):(1.5,4,1.5,3);
+        public static string Name(CampDesign d)=>Definition(d).Name;
+        public static (double minW,double maxW,double minD,double maxD) Limits(CampDesign d)=>Definition(d).Limits;
         public static CampBlueprint Create(CampDesign d,double width,double depth,CampCover cover=CampCover.Brush,CampStore store=CampStore.Wood)
         {
             var l=Limits(d);double Snap(double x)=>Math.Round(x*4)/4;
             width=Math.Max(l.minW,Math.Min(l.maxW,Snap(width)));depth=Math.Max(l.minD,Math.Min(l.maxD,Snap(depth)));
-            return new CampBlueprint{Design=d,WidthM=width,DepthM=d==CampDesign.BrushHut?width:depth,Cover=cover,Store=store};
+            return new CampBlueprint{Design=d,WidthM=width,DepthM=Round(d)?width:depth,Cover=cover,Store=store};
         }
-        public static double Height(CampBlueprint p)=>(p.Design==CampDesign.Windbreak?1.35:p.Design==CampDesign.DryingRack?1.15:p.Design==CampDesign.MaterialStore?.65:p.Design==CampDesign.BrushHut?Math.Max(1.6,Math.Min(2.2,p.WidthM*.65)):Math.Min(2,p.DepthM*.5+.7))+Math.Max(0,p.FloorHeights?.Max()??0);
+        public static double Height(CampBlueprint p)=>NominalHeight(p)+Math.Max(0,p.FloorHeights?.Max()??0);
         public static double FloorAt(CampBlueprint p,double x,double z)
         {
             if(p.FloorHeights==null)return 0;double u=Math.Max(0,Math.Min(2,(x/p.WidthM+.5)*2)),v=Math.Max(0,Math.Min(2,(z/p.DepthM+.5)*2));int a=Math.Min(1,(int)u),b=Math.Min(1,(int)v);u-=a;v-=b;
@@ -48,6 +49,7 @@ namespace WorldGen.Core
         }
         public static List<CampComponent> Components(CampBlueprint p)
         {
+            if((int)p.Design>(int)CampDesign.BrushHut)return ShelterComponents(p);
             var list=new List<CampComponent>();double w=p.WidthM,d=p.DepthM,h=Height(p),front=.35+Math.Max(0,p.FloorHeights?.Max()??0);int sequence=0;
             void Wood(CampPartKind kind,V[] points,double width,int stage=1)
             {
@@ -59,7 +61,7 @@ namespace WorldGen.Core
             void Panel(V a,V b,V c,V e)
             {
                 double area=V.Cross(b-a,e-a).Length;
-                list.Add(new CampComponent{Key="p"+sequence++,Name=p.Cover==CampCover.Hide?"Hide covering":p.Cover==CampCover.Bark?"Bark covering":"Vegetation covering",Kind=CampPartKind.Cover,Stage=3,Points=new[]{a,b,c,e},Kg=Math.Max(.15,area*(p.Cover==CampCover.Hide?.8:p.Cover==CampCover.Bark?.55:1.2)),Seconds=120});
+                list.Add(new CampComponent{Key="p"+sequence++,Name=CoverName(p.Cover),Kind=CampPartKind.Cover,Stage=3,Points=new[]{a,b,c,e},Kg=Math.Max(.15,area*CoverKg(p.Cover)),Seconds=120});
             }
             if(p.Design==CampDesign.BrushHut)
             {
@@ -118,12 +120,15 @@ namespace WorldGen.Core
         public static bool Done(CampBlueprint p,CampComponent c)=>HasMaterial(p,c)&&(State(p,c)?.WorkSeconds??0)+1e-8>=c.Seconds;
         public static bool Complete(CampBlueprint p)=>Components(p).All(c=>Done(p,c));
         public static int Stage(CampBlueprint p)=>Components(p).Where(c=>!Done(p,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
-        public static bool CoverMaterial(CampBlueprint p,Possession item)=>p.Cover==CampCover.Hide?CampRules.Hide(item):p.Cover==CampCover.Bark?item.Kind==PossessionKind.BarkSheet:item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle;
+        public static bool CoverMaterial(CampBlueprint p,Possession item)=>item!=null&&(p.Cover==CampCover.Hide?CampRules.Hide(item):p.Cover==CampCover.Bark?item.Kind==PossessionKind.BarkSheet:p.Cover==CampCover.Reed?item.Kind==PossessionKind.ReedBundle:item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle);
         public static bool Suitable(CampBlueprint p,CampComponent c,Possession item)
         {
             if(item==null||item.MassKg<=0)return false;
             if(c.Kind==CampPartKind.Binding)return FrameRules.Binding(item);
             if(c.Kind==CampPartKind.Cover)return CoverMaterial(p,item);
+            if(c.Kind==CampPartKind.Stonework)return StoneCrafting.Rock(item);
+            if(c.Kind==CampPartKind.Bonework)return item.Kind==PossessionKind.Bone||item.Kind==PossessionKind.Antler;
+            if(c.Kind==CampPartKind.Deck)return (item.Kind==PossessionKind.Branch||item.Kind==PossessionKind.TrimmedPole)&&item.HeightM>=.25&&item.WidthM>=.012&&item.UseDamage<.8&&item.WoodSoundness>=.45;
             return (item.Kind==PossessionKind.Branch||item.Kind==PossessionKind.TrimmedPole)&&item.UseDamage<.8&&item.WoodSoundness>=.45&&item.HeightM+.035>=c.LengthM&&item.WidthM>=c.WidthM&&item.WidthM<=Math.Max(.085,c.WidthM*2.8)&&
                 (p.Design!=CampDesign.BrushHut||item.Kind==PossessionKind.Branch&&item.WidthM<=.04);
         }
@@ -161,7 +166,7 @@ namespace WorldGen.Core
             var s=State(p,c);double work=Math.Min(seconds,c.Seconds-s.WorkSeconds);s.WorkSeconds+=work;if(work>0&&s.WorkSeconds>=c.Seconds)p.Revision++;return work;
         }
         public static double CoverFraction(CampBlueprint p)
-        {var covers=Components(p).Where(c=>c.Kind==CampPartKind.Cover).ToArray();return covers.Length==0?0:covers.Sum(c=>Done(p,c)?Math.Min(c.Kg*1.2,Supplied(p,c)):0)/covers.Sum(c=>c.Kg);}
+        {var covers=Components(p).Where(c=>c.Kind==(p.Design==CampDesign.StoneWindbreak?CampPartKind.Stonework:CampPartKind.Cover)).ToArray();return covers.Length==0?0:covers.Sum(c=>Done(p,c)?Math.Min(c.Kg*1.2,Supplied(p,c)):0)/covers.Sum(c=>c.Kg);}
         public static bool Thicken(CampBlueprint p,PlayerInventory inventory,string id,out string reason)
         {
             reason="";var source=inventory.Find(id);if(source==null||!CoverMaterial(p,source)||inventory.Crafts.Any(j=>PortableCrafting.Affects(j,id))){reason="Suitable loose covering is needed.";return false;}
@@ -174,15 +179,17 @@ namespace WorldGen.Core
         public static CampProtection Protection(CampBlueprint p,double x,double z,double windX,double windZ,double knownCover=-1)
         {
             double cover=knownCover>=0?knownCover:CoverFraction(p);if(cover<=0)return default;
-            if(p.Design==CampDesign.Windbreak)
+            if(p.Design==CampDesign.Windbreak||p.Design==CampDesign.StoneWindbreak)
             {double down=Math.Sign(windZ);if(down==0||z*down<0||z*down>Height(p)*3||Math.Abs(x-z*windX/Math.Max(.1,Math.Abs(windZ)))>p.WidthM*.5)return default;return new CampProtection(0,Math.Min(.95,.8*cover)*(1-z*down/(Height(p)*3)),0);}
             if(Math.Abs(x)>p.WidthM*.5||Math.Abs(z)>p.DepthM*.5)return default;
             if(p.Design==CampDesign.LeanTo)return new CampProtection(Math.Min(.96,cover*.8),Math.Min(.9,cover*(windZ>0?.65:.22)),Math.Min(.96,cover*.8));
             if(p.Design==CampDesign.BrushHut&&x*x+z*z<=p.WidthM*p.WidthM*.25)return new CampProtection(Math.Min(.98,cover*.92),Math.Min(.95,cover*.85),Math.Min(.98,cover*.92));
-            return default;
+            return ShelterProtection(p,x,z,windX,windZ,cover);
         }
         public static bool StoreAccepts(CampBlueprint p,Possession item)
         {if(item==null)return false;if(p.Design==CampDesign.DryingRack)return CampRules.Cookable(item)&&!item.Burnt&&!item.Dried;
+            if(p.Design==CampDesign.RaisedCache)return item.ContainerWidth==0&&item.MassKg<=25&&item.HeightM<=p.WidthM&&item.DepthM<=p.DepthM;
+            if(p.Design==CampDesign.HideFrame)return CampRules.Hide(item)&&!item.Burnt;
             return p.Design==CampDesign.MaterialStore&&(p.Store==CampStore.Wood?WoodCrafting.Wood(item):p.Store==CampStore.Stone?StoneCrafting.Rock(item):item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle||item.Kind==PossessionKind.BarkSheet);}
         public static double Volume(Possession p)=>WoodCrafting.Wood(p)?p.MassKg/220:StoneCrafting.Rock(p)?p.MassKg/1200:p.MassKg/55;
         public static bool Fits(CampBlueprint p,IEnumerable<Possession> contents,Possession item)
@@ -190,7 +197,8 @@ namespace WorldGen.Core
             if(!Complete(p)||!StoreAccepts(p,item))return false;var all=contents.Where(c=>c.Id!=item.Id).ToArray();
             if(p.Design==CampDesign.DryingRack)
             {if(item.MassKg>1.5)return false;double left=0,right=0;foreach(var span in all.Concat(new[]{item}).Select(c=>Math.Max(.15,c.WidthM+.08)).OrderByDescending(v=>v)){if(left+span<=p.WidthM)left+=span;else if(right+span<=p.WidthM)right+=span;else return false;}return true;}
-            return Math.Max(item.HeightM,Math.Max(item.WidthM,item.DepthM))<=Math.Max(p.WidthM,p.DepthM)+.15&&all.Sum(Volume)+Volume(item)<=p.WidthM*p.DepthM*.6;
+            if(p.Design==CampDesign.HideFrame)return all.Length==0&&item.WidthM<=p.WidthM&&item.HeightM<=Height(p);
+            return Math.Max(item.HeightM,Math.Max(item.WidthM,item.DepthM))<=Math.Max(p.WidthM,p.DepthM)+.15&&all.Sum(Volume)+Volume(item)<=p.WidthM*p.DepthM*(p.Design==CampDesign.RaisedCache?.45:.6);
         }
         public static void Dry(Possession item,double seconds,double rain,double humidity,double wind,double temperature,bool smoke)
         {
@@ -218,6 +226,7 @@ namespace WorldGen.Core
             var p=c.Blueprint;if(c.Kind!=CampKind.Blueprint){if(p!=null)throw new ArgumentException("Unexpected construction plan.");return;}
             if(p==null||p.Version!=1||!Enum.IsDefined(typeof(CampDesign),p.Design)||!Enum.IsDefined(typeof(CampCover),p.Cover)||!Enum.IsDefined(typeof(CampStore),p.Store)||p.Parts==null||p.Revision<0||c.Materials.Count>0||(c.CookingItems?.Count??0)>0)throw new ArgumentException("Invalid construction plan.");
             var l=Limits(p.Design);if(!double.IsFinite(p.WidthM)||!double.IsFinite(p.DepthM)||p.WidthM<l.minW||p.WidthM>l.maxW||p.DepthM<l.minD||p.DepthM>l.maxD||p.Design==CampDesign.BrushHut&&p.DepthM!=p.WidthM)throw new ArgumentException("Invalid construction dimensions.");
+            if(Round(p.Design)&&p.DepthM!=p.WidthM)throw new ArgumentException("Invalid round construction footprint.");
             if(p.FloorHeights!=null&&(p.FloorHeights.Length!=9||p.FloorHeights.Any(f=>!double.IsFinite(f)||Math.Abs(f)>2)))throw new ArgumentException("Invalid construction footing survey.");
             var defs=Components(p).ToDictionary(d=>d.Key);var keys=new HashSet<string>();
             foreach(var s in p.Parts)

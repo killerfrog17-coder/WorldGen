@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
         IEnumerator Picture(CampObject c,string name)
         {
             campUpdateAt=0;UpdateCamp();yield return null;var origin=BlueprintOrigin(c);var prior=view.targetTexture;var active=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;
-            float size=(float)Math.Max(c.Blueprint.WidthM,c.Blueprint.DepthM);view.transform.localPosition=origin+new Vector3(size*1.2f,2.2f,(c.Blueprint.Design==CampDesign.BrushHut?1:-1)*size*1.8f);view.transform.LookAt(transform.TransformPoint(origin+Vector3.up*.8f));view.Render();RenderTexture.active=target;
+            float size=(float)Math.Max(c.Blueprint.WidthM,c.Blueprint.DepthM);view.transform.localPosition=origin+new Vector3(size*1.2f,2.2f,(c.Blueprint.Design==CampDesign.LeanTo?-1:1)*size*1.8f);view.transform.LookAt(transform.TransformPoint(origin+Vector3.up*.8f));view.Render();RenderTexture.active=target;
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=active;view.targetTexture=prior;target.Release();Destroy(target);UpdateCamera();
         }
         try
@@ -38,14 +38,14 @@ public sealed partial class LocalTerrainExplorer
             foreach(CampDesign design in Enum.GetValues(typeof(CampDesign)))
             {
                 var plan=CampBlueprints.Create(design,2,2);Vector3 site=default;bool found=false;double bestGrade=double.MaxValue;
-                for(int ring=0;ring<60&&bestGrade>.3;ring++)for(int step=0;step<24&&bestGrade>.3;step++)
+                for(int ring=0;ring<90&&bestGrade>.3;ring++)for(int step=0;step<24&&bestGrade>.3;step++)
                 {
                     double a=step*Math.PI/12,x=startX+Math.Sin(a)*(ring+1)*3,z=startZ+Math.Cos(a)*(ring+1)*3;var at=frame.Position(x,z);if(made.Any(other=>(other.Position-at).Length*frame.RadiusM<8))continue;
                     var point=Floor(x,z);if(BlueprintSite(plan,point,0,out _)){double grade=plan.FloorHeights.Max()-plan.FloorHeights.Min();if(grade<bestGrade){site=point;found=true;bestGrade=grade;}}
                 }
                 Check(found,"A clear dry footprint can be found for "+design);
                 double cx=site.x+originX,cz=site.z+originZ;motion.Place(cx-2,cz-2,Ground(cx-2,cz-2));heading=0;pitch=45;UpdateHumans();UpdateCamera();
-                BeginBlueprint(design);blueprintYaw=0;bool round=design==CampDesign.BrushHut;bool line=design==CampDesign.Windbreak||design==CampDesign.DryingRack;
+                BeginBlueprint(design);blueprintYaw=0;bool round=CampBlueprints.Round(design);bool line=CampBlueprints.Line(design);
                 var anchor=site-(round?Vector3.zero:new Vector3(1,0,line?0:1));anchor.y=(float)CampFloor(anchor.x+originX,anchor.z+originZ);Aim(anchor);UpdateBlueprintPlacement();Check(blueprintValid,"First anchor preview is valid for "+design+": "+blueprintReason);
                 yield return Click();Check(blueprintAnchored,"First mouse click anchors "+design);
                 if(design==CampDesign.LeanTo)
@@ -83,7 +83,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 campUpdateAt=0;UpdateCamp();Physics.SyncTransforms();Check(campVisuals[c.Id].Root.GetComponent<MeshCollider>()?.sharedMesh.vertexCount>0,"Completed "+design+" has a solid fitted mesh collider");
                 yield return Picture(c,"complete-"+design);
-                if(design==CampDesign.BrushHut)
+                if(design==CampDesign.BrushHut||design==CampDesign.ConicalTent||design==CampDesign.RidgeTent||design==CampDesign.LongHut||design==CampDesign.BoneLodge||design==CampDesign.StoneShelter)
                 {
                     var origin=BlueprintOrigin(c);float radius=(float)c.Blueprint.WidthM*.5f;double ax=origin.x+originX,az=origin.z+originZ+radius+.6;
                     motion.Place(ax,az,Ground(ax,az));heading=180;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftCtrl));yield return null;PreparePlayerSolids();
@@ -105,7 +105,25 @@ public sealed partial class LocalTerrainExplorer
             var rack=made.First(c=>c.Blueprint.Design==CampDesign.DryingRack);TerrainHandoff.Coordinates(frame,rack.Position,out double rx,out double rz);motion.Place(rx,rz-1.5,Ground(rx,rz-1.5));UpdateHumans();var food=PortableTechnology.Create(PossessionKind.RawMeat,Position,"deer",0);Inventory.Items.Add(food);StoreBlueprintItem(rack,food);
             Check(food.Place==PossessionPlace.CampStorage,"Rack hangs an actual meat item with its animal provenance");
             double calories=food.MassKg*food.FoodKcalPerKg;CampBlueprints.Dry(food,1000000,0,.4,3,20,true);rack.Blueprint.Revision++;campUpdateAt=0;UpdateCamp();Check(food.Dried&&food.Smoked&&Math.Abs(calories-food.MassKg*food.FoodKcalPerKg)<1e-7,"Drying yields retrievable lighter food with unchanged total calories");
-            var roundtrip=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));roundtrip.Validate();Check(roundtrip.Camp.Objects.Count(c=>c.Kind==CampKind.Blueprint)==5&&roundtrip.Inventory.Find(food.Id).CampOwner==rack.Id,"Finished plans, stock and preserved food round-trip a player save");
+            // Use two actual animal coat assets on one roof and inspect the
+            // renderer property blocks after their asynchronous loading finishes.
+            var tent=made.First(c=>c.Blueprint.Design==CampDesign.ConicalTent);var skinPlan=CampBlueprints.Create(CampDesign.ConicalTent,3,3,CampCover.Hide);tent.Blueprint=skinPlan;
+            int skin=0;
+            foreach(var component in CampBlueprints.Components(skinPlan))
+            {
+                var material=component.Kind==CampPartKind.Cover?PortableTechnology.Create(PossessionKind.WorkedHide,tent.Position,skin++%2==0?"deer":"zebra",0,skin,(ulong)(900+skin)):BlueprintCreativeMaterial(skinPlan,component);
+                if(component.Kg>0)material.MassKg=component.Kg;Inventory.Items.Add(material);
+                Check(CampBlueprints.Supply(skinPlan,component.Key,Inventory,material.Id,true,out _,out _),"Real donor/structural contribution accepted");CampBlueprints.Work(skinPlan,component.Key,10000);
+            }
+            InvalidateCampVisual(tent);campUpdateAt=0;UpdateCamp();double skinUntil=Time.unscaledTimeAsDouble+45;
+            while((!animalModels.ContainsKey("deer")||!animalModels.ContainsKey("zebra"))&&Time.unscaledTimeAsDouble<skinUntil)yield return null;
+            Check(animalModels.ContainsKey("deer")&&animalModels.ContainsKey("zebra"),"Both donor coat arrays load for the actual shelter");
+            portableAppearanceAt=0;UpdatePortableAppearances();var hideRenderers=campVisuals[tent.Id].Root.GetComponentsInChildren<MeshRenderer>().Where(r=>r.name.StartsWith("Hide covering",StringComparison.Ordinal)).ToArray();
+            Check(hideRenderers.Length==skin,"Each contributed hide has an actual roof patch renderer");
+            var block=new MaterialPropertyBlock();var textures=new HashSet<Texture>();foreach(var renderer in hideRenderers){renderer.GetPropertyBlock(block);Check(block.GetFloat("_HasFur")>.5f&&block.GetTexture("_SourceCoats")!=null,"Hide roof renderer uses its source coat, not a fixed tan material");textures.Add(block.GetTexture("_SourceCoats"));}
+            Check(textures.Count==2,"Mixed species use two distinct donor coat textures on one shelter");yield return Picture(tent,"mixed-donor-hide-tent");
+            var cache=made.First(c=>c.Blueprint.Design==CampDesign.RaisedCache);var tool=PortableTechnology.Create(PossessionKind.HaftedKnife,cache.Position);Inventory.Items.Add(tool);Check(CampBlueprints.Deposit(cache,Inventory,tool.Id,out _),"Raised cache stores an actual tool");campUpdateAt=0;UpdateCamp();
+            var roundtrip=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));roundtrip.Validate();Check(roundtrip.Camp.Objects.Count(c=>c.Kind==CampKind.Blueprint)==Enum.GetValues(typeof(CampDesign)).Length&&roundtrip.Inventory.Find(food.Id).CampOwner==rack.Id&&roundtrip.Camp.Objects.Single(c=>c.Id==tent.Id).Blueprint.Parts.SelectMany(s=>s.Materials).Any(i=>i.AppearanceSpecies=="zebra"),"Every plan, mixed donor hides, stock and preserved food round-trip a player save");
             int fitted=store.Blueprint.Parts.Count;UndoBlueprintPart(store);Check(store.Blueprint.Parts.Count==fitted-1&&!CampBlueprints.Complete(store.Blueprint),"Dismantling removes a component and exposes the remaining plan");
             RemoveCamp(rack);PlayerRules.Validate();Check(food.Place==PossessionPlace.Ground&&food.CampOwner==null&&!Camp.Objects.Contains(rack),"Dismantling a rack safely releases its food and all materials");
             Check(Camp.Objects.All(c=>c.Kind!=CampKind.FrameWood),"Blueprint construction does not create a per-stick structural dependency graph");

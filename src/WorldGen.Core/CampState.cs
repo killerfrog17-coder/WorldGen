@@ -132,8 +132,8 @@ namespace WorldGen.Core
             if(c.Burning)return 10*D.Clamp((.55-distance)/.2);
             return c.EmberSeconds>0&&feetHeight<.18?3*D.Clamp((.35-distance)/.15):0;
         }
-        public static double BedComfort(CampObject c)=>c==null?.38:D.Clamp(.38+.42*(1-Math.Exp(-c.BeddingDepthM/.08))+(c.Materials.Any(Hide)?.08:0)-c.Wetness*.45);
-        public static double BedInsulation(CampObject c)=>c==null?0:Math.Min(.75,c.BeddingDepthM*6+(c.Materials.Any(Hide)?.18:0))*(1-c.Wetness*.7);
+        public static double BedComfort(CampObject c)=>c==null?.38:c.Blueprint?.Design==CampDesign.RaisedBed?D.Clamp(.55+.2*CampBlueprints.CoverFraction(c.Blueprint)-c.Wetness*.3):D.Clamp(.38+.42*(1-Math.Exp(-c.BeddingDepthM/.08))+(c.Materials.Any(Hide)?.08:0)-c.Wetness*.45);
+        public static double BedInsulation(CampObject c)=>c==null?0:c.Blueprint?.Design==CampDesign.RaisedBed?Math.Min(.7,.25+.3*CampBlueprints.CoverFraction(c.Blueprint))*(1-c.Wetness*.7):Math.Min(.75,c.BeddingDepthM*6+(c.Materials.Any(Hide)?.18:0))*(1-c.Wetness*.7);
         public static double Drive(CampObject stake,Possession rock)
         {
             if(stake==null||stake.Kind!=CampKind.Stake||stake.Materials.Count!=1||!StoneCrafting.Rock(rock)||rock.MassKg<.1)return 0;

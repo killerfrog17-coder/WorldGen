@@ -3,7 +3,7 @@ param(
     [switch]$BuildPlayer,
     [switch]$DevelopmentPlayer,
     [switch]$PerformancePlayer,
-    [switch]$Il2Cpp, # Retained for old callers; every player build now uses IL2CPP.
+    [switch]$Il2Cpp, # Explicit major-release build; normal iteration uses Mono.
     [switch]$PlayerCheck,
     [switch]$Isolated,
     [string]$PlayerFolder=""
@@ -87,10 +87,10 @@ $buildRoot=Join-Path $repoRoot 'builds'
 $playerOutput=[IO.Path]::GetFullPath((Join-Path $buildRoot ($PlayerFolder+'/WorldGen.exe')))
 if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($buildRoot)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside the permanent build root'}
 $arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
-if($DevelopmentPlayer){$arguments+='--worldgen-development-player'}
+if($DevelopmentPlayer -or ($BuildPlayer -and !$Il2Cpp)){$arguments+='--worldgen-development-player'}
 if($PerformancePlayer){$arguments+='--worldgen-performance-build'}
 if($Il2Cpp -and !$BuildPlayer){throw '-Il2Cpp is a player-build option.'}
-if($BuildPlayer){$arguments+='--worldgen-il2cpp-player'}
+if($BuildPlayer -and $Il2Cpp){$arguments+='--worldgen-il2cpp-player'}
 $assemblyInputs=@()
 if($BuildPlayer){foreach($name in @('WorldGen.Core','WorldGen.Serialization','WorldGen.Presentation','DelaunatorSharp')){$inputDll=Join-Path $project ('Assets/Plugins/WorldGen/'+$name+'.dll');$assemblyInputs+=[ordered]@{Assembly=$name;Path=$inputDll;Sha256=(Get-FileHash -LiteralPath $inputDll).Hash.ToLowerInvariant()}}}
 $run=Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
@@ -103,7 +103,7 @@ if($BuildPlayer){
     New-Item -ItemType Directory -Path $packagedWorker -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $workerOutput 'WorldGen.Cli.exe') -Destination $packagedWorker -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
-    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend='IL2CPP';Development=[bool]$DevelopmentPlayer;Inputs=$assemblyInputs}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
+    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]($DevelopmentPlayer -or !$Il2Cpp);Inputs=$assemblyInputs}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
 }
 if($PlayerCheck){
     $output=Join-Path $artifacts 'unity-player'

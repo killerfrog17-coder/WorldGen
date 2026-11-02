@@ -8,9 +8,10 @@ static class CampBlueprintTests
         var at=new V(1,0,0);var inventory=new PlayerInventory();
         Possession Source(CampBlueprint p,CampComponent c)
         {
-            var item=c.Kg==0?new Possession{Id=Guid.NewGuid().ToString("N"),Kind=PossessionKind.Branch,Position=at}:PortableTechnology.Create(c.Kind==CampPartKind.Binding?PossessionKind.Cordage:c.Kind==CampPartKind.Cover?(p.Cover==CampCover.Hide?PossessionKind.WorkedHide:p.Cover==CampCover.Bark?PossessionKind.BarkSheet:PossessionKind.DryGrass):PossessionKind.Branch,at);
+            var kind=c.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:c.Kind==CampPartKind.Bonework?PossessionKind.Bone:c.Kind==CampPartKind.Binding?PossessionKind.Cordage:c.Kind==CampPartKind.Cover?(p.Cover==CampCover.Hide?PossessionKind.WorkedHide:p.Cover==CampCover.Bark?PossessionKind.BarkSheet:p.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass):PossessionKind.Branch;
+            var item=PortableTechnology.Item(kind)==null?new Possession{Id=Guid.NewGuid().ToString("N"),Kind=kind,Position=at}:PortableTechnology.Create(kind,at);
             item.NaturalId=0;item.WoodStraightness=.9;item.WoodSoundness=.9;
-            if(c.Kg>0)item.MassKg=c.Kg*1.5;else{item.HeightM=c.LengthM+.25;item.WidthM=c.WidthM*1.2;item.DepthM=item.WidthM;item.MassKg=item.HeightM*item.WidthM*item.WidthM*450;}
+            if(c.Kg>0){item.MassKg=c.Kg*1.5;if(c.Kind==CampPartKind.Deck){item.HeightM=1;item.WidthM=.03;}}else{item.HeightM=c.LengthM+.25;item.WidthM=c.WidthM*1.2;item.DepthM=item.WidthM;item.MassKg=item.HeightM*item.WidthM*item.WidthM*450;}
             inventory.Items.Add(item);return item;
         }
         foreach(var design in Enum.GetValues<CampDesign>())foreach(var cover in Enum.GetValues<CampCover>())
@@ -50,6 +51,35 @@ static class CampBlueprintTests
         var sloped=CampBlueprints.Create(CampDesign.LeanTo,2,2);sloped.FloorHeights=new[]{-.4,-.4,-.4,0,0,0,.4,.4,.4};var supports=CampBlueprints.Components(sloped).Where(c=>c.Kind==CampPartKind.Post).ToArray();Check(supports.Max(c=>c.LengthM)-supports.Min(c=>c.LengthM)>.7,"Footing survey changes required support lengths");Check(supports.All(c=>Math.Abs(c.Points[0].Y-CampBlueprints.FloorAt(sloped,c.Points[0].X,c.Points[0].Z)+.1)<1e-8),"Every support meets its own terrain footing");
         var weapon=new Possession{Kind=PossessionKind.WoodenSpear,HeightM=4,WidthM=.04,WoodSoundness=1};Check(!CampBlueprints.Suitable(roofPlan,CampBlueprints.Components(roofPlan)[0],weapon),"Automatic construction does not consume finished spears");
         var invalid=new CampState{Objects=new(){new CampObject{Kind=CampKind.Blueprint,Position=at,Blueprint=new CampBlueprint{WidthM=double.NaN}}}};bool rejected=false;try{invalid.Validate();}catch(ArgumentException){rejected=true;}Check(rejected,"Malformed plans rejected on load");
+        foreach(var entry in CampBlueprints.Catalogue)
+        {
+            Check(entry.Design==(CampDesign)Array.IndexOf(CampBlueprints.Catalogue.ToArray(),entry),"Save design IDs follow the stable shared catalog");
+            foreach(bool largest in new[]{false,true})
+            {
+                var limit=entry.Limits;var layout=CampBlueprints.Create(entry.Design,largest?limit.maxW:limit.minW,largest?limit.maxD:limit.minD);
+                var parts=CampBlueprints.Components(layout);
+                Check(parts.All(c=>c.Points.All(v=>double.IsFinite(v.Length))&&double.IsFinite(c.Kg)&&c.Seconds>0),"Extreme-sized layouts are finite: "+entry.Name);
+                Check(parts.Where(c=>c.Kg==0).All(c=>c.LengthM<=4.5),"No structural member exceeds available long branches: "+entry.Name);
+                Check(parts.Where(c=>c.Kind==CampPartKind.Cover).All(c=>c.Kg>0),"Roof surfaces require actual covering mass");
+                Check(CampBlueprints.Entrance(layout).Z==layout.DepthM*.5,"A shared entrance anchor is available to future camp layouts");
+            }
+        }
+        // A roof must not repaint or lose a hide when more than one donor is
+        // consumed, split, saved, and later recovered for another structure.
+        var hides=CampBlueprints.Create(CampDesign.ConicalTent,3,3,CampCover.Hide);inventory.Items.Clear();
+        foreach(var c in CampBlueprints.Components(hides).Where(c=>c.Kind!=CampPartKind.Cover)){var s=Source(hides,c);CampBlueprints.Supply(hides,c.Key,inventory,s.Id,true,out _,out _);CampBlueprints.Work(hides,c.Key,10000);}
+        var sheet=CampBlueprints.Components(hides).First(c=>c.Kind==CampPartKind.Cover);
+        var donorA=PortableTechnology.Create(PossessionKind.WorkedHide,at,"deer",2,17,991);donorA.MassKg=sheet.Kg*.4;inventory.Items.Add(donorA);
+        var donorB=PortableTechnology.Create(PossessionKind.WorkedHide,at,"zebra",1,42,992);donorB.MassKg=sheet.Kg*2;inventory.Items.Add(donorB);
+        double donorMass=inventory.Items.Sum(i=>i.MassKg)+hides.Parts.SelectMany(s=>s.Materials).Sum(i=>i.MassKg);
+        Check(CampBlueprints.Supply(hides,sheet.Key,inventory,donorA.Id,true,out _,out _)&&!CampBlueprints.HasMaterial(hides,sheet),"A partial donor hide does not complete a roof panel");
+        Check(CampBlueprints.Supply(hides,sheet.Key,inventory,donorB.Id,true,out _,out _),"Another animal's hide can complete the same panel");CampBlueprints.Work(hides,sheet.Key,10000);
+        var savedHides=WorldJson.Read<CampBlueprint>(WorldJson.Write(hides));var realHides=CampBlueprints.State(savedHides,sheet).Materials;
+        Check(realHides.Count==2&&realHides[0].SourceAnimalId==991&&realHides[1].AppearanceSpecies=="zebra"&&realHides[1].AppearanceCoat==1&&realHides[1].AppearanceSeed==42,"Mixed donor species, coat, identity and seed survive construction and saving");
+        Check(realHides[1].Id!=donorB.Id&&Math.Abs(donorMass-inventory.Items.Sum(i=>i.MassKg)-hides.Parts.SelectMany(s=>s.Materials).Sum(i=>i.MassKg))<1e-8,"Fractional covering preserves mass and unique ownership");
+        var cache=CampBlueprints.Create(CampDesign.RaisedCache,2,2);var frame=CampBlueprints.Create(CampDesign.HideFrame,2,2);
+        Check(CampBlueprints.StoreAccepts(cache,PortableTechnology.Create(PossessionKind.RawMeat,at))&&CampBlueprints.StoreAccepts(cache,PortableTechnology.Create(PossessionKind.HaftedKnife,at)),"Raised cache accepts food and equipment");
+        Check(CampBlueprints.StoreAccepts(frame,donorB)&&!CampBlueprints.StoreAccepts(frame,PortableTechnology.Create(PossessionKind.RawMeat,at)),"Hide frame holds real hides, not food");
         Console.WriteLine("PASS "+n+" camp blueprint dimensions, construction, ownership, drying, weather and save checks");
     }
 }

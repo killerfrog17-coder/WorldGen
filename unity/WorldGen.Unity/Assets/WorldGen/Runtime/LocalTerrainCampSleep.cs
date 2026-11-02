@@ -19,7 +19,8 @@ public sealed partial class LocalTerrainExplorer
             TerrainHandoff.Coordinates(frame,bed.Position,out double x,out double z);
             var bedWater=SampleMotionWater(x,z);
             if(double.IsFinite(bedWater.Surface)&&bedWater.Surface>CampFloor(x,z)+.02){InventoryFeedback("This bedding is underwater. Choose dry ground.");return;}
-            motion.Place(x,z,CampFloor(x,z));humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
+            double platform=bed.Blueprint?.Design==CampDesign.RaisedBed?CampBlueprints.Height(bed.Blueprint)+.06:0;
+            motion.Place(x,z,CampFloor(x,z)+platform);humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
         }
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);SetInventoryOpen(false);
         campMenu=null;campGroundMenu=campSleepMenu=false;campResting=rest;campSleeping=!rest;Vitals.SleepBoutSeconds=0;Vitals.LastSleepHour=LocalSolarHour;campSleepHealth=Vitals.Health;sleepingBed=bed;CaptureMouse();

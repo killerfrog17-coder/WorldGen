@@ -38,8 +38,10 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!campVisuals.TryGetValue(id,out var v))return;
         v.Root.SetActive(false);
-        foreach(var root in v.Root.GetComponentsInChildren<Transform>().Where(t=>inventoryCraftMeshes.ContainsKey(t.gameObject)||portableRoots.ContainsKey(t.gameObject)).ToArray())DestroyInventoryVisual(root.gameObject);
-        foreach(var filter in v.Root.GetComponentsInChildren<MeshFilter>())if(filter.sharedMesh!=null&&filter.sharedMesh.name.StartsWith("Camp ",StringComparison.Ordinal))Destroy(filter.sharedMesh);
+        // The root is inactive during retirement. Include its children so a
+        // rebuild/dismantle cannot leak old roof, collision and donor-hide meshes.
+        foreach(var filter in v.Root.GetComponentsInChildren<MeshFilter>(true))if(filter.sharedMesh!=null&&filter.sharedMesh.name.StartsWith("Camp ",StringComparison.Ordinal))Destroy(filter.sharedMesh);
+        foreach(var root in v.Root.GetComponentsInChildren<Transform>(true).Where(t=>inventoryCraftMeshes.ContainsKey(t.gameObject)||portableRoots.ContainsKey(t.gameObject)).ToArray())DestroyInventoryVisual(root.gameObject);
         Destroy(v.Root);campVisuals.Remove(id);
     }
     void UpdateCamp()

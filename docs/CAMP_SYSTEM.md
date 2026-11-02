@@ -7,6 +7,57 @@ selects the verified IL2CPP player in one of the two fixed build slots.
 
 ## Adjustable camp plans
 
+The expanded shared catalog also provides conical tents, ridge/A-frame tents,
+oval/long communal huts, open canopies, bone-footed lodges, stone-founded huts,
+stone windbreaks, sleeping platforms, raised caches and hide-working frames.
+These are construction families: the same dome can use brush, reed thatch,
+bark or actual hides. Dimensions, costs, entrance anchors, sleeping capacity
+and functions live in `CampBlueprints.Catalogue`, shared with future NPC camp
+layout. No NPC camps are spawned by this update.
+
+Hide panels retain each contributed animal's species, coat, seed and identity.
+The renderer samples the original donor coat array. A panel completed with two
+different hides displays both, rather than assigning a fixed tent texture.
+Remaining hide mass stays in the inventory; dismantling returns the installed
+pieces. Added covering can mix donors too. Bindings and stitched edges keep
+their separate rawhide appearance.
+
+| Added family | Dimensions | Function / material variation |
+| --- | --- | --- |
+| Conical tent | Diameter 2–6 m | Pole frame, open doorway, crown vent, stone edge anchors; four coverings |
+| Ridge tent / A-frame | Width 1.5–5 m, depth 2–6 m | Paired supports, repeated ridge bays, closed rear and front doorway |
+| Oval / long hut | Width 2–4 m, depth 2–8 m | Bent-branch roof bays and rounded ends; individual or communal shelter |
+| Open canopy | Width/depth 1.5–5 m | Rain/shade cover with largely open sides |
+| Bone-supported lodge | Diameter 2–6 m | Actual bone/antler footing material, wood upper frame, four coverings |
+| Stone-founded hut | Diameter 2–6 m | Low dry-laid walls, organic upper frame/roof, four coverings |
+| Stone windbreak | Length 1–6 m | Four stone courses, lee-side wind protection, no roof or bindings |
+| Sleeping platform | Width 1–3 m, depth 1.75–3 m | Branch deck, layered covering, actual sleep/rest and ground insulation |
+| Hide-working frame | Width 1–3 m | Braced upright frame holding one actual retrievable hide |
+| Raised cache | Width 1–3 m, depth 1–2.5 m | Elevated roofed food/equipment stock; physical, dimension-limited storage |
+
+E builds, uses stores/racks or opens the completed structure details. Sleeping
+platform details offer rest/sleep. The plans list scrolls. Existing fireplaces
+and bedding remain direct placement. Existing saved structures keep their
+original component keys. A footprint requiring unsupported pole lengths is
+rejected rather than offering an impossible-to-finish plan.
+
+This pass covers surface-built camp architecture. Natural caves are terrain,
+not a manmade blueprint. Excavated floors/storage pits and snow-volume refuges
+require persistent terrain/snow-volume editing; they are not represented by
+fake holes, solid-ground cellars, or permanent snow blocks in warm climates.
+They remain separate terrain features, rather than duplicates of the roof
+families above. There are no milled-plank cabins, masonry vaults, metal
+fasteners or farming-era buildings in this catalog.
+
+Research basis: [Ohalo II brush huts](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0262434),
+[Kharaneh IV construction research](https://hearstmuseum.berkeley.edu/exhibit/experimental-archaeology-thatched-hut-construction/),
+[Étiolles tent layouts](https://archeologie.culture.gouv.fr/etiolles/fr/les-habitations-1),
+[Mezhyrich fieldwork](https://vovkcenter.org.ua/en/2018/12/01/mezhyrich-2018-summer-school/),
+and [Wadi Hammeh 27 stone-founded buildings](https://www.antiquity.ac.uk/projgall/edwards347).
+The adjustable roof shapes and auxiliary racks/caches are gameplay engineering
+variants of the material kit. The existing illustrated shelter report supplies
+additional site references and examples.
+
 Press **V** to select a plan. B remains the backpack key. Choose vegetation,
 hide or bark covering for a shelter/screen, or the material-store category.
 Click the first corner/end, look toward the opposite corner/end, then click to

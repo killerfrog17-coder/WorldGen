@@ -12,6 +12,7 @@ parser.add_argument('--player-folder',choices=['slot-a','slot-b'],default='slot-
 parser.add_argument('--proof-folder',default='kimodo-human-bank/package-proof')
 parser.add_argument('--freeze',action='store_true')
 parser.add_argument('--baseline-freeze',default='assets/verification/terrain-boundaries/source-freeze.json')
+parser.add_argument('--backend',choices=['auto','Mono','IL2CPP'],default='auto')
 args=parser.parse_args()
 TASK=ROOT/'artifacts'/args.proof_folder
 PLAYER=ROOT/'builds'/args.player_folder
@@ -26,6 +27,8 @@ if args.freeze:
     paths=set(old)
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Runtime','unity/WorldGen.Unity/Assets/WorldGen/Editor','unity/WorldGen.Unity/Assets/WorldGen/Resources']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file() and p.suffix in {'.cs','.shader','.hlsl'})
+    for directory in ['src/WorldGen.Core','src/WorldGen.Serialization','src/WorldGen.Presentation']:
+        paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*.cs') if not {'obj','bin'}.intersection(p.parts))
     for directory in ['assets/human-motion-kimodo','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanKimodo','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanKimodo']:
         paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/directory).rglob('*') if p.is_file())
     paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/'scripts').glob('*kimodo*.py'))
@@ -49,7 +52,14 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
     checks=list(pool.map(lambda pair:sha(ROOT/pair[0])==pair[1]['sha256'],preserved.items()))
 assert all(checks),[p for (p,_),ok in zip(preserved.items(),checks) if not ok]
 inputs=json.loads((PLAYER/'build-inputs.json').read_text(encoding='utf-8-sig'))
-assert inputs['Backend']=='IL2CPP' and (PLAYER/'GameAssembly.dll').exists() and not (PLAYER/'MonoBleedingEdge').exists()
+backend=inputs['Backend'];assert backend in {'Mono','IL2CPP'}
+assert args.backend=='auto' or backend==args.backend,'Unexpected player backend'
+if backend=='IL2CPP':
+    assert (PLAYER/'GameAssembly.dll').exists() and not (PLAYER/'MonoBleedingEdge').exists()
+else:
+    assert (PLAYER/'MonoBleedingEdge').exists() and (PLAYER/'WorldGen_Data/Managed/Assembly-CSharp.dll').exists()
+    for record in inputs['Inputs']:
+        assert sha(PLAYER/'WorldGen_Data/Managed'/(record['Assembly']+'.dll'))==record['Sha256'],'Packaged managed assembly mismatch'
 assert all(sha(Path(r['Path']))==r['Sha256'] for r in inputs['Inputs'])
 index=ROOT/'unity/WorldGen.Unity/Assets/StreamingAssets/fauna/assets.json'
 assert sha(index)==sha(PLAYER/'WorldGen_Data/StreamingAssets/fauna/assets.json')
@@ -65,5 +75,5 @@ for person in bank['people']:
     assert len(person['clips'])>=67
     for base in [ROOT/'assets/human-motion-kimodo',ROOT/'unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanKimodo']:
         assert sha(base/person['file'])==person['fbx_sha256']
-report={'backend':'IL2CPP','BuiltUtc':inputs['BuiltUtc'],'frozen_inputs':len(frozen),'legacy_files_unchanged':len(legacy),'protected_original_assets':len(preserved),'native_character_banks':6,'clips_per_character':[len(p['clips']) for p in bank['people']],'fauna_package_exact':True,'original_audio_exact':True}
+report={'backend':backend,'BuiltUtc':inputs['BuiltUtc'],'frozen_inputs':len(frozen),'legacy_files_unchanged':len(legacy),'protected_original_assets':len(preserved),'character_banks':6,'clips_per_character':[len(p['clips']) for p in bank['people']],'fauna_package_exact':True,'original_audio_exact':True}
 (TASK/'package-proof.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))

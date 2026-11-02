@@ -55,7 +55,7 @@ public sealed partial class LocalTerrainExplorer
     void BeginBlueprint(CampDesign design)
     {
         CancelBlueprintPlacement();CancelCampPlacement();CancelWorldToolWork();CancelBlueprintWork();CancelItemCharge();PauseItemCraft(ActiveItemCraft);
-        campPlansOpen=false;campMenu=null;SetInventoryOpen(false);blueprintPlacement=CampBlueprints.Create(design,2,2,blueprintCover,blueprintStore);blueprintYaw=heading+(design==CampDesign.BrushHut?180:0);blueprintAnchored=false;CaptureMouse();UpdateBlueprintPlacement();
+        campPlansOpen=false;campMenu=null;SetInventoryOpen(false);blueprintPlacement=CampBlueprints.Create(design,2,2,blueprintCover,blueprintStore);blueprintYaw=heading+(CampBlueprints.Round(design)?180:0);blueprintAnchored=false;CaptureMouse();UpdateBlueprintPlacement();
     }
     bool BlueprintGround(out Vector3 point)
     {
@@ -76,15 +76,15 @@ public sealed partial class LocalTerrainExplorer
         if(blueprintPlacement==null||!Ready)return;blueprintValid=BlueprintGround(out var hover);blueprintReason="Aim at dry ground within reach.";
         if(!blueprintValid){if(blueprintGhost!=null)blueprintGhost.SetActive(false);return;}
         blueprintCursorGround=hover;var p=blueprintPlacement;var rotation=Quaternion.Euler(0,blueprintYaw,0);
-        if(!blueprintAnchored)blueprintPoint=p.Design==CampDesign.BrushHut?hover:hover+rotation*new Vector3((float)p.WidthM*.5f,0,p.Design==CampDesign.LeanTo||p.Design==CampDesign.MaterialStore?(float)p.DepthM*.5f:0);
+        if(!blueprintAnchored)blueprintPoint=CampBlueprints.Round(p.Design)?hover:hover+rotation*new Vector3((float)p.WidthM*.5f,0,CampBlueprints.Line(p.Design)?0:(float)p.DepthM*.5f);
         else
         {
             TerrainHandoff.Coordinates(frame,blueprintAnchor,out double x,out double z);var start=new Vector3((float)(x-originX),(float)CampFloor(x,z),(float)(z-originZ));var delta=Quaternion.Inverse(rotation)*(hover-start);
             double w=Math.Abs(delta.x),d=Math.Abs(delta.z);
-            if(p.Design==CampDesign.BrushHut)w=d=Vector3.Distance(new Vector3(start.x,0,start.z),new Vector3(hover.x,0,hover.z))*2;
+            if(CampBlueprints.Round(p.Design))w=d=Vector3.Distance(new Vector3(start.x,0,start.z),new Vector3(hover.x,0,hover.z))*2;
             p=blueprintPlacement=CampBlueprints.Create(p.Design,w,d,p.Cover,p.Store);
-            if(p.Design==CampDesign.BrushHut)blueprintPoint=start;
-            else blueprintPoint=start+rotation*new Vector3((float)p.WidthM*.5f*(delta.x<0?-1:1),0,(p.Design==CampDesign.Windbreak||p.Design==CampDesign.DryingRack)?0:(float)p.DepthM*.5f*(delta.z<0?-1:1));
+            if(CampBlueprints.Round(p.Design))blueprintPoint=start;
+            else blueprintPoint=start+rotation*new Vector3((float)p.WidthM*.5f*(delta.x<0?-1:1),0,CampBlueprints.Line(p.Design)?0:(float)p.DepthM*.5f*(delta.z<0?-1:1));
         }
         blueprintPoint.y=(float)CampFloor(blueprintPoint.x+originX,blueprintPoint.z+originZ);
         blueprintValid=BlueprintSite(p,blueprintPoint,blueprintYaw,out blueprintReason);
@@ -107,6 +107,7 @@ public sealed partial class LocalTerrainExplorer
             var water=SampleMotionWater(v.x+originX,v.z+originZ);float ground=(float)CampFloor(v.x+originX,v.z+originZ);if(sample.Underwater||double.IsFinite(water.Surface)&&water.Surface>ground+.01){reason="The footprint must be above water.";return false;}low=Math.Min(low,ground);high=Math.Max(high,ground);p.FloorHeights[footing++]=Math.Round((ground-center.y)*50)/50;
         }
         if(high-low>1){reason="Choose flatter ground or a smaller footprint.";return false;}
+        if(CampBlueprints.Components(p).Any(c=>c.Kg==0&&c.LengthM>4.5)){reason="These supports need longer poles. Choose flatter ground or a smaller footprint.";return false;}
         float h=(float)CampBlueprints.Height(p);
         var colliders=Physics.OverlapBox(transform.TransformPoint(center+Vector3.up*(h*.5f+.1f)),new Vector3((float)p.WidthM*.5f,h*.5f,(float)p.DepthM*.5f),transform.rotation*rot,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
         foreach(var collider in colliders)
@@ -120,7 +121,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool BlueprintWindJoin(CampBlueprint plan,Vector3 center,float yaw,CampObject other)
     {
-        if(plan.Design!=CampDesign.Windbreak||other.Blueprint.Design!=CampDesign.Windbreak)return false;
+        if(!CampBlueprints.Has(plan.Design,CampFunction.Screen)||!CampBlueprints.Has(other.Blueprint.Design,CampFunction.Screen))return false;
         var old=BlueprintOrigin(other);if(Vector3.Distance(center,old)<(plan.WidthM+other.Blueprint.WidthM)*.3)return false;
         var axis=Quaternion.Euler(0,yaw,0)*Vector3.right*(float)plan.WidthM*.5f;var oldAxis=Quaternion.Euler(0,(float)other.Heading,0)*Vector3.right*(float)other.Blueprint.WidthM*.5f;
         return new[]{Vector3.Distance(center+axis,old+oldAxis),Vector3.Distance(center+axis,old-oldAxis),Vector3.Distance(center-axis,old+oldAxis),Vector3.Distance(center-axis,old-oldAxis)}.Min()<.2f;
@@ -174,7 +175,12 @@ public sealed partial class LocalTerrainExplorer
     Possession BlueprintCreativeMaterial(CampBlueprint p,CampComponent part)
     {
         Possession item;
-        if(part.Kg>0){item=PortableTechnology.Create(part.Kind==CampPartKind.Binding?PossessionKind.Cordage:p.Cover==CampCover.Hide?PossessionKind.WorkedHide:p.Cover==CampCover.Bark?PossessionKind.BarkSheet:PossessionKind.DryGrass,Position);item.MassKg=part.Kg;}
+        if(part.Kg>0)
+        {
+            var kind=part.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:part.Kind==CampPartKind.Bonework?PossessionKind.Bone:part.Kind==CampPartKind.Deck?PossessionKind.Branch:part.Kind==CampPartKind.Binding?PossessionKind.Cordage:p.Cover==CampCover.Hide?PossessionKind.WorkedHide:p.Cover==CampCover.Bark?PossessionKind.BarkSheet:p.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass;
+            item=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,Position):new Possession{Id="creative-material-"+Guid.NewGuid().ToString("N"),Kind=kind,Position=Position};item.MassKg=part.Kg;
+            if(kind==PossessionKind.Branch){item.HeightM=1;item.WidthM=.025;item.WoodSoundness=.9;}
+        }
         else item=new Possession{Id="creative-wood-"+Guid.NewGuid().ToString("N"),Kind=PossessionKind.Branch,HeightM=part.LengthM,WidthM=part.WidthM*1.15,DepthM=part.WidthM*1.15,MassKg=part.LengthM*part.WidthM*part.WidthM*450,WoodStraightness=.9,WoodSoundness=.9,Position=Position};
         return item;
     }
@@ -234,15 +240,15 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateBlueprintContents(CampObject c,double seconds)
     {
-        if(c.Blueprint.Design!=CampDesign.DryingRack||seconds<=0)return;bool smoke=Camp.Objects.Any(f=>f.Kind==CampKind.Fire&&f.FirePowerKw>.3&&f.FirePowerKw<5&&(f.Position-c.Position).Length*frame.RadiusM<1.2);
-        foreach(var food in StoredAt(c)){bool before=food.Dried;CampBlueprints.Dry(food,seconds,CurrentWeather.RainMmPerHour,CurrentWeather.Humidity,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps),CurrentWeather.TemperatureC,smoke);if(before!=food.Dried){c.Blueprint.Revision++;InvalidateCampVisual(c);}}
+        if(c.Blueprint.Design!=CampDesign.DryingRack||seconds<=0)return;bool smoke=Camp.Objects.Any(f=>f.Kind==CampKind.Fire&&f.FirePowerKw>.3&&f.FirePowerKw<5&&(f.Position-c.Position).Length*frame.RadiusM<1.2);var protection=BlueprintProtectionAt(c.Position);
+        foreach(var food in StoredAt(c)){bool before=food.Dried;CampBlueprints.Dry(food,seconds,CurrentWeather.RainMmPerHour*(1-protection.Rain),CurrentWeather.Humidity,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps)*(1-protection.Wind),CurrentWeather.TemperatureC,smoke);if(before!=food.Dried){c.Blueprint.Revision++;InvalidateCampVisual(c);}}
     }
     void DrawBlueprintUi()
     {
         if(blueprintPlacement!=null)
         {
             var p=blueprintPlacement;var components=CampBlueprints.Components(p);int wood=components.Count(c=>c.Kg==0);double binding=components.Where(c=>c.Kind==CampPartKind.Binding).Sum(c=>c.Kg),cover=components.Where(c=>c.Kind==CampPartKind.Cover).Sum(c=>c.Kg);
-            string action=blueprintAnchored?"Confirm [LMB] · Rotate [R] · Back [RMB]":"Set "+(p.Design==CampDesign.BrushHut?"centre":"first corner / end")+" [LMB] · Rotate [R] · Cancel [RMB]";
+            string action=blueprintAnchored?"Confirm [LMB] · Rotate [R] · Back [RMB]":"Set "+(CampBlueprints.Round(p.Design)?"centre":"first corner / end")+" [LMB] · Rotate [R] · Cancel [RMB]";
             var style=new GUIStyle(GUI.skin.box){alignment=TextAnchor.MiddleCenter,wordWrap=true,fontSize=15};GUI.Box(new Rect(Screen.width*.5f-300,Screen.height-130,600,108),CampBlueprints.Name(p.Design)+" · "+p.WidthM.ToString("0.00")+" × "+p.DepthM.ToString("0.00")+" m\n"+wood+" wood pieces · "+binding.ToString("0.00")+" kg binding · "+cover.ToString("0.0")+" kg covering\n"+(blueprintValid?action:blueprintReason),style);
         }
         if(blueprintJob!=null)
@@ -250,11 +256,13 @@ public sealed partial class LocalTerrainExplorer
             var p=blueprintJob.Camp.Blueprint;var d=CampBlueprints.Components(p).First(c=>c.Key==blueprintJob.Key);float progress=(float)(CampBlueprints.State(p,d).WorkSeconds/d.Seconds);
             var bar=new Rect(Screen.width*.5f-150,Screen.height-70,300,8);InventoryFill(bar,new Color(.08f,.1f,.1f,.85f));bar.width*=progress;InventoryFill(bar,new Color(.75f,.68f,.4f));GUI.Label(new Rect(Screen.width*.5f-150,Screen.height-100,300,24),"Fitting "+d.Name.ToLowerInvariant());
         }
-        if(!campPlansOpen)return;var rect=new Rect(Screen.width*.5f-225,Screen.height*.5f-240,450,480);GUI.Box(rect,"");GUILayout.BeginArea(new Rect(rect.x+18,rect.y+15,rect.width-36,rect.height-30));GUILayout.Label("Camp plans",new GUIStyle(GUI.skin.label){fontSize=24});
-        GUILayout.Label("Covering");blueprintCover=(CampCover)GUILayout.SelectionGrid((int)blueprintCover,new[]{"Vegetation","Hide","Bark"},3,GUILayout.Height(30));
+        if(!campPlansOpen)return;float menuHeight=Math.Min(Screen.height-48,700);var rect=new Rect(Screen.width*.5f-260,(Screen.height-menuHeight)*.5f,520,menuHeight);GUI.Box(rect,"");GUILayout.BeginArea(new Rect(rect.x+18,rect.y+15,rect.width-36,rect.height-30));GUILayout.Label("Camp plans",new GUIStyle(GUI.skin.label){fontSize=24});
+        GUILayout.Label("Covering");blueprintCover=(CampCover)GUILayout.SelectionGrid((int)blueprintCover,new[]{"Vegetation","Hide","Bark","Reeds"},4,GUILayout.Height(30));
         GUILayout.Label("Material store");blueprintStore=(CampStore)GUILayout.SelectionGrid((int)blueprintStore,new[]{"Wood","Stone","Plants"},3,GUILayout.Height(30));GUILayout.Space(10);
-        foreach(CampDesign d in Enum.GetValues(typeof(CampDesign)))if(GUILayout.Button(CampBlueprints.Name(d),GUILayout.Height(39)))BeginBlueprint(d);
-        GUILayout.Space(8);GUILayout.Label("Fire: lay tinder directly.\nBedding: spread material, then add layers.");if(GUILayout.Button("Close",GUILayout.Height(30))){campPlansOpen=false;CaptureMouse();}GUILayout.EndArea();
+        blueprintMenuScroll=GUILayout.BeginScrollView(blueprintMenuScroll);
+        foreach(var entry in CampBlueprints.Catalogue)
+        {if(GUILayout.Button(new GUIContent(entry.Name,entry.Description),GUILayout.Height(36)))BeginBlueprint(entry.Design);GUILayout.Label(entry.Description,new GUIStyle(GUI.skin.label){wordWrap=true,fontSize=12});}
+        GUILayout.EndScrollView();GUILayout.Space(8);GUILayout.Label("Fire: lay tinder directly.\nBedding: spread material, then add layers.");if(GUILayout.Button("Close",GUILayout.Height(30))){campPlansOpen=false;CaptureMouse();}GUILayout.EndArea();
     }
     void DrawBlueprintDetails(CampObject c)
     {
@@ -265,18 +273,21 @@ public sealed partial class LocalTerrainExplorer
             int stage=CampBlueprints.Stage(p);foreach(var group in components.Where(d=>d.Stage==stage&&!CampBlueprints.Done(p,d)).GroupBy(d=>CampBlueprints.Requirement(d)))GUILayout.Label(group.Count()+" × "+group.Key);
             if(GUILayout.Button("Add material / continue work",GUILayout.Height(36))){campMenu=null;CaptureMouse();BuildBlueprintPart(c);}
         }
-        else if(p.Design==CampDesign.MaterialStore||p.Design==CampDesign.DryingRack)
+        else if(CampBlueprints.HasStorage(p.Design))
         {
             foreach(var item in CraftAccessible().Where(i=>i.Place!=PossessionPlace.CampStorage&&CampBlueprints.StoreAccepts(p,i)).ToArray())
             {bool prior=GUI.enabled;GUI.enabled=CampBlueprints.Fits(p,StoredAt(c),item);if(GUILayout.Button(new GUIContent("Add "+item.Name,GUI.enabled?"":"No suitable space remaining"),GUILayout.Height(32)))StoreBlueprintItem(c,item);GUI.enabled=prior;}
             foreach(var item in StoredAt(c))if(GUILayout.Button("Take "+item.Name+(!item.Dried&&p.Design==CampDesign.DryingRack?" · "+Math.Min(99,item.DryingSeconds/216).ToString("0")+"%":""),GUILayout.Height(32)))TakeBlueprintItem(c,item);
         }
-        if(p.Design==CampDesign.LeanTo||p.Design==CampDesign.BrushHut||p.Design==CampDesign.Windbreak)
+        if(CampBlueprints.HasCover(p.Design))
         {
             foreach(var item in CraftAccessible().Where(i=>CampBlueprints.CoverMaterial(p,i)).GroupBy(i=>i.Kind).Select(g=>g.First()))
                 if(GUILayout.Button("Thicken covering: "+item.Name,GUILayout.Height(32)))
                 {if(Inventory.Find(item.Id)==null&&!MovePossession(item.Id,PossessionPlace.Ground))break;if(CampBlueprints.Thicken(p,Inventory,item.Id,out var why)){RemoveDroppedBody(item.Id);InvalidateCampVisual(c);inventoryNearbyAt=0;}else InventoryFeedback(why);break;}
         }
+        if(CampBlueprints.Complete(p)&&p.Design==CampDesign.RaisedBed)
+        {if(GUILayout.Button("Lie down and sleep",GUILayout.Height(34)))BeginCampSleep(0,false,c);if(GUILayout.Button("Rest",GUILayout.Height(34)))BeginCampSleep(0,true,c);}
+        if(CampBlueprints.Has(p.Design,CampFunction.Shelter))GUILayout.Label(CampBlueprints.SleepingPlaces(p)+" sleeping places · entrance faces the front");
         if(GUILayout.Button("Remove last fitted component",GUILayout.Height(32)))UndoBlueprintPart(c);
         if(GUILayout.Button("Dismantle plan and recover materials",GUILayout.Height(32)))RemoveCamp(c);
     }

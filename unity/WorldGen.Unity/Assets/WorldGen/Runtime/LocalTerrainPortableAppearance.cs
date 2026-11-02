@@ -45,6 +45,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdatePortableAppearances()
     {
         if(Time.unscaledTimeAsDouble<portableAppearanceAt)return;portableAppearanceAt=Time.unscaledTimeAsDouble+.5;
+        foreach(var dead in portableRoots.Keys.Where(k=>k==null).ToArray())portableRoots.Remove(dead);
         int pins=portableCoatPins.Count;foreach(var pair in portableRoots)if(pair.Key!=null)RefreshPortableRoot(pair.Key,pair.Value);
         if(pins!=portableCoatPins.Count&&inventoryOpen)RenderInventoryPreview();
     }
