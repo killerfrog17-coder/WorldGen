@@ -62,10 +62,10 @@ namespace WorldGen.Core
             bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
             for(int k=0;k<band.Techniques.Length;k++)Can(k);
             band.SeasonalCamps=ForagerSeasonalCamps(f,c,band,home.cell,key);
-            double season=(years%1+1)%1*4;int current=(int)season,next=(current+1)%4;
+            int camps=band.SeasonalCamps.Length;double season=((years-59/365d+Rng.Value(World.Recipe.Seed,"camp-calendar-phase",c.Id)*.08)%1+1)%1*camps;int current=(int)season,next=(current+1)%camps;
             // Most time is spent at camp; movement takes actual travel days.
             // Crossing a season boundary interpolates the final days of travel.
-            double travel=Math.Min(.12,DistanceKm(band.SeasonalCamps[current].Position,band.SeasonalCamps[next].Position)/18/91.25);
+            double travel=Math.Min(.8,DistanceKm(band.SeasonalCamps[current].Position,band.SeasonalCamps[next].Position)/18/(365d/camps));
             double fraction=season-current,t=travel>0?D.Clamp((fraction-(1-travel))/travel):0;
             band.Position=(band.SeasonalCamps[current].Position*(1-t)+band.SeasonalCamps[next].Position*t).Unit;
             band.Members=ForagerHouseholds(f,c,band,years,key);
@@ -74,9 +74,10 @@ namespace WorldGen.Core
         }
         ForagerCampSample[] ForagerSeasonalCamps(ForagerState f,ForagerCohort c,ForagerBandSample band,int homeCell,int key)
         {
-            var d=f.Districts[c.District];var result=new ForagerCampSample[4];
-            for(int season=0;season<4;season++)
+            var d=f.Districts[c.District];int count=Math.Max(2,Math.Min(12,(int)Math.Round(band.MoveFrequencyPerYear)));var result=new ForagerCampSample[count];
+            for(int stop=0;stop<count;stop++)
             {
+                int season=((int)Math.Floor((stop+.5)*4d/count)+(d.Center.Z<0?2:0))%4;
                 int best=homeCell;double bestScore=double.NegativeInfinity;
                 foreach(int cell in d.Cells)
                 {
@@ -84,15 +85,15 @@ namespace WorldGen.Core
                     if(distance>Math.Max(10,band.HomeRangeKm*1.4))continue;
                     double water=D.Clamp(h.AridityMilli/1000.0)+HistoricalRiverAccess(cell)*3;
                     double shelter=AnimalEcotypes.Canopy(h)/1000.0-h.ReliefM/3000.0;
-                    double score=.6*water+(season==3?.5*shelter:.25*h.ProductivityGCM2Year/800.0)-distance/Math.Max(10,band.HomeRangeKm)+.25*Rng.Value(World.Recipe.Seed,"camp-selection-"+season,key^cell);
+                    double score=.6*water+(season==3?.5*shelter:.25*h.ProductivityGCM2Year/800.0)-distance/Math.Max(10,band.HomeRangeKm)+.25*Rng.Value(World.Recipe.Seed,"camp-selection-"+stop,key^cell);
                     if(score>bestScore){bestScore=score;best=cell;}
                 }
                 var ground=World.Surface.Cells[best];double limit=ground.DistanceM.Length==0?2:ground.DistanceM.Min()/1000.0*.3;
                 double radius=Math.Min(Math.Min(8,band.HomeRangeKm*.35),limit);
                 V center=best==homeCell?band.Home:ground.Position;
-                V position=ForagerOffset(center,radius*(.2+.8*Rng.Value(World.Recipe.Seed,"camp-radius-"+season,key)),Rng.Value(World.Recipe.Seed,"camp-bearing-"+season,key)*Math.PI*2);
+                V position=ForagerOffset(center,radius*(.2+.8*Rng.Value(World.Recipe.Seed,"camp-radius-"+stop,key)),Rng.Value(World.Recipe.Seed,"camp-bearing-"+stop,key)*Math.PI*2);
                 var environment=ForagerEcology.At(World.Recipe.Seed,d,f.Seconds/(double)SimulationTime.Year,World.ElevationM[best]);
-                result[season]=new ForagerCampSample{Id=PersonId(band.Id,season,0,47),Position=position,Cell=best,Season=season,
+                result[stop]=new ForagerCampSample{Id=PersonId(band.Id,stop,0,47),Position=position,Cell=best,Season=season,
                     Purpose=season==3?"Sheltered lean-season camp":season==1&&d.River+d.Coast>.6?"Seasonal fishing and gathering camp":season==2?"Harvest and social gathering camp":"Hunting and gathering camp",
                     DurationDays=365.0/Math.Max(2,band.MoveFrequencyPerYear),WaterAccess=environment.Water,Exposure=D.Clamp(d.Relief/1800.0+.4*(1-environment.Canopy)),FoodOpportunity=environment.Food.Sum()/5};
             }

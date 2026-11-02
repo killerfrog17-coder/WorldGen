@@ -15,7 +15,7 @@ static class ForagerSamplingTests
             Check(a.Members.Length>=4&&a.Members.Any(p=>p.AgeYears>=18),"Sampled resident bands include an adult population");
             Check(a.Members.Select(p=>p.Id).Distinct().Count()==a.Members.Length,"No duplicated people within a band");
             Check(a.Members.All(p=>p.AgeYears>=0&&p.AgeYears<96&&p.Skills.Length==ForagerTechnology.Count),"Age and taught-skill samples stay plausible");
-            Check(a.SeasonalCamps.Length==4&&a.SeasonalCamps.All(c=>f.CellDistrict[c.Cell]==cohort.District&&c.RequiresLocalGroundValidation),"Seasonal camp candidates remain in real accessible land districts and require local placement checks");
+            Check(a.SeasonalCamps.Length==(int)Math.Round(a.MoveFrequencyPerYear)&&a.SeasonalCamps.All(c=>c.Season>=0&&c.Season<4&&f.CellDistrict[c.Cell]==cohort.District&&c.RequiresLocalGroundValidation),"Residence-specific seasonal itineraries remain in real accessible land districts and require local placement checks");
             Check(f.CellDistrict[locator.Nearest(a.Home)]==cohort.District,"Band homes do not drift over a district boundary or into ocean");
             Check(a.SeasonalCamps.All(c=>f.CellDistrict[locator.Nearest(c.Position)]==cohort.District),"Seasonal offsets do not push camps outside their land district");
             for(int k=0;k<a.Techniques.Length;k++)if(a.Techniques[k])Check(ForagerTechnology.All[k].Prerequisites.All(p=>a.Techniques[p]),"Band skills retain necessary prerequisite techniques");

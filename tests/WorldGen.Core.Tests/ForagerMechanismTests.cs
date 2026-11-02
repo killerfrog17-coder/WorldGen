@@ -46,6 +46,12 @@ static class ForagerMechanismTests
         var copy=c.Copy();copy.Skill[0]=0;Check(c.Skill[0]==.9,"Cohort copy isolates skill arrays");
         var before=ForagerEcology.At(42,cold,180000);var after=ForagerEcology.At(42,cold,180000+1/365.0);
         Check(Math.Abs(before.WinterC-after.WinterC)<.01&&Math.Abs(before.Moisture-after.Moisture)<.01,"Climate/resources do not jump on a gameplay day boundary");
+        var corridor=d.Copy();corridor.Center=new V(Math.Cos(23*Math.PI/180),0,Math.Sin(23*Math.PI/180));corridor.PetMm=2000;corridor.AnnualRainMm=40;corridor.Aridity=.02;corridor.Water=.01;corridor.Productivity=20;corridor.Canopy=0;corridor.OceanMoistureAccess=.8;corridor.Food=new[]{.003,.01,.01,0d,0d};
+        var wetWindow=ForagerEcology.At(42,corridor,75000);var dryWindow=ForagerEcology.At(42,corridor,64000);
+        Check(wetWindow.RainMm>dryWindow.RainMm+150&&wetWindow.Aridity>dryWindow.Aridity*3,"Orbital wet windows add real rain to a modern hyperarid corridor rather than multiplying almost-zero rain");
+        Check(wetWindow.Productivity>dryWindow.Productivity*3&&wetWindow.Food[0]>dryWindow.Food[0]*4&&wetWindow.Water>dryWindow.Water,"Wet corridors change vegetation/food/water together");
+        var blocked=corridor.Copy();blocked.OceanMoistureAccess=0;Check(ForagerEcology.At(42,blocked,75000).RainMm<wetWindow.RainMm*.3,"Warm-sea access and mountain isolation constrain the wet envelope");
+        var nextDay=ForagerEcology.At(42,corridor,75000+1/365d);Check(Math.Abs(wetWindow.RainMm-nextDay.RainMm)<.01&&Math.Abs(wetWindow.Productivity-nextDay.Productivity)<.01,"Wet-period ecology changes smoothly at gameplay day scales");
         var demographic=c.Copy();ForagerDemography.SetPopulation(demographic,200);ForagerDemography.Rates(demographic,basic,warm,culture,500);
         var projection=ForagerDemography.Project(demographic,5,0);Check(Math.Abs(projection.Population-(200+projection.Births-projection.Deaths))<.0000001,"Births, deaths and ageing conserve population without a hidden capacity clamp");
         var destination=c.Copy();ForagerDemography.SetPopulation(destination,0);double total=demographic.Population+destination.Population;ForagerDemography.MovePopulation(demographic,destination,25);

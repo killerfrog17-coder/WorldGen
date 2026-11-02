@@ -68,7 +68,7 @@ namespace WorldGen.Core
         {var t=All[technique];string common=string.Join(", ",t.Prerequisites.Select(k=>All[k].Name));string alternatives=string.Join(" OR ",t.AlternativePaths.Select(path=>"("+string.Join(" + ",path.Select(k=>All[k].Name))+")"));return common+(common.Length>0&&alternatives.Length>0?" + ":"")+alternatives;}
         public static double Materials(ForagerDistrict d,ForagerEnvironment e,int k)
         {
-            double wood=D.Clamp(d.Wood*(.2+.8*D.Clamp((e.SummerC-2)/16))),fiber=D.Clamp(d.Fiber*(.3+.7*e.Moisture)),stone=d.Stone;
+            double wood=D.Clamp(Math.Max(d.Wood,e.Canopy*.85+.1*D.Clamp(e.Aridity/.6))*(.2+.8*D.Clamp((e.SummerC-2)/16))),fiber=D.Clamp(Math.Max(d.Fiber,.5*D.Clamp(e.Aridity/.8)+.3*d.River+.1*e.Canopy)*(.3+.7*e.Moisture)),stone=d.Stone;
             switch(k)
             {
                 case 0:case 1:case 2:case 16:case 33:case 38:case 42:return .25+.75*stone;

@@ -6,6 +6,7 @@ static class ForagerWorldTests
     public static void History(string output,int years=40000,int seed=0,string preset="Continents",int detail=5000)
     {
         Directory.CreateDirectory(output);var recipe=Recipe.Preset(preset);recipe.Detail=detail;if(seed!=0)recipe.Seed=seed;
+        File.WriteAllText(Path.Combine(output,"run.json"),System.Text.Json.JsonSerializer.Serialize(new{source=Environment.GetEnvironmentVariable("WORLDGEN_FORAGER_SOURCE")??"working tree",startedUtc=DateTime.UtcNow,preset,recipe.Seed,recipe.Detail,requestedYears=years}));
         var watch=Stopwatch.StartNew();var w=new WorldPipeline().Generate(recipe);var engine=new Prehistory(w);var s=engine.StartForagers(engine.PrepareForagers());
         var records=new List<object>();
         void Record()
@@ -23,6 +24,7 @@ static class ForagerWorldTests
             s=engine.AdvanceSeconds(s,Math.Min(1000,years-s.Years)*SimulationTime.Year);engine.ValidateForagers(s);Record();
             if(s.Years%10000==0||s.Years==years){w.Prehistory=s;File.WriteAllBytes(Path.Combine(output,$"year-{s.Years}.world"),WorldFile.Write(w));}
         }
+        if(years>0)ForagerHistoryAudit.Run(Path.Combine(output,$"year-{s.Years}.world"),Path.Combine(output,"audit"));
         Console.WriteLine("PASS complete forager history validation");
     }
     public static void Initial()

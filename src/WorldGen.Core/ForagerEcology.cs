@@ -30,7 +30,7 @@ namespace WorldGen.Core
             double severe=Smooth(seed,"forager-refugial-drought",d.Province,years,420);
             double drought=D.Clamp((.18-severe)/.18)*D.Clamp((1.2-d.Aridity)/1.2);
             double moisture=D.Clamp(glacial.PrecipitationMultiplier*(.72+.5*province)*(.82+.36*local)*(1-.75*drought),.12,1.6);
-            double pulse=MonsoonRain(d,years,glacial.Ice);
+            double pulse=MonsoonRain(d,years,glacial.Ice)*(1-.6*drought),greening=D.Clamp((pulse-10)/50);
             double rain=d.PetMm>0?Math.Max(0,d.AnnualRainMm*moisture+pulse):0;
             double aridity=d.PetMm>0?rain/(d.PetMm*D.Clamp(1+.025*glacial.TemperatureDeltaC,.65,1.3)):d.Aridity*moisture;
             double winter=d.WinterC+glacial.TemperatureDeltaC,summer=d.SummerC+glacial.TemperatureDeltaC,mean=d.MeanC+glacial.TemperatureDeltaC;
@@ -39,11 +39,11 @@ namespace WorldGen.Core
             double ice=D.Clamp(Math.Max(snow,mountain)*(.4+.6*glacial.Ice));
             double growth=D.Clamp((summer+2)/20)*D.Clamp((mean+16)/24);
             double npp=d.Productivity*growth*Math.Pow(moisture,.7)*(1-.9*ice);
-            if(pulse>25)npp=Math.Max(npp,900*(1-Math.Exp(-rain/900))*growth*(1-.9*ice));
+            npp+=Math.Max(0,900*(1-Math.Exp(-rain/900))*growth*(1-.9*ice)-npp)*greening;
             double trees=D.Clamp((winter+30)/25)*D.Clamp((summer-5)/14)*D.Clamp((aridity-.25)/.9);
             double forestPotential=Math.Max(d.Canopy,.7*D.Clamp((npp-250)/700)*D.Clamp((aridity-.3)/.9));
             double canopy=forestPotential*trees,water=D.Clamp(d.Water*moisture+.2*d.River*(1-.5*drought));
-            if(pulse>25)water=Math.Max(water,D.Clamp((rain-180)/700)*.65);
+            water+=Math.Max(0,D.Clamp((rain-180)/700)*.65-water)*greening;
             double pathogens=d.Pathogens*D.Clamp((mean-6)/18)*D.Clamp(moisture/.8);
             double disturbance=.7+.6*Smooth(seed,"forager-resource-mosaic",d.Id,years,650);
             var food=new double[5];var lean=new double[5];
@@ -55,13 +55,13 @@ namespace WorldGen.Core
                 food[k]=Math.Max(0,d.Food[k]*climate*habitat*disturbance);
                 lean[k]=D.Clamp(1-d.Seasonality[k]*(.45+.55*D.Clamp((15-winter)/35)),.04,1);
             }
-            if(pulse>25)
+            if(greening>0)
             {
                 double green=D.Clamp(npp/850d),baseGreen=D.Clamp(d.Productivity/850d),days=D.Clamp((d.GrowingDays+glacial.TemperatureDeltaC*5)/240d);
-                food[0]=Math.Max(food[0],(.06+.9*green)*D.Clamp(aridity/.7)*(.4+.6*days)*disturbance);
-                food[1]=Math.Max(food[1],d.Food[1]*(.06+.5*green)/(.06+.5*baseGreen)*disturbance);
-                food[2]=Math.Max(food[2],d.Food[2]*(.08+.6*green)/(.08+.6*baseGreen)*(1+.7*open)*disturbance);
-                lean[0]*=1-.3*D.Clamp(pulse/Math.Max(1,rain));
+                food[0]+=Math.Max(0,(.06+.9*green)*D.Clamp(aridity/.7)*(.4+.6*days)*disturbance-food[0])*greening;
+                food[1]+=Math.Max(0,d.Food[1]*(.06+.5*green)/(.06+.5*baseGreen)*disturbance-food[1])*greening;
+                food[2]+=Math.Max(0,d.Food[2]*(.08+.6*green)/(.08+.6*baseGreen)*(1+.7*open)*disturbance-food[2])*greening;
+                lean[0]*=1-.3*D.Clamp(pulse/Math.Max(1,rain))*greening;
             }
             return new ForagerEnvironment(years,winter,summer,mean,ice,moisture,npp,canopy,water,pathogens,drought,disturbance,food,lean,aridity,rain);
         }

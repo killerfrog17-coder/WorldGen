@@ -15,6 +15,7 @@ namespace WorldGen.Core
             var l=new ForagerLanguage{Id=id,Parent=parent?.Id??-1,Family=parent?.Family??-1,OriginDistrict=district,FoundedYear=year,LastChangeYear=year,Seed=Seed(seed,"speech",id),Sounds=parent==null?LanguageGenerator.Create(seed,id,Math.Max(0,year)):parent.Sounds.Copy(),Roots=parent==null?new int[Concepts.Length]:(int[])parent.Roots.Clone(),RootYears=parent==null?new int[Concepts.Length]:(int[])parent.RootYears.Clone(),Rates=new double[Concepts.Length],Grammar=parent==null?new double[10]:(double[])parent.Grammar.Clone(),NarrativePractice=parent?.NarrativePractice??.6,TechnicalRegister=parent?.TechnicalRegister??.35,RitualRegister=parent?.RitualRegister??.4};
             l.Sounds.Id=id;l.Sounds.ParentId=parent?.Sounds.Id??-1;l.Sounds.FoundedYear=l.Sounds.ChangedYear=Math.Max(0,year);l.Sounds.Revision=0;l.Sounds.Loans=Array.Empty<LanguageLoan>();
             if(parent==null){l.NarrativePractice=.24+.18*Rng.Value(seed,"ancestral-narrative-practice",district);l.TechnicalRegister=.24+.14*Rng.Value(seed,"ancestral-technical-register",district);l.RitualRegister=.25+.25*Rng.Value(seed,"ancestral-ritual-register",district);}
+            if(parent==null)l.Sounds=LanguageGenerator.Create(Seed(seed,"independent-phonology",id),id,Math.Max(0,year));
             for(int k=0;k<Concepts.Length;k++)
             {
                 if(parent==null){l.Roots[k]=Seed(seed,"root",unchecked(id*104729+k*193));l.RootYears[k]=year;}
@@ -22,6 +23,7 @@ namespace WorldGen.Core
                 l.Rates[k]=item*(.55+.95*Rng.Value(seed,"lexical-community-rate",id));
             }
             if(parent==null)for(int k=0;k<l.Grammar.Length;k++)l.Grammar[k]=Rng.Value(seed,"forager-grammar-"+k,id);
+            l.Sounds.WordOrder=l.Grammar[0]<.45?"SOV":l.Grammar[0]<.88?"SVO":"VSO";l.Sounds.ModifierFirst=l.Grammar[1]>.5;l.Sounds.InitialStress=l.Grammar[2]>.5;
             l.Name=LanguageGenerator.Capitalize(Word(l,"speech").Text);return l;
         }
         public static LanguageWord Word(ForagerLanguage language,string concept)
