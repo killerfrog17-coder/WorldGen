@@ -42,7 +42,7 @@ static class SurvivalExperienceTests
         CampRules.Ignite(fire,true);double initialPower=fire.FirePowerKw,elapsed=0;
         var meat=PortableTechnology.Create(PossessionKind.RawMeat,at);fire.CookingItems.Add(meat);
         while(fire.Burning&&elapsed<24*3600){CampRules.Advance(fire,60,0,.3,0,0);elapsed+=60;}
-        Check(elapsed>2*3600&&elapsed<12*3600,"A substantial real wood load sustains a campfire for hours, not a fixed short countdown");
+        Check(elapsed>6*3600&&elapsed<36*3600,"A substantial real wood load sustains the revised longer fire for hours, not a fixed short countdown");
         Check(!fire.Burning&&fire.EmberSeconds>0&&fire.FirePowerKw<initialPower,"Flames diminish into a lower-power ember stage instead of abruptly going cold");
         Check(meat.Cooked&&meat.Burnt&&meat.Name.Contains("Charred"),"Food cooks over actual burning time and chars if abandoned on the fire");
         var session=new PlaySession{Camp=new CampState{Objects={fire}}};session.Validate();var copy=WorldJson.Read<PlaySession>(WorldJson.Write(session));copy.Validate();

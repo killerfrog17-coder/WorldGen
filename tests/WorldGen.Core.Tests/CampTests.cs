@@ -24,6 +24,17 @@ static class CampTests
         Check(CampRules.ContactDamagePerSecond(fire,.1,0)==0,"Cold ash does not burn the player");
         fire.EmberSeconds=30;Check(CampRules.ContactDamagePerSecond(fire,.1,0)>0&&CampRules.ContactDamagePerSecond(fire,.1,.5)==0,"Live embers burn bare feet only close to the ground");
         var rain=Fire();CampRules.Add(rain,Item(PossessionKind.TinderBundle));CampRules.Add(rain,Item(PossessionKind.KindlingBundle));CampRules.Ignite(rain,true);CampRules.Advance(rain,1,20,.9,5,0);Check(!rain.Burning,"Heavy rain can extinguish an exposed small fire");
+        foreach(var kind in new[]{PossessionKind.TinderBundle,PossessionKind.DryGrass,PossessionKind.LeafLitter,PossessionKind.ReedBundle,PossessionKind.BarkStrips,PossessionKind.RawFibre,PossessionKind.PreparedFibre})
+        {
+            var hot=Fire();hot.AshKg=.05;hot.EmberSeconds=90;CampRules.Add(hot,Item(kind));
+            Check(CampRules.Tinder(Item(kind))&&hot.Burning,"Every fire-lay material automatically catches from live coals: "+kind);
+            CampRules.Add(hot,Item(PossessionKind.KindlingBundle));var fuel=WoodCrafting.Branch(new ScatterInstance{Position=at,HeightM=.03,WidthM=1.8,Kind=ScatterKind.Branch});CampRules.Add(hot,fuel);
+            CampRules.Advance(hot,1800,0,.3,0,0);Check(hot.Burning&&hot.FuelKg>0,"Revived fine tinder carries kindling and wood into sustained fire: "+kind);
+            var wet=Fire();wet.Wetness=.8;wet.EmberSeconds=90;CampRules.Add(wet,Item(kind));Check(!wet.Burning&&CampRules.IgniteReason(wet,false).Contains("wet"),"Wet material does not magically relight: "+kind);
+            var coldAsh=Fire();coldAsh.AshKg=.1;CampRules.Add(coldAsh,Item(kind));Check(!coldAsh.Burning,"Cold ash is not an ignition source: "+kind);
+        }
+        var coalKindling=Fire();coalKindling.EmberSeconds=90;CampRules.Add(coalKindling,Item(PossessionKind.KindlingBundle));Check(coalKindling.Burning,"Dry kindling can revive a recently burning fire without replacing consumed tinder");
+        var coalStick=Fire();coalStick.EmberSeconds=600;CampRules.Add(coalStick,WoodCrafting.Branch(new ScatterInstance{Position=at,HeightM=.018,WidthM=.4,Kind=ScatterKind.Branch}));Check(coalStick.Burning,"A dry thin stick catches from a healthy coal bed");
         var bed=new CampObject{Kind=CampKind.Bedding,Position=at};double bare=CampRules.BedComfort(null);
         var packedGrass=Item(PossessionKind.DryGrass);packedGrass.Place=PossessionPlace.Container;packedGrass.ContainerId="worn-pack";packedGrass.GroundMoving=true;packedGrass.GroundVelocity=new V(2,0,0);
         var looseBed=new CampObject{Kind=CampKind.Bedding,Position=at};CampRules.Add(looseBed,packedGrass);var placedGrass=looseBed.Materials.Single();

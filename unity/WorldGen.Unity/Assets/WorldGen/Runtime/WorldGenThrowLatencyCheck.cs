@@ -89,6 +89,25 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{viewArmsVisible=arms;survivalHudCanvas.renderMode=previousMode;survivalHudCanvas.worldCamera=previousCamera;view.cullingMask=mask;}
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();
+        var fire=new CampObject{Kind=CampKind.Fire,Position=frame.Position(motion.X+2,motion.Z),LastSimulatedSeconds=Camp.SimulatedSeconds};Camp.Objects.Add(fire);
+        CampRules.Add(fire,PortableTechnology.Create(PossessionKind.TinderBundle,Position));CampRules.Add(fire,PortableTechnology.Create(PossessionKind.KindlingBundle,Position));
+        var fireBranch=WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=Position,WidthM=1.8,HeightM=.03});fireBranch.Id="test-fuel-"+Guid.NewGuid().ToString("N");CampRules.Add(fire,fireBranch);CampRules.Ignite(fire,true);
+        double burnSeconds=0;while(fire.Burning&&burnSeconds<48*3600){CampRules.Advance(fire,60,0,.3,0,0);burnSeconds+=60;}
+        Check(burnSeconds>3*3600&&burnSeconds<48*3600&&!fire.Burning&&fire.EmberSeconds>0,"A real fueled fire burns for extended hours then leaves usable coals");
+        timing.Add("Tinder + kindling +1.8m/3cm branch flame hours="+(burnSeconds/3600).ToString("F2"));
+        PlayerRules.Mode=GameMode.Survival;ApplyPlayerMode();
+        var grass=PortableTechnology.Create(PossessionKind.DryGrass,Position);Inventory.Items.Add(grass);AddCampMaterial(fire,grass);
+        Check(fire.Burning&&Inventory.Find(grass.Id)==null,"Actual survival feeding of dry grass revives spent coals without a drill or separate ignition");
+        var kindling=PortableTechnology.Create(PossessionKind.KindlingBundle,Position);Inventory.Items.Add(kindling);AddCampMaterial(fire,kindling);
+        var moreWood=fireBranch.Copy();moreWood.Id="test-fuel-"+Guid.NewGuid().ToString("N");Inventory.Items.Add(moreWood);AddCampMaterial(fire,moreWood);CampRules.Advance(fire,1800,0,.3,0,0);
+        Check(fire.Burning&&fire.FuelKg>0&&Inventory.Find(kindling.Id)==null&&Inventory.Find(moreWood.Id)==null,"Actual grass-to-kindling-to-branch feeding keeps the relit fire going");
+        fire.Burning=false;fire.EmberSeconds=300;fire.Materials.Clear();
+        kindling=PortableTechnology.Create(PossessionKind.KindlingBundle,Position);Inventory.Items.Add(kindling);AddCampMaterial(fire,kindling);
+        Check(fire.Burning,"Actual kindling-only feeding also revives a previously lit fire");
+        foreach(var material in new[]{PossessionKind.DryGrass,PossessionKind.LeafLitter,PossessionKind.ReedBundle,PossessionKind.BarkStrips,PossessionKind.RawFibre,PossessionKind.PreparedFibre})
+            Check(CampRules.Tinder(PortableTechnology.Create(material,Position)),"Fire-placement material is also eligible relighting tinder: "+material);
+        fire.LastSimulatedSeconds=Camp.SimulatedSeconds;
+        PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();
         File.WriteAllLines(Path.Combine(output,"timing.txt"),timing);
     }
 }

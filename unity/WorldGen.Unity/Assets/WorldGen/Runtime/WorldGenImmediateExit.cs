@@ -14,6 +14,8 @@ public sealed class WorldGenImmediateExit : MonoBehaviour
 {
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
     [DllImport("kernel32.dll")] static extern void ExitProcess(uint code);
+    [DllImport("kernel32.dll")] static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll")] static extern bool TerminateProcess(IntPtr process,uint code);
     [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
 #endif
     bool nativeCheck,exiting;
@@ -54,6 +56,9 @@ public sealed class WorldGenImmediateExit : MonoBehaviour
     {
         if(exiting)return;exiting=true;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+        // ExitProcess can still wait on native DLL detach handlers. This
+        // explicitly discarded session must not wait on graphics/audio cleanup.
+        TerminateProcess(GetCurrentProcess(),0);
         ExitProcess(0);
 #else
         Application.Quit();

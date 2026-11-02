@@ -53,7 +53,9 @@ namespace WorldGen.Core
     public static class CampRules
     {
         public static bool FireStone(Possession p)=>StoneCrafting.Rock(p)&&p.MassKg>=.1&&p.MassKg<=12;
-        public static bool Tinder(Possession p)=>p!=null&&(p.Kind==PossessionKind.TinderBundle||p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.PreparedFibre||p.Kind==PossessionKind.BarkStrips);
+        // The same dry materials can make a fire lay or catch from hot coals.
+        // Wetness is checked on the actual fire, not inferred from the item name.
+        public static bool Tinder(Possession p)=>p!=null&&(p.Kind==PossessionKind.TinderBundle||p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.PreparedFibre||p.Kind==PossessionKind.RawFibre||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle);
         public static bool Kindling(Possession p)=>p!=null&&(p.Kind==PossessionKind.KindlingBundle||WoodCrafting.Wood(p)&&p.WidthM<=.025);
         public static bool Fuel(Possession p)=>p!=null&&(Tinder(p)||Kindling(p)||WoodCrafting.Wood(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle);
         public static double FuelEnergy(Possession p)=>WoodCrafting.Wood(p)||p.Kind==PossessionKind.KindlingBundle?1:p.Kind==PossessionKind.BarkSheet?.85:p.Kind==PossessionKind.ReedBundle?.4:.22;
@@ -68,7 +70,9 @@ namespace WorldGen.Core
             if(fire.Burning)return "The fire is already burning.";
             if(fire.EmberSeconds<=0&&!drillAvailable)return "Requires a hand-drill set, or live embers.";
             if(fire.Wetness>.45)return "The tinder is too wet; let it dry.";
-            if(fire.EmberSeconds>=300&&fire.Materials.Where(p=>Kindling(p)||WoodCrafting.Wood(p)&&p.WidthM<=.045).Sum(p=>p.MassKg)>=.1)return "";
+            if(fire.EmberSeconds>0&&fire.Materials.Where(Tinder).Sum(p=>p.MassKg)>=.005)return "";
+            if(fire.EmberSeconds>0&&fire.Materials.Where(Kindling).Sum(p=>p.MassKg)>=.01)return "";
+            if(fire.EmberSeconds>=300&&fire.Materials.Where(p=>WoodCrafting.Wood(p)&&p.WidthM<=.045).Sum(p=>p.MassKg)>=.03)return "";
             if(fire.Materials.Where(Tinder).Sum(p=>p.MassKg)<.025)return "Add fine dry tinder.";
             if(fire.Materials.Where(Kindling).Sum(p=>p.MassKg)<.1)return "Add thin kindling before larger fuel.";
             return "";
@@ -83,9 +87,13 @@ namespace WorldGen.Core
                 for(int i=0;i<count;i++){var piece=placed.Copy();piece.Id=placed.Id+(i==0?"":"-fuel-"+i);piece.NaturalId=0;piece.HeightM/=count;piece.MassKg/=count;piece.CellsHigh=Math.Max(1,(int)Math.Ceiling(piece.HeightM/.1));c.Materials.Add(piece);}
             }
             else c.Materials.Add(placed);
+            // Feeding usable coals is the relighting action. Requiring the
+            // already-burned starter bundle plus another menu ignition made
+            // apparently live fires impossible to revive with fine dry fuel.
+            if(c.Kind==CampKind.Fire&&!c.Burning&&c.EmberSeconds>0&&IgniteReason(c,false).Length==0)Ignite(c,false);
         }
         public static void Ignite(CampObject c,bool drill)
-        {string reason=IgniteReason(c,drill);if(reason.Length>0)throw new InvalidOperationException(reason);c.Burning=true;c.EmberSeconds=900;}
+        {string reason=IgniteReason(c,drill);if(reason.Length>0)throw new InvalidOperationException(reason);c.Burning=true;c.EmberSeconds=Math.Max(c.EmberSeconds,1800);}
         public static void Advance(CampObject c,double seconds,double rain,double humidity,double wind,double sun)
         {
             if(!double.IsFinite(seconds)||seconds<0||seconds>1e12)throw new ArgumentOutOfRangeException(nameof(seconds));
@@ -101,11 +109,14 @@ namespace WorldGen.Core
             if(c.Burning)
             {
                 double fine=c.Materials.Where(Tinder).Sum(p=>p.MassKg*FuelEnergy(p))/Math.Max(.001,c.FuelEnergyKg);
-                double burnRate=(.25+.12*Math.Min(8,power))/3600*(1+Math.Min(1,Math.Max(0,wind)/15))*(1+fine*2);
+                double wood=c.Materials.Where(WoodCrafting.Wood).Sum(p=>p.MassKg*FuelEnergy(p))/Math.Max(.001,c.FuelEnergyKg);
+                // Longer tending intervals on the compressed day clock: roughly
+                // twice the former duration for fine fuel, three times for wood.
+                double burnRate=(.25+.12*Math.Min(8,power))/3600*(1+Math.Min(1,Math.Max(0,wind)/15))*(1+fine*2)*.5/(1+wood*.5);
                 double needed=remaining*burnRate,burned=0,burnedEnergy=0;
                 foreach(var p in c.Materials.Where(Fuel).OrderBy(p=>Tinder(p)?0:Kindling(p)?1:2).ToArray())
                 {double take=Math.Min(needed/FuelEnergy(p),p.MassKg);p.MassKg-=take;needed-=take*FuelEnergy(p);burned+=take;burnedEnergy+=take*FuelEnergy(p);if(p.MassKg<.000001)c.Materials.Remove(p);if(needed<=0)break;}
-                c.AshKg+=burned*.04;c.EmberSeconds=600+3600*(1-Math.Exp(-c.AshKg*6));
+                c.AshKg+=burned*.04;c.EmberSeconds=1200+7200*(1-Math.Exp(-c.AshKg*6));
                 heated=Math.Min(seconds,burnedEnergy/burnRate);
                 if(needed>0||c.FuelKg<.002){c.Burning=false;remaining=Math.Max(0,seconds-heated);}else remaining=0;
             }
