@@ -41,8 +41,14 @@ public sealed partial class LocalTerrainExplorer
         public float[] Heights,Cover,MidCover,ForestCover;
         bool hasWater;
         public bool HasWater=>hasWater;
-
-        static TerrainUpload Allocate()=>new TerrainUpload{buffers=Mesh.AllocateWritableMeshData(2),live=1};
+        static SynchronizationContext mainContext;static int mainThread,pendingReleases;
+        static TerrainUpload Allocate()
+        {
+            var context=SynchronizationContext.Current;
+            if(context==null)throw new InvalidOperationException("Schedule native terrain buffers from the Unity main thread.");
+            mainContext=context;mainThread=Thread.CurrentThread.ManagedThreadId;
+            return new TerrainUpload{buffers=Mesh.AllocateWritableMeshData(2),live=1};
+        }
         public static System.Threading.Tasks.Task<TerrainUpload> Schedule(Func<LocalTerrainMesh> build,CancellationToken token)
         {
             var allocated=Allocate();
@@ -114,7 +120,17 @@ public sealed partial class LocalTerrainExplorer
             live=0;for(int i=0;i<meshes.Length;i++)meshes[i].bounds=bounds[i];
             if(!hasWater){UnityEngine.Object.Destroy(meshes[1]);return new[]{meshes[0]};}return meshes;
         }
-        public void Dispose(){if(Interlocked.Exchange(ref live,0)!=0)buffers.Dispose();}
+        public void Dispose()
+        {
+            if(Interlocked.Exchange(ref live,0)==0)return;
+            var owned=buffers;
+            if(Thread.CurrentThread.ManagedThreadId==mainThread){owned.Dispose();return;}
+            // Unity also requires releasing the container on its main thread.
+            // The context outlives an explorer, so cancellation after leaving a
+            // world still releases it while the main menu is running.
+            Interlocked.Increment(ref pendingReleases);
+            mainContext.Post(_=>{try{owned.Dispose();}finally{Interlocked.Decrement(ref pendingReleases);}},null);
+        }
     }
 
     readonly System.Collections.Generic.List<double> loadingFrames=new System.Collections.Generic.List<double>();
@@ -163,6 +179,8 @@ public sealed partial class LocalTerrainExplorer
         var cancelledTask=TerrainUpload.Schedule(()=>source,new CancellationToken(true));while(!cancelledTask.IsCompleted)yield return null;
         cancelled=false;try{cancelledTask.GetAwaiter().GetResult();}catch(OperationCanceledException){cancelled=true;}
         if(!cancelled)throw new InvalidOperationException("Queued cancelled upload retained its native allocation.");
+        double releaseDeadline=Time.realtimeSinceStartupAsDouble+3;while(TerrainUpload.pendingReleases>0&&Time.realtimeSinceStartupAsDouble<releaseDeadline)yield return null;
+        if(TerrainUpload.pendingReleases!=0)throw new InvalidOperationException("Cancelled mesh containers did not release on the Unity main thread.");
         foreach(int count in new[]{65535,65536,70003})
         {
             var large=new LocalTerrainMesh{GroundVertices=3,Segments=4,Positions=new float[count*3],Normals=new float[count*3],Colors=new float[count*4],SurfaceWeights=new float[count*4],GroundWeightsB=new float[count*4],Lithology=new float[count*6],Triangles=new[]{0,count-2,count-1}};
