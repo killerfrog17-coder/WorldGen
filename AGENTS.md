@@ -38,23 +38,32 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-ACTIVE2Nov PALEOLITHIC SIMULATION OVERHAUL AUTHORIZED. Owner chose~200ka,
-one sapiens species for now, gradual local technology/speech, climate-dependent
-dispersal, Paleolithic-only progression.3-page PDF in docs/reports opened before
-implementation; source scripts/build-paleolithic-sim-plan.py. Rollback tag
-pre-paleolithic-overhaul-20261102 PUSHED. New prehistory7/paleolithic1 sparse
-engine bypasses later-age engines; old saves retain old rules. Local stable band
-API,24-tech DAG, continuous adoption/speech, glacial routes/capacity, local weather,
-ancestry, existing language generator. Core small-world188300yr~4s;26 focused
-checks passing before latest minor additions,267 language checksPASS. Broad old
-prehistory suite FAILS city emergence, not claimedpassing. Exact200000yr legacy
-hash matches untouched selected slot-b Core ce6bbbbc...; regressionpredates change.
-Need finalCore/native/UI/serialization checks, inactive slot-a build and proof,
-map captures, manifest/shortcut/Git checkpoint. Current selected slot-b untouched.
-No real NPC tribal spawning/dialogue or physical moving ice/ocean/ecosystem assets
-promised. Docs/PALEOLITHIC_SIMULATION.md distinguishes these limits. Source edits
-currentlyUNCOMMITTED; no subagents/paid/newfullplayers. Preserve owner3files.
+SELECTED2Nov PALEOLITHIC FOUNDATION: root shortcut NOW builds/slot-a/WorldGen.exe,
+Mono DEVELOPMENT BuiltUtc2026-11-02T07:03:54.9195930Z, production1b219bd pushed.
+New Unity worlds prehistory7/paleolithic1,~200ka established sapiens,24-tech DAG,
+gradual local adoption/practice/speech, deterministic coherent band API/dialects,
+glacial capacity/shelf migration and automatic gameplay weather. Original region
+IDs/terrain/art/audio unchanged. Later-age society engines bypassed; existing
+historical saves retain old rules.3-page PDF opened BEFORE implementation;
+docs/reports/WorldGen - Paleolithic Simulation Plan.pdf, script tracked.
+Rollback tag pre-paleolithic-overhaul-20261102 PUSHED. Core31PASS;267existing
+language checksPASS;188300yr~4.49s on5000cell/496patch fixture,NOT fullworld/FPS.
+Exact200000yr LEGACY continuation vs untouched old Core matches on Earth38130d20
+and Continentsce6bbbbc. Broad old city-emergence assertion FAILS, predates task;
+not claimed passing. Native UI/map3ebaa4d passes actual globe pick/50k+200k/
+inspection/save; corrected colour images inspected. Since then ONLY2Corefiles
+changed: per-band speech cohorts and smooth future climate join. Final SAME
+selected package native read/save/reload/37yr replay PASS +CoreCLR parity exact
+81e85952...; initial12vs37comparison wasinvalidfixture, retained.975inputs/
+3254original/30legacy/6x70 bank/fauna/audio EXACT. Manifest assets/verification/
+paleolithic-simulation-20261102.json; artifacts/paleolithic-20261102 evidence.
+Current selected source/package FROZEN. No physical moving ice/ocean/vegetation,
+real NPC tribes, finished dialogue or player-knowledge assignment yet. One
+sapient species registered; no new models/speciation. Owner visual acceptance
+not inferred. All owned build/test jobs ended; no owner app closures, paid,
+subagents or extra player folders. Owner3files preserved. Await feedback.
 
+HISTORICAL PRIOR SELECTED SHELTER BUILD:
 SELECTED2Nov OWNER SHELTER REVISION: root shortcut builds/slot-b/WorldGen.exe,
 Mono DEVELOPMENT BuiltUtc2026-11-02T05:18:51.2766531Z, production07075cd pushed.
 12 minimal menu entries: material store/bone lodge/stone hut hidden, legacy IDs

@@ -67,11 +67,12 @@
   ],
   "layout_policy_source": "assets/project-layout.json",
   "current_selection": {
-    "slot": "builds/slot-b",
-    "player": "builds/slot-b/WorldGen.exe",
+    "recorded_utc": "2026-11-02T07:11:21.330594+00:00",
+    "slot": "builds/slot-a",
+    "player": "builds/slot-a/WorldGen.exe",
     "backend": "Mono",
-    "built_utc": "2026-11-02T05:18:51.2766531Z",
-    "verification": "assets/verification/paleolithic-shelters-20261102.json",
+    "built_utc": "2026-11-02T07:03:54.9195930Z",
+    "verification": "assets/verification/paleolithic-simulation-20261102.json",
     "preserve_running_packages": true
   }
 }

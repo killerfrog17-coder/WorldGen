@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--paleolithic-resume")){var w=WorldFile.ReadFile(args[1]);var s=new Prehistory(w).AdvanceYears(w.Prehistory,int.Parse(args[2]));File.WriteAllText(args[3],s.Hash);Console.WriteLine("PASS Paleolithic cold resume "+s.Hash);return;}
 if(args.Contains("--paleo-legacy-compare")){PaleolithicLegacyComparison.Run(args[1],args.Length>2?args[2]:"Continents");return;}
 if(args.Contains("--paleolithic-only")){PaleolithicTests.Run();return;}
 if(args.Contains("--blueprints-only")){CampBlueprintTests.Run();return;}
