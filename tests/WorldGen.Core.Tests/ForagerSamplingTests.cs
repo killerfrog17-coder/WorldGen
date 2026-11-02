@@ -31,7 +31,7 @@ static class ForagerSamplingTests
             Check(a.SeasonalCamps.All(c=>f.CellDistrict[locator.Nearest(c.Position)]==cohort.District),"Seasonal offsets do not push camps outside their land district");
             for(int k=0;k<a.Techniques.Length;k++)if(a.Techniques[k])Check(ForagerTechnology.All[k].Prerequisites.All(p=>a.Techniques[p]),"Band skills retain necessary prerequisite techniques");
             Check(a.RoutineTechniques.Length==ForagerTechnology.Count&&a.WinterTechniques.Length==ForagerTechnology.Count,"NPC samples expose routine and prepared winter equipment separately from capability");
-            Check(Enumerable.Range(0,ForagerTechnology.Count).All(k=>(!a.RoutineTechniques[k]||a.Techniques[k])&&(!a.WinterTechniques[k]||a.Techniques[k])),"Routine/winter loadouts never invent techniques unknown to the band");
+            Check(f.Version=="foragers-5"||Enumerable.Range(0,ForagerTechnology.Count).All(k=>(!a.RoutineTechniques[k]||a.Techniques[k])&&(!a.WinterTechniques[k]||a.Techniques[k])),"Legacy loadouts require resident makers; shared-production worlds may carry goods made elsewhere in the community");
             Check(Enumerable.Range(0,ForagerTechnology.Count).All(k=>!a.RoutineTechniques[k]||a.WinterTechniques[k]),"Winter preparation retains ordinary equipment instead of rerolling it away");
             Check(Enumerable.Range(0,ForagerTechnology.Count).All(k=>a.Techniques[k]==a.Members.Any(p=>p.Skills[k]>=.35)),"Band making capability is supported by actual capable resident makers");
             Check(a.Members.All(p=>p.Knowledge.Length==ForagerTechnology.Count&&Enumerable.Range(0,ForagerTechnology.Count).All(k=>p.Knowledge[k]>=p.Skills[k]&&ForagerTechnology.All[k].Prerequisites.All(q=>p.Skills[q]>=p.Skills[k]))),"Familiarity differs from trained proficiency; makers retain their prerequisite skills");
@@ -97,6 +97,12 @@ static class ForagerSamplingTests
         ForagerDemography.SetPopulation(expandedCohort,500);Array.Fill(expandedCohort.Skill,.9);Array.Fill(expandedCohort.Knowledge,.95);expandedCohort.Skill[17]=.1;expandedCohort.Knowledge[17]=.6;
         var specialists=Enumerable.Range(0,Math.Min(12,engine.ForagerBandCount(expanded,expandedCohort))).SelectMany(ordinal=>engine.ForagerBand(expanded,expandedCohort.Id,ordinal).Members).Where(p=>p.AgeYears>=23).ToArray();
         Check(specialists.Any(p=>p.Skills[17]>=.6)&&specialists.Count(p=>p.Skills[17]>=.35)<specialists.Length*.4,"Rare bow-making prevalence creates actual proficient specialists among many non-makers");
+        if(f.Version=="foragers-5")
+        {
+            Array.Clear(expandedCohort.Skill);Array.Clear(expandedCohort.Use);expandedCohort.Skill[13]=.005;expandedCohort.Use[13]=.8;
+            var consumers=Enumerable.Range(0,Math.Min(12,engine.ForagerBandCount(expanded,expandedCohort))).Select(ordinal=>engine.ForagerBand(expanded,expandedCohort.Id,ordinal)).ToArray();
+            Check(consumers.Any(b=>b.RoutineTechniques[13]&&!b.Techniques[13]),"A band can wear goods supplied by community makers without gaining nonexistent resident crafting expertise");
+        }
         Check(s.Hash==s.ComputeHash(),"Sampling and future snapshots cannot alter source history");
         if(output.Length>0)
         {

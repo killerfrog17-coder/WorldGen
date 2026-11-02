@@ -115,10 +115,12 @@ namespace WorldGen.Core
         }
         // Shared by demographic winter survival and local NPC equipment samples.
         // Skill/materials allow preparation even when annual routine use is low.
-        public static double WinterPractice(ForagerDistrict d,ForagerEnvironment e,ForagerCohort c,int k)
+        public static double ProductCoverage(double makers)=>D.Clamp(4*D.Clamp(makers));
+        public static double WinterPractice(ForagerDistrict d,ForagerEnvironment e,ForagerCohort c,int k,bool sharedProducts=false)
         {
             double use=k<c.Use.Length?D.Clamp(c.Use[k]):0;
-            return Math.Max(use,c.Skill.Length>k?c.Skill[k]*D.Clamp((12-e.WinterC)/18d)*D.Clamp(Materials(d,e,k)*3):0);
+            double makers=c.Skill.Length>k?c.Skill[k]:0;
+            return Math.Max(use,(sharedProducts?ProductCoverage(makers):makers)*D.Clamp((12-e.WinterC)/18d)*D.Clamp(Materials(d,e,k)*3));
         }
         // First block: expertise of people who can demonstrate this method.
         // Second block: actual access to those teachers. Unskilled neighbours
@@ -154,7 +156,7 @@ namespace WorldGen.Core
             {context[k]=D.Q(context[k]/Math.Max(.000001,context[Count+k]),1000000000);context[Count+k]=D.Q(D.Clamp(context[Count+k]),1000000000);}
             return context;
         }
-        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1,double[] materialProfile=null,double explanatoryAccess=1,bool specialistTeaching=false)
+        public static ulong Advance(int seed,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,double years,int year,double[] teachers,double connectedAdults,double contactStrength=1,double explanationPractice=1,double learningCapacity=1,double symbolicPotential=1,double[] materialProfile=null,double explanatoryAccess=1,bool specialistTeaching=false,bool demandLedTraining=false)
         {
             ulong inventions=0;
             for(int k=0;k<Count;k++)
@@ -189,26 +191,31 @@ namespace WorldGen.Core
                 double teachingAccess=teachers!=null&&teachers.Length>=Count*2?teachers[Count+k]:D.Clamp(contactStrength);
                 double learning=teacher*(.35+.65*culture.ExchangeOpenness)*teachingAccess*communication+localTeaching*(specialistTeaching?demonstration+(1-demonstration)*D.Clamp(explanationPractice):1);
                 double recentLearning=c.FirstKnownYear.Length>k&&c.FirstKnownYear[k]>0&&year>=c.FirstKnownYear[k]?Math.Exp(-(year-c.FirstKnownYear[k])/140d):0;
-                learning+=.8*Math.Max(invented?1:0,recentLearning);
+                learning+=.8*(demandLedTraining?(invented?1:0):Math.Max(invented?1:0,recentLearning));
                 learning*=(.55+.45*D.Clamp(explanationPractice))*(.4+.6*D.Clamp(learningCapacity));
                 // Repeated successful practice can refine a familiar method.
                 // Material scarcity reduces opportunity and use; it does not
                 // multiply down every descendant technique's maximum skill.
                 double practice=D.Clamp(need*(.65+.7*preference)*materials);
+                // Recruitment follows real work. Expert availability is not an
+                // instruction to train the entire population in an unused craft.
+                if(demandLedTraining)learning*=Math.Sqrt(practice);
                 double familiarityTarget=Math.Max(c.Knowledge[k],Math.Max(teacher*.98,c.Skill[k]));
                 if(c.Knowledge[k]>.35&&foundation>.2)familiarityTarget=Math.Max(familiarityTarget,c.Knowledge[k]+.15*practice);
                 c.Knowledge[k]=PaleolithicRules.Approach(c.Knowledge[k],familiarityTarget,learning/t.TeachingYears,years);
                 if(c.Knowledge[k]>.12&&opportunity>.03)
                 {
-                    double progress=(.15+.85*c.Knowledge[k])*foundation*practice*(.12+learning);
-                    c.Skill[k]=PaleolithicRules.Approach(c.Skill[k],c.Knowledge[k]*foundation,progress/t.PracticeYears,years);
+                    double progress=(.15+.85*c.Knowledge[k])*foundation*practice*(demandLedTraining?learning:.12+learning);
+                    double target=c.Knowledge[k]*foundation*(demandLedTraining?Math.Pow(practice,.75):1);
+                    c.Skill[k]=PaleolithicRules.Approach(c.Skill[k],target,progress/t.PracticeYears,years);
                 }
-                double expectedUse=practice*c.Skill[k];
+                double expectedUse=practice*(demandLedTraining?ProductCoverage(c.Skill[k]):c.Skill[k]);
                 c.Use[k]=PaleolithicRules.Approach(c.Use[k],expectedUse,1/80.0,years);
                 double loss=(1-D.Clamp(c.Use[k]*1.8))*(.25+.75*(1-D.Clamp(learning)))/t.LossYears;
                 if(practitioners<3)loss+=1/Math.Max(250,t.LossYears*.35);
                 c.Skill[k]*=Math.Exp(-years*loss);c.Knowledge[k]*=Math.Exp(-years*(1-D.Clamp(learning+c.Use[k]))/18000.0);
-                c.Knowledge[k]=D.Q(D.Clamp(c.Knowledge[k]),1000000000);c.Skill[k]=D.Q(D.Clamp(Math.Min(c.Skill[k],c.Knowledge[k])),1000000000);c.Use[k]=D.Q(D.Clamp(Math.Min(c.Use[k],c.Skill[k])),1000000000);
+                if(demandLedTraining&&c.Adults*c.Skill[k]<.5)c.Skill[k]=0;
+                c.Knowledge[k]=D.Q(D.Clamp(c.Knowledge[k]),1000000000);c.Skill[k]=D.Q(D.Clamp(Math.Min(c.Skill[k],c.Knowledge[k])),1000000000);c.Use[k]=D.Q(D.Clamp(demandLedTraining?c.Use[k]:Math.Min(c.Use[k],c.Skill[k])),1000000000);
                 c.Teaching[k]=D.Q(learning,1000000);c.Innovation[k]=D.Q(hazard,1000000000);
             }
             return inventions;

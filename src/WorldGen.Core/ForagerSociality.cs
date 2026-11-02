@@ -24,7 +24,7 @@ namespace WorldGen.Core
                 var district=state.Districts[c.District];var possible=new Dictionary<int,double>{{c.District,0}};
                 foreach(var pass in district.Passages)
                 {
-                    if(!ForagerPassages.Open(seed,pass,district,environment[c.District],environment[pass.To],c))continue;
+                    if(!ForagerPassages.Open(seed,pass,district,environment[c.District],environment[pass.To],c,state.Version=="foragers-5"))continue;
                     double cost=ForagerPassages.TravelCostKm(pass,environment[c.District],environment[pass.To]);if(cost>650)continue;
                     if(!possible.TryGetValue(pass.To,out var previous)||cost<previous)possible[pass.To]=cost;
                 }

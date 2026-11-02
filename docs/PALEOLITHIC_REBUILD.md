@@ -7,6 +7,36 @@ and visual review below has been completed.
 
 ## Current release review (2 November, 22:30 UTC)
 
+### Further outcome correction: demand-led training (version5)
+
+Version4's100k review exposed a second material failure: almost every group
+approached perfect trained prevalence in nearly every method. Actual end use
+varied, but that did not satisfy the requested variation in making capability.
+The190k version4 run was stopped as a failed diagnostic at113k metrics; its last
+complete110k snapshot is retained, and it is **not a completed190k acceptance run**.
+
+New version5 separates hearing of a method, maintaining trained makers and
+using their products. No automatic competence grows from familiarity alone:
+instruction or a genuine innovation must supply makers. Recruitment and its
+target prevalence depend on actual demand, materials and practice. Small unused
+maker stocks can disappear while oral familiarity persists. Shared production
+lets non-makers use goods; winter preparation and travel use the same distinction.
+The four-consumers-per-maker coverage scale is a coarse game prior, not a measured
+universal production rate. Versions2/3/4 retain their own numerical rules.
+
+Focused50 mechanisms and13 temporal/save checks pass, including sustained useful
+invention, loss without automatic reinvention, rare expert teaching, consumption
+without resident craft expertise, and a real save carrying more users than makers.
+Equal-teacher clothing fixtures end with about3.5% trained makers in the warm
+habitat versus77.9% in the cold habitat. Old version4 at110k plus1year retains
+the exact hash `e80beb51594d3bce72dbd25988652cc0b71415d085dcf7b44d84b5fbe79e71ce`.
+Fresh long histories and a current packaged view are still required.
+
+The corrected local-tradition maps and anchored labels remain in place. Candidate20
+is an unselected version4 control; its mechanical passes do not validate version5.
+
+### Superseded version4 review
+
 The version3 Continents190k history is now complete, hash
 `0ed1be60a1e7f099e1456d1ce6fcdd46d68c790cf1b7e045ed382a6c8537c824`.
 Its broad behavioural gates and33 packed-world checks pass, and actual managed

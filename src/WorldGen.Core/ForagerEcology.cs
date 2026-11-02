@@ -85,7 +85,7 @@ namespace WorldGen.Core
         // Returns are person-support equivalents per km², not raw plant biomass.
         // Numerical coefficients are comparative game priors; the mechanisms
         // (winter bottleneck, pathogens, storage, toolkit fit) have separate tests.
-        public static ForagerLivelihood Livelihood(ForagerDistrict d,ForagerEnvironment e,HomininLineage lineage,ForagerCohort c,ForagerCulture culture,ForagerResources resources)
+        public static ForagerLivelihood Livelihood(ForagerDistrict d,ForagerEnvironment e,HomininLineage lineage,ForagerCohort c,ForagerCulture culture,ForagerResources resources,bool sharedProducts=false)
         {
             double Use(int k)=>k<c.Use.Length?D.Clamp(c.Use[k]):0;
             double flake=Use(0),haft=Use(4),fire=Use(5),hide=Use(8),fitted=Use(13),insulated=Use(14),bow=Use(17),barbs=Use(18),line=Use(19),atlatl=Use(22),preserve=Use(23);
@@ -104,7 +104,7 @@ namespace WorldGen.Core
             // in winter. A trained community can prepare its known winter gear
             // before entering a colder district. Material access still matters;
             // no knowledge/skill means no hypothetical future protection.
-            double WinterPractice(int k)=>ForagerTechnology.WinterPractice(d,e,c,k);
+            double WinterPractice(int k)=>ForagerTechnology.WinterPractice(d,e,c,k,sharedProducts);
             double winterCover=Math.Max(WinterPractice(35),WinterPractice(36));
             double protection=7*WinterPractice(5)+12*WinterPractice(8)+13*WinterPractice(13)+16*WinterPractice(14)+9*WinterPractice(31)+3*WinterPractice(34)*(.2+.8*winterCover)+2*(lineage.Compactness-.5);
             double winter=Sigmoid((e.WinterC+protection+4)/3.5);

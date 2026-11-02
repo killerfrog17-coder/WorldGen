@@ -92,6 +92,27 @@ static class ForagerMechanismTests
         double low=hunted.Stock[2];ForagerEcology.RecoverResources(hunted,100,10,200,new[]{0d,0d,1d,0d,0d});Check(hunted.Stock[2]>low,"Depleted resources recover when pressure is removed");
         var warmLearner=c.Copy();var coldLearner=c.Copy();var teachers=Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray();
         var productiveCold=cold.Copy();productiveCold.WinterC=-14;productiveCold.SummerC=22;productiveCold.MeanC=4;var viableCold=ForagerEcology.At(42,productiveCold,75000);
+        var lore=c.Copy();lore.Adults=80;lore.Knowledge[17]=.95;lore.Skill[17]=lore.Use[17]=0;lore.FirstKnownYear=Enumerable.Repeat(1,ForagerTechnology.Count).ToArray();
+        for(int year=50000;year<=50500;year+=5)ForagerTechnology.Advance(42,lore,d,warm,culture,5,year,null,0,specialistTeaching:true,demandLedTraining:true);
+        Check(lore.Skill[17]==0&&lore.Knowledge[17]>.5,"Knowing a bow exists cannot manufacture proficient bow makers without instruction or an actual innovation");
+        var useful=experiment.Copy();useful.Knowledge[17]=useful.Skill[17]=useful.Use[17]=0;
+        ForagerTechnology.Advance(42,useful,d,warm,culture,5,5,null,1e9,specialistTeaching:true,demandLedTraining:true);
+        for(int year=10;year<=1500;year+=5)ForagerTechnology.Advance(42,useful,d,warm,culture,5,year,null,0,specialistTeaching:true,demandLedTraining:true);
+        Check(useful.Skill[17]>.25,"A genuinely useful innovation can sustain actual makers without the removed automatic learning-from-rumour rule");
+        var warmPractice=c.Copy();var coldPractice=c.Copy();
+        var availableTeachers=ForagerTechnology.SpecialistTeacherContext(new[]{(Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),Enumerable.Repeat(.9,ForagerTechnology.Count).ToArray(),1000d,1d)});
+        for(int year=5;year<=5000;year+=5)
+        {
+            ForagerTechnology.Advance(42,warmPractice,d,warm,culture,5,year,availableTeachers,0,specialistTeaching:true,demandLedTraining:true);
+            ForagerTechnology.Advance(42,coldPractice,productiveCold,viableCold,culture,5,year,availableTeachers,0,specialistTeaching:true,demandLedTraining:true);
+        }
+        Check(coldPractice.Skill[13]>warmPractice.Skill[13]*3&&warmPractice.Skill[13]<.2,"Even with equal teachers, warm communities do not train nearly every adult in unneeded fitted clothing");
+        Check(coldPractice.Use[13]>warmPractice.Use[13]*3,"Shared production retains climate-dependent end-product use instead of making every toolkit uniform");
+        var unneeded=c.Copy();unneeded.Adults=30;unneeded.Skill[14]=.05;unneeded.Use[14]=0;unneeded.FirstKnownYear=Enumerable.Repeat(1,ForagerTechnology.Count).ToArray();
+        for(int year=50000;year<=55000;year+=5)ForagerTechnology.Advance(42,unneeded,d,warm,culture,5,year,null,0,specialistTeaching:true,demandLedTraining:true);
+        Check(unneeded.Skill[14]==0&&unneeded.Knowledge[14]>.2,"An unused specialised craft can lose its final makers without erasing all memory that it existed");
+        var garmentMakers=c.Copy();Array.Clear(garmentMakers.Use);garmentMakers.Skill[13]=.2;
+        Check(ForagerTechnology.WinterPractice(productiveCold,viableCold,garmentMakers,13,true)>ForagerTechnology.WinterPractice(productiveCold,viableCold,garmentMakers,13)*3,"Winter preparation uses shared production rather than requiring every wearer to be a trained garment maker");
         for(int year=50;year<=10000;year+=50)
         {
             ForagerTechnology.Advance(42,warmLearner,d,warm,culture,50,year,teachers,150);
@@ -121,6 +142,8 @@ static class ForagerMechanismTests
         var navigator=c.Copy();Array.Clear(navigator.Use);var noBoat=navigator.Copy();Array.Clear(noBoat.Skill);
         Check(ForagerPassages.Open(42,shortWater,coastal,coastEnvironment,coastEnvironment,navigator)&&!ForagerPassages.Open(42,shortWater,coastal,coastEnvironment,coastEnvironment,noBoat),"Known boat-building competence prepares a short crossing even when boats were not used every day; untrained people cannot do so");
         Check(!ForagerPassages.Open(42,deepWater,coastal,coastEnvironment,coastEnvironment,navigator),"Paleolithic boats do not unlock arbitrary deep-ocean continent hopping");
+        var raftMakers=noBoat.Copy();raftMakers.Adults=80;raftMakers.Skill[20]=.025;
+        Check(ForagerPassages.Open(42,shortWater,coastal,coastEnvironment,coastEnvironment,raftMakers,true)&&!ForagerPassages.Open(42,shortWater,coastal,coastEnvironment,coastEnvironment,raftMakers),"Two trained raft makers can supply a crossing without turning most travellers into expert builders");
         var demographic=c.Copy();ForagerDemography.SetPopulation(demographic,200);ForagerDemography.Rates(demographic,basic,warm,culture,500);
         var projection=ForagerDemography.Project(demographic,5,0);Check(Math.Abs(projection.Population-(200+projection.Births-projection.Deaths))<.0000001,"Births, deaths and ageing conserve population without a hidden capacity clamp");
         var destination=c.Copy();ForagerDemography.SetPopulation(destination,0);double total=demographic.Population+destination.Population;ForagerDemography.MovePopulation(demographic,destination,25);
@@ -128,6 +151,6 @@ static class ForagerMechanismTests
         var doomed=demographic.Copy();ForagerDemography.Rates(doomed,basic,warm,culture,0);Check(ForagerDemography.Project(doomed,5,0).Population<doomed.Population*.01,"An uninhabitable district cannot sustain a permanent residual population");
         double oldSkill=doomed.Skill[0];for(int year=0;year<100;year+=5)ForagerDemography.Materialize(doomed,5,year);
         Check(doomed.Population==0&&doomed.Teaching.Length==0&&doomed.Innovation.Length==0&&doomed.TeachingFrom.Length==0&&doomed.Skill[0]==oldSkill,"Retired communities retain historical skills and ancestry without live teaching/invention caches");
-        Console.WriteLine($"PASS {checks} forager mechanism checks; warm capacity={basic.Capacity:F1}; cold unprotected={unprotected.Capacity:F4}; protected={protectedLife.Capacity:F1}; warm fitted={warmLearner.Use[13]:F3}; cold fitted={coldLearner.Use[13]:F3}");
+        Console.WriteLine($"PASS {checks} forager mechanism checks; warm capacity={basic.Capacity:F1}; cold unprotected={unprotected.Capacity:F4}; protected={protectedLife.Capacity:F1}; legacy fitted use={warmLearner.Use[13]:F3}/{coldLearner.Use[13]:F3}; demand-led fitted makers warm={warmPractice.Skill[13]:F3}, cold={coldPractice.Skill[13]:F3}; shared fitted use warm={warmPractice.Use[13]:F3}, cold={coldPractice.Use[13]:F3}");
     }
 }

@@ -22,6 +22,12 @@ static class ForagerTemporalTests
         var restored=WorldFile.Read(WorldFile.Write(w));var restoredEngine=new Prehistory(restored);
         var resumed=restoredEngine.AdvanceSeconds(restored.Prehistory,target-SimulationTime.Seconds(restored.Prehistory));
         Check(resumed.Hash==full.Hash,"Compact save/reload between reviews retains cached teachers and projects from the same fixed boundary");
+        if(full.Foragers.Version=="foragers-5")
+        {
+            var consumer=full.Copy();var maker=consumer.Foragers.Cohorts.First(c=>c.Population>=1);maker.Skill[13]=.1;maker.Knowledge[13]=.8;maker.Use[13]=.6;consumer.Hash=consumer.ComputeHash();engine.ValidateForagers(consumer);
+            w.Prehistory=consumer;var products=WorldFile.Read(WorldFile.Write(w)).Prehistory;restoredEngine.ValidateForagers(products);
+            Check(products.Hash==consumer.Hash&&products.Foragers.Cohorts.First(c=>c.Id==maker.Id).Use[13]==.6,"Shared goods serving more consumers than makers survive real compact save/reload without a legacy prevalence clamp");
+        }
         long before=session.Seconds;string beforeHash=session.Hash;
         try{session.AdvanceSeconds(SimulationTime.Year,1,new CancellationToken(true));throw new Exception("Expected cancellation");}catch(OperationCanceledException){}
         Check(session.Seconds==before&&session.Hash==beforeHash,"Cancellation cannot commit a partial private checkpoint");

@@ -18,7 +18,7 @@ namespace WorldGen.Presentation
             if(kind.Length==0)return null;int id=kind=="technology"?c.Culture:kind=="human-species"?c.Lineage:map.Id(cell,overlay);
             return new AtlasLink{Kind=kind,Id=id,Cell=cell,Name=kind=="technology"?s.Foragers.Cultures[c.Culture].Name+" toolkit":kind=="human-species"?s.Foragers.Lineages[c.Lineage].Name:map.Name(id,overlay)};
         }
-        static AtlasLink[] Techniques(ForagerCohort c)=>ForagerTechnology.All.Select(t=>new AtlasLink{Name=t.Name,Id=t.Id,Value=(long)Math.Round(c.Skill[t.Id]*1000),Detail="Familiarity "+Percent(c.Knowledge[t.Id])+" · making skill "+Percent(c.Skill[t.Id])+" · routine use "+Percent(c.Use[t.Id])+"\nRequirements: "+ForagerTechnology.Requirements(t.Id)+(c.FirstKnownYear.Length>t.Id&&c.FirstKnownYear[t.Id]>=0?"\nLocal learning: "+(c.FirstKnownYear[t.Id]==0?"inherited at the starting year":Year(c.FirstKnownYear[t.Id])):"")}).ToArray();
+        static AtlasLink[] Techniques(ForagerCohort c)=>ForagerTechnology.All.Select(t=>new AtlasLink{Name=t.Name,Id=t.Id,Value=(long)Math.Round(c.Skill[t.Id]*1000),Detail="Familiarity "+Percent(c.Knowledge[t.Id])+" · trained makers "+Percent(c.Skill[t.Id])+" · routine use "+Percent(c.Use[t.Id])+"\nRequirements: "+ForagerTechnology.Requirements(t.Id)+(c.FirstKnownYear.Length>t.Id&&c.FirstKnownYear[t.Id]>=0?"\nLocal learning: "+(c.FirstKnownYear[t.Id]==0?"inherited at the starting year":Year(c.FirstKnownYear[t.Id])):"")}).ToArray();
         public static SelectionCard Card(PrehistoryState s,int cell,HistoryOverlay overlay,Prehistory? engine)
         {
             var f=s.Foragers;var map=ForagerMaps.For(s);double P(ForagerCohort p)=>map.Population(p);var local=map.Residents(cell);var c=local.FirstOrDefault();
@@ -31,7 +31,7 @@ namespace WorldGen.Presentation
             if(overlay==HistoryOverlay.HumanSpecies)
             {facts.AddRange(local.Select(p=>F(f.Lineages[p.Lineage].Name,P(p).ToString("N0")+" residents · "+Percent(p.Admixture[p.Lineage])+" lineage ancestry")));card.Note="Coexisting lineages share local food opportunities; ancestry and cultural identity are separate.";}
             else if(overlay==HistoryOverlay.Technology)
-            {card.Title=f.Cultures[c.Culture].Name+" toolkit";card.Bars=Techniques(c);card.Note="Map colours distinguish toolkit specialisations. Familiarity, making skill and actual use are different; climate, materials and teachers affect each.";}
+            {card.Title=f.Cultures[c.Culture].Name+" toolkit";card.Bars=Techniques(c);card.Note="Trained makers is the adult share able to make the item. Routine use includes goods supplied to other people. Map colours distinguish toolkit specialisations.";}
             else if(overlay==HistoryOverlay.Languages)
             {
                 var l=f.Languages[map.Id(cell,overlay)];facts.Add(F("Recognisable family",f.LanguageFamilies[l.Family].Name));facts.Add(F("Word order",l.Sounds.WordOrder));facts.Add(F("Bilingual contacts",Percent(c.BilingualShare)));
@@ -127,7 +127,7 @@ namespace WorldGen.Presentation
             {
                 var c=owner;var culture=f.Cultures[c.Culture];var district=f.Districts[c.District];doc.Cell=district.Cell;
                 doc.Facts=new[]{F("Residents",P(c).ToString("N0")),F("Residence",Residence(culture.Residence)),F("Food / winter security",Percent(c.FoodSecurity)+" / "+Percent(c.WinterSecurity)),F("Birth / death rates",(c.BirthRate*100).ToString("0.0")+"% reproductive-age basis / "+(c.AdultMortality*100).ToString("0.0")+"% young-adult yearly mortality"),F("Population ages",c.Children.ToString("N0")+" children · "+c.Adults.ToString("N0")+" adults · "+c.Elders.ToString("N0")+" elders")};
-                sections.Add(new AtlasSection{Title="Local knowledge and use",Bars=true,Unit="% making skill",Links=Techniques(c).Select(t=>new AtlasLink{Name=t.Name,Value=t.Value/10,Detail=t.Detail}).ToArray()});
+                sections.Add(new AtlasSection{Title="Local knowledge and use",Bars=true,Unit="% trained makers",Links=Techniques(c).Select(t=>new AtlasLink{Name=t.Name,Value=t.Value/10,Detail=t.Detail}).ToArray()});
                 sections.Add(new AtlasSection{Title="People, speech and tradition",Links=new[]{Link("human-species",c.Lineage,doc.Cell,f.Lineages[c.Lineage].Name),Link("ethnicity",c.Identity,doc.Cell,f.Peoples[c.Identity].Name),Link("language",c.Language,doc.Cell,f.Languages[c.Language].Name),Link("religion",c.Belief,doc.Cell,f.Beliefs[c.Belief].Name),Link("technology",c.Culture,doc.Cell,"Local toolkit")}});
                 sections.Add(new AtlasSection{Title="Contacts and reciprocal access",Links=f.Exchanges.Where(e=>e.A==c.Id||e.B==c.Id).OrderByDescending(e=>e.Strength).Take(16).Select(e=>{var other=f.Cohorts.First(x=>x.Id==(e.A==c.Id?e.B:e.A));var link=Link("people",other.Culture,f.Districts[other.District].Cell,f.Cultures[other.Culture].Name);link.Detail="Contact "+Percent(e.Strength)+" · bilingual exchange "+Percent(e.Bilingualism);return link;}).ToArray()});
                 if(engine!=null&&P(c)>=12)

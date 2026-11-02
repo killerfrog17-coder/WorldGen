@@ -45,7 +45,7 @@ namespace WorldGen.Core
                     f.Languages[cohort.Language]=speech;
                 }
                 var environment=ForagerBiota.Apply(ForagerEcology.At(World.Recipe.Seed,district,0,World.ElevationM[district.Cell]),f.Biota[district.Id]);
-                var life=ForagerEcology.Livelihood(district,environment,f.Lineages[lineage],cohort,f.Cultures[cohort.Culture],f.Resources[district.Id]);
+                var life=ForagerEcology.Livelihood(district,environment,f.Lineages[lineage],cohort,f.Cultures[cohort.Culture],f.Resources[district.Id],f.Version=="foragers-5");
                 if(life.Capacity<35||life.WinterSecurity<.07){DiscardCandidate();continue;}
                 double population=life.Capacity*(.14+.25*Rng.Value(World.Recipe.Seed,"ancestral-regional-density",district.Id));
                 if(population<18){DiscardCandidate();continue;}
@@ -97,7 +97,7 @@ namespace WorldGen.Core
         public void ValidateForagers(PrehistoryState s)
         {
             var f=s?.Foragers;
-            if(s==null||s.Version!="prehistory-8"||f==null||(f.Version!="foragers-2"&&f.Version!="foragers-3"&&f.Version!="foragers-4")||s.Paleolithic?.Version!="paleolithic-3"||s.History!=null||s.Timeline!=null||s.HumanRanges!=null||s.WorldHash!=World.Stages.Last().Hash||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid foraging-world checkpoint.");
+            if(s==null||s.Version!="prehistory-8"||f==null||(f.Version!="foragers-2"&&f.Version!="foragers-3"&&f.Version!="foragers-4"&&f.Version!="foragers-5")||s.Paleolithic?.Version!="paleolithic-3"||s.History!=null||s.Timeline!=null||s.HumanRanges!=null||s.WorldHash!=World.Stages.Last().Hash||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid foraging-world checkpoint.");
             if(f.CellDistrict?.Length!=World.Surface.Cells.Length||f.Districts==null||f.Resources?.Length!=f.Districts.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Origin<0||s.Origin>=Patches.Length||f.Seconds<0||f.Seconds>SimulationTime.Maximum||f.BoundarySeconds>f.Seconds||f.NextReviewSeconds<=f.Seconds||f.NextReviewSeconds-f.BoundarySeconds!=5*SimulationTime.Year||s.Years!=f.Seconds/SimulationTime.Year)throw new ArgumentException("Invalid foraging geography/calendar.");
             bool Finite(double[] a,int count)=>a!=null&&a.Length==count&&a.All(x=>double.IsFinite(x)&&x>=0);
             foreach(var c in f.Cohorts)

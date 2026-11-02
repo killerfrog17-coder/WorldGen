@@ -24,13 +24,13 @@ namespace WorldGen.Core
                     ForagerPassage pass=null;double minimum=double.PositiveInfinity;
                     foreach(var option in alternatives)
                     {
-                        if(!ForagerPassages.Open(World.Recipe.Seed,option,d,environment[c.District],environment[option.To],c))continue;
+                        if(!ForagerPassages.Open(World.Recipe.Seed,option,d,environment[c.District],environment[option.To],c,f.Version=="foragers-5"))continue;
                         double candidateCost=ForagerPassages.TravelCostKm(option);
                         if(pass==null||candidateCost<minimum){pass=option;minimum=candidateCost;}
                     }
                     if(pass==null)continue;
                     var destination=f.Districts[pass.To];var targetEnvironment=environment[pass.To];
-                    var possible=ForagerEcology.Livelihood(destination,targetEnvironment,f.Lineages[c.Lineage],c,culture,f.Resources[pass.To]);
+                    var possible=ForagerEcology.Livelihood(destination,targetEnvironment,f.Lineages[c.Lineage],c,culture,f.Resources[pass.To],f.Version=="foragers-5");
                     if(possible.Capacity<40||possible.WinterSecurity<.08)continue;
                     byPlace.TryGetValue((pass.To,c.Lineage,c.Identity),out var recipient);bool founding=recipient==null||recipient.Population<1;
                     double cost=ForagerPassages.TravelCostKm(pass,environment[c.District],targetEnvironment);
