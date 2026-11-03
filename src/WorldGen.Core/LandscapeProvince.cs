@@ -106,13 +106,23 @@ namespace WorldGen.Core
         }
         public static GroundProfile Ground(GroundProfile p,LandscapeControls controls,V metres,int seed)
         {
-            double sand=SandSea(metres,seed,controls),clay=controls.Clay,salt=controls.Salt;
+            double sand=Smooth(.12,.4,SandSea(metres,seed,controls)),clay=controls.Clay,salt=controls.Salt;
             p.Sand=p.Sand*(1-sand)+.94*sand;p.Clay*=1-sand;p.Gravel*=1-.92*sand;p.Organic*=1-.85*sand;
             p.Clay=p.Clay*(1-clay)+.58*clay;p.Sand=p.Sand*(1-clay)+.14*clay;p.Gravel*=1-.8*clay;
             double sum=p.Sand+p.Clay;if(sum>.98){p.Sand*=.98/sum;p.Clay*=.98/sum;}p.Silt=1-p.Sand-p.Clay;
             p.Salinity=Math.Max(p.Salinity,.85*salt);p.Drainage=Math.Min(p.Drainage,1-.9*Math.Max(controls.Wet,clay));
             if(controls.Peat>.1){p.Organic=Math.Max(p.Organic,.45*controls.Peat);p.SoilColor=p.SoilColor*(1-.55*controls.Peat);}
             return p;
+        }
+        public static void Cover(LandscapeControls controls,V metres,int seed,ref GroundCoverProfile cover,ref MidCoverProfile mid,ref ForestCoverProfile forest,ref Biome biome)
+        {
+            // The compact ecology/material kernel can include neighbouring
+            // grasslands. Active mobile sediment still prevents a rooted lawn.
+            double sand=Smooth(.12,.4,SandSea(metres,seed,controls));
+            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt)),bare=Math.Max(sand,basin);
+            if(bare<=0)return;
+            cover.ScaleWeights(1-.995*bare);mid.Coverage*=1-.98*bare;forest.Coverage*=1-.995*bare;
+            if(sand>.85||basin>.9)biome=Biome.Desert;
         }
     }
 }

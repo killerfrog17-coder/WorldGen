@@ -341,6 +341,7 @@ namespace WorldGen.Core
                     var surface=amplified.Sample(point,dry,mapSpacingM);
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
                     if(!heightOnly)ground=LandscapeProvince.Ground(ground,surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed);
+                    if(!heightOnly)LandscapeProvince.Cover(surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed,ref cover,ref midCover,ref forest,ref biome);
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
                         Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,Cover=cover,MidCover=midCover,Forest=forest,

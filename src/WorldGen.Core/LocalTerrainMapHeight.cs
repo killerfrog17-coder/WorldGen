@@ -60,6 +60,7 @@ namespace WorldGen.Core
             if(sum<=0)throw new InvalidOperationException("Map material query has no supporting world cells.");
             ground.Divide(sum);cover.Divide(sum);mid.Divide(sum);forest.Divide(sum);
             ground=LandscapeProvince.Ground(ground,sample.Province,point*(RadiusM*HorizontalScale),seed);
+            var biome=sample.Biome;LandscapeProvince.Cover(sample.Province,point*(RadiusM*HorizontalScale),seed,ref cover,ref mid,ref forest,ref biome);sample.Biome=biome;
             sample.Ground=ground;sample.Cover=cover;sample.MidCover=mid;sample.Forest=forest;
             sample.HillHeightM=hills/sum;sample.MountainHeightM=mountains/sum;sample.OceanInfluence=ocean/sum;sample.CoverColor=new V(red/sum,green/sum,blue/sum);
         }

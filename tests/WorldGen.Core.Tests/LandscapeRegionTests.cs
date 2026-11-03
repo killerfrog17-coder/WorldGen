@@ -51,6 +51,14 @@ static class LandscapeRegionTests
             Check(double.IsFinite(a)&&a>=0&&a<30,"Finite bounded sand relief");largest=Math.Max(largest,Math.Abs(a-b)/.01);
         }
         Check(largest<.8,"Dune slopes remain walkable rather than vertical oscillations");
+        bool bareDune=false;for(int i=0;i<100;i++)
+        {
+            var p=new V(i*800,1200,2700);if(LandscapeProvince.SandSea(p,73421,dunes)<.35)continue;
+            var cover=new GroundCoverProfile{Grasses=new V(.3,.3,.3)};var mid=new MidCoverProfile{Coverage=.5};var forest=new ForestCoverProfile{Coverage=.9};var biome=Biome.Grassland;
+            LandscapeProvince.Cover(dunes,p,73421,ref cover,ref mid,ref forest,ref biome);
+            Check(cover.Coverage<.08&&forest.Coverage<.08&&biome==Biome.Desert,"Neighbouring grassland material kernels cannot turn mobile dunes into lawns");bareDune=true;break;
+        }
+        Check(bareDune,"Fixture exercises an actual mobile sand province");
         Console.WriteLine("PASS "+count+" landscape controls / enclosed pond / query-order / slope checks; "+lakes.Length+" wetland ponds; "+probes+" surveys");
     }
     public static void World(string path,string output)

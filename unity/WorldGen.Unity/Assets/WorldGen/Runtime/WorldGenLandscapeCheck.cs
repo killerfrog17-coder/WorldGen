@@ -56,7 +56,7 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
-        var play=new PlaySession{Mode=GameMode.Creative,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
+        var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=900;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{},world,play,worker:worker);
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
@@ -66,6 +66,13 @@ public sealed partial class LocalTerrainExplorer
         var keys=new[]{site.Position,owner.frame.Position(-80,0),owner.frame.Position(80,0)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();deadline=Time.realtimeSinceStartupAsDouble+90;
         while(keys.Any(k=>!owner.scatterChunks.TryGetValue(k,out var chunk)||chunk.Groups==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(keys.All(k=>owner.scatterChunks.TryGetValue(k,out var chunk)&&chunk.Groups!=null),"Actual surrounding vegetation/scatter is resident");
+        deadline=Time.realtimeSinceStartupAsDouble+180;double reportAt=0;
+        while(!owner.AllReady&&owner.terrainRevealRadius<600&&Time.realtimeSinceStartupAsDouble<deadline)
+        {
+            if(Time.realtimeSinceStartupAsDouble>=reportAt){reportAt=Time.realtimeSinceStartupAsDouble+5;File.WriteAllText(Path.Combine(output,"coverage.txt"),"Tiles "+owner.TileCount+" / "+owner.WantedCount+"; reveal "+owner.terrainRevealRadius+"m; "+owner.Error);}
+            yield return null;
+        }
+        Check(owner.AllReady||owner.terrainRevealRadius>=400,"Wide capture has an actually loaded surrounding terrain footprint");
         for(int i=0;i<90;i++)yield return null;
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
         if(site.Pond!=null)

@@ -1,0 +1,23 @@
+param(
+    [ValidateSet('slot-a','slot-b')][string]$Slot='slot-b',
+    [ValidatePattern('^[a-z0-9-]+$')][string]$Prefix='regions-first',
+    [string]$World='artifacts/npc-20261103/current-190k.world',
+    [string[]]$Kinds=@('pond','SandSea','GravelDesert','ClayPan','SaltFlat','FreshwaterMarsh','WoodedSwamp','Peatland','LimestoneUpland','GlacialLowland')
+)
+$ErrorActionPreference='Stop'
+$repoRoot=Split-Path -Parent $PSScriptRoot
+$player=Join-Path $repoRoot ('builds/'+$Slot+'/WorldGen.exe')
+$fixture=Join-Path $repoRoot $World
+if(!(Test-Path -LiteralPath $fixture)){throw 'Generate the disposable world fixture first.'}
+if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'" | Where-Object {$_.ExecutablePath -eq $player}){throw 'This player slot is already running; leave that session untouched.'}
+foreach($kind in $Kinds){
+    if($kind -notmatch '^[a-zA-Z]+$'){throw 'Invalid landscape kind'}
+    $output=Join-Path $repoRoot ('artifacts/landscape-20261103/'+$Prefix+'-'+$kind.ToLowerInvariant())
+    if(Test-Path -LiteralPath (Join-Path $output 'exit-code.txt')){throw 'Preserve completed evidence and choose a new prefix.'}
+    New-Item -ItemType Directory -Force -Path $output | Out-Null
+    $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
+    $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
+    Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()
+    [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
+    Write-Output ($kind+' EXIT '+$process.ExitCode)
+}
