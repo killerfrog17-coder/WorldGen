@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "d73d1f650eec9d2ccb459a76e610a79f15b7362b",
+  "source_checkpoint": "840653b18a9be756b09d0ec2f8de7a1e61880882",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14205,6 +14205,144 @@
       "bytes": 3553543,
       "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
       "member": "objects/47fe33831a3929567c733356dd66243116e05df2ace1f884ddca0080b728229f"
+    },
+    "assets-source/terrain/surfaces/bake-report.json": {
+      "sha256": "29278cd817714bcc12454d449cce69b3e131ee3d58cba349daea8df5478706a5",
+      "bytes": 1317,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/29278cd817714bcc12454d449cce69b3e131ee3d58cba349daea8df5478706a5"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/gravel_stones/Diffuse.jpg": {
+      "sha256": "b77a4c0824f4c860b9230949baca764fdb0651fa0016b2644cd07490f82fac43",
+      "bytes": 802344,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/b77a4c0824f4c860b9230949baca764fdb0651fa0016b2644cd07490f82fac43"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/gravel_stones/arm.jpg": {
+      "sha256": "fbaf068cf2841b3f257489b8a7f3a730b23e37fecb81678661b160d96c95718e",
+      "bytes": 1051915,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/fbaf068cf2841b3f257489b8a7f3a730b23e37fecb81678661b160d96c95718e"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/gravel_stones/nor_gl.jpg": {
+      "sha256": "49b4a592f021e7eb44f1638be5309ef6f0c3c8a51e7c857ffb54dc4836a8a070",
+      "bytes": 1485214,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/49b4a592f021e7eb44f1638be5309ef6f0c3c8a51e7c857ffb54dc4836a8a070"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/gravel_stones/source-metadata.json": {
+      "sha256": "1e3233466293a94b3c0de840733b92755e9e24039ae38cb92fec33e336f90e7d",
+      "bytes": 2702,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/1e3233466293a94b3c0de840733b92755e9e24039ae38cb92fec33e336f90e7d"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/Diffuse.jpg": {
+      "sha256": "b49e3d76bbb142c30ce938327f42ffdfd465429dd694fb5c2b731de08d7f6310",
+      "bytes": 974865,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/b49e3d76bbb142c30ce938327f42ffdfd465429dd694fb5c2b731de08d7f6310"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/arm.jpg": {
+      "sha256": "83acc902bcf35670c9e6aed46c9d5d5f291553ea3cdd7c4c2edfefcc428bbc86",
+      "bytes": 890318,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/83acc902bcf35670c9e6aed46c9d5d5f291553ea3cdd7c4c2edfefcc428bbc86"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/nor_gl.jpg": {
+      "sha256": "f9fc5aa9b9e9c5d67cc77f9f6e95bdddcc6abe97400300603721f1dff4171e69",
+      "bytes": 1292317,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/f9fc5aa9b9e9c5d67cc77f9f6e95bdddcc6abe97400300603721f1dff4171e69"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/source-metadata.json": {
+      "sha256": "e4e6ad130dbf84ad46069afa80631ef3ebdc0ff9ab8271900deda21ec9c89383",
+      "bytes": 2677,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/e4e6ad130dbf84ad46069afa80631ef3ebdc0ff9ab8271900deda21ec9c89383"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sand_01/Diffuse.jpg": {
+      "sha256": "a73b90eaa6d675ef57e7d48a8cf23e1f412e353ab2e29cf73930b8ecd4e76875",
+      "bytes": 485088,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/a73b90eaa6d675ef57e7d48a8cf23e1f412e353ab2e29cf73930b8ecd4e76875"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sand_01/arm.jpg": {
+      "sha256": "7a331aae0c26cfdba9096fc4fd0b8601d556b3e3ab92ddf4832a1c6a24a7292c",
+      "bytes": 131275,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/7a331aae0c26cfdba9096fc4fd0b8601d556b3e3ab92ddf4832a1c6a24a7292c"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sand_01/nor_gl.jpg": {
+      "sha256": "73984aecdc35b1ffbc322d64b7f8d8165b06970d11f37dd47010609fcb532704",
+      "bytes": 877821,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/73984aecdc35b1ffbc322d64b7f8d8165b06970d11f37dd47010609fcb532704"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sand_01/source-metadata.json": {
+      "sha256": "6004b433c2dfc4ba8058e72bbf0be4b0e5d364ccf5a1927c9a35b794aef0d371",
+      "bytes": 2410,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/6004b433c2dfc4ba8058e72bbf0be4b0e5d364ccf5a1927c9a35b794aef0d371"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sandy_gravel/Diffuse.jpg": {
+      "sha256": "38829e669dc246e86b7ce94c4141485709988450b13f82cfc4bc6067dd69ed48",
+      "bytes": 795227,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/38829e669dc246e86b7ce94c4141485709988450b13f82cfc4bc6067dd69ed48"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sandy_gravel/arm.jpg": {
+      "sha256": "ae13c0de981ab78abc39e3bec6147a06448e0865f4162cd57d54ada411df0de7",
+      "bytes": 765219,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/ae13c0de981ab78abc39e3bec6147a06448e0865f4162cd57d54ada411df0de7"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sandy_gravel/nor_gl.jpg": {
+      "sha256": "f2a4c48f31cd5ad5e2b0488e89c94d284c5a2acd4367bec49a5f48f832b7e3da",
+      "bytes": 1159620,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/f2a4c48f31cd5ad5e2b0488e89c94d284c5a2acd4367bec49a5f48f832b7e3da"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/sandy_gravel/source-metadata.json": {
+      "sha256": "664b5530bf0017d49c60632e4f09993704d55542710bd66f7b540455ba7a833b",
+      "bytes": 2599,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/664b5530bf0017d49c60632e4f09993704d55542710bd66f7b540455ba7a833b"
+    },
+    "assets-source/terrain/surfaces/granite-repeat-preview.png": {
+      "sha256": "018e1e8e9cfd7a7329ecac51ebd81c56141562ccc74cfcd3350141591b9f2c73",
+      "bytes": 866721,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/018e1e8e9cfd7a7329ecac51ebd81c56141562ccc74cfcd3350141591b9f2c73"
+    },
+    "assets-source/terrain/surfaces/granite-source.png": {
+      "sha256": "a466d64d65c7fab1abee72b645f2c87d0bb87f8a0fd9c798cc5bcaf37de23262",
+      "bytes": 4584573,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/a466d64d65c7fab1abee72b645f2c87d0bb87f8a0fd9c798cc5bcaf37de23262"
+    },
+    "assets-source/terrain/surfaces/prompts.json": {
+      "sha256": "fc60cf52c8607836a3ae7135c4e10f38834bfc0eff6aabcc6e3c2e7b2baee649",
+      "bytes": 2436,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/fc60cf52c8607836a3ae7135c4e10f38834bfc0eff6aabcc6e3c2e7b2baee649"
+    },
+    "assets-source/terrain/surfaces/soil-repeat-preview.png": {
+      "sha256": "6a8729de33ac4e3a0befb3513cdb80e51ed5ee2daccc3fc61410596cc6888529",
+      "bytes": 980688,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/6a8729de33ac4e3a0befb3513cdb80e51ed5ee2daccc3fc61410596cc6888529"
+    },
+    "assets-source/terrain/surfaces/soil-source.png": {
+      "sha256": "d577b77123f6d3c7e411c041c1b4c0bbbd5b5727e67392c02524629e657b9b44",
+      "bytes": 4423952,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/d577b77123f6d3c7e411c041c1b4c0bbbd5b5727e67392c02524629e657b9b44"
+    },
+    "assets-source/terrain/surfaces/validation.json": {
+      "sha256": "a1be0c8bf2108232388951be9911b948654f69e67dc47358e4cd76c5500f96f0",
+      "bytes": 640,
+      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "member": "objects/a1be0c8bf2108232388951be9911b948654f69e67dc47358e4cd76c5500f96f0"
     },
     "music/A Hundred Trading Bells 6-6.ogg": {
       "sha256": "a3872d1151e3431bea1c3d4c9983df133fad4a1222686d8c5d676d4c5d32874a",
@@ -31846,6 +31984,14 @@
       "asset_id": 696525072,
       "sha256": "62fd910f894538264d3789866994130e44ed04987df21334e7421f6e5777e0df",
       "bytes": 13269222,
+      "encoding": "zip"
+    },
+    "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip": {
+      "tag": "landscape-source-inputs-20261103",
+      "name": "assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
+      "asset_id": 706631903,
+      "sha256": "d140c9058f684757e9f331cbd274008269399246ec2d536adf10ae4dc7b0e49f",
+      "bytes": 21049224,
       "encoding": "zip"
     },
     "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip": {
