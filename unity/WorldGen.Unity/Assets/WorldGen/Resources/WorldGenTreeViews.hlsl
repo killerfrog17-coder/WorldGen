@@ -4,6 +4,13 @@ TEXTURE2D_ARRAY(_TreeColourViews);SAMPLER(sampler_TreeColourViews);
 TEXTURE2D_ARRAY(_TreeNormalViews);SAMPLER(sampler_TreeNormalViews);
 // Distance transition, then projected-diameter transition. Zero disables LOD.
 float4 _WorldGenTreeViewRanges;float _WorldGenTreeViewProjection;
+float2 WorldGenTreeQuadHalfSize(float3 right,float3 up,float4 extents,float radius,float enabled)
+{
+    if(enabled<.5||min(extents.x,min(extents.y,extents.z))<=0)return float2(radius,radius);
+    // Project the actual model's box instead of shading its entire enclosing
+    // sphere. Two source texels of padding retain filtered silhouette edges.
+    return min(float2(radius,radius),float2(dot(abs(right),extents.xyz),dot(abs(up),extents.xyz))*1.025+extents.w);
+}
 float3 WorldGenTreeViewDirection(uint index)
 {float2 q=float2(index%4u,index/4u)/3.*2-1;return normalize(float3((q.x+q.y)*.5,1-max(abs(q.x),abs(q.y)),(q.x-q.y)*.5));}
 void WorldGenTreeViewBasis(float3 d,out float3 r,out float3 u)

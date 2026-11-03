@@ -7,6 +7,8 @@ Shader "WorldGen/TreeSurface2"
         _TreeColourViews("Tree albedo views",2DArray)=""{} _TreeNormalViews("Tree normal/depth views",2DArray)=""{}
         _TreeLeafShape("Leaf shape",Float)=0 _TreeBarkPattern("Bark",Float)=0
         _Impostor("Multi-view representation",Float)=0 _ImpostorBounds("Centre and radius",Vector)=(0,.5,0,.7)
+        [HideInInspector] _ImpostorExtents("Model extents and edge padding",Vector)=(0,0,0,0)
+        [HideInInspector] _TreeTightQuad("Trim empty billboard space",Float)=1
         [HideInInspector] _TreeEarlyAlpha("Conservative empty-ray rejection",Float)=1
         [HideInInspector] _TreeViewCutoff("Distant coverage threshold",Float)=.4
         _Wind("Flexibility",Float)=.03 _PlantTraits("Plant traits",Vector)=(.03,.5,.7,1)
@@ -31,8 +33,8 @@ Shader "WorldGen/TreeSurface2"
         TEXTURE2D_ARRAY(_TreeBark);SAMPLER(sampler_TreeBark);
         TEXTURE2D_ARRAY(_TreeBarkNormals);SAMPLER(sampler_TreeBarkNormals);
         #include "WorldGenTreeViews.hlsl"
-        float4 _PlantTraits,_ImpostorBounds,_AmbientTint,_FogColor;
-        float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha,_TreeViewCutoff;
+        float4 _PlantTraits,_ImpostorBounds,_ImpostorExtents,_AmbientTint,_FogColor;
+        float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha,_TreeViewCutoff,_TreeTightQuad;
         float3 _LightDirection;
         UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
@@ -52,7 +54,8 @@ Shader "WorldGen/TreeSurface2"
             if(_Impostor>.5)
             {
                 float3 d=normalize(TransformWorldToObject(_WorldSpaceCameraPos)-_ImpostorBounds.xyz),r,u;WorldGenTreeViewBasis(d,r,u);
-                p=_ImpostorBounds.xyz+(r*(a.uv.x*2-1)+u*(a.uv.y*2-1))*_ImpostorBounds.w;
+                float2 halfSize=WorldGenTreeQuadHalfSize(r,u,_ImpostorExtents,_ImpostorBounds.w,_TreeTightQuad);
+                p=_ImpostorBounds.xyz+r*(a.uv.x*2-1)*halfSize.x+u*(a.uv.y*2-1)*halfSize.y;
                 o.direction=d;o.local=p;
             }
             float3 world=TransformObjectToWorld(p),root=TransformObjectToWorld(float3(0,0,0));

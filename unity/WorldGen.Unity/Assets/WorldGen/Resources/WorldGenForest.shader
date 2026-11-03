@@ -4,6 +4,8 @@ Shader "WorldGen/ForestPackets"
 
         _TreeColourViews("Actual-tree stand colours",2DArray)=""{} _TreeNormalViews("Stand normals and depth",2DArray)=""{}
         _ImpostorBounds("Object centre/radius",Vector)=(0,.48,0,1.5)
+        [HideInInspector] _ImpostorExtents("Model extents and edge padding",Vector)=(0,0,0,0)
+        [HideInInspector] _TreeTightQuad("Trim empty billboard space",Float)=1
         [HideInInspector] _TreeEarlyAlpha("Conservative empty-ray rejection",Float)=1
         [HideInInspector] _TreeViewCutoff("Distant coverage threshold",Float)=.4
         _AmbientTint("Ambient",Color)=(.12,.14,.17,1) _FogColor("Fog",Color)=(.57,.69,.76,1) _FogDistance("Fog distance",Float)=60000
@@ -21,7 +23,7 @@ Shader "WorldGen/ForestPackets"
             #include "WorldGenTreeViews.hlsl"
             struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
             StructuredBuffer<Root> _Roots;StructuredBuffer<uint> _Visible;
-            float4 _ImpostorBounds,_AmbientTint,_FogColor,_ForestChart,_ForestRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff;
+            float4 _ImpostorBounds,_ImpostorExtents,_AmbientTint,_FogColor,_ForestChart,_ForestRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff,_TreeTightQuad;
             struct O {float4 positionCS:SV_POSITION;float3 world:TEXCOORD0;float3 local:TEXCOORD1;nointerpolation float3 direction:TEXCOORD2;nointerpolation uint root:TEXCOORD3;nointerpolation float2 viewLod:TEXCOORD4;
                 #if defined(WORLDGEN_TREE_EFFICIENT)
                 nointerpolation uint3 viewIndices:TEXCOORD5;nointerpolation float3 viewWeights:TEXCOORD6;float4 viewA:TEXCOORD7;float4 viewB:TEXCOORD8;float4 viewC:TEXCOORD9;
@@ -35,7 +37,8 @@ Shader "WorldGen/ForestPackets"
                 float3 eye=_WorldSpaceCameraPos-origin;eye.y-=eye.x*root.slopeX+eye.z*root.slopeZ;eye=Rotate(eye,-root.yaw)/scale;
                 float3 direction=normalize(eye-_ImpostorBounds.xyz),r,u;WorldGenTreeViewBasis(direction,r,u);
                 const float2 corners[6]={float2(-1,-1),float2(-1,1),float2(1,-1),float2(1,-1),float2(-1,1),float2(1,1)};
-                float2 uv=corners[vertexID%6u];float3 p=_ImpostorBounds.xyz+(r*uv.x+u*uv.y)*_ImpostorBounds.w;
+                float2 uv=corners[vertexID%6u],halfSize=WorldGenTreeQuadHalfSize(r,u,_ImpostorExtents,_ImpostorBounds.w,_TreeTightQuad);
+                float3 p=_ImpostorBounds.xyz+r*uv.x*halfSize.x+u*uv.y*halfSize.y;
                 float3 relative=Rotate(p*scale,root.yaw);relative.y+=relative.x*root.slopeX+relative.z*root.slopeZ;
                 o.world=origin+relative;o.positionCS=TransformWorldToHClip(o.world);o.local=p-_ImpostorBounds.xyz;o.direction=direction;o.root=index;o.viewLod=WorldGenTreeViewLod(length(origin-_WorldSpaceCameraPos),_ImpostorBounds.w*max(root.width,root.height));
                 #if defined(WORLDGEN_TREE_EFFICIENT)

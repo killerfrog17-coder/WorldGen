@@ -42,6 +42,16 @@ public static class WorldGenTreeAssetReview
                 object result=baker.GetMethod("Bake").Invoke(null,new[]{source,(object)CancellationToken.None});
                 var pixels=(Color32[][])result.GetType().GetField("Colours").GetValue(result);
                 if(pixels.Length!=16||pixels.Any(p=>p.Count(c=>c.a>=102)<100))throw new Exception("Missing tree bake views/coverage");
+                var box=near.bounds;float sphere=box.extents.magnitude*1.025f,areaSum=0;
+                for(int view=0;view<16;view++)
+                {
+                    var direction=(Vector3)baker.GetMethod("Direction").Invoke(null,new object[]{view});var right=Vector3.Cross(Vector3.up,direction);if(right.sqrMagnitude<.0001f)right=Vector3.right;right.Normalize();var up=Vector3.Cross(direction,right).normalized;
+                    float Projection(Vector3 axis)=>Mathf.Abs(axis.x)*box.extents.x+Mathf.Abs(axis.y)*box.extents.y+Mathf.Abs(axis.z)*box.extents.z;
+                    float halfWidth=Mathf.Min(sphere,Projection(right)*1.025f+4*sphere/128),halfHeight=Mathf.Min(sphere,Projection(up)*1.025f+4*sphere/128);
+                    foreach(var vertex in near.vertices){var relative=vertex-box.center;if(Mathf.Abs(Vector3.Dot(relative,right))>halfWidth+.00001f||Mathf.Abs(Vector3.Dot(relative,up))>halfHeight+.00001f)throw new Exception("Tree vertex outside trimmed billboard support");}
+                    areaSum+=halfWidth*halfHeight/(sphere*sphere);
+                }
+                File.AppendAllText(Path.Combine(folder,"quad-area.txt"),code+" mean-area-ratio="+(areaSum/16).ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+"\n");
                 // A CPU contact sheet makes view orientation/silhouette inspectable.
                 var atlas=new Texture2D(512,512,TextureFormat.RGBA32,false);
                 for(int i=0;i<16;i++)atlas.SetPixels32((i%4)*128,(i/4)*128,128,128,pixels[i]);atlas.Apply();
@@ -128,6 +138,7 @@ public static class WorldGenTreeAssetReview
         var material=new Material(shader){enableInstancing=true};material.SetTexture("_TreeLeaves",(Texture)leaves[0]);material.SetTexture("_TreeLeafNormals",(Texture)leaves[1]);material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",(int)morphology.BarkPattern);textures.GetMethod("BindBark").Invoke(null,new object[]{material});material.SetFloat("_Wind",0);material.SetFloat("_FogDistance",10000);
         material.SetColor("_AmbientTint",new Color(.16f,.19f,.23f));var far=new Material(material);far.SetFloat("_Impostor",1);far.SetTexture("_TreeColourViews",colours);far.SetTexture("_TreeNormalViews",normals);
         var center=(Vector3)result.GetType().GetField("Center").GetValue(result);float radius=(float)result.GetType().GetField("Radius").GetValue(result);far.SetVector("_ImpostorBounds",new Vector4(center.x,center.y,center.z,radius));
+        var extents=(Vector3)result.GetType().GetField("Extents").GetValue(result);far.SetVector("_ImpostorExtents",new Vector4(extents.x,extents.y,extents.z,4*radius/128));
         var quad=new Mesh();quad.vertices=new[]{new Vector3(-1,-1,0),new Vector3(1,-1,0),new Vector3(-1,1,0),new Vector3(1,1,0)};quad.uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one};quad.triangles=new[]{0,1,2,1,3,2};quad.bounds=new Bounds(center,Vector3.one*radius*2.1f);
         var cameraRoot=new GameObject("Tree asset review camera");var camera=cameraRoot.AddComponent<Camera>();camera.enabled=false;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=new Color(.42f,.53f,.67f);camera.cullingMask=1<<30;camera.nearClipPlane=.01f;camera.farClipPlane=100;camera.fieldOfView=45;
         cameraRoot.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing=false;
@@ -150,6 +161,18 @@ public static class WorldGenTreeAssetReview
             var prior=RenderTexture.active;RenderTexture.active=target;var pixels=new Texture2D(1280,720,TextureFormat.RGB24,false);pixels.ReadPixels(new Rect(0,0,1280,720),0,0);pixels.Apply();RenderTexture.active=prior;
             var data=pixels.GetPixels32();var bg=data[0];int changed=data.Count(p=>Math.Abs(p.r-bg.r)+Math.Abs(p.g-bg.g)+Math.Abs(p.b-bg.b)>15);if(changed<1000)throw new Exception("Tree review render blank");
             File.WriteAllBytes(Path.Combine(folder,code+"-mesh-vs-bake-"+shot+".png"),pixels.EncodeToPNG());UnityEngine.Object.DestroyImmediate(pixels);
+            if(shot=="0"||shot=="45"||shot=="115")
+            {
+                far.SetFloat("_TreeTightQuad",0);parameters.material=material;Graphics.RenderMeshInstanced(in parameters,mesh,0,new[]{a},1);parameters.material=far;Graphics.RenderMeshInstanced(in parameters,quad,0,new[]{b},1);camera.Render();
+                prior=RenderTexture.active;RenderTexture.active=target;var literal=new Texture2D(1280,720,TextureFormat.RGB24,false);literal.ReadPixels(new Rect(0,0,1280,720),0,0);literal.Apply();RenderTexture.active=prior;var wide=literal.GetPixels32();int delta=0;
+                int significant=0;long colourError=0;
+                for(int i=0;i<data.Length;i++){int dr=Math.Abs(data[i].r-wide[i].r),dg=Math.Abs(data[i].g-wide[i].g),db=Math.Abs(data[i].b-wide[i].b),difference=Math.Max(dr,Math.Max(dg,db));delta=Math.Max(delta,difference);if(difference>2)significant++;colourError+=dr+dg+db;}
+                // Different quad vertices change floating-point interpolation.
+                // Permit isolated alpha-threshold flips, not a missing contour.
+                double mean=colourError/(data.Length*3d);
+                if(significant>64||mean>.02){File.WriteAllBytes(Path.Combine(folder,code+"-wide-quad-"+shot+".png"),literal.EncodeToPNG());throw new Exception("Trimmed billboard changed pixels "+code+" / "+shot+" / "+delta+" / count "+significant+" / mean "+mean);}
+                File.AppendAllText(Path.Combine(folder,"quad-pixels.txt"),code+" yaw="+shot+" delta="+delta+" significant="+significant+" mean="+mean.ToString("F8",System.Globalization.CultureInfo.InvariantCulture)+"\n");far.SetFloat("_TreeTightQuad",1);UnityEngine.Object.DestroyImmediate(literal);
+            }
         }
         foreach(var obj in new UnityEngine.Object[]{cameraRoot,lightRoot,target,material,far,quad,colours,normals})UnityEngine.Object.DestroyImmediate(obj);
     }

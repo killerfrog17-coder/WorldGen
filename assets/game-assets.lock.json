@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "18bc8bfaaaee80b0c69db81803e2558d6b3f5d88",
+  "source_checkpoint": "32ff75a9e077e5934472f3e2be7feef5050c03d3",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -32111,10 +32111,10 @@
       "member": "objects/9faffbda7e46e2247a7e6989e8f1503c8522ddcccaf3fea91f705f97e28316d3"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/pixels.bytes": {
-      "sha256": "43daa057b791ed00a1eb916f9fb122abf2b497a6a4ed71fc112c5b429b32570c",
-      "bytes": 6516061,
-      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
-      "member": "objects/43daa057b791ed00a1eb916f9fb122abf2b497a6a4ed71fc112c5b429b32570c"
+      "sha256": "34929554af16904656c983469f796ece3336b4a65b1b86274dc38b9faa5ab4b2",
+      "bytes": 6669652,
+      "pack": "tree-padding-inputs-20261103/assets-82c8acf44fe277ccbfd72789927ba441c1d94a4122735211256901a249365300.zip",
+      "member": "objects/34929554af16904656c983469f796ece3336b4a65b1b86274dc38b9faa5ab4b2"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/pixels.bytes.meta": {
       "sha256": "884fdd272e8905087764093adf47f21836bc39c62fe57982573d185526016730",
@@ -32123,10 +32123,10 @@
       "member": "objects/884fdd272e8905087764093adf47f21836bc39c62fe57982573d185526016730"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-albedo.asset": {
-      "sha256": "c27df6447a8f5a447f3c1f0f4741ebf19fa35d55e75d9afeeb01ffbdc74f0409",
+      "sha256": "e2213220626cdfe69b288ae7fa0a9086a466eb889206b0810bd0426b271af714",
       "bytes": 22372201,
-      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
-      "member": "objects/c27df6447a8f5a447f3c1f0f4741ebf19fa35d55e75d9afeeb01ffbdc74f0409"
+      "pack": "tree-padding-inputs-20261103/assets-82c8acf44fe277ccbfd72789927ba441c1d94a4122735211256901a249365300.zip",
+      "member": "objects/e2213220626cdfe69b288ae7fa0a9086a466eb889206b0810bd0426b271af714"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-albedo.asset.meta": {
       "sha256": "00b0c1b991d0a904b004ddb982b35996e23bbb1e742ecc429bf0af4d1571deef",
@@ -32135,10 +32135,10 @@
       "member": "objects/00b0c1b991d0a904b004ddb982b35996e23bbb1e742ecc429bf0af4d1571deef"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-normal.asset": {
-      "sha256": "9836a91d291da3b145b22c629f9aac5a156589aa0fb14a3ee0a59e3a16e1e357",
+      "sha256": "81d79d818eea19a8eb05a5df07401a21c947498cbe391bfb1199c21d0c48fc85",
       "bytes": 22372202,
-      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
-      "member": "objects/9836a91d291da3b145b22c629f9aac5a156589aa0fb14a3ee0a59e3a16e1e357"
+      "pack": "tree-padding-inputs-20261103/assets-82c8acf44fe277ccbfd72789927ba441c1d94a4122735211256901a249365300.zip",
+      "member": "objects/81d79d818eea19a8eb05a5df07401a21c947498cbe391bfb1199c21d0c48fc85"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-normal.asset.meta": {
       "sha256": "54981e8465b157ca174d81635ef6449ea2b4ee61a8f2b7406177a010833ed7dc",
@@ -33234,6 +33234,14 @@
       "asset_id": 707322471,
       "sha256": "7ffad3ce738a2d7c3b91cef952c4e1c716f7603c1dd5813a93efb822542360ed",
       "bytes": 26747722,
+      "encoding": "zip"
+    },
+    "tree-padding-inputs-20261103/assets-82c8acf44fe277ccbfd72789927ba441c1d94a4122735211256901a249365300.zip": {
+      "tag": "tree-padding-inputs-20261103",
+      "name": "assets-82c8acf44fe277ccbfd72789927ba441c1d94a4122735211256901a249365300.zip",
+      "asset_id": 707460722,
+      "sha256": "1d90cd828fcc1556deef6c632f9999cb3ae1fa3bda903b549a9b887d018318e9",
+      "bytes": 20446043,
       "encoding": "zip"
     },
     "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip": {

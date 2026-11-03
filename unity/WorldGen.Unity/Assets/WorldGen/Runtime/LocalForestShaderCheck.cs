@@ -42,6 +42,7 @@ public sealed partial class LocalTerrainExplorer
             var morphology=new TreeMorphology(code);
             var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);var bake=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,(int)morphology.BarkPattern),CancellationToken.None);
             LocalTreeTextures.Upload(bake.Colours,bake.Normals,128,"Forest check",out var colour,out var normals);material.SetTexture("_TreeColourViews",colour);material.SetTexture("_TreeNormalViews",normals);material.SetVector("_ImpostorBounds",new Vector4(bake.Center.x,bake.Center.y,bake.Center.z,bake.Radius));
+            material.SetVector("_ImpostorExtents",LocalTreeImpostor.QuadExtents(bake));
             if(Count()!=2)throw new Exception("Forest culler failed restored draw");var parameters=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(Vector3.zero,Vector3.one*10),matProps=props,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,args,1);camera.Render();
             var prior=RenderTexture.active;RenderTexture.active=target;var image=new Texture2D(1280,720,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();RenderTexture.active=prior;var pixels=image.GetPixels32();var bg=pixels[0];int left=0,right=0;
             for(int y=0;y<720;y++)for(int x=0;x<1280;x++){var p=pixels[y*1280+x];if(Math.Abs(p.r-bg.r)+Math.Abs(p.g-bg.g)+Math.Abs(p.b-bg.b)>20){if(x<640)left++;else right++;}}
@@ -49,6 +50,11 @@ public sealed partial class LocalTerrainExplorer
             material.SetFloat("_TreeEarlyAlpha",0);Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,args,1);camera.Render();prior=RenderTexture.active;RenderTexture.active=target;image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();RenderTexture.active=prior;var literal=image.GetPixels32();int delta=0;
             for(int i=0;i<pixels.Length;i++)delta=Math.Max(delta,Math.Max(Math.Abs(pixels[i].r-literal[i].r),Math.Max(Math.Abs(pixels[i].g-literal[i].g),Math.Abs(pixels[i].b-literal[i].b))));
             if(delta>1)throw new Exception("Forest quad-alpha early rejection changed pixels "+delta);report+="early alpha max RGB delta "+delta+"\n";material.SetFloat("_TreeEarlyAlpha",1);
+            material.SetFloat("_TreeTightQuad",0);Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,args,1);camera.Render();prior=RenderTexture.active;RenderTexture.active=target;image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();RenderTexture.active=prior;
+            var wide=image.GetPixels32();int quadDelta=0,significant=0;long colourError=0;for(int i=0;i<pixels.Length;i++){int dr=Math.Abs(pixels[i].r-wide[i].r),dg=Math.Abs(pixels[i].g-wide[i].g),db=Math.Abs(pixels[i].b-wide[i].b),difference=Math.Max(dr,Math.Max(dg,db));quadDelta=Math.Max(quadDelta,difference);if(difference>2)significant++;colourError+=dr+dg+db;}
+            double mean=colourError/(pixels.Length*3d);
+            if(significant>64||mean>.02){File.WriteAllBytes(Path.Combine(output,code+"-wide-quad.png"),image.EncodeToPNG());throw new Exception("Trimmed forest quad changed pixels "+quadDelta+" / count "+significant+" / mean "+mean);}
+            report+="tight quad max RGB delta "+quadDelta+", significant="+significant+", mean="+mean+"\n";material.SetFloat("_TreeTightQuad",1);
             report+=code+" pixels="+left+"/"+right+"\n";Destroy(image);Destroy(mesh);Destroy(colour);Destroy(normals);yield return null;
         }
         roots.Dispose();visible.Dispose();args.Dispose();flags.Dispose();hash.Dispose();File.WriteAllText(Path.Combine(output,"PASS.txt"),SystemInfo.graphicsDeviceName+"\n"+report);Debug.Log("PACKAGED FOREST SHADER PASS "+report);Application.Quit(0);

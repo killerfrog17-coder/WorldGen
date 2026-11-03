@@ -11,11 +11,12 @@ static class LocalTreeImpostor
     public sealed class Source
     {
         public Vector3[] Vertices,Normals;public Vector4[] Tangents;public Vector2[] Uv,Mask;
-        public Color32[] Colours;public int[] Indices;public Vector3 Center;public float Radius;public int Shape,Bark;
+        public Color32[] Colours;public int[] Indices;public Vector3 Center,Extents;public float Radius;public int Shape,Bark;
         public Source(Mesh mesh,int shape,int bark=0)
-        {Vertices=mesh.vertices;Normals=mesh.normals;Tangents=mesh.tangents;Uv=mesh.uv;Mask=mesh.uv2;Colours=mesh.colors32;Indices=mesh.triangles;Center=mesh.bounds.center;Radius=mesh.bounds.extents.magnitude*1.025f;Shape=shape;Bark=bark;}
+        {Vertices=mesh.vertices;Normals=mesh.normals;Tangents=mesh.tangents;Uv=mesh.uv;Mask=mesh.uv2;Colours=mesh.colors32;Indices=mesh.triangles;Center=mesh.bounds.center;Extents=mesh.bounds.extents;Radius=Extents.magnitude*1.025f;Shape=shape;Bark=bark;}
     }
-    public sealed class Result {public Color32[][] Colours,Normals;public Vector3 Center;public float Radius;public LocalTreeTextures.Prepared Prepared;}
+    public sealed class Result {public Color32[][] Colours,Normals;public Vector3 Center,Extents;public float Radius;public LocalTreeTextures.Prepared Prepared;}
+    public static Vector4 QuadExtents(Result data)=>new Vector4(data.Extents.x,data.Extents.y,data.Extents.z,4*data.Radius/Size);
     public static Vector3 Direction(int index)
     {
         float x=(index%Grid)/(float)(Grid-1)*2-1,y=(index/Grid)/(float)(Grid-1)*2-1;
@@ -25,7 +26,7 @@ static class LocalTreeImpostor
     {right=Vector3.Cross(Vector3.up,direction);if(right.sqrMagnitude<.0001f)right=Vector3.right;right.Normalize();up=Vector3.Cross(direction,right).normalized;}
     public static Result Bake(Source source,CancellationToken token)
     {
-        const int size=Size*2;var result=new Result{Colours=new Color32[Views][],Normals=new Color32[Views][],Center=source.Center,Radius=source.Radius};
+        const int size=Size*2;var result=new Result{Colours=new Color32[Views][],Normals=new Color32[Views][],Center=source.Center,Extents=source.Extents,Radius=source.Radius};
         var projected=new Vector3[source.Vertices.Length];var depth=new float[size*size];
         for(int view=0;view<Views;view++)
         {
@@ -110,7 +111,7 @@ static class LocalTreeImpostor
     public static Result Cluster(Result tree,int code,CancellationToken token)
     {
         int form=(code>>28)&7;float slender=form==1?.45f:form==5?.35f:form==2||form==3?.70f:.75f;
-        var result=new Result{Center=new Vector3(0,.48f,0),Radius=tree.Radius*.95f+1.05f,Colours=new Color32[Views][],Normals=new Color32[Views][]};
+        var result=new Result{Center=new Vector3(0,.48f,0),Radius=tree.Radius*.95f+1.05f,Extents=Vector3.one*(tree.Radius*.95f+1.05f),Colours=new Color32[Views][],Normals=new Color32[Views][]};
         for(int view=0;view<Views;view++)
         {
             token.ThrowIfCancellationRequested();var d=Direction(view);Basis(d,out var right,out var up);

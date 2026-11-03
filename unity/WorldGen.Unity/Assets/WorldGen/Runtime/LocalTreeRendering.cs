@@ -61,6 +61,7 @@ public sealed partial class LocalTerrainExplorer
                 material.name="Multi-view tree "+owner.TreeCode;
                 material.SetFloat("_Impostor",1);material.SetFloat("_Wind",0);material.SetTexture("_TreeColourViews",owner.TreeColour);material.SetTexture("_TreeNormalViews",owner.TreeNormal);
                 material.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));
+                material.SetVector("_ImpostorExtents",LocalTreeImpostor.QuadExtents(data));
                 // Keep depth-writing cutouts opaque, but establish terrain and
                 // close structural depth before the expensive impostor pixels.
                 // Forest batches use camera-centred conservative sort bounds;

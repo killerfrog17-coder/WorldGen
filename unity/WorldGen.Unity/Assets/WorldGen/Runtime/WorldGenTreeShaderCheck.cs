@@ -51,6 +51,7 @@ public sealed partial class WorldGenRuntime
                     var data=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,(int)morphology.BarkPattern),CancellationToken.None);
                     LocalTreeTextures.Upload(data.Colours,data.Normals,128,"Native check views",out var colour,out var normals);
                     drawMaterial=new Material(material);drawMaterial.SetFloat("_Impostor",1);drawMaterial.SetTexture("_TreeColourViews",colour);drawMaterial.SetTexture("_TreeNormalViews",normals);drawMaterial.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));
+                    drawMaterial.SetVector("_ImpostorExtents",LocalTreeImpostor.QuadExtents(data));
                     drawn=new Mesh();drawn.vertices=new[]{new Vector3(-1,-1,0),new Vector3(1,-1,0),new Vector3(-1,1,0),new Vector3(1,1,0)};drawn.uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one};drawn.triangles=new[]{0,1,2,1,3,2};drawn.bounds=new Bounds(data.Center,Vector3.one*data.Radius*2.1f);
                 }
                 var parameters=new RenderParams(drawMaterial){camera=camera,layer=30,worldBounds=new Bounds(Vector3.up*.5f,Vector3.one*5),matProps=props,shadowCastingMode=ShadowCastingMode.Off};
@@ -67,6 +68,16 @@ public sealed partial class WorldGenRuntime
                     if(delta>1)throw new Exception("Tree early alpha changed native pixels: "+delta);report+="early alpha max RGB delta "+delta+"\n";drawMaterial.SetFloat("_TreeEarlyAlpha",1);if(SystemInfo.graphicsShaderLevel>=45)drawMaterial.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
                 }
                 if(left<1000||right<1000)throw new Exception("Packaged trees missing: "+code+" stage="+stage+" left="+left+" right="+right);
+                if(stage==1)
+                {
+                    drawMaterial.SetFloat("_TreeTightQuad",0);Graphics.RenderMeshInstanced(in parameters,drawn,0,matrices,2);camera.Render();
+                    prior=RenderTexture.active;RenderTexture.active=target;image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();RenderTexture.active=prior;
+                    var wide=image.GetPixels32();int quadDelta=0,significant=0;long colourError=0;
+                    for(int i=0;i<pixels.Length;i++){int dr=Math.Abs(pixels[i].r-wide[i].r),dg=Math.Abs(pixels[i].g-wide[i].g),db=Math.Abs(pixels[i].b-wide[i].b),difference=Math.Max(dr,Math.Max(dg,db));quadDelta=Math.Max(quadDelta,difference);if(difference>2)significant++;colourError+=dr+dg+db;}
+                    double mean=colourError/(pixels.Length*3d);
+                    if(significant>64||mean>.02){File.WriteAllBytes(Path.Combine(output,code+"-wide-quad.png"),image.EncodeToPNG());throw new Exception("Trimmed tree quad changed pixels "+quadDelta+" / count "+significant+" / mean "+mean);}
+                    report+="tight quad max RGB delta "+quadDelta+", significant="+significant+", mean="+mean+"\n";drawMaterial.SetFloat("_TreeTightQuad",1);
+                }
                 report+=code+" stage="+stage+" left="+left+" right="+right+"\n";Destroy(image);
                 yield return null;
             }
