@@ -72,6 +72,13 @@ namespace WorldGen.Core
                 var forest=patch.ForestProfile(at);double potential=forest.Coverage,stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
                 if(admission>potential*stand*TreeFlora.Stocking(forest))return false;
                 var sample=patch.Sample(at);if(sample.Underwater||sample.ElevationM<2)return false;
+                // The raw forest profile is only an upper admission bound.
+                // Final substrate/wetland exclusions own actual near/far trees.
+                if(sample.Forest.Coverage<forest.Coverage-1e-9)
+                {
+                    forest=sample.Forest;stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
+                    if(admission>forest.Coverage*stand*TreeFlora.Stocking(forest))return false;
+                }
                 var e=world.Ecology;var h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Trees;double sum=0;
                 for(int i=0;i<species.Length;i++)

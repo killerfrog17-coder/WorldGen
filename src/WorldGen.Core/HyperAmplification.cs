@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-provinces-15";
+        public const string Version = "hyper-amplification-provinces-16";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -30,13 +30,15 @@ namespace WorldGen.Core
         readonly double radius, scale;
         readonly int seed;
         readonly CellLocator landscapeLocator;
-        readonly SmallWaterBodies smallWater;
-        public int CachedSmallWaterCandidates=>smallWater.CachedCandidates;
+        readonly SmallWaterBodies smallWater,wetlandWater;
+        public int CachedSmallWaterCandidates=>smallWater.CachedCandidates+wetlandWater.CachedCandidates;
         public SmallLake[] SmallLakesNear(V center,double rangeM)
         {
             var probe=new Patch(this,Array.Empty<int>());var found=new Dictionary<ulong,SmallLake>();
             foreach(var candidate in smallWater.Candidates(center,rangeM))
             {var lake=smallWater.At(candidate,probe.SmallWaterGroundAt);if(lake!=null)found[lake.Id]=lake;}
+            foreach(var candidate in wetlandWater.Candidates(center,rangeM))
+            {var lake=wetlandWater.At(candidate,probe.SmallWaterGroundAt);if(lake!=null)found[lake.Id]=lake;}
             var result=new SmallLake[found.Count];found.Values.CopyTo(result,0);Array.Sort(result,(a,b)=>a.Id.CompareTo(b.Id));return result;
         }
         readonly int terminalDepth;
@@ -193,7 +195,7 @@ namespace WorldGen.Core
         internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token,CellLocator landscapeLocator,double[] cachedRiverDatums=null)
         {
             var watch = Stopwatch.StartNew(); radius = world.Recipe.RadiusKm * 1000; scale = horizontalScale; seed = world.Recipe.Seed;
-            this.landscapeLocator=landscapeLocator;smallWater=new SmallWaterBodies(seed,radius*scale);
+            this.landscapeLocator=landscapeLocator;smallWater=new SmallWaterBodies(seed,radius*scale);wetlandWater=new SmallWaterBodies(seed^0x31b47,radius*scale,true,smallWater);
             int count = profiles.Length; var nodes = rootNodes = new Vertex[count]; var hydro = world.Hydrology;
             var heights = new double[count]; var flows = new double[count];
             for (int i = 0; i < count; i++)
@@ -857,6 +859,7 @@ namespace WorldGen.Core
                     if(localWater&&mapSpacingM<=128&&result.Kind==LocalWaterKind.None&&landscape.Moisture>=.18)
                     {
                         var pond=owner.smallWater.At(point,smallWaterGround);
+                        if(pond==null&&landscape.Wet>=.5)pond=owner.wetlandWater.At(point,smallWaterGround);
                         if(pond!=null)
                         {
                             double r=pond.NormalizedRadius(point,owner.radius*owner.scale);

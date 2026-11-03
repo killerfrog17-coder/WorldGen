@@ -19,14 +19,15 @@ namespace WorldGen.Core
                 // Cheap planet-stable stand mask before expensive terrain/taxon queries.
                 if(r.Unit()>MidFlora.StandDensity(p,seed,terrain.RadiusM*scale))continue;
                 var sample=patch.Sample(p);
-                if(sample.Underwater||sample.Biome==Biome.Ice||sample.ElevationM<2)continue;
+                if(sample.Biome==Biome.Ice||sample.ElevationM<2||sample.Underwater&&sample.WaterSurfaceM-sample.ElevationM>1.2)continue;
                 var e=world.Ecology;var habitat=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).MidPlants;
                 double warm=habitat==null?18:habitat.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]),sum=0;
                 double shade=TreeFlora.CanopyShade(sample.Forest,p,seed,terrain.RadiusM*scale);
                 for(int i=0;i<species.Length;i++)
                 {
-                    double fit=MidFlora.Suitability(species[i],habitat,sample.Ground,sample.Biome,warm,shade);
+                    double admission=MidFlora.WaterAdmission(species[i],sample);
+                    double fit=admission<=0?0:admission*MidFlora.Suitability(species[i],habitat,sample.Ground,sample.Biome,warm,shade,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0);
                     weights[i]=fit<.005?0:fit*MidFlora.Colony(species[i],p,seed,terrain.RadiusM*scale);sum+=weights[i];
                 }
                 double cu=(key.X+u)*2/divisions-1,cv=(key.Y+v)*2/divisions-1,jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
@@ -44,7 +45,7 @@ namespace WorldGen.Core
                     double angle=r.Unit()*D.Pi*2,spread=member==0?0:s.WidthM*(.6+.4*r.Unit());
                     var at=member==0?p:(p+(east*Math.Cos(angle)+north*Math.Sin(angle))*(spread/(terrain.RadiusM*scale))).Unit;
                     var ground=member==0?sample:patch.Sample(at);
-                    if(ground.Underwater||Math.Abs(ground.ElevationM-sample.ElevationM)>spread*.85+.1)continue;
+                    if(MidFlora.WaterAdmission(s,ground)<=0||Math.Abs(ground.ElevationM-sample.ElevationM)>spread*.85+.1)continue;
                     double size=.72+.56*r.Unit(),tint=.91+.16*r.Unit();
                     result.Add(new ScatterInstance{Id=key.Id(2,slot*4+member),Kind=ScatterKind.MidPlant,Variant=s.MorphologyCode|(int)(r.Unit()*4),Position=at,Normal=(at-east*sx-north*sz).Unit,
                         GroundM=ground.ElevationM,HeightM=D.Q(s.HeightM*size,1000),WidthM=D.Q(s.WidthM*size*(.88+.24*r.Unit()),1000),

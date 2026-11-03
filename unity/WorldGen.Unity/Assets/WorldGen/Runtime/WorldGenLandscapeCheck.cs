@@ -40,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var lakes=model.Amplification.SmallLakesNear(world.Surface.Cells[cell].Position,4000);
                     foreach(var pond in lakes)
-                    {var s=model.Patch(pond.Center,2000).Sample(pond.Center);if(s.Underwater&&s.WaterBodyKey==pond.Id)return new LandscapeReviewSite{Position=pond.Center,Pond=pond,Sample=s};}
+                    {var s=model.Patch(pond.Center,2000).Sample(pond.Center);if(s.Underwater&&s.WaterBodyKey==pond.Id&&s.WaterSurfaceM-s.ElevationM>.9)return new LandscapeReviewSite{Position=pond.Center,Pond=pond,Sample=s};}
                 }
             }
             else

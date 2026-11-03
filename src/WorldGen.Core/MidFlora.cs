@@ -108,11 +108,24 @@ namespace WorldGen.Core
             }
             return result;
         }
-        public static double Suitability(MidPlantSpecies s,HabitatCell h,GroundProfile soil,Biome biome,double warm,double? localShade=null)
+        public static double WaterAdmission(MidPlantSpecies s,LocalTerrainSample sample)
         {
+            if(!sample.Underwater)return 1;
+            if(s.Form!=MidGrowthForm.ReedStand||sample.WaterKind==LocalWaterKind.Ocean||sample.WaterSpeedMPerS>.5)return 0;
+            double maximum=Math.Min(1.2,s.HeightM*.4),depth=sample.WaterSurfaceM-sample.ElevationM;
+            return 1-OrogenMorphology.Smooth(maximum*.6,maximum,depth);
+        }
+        public static double Suitability(MidPlantSpecies s,HabitatCell h,GroundProfile soil,Biome biome,double warm,double? localShade=null,double inundationDepth=0)
+        {
+            if(inundationDepth>0)
+            {
+                if(s.Form!=MidGrowthForm.ReedStand)return 0;
+                if(biome==Biome.Freshwater)biome=Biome.Marsh;
+            }
             if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
             bool cold=biome==Biome.Tundra||biome==Biome.Alpine;double wet=h==null?.8:h.AridityMilli*.001;
             double flood=h==null?0:Math.Max(h.FloodFractionPermille*.001,D.Clamp((100-h.WaterTableCm)/100d));
+            if(inundationDepth>0){wet=Math.Max(wet,1.25);flood=1;}
             double shade=localShade??GroundSpecialists.Canopy(biome),weight=1;
             switch(s.Form)
             {

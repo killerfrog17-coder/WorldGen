@@ -53,7 +53,7 @@ namespace WorldGen.Core
             // Sand availability is necessary; only some sediment provinces
             // accumulate a sand sea. The remainder remains sandy sheets/reg.
             double province=.5+.5*SphereNoise.Sample(metres,seed^0x612b7,1/4300d);
-            return controls.Sand*Smooth(.42,.67,province);
+            return controls.Sand*(1-controls.Wet)*Smooth(.42,.67,province);
         }
         public static double HeightOffset(V metres,int seed,LandscapeControls controls)
         {
@@ -120,16 +120,34 @@ namespace WorldGen.Core
             p.Gravel=Math.Max(p.Gravel,.76*pavement);p.DepthM=Math.Min(p.DepthM,Math.Max(.06,1-controls.Rock*controls.Arid)*p.DepthM);
             double sum=p.Sand+p.Clay;if(sum>.98){p.Sand*=.98/sum;p.Clay*=.98/sum;}p.Silt=1-p.Sand-p.Clay;
             p.Salinity=Math.Max(p.Salinity,.85*salt);p.Drainage=Math.Min(p.Drainage,1-.9*Math.Max(controls.Wet,clay));
+            p.SoilColor*=1-.22*controls.Wet;
+            p.Organic=Math.Max(p.Organic,.12*controls.Wet);
             if(controls.Peat>.1){p.Organic=Math.Max(p.Organic,.45*controls.Peat);p.SoilColor=p.SoilColor*(1-.55*controls.Peat);}
             return p;
         }
         public static void Cover(LandscapeControls controls,V metres,int seed,ref GroundCoverProfile cover,ref MidCoverProfile mid,ref ForestCoverProfile forest,ref Biome biome)
         {
+            double wet=Smooth(.25,.6,controls.Wet);
+            if(wet>0)
+            {
+                // A compact material kernel can inherit upland lawns and
+                // trees. Saturated open marsh retains sedges/rushes instead.
+                double open=1-Smooth(.48,.65,controls.Canopy);
+                for(int f=0;f<3;f++)cover.SetWeight(f,cover.Weight(f)*(1-.92*wet));
+                cover.SetWeight(3,Math.Max(cover.Weight(3),.36*wet*open));
+                forest.Coverage*=1-.985*wet*open;
+                if(controls.Peat>.55)
+                {
+                    cover.SetWeight(6,Math.Max(cover.Weight(6),.35*wet));
+                    cover.Stature*=.65;biome=Biome.Peatland;
+                }
+                else if(wet>.8&&open>.75)biome=Biome.Marsh;
+            }
             // The compact ecology/material kernel can include neighbouring
             // grasslands. Active mobile sediment still prevents a rooted lawn.
             double sand=Smooth(.12,.4,SandSea(metres,seed,controls));
-            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt)),bare=Math.Max(sand,basin);
-            if(controls.Arid>.85&&controls.Canopy<.2)biome=Biome.Desert;
+            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet),bare=Math.Max(sand,basin);
+            if(controls.Arid>.85&&controls.Canopy<.2&&controls.Wet<.4)biome=Biome.Desert;
             if(bare<=0)return;
             cover.ScaleWeights(1-.995*bare);mid.Coverage*=1-.98*bare;forest.Coverage*=1-.995*bare;
             if(sand>.85||basin>.9)biome=Biome.Desert;

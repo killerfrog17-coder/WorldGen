@@ -37,10 +37,10 @@ namespace WorldGen.Core
     /// cell resolution and query order. Only visited candidates are surveyed.</summary>
     public sealed class SmallWaterBodies
     {
-        public const string Version="small-enclosed-basins-2";
+        public const string Version="small-enclosed-basins-3";
         public const double GridM=768;
         public static bool IsLocal(ulong id)=>(id&0x8000000000000000UL)!=0;
-        readonly int seed;readonly double planetRadius;
+        readonly int seed;readonly double planetRadius,grid;readonly bool wetland;readonly SmallWaterBodies exclusion;
         readonly object gate=new object();
         readonly Dictionary<(int,int,int),SmallLake> cache=new Dictionary<(int,int,int),SmallLake>();
         readonly Queue<(int,int,int)> order=new Queue<(int,int,int)>();
@@ -48,14 +48,15 @@ namespace WorldGen.Core
         readonly Dictionary<(int,int,int),Candidate[]> neighbourhoods=new Dictionary<(int,int,int),Candidate[]>();
         readonly Queue<(int,int,int)> neighbourhoodOrder=new Queue<(int,int,int)>();
         public int CachedCandidates{get{lock(gate)return cache.Count;}}
-        public SmallWaterBodies(int seed,double planetRadius){this.seed=seed;this.planetRadius=planetRadius;}
+        public SmallWaterBodies(int seed,double planetRadius,bool wetland=false,SmallWaterBodies exclusion=null)
+        {this.seed=seed;this.planetRadius=planetRadius;this.wetland=wetland;this.exclusion=exclusion;grid=wetland?128:GridM;}
         static uint Hash(int x,int y,int z,int seed)=>Rng.Mix(unchecked((uint)seed^(uint)x*73856093u^(uint)y*19349663u^(uint)z*83492791u));
         static double Unit(uint hash,int stream)=>Rng.Mix(hash^unchecked((uint)stream*0x9e3779b9u))/(double)uint.MaxValue;
         bool CandidateAt(int x,int y,int z,out Candidate candidate)
         {
             candidate=default;uint hash=Hash(x,y,z,seed);if(Unit(hash,1)>.7)return false;
-            var raw=new V((x+.5)*GridM,(y+.5)*GridM,(z+.5)*GridM);if(Math.Abs(raw.Length-planetRadius)>GridM*.56)return false;
-            double radius=12+78*Math.Pow(Unit(hash,2),1.5),support=radius*1.4*1.2*1.12;
+            var raw=new V((x+.5)*grid,(y+.5)*grid,(z+.5)*grid);if(Math.Abs(raw.Length-planetRadius)>grid*.56)return false;
+            double radius=wetland?12+36*Unit(hash,2):12+78*Math.Pow(Unit(hash,2),1.5),support=radius*1.4*1.2*1.12;
             candidate=new Candidate{Key=(x,y,z),Hash=hash,Center=raw.Unit,Radius=radius,Support2=support*support};return true;
         }
         bool Separated(Candidate candidate)
@@ -78,8 +79,8 @@ namespace WorldGen.Core
         public V[] Candidates(V position,double rangeM)
         {
             if(!double.IsFinite(rangeM)||rangeM<0||rangeM>10000)throw new ArgumentOutOfRangeException(nameof(rangeM));
-            var result=new List<V>();V m=position*planetRadius;int reach=(int)Math.Ceiling(rangeM/GridM)+1;
-            int ix=(int)Math.Floor(m.X/GridM),iy=(int)Math.Floor(m.Y/GridM),iz=(int)Math.Floor(m.Z/GridM);
+            var result=new List<V>();V m=position*planetRadius;int reach=(int)Math.Ceiling(rangeM/grid)+1;
+            int ix=(int)Math.Floor(m.X/grid),iy=(int)Math.Floor(m.Y/grid),iz=(int)Math.Floor(m.Z/grid);
             for(int z=iz-reach;z<=iz+reach;z++)for(int y=iy-reach;y<=iy+reach;y++)for(int x=ix-reach;x<=ix+reach;x++)
             {
                 if(!CandidateAt(x,y,z,out var candidate)||!Separated(candidate))continue;
@@ -89,8 +90,9 @@ namespace WorldGen.Core
         }
         SmallLake Survey(V center,uint hash,double radius,Func<V,SmallWaterGround> ground)
         {
+            if(exclusion!=null&&exclusion.OverlapsCandidate(center,radius))return null;
             var g=ground(center);var p=g.Province;
-            if(g.Kind!=LocalWaterKind.None||g.Height<4||p.Salt>.1||p.Moisture<.18)return null;
+            if(g.Kind!=LocalWaterKind.None||g.Height<4||p.Salt>.1||p.Moisture<.18||wetland&&p.Wet<.5)return null;
             double probability=Math.Max(p.Wet*.8,Math.Max(Math.Max(p.Glacial,p.Frozen)*.55,p.Moisture*.045));
             if(Unit(hash,6)>probability)return null;
             var east=V.Cross(Math.Abs(center.Z)<.99?new V(0,0,1):new V(0,1,0),center).Unit;
@@ -105,14 +107,25 @@ namespace WorldGen.Core
             }
             // A surveyed gentle enclosed collar is required. Never put an
             // independent fixed water plane on a mountain slope or river mouth.
-            if(max-min>Math.Max(1.3,radius*.045))return null;
+            if(max-min>Math.Max(1.3,radius*(wetland?.08:.045)))return null;
             ulong identity=0x8000000000000000UL|((ulong)hash<<31)|Hash((int)(center.X*1000000),(int)(center.Y*1000000),(int)(center.Z*1000000),seed^0x35719);
             return new SmallLake{Center=center,East=east,North=north,Radius=radius,Aspect=aspect,Heading=heading,
-                Level=min-.65,Depth=1.1+Unit(hash,7)*Math.Min(5,radius*.065),Phase=Unit(hash,8)*Math.PI*2,Id=identity};
+                Level=min-(wetland?.1:.65),Depth=wetland?.18+.67*Unit(hash,7):1.1+Unit(hash,7)*Math.Min(5,radius*.065),Phase=Unit(hash,8)*Math.PI*2,Id=identity};
+        }
+        bool OverlapsCandidate(V center,double radius)
+        {
+            V m=center*planetRadius;int ix=(int)Math.Floor(m.X/grid),iy=(int)Math.Floor(m.Y/grid),iz=(int)Math.Floor(m.Z/grid);
+            for(int z=iz-1;z<=iz+1;z++)for(int y=iy-1;y<=iy+1;y++)for(int x=ix-1;x<=ix+1;x++)
+            {
+                if(!CandidateAt(x,y,z,out var other))continue;
+                double clearance=(radius+other.Radius)*1.9;
+                if((center-other.Center).Length*planetRadius<clearance)return true;
+            }
+            return false;
         }
         public SmallLake At(V position,Func<V,SmallWaterGround> ground)
         {
-            V metres=position*planetRadius;int ix=(int)Math.Floor(metres.X/GridM),iy=(int)Math.Floor(metres.Y/GridM),iz=(int)Math.Floor(metres.Z/GridM);
+            V metres=position*planetRadius;int ix=(int)Math.Floor(metres.X/grid),iy=(int)Math.Floor(metres.Y/grid),iz=(int)Math.Floor(metres.Z/grid);
             var address=(ix,iy,iz);Candidate[] neighbours;lock(gate)neighbourhoods.TryGetValue(address,out neighbours);
             if(neighbours==null)
             {
