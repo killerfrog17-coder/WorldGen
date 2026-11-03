@@ -37,7 +37,9 @@ public sealed partial class LocalTerrainExplorer
             double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
             var shapes=HumanCampLayout.Create(occupied,people,center,planet,seed).Where(o=>o.Blueprint!=null||o.Kind==CampKind.Fire).Select(o=>
             {
-                V delta=o.Position-center;return new NpcSiteShape{Position=o.Position,X=Dot(delta,east)*planet,Z=Dot(delta,north)*planet,Heading=o.Heading,Cos=Math.Cos(o.Heading*Math.PI/180),Sin=Math.Sin(o.Heading*Math.PI/180),Width=o.Blueprint?.WidthM??Math.Max(2.4,o.ClearedWidthM),Depth=o.Blueprint?.DepthM??Math.Max(2.4,o.ClearedDepthM),Hearth=o.Kind==CampKind.Fire};
+                // Trample grass around seats without demanding a treeless court.
+                // The fire itself needs clearance; a forest camp can keep trees.
+                V delta=o.Position-center;return new NpcSiteShape{Position=o.Position,X=Dot(delta,east)*planet,Z=Dot(delta,north)*planet,Heading=o.Heading,Cos=Math.Cos(o.Heading*Math.PI/180),Sin=Math.Sin(o.Heading*Math.PI/180),Width=o.Blueprint?.WidthM??2.4,Depth=o.Blueprint?.DepthM??2.4,Hearth=o.Kind==CampKind.Fire};
             }).ToArray();
             double footprint=shapes.Select(s=>Math.Sqrt(s.X*s.X+s.Z*s.Z)+Math.Sqrt(s.Width*s.Width+s.Depth*s.Depth)*.5).DefaultIfEmpty(10).Max()+2;
             var solids=source.SettlementSolids(center,radius,token);return new NpcSiteSurvey{Solids=solids,Shapes=shapes,Radius=radius,FootprintRadius=footprint,Milliseconds=timer.Elapsed.TotalMilliseconds,
