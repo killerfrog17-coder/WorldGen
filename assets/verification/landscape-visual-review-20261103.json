@@ -1,0 +1,26 @@
+{
+  "SandSea": {
+    "accepted": true,
+    "findings": "Inspected loaded wide and ground captures. Bare mobile sand replaces the former grass lawn; modest rolling ridges remain visible at ground level. Overhead summer sun produces substantially less ridge shading than the earlier oblique-light capture. No texture/layer budget increase.",
+    "images": {
+      "wide": "0f4f3f3ebf1c8478172066101d9befd4160b2126260300fa67ab9e5657adf0ba",
+      "ground": "9d049e699c177c7b5783385ac594d75b2830cd340d592bc9b391749428c7033a"
+    }
+  },
+  "GravelDesert": {
+    "accepted": true,
+    "findings": "Inspected loaded wide and ground captures. Sparse scrub and scattered coarse stones over a fine gravel ground surface, distinct from the orange mobile sand. Retains dry open ground rather than a universal dune field.",
+    "images": {
+      "wide": "a93d25c865e38f3eda9782bdf97e8c745cea0ccb9bcd4be5f9a015c6e84e47f0",
+      "ground": "a64e8aa3aa1b67e4fb7c566eff00e84e3087f6e43debb1b1da043df60ce79127"
+    }
+  },
+  "ClayPan": {
+    "accepted": true,
+    "findings": "Inspected loaded wide and ground captures. Flat fine brown ground has visible polygonal desiccation cracks near the observer, with very sparse scrub and few loose coarse rocks. It remains separate from gravel pavement and rolling orange sand. Distant microscopic cracks retire with the existing texture range.",
+    "images": {
+      "wide": "cfd0b541ccc1c54f07824c83b47411ec87a6644f245d8f239baf2c463a8834bb",
+      "ground": "9d3b54382c3a617b959c0e50bb7cd2c41d42bde602deed28313bd5979062fef2"
+    }
+  }
+}

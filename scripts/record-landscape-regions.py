@@ -73,8 +73,8 @@ for kind in kinds:
     cases.append({'name': name, 'checks': len(checks), 'scene': scene, 'images': images,
                   'checks_sha256': sha(folder / 'checks.txt'), 'visual_review': review[kind]})
 
-assert 'PASS actual terrain contains enclosed local ponds' in read(ROOT / 'artifacts/landscape-final-world.log')
-assert 'PASS 27175' in read(ROOT / 'artifacts/landscape-final-rivers.log')
+assert 'PASS actual terrain contains enclosed local ponds and shallow wetland pools' in read(ROOT / 'artifacts/landscape-hydric-world.log')
+assert 'PASS 27175' in read(ROOT / 'artifacts/landscape-hydric-rivers.log')
 subprocess.run(['python', 'scripts/verify-landscape-texture-budget.py'], cwd=ROOT, check=True)
 lock = load(ROOT / 'assets/game-assets.lock.json')
 prior_lock = json.loads(subprocess.check_output(
@@ -96,7 +96,7 @@ manifest = {
     'original_locked_inputs_unchanged': len(prior_lock['files']),
     'architecture': {
         'terrain': 'Continuous substrate, moisture, cover and relief controls on shared terrain vertices, before river fitting.',
-        'ponds': 'Sparse seeded physical-space candidates, complete rim survey, disjoint basin collars and bounded caches; no global pond tick ledger.',
+        'ponds': 'Sparse deeper ponds plus finer shallow wetland pools, complete rim surveys, disjoint basin collars and bounded caches; no global pond tick ledger.',
         'art': 'Four slots replaced in the same fourteen-layer BC7 arrays; original other slices byte-exact.',
     },
     'limits': [

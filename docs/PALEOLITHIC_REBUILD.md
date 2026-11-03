@@ -49,6 +49,50 @@ global river-fit preparation measured 152 seconds; this NPC pass does not claim
 to fix that terrain startup cost.
 
 
+## Local landscape provinces (3 November, review in progress)
+
+The second ordered update adds continuous substrate and landscape controls to
+the shared local terrain. Sand seas and sand sheets differ from gravel/rock
+deserts, cracked clay pans and saline flats. Loose sediment and a coherent
+accumulation province gate dune relief. Loess, dissected soft ground, limestone,
+exposed rock, glacial deposits, tundra, ice cover, open marsh, wooded wet ground
+and organic peat settings retain distinct controls. Permafrost alone does not
+label an area as an exposed glacial landscape. This changes local ground and
+cover, rather than replacing the broad world map or adding a landmark catalogue.
+
+Small ponds use seeded physical-space candidates, complete gentle rim surveys
+and actual depressed beds. Saturated lowlands also receive a finer mosaic of
+shallow pools. Open-marsh cover favours sedges/rushes, and final tree admission
+respects the hydric surface rather than stopping at an upland potential filter.
+Reed-form plants can root in shallow, slow water; ordinary shrubs remain on land.
+Independent basin collars cannot overlap, including
+at radial grid boundaries. Terrain chunks, visible water, swimming and drinking
+use the same accepted basin. Candidates and surveys have bounded local caches;
+there is no global pond tick ledger. These are static enclosed basins: seasonal
+drying, freezing, thaw and a local water budget remain outside this pass.
+
+Three CC0 Poly Haven scans supply sand, gravel and cracked mud surface detail.
+Raw inputs, authors, provider hashes and licenses are recorded in
+`assets/verification/landscape-surface-sources-20261103.json` and preserved in
+the immutable `landscape-source-inputs-20261103` release. Four existing material
+slots change; the other ten slices are byte-exact against the NPC checkpoint.
+The fourteen-layer BC7 arrays retain their dimensions, mip levels and payload
+sizes. There are no extra ground shader passes, texture layers or samplers.
+
+Current numerical checks cover enclosed water, reversed query order, coincident
+planet-shell candidates, shared chunk edges, dune slopes and both radial dune
+wave poles. Actual-world river regression covers 763 spans over eight tiles.
+Native region views are being inspected with resident terrain/scatter and
+explicit summer daylight. Earlier unloaded or polar-dark captures are rejected
+as visual evidence. The NPC build remains selected until this review finishes;
+the third ordered tree-art update has not begun.
+
+Primary geological/wetland references and tunable-model limits are recorded in
+`assets/verification/landscape-research-20261103.json`. Metre-scale wavelengths,
+pond density and thresholds are game priors rather than claimed measurements
+of Earth's global landform distribution.
+
+
 ## Dated adoption and cell maps (3 November)
 
 Current regional rules are `foragers-regional-4`. Technology percentages refer

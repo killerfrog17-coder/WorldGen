@@ -49,6 +49,29 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov18:52Z CONTINUE. Source46338d4 PUSHED. A selected NPC checkpoint stays
+unchanged. B internal managedNONDEV ScriptsOnly built18:50:00Z; original full18:26
+packedterrain scans retained. CurrentLocalTerrain18/Hyper16/SmallWater3/Scatter13.
+Actual summer-lit17 marsh was ordinary grassland+trees, REJECTED. New correction
+adds finer128m candidate shallow wetland pools (12..48m radius/0.18..0.85m deep),
+complete gentle rim surveys, deterministic thinning +conservative exclusion from
+coarsepond collars. Openmarsh sedges +treeexclusions now reach canonical near/far
+tree planting (raw forest potential was previously incorrectly final). Reeds
+root in shallow slowwater; ordinary shrubs/deepwater excluded. No treeartwork yet.
+35722focused checks PASS; actual200kworld cell8524 now14bodies incl13shallowpools;
+actual watermesh/sharededges PASS (landscape-hydric-world.log). World-2 failed
+an old assertion assuming allwaterverts belongtosinglepond; corrected check
+requires everyvertex within a surveyed body. Retained firstfailure. Current
+river27175/763spans/8tiles PASS landscape-hydric-rivers.log. New native3wet scenes
+RUNNING session75385 prefixregions-hydric. Must inspect and only accept genuine
+wetland outcomes, then rest7contexts +NPCwet/cold regression, perf, currentpackage
+proof/manifest/docs/selection. Oldregions-final10 all exit0 butOLD17physics; only
+3dry scenes visuallyreviewed as acceptable, wetland viewsNOTaccepted. ReviewJSON
+stilloldhashes so recordscript correctlyrefuses mixedpackages. Need refreshall
+requiredimages beforehandoff. Treeartstage3UNTOUCHED. Assetlock5154/135packs verified,
+rawterraininputs immutableRelease. Owner3files preserved/noappsclosed/nosubagents.
+Do not stop at8/12h; continue meaningfulwork untilownerexplicitstop/wrap.
+
 ACTIVE3Nov18:29Z CONTINUE (owner: On sol high now continue). Stage1 NPC selected A
 unchanged/c1ec937; root shortcut A. Stage2 source840653b +asset lockcc0f34d PUSHED.
 Current LocalTerrain17/Hyper15/SmallWater2 separates permafrost from glacial ground,

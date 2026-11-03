@@ -2,7 +2,9 @@ param(
     [ValidateSet('slot-a','slot-b')][string]$Slot='slot-a',
     [ValidatePattern('^[a-z0-9-]+$')][string]$Prefix='courts',
     [string]$World='artifacts/npc-20261103/current-190k.world',
-    [string]$StartWorld='artifacts/npc-20261103/startup-0.world'
+    [string]$StartWorld='artifacts/npc-20261103/startup-0.world',
+    [ValidateSet('poses','wet','cold','aquatic','collector','start')]
+    [string[]]$Cases=@('poses','wet','cold','aquatic','collector','start')
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -13,7 +15,7 @@ foreach($inputPath in @($World,$StartWorld)){
     if(!(Test-Path -LiteralPath (Join-Path $repoRoot $inputPath))){throw ('Generate the missing test fixture first: '+$inputPath)}
 }
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'" | Where-Object {$_.ExecutablePath -eq $player}){throw 'This slot is already running; leave that session untouched.'}
-foreach($case in @('poses','wet','cold','aquatic','collector','start')){
+foreach($case in $Cases){
     $output=Join-Path $repoRoot ('artifacts/npc-20261103/'+$Prefix+'-'+$case)
     if(Test-Path -LiteralPath (Join-Path $output 'exit-code.txt')){throw ('Keep completed evidence intact; choose a new -Prefix: '+$output)}
     New-Item -ItemType Directory -Force -Path $output | Out-Null
