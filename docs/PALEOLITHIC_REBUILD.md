@@ -5,7 +5,47 @@ New worlds use a new rule version. Source consistency is necessary, but it is
 not evidence of realistic behaviour. Do not select a player until the behavioural
 and visual review below has been completed.
 
-## Current release review (3 November)
+## Current regional architecture correction (3 November)
+
+The detailed global community ledger below was rejected by the owner for both
+architecture and performance. It is superseded by source `774854b` and new-world
+rules `foragers-regional-1`. Backward compatibility is not a project requirement.
+
+- One population aggregate per connected ecoregion, with regional species
+  proportions, shared cultural profiles and technology-adoption distributions.
+- Population and resource/technology reviews every100 years; regional language,
+  culture and belief reviews every500 years; ecological redistribution every1,000.
+- Regional migration merges population into its destination aggregate. It does
+  not append a new tribe record. Profiles remain bounded by the region count.
+- Camps, households, residents and seasonal positions are deterministic local
+  queries. Calling them does not add global actors or histories.
+- Fine calendar updates share frozen regional arrays and compute a small clock
+  digest. They do not copy/hash/publish the entire simulation state.
+
+Measured with the actual200,000-cell planet:2,312 connected regions,565 regional
+population records after190,000 years,62.1 seconds in the CoreCLR test. The final
+state has532 actual-use toolkit patterns. Current-version save/read and local
+generation checks pass. A10k run also matches across different publication
+partitions. These are current rules, not old-version compatibility tests.
+
+The actual packaged managed player sustains one day/second:12 game days in
+12.002 real seconds. Its fast playback measured416 years/second over12.52 seconds;
+95% of frames were below10.4ms. This interactive result is substantially slower
+than batch simulation and is reported separately. A full history's interactive
+wall time is not claimed to equal the62-second batch run. Five map layers were
+captured and inspected. New worlds are required; physical NPC camp integration
+remains the next implementation stage.
+
+The existing shortcut selects slot-b, a managed non-development player built
+3 November01:46:47 UTC. Its32 Earth-location gameplay checks pass, including
+terrain entry, gathering, crafting, actual animal corpse loot, eating and saving.
+The first200k procedural-world nature fixture entered terrain but failed to
+spawn its fixed-location test deer; it is retained as a failed check and excluded
+from acceptance. No unrelated animal behaviour was altered for this repair.
+The source, precise measurements, package hashes and scope limits are recorded
+in `assets/verification/regional-simulation-20261103.json`.
+
+## Rejected detailed-ledger review (3 November)
 
 ### Further outcome correction: demand-led training (version5)
 

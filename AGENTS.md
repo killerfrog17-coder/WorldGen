@@ -49,25 +49,31 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-ACTIVE3Nov01:46Z OWNER REJECTED21 PERFORMANCE/ARCHITECTURE. Authorised restore
-BROAD regional history plus deterministic local generation; no per-tribe global
-actors/archives. Current source replaces it with foragers-regional-1: one
-aggregate per connected ecoregion,100yr reviews, sparse adjacent-region flows,
-fixed regional language/culture/belief profiles, bounded family/discovery history.
-Fine clocks share frozen domain data and hash only the clock; no double copies.
-Analytic regional demography, separate regional species shares versus ancestry.
-No compatibility work; old forager worlds rejected, NEW WORLD required.
-200k-cell current10k check15PASS:2312regions/455aggregates,2.98sec/10k years,
-1000fine publications11ms, current save/reload+procedural band checksPASS.
-First full190k200k predecessor64.5sec/565aggregates; NOT final species-share
-source proof. CURRENT full190k run session59726, log artifacts/regional-sim-
-20261103/actual-scale-final-full.log. Current source BUILD slot-b session17580
-logbuild-final.log; no selection yet; bad21 slot-a stillowner-selected/running.
-Need actual packaged --worldgen-regional-playback <current final.world> at200k
-cells (1day/s and5000yr/s), map images/gameplay, final source/current save proof,
-shortcut update/Git. Preserve owner3files and apps; no subagents/paid/cleanup.
-Do NOT resume old overnight history/compatibility suites. Previous selected21
-notes below are a rejected baseline, not current acceptance.
+SELECTED3Nov02:02Z REGIONAL PERFORMANCE REPAIR. Root shortcut NOW slot-b,
+managed NON-DEVELOPMENT BuiltUtc2026-11-03T01:46:47.7910093Z. Runtime source
+774854ba012131eeabff9d5e31cc9a2237edc23b PUSHED. foragers-regional-1 restores
+BROAD regional history: at most ONE population aggregate/connected ecoregion,
+100yr reviews, sparse migration merging totals, bounded cultural/family/discovery
+profiles; local camps/people/seasonal positions are deterministic queries.
+Fine clocks share frozen arrays and hash only the clock, no double world copies.
+Species shares are separate from ancestry. OLD detailed-ledger saves UNSUPPORTED;
+new world required, no backward-compatibility work. Owner rejects global tribes.
+CURRENT200k/190k14PASS:2312regions/565aggregates548active,62.0869s batch;
+1000 fine clocks11.68ms initially/16.97ms late. 200k10k15PASS includes split
+publication equality and actual save/reload; Earth5000/10k15PASS. SAME packaged
+200k playback8PASS/exit0:12.0005days/12.0021s; fast415.996years/s over12.52s,
+P95frames10.34ms/max46.93ms. Batch speed is NOT interactive speed. Actual five
+map images INSPECTED. Same player Earth nature32PASS/exit0/clean exceptions:
+enter terrain/gather/craft/corpse loot/eat/held tools/save. Initial200k fixed-point
+nature fixture failed deer spawn AFTER terrain entry; preserved/excluded, not
+claimed passing. No unrelated fauna/gameplay edits made to hide that failure.
+Manifest assets/verification/regional-simulation-20261103.json; exact packaged
+assembly/worker hashes checked against stamp. New record script only current
+tests; old compatibility suites NOT acceptance. PDF/report updated. Physical
+NPC camp integration remains next stage; regional rates still game priors.
+All owned heavy test/build/player jobs ended; owner3 files and apps untouched.
+No subagents/paid/cleanup/extra player folders. Await owner playtest feedback.
+Older21 and ACTIVE notes below are REJECTED/historical, not work to resume.
 
 SELECTED3Nov00:56Z PALEOLITHIC REBUILD REVIEW: existing root shortcut NOW
 builds/slot-a/WorldGen.exe, managed NON-DEVELOPMENT candidate21, BuiltUtc

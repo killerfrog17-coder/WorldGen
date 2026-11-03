@@ -40,12 +40,12 @@ page(1,'A world with a history','Established humans at the start. Changing oppor
 y=block('The starting point','World Year 0 represents established <b>Homo sapiens</b> around the equivalent of 200,000 years ago. Other hominin lineages have their own connected ancestral dispersal, isolation, physical traits and ancestry. There are no invented states or universal calendar-based technology unlocks.',699)
 rows=[
 ('Climate and ecology','Stable ecological boundaries; changing temperature, rain, ice, vegetation potential and local species presence. Wet corridors, refugia and real shelf depths affect movement.'),
-('People and resources','Age structure, births, deaths, food, winter protection, mating contacts and local shocks. Populations can retreat or disappear. Splitting a population record creates no extra food access.'),
+('People and resources','Regional population totals, approximate growth, food, winter protection and regional shocks. Populations can retreat or disappear. One aggregate per connected ecoregion; no individual global tribe ledger.'),
 ('Technology','43 techniques with separate familiarity, trained prevalence and actual use. Materials, teachers, innovation and forgetting matter. Useful methods spread through contact. Future eras overlap regionally, without a global completion gate.'),
 ('Language','Inherited words and grammar change at different rates. Borrowing, bilingual contact, local varieties and recognisable families are separate from deep common ancestry.'),
 ('Culture and belief','Distinct social norms, exchange relationships and residence patterns. Local rites, sacred places/animals, mortuary practices and spiritual themes vary and spread without churches or states.'),
 ('Human lineages','Different body/face profiles, cultural capacities, geographic histories and mixed ancestry. Competition and survival depend on actual conditions; extinction is not scheduled by date.'),
-('Local inhabitants','Stable bands, households, birthdays, parents, seasonal camps and contacts. Samples contain actual proficient makers, individual language knowledge and separate routine/winter equipment.'),
+('Local inhabitants','Generate camps, households, appearances, skills and seasonal positions from regional distributions, location, time and deterministic seeds. These local queries do not create globally tracked actors.'),
 ]
 y=text('<b>What the model tracks</b>',44,y,size=13)-12
 for i,(title,body) in enumerate(rows):
@@ -58,8 +58,8 @@ for i,(title,body) in enumerate(rows):
 page(2,'How this reaches the game','The simulation produces local evidence for the next supervised NPC implementation.')
 y=block('From a district to a camp','A local query supplies a band, related people, appearance, spoken languages, capable craft specialists, equipment practices and a seasonal itinerary. The NPC host must retain instantiated people and player edits. Camp candidates still need physical ground, water and collision validation.',699)
 y=block('Observe the actual differences','Language/family, cultural identity, spiritual tradition, toolkit and human-species layers read different data. Political territories remain empty. Climate/ecology maps follow the dated world. Technology inspection distinguishes knowing a method, being able to make it and routinely using it.',y)
-y=block('World continuity and performance','Small demographic reviews and slower network/ecology reviews share one saved timeline. Long histories remain computationally expensive. Nearby queries use district/contact indexes. Terrain workers read the exact planet without duplicating the population archive; dated local-map colours stay with the player.',y)
-y=block('Generate a new world for this revision','New worlds use <b>foragers-5</b>: additive resource claims, teaching from actual makers and training driven by local work. Hearing of a method, making it and using shared goods are distinct. Existing saves keep their older model. Compact saves preserve historical fields. Git and asset packs provide rollback.',y)
+y=block('World continuity and performance','Broad population/technology reviews occur every100 years, culture/language every500 and ecology every1,000. Fine clocks share unchanged regional data. Historical summaries stay bounded. Nearby camps and residents are generated only on demand; terrain and ecoregion boundaries remain intact.',y)
+y=block('Generate a new world for this revision','New worlds use <b>foragers-regional-1</b>: regional totals and distributions, shared products and local procedural detail. Hearing of a method, making it and using shared goods remain distinct. Old detailed-ledger saves are unsupported. Git and asset packs provide rollback.',y)
 y=block('Validation and scope','Check several seeds and dates, expansion <i>and</i> retreat, local technique differences, real vocabulary divergence, household consistency, save/reload, live map playback and entering gameplay. Physical NPC camps/dialogue, new hominin art, moving shorelines/ice-sheet terrain and post-Paleolithic progression are separate implementation stages.',y)
 y=text('<b>Selected research behind the mechanisms</b>',44,y,size=12)-12
 refs=[

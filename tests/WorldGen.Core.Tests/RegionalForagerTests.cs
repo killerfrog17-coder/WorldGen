@@ -5,13 +5,13 @@ using WorldGen.Serialization;
 
 static class RegionalForagerTests
 {
-    public static void Run(string folder,int detail,int years=10000)
+    public static void Run(string folder,int detail,int years=10000,string preset="Continents")
     {
         Directory.CreateDirectory(folder);int checks=0;
         void Check(bool ok,string text){if(!ok)throw new Exception(text);checks++;Console.WriteLine("PASS "+text);}
         var watch=Stopwatch.StartNew();string geometry=Path.Combine(folder,"geometry.world");World w;
         if(File.Exists(geometry))w=WorldFile.ReadFile(geometry);
-        else{var recipe=Recipe.Preset("Continents");recipe.Detail=detail;recipe.Seed=73421;w=new WorldPipeline().Generate(recipe);File.WriteAllBytes(geometry,WorldFile.Write(w));}
+        else{var recipe=Recipe.Preset(preset);recipe.Detail=detail;recipe.Seed=73421;w=new WorldPipeline().Generate(recipe);File.WriteAllBytes(geometry,WorldFile.Write(w));}
         w.Prehistory=null;Console.WriteLine($"Geometry {w.Surface.Cells.Length} cells in {watch.Elapsed.TotalSeconds:F2}s");
         watch.Restart();var engine=new Prehistory(w);var initial=engine.StartForagers(engine.PrepareForagers());double prepare=watch.Elapsed.TotalSeconds;
         var session=new SimulationSession(engine,initial);var clock=initial;
