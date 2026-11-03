@@ -49,6 +49,44 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov17:47Z CONTINUE. Selected A NPC foundation unchanged. Stage2 current
+source1656c75 PUSHED; B managedNONDEV ScriptsOnly built17:45:54Z, internal only.
+Landscape16/Hyper14: stronger sand relief +two nonparallel dune families remove
+radial wave-vector flattening; cached river datums automatically invalidated.
+Focused1573PASS inclboth former flat points; actual world pond+water mesh/shared
+terrain edge PASS onnewgeometry. Current river regression session10954 still
+running (older province15 27175PASS remains earlier proof only).
+Native own SandSea PID from regions-direction/session78112 RUNNING; wait actual
+600m reveal coverage (17:38 cover-only case had108tiles/394,shows sand bare but
+relief visually insufficient, soNOTaccepted). First raw regions-first pond9
+mechanicsPASS; initial SandSea grassbleed and wideblue unloadedshot REJECTED.
+Latest source fixesCover/biome/materialsubstratecoherence +wider cross-ridgecamera,
+spectatorhidesfixtureavatar. Need inspect directionsandsea, then remaining9
+contexts via scripts/run-landscape-checks.ps1 newprefix, actualNPCwet/coldregression,
+performance/assetproof/docs/manifest beforeselectB. Stage3 UNTOUCHED. A playable
+NPCsourcec1ec937/SHAreceipts kept; rootshortcut A cd7e747. Only2slots. All original
+art/audio unchanged. Owner3files untouched; no paid/subagents/apps closed. No
+mandatory stop at8h/12h; continue untilownerexplicitstop/wrap.
+
+ACTIVE3Nov17:40Z CONTINUE. A selected NPC checkpoint unchanged. Stage2 latest
+source22ff95e PUSHED; B internal managed NONDEV ScriptsOnly Built17:38:17Z.
+First full B37ab243 native pond9mechanicsPASS/EXIT0 inclactual rendered water,
+fresh drinking andswimming; SandSea5/Gravel5mechanics passed BUT SandSea visual
+REJECTED (neighbouring grass kernel bleeds into sandy controls; wide shot before
+surrounding tiles loaded). Stopped only verified own runner27572/game7428,
+marked regions-first-claypan interrupted. New Province.Cover limits rooted plants
+on active mobile sand/dry basins and effective local biome; stronger sand material
+mix. New scene fixture spectator (hides own avatar) +requires actual broad loaded
+footprint. Current own B SandSea PID14668/session44805 running prefixregions-cover,
+Tiles19/394,reveal192m17:40. Need inspect actual new dunes before continuing9
+other region captures. No selection of B yet. Latest focused1569PASS; actual
+world pond water-mesh footprint +exactsharedchunkheights PASS; river regression
+27175checks/763spans/8tiles PASS,0drawn-ground boundary clearance. Research stored.
+Current land benchmark old prep26.207s/new27.340s;12675landqueries warmold709/689ms,
+new648/806ms; no FPSclaim. All original runtimeart/audio unchanged, no newtextures
+yet. Stage3 UNTOUCHED. Restore3knownautos completed after latestbuild. No editor
+running now. Keepworking untilexplicitstop; owner3files untouched/no subagents.
+
 ACTIVE3Nov17:25Z OWNER CONTINUE remains; stage1 VERIFIED/SELECTED A cd7e747,
 immutable source tag living-npcs-foundation-20261103 (afa7fec). Stage2 now ACTIVE,
 stage3 UNTOUCHED. Regional controls/new SmallWaterBodies code currently UNCOMMITTED,
