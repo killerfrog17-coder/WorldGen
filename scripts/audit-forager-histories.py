@@ -30,7 +30,7 @@ for historyIndex,folder in enumerate(args.histories):
     expansions=sum(b["districts"]>a["districts"] for a,b in zip(rows,rows[1:]))
     retreats=sum(b["districts"]<a["districts"] for a,b in zip(rows,rows[1:]))
     toolkits=json.loads((folder/"techniques.json").read_text())
-    result=dict(name=folder.name,source=run["source"],year=years[-1],requestedYear=run["requestedYears"],status="complete history; outcome review required" if complete else "RUNNING OR INCOMPLETE; not a full-history pass",populationMin=min(r["population"] for r in rows),populationMax=max(r["population"] for r in rows),populationDeclineIntervals=declines,rangeExpansionIntervals=expansions,rangeRetreatIntervals=retreats,maximumPopulationToCapacity=max(r["population"]/r["capacity"] for r in rows),finalPeoplePerResidentCohort=rows[-1]["population"]/rows[-1]["cohorts"],skilledTechniqueCount=sum(t["skilled"]>0 for t in toolkits),wellRepresentedTechniqueCount=sum(t["skilled"]>=10 for t in toolkits),lastSnapshotBytes=max((p.stat().st_size for p in folder.glob("*.world")),default=0))
+    result=dict(name=folder.name,source=run["source"],year=years[-1],requestedYear=run["requestedYears"],status="complete history; outcome review required" if complete else "RUNNING OR INCOMPLETE; not a full-history pass",populationMin=min(r["population"] for r in rows),populationMax=max(r["population"] for r in rows),populationDeclineIntervals=declines,rangeExpansionIntervals=expansions,rangeRetreatIntervals=retreats,maximumPopulationToCapacity=max(r["population"]/r["capacity"] for r in rows),finalPeoplePerResidentCohort=rows[-1]["population"]/rows[-1]["cohorts"],skilledTechniqueCount=sum(t.get("makerCommunities",t["skilled"])>0 for t in toolkits),wellRepresentedTechniqueCount=sum(t.get("makerCommunities",t["skilled"])>=10 for t in toolkits),lastSnapshotBytes=max((p.stat().st_size for p in folder.glob("*.world")),default=0))
     results.append(result)
     x=[y/1000 for y in years];name=folder.name
     axes[0,0].plot(x,[r["population"]/1000 for r in rows],label=name,color=color)
@@ -42,7 +42,7 @@ for historyIndex,folder in enumerate(args.histories):
     axes[2,0].plot(x,[r["meanSkill"] for r in rows],label=name,color=color)
     axes[2,0].fill_between(x,[r["minSkill"] for r in rows],[r["maxSkill"] for r in rows],alpha=.08,color=color)
     axes[2,1].plot(x,[r["sapiensAncestry"]/r["population"]*100 for r in rows],label=name,color=color)
-for ax,title,ylabel in zip(axes.flat,["Population and available support (dotted)","Occupied districts: expansion and retreat","Share living through cold winters","Resident speech varieties / families (dotted)","Mean trained repertoire; range shaded","Sapiens ancestry, including mixed populations"],["Thousands of people","Districts","Percent of people","Recorded communities","Sum of technique proficiency","Percent of ancestry"]):
+for ax,title,ylabel in zip(axes.flat,["Population and available support (dotted)","Occupied districts: expansion and retreat","Share living through cold winters","Resident speech varieties / families (dotted)","Mean maker prevalence; range shaded","Sapiens ancestry, including mixed populations"],["Thousands of people","Districts","Percent of people","Recorded communities","Sum of trained-maker shares","Percent of ancestry"]):
     ax.set(title=title,xlabel="Thousands of simulated years after start",ylabel=ylabel)
     ax.grid(alpha=.2);ax.legend(fontsize=7)
 fig.suptitle("Coupled Paleolithic histories: measured outcomes, not final acceptance",fontsize=16)

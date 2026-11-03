@@ -9,6 +9,12 @@ and visual review below has been completed.
 
 ### Further outcome correction: demand-led training (version5)
 
+Owner clarification: later eras should overlap regionally. Mesolithic development
+must not wait for every community to master every Paleolithic technique, and
+modest overlap near transitions is acceptable. This review prioritises believable
+development before that transition; it does not require all43 methods everywhere
+by the final date. A future optional world-era cap is separate from local progress.
+
 Version4's100k review exposed a second material failure: almost every group
 approached perfect trained prevalence in nearly every method. Actual end use
 varied, but that did not satisfy the requested variation in making capability.
