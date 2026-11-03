@@ -18,12 +18,16 @@ public sealed partial class WorldGenRuntime
     {
         var result=new Dictionary<Layer,Color32[]>();
         var layers=main?new List<Layer>(DisplayCache.MainLayers):new List<Layer>();if(!layers.Contains(selected))layers.Add(selected);
-
+        // Historical backgrounds are bound separately below (per-cell GPU for
+        // climate/satellite). Do not first reconstruct hundreds of thousands of
+        // dated habitat objects for palettes that that binding replaces.
+        var baseWorld=Prehistory.Foraging(w.Prehistory)?GenerationPreview.Capture("biogeography",w):w;
+        if(!ReferenceEquals(baseWorld,w))baseWorld.Prehistory=null;
         foreach(var candidate in layers)
         {
             bool natural=(int)candidate>=1000;var actual=natural?(Layer)((int)candidate-1000):candidate;
             if(!GenerationPreview.Available(w,actual))continue;
-            var values=natural?NaturalSurface.Colors(w,actual,token):GlobeView.CellValues(w,candidate,token:token).Colors;
+            var values=natural?NaturalSurface.Colors(baseWorld,actual,token):GlobeView.CellValues(baseWorld,candidate,token:token).Colors;
             var colors=new Color32[((w.Surface.Cells.Length+2047)/2048)*2048];
             byte C(float v)=>(byte)Mathf.Clamp(Mathf.RoundToInt((linear?Mathf.GammaToLinearSpace(v):v)*255),0,255);
             for(int i=0;i<values.Length/3;i++){if((i&2047)==0)token.ThrowIfCancellationRequested();colors[i]=new Color32(C(values[i*3]),C(values[i*3+1]),C(values[i*3+2]),255);}
