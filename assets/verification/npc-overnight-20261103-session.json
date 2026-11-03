@@ -22,20 +22,29 @@
         "No floating/buried camps, obvious movement deformation, unsafe water/cliff placement or arbitrary player-following spawns",
         "Measured activation/streaming and dense-near-camp/distant-group performance",
         "Documented research, limitations, review commands, Git checkpoint and playable shortcut"
-      ]
+      ],
+      "status": "Verified and selected NPC checkpoint c1ec937; living-npcs-20261103.json."
     },
     {
       "stage": 2,
       "name": "Diverse local landscape regions, ponds and small lakes",
       "blocked_until": "Stage 1 genuinely satisfactory",
-      "scope": "Earth-like regional substrates, relief and hydrological environments; no general feature catalogue expansion except small natural water bodies"
+      "scope": "Earth-like regional substrates, relief and hydrological environments; no general feature catalogue expansion except small natural water bodies",
+      "status": "Verified landscape checkpoint 3242861; landscape-regions-20261103.json. Ready for shortcut selection."
     },
     {
       "stage": 3,
       "name": "Tree and vegetation variety/quality",
       "blocked_until": "Stage 2 genuinely satisfactory",
-      "scope": "Regional tree forms, actual textures and colour variation; critically inspected and performance measured"
+      "scope": "Regional tree forms, actual textures and colour variation; critically inspected and performance measured",
+      "status": "Next stage; no tree-art changes made before landscape acceptance."
     }
   ],
-  "constraints": ["No subagents, paid services or signup", "Only the two reusable build slots", "All artifacts disposable", "Preserve original authoring assets and unrelated owner files", "Do not stop at a milestone while the owner's continue instruction remains active"]
+  "constraints": [
+    "No subagents, paid services or signup",
+    "Only the two reusable build slots",
+    "All artifacts disposable",
+    "Preserve original authoring assets and unrelated owner files",
+    "Do not stop at a milestone while the owner's continue instruction remains active"
+  ]
 }

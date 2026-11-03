@@ -49,7 +49,7 @@ global river-fit preparation measured 152 seconds; this NPC pass does not claim
 to fix that terrain startup cost.
 
 
-## Local landscape provinces (3 November, review in progress)
+## Local landscape provinces (3 November, verified checkpoint)
 
 The second ordered update adds continuous substrate and landscape controls to
 the shared local terrain. Sand seas and sand sheets differ from gravel/rock
@@ -86,10 +86,26 @@ sizes. There are no extra ground shader passes, texture layers or samplers.
 Current numerical checks cover enclosed water, reversed query order, coincident
 planet-shell candidates, shared chunk edges, dune slopes and both radial dune
 wave poles. Actual-world river regression covers 763 spans over eight tiles.
-Native region views are being inspected with resident terrain/scatter and
-explicit summer daylight. Earlier unloaded or polar-dark captures are rejected
-as visual evidence. The NPC build remains selected until this review finishes;
-the third ordered tree-art update has not begun.
+Ten current-package native cases passed 84 checks; all twenty wide/close views
+were inspected with resident terrain/scatter and summer daylight. Earlier
+unloaded, polar-dark or incorrectly classified captures are rejected. Forest
+and cold-camp regressions passed 62 checks, including physical shelter access,
+packing/travel/setup, current saves, wounds and vegetation-safe floors.
+
+Sequential tests after the owner closed the second game session used the same
+42-person community. Mean frame times were 9.28 ms for the NPC baseline and
+9.06 ms for the landscape candidate; repeated normal samples were 8.98/7.44 ms.
+Terrain was still streaming in both, so this is a matched scene comparison,
+not a settled whole-world FPS guarantee. Warm sampling of 12,675 land points
+cost 668/684 ms (2.5% increase); constructor preparation was 26.88/28.29 seconds.
+The first full-scale river-cache preparation cost 188.6 seconds while native
+photography was running; it is an existing cold-start limitation rather than
+an uncontended regression measurement. Once prepared, that shared cache is reused.
+
+`assets/verification/landscape-regions-20261103.json` records exact package
+hashes, image review, both NPC regressions, separate performance runs, texture
+budget and the unchanged 5,131 pre-existing locked source inputs. Tree artwork
+remains the separate third ordered stage.
 
 Primary geological/wetland references and tunable-model limits are recorded in
 `assets/verification/landscape-research-20261103.json`. Metre-scale wavelengths,

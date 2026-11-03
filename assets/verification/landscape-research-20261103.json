@@ -49,5 +49,5 @@
   ],
   "model_priors": "Metre-scale wavelengths, material thresholds, pond encounter density, survey tolerances and depth ranges are tunable game-model priors. They are not direct archaeological or global hydrological measurements.",
   "architecture": "Continuous regional controls over shared terrain vertices; dry substrate includes regional relief before channel fitting. Sparse world-space pond candidates require a complete gentle rim survey; cut ground and water footprint are evaluated together. Bounded local caches, no global pond/entity tick ledger. Saturated lowlands additionally receive a finer shallow-pool mosaic, conservatively excluded from the deeper pond collars. Open-marsh cover favours sedges, and the canonical near/far tree planting predicate respects the final hydric cover.",
-  "status": "In progress. Core controls and actual generated-world pond/mesh tests pass; native visual/performance acceptance and regional coverage review still required. Selected NPC build slot-a remains unchanged."
+  "status": "Verified current-package checkpoint: ten native region contexts and twenty inspected images; current NPC forest/cold regressions; sequential same-community performance and terrain-sampling comparison. Exact evidence in landscape-regions-20261103.json. Separate tree-art stage follows."
 }

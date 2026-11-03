@@ -1,0 +1,1067 @@
+{
+  "recorded_utc": "2026-11-03T21:29:04.699839+00:00",
+  "source": "3242861eb350479d3545467b5b2cbff83d477b91",
+  "baseline": "living-npcs-foundation-20261103",
+  "slot": "builds/slot-b",
+  "build": {
+    "BuiltUtc": "2026-11-03T20:44:45.2400111Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "a053b29aca64d8500b1ec606597e7239487783849589010052e593dc0500af2b"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "d3552146a7c739930c492cb2646e7980518ca422def5079adb4c1c900fe47354"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "c6986bb816409bb7aafc52b9b8b4a5944fda653295c992e770a2273c9ef6e630"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "a15d9c1f89c2c07411918fd38923e1da6c20474a21fe1cf80a24caac5e188e0e"
+  },
+  "package": {
+    "AssemblySha256": "d4b908dd1927f406363f5b1b77c51f0d4e690b85128c23696e4ca5e7589e5547",
+    "CoreSha256": "a053b29aca64d8500b1ec606597e7239487783849589010052e593dc0500af2b",
+    "WorkerSha256": "a15d9c1f89c2c07411918fd38923e1da6c20474a21fe1cf80a24caac5e188e0e"
+  },
+  "cases": [
+    {
+      "name": "regions-canopy-pond",
+      "checks": 12,
+      "scene": {
+        "Actual": "Peatland",
+        "CoverWeights": [
+          0.021370332,
+          0,
+          0,
+          0.356922748,
+          0.107779163,
+          0.120450183,
+          0.35,
+          0,
+          0
+        ],
+        "Depth": 1.7113351031050996,
+        "Elevation": 77.827,
+        "ForestCoverage": 0.008236562524994915,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 5.6859950999999995,
+        "NearbyPools": 4,
+        "Pond": {
+          "Aspect": 1.1219590971437188,
+          "Center": {
+            "X": 0.238231259,
+            "Y": -0.461384591,
+            "Z": -0.854616947
+          },
+          "Depth": 1.711350701119612,
+          "East": {
+            "X": 0.888544293,
+            "Y": 0.458790843,
+            "Z": 0
+          },
+          "Heading": 1.5013784928930303,
+          "Id": 9708010609426966852,
+          "Level": 79.5383351031051,
+          "North": {
+            "X": 0.39209043,
+            "Y": -0.759365012,
+            "Z": 0.519258966
+          },
+          "Phase": 0.7034327127083422,
+          "Radius": 14.594980591811268
+        },
+        "Position": {
+          "X": 0.238231259,
+          "Y": -0.461384591,
+          "Z": -0.854616947
+        },
+        "PrepareMs": 13539.947600000001,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.215224579,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0.620011151,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 1,
+          "Peat": 0.658343554,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.7165789
+        },
+        "Reeds": 75,
+        "Requested": "pond",
+        "SampleBiome": "Peatland",
+        "ScatterPages": 70,
+        "SubmergedReeds": 2,
+        "Tiles": 108,
+        "Water": 79.5383351031051,
+        "WaterRenderers": 46
+      },
+      "images": {
+        "wide": "725a2fc5c9fd332f0f5bd7236ea47e3720883024a8a19cc7bb5b800f5f0c86b4",
+        "ground": "1e50c83a985cdbc82fc15da23f996b2dafe2f0928b11ce217f239aa97c69327c"
+      },
+      "checks_sha256": "026c4528603e253e92d813dae276409ef4082adff9d3bcf12495d90005128a62",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. The actual 14.6m-radius pond is enclosed by a depressed bed and dry bank with no disconnected water triangles or crossing planes visible. Water has surface ripples and the drinking/swimming paths use the same 1.71m-deep basin.",
+        "images": {
+          "wide": "725a2fc5c9fd332f0f5bd7236ea47e3720883024a8a19cc7bb5b800f5f0c86b4",
+          "ground": "1e50c83a985cdbc82fc15da23f996b2dafe2f0928b11ce217f239aa97c69327c"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-sandsea",
+      "checks": 8,
+      "scene": {
+        "Actual": "SandSea",
+        "CoverWeights": [
+          0.00045302,
+          0.000342906,
+          0.00167388,
+          7.175e-06,
+          0.000236151,
+          0,
+          2.3168e-05,
+          0.00065414,
+          0.000107382
+        ],
+        "Depth": 0,
+        "Elevation": 157.894,
+        "ForestCoverage": 3.843581064723926e-06,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 2.2421444,
+        "NearbyPools": 0,
+        "Pond": null,
+        "Position": {
+          "X": -0.523478647,
+          "Y": -0.666157032,
+          "Z": -0.531229625
+        },
+        "PrepareMs": 13413.1132,
+        "Province": {
+          "Arid": 0.845289,
+          "Badlands": 0,
+          "Canopy": 0.0007690076,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.259878546,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0.426176548,
+          "Wet": 0
+        },
+        "Reeds": 0,
+        "Requested": "SandSea",
+        "SampleBiome": "Desert",
+        "ScatterPages": 215,
+        "SubmergedReeds": 0,
+        "Tiles": 103,
+        "Water": 0,
+        "WaterRenderers": 11
+      },
+      "images": {
+        "wide": "c0306bfa52fa0608a3885478e0b48d995e61bdc6da89519ec50f5253ac597f68",
+        "ground": "be58bec3fa00b8de3ac2a44ced05a40449ccd81e4bd9bc6eaee4d5869647ab50"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Orange bare sand carries small ripples and modest rolling dune relief with sparse xeric shrubs; active sand has no rooted grass lawn. Overhead summer lighting makes broad ridge shading subtle.",
+        "images": {
+          "wide": "c0306bfa52fa0608a3885478e0b48d995e61bdc6da89519ec50f5253ac597f68",
+          "ground": "be58bec3fa00b8de3ac2a44ced05a40449ccd81e4bd9bc6eaee4d5869647ab50"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-graveldesert",
+      "checks": 8,
+      "scene": {
+        "Actual": "GravelDesert",
+        "CoverWeights": [
+          0.006976485,
+          0.007368011,
+          0.037252475,
+          0.000199742,
+          0.004145624,
+          0,
+          0.000283603,
+          0.091928328,
+          0.005107149
+        ],
+        "Depth": 0,
+        "Elevation": 66.649,
+        "ForestCoverage": 0.000938032698793837,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 4.2733757,
+        "NearbyPools": 0,
+        "Pond": null,
+        "Position": {
+          "X": -0.358765687,
+          "Y": -0.786529901,
+          "Z": -0.50265087
+        },
+        "PrepareMs": 13857.5473,
+        "Province": {
+          "Arid": 1,
+          "Badlands": 0,
+          "Canopy": 0.00094709784,
+          "Clay": 0.06535203,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.155160725,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0.118596755,
+          "Wet": 0
+        },
+        "Reeds": 0,
+        "Requested": "GravelDesert",
+        "SampleBiome": "Desert",
+        "ScatterPages": 120,
+        "SubmergedReeds": 0,
+        "Tiles": 107,
+        "Water": 0,
+        "WaterRenderers": 16
+      },
+      "images": {
+        "wide": "c769388fbd98a7e9952bea51f9450682330d43d2755d92fd379d03eaa750ba99",
+        "ground": "cc3cc527f1aec11eabecb303fde6a0de5cedf3fc9904553a39443853d9a68d29"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Fine gravel pavement, scattered coarse rocks and sparse scrub are distinct from orange mobile sand and clay-pan ground; distant microscopic texture retires through the existing range controls.",
+        "images": {
+          "wide": "c769388fbd98a7e9952bea51f9450682330d43d2755d92fd379d03eaa750ba99",
+          "ground": "cc3cc527f1aec11eabecb303fde6a0de5cedf3fc9904553a39443853d9a68d29"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-claypan",
+      "checks": 8,
+      "scene": {
+        "Actual": "ClayPan",
+        "CoverWeights": [
+          0.004256413,
+          0.004510265,
+          0.010173584,
+          6.9545e-05,
+          0.002532703,
+          0,
+          0.000315282,
+          0.003264799,
+          0.000672722
+        ],
+        "Depth": 0,
+        "Elevation": 127.215,
+        "ForestCoverage": 2.3661516461664978e-05,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.2522325999999997,
+        "NearbyPools": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.778381315,
+          "Y": 0.268293601,
+          "Z": -0.567574729
+        },
+        "PrepareMs": 13751.6839,
+        "Province": {
+          "Arid": 0.486472666,
+          "Badlands": 0,
+          "Canopy": 0.000741078868,
+          "Clay": 0.4706505,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.357549042,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0
+        },
+        "Reeds": 0,
+        "Requested": "ClayPan",
+        "SampleBiome": "Desert",
+        "ScatterPages": 107,
+        "SubmergedReeds": 0,
+        "Tiles": 110,
+        "Water": 0,
+        "WaterRenderers": 13
+      },
+      "images": {
+        "wide": "99794712845578afe7b342dd4f429038eb66582158d4437ab98511e52841b293",
+        "ground": "c3cdfba4ac162aecfd95ce76801ca07352e5cc00c4ef2c37df851d7bd1686da5"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Flat fine brown substrate has polygonal drying cracks near the observer, sparse scrub and few coarse stones. It remains distinct from gravel pavement and mobile sand.",
+        "images": {
+          "wide": "99794712845578afe7b342dd4f429038eb66582158d4437ab98511e52841b293",
+          "ground": "c3cdfba4ac162aecfd95ce76801ca07352e5cc00c4ef2c37df851d7bd1686da5"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-saltflat",
+      "checks": 8,
+      "scene": {
+        "Actual": "SaltFlat",
+        "CoverWeights": [
+          0.006145601,
+          0.003453219,
+          0.011857724,
+          0.00711599,
+          0.002841096,
+          0,
+          0.00045882,
+          0.005524616,
+          0.000600209
+        ],
+        "Depth": 0,
+        "Elevation": 10.692,
+        "ForestCoverage": 0.0003138387383902546,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.3984210999999998,
+        "NearbyPools": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.0023618,
+          "Y": -0.869012828,
+          "Z": -0.494783919
+        },
+        "PrepareMs": 13940.5764,
+        "Province": {
+          "Arid": 0.495414048,
+          "Badlands": 0,
+          "Canopy": 0,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.355291277,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0.4445245,
+          "Sand": 0.05720873,
+          "Wet": 0
+        },
+        "Reeds": 0,
+        "Requested": "SaltFlat",
+        "SampleBiome": "Desert",
+        "ScatterPages": 162,
+        "SubmergedReeds": 0,
+        "Tiles": 105,
+        "Water": 0,
+        "WaterRenderers": 33
+      },
+      "images": {
+        "wide": "ad01bf45988cf461a90a596cf64906281acaf97e1ee39a29368df4d5fac94721",
+        "ground": "20a0a72f51e8e03c8225ac8411ae54ed6d560d5333ca53341d07c79e397e236e"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Pale crust with fine drying cracks and very sparse coarse stones, with a vegetated margin rather than a broad grass lawn over the flat. No visible tile-border gap or elevated crossing water plane.",
+        "images": {
+          "wide": "ad01bf45988cf461a90a596cf64906281acaf97e1ee39a29368df4d5fac94721",
+          "ground": "20a0a72f51e8e03c8225ac8411ae54ed6d560d5333ca53341d07c79e397e236e"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-freshwatermarsh",
+      "checks": 8,
+      "scene": {
+        "Actual": "FreshwaterMarsh",
+        "CoverWeights": [
+          0.019606861,
+          0,
+          2.488e-05,
+          0.40092748,
+          0.084514624,
+          0.036460702,
+          0.101444121,
+          0,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 143.556,
+        "ForestCoverage": 0.002055611146867108,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.1752569,
+        "NearbyPools": 3,
+        "Pond": null,
+        "Position": {
+          "X": 0.032332564,
+          "Y": -0.451417,
+          "Z": -0.891727143
+        },
+        "PrepareMs": 13388.2093,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.0272180047,
+          "Clay": 0,
+          "Frozen": 0.117894091,
+          "Glacial": 0.9461906,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.938868344,
+          "Peat": 0.0334707424,
+          "Rock": 1.60642207e-06,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.9600265
+        },
+        "Reeds": 424,
+        "Requested": "FreshwaterMarsh",
+        "SampleBiome": "Marsh",
+        "ScatterPages": 59,
+        "SubmergedReeds": 20,
+        "Tiles": 113,
+        "Water": 0,
+        "WaterRenderers": 49
+      },
+      "images": {
+        "wide": "a1741e57f777b7898895d52ec14e44b9646f6f1675659f559b2ef261a4d7ac2e",
+        "ground": "a6faf2af5bd6c24b44f526e62e9d76dcbcb2b00149ff377270f42bd17cac3bad"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Open sedge/rush ground has several enclosed pools and sparse tree islands, visibly distinct from the wooded wetland. Actual scatter contains 20 submerged reed plants; the sample forest potential is 0.0021.",
+        "images": {
+          "wide": "a1741e57f777b7898895d52ec14e44b9646f6f1675659f559b2ef261a4d7ac2e",
+          "ground": "a6faf2af5bd6c24b44f526e62e9d76dcbcb2b00149ff377270f42bd17cac3bad"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-woodedswamp",
+      "checks": 8,
+      "scene": {
+        "Actual": "WoodedSwamp",
+        "CoverWeights": [
+          0.017431174,
+          0,
+          1.149e-06,
+          0.234005033,
+          0.08867928,
+          0.084562294,
+          0.151620419,
+          0,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 132.168,
+        "ForestCoverage": 0.4993311101378954,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.4200958999999997,
+        "NearbyPools": 4,
+        "Pond": null,
+        "Position": {
+          "X": 0.004921601,
+          "Y": -0.464940574,
+          "Z": -0.88532821
+        },
+        "PrepareMs": 14187.4436,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.5092,
+          "Clay": 0,
+          "Frozen": 0.0503246,
+          "Glacial": 1,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.990179658,
+          "Peat": 0.0203721747,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.7515714
+        },
+        "Reeds": 309,
+        "Requested": "WoodedSwamp",
+        "SampleBiome": "Marsh",
+        "ScatterPages": 59,
+        "SubmergedReeds": 36,
+        "Tiles": 107,
+        "Water": 131.90736925395524,
+        "WaterRenderers": 68
+      },
+      "images": {
+        "wide": "a49f0e7a4646f475d00d41c0898ba8afd121244429664db23a6d865030131794",
+        "ground": "9e137f20c6534f824d01f478742d6fdfc978f29451093ea1b356d89a163c5fa6"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close game-camera views. A real shallow pond sits inside retained woodland rather than replacing it with an open lawn. The bank sample retains 0.499 forest potential and four nearby pools; actual scatter includes 36 reed plants rooted in water. Existing tree artwork is unchanged in this landscape checkpoint.",
+        "images": {
+          "wide": "a49f0e7a4646f475d00d41c0898ba8afd121244429664db23a6d865030131794",
+          "ground": "9e137f20c6534f824d01f478742d6fdfc978f29451093ea1b356d89a163c5fa6"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-peatland",
+      "checks": 8,
+      "scene": {
+        "Actual": "Peatland",
+        "CoverWeights": [
+          0.022872477,
+          0,
+          0,
+          0.36,
+          0.117005496,
+          0.07088982,
+          0.35,
+          2.0652e-05,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 39.597,
+        "ForestCoverage": 0.004471237687788112,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 2.9675841,
+        "NearbyPools": 5,
+        "Pond": null,
+        "Position": {
+          "X": 0.268484764,
+          "Y": -0.2675775,
+          "Z": -0.925374634
+        },
+        "PrepareMs": 13448.3362,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.0540151931,
+          "Clay": 0,
+          "Frozen": 0.371049464,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 1,
+          "Peat": 0.8929603,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.922798
+        },
+        "Reeds": 108,
+        "Requested": "Peatland",
+        "SampleBiome": "Peatland",
+        "ScatterPages": 60,
+        "SubmergedReeds": 3,
+        "Tiles": 116,
+        "Water": 0,
+        "WaterRenderers": 92
+      },
+      "images": {
+        "wide": "84fcc42e2658f72722370f01bd8e9f8144306d873894b46ca22c7cb295d8ace1",
+        "ground": "40e4334827cde4a53ffc91160aab64cc3a420d68673af30b25dbb8f4afcfeb02"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Low moss/sedge ground and scattered dwarf/woody islands surround a shallow-pool mosaic; the sample has 0.893 peat control, 0.35 moss weight and five nearby pools. No unsupported global forest replacement is inferred.",
+        "images": {
+          "wide": "84fcc42e2658f72722370f01bd8e9f8144306d873894b46ca22c7cb295d8ace1",
+          "ground": "40e4334827cde4a53ffc91160aab64cc3a420d68673af30b25dbb8f4afcfeb02"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-limestoneupland",
+      "checks": 8,
+      "scene": {
+        "Actual": "LimestoneUpland",
+        "CoverWeights": [
+          0.099556231,
+          0,
+          0,
+          0.000148522,
+          0.054544133,
+          0.049216235,
+          0.144131737,
+          0.010675094,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 46.05,
+        "ForestCoverage": 0.2915540848083363,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.2456256,
+        "NearbyPools": 0,
+        "Pond": null,
+        "Position": {
+          "X": -0.341509781,
+          "Y": -0.047222604,
+          "Z": -0.938691161
+        },
+        "PrepareMs": 13708.8775,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.489464343,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0.961114168,
+          "Loess": 0,
+          "Moisture": 0.997828841,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 9.650754e-05
+        },
+        "Reeds": 0,
+        "Requested": "LimestoneUpland",
+        "SampleBiome": "BorealForest",
+        "ScatterPages": 99,
+        "SubmergedReeds": 0,
+        "Tiles": 183,
+        "Water": 0,
+        "WaterRenderers": 41
+      },
+      "images": {
+        "wide": "c0675aead6b84f884a9497b897f98dedc2f47d2a5b4797e8aa481564fda0fd56",
+        "ground": "509dad80c9b8634498afb9523eb7d6b846f8e83d0aecc23576bed9c803b28c6a"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected loaded wide and close views. Dissected upland with exposed substrate on steep slopes, soil-bearing vegetated gullies and varied sparse woodland. No tile gaps, floating vegetation or newly claimed cave/waterfall landmark implementation.",
+        "images": {
+          "wide": "c0675aead6b84f884a9497b897f98dedc2f47d2a5b4797e8aa481564fda0fd56",
+          "ground": "509dad80c9b8634498afb9523eb7d6b846f8e83d0aecc23576bed9c803b28c6a"
+        }
+      }
+    },
+    {
+      "name": "regions-canopy-glaciallowland",
+      "checks": 8,
+      "scene": {
+        "Actual": "GlacialLowland",
+        "CoverWeights": [
+          0.022340005,
+          0,
+          0.002252163,
+          0.001233369,
+          0.013786026,
+          0,
+          0.166828469,
+          0.074080304,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 74.428,
+        "ForestCoverage": 0,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.1053458,
+        "NearbyPools": 0,
+        "Pond": null,
+        "Position": {
+          "X": -0.187122563,
+          "Y": -0.137737775,
+          "Z": -0.972632228
+        },
+        "PrepareMs": 13194.395,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0,
+          "Clay": 0,
+          "Frozen": 1,
+          "Glacial": 0.9913664,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.8964176,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.1938133
+        },
+        "Reeds": 27,
+        "Requested": "GlacialLowland",
+        "SampleBiome": "Tundra",
+        "ScatterPages": 52,
+        "SubmergedReeds": 0,
+        "Tiles": 122,
+        "Water": 0,
+        "WaterRenderers": 21
+      },
+      "images": {
+        "wide": "18c7d06930691b6f8f6852f144102ad19db59e62ed354d5597fbbfb8b8834ab0",
+        "ground": "863a3a109c00a9bd688fba8040295fb74ef8c0704edc54d9c8b442773698eab2"
+      },
+      "checks_sha256": "df9e8af2097ca7f6ed40e8676d4c03c20b586c42a87d43dd82242b7ff04f16d8",
+      "visual_review": {
+        "accepted": true,
+        "findings": "Inspected current wide and close views. Exposed low-relief ground with scattered coarse stones and short patchy moss/lichen and graminoids, with no forest canopy. Distinct from the tall marsh sward and wooded wetlands; no active ice cover is claimed by this exposed-ground label.",
+        "images": {
+          "wide": "18c7d06930691b6f8f6852f144102ad19db59e62ed354d5597fbbfb8b8834ab0",
+          "ground": "863a3a109c00a9bd688fba8040295fb74ef8c0704edc54d9c8b442773698eab2"
+        }
+      }
+    }
+  ],
+  "npc_regression": [
+    {
+      "name": "landscape-canopy-wet",
+      "checks": 31,
+      "checks_sha256": "98e744965e17791da5dcd013252cba32d4e1698245e45fc126355cc4a1f24808"
+    },
+    {
+      "name": "landscape-canopy-cold",
+      "checks": 31,
+      "checks_sha256": "98e744965e17791da5dcd013252cba32d4e1698245e45fc126355cc4a1f24808"
+    }
+  ],
+  "npc_performance": {
+    "baseline": {
+      "package": {
+        "AssemblySha256": "e679e654026725c04f614cd1d09a44ab3e3e62daa7a677f40a4ad394ec6be570",
+        "BuiltUtc": "2026-11-03T16:39:40.5605705Z",
+        "CoreSha256": "384c3b52f81b5e0948e53761f45dac9ed6877cbbccae7373116d88c8efc74af5",
+        "WorkerSha256": "0dff2a3a1e1767f1a48ea981333ebd2218bbcfc192a413bf3ffaa82946ed90f4"
+      },
+      "scene": {
+        "Aridity": 1.9109833471970137,
+        "Canopy": 0.9500000000000006,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 11,
+        "MeanC": 25.82974881612366,
+        "People": 42,
+        "Rain": 3172.675837138729,
+        "Residence": "SeasonalBaseCamps",
+        "Year": 190000
+      },
+      "rows": [
+        {
+          "BackgroundQueryMs": 0.7385,
+          "Frames": 240,
+          "MaxNpcMs": 7.3018,
+          "MeanFrameMs": 9.284587916666709,
+          "MeanNpcMs": 1.6649116666666675,
+          "MeanStagesMs": [
+            0.08192333333333332,
+            0.04644791666666668,
+            0.016119166666666677,
+            1.2180570833333335,
+            0.19529041666666663
+          ],
+          "Mode": "normal",
+          "P95FrameMs": 16.170199999976376,
+          "P95NpcMs": 2.6701,
+          "Residents": 42,
+          "ScatterChunks": 106,
+          "TerrainReady": false,
+          "Tiles": 252
+        },
+        {
+          "BackgroundQueryMs": 0.6867000000000001,
+          "Frames": 240,
+          "MaxNpcMs": 0.1206,
+          "MeanFrameMs": 6.964705416666561,
+          "MeanNpcMs": 0.044469583333333326,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "render-only",
+          "P95FrameMs": 9.51890000004596,
+          "P95NpcMs": 0.0577,
+          "Residents": 42,
+          "ScatterChunks": 107,
+          "TerrainReady": false,
+          "Tiles": 252
+        },
+        {
+          "BackgroundQueryMs": 0.8607,
+          "Frames": 240,
+          "MaxNpcMs": 0.1064,
+          "MeanFrameMs": 6.210490416666659,
+          "MeanNpcMs": 0.03997666666666664,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "no-residents",
+          "P95FrameMs": 8.563799999990351,
+          "P95NpcMs": 0.0481,
+          "Residents": 42,
+          "ScatterChunks": 107,
+          "TerrainReady": false,
+          "Tiles": 252
+        },
+        {
+          "BackgroundQueryMs": 0.7319,
+          "Frames": 240,
+          "MaxNpcMs": 7.1756,
+          "MeanFrameMs": 8.983624583333238,
+          "MeanNpcMs": 1.542983333333333,
+          "MeanStagesMs": [
+            0.07628916666666666,
+            0.042593333333333316,
+            0.015044583333333326,
+            1.107639583333334,
+            0.18269916666666672
+          ],
+          "Mode": "normal-repeat",
+          "P95FrameMs": 12.459599999999682,
+          "P95NpcMs": 2.7441,
+          "Residents": 42,
+          "ScatterChunks": 108,
+          "TerrainReady": false,
+          "Tiles": 252
+        }
+      ]
+    },
+    "candidate": {
+      "package": {
+        "AssemblySha256": "d4b908dd1927f406363f5b1b77c51f0d4e690b85128c23696e4ca5e7589e5547",
+        "BuiltUtc": "2026-11-03T20:44:45.3597502Z",
+        "CoreSha256": "a053b29aca64d8500b1ec606597e7239487783849589010052e593dc0500af2b",
+        "WorkerSha256": "a15d9c1f89c2c07411918fd38923e1da6c20474a21fe1cf80a24caac5e188e0e"
+      },
+      "scene": {
+        "Aridity": 1.9109833471970137,
+        "Canopy": 0.9500000000000006,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 11,
+        "MeanC": 25.82974881612366,
+        "People": 42,
+        "Rain": 3172.675837138729,
+        "Residence": "SeasonalBaseCamps",
+        "Year": 190000
+      },
+      "rows": [
+        {
+          "BackgroundQueryMs": 0.7215,
+          "Frames": 240,
+          "MaxNpcMs": 8.222,
+          "MeanFrameMs": 9.064912499999997,
+          "MeanNpcMs": 1.486358750000001,
+          "MeanStagesMs": [
+            0.0708945833333333,
+            0.040188749999999995,
+            0.014338333333333331,
+            1.1033637500000002,
+            0.16185458333333336
+          ],
+          "Mode": "normal",
+          "P95FrameMs": 16.99780000001283,
+          "P95NpcMs": 2.7072,
+          "Residents": 42,
+          "ScatterChunks": 102,
+          "TerrainReady": false,
+          "Tiles": 233
+        },
+        {
+          "BackgroundQueryMs": 0.7668,
+          "Frames": 240,
+          "MaxNpcMs": 0.1255,
+          "MeanFrameMs": 6.8417604166666495,
+          "MeanNpcMs": 0.03988958333333336,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "render-only",
+          "P95FrameMs": 10.234100000019453,
+          "P95NpcMs": 0.0532,
+          "Residents": 42,
+          "ScatterChunks": 103,
+          "TerrainReady": false,
+          "Tiles": 233
+        },
+        {
+          "BackgroundQueryMs": 0.736,
+          "Frames": 240,
+          "MaxNpcMs": 0.109,
+          "MeanFrameMs": 6.14085666666675,
+          "MeanNpcMs": 0.038349999999999995,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "no-residents",
+          "P95FrameMs": 9.09430000001521,
+          "P95NpcMs": 0.0511,
+          "Residents": 42,
+          "ScatterChunks": 104,
+          "TerrainReady": false,
+          "Tiles": 233
+        },
+        {
+          "BackgroundQueryMs": 0.7598,
+          "Frames": 240,
+          "MaxNpcMs": 5.8735,
+          "MeanFrameMs": 7.444704583333106,
+          "MeanNpcMs": 1.3252558333333329,
+          "MeanStagesMs": [
+            0.06959291666666666,
+            0.03887333333333331,
+            0.014065833333333338,
+            0.9520524999999994,
+            0.15765749999999984
+          ],
+          "Mode": "normal-repeat",
+          "P95FrameMs": 9.656600000027993,
+          "P95NpcMs": 2.1588,
+          "Residents": 42,
+          "ScatterChunks": 105,
+          "TerrainReady": false,
+          "Tiles": 233
+        }
+      ]
+    }
+  },
+  "performance_conditions": "Baseline and candidate players run sequentially after the owner closed WorldGen. Earlier contended wet-camp timing is excluded from this comparison. Terrain readiness is retained in every measurement row.",
+  "land_sampling_cost": {
+    "runs": [
+      {
+        "Directory": "builds/slot-a/WorldGen_Data/Managed",
+        "PreparationMs": 26883.9787,
+        "LandSample12675Ms": [
+          944.6432,
+          675.3075,
+          659.838
+        ],
+        "HeightSum": 4691529.23100002
+      },
+      {
+        "Directory": "C:\\Users\\kille\\Desktop\\WorldGen\\tests\\WorldGen.Core.Tests\\bin\\Release\\net10.0",
+        "PreparationMs": 28294.1816,
+        "LandSample12675Ms": [
+          993.2833,
+          673.4513,
+          694.7489
+        ],
+        "HeightSum": 4831308.764999996
+      }
+    ],
+    "warm_ratio_to_npc_checkpoint": 1.024757376630487,
+    "log_sha256": "c85d59b2bad743b2ee75edd944ce8e4cc65d520e8190ca77ac286670954a39e0",
+    "conditions": "Sequential comparison after native jobs complete; same three physical land contexts, baseline first. This is not whole-game FPS."
+  },
+  "research": "assets/verification/landscape-research-20261103.json",
+  "art_sources": "assets/verification/landscape-surface-sources-20261103.json",
+  "texture_budget": {
+    "baseline": "living-npcs-foundation-20261103",
+    "expected_changed_slices": [
+      1,
+      2,
+      3,
+      6
+    ],
+    "arrays": {
+      "albedo": {
+        "payload_bytes": 4893728,
+        "changed_slices": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "original_other_slices_byte_exact": true,
+        "payload_sha256": "27395d0d458d64e6f1b3fbf235dde906e9a3f3d05dcbce67434cad2e0e242a9d",
+        "file_sha256": "8e84e7d54c121646d004bba6110017e33ceabcf0f135b661779c274b20845fdb"
+      },
+      "normal": {
+        "payload_bytes": 1223712,
+        "changed_slices": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "original_other_slices_byte_exact": true,
+        "payload_sha256": "ad1fe2beeaac158facb55f322113ff0ec97cea543aa5a1e9c9c5f607513de752",
+        "file_sha256": "604d0e677ba88a993ad8743731e362450e79225346fe97e80585c00ba7cf9d38"
+      },
+      "mask": {
+        "payload_bytes": 306208,
+        "changed_slices": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "original_other_slices_byte_exact": true,
+        "payload_sha256": "9540cf0e7f824a681d055accade16fa0546423b02199e90b322df814ce982bbc",
+        "file_sha256": "68c51d9e9b6cdc3d99d7114b561ddfb712b27fd2db4877eaf310ef860b41cf41"
+      }
+    }
+  },
+  "original_locked_inputs_unchanged": 5131,
+  "architecture": {
+    "terrain": "Continuous substrate, moisture, cover and relief controls on shared terrain vertices, before river fitting.",
+    "ponds": "Sparse deeper ponds plus finer shallow wetland pools, complete rim surveys, disjoint basin collars and bounded caches; no global pond tick ledger.",
+    "art": "Four slots replaced in the same fourteen-layer BC7 arrays; original other slices byte-exact."
+  },
+  "limits": [
+    "This is a local landscape province pass, not a new tectonic or river-network generator.",
+    "Small ponds are static derived enclosed basins; seasonal drying, thaw and water budgets are not simulated.",
+    "No volcano, waterfall or cave landmark pass; no stage-three tree-art overhaul in this checkpoint.",
+    "Numerical wavelengths and encounter density are tunable game priors, not measured global distributions.",
+    "Visual findings are internal review; owner acceptance is not inferred."
+  ]
+}
