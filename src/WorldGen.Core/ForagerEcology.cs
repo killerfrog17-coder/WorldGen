@@ -32,11 +32,11 @@ namespace WorldGen.Core
             int epoch=(int)Math.Floor(years/period);double t=years/period-epoch;t=t*t*(3-2*t);
             double a=Rng.ValueFromStreamHash(seed,stream,unchecked(location*7919+epoch)),b=Rng.ValueFromStreamHash(seed,stream,unchecked(location*7919+epoch+1));return a+(b-a)*t;
         }
-        public static ForagerEnvironment At(int seed,ForagerDistrict d,double years,int elevationM=0)
+        public static ForagerEnvironment At(int seed,ForagerDistrict d,double years,int elevationM=0,bool climateMean=false)
         {
             var glacial=PaleolithicRules.Climate(seed,years,d.Center.Z,elevationM,d.Province);
-            double province=SmoothStream(seed,RegionalRain,d.Province,years,1450),local=SmoothStream(seed,LocalRain,d.Id,years,160);
-            double severe=SmoothStream(seed,RefugialDrought,d.Province,years,420);
+            double province=climateMean?.56:SmoothStream(seed,RegionalRain,d.Province,years,1450),local=climateMean?.5:SmoothStream(seed,LocalRain,d.Id,years,160);
+            double severe=climateMean?1:SmoothStream(seed,RefugialDrought,d.Province,years,420);
             double drought=D.Clamp((.18-severe)/.18)*D.Clamp((1.2-d.Aridity)/1.2);
             double moisture=D.Clamp(glacial.PrecipitationMultiplier*(.72+.5*province)*(.82+.36*local)*(1-.75*drought),.12,1.6);
             double pulse=MonsoonRain(d,years,glacial.Ice)*(1-.6*drought),greening=D.Clamp((pulse-10)/50);
@@ -54,7 +54,7 @@ namespace WorldGen.Core
             double canopy=forestPotential*trees,water=D.Clamp(d.Water*moisture+.2*d.River*(1-.5*drought));
             water+=Math.Max(0,D.Clamp((rain-180)/700)*.65-water)*greening;
             double pathogens=d.Pathogens*D.Clamp((mean-6)/18)*D.Clamp(moisture/.8);
-            double disturbance=.7+.6*SmoothStream(seed,ResourceMosaic,d.Id,years,650);
+            double disturbance=climateMean?1:.7+.6*SmoothStream(seed,ResourceMosaic,d.Id,years,650);
             var food=new double[5];var lean=new double[5];
             double change=d.Productivity>1?D.Clamp(npp/d.Productivity,0,1.7):0,open=D.Clamp(d.Canopy-canopy);
             for(int k=0;k<5;k++)

@@ -89,7 +89,7 @@ namespace WorldGen.Core
         public ForagerBandSample ForagerBand(PrehistoryState s,int cohortId,int ordinal=0)
         {
             if(!Foraging(s)||ordinal<0)return null;var f=s.Foragers;var c=ForagerResident(f,cohortId);
-            if(c==null)return null;int count=ForagerBandCount(s,c);if(ordinal>=count)return null;
+            if(c==null)return null;c=ForagerAdoption.Project(f,c);int count=ForagerBandCount(s,c);if(ordinal>=count)return null;
             var band=ForagerBandLayout(s,c,ordinal,count);var d=f.Districts[c.District];double years=f.Seconds/(double)SimulationTime.Year;
             int key=unchecked(c.Id*104729+ordinal*7919);
             double speciesDraw=Rng.Value(World.Recipe.Seed,"regional-band-species",key),speciesCumulative=0;
@@ -98,10 +98,13 @@ namespace WorldGen.Core
             band.Belief=ForagerAffiliations.Pick(c.Traditions,Rng.Value(World.Recipe.Seed,"band-minority-belief",key));
             // Individual makers, rather than an average weak proficiency
             // assigned to everybody. Band availability follows actual residents.
-            band.Members=ForagerHouseholds(f,c,band,years,key);
-            for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=band.Members.Any(p=>p.Skills[k]>=.35);
+            double tribalRank=Rng.Value(World.Recipe.Seed,"band-knowledge-rank",key);
+            for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=tribalRank<c.Knowledge[k];
             bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
             for(int k=0;k<band.Techniques.Length;k++)Can(k);
+            band.Members=ForagerHouseholds(f,c,band,years,key);
+            var adults=band.Members.Where(p=>p.AgeYears>=18&&p.AgeYears<60).ToArray();
+            if(adults.Length>0)for(int k=0;k<band.Techniques.Length;k++)if(band.Techniques[k]&&!band.Members.Any(p=>p.Skills[k]>=.35)){var teacher=adults[(int)(Rng.Value(World.Recipe.Seed,"band-specialist-"+k,key)*adults.Length)];teacher.Skills[k]=.7;teacher.Knowledge[k]=.9;}
             int homeCell=ForagerBandHome(f,c,ordinal).cell;
             var environment=ForagerEcology.At(World.Recipe.Seed,d,years,World.ElevationM[homeCell]);
             band.RoutineTechniques=new bool[ForagerTechnology.Count];band.WinterTechniques=new bool[ForagerTechnology.Count];
@@ -109,8 +112,8 @@ namespace WorldGen.Core
             {
                 // Knowing a maker does not imply routinely using every tool.
                 // Group availability is distinct from individual skill prevalence.
-                double rank=Rng.Value(World.Recipe.Seed,"band-practice-"+k,key);
-                bool products=f.Version==ForagerState.RegionalVersion||band.Techniques[k];
+                double rank=tribalRank;
+                bool products=band.Techniques[k];
                 band.RoutineTechniques[k]=products&&rank<c.Use[k];
                 bool winter=k==5||k==8||k==13||k==14||k==31||k==34||k==35||k==36;
                 band.WinterTechniques[k]=winter?products&&rank<ForagerTechnology.WinterPractice(d,environment,c,k,f.Version==ForagerState.RegionalVersion):band.RoutineTechniques[k];
@@ -257,7 +260,7 @@ namespace WorldGen.Core
                 double apprenticeship=D.Clamp((age-5)/18);
                 void Skilled(int technique,double proficiency)
                 {
-                    if(person.Skills[technique]>=proficiency)return;
+                    if(!band.Techniques[technique]||person.Skills[technique]>=proficiency)return;
                     person.Skills[technique]=proficiency;person.Knowledge[technique]=Math.Max(person.Knowledge[technique],proficiency);
                     var method=ForagerTechnology.All[technique];foreach(int prerequisite in method.Prerequisites)Skilled(prerequisite,proficiency);
                     if(method.AlternativePaths.Length>0)
@@ -268,8 +271,8 @@ namespace WorldGen.Core
                 }
                 for(int k=0;k<person.Skills.Length;k++)
                 {
-                    if(Rng.Value(World.Recipe.Seed,"individual-familiarity-"+k,(int)id)<c.Knowledge[k])person.Knowledge[k]=Math.Max(person.Knowledge[k],D.Clamp((age-2)/12)*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-familiarity-depth-"+k,(int)id)));
-                    if(Rng.Value(World.Recipe.Seed,"individual-trained-"+k,(int)id)<c.Skill[k])Skilled(k,apprenticeship*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-skill-"+k,(int)id)));
+                    if(band.Techniques[k]&&Rng.Value(World.Recipe.Seed,"individual-familiarity-"+k,(int)id)<.8)person.Knowledge[k]=Math.Max(person.Knowledge[k],D.Clamp((age-2)/12)*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-familiarity-depth-"+k,(int)id)));
+                    if(Rng.Value(World.Recipe.Seed,"individual-trained-"+k,(int)id)<c.Skill[k]/Math.Max(.000001,c.Knowledge[k]))Skilled(k,apprenticeship*(.65+.35*Rng.Value(World.Recipe.Seed,"individual-skill-"+k,(int)id)));
                 }
                 return person;
             }

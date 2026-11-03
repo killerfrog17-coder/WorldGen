@@ -14,19 +14,13 @@ namespace WorldGen.Presentation
         public static int ExpectedChunkCount(World world) =>
             4 * ((world.Surface.Edges.Length + SurfaceMesh.EdgesPerChunk - 1) / SurfaceMesh.EdgesPerChunk)
             + (world.Hydrology.Rivers.Length + SurfaceMesh.RiverReachesPerChunk - 1) / SurfaceMesh.RiverReachesPerChunk + 4
-            + (world.Surface.Triangles.Length+NaturalSurface.FacesPerChunk*3-1)/(NaturalSurface.FacesPerChunk*3)
-            + ((world.Hydrology.LakeCoverageFraction.Count(f=>f>0)+(world.Subcells?.Islands.Length??0))*192+23999)/24000;
+            ;
         public static IEnumerable<Piece> Geometry(World world, Projection projection, CancellationToken token)
         {
             var options = new ViewOptions { Projection=projection, Layer=Layer.Terrain, GridSpacing=0, ShowRivers=true, CachedDisplay=true };
             int surfaceCount=(world.Surface.Edges.Length+SurfaceMesh.EdgesPerChunk-1)/SurfaceMesh.EdgesPerChunk, index=0;
             foreach(var data in SurfaceMesh.Chunks(world,options,token))
                 yield return new Piece { Kind=index++<surfaceCount?"surface":"rivers",Data=data };
-            if(GenerationPreview.Available(world,Layer.Terrain))
-            {
-                foreach(var data in NaturalSurface.Chunks(world,projection,token))yield return new Piece{Kind="natural",Data=data};
-                foreach(var data in NaturalSurface.WaterAndIslands(world,projection,token))yield return new Piece{Kind="smallfeatures",Data=data};
-            }
             ViewData Project(ViewData data) => projection==Projection.Map?MapView.Project(data,0):data;
             var s=world.Surface;
             for(int first=0;first<s.Edges.Length;first+=SurfaceMesh.EdgesPerChunk)

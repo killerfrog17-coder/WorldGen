@@ -5,6 +5,7 @@ using WorldGen.Presentation;
 try
 {
     string Arg(string name, string fallback = "") { int i = Array.IndexOf(args, name); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
+    if(args.Contains("--generation-worker")){await GenerationWorker.Run(int.Parse(Arg("--generation-worker")),int.Parse(Arg("--parent")),Arg("--generation-token"));return;}
     if(args.Contains("--terrain-worker")){await TerrainWorker.Run(int.Parse(Arg("--terrain-worker")),int.Parse(Arg("--parent")),Arg("--terrain-token"));return;}
     if(args.Contains("--regional-history-worker")){await RegionalHistoryWorker.Run(int.Parse(Arg("--regional-history-worker")),int.Parse(Arg("--parent")),Arg("--history-token"));return;}
     if(args.Contains("--list-presets")){foreach(string name in WorldPresets.Names)Console.WriteLine(name);return;}

@@ -90,7 +90,7 @@ public sealed partial class WorldGenRuntime
         if(GUI.Button(new Rect(8,7,100,36),"World [W]"))WorldAtlasKey();
         GUI.enabled=!atlasOpen&&CanRequestTerrain;if(GUI.Button(new Rect(114,7,105,36),new GUIContent(play.HasPlayer?"Resume game":"Enter world","Play in the generated world")))RequestTerrain();
         GUILayout.BeginArea(new Rect(Mathf.Max(232,Screen.width-600),7,Mathf.Min(594,Screen.width-238),40));GUILayout.BeginHorizontal();
-        GUILayout.Label(state==null?"Preparing…":SimulationClockView.Date(state,humanPlayback.Rate),new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold},GUILayout.Width(195));
+        GUILayout.Label(state==null?"Preparing…":SimulationClockView.Date(state,humanPlayback.Rate),new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold},GUILayout.Width(165));DrawIceCycle(state);
         GUI.enabled=!atlasOpen&&humans!=null&&!simulationPaused;
         if(GUILayout.Button(humanPlaying?"Ⅱ":"▶",GUILayout.Width(40))){humanPlaying=!humanPlaying;humanPlayback.Reset();}
         if(GUILayout.Button("‹",GUILayout.Width(28)))ChangeHumanSpeed(-1);GUILayout.Label(SimulationClockView.Rate(humanPlayback.Rate),GUILayout.Width(130));if(GUILayout.Button("›",GUILayout.Width(28)))ChangeHumanSpeed(1);

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace WorldGen.Core
 {
@@ -66,12 +67,15 @@ namespace WorldGen.Core
             for (int j = 0; j < a; j++) atmosphere.Climate.ContinentalityPermille[j] = sea[j] >= .5 ? 0 : D.M(1000.0 * distance[j] / (distance[j] + 1800000.0));
             var heat = OceanHeatDrift(atmosphere, token); var months = new ClimateSeason[12];
             var thermalHeight = atmosphere.ElevationM.Select((z, i) => sea[i] >= .5 ? 0 : z).ToArray();
-            for (int m = 0; m < 12; m++)
+            // Each month owns its arrays and solver. There are no cross-month
+            // reductions: parallel execution preserves the exact numerical order
+            // within every atmospheric calculation.
+            Parallel.For(0, 12, new ParallelOptions { CancellationToken=token, MaxDegreeOfParallelism=Math.Min(4,Environment.ProcessorCount) }, m =>
             {
                 double circulation = D.Sin(2 * D.Pi * (m - .1) / 12);
                 double thermal = D.Sin(2 * D.Pi * (m - 1.35) / 12);
                 months[m] = Season(atmosphere, circulation, thermal, nearest, heat, sea, token);
-            }
+            });
             var result = new ClimateResult { ContinentalityPermille = new int[n], Classification = new Koppen[n],
                 AtmosphericMonths = new ClimateMonth[12], AtmosphericElevationM = atmosphere.ElevationM,
                 AtmosphericOceanPermille = sea.Select(x => D.M(x * 1000)).ToArray() };
@@ -82,8 +86,10 @@ namespace WorldGen.Core
             result.NorthernSpring = quarters[0]; result.NorthernSummer = quarters[1];
             result.NorthernAutumn = quarters[2]; result.NorthernWinter = quarters[3];
             for (int q = 0; q < 4; q++) quarters[q].MoistureBudgetResidualPpm = months.Skip(q * 3).Take(3).Max(m => m.MoistureBudgetResidualPpm);
+            Parallel.For(0, (n+1023)/1024, new ParallelOptions { CancellationToken=token, MaxDegreeOfParallelism=Math.Min(4,Environment.ProcessorCount) }, chunk =>
+            {
             var t = new double[12]; var p = new double[12];
-            for (int i = 0; i < n; i++)
+            for (int i = chunk*1024; i < Math.Min(n,(chunk+1)*1024); i++)
             {
                 if ((i & 255) == 0) token.ThrowIfCancellationRequested();
                 int center = mapping[i]; var neighbors = s.Cells[center].Neighbors;
@@ -131,6 +137,7 @@ namespace WorldGen.Core
                 }
                 result.Classification[i] = w.Hydrology.OceanConnected[i] ? Koppen.Ocean : ClassifyMonths(t, p, w.Surface.Cells[i].Position.Z >= 0);
             }
+            });
             w.Climate = result;
             w.Metric("climate_classes", result.Classification.Where(k => k != Koppen.Ocean).Distinct().Count());
             w.Metric("climate_seasons", 4); w.Metric("climate_simulated_months", 12); w.Metric("atmospheric_cells", a);

@@ -8,7 +8,7 @@ using WorldGen.Presentation;
 
 public sealed partial class WorldGenRuntime
 {
-    HistoryOverlay historyOverlay=HistoryOverlay.States;
+    HistoryOverlay historyOverlay=HistoryOverlay.Civilizations;
     SettlementMarkerMode settlementMarkerMode=SettlementMarkerMode.CapitalsOnly;
     SettlementMarker[][] cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();Texture2D settlementDot;
     sealed class HumanPreparation {public Prehistory Engine;public PrehistoryState State;}
@@ -46,7 +46,7 @@ public sealed partial class WorldGenRuntime
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
         {
             var task=humanPreparation;humanPreparation=null;
-            try{var prepared=task.GetAwaiter().GetResult();humans=prepared.Engine;bool fresh=world.Prehistory==null;world.Prehistory=prepared.State;if(fresh){historyOverlay=HistoryOverlay.Cultures;if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;PrepareRegionalHistory();UpdateHumanPalette();}
+            try{var prepared=task.GetAwaiter().GetResult();humans=prepared.Engine;bool fresh=world.Prehistory==null;world.Prehistory=prepared.State;if(fresh){historyOverlay=HistoryOverlay.Civilizations;if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;PrepareRegionalHistory();UpdateHumanPalette();}
             catch(Exception ex){error=ex.Message;humans=null;}
         }
         if(humanPlaybackWork!=null)
@@ -180,7 +180,7 @@ public sealed partial class WorldGenRuntime
     void StartHumanWorld()
     {
         if(humans==null)return;
-        try{WorldMeridian.Apply(play,world);if(!world.Prehistory.Started&&world.Prehistory.History?.Sky==null)world.Prehistory=humans.ConfigureCelestialHistory(world.Prehistory,play.Settings.Sky??CelestialSettings.Preset("No moons"));world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=Prehistory.Paleolithic(world.Prehistory)?HistoryOverlay.Cultures:HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
+        try{WorldMeridian.Apply(play,world);if(!world.Prehistory.Started&&world.Prehistory.History?.Sky==null)world.Prehistory=humans.ConfigureCelestialHistory(world.Prehistory,play.Settings.Sky??CelestialSettings.Preset("No moons"));world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=Prehistory.Paleolithic(world.Prehistory)?HistoryOverlay.Civilizations:HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
     }
     void FocusHumanOrigin()
     {

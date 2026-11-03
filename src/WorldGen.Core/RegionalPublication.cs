@@ -28,6 +28,7 @@ namespace WorldGen.Core
         public RegionalQueueNode Queue;
         public long[] PopulationAt,ProcessAt;public int[] Residents;public double[] Species;
         public RegionalChanges<ForagerCohort> People;
+        public RegionalChanges<ForagerAdoptionPlan> Adoption;
         public RegionalChanges<ForagerResources> Resources;
         public RegionalBiotaUpdate[] Biota;
         public RegionalChanges<ForagerCulture> Cultures;
@@ -44,7 +45,7 @@ namespace WorldGen.Core
             if(PrehistoryState.SameDomain(before,after))return new RegionalPublication{ClockOnly=true,From=a.Seconds,Seconds=b.Seconds};
             return new RegionalPublication{From=a.Seconds,Seconds=b.Seconds,Boundary=b.BoundarySeconds,NextReview=b.NextReviewSeconds,ProcessedEvents=b.ProcessedEvents,NextCohort=b.NextCohort,NextCulture=b.NextCulture,NextLanguage=b.NextLanguage,NextBelief=b.NextBelief,NextFamily=b.NextFamily,NextPeople=b.NextPeople,
                 Queue=b.PendingEvents,PopulationAt=b.PopulationAt,ProcessAt=b.ProcessAt,Residents=b.RegionResidents,Species=b.SpeciesShares,
-                People=RegionalChanges<ForagerCohort>.Between(a.Cohorts,b.Cohorts),Resources=RegionalChanges<ForagerResources>.Between(a.Resources,b.Resources),Biota=RegionalBiotaUpdate.Between(a.Biota,b.Biota),Cultures=RegionalChanges<ForagerCulture>.Between(a.Cultures,b.Cultures),Identities=RegionalChanges<ForagerPeopleIdentity>.Between(a.Peoples,b.Peoples),Languages=RegionalChanges<ForagerLanguage>.Between(a.Languages,b.Languages),Families=RegionalChanges<ForagerLanguageFamily>.Between(a.LanguageFamilies,b.LanguageFamilies),Beliefs=RegionalChanges<ForagerBelief>.Between(a.Beliefs,b.Beliefs),Events=b.Events,Discoveries=b.Discoveries};
+                Adoption=RegionalChanges<ForagerAdoptionPlan>.Between(a.Adoption,b.Adoption),People=RegionalChanges<ForagerCohort>.Between(a.Cohorts,b.Cohorts),Resources=RegionalChanges<ForagerResources>.Between(a.Resources,b.Resources),Biota=RegionalBiotaUpdate.Between(a.Biota,b.Biota),Cultures=RegionalChanges<ForagerCulture>.Between(a.Cultures,b.Cultures),Identities=RegionalChanges<ForagerPeopleIdentity>.Between(a.Peoples,b.Peoples),Languages=RegionalChanges<ForagerLanguage>.Between(a.Languages,b.Languages),Families=RegionalChanges<ForagerLanguageFamily>.Between(a.LanguageFamilies,b.LanguageFamilies),Beliefs=RegionalChanges<ForagerBelief>.Between(a.Beliefs,b.Beliefs),Events=b.Events,Discoveries=b.Discoveries};
         }
         public PrehistoryState Apply(PrehistoryState before)
         {
@@ -54,7 +55,7 @@ namespace WorldGen.Core
             f.Seconds=Seconds;f.BoundarySeconds=Boundary;f.NextReviewSeconds=NextReview;f.ProcessedEvents=ProcessedEvents;f.PendingEvents=Queue;
             f.NextCohort=NextCohort;f.NextCulture=NextCulture;f.NextLanguage=NextLanguage;f.NextBelief=NextBelief;f.NextFamily=NextFamily;f.NextPeople=NextPeople;
             f.PopulationAt=PopulationAt;f.ProcessAt=ProcessAt;f.RegionResidents=Residents;f.SpeciesShares=Species;
-            f.Cohorts=People.Apply(f.Cohorts);f.Resources=Resources.Apply(f.Resources);f.Biota=(ForagerBiotaDistrict[])f.Biota.Clone();foreach(var update in Biota)update.Apply(f.Biota);f.Cultures=Cultures.Apply(f.Cultures);f.Peoples=Identities.Apply(f.Peoples);f.Languages=Languages.Apply(f.Languages);f.LanguageFamilies=Families.Apply(f.LanguageFamilies);f.Beliefs=Beliefs.Apply(f.Beliefs);f.Events=Events;f.Discoveries=Discoveries;
+            f.Cohorts=People.Apply(f.Cohorts);f.Adoption=Adoption.Apply(f.Adoption);f.Resources=Resources.Apply(f.Resources);f.Biota=(ForagerBiotaDistrict[])f.Biota.Clone();foreach(var update in Biota)update.Apply(f.Biota);f.Cultures=Cultures.Apply(f.Cultures);f.Peoples=Identities.Apply(f.Peoples);f.Languages=Languages.Apply(f.Languages);f.LanguageFamilies=Families.Apply(f.LanguageFamilies);f.Beliefs=Beliefs.Apply(f.Beliefs);f.Events=Events;f.Discoveries=Discoveries;
             next.Years=(int)(Seconds/SimulationTime.Year);next.Paleolithic.Seconds=Seconds;next.Paleolithic.BoundarySeconds=Boundary;next.InvalidateHash();return next;
         }
     }

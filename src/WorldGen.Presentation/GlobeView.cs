@@ -45,7 +45,7 @@ namespace WorldGen.Presentation
         // Sub-cell lakes remain authoritative hydrology, not whole-cell paint.
         // Keep one visibility rule for terrain, diagnostics and surface geometry.
         public const double WholeCellLakeCoverage = .9;
-        internal static bool TryVisibleWater(World w, int cell, out WaterBody water)
+        public static bool TryVisibleWater(World w, int cell, out WaterBody water)
             => TryWater(w, cell, out water) && (water.Kind == WaterKind.Ocean
                 || (cell < w.Hydrology.LakeCoverageFraction.Length && w.Hydrology.LakeCoverageFraction[cell] >= WholeCellLakeCoverage));
         public static ViewData CellValues(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75, System.Threading.CancellationToken token = default, int[]? selectedCells = null,PrehistoryState? history=null)

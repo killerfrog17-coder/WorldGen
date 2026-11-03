@@ -119,8 +119,8 @@ namespace WorldGen.Core
         public static double WinterPractice(ForagerDistrict d,ForagerEnvironment e,ForagerCohort c,int k,bool sharedProducts=false)
         {
             double use=k<c.Use.Length?D.Clamp(c.Use[k]):0;
-            double makers=c.Skill.Length>k?c.Skill[k]:0;
-            return Math.Max(use,(sharedProducts?ProductCoverage(makers):makers)*D.Clamp((12-e.WinterC)/18d)*D.Clamp(Materials(d,e,k)*3));
+            double makers=c.TribalAccess==null?(c.Skill.Length>k?c.Skill[k]:0):c.TribalAccess[k];
+            return Math.Max(use,(sharedProducts&&c.TribalAccess==null?ProductCoverage(makers):makers)*D.Clamp((12-e.WinterC)/18d)*D.Clamp(Materials(d,e,k)*3));
         }
         // First block: expertise of people who can demonstrate this method.
         // Second block: actual access to those teachers. Unskilled neighbours

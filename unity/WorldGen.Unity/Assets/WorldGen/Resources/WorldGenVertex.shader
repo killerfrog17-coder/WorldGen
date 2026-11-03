@@ -17,7 +17,7 @@ Shader "WorldGen/VertexSurface"
             float hash3(float3 p){return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453);}
             float noise3(float3 p){float3 b=floor(p),f=frac(p);f=f*f*(3-2*f);return lerp(lerp(lerp(hash3(b),hash3(b+float3(1,0,0)),f.x),lerp(hash3(b+float3(0,1,0)),hash3(b+float3(1,1,0)),f.x),f.y),lerp(lerp(hash3(b+float3(0,0,1)),hash3(b+float3(1,0,1)),f.x),lerp(hash3(b+float3(0,1,1)),hash3(b+float3(1,1,1)),f.x),f.y),f.z);}
             float2 cellUV(float id){return float2((fmod(id,2048)+.5)/2048,(floor(id/2048)+.5)/_PaletteHeight);}
-            float _Regional,_RegionalHeight,_RegionalBackground;
+            float _Regional,_RegionalHeight,_RegionalBackground,_DatedCells;
             TEXTURE2D(_RegionalCells);SAMPLER(sampler_RegionalCells);TEXTURE2D(_RegionalColors);SAMPLER(sampler_RegionalColors);TEXTURE2D(_RegionalBack);SAMPLER(sampler_RegionalBack);
             float regionIndex(float2 uv){float3 bytes=floor(SAMPLE_TEXTURE2D_LOD(_RegionalCells,sampler_RegionalCells,uv,0).rgb*255+.5);return dot(bytes,float3(1,256,65536))-1;}
             float2 regionUV(float index){return float2((fmod(index,2048)+.5)/2048,(floor(index/2048)+.5)/_RegionalHeight);}
@@ -43,7 +43,7 @@ Shader "WorldGen/VertexSurface"
                     float3 ocean=lerp(float3(.025,.08,.16),float3(.12,.48,.56),saturate((i.height+6500)/6500));if(_Linear>.5)ocean=pow(ocean,2.2);
                     float aa=max(1,fwidth(i.height));color=lerp(ocean,color,smoothstep(-aa,aa,i.height));
                 }
-                if(_Regional>.5&&_RegionalBackground>.5){float index=regionIndex(i.uv);if(index>=0)color=SAMPLE_TEXTURE2D(_RegionalBack,sampler_RegionalBack,regionUV(index)).rgb;}
+                if(_Regional>.5&&_RegionalBackground>.5){float index=regionIndex(i.uv);if(_DatedCells>.5)color=SAMPLE_TEXTURE2D(_RegionalBack,sampler_RegionalBack,i.uv).rgb;else if(index>=0)color=SAMPLE_TEXTURE2D(_RegionalBack,sampler_RegionalBack,regionUV(index)).rgb;}
                 if(_Simulation>.5)
                 {
                     float occupancy=smoothstep(.35,.65,i.human.y);

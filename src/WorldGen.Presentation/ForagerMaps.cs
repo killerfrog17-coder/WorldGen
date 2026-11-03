@@ -19,7 +19,7 @@ namespace WorldGen.Presentation
         public ForagerCohort? Dominant(int cell)=>Residents(cell).FirstOrDefault();
         ForagerMaps(PrehistoryState s)
         {
-            state=s;population=s.Foragers.Cohorts.ToDictionary(c=>c.Id,c=>ForagerDemography.Present(s.Foragers,c));var byDistrict=s.Foragers.Cohorts.Where(c=>Population(c)>=1).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>Population(c)).ThenBy(c=>c.Id).ToArray());
+            state=s;population=s.Foragers.Cohorts.ToDictionary(c=>c.Id,c=>ForagerDemography.Present(s.Foragers,c));var byDistrict=s.Foragers.Cohorts.Where(c=>Population(c)>=1).Select(c=>ForagerAdoption.Project(s.Foragers,c)).GroupBy(c=>c.District).ToDictionary(g=>g.Key,g=>g.OrderByDescending(c=>Population(c)).ThenBy(c=>c.Id).ToArray());
             residents=s.Foragers.Districts.Select(d=>byDistrict.TryGetValue(d.Id,out var c)?c:Array.Empty<ForagerCohort>()).ToArray();
             speech=residents.Select(c=>c.Length>0?Majority(c,true):-1).ToArray();
         }
@@ -37,6 +37,7 @@ namespace WorldGen.Presentation
             var local=Residents(cell);if(local.Length==0)return -1;var c=local[0];
             switch(overlay)
             {
+                case HistoryOverlay.Civilizations:return local.Any(p=>state.Foragers.Lineages.Any(l=>l.PlayerSpecies&&state.Foragers.SpeciesShare(p,l.Id)*Population(p)>=1))?1:0;
                 case HistoryOverlay.Cultures:return c.Culture;
                 case HistoryOverlay.Ethnicities:return c.Identity;
                 case HistoryOverlay.Languages:return speech[c.District];
@@ -55,6 +56,7 @@ namespace WorldGen.Presentation
             var f=state.Foragers;if(id<0)return "";
             switch(overlay)
             {
+                case HistoryOverlay.Civilizations:return id==1?"Homo sapiens present":"Other human species present";
                 case HistoryOverlay.Cultures:return f.Cultures[id].Name;
                 case HistoryOverlay.Ethnicities:return f.Peoples[id].Name;
                 case HistoryOverlay.Languages:var l=f.Languages[id];return l.Name+(l.Parent>=0&&ForagerLanguages.Intelligibility(l,f.Languages[l.Parent])>.72?" dialect":" language")+" · "+f.LanguageFamilies[l.Family].Name;
@@ -66,6 +68,7 @@ namespace WorldGen.Presentation
         }
         public V Color(int id,HistoryOverlay overlay)
         {
+            if(overlay==HistoryOverlay.Civilizations)return id==1?new V(.49,.49,.49):new V(.78,.78,.78);
             if(overlay==HistoryOverlay.HumanSpecies)
             {V sum=new V();int n=0;foreach(var l in state.Foragers.Lineages)if((id&(1<<l.Id))!=0){sum+=SocietyView.CivilizationColor(l.Id+3);n++;}return n>0?sum/n:new V();}
             if(overlay==HistoryOverlay.Languages)
@@ -87,7 +90,7 @@ namespace WorldGen.Presentation
             foreach(var d in state.Foragers.Districts)
             {
                 var people=residents[d.Id];if(people.Length==0)continue;double total=people.Sum(c=>Population(c)),area=d.AreaKm2*people.Max(c=>c.Occupation);
-                if(overlay==HistoryOverlay.HumanSpecies){Add(Id(d.Cell,overlay),total,area);continue;}
+                if(overlay==HistoryOverlay.HumanSpecies||overlay==HistoryOverlay.Civilizations){Add(Id(d.Cell,overlay),total,area);continue;}
                 foreach(var c in people)
                 {
                     double population=Population(c);

@@ -1,6 +1,13 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--adoption-climate")){GenerationAdoptionTests.Run(args[1],args[2]);return;}
+if(args.Contains("--generation-worker-check")){
+ var recipe=WorldJson.ReadRecipe(File.ReadAllText(args[2]));var timer=System.Diagnostics.Stopwatch.StartNew();var stages=new List<GenerationStageTiming>();int previews=0;var w=WorldGenerationProcess.Generate(Path.GetFullPath(args[1]),recipe,p=>{},p=>previews++,stages.Add,default);if(w.Stages.Last().Hash!=args[3])throw new Exception("Worker changed generated world");Console.WriteLine($"PASS generated world {w.Stages.Last().Hash} {timer.Elapsed.TotalSeconds:F3}s, {previews} previews, {stages.Count} stage samples");return;
+}
+if(args.Contains("--generation-wire")){
+ var w=WorldFile.ReadFile(args[1]);var timer=System.Diagnostics.Stopwatch.StartNew();using var memory=new MemoryStream();using(var writer=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))RegionalWire.Write(writer,w);double encoded=timer.Elapsed.TotalSeconds;memory.Position=0;timer.Restart();using var reader=new BinaryReader(memory);var copy=RegionalWire.Read<World>(reader);double decoded=timer.Elapsed.TotalSeconds;if(StateHash.Compute(w)!=StateHash.Compute(copy)||!w.Stages.Select(x=>x.Hash).SequenceEqual(copy.Stages.Select(x=>x.Hash)))throw new Exception("Generation wire changed world");Console.WriteLine($"PASS exact world and stage hashes; {memory.Length} bytes, {encoded:F3}s write / {decoded:F3}s read");return;
+}
 if(args.Contains("--forager-map-cache")){ForagerMapCacheTests.Run(args[1]);return;}
 if(args.Contains("--forager-changes")){ForagerChangeAudit.Run(args[1],args[2],args[3]);return;}
 if(args.Contains("--forager-hash-check")){ForagerHashTests.Run(args[1]);return;}

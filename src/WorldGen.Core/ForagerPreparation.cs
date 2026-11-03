@@ -58,6 +58,7 @@ namespace WorldGen.Core
                 f.SpeciesShares[district.Id*f.Lineages.Length+lineage]=1;
             }
             f.Cohorts=people.OrderBy(c=>c.Id).ToArray();
+            f.Adoption=new ForagerAdoptionPlan[f.Districts.Length];foreach(var c in f.Cohorts)f.Adoption[c.District]=ForagerAdoption.Seed(c);
             f.RegionResidents=Enumerable.Repeat(-1,f.Districts.Length).ToArray();foreach(var c in f.Cohorts)f.RegionResidents[c.District]=c.Id;
             f.InitialPopulation=f.Cohorts.Sum(c=>c.Population);
             if(!f.Cohorts.Any(c=>f.Lineages[c.Lineage].PlayerSpecies))throw new InvalidOperationException("The ancestral region cannot support established sapiens under the starting climate.");

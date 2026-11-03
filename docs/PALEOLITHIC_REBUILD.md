@@ -1,8 +1,70 @@
 # Paleolithic rebuild: evidence and acceptance
 
 The older engines and results below are historical diagnostics. Current worlds
-use `foragers-regional-3`. Backward compatibility is not a requirement; Git
+use `foragers-regional-4`.  Backward compatibility is not a requirement; Git
 provides rollback. Source consistency alone does not establish realistic outcomes.
+
+## Dated adoption and cell maps (3 November)
+
+Current regional rules are `foragers-regional-4`. Technology percentages refer
+to tribes, rather than the adult fraction of individual makers. Each region
+stores finite dated curves for knowledge, practical access and routine adoption.
+Simple demonstrations use an early-spread curve; socially learned methods use
+an S curve. Linear curves are also supported. Queries evaluate the stored
+starting share, target, start and completion dates. Completed curves return
+their endpoints and terminal projections are memoized.
+
+There are no scheduled adoption-percentage integration ticks. Independently
+staggered 600–1,800-year opportunity reviews handle invention, new teaching
+contacts and substantial material/demand changes. Migration mixes the incoming
+regional distribution. These windows and durations are game-model priors, not
+archaeological measurements of exact diffusion rates. Prerequisites constrain
+knowledge, access and use. Local bands use stable seeded ranks, turning coverage
+into a coherent approximate fraction of tribes. Known methods have proficient
+makers; individual specialization remains separate from regional coverage.
+Inspection does not change authoritative history. Plan equality is structural:
+serializing/deserializing shared plans cannot change subsequent evolution.
+
+Long-term mapped climate excludes short drought/resource shocks, which still
+influence resource pressure and demographics. Local weather, biome and satellite
+queries use smooth orbital/glacial mean conditions within each actual cell.
+Original geographical/ecoregion identifiers stay stable. This does not build
+moving physical shorelines/ice meshes or replace live vegetation geometry.
+
+Main dated climate, satellite and seasonal temperature/rain maps use cached
+per-cell inputs and a GPU palette pass. Colours interpolate between 250-year
+classification endpoints, without interpolation between neighbouring cells.
+This is a display approximation; local climate queries use the requested year.
+Smoothed natural-surface geometry/palettes are no longer built for world maps.
+All layers use the same cell mesh. Other ecological diagnostic backgrounds still
+use regional summaries; main climate/satellite maps and local queries use cells.
+
+Civilizations is the default: other human species are light grey, sapiens
+presence is medium grey, and empty land retains its unoccupied background.
+Cultures and the explicit species layer keep their separate identities. A small
+glacial-cycle icon beside the date uses the actual climate forcing.
+
+Generation executes the identical pipeline in the already-shipped CoreCLR worker.
+Typed buffered binary transfer preserves world data and all stage hashes.
+Independent climate months and cell batches run concurrently without reordering
+reductions within a month/cell. Stage progress remains; three useful previews
+replace repeated full-mesh transfers at every intermediate stage. The managed
+Unity player and two fixed build slots remain; no new native release/archive.
+
+Default procedural 200k-cell seed73421 baseline: engine47.877s, ready57.339s.
+Climate41.0% of engine time; hashing23.1% across stages. Optimized candidate:
+engine13.053s, ready24.108s, identical complete hash
+`e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b`.
+These are individual measurements: the baseline had the owner's existing player
+open, and the optimized run did not. They are not a controlled whole-game FPS
+benchmark. Final package results are in
+`assets/verification/generation-adoption-20261103.json`.
+
+Background: [cultural transmission models](https://doi.org/10.1073/pnas.1620732114)
+motivate separating invention, social spread and practical use;
+[dated climate/vegetation reconstruction](https://www.nature.com/articles/s41597-020-0552-1)
+motivates dated local climate rather than global region flips. Neither source
+specifies the game's numerical adoption windows.
 
 ## Current regional architecture correction (3 November)
 

@@ -78,7 +78,7 @@ public sealed partial class WorldGenRuntime
                 GUILayout.Space(12);GUILayout.Label("Category tabs contain additional settings. Changes apply immediately.",MutedStyle());break;
             case 1:
                 DrawDisplayOptions();
-                bool smooth=GUILayout.Toggle(naturalTerrain,"Smooth world-map surface");if(smooth!=naturalTerrain){naturalTerrain=smooth;ApplyCachedDisplay();}break;
+                GUILayout.Label("World maps use shared cell borders.");break;
             case 2:DrawTerrainOptions();terrainExplorer?.DrawViewSettings();break;
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;

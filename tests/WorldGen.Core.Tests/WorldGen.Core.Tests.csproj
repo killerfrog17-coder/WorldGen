@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <Compile Include="../../unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenerationProcess.cs" Link="WorldGenerationProcess.cs" />
     <ProjectReference Include="../../src/WorldGen.Presentation/WorldGen.Presentation.csproj" />
     <ProjectReference Include="..\..\src\WorldGen.Core\WorldGen.Core.csproj" />
     <ProjectReference Include="..\..\src\WorldGen.Serialization\WorldGen.Serialization.csproj" />

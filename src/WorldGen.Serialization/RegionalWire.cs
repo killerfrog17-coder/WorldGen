@@ -4,13 +4,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Buffers;
+using System.Collections.Generic;
 namespace WorldGen.Serialization
 {
     // Same-machine ephemeral protocol, not a save format. Compile typed field
     // access once; no per-value reflection, JSON, compression or decimal conversion.
     public static class RegionalWire
     {
-        public const int Version=1;
+        public const int Version=2;
         [ThreadStatic] static MemoryStream packetBuffer;
         [ThreadStatic] static byte[] numericBuffer;
         public static void Write<T>(BinaryWriter writer,T value)=>Codec<T>.Put(writer,value);
@@ -46,6 +47,7 @@ namespace WorldGen.Serialization
                 var t=typeof(T);var w=Expression.Parameter(typeof(BinaryWriter));var v=Expression.Parameter(t);Expression body;
                 if(t.IsEnum)body=PutValue(w,Expression.Convert(v,Enum.GetUnderlyingType(t)),Enum.GetUnderlyingType(t));
                 else if(t.IsArray)body=Expression.Call(typeof(RegionalWire).GetMethod(nameof(WriteArray),BindingFlags.Static|BindingFlags.NonPublic).MakeGenericMethod(t.GetElementType()),w,v);
+                else if(t.IsGenericType&&t.GetGenericTypeDefinition()==typeof(List<>))body=Expression.Call(typeof(RegionalWire).GetMethod(nameof(WriteList),BindingFlags.Static|BindingFlags.NonPublic).MakeGenericMethod(t.GenericTypeArguments[0]),w,v);
                 else if(t==typeof(string))body=Expression.Call(typeof(RegionalWire).GetMethod(nameof(WriteString),BindingFlags.Static|BindingFlags.NonPublic),w,v);
                 else if(t.IsPrimitive)body=Expression.Call(w,typeof(BinaryWriter).GetMethod("Write",new[]{t}),v);
                 else
@@ -60,6 +62,7 @@ namespace WorldGen.Serialization
                 var t=typeof(T);var r=Expression.Parameter(typeof(BinaryReader));Expression body;
                 if(t.IsEnum)body=Expression.Convert(GetValue(r,Enum.GetUnderlyingType(t)),t);
                 else if(t.IsArray)body=Expression.Call(typeof(RegionalWire).GetMethod(nameof(ReadArray),BindingFlags.Static|BindingFlags.NonPublic).MakeGenericMethod(t.GetElementType()),r);
+                else if(t.IsGenericType&&t.GetGenericTypeDefinition()==typeof(List<>))body=Expression.Call(typeof(RegionalWire).GetMethod(nameof(ReadList),BindingFlags.Static|BindingFlags.NonPublic).MakeGenericMethod(t.GenericTypeArguments[0]),r);
                 else if(t==typeof(string))body=Expression.Call(typeof(RegionalWire).GetMethod(nameof(ReadString),BindingFlags.Static|BindingFlags.NonPublic),r);
                 else if(t.IsPrimitive)body=Expression.Call(r,typeof(BinaryReader).GetMethod("Read"+t.Name));
                 else
@@ -72,6 +75,8 @@ namespace WorldGen.Serialization
         }
         static void WriteString(BinaryWriter w,string value){w.Write(value!=null);if(value!=null)w.Write(value);}
         static string ReadString(BinaryReader r)=>r.ReadBoolean()?r.ReadString():null;
+        static void WriteList<T>(BinaryWriter w,List<T> values){w.Write(values?.Count??-1);if(values!=null)foreach(var value in values)Write(w,value);}
+        static List<T> ReadList<T>(BinaryReader r){int count=r.ReadInt32();if(count==-1)return null;if(count<0||count>16000000)throw new InvalidDataException("Invalid wire list size.");var values=new List<T>(count);for(int i=0;i<count;i++)values.Add(Read<T>(r));return values;}
         static bool Block(Type t)=>t==typeof(double)||t==typeof(float)||t==typeof(int)||t==typeof(long)||t==typeof(byte)||t==typeof(bool);
         static void WriteArray<T>(BinaryWriter w,T[] values)
         {

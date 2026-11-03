@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using System.Linq;
 using System.Collections;
 using System.IO;
 using System.Threading;
@@ -35,8 +36,16 @@ public sealed partial class WorldGenRuntime
             ValidateInputs();var source=recipe.Clone();ClimateCalibration.Upgrade(source);var resolved=setup.Resolve(source);
             previousComplete=worldReady?world:null;worldReady=false;dirty=false;screen="Setup";selectedCell=-1;error="";preferredLayer=layer;
             generationCancel?.Dispose();generationCancel=new CancellationTokenSource();var token=generationCancel.Token;
-            generationJob=Task.Run(()=>{var result=new WorldPipeline().Generate(resolved,p=>{generationStage=p.Stage;generationPercent=p.Percent;progress=p.Stage;percent=p.Percent;if(uiCheck)Debug.Log("WORLDGEN GENERATION "+p.Stage+" "+p.Percent+"%");},token,
-                (stage,w)=>{if(stage!="biogeography")Interlocked.Exchange(ref nextPreview,GenerationPreview.Capture(stage,w));});WorldMeridian.For(result,token);return result;},token);
+            generationJob=Task.Run(()=>
+            {
+                Action<GenerationProgress> report=p=>{generationStage=p.Stage;generationPercent=p.Percent;progress=p.Stage;percent=p.Percent;if(uiCheck)Debug.Log("WORLDGEN GENERATION "+p.Stage+" "+p.Percent+"%");};
+                Action<GenerationStageTiming> measure=Environment.GetCommandLineArgs().Contains("--worldgen-generation-profile")?(Action<GenerationStageTiming>)(sample=>{lock(generationMeasurements)generationMeasurements.Add(sample);}):null;
+                string executable=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
+                var result=File.Exists(executable)&&!Environment.GetCommandLineArgs().Contains("--worldgen-generation-inprocess")?
+                    WorldGenerationProcess.Generate(executable,resolved,report,snapshot=>Interlocked.Exchange(ref nextPreview,snapshot),measure,token):
+                    new WorldPipeline().Generate(resolved,report,token,(stage,w)=>{if(stage!="biogeography")Interlocked.Exchange(ref nextPreview,GenerationPreview.Capture(stage,w));},measure);
+                WorldMeridian.For(result,token);return result;
+            },token);
         }
         catch(Exception e){error=e.Message;}
     }

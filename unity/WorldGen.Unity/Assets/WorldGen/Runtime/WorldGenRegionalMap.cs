@@ -16,10 +16,10 @@ public sealed partial class WorldGenRuntime
     readonly Dictionary<HistoryOverlay,RegionalMapLayer> regionalLayers=new Dictionary<HistoryOverlay,RegionalMapLayer>();
     readonly Dictionary<Layer,RegionalMapLayer> regionalBackgrounds=new Dictionary<Layer,RegionalMapLayer>();
     Texture2D RegionalTexture(int count)=>new Texture2D(2048,Math.Max(1,(count+2047)/2048),TextureFormat.RGBA32,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
-    void BindRegional(Material material,Texture2D colors,Texture2D background)
+    void BindRegional(Material material,Texture2D colors,Texture background,bool cells=false)
     {
         if(material==null)return;material.SetFloat("_Regional",1);material.SetTexture("_RegionalCells",regionalCells);material.SetTexture("_RegionalColors",colors);material.SetFloat("_RegionalHeight",colors.height);
-        material.SetFloat("_RegionalBackground",background==null?0:1);if(background!=null)material.SetTexture("_RegionalBack",background);
+        material.SetFloat("_RegionalBackground",background==null?0:1);material.SetFloat("_DatedCells",cells?1:0);if(background!=null)material.SetTexture("_RegionalBack",background);
     }
     bool PollRegionalMap()
     {
@@ -52,12 +52,13 @@ public sealed partial class WorldGenRuntime
             cache.Texture.SetPixels32(cache.Colors);cache.Texture.Apply(false,false);cache.State=state;cache.Focus=focus;cache.Updated=time;
             cache.Legend=map.Legend(historyOverlay,societySort);cache.Labels=map.MapLabels(historyOverlay);
         }
-        Texture2D background=null;
+        Texture background=null;bool cellBackground=false;
         // The background is invisible at zero satellite opacity. Never build
         // hundreds of thousands of invisible weather/habitat cells per tick.
         if(satelliteOpacity>.001f&&ForagerLandscape.Affected(layer))
         {
-            if(!regionalBackgrounds.TryGetValue(layer,out var back))
+            background=DatedClimateTexture();cellBackground=background!=null;
+            if(!cellBackground){if(!regionalBackgrounds.TryGetValue(layer,out var back))
             {back=new RegionalMapLayer{Texture=RegionalTexture(f.Districts.Length)};back.Colors=new Color32[back.Texture.width*back.Texture.height];regionalBackgrounds[layer]=back;}
             if(back.State==null||time-back.Updated>=.5&&!PrehistoryState.SameDomain(back.State,state))
             {
@@ -65,9 +66,9 @@ public sealed partial class WorldGenRuntime
                 {float Channel(double x)=>QualitySettings.activeColorSpace==ColorSpace.Linear?Mathf.GammaToLinearSpace((float)x):(float)x;back.Colors[d.Id]=new Color32((byte)Mathf.Clamp(Mathf.RoundToInt(Channel(color.X)*255),0,255),(byte)Mathf.Clamp(Mathf.RoundToInt(Channel(color.Y)*255),0,255),(byte)Mathf.Clamp(Mathf.RoundToInt(Channel(color.Z)*255),0,255),255);}
                 back.Texture.SetPixels32(back.Colors);back.Texture.Apply(false,false);back.State=state;back.Updated=time;
             }
-            background=back.Texture;
+            background=back.Texture;}
         }
-        BindRegional(surfaceMaterial,cache.Texture,background);BindRegional(naturalMaterial,cache.Texture,background);BindRegional(smallFeatureMaterial,cache.Texture,background);
+        BindRegional(surfaceMaterial,cache.Texture,background,cellBackground);BindRegional(naturalMaterial,cache.Texture,background,cellBackground);BindRegional(smallFeatureMaterial,cache.Texture,background,cellBackground);
         legendState=cache.State;legendEngine=humans;legendOverlay=historyOverlay;legendSort=societySort;cachedHistoryLegend=cache.Legend;cachedMapLabels=cache.Labels;cachedHeadlines=f.Events.Select(e=>new ChronicleEvent{Year=(int)(e.Seconds/SimulationTime.Year),Category=ChronicleCategory.Society,Text=e.Text}).ToArray();
         cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();lastHumanSelection=selectedCell;humanPalettePending=false;return true;
     }

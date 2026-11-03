@@ -34,7 +34,7 @@ namespace WorldGen.Core
         }
         internal bool Regional=>Foragers?.Version==ForagerState.RegionalVersion;
         internal string RegionalDomainHash()=>StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Started,Population,ArrivalYear,Ancestry,Society,
-            Foragers.BoundarySeconds,Foragers.NextReviewSeconds,Foragers.PendingEvents,Foragers.ProcessedEvents,Foragers.PopulationAt,Foragers.ProcessAt,Foragers.RegionResidents,Foragers.InitialPopulation,Foragers.CellDistrict,Foragers.Districts,Foragers.Resources,Foragers.Biota,Foragers.Lineages,Foragers.SpeciesShares,Foragers.Cohorts,Foragers.Cultures,Foragers.Peoples,Foragers.Languages,Foragers.LanguageFamilies,Foragers.Beliefs,Foragers.Exchanges,Foragers.Events,Foragers.Discoveries});
+            Foragers.BoundarySeconds,Foragers.NextReviewSeconds,Foragers.PendingEvents,Foragers.ProcessedEvents,Foragers.PopulationAt,Foragers.ProcessAt,Foragers.RegionResidents,Foragers.InitialPopulation,Foragers.CellDistrict,Foragers.Districts,Foragers.Resources,Foragers.Biota,Foragers.Lineages,Foragers.SpeciesShares,Foragers.Adoption,Foragers.Cohorts,Foragers.Cultures,Foragers.Peoples,Foragers.Languages,Foragers.LanguageFamilies,Foragers.Beliefs,Foragers.Exchanges,Foragers.Events,Foragers.Discoveries});
         internal string RegionalClockHash(string domain)=>StateHash.Compute(new object[]{domain,Foragers.Seconds});
         string ComputeRegionalHash(){Foragers.DomainHash=RegionalDomainHash();return RegionalClockHash(Foragers.DomainHash);}
         public string ComputeHash()=>Regional?ComputeRegionalHash():Foragers!=null?StateHash.Compute(new object[]{ComputeBaseHash(),Foragers}):HumanRanges!=null?StateHash.Compute(new object[]{ComputeBaseHash(),HumanRanges}):ComputeBaseHash();

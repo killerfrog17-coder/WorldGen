@@ -10,7 +10,7 @@ namespace WorldGen.Core
     // records remain unchanged for old-save replay, never silently reinterpreted.
     [Serializable] public sealed class ForagerState
     {
-        public const string RegionalVersion="foragers-regional-3";
+        public const string RegionalVersion="foragers-regional-4";
         public string Version=RegionalVersion;
         [NonSerialized] public string DomainHash="";
         public ForagerState ClockCopy()=>(ForagerState)MemberwiseClone();
@@ -29,6 +29,7 @@ namespace WorldGen.Core
         // Regional species proportions are separate from mixed ancestry.
         public double[] SpeciesShares=Array.Empty<double>();
         public ForagerCohort[] Cohorts=Array.Empty<ForagerCohort>();
+        public ForagerAdoptionPlan[] Adoption=Array.Empty<ForagerAdoptionPlan>();
         public ForagerCulture[] Cultures=Array.Empty<ForagerCulture>();
         public ForagerPeopleIdentity[] Peoples=Array.Empty<ForagerPeopleIdentity>();
         public ForagerLanguage[] Languages=Array.Empty<ForagerLanguage>();
@@ -39,11 +40,11 @@ namespace WorldGen.Core
         public ForagerDiscovery[] Discoveries=Array.Empty<ForagerDiscovery>();
         public ForagerState EventCopy()
         {
-            var f=ClockCopy();f.RegionResidents=(int[])RegionResidents.Clone();f.PopulationAt=(long[])PopulationAt.Clone();f.ProcessAt=(long[])ProcessAt.Clone();f.SpeciesShares=(double[])SpeciesShares.Clone();
+            var f=ClockCopy();f.Adoption=(ForagerAdoptionPlan[])Adoption.Clone();f.RegionResidents=(int[])RegionResidents.Clone();f.PopulationAt=(long[])PopulationAt.Clone();f.ProcessAt=(long[])ProcessAt.Clone();f.SpeciesShares=(double[])SpeciesShares.Clone();
             f.Cohorts=(ForagerCohort[])Cohorts.Clone();f.Resources=(ForagerResources[])Resources.Clone();f.Biota=(ForagerBiotaDistrict[])Biota.Clone();
             f.Cultures=(ForagerCulture[])Cultures.Clone();f.Languages=(ForagerLanguage[])Languages.Clone();f.Beliefs=(ForagerBelief[])Beliefs.Clone();f.LanguageFamilies=(ForagerLanguageFamily[])LanguageFamilies.Clone();return f;
         }
-        public ForagerState Copy()=>new ForagerState{Version=Version,DomainHash=DomainHash,PendingEvents=PendingEvents,ProcessedEvents=ProcessedEvents,RegionResidents=(int[])RegionResidents.Clone(),PopulationAt=(long[])PopulationAt.Clone(),ProcessAt=(long[])ProcessAt.Clone(),InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
+        public ForagerState Copy()=>new ForagerState{Adoption=(ForagerAdoptionPlan[])Adoption.Clone(),Version=Version,DomainHash=DomainHash,PendingEvents=PendingEvents,ProcessedEvents=ProcessedEvents,RegionResidents=(int[])RegionResidents.Clone(),PopulationAt=(long[])PopulationAt.Clone(),ProcessAt=(long[])ProcessAt.Clone(),InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
             CellDistrict=CellDistrict,Districts=Districts,SpeciesShares=(double[])SpeciesShares.Clone(),Resources=Resources.Select(x=>x.Copy()).ToArray(),Biota=Biota.Select(x=>x.Copy()).ToArray(),Lineages=Lineages,Cohorts=Cohorts.Select(x=>x.Copy()).ToArray(),Cultures=Cultures.Select(x=>x.Copy()).ToArray(),Peoples=Peoples.Select(x=>x.Copy()).ToArray(),Languages=Languages.Select(x=>x.Copy()).ToArray(),LanguageFamilies=LanguageFamilies.Select(x=>x.Copy()).ToArray(),Beliefs=Beliefs.Select(x=>x.Copy()).ToArray(),Exchanges=Exchanges.Select(x=>x.Copy()).ToArray(),Events=Events.Select(x=>x.Copy()).ToArray()};
         public double SpeciesShare(ForagerCohort c,int lineage)=>SpeciesShares[c.District*Lineages.Length+lineage];
     }
@@ -125,6 +126,9 @@ namespace WorldGen.Core
         public double[] TeachingFrom=Array.Empty<double>();public double ContactTeaching,TeachingAdults;
         public double[] Diet=new double[5],Appearance=new double[8],Admixture=Array.Empty<double>();
         public long ShockStart,ShockEnd;
+        [NonSerialized] internal double[] TribalAccess;
+        internal ForagerCohort TechnologyView(double[] known,double[] makers,double[] use,double[] access)
+        {var c=(ForagerCohort)MemberwiseClone();c.Knowledge=known;c.Skill=makers;c.Use=use;c.TribalAccess=access;return c;}
         public double ShockSeverity,ShockRecovery;
         public ForagerEventKind ShockKind;
         public int HomeCell,FrontierCell;

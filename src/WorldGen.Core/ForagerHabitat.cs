@@ -30,7 +30,7 @@ namespace WorldGen.Core
                 Aridity=h.AridityMilli/1000d,GrowingDays=h.GrowingDays,Water=d.Water,Coast=d.Coast,River=d.River,Relief=h.ReliefM,Canopy=AnimalEcotypes.Canopy(h)/1000d,
                 PetMm=h.PetMm,AnnualRainMm=source.Sum(s=>(double)s.PrecipitationMm[cell]),OceanMoistureAccess=d.OceanMoistureAccess,Pathogens=d.Pathogens,Food=d.Food,Seasonality=d.Seasonality};
             double years=f.Seconds/(double)SimulationTime.Year;
-            var e=ForagerEcology.At(world.Recipe.Seed,local,years,world.ElevationM[cell]);
+            var e=ForagerEcology.At(world.Recipe.Seed,local,years,world.ElevationM[cell],climateMean:true);
             double delta=PaleolithicRules.Climate(world.Recipe.Seed,years,point.Z,world.ElevationM[cell],d.Province).TemperatureDeltaC;
             var original=new WeatherClimate(source.Select(s=>s.TemperatureTenthsC[cell]/10d).ToArray(),source.Select(s=>s.PrecipitationMm[cell]/3d).ToArray(),source.Select(s=>s.MoisturePermille.Length>cell?s.MoisturePermille[cell]/1000d:.5).ToArray(),world.ElevationM[cell]);
             var climate=ForagerClimate.Apply(original,local,e,delta);
@@ -48,9 +48,8 @@ namespace WorldGen.Core
                 SoilFertilityPermille=h.SoilFertilityPermille,ProductivityGCM2Year=D.M(e.Productivity),ReliefM=h.ReliefM,Soil=e.MeanC< -4?SoilKind.Frozen:h.Soil,Flooding=h.Flooding};
             a.FirePotentialPermille=D.M(1000*D.Clamp(a.ProductivityGCM2Year/500d)*D.Clamp(dry/2d)*(1-a.FloodFractionPermille/1000d));
             a.Biome=e.IceCover>.6?Biome.Ice:Ecology.Classify(a,false,world.Hydrology.LakeCoverageFraction[cell],world.ElevationM[cell]);a.Habitat=Ecology.HabitatOf(a.Biome);
-            double districtPotential=ForagerEcology.At(world.Recipe.Seed,d,years,world.ElevationM[d.Cell]).Canopy;
             return new Local{Habitat=a,Weather=climate,Classification=Climate.ClassifySeasons(climate.TemperatureC,climate.MonthlyPrecipitationMm.Select(p=>p*3).ToArray(),point.Z>=0),
-                WaterAccess=e.Water,ForestCover=D.Clamp(e.Canopy*f.Biota[d.Id].ForestCover/Math.Max(.02,districtPotential)),IceCover=e.IceCover};
+                WaterAccess=e.Water,ForestCover=e.Canopy,IceCover=e.IceCover};
         }
     }
 }

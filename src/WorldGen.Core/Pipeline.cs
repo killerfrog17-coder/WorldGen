@@ -409,21 +409,28 @@ namespace WorldGen.Core
         static void Double(BinaryWriter writer, double value) { double quantized = D.Q(value, 1e6); writer.Write(quantized == 0 ? 0.0 : quantized); }
         static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type==typeof(HistoricalEventArchive)?TypeName(typeof(System.Collections.Generic.List<HistoricalEvent>)):type==typeof(HistoricalRelationCollection)?TypeName(typeof(HistoricalRelation[])):type==typeof(HistoricalRelationCampaigns)?TypeName(typeof(int[])):type==typeof(HistoricalLeaderCollection)?TypeName(typeof(HistoricalLeader[])):type==typeof(HistoricalCampaignCollection)?TypeName(typeof(HistoricalCampaign[])):type==typeof(HistoricalCampaignTheaterCollection)?TypeName(typeof(HistoricalCampaignTheater[])):type==typeof(HistoricalCampaignAdvanceCollection)?TypeName(typeof(HistoricalCampaignAdvance[])):type==typeof(HistoricalMilitaryOperationCollection)?TypeName(typeof(HistoricalMilitaryOperation[])):type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
     }
+    public sealed class GenerationStageTiming
+    {
+        public string Stage="";public double ComputeMs,HashMs,PreviewMs;
+        public double TotalMs=>ComputeMs+HashMs+PreviewMs;
+    }
     public sealed class WorldPipeline
     {
-        public World Generate(Recipe recipe, Action<GenerationProgress> progress = null, CancellationToken cancellation = default, Action<string, World> preview = null)
+        public World Generate(Recipe recipe, Action<GenerationProgress> progress = null, CancellationToken cancellation = default, Action<string, World> preview = null,Action<GenerationStageTiming> timing=null)
         {
             var r = recipe.Clone(); r.Validate(); var w = new World { Recipe = r };
             string previous = StateHash.Compute(r);
             void Stage(string name, int percent, Action action, Func<object> output)
             {
-                cancellation.ThrowIfCancellationRequested(); progress?.Invoke(new GenerationProgress(name, percent)); action();
+                cancellation.ThrowIfCancellationRequested(); progress?.Invoke(new GenerationProgress(name, percent));var clock=timing==null?null:System.Diagnostics.Stopwatch.StartNew(); action();double compute=clock?.Elapsed.TotalMilliseconds??0;clock?.Restart();
                 cancellation.ThrowIfCancellationRequested();
                 string hash = StateHash.Compute(new object[] { previous, name, output() }, cancellation); previous = hash;
+                double hashing=clock?.Elapsed.TotalMilliseconds??0;clock?.Restart();
                 w.Stages.Add(new StageRecord { Name = name, Hash = hash, Entities = w.Surface.Cells.Length });
                 // Synchronous observer: copy completed presentation inputs before returning.
                 // No preview data participates in the authoritative world or hashes.
                 if (name == "coarse-plates" || name == "erosion" || name == "climate" || name == "hydrology" || name == "biogeography") preview?.Invoke(name, w);
+                timing?.Invoke(new GenerationStageTiming{Stage=name,ComputeMs=compute,HashMs=hashing,PreviewMs=clock.Elapsed.TotalMilliseconds});
             }
             Stage("coarse-plates", 0, () =>
             {
@@ -454,6 +461,7 @@ namespace WorldGen.Core
                 Stage("biogeography", 96, () => Biogeography.Build(w, cancellation), () => w.Ecology);
             }
             progress?.Invoke(new GenerationProgress("finalizing", 98));
+            var finalClock=timing==null?null:System.Diagnostics.Stopwatch.StartNew();
             long total = w.Surface.Cells.Sum(c => c.AreaM2);
             w.Metric("coarse_cells", w.CoarseSurface.Cells.Length); w.Metric("terrain_cells", w.Surface.Cells.Length);
             w.Metric("land_fraction", w.Surface.Cells.Where(c => !w.Hydrology.OceanConnected[c.Id]).Sum(c => c.AreaM2) / (double)total);
@@ -464,7 +472,8 @@ namespace WorldGen.Core
             w.Metric("inland_below_zero_fraction", inlandBelowZero / (double)continentalArea);
             w.Metric("landmass_count", w.Landmass.Where(i => i >= 0).Distinct().Count());
             w.Metric("min_elevation", w.ElevationM.Min(), "m"); w.Metric("max_elevation", w.ElevationM.Max(), "m");
-            w.Stages.Add(new StageRecord { Name = "complete", Hash = StateHash.Compute(w, cancellation), Entities = w.Surface.Cells.Length });
+            double finalize=finalClock?.Elapsed.TotalMilliseconds??0;finalClock?.Restart();w.Stages.Add(new StageRecord { Name = "complete", Hash = StateHash.Compute(w, cancellation), Entities = w.Surface.Cells.Length });
+            timing?.Invoke(new GenerationStageTiming{Stage="finalizing",ComputeMs=finalize,HashMs=finalClock.Elapsed.TotalMilliseconds});
             progress?.Invoke(new GenerationProgress("complete", 100)); return w;
         }
         public World Reapply(Recipe recipe, Action<GenerationProgress> progress = null, CancellationToken cancellation = default) => Generate(recipe, progress, cancellation);

@@ -28,7 +28,6 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     int percent, seaLevel; Layer layer; Projection projection; float centerLongitude;
     GameObject globe, pendingRoot; Material surfaceMaterial, lineMaterial, naturalMaterial, smallFeatureMaterial, riverMaterial; Camera cameraView;
     UnityEngine.Rendering.Universal.UniversalAdditionalCameraData presentationCamera;bool originalPostProcessing;
-    bool naturalTerrain=true;
     BlockingCollection<UploadPiece> pieces; ViewOptions viewOptions = new ViewOptions();
     bool wireframe, showPlates, showRivers, resizingPanel, loadingSnapshot; int gridSpacing = 30;
     float panelWidth = 350, yaw = 30, pitch = -12, globeDistance = 3.2f;
@@ -101,6 +100,8 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-prehistory-check"))StartCoroutine(CheckPrehistory());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-view")){screen="Setup";BeginWork(false,Argument("--worldgen-history-view",""));StartCoroutine(CheckHistoricalView());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-regional-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-regional-playback",""));StartCoroutine(CheckRegionalPlayback());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-dated-climate-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dated-climate-check",""));StartCoroutine(CheckDatedClimate());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-generation-profile"))StartCoroutine(CheckGenerationProfile());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-forager-view")){screen="Setup";BeginWork(false,Argument("--worldgen-forager-view",""));StartCoroutine(CheckForagerView());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-map-marks-check")){screen="Setup";BeginWork(false,Argument("--worldgen-map-marks-check",""));StartCoroutine(CheckMapMarks());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-religion-check")){screen="Setup";BeginWork(false,Argument("--worldgen-religion-check",""));StartCoroutine(CheckReligiousView());}
@@ -384,7 +385,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                     viewOptions.Projection=projection;committedOptions = viewOptions.Clone();
                     InstallPalettes(); displayedWorld=world;
                     if(loadingSnapshot){play=pendingPlay??PlaySession.Legacy();pendingPlay=null;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;continueLoadedGame=play.HasPlayer;}
-                    if(loadingSnapshot){activeWorldId=pendingWorldId;activeSaveId=pendingSaveId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=Prehistory.Paleolithic(world.Prehistory)?HistoryOverlay.Cultures:HistoryOverlay.States;setup.From(recipe);dirty=false;PrepareLocalTerrain();}
+                    if(loadingSnapshot){activeWorldId=pendingWorldId;activeSaveId=pendingSaveId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=Prehistory.Paleolithic(world.Prehistory)?HistoryOverlay.Civilizations:HistoryOverlay.States;setup.From(recipe);dirty=false;PrepareLocalTerrain();}
                     if(!reusePendingGeometry){StartCoroutine(Release(globe)); globe = pendingRoot;}
                     globe.name = "World surface"; globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options"); ApplyCachedDisplay();
                     globe.transform.rotation=VisibleProjection==Projection.Map?Quaternion.identity:Quaternion.Euler(pitch,0,0)*Quaternion.Euler(0,yaw,0);
@@ -560,5 +561,5 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-        void OnDestroy() { DisposeGameTheme();terrainMeshProcess?.Dispose();localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
+        void OnDestroy() { climateMapInputs?.Dispose();climateMapColors?.Dispose();if(climateMapOutput!=null){climateMapOutput.Release();Destroy(climateMapOutput);}if(iceCycleIcon!=null)Destroy(iceCycleIcon);DisposeGameTheme();terrainMeshProcess?.Dispose();localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

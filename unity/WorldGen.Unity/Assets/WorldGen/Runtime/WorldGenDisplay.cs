@@ -18,7 +18,7 @@ public sealed partial class WorldGenRuntime
     {
         var result=new Dictionary<Layer,Color32[]>();
         var layers=main?new List<Layer>(DisplayCache.MainLayers):new List<Layer>();if(!layers.Contains(selected))layers.Add(selected);
-        if(main){layers.Add((Layer)1000);layers.Add((Layer)1001);}
+
         foreach(var candidate in layers)
         {
             bool natural=(int)candidate>=1000;var actual=natural?(Layer)((int)candidate-1000):candidate;
@@ -64,15 +64,11 @@ public sealed partial class WorldGenRuntime
         surfaceMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);lineMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);
         riverMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);riverMaterial.SetFloat("_Linear",QualitySettings.activeColorSpace==ColorSpace.Linear?1:0);riverMaterial.SetFloat("_WorldRadiusM",(float)(world.Recipe.RadiusKm*1000));
         surfaceMaterial.SetFloat("_Unlit",VisibleProjection==Projection.Map || layer==Layer.Climate || layer==Layer.Heightmap || EcologyView.IsLayer(layer)?1:0);
-        bool natural=naturalTerrain && (layer==Layer.Terrain || layer==Layer.Satellite) && palettes.TryGetValue((Layer)(1000+(int)layer),out _);
-        bool crispHistory=natural&&screen=="Simulation";
-        surfaceMaterial.SetFloat("_Natural",crispHistory?1:0);surfaceMaterial.SetFloat("_BlendCells",crispHistory?1:0);surfaceMaterial.SetFloat("_PaletteHeight",texture.height);
-        if(crispHistory)surfaceMaterial.SetTexture("_Palette",palettes[(Layer)(1000+(int)layer)]);
-        if(natural){naturalMaterial.SetTexture("_Palette",palettes[(Layer)(1000+(int)layer)]);naturalMaterial.SetFloat("_UsePalette",1);}
+        surfaceMaterial.SetFloat("_Natural",0);surfaceMaterial.SetFloat("_BlendCells",0);surfaceMaterial.SetFloat("_PaletteHeight",texture.height);
         smallFeatureMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);naturalMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);naturalMaterial.SetFloat("_Unlit",VisibleProjection==Projection.Map?1:0);
         foreach(Transform child in globe.transform)
         {
-            string kind=child.name;child.gameObject.SetActive(kind=="surface"&&(!natural||crispHistory) || kind=="natural"&&natural&&!crispHistory || kind=="smallfeatures"&&natural || kind=="rivers"&&showRivers || kind=="wire"&&wireframe ||
+            string kind=child.name;child.gameObject.SetActive(kind=="surface" || kind=="rivers"&&showRivers || kind=="wire"&&wireframe ||
                 kind=="plates"&&layer==Layer.Microplates || kind=="ecology"&&layer==Layer.Ecoregions || kind=="grid"+gridSpacing || kind=="history"&&screen=="Simulation");
             foreach(Transform copy in child)copy.gameObject.SetActive(copy.name=="copy0" || VisibleProjection==Projection.Map);
         }
