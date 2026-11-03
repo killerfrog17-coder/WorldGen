@@ -24,6 +24,16 @@ static class LandscapeRegionTests
         Check(frozen.Glacial==0&&frozen.Frozen==1&&LandscapeProvince.Region(frozen,new V(1000,2000,3000),41,Biome.Tundra)==LandscapeRegion.Tundra,"Permafrost alone does not imply a glaciated landscape");
         Check(LandscapeProvince.Region(frozen,new V(1000,2000,3000),41,Biome.Ice)==LandscapeRegion.Icefield,"Active ice cover is distinct from exposed glacial lowlands");
         Check(LandscapeProvince.Region(new LandscapeControls{Wet=.41f,Canopy=.6f},new V(1000,2000,3000),41,Biome.BorealForest)!=LandscapeRegion.WoodedSwamp,"A moist upland forest is not automatically classified as a swamp");
+        var marshHabitat=new HabitatCell{Biome=Biome.Marsh,WarmTenthsC=200,FloodFractionPermille=500};
+        var marshSoil=new GroundProfile{DepthM=1};bool openWetland=false,woodedWetland=false;
+        for(int i=0;i<100;i++)
+        {
+            var setting=LandscapeProvince.WetlandTreeSetting(marshHabitat,marshSoil,new V(i*2000,1200,2700),41);
+            if(setting==Biome.Marsh)openWetland=true;else woodedWetland=true;
+        }
+        Check(openWetland&&woodedWetland,"Forest-capable wet lowlands retain both coherent open and wooded settings");
+        marshHabitat.WarmTenthsC=80;
+        Check(LandscapeProvince.WetlandTreeSetting(marshHabitat,marshSoil,new V(1000,2000,3000),41)==Biome.Marsh,"Cold treeless marsh does not acquire a warm swamp canopy");
         var wet=new LandscapeControls{Wet=1,Moisture=1,Canopy=.2f};
         double radius=637100;var center=new V(1,0,0);var basins=new SmallWaterBodies(73421,radius);
         int probes=0;SmallWaterGround Flat(V p){probes++;return new SmallWaterGround(100,double.NaN,LocalWaterKind.None,wet);}

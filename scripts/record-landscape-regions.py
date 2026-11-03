@@ -13,7 +13,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source', required=True)
-parser.add_argument('--prefix', default='regions-final')
+parser.add_argument('--prefix', default='regions-wooded')
 parser.add_argument('--slot', choices=['slot-a', 'slot-b'], default='slot-b')
 parser.add_argument('--visual-review', type=Path, required=True)
 args = parser.parse_args()
@@ -36,6 +36,11 @@ def load(path):
 
 
 stamp = load(player / 'build-inputs.json')
+source = subprocess.check_output(['git', 'rev-parse', args.source], cwd=ROOT, text=True).strip()
+subprocess.run(['git', 'diff', '--exit-code', source, '--', 'src',
+                'unity/WorldGen.Unity/Assets/WorldGen/Runtime',
+                'unity/WorldGen.Unity/Assets/WorldGen/Editor',
+                'unity/WorldGen.Unity/Assets/WorldGen/Resources'], cwd=ROOT, check=True)
 assert stamp['Backend'] == 'Mono' and not stamp['Development']
 package = {
     'AssemblySha256': sha(player / 'WorldGen_Data/Managed/Assembly-CSharp.dll'),
@@ -73,8 +78,8 @@ for kind in kinds:
     cases.append({'name': name, 'checks': len(checks), 'scene': scene, 'images': images,
                   'checks_sha256': sha(folder / 'checks.txt'), 'visual_review': review[kind]})
 
-assert 'PASS actual terrain contains enclosed local ponds and shallow wetland pools' in read(ROOT / 'artifacts/landscape-hydric-world.log')
-assert 'PASS 27175' in read(ROOT / 'artifacts/landscape-hydric-rivers.log')
+assert 'PASS actual terrain contains enclosed local ponds and shallow wetland pools' in read(ROOT / 'artifacts/landscape-wooded-world.log')
+assert 'PASS 27175' in read(ROOT / 'artifacts/landscape-wooded-rivers.log')
 subprocess.run(['python', 'scripts/verify-landscape-texture-budget.py'], cwd=ROOT, check=True)
 lock = load(ROOT / 'assets/game-assets.lock.json')
 prior_lock = json.loads(subprocess.check_output(
@@ -84,7 +89,7 @@ for path, prior in prior_lock['files'].items():
 
 manifest = {
     'recorded_utc': datetime.now(timezone.utc).isoformat(),
-    'source': args.source,
+    'source': source,
     'baseline': 'living-npcs-foundation-20261103',
     'slot': 'builds/' + args.slot,
     'build': stamp,

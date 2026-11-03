@@ -20,4 +20,5 @@ foreach($kind in $Kinds){
     Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
     Write-Output ($kind+' EXIT '+$process.ExitCode)
+    if($process.ExitCode -ne 0){throw ('Landscape check failed; evidence retained: '+$output)}
 }

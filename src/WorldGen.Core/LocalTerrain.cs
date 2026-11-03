@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-provinces-18";
+        public const string Version = "local-terrain-provinces-19";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -95,7 +95,8 @@ namespace WorldGen.Core
                 };
                 profiles[i].Cover=flora.Cell(i,profiles[i].Ground);
                 profiles[i].MidCover=MidFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).MidPlants,profiles[i].Biome);
-                profiles[i].Forest=TreeFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).Trees,profiles[i].Biome);
+                var treeSetting=LandscapeProvince.WetlandTreeSetting(habitat,profiles[i].Ground,center*(RadiusM*horizontalScale),seed);
+                profiles[i].Forest=TreeFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).Trees,treeSetting);
                 profiles[i].Forest.ReferenceElevationM=profiles[i].ElevationM;
                 profiles[i].Landscape=LandscapeProvince.Describe(profiles[i].Ground,profiles[i].Biome,
                     habitat==null?.7:habitat.AridityMilli/1000d,profiles[i].Forest.Coverage,relief,
