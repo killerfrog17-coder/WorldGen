@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "840653b18a9be756b09d0ec2f8de7a1e61880882",
+  "source_checkpoint": "18bc8bfaaaee80b0c69db81803e2558d6b3f5d88",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14344,6 +14344,264 @@
       "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
       "member": "objects/a1be0c8bf2108232388951be9911b948654f69e67dc47358e4cd76c5500f96f0"
     },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_Color.png": {
+      "sha256": "6dd0879443f1d94b24a6a4d20af374f9500003a6bcca8a3540e9fad2fb94d5ed",
+      "bytes": 516075,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6dd0879443f1d94b24a6a4d20af374f9500003a6bcca8a3540e9fad2fb94d5ed"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_NormalGL.png": {
+      "sha256": "a0070fca2a161a2d78a3e202c03e9424a5944923dc6bc72dbee514f7ec83bb84",
+      "bytes": 2515276,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/a0070fca2a161a2d78a3e202c03e9424a5944923dc6bc72dbee514f7ec83bb84"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_Opacity.png": {
+      "sha256": "221add1e7e59617dbf6d1341ed46609604039bc79ceda3e06c7049a8441baea7",
+      "bytes": 30899,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/221add1e7e59617dbf6d1341ed46609604039bc79ceda3e06c7049a8441baea7"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/source.json": {
+      "sha256": "7168b6a19f26fca34d762b0ec5840c68f5a860cff6adbbb521ed7bf10d560802",
+      "bytes": 10186,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/7168b6a19f26fca34d762b0ec5840c68f5a860cff6adbbb521ed7bf10d560802"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/LeafSet010_1K-PNG_Color.png": {
+      "sha256": "6a6d3cc80c1984ad148f462fc53ad4f0f356f65cc5e1e5642fc80711b11cecf0",
+      "bytes": 576728,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6a6d3cc80c1984ad148f462fc53ad4f0f356f65cc5e1e5642fc80711b11cecf0"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/LeafSet010_1K-PNG_NormalGL.png": {
+      "sha256": "39117b1b8152472a5428096ee0a22ae728e880b2d5c79c53bc2dd10b5d8f5ce3",
+      "bytes": 4378811,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/39117b1b8152472a5428096ee0a22ae728e880b2d5c79c53bc2dd10b5d8f5ce3"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/LeafSet010_1K-PNG_Opacity.png": {
+      "sha256": "ceed567f607e8955bddf37d1163c2ee1f1334e643bc6a01ac3e9c7f38a73c9c0",
+      "bytes": 51212,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/ceed567f607e8955bddf37d1163c2ee1f1334e643bc6a01ac3e9c7f38a73c9c0"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/source.json": {
+      "sha256": "b0a3a82fd13b0621bfd1c68dc68261d5719e2cca9be9a90640861b747b1b30ec",
+      "bytes": 10193,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/b0a3a82fd13b0621bfd1c68dc68261d5719e2cca9be9a90640861b747b1b30ec"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/LeafSet016_1K-PNG_Color.png": {
+      "sha256": "aca4401a5fd299cdec9445f772563288d517e26f61fa76fccda98f0bafeb9450",
+      "bytes": 805446,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/aca4401a5fd299cdec9445f772563288d517e26f61fa76fccda98f0bafeb9450"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/LeafSet016_1K-PNG_NormalGL.png": {
+      "sha256": "32f3a84c7afb51dc5ee1325c7d0ffb77de3579488c5228f5fa3d183f92538496",
+      "bytes": 4154588,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/32f3a84c7afb51dc5ee1325c7d0ffb77de3579488c5228f5fa3d183f92538496"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/LeafSet016_1K-PNG_Opacity.png": {
+      "sha256": "74e462fa396b39220efe4e734650872603323c015677a2e2e2447667fdb5ada3",
+      "bytes": 40887,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/74e462fa396b39220efe4e734650872603323c015677a2e2e2447667fdb5ada3"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/source.json": {
+      "sha256": "5f66cce13a450e42e9599f45d27593e5fd3ca678e317e271c65b4d584c789cd6",
+      "bytes": 10156,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/5f66cce13a450e42e9599f45d27593e5fd3ca678e317e271c65b4d584c789cd6"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/LeafSet018_1K-PNG_Color.png": {
+      "sha256": "1f86991b368b0251fb229e4891b32c8d2ed84e58ee57838cc2c1b36ebf14e1c6",
+      "bytes": 426072,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/1f86991b368b0251fb229e4891b32c8d2ed84e58ee57838cc2c1b36ebf14e1c6"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/LeafSet018_1K-PNG_NormalGL.png": {
+      "sha256": "9664dc7adfb1aef7350ca245b5105a840af23aef2d999c39debd86109d48f817",
+      "bytes": 1932760,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/9664dc7adfb1aef7350ca245b5105a840af23aef2d999c39debd86109d48f817"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/LeafSet018_1K-PNG_Opacity.png": {
+      "sha256": "b1aee802b0b4ec7ff7a43aa99f08c99a4e14f4caa0a914c2bb84544fd1702d6f",
+      "bytes": 16492,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/b1aee802b0b4ec7ff7a43aa99f08c99a4e14f4caa0a914c2bb84544fd1702d6f"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/source.json": {
+      "sha256": "10b7d11c0a854a66e4c37f4abd2166694e7e72f7e1069efa2c3814f3c3583197",
+      "bytes": 10124,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/10b7d11c0a854a66e4c37f4abd2166694e7e72f7e1069efa2c3814f3c3583197"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/LeafSet019_1K-PNG_Color.png": {
+      "sha256": "c65827e13bb755d5c3045e190b1547e2c12748c2e992376db5f0008a6c6c4b80",
+      "bytes": 726465,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/c65827e13bb755d5c3045e190b1547e2c12748c2e992376db5f0008a6c6c4b80"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/LeafSet019_1K-PNG_NormalGL.png": {
+      "sha256": "3aa1ea9c7105611417320a0cc5d2cfdf93f31824aef958b5cf2dbb7a24d9af7c",
+      "bytes": 4818050,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/3aa1ea9c7105611417320a0cc5d2cfdf93f31824aef958b5cf2dbb7a24d9af7c"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/LeafSet019_1K-PNG_Opacity.png": {
+      "sha256": "46611bdd548ba04c96c99bc0387f96b9947f45c2d6600e5abd55047d600a526b",
+      "bytes": 218193,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/46611bdd548ba04c96c99bc0387f96b9947f45c2d6600e5abd55047d600a526b"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/source.json": {
+      "sha256": "8614bbedc6717dfdd61ac562d787af0e4a124266718de23f52ac25507ce9b314",
+      "bytes": 10284,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/8614bbedc6717dfdd61ac562d787af0e4a124266718de23f52ac25507ce9b314"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/LeafSet022_1K-PNG_Color.png": {
+      "sha256": "ab984343ef0fbcc17f2bcf259b332aa4c8257b5079bc93c2014b1115613dd1ba",
+      "bytes": 953371,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/ab984343ef0fbcc17f2bcf259b332aa4c8257b5079bc93c2014b1115613dd1ba"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/LeafSet022_1K-PNG_NormalGL.png": {
+      "sha256": "da0915c1dae4fde6621b800d1cb70a2c20b6d682a6595ed279f0a6bf225ccf29",
+      "bytes": 3250791,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/da0915c1dae4fde6621b800d1cb70a2c20b6d682a6595ed279f0a6bf225ccf29"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/LeafSet022_1K-PNG_Opacity.png": {
+      "sha256": "61f13238da94caaafabe685c9e7da735cd78e4c02810ba054354ec5c67e37f7a",
+      "bytes": 27661,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/61f13238da94caaafabe685c9e7da735cd78e4c02810ba054354ec5c67e37f7a"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/source.json": {
+      "sha256": "59b7b6ae46fe22449af6c441cef2ec6ad6df0de7f2c06005cab85a525195dcbf",
+      "bytes": 10407,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/59b7b6ae46fe22449af6c441cef2ec6ad6df0de7f2c06005cab85a525195dcbf"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/LeafSet024_1K-PNG_Color.png": {
+      "sha256": "659cee2823b7901e139bdafc19654b29f9061b698c836666e460d909526d26af",
+      "bytes": 1156983,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/659cee2823b7901e139bdafc19654b29f9061b698c836666e460d909526d26af"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/LeafSet024_1K-PNG_NormalGL.png": {
+      "sha256": "044073b4f21220c75cd789a72f9cab8d10e08f97f358c9901581f1a555e058a5",
+      "bytes": 4426367,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/044073b4f21220c75cd789a72f9cab8d10e08f97f358c9901581f1a555e058a5"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/LeafSet024_1K-PNG_Opacity.png": {
+      "sha256": "7f3f41a9fbfe35d4fdcc5d9c13a4b1df4f2ef50a24ff1abe9172b074ce68e401",
+      "bytes": 35235,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/7f3f41a9fbfe35d4fdcc5d9c13a4b1df4f2ef50a24ff1abe9172b074ce68e401"
+    },
+    "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/source.json": {
+      "sha256": "6bbd3236fb09d421c93a2a20d0058c4e25dd54e4ea3e69a94c4e9c52b4d8a7eb",
+      "bytes": 10160,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6bbd3236fb09d421c93a2a20d0058c4e25dd54e4ea3e69a94c4e9c52b4d8a7eb"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/bark_willow_02/Diffuse.jpg": {
+      "sha256": "95e1380566834aab220bd8ea9a5287f3bfff46910c18017fcb46ebbbe832024f",
+      "bytes": 998966,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/95e1380566834aab220bd8ea9a5287f3bfff46910c18017fcb46ebbbe832024f"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/bark_willow_02/nor_gl.jpg": {
+      "sha256": "7d6f905fe7225d96741d191f6ee61c0681603570d28f14e7678df6a3019bc48d",
+      "bytes": 1358916,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/7d6f905fe7225d96741d191f6ee61c0681603570d28f14e7678df6a3019bc48d"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/bark_willow_02/source.json": {
+      "sha256": "7779a351a3be32d3a2974ea55bc8d1d79ad6124706520d8e6714ec0cdcc3e1b8",
+      "bytes": 2007,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/7779a351a3be32d3a2974ea55bc8d1d79ad6124706520d8e6714ec0cdcc3e1b8"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/Diffuse.jpg": {
+      "sha256": "dea0ece8e153a614331f51291eefdee71b8f5948395eecb40ffcd9aa67016913",
+      "bytes": 1466689,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/dea0ece8e153a614331f51291eefdee71b8f5948395eecb40ffcd9aa67016913"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/nor_gl.jpg": {
+      "sha256": "ae3f3ebb2fc36dd7eb714e78657c3f1bf1e7a67a921675cda2fd808c00fc0706",
+      "bytes": 1699657,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/ae3f3ebb2fc36dd7eb714e78657c3f1bf1e7a67a921675cda2fd808c00fc0706"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/source.json": {
+      "sha256": "740d7157e2e45cbeeffabb071a69e92b2321e20660d25d8b48cf61ba6ca5088e",
+      "bytes": 2168,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/740d7157e2e45cbeeffabb071a69e92b2321e20660d25d8b48cf61ba6ca5088e"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/Diffuse.jpg": {
+      "sha256": "38821f7d363a5df6ed29a36c6fa331be22290f01ebfd9ce1619edaf165739a77",
+      "bytes": 869551,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/38821f7d363a5df6ed29a36c6fa331be22290f01ebfd9ce1619edaf165739a77"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/nor_gl.jpg": {
+      "sha256": "4f5d765c31965b37ec2aa3b803a3e0e29c6c8edb8df2e7040a2907df65cb062f",
+      "bytes": 1077934,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/4f5d765c31965b37ec2aa3b803a3e0e29c6c8edb8df2e7040a2907df65cb062f"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/source.json": {
+      "sha256": "30f98d82aecb4ffcb00dcb81d7d9b0d97715a82647a0befdae3b0fa6e4bb2c5d",
+      "bytes": 2109,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/30f98d82aecb4ffcb00dcb81d7d9b0d97715a82647a0befdae3b0fa6e4bb2c5d"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/Diffuse.jpg": {
+      "sha256": "80cbe5ee11af799db082cdb342601a70b81a5f54b98eb587e87dcb5bf5e1f395",
+      "bytes": 707281,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/80cbe5ee11af799db082cdb342601a70b81a5f54b98eb587e87dcb5bf5e1f395"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/nor_gl.jpg": {
+      "sha256": "4b558654ea5f92e61fe5be5d3df2f79aedd7e5f0e230a08954c1794a6a20dc25",
+      "bytes": 1307345,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/4b558654ea5f92e61fe5be5d3df2f79aedd7e5f0e230a08954c1794a6a20dc25"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/source.json": {
+      "sha256": "a5487b47b4b765cdd67b312aa2a0ac0a84281cd16cb82b8fa5053f2d6d0e80bb",
+      "bytes": 2020,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/a5487b47b4b765cdd67b312aa2a0ac0a84281cd16cb82b8fa5053f2d6d0e80bb"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/Diffuse.jpg": {
+      "sha256": "89ddfbff0388d30caff902ba600cdf75eb1e651ca71ece6594b5a9b27abb47ab",
+      "bytes": 837641,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/89ddfbff0388d30caff902ba600cdf75eb1e651ca71ece6594b5a9b27abb47ab"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/nor_gl.jpg": {
+      "sha256": "666e5f175a010f12577687dd8029125bff99110e6a97958afb295b34266437db",
+      "bytes": 1178440,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/666e5f175a010f12577687dd8029125bff99110e6a97958afb295b34266437db"
+    },
+    "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/source.json": {
+      "sha256": "d2ca00155c8bfbd592b37f6c7d759007a43a62a0cfd895a90ba0393b0ae2da3e",
+      "bytes": 2043,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/d2ca00155c8bfbd592b37f6c7d759007a43a62a0cfd895a90ba0393b0ae2da3e"
+    },
     "music/A Hundred Trading Bells 6-6.ogg": {
       "sha256": "a3872d1151e3431bea1c3d4c9983df133fad4a1222686d8c5d676d4c5d32874a",
       "bytes": 1832340,
@@ -27928,6 +28186,900 @@
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/898462ca91c03d2763ed5df7e0d668412e4046384d2ff5659277d35a0946d6a3"
     },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1.meta": {
+      "sha256": "8e3b78e001b3665c25ca407a1210727713ccc87779356800a1f7ff8b191ec2d0",
+      "bytes": 172,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/8e3b78e001b3665c25ca407a1210727713ccc87779356800a1f7ff8b191ec2d0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-albedo.png": {
+      "sha256": "e8fff199183166d466c03f87968fbd7eb76207a66a0862a4aa6c2b627f01259a",
+      "bytes": 511239,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e8fff199183166d466c03f87968fbd7eb76207a66a0862a4aa6c2b627f01259a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-albedo.png.meta": {
+      "sha256": "f7ace5519b0660a0c87578bb8f4f6ea80c9c5f5c35853a9b8c2f81842a95f7c1",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f7ace5519b0660a0c87578bb8f4f6ea80c9c5f5c35853a9b8c2f81842a95f7c1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-normal.png": {
+      "sha256": "81895e504eeb90e137e2ac8cbf979baab05dbf0b767be2cefd2142da0a9d8571",
+      "bytes": 375710,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/81895e504eeb90e137e2ac8cbf979baab05dbf0b767be2cefd2142da0a9d8571"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-normal.png.meta": {
+      "sha256": "f10514cb85e2beb6dc959d7ca903b296c0830e7098bdbc0cc4a8638c9c5af00b",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f10514cb85e2beb6dc959d7ca903b296c0830e7098bdbc0cc4a8638c9c5af00b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-albedo.png": {
+      "sha256": "758e1ba940d2086c840e06a6c9071b7205db880e0a5685fed4bcb0fe4c12199d",
+      "bytes": 572834,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/758e1ba940d2086c840e06a6c9071b7205db880e0a5685fed4bcb0fe4c12199d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-albedo.png.meta": {
+      "sha256": "e4f1528270b72ea189add9b0ec6bde31b4b27d5244efa57cba88ff839ae1f772",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e4f1528270b72ea189add9b0ec6bde31b4b27d5244efa57cba88ff839ae1f772"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-normal.png": {
+      "sha256": "4f5b9f2e81e78bfa8ca5f028f1bcb08d07efd21e3ea9c28c98c37ff27ca522b0",
+      "bytes": 609348,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/4f5b9f2e81e78bfa8ca5f028f1bcb08d07efd21e3ea9c28c98c37ff27ca522b0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-normal.png.meta": {
+      "sha256": "cf26315d7d0da0563069f0bf7e187c72a4a770c3019916382abc191b4e9722ff",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/cf26315d7d0da0563069f0bf7e187c72a4a770c3019916382abc191b4e9722ff"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-albedo.png": {
+      "sha256": "8dd527f702ac6047f3b327fd24779732f558f44370c54fac180364d34bb28fa8",
+      "bytes": 569255,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/8dd527f702ac6047f3b327fd24779732f558f44370c54fac180364d34bb28fa8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-albedo.png.meta": {
+      "sha256": "59225684a0b326eabfcd9360c52c47e899df613bfb0a3bef3466c35f9cfcd355",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/59225684a0b326eabfcd9360c52c47e899df613bfb0a3bef3466c35f9cfcd355"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-normal.png": {
+      "sha256": "6a1920c0d2de3e4199c85710b4eb5e6e65ffec70b7726ecaae3296f210f69280",
+      "bytes": 565730,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6a1920c0d2de3e4199c85710b4eb5e6e65ffec70b7726ecaae3296f210f69280"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-normal.png.meta": {
+      "sha256": "2ac923f594c43d28cf4840f981747227a5dc1a3030b9051efd443e646ca603ba",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/2ac923f594c43d28cf4840f981747227a5dc1a3030b9051efd443e646ca603ba"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-albedo.png": {
+      "sha256": "1830f8a324aa2236186ecaf3c4ec34c49199d4a642a1c7b3a72af5da5abd2d8c",
+      "bytes": 519864,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/1830f8a324aa2236186ecaf3c4ec34c49199d4a642a1c7b3a72af5da5abd2d8c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-albedo.png.meta": {
+      "sha256": "e38c71064faea526e1cb6430e1dbe98e0ad4088c7888c29ad99b7893a116d9cf",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e38c71064faea526e1cb6430e1dbe98e0ad4088c7888c29ad99b7893a116d9cf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-normal.png": {
+      "sha256": "8a1319ba85ead63c5251c0a6a161912c2da381beacb4d2311adc348d65310467",
+      "bytes": 571245,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/8a1319ba85ead63c5251c0a6a161912c2da381beacb4d2311adc348d65310467"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-normal.png.meta": {
+      "sha256": "7559623c79a2343fefa136cebda3e98b59dddab11888bd4f3df8d22b3b584780",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/7559623c79a2343fefa136cebda3e98b59dddab11888bd4f3df8d22b3b584780"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-albedo.png": {
+      "sha256": "a42989f89043ba702186312361113825233f952398eced253bac7b6c9e18d28e",
+      "bytes": 572091,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/a42989f89043ba702186312361113825233f952398eced253bac7b6c9e18d28e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-albedo.png.meta": {
+      "sha256": "b658b629ece34d42c66ad245c422e54f732897748f312d51b4549ede3a8dd415",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/b658b629ece34d42c66ad245c422e54f732897748f312d51b4549ede3a8dd415"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-normal.png": {
+      "sha256": "c131901deed5b84065ad23dc3f92ba849bdf1529f5e4fb4db043b61c380aab65",
+      "bytes": 500284,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/c131901deed5b84065ad23dc3f92ba849bdf1529f5e4fb4db043b61c380aab65"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-normal.png.meta": {
+      "sha256": "59ef9f7f5731af0f685dff33d2e996fad201753f7e0dc598a8599450f8883cc4",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/59ef9f7f5731af0f685dff33d2e996fad201753f7e0dc598a8599450f8883cc4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-00-albedo.png": {
+      "sha256": "3adb387f6e199e8bcd3440049a78d4b0db36222d1c5fa3d3265ec9e6dd18331c",
+      "bytes": 294358,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/3adb387f6e199e8bcd3440049a78d4b0db36222d1c5fa3d3265ec9e6dd18331c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-00-albedo.png.meta": {
+      "sha256": "6e299d4269ff72c844dc2b80aa7ef2d75d2b0dffbf5ce8517e4e17b90e0d9539",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6e299d4269ff72c844dc2b80aa7ef2d75d2b0dffbf5ce8517e4e17b90e0d9539"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-00-normal.png": {
+      "sha256": "7463273255536728e20486510bbc25c4d850df8539e82f406275323e89628866",
+      "bytes": 239207,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/7463273255536728e20486510bbc25c4d850df8539e82f406275323e89628866"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-00-normal.png.meta": {
+      "sha256": "5d3b543103a3c55a59da11f9de287d5f5b1bd3fdf6e2910399bdd82180da5ddc",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/5d3b543103a3c55a59da11f9de287d5f5b1bd3fdf6e2910399bdd82180da5ddc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-01-albedo.png": {
+      "sha256": "044d70631b06b72d86a4950fb2a5215c4376a5cc4d49b35091ab4de897ab3795",
+      "bytes": 264121,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/044d70631b06b72d86a4950fb2a5215c4376a5cc4d49b35091ab4de897ab3795"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-01-albedo.png.meta": {
+      "sha256": "117b8cc55c2b063811d0b86aa05db2a64abcc80dc389c6c78a68176209b8ca15",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/117b8cc55c2b063811d0b86aa05db2a64abcc80dc389c6c78a68176209b8ca15"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-01-normal.png": {
+      "sha256": "1caef1399ce52b9290cd91a08bf389dadc960e7072920c2eb1bb23b27b6aebf7",
+      "bytes": 232385,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/1caef1399ce52b9290cd91a08bf389dadc960e7072920c2eb1bb23b27b6aebf7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-01-normal.png.meta": {
+      "sha256": "856cc0be7d95a7bd677c7fa625c49711659ac6899683c74d5fe136b4925a7afc",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/856cc0be7d95a7bd677c7fa625c49711659ac6899683c74d5fe136b4925a7afc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-02-albedo.png": {
+      "sha256": "522591f6130b42994e8feb687a75bd9286de7264547680878b96c70dbc7ccd34",
+      "bytes": 271740,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/522591f6130b42994e8feb687a75bd9286de7264547680878b96c70dbc7ccd34"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-02-albedo.png.meta": {
+      "sha256": "d0f3620d1e559a9ef38793c1a4faddee27cf670181c7e1b5bfbaa2c28283acfa",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/d0f3620d1e559a9ef38793c1a4faddee27cf670181c7e1b5bfbaa2c28283acfa"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-02-normal.png": {
+      "sha256": "123e796ea2b1cb26c090d8372a89854d6a158ca1c7e1237e5c89ef21e5e86fe5",
+      "bytes": 237040,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/123e796ea2b1cb26c090d8372a89854d6a158ca1c7e1237e5c89ef21e5e86fe5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-02-normal.png.meta": {
+      "sha256": "865fa39408777e5723f80e51925e48f1b0860a53643fb185e19b9df497cd82ca",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/865fa39408777e5723f80e51925e48f1b0860a53643fb185e19b9df497cd82ca"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-03-albedo.png": {
+      "sha256": "54797f6c94260a86d16df2a1462f01b6b744105b5ec65808d899f89e9701e108",
+      "bytes": 261941,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/54797f6c94260a86d16df2a1462f01b6b744105b5ec65808d899f89e9701e108"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-03-albedo.png.meta": {
+      "sha256": "418c1de818bc9d2a8315e76a6ee60e800432ab31af3ede88c86c35171ca50d5b",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/418c1de818bc9d2a8315e76a6ee60e800432ab31af3ede88c86c35171ca50d5b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-03-normal.png": {
+      "sha256": "1220cd2f1a60d651a3f7050290d11cab334f4dbc9b76d8b5ac3825d7aff21845",
+      "bytes": 226501,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/1220cd2f1a60d651a3f7050290d11cab334f4dbc9b76d8b5ac3825d7aff21845"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-03-normal.png.meta": {
+      "sha256": "dbfabc0d62382130e6827d76125963f26ee77ca281e6bd11ba03369cf754a8da",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/dbfabc0d62382130e6827d76125963f26ee77ca281e6bd11ba03369cf754a8da"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-04-albedo.png": {
+      "sha256": "4e2dfb3dff76c47f65492789647114705e39cbec657d79a27291af1ec3dcfa03",
+      "bytes": 225012,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/4e2dfb3dff76c47f65492789647114705e39cbec657d79a27291af1ec3dcfa03"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-04-albedo.png.meta": {
+      "sha256": "02cbcb8b972f6f5976ddc8ad0a1cd4b028de9f3bc6a195775169c370fa5f481d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/02cbcb8b972f6f5976ddc8ad0a1cd4b028de9f3bc6a195775169c370fa5f481d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-04-normal.png": {
+      "sha256": "d7cf5eb996d84740b18d98050b8ea4e6195713dcc8f1983fddaf24dda065e630",
+      "bytes": 165535,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/d7cf5eb996d84740b18d98050b8ea4e6195713dcc8f1983fddaf24dda065e630"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-04-normal.png.meta": {
+      "sha256": "577d0e983969ea5be790a6fb27d9ba3039c419ae7c2c4b3b31220bc3075be679",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/577d0e983969ea5be790a6fb27d9ba3039c419ae7c2c4b3b31220bc3075be679"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-05-albedo.png": {
+      "sha256": "f364ceb800f900c996cff65c35ebdb9f39b37e1454288465ca18afcf2c73d086",
+      "bytes": 234472,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/f364ceb800f900c996cff65c35ebdb9f39b37e1454288465ca18afcf2c73d086"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-05-albedo.png.meta": {
+      "sha256": "4094eb99c220855953bead13f0c2ba544bcc3164bccd63585698ff6022339b15",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/4094eb99c220855953bead13f0c2ba544bcc3164bccd63585698ff6022339b15"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-05-normal.png": {
+      "sha256": "89b502ac6004e0308d7c8f244d5cb516f04f29ebe086dd6366b311566d229e4c",
+      "bytes": 172130,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/89b502ac6004e0308d7c8f244d5cb516f04f29ebe086dd6366b311566d229e4c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-05-normal.png.meta": {
+      "sha256": "b8bcac237551349e2b7cb1a9c5d0312b9abe61f14633a2df4399838feb07c72d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/b8bcac237551349e2b7cb1a9c5d0312b9abe61f14633a2df4399838feb07c72d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-06-albedo.png": {
+      "sha256": "a29b28691671cddaab21154475e40dbd99dec4cff81f9e7b692d9ba79f9a3108",
+      "bytes": 231645,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/a29b28691671cddaab21154475e40dbd99dec4cff81f9e7b692d9ba79f9a3108"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-06-albedo.png.meta": {
+      "sha256": "e7f51825d9006816afc07afea14f2b6cafe02f1f3dd40687a202fe7107451844",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e7f51825d9006816afc07afea14f2b6cafe02f1f3dd40687a202fe7107451844"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-06-normal.png": {
+      "sha256": "54559a47cfb02850abc355e8e5428d960196b50582bff22d87faa4fc1e03f87b",
+      "bytes": 170093,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/54559a47cfb02850abc355e8e5428d960196b50582bff22d87faa4fc1e03f87b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-06-normal.png.meta": {
+      "sha256": "63a021f1df88651bd2f4bd0ff5ddbdba47d754129eb1313d30086f415164ad85",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/63a021f1df88651bd2f4bd0ff5ddbdba47d754129eb1313d30086f415164ad85"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-07-albedo.png": {
+      "sha256": "0876457f4af27f95e0201c442808802891a3fd4d0c938a4931b76ab5756e90b5",
+      "bytes": 238696,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/0876457f4af27f95e0201c442808802891a3fd4d0c938a4931b76ab5756e90b5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-07-albedo.png.meta": {
+      "sha256": "f7100d3f9856680124f15436fcc354dec512ccf78bd5b34b6e0cfca6c1321373",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f7100d3f9856680124f15436fcc354dec512ccf78bd5b34b6e0cfca6c1321373"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-07-normal.png": {
+      "sha256": "2a5f5f3f70074370534be01b59eafaf9240bdbc18424baef0c0166caf9749ee4",
+      "bytes": 174405,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/2a5f5f3f70074370534be01b59eafaf9240bdbc18424baef0c0166caf9749ee4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-07-normal.png.meta": {
+      "sha256": "a921c25662229e78f5d46175d1297a56f70a2166b0f790be2f85f94c36754813",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/a921c25662229e78f5d46175d1297a56f70a2166b0f790be2f85f94c36754813"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-08-albedo.png": {
+      "sha256": "d5ae6ef22aa3fd58b7b6c3d0241e12fbedd54f76abce30912566090bfdeb1b87",
+      "bytes": 264083,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/d5ae6ef22aa3fd58b7b6c3d0241e12fbedd54f76abce30912566090bfdeb1b87"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-08-albedo.png.meta": {
+      "sha256": "9e3f6529c18e99da6a8666047ca5dddc3fef08f842716ea22975e2cbbad6e8c6",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/9e3f6529c18e99da6a8666047ca5dddc3fef08f842716ea22975e2cbbad6e8c6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-08-normal.png": {
+      "sha256": "59fe105f56f73f2dae7398d69c7901d50c9d89a12b5d58f5915c40caac7838d2",
+      "bytes": 237294,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/59fe105f56f73f2dae7398d69c7901d50c9d89a12b5d58f5915c40caac7838d2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-08-normal.png.meta": {
+      "sha256": "85aa44b93cbc69f59c5e5ae3e8e6cc4be7c932c1f8d68d61dc86f98ca45793f0",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/85aa44b93cbc69f59c5e5ae3e8e6cc4be7c932c1f8d68d61dc86f98ca45793f0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-09-albedo.png": {
+      "sha256": "bc4d51d314ab4d55af50670493309141d2c80f6c50555064adeab6d22e738bbc",
+      "bytes": 241294,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/bc4d51d314ab4d55af50670493309141d2c80f6c50555064adeab6d22e738bbc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-09-albedo.png.meta": {
+      "sha256": "e597deffaac4e8fd5263580f3997cfe67c60f69a353d0029f1d8ad2df74f547b",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e597deffaac4e8fd5263580f3997cfe67c60f69a353d0029f1d8ad2df74f547b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-09-normal.png": {
+      "sha256": "f96c69767abad59c4819caaed6aed24e9be23e8b6a78b502fadd030fcef1b180",
+      "bytes": 175709,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/f96c69767abad59c4819caaed6aed24e9be23e8b6a78b502fadd030fcef1b180"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-09-normal.png.meta": {
+      "sha256": "c85f7d360b7e6a46561d869a59afa3908c34b039507d228f7539c10c5667d589",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/c85f7d360b7e6a46561d869a59afa3908c34b039507d228f7539c10c5667d589"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-10-albedo.png": {
+      "sha256": "1afa5906849200f77b44e0e844ba9e8edef6feecbff738ee21b56e2d574fcf70",
+      "bytes": 270660,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/1afa5906849200f77b44e0e844ba9e8edef6feecbff738ee21b56e2d574fcf70"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-10-albedo.png.meta": {
+      "sha256": "260a940719386e86ee306ff00252ffbbd5e14b4c813264a895076ab8cbeb726c",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/260a940719386e86ee306ff00252ffbbd5e14b4c813264a895076ab8cbeb726c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-10-normal.png": {
+      "sha256": "3fb9c236fa0f26c3c2528362581024b1e589cb51bb7af8839814da0c98210e22",
+      "bytes": 246396,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/3fb9c236fa0f26c3c2528362581024b1e589cb51bb7af8839814da0c98210e22"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-10-normal.png.meta": {
+      "sha256": "483325f19eeae6b11369ef834d7f4765aac5d39615cd733f252482e086ec6105",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/483325f19eeae6b11369ef834d7f4765aac5d39615cd733f252482e086ec6105"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-11-albedo.png": {
+      "sha256": "e0892e11aa2d056299bd9aed071d4f1d0f44e81ca22ac4b0ff8a70e9540102e5",
+      "bytes": 243057,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/e0892e11aa2d056299bd9aed071d4f1d0f44e81ca22ac4b0ff8a70e9540102e5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-11-albedo.png.meta": {
+      "sha256": "e9992633f2b1e082caa4dc1591875f765daf8980b4b53649b0913abffe761c4d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e9992633f2b1e082caa4dc1591875f765daf8980b4b53649b0913abffe761c4d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-11-normal.png": {
+      "sha256": "9bca366dc82f1229e9a6d5c398d6a2783da1159912a4c11664578347a35b32e5",
+      "bytes": 177730,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/9bca366dc82f1229e9a6d5c398d6a2783da1159912a4c11664578347a35b32e5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-11-normal.png.meta": {
+      "sha256": "2262868d32cbc977a71560a121e4f7687c56817875246b6a1c3fc63720bc7994",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/2262868d32cbc977a71560a121e4f7687c56817875246b6a1c3fc63720bc7994"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-12-albedo.png": {
+      "sha256": "9cb82067be5707d56a1b9f04f002f21f0b035e73775c08ef6c49f957003cbe59",
+      "bytes": 230840,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/9cb82067be5707d56a1b9f04f002f21f0b035e73775c08ef6c49f957003cbe59"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-12-albedo.png.meta": {
+      "sha256": "6f88e2ad7af1d0811e06c7201be3782dc51ebac1bfb206a5980faefc4f77963d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6f88e2ad7af1d0811e06c7201be3782dc51ebac1bfb206a5980faefc4f77963d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-12-normal.png": {
+      "sha256": "a05c01fdbe9a99544545d34787d08d05e40f9ad4c01c003f79e501939085e0b9",
+      "bytes": 179031,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/a05c01fdbe9a99544545d34787d08d05e40f9ad4c01c003f79e501939085e0b9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-12-normal.png.meta": {
+      "sha256": "f1765fb12afd5a2148a4389cab597897cb088bd548e2c5b3b1943942eb09cc7b",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f1765fb12afd5a2148a4389cab597897cb088bd548e2c5b3b1943942eb09cc7b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-13-albedo.png": {
+      "sha256": "f2e6a6382356701e040145b250d10d20981714076e95c0ab7e06acc01f389d88",
+      "bytes": 221311,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/f2e6a6382356701e040145b250d10d20981714076e95c0ab7e06acc01f389d88"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-13-albedo.png.meta": {
+      "sha256": "f8e614c65d46b27b6c09939ba79fbf35a366353d50c03fc8243a9532dc8d1b88",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f8e614c65d46b27b6c09939ba79fbf35a366353d50c03fc8243a9532dc8d1b88"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-13-normal.png": {
+      "sha256": "7102487670f9c707ff8ea6128d6004d818a102f7048c50324012d883b876405c",
+      "bytes": 185887,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/7102487670f9c707ff8ea6128d6004d818a102f7048c50324012d883b876405c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-13-normal.png.meta": {
+      "sha256": "fa2f5fd207c477c916dfa5bf9eea8e3f47bbb14407ca0bbfd50b6750d601cb4a",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/fa2f5fd207c477c916dfa5bf9eea8e3f47bbb14407ca0bbfd50b6750d601cb4a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-14-albedo.png": {
+      "sha256": "be21c4ccc727108f8f6eb2ca23e6a414b7c9d84c3bb418326d917fa64db2b617",
+      "bytes": 208144,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/be21c4ccc727108f8f6eb2ca23e6a414b7c9d84c3bb418326d917fa64db2b617"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-14-albedo.png.meta": {
+      "sha256": "cbad152b9697b92ef8c0e9964109fae0f2c99abe240f5bd7124538c6e3dbe76d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/cbad152b9697b92ef8c0e9964109fae0f2c99abe240f5bd7124538c6e3dbe76d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-14-normal.png": {
+      "sha256": "426fa74e0b44d5f05697d19646c75fe28789c233c1172a3982f5e140aca77104",
+      "bytes": 169671,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/426fa74e0b44d5f05697d19646c75fe28789c233c1172a3982f5e140aca77104"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-14-normal.png.meta": {
+      "sha256": "ff75489d19a69c0796c8b8cd9550fdcdea5d904a51c0ea683b5b4692ecc5ab1a",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/ff75489d19a69c0796c8b8cd9550fdcdea5d904a51c0ea683b5b4692ecc5ab1a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-15-albedo.png": {
+      "sha256": "6ce27a24b5f968ff5b6c9b72aa1fdd03b5df99c27855b42c199e60321a007b1c",
+      "bytes": 214287,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/6ce27a24b5f968ff5b6c9b72aa1fdd03b5df99c27855b42c199e60321a007b1c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-15-albedo.png.meta": {
+      "sha256": "04a9da3be90374bebb3e12c280895cc4a08eb4e4beaf2158dca5e51686dbf71e",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/04a9da3be90374bebb3e12c280895cc4a08eb4e4beaf2158dca5e51686dbf71e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-15-normal.png": {
+      "sha256": "e7768b721c65f93073c1e13f44bafe11c6d22ec173054f82dcf99757e36d6fd1",
+      "bytes": 178925,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/e7768b721c65f93073c1e13f44bafe11c6d22ec173054f82dcf99757e36d6fd1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-15-normal.png.meta": {
+      "sha256": "8982a84c7523a5b5dbcebff8155071d4e1cc5c1dedc9d4568468df4d3d9cae6f",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/8982a84c7523a5b5dbcebff8155071d4e1cc5c1dedc9d4568468df4d3d9cae6f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-16-albedo.png": {
+      "sha256": "07dc6f0bf84ded1b0e8f4801427a8bdaca549ec4637c60cb2374b9cc0a2e9518",
+      "bytes": 164044,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/07dc6f0bf84ded1b0e8f4801427a8bdaca549ec4637c60cb2374b9cc0a2e9518"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-16-albedo.png.meta": {
+      "sha256": "3530f01d0cd435e94307f1e8bb3032d5f0b57f7f295619287b0f7d0d1a37ada8",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/3530f01d0cd435e94307f1e8bb3032d5f0b57f7f295619287b0f7d0d1a37ada8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-16-normal.png": {
+      "sha256": "fbe5aa6f192c9ccf03073fc01b3419124f32be0f1ce60c9ab6530b685591562d",
+      "bytes": 125497,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/fbe5aa6f192c9ccf03073fc01b3419124f32be0f1ce60c9ab6530b685591562d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-16-normal.png.meta": {
+      "sha256": "62263ea4a9529472806b0cd3e12616f2493e0eac51f6820d7190b14d723fa09d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/62263ea4a9529472806b0cd3e12616f2493e0eac51f6820d7190b14d723fa09d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-17-albedo.png": {
+      "sha256": "317beedc160c7aab5d8fd0c8a00b9fc39d780c65afcef381fdc730bd465d610c",
+      "bytes": 159686,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/317beedc160c7aab5d8fd0c8a00b9fc39d780c65afcef381fdc730bd465d610c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-17-albedo.png.meta": {
+      "sha256": "3cb4a44034ecce976e0c54e091a6c66dd992ab53e0f2a02a0aaf7eb1b3ccb00d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/3cb4a44034ecce976e0c54e091a6c66dd992ab53e0f2a02a0aaf7eb1b3ccb00d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-17-normal.png": {
+      "sha256": "edef79b875773d821fef71aadc67fd69f13e389da49a17140c450bdd46289fb8",
+      "bytes": 125315,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/edef79b875773d821fef71aadc67fd69f13e389da49a17140c450bdd46289fb8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-17-normal.png.meta": {
+      "sha256": "222167f1ded3e43d010f4ff4825833be234d131dc6703e57ec3b964fa30d40fb",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/222167f1ded3e43d010f4ff4825833be234d131dc6703e57ec3b964fa30d40fb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-18-albedo.png": {
+      "sha256": "4202314af6e94b84a47b8a75e81845bd0ad3af3b1fdcffb4e24281b0af35c524",
+      "bytes": 194508,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/4202314af6e94b84a47b8a75e81845bd0ad3af3b1fdcffb4e24281b0af35c524"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-18-albedo.png.meta": {
+      "sha256": "c64457b99383a9ce0b1bce19511cdcebeb028b21adc0d43052ca89a2ba0d4626",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/c64457b99383a9ce0b1bce19511cdcebeb028b21adc0d43052ca89a2ba0d4626"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-18-normal.png": {
+      "sha256": "698d4c9b428b6c45081ac0af247836910099c8d0285f854fbebfe7f200ed442f",
+      "bytes": 157069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/698d4c9b428b6c45081ac0af247836910099c8d0285f854fbebfe7f200ed442f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-18-normal.png.meta": {
+      "sha256": "d2d01be9fb986e353628785d9a1cc0b52c3b4e1c4a7a1b3095107f3db20ff643",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/d2d01be9fb986e353628785d9a1cc0b52c3b4e1c4a7a1b3095107f3db20ff643"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-19-albedo.png": {
+      "sha256": "07dc6f0bf84ded1b0e8f4801427a8bdaca549ec4637c60cb2374b9cc0a2e9518",
+      "bytes": 164044,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/07dc6f0bf84ded1b0e8f4801427a8bdaca549ec4637c60cb2374b9cc0a2e9518"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-19-albedo.png.meta": {
+      "sha256": "62f02183dc4b59a376f11ab853312fa60b7a375386de3f1bb6689a9d6d5e23f9",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/62f02183dc4b59a376f11ab853312fa60b7a375386de3f1bb6689a9d6d5e23f9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-19-normal.png": {
+      "sha256": "fbe5aa6f192c9ccf03073fc01b3419124f32be0f1ce60c9ab6530b685591562d",
+      "bytes": 125497,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/fbe5aa6f192c9ccf03073fc01b3419124f32be0f1ce60c9ab6530b685591562d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-19-normal.png.meta": {
+      "sha256": "5c2a154c6ca68507321d73aa9099621904d61f84790aae9f32e07880291f0bb0",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/5c2a154c6ca68507321d73aa9099621904d61f84790aae9f32e07880291f0bb0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-20-albedo.png": {
+      "sha256": "94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05",
+      "bytes": 218361,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-20-albedo.png.meta": {
+      "sha256": "7b42e87de6f82a713afd8595b2847693a098705ddb47fb70c903989ea82f1e29",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/7b42e87de6f82a713afd8595b2847693a098705ddb47fb70c903989ea82f1e29"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-20-normal.png": {
+      "sha256": "3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9",
+      "bytes": 151956,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-20-normal.png.meta": {
+      "sha256": "9b116c758c8f7e5dde4146a25b008fe0827fb33098f0e0e047bfef15c8c0fb1a",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/9b116c758c8f7e5dde4146a25b008fe0827fb33098f0e0e047bfef15c8c0fb1a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-21-albedo.png": {
+      "sha256": "39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714",
+      "bytes": 213961,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-21-albedo.png.meta": {
+      "sha256": "129d2afeffcbfae768f23a218cccdeb5c993804b8c9a26af4f945938eac7334f",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/129d2afeffcbfae768f23a218cccdeb5c993804b8c9a26af4f945938eac7334f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-21-normal.png": {
+      "sha256": "9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c",
+      "bytes": 158516,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-21-normal.png.meta": {
+      "sha256": "791dd7df6ce01f6c8c9ff1510d470cb81d823cd3564c1c8415468a2f1c522c99",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/791dd7df6ce01f6c8c9ff1510d470cb81d823cd3564c1c8415468a2f1c522c99"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-22-albedo.png": {
+      "sha256": "1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407",
+      "bytes": 231271,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-22-albedo.png.meta": {
+      "sha256": "cf12d567917babdb38b5aa01f8bfac31e7a3e5b324a4a5b8d8b352e3c33b3e0c",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/cf12d567917babdb38b5aa01f8bfac31e7a3e5b324a4a5b8d8b352e3c33b3e0c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-22-normal.png": {
+      "sha256": "60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9",
+      "bytes": 158350,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-22-normal.png.meta": {
+      "sha256": "99eaf5a84881c7ffac90ac7aae0d14d698f459fcf38dc439950739bc5ceef528",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/99eaf5a84881c7ffac90ac7aae0d14d698f459fcf38dc439950739bc5ceef528"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-23-albedo.png": {
+      "sha256": "f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd",
+      "bytes": 220689,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-23-albedo.png.meta": {
+      "sha256": "ac8329b22fb795ef29e62bd8f60a0380bac1d4dc7990ac6a6c8f0a72c84c48cf",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/ac8329b22fb795ef29e62bd8f60a0380bac1d4dc7990ac6a6c8f0a72c84c48cf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-23-normal.png": {
+      "sha256": "be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53",
+      "bytes": 140463,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-23-normal.png.meta": {
+      "sha256": "feda26fdfcf99e936ad918b58e1e21dc141eeb5972b7549a049521acde60fe2a",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/feda26fdfcf99e936ad918b58e1e21dc141eeb5972b7549a049521acde60fe2a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-24-albedo.png": {
+      "sha256": "94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05",
+      "bytes": 218361,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-24-albedo.png.meta": {
+      "sha256": "19445fb7506fe462132b046c5060f0d2f7ea0a82178073feb73eea9216d95792",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/19445fb7506fe462132b046c5060f0d2f7ea0a82178073feb73eea9216d95792"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-24-normal.png": {
+      "sha256": "3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9",
+      "bytes": 151956,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-24-normal.png.meta": {
+      "sha256": "71cce4af3bcc45129e89be6eea6ce4bc164224fd77906db5a53874bf5f662e67",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/71cce4af3bcc45129e89be6eea6ce4bc164224fd77906db5a53874bf5f662e67"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-25-albedo.png": {
+      "sha256": "39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714",
+      "bytes": 213961,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-25-albedo.png.meta": {
+      "sha256": "80d86d86c69352ed3d68de380c0273718bc1e3945744b531c4341deabc6418db",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/80d86d86c69352ed3d68de380c0273718bc1e3945744b531c4341deabc6418db"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-25-normal.png": {
+      "sha256": "9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c",
+      "bytes": 158516,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-25-normal.png.meta": {
+      "sha256": "e3ccf497001ba6f57b0fa2a06dd79693ce15b16b69f1e02a2997267388b6d0c4",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e3ccf497001ba6f57b0fa2a06dd79693ce15b16b69f1e02a2997267388b6d0c4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-26-albedo.png": {
+      "sha256": "1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407",
+      "bytes": 231271,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-26-albedo.png.meta": {
+      "sha256": "f38235499e91e55b858632163e983099dfc3f31f784b18d27fa5911c8a9e855f",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f38235499e91e55b858632163e983099dfc3f31f784b18d27fa5911c8a9e855f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-26-normal.png": {
+      "sha256": "60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9",
+      "bytes": 158350,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-26-normal.png.meta": {
+      "sha256": "f436e742d4f5ef3d6f8539b1e3b1867420e83564d718e2414baaec32fd029741",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f436e742d4f5ef3d6f8539b1e3b1867420e83564d718e2414baaec32fd029741"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-27-albedo.png": {
+      "sha256": "f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd",
+      "bytes": 220689,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-27-albedo.png.meta": {
+      "sha256": "47db4a9fbe3fca3a1e2f15c6eb55d8e203613debe0451c073a698caf4bc29d0d",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/47db4a9fbe3fca3a1e2f15c6eb55d8e203613debe0451c073a698caf4bc29d0d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-27-normal.png": {
+      "sha256": "be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53",
+      "bytes": 140463,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-27-normal.png.meta": {
+      "sha256": "15c2108135fe53419ee2519f67d3e3c85ff49b0adb1c6bffb44ca6c02421e820",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/15c2108135fe53419ee2519f67d3e3c85ff49b0adb1c6bffb44ca6c02421e820"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-28-albedo.png": {
+      "sha256": "94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05",
+      "bytes": 218361,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-28-albedo.png.meta": {
+      "sha256": "e143e6de5758bcfcd444432c102dc907a663ab78832662b39d3f697bacd7852c",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/e143e6de5758bcfcd444432c102dc907a663ab78832662b39d3f697bacd7852c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-28-normal.png": {
+      "sha256": "3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9",
+      "bytes": 151956,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-28-normal.png.meta": {
+      "sha256": "6d59839a4ca001ef178eaca9f3da4b6469cbf13d67c30d7e969c0bed025338a2",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/6d59839a4ca001ef178eaca9f3da4b6469cbf13d67c30d7e969c0bed025338a2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-29-albedo.png": {
+      "sha256": "39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714",
+      "bytes": 213961,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-29-albedo.png.meta": {
+      "sha256": "fd12ae812a98345bbdf4021311b281480b81b5ad2d73f49aadacbf2ec92c0095",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/fd12ae812a98345bbdf4021311b281480b81b5ad2d73f49aadacbf2ec92c0095"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-29-normal.png": {
+      "sha256": "9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c",
+      "bytes": 158516,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-29-normal.png.meta": {
+      "sha256": "a2a9cad5bbf7cf8f476c05afeabc07996cc3b805af17b5e7cb3b971d921fd810",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/a2a9cad5bbf7cf8f476c05afeabc07996cc3b805af17b5e7cb3b971d921fd810"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-30-albedo.png": {
+      "sha256": "1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407",
+      "bytes": 231271,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-30-albedo.png.meta": {
+      "sha256": "abf448793175b2bd92801072cad73bd11d4b12ff9e258ebc7b5e354248f78b4a",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/abf448793175b2bd92801072cad73bd11d4b12ff9e258ebc7b5e354248f78b4a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-30-normal.png": {
+      "sha256": "60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9",
+      "bytes": 158350,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-30-normal.png.meta": {
+      "sha256": "897a4f6ac7d7ef24c9f5247c6783e62b26022752801e3aa39aa2336d300e5102",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/897a4f6ac7d7ef24c9f5247c6783e62b26022752801e3aa39aa2336d300e5102"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-31-albedo.png": {
+      "sha256": "f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd",
+      "bytes": 220689,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-31-albedo.png.meta": {
+      "sha256": "b94ca8e143fc9fc7a6f9719e84549ba969d655504340deb6b2ddfda05adb9805",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/b94ca8e143fc9fc7a6f9719e84549ba969d655504340deb6b2ddfda05adb9805"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-31-normal.png": {
+      "sha256": "be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53",
+      "bytes": 140463,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-31-normal.png.meta": {
+      "sha256": "1a7a5428f304c65742e97f29e8678f3009523c09b206451b4508afcb68e3d2a6",
+      "bytes": 3069,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/1a7a5428f304c65742e97f29e8678f3009523c09b206451b4508afcb68e3d2a6"
+    },
     "unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance.meta": {
       "sha256": "ba93bcc15b21629b2976527ac49a1350e0b533a4a6a7de93b8e33751b1ed43b7",
       "bytes": 172,
@@ -30927,6 +32079,72 @@
       "bytes": 189,
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/8fe01c1d2456516fe9c3776855852f73eb3f9d4e2d02da90a8c15d7571f2a9b5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1.meta": {
+      "sha256": "20f269bc5621aeb76c055cfd49a911bf3033afaa23abcc8b4b9b484eaf6c7a7d",
+      "bytes": 172,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/20f269bc5621aeb76c055cfd49a911bf3033afaa23abcc8b4b9b484eaf6c7a7d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-albedo.asset": {
+      "sha256": "2aeaca1e15ff6629f8a13d9ea1facd0cc94cbe170edeedd3d8427de6851883f4",
+      "bytes": 3496389,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/2aeaca1e15ff6629f8a13d9ea1facd0cc94cbe170edeedd3d8427de6851883f4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-albedo.asset.meta": {
+      "sha256": "4810d3507869ff8585e7ef900e4238ae9bd27eefbecd7d2e4839fa224b0b6d1b",
+      "bytes": 189,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/4810d3507869ff8585e7ef900e4238ae9bd27eefbecd7d2e4839fa224b0b6d1b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-normal.asset": {
+      "sha256": "2f8a95e22687bf7df393e43e86ef926e01510235776f01a6197491aa65676edb",
+      "bytes": 3496390,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/2f8a95e22687bf7df393e43e86ef926e01510235776f01a6197491aa65676edb"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-normal.asset.meta": {
+      "sha256": "9faffbda7e46e2247a7e6989e8f1503c8522ddcccaf3fea91f705f97e28316d3",
+      "bytes": 189,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/9faffbda7e46e2247a7e6989e8f1503c8522ddcccaf3fea91f705f97e28316d3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/pixels.bytes": {
+      "sha256": "43daa057b791ed00a1eb916f9fb122abf2b497a6a4ed71fc112c5b429b32570c",
+      "bytes": 6516061,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/43daa057b791ed00a1eb916f9fb122abf2b497a6a4ed71fc112c5b429b32570c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/pixels.bytes.meta": {
+      "sha256": "884fdd272e8905087764093adf47f21836bc39c62fe57982573d185526016730",
+      "bytes": 158,
+      "pack": "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "member": "objects/884fdd272e8905087764093adf47f21836bc39c62fe57982573d185526016730"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-albedo.asset": {
+      "sha256": "c27df6447a8f5a447f3c1f0f4741ebf19fa35d55e75d9afeeb01ffbdc74f0409",
+      "bytes": 22372201,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/c27df6447a8f5a447f3c1f0f4741ebf19fa35d55e75d9afeeb01ffbdc74f0409"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-albedo.asset.meta": {
+      "sha256": "00b0c1b991d0a904b004ddb982b35996e23bbb1e742ecc429bf0af4d1571deef",
+      "bytes": 189,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/00b0c1b991d0a904b004ddb982b35996e23bbb1e742ecc429bf0af4d1571deef"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-normal.asset": {
+      "sha256": "9836a91d291da3b145b22c629f9aac5a156589aa0fb14a3ee0a59e3a16e1e357",
+      "bytes": 22372202,
+      "pack": "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "member": "objects/9836a91d291da3b145b22c629f9aac5a156589aa0fb14a3ee0a59e3a16e1e357"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/shoot-normal.asset.meta": {
+      "sha256": "54981e8465b157ca174d81635ef6449ea2b4ee61a8f2b7406177a010833ed7dc",
+      "bytes": 189,
+      "pack": "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "member": "objects/54981e8465b157ca174d81635ef6449ea2b4ee61a8f2b7406177a010833ed7dc"
     }
   },
   "packs": {
@@ -32008,6 +33226,30 @@
       "asset_id": 705037655,
       "sha256": "949bc1f45e4db4c9aa22833707903b537eacb95a904f8075aaa4f16789f3a214",
       "bytes": 34904015,
+      "encoding": "zip"
+    },
+    "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip": {
+      "tag": "tree-canopy-inputs-20261103",
+      "name": "assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip",
+      "asset_id": 707322471,
+      "sha256": "7ffad3ce738a2d7c3b91cef952c4e1c716f7603c1dd5813a93efb822542360ed",
+      "bytes": 26747722,
+      "encoding": "zip"
+    },
+    "tree-surface-inputs-20261103/assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip": {
+      "tag": "tree-surface-inputs-20261103",
+      "name": "assets-a83855aaacaeab660474966ce17f7fa91fa404bee2becf5d195af5883b71ee63.zip",
+      "asset_id": 707236516,
+      "sha256": "1be9bd0f1f3411040ef0c66f4f2753ada8dd3be66ba57fc5fdbb75db5c20f726",
+      "bytes": 52569654,
+      "encoding": "zip"
+    },
+    "tree-surface-inputs-20261103/assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip": {
+      "tag": "tree-surface-inputs-20261103",
+      "name": "assets-ae0d06b85ea3d1636a5ba4cbf88ed1c0cee14f2cfa433f08fec4944c46f48b9e.zip",
+      "asset_id": 707236964,
+      "sha256": "c984d05d23318d72fea0d410ca1dbc0e6b0590412f98d2666119052ac635f96a",
+      "bytes": 25165224,
       "encoding": "zip"
     }
   }

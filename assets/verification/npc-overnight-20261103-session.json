@@ -37,7 +37,7 @@
       "name": "Tree and vegetation variety/quality",
       "blocked_until": "Stage 2 genuinely satisfactory",
       "scope": "Regional tree forms, actual textures and colour variation; critically inspected and performance measured",
-      "status": "Active: inspecting current tree renderer, establishing baseline and researching CC0 foliage/bark art. No tree changes yet."
+      "status": "Active. Scanned CC0 leaf/bark art, eight tree forms, conservative card trimming and stationary-bake residency fix implemented. Native tree/forest shader checks pass in internal slot-a (2026-11-03T22:23:37Z). Six actual biome/region reviews and wooded camp performance comparisons are in progress; slot-b remains selected."
     }
   ],
   "constraints": [
