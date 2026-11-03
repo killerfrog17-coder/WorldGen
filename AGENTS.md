@@ -1,5 +1,15 @@
 # WorldGen repository instructions
 
+## Owner requirement: compatibility
+
+OWNER3Nov: backward compatibility has ZERO priority. Updates may break old
+saves, generated worlds, schemas and earlier build data. Do not spend time on
+legacy readers, migration paths, version-gated historical rules or old-version
+replay checks unless the owner explicitly requests them. Prioritise current
+behaviour and development speed; Git provides rollback. Saving/loading within
+the current version still needs to work. This supersedes older compatibility
+requirements and historical verification notes below.
+
 ## Owner requirements: filesystem and builds
 
 The entire `artifacts/` folder must be disposable without affecting gameplay,
