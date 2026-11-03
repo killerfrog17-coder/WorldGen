@@ -22,5 +22,13 @@
       "wide": "cfd0b541ccc1c54f07824c83b47411ec87a6644f245d8f239baf2c463a8834bb",
       "ground": "9d3b54382c3a617b959c0e50bb7cd2c41d42bde602deed28313bd5979062fef2"
     }
+  },
+  "FreshwaterMarsh": {
+    "accepted": true,
+    "findings": "Inspected loaded wide and close ground views. Open sedge/rush cover with scattered pools and sparse tree islands replaces the rejected upland lawn/woodland. The canonical sample has 0.0021 forest potential; actual nearby scatter includes 424 reed plants, 20 rooted in shallow water. Close camera stays within the resident grass footprint. Plant artwork is unchanged in this terrain pass.",
+    "images": {
+      "wide": "442fb49d5d81cdfa4d4e979cf81eb8c6de5bab69bd9dd775aa4bcf35063d56d4",
+      "ground": "41ac8401db506a0079246244973682c5c1ddb5b0cc2a581e49c8e23060cab6ae"
+    }
   }
 }

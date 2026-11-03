@@ -1,0 +1,57 @@
+{
+  "paused_utc": "2026-11-03T19:25:05.939741+00:00",
+  "reason": "Owner requested a pausing point; resume only after owner instruction.",
+  "source": "369f358",
+  "selected": "builds/slot-a",
+  "candidate": "builds/slot-b",
+  "build": {
+    "BuiltUtc": "2026-11-03T19:23:46.4988685Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "d066448b9fdc2840e6c2fe0e8baeb6c70a472c5379e1ebba4e25837b2a16334f"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "c58caf5972e36ac52aa98969623c0383328e84aa190696ef41fa112683ec8d83"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "162086860d0455545d53e3aec1aaf9058679a9d610cbf9fbea4054981915da32"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "c11a11e253ddf668abdb1a723fa48e7d22d4d1583ecd5d7e3e04187d65df3230"
+  },
+  "package": {
+    "assembly": "639eaaecdb477fb9d993673f73b5ee49023ce5cb491c185da8c191a5537c6274",
+    "core": "d066448b9fdc2840e6c2fe0e8baeb6c70a472c5379e1ebba4e25837b2a16334f",
+    "worker": "c11a11e253ddf668abdb1a723fa48e7d22d4d1583ecd5d7e3e04187d65df3230"
+  },
+  "status": "Unselected candidate; latest source has no completed native scene review yet.",
+  "verified_current_source": {
+    "controls": 35725,
+    "rivers": 27175,
+    "spans": 763,
+    "tiles": 8,
+    "world": "Actual 200k-cell world: enclosed deep ponds and shallow pools, mesh boundaries and shared chunk edges; 171 open-marsh and 135 wooded-wetland profile cells."
+  },
+  "partial_visual_evidence": "Earlier ce348 close marsh inspected: three pools within 250m, 424 reeds within 150m, twenty rooted in water; old supposed swamp rejected as moist upland forest. These are not latest-package acceptance.",
+  "remaining": [
+    "Native genuine wooded-wetland and other region views with current package; inspect all images.",
+    "NPC forest/cold camp regression on final terrain.",
+    "Uncontended performance comparison and source/package acceptance receipt.",
+    "Select landscape checkpoint only after acceptance; then start the separate tree-art stage."
+  ],
+  "source_inputs": "assets/game-assets.lock.json: 5154 files in 135 verified immutable packs; terrain raw inputs preserved outside artifacts."
+}

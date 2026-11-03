@@ -49,6 +49,36 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+PAUSED3Nov19:25Z OWNER: "find a pausing point". Do NOT resume until owner returns.
+All own queued reviews stopped; build finished safely, no active Unity/game/test
+jobs at checkpoint. Own outer chain23860 stopped after exact command verification
+to prevent native tests launching; batch20228/child9480 finished normally. B latest
+managedNONDEV ScriptsOnly built19:23:46.4988685Z, source369f358 PUSHED; UNSELECTED.
+Rootshortcut remains working NPC A/c1ec937. CurrentLocalTerrain19/Hyper17/
+SmallWater3/Scatter13. Final scene sets are NOT complete for this package.
+New diagnostic found old "WoodedSwamp" actually moist BorealForest Wet.4008,
+no ponds. Tightened classification4475719 produced ZERO genuine wooded wetlands,
+exposing old broad Marsh=treeless potential. Latest369f358 derives coherent
+forested wetland provinces from warm, rootable, seasonally flooded fresh marsh
+substrates; preserves open marsh and cold/saline exclusions. Actual200kworld now
+171openmarsh/135woodedswamp profile cells; 14waterbodies incl13shallowpools in test
+wetland. Source35725controls PASS, actual pond/pool/sharededge meshes PASS
+landscape-wooded-world.log; currentriver27175/763spans/8tiles PASS
+landscape-wooded-rivers.log. NEW native wooded sites still need actual inspection.
+Earlier regions-close FreshwaterMarsh inspected: 424reeds incl20 underwater,
+3pools/250m, sedges dominate, forestpotential.0021. That is PRE369 package ce348,
+not final acceptance. Close camera now10m within grass footprint (old63m view
+misleading). OldcloseSwamp REJECTED moistforest; oldclosePeat completed but
+unreviewed; oldclosePond interrupted, reasonfile retained. Oldrunner25372 and
+ownedchild30048 stopped by verified identities. Do not claim all10 final scenes.
+Resume: latestB scenes NEWunusedprefix (regions-wooded planned but not started),
+all10contexts with actualsummer/correctclosecamera +reed counts; genuine wetland
+review, NPCwet/cold regression, uncontended finalcost/proof/manifest/docs/select
+only after acceptance. Stage3 treeART completely UNTOUCHED. SelectedNPC stage1
+complete; assets5154/135immutablepacks. Only2buildslots, allartifactsdisposable.
+Known3 Unityautos restored afterexit; owner3files untouched, no paid/subagents/
+ownerappsclosed. Userpause supersedes all prior continue mandates.
+
 ACTIVE3Nov18:52Z CONTINUE. Source46338d4 PUSHED. A selected NPC checkpoint stays
 unchanged. B internal managedNONDEV ScriptsOnly built18:50:00Z; original full18:26
 packedterrain scans retained. CurrentLocalTerrain18/Hyper16/SmallWater3/Scatter13.
