@@ -49,6 +49,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov21:17Z CONTINUE. All10 current landscapes84checks/20images inspected.
+Current B3242861 NPCwet31/cold31 PASS/EXIT0; walking, setup/pack/travel/save/wounds
+and vegetation-safe floors PASS. Actual current forest/cold residents views
+inspected (wet camp-first itself occluded by nearby tree; residents-first clear).
+First wetperf42NPC2.61/2.14ms vsold1.35 was CONTENDED: owner's A PID3260 +worker
+were running alongside own B. Owner answered "Closed—run the comparison";
+verified Aclosed. Do notcallthat regression or accepttimings. New own helper
+scripts/run-landscape-performance.ps1 usesONLYexistingA thenB sequentially,
+no walk/cycle flags for matched performance context. Active session22268:
+landscape-perf-baseline A PID8176 atlastcheck, then candidateB, then Core land
+costlog landscape-uncontended-cost.log. Old canopypairedcost is mildlycontended
+atstart and NOT final timing. Current sourceB hashes unchanged; Aselectedstill.
+Recorder nowrequiresbothsame-context measurements+samecandidateSHA, current
+two NPCregressions+all10 imageSHA reviews. Stage3UNTOUCHED untilfinish2proof/
+performance/selection. Owner3files preserved; no paid/subagents/ownerappsclosed.
+
 ACTIVE3Nov21:08Z CONTINUE. Production3242861 PUSHED; B managedNONDEV ScriptsOnly
 built20:44:45Z (fullpackeddata18:26 retainsnewCC0scans). LocalTerrain20/Hyper17/
 Scatter14. All10 SAME current regions-canopy cases EXIT0/84mechanics checks;

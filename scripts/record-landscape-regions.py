@@ -18,6 +18,7 @@ parser.add_argument('--prefix', default='regions-canopy')
 parser.add_argument('--slot', choices=['slot-a', 'slot-b'], default='slot-b')
 parser.add_argument('--visual-review', type=Path, required=True)
 parser.add_argument('--npc-prefix', default='landscape-canopy')
+parser.add_argument('--performance-prefix', default='landscape-perf')
 args = parser.parse_args()
 evidence = ROOT / 'artifacts/landscape-20261103'
 player = ROOT / 'builds' / args.slot
@@ -94,9 +95,18 @@ for kind in ['wet', 'cold']:
     for phrase in ['can enter', 'can leave', 'Actual named binary save', 'does not duplicate']:
         assert any(phrase in line for line in checks), (folder, phrase)
     npc_cases.append({'name': folder.name, 'checks': len(checks), 'checks_sha256': sha(folder / 'checks.txt')})
-performance = load(ROOT / 'artifacts/npc-20261103' / (args.npc_prefix + '-wet') / 'performance.json')
-assert len(performance) == 4 and performance[0]['Residents'] >= 25
-cost_log = ROOT / 'artifacts/landscape-canopy-cost.log'
+performance = {}
+for name in ['baseline', 'candidate']:
+    folder = ROOT / 'artifacts/npc-20261103' / (args.performance_prefix + '-' + name)
+    assert int(read(folder / 'exit-code.txt')) == 0 and not (folder / 'failure.txt').exists(), folder
+    receipt = load(folder / 'package.json')
+    if name == 'candidate':
+        assert all(receipt[k] == v for k, v in package.items()), (folder, 'Stale measured candidate')
+    rows = load(folder / 'performance.json')
+    assert len(rows) == 4 and rows[0]['Residents'] >= 25, folder
+    performance[name] = {'package': receipt, 'scene': load(folder / 'scene-info.json'), 'rows': rows}
+assert performance['baseline']['scene'] == performance['candidate']['scene'], 'Comparison must use the same simulated community and context'
+cost_log = ROOT / 'artifacts/landscape-uncontended-cost.log'
 costs = [json.loads(line) for line in read(cost_log).splitlines() if line.startswith('{"Directory":')]
 assert len(costs) == 2 and all(len(row['LandSample12675Ms']) == 3 for row in costs)
 warm_ratio = statistics.median(costs[1]['LandSample12675Ms'][1:]) / statistics.median(costs[0]['LandSample12675Ms'][1:])
@@ -117,6 +127,7 @@ manifest = {
     'cases': cases,
     'npc_regression': npc_cases,
     'npc_performance': performance,
+    'performance_conditions': 'Baseline and candidate players run sequentially after the owner closed WorldGen. Earlier contended wet-camp timing is excluded from this comparison. Terrain readiness is retained in every measurement row.',
     'land_sampling_cost': {'runs': costs, 'warm_ratio_to_npc_checkpoint': warm_ratio,
                            'log_sha256': sha(cost_log), 'conditions': 'Sequential comparison after native jobs complete; same three physical land contexts, baseline first. This is not whole-game FPS.'},
     'research': 'assets/verification/landscape-research-20261103.json',
