@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
         sealed class Entry{public string Hash="";public PaleolithicMaps? View;}
         static readonly ConditionalWeakTable<PrehistoryState,Entry> Cache=new ConditionalWeakTable<PrehistoryState,Entry>();
         public static PaleolithicMaps For(PrehistoryState s)
-        {var e=Cache.GetValue(s,_=>new Entry());lock(e){if(e.View==null||e.Hash!=s.Hash){e.View=new PaleolithicMaps(s);e.Hash=s.Hash;}return e.View;}}
+        {var e=Cache.GetValue(s,_=>new Entry());lock(e){if(e.View==null||!Prehistory.Foraging(s)&&e.Hash!=s.Hash){e.View=new PaleolithicMaps(s);e.Hash=Prehistory.Foraging(s)?"":s.Hash;}return e.View;}}
         readonly PrehistoryState state;
         readonly ForagerMaps? foragers;
         readonly Dictionary<int,PaleolithicCommunity> communities;

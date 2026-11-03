@@ -13,7 +13,8 @@ namespace WorldGen.Core
             bool Unit(double x)=>Finite(x)&&x<=1.000001;
             bool Values(double[] values,int count,double maximum=1)=>values!=null&&values.Length==count&&values.All(x=>Finite(x)&&x<=maximum+.000001);
             bool Years(int[] values)=>values!=null&&values.Length==ForagerTechnology.Count&&values.All(x=>x>=-1&&x<=year);
-            Require(f.BoundarySeconds>=0&&f.BoundarySeconds%(5*SimulationTime.Year)==0,"fixed review boundary");
+            Require(f.BoundarySeconds>=0&&f.PopulationAt.Length==f.Districts.Length&&f.ProcessAt.Length==f.Districts.Length*RegionalProcessCount,"regional process clocks");
+            Require(f.PendingEvents!=null&&RegionalQueueNode.Entries(f.PendingEvents).All(e=>e.Due>f.Seconds&&e.Process>=0&&e.Process<RegionalProcessCount&&e.Entity>=0&&e.Entity<f.Districts.Length)&&f.PendingEvents.Event.Due==f.NextReviewSeconds,"independent pending regional events");
             Require(f.Biota?.Length==f.Districts.Length,"saved ecological districts");
             Require(f.NextCulture==f.Cultures.Length&&f.NextLanguage==f.Languages.Length&&f.NextBelief==f.Beliefs.Length&&f.NextFamily==f.LanguageFamilies.Length&&f.NextPeople==f.Peoples.Length,"dense identity registries");
             Require(f.NextCohort>=0&&f.Cohorts.All(c=>c.Id>=0&&c.Id<f.NextCohort),"cohort identity counter");

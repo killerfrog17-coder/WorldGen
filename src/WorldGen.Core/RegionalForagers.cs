@@ -17,45 +17,19 @@ namespace WorldGen.Core
             if(!source.Started)throw new InvalidOperationException("Start the world first.");
             if(seconds<1||seconds>SimulationTime.Maximum-source.Foragers.Seconds||maximumEvents<1||maximumWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));
             token.ThrowIfCancellationRequested();long target=source.Foragers.Seconds+seconds;
-            if(target<source.Foragers.NextReviewSeconds)
-                return RegionalClock(source,target);
-            PrehistoryState s;using(ProfileWork("regional event copy"))s=source.Copy();
-            var f=s.Foragers;var intelligibility=new Dictionary<long,double>();int processed=0;
-            using var journal=new ForagerJournal(f);
-            while(f.NextReviewSeconds<=target&&processed<Math.Min(maximumEvents,maximumWork))
-            {
-                token.ThrowIfCancellationRequested();long next=f.NextReviewSeconds;int year=(int)(next/SimulationTime.Year);
-                using(ProfileWork("regional population",f.Cohorts.Length))foreach(var c in f.Cohorts)
-                    if(c.Population>0)ForagerDemography.Materialize(c,RegionalReviewYears,f.BoundarySeconds/(double)SimulationTime.Year);
-                f.Seconds=f.BoundarySeconds=next;f.NextReviewSeconds=next+RegionalReviewYears*SimulationTime.Year;
-                var environment=ForagerEnvironments(f,year);
-                if(year%1000==0)
-                {
-                    using(ProfileWork("regional ecology",f.Districts.Length))ForagerBiota.Advance(World,f,environment,year,1000,token);
-                    environment=ForagerEnvironments(f,year);
-                }
-                using(ProfileWork("regional contacts",f.Districts.Length))RegionalContacts(f,environment,year,RegionalReviewYears);
-                using(ProfileWork("regional migration",f.Districts.Length))MigrateForagers(f,environment,year,RegionalReviewYears,token);
-                RegionalContacts(f,environment,year,RegionalReviewYears);RefreshForagerTeachers(f);
-                using(ProfileWork("regional technology",f.Cohorts.Length))LearnForagers(f,environment,year,RegionalReviewYears,token,intelligibility);
-                if(year%500==0)
-                {
-                    using(ProfileWork("regional culture",f.Cohorts.Length))RegionalSocieties(f,environment,year,500,token);
-                    intelligibility.Clear();
-                }
-                using(ProfileWork("regional resource rates",f.Cohorts.Length))SetForagerRates(f,environment,year,RegionalReviewYears,token);
-                processed++;
-            }
-            long final=f.NextReviewSeconds<=target?Math.Min(target,f.NextReviewSeconds-1):target;
-            f.Seconds=f.BoundarySeconds;
-            journal.Flush();PublishForagers(s);token.ThrowIfCancellationRequested();using(ProfileWork("regional domain seal"))s.Seal();return final==f.Seconds?s:RegionalClock(s,final);
+            if(target<source.Foragers.NextReviewSeconds)return RegionalClock(source,target);
+            var next=source.CopyClockOnly();next.DomainToken=new object();next.Foragers=source.Foragers.EventCopy();next.Paleolithic=source.Paleolithic.Copy();
+            var work=new RegionalEventWork(this,next,token);
+            work.Run(target,Math.Min(maximumEvents,maximumWork),!validate&&maximumWork!=int.MaxValue);
+            next.Years=(int)(next.Foragers.Seconds/SimulationTime.Year);next.Paleolithic.Seconds=next.Foragers.Seconds;next.Paleolithic.BoundarySeconds=next.Foragers.BoundarySeconds;
+            next.InvalidateHash();return next;
         }
 
         static PrehistoryState RegionalClock(PrehistoryState source,long target)
         {
             var clock=source.CopyClockOnly();clock.Foragers=source.Foragers.ClockCopy();clock.Paleolithic=source.Paleolithic.Copy();
             clock.Foragers.Seconds=target;clock.Paleolithic.Seconds=target;clock.Years=(int)(target/SimulationTime.Year);
-            clock.Hash=clock.RegionalClockHash(clock.Foragers.DomainHash);return clock;
+            clock.InvalidateHash();return clock;
         }
 
         // A sparse ecoregion adjacency graph. No band placement, household
@@ -126,9 +100,9 @@ namespace WorldGen.Core
         static void CompactRegionalFamilies(ForagerState f)
         {
             int limit=Math.Max(16,f.Districts.Length*2);if(f.LanguageFamilies.Length<=limit)return;
-            var keep=new HashSet<int>(f.Languages.Select(l=>l.Family));
+            var keep=new HashSet<int>(f.Languages.Select(l=>l.Family));int retainedLimit=Math.Max(keep.Count,limit*3/4);
             foreach(var family in f.LanguageFamilies.OrderByDescending(x=>x.FoundedYear))
-                if(keep.Count<limit&&family.Parent>=0)keep.Add(family.Parent);
+                if(keep.Count<retainedLimit&&family.Parent>=0)keep.Add(family.Parent);
             var selected=keep.OrderBy(x=>x).Select(id=>f.LanguageFamilies[id]).ToArray();var remap=selected.Select((x,i)=>(x.Id,i)).ToDictionary(x=>x.Id,x=>x.i);
             foreach(var language in f.Languages)language.Family=remap[language.Family];
             foreach(var family in selected){int parent=family.Parent;family.Id=remap[family.Id];family.Parent=parent>=0&&remap.TryGetValue(parent,out int id)?id:-1;}

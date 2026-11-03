@@ -47,8 +47,7 @@ namespace WorldGen.Core
         // ancestry and birth cohorts, never request order, date or frame RNG.
         public int ForagerBandCount(PrehistoryState s,ForagerCohort c)
         {
-            double years=(s.Foragers.Seconds-s.Foragers.BoundarySeconds)/(double)SimulationTime.Year;
-            double population=years>0?ForagerDemography.Project(c,years,s.Foragers.BoundarySeconds/(double)SimulationTime.Year).Population:c.Population;
+            double population=ForagerDemography.Present(s.Foragers,c);
             return population<12?0:Math.Max(1,(int)Math.Round(population/(24+12*Rng.Value(World.Recipe.Seed,"resident-band-size",c.Id))));
         }
         static long ForagerBandId(int cohort,int ordinal)=>((long)(cohort+1)<<32)|(uint)(ordinal+1);
@@ -127,7 +126,7 @@ namespace WorldGen.Core
         {
             var f=s.Foragers;var d=f.Districts[c.District];var culture=f.Cultures[c.Culture];double years=f.Seconds/(double)SimulationTime.Year;
             int key=unchecked(c.Id*104729+ordinal*7919);long id=ForagerBandId(c.Id,ordinal);var home=ForagerBandHome(f,c,ordinal);
-            double population=ForagerDemography.Project(c,(f.Seconds-f.BoundarySeconds)/(double)SimulationTime.Year,f.BoundarySeconds/(double)SimulationTime.Year).Population;
+            double population=ForagerDemography.Present(f,c);
             int people=Math.Max(12,(int)Math.Round(population/count));
             double range=Math.Sqrt(Math.Max(20,d.AreaKm2*c.Occupation/count)/Math.PI);
             var band=new ForagerBandSample{Id=id,Cohort=c.Id,District=d.Id,Lineage=c.Lineage,Culture=c.Culture,Language=c.Language,Belief=c.Belief,Home=home.position,People=people,

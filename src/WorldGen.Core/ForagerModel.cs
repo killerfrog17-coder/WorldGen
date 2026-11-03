@@ -10,12 +10,16 @@ namespace WorldGen.Core
     // records remain unchanged for old-save replay, never silently reinterpreted.
     [Serializable] public sealed class ForagerState
     {
-        public const string RegionalVersion="foragers-regional-1";
+        public const string RegionalVersion="foragers-regional-2";
         public string Version=RegionalVersion;
         [NonSerialized] public string DomainHash="";
         public ForagerState ClockCopy()=>(ForagerState)MemberwiseClone();
         public double InitialPopulation;
         public long Seconds,BoundarySeconds,NextReviewSeconds;
+        public RegionalQueueNode PendingEvents;
+        public long ProcessedEvents;
+        public long[] PopulationAt=Array.Empty<long>(),ProcessAt=Array.Empty<long>();
+        public int[] RegionResidents=Array.Empty<int>();
         public int NextCohort,NextCulture,NextLanguage,NextBelief,NextFamily,NextPeople;
         public int[] CellDistrict=Array.Empty<int>();
         public ForagerDistrict[] Districts=Array.Empty<ForagerDistrict>();
@@ -33,7 +37,13 @@ namespace WorldGen.Core
         public ForagerExchange[] Exchanges=Array.Empty<ForagerExchange>();
         public ForagerEvent[] Events=Array.Empty<ForagerEvent>();
         public ForagerDiscovery[] Discoveries=Array.Empty<ForagerDiscovery>();
-        public ForagerState Copy()=>new ForagerState{Version=Version,DomainHash=DomainHash,InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
+        public ForagerState EventCopy()
+        {
+            var f=ClockCopy();f.RegionResidents=(int[])RegionResidents.Clone();f.PopulationAt=(long[])PopulationAt.Clone();f.ProcessAt=(long[])ProcessAt.Clone();f.SpeciesShares=(double[])SpeciesShares.Clone();
+            f.Cohorts=(ForagerCohort[])Cohorts.Clone();f.Resources=(ForagerResources[])Resources.Clone();f.Biota=(ForagerBiotaDistrict[])Biota.Clone();
+            f.Cultures=(ForagerCulture[])Cultures.Clone();f.Languages=(ForagerLanguage[])Languages.Clone();f.Beliefs=(ForagerBelief[])Beliefs.Clone();f.LanguageFamilies=(ForagerLanguageFamily[])LanguageFamilies.Clone();return f;
+        }
+        public ForagerState Copy()=>new ForagerState{Version=Version,DomainHash=DomainHash,PendingEvents=PendingEvents,ProcessedEvents=ProcessedEvents,RegionResidents=(int[])RegionResidents.Clone(),PopulationAt=(long[])PopulationAt.Clone(),ProcessAt=(long[])ProcessAt.Clone(),InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
             CellDistrict=CellDistrict,Districts=Districts,SpeciesShares=(double[])SpeciesShares.Clone(),Resources=Resources.Select(x=>x.Copy()).ToArray(),Biota=Biota.Select(x=>x.Copy()).ToArray(),Lineages=Lineages,Cohorts=Cohorts.Select(x=>x.Copy()).ToArray(),Cultures=Cultures.Select(x=>x.Copy()).ToArray(),Peoples=Peoples.Select(x=>x.Copy()).ToArray(),Languages=Languages.Select(x=>x.Copy()).ToArray(),LanguageFamilies=LanguageFamilies.Select(x=>x.Copy()).ToArray(),Beliefs=Beliefs.Select(x=>x.Copy()).ToArray(),Exchanges=Exchanges.Select(x=>x.Copy()).ToArray(),Events=Events.Select(x=>x.Copy()).ToArray()};
         public double SpeciesShare(ForagerCohort c,int lineage)=>SpeciesShares[c.District*Lineages.Length+lineage];
     }

@@ -14,7 +14,7 @@ namespace WorldGen.Core
         // environmental/food/trauma modifiers and explicit mass balance.
         static readonly double[] Ageing={1/5d,1/10d,1/25d,1/20d,0};
         public static double Present(ForagerState state,ForagerCohort c)
-        {if(c.Population<=0)return 0;double elapsed=(state.Seconds-state.BoundarySeconds)/(double)SimulationTime.Year;return elapsed>0?Project(c,elapsed,state.BoundarySeconds/(double)SimulationTime.Year).Population:c.Population;}
+        {if(c.Population<=0)return 0;long at=state.PopulationAt[c.District];double elapsed=(state.Seconds-at)/(double)SimulationTime.Year;if(elapsed<=0)return c.Population;Span<double> ages=stackalloc double[5];RegionalProject(c,elapsed,at/(double)SimulationTime.Year,ages,out _,out _);return ages[0]+ages[1]+ages[2]+ages[3]+ages[4];}
         public static void SetPopulation(ForagerCohort c,double population)
         {c.Ages=new[]{population*.13,population*.2,population*.4,population*.2,population*.07};Sync(c);}
         static void Sync(ForagerCohort c){c.Children=c.Ages[0]+c.Ages[1];c.Adults=c.Ages[2]+c.Ages[3];c.Elders=c.Ages[4];}

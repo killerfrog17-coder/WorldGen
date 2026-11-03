@@ -8,7 +8,10 @@ namespace WorldGen.Core
     public enum ForagerLifestyle { Woodland, Grassland, Desert, Cold, Highland, Wetland, Coastal }
     [Serializable] public sealed partial class PrehistoryState
     {
-        public string Version="prehistory-6", Species="Homo sapiens", WorldHash="", Hash="";
+        public string Version="prehistory-6", Species="Homo sapiens", WorldHash="";
+        [NonSerialized] string cachedHash="";
+        public string Hash {get {if(cachedHash==null)cachedHash=ComputeHash();return cachedHash;}set {cachedHash=value;}}
+        internal void InvalidateHash(){cachedHash=null;}
         [System.Runtime.Serialization.OptionalField] public SocietyState Society;
         [System.Runtime.Serialization.OptionalField] public HistoryState History;
         [System.Runtime.Serialization.OptionalField] public SimulationTimeline Timeline;
@@ -31,7 +34,7 @@ namespace WorldGen.Core
         }
         internal bool Regional=>Foragers?.Version==ForagerState.RegionalVersion;
         internal string RegionalDomainHash()=>StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Started,Population,ArrivalYear,Ancestry,Society,
-            Foragers.BoundarySeconds,Foragers.NextReviewSeconds,Foragers.InitialPopulation,Foragers.CellDistrict,Foragers.Districts,Foragers.Resources,Foragers.Biota,Foragers.Lineages,Foragers.SpeciesShares,Foragers.Cohorts,Foragers.Cultures,Foragers.Peoples,Foragers.Languages,Foragers.LanguageFamilies,Foragers.Beliefs,Foragers.Exchanges,Foragers.Events,Foragers.Discoveries});
+            Foragers.BoundarySeconds,Foragers.NextReviewSeconds,Foragers.PendingEvents,Foragers.ProcessedEvents,Foragers.PopulationAt,Foragers.ProcessAt,Foragers.RegionResidents,Foragers.InitialPopulation,Foragers.CellDistrict,Foragers.Districts,Foragers.Resources,Foragers.Biota,Foragers.Lineages,Foragers.SpeciesShares,Foragers.Cohorts,Foragers.Cultures,Foragers.Peoples,Foragers.Languages,Foragers.LanguageFamilies,Foragers.Beliefs,Foragers.Exchanges,Foragers.Events,Foragers.Discoveries});
         internal string RegionalClockHash(string domain)=>StateHash.Compute(new object[]{domain,Foragers.Seconds});
         string ComputeRegionalHash(){Foragers.DomainHash=RegionalDomainHash();return RegionalClockHash(Foragers.DomainHash);}
         public string ComputeHash()=>Regional?ComputeRegionalHash():Foragers!=null?StateHash.Compute(new object[]{ComputeBaseHash(),Foragers}):HumanRanges!=null?StateHash.Compute(new object[]{ComputeBaseHash(),HumanRanges}):ComputeBaseHash();

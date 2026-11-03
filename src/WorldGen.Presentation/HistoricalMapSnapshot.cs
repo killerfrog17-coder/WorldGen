@@ -13,20 +13,22 @@ namespace WorldGen.Presentation
         {
             public string Hash="";public Lazy<HistoricalMapSnapshot> Value=null!;
             public Entry(PrehistoryState source){Reset(source);}
-            public void Reset(PrehistoryState source){Hash=source.Hash;Value=new Lazy<HistoricalMapSnapshot>(()=>new HistoricalMapSnapshot(source),LazyThreadSafetyMode.ExecutionAndPublication);}
+            public void Reset(PrehistoryState source){Hash=Prehistory.Foraging(source)?"":source.Hash;Value=new Lazy<HistoricalMapSnapshot>(()=>new HistoricalMapSnapshot(source),LazyThreadSafetyMode.ExecutionAndPublication);}
         }
         static readonly ConditionalWeakTable<PrehistoryState,Entry> Entries=new ConditionalWeakTable<PrehistoryState,Entry>();
         readonly PrehistoryState source;readonly int[] cells,resolved,sovereigns,technology,boundaries,claims,languages,ethnicities;readonly long[] remote;
         readonly System.Collections.Generic.Dictionary<int,int> technologySites=new System.Collections.Generic.Dictionary<int,int>();
-        public int Count=>cells.Length/5;
+        public int Count=>Prehistory.Foraging(source)?source.Foragers.CellDistrict.Length:cells.Length/5;
         public static HistoricalMapSnapshot For(PrehistoryState state)
         {
             if(state==null)throw new ArgumentNullException(nameof(state));var entry=Entries.GetValue(state,s=>new Entry(s));Lazy<HistoricalMapSnapshot> value;
-            lock(entry){if(entry.Hash!=state.Hash)entry.Reset(state);value=entry.Value;}return value.Value;
+            lock(entry){if(!Prehistory.Foraging(state)&&entry.Hash!=state.Hash)entry.Reset(state);value=entry.Value;}return value.Value;
         }
         HistoricalMapSnapshot(PrehistoryState state)
         {
-            source=state;int count=HistoricalCells.Count(state);cells=new int[count*5];
+            source=state;
+            if(Prehistory.Foraging(state)){cells=resolved=sovereigns=technology=boundaries=claims=languages=ethnicities=Array.Empty<int>();remote=Array.Empty<long>();return;}
+            int count=HistoricalCells.Count(state);cells=new int[count*5];
             if(state.History?.Aggregates!=null)state.History.Aggregates.Cells.CopyTo(cells);
             else for(int i=0;i<count;i++){cells[i*5]=HistoricalCells.Culture(state,i);cells[i*5+1]=HistoricalCells.Polity(state,i);cells[i*5+2]=HistoricalCells.Religion(state,i);cells[i*5+3]=HistoricalCells.Market(state,i);cells[i*5+4]=HistoricalCells.Stage(state,i);}
             if(state.History?.RegionalTraditions!=null)for(int i=0;i<count;i++){cells[i*5]=HistoricalCells.Culture(state,i);cells[i*5+2]=HistoricalCells.Religion(state,i);cells[i*5+4]=HistoricalCells.Stage(state,i);}
@@ -41,18 +43,18 @@ namespace WorldGen.Presentation
             boundaries=new int[count];for(int i=0;i<count;i++){int p=PoliticalSovereign(i),c=Culture(i);boundaries[i]=p>=0?p:c>=0?-2-c:-1;int key=OverlayId(i,HistoryOverlay.Technology);if(key>=0&&!technologySites.ContainsKey(key))technologySites.Add(key,i);}
         }
         public int TechnologySite(int key)=>technologySites.TryGetValue(key,out int cell)?cell:-1;
-        public int Culture(int cell)=>cell>=0&&cell<Count?cells[cell*5]:-1;
-        public int Stage(int cell)=>cell>=0&&cell<Count?cells[cell*5+4]:-1;
-        public int Religion(int cell)=>cell>=0&&cell<Count?cells[cell*5+2]:-1;
-        public int Polity(int cell){int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<resolved.Length?resolved[raw]:-1;}
-        public long RemotePopulation(int cell){int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<remote.Length?remote[raw]:0;}
-        public int Sovereign(int cell){int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<sovereigns.Length?sovereigns[raw]:-1;}
+        public int Culture(int cell)=>Prehistory.Foraging(source)?ForagerMaps.For(source).Dominant(cell)?.Culture??-1:cell>=0&&cell<Count?cells[cell*5]:-1;
+        public int Stage(int cell)=>Prehistory.Foraging(source)?Culture(cell)>=0?(int)SocietyStage.Foragers:-1:cell>=0&&cell<Count?cells[cell*5+4]:-1;
+        public int Religion(int cell)=>Prehistory.Foraging(source)?ForagerMaps.For(source).Dominant(cell)?.Belief??-1:cell>=0&&cell<Count?cells[cell*5+2]:-1;
+        public int Polity(int cell){if(Prehistory.Foraging(source))return -1;int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<resolved.Length?resolved[raw]:-1;}
+        public long RemotePopulation(int cell){if(Prehistory.Foraging(source))return 0;int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<remote.Length?remote[raw]:0;}
+        public int Sovereign(int cell){if(Prehistory.Foraging(source))return -1;int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<sovereigns.Length?sovereigns[raw]:-1;}
         // Recognized external title is deliberately separate from administration,
         // population and local culture. An actual state's territory always wins.
-        public int PoliticalSovereign(int cell){int p=Sovereign(cell);return p>=0?p:cell>=0&&cell<Count&&claims[cell]>=0?sovereigns[claims[cell]]:-1;}
+        public int PoliticalSovereign(int cell){if(Prehistory.Foraging(source))return -1;int p=Sovereign(cell);return p>=0?p:cell>=0&&cell<Count&&claims[cell]>=0?sovereigns[claims[cell]]:-1;}
         // Display provenance only. A title never overrides an actual controller.
         public bool ClaimOnly(int cell)=>Sovereign(cell)<0&&PoliticalSovereign(cell)>=0;
-        public int Boundary(int cell)=>boundaries[cell];
+        public int Boundary(int cell)=>Prehistory.Foraging(source)?Culture(cell)>=0?-2-Culture(cell):-1:boundaries[cell];
         public int Boundary(int cell,HistoryOverlay overlay)
         {
             if(Prehistory.Paleolithic(source))return OverlayId(cell,overlay);
@@ -69,6 +71,7 @@ namespace WorldGen.Presentation
         {if(other==null||other.Count!=Count)return false;for(int i=0;i<boundaries.Length;i++)if(boundaries[i]!=other.boundaries[i])return false;return true;}
         public int OverlayId(int cell,HistoryOverlay overlay)
         {
+            if(Prehistory.Foraging(source))return ForagerMaps.For(source).Id(cell,overlay);
             if(cell<0||cell>=Count||source.Society==null)return -1;int culture=Culture(cell),p=Polity(cell);var h=source.History;
             if(Prehistory.Paleolithic(source))return PaleolithicMaps.For(source).Id(cell,overlay);
             if(overlay==HistoryOverlay.HumanSpecies)return -1;

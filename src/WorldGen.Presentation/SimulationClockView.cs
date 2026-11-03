@@ -37,7 +37,7 @@ namespace WorldGen.Presentation
         public static readonly long[] UnitSeconds={1,SimulationTime.Minute,SimulationTime.Hour,SimulationTime.Day,7*SimulationTime.Day,30*SimulationTime.Day,SimulationTime.Year};
         public static readonly double[] Rates={1,60,3600,43200,86400,604800,1209600,2592000,15768000,
             SimulationTime.Year,2d*SimulationTime.Year,5d*SimulationTime.Year,10d*SimulationTime.Year,20d*SimulationTime.Year,50d*SimulationTime.Year,
-            100d*SimulationTime.Year,200d*SimulationTime.Year,500d*SimulationTime.Year,1000d*SimulationTime.Year,2000d*SimulationTime.Year,5000d*SimulationTime.Year,10000d*SimulationTime.Year};
+            100d*SimulationTime.Year,200d*SimulationTime.Year,500d*SimulationTime.Year,1000d*SimulationTime.Year,2000d*SimulationTime.Year,5000d*SimulationTime.Year,10000d*SimulationTime.Year,20000d*SimulationTime.Year,50000d*SimulationTime.Year,100000d*SimulationTime.Year};
         static readonly string[] Months={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
         static readonly int[] MonthDays={31,28,31,30,31,30,31,31,30,31,30,31};
         public static double DefaultRate(int stepYears)=>5*stepYears*(double)SimulationTime.Year;
@@ -94,7 +94,7 @@ namespace WorldGen.Presentation
         double credit;public double Rate {get;private set;}=SimulationClockView.EraRate(2);
         public bool Manual {get;private set;}
         public void SetRate(double rate,bool manual=true)
-        {if(double.IsNaN(rate)||double.IsInfinity(rate)||rate<.0001||rate>10000d*SimulationTime.Year)throw new ArgumentOutOfRangeException(nameof(rate));Rate=rate;Manual=manual;credit=0;}
+        {if(double.IsNaN(rate)||double.IsInfinity(rate)||rate<.0001||rate>100000d*SimulationTime.Year)throw new ArgumentOutOfRangeException(nameof(rate));Rate=rate;Manual=manual;credit=0;}
         public void AutoEra(int era)=>SetRate(SimulationClockView.EraRate(era),false);
         public void Era(int era){if(!Manual&&Rate!=SimulationClockView.EraRate(era))AutoEra(era);}
         public void AutoWorld(PrehistoryState? state,int era)=>SetRate(SimulationClockView.AutoRate(state,era),false);

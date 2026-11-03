@@ -50,7 +50,7 @@ public sealed partial class WorldGenRuntime
         if(humanStep!=null&&humanStep.IsCompleted)
         {
             var task=humanStep;var playbackWork=humanPlaybackWork;humanStep=null;humanPlaybackWork=null;
-            try{var prior=world.Prehistory;world.Prehistory=task.GetAwaiter().GetResult();if(playbackWork?.Task==task)humanSession=playbackWork.Session;long consumed=Math.Max(0,SimulationTime.Seconds(world.Prehistory)-(long)calendarWorkStarted);if(calendarWorkIsPlay)play.Consume(consumed);else humanPlayback.Consume(consumed);calendarWorkIsPlay=false;if(!SameHumanDomain(prior,world.Prehistory))UpdateHumanPalette();}catch(Exception ex){error=ex.Message;humanPlaying=false;terrainExplorer?.Pause();}
+            try{var prior=world.Prehistory;world.Prehistory=task.GetAwaiter().GetResult();if(playbackWork?.Task==task)humanSession=playbackWork.Session;long consumed=Math.Max(0,SimulationTime.Seconds(world.Prehistory)-(long)calendarWorkStarted);if(calendarWorkIsPlay)play.Consume(consumed);else humanPlayback.Consume(consumed);calendarWorkIsPlay=false;if(!SameHumanDomain(prior,world.Prehistory)&&!Prehistory.Foraging(world.Prehistory))UpdateHumanPalette();}catch(Exception ex){error=ex.Message;humanPlaying=false;terrainExplorer?.Pause();}
         }
         if(humans==null)return;
         if(terrainExplorer==null&&displayedWorld==world)RequestHistoryBorders();
@@ -89,6 +89,7 @@ public sealed partial class WorldGenRuntime
     }
     void PollHumanPalette()
     {
+        if(PollRegionalMap())return;
         if(humanPaletteJob!=null&&humanPaletteJob.IsCompleted)
         {
             try{humanPaletteReady=humanPaletteJob.GetAwaiter().GetResult();humanPaletteUpload=0;}catch(Exception ex){error=ex.Message;}

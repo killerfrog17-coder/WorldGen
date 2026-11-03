@@ -15,12 +15,12 @@ namespace WorldGen.Core
         static readonly ConditionalWeakTable<PrehistoryState,ForagerHabitat> Cache=new ConditionalWeakTable<PrehistoryState,ForagerHabitat>();
         public static ForagerHabitat For(World world,PrehistoryState state=null)
         {state=state??world.Prehistory;return state?.Foragers==null?null:Cache.GetValue(state,s=>new ForagerHabitat(world,s));}
-        readonly World world;readonly PrehistoryState state;readonly Local[] cells;readonly object gate=new object();
-        ForagerHabitat(World w,PrehistoryState s){world=w;state=s;cells=new Local[w.Surface.Cells.Length];}
+        readonly World world;readonly PrehistoryState state;readonly System.Collections.Generic.Dictionary<int,Local> cells;readonly object gate=new object();
+        ForagerHabitat(World w,PrehistoryState s){world=w;state=s;cells=new System.Collections.Generic.Dictionary<int,Local>();}
         public Local Cell(int cell)
         {
-            if(cell<0||cell>=cells.Length||state.Foragers.CellDistrict[cell]<0)return null;
-            if(cells[cell]!=null)return cells[cell];lock(gate){if(cells[cell]==null)cells[cell]=Build(cell);return cells[cell];}
+            if(cell<0||cell>=world.Surface.Cells.Length||state.Foragers.CellDistrict[cell]<0)return null;
+            lock(gate){if(!cells.TryGetValue(cell,out var result))cells[cell]=result=Build(cell);return result;}
         }
         Local Build(int cell)
         {

@@ -15,12 +15,18 @@ static class RegionalForagerTests
         w.Prehistory=null;Console.WriteLine($"Geometry {w.Surface.Cells.Length} cells in {watch.Elapsed.TotalSeconds:F2}s");
         watch.Restart();var engine=new Prehistory(w);var initial=engine.StartForagers(engine.PrepareForagers());double prepare=watch.Elapsed.TotalSeconds;
         var session=new SimulationSession(engine,initial);var clock=initial;
-        watch.Restart();for(int i=0;i<1000;i++)clock=session.AdvanceSeconds(SimulationTime.Day/5);
+        long fineStep=Math.Max(1,Math.Min(SimulationTime.Day/5,(initial.Foragers.NextReviewSeconds-1)/1000));
+        watch.Restart();for(int i=0;i<1000;i++)clock=session.AdvanceSeconds(fineStep);
         double fineMs=watch.Elapsed.TotalMilliseconds;
         Check(fineMs<1000,"1000 fine-clock publications finish below one second");
         Check(ReferenceEquals(clock.Foragers.Cohorts,initial.Foragers.Cohorts)&&ReferenceEquals(clock.Society,initial.Society),"Empty clock intervals share frozen regional data");
         Check(clock.Hash==clock.ComputeHash(),"Fine-clock digest equals independently recomputed digest");
         Check(initial.Foragers.Seconds==0,"Publishing clocks does not mutate the input");
+        var pending=RegionalQueueNode.Entries(initial.Foragers.PendingEvents).ToArray();
+        Check(pending.Select(e=>e.Due).Distinct().Count()>pending.Length*.9,"Initial regional events are independently staggered");
+        var single=engine.AdvanceSeconds(initial,initial.Foragers.NextReviewSeconds,1);
+        Check(single.Foragers.ProcessedEvents==1,"One queued event processes exactly one entity/process");
+        Check(initial.Foragers.Cohorts.Zip(single.Foragers.Cohorts,(a,b)=>ReferenceEquals(a,b)).Count(same=>!same)<=2,"A regional event leaves unrelated population records shared and untouched");
         var costs=new Dictionary<string,(long calls,double ms,long bytes)>();engine.WorkObserver=m=>{costs.TryGetValue(m.Stage,out var prior);costs[m.Stage]=(prior.calls+1,prior.ms+m.Milliseconds,prior.bytes+m.AllocatedBytes);};
         session=new SimulationSession(engine,initial);watch.Restart();var state=session.AdvanceSeconds(years*SimulationTime.Year,int.MaxValue);double historical=watch.Elapsed.TotalSeconds;
         engine.ValidateForagers(state);
@@ -41,7 +47,7 @@ static class RegionalForagerTests
             {if(field.Name=="Foragers")continue;var aa=StateHash.Compute(field.GetValue(state));var bb=StateHash.Compute(field.GetValue(split));if(aa!=bb)Console.WriteLine("STATE DIFF "+field.Name);}
         }
         if(years<=10000)Check(split.Hash==state.Hash,"Caller publication frequency does not change history");
-        var daySession=new SimulationSession(engine,state);watch.Restart();for(int i=0;i<1000;i++)clock=daySession.AdvanceSeconds(SimulationTime.Day/5);double lateMs=watch.Elapsed.TotalMilliseconds;
+        var daySession=new SimulationSession(engine,state);long lateStep=Math.Max(1,Math.Min(SimulationTime.Day/5,(state.Foragers.NextReviewSeconds-state.Foragers.Seconds-1)/1000));watch.Restart();for(int i=0;i<1000;i++)clock=daySession.AdvanceSeconds(lateStep);double lateMs=watch.Elapsed.TotalMilliseconds;
         Check(lateMs<1000,"Late-world fine-clock publications remain below one second");
         w.Prehistory=state;watch.Restart();var bytes=WorldFile.Write(w);var restored=WorldFile.Read(bytes);new Prehistory(restored).ValidateForagers(restored.Prehistory);double saveSeconds=watch.Elapsed.TotalSeconds;
         Check(restored.Prehistory.Hash==state.Hash,"Current-version real save/reload retains regional state");

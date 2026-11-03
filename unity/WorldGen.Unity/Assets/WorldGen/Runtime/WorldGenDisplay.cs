@@ -57,6 +57,7 @@ public sealed partial class WorldGenRuntime
         surfaceMaterial.SetTexture("_Palette",texture);surfaceMaterial.SetFloat("_UsePalette",layer==Layer.Heightmap?0:1);
         foreach(var material in new[]{surfaceMaterial,naturalMaterial,smallFeatureMaterial})
         {
+            material.SetFloat("_Regional",Prehistory.Foraging(world.Prehistory)&&regionalMapWorld==world?1:0);
             material.SetFloat("_Simulation",screen=="Simulation"||layer==Layer.Simulation?1:0);material.SetFloat("_SatelliteOpacity",satelliteOpacity);material.SetFloat("_OverlayOpacity",humanOverlayOpacity);material.SetFloat("_Linear",QualitySettings.activeColorSpace==ColorSpace.Linear?1:0);
             if(palettes.TryGetValue(Layer.Simulation,out var mask))material.SetTexture("_HumanMask",mask);
         }

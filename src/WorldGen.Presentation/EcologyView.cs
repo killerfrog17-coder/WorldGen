@@ -25,7 +25,7 @@ namespace WorldGen.Presentation
             if(h.SalinityMilliPpt>1000)b.Append("Estimated water salinity is ").Append(F(h.SalinityMilliPpt/1000.0)).Append(" ppt. ");
             if(historical!=null)
             {
-                var f=w.Prehistory.Foragers;var bio=f.Biota[f.CellDistrict[cell]];
+                var f=w.Prehistory.Foragers;var bio=ForagerBiota.CurrentRegion(w,f,f.CellDistrict[cell]);
                 b.Append("\n\nYear ").Append(w.Prehistory.Years.ToString("N0")).Append(": ").Append(bio.Abundance.Count(x=>x>.02)).Append(" locally established taxa; forest cover ").Append(F(historical.ForestCover*100)).Append("%; persistent ice ").Append(F(historical.IceCover*100)).Append("%. Ecoregion boundaries are retained; climate and residents change.");
             }
             var species=r.Species.Select(p=>w.Ecology.Taxa[p.TaxonId]).ToArray();

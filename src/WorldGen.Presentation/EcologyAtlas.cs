@@ -37,7 +37,7 @@ namespace WorldGen.Presentation
             string Name(int id)=>id>=0&&id<e.Taxa.Length?e.Taxa[id].Name:"Unknown taxon #"+id;
             var byConsumer=r.FoodWeb.GroupBy(l=>l.ConsumerId).ToDictionary(g=>g.Key,g=>g.ToArray());
             var byResource=r.FoodWeb.GroupBy(l=>l.ResourceId).ToDictionary(g=>g.Key,g=>g.ToArray());
-            var foragers=world.Prehistory?.Foragers;var liveBiota=foragers!=null&&foragers.CellDistrict[cell]>=0?foragers.Biota[foragers.CellDistrict[cell]]:null;
+            var foragers=world.Prehistory?.Foragers;var liveBiota=foragers!=null&&foragers.CellDistrict[cell]>=0?ForagerBiota.CurrentRegion(world,foragers,foragers.CellDistrict[cell]):null;
             var recorded=r.Species.ToDictionary(p=>p.TaxonId);var roster=r.Species.Select(p=>p.TaxonId).Concat(liveBiota?.Taxa??Array.Empty<int>()).Distinct().OrderBy(x=>x);
             foreach(int taxonId in roster)
             {

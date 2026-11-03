@@ -58,6 +58,7 @@ namespace WorldGen.Core
                 f.SpeciesShares[district.Id*f.Lineages.Length+lineage]=1;
             }
             f.Cohorts=people.OrderBy(c=>c.Id).ToArray();
+            f.RegionResidents=Enumerable.Repeat(-1,f.Districts.Length).ToArray();foreach(var c in f.Cohorts)f.RegionResidents[c.District]=c.Id;
             f.InitialPopulation=f.Cohorts.Sum(c=>c.Population);
             if(!f.Cohorts.Any(c=>f.Lineages[c.Lineage].PlayerSpecies))throw new InvalidOperationException("The ancestral region cannot support established sapiens under the starting climate.");
             if(!f.Cohorts.Any(c=>f.Lineages[c.Lineage].PlayerSpecies&&f.Districts[c.District].Patch==s.Origin))
@@ -67,7 +68,7 @@ namespace WorldGen.Core
             }
             ForagerLanguages.ReviewFamilies(f,0,null);
             var environments=ForagerEnvironments(f,0);RegionalContacts(f,environments,0,200);RefreshForagerTeachers(f);
-            PublishForagers(s);s.Seal();return s;
+            InitializeRegionalCalendar(f);PublishForagers(s);s.Seal();return s;
         }
         double DistanceKm(V a,V b)=>World.Recipe.RadiusKm*Math.Acos(D.Clamp(V.Dot(a,b),-1,1));
         ForagerEnvironment[] ForagerEnvironments(ForagerState f,double year)=>f.Districts.Select(d=>ForagerBiota.Apply(ForagerEcology.At(World.Recipe.Seed,d,year,World.ElevationM[d.Cell]),f.Biota.Length>d.Id?f.Biota[d.Id]:null)).ToArray();
@@ -83,7 +84,7 @@ namespace WorldGen.Core
                 int firstPatch=f.Districts[c.District].Patch;
                 if(s.ArrivalYear[firstPatch]<0)s.ArrivalYear[firstPatch]=Math.Max(0,c.FoundedYear);
                 if(c.Population<=0)continue;
-                double population=elapsed>0?ForagerDemography.Project(c,elapsed,f.BoundarySeconds/(double)SimulationTime.Year).Population:c.Population;if(population<.5)continue;
+                double population=ForagerDemography.Present(f,c);if(population<.5)continue;
                 var district=f.Districts[c.District];int patch=district.Patch;
                 s.Population[patch]+=(long)Math.Round(population);if(s.ArrivalYear[patch]<0)s.ArrivalYear[patch]=Math.Max(0,c.FoundedYear);
                 culturePopulation[c.Culture]+=population;cultureArea[c.Culture]+=district.AreaKm2*c.Occupation;
@@ -102,7 +103,7 @@ namespace WorldGen.Core
         {
             var f=s?.Foragers;
             if(s==null||s.Version!="prehistory-8"||f==null||f.Version!=ForagerState.RegionalVersion||s.Paleolithic?.Version!="paleolithic-3"||s.History!=null||s.Timeline!=null||s.HumanRanges!=null||s.WorldHash!=World.Stages.Last().Hash||s.Hash!=s.ComputeHash())throw new ArgumentException("This world uses retired simulation rules. Generate a new world.");
-            if(f.CellDistrict?.Length!=World.Surface.Cells.Length||f.Districts==null||f.Resources?.Length!=f.Districts.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Origin<0||s.Origin>=Patches.Length||f.Seconds<0||f.Seconds>SimulationTime.Maximum||f.BoundarySeconds>f.Seconds||f.NextReviewSeconds<=f.Seconds||f.NextReviewSeconds-f.BoundarySeconds!=RegionalReviewYears*SimulationTime.Year||s.Years!=f.Seconds/SimulationTime.Year)throw new ArgumentException("Invalid foraging geography/calendar.");
+            if(f.CellDistrict?.Length!=World.Surface.Cells.Length||f.Districts==null||f.Resources?.Length!=f.Districts.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Origin<0||s.Origin>=Patches.Length||f.Seconds<0||f.Seconds>SimulationTime.Maximum||f.BoundarySeconds>f.Seconds||f.NextReviewSeconds<=f.Seconds||s.Years!=f.Seconds/SimulationTime.Year)throw new ArgumentException("Invalid foraging geography/calendar.");
             bool Finite(double[] a,int count)=>a!=null&&a.Length==count&&a.All(x=>double.IsFinite(x)&&x>=0);
             foreach(var c in f.Cohorts)
             {

@@ -79,7 +79,7 @@ namespace WorldGen.Presentation
             var f=world.Prehistory?.Foragers;int district=cell>=0&&f!=null&&f.Biota.Length>0?f.CellDistrict[cell]:-1;int cacheKey=district>=0?-district-2:region;
             if(pools.TryGetValue(cacheKey,out var found))return found;
             found=new List<int>();var e=world.Ecology;
-            if(district>=0){var row=f!.Biota[district];foreach(int id in row.Taxa)if(row.Presence(id)>.03&&models.ContainsKey(id))found.Add(id);}
+            if(district>=0){var row=ForagerBiota.CurrentRegion(world,f!,district);foreach(int id in row.Taxa)if(row.Presence(id)>.03&&models.ContainsKey(id))found.Add(id);}
             else if(region>=0&&region<e.Regions.Length)foreach(var presence in e.Regions[region].Species)if(models.ContainsKey(presence.TaxonId))found.Add(presence.TaxonId);
             pools[cacheKey]=found;return found;
         }
@@ -87,13 +87,13 @@ namespace WorldGen.Presentation
         {
             var f=world.Prehistory?.Foragers;int district=f!=null&&f.Biota.Length>0?f.CellDistrict[cell]:-1;int cacheKey=district>=0?-district-2:region;
             if(communities.TryGetValue(cacheKey,out var found))return found;
-            var e=world.Ecology;found=district>=0?f!.Biota[district].Taxa.Where(id=>f.Biota[district].Presence(id)>.03).Select(id=>e.Taxa[id]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():region>=0&&region<e.Regions.Length?e.Regions[region].Species.Select(p=>e.Taxa[p.TaxonId]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():Array.Empty<Taxon>();
+            var e=world.Ecology;found=district>=0?ForagerBiota.CurrentRegion(world,f!,district).Taxa.Where(id=>ForagerBiota.CurrentRegion(world,f!,district).Presence(id)>.03).Select(id=>e.Taxa[id]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():region>=0&&region<e.Regions.Length?e.Regions[region].Species.Select(p=>e.Taxa[p.TaxonId]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():Array.Empty<Taxon>();
             communities[cacheKey]=found;return found;
         }
         public List<FaunaPrototypeSpawn> Build(V center,double scale,double hour,CancellationToken token,double year=0,double temperatureC=15,double humidity=.7,double rain=0,double wind=0)
         {
             var result=new List<FaunaPrototypeSpawn>();var e=world.Ecology;if(e==null)return result;
-            long epoch=world.Prehistory?.Foragers?.Biota.FirstOrDefault()?.ReviewedYear??-1;
+            long epoch=world.Prehistory?.Foragers?.Seconds/SimulationTime.Year??-1;
             if(epoch!=biotaEpoch){pools.Clear();communities.Clear();biotaEpoch=epoch;}
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
             var communityCache=new Dictionary<(ScatterKey,int),WildlifeCommunity>();
