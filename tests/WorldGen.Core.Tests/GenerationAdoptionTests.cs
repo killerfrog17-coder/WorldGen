@@ -4,6 +4,30 @@ using WorldGen.Serialization;
 using System.Text.Json;
 static class GenerationAdoptionTests
 {
+    public static void WireBits()
+    {
+        var random=new Random(73421);var curves=new List<AdoptionCurve>{null,AdoptionCurve.Fixed(0),AdoptionCurve.Fixed(1),AdoptionCurve.Fixed(.3333333333333),AdoptionCurve.Fixed(BitConverter.Int64BitsToDouble(long.MinValue))};
+        for(int i=0;i<1000;i++){double from=i%4==0?0:i%4==1?1:random.NextDouble(),to=i%5==0?from:i%5==1?1:i%5==2?0:random.NextDouble();curves.Add(new AdoptionCurve{Start=i%2==0?0:random.NextDouble()*190000,End=random.NextDouble()*200000,From=from,To=to,Shape=(AdoptionShape)(i%3)});}
+        using var memory=new MemoryStream();using(var writer=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))RegionalWire.Write(writer,curves.ToArray());memory.Position=0;using var reader=new BinaryReader(memory);var decoded=RegionalWire.Read<AdoptionCurve[]>(reader);
+        for(int i=0;i<curves.Count;i++)
+        {
+            var a=curves[i];var b=decoded[i];if(a==null){if(b!=null)throw new Exception("Null curve changed");continue;}
+            if(b==null||a.Shape!=b.Shape||new[]{a.Start,a.End,a.From,a.To}.Zip(new[]{b.Start,b.End,b.From,b.To},(x,y)=>BitConverter.DoubleToInt64Bits(x)==BitConverter.DoubleToInt64Bits(y)).Any(equal=>!equal))throw new Exception("Curve wire changed raw bits at "+i);
+        }
+        if(memory.Position!=memory.Length)throw new Exception("Curve wire left unread bytes");Console.WriteLine("PASS all raw bits of "+curves.Count+" curves, including zero/one/equality flags and negative zero; "+memory.Length+" bytes");
+    }
+    public static void CompareStages(string baselineAssembly,string recipeFile)
+    {
+        string directory=Path.GetDirectoryName(Path.GetFullPath(baselineAssembly));var context=new System.Runtime.Loader.AssemblyLoadContext("generation-baseline",true);
+        context.Resolving+=(c,name)=>name.Name.StartsWith("WorldGen.")||name.Name=="DelaunatorSharp"?c.LoadFromAssemblyPath(Path.Combine(directory,name.Name+".dll")):null;
+        var assembly=context.LoadFromAssemblyPath(Path.GetFullPath(baselineAssembly));var recipe=WorldJson.ReadRecipe(File.ReadAllText(recipeFile));var oldRecipe=Activator.CreateInstance(assembly.GetType("WorldGen.Core.Recipe"));
+        foreach(var field in typeof(Recipe).GetFields(System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public))oldRecipe.GetType().GetField(field.Name)?.SetValue(oldRecipe,field.GetValue(recipe));
+        var method=assembly.GetType("WorldGen.Core.WorldPipeline").GetMethod("Generate");var inputs=new object[method.GetParameters().Length];inputs[0]=oldRecipe;inputs[2]=System.Threading.CancellationToken.None;
+        var baseline=method.Invoke(Activator.CreateInstance(method.DeclaringType),inputs);var current=new WorldPipeline().Generate(recipe);
+        var stages=(System.Collections.IEnumerable)baseline.GetType().GetField("Stages").GetValue(baseline);var hashes=stages.Cast<object>().Select(stage=>(string)stage.GetType().GetField("Hash").GetValue(stage)).ToArray();
+        if(!hashes.SequenceEqual(current.Stages.Select(stage=>stage.Hash)))throw new Exception("Parallel generation changed an intermediate stage hash.");
+        Console.WriteLine("PASS all "+hashes.Length+" stage hashes exactly match the previous selected game's generation pipeline; "+hashes.Last());context.Unload();
+    }
     public static void Run(string source,string output)
     {
         Directory.CreateDirectory(output);int checks=0;void Check(bool ok,string message){if(!ok)throw new Exception(message);checks++;Console.WriteLine("PASS "+message);}

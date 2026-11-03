@@ -53,14 +53,20 @@ namespace WorldGen.Core
             }
             List<(ForagerCohort people,ForagerExchange relation)> Neighbours(ForagerCohort c)
             {
-                var result=new List<(ForagerCohort,ForagerExchange)>();var a=Environment(c.District);var d=f.Districts[c.District];double total=0;
+                var result=new List<(ForagerCohort,ForagerExchange)>();var a=Environment(c.District);var d=f.Districts[c.District];double total=0;ForagerCohort prepared=null;
                 foreach(var group in RegionalPaths(f.Districts)[c.District])
                 {
                     var other=Read(group[0].To);if(other==null||other.Population<1)continue;var b=Environment(other.District);
-                    var pass=group.FirstOrDefault(p=>ForagerPassages.Open(engine.World.Recipe.Seed,p,d,a,b,ForagerAdoption.Project(f,c),true));if(pass==null)continue;
+                    var pass=group.FirstOrDefault(p=>
+                    {
+                        // Ordinary land contacts never inspect equipment. Do
+                        // not project 43 methods just to ask who lives next door.
+                        bool gear=p.Sea&&!p.Shelf||p.MountainBarrier>.85&&Math.Min(a.SummerC,b.SummerC)<4;
+                        return ForagerPassages.Open(engine.World.Recipe.Seed,p,d,a,b,gear?(prepared??(prepared=ForagerAdoption.Project(f,c))):c,true);
+                    });if(pass==null)continue;
                     double openness=(f.Cultures[c.Culture].ExchangeOpenness+f.Cultures[other.Culture].ExchangeOpenness)*.5;
                     double strength=D.Clamp((.08+.55*openness)*Math.Exp(-ForagerPassages.TravelCostKm(pass,a,b)/500)*(pass.Sea?.2:1));if(strength<.002)continue;
-                    total+=strength;result.Add((ForagerAdoption.Project(f,other),new ForagerExchange{A=Math.Min(c.Id,other.Id),B=Math.Max(c.Id,other.Id),Strength=strength,Hospitality=openness,SinceYear=(int)(now/SimulationTime.Year)}));
+                    total+=strength;result.Add((other,new ForagerExchange{A=Math.Min(c.Id,other.Id),B=Math.Max(c.Id,other.Id),Strength=strength,Hospitality=openness,SinceYear=(int)(now/SimulationTime.Year)}));
                 }
                 c.Connectivity=D.Clamp(total);c.Isolation=1-c.Connectivity;c.BilingualShare=D.Clamp(total*.4);c.MatingContacts=result.Sum(x=>x.Item1.Adults*x.Item2.Strength*.01);return result;
             }
@@ -76,7 +82,7 @@ namespace WorldGen.Core
             }
             void Technology(ForagerCohort c,int year,int elapsed)
             {
-                var adjacent=Neighbours(c);var teacher=new double[ForagerTechnology.Count];foreach(var contact in adjacent)for(int k=0;k<teacher.Length;k++)teacher[k]+=contact.people.Knowledge[k]*contact.relation.Strength;
+                var adjacent=Neighbours(c);var teacher=new double[ForagerTechnology.Count];foreach(var contact in adjacent){var knowledge=ForagerAdoption.Project(f,contact.people).Knowledge;for(int k=0;k<teacher.Length;k++)teacher[k]+=knowledge[k]*contact.relation.Strength;}
                 var previous=f.Adoption[c.District];f.Adoption[c.District]=ForagerAdoption.Review(engine.World.Recipe.Seed,f,c,f.Districts[c.District],Environment(c.District),f.Cultures[c.Culture],elapsed,teacher,out ulong invented);
                 if(!ReferenceEquals(previous,f.Adoption[c.District]))adoption.Add(c.District);
                 var view=ForagerAdoption.Project(f,c);c.Knowledge=(double[])view.Knowledge.Clone();c.Skill=(double[])view.Skill.Clone();c.Use=(double[])view.Use.Clone();

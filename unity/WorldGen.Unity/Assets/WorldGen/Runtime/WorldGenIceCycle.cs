@@ -12,7 +12,7 @@ public sealed partial class WorldGenRuntime
         if(iceCycleIcon==null){iceCycleIcon=new Texture2D(40,40,TextureFormat.RGBA32,false);iceCycleIcon.filterMode=FilterMode.Bilinear;}
         if(level!=iceCycleLevel)
         {
-            var pixels=new Color32[1600];float cap=.82f-level/64f*1.5f;
+            var pixels=new Color32[1600];float cap=.82f-level/64f*.75f;
             for(int y=0;y<40;y++)for(int x=0;x<40;x++)
             {
                 float a=(x-19.5f)/18,b=(y-19.5f)/18,r=Mathf.Sqrt(a*a+b*b);if(r>1.06f)continue;

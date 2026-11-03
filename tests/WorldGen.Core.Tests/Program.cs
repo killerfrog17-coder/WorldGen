@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--adoption-wire-bits")){GenerationAdoptionTests.WireBits();return;}
+if(args.Contains("--generation-stage-parity")){GenerationAdoptionTests.CompareStages(args[1],args[2]);return;}
 if(args.Contains("--adoption-climate")){GenerationAdoptionTests.Run(args[1],args[2]);return;}
 if(args.Contains("--generation-worker-check")){
  var recipe=WorldJson.ReadRecipe(File.ReadAllText(args[2]));var timer=System.Diagnostics.Stopwatch.StartNew();var stages=new List<GenerationStageTiming>();int previews=0;var w=WorldGenerationProcess.Generate(Path.GetFullPath(args[1]),recipe,p=>{},p=>previews++,stages.Add,default);if(w.Stages.Last().Hash!=args[3])throw new Exception("Worker changed generated world");Console.WriteLine($"PASS generated world {w.Stages.Last().Hash} {timer.Elapsed.TotalSeconds:F3}s, {previews} previews, {stages.Count} stage samples");return;
