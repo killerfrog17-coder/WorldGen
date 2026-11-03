@@ -25,6 +25,15 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateNpcProps(HumanActor actor,LivingGroup group,string role)
     {
+        if(actor.Speed<.1f&&Time.unscaledTimeAsDouble>=actor.WorkSoundAt)
+        {
+            uint rhythm=HumanHash(actor.ResidentId^(long)(Time.unscaledTime/3));actor.WorkSoundAt=Time.unscaledTimeAsDouble+1.1+(rhythm%100)/100d*2;
+            if((actor.Root.transform.position-view.transform.position).sqrMagnitude<25*25)
+            {
+                string sound=role=="WorkKnapping"?"stone-contact":actor.CurrentActivity==HumanActivity.BuildCamp||actor.CurrentActivity==HumanActivity.PackCamp||actor.CurrentActivity==HumanActivity.RepairShelter||actor.CurrentActivity==HumanActivity.GatherPlants?"fibre-handle":null;
+                if(sound!=null)PlayItemEffect(sound,actor.Root.transform.position+transform.up*.65f,sound=="stone-contact"?.12f:.07f,fromPlayer:false);
+            }
+        }
         role=role??"";
         if(actor.Bones==null)actor.Bones=actor.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
         if(actor.PropRole!=role)

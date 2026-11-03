@@ -67,7 +67,13 @@ namespace WorldGen.Core
         }
         // Metres in local plan coordinates. Openings face +Z. Future camp layout
         // uses this rather than guessing an entrance from mesh bounds.
-        public static V Entrance(CampBlueprint p)=>new V(0,FloorAt(p,0,p.DepthM*.5),p.DepthM*.5);
+        public static V Entrance(CampBlueprint p)
+        {double z=p.DepthM*.5*(p.Design==CampDesign.LeanTo?-1:1);return new V(0,FloorAt(p,0,z),z);}
+        public static double EntranceHeight(CampBlueprint p)
+        {
+            double floor=Entrance(p).Y;
+            return Math.Max(.35,p.Design==CampDesign.RidgeTent?1.5-floor:p.Design==CampDesign.ConicalTent?1.45-floor:p.Design==CampDesign.BrushHut||p.Design==CampDesign.LongHut?NominalHeight(p)*Math.Sin(Math.PI/3):NominalHeight(p));
+        }
         public static int SleepingPlaces(CampBlueprint p)=>!Has(p.Design,CampFunction.Shelter)&&!Has(p.Design,CampFunction.Sleeping)?0:Math.Max(1,(int)Math.Floor(p.WidthM*p.DepthM*(Round(p.Design)?.68:.75)/1.7));
         public static bool HasStorage(CampDesign d)=>Has(d,CampFunction.Storage)||Has(d,CampFunction.Drying);
         public static bool HasCover(CampDesign d)=>Has(d,CampFunction.Shelter)||d==CampDesign.Windbreak||d==CampDesign.RaisedBed||d==CampDesign.RaisedCache;

@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public static IEnumerator CheckNpcPoses(string output)
     {
-        Directory.CreateDirectory(output);var checks=new List<string>();
+        Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
         Application.logMessageReceived+=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};
         void Check(bool ok,string message){if(!ok)throw new InvalidOperationException("NPC POSE "+message);checks.Add("PASS "+message);}
         yield return null;Application.targetFrameRate=30;

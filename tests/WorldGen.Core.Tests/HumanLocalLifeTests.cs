@@ -7,7 +7,7 @@ static class HumanLocalLifeTests
     public static void Fixture(string input,string output,int years)
     {
         var world=WorldFile.ReadPlanetaryFile(input);world.Prehistory=null;var engine=new Prehistory(world);var timer=Stopwatch.StartNew();
-        world.Prehistory=engine.AdvanceYears(engine.StartForagers(engine.PrepareForagers()),years);
+        world.Prehistory=engine.StartForagers(engine.PrepareForagers());if(years>0)world.Prehistory=engine.AdvanceYears(world.Prehistory,years);
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);File.WriteAllBytes(output,WorldFile.Write(world));
         var f=world.Prehistory.Foragers;var occupied=f.Cohorts.Where(c=>engine.ForagerBandCount(world.Prehistory,c)>0).ToArray();
         Console.WriteLine($"NPC fixture {years}yr / {occupied.Length} occupied aggregates / {timer.Elapsed.TotalSeconds:F2}s; {world.Prehistory.Hash}");
@@ -26,6 +26,14 @@ static class HumanLocalLifeTests
             .Select(g=>g.OrderByDescending(c=>c.Population).First()).OrderByDescending(c=>c.Population).Take(32).ToArray();
         Check(cohorts.Length>0,"Living fixture population required");
         var activities=new HashSet<HumanActivity>();var modes=new HashSet<ForagerResidence>();var shelters=new HashSet<CampDesign>();
+        foreach(double daylight in new[]{0d,8,12,18,24})foreach(double personality in new[]{0d,.5,1})
+        {
+            var adult=HumanLocalLife.SleepTiming(daylight,30,personality,.5,.5);var child=HumanLocalLife.SleepTiming(daylight,5,personality,.5,.5);
+            Check(adult.duration>=6.5&&adult.duration<=8.8,"Adult rest does not expand into winter hibernation or collapse during polar daylight");
+            Check(child.duration>adult.duration+2&&child.sleep>=0&&child.sleep<24,"Young children have longer bounded sleep windows");
+            double sampled=0;for(double hour=0;hour<24;hour+=.05)if((hour-adult.sleep+24)%24<adult.duration)sampled+=.05;
+            Check(Math.Abs(sampled-adult.duration)<.06,"Sleep window wraps correctly across midnight at every latitude");
+        }
         foreach(var c in cohorts)
         {
             var clock=new HumanLifeClock(SimulationTime.Seconds(state),0,60,365.2425/24,.1);
@@ -42,6 +50,14 @@ static class HumanLocalLifeTests
             Check(objects.All(o=>o.NpcGroup==group.Band.Id&&o.NpcSite==group.Camp.Id),"Real camp materials have their community/site provenance");
             var repeatedObjects=HumanCampLayout.Create(group,people,group.Camp.Position,world.Recipe.RadiusKm*1000*.1,world.Recipe.Seed);
             Check(objects.Select(o=>o.Id).SequenceEqual(repeatedObjects.Select(o=>o.Id))&&objects.SelectMany(o=>o.OwnedMaterials()).Select(p=>p.Id).SequenceEqual(repeatedObjects.SelectMany(o=>o.OwnedMaterials()).Select(p=>p.Id)),"Structures and their material identities regenerate deterministically");
+            foreach(var house in repeatedObjects.Where(o=>o.Blueprint!=null))
+            {
+                HumanCampLayout.FitShelter(house,new[]{-.2,-.1,0,0,.1,.2,.2,.5,.75});
+                Check(CampBlueprints.Complete(house.Blueprint),"Terrain-adapted shelter fills its actual final component graph, including changed conical front bands");
+                foreach(var component in CampBlueprints.Components(house.Blueprint))foreach(var material in CampBlueprints.State(house.Blueprint,component).Materials)
+                    Check(CampBlueprints.Suitable(house.Blueprint,component,material),"Fitted terrain footing retains correctly sized and suitable structural/cover materials");
+            }
+            new CampState{Objects=repeatedObjects.ToList()}.Validate();
             var construction=new CampState();
             foreach(double progress in new[]{.05,.29,.49,.76,1d})
             {

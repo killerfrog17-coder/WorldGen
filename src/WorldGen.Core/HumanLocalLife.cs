@@ -169,6 +169,14 @@ namespace WorldGen.Core
         }
         double ForageRadius(HumanGroupSituation group,HumanLifeClock clock)
             =>Math.Min(1600,Math.Min(group.Band.HomeRangeKm*1000*clock.HorizontalScale,clock.DayMinutes*60*.14*1.2));
+        public static (double wake,double sleep,double duration) SleepTiming(double daylight,double age,double chronotype,double social,double daily,double temperature=18)
+        {
+            double dawn=12-daylight*.5,winter=D.Clamp((12-daylight)/12);
+            double wake=D.Clamp(dawn-.6+(chronotype-.5)*.7,4.5,8);
+            double duration=(age<6?10.2+chronotype:age<13?9+.6*chronotype:age>60?6.9+.7*chronotype:7+.8*chronotype)+winter*.7+(temperature< -5?.2:0);
+            duration=Math.Max(6.5,duration+(daily-.5)*.55-(social-.5)*.3);
+            return(wake,(wake+24-duration)%24,duration);
+        }
         public HumanActivitySample Activity(HumanGroupSituation group,ForagerBandSample residents,ForagerPersonSample person,HumanLifeClock clock,double temperatureC=18,double rainMmHour=0)
         {
             var f=snapshot.Foragers;var culture=f.Cultures[group.Band.Culture];var belief=f.Beliefs[group.Band.Belief];int seed=world.Recipe.Seed;
@@ -194,9 +202,9 @@ namespace WorldGen.Core
             if(group.Phase==HumanCampPhase.SettingUp||group.Phase==HumanCampPhase.Packing)
             {result.Activity=age>=12?group.Phase==HumanCampPhase.SettingUp?HumanActivity.BuildCamp:HumanActivity.PackCamp:HumanActivity.Play;result.Progress=group.Progress;result.Destination=home;return result;}
             double dawn=12-group.DaylightHours/2,dusk=12+group.DaylightHours/2;
-            double wake=D.Clamp(dawn+.3+(personality-.5),4.5,8),sleep=D.Clamp(dusk+2.1+(social-.5),19,23);
+            var sleep=SleepTiming(group.DaylightHours,age,personality,social,Unit(person.Id,seed,"sleep-onset",(int)day),temperatureC);double wake=sleep.wake;
             double hour=group.LocalHour;
-            if(hour<wake||hour>=sleep){result.Activity=HumanActivity.Sleep;return result;}
+            if((hour-sleep.sleep+24)%24<sleep.duration){result.Activity=HumanActivity.Sleep;return result;}
             if(temperatureC>30&&hour>12&&hour<14.4&&personality<.8){result.Activity=age<6?HumanActivity.Sleep:HumanActivity.Rest;return result;}
             if(rainMmHour>3&&personality<.85){result.Activity=age<8?HumanActivity.Play:person.Skills[0]>.3?HumanActivity.Craft:HumanActivity.Socialise;return result;}
             if(hour<wake+1)
@@ -213,6 +221,7 @@ namespace WorldGen.Core
             if(hour>dusk-.7)
             {
                 result.Activity=age<6?HumanActivity.Rest:belief.CollectiveRites>.6&&social<.3?HumanActivity.Teach:hour<dusk+1?HumanActivity.PrepareFood:HumanActivity.Socialise;
+                result.Role=result.Activity==HumanActivity.PrepareFood?"HearthMeal":"HearthSocial";
                 var homes=residents.Members.Select(p=>p.Household).Distinct().OrderBy(h=>h).ToArray();int hearth=Array.IndexOf(homes,person.Household)/3;
                 var sharing=homes.Skip(hearth*3).Take(3).ToHashSet();var seats=residents.Members.Where(p=>p.AgeYears>=3&&sharing.Contains(p.Household)).OrderBy(p=>p.Id).ToArray();
                 int seat=Array.FindIndex(seats,p=>p.Id==person.Id);double bearingAt=seat*Math.PI*2/Math.Max(1,seats.Length);

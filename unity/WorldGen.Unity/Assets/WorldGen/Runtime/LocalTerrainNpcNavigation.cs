@@ -7,6 +7,22 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class NpcSolid{public double X,Z,Y,Radius,Height;}
+    bool LivingNoticesVisitor(HumanActor actor,double distance)
+    {
+        if(Time.unscaledTimeAsDouble<actor.VisitorCheckAt)return actor.SeesVisitor;
+        actor.VisitorCheckAt=Time.unscaledTimeAsDouble+.55+(HumanHash(actor.ResidentId)%11)*.027;
+        var eye=actor.SneakNeck.position+transform.up*.08f;var localEye=transform.InverseTransformPoint(eye);
+        var target=transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ)));
+        actor.SeesVisitor=!Physics.Linecast(eye,target,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
+        if(!actor.SeesVisitor)return false;
+        for(int k=1;k<=4;k++)
+        {
+            double t=k/5d,x=actor.Motor.X+(motion.X-actor.Motor.X)*t,z=actor.Motor.Z+(motion.Z-actor.Motor.Z)*t;
+            double height=localEye.y+(motion.Y-localEye.y)*t;
+            if(VisibleGround(x,z,height-3)>height-.1){actor.SeesVisitor=false;break;}
+        }
+        return actor.SeesVisitor;
+    }
     bool ResolveLivingDryPoint(V proposal,V fallback,out V safe)
     {
         safe=proposal;TerrainHandoff.Coordinates(frame,proposal,out double x,out double z);
@@ -76,18 +92,24 @@ public sealed partial class LocalTerrainExplorer
         foreach(var house in Camp.Objects)if(house.NpcGroup==actor.GroupId&&house.NpcHousehold==actor.Resident.Household&&house.Blueprint!=null){actor.CampHouse=house;break;}
         return actor.CampHouse;
     }
-    void LivingDoorwayGoal(HumanActor actor,CampObject house,ref double x,ref double z)
+    bool LivingDoorwayGoal(HumanActor actor,CampObject house,ref double x,ref double z)
     {
         var plan=house.Blueprint;TerrainHandoff.Coordinates(frame,house.Position,out double cx,out double cz);double a=house.Heading*Math.PI/180;
         bool Inside(double px,double pz)
         {
             double dx=px-cx,dz=pz-cz,lx=dx*Math.Cos(a)-dz*Math.Sin(a),lz=dx*Math.Sin(a)+dz*Math.Cos(a);
+            if(plan.Design==CampDesign.BrushHut||plan.Design==CampDesign.ConicalTent)return lx*lx+lz*lz<Math.Pow(plan.WidthM*.5+.05,2);
+            if(plan.Design==CampDesign.LongHut){double end=Math.Max(0,Math.Abs(lz)-Math.Max(0,plan.DepthM-plan.WidthM)*.5);return lx*lx+end*end<Math.Pow(plan.WidthM*.5+.05,2);}
             return Math.Abs(lx)<plan.WidthM*.5+.05&&Math.Abs(lz)<plan.DepthM*.5+.05;
         }
-        bool from=Inside(actor.Motor.X,actor.Motor.Z),to=Inside(x,z);if(from==to)return;
+        bool from=Inside(actor.Motor.X,actor.Motor.Z),to=Inside(x,z);if(from==to)return false;
         double entrySide=plan.Design==CampDesign.LeanTo?-1:1;
         double doorX=cx+Math.Sin(a)*(plan.DepthM*.5+.85)*entrySide,doorZ=cz+Math.Cos(a)*(plan.DepthM*.5+.85)*entrySide;
-        if(from||Math.Pow(actor.Motor.X-doorX,2)+Math.Pow(actor.Motor.Z-doorZ,2)>.8*.8){x=doorX;z=doorZ;}
+        double actorX=(actor.Motor.X-cx)*Math.Cos(a)-(actor.Motor.Z-cz)*Math.Sin(a),actorZ=(actor.Motor.X-cx)*Math.Sin(a)+(actor.Motor.Z-cz)*Math.Cos(a);
+        // Once aligned in front of the opening, continue through it. Routing
+        // back to an exterior waypoint here creates a stop/turn oscillation.
+        if(!from&&Math.Abs(actorX)<.32&&actorZ*entrySide>plan.DepthM*.5-.15)return false;
+        x=doorX;z=doorZ;return true;
     }
     void ResolveLivingSolidContact(HumanActor actor,double oldX,double oldY,double oldZ)
     {

@@ -238,19 +238,12 @@ public sealed partial class LocalTerrainExplorer
     }
     void SurveyLivingShelter(CampObject obj)
     {
-        var plan=obj.Blueprint;TerrainHandoff.Coordinates(frame,obj.Position,out double x,out double z);double floor=VisibleGround(x,z,0);plan.FloorHeights=new double[9];
+        var plan=obj.Blueprint;double completion=plan.Parts.Sum(p=>p.WorkSeconds)/Math.Max(1,CampBlueprints.Components(plan).Sum(c=>c.Seconds));
+        TerrainHandoff.Coordinates(frame,obj.Position,out double x,out double z);double floor=VisibleGround(x,z,0);var heights=new double[9];
         double yaw=obj.Heading*Math.PI/180;
         for(int i=0;i<3;i++)for(int j=0;j<3;j++)
-        {double east=(i-1)*plan.WidthM*.5,north=(j-1)*plan.DepthM*.5;plan.FloorHeights[i*3+j]=Math.Max(-1.9,Math.Min(1.9,VisibleGround(x+east*Math.Cos(yaw)+north*Math.Sin(yaw),z+north*Math.Cos(yaw)-east*Math.Sin(yaw),floor)-floor));}
-        foreach(var component in CampBlueprints.Components(plan))
-        {
-            var state=CampBlueprints.State(plan,component);if(state==null)continue;
-            foreach(var material in state.Materials)
-            {
-                if(component.Kg>0){material.MassKg=component.Kg/state.Materials.Count;continue;}
-                double length=component.LengthM+.01;material.MassKg*=length/material.HeightM;material.HeightM=length;
-            }
-        }
+        {double east=(i-1)*plan.WidthM*.5,north=(j-1)*plan.DepthM*.5;heights[i*3+j]=Math.Max(-1.9,Math.Min(1.9,VisibleGround(x+east*Math.Cos(yaw)+north*Math.Sin(yaw),z+north*Math.Cos(yaw)-east*Math.Sin(yaw),floor)-floor));}
+        HumanCampLayout.FitShelter(obj,heights,completion);
     }
     void UnloadLivingCamp(LivingGroup group,bool abandoned=false)
     {
@@ -341,7 +334,7 @@ public sealed partial class LocalTerrainExplorer
         string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);
         var house=LivingHouse(actor);
-        if(house!=null)LivingDoorwayGoal(actor,house,ref tx,ref tz);
+        bool doorway=house!=null&&LivingDoorwayGoal(actor,house,ref tx,ref tz);
         cost=LivingCost(0,cost);
         if(dt>0)
         {
@@ -350,12 +343,13 @@ public sealed partial class LocalTerrainExplorer
             bool alarm=memory!=null&&memory.AlarmUntilSolarDay>PlayerRules.SolarDays&&HumanDistance(actor.Planet,memory.ThreatPosition)<85;
             if(alarm)
             {
+                actor.CurrentActivity=HumanActivity.Retreat;
                 TerrainHandoff.Coordinates(frame,memory.ThreatPosition,out double hx,out double hz);dx=actor.Motor.X-hx;dz=actor.Motor.Z-hz;distance=Math.Sqrt(dx*dx+dz*dz);
                 if(distance<90){actor.TargetSpeed=personRunSpeed(actor.Resident);actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);}else actor.TargetSpeed=0;
             }
             else
             {
-                actor.TargetSpeed=distance>1.2?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,.55+distance*.35):0;
+                actor.TargetSpeed=distance>(doorway?.2:1.2)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,.55+distance*.35):0;
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
                 else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
                 else if(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare)
@@ -364,7 +358,7 @@ public sealed partial class LocalTerrainExplorer
             // Unfamiliar visitors attract a look, not supernatural detection or
             // an immediate full-speed flight response. Aggression raises alarm.
             double playerRange=Math.Sqrt(Math.Pow(actor.Motor.X-motion.X,2)+Math.Pow(actor.Motor.Z-motion.Z,2));
-            if(!alarm&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep)
+            if(!alarm&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
                 actor.TargetYaw=(float)(Math.Atan2(motion.X-actor.Motor.X,motion.Z-actor.Motor.Z)*180/Math.PI);
             if(Time.unscaledTime<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
             ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35),CurrentWeather.TemperatureC);
@@ -403,11 +397,13 @@ public sealed partial class LocalTerrainExplorer
             {
                 bool crouch=actor.NpcCrouching;
                 float elapsed=Math.Max(dt,interval);actor.AnimationAt=NextLivingAnimation(actor.ResidentId,interval);AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);
-                string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):LivingWorkRole(routine.Activity);
+                bool hearth=routine.Role=="HearthMeal"||routine.Role=="HearthSocial";
+                string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):hearth?"SitGround":LivingWorkRole(routine.Activity);
                 if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater!=true)role="SitGround";
                 if(crouch&&actual<=.2f&&role!="SleepSide")role="SitGround";
                 actor.Shared?.Routine(role,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
-                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:carryRole=="WaterCarry"?"ToolReady":carryRole,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
+                string upperRole=hearth&&actual<=.2f&&routine.Activity==HumanActivity.Socialise?"Social":carryRole=="WaterCarry"?"ToolReady":carryRole;
+                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:upperRole,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
                 actor.Graph.Evaluate(0);if(crouch&&role==null)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);
                 string groundRole=role??(actual<.08f?"Idle":actual<2?"Walk":actual<4.5f?"Run":"Sprint");
                 actor.PoseGroundLift=0;
@@ -436,7 +432,7 @@ public sealed partial class LocalTerrainExplorer
             guardian=livingPeople.Values.FirstOrDefault(p=>p.GroupId==actor.GroupId&&p.Resident.AgeYears>=18&&p.Health>0);
             if(guardian==null){actor.Root.SetActive(false);if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(false);return;}
         }
-        actor.Root.SetActive(true);bool asleep=guardian.Routine?.Activity==HumanActivity.Sleep;
+        actor.Root.SetActive(true);bool asleep=guardian.Routine?.Activity==HumanActivity.Sleep&&guardian.Speed<.1f&&guardian.TargetSpeed<.1f;
         bool beside=asleep||guardian.Speed<.1f&&(guardian.Shared.ActionRole=="SitGround"||guardian.Shared.ActionRole=="WorkKneeling");
         if(guardian.Bones==null)guardian.Bones=guardian.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
         string role=asleep?"SleepSide":"SitGround";
@@ -454,7 +450,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(actor.Bones==null)actor.Bones=actor.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
             var hip=actor.Root.transform.InverseTransformPoint(actor.Bones["pelvis"].position);
-            var carry=NpcCarryOrientation(guardian);var seat=guardian.Bones["spine_02"].position+carry*new Vector3(0,.13f,-.25f);
+            var carry=NpcCarryOrientation(guardian);var seat=guardian.Bones["spine_02"].position+carry*new Vector3(0,.13f,-.15f);
             actor.Root.transform.rotation=carry;actor.Root.transform.position=seat-carry*Vector3.Scale(hip,actor.Root.transform.localScale);
         }
         actor.Planet=guardian.Planet;UpdateNpcInfantCarrier(actor,guardian,!beside);
@@ -474,8 +470,18 @@ public sealed partial class LocalTerrainExplorer
             if(plan.Design==CampDesign.RidgeTent)height*=1-Math.Abs(x)/(plan.WidthM*.5);
             else if(plan.Design==CampDesign.ConicalTent)height*=1-Math.Sqrt(x*x+z*z)/(plan.WidthM*.5);
             else if(plan.Design==CampDesign.BrushHut)height*=Math.Sqrt(Math.Max(0,1-(x*x+z*z)/(plan.WidthM*plan.WidthM*.25)));
+            else if(plan.Design==CampDesign.LongHut)
+            {double end=Math.Max(0,Math.Abs(z)-Math.Max(0,plan.DepthM-plan.WidthM)*.5);height*=Math.Sqrt(Math.Max(0,1-(x*x+end*end)/(plan.WidthM*plan.WidthM*.25)));}
             else if(plan.Design==CampDesign.LeanTo)height=.35+(height-.35)*(.5-z/plan.DepthM);
             else continue;
+            // A roof can be high enough to stand under while its front flap is
+            // lower. Anticipate that actual opening before the capsule hits it.
+            if(z>plan.DepthM*.5-.8&&plan.Design!=CampDesign.LeanTo)
+            {
+                double opening=CampBlueprints.EntranceHeight(plan)-.05;
+                if(Math.Abs(x)<.3&&(plan.Design==CampDesign.ConicalTent||plan.Design==CampDesign.BrushHut||plan.Design==CampDesign.LongHut))height=Math.Max(height,opening);
+                height=Math.Min(height,opening);
+            }
             headroom=Math.Min(headroom,(float)Math.Max(.35,height));
         }
         return headroom;

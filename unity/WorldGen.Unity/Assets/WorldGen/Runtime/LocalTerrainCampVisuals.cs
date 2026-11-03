@@ -61,7 +61,7 @@ public sealed partial class LocalTerrainExplorer
             if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM||old.FoodState!=foodState)){InvalidateCampVisual(c);}
             if(!campVisuals.TryGetValue(c.Id,out var v))
             {
-                if(c.NpcGroup!=0&&(npcVisualsAdded>=2||ElapsedHumanMs(npcVisualStart)>2))continue;
+                if(c.NpcGroup!=0&&(npcVisualsAdded>=2||npcVisualsAdded>0&&ElapsedHumanMs(npcVisualStart)>2))continue;
                 v=CreateCampVisual(c);campVisuals.Add(c.Id,v);if(c.NpcGroup!=0)npcVisualsAdded++;
             }
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);

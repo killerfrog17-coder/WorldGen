@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
         public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
-        public double AnimationAt;public GameObject WorkProp;
+        public double AnimationAt,VisitorCheckAt,WorkSoundAt;public bool SeesVisitor;public GameObject WorkProp;
         public float AvoidUntil,AvoidYaw;
         public float PoseGroundLift;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";

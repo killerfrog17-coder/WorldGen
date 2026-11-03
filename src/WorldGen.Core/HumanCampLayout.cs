@@ -8,6 +8,27 @@ namespace WorldGen.Core
     // camps are materialised; this creates no permanent world-sized object list.
     public static class HumanCampLayout
     {
+        public static void FitShelter(CampObject shelter,double[] floorHeights,double completion=1)
+        {
+            if(shelter?.Blueprint==null||floorHeights==null||floorHeights.Length!=9||floorHeights.Any(h=>!double.IsFinite(h)))throw new ArgumentException("A shelter and nine finite footing heights are required.");
+            shelter.Blueprint.FloorHeights=(double[])floorHeights.Clone();FillShelter(shelter,D.Clamp(completion));
+        }
+        static void FillShelter(CampObject shelter,double completion)
+        {
+            var plan=shelter.Blueprint;var components=CampBlueprints.Components(plan).OrderBy(c=>c.Stage).ToArray();plan.Parts.Clear();
+            double budget=components.Sum(c=>c.Seconds)*completion;
+            foreach(var part in components)
+            {
+                if(budget+1e-7<part.Seconds)break;budget-=part.Seconds;
+                var kind=part.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:part.Kind==CampPartKind.Bonework?PossessionKind.Bone:part.Kind==CampPartKind.Binding?PossessionKind.Cordage:part.Kind==CampPartKind.Cover?plan.Cover==CampCover.Hide?PossessionKind.WorkedHide:plan.Cover==CampCover.Bark?PossessionKind.BarkSheet:plan.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass:PossessionKind.Branch;
+                var material=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,shelter.Position):new Possession{Kind=kind,Position=shelter.Position,WoodSoundness=.9,WoodStraightness=.8};
+                material.Id=shelter.Id+"-material-"+part.Key;
+                if(part.Kg>0)material.MassKg=part.Kg;
+                if(part.Kind==CampPartKind.Deck){material.HeightM=1;material.WidthM=.03;material.WoodSoundness=.9;}
+                if(part.Kg==0){material.HeightM=part.LengthM+.01;material.WidthM=part.WidthM*1.1;material.DepthM=material.WidthM;material.MassKg=Math.Max(.01,material.HeightM*material.WidthM*material.WidthM*450);}
+                plan.Parts.Add(new CampPartState{Key=part.Key,WorkSeconds=part.Seconds,Materials=new List<Possession>{material}});
+            }
+        }
         public static void AgeBedding(CampObject bed,double calendarDays,double annualRainMm)
         {
             if(bed.Kind!=CampKind.Bedding||calendarDays<=0)return;
@@ -88,18 +109,8 @@ namespace WorldGen.Core
                         if(CampBlueprints.SleepingPlaces(plan)<places&&plan.Design!=CampDesign.ConicalTent)
                         {plan=CampBlueprints.Create(CampDesign.LongHut,Math.Max(3,plan.WidthM),Math.Min(8,places*1.7/.75/Math.Max(3,plan.WidthM)),plan.Cover);shelter.Blueprint=plan;}
                     }
-                    var components=CampBlueprints.Components(plan).OrderBy(c=>c.Stage).ToArray();
                     floorW=plan.WidthM;floorD=plan.DepthM;
-                    double budget=components.Sum(c=>c.Seconds)*completion;
-                    foreach(var part in components)
-                    {
-                        if(budget+1e-7<part.Seconds)break;budget-=part.Seconds;
-                        var kind=part.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:part.Kind==CampPartKind.Bonework?PossessionKind.Bone:part.Kind==CampPartKind.Binding?PossessionKind.Cordage:part.Kind==CampPartKind.Cover?plan.Cover==CampCover.Hide?PossessionKind.WorkedHide:plan.Cover==CampCover.Bark?PossessionKind.BarkSheet:plan.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass:PossessionKind.Branch;
-                        var material=Item(kind,position,"house-"+household.Key+"-"+part.Key,part.Kg>0?part.Kg:0);
-                        if(part.Kind==CampPartKind.Deck){material.HeightM=1;material.WidthM=.03;material.WoodSoundness=.9;}
-                        if(part.Kg==0){material.HeightM=part.LengthM+.01;material.WidthM=part.WidthM*1.1;material.DepthM=material.WidthM;material.MassKg=Math.Max(.01,material.HeightM*material.WidthM*material.WidthM*450);}
-                        plan.Parts.Add(new CampPartState{Key=part.Key,WorkSeconds=part.Seconds,Materials=new List<Possession>{material}});
-                    }
+                    FillShelter(shelter,completion);
                     if(plan.Parts.Count>0)result.Add(shelter);
                 }
                 if(completion>.25)

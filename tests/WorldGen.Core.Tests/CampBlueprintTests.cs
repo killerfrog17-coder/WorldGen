@@ -61,7 +61,8 @@ static class CampBlueprintTests
                 Check(parts.All(c=>c.Points.All(v=>double.IsFinite(v.Length))&&double.IsFinite(c.Kg)&&c.Seconds>0),"Extreme-sized layouts are finite: "+entry.Name);
                 Check(parts.Where(c=>c.Kg==0).All(c=>c.LengthM<=4.5),"No structural member exceeds available long branches: "+entry.Name);
                 Check(parts.Where(c=>c.Kind==CampPartKind.Cover).All(c=>c.Kg>0),"Roof surfaces require actual covering mass");
-                Check(CampBlueprints.Entrance(layout).Z==layout.DepthM*.5,"A shared entrance anchor is available to future camp layouts");
+                Check(CampBlueprints.Entrance(layout).Z==layout.DepthM*.5*(layout.Design==CampDesign.LeanTo?-1:1),"Shared entrance anchor follows the actual open side of each shelter");
+                Check(CampBlueprints.EntranceHeight(layout)>0,"Shared entrance clearance stays finite and usable");
             }
         }
         // A roof must not repaint or lose a hide when more than one donor is

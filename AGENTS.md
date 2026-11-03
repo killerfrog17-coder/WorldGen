@@ -49,6 +49,34 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov15:47Z OWNER SAYS CONTINUE (Sol high); NO STOP/WRAP. Stage1 NPC only,
+2/3 UNTOUCHED. Selectedslot-b baseline39964fb unchanged. Internal A latest managed
+NONDEV/ScriptsOnly15:44ish built current source; final source UNCOMMITTED since
+085c167 PUSHED. Earlier actual production-path wet31PASS (door entry/exit +full
+camp cycle), cold-fit21PASS (1.93C conical hides +real walking), aquatic-hearth19
+PASS (permanent base), collector28PASS, yearzero17PASS. Those predate final sleep/
+portal refinements; do not label final package. New final tests carry exact DLL/
+worker hash receipts. PSsession finalbatch ACTIVE: accepted-poses,wet(perf/walk/
+cycle),cold(walk),aquatic,collector(walk/cycle),start, sequential/uncontended.
+Current Core28242 human-life/13132blueprints PASS;15 bounded-site/decay prior PASS.
+New full 9-height fitting rebuilds actual conical component graph (old cached
+cold-cached failed missing covers after floor-height change; corrected). Door
+threshold/low-flap issues caught/fixed; actual walk tracks passed. New circular
+footprint routing/off-axis approach needs latest pass. Biological bounded adult
+sleep, seated evening gestures, subtle local work sounds added. No LLM/dialogue/
+NPC hunting/economic inventory loops. Source broad-history numerics untouched.
+Final input proof:5048original locked exact,5131current/5272total/134packs,83new;
+all authoring backups published+remote SHA checked. Latest screenshot inspections
+cold-fit hides/slope, aquatic night seated hearth, full wet forest clear floors.
+Full-scale cold terrain prep initially FAILED120s bootstrap /180s Mono fixture;
+actual existing global river fit costs152s CoreCLR, now correct shared cache
+prewarmed. Production-path fixture uses TerrainMeshProcess +derivation cache,
+not the old slow standalone Mono terrain fit. NOT an NPC numeric failure. No
+whole-world FPS claim on earlier still-loading benchmarks (42NPC update~1.8ms).
+Need latest final native results/screenshots, source package/asset manifest/Git/
+shortcut before stage2. 8h15:46:56Z is NOT a stop. Owner3files untouched; no paid/
+subagents/owner apps closed. No current Unity/build processes.
+
 ACTIVE3Nov12:56Z KEEP WORKING UNTIL OWNER STOP. Stage1 NPC only;2/3 untouched.
 Selectedslot-b/39964fb shortcut unchanged. Latest internal A managed nondev built
 ~12:46Z passes camp-ground-2 26 native checks/EXIT0: canonical tree/rock avoidance,
