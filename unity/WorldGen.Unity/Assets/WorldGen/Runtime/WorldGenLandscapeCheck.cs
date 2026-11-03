@@ -16,6 +16,8 @@ public sealed partial class LocalTerrainExplorer
         public string Requested,Actual,HistoryHash;
         public V Position;public double Elevation,Water,Depth,PrepareMs,NearLoadSeconds;
         public int Tiles,ScatterPages,WaterRenderers;
+        public int NearbyPools,Reeds,SubmergedReeds;
+        public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
         public SmallLake Pond;
     }
     sealed class LandscapeReviewSite{public V Position;public SmallLake Pond;public LocalTerrainSample Sample;}
@@ -100,11 +102,24 @@ public sealed partial class LocalTerrainExplorer
             var direction=1-alignment*alignment<.4?new V(.13,.85,-.51):first;
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
         }
-        Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f));Capture("ground",orientation*new Vector3(0,2.1f,Math.Max(8,width*.9f)));
+        Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f));Capture("ground",orientation*new Vector3(0,1.8f,10));
+        int reeds=0,submergedReeds=0;var plantPatch=model.Patch(site.Position,5000);
+        foreach(var chunk in owner.scatterChunks.Values)
+        {
+            if(chunk.Source?.Instances==null)continue;
+            foreach(var plant in chunk.Source.Instances)
+            {
+                if(plant.Kind!=ScatterKind.MidPlant||new MidMorphology(plant.Variant).Form!=MidGrowthForm.ReedStand||(plant.Position-site.Position).Length*model.RadiusM*.1>150)continue;
+                reeds++;if(plantPatch.Sample(plant.Position).Underwater)submergedReeds++;
+            }
+        }
+        int pools=model.Amplification.SmallLakesNear(site.Position,250).Length;
         Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
-            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond}));
+            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,
+            NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
+            CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LANDSCAPE PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }
 }
