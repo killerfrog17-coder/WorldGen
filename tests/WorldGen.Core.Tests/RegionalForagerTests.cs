@@ -47,6 +47,12 @@ static class RegionalForagerTests
             {if(field.Name=="Foragers")continue;var aa=StateHash.Compute(field.GetValue(state));var bb=StateHash.Compute(field.GetValue(split));if(aa!=bb)Console.WriteLine("STATE DIFF "+field.Name);}
         }
         if(years<=10000)Check(split.Hash==state.Hash,"Caller publication frequency does not change history");
+        T WireCopy<T>(T value){using var memory=new MemoryStream();using(var writer=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))RegionalWire.Write(writer,value);memory.Position=0;using var reader=new BinaryReader(memory);return RegionalWire.Read<T>(reader);}
+        var transferred=WireCopy(initial);transferred.Hash=null;
+        Check(transferred.Hash==initial.Hash,"History worker initial state transfers every authoritative bit");
+        var publication=WireCopy(RegionalPublication.Between(initial,state));var applied=publication.Apply(transferred);
+        Check(applied.Hash==state.Hash,"Regional delta replication equals authoritative historical state");
+        Check(engine.AdvanceSeconds(applied,257*SimulationTime.Year,int.MaxValue).Hash==engine.AdvanceSeconds(state,257*SimulationTime.Year,int.MaxValue).Hash,"Replicated queue and epochs retain identical future evolution");
         var daySession=new SimulationSession(engine,state);long lateStep=Math.Max(1,Math.Min(SimulationTime.Day/5,(state.Foragers.NextReviewSeconds-state.Foragers.Seconds-1)/1000));watch.Restart();for(int i=0;i<1000;i++)clock=daySession.AdvanceSeconds(lateStep);double lateMs=watch.Elapsed.TotalMilliseconds;
         Check(lateMs<1000,"Late-world fine-clock publications remain below one second");
         w.Prehistory=state;watch.Restart();var bytes=WorldFile.Write(w);var restored=WorldFile.Read(bytes);new Prehistory(restored).ValidateForagers(restored.Prehistory);double saveSeconds=watch.Elapsed.TotalSeconds;

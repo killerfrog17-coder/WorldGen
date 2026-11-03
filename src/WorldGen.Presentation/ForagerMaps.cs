@@ -14,6 +14,7 @@ namespace WorldGen.Presentation
         readonly Dictionary<int,double> population;
         readonly int[] speech;
         public double Population(ForagerCohort c)=>population[c.Id];
+        public long TotalPopulation=>(long)Math.Round(population.Values.Sum());
         public ForagerCohort[] Residents(int cell)=>cell>=0&&cell<state.Foragers.CellDistrict.Length&&state.Foragers.CellDistrict[cell]>=0?residents[state.Foragers.CellDistrict[cell]]:Array.Empty<ForagerCohort>();
         public ForagerCohort? Dominant(int cell)=>Residents(cell).FirstOrDefault();
         ForagerMaps(PrehistoryState s)

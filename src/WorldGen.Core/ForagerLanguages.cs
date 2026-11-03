@@ -8,6 +8,11 @@ namespace WorldGen.Core
         public static readonly string[] Concepts={"I","you","we","who","what","one","two","many","person","woman","man","child","mother","father","hand","foot","eye","ear","mouth","tooth","blood","bone","skin","hair","head","heart","water","fire","stone","wood","sun","moon","star","day","night","earth","mountain","river","sea","rain","wind","cold","hot","tree","grass","leaf","root","fruit","seed","meat","fish","bird","deer","snake","dog","food","hide","spear","bow","arrow","rope","bag","needle","boat","speech","name","home","camp","path","spirit","ancestor","dream","death","life","hunt","gather","eat","drink","sleep","go","come","see","hear","know","give","take","make","help","share","trade","friend","stranger","danger","good","bad","yes","no","here","there","now","before","tomorrow","because","if","and","not","sick","hurt","heal","dance","sing","story","promise","marry","guest","gift","winter","summer","spring","autumn","dry","wet","safe","far","near","large","small","sharp"};
         static readonly HashSet<string> Slow=new HashSet<string>{"I","you","we","who","what","one","two","hand","foot","eye","ear","mouth","tooth","blood","bone","water","fire","sun","moon","night","death"};
         static readonly int[][] SoundShifts={new[]{0,1,9,10},new[]{2,3,11,12,23},new[]{4,5,19,20},new[]{6,7,8},new[]{13,21,22,24},new[]{14,17,18},new[]{15,16},new[]{25,26,27,28,29,30,31}};
+        static readonly uint[] ReplacementStreams=Enumerable.Range(0,Concepts.Length).Select(k=>Rng.StreamHash("lexical-replacement-"+k)).ToArray();
+        static readonly uint[] BorrowStreams=Enumerable.Range(0,Concepts.Length).Select(k=>Rng.StreamHash("forager-borrow-"+k)).ToArray();
+        static readonly uint[] GrammarShiftStreams=Enumerable.Range(0,10).Select(k=>Rng.StreamHash("forager-grammar-shift-"+k)).ToArray();
+        static readonly uint[] GrammarValueStreams=Enumerable.Range(0,10).Select(k=>Rng.StreamHash("forager-grammar-value-"+k)).ToArray();
+        static readonly bool[] SlowItems=Concepts.Select(Slow.Contains).ToArray();
         public static int ConceptIndex(string concept)=>Array.IndexOf(Concepts,concept);
         static int Seed(int seed,string channel,int value)=>(int)(Rng.Mix(unchecked((uint)seed)^unchecked((uint)value*2654435761u)^unchecked((uint)channel.Length*7919u))&int.MaxValue);
         public static ForagerLanguage Create(int seed,int id,int district,int year,ForagerLanguage parent=null)
@@ -44,17 +49,17 @@ namespace WorldGen.Core
             for(int k=0;k<Concepts.Length;k++)
             {
                 double rate=l.Rates[k]*(.8+.6*D.Clamp(isolation));
-                if(Rng.Value(seed,"lexical-replacement-"+k,unchecked(l.Id*104729+year))<1-Math.Exp(-rate*elapsed))
+                if(Rng.ValueFromStreamHash(seed,ReplacementStreams[k],unchecked(l.Id*104729+year))<1-Math.Exp(-rate*elapsed))
                 {l.Roots[k]=Seed(l.Seed,"replacement",unchecked(year*193+k*7919));l.RootYears[k]=year;}
-                double borrowing=contact*(Slow.Contains(Concepts[k])?.000015:.00018)*elapsed;
-                if(donor!=null&&Rng.Value(seed,"forager-borrow-"+k,unchecked(l.Id*7919+year))<borrowing){l.Roots[k]=donor.Roots[k];l.RootYears[k]=year;}
+                double borrowing=contact*(SlowItems[k]?.000015:.00018)*elapsed;
+                if(donor!=null&&Rng.ValueFromStreamHash(seed,BorrowStreams[k],unchecked(l.Id*7919+year))<borrowing){l.Roots[k]=donor.Roots[k];l.RootYears[k]=year;}
             }
             var random=new Rng(l.Seed,"forager-sound-history",year);var group=SoundShifts[random.Next()%(uint)SoundShifts.Length];int a=group[random.Next()%(uint)group.Length],b;
             do{b=group[random.Next()%(uint)group.Length];}while(b==a);
             for(int k=0;k<l.Sounds.SoundMap.Length;k++){int sound=l.Sounds.SoundMap[k];l.Sounds.SoundMap[k]=sound==a?b:sound==b?a:sound;}
             for(int k=0;k<l.Grammar.Length;k++)
             {
-                if(Rng.Value(seed,"forager-grammar-shift-"+k,l.Id^year)<1-Math.Exp(-elapsed*(k<3?.000035:.00011)))l.Grammar[k]=Rng.Value(seed,"forager-grammar-value-"+k,l.Id+year);
+                if(Rng.ValueFromStreamHash(seed,GrammarShiftStreams[k],l.Id^year)<1-Math.Exp(-elapsed*(k<3?.000035:.00011)))l.Grammar[k]=Rng.ValueFromStreamHash(seed,GrammarValueStreams[k],l.Id+year);
                 if(donor!=null)l.Grammar[k]=D.Clamp(l.Grammar[k]+(donor.Grammar[k]-l.Grammar[k])*D.Clamp(contact*elapsed/7000));
                 l.Grammar[k]=D.Q(l.Grammar[k],1000000000);
             }

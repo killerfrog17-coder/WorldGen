@@ -49,6 +49,29 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov03:53Z REGIONAL-2 PERFORMANCE WORK CONTINUES; no goal registered.
+Owner requires local ordinary events, randomized regional dates, >=10kyr/s
+ACTUAL interactive200k playback; layer switches<200ms and publication gaps<250ms.
+304870c checkpoints independent local scheduler/COW/lazy hash/GPU region maps.
+Current additional UNCOMMITTED CoreCLR executor uses shipped CLI worker +typed
+binary regional deltas; code under RegionalPublication/RegionalWire/RegionalHistory.
+No new model/second simulation; source numerical trajectory unchanged. Full200k/
+190k20PASS at14,996yr/s batch, same8e9875...hash, exact initial/delta/future257yr
+transfer and real current save/reload. events-scale/result.json; wire-compact-full.log.
+Old Mono direct1700-2000yr/s /interactive1000 failed speed, maps6-10ms responsive.
+First worker unbuffered tiny socket reads failed322yr/s; framed packet4823yr/s
+and463msgap also FAILED. Do NOT claim either passes. Latest compact ecology
+delta avoids resending immutable taxon arrays, new timing counters. Slot-a latest
+managed nondev scripts-only built successfully; actual compact-player RUNNING
+session89439, artifacts/regional-sim-20261103/coreclr-compact-player. Source/core
+current exact full trajectory; new frame test result/visual review stillpending.
+Root shortcut still rejected regional-1 slot-b. Never select until actual gate
+passes. Further needed: actual performance fix if fails, source checkpoint/push,
+current manifest/docs/shortcut and final actual verification. Recorder updated
+to require>=10k actual and current20-check full history, not oldgameplay tests.
+No unrelated gathering/crafting/corpse tests; no compatibility work. Owner3
+untouched, no subagents/paid/cleanup/owner-app closures. All3Unityautosrestored.
+
 SELECTED3Nov02:02Z REGIONAL PERFORMANCE REPAIR. Root shortcut NOW slot-b,
 managed NON-DEVELOPMENT BuiltUtc2026-11-03T01:46:47.7910093Z. Runtime source
 774854ba012131eeabff9d5e31cc9a2237edc23b PUSHED. foragers-regional-1 restores

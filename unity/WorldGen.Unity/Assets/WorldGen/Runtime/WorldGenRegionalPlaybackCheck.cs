@@ -17,6 +17,7 @@ public sealed partial class WorldGenRuntime
         public long[] ProcessItems=new long[Prehistory.RegionalProcessCount];
         public double[] ProcessMilliseconds=new double[Prehistory.RegionalProcessCount];
         public double DirectYearsPerSecond;
+        public double WorkerComputeMs,WorkerTransferMs,WorkerDecodeMs,WorkerApplyMs;public long WorkerBytes;public int WorkerPublications;
     }
     IEnumerator CheckRegionalPlayback()
     {
@@ -38,6 +39,8 @@ public sealed partial class WorldGenRuntime
         evidence.FineSeconds=Time.realtimeSinceStartupAsDouble-started;evidence.FineDays=(SimulationTime.Seconds(world.Prehistory)-first)/(double)SimulationTime.Day;
         frames.Sort();evidence.FineMaximumFrameMs=frames.LastOrDefault();evidence.FineP95FrameMs=frames.Count>0?frames[(int)((frames.Count-1)*.95)]:0;
         if(evidence.FineDays<9){Debug.LogError("REGIONAL PLAYBACK fine clock cannot sustain one day per second");Application.Quit(1);yield break;}evidence.Checks++;
+        while(humanHistoryReady!=null&&!humanHistoryReady.IsCompleted)yield return null;
+        if(humanHistoryReady?.IsFaulted==true)throw humanHistoryReady.Exception;
         var direct=System.Threading.Tasks.Task.Run(()=>{var session=new SimulationSession(humans,world.Prehistory);long target=session.Seconds+1000*SimulationTime.Year;var timer=System.Diagnostics.Stopwatch.StartNew();while(session.Seconds<target)session.AdvanceSeconds(target-session.Seconds,1000000);return 1000/timer.Elapsed.TotalSeconds;});
         while(!direct.IsCompleted)yield return null;evidence.DirectYearsPerSecond=direct.GetAwaiter().GetResult();
         humans.WorkObserver=metric=>{if(metric.Stage.StartsWith("regional process ")&&int.TryParse(metric.Stage.Substring(17),out int process)){evidence.ProcessItems[process]+=metric.Items;evidence.ProcessMilliseconds[process]+=metric.Milliseconds;}};
@@ -48,6 +51,7 @@ public sealed partial class WorldGenRuntime
         {yield return null;double now=Time.realtimeSinceStartupAsDouble;frames.Add((now-previous)*1000);previous=now;long next=SimulationTime.Seconds(world.Prehistory);if(next!=observed){evidence.MaximumPublicationPauseMs=Math.Max(evidence.MaximumPublicationPauseMs,(now-lastPublication)*1000);lastPublication=now;observed=next;}}
         humanPlaying=false;while(humanStep!=null)yield return null;
         humans.WorkObserver=null;
+        if(humanHistoryProcess!=null){var worker=humanHistoryProcess;evidence.WorkerComputeMs=worker.ComputeMilliseconds;evidence.WorkerTransferMs=worker.TransferMilliseconds;evidence.WorkerDecodeMs=worker.DecodeMilliseconds;evidence.WorkerApplyMs=worker.ApplyMilliseconds;evidence.WorkerBytes=worker.Bytes;evidence.WorkerPublications=worker.Publications;}
         evidence.FastSeconds=Time.realtimeSinceStartupAsDouble-started;evidence.FastYears=(SimulationTime.Seconds(world.Prehistory)-first)/(double)SimulationTime.Year;evidence.FastYearsPerSecond=evidence.FastYears/evidence.FastSeconds;
         frames.Sort();evidence.FastMaximumFrameMs=frames.LastOrDefault();evidence.FastP95FrameMs=frames.Count>0?frames[(int)((frames.Count-1)*.95)]:0;
         evidence.Checks++;

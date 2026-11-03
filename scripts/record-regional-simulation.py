@@ -1,4 +1,4 @@
-"""Record current regional simulation and real-player speed checks, no legacy replay."""
+"""Record current regional history and actual interactive acceptance; no legacy replay."""
 import argparse
 from datetime import datetime, timezone
 import hashlib
@@ -8,8 +8,10 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source', required=True)
+parser.add_argument('--player', default='artifacts/regional-sim-20261103/coreclr-packet-player')
+parser.add_argument('--batch', default='artifacts/regional-sim-20261103/events-scale')
+parser.add_argument('--slot', choices=['slot-a', 'slot-b'], default='slot-a')
 args = parser.parse_args()
-evidence = root / 'artifacts/regional-sim-20261103'
 
 def read(path):
     raw = path.read_bytes()
@@ -22,51 +24,52 @@ def sha(path):
     with path.open('rb') as stream:
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
-full = load(evidence / 'actual-scale/result.json')
-short = load(evidence / 'actual-scale-10k.json')
-earth = load(evidence / 'earth/result.json')
-assert full['cells'] == short['cells'] == 200000
-assert full['years'] == 190000 and short['years'] == earth['years'] == 10000
-assert full['checks'] == 14 and short['checks'] == earth['checks'] == 15
+full = load(root / args.batch / 'result.json')
+assert full['cells'] == 200000 and full['years'] == 190000 and full['checks'] >= 20
 assert full['aggregates'] <= full['regions'] and full['families'] <= full['regions'] * 2
-assert full['historicalSeconds'] < 180 and full['lateFineClock1000Ms'] < 1000
-player = load(evidence / 'player/result.json')
-assert int(read(evidence / 'player/exit-code.txt')) == 0
-assert player['Cells'] == 200000 and player['Checks'] == 8 and player['RuntimeErrors'] == 0
-assert player['FineDays'] / player['FineSeconds'] >= .8 and player['FastYearsPerSecond'] >= 100
-game = evidence / 'gameplay-earth'
-assert int(read(game / 'exit-code.txt')) == 0
-checks = read(game / 'checks.txt').splitlines()
-assert len(checks) == 32 and all(x.startswith('PASS ') for x in checks)
-assert 'Exception:' not in read(game / 'player.log')
-stamp = load(root / 'builds/slot-b/build-inputs.json')
+assert full['lateFineClock1000Ms'] < 1000
+folder = root / args.player
+player = load(folder / 'result.json')
+assert int(read(folder / 'exit-code.txt')) == 0
+assert player['Cells'] == 200000 and player['Checks'] >= 8 and player['RuntimeErrors'] == 0
+assert player['FineDays'] / player['FineSeconds'] >= .8
+assert player['FastYearsPerSecond'] >= 10000
+assert player['MaximumLayerSwitchMs'] < 200 and player['MaximumPublicationPauseMs'] < 250
+stamp = load(root / 'builds' / args.slot / 'build-inputs.json')
 assert not stamp['Development'] and stamp['Backend'] == 'Mono'
 for assembly in stamp['Inputs']:
-    packaged = root / 'builds/slot-b/WorldGen_Data/Managed' / (assembly['Assembly'] + '.dll')
+    packaged = root / 'builds' / args.slot / 'WorldGen_Data/Managed' / (assembly['Assembly'] + '.dll')
     assert sha(packaged) == assembly['Sha256'], assembly['Assembly']
-worker = root / 'builds/slot-b/TerrainWorker/WorldGen.Cli.exe'
+worker = root / 'builds' / args.slot / 'TerrainWorker/WorldGen.Cli.exe'
 assert sha(worker) == stamp['TerrainWorkerSha256']
 manifest = dict(
     recorded_utc=datetime.now(timezone.utc).isoformat(), source=args.source,
-    status='Selected current-version review; owner playtesting pending',
-    rules='foragers-regional-1', selected_slot='builds/slot-b', build=stamp,
-    architecture=dict(population='One aggregate per connected ecoregion',
-        population_review_years=100, culture_language_review_years=500, ecology_review_years=1000,
-        local_detail='Deterministic camps, residents and itineraries generated from regional distributions',
-        fine_clock='Shared frozen regional domain; small clock digest, no full-state copy or hash',
-        history_bounds='At most one population/cultural profile per region, two family summaries per region, one discovery per technique/region'),
-    current_200k_190k=full, current_200k_10k=short, current_earth_10k=earth,
-    actual_player=player, actual_gameplay=dict(checks=checks, initial_terrain=read(game / 'initial-terrain.txt')),
-    images={p.name:sha(p) for p in (evidence / 'player').glob('*.png')},
+    status='Current-version interactive performance review; owner playtesting pending',
+    rules='foragers-regional-2', selected_slot='builds/' + args.slot, build=stamp,
+    architecture=dict(
+        population='One aggregate per connected ecoregion; no global tribe ledger',
+        event_windows_years=dict(population=[200,400], technology=[150,350], migration=[200,600], language=[300,900], tradition=[200,800], ecology=[700,1700], culture=[300,900]),
+        events='Independent seeded random dates, direct regional lookup, local neighbours, persistent O(log E) queue',
+        publication='Copy-on-write records; lazy full hash only when requested/saving',
+        executor='Same Core simulation in shipped CoreCLR worker; committed regional binary deltas returned to managed player',
+        maps='Cell-to-region GPU lookup built once; small regional palettes per layer',
+        ecology='Broad climate/resource/forest state; local species derived from native realm, dated climate and resource stocks',
+        local_detail='Deterministic camps, residents and itineraries generated on demand'),
+    current_200k_190k=full, actual_player=player,
+    images={p.name:sha(p) for p in folder.glob('*.png')},
+    acceptance=dict(minimum_actual_years_per_second=10000, maximum_layer_switch_ms=200, maximum_publication_gap_ms=250),
     excluded_failures=[
-        'First small-world publication-partition check exposed arrival-date publication dependence; corrected before final tests.',
-        '200k procedural-world nature fixture entered terrain but failed its fixed-location deer spawn; excluded. Known Earth-location interaction fixture passed all32 checks.'
+        'Regional-1 synchronized reviews and416 years/second were rejected.',
+        'Initial regional-2 player hit its playback-rate cap before producing a valid speed result.',
+        'Local Mono executor remained roughly1000 years/second despite fast maps.',
+        'First CoreCLR transport used tiny unbuffered reads/writes; failed speed and publication-latency gates.'
     ],
     limits=[
-        '62-second full history is a CoreCLR batch measurement; packaged interactive playback was416 years/second, not the same speed.',
-        'Regional rates remain approximate game priors; this performance repair does not establish complete historical calibration.',
-        'Physical NPC camp integration remains separate; local candidates still require terrain validation.',
-        'Old detailed-ledger saves are unsupported. Generate a new world.'
+        'Measurements are this machine and fixture, not a universal throughput guarantee.',
+        'Regional rates remain approximate game priors; a performance repair is not complete historical calibration.',
+        'Local species suitability is derived, not an individually tracked global animal migration history.',
+        'Physical NPC camp integration remains separate; local candidates require terrain validation.',
+        'Old simulation saves are unsupported. Generate a new world.'
     ])
 output = root / 'assets/verification/regional-simulation-20261103.json'
 output.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')

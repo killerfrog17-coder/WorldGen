@@ -14,6 +14,7 @@ public sealed partial class WorldGenRuntime
     sealed class HumanPreparation {public Prehistory Engine;public PrehistoryState State;}
     Prehistory humans;World humanWorld;Task<HumanPreparation> humanPreparation;
     SimulationSession humanSession;
+    RegionalHistoryProcess humanHistoryProcess;Task humanHistoryReady;
     sealed class HumanPlaybackWork { public Task<PrehistoryState> Task;public SimulationSession Session; }
     HumanPlaybackWork humanPlaybackWork;System.Threading.CancellationTokenSource humanCancellation;
     Task<PrehistoryState> humanStep;bool humanPlaying;int humanVariant,lastHumanSelection=-2;
@@ -36,6 +37,7 @@ public sealed partial class WorldGenRuntime
         {
             humanPlaying=false;humans=null;humanWorld=world;humanStep=null;lastHumanSelection=-2;atlasOpen=false;atlasSearchFocused=false;musicSimulationStarted=false;humanPlayback.AutoEra(2);
             humanCancellation?.Cancel();humanCancellation?.Dispose();humanCancellation=new System.Threading.CancellationTokenSource();
+            humanHistoryProcess?.Dispose();humanHistoryProcess=null;humanHistoryReady=null;
             humanSession=null;humanPlaybackWork=null;
             cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();cachedHeadlines=Array.Empty<ChronicleEvent>();legendState=null;legendEngine=null;
             var captured=world;var preparationToken=humanCancellation.Token;
@@ -44,7 +46,7 @@ public sealed partial class WorldGenRuntime
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
         {
             var task=humanPreparation;humanPreparation=null;
-            try{var prepared=task.GetAwaiter().GetResult();humans=prepared.Engine;bool fresh=world.Prehistory==null;world.Prehistory=prepared.State;if(fresh){historyOverlay=HistoryOverlay.Cultures;if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;UpdateHumanPalette();}
+            try{var prepared=task.GetAwaiter().GetResult();humans=prepared.Engine;bool fresh=world.Prehistory==null;world.Prehistory=prepared.State;if(fresh){historyOverlay=HistoryOverlay.Cultures;if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;PrepareRegionalHistory();UpdateHumanPalette();}
             catch(Exception ex){error=ex.Message;humans=null;}
         }
         if(humanStep!=null&&humanStep.IsCompleted)
@@ -53,11 +55,13 @@ public sealed partial class WorldGenRuntime
             try{var prior=world.Prehistory;world.Prehistory=task.GetAwaiter().GetResult();if(playbackWork?.Task==task)humanSession=playbackWork.Session;long consumed=Math.Max(0,SimulationTime.Seconds(world.Prehistory)-(long)calendarWorkStarted);if(calendarWorkIsPlay)play.Consume(consumed);else humanPlayback.Consume(consumed);calendarWorkIsPlay=false;if(!SameHumanDomain(prior,world.Prehistory)&&!Prehistory.Foraging(world.Prehistory))UpdateHumanPalette();}catch(Exception ex){error=ex.Message;humanPlaying=false;terrainExplorer?.Pause();}
         }
         if(humans==null)return;
+        if(humanHistoryReady?.IsFaulted==true){error="History worker: "+humanHistoryReady.Exception.GetBaseException().Message;humanPlaying=false;humanHistoryReady=null;}
         if(terrainExplorer==null&&displayedWorld==world)RequestHistoryBorders();
         if(terrainExplorer==null&&(screen=="Simulation"||layer==Layer.Simulation)&&lastHumanSelection!=selectedCell)UpdateHumanPalette();
         double clockNow=Time.realtimeSinceStartupAsDouble,elapsed=humanClockSample==0?0:clockNow-humanClockSample;humanClockSample=clockNow;
         humanPlayback.World(world.Prehistory,CurrentMusicEra());
         bool run=screen=="Simulation"&&!atlasOpen&&selectedEvent==null&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
+        if(humanHistoryProcess!=null&&humanPlayback.Rate>=200*SimulationTime.Year&&humanHistoryReady?.IsCompleted!=true)run=false;
         humanPlayback.Accumulate(elapsed,run);
         bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
         if(WorldGenPerformance.Enabled)playingLocal=false; // Fixed benchmark sun/weather/calendar; never advance a saved history.
@@ -73,8 +77,9 @@ public sealed partial class WorldGenRuntime
             // Session validation/copies are background work too. Fine clocks
             // also use the private input: public validation is not a cheap tick.
             var reusable=humanSession;var work=new HumanPlaybackWork();humanPlaybackWork=work;var token=humanCancellation.Token;
+            var remote=!playingLocal&&humanHistoryReady?.Status==TaskStatus.RanToCompletion?humanHistoryProcess:null;
             humanStep=work.Task=Task.Run(()=>{
-                token.ThrowIfCancellationRequested();var session=reusable;
+                token.ThrowIfCancellationRequested();if(remote!=null)return remote.Advance(state,seconds,token);var session=reusable;
                 if(session==null||!ReferenceEquals(session.LastSnapshot,state))session=new SimulationSession(engine,state);
                 // Task-local ownership prevents an abandoned old-world worker
                 // from installing/advancing the new world's session.
@@ -82,6 +87,14 @@ public sealed partial class WorldGenRuntime
             });
         }
     }
+    void PrepareRegionalHistory()
+    {
+        if(!Prehistory.Foraging(world.Prehistory)||Application.platform!=RuntimePlatform.WindowsPlayer)return;
+        string executable=System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));if(!System.IO.File.Exists(executable))return;
+        humanHistoryProcess=new RegionalHistoryProcess(executable,world,ReferenceEquals(terrainSnapshotWorld,world)?terrainSnapshotPath:null);
+        var worker=humanHistoryProcess;var state=world.Prehistory;var token=humanCancellation.Token;humanHistoryReady=Task.Run(()=>worker.Prepare(state,token),token);
+    }
+    void OnApplicationQuit(){humanCancellation?.Cancel();humanHistoryProcess?.Dispose();}
     void UpdateHumanPalette()
     {
         RequestHistoryBorders();

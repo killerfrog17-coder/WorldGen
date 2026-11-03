@@ -91,7 +91,7 @@ namespace WorldGen.Presentation
             if(s.History!=null)return HistoricalMapSnapshot.For(s).OverlayId(cell,overlay);
             var culture=Culture(s,cell);return culture?.Stage==SocietyStage.Civilization?culture.Id:-1;
         }
-        public static long Population(PrehistoryState s)=>s?.History?.Aggregates?.TotalPopulation??(s==null?0:s.Population.Sum()+(s.Society?.Settlements.Sum(t=>t.Population)??0));
+        public static long Population(PrehistoryState s)=>Prehistory.Foraging(s)?ForagerMaps.For(s).TotalPopulation:s?.History?.Aggregates?.TotalPopulation??(s==null?0:s.Population.Sum()+(s.Society?.Settlements.Sum(t=>t.Population)??0));
         public static string Stage(SocietyStage s)=>s==SocietyStage.AdvancedCulture?"Advanced culture":s==SocietyStage.EmbryonicCivilization?"Embryonic civilization":s==SocietyStage.Civilization?"Civilization":"Foragers";
         // Regional traditions remain advanced cultures even when a local center has matured.
         public static string LocalStage(PrehistoryState s,int cell,SocietyStage fallback)=>
