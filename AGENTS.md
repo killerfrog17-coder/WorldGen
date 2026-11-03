@@ -49,6 +49,25 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov18:29Z CONTINUE (owner: On sol high now continue). Stage1 NPC selected A
+unchanged/c1ec937; root shortcut A. Stage2 source840653b +asset lockcc0f34d PUSHED.
+Current LocalTerrain17/Hyper15/SmallWater2 separates permafrost from glacial ground,
+adds Icefield, desert gravel exposure and deterministic pond priority thinning.
+Initial radial-shell pond-spacing boundary test FAILED (retained); corrected1577
+PASS. Final actual200k-cell world pond/water mesh/shared chunk edges PASS and
+current river27175checks/763spans/8tiles PASS. New CC0 PolyHaven sand_01,
+gravel_stones,mud_cracked_dry_03 source inputs in assets-source/terrain/surfaces;
+23previouslyunlocked terrain inputs now immutable release landscape-source-inputs-
+20261103 remotely SHAverified. Lock5154/135packs. Onlytexturearray slices1,2,3,6
+changed; remaining10 byteexact, same14layer BC7 payload512/256/128, noextraGPUbudget.
+Full managedNONDEV B build RUNNING session60511/Unity23556, loglandscape-final-build.
+MUST fullbuild (newpackedtextures), notScriptsOnly. Afterexit restore3knownUnity
+autos only. Need NEW actual regions-final scenes (summerdaylight assert fixed),
+visually inspect actualloaded wetland/pond/desert etc, NPCwet/coldregression,
+perf/proof/docs/manifest beforeselectB. Prior regions-direction rest10 exit0 but
+older16 package; winterdark wetland imagesNOTaccepted. Stage3 treesUNTOUCHED.
+Owner3files untouched; no paid/subagents/apps closed. Continue untilexplicitstop.
+
 ACTIVE3Nov17:47Z CONTINUE. Selected A NPC foundation unchanged. Stage2 current
 source1656c75 PUSHED; B managedNONDEV ScriptsOnly built17:45:54Z, internal only.
 Landscape16/Hyper14: stronger sand relief +two nonparallel dune families remove
