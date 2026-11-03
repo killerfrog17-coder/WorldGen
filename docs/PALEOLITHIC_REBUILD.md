@@ -1,49 +1,72 @@
 # Paleolithic rebuild: evidence and acceptance
 
-The rejected `paleolithic-1/2` engine remains a save reader and rollback path.
-New worlds use a new rule version. Source consistency is necessary, but it is
-not evidence of realistic behaviour. Do not select a player until the behavioural
-and visual review below has been completed.
+The older engines and results below are historical diagnostics. Current worlds
+use `foragers-regional-3`. Backward compatibility is not a requirement; Git
+provides rollback. Source consistency alone does not establish realistic outcomes.
 
 ## Current regional architecture correction (3 November)
 
-The detailed global community ledger below was rejected by the owner for both
-architecture and performance. It is superseded by source `774854b` and new-world
-rules `foragers-regional-1`. Backward compatibility is not a project requirement.
+The detailed global community ledger and the synchronized `regional-1` sweeps
+were rejected. The current model keeps broad regional history and generates
+local detail when queried.
 
 - One population aggregate per connected ecoregion, with regional species
   proportions, shared cultural profiles and technology-adoption distributions.
-- Population and resource/technology reviews every100 years; regional language,
-  culture and belief reviews every500 years; ecological redistribution every1,000.
+- Regional speech/belief shares use1% precision rather than retaining traces of
+  every historical migrant. Finer camp/dialect variation is procedural detail.
+- Each region schedules its own independently seeded events: population200–400
+  years, technology150–350, migration200–600, language300–900, traditions200–800,
+  ecology700–1,700 and culture300–900. First events have independent random phases.
+- A routine event uses direct regional lookup and relevant adjacent routes.
+  Scheduling uses a persistent O(log E) heap. It does not scan the world.
 - Regional migration merges population into its destination aggregate. It does
   not append a new tribe record. Profiles remain bounded by the region count.
 - Camps, households, residents and seasonal positions are deterministic local
   queries. Calling them does not add global actors or histories.
-- Fine calendar updates share frozen regional arrays and compute a small clock
-  digest. They do not copy/hash/publish the entire simulation state.
+- Fine calendar updates share frozen regional data. Full canonical hashing is
+  lazy and requested for integrity/save checks, not every date publication.
+- In the managed Windows player the shipped CoreCLR worker executes the same
+  simulation and returns typed binary regional changes. Immutable geography and
+  species provenance are not resent on each update. There is one authoritative
+  history; local NPCs are not a second global simulation.
+- GPU cell-to-region lookup is built once. Visible map updates change a small
+  regional colour table rather than reconstructing200,000-cell overlay arrays.
+- Broad ecology tracks resource stocks and forest/climate context. Detailed
+  local species lists are derived from native realm, current climate and stocks.
 
-Measured with the actual200,000-cell planet:2,312 connected regions,565 regional
-population records after190,000 years,62.1 seconds in the CoreCLR test. The final
-state has532 actual-use toolkit patterns. Current-version save/read and local
-generation checks pass. A10k run also matches across different publication
-partitions. These are current rules, not old-version compatibility tests.
+The current200,000-cell fixture has2,312 connected regions and562 population
+records after190,000 years. Its23 checks cover event locality/staggering, exact
+initial and delta transport, identical257-year continuation, bounded records,
+current save/read and deterministic local generation. Worker transport preserves
+the numerical trajectory. Regional-3 affiliation coarsening intentionally changes
+the approximation; it is not presented as an unchanged regional-2 history.
 
-The actual packaged managed player sustains one day/second:12 game days in
-12.002 real seconds. Its fast playback measured416 years/second over12.52 seconds;
-95% of frames were below10.4ms. This interactive result is substantially slower
-than batch simulation and is reported separately. A full history's interactive
-wall time is not claimed to equal the62-second batch run. Five map layers were
-captured and inspected. New worlds are required; physical NPC camp integration
-remains the next implementation stage.
+The selected managed player measured13,031 actual years/second over12.09 seconds
+on this200k fixture. Maximum committed-update gap was243ms; five map switches
+took at most4.63ms. Switching from fast playback back to one day/second produced
+six game days in6.004 seconds. No runtime errors were reported. The batch190k
+history separately took9.87 seconds; these are different measurements.
 
-The existing shortcut selects slot-b, a managed non-development player built
-3 November01:46:47 UTC. Its32 Earth-location gameplay checks pass, including
-terrain entry, gathering, crafting, actual animal corpse loot, eating and saving.
-The first200k procedural-world nature fixture entered terrain but failed to
-spawn its fixed-location test deer; it is retained as a failed check and excluded
-from acceptance. No unrelated animal behaviour was altered for this repair.
-The source, precise measurements, package hashes and scope limits are recorded
-in `assets/verification/regional-simulation-20261103.json`.
+Fast map presentation runs with a60Hz redraw budget so it does not consume CPU
+and shared-cache bandwidth at hundreds of FPS. The history worker is independent
+of that redraw rate. Calculation overlaps decoding of the preceding committed
+update; pause/speed changes finish at a bounded event boundary. Gameplay display
+preferences are retained. Paleolithic Auto requests20,000 years/second.
+
+Foragers is the authoritative regional state. Legacy population/culture cell
+arrays are not rebuilt on every event; adapters use ForagerMaps/ForagerSampling.
+World generation, saves, map summaries and rare family-registry maintenance still
+scale with their data. Routine entity handlers never scan all geographic cells.
+
+Actual player acceptance requires at least10,000 measured years/second at200k
+cells, map switches under200ms, publication gaps under250ms, a working one-day/
+second clock and no runtime errors. Batch throughput is reported separately.
+Earlier416/1,000/322/4,823-year/second attempts failed; they are not acceptance.
+
+The current recorded acceptance, exact timings, package hashes and selection are
+in `assets/verification/regional-simulation-20261103.json`. Do not infer current
+acceptance from old tests below. No unrelated gathering/crafting/corpse tests are
+part of this performance repair. Physical NPC camp integration remains separate.
 
 ## Rejected detailed-ledger review (3 November)
 

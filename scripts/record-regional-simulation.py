@@ -8,7 +8,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source', required=True)
-parser.add_argument('--player', default='artifacts/regional-sim-20261103/coreclr-packet-player')
+parser.add_argument('--player', default='artifacts/regional-sim-20261103/stream-budget-player')
 parser.add_argument('--batch', default='artifacts/regional-sim-20261103/events-scale')
 parser.add_argument('--slot', choices=['slot-a', 'slot-b'], default='slot-a')
 args = parser.parse_args()
@@ -33,6 +33,7 @@ player = load(folder / 'result.json')
 assert int(read(folder / 'exit-code.txt')) == 0
 assert player['Cells'] == 200000 and player['Checks'] >= 8 and player['RuntimeErrors'] == 0
 assert player['FineDays'] / player['FineSeconds'] >= .8
+assert player['LateFineDays'] / player['LateFineSeconds'] >= .8
 assert player['FastYearsPerSecond'] >= 10000
 assert player['MaximumLayerSwitchMs'] < 200 and player['MaximumPublicationPauseMs'] < 250
 stamp = load(root / 'builds' / args.slot / 'build-inputs.json')
@@ -45,13 +46,17 @@ assert sha(worker) == stamp['TerrainWorkerSha256']
 manifest = dict(
     recorded_utc=datetime.now(timezone.utc).isoformat(), source=args.source,
     status='Current-version interactive performance review; owner playtesting pending',
-    rules='foragers-regional-2', selected_slot='builds/' + args.slot, build=stamp,
+    rules='foragers-regional-3', selected_slot='builds/' + args.slot, build=stamp,
     architecture=dict(
         population='One aggregate per connected ecoregion; no global tribe ledger',
         event_windows_years=dict(population=[200,400], technology=[150,350], migration=[200,600], language=[300,900], tradition=[200,800], ecology=[700,1700], culture=[300,900]),
         events='Independent seeded random dates, direct regional lookup, local neighbours, persistent O(log E) queue',
+        affiliation_precision='1% regional shares; finer local differences are procedural, not traces of every historical migrant',
         publication='Copy-on-write records; lazy full hash only when requested/saving',
         executor='Same Core simulation in shipped CoreCLR worker; committed regional binary deltas returned to managed player',
+        streaming='Bounded calculation batches; completed update decoding overlaps the next calculation; pause stops at a committed boundary',
+        display='60Hz map redraw budget during fast simulation; gameplay display preferences restored afterward; Paleolithic Auto target20000 years/second',
+        global_work='World generation/save/load, visible regional map summaries and rare bounded family-registry compaction scale with data, not ordinary entity handlers',
         maps='Cell-to-region GPU lookup built once; small regional palettes per layer',
         ecology='Broad climate/resource/forest state; local species derived from native realm, dated climate and resource stocks',
         local_detail='Deterministic camps, residents and itineraries generated on demand'),
@@ -62,7 +67,8 @@ manifest = dict(
         'Regional-1 synchronized reviews and416 years/second were rejected.',
         'Initial regional-2 player hit its playback-rate cap before producing a valid speed result.',
         'Local Mono executor remained roughly1000 years/second despite fast maps.',
-        'First CoreCLR transport used tiny unbuffered reads/writes; failed speed and publication-latency gates.'
+        'First CoreCLR transport used tiny unbuffered reads/writes; failed speed and publication-latency gates.',
+        'Sequential and uncapped-rendering attempts up to9652 years/second failed the10000 speed gate; only the final streamed/render-budget player is accepted.'
     ],
     limits=[
         'Measurements are this machine and fixture, not a universal throughput guarantee.',

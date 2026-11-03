@@ -49,28 +49,39 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
-ACTIVE3Nov03:53Z REGIONAL-2 PERFORMANCE WORK CONTINUES; no goal registered.
-Owner requires local ordinary events, randomized regional dates, >=10kyr/s
-ACTUAL interactive200k playback; layer switches<200ms and publication gaps<250ms.
-304870c checkpoints independent local scheduler/COW/lazy hash/GPU region maps.
-Current additional UNCOMMITTED CoreCLR executor uses shipped CLI worker +typed
-binary regional deltas; code under RegionalPublication/RegionalWire/RegionalHistory.
-No new model/second simulation; source numerical trajectory unchanged. Full200k/
-190k20PASS at14,996yr/s batch, same8e9875...hash, exact initial/delta/future257yr
-transfer and real current save/reload. events-scale/result.json; wire-compact-full.log.
-Old Mono direct1700-2000yr/s /interactive1000 failed speed, maps6-10ms responsive.
-First worker unbuffered tiny socket reads failed322yr/s; framed packet4823yr/s
-and463msgap also FAILED. Do NOT claim either passes. Latest compact ecology
-delta avoids resending immutable taxon arrays, new timing counters. Slot-a latest
-managed nondev scripts-only built successfully; actual compact-player RUNNING
-session89439, artifacts/regional-sim-20261103/coreclr-compact-player. Source/core
-current exact full trajectory; new frame test result/visual review stillpending.
-Root shortcut still rejected regional-1 slot-b. Never select until actual gate
-passes. Further needed: actual performance fix if fails, source checkpoint/push,
-current manifest/docs/shortcut and final actual verification. Recorder updated
-to require>=10k actual and current20-check full history, not oldgameplay tests.
-No unrelated gathering/crafting/corpse tests; no compatibility work. Owner3
-untouched, no subagents/paid/cleanup/owner-app closures. All3Unityautosrestored.
+SELECTED3Nov04:43Z REGIONAL-3 PERFORMANCE REPAIR COMPLETE; await owner feedback.
+Root shortcut NOW builds/slot-a/WorldGen.exe, Mono NON-DEVELOPMENT ScriptsOnly
+BuiltUtc2026-11-03T04:36:51.5652090Z. Runtime source56eb41d007a263d4fd3bb67b0bc20b8c0895adf8.
+ONE aggregate/connected ecoregion, no global tribe ledger. Independent seeded
+windows: pop200-400yr/tech150-350/migration200-600/language300-900/tradition200-800/
+ecology700-1700/culture300-900; persistent O(log E) heap, local handlers only.
+REGIONAL-3 deliberately coarsens affiliation shares to1% precision (max100,
+actual peak11/mean3.09); fine camp/dialect variation is procedural. New world
+REQUIRED; no compatibility work. Current23 full200k/190k checks PASS:2312regions,
+562records/509active,9.871s BATCH; exact hash6b0a9756...; real save/reload, exact
+delta/future257yr and time-budget-independent history. Original geometry/art/
+audio untouched. Authoritative Foragers data; legacy population/culture cell
+arrays are not rebuilt each event. Detailed local species derived from native
+realm +dated climate/stocks; broad forest/resource state evolves globally.
+Shipped CoreCLR worker exclusively owns history, typed binary regional deltas,
+pooled buffers, no per-tick full hash. Streaming overlaps next calculation with
+previous decoding;140ms calculation batches, committed-boundary pause. GPU cell-
+to-region lookup built once, small regional map palettes. Fast map rendering60Hz
+budget restores owner's gameplay display settings; Paleolithic Auto target20kyr/s.
+FINAL SAME PACKAGE stream-budget-player:9PASS/EXIT0/zero runtimeerrors; actual
+13031.727yr/s over12.085s; max updategap242.947ms; map switch4.621ms; before-fast
+12.0017days/12.0046s and AFTER fast6.002days/6.004s. Five actual map images viewed.
+No batch-as-interactive claim. Earlier416/1000/322/4823/5216/7142/9652/9522yr/s
+attempts FAILED and retained, not acceptance. Manifest assets/verification/
+regional-simulation-20261103.json; evidence artifacts/regional-sim-20261103/
+stream-budget-player and events-scale. Recorder enforces >=10k actual, switches
+<200ms, gaps<250ms, both fine clocks and current full history/package hashes.
+No unrelated gathering/crafting/corpse checks, subagents, paid calls, cleanup or
+owner-app closures. Owner3 files untouched; all3Unityautos restored. No owned
+player/build/history jobs remain. Physical NPC camps/dialogue/new hominin art,
+moving vegetation/shoreline terrain and post-Paleolithic progression remain
+separate. Rates are approximate model priors; this is performance acceptance,
+not complete historical calibration or owner visual approval. No goal registered.
 
 SELECTED3Nov02:02Z REGIONAL PERFORMANCE REPAIR. Root shortcut NOW slot-b,
 managed NON-DEVELOPMENT BuiltUtc2026-11-03T01:46:47.7910093Z. Runtime source

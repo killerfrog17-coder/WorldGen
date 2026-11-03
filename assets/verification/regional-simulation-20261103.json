@@ -1,11 +1,11 @@
 {
-  "recorded_utc": "2026-11-03T02:00:56.003722+00:00",
-  "source": "774854ba012131eeabff9d5e31cc9a2237edc23b",
-  "status": "Selected current-version review; owner playtesting pending",
-  "rules": "foragers-regional-1",
-  "selected_slot": "builds/slot-b",
+  "recorded_utc": "2026-11-03T04:42:26.084246+00:00",
+  "source": "56eb41d007a263d4fd3bb67b0bc20b8c0895adf8",
+  "status": "Current-version interactive performance review; owner playtesting pending",
+  "rules": "foragers-regional-3",
+  "selected_slot": "builds/slot-a",
   "build": {
-    "BuiltUtc": "2026-11-03T01:46:47.7910093Z",
+    "BuiltUtc": "2026-11-03T04:36:51.5652090Z",
     "Backend": "Mono",
     "Development": false,
     "ScriptsOnly": true,
@@ -13,17 +13,17 @@
       {
         "Assembly": "WorldGen.Core",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
-        "Sha256": "e5846f8f217fdedd13f468fa3fce346973039de4a77d2160d0090837bd42ff86"
+        "Sha256": "09b3b042ed0e217d956d0247ea89171f72bd36c5dec699276e3aab239bbb259a"
       },
       {
         "Assembly": "WorldGen.Serialization",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
-        "Sha256": "2e955e538fabeaa44214c451c96f8db0d0b3009b8fbb251dea3deb5ad150ea34"
+        "Sha256": "dedc7a9768f10edc6d40b8c46d4c95f4d8a880af4f3f0001c57467881b1cc677"
       },
       {
         "Assembly": "WorldGen.Presentation",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
-        "Sha256": "ca72674e9a1a07ef7c967a5f71918f3d772470e2a0ad98ab125d05bf43a97745"
+        "Sha256": "cca441968b623e09df3ed3cf3b4794a4208836af96a43c2820518c8a333bb6e3"
       },
       {
         "Assembly": "DelaunatorSharp",
@@ -31,146 +31,143 @@
         "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
       }
     ],
-    "TerrainWorkerSha256": "e88a05e7daadb5302f18d37d5d6e67acb108a23728b14bfd25961d80489865d8"
+    "TerrainWorkerSha256": "0f2b2f21981f114674008706067a480cf4a01b754a82168312e8b742833c2212"
   },
   "architecture": {
-    "population": "One aggregate per connected ecoregion",
-    "population_review_years": 100,
-    "culture_language_review_years": 500,
-    "ecology_review_years": 1000,
-    "local_detail": "Deterministic camps, residents and itineraries generated from regional distributions",
-    "fine_clock": "Shared frozen regional domain; small clock digest, no full-state copy or hash",
-    "history_bounds": "At most one population/cultural profile per region, two family summaries per region, one discovery per technique/region"
+    "population": "One aggregate per connected ecoregion; no global tribe ledger",
+    "event_windows_years": {
+      "population": [
+        200,
+        400
+      ],
+      "technology": [
+        150,
+        350
+      ],
+      "migration": [
+        200,
+        600
+      ],
+      "language": [
+        300,
+        900
+      ],
+      "tradition": [
+        200,
+        800
+      ],
+      "ecology": [
+        700,
+        1700
+      ],
+      "culture": [
+        300,
+        900
+      ]
+    },
+    "events": "Independent seeded random dates, direct regional lookup, local neighbours, persistent O(log E) queue",
+    "affiliation_precision": "1% regional shares; finer local differences are procedural, not traces of every historical migrant",
+    "publication": "Copy-on-write records; lazy full hash only when requested/saving",
+    "executor": "Same Core simulation in shipped CoreCLR worker; committed regional binary deltas returned to managed player",
+    "streaming": "Bounded calculation batches; completed update decoding overlaps the next calculation; pause stops at a committed boundary",
+    "display": "60Hz map redraw budget during fast simulation; gameplay display preferences restored afterward; Paleolithic Auto target20000 years/second",
+    "global_work": "World generation/save/load, visible regional map summaries and rare bounded family-registry compaction scale with data, not ordinary entity handlers",
+    "maps": "Cell-to-region GPU lookup built once; small regional palettes per layer",
+    "ecology": "Broad climate/resource/forest state; local species derived from native realm, dated climate and resource stocks",
+    "local_detail": "Deterministic camps, residents and itineraries generated on demand"
   },
   "current_200k_190k": {
-    "checks": 14,
+    "checks": 23,
     "cells": 200000,
     "regions": 2312,
-    "aggregates": 565,
-    "active": 548,
+    "aggregates": 562,
+    "active": 509,
     "years": 190000,
-    "prepareSeconds": 2.2273693,
-    "fineClock1000Ms": 11.6763,
-    "lateFineClock1000Ms": 16.9652,
-    "historicalSeconds": 62.0869423,
-    "yearsPerSecond": 3060.224790615917,
-    "saveBytes": 83013207,
-    "saveReadWriteSeconds": 9.3086866,
-    "Hash": "27b85a7046c39386c9cf41c424a6019cef1bfa8fc703d28daedb40e3c6db18d9",
-    "population": 970102.8663771951,
-    "languages": 565,
-    "families": 4624,
-    "techniquePatterns": 532
-  },
-  "current_200k_10k": {
-    "checks": 15,
-    "cells": 200000,
-    "regions": 2312,
-    "aggregates": 455,
-    "active": 451,
-    "years": 10000,
-    "prepareSeconds": 1.4199206,
-    "fineClock1000Ms": 11.013,
-    "lateFineClock1000Ms": 10.212,
-    "historicalSeconds": 2.9807234,
-    "yearsPerSecond": 3354.890292739004,
-    "saveBytes": 79627021,
-    "saveReadWriteSeconds": 9.1814729,
-    "Hash": "b5573fd1c62916afc9f447ffe53c7a170cefd9fca235465f828db5ae763d0e2a",
-    "population": 661762.2844103373,
-    "languages": 455,
-    "families": 242,
-    "techniquePatterns": 434
-  },
-  "current_earth_10k": {
-    "checks": 15,
-    "cells": 5000,
-    "regions": 632,
-    "aggregates": 167,
-    "active": 164,
-    "years": 10000,
-    "prepareSeconds": 0.2635318,
-    "fineClock1000Ms": 14.9651,
-    "lateFineClock1000Ms": 8.1732,
-    "historicalSeconds": 1.5356845,
-    "yearsPerSecond": 6511.754204721087,
-    "saveBytes": 7696300,
-    "saveReadWriteSeconds": 1.6291854,
-    "Hash": "e8ff2feb9ea41c492d042f2affe2b512d155f27596cae522c56b3c8c00e1bca5",
-    "population": 551238.5110320378,
-    "languages": 167,
-    "families": 72,
-    "techniquePatterns": 148
+    "prepareSeconds": 1.3580179,
+    "fineClock1000Ms": 3.3977,
+    "lateFineClock1000Ms": 0.3028,
+    "historicalSeconds": 9.8710321,
+    "yearsPerSecond": 19248.240515801786,
+    "saveBytes": 81376985,
+    "saveReadWriteSeconds": 9.1070867,
+    "Hash": "6b0a9756b8d4bdf15d2504757a4669154394deb3bc80a41374d80f13623ae99c",
+    "population": 1174286.4438889462,
+    "languages": 562,
+    "families": 4408,
+    "maximumRegionalAffiliations": 11,
+    "meanRegionalAffiliations": 3.0862989323843415,
+    "techniquePatterns": 496
   },
   "actual_player": {
     "Cells": 200000,
     "Regions": 2312,
-    "Aggregates": 565,
-    "Checks": 8,
+    "Aggregates": 562,
+    "Checks": 9,
     "RuntimeErrors": 0,
-    "FineSeconds": 12.002137699999992,
-    "FineDays": 12.000509259259259,
-    "FineMaximumFrameMs": 37.80749999999955,
-    "FineP95FrameMs": 9.877099999997085,
-    "FastSeconds": 12.518926899999997,
-    "FastYears": 5207.826499968291,
-    "FastYearsPerSecond": 415.99623846100513,
-    "FastMaximumFrameMs": 46.932200000000535,
-    "FastP95FrameMs": 10.344400000008136,
-    "Hash": "b308902e40868b19445aa95e59ce1f8fc2828b2b345b1825aad5507c9a2dda57"
-  },
-  "actual_gameplay": {
-    "checks": [
-      "PASS Original deer loads for actual corpse interaction",
-      "PASS Loot requires a genuinely killed ragdoll animal",
-      "PASS Actual rendered carcass is reachable from player eye",
-      "PASS Invisible centre aim selects the corpse's posed skin",
-      "PASS Repeated searches do not regenerate corpse contents",
-      "PASS Unclaimed corpse contents contribute no carried mass or ground clutter",
-      "PASS Loot enters actual worn container using physical packing",
-      "PASS Hide provenance uses this animal's original coat",
-      "PASS Eating corpse meat consumes mass and supplies food without raw-meat penalties",
-      "PASS Save round-trip preserves remaining corpse loot and generation ledger",
-      "PASS Spear strike visibly moves the held model in first person",
-      "PASS Held spear enters its real throw wind-up",
-      "PASS Throw wind-up and cancellation have distinct reversible view poses",
-      "PASS Carried bow stays upright with the active mode's intended ground-clearance tilt",
-      "PASS Bow inspection borrows an actual held arrow",
-      "PASS Bow drawing moves the string toward the real drawing hand without changing the source rig",
-      "PASS Loaded real terrain contains placed resource plants",
-      "PASS Actual regional plant identity resolves to obtainable fibre or reeds",
-      "PASS Gathering an actual placed plant produces a physical craft input",
-      "PASS Plant depletion prevents immediate repeated gathering",
-      "PASS Material renewal follows the actual simulation calendar year",
-      "PASS Actual plant depletion survives saving",
-      "PASS Food geometry and actual thumbnail render: Berries",
-      "PASS Food geometry and actual thumbnail render: Fruit",
-      "PASS Food geometry and actual thumbnail render: Nuts",
-      "PASS Food geometry and actual thumbnail render: Mushroom",
-      "PASS Food geometry and actual thumbnail render: EdibleRoot",
-      "PASS Food geometry and actual thumbnail render: RawMeat",
-      "PASS Food geometry and actual thumbnail render: RawFish",
-      "PASS Food geometry and actual thumbnail render: AnimalFat",
-      "PASS Clearing spawned corpses removes only unclaimed contents and prevents stale loot-generation IDs",
-      "PASS no runtime errors or exceptions"
+    "FineSeconds": 12.00458549999999,
+    "FineDays": 12.00173611111111,
+    "FineMaximumFrameMs": 31.72010000000114,
+    "FineP95FrameMs": 10.352400000002149,
+    "FastSeconds": 12.085443999999995,
+    "FastYears": 157494.20547466388,
+    "FastYearsPerSecond": 13031.726883568692,
+    "FastMaximumFrameMs": 35.196200000001454,
+    "FastP95FrameMs": 19.45240000000581,
+    "MaximumPublicationPauseMs": 242.94679999999858,
+    "MaximumLayerSwitchMs": 4.6212000000025455,
+    "Hash": "f57a4aeb04c7a87124f468c43161410c52d463fef9b0ab677088a72f3a6b45e8",
+    "ProcessItems": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "initial_terrain": "26.514 seconds; CoreCLR terrain worker ready in 2.18s; 1.0.0+6ef2a84cf71594950f6f991fd4cfdbda5ac6d7f5 / 104 / 104 tiles \u00b7 last 6.5 ms \u00b7 max 263.9 ms/tile"
+    "ProcessMilliseconds": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "DirectYearsPerSecond": 2449.2497090903657,
+    "WorkerComputeMs": 11115.3394,
+    "WorkerTransferMs": 450.1051,
+    "WorkerDecodeMs": 1387.4472000000003,
+    "WorkerApplyMs": 108.3931,
+    "WorkerBytes": 388961550,
+    "WorkerPublications": 87,
+    "LateFineSeconds": 6.004348999999991,
+    "LateFineDays": 6.002071759259259
   },
   "images": {
-    "Cultures.png": "e16b772e343a8e5915379f9d2aeeff88e9230e5868e78b40ec1e345f9e3f267a",
-    "HumanSpecies.png": "e19a3cfe6b6497463612a467fef6e86bcafd00d4a1419f63049a1682c949be77",
-    "Languages.png": "05b864df029ba1a70d94c59ee0f47f8dc22a83b6a6cabb7a2a54b641320ed058",
-    "Religions.png": "dd35bd890e10ca8e3f77c50262bec195f30020e68c3bb217d1671de3d0abe9b0",
-    "Technology.png": "36eeabff31ab728a37128c667572e4fbf4372f8ede4d188f7b7c79b14f482a39"
+    "Cultures.png": "fe973acf1c1292ba6770a6d06b3a086ed541638c200b9ea766fa90d8fe7854a8",
+    "HumanSpecies.png": "7a07bd7a84e81750fe45fbf2b0cb769e58d68fe4e163d05e8dc2a56692b1c39f",
+    "Languages.png": "edad796e834c96fb98c75f4189c1ab43561818d33d536cb6457c5f712be8da04",
+    "Religions.png": "e9285e24b0531e8c7c14068a3ff1295a009bb17458bdfe0655ffd43400e7291a",
+    "Technology.png": "ba2acc3d2d877efdc3a40e31598e18560450f90a044f824141437162c2adf3c3"
+  },
+  "acceptance": {
+    "minimum_actual_years_per_second": 10000,
+    "maximum_layer_switch_ms": 200,
+    "maximum_publication_gap_ms": 250
   },
   "excluded_failures": [
-    "First small-world publication-partition check exposed arrival-date publication dependence; corrected before final tests.",
-    "200k procedural-world nature fixture entered terrain but failed its fixed-location deer spawn; excluded. Known Earth-location interaction fixture passed all32 checks."
+    "Regional-1 synchronized reviews and416 years/second were rejected.",
+    "Initial regional-2 player hit its playback-rate cap before producing a valid speed result.",
+    "Local Mono executor remained roughly1000 years/second despite fast maps.",
+    "First CoreCLR transport used tiny unbuffered reads/writes; failed speed and publication-latency gates.",
+    "Sequential and uncapped-rendering attempts up to9652 years/second failed the10000 speed gate; only the final streamed/render-budget player is accepted."
   ],
   "limits": [
-    "62-second full history is a CoreCLR batch measurement; packaged interactive playback was416 years/second, not the same speed.",
-    "Regional rates remain approximate game priors; this performance repair does not establish complete historical calibration.",
-    "Physical NPC camp integration remains separate; local candidates still require terrain validation.",
-    "Old detailed-ledger saves are unsupported. Generate a new world."
+    "Measurements are this machine and fixture, not a universal throughput guarantee.",
+    "Regional rates remain approximate game priors; a performance repair is not complete historical calibration.",
+    "Local species suitability is derived, not an individually tracked global animal migration history.",
+    "Physical NPC camp integration remains separate; local candidates require terrain validation.",
+    "Old simulation saves are unsupported. Generate a new world."
   ]
 }

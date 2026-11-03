@@ -31,7 +31,7 @@ def page(number,title,subtitle):
     text(title,44,776,size=25)
     text(subtitle,44,736,size=10.5,color=muted)
     c.setFillColor(muted);c.setFont('Body',8)
-    c.drawString(44,20,f'REBUILD ARCHITECTURE  /  02 NOV 2026                                                {number} / 2')
+    c.drawString(44,20,f'REBUILD ARCHITECTURE  /  03 NOV 2026                                                {number} / 2')
 def block(title,body,y):
     y=text('<b>'+title+'</b>',44,y,size=12)
     return text(body,44,y-6,size=10.5)-18
@@ -58,8 +58,8 @@ for i,(title,body) in enumerate(rows):
 page(2,'How this reaches the game','The simulation produces local evidence for the next supervised NPC implementation.')
 y=block('From a district to a camp','A local query supplies a band, related people, appearance, spoken languages, capable craft specialists, equipment practices and a seasonal itinerary. The NPC host must retain instantiated people and player edits. Camp candidates still need physical ground, water and collision validation.',699)
 y=block('Observe the actual differences','Language/family, cultural identity, spiritual tradition, toolkit and human-species layers read different data. Political territories remain empty. Climate/ecology maps follow the dated world. Technology inspection distinguishes knowing a method, being able to make it and routinely using it.',y)
-y=block('World continuity and performance','Broad population/technology reviews occur every100 years, culture/language every500 and ecology every1,000. Fine clocks share unchanged regional data. Historical summaries stay bounded. Nearby camps and residents are generated only on demand; terrain and ecoregion boundaries remain intact.',y)
-y=block('Generate a new world for this revision','New worlds use <b>foragers-regional-1</b>: regional totals and distributions, shared products and local procedural detail. Hearing of a method, making it and using shared goods remain distinct. Old detailed-ledger saves are unsupported. Git and asset packs provide rollback.',y)
+y=block('World continuity and performance','Each region schedules independent, randomly staggered reviews for its population, techniques, migration, speech, traditions and ecology. Ordinary events touch local data. Fine clocks share unchanged records; full hashing happens on demand. The worker sends regional changes and the GPU uses small regional map palettes.',y)
+y=block('Generate a new world for this revision','New worlds use <b>foragers-regional-3</b>: regional totals and distributions, shared products and local procedural detail. Regional affiliation shares use percentage-scale precision. Hearing, making and using remain distinct. Old simulation saves are unsupported. Git provides rollback.',y)
 y=block('Validation and scope','Check several seeds and dates, expansion <i>and</i> retreat, local technique differences, real vocabulary divergence, household consistency, save/reload, live map playback and entering gameplay. Physical NPC camps/dialogue, new hominin art, moving shorelines/ice-sheet terrain and post-Paleolithic progression are separate implementation stages.',y)
 y=text('<b>Selected research behind the mechanisms</b>',44,y,size=12)-12
 refs=[
