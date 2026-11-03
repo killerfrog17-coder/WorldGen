@@ -59,6 +59,16 @@ static class LandscapeRegionTests
             Check(cover.Coverage<.08&&forest.Coverage<.08&&biome==Biome.Desert,"Neighbouring grassland material kernels cannot turn mobile dunes into lawns");bareDune=true;break;
         }
         Check(bareDune,"Fixture exercises an actual mobile sand province");
+        foreach(int sign in new[]{-1,1})
+        {
+            V pole=new V(.73,.41,.54).Unit*sign,tangent=V.Cross(pole,new V(0,0,1)).Unit;int selected=-1;
+            var available=new LandscapeControls{Sand=1};
+            for(int s=0;s<256;s++)if(LandscapeProvince.SandSea(pole*radius,s,available)>.8){selected=s;break;}
+            Check(selected>=0,"Directional test locates a true sand accumulation province");
+            double low=double.MaxValue,high=double.MinValue;
+            for(int x=-400;x<=400;x+=8){var p=(pole+tangent*(x/radius)).Unit*radius;double h=LandscapeProvince.HeightOffset(p,selected,available);low=Math.Min(low,h);high=Math.Max(high,h);}
+            Check(high-low>14,"Dune relief does not disappear where the first wave direction is radial");
+        }
         Console.WriteLine("PASS "+count+" landscape controls / enclosed pond / query-order / slope checks; "+lakes.Length+" wetland ponds; "+probes+" surveys");
     }
     public static void World(string path,string output)

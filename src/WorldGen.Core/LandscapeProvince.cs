@@ -61,11 +61,16 @@ namespace WorldGen.Core
             if(dunes>.001)
             {
                 double warp=SphereNoise.Sample(metres,seed^0x5c721,1/820d)*55;
-                double phase=(metres.X*.73+metres.Y*.41+metres.Z*.54+warp)/260;
-                double t=phase-Math.Floor(phase),side=t<.78?t/.78:(1-t)/.22;
-                double ridge=.5-.5*Math.Cos(Math.PI*side);
+                double Ridge(double phase){double t=phase-Math.Floor(phase),side=t<.78?t/.78:(1-t)/.22;return .5-.5*Math.Cos(Math.PI*side);}
+                double first=Ridge((metres.X*.73+metres.Y*.41+metres.Z*.54+warp)/260);
+                double second=Ridge((metres.X*.13+metres.Y*.85-metres.Z*.51+warp)/260);
+                var direction=metres.Unit;double alignment=direction.X*.73+direction.Y*.41+direction.Z*.54;
+                // A fixed 3D wave vector becomes almost radial at two planetary
+                // locations, stretching local dunes towards infinity. Blend a
+                // second nonparallel family there without blending huge phases.
+                double blend=Smooth(.2,.6,1-alignment*alignment),ridge=first*blend+second*(1-blend);
                 double secondary=.5+.5*SphereNoise.Sample(metres,seed^0x2b531,1/85d);
-                result+=dunes*(22*ridge+2.2*secondary);
+                result+=Smooth(.08,.4,dunes)*(22*ridge+2.2*secondary);
             }
             if(controls.Badlands>.01)
             {

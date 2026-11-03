@@ -90,7 +90,15 @@ public sealed partial class LocalTerrainExplorer
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
         }
-        float width=(float)(site.Pond?.Radius??70);Capture("wide",new Vector3(width*1.1f,width*.65f,width*1.5f));Capture("ground",new Vector3(0,2.1f,Math.Max(8,width*.9f)));
+        float width=(float)(site.Pond?.Radius??(kind=="SandSea"?180:70));
+        Quaternion orientation=Quaternion.identity;
+        if(kind=="SandSea")
+        {
+            var first=new V(.73,.41,.54);double alignment=site.Position.X*first.X+site.Position.Y*first.Y+site.Position.Z*first.Z;
+            var direction=1-alignment*alignment<.4?new V(.13,.85,-.51):first;
+            orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
+        }
+        Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f));Capture("ground",orientation*new Vector3(0,2.1f,Math.Max(8,width*.9f)));
         Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
