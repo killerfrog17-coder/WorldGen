@@ -5,7 +5,7 @@ New worlds use a new rule version. Source consistency is necessary, but it is
 not evidence of realistic behaviour. Do not select a player until the behavioural
 and visual review below has been completed.
 
-## Current release review (2 November, 22:30 UTC)
+## Current release review (3 November)
 
 ### Further outcome correction: demand-led training (version5)
 
@@ -34,12 +34,63 @@ Focused50 mechanisms and13 temporal/save checks pass, including sustained useful
 invention, loss without automatic reinvention, rare expert teaching, consumption
 without resident craft expertise, and a real save carrying more users than makers.
 Equal-teacher clothing fixtures end with about3.5% trained makers in the warm
-habitat versus77.9% in the cold habitat. Old version4 at110k plus1year retains
-the exact hash `e80beb51594d3bce72dbd25988652cc0b71415d085dcf7b44d84b5fbe79e71ce`.
-Fresh long histories and a current packaged view are still required.
+habitat versus77.9% in the cold habitat. A full250-year continuation of the old
+version4 world at110k is identical under its frozen engine and the current
+version5 reader/engine: `25d836f3500fd62ba98ade292ea5ca500ddf1e2ba5681009ef6eafe38cdd593c`.
+The old version3 full190k world also retains its exact37-year continuation.
+
+Current candidate21 is a managed non-development build from `d89993d`, built
+2 November23:33:44 UTC. Earth30k, Archipelago30k and Continents190k current-model
+histories are complete. Current packaged views at Year0, Continents40k/100k/
+180k/190k and Archipelago30k pass222 checks, including real live playback and
+local100m camp queries. The same package passes32 gameplay/nature checks.
+The final253MB save passes33 lossless world/compatibility checks. The final
+external37-year packaged/CoreCLR continuation is exact:
+`6bf25d5ba8ae49166b5c0ded1c9ae88372026a2aabefecc6ae714fa4babc5c38`.
+The existing root shortcut now selects candidate21 in slot-a. Owner visual
+approval is pending; generate a new world for the new model.
+
+Earth30k, Archipelago30k and Continents100k have respectively1,926,2,102 and2,163
+local band/household/query checks. These are integration checks, not empirical
+proof of historical calibration. Actual regional maps and multiseed trajectories
+were reviewed separately. Five100k concurrent transaction checks also preserve
+source immutability, caller boundaries and cancellation rollback.
 
 The corrected local-tradition maps and anchored labels remain in place. Candidate20
 is an unselected version4 control; its mechanical passes do not validate version5.
+
+### Completed current-model outcomes
+
+All three version5 histories now reached their requested final date under the
+same frozen numerical source. The following are measured fixture outcomes,
+not prescribed targets for every generated planet.
+
+| World | Years simulated | Residents | Toolkit patterns | Speech varieties / families |
+|---|---:|---:|---:|---:|
+| Continents, seed73421 | 190,000 | 795,066 | 1,066 | 1,064 / 702 |
+| Earth preset | 30,000 | 900,826 | 1,214 | 725 / 343 |
+| Archipelago, seed61819 | 30,000 | 675,878 | 690 | 479 / 229 |
+
+The full Continents history has43 thousand-year intervals with population loss
+greater than2%,91 range expansions and82 range retreats. Its population remains
+below available support, rather than reaching a permanent ceiling. Dated
+assemblages record local species arrivals and disappearances. Current maps at
+180k and190k were actually inspected: languages, toolkits and local traditions
+have different patterns, species have coherent ranges, and territories are empty.
+
+Some outcomes still need calibration. This Continents seed maintains only13.8%
+sapiens ancestry and does not reproduce Earth's eventual sapiens replacement.
+It has39 techniques with living makers, but no established fitted or insulated
+clothing; sewing and bows remain rare. The other fixtures differ substantially,
+but their30k endpoints do not establish a later clothing chronology. Neither
+these counts nor the controlled clothing-learning fixture prove that every cold
+NPC settlement will be equipped appropriately. Physical NPC integration must
+validate the actual sampled equipment and local exposure before spawning camps.
+
+The full190k run took about73.5 minutes at5,000 world cells, alongside verification
+jobs; this is not an uncontended benchmark. Its final save is253,013,684 bytes.
+The implementation is a richer reviewable model, not a60-second history generator
+or a claim of finished scientific calibration.
 
 ### Superseded version4 review
 

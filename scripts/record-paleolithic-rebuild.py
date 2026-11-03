@@ -73,6 +73,8 @@ for name, requested in (("practice-continents", 190000), ("practice-earth", 3000
         "broad_error_gates": behavior["checks"],
     })
 
+assert args.production_source == source, "Declared production source differs from the completed histories"
+
 native = []
 for suffix in ("fresh0", "continents40k", "archipelago30k", "continents100k", "continents180k", "continents190k"):
     name=f"view-practice-{args.candidate}-{suffix}"
@@ -130,6 +132,8 @@ assert "PASS 50 forager mechanism checks" in mechanisms
 observer_checks = int(re.search(r"PASS (\d+) forager observer integration checks", read(evidence / "practice-presentation-local-traditions.log"))[1])
 assert observer_checks >= 450
 assert "PASS 13 temporal" in temporal
+transactions = read(evidence / "practice-large-transactions-100k.log")
+assert "PASS 5 large-cohort concurrent transaction checks; 15fa040a379fe75d79e15dfd95e2c67374ea9e28a0dd3d0ec240fa3895275f74" in transactions
 assert "73947d70558cdb6cb80f037384f91c9d624d7b44ba24c28928567b134aa36833" in temporal
 assert "PASS 9 historical climate/weather/water checks" in read(evidence / "practice-weather-100k.log")
 assert "PASS 1679 dated habitat/map/assemblage checks" in read(evidence / "practice-habitat-100k.log")
@@ -154,11 +158,22 @@ manifest = {
     "candidate_slot": "builds/slot-a", "rules": "foragers-5", "build": stamp,
     "rollback_tag": "before-paleolithic-rebuild-20261102", "package_proof": proof,
     "mechanism_checks": 50, "temporal_budget_save_checks": 13, "observer_checks": observer_checks,
+    "large_cohort_transaction_checks": 5,
     "dated_weather_checks": 9, "dated_habitat_assemblage_checks": 1679,
     "temporal_hash": "73947d70558cdb6cb80f037384f91c9d624d7b44ba24c28928567b134aa36833",
     "large_world_save": large_save,
     "actual_runtime_parity": {"years_advanced": 37, "hash": runtime_hash, "exit_code": 0},
     "histories": histories, "actual_player_maps": native,
+    "outcome_review": {
+        "inspected_current_package_maps": ["continents40k", "archipelago30k", "continents100k", "continents180k", "continents190k"],
+        "observations": [
+            "Population and occupied range expand and retreat; local toolkits, speech families and spiritual traditions differ.",
+            "Political territories remain empty; language, technology, belief and human-range maps display different records.",
+            "Continents190k has 39 techniques with living makers, but no established fitted or insulated clothing; sewing and bows remain rare.",
+            "The reference Continents history retains substantial archaic populations; its sapiens ancestry share is not calibrated to Earth's eventual replacement.",
+            "These are reviewable alternate-world outcomes, not a claim of completed scientific calibration or universal camp-equipment readiness.",
+        ],
+    },
     "actual_gameplay": {"case": game.name, "exit_code": 0, "checks": checks, "terrain_loading": read(game / "initial-terrain.txt")},
     "dated_ecology": {key: changes[key] for key in ("fromYear", "toYear", "arrivals", "localExtinctions", "changedDistricts", "maximumForestDelta")},
     "local_people": {"year": sample["Years"], "checks": sample["checks"], "bands": len(sample["bands"]),

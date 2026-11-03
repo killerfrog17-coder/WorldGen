@@ -41,7 +41,7 @@ y=block('The starting point','World Year 0 represents established <b>Homo sapien
 rows=[
 ('Climate and ecology','Stable ecological boundaries; changing temperature, rain, ice, vegetation potential and local species presence. Wet corridors, refugia and real shelf depths affect movement.'),
 ('People and resources','Age structure, births, deaths, food, winter protection, mating contacts and local shocks. Populations can retreat or disappear. Splitting a population record creates no extra food access.'),
-('Technology','43 techniques with separate familiarity, trained prevalence and actual use. Prerequisites, materials, teachers, innovation and forgetting matter. Useful technologies spread through real contact.'),
+('Technology','43 techniques with separate familiarity, trained prevalence and actual use. Materials, teachers, innovation and forgetting matter. Useful methods spread through contact. Future eras overlap regionally, without a global completion gate.'),
 ('Language','Inherited words and grammar change at different rates. Borrowing, bilingual contact, local varieties and recognisable families are separate from deep common ancestry.'),
 ('Culture and belief','Distinct social norms, exchange relationships and residence patterns. Local rites, sacred places/animals, mortuary practices and spiritual themes vary and spread without churches or states.'),
 ('Human lineages','Different body/face profiles, cultural capacities, geographic histories and mixed ancestry. Competition and survival depend on actual conditions; extinction is not scheduled by date.'),

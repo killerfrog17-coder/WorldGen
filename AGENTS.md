@@ -39,6 +39,32 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED3Nov00:56Z PALEOLITHIC REBUILD REVIEW: existing root shortcut NOW
+builds/slot-a/WorldGen.exe, managed NON-DEVELOPMENT candidate21, BuiltUtc
+2026-11-02T23:33:44.4930977Z. Production d89993dbd07fe947158b7b8a6d6262c5a07c2364
+PUSHED/FROZEN. New worlds foragers-5; old2/3/4 retain their numerical rules.
+Three genuine current-source histories COMPLETE: Continents190k hash453a89db59b0
+bed61cd60c0e8c7d53ba0a2186d66a5a1775e8868e0618567260, Earth30k045b6b25...,
+Archipelago30keda41990... . Nine coupled-world gates each; final253013684-byte
+save33 lossless checks PASS. SAME actual player six map cases222 checks incl
+40k/190k live playback and100m camp queries; Earth20k gameplay32 PASS/exit0.
+Actual40k/Arch30k/100k/180k/190k maps and full-history plot INSPECTED. Final
+packaged37yr continuation EXACT CoreCLR6bf25d5ba8ae49166b5c0ded1c9ae88372026a2
+aabefecc6ae714fa4babc5c38. Old3+37 exact21b46...; old4+250 exact25d836... .
+50mechanism/13temporal/485observer/69save/5large-transaction; weather9/habitat1679;
+local samples1926Earth/2102Arch/2163Continents100k PASS. Proof1008frozen/
+3254original/177fauna+audio EXACT. Final manifest assets/verification/
+paleolithic-rebuild-20261102.json; report docs/PALEOLITHIC_REBUILD.md and2pagePDF.
+IMPORTANT remaining calibration limits disclosed: this seed retains13.8%sapiens
+ancestry, no established fitted/insulated clothing;39 techniques have makers.
+Full190k fixture took73.5min/5000cells with concurrent checks, NOT60sec claim.
+No physicalNPC camps/dialogue/newhomininart or moving terrain/vegetation yet.
+Owner permits future regional Mesolithic/Neolithic overlap; never require global
+Paleolithic mastery. No new eras implemented. Owner visual approval NOT inferred.
+All owned histories/watchers/player jobs ended; no owner apps/owner3 files touched.
+No paid/subagents/cleanup/new fullplayer slots. Await owner review; old ACTIVE
+notes below are historical and do NOT mandate resuming completed overnight work.
+
 ACTIVE2Nov23:55Z model5 d89993dbd07fe947158b7b8a6d6262c5a07c2364 PUSHED/FROZEN. Candidate21 slot-a built23:33:44.4930977Z NONDEVmanaged ScriptsOnly; proof-practice-21 PASS1008/3254original/177fauna+audioexact;workerSHAe1b28461e5691ae753fae8ebc87ca3a7bc4a4025e17586cd6e05aaa3fcc83a9f. 50mechanism/13temporal hash73947d70558cdb6cb80f037384f91c9d624d7b44ba24c28928567b134aa36833 PASS;485actualobserver; new3/4reads exact (4+250 reference RUNNING session65920; +1onlyreadprobe e80... notfullarithmeticproof). Main5history practice-continents PID19704/session38120 RUNNING~85k/190k; frozen practice-runner DO NOToverwrite. Earth30k045b6b2575db5cf724a77c452a56c340edd6b43674b251902b71f73d3efce7df COMPLETE; Arch30keda4199003b107c5b8c70087469bfa21c2664aa68c6e4698ba74d89fbce07898 COMPLETE.9broadgates each+1926/2102samples PASS. NewUse sharedproducts, makersvarybydemand; middlehistorymeanmakerShares12vsrejected4's41. Native21early session1400 ALLdone: fresh036/40k39+realplayback/Arch30k36/Earth20kgameplay32PASS, actual21mapsinspected. Native21late session63771 waits101k ->behavior/weather9/hab1679/sampling/native100k,181k/native180k,190kFULL+packed33/native190kplayback/37yractualCoreparity. Scratchscript run-native21-late.ps1 hardcodescurrentmain19704. No newfeatures/tweaksPLANNED; onlyfixsubstantivedefects. Owner23:48 givenETA60-90min, lastreplyvalidationnow. NEWOWNERERA guidance: allowregionalPaleo/Meso/Neooverlap; don'trequireall43/globalPaleo completion beforelatereras. Optionalglobalera ceilingfuture. No codefeaturechangeforthisclarification. 4runRETIRED113kmetrics/110ksafefile; NEVERcallcompleted190k. Source20UI/legacy3fullcontrolnot5acceptance. Source5ALLcodeFROZEN;pending recordscript/PDF/docs editsmodel5 notyetcommitted. Needmainfulloutcomes+finalnative/visuals/saveproof+manifest+shortcut+Git. MainrootshortcutstillREJECTEDslot-b. Owner3untouched,nopaid/subagents/cleanup/ownerapps. FirstSkilledYear/LastLossYear remainlegacy majority-share milestones, notfirst/lastindividualmaker; don'twronglydemandSkill>.5foradvancedmethodexistence; newhistorytechniques hasmakerCommunities/expectedMakers/meanMakerShare.
 
 ACTIVE2Nov23:20Z NEW SUBSTANTIVE FAILURE FOUND AT4/100k: almost all groups near-perfect makers of all43 crafts (meanSkill41), despite diverse end use. DO NOT SELECT candidate20 or claim4finalacceptance. Owner informed earlierETAwithdrawn. Causes: knowledge+constant.12 autonomousprogress createsmakerswithoutteachers; unconstrainedtargetprevalence; localexpert feedbackpreservesunusedcrafts. Implement version5 preserving2/3/4: demand/material-ledtrainedprevalencetarget, NO autonomous proficiency from mere familiarity, expectedmakerstocks belowhalfperson retire, separate shared PRODUCT accessfrommakers. Use nowconsumer/technologyaccesscanexceedmakerprevalence; ONLY5relaxesUse<=Skillguard, stays0..1. ProductionCoverage=clamp(4*makerprevalence) explicitcoarseprior; appliedexpectedUse+WinterPractice/preparedpassages/frontier so fewmakerscanprovidegoods to others. Localteacheractivityweightedbypractice. Sampling5: goods canexistwithoutresidentlocalmaker, capabilitystillactualperson skills; older4 unchanged. Neednewmeaningfultests rareexpertteach/noexpertnoautolearn/unusedcraftloss/cold-warmmakercontrasts/sharedwintergear +old3/4hashparity. Stopowned4main21072 andlatewatcher1736 afterverifiedcommands;110kfileexists/metrics112k so110ksafesnapshot retained, annotate4requested190kINCOMPLETE/RETIRED (notpass). Newpractice-* full190k/30k30khistoriesaftercorrection +newcandidate21? Source20e8effd2 PUSHED numerical4f16; candidate20proofPASS1008/3254original/fauna+audioexact, early20all36/39/36 and32gameplayPASS,100k36PASS+weather9/hab1679/sampling2478. Native20 religionmap nowreviewedcorrect; maintain3Presentationfixes. No5editsyetatthisnote. Earlier current4no-newfeatures noteSUPERSEDED bydiagnosedfailure. Mainshortcutstilloldslot-b. No paid/subagents/cleanup/ownerapps; owner3untouched.
