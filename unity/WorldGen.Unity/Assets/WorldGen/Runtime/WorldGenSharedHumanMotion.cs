@@ -38,14 +38,14 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         public float[] Weights;
         public string Current;
     }
-    public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight,Vector3? nativeEyeInHead=null,bool npcActivity=false)
+    public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight,Vector3? nativeEyeInHead=null,bool npcActivity=false,KimodoPersonMotion campMotion=null)
     {
         this.graph=graph;
         this.root=root;head=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="head");
         headBindRotation=Quaternion.Inverse(root.rotation)*head.rotation;
         eyeInHead=nativeEyeInHead??head.InverseTransformPoint(root.TransformPoint(new Vector3(0,eyeHeight,person.EyeForward>.05f?person.EyeForward:.15f)));
         RestEye=LocalEye;playerIdle=player;
-        Clips=person.Clips.ToDictionary(c=>c.Role,StringComparer.Ordinal);
+        var all=campMotion==null?person.Clips:person.Clips.Concat(campMotion.Clips).ToArray();Clips=all.ToDictionary(c=>c.Role,StringComparer.Ordinal);
         locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)).ToArray());
         Output=AnimationLayerMixerPlayable.Create(graph,player?4:npcActivity?2:1);
         graph.Connect(locomotion.Mixer,0,Output,0);Output.SetInputWeight(0,1);
@@ -53,8 +53,8 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         {
             if(npcActivity)
             {
-                var roles=new HashSet<string>{"Gather","Eat","Drink","WorkCut","WorkDig","WorkKnapping","WorkTwist","ToolGuard","FistsGuard"};
-                body=MakeTrack(person.Clips.Where(c=>roles.Contains(c.Role)).ToArray());graph.Connect(body.Mixer,0,Output,1);
+                var roles=new HashSet<string>{"Gather","Eat","Drink","WorkCut","WorkDig","WorkKnapping","WorkTwist","ToolGuard","FistsGuard","SleepSide","SitGround","Social","WorkKneeling"};
+                body=MakeTrack(all.Where(c=>roles.Contains(c.Role)).ToArray());graph.Connect(body.Mixer,0,Output,1);
             }
             return;
         }

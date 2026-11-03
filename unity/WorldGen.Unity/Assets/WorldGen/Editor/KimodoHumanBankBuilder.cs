@@ -17,6 +17,7 @@ public static class KimodoHumanBankBuilder
     static string Repo=>Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
     public static void Probe()=>Import(false);
     public static void Build()=>Import(true);
+    public static void BuildNpc()=>Import(false,"assets/human-motion-npc","Assets/WorldGen/GeneratedHumanNpcMotion","Assets/WorldGen/Resources/HumanNpcMotion",true);
     public static void ProbeAnatomyAxes()
     {
         var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var lines=new List<string>();
@@ -37,16 +38,16 @@ public static class KimodoHumanBankBuilder
         }
         File.WriteAllLines(Path.Combine(Repo,"artifacts/human-natural-20261031/native-anatomy-axes.txt"),lines);Debug.Log(string.Join(" / ",lines));
     }
-    static void Import(bool complete)
+    static void Import(bool complete,string sourceFolder="assets/human-motion-kimodo",string inputFolder=Input,string outputFolder=Output,bool npc=false)
     {
-        var source=Path.Combine(Repo,"assets/human-motion-kimodo");var manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText(Path.Combine(source,"bank.json")));
-        Directory.CreateDirectory(Input);Directory.CreateDirectory(Output);
-        foreach(var person in manifest.people)File.Copy(Path.Combine(source,person.file),Path.Combine(Input,person.file),true);
+        var source=Path.Combine(Repo,sourceFolder);var manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText(Path.Combine(source,"bank.json")));
+        Directory.CreateDirectory(inputFolder);Directory.CreateDirectory(outputFolder);
+        foreach(var person in manifest.people)File.Copy(Path.Combine(source,person.file),Path.Combine(inputFolder,person.file),true);
         AssetDatabase.Refresh();var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
         var result=new List<KimodoPersonMotion>();var report=new List<string>();
         foreach(var person in manifest.people)
         {
-            string path=Input+"/"+person.file;var importer=(ModelImporter)AssetImporter.GetAtPath(path);
+            string path=inputFolder+"/"+person.file;var importer=(ModelImporter)AssetImporter.GetAtPath(path);
             importer.animationType=ModelImporterAnimationType.Generic;importer.avatarSetup=ModelImporterAvatarSetup.CreateFromThisModel;
             importer.importAnimation=true;importer.materialImportMode=ModelImporterMaterialImportMode.None;
             importer.animationCompression=ModelImporterAnimationCompression.Off;importer.optimizeGameObjects=false;
@@ -71,6 +72,11 @@ public static class KimodoHumanBankBuilder
                     throw new InvalidDataException("Kimodo binding mismatch "+person.variant+" "+clip.name+": "+string.Join(",",skeletal.Select(b=>b.path).Distinct().Take(8)));
             }
             var motions=person.clips.Select(c=>new KimodoHumanClip{Role=c.role,Clip=clips[c.role],Loop=c.loop,Contact=c.contact,Release=c.release,TravelMeters=c.travel_m}).ToArray();
+            if(npc)
+            {
+                var appearance=Resources.Load<WorldGenHumanLibrary>("HumanAppearance/Library").People.Single(p=>p.Variant==person.variant);
+                foreach(var motion in motions)motion.GroundOffsetM=HumanMotionGrounding.Offset(appearance.Prefab,motion.Clip);
+            }
             if(complete)
             {
                 var legacy=JsonUtility.FromJson<LegacyManifest>(File.ReadAllText("Assets/WorldGen/Resources/FirstPerson/clips.json"));
@@ -81,10 +87,10 @@ public static class KimodoHumanBankBuilder
             result.Add(new KimodoPersonMotion{Variant=person.variant,EyeForward=person.eye_forward,Clips=motions});
             report.Add(person.variant+" "+motions.Length+" native clips; original skeleton paths matched; no character model replacement");
         }
-        if(complete)
+        if(complete||npc)
         {
             if(result.Count!=6)throw new InvalidDataException("Six native human variants required");
-            string path=Output+"/Library.asset";var bank=AssetDatabase.LoadAssetAtPath<WorldGenHumanMotionBank>(path);
+            string path=outputFolder+"/Library.asset";var bank=AssetDatabase.LoadAssetAtPath<WorldGenHumanMotionBank>(path);
             if(bank==null){bank=ScriptableObject.CreateInstance<WorldGenHumanMotionBank>();AssetDatabase.CreateAsset(bank,path);}
             bank.People=result.ToArray();EditorUtility.SetDirty(bank);AssetDatabase.SaveAssets();
         }

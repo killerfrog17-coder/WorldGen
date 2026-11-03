@@ -21,7 +21,7 @@ public sealed class WorldGenHumanMotionBank : ScriptableObject
     public string Role;
     public AnimationClip Clip;
     public bool Loop;
-    public float Contact=-1,Release=-1,TravelMeters;
+    public float Contact=-1,Release=-1,TravelMeters,GroundOffsetM;
     public double Duration=>Math.Max(.01,Clip==null?1:Clip.length);
 }
 

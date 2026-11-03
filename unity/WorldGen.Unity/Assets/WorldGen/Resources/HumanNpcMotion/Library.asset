@@ -1,0 +1,201 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da9b3a0c4a68ed047b6a0e53c47bcd4f, type: 3}
+  m_Name: Library
+  m_EditorClassIdentifier: Assembly-CSharp::WorldGenHumanMotionBank
+  People:
+  - Variant: A
+    EyeForward: 0.13005576
+    Clips:
+    - Role: SleepSide
+      Clip: {fileID: -6224914700576359658, guid: 464608688477fc54fa1a74f4b7e60ff1, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.06842985
+      GroundOffsetM: 0.08314316
+    - Role: SitGround
+      Clip: {fileID: 7223441455642781653, guid: 464608688477fc54fa1a74f4b7e60ff1, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.001784741
+      GroundOffsetM: 0.03888862
+    - Role: Social
+      Clip: {fileID: -6844990041692212374, guid: 464608688477fc54fa1a74f4b7e60ff1, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02140354
+      GroundOffsetM: 0.0032189419
+    - Role: WorkKneeling
+      Clip: {fileID: 4896994153327054637, guid: 464608688477fc54fa1a74f4b7e60ff1, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.01111454
+      GroundOffsetM: 0.04430201
+  - Variant: B
+    EyeForward: 0.15475094
+    Clips:
+    - Role: SleepSide
+      Clip: {fileID: -8423278943388616871, guid: 8b820fcafd9211842900c79f80296a18, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0784138
+      GroundOffsetM: 0.13762422
+    - Role: SitGround
+      Clip: {fileID: -4219162570504159217, guid: 8b820fcafd9211842900c79f80296a18, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0020451355
+      GroundOffsetM: 0.0470504
+    - Role: Social
+      Clip: {fileID: -7895002073584321704, guid: 8b820fcafd9211842900c79f80296a18, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.024526326
+      GroundOffsetM: 0.005885656
+    - Role: WorkKneeling
+      Clip: {fileID: 4528969079096533530, guid: 8b820fcafd9211842900c79f80296a18, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012736156
+      GroundOffsetM: 0.039938584
+  - Variant: C
+    EyeForward: 0.13799669
+    Clips:
+    - Role: SleepSide
+      Clip: {fileID: -522799266129344711, guid: 53e12c98170cecb4c9504331bc61ac28, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.07420666
+      GroundOffsetM: 0.08711754
+    - Role: SitGround
+      Clip: {fileID: -3904744950644094493, guid: 53e12c98170cecb4c9504331bc61ac28, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0019354076
+      GroundOffsetM: 0.015071242
+    - Role: Social
+      Clip: {fileID: -2617559563499671070, guid: 53e12c98170cecb4c9504331bc61ac28, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.023210414
+      GroundOffsetM: -0.0002818033
+    - Role: WorkKneeling
+      Clip: {fileID: 4020934328885339221, guid: 53e12c98170cecb4c9504331bc61ac28, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012052822
+      GroundOffsetM: 0.033112958
+  - Variant: D
+    EyeForward: 0.15524624
+    Clips:
+    - Role: SleepSide
+      Clip: {fileID: -8378782306149750926, guid: 15a45d3346f9ddf4e9ac3d4fd0c577bf, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.07673873
+      GroundOffsetM: 0.13230117
+    - Role: SitGround
+      Clip: {fileID: 3519458150728397731, guid: 15a45d3346f9ddf4e9ac3d4fd0c577bf, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0020014476
+      GroundOffsetM: 0.06449123
+    - Role: Social
+      Clip: {fileID: 1104254554454894843, guid: 15a45d3346f9ddf4e9ac3d4fd0c577bf, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0240024
+      GroundOffsetM: 0.0051705865
+    - Role: WorkKneeling
+      Clip: {fileID: -1229974051197846223, guid: 15a45d3346f9ddf4e9ac3d4fd0c577bf, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012464087
+      GroundOffsetM: 0.049074568
+  - Variant: E
+    EyeForward: 0.12710363
+    Clips:
+    - Role: SleepSide
+      Clip: {fileID: -870905239449277910, guid: 0a3367bc39508f04c955e285ced1b9af, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.05825365
+      GroundOffsetM: 0.07449736
+    - Role: SitGround
+      Clip: {fileID: -4836982547480553529, guid: 0a3367bc39508f04c955e285ced1b9af, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0015193322
+      GroundOffsetM: 0.042484984
+    - Role: Social
+      Clip: {fileID: 7467648827687328361, guid: 0a3367bc39508f04c955e285ced1b9af, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.01822062
+      GroundOffsetM: 0.004486453
+    - Role: WorkKneeling
+      Clip: {fileID: 8187950741302030494, guid: 0a3367bc39508f04c955e285ced1b9af, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.009461696
+      GroundOffsetM: 0.04312471
+  - Variant: F
+    EyeForward: 0.15112229
+    Clips:
+    - Role: SleepSide
+      Clip: {fileID: 421427730023998431, guid: 1492a241254780d489254869990e7ac5, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.074469894
+      GroundOffsetM: 0.1162412
+    - Role: SitGround
+      Clip: {fileID: 6467823650396219715, guid: 1492a241254780d489254869990e7ac5, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.0019422732
+      GroundOffsetM: 0.08053762
+    - Role: Social
+      Clip: {fileID: -317988706883820805, guid: 1492a241254780d489254869990e7ac5, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.02329275
+      GroundOffsetM: 0.0016445098
+    - Role: WorkKneeling
+      Clip: {fileID: -4667222943651701085, guid: 1492a241254780d489254869990e7ac5, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 0.012095577
+      GroundOffsetM: 0.054255784

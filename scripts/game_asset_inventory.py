@@ -60,6 +60,10 @@ def inventory():
     tree('assets-source/humans/exports','human-sources',{'.fbx','.png','.json'})
     add('assets-source/humans/appearance-review/Human physique comparison.blend','human-appearance-source',True)
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
+    tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
+    tree('assets-source/humans/motion/npc','human-npc-source',{'.f32','.json','.txt'})
+    for hair in ['ponytail01','short02']:
+        add('assets-source/humans/research/builders/mpfb-assets/hair/'+hair+'/'+hair+'_diffuse.png','human-npc-source',True)
     tree('assets-source/humans/motion/legacy','human-motion-inputs',{'.fbx'})
     tree('assets-source/humans/motion/source-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
     tree('assets-source/humans/motion/animation-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})

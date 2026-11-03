@@ -27,7 +27,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HumanCampMemory
     {
-        public long Site,Group;public V Position;public double LastSolarDay;public bool Disturbed;
+        public long Site,Group;public V Position;public double LastSolarDay,AbandonedCalendarDay=-1;public bool Disturbed;
         public List<CampObject> Objects=new List<CampObject>();
         public HumanCampMemory Copy(){var c=(HumanCampMemory)MemberwiseClone();c.Objects=Objects.Select(o=>o.Copy()).ToList();return c;}
     }

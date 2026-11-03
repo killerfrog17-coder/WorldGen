@@ -49,6 +49,34 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov09:20Z NPC OVERNIGHT CONTINUES; NO OWNER STOP/WRAP. Started07:46:56Z;
+8h is an estimate, never a stop. Ordered stages: NPCs first, only then landscapes,
+only then vegetation. Stages2/3 UNTOUCHED. Checkpoint63bfe8b PUSHED; further source
+and new art currently uncommitted. Selectedslot-b/shortcut39964fb UNCHANGED.
+Slot-a INTERNAL managed nondev candidate built~09:04Z; NOT accepted/selected.
+Core local-life26741 checks PASS before latest evening-task edit: identity/kin,
+clock/scaled walking routes, projection hash purity,50km lightweight query ~18ms
+warm. First native11PASS but roofs incomplete; corrected native-second12PASS,
+real camp now complete/saves/wounds/revisit. Actual photos inspected: roof-fixed,
+but standing people can protrude through tents; current headroom fix unbuilt.
+Four local offline Kimodo camp motions generated/baked for6rigs. First91pose
+checks numerical pass BUT same-frame screenshots reused first GPU skin; NOT
+visual acceptance. poses-frame-corrected91PASS with different actual images
+inspected (seated/social/work); sleep contact needs new offline ground offsets.
+Eighteen genuine MPFB age3/8/13 meshes (not scaled adults) generated/imported;
+native age posing/ground contact still UNTESTED. New HumanMotionGrounding offline
+precompute and age rest-position adapter now in source. Grounded import completed
+session85983/lognpc-grounded-import.log; no build running at this note. Need new
+FULL managed build (new resource banks) +native all-age poses/actual camps.
+Current source also analytic daylight-only migration, dated old hearth traces,
+assembly/packing, local alarm/exertion and resident-height-only NPC motors (prior
+Ground calls could churn player patch47ms; fix unbuilt). Native source/package is
+BEHIND these edits. Need substantive camp routines/props/carrying infants,
+terrain-safe movement, actual diverse-weather/culture/mobility tests, sustained
+performance/save/reload, asset inventory/packs/proof, then reviewed shortcut.
+Do not call stage1 ready yet. New inputs canonical assets-source/assets/Unity;
+artifacts only scratch. Owner3 files untouched. No subagents/paid/owner apps closed.
+
 ACTIVE3Nov07:46:56Z OVERNIGHT NPC / LANDSCAPE / VEGETATION ORDERED WORK.
 Owner explicitly says keep working UNTIL EXPLICIT STOP/WRAP;8h estimate is NOT
 a stop (could10-12h). Do not end after a milestone. Stage1 alone is acceptable

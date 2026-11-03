@@ -37,6 +37,7 @@ public sealed partial class LocalTerrainExplorer
             if(chosen!=null)break;
         }
         Check(chosen!=null,"An admitted real simulated community exists");
+        play.PrimeMeridianLongitude=Math.Atan2(chosen.Position.Y,chosen.Position.X)*180/Math.PI;
         var setup=Task.Run(()=>new LocalTerrain(world,horizontalScale:.1));
         var owner=new GameObject("Living human actual-terrain fixture").AddComponent<LocalTerrainExplorer>();owner.viewDistance=1800;
         owner.Initialize(setup,chosen.Position,()=>{},world,play);
@@ -60,6 +61,8 @@ public sealed partial class LocalTerrainExplorer
             var focus=new Vector3((float)(x-owner.originX),floor+1,(float)(z-owner.originZ));owner.view.transform.localPosition=focus+offset;owner.view.transform.LookAt(owner.transform.TransformPoint(focus));
             owner.view.Render();RenderTexture.active=target;var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
         }
+        owner.SetDaylight(9,SimulationTime.Seconds(state)/(double)SimulationTime.Year);
+        for(int i=0;i<30;i++)yield return null;
         Image("camp-first",new Vector3(18,8,24));Image("residents-first",new Vector3(0,2,15));
         File.WriteAllText(Path.Combine(output,"community.json"),WorldJson.Write(groupRuntime.Residents));
         var packet=new PlaySession();owner.StorePlayer(packet);packet.Validate();var restored=WorldJson.Read<PlaySession>(WorldJson.Write(packet));restored.Validate();

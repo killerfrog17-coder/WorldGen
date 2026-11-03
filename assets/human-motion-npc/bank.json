@@ -1,0 +1,391 @@
+{
+  "fps": 30,
+  "source_sha256": "0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229",
+  "model": "Kimodo-SOMA-RP-v1.1",
+  "people": [
+    {
+      "variant": "A",
+      "eye_forward": 0.1300557494163513,
+      "clips": [
+        {
+          "role": "SleepSide",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sleep_side\\seed-6131",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.06842985159599632,
+          "duration": 4.1,
+          "raw_name": "sleep_side",
+          "action": "Kimodo A | SleepSide",
+          "frames": 124
+        },
+        {
+          "role": "SitGround",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sit_ground\\seed-6132",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.0017847409556362873,
+          "duration": 4.1,
+          "raw_name": "sit_ground",
+          "action": "Kimodo A | SitGround",
+          "frames": 124
+        },
+        {
+          "role": "Social",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\social_stand\\seed-6133",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.021403540296227194,
+          "duration": 4.1,
+          "raw_name": "social_stand",
+          "action": "Kimodo A | Social",
+          "frames": 124
+        },
+        {
+          "role": "WorkKneeling",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\work_kneeling\\seed-6134",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.0111145394462628,
+          "duration": 4.1,
+          "raw_name": "work_kneeling",
+          "action": "Kimodo A | WorkKneeling",
+          "frames": 124
+        }
+      ],
+      "file": "A.fbx",
+      "fbx_sha256": "4ccbe7e7c27f44e3603c7631a066ef843b5526b91895d48c11f569876301b7aa"
+    },
+    {
+      "variant": "B",
+      "eye_forward": 0.15475093722343444,
+      "clips": [
+        {
+          "role": "SleepSide",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sleep_side\\seed-6131",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.07841379898240684,
+          "duration": 4.1,
+          "raw_name": "sleep_side",
+          "action": "Kimodo B | SleepSide",
+          "frames": 124
+        },
+        {
+          "role": "SitGround",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sit_ground\\seed-6132",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.0020451354966714644,
+          "duration": 4.1,
+          "raw_name": "sit_ground",
+          "action": "Kimodo B | SitGround",
+          "frames": 124
+        },
+        {
+          "role": "Social",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\social_stand\\seed-6133",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.024526326846489893,
+          "duration": 4.1,
+          "raw_name": "social_stand",
+          "action": "Kimodo B | Social",
+          "frames": 124
+        },
+        {
+          "role": "WorkKneeling",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\work_kneeling\\seed-6134",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.012736155955250884,
+          "duration": 4.1,
+          "raw_name": "work_kneeling",
+          "action": "Kimodo B | WorkKneeling",
+          "frames": 124
+        }
+      ],
+      "file": "B.fbx",
+      "fbx_sha256": "78611640758a0ed2a98e6b01a8f6970fa561c901ef3701a00927ab2eb2077286"
+    },
+    {
+      "variant": "C",
+      "eye_forward": 0.13799668252468109,
+      "clips": [
+        {
+          "role": "SleepSide",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sleep_side\\seed-6131",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.07420665655645282,
+          "duration": 4.1,
+          "raw_name": "sleep_side",
+          "action": "Kimodo C | SleepSide",
+          "frames": 124
+        },
+        {
+          "role": "SitGround",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sit_ground\\seed-6132",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.0019354076627120162,
+          "duration": 4.1,
+          "raw_name": "sit_ground",
+          "action": "Kimodo C | SitGround",
+          "frames": 124
+        },
+        {
+          "role": "Social",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\social_stand\\seed-6133",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.023210413683656988,
+          "duration": 4.1,
+          "raw_name": "social_stand",
+          "action": "Kimodo C | Social",
+          "frames": 124
+        },
+        {
+          "role": "WorkKneeling",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\work_kneeling\\seed-6134",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.012052821864079955,
+          "duration": 4.1,
+          "raw_name": "work_kneeling",
+          "action": "Kimodo C | WorkKneeling",
+          "frames": 124
+        }
+      ],
+      "file": "C.fbx",
+      "fbx_sha256": "52edf78aee88ad3e2ec5e082d5b9f702685e0f66b1c67a98c389dd2eac9bdf84"
+    },
+    {
+      "variant": "D",
+      "eye_forward": 0.15524623692035674,
+      "clips": [
+        {
+          "role": "SleepSide",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sleep_side\\seed-6131",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.07673873362615405,
+          "duration": 4.1,
+          "raw_name": "sleep_side",
+          "action": "Kimodo D | SleepSide",
+          "frames": 124
+        },
+        {
+          "role": "SitGround",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sit_ground\\seed-6132",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.002001447578680323,
+          "duration": 4.1,
+          "raw_name": "sit_ground",
+          "action": "Kimodo D | SitGround",
+          "frames": 124
+        },
+        {
+          "role": "Social",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\social_stand\\seed-6133",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.0240023986482667,
+          "duration": 4.1,
+          "raw_name": "social_stand",
+          "action": "Kimodo D | Social",
+          "frames": 124
+        },
+        {
+          "role": "WorkKneeling",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\work_kneeling\\seed-6134",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.01246408785130326,
+          "duration": 4.1,
+          "raw_name": "work_kneeling",
+          "action": "Kimodo D | WorkKneeling",
+          "frames": 124
+        }
+      ],
+      "file": "D.fbx",
+      "fbx_sha256": "67940f81dfc796b1d3dd58556c76eada90f3079371e599e1306945c816ab8a01"
+    },
+    {
+      "variant": "E",
+      "eye_forward": 0.12710362076759338,
+      "clips": [
+        {
+          "role": "SleepSide",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sleep_side\\seed-6131",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.058253648947288655,
+          "duration": 4.1,
+          "raw_name": "sleep_side",
+          "action": "Kimodo E | SleepSide",
+          "frames": 124
+        },
+        {
+          "role": "SitGround",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sit_ground\\seed-6132",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.0015193321433064114,
+          "duration": 4.1,
+          "raw_name": "sit_ground",
+          "action": "Kimodo E | SitGround",
+          "frames": 124
+        },
+        {
+          "role": "Social",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\social_stand\\seed-6133",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.01822062000085523,
+          "duration": 4.1,
+          "raw_name": "social_stand",
+          "action": "Kimodo E | Social",
+          "frames": 124
+        },
+        {
+          "role": "WorkKneeling",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\work_kneeling\\seed-6134",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.009461696379760479,
+          "duration": 4.1,
+          "raw_name": "work_kneeling",
+          "action": "Kimodo E | WorkKneeling",
+          "frames": 124
+        }
+      ],
+      "file": "E.fbx",
+      "fbx_sha256": "f510382baee7796e2fe7bcb1214eba0a14aca3e3055c865b0c49944ee09e0861"
+    },
+    {
+      "variant": "F",
+      "eye_forward": 0.15112228095531463,
+      "clips": [
+        {
+          "role": "SleepSide",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sleep_side\\seed-6131",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.07446989369268214,
+          "duration": 4.1,
+          "raw_name": "sleep_side",
+          "action": "Kimodo F | SleepSide",
+          "frames": 124
+        },
+        {
+          "role": "SitGround",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\sit_ground\\seed-6132",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.001942273235077226,
+          "duration": 4.1,
+          "raw_name": "sit_ground",
+          "action": "Kimodo F | SitGround",
+          "frames": 124
+        },
+        {
+          "role": "Social",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\social_stand\\seed-6133",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.023292749192522496,
+          "duration": 4.1,
+          "raw_name": "social_stand",
+          "action": "Kimodo F | Social",
+          "frames": 124
+        },
+        {
+          "role": "WorkKneeling",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\work_kneeling\\seed-6134",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 0.012095577466585355,
+          "duration": 4.1,
+          "raw_name": "work_kneeling",
+          "action": "Kimodo F | WorkKneeling",
+          "frames": 124
+        }
+      ],
+      "file": "F.fbx",
+      "fbx_sha256": "fb20f75fa41b1e421bd4714625d0838f8187adcefb60c9fa3ac0616dfcc3f997"
+    }
+  ]
+}

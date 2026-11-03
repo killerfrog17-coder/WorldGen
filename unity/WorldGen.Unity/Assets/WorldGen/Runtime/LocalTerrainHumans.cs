@@ -28,6 +28,9 @@ public sealed partial class LocalTerrainExplorer
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
         public float AnimationAt;public GameObject WorkProp;
+        public float AvoidUntil,AvoidYaw;
+        public float PoseGroundLift;
+        public HumanAgeModel AgeModel;public Dictionary<Transform,Vector3> YoungRest;public Transform YoungPelvis;public Vector3 AdultPelvisRest;public float AgeMotionRatio=1;
     }
     readonly PlayerCameraRig humanCamera=new PlayerCameraRig();
     readonly List<HumanActor> humanNpcs=new List<HumanActor>();
@@ -40,7 +43,7 @@ public sealed partial class LocalTerrainExplorer
     double humanLastX,humanLastZ;bool humanHideBody;
     long humanSpawnQueued;
     Vector3 sharedCameraEye;bool sharedCameraEyeValid;
-    public string HumanDebug=>humanPlayer==null?"Humans unavailable":"Human "+humanPlayer.Definition.Variant+"; "+humanNpcs.Count+" demo NPCs; "+(humanCamera.FirstPerson?"first person":"third person "+humanCamera.Distance.ToString("F1")+"m")+(humanCamera.Locked?" (zoom locked)":"");
+    public string HumanDebug=>humanPlayer==null?"Humans unavailable":"Human "+humanPlayer.Definition.Variant+"; "+humanNpcs.Count(p=>p.ResidentId==0)+" command NPCs; "+(humanCamera.FirstPerson?"first person":"third person "+humanCamera.Distance.ToString("F1")+"m")+(humanCamera.Locked?" (zoom locked)":"")+"\n"+LivingHumanDebug;
     void InitializeHumans()
     {
         if(humansInitialized)return;humansInitialized=true;
@@ -54,11 +57,12 @@ public sealed partial class LocalTerrainExplorer
         humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
     }
-    HumanActor CreateHuman(int variant,int id,bool natural=false)
+    HumanActor CreateHuman(int variant,int id,bool natural=false,HumanAgeModel ageModel=null)
     {
-        var definition=humanLibrary.People[variant];var root=Instantiate(definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
+        var definition=humanLibrary.People[variant];var root=Instantiate(ageModel?.Prefab??definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
         var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
+        if(ageModel!=null)CaptureHumanAgeRest(actor,ageModel);
         actor.Graph=PlayableGraph.Create(root.name+" movement");actor.Graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         actor.Mixer=AnimationMixerPlayable.Create(actor.Graph,actor.Inputs.Length);
         actor.Output=AnimationPlayableOutput.Create(actor.Graph,"Native MPFB skin",animator);actor.Output.SetSourcePlayable(actor.Mixer);
@@ -89,8 +93,9 @@ public sealed partial class LocalTerrainExplorer
         foreach(var t in root.GetComponentsInChildren<Transform>())if(t.name=="upperarm_l"||t.name=="upperarm_r"||t.name=="lowerarm_l"||t.name=="lowerarm_r")actor.RelaxedArms[t]=t.localRotation;
         var generated=kimodoHumanLibrary?.Find(definition.Variant);
         if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight,generated?.EyeForward??.15f);
-        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null,natural);
-        actor.Graph.Play();actor.Graph.Evaluate(0);return actor;
+        var campMotion=natural?Resources.Load<WorldGenHumanMotionBank>("HumanNpcMotion/Library")?.Find(definition.Variant):null;
+        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null,natural,campMotion);
+        actor.Graph.Play();actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);return actor;
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
     {
@@ -125,7 +130,7 @@ public sealed partial class LocalTerrainExplorer
             for(int i=humanNpcs.Count-1;i>=0;i--)
             {
                 var npc=humanNpcs[i];if(npc.ResidentId==0&&(npc.Planet-Position).Length*frame.RadiusM>400){DestroyHuman(npc);humanNpcs.RemoveAt(i);continue;}
-                TerrainHandoff.Coordinates(frame,npc.Planet,out double x,out double z);npc.Motor.Place(x,z,Ground(x,z));
+                TerrainHandoff.Coordinates(frame,npc.Planet,out double x,out double z);npc.Motor.Place(x,z,npc.ResidentId==0?Ground(x,z):VisibleGround(x,z,npc.Motor.Y-TerrainMotion.EyeHeightM));
             }
         }
         double dx=motion.X-humanLastX,dz=motion.Z-humanLastZ;humanLastX=motion.X;humanLastZ=motion.Z;

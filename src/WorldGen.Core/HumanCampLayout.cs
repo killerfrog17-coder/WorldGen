@@ -12,7 +12,9 @@ namespace WorldGen.Core
         {
             var homes=people.Members.Select(p=>p.Household).Distinct().OrderBy(h=>h).ToArray();int index=Array.IndexOf(homes,household);
             double orientation=Rng.Value(seed,"camp-layout",unchecked((int)site^(int)(site>>32)))*Math.PI*2;
-            double bearing=orientation+Math.PI*2*Math.Max(0,index)/Math.Max(1,homes.Length),ring=Math.Max(6,Math.Sqrt(homes.Length)*3.6);
+            double jitter=Rng.Value(seed,"household-layout",unchecked((int)household^(int)(household>>32)));
+            double bearing=orientation+Math.PI*2*Math.Max(0,index)/Math.Max(1,homes.Length)+(jitter-.5)*.35;
+            double ring=Math.Max(6,Math.Sqrt(homes.Length)*3.6)*(.85+.3*Rng.Value(seed,"household-court",unchecked((int)household)));
             return new V(Math.Sin(bearing)*ring,0,Math.Cos(bearing)*ring);
         }
         public static CampObject[] Create(HumanGroupSituation group,ForagerBandSample people,V anchor,double radiusM,int seed,double campSeconds=0)
@@ -36,13 +38,13 @@ namespace WorldGen.Core
             double ring=Math.Max(6,Math.Sqrt(households.Length)*3.6),orientation=Unit("camp-layout",site)*Math.PI*2;
             foreach(var household in households)
             {
-                int ordinal=Array.IndexOf(households,household);double bearing=orientation+Math.PI*2*ordinal/Math.Max(1,households.Length);
-                var position=At(Math.Sin(bearing)*ring,Math.Cos(bearing)*ring);
+                var offset=HouseholdOffset(people,household.Key,site,seed);double bearing=Math.Atan2(offset.X,offset.Z);
+                var position=At(offset.X,offset.Z);
                 if(group.Band.Techniques[34]||group.Band.Techniques[3])
                 {
                     var shelter=Object(CampKind.Blueprint,"house-"+household.Key,position);
                     shelter.Heading=bearing*180/Math.PI+180; // openings face the shared centre
-                    var plan=CampBlueprints.Create(group.Camp.Design,group.Camp.ShelterWidth+.18*Math.Max(0,household.Count()-4),group.Camp.ShelterDepth,group.Camp.Cover);shelter.Blueprint=plan;
+                    var plan=CampBlueprints.Create(group.Camp.Design,group.Camp.ShelterWidth+.18*Math.Max(0,household.Count()-4),group.Camp.ShelterDepth+.15*Math.Max(0,household.Count()-4),group.Camp.Cover);shelter.Blueprint=plan;
                     var components=CampBlueprints.Components(plan).OrderBy(c=>c.Stage).ToArray();
                     double budget=components.Sum(c=>c.Seconds)*completion;
                     foreach(var part in components)

@@ -38,7 +38,9 @@ static class HumanLocalLifeTests
                 double longitude=Math.Atan2(group.Position.Y,group.Position.X)*180/Math.PI;
                 var daily=new HumanLifeClock(clock.CalendarSeconds,(hour-9)/24d,60,clock.CalendarRate,.1,longitude);
                 var dated=life.Group(state,daily,c.Id,0);
-                Check(Math.Abs(dated.LocalHour-hour)<1e-8,"Schedule follows the same local solar clock as the player");
+                double movedLongitude=Math.Atan2(dated.Position.Y,dated.Position.X)*180/Math.PI;
+                double expectedHour=((hour+(movedLongitude-longitude)/15)%24+24)%24;
+                Check(Math.Abs(dated.LocalHour-expectedHour)<1e-8,"Schedule follows the same local solar clock as the player");
                 foreach(var person in people.Members)
                 {var activity=life.Activity(dated,people,person,daily);activities.Add(activity.Activity);Check(activity.Person==person.Id&&activity.Group==group.Band.Id&&Math.Abs(activity.Position.Length-1)<1e-8,"Activities preserve identity and spherical position");}
             }

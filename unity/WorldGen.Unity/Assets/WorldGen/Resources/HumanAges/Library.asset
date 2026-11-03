@@ -1,0 +1,393 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1eff58c839752f1449ac82e4a4d79b7c, type: 3}
+  m_Name: Library
+  m_EditorClassIdentifier: Assembly-CSharp::WorldGenHumanAgeLibrary
+  People:
+  - Variant: A
+    Years: 3
+    EyeHeight: 0.75326
+    Prefab: {fileID: 3990363032877675528, guid: 1d1ab33f47d97c5428dbb1d0abaef605, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.19310832
+    - Role: Walk
+      Metres: -0.19255145
+    - Role: Run
+      Metres: -0.18812735
+    - Role: Sprint
+      Metres: -0.19172
+    - Role: SleepSide
+      Metres: -0.11961691
+    - Role: SitGround
+      Metres: -0.17414339
+    - Role: Social
+      Metres: -0.1982938
+    - Role: WorkKneeling
+      Metres: -0.16740926
+  - Variant: A
+    Years: 8
+    EyeHeight: 1.1314538
+    Prefab: {fileID: 2360398360861256476, guid: db4772182d0ab2e4c88ec6a32e191451, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.2266192
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: A
+    Years: 13
+    EyeHeight: 1.3139017
+    Prefab: {fileID: 7833339117072539419, guid: 9d470200bfee8ed4c88bf4d4f396a60d, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.25
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: B
+    Years: 3
+    EyeHeight: 0.83433944
+    Prefab: {fileID: 4042841078731385902, guid: 76ae546be8553d747a0314b4493033da, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.22681272
+    - Role: Walk
+      Metres: -0.22693902
+    - Role: Run
+      Metres: -0.22475386
+    - Role: Sprint
+      Metres: -0.22388124
+    - Role: SleepSide
+      Metres: -0.14244606
+    - Role: SitGround
+      Metres: -0.19709522
+    - Role: Social
+      Metres: -0.22957703
+    - Role: WorkKneeling
+      Metres: -0.20355837
+  - Variant: B
+    Years: 8
+    EyeHeight: 1.2578098
+    Prefab: {fileID: 1540376404545510270, guid: 29bc341b9a9964c4da66fd91430e4baa, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.23256178
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: B
+    Years: 13
+    EyeHeight: 1.4382069
+    Prefab: {fileID: 2326391728857048666, guid: 6237a422bb35f8042a42ec02bf9a5d92, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.25
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: C
+    Years: 3
+    EyeHeight: 0.84172314
+    Prefab: {fileID: 2085163541515067356, guid: 8401b1ddb96c01940a46567a600d1d25, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.2243928
+    - Role: Walk
+      Metres: -0.22344849
+    - Role: Run
+      Metres: -0.21709085
+    - Role: Sprint
+      Metres: -0.22082847
+    - Role: SleepSide
+      Metres: -0.15566163
+    - Role: SitGround
+      Metres: -0.2099845
+    - Role: Social
+      Metres: -0.23042054
+    - Role: WorkKneeling
+      Metres: -0.19837974
+  - Variant: C
+    Years: 8
+    EyeHeight: 1.234679
+    Prefab: {fileID: 2169231662401507963, guid: e0c36bb45d2202c4697668d35cf3c484, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.25
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: C
+    Years: 13
+    EyeHeight: 1.426929
+    Prefab: {fileID: 4038274799871124509, guid: a6c186f8f2d34d04e919e4ec81b625b4, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.25
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: D
+    Years: 3
+    EyeHeight: 0.74433005
+    Prefab: {fileID: 6749291504473876090, guid: f6c51e027fdbd8542a582311aa92a8ad, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.1986786
+    - Role: Walk
+      Metres: -0.19870278
+    - Role: Run
+      Metres: -0.19563653
+    - Role: Sprint
+      Metres: -0.19707192
+    - Role: SleepSide
+      Metres: -0.105743214
+    - Role: SitGround
+      Metres: -0.15958218
+    - Role: Social
+      Metres: -0.20114197
+    - Role: WorkKneeling
+      Metres: -0.17264827
+  - Variant: D
+    Years: 8
+    EyeHeight: 1.1352466
+    Prefab: {fileID: 5275209801675264434, guid: f9b2e3d6ebd1ea04f98ecd0306c35885, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.18482377
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: D
+    Years: 13
+    EyeHeight: 1.334476
+    Prefab: {fileID: 3832425908213805574, guid: fe0ebc757b2b99b4bb215e1cad048063, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.2376091
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: E
+    Years: 3
+    EyeHeight: 0.6675289
+    Prefab: {fileID: 3992917512223149976, guid: ffa30a4ccbaba8f4ba90d308fbff1de5, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.16566306
+    - Role: Walk
+      Metres: -0.16484864
+    - Role: Run
+      Metres: -0.16139983
+    - Role: Sprint
+      Metres: -0.16221733
+    - Role: SleepSide
+      Metres: -0.089269534
+    - Role: SitGround
+      Metres: -0.14764723
+    - Role: Social
+      Metres: -0.17008828
+    - Role: WorkKneeling
+      Metres: -0.14263162
+  - Variant: E
+    Years: 8
+    EyeHeight: 0.97384006
+    Prefab: {fileID: 3401641490930580236, guid: 996da98784e43b54fbf492f569277cf7, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.24862413
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.17174579
+    - Role: SitGround
+      Metres: -0.23059626
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.22768213
+  - Variant: E
+    Years: 13
+    EyeHeight: 1.1331815
+    Prefab: {fileID: 3582396478698674883, guid: a2682c134118ebf4497e9979bd67bc12, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.2253625
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25
+  - Variant: F
+    Years: 3
+    EyeHeight: 0.6892268
+    Prefab: {fileID: 7782610559675815524, guid: ddbbceffd2dde2747885b45658ad83bc, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.17953347
+    - Role: Walk
+      Metres: -0.17966545
+    - Role: Run
+      Metres: -0.17689389
+    - Role: Sprint
+      Metres: -0.17682396
+    - Role: SleepSide
+      Metres: -0.08766763
+    - Role: SitGround
+      Metres: -0.14318012
+    - Role: Social
+      Metres: -0.18239495
+    - Role: WorkKneeling
+      Metres: -0.15475586
+  - Variant: F
+    Years: 8
+    EyeHeight: 1.0486126
+    Prefab: {fileID: 6488225096474973987, guid: 1cd2493da1ed2ab46946da14cd732836, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.14971973
+    - Role: SitGround
+      Metres: -0.2223569
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.24098106
+  - Variant: F
+    Years: 13
+    EyeHeight: 1.240638
+    Prefab: {fileID: 7375930306910338683, guid: 4b32c7d6353c1674890c9601a9b55a16, type: 3}
+    Grounding:
+    - Role: Idle
+      Metres: -0.25
+    - Role: Walk
+      Metres: -0.25
+    - Role: Run
+      Metres: -0.25
+    - Role: Sprint
+      Metres: -0.25
+    - Role: SleepSide
+      Metres: -0.19853766
+    - Role: SitGround
+      Metres: -0.25
+    - Role: Social
+      Metres: -0.25
+    - Role: WorkKneeling
+      Metres: -0.25

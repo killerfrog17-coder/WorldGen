@@ -125,7 +125,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     int a=surface.Triangles[face],b=surface.Triangles[face+1],c=surface.Triangles[face+2];
                     if(!FaunaCollisionSurface.RayTriangle(ray,surface.Vertices[a],surface.Vertices[b],surface.Vertices[c],distance,out float t,out _,out _))continue;
-                    distance=t;label="Human · "+(human.Health<=0?"corpse":"NPC · "+human.Health.ToString("0.#")+"/100 HP");
+                    distance=t;label=HumanTargetLabel(human);
                 }
             }
         }

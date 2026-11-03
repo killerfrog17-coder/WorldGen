@@ -24,12 +24,16 @@ namespace WorldGen.Core
         public ForagerBandSample Band;public HumanCampSite Camp,Destination;public V Position;
         public HumanCampPhase Phase;public double ArrivalDay,DepartureDay,JourneyEndDay,Progress,DistanceToPlayerM;
         public double DaylightHours,LocalHour;public int ForageParties;
-        public bool PermanentBase;
+        public bool PermanentBase,JourneyRest;
     }
     public sealed class HumanActivitySample
     {
         public long Person,Group,Partner=-1;public HumanActivity Activity;public V Position,Destination;
         public double SpeedMps,Effort,Progress;public int Party=-1;public string Role="";
+    }
+    public sealed class HumanCampTrace
+    {
+        public long Group;public HumanCampSite Site;public double AbandonedCalendarDay,AgeSolarDays;
     }
     // A bounded local projection over broad regional history, not a second
     // demographic ledger. No camp/person is appended to the global simulation.
@@ -91,7 +95,7 @@ namespace WorldGen.Core
             bool stableWater=d.River+d.Coast>.35&&d.Seasonality[3]+d.Seasonality[4]<1;
             bool permanent=culture.Residence==ForagerResidence.AquaticResidence&&stableWater&&(Has(23)||Has(32))&&band.FoodSecurity>.65;
             int count=permanent?1:Math.Max(2,band.SeasonalCamps.Length);var sites=new HumanCampSite[count];var weights=new double[count];
-            double travelShare=culture.Residence==ForagerResidence.ResidentialMobility?.18:culture.Residence==ForagerResidence.SeasonalBaseCamps?.12:.07;
+            double travelShare=culture.Residence==ForagerResidence.ResidentialMobility?.09:culture.Residence==ForagerResidence.SeasonalBaseCamps?.065:.04;
             double budgetKm=clock.YearRealSeconds*1.15*travelShare/(2*count*1000*clock.HorizontalScale);
             double radiusKm=Math.Min(Math.Max(.001,band.HomeRangeKm*1.25),Math.Max(.001,budgetKm));
             for(int i=0;i<count;i++)
@@ -123,20 +127,33 @@ namespace WorldGen.Core
             double yearDays=SimulationTime.Year/(double)SimulationTime.Day,cycle=Math.Floor((clock.CalendarDay-plan.Phase)/yearDays),start=cycle*yearDays+plan.Phase,within=clock.CalendarDay-start;
             int index=0;double cursor=0;for(;index<plan.Sites.Length-1;index++){double duration=plan.Weights[index]*yearDays;if(within<cursor+duration)break;cursor+=duration;}
             var camp=plan.Sites[index];var next=plan.Sites[(index+1)%plan.Sites.Length];double visitStart=start+cursor,visitEnd=visitStart+plan.Weights[index]*yearDays;
-            double travelSeconds=plan.Permanent?0:Angle(camp.Position,next.Position)*world.Recipe.RadiusKm*1000*clock.HorizontalScale/1.15;
-            double travelDays=travelSeconds/(clock.DayMinutes*60)*clock.CalendarRate;
-            // The route's radius is budgeted above, but exceptionally long coarse
-            // cell geometry must never turn a travelling family into sprinters.
-            travelDays=Math.Min(travelDays,(visitEnd-visitStart)*.65);
-            double depart=visitEnd-travelDays,settleDays=.045*clock.CalendarRate,packDays=.035*clock.CalendarRate;
+            var journey=Journey(camp,next,visitEnd,clock,plan.Permanent);
+            double depart=journey.depart,settleDays=Math.Min(.045*clock.CalendarRate,(visitEnd-visitStart)*.12),packDays=Math.Min(.035*clock.CalendarRate,(visitEnd-visitStart)*.1);
             HumanCampPhase phase=clock.CalendarDay>=depart&&!plan.Permanent?HumanCampPhase.Travelling:clock.CalendarDay>=depart-packDays&&!plan.Permanent?HumanCampPhase.Packing:clock.CalendarDay<visitStart+settleDays&&!plan.Permanent?HumanCampPhase.SettingUp:HumanCampPhase.Occupied;
-            double progress=phase==HumanCampPhase.Travelling?D.Clamp((clock.CalendarDay-depart)/Math.Max(.000001,travelDays)):phase==HumanCampPhase.SettingUp?D.Clamp((clock.CalendarDay-visitStart)/Math.Max(.000001,settleDays)):phase==HumanCampPhase.Packing?D.Clamp((clock.CalendarDay-(depart-packDays))/Math.Max(.000001,packDays)):1;
+            double progress=phase==HumanCampPhase.Travelling?journey.progress:phase==HumanCampPhase.SettingUp?D.Clamp((clock.CalendarDay-visitStart)/Math.Max(.000001,settleDays)):phase==HumanCampPhase.Packing?D.Clamp((clock.CalendarDay-(depart-packDays))/Math.Max(.000001,packDays)):1;
             var position=phase==HumanCampPhase.Travelling?Interpolate(camp.Position,next.Position,progress):camp.Position;
             double latitude=Math.Asin(D.Clamp(position.Z,-1,1)),declination=.409*Math.Sin(2*Math.PI*(clock.CalendarDay/yearDays-.218));
             double daylight=24/Math.PI*Math.Acos(D.Clamp(-Math.Tan(latitude)*Math.Tan(declination),-1,1));
             double hour=((clock.SolarDays*24+9+(Math.Atan2(position.Y,position.X)*180/Math.PI-clock.PrimeLongitude)/15)%24+24)%24;
             return new HumanGroupSituation{Band=plan.Band,Camp=camp,Destination=next,Position=position,Phase=phase,Progress=progress,ArrivalDay=visitStart,DepartureDay=depart,JourneyEndDay=visitEnd,
-                DaylightHours=daylight,LocalHour=hour,PermanentBase=plan.Permanent,ForageParties=Math.Max(1,(int)Math.Ceiling(plan.Band.People/14d))};
+                DaylightHours=daylight,LocalHour=hour,PermanentBase=plan.Permanent,JourneyRest=phase==HumanCampPhase.Travelling&&!journey.moving,ForageParties=Math.Max(1,(int)Math.Ceiling(plan.Band.People/14d))};
+        }
+        (double depart,double progress,bool moving) Journey(HumanCampSite from,HumanCampSite to,double arrival,HumanLifeClock clock,bool stationary=false)
+        {
+            double needed=stationary?0:Angle(from.Position,to.Position)*world.Recipe.RadiusKm*1000*clock.HorizontalScale/1.15/(clock.DayMinutes*60);
+            if(needed<1e-9)return(arrival,1,false);
+            double latitude=Math.Asin(D.Clamp(from.Position.Z,-1,1)),declination=.409*Math.Sin(2*Math.PI*(arrival/(SimulationTime.Year/(double)SimulationTime.Day)-.218));
+            double daylight=24/Math.PI*Math.Acos(D.Clamp(-Math.Tan(latitude)*Math.Tan(declination),-1,1));
+            double begin=D.Clamp(12-daylight/2+.7,5,9)/24,end=D.Clamp(12+daylight/2-.5,15,20)/24,span=end-begin;
+            // Analytic work-window integration: travel pauses overnight without
+            // adding a tick for every person/day or accelerating to catch up.
+            double Work(double t){double day=Math.Floor(t);return day*span+D.Clamp(t-day-begin,0,span);}
+            double Inverse(double w){double day=Math.Floor(w/span);return day+begin+w-day*span;}
+            double localNow=clock.SolarDays+(9+(Math.Atan2(from.Position.Y,from.Position.X)*180/Math.PI-clock.PrimeLongitude)/15)/24;
+            double localArrival=localNow+(arrival-clock.CalendarDay)/clock.CalendarRate;
+            double startWork=Work(localArrival)-needed,localDeparture=Inverse(startWork);
+            double hour=localNow-Math.Floor(localNow);
+            return(clock.CalendarDay+(localDeparture-localNow)*clock.CalendarRate,D.Clamp((Work(localNow)-startWork)/needed),hour>=begin&&hour<=end);
         }
         double ForageRadius(HumanGroupSituation group,HumanLifeClock clock)
             =>Math.Min(1600,Math.Min(group.Band.HomeRangeKm*1000*clock.HorizontalScale,clock.DayMinutes*60*.14*1.2));
@@ -146,11 +163,15 @@ namespace WorldGen.Core
             double age=person.AgeYears,personality=Unit(person.Id,seed,"human-work-personality"),social=Unit(person.Id,seed,"human-social-personality"),day=Math.Floor(clock.SolarDays);
             var result=new HumanActivitySample{Person=person.Id,Group=group.Band.Id,Position=group.Position,Destination=group.Position,Role=person.Role};
             var homeOffset=HumanCampLayout.HouseholdOffset(residents,person.Household,group.Camp.Id,seed);
+            var family=residents.Members.Where(p=>p.Household==person.Household).OrderBy(p=>p.BirthYear).ToArray();int place=Array.FindIndex(family,p=>p.Id==person.Id);
+            double bearing=Math.Atan2(homeOffset.X,homeOffset.Z)+Math.PI;
+            double across=(place%3-1)*.53,along=(place/3-.5)*.67;
+            homeOffset+=new V(across*Math.Cos(bearing)+along*Math.Sin(bearing),0,along*Math.Cos(bearing)-across*Math.Sin(bearing));
             double homeBearing=Math.Atan2(homeOffset.Z,homeOffset.X),homeRadius=homeOffset.Length;
             V home=Offset(group.Position,homeRadius/1000/clock.HorizontalScale,homeBearing);
             result.Position=result.Destination=home;
             if(group.Phase==HumanCampPhase.Travelling)
-            {result.Activity=HumanActivity.Travel;result.Position=Offset(group.Position,(Unit(person.Household,seed,"travel-spread")*8-4)/1000/clock.HorizontalScale,homeBearing);result.Destination=group.Destination.Position;result.SpeedMps=1.15;return result;}
+            {result.Activity=group.JourneyRest?HumanActivity.Rest:HumanActivity.Travel;result.Position=Offset(group.Position,(2+Unit(person.Id,seed,"travel-spread")*10)/1000/clock.HorizontalScale,Unit(person.Id,seed,"travel-bearing")*Math.PI*2);result.Destination=group.Destination.Position;result.SpeedMps=result.Activity==HumanActivity.Travel?1.15:0;return result;}
             if(group.Phase==HumanCampPhase.SettingUp||group.Phase==HumanCampPhase.Packing)
             {result.Activity=age>=12?group.Phase==HumanCampPhase.SettingUp?HumanActivity.BuildCamp:HumanActivity.PackCamp:HumanActivity.Play;result.Progress=group.Progress;result.Destination=home;return result;}
             double dawn=12-group.DaylightHours/2,dusk=12+group.DaylightHours/2;
@@ -162,7 +183,11 @@ namespace WorldGen.Core
             if(hour<wake+1)
             {result.Activity=age<6?HumanActivity.Play:Unit(person.Id,seed,"morning-duty",(int)day)<.3?HumanActivity.FetchWater:HumanActivity.PrepareFood;return result;}
             if(hour>dusk-.7)
-            {result.Activity=age<6?HumanActivity.Rest:belief.CollectiveRites>.6&&social<.3?HumanActivity.Teach:hour<dusk+1?HumanActivity.PrepareFood:HumanActivity.Socialise;result.Destination=group.Camp.Position;return result;}
+            {
+                result.Activity=age<6?HumanActivity.Rest:belief.CollectiveRites>.6&&social<.3?HumanActivity.Teach:hour<dusk+1?HumanActivity.PrepareFood:HumanActivity.Socialise;
+                double bearingAt=Unit(person.Id,seed,"evening-hearth-place")*Math.PI*2;
+                result.Position=result.Destination=Offset(group.Camp.Position,(2.8+Unit(person.Id,seed,"hearth-seat")*1.4)/1000/clock.HorizontalScale,bearingAt);return result;
+            }
             var children=residents.Members.Where(p=>p.AgeYears<7).ToArray();var adults=residents.Members.Where(p=>p.AgeYears>=18&&p.AgeYears<65).OrderBy(p=>Unit(p.Id,seed,"care-duty",(int)day)).ToArray();
             int carers=children.Length==0?0:Math.Max(1,(int)Math.Ceiling(children.Length/(2.5+3*culture.ChildcareCooperation)));
             if(age<7){result.Activity=HumanActivity.Play;result.Partner=adults.FirstOrDefault()?.Id??-1;return result;}
@@ -185,10 +210,20 @@ namespace WorldGen.Core
             else{result.Activity=HumanActivity.GatherPlants;result.Position=Offset(target,.006/clock.HorizontalScale,homeBearing);result.Destination=result.Position;result.Progress=(hour-begin-journey)/Math.Max(.001,end-begin-2*journey);}
             return result;
         }
-        public HumanCampSite[] RecentCamps(HumanGroupSituation group,HumanLifeClock clock)
+        public HumanCampTrace[] RecentCamps(HumanGroupSituation group,HumanLifeClock clock)
         {
-            if(!plans.TryGetValue(group.Band.Id,out var plan))return Array.Empty<HumanCampSite>();
-            return plan.Sites.Where(site=>site.Id!=group.Camp.Id).ToArray();
+            if(!plans.TryGetValue(group.Band.Id,out var plan)||plan.Permanent)return Array.Empty<HumanCampTrace>();
+            var traces=new List<HumanCampTrace>();double yearDays=SimulationTime.Year/(double)SimulationTime.Day;
+            double cycle=Math.Floor((clock.CalendarDay-plan.Phase)/yearDays)*yearDays+plan.Phase,cursor=0;
+            for(int i=0;i<plan.Sites.Length;i++)
+            {
+                cursor+=plan.Weights[i]*yearDays;var site=plan.Sites[i];if(site.Id==group.Camp.Id&&group.Phase!=HumanCampPhase.Travelling)continue;
+                var next=plan.Sites[(i+1)%plan.Sites.Length];double departure=Journey(site,next,cycle+cursor,clock).depart;
+                if(departure>clock.CalendarDay)departure-=yearDays;
+                double age=(clock.CalendarDay-departure)/clock.CalendarRate;
+                if(departure>=0&&age<=45)traces.Add(new HumanCampTrace{Group=group.Band.Id,Site=site,AbandonedCalendarDay=departure,AgeSolarDays=age});
+            }
+            return traces.OrderBy(t=>t.AgeSolarDays).ToArray();
         }
         public static long SiteId(long band,int site)=>((long)Rng.Mix((uint)(band>>32)^(uint)site*7919u)<<32)|(uint)Rng.Mix((uint)band^(uint)site*193u);
         public static double Angle(V a,V b){double x=a.Y*b.Z-a.Z*b.Y,y=a.Z*b.X-a.X*b.Z,z=a.X*b.Y-a.Y*b.X;return Math.Atan2(Math.Sqrt(x*x+y*y+z*z),RawDot(a,b));}
