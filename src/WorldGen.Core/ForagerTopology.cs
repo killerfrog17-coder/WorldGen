@@ -6,8 +6,8 @@ namespace WorldGen.Core
 {
     public sealed partial class Prehistory
     {
-        // Demographic districts subdivide existing ecological patches. They do
-        // not rename, merge or change the world's ecoregions or terrain cells.
+        // One aggregate per connected ecoregion. Terrain resolution does not
+        // create finer demographic actors, camps or household histories.
         internal void BuildForagerTopology(ForagerState state,CancellationToken token=default)
         {
             var cells=World.Surface.Cells;var assigned=Enumerable.Repeat(-1,cells.Length).ToArray();var districts=new List<ForagerDistrict>();
@@ -22,7 +22,7 @@ namespace WorldGen.Core
                     int at=queue.Dequeue();members.Add(at);area+=LandArea(at);
                     foreach(int next in cells[at].Neighbors.OrderBy(x=>x))
                     {
-                        if(assigned[next]>=0||CellPatch[next]!=patch.id||!patch.p.Island&&World.Hydrology.LakeCoverageFraction[next]>=.9||members.Count+queue.Count>=16||area>80000||Distance(cells[seed].Position,cells[next].Position)>220)continue;
+                        if(assigned[next]>=0||CellPatch[next]!=patch.id||!patch.p.Island&&World.Hydrology.LakeCoverageFraction[next]>=.9)continue;
                         assigned[next]=id;queue.Enqueue(next);
                     }
                 }

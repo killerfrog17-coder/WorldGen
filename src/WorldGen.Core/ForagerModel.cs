@@ -10,7 +10,10 @@ namespace WorldGen.Core
     // records remain unchanged for old-save replay, never silently reinterpreted.
     [Serializable] public sealed class ForagerState
     {
-        public string Version="foragers-5";
+        public const string RegionalVersion="foragers-regional-1";
+        public string Version=RegionalVersion;
+        [NonSerialized] public string DomainHash="";
+        public ForagerState ClockCopy()=>(ForagerState)MemberwiseClone();
         public double InitialPopulation;
         public long Seconds,BoundarySeconds,NextReviewSeconds;
         public int NextCohort,NextCulture,NextLanguage,NextBelief,NextFamily,NextPeople;
@@ -19,6 +22,8 @@ namespace WorldGen.Core
         public ForagerResources[] Resources=Array.Empty<ForagerResources>();
         public ForagerBiotaDistrict[] Biota=Array.Empty<ForagerBiotaDistrict>();
         public HomininLineage[] Lineages=Array.Empty<HomininLineage>();
+        // Regional species proportions are separate from mixed ancestry.
+        public double[] SpeciesShares=Array.Empty<double>();
         public ForagerCohort[] Cohorts=Array.Empty<ForagerCohort>();
         public ForagerCulture[] Cultures=Array.Empty<ForagerCulture>();
         public ForagerPeopleIdentity[] Peoples=Array.Empty<ForagerPeopleIdentity>();
@@ -28,8 +33,9 @@ namespace WorldGen.Core
         public ForagerExchange[] Exchanges=Array.Empty<ForagerExchange>();
         public ForagerEvent[] Events=Array.Empty<ForagerEvent>();
         public ForagerDiscovery[] Discoveries=Array.Empty<ForagerDiscovery>();
-        public ForagerState Copy()=>new ForagerState{Version=Version,InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
-            CellDistrict=(int[])CellDistrict.Clone(),Districts=Districts.Select(x=>x.Copy()).ToArray(),Resources=Resources.Select(x=>x.Copy()).ToArray(),Biota=Biota.Select(x=>x.Copy()).ToArray(),Lineages=Lineages.Select(x=>x.Copy()).ToArray(),Cohorts=Cohorts.Select(x=>x.Copy()).ToArray(),Cultures=Cultures.Select(x=>x.Copy()).ToArray(),Peoples=Peoples.Select(x=>x.Copy()).ToArray(),Languages=Languages.Select(x=>x.Copy()).ToArray(),LanguageFamilies=LanguageFamilies.Select(x=>x.Copy()).ToArray(),Beliefs=Beliefs.Select(x=>x.Copy()).ToArray(),Exchanges=Exchanges.Select(x=>x.Copy()).ToArray(),Events=Events.Select(x=>x.Copy()).ToArray()};
+        public ForagerState Copy()=>new ForagerState{Version=Version,DomainHash=DomainHash,InitialPopulation=InitialPopulation,Seconds=Seconds,BoundarySeconds=BoundarySeconds,NextReviewSeconds=NextReviewSeconds,NextCohort=NextCohort,NextCulture=NextCulture,NextLanguage=NextLanguage,NextBelief=NextBelief,NextFamily=NextFamily,NextPeople=NextPeople,Discoveries=Discoveries.Select(x=>x.Copy()).ToArray(),
+            CellDistrict=CellDistrict,Districts=Districts,SpeciesShares=(double[])SpeciesShares.Clone(),Resources=Resources.Select(x=>x.Copy()).ToArray(),Biota=Biota.Select(x=>x.Copy()).ToArray(),Lineages=Lineages,Cohorts=Cohorts.Select(x=>x.Copy()).ToArray(),Cultures=Cultures.Select(x=>x.Copy()).ToArray(),Peoples=Peoples.Select(x=>x.Copy()).ToArray(),Languages=Languages.Select(x=>x.Copy()).ToArray(),LanguageFamilies=LanguageFamilies.Select(x=>x.Copy()).ToArray(),Beliefs=Beliefs.Select(x=>x.Copy()).ToArray(),Exchanges=Exchanges.Select(x=>x.Copy()).ToArray(),Events=Events.Select(x=>x.Copy()).ToArray()};
+        public double SpeciesShare(ForagerCohort c,int lineage)=>SpeciesShares[c.District*Lineages.Length+lineage];
     }
     [Serializable] public sealed class ForagerDiscovery
     {
@@ -91,6 +97,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class ForagerCohort
     {
+        // One regional distribution, never an individually simulated tribe.
         public int Id,District,Lineage,Culture,Identity,Language,Belief,Parent=-1,FoundedYear,LastMigrationYear,LastContactYear,LastLanguageReviewYear;
         // Canonical distributions retain every represented resident community.
         // Primary/runner-up fields below are derived observer caches only.

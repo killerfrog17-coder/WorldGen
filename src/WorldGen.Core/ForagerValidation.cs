@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 namespace WorldGen.Core
@@ -17,6 +17,7 @@ namespace WorldGen.Core
             Require(f.Biota?.Length==f.Districts.Length,"saved ecological districts");
             Require(f.NextCulture==f.Cultures.Length&&f.NextLanguage==f.Languages.Length&&f.NextBelief==f.Beliefs.Length&&f.NextFamily==f.LanguageFamilies.Length&&f.NextPeople==f.Peoples.Length,"dense identity registries");
             Require(f.NextCohort>=0&&f.Cohorts.All(c=>c.Id>=0&&c.Id<f.NextCohort),"cohort identity counter");
+            Require(f.SpeciesShares.Length==f.Districts.Length*f.Lineages.Length,"regional species distribution");
             var ids=f.Cohorts.Select(c=>c.Id).ToHashSet();
             foreach(var d in f.Districts)
             {
@@ -32,13 +33,14 @@ namespace WorldGen.Core
             for(int cell=0;cell<f.CellDistrict.Length;cell++)Require(f.CellDistrict[cell]==-1||f.CellDistrict[cell]>=0&&f.CellDistrict[cell]<f.Districts.Length&&f.Districts[f.CellDistrict[cell]].Cells.Contains(cell),"cell-to-district lookup");
             foreach(var c in f.Cohorts)
             {
+                Require(Math.Abs(Enumerable.Range(0,f.Lineages.Length).Sum(k=>f.SpeciesShare(c,k))-1)<.000001,"regional species shares sum to one");
                 Require(c.Parent<0||c.Parent<c.Id&&ids.Contains(c.Parent),"demographic ancestry");
                 Require(c.FoundedYear<=year&&c.LastContactYear<=year&&c.LastMigrationYear<=year,"resident dates");
                 Require(f.Districts[c.District].Cells.Contains(c.HomeCell)&&f.Districts[c.District].Cells.Contains(c.FrontierCell),"resident home and entry cells");
                 Require(Values(c.Knowledge,ForagerTechnology.Count)&&Values(c.Skill,ForagerTechnology.Count)&&Values(c.Use,ForagerTechnology.Count)&&(c.Population==0&&c.Teaching.Length==0||Values(c.Teaching,ForagerTechnology.Count,10))&&(c.Population==0&&c.Innovation.Length==0||Values(c.Innovation,ForagerTechnology.Count)),"technique values");
                 Require(Years(c.FirstKnownYear)&&Years(c.FirstSkilledYear)&&Years(c.LastLossYear),"persistent learning history");
                 Require((c.Population==0&&c.TeachingFrom.Length==0||Values(c.TeachingFrom,ForagerTechnology.Count)||Values(c.TeachingFrom,ForagerTechnology.Count*2))&&Finite(c.ContactTeaching)&&Finite(c.TeachingAdults),"saved incoming teaching context");
-                for(int k=0;k<ForagerTechnology.Count;k++)Require(c.Skill[k]<=c.Knowledge[k]+.000001&&(f.Version=="foragers-5"||c.Use[k]<=c.Skill[k]+.000001),"makers <= familiarity; legacy use <= makers; shared products may serve non-makers");
+                for(int k=0;k<ForagerTechnology.Count;k++)Require(c.Skill[k]<=c.Knowledge[k]+.000001&&(f.Version==ForagerState.RegionalVersion||c.Use[k]<=c.Skill[k]+.000001),"makers <= familiarity; legacy use <= makers; shared products may serve non-makers");
                 Require(Finite(c.Children)&&Finite(c.Adults)&&Finite(c.Elders)&&Math.Abs(c.Children-c.Ages[0]-c.Ages[1])<.000001&&Math.Abs(c.Adults-c.Ages[2]-c.Ages[3])<.000001&&Math.Abs(c.Elders-c.Ages[4])<.000001,"age-stock aggregates");
                 Require(Finite(c.Births)&&Finite(c.Deaths)&&Finite(c.Immigration)&&Finite(c.Emigration)&&Finite(c.Capacity)&&Finite(c.MatingContacts)&&Finite(c.BirthRate)&&Finite(c.AdultMortality)&&Finite(c.ChildMortality)&&Finite(c.ElderMortality),"vital rates and totals");
                 Require(Unit(c.Occupation)&&Unit(c.WinterSecurity)&&Unit(c.Health)&&Unit(c.Isolation)&&Unit(c.Connectivity)&&Unit(c.ConflictPressure)&&Finite(c.FoodSecurity)&&c.FoodSecurity<=1.500001,"livelihood constraints");

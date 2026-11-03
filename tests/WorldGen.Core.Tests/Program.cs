@@ -18,6 +18,7 @@ if(args.Contains("--forager-record-transport-only")){ForagerRecordTransportTests
 if(args.Contains("--forager-packed-world")){ForagerPackedWorldTests.Run(args[1],args[2]);return;}
 if(args.Contains("--forager-behavior")){ForagerBehaviorAudit.Run(args[1],args[2]);return;}
 if(args.Contains("--forager-habitat")){ForagerHabitatTests.Run(args[1]);return;}
+if(args.Contains("--regional-foragers")){RegionalForagerTests.Run(args[1],args.Length>2?int.Parse(args[2]):200000,args.Length>3?int.Parse(args[3]):10000);return;}
 if(args.Contains("--forager-cost")){ForagerWorldTests.Cost(args[1],args.Length>2?int.Parse(args[2]):250);return;}
 if(args.Contains("--forager-continue")){ForagerWorldTests.History(args[2],int.Parse(args[3]),from:args[1]);return;}
 if(args.Contains("--forager-weather")){ForagerClimateTests.Run(args[1]);return;}

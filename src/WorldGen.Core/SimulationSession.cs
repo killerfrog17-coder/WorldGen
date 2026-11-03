@@ -17,11 +17,15 @@ namespace WorldGen.Core
         public SimulationSession(Prehistory engine,PrehistoryState source)
         {
             this.engine=engine??throw new ArgumentNullException(nameof(engine));engine.Validate(source);
-            current=DetachedCopy(engine.UpgradeScheduling(source));LastSnapshot=source;
+            current=source.Regional?source:DetachedCopy(engine.UpgradeScheduling(source));LastSnapshot=source;
         }
         public PrehistoryState AdvanceSeconds(long seconds,int maximumEvents=1,CancellationToken token=default,int maximumGlobalWork=int.MaxValue)
         {
             var next=engine.AdvanceOwnedSeconds(current,seconds,maximumEvents,token,maximumGlobalWork);
+            // Regional event updates copy before writing; clock-only snapshots
+            // share frozen regional arrays. Publishing them needs no second
+            // world copy. The UI consumes these snapshots as read-only data.
+            if(next.Regional){token.ThrowIfCancellationRequested();current=next;LastSnapshot=next;return next;}
             // Commit only after all work and publication copying succeed.
             var publicationTimer=System.Diagnostics.Stopwatch.StartNew();PrehistoryState publication;using(engine.ProfileWork("publication copy"))publication=DetachedCopy(next);token.ThrowIfCancellationRequested();if(next.History?.Aggregates!=null)engine.YearWorkObserver?.Invoke(next.Years,publicationTimer.Elapsed.TotalMilliseconds);current=next;LastSnapshot=publication;return publication;
         }

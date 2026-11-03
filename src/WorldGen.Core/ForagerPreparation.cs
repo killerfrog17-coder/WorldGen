@@ -11,11 +11,12 @@ namespace WorldGen.Core
         {
             bool automatic=origin<0;if(automatic)origin=ChooseForagerOrigin();
             if(origin<0||origin>=Patches.Length||Patches[origin].Capacity<25)throw new ArgumentException("Choose a viable ancestral land region.");
-            var s=new PrehistoryState{Version="prehistory-8",Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=new int[Patches.Length*8],Paleolithic=new PaleolithicState{Version="paleolithic-3"},Foragers=new ForagerState{NextReviewSeconds=5*SimulationTime.Year},Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray()}};
+            var s=new PrehistoryState{Version="prehistory-8",Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=new int[Patches.Length*8],Paleolithic=new PaleolithicState{Version="paleolithic-3"},Foragers=new ForagerState{NextReviewSeconds=100*SimulationTime.Year},Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray()}};
             BuildForagerTopology(s.Foragers,token);var f=s.Foragers;
             int originDistrict=f.CellDistrict[Patches[origin].Cell];if(originDistrict<0)originDistrict=f.Districts.Where(d=>d.Patch==origin).Select(d=>d.Id).DefaultIfEmpty(-1).First();
             if(originDistrict<0)throw new ArgumentException("The selected region has no habitable land district.");
             var sapiens=SeedForagerLineages(f,originDistrict);
+            f.SpeciesShares=new double[f.Districts.Length*f.Lineages.Length];
             f.Resources=f.Districts.Select(d=>new ForagerResources{District=d.Id}).ToArray();f.Biota=ForagerBiota.Seed(World,f,token);var people=new List<ForagerCohort>();
             var distances=f.Lineages.Select(l=>ForagerDistances(f,l.OriginDistrict,true,true).costs).ToArray();
             foreach(var district in f.Districts.OrderBy(d=>d.Id))
@@ -45,7 +46,7 @@ namespace WorldGen.Core
                     f.Languages[cohort.Language]=speech;
                 }
                 var environment=ForagerBiota.Apply(ForagerEcology.At(World.Recipe.Seed,district,0,World.ElevationM[district.Cell]),f.Biota[district.Id]);
-                var life=ForagerEcology.Livelihood(district,environment,f.Lineages[lineage],cohort,f.Cultures[cohort.Culture],f.Resources[district.Id],f.Version=="foragers-5");
+                var life=ForagerEcology.Livelihood(district,environment,f.Lineages[lineage],cohort,f.Cultures[cohort.Culture],f.Resources[district.Id],f.Version==ForagerState.RegionalVersion);
                 if(life.Capacity<35||life.WinterSecurity<.07){DiscardCandidate();continue;}
                 double population=life.Capacity*(.14+.25*Rng.Value(World.Recipe.Seed,"ancestral-regional-density",district.Id));
                 if(population<18){DiscardCandidate();continue;}
@@ -54,6 +55,7 @@ namespace WorldGen.Core
                 var belief=ForagerBeliefs.Create(World.Recipe.Seed,f.NextBelief++,district.Id,0,district,f.Languages[cohort.Language],nearby.people==null?null:f.Beliefs[nearby.people.Belief]);
                 f.Beliefs=f.Beliefs.Concat(new[]{belief}).ToArray();cohort.Traditions=ForagerAffiliations.Single(belief.Id);ForagerAffiliations.Refresh(cohort);
                 ForagerDemography.Rates(cohort,life,environment,f.Cultures[cohort.Culture],life.Capacity);people.Add(cohort);
+                f.SpeciesShares[district.Id*f.Lineages.Length+lineage]=1;
             }
             f.Cohorts=people.OrderBy(c=>c.Id).ToArray();
             f.InitialPopulation=f.Cohorts.Sum(c=>c.Population);
@@ -64,7 +66,7 @@ namespace WorldGen.Core
                 s.Origin=f.Districts[f.Cohorts.Where(c=>f.Lineages[c.Lineage].PlayerSpecies).OrderByDescending(c=>c.Population).First().District].Patch;
             }
             ForagerLanguages.ReviewFamilies(f,0,null);
-            var environments=ForagerEnvironments(f,0);ForagerSociality.Review(World.Recipe.Seed,f,environments,0,200,home:c=>ForagerBandHome(f,c,0).position,radiusKm:World.Recipe.RadiusKm);RefreshForagerTeachers(f);
+            var environments=ForagerEnvironments(f,0);RegionalContacts(f,environments,0,200);RefreshForagerTeachers(f);
             PublishForagers(s);s.Seal();return s;
         }
         double DistanceKm(V a,V b)=>World.Recipe.RadiusKm*Math.Acos(D.Clamp(V.Dot(a,b),-1,1));
@@ -78,6 +80,8 @@ namespace WorldGen.Core
             var dominant=new Dictionary<int,(ForagerCohort people,double population)>();
             foreach(var c in f.Cohorts)
             {
+                int firstPatch=f.Districts[c.District].Patch;
+                if(s.ArrivalYear[firstPatch]<0)s.ArrivalYear[firstPatch]=Math.Max(0,c.FoundedYear);
                 if(c.Population<=0)continue;
                 double population=elapsed>0?ForagerDemography.Project(c,elapsed,f.BoundarySeconds/(double)SimulationTime.Year).Population:c.Population;if(population<.5)continue;
                 var district=f.Districts[c.District];int patch=district.Patch;
@@ -97,8 +101,8 @@ namespace WorldGen.Core
         public void ValidateForagers(PrehistoryState s)
         {
             var f=s?.Foragers;
-            if(s==null||s.Version!="prehistory-8"||f==null||(f.Version!="foragers-2"&&f.Version!="foragers-3"&&f.Version!="foragers-4"&&f.Version!="foragers-5")||s.Paleolithic?.Version!="paleolithic-3"||s.History!=null||s.Timeline!=null||s.HumanRanges!=null||s.WorldHash!=World.Stages.Last().Hash||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid foraging-world checkpoint.");
-            if(f.CellDistrict?.Length!=World.Surface.Cells.Length||f.Districts==null||f.Resources?.Length!=f.Districts.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Origin<0||s.Origin>=Patches.Length||f.Seconds<0||f.Seconds>SimulationTime.Maximum||f.BoundarySeconds>f.Seconds||f.NextReviewSeconds<=f.Seconds||f.NextReviewSeconds-f.BoundarySeconds!=5*SimulationTime.Year||s.Years!=f.Seconds/SimulationTime.Year)throw new ArgumentException("Invalid foraging geography/calendar.");
+            if(s==null||s.Version!="prehistory-8"||f==null||f.Version!=ForagerState.RegionalVersion||s.Paleolithic?.Version!="paleolithic-3"||s.History!=null||s.Timeline!=null||s.HumanRanges!=null||s.WorldHash!=World.Stages.Last().Hash||s.Hash!=s.ComputeHash())throw new ArgumentException("This world uses retired simulation rules. Generate a new world.");
+            if(f.CellDistrict?.Length!=World.Surface.Cells.Length||f.Districts==null||f.Resources?.Length!=f.Districts.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.Society?.CellCulture?.Length!=World.Surface.Cells.Length||s.Origin<0||s.Origin>=Patches.Length||f.Seconds<0||f.Seconds>SimulationTime.Maximum||f.BoundarySeconds>f.Seconds||f.NextReviewSeconds<=f.Seconds||f.NextReviewSeconds-f.BoundarySeconds!=RegionalReviewYears*SimulationTime.Year||s.Years!=f.Seconds/SimulationTime.Year)throw new ArgumentException("Invalid foraging geography/calendar.");
             bool Finite(double[] a,int count)=>a!=null&&a.Length==count&&a.All(x=>double.IsFinite(x)&&x>=0);
             foreach(var c in f.Cohorts)
             {

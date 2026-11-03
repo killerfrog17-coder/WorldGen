@@ -29,9 +29,14 @@ namespace WorldGen.Core
         {
             var copy=Copy(false);copy.Society=Society.CopyOwned(History.Aggregates.Living);copy.History=History.CopyOwned();return copy;
         }
-        public string ComputeHash()=>Foragers!=null?StateHash.Compute(new object[]{ComputeBaseHash(),Foragers}):HumanRanges!=null?StateHash.Compute(new object[]{ComputeBaseHash(),HumanRanges}):ComputeBaseHash();
+        internal bool Regional=>Foragers?.Version==ForagerState.RegionalVersion;
+        internal string RegionalDomainHash()=>StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Started,Population,ArrivalYear,Ancestry,Society,
+            Foragers.BoundarySeconds,Foragers.NextReviewSeconds,Foragers.InitialPopulation,Foragers.CellDistrict,Foragers.Districts,Foragers.Resources,Foragers.Biota,Foragers.Lineages,Foragers.SpeciesShares,Foragers.Cohorts,Foragers.Cultures,Foragers.Peoples,Foragers.Languages,Foragers.LanguageFamilies,Foragers.Beliefs,Foragers.Exchanges,Foragers.Events,Foragers.Discoveries});
+        internal string RegionalClockHash(string domain)=>StateHash.Compute(new object[]{domain,Foragers.Seconds});
+        string ComputeRegionalHash(){Foragers.DomainHash=RegionalDomainHash();return RegionalClockHash(Foragers.DomainHash);}
+        public string ComputeHash()=>Regional?ComputeRegionalHash():Foragers!=null?StateHash.Compute(new object[]{ComputeBaseHash(),Foragers}):HumanRanges!=null?StateHash.Compute(new object[]{ComputeBaseHash(),HumanRanges}):ComputeBaseHash();
         string ComputeBaseHash()=>Paleolithic!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,Paleolithic}):History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
-        public void Seal(){Hash=ComputeHash();}
+        public void Seal(){if(Regional){Foragers.DomainHash=RegionalDomainHash();Hash=RegionalClockHash(Foragers.DomainHash);}else Hash=ComputeHash();}
     }
     /// <summary>Independent demographic state on connected ecoregion patches. Never alters generated geography.</summary>
     public sealed partial class Prehistory

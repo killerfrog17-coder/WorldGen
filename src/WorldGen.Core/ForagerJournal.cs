@@ -13,9 +13,10 @@ namespace WorldGen.Core
         {
             readonly ForagerState state;readonly ForagerEvent[] recent=new ForagerEvent[2048];
             int start,count;bool changed;List<ForagerDiscovery> discoveries;
+            readonly HashSet<long> regionalDiscoveries=new HashSet<long>();
             public ForagerJournal(ForagerState f)
             {
-                state=f;foreach(var item in f.Events)Append(item);changed=false;ForagerJournals.Add(f,this);
+                state=f;foreach(var item in f.Events)Append(item);foreach(var item in f.Discoveries)regionalDiscoveries.Add(((long)item.District<<32)|(uint)item.Technique);changed=false;ForagerJournals.Add(f,this);
             }
             public void Append(ForagerEvent item)
             {
@@ -24,6 +25,7 @@ namespace WorldGen.Core
             }
             public void Discover(int technique,ForagerCohort cohort,int year)
             {
+                if(!regionalDiscoveries.Add(((long)cohort.District<<32)|(uint)technique))return;
                 if(discoveries==null)discoveries=new List<ForagerDiscovery>(state.Discoveries);
                 discoveries.Add(new ForagerDiscovery{Id=discoveries.Count,Technique=technique,Cohort=cohort.Id,District=cohort.District,Year=year});
             }

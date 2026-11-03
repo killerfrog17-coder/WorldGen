@@ -93,6 +93,8 @@ namespace WorldGen.Core
             if(c==null)return null;int count=ForagerBandCount(s,c);if(ordinal>=count)return null;
             var band=ForagerBandLayout(s,c,ordinal,count);var d=f.Districts[c.District];double years=f.Seconds/(double)SimulationTime.Year;
             int key=unchecked(c.Id*104729+ordinal*7919);
+            double speciesDraw=Rng.Value(World.Recipe.Seed,"regional-band-species",key),speciesCumulative=0;
+            for(int k=0;k<f.Lineages.Length;k++){speciesCumulative+=f.SpeciesShare(c,k);if(speciesDraw<speciesCumulative){band.Lineage=k;break;}}
             band.Language=ForagerAffiliations.Pick(c.Speech,Rng.Value(World.Recipe.Seed,"band-minority-language",key));
             band.Belief=ForagerAffiliations.Pick(c.Traditions,Rng.Value(World.Recipe.Seed,"band-minority-belief",key));
             // Individual makers, rather than an average weak proficiency
@@ -109,10 +111,10 @@ namespace WorldGen.Core
                 // Knowing a maker does not imply routinely using every tool.
                 // Group availability is distinct from individual skill prevalence.
                 double rank=Rng.Value(World.Recipe.Seed,"band-practice-"+k,key);
-                bool products=f.Version=="foragers-5"||band.Techniques[k];
+                bool products=f.Version==ForagerState.RegionalVersion||band.Techniques[k];
                 band.RoutineTechniques[k]=products&&rank<c.Use[k];
                 bool winter=k==5||k==8||k==13||k==14||k==31||k==34||k==35||k==36;
-                band.WinterTechniques[k]=winter?products&&rank<ForagerTechnology.WinterPractice(d,environment,c,k,f.Version=="foragers-5"):band.RoutineTechniques[k];
+                band.WinterTechniques[k]=winter?products&&rank<ForagerTechnology.WinterPractice(d,environment,c,k,f.Version==ForagerState.RegionalVersion):band.RoutineTechniques[k];
             }
             var residents=ForagerResidents.GetValue(f,value=>new ForagerResidentIndex(World,value));
             var contacts=residents.Contacts.TryGetValue(c.Id,out var nearby)?nearby:Array.Empty<ForagerExchange>();

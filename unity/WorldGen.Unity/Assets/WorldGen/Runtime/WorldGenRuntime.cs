@@ -100,6 +100,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-screen-check"))StartCoroutine(CheckScreens());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-prehistory-check"))StartCoroutine(CheckPrehistory());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-view")){screen="Setup";BeginWork(false,Argument("--worldgen-history-view",""));StartCoroutine(CheckHistoricalView());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-regional-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-regional-playback",""));StartCoroutine(CheckRegionalPlayback());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-forager-view")){screen="Setup";BeginWork(false,Argument("--worldgen-forager-view",""));StartCoroutine(CheckForagerView());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-map-marks-check")){screen="Setup";BeginWork(false,Argument("--worldgen-map-marks-check",""));StartCoroutine(CheckMapMarks());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-religion-check")){screen="Setup";BeginWork(false,Argument("--worldgen-religion-check",""));StartCoroutine(CheckReligiousView());}

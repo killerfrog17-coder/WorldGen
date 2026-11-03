@@ -9,6 +9,7 @@ namespace WorldGen.Core
     {
         internal PrehistoryState AdvanceForagers(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validate,int maximumWork=int.MaxValue)
         {
+            if(source.Regional)return AdvanceRegionalForagers(source,seconds,maximumEvents,token,validate,maximumWork);
             if(validate)using(ProfileWork("forager input validation"))ValidateForagers(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             if(seconds<1||seconds>SimulationTime.Maximum-source.Foragers.Seconds||maximumEvents<1||maximumWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));
             PrehistoryState s;using(ProfileWork("forager checkpoint copy"))s=source.Copy();var f=s.Foragers;using var journal=new ForagerJournal(f);long target=f.Seconds+seconds;int processed=0;var intelligibility=new Dictionary<long,double>();
@@ -51,7 +52,7 @@ namespace WorldGen.Core
             foreach(var group in f.Cohorts.Where(c=>c.Population>0).GroupBy(c=>c.District))
             {
                 if((group.Key&127)==0)token.ThrowIfCancellationRequested();var d=f.Districts[group.Key];var e=environment[group.Key];var resources=f.Resources[group.Key];var people=group.ToArray();
-                var lives=people.Select(c=>ForagerEcology.Livelihood(d,e,f.Lineages[c.Lineage],c,f.Cultures[c.Culture],resources,f.Version=="foragers-5")).ToArray();
+                var lives=people.Select(c=>ForagerEcology.Livelihood(d,e,f.Lineages[c.Lineage],c,f.Cultures[c.Culture],resources,f.Version==ForagerState.RegionalVersion)).ToArray();
                 var demand=new double[5];double total=people.Sum(c=>c.Population);
                 // Dietary/resource niches and actual toolkit returns determine
                 // competition. A database split is not extra habitat or food.
@@ -63,7 +64,7 @@ namespace WorldGen.Core
                     var c=people[i];double allocated=0;
                     for(int k=0;k<5;k++){double share=demand[k]>0?ForagerEcology.ResourceClaim(c.Population,lives[i].Diet[k],legacyConcave)/demand[k]:0;allocated+=lives[i].Capacity*lives[i].Diet[k]*share;districtDiet[k]+=c.Population/total*lives[i].Diet[k];}
                     ForagerDemography.Rates(c,lives[i],e,f.Cultures[c.Culture],allocated);
-                    double speed=ForagerPassages.FrontierKmPerYear(c,f.Cultures[c.Culture],d,e,f.Version=="foragers-5");c.FrontierKm=Math.Min(d.RadiusKm*1.5,c.FrontierKm+speed*elapsed);
+                    double speed=ForagerPassages.FrontierKmPerYear(c,f.Cultures[c.Culture],d,e,f.Version==ForagerState.RegionalVersion);c.FrontierKm=Math.Min(d.RadiusKm*1.5,c.FrontierKm+speed*elapsed);
                     c.Occupation=D.Q(D.Clamp(c.Population/Math.Max(30,lives[i].Capacity),.005,1),1000000);
                 }
                 double capacity=people.Sum(c=>c.Capacity);ForagerEcology.RecoverResources(resources,elapsed,total,capacity,districtDiet);resources.HumanDensity=D.Q(total/d.AreaKm2,1000000000);resources.LastReviewYear=year;
@@ -94,7 +95,7 @@ namespace WorldGen.Core
                 {
                     var c=active[index];if((c.Id&63)==0)token.ThrowIfCancellationRequested();Array.Copy(c.Skill,previous,previous.Length);
                     communication.TryGetValue(c.Id,out var access);double comprehension=access.weight>0?access.score/access.weight:1;
-                    ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District],comprehension,f.Version=="foragers-4"||f.Version=="foragers-5",f.Version=="foragers-5"),gained=0,lost=0;
+                    ulong inventions=ForagerTechnology.Advance(World.Recipe.Seed,c,f.Districts[c.District],environment[c.District],f.Cultures[c.Culture],elapsed,year,c.TeachingFrom,c.TeachingAdults,c.ContactTeaching,f.Languages[c.Language].TechnicalRegister,ForagerSociality.Capacity(f,c,false),ForagerSociality.Capacity(f,c,true),materials[c.District],comprehension,f.Version=="foragers-4"||f.Version==ForagerState.RegionalVersion,f.Version==ForagerState.RegionalVersion),gained=0,lost=0;
                     for(int k=0;k<previous.Length;k++)
                     {
                         if(c.Knowledge[k]>=.2&&c.FirstKnownYear[k]<0)c.FirstKnownYear[k]=year;
@@ -131,7 +132,7 @@ namespace WorldGen.Core
             foreach(var c in f.Cohorts.Where(c=>c.Population>=1))
             {
                 double weight=0,adults=0;
-                c.TeachingFrom=f.Version=="foragers-4"||f.Version=="foragers-5"?
+                c.TeachingFrom=f.Version=="foragers-4"||f.Version==ForagerState.RegionalVersion?
                     ForagerTechnology.SpecialistTeacherContext(neighbours[c.Id].Where(x=>x.people.Population>=1).Select(x=>(x.people.Skill,x.people.Knowledge,x.people.Adults,x.relation.Strength*(1-.75*x.relation.Hostility)))):
                     ForagerTechnology.TeacherContext(neighbours[c.Id].Where(x=>x.people.Population>=1).Select(x=>(x.people.Skill,x.relation.Strength*(1-.75*x.relation.Hostility))));
                 foreach(var contact in neighbours[c.Id])
@@ -245,7 +246,7 @@ namespace WorldGen.Core
                 double technical=D.Clamp(.2+.032*owner.Skill.Count(x=>x>.5)+.25*owner.Connectivity+.15*culture.ChildcareCooperation);
                 double narrative=D.Clamp(.35+.3*owner.Connectivity+.2*culture.GuestAccess+.15*owner.Use[5]+.15*f.Beliefs[owner.Belief].CollectiveRites);
                 double ritual=D.Clamp(.2+.55*f.Beliefs[owner.Belief].CollectiveRites+.2*owner.Connectivity);
-                if(f.Version=="foragers-4"||f.Version=="foragers-5")
+                if(f.Version=="foragers-4"||f.Version==ForagerState.RegionalVersion)
                 {
                     // A language belongs to its whole speaker community. Its
                     // technical register cannot be capped by whichever single

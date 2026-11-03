@@ -114,11 +114,15 @@ namespace WorldGen.Core
             ForagerLanguage speech;
             if(parent==null)
             {speech=ForagerLanguages.Create(World.Recipe.Seed,state.NextLanguage++,district,year);state.Languages=state.Languages.Concat(new[]{speech}).ToArray();}
-            else speech=state.Languages[parent.Language];
+            else
+            {
+                speech=ForagerLanguages.Create(World.Recipe.Seed,state.NextLanguage++,district,year,state.Languages[parent.Language]);
+                state.Languages=state.Languages.Concat(new[]{speech}).ToArray();
+            }
             culture.Name=LanguageGenerator.Capitalize(LanguageGenerator.WordWithRootSeed(speech.Sounds,"people",culture.Seed).Text)+" "+ForagerLanguages.Word(speech,d.Coast>.5?"sea":d.River>.4?"river":d.Relief>800?"mountain":d.Canopy>.5?"tree":"grass").Text;
-            var c=new ForagerCohort{Id=state.NextCohort++,District=district,Lineage=lineage,Culture=culture.Id,Language=speech.Id,Belief=parent?.Belief??-1,Parent=parent?.Id??-1,FoundedYear=year,LastMigrationYear=year,LastContactYear=year,LastLanguageReviewYear=year,
+            var c=new ForagerCohort{Id=state.NextCohort++,District=district,Lineage=lineage,Culture=culture.Id,Language=speech.Id,Belief=parent?.Belief??-1,Parent=-1,FoundedYear=year,LastMigrationYear=year,LastContactYear=year,LastLanguageReviewYear=year,
                 Knowledge=new double[ForagerTechnology.Count],Skill=new double[ForagerTechnology.Count],Use=new double[ForagerTechnology.Count],Teaching=new double[ForagerTechnology.Count],Innovation=new double[ForagerTechnology.Count],Admixture=new double[state.Lineages.Length],HomeCell=d.Cell,FrontierCell=d.Cell,Occupation=.08,FrontierKm=10,Health=.75,FoodSecurity=1};
-            c.Speech=parent==null?ForagerAffiliations.Single(speech.Id):parent.Speech.Select(x=>x.Copy()).ToArray();
+            c.Speech=parent==null?ForagerAffiliations.Single(speech.Id):ForagerAffiliations.Replace(parent.Speech,parent.Language,speech.Id);
             c.Traditions=parent==null?Array.Empty<ForagerAffiliation>():parent.Traditions.Select(x=>x.Copy()).ToArray();
             c.Admixture[lineage]=1;
             if(parent==null)
@@ -146,6 +150,11 @@ namespace WorldGen.Core
             }
             c.FirstKnownYear=c.Knowledge.Select(v=>v>=.2?year:-1).ToArray();c.FirstSkilledYear=c.Skill.Select(v=>v>=.5?year:-1).ToArray();c.LastLossYear=Enumerable.Repeat(-1,ForagerTechnology.Count).ToArray();
             c.TeachingFrom=new double[ForagerTechnology.Count*2];
+            if(parent!=null)
+            {
+                var belief=ForagerBeliefs.Create(World.Recipe.Seed,state.NextBelief++,district,year,d,speech,state.Beliefs[parent.Belief]);
+                state.Beliefs=state.Beliefs.Concat(new[]{belief}).ToArray();c.Traditions=ForagerAffiliations.Replace(c.Traditions,parent.Belief,belief.Id);ForagerAffiliations.Refresh(c);
+            }
             return c;
         }
     }

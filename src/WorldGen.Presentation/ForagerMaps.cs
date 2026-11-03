@@ -44,7 +44,7 @@ namespace WorldGen.Presentation
                 // is not one uniform district-wide religion.
                 case HistoryOverlay.Religions:return c.Belief;
                 case HistoryOverlay.Technology:return Toolkit(c);
-                case HistoryOverlay.HumanSpecies:int mask=0;foreach(var p in local)mask|=1<<p.Lineage;return mask;
+                case HistoryOverlay.HumanSpecies:int mask=0;foreach(var p in local)for(int k=0;k<state.Foragers.Lineages.Length;k++)if(state.Foragers.SpeciesShare(p,k)*Population(p)>=1)mask|=1<<k;return mask;
                 default:return -1;
             }
         }

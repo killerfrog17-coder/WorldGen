@@ -37,30 +37,22 @@ namespace WorldGen.Core
             return new ForagerDemographicProjection(ages,births,deaths);
         }
         static void Integrate(ForagerCohort c,double years,double absoluteYear,Span<double> result,out double births,out double deaths)
+            =>RegionalProject(c,years,absoluteYear,result,out births,out deaths);
+        static void RegionalProject(ForagerCohort c,double years,double absoluteYear,Span<double> result,out double births,out double deaths)
         {
             if(years<0||!double.IsFinite(years))throw new ArgumentOutOfRangeException(nameof(years));
-            Span<double> ages=stackalloc double[5];Span<double> next=stackalloc double[5];
-            Span<double> mortality=stackalloc double[]{c.ChildMortality*1.55,c.ChildMortality*.65,c.AdultMortality,c.AdultMortality*1.35,c.ElderMortality};
-            c.Ages.AsSpan().CopyTo(ages);births=deaths=0;
-            if(ages[0]+ages[1]+ages[2]+ages[3]+ages[4]<=0&&c.Population>0)
-            {ages[0]=c.Children*.4;ages[1]=c.Children*.6;ages[2]=c.Adults*.67;ages[3]=c.Adults*.33;ages[4]=c.Elders;}
-            double remaining=years,at=absoluteYear;
-            while(remaining>1e-10)
-            {
-                double dt=Math.Min(1,remaining),shock=0;double midpoint=(at+dt*.5)*SimulationTime.Year;
-                if(c.ShockEnd>c.ShockStart&&midpoint>=c.ShockStart&&midpoint<c.ShockEnd)shock=c.ShockSeverity;
-                next.Clear();
-                for(int k=0;k<5;k++)
-                {
-                    double death=mortality[k]+shock*(k==0||k==4?1.4:1),hazard=death+Ageing[k];
-                    double lost=ages[k]*(1-Math.Exp(-hazard*dt)),died=hazard>0?lost*death/hazard:0;
-                    next[k]+=ages[k]-lost;deaths+=died;if(k<4)next[k+1]+=lost-died;
-                }
-                double born=(ages[2]+ages[3]*.18)*c.BirthRate*dt;
-                double newborns=born*Math.Exp(-(mortality[0]+shock)*dt*.5);next[0]+=newborns;births+=born;deaths+=born-newborns;
-                var previous=ages;ages=next;next=previous;at+=dt;remaining-=dt;
-            }
-            ages.CopyTo(result);
+            double population=c.Population;
+            if(population<=0){result.Clear();births=deaths=0;return;}
+            double mortality=(c.Ages[0]*c.ChildMortality*1.55+c.Ages[1]*c.ChildMortality*.65+c.Ages[2]*c.AdultMortality+c.Ages[3]*c.AdultMortality*1.35+c.Ages[4]*c.ElderMortality)/population;
+            double start=absoluteYear*SimulationTime.Year,end=(absoluteYear+years)*SimulationTime.Year;
+            double shock=years>0?Math.Max(0,Math.Min(end,c.ShockEnd)-Math.Max(start,c.ShockStart))/(SimulationTime.Year*years)*c.ShockSeverity:0;
+            double growth=D.Clamp(.04-mortality-shock,-.5,.025),capacity=Math.Max(.000001,c.Capacity);
+            double next=growth>0?capacity/(1+(capacity/population-1)*Math.Exp(-growth*years)):population*Math.Exp(growth*years);
+            if(c.Capacity<1)next=population*Math.Exp(-.12*years);
+            next=Math.Max(0,next);double mean=(population+next)*.5;
+            double bornRate=(c.Ages[2]+c.Ages[3]*.18)/population*c.BirthRate;
+            births=Math.Max(Math.Max(0,next-population),mean*bornRate*years);deaths=Math.Max(0,population+births-next);
+            for(int k=0;k<5;k++)result[k]=next*c.Ages[k]/population;
         }
         public static void Materialize(ForagerCohort c,double years,double absoluteYear)
         {
