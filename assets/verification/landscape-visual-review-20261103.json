@@ -1,18 +1,18 @@
 {
   "SandSea": {
     "accepted": true,
-    "findings": "Inspected loaded wide and ground captures. Bare mobile sand replaces the former grass lawn; modest rolling ridges remain visible at ground level. Overhead summer sun produces substantially less ridge shading than the earlier oblique-light capture. No texture/layer budget increase.",
+    "findings": "Inspected current wide and close views. Orange bare sand carries small ripples and modest rolling dune relief with sparse xeric shrubs; active sand has no rooted grass lawn. Overhead summer lighting makes broad ridge shading subtle.",
     "images": {
-      "wide": "0f4f3f3ebf1c8478172066101d9befd4160b2126260300fa67ab9e5657adf0ba",
-      "ground": "9d049e699c177c7b5783385ac594d75b2830cd340d592bc9b391749428c7033a"
+      "wide": "c0306bfa52fa0608a3885478e0b48d995e61bdc6da89519ec50f5253ac597f68",
+      "ground": "be58bec3fa00b8de3ac2a44ced05a40449ccd81e4bd9bc6eaee4d5869647ab50"
     }
   },
   "GravelDesert": {
     "accepted": true,
-    "findings": "Inspected loaded wide and ground captures. Sparse scrub and scattered coarse stones over a fine gravel ground surface, distinct from the orange mobile sand. Retains dry open ground rather than a universal dune field.",
+    "findings": "Inspected current wide and close views. Fine gravel pavement, scattered coarse rocks and sparse scrub are distinct from orange mobile sand and clay-pan ground; distant microscopic texture retires through the existing range controls.",
     "images": {
-      "wide": "a93d25c865e38f3eda9782bdf97e8c745cea0ccb9bcd4be5f9a015c6e84e47f0",
-      "ground": "a64e8aa3aa1b67e4fb7c566eff00e84e3087f6e43debb1b1da043df60ce79127"
+      "wide": "c769388fbd98a7e9952bea51f9450682330d43d2755d92fd379d03eaa750ba99",
+      "ground": "cc3cc527f1aec11eabecb303fde6a0de5cedf3fc9904553a39443853d9a68d29"
     }
   },
   "ClayPan": {
@@ -25,10 +25,34 @@
   },
   "FreshwaterMarsh": {
     "accepted": true,
-    "findings": "Inspected loaded wide and close ground views. Open sedge/rush cover with scattered pools and sparse tree islands replaces the rejected upland lawn/woodland. The canonical sample has 0.0021 forest potential; actual nearby scatter includes 424 reed plants, 20 rooted in shallow water. Close camera stays within the resident grass footprint. Plant artwork is unchanged in this terrain pass.",
+    "findings": "Inspected current wide and close views. Open sedge/rush ground has several enclosed pools and sparse tree islands, visibly distinct from the wooded wetland. Actual scatter contains 20 submerged reed plants; the sample forest potential is 0.0021.",
     "images": {
-      "wide": "442fb49d5d81cdfa4d4e979cf81eb8c6de5bab69bd9dd775aa4bcf35063d56d4",
-      "ground": "41ac8401db506a0079246244973682c5c1ddb5b0cc2a581e49c8e23060cab6ae"
+      "wide": "a1741e57f777b7898895d52ec14e44b9646f6f1675659f559b2ef261a4d7ac2e",
+      "ground": "a6faf2af5bd6c24b44f526e62e9d76dcbcb2b00149ff377270f42bd17cac3bad"
+    }
+  },
+  "WoodedSwamp": {
+    "accepted": true,
+    "findings": "Inspected current wide and close game-camera views. A real shallow pond sits inside retained woodland rather than replacing it with an open lawn. The bank sample retains 0.499 forest potential and four nearby pools; actual scatter includes 36 reed plants rooted in water. Existing tree artwork is unchanged in this landscape checkpoint.",
+    "images": {
+      "wide": "a49f0e7a4646f475d00d41c0898ba8afd121244429664db23a6d865030131794",
+      "ground": "9e137f20c6534f824d01f478742d6fdfc978f29451093ea1b356d89a163c5fa6"
+    }
+  },
+  "Peatland": {
+    "accepted": true,
+    "findings": "Inspected current wide and close views. Low moss/sedge ground and scattered dwarf/woody islands surround a shallow-pool mosaic; the sample has 0.893 peat control, 0.35 moss weight and five nearby pools. No unsupported global forest replacement is inferred.",
+    "images": {
+      "wide": "84fcc42e2658f72722370f01bd8e9f8144306d873894b46ca22c7cb295d8ace1",
+      "ground": "40e4334827cde4a53ffc91160aab64cc3a420d68673af30b25dbb8f4afcfeb02"
+    }
+  },
+  "pond": {
+    "accepted": true,
+    "findings": "Inspected current wide and close views. The actual 14.6m-radius pond is enclosed by a depressed bed and dry bank with no disconnected water triangles or crossing planes visible. Water has surface ripples and the drinking/swimming paths use the same 1.71m-deep basin.",
+    "images": {
+      "wide": "725a2fc5c9fd332f0f5bd7236ea47e3720883024a8a19cc7bb5b800f5f0c86b4",
+      "ground": "1e50c83a985cdbc82fc15da23f996b2dafe2f0928b11ce217f239aa97c69327c"
     }
   }
 }

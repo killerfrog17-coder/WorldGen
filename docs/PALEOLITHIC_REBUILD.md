@@ -65,6 +65,10 @@ and actual depressed beds. Saturated lowlands also receive a finer mosaic of
 shallow pools. Open-marsh cover favours sedges/rushes, and final tree admission
 respects the hydric surface rather than stopping at an upland potential filter.
 Reed-form plants can root in shallow, slow water; ordinary shrubs remain on land.
+Warm, rootable, seasonally saturated parts of the broad marsh habitat can also
+support coherent wooded provinces. Cold, salty, shallow-soil and persistently
+flooded sites retain their original constraints. This adds actual tree potential
+where suitable; merely moist upland forest no longer receives a swamp label.
 Independent basin collars cannot overlap, including
 at radial grid boundaries. Terrain chunks, visible water, swimming and drinking
 use the same accepted basin. Candidates and surveys have bounded local caches;

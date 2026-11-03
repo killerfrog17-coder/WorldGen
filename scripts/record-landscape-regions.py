@@ -8,14 +8,16 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import statistics
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source', required=True)
-parser.add_argument('--prefix', default='regions-wooded')
+parser.add_argument('--prefix', default='regions-canopy')
 parser.add_argument('--slot', choices=['slot-a', 'slot-b'], default='slot-b')
 parser.add_argument('--visual-review', type=Path, required=True)
+parser.add_argument('--npc-prefix', default='landscape-canopy')
 args = parser.parse_args()
 evidence = ROOT / 'artifacts/landscape-20261103'
 player = ROOT / 'builds' / args.slot
@@ -78,8 +80,26 @@ for kind in kinds:
     cases.append({'name': name, 'checks': len(checks), 'scene': scene, 'images': images,
                   'checks_sha256': sha(folder / 'checks.txt'), 'visual_review': review[kind]})
 
-assert 'PASS actual terrain contains enclosed local ponds and shallow wetland pools' in read(ROOT / 'artifacts/landscape-wooded-world.log')
-assert 'PASS 27175' in read(ROOT / 'artifacts/landscape-wooded-rivers.log')
+assert 'PASS actual terrain contains enclosed local ponds and shallow wetland pools' in read(ROOT / 'artifacts/landscape-canopy-world.log')
+assert 'PASS 27175' in read(ROOT / 'artifacts/landscape-canopy-rivers.log')
+npc_cases = []
+for kind in ['wet', 'cold']:
+    folder = ROOT / 'artifacts/npc-20261103' / (args.npc_prefix + '-' + kind)
+    assert int(read(folder / 'exit-code.txt')) == 0, folder
+    assert not (folder / 'failure.txt').exists(), folder
+    receipt = load(folder / 'package.json')
+    assert all(receipt[k] == v for k, v in package.items()), (folder, 'Stale NPC regression package')
+    checks = read(folder / 'checks.txt').splitlines()
+    assert checks and all(line.startswith('PASS ') for line in checks), folder
+    for phrase in ['can enter', 'can leave', 'Actual named binary save', 'does not duplicate']:
+        assert any(phrase in line for line in checks), (folder, phrase)
+    npc_cases.append({'name': folder.name, 'checks': len(checks), 'checks_sha256': sha(folder / 'checks.txt')})
+performance = load(ROOT / 'artifacts/npc-20261103' / (args.npc_prefix + '-wet') / 'performance.json')
+assert len(performance) == 4 and performance[0]['Residents'] >= 25
+cost_log = ROOT / 'artifacts/landscape-canopy-cost.log'
+costs = [json.loads(line) for line in read(cost_log).splitlines() if line.startswith('{"Directory":')]
+assert len(costs) == 2 and all(len(row['LandSample12675Ms']) == 3 for row in costs)
+warm_ratio = statistics.median(costs[1]['LandSample12675Ms'][1:]) / statistics.median(costs[0]['LandSample12675Ms'][1:])
 subprocess.run(['python', 'scripts/verify-landscape-texture-budget.py'], cwd=ROOT, check=True)
 lock = load(ROOT / 'assets/game-assets.lock.json')
 prior_lock = json.loads(subprocess.check_output(
@@ -95,6 +115,10 @@ manifest = {
     'build': stamp,
     'package': package,
     'cases': cases,
+    'npc_regression': npc_cases,
+    'npc_performance': performance,
+    'land_sampling_cost': {'runs': costs, 'warm_ratio_to_npc_checkpoint': warm_ratio,
+                           'log_sha256': sha(cost_log), 'conditions': 'Sequential comparison after native jobs complete; same three physical land contexts, baseline first. This is not whole-game FPS.'},
     'research': 'assets/verification/landscape-research-20261103.json',
     'art_sources': 'assets/verification/landscape-surface-sources-20261103.json',
     'texture_budget': load(ROOT / 'assets/verification/landscape-surface-budget-20261103.json'),

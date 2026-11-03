@@ -49,6 +49,28 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov20:47Z RESUMED WORK. Current source3242861 PUSHED; B candidate rebuild
+queued in session56793, then regions-canopy10 scenes, landscape-canopy NPCwet/
+cold, then uncontended Core cost in that order. A remains selected. First resumed
+regions-wooded swamp8mechanics PASS but actual canopy was thinned .508->.035
+by open-marsh filter; REJECTED, no new acceptance. Fixed transition now preserves
+supported wooded canopy, new regression passes (35726controls). CurrentLocalTerrain
+20/Hyper17/Scatter14, SmallWater3. Scene locator now tests a natural dry bank
+beside actual shallow water with forestcoverage>.2 in actualWoodedSwamp, rather
+than merely first dry point. Own oldrunner13968 +marked child review stopped
+by exact identities; regions-wooded-freshwatermarsh marked interrupted. No current
+new scene acceptance yet. Currentworldmesh PASS pending logreview, river refresh
+queued; no backwardcompat work. Stage3 treeartUNTOUCHED. Owner3files preserved.
+
+ACTIVE3Nov20:39Z OWNER RESUMED: "alright continue". Pause revoked. No code changed
+during pause; B369f358 built19:23:46Z matches all three recorded assembly/Core/worker
+hashes. SelectedNPC A remains. Actual B scene suite prefixregions-wooded now
+running: genuineWoodedSwamp first, then9contexts; queued current NPCwet/cold and
+uncontended Core land-cost comparison only after native jobs finish. Stage3
+treeart remains blocked until stage2 genuinely satisfactory. Inspect all new
+images, update current-package review/proof/manifest/docs and select only after
+acceptance. Original owner3 files unchanged. No paid/subagents/ownerappsclosed.
+
 PAUSED3Nov19:25Z OWNER: "find a pausing point". Do NOT resume until owner returns.
 All own queued reviews stopped; build finished safely, no active Unity/game/test
 jobs at checkpoint. Own outer chain23860 stopped after exact command verification
