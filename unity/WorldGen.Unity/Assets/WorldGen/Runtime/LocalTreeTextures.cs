@@ -9,6 +9,7 @@ using WorldGen.Core;
 public static class LocalTreeTextures
 {
     public const int Size=256,Layers=32,BarkLayers=5;
+    public const float DistantCutoff=.4f;
     public static Color32[][] Colour,Normals,BarkColour,BarkNormals;
     static readonly Vector4[] hulls=new Vector4[8];
     static readonly bool[] hullReady=new bool[8];
@@ -23,7 +24,9 @@ public static class LocalTreeTextures
     {
         material.SetTexture("_TreeBark",Resources.Load<Texture2DArray>(Assets+"bark-albedo"));
         material.SetTexture("_TreeBarkNormals",Resources.Load<Texture2DArray>(Assets+"bark-normal"));
+        BindViews(material);
     }
+    public static void BindViews(Material material)=>material.SetFloat("_TreeViewCutoff",DistantCutoff);
     // A conservative trapezoid removes empty card corners with the SAME vertex
     // and triangle count. Union all four variants, including faint edge pixels.
     // Both mesh LODs retain identical UV/alpha support and branch positions.

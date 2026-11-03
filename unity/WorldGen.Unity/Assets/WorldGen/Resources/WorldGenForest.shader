@@ -5,6 +5,7 @@ Shader "WorldGen/ForestPackets"
         _TreeColourViews("Actual-tree stand colours",2DArray)=""{} _TreeNormalViews("Stand normals and depth",2DArray)=""{}
         _ImpostorBounds("Object centre/radius",Vector)=(0,.48,0,1.5)
         [HideInInspector] _TreeEarlyAlpha("Conservative empty-ray rejection",Float)=1
+        [HideInInspector] _TreeViewCutoff("Distant coverage threshold",Float)=.4
         _AmbientTint("Ambient",Color)=(.12,.14,.17,1) _FogColor("Fog",Color)=(.57,.69,.76,1) _FogDistance("Fog distance",Float)=60000
     }
     SubShader
@@ -20,7 +21,7 @@ Shader "WorldGen/ForestPackets"
             #include "WorldGenTreeViews.hlsl"
             struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
             StructuredBuffer<Root> _Roots;StructuredBuffer<uint> _Visible;
-            float4 _ImpostorBounds,_AmbientTint,_FogColor,_ForestChart,_ForestRange;float _FogDistance,_TreeEarlyAlpha;
+            float4 _ImpostorBounds,_AmbientTint,_FogColor,_ForestChart,_ForestRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff;
             struct O {float4 positionCS:SV_POSITION;float3 world:TEXCOORD0;float3 local:TEXCOORD1;nointerpolation float3 direction:TEXCOORD2;nointerpolation uint root:TEXCOORD3;nointerpolation float2 viewLod:TEXCOORD4;
                 #if defined(WORLDGEN_TREE_EFFICIENT)
                 nointerpolation uint3 viewIndices:TEXCOORD5;nointerpolation float3 viewWeights:TEXCOORD6;float4 viewA:TEXCOORD7;float4 viewB:TEXCOORD8;float4 viewC:TEXCOORD9;
@@ -59,7 +60,7 @@ Shader "WorldGen/ForestPackets"
                 // drawing the same screen-door pixels twice and leaving holes.
                 float weight=smoothstep(_ForestRange.x,_ForestRange.y,distance);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
                 half4 color;half3 objectNormal;
-                ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-.4);
+                ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-_TreeViewCutoff);
                 half3 albedo=color.rgb*SRGBToLinear(root.tint);
                 float3 normal=Rotate(objectNormal/float3(root.width,root.height,root.width),root.yaw);normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;normal=normalize(normal);
                 half canopy;Light sun=WorldGenFoliageLight(i.world,canopy);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
@@ -71,7 +72,7 @@ Shader "WorldGen/ForestPackets"
                 Root root=_Roots[i.root];float distance=length(root.position-_ForestChart.xyz-_WorldSpaceCameraPos);
                 float weight=smoothstep(_ForestRange.x,_ForestRange.y,distance);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
                 half4 color;half3 normal;ForestSurface(i,false,color,normal);
-                clip(color.a-.4);return 0;
+                clip(color.a-_TreeViewCutoff);return 0;
             }
         ENDHLSL
         Pass

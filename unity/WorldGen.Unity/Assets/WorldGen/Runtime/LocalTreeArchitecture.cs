@@ -112,7 +112,11 @@ static partial class LocalScatterMeshes
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
         mesh.normals=normals;mesh.RecalculateTangents();return mesh;
     }
-    static float NeedleCrownBase(TreeMorphology m)=>Mathf.Clamp(.11f+(float)m.CrownBase*.20f,.14f,.23f);
+    // Inherited crown openness gives pine-like high, rounded crowns as well as
+    // the low, layered fir/spruce habit. These are shared art archetypes, not
+    // another growth simulation or additional per-tree runtime work.
+    static float OpenNeedleCrown(TreeMorphology m)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(.20f,.35f,(float)m.Openness));
+    static float NeedleCrownBase(TreeMorphology m)=>Mathf.Lerp(Mathf.Clamp(.11f+(float)m.CrownBase*.20f,.14f,.23f),.55f,OpenNeedleCrown(m));
     static List<TreeNode> TreeSkeleton(int code,TreeMorphology m)
     {
         var r=new Rng(TreeFlora.RenderCode(code),"tree-rebuild-skeleton-1");var nodes=new List<TreeNode>(240);
@@ -124,9 +128,12 @@ static partial class LocalScatterMeshes
         {
             // Family-specific apical architecture; side limbs compete for a
             // finite crown envelope rather than repeated flat cone tiers.
-            for(int tier=Mathf.Max(3,Mathf.FloorToInt(NeedleCrownBase(m)*trunk));tier<trunk;tier+=2)
+            for(int tier=Mathf.Max(3,Mathf.CeilToInt(NeedleCrownBase(m)*trunk));tier<trunk;tier+=2)
             {
-                float y=nodes[tier].P.y,reach=(1-y)*.43f*(.8f+(float)m.CrownAspect*.25f);
+                float y=nodes[tier].P.y,open=OpenNeedleCrown(m),baseHeight=NeedleCrownBase(m);
+                float crownT=Mathf.Clamp01((y-baseHeight)/Mathf.Max(.1f,1-baseHeight));
+                float rounded=Mathf.Pow(Mathf.Max(0,Mathf.Sin(crownT*Mathf.PI)),.55f)*.36f;
+                float reach=Mathf.Lerp((1-y)*.43f,rounded,open)*(.55f+((float)m.CrownAspect-.5f)*.90f);
                 int limbs=4+(tier%3);
                 for(int j=0;j<limbs;j++)
                 {
@@ -134,7 +141,7 @@ static partial class LocalScatterMeshes
                     var d=new Vector3(Mathf.Cos(a),0,Mathf.Sin(a));int parent=tier;
                     for(int k=1;k<=4;k++)
                     {
-                        float t=k*.25f;var p=nodes[tier].P+d*reach*t+Vector3.up*(.05f*t-.10f*Mathf.Sin(t*Mathf.PI));
+                        float t=k*.25f;var p=nodes[tier].P+d*reach*t+Vector3.up*(.05f*t+Mathf.Lerp(-.10f,.045f,open)*Mathf.Sin(t*Mathf.PI));
                         int branch=nodes.Count;nodes.Add(new TreeNode(p,parent));parent=branch;
                         if(k<4)for(int side=-1;side<=1;side+=2)
                         {var q=p+d*reach*.16f+Vector3.Cross(d,Vector3.up)*side*reach*(1-t)*.48f+Vector3.up*.018f;nodes.Add(new TreeNode(q,branch));}

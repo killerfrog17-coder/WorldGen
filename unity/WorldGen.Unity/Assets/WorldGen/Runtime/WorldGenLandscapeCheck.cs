@@ -21,6 +21,7 @@ public sealed partial class LocalTerrainExplorer
         public int Tiles,ScatterPages,WaterRenderers;
         public int NearbyPools,Reeds,SubmergedReeds;
         public int BakedTrees,BakedStands,PendingTreeBakes;
+        public int TreeQuality;public float TreeNear,TreeFar;
         public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
         public SmallLake Pond;
     }
@@ -31,6 +32,9 @@ public sealed partial class LocalTerrainExplorer
         Application.logMessageReceived+=(message,trace,type)=>{if(type==LogType.Error||type==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("LANDSCAPE "+text);checks.Add("PASS "+text);Debug.Log("LANDSCAPE "+text);}
         Application.targetFrameRate=60;QualitySettings.vSyncCount=0;AudioListener.volume=0;
+        // The harness bypasses the main menu's preference loading. Use an
+        // explicit real game preset, rather than obsolete120/450m field defaults.
+        TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(3);
         var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
         var worker=new TerrainMeshProcess(workerPath,world,.1,Path.GetFullPath(path));
@@ -128,6 +132,17 @@ public sealed partial class LocalTerrainExplorer
             owner.nextDaylightAt=0;owner.SetDaylight(12,190000+(site.Position.Z<0?0:.5));
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-tree-alpha-review"))
+            {
+                foreach(float cutoff in new[]{.4f,.30f,.22f})
+                {
+                    foreach(var material in owner.ownedScatterMaterials)if(material!=null&&material.HasProperty("_TreeViewCutoff"))material.SetFloat("_TreeViewCutoff",cutoff);
+                    owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                    var comparison=new Texture2D(1536,864,TextureFormat.RGB24,false);comparison.ReadPixels(new Rect(0,0,1536,864),0,0);comparison.Apply();
+                    File.WriteAllBytes(Path.Combine(output,name+"-coverage-"+Mathf.RoundToInt(cutoff*100)+".png"),comparison.EncodeToPNG());Destroy(comparison);RenderTexture.active=prior;
+                }
+                foreach(var material in owner.ownedScatterMaterials)if(material!=null&&material.HasProperty("_TreeViewCutoff"))LocalTreeTextures.BindViews(material);
+            }
         }
         float width=(float)(site.Pond?.Radius??(kind=="SandSea"?180:70));
         Quaternion orientation=Quaternion.identity;
@@ -156,6 +171,7 @@ public sealed partial class LocalTerrainExplorer
             WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
+            TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LANDSCAPE PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }

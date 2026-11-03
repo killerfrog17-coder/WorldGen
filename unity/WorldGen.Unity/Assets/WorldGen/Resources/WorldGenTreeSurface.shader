@@ -8,6 +8,7 @@ Shader "WorldGen/TreeSurface2"
         _TreeLeafShape("Leaf shape",Float)=0 _TreeBarkPattern("Bark",Float)=0
         _Impostor("Multi-view representation",Float)=0 _ImpostorBounds("Centre and radius",Vector)=(0,.5,0,.7)
         [HideInInspector] _TreeEarlyAlpha("Conservative empty-ray rejection",Float)=1
+        [HideInInspector] _TreeViewCutoff("Distant coverage threshold",Float)=.4
         _Wind("Flexibility",Float)=.03 _PlantTraits("Plant traits",Vector)=(.03,.5,.7,1)
         _FogDistance("Fog distance",Float)=60000 _FogColor("Fog",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
@@ -31,7 +32,7 @@ Shader "WorldGen/TreeSurface2"
         TEXTURE2D_ARRAY(_TreeBarkNormals);SAMPLER(sampler_TreeBarkNormals);
         #include "WorldGenTreeViews.hlsl"
         float4 _PlantTraits,_ImpostorBounds,_AmbientTint,_FogColor;
-        float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha;
+        float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha,_TreeViewCutoff;
         float3 _LightDirection;
         UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
@@ -84,7 +85,7 @@ Shader "WorldGen/TreeSurface2"
                 #else
                 WorldGenTreeSurface(i.local-_ImpostorBounds.xyz,i.direction,_ImpostorBounds.w,i.viewLod,early,color,objectNormal);
                 #endif
-                clip(color.a-.4);albedo=color.rgb;normal=TransformObjectToWorldNormal(objectNormal);foliage=1;
+                clip(color.a-_TreeViewCutoff);albedo=color.rgb;normal=TransformObjectToWorldNormal(objectNormal);foliage=1;
             }
             else
             {

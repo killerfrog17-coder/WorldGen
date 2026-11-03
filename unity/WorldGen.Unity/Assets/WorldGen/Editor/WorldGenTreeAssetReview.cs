@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -22,7 +23,10 @@ public static class WorldGenTreeAssetReview
             var command=Environment.GetCommandLineArgs();int outputAt=Array.IndexOf(command,"--tree-review-output");
             string folder=outputAt>=0?Path.GetFullPath(command[outputAt+1]):Path.GetFullPath(Path.Combine(Application.dataPath,"../../../artifacts/tree-baked-assets"));Directory.CreateDirectory(folder);
             CheckSurfaceSupport(folder);
-            foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600})
+            var codes=new List<int>{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600};
+            var needles=Enumerable.Range(0,128).Select(i=>0x10000000|(i<<8)).OrderBy(c=>new TreeMorphology(c).Openness).ToArray();
+            codes.Add(needles[0]);codes.Add(needles[64]);codes.Add(needles[127]);
+            foreach(int code in codes)
             {
                 var timer=System.Diagnostics.Stopwatch.StartNew();
                 var near=(Mesh)generator.GetMethod("Build").Invoke(null,new object[]{ScatterKind.GeneratedTree,0,code});
@@ -43,7 +47,7 @@ public static class WorldGenTreeAssetReview
                 for(int i=0;i<16;i++)atlas.SetPixels32((i%4)*128,(i/4)*128,128,128,pixels[i]);atlas.Apply();
                 File.WriteAllBytes(Path.Combine(folder,code+"-views.png"),atlas.EncodeToPNG());
                 if(!Environment.GetCommandLineArgs().Contains("-nographics"))Capture(folder,code,near,result,texture);
-                string line=code+" near="+near.triangles.Length/3+" mid="+middle.triangles.Length/3+" views=16 ms="+timer.Elapsed.TotalMilliseconds.ToString("F1");
+                string line=code+" form="+morphology.Form+" openness="+morphology.Openness.ToString("F3")+" near="+near.triangles.Length/3+" mid="+middle.triangles.Length/3+" views=16 ms="+timer.Elapsed.TotalMilliseconds.ToString("F1");
                 File.AppendAllText(Path.Combine(folder,"results.txt"),line+"\n");Debug.Log("TREE ASSET PASS "+line);
                 UnityEngine.Object.DestroyImmediate(near);UnityEngine.Object.DestroyImmediate(middle);UnityEngine.Object.DestroyImmediate(atlas);
             }
