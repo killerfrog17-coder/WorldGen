@@ -36,6 +36,7 @@ static class RegionalForagerTests
         Check(state.Foragers.Cultures.Length<=state.Foragers.Districts.Length&&state.Foragers.Languages.Length<=state.Foragers.Districts.Length&&state.Foragers.Beliefs.Length<=state.Foragers.Districts.Length,"Full cultural profiles are bounded by regions");
         Check(state.Foragers.LanguageFamilies.Length<=Math.Max(16,state.Foragers.Districts.Length*2),"Family ancestry summaries remain bounded");
         Check(state.Foragers.Discoveries.Length<=state.Foragers.Districts.Length*ForagerTechnology.Count,"Discovery summaries do not accumulate repeated local reinventions");
+        Check(state.Foragers.Cohorts.All(c=>c.Speech.Length<=100&&c.Traditions.Length<=100&&Math.Abs(c.Speech.Sum(x=>x.Share)-1)<1e-9&&Math.Abs(c.Traditions.Sum(x=>x.Share)-1)<1e-9),"Regional affiliation precision stays bounded and conserves represented population");
         var partition=new SimulationSession(engine,initial);var split=state;
         if(years<=10000)
         {split=initial;for(int i=0;i<4;i++)split=partition.AdvanceSeconds(years*SimulationTime.Year/4,int.MaxValue);}
@@ -53,6 +54,12 @@ static class RegionalForagerTests
         var publication=WireCopy(RegionalPublication.Between(initial,state));var applied=publication.Apply(transferred);
         Check(applied.Hash==state.Hash,"Regional delta replication equals authoritative historical state");
         Check(engine.AdvanceSeconds(applied,257*SimulationTime.Year,int.MaxValue).Hash==engine.AdvanceSeconds(state,257*SimulationTime.Year,int.MaxValue).Hash,"Replicated queue and epochs retain identical future evolution");
+        var exclusive=WireCopy(initial);exclusive.Hash=null;var replica=initial;long half=years*SimulationTime.Year/2;
+        replica=WireCopy(engine.AdvanceRegionalExclusive(exclusive,half)).Apply(replica);
+        replica=WireCopy(engine.AdvanceRegionalExclusive(exclusive,years*SimulationTime.Year-half)).Apply(replica);
+        Check(exclusive.Hash==state.Hash&&replica.Hash==state.Hash,"Exclusive worker dirty-record publications exactly match immutable simulation");
+        var timed=WireCopy(initial);long timedTarget=1000*SimulationTime.Year;while(timed.Foragers.Seconds<timedTarget)engine.AdvanceRegionalExclusive(timed,timedTarget-timed.Foragers.Seconds,maximumMilliseconds:.2);
+        Check(timed.Hash==engine.AdvanceSeconds(initial,timedTarget,int.MaxValue).Hash,"Wall-clock publication budgets never change historical event results");
         var daySession=new SimulationSession(engine,state);long lateStep=Math.Max(1,Math.Min(SimulationTime.Day/5,(state.Foragers.NextReviewSeconds-state.Foragers.Seconds-1)/1000));watch.Restart();for(int i=0;i<1000;i++)clock=daySession.AdvanceSeconds(lateStep);double lateMs=watch.Elapsed.TotalMilliseconds;
         Check(lateMs<1000,"Late-world fine-clock publications remain below one second");
         w.Prehistory=state;watch.Restart();var bytes=WorldFile.Write(w);var restored=WorldFile.Read(bytes);new Prehistory(restored).ValidateForagers(restored.Prehistory);double saveSeconds=watch.Elapsed.TotalSeconds;
@@ -61,7 +68,7 @@ static class RegionalForagerTests
         Check(a!=null&&a.Id==b.Id&&a.Position.X==b.Position.X&&a.Members.Select(p=>p.Id).SequenceEqual(b.Members.Select(p=>p.Id)),"Local camp and residents regenerate deterministically");
         Check(state.Foragers.Cohorts.Length==split.Foragers.Cohorts.Length,"Local queries create no global demographic actors");
         File.WriteAllBytes(Path.Combine(folder,"final.world"),bytes);
-        var result=new{checks,cells=w.Surface.Cells.Length,regions=state.Foragers.Districts.Length,aggregates=state.Foragers.Cohorts.Length,active=state.Foragers.Cohorts.Count(c=>c.Population>=1),years,prepareSeconds=prepare,fineClock1000Ms=fineMs,lateFineClock1000Ms=lateMs,historicalSeconds=historical,yearsPerSecond=years/historical,saveBytes=bytes.Length,saveReadWriteSeconds=saveSeconds,state.Hash,population=state.Foragers.Cohorts.Sum(c=>c.Population),languages=state.Foragers.Languages.Length,families=state.Foragers.LanguageFamilies.Length,techniquePatterns=state.Foragers.Cohorts.Where(c=>c.Population>=1).Select(c=>string.Join(",",c.Use.Select(x=>(int)(x*4)))).Distinct().Count()};
+        var result=new{checks,cells=w.Surface.Cells.Length,regions=state.Foragers.Districts.Length,aggregates=state.Foragers.Cohorts.Length,active=state.Foragers.Cohorts.Count(c=>c.Population>=1),years,prepareSeconds=prepare,fineClock1000Ms=fineMs,lateFineClock1000Ms=lateMs,historicalSeconds=historical,yearsPerSecond=years/historical,saveBytes=bytes.Length,saveReadWriteSeconds=saveSeconds,state.Hash,population=state.Foragers.Cohorts.Sum(c=>c.Population),languages=state.Foragers.Languages.Length,families=state.Foragers.LanguageFamilies.Length,maximumRegionalAffiliations=state.Foragers.Cohorts.Max(c=>Math.Max(c.Speech.Length,c.Traditions.Length)),meanRegionalAffiliations=state.Foragers.Cohorts.Average(c=>(c.Speech.Length+c.Traditions.Length)/2d),techniquePatterns=state.Foragers.Cohorts.Where(c=>c.Population>=1).Select(c=>string.Join(",",c.Use.Select(x=>(int)(x*4)))).Distinct().Count()};
         File.WriteAllText(Path.Combine(folder,"result.json"),JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true}));Console.WriteLine(JsonSerializer.Serialize(result));
         foreach(var cost in costs.OrderByDescending(p=>p.Value.ms))Console.WriteLine(JsonSerializer.Serialize(new{stage=cost.Key,cost.Value.calls,cost.Value.ms,cost.Value.bytes}));
     }

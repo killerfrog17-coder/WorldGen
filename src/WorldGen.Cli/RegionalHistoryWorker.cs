@@ -17,15 +17,28 @@ static class RegionalHistoryWorker
             string source=r.ReadString(),expected=r.ReadString();
             var world=source=="@recipe"?new WorldPipeline().Generate(WorldJson.ReadRecipe(r.ReadString())):WorldFile.ReadPlanetaryFile(source);
             if(world.Stages.Last().Hash!=expected)throw new InvalidDataException("History worker received a different planet.");
-            var engine=new Prehistory(world);PrehistoryState state=ReadState();var session=new SimulationSession(engine,state);w.Write(true);RegionalWire.WritePacket(w,RegionalPublication.Between(state,state));w.Flush();
+            var engine=new Prehistory(world);PrehistoryState state=ReadState();engine.Validate(state);
+            // Compile the calculation path during preparation, not the first
+            // user-visible publication. Counter-based randomness and a deep
+            // private copy leave the authoritative starting state untouched.
+            var warm=state.Copy();warm.Started=true;if(warm.Foragers.Seconds+10000*SimulationTime.Year<SimulationTime.Maximum)engine.AdvanceRegionalExclusive(warm,10000*SimulationTime.Year);
+            w.Write(true);RegionalWire.WritePacket(w,RegionalPublication.Between(state,state));w.Flush();
             while(true)
             {
                 byte command=r.ReadByte();
-                if(command==1){state=ReadState();session=new SimulationSession(engine,state);w.Write(true);w.Flush();continue;}
-                if(command==2){state=session.AdvanceSeconds(r.ReadInt64(),int.MaxValue);w.Write(true);w.Flush();continue;}
+                if(command==1){state=ReadState();engine.Validate(state);w.Write(true);w.Flush();continue;}
+                if(command==2){engine.AdvanceRegionalExclusive(state,r.ReadInt64());w.Write(true);w.Flush();continue;}
                 if(command!=0)throw new InvalidDataException("Unknown history command.");
-                long seconds=r.ReadInt64();var before=state;var timer=Stopwatch.StartNew();state=session.AdvanceSeconds(seconds,int.MaxValue);
-                var patch=RegionalPublication.Between(before,state);w.Write(timer.Elapsed.TotalMilliseconds);RegionalWire.WritePacket(w,patch);w.Flush();
+                long target=state.Foragers.Seconds+r.ReadInt64();
+                while(state.Foragers.Seconds<target)
+                {
+                    var timer=Stopwatch.StartNew();var patch=engine.AdvanceRegionalExclusive(state,Math.Min(target-state.Foragers.Seconds,4000*SimulationTime.Year),maximumMilliseconds:140);
+                    bool more=state.Foragers.Seconds<target;w.Write(timer.Elapsed.TotalMilliseconds);w.Write(more);RegionalWire.WritePacket(w,patch);w.Flush();
+                    // The receiver acknowledges the complete bytes before it
+                    // decodes them. Compute can overlap decoding without ever
+                    // mutating a publication that is still being serialized.
+                    if(!more||r.ReadByte()!=0)break;
+                }
             }
             PrehistoryState ReadState(){var value=RegionalWire.ReadPacket<PrehistoryState>(r);value.Hash=null;return value;}
         }

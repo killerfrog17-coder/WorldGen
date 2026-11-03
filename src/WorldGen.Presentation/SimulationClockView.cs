@@ -47,6 +47,7 @@ namespace WorldGen.Presentation
         // so a collapse does not send Auto back to prehistoric speeds.
         public static double AutoRate(PrehistoryState? state,int era)
         {
+            if(Prehistory.Foraging(state))return 20000d*SimulationTime.Year;
             if(era>=4)return EraRate(era);
             if(state?.History?.Polities.Length>0)return 10d*SimulationTime.Year;
             var regional=state?.History?.RegionalTraditions;

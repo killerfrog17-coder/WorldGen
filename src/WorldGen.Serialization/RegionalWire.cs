@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Buffers;
 namespace WorldGen.Serialization
 {
     // Same-machine ephemeral protocol, not a save format. Compile typed field
@@ -10,19 +11,27 @@ namespace WorldGen.Serialization
     public static class RegionalWire
     {
         public const int Version=1;
+        [ThreadStatic] static MemoryStream packetBuffer;
+        [ThreadStatic] static byte[] numericBuffer;
         public static void Write<T>(BinaryWriter writer,T value)=>Codec<T>.Put(writer,value);
         public static T Read<T>(BinaryReader reader)=>Codec<T>.Get(reader);
         public static void WritePacket<T>(BinaryWriter writer,T value)
         {
-            using(var memory=new MemoryStream())using(var payload=new BinaryWriter(memory)){Write(payload,value);payload.Flush();writer.Write(checked((int)memory.Length));writer.Write(memory.GetBuffer(),0,(int)memory.Length);writer.Flush();}
+            var memory=packetBuffer??(packetBuffer=new MemoryStream());memory.SetLength(0);memory.Position=0;
+            using(var payload=new BinaryWriter(memory,System.Text.Encoding.UTF8,true)){Write(payload,value);payload.Flush();writer.Write(checked((int)memory.Length));writer.Write(memory.GetBuffer(),0,(int)memory.Length);writer.Flush();}
         }
         public static T ReadPacket<T>(BinaryReader reader)=>ReadPacket<T>(reader,out _,out _,out _);
-        public static T ReadPacket<T>(BinaryReader reader,out int bytesRead,out double transferMs,out double decodeMs)
+        public static T ReadPacket<T>(BinaryReader reader,out int bytesRead,out double transferMs,out double decodeMs,Action received=null)
         {
             var timer=System.Diagnostics.Stopwatch.StartNew();
-            int length=reader.ReadInt32();if(length<0||length>256*1024*1024)throw new InvalidDataException("Invalid regional packet length.");var bytes=reader.ReadBytes(length);if(bytes.Length!=length)throw new EndOfStreamException();
-            bytesRead=length;transferMs=timer.Elapsed.TotalMilliseconds;timer.Restart();
-            using(var memory=new MemoryStream(bytes,false))using(var payload=new BinaryReader(memory)){var value=Read<T>(payload);decodeMs=timer.Elapsed.TotalMilliseconds;return value;}
+            int length=reader.ReadInt32();if(length<0||length>256*1024*1024)throw new InvalidDataException("Invalid regional packet length.");var bytes=ArrayPool<byte>.Shared.Rent(Math.Max(1,length));
+            try
+            {
+                int read=0;while(read<length){int count=reader.Read(bytes,read,length-read);if(count<=0)throw new EndOfStreamException();read+=count;}
+                bytesRead=length;transferMs=timer.Elapsed.TotalMilliseconds;received?.Invoke();timer.Restart();
+                using(var memory=new MemoryStream(bytes,0,length,false,true))using(var payload=new BinaryReader(memory)){var value=Read<T>(payload);decodeMs=timer.Elapsed.TotalMilliseconds;return value;}
+            }
+            finally{ArrayPool<byte>.Shared.Return(bytes);}
         }
         static readonly MethodInfo WriteGeneric=typeof(RegionalWire).GetMethod(nameof(Write)),ReadGeneric=typeof(RegionalWire).GetMethod(nameof(Read));
         static class Codec<T>
@@ -67,13 +76,18 @@ namespace WorldGen.Serialization
         static void WriteArray<T>(BinaryWriter w,T[] values)
         {
             w.Write(values?.Length??-1);if(values==null)return;
-            if(Block(typeof(T))){var bytes=new byte[Buffer.ByteLength(values)];Buffer.BlockCopy(values,0,bytes,0,bytes.Length);w.Write(bytes);}
+            if(Block(typeof(T))){int length=Buffer.ByteLength(values);if(numericBuffer==null||numericBuffer.Length<length)numericBuffer=new byte[Math.Max(256,length)];Buffer.BlockCopy(values,0,numericBuffer,0,length);w.Write(numericBuffer,0,length);}
             else foreach(var value in values)Write(w,value);
         }
         static T[] ReadArray<T>(BinaryReader r)
         {
             int count=r.ReadInt32();if(count==-1)return null;if(count<0||count>16000000)throw new InvalidDataException("Invalid regional array size.");var values=new T[count];
-            if(Block(typeof(T))){int length=Buffer.ByteLength(values);var bytes=r.ReadBytes(length);if(bytes.Length!=length)throw new EndOfStreamException();Buffer.BlockCopy(bytes,0,values,0,length);}
+            if(Block(typeof(T)))
+            {
+                int length=Buffer.ByteLength(values);
+                if(r.BaseStream is MemoryStream memory&&memory.TryGetBuffer(out var segment)){long at=memory.Position;if(at+length>memory.Length)throw new EndOfStreamException();Buffer.BlockCopy(segment.Array,segment.Offset+(int)at,values,0,length);memory.Position=at+length;}
+                else{var bytes=r.ReadBytes(length);if(bytes.Length!=length)throw new EndOfStreamException();Buffer.BlockCopy(bytes,0,values,0,length);}
+            }
             else for(int i=0;i<count;i++)values[i]=Read<T>(r);return values;
         }
     }

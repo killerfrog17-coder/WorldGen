@@ -10,7 +10,7 @@ namespace WorldGen.Core
     // records remain unchanged for old-save replay, never silently reinterpreted.
     [Serializable] public sealed class ForagerState
     {
-        public const string RegionalVersion="foragers-regional-2";
+        public const string RegionalVersion="foragers-regional-3";
         public string Version=RegionalVersion;
         [NonSerialized] public string DomainHash="";
         public ForagerState ClockCopy()=>(ForagerState)MemberwiseClone();
@@ -109,8 +109,8 @@ namespace WorldGen.Core
     {
         // One regional distribution, never an individually simulated tribe.
         public int Id,District,Lineage,Culture,Identity,Language,Belief,Parent=-1,FoundedYear,LastMigrationYear,LastContactYear,LastLanguageReviewYear;
-        // Canonical distributions retain every represented resident community.
-        // Primary/runner-up fields below are derived observer caches only.
+        // Coarse regional affiliation shares; local camps and dialects are
+        // procedural detail. Primary/runner-up fields are observer caches.
         public ForagerAffiliation[] Speech=Array.Empty<ForagerAffiliation>(),Traditions=Array.Empty<ForagerAffiliation>();
         public int MinorityLanguage=-1,MinorityBelief=-1;
         public double MinorityLanguageShare,MinorityBeliefShare,BilingualShare;

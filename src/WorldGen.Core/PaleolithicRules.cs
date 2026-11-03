@@ -4,6 +4,8 @@ namespace WorldGen.Core
 {
     public static class PaleolithicRules
     {
+        static readonly double[] GlacialAges={0,12000,21000,70000,115000,125000,145000,190000,200000},GlacialIce={.03,.25,1,.72,.65,.04,1,.12,.55};
+        static readonly uint MoistureStream=Rng.StreamHash("paleo-moisture");
         public const int TechniqueCount=24,DecisionYears=50;
         public static readonly string[] Names={"Flake cutting","Prepared cores","Scraping","Wooden spears","Spearhead hafting","Fire tending","Hide working","Plant binding","Hide wraps","Friction fire","Compound adhesives","Bone awls","Hide sewing","Fitted clothing","Insulated clothing","Bone points","Pressure flaking","Bows","Barbed points","Fishing lines","Rafts","Eyed needles","Spear throwers","Food preservation"};
         static readonly int[][] prerequisites={new int[0],new[]{0},new[]{0},new[]{0},new[]{0,3,7},new int[0],new[]{2},new int[0],new[]{6},new[]{3,5},new[]{4,5},new[]{0,6},new[]{6,7,11},new[]{8,12},new[]{13},new[]{0,11},new[]{1,11},new[]{4,7,16},new[]{15},new[]{7,11},new[]{3,7},new[]{11,12},new[]{3,7,15},new[]{0,5}};
@@ -24,11 +26,11 @@ namespace WorldGen.Core
         // times use a continuous100ky approximation, never a calendar tech gate.
         public static PaleolithicClimate Climate(int seed,double elapsed,double sineLatitude,int elevationM=0,int province=0)
         {
-            double bp=200000-elapsed;double[] age={0,12000,21000,70000,115000,125000,145000,190000,200000};double[] ice={.03,.25,1,.72,.65,.04,1,.12,.55};double amount;
+            double bp=200000-elapsed;var age=GlacialAges;var ice=GlacialIce;double amount;
             if(bp>=0&&bp<=200000){int i=0;while(i<age.Length-2&&bp>age[i+1])i++;double f=(bp-age[i])/(age[i+1]-age[i]);f=f*f*(3-2*f);amount=ice[i]+(ice[i+1]-ice[i])*f;}
             else if(bp<0)amount=.03+.47*(1-Math.Cos(2*Math.PI*bp/100000));
             else amount=.55+.215*(1-Math.Cos(2*Math.PI*(bp-200000)/100000));
-            double lat=Math.Abs(sineLatitude),regional=Rng.Value(seed,"paleo-moisture",province)*2-1;
+            double lat=Math.Abs(sineLatitude),regional=Rng.ValueFromStreamHash(seed,MoistureStream,province)*2-1;
             return new PaleolithicClimate(amount,-amount*(2.5+8*lat*lat+Math.Max(0,elevationM-2000)*.0003),Math.Max(.45,1-amount*(.2+.15*lat)+regional*.1*amount),amount*125);
         }
         public static bool RouteOpen(Prehistory.Route r,PaleolithicClimate climate,double raft)

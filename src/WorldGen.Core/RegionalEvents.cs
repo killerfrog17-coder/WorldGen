@@ -31,12 +31,13 @@ namespace WorldGen.Core
         {
             readonly Prehistory engine;readonly PrehistoryState state;readonly ForagerState f;readonly CancellationToken token;
             readonly HashSet<int> people=new HashSet<int>(),resources=new HashSet<int>(),cultures=new HashSet<int>(),languages=new HashSet<int>(),beliefs=new HashSet<int>();
+            readonly HashSet<int> biota=new HashSet<int>(),families=new HashSet<int>();readonly bool exclusive;bool remappedFamilies;
             readonly ForagerEnvironment[] climate;readonly int[] climateEpoch;long now;
-            public RegionalEventWork(Prehistory engine,PrehistoryState state,CancellationToken token)
-            {this.engine=engine;this.state=state;this.f=state.Foragers;this.token=token;climate=new ForagerEnvironment[f.Districts.Length];climateEpoch=Enumerable.Repeat(int.MinValue,climate.Length).ToArray();}
+            public RegionalEventWork(Prehistory engine,PrehistoryState state,CancellationToken token,bool exclusive=false)
+            {this.engine=engine;this.state=state;this.f=state.Foragers;this.token=token;this.exclusive=exclusive;climate=new ForagerEnvironment[f.Districts.Length];climateEpoch=Enumerable.Repeat(int.MinValue,climate.Length).ToArray();}
             ForagerCohort Read(int region){int id=f.RegionResidents[region];return id<0?null:f.Cohorts[id];}
             ForagerCohort Write(int region)
-            {var c=Read(region);if(c!=null&&people.Add(c.Id))f.Cohorts[c.Id]=c=c.Copy();return c;}
+            {var c=Read(region);if(c!=null&&people.Add(c.Id)&&!exclusive)f.Cohorts[c.Id]=c=c.Copy();return c;}
             void Materialize(int region)
             {
                 var c=Write(region);if(c==null||f.PopulationAt[region]>=now)return;
@@ -64,7 +65,7 @@ namespace WorldGen.Core
             void Rates(int region,double elapsed)
             {
                 var c=Write(region);if(c==null||c.Population<=0)return;var d=f.Districts[region];var e=Environment(region);
-                if(resources.Add(region))f.Resources[region]=f.Resources[region].Copy();var r=f.Resources[region];
+                if(resources.Add(region)&&!exclusive)f.Resources[region]=f.Resources[region].Copy();var r=f.Resources[region];
                 var life=ForagerEcology.Livelihood(d,e,f.Lineages[c.Lineage],c,f.Cultures[c.Culture],r,true);
                 ForagerDemography.Rates(c,life,e,f.Cultures[c.Culture],life.Capacity);
                 c.FrontierKm=Math.Min(d.RadiusKm*1.5,c.FrontierKm+ForagerPassages.FrontierKmPerYear(c,f.Cultures[c.Culture],d,e,true)*elapsed);
@@ -85,26 +86,26 @@ namespace WorldGen.Core
             }
             void Language(ForagerCohort c,int year,int elapsed)
             {
-                int id=c.Id;if(languages.Add(id))f.Languages[id]=f.Languages[id].Copy();var l=f.Languages[id];
+                int id=c.Id;if(languages.Add(id)&&!exclusive)f.Languages[id]=f.Languages[id].Copy();var l=f.Languages[id];
                 var peer=Neighbours(c).OrderByDescending(x=>x.relation.Strength).FirstOrDefault();
                 ForagerLanguages.Evolve(engine.World.Recipe.Seed,l,year,elapsed,c.Isolation,peer.relation?.Strength??0,peer.people==null?null:f.Languages[peer.people.Language]);
                 double potential=.25+.75*ForagerSociality.Capacity(f,c,true);
                 l.TechnicalRegister=D.Q(PaleolithicRules.Approach(l.TechnicalRegister,potential*D.Clamp(.3+.02*c.Skill.Count(x=>x>.1)+.2*c.Connectivity),1/12000d,elapsed),1000000);
                 l.NarrativePractice=D.Q(PaleolithicRules.Approach(l.NarrativePractice,potential*D.Clamp(.6+.3*c.Connectivity),1/15000d,elapsed),1000000);
-                c.Speech=ForagerAffiliations.Approach(c.Speech,ForagerAffiliations.Single(id),1-Math.Exp(-elapsed/3000d),c.Population);ForagerAffiliations.Refresh(c);
+                c.Speech=ForagerAffiliations.Regional(ForagerAffiliations.Approach(c.Speech,ForagerAffiliations.Single(id),1-Math.Exp(-elapsed/3000d),c.Population));ForagerAffiliations.Refresh(c);
                 if(l.Family>=0&&ForagerLanguages.SharedRoots(l,f.LanguageFamilies[l.Family])<.2)
                 {
                     var family=new ForagerLanguageFamily{Id=f.NextFamily++,Parent=l.Family,FounderLanguage=id,FoundedYear=year,OriginDistrict=c.District,Name=l.Name+" family",ReferenceRoots=(int[])l.Roots.Clone()};
-                    f.LanguageFamilies=f.LanguageFamilies.Concat(new[]{family}).ToArray();l.Family=family.Id;
+                    f.LanguageFamilies=f.LanguageFamilies.Concat(new[]{family}).ToArray();families.Add(family.Id);l.Family=family.Id;
                     if(f.LanguageFamilies.Length>Math.Max(16,f.Districts.Length*2))
-                    {for(int i=0;i<f.Languages.Length;i++)if(languages.Add(i))f.Languages[i]=f.Languages[i].Copy();f.LanguageFamilies=f.LanguageFamilies.Select(x=>x.Copy()).ToArray();CompactRegionalFamilies(f);}
+                    {for(int i=0;i<f.Languages.Length;i++)if(languages.Add(i)&&!exclusive)f.Languages[i]=f.Languages[i].Copy();if(!exclusive)f.LanguageFamilies=f.LanguageFamilies.Select(x=>x.Copy()).ToArray();CompactRegionalFamilies(f);remappedFamilies=true;}
                 }
             }
             void Tradition(ForagerCohort c,int year,int elapsed)
             {
-                int id=c.Id;if(beliefs.Add(id))f.Beliefs[id]=f.Beliefs[id].Copy();var peer=Neighbours(c).OrderByDescending(x=>x.relation.Strength).FirstOrDefault();
+                int id=c.Id;if(beliefs.Add(id)&&!exclusive)f.Beliefs[id]=f.Beliefs[id].Copy();var peer=Neighbours(c).OrderByDescending(x=>x.relation.Strength).FirstOrDefault();
                 ForagerBeliefs.Change(engine.World.Recipe.Seed,f.Beliefs[id],f.Districts[c.District],year,elapsed,c.Isolation,peer.relation?.Strength??0,peer.people==null?null:f.Beliefs[peer.people.Belief]);
-                c.Traditions=ForagerAffiliations.Approach(c.Traditions,ForagerAffiliations.Single(id),1-Math.Exp(-elapsed/3000d),c.Population);ForagerAffiliations.Refresh(c);
+                c.Traditions=ForagerAffiliations.Regional(ForagerAffiliations.Approach(c.Traditions,ForagerAffiliations.Single(id),1-Math.Exp(-elapsed/3000d),c.Population));ForagerAffiliations.Refresh(c);
             }
             void Migration(ForagerCohort c,int year,int elapsed)
             {
@@ -136,11 +137,11 @@ namespace WorldGen.Core
                 for(int k=0;k<ForagerTechnology.Count;k++){destination.Knowledge[k]=(destination.Knowledge[k]*old+c.Knowledge[k]*number)/total;destination.Skill[k]=(destination.Skill[k]*old+c.Skill[k]*number)/total;destination.Use[k]=(destination.Use[k]*old+c.Use[k]*number)/total;}
                 for(int k=0;k<8;k++)destination.Appearance[k]=(destination.Appearance[k]*old+c.Appearance[k]*number)/total;
                 for(int k=0;k<c.Admixture.Length;k++)destination.Admixture[k]=(destination.Admixture[k]*old+c.Admixture[k]*number)/total;
-                destination.Speech=ForagerAffiliations.Blend(destination.Speech,old,c.Speech,number);destination.Traditions=ForagerAffiliations.Blend(destination.Traditions,old,c.Traditions,number);ForagerAffiliations.Refresh(destination);
+                destination.Speech=ForagerAffiliations.Regional(ForagerAffiliations.Blend(destination.Speech,old,c.Speech,number));destination.Traditions=ForagerAffiliations.Regional(ForagerAffiliations.Blend(destination.Traditions,old,c.Traditions,number));ForagerAffiliations.Refresh(destination);
                 ForagerDemography.MovePopulation(c,destination,number);c.LastMigrationYear=destination.LastMigrationYear=year;Rates(best.To,0);
                 int primary=0;for(int k=1;k<f.Lineages.Length;k++)if(f.SpeciesShare(destination,k)>f.SpeciesShare(destination,primary))primary=k;destination.Lineage=primary;
             }
-            public void Run(long target,int maximum,bool timed)
+            public void Run(long target,int maximum,bool timed,double milliseconds=8)
             {
                 var watch=Stopwatch.StartNew();int processed=0;var ticks=engine.WorkObserver==null?null:new long[RegionalProcessCount];var counts=ticks==null?null:new int[RegionalProcessCount];
                 while(f.PendingEvents.Event.Due<=target&&processed<maximum)
@@ -148,7 +149,7 @@ namespace WorldGen.Core
                     token.ThrowIfCancellationRequested();var item=f.PendingEvents.Event;f.PendingEvents=RegionalQueueNode.Merge(f.PendingEvents.Left,f.PendingEvents.Right);now=f.Seconds=item.Due;
                     int region=item.Entity,slot=region*RegionalProcessCount+item.Process,year=(int)(now/SimulationTime.Year),elapsed=Math.Max(1,(int)Math.Round((now-f.ProcessAt[slot])/(double)SimulationTime.Year));
                     long workStarted=ticks==null?0:Stopwatch.GetTimestamp();var c=Read(region);
-                    if(item.Process==5)ForagerBiota.AdvanceRegion(engine.World,f,Environment,region,year,elapsed,token);
+                    if(item.Process==5){biota.Add(region);ForagerBiota.AdvanceRegion(engine.World,f,Environment,region,year,elapsed,token);}
                     else if(c!=null)
                     {
                         Materialize(region);c=Write(region);
@@ -159,16 +160,37 @@ namespace WorldGen.Core
                             case 2:Migration(c,year,elapsed);Rates(region,0);break;
                             case 3:Language(c,year,elapsed);break;
                             case 4:Tradition(c,year,elapsed);break;
-                            case 6:if(cultures.Add(c.Culture))f.Cultures[c.Culture]=f.Cultures[c.Culture].Copy();var peer=Neighbours(c).OrderByDescending(x=>x.relation.Strength).FirstOrDefault();engine.ChangeForagerCulture(f,c,Environment(region),year,elapsed,peer.people==null?null:f.Cultures[peer.people.Culture],peer.relation?.Strength??0);break;
+                            case 6:if(cultures.Add(c.Culture)&&!exclusive)f.Cultures[c.Culture]=f.Cultures[c.Culture].Copy();var peer=Neighbours(c).OrderByDescending(x=>x.relation.Strength).FirstOrDefault();engine.ChangeForagerCulture(f,c,Environment(region),year,elapsed,peer.people==null?null:f.Cultures[peer.people.Culture],peer.relation?.Strength??0);break;
                         }
                     }
                     f.ProcessAt[slot]=now;engine.ScheduleRegional(f,region,item.Process,now,item.Ticket+1);f.ProcessedEvents++;f.BoundarySeconds=now;processed++;
                     if(ticks!=null){ticks[item.Process]+=Stopwatch.GetTimestamp()-workStarted;counts[item.Process]++;}
-                    if(timed&&watch.Elapsed.TotalMilliseconds>=8)break;
+                    if(timed&&watch.Elapsed.TotalMilliseconds>=milliseconds)break;
                 }
                 f.NextReviewSeconds=f.PendingEvents.Event.Due;f.Seconds=Math.Min(target,f.NextReviewSeconds-1);token.ThrowIfCancellationRequested();
                 if(ticks!=null)for(int p=0;p<RegionalProcessCount;p++)engine.WorkObserver(new SimulationWorkMetric{Stage="regional process "+p,Items=counts[p],Milliseconds=ticks[p]*1000d/Stopwatch.Frequency});
             }
+            public void Capture(RegionalPublication p,int oldPeople,int oldCultures,int oldLanguages,int oldBeliefs,int oldIdentities,int oldFamilies)
+            {
+                RegionalChanges<T> Changed<T>(T[] values,IEnumerable<int> touched,int oldLength)where T:class
+                {var ids=touched.Concat(Enumerable.Range(oldLength,Math.Max(0,values.Length-oldLength))).Where(i=>i<values.Length).Distinct().OrderBy(i=>i).ToArray();return new RegionalChanges<T>{Length=values.Length,Indices=ids,Values=ids.Select(i=>values[i]).ToArray()};}
+                p.People=Changed(f.Cohorts,people,oldPeople);p.Resources=Changed(f.Resources,resources,f.Resources.Length);p.Cultures=Changed(f.Cultures,cultures,oldCultures);p.Languages=Changed(f.Languages,languages,oldLanguages);p.Beliefs=Changed(f.Beliefs,beliefs,oldBeliefs);p.Identities=Changed(f.Peoples,Array.Empty<int>(),oldIdentities);
+                p.Families=Changed(f.LanguageFamilies,remappedFamilies?Enumerable.Range(0,f.LanguageFamilies.Length):families,oldFamilies);
+                p.Biota=biota.OrderBy(i=>i).Select(i=>new RegionalBiotaUpdate{District=i,ReviewedYear=f.Biota[i].ReviewedYear,ForestCover=f.Biota[i].ForestCover,FoodAvailability=f.Biota[i].FoodAvailability}).ToArray();
+            }
+        }
+        // Only for a worker that exclusively owns its input and has no readers.
+        // Dirty indexes replace snapshot comparison; sent deltas are serialized
+        // before the next advance. Normal UI/public snapshots remain immutable.
+        public RegionalPublication AdvanceRegionalExclusive(PrehistoryState state,long seconds,CancellationToken token=default,double maximumMilliseconds=double.PositiveInfinity)
+        {
+            var f=state.Foragers;long from=f.Seconds;if(!state.Started||seconds<1||seconds>SimulationTime.Maximum-from)throw new ArgumentOutOfRangeException(nameof(seconds));
+            long target=from+seconds;bool clockOnly=target<f.NextReviewSeconds;RegionalEventWork work=null;
+            int people=f.Cohorts.Length,cultures=f.Cultures.Length,languages=f.Languages.Length,beliefs=f.Beliefs.Length,identities=f.Peoples.Length,families=f.LanguageFamilies.Length;
+            if(clockOnly)f.Seconds=target;else{work=new RegionalEventWork(this,state,token,true);work.Run(target,int.MaxValue,!double.IsPositiveInfinity(maximumMilliseconds),maximumMilliseconds);state.DomainToken=new object();}
+            state.Years=(int)(f.Seconds/SimulationTime.Year);state.Paleolithic.Seconds=f.Seconds;state.Paleolithic.BoundarySeconds=f.BoundarySeconds;state.InvalidateHash();
+            if(clockOnly)return new RegionalPublication{ClockOnly=true,From=from,Seconds=f.Seconds};
+            var p=RegionalPublication.Header(from,state);work.Capture(p,people,cultures,languages,beliefs,identities,families);return p;
         }
         void AddRegionalEvent(ForagerState f,ForagerCohort c,int year,ForagerEventKind kind,string text)
         {f.Events=f.Events.Concat(new[]{new ForagerEvent{Seconds=year*SimulationTime.Year,Kind=kind,Cohort=c.Id,District=c.District,Text=text}}).TakeLast(256).ToArray();}

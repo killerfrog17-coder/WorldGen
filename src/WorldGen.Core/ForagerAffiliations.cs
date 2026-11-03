@@ -7,6 +7,19 @@ namespace WorldGen.Core
     // are community affiliations; bilingual knowledge is tracked separately.
     public static class ForagerAffiliations
     {
+        // Broad regional history records percentage-scale native communities,
+        // not every trace of every historical migrant. Finer local variation
+        // belongs to deterministic camp/dialect generation. A 1% resolution
+        // bounds work per regional profile independently of world size.
+        public const double RegionalResolution=.01;
+        public static ForagerAffiliation[] Regional(ForagerAffiliation[] profile)
+        {
+            if(profile.Length<2)return profile;
+            int largest=0;for(int i=1;i<profile.Length;i++)if(profile[i].Share>profile[largest].Share||profile[i].Share==profile[largest].Share&&profile[i].Id<profile[largest].Id)largest=i;
+            double remainder=0;var result=new List<ForagerAffiliation>();ForagerAffiliation dominant=null;
+            for(int i=0;i<profile.Length;i++)if(i==largest||profile[i].Share>=RegionalResolution){var item=profile[i].Copy();result.Add(item);if(i==largest)dominant=item;}else remainder+=profile[i].Share;
+            dominant.Share+=remainder;return result.ToArray();
+        }
         public static ForagerAffiliation[] Single(int id)=>new[]{new ForagerAffiliation{Id=id,Share=1}};
         public static double Share(ForagerAffiliation[] profile,int id)=>profile.FirstOrDefault(x=>x.Id==id)?.Share??0;
         static void Add(Dictionary<int,double> values,int id,double share)

@@ -15,7 +15,7 @@ public sealed partial class WorldGenRuntime
     Prehistory humans;World humanWorld;Task<HumanPreparation> humanPreparation;
     SimulationSession humanSession;
     RegionalHistoryProcess humanHistoryProcess;Task humanHistoryReady;
-    sealed class HumanPlaybackWork { public Task<PrehistoryState> Task;public SimulationSession Session; }
+    sealed class HumanPlaybackWork { public Task<PrehistoryState> Task;public SimulationSession Session;public volatile PrehistoryState Latest;public volatile bool Continue=true;public double Rate; }
     HumanPlaybackWork humanPlaybackWork;System.Threading.CancellationTokenSource humanCancellation;
     Task<PrehistoryState> humanStep;bool humanPlaying;int humanVariant,lastHumanSelection=-2;
     float satelliteOpacity=1f,humanOverlayOpacity=.6f;Color32[] humanColors;
@@ -49,10 +49,15 @@ public sealed partial class WorldGenRuntime
             try{var prepared=task.GetAwaiter().GetResult();humans=prepared.Engine;bool fresh=world.Prehistory==null;world.Prehistory=prepared.State;if(fresh){historyOverlay=HistoryOverlay.Cultures;if(!Prehistory.Paleolithic(world.Prehistory)&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;PrepareRegionalHistory();UpdateHumanPalette();}
             catch(Exception ex){error=ex.Message;humans=null;}
         }
+        if(humanPlaybackWork!=null)
+        {
+            var work=humanPlaybackWork;work.Continue=screen=="Simulation"&&humanPlaying&&!simulationPaused&&!atlasOpen&&selectedEvent==null&&!saveDialog&&humanPlayback.Rate==work.Rate;
+            var latest=work.Latest;if(latest!=null&&!ReferenceEquals(latest,world.Prehistory))CommitHumanPublication(latest);
+        }
         if(humanStep!=null&&humanStep.IsCompleted)
         {
             var task=humanStep;var playbackWork=humanPlaybackWork;humanStep=null;humanPlaybackWork=null;
-            try{var prior=world.Prehistory;world.Prehistory=task.GetAwaiter().GetResult();if(playbackWork?.Task==task)humanSession=playbackWork.Session;long consumed=Math.Max(0,SimulationTime.Seconds(world.Prehistory)-(long)calendarWorkStarted);if(calendarWorkIsPlay)play.Consume(consumed);else humanPlayback.Consume(consumed);calendarWorkIsPlay=false;if(!SameHumanDomain(prior,world.Prehistory)&&!Prehistory.Foraging(world.Prehistory))UpdateHumanPalette();}catch(Exception ex){error=ex.Message;humanPlaying=false;terrainExplorer?.Pause();}
+            try{CommitHumanPublication(task.GetAwaiter().GetResult());if(playbackWork?.Task==task)humanSession=playbackWork.Session;calendarWorkIsPlay=false;}catch(Exception ex){error=ex.Message;humanPlaying=false;terrainExplorer?.Pause();}
         }
         if(humans==null)return;
         if(humanHistoryReady?.IsFaulted==true){error="History worker: "+humanHistoryReady.Exception.GetBaseException().Message;humanPlaying=false;humanHistoryReady=null;}
@@ -76,16 +81,21 @@ public sealed partial class WorldGenRuntime
             var slice=playingLocal?new SimulationClockView.PlaybackSlice(Math.Min(pending,SimulationTime.Day),1024,256):SimulationClockView.Publication((long)calendarWorkStarted,pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
             // Session validation/copies are background work too. Fine clocks
             // also use the private input: public validation is not a cheap tick.
-            var reusable=humanSession;var work=new HumanPlaybackWork();humanPlaybackWork=work;var token=humanCancellation.Token;
+            var reusable=humanSession;var work=new HumanPlaybackWork{Rate=humanPlayback.Rate};humanPlaybackWork=work;var token=humanCancellation.Token;
             var remote=!playingLocal&&humanHistoryReady?.Status==TaskStatus.RanToCompletion?humanHistoryProcess:null;
             humanStep=work.Task=Task.Run(()=>{
-                token.ThrowIfCancellationRequested();if(remote!=null)return remote.Advance(state,seconds,token);var session=reusable;
+                token.ThrowIfCancellationRequested();if(remote!=null)return remote.Advance(state,seconds,token,value=>work.Latest=value,()=>work.Continue);var session=reusable;
                 if(session==null||!ReferenceEquals(session.LastSnapshot,state))session=new SimulationSession(engine,state);
                 // Task-local ownership prevents an abandoned old-world worker
                 // from installing/advancing the new world's session.
                 work.Session=session;return session.AdvanceSeconds(seconds,maximumEvents,token,slice.MaximumGlobalWork);
             });
         }
+    }
+    void CommitHumanPublication(PrehistoryState next)
+    {
+        var prior=world.Prehistory;world.Prehistory=next;long committed=SimulationTime.Seconds(next),consumed=Math.Max(0,committed-(long)calendarWorkStarted);calendarWorkStarted=committed;
+        if(calendarWorkIsPlay)play.Consume(consumed);else humanPlayback.Consume(consumed);if(!SameHumanDomain(prior,next)&&!Prehistory.Foraging(next))UpdateHumanPalette();
     }
     void PrepareRegionalHistory()
     {

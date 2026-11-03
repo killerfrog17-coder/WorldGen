@@ -184,13 +184,22 @@ namespace WorldGen.Core
                     practitioners=c.Adults*c.Skill[k];
                 }
                 double teacher=teachers!=null&&teachers.Length>k?teachers[k]:0;
+                if(demandLedTraining&&!invented&&c.Skill[k]==0&&c.Use[k]==0&&teacher==0)
+                {
+                    // No maker, user, teacher or new invention: only remembered
+                    // familiarity decays. Avoid calculating zero-valued training,
+                    // practice and loss terms for an inactive method.
+                    double known=c.Knowledge[k];
+                    if(known>.35&&foundation>.2){double inactivePractice=D.Clamp(need*(.65+.7*preference)*materials),inactiveTarget=Math.Max(known,known+.15*inactivePractice);known=inactiveTarget+(known-inactiveTarget);}
+                    c.Knowledge[k]=D.Q(D.Clamp(known*Math.Exp(-years/18000d)),1000000000);c.Teaching[k]=0;c.Innovation[k]=D.Q(hazard,1000000000);continue;
+                }
                 double localTeaching=specialistTeaching?(.65+.35*c.Knowledge[k])*MakerAccess(c.Adults,c.Skill[k]):D.Clamp(c.Skill[k]*Math.Min(1,practitioners/3));
                 double communicationComplexity=D.Clamp((t.TeachingYears-60)/320d);
                 double demonstration=.5*(1-communicationComplexity)+.1*communicationComplexity;
                 double communication=demonstration+(1-demonstration)*D.Clamp(explanatoryAccess)*(specialistTeaching?D.Clamp(explanationPractice):1);
                 double teachingAccess=teachers!=null&&teachers.Length>=Count*2?teachers[Count+k]:D.Clamp(contactStrength);
                 double learning=teacher*(.35+.65*culture.ExchangeOpenness)*teachingAccess*communication+localTeaching*(specialistTeaching?demonstration+(1-demonstration)*D.Clamp(explanationPractice):1);
-                double recentLearning=c.FirstKnownYear.Length>k&&c.FirstKnownYear[k]>0&&year>=c.FirstKnownYear[k]?Math.Exp(-(year-c.FirstKnownYear[k])/140d):0;
+                double recentLearning=!demandLedTraining&&c.FirstKnownYear.Length>k&&c.FirstKnownYear[k]>0&&year>=c.FirstKnownYear[k]?Math.Exp(-(year-c.FirstKnownYear[k])/140d):0;
                 learning+=.8*(demandLedTraining?(invented?1:0):Math.Max(invented?1:0,recentLearning));
                 learning*=(.55+.45*D.Clamp(explanationPractice))*(.4+.6*D.Clamp(learningCapacity));
                 // Repeated successful practice can refine a familiar method.

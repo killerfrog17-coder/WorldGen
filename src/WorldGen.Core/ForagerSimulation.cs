@@ -291,24 +291,25 @@ namespace WorldGen.Core
             c.Traditions=ForagerAffiliations.Approach(c.Traditions,traditionNorm,1-Math.Exp(-elapsed*(emerging!=null?1:.2+.4*D.Clamp(exposure))/1800d),c.Population);
             ForagerAffiliations.Refresh(c);
         }
+        static readonly uint[] SocialDriftStreams=new[]{"sharing","guests","exchange","marriage","kin","childcare","avoidance","prestige"}.Concat(Enumerable.Range(0,5).Select(k=>"diet-"+k)).Concat(Enumerable.Range(0,ForagerTechnology.Count).Select(k=>"practice-"+k)).Select(s=>Rng.StreamHash("forager-social-drift-"+s)).ToArray();
         void ChangeForagerCulture(ForagerState f,ForagerCohort people,ForagerEnvironment e,int year,int elapsed,ForagerCulture donor,double contact)
         {
             var c=f.Cultures[people.Culture];var d=f.Districts[people.District];
-            double Change(string field,double value,double target,double peer)
+            double Change(int field,double value,double target,double peer)
             {
-                double drift=(Rng.Value(World.Recipe.Seed,"forager-social-drift-"+field,c.Id^year)-.5)*.025;
+                double drift=(Rng.ValueFromStreamHash(World.Recipe.Seed,SocialDriftStreams[field],c.Id^year)-.5)*.025;
                 return D.Q(D.Clamp(PaleolithicRules.Approach(value,target,1/12000d,elapsed)+(peer-value)*D.Clamp(contact*elapsed/14000d)+drift),1000000);
             }
-            c.FoodSharing=Change("sharing",c.FoodSharing,.65+.25*D.Clamp(1-people.FoodSecurity),donor?.FoodSharing??c.FoodSharing);
-            c.GuestAccess=Change("guests",c.GuestAccess,.4+.3*people.Connectivity-.25*people.ConflictPressure,donor?.GuestAccess??c.GuestAccess);
-            c.ExchangeOpenness=Change("exchange",c.ExchangeOpenness,.35+.35*people.Connectivity+.15*D.Clamp(1-d.Stone),donor?.ExchangeOpenness??c.ExchangeOpenness);
-            c.MarriageMobility=Change("marriage",c.MarriageMobility,.6+.25*people.Isolation,donor?.MarriageMobility??c.MarriageMobility);
-            c.KinObligation=Change("kin",c.KinObligation,.6+.2*people.Isolation,donor?.KinObligation??c.KinObligation);
-            c.ChildcareCooperation=Change("childcare",c.ChildcareCooperation,.7+.15*c.FoodSharing,donor?.ChildcareCooperation??c.ChildcareCooperation);
-            c.ConflictAvoidance=Change("avoidance",c.ConflictAvoidance,.6+.2*people.ConflictPressure,donor?.ConflictAvoidance??c.ConflictAvoidance);
-            c.PrestigeCompetition=Change("prestige",c.PrestigeCompetition,.25+.25*people.Connectivity,donor?.PrestigeCompetition??c.PrestigeCompetition);
-            for(int k=0;k<5;k++)c.FoodPreference[k]=Change("diet-"+k,c.FoodPreference[k],D.Clamp(.25+people.Diet[k]*1.5),donor?.FoodPreference[k]??c.FoodPreference[k]);
-            for(int k=0;k<ForagerTechnology.Count;k++)c.TechniquePreference[k]=Change("practice-"+k,c.TechniquePreference[k],.25+.5*ForagerTechnology.Demand(d,e,people,k),donor?.TechniquePreference[k]??c.TechniquePreference[k]);
+            c.FoodSharing=Change(0,c.FoodSharing,.65+.25*D.Clamp(1-people.FoodSecurity),donor?.FoodSharing??c.FoodSharing);
+            c.GuestAccess=Change(1,c.GuestAccess,.4+.3*people.Connectivity-.25*people.ConflictPressure,donor?.GuestAccess??c.GuestAccess);
+            c.ExchangeOpenness=Change(2,c.ExchangeOpenness,.35+.35*people.Connectivity+.15*D.Clamp(1-d.Stone),donor?.ExchangeOpenness??c.ExchangeOpenness);
+            c.MarriageMobility=Change(3,c.MarriageMobility,.6+.25*people.Isolation,donor?.MarriageMobility??c.MarriageMobility);
+            c.KinObligation=Change(4,c.KinObligation,.6+.2*people.Isolation,donor?.KinObligation??c.KinObligation);
+            c.ChildcareCooperation=Change(5,c.ChildcareCooperation,.7+.15*c.FoodSharing,donor?.ChildcareCooperation??c.ChildcareCooperation);
+            c.ConflictAvoidance=Change(6,c.ConflictAvoidance,.6+.2*people.ConflictPressure,donor?.ConflictAvoidance??c.ConflictAvoidance);
+            c.PrestigeCompetition=Change(7,c.PrestigeCompetition,.25+.25*people.Connectivity,donor?.PrestigeCompetition??c.PrestigeCompetition);
+            for(int k=0;k<5;k++)c.FoodPreference[k]=Change(8+k,c.FoodPreference[k],D.Clamp(.25+people.Diet[k]*1.5),donor?.FoodPreference[k]??c.FoodPreference[k]);
+            for(int k=0;k<ForagerTechnology.Count;k++)c.TechniquePreference[k]=Change(13+k,c.TechniquePreference[k],.25+.5*ForagerTechnology.Demand(d,e,people,k),donor?.TechniquePreference[k]??c.TechniquePreference[k]);
             var desired=people.Diet[3]+people.Diet[4]>.48&&d.Seasonality[3]<.6?ForagerResidence.AquaticResidence:d.Seasonality[0]>.55||people.Use[32]>.35?ForagerResidence.CollectorCamps:people.Use[23]+people.Use[28]>.9?ForagerResidence.SeasonalBaseCamps:ForagerResidence.ResidentialMobility;
             if(c.Residence!=desired&&Rng.Value(World.Recipe.Seed,"forager-residence-change",c.Id^year)<1-Math.Exp(-elapsed/1800d))c.Residence=desired;
         }

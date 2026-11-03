@@ -7,6 +7,19 @@ public sealed partial class WorldGenRuntime
 {
     bool displayVSync;int displayMaxFps=60;string displayFpsInput="60";Vector2 displayMenuScroll;
     int windowWidth=1280,windowHeight=800;
+    bool simulationRenderBudget;
+    void PollSimulationRenderBudget()
+    {
+        bool fast=screen=="Simulation"&&terrainExplorer==null&&humanPlaying&&!simulationPaused&&humanPlayback.Rate>=100*WorldGen.Core.SimulationTime.Year;
+        if(fast)
+        {
+            // Map presentation does not need hundreds of redundant redraws
+            // while the history executor needs CPU/cache bandwidth. Keep the
+            // map fluid at60Hz and retain the owner's gameplay preferences.
+            QualitySettings.vSyncCount=0;Application.targetFrameRate=displayMaxFps==0?60:Math.Min(60,displayMaxFps);simulationRenderBudget=true;
+        }
+        else if(simulationRenderBudget){QualitySettings.vSyncCount=displayVSync?1:0;Application.targetFrameRate=displayMaxFps==0?-1:displayMaxFps;simulationRenderBudget=false;}
+    }
     void InitializeDisplayOptions()
     {
         SetDisplayOptions(PlayerPrefs.GetInt("display-vsync",QualitySettings.vSyncCount>0?1:0)!=0,Math.Max(0,Math.Min(1000,PlayerPrefs.GetInt("display-max-fps",60))),false);

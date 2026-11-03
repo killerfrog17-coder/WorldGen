@@ -22,6 +22,7 @@ namespace WorldGen.Core
     // changed regional records, never terrain or procedurally generated camps.
     [Serializable] public sealed class RegionalPublication
     {
+        public bool ClockOnly;
         public long From,Seconds,Boundary,NextReview,ProcessedEvents;
         public int NextCohort,NextCulture,NextLanguage,NextBelief,NextFamily,NextPeople;
         public RegionalQueueNode Queue;
@@ -35,9 +36,12 @@ namespace WorldGen.Core
         public RegionalChanges<ForagerLanguageFamily> Families;
         public RegionalChanges<ForagerBelief> Beliefs;
         public ForagerEvent[] Events;public ForagerDiscovery[] Discoveries;
+        public static RegionalPublication Header(long from,PrehistoryState state)
+        {var b=state.Foragers;return new RegionalPublication{From=from,Seconds=b.Seconds,Boundary=b.BoundarySeconds,NextReview=b.NextReviewSeconds,ProcessedEvents=b.ProcessedEvents,NextCohort=b.NextCohort,NextCulture=b.NextCulture,NextLanguage=b.NextLanguage,NextBelief=b.NextBelief,NextFamily=b.NextFamily,NextPeople=b.NextPeople,Queue=b.PendingEvents,PopulationAt=b.PopulationAt,ProcessAt=b.ProcessAt,Residents=b.RegionResidents,Species=b.SpeciesShares,Events=b.Events,Discoveries=b.Discoveries};}
         public static RegionalPublication Between(PrehistoryState before,PrehistoryState after)
         {
             var a=before.Foragers;var b=after.Foragers;
+            if(PrehistoryState.SameDomain(before,after))return new RegionalPublication{ClockOnly=true,From=a.Seconds,Seconds=b.Seconds};
             return new RegionalPublication{From=a.Seconds,Seconds=b.Seconds,Boundary=b.BoundarySeconds,NextReview=b.NextReviewSeconds,ProcessedEvents=b.ProcessedEvents,NextCohort=b.NextCohort,NextCulture=b.NextCulture,NextLanguage=b.NextLanguage,NextBelief=b.NextBelief,NextFamily=b.NextFamily,NextPeople=b.NextPeople,
                 Queue=b.PendingEvents,PopulationAt=b.PopulationAt,ProcessAt=b.ProcessAt,Residents=b.RegionResidents,Species=b.SpeciesShares,
                 People=RegionalChanges<ForagerCohort>.Between(a.Cohorts,b.Cohorts),Resources=RegionalChanges<ForagerResources>.Between(a.Resources,b.Resources),Biota=RegionalBiotaUpdate.Between(a.Biota,b.Biota),Cultures=RegionalChanges<ForagerCulture>.Between(a.Cultures,b.Cultures),Identities=RegionalChanges<ForagerPeopleIdentity>.Between(a.Peoples,b.Peoples),Languages=RegionalChanges<ForagerLanguage>.Between(a.Languages,b.Languages),Families=RegionalChanges<ForagerLanguageFamily>.Between(a.LanguageFamilies,b.LanguageFamilies),Beliefs=RegionalChanges<ForagerBelief>.Between(a.Beliefs,b.Beliefs),Events=b.Events,Discoveries=b.Discoveries};
@@ -45,6 +49,7 @@ namespace WorldGen.Core
         public PrehistoryState Apply(PrehistoryState before)
         {
             if(before.Foragers.Seconds!=From)throw new InvalidOperationException("Regional publication is out of order.");
+            if(ClockOnly){var clock=before.CopyClockOnly();clock.Foragers=before.Foragers.ClockCopy();clock.Paleolithic=before.Paleolithic.Copy();clock.Foragers.Seconds=clock.Paleolithic.Seconds=Seconds;clock.Years=(int)(Seconds/SimulationTime.Year);clock.InvalidateHash();return clock;}
             var next=before.CopyClockOnly();next.DomainToken=new object();var f=next.Foragers=before.Foragers.ClockCopy();next.Paleolithic=before.Paleolithic.Copy();
             f.Seconds=Seconds;f.BoundarySeconds=Boundary;f.NextReviewSeconds=NextReview;f.ProcessedEvents=ProcessedEvents;f.PendingEvents=Queue;
             f.NextCohort=NextCohort;f.NextCulture=NextCulture;f.NextLanguage=NextLanguage;f.NextBelief=NextBelief;f.NextFamily=NextFamily;f.NextPeople=NextPeople;

@@ -18,6 +18,7 @@ public sealed partial class WorldGenRuntime
         public double[] ProcessMilliseconds=new double[Prehistory.RegionalProcessCount];
         public double DirectYearsPerSecond;
         public double WorkerComputeMs,WorkerTransferMs,WorkerDecodeMs,WorkerApplyMs;public long WorkerBytes;public int WorkerPublications;
+        public double LateFineSeconds,LateFineDays;
     }
     IEnumerator CheckRegionalPlayback()
     {
@@ -44,6 +45,7 @@ public sealed partial class WorldGenRuntime
         var direct=System.Threading.Tasks.Task.Run(()=>{var session=new SimulationSession(humans,world.Prehistory);long target=session.Seconds+1000*SimulationTime.Year;var timer=System.Diagnostics.Stopwatch.StartNew();while(session.Seconds<target)session.AdvanceSeconds(target-session.Seconds,1000000);return 1000/timer.Elapsed.TotalSeconds;});
         while(!direct.IsCompleted)yield return null;evidence.DirectYearsPerSecond=direct.GetAwaiter().GetResult();
         humans.WorkObserver=metric=>{if(metric.Stage.StartsWith("regional process ")&&int.TryParse(metric.Stage.Substring(17),out int process)){evidence.ProcessItems[process]+=metric.Items;evidence.ProcessMilliseconds[process]+=metric.Milliseconds;}};
+        humanHistoryProcess?.ResetMeters();
         humanPlayback.SetRate(50000d*SimulationTime.Year);humanPlaying=true;humanClockSample=Time.realtimeSinceStartupAsDouble;
         first=SimulationTime.Seconds(world.Prehistory);started=previous=Time.realtimeSinceStartupAsDouble;frames.Clear();
         long observed=first;double lastPublication=started;
@@ -56,6 +58,9 @@ public sealed partial class WorldGenRuntime
         frames.Sort();evidence.FastMaximumFrameMs=frames.LastOrDefault();evidence.FastP95FrameMs=frames.Count>0?frames[(int)((frames.Count-1)*.95)]:0;
         evidence.Checks++;
         if(world.Prehistory.Foragers.Cohorts.Length>evidence.Regions){Debug.LogError("REGIONAL PLAYBACK population records exceeded regions");Application.Quit(1);yield break;}evidence.Checks++;
+        humanPlayback.SetRate(SimulationTime.Day);humanPlaying=true;humanClockSample=Time.realtimeSinceStartupAsDouble;first=SimulationTime.Seconds(world.Prehistory);started=Time.realtimeSinceStartupAsDouble;
+        while(Time.realtimeSinceStartupAsDouble-started<6&&error.Length==0)yield return null;
+        humanPlaying=false;while(humanStep!=null)yield return null;evidence.LateFineSeconds=Time.realtimeSinceStartupAsDouble-started;evidence.LateFineDays=(SimulationTime.Seconds(world.Prehistory)-first)/(double)SimulationTime.Day;evidence.Checks++;
         foreach(var mode in new[]{HistoryOverlay.Cultures,HistoryOverlay.Languages,HistoryOverlay.Technology,HistoryOverlay.HumanSpecies,HistoryOverlay.Religions})
         {
             historyOverlay=mode;double switchStarted=Time.realtimeSinceStartupAsDouble;UpdateHumanPalette();double until=switchStarted+20;
@@ -66,6 +71,6 @@ public sealed partial class WorldGenRuntime
         }
         evidence.Hash=world.Prehistory.Hash;Application.logMessageReceived-=capture;
         File.WriteAllText(Path.Combine(output,"result.json"),JsonUtility.ToJson(evidence,true));
-        bool passed=evidence.RuntimeErrors==0&&error.Length==0&&evidence.FastYearsPerSecond>=10000&&evidence.MaximumLayerSwitchMs<200&&evidence.MaximumPublicationPauseMs<250;Debug.Log("REGIONAL PLAYBACK "+(passed?"PASS ":"FAIL ")+JsonUtility.ToJson(evidence));Application.Quit(passed?0:1);
+        bool passed=evidence.RuntimeErrors==0&&error.Length==0&&evidence.FastYearsPerSecond>=10000&&evidence.MaximumLayerSwitchMs<200&&evidence.MaximumPublicationPauseMs<250&&evidence.LateFineDays/evidence.LateFineSeconds>=.8;Debug.Log("REGIONAL PLAYBACK "+(passed?"PASS ":"FAIL ")+JsonUtility.ToJson(evidence));Application.Quit(passed?0:1);
     }
 }

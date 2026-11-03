@@ -323,6 +323,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     }
     void Update()
     {
+        PollSimulationRenderBudget();
         if(Keyboard.current!=null&&Keyboard.current.f11Key.wasPressedThisFrame)SetFullscreen(!Screen.fullScreen);
         UpdateMusic();HandleQuickSave(Keyboard.current,Application.isFocused);
         if(terrainExplorer!=null){PollHumans();return;}if(terrainReturnFrame==Time.frameCount)return;

@@ -16,6 +16,7 @@ public sealed class RegionalHistoryProcess:IDisposable
     readonly string executable,source;readonly World world;
     Process process;TcpClient client;TcpListener listener;BinaryReader reader;BinaryWriter writer;PrehistoryState last;
     public double ComputeMilliseconds,TransferMilliseconds,DecodeMilliseconds,ApplyMilliseconds;public long Bytes;public int Publications;
+    public void ResetMeters(){ComputeMilliseconds=TransferMilliseconds=DecodeMilliseconds=ApplyMilliseconds=0;Bytes=0;Publications=0;}
     public RegionalHistoryProcess(string executable,World world,string source){this.executable=executable;this.world=world;this.source=source;}
     public void Prepare(PrehistoryState state,CancellationToken token)
     {
@@ -24,6 +25,7 @@ public sealed class RegionalHistoryProcess:IDisposable
         try
         {
             var info=new ProcessStartInfo(executable,"--regional-history-worker "+port+" --parent "+Process.GetCurrentProcess().Id+" --history-token "+secret){UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=Path.GetDirectoryName(executable)};
+            info.EnvironmentVariables["DOTNET_TieredPGO"]="1";
             process=Process.Start(info);var accept=listener.AcceptTcpClientAsync();while(!accept.Wait(50,token))if(process.HasExited)throw new IOException("History worker exited during startup.");
             client=accept.GetAwaiter().GetResult();client.NoDelay=true;client.ReceiveTimeout=180000;client.SendTimeout=180000;
             reader=new BinaryReader(client.GetStream(),Encoding.UTF8,true);writer=new BinaryWriter(client.GetStream(),Encoding.UTF8,true);
@@ -34,7 +36,7 @@ public sealed class RegionalHistoryProcess:IDisposable
         catch{Dispose();throw;}
         finally{listener?.Stop();listener=null;}
     }
-    public PrehistoryState Advance(PrehistoryState state,long seconds,CancellationToken token)
+    public PrehistoryState Advance(PrehistoryState state,long seconds,CancellationToken token,Action<PrehistoryState> publication=null,Func<bool> continuing=null)
     {
         Prepare(state,token);using(token.Register(()=>{try{client?.Close();}catch{}}))
         {
@@ -43,9 +45,13 @@ public sealed class RegionalHistoryProcess:IDisposable
                 if(PrehistoryState.SameDomain(last,state)&&state.Foragers.Seconds>last.Foragers.Seconds){writer.Write((byte)2);writer.Write(state.Foragers.Seconds-last.Foragers.Seconds);}
                 else{writer.Write((byte)1);RegionalWire.WritePacket(writer,state);}writer.Flush();if(!reader.ReadBoolean())throw new IOException("History rebase failed.");
             }
-            writer.Write((byte)0);writer.Write(Math.Min(seconds,1000*SimulationTime.Year));writer.Flush();
-            ComputeMilliseconds+=reader.ReadDouble();var patch=RegionalWire.ReadPacket<RegionalPublication>(reader,out int bytes,out double transfer,out double decode);token.ThrowIfCancellationRequested();
-            Bytes+=bytes;TransferMilliseconds+=transfer;DecodeMilliseconds+=decode;Publications++;var timer=Stopwatch.StartNew();last=patch.Apply(state);ApplyMilliseconds+=timer.Elapsed.TotalMilliseconds;return last;
+            writer.Write((byte)0);writer.Write(Math.Min(seconds,10000*SimulationTime.Year));writer.Flush();
+            while(true)
+            {
+                ComputeMilliseconds+=reader.ReadDouble();bool more=reader.ReadBoolean(),again=false;
+                var patch=RegionalWire.ReadPacket<RegionalPublication>(reader,out int bytes,out double transfer,out double decode,()=>{again=more&&(continuing?.Invoke()??false);if(more){writer.Write((byte)(again?0:1));writer.Flush();}});token.ThrowIfCancellationRequested();
+                Bytes+=bytes;TransferMilliseconds+=transfer;DecodeMilliseconds+=decode;Publications++;var timer=Stopwatch.StartNew();last=patch.Apply(state);ApplyMilliseconds+=timer.Elapsed.TotalMilliseconds;publication?.Invoke(last);state=last;if(!again)return last;
+            }
         }
     }
     public void Dispose()
