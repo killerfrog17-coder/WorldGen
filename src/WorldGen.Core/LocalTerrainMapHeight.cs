@@ -34,7 +34,8 @@ namespace WorldGen.Core
                 return new LocalTerrainSample{Cell=cell,ElevationM=D.Q(s.Height,1000),BaseElevationM=D.Q(s.UnshapedHeight,1000),PreWaterElevationM=D.Q(s.UnshapedHeight,1000),
                     WaterSurfaceM=s.Water,WaterMaskM=s.Mask,WaterKind=s.Kind,WaterBodyKey=s.BodyKey,WaterGradient=s.Gradient,WaterFootprintM=s.Footprint,
                     WaterMinimumM=s.Minimum,WaterMaximumM=s.Maximum,WaterFlow=s.Flow,WaterSpeedMPerS=s.Speed,WaterTurbulence=s.Turbulence,
-                    RiverInfluence=s.RiverInfluence,ContinuousWaterSurface=s.Kind==LocalWaterKind.River};
+                    RiverInfluence=s.RiverInfluence,ContinuousWaterSurface=s.Kind==LocalWaterKind.River,Province=s.Landscape,
+                    Landscape=LandscapeProvince.Region(s.Landscape,point*(owner.RadiusM*owner.HorizontalScale),owner.seed,owner.profiles[cell].Biome)};
             }
         }
         public MapHeightCursor CreateMapHeightCursor()=>new MapHeightCursor(this);
@@ -58,6 +59,7 @@ namespace WorldGen.Core
             }
             if(sum<=0)throw new InvalidOperationException("Map material query has no supporting world cells.");
             ground.Divide(sum);cover.Divide(sum);mid.Divide(sum);forest.Divide(sum);
+            ground=LandscapeProvince.Ground(ground,sample.Province,point*(RadiusM*HorizontalScale),seed);
             sample.Ground=ground;sample.Cover=cover;sample.MidCover=mid;sample.Forest=forest;
             sample.HillHeightM=hills/sum;sample.MountainHeightM=mountains/sum;sample.OceanInfluence=ocean/sum;sample.CoverColor=new V(red/sum,green/sum,blue/sum);
         }

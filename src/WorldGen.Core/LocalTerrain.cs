@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-14";
+        public const string Version = "local-terrain-provinces-15";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -97,6 +97,10 @@ namespace WorldGen.Core
                 profiles[i].MidCover=MidFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).MidPlants,profiles[i].Biome);
                 profiles[i].Forest=TreeFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).Trees,profiles[i].Biome);
                 profiles[i].Forest.ReferenceElevationM=profiles[i].ElevationM;
+                profiles[i].Landscape=LandscapeProvince.Describe(profiles[i].Ground,profiles[i].Biome,
+                    habitat==null?.7:habitat.AridityMilli/1000d,profiles[i].Forest.Coverage,relief,
+                    Math.Max(profiles[i].Glacial,habitat==null?0:habitat.PermafrostPermille/1000d),
+                    habitat==null?0:habitat.FloodFractionPermille/1000d);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
             faceOffsets = new int[profiles.Length + 1]; foreach(int id in world.Surface.Triangles) faceOffsets[id + 1]++;
@@ -108,7 +112,7 @@ namespace WorldGen.Core
             // preview/test fixtures with no complete drainage retain the small
             // interpolation-only fallback; no fine map is serialized into World.
             if(world.Hydrology.Receiver.Length==profiles.Length&&world.Hydrology.VisitOrder.Length==profiles.Length&&world.Surface.Edges.Length>0)
-                Amplification=new HyperAmplification(world,profiles,horizontalScale,token,cachedRiverDatums);
+                Amplification=new HyperAmplification(world,profiles,horizontalScale,token,locator,cachedRiverDatums);
             // Kept as coarse diagnostic/source reach metadata. Amplified terrain
             // and water are generated together; do not fit legacy strips over it.
             Hydrology=new LocalHydrology(world,horizontalScale,token);
@@ -336,6 +340,7 @@ namespace WorldGen.Core
                 {
                     var surface=amplified.Sample(point,dry,mapSpacingM);
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
+                    if(!heightOnly)ground=LandscapeProvince.Ground(ground,surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed);
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
                         Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,Cover=cover,MidCover=midCover,Forest=forest,
@@ -343,7 +348,8 @@ namespace WorldGen.Core
                         WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,
                         WaterKind=surface.Kind,WaterBodyKey=surface.BodyKey,WaterGradient=surface.Gradient,WaterFootprintM=surface.Footprint,
                         WaterFlow=surface.Flow,WaterSpeedMPerS=surface.Speed,WaterTurbulence=surface.Turbulence,ContinuousWaterSurface=surface.Kind==LocalWaterKind.River,
-                        WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum};
+                        WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum,
+                        Landscape=LandscapeProvince.Region(surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed,biome),Province=surface.Landscape};
                 }
                 double baseM = double.NaN;
                 for(int i=0;i<triangles.Length;i++)if(triangles[i].Height(point,out double value)){baseM=value;break;}
@@ -423,12 +429,15 @@ namespace WorldGen.Core
         public GroundCoverProfile Cover;
         public MidCoverProfile MidCover;
         public ForestCoverProfile Forest;
+        public LandscapeControls Landscape;
         internal V Center, FabricOrigin, Axis, Across, Gradient;
         internal double SupportM, Phase;
     }
     public enum LocalWaterKind : byte { None, River, Lake, Ocean }
     public struct LocalTerrainSample
     {
+        public LandscapeRegion Landscape;
+        public LandscapeControls Province;
         public double ElevationM, PreWaterElevationM, BaseElevationM, WaterSurfaceM, WaterMaskM, RiverInfluence, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
         public int Cell;
         public V CoverColor;

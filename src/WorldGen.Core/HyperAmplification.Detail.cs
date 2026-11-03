@@ -44,7 +44,7 @@ namespace WorldGen.Core
                 double cubic=a*a*a*ha+b*b*b*hb+c*c*c*hc+3*(a*a*b*ab+a*b*b*ba+a*a*c*ac+a*c*c*ca+b*b*c*bc+b*c*c*cb)+6*a*b*c*center;
                 // Bounded cubic Hermite/Bezier reconstruction, shared edge controls.
                 // No tile-addressed noise, extra subdivision level or height morph.
-                double delta=Math.Max(-1.5,Math.Min(1.5,(cubic-s.UnshapedHeight)*.85));
+                double delta=Math.Max(-1.5,Math.Min(1.5,(cubic-(s.UnshapedHeight-s.LandscapeOffset))*.85));
                 double activity=OrogenMorphology.Smooth(8,120,a*(f.A.Hill+f.A.Mountain*.25)+b*(f.B.Hill+f.B.Mountain*.25)+c*(f.C.Hill+f.C.Mountain*.25));
                 double sediment=a*f.A.Sediment+b*f.B.Sediment+c*f.C.Sediment;
                 double amplitude=(.035+.20*activity)*(1-.7*D.Clamp(sediment));

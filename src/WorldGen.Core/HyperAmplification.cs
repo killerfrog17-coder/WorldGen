@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-12";
+        public const string Version = "hyper-amplification-provinces-13";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -29,6 +29,16 @@ namespace WorldGen.Core
         int rootSweep,edgeSweep;
         readonly double radius, scale;
         readonly int seed;
+        readonly CellLocator landscapeLocator;
+        readonly SmallWaterBodies smallWater;
+        public int CachedSmallWaterCandidates=>smallWater.CachedCandidates;
+        public SmallLake[] SmallLakesNear(V center,double rangeM)
+        {
+            var probe=new Patch(this,Array.Empty<int>());var found=new Dictionary<ulong,SmallLake>();
+            foreach(var candidate in smallWater.Candidates(center,rangeM))
+            {var lake=smallWater.At(candidate,probe.SmallWaterGroundAt);if(lake!=null)found[lake.Id]=lake;}
+            var result=new SmallLake[found.Count];found.Values.CopyTo(result,0);Array.Sort(result,(a,b)=>a.Id.CompareTo(b.Id));return result;
+        }
         readonly int terminalDepth;
         long subdivisions;
         public double PreparationMilliseconds { get; private set; }
@@ -58,6 +68,7 @@ namespace WorldGen.Core
         }
         internal sealed class Vertex
         {
+            public LandscapeControls Landscape;
             public V DetailGradient;
             public volatile bool DetailGradientReady;
             public ulong Key;
@@ -179,9 +190,10 @@ namespace WorldGen.Core
         static double Random(ulong key, uint stream) => (Rng.Mix((uint)key ^ Rng.Mix((uint)(key >> 32)) ^ stream) >> 8) / 16777216.0;
         static double Lerp(double a, double b, double t) => a + (b - a) * t;
 
-        internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token,double[] cachedRiverDatums=null)
+        internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token,CellLocator landscapeLocator,double[] cachedRiverDatums=null)
         {
             var watch = Stopwatch.StartNew(); radius = world.Recipe.RadiusKm * 1000; scale = horizontalScale; seed = world.Recipe.Seed;
+            this.landscapeLocator=landscapeLocator;smallWater=new SmallWaterBodies(seed,radius*scale);
             int count = profiles.Length; var nodes = rootNodes = new Vertex[count]; var hydro = world.Hydrology;
             var heights = new double[count]; var flows = new double[count];
             for (int i = 0; i < count; i++)
@@ -222,7 +234,7 @@ namespace WorldGen.Core
                     Plateau = p.Plateau, Sediment = p.Sediment,
                     Age = world.Recipe.TerrainSource=="Earth"?Lerp(350,20,OrogenMorphology.Smooth(450,1800,p.CoarseReliefM)):D.Clamp((1.95-p.Sharpness)*333,0,600),
                     Hardness=D.Clamp(p.Ground.RockMixA.X+p.Ground.RockMixA.Y+p.Ground.RockMixB.Z),
-                    Dryness = p.Biome == Biome.Desert ? 1 : p.Biome == Biome.Savanna ? .55 : p.Biome == Biome.Grassland ? .35 : .1 };
+                    Dryness = p.Biome == Biome.Desert ? 1 : p.Biome == Biome.Savanna ? .55 : p.Biome == Biome.Grassland ? .35 : .1,Landscape=p.Landscape };
             }
             // Reconcile actual confluences once. Fine subdivision inherits these
             // ordered endpoint values; it never performs a catchment walk.
@@ -429,7 +441,7 @@ namespace WorldGen.Core
                 Crust = (a.Crust + b.Crust) * .5, Mountain = (a.Mountain + b.Mountain) * .5,
                 Hill = (a.Hill + b.Hill) * .5, Plateau = (a.Plateau + b.Plateau) * .5,
                 Sediment = (a.Sediment + b.Sediment) * .5, Age = (a.Age + b.Age) * .5, Dryness = (a.Dryness + b.Dryness) * .5,
-                Hardness=(a.Hardness+b.Hardness)*.5,
+                Hardness=(a.Hardness+b.Hardness)*.5,Landscape=LandscapeControls.Blend(a.Landscape,b.Landscape,.5),
                 Height = (a.Height + b.Height) * .5, Water = (a.Water + b.Water) * .5,
                 RiverBed = (a.RiverBed + b.RiverBed) * .5, Flow = (a.Flow + b.Flow) * .5,SeaWeight=(a.SeaWeight+b.SeaWeight)*.5 };
             if(a.LakeKey!=0||b.LakeKey!=0)
@@ -595,6 +607,7 @@ namespace WorldGen.Core
                     double activity=OrogenMorphology.Smooth(12,100,node.Hill+node.Mountain*.25);
                     double gain=(.12+.68*activity)*(1-.8*node.Plateau)*(1-.6*node.Sediment)
                         *Lerp(1,.28,OrogenMorphology.Smooth(2,7,edge.Depth));
+                    gain*=1-.82*node.Landscape.Flatness*(1-OrogenMorphology.Smooth(800,2400,length));
                     // A long edge of a sliver triangle is not permission for a
                     // cliff: bound new detail by the incident face's altitude.
                     double altitude=double.MaxValue;
@@ -735,10 +748,11 @@ namespace WorldGen.Core
         {
             readonly HyperAmplification owner;
             readonly int[] faces;
+            readonly Func<V,SmallWaterGround> smallWaterGround;
             Face last;
             public Patch(HyperAmplification owner, int[] triangleOffsets)
             {
-                this.owner=owner;faces=new int[triangleOffsets.Length];
+                this.owner=owner;smallWaterGround=SmallWaterGroundAt;faces=new int[triangleOffsets.Length];
                 for(int i=0;i<faces.Length;i++)faces[i]=triangleOffsets[i]/3;
             }
             Face Locate(V point,out double a,out double b,out double c,double mapSpacingM=0)
@@ -790,7 +804,17 @@ namespace WorldGen.Core
                 a = Math.Max(0, a); b = Math.Max(0, b); c = Math.Max(0, c); double sum = a + b + c; a /= sum; b /= sum; c /= sum;
                 return found;
             }
-            public Surface Sample(V point,bool bare=false,double mapSpacingM=0)
+            internal SmallWaterGround SmallWaterGroundAt(V point)
+            {
+                int cell=owner.landscapeLocator.Nearest(point);var nearby=new System.Collections.Generic.HashSet<int>();
+                void Add(int vertex){for(int i=owner.riverFaceOffsets[vertex];i<owner.riverFaceOffsets[vertex+1];i++)nearby.Add(owner.riverFaces[i]*3);}
+                for(int i=owner.riverFaceOffsets[cell];i<owner.riverFaceOffsets[cell+1];i++)
+                {var f=owner.roots[owner.riverFaces[i]];Add(f.A);Add(f.B);Add(f.C);}
+                var offsets=new int[nearby.Count];nearby.CopyTo(offsets);Array.Sort(offsets);
+                var surface=new Patch(owner,offsets).Sample(point,false,0,false);
+                return new SmallWaterGround(surface.Height,surface.Water,surface.Kind,surface.Landscape);
+            }
+            public Surface Sample(V point,bool bare=false,double mapSpacingM=0,bool localWater=true)
             {
                 var found=Locate(point,out double a,out double b,out double c,mapSpacingM);
                 var pa=Profile(found.A);var pb=Profile(found.B);var pc=Profile(found.C);
@@ -818,21 +842,38 @@ namespace WorldGen.Core
                 if(ocean&&(height<0||kind==LocalWaterKind.None))
                 {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;footprint=double.PositiveInfinity;mask=-height;}
                 double influence=OrogenMorphology.Smooth(0,.04,a*found.A.Flow+b*found.B.Flow+c*found.C.Flow);
+                var landscape=LandscapeControls.Mix(found.A.Landscape,found.B.Landscape,found.C.Landscape,a,b,c);
+                double landscapeOffset=standingBasin<0&&!standingOcean?LandscapeProvince.HeightOffset(point*(owner.radius*owner.scale),owner.seed,landscape)*OrogenMorphology.Smooth(3,30,pre):0;
+                height+=landscapeOffset;pre+=landscapeOffset;if(!double.IsNaN(water))mask=water-height;
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
                     Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,Minimum=minimum,Maximum=maximum,
-                    Flow=waterFlow,Speed=speed,Turbulence=turbulence,DetailProtection=1};
+                    Flow=waterFlow,Speed=speed,Turbulence=turbulence,DetailProtection=1,Landscape=landscape,LandscapeOffset=landscapeOffset};
                 if(!bare)
                 {
                     // Overview pixels need not build metre-scale channels or
                     // the sub-metre beauty pass. Normal Sample's zero path is literal.
                     if(mapSpacingM<=128)ApplyRiverscape(point,ref result);
                     if(mapSpacingM<=FinestSpacingM)ApplySurfaceDetail(point,found,a,b,c,ref result);
+                    if(localWater&&mapSpacingM<=128&&result.Kind==LocalWaterKind.None&&landscape.Moisture>=.18)
+                    {
+                        var pond=owner.smallWater.At(point,smallWaterGround);
+                        if(pond!=null)
+                        {
+                            double r=pond.NormalizedRadius(point,owner.radius*owner.scale);
+                            result.Height=pond.Bed(result.Height,r);result.Water=pond.Level;result.Mask=pond.Level-result.Height;
+                            result.Kind=LocalWaterKind.Lake;result.BodyKey=pond.Id;result.Gradient=default;result.Flow=default;
+                            result.Footprint=(1-r)*pond.Radius;result.Minimum=result.Maximum=pond.Level;
+                            result.Speed=result.Turbulence=0;
+                        }
+                    }
                 }
                 return result;
             }
         }
         internal struct Surface
         {
+            public LandscapeControls Landscape;
+            public double LandscapeOffset;
             public double Height, UnshapedHeight, Water, Mask, RiverInfluence,Footprint,Minimum,Maximum,Speed,Turbulence,DetailProtection;
             public LocalWaterKind Kind;public ulong BodyKey;public V Gradient,Flow;
         }

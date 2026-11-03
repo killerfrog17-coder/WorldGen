@@ -49,6 +49,27 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov17:25Z OWNER CONTINUE remains; stage1 VERIFIED/SELECTED A cd7e747,
+immutable source tag living-npcs-foundation-20261103 (afa7fec). Stage2 now ACTIVE,
+stage3 UNTOUCHED. Regional controls/new SmallWaterBodies code currently UNCOMMITTED,
+compiled Core/Presentation +1567focused checks PASS; actual current190k pond +
+renderable mesh footprint/shared-chunk heights PASS (landscape-world-mesh.log).
+Small basins: physical 768m shell-grid candidates, radius12..90m, complete gentle
+rim survey, no arid/slope/channel placement, bounded4096surveys/512neighbourhoods;
+real bed and footprint paired, existing swimming/drinking paths, distinct highbit
+body IDs avoid inheriting drainage-ocean salinity. Provinces add real dunes,
+sediment/rock relief, wet flatness, material changes before river fitting.
+Terrain modelversion provinces15 invalidates old derivation; global source/history
+unchanged. Current actual warm land12675query timings old709/689ms,new648/806ms,
+cold terrain prep26.21->27.34s; no FPS claim. Earlier cost-first FAILED anonymous
+JSON serializer, corrected2marine then land run. All receipts retained.
+New native landscape fixture written (pond + named region flag) but NOT built/
+accepted yet. Need full managed inactiveB build (new NPC packed data), actual
+multi-region rendered inspection/water/terrain/performance checks. A remains
+playable NPC checkpoint; do not change shortcut until stage2 genuinely ready.
+Research assets/verification/landscape-research-20261103.json. No paid/subagents/
+owner apps closed; owner3 files untouched. Continue work until explicit stop.
+
 SELECTED3Nov16:55Z LIVING NPC FOUNDATION COMPLETE; OWNER CONTINUE still active.
 Production c1ec937, A managed NON-DEVELOPMENT/ScriptsOnly BuiltUtc16:39:40Z.
 Six SAME final package cases all EXIT0: poses458,wet31,cold31,aquatic19,

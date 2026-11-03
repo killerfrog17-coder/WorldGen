@@ -13,7 +13,7 @@ namespace WorldGen.Core
         public static WaterQuality From(LocalTerrainSample sample,HabitatCell habitat=null,double lakeSalinity=double.NaN)
         {
             double salinity=sample.WaterKind==LocalWaterKind.Ocean?35:.08;
-            if(sample.WaterKind==LocalWaterKind.Lake)salinity=double.IsFinite(lakeSalinity)?lakeSalinity:(habitat?.SalinityMilliPpt??80)*.001;
+            if(sample.WaterKind==LocalWaterKind.Lake)salinity=SmallWaterBodies.IsLocal(sample.WaterBodyKey)?.08:double.IsFinite(lakeSalinity)?lakeSalinity:(habitat?.SalinityMilliPpt??80)*.001;
             if(sample.WaterKind==LocalWaterKind.River&&habitat?.Flooding==FloodRegime.Tidal&&sample.WaterSurfaceM<2)
                 salinity=Math.Max(salinity,habitat.SalinityMilliPpt*.001*D.Clamp(1-Math.Max(0,sample.WaterSurfaceM)/2));
             double mud=D.Clamp(sample.Sediment*.75+sample.WaterTurbulence*.1+(habitat?.FloodFractionPermille??0)*.00025);

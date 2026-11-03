@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--landscape-regions")){LandscapeRegionTests.Run();return;}
+if(args.Contains("--landscape-world")){LandscapeRegionTests.World(args[1],args[2]);return;}
+if(args.Contains("--landscape-cost")){LandscapeRegionTests.Benchmark(args[1],args[2]);return;}
 if(args.Contains("--human-life")){HumanLocalLifeTests.Run(args[1]);return;}
 if(args.Contains("--human-sites")){HumanSiteTests.Run(args[1]);return;}
 if(args.Contains("--human-terrain-cache")){var w=WorldFile.ReadPlanetaryFile(args[1]);var t=System.Diagnostics.Stopwatch.StartNew();var terrain=LocalTerrainDerivationCache.Create(w,horizontalScale:double.Parse(args[2],System.Globalization.CultureInfo.InvariantCulture));Console.WriteLine($"Terrain cache {args[2]}: {t.Elapsed.TotalSeconds:F3}s; reused={terrain.Amplification.UsedCachedRiverDatums}; fit={terrain.Amplification.RiverscapeFittingMilliseconds:F3}ms");return;}

@@ -1,0 +1,16 @@
+{
+  "scope": "Stage 2: local landscape settings and small enclosed water bodies. Existing broad world geography stays authoritative. No volcano, cave, waterfall or other landmark catalogue expansion; stage 3 tree art remains separate.",
+  "sources": [
+    {"url":"https://pubs.usgs.gov/gip/deserts/what/","title":"USGS: What Is a Desert?","design":"Dryness does not imply a sand sea. Preserve extensive gravel, bare rock and sparse-cover settings alongside sandy provinces."},
+    {"url":"https://pubs.usgs.gov/gip/deserts/types/","title":"USGS: Types of Deserts","design":"Climate and geographical context distinguish hot, cold, rain-shadow and coastal deserts. Ground materials are an independent axis of variation."},
+    {"url":"https://www.nps.gov/subjects/geology/aeolian-landforms.htm","title":"NPS: Aeolian Landforms","design":"Dunes require available loose sediment as well as wind and limited stabilising cover. Coherent sand availability gates dune relief; desert is not a universal dune switch."},
+    {"url":"https://www.usgs.gov/geology-and-ecology-of-national-parks/great-sand-dunes-national-park-and-preserve","title":"USGS: Great Sand Dunes","design":"Dune fields can coexist with extensive sand sheets. Model accumulation provinces rather than covering every sandy surface with identical ridges."},
+    {"url":"https://www.epa.gov/wetlands/classification-and-types-wetlands","title":"EPA: Classification and Types of Wetlands","design":"Distinguish open herbaceous marshes, woody swamps and organic peatlands; their saturation, soil chemistry and vegetation differ. Wetlands need not be flooded continuously."},
+    {"url":"https://www.nps.gov/articles/kettles.htm","title":"NPS: Kettles","design":"Glacial deposits support enclosed depressions that may hold small lakes or ponds. Water must occupy a basin rather than a plane crossing an arbitrary hillside."},
+    {"url":"https://pubs.usgs.gov/info/loess/","title":"USGS: Geology of the Loess Hills, Iowa","design":"Windblown silt supports a distinct rolling/dissected landscape; it is different from dune sand and exposed hard bedrock."},
+    {"url":"https://dggs.alaska.gov/webpubs/dggs/gb/text/gb011.pdf","title":"Alaska geological survey: Guide to Permafrost and Quaternary Geology","design":"Ice-rich lowlands can contain shallow thaw depressions and ponds. This pass uses static derived glacial/wet-lowland settings, without claiming a permafrost thaw simulation."}
+  ],
+  "model_priors": "Metre-scale wavelengths, material thresholds, pond encounter density, survey tolerances and depth ranges are tunable game-model priors. They are not direct archaeological or global hydrological measurements.",
+  "architecture": "Continuous regional controls over shared terrain vertices; dry substrate includes regional relief before channel fitting. Sparse world-space pond candidates require a complete gentle rim survey; cut ground and water footprint are evaluated together. Bounded local caches, no global pond/entity tick ledger.",
+  "status": "In progress. Core controls and actual generated-world pond/mesh tests pass; native visual/performance acceptance and regional coverage review still required. Selected NPC build slot-a remains unchanged."
+}
