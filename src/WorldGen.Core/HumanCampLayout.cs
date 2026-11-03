@@ -128,6 +128,9 @@ namespace WorldGen.Core
                 {
                     var hearthOffset=HearthOffset(people,k,site,seed);var position=At(hearthOffset.X,hearthOffset.Z);
                     var fire=Object(CampKind.Fire,"hearth-"+k,position);fire.AshKg=.12;
+                    // Shared meals and evening seats need a usable trampled
+                    // court, not only a bare patch underneath the flame itself.
+                    fire.ClearedWidthM=fire.ClearedDepthM=7;
                     fire.Materials.Add(Item(PossessionKind.KindlingBundle,position,"hearth-"+k+"-kindling",.18));
                     var wood=Item(PossessionKind.Branch,position,"hearth-"+k+"-wood",2.4);wood.HeightM=.4;wood.WidthM=.04;wood.DepthM=.04;fire.Materials.Add(wood);
                     bool active=group.LocalHour<8||group.LocalHour>16||group.Camp.Cover==CampCover.Hide;
