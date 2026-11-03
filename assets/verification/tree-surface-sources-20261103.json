@@ -26,7 +26,7 @@
       "application": "Keep cutout geometry/overdraw bounded, reuse instanced art and measure actual forest views."
     }
   ],
-  "processing": "Photographed isolated leaf alpha/normal cutouts, neutral mean tint, deterministic attached twig assemblies, RGB edge dilation. Continuous blade interiors retain geometric frond silhouettes. Registered scanned bark.",
+  "processing": "Photographed isolated leaf alpha/normal cutouts, neutral mean tint, deterministic attached twig assemblies, RGB edge dilation. Continuous blade interiors retain geometric frond silhouettes. Registered scanned bark. TreeSurfaceArtBuilder preserves alpha coverage and pads surface colour/normal/depth at every mip.",
   "gpu": "32 shoot layers x512 BC7 colour/normal; 5 bark layers x512 BC7 colour/normal. CPU bake pixels downsampled to256. No extra draw calls or shadow lights.",
   "inputs": [
     {

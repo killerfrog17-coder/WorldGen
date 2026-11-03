@@ -96,7 +96,7 @@ public static class LocalTreeTextures
             float target=covered/(float)c.Length;
             for(int mip=0,width=size;;mip++,width/=2)
             {
-                token.ThrowIfCancellationRequested();cs.Add(c);nsLevels.Add(n);if(width==1)break;
+                token.ThrowIfCancellationRequested();PadTransparentSurface(c,n,width);cs.Add(c);nsLevels.Add(n);if(width==1)break;
                 int nextWidth=width/2;var next=new Color32[nextWidth*nextWidth];var ns=new Color32[next.Length];
                 for(int y=0;y<nextWidth;y++)for(int x=0;x<nextWidth;x++)
                 {
@@ -115,6 +115,48 @@ public static class LocalTreeTextures
             prepared.Colours[layer]=cs.ToArray();prepared.Normals[layer]=nsLevels.ToArray();
         }
         return prepared;
+    }
+    static int ClosestSurface(int best,int candidate,int x,int y,int width)
+    {
+        if(candidate<0)return best;if(best<0)return candidate;
+        int bx=best%width-x,by=best/width-y,cx=candidate%width-x,cy=candidate/width-y;
+        return cx*cx+cy*cy<bx*bx+by*by?candidate:best;
+    }
+    static void PadTransparentSurface(Color32[] colours,Color32[] normals,int width)
+    {
+        bool empty=false,covered=false;foreach(var p in colours){empty|=p.a==0;covered|=p.a>0;}
+        if(!empty||!covered)return;
+        var nearest=new int[colours.Length];for(int i=0;i<nearest.Length;i++)nearest[i]=colours[i].a>0?i:-1;
+        // Two bounded sweeps extend surface attributes into empty texels. Alpha
+        // and every occupied texel stay untouched, including at every mip.
+        // Zero-filled normal/depth texels otherwise bend parallax rays toward
+        // the atlas background and blacken filtered leaf edges.
+        for(int y=0;y<width;y++)for(int x=0;x<width;x++)
+        {
+            int at=y*width+x,best=nearest[at];if(colours[at].a>0)continue;
+            if(x>0)best=ClosestSurface(best,nearest[at-1],x,y,width);
+            if(y>0)
+            {
+                best=ClosestSurface(best,nearest[at-width],x,y,width);
+                if(x>0)best=ClosestSurface(best,nearest[at-width-1],x,y,width);
+                if(x+1<width)best=ClosestSurface(best,nearest[at-width+1],x,y,width);
+            }
+            nearest[at]=best;
+        }
+        for(int y=width-1;y>=0;y--)for(int x=width-1;x>=0;x--)
+        {
+            int at=y*width+x,best=nearest[at];if(colours[at].a>0)continue;
+            if(x+1<width)best=ClosestSurface(best,nearest[at+1],x,y,width);
+            if(y+1<width)
+            {
+                best=ClosestSurface(best,nearest[at+width],x,y,width);
+                if(x>0)best=ClosestSurface(best,nearest[at+width-1],x,y,width);
+                if(x+1<width)best=ClosestSurface(best,nearest[at+width+1],x,y,width);
+            }
+            nearest[at]=best;
+        }
+        for(int i=0;i<nearest.Length;i++)if(colours[i].a==0&&nearest[i]>=0)
+        {var p=colours[nearest[i]];p.a=0;colours[i]=p;normals[i]=normals[nearest[i]];}
     }
     public static void Upload(Prepared data,int size,string name,out Texture2DArray colour,out Texture2DArray normal)
     {

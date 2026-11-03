@@ -69,6 +69,20 @@ public static class WorldGenTreeAssetReview
     }
     static void CheckSurfaceSupport(string folder)
     {
+        var edgeColour=new Color32[16];var edgeNormal=new Color32[16];
+        edgeColour[5]=new Color32(70,150,30,255);edgeNormal[5]=new Color32(128,140,240,170);
+        edgeColour[6]=new Color32(120,175,75,127);edgeNormal[6]=new Color32(160,128,248,175);
+        var originalColour=(Color32[])edgeColour.Clone();var originalNormal=(Color32[])edgeNormal.Clone();
+        var edge=LocalTreeTextures.Prepare(new[]{edgeColour},new[]{edgeNormal},4);
+        for(int i=0;i<16;i++)
+        {
+            if(edge.Colours[0][0][i].a!=originalColour[i].a)throw new Exception("Padding changes alpha silhouette");
+            if(originalColour[i].a>0&&(!edge.Colours[0][0][i].Equals(originalColour[i])||!edge.Normals[0][0][i].Equals(originalNormal[i])))throw new Exception("Padding changes a real surface texel");
+            if(edge.Normals[0][0][i].a<170||edge.Colours[0][0][i].g<150)throw new Exception("Padding leaves an empty normal/depth fringe");
+        }
+        for(int mip=0;mip<edge.Colours[0].Length;mip++)for(int i=0;i<edge.Colours[0][mip].Length;i++)
+            if(edge.Normals[0][mip][i].a<170||edge.Normals[0][mip][i].a>175||edge.Colours[0][mip][i].g<150)throw new Exception("A lower mip loses padded surface attributes");
+        Debug.Log("TREE EDGE PADDING PASS: alpha and real surfaces unchanged; empty texels retain valid colour/normal/depth.");
         var names=new[]{"shoot-albedo","shoot-normal","bark-albedo","bark-normal"};
         var report=new SurfaceSupport{Formats=new string[4],Layers=new LayerSupport[20],CpuPixelBytes=74L*256*256*4};
         long Bytes(int size,int layers,bool compressed)
