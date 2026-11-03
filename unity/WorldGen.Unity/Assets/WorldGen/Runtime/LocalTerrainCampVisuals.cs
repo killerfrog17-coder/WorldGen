@@ -50,6 +50,7 @@ public sealed partial class LocalTerrainExplorer
         if(Ready&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&!DeathVisible)Camp.SimulatedSeconds+=Math.Min(.25,Time.unscaledDeltaTime)*CampTimeRate*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
         UpdateCampPlacement();UpdateBlueprintPlacement();UpdateBlueprintWork();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
         RefreshFrameStructure();
+        long npcVisualStart=System.Diagnostics.Stopwatch.GetTimestamp();int npcVisualsAdded=0;
         foreach(var c in Camp.Objects)
         {
             double elapsed=Math.Max(0,Camp.SimulatedSeconds-c.LastSimulatedSeconds);c.LastSimulatedSeconds=Camp.SimulatedSeconds;
@@ -58,7 +59,11 @@ public sealed partial class LocalTerrainExplorer
             if(!near){InvalidateCampVisual(c);continue;}
             int foodState=IsBlueprint(c)?BlueprintContentsState(c):CampFoodState(c);
             if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM||old.FoodState!=foodState)){InvalidateCampVisual(c);}
-            if(!campVisuals.TryGetValue(c.Id,out var v)){v=CreateCampVisual(c);campVisuals.Add(c.Id,v);}
+            if(!campVisuals.TryGetValue(c.Id,out var v))
+            {
+                if(c.NpcGroup!=0&&(npcVisualsAdded>=2||ElapsedHumanMs(npcVisualStart)>2))continue;
+                v=CreateCampVisual(c);campVisuals.Add(c.Id,v);if(c.NpcGroup!=0)npcVisualsAdded++;
+            }
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);
             if(v.GroundLevel!=level){v.SurfaceRotation=CampSurfaceRotation(c);v.GroundLevel=level;}
             if(c.Kind==CampKind.FrameWood)v.SurfaceRotation=FrameRotation(c);

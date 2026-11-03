@@ -37,6 +37,8 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         public KimodoHumanClip[] Clips;
         public float[] Weights;
         public string Current;
+        public Dictionary<string,int> Index;
+        public Dictionary<string,KimodoHumanClip> Library;public int Active;public bool Dynamic;
     }
     public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight,Vector3? nativeEyeInHead=null,bool npcActivity=false,KimodoPersonMotion campMotion=null)
     {
@@ -46,7 +48,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         eyeInHead=nativeEyeInHead??head.InverseTransformPoint(root.TransformPoint(new Vector3(0,eyeHeight,person.EyeForward>.05f?person.EyeForward:.15f)));
         RestEye=LocalEye;playerIdle=player;
         var all=campMotion==null?person.Clips:person.Clips.Concat(campMotion.Clips).ToArray();Clips=all.ToDictionary(c=>c.Role,StringComparer.Ordinal);
-        locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)).ToArray());
+        locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)&&(!npcActivity||c.Role=="Idle"||c.Role=="Walk"||c.Role=="Run"||c.Role=="Sprint"||c.Role=="Crouch"||c.Role=="CrouchIdle"||c.Role=="Jump")).ToArray());
         Output=AnimationLayerMixerPlayable.Create(graph,player?4:npcActivity?3:1);
         graph.Connect(locomotion.Mixer,0,Output,0);Output.SetInputWeight(0,1);
         if(!player)
@@ -54,9 +56,9 @@ sealed class WorldGenSharedHumanMotion : IDisposable
             if(npcActivity)
             {
                 var roles=new HashSet<string>{"Gather","Eat","Drink","WorkCut","WorkDig","WorkKnapping","WorkTwist","ToolGuard","FistsGuard","SleepSide","SitGround","Social","WorkKneeling","Crawl"};
-                body=MakeTrack(all.Where(c=>roles.Contains(c.Role)).ToArray());graph.Connect(body.Mixer,0,Output,1);
+                body=MakeDynamicTrack(all.Where(c=>roles.Contains(c.Role)).ToArray());graph.Connect(body.Mixer,0,Output,1);
                 var carry=new HashSet<string>{"SpearReady1","ToolReady","CarryLarge","Eat","Drink","WorkKnapping","WorkCut","WorkTwist"};
-                upper=MakeTrack(all.Where(c=>carry.Contains(c.Role)).ToArray());graph.Connect(upper.Mixer,0,Output,2);
+                upper=MakeDynamicTrack(all.Where(c=>carry.Contains(c.Role)).ToArray());graph.Connect(upper.Mixer,0,Output,2);
                 var npcSpine=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="spine_01");
                 upperMask=MakeMask(root,npcSpine);Output.SetLayerMaskFromAvatarMask(2,upperMask);
             }
@@ -85,26 +87,52 @@ sealed class WorldGenSharedHumanMotion : IDisposable
     }
     Track MakeTrack(KimodoHumanClip[] clips)
     {
-        var track=new Track{Clips=clips,Nodes=new AnimationClipPlayable[clips.Length],Weights=new float[clips.Length]};
+        var track=new Track{Clips=clips,Nodes=new AnimationClipPlayable[clips.Length],Weights=new float[clips.Length],Index=new Dictionary<string,int>()};
         track.Mixer=AnimationMixerPlayable.Create(graph,clips.Length);
         for(int i=0;i<clips.Length;i++)
         {
             track.Nodes[i]=AnimationClipPlayable.Create(graph,clips[i].Clip);track.Nodes[i].SetApplyFootIK(false);track.Nodes[i].SetApplyPlayableIK(false);track.Nodes[i].SetSpeed(0);
+            track.Index[clips[i].Role]=i;
             graph.Connect(track.Nodes[i],0,track.Mixer,i);
         }
         return track;
     }
+    Track MakeDynamicTrack(KimodoHumanClip[] clips)
+    {
+        // NPC routines need the current clip and its outgoing blend, not a
+        // permanently connected playable for every activity they might do.
+        var track=new Track{Dynamic=true,Clips=new KimodoHumanClip[2],Nodes=new AnimationClipPlayable[2],Weights=new float[2],Index=new Dictionary<string,int>(),Library=clips.ToDictionary(c=>c.Role,StringComparer.Ordinal)};
+        foreach(var clip in clips)track.Index[clip.Role]=0;track.Mixer=AnimationMixerPlayable.Create(graph,2);return track;
+    }
+    void PoseDynamic(Track track,string role,double seconds,float dt)
+    {
+        if(!track.Library.TryGetValue(role,out var clip))return;
+        if(track.Current!=role)
+        {
+            int next=1-track.Active;bool previous=track.Nodes[track.Active].IsValid();
+            if(track.Nodes[next].IsValid()){graph.Disconnect(track.Mixer,next);graph.DestroyPlayable(track.Nodes[next]);}
+            var node=AnimationClipPlayable.Create(graph,clip.Clip);node.SetApplyFootIK(false);node.SetApplyPlayableIK(false);node.SetSpeed(0);
+            track.Nodes[next]=node;track.Clips[next]=clip;graph.Connect(node,0,track.Mixer,next);track.Weights[next]=previous?0:1;track.Active=next;track.Current=role;
+        }
+        int active=track.Active,old=1-active;track.Weights[active]=Mathf.MoveTowards(track.Weights[active],1,dt/.12f);track.Weights[old]=1-track.Weights[active];
+        track.Nodes[active].SetTime(clip.Loop?Math.Max(0,seconds)%clip.Duration:Math.Max(0,Math.Min(clip.Duration-.00001,seconds)));track.Mixer.SetInputWeight(active,track.Weights[active]);track.Mixer.SetInputWeight(old,track.Weights[old]);
+        if(track.Nodes[old].IsValid())
+        {
+            if(track.Weights[old]==0){graph.Disconnect(track.Mixer,old);graph.DestroyPlayable(track.Nodes[old]);track.Nodes[old]=default;track.Clips[old]=null;}
+            else track.Nodes[old].SetTime(track.Nodes[old].GetTime()+dt);
+        }
+    }
     public double Duration(string role)=>Clips.TryGetValue(role,out var c)?c.Duration:1;
     public void Routine(string role,double seconds,float dt)
     {
-        if(body==null||playerIdle)return;bool available=role!=null&&body.Clips.Any(c=>c.Role==role);
+        if(body==null||playerIdle)return;bool available=role!=null&&body.Index.ContainsKey(role);
         ActionRole=available?role:null;ActionTime=seconds;
         if(available)Pose(body,role,seconds,dt);
         bodyWeight=Mathf.Lerp(bodyWeight,available?1:0,1-Mathf.Exp(-dt*6));Output.SetInputWeight(1,bodyWeight);
     }
     public void Carry(string role,double seconds,float dt)
     {
-        if(upper==null||playerIdle)return;bool available=role!=null&&upper.Clips.Any(c=>c.Role==role);if(available)Pose(upper,role,seconds,dt);
+        if(upper==null||playerIdle)return;bool available=role!=null&&upper.Index.ContainsKey(role);if(available)Pose(upper,role,seconds,dt);
         upperWeight=Mathf.Lerp(upperWeight,available?1:0,1-Mathf.Exp(-dt*8));Output.SetInputWeight(2,upperWeight);
     }
     public float LocomotionWeight(string role)
@@ -154,7 +182,8 @@ sealed class WorldGenSharedHumanMotion : IDisposable
                 if(c.Role=="StrafeLeft"&&direction.x<0||c.Role=="StrafeRight"&&direction.x>0)goal=sideways*moving*(1-directionalRun);
                 if(c.Role=="RunLeft"&&direction.x<0||c.Role=="RunRight"&&direction.x>0)goal=sideways*moving*directionalRun;
             }
-            locomotion.Weights[i]=Mathf.Lerp(locomotion.Weights[i],goal,1-Mathf.Exp(-dt*14));total+=locomotion.Weights[i];
+            locomotion.Weights[i]=Mathf.Lerp(locomotion.Weights[i],goal,1-Mathf.Exp(-dt*14));if(locomotion.Weights[i]<.00001f&&goal==0)locomotion.Weights[i]=0;total+=locomotion.Weights[i];
+            if(locomotion.Weights[i]==0&&goal==0)continue;
             double time=c.Role=="Jump"?Math.Min(c.Duration-.0001,(clock-jumpAt)/.61*c.Duration):c.Role=="Walk"||c.Role.StartsWith("Run",StringComparison.Ordinal)||c.Role=="Sprint"||c.Role=="Crouch"||c.Role=="WalkBack"||c.Role.StartsWith("Strafe",StringComparison.Ordinal)?phase*c.Duration:clock%c.Duration;
             if(playerIdle&&(c.Role=="Idle"||c.Role=="CrouchIdle"))time=0;
             locomotion.Nodes[i].SetTime(Math.Max(0,time));
@@ -164,12 +193,14 @@ sealed class WorldGenSharedHumanMotion : IDisposable
     }
     void Pose(Track track,string role,double seconds,float dt)
     {
+        if(track.Dynamic){PoseDynamic(track,role,seconds,dt);return;}
         if(!Clips.ContainsKey(role))role="Empty";
         bool initial=track.Current==null;track.Current=role;float total=0;
         for(int i=0;i<track.Nodes.Length;i++)
         {
             float goal=track.Clips[i].Role==role?1:0;
             track.Weights[i]=initial?goal:Mathf.MoveTowards(track.Weights[i],goal,dt/.12f);total+=track.Weights[i];
+            if(track.Weights[i]==0&&goal==0)continue;
             var c=track.Clips[i];double time=goal>0?seconds:track.Nodes[i].GetTime()+dt;
             if(playerIdle&&MoveSpeed<.08f&&(c.Role.Contains("Ready")||c.Role=="CarryLarge"||c.Role=="ToolWalk"))time=0;
             track.Nodes[i].SetTime(c.Loop?Math.Max(0,time)%c.Duration:Math.Max(0,Math.Min(c.Duration-.00001,time)));

@@ -42,6 +42,19 @@ static class HumanLocalLifeTests
             Check(objects.All(o=>o.NpcGroup==group.Band.Id&&o.NpcSite==group.Camp.Id),"Real camp materials have their community/site provenance");
             var repeatedObjects=HumanCampLayout.Create(group,people,group.Camp.Position,world.Recipe.RadiusKm*1000*.1,world.Recipe.Seed);
             Check(objects.Select(o=>o.Id).SequenceEqual(repeatedObjects.Select(o=>o.Id))&&objects.SelectMany(o=>o.OwnedMaterials()).Select(p=>p.Id).SequenceEqual(repeatedObjects.SelectMany(o=>o.OwnedMaterials()).Select(p=>p.Id)),"Structures and their material identities regenerate deterministically");
+            var construction=new CampState();
+            foreach(double progress in new[]{.05,.29,.49,.76,1d})
+            {
+                var building=new HumanGroupSituation{Band=group.Band,Camp=group.Camp,Phase=HumanCampPhase.SettingUp,Progress=progress,LocalHour=9};
+                var components=HumanCampLayout.Create(building,people,group.Camp.Position,world.Recipe.RadiusKm*1000*.1,world.Recipe.Seed);
+                foreach(var part in components)
+                {
+                    var old=construction.Objects.FirstOrDefault(o=>o.Id==part.Id);
+                    if(old==null)construction.Objects.Add(part);else if(part.Blueprint!=null)old.Blueprint=part.Blueprint;
+                }
+                construction.Validate();
+                Check(true,"Construction preserves existing beds/hearths without colliding with newly added frame material identities");
+            }
             var byId=people.FamilyRecords.ToDictionary(p=>p.Id);
             foreach(var child in people.Members.Where(p=>p.AgeYears<18))Check(child.Mother<0||byId.ContainsKey(child.Mother),"Children retain linked family records");
             for(int hour=0;hour<24;hour+=2)
@@ -63,6 +76,7 @@ static class HumanLocalLifeTests
             foreach(double dayMinutes in new[]{1d,15,60,1440})
             {
                 var local=new HumanLocalLife(world,engine);double year=SimulationTime.Year/(double)SimulationTime.Day;
+                var boundaries=new HashSet<double>();
                 for(int sample=0;sample<120;sample++)
                 {
                     double seconds=clock.CalendarSeconds+sample*year/120*SimulationTime.Day;
@@ -70,10 +84,19 @@ static class HumanLocalLifeTests
                     double deltaCalendar=SimulationTime.Day*clock.CalendarRate/(dayMinutes*60);
                     var b=new HumanLifeClock(seconds+deltaCalendar,a.SolarDays+1/(dayMinutes*60),dayMinutes,clock.CalendarRate,.1);
                     var first=local.Group(state,a,c.Id,0);var next=local.Group(state,b,c.Id,0);
+                    boundaries.Add(first.ArrivalDay);boundaries.Add(first.JourneyEndDay);
                     double speed=HumanLocalLife.Angle(first.Position,next.Position)*world.Recipe.RadiusKm*1000*.1;
                     Check(speed<1.17,"Seasonal travel stays at a family walking pace at every time scale: "+speed);
                     if(first.Phase==HumanCampPhase.Travelling&&next.Phase==HumanCampPhase.Travelling&&first.JourneyRest&&next.JourneyRest)
                         Check(speed<.005&&Math.Abs(first.Progress-next.Progress)<1e-7,"Overnight travel rests preserve progress within planetary-coordinate precision: "+speed+"m; progress "+Math.Abs(first.Progress-next.Progress));
+                }
+                foreach(double boundary in boundaries.Where(d=>d>=clock.CalendarDay))
+                {
+                    double dt=clock.CalendarRate/(dayMinutes*60);
+                    HumanLifeClock Around(double day)=>new HumanLifeClock(day*SimulationTime.Day,(day-clock.CalendarDay)/clock.CalendarRate,dayMinutes,clock.CalendarRate,.1);
+                    var before=local.Group(state,Around(boundary-dt*.5),c.Id,0);var after=local.Group(state,Around(boundary+dt*.5),c.Id,0);
+                    double moved=HumanLocalLife.Angle(before.Position,after.Position)*world.Recipe.RadiusKm*1000*.1;
+                    Check(moved<1.17,$"Seasonal itinerary boundary remains continuous, {dayMinutes}min days / {group.Band.Name}: {moved}m ({before.Phase}->{after.Phase})");
                 }
             }
         }

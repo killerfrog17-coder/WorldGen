@@ -44,7 +44,7 @@ namespace WorldGen.Core
         PrehistoryState snapshot;object domain;int planYear=int.MinValue;
         double planScale,planDay,planCalendar;
         ForagerBandSample[] spatialCandidates;V spatialCenter;double spatialRadius;
-        sealed class Plan {public ForagerBandSample Band;public HumanCampSite[] Sites;public double[] Weights;public bool Permanent;public double Phase;}
+        sealed class Plan {public ForagerBandSample Band,Residents;public HumanCampSite[] Sites;public double[] Weights;public bool Permanent;public double Phase;}
         public int CachedGroups=>plans.Count;
         public HumanLocalLife(World world,Prehistory history){this.world=world;this.history=history;}
         static double Unit(long id,int seed,string stream,int slot=0)=>Rng.Value(seed,stream,unchecked((int)id^(int)(id>>32)^slot*7919));
@@ -90,6 +90,7 @@ namespace WorldGen.Core
         public ForagerBandSample Residents(HumanGroupSituation group)
         {
             int ordinal=unchecked((int)(uint)group.Band.Id)-1;
+            if(plans.TryGetValue(group.Band.Id,out var plan))return plan.Residents??(plan.Residents=history.ForagerBand(snapshot,group.Band.Cohort,ordinal));
             return history.ForagerBand(snapshot,group.Band.Cohort,ordinal);
         }
         public HumanGroupSituation Group(PrehistoryState state,HumanLifeClock clock,int cohort,int ordinal)
@@ -131,7 +132,7 @@ namespace WorldGen.Core
             var footprint=new ForagerBandSample{Id=band.Id,Cohort=band.Cohort,District=band.District,Lineage=band.Lineage,Culture=band.Culture,Language=band.Language,Belief=band.Belief,
                 Name=band.Name,Home=band.Home,People=band.People,HomeRangeKm=band.HomeRangeKm,MoveFrequencyPerYear=band.MoveFrequencyPerYear,Aggregation=band.Aggregation,FoodSecurity=band.FoodSecurity,Hospitality=band.Hospitality,
                 Residence=band.Residence,Techniques=band.Techniques,RoutineTechniques=band.RoutineTechniques,WinterTechniques=band.WinterTechniques,SeasonalCamps=band.SeasonalCamps,ContactBands=band.ContactBands};
-            return new Plan{Band=footprint,Sites=sites,Weights=weights,Permanent=permanent,Phase=59+28*(Unit(band.Id,world.Recipe.Seed,"camp-calendar")-.5)};
+            return new Plan{Band=footprint,Residents=band.Members.Length>0?band:null,Sites=sites,Weights=weights,Permanent=permanent,Phase=59+28*(Unit(band.Id,world.Recipe.Seed,"camp-calendar")-.5)};
         }
         HumanGroupSituation Situation(Plan plan,HumanLifeClock clock)
         {

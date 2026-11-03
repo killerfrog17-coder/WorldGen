@@ -1,14 +1,84 @@
 {
   "scope": "Research informing the living-community foundation; modern field observations inform plausible mechanisms rather than a single universal Paleolithic lifestyle.",
   "sources": [
-    {"title":"Co-Residence Patterns in Hunter-Gatherer Societies Show Unique Human Social Structure", "authors":"Hill et al.","year":2011,"doi":"10.1126/science.1199071","url":"https://citeseerx.ist.psu.edu/document?doi=e268692b56b4371720af6bf472f7c0518c39f559&repid=rep1&type=pdf","finding":"Data from 32 societies distinguish household kinship from fluid residential membership; reported experienced band size is 28.2 ADULTS, not total residents. Both sexes can disperse or remain, and many adult co-residents are not close biological relatives.","design":"Several linked households per camp, mixed kin/non-kin social networks, no universal male chief or sex-locked work assignment."},
-    {"title":"Variability in the organization and size of hunter-gatherer groups: Foragers do not live in small-scale societies", "authors":"Bird et al.","year":2019,"doi":"10.1016/j.jhevol.2019.03.005","url":"https://www.sciencedirect.com/science/article/pii/S004724841830157X","finding":"Residential camps, foraging parties and wider social networks are distinct scales; Martu residential membership is fluid and connected beyond a single small band.","design":"Communities have separately scheduled household work parties, communal activities and contacts; camp membership must not be confused with all members of a culture."},
-    {"title":"The ecological and evolutionary energetics of hunter-gatherer residential mobility", "authors":"Hamilton et al.","year":2016,"doi":"10.1002/evan.21485","url":"https://arxiv.org/abs/1602.00631","finding":"Resource availability, depletion, temperature and seasonality constrain residential mobility.","design":"Ecology-dependent itineraries and residence duration; dependable aquatic resources and storage can support longer occupation. A game-scale movement budget preserves actual walking speeds under compressed years."},
-    {"title":"Natural Sleep and Its Seasonal Variations in Three Pre-industrial Societies", "authors":"Yetish et al.","year":2015,"doi":"10.1016/j.cub.2015.09.046","url":"https://pmc.ncbi.nlm.nih.gov/articles/PMC4720388/","finding":"Sleep timing varies with season and temperature, begins after sunset, and is not a universal dusk-to-dawn block.","design":"Individual chronotype, dawn/dusk and weather influence rest; children and older residents have different daily activity patterns."},
-    {"title":"Why care for someone else's child? Testing adaptive hypotheses in Agta foragers", "authors":"Page et al.","year":2019,"doi":"10.1038/s41562-019-0679-2","url":"https://pmc.ncbi.nlm.nih.gov/articles/PMC6858278/","finding":"Non-parental childcare reflects kinship and social cooperation rather than isolated nuclear families.","design":"Pooled daily childcare and linked guardians; young children remain with carers rather than independently travelling on adult work routes."},
-    {"title":"Children are important too: juvenile playgroups and maternal childcare in a foraging population, the Agta", "year":2021,"doi":"10.1098/rstb.2020.0026","url":"https://doi.org/10.1098/rstb.2020.0026","finding":"Mixed-age playgroups contribute to care and learning.","design":"Children's play and gradually increasing chores/learning, not scaled adult work schedules."},
-    {"title":"Twenty Thousand-Year-Old Huts at a Hunter-Gatherer Settlement in Eastern Jordan", "authors":"Maher et al.","year":2012,"doi":"10.1371/journal.pone.0031447","url":"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0031447","finding":"Kharaneh IV documents substantial aggregation camps, reused hut spaces and organised activities before farming villages.","design":"Long-stay and aggregation camps are possible without forcing every forager group into permanent villages; reused sites can retain hearth and occupation traces."},
-    {"title":"Ohalo II: A 23,000-Year-Old Fisher-Hunter-Gatherer's Camp on the Shore of Fluctuating Lake Kinneret", "year":2017,"url":"https://www.cambridge.org/core/books/abs/quaternary-of-the-levant/ohalo-ii-a-23000yearold-fisherhuntergatherers-camp-on-the-shore-of-fluctuating-lake-kinneret-sea-of-galilee/C0E3EF4821A0C0E49B53F757D6F0C2EB","finding":"The lakeshore camp contains multiple brush huts, open-air hearths and specialised activity areas.","design":"Real buildable household shelters around shared hearths/work areas; shelter covers follow available techniques/materials and climate."}
+    {
+      "title": "Co-Residence Patterns in Hunter-Gatherer Societies Show Unique Human Social Structure",
+      "authors": "Hill et al.",
+      "year": 2011,
+      "doi": "10.1126/science.1199071",
+      "url": "https://citeseerx.ist.psu.edu/document?doi=e268692b56b4371720af6bf472f7c0518c39f559&repid=rep1&type=pdf",
+      "finding": "Data from 32 societies distinguish household kinship from fluid residential membership; reported experienced band size is 28.2 ADULTS, not total residents. Both sexes can disperse or remain, and many adult co-residents are not close biological relatives.",
+      "design": "Several linked households per camp, mixed kin/non-kin social networks, no universal male chief or sex-locked work assignment."
+    },
+    {
+      "title": "Variability in the organization and size of hunter-gatherer groups: Foragers do not live in small-scale societies",
+      "authors": "Bird et al.",
+      "year": 2019,
+      "doi": "10.1016/j.jhevol.2019.03.005",
+      "url": "https://www.sciencedirect.com/science/article/pii/S004724841830157X",
+      "finding": "Residential camps, foraging parties and wider social networks are distinct scales; Martu residential membership is fluid and connected beyond a single small band.",
+      "design": "Communities have separately scheduled household work parties, communal activities and contacts; camp membership must not be confused with all members of a culture."
+    },
+    {
+      "title": "The ecological and evolutionary energetics of hunter-gatherer residential mobility",
+      "authors": "Hamilton et al.",
+      "year": 2016,
+      "doi": "10.1002/evan.21485",
+      "url": "https://arxiv.org/abs/1602.00631",
+      "finding": "Resource availability, depletion, temperature and seasonality constrain residential mobility.",
+      "design": "Ecology-dependent itineraries and residence duration; dependable aquatic resources and storage can support longer occupation. A game-scale movement budget preserves actual walking speeds under compressed years."
+    },
+    {
+      "title": "Natural Sleep and Its Seasonal Variations in Three Pre-industrial Societies",
+      "authors": "Yetish et al.",
+      "year": 2015,
+      "doi": "10.1016/j.cub.2015.09.046",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4720388/",
+      "finding": "Sleep timing varies with season and temperature, begins after sunset, and is not a universal dusk-to-dawn block.",
+      "design": "Individual chronotype, dawn/dusk and weather influence rest; children and older residents have different daily activity patterns."
+    },
+    {
+      "title": "Why care for someone else's child? Testing adaptive hypotheses in Agta foragers",
+      "authors": "Page et al.",
+      "year": 2019,
+      "doi": "10.1038/s41562-019-0679-2",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6858278/",
+      "finding": "Non-parental childcare reflects kinship and social cooperation rather than isolated nuclear families.",
+      "design": "Pooled daily childcare and linked guardians; young children remain with carers rather than independently travelling on adult work routes."
+    },
+    {
+      "title": "Children are important too: juvenile playgroups and maternal childcare in a foraging population, the Agta",
+      "year": 2021,
+      "doi": "10.1098/rstb.2020.0026",
+      "url": "https://doi.org/10.1098/rstb.2020.0026",
+      "finding": "Mixed-age playgroups contribute to care and learning.",
+      "design": "Children's play and gradually increasing chores/learning, not scaled adult work schedules."
+    },
+    {
+      "title": "Twenty Thousand-Year-Old Huts at a Hunter-Gatherer Settlement in Eastern Jordan",
+      "authors": "Maher et al.",
+      "year": 2012,
+      "doi": "10.1371/journal.pone.0031447",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0031447",
+      "finding": "Kharaneh IV documents substantial aggregation camps, reused hut spaces and organised activities before farming villages.",
+      "design": "Long-stay and aggregation camps are possible without forcing every forager group into permanent villages; reused sites can retain hearth and occupation traces."
+    },
+    {
+      "title": "Ohalo II: A 23,000-Year-Old Fisher-Hunter-Gatherer's Camp on the Shore of Fluctuating Lake Kinneret",
+      "year": 2017,
+      "url": "https://www.cambridge.org/core/books/abs/quaternary-of-the-levant/ohalo-ii-a-23000yearold-fisherhuntergatherers-camp-on-the-shore-of-fluctuating-lake-kinneret-sea-of-galilee/C0E3EF4821A0C0E49B53F757D6F0C2EB",
+      "finding": "The lakeshore camp contains multiple brush huts, open-air hearths and specialised activity areas.",
+      "design": "Real buildable household shelters around shared hearths/work areas; shelter covers follow available techniques/materials and climate."
+    },
+    {
+      "title": "Hunter-gatherer residential mobility and the marginal value of rainforest patches",
+      "authors": "Venkataraman et al.",
+      "year": 2017,
+      "doi": "10.1073/pnas.1617542114",
+      "url": "https://doi.org/10.1073/pnas.1617542114",
+      "finding": "The Batek study covers 93 days and 11 camps, with short residence and visible resource depletion. Thatch huts remained behind; packing averaged about half an hour and setting up a hut and hearth about three hours.",
+      "design": "Allow frequent short stays as well as long bases, daytime family travel, material-dependent portable shelters and persistent decaying occupation traces."
+    }
   ],
   "implementation_status": "Research and Core projection checks complete; physical NPC/camp integration in progress, native scene verification not yet accepted. Later landscape and vegetation stages have not started."
 }

@@ -9,6 +9,7 @@ namespace WorldGen.Core
     {
         public string Id="camp-"+Guid.NewGuid().ToString("N");public CampKind Kind;public V Position;
         [System.Runtime.Serialization.OptionalField] public long NpcGroup,NpcSite,NpcHousehold;
+        [System.Runtime.Serialization.OptionalField] public double ClearedWidthM,ClearedDepthM;
         public double Heading,EmbedM,SoilDepthM,SoilFirmness=1,Wetness,EmberSeconds,LastSimulatedSeconds;
         public bool Burning;public double AshKg;
         public List<Possession> Materials=new List<Possession>();
@@ -41,6 +42,7 @@ namespace WorldGen.Core
                 bool Finite(double n)=>double.IsFinite(n);
                 if(c==null||string.IsNullOrEmpty(c.Id)||!ids.Add(c.Id)||!Enum.IsDefined(typeof(CampKind),c.Kind)||!Finite(c.Position.Length)||Math.Abs(c.Position.Length-1)>1e-5||!Finite(c.Heading)||!Finite(c.EmbedM)||c.EmbedM<0||!Finite(c.SoilDepthM)||c.SoilDepthM<0||!Finite(c.SoilFirmness)||c.SoilFirmness<=0||!Finite(c.Wetness)||c.Wetness<0||c.Wetness>1||!Finite(c.EmberSeconds)||c.EmberSeconds<0||!Finite(c.AshKg)||c.AshKg<0||!Finite(c.LastSimulatedSeconds)||c.LastSimulatedSeconds<0||c.Materials==null)throw new ArgumentException("Invalid placed camp object.");
                 if(c.CookingItems==null)c.CookingItems=new List<Possession>();
+                if(!Finite(c.ClearedWidthM)||!Finite(c.ClearedDepthM)||c.ClearedWidthM<0||c.ClearedDepthM<0||c.ClearedWidthM>100||c.ClearedDepthM>100)throw new ArgumentException("Invalid camp ground footprint.");
                 if(c.FrameJoints==null)c.FrameJoints=new List<FrameJoint>();
                 if(c.FrameJoints.Any(j=>j==null||j.Bindings==null))throw new ArgumentException("Invalid frame joint.");
                 CampBlueprints.Validate(c);

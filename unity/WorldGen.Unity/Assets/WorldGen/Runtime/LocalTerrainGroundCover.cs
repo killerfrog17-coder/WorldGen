@@ -244,6 +244,7 @@ public sealed partial class LocalTerrainExplorer
         groundCoverPlacement.SetInt("_CoverageEnabled",tile?.Coverage!=null?1:0);
         groundCoverPlacement.SetFloat("_CoverageSize",tileSize);
         groundCoverPlacement.SetTexture(1,"_TerrainCoverage",tile?.Coverage!=null?tile.Coverage:Texture2D.blackTexture);
+        BindCampClearing();
         groundCoverPlacement.SetFloat("_GrassNear",bladeRange);groundCoverPlacement.SetInt("_CanopyEnabled",TerrainVideoOptions.GrassCanopy&&groundCanopyMaterial!=null?1:0);
         groundCoverPlacement.Dispatch(1,(gpu.Candidates+63)/64,1,1);
         for(int lod=0;lod<6;lod++)GraphicsBuffer.CopyCount(gpu.Visible[lod],gpu.Args,lod*GraphicsBuffer.IndirectDrawArgs.size+4);

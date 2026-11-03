@@ -64,6 +64,8 @@ namespace WorldGen.Core
             result.Sort();return result.ToArray();
         }
         public ScatterPatch Build(ScatterKey key,CancellationToken token=default)
+            =>BuildContents(key,token,null,0);
+        ScatterPatch BuildContents(ScatterKey key,CancellationToken token,V? solidCenter,double solidRadiusM)
         {
             V center=Position(key);var patch=terrain.Patch(center,(key.Detail?110:840)/scale);var result=new List<ScatterInstance>();
             double nominal=2*terrain.RadiusM*scale/Divisions(key.Detail),area=nominal*nominal;
@@ -84,7 +86,9 @@ namespace WorldGen.Core
                         int slot=y*side+x;ulong id=key.Id(channel,slot);int hash=unchecked((int)Rng.Mix((uint)id^(uint)(id>>32)));
                         var random=new Rng(seed,"local-scatter-instance-1",hash);
                         double u=(x+.12+.76*random.Unit())/side,v=(y+.12+.76*random.Unit())/side;
-                        V p=Position(key,u,v),km=p*(terrain.RadiusM/1000);var sample=patch.Sample(p);
+                        V p=Position(key,u,v),km=p*(terrain.RadiusM/1000);
+                        if(solidCenter.HasValue&&(p-solidCenter.Value).Length*terrain.RadiusM*scale>solidRadiusM)continue;
+                        var sample=patch.Sample(p);
                         if(sample.ElevationM<2||sample.Underwater)continue;
                         var env=world.Ecology!=null&&sample.Cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[sample.Cell]:null;
                         Biome biome=sample.Biome;if(biome==Biome.Freshwater||biome==Biome.SalineLake||biome==Biome.Ocean)continue;
@@ -149,6 +153,7 @@ namespace WorldGen.Core
                 }
             }
             if(key.Detail){AddGroundSpecialists(key,patch,result,token);AddFallenBranches(key,patch,result,token);}
+            else if(solidCenter.HasValue)AddSettlementTrees(key,patch,result,solidCenter.Value,solidRadiusM,token);
             else {AddMidPlants(key,patch,result,token);AddGeneratedTrees(key,patch,result,token);}
             return new ScatterPatch{Key=key,Center=center,Instances=result.ToArray()};
         }

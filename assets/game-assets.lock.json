@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "004bcb26aa9c745d3d7d6f8c076c4a49f4a12d18",
+  "source_checkpoint": "d73d1f650eec9d2ccb459a76e610a79f15b7362b",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -13493,16 +13493,64 @@
       "member": "objects/1d9503228e137f647ce84ec0caa32a0c9a071148761f05cd3be2a516406f5417"
     },
     "assets-source/humans/motion/npc/authoring-decisions.json": {
-      "sha256": "0b1dc39a55fb8dc100791f6ab2323eadba8ed2172d86ec4b1e14774cc34935c1",
-      "bytes": 1239,
-      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
-      "member": "objects/0b1dc39a55fb8dc100791f6ab2323eadba8ed2172d86ec4b1e14774cc34935c1"
+      "sha256": "f70d729f140a79c1a79a11815320ff81c6785dd3b8e92dd070de85e8c4f65294",
+      "bytes": 1529,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/f70d729f140a79c1a79a11815320ff81c6785dd3b8e92dd070de85e8c4f65294"
     },
     "assets-source/humans/motion/npc/model-provenance.json": {
       "sha256": "de541731c35a1ccb556137c2fa59c3fce645cb97c5061d807c0e44a4f47bd0c4",
       "bytes": 4823,
       "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
       "member": "objects/de541731c35a1ccb556137c2fa59c3fce645cb97c5061d807c0e44a4f47bd0c4"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/embedding-ff87566a4cbf.f32": {
+      "sha256": "aa428197af5fc178c41d8ad006e976853cee50913fcebd7877ee377f51aa5a35",
+      "bytes": 16384,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/aa428197af5fc178c41d8ad006e976853cee50913fcebd7877ee377f51aa5a35"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/prompt-ff87566a4cbf.txt": {
+      "sha256": "ff87566a4cbfb4d445fa7288417a78ead45ea3872322fa291ef62cc93f5f9667",
+      "bytes": 112,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/ff87566a4cbfb4d445fa7288417a78ead45ea3872322fa291ef62cc93f5f9667"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/seed-6135/generation.json": {
+      "sha256": "66583f3a21ebb11a0d3d655fb70b63892c86c942a7ea044aa951a7eeccd863c4",
+      "bytes": 722,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/66583f3a21ebb11a0d3d655fb70b63892c86c942a7ea044aa951a7eeccd863c4"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/seed-6135/initial-noise.f32": {
+      "sha256": "9498549158dea378f16e838b50c82041a6024ba75ce2ff4b43064b19f2b0a216",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/9498549158dea378f16e838b50c82041a6024ba75ce2ff4b43064b19f2b0a216"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/seed-6135/local_rotations_xyzw.f32": {
+      "sha256": "7896aa91b5b980eeb1a22a3160b59b6e9ffe36d3124a48253f902512ee0ab6ca",
+      "bytes": 72000,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/7896aa91b5b980eeb1a22a3160b59b6e9ffe36d3124a48253f902512ee0ab6ca"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/seed-6135/root_positions.f32": {
+      "sha256": "859d9cefe8f7e6ce5569ff0490b83c7ed8b8026bf9da5bc03e66f05f7c3d8175",
+      "bytes": 1800,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/859d9cefe8f7e6ce5569ff0490b83c7ed8b8026bf9da5bc03e66f05f7c3d8175"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/seed-6135/sampling_final_state.f32": {
+      "sha256": "4dd665366c559529ee7049bb439882b2569387db7082ecde6482b65470277e1f",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/4dd665366c559529ee7049bb439882b2569387db7082ecde6482b65470277e1f"
+    },
+    "assets-source/humans/motion/npc/motions/crawl/seed-6135/skeleton.json": {
+      "sha256": "87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5",
+      "bytes": 1670,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5"
     },
     "assets-source/humans/motion/npc/motions/sit_ground/embedding-573b68e4907c.f32": {
       "sha256": "ad4c4ea66c7998f901dc3e8dd6e5e89db0a90934f8cde662cf430c37dd6936d0",
@@ -13697,10 +13745,10 @@
       "member": "objects/87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5"
     },
     "assets-source/humans/motion/npc/queue.json": {
-      "sha256": "2e25f7156922c16476eda3ee7027712cf8f7f38a3f2436569df69a7640fbfa62",
-      "bytes": 1012,
-      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
-      "member": "objects/2e25f7156922c16476eda3ee7027712cf8f7f38a3f2436569df69a7640fbfa62"
+      "sha256": "f17d6d469fb34ddf3048fde891ce73978d07fdfa16c51e3679318ec53f7b2c94",
+      "bytes": 1235,
+      "pack": "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "member": "objects/f17d6d469fb34ddf3048fde891ce73978d07fdfa16c51e3679318ec53f7b2c94"
     },
     "assets-source/humans/motion/npc/skeleton.json": {
       "sha256": "59d67650b0bacb8eb5c65b1b023f349d626cb575f0bc7c5863c93497ec121ed2",
@@ -31798,6 +31846,14 @@
       "asset_id": 696525072,
       "sha256": "62fd910f894538264d3789866994130e44ed04987df21334e7421f6e5777e0df",
       "bytes": 13269222,
+      "encoding": "zip"
+    },
+    "npc-source-inputs-20261103-2/assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip": {
+      "tag": "npc-source-inputs-20261103-2",
+      "name": "assets-8369420f8e8d3507ed3dd3eac6cc656e9cd95e7d5ab56a0d9f84f362d959eb96.zip",
+      "asset_id": 705291354,
+      "sha256": "7f6c3dac7c52fb734e1568798bff86f97e458e1af902822f9e07dd6c2fa1d835",
+      "bytes": 500090,
       "encoding": "zip"
     },
     "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip": {

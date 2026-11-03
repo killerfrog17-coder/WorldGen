@@ -58,6 +58,7 @@ public sealed partial class LocalTerrainExplorer
             }
             owner.DestroyHuman(actor);yield return null;
         }
+        yield return CheckNpcCarrying(owner,camera,target,output);
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks.Where(c=>!c.EndsWith("Finite NPC skin")));Debug.Log("NPC POSE PASS "+checks.Count);buffer.Dispose();camera.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }
 }

@@ -146,9 +146,14 @@ namespace WorldGen.Core
             double population=ForagerDemography.Present(f,c);
             int people=Math.Max(12,(int)Math.Round(population/count));
             double range=Math.Sqrt(Math.Max(20,d.AreaKm2*c.Occupation/count)/Math.PI);
+            double moveRank=Rng.Value(World.Recipe.Seed,"community-mobility",key);
+            double moves=culture.Residence==ForagerResidence.AquaticResidence?2:culture.Residence==ForagerResidence.CollectorCamps?3+3*d.Seasonality[0]:culture.Residence==ForagerResidence.SeasonalBaseCamps?3+4*d.Seasonality[0]:
+                (6+7*d.Seasonality[0]+6*(1-D.Clamp(c.FoodSecurity)))*(.55+1.15*moveRank);
+            if(culture.Residence==ForagerResidence.ResidentialMobility&&d.MeanC>18&&d.Canopy>.55&&moveRank>.7)moves+=20*(moveRank-.7)/.3;
+            moves=Math.Max(2,Math.Min(40,Math.Round(moves)));
             var band=new ForagerBandSample{Id=id,Cohort=c.Id,District=d.Id,Lineage=c.Lineage,Culture=c.Culture,Language=c.Language,Belief=c.Belief,Home=home.position,People=people,
                 Name=culture.Name+" · "+LanguageGenerator.WordWithRootSeed(f.Languages[c.Language].Sounds,"home",key).Text,
-                HomeRangeKm=range,MoveFrequencyPerYear=culture.Residence==ForagerResidence.AquaticResidence?2:culture.Residence==ForagerResidence.CollectorCamps?4:5+5*d.Seasonality[0],
+                HomeRangeKm=range,MoveFrequencyPerYear=moves,
                 Aggregation=D.Clamp(.2+.35*(d.Coast+d.River)+.25*c.Connectivity),FoodSecurity=c.FoodSecurity,Hospitality=culture.GuestAccess,Residence=culture.Residence,Techniques=new bool[ForagerTechnology.Count]};
             band.SeasonalCamps=ForagerSeasonalCamps(s,c,band,home.cell,key);
             int camps=band.SeasonalCamps.Length;double season=((years-59/365d+Rng.Value(World.Recipe.Seed,"camp-calendar-phase",c.Id)*.08)%1+1)%1*camps;int current=(int)season,next=(current+1)%camps;
@@ -162,7 +167,7 @@ namespace WorldGen.Core
         ForagerCampSample[] ForagerSeasonalCamps(PrehistoryState state,ForagerCohort c,ForagerBandSample band,int homeCell,int key)
         {
             var f=state.Foragers;var dated=ForagerHabitat.For(World,state);
-            var d=f.Districts[c.District];int count=Math.Max(2,Math.Min(12,(int)Math.Round(band.MoveFrequencyPerYear)));var result=new ForagerCampSample[count];
+            var d=f.Districts[c.District];int count=Math.Max(2,Math.Min(40,(int)Math.Round(band.MoveFrequencyPerYear)));var result=new ForagerCampSample[count];
             for(int stop=0;stop<count;stop++)
             {
                 int season=((int)Math.Floor((stop+.5)*4d/count)+(d.Center.Z<0?2:0))%4;
@@ -328,6 +333,8 @@ namespace WorldGen.Core
                 for(int k=0;k<f.Lineages.Length;k++){cumulative+=f.SpeciesShare(c,k);if(draw<cumulative){band.Lineage=k;break;}}
                 band.Language=ForagerAffiliations.Pick(c.Speech,Rng.Value(World.Recipe.Seed,"band-minority-language",key));band.Belief=ForagerAffiliations.Pick(c.Traditions,Rng.Value(World.Recipe.Seed,"band-minority-belief",key));
                 for(int k=0;k<band.Techniques.Length;k++)band.Techniques[k]=rank<c.Knowledge[k];
+                bool[] visited=new bool[band.Techniques.Length];bool Can(int k){if(visited[k])return band.Techniques[k];visited[k]=true;var t=ForagerTechnology.All[k];return band.Techniques[k]=band.Techniques[k]&&t.Prerequisites.All(Can)&&(t.AlternativePaths.Length==0||t.AlternativePaths.Any(path=>path.All(Can)));}
+                for(int k=0;k<band.Techniques.Length;k++)Can(k);
                 return band;
             }).ToArray();
         }

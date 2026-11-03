@@ -9,6 +9,7 @@ ByteAddressBuffer _RootCount;
 AppendStructuredBuffer<uint> _NearRoots,_MiddleRoots,_FarRoots,_DistantRoots,_HorizonRoots,_FootRoots;
 float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange,_GrassNear,_CoverageSize,_GrassNearDensity;int _CanopyEnabled,_SpritesOnly,_CoverageEnabled;
 Texture2D<float4> _TerrainCoverage;
+Texture2D<float> _CampClearing;float4 _CampClearingRect;int _CampClearingEnabled;
 bool Covered(float2 uv)
 {
     if(_CoverageEnabled==0)return false;
@@ -71,6 +72,11 @@ void Cull(uint3 id:SV_DispatchThreadID)
 {
     if(id.x>=_RootCount.Load(0))return;
     Root r=_PlacedRoots[id.x];float3 p=r.positionForm.xyz+_CullOrigin.xyz;
+    if(_CampClearingEnabled!=0)
+    {
+        int2 pixel=(int2)floor(p.xz-_CampClearingRect.xy);
+        if(all(pixel>=0)&&all(pixel<(int)_CampClearingRect.z)&&_CampClearing.Load(int3(pixel,0))>Rand(id.x*19349663u+_Seed))return;
+    }
     if(Covered(r.positionForm.xz/_CoverageSize))return;
     float d=distance(p,_CullCamera.xyz);if(d>=_GrassRange)return;
     float radius=max(_SpritesOnly!=0?5:1.2,r.colorHeight.w*1.6);

@@ -7,6 +7,23 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class NpcSolid{public double X,Z,Y,Radius,Height;}
+    bool ResolveLivingDryPoint(V proposal,V fallback,out V safe)
+    {
+        safe=proposal;TerrainHandoff.Coordinates(frame,proposal,out double x,out double z);
+        if(double.IsNaN(VisibleGround(x,z,double.NaN)))return false;
+        if(!walkingPatch.Sample(proposal).Underwater)return true;
+        if(walkingPatch.Sample(fallback).Underwater)return false;
+        V dry=fallback,wet=proposal;
+        for(int i=0;i<10;i++){var middle=HumanLocalLife.Interpolate(dry,wet,.5);if(walkingPatch.Sample(middle).Underwater)wet=middle;else dry=middle;}
+        double distance=HumanDistance(dry,fallback);safe=HumanLocalLife.Interpolate(dry,fallback,Math.Min(1,1/Math.Max(1,distance)));return true;
+    }
+    V LivingDryGoal(HumanActor actor,V proposal)
+    {
+        if(actor.HasSafeGoal&&HumanDistance(actor.GoalProposal,proposal)<2)return actor.GoalSafe;
+        actor.GoalProposal=proposal;
+        if(!ResolveLivingDryPoint(proposal,actor.Planet,out var safe))return actor.Planet;
+        actor.HasSafeGoal=true;actor.GoalSafe=safe;return safe;
+    }
     void CacheLivingSolids(HumanActor actor)
     {
         actor.NearbySolids.Clear();var center=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM)+1,(float)(actor.Motor.Z-originZ));
@@ -51,7 +68,14 @@ public sealed partial class LocalTerrainExplorer
             actor.AvoidYaw=actor.TargetYaw+(float)(side*65);actor.AvoidUntil=Time.unscaledTime+.65f;return;
         }
     }
-    CampObject LivingHouse(HumanActor actor)=>Camp.Objects.FirstOrDefault(c=>c.NpcGroup==actor.GroupId&&c.NpcHousehold==actor.Resident.Household&&c.Blueprint!=null);
+    CampObject LivingHouse(HumanActor actor)
+    {
+        if(!livingGroups.TryGetValue(actor.GroupId,out var group)||group.Situation.Phase==HumanCampPhase.Travelling)return null;
+        if(actor.HouseSite==group.Situation.Camp.Id&&Time.unscaledTime<actor.HouseCheckAt)return actor.CampHouse;
+        actor.HouseSite=group.Situation.Camp.Id;actor.HouseCheckAt=Time.unscaledTime+1;actor.CampHouse=null;
+        foreach(var house in Camp.Objects)if(house.NpcGroup==actor.GroupId&&house.NpcHousehold==actor.Resident.Household&&house.Blueprint!=null){actor.CampHouse=house;break;}
+        return actor.CampHouse;
+    }
     void LivingDoorwayGoal(HumanActor actor,CampObject house,ref double x,ref double z)
     {
         var plan=house.Blueprint;TerrainHandoff.Coordinates(frame,house.Position,out double cx,out double cz);double a=house.Heading*Math.PI/180;
@@ -61,14 +85,15 @@ public sealed partial class LocalTerrainExplorer
             return Math.Abs(lx)<plan.WidthM*.5+.05&&Math.Abs(lz)<plan.DepthM*.5+.05;
         }
         bool from=Inside(actor.Motor.X,actor.Motor.Z),to=Inside(x,z);if(from==to)return;
-        double doorX=cx+Math.Sin(a)*(plan.DepthM*.5+.85),doorZ=cz+Math.Cos(a)*(plan.DepthM*.5+.85);
+        double entrySide=plan.Design==CampDesign.LeanTo?-1:1;
+        double doorX=cx+Math.Sin(a)*(plan.DepthM*.5+.85)*entrySide,doorZ=cz+Math.Cos(a)*(plan.DepthM*.5+.85)*entrySide;
         if(from||Math.Pow(actor.Motor.X-doorX,2)+Math.Pow(actor.Motor.Z-doorZ,2)>.8*.8){x=doorX;z=doorZ;}
     }
     void ResolveLivingSolidContact(HumanActor actor,double oldX,double oldY,double oldZ)
     {
         var motor=actor.Motor;var delta=new Vector3((float)(motor.X-oldX),0,(float)(motor.Z-oldZ));float distance=delta.magnitude;if(distance<.00001f)return;
         float height=(actor.AgeModel?.EyeHeight??actor.Definition.EyeHeight)*actor.Root.transform.localScale.y+.1f;
-        if(actor.NpcCrawling)height=Math.Min(height,.58f);else if(actor.NpcCrouching)height=Math.Min(height,1.27f);float radius=Math.Max(.1f,Math.Min(.24f,height*.15f));
+        if(actor.NpcCrawling)height=Math.Min(height,.76f*actor.AgeMotionRatio*actor.Root.transform.localScale.y);else if(actor.NpcCrouching)height=Math.Min(height,1.27f);float radius=Math.Max(.1f,Math.Min(.24f,height*.15f));
         var feet=new Vector3((float)(oldX-originX),(float)(oldY-TerrainMotion.EyeHeightM),(float)(oldZ-originZ));
         Vector3 bottom=transform.TransformPoint(feet+Vector3.up*(radius+.08f)),top=transform.TransformPoint(feet+Vector3.up*Math.Max(radius+.08f,height-radius));
         Vector3 direction=transform.TransformDirection(delta/distance);

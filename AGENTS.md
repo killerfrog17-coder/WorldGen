@@ -49,6 +49,54 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov12:56Z KEEP WORKING UNTIL OWNER STOP. Stage1 NPC only;2/3 untouched.
+Selectedslot-b/39964fb shortcut unchanged. Latest internal A managed nondev built
+~12:46Z passes camp-ground-2 26 native checks/EXIT0: canonical tree/rock avoidance,
+actual GPU grass clearing, full packing/travel/setup/material identity/save cycle.
+Real full-vegetation images inspected: clear hut floors and trunks outside houses.
+Native42NPC main update1.86/1.74ms after10ms initial; terrain loading, NOT settled
+wholeworldFPS proof. Original camp-clearing-first FAILED material ID reuse while
+adding construction parts; fixed stable per-part keys,22737 Core checks PASS.
+Cold settlement query previously72sec native: new clipped canonical predicate
+skips unrelated flora, exact cold/full reference PASS15; Core cold150m0.62s,
+warm39ms. New clip, trace-safe site projection, budgeted visual installation and
+back-carrier/ground-rest corrections UNBUILT. Earlier carrier-back FAILED seated
+infant floor check; new local beside-carer placement awaiting rerender. Continue
+actual varied climates/physical walking/doors, performance, assets/source proof.
+5131 required ignored inputs/134 GitHub packs remotely SHA verified, lock pending
+commit. Owner3files untouched, no paid/subagents/owner apps closed. No stop at8h.
+
+ACTIVE3Nov12:02Z KEEP WORKING UNTIL OWNER STOP. Stage1 ONLY,2/3 untouched.
+Current git d73d1f6 PUSHED; later source UNCOMMITTED. Selectedslot-b/39964fb
+shortcut unchanged. A internal managed nondev latest built~12:00UTC, not accepted.
+5131 current asset inputs/134 packs remotely SHA verified; second release
+npc-source-inputs-20261103-2 published (new Crawl raw input), lock update uncommitted.
+22657 Core checks pass current190k fixture incl year/site boundary continuity at
+1/15/60/1440min days,4lifeways/4shelters, cached50km37groups~0.12ms, first~43ms.
+History numerics unchanged; query-only mobility now2..40 seasonal stops.
+Old real native wet/day/cool-night13 checks each passed named binary saves,
+wounds/revisit, but their manual captures OMITTED instanced plants; NOT complete
+environment acceptance. New harness now explicitly DrawScatter/DrawGroundCover.
+Native before42NPC AI~10ms/frame, after first optimizations3.1ms, animation~2.45ms;
+terrain still loading so NOT whole-world FPS proof. New dynamic2slot body/carry
+graphs, zero-weight/pruned legacy graph, stationary work skipping/detail LOD and
+per-stage profiling need latest repeat. Existing performance-dynamic invalidated
+and stopped because same known startup bug as camp-cycle-first: ungrounded extra
+group used zero Anchor in Teach/look-at. Source now initializes valid anchor and
+gates home duties until surveyed, while independent foragers can appear.
+New setup->Occupied completion correction and full physical camp-cycle harness
+are UNVERIFIED. Current queued native PSsession72452: poses-carriers-final
+(PID30496), then camp-cycle-2, then performance-dynamic-2, sequential/uncontended.
+Do NOT overwrite A while those run. Earlier carrier passes were only numerical:
+initial carrier sat too low/giant tiled straps, actual renders rejected. New
+position/continuousUV/shorter straps in latest package require actual inspection.
+All24body x5motions458 numerical checks pass; adult/child poses inspected.
+Need actual full-vegetation camps, tree/boulder-safe placement (not yet done),
+trampled/cleared shelter footprints, physical door/movement checks, phase cycle,
+steady performance and source/asset proof before selection. Existing camps only
+dry/slope-check; do NOT claim vegetation-safe yet. No subagents/paid/ownerapps;
+owner3files untouched. Eight-hour estimate15:46:56Z is NEVER a stop.
+
 ACTIVE3Nov11:01Z NPC OVERNIGHT CONTINUES, NO STOP/WRAP. Stage1 ONLY;2/3 untouched.
 Selected slot-b/39964fb shortcut unchanged. Internal slot-a managed NONDEV latest
 built10:59:22Z, now includes real camp households/age bodies/five native camp

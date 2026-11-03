@@ -27,14 +27,18 @@ public sealed partial class LocalTerrainExplorer
         public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
-        public float AnimationAt;public GameObject WorkProp;
+        public double AnimationAt;public GameObject WorkProp;
         public float AvoidUntil,AvoidYaw;
         public float PoseGroundLift;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";
         public HumanActivity CurrentActivity;
         public bool NpcCrouching;
         public bool NpcCrawling;
+        public bool Natural;
         public GameObject InfantCarrier;
+        public V GoalProposal,GoalSafe;public bool HasSafeGoal;
+        public SkinnedMeshRenderer[] DetailRenderers;public byte[] DetailKinds;public float DetailAt;
+        public CampObject CampHouse;public long HouseSite;public float HouseCheckAt;
         public readonly List<NpcSolid> NearbySolids=new List<NpcSolid>();
         public HumanAgeModel AgeModel;public Dictionary<Transform,Vector3> YoungRest;public Transform YoungPelvis;public Vector3 AdultPelvisRest;public float AgeMotionRatio=1;
     }
@@ -67,7 +71,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var definition=humanLibrary.People[variant];var root=Instantiate(ageModel?.Prefab??definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
-        var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
+        var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Natural=natural,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
         if(ageModel!=null)CaptureHumanAgeRest(actor,ageModel);
         actor.Graph=PlayableGraph.Create(root.name+" movement");actor.Graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         actor.Mixer=AnimationMixerPlayable.Create(actor.Graph,actor.Inputs.Length);
@@ -101,6 +105,11 @@ public sealed partial class LocalTerrainExplorer
         if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight,generated?.EyeForward??.15f);
         var campMotion=natural?Resources.Load<WorldGenHumanMotionBank>("HumanNpcMotion/Library")?.Find(definition.Variant):null;
         if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null,natural,campMotion);
+        if(natural&&actor.Shared!=null)
+        {
+            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Graph.DestroySubgraph(actor.Mixer);
+            actor.Inputs=Array.Empty<AnimationClipPlayable>();actor.Weights=Array.Empty<float>();
+        }
         actor.Graph.Play();actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);return actor;
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
@@ -161,6 +170,7 @@ public sealed partial class LocalTerrainExplorer
             while(humanSpawnQueued>0&&attempts++<4)
             {humanSpawnQueued--;SpawnHumans(1);if((System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency>2)break;}
         }
+        if(profileLiving)Array.Clear(livingCosts,0,livingCosts.Length);
         long livingTickStart=System.Diagnostics.Stopwatch.GetTimestamp();UpdateLivingHumans(stopped,dt);
         foreach(var npc in humanNpcs)
         {
@@ -202,7 +212,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
     {
-        if((HumanAnimationOptions.Kimodo||actor.ResidentId!=0)&&actor.Shared!=null)
+        if((HumanAnimationOptions.Kimodo||actor.Natural)&&actor.Shared!=null)
         {
             string swimRole="Swim";
             if(swimming&&actor==humanPlayer)

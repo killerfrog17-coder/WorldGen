@@ -396,6 +396,7 @@ public sealed partial class LocalTerrainExplorer
                 int i=grouped?group.Indices[member]:member;
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
                 if(CollectedRock(p))continue;
+                if(CampClearedPlant(p))continue;
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
                 if(p.Kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees))continue;

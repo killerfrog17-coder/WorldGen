@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public string Mode;public int Residents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
         public double MeanNpcMs,P95NpcMs,MaxNpcMs,MeanFrameMs,P95FrameMs,BackgroundQueryMs;
+        public double[] MeanStagesMs;
     }
     static IEnumerator MeasureLivingHumans(LocalTerrainExplorer owner,string output)
     {
@@ -21,12 +22,14 @@ public sealed partial class LocalTerrainExplorer
         foreach(string mode in new[]{"normal","render-only","no-residents","normal-repeat"})
         {
             owner.livingBenchmarkFreeze=mode=="render-only"||mode=="no-residents";
-            foreach(var actor in owner.livingPeople.Values)actor.Root.SetActive(mode!="no-residents");
+            foreach(var actor in owner.livingPeople.Values){actor.Root.SetActive(mode!="no-residents");if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(mode!="no-residents");}
+            Debug.Log("NPC performance begins "+mode+" / "+owner.livingPeople.Count+" residents / "+owner.tiles.Count+" tiles; ready "+owner.AllReady);
             for(int i=0;i<30;i++)yield return null;
-            var ticks=new List<double>();var frames=new List<double>();double previous=Time.realtimeSinceStartupAsDouble;
-            for(int i=0;i<240;i++){yield return null;double now=Time.realtimeSinceStartupAsDouble;ticks.Add(owner.livingTickMs);frames.Add((now-previous)*1000);previous=now;}
+            var ticks=new List<double>();var frames=new List<double>();var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble;
+            for(int i=0;i<240;i++){yield return null;double now=Time.realtimeSinceStartupAsDouble;ticks.Add(owner.livingTickMs);frames.Add((now-previous)*1000);previous=now;for(int k=0;k<stages.Length;k++)stages[k]+=owner.livingCosts[k]/240;}
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
-                MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],BackgroundQueryMs=owner.livingLastMs});
+                MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages});
+            File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         }
         owner.livingBenchmarkFreeze=false;foreach(var actor in owner.livingPeople.Values)actor.Root.SetActive(true);Application.targetFrameRate=cap;
         File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
