@@ -62,6 +62,10 @@ def inventory():
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
     tree('assets-source/terrain/surfaces','terrain-authoring-source',{'.png','.jpg','.json','.txt'})
+    tree('assets-source/vegetation/tree-surfaces','tree-authoring-source',{'.png','.jpg','.json','.txt'})
+    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1']:
+        tree(directory,'tree-runtime-art',{'.png','.asset','.bytes','.meta'})
+        add(directory+'.meta','tree-runtime-art')
     tree('assets-source/humans/motion/npc','human-npc-source',{'.f32','.json','.txt'})
     tree('assets/human-motion-npc','human-npc-source',{'.fbx','.json'})
     for hair in ['ponytail01','short02']:

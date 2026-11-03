@@ -49,6 +49,21 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov21:34Z CONTINUE. Stage2 landscape VERIFIED/SELECTED slot-b shortcut,
+9358b36 PUSHED/tag living-landscapes-20261103. Runtime3242861, B built20:44:45Z
+NONDEV managed, all10contexts84checks/20actualimages reviewed. Final isolated
+A/B42NPC perf comparable (9.28/8.98 vs9.06/7.44ms; terrain streaming both), Core
+warmterrain+2.5%, unchangedGPUgroundbudget. Wet/cold31checks each PASS. Manifest
+assets/verification/landscape-regions-20261103.json exact production/package.
+STAGE3 NOW ACTIVE: tree texture/geometry investigation, no art/code changes yet.
+A is inactive; FIRST new A build must FULL (packedterrain arrays differ), not
+ScriptsOnly. Preserve selected B until genuinely accepted tree checkpoint.
+TreeRebuild and TreeImpostors defaulttrue; current32x256 procedural greyscale
+shoots, no real bark texture. Need actual foliage/bark assets, consistentCPU/GPU
+bakes, regional native views and performance. No subagents/paid/ownerappsclosed.
+Owner explicitly closed game for finalcomparison, completed; no ownedjobs remain.
+Owner3files untouched. Continue until explicit owner stop/wrap.
+
 ACTIVE3Nov21:17Z CONTINUE. All10 current landscapes84checks/20images inspected.
 Current B3242861 NPCwet31/cold31 PASS/EXIT0; walking, setup/pack/travel/save/wounds
 and vegetation-safe floors PASS. Actual current forest/cold residents views

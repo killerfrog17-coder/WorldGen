@@ -106,4 +106,43 @@ static partial class LocalScatterMeshes
         }
         return FinishTreeForm(b,mask,"Leafy cane 2 / "+code+" / "+lod);
     }
+    static Mesh BuildSucculentTree(int code,int lod,TreeMorphology m)
+    {
+        var b=new Builder();var mask=new List<Vector2>();var rng=new Rng(TreeFlora.RenderCode(code),"ribbed-succulent-1");
+        var skin=HerbColour(m.Leaf)*new Color(1.14f,.94f,1.20f,1);var wood=HerbColour(m.Bark);
+        int sides=lod==0?12:8;
+        void Stem(Vector3 root,Vector3 control,Vector3 tip,float radius,int segments,bool main)
+        {
+            int first=b.V.Count;
+            for(int row=0;row<=segments;row++)
+            {
+                float t=row/(float)segments;var p=(1-t)*(1-t)*root+2*t*(1-t)*control+t*t*tip;
+                var axis=(2*(1-t)*(control-root)+2*t*(tip-control)).normalized;
+                var u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.95f?Vector3.up:Vector3.right).normalized;var v=Vector3.Cross(axis,u);
+                float taper=Mathf.Lerp(1,.45f,t)*Mathf.Sqrt(Mathf.Max(.025f,1-Mathf.Pow(t,12)));
+                for(int k=0;k<=sides;k++)
+                {
+                    float a=k*2*Mathf.PI/sides,r=radius*taper*(1+.10f*Mathf.Cos(a*6));
+                    Color tint=skin*(.90f+.10f*Mathf.Cos(a*6));if(main&&t<.2f)tint=Color.Lerp(wood,skin,t/.2f);
+                    b.Add(p+(u*Mathf.Cos(a)+v*Mathf.Sin(a))*r,tint,new Vector2(k/(float)sides,t*4));
+                }
+            }
+            for(int row=0;row<segments;row++)for(int k=0;k<sides;k++)
+            {int a=first+row*(sides+1)+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}
+            int cap=b.V.Count;b.Add(tip,skin,new Vector2(.5f,1));
+            for(int k=0;k<sides;k++)b.Triangle(first+segments*(sides+1)+k,cap,first+segments*(sides+1)+k+1);
+            TreeMark(b,mask,4);
+        }
+        var crown=new Vector3(.025f,.99f,-.018f);Stem(Vector3.zero,new Vector3(0,.5f,0),crown,.044f,lod==0?14:8,true);
+        int arms=4+(int)(rng.Unit()*3);
+        for(int i=0;i<arms;i++)
+        {
+            float angle=i*2.399963f+(float)rng.Unit()*.3f,y=.26f+i*.055f,reach=.15f+.12f*(float)rng.Unit();
+            var outwards=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));var root=new Vector3(0,y,0);
+            var tip=root+outwards*reach+Vector3.up*(.25f+.25f*(float)rng.Unit());
+            // Broad elbows turn into upright, fleshy branches; no leaf balls.
+            Stem(root,root+outwards*reach*1.28f-Vector3.up*.035f,tip,.024f+.009f*(float)rng.Unit(),lod==0?10:6,false);
+        }
+        return FinishTreeForm(b,mask,"Ribbed succulent 1 / "+code+" / "+lod);
+    }
 }

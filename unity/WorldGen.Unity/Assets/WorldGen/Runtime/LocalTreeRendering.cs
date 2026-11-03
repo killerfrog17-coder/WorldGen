@@ -34,6 +34,7 @@ public sealed partial class LocalTerrainExplorer
             // are required only by the conservative empty-quad optimization.
             if(SystemInfo.graphicsShaderLevel>=45)material.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
             material.SetTexture("_TreeLeaves",rebuiltLeaves);material.SetTexture("_TreeLeafNormals",rebuiltLeafNormals);
+            LocalTreeTextures.BindBark(material);
             material.SetFloat("_TreeLeafShape",(int)m.LeafShape);material.SetFloat("_TreeBarkPattern",(int)m.BarkPattern);
             material.SetFloat("_Wind",(float)m.Flexibility);material.SetVector("_PlantTraits",new Vector4((float)m.Flexibility,.5f,.7f,1));
             material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));
@@ -99,7 +100,8 @@ public sealed partial class LocalTerrainExplorer
         long nearKey=ScatterArtKey(ScatterKind.GeneratedTree,pending.TreeCode,0);Mesh source;bool temporary=false;
         if(scatterArt.TryGetValue(nearKey,out var near))source=near.Parts[0].Mesh;
         else{source=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,pending.TreeCode);temporary=true;}
-        var snapshot=new LocalTreeImpostor.Source(source,(int)new TreeMorphology(pending.TreeCode).LeafShape);if(temporary)Destroy(source);
+        var morphology=new TreeMorphology(pending.TreeCode);
+        var snapshot=new LocalTreeImpostor.Source(source,(int)morphology.LeafShape,(int)morphology.BarkPattern);if(temporary)Destroy(source);
         var token=cancellation.Token;pending.TreeQueued=true;treeBakeOwner=pending;
         treeBakeTask=Task.Run(()=>{var result=LocalTreeImpostor.Bake(snapshot,token);result.Prepared=LocalTreeTextures.Prepare(result.Colours,result.Normals,LocalTreeImpostor.Size,token);return result;},token);
     }
@@ -108,6 +110,8 @@ public sealed partial class LocalTerrainExplorer
     void DisposeTreeImpostors()
     {
         foreach(var model in scatterArt.Values)ReleaseTreeTextures(model);
-        if(rebuiltLeaves!=null)Destroy(rebuiltLeaves);if(rebuiltLeafNormals!=null)Destroy(rebuiltLeafNormals);
+        // Shared immutable Resources assets; destroying them would invalidate a
+        // second explorer/revisit and force a duplicate allocation.
+        rebuiltLeaves=null;rebuiltLeafNormals=null;
     }
 }

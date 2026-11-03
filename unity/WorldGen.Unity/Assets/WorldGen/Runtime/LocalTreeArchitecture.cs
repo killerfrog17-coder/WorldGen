@@ -19,9 +19,10 @@ static partial class LocalScatterMeshes
         var m=new TreeMorphology(code);
         if(m.Form==TreeGrowthForm.FrondCrown||m.Form==TreeGrowthForm.TreeFern)return BuildFrondTree(code,lod,m);
         if(m.Form==TreeGrowthForm.TallCane)return BuildCaneTree(code,lod,m);
-        if(m.Form==TreeGrowthForm.ArborescentSucculent)return BuildLegacyTree(code,lod);
+        if(m.Form==TreeGrowthForm.ArborescentSucculent)return BuildSucculentTree(code,lod,m);
         var nodes=TreeSkeleton(code,m);var b=new Builder();var masks=new List<Vector2>();
         var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
+        var hull=LocalTreeTextures.ShootHull((int)m.LeafShape);
         bool needle=m.Form==TreeGrowthForm.NeedleCrown;
         void Mark(float type){while(masks.Count<b.V.Count)masks.Add(new Vector2(Mathf.Clamp01(b.V[masks.Count].y),type));}
         for(int i=1;i<nodes.Count;i++)
@@ -86,15 +87,16 @@ static partial class LocalScatterMeshes
                     for(int row=0;row<3;row++)
                     {
                         float t=row*.5f;var p=center+up*((t*2-1)*span)+normal*(row==1?span*.10f:0);
-                        b.Add(p-right*span,tint,new Vector2(0,t));b.Add(p+right*span,tint,new Vector2(1,t));
+                        float left=Mathf.Lerp(hull.x,hull.z,t),rightEdge=Mathf.Lerp(hull.y,hull.w,t);
+                        b.Add(p+right*((left*2-1)*span),tint,new Vector2(left,t));b.Add(p+right*((rightEdge*2-1)*span),tint,new Vector2(rightEdge,t));
                     }
                     for(int row=0;row<2;row++){int a=first+row*2;b.Triangle(a,a+2,a+1);b.Triangle(a+1,a+2,a+3);}
                 }
                 else
                 {
                     int first=b.V.Count;
-                    b.Add(center-right*span-up*span,tint,Vector2.zero);b.Add(center+right*span-up*span,tint,Vector2.right);
-                    b.Add(center-right*span+up*span,tint,Vector2.up);b.Add(center+right*span+up*span,tint,Vector2.one);
+                    b.Add(center+right*((hull.x*2-1)*span)-up*span,tint,new Vector2(hull.x,0));b.Add(center+right*((hull.y*2-1)*span)-up*span,tint,new Vector2(hull.y,0));
+                    b.Add(center+right*((hull.z*2-1)*span)+up*span,tint,new Vector2(hull.z,1));b.Add(center+right*((hull.w*2-1)*span)+up*span,tint,new Vector2(hull.w,1));
                     b.Triangle(first,first+2,first+1);b.Triangle(first+1,first+2,first+3);
                 }
                 Mark(material);

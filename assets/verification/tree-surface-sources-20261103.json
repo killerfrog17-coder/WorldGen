@@ -1,0 +1,620 @@
+{
+  "version": "tree-surfaces-1",
+  "leaves": [
+    "LeafSet005",
+    "LeafSet010",
+    "LeafSet016",
+    "LeafSet018",
+    "LeafSet019",
+    "LeafSet022",
+    "LeafSet024"
+  ],
+  "bark_patterns": {
+    "Smooth": "chinese_hackberry_bark",
+    "Fissured": "bark_willow_02",
+    "Scaly": "pine_bark",
+    "Fibrous": "palm_bark",
+    "Peeling": "metasequoia_bark"
+  },
+  "licenses": [
+    "https://docs.ambientcg.com/license/",
+    "https://polyhaven.com/license"
+  ],
+  "research": [
+    {
+      "url": "https://unity.com/how-to/gpu-optimization",
+      "application": "Keep cutout geometry/overdraw bounded, reuse instanced art and measure actual forest views."
+    }
+  ],
+  "processing": "Photographed isolated leaf alpha/normal cutouts, neutral mean tint, deterministic attached twig assemblies, RGB edge dilation. Continuous blade interiors retain geometric frond silhouettes. Registered scanned bark.",
+  "gpu": "32 shoot layers x512 BC7 colour/normal; 5 bark layers x512 BC7 colour/normal. CPU bake pixels downsampled to256. No extra draw calls or shadow lights.",
+  "inputs": [
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_Color.png",
+      "sha256": "6dd0879443f1d94b24a6a4d20af374f9500003a6bcca8a3540e9fad2fb94d5ed",
+      "bytes": 516075
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_NormalGL.png",
+      "sha256": "a0070fca2a161a2d78a3e202c03e9424a5944923dc6bc72dbee514f7ec83bb84",
+      "bytes": 2515276
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_Opacity.png",
+      "sha256": "221add1e7e59617dbf6d1341ed46609604039bc79ceda3e06c7049a8441baea7",
+      "bytes": 30899
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/source.json",
+      "sha256": "7168b6a19f26fca34d762b0ec5840c68f5a860cff6adbbb521ed7bf10d560802",
+      "bytes": 10186
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/LeafSet010_1K-PNG_Color.png",
+      "sha256": "6a6d3cc80c1984ad148f462fc53ad4f0f356f65cc5e1e5642fc80711b11cecf0",
+      "bytes": 576728
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/LeafSet010_1K-PNG_NormalGL.png",
+      "sha256": "39117b1b8152472a5428096ee0a22ae728e880b2d5c79c53bc2dd10b5d8f5ce3",
+      "bytes": 4378811
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/LeafSet010_1K-PNG_Opacity.png",
+      "sha256": "ceed567f607e8955bddf37d1163c2ee1f1334e643bc6a01ac3e9c7f38a73c9c0",
+      "bytes": 51212
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet010/source.json",
+      "sha256": "b0a3a82fd13b0621bfd1c68dc68261d5719e2cca9be9a90640861b747b1b30ec",
+      "bytes": 10193
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/LeafSet016_1K-PNG_Color.png",
+      "sha256": "aca4401a5fd299cdec9445f772563288d517e26f61fa76fccda98f0bafeb9450",
+      "bytes": 805446
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/LeafSet016_1K-PNG_NormalGL.png",
+      "sha256": "32f3a84c7afb51dc5ee1325c7d0ffb77de3579488c5228f5fa3d183f92538496",
+      "bytes": 4154588
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/LeafSet016_1K-PNG_Opacity.png",
+      "sha256": "74e462fa396b39220efe4e734650872603323c015677a2e2e2447667fdb5ada3",
+      "bytes": 40887
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet016/source.json",
+      "sha256": "5f66cce13a450e42e9599f45d27593e5fd3ca678e317e271c65b4d584c789cd6",
+      "bytes": 10156
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/LeafSet018_1K-PNG_Color.png",
+      "sha256": "1f86991b368b0251fb229e4891b32c8d2ed84e58ee57838cc2c1b36ebf14e1c6",
+      "bytes": 426072
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/LeafSet018_1K-PNG_NormalGL.png",
+      "sha256": "9664dc7adfb1aef7350ca245b5105a840af23aef2d999c39debd86109d48f817",
+      "bytes": 1932760
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/LeafSet018_1K-PNG_Opacity.png",
+      "sha256": "b1aee802b0b4ec7ff7a43aa99f08c99a4e14f4caa0a914c2bb84544fd1702d6f",
+      "bytes": 16492
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet018/source.json",
+      "sha256": "10b7d11c0a854a66e4c37f4abd2166694e7e72f7e1069efa2c3814f3c3583197",
+      "bytes": 10124
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/LeafSet019_1K-PNG_Color.png",
+      "sha256": "c65827e13bb755d5c3045e190b1547e2c12748c2e992376db5f0008a6c6c4b80",
+      "bytes": 726465
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/LeafSet019_1K-PNG_NormalGL.png",
+      "sha256": "3aa1ea9c7105611417320a0cc5d2cfdf93f31824aef958b5cf2dbb7a24d9af7c",
+      "bytes": 4818050
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/LeafSet019_1K-PNG_Opacity.png",
+      "sha256": "46611bdd548ba04c96c99bc0387f96b9947f45c2d6600e5abd55047d600a526b",
+      "bytes": 218193
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet019/source.json",
+      "sha256": "8614bbedc6717dfdd61ac562d787af0e4a124266718de23f52ac25507ce9b314",
+      "bytes": 10284
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/LeafSet022_1K-PNG_Color.png",
+      "sha256": "ab984343ef0fbcc17f2bcf259b332aa4c8257b5079bc93c2014b1115613dd1ba",
+      "bytes": 953371
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/LeafSet022_1K-PNG_NormalGL.png",
+      "sha256": "da0915c1dae4fde6621b800d1cb70a2c20b6d682a6595ed279f0a6bf225ccf29",
+      "bytes": 3250791
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/LeafSet022_1K-PNG_Opacity.png",
+      "sha256": "61f13238da94caaafabe685c9e7da735cd78e4c02810ba054354ec5c67e37f7a",
+      "bytes": 27661
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet022/source.json",
+      "sha256": "59b7b6ae46fe22449af6c441cef2ec6ad6df0de7f2c06005cab85a525195dcbf",
+      "bytes": 10407
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/LeafSet024_1K-PNG_Color.png",
+      "sha256": "659cee2823b7901e139bdafc19654b29f9061b698c836666e460d909526d26af",
+      "bytes": 1156983
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/LeafSet024_1K-PNG_NormalGL.png",
+      "sha256": "044073b4f21220c75cd789a72f9cab8d10e08f97f358c9901581f1a555e058a5",
+      "bytes": 4426367
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/LeafSet024_1K-PNG_Opacity.png",
+      "sha256": "7f3f41a9fbfe35d4fdcc5d9c13a4b1df4f2ef50a24ff1abe9172b074ce68e401",
+      "bytes": 35235
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet024/source.json",
+      "sha256": "6bbd3236fb09d421c93a2a20d0058c4e25dd54e4ea3e69a94c4e9c52b4d8a7eb",
+      "bytes": 10160
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/bark_willow_02/Diffuse.jpg",
+      "sha256": "95e1380566834aab220bd8ea9a5287f3bfff46910c18017fcb46ebbbe832024f",
+      "bytes": 998966
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/bark_willow_02/nor_gl.jpg",
+      "sha256": "7d6f905fe7225d96741d191f6ee61c0681603570d28f14e7678df6a3019bc48d",
+      "bytes": 1358916
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/bark_willow_02/source.json",
+      "sha256": "7779a351a3be32d3a2974ea55bc8d1d79ad6124706520d8e6714ec0cdcc3e1b8",
+      "bytes": 2007
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/Diffuse.jpg",
+      "sha256": "dea0ece8e153a614331f51291eefdee71b8f5948395eecb40ffcd9aa67016913",
+      "bytes": 1466689
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/nor_gl.jpg",
+      "sha256": "ae3f3ebb2fc36dd7eb714e78657c3f1bf1e7a67a921675cda2fd808c00fc0706",
+      "bytes": 1699657
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/source.json",
+      "sha256": "740d7157e2e45cbeeffabb071a69e92b2321e20660d25d8b48cf61ba6ca5088e",
+      "bytes": 2168
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/Diffuse.jpg",
+      "sha256": "38821f7d363a5df6ed29a36c6fa331be22290f01ebfd9ce1619edaf165739a77",
+      "bytes": 869551
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/nor_gl.jpg",
+      "sha256": "4f5d765c31965b37ec2aa3b803a3e0e29c6c8edb8df2e7040a2907df65cb062f",
+      "bytes": 1077934
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/source.json",
+      "sha256": "30f98d82aecb4ffcb00dcb81d7d9b0d97715a82647a0befdae3b0fa6e4bb2c5d",
+      "bytes": 2109
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/Diffuse.jpg",
+      "sha256": "80cbe5ee11af799db082cdb342601a70b81a5f54b98eb587e87dcb5bf5e1f395",
+      "bytes": 707281
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/nor_gl.jpg",
+      "sha256": "4b558654ea5f92e61fe5be5d3df2f79aedd7e5f0e230a08954c1794a6a20dc25",
+      "bytes": 1307345
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/source.json",
+      "sha256": "a5487b47b4b765cdd67b312aa2a0ac0a84281cd16cb82b8fa5053f2d6d0e80bb",
+      "bytes": 2020
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/Diffuse.jpg",
+      "sha256": "89ddfbff0388d30caff902ba600cdf75eb1e651ca71ece6594b5a9b27abb47ab",
+      "bytes": 837641
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/nor_gl.jpg",
+      "sha256": "666e5f175a010f12577687dd8029125bff99110e6a97958afb295b34266437db",
+      "bytes": 1178440
+    },
+    {
+      "path": "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/source.json",
+      "sha256": "d2ca00155c8bfbd592b37f6c7d759007a43a62a0cfd895a90ba0393b0ae2da3e",
+      "bytes": 2043
+    }
+  ],
+  "outputs": [
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-00-albedo.png",
+      "sha256": "04221ce78b91a8077da7f38c140b2157eb6685592f901cf27da293c9a79ee42d",
+      "bytes": 222493
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-00-normal.png",
+      "sha256": "ff8511682c381406f3f65f6bf27cb09fec63d79fe7bb70157d25d82c8b13d952",
+      "bytes": 178907
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-01-albedo.png",
+      "sha256": "f425d138a047bb24dce2bc34a753c73fd2caa533ae9f4e801f4332c2737c84bd",
+      "bytes": 206709
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-01-normal.png",
+      "sha256": "24397dd15fa92a4d1fcada43ec14872c35ea54ce96bc7be16fe1845200657daa",
+      "bytes": 176267
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-02-albedo.png",
+      "sha256": "ee9fff7288a45523e10741df45f2440647d91dca9a15b3220ddcb39798e4eced",
+      "bytes": 216288
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-02-normal.png",
+      "sha256": "f15da68ea2520b464a67ea6b6c57e2e946dc134aec098c21b6f7b9e558c0b866",
+      "bytes": 187102
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-03-albedo.png",
+      "sha256": "5b4814e7100f1fffed9b69e54ad4130157661ec65081f693e5584b6c3a5116a2",
+      "bytes": 210000
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-03-normal.png",
+      "sha256": "c8005c31ad0cf4b89d974d641c2d7347931eeea6c9802378a1a48e2ebdd15bf6",
+      "bytes": 180101
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-04-albedo.png",
+      "sha256": "12a5d6c942216c00b0560deaeb1c16c5f919feec057f41cf3bbcf051897e4d3f",
+      "bytes": 171472
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-04-normal.png",
+      "sha256": "8613519a51e90bbbab5a72d61519d10ef57e37f38eff35aeff736db1189053ea",
+      "bytes": 126029
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-05-albedo.png",
+      "sha256": "0fd3e7bca9b9b51be4f37f8988815b59aecdbd80889d88b6c5c646e0df742916",
+      "bytes": 174127
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-05-normal.png",
+      "sha256": "8155ec99437563df28d329931d0c1402c57ab47f78a2fd3ea249d6d840c60eef",
+      "bytes": 128829
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-06-albedo.png",
+      "sha256": "aa25c50b0c68b78bfd6d7a4dec77a08a6cd84e319dd156e884fed4c46054bd59",
+      "bytes": 171037
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-06-normal.png",
+      "sha256": "d6c127dbab84a7d30bc32f39257c4b33023d470518f7b76092f6a15418696d65",
+      "bytes": 125397
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-07-albedo.png",
+      "sha256": "8e77f704260923682acd2d189aa442ae1468be475468ac742103922bf3a3a1d6",
+      "bytes": 186248
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-07-normal.png",
+      "sha256": "82aa2d79bfd4fdd6027da2615b20af2bd51cf0c9cd593bcb0aa8645115370486",
+      "bytes": 136289
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-08-albedo.png",
+      "sha256": "1a92277bb82877b6fd24d23cd1bc603f7bab7c2b17b7d74cfedb69c2f2ed08d7",
+      "bytes": 203251
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-08-normal.png",
+      "sha256": "3e4118d619a1d9feed8f06313da8670c50d88f7a089b08033bc8b76f4a50f035",
+      "bytes": 179392
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-09-albedo.png",
+      "sha256": "437e8459e14cfda21e1f25471ac872d178a45012bc634f9034731d97ba70a36c",
+      "bytes": 186199
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-09-normal.png",
+      "sha256": "77fd677a436909ec8f097f1392137a1c1a64cd575145f466f28c71c9128fc077",
+      "bytes": 134642
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-10-albedo.png",
+      "sha256": "dfd0adb2f5dd89fd2aca7d8e078c6bbd34a34a9341d8b430bed26c6bdfd28ed1",
+      "bytes": 210699
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-10-normal.png",
+      "sha256": "28ff679816a89b42b80f7ff362dff7f32063559af1ca326582e79d580f1ac0f8",
+      "bytes": 186774
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-11-albedo.png",
+      "sha256": "b70d3d5b307405738f7330b844f21c24c44ec0bb6796bcb38257788b514af082",
+      "bytes": 190080
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-11-normal.png",
+      "sha256": "7070d6338e2e53be9b06ce5450d4a43d4d0ef72ddeeb387ad61c810a2aa204d9",
+      "bytes": 138830
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-12-albedo.png",
+      "sha256": "39033c2826dffa13fef044186e521f0168bb3e3c69061bb313cde2a9f3dce5f3",
+      "bytes": 169751
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-12-normal.png",
+      "sha256": "d3d93d661085a7ed3fd5d1043a0cfdab0964fdfa853508129f8546696279e2cf",
+      "bytes": 129733
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-13-albedo.png",
+      "sha256": "6b1a598affd131f0dfd339e139e98310d0ab125716cbcc1a68d928ffe67770dc",
+      "bytes": 167618
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-13-normal.png",
+      "sha256": "baf1117fc3bc7266f2ec8c15102d431838b4822dc65e274458b8896a0013eb9d",
+      "bytes": 137951
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-14-albedo.png",
+      "sha256": "c86d315a173dff827dbec135cb9e2ba4eddd3f64fda5e432c371688d33667d7e",
+      "bytes": 162538
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-14-normal.png",
+      "sha256": "d50c716db13118075a848fc277c086ed563276f6898086ac510860c95c93f11a",
+      "bytes": 130211
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-15-albedo.png",
+      "sha256": "2693ba90f6febc9e80f056c0cd86f6eff47bd4827120c33c8e099e40a73745f0",
+      "bytes": 168056
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-15-normal.png",
+      "sha256": "422d46a1aa16590c86ca1a9aad1f8aa8c426a5ba4cb95f90e910ddb109f219d9",
+      "bytes": 139838
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-16-albedo.png",
+      "sha256": "07dc6f0bf84ded1b0e8f4801427a8bdaca549ec4637c60cb2374b9cc0a2e9518",
+      "bytes": 164044
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-16-normal.png",
+      "sha256": "fbe5aa6f192c9ccf03073fc01b3419124f32be0f1ce60c9ab6530b685591562d",
+      "bytes": 125497
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-17-albedo.png",
+      "sha256": "317beedc160c7aab5d8fd0c8a00b9fc39d780c65afcef381fdc730bd465d610c",
+      "bytes": 159686
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-17-normal.png",
+      "sha256": "edef79b875773d821fef71aadc67fd69f13e389da49a17140c450bdd46289fb8",
+      "bytes": 125315
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-18-albedo.png",
+      "sha256": "4202314af6e94b84a47b8a75e81845bd0ad3af3b1fdcffb4e24281b0af35c524",
+      "bytes": 194508
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-18-normal.png",
+      "sha256": "698d4c9b428b6c45081ac0af247836910099c8d0285f854fbebfe7f200ed442f",
+      "bytes": 157069
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-19-albedo.png",
+      "sha256": "07dc6f0bf84ded1b0e8f4801427a8bdaca549ec4637c60cb2374b9cc0a2e9518",
+      "bytes": 164044
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-19-normal.png",
+      "sha256": "fbe5aa6f192c9ccf03073fc01b3419124f32be0f1ce60c9ab6530b685591562d",
+      "bytes": 125497
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-20-albedo.png",
+      "sha256": "94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05",
+      "bytes": 218361
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-20-normal.png",
+      "sha256": "3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9",
+      "bytes": 151956
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-21-albedo.png",
+      "sha256": "39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714",
+      "bytes": 213961
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-21-normal.png",
+      "sha256": "9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c",
+      "bytes": 158516
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-22-albedo.png",
+      "sha256": "1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407",
+      "bytes": 231271
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-22-normal.png",
+      "sha256": "60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9",
+      "bytes": 158350
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-23-albedo.png",
+      "sha256": "f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd",
+      "bytes": 220689
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-23-normal.png",
+      "sha256": "be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53",
+      "bytes": 140463
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-24-albedo.png",
+      "sha256": "94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05",
+      "bytes": 218361
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-24-normal.png",
+      "sha256": "3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9",
+      "bytes": 151956
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-25-albedo.png",
+      "sha256": "39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714",
+      "bytes": 213961
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-25-normal.png",
+      "sha256": "9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c",
+      "bytes": 158516
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-26-albedo.png",
+      "sha256": "1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407",
+      "bytes": 231271
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-26-normal.png",
+      "sha256": "60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9",
+      "bytes": 158350
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-27-albedo.png",
+      "sha256": "f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd",
+      "bytes": 220689
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-27-normal.png",
+      "sha256": "be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53",
+      "bytes": 140463
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-28-albedo.png",
+      "sha256": "94776f795fd3477c937c085784cedf2b102f068e67fc11dcfc02da56b5b7bd05",
+      "bytes": 218361
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-28-normal.png",
+      "sha256": "3d0659a4ca0eadb32bdd00efabe68cb29c48a4279fbb24d84c37afb184362ac9",
+      "bytes": 151956
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-29-albedo.png",
+      "sha256": "39b66f5996a4e33065a9966f931475c027f532f65f470baeb34dc8198a3f8714",
+      "bytes": 213961
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-29-normal.png",
+      "sha256": "9c68d9a7f8c0b5aead3dc68c5155d13f0e434c4bfb0761473ef9d25805b3081c",
+      "bytes": 158516
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-30-albedo.png",
+      "sha256": "1a32d92aab8059bfcf74f019fbbd2c9c3b5a00a7d2024c83bd6c09f133b6b407",
+      "bytes": 231271
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-30-normal.png",
+      "sha256": "60922109755833e24dec918490257fd9b4c37f4be9b176008d462e3f6d2a37b9",
+      "bytes": 158350
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-31-albedo.png",
+      "sha256": "f27e32f4b01c87f1ce853aba89bcc829481698c3681737801067378f2c3bfecd",
+      "bytes": 220689
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-31-normal.png",
+      "sha256": "be7d67f1b495aaa32355c414d19188cf18d865ce031ea2c23dece19f84fe7e53",
+      "bytes": 140463
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-albedo.png",
+      "sha256": "e8fff199183166d466c03f87968fbd7eb76207a66a0862a4aa6c2b627f01259a",
+      "bytes": 511239
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-normal.png",
+      "sha256": "81895e504eeb90e137e2ac8cbf979baab05dbf0b767be2cefd2142da0a9d8571",
+      "bytes": 375710
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-albedo.png",
+      "sha256": "758e1ba940d2086c840e06a6c9071b7205db880e0a5685fed4bcb0fe4c12199d",
+      "bytes": 572834
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-normal.png",
+      "sha256": "4f5b9f2e81e78bfa8ca5f028f1bcb08d07efd21e3ea9c28c98c37ff27ca522b0",
+      "bytes": 609348
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-albedo.png",
+      "sha256": "8dd527f702ac6047f3b327fd24779732f558f44370c54fac180364d34bb28fa8",
+      "bytes": 569255
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-normal.png",
+      "sha256": "6a1920c0d2de3e4199c85710b4eb5e6e65ffec70b7726ecaae3296f210f69280",
+      "bytes": 565730
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-albedo.png",
+      "sha256": "1830f8a324aa2236186ecaf3c4ec34c49199d4a642a1c7b3a72af5da5abd2d8c",
+      "bytes": 519864
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-normal.png",
+      "sha256": "8a1319ba85ead63c5251c0a6a161912c2da381beacb4d2311adc348d65310467",
+      "bytes": 571245
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-albedo.png",
+      "sha256": "a42989f89043ba702186312361113825233f952398eced253bac7b6c9e18d28e",
+      "bytes": 572091
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-normal.png",
+      "sha256": "c131901deed5b84065ad23dc3f92ba849bdf1529f5e4fb4db043b61c380aab65",
+      "bytes": 500284
+    }
+  ]
+}

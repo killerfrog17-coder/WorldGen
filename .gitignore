@@ -72,4 +72,8 @@ unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance.meta
 unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion/
 unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion.meta
 *.asset-pending
+/unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/
+/unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1.meta
+/unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/
+/unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1.meta
 /assets/first-person/*.blend[0-9]*

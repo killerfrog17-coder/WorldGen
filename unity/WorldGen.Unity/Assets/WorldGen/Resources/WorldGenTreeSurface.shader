@@ -3,6 +3,7 @@ Shader "WorldGen/TreeSurface2"
     Properties { [HideInInspector] _VegetationSceneEnabled("Shared camera scene",Float)=0
 
         _TreeLeaves("Baked shoots",2DArray)=""{} _TreeLeafNormals("Shoot normals",2DArray)=""{}
+        _TreeBark("Scanned bark",2DArray)=""{} _TreeBarkNormals("Bark normals",2DArray)=""{}
         _TreeColourViews("Tree albedo views",2DArray)=""{} _TreeNormalViews("Tree normal/depth views",2DArray)=""{}
         _TreeLeafShape("Leaf shape",Float)=0 _TreeBarkPattern("Bark",Float)=0
         _Impostor("Multi-view representation",Float)=0 _ImpostorBounds("Centre and radius",Vector)=(0,.5,0,.7)
@@ -26,6 +27,8 @@ Shader "WorldGen/TreeSurface2"
         #include "WorldGenWind.hlsl"
         #include "WorldGenTree.hlsl"
         TEXTURE2D_ARRAY(_TreeLeafNormals);SAMPLER(sampler_TreeLeafNormals);
+        TEXTURE2D_ARRAY(_TreeBark);SAMPLER(sampler_TreeBark);
+        TEXTURE2D_ARRAY(_TreeBarkNormals);SAMPLER(sampler_TreeBarkNormals);
         #include "WorldGenTreeViews.hlsl"
         float4 _PlantTraits,_ImpostorBounds,_AmbientTint,_FogColor;
         float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha;
@@ -86,15 +89,20 @@ Shader "WorldGen/TreeSurface2"
             else
             {
                 foliage=step(.5,i.mask.y);albedo=SRGBToLinear(i.color.rgb);normal=normalize(i.normal);
-                if(i.mask.y>1.5&&i.mask.y<2.5)
+                if(i.mask.y>.5&&i.mask.y<2.5)
                 {
-                    float layer=_TreeLeafShape*4+round((i.mask.y-2)*10);
-                    half4 tex=SAMPLE_TEXTURE2D_ARRAY(_TreeLeaves,sampler_TreeLeaves,i.uv,layer);clip(tex.a-.4);albedo*=tex.rgb;
+                    float layer=i.mask.y>1.5?_TreeLeafShape*4+round((i.mask.y-2)*10):20;
+                    half4 tex=SAMPLE_TEXTURE2D_ARRAY(_TreeLeaves,sampler_TreeLeaves,i.uv,layer);if(i.mask.y>1.5)clip(tex.a-.4);albedo*=tex.rgb;
                     half3 detail=SAMPLE_TEXTURE2D_ARRAY(_TreeLeafNormals,sampler_TreeLeafNormals,i.uv,layer).rgb*2-1;
                     half3 t=normalize(i.tangent.xyz);normal=normalize(normal+(t*detail.x+cross(normal,t)*i.tangent.w*detail.y)*.45);
                 }
                 albedo*=.72+.28*saturate(i.mask.x*1.7);
-                if(foliage<.5)albedo*=.94+.06*sin(i.uv.x*(55+_TreeBarkPattern*13)+sin(i.uv.y*11)*.5);
+                if(foliage<.5)
+                {
+                    albedo*=SAMPLE_TEXTURE2D_ARRAY(_TreeBark,sampler_TreeBark,i.uv,_TreeBarkPattern).rgb;
+                    half3 detail=SAMPLE_TEXTURE2D_ARRAY(_TreeBarkNormals,sampler_TreeBarkNormals,i.uv,_TreeBarkPattern).rgb*2-1;
+                    half3 t=normalize(i.tangent.xyz);normal=normalize(normal+(t*detail.x+cross(normal,t)*i.tangent.w*detail.y)*.40);
+                }
             }
             albedo*=SRGBToLinear(UNITY_ACCESS_INSTANCED_PROP(Props,_Tint).rgb);
         }

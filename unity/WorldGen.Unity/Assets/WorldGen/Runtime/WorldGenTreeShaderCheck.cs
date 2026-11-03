@@ -27,6 +27,7 @@ public sealed partial class WorldGenRuntime
         var material=new Material(template);LocalTreeTextures.Create(out var leaves,out var leafNormals);
         if(SystemInfo.graphicsShaderLevel>=45)material.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
         material.SetTexture("_TreeLeaves",leaves);material.SetTexture("_TreeLeafNormals",leafNormals);material.SetFloat("_Wind",0);
+        LocalTreeTextures.BindBark(material);
         material.SetColor("_AmbientTint",new Color(.25f,.25f,.25f));material.SetFloat("_FogDistance",10000);
         var root=new GameObject("Packaged tree shader fixture");var camera=root.AddComponent<Camera>();camera.enabled=false;camera.clearFlags=CameraClearFlags.SolidColor;
         camera.backgroundColor=new Color(.42f,.53f,.67f);camera.cullingMask=1<<30;camera.nearClipPlane=.01f;camera.farClipPlane=100;camera.fieldOfView=45;camera.aspect=1280f/720;
@@ -40,13 +41,14 @@ public sealed partial class WorldGenRuntime
         var report="";
         foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600})
         {
-            var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);material.SetFloat("_TreeLeafShape",(int)new TreeMorphology(code).LeafShape);
+            var morphology=new TreeMorphology(code);
+            var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",(int)morphology.BarkPattern);
             for(int stage=0;stage<2;stage++)
             {
                 Mesh drawn=mesh;var drawMaterial=material;
                 if(stage==1)
                 {
-                    var data=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)new TreeMorphology(code).LeafShape),CancellationToken.None);
+                    var data=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,(int)morphology.BarkPattern),CancellationToken.None);
                     LocalTreeTextures.Upload(data.Colours,data.Normals,128,"Native check views",out var colour,out var normals);
                     drawMaterial=new Material(material);drawMaterial.SetFloat("_Impostor",1);drawMaterial.SetTexture("_TreeColourViews",colour);drawMaterial.SetTexture("_TreeNormalViews",normals);drawMaterial.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));
                     drawn=new Mesh();drawn.vertices=new[]{new Vector3(-1,-1,0),new Vector3(1,-1,0),new Vector3(-1,1,0),new Vector3(1,1,0)};drawn.uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one};drawn.triangles=new[]{0,1,2,1,3,2};drawn.bounds=new Bounds(data.Center,Vector3.one*data.Radius*2.1f);

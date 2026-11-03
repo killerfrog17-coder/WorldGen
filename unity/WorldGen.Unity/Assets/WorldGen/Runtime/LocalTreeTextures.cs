@@ -1,71 +1,84 @@
 using System;
+using System.IO;
+using System.IO.Compression;
 using UnityEngine;
 using WorldGen.Core;
 
 // Shared shoot art. CPU pixels are retained once for bounded asynchronous model
 // baking; they are never sampled on the CPU to animate/draw standing trees.
-static class LocalTreeTextures
+public static class LocalTreeTextures
 {
-    public const int Size=256,Layers=32;
-    public static Color32[][] Colour,Normals;
+    public const int Size=256,Layers=32,BarkLayers=5;
+    public static Color32[][] Colour,Normals,BarkColour,BarkNormals;
+    static readonly Vector4[] hulls=new Vector4[8];
+    static readonly bool[] hullReady=new bool[8];
+    const string Assets="TreeSurfaceArtV1/";
     public static void Create(out Texture2DArray colour,out Texture2DArray normals)
     {
         if(Colour==null)Generate();
-        Upload(Colour,Normals,Size,"Tree shoots 2",out colour,out normals);
+        colour=Resources.Load<Texture2DArray>(Assets+"shoot-albedo");normals=Resources.Load<Texture2DArray>(Assets+"shoot-normal");
+        if(colour==null||normals==null)throw new InvalidOperationException("Publish scanned tree surface art before running.");
+    }
+    public static void BindBark(Material material)
+    {
+        material.SetTexture("_TreeBark",Resources.Load<Texture2DArray>(Assets+"bark-albedo"));
+        material.SetTexture("_TreeBarkNormals",Resources.Load<Texture2DArray>(Assets+"bark-normal"));
+    }
+    // A conservative trapezoid removes empty card corners with the SAME vertex
+    // and triangle count. Union all four variants, including faint edge pixels.
+    // Both mesh LODs retain identical UV/alpha support and branch positions.
+    public static Vector4 ShootHull(int shape)
+    {
+        if(hullReady[shape])return hulls[shape];if(Colour==null)Generate();
+        float lo=1,hi=0;
+        for(int variant=0;variant<4;variant++)
+        {
+            var pixels=Colour[shape*4+variant];
+            for(int i=0;i<pixels.Length;i++)if(pixels[i].a>=8){float u=(i%Size+.5f)/Size;lo=Mathf.Min(lo,u);hi=Mathf.Max(hi,u);}
+        }
+        float leftTop=1,rightTop=0,leftBottom=1,rightBottom=0;
+        for(int variant=0;variant<4;variant++)
+        {
+            var pixels=Colour[shape*4+variant];
+            for(int i=0;i<pixels.Length;i++)if(pixels[i].a>=8)
+            {
+                float u=(i%Size+.5f)/Size,v=(i/Size+.5f)/Size;
+                leftTop=Mathf.Min(leftTop,lo+(u-lo)/v);rightTop=Mathf.Max(rightTop,hi+(u-hi)/v);
+                leftBottom=Mathf.Min(leftBottom,lo+(u-lo)/(1-v));rightBottom=Mathf.Max(rightBottom,hi+(u-hi)/(1-v));
+            }
+        }
+        const float pad=3f/Size;
+        var top=new Vector4(lo-pad,hi+pad,leftTop-pad,rightTop+pad);
+        var bottom=new Vector4(leftBottom-pad,rightBottom+pad,lo-pad,hi+pad);
+        var result=(top.y-top.x+top.w-top.z)<(bottom.y-bottom.x+bottom.w-bottom.z)?top:bottom;
+        for(int i=0;i<4;i++)result[i]=Mathf.Clamp01(result[i]);hulls[shape]=result;hullReady[shape]=true;return result;
     }
     static void Generate()
     {
-        Colour=new Color32[Layers][];Normals=new Color32[Layers][];
-        for(int layer=0;layer<Layers;layer++)
+        var asset=Resources.Load<TextAsset>(Assets+"pixels");
+        if(asset==null)throw new InvalidOperationException("Tree CPU surface bank missing.");
+        try
         {
-            int family=layer/4,variant=layer%4;var rng=new Rng(layer,"tree-shoot-art-2");
-            var pixels=Colour[layer]=new Color32[Size*Size];var ns=Normals[layer]=new Color32[pixels.Length];
-            // A branching leafy shoot, not unrelated ellipses floating on cards.
-            void Stem(Vector2 a,Vector2 b,float width)
+            using(var input=new MemoryStream(asset.bytes,false))
+            using(var zip=new DeflateStream(input,CompressionMode.Decompress))
+            using(var reader=new BinaryReader(zip))
             {
-                int count=Mathf.CeilToInt((b-a).magnitude*Size*2);
-                for(int k=0;k<=count;k++)
+                if(reader.ReadInt32()!=0x54524131||reader.ReadInt32()!=Size||reader.ReadInt32()!=Layers||reader.ReadInt32()!=BarkLayers)throw new InvalidDataException("Tree surface bank header");
+                Color32[][] Read(int count)
                 {
-                    var p=Vector2.Lerp(a,b,k/(float)Math.Max(1,count));int radius=Math.Max(1,Mathf.RoundToInt(width*Size));
-                    int x=Mathf.RoundToInt(p.x*Size),y=Mathf.RoundToInt(p.y*Size);
-                    for(int dy=-radius;dy<=radius;dy++)for(int dx=-radius;dx<=radius;dx++)if(x+dx>=0&&x+dx<Size&&y+dy>=0&&y+dy<Size)
-                    {int at=(y+dy)*Size+x+dx;pixels[at]=new Color32(113,113,113,255);ns[at]=new Color32(128,128,255,128);}
-                }
-            }
-            if(family==4)Stem(new Vector2(.48f,.04f),new Vector2(.54f,.94f),.002f);
-            int rows=family==4?12:7;
-            for(int row=0;row<rows;row++)for(int sign=-1;sign<=1;sign+=2)
-            {
-                float y=.12f+row*.72f/rows,reach=(.15f+.16f*Mathf.Sin(y*Mathf.PI))*(.88f+(float)rng.Unit()*.22f);
-                Vector2 a=new Vector2(.48f+.06f*y,y),tip=new Vector2(a.x+sign*reach,y+.11f);
-                if(family==4)Stem(a,tip,.001f);
-                int leaflets=family==4?7:family==3?3:2;
-                for(int leaflet=0;leaflet<leaflets;leaflet++)
-                {
-                    float q=(leaflet+.65f)/leaflets;var center=Vector2.Lerp(a,tip,q)+new Vector2(sign*.025f,.025f);
-                    float length=family==4?.060f:family==1?.12f:family==3?.078f:.105f;
-                    float width=family==4?.010f:family==1?.029f:family==3?.031f:.052f;
-                    length*=.85f+(float)rng.Unit()*.3f;
-                    float angle=sign*(.55f+(float)rng.Unit()*.55f);var axis=new Vector2(Mathf.Sin(angle),Mathf.Cos(angle));var side=new Vector2(axis.y,-axis.x);
-                    int x0=Math.Max(0,(int)((center.x-length-width)*Size)),x1=Math.Min(Size-1,(int)((center.x+length+width)*Size));
-                    int y0=Math.Max(0,(int)((center.y-length-width)*Size)),y1=Math.Min(Size-1,(int)((center.y+length+width)*Size));
-                    float variation=.87f+(float)rng.Unit()*.18f;
-                    for(int ypix=y0;ypix<=y1;ypix++)for(int x=x0;x<=x1;x++)
+                    var result=new Color32[count][];
+                    for(int layer=0;layer<count;layer++)
                     {
-                        var d=new Vector2((x+.5f)/Size-center.x,(ypix+.5f)/Size-center.y);
-                        float u=Vector2.Dot(d,side)/width,v=Vector2.Dot(d,axis)/length;
-                        float edge=1-u*u-v*v;
-                        if(family==2)edge+=.15f*Mathf.Cos(v*(5+variant)*Mathf.PI);
-                        float alpha=Mathf.Clamp01(edge*Size*.04f+.5f);int at=ypix*Size+x;
-                        if(alpha*255<pixels[at].a)continue;
-                        float vein=Mathf.Exp(-Mathf.Abs(u)*50)*.08f+.025f*Mathf.Cos((v+Mathf.Abs(u)*.6f)*68);
-                        float shade=Mathf.Clamp01((.78f+.13f*(1-u*u)+vein+.04f*v)*variation);
-                        byte c=(byte)(shade*255);pixels[at]=new Color32(c,c,c,(byte)(alpha*255));
-                        var n=new Vector3(u*.48f,v*.16f,1).normalized;ns[at]=new Color32((byte)((n.x*.5f+.5f)*255),(byte)((n.y*.5f+.5f)*255),(byte)((n.z*.5f+.5f)*255),128);
+                        var bytes=reader.ReadBytes(Size*Size*4);if(bytes.Length!=Size*Size*4)throw new EndOfStreamException("Tree surface bank");
+                        var pixels=result[layer]=new Color32[Size*Size];
+                        for(int i=0;i<pixels.Length;i++){int at=i*4;pixels[i]=new Color32(bytes[at],bytes[at+1],bytes[at+2],bytes[at+3]);}
                     }
+                    return result;
                 }
+                Colour=Read(Layers);Normals=Read(Layers);BarkColour=Read(BarkLayers);BarkNormals=Read(BarkLayers);
             }
         }
+        finally{Resources.UnloadAsset(asset);}
     }
     public static void Upload(Color32[][] colours,Color32[][] normals,int size,string name,out Texture2DArray colour,out Texture2DArray normal)
         =>Upload(Prepare(colours,normals,size),size,name,out colour,out normal);

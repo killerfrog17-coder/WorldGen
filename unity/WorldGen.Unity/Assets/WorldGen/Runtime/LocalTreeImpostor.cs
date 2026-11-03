@@ -11,9 +11,9 @@ static class LocalTreeImpostor
     public sealed class Source
     {
         public Vector3[] Vertices,Normals;public Vector4[] Tangents;public Vector2[] Uv,Mask;
-        public Color32[] Colours;public int[] Indices;public Vector3 Center;public float Radius;public int Shape;
-        public Source(Mesh mesh,int shape)
-        {Vertices=mesh.vertices;Normals=mesh.normals;Tangents=mesh.tangents;Uv=mesh.uv;Mask=mesh.uv2;Colours=mesh.colors32;Indices=mesh.triangles;Center=mesh.bounds.center;Radius=mesh.bounds.extents.magnitude*1.025f;Shape=shape;}
+        public Color32[] Colours;public int[] Indices;public Vector3 Center;public float Radius;public int Shape,Bark;
+        public Source(Mesh mesh,int shape,int bark=0)
+        {Vertices=mesh.vertices;Normals=mesh.normals;Tangents=mesh.tangents;Uv=mesh.uv;Mask=mesh.uv2;Colours=mesh.colors32;Indices=mesh.triangles;Center=mesh.bounds.center;Radius=mesh.bounds.extents.magnitude*1.025f;Shape=shape;Bark=bark;}
     }
     public sealed class Result {public Color32[][] Colours,Normals;public Vector3 Center;public float Radius;public LocalTreeTextures.Prepared Prepared;}
     public static Vector3 Direction(int index)
@@ -60,6 +60,23 @@ static class LocalTreeImpostor
                         var tangent=(Vector3)(source.Tangents[ia]*u+source.Tangents[ib]*v+source.Tangents[ic]*w);tangent.Normalize();
                         n=(n+(tangent*detail.x+Vector3.Cross(n,tangent)*detail.y)*.45f).normalized;
                     }
+                    else if(material<.5f)
+                    {
+                        tint*=Sample(LocalTreeTextures.BarkColour[source.Bark],uv,true);
+                        var detail=(Vector3)(Vector4)Sample(LocalTreeTextures.BarkNormals[source.Bark],uv,true)*2-Vector3.one;
+                        var tangent=(Vector3)(source.Tangents[ia]*u+source.Tangents[ib]*v+source.Tangents[ic]*w);tangent.Normalize();
+                        n=(n+(tangent*detail.x+Vector3.Cross(n,tangent)*detail.y)*.40f).normalized;
+                    }
+                    else if(material<1.5f)
+                    {
+                        // Solid frond blades use the registered photographed
+                        // interior while geometry supplies the cutout shape.
+                        int bladeLayer=20;
+                        tint*=Sample(LocalTreeTextures.Colour[bladeLayer],uv);
+                        var detail=(Vector3)(Vector4)Sample(LocalTreeTextures.Normals[bladeLayer],uv)*2-Vector3.one;
+                        var tangent=(Vector3)(source.Tangents[ia]*u+source.Tangents[ib]*v+source.Tangents[ic]*w);tangent.Normalize();
+                        n=(n+(tangent*detail.x+Vector3.Cross(n,tangent)*detail.y)*.45f).normalized;
+                    }
                     if(!foliage&&area<0)n=-n;
                     float height=source.Vertices[ia].y*u+source.Vertices[ib].y*v+source.Vertices[ic].y*w;
                     float ao=.72f+.28f*Mathf.Clamp01(height*1.7f);tint*=Mathf.LinearToGammaSpace(ao);tint.a=1;
@@ -81,8 +98,9 @@ static class LocalTreeImpostor
         }
         return result;
     }
-    static Color Sample(Color32[] pixels,Vector2 uv)
+    static Color Sample(Color32[] pixels,Vector2 uv,bool repeat=false)
     {
+        if(repeat){uv.x-=Mathf.Floor(uv.x);uv.y-=Mathf.Floor(uv.y);}
         float x=Mathf.Clamp(uv.x*LocalTreeTextures.Size-.5f,0,LocalTreeTextures.Size-1),y=Mathf.Clamp(uv.y*LocalTreeTextures.Size-.5f,0,LocalTreeTextures.Size-1);
         int a=(int)x,b=(int)y,c=Math.Min(a+1,LocalTreeTextures.Size-1),d=Math.Min(b+1,LocalTreeTextures.Size-1);
         return Color.Lerp(Color.Lerp(pixels[b*LocalTreeTextures.Size+a],pixels[b*LocalTreeTextures.Size+c],x-a),Color.Lerp(pixels[d*LocalTreeTextures.Size+a],pixels[d*LocalTreeTextures.Size+c],x-a),y-b);
