@@ -92,8 +92,10 @@ namespace WorldGen.Core
             if(biome==Biome.Ice)return LandscapeRegion.Icefield;
             if(biome==Biome.SaltMarsh||biome==Biome.Mangrove)return LandscapeRegion.TidalWetland;
             if(p.Peat>.55)return LandscapeRegion.Peatland;
-            if(p.Canopy>.5&&p.Wet>.4)return LandscapeRegion.WoodedSwamp;
-            if(p.Wet>.5)return p.Canopy>.5?LandscapeRegion.WoodedSwamp:LandscapeRegion.FreshwaterMarsh;
+            // Moist, poorly drained upland forest alone is not a swamp.
+            // Require stronger hydric evidence for the wooded wetland label.
+            if(p.Canopy>.5&&p.Wet>.55)return LandscapeRegion.WoodedSwamp;
+            if(p.Canopy<=.5&&p.Wet>.5)return LandscapeRegion.FreshwaterMarsh;
             if(p.Salt>.38)return LandscapeRegion.SaltFlat;
             if(p.Clay>.45)return LandscapeRegion.ClayPan;
             if(p.Badlands>.30)return LandscapeRegion.Badlands;

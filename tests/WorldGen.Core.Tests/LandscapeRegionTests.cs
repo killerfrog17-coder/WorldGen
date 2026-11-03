@@ -23,6 +23,7 @@ static class LandscapeRegionTests
         var frozen=LandscapeProvince.Describe(gravel,Biome.Tundra,.7,0,60,1,0);
         Check(frozen.Glacial==0&&frozen.Frozen==1&&LandscapeProvince.Region(frozen,new V(1000,2000,3000),41,Biome.Tundra)==LandscapeRegion.Tundra,"Permafrost alone does not imply a glaciated landscape");
         Check(LandscapeProvince.Region(frozen,new V(1000,2000,3000),41,Biome.Ice)==LandscapeRegion.Icefield,"Active ice cover is distinct from exposed glacial lowlands");
+        Check(LandscapeProvince.Region(new LandscapeControls{Wet=.41f,Canopy=.6f},new V(1000,2000,3000),41,Biome.BorealForest)!=LandscapeRegion.WoodedSwamp,"A moist upland forest is not automatically classified as a swamp");
         var wet=new LandscapeControls{Wet=1,Moisture=1,Canopy=.2f};
         double radius=637100;var center=new V(1,0,0);var basins=new SmallWaterBodies(73421,radius);
         int probes=0;SmallWaterGround Flat(V p){probes++;return new SmallWaterGround(100,double.NaN,LocalWaterKind.None,wet);}
