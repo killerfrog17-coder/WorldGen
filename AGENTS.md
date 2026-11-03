@@ -49,6 +49,29 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED3Nov16:55Z LIVING NPC FOUNDATION COMPLETE; OWNER CONTINUE still active.
+Production c1ec937, A managed NON-DEVELOPMENT/ScriptsOnly BuiltUtc16:39:40Z.
+Six SAME final package cases all EXIT0: poses458,wet31,cold31,aquatic19,
+collector31,yearzero18. Actual forest/entrance/cold/collector/evening seated
+hearth/yearzero scenes inspected. Physical walk into/out of shelters, full
+packing/travel/partial setup/occupation, current binary save/reload, local wounds/
+trust, no duplicate objects and actual GPU grass-mask dispatch passed. Full
+forest retains trunks; hearth grass wear widened WITHOUT forcing treeless
+courts. Earlier courts-wet excessive relocation rejected, own interrupted
+aquatic marked; final fixed. 42NPC main update1.35/1.38ms,p95 2.20/2.24; terrain
+still streaming, not a wholeworldFPS claim. 50km cold47.67ms/warm0.13ms Core.
+Core final28242life/13132blueprints PASS; prior11268yearzero/15sites PASS.
+Manifest assets/verification/living-npcs-20261103.json exact package/source
+c1ec937, all5272inputs locked/backed up:5048original exact/5131ignored/134packs.
+User review /camps, /camps N, /camps visit N. No LLM/dialogue/NPC hunting/full
+production-consumption inventory/new species artwork; simple local steering.
+Source/doc/checkpoint/tag push and shortcut A selection part of final handoff.
+Stages2/3 STILL UNTOUCHED at this note; now stage2 may start. Preserve selected
+A checkpoint; next candidateB needs FULL managed build (B lacks new age/motion/
+compute packed data), not ScriptsOnly until its data baseline is updated.
+No owned build/test jobs remain. Owner3 files untouched,no paid/subagents/owner
+apps closed. Continue substantive work until explicit stop; no automatic end.
+
 ACTIVE3Nov15:47Z OWNER SAYS CONTINUE (Sol high); NO STOP/WRAP. Stage1 NPC only,
 2/3 UNTOUCHED. Selectedslot-b baseline39964fb unchanged. Internal A latest managed
 NONDEV/ScriptsOnly15:44ish built current source; final source UNCOMMITTED since

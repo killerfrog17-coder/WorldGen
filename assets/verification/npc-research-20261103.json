@@ -34,7 +34,7 @@
       "year": 2015,
       "doi": "10.1016/j.cub.2015.09.046",
       "url": "https://pubmed.ncbi.nlm.nih.gov/26480842/",
-      "finding": "Recorded sleep periods averaged roughly 7?8.5 hours, with actual sleep shorter; onset followed sunset by several hours and waking was usually before sunrise. Winter sleep was about an hour longer.",
+      "finding": "Recorded sleep periods averaged 6.9-8.5 hours, with actual sleep 5.7-7.1 hours; onset followed sunset by several hours and waking was usually before sunrise. Winter sleep was about an hour longer.",
       "design": "Bounded individual sleep windows, seasonal duration and onset variation; polar darkness does not create 13-hour adult sleep. Children rest longer, and midday heat prompts shade/rest rather than universal adult naps."
     },
     {
@@ -80,5 +80,5 @@
       "design": "Allow frequent short stays as well as long bases, daytime family travel, material-dependent portable shelters and persistent decaying occupation traces."
     }
   ],
-  "implementation_status": "Research and Core projection checks complete; physical NPC/camp integration in progress, native scene verification not yet accepted. Later landscape and vegetation stages have not started."
+  "implementation_status": "Living NPC foundation implemented and source-matched native verification passed: six pose/climate/mobility/start-date cases, current-version binary saves, physical door walking, camp packing/travel/setup and ground clearing. Owner visual review remains pending. Landscape and vegetation stages have not started."
 }

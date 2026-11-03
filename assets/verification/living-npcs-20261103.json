@@ -1,0 +1,416 @@
+{
+  "recorded_utc": "2026-11-03T16:55:01.564588+00:00",
+  "source": "c1ec937",
+  "baseline": "pre-living-npcs-20261103",
+  "slot": "builds/slot-a",
+  "build": {
+    "BuiltUtc": "2026-11-03T16:39:40.4355708Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "384c3b52f81b5e0948e53761f45dac9ed6877cbbccae7373116d88c8efc74af5"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "cd91d5508521a5febc6f139552d2b347ba1857ebc9cece02af0a1dcc36688b1a"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "7bb349c10cc5ebacd7ddee1c0726f5ae301a5695ac3b940733a2cbd6d2f014dc"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "0dff2a3a1e1767f1a48ea981333ebd2218bbcfc192a413bf3ffaa82946ed90f4"
+  },
+  "package": {
+    "AssemblySha256": "e679e654026725c04f614cd1d09a44ab3e3e62daa7a677f40a4ad394ec6be570",
+    "CoreSha256": "384c3b52f81b5e0948e53761f45dac9ed6877cbbccae7373116d88c8efc74af5",
+    "WorkerSha256": "0dff2a3a1e1767f1a48ea981333ebd2218bbcfc192a413bf3ffaa82946ed90f4"
+  },
+  "cases": [
+    {
+      "name": "final-poses",
+      "checks": 458,
+      "scene": null,
+      "checks_sha256": "9c72f9087211d78e0aac9d1b4784cf987557d07497f0f7467ed8701cd4607a90",
+      "images": {
+        "B-age-13-Crawl-0.png": "044a7d006d9582c699df0bf6738c7086076d8170dda868928e67f0ee7bd11cd6",
+        "B-age-13-Crawl-1.png": "5edd0697bc0e51014c5d1318fba8c53627e5f9f663e7159df514057ffb670e3c",
+        "B-age-13-SitGround-0.png": "6e57f8a4639c81cac15fd2cb7d7e7b53bf3c1bb0c6813b6710607f297f6824d0",
+        "B-age-13-SitGround-1.png": "b38c7f81220155f6cfe532a4305ea0fd6b43b2c1e0d03032bd4836629258ea66",
+        "B-age-13-SleepSide-0.png": "78ca0566814f94a05a70abc19ab905d37a2f20d5e7a7bcacf2e218b202cb7100",
+        "B-age-13-SleepSide-1.png": "606a533206a4c687cd06f464885514ae34d6be741de85f6090249892f1455223",
+        "B-age-13-Social-0.png": "d3effec1850330e5a00f8ea418f8b43e819413a62db048ad66e073033d1948ce",
+        "B-age-13-Social-1.png": "3a625eb24add5e23bd54c84d33413c38796c8aa03ed60c75fd821e8e5dfb084d",
+        "B-age-13-WorkKneeling-0.png": "51248cb53f5969775eb5f0acae39f0a2d349c3bf0369d886d1e729f462f56630",
+        "B-age-13-WorkKneeling-1.png": "1b5061a2cdd57e914b30e06c64bf7b0cd416c26a31071f12d60d3bac1313d4e9",
+        "B-age-3-Crawl-0.png": "611da73d6b2b663f21f1b4b9cf6489719647820439bb8349eb9774beebff6896",
+        "B-age-3-Crawl-1.png": "cbc2ebb2b3bbf92187b5cf440d1769f7b5d4bc16e6341b6414cb82e49d3524d7",
+        "B-age-3-SitGround-0.png": "e5d1a450bfaa45600c5d1a9e557e2e1eb6629bb568aed22e50d905feec47714b",
+        "B-age-3-SitGround-1.png": "f94c9e140f44395586839b6820e98eb861ae597a60df8d746014cd6df3fdc4ef",
+        "B-age-3-SleepSide-0.png": "04d8da33581c23f9e9e575c2169cd0a73cdf2680c5e01d14f3804b8d6a5b3064",
+        "B-age-3-SleepSide-1.png": "1184b1459f91593374cea1ebfafb417ee684ce9218c2b75d0fe6a9b815df0105",
+        "B-age-3-Social-0.png": "cb6696c960a56a2a7c11b4bcd176331895a9192915b1bb9c03298ea206a4a471",
+        "B-age-3-Social-1.png": "9af04690e612999aa563274c2adc3e8aff394720d12953dc32afed5a6784e0a4",
+        "B-age-3-WorkKneeling-0.png": "dbd3b917f37166af2627a3cde7b51560deb3267baa45cf9a4285f56aa3b2051c",
+        "B-age-3-WorkKneeling-1.png": "66a28ebced268bb961e6c34ed153640e57b26c0e51f256fafbd82e9849398076",
+        "B-age-8-Crawl-0.png": "66a2490dcbc699c41c82e3d101c9738456e4e06783a95f9f6e1abc6dcb329202",
+        "B-age-8-Crawl-1.png": "397fdcbccac0a37c7f81090daabfb6954c69d319b467b2b2427b2f028efbf377",
+        "B-age-8-SitGround-0.png": "c17efd8619018feeca1d4f7864e5b26658ad77b6de98b4ca1d0bfa9095076622",
+        "B-age-8-SitGround-1.png": "76de750a2e684720fbfdf799b547263d5c39cba7eda055fda8d4d1de99a18212",
+        "B-age-8-SleepSide-0.png": "9fbe8a2c6ec061bf407af20d135f1f0c866ea8a8ba57edac54cffb57715407f8",
+        "B-age-8-SleepSide-1.png": "f7c120a4d1a72d0c79f8fa9db984b2ba80caf836ef2e209bde6b796ec91c83b4",
+        "B-age-8-Social-0.png": "15021507ddfccae92b9e616fe1244cb976f87e27600342452274d529464dfbe5",
+        "B-age-8-Social-1.png": "2f247802fdcfe02a3ad805ebd1399c76838995f278dbcdd14120ba8da52d57c9",
+        "B-age-8-WorkKneeling-0.png": "36f110ccb29e420fea6989d4b583ff2f4a24f9d200ad2550672451660b6fd80a",
+        "B-age-8-WorkKneeling-1.png": "f93995447a38f5e9ed0600955ce1b00038d66be52d7a023a17304ebdcd96e672",
+        "B-Crawl-0.png": "ed4b81f7b17620501fa62e7432574248f67f31406d055dfcda9d091a2b07a39b",
+        "B-Crawl-1.png": "dfee8715fed3b86ba75a502304e339369311594bd395b0f2b1ed545a867274e3",
+        "B-SitGround-0.png": "dc97afc06c6c5640303dedeac281fff6501b250bd4f66f0bbd023b5d1ead42f4",
+        "B-SitGround-1.png": "c612b11832a2d5db21950835a4fd66f8ab8596beda0c46d536768caefa313f33",
+        "B-SleepSide-0.png": "1e7b6b66653572ecaad87c16b07bb14ced7e6f11e95e3531a01a24a80196f824",
+        "B-SleepSide-1.png": "d7f306187bb5684c4e01522d2b199239310214eaec7327a8e855878f0261ed0a",
+        "B-Social-0.png": "e2dac59bea15d46367376c735f3dad4da9fe6bddbe514162a9b16c9e7c5736c4",
+        "B-Social-1.png": "c93db7046a6a9cf7c931bcfd574b4ce5ca9a79922d9fccf59e1f77f542c36f72",
+        "B-WorkKneeling-0.png": "70f958933fe44be1f419f6be62acce1e8eb8cf4d7982d8e7287b170e4ab90e4c",
+        "B-WorkKneeling-1.png": "f918f3e4e546531e2d567275de8c3068af264459bf0587cae558b6a4fb582e15",
+        "carrier-A-SitGround-0.png": "d3c505aade62e7f24d027040476acd779b24b98b741b3b7df10ad85f12f9d9d0",
+        "carrier-A-SitGround-1.png": "3ea5ea66228c59d43aa35b96bbdba0cf0a08a1b80da9fcaef8b13aa26d1fcf6e",
+        "carrier-A-SleepSide-0.png": "ed875202dc15db37fa8eb6a67f0213868119ee198feabbcb5e467cfab93cf885",
+        "carrier-A-SleepSide-1.png": "4ca863393c24f421672b7a44078117e7ac65678ffe349c7abe74a8cdc507d585",
+        "carrier-A-Social-0.png": "2c9d807497faf3c2f1e8bf19b5b16dc804020323df9c74e2550c431790631ef7",
+        "carrier-A-Social-1.png": "718795e164663c40c8ba1dfd1e4d13bff013ba5006476d5cf6508da75bf1cbb8",
+        "carrier-A-WorkKneeling-0.png": "bcba6c5408a64854a38f886974fb009dafde4d8e0825e1cd90c7c4d6eaa44cdb",
+        "carrier-A-WorkKneeling-1.png": "6ee283f5cf78252efd8bda6cf8d9b43500dbf9c1044a1031377c77c3e08a1402",
+        "carrier-B-SitGround-0.png": "71ed0dd32e48717fc9c9fe7a40689f4098255acff5a8790a0e74b0444caa7374",
+        "carrier-B-SitGround-1.png": "1a41730c428469e85141d6f0944b9ca96e6d990ac45291524c23befd3b3f5efa",
+        "carrier-B-SleepSide-0.png": "e0aa1145dbcd047fbe49c95e2807d4321e59a52b25436bec2ab6af10a469aa11",
+        "carrier-B-SleepSide-1.png": "775f0e19b64a9d57a386718fe2ed94c54c11fc70e500e90711b20204ef731d79",
+        "carrier-B-Social-0.png": "695f20feaf8b8bdcbc18d16798ba60edcb1200d18c7f91106bc72a98422ff5bd",
+        "carrier-B-Social-1.png": "5419905625235b4e15234973bbc0760a0aa0f2c0daebc964dc3262bc5a854795",
+        "carrier-B-WorkKneeling-0.png": "77ee576439060871d888206def7bd071f2fe30cdaf3f41b7d5681e773fdce7bd",
+        "carrier-B-WorkKneeling-1.png": "3d7cb3af3461f2755563c4fd554a65a933d214bd920b357228de6ef122e55ebd",
+        "carrier-E-SitGround-0.png": "96cce3ce0ecfbcbd31500843073a7ef7ab6244205adddac1e5a175e5e0549fc0",
+        "carrier-E-SitGround-1.png": "afc26ae7700d7c4d66fd96de4a5f6c894f8d4e28288743648de4e92e93b3f673",
+        "carrier-E-SleepSide-0.png": "2176c9ec2f3dd62fdb299da0ec4a4c55fbc51607b767f7892d0e5486d1ec3128",
+        "carrier-E-SleepSide-1.png": "3445a7301dbebedee39fe3cda791afa548819877a0f487b8d8de667eccd9439c",
+        "carrier-E-Social-0.png": "61d92a1497a57d30f1ceeb16ba0324450f7a56e153165342f1685f7b6b7483c1",
+        "carrier-E-Social-1.png": "acde21b6100f683b02fe67726fb23503b92a0459363a5c7710cb42308397e6b6",
+        "carrier-E-WorkKneeling-0.png": "2ac59f3a106622732a01eed8fd594e53368a5a8b68bbb2c3f6daf0ffb1f427e5",
+        "carrier-E-WorkKneeling-1.png": "42a8a8f66baaf4bb3d28fe4150a4cd5f6996a96ad78b3feb95d930127f651c01",
+        "E-Crawl-0.png": "0139b06b2cdaf0b42f6002c01361034f7b0a139c99d10cb6d1bd63cbc6cb519a",
+        "E-Crawl-1.png": "029188c121aaf443e6a05ac597071277f55152d02b7aaa3d1db73c72a97b34bc",
+        "E-SitGround-0.png": "53b055ec4904c06df1154af113e1219af2193cebc383e7bfcfc1087db2f558c8",
+        "E-SitGround-1.png": "6c3e8c2961c23387d3dae96cda064f8cd50d4954e488728c0f6c9b0d5e003906",
+        "E-SleepSide-0.png": "64d4daa4eac1136b83028b2e16e1aa122aa2e1c866e883cfd1c482c836258d9a",
+        "E-SleepSide-1.png": "66dd7b9d952261b6beff4ba2c805ef34a62718085672e550dad93d493dfbf947",
+        "E-Social-0.png": "c6820a29a8b0be040b2dbd2e39816e3fce74d260d1ac1385dc0bdd35a7e446c3",
+        "E-Social-1.png": "a76383318cc70895d5add3389aaed47b3a7cd44b8c1e0c20787e331aea7e5b88",
+        "E-WorkKneeling-0.png": "4f6edae843c903d89b7f193cf2a2c87d8f6596158e8658271a3af0866f295263",
+        "E-WorkKneeling-1.png": "131c4776564bc42519e843b9ba95cf598ddc2928e98ae7023adaa5ff592742ed"
+      }
+    },
+    {
+      "name": "final-wet",
+      "checks": 31,
+      "scene": {
+        "Aridity": 1.9109833471970137,
+        "Canopy": 0.9500000000000006,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 11,
+        "MeanC": 25.82974881612366,
+        "People": 42,
+        "Rain": 3172.675837138729,
+        "Residence": "SeasonalBaseCamps",
+        "Year": 190000
+      },
+      "checks_sha256": "98e744965e17791da5dcd013252cba32d4e1698245e45fc126355cc4a1f24808",
+      "images": {
+        "camp-first.png": "03a8f178e1a17a21234680e549a59b75c3656a89e65776841d507acb4b131073",
+        "entrance-1392370807118312852.png": "4965a764f027ff7fb69a47e69683b7c25018e47b113e10769970efc96a1b194b",
+        "entrance-296524057410846087.png": "e18e897b74e6da5f70cba712995c3d93f638df9a13a4208fef6b3ffe2112de29",
+        "entrance-896074766444162190.png": "4edfd5488f2c14fb69347640fd43f23ce4f7d8477d970dd40439b16562ed70f6",
+        "residents-first.png": "dda461b667f11a382c76e525b829cd4defb2ac6385b6f77f8ba5b7b55fe0519c",
+        "task-Carried.png": "7a1f1edd9dec06b0a823f285e26dba6e245b51656c10eaf30d7ac1ce4c5ebeae",
+        "task-Childcare.png": "4cedc15784d0e75c5817549143ffd63bfa6cadf5eb1b67f3b8fbec95d5b0bc10",
+        "task-Craft.png": "d9a758e4b00b26f73a9dd5217ec372dfd1dabe54d95394dfeb30f6950df9ce6f",
+        "task-GatherFuel.png": "f859b8cb1bba3e0cc16b4dcf6114d1dfb894b2de64f60a95182f89240a4e0c4e",
+        "task-Play.png": "6ed4a50452099f2cec07ef74cd924bfbbed35189818cb56fbd5e2ef2b0ecd854",
+        "task-RepairShelter.png": "0cf6411d42ef8d7b171d8bf522091342bc19744f70dabe21595ec79c6ad90cbd"
+      }
+    },
+    {
+      "name": "final-cold",
+      "checks": 31,
+      "scene": {
+        "Aridity": 11.320373958604838,
+        "Canopy": 0,
+        "Context": "cold",
+        "Cover": "Hide",
+        "Design": "ConicalTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 10,
+        "LocalHour": 7,
+        "MeanC": 1.9262162916954684,
+        "People": 37,
+        "Rain": 3489.6506202323258,
+        "Residence": "ResidentialMobility",
+        "Year": 190000
+      },
+      "checks_sha256": "98e744965e17791da5dcd013252cba32d4e1698245e45fc126355cc4a1f24808",
+      "images": {
+        "camp-first.png": "35d872c9007cdb5289b39f2013615fa62a423b90c6324850f9efad6028468c2b",
+        "entrance-2138052561454279186.png": "2fef990d1e95f97292201b31cf35c1ad9eae4bf29e2f7bffeebdb7eab308c0b1",
+        "entrance-2619840468796699881.png": "2f660195e9a37d6aa71e10d4b77db03ea6bc9fd6142b2c71539f1d8c7acf1ad0",
+        "entrance-829957145836686349.png": "d3776cd96dfba2753381597cfe9b20a940a2096c536760ed33bca59b79a60590",
+        "residents-first.png": "bf81e930034aa1777321a791ee16e3130940543d54516562196517b857a707d5",
+        "task-Carried.png": "01d88b7c60e0a3ca1a16b6eda8f8400d2b182cdd2cc32f5bdd6ab4beaacef41a",
+        "task-Childcare.png": "a2aebbf171ffd396f6e36665b2359b661ca41c4b401404fb6fbc891da629f684",
+        "task-Craft.png": "6f9646c027a0565068c005dd8171f6aa2c4f0696492cd473cab0a8c54d4588e2",
+        "task-FetchWater.png": "d65a77bb31077b48d3d15bd0a480d4c3bc06b2fc52449d5a4969b6870730da24",
+        "task-Play.png": "222bbff9837c58688079493db65737259f0c228c0c02639dd5d7c62bd04119e2",
+        "task-PrepareFood.png": "cde543ebd0d978528adac22d98ca0213b31e95b60969df7b382607dd64d19653",
+        "task-Rest.png": "89534c0918ac453630dbc3bcd27ace44b558c2d51ee8cde6d8a704b27f4684f1",
+        "task-Teach.png": "cd6208a43071626a138bc92c5bef1ac167e13b35cf30a67d5e63ffb4c7910790",
+        "task-Travel.png": "668d7fb5807b33f146090676ab24b7d79b8b028ee0b2818cc0021df6639efea8"
+      }
+    },
+    {
+      "name": "final-aquatic",
+      "checks": 19,
+      "scene": {
+        "Aridity": 0.6162763588485869,
+        "Canopy": 0.85,
+        "Context": "coast",
+        "Cover": "Reed",
+        "Design": "BrushHut",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 20,
+        "MeanC": 26.740447540659574,
+        "People": 40,
+        "Rain": 1051.0361053403988,
+        "Residence": "AquaticResidence",
+        "Year": 190000
+      },
+      "checks_sha256": "6feadc6732ae3010842eba37133d5da56d51aacbf7f3f6213390f5572eccc935",
+      "images": {
+        "camp-first.png": "03f513fe3f40a1fd15a608a0153d8bf9c2344da6a3a9d50e01eafd3a27d62ca8",
+        "entrance-3062670514040560026.png": "dde64f3158426484caadb83d1449b1b93e8efe4af186c4e18747e05305398f75",
+        "entrance-606263530039764081.png": "416ca71b9d2dc594af52c31ccd223e50f38c235d9b0f0e2f7bd9bc0f43b84b17",
+        "entrance-647029047057957570.png": "3e3ae47e659b067c2e14c16e8fbaad33076e2a529153c57692aee1fdf0cc24f0",
+        "residents-first.png": "989126b8c23546f21e9a1b561664aab7ba4e109892ba7783222561d599826dfc",
+        "task-Carried.png": "b174cae012e531f2dab8a62795c157c75ca090ab4a39418ea03e951ae27f8b54",
+        "task-Sleep.png": "413f8897ba129c0286ec3bd81ebe95e6d53fbb82a3279b1b0d65802dcd18bfd0",
+        "task-Socialise.png": "eb49dc3c5c46ca8358fb32d1cd44bd18de312082d9eea5c47c89933ba600e4d0"
+      }
+    },
+    {
+      "name": "final-collector",
+      "checks": 31,
+      "scene": {
+        "Aridity": 0.7596173150945977,
+        "Canopy": 0.8,
+        "Context": "temperate",
+        "Cover": "Brush",
+        "Design": "BrushHut",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 10,
+        "LocalHour": 14,
+        "MeanC": 13.424540219566135,
+        "People": 41,
+        "Rain": 738.0329217233167,
+        "Residence": "CollectorCamps",
+        "Year": 190000
+      },
+      "checks_sha256": "98e744965e17791da5dcd013252cba32d4e1698245e45fc126355cc4a1f24808",
+      "images": {
+        "camp-first.png": "ff0f7aec6c6bc4721de67d03565e59842937bebb5ad324c6e19f35685a768958",
+        "entrance-1502269996504598712.png": "579018c8ccae9839f89c4888e12ae3e5a7215423034008becbbc30463499a672",
+        "entrance-5636850983678370113.png": "ed73c59329123c593d6d0f292c774a01bb1a5897c9c850c34a13bad7d13d7114",
+        "entrance-746468470478216451.png": "601704dc28e3f5e00d1094008ff259afb3358d4b0bfc710b05ed0284fd856459",
+        "residents-first.png": "318941367ad9dd0c80a85d4b06024c69564c865951c343de2869a8f5708cc547",
+        "task-Carried.png": "bed5e06f11eff2171495535d1ebfd3665031fdb324d8bb08884db80de7f2a383",
+        "task-Childcare.png": "3019b6807703fbeb2c77856124f11bad1fc2b2ae3a8c5efb8a54c56242c346f4",
+        "task-Craft.png": "6ecdd352a78b5d4c08aca931d10c2b7ad9be85f624df5f92283e0f5d10bc424b",
+        "task-Play.png": "95446400d00a131f959f038d1b7f6cf4fce639ca2dd7159894f5a04755cbc44f",
+        "task-PrepareFood.png": "418b50e937c5ec26fa43899cd7bc2299f6d082c5d214cef1e5ba3322dc508986",
+        "task-RepairShelter.png": "89792ed87834d4ae269257f025542c542122f8a30c3d5a7594526af26c2ed600",
+        "task-Teach.png": "1c4d1d411fc36383eb0d238f2652febd880c594afa66a4b0bf32cef3db7ae7b7",
+        "task-Travel.png": "083950ddf6720c1b4f0bced737337b06bdd7361c5207dbde14d40fb1c8146fdd"
+      }
+    },
+    {
+      "name": "final-start",
+      "checks": 18,
+      "scene": {
+        "Aridity": 1.3343413629720744,
+        "Canopy": 0.9500000000000001,
+        "Context": "temperate",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "e74f93d35e530afead8985e85d5cbb8a4c0f79cc8be502f92dbd933ead602c43",
+        "Houses": 10,
+        "LocalHour": 9,
+        "MeanC": 20.690359319141592,
+        "People": 37,
+        "Rain": 1847.2484473937918,
+        "Residence": "ResidentialMobility",
+        "Year": 0
+      },
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "70931a1ef25f7c85b06ab511941d2e8dc76281e08640cca6a9e9b3758470d7ac",
+        "entrance-1250705763443098729.png": "2b2233452fa4a7d31d8749c3a9278cfda2a5ced5a4810e5199bf77c194fc1075",
+        "entrance-1465825287962556918.png": "f407247d746167e3c39f780fabdf2e3cc73371853a791010154e740345c37089",
+        "entrance-2737627217181634575.png": "89723563735523cce4434c99582468c5b1edaa272567418fa65d7e456e85cf46",
+        "residents-first.png": "52d4f121eb583c592e36eb415224d0ec2ddf916d141944d64439b04f8cece74f",
+        "task-Carried.png": "197db4503d1c32531a1228cd7fcba79731fc5378a7cb5694822ad7e579f747c1",
+        "task-Childcare.png": "d766436db583e7b88a3d8c636bd5c1727298a39528a2907df30fffba46d2d21e",
+        "task-Craft.png": "42e3136adfa31da4f124433e6471b0cd78ae7d036e9f297c37d148bc15c7c392",
+        "task-GatherFuel.png": "496b85c03105f43e84ec6b3275b2854ead1fc1ee2ac2693f36f4fa56c4e83486",
+        "task-GatherPlants.png": "ce0aa2b4851328ae2aac8a463d38bac13b91d1b07653299496337804b6963153",
+        "task-Play.png": "c49f69630b8c6443a6e020fe720a3a7d179617ff8427ce9c8054f0d04df98afc",
+        "task-Teach.png": "bcacfec01a6cc45a008000165ed537d4672941f3efe082064d8035ed7ba36cd1",
+        "task-Travel.png": "bfbdc161a7d21bc4c00d5efd30ae7f635950a5f0afcb85965ebeba810cf50dd1"
+      }
+    }
+  ],
+  "performance": [
+    {
+      "BackgroundQueryMs": 0.6921,
+      "Frames": 240,
+      "MaxNpcMs": 6.5779,
+      "MeanFrameMs": 7.65736041666661,
+      "MeanNpcMs": 1.3486637499999994,
+      "MeanStagesMs": [
+        0.07092249999999997,
+        0.03968625000000002,
+        0.012737916666666666,
+        0.9812799999999993,
+        0.15298499999999987
+      ],
+      "Mode": "normal",
+      "P95FrameMs": 10.92990000000782,
+      "P95NpcMs": 2.2008,
+      "Residents": 42,
+      "ScatterChunks": 107,
+      "TerrainReady": false,
+      "Tiles": 233
+    },
+    {
+      "BackgroundQueryMs": 0.7154,
+      "Frames": 240,
+      "MaxNpcMs": 0.09,
+      "MeanFrameMs": 6.132279999999923,
+      "MeanNpcMs": 0.0389975,
+      "MeanStagesMs": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Mode": "render-only",
+      "P95FrameMs": 8.899099999950977,
+      "P95NpcMs": 0.0495,
+      "Residents": 42,
+      "ScatterChunks": 107,
+      "TerrainReady": false,
+      "Tiles": 234
+    },
+    {
+      "BackgroundQueryMs": 0.7154,
+      "Frames": 240,
+      "MaxNpcMs": 0.0606,
+      "MeanFrameMs": 5.4608283333334855,
+      "MeanNpcMs": 0.03644291666666667,
+      "MeanStagesMs": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Mode": "no-residents",
+      "P95FrameMs": 7.740600000033737,
+      "P95NpcMs": 0.0456,
+      "Residents": 42,
+      "ScatterChunks": 107,
+      "TerrainReady": false,
+      "Tiles": 234
+    },
+    {
+      "BackgroundQueryMs": 0.7526,
+      "Frames": 240,
+      "MaxNpcMs": 6.3286,
+      "MeanFrameMs": 7.721212500000026,
+      "MeanNpcMs": 1.3763625000000002,
+      "MeanStagesMs": [
+        0.07170416666666662,
+        0.03876958333333336,
+        0.013425833333333331,
+        1.0017716666666663,
+        0.15669791666666658
+      ],
+      "Mode": "normal-repeat",
+      "P95FrameMs": 10.190399999999045,
+      "P95NpcMs": 2.2437,
+      "Residents": 42,
+      "ScatterChunks": 108,
+      "TerrainReady": false,
+      "Tiles": 234
+    }
+  ],
+  "asset_inputs": {
+    "original_locked_inputs_unchanged": 5048,
+    "current_locked_inputs_verified": 5131,
+    "new_locked_inputs": 83,
+    "total_runtime_and_authoring_inputs": 5272,
+    "packs": 134,
+    "baseline": "pre-living-npcs-20261103"
+  },
+  "research": "assets/verification/npc-research-20261103.json",
+  "architecture": {
+    "broad_radius_km": 50,
+    "broad_state": "Regional history plus on-demand seeded community itineraries; no global tribe/person tick ledger",
+    "local_detail": "Progressive nearby family actors, real material-backed camps, work/rest/childcare and physical walking",
+    "persistence": "Visited camp materials, local wounds/deaths, community alarm/trust and decaying occupation traces"
+  },
+  "review_commands": [
+    "/camps",
+    "/camps <number>",
+    "/camps visit <number>"
+  ],
+  "visual_review": {
+    "method": "Actual game-camera renders with instanced scatter and GPU ground cover submitted; no blank standalone environment used for camp acceptance.",
+    "reviewed": [
+      "Forest camp floors and wider hearth seats clear grass while retaining surrounding vegetation and mature trunks.",
+      "Cold camp conical hide shelters follow the slope, retain roof components and admit seated residents.",
+      "Body/age poses and linked infant carry/ground-rest scenes were inspected separately."
+    ],
+    "rejected_iteration": "The earlier courts-wet candidate imposed a 7m treeless hearth footprint, displaced the camp outside near vegetation rendering and was rejected. Final uses a small structural fire clearance with wider grass wear."
+  },
+  "limits": [
+    "No LLM conversation, NPC hunting or complete NPC economic inventory/consumption loop yet.",
+    "All human lineages reuse the existing human appearance families; species-specific bodies are deferred.",
+    "Seasonal movement is a deterministic broad projection with local obstacle/doorway steering, not a global per-person path simulation.",
+    "Reported timings are this machine/scene; rows explicitly identify whether terrain loading had settled.",
+    "Full-scale first-time global river fitting is an existing startup cost (152 seconds measured); the shared exact cache avoids repeating it.",
+    "NPC visuals remain subject to owner review. Landscape region and tree overhauls are separate later stages."
+  ]
+}
