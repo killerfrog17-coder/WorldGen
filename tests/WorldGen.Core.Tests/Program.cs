@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--human-life")){HumanLocalLifeTests.Run(args[1]);return;}
 if(args.Contains("--adoption-wire-bits")){GenerationAdoptionTests.WireBits();return;}
 if(args.Contains("--generation-stage-parity")){GenerationAdoptionTests.CompareStages(args[1],args[2]);return;}
 if(args.Contains("--adoption-climate")){GenerationAdoptionTests.Run(args[1],args[2]);return;}

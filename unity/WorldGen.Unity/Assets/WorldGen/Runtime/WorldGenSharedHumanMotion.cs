@@ -38,7 +38,7 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         public float[] Weights;
         public string Current;
     }
-    public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight,Vector3? nativeEyeInHead=null)
+    public WorldGenSharedHumanMotion(PlayableGraph graph,Transform root,KimodoPersonMotion person,bool player,float eyeHeight,Vector3? nativeEyeInHead=null,bool npcActivity=false)
     {
         this.graph=graph;
         this.root=root;head=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="head");
@@ -47,9 +47,17 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         RestEye=LocalEye;playerIdle=player;
         Clips=person.Clips.ToDictionary(c=>c.Role,StringComparer.Ordinal);
         locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)).ToArray());
-        Output=AnimationLayerMixerPlayable.Create(graph,player?4:1);
+        Output=AnimationLayerMixerPlayable.Create(graph,player?4:npcActivity?2:1);
         graph.Connect(locomotion.Mixer,0,Output,0);Output.SetInputWeight(0,1);
-        if(!player)return;
+        if(!player)
+        {
+            if(npcActivity)
+            {
+                var roles=new HashSet<string>{"Gather","Eat","Drink","WorkCut","WorkDig","WorkKnapping","WorkTwist","ToolGuard","FistsGuard"};
+                body=MakeTrack(person.Clips.Where(c=>roles.Contains(c.Role)).ToArray());graph.Connect(body.Mixer,0,Output,1);
+            }
+            return;
+        }
         var actions=person.Clips.Where(c=>!MovementRoles.Contains(c.Role)).ToArray();
         body=MakeTrack(actions);upper=MakeTrack(actions);offhand=MakeTrack(actions);
         graph.Connect(body.Mixer,0,Output,1);graph.Connect(upper.Mixer,0,Output,2);graph.Connect(offhand.Mixer,0,Output,3);
@@ -83,6 +91,12 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         return track;
     }
     public double Duration(string role)=>Clips.TryGetValue(role,out var c)?c.Duration:1;
+    public void Routine(string role,double seconds,float dt)
+    {
+        if(body==null||playerIdle)return;bool available=role!=null&&body.Clips.Any(c=>c.Role==role);
+        if(available)Pose(body,role,seconds,dt);
+        bodyWeight=Mathf.Lerp(bodyWeight,available?1:0,1-Mathf.Exp(-dt*6));Output.SetInputWeight(1,bodyWeight);
+    }
     public float LocomotionWeight(string role)
     {
         int index=Array.FindIndex(locomotion.Clips,c=>c.Role==role);

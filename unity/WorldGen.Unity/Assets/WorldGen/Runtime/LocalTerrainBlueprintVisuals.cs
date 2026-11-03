@@ -136,7 +136,7 @@ public sealed partial class LocalTerrainExplorer
             var cache=new GameObject("Camp collision mesh",typeof(MeshFilter));cache.transform.SetParent(root.transform,false);cache.GetComponent<MeshFilter>().sharedMesh=collision;var collider=root.AddComponent<MeshCollider>();collider.sharedMesh=collision;
         }
         if(collisionSource!=mesh)Destroy(collisionSource);
-        if(!CampBlueprints.Complete(plan))
+        if(c.NpcGroup==0&&!CampBlueprints.Complete(plan))
         {
             if(blueprintGhostMaterial==null){blueprintGhostMaterial=new Material(Resources.Load<Shader>("WorldGenCampPlacement"));blueprintGhostMaterial.SetColor("_BaseColor",new Color(.7f,.85f,.9f,.13f));}
             AddBlueprintMesh(root,LocalScatterMeshes.BuildBlueprint(plan,false),blueprintGhostMaterial,"Remaining camp components");

@@ -49,6 +49,23 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov07:46:56Z OVERNIGHT NPC / LANDSCAPE / VEGETATION ORDERED WORK.
+Owner explicitly says keep working UNTIL EXPLICIT STOP/WRAP;8h estimate is NOT
+a stop (could10-12h). Do not end after a milestone. Stage1 alone is acceptable
+if quality takes the night. ONLY after1 is satisfactory begin2; ONLY after2
+begin3. Session contract assets/verification/npc-overnight-20261103-session.json.
+1: actual deterministic sim-derived human groups/camps, species/culture/kin/
+language names, seasonal mobility/stays, lifeways/work/day schedules, physical
+camp setup/packing/abandoned traces, cheap50km group awareness and local tiers.
+No LLM/dialogue/hunting now. Research carefully; physical/visual/performance/
+current-save checks. 2: diverse local landscape REGIONS across Earth's landscapes,
+plus small lakes/ponds (other feature catalogue deferred).3: regionally distinct
+quality textured trees/vegetation with no notable performance regression.
+Baseline39964fb, selectedslot-b FROZEN until verified checkpoint; inactiveA may
+be reused. No subagents/paid/signup/newfullplayers/owner-app closures. Preserve
+owner prompt deletion and2untracked deer scripts. Prior await-feedback note below
+superseded by this new authorized overnight work. Continue through compactions.
+
 SELECTED3Nov06:46Z GENERATION / TRIBAL ADOPTION / CELL MAPS COMPLETE.
 Root shortcut NOW builds/slot-b/WorldGen.exe, managed NON-DEVELOPMENT ScriptsOnly
 BuiltUtc2026-11-03T06:35:36.2795882Z. Production c1d4576 PUSHED (earlier feature

@@ -1,0 +1,41 @@
+{
+  "started_utc": "2026-11-03T07:46:56Z",
+  "owner_instruction": "Continue substantive work until the owner explicitly asks to stop/wrap. Eight hours is an estimate, not a stopping point.",
+  "baseline": "39964fb",
+  "selected_slot_at_start": "slot-b",
+  "ordered_updates": [
+    {
+      "stage": 1,
+      "name": "Deterministic living human groups and camps",
+      "requirements": [
+        "Use actual simulation population/culture/language/belief/species/technology and kin data; no global tribe tick ledger",
+        "Deterministic same-year identities, seasonal journeys, camp stays, group departures/arrivals and abandoned camp traces",
+        "Cheap broad group representation out to 50 km, with progressively detailed local people/camps",
+        "Ecology/culture/season/weather/age/relationships influence work, rest, childcare, travel and social activity",
+        "Physical terrain-safe camps, usable existing shelter forms, actual camp assembly/packing phases",
+        "No LLM runtime, dialogue or hunting implementation in this pass",
+        "Persist consequential local edits/deaths rather than respawning interacted-with people/camps"
+      ],
+      "gates_before_stage_2": [
+        "Current-version save/reload and deterministic visit-order/time queries",
+        "Real populated game scenes across climates, mobility modes and times of day",
+        "No floating/buried camps, obvious movement deformation, unsafe water/cliff placement or arbitrary player-following spawns",
+        "Measured activation/streaming and dense-near-camp/distant-group performance",
+        "Documented research, limitations, review commands, Git checkpoint and playable shortcut"
+      ]
+    },
+    {
+      "stage": 2,
+      "name": "Diverse local landscape regions, ponds and small lakes",
+      "blocked_until": "Stage 1 genuinely satisfactory",
+      "scope": "Earth-like regional substrates, relief and hydrological environments; no general feature catalogue expansion except small natural water bodies"
+    },
+    {
+      "stage": 3,
+      "name": "Tree and vegetation variety/quality",
+      "blocked_until": "Stage 2 genuinely satisfactory",
+      "scope": "Regional tree forms, actual textures and colour variation; critically inspected and performance measured"
+    }
+  ],
+  "constraints": ["No subagents, paid services or signup", "Only the two reusable build slots", "All artifacts disposable", "Preserve original authoring assets and unrelated owner files", "Do not stop at a milestone while the owner's continue instruction remains active"]
+}

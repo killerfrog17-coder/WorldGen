@@ -45,14 +45,15 @@ namespace WorldGen.Core
         public double Heading,Pitch,HeightAboveGround=1.65;
         [System.Runtime.Serialization.OptionalField] public WildlifeState Wildlife=new WildlifeState();
         [System.Runtime.Serialization.OptionalField] public CampState Camp=new CampState();
-        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();s.Inventory=Inventory?.Copy()??new PlayerInventory();s.Wildlife=Wildlife?.Copy()??new WildlifeState();s.Camp=Camp?.Copy()??new CampState();return s;}
+        [System.Runtime.Serialization.OptionalField] public HumanLocalState Humans=new HumanLocalState();
+        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();s.Inventory=Inventory?.Copy()??new PlayerInventory();s.Wildlife=Wildlife?.Copy()??new WildlifeState();s.Camp=Camp?.Copy()??new CampState();s.Humans=Humans?.Copy()??new HumanLocalState();return s;}
         public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
             if(!Enum.IsDefined(typeof(GameMode),Mode))throw new ArgumentException("Invalid game mode.");
             Survival=Survival??new PlayerSurvival();Survival.Validate();
             Inventory=Inventory??new PlayerInventory();Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
-            Camp=Camp??new CampState();Camp.Validate();
+            Camp=Camp??new CampState();Camp.Validate();Humans=Humans??new HumanLocalState();Humans.Validate();
             CampBlueprints.ValidateContents(Camp,Inventory);
             var carriedIds=new System.Collections.Generic.HashSet<string>(Inventory.Items.ConvertAll(p=>p.Id));
             foreach(var c in Camp.Objects)foreach(var p in c.OwnedMaterials())if(carriedIds.Contains(p.Id))throw new ArgumentException("A placed material cannot also be in the inventory.");

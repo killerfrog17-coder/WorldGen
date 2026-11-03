@@ -26,6 +26,8 @@ public sealed partial class LocalTerrainExplorer
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
         public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
+        public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
+        public float AnimationAt;public GameObject WorkProp;
     }
     readonly PlayerCameraRig humanCamera=new PlayerCameraRig();
     readonly List<HumanActor> humanNpcs=new List<HumanActor>();
@@ -52,7 +54,7 @@ public sealed partial class LocalTerrainExplorer
         humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
     }
-    HumanActor CreateHuman(int variant,int id)
+    HumanActor CreateHuman(int variant,int id,bool natural=false)
     {
         var definition=humanLibrary.People[variant];var root=Instantiate(definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
@@ -87,7 +89,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var t in root.GetComponentsInChildren<Transform>())if(t.name=="upperarm_l"||t.name=="upperarm_r"||t.name=="lowerarm_l"||t.name=="lowerarm_r")actor.RelaxedArms[t]=t.localRotation;
         var generated=kimodoHumanLibrary?.Find(definition.Variant);
         if(id==1)actor.PropShape=WorldGenPropClearance.Measure(root.transform,definition.EyeHeight,generated?.EyeForward??.15f);
-        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null);
+        if(generated!=null)actor.Shared=new WorldGenSharedHumanMotion(actor.Graph,root.transform,generated,id==1,definition.EyeHeight,actor.PropShape?.HasNativeEye==true?(Vector3?)actor.PropShape.EyeInHead:null,natural);
         actor.Graph.Play();actor.Graph.Evaluate(0);return actor;
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
@@ -122,7 +124,7 @@ public sealed partial class LocalTerrainExplorer
             humanFrame=frame;humanLastX=motion.X;humanLastZ=motion.Z;humanCameraProbeAt=0;
             for(int i=humanNpcs.Count-1;i>=0;i--)
             {
-                var npc=humanNpcs[i];if((npc.Planet-Position).Length*frame.RadiusM>400){DestroyHuman(npc);humanNpcs.RemoveAt(i);continue;}
+                var npc=humanNpcs[i];if(npc.ResidentId==0&&(npc.Planet-Position).Length*frame.RadiusM>400){DestroyHuman(npc);humanNpcs.RemoveAt(i);continue;}
                 TerrainHandoff.Coordinates(frame,npc.Planet,out double x,out double z);npc.Motor.Place(x,z,Ground(x,z));
             }
         }
@@ -148,8 +150,10 @@ public sealed partial class LocalTerrainExplorer
             while(humanSpawnQueued>0&&attempts++<4)
             {humanSpawnQueued--;SpawnHumans(1);if((System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency>2)break;}
         }
+        UpdateLivingHumans(stopped,dt);
         foreach(var npc in humanNpcs)
         {
+            if(npc.ResidentId!=0){UpdateLivingHuman(npc,stopped,dt);continue;}
             if(npc.Health<=0){if(npc.Ragdoll!=null)npc.Ragdoll.SetPaused(stopped);continue;}
             if(dt>0)
             {
@@ -293,9 +297,9 @@ public sealed partial class LocalTerrainExplorer
     }
     long ClearSpawnedHumans()
     {
-        long cleared=humanNpcs.Count+humanSpawnQueued;
-        foreach(var human in humanNpcs)DestroyHuman(human);
-        humanNpcs.Clear();humanSpawnQueued=0;return cleared;
+        var demos=humanNpcs.Where(p=>p.ResidentId==0).ToArray();long cleared=demos.Length+humanSpawnQueued;
+        foreach(var human in demos){DestroyHuman(human);humanNpcs.Remove(human);}
+        humanSpawnQueued=0;return cleared;
     }
     PlayCommandResult ExecuteHumanSpawn(string[] arguments)
     {
@@ -309,6 +313,7 @@ public sealed partial class LocalTerrainExplorer
     void DestroyHuman(HumanActor human){DisposeHumanCombatSurface(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()
     {
+        CaptureLivingHumans();DisposeLivingHumans();
         RenderPipelineManager.beginCameraRendering-=BindHumanCamera;Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",0);Shader.SetGlobalFloat("_WorldGenFirstPersonBodyVisible",0);
         if(humanPlayer!=null)DestroyHuman(humanPlayer);humanPlayer=null;
         foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanLibrary=null;

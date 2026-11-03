@@ -9,6 +9,7 @@ public sealed partial class LocalTerrainExplorer
     public PlayCommandResult ExecuteExplorerCommand(string text)
     {
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+        if(words.Length>0&&words[0].Equals("/camps",StringComparison.OrdinalIgnoreCase))return ExecuteLivingCamps(words);
         if(words.Length>0&&words[0].Equals("/gamemode",StringComparison.OrdinalIgnoreCase))return ExecuteGameMode(words);
         if(words.Length>1&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase)&&(words[1].Equals("human",StringComparison.OrdinalIgnoreCase)||words[1].Equals("humans",StringComparison.OrdinalIgnoreCase)))
             return ExecuteHumanSpawn(words.Skip(2).ToArray());
