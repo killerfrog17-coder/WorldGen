@@ -17,10 +17,10 @@
   },
   "ClayPan": {
     "accepted": true,
-    "findings": "Inspected loaded wide and ground captures. Flat fine brown ground has visible polygonal desiccation cracks near the observer, with very sparse scrub and few loose coarse rocks. It remains separate from gravel pavement and rolling orange sand. Distant microscopic cracks retire with the existing texture range.",
+    "findings": "Inspected current wide and close views. Flat fine brown substrate has polygonal drying cracks near the observer, sparse scrub and few coarse stones. It remains distinct from gravel pavement and mobile sand.",
     "images": {
-      "wide": "cfd0b541ccc1c54f07824c83b47411ec87a6644f245d8f239baf2c463a8834bb",
-      "ground": "9d3b54382c3a617b959c0e50bb7cd2c41d42bde602deed28313bd5979062fef2"
+      "wide": "99794712845578afe7b342dd4f429038eb66582158d4437ab98511e52841b293",
+      "ground": "c3cdfba4ac162aecfd95ce76801ca07352e5cc00c4ef2c37df851d7bd1686da5"
     }
   },
   "FreshwaterMarsh": {
@@ -53,6 +53,30 @@
     "images": {
       "wide": "725a2fc5c9fd332f0f5bd7236ea47e3720883024a8a19cc7bb5b800f5f0c86b4",
       "ground": "1e50c83a985cdbc82fc15da23f996b2dafe2f0928b11ce217f239aa97c69327c"
+    }
+  },
+  "SaltFlat": {
+    "accepted": true,
+    "findings": "Inspected current wide and close views. Pale crust with fine drying cracks and very sparse coarse stones, with a vegetated margin rather than a broad grass lawn over the flat. No visible tile-border gap or elevated crossing water plane.",
+    "images": {
+      "wide": "ad01bf45988cf461a90a596cf64906281acaf97e1ee39a29368df4d5fac94721",
+      "ground": "20a0a72f51e8e03c8225ac8411ae54ed6d560d5333ca53341d07c79e397e236e"
+    }
+  },
+  "LimestoneUpland": {
+    "accepted": true,
+    "findings": "Inspected loaded wide and close views. Dissected upland with exposed substrate on steep slopes, soil-bearing vegetated gullies and varied sparse woodland. No tile gaps, floating vegetation or newly claimed cave/waterfall landmark implementation.",
+    "images": {
+      "wide": "c0675aead6b84f884a9497b897f98dedc2f47d2a5b4797e8aa481564fda0fd56",
+      "ground": "509dad80c9b8634498afb9523eb7d6b846f8e83d0aecc23576bed9c803b28c6a"
+    }
+  },
+  "GlacialLowland": {
+    "accepted": true,
+    "findings": "Inspected current wide and close views. Exposed low-relief ground with scattered coarse stones and short patchy moss/lichen and graminoids, with no forest canopy. Distinct from the tall marsh sward and wooded wetlands; no active ice cover is claimed by this exposed-ground label.",
+    "images": {
+      "wide": "18c7d06930691b6f8f6852f144102ad19db59e62ed354d5597fbbfb8b8834ab0",
+      "ground": "863a3a109c00a9bd688fba8040295fb74ef8c0704edc54d9c8b442773698eab2"
     }
   }
 }

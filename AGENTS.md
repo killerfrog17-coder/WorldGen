@@ -49,6 +49,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov21:08Z CONTINUE. Production3242861 PUSHED; B managedNONDEV ScriptsOnly
+built20:44:45Z (fullpackeddata18:26 retainsnewCC0scans). LocalTerrain20/Hyper17/
+Scatter14. All10 SAME current regions-canopy cases EXIT0/84mechanics checks;
+all20 wide/close images actually inspected, hashfindings recorded in visualreview
+JSON (latestacceptance notyetcommitted atnote). New WoodedSwamp retains .499forest
+potential/fournearbyponds/36submergedreeds; genuine wood+water inspected. Other
+marsh/peat/deep pond, three drygrounds/salt/limestone/glacial also reviewed.
+Actual currentworldpond/sharededges +35726controls and27175river checks PASS.
+Owned chain session56793 now NPC landscape-canopy-wet (22500 atlastcheck), then
+cold, then sequential uncontendedcost. Do notselectuntil those passandcurrent
+source/package manifestgenerated. Scale1 cache prewarm DONE188.594s, fit186.384s
+under concurrent nativephoto work; avoids priorcoldbootstrap timeout, not an
+uncontended regressiontiming. A stillselectedc1ec937; originalart/audio exact,
+5154locked/135packs. Stage3treeartUNTOUCHED andblockeduntil2satisfactory.
+No paid/subagents/ownerappsclosed; preserveowner3files. Continueuntilownerstop.
+
 ACTIVE3Nov20:47Z RESUMED WORK. Current source3242861 PUSHED; B candidate rebuild
 queued in session56793, then regions-canopy10 scenes, landscape-canopy NPCwet/
 cold, then uncontended Core cost in that order. A remains selected. First resumed
