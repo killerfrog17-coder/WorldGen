@@ -53,13 +53,19 @@ replace repeated full-mesh transfers at every intermediate stage. The managed
 Unity player and two fixed build slots remain; no new native release/archive.
 
 Default procedural 200k-cell seed73421 baseline: engine47.877s, ready57.339s.
-Climate41.0% of engine time; hashing23.1% across stages. Optimized candidate:
-engine13.053s, ready24.108s, identical complete hash
+Climate41.0% of engine time; hashing23.1% across stages. Selected player:
+engine13.523s, ready23.927s, identical complete hash
 `e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b`.
 These are individual measurements: the baseline had the owner's existing player
 open, and the optimized run did not. They are not a controlled whole-game FPS
 benchmark. Final package results are in
 `assets/verification/generation-adoption-20261103.json`.
+
+The final managed player sustains11,927.7 years/second on this200k-cell fixture,
+with235.8ms maximum publication gap and4.48ms maximum layer switch. The current
+100k-year CPU check takes5.94s (16,837.5 years/second), with484 regional population
+records across2,509 connected regions. Current-version save/reload, future
+evolution, worker replication and deterministic local regeneration pass.
 
 Background: [cultural transmission models](https://doi.org/10.1073/pnas.1620732114)
 motivate separating invention, social spread and practical use;

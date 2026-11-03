@@ -43,13 +43,15 @@ assert stamp['Backend']=='Mono' and not stamp['Development']
 for assembly in stamp['Inputs']:
     assert sha(root/'builds'/args.slot/'WorldGen_Data/Managed'/(assembly['Assembly']+'.dll'))==assembly['Sha256']
     if assembly['Assembly'].startswith('WorldGen.'):
-        assert sha(root/'builds'/args.slot/'TerrainWorker'/(assembly['Assembly']+'.dll'))==assembly['Sha256']
+        dependency=root/'builds'/args.slot/'TerrainWorker'/(assembly['Assembly']+'.dll')
+        if dependency.is_file():assert sha(dependency)==assembly['Sha256']
 assert sha(root/'builds'/args.slot/'TerrainWorker/WorldGen.Cli.exe')==stamp['TerrainWorkerSha256']
 unchanged=subprocess.check_output(['git','diff','--name-only','56eb41d007a263d4fd3bb67b0bc20b8c0895adf8',args.source,'--','assets-source','sounds','music'],cwd=root,text=True).strip()
 assert not unchanged,unchanged
 manifest=dict(recorded_utc=datetime.now(timezone.utc).isoformat(),source=args.source,
     rules='foragers-regional-4',selected_slot='builds/'+args.slot,build=stamp,
     runtime_assembly_sha256=sha(root/'builds'/args.slot/'WorldGen_Data/Managed/Assembly-CSharp.dll'),
+    worker_package='Single-file CoreCLR bundle; bundle hash in build.TerrainWorkerSha256',
     worker_assemblies={p.name:sha(p) for p in (root/'builds'/args.slot/'TerrainWorker').glob('WorldGen.*.dll')},
     resolved_recipe=recipe,generation_baseline=baseline,generation_selected=generation,
     generation_ready_speedup=baseline['ReadyMs']/generation['ReadyMs'],
@@ -64,7 +66,8 @@ manifest=dict(recorded_utc=datetime.now(timezone.utc).isoformat(),source=args.so
         civilizations='Default; other human species light grey, sapiens medium grey; later-era colours reserved',
         ice_indicator='Actual glacial forcing, beside year'),
     original_art_audio='No tracked assets-source, sounds or music changes versus previous selected source',
-    inspected_images={p.name:sha(p) for p in (evidence/'accepted-climate').glob('*.png')},
+    map_renders={p.name:sha(p) for p in (evidence/'accepted-climate').glob('*.png')},
+    visually_inspected=['Civilizations.png','Satellite-179000.png'],
     excluded=['First climate attempt caught a remaining Cultures load default; corrected.',
         'Hidden-window screen captures were black and are excluded; actual camera render requests produce the inspected map images.',
         'An intermediate curve-sharing optimization failed future replay; structural equality corrected it before acceptance.',

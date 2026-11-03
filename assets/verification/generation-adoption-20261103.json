@@ -1,0 +1,489 @@
+{
+  "recorded_utc": "2026-11-03T06:45:46.411107+00:00",
+  "source": "c1d4576",
+  "rules": "foragers-regional-4",
+  "selected_slot": "builds/slot-b",
+  "build": {
+    "BuiltUtc": "2026-11-03T06:35:36.2795882Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "404f1cd9766f02104ef185f63e7df2bff95438067394f0ea3be05f1b579f7a3c"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "c00cd9f1ac5b8e9eaaaf088837f54d99ac8f28ed37c7ea56effc3e28a0518450"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "f1d55d8764d5a6645dbf214e5939d830cee1ef3251923232911ed1570147c238"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "33d288f630d6ded51c55ed1f1fe4a96b5f31d2de34e3884a6ddea09c76ef25fa"
+  },
+  "runtime_assembly_sha256": "fd362377aa971e53c2434cfe44960c6b909332cf04e58c23a99269872eb893a9",
+  "worker_package": "Single-file CoreCLR bundle; bundle hash in build.TerrainWorkerSha256",
+  "worker_assemblies": {},
+  "resolved_recipe": {
+    "AlgorithmVersion": "worldgen-3.33.0",
+    "ClimateWeights": [
+      -0.687057,
+      0.827853,
+      0.801046,
+      0.801431,
+      0.700332,
+      3.990525,
+      79.873156,
+      0.621944,
+      1.107598,
+      2.571496
+    ],
+    "ContinentCount": 8,
+    "ContinentVariation": 0.35,
+    "Detail": 200000,
+    "EcologyProfile": "earth-native-3",
+    "Glacial": 0.5,
+    "Hydraulic": 0.5,
+    "Interconnectedness": 30,
+    "InteriorRainMm": 0,
+    "Irregularity": 0.75,
+    "LakeAmountPercent": 100,
+    "LandFraction": 0.4,
+    "LandShape": null,
+    "MicroplateCount": 144,
+    "MountainStrengthPercent": 100,
+    "PrecipitationOffset": 0,
+    "Relief": 0.4,
+    "RidgePreservation": 0.5,
+    "SchemaVersion": 3,
+    "Seed": 73421,
+    "Smoothing": 0.1,
+    "TemperatureOffset": 0,
+    "TerrainSource": "Procedural",
+    "TerrainWarp": 0.75,
+    "Thermal": 0.1
+  },
+  "generation_baseline": {
+    "Runtime": "Unity Mono 6000.6.0f1",
+    "WorldHash": "e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b",
+    "RecipeFile": "recipe.json",
+    "Cells": 200000,
+    "Seed": 73421,
+    "EngineMs": 47877.026300000005,
+    "ReadyMs": 57339.057700000005,
+    "ComputeMs": 36805.919,
+    "HashMs": 11068.332600000002,
+    "PreviewMs": 2.7746999999999993,
+    "Stages": [
+      {
+        "Stage": "coarse-plates",
+        "ComputeMs": 1775.9003,
+        "HashMs": 0.0514,
+        "PreviewMs": 2.4464,
+        "TotalMs": 1778.3981,
+        "Percent": 3.714512444562581
+      },
+      {
+        "Stage": "geometry",
+        "ComputeMs": 3452.0453,
+        "HashMs": 1622.8648,
+        "PreviewMs": 0.0094,
+        "TotalMs": 5074.9195,
+        "Percent": 10.59990540807669
+      },
+      {
+        "Stage": "plate-projection",
+        "ComputeMs": 406.31960000000004,
+        "HashMs": 11.3492,
+        "PreviewMs": 0.0013000000000000002,
+        "TotalMs": 417.67010000000005,
+        "Percent": 0.8723810400897851
+      },
+      {
+        "Stage": "plate-physics",
+        "ComputeMs": 105.9671,
+        "HashMs": 9.8564,
+        "PreviewMs": 0.0016,
+        "TotalMs": 115.82509999999999,
+        "Percent": 0.2419220844549403
+      },
+      {
+        "Stage": "superplates",
+        "ComputeMs": 7.080500000000001,
+        "HashMs": 6.9355,
+        "PreviewMs": 0.0017000000000000001,
+        "TotalMs": 14.017700000000001,
+        "Percent": 0.029278551913739057
+      },
+      {
+        "Stage": "boundaries",
+        "ComputeMs": 960.9829000000001,
+        "HashMs": 581.8895,
+        "PreviewMs": 0.0019,
+        "TotalMs": 1542.8743000000002,
+        "Percent": 3.222577547595098
+      },
+      {
+        "Stage": "terrain",
+        "ComputeMs": 2045.3294,
+        "HashMs": 42.6774,
+        "PreviewMs": 0.0016,
+        "TotalMs": 2088.0084,
+        "Percent": 4.3611906615010465
+      },
+      {
+        "Stage": "erosion",
+        "ComputeMs": 3119.9389,
+        "HashMs": 57.2079,
+        "PreviewMs": 0.0839,
+        "TotalMs": 3177.2307,
+        "Percent": 6.636232334254226
+      },
+      {
+        "Stage": "climate",
+        "ComputeMs": 19390.0227,
+        "HashMs": 247.4841,
+        "PreviewMs": 0.1,
+        "TotalMs": 19637.6068,
+        "Percent": 41.01676381684549
+      },
+      {
+        "Stage": "hydrology",
+        "ComputeMs": 551.1351000000001,
+        "HashMs": 570.0949,
+        "PreviewMs": 0.11960000000000001,
+        "TotalMs": 1121.3496,
+        "Percent": 2.342145464452123
+      },
+      {
+        "Stage": "subcell-geography",
+        "ComputeMs": 310.8148,
+        "HashMs": 184.87630000000001,
+        "PreviewMs": 0.0019,
+        "TotalMs": 495.693,
+        "Percent": 1.0353462575013768
+      },
+      {
+        "Stage": "habitats",
+        "ComputeMs": 811.6980000000001,
+        "HashMs": 1142.0375000000001,
+        "PreviewMs": 0.002,
+        "TotalMs": 1953.7375000000002,
+        "Percent": 4.0807411215512355
+      },
+      {
+        "Stage": "ecoregions",
+        "ComputeMs": 198.1682,
+        "HashMs": 17.6762,
+        "PreviewMs": 0.0016,
+        "TotalMs": 215.846,
+        "Percent": 0.4508341822390919
+      },
+      {
+        "Stage": "biogeography",
+        "ComputeMs": 3652.8763000000004,
+        "HashMs": 1544.7916,
+        "PreviewMs": 0.0018000000000000002,
+        "TotalMs": 5197.6697,
+        "Percent": 10.856291841166417
+      },
+      {
+        "Stage": "finalizing",
+        "ComputeMs": 17.6399,
+        "HashMs": 5028.539900000001,
+        "PreviewMs": 0.0,
+        "TotalMs": 5046.179800000001,
+        "Percent": 10.539877243796155
+      }
+    ]
+  },
+  "generation_selected": {
+    "Runtime": "Unity Mono 6000.6.0f1 (CoreCLR generation worker)",
+    "WorldHash": "e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b",
+    "RecipeFile": "recipe.json",
+    "Cells": 200000,
+    "Seed": 73421,
+    "EngineMs": 13523.1199,
+    "ReadyMs": 23927.176900000002,
+    "ComputeMs": 8986.7937,
+    "HashMs": 3359.4202,
+    "PreviewMs": 1176.906,
+    "Stages": [
+      {
+        "Stage": "coarse-plates",
+        "ComputeMs": 945.3867,
+        "HashMs": 0.0869,
+        "PreviewMs": 90.0828,
+        "TotalMs": 1035.5564,
+        "Percent": 7.657673729565912
+      },
+      {
+        "Stage": "geometry",
+        "ComputeMs": 915.804,
+        "HashMs": 715.5538,
+        "PreviewMs": 0.0039,
+        "TotalMs": 1631.3617,
+        "Percent": 12.063500967701986
+      },
+      {
+        "Stage": "plate-projection",
+        "ComputeMs": 264.6201,
+        "HashMs": 7.5913,
+        "PreviewMs": 0.0031,
+        "TotalMs": 272.2145,
+        "Percent": 2.012956344489706
+      },
+      {
+        "Stage": "plate-physics",
+        "ComputeMs": 31.6309,
+        "HashMs": 5.6997,
+        "PreviewMs": 0.0042,
+        "TotalMs": 37.3348,
+        "Percent": 0.2760812613959002
+      },
+      {
+        "Stage": "superplates",
+        "ComputeMs": 7.1485,
+        "HashMs": 3.5481,
+        "PreviewMs": 0.0027,
+        "TotalMs": 10.699300000000001,
+        "Percent": 0.07911857677162207
+      },
+      {
+        "Stage": "boundaries",
+        "ComputeMs": 291.3207,
+        "HashMs": 179.2295,
+        "PreviewMs": 0.002,
+        "TotalMs": 470.5522,
+        "Percent": 3.4796127186596935
+      },
+      {
+        "Stage": "terrain",
+        "ComputeMs": 1116.4062,
+        "HashMs": 23.202,
+        "PreviewMs": 0.0026,
+        "TotalMs": 1139.6108,
+        "Percent": 8.427129304680644
+      },
+      {
+        "Stage": "erosion",
+        "ComputeMs": 1316.4745,
+        "HashMs": 17.7123,
+        "PreviewMs": 561.6557,
+        "TotalMs": 1895.8425,
+        "Percent": 14.019268586090108
+      },
+      {
+        "Stage": "climate",
+        "ComputeMs": 1566.0067,
+        "HashMs": 128.3217,
+        "PreviewMs": 525.1341,
+        "TotalMs": 2219.4624999999996,
+        "Percent": 16.41235540624024
+      },
+      {
+        "Stage": "hydrology",
+        "ComputeMs": 376.0407,
+        "HashMs": 133.0913,
+        "PreviewMs": 0.0027,
+        "TotalMs": 509.1347,
+        "Percent": 3.7649204012455737
+      },
+      {
+        "Stage": "subcell-geography",
+        "ComputeMs": 110.2309,
+        "HashMs": 39.433,
+        "PreviewMs": 0.0055,
+        "TotalMs": 149.66940000000002,
+        "Percent": 1.106766789814531
+      },
+      {
+        "Stage": "habitats",
+        "ComputeMs": 242.685,
+        "HashMs": 304.8753,
+        "PreviewMs": 0.0021,
+        "TotalMs": 547.5624,
+        "Percent": 4.049083377571769
+      },
+      {
+        "Stage": "ecoregions",
+        "ComputeMs": 108.8058,
+        "HashMs": 7.259,
+        "PreviewMs": 0.0019,
+        "TotalMs": 116.06670000000001,
+        "Percent": 0.8582834498124949
+      },
+      {
+        "Stage": "biogeography",
+        "ComputeMs": 1671.3978,
+        "HashMs": 426.8699,
+        "PreviewMs": 0.0027,
+        "TotalMs": 2098.2704,
+        "Percent": 15.51617093922239
+      },
+      {
+        "Stage": "finalizing",
+        "ComputeMs": 22.8352,
+        "HashMs": 1366.9464,
+        "PreviewMs": 0.0,
+        "TotalMs": 1389.7816,
+        "Percent": 10.277078146737425
+      }
+    ]
+  },
+  "generation_ready_speedup": 2.39639878702113,
+  "timing_context": "Individual runs on this machine. Owner player was open during baseline, closed during selected measurement; not a controlled whole-game FPS benchmark.",
+  "exact_stage_parity": "PASS all 15 stage hashes exactly match the previous selected game's generation pipeline; e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b",
+  "semantics": {
+    "checks": 266,
+    "tribes": 100,
+    "knowledgeFraction": 0.47,
+    "maximumTemperature": 8.696347385495073e-05,
+    "maximumRain": 0.0004107060908324911,
+    "localVariation": 39
+  },
+  "current_200k_100k": {
+    "checks": 23,
+    "cells": 200000,
+    "regions": 2509,
+    "aggregates": 484,
+    "active": 456,
+    "years": 100000,
+    "prepareSeconds": 1.5208372,
+    "fineClock1000Ms": 3.5043,
+    "lateFineClock1000Ms": 0.2898,
+    "historicalSeconds": 5.9391231,
+    "yearsPerSecond": 16837.502492581774,
+    "saveBytes": 80592750,
+    "saveReadWriteSeconds": 9.251098,
+    "Hash": "a55659a18cf810fddb032974776411a4906f6f1102551759e7eeb25a95d4a7aa",
+    "population": 666559.9893328141,
+    "languages": 484,
+    "families": 3435,
+    "maximumRegionalAffiliations": 10,
+    "meanRegionalAffiliations": 3.021694214876033,
+    "techniquePatterns": 432
+  },
+  "actual_player": {
+    "Cells": 200000,
+    "Regions": 2509,
+    "Aggregates": 255,
+    "Checks": 9,
+    "RuntimeErrors": 0,
+    "FineSeconds": 12.000184500000003,
+    "FineDays": 12.000185185185185,
+    "FineMaximumFrameMs": 13.3371000000011,
+    "FineP95FrameMs": 0.1346000000097547,
+    "FastSeconds": 12.190588300000002,
+    "FastYears": 145405.39999946093,
+    "FastYearsPerSecond": 11927.677026010379,
+    "FastMaximumFrameMs": 47.5828000000007,
+    "FastP95FrameMs": 24.06219999998882,
+    "MaximumPublicationPauseMs": 235.8162999999962,
+    "MaximumLayerSwitchMs": 4.481900000001815,
+    "Hash": "f864c69429519205d08f66e7e943dc86a9119b80141ae4f4e13eefc862daa922",
+    "ProcessItems": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ProcessMilliseconds": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "DirectYearsPerSecond": 5870.377371338939,
+    "WorkerComputeMs": 11019.0635,
+    "WorkerTransferMs": 649.2922000000001,
+    "WorkerDecodeMs": 2129.9544,
+    "WorkerApplyMs": 55.42350000000001,
+    "WorkerBytes": 372703747,
+    "WorkerPublications": 85,
+    "LateFineSeconds": 6.0001986999999986,
+    "LateFineDays": 6.00005787037037
+  },
+  "gpu_reference": [
+    "0 Climate compared=372 mismatched=0 maxError=1.192093E-07",
+    "0 Satellite compared=372 mismatched=0 maxError=0.001374707",
+    "85000 Climate compared=372 mismatched=0 maxError=1.192093E-07",
+    "85000 Satellite compared=372 mismatched=0 maxError=0.003281653",
+    "100000 Climate compared=372 mismatched=0 maxError=1.192093E-07",
+    "100000 Satellite compared=372 mismatched=0 maxError=0.002974123",
+    "179000 Climate compared=372 mismatched=0 maxError=1.192093E-07",
+    "179000 Satellite compared=372 mismatched=0 maxError=0.002681181",
+    "200000 Climate compared=372 mismatched=0 maxError=1.192093E-07",
+    "200000 Satellite compared=372 mismatched=0 maxError=0.00252232"
+  ],
+  "adoption": {
+    "unit": "Approximate fraction of tribes",
+    "dimensions": [
+      "knowledge",
+      "practical access",
+      "routine adoption"
+    ],
+    "evaluation": "Finite dated curves, queried on demand. Completed curves/projections use terminal cached values.",
+    "opportunity_review_years": [
+      600,
+      1800
+    ],
+    "local_detail": "Stable seeded tribal coverage, prerequisites and individual craft specialists"
+  },
+  "maps": {
+    "mesh": "One cell mesh for all layers; smoothed natural surface disabled",
+    "dated_background": "Cached per-cell GPU climate/satellite/seasonal temperature/rain palettes; temporal interpolation between250-year classification endpoints",
+    "civilizations": "Default; other human species light grey, sapiens medium grey; later-era colours reserved",
+    "ice_indicator": "Actual glacial forcing, beside year"
+  },
+  "original_art_audio": "No tracked assets-source, sounds or music changes versus previous selected source",
+  "map_renders": {
+    "Civilizations.png": "2eabf5c455b7b1fc4a9c362bf81fef1a965efaa670eb45bf43fdc640e7f0f7c8",
+    "Climate-0.png": "e749f4df8520d3b5ee10abd756061a9bb94bede9cd1fb703c1ac40586ceb7bd5",
+    "Climate-100000.png": "1ae15f06c8e4f903e2355d0f843c8c1e2c5fdfc0d321716a5573d724c0b37dc2",
+    "Climate-179000.png": "3b294c493442d7d0ea335484c40df050096c6f64b7658cd02737df6df2af76e3",
+    "Climate-200000.png": "f265b5b3fbec419df5e61145a3029640dde9e9e4b110e3c73cd89b64ae195114",
+    "Climate-85000.png": "bf9c613f93eb29592cf68df2a93ac86bc76f89e4985440d279935bf6059e6adb",
+    "Satellite-0.png": "5103131edf3ba1f649248aa50baa3426c604f5e5a74d97d29ad1d1e9724317c4",
+    "Satellite-100000.png": "bd242fb664c49278e212185fd0fb967bda88a3567a13d6ba0e4d7ff03156e9fa",
+    "Satellite-179000.png": "55c004990a55476cc11a6684ab87fa6a586e33814755f8e2c460c043b1971fb7",
+    "Satellite-200000.png": "d65d6be6e7d9ffa66600d081d9b4df95acc066a905fd3b65f2ba3fc0002057b4",
+    "Satellite-85000.png": "86fef600d2142cd6db0919af5f3a08167fd1a38afd3e9f175cd24e8ebfeb7ceb"
+  },
+  "visually_inspected": [
+    "Civilizations.png",
+    "Satellite-179000.png"
+  ],
+  "excluded": [
+    "First climate attempt caught a remaining Cultures load default; corrected.",
+    "Hidden-window screen captures were black and are excluded; actual camera render requests produce the inspected map images.",
+    "An intermediate curve-sharing optimization failed future replay; structural equality corrected it before acceptance.",
+    "A first compact-wire run had221ms gaps but9909years/sec; excluded. Contact lookup no longer projects unused neighbour technology. The200k10k history hash is unchanged.",
+    "Pre-compaction player reached10053years/sec but exceeded the250ms publication gate (254.48ms); excluded. Curve packets now use lossless flags and inline scalar reads.",
+    "PASS all raw bits of 1005 curves, including zero/one/equality flags and negative zero; 21425 bytes"
+  ],
+  "limits": [
+    "Spread/review durations are approximate game priors, not exact archaeological dates.",
+    "Other ecological diagnostic backgrounds still use regional summaries.",
+    "No physical moving shorelines/ice or live vegetation reconstruction was added.",
+    "Old simulation saves are unsupported; generate a fresh world.",
+    "Offscreen camera renders verify maps; final UI appearance remains subject to owner review."
+  ]
+}

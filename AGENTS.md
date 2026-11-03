@@ -49,6 +49,42 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED3Nov06:46Z GENERATION / TRIBAL ADOPTION / CELL MAPS COMPLETE.
+Root shortcut NOW builds/slot-b/WorldGen.exe, managed NON-DEVELOPMENT ScriptsOnly
+BuiltUtc2026-11-03T06:35:36.2795882Z. Production c1d4576 PUSHED (earlier feature
+f72fa16/c59f825/0d7dbef). Source/selected package frozen; await owner feedback.
+Rules foragers-regional-4: analytic regional curves estimate tribes knowing,
+having practical access and routinely adopting techniques; no adoption ticks.
+Independent600-1800yr invention/contact/context opportunities; lineage traits
+retained. Local seeded tribal coverage and craft specialists; structural plan
+equality preserves replay. Binary curve flags preserve all raw bits. Ordinary
+contacts no longer project unused neighbour toolkits. No global tribe ledger.
+Civilizations default: other humans light grey, sapiens medium grey. Shared cell
+mesh replaces smoothed world-map geometry. Main dated climate/satellite/seasonal
+maps have cached GPU per-cell inputs and250yr temporal palette interpolation;
+long-term local biomes exclude short drought shocks. Small glacial icon by year.
+Other ecological diagnostic backgrounds still regional summaries. No moving
+physical shoreline/ice/vegetation reconstruction or new physical NPC camps.
+Generation uses same pipeline in shipped CoreCLR worker, parallel independent
+months/cell batches,3 previews. Default200k seed73421 ready57.339->23.927s,
+engine47.877->13.523s; ALL15 stage hashes EXACT vs previous selected Core,
+complete e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b.
+Baseline owner game was open; final run closed, not controlled whole-game FPS.
+Final SAME player accepted-playback9PASS/exit0/clean:11927.7yr/sec,235.82ms max
+publication gap,4.482ms layer switch,1day/sec before/after fast play. Final
+accepted-climate12PASS/exit0,10 GPU/CPU palette comparisons at5 dates,0 mismatches;
+actual offscreen camera renders inspected (Civilizations/Satellite179k). Hidden
+screen captures black and excluded. Final accepted-generation exit0/hash exact.
+Core100k23PASS5.939s/16837.5yr/sec,484 records/2509regions; current save/future/
+replication/local regeneration pass.266 semantic checks;1005 raw-bit curves pass.
+Manifest assets/verification/generation-adoption-20261103.json; record script
+refuses failed/stale evidence. Scratch artifacts/generation-adoption-20261103.
+Layout audit5655checks/5048locked/177animal inputs PASS. Original art/audio
+unchanged. Source/proof/shortcut included in this checkpoint. No owned player/
+worker jobs remain; owner apps/3 unrelated files untouched. No paid/subagents/
+extra full-player copies. Old simulation saves unsupported: use a fresh world.
+Earlier regional-3 notes/results below are historical, not this package's proof.
+
 SELECTED3Nov04:43Z REGIONAL-3 PERFORMANCE REPAIR COMPLETE; await owner feedback.
 Root shortcut NOW builds/slot-a/WorldGen.exe, Mono NON-DEVELOPMENT ScriptsOnly
 BuiltUtc2026-11-03T04:36:51.5652090Z. Runtime source56eb41d007a263d4fd3bb67b0bc20b8c0895adf8.
