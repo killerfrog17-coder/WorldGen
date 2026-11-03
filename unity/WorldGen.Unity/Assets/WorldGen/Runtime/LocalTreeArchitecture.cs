@@ -71,8 +71,10 @@ static partial class LocalScatterMeshes
                 // Needles follow the twig, with a rolled horizontal spray.
                 // Broad leaves use overlapping crown clusters, not conspicuous
                 // green sticks pointing in an unrelated random direction.
-                var up=needle?axis:(axis*.55f+Vector3.up*.45f).normalized;
+                bool exposed=m.Strategy==TreeCrownStrategy.OpenWoodland;
+                var up=needle?axis:(axis*(exposed?.55f:.82f)+Vector3.up*(exposed?.45f:.18f)).normalized;
                 var right=Vector3.Cross(up,Mathf.Abs(up.y)<.94f?Vector3.up:Vector3.right).normalized;
+                if(!needle&&!exposed)up=Quaternion.AngleAxis((j-1)*25,right)*up;
                 float roll=needle?(j==0?-24:36):((float)r.Unit()-.5f)*150;
                 right=Quaternion.AngleAxis(roll,up)*right;var normal=Vector3.Cross(right,up).normalized;
                 float span=(needle?.095f:.080f)*(.8f+(float)r.Unit()*.4f);

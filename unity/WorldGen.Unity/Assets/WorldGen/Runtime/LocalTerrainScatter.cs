@@ -523,6 +523,11 @@ public sealed partial class LocalTerrainExplorer
         if(usingSoftCanopyShadows!=SoftCanopyShadows)BuildScatterBatches();
         UpdateEfficientTreeMaterials();PrepareSharedTreeWind();
         DrawTreeShadowProxies();
+        // Active local batches must keep their deferred tree bake alive even
+        // when the camera is still and no batch rebuild happens for >3 seconds.
+        // Distant forest batches already refresh this same residency clock.
+        double drawnAt=Time.realtimeSinceStartupAsDouble;
+        foreach(var batch in drawBatches)batch.Model.LastUsed=drawnAt;
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)
         {
             var kind=(ScatterKind)((batch.Key>>2)&63);

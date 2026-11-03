@@ -49,6 +49,35 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov22:23Z CONTINUE. Stage2 selectedB9358b36/tag living-landscapes-20261103
+UNCHANGED. Stage3 tree art ACTIVE; source8296b6b PUSHED plus later uncommitted.
+New CC0 ambientCG7leaf atlases/PolyHaven5barks authoring in canonical tree-surfaces;
+74 editor swatches, Runtime TreeSurfaceArtV1 BC7 arrays32x512leaves/5x512bark,
+CPU256bank. FoliageGPU22.37MB sameold, bark+3.50MB, CPU19.40MB. Exact20layer
+512-alpha/hull support PASS; no triangle increase, cardarea0.83..0.85broads/
+0.457needles. New ribbed succulent1608/656tris replacesoldblobs. First4leaf
+native Forest/TemperateRainforest/DryWoodland/WoodedSwamp EXIT0; wide shots noisy,
+NOT finalacceptance. Later96leaf branch packets, lessupright general/tropical
+shoots, rounded succulent tips; openwood tilt initiallyexceeded oldbounds,
+corrected by retaining its bounded exposed foliage pose. Latest editor
+canopy-3 eight models/render views/support PASS (oldCoreDLLbarktrait metadata).
+NEW code found/fixed local DrawScatter LastUsed stale after3s while still drawn,
+starving deferred tree bakes at stillcamera; finalnative verification pending.
+Landscapefixture now supports explicitBiomes +heldcamera +waitactualvisiblebakes.
+Core onlybarkpatterns nowfibrous palms/ferns/smoothculms; originalRNGdraw consumed,
+othertraitsunchanged. A FULL build RUNNING session79122, notselected. Prior A
+built21:58 wasfirstart4leaf; do notoverwrite running jobs. No game currentlyopen.
+Stockforest-temperate settled benchmarkB exit0 BUT CAMERA IN GRASSCLEARING,
+REJECTED as denseforestperf (326fps notclaim). Need realwoodedcampB/A comparison
+via run-landscape-performance.ps1 -BaselineSlot slot-b -CandidateSlot slot-a,
+and actual settled dense visual/perf. Source treehelper nowcanonical slots,
+optionalPresentMon tools/PresentMon notscratch. Previous2assetpacks137/5357 inputs
+remoteverified; original5154exact. Later96leaf bakedart changed, MUST publishnew
+immutablepack/refreshlock beforehandoff. Currentlockolder4leafbank. Sourceinputs
+43 canonical, no requiredscratch. Need latestA native shader/forest/biome views,
+stationarybake regression, NPCcamp/perf, art proof+manifest/docs/Git before select.
+Owner3files untouched; no paid/subagents/ownerappsclosed. Continue untilexplicitstop.
+
 ACTIVE3Nov21:34Z CONTINUE. Stage2 landscape VERIFIED/SELECTED slot-b shortcut,
 9358b36 PUSHED/tag living-landscapes-20261103. Runtime3242861, B built20:44:45Z
 NONDEV managed, all10contexts84checks/20actualimages reviewed. Final isolated

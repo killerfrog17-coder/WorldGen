@@ -1,5 +1,5 @@
 param(
-    [string]$PlayerFolder='player-vegetation-performance',
+    [ValidateSet('slot-a','slot-b')][string]$PlayerFolder='slot-b',
     [string]$Snapshot='world/.trash/6322ddf05ff74f619af02d3b88c8426c-943147b5a5e44d04a492a0a4875581a9/snapshot.world',
     [string]$Output='artifacts/performance-review',
     [string]$Sites='plains,forest-flat,forest-hills,mountains,desert,tundra',
@@ -15,7 +15,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
-$player=Join-Path $repo "artifacts/$PlayerFolder/WorldGen.exe"
+$player=Join-Path $repo "builds/$PlayerFolder/WorldGen.exe"
 $inputFile=[IO.Path]::GetFullPath((Join-Path $repo $Snapshot))
 $destination=[IO.Path]::GetFullPath((Join-Path $repo $Output))
 if(!$destination.StartsWith((Join-Path $repo 'artifacts/'),[StringComparison]::OrdinalIgnoreCase)){throw 'Evidence must stay inside artifacts'}
@@ -33,7 +33,7 @@ $run=$null;$capture=$null
 try {
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru
     if($PresentMon){
-        $capture=Start-Process -FilePath (Join-Path $repo 'artifacts/fps-diagnostic/PresentMon-2.6.0-x64.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -WindowStyle Hidden -PassThru
+        $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -WindowStyle Hidden -PassThru
     }
     $deadline=[DateTime]::UtcNow.AddMinutes($TimeoutMinutes);$last=''
     while(!$run.WaitForExit(10000)){

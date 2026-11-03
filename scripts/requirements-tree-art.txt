@@ -1,0 +1,5 @@
+# Offline CC0 tree texture authoring; not runtime dependencies.
+numpy==2.4.0
+scipy==1.15.3
+Pillow==11.3.0
+requests==2.32.3

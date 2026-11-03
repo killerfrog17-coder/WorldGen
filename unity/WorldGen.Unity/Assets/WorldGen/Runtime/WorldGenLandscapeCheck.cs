@@ -11,12 +11,16 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
+    // Explicit test camera held across frames while the ordinary renderer
+    // completes newly visible tree art. Normal gameplay leaves this unset.
+    Vector3? landscapeReviewCamera;Quaternion landscapeReviewRotation;
     public sealed class LandscapeSceneReceipt
     {
         public string Requested,Actual,HistoryHash;
         public V Position;public double Elevation,Water,Depth,PrepareMs,NearLoadSeconds;
         public int Tiles,ScatterPages,WaterRenderers;
         public int NearbyPools,Reeds,SubmergedReeds;
+        public int BakedTrees,BakedStands,PendingTreeBakes;
         public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
         public SmallLake Pond;
     }
@@ -47,15 +51,16 @@ public sealed partial class LocalTerrainExplorer
             }
             else
             {
-                var requested=(LandscapeRegion)Enum.Parse(typeof(LandscapeRegion),kind);
-                foreach(int cell in cells.Where(i=>LandscapeProvince.Region(model.Profile(i).Landscape,world.Surface.Cells[i].Position*(model.RadiusM*.1),world.Recipe.Seed,model.Profile(i).Biome)==requested).Take(96))
+                bool biomeQuery=Enum.TryParse(kind,out Biome requestedBiome);
+                var requested=biomeQuery?default:(LandscapeRegion)Enum.Parse(typeof(LandscapeRegion),kind);
+                foreach(int cell in cells.Where(i=>biomeQuery?model.Profile(i).Biome==requestedBiome:LandscapeProvince.Region(model.Profile(i).Landscape,world.Surface.Cells[i].Position*(model.RadiusM*.1),world.Recipe.Seed,model.Profile(i).Biome)==requested).Take(96))
                 {
                     var patch=model.Patch(world.Surface.Cells[cell].Position,18000);
                     foreach(var offset in new[]{new V(5000,0,0),new V(-6000,0,4000),new V(8500,0,-5000)})
                     {
                         var at=patch.Position(offset.X,offset.Z);var s=patch.Sample(at);
-                        if(s.Underwater||s.ElevationM<=5||s.Landscape!=requested)continue;
-                        if(requested==LandscapeRegion.WoodedSwamp)
+                        if(s.Underwater||s.ElevationM<=5||(biomeQuery?s.Biome!=requestedBiome:s.Landscape!=requested))continue;
+                        if(!biomeQuery&&requested==LandscapeRegion.WoodedSwamp)
                         {
                             // Test the actual conjunction of woody cover and
                             // standing water, rather than another dry bank.
@@ -106,11 +111,21 @@ public sealed partial class LocalTerrainExplorer
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
         double floor=site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
-        void Capture(string name,Vector3 offset)
+        IEnumerator Capture(string name,Vector3 offset)
         {
             owner.nextDaylightAt=0;owner.SetDaylight(12,190000+(site.Position.Z<0?0:.5));
             Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual midday summer illumination");
-            var focus=new Vector3(0,y+.5f,0);owner.view.transform.localPosition=focus+offset;owner.view.transform.LookAt(owner.transform.TransformPoint(focus));
+            var focus=new Vector3(0,y+.5f,0);owner.landscapeReviewCamera=focus+offset;owner.landscapeReviewRotation=Quaternion.LookRotation(-offset);owner.UpdateCamera();
+            owner.BuildScatterBatches();
+            double bakedDeadline=Time.realtimeSinceStartupAsDouble+90,nextBakeReport=0;
+            bool VisiblePending()=>owner.drawBatches.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked)||owner.forestBatches.Values.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked);
+            while(VisiblePending()&&Time.realtimeSinceStartupAsDouble<bakedDeadline)
+            {
+                if(Time.realtimeSinceStartupAsDouble>=nextBakeReport){nextBakeReport=Time.realtimeSinceStartupAsDouble+2;File.WriteAllText(Path.Combine(output,"tree-readiness.txt"),name+" "+owner.PerformanceForestState);}
+                yield return null;
+            }
+            Check(!VisiblePending(),"Visible distant-tree models complete while the review camera stays still");
+            owner.nextDaylightAt=0;owner.SetDaylight(12,190000+(site.Position.Z<0?0:.5));
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
         }
@@ -122,7 +137,8 @@ public sealed partial class LocalTerrainExplorer
             var direction=1-alignment*alignment<.4?new V(.13,.85,-.51):first;
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
         }
-        Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f));Capture("ground",orientation*new Vector3(0,1.8f,10));
+        yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
+        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,1.8f,10)));
         int reeds=0,submergedReeds=0;var plantPatch=model.Patch(site.Position,5000);
         foreach(var chunk in owner.scatterChunks.Values)
         {
@@ -139,6 +155,7 @@ public sealed partial class LocalTerrainExplorer
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
             WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
+            BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LANDSCAPE PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }

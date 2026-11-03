@@ -119,7 +119,8 @@ static partial class LocalScatterMeshes
                 float t=row/(float)segments;var p=(1-t)*(1-t)*root+2*t*(1-t)*control+t*t*tip;
                 var axis=(2*(1-t)*(control-root)+2*t*(tip-control)).normalized;
                 var u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.95f?Vector3.up:Vector3.right).normalized;var v=Vector3.Cross(axis,u);
-                float taper=Mathf.Lerp(1,.45f,t)*Mathf.Sqrt(Mathf.Max(.025f,1-Mathf.Pow(t,12)));
+                float tipProgress=Mathf.Clamp01((t-.88f)/.12f);
+                float taper=Mathf.Lerp(1,.70f,t)*Mathf.Sqrt(Mathf.Max(.008f,1-tipProgress*tipProgress));
                 for(int k=0;k<=sides;k++)
                 {
                     float a=k*2*Mathf.PI/sides,r=radius*taper*(1+.10f*Mathf.Cos(a*6));

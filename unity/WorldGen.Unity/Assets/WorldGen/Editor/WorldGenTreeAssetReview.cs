@@ -21,6 +21,7 @@ public static class WorldGenTreeAssetReview
             texture.GetMethod("Generate",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
             var command=Environment.GetCommandLineArgs();int outputAt=Array.IndexOf(command,"--tree-review-output");
             string folder=outputAt>=0?Path.GetFullPath(command[outputAt+1]):Path.GetFullPath(Path.Combine(Application.dataPath,"../../../artifacts/tree-baked-assets"));Directory.CreateDirectory(folder);
+            CheckSurfaceSupport(folder);
             foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600})
             {
                 var timer=System.Diagnostics.Stopwatch.StartNew();
@@ -49,6 +50,56 @@ public static class WorldGenTreeAssetReview
             Debug.Log("TREE ASSET REVIEW PASSED");EditorApplication.Exit(0);
         }
         catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}
+    }
+    [Serializable] sealed class SurfaceSupport
+    {
+        public string[] Formats;
+        public long ShootGpuBytes,BarkGpuBytes,PreviousShootGpuBytes,CpuPixelBytes;
+        public LayerSupport[] Layers;
+    }
+    [Serializable] sealed class LayerSupport
+    {
+        public int Layer,VisiblePixels,ClippedPixels;
+        public Vector4 Hull;
+        public float CardArea;
+    }
+    static void CheckSurfaceSupport(string folder)
+    {
+        var names=new[]{"shoot-albedo","shoot-normal","bark-albedo","bark-normal"};
+        var report=new SurfaceSupport{Formats=new string[4],Layers=new LayerSupport[20],CpuPixelBytes=74L*256*256*4};
+        long Bytes(int size,int layers,bool compressed)
+        {long bytes=0;for(int width=size;width>0;width/=2)bytes+=(compressed?Math.Max(1,(width+3)/4)*Math.Max(1,(width+3)/4)*16L:width*width*4L)*layers;return bytes;}
+        for(int i=0;i<4;i++)
+        {
+            var array=Resources.Load<Texture2DArray>("TreeSurfaceArtV1/"+names[i]);
+            int layers=i<2?32:5;
+            if(array==null||array.width!=512||array.height!=512||array.depth!=layers||array.mipmapCount!=10||array.format!=TextureFormat.BC7)throw new Exception("Tree GPU array contract "+names[i]);
+            if(array.wrapMode!=(i<2?TextureWrapMode.Clamp:TextureWrapMode.Repeat))throw new Exception("Tree array wrapping "+names[i]);
+            report.Formats[i]=array.graphicsFormat.ToString();
+            if(i<2)report.ShootGpuBytes+=Bytes(512,layers,true);else report.BarkGpuBytes+=Bytes(512,layers,true);
+        }
+        report.PreviousShootGpuBytes=Bytes(256,32,false)*2;
+        // Validate the actual runtime hull against higher-resolution authored
+        // texels, rather than checking it against its own smaller input pixels.
+        for(int layer=0;layer<20;layer++)
+        {
+            var hull=LocalTreeTextures.ShootHull(layer/4);var texture=new Texture2D(2,2,TextureFormat.RGBA32,false);
+            try
+            {
+                ImageConversion.LoadImage(texture,File.ReadAllBytes("Assets/WorldGen/Editor/TreeSurfaceArtV1/shoot-"+layer.ToString("D2")+"-albedo.png"));
+                var pixels=texture.GetPixels32();var row=new LayerSupport{Layer=layer,Hull=hull,CardArea=(hull.y-hull.x+hull.w-hull.z)*.5f};
+                for(int i=0;i<pixels.Length;i++)if(pixels[i].a>=102)
+                {
+                    row.VisiblePixels++;float u=(i%512+.5f)/512,v=(i/512+.5f)/512;
+                    if(u<Mathf.Lerp(hull.x,hull.z,v)||u>Mathf.Lerp(hull.y,hull.w,v))row.ClippedPixels++;
+                }
+                if(row.ClippedPixels!=0||row.VisiblePixels<1000)throw new Exception("Tree hull cuts visible photo texels: "+layer+" / "+row.ClippedPixels);
+                report.Layers[layer]=row;
+            }
+            finally{UnityEngine.Object.DestroyImmediate(texture);}
+        }
+        File.WriteAllText(Path.Combine(folder,"surface-support.json"),JsonUtility.ToJson(report,true));
+        Debug.Log("TREE SURFACE SUPPORT PASS: all20 cutout layers preserve512 source alpha; same mesh counts, compressed GPU support.");
     }
     static void Capture(string folder,int code,Mesh mesh,object result,Type textures)
     {

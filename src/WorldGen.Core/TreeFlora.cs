@@ -43,6 +43,11 @@ namespace WorldGen.Core
                 Form==TreeGrowthForm.TreeFern?TreeLeafShape.PinnateFrond:Form==TreeGrowthForm.ArborescentSucculent?TreeLeafShape.Fleshy:
                 Form==TreeGrowthForm.TallCane?TreeLeafShape.Lanceolate:(TreeLeafShape)(int)(r.Unit()*4);
             BarkPattern=(TreeBarkPattern)(int)(r.Unit()*5);
+            // These forms have persistent fibrous leaf bases or smooth culms,
+            // rather than an arbitrary dicot bark chosen from the same pool.
+            // Consume the inherited draw above so all other traits stay stable.
+            if(Form==TreeGrowthForm.FrondCrown||Form==TreeGrowthForm.TreeFern)BarkPattern=TreeBarkPattern.Fibrous;
+            if(Form==TreeGrowthForm.TallCane||Form==TreeGrowthForm.ArborescentSucculent)BarkPattern=TreeBarkPattern.Smooth;
             WoodDensityKgM3=(Form==TreeGrowthForm.NeedleCrown?330+260*r.Unit():420+420*r.Unit())*branch;
             HardnessIndex=D.Clamp((WoodDensityKgM3-250)/700*.75+.25*r.Unit());
             DecayResistance=.15+.75*r.Unit();RelativeGrowth=D.Clamp(1.15-WoodDensityKgM3/1100+(r.Unit()-.5)*.25);

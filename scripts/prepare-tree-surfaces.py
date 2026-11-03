@@ -132,8 +132,8 @@ def shoot(family,variant,library):
             joint=(.5+(tip[0]-.5)*(1-y),y+rng.uniform(-.015,.015))
             reach=(.35-.14*fraction)*rng.uniform(.9,1.05)
             end=(joint[0]+sign*reach,joint[1]-.13-rng.uniform(0,.04));line(joint,end,2)
-            for k in range(4):
-                t=(k+.65)/4;base=(joint[0]+(end[0]-joint[0])*t,joint[1]+(end[1]-joint[1])*t)
+            for k in range(6):
+                t=(k+.65)/6;base=(joint[0]+(end[0]-joint[0])*t,joint[1]+(end[1]-joint[1])*t)
                 length=rng.uniform(.087,.12)*(1-.18*fraction)
                 angle=math.atan2(end[1]-joint[1],end[0]-joint[0])+(-1 if k%2 else 1)*rng.uniform(.45,1.15)
                 target=(base[0]+math.cos(angle)*length,base[1]+math.sin(angle)*length)
