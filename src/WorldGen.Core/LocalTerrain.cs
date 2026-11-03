@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-provinces-16";
+        public const string Version = "local-terrain-provinces-17";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -99,8 +99,8 @@ namespace WorldGen.Core
                 profiles[i].Forest.ReferenceElevationM=profiles[i].ElevationM;
                 profiles[i].Landscape=LandscapeProvince.Describe(profiles[i].Ground,profiles[i].Biome,
                     habitat==null?.7:habitat.AridityMilli/1000d,profiles[i].Forest.Coverage,relief,
-                    Math.Max(profiles[i].Glacial,habitat==null?0:habitat.PermafrostPermille/1000d),
-                    habitat==null?0:habitat.FloodFractionPermille/1000d);
+                    habitat==null?0:habitat.PermafrostPermille/1000d,
+                    habitat==null?0:habitat.FloodFractionPermille/1000d,profiles[i].Glacial);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
             faceOffsets = new int[profiles.Length + 1]; foreach(int id in world.Surface.Triangles) faceOffsets[id + 1]++;

@@ -1,0 +1,47 @@
+{
+  "baseline": "living-npcs-foundation-20261103",
+  "expected_changed_slices": [
+    1,
+    2,
+    3,
+    6
+  ],
+  "arrays": {
+    "albedo": {
+      "payload_bytes": 4893728,
+      "changed_slices": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "original_other_slices_byte_exact": true,
+      "payload_sha256": "27395d0d458d64e6f1b3fbf235dde906e9a3f3d05dcbce67434cad2e0e242a9d",
+      "file_sha256": "8e84e7d54c121646d004bba6110017e33ceabcf0f135b661779c274b20845fdb"
+    },
+    "normal": {
+      "payload_bytes": 1223712,
+      "changed_slices": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "original_other_slices_byte_exact": true,
+      "payload_sha256": "ad1fe2beeaac158facb55f322113ff0ec97cea543aa5a1e9c9c5f607513de752",
+      "file_sha256": "604d0e677ba88a993ad8743731e362450e79225346fe97e80585c00ba7cf9d38"
+    },
+    "mask": {
+      "payload_bytes": 306208,
+      "changed_slices": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "original_other_slices_byte_exact": true,
+      "payload_sha256": "9540cf0e7f824a681d055accade16fa0546423b02199e90b322df814ce982bbc",
+      "file_sha256": "68c51d9e9b6cdc3d99d7114b561ddfb712b27fd2db4877eaf310ef860b41cf41"
+    }
+  }
+}

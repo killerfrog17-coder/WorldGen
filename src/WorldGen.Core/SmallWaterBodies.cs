@@ -37,7 +37,7 @@ namespace WorldGen.Core
     /// cell resolution and query order. Only visited candidates are surveyed.</summary>
     public sealed class SmallWaterBodies
     {
-        public const string Version="small-enclosed-basins-1";
+        public const string Version="small-enclosed-basins-2";
         public const double GridM=768;
         public static bool IsLocal(ulong id)=>(id&0x8000000000000000UL)!=0;
         readonly int seed;readonly double planetRadius;
@@ -51,6 +51,30 @@ namespace WorldGen.Core
         public SmallWaterBodies(int seed,double planetRadius){this.seed=seed;this.planetRadius=planetRadius;}
         static uint Hash(int x,int y,int z,int seed)=>Rng.Mix(unchecked((uint)seed^(uint)x*73856093u^(uint)y*19349663u^(uint)z*83492791u));
         static double Unit(uint hash,int stream)=>Rng.Mix(hash^unchecked((uint)stream*0x9e3779b9u))/(double)uint.MaxValue;
+        bool CandidateAt(int x,int y,int z,out Candidate candidate)
+        {
+            candidate=default;uint hash=Hash(x,y,z,seed);if(Unit(hash,1)>.7)return false;
+            var raw=new V((x+.5)*GridM,(y+.5)*GridM,(z+.5)*GridM);if(Math.Abs(raw.Length-planetRadius)>GridM*.56)return false;
+            double radius=12+78*Math.Pow(Unit(hash,2),1.5),support=radius*1.4*1.2*1.12;
+            candidate=new Candidate{Key=(x,y,z),Hash=hash,Center=raw.Unit,Radius=radius,Support2=support*support};return true;
+        }
+        bool Separated(Candidate candidate)
+        {
+            var key=candidate.Key;
+            // Two radial shell cells can project onto almost the same place.
+            // Deterministic priority thinning keeps only one whole basin and
+            // guarantees disjoint bed collars, rather than intersecting planes.
+            for(int z=key.Item3-1;z<=key.Item3+1;z++)for(int y=key.Item2-1;y<=key.Item2+1;y++)for(int x=key.Item1-1;x<=key.Item1+1;x++)
+            {
+                if((x,y,z)==key||!CandidateAt(x,y,z,out var other))continue;
+                bool earlier=other.Hash<candidate.Hash||other.Hash==candidate.Hash&&(x<key.Item1||x==key.Item1&&(y<key.Item2||y==key.Item2&&z<key.Item3));
+                if(!earlier)continue;
+                double dx=(other.Center.X-candidate.Center.X)*planetRadius,dy=(other.Center.Y-candidate.Center.Y)*planetRadius,dz=(other.Center.Z-candidate.Center.Z)*planetRadius;
+                double clearance=(other.Radius+candidate.Radius)*1.9;
+                if(dx*dx+dy*dy+dz*dz<clearance*clearance)return false;
+            }
+            return true;
+        }
         public V[] Candidates(V position,double rangeM)
         {
             if(!double.IsFinite(rangeM)||rangeM<0||rangeM>10000)throw new ArgumentOutOfRangeException(nameof(rangeM));
@@ -58,9 +82,8 @@ namespace WorldGen.Core
             int ix=(int)Math.Floor(m.X/GridM),iy=(int)Math.Floor(m.Y/GridM),iz=(int)Math.Floor(m.Z/GridM);
             for(int z=iz-reach;z<=iz+reach;z++)for(int y=iy-reach;y<=iy+reach;y++)for(int x=ix-reach;x<=ix+reach;x++)
             {
-                uint hash=Hash(x,y,z,seed);if(Unit(hash,1)>.7)continue;
-                var raw=new V((x+.5)*GridM,(y+.5)*GridM,(z+.5)*GridM);if(Math.Abs(raw.Length-planetRadius)>GridM*.56)continue;
-                var center=raw.Unit;if((center-position).Length*planetRadius<=rangeM)result.Add(center);
+                if(!CandidateAt(x,y,z,out var candidate)||!Separated(candidate))continue;
+                if((candidate.Center-position).Length*planetRadius<=rangeM)result.Add(candidate.Center);
             }
             return result.ToArray();
         }
@@ -68,7 +91,7 @@ namespace WorldGen.Core
         {
             var g=ground(center);var p=g.Province;
             if(g.Kind!=LocalWaterKind.None||g.Height<4||p.Salt>.1||p.Moisture<.18)return null;
-            double probability=Math.Max(p.Wet*.8,Math.Max(p.Glacial*.55,p.Moisture*.045));
+            double probability=Math.Max(p.Wet*.8,Math.Max(Math.Max(p.Glacial,p.Frozen)*.55,p.Moisture*.045));
             if(Unit(hash,6)>probability)return null;
             var east=V.Cross(Math.Abs(center.Z)<.99?new V(0,0,1):new V(0,1,0),center).Unit;
             var north=V.Cross(center,east).Unit;double min=g.Height,max=g.Height;
@@ -96,10 +119,7 @@ namespace WorldGen.Core
                 var list=new List<Candidate>();
                 for(int z=iz-1;z<=iz+1;z++)for(int y=iy-1;y<=iy+1;y++)for(int x=ix-1;x<=ix+1;x++)
                 {
-                    uint hash=Hash(x,y,z,seed);if(Unit(hash,1)>.7)continue;
-                    var raw=new V((x+.5)*GridM,(y+.5)*GridM,(z+.5)*GridM);if(Math.Abs(raw.Length-planetRadius)>GridM*.56)continue;
-                    double radius=12+78*Math.Pow(Unit(hash,2),1.5),support=radius*1.4*1.2*1.12;
-                    list.Add(new Candidate{Key=(x,y,z),Hash=hash,Center=raw.Unit,Radius=radius,Support2=support*support});
+                    if(CandidateAt(x,y,z,out var candidate)&&Separated(candidate))list.Add(candidate);
                 }
                 neighbours=list.ToArray();lock(gate)
                 {if(neighbourhoods.TryGetValue(address,out var previous))neighbours=previous;else{if(neighbourhoodOrder.Count>=512)neighbourhoods.Remove(neighbourhoodOrder.Dequeue());neighbourhoods.Add(address,neighbours);neighbourhoodOrder.Enqueue(address);}}

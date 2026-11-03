@@ -26,7 +26,8 @@ public static class TerrainSurfaceArtBuilder
                     var texture=new Texture2D(128,128,TextureFormat.RGBA32,false,linear){wrapMode=TextureWrapMode.Repeat};
                     try
                     {
-                        string material=layer==0?"soil":layer==4||layer==8?"granite":null;
+                        string material=layer==0?"soil":layer==1?"sand":layer==2?"gravel":layer==3?"clay":layer==6?"crust":layer==4||layer==8?"granite":null;
+                        if(material!=null&&!File.Exists(Inputs+"/"+material+"-"+suffix[channel]+".png"))material=null;
                         if(material!=null)
                         {
                             string input=Inputs+"/"+material+"-"+suffix[channel]+".png";
@@ -56,7 +57,7 @@ public static class TerrainSurfaceArtBuilder
             if(art==null)throw new InvalidOperationException("Existing terrain art set missing");
             art.Albedo=arrays[0];art.Normals=arrays[1];art.Masks=arrays[2];
             EditorUtility.SetDirty(art);AssetDatabase.SaveAssets();
-            Debug.Log("TerrainSurfaceArtV1 published: soil and granite replace slots 0/4/8; BC7 512/256/128, 14 layers, all mip levels. Shader/scene constants/quality ranges unchanged.");
+            Debug.Log("TerrainSurfaceArtV1 published: original soil/granite plus available sand, gravel, clay and crust inputs; BC7 512/256/128, 14 layers, all mip levels. Shader/scene constants/quality ranges unchanged.");
         }
         finally{foreach(var texture in fallback)UnityEngine.Object.DestroyImmediate(texture);}
     }

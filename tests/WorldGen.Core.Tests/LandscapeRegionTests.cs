@@ -20,12 +20,26 @@ static class LandscapeRegionTests
         var bog=LandscapeProvince.Describe(peat,Biome.Peatland,.9,.1,30,0,0);
         Check(bog.Peat==1&&bog.Wet==1,"Peatlands retain their wet organic character");
         Check(LandscapeProvince.Region(bog,new V(1000,2000,3000),41,Biome.Peatland)==LandscapeRegion.Peatland,"Peat is distinct from woody swamp");
+        var frozen=LandscapeProvince.Describe(gravel,Biome.Tundra,.7,0,60,1,0);
+        Check(frozen.Glacial==0&&frozen.Frozen==1&&LandscapeProvince.Region(frozen,new V(1000,2000,3000),41,Biome.Tundra)==LandscapeRegion.Tundra,"Permafrost alone does not imply a glaciated landscape");
+        Check(LandscapeProvince.Region(frozen,new V(1000,2000,3000),41,Biome.Ice)==LandscapeRegion.Icefield,"Active ice cover is distinct from exposed glacial lowlands");
         var wet=new LandscapeControls{Wet=1,Moisture=1,Canopy=.2f};
         double radius=637100;var center=new V(1,0,0);var basins=new SmallWaterBodies(73421,radius);
         int probes=0;SmallWaterGround Flat(V p){probes++;return new SmallWaterGround(100,double.NaN,LocalWaterKind.None,wet);}
         var candidates=basins.Candidates(center,6000);Check(candidates.Length>20,"Bounded deterministic basin candidate footprint");
         var lakes=candidates.Select(p=>basins.At(p,Flat)).Where(p=>p!=null).GroupBy(p=>p.Id).Select(g=>g.First()).ToArray();
         Check(lakes.Length>5,"Suitable wet lowland produces surveyed enclosed ponds");
+        double separation=double.PositiveInfinity;
+        for(int i=0;i<lakes.Length;i++)for(int j=0;j<i;j++)separation=Math.Min(separation,(lakes[i].Center-lakes[j].Center).Length*radius/(lakes[i].Radius+lakes[j].Radius));
+        Console.WriteLine("Closest independent pond centre separation / combined radius "+separation.ToString("F5"));
+        Check(separation>1.9,"Independent pond water planes and bed collars cannot overlap");
+        double boundaryRadius=SmallWaterBodies.GridM*Math.Round(radius/SmallWaterBodies.GridM);
+        var boundaryBasins=new SmallWaterBodies(73421,boundaryRadius);
+        var boundaryLakes=boundaryBasins.Candidates(center,6000).Select(p=>boundaryBasins.At(p,Flat)).Where(p=>p!=null).GroupBy(p=>p.Id).Select(g=>g.First()).ToArray();
+        double boundarySeparation=double.PositiveInfinity;
+        for(int i=0;i<boundaryLakes.Length;i++)for(int j=0;j<i;j++)boundarySeparation=Math.Min(boundarySeparation,(boundaryLakes[i].Center-boundaryLakes[j].Center).Length*boundaryRadius/(boundaryLakes[i].Radius+boundaryLakes[j].Radius));
+        Console.WriteLine("Planet-shell grid-boundary pond separation "+boundarySeparation.ToString("F5"));
+        Check(boundarySeparation>1.9,"Planet shell addressing cannot produce coincident independent pond basins");
         foreach(var lake in lakes)
         {
             Check(SmallWaterBodies.IsLocal(lake.Id),"Local pond identity is distinct from source lakes");

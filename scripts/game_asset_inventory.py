@@ -61,6 +61,7 @@ def inventory():
     add('assets-source/humans/appearance-review/Human physique comparison.blend','human-appearance-source',True)
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
+    tree('assets-source/terrain/surfaces','terrain-authoring-source',{'.png','.jpg','.json','.txt'})
     tree('assets-source/humans/motion/npc','human-npc-source',{'.f32','.json','.txt'})
     tree('assets/human-motion-npc','human-npc-source',{'.fbx','.json'})
     for hair in ['ponytail01','short02']:

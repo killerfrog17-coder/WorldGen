@@ -1,0 +1,155 @@
+{
+  "license_url": "https://polyhaven.com/license",
+  "materials": [
+    {
+      "material": "sand",
+      "asset": "sand_01",
+      "url": "https://polyhaven.com/a/sand_01",
+      "license": "CC0-1.0",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "inputs": {
+        "Diffuse": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/sand_01/Diffuse.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sand_01/sand_01_diff_1k.jpg",
+          "md5": "c914c8edb419f040e04224081a3f79a5",
+          "sha256": "a73b90eaa6d675ef57e7d48a8cf23e1f412e353ab2e29cf73930b8ecd4e76875",
+          "bytes": 485088
+        },
+        "nor_gl": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/sand_01/nor_gl.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sand_01/sand_01_nor_gl_1k.jpg",
+          "md5": "369b82aa417c77ec85c4c07c4c7b60a0",
+          "sha256": "73984aecdc35b1ffbc322d64b7f8d8165b06970d11f37dd47010609fcb532704",
+          "bytes": 877821
+        },
+        "arm": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/sand_01/arm.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sand_01/sand_01_arm_1k.jpg",
+          "md5": "3ab2b7731c0430662bdc4d12425411a3",
+          "sha256": "7a331aae0c26cfdba9096fc4fd0b8601d556b3e3ab92ddf4832a1c6a24a7292c",
+          "bytes": 131275
+        }
+      },
+      "outputs": {
+        "albedo": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/sand-albedo.png",
+          "sha256": "5e35ed2f884f2e34cb58466846acd770225ecf368fbe9769516a0813622b0e50"
+        },
+        "normal": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/sand-normal.png",
+          "sha256": "f24b7ec639f6b96ed88b9d3eed64f08206e68e60e7ea45d80db6a0800c8077ae"
+        },
+        "mask": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/sand-mask.png",
+          "sha256": "872f058555c75324f10b9c6a0975f2ec06362d6d11c905c22693887e7870a101"
+        }
+      },
+      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels."
+    },
+    {
+      "material": "gravel",
+      "asset": "gravel_stones",
+      "url": "https://polyhaven.com/a/gravel_stones",
+      "license": "CC0-1.0",
+      "authors": {
+        "Amal Kumar": "All"
+      },
+      "inputs": {
+        "Diffuse": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/gravel_stones/Diffuse.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/gravel_stones/gravel_stones_diff_1k.jpg",
+          "md5": "0e04ba65c86cbc55554877bad6a40354",
+          "sha256": "b77a4c0824f4c860b9230949baca764fdb0651fa0016b2644cd07490f82fac43",
+          "bytes": 802344
+        },
+        "nor_gl": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/gravel_stones/nor_gl.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/gravel_stones/gravel_stones_nor_gl_1k.jpg",
+          "md5": "ae11c45b9bf93346c4b521ab02ec165d",
+          "sha256": "49b4a592f021e7eb44f1638be5309ef6f0c3c8a51e7c857ffb54dc4836a8a070",
+          "bytes": 1485214
+        },
+        "arm": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/gravel_stones/arm.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/gravel_stones/gravel_stones_arm_1k.jpg",
+          "md5": "c59176ad39cf572390a45463d94bc789",
+          "sha256": "fbaf068cf2841b3f257489b8a7f3a730b23e37fecb81678661b160d96c95718e",
+          "bytes": 1051915
+        }
+      },
+      "outputs": {
+        "albedo": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/gravel-albedo.png",
+          "sha256": "8c8a8421929e895b5317f2cf15fc5ac8f7bb0fdbac9055cda512cbdff0b3084a"
+        },
+        "normal": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/gravel-normal.png",
+          "sha256": "675dbd331b722a455255dd542e67fc171923f86644e6b6d573cf9bfae9242c9d"
+        },
+        "mask": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/gravel-mask.png",
+          "sha256": "005c0caf585ef4ae0b239bc11e0c9446c850fd405077abb9598a715cd36a61f6"
+        }
+      },
+      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels."
+    },
+    {
+      "material": "clay",
+      "asset": "mud_cracked_dry_03",
+      "url": "https://polyhaven.com/a/mud_cracked_dry_03",
+      "license": "CC0-1.0",
+      "authors": {
+        "Dario Barresi": "Processing",
+        "Dimitrios Savva": "Photography"
+      },
+      "inputs": {
+        "Diffuse": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/Diffuse.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/mud_cracked_dry_03/mud_cracked_dry_03_diff_1k.jpg",
+          "md5": "6a86cfde5a73073397fcd13a5b6fed94",
+          "sha256": "b49e3d76bbb142c30ce938327f42ffdfd465429dd694fb5c2b731de08d7f6310",
+          "bytes": 974865
+        },
+        "nor_gl": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/nor_gl.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/mud_cracked_dry_03/mud_cracked_dry_03_nor_gl_1k.jpg",
+          "md5": "fb1e722403440bb1790f35970645930c",
+          "sha256": "f9fc5aa9b9e9c5d67cc77f9f6e95bdddcc6abe97400300603721f1dff4171e69",
+          "bytes": 1292317
+        },
+        "arm": {
+          "path": "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/arm.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/mud_cracked_dry_03/mud_cracked_dry_03_arm_1k.jpg",
+          "md5": "286b02a1bd1c1aa6cc371436ce1b15e4",
+          "sha256": "83acc902bcf35670c9e6aed46c9d5d5f291553ea3cdd7c4c2edfefcc428bbc86",
+          "bytes": 890318
+        }
+      },
+      "outputs": {
+        "albedo": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/clay-albedo.png",
+          "sha256": "a37ee07002b4f40974f41e6f452bc89501f2963a92e1853ee59871afddadef71"
+        },
+        "normal": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/clay-normal.png",
+          "sha256": "2d34187c2a8fd0bdf9aa5b06e10e8b46ab11715ace74f8fa0c301b2dfefa211c"
+        },
+        "mask": {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/clay-mask.png",
+          "sha256": "707f6b1d61e5928d674aba899633974fdac4e85d83d50ca9f55b077347c25ac4"
+        }
+      },
+      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels."
+    }
+  ],
+  "layers": {
+    "sand": 1,
+    "gravel": 2,
+    "clay": 3,
+    "crust": 6
+  },
+  "crust_derivative": "Muted cracked-mud desiccation pattern; saline colour comes from the existing ground model, not a claimed salt scan.",
+  "runtime_budget": "Existing 14-layer BC7 arrays, unchanged 512/256/128 dimensions and sampling budget."
+}

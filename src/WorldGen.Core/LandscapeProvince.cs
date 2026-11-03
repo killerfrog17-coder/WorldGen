@@ -7,21 +7,21 @@ namespace WorldGen.Core
         VegetatedPlain, Woodland, Forest, Rainforest, DryWoodland, Steppe,
         SandSea, SandSheet, GravelDesert, RockDesert, ClayPan, SaltFlat,
         Badlands, LoessHills, LimestoneUpland, RockyUpland, AlpineScree,
-        GlacialLowland, Tundra, FreshwaterMarsh, WoodedSwamp, Peatland, TidalWetland
+        GlacialLowland, Tundra, FreshwaterMarsh, WoodedSwamp, Peatland, TidalWetland, Icefield
     }
 
     // Continuous controls, rather than a hard biome replacement or a collection
     // of nearest-cell switches. Shared refined vertices carry the same mixture.
     public struct LandscapeControls
     {
-        public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Wet,Peat,Moisture,Canopy;
+        public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Frozen,Arid,Wet,Peat,Moisture,Canopy;
         public static LandscapeControls Blend(LandscapeControls a,LandscapeControls b,double t)
             => Mix(a,b,default,1-t,t,0);
         public static LandscapeControls Mix(LandscapeControls a,LandscapeControls b,LandscapeControls c,double x,double y,double z)
             =>new LandscapeControls{
                 Sand=(float)(a.Sand*x+b.Sand*y+c.Sand*z),Clay=(float)(a.Clay*x+b.Clay*y+c.Clay*z),Salt=(float)(a.Salt*x+b.Salt*y+c.Salt*z),
                 Badlands=(float)(a.Badlands*x+b.Badlands*y+c.Badlands*z),Loess=(float)(a.Loess*x+b.Loess*y+c.Loess*z),Karst=(float)(a.Karst*x+b.Karst*y+c.Karst*z),
-                Rock=(float)(a.Rock*x+b.Rock*y+c.Rock*z),Glacial=(float)(a.Glacial*x+b.Glacial*y+c.Glacial*z),Wet=(float)(a.Wet*x+b.Wet*y+c.Wet*z),
+                Rock=(float)(a.Rock*x+b.Rock*y+c.Rock*z),Glacial=(float)(a.Glacial*x+b.Glacial*y+c.Glacial*z),Frozen=(float)(a.Frozen*x+b.Frozen*y+c.Frozen*z),Arid=(float)(a.Arid*x+b.Arid*y+c.Arid*z),Wet=(float)(a.Wet*x+b.Wet*y+c.Wet*z),
                 Peat=(float)(a.Peat*x+b.Peat*y+c.Peat*z),Moisture=(float)(a.Moisture*x+b.Moisture*y+c.Moisture*z),Canopy=(float)(a.Canopy*x+b.Canopy*y+c.Canopy*z)};
         public double Flatness=>Math.Max(Wet*.8,Math.Max(Clay,Salt));
     }
@@ -30,7 +30,7 @@ namespace WorldGen.Core
     {
         public const string Version="landscape-provinces-1";
         static double Smooth(double a,double b,double value)=>OrogenMorphology.Smooth(a,b,value);
-        public static LandscapeControls Describe(GroundProfile ground,Biome biome,double moisture,double canopy,double relief,double frozen,double flood)
+        public static LandscapeControls Describe(GroundProfile ground,Biome biome,double moisture,double canopy,double relief,double frozen,double flood,double glacial=0)
         {
             bool desert=biome==Biome.Desert,peat=biome==Biome.Peatland;
             bool marsh=biome==Biome.Marsh||biome==Biome.Mangrove||biome==Biome.SaltMarsh||peat;
@@ -43,8 +43,8 @@ namespace WorldGen.Core
                 Badlands=(float)(dry*ground.RockWeight(4)*Smooth(120,900,relief)*(1-canopy)),
                 Loess=ground.Deposit==ParentDeposit.Loess?1:0,
                 Karst=(float)(ground.RockWeight(3)*Smooth(130,800,relief)),
-                Rock=(float)((ground.RockWeight(0)+ground.RockWeight(1)+ground.RockWeight(5))*Smooth(150,1100,relief)),
-                Glacial=(float)D.Clamp(frozen),Wet=(float)D.Clamp(wet),Peat=peat?1:(float)Smooth(.12,.35,ground.Organic),
+                Rock=(float)((ground.RockWeight(0)+ground.RockWeight(1)+ground.RockWeight(5))*Math.Max(Smooth(150,1100,relief),dry*(1-Smooth(.08,.3,ground.DepthM)))),
+                Glacial=(float)D.Clamp(glacial),Frozen=(float)D.Clamp(frozen),Arid=(float)dry,Wet=(float)D.Clamp(wet),Peat=peat?1:(float)Smooth(.12,.35,ground.Organic),
                 Moisture=(float)D.Clamp(moisture/1.2),Canopy=(float)D.Clamp(canopy)};
         }
         public static double SandSea(V metres,int seed,LandscapeControls controls)
@@ -89,6 +89,7 @@ namespace WorldGen.Core
         }
         public static LandscapeRegion Region(LandscapeControls p,V metres,int seed,Biome biome)
         {
+            if(biome==Biome.Ice)return LandscapeRegion.Icefield;
             if(biome==Biome.SaltMarsh||biome==Biome.Mangrove)return LandscapeRegion.TidalWetland;
             if(p.Peat>.55)return LandscapeRegion.Peatland;
             if(p.Canopy>.5&&p.Wet>.4)return LandscapeRegion.WoodedSwamp;
@@ -100,6 +101,7 @@ namespace WorldGen.Core
             if(p.Sand>.35)return LandscapeRegion.SandSheet;
             if(biome==Biome.Desert)return p.Rock>.4?LandscapeRegion.RockDesert:LandscapeRegion.GravelDesert;
             if(p.Glacial>.45)return p.Rock>.3?LandscapeRegion.AlpineScree:LandscapeRegion.GlacialLowland;
+            if(biome==Biome.Alpine&&p.Rock>.25)return LandscapeRegion.AlpineScree;
             if(biome==Biome.Tundra||biome==Biome.Alpine)return LandscapeRegion.Tundra;
             if(p.Loess>.5)return LandscapeRegion.LoessHills;
             if(p.Karst>.45)return LandscapeRegion.LimestoneUpland;
@@ -114,6 +116,8 @@ namespace WorldGen.Core
             double sand=Smooth(.12,.4,SandSea(metres,seed,controls)),clay=controls.Clay,salt=controls.Salt;
             p.Sand=p.Sand*(1-sand)+.94*sand;p.Clay*=1-sand;p.Gravel*=1-.92*sand;p.Organic*=1-.85*sand;
             p.Clay=p.Clay*(1-clay)+.58*clay;p.Sand=p.Sand*(1-clay)+.14*clay;p.Gravel*=1-.8*clay;
+            double pavement=controls.Arid*Smooth(.15,.4,p.Gravel)*(1-sand)*(1-clay)*(1-salt);
+            p.Gravel=Math.Max(p.Gravel,.76*pavement);p.DepthM=Math.Min(p.DepthM,Math.Max(.06,1-controls.Rock*controls.Arid)*p.DepthM);
             double sum=p.Sand+p.Clay;if(sum>.98){p.Sand*=.98/sum;p.Clay*=.98/sum;}p.Silt=1-p.Sand-p.Clay;
             p.Salinity=Math.Max(p.Salinity,.85*salt);p.Drainage=Math.Min(p.Drainage,1-.9*Math.Max(controls.Wet,clay));
             if(controls.Peat>.1){p.Organic=Math.Max(p.Organic,.45*controls.Peat);p.SoilColor=p.SoilColor*(1-.55*controls.Peat);}
@@ -125,6 +129,7 @@ namespace WorldGen.Core
             // grasslands. Active mobile sediment still prevents a rooted lawn.
             double sand=Smooth(.12,.4,SandSea(metres,seed,controls));
             double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt)),bare=Math.Max(sand,basin);
+            if(controls.Arid>.85&&controls.Canopy<.2)biome=Biome.Desert;
             if(bare<=0)return;
             cover.ScaleWeights(1-.995*bare);mid.Coverage*=1-.98*bare;forest.Coverage*=1-.995*bare;
             if(sand>.85||basin>.9)biome=Biome.Desert;

@@ -86,6 +86,8 @@ public sealed partial class LocalTerrainExplorer
         double floor=site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
         void Capture(string name,Vector3 offset)
         {
+            owner.nextDaylightAt=0;owner.SetDaylight(12,190000+(site.Position.Z<0?0:.5));
+            Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual midday summer illumination");
             var focus=new Vector3(0,y+.5f,0);owner.view.transform.localPosition=focus+offset;owner.view.transform.LookAt(owner.transform.TransformPoint(focus));
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
