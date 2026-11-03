@@ -22,6 +22,7 @@ archaeological measurements of exact diffusion rates. Prerequisites constrain
 knowledge, access and use. Local bands use stable seeded ranks, turning coverage
 into a coherent approximate fraction of tribes. Known methods have proficient
 makers; individual specialization remains separate from regional coverage.
+Existing lineage learning/symbolic traits still influence invention and learning.
 Inspection does not change authoritative history. Plan equality is structural:
 serializing/deserializing shared plans cannot change subsequent evolution.
 
@@ -66,7 +67,7 @@ motivate separating invention, social spread and practical use;
 motivates dated local climate rather than global region flips. Neither source
 specifies the game's numerical adoption windows.
 
-## Current regional architecture correction (3 November)
+## Prior regional-3 architecture correction (3 November)
 
 The detailed global community ledger and the synchronized `regional-1` sweeps
 were rejected. The current model keeps broad regional history and generates
@@ -96,7 +97,7 @@ local detail when queried.
 - Broad ecology tracks resource stocks and forest/climate context. Detailed
   local species lists are derived from native realm, current climate and stocks.
 
-The current200,000-cell fixture has2,312 connected regions and562 population
+The prior regional-3 200,000-cell fixture has2,312 connected regions and562 population
 records after190,000 years. Its23 checks cover event locality/staggering, exact
 initial and delta transport, identical257-year continuation, bounded records,
 current save/read and deterministic local generation. Worker transport preserves

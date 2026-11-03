@@ -34,7 +34,7 @@ assert player['RuntimeErrors']==0 and player['Cells']==200000
 assert player['FastYearsPerSecond']>=10000
 assert player['MaximumPublicationPauseMs']<250 and player['MaximumLayerSwitchMs']<200
 assert player['FineDays']/player['FineSeconds']>=.8 and player['LateFineDays']/player['LateFineSeconds']>=.8
-batch=next(json.loads(row) for row in read(evidence/'regional-final.log').splitlines() if row.startswith('{"checks"'))
+batch=next(json.loads(row) for row in read(evidence/'traits-final.log').splitlines() if row.startswith('{"checks"'))
 assert batch['cells']==200000 and batch['years']==100000 and batch['checks']>=23
 semantic=load(evidence/'core-final/result.json')
 assert semantic['checks']>=200 and .25<semantic['knowledgeFraction']<.75
@@ -42,11 +42,15 @@ stamp=load(root/'builds'/args.slot/'build-inputs.json')
 assert stamp['Backend']=='Mono' and not stamp['Development']
 for assembly in stamp['Inputs']:
     assert sha(root/'builds'/args.slot/'WorldGen_Data/Managed'/(assembly['Assembly']+'.dll'))==assembly['Sha256']
+    if assembly['Assembly'].startswith('WorldGen.'):
+        assert sha(root/'builds'/args.slot/'TerrainWorker'/(assembly['Assembly']+'.dll'))==assembly['Sha256']
 assert sha(root/'builds'/args.slot/'TerrainWorker/WorldGen.Cli.exe')==stamp['TerrainWorkerSha256']
 unchanged=subprocess.check_output(['git','diff','--name-only','56eb41d007a263d4fd3bb67b0bc20b8c0895adf8',args.source,'--','assets-source','sounds','music'],cwd=root,text=True).strip()
 assert not unchanged,unchanged
 manifest=dict(recorded_utc=datetime.now(timezone.utc).isoformat(),source=args.source,
     rules='foragers-regional-4',selected_slot='builds/'+args.slot,build=stamp,
+    runtime_assembly_sha256=sha(root/'builds'/args.slot/'WorldGen_Data/Managed/Assembly-CSharp.dll'),
+    worker_assemblies={p.name:sha(p) for p in (root/'builds'/args.slot/'TerrainWorker').glob('WorldGen.*.dll')},
     resolved_recipe=recipe,generation_baseline=baseline,generation_selected=generation,
     generation_ready_speedup=baseline['ReadyMs']/generation['ReadyMs'],
     timing_context='Individual runs on this machine. Owner player was open during baseline, closed during selected measurement; not a controlled whole-game FPS benchmark.',

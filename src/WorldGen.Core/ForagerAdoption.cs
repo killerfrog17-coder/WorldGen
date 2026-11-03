@@ -76,6 +76,7 @@ namespace WorldGen.Core
         public static ForagerAdoptionPlan Review(int seed,ForagerState f,ForagerCohort c,ForagerDistrict d,ForagerEnvironment e,ForagerCulture culture,int elapsed,double[] teachers,out ulong inventions)
         {
             double year=f.Seconds/(double)SimulationTime.Year;var current=Project(f,c);var old=f.Adoption[c.District]??Seed(c);
+            double learningCapacity=ForagerSociality.Capacity(f,c,false),symbolicPotential=ForagerSociality.Capacity(f,c,true);
             ForagerAdoptionPlan next=null;ForagerAdoptionPlan Touch()=>next??(next=new ForagerAdoptionPlan{Knowledge=(AdoptionCurve[])old.Knowledge.Clone(),Access=(AdoptionCurve[])old.Access.Clone(),Use=(AdoptionCurve[])old.Use.Clone()});inventions=0;
             for(int k=0;k<ForagerTechnology.Count;k++)
             {
@@ -83,11 +84,11 @@ namespace WorldGen.Core
                 double materials=ForagerTechnology.Materials(d,e,k),demand=ForagerTechnology.Demand(d,e,current,k),foundation=ForagerTechnology.Prerequisites(current.Knowledge,k);
                 bool invented=false;
                 if(known==0&&c.Adults>=2&&foundation>0)
-                {double hazard=1-Math.Exp(-elapsed/t.InnovationYears*Math.Min(12,Math.Max(0,c.Adults)/2500)*foundation*(.2+.8*materials)*(.15+.85*demand));invented=Rng.ValueFromStreamHash(seed,InventionStreams[k],unchecked(c.Id*104729+(int)year))<hazard;}
+                {double complexity=D.Clamp((t.InnovationYears-60000)/640000d),innovationCapacity=(1-complexity)+complexity*(.25+.75*D.Clamp(symbolicPotential));double hazard=1-Math.Exp(-elapsed/t.InnovationYears*Math.Min(12,Math.Max(0,c.Adults)/2500)*foundation*(.2+.8*materials)*(.15+.85*demand)*innovationCapacity);invented=Rng.ValueFromStreamHash(seed,InventionStreams[k],unchecked(c.Id*104729+(int)year))<hazard;}
                 bool contact=teachers!=null&&teachers[k]>.001&&foundation>.01;
                 if((invented||contact||known>0)&&old.Knowledge[k].To<1&&year>=old.Knowledge[k].End)
                 {
-                    double communication=.3+.7*f.Languages[c.Language].TechnicalRegister;
+                    double communication=(.3+.7*f.Languages[c.Language].TechnicalRegister)*(.4+.6*D.Clamp(learningCapacity));
                     double distance=1+Math.Min(4,d.RadiusKm/100);double openness=.35+.65*culture.ExchangeOpenness;
                     double duration=t.TeachingYears*distance/(openness*communication)*(.7+.6*Rng.ValueFromStreamHash(seed,SpreadStreams[k],c.District));
                     // Start from the current share; one newly trained tribe is
