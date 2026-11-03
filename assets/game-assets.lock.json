@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "dc2909882a6594ff6c250d33a5a204b0ee3f0a84",
+  "source_checkpoint": "004bcb26aa9c745d3d7d6f8c076c4a49f4a12d18",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -13492,6 +13492,222 @@
       "pack": "game-assets-20261029-v1/assets-499ec607387d9a8c1d13ee443008a6ec43417e15ee640762a62d58d04c2a1aaa.zip",
       "member": "objects/1d9503228e137f647ce84ec0caa32a0c9a071148761f05cd3be2a516406f5417"
     },
+    "assets-source/humans/motion/npc/authoring-decisions.json": {
+      "sha256": "0b1dc39a55fb8dc100791f6ab2323eadba8ed2172d86ec4b1e14774cc34935c1",
+      "bytes": 1239,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/0b1dc39a55fb8dc100791f6ab2323eadba8ed2172d86ec4b1e14774cc34935c1"
+    },
+    "assets-source/humans/motion/npc/model-provenance.json": {
+      "sha256": "de541731c35a1ccb556137c2fa59c3fce645cb97c5061d807c0e44a4f47bd0c4",
+      "bytes": 4823,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/de541731c35a1ccb556137c2fa59c3fce645cb97c5061d807c0e44a4f47bd0c4"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/embedding-573b68e4907c.f32": {
+      "sha256": "ad4c4ea66c7998f901dc3e8dd6e5e89db0a90934f8cde662cf430c37dd6936d0",
+      "bytes": 16384,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/ad4c4ea66c7998f901dc3e8dd6e5e89db0a90934f8cde662cf430c37dd6936d0"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/prompt-573b68e4907c.txt": {
+      "sha256": "573b68e4907c6afb09bbe13321f560ad25607e901fdeb8153afa76d59fdbffea",
+      "bytes": 130,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/573b68e4907c6afb09bbe13321f560ad25607e901fdeb8153afa76d59fdbffea"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/seed-6132/generation.json": {
+      "sha256": "80efc27caf98702591c69199f568e56061735ba1f7bd798a209a59ffaddfa28e",
+      "bytes": 761,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/80efc27caf98702591c69199f568e56061735ba1f7bd798a209a59ffaddfa28e"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/seed-6132/initial-noise.f32": {
+      "sha256": "18eab5396080269962a878ca8c212f693d6eda6ce78cb80a7bf9d7837b8106e0",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/18eab5396080269962a878ca8c212f693d6eda6ce78cb80a7bf9d7837b8106e0"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/seed-6132/local_rotations_xyzw.f32": {
+      "sha256": "59ab898e4cf77e54695f4d272e787b4312590f324d0ef1a7f64d2e88b3838a75",
+      "bytes": 72000,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/59ab898e4cf77e54695f4d272e787b4312590f324d0ef1a7f64d2e88b3838a75"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/seed-6132/root_positions.f32": {
+      "sha256": "c4a96756bb37cf774e378c1a85134de9cd5a1239007afb030026a5d74b7b326a",
+      "bytes": 1800,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/c4a96756bb37cf774e378c1a85134de9cd5a1239007afb030026a5d74b7b326a"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/seed-6132/sampling_final_state.f32": {
+      "sha256": "58e434bd35866e3599d3919aa1cd8d684475f16cb9c6637b3731eaef0cf8674c",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/58e434bd35866e3599d3919aa1cd8d684475f16cb9c6637b3731eaef0cf8674c"
+    },
+    "assets-source/humans/motion/npc/motions/sit_ground/seed-6132/skeleton.json": {
+      "sha256": "87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5",
+      "bytes": 1670,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/embedding-8c32533bb517.f32": {
+      "sha256": "f6320df66e59d3665aea8ac79b9a4322f7e51f0ea7f2e6843ad0795a0748e3ff",
+      "bytes": 16384,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f6320df66e59d3665aea8ac79b9a4322f7e51f0ea7f2e6843ad0795a0748e3ff"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/prompt-8c32533bb517.txt": {
+      "sha256": "8c32533bb51793fe82f5070e544a9c6415e5a23d6838463924d43b577ce7d6d7",
+      "bytes": 147,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/8c32533bb51793fe82f5070e544a9c6415e5a23d6838463924d43b577ce7d6d7"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/seed-6131/generation.json": {
+      "sha256": "ec6a8e7f1b3667a708c143bfb4e3c858d6f0f5975737699082817db367606f9c",
+      "bytes": 772,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/ec6a8e7f1b3667a708c143bfb4e3c858d6f0f5975737699082817db367606f9c"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/seed-6131/initial-noise.f32": {
+      "sha256": "18ca290f184354e223c778e18b204e7c4fb3766650bc566ce46f71b4d47573a8",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/18ca290f184354e223c778e18b204e7c4fb3766650bc566ce46f71b4d47573a8"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/seed-6131/local_rotations_xyzw.f32": {
+      "sha256": "24a9292920b4cdd0e354f0fd41c17dc89a8e4dbc9aeda1029f270dba105839e3",
+      "bytes": 72000,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/24a9292920b4cdd0e354f0fd41c17dc89a8e4dbc9aeda1029f270dba105839e3"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/seed-6131/root_positions.f32": {
+      "sha256": "6def2d0c38f4a3157c7eaf062b0769c9f21019d03372d85ce48de97bb06631bc",
+      "bytes": 1800,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/6def2d0c38f4a3157c7eaf062b0769c9f21019d03372d85ce48de97bb06631bc"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/seed-6131/sampling_final_state.f32": {
+      "sha256": "4651c4e664bc282ff654cefa2c034698324c84e21feffe0591dfb099b2fb6256",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/4651c4e664bc282ff654cefa2c034698324c84e21feffe0591dfb099b2fb6256"
+    },
+    "assets-source/humans/motion/npc/motions/sleep_side/seed-6131/skeleton.json": {
+      "sha256": "87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5",
+      "bytes": 1670,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/embedding-e02c51d80af8.f32": {
+      "sha256": "c9442001e3bf7ece1f511edf9bd60ec78db5d589631bba6d7147e251113bd1e1",
+      "bytes": 16384,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/c9442001e3bf7ece1f511edf9bd60ec78db5d589631bba6d7147e251113bd1e1"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/prompt-e02c51d80af8.txt": {
+      "sha256": "e02c51d80af8c84674052f58ed69f0e0cabf7f291fc67224265cd4aa4fc7cd1d",
+      "bytes": 101,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/e02c51d80af8c84674052f58ed69f0e0cabf7f291fc67224265cd4aa4fc7cd1d"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/seed-6133/generation.json": {
+      "sha256": "f2f3237c92af02187d83117429d23c04695612abe7313485100cec5a42dcfe83",
+      "bytes": 736,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f2f3237c92af02187d83117429d23c04695612abe7313485100cec5a42dcfe83"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/seed-6133/initial-noise.f32": {
+      "sha256": "b57e9e37cc02c27c1d9b6d88aec9d082b790532fc5a18dae2ea26921c785dbf9",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/b57e9e37cc02c27c1d9b6d88aec9d082b790532fc5a18dae2ea26921c785dbf9"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/seed-6133/local_rotations_xyzw.f32": {
+      "sha256": "6626d9cb8821507845d5b0a8fcde94b5292526e8ed7ceac77fad13cf05cc2ab1",
+      "bytes": 72000,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/6626d9cb8821507845d5b0a8fcde94b5292526e8ed7ceac77fad13cf05cc2ab1"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/seed-6133/root_positions.f32": {
+      "sha256": "c42a08cfd56eb0394d29cd074a7936bfc9b44a8fdaab5851b20b186a8c0075d1",
+      "bytes": 1800,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/c42a08cfd56eb0394d29cd074a7936bfc9b44a8fdaab5851b20b186a8c0075d1"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/seed-6133/sampling_final_state.f32": {
+      "sha256": "759690341fb5fc0864ae2cca1621e6054c4d9d298958a1eb8f7e7f87db907b25",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/759690341fb5fc0864ae2cca1621e6054c4d9d298958a1eb8f7e7f87db907b25"
+    },
+    "assets-source/humans/motion/npc/motions/social_stand/seed-6133/skeleton.json": {
+      "sha256": "87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5",
+      "bytes": 1670,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/embedding-f7a97bb04210.f32": {
+      "sha256": "c14bcc376c03934315c7160b74679d733c99a52449bf30f703617376f183dcb2",
+      "bytes": 16384,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/c14bcc376c03934315c7160b74679d733c99a52449bf30f703617376f183dcb2"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/prompt-f7a97bb04210.txt": {
+      "sha256": "f7a97bb0421097c3049f658cca95314cee99d304e7b0c7702d254316855fb9f4",
+      "bytes": 137,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f7a97bb0421097c3049f658cca95314cee99d304e7b0c7702d254316855fb9f4"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/seed-6134/generation.json": {
+      "sha256": "cc9e0eca7a22faa66e72824dce2a5b876bc040772e5347e6fc17982fcdb7fce1",
+      "bytes": 767,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/cc9e0eca7a22faa66e72824dce2a5b876bc040772e5347e6fc17982fcdb7fce1"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/seed-6134/initial-noise.f32": {
+      "sha256": "8b39c31c4c15ec859359caa6b545f148d7cb410474efe1498f4f5c68a50f477b",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/8b39c31c4c15ec859359caa6b545f148d7cb410474efe1498f4f5c68a50f477b"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/seed-6134/local_rotations_xyzw.f32": {
+      "sha256": "438f5d563ac4ffbe6996d48acf46a15ce92c2b83758696b6e5a9939b0b89be00",
+      "bytes": 72000,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/438f5d563ac4ffbe6996d48acf46a15ce92c2b83758696b6e5a9939b0b89be00"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/seed-6134/root_positions.f32": {
+      "sha256": "ba46ea2191e8dabf9ca984b00899514f7898cb6e32b4626005097746ccbcfaea",
+      "bytes": 1800,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/ba46ea2191e8dabf9ca984b00899514f7898cb6e32b4626005097746ccbcfaea"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/seed-6134/sampling_final_state.f32": {
+      "sha256": "8c3683b2fc3e62d40bba1dd7e95ece12dac9e31bdd2c216cc3ad01ee8bd49ae2",
+      "bytes": 221400,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/8c3683b2fc3e62d40bba1dd7e95ece12dac9e31bdd2c216cc3ad01ee8bd49ae2"
+    },
+    "assets-source/humans/motion/npc/motions/work_kneeling/seed-6134/skeleton.json": {
+      "sha256": "87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5",
+      "bytes": 1670,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/87e5fcadb4896c650df4bb3ed2d968b27a33a04aaf840437b0f1fc887ff64fc5"
+    },
+    "assets-source/humans/motion/npc/queue.json": {
+      "sha256": "2e25f7156922c16476eda3ee7027712cf8f7f38a3f2436569df69a7640fbfa62",
+      "bytes": 1012,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/2e25f7156922c16476eda3ee7027712cf8f7f38a3f2436569df69a7640fbfa62"
+    },
+    "assets-source/humans/motion/npc/skeleton.json": {
+      "sha256": "59d67650b0bacb8eb5c65b1b023f349d626cb575f0bc7c5863c93497ec121ed2",
+      "bytes": 3830,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/59d67650b0bacb8eb5c65b1b023f349d626cb575f0bc7c5863c93497ec121ed2"
+    },
     "assets-source/humans/motion/source-library/cmu/09_01.bvh": {
       "sha256": "90641ccca814b9d8d59f63576a548bb5612477364462d142a9f741268fbe3b78",
       "bytes": 116013,
@@ -13707,6 +13923,240 @@
       "bytes": 1680,
       "pack": "game-assets-layout-20261031-v1/assets-44a734def932b148d4f8977d6ea7975e96e08c84d8eefe0867b693d70554b51e.zip",
       "member": "objects/6450c7b070a846d68a94485ce9a9616eae2043e97b629465243e2c732be2f390"
+    },
+    "assets-source/humans/npc-ages/A-13/A-13.fbx": {
+      "sha256": "486d207b340706577638ba2c2b303d33fa7102d5494aa68baede8b16b79c0cca",
+      "bytes": 1900540,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/486d207b340706577638ba2c2b303d33fa7102d5494aa68baede8b16b79c0cca"
+    },
+    "assets-source/humans/npc-ages/A-13/body.json": {
+      "sha256": "f5b8f93fb832b814addf453116ae589226d2a71ddbf4f1cc0b64e375c863b4af",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f5b8f93fb832b814addf453116ae589226d2a71ddbf4f1cc0b64e375c863b4af"
+    },
+    "assets-source/humans/npc-ages/A-3/A-3.fbx": {
+      "sha256": "c3115b92a399a3ec84f74660ea8907a591b88136b08342e6a98ade7e1748e56c",
+      "bytes": 1901756,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/c3115b92a399a3ec84f74660ea8907a591b88136b08342e6a98ade7e1748e56c"
+    },
+    "assets-source/humans/npc-ages/A-3/body.json": {
+      "sha256": "b97a3480d194e5b8b33198bd1b65d65d804f26a961ee84df1c6b8e6911e1f7c1",
+      "bytes": 880,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/b97a3480d194e5b8b33198bd1b65d65d804f26a961ee84df1c6b8e6911e1f7c1"
+    },
+    "assets-source/humans/npc-ages/A-8/A-8.fbx": {
+      "sha256": "f1c6fc565098bedbe09ba6ec44ebd39b539842093354aebe2149ee5f5ca4a2b4",
+      "bytes": 1900092,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f1c6fc565098bedbe09ba6ec44ebd39b539842093354aebe2149ee5f5ca4a2b4"
+    },
+    "assets-source/humans/npc-ages/A-8/body.json": {
+      "sha256": "7e0ddf5be26a46fe012f94a597a2d9473b517b6dacb76580fa6bee1260b44795",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/7e0ddf5be26a46fe012f94a597a2d9473b517b6dacb76580fa6bee1260b44795"
+    },
+    "assets-source/humans/npc-ages/B-13/B-13.fbx": {
+      "sha256": "1be402b49595cd0a219e477f2a20c6fa7b15970fe2c25e38efc4f068b5bf5514",
+      "bytes": 1775484,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/1be402b49595cd0a219e477f2a20c6fa7b15970fe2c25e38efc4f068b5bf5514"
+    },
+    "assets-source/humans/npc-ages/B-13/body.json": {
+      "sha256": "d806ccd286bd95f39d41dd923e515f70f3bf370483ffd650878fce37ab3dbeed",
+      "bytes": 880,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/d806ccd286bd95f39d41dd923e515f70f3bf370483ffd650878fce37ab3dbeed"
+    },
+    "assets-source/humans/npc-ages/B-3/B-3.fbx": {
+      "sha256": "c1de9441e242ab84c4d19d9a41e0f7c0e87bc6b65112b1122cc50bf7b223f1eb",
+      "bytes": 1776412,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/c1de9441e242ab84c4d19d9a41e0f7c0e87bc6b65112b1122cc50bf7b223f1eb"
+    },
+    "assets-source/humans/npc-ages/B-3/body.json": {
+      "sha256": "bcee242ad79d552180d90854c5f8a891fe031a956803532d783d74cd2a275506",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/bcee242ad79d552180d90854c5f8a891fe031a956803532d783d74cd2a275506"
+    },
+    "assets-source/humans/npc-ages/B-8/B-8.fbx": {
+      "sha256": "621fc775ca263f838535a2fd96c7912313a54e429da6cc861f74a122d9140292",
+      "bytes": 1775660,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/621fc775ca263f838535a2fd96c7912313a54e429da6cc861f74a122d9140292"
+    },
+    "assets-source/humans/npc-ages/B-8/body.json": {
+      "sha256": "e72999359a762946a1e9271b12cadb4b00c3053f8d17e0d68a5c87e4bb61390a",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/e72999359a762946a1e9271b12cadb4b00c3053f8d17e0d68a5c87e4bb61390a"
+    },
+    "assets-source/humans/npc-ages/C-13/C-13.fbx": {
+      "sha256": "bcd01f37175b5c294b89605ad9431bfa16344ce76d50fabf6f0fa7906708182d",
+      "bytes": 1900508,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/bcd01f37175b5c294b89605ad9431bfa16344ce76d50fabf6f0fa7906708182d"
+    },
+    "assets-source/humans/npc-ages/C-13/body.json": {
+      "sha256": "7f66b5ab99d6b69307214d2b137678db509bdb5290a4e731f715824b9390aca1",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/7f66b5ab99d6b69307214d2b137678db509bdb5290a4e731f715824b9390aca1"
+    },
+    "assets-source/humans/npc-ages/C-3/C-3.fbx": {
+      "sha256": "80010524f56f1aa9ccc29d92a9e3938ccb62c752efd44a7321dee3df1eca013a",
+      "bytes": 1902460,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/80010524f56f1aa9ccc29d92a9e3938ccb62c752efd44a7321dee3df1eca013a"
+    },
+    "assets-source/humans/npc-ages/C-3/body.json": {
+      "sha256": "fdf13cf6524262116bdf866815964d1285c735550344fd4438eb71fa200515df",
+      "bytes": 880,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/fdf13cf6524262116bdf866815964d1285c735550344fd4438eb71fa200515df"
+    },
+    "assets-source/humans/npc-ages/C-8/C-8.fbx": {
+      "sha256": "67f25f4bdd4d25a50c39250ac1a6b9a6091c96c1a2a732659ebe4f31629c8dea",
+      "bytes": 1900396,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/67f25f4bdd4d25a50c39250ac1a6b9a6091c96c1a2a732659ebe4f31629c8dea"
+    },
+    "assets-source/humans/npc-ages/C-8/body.json": {
+      "sha256": "6b93a08d779524ef23c4c64c7d103ccf95d84ff477152d93897d179776d0918e",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/6b93a08d779524ef23c4c64c7d103ccf95d84ff477152d93897d179776d0918e"
+    },
+    "assets-source/humans/npc-ages/D-13/D-13.fbx": {
+      "sha256": "feed9208d185780c79b536468c506e140979a3dda007c665550c07f52bbfbee6",
+      "bytes": 1775500,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/feed9208d185780c79b536468c506e140979a3dda007c665550c07f52bbfbee6"
+    },
+    "assets-source/humans/npc-ages/D-13/body.json": {
+      "sha256": "4d0d7d8cd8324c545774b09b35d1eecaa2a60e8fe3cf7b8aafdb3049912af141",
+      "bytes": 880,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/4d0d7d8cd8324c545774b09b35d1eecaa2a60e8fe3cf7b8aafdb3049912af141"
+    },
+    "assets-source/humans/npc-ages/D-3/D-3.fbx": {
+      "sha256": "eaa547983384eaaece3f115c683006a165c1950fe4c19edbc7b7e17cb4b7b238",
+      "bytes": 1776348,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/eaa547983384eaaece3f115c683006a165c1950fe4c19edbc7b7e17cb4b7b238"
+    },
+    "assets-source/humans/npc-ages/D-3/body.json": {
+      "sha256": "fee90aa5a5b4967ba8c2ca8719b5a39d27ccdc9084e02f949363c9139c4d1037",
+      "bytes": 880,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/fee90aa5a5b4967ba8c2ca8719b5a39d27ccdc9084e02f949363c9139c4d1037"
+    },
+    "assets-source/humans/npc-ages/D-8/D-8.fbx": {
+      "sha256": "aaadf1a79213914ac3cc3cb2a9bfa9a98b682fba4f0ef84590c74d0e2addd1ed",
+      "bytes": 1775084,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/aaadf1a79213914ac3cc3cb2a9bfa9a98b682fba4f0ef84590c74d0e2addd1ed"
+    },
+    "assets-source/humans/npc-ages/D-8/body.json": {
+      "sha256": "eb00d03c1bb2bef6a5b922c19aa07421856cd5808f46fa2b3e7fbc66ac3e2759",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/eb00d03c1bb2bef6a5b922c19aa07421856cd5808f46fa2b3e7fbc66ac3e2759"
+    },
+    "assets-source/humans/npc-ages/E-13/E-13.fbx": {
+      "sha256": "a986aaaa0f2bf5d721fb720950e3ec371ab6f61724eb582ab7a6a96c332d70d1",
+      "bytes": 1900588,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/a986aaaa0f2bf5d721fb720950e3ec371ab6f61724eb582ab7a6a96c332d70d1"
+    },
+    "assets-source/humans/npc-ages/E-13/body.json": {
+      "sha256": "e4e17963795e4b05f904d59514767dce0486e7be82aadf51bc461654a4ad7f4c",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/e4e17963795e4b05f904d59514767dce0486e7be82aadf51bc461654a4ad7f4c"
+    },
+    "assets-source/humans/npc-ages/E-3/E-3.fbx": {
+      "sha256": "59b4bb188d9ac44206fe7800164b24375ea0bc1a31ece7cdc26cb86774dd4067",
+      "bytes": 1901916,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/59b4bb188d9ac44206fe7800164b24375ea0bc1a31ece7cdc26cb86774dd4067"
+    },
+    "assets-source/humans/npc-ages/E-3/body.json": {
+      "sha256": "f189b6dadf1c10a024d8d6a0c969135809530505bd40f7a0dac2b09bfb9afbd8",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f189b6dadf1c10a024d8d6a0c969135809530505bd40f7a0dac2b09bfb9afbd8"
+    },
+    "assets-source/humans/npc-ages/E-8/E-8.fbx": {
+      "sha256": "cb1e6f770b482aa4f4d89b1d06f9572d887d8e3d7797da4adeb29edf26409468",
+      "bytes": 1901612,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/cb1e6f770b482aa4f4d89b1d06f9572d887d8e3d7797da4adeb29edf26409468"
+    },
+    "assets-source/humans/npc-ages/E-8/body.json": {
+      "sha256": "9887251f9ca2fe8f9e806c6718fc099e5101efde058e70d38d39fcfd018de575",
+      "bytes": 877,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/9887251f9ca2fe8f9e806c6718fc099e5101efde058e70d38d39fcfd018de575"
+    },
+    "assets-source/humans/npc-ages/F-13/F-13.fbx": {
+      "sha256": "f8288b52cc862995d4739f518fa56aa0dc15fb7b71f8730aea1888a70724f16e",
+      "bytes": 1775724,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f8288b52cc862995d4739f518fa56aa0dc15fb7b71f8730aea1888a70724f16e"
+    },
+    "assets-source/humans/npc-ages/F-13/body.json": {
+      "sha256": "46df21d503647d07d3c096f549a8586b0ef55ce88953953aaa0c4d949c2add3c",
+      "bytes": 878,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/46df21d503647d07d3c096f549a8586b0ef55ce88953953aaa0c4d949c2add3c"
+    },
+    "assets-source/humans/npc-ages/F-3/F-3.fbx": {
+      "sha256": "f4d56d7d100af009b851d306740d0656305dd026e42f2ffde5ba60f1810e6ee9",
+      "bytes": 1776524,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/f4d56d7d100af009b851d306740d0656305dd026e42f2ffde5ba60f1810e6ee9"
+    },
+    "assets-source/humans/npc-ages/F-3/body.json": {
+      "sha256": "7de2f82f88478fdf69221603ea8bf1b1bd51b2d8ebb08914d46a4034eb209178",
+      "bytes": 879,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/7de2f82f88478fdf69221603ea8bf1b1bd51b2d8ebb08914d46a4034eb209178"
+    },
+    "assets-source/humans/npc-ages/F-8/F-8.fbx": {
+      "sha256": "67b22f8bc6a5723b4b38d68a5fc18cdfac5b241e62d1f9fb45978db24b0d0452",
+      "bytes": 1776844,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/67b22f8bc6a5723b4b38d68a5fc18cdfac5b241e62d1f9fb45978db24b0d0452"
+    },
+    "assets-source/humans/npc-ages/F-8/body.json": {
+      "sha256": "50faadf64051699b4a94707873821e91f6491caf7f1090b6891b31b76799cf99",
+      "bytes": 878,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/50faadf64051699b4a94707873821e91f6491caf7f1090b6891b31b76799cf99"
+    },
+    "assets-source/humans/npc-ages/manifest.json": {
+      "sha256": "09c5e04820f0ef3ba6068d3b46f63a3e7b2de2d47b0ff46383574af66e91810a",
+      "bytes": 17572,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/09c5e04820f0ef3ba6068d3b46f63a3e7b2de2d47b0ff46383574af66e91810a"
+    },
+    "assets-source/humans/research/builders/mpfb-assets/hair/ponytail01/ponytail01_diffuse.png": {
+      "sha256": "dcb364300cac06ce8bef91b2f7c0970baf310898bbdd06b0c6b884ee9306eb97",
+      "bytes": 3910782,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/dcb364300cac06ce8bef91b2f7c0970baf310898bbdd06b0c6b884ee9306eb97"
+    },
+    "assets-source/humans/research/builders/mpfb-assets/hair/short02/short02_diffuse.png": {
+      "sha256": "47fe33831a3929567c733356dd66243116e05df2ace1f884ddca0080b728229f",
+      "bytes": 3553543,
+      "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "member": "objects/47fe33831a3929567c733356dd66243116e05df2ace1f884ddca0080b728229f"
     },
     "music/A Hundred Trading Bells 6-6.ogg": {
       "sha256": "a3872d1151e3431bea1c3d4c9983df133fad4a1222686d8c5d676d4c5d32874a",
@@ -31348,6 +31798,14 @@
       "asset_id": 696525072,
       "sha256": "62fd910f894538264d3789866994130e44ed04987df21334e7421f6e5777e0df",
       "bytes": 13269222,
+      "encoding": "zip"
+    },
+    "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip": {
+      "tag": "npc-source-inputs-20261103",
+      "name": "assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
+      "asset_id": 705037655,
+      "sha256": "949bc1f45e4db4c9aa22833707903b537eacb95a904f8075aaa4f16789f3a214",
+      "bytes": 34904015,
       "encoding": "zip"
     }
   }

@@ -47,14 +47,18 @@ sealed class WorldGenSharedHumanMotion : IDisposable
         RestEye=LocalEye;playerIdle=player;
         var all=campMotion==null?person.Clips:person.Clips.Concat(campMotion.Clips).ToArray();Clips=all.ToDictionary(c=>c.Role,StringComparer.Ordinal);
         locomotion=MakeTrack(person.Clips.Where(c=>MovementRoles.Contains(c.Role)).ToArray());
-        Output=AnimationLayerMixerPlayable.Create(graph,player?4:npcActivity?2:1);
+        Output=AnimationLayerMixerPlayable.Create(graph,player?4:npcActivity?3:1);
         graph.Connect(locomotion.Mixer,0,Output,0);Output.SetInputWeight(0,1);
         if(!player)
         {
             if(npcActivity)
             {
-                var roles=new HashSet<string>{"Gather","Eat","Drink","WorkCut","WorkDig","WorkKnapping","WorkTwist","ToolGuard","FistsGuard","SleepSide","SitGround","Social","WorkKneeling"};
+                var roles=new HashSet<string>{"Gather","Eat","Drink","WorkCut","WorkDig","WorkKnapping","WorkTwist","ToolGuard","FistsGuard","SleepSide","SitGround","Social","WorkKneeling","Crawl"};
                 body=MakeTrack(all.Where(c=>roles.Contains(c.Role)).ToArray());graph.Connect(body.Mixer,0,Output,1);
+                var carry=new HashSet<string>{"SpearReady1","ToolReady","CarryLarge","Eat","Drink","WorkKnapping","WorkCut","WorkTwist"};
+                upper=MakeTrack(all.Where(c=>carry.Contains(c.Role)).ToArray());graph.Connect(upper.Mixer,0,Output,2);
+                var npcSpine=root.GetComponentsInChildren<Transform>(true).First(t=>t.name=="spine_01");
+                upperMask=MakeMask(root,npcSpine);Output.SetLayerMaskFromAvatarMask(2,upperMask);
             }
             return;
         }
@@ -94,8 +98,14 @@ sealed class WorldGenSharedHumanMotion : IDisposable
     public void Routine(string role,double seconds,float dt)
     {
         if(body==null||playerIdle)return;bool available=role!=null&&body.Clips.Any(c=>c.Role==role);
+        ActionRole=available?role:null;ActionTime=seconds;
         if(available)Pose(body,role,seconds,dt);
         bodyWeight=Mathf.Lerp(bodyWeight,available?1:0,1-Mathf.Exp(-dt*6));Output.SetInputWeight(1,bodyWeight);
+    }
+    public void Carry(string role,double seconds,float dt)
+    {
+        if(upper==null||playerIdle)return;bool available=role!=null&&upper.Clips.Any(c=>c.Role==role);if(available)Pose(upper,role,seconds,dt);
+        upperWeight=Mathf.Lerp(upperWeight,available?1:0,1-Mathf.Exp(-dt*8));Output.SetInputWeight(2,upperWeight);
     }
     public float LocomotionWeight(string role)
     {

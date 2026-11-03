@@ -34,6 +34,8 @@ MonoBehaviour:
       Metres: -0.1982938
     - Role: WorkKneeling
       Metres: -0.16740926
+    - Role: Crawl
+      Metres: -0.11910345
   - Variant: A
     Years: 8
     EyeHeight: 1.1314538
@@ -55,6 +57,8 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.25
+    - Role: Crawl
+      Metres: -0.21542145
   - Variant: A
     Years: 13
     EyeHeight: 1.3139017
@@ -75,6 +79,8 @@ MonoBehaviour:
     - Role: Social
       Metres: -0.25
     - Role: WorkKneeling
+      Metres: -0.25
+    - Role: Crawl
       Metres: -0.25
   - Variant: B
     Years: 3
@@ -97,6 +103,8 @@ MonoBehaviour:
       Metres: -0.22957703
     - Role: WorkKneeling
       Metres: -0.20355837
+    - Role: Crawl
+      Metres: -0.16042878
   - Variant: B
     Years: 8
     EyeHeight: 1.2578098
@@ -117,6 +125,8 @@ MonoBehaviour:
     - Role: Social
       Metres: -0.25
     - Role: WorkKneeling
+      Metres: -0.25
+    - Role: Crawl
       Metres: -0.25
   - Variant: B
     Years: 13
@@ -139,6 +149,8 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.25
+    - Role: Crawl
+      Metres: -0.25
   - Variant: C
     Years: 3
     EyeHeight: 0.84172314
@@ -155,11 +167,13 @@ MonoBehaviour:
     - Role: SleepSide
       Metres: -0.15566163
     - Role: SitGround
-      Metres: -0.2099845
+      Metres: -0.20998447
     - Role: Social
       Metres: -0.23042054
     - Role: WorkKneeling
       Metres: -0.19837974
+    - Role: Crawl
+      Metres: -0.15284877
   - Variant: C
     Years: 8
     EyeHeight: 1.234679
@@ -180,6 +194,8 @@ MonoBehaviour:
     - Role: Social
       Metres: -0.25
     - Role: WorkKneeling
+      Metres: -0.25
+    - Role: Crawl
       Metres: -0.25
   - Variant: C
     Years: 13
@@ -202,6 +218,8 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.25
+    - Role: Crawl
+      Metres: -0.25
   - Variant: D
     Years: 3
     EyeHeight: 0.74433005
@@ -223,6 +241,8 @@ MonoBehaviour:
       Metres: -0.20114197
     - Role: WorkKneeling
       Metres: -0.17264827
+    - Role: Crawl
+      Metres: -0.13224994
   - Variant: D
     Years: 8
     EyeHeight: 1.1352466
@@ -244,6 +264,8 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.25
+    - Role: Crawl
+      Metres: -0.22165723
   - Variant: D
     Years: 13
     EyeHeight: 1.334476
@@ -264,6 +286,8 @@ MonoBehaviour:
     - Role: Social
       Metres: -0.25
     - Role: WorkKneeling
+      Metres: -0.25
+    - Role: Crawl
       Metres: -0.25
   - Variant: E
     Years: 3
@@ -286,6 +310,8 @@ MonoBehaviour:
       Metres: -0.17008828
     - Role: WorkKneeling
       Metres: -0.14263162
+    - Role: Crawl
+      Metres: -0.09305622
   - Variant: E
     Years: 8
     EyeHeight: 0.97384006
@@ -307,6 +333,8 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.22768213
+    - Role: Crawl
+      Metres: -0.17215343
   - Variant: E
     Years: 13
     EyeHeight: 1.1331815
@@ -328,6 +356,8 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.25
+    - Role: Crawl
+      Metres: -0.22274698
   - Variant: F
     Years: 3
     EyeHeight: 0.6892268
@@ -349,6 +379,8 @@ MonoBehaviour:
       Metres: -0.18239495
     - Role: WorkKneeling
       Metres: -0.15475586
+    - Role: Crawl
+      Metres: -0.12126286
   - Variant: F
     Years: 8
     EyeHeight: 1.0486126
@@ -365,11 +397,13 @@ MonoBehaviour:
     - Role: SleepSide
       Metres: -0.14971973
     - Role: SitGround
-      Metres: -0.2223569
+      Metres: -0.22235693
     - Role: Social
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.24098106
+    - Role: Crawl
+      Metres: -0.20014031
   - Variant: F
     Years: 13
     EyeHeight: 1.240638
@@ -391,3 +425,5 @@ MonoBehaviour:
       Metres: -0.25
     - Role: WorkKneeling
       Metres: -0.25
+    - Role: Crawl
+      Metres: -0.24286427

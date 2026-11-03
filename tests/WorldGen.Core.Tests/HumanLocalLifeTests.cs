@@ -4,6 +4,15 @@ using WorldGen.Serialization;
 
 static class HumanLocalLifeTests
 {
+    public static void Fixture(string input,string output,int years)
+    {
+        var world=WorldFile.ReadPlanetaryFile(input);world.Prehistory=null;var engine=new Prehistory(world);var timer=Stopwatch.StartNew();
+        world.Prehistory=engine.AdvanceYears(engine.StartForagers(engine.PrepareForagers()),years);
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);File.WriteAllBytes(output,WorldFile.Write(world));
+        var f=world.Prehistory.Foragers;var occupied=f.Cohorts.Where(c=>engine.ForagerBandCount(world.Prehistory,c)>0).ToArray();
+        Console.WriteLine($"NPC fixture {years}yr / {occupied.Length} occupied aggregates / {timer.Elapsed.TotalSeconds:F2}s; {world.Prehistory.Hash}");
+        File.WriteAllText(output+".summary.json",System.Text.Json.JsonSerializer.Serialize(occupied.Select(c=>new{c.Id,c.District,c.Population,Species=f.Lineages[c.Lineage].Name,Residence=f.Cultures[c.Culture].Residence.ToString(),f.Districts[c.District].MeanC,f.Districts[c.District].AnnualRainMm,f.Districts[c.District].Canopy}).ToArray()));
+    }
     public static void Run(string path)
     {
         var world=WorldFile.ReadFile(path);var engine=new Prehistory(world);
@@ -12,7 +21,9 @@ static class HumanLocalLifeTests
             state=engine.AdvanceYears(engine.StartForagers(engine.PrepareForagers()),40000);
         world.Prehistory=state;var life=new HumanLocalLife(world,engine);int checks=0;
         void Check(bool condition,string message){checks++;if(!condition)throw new Exception(message);}
-        string hash=state.ComputeHash();var cohorts=state.Foragers.Cohorts.Where(c=>engine.ForagerBandCount(state,c)>0).OrderByDescending(c=>c.Population).Take(24).ToArray();
+        string hash=state.ComputeHash();var cohorts=state.Foragers.Cohorts.Where(c=>engine.ForagerBandCount(state,c)>0)
+            .GroupBy(c=>(state.Foragers.Cultures[c.Culture].Residence,state.Foragers.Districts[c.District].MeanC<8,state.Foragers.Districts[c.District].Canopy>.4,state.Foragers.Districts[c.District].River+state.Foragers.Districts[c.District].Coast>.4))
+            .Select(g=>g.OrderByDescending(c=>c.Population).First()).OrderByDescending(c=>c.Population).Take(32).ToArray();
         Check(cohorts.Length>0,"Living fixture population required");
         var activities=new HashSet<HumanActivity>();var modes=new HashSet<ForagerResidence>();var shelters=new HashSet<CampDesign>();
         foreach(var c in cohorts)
@@ -42,7 +53,10 @@ static class HumanLocalLifeTests
                 double expectedHour=((hour+(movedLongitude-longitude)/15)%24+24)%24;
                 Check(Math.Abs(dated.LocalHour-expectedHour)<1e-8,"Schedule follows the same local solar clock as the player");
                 foreach(var person in people.Members)
-                {var activity=life.Activity(dated,people,person,daily);activities.Add(activity.Activity);Check(activity.Person==person.Id&&activity.Group==group.Band.Id&&Math.Abs(activity.Position.Length-1)<1e-8,"Activities preserve identity and spherical position");}
+                {
+                    var activity=life.Activity(dated,people,person,daily);activities.Add(activity.Activity);Check(activity.Person==person.Id&&activity.Group==group.Band.Id&&Math.Abs(activity.Position.Length-1)<1e-8,"Activities preserve identity and spherical position");
+                    if(person.AgeYears<3)Check(activity.Activity==HumanActivity.Carried&&people.Members.Any(p=>p.Id==activity.Partner&&p.AgeYears>=18),"Infants move with a linked parent/guardian rather than walking or foraging independently");
+                }
             }
             // Move through the full seasonal itinerary using physical one-second
             // differences; compressed seasons must never make family groups sprint.
@@ -58,6 +72,8 @@ static class HumanLocalLifeTests
                     var first=local.Group(state,a,c.Id,0);var next=local.Group(state,b,c.Id,0);
                     double speed=HumanLocalLife.Angle(first.Position,next.Position)*world.Recipe.RadiusKm*1000*.1;
                     Check(speed<1.17,"Seasonal travel stays at a family walking pace at every time scale: "+speed);
+                    if(first.Phase==HumanCampPhase.Travelling&&next.Phase==HumanCampPhase.Travelling&&first.JourneyRest&&next.JourneyRest)
+                        Check(speed<.005&&Math.Abs(first.Progress-next.Progress)<1e-7,"Overnight travel rests preserve progress within planetary-coordinate precision: "+speed+"m; progress "+Math.Abs(first.Progress-next.Progress));
                 }
             }
         }
@@ -67,6 +83,13 @@ static class HumanLocalLifeTests
         timer.Restart();var again=life.Nearby(state,new HumanLifeClock(SimulationTime.Seconds(state),0),target.Position);double warmMs=timer.Elapsed.TotalMilliseconds;
         Check(nearby.Select(g=>g.Band.Id).SequenceEqual(again.Select(g=>g.Band.Id)),"50km group query has stable ordering and membership");
         Check(nearby.All(g=>g.Band.Members.Length==0),"Wide area query never builds household/person ledgers");
+        var east=V.Cross(new V(0,0,1),target.Position).Unit;var queryClock=new HumanLifeClock(SimulationTime.Seconds(state),0);
+        foreach(double distance in new[]{0d,200,4900,5100,9900,15100})
+        {
+            V observer=(target.Position+east*(distance/(world.Recipe.RadiusKm*1000))).Unit;
+            var cached=life.Nearby(state,queryClock,observer);var direct=new HumanLocalLife(world,engine).Nearby(state,queryClock,observer);
+            Check(cached.Select(g=>g.Band.Id).SequenceEqual(direct.Select(g=>g.Band.Id)),"Conservative cached 50km query agrees with a fresh spatial query after "+distance+"m of travel");
+        }
         Check(state.ComputeHash()==hash,"NPC projection does not mutate regional history");
         var session=new PlaySession();session.Humans.People.Add(new HumanPersonMemory{Person=1,Group=2,Health=43,Dead=false,Position=target.Position});
         session.Humans.Groups.Add(new HumanGroupMemory{Group=2,Trust=-.2,Fear=.6,ThreatPosition=target.Position});

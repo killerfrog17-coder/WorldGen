@@ -12,6 +12,9 @@ public sealed partial class LocalTerrainExplorer
     {
         public HumanGroupSituation Situation;public ForagerBandSample Residents;public HumanActivitySample[] Activities;
         public V Anchor;public bool Grounded,CampLoaded,TraceOnly;public int PlacementAttempt,ConstructionStep=-1;public double LastSeen,TraceAge;
+        public bool BandHas(int k)=>(Residents?.Techniques??Situation.Band.Techniques)[k];
+        public HumanActivitySample TenderDuty;public CampObject TendedFire;public double TendUntil,NextTend;
+        public NpcResourceSites Resources;
     }
     sealed class LivingPacket
     {
@@ -19,6 +22,8 @@ public sealed partial class LocalTerrainExplorer
         public readonly Dictionary<long,HumanActivitySample[]> Activities=new Dictionary<long,HumanActivitySample[]>();public readonly List<HumanCampTrace> Traces=new List<HumanCampTrace>();public double Milliseconds;
     }
     HumanLocalLife livingPlanner;Task<LivingPacket> livingWork;double livingQueryAt,livingLastMs,livingTerrainAt;
+    double livingCampLifeAt,livingTickMs;
+    bool livingBenchmarkFreeze;
     readonly Dictionary<long,LivingGroup> livingGroups=new Dictionary<long,LivingGroup>();
     readonly Dictionary<long,LivingGroup> livingTraces=new Dictionary<long,LivingGroup>();
     readonly Dictionary<long,HumanActor> livingPeople=new Dictionary<long,HumanActor>();
@@ -33,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
         if(actor.Resident==null)return "Human · "+condition;
         var f=sourceWorld.Prehistory.Foragers;var group=livingGroups.TryGetValue(actor.GroupId,out var value)?value:null;
         return actor.Resident.Name+" · "+actor.Resident.AgeYears.ToString("0")+" years · "+condition+"\n"+
-            (group==null?"":f.Cultures[group.Situation.Band.Culture].Name+" · "+f.Languages[group.Situation.Band.Language].Name+"\n")+(actor.Routine?.Activity.ToString()??actor.Resident.Role);
+            (group==null?"":f.Cultures[group.Situation.Band.Culture].Name+" · "+f.Languages[group.Situation.Band.Language].Name+" · "+f.Lineages[group.Situation.Band.Lineage].Name+"\n")+actor.CurrentActivity;
     }
     void UpdateLivingHumans(bool stopped,float dt)
     {
@@ -46,6 +51,9 @@ public sealed partial class LocalTerrainExplorer
             else if(!closed)ApplyLivingPacket(work.Result);
         }
         if(stopped)return;
+        UpdateLivingResources();
+        if(Time.unscaledTimeAsDouble>=livingCampLifeAt)
+        {livingCampLifeAt=Time.unscaledTimeAsDouble+.5;foreach(var group in livingGroups.Values)AdvanceLivingCampLife(group);}
         if(livingWork==null&&Time.unscaledTimeAsDouble>=livingQueryAt)
         {
             livingQueryAt=Time.unscaledTimeAsDouble+2;var state=sourceWorld.Prehistory;var clock=LivingClock;var observer=Position;
@@ -121,7 +129,7 @@ public sealed partial class LocalTerrainExplorer
             long id=situation.Band.Id;present.Add(id);
             if(!livingGroups.TryGetValue(id,out var group))livingGroups[id]=group=new LivingGroup{Situation=situation};
             if(group.Situation.Camp.Id!=situation.Camp.Id||situation.Phase==HumanCampPhase.Travelling&&group.CampLoaded)
-            {UnloadLivingCamp(group,true);group.Grounded=false;group.PlacementAttempt=0;}
+            {UnloadLivingCamp(group,true);group.Grounded=false;group.PlacementAttempt=0;group.Resources=null;}
             group.Situation=situation;group.LastSeen=Time.unscaledTimeAsDouble;
             if(packet.Residents.TryGetValue(id,out var residents)){group.Residents=residents;group.Activities=packet.Activities[id];}
             if(group.CampLoaded&&(situation.Phase==HumanCampPhase.SettingUp||situation.Phase==HumanCampPhase.Packing))UpdateLivingCampConstruction(group);
@@ -149,13 +157,15 @@ public sealed partial class LocalTerrainExplorer
         for(int step=0;step<2;step++)
         {
             int attempt=group.PlacementAttempt++;double bearing=attempt*2.399963229728653,range=attempt==0?0:Math.Sqrt(attempt)*7;
-            double x=cx+Math.Sin(bearing)*range,z=cz+Math.Cos(bearing)*range;var position=frame.Position(x,z);var sample=walkingPatch.Sample(position);
+            double x=cx+Math.Sin(bearing)*range,z=cz+Math.Cos(bearing)*range;var position=frame.Position(x,z);
+            double center=VisibleGround(x,z,double.NaN);if(double.IsNaN(center)){group.PlacementAttempt--;return false;}
+            var sample=walkingPatch.Sample(position);
             if(sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM-.15)continue;
-            double center=VisibleGround(x,z,double.NaN),spread=0;bool suitable=true;
-            if(double.IsNaN(center)){group.PlacementAttempt--;return false;}
+            double spread=0;bool suitable=true;
+            double campRadius=group.Residents==null?16:HumanCampLayout.Radius(group.Residents,group.Situation.Camp.Id,sourceWorld.Recipe.Seed);
             for(int k=0;k<8;k++)
             {
-                double a=k*Math.PI/4,px=x+Math.Sin(a)*14,pz=z+Math.Cos(a)*14;var edge=walkingPatch.Sample(frame.Position(px,pz));
+                double a=k*Math.PI/4,px=x+Math.Sin(a)*campRadius,pz=z+Math.Cos(a)*campRadius;var edge=walkingPatch.Sample(frame.Position(px,pz));
                 double h=VisibleGround(px,pz,double.NaN);spread=Math.Max(spread,Math.Abs(h-center));
                 if(double.IsNaN(h)||edge.Underwater||Math.Abs(h-center)>2.7){suitable=false;break;}
             }
@@ -280,7 +290,7 @@ public sealed partial class LocalTerrainExplorer
         if(ageModel!=null)
         {
             double heightFactor=person.AgeYears<ageModel.Years?1-(ageModel.Years-person.AgeYears)*.035:1+(person.AgeYears-ageModel.Years)*.018;
-            actor.Root.transform.localScale=Vector3.one*(float)Math.Max(.78,Math.Min(1.09,heightFactor));
+            actor.Root.transform.localScale=Vector3.one*(float)(person.AgeYears<3?.58+.14*person.AgeYears:Math.Max(.78,Math.Min(1.09,heightFactor)));
         }
         livingPeople.Add(person.Id,actor);humanNpcs.Add(actor);return true;
     }
@@ -288,8 +298,15 @@ public sealed partial class LocalTerrainExplorer
     {
         if(actor.Health<=0){actor.Ragdoll?.SetPaused(stopped);return;}
         if(!livingGroups.TryGetValue(actor.GroupId,out var group)||actor.Routine==null)return;
-        var routine=actor.Routine;V target=LivingPosition(group,routine.Position);
+        if(actor.Routine.Activity==HumanActivity.Carried){UpdateCarriedHuman(actor,dt);return;}
+        bool tending=group.TenderDuty?.Person==actor.ResidentId&&Time.unscaledTimeAsDouble<group.TendUntil;
+        var routine=tending?group.TenderDuty:actor.Routine;actor.CurrentActivity=routine.Activity;
+        V target=tending?routine.Position:LivingPosition(group,routine.Position);
+        if(!tending)target=LivingResourceTarget(actor,group,target);
+        string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);
+        var house=LivingHouse(actor);
+        if(house!=null)LivingDoorwayGoal(actor,house,ref tx,ref tz);
         if(dt>0)
         {
             double dx=tx-actor.Motor.X,dz=tz-actor.Motor.Z,distance=Math.Sqrt(dx*dx+dz*dz);
@@ -304,6 +321,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 actor.TargetSpeed=distance>1.2?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,.55+distance*.35):0;
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
+                else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
                 else if(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare)
                 {TerrainHandoff.Coordinates(frame,group.Anchor,out double gx,out double gz);actor.TargetYaw=(float)(Math.Atan2(gx-actor.Motor.X,gz-actor.Motor.Z)*180/Math.PI);}
             }
@@ -319,27 +337,36 @@ public sealed partial class LocalTerrainExplorer
             if(Time.unscaledTime>=actor.ObstacleAt)
             {
                 actor.ObstacleAt=Time.unscaledTime+.4;double a=actor.Yaw*Math.PI/180,px=actor.Motor.X+Math.Sin(a)*1.4,pz=actor.Motor.Z+Math.Cos(a)*1.4;
+                CacheLivingSolids(actor);SteerLivingScatter(actor,tx,tz);
+                float clearance=Math.Min(LivingHeadroom(actor),LivingHeadroom(actor,actor.Motor.X+Math.Sin(a)*.65,actor.Motor.Z+Math.Cos(a)*.65));
+                float bodyHeight=(actor.AgeModel?.EyeHeight??actor.Definition.EyeHeight)*actor.Root.transform.localScale.y+.12f;
+                actor.NpcCrawling=clearance<Math.Min(bodyHeight,1.22f);actor.NpcCrouching=clearance<bodyHeight;
                 var next=walkingPatch.Sample(frame.Position(px,pz));double floor=VisibleGround(actor.Motor.X,actor.Motor.Z,actor.Motor.Y-TerrainMotion.EyeHeightM);
                 double nextFloor=VisibleGround(px,pz,double.NaN);
                 if(double.IsNaN(nextFloor)||next.Underwater||Math.Abs(nextFloor-floor)>.65){actor.Speed=0;actor.AvoidYaw=actor.Yaw+65;actor.AvoidUntil=Time.unscaledTime+1.2f;}
-                var origin=transform.TransformPoint(new Vector3((float)(actor.Motor.X-originX),(float)floor+.8f,(float)(actor.Motor.Z-originZ)));
-                if(Physics.SphereCast(origin,.23f,transform.TransformDirection(new Vector3((float)Math.Sin(a),0,(float)Math.Cos(a))),out var hit,1.3f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))
+                var origin=transform.TransformPoint(new Vector3((float)(actor.Motor.X-originX),(float)floor+(actor.NpcCrawling?.3f:.8f),(float)(actor.Motor.Z-originZ)));
+                if(Physics.SphereCast(origin,actor.NpcCrawling?.12f:.23f,transform.TransformDirection(new Vector3((float)Math.Sin(a),0,(float)Math.Cos(a))),out var hit,1.3f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))
                 {actor.Speed=Math.Min(actor.Speed,.25f);actor.AvoidYaw=actor.Yaw+55;actor.AvoidUntil=Time.unscaledTime+1.2f;}
             }
-            double beforeX=actor.Motor.X,beforeZ=actor.Motor.Z;
+            if(actor.NpcCrawling){actor.Speed=Math.Min(actor.Speed,.6f);actor.TargetSpeed=Math.Min(actor.TargetSpeed,.6f);}
+            double beforeX=actor.Motor.X,beforeY=actor.Motor.Y,beforeZ=actor.Motor.Z;
             bool walk=actor.Speed<1.7f,run=actor.Speed>4.2f;
             actor.Motor.Move(dt,actor.Speed/(walk?TerrainMotion.WalkSpeedMps:run?TerrainMotion.RunSpeedMps:TerrainMotion.JogSpeedMps),0,0,actor.Yaw,0,run,false,
                 (x,z)=>VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM),walk);
+            ResolveLivingSolidContact(actor,beforeX,beforeY,beforeZ);
+            ResolveLivingScatterContact(actor);
             float actual=(float)(Math.Sqrt(Math.Pow(actor.Motor.X-beforeX,2)+Math.Pow(actor.Motor.Z-beforeZ,2))/dt);
             float interval=playerRange<40?0:playerRange<120?1f/30:playerRange<300?1f/15:1f/8;
             if(Time.unscaledTime>=actor.AnimationAt)
             {
-                float bodyHeight=(actor.AgeModel?.EyeHeight??actor.Definition.EyeHeight)*actor.Root.transform.localScale.y+.12f;
-                bool crouch=LivingHeadroom(actor)<bodyHeight;
-                float elapsed=Math.Max(dt,interval);actor.AnimationAt=Time.unscaledTime+interval;AnimateHuman(actor,actual/actor.Root.transform.localScale.y,!actor.Motor.Grounded,crouch,elapsed);
-                string role=actual>.2f?null:LivingWorkRole(routine.Activity);
+                bool crouch=actor.NpcCrouching;
+                float elapsed=Math.Max(dt,interval);actor.AnimationAt=Time.unscaledTime+interval;AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);
+                string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):LivingWorkRole(routine.Activity);
+                if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater!=true)role="SitGround";
                 if(crouch&&actual<=.2f&&role!="SleepSide")role="SitGround";
-                actor.Shared?.Routine(role,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);
+                actor.Shared?.Routine(role,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
+                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:carryRole=="WaterCarry"?"ToolReady":carryRole,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
+                actor.Graph.Evaluate(0);if(crouch&&role==null)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);
                 string groundRole=role??(actual<.08f?"Idle":actual<2?"Walk":actual<4.5f?"Run":"Sprint");
                 actor.PoseGroundLift=0;
                 if(actor.AgeModel!=null)actor.PoseGroundLift=actor.AgeModel.Offset(groundRole);
@@ -348,16 +375,37 @@ public sealed partial class LocalTerrainExplorer
         }
         actor.Planet=frame.Position(actor.Motor.X,actor.Motor.Z);
         actor.Root.transform.localPosition=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM)+actor.PoseGroundLift*actor.Root.transform.localScale.y,(float)(actor.Motor.Z-originZ));actor.Root.transform.localRotation=Quaternion.Euler(0,actor.Yaw,0);
+        UpdateNpcProps(actor,group,actor.NpcCrawling||actor.TargetSpeed>2.5f?null:carryRole);
     }
     static float personRunSpeed(ForagerPersonSample person)=>person.AgeYears<10?2.8f:person.AgeYears>65?3.2f:4.8f;
-    float LivingHeadroom(HumanActor actor)
+    void UpdateCarriedHuman(HumanActor actor,float dt)
+    {
+        actor.CurrentActivity=HumanActivity.Carried;
+        if(!livingPeople.TryGetValue(actor.Routine.Partner,out var guardian)||guardian.Health<=0)
+        {
+            guardian=livingPeople.Values.FirstOrDefault(p=>p.GroupId==actor.GroupId&&p.Resident.AgeYears>=18&&p.Health>0);
+            if(guardian==null){actor.Root.SetActive(false);if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(false);return;}
+        }
+        actor.Root.SetActive(true);bool asleep=guardian.Routine?.Activity==HumanActivity.Sleep;
+        if(guardian.Bones==null)guardian.Bones=guardian.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
+        string role=asleep?"SleepSide":"SitGround";
+        if(dt>0)
+        {AnimateHuman(actor,0,false,false,dt);actor.Shared?.Routine(role,Time.unscaledTime,dt);actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);}
+        var yaw=Quaternion.Euler(0,guardian.Yaw,0);float lift=actor.AgeModel?.Offset(role)??0;
+        var offset=new Vector3(.5f,lift*actor.Root.transform.localScale.y,0);
+        actor.Root.transform.localPosition=asleep?guardian.Root.transform.localPosition+yaw*offset:transform.InverseTransformPoint(guardian.Bones["spine_02"].position)+yaw*new Vector3(0,-.45f+lift*actor.Root.transform.localScale.y,.29f);
+        actor.Root.transform.localRotation=yaw;actor.Planet=guardian.Planet;UpdateNpcInfantCarrier(actor,guardian,!asleep);
+        actor.Motor.Place(guardian.Motor.X,guardian.Motor.Z,guardian.Motor.Y-TerrainMotion.EyeHeightM);actor.Speed=0;
+    }
+    float LivingHeadroom(HumanActor actor)=>LivingHeadroom(actor,actor.Motor.X,actor.Motor.Z);
+    float LivingHeadroom(HumanActor actor,double px,double pz)
     {
         float headroom=10;
         foreach(var obj in Camp.Objects)
         {
             if(obj.NpcGroup!=actor.GroupId||obj.Blueprint==null||HumanDistance(actor.Planet,obj.Position)>7)continue;
             var plan=obj.Blueprint;TerrainHandoff.Coordinates(frame,obj.Position,out double cx,out double cz);
-            double dx=actor.Motor.X-cx,dz=actor.Motor.Z-cz,a=obj.Heading*Math.PI/180,x=dx*Math.Cos(a)-dz*Math.Sin(a),z=dx*Math.Sin(a)+dz*Math.Cos(a);
+            double dx=px-cx,dz=pz-cz,a=obj.Heading*Math.PI/180,x=dx*Math.Cos(a)-dz*Math.Sin(a),z=dx*Math.Sin(a)+dz*Math.Cos(a);
             if(Math.Abs(x)>plan.WidthM*.5||Math.Abs(z)>plan.DepthM*.5)continue;
             double height=CampBlueprints.Height(plan);
             if(plan.Design==CampDesign.RidgeTent)height*=1-Math.Abs(x)/(plan.WidthM*.5);
@@ -369,7 +417,7 @@ public sealed partial class LocalTerrainExplorer
         }
         return headroom;
     }
-    static string LivingWorkRole(HumanActivity activity)=>activity==HumanActivity.Sleep?"SleepSide":activity==HumanActivity.Rest||activity==HumanActivity.Childcare||activity==HumanActivity.Teach?"SitGround":activity==HumanActivity.Socialise?"Social":activity==HumanActivity.GatherPlants||activity==HumanActivity.GatherFuel?"Gather":activity==HumanActivity.FetchWater?"Drink":activity==HumanActivity.PrepareFood?"Eat":activity==HumanActivity.Craft?"WorkKneeling":activity==HumanActivity.BuildCamp||activity==HumanActivity.RepairShelter?"WorkTwist":null;
+    static string LivingWorkRole(HumanActivity activity)=>activity==HumanActivity.Sleep?"SleepSide":activity==HumanActivity.Rest||activity==HumanActivity.Childcare||activity==HumanActivity.Teach?"SitGround":activity==HumanActivity.Socialise?"Social":activity==HumanActivity.GatherPlants||activity==HumanActivity.GatherFuel||activity==HumanActivity.TendFire?"Gather":activity==HumanActivity.FetchWater?"Drink":activity==HumanActivity.PrepareFood?"Eat":activity==HumanActivity.Craft?"WorkKneeling":activity==HumanActivity.BuildCamp||activity==HumanActivity.RepairShelter?"WorkTwist":null;
     void CaptureLivingPerson(HumanActor actor)
     {
         if(actor.ResidentId==0||actor.Health>=100&&(actor.Bleeding==null||actor.Bleeding.Rate<=0))return;
@@ -402,11 +450,12 @@ public sealed partial class LocalTerrainExplorer
         var group=groups[index-1];var band=group.Situation.Band;var f=sourceWorld.Prehistory.Foragers;
         if(visit)
         {
-            V destination=group.Grounded?group.Anchor:group.Situation.Position;Teleport(destination);motion.Y=Ground(0,0)+TerrainMotion.EyeHeightM;
+            V destination=group.Grounded?group.Anchor:group.Situation.Position;var east=V.Cross(new V(0,0,1),destination).Unit;
+            destination=(destination+east*(25/frame.RadiusM)).Unit;Teleport(destination);motion.Y=Ground(0,0)+TerrainMotion.EyeHeightM;
             motion.VerticalSpeed=0;UpdateCamera();livingQueryAt=0;return new PlayCommandResult(true,"Visiting "+band.Name+".");
         }
         return new PlayCommandResult(true,band.Name,"Culture: "+f.Cultures[band.Culture].Name+" · language: "+f.Languages[band.Language].Name,
             "People: "+(group.Residents?.Members.Length??band.People)+" · "+band.Residence+" · "+group.Situation.Phase,
-            "Camp: "+CampBlueprints.Name(group.Situation.Camp.Design)+" · "+group.Situation.Camp.Cover+" · "+Math.Max(0,group.Situation.DepartureDay-LivingClock.CalendarDay).ToString("F1")+" calendar days until departure.");
+            "Camp: "+(group.Situation.Camp.ShelterAvailable?CampBlueprints.Name(group.Situation.Camp.Design)+" · "+group.Situation.Camp.Cover:"Open-air hearths and bedding")+" · "+Math.Max(0,group.Situation.DepartureDay-LivingClock.CalendarDay).ToString("F1")+" calendar days until departure.");
     }
 }

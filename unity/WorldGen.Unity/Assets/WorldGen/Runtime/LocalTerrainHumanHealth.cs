@@ -18,9 +18,11 @@ public sealed partial class LocalTerrainExplorer
         PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f);
         if(actor.Health<=0)
         {
+            ClearNpcProps(actor);
+            DestroyInventoryVisual(actor.InfantCarrier);actor.InfantCarrier=null;
             actor.Graph.Stop();actor.Animator.enabled=false;actor.Ragdoll=gameObject.AddComponent<WorldGenHumanRagdoll>();
             var movement=new Vector3(Mathf.Sin(actor.Yaw*Mathf.Deg2Rad),0,Mathf.Cos(actor.Yaw*Mathf.Deg2Rad))*actor.Speed;
-            actor.Ragdoll.Begin(actor.Root,(x,z)=>(float)Ground(x+originX,z+originZ),movement+direction*(float)Math.Min(4,momentum/70));
+            actor.Ragdoll.Begin(actor.Root,(x,z)=>(float)(actor.ResidentId==0?Ground(x+originX,z+originZ):VisibleGround(x+originX,z+originZ,actor.Motor.Y-TerrainMotion.EyeHeightM)),movement+direction*(float)Math.Min(4,momentum/70));
             foreach(var renderer in actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>())renderer.updateWhenOffscreen=true;
         }
         else

@@ -62,6 +62,7 @@ def inventory():
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
     tree('assets-source/humans/motion/npc','human-npc-source',{'.f32','.json','.txt'})
+    tree('assets/human-motion-npc','human-npc-source',{'.fbx','.json'})
     for hair in ['ponytail01','short02']:
         add('assets-source/humans/research/builders/mpfb-assets/hair/'+hair+'/'+hair+'_diffuse.png','human-npc-source',True)
     tree('assets-source/humans/motion/legacy','human-motion-inputs',{'.fbx'})
@@ -71,6 +72,9 @@ def inventory():
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance']:
         tree(directory,'human-runtime',{'.asset','.prefab','.mat','.meta','.fbx','.png','.json'})
         add(directory+'.meta','human-runtime')
+    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAges','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanNpcMotion','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAges','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanNpcMotion']:
+        tree(directory,'human-npc-runtime',{'.asset','.prefab','.mat','.meta','.fbx','.png','.json'})
+        add(directory+'.meta','human-npc-runtime')
     add('unity/WorldGen.Unity/Assets/StreamingAssets/fauna.meta','animal-runtime')
     add('unity/WorldGen.Unity/Assets/StreamingAssets/world/Earth.world','default-world',True)
     add('unity/WorldGen.Unity/Assets/StreamingAssets/world/Earth.world.meta','default-world')

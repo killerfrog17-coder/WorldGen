@@ -28,7 +28,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var sample in fixtures)
         {
             int variant=sample.variant;var actor=owner.CreateHuman(variant,100+variant,true,sample.age);string label=actor.Definition.Variant+(sample.age==null?"":"-age-"+sample.age.Years);foreach(var node in actor.Root.GetComponentsInChildren<Transform>())node.gameObject.layer=29;
-            foreach(string role in new[]{"SleepSide","SitGround","Social","WorkKneeling"})
+            foreach(string role in new[]{"SleepSide","SitGround","Social","WorkKneeling","Crawl"})
             {
                 Check(actor.Shared.Clips.ContainsKey(role),actor.Definition.Variant+" has "+role);
                 for(int i=0;i<45;i++){owner.AnimateHuman(actor,0,false,false,1f/30);actor.Shared.Routine(role,i/30d,1f/30);actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);}
@@ -47,6 +47,7 @@ public sealed partial class LocalTerrainExplorer
                 Check(finite&&vertices>10000,actor.Definition.Variant+" "+role+" has a finite fully evaluated skin");
                 Check(bounds.min.y>-.035f&&bounds.max.y<2.5f,label+" "+role+" stays near its real ground plane");
                 if(role=="SleepSide")Check(bounds.size.y<1,actor.Definition.Variant+" really lies down to sleep");
+                if(role=="Crawl")Check(bounds.size.y<1.1f,actor.Definition.Variant+" fits through a low shelter entrance");
                 if(role=="SitGround"||role=="WorkKneeling")Check(bounds.size.y<1.5f,actor.Definition.Variant+" works/rests near the ground");
                 if(variant==1||variant==4&&sample.age==null)
                 foreach(int side in new[]{0,1})

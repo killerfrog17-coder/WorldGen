@@ -30,6 +30,12 @@ public sealed partial class LocalTerrainExplorer
         public float AnimationAt;public GameObject WorkProp;
         public float AvoidUntil,AvoidYaw;
         public float PoseGroundLift;
+        public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";
+        public HumanActivity CurrentActivity;
+        public bool NpcCrouching;
+        public bool NpcCrawling;
+        public GameObject InfantCarrier;
+        public readonly List<NpcSolid> NearbySolids=new List<NpcSolid>();
         public HumanAgeModel AgeModel;public Dictionary<Transform,Vector3> YoungRest;public Transform YoungPelvis;public Vector3 AdultPelvisRest;public float AgeMotionRatio=1;
     }
     readonly PlayerCameraRig humanCamera=new PlayerCameraRig();
@@ -155,10 +161,10 @@ public sealed partial class LocalTerrainExplorer
             while(humanSpawnQueued>0&&attempts++<4)
             {humanSpawnQueued--;SpawnHumans(1);if((System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency>2)break;}
         }
-        UpdateLivingHumans(stopped,dt);
+        long livingTickStart=System.Diagnostics.Stopwatch.GetTimestamp();UpdateLivingHumans(stopped,dt);
         foreach(var npc in humanNpcs)
         {
-            if(npc.ResidentId!=0){UpdateLivingHuman(npc,stopped,dt);continue;}
+            if(npc.ResidentId!=0){if(!livingBenchmarkFreeze)UpdateLivingHuman(npc,stopped,dt);continue;}
             if(npc.Health<=0){if(npc.Ragdoll!=null)npc.Ragdoll.SetPaused(stopped);continue;}
             if(dt>0)
             {
@@ -190,12 +196,13 @@ public sealed partial class LocalTerrainExplorer
             npc.Root.transform.localPosition=new Vector3((float)(npc.Motor.X-originX),(float)(npc.Motor.Y-TerrainMotion.EyeHeightM),(float)(npc.Motor.Z-originZ));
             npc.Root.transform.localRotation=Quaternion.Euler(0,npc.Yaw,0);
         }
+        livingTickMs=ElapsedHumanMs(livingTickStart);
         humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.
     }
     void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
     {
-        if(HumanAnimationOptions.Kimodo&&actor.Shared!=null)
+        if((HumanAnimationOptions.Kimodo||actor.ResidentId!=0)&&actor.Shared!=null)
         {
             string swimRole="Swim";
             if(swimming&&actor==humanPlayer)
@@ -203,8 +210,10 @@ public sealed partial class LocalTerrainExplorer
                 var held=SharedMainHeld;
                 if(held!=null)swimRole=held.Hands==2||held.Kind==PossessionKind.Bow&&NaturalActing(held)?"SwimCarryTwo":NaturalSide(held)=="l"?"SwimCarryLeft":"SwimCarry";
             }
-            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);actor.Graph.Evaluate(dt);
-            if(crouch&&!swimming){var spine=actor.SneakSpine;var direction=(actor.SneakNeck.position-spine.position).normalized;var desired=(Vector3.up+actor.Root.transform.forward*.2f).normalized;spine.rotation=Quaternion.FromToRotation(direction,desired)*spine.rotation;foreach(var pair in actor.RelaxedArms)pair.Key.localRotation=pair.Value;}return;
+            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);
+            // Local residents add their routine/carry layers immediately after
+            // this call. Evaluate that combined graph once, not twice.
+            if(actor.ResidentId==0){actor.Graph.Evaluate(dt);if(crouch&&!swimming)CorrectHumanCrouch(actor);}return;
         }
         actor.Output.SetSourcePlayable(actor.Mixer);
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
@@ -238,6 +247,8 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<actor.Inputs.Length;i++)actor.Mixer.SetInputWeight(i,actor.Weights[i]/Mathf.Max(.0001f,total));
         actor.Graph.Evaluate(dt);
     }
+    static void CorrectHumanCrouch(HumanActor actor)
+    {var spine=actor.SneakSpine;var direction=(actor.SneakNeck.position-spine.position).normalized;var desired=(Vector3.up+actor.Root.transform.forward*.2f).normalized;spine.rotation=Quaternion.FromToRotation(direction,desired)*spine.rotation;foreach(var pair in actor.RelaxedArms)pair.Key.localRotation=pair.Value;}
     int SpawnHumans(int count)
     {
         if(humanLibrary==null||!Ready||!CenterReady)return 0;int made=0;
@@ -315,7 +326,7 @@ public sealed partial class LocalTerrainExplorer
         if(arguments.Length>1||arguments.Length==1&&(!int.TryParse(arguments[0],out count)||count<1))return new PlayCommandResult(false,"Usage: /spawn human [positive count] or /spawn human clear.");
         humanSpawnQueued+=count;return new PlayCommandResult(true,"Queued "+count+" humans on nearby dry, gentle ground. /spawn clear cancels pending spawns.");
     }
-    void DestroyHuman(HumanActor human){DisposeHumanCombatSurface(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
+    void DestroyHuman(HumanActor human){ClearNpcProps(human);DestroyInventoryVisual(human.InfantCarrier);DisposeHumanCombatSurface(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()
     {
         CaptureLivingHumans();DisposeLivingHumans();

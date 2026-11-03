@@ -16,7 +16,7 @@ namespace WorldGen.Core
             if(People==null||Camps==null||Groups==null||People.Any(p=>p==null)||Camps.Any(c=>c==null)||Groups.Any(g=>g==null))throw new ArgumentException("Invalid local human records.");
             if(People.Select(p=>p.Person).Distinct().Count()!=People.Count||Camps.Select(c=>c.Site).Distinct().Count()!=Camps.Count||Groups.Select(g=>g.Group).Distinct().Count()!=Groups.Count)throw new ArgumentException("Duplicate local human identity.");
             foreach(var p in People)if(p.Person<=0||!double.IsFinite(p.Health)||p.Health<0||p.Health>100||!double.IsFinite(p.SolarDays)||p.SolarDays<0||!double.IsFinite(p.Position.Length)||p.Position.Length>0&&Math.Abs(p.Position.Length-1)>1e-5)throw new ArgumentException("Invalid local person memory.");
-            foreach(var g in Groups)if(!double.IsFinite(g.Trust)||g.Trust< -1||g.Trust>1||!double.IsFinite(g.Fear)||g.Fear<0||g.Fear>1||!double.IsFinite(g.AlarmUntilSolarDay))throw new ArgumentException("Invalid group relationship memory.");
+            foreach(var g in Groups)if(!double.IsFinite(g.Trust)||g.Trust< -1||g.Trust>1||!double.IsFinite(g.Fear)||g.Fear<0||g.Fear>1||!double.IsFinite(g.AlarmUntilSolarDay)||!double.IsFinite(g.FireWoodKg)||g.FireWoodKg<0||g.FireWoodKg>1000||!double.IsFinite(g.SuppliesUpdatedSolarDay)||g.SuppliesUpdatedSolarDay< -1||g.FuelContributions<0)throw new ArgumentException("Invalid group relationship/supply memory.");
             foreach(var c in Camps){if(c.Objects==null||!double.IsFinite(c.LastSolarDay)||!double.IsFinite(c.Position.Length)||Math.Abs(c.Position.Length-1)>1e-5)throw new ArgumentException("Invalid visited camp.");new CampState{Objects=c.Objects}.Validate();}
         }
     }
@@ -34,6 +34,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class HumanGroupMemory
     {
         public long Group;public double Trust,Fear,AlarmUntilSolarDay,LastSolarDay;public V ThreatPosition;
+        public double FireWoodKg,SuppliesUpdatedSolarDay=-1;public int FuelContributions;
         public HumanGroupMemory Copy()=>(HumanGroupMemory)MemberwiseClone();
     }
 }

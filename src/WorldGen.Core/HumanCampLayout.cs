@@ -13,9 +13,30 @@ namespace WorldGen.Core
             var homes=people.Members.Select(p=>p.Household).Distinct().OrderBy(h=>h).ToArray();int index=Array.IndexOf(homes,household);
             double orientation=Rng.Value(seed,"camp-layout",unchecked((int)site^(int)(site>>32)))*Math.PI*2;
             double jitter=Rng.Value(seed,"household-layout",unchecked((int)household^(int)(household>>32)));
+            if(people.Residence==ForagerResidence.AquaticResidence)
+            {
+                double across=(index/2-(Math.Ceiling(homes.Length/2d)-1)*.5)*6.2;
+                double along=(index%2==0?-1:1)*(4.3+jitter*.6);
+                return new V(across*Math.Cos(orientation)+along*Math.Sin(orientation),0,along*Math.Cos(orientation)-across*Math.Sin(orientation));
+            }
+            if(people.Residence==ForagerResidence.CollectorCamps)
+            {
+                int cluster=index/3,clusters=(int)Math.Ceiling(homes.Length/3d);double theta=(index%3)*Math.PI*2/3+orientation;
+                double cx=(cluster%3-(Math.Min(3,clusters)-1)*.5)*15,cz=(cluster/3-(Math.Ceiling(clusters/3d)-1)*.5)*15;
+                double east=cx+Math.Sin(theta)*4.2,north=cz+Math.Cos(theta)*4.2;
+                return new V(east*Math.Cos(orientation)+north*Math.Sin(orientation),0,north*Math.Cos(orientation)-east*Math.Sin(orientation));
+            }
             double bearing=orientation+Math.PI*2*Math.Max(0,index)/Math.Max(1,homes.Length)+(jitter-.5)*.35;
             double ring=Math.Max(6,Math.Sqrt(homes.Length)*3.6)*(.85+.3*Rng.Value(seed,"household-court",unchecked((int)household)));
             return new V(Math.Sin(bearing)*ring,0,Math.Cos(bearing)*ring);
+        }
+        public static double Radius(ForagerBandSample people,long site,int seed)
+            =>people.Members.Select(p=>p.Household).Distinct().Select(h=>HouseholdOffset(people,h,site,seed).Length).DefaultIfEmpty(6).Max()+6;
+        public static V HearthOffset(ForagerBandSample people,int hearth,long site,int seed)
+        {
+            var homes=people.Members.Select(p=>p.Household).Distinct().OrderBy(h=>h).Skip(hearth*3).Take(3).ToArray();
+            if(homes.Length==0)return new V();var sum=new V();foreach(long h in homes)sum+=HouseholdOffset(people,h,site,seed);
+            return sum/homes.Length*(people.Residence==ForagerResidence.CollectorCamps?.96:people.Residence==ForagerResidence.AquaticResidence?.85:.42);
         }
         public static CampObject[] Create(HumanGroupSituation group,ForagerBandSample people,V anchor,double radiusM,int seed,double campSeconds=0)
         {
@@ -40,11 +61,24 @@ namespace WorldGen.Core
             {
                 var offset=HouseholdOffset(people,household.Key,site,seed);double bearing=Math.Atan2(offset.X,offset.Z);
                 var position=At(offset.X,offset.Z);
-                if(group.Band.Techniques[34]||group.Band.Techniques[3])
+                if(group.Camp.ShelterAvailable)
                 {
                     var shelter=Object(CampKind.Blueprint,"house-"+household.Key,position);
+                    shelter.NpcHousehold=household.Key;
                     shelter.Heading=bearing*180/Math.PI+180; // openings face the shared centre
                     var plan=CampBlueprints.Create(group.Camp.Design,group.Camp.ShelterWidth+.18*Math.Max(0,household.Count()-4),group.Camp.ShelterDepth+.15*Math.Max(0,household.Count()-4),group.Camp.Cover);shelter.Blueprint=plan;
+                    if(CampBlueprints.Has(plan.Design,CampFunction.Shelter))
+                    {
+                        int places=(int)Math.Ceiling(household.Sum(p=>p.AgeYears>=13?1:p.AgeYears<3?.2:.55));
+                        for(int step=0;step<36&&CampBlueprints.SleepingPlaces(plan)<places;step++)
+                        {
+                            var limits=CampBlueprints.Limits(plan.Design);double w=plan.WidthM,d=plan.DepthM;
+                            if(w<limits.maxW&&(w<=d||d>=limits.maxD))w+=.25;else if(d<limits.maxD)d+=.25;else break;
+                            plan=CampBlueprints.Create(plan.Design,w,d,plan.Cover);shelter.Blueprint=plan;
+                        }
+                        if(CampBlueprints.SleepingPlaces(plan)<places&&plan.Design!=CampDesign.ConicalTent)
+                        {plan=CampBlueprints.Create(CampDesign.LongHut,Math.Max(3,plan.WidthM),Math.Min(8,places*1.7/.75/Math.Max(3,plan.WidthM)),plan.Cover);shelter.Blueprint=plan;}
+                    }
                     var components=CampBlueprints.Components(plan).OrderBy(c=>c.Stage).ToArray();
                     double budget=components.Sum(c=>c.Seconds)*completion;
                     foreach(var part in components)
@@ -61,6 +95,7 @@ namespace WorldGen.Core
                 if(completion>.25)
                 {
                     var bed=Object(CampKind.Bedding,"bed-"+household.Key,position);bed.Heading=bearing*180/Math.PI;
+                    bed.NpcHousehold=household.Key;
                     bed.Materials.Add(Item(group.Camp.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass,position,.9+Math.Min(5,household.Count())*.5));result.Add(bed);
                 }
             }
@@ -69,7 +104,7 @@ namespace WorldGen.Core
                 int hearths=Math.Max(1,(int)Math.Ceiling(households.Length/3d));
                 for(int k=0;k<hearths;k++)
                 {
-                    var position=At(hearths==1?0:Math.Sin(orientation+k*Math.PI*2/hearths)*3,hearths==1?0:Math.Cos(orientation+k*Math.PI*2/hearths)*3);
+                    var hearthOffset=HearthOffset(people,k,site,seed);var position=At(hearthOffset.X,hearthOffset.Z);
                     var fire=Object(CampKind.Fire,"hearth-"+k,position);fire.AshKg=.12;
                     fire.Materials.Add(Item(PossessionKind.KindlingBundle,position,.18));
                     var wood=Item(PossessionKind.Branch,position,2.4);wood.HeightM=.4;wood.WidthM=.04;wood.DepthM=.04;fire.Materials.Add(wood);

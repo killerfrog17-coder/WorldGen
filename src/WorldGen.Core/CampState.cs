@@ -8,7 +8,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class CampObject
     {
         public string Id="camp-"+Guid.NewGuid().ToString("N");public CampKind Kind;public V Position;
-        [System.Runtime.Serialization.OptionalField] public long NpcGroup,NpcSite;
+        [System.Runtime.Serialization.OptionalField] public long NpcGroup,NpcSite,NpcHousehold;
         public double Heading,EmbedM,SoilDepthM,SoilFirmness=1,Wetness,EmberSeconds,LastSimulatedSeconds;
         public bool Burning;public double AshKg;
         public List<Possession> Materials=new List<Possession>();

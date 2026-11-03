@@ -44,6 +44,13 @@ MonoBehaviour:
       Release: -1
       TravelMeters: 0.01111454
       GroundOffsetM: 0.04430201
+    - Role: Crawl
+      Clip: {fileID: 4402661272569493206, guid: 464608688477fc54fa1a74f4b7e60ff1, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.9317468
+      GroundOffsetM: 0.06445347
   - Variant: B
     EyeForward: 0.15475094
     Clips:
@@ -60,7 +67,7 @@ MonoBehaviour:
       Contact: -1
       Release: -1
       TravelMeters: 0.0020451355
-      GroundOffsetM: 0.0470504
+      GroundOffsetM: 0.04705046
     - Role: Social
       Clip: {fileID: -7895002073584321704, guid: 8b820fcafd9211842900c79f80296a18, type: 3}
       Loop: 1
@@ -75,6 +82,13 @@ MonoBehaviour:
       Release: -1
       TravelMeters: 0.012736156
       GroundOffsetM: 0.039938584
+    - Role: Crawl
+      Clip: {fileID: -7261000297958637677, guid: 8b820fcafd9211842900c79f80296a18, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.2135897
+      GroundOffsetM: 0.10760983
   - Variant: C
     EyeForward: 0.13799669
     Clips:
@@ -91,7 +105,7 @@ MonoBehaviour:
       Contact: -1
       Release: -1
       TravelMeters: 0.0019354076
-      GroundOffsetM: 0.015071242
+      GroundOffsetM: 0.015071257
     - Role: Social
       Clip: {fileID: -2617559563499671070, guid: 53e12c98170cecb4c9504331bc61ac28, type: 3}
       Loop: 1
@@ -106,6 +120,13 @@ MonoBehaviour:
       Release: -1
       TravelMeters: 0.012052822
       GroundOffsetM: 0.033112958
+    - Role: Crawl
+      Clip: {fileID: -1644492338605453977, guid: 53e12c98170cecb4c9504331bc61ac28, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.0948238
+      GroundOffsetM: 0.06196262
   - Variant: D
     EyeForward: 0.15524624
     Clips:
@@ -137,6 +158,13 @@ MonoBehaviour:
       Release: -1
       TravelMeters: 0.012464087
       GroundOffsetM: 0.049074568
+    - Role: Crawl
+      Clip: {fileID: 6104168536225812860, guid: 15a45d3346f9ddf4e9ac3d4fd0c577bf, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.1663032
+      GroundOffsetM: 0.112026826
   - Variant: E
     EyeForward: 0.12710363
     Clips:
@@ -153,7 +181,7 @@ MonoBehaviour:
       Contact: -1
       Release: -1
       TravelMeters: 0.0015193322
-      GroundOffsetM: 0.042484984
+      GroundOffsetM: 0.042485014
     - Role: Social
       Clip: {fileID: 7467648827687328361, guid: 0a3367bc39508f04c955e285ced1b9af, type: 3}
       Loop: 1
@@ -168,6 +196,13 @@ MonoBehaviour:
       Release: -1
       TravelMeters: 0.009461696
       GroundOffsetM: 0.04312471
+    - Role: Crawl
+      Clip: {fileID: 8791955563649171037, guid: 0a3367bc39508f04c955e285ced1b9af, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 1.6444768
+      GroundOffsetM: 0.054193497
   - Variant: F
     EyeForward: 0.15112229
     Clips:
@@ -184,7 +219,7 @@ MonoBehaviour:
       Contact: -1
       Release: -1
       TravelMeters: 0.0019422732
-      GroundOffsetM: 0.08053762
+      GroundOffsetM: 0.08053759
     - Role: Social
       Clip: {fileID: -317988706883820805, guid: 1492a241254780d489254869990e7ac5, type: 3}
       Loop: 1
@@ -199,3 +234,10 @@ MonoBehaviour:
       Release: -1
       TravelMeters: 0.012095577
       GroundOffsetM: 0.054255784
+    - Role: Crawl
+      Clip: {fileID: 2104751040876361849, guid: 1492a241254780d489254869990e7ac5, type: 3}
+      Loop: 1
+      Contact: -1
+      Release: -1
+      TravelMeters: 2.1022549
+      GroundOffsetM: 0.084019974

@@ -49,6 +49,26 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE3Nov11:01Z NPC OVERNIGHT CONTINUES, NO STOP/WRAP. Stage1 ONLY;2/3 untouched.
+Selected slot-b/39964fb shortcut unchanged. Internal slot-a managed NONDEV latest
+built10:59:22Z, now includes real camp households/age bodies/five native camp
+motions, materials, daylight routes, work trips, infant wrap, near-camp collision,
+fire tending and cached50km projection. New refinements still require actual
+scene inspection; do NOT call stage1 ready. Full all-age5motion pose458PASS and
+inspected Crawl side. Earlier100k native wet/day and cool/night13PASS each incl
+actual named binary save/wounds/revisit; these predate latest layouts/infant wrap.
+Current190k derived test world from CURRENT source completed16.9s,447 occupied
+regional aggregates,5 lineages,4lifeways;21896 Core checks PASS; warm query0.11ms
+vs~100ms previously, cached/fresh query membership exact across5km boundaries.
+Current190k actual cold/day and arid/day native runs are ACTIVE (1812/616);
+must inspect tasks, props/infants and movements, then sustained performance,
+assembly/packing/traces/revisit and final proof. No owner test request yet.
+Raw motions/18age models canonical. First verified GitHub npc-source-inputs-
+20261103 pack published; new Crawl input inventory ready, second pack pending.
+Latest code/art/lock changes uncommitted at note time; commit/push then publish.
+No subagents/paid/owner app closure; owner3 files untouched. Continue until
+EXPLICIT owner stop,8h estimate15:46:56Z is NOT a stop.
+
 ACTIVE3Nov09:20Z NPC OVERNIGHT CONTINUES; NO OWNER STOP/WRAP. Started07:46:56Z;
 8h is an estimate, never a stop. Ordered stages: NPCs first, only then landscapes,
 only then vegetation. Stages2/3 UNTOUCHED. Checkpoint63bfe8b PUSHED; further source

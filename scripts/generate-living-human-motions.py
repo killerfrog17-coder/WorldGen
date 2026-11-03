@@ -10,6 +10,7 @@ CASES = [
     ('sit_ground', 150, 6132, 'A person sits cross-legged on the ground with a relaxed upright torso and their hands resting in their lap, gently looking around.'),
     ('social_stand', 150, 6133, 'A person stands relaxed and talks to someone, making occasional small calm gestures with their hands.'),
     ('work_kneeling', 150, 6134, 'A person kneels on both knees on the ground, holding a small object in their left hand and carefully working on it with their right hand.'),
+    ('crawl', 150, 6135, 'A person crawls forwards slowly on their hands and knees, keeping their body low and their head slightly raised.'),
 ]
 
 if __name__ == '__main__':

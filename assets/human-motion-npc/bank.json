@@ -62,10 +62,24 @@
           "raw_name": "work_kneeling",
           "action": "Kimodo A | WorkKneeling",
           "frames": 124
+        },
+        {
+          "role": "Crawl",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\crawl\\seed-6135",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 1.931746889850661,
+          "duration": 4.1,
+          "raw_name": "crawl",
+          "action": "Kimodo A | Crawl",
+          "frames": 124
         }
       ],
       "file": "A.fbx",
-      "fbx_sha256": "4ccbe7e7c27f44e3603c7631a066ef843b5526b91895d48c11f569876301b7aa"
+      "fbx_sha256": "7011eb21ef3bb839b0e3a2de10f87c4465baa6f82378de94b7866cc0042f77d7"
     },
     {
       "variant": "B",
@@ -126,10 +140,24 @@
           "raw_name": "work_kneeling",
           "action": "Kimodo B | WorkKneeling",
           "frames": 124
+        },
+        {
+          "role": "Crawl",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\crawl\\seed-6135",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 2.213589665515245,
+          "duration": 4.1,
+          "raw_name": "crawl",
+          "action": "Kimodo B | Crawl",
+          "frames": 124
         }
       ],
       "file": "B.fbx",
-      "fbx_sha256": "78611640758a0ed2a98e6b01a8f6970fa561c901ef3701a00927ab2eb2077286"
+      "fbx_sha256": "b5ea51013d33d753d4977075ed23d8a2386d76dc8d1689c5eed34050699bdd21"
     },
     {
       "variant": "C",
@@ -190,10 +218,24 @@
           "raw_name": "work_kneeling",
           "action": "Kimodo C | WorkKneeling",
           "frames": 124
+        },
+        {
+          "role": "Crawl",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\crawl\\seed-6135",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 2.094823745278017,
+          "duration": 4.1,
+          "raw_name": "crawl",
+          "action": "Kimodo C | Crawl",
+          "frames": 124
         }
       ],
       "file": "C.fbx",
-      "fbx_sha256": "52edf78aee88ad3e2ec5e082d5b9f702685e0f66b1c67a98c389dd2eac9bdf84"
+      "fbx_sha256": "4adb4feb00154754f74c42e4b2cfb63e01972c6ffa77cf4cd72bf75bcee260ee"
     },
     {
       "variant": "D",
@@ -254,10 +296,24 @@
           "raw_name": "work_kneeling",
           "action": "Kimodo D | WorkKneeling",
           "frames": 124
+        },
+        {
+          "role": "Crawl",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\crawl\\seed-6135",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 2.1663032515194667,
+          "duration": 4.1,
+          "raw_name": "crawl",
+          "action": "Kimodo D | Crawl",
+          "frames": 124
         }
       ],
       "file": "D.fbx",
-      "fbx_sha256": "67940f81dfc796b1d3dd58556c76eada90f3079371e599e1306945c816ab8a01"
+      "fbx_sha256": "fd2b529adc09c3cfabd7070ad73675335cd2eac538c58bcc772829ec56aee26c"
     },
     {
       "variant": "E",
@@ -318,10 +374,24 @@
           "raw_name": "work_kneeling",
           "action": "Kimodo E | WorkKneeling",
           "frames": 124
+        },
+        {
+          "role": "Crawl",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\crawl\\seed-6135",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 1.6444768262943454,
+          "duration": 4.1,
+          "raw_name": "crawl",
+          "action": "Kimodo E | Crawl",
+          "frames": 124
         }
       ],
       "file": "E.fbx",
-      "fbx_sha256": "f510382baee7796e2fe7bcb1214eba0a14aca3e3055c865b0c49944ee09e0861"
+      "fbx_sha256": "343b73a8e2cd97ed891b765c8cce66b3ab79d4a71e66b259768edab63da6bcc3"
     },
     {
       "variant": "F",
@@ -382,10 +452,24 @@
           "raw_name": "work_kneeling",
           "action": "Kimodo F | WorkKneeling",
           "frames": 124
+        },
+        {
+          "role": "Crawl",
+          "source": "assets-source\\humans\\motion\\npc\\motions\\crawl\\seed-6135",
+          "begin": 15,
+          "end": 138,
+          "loop": true,
+          "contact": -1,
+          "release": -1,
+          "travel_m": 2.102254822612604,
+          "duration": 4.1,
+          "raw_name": "crawl",
+          "action": "Kimodo F | Crawl",
+          "frames": 124
         }
       ],
       "file": "F.fbx",
-      "fbx_sha256": "fb20f75fa41b1e421bd4714625d0838f8187adcefb60c9fa3ac0616dfcc3f997"
+      "fbx_sha256": "1c8e4cd5b27942c293833aac3bb62cf8b59903f13e293393c96d26b62fd84c6b"
     }
   ]
 }
