@@ -32,7 +32,7 @@ public sealed partial class LocalTerrainExplorer
             actor.HasSafeGoal=false;actor.Routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=HumanActivity.Travel,Position=proposal,Destination=proposal};
             double deadline=Time.realtimeSinceStartupAsDouble+30,next=0;
             double Distance()=>Math.Sqrt(Math.Pow(actor.Motor.X-tx,2)+Math.Pow(actor.Motor.Z-tz,2));
-            while(Distance()>1.23&&Time.realtimeSinceStartupAsDouble<deadline)
+            while(Distance()>.45&&Time.realtimeSinceStartupAsDouble<deadline)
             {
                 if(Time.realtimeSinceStartupAsDouble>=next)
                 {
@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 yield return null;
             }
-            Check(Distance()<=1.23,"A real resident can "+stage+" its actual material-backed shelter through the entrance without getting stuck");
+            Check(Distance()<=.45,"A real resident can "+stage+" its actual material-backed shelter through the entrance without getting stuck");
         }
         Check(track.All(r=>double.IsFinite(r.Y)&&r.Speed<1.5),"Native walking uses finite terrain footing and normal human walking speed");
         actor.Routine=oldRoutine;TerrainHandoff.Coordinates(owner.frame,oldPosition,out double oldX,out double oldZ);actor.Motor.Place(oldX,oldZ,owner.VisibleGround(oldX,oldZ,0));actor.Planet=oldPosition;owner.livingQueryAt=0;

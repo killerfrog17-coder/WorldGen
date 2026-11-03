@@ -11,6 +11,7 @@ parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source',required=True)
 parser.add_argument('--slot',choices=['slot-a','slot-b'],default='slot-a')
 parser.add_argument('--evidence',type=Path,default=ROOT/'artifacts/npc-20261103')
+parser.add_argument('--prefix',default='accepted')
 args=parser.parse_args();evidence=args.evidence.resolve();player=ROOT/'builds'/args.slot
 def read(p):
     raw=p.read_bytes();return raw.decode('utf-16' if raw[:2] in (b'\xff\xfe',b'\xfe\xff') else 'utf-8-sig')
@@ -26,7 +27,8 @@ assert expected['WorkerSha256']==stamp['TerrainWorkerSha256']
 for assembly in stamp['Inputs']:
     assert sha(player/'WorldGen_Data/Managed'/(assembly['Assembly']+'.dll'))==assembly['Sha256']
 cases=[]
-for name in ['accepted-poses','accepted-wet','accepted-cold','accepted-aquatic','accepted-collector','accepted-start']:
+for suffix in ['poses','wet','cold','aquatic','collector','start']:
+    name=args.prefix+'-'+suffix
     folder=evidence/name
     assert int(read(folder/'exit-code.txt'))==0,name
     assert not (folder/'failure.txt').exists(),name
@@ -34,22 +36,22 @@ for name in ['accepted-poses','accepted-wet','accepted-cold','accepted-aquatic',
     assert all(receipt[k]==v for k,v in expected.items()),(name,'Stale package')
     checks=read(folder/'checks.txt').splitlines()
     assert checks and all(row.startswith('PASS ') for row in checks),name
-    if name=='accepted-poses':assert len(checks)>=450
+    if suffix=='poses':assert len(checks)>=450
     else:
         for phrase in ['Natural residents stream','Scheduled home residents','surrounding scatter pages','Actual named binary save','Aggression preserves','does not duplicate']:
             assert any(phrase in row for row in checks),(name,phrase)
-    cases.append({'name':name,'checks':len(checks),'scene':load(folder/'scene-info.json') if name!='accepted-poses' else None,
+    cases.append({'name':name,'checks':len(checks),'scene':load(folder/'scene-info.json') if suffix!='poses' else None,
         'checks_sha256':sha(folder/'checks.txt'),'images':{p.name:sha(p) for p in folder.glob('*.png')}})
-for name in ['accepted-wet','accepted-cold','accepted-collector']:
+for name in [args.prefix+'-'+suffix for suffix in ['wet','cold','collector']]:
     text=read(evidence/name/'checks.txt');assert 'can enter' in text and 'can leave' in text,name
-for name in ['accepted-wet','accepted-collector']:
+for name in [args.prefix+'-'+suffix for suffix in ['wet','collector']]:
     text=read(evidence/name/'checks.txt');assert 'scheduled packing' in text and 'finishes every roof' in text,name
-assert 'remains occupied' in read(evidence/'accepted-aquatic/checks.txt')
-assert next(c for c in cases if c['name']=='accepted-start')['scene']['Year']==0
+assert 'remains occupied' in read(evidence/(args.prefix+'-aquatic')/'checks.txt')
+assert next(c for c in cases if c['name']==args.prefix+'-start')['scene']['Year']==0
 assert 'PASS 28242' in read(ROOT/'artifacts/npc-final-core-life.log')
 assert 'PASS 13132' in read(ROOT/'artifacts/npc-final-core-blueprints.log')
 proof=load(evidence/'source-input-proof.json');assert proof['original_locked_inputs_unchanged']==5048
-performance=load(evidence/'accepted-wet/performance.json')
+performance=load(evidence/(args.prefix+'-wet')/'performance.json')
 assert performance[0]['Residents']>=25
 assert performance[0]['MeanNpcMs']<4 and performance[-1]['MeanNpcMs']<4
 changed=subprocess.check_output(['git','diff','--name-only','pre-living-npcs-20261103',args.source,'--','assets-source','sounds','music'],cwd=ROOT,text=True).splitlines()

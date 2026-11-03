@@ -349,11 +349,15 @@ public sealed partial class LocalTerrainExplorer
             }
             else
             {
-                actor.TargetSpeed=distance>(doorway?.2:1.2)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,.55+distance*.35):0;
+                actor.TargetSpeed=distance>(doorway?.2:.35)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,Math.Max(.12,distance*1.5)):0;
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
                 else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
                 else if(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare)
                 {TerrainHandoff.Coordinates(frame,group.Grounded?group.Anchor:group.Situation.Camp.Position,out double gx,out double gz);actor.TargetYaw=(float)(Math.Atan2(gx-actor.Motor.X,gz-actor.Motor.Z)*180/Math.PI);}
+                // Slow down while turning, particularly near a precise work or
+                // entrance target. Otherwise a walking-speed minimum makes a
+                // small target unreachable because the actor circles around it.
+                if(actor.TargetSpeed>0)actor.TargetSpeed*=Mathf.Clamp01((Mathf.Cos(Mathf.DeltaAngle(actor.Yaw,actor.TargetYaw)*Mathf.Deg2Rad)+.05f)/.6f);
             }
             // Unfamiliar visitors attract a look, not supernatural detection or
             // an immediate full-speed flight response. Aggression raises alarm.
