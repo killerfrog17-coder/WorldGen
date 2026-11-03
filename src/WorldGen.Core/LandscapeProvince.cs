@@ -144,7 +144,7 @@ namespace WorldGen.Core
             {
                 // A compact material kernel can inherit upland lawns and
                 // trees. Saturated open marsh retains sedges/rushes instead.
-                double open=1-Smooth(.48,.65,controls.Canopy);
+                double open=1-Smooth(.2,.48,controls.Canopy);
                 for(int f=0;f<3;f++)cover.SetWeight(f,cover.Weight(f)*(1-.92*wet));
                 cover.SetWeight(3,Math.Max(cover.Weight(3),.36*wet*open));
                 forest.Coverage*=1-.985*wet*open;

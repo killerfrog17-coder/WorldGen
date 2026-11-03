@@ -52,7 +52,27 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var patch=model.Patch(world.Surface.Cells[cell].Position,18000);
                     foreach(var offset in new[]{new V(5000,0,0),new V(-6000,0,4000),new V(8500,0,-5000)})
-                    {var at=patch.Position(offset.X,offset.Z);var s=patch.Sample(at);if(!s.Underwater&&s.ElevationM>5&&s.Landscape==requested)return new LandscapeReviewSite{Position=at,Sample=s};}
+                    {
+                        var at=patch.Position(offset.X,offset.Z);var s=patch.Sample(at);
+                        if(s.Underwater||s.ElevationM<=5||s.Landscape!=requested)continue;
+                        if(requested==LandscapeRegion.WoodedSwamp)
+                        {
+                            // Test the actual conjunction of woody cover and
+                            // standing water, rather than another dry bank.
+                            foreach(var pond in model.Amplification.SmallLakesNear(at,450))
+                            {
+                                foreach(int side in new[]{-1,1})
+                                {
+                                    var bank=(pond.Center+pond.North*(side*pond.Radius*1.35/(model.RadiusM*.1))).Unit;
+                                    var bankSample=model.Patch(bank,3000).Sample(bank);
+                                    if(!bankSample.Underwater&&bankSample.Landscape==requested&&bankSample.Forest.Coverage>.2)
+                                        return new LandscapeReviewSite{Position=bank,Sample=bankSample};
+                                }
+                            }
+                            continue;
+                        }
+                        return new LandscapeReviewSite{Position=at,Sample=s};
+                    }
                 }
             }
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);

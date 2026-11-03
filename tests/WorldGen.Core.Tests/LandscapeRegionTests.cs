@@ -86,6 +86,10 @@ static class LandscapeRegionTests
         LandscapeProvince.Cover(wet,new V(1000,2000,3000),41,ref marshCover,ref marshMid,ref marshForest,ref marshBiome);
         Check(marshBiome==Biome.Marsh&&marshForest.Coverage<.02,"Upland material kernels cannot cover an open saturated marsh with trees");
         Check(marshCover.Weight(3)>.3&&marshCover.Weight(0)<.04,"Open marsh ground favours sedges instead of upland lawn");
+        var woodedControl=wet;woodedControl.Canopy=.7f;var woodedCover=marshCover;var woodedMid=marshMid;
+        var woodedForest=new ForestCoverProfile{Coverage=.7};var woodedBiome=Biome.Marsh;
+        LandscapeProvince.Cover(woodedControl,new V(1000,2000,3000),41,ref woodedCover,ref woodedMid,ref woodedForest,ref woodedBiome);
+        Check(woodedForest.Coverage>.65,"The open-marsh exclusion must preserve a supported wooded-wetland canopy");
         var reed=new MidPlantSpecies{Form=MidGrowthForm.ReedStand,HeightM=2};
         var water=new LocalTerrainSample{ElevationM=10,WaterSurfaceM=10.3,WaterMaskM=.3,WaterKind=LocalWaterKind.Lake};
         Check(MidFlora.WaterAdmission(reed,water)>.9,"Reeds can grow rooted in shallow standing water");
