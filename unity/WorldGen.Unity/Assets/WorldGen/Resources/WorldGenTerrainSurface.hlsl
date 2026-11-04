@@ -117,7 +117,7 @@ void SurfaceStrata(O i,inout float3 albedo)
     // Exposed sedimentary faces keep metre-scale bedding after close scan
     // textures retire. No additional texture fetch, mesh or render pass.
     float materials=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
-    float sedimentary=saturate(i.rockA.z+i.rockB.x+i.rockB.y);
+    float sedimentary=saturate(i.rocks.z+i.rocks.w+i.rocksB.x);
     float exposed=saturate((i.groundB.x+i.weights.w*.65)/materials)*sedimentary;
     exposed*=smoothstep(.08,.40,1-abs(normalize(i.normal).y));
     [branch] if(exposed>.001)
