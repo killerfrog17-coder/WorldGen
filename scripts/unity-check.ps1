@@ -17,6 +17,8 @@ if($BuildPlayer){
     if($LASTEXITCODE -ne 0){throw 'A permanent input depends on disposable scratch; repair the project layout before building.'}
 }
 $sourceProject=Join-Path $repoRoot 'unity/WorldGen.Unity'
+$buildSourceCommit=(& git -C $repoRoot rev-parse HEAD).Trim()
+$buildSourceChanges=@(& git -C $repoRoot status --porcelain -- src unity assets scripts/unity-check.ps1)
 $validationRoot=if($Isolated){Join-Path $repoRoot 'artifacts/unity-v2'}else{$repoRoot}
 $project=Join-Path $validationRoot 'unity/WorldGen.Unity'
 $normalizedProject=([IO.Path]::GetFullPath($project)).Replace('\','/')
@@ -118,7 +120,7 @@ if($BuildPlayer){
     New-Item -ItemType Directory -Path $packagedWorker -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $workerOutput 'WorldGen.Cli.exe') -Destination $packagedWorker -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
-    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]$DevelopmentPlayer;ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs;TerrainWorkerSha256=(Get-FileHash -LiteralPath (Join-Path $packagedWorker 'WorldGen.Cli.exe')).Hash.ToLowerInvariant()}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
+    [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');SourceCommit=$buildSourceCommit;SourceChanges=$buildSourceChanges;Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]$DevelopmentPlayer;ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs;TerrainWorkerSha256=(Get-FileHash -LiteralPath (Join-Path $packagedWorker 'WorldGen.Cli.exe')).Hash.ToLowerInvariant()}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
     Remove-Item -LiteralPath $incompleteBuild
 }
 if($PlayerCheck){
