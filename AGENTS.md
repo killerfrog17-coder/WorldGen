@@ -49,6 +49,30 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov05:04Z OWNER REJECTED REGION VISUAL QUALITY: flat-looking dunes,
+beige salt flats, little wonder/meaningful variety. Wants realworldinterest,
+not labels/textures alone. Resume regional work with dunes+salt first visual
+slice and show actual in-game views before expanding. No approvednewprototype
+yet; selectedB f5385a89 stays unchanged, priorNPCvisualissues remain open.
+Research primaryNPSdune/salt/USGS saved assets/verification/landscape-experience-
+research-20261104.json. Newactualworldprobe LandscapeExperienceAudit/Program
+--landscape-experience world manifest output. Initial diagnostic serializer
+FAILED V.Unit cycle, fixed PointXYZ; before-2 valid old24.03m duneoffsetrange,
+29.77m surface/1km, saltweight.362. First newactualprobe first:108.22m offset,
+109.80m surface/1km,maxslope32.05deg; saltweight.681. No native visual pass yet.
+Current UNCOMMITTED source: larger35/120m sharp asymmetric sinuous dune families
+with FIXED wavelengths (do NOT divide globaldotphase by varyingwavelength!),
+white evaporite profile/saltmaterial, bedrock suppression underflatcrust,
+below-sea INLAND crust eligibility; shader near-only2m polygoncrystal ridges.
+LocalTerrain21/Hyper18 versions invalidategeometrycache.35728 focusedchecks PASS
+inclbelowsea crust/marine exclusion, slope/basin tests. FullCorecompile PASS.
+No running jobs atnote, no game/Editor currentlyopen. Need commitprototype,
+FULL managed inactiveA build (shaderchanged), actual newSandSea/SaltFlat native
+player images atdaylight/groundlevel plusgeometryandperformancechecks. KeepB
+selected until real acceptance; no extra fullplayers/paid/subagents/ownerapps
+closed. Owner3files untouched. Researchreferencescratchonly, no gameartinputs
+changed;5357inputlock unchanged. Nevercallthesefinished basedonnumericsalone.
+
 REPORT4Nov04:34Z OWNER requested similar PDF for update2/regionals. Completed
 docs/reports/WorldGen - Regional Landscapes.pdf:5pages/951words/20screenshots,
 ten environments eachwide+ground. All5pages rasterized/visuallychecked andPDF

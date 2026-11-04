@@ -1,0 +1,44 @@
+{
+  "purpose": "Owner rejected the regional visual pass: aim for wonder, distinct silhouettes, materials and traversal rather than labels/textures alone. First vertical slice is dunes and salt crust, pending actual rendered review.",
+  "sources": [
+    {
+      "url": "https://www.nps.gov/subjects/geology/aeolian-landforms.htm",
+      "application": "Dune fields, long stoss slopes, crests and steep lee faces."
+    },
+    {
+      "url": "https://www.nps.gov/slbe/learn/nature/sand-dune-geology.htm",
+      "application": "Dry sand repose around 34 degrees; shallow upwind and steeper downwind sides."
+    },
+    {
+      "url": "https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-great-sand-dunes-national-park",
+      "application": "Real dune fields can contain landforms tens to hundreds of metres high; prototype blends 35m and 120m ridge scales, not a worldwide measured size distribution."
+    },
+    {
+      "url": "https://www.nps.gov/deva/learn/nature/salt-flats.htm",
+      "application": "Bright evaporite crust in enclosed arid basins; polygon/ridge detail, little vegetation and sediment-covered bedrock."
+    },
+    {
+      "url": "https://essd.copernicus.org/articles/12/2881/2020/",
+      "application": "Polygonal salt pan surface relief and contrasting polygon/ridge structure."
+    }
+  ],
+  "not_claimed": [
+    "No complete aeolian or evaporite hydrological simulation.",
+    "No universal mirror surface; the first salt slice is dry crust.",
+    "No new waterfall/volcano/cave feature catalogue.",
+    "Numerical checks alone do not establish the visual target."
+  ],
+  "baseline_probe": {
+    "source": "fdae0803 with diagnostic-only additions; production geometry identical to selected f5385a89",
+    "sand_1km_surface_range_m": 29.766,
+    "sand_province_offset_range_m": 24.02733697694494,
+    "salt_mean_surface_weight": 0.36231474702929467
+  },
+  "first_probe": {
+    "sand_1km_surface_range_m": 109.801,
+    "sand_province_offset_range_m": 108.2188584216273,
+    "maximum_dune_site_slope_degrees": 32.054750974201134,
+    "salt_mean_surface_weight": 0.6812665609828584
+  },
+  "review_status": "PROTOTYPE: not built or visually accepted yet."
+}

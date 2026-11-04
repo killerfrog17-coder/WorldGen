@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--landscape-experience")){LandscapeExperienceAudit.Run(args[1],args[2],args[3]);return;}
 if(args.Contains("--landscape-regions")){LandscapeRegionTests.Run();return;}
 if(args.Contains("--landscape-world")){LandscapeRegionTests.World(args[1],args[2]);return;}
 if(args.Contains("--landscape-cost")){LandscapeRegionTests.Benchmark(args[1],args[2]);return;}

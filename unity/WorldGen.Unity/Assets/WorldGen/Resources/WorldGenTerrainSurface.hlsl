@@ -63,6 +63,44 @@ float3 SurfaceLeafLight(float3 albedo,float3 normal,Light sun,float transmission
     if(TerrainTest(TD_UNLIT))return albedo;
     return albedo*(TerrainAmbient().rgb*WorldGenCanopyAmbient(canopy)+sun.color*(.48+.52*saturate(dot(normal,sun.direction))+transmission)*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight()));
 }
+
+float2 SaltCellPoint(float2 cell)
+{
+    // Period matches the 1024m texture-origin wrap, including negative cells.
+    cell=cell-floor(cell/512)*512;
+    float3 p=frac(cell.xyx*float3(.1031,.1030,.0973));
+    p+=dot(p,p.yzx+33.33);return .15+.7*frac((p.xx+p.yz)*p.zy);
+}
+void SurfaceSaltCrust(O i,float3 world,float distance,float3 farColor,inout float3 albedo,inout float3 normal,inout float rough)
+{
+    float sum=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
+    float crust=smoothstep(.28,.65,max(0,i.groundB.z)/sum);
+    if(crust<=.001)return;
+    // Preserve the white macro surface when brown fine-material modulation
+    // retires. The old substrate multiply turned pale salt back into beige dirt.
+    float grain=saturate((dot(albedo,float3(.2126,.7152,.0722))/max(.02,dot(farColor,float3(.2126,.7152,.0722)))-.65)/.65);
+    albedo=lerp(albedo,farColor*lerp(.96,1.02,grain),crust);rough=lerp(rough,.92,crust);
+    float detail=1-smoothstep(35,110,distance);
+    [branch] if(detail>.001)
+    {
+        float3 pn=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
+        float3 an=abs(pn);int axis=an.x>an.y&&an.x>an.z?0:an.y>an.z?1:2;
+        float2 q=(axis==0?world.yz:axis==1?world.xz:world.xy)*.5;
+        float2 cell=floor(q),f=frac(q),v1=0,v2=0;float d1=1e8,d2=1e8;
+        [unroll]for(int y=-1;y<=1;y++)[unroll]for(int x=-1;x<=1;x++)
+        {
+            float2 offset=float2(x,y),v=f-offset-SaltCellPoint(cell+offset);float d=dot(v,v);
+            if(d<d1){d2=d1;v2=v1;d1=d;v1=v;}else if(d<d2){d2=d;v2=v;}
+        }
+        float r1=sqrt(max(1e-8,d1)),r2=sqrt(max(1e-8,d2)),edge=r2-r1;
+        float t=saturate((edge-.015)/.085),ridge=1-t*t*(3-2*t);
+        float2 gradient=(v2/r2-v1/r1)*(-6*t*(1-t)/.085)*.0125;
+        float3 bump=axis==0?float3(0,gradient.x,gradient.y):axis==1?float3(gradient.x,0,gradient.y):float3(gradient.x,gradient.y,0);
+        pn=normalize(pn-(bump-pn*dot(pn,bump))*detail*crust);
+        normal=normalize(float3(dot(pn,TerrainEast().xyz),dot(pn,TerrainUp().xyz),dot(pn,TerrainNorth().xyz)));
+        albedo*=1+ridge*.055*crust*detail;
+    }
+}
 float3 SurfaceMatLight(float3 normal,Light sun,half canopy)
 {
     if(TerrainTest(TD_UNLIT))return 1;
@@ -114,6 +152,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         }
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
+    SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
     float cover=saturate(i.color.a);
     [branch] if(distance<16&&!TerrainTest(TD_GRAIN))

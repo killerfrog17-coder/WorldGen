@@ -14,6 +14,11 @@ static class LandscapeRegionTests
         var sandy=new GroundProfile{Sand=.94,Clay=.03,Gravel=.02,DepthM=2,Drainage=.85,RockMixA=new V(0,0,1)};
         var dunes=LandscapeProvince.Describe(sandy,Biome.Desert,.08,0,40,0,0);
         Check(dunes.Sand>.85,"Dry loose sand supports dunes");
+        var saltControl=new LandscapeControls{Salt=.8f,Arid=1};
+        var crust=LandscapeProvince.Ground(sandy,saltControl,new V(1000,2000,3000),41);
+        var inlandCrust=LocalGeology.Surface(crust,new V(1,0,0),41,-86,1,0,0,637100);
+        Check(inlandCrust.Salt>.5&&inlandCrust.Color.X>.8&&inlandCrust.Color.Y>.8,"An inland salt crust stays bright even below sea level");
+        Check(LocalGeology.Surface(crust,new V(1,0,0),41,-86,1,1,0,637100).Salt==0,"Marine seabed does not acquire dry salt crust");
         var gravel=sandy;gravel.Sand=.25;gravel.Gravel=.65;
         Check(LandscapeProvince.Describe(gravel,Biome.Desert,.08,0,40,0,0).Sand<.01,"Rocky desert is not blanket dunes");
         var peat=new GroundProfile{Organic=.45,Drainage=.05,Clay=.2,Sand=.2};
@@ -99,7 +104,7 @@ static class LandscapeRegionTests
         double largest=0;for(int x=-200;x<200;x++)
         {
             var p=new V(x,1200,2700);double a=LandscapeProvince.HeightOffset(p,73421,dunes),b=LandscapeProvince.HeightOffset(p+new V(.01,0,0),73421,dunes);
-            Check(double.IsFinite(a)&&a>=0&&a<30,"Finite bounded sand relief");largest=Math.Max(largest,Math.Abs(a-b)/.01);
+            Check(double.IsFinite(a)&&a>=0&&a<125,"Finite bounded sand relief, including large erg ridges");largest=Math.Max(largest,Math.Abs(a-b)/.01);
         }
         Check(largest<.8,"Dune slopes remain walkable rather than vertical oscillations");
         bool bareDune=false;for(int i=0;i<100;i++)

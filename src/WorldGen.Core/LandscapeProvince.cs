@@ -65,22 +65,31 @@ namespace WorldGen.Core
             double province=.5+.5*SphereNoise.Sample(metres,seed^0x612b7,1/4300d);
             return controls.Sand*(1-controls.Wet)*Smooth(.42,.67,province);
         }
+        public static double SaltCrust(LandscapeControls controls)
+            =>Smooth(.28,.45,controls.Salt)*(1-Smooth(.2,.5,controls.Wet));
         public static double HeightOffset(V metres,int seed,LandscapeControls controls)
         {
             double dunes=SandSea(metres,seed,controls),result=0;
             if(dunes>.001)
             {
-                double warp=SphereNoise.Sample(metres,seed^0x5c721,1/820d)*55;
-                double Ridge(double phase){double t=phase-Math.Floor(phase),side=t<.78?t/.78:(1-t)/.22;return .5-.5*Math.Cos(Math.PI*side);}
-                double first=Ridge((metres.X*.73+metres.Y*.41+metres.Z*.54+warp)/260);
-                double second=Ridge((metres.X*.13+metres.Y*.85-metres.Z*.51+warp)/260);
+                double maturity=Smooth(.25,.8,.5+.5*SphereNoise.Sample(metres,seed^0x3d171,1/7600d));
+                double smallSpacing=35/Math.Tan(31*Math.PI/180)/.22,largeSpacing=120/Math.Tan(31*Math.PI/180)/.22;
+                // Long stoss slopes meet a sharp crest and a near-repose lee.
+                // A cosine bell rounded both sides into generic rolling hills.
+                double Ridge(double phase){double t=phase-Math.Floor(phase);return t<.78?Math.Pow(t/.78,1.35):(1-t)/.22;}
+                double Profile(double coordinate)=>35*Ridge(coordinate/smallSpacing)*(1-maturity)+120*Ridge(coordinate/largeSpacing)*maturity;
+                double warp=SphereNoise.Sample(metres,seed^0x5c721,1/2400d)*80;
+                double cross=metres.X*.52-metres.Y*.82+metres.Z*.23;
+                double curve=Math.Sin(cross/1200)*90;
+                double first=Profile(metres.X*.73+metres.Y*.41+metres.Z*.54+warp+curve);
+                double second=Profile(metres.X*.13+metres.Y*.85-metres.Z*.51+warp-curve);
                 var direction=metres.Unit;double alignment=direction.X*.73+direction.Y*.41+direction.Z*.54;
                 // A fixed 3D wave vector becomes almost radial at two planetary
                 // locations, stretching local dunes towards infinity. Blend a
                 // second nonparallel family there without blending huge phases.
                 double blend=Smooth(.2,.6,1-alignment*alignment),ridge=first*blend+second*(1-blend);
-                double secondary=.5+.5*SphereNoise.Sample(metres,seed^0x2b531,1/85d);
-                result+=Smooth(.08,.4,dunes)*(22*ridge+2.2*secondary);
+                double secondary=.5+.5*SphereNoise.Sample(metres,seed^0x2b531,1/170d);
+                result+=Smooth(.08,.4,dunes)*(ridge+1.2*secondary);
             }
             if(controls.Badlands>.01)
             {
@@ -132,6 +141,14 @@ namespace WorldGen.Core
             p.Gravel=Math.Max(p.Gravel,.76*pavement);p.DepthM=Math.Min(p.DepthM,Math.Max(.06,1-controls.Rock*controls.Arid)*p.DepthM);
             double sum=p.Sand+p.Clay;if(sum>.98){p.Sand*=.98/sum;p.Clay*=.98/sum;}p.Silt=1-p.Sand-p.Clay;
             p.Salinity=Math.Max(p.Salinity,.85*salt);p.Drainage=Math.Min(p.Drainage,1-.9*Math.Max(controls.Wet,clay));
+            double crust=SaltCrust(controls);
+            if(crust>0)
+            {
+                p.Salinity=p.Salinity*(1-crust)+crust;
+                p.SoilColor=p.SoilColor*(1-crust)+new V(.93,.94,.93)*crust;
+                p.SandColor=p.SandColor*(1-crust)+new V(.94,.94,.92)*crust;
+                p.Gravel*=1-.94*crust;p.Organic*=1-.98*crust;
+            }
             p.SoilColor*=1-.22*controls.Wet;
             p.Organic=Math.Max(p.Organic,.12*controls.Wet);
             if(controls.Peat>.1){p.Organic=Math.Max(p.Organic,.45*controls.Peat);p.SoilColor=p.SoilColor*(1-.55*controls.Peat);}
@@ -158,7 +175,7 @@ namespace WorldGen.Core
             // The compact ecology/material kernel can include neighbouring
             // grasslands. Active mobile sediment still prevents a rooted lawn.
             double sand=Smooth(.12,.4,SandSea(metres,seed,controls));
-            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet),bare=Math.Max(sand,basin);
+            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet),bare=Math.Max(sand,Math.Max(basin,SaltCrust(controls)));
             if(controls.Arid>.85&&controls.Canopy<.2&&controls.Wet<.4)biome=Biome.Desert;
             if(bare<=0)return;
             cover.ScaleWeights(1-.995*bare);mid.Coverage*=1-.98*bare;forest.Coverage*=1-.995*bare;

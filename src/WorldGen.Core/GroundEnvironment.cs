@@ -134,11 +134,11 @@ namespace WorldGen.Core
             double sand=D.Clamp((p.Sand-.42)/.5)*(.3+.7*patch)*(1-p.Gravel);
             double gravel=D.Clamp(p.Gravel*1.6)*(.5+.5*small),clay=D.Clamp((p.Clay-.25)/.5)*(.4+.6*patch);
             if(beach>0){double stony=D.Clamp((p.Gravel-.15)*3);sand=sand*(1-beach)+beach*(1-stony);gravel=gravel*(1-beach)+beach*stony;clay*=1-beach;}
-            double organics=D.Clamp((p.Organic-.04)*5)*(1-beach),salt=elevation>0?D.Clamp(p.Salinity*1.3)*(1-beach):0;
+            double organics=D.Clamp((p.Organic-.04)*5)*(1-beach),salt=ocean<.5?D.Clamp(p.Salinity*1.3)*(1-beach):0;
             double soil=Math.Max(.08,1-sand*.8-gravel*.6-clay*.7-organics*.8-salt);
             double total=soil+sand+gravel+clay+organics+salt,solid=(1-bare)*(1-ice);
             var s=new GroundSurface{Profile=p,Soil=soil/total*solid,Sand=sand/total*solid,Gravel=gravel/total*solid,Clay=clay/total*solid,Organic=organics/total*solid,Salt=salt/total*solid,Rock=bare*(1-ice),Ice=ice,DunePotential=D.Clamp(sand*(1-p.Gravel)*(1-p.Organic*3)*(1-slope))};
-            s.Color=p.SoilColor*s.Soil+p.SandColor*s.Sand+(p.RockColor*.85)*s.Gravel+(p.SoilColor*.94)*s.Clay+p.RockColor*s.Rock+new V(.18,.14,.10)*s.Organic+new V(.78,.75,.65)*s.Salt+new V(.86,.89,.91)*s.Ice;
+            s.Color=p.SoilColor*s.Soil+p.SandColor*s.Sand+(p.RockColor*.85)*s.Gravel+(p.SoilColor*.94)*s.Clay+p.RockColor*s.Rock+new V(.93,.94,.92)*s.Salt+new V(.86,.89,.91)*s.Ice;
             return s;
         }
     }

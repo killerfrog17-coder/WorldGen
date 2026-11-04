@@ -37,11 +37,14 @@ namespace WorldGen.Core
             var surface=GroundEnvironment.Surface(ground,position,seed,elevation,up,ocean,ice,radiusM);
             var geology=Describe(ground,position,seed,radiusM,up);
             double rock=geology.Exposure*(1-ice)*(1-D.Clamp(ocean*10)*D.Clamp((8-Math.Abs(elevation))/6));
+            // A flat evaporite crust covers its bedrock; exposed slopes can
+            // still reveal the underlying geology along a basin margin.
+            rock*=1-Smooth(.65,.9,ground.Salinity)*Smooth(.94,.995,up);
             double change=Math.Max(0,rock-surface.Rock),sum=1-surface.Rock-surface.Ice;
             double keep=sum>0?Math.Max(0,1-change/sum):1;
             surface.Soil*=keep;surface.Sand*=keep;surface.Gravel*=keep;surface.Clay*=keep;
             surface.Organic*=keep;surface.Salt*=keep;surface.Rock+=change;
-            surface.Color=ground.SoilColor*surface.Soil+ground.SandColor*surface.Sand+ground.RockColor*(surface.Rock+.85*surface.Gravel)+ground.SoilColor*(.94*surface.Clay)+new V(.18,.14,.10)*surface.Organic+new V(.78,.75,.65)*surface.Salt+new V(.86,.89,.91)*surface.Ice;
+            surface.Color=ground.SoilColor*surface.Soil+ground.SandColor*surface.Sand+ground.RockColor*(surface.Rock+.85*surface.Gravel)+ground.SoilColor*(.94*surface.Clay)+new V(.18,.14,.10)*surface.Organic+new V(.93,.94,.92)*surface.Salt+new V(.86,.89,.91)*surface.Ice;
             return surface;
         }
     }
