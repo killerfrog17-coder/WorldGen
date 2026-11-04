@@ -86,9 +86,9 @@ namespace WorldGen.Core
             // gullies into the walls, while leaving the drainage datum intact.
             // Broad shoulders and finer ravines break continuous railway-like
             // benches. The same coordinates are used across reaches and tiles.
-            double broad=SphereNoise.Sample(metres,seed^0x45c731,1/1300d);
-            double ridge=1-Math.Abs(SphereNoise.Sample(metres,seed^0x71c315,1/550d)
-                +.25*SphereNoise.Sample(metres,seed^0x137c51,1/160d));
+            double broad=LandscapeNoise.Value(metres,seed^0x45c731,1/1300d);
+            double ridge=1-Math.Abs(LandscapeNoise.Value(metres,seed^0x71c315,1/550d)
+                +.25*LandscapeNoise.Value(metres,seed^0x137c51,1/160d));
             double gully=OrogenMorphology.Smooth(.25,.90,ridge);
             double shoulder=1+.14*broad;
             double retirement=1-OrogenMorphology.Smooth(1.15,1.6,distance/halfWidth);

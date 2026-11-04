@@ -27,7 +27,7 @@ namespace WorldGen.Core
                 // humid walls. Their support retires before broad valley floors
                 // and tower crowns; this is shared physical relief, not decals.
                 double wall=Smooth(.47,.55,field)*(1-Smooth(.73,.81,field));
-                if(wet*wall>.001)field+=.016*wet*wall*SphereNoise.Sample(metres,seed^0x4f731,1/32d);
+                if(wet*wall>.001)field+=.016*wet*wall*LandscapeNoise.Value(metres,seed^0x4f731,1/32d);
                 double cones=Math.Pow(Smooth(.25,.85,field),1.4);
                 // Humid tower karst has isolated steep residuals above broad
                 // low corridors. The old threshold lifted most of the field
