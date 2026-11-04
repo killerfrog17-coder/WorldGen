@@ -3,6 +3,7 @@
 // Camera-scoped settings, never per-tile property blocks/material rewrites.
 // Ranges: full detail, last texture, last normal/mask, last extra layer/axis.
 float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
+float4 _TerrainGeologyDatum;
 
 float3 SurfaceAxes(float3 normal, float count, float extra)
 {
@@ -111,6 +112,27 @@ float3 SurfaceMatLight(float3 normal,Light sun,half canopy)
     return TerrainAmbient().rgb*WorldGenCanopyAmbient(canopy)+sun.color*(.42+.58*saturate(dot(normal,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
 }
 
+void SurfaceStrata(O i,inout float3 albedo)
+{
+    // Exposed sedimentary faces keep metre-scale bedding after close scan
+    // textures retire. No additional texture fetch, mesh or render pass.
+    float materials=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
+    float sedimentary=saturate(i.rockA.z+i.rockB.x+i.rockB.y);
+    float exposed=saturate((i.groundB.x+i.weights.w*.65)/materials)*sedimentary;
+    exposed*=smoothstep(.08,.40,1-abs(normalize(i.normal).y));
+    [branch] if(exposed>.001)
+    {
+        // Recover altitude from the curved local tangent frame. Using the
+        // wrapped texture anchor here would move beds at every origin reset.
+        float2 radial=i.position.xz+_TerrainGeologyDatum.zw;
+        float altitude=i.position.y+_TerrainGeologyDatum.x+dot(radial,radial)*_TerrainGeologyDatum.y;
+        float bed=smoothstep(.15,.80,frac(altitude/23));
+        float laminations=sin(altitude*1.13)*.025+sin(altitude*4.1)*.012;
+        float3 tint=lerp(float3(1.07,1.04,.98),float3(.82,.77,.72),bed)+laminations;
+        albedo*=lerp(1,tint,exposed);
+    }
+}
+
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
 {
     float3 n=normalize(i.normal);
@@ -163,6 +185,9 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
                 float layerScale=layers[at]==1?.5:1;
                 // Registered scan dimensions: broadleaf/needles2m, damp1.3m.
                 if(layers[at]==16)layerScale*=2/1.3;
+                if(layers[at]==10)layerScale*=2/1.83;
+                if(layers[at]==11)layerScale*=2/4.3;
+                if(layers[at]==13)layerScale*=2/2.4212;
                 float3 lp=p*layerScale,ldx=dx*layerScale,ldy=dy*layerScale;
                 if(colourRead)colour+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at]).rgb*fractions[at];
                 if(normalRead)bump+=SurfaceBump(lp,ldx,ldy,w,layers[at])*fractions[at];
@@ -181,6 +206,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         }
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
+    SurfaceStrata(i,albedo);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
     float cover=saturate(i.color.a);

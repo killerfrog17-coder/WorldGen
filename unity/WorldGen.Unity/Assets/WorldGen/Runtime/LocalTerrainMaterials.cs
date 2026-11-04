@@ -96,6 +96,7 @@ public sealed partial class LocalTerrainExplorer
         {
             Shader.SetGlobalVector("_TerrainSurfaceRanges",TerrainVideoOptions.SurfaceRanges);
             Shader.SetGlobalVector("_TerrainSurfaceControls",TerrainVideoOptions.SurfaceControls);
+            Shader.SetGlobalVector("_TerrainGeologyDatum",new Vector4((float)frame.AltitudeM,(float)(.5/frame.RadiusM),(float)originX,(float)originZ));
             Shader.SetGlobalFloat("_TerrainDiagnosticRadius",(float)TerrainVideoOptions.Current.FullRadius(HorizontalScale));
             if(terrainSceneBuffer!=null)Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);
         }
