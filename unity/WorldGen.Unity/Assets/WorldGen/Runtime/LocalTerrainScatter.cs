@@ -489,7 +489,7 @@ public sealed partial class LocalTerrainExplorer
             for(int member=0;member<(grouped?group.Indices.Length:chunk.Source.Instances.Length);member++)
             {
                 int i=grouped?group.Indices[member]:member;
-                var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
+                ref readonly var p=ref chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
                 if(CollectedRock(p))continue;
                 if(CampClearedPlant(p))continue;
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
@@ -564,7 +564,12 @@ public sealed partial class LocalTerrainExplorer
         }
         WorldGenPerformance.TraceEnd(9,trace);
     }
-    void AddScatterInstance(ScatterChunk chunk,int index,ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant=int.MinValue)
+    void AddScatterInstance(ScatterChunk chunk,int index,in ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant=int.MinValue)
+    {
+        if(!WorldGenPerformance.TraceEnabled){AddScatterInstanceCore(chunk,index,p,lod,low,high,shadowOnly,artVariant);return;}
+        long trace=WorldGenPerformance.TraceBegin();AddScatterInstanceCore(chunk,index,p,lod,low,high,shadowOnly,artVariant);WorldGenPerformance.TraceEnd(28,trace);
+    }
+    void AddScatterInstanceCore(ScatterChunk chunk,int index,in ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant)
     {
         if(high-low<.0001f)return;
         bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&

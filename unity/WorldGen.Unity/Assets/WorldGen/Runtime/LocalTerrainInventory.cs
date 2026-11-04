@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)PauseItemCraft(job);scatterDirty=true;
         if(Inventory.ToolWorkEquipment!=null){var borrowed=Inventory.ToolWorkEquipment;Inventory.ToolWorkEquipment=null;RestoreWorkHands(new ItemCraftJob{Equipment=borrowed});}
     }
-    bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch||p.Kind==ScatterKind.Fungus)&&inventoryCollected.Contains(p.Id);
+    bool CollectedRock(in ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch||p.Kind==ScatterKind.Fungus)&&inventoryCollected.Contains(p.Id);
     static Possession RockPossession(ScatterInstance p)
     {
         if(p.Kind==ScatterKind.Branch)return WoodCrafting.Branch(p);

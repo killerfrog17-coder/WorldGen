@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     // Once the spatial canopy field is ready it owns ALL crown shade, including
     // trees beyond the close trunk-shadow range. A missing per-species trunk
     // mesh must not accidentally enable the expensive full foliage caster.
-    bool ReplaceTreeShadow(ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&
+    bool ReplaceTreeShadow(in ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&
         (SoftCanopyShadows||treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(plant.Variant)));
 
     void ApplyFoliageShadowOptions()

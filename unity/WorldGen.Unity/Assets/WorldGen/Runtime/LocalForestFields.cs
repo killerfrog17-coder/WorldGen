@@ -97,7 +97,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.TryGetValue(key,out var model))return model;
         model=CreateRebuiltTree(key,code,2);model.TreeStand=true;return model;
     }
-    bool ForestOwnsTree(ScatterInstance tree)
+    bool ForestOwnsTree(in ScatterInstance tree)
     {
         int side=LocalScatter.TreeCandidateSide,gx=(int)((tree.Id>>40)&0xfffff)*side+(int)(tree.Id&65535)%side,gy=(int)((tree.Id>>20)&0xfffff)*side+(int)(tree.Id&65535)/side;
         var key=new ForestPageKey((int)(tree.Id>>61),gx/LocalScatter.ForestPageSide,gy/LocalScatter.ForestPageSide,0);

@@ -49,6 +49,26 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov22:24Z REPAIR CONTINUES. Source9b86b01c PUSHED; inactive B ScriptsOnly
+NONDEV BuiltUtc22:09:24Z SourceChanges[] over FULL03806347, selected A/f833
+untouched. savanna-groups-fixed-exposure COMPLETE:8exact heading sets +32moving
+18degree guard renders PASS. First savanna-groups FAILED24shoulder pixels at3RGB
+from per-render adaptation drift; fixed exposure in VERIFIER ONLY, same tolerance,
+allactors retained. New last run movingwhip89.76 vs oldculling77.21FPS; p9521.03ms,
+max54.34ms still UNACCEPTABLE. Widerguard is real gain; group proof1-2FPS only.
+Terrain-only224.33, static128.64. Collect6.88ms per rebuild is dominant remaining
+moving spike, fauna1.84/humans1.07. Own current benchmark90371: current-medium-
+contexts, actual openplains +dense tropical/temperate/boreal,12s movingwhip and
+static/whipturn +native photos. Do not compile while it runs. Openplains inspected
+new photographed floor/near grass present; static179.20,turn173.81,travelwhip150.28
+with25msworst. NOT100floor. New UNBUILT code removes120byte per-plant copies,
+managed sixplane frustum with oldnative diagnostic, finer occlusion/frustum/append
+tracing. Needs compile/exactnative8head +movingguard and performance before use.
+No new geography/animal/human visual orAI changes. No own Unity jobs. Preserve
+owner3files. Assetlock5405/144packs, newgrass source backedup. No subagents/paid/
+ownerapps closed. Need saved mixedUltra/200km realcontext, visual forest/grass
+approach checks, current candid receipt and selection only after appropriate tests.
+
 ACTIVE4Nov22:04Z REPAIR CONTINUES. Source03806347 PUSHED; inactive B FULL managed
 NONDEV BuiltUtc21:58:10Z SourceChanges[] (selected A/f833 untouched). Current own
 benchmark session92267, outer27896/player336/NVML19548: savanna-groups, Medium
