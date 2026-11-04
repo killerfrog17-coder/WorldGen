@@ -4,6 +4,7 @@
 // Ranges: full detail, last texture, last normal/mask, last extra layer/axis.
 float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
 float4 _TerrainGeologyDatum;
+float4 _TerrainBeddingOrigin;
 
 float3 SurfaceAxes(float3 normal, float count, float extra)
 {
@@ -126,9 +127,17 @@ void SurfaceStrata(O i,inout float3 albedo)
         // wrapped texture anchor here would move beds at every origin reset.
         float2 radial=i.position.xz+_TerrainGeologyDatum.zw;
         float altitude=i.position.y+_TerrainGeologyDatum.x+dot(radial,radial)*_TerrainGeologyDatum.y;
-        float bed=smoothstep(.15,.80,frac(altitude/23));
-        float laminations=sin(altitude*1.13)*.025+sin(altitude*4.1)*.012;
-        float3 tint=lerp(float3(1.07,1.04,.98),float3(.82,.77,.72),bed)+laminations;
+        float3 regional=_TerrainBeddingOrigin.xyz+(TerrainEast().xyz*radial.x+TerrainNorth().xyz*radial.y+TerrainUp().xyz*i.position.y)*.0001;
+        float folded=altitude+sin(dot(regional,float3(.27,.41,.13))+_TerrainBeddingOrigin.w)*30
+            +sin(dot(regional,float3(1.1,.7,.9)))*9;
+        // Unequal bed thickness, gently dipping regional strata and weaker
+        // carbonate contrast avoid identical chocolate stripes on every cliff.
+        float strata=folded+sin(folded*.031)*8+sin(folded*.097)*2;
+        float bed=smoothstep(.12,.76,frac(strata/29));
+        float carbonate=saturate(i.rocks.w/max(.001,sedimentary));
+        float3 tint=lerp(lerp(float3(1.055,1.03,1),float3(.85,.81,.76),bed),
+            lerp(float3(1.025,1.025,1.02),float3(.93,.94,.94),bed),carbonate);
+        tint+=sin(strata*1.13)*.012;
         albedo*=lerp(1,tint,exposed);
     }
 }
