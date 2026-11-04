@@ -49,6 +49,41 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov15:57Z FULLWORLD OVERNIGHT STILL CONTINUES; NO OWNER STOP/WRAP.
+Started07:47Z; crossing8h is NOT a stop. Selected B/f5385a89/shortcut unchanged.
+Candidate A built15:45:09Z ScriptsOnly NONDEV SourceCommit6cc71620; SourceChanges
+empty. Shader packed baseline7c911fb5, terrain42/Hyper37 unchanged. Latest HEAD
+f431d9a4 PUSHED: only new UNBUILT game edit removes idle LINQ/sort allocations
+in LocalTreeRendering while preserving bake ordering. Do not overwrite A while
+CURRENT native perf session8726 runs dense-medium-budget-rest (temperate,
+boreal,savanna; now boreal loading). No editor/other heavy jobs running.
+The earlier four-site dense-medium-budget-1 stopped after jungle +temperate
+range case because ONE reference-edge pixel delta34 exceeded arbitrary32 max.
+Exact visible/caster sets passed. Replaced max-brightness cutoff with <=.001%
+changed pixels AND each difference bounded by existing3x3reference edge contrast.
+Preserved failed evidence. Rest run now passed temperate32actualviews (max4edge
+pixels18RGB),12396exactprojection matrices,6547ownerqueries,53partial roots;
+temperate turn139.59FPS p958.90ms,travel109.85 p9513.74. Previous same GAME source
+ae09 jungle in budget-1 turn152.57 p958.08,travel125.66 p9514.24; actual32views,
+15503exactmatrices/4835ownerqueries/56partial roots passed. Only harness changed
+in6cc; no reason to rerun jungle solely for that. No universal100+ claim: travel
+tails/GC remain. After rest3 finish need inspect results and address real failures,
+larger-view representative check, current NPC ground/save regression, final
+provenance/docs/selection. Do not add more geology before this acceptance.
+Latest ALL3 native living-weathered TowerKarst/Canyon/Inselberg EXIT0 at a829,
+actual macro rock screenshots inspected: visible fractured weathering, still
+gamified forms. Karst59059roots,0missing, maxerror.000041m. Actual42 previous
+Canyon/Karst/Volcano passed; volcano rim camera fix in7c still needs new capture.
+Latest1831467f/ae09 share upload budget among terrain+atomic root correction,
+scatter slices, forest pages and tree uploads/snapshot preparation;964fe9a4
+updates only scalar Y bounds per root then publishes group bounds once. Both
+tested current jungle/temperate equivalence. Pure349244change-mask tests passed.
+scripts/unity-check now stamps actual source commit and pending source changes.
+Need update feature rollback index for these latest optimisations. Source lock
+5403/143packs unchanged;3Unityautos restored. Owner3files untouched. No paid/
+subagents/ownerapps closed. Artifacts disposable;2slots;~18GB C free. Prior
+unused-source deletion auto-review rejection remains respected/disclosed.
+
 ACTIVE4Nov15:06Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z.
 Selected B/f5385a89/root shortcut UNCHANGED; A internal. Latest a8297026 PUSHED,
 A ScriptsOnly NONDEV built15:00:46Z over full7c911fb5 packed shader baseline
