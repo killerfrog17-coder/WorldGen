@@ -205,6 +205,9 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     float4 flora=float4(cover,0,0,cover);
     if(_FloraSurfaceEnabled>.5&&textures)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
     float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;mix/=max(1,dot(mix,1));
+    // Low plants/moss can coexist with litter. The old full-opacity green mat
+    // erased every soil texture under a canopy even when stems were sparse.
+    mix*=1-floorWeight*float3(.85,.25,.35);
     // Match the grass placement gate on the actual rasterized face. Averaged
     // vertex normals/weights can otherwise smear a grass mat down a cliff.
     float3 face=cross(worldDx,worldDy);face*=rsqrt(max(1e-12,dot(face,face)));
