@@ -494,6 +494,28 @@ public sealed partial class LocalTerrainExplorer
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
     public void PerformanceFreezeDaylight(bool summer=false){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,summer?190000+(Position.Z<0?0:.5):skyYear);TerrainDiagnostics.FreezeSun=true;}
+    public IEnumerator PerformanceReviewGrassApproach(string output,string site)
+    {
+        string table=Path.Combine(output,site+"-grass-approach.csv");File.WriteAllText(table,"east_m,near_pages,lod0_instances,lod1_instances\n");
+        try
+        {
+            for(int step=0;step<=6;step++)
+            {
+                PerformanceTravel(step*8);
+                // Let the literal production discovery/install path publish its
+                // near-first pages while walking across the resident grid.
+                for(int frame=0;frame<20;frame++)yield return null;
+                DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-grass-approach-"+(step*8)+".png"));
+                long a=0,b=0;int pages=0;
+                foreach(var tile in tiles.Values)foreach(var page in tile.CoverPages)
+                {
+                    if(page.Key.Far)continue;pages++;var counts=ReadCoverDrawCounts(page.Value);a+=counts[0];b+=counts[1];
+                }
+                File.AppendAllText(table,(step*8)+","+pages+","+a+","+b+"\n");
+            }
+        }
+        finally{PerformancePose();}
+    }
     public string PerformanceReviewTreeDepth(string output,string site)
     {
         float prior=Shader.GetGlobalFloat("_WorldGenTreeStableDepth"),adaptation=WeatherVideoOptions.Current.Adaptation;var rotation=view.transform.localRotation;var eye=view.transform.localPosition;
@@ -774,6 +796,7 @@ public sealed partial class WorldGenRuntime
         bool savedSettings=Environment.GetCommandLineArgs().Contains("--worldgen-perf-saved-settings");
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
+            new PerfCase("grass-approach-review",()=>{}),
             new PerfCase("small-plant-lighting-review",()=>{}),
             new PerfCase("tree-depth-review",()=>{}),
             new PerfCase("tree-bounded-depth",()=>Shader.SetGlobalFloat("_WorldGenTreeStableDepth",1)),
@@ -928,6 +951,7 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
+                if(item.Name=="grass-approach-review")yield return terrainExplorer.PerformanceReviewGrassApproach(output,site.Item1);
                 if(item.Name=="tree-depth-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewTreeDepth(output,site.Item1)+"\n");
                 if(item.Name=="small-plant-lighting-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewPlantLighting(output,site.Item1)+"\n");
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
