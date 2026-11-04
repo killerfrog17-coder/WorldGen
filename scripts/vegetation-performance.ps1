@@ -25,6 +25,15 @@ if(Test-Path -LiteralPath (Join-Path $destination 'summary.csv')){throw 'Choose 
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'A game is already running; leave it untouched and benchmark later'}
 if($PresentMon -and !(Test-Path -LiteralPath (Join-Path $repo 'tools/PresentMon/PresentMon.exe'))){throw 'PresentMon is missing. Restore the pinned standalone tool recorded in assets/verification/presentmon-tool.json before launching a benchmark.'}
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
+$playerRoot=Split-Path -Parent $player
+$buildStamp=Get-Content -LiteralPath (Join-Path $playerRoot 'build-inputs.json') -Raw | ConvertFrom-Json
+[ordered]@{
+    AssemblySha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'WorldGen_Data/Managed/Assembly-CSharp.dll') -Algorithm SHA256).Hash.ToLowerInvariant()
+    CoreSha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'WorldGen_Data/Managed/WorldGen.Core.dll') -Algorithm SHA256).Hash.ToLowerInvariant()
+    WorkerSha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'TerrainWorker/WorldGen.Cli.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
+    Build=$buildStamp
+    RecordedUtc=[DateTime]::UtcNow.ToString('o')
+} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
 if($Original){$arguments+='--worldgen-perf-original'}
