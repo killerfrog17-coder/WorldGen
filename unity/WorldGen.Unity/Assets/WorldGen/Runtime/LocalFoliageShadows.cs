@@ -32,7 +32,11 @@ public sealed partial class LocalTerrainExplorer
     public long TreeShadowTriangles {get;private set;}
     bool UseTreeShadowProxies=>TerrainVideoOptions.SimplifiedForestShadows&&treeShadowMaterial!=null&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeShadows&&TerrainVideoOptions.VegetationShadows&&!TerrainDiagnostics.HideTrees&&!TerrainDiagnostics.HidePlants;
     bool SoftCanopyShadows=>TerrainVideoOptions.DistantTreeShadowCards&&CanopyActive&&CanopyShadeReady;
-    bool ReplaceTreeShadow(ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&(SoftCanopyShadows?treeShadowTrunkMeshes:treeShadowMeshes).ContainsKey(TreeFlora.RenderCode(plant.Variant));
+    // Once the spatial canopy field is ready it owns ALL crown shade, including
+    // trees beyond the close trunk-shadow range. A missing per-species trunk
+    // mesh must not accidentally enable the expensive full foliage caster.
+    bool ReplaceTreeShadow(ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&
+        (SoftCanopyShadows||treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(plant.Variant)));
 
     void ApplyFoliageShadowOptions()
     {
@@ -130,6 +134,11 @@ public sealed partial class LocalTerrainExplorer
                     int code=TreeFlora.RenderCode(plant.Variant);
                     if(usingSoftCanopyShadows)
                     {
+                        float range=Mathf.Min(vegetationShadowDistance,TerrainVideoOptions.ForestTrunkShadowDistance);
+                        float trunkDistance=Vector3.Distance(chunk.Roots[index],scatterEye);
+                        if(trunkDistance>=range)continue;
+                        float t=Mathf.Clamp01((trunkDistance-range*.6f)/Mathf.Max(1,range*.4f));
+                        coverage*=1-t*t*(3-2*t);if(coverage<=0)continue;
                         if(!treeShadowTrunkMeshes.TryGetValue(code,out var trunk))
                         {
                             if(built){scatterDirty=true;continue;}if(treeShadowTrunkMeshes.Count>=96)continue;

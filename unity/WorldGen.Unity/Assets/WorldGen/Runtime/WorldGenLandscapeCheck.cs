@@ -37,7 +37,8 @@ public sealed partial class LocalTerrainExplorer
         Application.targetFrameRate=60;QualitySettings.vSyncCount=0;AudioListener.volume=0;
         // The harness bypasses the main menu's preference loading. Use an
         // explicit real game preset, rather than obsolete120/450m field defaults.
-        TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(3);
+        var arguments=Environment.GetCommandLineArgs();int qualityOption=Array.IndexOf(arguments,"--worldgen-landscape-quality");
+        TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
         bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
         double reviewRange=drylandReview?2000:900,reviewFootprint=drylandReview?1200:600;
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
@@ -191,6 +192,18 @@ public sealed partial class LocalTerrainExplorer
                     File.WriteAllBytes(Path.Combine(output,name+"-coverage-"+Mathf.RoundToInt(cutoff*100)+".png"),comparison.EncodeToPNG());Destroy(comparison);RenderTexture.active=prior;
                 }
                 foreach(var material in owner.ownedScatterMaterials)if(material!=null&&material.HasProperty("_TreeViewCutoff"))LocalTreeTextures.BindViews(material);
+            }
+            if(arguments.Contains("--worldgen-tree-shadow-review"))
+            {
+                foreach(float trunkRange in new[]{180,45})
+                {
+                    WorldGenPerformance.TreeTrunkShadowRange=trunkRange;owner.BuildScatterBatches();
+                    owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                    var comparison=new Texture2D(1536,864,TextureFormat.RGB24,false);comparison.ReadPixels(new Rect(0,0,1536,864),0,0);comparison.Apply();
+                    File.WriteAllBytes(Path.Combine(output,name+"-trunks-"+(int)trunkRange+".png"),comparison.EncodeToPNG());Destroy(comparison);RenderTexture.active=prior;
+                    checks.Add(owner.PerformanceVerifyTrunkBudget());
+                }
+                WorldGenPerformance.TreeTrunkShadowRange=0;
             }
         }
         float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??(site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));

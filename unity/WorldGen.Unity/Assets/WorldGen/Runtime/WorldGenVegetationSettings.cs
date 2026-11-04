@@ -28,6 +28,8 @@ public static partial class TerrainVideoOptions
     // Character/animal/solid-object URP shadow filtering remains independent.
     public static int ForestShadowSamples=>WorldGenPerformance.FoliageShadowTaps>0?WorldGenPerformance.FoliageShadowTaps:
         DawnDuskShadowBudget&&ForestLightUp<.10f?1:ForestShadowQuality<=2?1:ForestShadowQuality==3?2:4;
+    public static float ForestTrunkShadowDistance=>WorldGenPerformance.TreeTrunkShadowRange>0?WorldGenPerformance.TreeTrunkShadowRange:
+        TreeQuality<=1?28:TreeQuality==2?45:TreeQuality==3?65:90;
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
     public static bool GrassClumps=true;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;

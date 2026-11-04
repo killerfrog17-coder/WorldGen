@@ -20,6 +20,7 @@ public static class WorldGenPerformance
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
+    public static float TreeTrunkShadowRange;
     public static bool Measuring,ProfileRenderCompletion;
     public static double CompletedRenderMs;
     public static readonly double[] Milliseconds=new double[4];
@@ -466,6 +467,20 @@ public sealed partial class LocalTerrainExplorer
         return "Tree distance batches: same "+count+" admitted objects; "+changed+" pixels >1 RGB difference, max delta "+delta;
     }
     public string PerformanceCounts=>string.Join(",",TileCount,WantedCount,ScatterObjects,SpecialistObjects,MidPlantObjects,GeneratedTreeObjects,ScatterDrawCalls,GroundCoverDraws,GroundCoverCandidates,GroundCoverBytes,ScatterFrustumRejected,ScatterTerrainRejected);
+    public string PerformanceVerifyTrunkBudget()
+    {
+        if(!SoftCanopyShadows)return "Soft canopy inactive; trunk budget does not replace the detailed fallback.";
+        foreach(var batch in drawBatches)
+            if((ScatterKind)((batch.Key>>2)&63)==ScatterKind.GeneratedTree&&batch.Shadows!=UnityEngine.Rendering.ShadowCastingMode.Off)
+                throw new InvalidOperationException("Soft canopy admitted a full foliage shadow caster");
+        float range=TerrainVideoOptions.ForestTrunkShadowDistance;
+        foreach(var batch in treeShadowBatches)for(int i=0;i<batch.Count;i++)
+        {
+            var matrix=batch.Matrices[i];var root=new Vector3(matrix.m03,matrix.m13,matrix.m23);
+            if(Vector3.Distance(root,scatterEye)>range+.01f)throw new InvalidOperationException("Trunk shadow caster escaped its close-range budget");
+        }
+        return "PASS all tree crowns use shared canopy shelter; "+TreeShadowObjects+" opaque trunks inside "+range+"m; no full-foliage fallback casters";
+    }
     public void PerformanceDrySite()
     {
         // Pick the closest dry point, not the flattest: retain the nominated relief.
@@ -519,6 +534,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("no-tree-shadows",()=>TerrainVideoOptions.TreeShadows=false),
             new PerfCase("no-trunk-casters",()=>WorldGenPerformance.NoTrunkCasters=true),
             new PerfCase("no-foliage-receivers",()=>WorldGenPerformance.NoFoliageShadowReceivers=true),
+            new PerfCase("trunk-range45",()=>WorldGenPerformance.TreeTrunkShadowRange=45),
+            new PerfCase("trunk-range180",()=>WorldGenPerformance.TreeTrunkShadowRange=180),
             new PerfCase("human-review",()=>{}),
             new PerfCase("forest-community-review",()=>{}),
             new PerfCase("foliage-proxy-compare",()=>TerrainVideoOptions.DistantTreeShadowCards=false),
@@ -615,6 +632,7 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
+                WorldGenPerformance.TreeTrunkShadowRange=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
@@ -648,6 +666,7 @@ public sealed partial class WorldGenRuntime
                     File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformanceVerifyEmptyCover()+" prunable pages verified with zero actual GPU roots.\n");
                     WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformanceInvalidate();yield return null;
                     File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformanceVerifyVisibility()+"\n");
+                    File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformanceVerifyTrunkBudget()+"\n");
                     yield return new WaitForSecondsRealtime(2);terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+".png"));yield return new WaitForSecondsRealtime(1);
                 }
                 if(item.Name=="flying-60m"){terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-flying.png"));yield return new WaitForSecondsRealtime(1);}
