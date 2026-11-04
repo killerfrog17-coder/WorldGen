@@ -80,7 +80,8 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="MeanderingRiver")
             {
-                foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008).Take(96))
+                foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
+                    .OrderBy(c=>Rng.Mix(unchecked((uint)c.From^(uint)world.Recipe.Seed))).Take(160))
                 {
                     var spans=model.Amplification.RiverReach(channel.From);if(spans.Length<8)continue;
                     var middle=spans[spans.Length/2];double half=(middle.WidthA+middle.WidthB)*.5;

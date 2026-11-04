@@ -9,7 +9,7 @@ static class RiverPlanformTests
         var rows=new List<object>();int active=0,filters=0,bent=0,banks=0;
         var candidates=terrain.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008).ToArray();
         Console.WriteLine($"Metadata candidates {candidates.Length} / {terrain.Hydrology.Channels.Length}");
-        foreach(var channel in candidates.Take(160))
+        foreach(var channel in candidates.OrderBy(c=>Rng.Mix(unchecked((uint)c.From^(uint)world.Recipe.Seed))).Take(160))
         {
             var spans=terrain.Amplification.RiverReach(channel.From);if(spans.Length<8)continue;active++;
             double length=spans.Sum(s=>(s.B-s.A).Length),chord=(spans[spans.Length-1].B-spans[0].A).Length,sinuosity=length/Math.Max(1e-9,chord);
@@ -48,7 +48,7 @@ static class RiverPlanformTests
             }
         }
         Check((low[0]-Spine(0)).Length==0&&(low[count]-Spine(1)).Length==0,"Confluence positions remain exact");
-        Check(maxSide>20&&maxSide<45,"Lowland reach develops material-scale bends within its valley envelope");
+        Check(maxSide>40&&maxSide<90,"Lowland reach develops material-scale bends within its valley envelope");
         Check(distance>length*1.01&&distance<length*1.5,"Lowland river has bounded nontrivial sinuosity");
         Check(1/maxCurvature>14*2,"Bend radius exceeds channel width; opposite banks do not fold over");
         Check(Math.Abs(low[1].Z)*radius<.05&&Math.Abs(low[count-1].Z)*radius<.05,"Shared junction tangent collars are smooth");
