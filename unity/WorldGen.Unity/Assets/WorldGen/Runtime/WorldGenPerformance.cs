@@ -185,7 +185,7 @@ public sealed partial class LocalTerrainExplorer
                 var reference=new ScatterChunk{Source=chunk.Source};ProjectScatter(reference);
                 if(!ReferenceEquals(prepared.GroupsFrame,next)||prepared.Groups.Length!=reference.Groups.Length)throw new InvalidOperationException("Prepared dense tree bins use the old chart");
                 for(int i=0;i<prepared.Matrices.Length;i++)for(int j=0;j<16;j++)
-                    if(prepared.Matrices[i][j]!=reference.Matrices[i][j])throw new InvalidOperationException("Prepared dense tree matrix differs from ordinary projection");
+                    if(prepared.Matrices[i][j]!=reference.Matrices[i][j])throw new InvalidOperationException("Prepared scatter matrix differs from ordinary projection: "+chunk.Source.Instances[i].Kind+" index "+i+", component "+j+", prepared "+prepared.Matrices[i][j]+", ordinary "+reference.Matrices[i][j]);
                 for(int i=0;i<prepared.Groups.Length;i++)
                 {
                     var a=prepared.Groups[i];var b=reference.Groups[i];

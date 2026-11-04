@@ -229,6 +229,8 @@ public sealed partial class LocalTerrainExplorer
         if(p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree)return .045f;
         return p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f;
     }
+    static Vector3 ScatterScale(ScatterInstance p)
+        =>new Vector3((float)p.WidthM,(float)p.HeightM,(float)(p.Kind==ScatterKind.Branch?p.HeightM:p.WidthM));
     void ProjectScatterGround(ScatterChunk chunk)
     {
         if(scatterGroundChanges.Count==0||chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))
@@ -286,7 +288,7 @@ public sealed partial class LocalTerrainExplorer
             // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
             var position=new Vector3((float)(x-originX),(float)y-ScatterEmbedding(p),(float)(z-originZ));chunk.Roots[i]=position;
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
-            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)(p.Kind==ScatterKind.Branch?p.HeightM:p.WidthM)));
+            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
