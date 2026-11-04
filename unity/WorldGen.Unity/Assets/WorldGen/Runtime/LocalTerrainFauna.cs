@@ -281,6 +281,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateAnimal(Animal animal,float dt)
     {
         if(animal.Dead){animal.Renderer.enabled=true;UpdateAnimalCorpse(animal,dt);return;}
+        long animalTrace=WorldGenPerformance.TraceBegin();
         var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision&&!WildlifeBehaviourEnabled)DecideAnimal(animal);if(dt>0){UpdateAnimalBehaviour(animal);AvoidAnimalSolids(animal);}
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
@@ -329,6 +330,7 @@ public sealed partial class LocalTerrainExplorer
         double rate=stationary?1:Math.Max(.025,Math.Min(3.2,animal.Speed/animal.NominalSpeed));
         animal.Time+=dt*rate;animal.OldTime+=dt*rate;animal.BlendAge+=dt;
         float distance=(position-view.transform.localPosition).magnitude;
+        WorldGenPerformance.TraceEnd(22,animalTrace);animalTrace=WorldGenPerformance.TraceBegin();
         if(dt<=0||Time.unscaledTimeAsDouble>=animal.NextPoseAt)
         {
         animal.NextPoseAt=Time.unscaledTimeAsDouble+(distance<150?0:distance<350?.05:.1);
@@ -336,10 +338,13 @@ public sealed partial class LocalTerrainExplorer
         float morph=AnimalMorph(asset,animal.Clip,animal.Time);
         if(animal.OldClip!=null&&blend<1)morph=Mathf.Lerp(AnimalMorph(asset,animal.OldClip,animal.OldTime),morph,blend);
         animal.Props.SetFloat("_Morph",morph);
+        var currentFrame=AnimalPoseFrame(asset,animal.Clip,animal.Time);
+        bool transitioning=animal.OldClip!=null&&blend<1;
+        var previousFrame=transitioning?AnimalPoseFrame(asset,animal.OldClip,animal.OldTime):default;
         for(int bone=0;bone<asset.BoneCount;bone++)
         {
-            var pose=AnimalPose(asset,animal.Clip,animal.Time,bone);
-            if(animal.OldClip!=null&&blend<1)pose=AnimalMatrixLerp(AnimalPose(asset,animal.OldClip,animal.OldTime,bone),pose,blend);
+            var pose=AnimalFramePose(asset,currentFrame,bone);
+            if(transitioning)pose=AnimalMatrixLerp(AnimalFramePose(asset,previousFrame,bone),pose,blend);
             animalBoneData[animal.Slot*AnimalBones+bone]=pose;
         }
         }
@@ -347,20 +352,38 @@ public sealed partial class LocalTerrainExplorer
         UpdateFireflyGlow(animal,distance);
         animal.Props.SetFloat("_Glow",0); // Original firefly emission mask is black; use the luminous abdomen sprite.
         animal.Renderer.SetPropertyBlock(animal.Props);animal.Renderer.shadowCastingMode=profile.lengthM>=.35&&distance<180?ShadowCastingMode.On:ShadowCastingMode.Off;
+        WorldGenPerformance.TraceEnd(23,animalTrace);
     }
-    static Matrix4x4 AnimalPose(WorldGenFaunaAsset asset,FaunaRuntimeClip clip,double time,int bone)
+    readonly struct FaunaPoseFrame
+    {
+        public readonly int First,Next;public readonly float Blend;
+        public FaunaPoseFrame(int first,int next,float blend){First=first;Next=next;Blend=blend;}
+    }
+    static FaunaPoseFrame AnimalPoseFrame(WorldGenFaunaAsset asset,FaunaRuntimeClip clip,double time)
     {
         double frame=(time/clip.duration%1)*clip.frames;int first=(int)frame%clip.frames,next=(first+1)%clip.frames;
-        return AnimalMatrixLerp(asset.Poses[(clip.start+first)*asset.BoneCount+bone],asset.Poses[(clip.start+next)*asset.BoneCount+bone],(float)(frame-Math.Floor(frame)));
+        return new FaunaPoseFrame((clip.start+first)*asset.BoneCount,(clip.start+next)*asset.BoneCount,(float)(frame-Math.Floor(frame)));
     }
+    static Matrix4x4 AnimalFramePose(WorldGenFaunaAsset asset,FaunaPoseFrame frame,int bone)
+        =>AnimalMatrixLerp(asset.Poses[frame.First+bone],asset.Poses[frame.Next+bone],frame.Blend);
+    static Matrix4x4 AnimalPose(WorldGenFaunaAsset asset,FaunaRuntimeClip clip,double time,int bone)
+        =>AnimalFramePose(asset,AnimalPoseFrame(asset,clip,time),bone);
     static float AnimalMorph(WorldGenFaunaAsset asset,FaunaRuntimeClip clip,double time)
     {
         if(asset.Morphs==null||asset.Morphs.Length==0)return 0;
         double frame=(time/clip.duration%1)*clip.frames;int first=(int)frame%clip.frames,next=(first+1)%clip.frames;
         return Mathf.Lerp(asset.Morphs[clip.start+first],asset.Morphs[clip.start+next],(float)(frame-Math.Floor(frame)));
     }
-    static Matrix4x4 AnimalMatrixLerp(Matrix4x4 a,Matrix4x4 b,float t)
-    {var result=new Matrix4x4();for(int i=0;i<16;i++)result[i]=a[i]+(b[i]-a[i])*t;return result;}
+    static Matrix4x4 AnimalMatrixLerp(in Matrix4x4 a,in Matrix4x4 b,float t)
+    {
+        // Literal same interpolation, without 48 matrix-indexer switch dispatches
+        // per bone. Frame selection is shared across the whole animal palette.
+        return new Matrix4x4{
+            m00=a.m00+(b.m00-a.m00)*t,m01=a.m01+(b.m01-a.m01)*t,m02=a.m02+(b.m02-a.m02)*t,m03=a.m03+(b.m03-a.m03)*t,
+            m10=a.m10+(b.m10-a.m10)*t,m11=a.m11+(b.m11-a.m11)*t,m12=a.m12+(b.m12-a.m12)*t,m13=a.m13+(b.m13-a.m13)*t,
+            m20=a.m20+(b.m20-a.m20)*t,m21=a.m21+(b.m21-a.m21)*t,m22=a.m22+(b.m22-a.m22)*t,m23=a.m23+(b.m23-a.m23)*t,
+            m30=a.m30+(b.m30-a.m30)*t,m31=a.m31+(b.m31-a.m31)*t,m32=a.m32+(b.m32-a.m32)*t,m33=a.m33+(b.m33-a.m33)*t};
+    }
     void RemoveAnimal(ulong id)
     {
         var animal=animals[id];animal.Retired=true;if(animal.Dead||animal.Health<animal.MaximumHealth||animal.Awareness.Suspicion>.15||animal.HuntMemoryUntil>animal.Life||animal.Exertion.Burst<.95||animal.Exertion.Fatigue>.01||wildlifeRecords?.ContainsKey(id)==true)RememberAnimal(animal,true);if(animal.Ragdoll!=null)Destroy(animal.Ragdoll);ClearAnimalBlood(animal);Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
