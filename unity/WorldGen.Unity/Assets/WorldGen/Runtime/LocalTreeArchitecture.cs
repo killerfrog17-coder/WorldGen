@@ -56,6 +56,7 @@ static partial class LocalScatterMeshes
                 b.Add(top,wood,new Vector2(.5f,1));b.Add(toe-across,wood,Vector2.zero);b.Add(toe+across,wood,Vector2.right);b.Add(nodes[0].P-d*radius*.2f,wood,new Vector2(.5f,0));
                 b.Triangle(start,start+1,start+2);b.Triangle(start,start+3,start+1);b.Triangle(start,start+2,start+3);Mark(0);
             }
+            AddTropicalClimbers(b,nodes,m,code,lod,wood);Mark(0);
         }
         // Canonical foliage positions/orientations are identical in both mesh
         // LODs. The middle mesh simplifies the surface, not the crown occupancy.
@@ -115,6 +116,47 @@ static partial class LocalScatterMeshes
     // Inherited crown openness gives pine-like high, rounded crowns as well as
     // the low, layered fir/spruce habit. These are shared art archetypes, not
     // another growth simulation or additional per-tree runtime work.
+    static void AddTropicalClimbers(Builder b,List<TreeNode> nodes,TreeMorphology m,int code,int lod,Color wood)
+    {
+        // Shared model detail: no new scatter roots, objects, materials,
+        // behaviours or draw calls. Far views bake these into the same cards.
+        int count=(code&3)==0?0:(code&3)==3?2:1;if(count==0)return;
+        var random=new Rng(TreeFlora.RenderCode(code),"tropical-woody-climbers-1");
+        int trunk=Mathf.Min(nodes.Count-1,Mathf.CeilToInt((float)m.CrownBase/.035f));
+        int segments=lod==0?12:8,sides=lod==0?4:3;
+        var bark=wood*new Color(.70f,.78f,.64f,1);
+        for(int vine=0;vine<count;vine++)
+        {
+            int anchor=trunk;float best=0,phase=(float)random.Unit()*Mathf.PI*2;
+            var desired=new Vector3(Mathf.Cos(phase),0,Mathf.Sin(phase));
+            for(int i=trunk+1;i<nodes.Count;i++)
+            {
+                var node=nodes[i];if(node.Children<1||node.P.y<(float)m.CrownBase+.04f)continue;
+                float score=Vector3.Dot(node.P,desired)*(.75f+.25f*(float)random.Unit());
+                if(score>best){best=score;anchor=i;}
+            }
+            var top=nodes[anchor].P;float radius=.0012f+.001f*(float)random.Unit();
+            Vector3 Point(float t)
+            {
+                if(vine==0)
+                {
+                    float y=.012f+(top.y-.012f)*t,baseY=nodes[trunk].P.y;
+                    float branch=Mathf.Clamp01((y-baseY)/Mathf.Max(.01f,top.y-baseY));
+                    var center=y<=baseY?nodes[trunk].P*Mathf.Pow(y/Mathf.Max(.01f,baseY),2):Vector3.Lerp(nodes[trunk].P,top,branch);
+                    center.y=y;float offset=(float)m.TrunkRadius*(1-.60f*t)*(1-branch);
+                    float a=phase+t*5+.3f*Mathf.Sin(t*7);
+                    return center+new Vector3(Mathf.Cos(a),0,Mathf.Sin(a))*offset;
+                }
+                float length=top.y*.72f;
+                return top-Vector3.up*(length*t)+desired*(.045f*Mathf.Sin(t*Mathf.PI)+.018f*t)+Vector3.Cross(desired,Vector3.up)*(.012f*Mathf.Sin(t*5)*t);
+            }
+            for(int j=0;j<segments;j++)
+            {
+                float a=j/(float)segments,z=(j+1)/(float)segments;
+                b.Tube(Point(a),Point(z),radius*(1-.35f*a),radius*(1-.35f*z),sides,bark);
+            }
+        }
+    }
     static float OpenNeedleCrown(TreeMorphology m)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(.20f,.35f,(float)m.Openness));
     static float NeedleCrownBase(TreeMorphology m)=>Mathf.Lerp(Mathf.Clamp(.11f+(float)m.CrownBase*.20f,.14f,.23f),.55f,OpenNeedleCrown(m));
     static List<TreeNode> TreeSkeleton(int code,TreeMorphology m)
