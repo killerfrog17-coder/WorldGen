@@ -44,6 +44,15 @@ Shader "WorldGen/WaterSurface"
     o.positionCS=TransformWorldToHClip(o.position);return o;
    }
    float2 Slopes(float2 uv){return SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,uv).rg*2-1;}
+   float FallHash(float2 cell)
+   {
+    float3 h=frac(cell.xyx*float3(.1031,.1030,.0973));h+=dot(h,h.yzx+33.33);return frac((h.x+h.y)*h.z);
+   }
+   float FallNoise(float2 p)
+   {
+    float2 cell=floor(p),f=frac(p);f=f*f*(3-2*f);
+    return lerp(lerp(FallHash(cell),FallHash(cell+float2(1,0)),f.x),lerp(FallHash(cell+float2(0,1)),FallHash(cell+1),f.x),f.y);
+   }
    half4 frag(O i):SV_Target
    {
     float dither=WorldGenDither(i.positionCS.xy),distance=length(i.position-_WorldSpaceCameraPos);
@@ -93,9 +102,10 @@ Shader "WorldGen/WaterSurface"
      // atlas, stretched into descending ribbons; no particles or extra pass.
      float speed=max(3,length(flow));float2 across=float2(-flow.y,flow.x)/speed;
      float crossStream=dot(p,across),down=-i.position.y-_Time.y*speed;
-     float ribbon=.5+.5*sin(crossStream*8+.7*sin(crossStream*.9));
-     float motion=SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,float2(crossStream*.65,down*.045)).r;
-     float sheets=lerp(.76,1,ribbon)*lerp(.86,1.05,motion);
+     float broad=FallNoise(float2(crossStream*.8,down*.045));
+     float fine=FallNoise(float2(crossStream*3.1+broad*2,down*.36));
+     float filaments=FallNoise(float2(crossStream*8+fine,down*.8));
+     float sheets=.58+.30*broad+.16*fine+.07*filaments;
      float illumination=.42+.58*saturate(dot(normal,sun.direction));
      float3 aerated=float3(.72,.79,.78)*sheets*(TerrainAmbient().rgb*.55+sun.color*illumination)*lerp(.035,1,TerrainDaylight());
      result=lerp(result,aerated,falling*.97);
