@@ -567,7 +567,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void AddScatterInstance(ScatterChunk chunk,int index,in ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant=int.MinValue)
     {
-        if(!WorldGenPerformance.TraceEnabled){AddScatterInstanceCore(chunk,index,p,lod,low,high,shadowOnly,artVariant);return;}
+        if(!WorldGenPerformance.FineCullTrace){AddScatterInstanceCore(chunk,index,p,lod,low,high,shadowOnly,artVariant);return;}
         long trace=WorldGenPerformance.TraceBegin();AddScatterInstanceCore(chunk,index,p,lod,low,high,shadowOnly,artVariant);WorldGenPerformance.TraceEnd(28,trace);
     }
     void AddScatterInstanceCore(ScatterChunk chunk,int index,in ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant)

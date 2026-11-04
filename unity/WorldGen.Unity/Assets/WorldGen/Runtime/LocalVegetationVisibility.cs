@@ -23,27 +23,10 @@ public sealed partial class LocalTerrainExplorer
     }
     bool ScatterInFrustum(Bounds box,Vector3 eye)
     {
-        if(!WorldGenPerformance.TraceEnabled)return ScatterInFrustumCore(box,eye);
+        if(!WorldGenPerformance.FineCullTrace)return ScatterInFrustumCore(box,eye);
         long trace=WorldGenPerformance.TraceBegin();bool result=ScatterInFrustumCore(box,eye);WorldGenPerformance.TraceEnd(27,trace);return result;
     }
-    bool ScatterInFrustumCore(Bounds box,Vector3 eye)
-    {
-        if(scatterCachedAllHeadings)return true;
-        box=ScatterGuardBounds(box,eye);
-        if(WorldGenPerformance.Original||WorldGenPerformance.NativeScatterFrustum)return GeometryUtility.TestPlanesAABB(scatterFrustum,box);
-        // Keep the six-plane test in the managed batch loop. Calling the native
-        // GeometryUtility function once per plant repeatedly crosses the engine
-        // boundary and marshals the same plane array.
-        var center=box.center;var extent=box.extents;
-        for(int i=0;i<scatterFrustum.Length;i++)
-        {
-            var plane=scatterFrustum[i];var n=plane.normal;
-            float radius=Mathf.Abs(n.x)*extent.x+Mathf.Abs(n.y)*extent.y+Mathf.Abs(n.z)*extent.z;
-            float distance=n.x*center.x+n.y*center.y+n.z*center.z+plane.distance;
-            if(distance+radius<0)return false;
-        }
-        return true;
-    }
+    bool ScatterInFrustumCore(Bounds box,Vector3 eye)=>scatterCachedAllHeadings||GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(box,eye));
     bool ScatterFullyInsideFrustum(Bounds box)
     {
         var center=box.center;var extent=box.extents;
@@ -149,7 +132,7 @@ public sealed partial class LocalTerrainExplorer
     // not general scene Hi-Z and does not treat foliage as a solid occluder.
     bool TerrainOccluded(Bounds box,Vector3 eye,bool acoustic=false)
     {
-        if(!WorldGenPerformance.TraceEnabled)return TerrainOccludedCore(box,eye,acoustic);
+        if(!WorldGenPerformance.FineCullTrace)return TerrainOccludedCore(box,eye,acoustic);
         long trace=WorldGenPerformance.TraceBegin();bool result=TerrainOccludedCore(box,eye,acoustic);WorldGenPerformance.TraceEnd(26,trace);return result;
     }
     bool TerrainOccludedCore(Bounds box,Vector3 eye,bool acoustic)

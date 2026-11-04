@@ -26,7 +26,6 @@ public static class WorldGenPerformance
     public static bool NonIndexedClumps;
     public static bool ForceFreshWaterSamples;
     public static bool LegacyGroupVisibility;
-    public static bool NativeScatterFrustum;
     public static bool NarrowScatterGuard;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
@@ -36,6 +35,7 @@ public static class WorldGenPerformance
     public static double CompletedRenderMs;
     public static readonly double[] Milliseconds=new double[4];
     public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
+    public static readonly bool FineCullTrace=TraceEnabled&&Environment.GetCommandLineArgs().Contains("--worldgen-fine-cull-trace");
     public static readonly double[] TraceMilliseconds=new double[29];static int traceFrame=-1;
     public static bool SuppressIdleScatter,SkipMapUploads,ForceFreshCoverCull,NoLocalTrees,ForceFreshForestOwnership,TreeLegacyAlpha,SuppressFarForest,ForceIndividualTreeAdmission,DrainEachFrame,LegacyTreeQueues;
     public static long TraceBegin()
@@ -513,7 +513,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     int ia=axis==0?i*side+n:n*side+i,ib=axis==0?i*side:i;
                     h=Math.Max(h,Math.Abs(a.Heights[ia]-b.Heights[ib]));
-                    for(int channel=0;channel<15;channel++)c=Math.Max(c,Math.Abs(a.Cover[ia*16+channel]-b.Cover[ib*16+channel]));
+                    for(int channel=0;channel<13;channel++)c=Math.Max(c,Math.Abs(a.Cover[ia*16+channel]-b.Cover[ib*16+channel]));
                     for(int channel=0;channel<6;channel++)m=Math.Max(m,Math.Abs(a.MidCover[ia*6+channel]-b.MidCover[ib*6+channel]));
                     for(int channel=0;channel<7;channel++)f=Math.Max(f,Math.Abs(a.ForestCover[ia*8+channel]-b.ForestCover[ib*8+channel]));
                 }
@@ -610,17 +610,17 @@ public sealed partial class LocalTerrainExplorer
         using(var roots=new GraphicsBuffer(GraphicsBuffer.Target.Append,64,96))
         using(var count=new GraphicsBuffer(GraphicsBuffer.Target.Raw,1,4))
         {
-            foreach(int fixture in new[]{0,1,2,3})
+            foreach(int fixture in new[]{0,1,2,3,4})
             {
                 float grade=fixture==1?2:0;int weight=fixture==2?9:fixture==3?12:4;
-                var data=new float[64];for(int i=0;i<4;i++){int at=i*16;data[at+3]=data[at+weight]=.8f;data[at+13]=data[at+14]=1;data[at+15]=(i%2)*8*grade;}
+                var data=new float[64];for(int i=0;i<4;i++){int at=i*16;data[at+3]=data[at+weight]=.8f;data[at+13]=fixture==4?0:1;data[at+14]=1;data[at+15]=(i%2)*8*grade;}
                 grid.SetData(data);roots.SetCounterValue(0);placement.SetBuffer(0,"_Grid",grid);placement.SetBuffer(0,"_Roots",roots);
                 placement.SetInts("_Candidate",0,0,8,8);placement.SetVector("_Tile",new Vector4(0,0,8,1));placement.SetFloat("_Spacing",.6f);placement.SetInt("_Seed",731);placement.Dispatch(0,1,1,1);
                 GraphicsBuffer.CopyCount(roots,count,0);var result=new uint[1];count.GetData(result);
                 if(fixture==0&&result[0]!=64||fixture!=0&&result[0]!=0)throw new InvalidOperationException("Grass habitat gate failed: fixture "+fixture+", roots "+result[0]);
             }
         }
-        return site+": GPU habitat gate passed (64 grass / 0 cliff / 0 duplicate fern / 0 succulent ribbons); cached canopy ready; solid-trunk casters "+TreeShadowCoarse+" / "+TreeShadowObjects+", alpha tree cards "+TreeShadowCards;
+        return site+": GPU habitat gate passed (64 grass / 0 cliff / 0 duplicate fern / 0 succulent ribbons / 0 wet roots); cached canopy ready; solid-trunk casters "+TreeShadowCoarse+" / "+TreeShadowObjects+", alpha tree cards "+TreeShadowCards;
     }
     public string PerformanceVerifyTreeEfficiency(string output)
     {
@@ -935,7 +935,6 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
-            new PerfCase("travel-whip-native-frustum",()=>WorldGenPerformance.NativeScatterFrustum=true),
             new PerfCase("travel-whip-legacy-groups",()=>WorldGenPerformance.LegacyGroupVisibility=true),
             new PerfCase("travel-whip-narrow",()=>WorldGenPerformance.NarrowScatterGuard=true),
             new PerfCase("travel-whip-original-culling",()=>WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=true),
@@ -947,7 +946,7 @@ public sealed partial class WorldGenRuntime
         File.WriteAllText(Path.Combine(output,"machine.txt"),$"{SystemInfo.processorType}\n{SystemInfo.graphicsDeviceName}\n{SystemInfo.graphicsDeviceVersion}\nRAM {SystemInfo.systemMemorySize} MB VRAM {SystemInfo.graphicsMemorySize} MB\n{Screen.width}x{Screen.height}, {QualitySettings.activeColorSpace}, VSync {QualitySettings.vSyncCount}, target {Application.targetFrameRate}\nUnity {Application.unityVersion}\nUTC {DateTime.UtcNow:o}\nSeed {world.Recipe.Seed}; scale .1; clear noon; terrain quality2; view {profileView}m; vegetation quality{profilePlants}; fine radius153.6m.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\n");
         File.AppendAllText(Path.Combine(output,"machine.txt"),$"Forced single offscreen URP render {width}x{height}; automatic camera disabled. Frame timing stats enabled: {FrameTimingManager.IsFeatureEnabled()}. Original CPU paths: {WorldGenPerformance.Original}.\nExplicit dense-site file: {sitesPath}; these sites use local summer noon.\n");
         File.WriteAllText(Path.Combine(output,"summary.csv"),"site,cell,biome,relief,case,frames,seconds,fps,p50_ms,p95_ms,p99_ms,max_ms,over10ms,over16ms,scatter_update_ms,scatter_submit_ms,grass_submit_ms,weather_ms,tiles,wanted,objects,specialists,mid,trees,scatter_draws,grass_draws,grass_candidates,grass_bytes,frustum_rejected,terrain_rejected,settled,start_qpc,end_qpc,gpu_ms,cpu_ms,timing_samples,gpu_drain_ms,start_utc,end_utc\n");
-        File.WriteAllText(Path.Combine(output,"gc-settings.txt"),"incremental="+UnityEngine.Scripting.GarbageCollector.isIncremental+" mode="+UnityEngine.Scripting.GarbageCollector.GCMode+" slice_ns="+UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds+"\n");
+        File.WriteAllText(Path.Combine(output,"gc-settings.txt"),"incremental="+UnityEngine.Scripting.GarbageCollector.isIncremental+" mode="+UnityEngine.Scripting.GarbageCollector.GCMode+" slice_ns="+UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds+" fine_cull_trace="+WorldGenPerformance.FineCullTrace+"\n");
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
@@ -970,7 +969,7 @@ public sealed partial class WorldGenRuntime
             {
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
-                WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=WorldGenPerformance.NativeScatterFrustum=false;
+                WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
                 WorldGenPerformance.GpuNearOcclusion=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
