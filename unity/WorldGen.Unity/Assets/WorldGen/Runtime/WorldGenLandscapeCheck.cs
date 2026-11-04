@@ -22,6 +22,7 @@ public sealed partial class LocalTerrainExplorer
         public int NearbyPools,Reeds,SubmergedReeds;
         public int BakedTrees,BakedStands,PendingTreeBakes;
         public int TreeQuality;public float TreeNear,TreeFar;
+        public double TerrainReveal,ForestReveal,FogDistance;
         public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
         public SmallLake Pond;
     }
@@ -101,12 +102,13 @@ public sealed partial class LocalTerrainExplorer
         while(keys.Any(k=>!owner.scatterChunks.TryGetValue(k,out var chunk)||chunk.Groups==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(keys.All(k=>owner.scatterChunks.TryGetValue(k,out var chunk)&&chunk.Groups!=null),"Actual surrounding vegetation/scatter is resident");
         deadline=Time.realtimeSinceStartupAsDouble+300;double reportAt=0;
-        while(!owner.AllReady&&owner.terrainRevealRadius<reviewFootprint&&Time.realtimeSinceStartupAsDouble<deadline)
+        while((!owner.AllReady&&owner.terrainRevealRadius<reviewFootprint||owner.StreamingFogDistance<reviewFootprint)&&Time.realtimeSinceStartupAsDouble<deadline)
         {
-            if(Time.realtimeSinceStartupAsDouble>=reportAt){reportAt=Time.realtimeSinceStartupAsDouble+5;File.WriteAllText(Path.Combine(output,"coverage.txt"),"Tiles "+owner.TileCount+" / "+owner.WantedCount+"; reveal "+owner.terrainRevealRadius+"m; "+owner.Error);}
+            if(Time.realtimeSinceStartupAsDouble>=reportAt){reportAt=Time.realtimeSinceStartupAsDouble+5;File.WriteAllText(Path.Combine(output,"coverage.txt"),"Tiles "+owner.TileCount+" / "+owner.WantedCount+"; terrain "+owner.terrainRevealRadius+"m; forest "+owner.forestRevealRadius+"m; fog "+owner.StreamingFogDistance+"m; "+owner.Error);}
             yield return null;
         }
         Check(owner.AllReady||owner.terrainRevealRadius>=reviewFootprint,"Wide capture has an actually loaded surrounding terrain footprint");
+        Check(owner.StreamingFogDistance>=reviewFootprint,"Normal terrain and vegetation reveal expose the reviewed landscape extent");
         for(int i=0;i<90;i++)yield return null;
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
         if(site.Pond!=null)
@@ -194,6 +196,7 @@ public sealed partial class LocalTerrainExplorer
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
+            TerrainReveal=owner.terrainRevealRadius,ForestReveal=owner.forestRevealRadius,FogDistance=owner.StreamingFogDistance,
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LANDSCAPE PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }
