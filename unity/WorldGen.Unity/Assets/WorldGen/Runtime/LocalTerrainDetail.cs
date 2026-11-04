@@ -57,7 +57,12 @@ public sealed partial class LocalTerrainExplorer
         {plannedPixels=Screen.height;plannedFov=view.fieldOfView;detailDirty=true;}
         if(detailPlan!=null&&detailPlan.IsCompleted)
         {
-            if(detailPlan.IsFaulted){error=detailPlan.Exception.GetBaseException().Message;debugOpen=true;}
+            if(detailPlan.IsFaulted)
+            {
+                var fault=detailPlan.Exception.GetBaseException();
+                if(!(detailCancellation?.IsCancellationRequested==true&&fault is OperationCanceledException))
+                {Debug.LogWarning("Terrain detail plan failed: "+detailPlan.Exception);error=fault.Message;debugOpen=true;}
+            }
             else if(!detailPlan.IsCanceled&&detailGeneration==generation&&Math.Abs(detailX-motion.X)<TerrainLod.ReplanDistance(HorizontalScale)&&Math.Abs(detailZ-motion.Z)<TerrainLod.ReplanDistance(HorizontalScale))
                 AdoptDetailPlan(detailPlan.Result);
             detailPlan=null;detailCancellation?.Dispose();detailCancellation=null;

@@ -131,7 +131,7 @@ public sealed partial class LocalTerrainExplorer
         for(int i=scatterJobs.Count-1;installingScatter==null&&i>=0;i--)
         {
             var work=scatterJobs[i];if(!work.Task.IsCompleted)continue;scatterJobs.RemoveAt(i);
-            if(work.Task.IsFaulted){error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
+            if(work.Task.IsFaulted){Debug.LogWarning("Terrain scatter request failed: "+work.Task.Exception);error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){installingScatter=new ScatterChunk{Source=work.Task.Result};installingScatterKey=work.Key;installingScatterFrame=null;}break;
         }
         InstallScatterSlice();

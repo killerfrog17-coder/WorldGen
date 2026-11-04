@@ -207,8 +207,15 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         for(int i=jobs.Count-1;i>=0;i--)
         {
             if(!CanInstall)break;
-            var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);job.Cancellation?.Dispose();
-            if(job.Task.IsFaulted){error=job.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
+            var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);
+            bool requestedCancel=job.Cancellation?.IsCancellationRequested??false;job.Cancellation?.Dispose();
+            if(job.Task.IsFaulted)
+            {
+                var fault=job.Task.Exception.GetBaseException();
+                if(requestedCancel&&fault is OperationCanceledException)continue;
+                Debug.LogWarning("Terrain mesh request failed (generation "+job.Generation+", current "+generation+", cancel="+requestedCancel+"): "+job.Task.Exception);
+                error=fault.Message;debugOpen=true;CaptureMouse();continue;
+            }
             if(job.Task.IsCanceled)continue;
             using var upload=job.Task.Result;
             if(job.Prepared!=null)
