@@ -52,7 +52,7 @@ namespace WorldGen.Core
                 var form=new Volcano{FeatureId=feature.Id,AgeMyr=feature.AgeMyr,Center=feature.Center,Axis=axis,Side=V.Cross(feature.Center,axis).Unit,
                     RadiusM=width,HeightM=height,BaseM=world.ElevationM[nearest]-height*.30,
                     CraterFraction=caldera?.20+.10*random.Unit():.07+.055*random.Unit(),
-                    CraterDepth=(caldera?.42:.20)*Math.Exp(-age/8),Phase=random.Unit()*Math.PI*2,
+                    CraterDepth=(caldera?.67:.34)*Math.Exp(-age/5),Phase=random.Unit()*Math.PI*2,
                     Form=age>6?VolcanoForm.WeatheredShield:caldera?VolcanoForm.Caldera:VolcanoForm.Shield};
                 int index=forms.Count;forms.Add(form);
                 var affected=new HashSet<int>(feature.Cells);affected.Add(nearest);

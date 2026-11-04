@@ -116,6 +116,7 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
+        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,RiverReach=site.RiverReach,Elevation=site.Sample.ElevationM}));
         if(site.Volcano!=null){reviewRange=8000;reviewFootprint=Math.Min(6000,site.Volcano.RadiusM*1.8);}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
@@ -219,6 +220,7 @@ public sealed partial class LocalTerrainExplorer
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,10),true));
         if(site.Volcano!=null)
         {
+            yield return owner.StartCoroutine(Capture("crater-overview",new Vector3(width*.05f,width*.65f,width*.1f)));
             yield return owner.StartCoroutine(Capture("crater-rim",new Vector3((float)(site.Volcano.RadiusM*site.Volcano.CraterFraction),0,0),true));
             yield return owner.StartCoroutine(Capture("wide-other-side",new Vector3(-width*.3f,width*.6f,-width*1.5f)));
             Check(sample.Province.BareRock>.8,"Young volcanic crater has exposed geological substrate");

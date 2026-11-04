@@ -9,7 +9,7 @@ static class VolcanicTerrainTests
         int count=0;void Check(bool ok,string why){count++;if(!ok)throw new Exception(why);}
         foreach(double crater in new[]{.09,.25})
         {
-            var form=new VolcanicTerrain.Volcano{RadiusM=4000,HeightM=600,BaseM=300,CraterFraction=crater,CraterDepth=crater<.1?.2:.42};
+            var form=new VolcanicTerrain.Volcano{RadiusM=4000,HeightM=600,BaseM=300,CraterFraction=crater,CraterDepth=crater<.1?.34:.67};
             Check(form.Target(0,0)<form.Target(crater*.85,0),"Crater floor is below its surrounding rim");
             double maxSlope=0,prior=form.Target(0,0);
             for(int i=1;i<=2000;i++)
