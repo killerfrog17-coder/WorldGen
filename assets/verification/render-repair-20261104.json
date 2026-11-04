@@ -389,6 +389,206 @@
           "settled": "True"
         }
       ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/current-medium-contexts",
+      "complete": true,
+      "source": "9b86b01c007c7bce76f6d18c588ca0c7befcdd5e",
+      "summary_sha256": "f6ca0c0f599cda1ce38af327ccb105c1a7594c2c6e8e2e72b408cb0ac259a49a",
+      "rows": [
+        {
+          "site": "plains",
+          "case": "grass-clumps",
+          "fps": "179.20068",
+          "p50_ms": "5.45630",
+          "p95_ms": "6.26500",
+          "p99_ms": "7.37570",
+          "max_ms": "17.71820",
+          "over10ms": "12",
+          "frames": "2152",
+          "settled": "True"
+        },
+        {
+          "site": "plains",
+          "case": "forest-community-review",
+          "fps": "105.49530",
+          "p50_ms": "9.30710",
+          "p95_ms": "11.07660",
+          "p99_ms": "13.36860",
+          "max_ms": "26.01130",
+          "over10ms": "322",
+          "frames": "1267",
+          "settled": "True"
+        },
+        {
+          "site": "plains",
+          "case": "turning-whip",
+          "fps": "173.80729",
+          "p50_ms": "5.61000",
+          "p95_ms": "6.50880",
+          "p99_ms": "7.93860",
+          "max_ms": "29.94810",
+          "over10ms": "12",
+          "frames": "2087",
+          "settled": "True"
+        },
+        {
+          "site": "plains",
+          "case": "travel-whip",
+          "fps": "150.27621",
+          "p50_ms": "5.52410",
+          "p95_ms": "12.64250",
+          "p99_ms": "15.05690",
+          "max_ms": "25.01050",
+          "over10ms": "285",
+          "frames": "1804",
+          "settled": "False"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "grass-clumps",
+          "fps": "141.89106",
+          "p50_ms": "6.78100",
+          "p95_ms": "8.44090",
+          "p99_ms": "10.82830",
+          "max_ms": "36.57330",
+          "over10ms": "30",
+          "frames": "1704",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "forest-community-review",
+          "fps": "82.76380",
+          "p50_ms": "11.66790",
+          "p95_ms": "14.27410",
+          "p99_ms": "23.12690",
+          "max_ms": "40.37410",
+          "over10ms": "993",
+          "frames": "994",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "turning-whip",
+          "fps": "132.99965",
+          "p50_ms": "7.22870",
+          "p95_ms": "9.16600",
+          "p99_ms": "12.26520",
+          "max_ms": "36.20050",
+          "over10ms": "49",
+          "frames": "1597",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "travel-whip",
+          "fps": "99.11715",
+          "p50_ms": "8.00740",
+          "p95_ms": "17.89640",
+          "p99_ms": "21.85270",
+          "max_ms": "42.95750",
+          "over10ms": "338",
+          "frames": "1190",
+          "settled": "False"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "grass-clumps",
+          "fps": "137.47685",
+          "p50_ms": "7.02620",
+          "p95_ms": "8.67260",
+          "p99_ms": "10.97270",
+          "max_ms": "45.45480",
+          "over10ms": "33",
+          "frames": "1651",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "forest-community-review",
+          "fps": "83.31881",
+          "p50_ms": "11.66620",
+          "p95_ms": "14.10020",
+          "p99_ms": "17.48410",
+          "max_ms": "27.68010",
+          "over10ms": "1000",
+          "frames": "1000",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "turning-whip",
+          "fps": "131.84668",
+          "p50_ms": "7.38640",
+          "p95_ms": "9.08070",
+          "p99_ms": "11.39000",
+          "max_ms": "15.84850",
+          "over10ms": "37",
+          "frames": "1583",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "travel-whip",
+          "fps": "98.83561",
+          "p50_ms": "8.61550",
+          "p95_ms": "16.24130",
+          "p99_ms": "19.94650",
+          "max_ms": "49.86240",
+          "over10ms": "342",
+          "frames": "1187",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "grass-clumps",
+          "fps": "141.69815",
+          "p50_ms": "6.58130",
+          "p95_ms": "8.27000",
+          "p99_ms": "26.91010",
+          "max_ms": "39.56230",
+          "over10ms": "39",
+          "frames": "1702",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "forest-community-review",
+          "fps": "88.08934",
+          "p50_ms": "11.12440",
+          "p95_ms": "12.39060",
+          "p99_ms": "20.05560",
+          "max_ms": "30.05380",
+          "over10ms": "1051",
+          "frames": "1058",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "148.52082",
+          "p50_ms": "6.50210",
+          "p95_ms": "8.04600",
+          "p99_ms": "10.58800",
+          "max_ms": "23.79160",
+          "over10ms": "27",
+          "frames": "1783",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "105.69604",
+          "p50_ms": "7.52730",
+          "p95_ms": "17.25690",
+          "p99_ms": "20.37480",
+          "max_ms": "46.41960",
+          "over10ms": "295",
+          "frames": "1270",
+          "settled": "False"
+        }
+      ]
     }
   ],
   "candidate_full_baseline": "038063471b0534e45994291cc876a9dcdbf768c1",
@@ -402,5 +602,15 @@
     "optimized_p95_ms": 21.0313,
     "optimized_max_ms": 54.3423,
     "strict_floor_met": false
-  }
+  },
+  "visual_findings": [
+    "Actual plains floor now shows photographed plant/litter detail; near grass present.",
+    "Boreal and temperate close trunks have continuous photographed bark; no stacked horizontal tube seams in inspected views.",
+    "Residual abrupt green/brown ground boundary in boreal foreground: NOT accepted; diagnostic edge-field/binding and component-isolation captures added.",
+    "Crown depth reprojection still produces warped/lumpy results in actual forest overview: NOT accepted; optional bounded offset comparison added, not enabled in normal game.",
+    "Artificial camera rotation can expose player shoulder/neck in rearward review captures; retained actors, not a claim about ordinary first-person body behavior."
+  ],
+  "next_candidate_source": "a73932d43dd197ce831b96ccb3b81d57838f8091",
+  "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
+  "current_test": "artifacts/render-repair-20261104/boreal-material-cull: running, no completion claim"
 }

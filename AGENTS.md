@@ -49,6 +49,33 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov22:53Z RENDER REPAIR. Selected A/f833/shortcut protected. Current own
+native benchmark14970: boreal-material-cull, onlydense-borealforest, Medium1080/
+6km/10sec. Candidate B FULLb613f1e5 BuiltUtc22:46:08Z, ScriptsOnlya73932d4
+22:50:18Z SourceChanges[], managed NONDEV; known3Unityautos RESTORED, no editor
+running. No compile/heavy jobs while native timing windows active. New included
+UNACCEPTED changes4436314f managed frustum/native A-B +inref plant payloads;
+6f86836a simple matte generated small-plant lighting/fullPBR comparison; optional
+2c44 tree bounded2texel depth reprojection DEFAULT OFF for visual A-B. New29CPU
+phase traces +actual Unity GC Allocated In Frame recorder (check validity) and
+actual walking grass captures/nearGPUinstance counts. Native tests must validate.
+Just-completed current-medium-contexts source9b86b01c ALL4sites exit0/no errors:
+plains179.20static/173.81turn/150.28movingwhip; jungle141.89/133.00/99.12;
+temperate137.48/131.85/98.84; boreal141.70/148.52/105.70. Boreal firststatic
+UNSETTLED201/202, laterready; allmoving streams labelledfalse. Synchronous
+forest-community-review FPS NEVER normalthroughput. Worst moving25/43/50/46ms,
+100floor NOT achieved. Inspected all4actual groundviews: neargrass present and
+trunkbarkcontinuous, BUT boreal brown/green foreground seam persists, forest
+impostor crowns look warped/lumpy, NOT accepted. Newground-seam-review records
+actual samegrid neighbor Cover/Mid/Forest+height deltas and checks materials,
+plusnormal/flatvertex/noForest/noGrass/unlit isolation captures. Sourcegeometry43
+unchanged. Need inspect these BEFORE claiming repaired. AllsourcePUSHEDa739,
+canonicalpartialreceipt updatednow. Owner3files untouched, assetlock5405/144.
+No subagents/paid/ownerappsclosed. Need savedmixedUltra200km actualprofile after
+current checks. Internal DistantTreeShadowCards flag is LABELLED Soft coarse
+foliage shadows in menu; ownerhasfalse (plusdepthprepasstrue), so fallback can
+restore expensive foliage casters; have NOT altered his saved settings.
+
 ACTIVE4Nov22:24Z REPAIR CONTINUES. Source9b86b01c PUSHED; inactive B ScriptsOnly
 NONDEV BuiltUtc22:09:24Z SourceChanges[] over FULL03806347, selected A/f833
 untouched. savanna-groups-fixed-exposure COMPLETE:8exact heading sets +32moving
