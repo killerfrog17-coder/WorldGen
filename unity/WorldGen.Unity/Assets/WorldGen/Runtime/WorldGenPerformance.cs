@@ -706,6 +706,7 @@ public sealed partial class WorldGenRuntime
         double seconds=double.Parse(Argument("--worldgen-perf-seconds","6"),CultureInfo.InvariantCulture);
         double profileView=double.Parse(Argument("--worldgen-perf-view","60000"),CultureInfo.InvariantCulture);
         int profilePlants=int.Parse(Argument("--worldgen-perf-plant-quality","2"));
+        bool savedSettings=Environment.GetCommandLineArgs().Contains("--worldgen-perf-saved-settings");
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
@@ -786,6 +787,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("flying-terrain-only",()=>{terrainExplorer.PerformancePose(60);TerrainVideoOptions.GroundCover=false;terrainExplorer.ScatterEnabled=false;TerrainVideoOptions.FarForest=false;}),
             new PerfCase("turning-original",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("turning",()=>{}),
+            new PerfCase("turning-whip",()=>{}),
             new PerfCase("turning-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("turning-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("turning-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
@@ -795,6 +797,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("overlap-verify",()=>{}),
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
+            new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("travel-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
@@ -806,7 +809,12 @@ public sealed partial class WorldGenRuntime
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
-            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);}
+            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();}
+            // Read saved preferences only on explicit request; never write them.
+            // Record the distinction from all-Medium instead of presenting a
+            // different configuration as the owner's actual gameplay baseline.
+            Defaults();
+            File.AppendAllText(Path.Combine(output,"settings.txt"),site.Item1+" saved="+savedSettings+" geometry="+TerrainVideoOptions.Current.Quality+" surface="+TerrainVideoOptions.SurfaceQuality+" grass="+TerrainVideoOptions.GrassQuality+" specialists="+TerrainVideoOptions.SpecialistQuality+" mid="+TerrainVideoOptions.MidQuality+" trees="+TerrainVideoOptions.TreeQuality+" view="+TerrainVideoOptions.Current.ViewDistanceM+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
             Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(exactSites.TryGetValue(site.Item1,out var exactSite)?exactSite:world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer==null||!terrainExplorer.Ready){Debug.LogError("PERF terrain unavailable");Application.Quit(1);yield break;}
@@ -892,8 +900,9 @@ public sealed partial class WorldGenRuntime
                         var t=WorldGenPerformance.TraceMilliseconds;
                         stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16]});
                     }
-                    if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+(float)((now-start)*60));
-                    if(item.Name.StartsWith("travel",StringComparison.Ordinal))terrainExplorer.PerformanceTravel((now-start)*8);
+                    if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name=="turning-whip"?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
+                    if(item.Name.StartsWith("travel",StringComparison.Ordinal))
+                    {terrainExplorer.PerformanceTravel((now-start)*8);if(item.Name=="travel-whip")terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));}
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
                     FrameTimingManager.CaptureFrameTimings();
                     if(FrameTimingManager.GetLatestTimings(1,timings)>0&&timings[0].frameStartTimestamp!=lastTiming&&timings[0].gpuFrameTime>0)

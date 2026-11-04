@@ -49,6 +49,24 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov18:42Z OWNER PLAYTEST REPAIR. Owner rejects triangle material patches,
+poor grass floor, disappearing near grass, segmented/angular tree trunks,
+uniform savannah forks, excessive foliage cost and sub100 moving frames. Fix
+these defects/performance; do NOT start new geography features. Wants one Debug
+settings category. Selected A/f833 remains untouched. New source uncommitted:
+smooth ground material slope (physical rooting remains geometric), near grass
+on coarse resident tiles, continuous trunk sweeps/UV/normals and irregular forks,
+reduced shoot overlap/folded frond geometry, scanned grass floor (new CC0 raw
+input requires asset-lock publication), merged Debug. First/second Editor tree
+renders inspected; initial pine geometry cost INCREASE rejected, latest reduced
+geometry still needs fresh review. No player candidate built yet. Add whip-turn
+and moving-turn benchmarks plus optional exact saved-settings baseline; old
+allMedium/6km tests differ from owner's mixedUltra/200km. Need actual rendered
+grass regression/current build checks and honest frame tails, no100floor claim.
+Owner game was closed at18:40Z. No subagents/paid/owner-app closure. Preserve
+owner prompt deletion and two untracked deer scripts. Reuse inactive B FULL
+managed NONDEV; never overwrite selected A. Prior retirement denial respected.
+
 SELECTED4Nov18:03Z GEOGRAPHY PLAYTEST HANDOFF; GEOGRAPHY NOW PAUSED.
 Owner explicitly said finish current feature/build, do NOT start another, resume
 geography later after NPC refinement. This supersedes ALL older overnight

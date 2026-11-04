@@ -12,6 +12,7 @@ param(
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
     [switch]$StutterTrace,
+    [switch]$SavedSettings,
     [switch]$Original
 )
 $ErrorActionPreference='Stop'
@@ -38,6 +39,7 @@ $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
 if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
+if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
