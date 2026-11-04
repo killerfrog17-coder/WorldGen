@@ -66,9 +66,12 @@
         "2456a0b3",
         "28a9db8f",
         "8f82f314",
-        "213009a5"
+        "213009a5",
+        "48f861c8",
+        "a8297026"
       ],
-      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainScatter.cs"
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainScatter.cs",
+      "notes": "Adaptive all-heading batches while still; bounded directional guard during translation. Underlying grouped culling and per-instance caster eligibility have separate checkpoints."
     },
     {
       "name": "Shared tropical woody climbers",
@@ -134,10 +137,56 @@
     {
       "name": "Broad rock weathering",
       "commits": [
-        "e35ff898"
+        "e35ff898",
+        "7c911fb5"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl"
+    },
+    {
+      "name": "Changed-cell vegetation ground projection",
+      "commits": [
+        "47b17063",
+        "964fe9a4"
+      ],
+      "entry": "src/WorldGen.Presentation/TerrainHeightChange.cs",
+      "verification_commits": [
+        "e56e7d8a",
+        "870902a8"
+      ],
+      "notes": "Shares source terrain with the literal full projector; changes only ownership lookup and which affected roots are recomputed. Reverting must preserve the canonical ground height."
+    },
+    {
+      "name": "Shared terrain and vegetation installation budget",
+      "commits": [
+        "1831467f",
+        "ae09acdb"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainExplorer.cs"
+    },
+    {
+      "name": "Idle tree preparation allocations",
+      "commits": [
+        "f431d9a4"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTreeRendering.cs"
+    },
+    {
+      "name": "Near plant GPU depth experiment",
+      "commits": [
+        "1338f38a"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenPerformance.cs",
+      "notes": "Opt-in diagnostic only; production remains on CPU hill tests pending comparison."
+    },
+    {
+      "name": "Generated landmark review command",
+      "commits": [
+        "6af874fb"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainCatalogCommands.cs",
+      "notes": "Optional /landmark console command searches existing generated data; it does not create features or change geography."
     }
   ],
-  "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update."
+  "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",
+  "verification_notes": "Current numerical and native evidence is separate from feature ownership. A source push does not imply final acceptance. Tiny raster edge tolerance never substitutes for exact visible membership or physical shadow-caster checks."
 }
