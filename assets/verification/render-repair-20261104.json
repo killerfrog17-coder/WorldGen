@@ -1,6 +1,6 @@
 {
   "status": "Active render repair; performance floor NOT achieved; selected shortcut remains A/f833.",
-  "candidate_source": "038063471b0534e45994291cc876a9dcdbf768c1",
+  "candidate_source": "9b86b01c007c7bce76f6d18c588ca0c7befcdd5e",
   "candidate_slot": "slot-b",
   "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
   "target": {
@@ -36,8 +36,9 @@
   "native_grass": "artifacts/render-repair-20261104/grass-clumps-lit: 6400 GPU roots, visible output, L0..L3 production page requests. Isolated white-ground fixture is not real-world art acceptance.",
   "pose_proof": "savanna-substrate/equivalence.txt: 69120 bit-exact authored matrix components across 8 actual loaded species.",
   "pending": [
-    "Current group/moving-guard equivalence and timings",
-    "Actual open plains and dense forest regional views/timings",
+    "Compile/evaluate managed frustum, immutable payload references and matte small-plant shader",
+    "Finish actual open-plains and dense tropical/temperate/boreal views/timings",
+    "Inspect optional bounded tree-depth reprojection against original",
     "Saved mixed-quality long-view settings comparison",
     "Final candid package review and shortcut selection"
   ],
@@ -292,6 +293,114 @@
       "source": "038063471b0534e45994291cc876a9dcdbf768c1",
       "summary_sha256": "56b95346e7e73e86c6cccd2c556d794572a8e84aa69d4226b2feac86e850db29",
       "rows": []
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/savanna-groups-fixed-exposure",
+      "complete": true,
+      "source": "9b86b01c007c7bce76f6d18c588ca0c7befcdd5e",
+      "summary_sha256": "8112d6ffce4e446042291de4da24e0f148232673b51c7eb2289c60f7608d0153",
+      "rows": [
+        {
+          "case": "scatter-range-verify",
+          "fps": "128.63743",
+          "p50_ms": "7.56860",
+          "p95_ms": "8.95180",
+          "p99_ms": "11.56880",
+          "max_ms": "28.32880",
+          "over10ms": "47",
+          "frames": "2574",
+          "settled": "True"
+        },
+        {
+          "case": "moving-guard-verify",
+          "fps": "129.26318",
+          "p50_ms": "7.50250",
+          "p95_ms": "9.02250",
+          "p99_ms": "11.46360",
+          "max_ms": "38.53090",
+          "over10ms": "64",
+          "frames": "2586",
+          "settled": "True"
+        },
+        {
+          "case": "terrain-only",
+          "fps": "224.33366",
+          "p50_ms": "4.37760",
+          "p95_ms": "5.17730",
+          "p99_ms": "6.44490",
+          "max_ms": "38.15730",
+          "over10ms": "1",
+          "frames": "4488",
+          "settled": "True"
+        },
+        {
+          "case": "travel-whip",
+          "fps": "89.76387",
+          "p50_ms": "8.83690",
+          "p95_ms": "21.03130",
+          "p99_ms": "24.22640",
+          "max_ms": "54.34230",
+          "over10ms": "614",
+          "frames": "1796",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip-legacy-groups",
+          "fps": "88.02527",
+          "p50_ms": "9.06590",
+          "p95_ms": "20.42700",
+          "p99_ms": "24.14350",
+          "max_ms": "60.29900",
+          "over10ms": "655",
+          "frames": "1762",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip-narrow",
+          "fps": "78.25746",
+          "p50_ms": "13.36420",
+          "p95_ms": "18.80150",
+          "p99_ms": "22.85940",
+          "max_ms": "58.72090",
+          "over10ms": "1084",
+          "frames": "1566",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip-original-culling",
+          "fps": "77.21393",
+          "p50_ms": "13.55770",
+          "p95_ms": "19.27080",
+          "p99_ms": "22.87250",
+          "max_ms": "62.24430",
+          "over10ms": "1075",
+          "frames": "1545",
+          "settled": "False"
+        },
+        {
+          "case": "weather-off",
+          "fps": "126.21465",
+          "p50_ms": "7.72980",
+          "p95_ms": "9.02050",
+          "p99_ms": "11.45910",
+          "max_ms": "43.51350",
+          "over10ms": "47",
+          "frames": "2525",
+          "settled": "True"
+        }
+      ]
     }
-  ]
+  ],
+  "candidate_full_baseline": "038063471b0534e45994291cc876a9dcdbf768c1",
+  "current_visibility_proof": "savanna-groups-fixed-exposure/equivalence.txt: eight exact heading model/transform/tint/LOD/shadow multisets; moving guard32 actual renders at fixed exposure pass, max1 changed edge pixel, maxdelta30, same physical casters and visible membership.",
+  "rejected_visibility_evidence": "savanna-groups: moving image comparison failed24 shoulder pixels at maxdelta3 because each manual render advanced exposure. 9b86b01c holds exposure in verifier; actors and original tolerance retained. Failure files preserved.",
+  "measured_culling_comparison": {
+    "optimized_moving_whip_fps": 89.76387,
+    "legacy_groups_fps": 88.02527,
+    "six_degree_guard_fps": 78.25746,
+    "both_original_fps": 77.21393,
+    "optimized_p95_ms": 21.0313,
+    "optimized_max_ms": 54.3423,
+    "strict_floor_met": false
+  }
 }

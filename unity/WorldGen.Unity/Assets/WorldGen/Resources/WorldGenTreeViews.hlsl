@@ -3,7 +3,14 @@
 TEXTURE2D_ARRAY(_TreeColourViews);SAMPLER(sampler_TreeColourViews);
 TEXTURE2D_ARRAY(_TreeNormalViews);SAMPLER(sampler_TreeNormalViews);
 // Distance transition, then projected-diameter transition. Zero disables LOD.
-float4 _WorldGenTreeViewRanges;float _WorldGenTreeViewProjection;
+float4 _WorldGenTreeViewRanges;float _WorldGenTreeViewProjection,_WorldGenTreeStableDepth;
+float2 WorldGenTreeDepthOffset(float2 offset)
+{
+    // The 128px bake stores only the front surface. Large reprojection offsets
+    // drag unrelated leaves across each other; keep this optional comparison
+    // within two source texels instead of inventing missing depth.
+    return _WorldGenTreeStableDepth>.5?clamp(offset,-2./128.,2./128.):offset;
+}
 float2 WorldGenTreeQuadHalfSize(float3 right,float3 up,float4 extents,float radius,float enabled)
 {
     if(enabled<.5||min(extents.x,min(extents.y,extents.z))<=0)return float2(radius,radius);
@@ -42,9 +49,9 @@ void WorldGenTreeFullView(uint index,float3 p,float3 view,float radius,half4 cov
     if(!prefetched)coverage=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
     half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index);
     float t=(coverage.a>.2?(depth.a-.5)*2*radius:0)/max(.2,dot(view,d));
-    uv+=float2(dot(view,r),dot(view,u))*t/(2*radius);
+    uv+=WorldGenTreeDepthOffset(float2(dot(view,r),dot(view,u))*t/(2*radius));
     color=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);color.a*=all(uv>=0)&&all(uv<=1);
-    normal=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb*2-1;
+    normal=(_WorldGenTreeStableDepth>.5?depth.rgb:SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb)*2-1;
 }
 void WorldGenTreeCombine(half4 a,half4 b,half4 c,float3 weights,out half4 color,out float3 covered)
 {
@@ -125,9 +132,9 @@ half4 WorldGenTreeMaskCoverage(half4 color,float2 uv)
 void WorldGenPreparedTreeFullView(float4 projection,uint index,half4 coverage,out half4 color,out half3 normal)
 {
     half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,projection.xy,index);
-    float2 uv=projection.xy+projection.zw*(coverage.a>.2?depth.a-.5:0);
+    float2 uv=projection.xy+WorldGenTreeDepthOffset(projection.zw*(coverage.a>.2?depth.a-.5:0));
     color=WorldGenTreeMaskCoverage(SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index),uv);
-    normal=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb*2-1;
+    normal=(_WorldGenTreeStableDepth>.5?depth.rgb:SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb)*2-1;
 }
 void WorldGenPreparedTreeSurface(WorldGenPreparedTreeViews prepared,float3 p,float3 view,float radius,float2 lod,bool early,out half4 color,out half3 normal)
 {
