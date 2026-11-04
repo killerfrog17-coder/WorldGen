@@ -190,7 +190,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
         huntingSpeed=Math.Sqrt(Math.Pow(motion.X-movementStartX,2)+Math.Pow(motion.Z-movementStartZ,2))/Math.Max(.001,Time.unscaledDeltaTime);
+        long componentTrace=WorldGenPerformance.TraceBegin();
         UpdateCamp();UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);UpdateCombatBleeding();
+        WorldGenPerformance.TraceEnd(17,componentTrace);
         if(Math.Abs(motion.X-originX)>8192||Math.Abs(motion.Z-originZ)>8192)
         {
             double newOriginX=Math.Floor(motion.X/2048)*2048,newOriginZ=Math.Floor(motion.Z/2048)*2048;
@@ -203,8 +205,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
         UpdatePlayerDeath();
+        componentTrace=WorldGenPerformance.TraceBegin();
         if(!TerrainDiagnostics.HoldTerrain&&!DeathVisible)UpdatePreparedFrame();
-        UpdateHumans();UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateBloodSigns();UpdateFootsteps();UpdateBodyFeedback();UpdateSurvivalHud();double altitude=HeightAboveGround;
+        WorldGenPerformance.TraceEnd(18,componentTrace);
+        componentTrace=WorldGenPerformance.TraceBegin();UpdateHumans();WorldGenPerformance.TraceEnd(19,componentTrace);
+        componentTrace=WorldGenPerformance.TraceBegin();
+        UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateBloodSigns();UpdateFootsteps();UpdateBodyFeedback();UpdateSurvivalHud();double altitude=HeightAboveGround;
+        WorldGenPerformance.TraceEnd(20,componentTrace);
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
@@ -247,7 +254,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(CanRetireTransition(key))
             {CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;scatterGroundRevision++;scatterGroundChanges.Add(key);}
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
-        UpdateAnimalFauna();
+        componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);
         long weatherTrace=WorldGenPerformance.TraceBegin(),weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);WorldGenPerformance.TraceEnd(3,weatherTrace);
         UpdateDebugReadout();
         if(mapOpen){UpdateTerrainCoverage();UpdateStreamingFog();RetireTerrainGradually();return;}

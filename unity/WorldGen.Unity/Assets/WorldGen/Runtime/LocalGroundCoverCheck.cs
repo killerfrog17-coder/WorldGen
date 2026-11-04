@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     public static IEnumerator CheckGroundCover(string output)
     {
         Directory.CreateDirectory(output);
-        TerrainVideoOptions.GrassClumps=false; // This fixture exercises the optional original blade geometry.
+        TerrainVideoOptions.GrassClumps=Array.IndexOf(Environment.GetCommandLineArgs(),"--worldgen-cover-clumps")>=0;
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var host=new GameObject("Ground cover fixture");var e=host.AddComponent<LocalTerrainExplorer>();e.enabled=false;e.closed=true;
         e.InitializeGroundCover();if(e.groundCoverMaterial==null)throw new Exception("Ground cover GPU path unavailable");
@@ -51,7 +51,15 @@ public sealed partial class LocalTerrainExplorer
             if(cover)
             {
                 e.CullGroundCover(gpu,new Vector4(0,0,0,gpu.Born),camera);
-                foreach(int lod in new[]{0,1,2,5}){var material=lod==2?e.groundCanopyMaterial:e.groundCoverMaterial;if(material==null)continue;gpu.Properties.SetInt("_CoverLod",lod);gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);var rp=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(new Vector3(51,1,51),new Vector3(106,10,106)),matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);}
+                foreach(int lod in new[]{0,1,2,5})
+                {
+                    if(TerrainVideoOptions.GrassClumps&&lod==5)continue;
+                    var material=TerrainVideoOptions.GrassClumps?e.groundClumpMaterial:lod==2?e.groundCanopyMaterial:e.groundCoverMaterial;
+                    if(material==null)continue;gpu.Properties.SetInt("_CoverLod",lod);gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);
+                    var rp=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(new Vector3(51,1,51),new Vector3(106,10,106)),matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off};
+                    if(gpu.Indexed)Graphics.RenderPrimitivesIndexedIndirect(in rp,MeshTopology.Triangles,e.groundClumpIndices,gpu.Args,1,lod);
+                    else Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);
+                }
             }
             camera.Render();var old=RenderTexture.active;RenderTexture.active=target;var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();
             File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());var pixels=image.GetPixels32();Destroy(image);RenderTexture.active=old;return pixels;

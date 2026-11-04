@@ -13,6 +13,11 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<(int,LocalWaterKind,ulong,int,int,int),WaterSourceCache> waterSourceCache=new Dictionary<(int,LocalWaterKind,ulong,int,int,int),WaterSourceCache>();
     sealed class WaterSourceCache {public long SolarHour,WeatherHour;public WaterSourceEnvironment Environment;}
     Vector3 waterAimEye,waterAimDirection;
+    int waterSampleFrame=-1,waterSampleSlots;
+    LocalTerrainFrame waterSampleChart;
+    LocalTerrain waterSampleTerrain;
+    readonly double[] waterSampleX=new double[2],waterSampleZ=new double[2];
+    readonly LocalTerrainSample[] waterSamples=new LocalTerrainSample[2];
     sealed class WaterTarget {public Vector3 Point;public float Distance;public WaterQuality Quality;}
     void InitializePlayerWater()
     {
@@ -38,6 +43,18 @@ public sealed partial class LocalTerrainExplorer
     }
     LocalTerrainSample PlayerWaterSample(double x,double z)
     {
+        if(WorldGenPerformance.ForceFreshWaterSamples)return PlayerWaterSampleFresh(x,z);
+        // Camera appearance, motion water and breath checks ask for exactly the
+        // same full landscape sample in one frame. Share that immutable result;
+        // dynamic swell, quality/weather and submersion still update normally.
+        if(waterSampleFrame!=Time.frameCount||!ReferenceEquals(waterSampleChart,frame)||!ReferenceEquals(waterSampleTerrain,terrain))
+        {waterSampleFrame=Time.frameCount;waterSampleChart=frame;waterSampleTerrain=terrain;waterSampleSlots=0;}
+        for(int i=0;i<waterSampleSlots;i++)if(waterSampleX[i]==x&&waterSampleZ[i]==z)return waterSamples[i];
+        var sample=PlayerWaterSampleFresh(x,z);int slot=waterSampleSlots<2?waterSampleSlots++:1;
+        waterSampleX[slot]=x;waterSampleZ[slot]=z;waterSamples[slot]=sample;return sample;
+    }
+    LocalTerrainSample PlayerWaterSampleFresh(double x,double z)
+    {
         V at=frame.Position(x,z);
         bool Contains(LocalTerrain.LocalTerrainPatch patch)=>patch!=null&&(at-patch.Center).Length*terrain.RadiusM<patch.HalfExtentM*.9;
         if(Contains(walkingPatch))return walkingPatch.Sample(at);
@@ -45,6 +62,18 @@ public sealed partial class LocalTerrainExplorer
         // Query its actual site, retaining just one small additional index.
         if(!Contains(waterProjectionPatch))waterProjectionPatch=terrain.Patch(at,240/HorizontalScale);
         return waterProjectionPatch.Sample(at);
+    }
+    public string PerformanceVerifyWaterSamples()
+    {
+        int compared=0;
+        foreach(var point in new[]{new Vector2(0,0),new Vector2(2,3),new Vector2(-15,12),new Vector2(230,-125)})
+        {
+            double x=motion.X+point.x,z=motion.Z+point.y;
+            var expected=PlayerWaterSampleFresh(x,z);
+            for(int repeat=0;repeat<3;repeat++)
+            {if(!expected.Equals(PlayerWaterSample(x,z)))throw new InvalidOperationException("Cached water sample changed physical terrain/water");compared++;}
+        }
+        return "PASS "+compared+" exact cached/fresh terrain-water samples; swell and exposure remain time-dependent";
     }
     MotionWater SampleMotionWater(double x,double z)
     {

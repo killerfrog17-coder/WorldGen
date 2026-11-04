@@ -23,6 +23,7 @@ public static class WorldGenPerformance
     public static bool DirectionalScatter;
     public static bool GpuNearOcclusion;
     public static bool NonIndexedClumps;
+    public static bool ForceFreshWaterSamples;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
@@ -31,7 +32,7 @@ public static class WorldGenPerformance
     public static double CompletedRenderMs;
     public static readonly double[] Milliseconds=new double[4];
     public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
-    public static readonly double[] TraceMilliseconds=new double[17];static int traceFrame=-1;
+    public static readonly double[] TraceMilliseconds=new double[22];static int traceFrame=-1;
     public static bool SuppressIdleScatter,SkipMapUploads,ForceFreshCoverCull,NoLocalTrees,ForceFreshForestOwnership,TreeLegacyAlpha,SuppressFarForest,ForceIndividualTreeAdmission,DrainEachFrame,LegacyTreeQueues;
     public static long TraceBegin()
     {
@@ -676,8 +677,8 @@ public sealed partial class WorldGenRuntime
     static string Perf(double value)=>value.ToString("F5",CultureInfo.InvariantCulture);
     struct StutterRow
     {
-        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky,Batches,Bakes,Projection,Forest,Shadows,CoverDraw,Canopy,ForestDraw;public int Gc;public long Heap,MainAllocated;
-        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky),Perf(Batches),Perf(Bakes),Perf(Projection),Perf(Forest),Perf(Shadows),Perf(CoverDraw),Perf(Canopy),Perf(ForestDraw));
+        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky,Batches,Bakes,Projection,Forest,Shadows,CoverDraw,Canopy,ForestDraw,Survival,Prepared,Humans,Player,Fauna;public int Gc;public long Heap,MainAllocated;
+        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky),Perf(Batches),Perf(Bakes),Perf(Projection),Perf(Forest),Perf(Shadows),Perf(CoverDraw),Perf(Canopy),Perf(ForestDraw),Perf(Survival),Perf(Prepared),Perf(Humans),Perf(Player),Perf(Fauna));
     }
     IEnumerator CheckPerformance()
     {
@@ -709,6 +710,8 @@ public sealed partial class WorldGenRuntime
         bool savedSettings=Environment.GetCommandLineArgs().Contains("--worldgen-perf-saved-settings");
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
+            new PerfCase("water-query-verify",()=>{}),
+            new PerfCase("water-query-fresh",()=>WorldGenPerformance.ForceFreshWaterSamples=true),
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
             new PerfCase("scatter-range-verify",()=>{}),
             new PerfCase("scatter-guard-verify",()=>{}),
@@ -828,7 +831,7 @@ public sealed partial class WorldGenRuntime
             {
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
-                WorldGenPerformance.FoliageShadowTaps=0;
+                WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=false;
                 WorldGenPerformance.GpuNearOcclusion=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -850,6 +853,7 @@ public sealed partial class WorldGenRuntime
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
+                if(item.Name=="water-query-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyWaterSamples()+"\n");
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");
                 if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}
                 if(item.Name=="trees-efficient-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyTreeEfficiency(output)+"\n");
@@ -898,7 +902,7 @@ public sealed partial class WorldGenRuntime
                     {
                         if(now>=heapAt){heap=GC.GetTotalMemory(false);heapAt=now+.25;}
                         var t=WorldGenPerformance.TraceMilliseconds;
-                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16]});
+                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16],Survival=t[17],Prepared=t[18],Humans=t[19],Player=t[20],Fauna=t[21]});
                     }
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name=="turning-whip"?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
@@ -923,7 +927,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
-                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms"}.Concat(stutter.Select(s=>s.ToString())));
+                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
             }
             File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformancePendingComparisons+" loading/idle readiness comparisons passed.\n");
