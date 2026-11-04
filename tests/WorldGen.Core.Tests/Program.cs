@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--eroded-controls")){ErodedTerrainTests.Run();return;}
+if(args.Contains("--eroded-world")){ErodedTerrainTests.World(args[1],args[2]);return;}
 if(args.Contains("--coastal-controls")){CoastalTerrainTests.Controls();return;}
 if(args.Contains("--coastal-world")){CoastalTerrainTests.World(args[1],args[2]);return;}
 if(args.Contains("--volcanic-controls")){VolcanicTerrainTests.Controls();return;}

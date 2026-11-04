@@ -14,7 +14,7 @@ namespace WorldGen.Core
     // of nearest-cell switches. Shared refined vertices carry the same mixture.
     public struct LandscapeControls
     {
-        public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Frozen,Arid,Wet,Peat,Moisture,Canopy,BareRock;
+        public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Frozen,Arid,Wet,Peat,Moisture,Canopy,BareRock,Remnant;
         public static LandscapeControls Blend(LandscapeControls a,LandscapeControls b,double t)
             => Mix(a,b,default,1-t,t,0);
         public static LandscapeControls Mix(LandscapeControls a,LandscapeControls b,LandscapeControls c,double x,double y,double z)
@@ -22,7 +22,7 @@ namespace WorldGen.Core
                 Sand=(float)(a.Sand*x+b.Sand*y+c.Sand*z),Clay=(float)(a.Clay*x+b.Clay*y+c.Clay*z),Salt=(float)(a.Salt*x+b.Salt*y+c.Salt*z),
                 Badlands=(float)(a.Badlands*x+b.Badlands*y+c.Badlands*z),Loess=(float)(a.Loess*x+b.Loess*y+c.Loess*z),Karst=(float)(a.Karst*x+b.Karst*y+c.Karst*z),
                 Rock=(float)(a.Rock*x+b.Rock*y+c.Rock*z),Glacial=(float)(a.Glacial*x+b.Glacial*y+c.Glacial*z),Frozen=(float)(a.Frozen*x+b.Frozen*y+c.Frozen*z),Arid=(float)(a.Arid*x+b.Arid*y+c.Arid*z),Wet=(float)(a.Wet*x+b.Wet*y+c.Wet*z),
-                Peat=(float)(a.Peat*x+b.Peat*y+c.Peat*z),Moisture=(float)(a.Moisture*x+b.Moisture*y+c.Moisture*z),Canopy=(float)(a.Canopy*x+b.Canopy*y+c.Canopy*z),BareRock=(float)(a.BareRock*x+b.BareRock*y+c.BareRock*z)};
+                Peat=(float)(a.Peat*x+b.Peat*y+c.Peat*z),Moisture=(float)(a.Moisture*x+b.Moisture*y+c.Moisture*z),Canopy=(float)(a.Canopy*x+b.Canopy*y+c.Canopy*z),BareRock=(float)(a.BareRock*x+b.BareRock*y+c.BareRock*z),Remnant=(float)(a.Remnant*x+b.Remnant*y+c.Remnant*z)};
         public double Flatness=>Math.Max(Wet*.8,Math.Max(Clay,Salt));
     }
 
@@ -54,6 +54,7 @@ namespace WorldGen.Core
                 Loess=ground.Deposit==ParentDeposit.Loess?1:0,
                 Karst=(float)(ground.RockWeight(3)*Smooth(130,800,relief)),
                 Rock=(float)((ground.RockWeight(0)+ground.RockWeight(1)+ground.RockWeight(5))*Math.Max(Smooth(150,1100,relief),dry*(1-Smooth(.08,.3,ground.DepthM)))),
+                Remnant=(float)(dry*(ground.RockWeight(0)+.65*ground.RockWeight(2)+.85*ground.RockWeight(5))*(1-Smooth(600,1800,relief))*(1-glacial)*(1-wet)),
                 Glacial=(float)D.Clamp(glacial),Frozen=(float)D.Clamp(frozen),Arid=(float)dry,Wet=(float)D.Clamp(wet),Peat=peat?1:(float)Smooth(.12,.35,ground.Organic),
                 Moisture=(float)D.Clamp(moisture/1.2),Canopy=(float)D.Clamp(canopy)};
         }
@@ -74,7 +75,8 @@ namespace WorldGen.Core
             double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet);
             // Mature salt crust and actively moving sand are bare, including
             // the individual shrub path that does not use the cover profile.
-            return 1-Smooth(.02,.98,Math.Max(controls.BareRock,Math.Max(sand,Math.Max(basin,SaltCrust(controls)))));
+            double remnant=Smooth(.12,.55,ErodedTerrain.Remnant(metres,seed,controls));
+            return 1-Smooth(.02,.98,Math.Max(remnant,Math.Max(controls.BareRock,Math.Max(sand,Math.Max(basin,SaltCrust(controls))))));
         }
         public static double HeightOffset(V metres,int seed,LandscapeControls controls)
         {
@@ -114,17 +116,7 @@ namespace WorldGen.Core
                 double secondary=.5+.5*SphereNoise.Sample(metres,seed^0x2b531,1/170d);
                 result+=Smooth(.08,.4,dunes)*(ridge*crestHeight+1.2*secondary);
             }
-            if(controls.Badlands>.01)
-            {
-                double gullies=1-Math.Abs(SphereNoise.Sample(metres,seed^0x39171,1/120d));
-                result-=controls.Badlands*8*gullies*gullies*gullies;
-            }
-            if(controls.Karst>.01)
-            {
-                double ribs=Math.Abs(SphereNoise.Sample(metres,seed^0x1d731,1/145d));
-                result+=controls.Karst*7*ribs*ribs;
-            }
-            if(controls.Loess>.01)result+=controls.Loess*2.5*SphereNoise.Sample(metres,seed^0x731b1,1/180d);
+            result+=ErodedTerrain.HeightOffset(metres,seed,controls);
             if(controls.Rock>.01)result+=controls.Rock*.65*SphereNoise.Sample(metres,seed^0x17ba3,1/14d);
             if(controls.Wet>.01)result+=controls.Wet*.12*SphereNoise.Sample(metres,seed^0x73419,1/19d);
             return result;
@@ -175,6 +167,9 @@ namespace WorldGen.Core
                 p.Gravel*=1-.94*crust;p.Organic*=1-.98*crust;
             }
             p.SoilColor*=1-.22*controls.Wet;
+            double remnant=Smooth(.12,.55,ErodedTerrain.Remnant(metres,seed,controls));
+            p.DepthM*=1-.995*remnant;p.Organic*=1-remnant;
+            if(remnant>.5)p.Deposit=ParentDeposit.Residual;
             p.Organic=Math.Max(p.Organic,.12*controls.Wet);
             if(controls.Peat>.1){p.Organic=Math.Max(p.Organic,.45*controls.Peat);p.SoilColor=p.SoilColor*(1-.55*controls.Peat);}
             double volcanic=D.Clamp(controls.BareRock);
@@ -208,7 +203,7 @@ namespace WorldGen.Core
             // The compact ecology/material kernel can include neighbouring
             // grasslands. Active mobile sediment still prevents a rooted lawn.
             double sand=Smooth(.12,.4,SandSea(metres,seed,controls));
-            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet),bare=Math.Max(controls.BareRock,Math.Max(sand,Math.Max(basin,SaltCrust(controls))));
+            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet),bare=Math.Max(Smooth(.12,.55,ErodedTerrain.Remnant(metres,seed,controls)),Math.Max(controls.BareRock,Math.Max(sand,Math.Max(basin,SaltCrust(controls)))));
             if(controls.Arid>.85&&controls.Canopy<.2&&controls.Wet<.4)biome=Biome.Desert;
             if(bare<=0)return;
             double admission=1-Smooth(.02,.98,bare);

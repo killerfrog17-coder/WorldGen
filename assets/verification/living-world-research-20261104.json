@@ -15,7 +15,10 @@
     {"url": "https://www.fs.usda.gov/rm/pubs/rmrs_gtr346.pdf", "use": "Forest structure and understory distinguish regional vegetation, not merely green tint."},
     {"url": "https://www.nps.gov/articles/rocky-coast-landforms.htm", "use": "Coastal relief, resistant bedrock and sediment supply distinguish cliffs/headlands from protected pocket beaches. Rocky coasts are not restricted to one lithology."},
     {"url": "https://www.nps.gov/articles/sandy-coast-landforms.htm", "use": "Depositional shelves host beaches, bars, spits and dunes, with broad variation in width and composition."},
-    {"url": "https://oceanservice.noaa.gov/facts/barrier-islands.html", "use": "Bars and barrier chains belong to relatively flat, sediment-supplied coasts. The current local pass provides intermittent nearshore bars, not a complete longshore sediment transport model."}
+    {"url": "https://oceanservice.noaa.gov/facts/barrier-islands.html", "use": "Bars and barrier chains belong to relatively flat, sediment-supplied coasts. The current local pass provides intermittent nearshore bars, not a complete longshore sediment transport model."},
+    {"url": "https://www.nps.gov/subjects/caves/upload/Karst-Topography-Model-_Written-Section_508c.pdf", "use": "Limestone dissolution produces dolines, cones and, in humid settings, steep towers and gorges. Distinguish carbonate relief from generic hills."},
+    {"url": "https://home.nps.gov/articles/000/badl-geologic-formations.htm", "use": "Exposed weak sediments undergo differential erosion and gullying; existing aridity, vegetation and mudstone controls admit dissected badland terrain."},
+    {"url": "https://www.ga.gov.au/scientific-topics/national-location-information/landforms/significant-rock-features", "use": "Isolated resistant bedrock remnants differ from ordinary mountain noise. Admit rare coherent outcrops in appropriate dry, low-relief geology; do not populate every landscape with landmarks."}
   ],
   "coverage_review": [
     {"area": "Grass", "existing_problem": "Expensive blade geometry; uniform grass presentation", "approach": "Selectable textured clumps, physical height and cover retained; legacy blades remain selectable; actual paired screenshot and frame-time checks"},
