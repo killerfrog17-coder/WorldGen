@@ -54,7 +54,7 @@ public sealed partial class LocalTerrainExplorer
             if(kind=="TowerKarst"||kind=="Inselberg")
             {
                 bool karst=kind=="TowerKarst";
-                var candidates=cells.Where(i=>karst?model.Profile(i).Landscape.Karst>.35&&model.Profile(i).Landscape.Moisture>.65:model.Profile(i).Landscape.Remnant>.35)
+                var candidates=cells.Where(i=>karst?model.Profile(i).Landscape.Karst>.35&&model.Profile(i).Landscape.Moisture>.65&&model.Profile(i).Landscape.Glacial<.25&&world.Ecology.Habitat[i].WarmTenthsC>220:model.Profile(i).Landscape.Remnant>.35)
                     .OrderByDescending(i=>karst?model.Profile(i).Landscape.Karst:model.Profile(i).Landscape.Remnant).Take(128);
                 foreach(int cell in candidates)
                 {

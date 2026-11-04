@@ -13,7 +13,7 @@ static class ErodedTerrainTests
         {
             double Strength(LandscapeControls c)=>kind=="Karst"?c.Karst*(c.Moisture>.65?1:0):kind=="Badlands"?c.Badlands:c.Remnant;
             bool found=false;
-            foreach(int cell in cells.OrderByDescending(i=>Strength(terrain.Profile(i).Landscape)).Take(96))
+            foreach(int cell in cells.Where(i=>kind!="Karst"||world.Ecology.Habitat[i].WarmTenthsC>180&&terrain.Profile(i).Landscape.Glacial<.25).OrderByDescending(i=>Strength(terrain.Profile(i).Landscape)).Take(96))
             {
                 var p=terrain.Profile(cell);if(Strength(p.Landscape)<.25)continue;
                 V center=world.Surface.Cells[cell].Position;var patch=terrain.Patch(center,30000);
