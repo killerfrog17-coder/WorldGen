@@ -511,7 +511,7 @@ public sealed partial class LocalTerrainExplorer
             if(BitConverter.DoubleToInt64Bits(before)!=BitConverter.DoubleToInt64Bits(VisibleGround(cx,cz,-12345)))throw new InvalidOperationException("Resident owner cache failed to restore the current surface");
         }
         finally{WorldGenPerformance.ForceFreshVisibleGround=oldFresh;}
-        var prior=scatterGroundChanges.ToArray();int checkedRoots=0,repairedRoots=0,checkedChunks=0,coarseChecks=0;
+        var prior=scatterGroundChanges.ToArray();int checkedRoots=0,repairedRoots=0,checkedChunks=0,coarseChecks=0,partialChecks=0,partialRoots=0;
         try
         {
             foreach(var tile in tiles.Keys)
@@ -546,6 +546,24 @@ public sealed partial class LocalTerrainExplorer
                     {
                         var root=chunk.Roots[i];if(ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))throw new InvalidOperationException("Coarse replacement invalidated a finer ground owner");coarseChecks++;
                     }
+                    // A real same-address mesh replacement often changes only
+                    // boundary heights. Compare selective projection with a
+                    // complete projection against those actual resident grids.
+                    var surface=tiles[tile];var originalHeights=surface.Heights;var edgeHeights=(float[])originalHeights.Clone();int segments=surface.Segments,side=segments+1;
+                    for(int iz=0;iz<=segments;iz++)for(int ix=0;ix<=segments;ix++)if(ix==0||iz==0||ix==segments||iz==segments)edgeHeights[iz*side+ix]+=.25f;
+                    try
+                    {
+                        scatterGroundChanges.Clear();scatterGroundChanges.Add(tile,surface,new Tile{Heights=edgeHeights,Segments=segments});
+                        surface.Heights=edgeHeights;
+                        foreach(var root in chunk.Roots)if(ChangedGroundAt(root.x+originX,root.z+originZ,.01))partialRoots++;
+                        ProjectScatterGround(chunk);var partial=(Matrix4x4[])chunk.Matrices.Clone();ProjectScatter(chunk);
+                        for(int i=0;i<partial.Length;i++)
+                        {
+                            if(partial[i]!=chunk.Matrices[i])throw new InvalidOperationException("Changed-cell projection differs from full resident mesh replacement at root "+i);
+                            partialChecks++;
+                        }
+                    }
+                    finally{surface.Heights=originalHeights;ProjectScatter(chunk);}
                     scatterGroundChanges.Clear();scatterGroundChanges.Add(tile);
                     if(++checkedChunks>=4)break;
                 }
@@ -554,7 +572,8 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{scatterGroundChanges.Clear();foreach(var tile in prior)scatterGroundChanges.Add(tile);scatterDirty=true;}
         if(repairedRoots==0)throw new InvalidOperationException("Selective projection fixture did not touch actual roots");
-        return "Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards; "+ownerChecks+" exact cached/fresh resident triangle queries including tile edges";
+        if(partialRoots==0||partialRoots>=partialChecks)throw new InvalidOperationException("Changed-cell projection did not exercise both changed and unchanged actual roots");
+        return "Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards; "+ownerChecks+" exact cached/fresh resident triangle queries including tile edges; partial mesh replacement "+partialChecks+" exact matrices with only "+partialRoots+" affected roots";
     }
     public string PerformanceVerifyTreeBands(string output)
     {
