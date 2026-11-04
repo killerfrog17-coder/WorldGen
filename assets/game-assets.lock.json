@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "a2fd4569f9986e73d008ab98a4873d075d7c1e26",
+  "source_checkpoint": "405eb18d7012daac6a03f18e66ffa5659ce4ef18",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14211,6 +14211,84 @@
       "bytes": 1317,
       "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
       "member": "objects/29278cd817714bcc12454d449cce69b3e131ee3d58cba349daea8df5478706a5"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/brown_mud_leaves_01/albedo.jpg": {
+      "sha256": "29c997d77f56e4ea16d3e998a306be0c17fddb28ab4822657c7cd8249040ffda",
+      "bytes": 4539452,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/29c997d77f56e4ea16d3e998a306be0c17fddb28ab4822657c7cd8249040ffda"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/brown_mud_leaves_01/mask.jpg": {
+      "sha256": "a80135a30b7ea0f29f093269acae10f83d327dcc0a20bc10083da59843988c15",
+      "bytes": 3697743,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/a80135a30b7ea0f29f093269acae10f83d327dcc0a20bc10083da59843988c15"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/brown_mud_leaves_01/normal.jpg": {
+      "sha256": "b6ec386e00d9d2a1c3a1da6a98a67066b0dfaa88ddb779341df29700cf081bdf",
+      "bytes": 5688696,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/b6ec386e00d9d2a1c3a1da6a98a67066b0dfaa88ddb779341df29700cf081bdf"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/albedo.jpg": {
+      "sha256": "4dc7dde86f3db0df3566ca0ae77390000e979db31fbdc861796d2e516e6ad04e",
+      "bytes": 2856071,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/4dc7dde86f3db0df3566ca0ae77390000e979db31fbdc861796d2e516e6ad04e"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/mask.jpg": {
+      "sha256": "cb2c67afd74d3b955c6eb7b104015272767d10ac963315ea8a20ddbf6e83c0cd",
+      "bytes": 2918224,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/cb2c67afd74d3b955c6eb7b104015272767d10ac963315ea8a20ddbf6e83c0cd"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/normal.jpg": {
+      "sha256": "76cbbca571145f9facf93db819cb909282df6bde8b81f82b5708be912611c5e1",
+      "bytes": 3920921,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/76cbbca571145f9facf93db819cb909282df6bde8b81f82b5708be912611c5e1"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forest_floor/albedo.jpg": {
+      "sha256": "308bc5f916dcc113bf276cbfdc411bed48b6a9ce5e3bc0c228faa3d54acf125d",
+      "bytes": 5452936,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/308bc5f916dcc113bf276cbfdc411bed48b6a9ce5e3bc0c228faa3d54acf125d"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forest_floor/mask.jpg": {
+      "sha256": "c5d7ae6d2f6a5b801235b0592e62e67c05f25d41d3f5abd8a68565fdec52fbe9",
+      "bytes": 3926636,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/c5d7ae6d2f6a5b801235b0592e62e67c05f25d41d3f5abd8a68565fdec52fbe9"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forest_floor/normal.jpg": {
+      "sha256": "27ea9cf7778fd3f5eacc24159d2cfc040878125c2289c3bccc49be5806e87bd1",
+      "bytes": 5367757,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/27ea9cf7778fd3f5eacc24159d2cfc040878125c2289c3bccc49be5806e87bd1"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/albedo.jpg": {
+      "sha256": "187a8e33773473939c0e85b5e10ae94eb9e8d91463ab8b74e122d833d2d84dc6",
+      "bytes": 3522953,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/187a8e33773473939c0e85b5e10ae94eb9e8d91463ab8b74e122d833d2d84dc6"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/mask.jpg": {
+      "sha256": "1833458cb36e03ab3a4024b6c330f9e1ef6191d9fd841e1b59634267516a7a3c",
+      "bytes": 1249511,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/1833458cb36e03ab3a4024b6c330f9e1ef6191d9fd841e1b59634267516a7a3c"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/normal.jpg": {
+      "sha256": "dcc26b4fd27a8e1f1f14558214fbaf1d68a61d9b569eee805793498e4b30098c",
+      "bytes": 6812765,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/dcc26b4fd27a8e1f1f14558214fbaf1d68a61d9b569eee805793498e4b30098c"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/sources.json": {
+      "sha256": "c87715036e499a937cb9d3ccc86c774c4c9fc4774027418995bdcb2839190618",
+      "bytes": 4215,
+      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "member": "objects/c87715036e499a937cb9d3ccc86c774c4c9fc4774027418995bdcb2839190618"
     },
     "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/Diffuse.jpg": {
       "sha256": "492b89604cd79f733557b590f561ddc9ea51739705d96d9768c4ca1614b44b60",
@@ -32274,6 +32352,14 @@
       "asset_id": 708439251,
       "sha256": "088bada080a50516eb0fba17da2394017245598180f26ab87e229b0f0f9959cb",
       "bytes": 24801163,
+      "encoding": "zip"
+    },
+    "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip": {
+      "tag": "forest-floor-inputs-20261104",
+      "name": "assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
+      "asset_id": 709062412,
+      "sha256": "d1e361728faa37acf30aad4c05b25309f227e68555f8d972cbd2b124afaf0240",
+      "bytes": 49878094,
       "encoding": "zip"
     },
     "game-assets-20261029-v1/assets-02c0ca33fc26c90a65721c75821d45da65f89b7267aad981aa2e0516a48d787b.zip": {
