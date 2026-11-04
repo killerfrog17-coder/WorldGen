@@ -115,11 +115,18 @@ public sealed partial class LocalTerrainExplorer
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
         double floor=site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
-        IEnumerator Capture(string name,Vector3 offset)
+        var cameraReceipts=new List<string>();
+        IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12)
         {
-            owner.nextDaylightAt=0;owner.SetDaylight(12,190000+(site.Position.Z<0?0:.5));
-            Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual midday summer illumination");
-            var focus=new Vector3(0,y+.5f,0);owner.landscapeReviewCamera=focus+offset;owner.landscapeReviewRotation=Quaternion.LookRotation(-offset);owner.UpdateCamera();
+            owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
+            Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual summer daylight: "+name);
+            var camera=new Vector3(offset.x,y+.5f+offset.y,offset.z);
+            var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
+            float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
+            camera.y=walking?cameraFloor+1.8f:Mathf.Max(camera.y,cameraFloor+2);
+            var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
+            cameraReceipts.Add(name+" camera="+camera+" ground="+cameraFloor+" eyeClearance="+(camera.y-cameraFloor)+" solarHour="+hour);
+            owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();
             owner.BuildScatterBatches();
             double bakedDeadline=Time.realtimeSinceStartupAsDouble+90,nextBakeReport=0;
             bool VisiblePending()=>owner.drawBatches.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked)||owner.forestBatches.Values.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked);
@@ -129,7 +136,7 @@ public sealed partial class LocalTerrainExplorer
                 yield return null;
             }
             Check(!VisiblePending(),"Visible distant-tree models complete while the review camera stays still");
-            owner.nextDaylightAt=0;owner.SetDaylight(12,190000+(site.Position.Z<0?0:.5));
+            owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
             if(Environment.GetCommandLineArgs().Contains("--worldgen-tree-alpha-review"))
@@ -153,7 +160,14 @@ public sealed partial class LocalTerrainExplorer
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
         }
         yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
-        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,1.8f,10)));
+        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,10),true));
+        if(kind=="SandSea"||kind=="SaltFlat")
+        {
+            foreach(int angle in new[]{90,180,270})yield return owner.StartCoroutine(Capture("ground-"+angle,orientation*Quaternion.Euler(0,angle,0)*new Vector3(0,0,10),true));
+            yield return owner.StartCoroutine(Capture("morning-wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f),hour:9));
+            yield return owner.StartCoroutine(Capture("morning-ground",orientation*new Vector3(0,0,10),true,9));
+        }
+        File.WriteAllLines(Path.Combine(output,"cameras.txt"),cameraReceipts);
         int reeds=0,submergedReeds=0;var plantPatch=model.Patch(site.Position,5000);
         foreach(var chunk in owner.scatterChunks.Values)
         {

@@ -19,6 +19,10 @@ static class LandscapeRegionTests
         var inlandCrust=LocalGeology.Surface(crust,new V(1,0,0),41,-86,1,0,0,637100);
         Check(inlandCrust.Salt>.5&&inlandCrust.Color.X>.8&&inlandCrust.Color.Y>.8,"An inland salt crust stays bright even below sea level");
         Check(LocalGeology.Surface(crust,new V(1,0,0),41,-86,1,1,0,637100).Salt==0,"Marine seabed does not acquire dry salt crust");
+        var saltCover=new GroundCoverProfile{Grasses=new V(.3,.3,.3)};var saltMid=new MidCoverProfile{Coverage=.5};var saltTrees=new ForestCoverProfile{Coverage=.9};var saltBiome=Biome.Grassland;
+        LandscapeProvince.Cover(saltControl,new V(1000,2000,3000),41,ref saltCover,ref saltMid,ref saltTrees,ref saltBiome);
+        Check(saltCover.Coverage==0&&saltMid.Coverage==0&&saltTrees.Coverage==0&&LandscapeProvince.RootedAdmission(saltControl,new V(1000,2000,3000),41)==0,"Mature salt crust excludes both cover fields and individual rooted shrubs");
+        Check(LandscapeProvince.RootedAdmission(new LandscapeControls{Wet=1,Salt=.8f},new V(1000,2000,3000),41)==1,"Bare dry crust restriction does not remove wetland plants");
         var gravel=sandy;gravel.Sand=.25;gravel.Gravel=.65;
         Check(LandscapeProvince.Describe(gravel,Biome.Desert,.08,0,40,0,0).Sand<.01,"Rocky desert is not blanket dunes");
         var peat=new GroundProfile{Organic=.45,Drainage=.05,Clay=.2,Sand=.2};

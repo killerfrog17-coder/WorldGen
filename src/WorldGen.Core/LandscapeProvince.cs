@@ -67,6 +67,15 @@ namespace WorldGen.Core
         }
         public static double SaltCrust(LandscapeControls controls)
             =>Smooth(.28,.45,controls.Salt)*(1-Smooth(.2,.5,controls.Wet));
+        public static double RootedAdmission(LandscapeControls controls,V metres,int seed)
+        {
+            double wet=Smooth(.25,.6,controls.Wet);
+            double sand=Smooth(.12,.4,SandSea(metres,seed,controls));
+            double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet);
+            // Mature salt crust and actively moving sand are bare, including
+            // the individual shrub path that does not use the cover profile.
+            return 1-Smooth(.02,.98,Math.Max(sand,Math.Max(basin,SaltCrust(controls))));
+        }
         public static double HeightOffset(V metres,int seed,LandscapeControls controls)
         {
             double dunes=SandSea(metres,seed,controls),result=0;
@@ -178,7 +187,8 @@ namespace WorldGen.Core
             double basin=Smooth(.2,.5,Math.Max(controls.Clay,controls.Salt))*(1-wet),bare=Math.Max(sand,Math.Max(basin,SaltCrust(controls)));
             if(controls.Arid>.85&&controls.Canopy<.2&&controls.Wet<.4)biome=Biome.Desert;
             if(bare<=0)return;
-            cover.ScaleWeights(1-.995*bare);mid.Coverage*=1-.98*bare;forest.Coverage*=1-.995*bare;
+            double admission=1-Smooth(.02,.98,bare);
+            cover.ScaleWeights(admission);mid.Coverage*=admission;forest.Coverage*=admission;
             if(sand>.85||basin>.9)biome=Biome.Desert;
         }
     }

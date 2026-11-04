@@ -49,6 +49,19 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov05:22Z REGION VISUAL REWORK continues. Prototype770e66d7 PUSHED,
+FULL managed NONDEV inactiveA built05:07:26Z; selectedB f5385a89 unchanged.
+Actual experience-first SandSea/SaltFlat native both EXIT0, all4images inspected:
+dunes still visually bland, salt brighter with polygons BUT unwanted foliage.
+These are NOT visual acceptance. New uncommitted correction shares RootedAdmission
+with actual individual shrub placement (previously bypassed cover), fully bare
+mature crust/mobile sand; LocalTerrain22/Scatter15. Focused35730 PASS incl wetland
+retention. Native camera now samples actual floor for1.8m clearance, four walking
+headings +morning/noon, rather than assuming floor at centre. Needs ScriptsOnlyA
+build, new unusedprefix actual2contexts captures and inspection. No new artinputs,
+assetlock5357/139packs unchanged. No paid/subagents/ownerappsclosed. Owner3files
+untouched. Do not select A or call dunes finished based on probe110m range alone.
+
 ACTIVE4Nov05:04Z OWNER REJECTED REGION VISUAL QUALITY: flat-looking dunes,
 beige salt flats, little wonder/meaningful variety. Wants realworldinterest,
 not labels/textures alone. Resume regional work with dunes+salt first visual
