@@ -500,12 +500,14 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in tiles)
         {
             var key=pair.Key;var a=pair.Value;if(a.Root==null||!a.Root.activeInHierarchy||TerrainLod.DistanceSquared(key,motion.X,motion.Z)>512*512)continue;
+            if(a.Heights==null||a.Cover?.Length!=a.Heights.Length*16||a.MidCover?.Length!=a.Heights.Length*6||a.ForestCover?.Length!=a.Heights.Length*8)continue;
             if(a.Materials!=null)foreach(var material in a.Materials)
                 if(material.shader.name=="WorldGen/LocalTerrain"&&(material.GetTexture("_GrassField")!=grassFieldTexture||material.GetTexture("_ForestFloor")!=a.ForestFloor||material.GetTexture("_FloraSurface")!=a.FloraSurface))bindingMismatch++;
             for(int axis=0;axis<2;axis++)
             {
                 var next=new TerrainTileKey(key.X+(axis==0?1:0),key.Z+(axis==1?1:0),key.Level,key.Scale);
                 if(!tiles.TryGetValue(next,out var b)||b.Segments!=a.Segments||b.Root==null||!b.Root.activeInHierarchy)continue;
+                if(b.Heights==null||b.Cover?.Length!=b.Heights.Length*16||b.MidCover?.Length!=b.Heights.Length*6||b.ForestCover?.Length!=b.Heights.Length*8)continue;
                 int n=a.Segments,side=n+1;double h=0,c=0,m=0,f=0;
                 for(int i=0;i<=n;i++)
                 {
