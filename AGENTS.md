@@ -49,6 +49,55 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+HANDOFF4Nov17:57Z OWNER OVERRIDES ALL OVERNIGHT CONTINUE MANDATES: finish only
+current waterfall feature, package/select for playtest, then PAUSE geography.
+Owner: no rush, but DO NOT start another feature. Geography should resume later,
+after NPC refinement, only on owner request. Current feature and necessary
+handoff bugfix are finished; only final checks/proof/selection remain.
+A candidate managed NONDEV ScriptsOnly BuiltUtc17:50:46Z, SourceCommitf833c678;
+full packed shader baselinec78c976c17:36:39Z. LocalTerrain43/Hyper38/MeshWire9.
+Build SourceChanges truthfully lists TWO nonruntime reviewJSON edits, not code;
+recorder allows only those exact files, keeps stamp unchanged and still checks
+runtime gitdiff +exact package hashes. Rootshortcut still B/f5385a89 pendingfinal.
+Current native session2962: living-handoff-waterfall EXIT0, NO failure.txt,
+actual3sec post-landmark updates PASS. geography-handoff-wet EXIT0, cold running.
+Both NPC checks use -SkipPerformance to omit irrelevant180sec performance wait;
+retain real walking/ground/GPU masks/current binary saves/full camp lifecycle.
+FINAL3 current package cases must pass before selection. Other landscape images
+are explicit qualified historical references, not false current wholeworld proof.
+Important discovered actual bug: earlier living-playtest-waterfall had runtime
+ArgumentOutOfRangeException after /landmark crossplanet teleport, while old
+fixture lateroverwrote exit with0. Manifest REFUSED failed evidence. f833 guards
+old animal visual candidates outside new chart hemisphere (retains world groups,
+no AI changes), and scene fixture refuses anyruntimeerror +waits3sec afterjump.
+Earlier bad evidence preserved/invalidated. Do NOT infer pass from exit0 alone.
+Final waterfallc78 edge coordinates are normalized to true width (not hiddenbank
+underlap), aeration varies downface, edge spray uses existingdither/pass, motion
+uses drop-based meanfall speed. Actual final4falls/16probes geometry/payloadPASS,
+27263rivers/764spans/8tiles maxdrawn-groundclearance0PASS. Caldera36e5 profile has
+broad droppedfloor/steeper scarp;4012controls+12actualsites PASS. bcda earlier
+43nativeVolcano PASS/inspectedrim+overhead; rimstillplain. Newwater screenshot
+clearlywater withstreaks/brokenedges, stylized/grainy prototype; inspect latest
+living-handoff copy asfinal. 64bins/indexedcards preservedappearance but negligible
+speedgain. Tall-savanna travel~91.6FPS/p9519.1ms remainsUNMET100target. Do not
+launch moreperf/features for ownerhandoff. Future work saved in assets/verification/
+geography-resume-plan-20261104.json, plus feature-index/visual-review/perf-progress.
+Finish docs: replace reviewcase folders geography-playtest ->geography-handoff,
+living-playtest-waterfall ->living-handoff-waterfall AFTERcoldimagesexist; rehash
+actualinspected captures; mark oldruntimefailure invalidated; addf833 rollback.
+Run scripts/record-living-world-checkpoint.py --slot slot-a --review assets/
+verification/living-world-visual-review-20261104.json --output assets/verification/
+living-world-playtest-20261104.json --playtest-only. Partial explicit: onlycurrent
+Waterfall +NPCwet/cold required; olderFPS qualified, nofreshuniversalacceptance.
+Then source/docs/manifest push, rootshortcuttarget+icon A/emptyargs/repoCWD, verify,
+selectionreceipt/tag/push, safe retireoldB binaries ifunoccupied, finalconcise.
+B is a JUNCTION to D:/WorldGenBuildArtifacts/player-world-feedback; A junction to
+D:/WorldGenBuildArtifacts/player-human-natural-review. NEVER recursivelydelete a
+junction blindly. IfretiringB, verifyphysicalexacttarget +distinctfromA +selectedA
++norunningB; retaincanonicaljunction and deleteonlycheckedgeneratedchildren via
+nativePS LiteralPath, refuse nestedreparsepoints. Owner3files preserved. Noowned
+Unity/build jobs; only owncurrentcoldgame. No paid/subagents/ownerappsclosed.
+
 ACTIVE4Nov16:59Z FULLWORLD OVERNIGHT STILL CONTINUES; no owner stop/wrap.
 Selected B/f5385a89/root shortcut unchanged. A internal current ScriptsOnly
 NONDEV BuiltUtc16:43:50Z SourceCommitcda1906e SourceChanges[]; shader baseline

@@ -40,13 +40,19 @@ def main():
     parser.add_argument('--slot', choices=['slot-a', 'slot-b'], required=True)
     parser.add_argument('--review', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--playtest-only', action='store_true', help='Owner-requested partial handoff; preserve older performance evidence without claiming a fresh acceptance run')
     args = parser.parse_args()
     review = load(args.review)
     player = ROOT / 'builds' / args.slot
     require(not (player / 'build-incomplete.txt').exists(), 'Build is incomplete')
     stamp = load(player / 'build-inputs.json')
     require(not stamp['Development'], 'Unexpected development watermark')
-    require(not stamp['SourceChanges'], 'Build contains uncommitted source')
+    # These two review documents are not player inputs. Preserve their pending
+    # status in the build receipt, while still rejecting any uncommitted code,
+    # imported art, project setting or other input. Never rewrite the stamp.
+    review_only = {'assets/verification/living-world-feature-index-20261104.json',
+                   'assets/verification/living-world-visual-review-20261104.json'}
+    require(all(change[3:] in review_only for change in stamp['SourceChanges']), 'Build contains uncommitted runtime inputs')
     source = stamp['SourceCommit']
     subprocess.run(['git', 'diff', '--exit-code', source, '--', 'src',
                     'unity/WorldGen.Unity/Assets/WorldGen/Runtime',
@@ -102,11 +108,13 @@ def main():
                 frame_budget_misses.append({'site': row['site'], 'case': row['case'], 'p95_ms': float(row['p95_ms'])})
         performance.append({**item, 'package': receipt, 'current_package': current,
                             'summary_sha256': sha(folder / 'summary.csv'), 'rows': rows})
-    require(any(p['current_package'] for p in performance), 'No current benchmark')
+    current_performance = any(p['current_package'] for p in performance)
+    require(current_performance or args.playtest_only, 'No current benchmark')
     report = {
         'recorded_utc': datetime.now(timezone.utc).isoformat(), 'source': source,
         'slot': args.slot, 'build': stamp, 'package': package,
-        'status': 'Playable review checkpoint; owner visual approval pending',
+        'status': 'Owner-requested partial geography playtest; broader acceptance incomplete' if args.playtest_only else 'Playable review checkpoint; owner visual approval pending',
+        'playtest_only': args.playtest_only, 'current_performance_measured': current_performance,
         'scope': review['scope'], 'limitations': review['limitations'],
         'native_cases': cases, 'performance': performance,
         'measured_100fps_misses': misses,
@@ -116,7 +124,8 @@ def main():
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
-    print(f'Recorded {len(cases)} native cases, {len(performance)} benchmarks; {len(misses)} measured target misses. Shortcut unchanged.')
+    timing = f'{len(misses)} measured target misses' if current_performance else 'current performance not remeasured; historical results explicitly qualified'
+    print(f'Recorded {len(cases)} native cases, {len(performance)} benchmarks; {timing}. Shortcut unchanged.')
 
 
 if __name__ == '__main__':
