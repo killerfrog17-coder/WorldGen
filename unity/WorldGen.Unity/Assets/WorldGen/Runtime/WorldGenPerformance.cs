@@ -274,13 +274,14 @@ public sealed partial class LocalTerrainExplorer
         if(NearTerrainPending()!=NearTerrainPendingFresh())throw new InvalidOperationException("Near-terrain readiness memo changed scheduling state");
         PerformancePendingComparisons++;
     }
-    string[] PerformanceInstances(bool visibleOnly=false)
+    string[] PerformanceInstances(bool visibleOnly=false,bool castersOnly=false)
     {
         var values=new List<string>();
         foreach(var b in drawBatches)for(int i=0;i<b.Count;i++)
         {
             if(visibleOnly&&b.Shadows==UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly)continue;
-            var s=new System.Text.StringBuilder();s.Append(visibleOnly?b.Key&~(1L<<60):b.Key).Append(':').Append((int)b.Shadows);
+            if(castersOnly&&b.Shadows==UnityEngine.Rendering.ShadowCastingMode.Off)continue;
+            var s=new System.Text.StringBuilder();s.Append(visibleOnly||castersOnly?b.Key&~(1L<<60):b.Key).Append(':').Append(castersOnly?1:(int)b.Shadows);
             for(int n=0;n<16;n++)s.Append(':').Append(BitConverter.SingleToInt32Bits(b.Matrices[i][n]));
             for(int n=0;n<4;n++)s.Append(':').Append(BitConverter.SingleToInt32Bits(b.Colors[i][n])).Append(':').Append(BitConverter.SingleToInt32Bits(b.Fades[i][n]));
             values.Add(s.ToString());
@@ -329,10 +330,12 @@ public sealed partial class LocalTerrainExplorer
                 WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
                 if(scatterCachedGuardDegrees!=ScatterGuardDegrees)throw new InvalidOperationException("Rotation guard is not active in this verification context");
                 var guarded=PerformanceInstances(true).GroupBy(s=>s).ToDictionary(g=>g.Key,g=>g.Count(),StringComparer.Ordinal);
+                var guardedCasters=PerformanceInstances(castersOnly:true);
                 view.transform.localRotation=center*Quaternion.Euler(offset.y,offset.x,0);
                 if(ScatterViewChanged)throw new InvalidOperationException("Within-guard camera rotation unexpectedly invalidated scatter");
                 DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var cached=LastCapturePixels;
-                WorldGenPerformance.OriginalCase=true;WorldGenPerformance.DisableScatterViewGuard=true;BuildScatterBatches();
+                WorldGenPerformance.DisableScatterViewGuard=true;BuildScatterBatches();
+                if(!guardedCasters.SequenceEqual(PerformanceInstances(castersOnly:true)))throw new InvalidOperationException("Rotation guard changed physical model/transform/tint/LOD shadow casters at yaw "+yaw+", offset "+offset);
                 foreach(var instance in PerformanceInstances(true))
                 {
                     if(!guarded.TryGetValue(instance,out int count)||count==0)throw new InvalidOperationException("Rotation guard omitted a literally visible instance at yaw "+yaw+", offset "+offset);

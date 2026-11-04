@@ -286,6 +286,30 @@ public sealed partial class LocalTerrainExplorer
                 fallMotionPixels=pixels;
             }
             Destroy(image);RenderTexture.active=prior;
+            if(name=="wide"&&site.Landform=="TowerKarst")
+            {
+                // Diagnose silhouettes against the ACTUAL resident triangles,
+                // separately from their atmospheric contrast in the normal shot.
+                int grounded=0,missing=0;double maximum=0;var levels=new SortedDictionary<int,int>();
+                foreach(var field in owner.forestFields.Values)if(field.Ready)
+                foreach(var pair in field.Roots)foreach(int slot in pair.Value)
+                {
+                    var root=pair.Key.Data[slot];var p=root.Position-new Vector3((float)owner.originX,0,(float)owner.originZ);
+                    if((p-camera).magnitude>owner.landMaterial.GetFloat("_FogDistance"))continue;
+                    double actual=owner.VisibleGround(root.Position.x,root.Position.z,double.NaN,out int level);
+                    if(double.IsNaN(actual)){missing++;continue;}
+                    grounded++;maximum=Math.Max(maximum,Math.Abs(root.Position.y+.045-actual));
+                    levels.TryGetValue(level,out int count);levels[level]=count+1;
+                }
+                File.WriteAllText(Path.Combine(output,"forest-ground.txt"),"Resident roots "+grounded+"; absent resident ground "+missing+"; maximum root/triangle error "+maximum+"m; levels "+string.Join(", ",levels.Select(p=>p.Key+":"+p.Value)));
+                Check(grounded>0&&missing==0&&maximum<.2,"Reviewed forest roots meet resident rendered triangles");
+                float fog=owner.landMaterial.GetFloat("_FogDistance");
+                owner.landMaterial.SetFloat("_FogDistance",10000);owner.PublishTerrainScene();
+                owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                var clear=new Texture2D(1536,864,TextureFormat.RGB24,false);clear.ReadPixels(new Rect(0,0,1536,864),0,0);clear.Apply();
+                File.WriteAllBytes(Path.Combine(output,"diagnostic-wide-long-visibility.png"),clear.EncodeToPNG());Destroy(clear);RenderTexture.active=prior;
+                owner.landMaterial.SetFloat("_FogDistance",fog);owner.PublishTerrainScene();
+            }
             if(Environment.GetCommandLineArgs().Contains("--worldgen-grass-review"))
             {
                 foreach(bool clumps in new[]{false,true})
