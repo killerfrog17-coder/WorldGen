@@ -25,24 +25,7 @@ static partial class LocalScatterMeshes
         var hull=LocalTreeTextures.ShootHull((int)m.LeafShape);
         bool needle=m.Form==TreeGrowthForm.NeedleCrown;
         void Mark(float type){while(masks.Count<b.V.Count)masks.Add(new Vector2(Mathf.Clamp01(b.V[masks.Count].y),type));}
-        for(int i=1;i<nodes.Count;i++)
-        {
-            var n=nodes[i];var parent=nodes[n.Parent];
-            if(lod>0&&n.Radius<.0014f&&n.Children==0)continue;
-            int sides=lod==0?(needle?(i<=24?10:n.Children>0?4:3):n.Radius>.009f?12:6):4;
-            var axis=(n.P-parent.P).normalized;var u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.96f?Vector3.up:Vector3.right).normalized;var v=Vector3.Cross(axis,u);
-            int start=b.V.Count;
-            for(int ring=0;ring<2;ring++)for(int k=0;k<=sides;k++)
-            {
-                float a=k*2*Mathf.PI/sides;float radius=ring==0?parent.Radius:n.Radius;
-                // A lateral branch must not inherit its parent's full trunk
-                // radius on BOTH ends (the old repeated triangular buttresses).
-                if(ring==0&&parent.Children>1&&n.Radius<parent.Radius*.9f)radius=Mathf.Min(parent.Radius,n.Radius*1.35f);
-                var p=(ring==0?parent.P:n.P)+(u*Mathf.Cos(a)+v*Mathf.Sin(a))*radius;
-                b.Add(p,wood,new Vector2(k/(float)sides,(ring==0?parent.P.y:n.P.y)*5));
-            }
-            for(int k=0;k<sides;k++){int a=start+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}Mark(0);
-        }
+        var woodNormals=BuildContinuousTreeWood(b,nodes,lod,wood);Mark(0);
         if(m.Strategy==TreeCrownStrategy.TropicalCanopy)
         {
             // Tapered basal buttresses, not repeated spikes at every branch.
@@ -66,7 +49,11 @@ static partial class LocalScatterMeshes
             if(n.Children==1&&nodes[i].Radius>.0045f)continue;
             var r=new Rng(TreeFlora.RenderCode(code),"tree-rebuild-shoot-1",i);
             var axis=(n.P-nodes[n.Parent].P).normalized;
-            int sprays=n.Children==0?(needle?2:3):1;
+            // A textured shoot already contains many leaves. One folded shoot
+            // at a terminal and selected side shoots carries the crown without
+            // stacking three almost coplanar cutouts at every terminal.
+            if(n.Children!=0&&(i&1)!=0)continue;
+            int sprays=1;
             for(int j=0;j<sprays;j++)
             {
                 // Needles follow the twig, with a rolled horizontal spray.
@@ -78,7 +65,7 @@ static partial class LocalScatterMeshes
                 if(!needle&&!exposed)up=Quaternion.AngleAxis((j-1)*25,right)*up;
                 float roll=needle?(j==0?-24:36):((float)r.Unit()-.5f)*150;
                 right=Quaternion.AngleAxis(roll,up)*right;var normal=Vector3.Cross(right,up).normalized;
-                float span=(needle?.095f:.080f)*(.8f+(float)r.Unit()*.4f);
+                float span=(needle?.13f:.112f)*(.8f+(float)r.Unit()*.4f);
                 var center=needle?n.P+up*span*.90f:n.P+up*span*.25f+right*((float)r.Unit()-.5f)*span*.45f;
                 int variant=(i+j)%4;float material=2+variant*.1f;
                 Color tint=leaf*new Color(.86f+(float)r.Unit()*.18f,.90f+(float)r.Unit()*.12f,.88f+(float)r.Unit()*.12f,1);
@@ -105,13 +92,63 @@ static partial class LocalScatterMeshes
                 Mark(material);
             }
         }
-        var mesh=b.Finish(false);mesh.name="Tree architecture 2 / "+m.Form+" / "+code+" / L"+lod;mesh.SetUVs(1,masks);
+        var mesh=b.Finish(false);mesh.name="Tree architecture 3 / "+m.Form+" / "+code+" / L"+lod;mesh.SetUVs(1,masks);
         // Give foliage a three-dimensional lighting envelope, retaining detailed
         // twig normals in the shader. Do not alter opaque branch normals.
         var normals=mesh.normals;var crown=new Vector3(0,((float)m.CrownBase+1)*.5f,0);
+        foreach(var pair in woodNormals)normals[pair.Key]=pair.Value;
         for(int i=0;i<normals.Length;i++)if(masks[i].y>1.5f)
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
         mesh.normals=normals;mesh.RecalculateTangents();return mesh;
+    }
+    static Dictionary<int,Vector3> BuildContinuousTreeWood(Builder b,List<TreeNode> nodes,int lod,Color wood)
+    {
+        var normals=new Dictionary<int,Vector3>();var continuation=new int[nodes.Count];
+        for(int i=0;i<continuation.Length;i++)continuation[i]=-1;
+        for(int i=1;i<nodes.Count;i++)
+        {
+            int parent=nodes[i].Parent,previous=continuation[parent];
+            if(previous<0||nodes[i].Radius>nodes[previous].Radius)continuation[parent]=i;
+        }
+        var distance=new float[nodes.Count];
+        for(int i=1;i<nodes.Count;i++)distance[i]=distance[nodes[i].Parent]+Vector3.Distance(nodes[i].P,nodes[nodes[i].Parent].P);
+        for(int first=0;first<nodes.Count;first++)
+        {
+            if(first>0&&continuation[nodes[first].Parent]==first)continue;
+            var path=new List<int>();if(first>0)path.Add(nodes[first].Parent);
+            int node=first;while(node>=0){path.Add(node);node=continuation[node];}
+            if(path.Count<2)continue;
+            float maxRadius=0;for(int j=first==0?0:1;j<path.Count;j++)maxRadius=Mathf.Max(maxRadius,nodes[path[j]].Radius);
+            if(lod>0&&maxRadius<.0014f)continue;
+            int sides=first==0?(lod==0?24:12):maxRadius>.009f?(lod==0?8:5):maxRadius>.003f?(lod==0?5:3):3,start=b.V.Count;
+            Vector3 previousAxis=Vector3.zero,u=Vector3.zero;
+            float circumference=2*Mathf.PI*Mathf.Max(.001f,maxRadius);
+            // One UV repeat per ~4cm of a 1m reference tree, rather than one
+            // stretched scan around every trunk regardless of its thickness.
+            float repeats=Mathf.Max(1,Mathf.Round(circumference/.04f));
+            for(int ring=0;ring<path.Count;ring++)
+            {
+                var n=nodes[path[ring]];var incoming=ring>0?(n.P-nodes[path[ring-1]].P).normalized:Vector3.zero;
+                var outgoing=ring+1<path.Count?(nodes[path[ring+1]].P-n.P).normalized:incoming;
+                var axis=ring==0?outgoing:(incoming+outgoing).normalized;
+                if(ring==0)u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.95f?Vector3.up:Vector3.right).normalized;
+                else u=(Quaternion.FromToRotation(previousAxis,axis)*u).normalized;
+                var v=Vector3.Cross(axis,u);previousAxis=axis;
+                float radius=n.Radius;
+                if(first>0&&ring==0)radius=Mathf.Min(radius,nodes[first].Radius*1.25f);
+                float along=distance[path[ring]];
+                for(int k=0;k<=sides;k++)
+                {
+                    float angle=(k%sides)*2*Mathf.PI/sides;var radial=u*Mathf.Cos(angle)+v*Mathf.Sin(angle);
+                    int at=b.Add(n.P+radial*radius,wood,new Vector2(k/(float)sides*repeats,along/.04f));
+                    float dr=ring+1<path.Count?(nodes[path[ring+1]].Radius-radius)/Mathf.Max(.0001f,Vector3.Distance(n.P,nodes[path[ring+1]].P)):0;
+                    normals.Add(at,(radial-axis*dr).normalized);
+                }
+                if(ring>0)for(int k=0;k<sides;k++)
+                {int a=start+(ring-1)*(sides+1)+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}
+            }
+        }
+        return normals;
     }
     // Inherited crown openness gives pine-like high, rounded crowns as well as
     // the low, layered fir/spruce habit. These are shared art archetypes, not
@@ -200,14 +237,17 @@ static partial class LocalScatterMeshes
                 // not a forest's narrow vertical crown stretched sideways.
                 // Seeded scaffold tips let colonisation occupy the outer crown
                 // without raising its bounded node/leaf budget.
-                int limbs=4+(int)(r.Unit()*3);float phase=(float)r.Unit()*Mathf.PI*2;
+                int limbs=3+(int)(r.Unit()*3);float phase=(float)r.Unit()*Mathf.PI*2;
                 for(int limb=0;limb<limbs;limb++)
                 {
-                    float angle=phase+limb*Mathf.PI*2/limbs+((float)r.Unit()-.5f)*.35f,reach=.50f+.15f*(float)r.Unit();int parent=trunk;
-                    var axis=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
+                    phase+=1.5f+(float)r.Unit()*1.6f;
+                    float angle=phase,reach=.33f+.23f*(float)r.Unit();
+                    int root=Mathf.Clamp(trunk-(int)(r.Unit()*Mathf.Max(2,trunk*.38f)),trunk/2,trunk),parent=root;
+                    var axis=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));var sideways=Vector3.Cross(axis,Vector3.up);
+                    float rise=.15f+.17f*(float)r.Unit(),bend=((float)r.Unit()-.5f)*.16f;
                     for(int step=1;step<=4;step++)
                     {
-                        float t=step*.25f;var p=nodes[trunk].P+axis*(reach*t)+Vector3.up*(.13f*Mathf.Sin(t*Mathf.PI*.5f));
+                        float t=step*.25f;var p=nodes[root].P+axis*(reach*t)+Vector3.up*(rise*Mathf.Sin(t*Mathf.PI*.5f))+sideways*(bend*t*t);
                         nodes[parent].Children++;int next=nodes.Count;nodes.Add(new TreeNode(p,parent));parent=next;
                     }
                 }
@@ -252,7 +292,11 @@ static partial class LocalScatterMeshes
         var tips=new float[nodes.Count];for(int i=nodes.Count-1;i>=0;i--)
         {tips[i]=Mathf.Max(1,tips[i]);if(nodes[i].Parent>=0)tips[nodes[i].Parent]+=tips[i];}
         foreach(var n in nodes)n.Children=0;for(int i=1;i<nodes.Count;i++)nodes[nodes[i].Parent].Children++;
-        for(int i=0;i<nodes.Count;i++)nodes[i].Radius=Mathf.Max(.0009f,(float)m.TrunkRadius*Mathf.Pow(tips[i]/tips[0],.52f));
+        for(int i=0;i<nodes.Count;i++)
+        {
+            float basal=i<=trunk?1+.35f*Mathf.Pow(1-i/(float)trunk,1.5f):1;
+            nodes[i].Radius=Mathf.Max(.0009f,(float)m.TrunkRadius*Mathf.Pow(tips[i]/tips[0],.52f)*basal);
+        }
         return nodes;
     }
 }

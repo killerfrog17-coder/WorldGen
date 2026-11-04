@@ -32,13 +32,15 @@ static partial class LocalScatterMeshes
             b.Add(tip,colour,new Vector2(.5f,1));b.Add(center+side*width,colour,new Vector2(1,.5f));
             b.Triangle(first,first+1,first+2);b.Triangle(first,first+2,first+3);TreeMark(b,mask,1);return;
         }
-        for(int j=0;j<=parts;j++)
-        {
-            float t=j/(float)parts,w=width*Mathf.Pow(Mathf.Max(0,Mathf.Sin(t*Mathf.PI)),.65f);
-            var p=(1-t)*(1-t)*root+2*t*(1-t)*control+t*t*tip;
-            b.Add(p-side*w,colour,new Vector2(0,t));b.Add(p+Vector3.up*w*.23f,colour,new Vector2(.5f,t));b.Add(p+side*w,colour,new Vector2(1,t));
-        }
-        for(int j=0;j<parts;j++)for(int k=0;k<2;k++){int a=first+j*3+k;b.Triangle(a,a+3,a+1);b.Triangle(a+1,a+3,a+4);}TreeMark(b,mask,1);
+        // A folded kite retains the leaflet's curvature, silhouette and ridge
+        // with four triangles; the old subdivided strip spent 16-20 on EACH of
+        // hundreds of leaflets, largely invisible from an ordinary game view.
+        var middle=root*.25f+control*.5f+tip*.25f;
+        b.Add(root,colour,new Vector2(.5f,0));b.Add(middle-side*width,colour,new Vector2(0,.5f));
+        b.Add(middle+Vector3.up*width*.23f,colour,new Vector2(.5f,.5f));
+        b.Add(middle+side*width,colour,new Vector2(1,.5f));b.Add(tip,colour,new Vector2(.5f,1));
+        b.Triangle(first,first+1,first+2);b.Triangle(first,first+2,first+3);
+        b.Triangle(first+2,first+1,first+4);b.Triangle(first+3,first+2,first+4);TreeMark(b,mask,1);
     }
     static Mesh FinishTreeForm(Builder b,List<Vector2> mask,string name)
     {var mesh=b.Finish();mesh.SetUVs(1,mask);mesh.RecalculateTangents();mesh.RecalculateBounds();mesh.name=name;return mesh;}
