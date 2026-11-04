@@ -3,31 +3,119 @@
   "performance_target": "At least 100 fps at 1920x1080 on owner RTX 4060 / Ryzen 5700X, Medium vegetation, including dense forest. This is a target, not an achieved universal claim.",
   "rollback_policy": "Independent feature commits pushed regularly; no extra full player copies. Keep source art provenance and immutable asset inputs.",
   "sources": [
-    {"url": "https://docs.unity3d.com/cn/6000.0/Manual/terrain-Grass.html", "use": "Textured quads and instanced meshes are established vegetation representations; preserve ecological placement while changing rendering."},
-    {"url": "https://pubs.usgs.gov/publication/pp282B", "use": "River patterns depend on discharge, sediment, slope and banks. Avoid the same sinusoid for every river."},
-    {"url": "https://www.usgs.gov/educational-resources/find-feature-meander", "use": "Lowland bends, outer-bank erosion and inner-bank deposition."},
-    {"url": "https://www.usgs.gov/faqs/what-a-hotspot-and-how-do-you-know-its-there?items_per_page=6&page=0", "use": "Reuse plate motion and age-progressive hotspot chains rather than randomly placing volcanoes."},
-    {"url": "https://uluru.gov.au/discover/nature/geology/", "use": "Isolated bedrock remnants and differential erosion; Uluru sandstone and Kata Tjuta conglomerate are distinct geological forms."},
-    {"url": "https://www.nps.gov/grca/learn/nature/grca-geology.htm", "use": "Incised uplifted sedimentary plateaus, strata with different resistance and tributary drainage."},
-    {"url": "https://www.nps.gov/mora/learn/nature/waterfalls.htm", "use": "Waterfalls belong to actual drainage and topographic breaks; separate falling-water geometry from sloping surface ribbons."},
-    {"url": "https://www.nps.gov/grfa/learn/nature/geology.htm", "use": "Bedrock resistance and river incision support knickpoints and falls."},
-    {"url": "https://graysreef.noaa.gov/education/activities/pdfs/gr_what_is_the_story_with_sand.pdf", "use": "Beach sediments reflect source geology, mineral transport and biogenic fragments; avoid uniform white shorelines."},
-    {"url": "https://www.fs.usda.gov/rm/pubs/rmrs_gtr346.pdf", "use": "Forest structure and understory distinguish regional vegetation, not merely green tint."},
-    {"url": "https://www.nps.gov/articles/rocky-coast-landforms.htm", "use": "Coastal relief, resistant bedrock and sediment supply distinguish cliffs/headlands from protected pocket beaches. Rocky coasts are not restricted to one lithology."},
-    {"url": "https://www.nps.gov/articles/sandy-coast-landforms.htm", "use": "Depositional shelves host beaches, bars, spits and dunes, with broad variation in width and composition."},
-    {"url": "https://oceanservice.noaa.gov/facts/barrier-islands.html", "use": "Bars and barrier chains belong to relatively flat, sediment-supplied coasts. The current local pass provides intermittent nearshore bars, not a complete longshore sediment transport model."},
-    {"url": "https://www.nps.gov/subjects/caves/upload/Karst-Topography-Model-_Written-Section_508c.pdf", "use": "Limestone dissolution produces dolines, cones and, in humid settings, steep towers and gorges. Distinguish carbonate relief from generic hills."},
-    {"url": "https://home.nps.gov/articles/000/badl-geologic-formations.htm", "use": "Exposed weak sediments undergo differential erosion and gullying; existing aridity, vegetation and mudstone controls admit dissected badland terrain."},
-    {"url": "https://www.ga.gov.au/scientific-topics/national-location-information/landforms/significant-rock-features", "use": "Isolated resistant bedrock remnants differ from ordinary mountain noise. Admit rare coherent outcrops in appropriate dry, low-relief geology; do not populate every landscape with landmarks."}
+    {
+      "url": "https://docs.unity3d.com/cn/6000.0/Manual/terrain-Grass.html",
+      "use": "Textured quads and instanced meshes are established vegetation representations; preserve ecological placement while changing rendering."
+    },
+    {
+      "url": "https://pubs.usgs.gov/publication/pp282B",
+      "use": "River patterns depend on discharge, sediment, slope and banks. Avoid the same sinusoid for every river."
+    },
+    {
+      "url": "https://www.usgs.gov/educational-resources/find-feature-meander",
+      "use": "Lowland bends, outer-bank erosion and inner-bank deposition."
+    },
+    {
+      "url": "https://www.usgs.gov/faqs/what-a-hotspot-and-how-do-you-know-its-there?items_per_page=6&page=0",
+      "use": "Reuse plate motion and age-progressive hotspot chains rather than randomly placing volcanoes."
+    },
+    {
+      "url": "https://uluru.gov.au/discover/nature/geology/",
+      "use": "Isolated bedrock remnants and differential erosion; Uluru sandstone and Kata Tjuta conglomerate are distinct geological forms."
+    },
+    {
+      "url": "https://www.nps.gov/grca/learn/nature/grca-geology.htm",
+      "use": "Incised uplifted sedimentary plateaus, strata with different resistance and tributary drainage."
+    },
+    {
+      "url": "https://www.nps.gov/mora/learn/nature/waterfalls.htm",
+      "use": "Waterfalls belong to actual drainage and topographic breaks; separate falling-water geometry from sloping surface ribbons."
+    },
+    {
+      "url": "https://www.nps.gov/grfa/learn/nature/geology.htm",
+      "use": "Bedrock resistance and river incision support knickpoints and falls."
+    },
+    {
+      "url": "https://graysreef.noaa.gov/education/activities/pdfs/gr_what_is_the_story_with_sand.pdf",
+      "use": "Beach sediments reflect source geology, mineral transport and biogenic fragments; avoid uniform white shorelines."
+    },
+    {
+      "url": "https://www.fs.usda.gov/rm/pubs/rmrs_gtr346.pdf",
+      "use": "Forest structure and understory distinguish regional vegetation, not merely green tint."
+    },
+    {
+      "url": "https://www.nps.gov/articles/rocky-coast-landforms.htm",
+      "use": "Coastal relief, resistant bedrock and sediment supply distinguish cliffs/headlands from protected pocket beaches. Rocky coasts are not restricted to one lithology."
+    },
+    {
+      "url": "https://www.nps.gov/articles/sandy-coast-landforms.htm",
+      "use": "Depositional shelves host beaches, bars, spits and dunes, with broad variation in width and composition."
+    },
+    {
+      "url": "https://oceanservice.noaa.gov/facts/barrier-islands.html",
+      "use": "Bars and barrier chains belong to relatively flat, sediment-supplied coasts. The current local pass provides intermittent nearshore bars, not a complete longshore sediment transport model."
+    },
+    {
+      "url": "https://www.nps.gov/subjects/caves/upload/Karst-Topography-Model-_Written-Section_508c.pdf",
+      "use": "Limestone dissolution produces dolines, cones and, in humid settings, steep towers and gorges. Distinguish carbonate relief from generic hills."
+    },
+    {
+      "url": "https://home.nps.gov/articles/000/badl-geologic-formations.htm",
+      "use": "Exposed weak sediments undergo differential erosion and gullying; existing aridity, vegetation and mudstone controls admit dissected badland terrain."
+    },
+    {
+      "url": "https://www.ga.gov.au/scientific-topics/national-location-information/landforms/significant-rock-features",
+      "use": "Isolated resistant bedrock remnants differ from ordinary mountain noise. Admit rare coherent outcrops in appropriate dry, low-relief geology; do not populate every landscape with landmarks."
+    },
+    {
+      "url": "https://www.nps.gov/articles/beach-profile-changes.htm",
+      "use": "Foreshore, backshore berm and intermittent nearshore bars need different profiles; an ordinary lowland shore must not be classified as a cliff by its inherited hill amplitude."
+    },
+    {
+      "url": "https://www.usgs.gov/geology-and-ecology-of-national-parks/ecology-badlands-national-park",
+      "use": "Bare dissected weak sediments coexist with mixed-grass prairie. Review strong erosional formations as well as milder vegetated margins."
+    },
+    {
+      "url": "https://naturalhistory.si.edu/research/botany/research/lianas-and-climbing-plants-neotropics/lianas-introduction",
+      "use": "Tropical woody climbers root in the ground, ascend supporting trees and can have dangling branches. Shared-model climbers add no individual plant simulation."
+    }
   ],
   "coverage_review": [
-    {"area": "Grass", "existing_problem": "Expensive blade geometry; uniform grass presentation", "approach": "Selectable textured clumps, physical height and cover retained; legacy blades remain selectable; actual paired screenshot and frame-time checks"},
-    {"area": "Foliage shadows", "existing_problem": "Dense-rainforest baseline 117.5 fps versus 162.5 with vegetation shadows disabled", "approach": "Measure receiver filtering and caster costs separately, retain solid-object and character shadows"},
-    {"area": "Rivers", "existing_problem": "Fractal drainage edges lack convincing small-scale planform; cascades are only heightfield ramps", "approach": "Bounded bank/slope-dependent bends with coupled bed and surface; then real falls and varied reaches, tested at confluences and ocean mouths"},
-    {"area": "Volcanoes", "existing_problem": "Broad hotspot uplifts and plate chains exist; local craters and edifices do not", "approach": "Derive cratered shields/cones and erosion from existing mapped geological features and age"},
-    {"area": "Coasts", "existing_problem": "Local coast mostly follows interpolated elevation", "approach": "Source geology and exposure distinguish beaches, bars, rocky shores and cliffs; retain physical water datum"},
-    {"area": "Regional rock terrain", "existing_problem": "Badlands and karst controls produce only weak metre-scale noise", "approach": "Larger coherent erosional forms, stratified canyon/plateau and bedrock-remnant terrain with appropriate admission"},
-    {"area": "Forests", "existing_problem": "Rainforest has some canopy anatomy and palms but lacks adequate local structural and surface variety", "approach": "Review actual crowns, ground light/cover, understory and materials; improve shared art instead of adding per-tree scripting"}
+    {
+      "area": "Grass",
+      "existing_problem": "Expensive blade geometry; uniform grass presentation",
+      "approach": "Selectable textured clumps, physical height and cover retained; legacy blades remain selectable; actual paired screenshot and frame-time checks"
+    },
+    {
+      "area": "Foliage shadows",
+      "existing_problem": "Dense-rainforest baseline 117.5 fps versus 162.5 with vegetation shadows disabled",
+      "approach": "Measure receiver filtering and caster costs separately, retain solid-object and character shadows"
+    },
+    {
+      "area": "Rivers",
+      "existing_problem": "Fractal drainage edges lack convincing small-scale planform; cascades are only heightfield ramps",
+      "approach": "Bounded bank/slope-dependent bends with coupled bed and surface; then real falls and varied reaches, tested at confluences and ocean mouths"
+    },
+    {
+      "area": "Volcanoes",
+      "existing_problem": "Broad hotspot uplifts and plate chains exist; local craters and edifices do not",
+      "approach": "Derive cratered shields/cones and erosion from existing mapped geological features and age"
+    },
+    {
+      "area": "Coasts",
+      "existing_problem": "Local coast mostly follows interpolated elevation",
+      "approach": "Source geology and exposure distinguish beaches, bars, rocky shores and cliffs; retain physical water datum"
+    },
+    {
+      "area": "Regional rock terrain",
+      "existing_problem": "Badlands and karst controls produce only weak metre-scale noise",
+      "approach": "Larger coherent erosional forms, stratified canyon/plateau and bedrock-remnant terrain with appropriate admission"
+    },
+    {
+      "area": "Forests",
+      "existing_problem": "Rainforest has some canopy anatomy and palms but lacks adequate local structural and surface variety",
+      "approach": "Review actual crowns, ground light/cover, understory and materials; improve shared art instead of adding per-tree scripting"
+    }
   ],
   "limits": [
     "These are game approximations, not hydrodynamics or geological simulation.",

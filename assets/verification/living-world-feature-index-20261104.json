@@ -1,0 +1,73 @@
+{
+  "status": "Work in progress. Source backups are not final visual or performance acceptance.",
+  "baseline": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
+  "selected_slot": "slot-b",
+  "candidate_slot": "slot-a",
+  "policy": "Separate feature commits; preserve later unrelated edits when reverting shared files. No extra binary archives. Rebuild derived caches from the resulting terrain version.",
+  "features": [
+    {
+      "name": "Waterfalls",
+      "commits": [
+        "a58f21a2",
+        "dfbb8546",
+        "700cd510"
+      ],
+      "entry": "src/WorldGen.Core/WaterfallProfiles.cs",
+      "renderer": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenWaterSurface.shader"
+    },
+    {
+      "name": "Coastal profiles and mineral beaches",
+      "commits": [
+        "62894f83"
+      ],
+      "entry": "src/WorldGen.Core/CoastalTerrain.cs"
+    },
+    {
+      "name": "Humid tower karst",
+      "commits": [
+        "4ffad55b"
+      ],
+      "entry": "src/WorldGen.Core/ErodedTerrain.cs"
+    },
+    {
+      "name": "Incised sedimentary plateaus",
+      "commits": [
+        "2f9bef8b",
+        "8361a2f6",
+        "0c52d18f"
+      ],
+      "entry": "src/WorldGen.Core/CanyonValleys.cs"
+    },
+    {
+      "name": "Isolated rock forms and weathering",
+      "commits": [
+        "dc0989a8",
+        "1547ba86"
+      ],
+      "entry": "src/WorldGen.Core/BedrockRemnants.cs"
+    },
+    {
+      "name": "Sedimentary bedding",
+      "commits": [
+        "a4edcbd9",
+        "f5207316"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl"
+    },
+    {
+      "name": "Plant batch CPU culling",
+      "commits": [
+        "2456a0b3",
+        "28a9db8f"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainScatter.cs"
+    },
+    {
+      "name": "Shared tropical woody climbers",
+      "commits": [
+        "689b344a"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTreeArchitecture.cs"
+    }
+  ]
+}

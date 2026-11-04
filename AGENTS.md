@@ -49,6 +49,55 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov13:21Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z.
+Owner wants Earth-like regions+features/vegetation/world visuals and Medium1080
+100+FPS, excluding animals/humans/weather/sky. Keep working until explicit stop,
+not merely8h. Regular separate Git pushes; no subagents/paid/owner-app closures.
+Selected B/f5385a89 protected; root shortcut unchanged. A internal only. Latest
+source6fd5b0fc PUSHED. A FULL managed NONDEV BUILD RUNNING session92544; log
+artifacts/living-world-20261104/incised-forest-build.log. Current terrain41/Hyper36:
+stronger admitted incised sedimentary plateaus, active-water nonperiodic falling
+sheets, detached water-optics refresh+bank camera, inland karst selector, separate
+shadow-mode batch keys and shared tropical woody climbers. MUST inspect new
+screens and redo actual moving performance. DO NOT call this ready/100+ achieved.
+Core41 three actual canyon/water/shared-edge contexts PASS; current river27263/
+764spans/8tiles PASS zero drawn-ground clearance;24 actual coasts PASS. First
+canyon39 failed (4 weak host reaches, no deep incision), retained;40 added bounded
+uplift;41 normalises admitted strength. Only4 hosts in default world (one dry
+plateau province); no claim full Grand Canyon calibration. Source40 native6
+Canyon/Fall/Beach/Karst/Outcrop/Badlands all EXIT0 but VISUAL rejection/limits:
+Canyon wide/ground stale underwater screen (fixed fixture41); overhead too weak
+(fixed strength41, UNSEEN); Karst test chose coastal root where detail deliberately
+suppressed (new inland selector41 UNSEEN). Falls were evenly striped curtains;
+new advected irregular sheets41 UNSEEN; new actual-frame central-pixel check.
+Source40 beach now actually sand/foreshore (elevation1.249m, root suppression),
+inspected; outcrop fluting/basic stratified mass still simple loaf, improve if
+appropriate. Native40 prefix living-plateau-geometry, not final-package proof.
+Performance dense-medium-first COMPLETE16cases/uncontended: clump static FPS
+jungle173.37/temperate150.05/boreal165.71/tall-savanna128.16; turning67.54/103.67/
+95.83/81.52; travel112.32/106.19/114.98/84.30 with active streaming, p95 BAD.
+Main cause CPU batch rebuilds (jungle7.91ms, shadow1.18). New2456 same-kind range
+bins +soft-canopy trunk group limit;8424 pure range controls PASS. First new
+native dense-medium-ranges-2 FAILED exact multiset at225deg:2326same objects but
+shadow attributes differ. Found existing batch key omitted per-instance casts
+mode, inherited first object's mode. Fixed28a9, not yet built/tested. Need NEW
+same6km/1080 Medium jungle scatter-range-verify+turn/travel, then other3 sites.
+DO NOT reuse dense-medium-ranges (earlier INVALID package; I launched before
+reading failed-build result; verified own outer2916/player28128 stopped). Earlier
+A39 FULL build failed terrain shader rockA field; corrected to registered rocks/
+rocksB. New guard build-incomplete.txt blocks runners after failed/in-progress
+packaging; actual reject tested. A40 FULL8361 succeeded12:52Z before latest work.
+After92544 exits inspect exitcode+shader errors, restore ONLY3 known Unity autos,
+then run newprefix captures; NEVER launch a package after failed build.
+No active game now, no queued native jobs. Prior session65751 finalised6EXIT0;
+71950 Core41 finalised. New asset lock5403files/143packs, CC0 rock pack published/
+remote SHA verified; no new required image inputs in latest code. Owner3files
+untouched. Auto-review rejected deleting unused forest_floor source folder,
+left intact, already disclosed; do not bypass. Tree lianas CPU geometry only,
+max192 near triangles/tree, no new draw/object/script, needs visual/cost proof.
+NEXT: finish build; rerun jungle range equivalence/turn/travel and inspect latest
+Canyon/Fall/Beach/INLAND Karst/Outcrop. Keep substantive improvement work going.
+
 ACTIVE4Nov10:55Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z.
 Owner wants Earth-like regions/features/world visuals excluding humans/animals/
 weather/sky, Medium vegetation100+fps target; regular independent commits/pushes.
