@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
         if(clumpShader!=null&&clumpShader.isSupported)
         {
             groundClumpMaterial=new Material(clumpShader);
-            groundClumpMaterial.SetTexture("_ClumpAtlas",Resources.Load<Texture2D>("GroundFoliageAtlasV1"));
+            groundClumpMaterial.SetTexture("_ClumpAtlas",Resources.Load<Texture2D>("GroundClumpAtlasV1"));
             groundClumpMaterial.SetFloat("_VegetationSceneEnabled",1);
         }
         groundCoverMaterial.SetFloat("_VegetationSceneEnabled",1);groundCanopyMaterial.SetFloat("_VegetationSceneEnabled",1);

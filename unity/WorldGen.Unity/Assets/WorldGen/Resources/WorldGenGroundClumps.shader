@@ -87,8 +87,9 @@ Shader "WorldGen/GroundClumps"
                 float3 up=normalize(lerp(float3(0,1,0),r.normal.xyz,.12));
                 float3 p=anchor+across*(side*width)+up*(t*height)+WorldGenVegetationOffset(anchor,1)*(_GrassWind*t*t*.65);
                 bool herb=Rand(seed+19)<r.herbs.x;
-                bool warm=!herb&&Rand(seed+23)<r.grasses.y+r.grasses.z+r.grasses.w;
-                float2 tile=herb?float2(0,0):warm?float2(.5,.5):float2(0,.5);
+                bool warm=!herb&&Rand(seed+23)<r.grasses.y+r.grasses.w;
+                uint variant=herb?3u:warm?2u:Rand(seed+29)<.5?0u:1u;
+                float2 tile=float2(variant&1u,variant>>1u)*.5;
                 o.uv=tile+float2(side*.5+.5,t)*.496+.002;
                 o.card=float2(side*.5+.5,t);
                 float3 palette=r.colorHeight.rgb;
@@ -102,10 +103,7 @@ Shader "WorldGen/GroundClumps"
             {
                 float threshold=WorldGenDither(i.positionCS.xy);clip(threshold-i.fade.x);clip(i.fade.y-threshold);
                 half4 tex=SAMPLE_TEXTURE2D(_ClumpAtlas,sampler_ClumpAtlas,i.uv);
-                // The source is a continuous sward tile. Retire its cut side
-                // edges before they can appear as small rectangular fences.
-                float edge=smoothstep(0,.17,min(i.card.x,1-i.card.x));
-                clip(tex.a*edge-.35);
+                clip(tex.a-.35);
                 float3 color=i.color*clamp(tex.rgb*4.6,.20,1.5);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFog(_FogColor).rgb,VegetationFogDistance(_FogDistance)),1);
             }
