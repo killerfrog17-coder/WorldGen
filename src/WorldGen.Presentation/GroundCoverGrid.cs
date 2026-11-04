@@ -2,7 +2,7 @@ using System;
 
 namespace WorldGen.Presentation
 {
-    /// <summary>Conservative drawn-water exclusion, including streams narrower
+    /// <summary>Conservative physical-root water exclusion, including streams narrower
     /// than one terrain sample. No plant roots are fitted to guessed water levels.</summary>
     public static class GroundCoverGrid
     {
@@ -28,7 +28,14 @@ namespace WorldGen.Presentation
                     }
                     if(Separate(az-bz,bx-ax)||Separate(bz-cz,cx-bx)||Separate(cz-az,ax-cx))continue;
                     for(int dz=0;dz<2;dz++)for(int dx=0;dx<2;dx++)
-                    {int i=(z+dz)*side+x+dx;mesh.GroundCover[i*16+3]=0;for(int f=0;f<9;f++)mesh.GroundCover[i*16+4+f]=0;}
+                    {
+                        int i=(z+dz)*side+x+dx;
+                        // These triangles include bank underlap and narrow
+                        // channels. Suppress roots without erasing ecological
+                        // material weights shared with the adjacent tile.
+                        // Height zero is the placement-only exclusion gate.
+                        mesh.GroundCover[i*16+13]=0;
+                    }
                 }
             }
         }

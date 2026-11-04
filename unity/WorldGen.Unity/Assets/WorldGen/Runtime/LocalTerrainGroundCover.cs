@@ -376,10 +376,15 @@ public sealed partial class LocalTerrainExplorer
         if(tile.MovingCover>=0)return tile.MovingCover!=0;
         var values=tile.Cover;
         if(values==null||values.Length%16!=0)return true; // Unknown is not empty.
+        bool movingSupport=false,heightSupport=false;
         for(int at=0;at<values.Length;at+=16)
         {
-            float moving=values[at+3]-values[at+10]-values[at+11];
-            if(float.IsNaN(moving)||float.IsInfinity(moving)||moving>0){tile.MovingCover=1;return true;}
+            float moving=values[at+3]-values[at+10]-values[at+11],height=values[at+13];
+            if(float.IsNaN(moving)||float.IsInfinity(moving)||float.IsNaN(height)||float.IsInfinity(height)){tile.MovingCover=1;return true;}
+            movingSupport|=moving>0;heightSupport|=height>.0001f;
+            // Different vertices can supply cover and stature to the same
+            // interpolated point. Do not require their supports to coincide.
+            if(movingSupport&&heightSupport){tile.MovingCover=1;return true;}
         }
         // The placement kernel interpolates these same channels linearly before
         // subtracting stationary mats. All-zero/nonpositive vertex support cannot

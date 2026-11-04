@@ -49,8 +49,9 @@ static class GroundFloraTests
         var testMesh=new LocalTerrainMesh{Segments=4,SizeM=4,GroundVertices=25,GroundCover=Enumerable.Repeat(1f,25*16).ToArray(),
             WaterPositions=new[]{1.45f,1,0,1.55f,1,0,1.45f,1,4,1.55f,1,4},WaterTriangles=new[]{0,2,1,1,2,3}};
         GroundCoverGrid.ExcludeWater(testMesh);
-        Check(testMesh.GroundCover[(2*5+1)*16+3]==0&&testMesh.GroundCover[(2*5+2)*16+3]==0,"Sub-grid stream excludes roots on both sides");
-        Check(testMesh.GroundCover[(2*5+4)*16+3]==1,"Water bounding doesn't erase unrelated ground");
+        Check(testMesh.GroundCover[(2*5+1)*16+13]==0&&testMesh.GroundCover[(2*5+2)*16+13]==0,"Sub-grid stream excludes roots on both sides");
+        Check(testMesh.GroundCover[(2*5+4)*16+13]==1,"Water bounding doesn't erase unrelated ground");
+        Check(Enumerable.Range(0,25).All(i=>Enumerable.Range(0,13).All(channel=>testMesh.GroundCover[i*16+channel]==1)),"A narrow water footprint changes physical root eligibility without creating a terrain material seam");
         if(path!=null)
         {
             world=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(world);
