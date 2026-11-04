@@ -21,6 +21,7 @@ $destination=[IO.Path]::GetFullPath((Join-Path $repo $Output))
 if(!$destination.StartsWith((Join-Path $repo 'artifacts/'),[StringComparison]::OrdinalIgnoreCase)){throw 'Evidence must stay inside artifacts'}
 if(Test-Path -LiteralPath (Join-Path $destination 'summary.csv')){throw 'Choose a new evidence directory; existing results are not overwritten'}
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'A game is already running; leave it untouched and benchmark later'}
+if($PresentMon -and !(Test-Path -LiteralPath (Join-Path $repo 'tools/PresentMon/PresentMon.exe'))){throw 'PresentMon is missing. Restore the pinned standalone tool recorded in assets/verification/presentmon-tool.json before launching a benchmark.'}
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
@@ -33,7 +34,7 @@ $run=$null;$capture=$null
 try {
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru
     if($PresentMon){
-        $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -WindowStyle Hidden -PassThru
+        $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -RedirectStandardOutput (Join-Path $destination 'presentmon-output.txt') -RedirectStandardError (Join-Path $destination 'presentmon-error.txt') -WindowStyle Hidden -PassThru
     }
     $deadline=[DateTime]::UtcNow.AddMinutes($TimeoutMinutes);$last=''
     while(!$run.WaitForExit(10000)){
