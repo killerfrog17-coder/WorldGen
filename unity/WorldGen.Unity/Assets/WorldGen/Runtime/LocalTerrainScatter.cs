@@ -137,6 +137,7 @@ public sealed partial class LocalTerrainExplorer
         // vegetation. Reproject before this frame's draws, without a 250ms lag.
         if(scatterGroundRevision!=projectedGroundRevision)
         {
+            long correctionStarted=System.Diagnostics.Stopwatch.GetTimestamp();
             InvalidateInstallingScatterGround();
             foreach(var chunk in scatterChunks.Values)
             {
@@ -149,6 +150,10 @@ public sealed partial class LocalTerrainExplorer
                 if(affected)ProjectScatterGround(chunk);
             }
             ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
+            // Terrain publication and its root correction are one atomic job.
+            // Other pending art uploads can wait for a later frame's budget.
+            installationsThisFrame=Math.Max(1,installationsThisFrame);
+            frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-correctionStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
         }
         if(double.IsNaN(scatterX)||Math.Abs(motion.X-scatterX)>32||Math.Abs(motion.Z-scatterZ)>32||Math.Abs(HeightAboveGround-scatterAltitude)>100)RefreshScatterWanted();
         for(int i=scatterJobs.Count-1;installingScatter==null&&i>=0;i--)
@@ -181,6 +186,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(installingScatter==null)return;
         if(!scatterWanted.Contains(installingScatterKey)){installingScatter=null;installingScatterRechecks.Clear();return;}
+        if(!CanInstall)return;
+        long installStarted=System.Diagnostics.Stopwatch.GetTimestamp();installationsThisFrame++;
         var chunk=installingScatter;int count=chunk.Source.Instances.Length;
         if(installingScatterFrame!=frame||installingScatterOriginX!=originX||installingScatterOriginZ!=originZ)
         {
@@ -199,6 +206,7 @@ public sealed partial class LocalTerrainExplorer
             if((processed&15)==0&&(processed>=384||System.Diagnostics.Stopwatch.GetTimestamp()-started>System.Diagnostics.Stopwatch.Frequency*.0015))break;
         }
         WorldGenPerformance.TraceEnd(11,trace);
+        frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
         if(installingScatterAt<count||installingScatterRechecks.Count>0)return;
         PrepareScatterGroups(chunk,frame);chunk.Born=Math.Max(.001f,Time.time);scatterChunks[installingScatterKey]=chunk;
         canopySourceRevision++;scatterDirty=true;installingScatter=null;installingScatterDirty=null;

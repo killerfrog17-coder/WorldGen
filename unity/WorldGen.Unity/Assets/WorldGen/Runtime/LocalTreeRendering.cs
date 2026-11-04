@@ -45,6 +45,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateTreeImpostors()
     {
+        if(!CanInstall)return;
+        long installed=System.Diagnostics.Stopwatch.GetTimestamp();
         if(treeBakeTask!=null&&treeBakeTask.IsCompleted)
         {
             var owner=treeBakeOwner;owner.TreeQueued=false;
@@ -69,11 +71,13 @@ public sealed partial class LocalTerrainExplorer
                 material.renderQueue=owner.TreeStand?2002:2001;
                 ownedScatterMeshes.Remove(old.Mesh);Destroy(old.Mesh);ownedScatterMeshes.Add(quad);RegisterScatterMaterial(material);
                 owner.Parts=new[]{new ArtPart{Mesh=quad,Material=material,Submesh=0,Local=Matrix4x4.identity}};owner.TreeBaked=true;scatterDirty=true;forestHashDirty=true;
+                installationsThisFrame++;frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
             }
             else if(treeBakeTask.IsFaulted)
             {treeBakeFailures.Add(owner);Debug.LogWarning("Tree bake retained full-mesh fallback: "+treeBakeTask.Exception.GetBaseException().Message);}
             treeBakeTask=null;treeBakeOwner=null;
         }
+        if(!CanInstall)return;
         if(treeBakeTask!=null||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.GeneratedTrees&&!TerrainVideoOptions.FarForest||!CenterReady||NearTerrainPending())return;
         bool preferStand=BakedForestModels<3||(BakedTreeModels+BakedForestModels)%3==0;
         var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&(m.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderBy(m=>m.TreeStand==preferStand?0:1).ThenBy(m=>(m.TreeCode&7)==0?0:1).ThenByDescending(m=>m.LastUsed).FirstOrDefault();
@@ -105,6 +109,7 @@ public sealed partial class LocalTerrainExplorer
         var snapshot=new LocalTreeImpostor.Source(source,(int)morphology.LeafShape,(int)morphology.BarkPattern);if(temporary)Destroy(source);
         var token=cancellation.Token;pending.TreeQueued=true;treeBakeOwner=pending;
         treeBakeTask=Task.Run(()=>{var result=LocalTreeImpostor.Bake(snapshot,token);result.Prepared=LocalTreeTextures.Prepare(result.Colours,result.Normals,LocalTreeImpostor.Size,token);return result;},token);
+        installationsThisFrame++;frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
     }
     static void ReleaseTreeTextures(ArtModel model)
     {if(model.TreeColour!=null)UnityEngine.Object.Destroy(model.TreeColour);if(model.TreeNormal!=null)UnityEngine.Object.Destroy(model.TreeNormal);model.TreeColour=model.TreeNormal=null;model.TreeBaked=false;}

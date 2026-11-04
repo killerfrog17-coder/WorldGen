@@ -152,12 +152,16 @@ public sealed partial class LocalTerrainExplorer
         {bool ready=field.EvaluateReady();if(ready!=field.WasReady){field.WasReady=ready;scatterDirty=true;forestRevision++;forestOwnershipEpoch++;forestMaintenanceDirty=true;}}
         for(int i=forestJobs.Count-1;i>=0;i--)
         {
-            var job=forestJobs[i];if(!job.Task.IsCompleted)continue;forestJobs.RemoveAt(i);job.Cancellation.Dispose();
+            var job=forestJobs[i];if(!job.Task.IsCompleted)continue;
+            if(job.Task.IsCompletedSuccessfully&&forestWanted.Contains(job.Key)&&!CanInstall)continue;
+            forestJobs.RemoveAt(i);job.Cancellation.Dispose();
             if(job.Task.IsCanceled){forestNextRequest=0;continue;} // Retry interrupted coverage after near-ground pressure ends.
             if(job.Task.IsFaulted){Debug.LogWarning("Forest page retained fallback: "+job.Task.Exception.GetBaseException().Message);forestNextRequest=0;forestRetryAt=Time.realtimeSinceStartupAsDouble+2;continue;}
             if(!job.Task.IsCompletedSuccessfully||!forestWanted.Contains(job.Key))continue;
             if(forestFreeIds.Count==0&&forestNextId>=forestFlags.Length)break;
+            long installed=System.Diagnostics.Stopwatch.GetTimestamp();installationsThisFrame++;
             var field=new ForestField{Source=job.Task.Result,Id=forestFreeIds.Count>0?forestFreeIds.Pop():forestNextId++};forestFields.Add(job.Key,field);ProjectForest(field);forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;forestMaintenanceDirty=true;
+            frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
             break; // Bounded Unity object / buffer installation work.
         }
         if(forestPlan==null&&forestMaintenanceDirty)
