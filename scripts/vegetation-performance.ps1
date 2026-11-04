@@ -13,6 +13,7 @@ param(
     [switch]$PresentMon,
     [switch]$StutterTrace,
     [switch]$SavedSettings,
+    [switch]$GpuTelemetry,
     [switch]$Original
 )
 $ErrorActionPreference='Stop'
@@ -44,8 +45,12 @@ if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
 $arguments+=@('--worldgen-perf-plant-quality',"$PlantQuality")
-$run=$null;$capture=$null
+$run=$null;$capture=$null;$telemetry=$null
 try {
+    if($GpuTelemetry){
+        $telemetryTool=Get-Command nvidia-smi.exe -ErrorAction Stop
+        $telemetry=Start-Process -FilePath $telemetryTool.Source -ArgumentList @('--query-gpu=timestamp,utilization.gpu,clocks.gr,clocks.mem,temperature.gpu,power.draw,memory.used','--format=csv','-l','1','-f',('"'+(Join-Path $destination 'gpu-telemetry.csv')+'"')) -WindowStyle Hidden -PassThru
+    }
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru
     if($PresentMon){
         $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -RedirectStandardOutput (Join-Path $destination 'presentmon-output.txt') -RedirectStandardError (Join-Path $destination 'presentmon-error.txt') -WindowStyle Hidden -PassThru
@@ -65,4 +70,5 @@ try {
     # Only processes started by this invocation, never an owner's player.
     if($run -and !$run.HasExited){Stop-Process -Id $run.Id}
     if($capture -and !$capture.HasExited){if(!$capture.WaitForExit(10000)){Stop-Process -Id $capture.Id}}
+    if($telemetry -and !$telemetry.HasExited){Stop-Process -Id $telemetry.Id}
 }

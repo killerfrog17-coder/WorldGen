@@ -10,10 +10,10 @@ public sealed partial class LocalTerrainExplorer
     readonly System.Collections.Generic.HashSet<Tile> vegetationOccluders=new System.Collections.Generic.HashSet<Tile>();int occlusionFrame=-1;
     float occlusionCeiling,vegetationShadowRadius,vegetationShadowDistance,vegetationShadowUp;double vegetationShadowSlope;
     Vector3 scatterEye;Quaternion scatterRotation;Matrix4x4 scatterProjection;int scatterOptions;
-    const float ScatterGuardDegrees=6;
+    const float ScatterGuardDegrees=18;
     float scatterCachedGuardDegrees,scatterAngularSlack;bool scatterCachedAllHeadings;
     double scatterTrackedX=double.NaN,scatterTrackedZ,scatterLastTranslation=-1;
-    float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&SoftCanopyShadows&&TerrainVideoOptions.ScatterFrustum?ScatterGuardDegrees:0;
+    float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&SoftCanopyShadows&&TerrainVideoOptions.ScatterFrustum?(WorldGenPerformance.NarrowScatterGuard?6:ScatterGuardDegrees):0;
     bool CurrentScatterAllHeadings=>CurrentScatterGuardDegrees>0&&!WorldGenPerformance.DirectionalScatter&&Time.realtimeSinceStartupAsDouble-scatterLastTranslation>.30;
     void TrackScatterTranslation()
     {
@@ -22,6 +22,24 @@ public sealed partial class LocalTerrainExplorer
         scatterTrackedX=motion.X;scatterTrackedZ=motion.Z;
     }
     bool ScatterInFrustum(Bounds box,Vector3 eye)=>scatterCachedAllHeadings||GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(box,eye));
+    bool ScatterFullyInsideFrustum(Bounds box)
+    {
+        var center=box.center;var extent=box.extents;
+        for(int i=0;i<scatterFrustum.Length;i++)
+        {
+            var plane=scatterFrustum[i];var n=plane.normal;
+            float radius=Mathf.Abs(n.x)*extent.x+Mathf.Abs(n.y)*extent.y+Mathf.Abs(n.z)*extent.z;
+            if(Vector3.Dot(n,center)+plane.distance-radius<=.001f)return false;
+        }
+        return true;
+    }
+    bool ScatterGroupCanCast(ScatterKind kind)
+    {
+        if(!TerrainVideoOptions.VegetationShadows||kind==ScatterKind.Grass||IsSpecialist(kind))return false;
+        if(kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows)return false;
+        if(kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.TreeShadows||UseTreeShadowProxies&&SoftCanopyShadows))return false;
+        return true;
+    }
     Bounds ScatterGuardBounds(Bounds box,Vector3 eye)
     {
         if(scatterAngularSlack<=0)return box;

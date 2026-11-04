@@ -446,6 +446,7 @@ public sealed partial class LocalTerrainExplorer
             for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
             {
             var group=grouped?chunk.Groups[region]:null;
+            bool groupInside=!TerrainVideoOptions.ScatterFrustum||scatterCachedAllHeadings,groupOutside=false,groupHidden=false;
             if(grouped)
             {
                 // A fern's 100m range must not inherit a boulder's kilometre
@@ -465,14 +466,25 @@ public sealed partial class LocalTerrainExplorer
                 if(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees||group.RootBounds.SqrDistance(eye)>=localLimit*localLimit)continue;
                 if(TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest&&group.RootBounds.SqrDistance(eye)>=fieldLimit*fieldLimit&&ForestOwnsGroup(chunk,group))continue;
             }
-            if(grouped&&TerrainVideoOptions.ScatterFrustum)
+            if(grouped&&(TerrainVideoOptions.ScatterFrustum||TerrainVideoOptions.VegetationOcclusion))
             {
                 var groupBounds=group.Bounds;
                 // Include the largest individual visibility margin anywhere in
                 // this bin. Reject only if NONE can be visible or cast a shadow.
                 groupBounds.Expand(10+((groupBounds.center-eye).magnitude+groupBounds.extents.magnitude)*.04f);
-                if(!ScatterInFrustum(groupBounds,eye)&&!MayCastVisibleShadow(groupBounds,eye))
+                bool cheapGroups=!WorldGenPerformance.LegacyGroupVisibility;
+                bool groupCasts=!cheapGroups||ScatterGroupCanCast(group.Kind);
+                groupOutside=TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(groupBounds,eye);
+                if(groupOutside&&(!groupCasts||!MayCastVisibleShadow(groupBounds,eye)))
                 {ScatterFrustumRejected+=group.Indices.Length;continue;}
+                if(cheapGroups)
+                {
+                    groupInside|=!groupOutside&&ScatterFullyInsideFrustum(groupBounds);
+                    groupHidden=!groupOutside&&!WorldGenPerformance.GpuNearOcclusion&&TerrainOccluded(groupBounds,eye);
+                    if(groupHidden&&(!groupCasts||!MayCastVisibleShadow(groupBounds,eye)))
+                    {ScatterTerrainRejected+=group.Indices.Length;continue;}
+                }
+                else groupOutside=false;
             }
             for(int member=0;member<(grouped?group.Indices.Length:chunk.Source.Instances.Length);member++)
             {
@@ -490,8 +502,8 @@ public sealed partial class LocalTerrainExplorer
                     blend=new ScatterBlend(blend.Near,blend.Far,blend.Blend,distance<VegetationQuality.ForestStart(ForestHandoffReach)?1:ForestOwnsTree(p)?1-VegetationQuality.ForestWeight(distance,ForestHandoffReach):1);
                 if(blend.Visibility<=0)continue;
                 var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
-                bool frustum=TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye);
-                bool occluded=!frustum&&!WorldGenPerformance.GpuNearOcclusion&&TerrainOccluded(bounds,eye),shadowOnly=frustum||occluded;
+                bool frustum=groupOutside||!groupInside&&TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye);
+                bool occluded=!frustum&&!WorldGenPerformance.GpuNearOcclusion&&(groupHidden||TerrainOccluded(bounds,eye)),shadowOnly=frustum||occluded;
                 if(frustum)ScatterFrustumRejected++;if(occluded)ScatterTerrainRejected++;
                 if(shadowOnly&&(p.Kind==ScatterKind.Grass||IsSpecialist(p.Kind)||!MayCastVisibleShadow(bounds,eye)))continue;
                 if(shadowOnly&&(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.TreeShadows))continue;
