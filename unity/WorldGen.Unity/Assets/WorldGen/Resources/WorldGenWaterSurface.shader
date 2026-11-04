@@ -65,6 +65,7 @@ Shader "WorldGen/WaterSurface"
     float2 slope=lerp(Slopes((p-flow*(phase*6))*.42),Slopes((p-flow*(other*6))*.42),blend);
     slope+=Slopes((p+float2(-flow.y,flow.x)*_Time.y*.2)*.09)*.4;
     float3 normal=normalize(cross(ddy(i.position),ddx(i.position)));if(normal.y<0)normal=-normal;
+    float falling=river*smoothstep(.20,.65,1-abs(normal.y));
     float2 swellSlope=(1-river)*WaterSwellSlope(p,i.data.b,ocean);
     if(river<.5)normal=normalize(float3(-swellSlope.x,1,-swellSlope.y));
     normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.25,.55,saturate(length(wind)/14+river*i.data.z)));
@@ -85,6 +86,20 @@ Shader "WorldGen/WaterSurface"
     float flecks=lerp(SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,(p-flow*(phase*6))*.17).b,SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,(p-flow*(other*6))*.17).b,blend);
     float foam=(1-smoothstep(.03,.5,thickness))*.08+river*(flecks*lerp(.22,.6,saturate(i.data.z))*smoothstep(.15,.6,length(flow))+saturate(i.data.z)*smoothstep(.45,.8,abs(slope.x+slope.y))*.3);
     result=lerp(result,float3(.72,.8,.77)*lerp(.035,1,TerrainDaylight()),saturate(foam));
+    [branch] if(falling>.001)
+    {
+     // A falling sheet moves down its face, rather than sliding a lake's
+     // horizontal ripple texture over a vertical wall. Reuse the same normal
+     // atlas, stretched into descending ribbons; no particles or extra pass.
+     float speed=max(3,length(flow));float2 across=float2(-flow.y,flow.x)/speed;
+     float crossStream=dot(p,across),down=-i.position.y-_Time.y*speed;
+     float ribbon=.5+.5*sin(crossStream*8+.7*sin(crossStream*.9));
+     float motion=SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,float2(crossStream*.65,down*.045)).r;
+     float sheets=lerp(.76,1,ribbon)*lerp(.86,1.05,motion);
+     float illumination=.42+.58*saturate(dot(normal,sun.direction));
+     float3 aerated=float3(.72,.79,.78)*sheets*(TerrainAmbient().rgb*.55+sun.color*illumination)*lerp(.035,1,TerrainDaylight());
+     result=lerp(result,aerated,falling*.97);
+    }
     return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fog,TerrainFogDistance()),1);
    }
    ENDHLSL
