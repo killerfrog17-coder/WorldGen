@@ -51,6 +51,9 @@ static class WaterfallTests
                 var frame=new LocalTerrainFrame(center,terrain.RadiusM,0,.1);
                 var mesh=LocalTerrainMesh.Build(terrain,frame,-128,-128,256,16);
                 if(mesh.WaterTriangles.Length==0||mesh.WaterPositions.Any(v=>!float.IsFinite(v)))throw new Exception("Actual waterfall has no finite rendered water mesh");
+                var tagged=Enumerable.Range(0,mesh.WaterPositions.Length/3).Where(i=>mesh.WaterColors[i*4+3]>2.05f).ToArray();
+                if(tagged.Length<4||tagged.Any(i=>Math.Abs(mesh.WaterColors[i*4+2])>1.0001f||mesh.WaterColors[i*4+3]>2.2001f))throw new Exception("Falling sheet lost its bounded lateral/descent attributes");
+                if(tagged.Min(i=>mesh.WaterColors[i*4+2])>=0||tagged.Max(i=>mesh.WaterColors[i*4+2])<=0||tagged.Max(i=>mesh.WaterColors[i*4+3])-tagged.Min(i=>mesh.WaterColors[i*4+3])<.09f)throw new Exception("Clipped waterfall does not retain both sides and its full descent");
                 rows.Add(new{fall.Reach,Position=new[]{center.X,center.Y,center.Z},Drop=fall.LevelA-fall.LevelB,Run=(fall.B-fall.A).Length*frame.RadiusM,Width=fall.WidthA*2,fall.LevelA,fall.LevelB,Triangles=mesh.WaterTriangles.Length/3});
                 if(rows.Count>=4)break;
             }

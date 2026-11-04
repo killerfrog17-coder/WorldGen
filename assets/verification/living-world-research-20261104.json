@@ -82,6 +82,14 @@
     {
       "url": "https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Graphics.RenderPrimitivesIndexedIndirect.html",
       "use": "Indexed indirect procedural draws can share the repeated card corners while retaining shader vertex IDs and exact triangles. Requires indexed argument layout; verify actual images, not only shader compilation."
+    },
+    {
+      "url": "https://www.nps.gov/articles/000/summit-calderas.htm",
+      "use": "Collapse calderas have steep unstable margins; model a dropped floor bounded by an inner scarp rather than a shallow dish."
+    },
+    {
+      "url": "https://www.usgs.gov/media/images/kilauea-summit-uas-footage-shows-ever-growing-halemaumau",
+      "use": "Documented steep collapsing crater walls and an intact dropped floor block inform the new static collapse profile; no eruption simulation implied."
     }
   ],
   "coverage_review": [

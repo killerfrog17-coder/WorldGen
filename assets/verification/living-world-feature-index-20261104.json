@@ -10,7 +10,8 @@
       "commits": [
         "a58f21a2",
         "dfbb8546",
-        "700cd510"
+        "700cd510",
+        "bcda69d9"
       ],
       "entry": "src/WorldGen.Core/WaterfallProfiles.cs",
       "renderer": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenWaterSurface.shader"
@@ -94,7 +95,8 @@
       "commits": [
         "19854d12",
         "94429086",
-        "1a0540a0"
+        "1a0540a0",
+        "36e5f573"
       ],
       "entry": "src/WorldGen.Core/VolcanicTerrain.cs"
     },
@@ -193,7 +195,7 @@
         "cda1906e"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainGroundCover.cs",
-      "notes": "Shares literal repeated card corners. Does not change shader, density, card geometry or placement. Actual 36-camera index/nonindex comparisons and timed ablation pending."
+      "notes": "Same shader, density, card geometry and placement. Actual savanna36camera indexed/nonindexed comparison passed with ZERO pixel differences. About1% measured speed difference; no major performance improvement claimed."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",
