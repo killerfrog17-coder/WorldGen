@@ -9,7 +9,8 @@ static class VolcanicTerrainTests
         int count=0;void Check(bool ok,string why){count++;if(!ok)throw new Exception(why);}
         foreach(double crater in new[]{.09,.25})
         {
-            var form=new VolcanicTerrain.Volcano{RadiusM=4000,HeightM=600,BaseM=300,CraterFraction=crater,CraterDepth=crater<.1?.34:.67};
+            bool caldera=crater>.1;
+            var form=new VolcanicTerrain.Volcano{RadiusM=4000,HeightM=600,BaseM=300,CraterFraction=crater,CraterDepth=caldera?.67:.34,Form=caldera?VolcanoForm.Caldera:VolcanoForm.Shield};
             Check(form.Target(0,0)<form.Target(crater*.85,0),"Crater floor is below its surrounding rim");
             Check(form.Target(crater,0)-form.Target(0,0)>=form.HeightM*form.CraterDepth*.99,"Broad crater retains its intended physical depth below its rim");
             double maxSlope=0,prior=form.Target(0,0);
@@ -18,7 +19,12 @@ static class VolcanicTerrainTests
                 double height=form.Target(i/2000d,0);Check(double.IsFinite(height),"Finite volcanic surface");
                 maxSlope=Math.Max(maxSlope,Math.Abs(height-prior)/(form.RadiusM/2000));prior=height;
             }
-            Check(maxSlope<1.5,"Crater/flank profile has bounded slopes without needle spikes");
+            Check(maxSlope<(caldera?2.5:1.5),"Crater/flank profile has bounded slopes without needle spikes");
+            if(caldera)
+            {
+                Check(maxSlope>1,"Collapse caldera has a genuine steep inner scarp");
+                Check(Math.Abs(form.Target(crater*.5,0)-form.Target(0,0))<form.HeightM*.02,"Collapse basin retains a broad dropped floor");
+            }
             Check(Math.Abs(form.Target(1,0)-form.BaseM)<1e-8,"Edifice returns to its foot datum");
         }
         var controls=new LandscapeControls{BareRock=1};

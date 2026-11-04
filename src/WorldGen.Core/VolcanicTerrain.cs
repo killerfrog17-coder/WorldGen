@@ -24,9 +24,14 @@ namespace WorldGen.Core
                 // of a broad caldera's depth and looked like a flat mesa.
                 double cone=r<=CraterFraction?1:Math.Pow(Math.Max(0,(1-r)/(1-CraterFraction)),1.35);
                 double bowl=Math.Max(0,1-Math.Pow(r/CraterFraction,2));
+                // Collapse lowers a broad floor as a block, with the main
+                // elevation change at its bounding scarp. A squared bowl spread
+                // the same drop over the whole basin and left a gentle dish.
+                double depression=Form==VolcanoForm.Caldera?
+                    1-RiverscapeKernel.Smooth((r/CraterFraction-.65)/.35):bowl*bowl;
                 double erosion=(.018+.065*(1-Math.Exp(-AgeMyr/5d)))*Math.Sin(Math.PI*Math.Min(1,r));
                 double flutes=erosion*(Math.Sin(angle*9+Phase)+.35*Math.Sin(angle*17-Phase));
-                return BaseM+HeightM*(cone-CraterDepth*bowl*bowl-flutes);
+                return BaseM+HeightM*(cone-CraterDepth*depression-flutes);
             }
         }
         readonly int[][] faceCandidates;
