@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-falls-35";
+        public const string Version = "local-terrain-shores-36";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -348,6 +348,12 @@ namespace WorldGen.Core
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
                     if(!heightOnly)ground=LandscapeProvince.Ground(ground,surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed);
                     if(!heightOnly)LandscapeProvince.Cover(surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed,ref cover,ref midCover,ref forest,ref biome);
+                    if(!heightOnly&&surface.Kind==LocalWaterKind.Ocean&&surface.Height>=0&&biome!=Biome.Mangrove&&biome!=Biome.SaltMarsh)
+                    {
+                        double beach=CoastalTerrain.BeachBand(ground,surface.Height,ocean/sum);
+                        ground=CoastalTerrain.ShoreGround(ground,surface.Height,ocean/sum);
+                        cover.ScaleWeights(1-.98*beach);midCover.Coverage*=1-.98*beach;forest.Coverage*=1-beach;
+                    }
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
                         Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,Cover=cover,MidCover=midCover,Forest=forest,

@@ -108,10 +108,15 @@ public sealed partial class LocalTerrainExplorer
                     var patch=model.Patch((land+sea).Unit,(land-sea).Length*model.RadiusM+1000);
                     V low=land,high=sea;
                     for(int j=0;j<20;j++){V mid=(low+high).Unit;if(patch.Sample(mid).ElevationM>0)low=mid;else high=mid;}
-                    V direction=V.Tangent(low,sea).Unit;V bank=(low-direction*(cliffs?35:16)/(model.RadiusM*.1)).Unit;
+                    V direction=V.Tangent(low,sea).Unit;V bank=(low-direction*(cliffs?35:8)/(model.RadiusM*.1)).Unit;
                     var sample=patch.Sample(bank);
                     if(sample.Underwater||sample.WaterKind!=LocalWaterKind.Ocean||sample.ElevationM<.5||sample.ElevationM>180)continue;
                     if(!cliffs&&(sample.Ground.Gravel>.32||CoastalTerrain.ShoreMud(sample.Ground)>.3))continue;
+                    if(!cliffs)
+                    {
+                        var inland=patch.Sample((bank-direction*(35/(model.RadiusM*.1))).Unit);
+                        if(sample.ElevationM>4||inland.ElevationM-sample.ElevationM>5||sample.Ground.Sand<.65)continue;
+                    }
                     return new LandscapeReviewSite{Position=bank,Sample=sample,Coast=kind,CoastDirection=direction};
                 }
             }
@@ -211,6 +216,7 @@ public sealed partial class LocalTerrainExplorer
         Check(owner.StreamingFogDistance>=reviewFootprint,"Normal terrain and vegetation reveal expose the reviewed landscape extent");
         for(int i=0;i<90;i++)yield return null;
         Check(owner.artSet!=null&&owner.artSet.Albedo!=null&&owner.artSet.Albedo.depth==17&&owner.artSet.Normals.depth==17&&owner.artSet.Masks.depth==17,"Actual player has all seventeen registered surface layers");
+        Check(owner.waterMaterial.shader.name=="WorldGen/WaterSurface","Actual water review uses the production water surface shader");
         Check(owner.tiles.Values.Any(t=>t.Materials!=null&&t.Materials.Any(m=>m!=null&&m.HasProperty("_ForestFloorEnabled")&&m.GetFloat("_ForestFloorEnabled")>.5f&&m.GetTexture("_ForestFloor")!=null)),"Actual uploaded ground materials bind forest-floor weights");
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
         if(site.Pond!=null)
@@ -342,7 +348,11 @@ public sealed partial class LocalTerrainExplorer
         if(site.Fall.HasValue)
         {
             yield return owner.StartCoroutine(Capture("fall-side",new Vector3(-width*.5f,width*.1f,width*.4f)));
-            yield return owner.StartCoroutine(Capture("fall-base",new Vector3(width*.2f,0,width*.3f),true));
+            var fall=site.Fall.Value;V downstream=V.Tangent(fall.B,fall.B+(fall.B-fall.A)).Unit;
+            V basePoint=(fall.B+downstream*(Math.Max(18,site.RiverWidth*3)/(model.RadiusM*.1))+fall.SideB*(site.RiverWidth/(model.RadiusM*.1))).Unit;
+            TerrainHandoff.Coordinates(owner.frame,basePoint,out double bx,out double bz);
+            float by=(float)owner.frame.SurfaceY(basePoint,fall.LevelB+2)-y-.5f;
+            yield return owner.StartCoroutine(Capture("fall-base",new Vector3((float)bx,by,(float)bz)));
         }
         if(kind=="SandSea"||kind=="SaltFlat")
         {

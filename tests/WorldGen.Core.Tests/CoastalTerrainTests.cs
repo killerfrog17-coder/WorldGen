@@ -26,6 +26,11 @@ static class CoastalTerrainTests
         var basalt=new GroundProfile{RockMixA=new V(0,1,0)};var limestone=new GroundProfile{RockMixB=new V(1,0,0)};
         Check(CoastalTerrain.ShoreMud(new GroundProfile{Clay=.5,Drainage=.1,Organic=.12})>.9,"Saturated clay/organic coasts retain muddy shores");
         Check(CoastalTerrain.ShoreMud(new GroundProfile{Clay=.03,Drainage=.9,Sand=.95})==0,"Well drained sandy coasts do not acquire a mud coating");
+        var sandy=new GroundProfile{Sand=.7,Clay=.05,Gravel=.03,Drainage=.9,Organic=.04};
+        Check(CoastalTerrain.BeachBand(sandy,1,.3)>.99&&CoastalTerrain.BeachBand(sandy,8,.3)==0,"Sea-spray beach band stops before inland vegetation");
+        Check(CoastalTerrain.BeachBand(sandy,1,0)==0,"An inland lake does not acquire an ocean beach mask");
+        Check(CoastalTerrain.ShoreGround(sandy,1,.3).Organic<.001&&CoastalTerrain.ShoreGround(sandy,1,.3).Sand>.93,"Ordinary sandy foreshore carries mineral sand rather than grassland soil");
+        Check(CoastalTerrain.Deposition(new V(1000,2000,3000),73421,80,.5,.7)>.5,"Ordinary lowland amplitudes admit depositional beaches");
         Check(CoastalTerrain.SandColour(basalt).X<.3&&CoastalTerrain.SandColour(limestone).X>.8,"Basaltic and carbonate sands have distinct geology-derived colour");
         var mix=new GroundProfile{RockMixA=new V(0,.5,0),RockMixB=new V(.5,0,0)};
         Check((CoastalTerrain.SandColour(mix)-(CoastalTerrain.SandColour(basalt)+CoastalTerrain.SandColour(limestone))*.5).Length<1e-8,"Beach colour blends across lithology boundaries");

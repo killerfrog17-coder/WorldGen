@@ -61,6 +61,12 @@ namespace WorldGen.Core
             ground.Divide(sum);cover.Divide(sum);mid.Divide(sum);forest.Divide(sum);
             ground=LandscapeProvince.Ground(ground,sample.Province,point*(RadiusM*HorizontalScale),seed);
             var biome=sample.Biome;LandscapeProvince.Cover(sample.Province,point*(RadiusM*HorizontalScale),seed,ref cover,ref mid,ref forest,ref biome);sample.Biome=biome;
+            if(sample.WaterKind==LocalWaterKind.Ocean&&sample.ElevationM>=0&&biome!=Biome.Mangrove&&biome!=Biome.SaltMarsh)
+            {
+                double beach=CoastalTerrain.BeachBand(ground,sample.ElevationM,ocean/sum);
+                ground=CoastalTerrain.ShoreGround(ground,sample.ElevationM,ocean/sum);
+                cover.ScaleWeights(1-.98*beach);mid.Coverage*=1-.98*beach;forest.Coverage*=1-beach;
+            }
             sample.Ground=ground;sample.Cover=cover;sample.MidCover=mid;sample.Forest=forest;
             sample.HillHeightM=hills/sum;sample.MountainHeightM=mountains/sum;sample.OceanInfluence=ocean/sum;sample.CoverColor=new V(red/sum,green/sum,blue/sum);
         }
