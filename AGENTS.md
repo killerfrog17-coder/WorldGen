@@ -49,6 +49,51 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov21:43Z RENDER REPAIR CONTINUES. Selected A/f833 protected/shortcut
+unchanged. Current source69d2273a PUSHED; B FULL managed NONDEV build RUNNING
+session97366 (artifacts/unity-build.log). No own player active during build.
+New scan source leaf_grass backed up5405files/144packs, remote SHA verified.
+First B ground GPU + tree/forest shipped shader checks PASS; near pages requested
+at L0..L3. Clump GPU path also PASS but isolated screenshot BLACK (fixture scene
+buffer uninitialised), NOT art acceptance; new fixture uses literal lighting.
+Latest11 Editor tree forms PASS tree-fourth after tree-third FAILED conservative
+crown bounds (retained; e24 narrows shoots/limb variation). Actual bark/needle/
+savannah images inspected. Near tri broad3768->3046, savannah4724->2956,
+palm6240->2976, fern10692->4164; cheap smooth trunks and irregular lower forks.
+CURRENT perf savanna-first COMPLETE: static115.37,turn118.71,travel84.39,
+moving whip69.50FPS, severe tails. savanna-traced COMPLETE: water cache exact12
+but negligible gain107.55 vsfresh107.39, travel79.46/whip67.25. Trace ordinary
+main4.47ms: fauna2.70/humans1.03/player.23. Not a100FPS success. No further water
+feature work needed. New UNTESTED current source: 6b007a3e skips invisible soil
+under full grass (night/fire uses visible grass reflectance);605d80fa hoists
+per-animal frame indices + literal field matrix lerp, no AI/clip/rate changes;
+69d adds bit-exact actual-motion test + pixel-exact substrate A/B and finer
+animal/batch phase traces. Need latest build exit/shader checks, restore3known
+Unity autos, actual clump image/near-ground shots, authored pose + substrate A/B,
+moving-whip performance and proper saved-settings/long-view contexts. Main moving
+batch rebuild spikes unresolved. No heavy jobs during measurement windows.
+No new geography features, subagents, paid/owner-app closures. Owner3files
+unchanged. Do NOT call accepted/select until current evidence is candid.
+
+ACTIVE4Nov21:12Z OWNER RESUMED: "alr my bad, continue". Pause revoked; repair
+scope below remains active. B is INCOMPLETE/no build stamp after interruption;
+finish FULL managed build before launching it. A selected shortcut unchanged.
+Asset inventory exists; new grass source still needs immutable pack publication.
+No owned game/Unity jobs running at resume. Do not start new geography features.
+
+PAUSED4Nov OWNER: stop work/close anything affecting FPS. No resumption until
+owner returns. Source fixes committed/pushed through3d7c361f (Debug5a7249b2,
+groundadf11552,trees69fb76ce). B full managed build and asset inventory were
+launched before interruption; they are no longer running. Confirm B completion
+stamp/incomplete marker before any use; no native checks or performance runs
+have been done on this candidate. A selected shortcut unchanged. Own Editor
+reviews21408/29080 finished earlier; own leftover Roslyn3500 (created12:27 from
+Unity review) stopped on pause. No own game/Unity/shader/Python jobs remain.
+Three known Unity auto edits restored. New raw leafy_grass source still needs
+asset-lock publication; inventory may exist in render-repair scratch. Resume
+with actual compile/package result, coarse-grass GPU regression, final changed
+tree renders/counts and moving/whip camera benchmarks. Do not call100FPS solved.
+
 ACTIVE4Nov18:42Z OWNER PLAYTEST REPAIR. Owner rejects triangle material patches,
 poor grass floor, disappearing near grass, segmented/angular tree trunks,
 uniform savannah forks, excessive foliage cost and sub100 moving frames. Fix
