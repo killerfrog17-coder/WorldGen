@@ -78,6 +78,7 @@ public sealed partial class LocalTerrainExplorer
             treeBakeTask=null;treeBakeOwner=null;
         }
         if(!CanInstall)return;
+        installed=System.Diagnostics.Stopwatch.GetTimestamp();
         if(treeBakeTask!=null||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.GeneratedTrees&&!TerrainVideoOptions.FarForest||!CenterReady||NearTerrainPending())return;
         bool preferStand=BakedForestModels<3||(BakedTreeModels+BakedForestModels)%3==0;
         var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&(m.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderBy(m=>m.TreeStand==preferStand?0:1).ThenBy(m=>(m.TreeCode&7)==0?0:1).ThenByDescending(m=>m.LastUsed).FirstOrDefault();
