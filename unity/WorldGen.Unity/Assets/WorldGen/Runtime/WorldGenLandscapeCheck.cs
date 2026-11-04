@@ -118,6 +118,7 @@ public sealed partial class LocalTerrainExplorer
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
         if(site.Volcano!=null){reviewRange=8000;reviewFootprint=Math.Min(6000,site.Volcano.RadiusM*1.8);}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
+        TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{},world,play,worker:worker);
