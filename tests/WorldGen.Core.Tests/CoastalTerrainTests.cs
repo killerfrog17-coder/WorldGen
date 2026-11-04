@@ -24,6 +24,8 @@ static class CoastalTerrainTests
         }
         Check(variation>1000&&maximum>5&&minimum< -5,"Actual shoreline deformation produces coves and headlands");
         var basalt=new GroundProfile{RockMixA=new V(0,1,0)};var limestone=new GroundProfile{RockMixB=new V(1,0,0)};
+        Check(CoastalTerrain.ShoreMud(new GroundProfile{Clay=.5,Drainage=.1,Organic=.12})>.9,"Saturated clay/organic coasts retain muddy shores");
+        Check(CoastalTerrain.ShoreMud(new GroundProfile{Clay=.03,Drainage=.9,Sand=.95})==0,"Well drained sandy coasts do not acquire a mud coating");
         Check(CoastalTerrain.SandColour(basalt).X<.3&&CoastalTerrain.SandColour(limestone).X>.8,"Basaltic and carbonate sands have distinct geology-derived colour");
         var mix=new GroundProfile{RockMixA=new V(0,.5,0),RockMixB=new V(.5,0,0)};
         Check((CoastalTerrain.SandColour(mix)-(CoastalTerrain.SandColour(basalt)+CoastalTerrain.SandColour(limestone))*.5).Length<1e-8,"Beach colour blends across lithology boundaries");

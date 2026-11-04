@@ -10,6 +10,9 @@ namespace WorldGen.Core
         static readonly V[] sandColours={new V(.77,.72,.61),new V(.24,.25,.24),new V(.76,.58,.37),
             new V(.86,.83,.72),new V(.57,.53,.44),new V(.49,.50,.48)};
         static double Smooth(double a,double b,double value)=>RiverscapeKernel.Smooth((value-a)/(b-a));
+        public static double ShoreMud(GroundProfile ground)=>D.Clamp(
+            Smooth(.18,.42,ground.Clay)*(1-Smooth(.30,.65,ground.Drainage))
+            +.6*Smooth(.06,.15,ground.Organic)*(1-Smooth(.35,.70,ground.Drainage)));
         public static double Shape(V metres,int seed,double height,double seaWeight,double relief,double sediment,double hardness)
         {
             // All-land root faces have zero sea weight at their boundary too.

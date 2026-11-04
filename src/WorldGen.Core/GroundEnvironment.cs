@@ -140,7 +140,12 @@ namespace WorldGen.Core
             double beach=D.Clamp((7-Math.Abs(elevation))/6)*D.Clamp(ocean*10)*(1-slope);
             double sand=D.Clamp((p.Sand-.42)/.5)*(.3+.7*patch)*(1-p.Gravel);
             double gravel=D.Clamp(p.Gravel*1.6)*(.5+.5*small),clay=D.Clamp((p.Clay-.25)/.5)*(.4+.6*patch);
-            if(beach>0){double stony=D.Clamp((p.Gravel-.15)*3);sand=sand*(1-beach)+beach*(1-stony);gravel=gravel*(1-beach)+beach*stony;clay*=1-beach;}
+            if(beach>0)
+            {
+                double mud=CoastalTerrain.ShoreMud(p),stony=D.Clamp((p.Gravel-.15)*3)*(1-mud);
+                sand=sand*(1-beach)+beach*(1-mud-stony);gravel=gravel*(1-beach)+beach*stony;
+                clay=clay*(1-beach)+beach*mud;
+            }
             double organics=D.Clamp((p.Organic-.04)*5)*(1-beach),salt=ocean<.5?D.Clamp(p.Salinity*1.3)*(1-beach):0;
             double soil=Math.Max(.08,1-sand*.8-gravel*.6-clay*.7-organics*.8-salt);
             double total=soil+sand+gravel+clay+organics+salt,solid=(1-bare)*(1-ice);
