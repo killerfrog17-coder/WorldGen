@@ -1,0 +1,85 @@
+{
+  "old_slices_byte_identical": true,
+  "old_bytes": 6423648,
+  "new_bytes": 7800144,
+  "added_MiB": 1.3127288818359375,
+  "arrays": {
+    "albedo": {
+      "width": 512,
+      "depth": 17,
+      "mips": 10,
+      "bytes": 5942384,
+      "slice_sha256": [
+        "b6baa16cf259e0616eada69d2698ea1d942131a3bd428784251bca50dfff5e42",
+        "822333a422296bcf4bb0636d4356f7d4228b6eaaa4723bceb118d16e72f05dc3",
+        "880878aa44151304cd7a65208fb474a88cbbddf60794ad26d4f9f130f4b1f8d4",
+        "abadbb712a181a67de37d5438e9113cb0156917817562b1668fba1c54dd0a495",
+        "06f4a9a93433346ddc751495aa4c92c53f077299d73d102f642e9b7e1a8153d0",
+        "08d0d2deb69f7245bf669df6254356fac9ac52abf25d3f1fedb368d7884fed7a",
+        "580b90de6da6e1c41bbcbd7788702874855dc2f1d3225783cdf87aac1f6f5dde",
+        "e81e76ec7d11840d6b75df7776f7e02352d62869171b6b78c85abee800f65454",
+        "06f4a9a93433346ddc751495aa4c92c53f077299d73d102f642e9b7e1a8153d0",
+        "6bbe49d8d3eb7d1f44e204d247f21e9a67786521c42d6381b08f1b04dc1876c9",
+        "9d6cf1fd5fffbeb6b4760161e23b4e8dc027eced48672ef0c90b5fa71ec202fb",
+        "86c2f0fcb4d53ddc75b7c857bea93674c1bae767e1a0f56a1b46ed8849664868",
+        "36a5f37a768b5ead92d754900f6b96e104ca75b806651a8b56c936a0f41f503a",
+        "b854e8a6f36ed349835eef58f6e610d12d278f50f7f059c931f272514f36c0f2",
+        "af2377c154e8ea87e5710f2050d6f1891707e08e7512594f26bbd62a3a8816c8",
+        "2a9454e4bc6d3a8a6b83dd2b8e0ead14d9aee9901c43f09c5f5732a7c6bcc2e6",
+        "3091121ffc1702c1a3d27207ff08d12ffaa1f4d5a71bf341a486306fbb7db25d"
+      ]
+    },
+    "normal": {
+      "width": 256,
+      "depth": 17,
+      "mips": 9,
+      "bytes": 1485936,
+      "slice_sha256": [
+        "1e69e59afd792095c5add338aafb217d197c5ffe42acc695f689936f5faed2c4",
+        "064cb0fbf3031a518dcd079b39a251370c4fada432a4b8e9c595671ff499d058",
+        "877d7c7a06dedbf70fc5e754950fc828c50374e1f949ded5f9e93d1fd1530d20",
+        "c8f8c3ebe6308093c8b78333a88cbf213a49f80f57e9856e57baeb3ccbc7ca2e",
+        "511c65d3ad2dcd6926a9554f6403dfd79cce35fab3457c16992fdadbb10d6807",
+        "55398636640dd2300ea65b91fb5030a29cf7087c2d9c605d9e2835f9c2ceb074",
+        "819d2508c1e5c8fa2667991452f28cd25934b7f3ffdd94df819144579d392589",
+        "563f508a914d1078b8e583e936a7f024dc26efa826f97be2fc4dcdd749dd30b5",
+        "511c65d3ad2dcd6926a9554f6403dfd79cce35fab3457c16992fdadbb10d6807",
+        "6b3ac61659ee3a22426af6cf8bcf4316345bc9a6172d56dea575d89a9fabbead",
+        "f884db78b0cd316e817bb1dc798bbecbce1b52775c9ba4072d1adc2a5a18234c",
+        "affa909556633410bb5c9b56fef6b1544d6c21cfe8614bdf1ed605e0763079c6",
+        "4db08129bd033cb322d86b889929c99c7c679bc7e77aaea81e60e59228d0d2f8",
+        "8165f9a58e0d06259e5908a2f2437f76b1257d7f2bd1103e2d9e7c86850da097",
+        "3bce2a5309b74ffc787e3e58de194dc90a3fe8d9b506741b855cdd35c9c6c3d5",
+        "ccef87bfc31ce4bcfb9520c0df45497c94b4bb0b885cdd9de481b631c505e42e",
+        "3832a1b3c37fcef772b87bfc879e46949e40bc9b8f74f04c3ec5a235fbd076f5"
+      ]
+    },
+    "mask": {
+      "width": 128,
+      "depth": 17,
+      "mips": 8,
+      "bytes": 371824,
+      "slice_sha256": [
+        "345aa1b771266ce30ab8755634c368635c2b30a0f45c2a7da8de18f2964debf8",
+        "b0b9ce5a1430632e3d8e593ee8e1d3b16a658a79f043b7e8dbff394eb0e4207f",
+        "01d059a73e801ff4b565be90b7003eb5037ae9f480ae92504b1a2c6b894bdb54",
+        "76b3398cd066144e1dfac23fd690f088d701d8044d1ae7b1b744186eced3583d",
+        "9c344ac79662fdfc32def8b08cd0f9c31898e8604f089456de94e16f4eede126",
+        "0a0b65a94bda5aee589b7cf9dc6f31e27f092a5a19a75f7a4301c1d2a84ff5a1",
+        "76b3398cd066144e1dfac23fd690f088d701d8044d1ae7b1b744186eced3583d",
+        "04c2dfc3cb3968ad08308f4403089bcc26746d80f8141b8c0585c86093782be1",
+        "9c344ac79662fdfc32def8b08cd0f9c31898e8604f089456de94e16f4eede126",
+        "f49045ad1008cbd13b65382e64bdb43b944643a3810600009f1bc1f122cbd09b",
+        "0bdd0dda8d98feb6a58a1b4da972eb4aabe3e7817a4fe6fd532ff490f24d3a7d",
+        "4afa9adb75670444863e4ed40ee32b892f4066fd26beaec7017d8d2b1b9f7fb3",
+        "36f5f982237e8748205f19e5f9bf8e96e4b0f69fb0a9426087b2633247cf44a1",
+        "6261e50892766c5a4e4f1c322be3f28de3fc4804c183d7d864b96a6695e913ec",
+        "429d1d1b9be82547832e469b46fcd46339dfc4ca94223b8331f2f57dece1e61a",
+        "32a98121157649273d167d8e5dc147254606abdfc84732bb34c6d593dd0cd1f5",
+        "21e320bd5bccef6b81158428a6ea65a1447bb3103ee0d907ea07e34590695cdc"
+      ]
+    }
+  },
+  "runtime": "Existing maximum 1/2/3 material samples per quality setting. One extra shared per-tileRGBA32 floor-style field; no extra mesh/draw/shadow pass.",
+  "acceptance": "Offline slice preservation passed; native appearance and performance require the candidate build."
+}
