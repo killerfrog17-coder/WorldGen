@@ -19,7 +19,10 @@ namespace WorldGen.Core
             public double Coordinate(V p,double radius)=>(p-Center).Length*radius/RadiusM;
             public double Target(double r,double angle)
             {
-                double cone=Math.Pow(Math.Max(0,1-r),1.35);
+                // The rim is the edifice's summit, rather than a pit cut into
+                // an already descending cone. That old profile cancelled most
+                // of a broad caldera's depth and looked like a flat mesa.
+                double cone=r<=CraterFraction?1:Math.Pow(Math.Max(0,(1-r)/(1-CraterFraction)),1.35);
                 double bowl=Math.Max(0,1-Math.Pow(r/CraterFraction,2));
                 double erosion=(.018+.065*(1-Math.Exp(-AgeMyr/5d)))*Math.Sin(Math.PI*Math.Min(1,r));
                 double flutes=erosion*(Math.Sin(angle*9+Phase)+.35*Math.Sin(angle*17-Phase));

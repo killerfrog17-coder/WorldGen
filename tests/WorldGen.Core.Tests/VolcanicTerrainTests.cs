@@ -11,6 +11,7 @@ static class VolcanicTerrainTests
         {
             var form=new VolcanicTerrain.Volcano{RadiusM=4000,HeightM=600,BaseM=300,CraterFraction=crater,CraterDepth=crater<.1?.34:.67};
             Check(form.Target(0,0)<form.Target(crater*.85,0),"Crater floor is below its surrounding rim");
+            Check(form.Target(crater,0)-form.Target(0,0)>=form.HeightM*form.CraterDepth*.99,"Broad crater retains its intended physical depth below its rim");
             double maxSlope=0,prior=form.Target(0,0);
             for(int i=1;i<=2000;i++)
             {
