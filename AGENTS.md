@@ -49,6 +49,27 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE OVERNIGHT WORLD OVERHAUL 2026-11-04T07:49:20.405177+00:00. OWNER authorizes broad overhaul
+of terrain/regions/features/rivers/coasts/water/vegetation/materials. Excludes
+ANIMALS,HUMANS,WEATHER,SKY appearance/behaviour. Goals Earth-like diverse plausible
+landscapes +consistent100+FPS atMedium vegetation onownerRTX4060/current1920x1080;
+no extreme loadtimes/seams/waterbreakage. Keep originalgrass as selectableoption,
+add cheapForest-like cover with tallgrass viable in savanna. Features nowallowed:
+waterfalls/canyons/inselbergs/volcano+hotspotchains/variedbeaches/shapedcoasts/
+sandbars/meanders/deltas/etc; realisticdistribution,notlandmarkspam. Research,
+actual nativevisual+performance checks, keep choosing highestimpactnextwork ALL
+NIGHT untilownerwrap/stop. No prematureendafteronecheckpoint. Ownerjustchanged
+model; no substantivecancellation. NEW owner asks REGULAR focusedGitcommits/pushes
+so individual features can bescrapped without removingunrelatedwork. Separate
+feature modules/commits; no giant mixedcommit. No subagents/paid/signup. Selected
+B f5385a89 stayssafe; A66652c92 drylandprototype availabletoreuse. Owner3files
+untouched. Baseline native benchmark RUNNING slotB session (see tools), output
+artifacts/living-world-20261104/baseline-medium,3sites forestflat/hills/savanna,
+5cases full/nograss/nomid/notrees/novegeshadows at1920x1080/Medium/6km/PresentMon.
+Do not start anotherplayer/heavycompilewhilebenchmarking. Primaryresearch +read
+code meanwhile. Existing firstdrylandprototype d88f5cea pushed;5361inputs/140packs.
+No goal registered. Preserve allfilesystem/build/compatibilityrulesabove.
+
 REVIEW04Nov06:21Z FIRST DRYLAND PROTOTYPE READY FOR OWNER VISUAL FEEDBACK.
 Broader regional overhaul is UNFINISHED; do not call wonder/wholeEarthcatalogue
 achieved. B f5385a89 remains SELECTED/UNCHANGED. A current66652c92 managedNONDEV
