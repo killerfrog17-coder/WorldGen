@@ -493,6 +493,20 @@ public sealed partial class LocalTerrainExplorer
             foreach(var key in tiles.Keys)foreach(double x in new[]{0d,.31,.999999,1})foreach(double z in new[]{0d,.57,.999999,1})
                 Compare((key.X+x)*key.SizeM,(key.Z+z)*key.SizeM);
             foreach(var chunk in scatterChunks.Values)foreach(var root in chunk.Roots.Take(8))Compare(root.x+originX,root.z+originZ);
+            var resident=tiles.First(p=>p.Key.Level==0&&p.Value.Heights!=null);var k=resident.Key;
+            double cx=(k.X+.37)*k.SizeM,cz=(k.Z+.61)*k.SizeM;
+            WorldGenPerformance.ForceFreshVisibleGround=false;double before=VisibleGround(cx,cz,-12345);
+            try
+            {
+                var raised=(float[])resident.Value.Heights.Clone();for(int i=0;i<raised.Length;i++)raised[i]+=.25f;
+                tiles[k]=new Tile{Heights=raised,Segments=resident.Value.Segments};residentRevision++;
+                Compare(cx,cz);
+                if(Math.Abs(VisibleGround(cx,cz,-12345)-before)<.20)throw new InvalidOperationException("Resident owner cache retained a replaced same-address surface");
+                tiles.Remove(k);residentRevision++;Compare(cx,cz);
+            }
+            finally{tiles[k]=resident.Value;residentRevision++;}
+            Compare(cx,cz);
+            if(BitConverter.DoubleToInt64Bits(before)!=BitConverter.DoubleToInt64Bits(VisibleGround(cx,cz,-12345)))throw new InvalidOperationException("Resident owner cache failed to restore the current surface");
         }
         finally{WorldGenPerformance.ForceFreshVisibleGround=oldFresh;}
         var prior=scatterGroundChanges.ToArray();int checkedRoots=0,repairedRoots=0,checkedChunks=0,coarseChecks=0;
@@ -624,6 +638,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
             new PerfCase("scatter-range-verify",()=>{}),
             new PerfCase("scatter-guard-verify",()=>{}),
+            new PerfCase("ground-owner-verify",()=>{}),
             new PerfCase("foliage-one-tap",()=>WorldGenPerformance.FoliageShadowTaps=1),
             new PerfCase("foliage-four-tap",()=>WorldGenPerformance.FoliageShadowTaps=4),
             new PerfCase("no-mid-shadows",()=>TerrainVideoOptions.MidPlantShadows=false),
@@ -751,6 +766,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="trees-efficient-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyTreeEfficiency(output)+"\n");
                 if(item.Name=="scatter-range-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyVisibility()+"\n");
                 if(item.Name=="scatter-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"rotation-guard"))+"\n");
+                if(item.Name=="ground-owner-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n");
                 if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
                 if(item.Name=="full")
                 {
