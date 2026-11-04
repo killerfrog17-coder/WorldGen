@@ -75,10 +75,11 @@ Shader "WorldGen/WaterSurface"
     slope+=Slopes((p+float2(-flow.y,flow.x)*_Time.y*.2)*.09)*.4;
     float3 normal=normalize(cross(ddy(i.position),ddx(i.position)));if(normal.y<0)normal=-normal;
     float explicitFall=river*step(2.05,i.data.a);
+    float turbulence=lerp(saturate(i.data.z),.85,explicitFall);
     float falling=river*max(explicitFall,smoothstep(.20,.65,1-abs(normal.y)));
     float2 swellSlope=(1-river)*WaterSwellSlope(p,i.data.b,ocean);
     if(river<.5)normal=normalize(float3(-swellSlope.x,1,-swellSlope.y));
-    normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.25,.55,saturate(length(wind)/14+river*i.data.z)));
+    normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.25,.55,saturate(length(wind)/14+river*turbulence)));
     float3 eye=GetWorldSpaceNormalizeViewDir(i.position);if(dot(normal,eye)<0)normal=-normal;
     float2 screen=i.positionCS.xy/_ScaledScreenParams.xy;float raw=SampleSceneDepth(screen);
     float eyeDepth=LinearEyeDepth(raw,_ZBufferParams),surfaceDepth=-TransformWorldToView(i.position).z;
@@ -94,27 +95,41 @@ Shader "WorldGen/WaterSurface"
     Light sun=GetMainLight();float glint=pow(saturate(dot(normal,normalize(eye+sun.direction))),180);
     result+=sun.color*glint*.65*TerrainDaylight();
     float flecks=lerp(SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,(p-flow*(phase*6))*.17).b,SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,(p-flow*(other*6))*.17).b,blend);
-    float foam=(1-smoothstep(.03,.5,thickness))*.08+river*(flecks*lerp(.22,.6,saturate(i.data.z))*smoothstep(.15,.6,length(flow))+saturate(i.data.z)*smoothstep(.45,.8,abs(slope.x+slope.y))*.3);
+    float foam=(1-smoothstep(.03,.5,thickness))*.08+river*(flecks*lerp(.22,.6,turbulence)*smoothstep(.15,.6,length(flow))+turbulence*smoothstep(.45,.8,abs(slope.x+slope.y))*.3);
     result=lerp(result,float3(.72,.8,.77)*lerp(.035,1,TerrainDaylight()),saturate(foam));
     [branch] if(falling>.001)
     {
      // A falling sheet moves down its face, rather than sliding a lake's
      // horizontal ripple texture over a vertical wall. Reuse the same normal
      // atlas, stretched into descending ribbons; no particles or extra pass.
-     float speed=max(3,length(flow));float2 across=float2(-flow.y,flow.x)/max(.001,length(flow));
+     float progress=saturate((i.data.a-2.1)*10);
+     float2 heightGradient=float2(ddx(i.position.y),ddy(i.position.y));
+     float2 descentGradient=float2(ddx(progress),ddy(progress));
+     float drop=explicitFall>.5?clamp(length(heightGradient)/max(.0001,length(descentGradient)),1,1200):5;
+     float initialSpeed=clamp(length(flow),1,6);
+     float speed=max(3,(initialSpeed+sqrt(initialSpeed*initialSpeed+19.62*drop))*.5);
+     float2 across=float2(-flow.y,flow.x)/max(.001,length(flow));
      float crossStream=dot(p,across),down=-i.position.y-_Time.y*speed;
      float broad=FallNoise(float2(crossStream*.8,down*.045));
      float fine=FallNoise(float2(crossStream*3.1+broad*2,down*.36));
      float filaments=FallNoise(float2(crossStream*8+fine,down*.8));
-     if(explicitFall>.5)clip(1-abs(i.data.z)-(.015+.07*fine+.02*broad));
+     if(explicitFall>.5)
+     {
+      float edge=lerp(.94,1.03,progress)-abs(i.data.z)-(.015+.09*fine+.02*broad);
+      clip(edge);
+      // Sparse edge spray uses the existing screen dither and depth-writing
+      // surface; no translucent particle layer or extra draw is introduced.
+      clip(lerp(.5,1,smoothstep(0,.22,edge))-dither);
+     }
      float sheets=.48+.56*smoothstep(.16,.84,broad)+.20*fine+.10*filaments;
      // Aerated water scatters skylight through its volume; treating it only
      // as an opaque Lambert face made the falling sheet resemble grey stone.
      float illumination=.65+.35*saturate(dot(normal,sun.direction));
      float3 foamLight=float3(.88,.94,.98)*(TerrainAmbient().rgb*.8+sun.color*illumination)*lerp(.035,1,TerrainDaylight());
      float3 aerated=foamLight*sheets;
-     if(explicitFall>.5)aerated=lerp(aerated,foamLight,smoothstep(.78,1,saturate((i.data.a-2.1)*10))*.55);
-     result=lerp(result,aerated,falling*.97);
+     if(explicitFall>.5)aerated=lerp(aerated,foamLight,smoothstep(.78,1,progress)*.55);
+     float aeration=lerp(.35,.95,smoothstep(0,.22,progress))*(.30+.70*smoothstep(.20,.80,broad*.6+fine*.4));
+     result=lerp(result,aerated,falling*(explicitFall>.5?aeration:.97));
     }
     return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fog,TerrainFogDistance()),1);
    }

@@ -152,7 +152,9 @@ namespace WorldGen.Presentation
                     // The existing river colour payload carries signed lateral
                     // position and descent, without adding a mesh buffer/pass.
                     // Alpha remains inside the river-type interval 1.5..2.5.
-                    al.T=bl.T=-1;ar.T=br.T=1;al.W=ar.W=2.1;bl.W=br.W=2.2;
+                    al.T=-wa/Math.Max(.01,span.WidthA);ar.T=-al.T;
+                    bl.T=-wb/Math.Max(.01,span.WidthB);br.T=-bl.T;
+                    al.W=ar.W=2.1;bl.W=br.W=2.2;
                 }
                 Ribbon(al,bl,ar,span.Reach,span.Receiver);Ribbon(ar,bl,br,span.Reach,span.Receiver);
             }
