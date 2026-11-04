@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-karst-32";
+        public const string Version = "hyper-amplification-canyons-33";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -32,6 +32,7 @@ namespace WorldGen.Core
         readonly CellLocator landscapeLocator;
         public readonly VolcanicTerrain Volcanoes;
         public readonly BedrockRemnants Remnants;
+        public readonly CanyonValleys Canyons;
         readonly SmallWaterBodies smallWater,wetlandWater;
         public int CachedSmallWaterCandidates=>smallWater.CachedCandidates+wetlandWater.CachedCandidates;
         public SmallLake[] SmallLakesNear(V center,double rangeM)
@@ -312,6 +313,7 @@ namespace WorldGen.Core
             BuildLakeBasins(world,token);
             ConditionLakeSpills(world,token);
             BuildRiverscapes(world,token,cachedRiverDatums);
+            Canyons=new CanyonValleys(world,profiles,scale,riverDatums,riverNodeWidths,token);
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
         }
 
@@ -860,6 +862,11 @@ namespace WorldGen.Core
                     pre+=volcanic-height;height=volcanic;landscape.BareRock=(float)Math.Max(landscape.BareRock,exposure);
                     double bedrock=owner.Remnants.Apply(point,found.Root,height,out double remnantExposure);
                     pre+=bedrock-height;height=bedrock;landscape.RemnantExposure=(float)remnantExposure;
+                    if(owner.Canyons!=null)
+                    {
+                        double canyon=owner.Canyons.Apply(point,found.Root,height,out double canyonExposure);
+                        pre+=canyon-height;height=canyon;landscape.CanyonExposure=(float)canyonExposure;
+                    }
                     double coastal=CoastalTerrain.Shape(point*(owner.radius*owner.scale),owner.seed,height,
                         a*found.A.SeaWeight+b*found.B.SeaWeight+c*found.C.SeaWeight,
                         a*(found.A.Hill+found.A.Mountain)+b*(found.B.Hill+found.B.Mountain)+c*(found.C.Hill+found.C.Mountain),
