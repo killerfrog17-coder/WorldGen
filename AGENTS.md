@@ -49,6 +49,43 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov16:31Z FULLWORLD OVERNIGHT CONTINUES; no owner stop/wrap. Started07:47Z,
+8h is NOT a stop. Selected B/f5385a89/root shortcut unchanged; A internal.
+A latest ScriptsOnly NONDEV built16:22:29Z, SourceCommit6af874fb/SourceChanges[],
+packed shader baseline7c911fb5. Terrain42/Hyper37 unchanged. Source all PUSHED.
+CURRENT native perf session91951 dense-near-depth-1 compares CPU hill rejection
+against GPU depth on jungle then tall savanna. Do NOT overwrite A or run heavy
+jobs during its timing windows. Latest jungle32 actual renders PASS exact visible
+membership/casters; max15 edgepixels49RGB, within reference-edge contrast. Jungle
+turn154.13 vsGPU153.16, travel125.78 vsGPU127.33; no material gain established.
+Savanna now loading. GPU alternative remains opt-in diagnostic/default FALSE.
+Previous dense-medium-budget-rest EXIT0: temperate turn139.59/travel109.85,
+boreal154.54/118.89, tall savanna117.70/88.33 (TARGET MISS, p95travel19.72ms).
+Do NOT claim universal100+. Savanna travel CPU batches5.19ms on384/1767frames;
+idle frames9.77ms mean. Existing frame tails/GC not solved. f431 idle tree alloc
+fix is now BUILT and tested as part of current trial. All4 earlier biome exact
+multiset/projection/owner checks passed. Current perf runner now records actual
+DLL/worker hashes and build stamp; current receipt explicitly acquired during
+run before any player replacement, rather than pretending it was beforelaunch.
+New6af optional /landmark volcano|waterfall|canyon|outcrop|karst searches actual
+existing geometry asynchronously and teleports to dry land with feature-facing
+camera. Help/completion added. Native LandscapeCheck now exercises real command
+AFTER writing scene/captures to avoid contaminating them. New command still needs
+actual native cases; volcano also needs corrected crater-rim camera inspection.
+New checkpoint recorder scripts/record-living-world-checkpoint.py rejects stale
+current evidence, requires current NPC wet/cold +inspected landscape +benchmark,
+records measured target misses and NEVER changes shortcut. Not run yet. Feature
+rollback index updated for adaptive culling/projection/uploadbudget/idle/commands.
+Latest HEAD79ae18f6. No source pending except owner3files. Need finish perf, make
+only measured useful optimizations, then current NPC wet/cold ground/save tests,
+new Volcano and landmark native checks, representative larger-view cost, candid
+visual/performance manifest/Git/shortcut only after accepted checkpoint. Do not
+add more geology before current acceptance. Latest living-weathered3images still
+last inspected physical karst/canyon/outcrop; mixed older package is qualified
+reference only. Same42 physics27,263river checks/764spans/8tiles, 6eroded sites,
+349,244 mask tests pass. Lock5403/143packs, two slots/artifacts disposable. No
+paid/subagents/ownerapps closed. Owner3files preserved; 3Unityautos restored.
+
 ACTIVE4Nov15:57Z FULLWORLD OVERNIGHT STILL CONTINUES; NO OWNER STOP/WRAP.
 Started07:47Z; crossing8h is NOT a stop. Selected B/f5385a89/shortcut unchanged.
 Candidate A built15:45:09Z ScriptsOnly NONDEV SourceCommit6cc71620; SourceChanges
