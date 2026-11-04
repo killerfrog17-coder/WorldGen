@@ -49,6 +49,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE04Nov05:34Z REGION VISUAL REWORK. Selected B f5385a89 unchanged.
+A internal managed NONDEV123c77ce built~05:27Z. experience-compound SandSea and
+SaltFlat both EXIT0, larger2km range fullyloaded140tiles; allnew images inspected.
+Salt remains bare/bright/polygonal. Dunes have more ridges but still too straight;
+NOT final visual acceptance. New UNCOMMITTED correction uses crossvector actually
+orthogonal to BOTH wavefamilies: oldfallback cross nearlyfollowedwind, so curved
+slopes instead ofcrests. Adds regional crestheight variation. LocalTerrain24/
+Hyper20; focused35730PASS. Uncontended baselineB->latestCore benchmark COMPLETE: prep28.583/28.624s;
+warm12675landqueries713/693ms vs738/700ms. CPUterraincost similar; NOT FPSproof.
+Log artifacts/landscape-experience-20261104/curved-cost.log. No native/Editor. Prior current-water-mesh PASS was compound19, notlatest20.
+Need actualcurrent probe+water/riverchecks, commit/build inactiveA scriptsOnly,
+newunusedprefix nativeSandSea/SaltFlat inspection. First saltmorning image shown
+owner withoptional asyncstyle feedback; continueindependentwork. No paid/subagents/
+ownerappsclosed,5357inputs/139packs unchanged. Owner3files untouched. Do NOT
+claim wholeoverhaul done or select A from numerical passes alone.
+
 ACTIVE4Nov05:22Z REGION VISUAL REWORK continues. Prototype770e66d7 PUSHED,
 FULL managed NONDEV inactiveA built05:07:26Z; selectedB f5385a89 unchanged.
 Actual experience-first SandSea/SaltFlat native both EXIT0, all4images inspected:

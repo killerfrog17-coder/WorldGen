@@ -98,8 +98,12 @@ namespace WorldGen.Core
                         +(105*Ridge(large)+17*climbing*Stoss(large))*maturity;
                 }
                 double warp=SphereNoise.Sample(metres,seed^0x5c721,1/2400d)*80;
-                double cross=metres.X*.52-metres.Y*.82+metres.Z*.23;
-                double curve=Math.Sin(cross/1200)*90;
+                // Orthogonal to BOTH fixed wave families. The previous cross
+                // vector nearly followed the fallback wind, so it warped its
+                // slope rather than curving the crest across the dune field.
+                double cross=metres.X*-.6805+metres.Y*.4507+metres.Z*.5777;
+                double curve=Math.Sin(cross/220)*65+Math.Sin(cross/510)*65;
+                double crestHeight=.72+.28*(.5+.5*Math.Sin(cross/170+2*Math.Sin(cross/570)));
                 double first=Profile(metres.X*.73+metres.Y*.41+metres.Z*.54+warp+curve);
                 double second=Profile(metres.X*.13+metres.Y*.85-metres.Z*.51+warp-curve);
                 var direction=metres.Unit;double alignment=direction.X*.73+direction.Y*.41+direction.Z*.54;
@@ -108,7 +112,7 @@ namespace WorldGen.Core
                 // second nonparallel family there without blending huge phases.
                 double blend=Smooth(.2,.6,1-alignment*alignment),ridge=first*blend+second*(1-blend);
                 double secondary=.5+.5*SphereNoise.Sample(metres,seed^0x2b531,1/170d);
-                result+=Smooth(.08,.4,dunes)*(ridge+1.2*secondary);
+                result+=Smooth(.08,.4,dunes)*(ridge*crestHeight+1.2*secondary);
             }
             if(controls.Badlands>.01)
             {
