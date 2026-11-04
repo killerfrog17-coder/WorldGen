@@ -49,6 +49,45 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov16:59Z FULLWORLD OVERNIGHT STILL CONTINUES; no owner stop/wrap.
+Selected B/f5385a89/root shortcut unchanged. A internal current ScriptsOnly
+NONDEV BuiltUtc16:43:50Z SourceCommitcda1906e SourceChanges[]; shader baseline
+7c911fb5; terrain42/Hyper37 unchanged. Later docs/scripts HEAD13ca23cd PUSHED.
+Current native session24595: scripts/run-living-npcs-checks.ps1 -Slot slot-a
+-Prefix living-world-current -Cases wet,cold. Wet EXIT0 complete: actual ground
+clearing/GPU grass masks, entrance walking, save/reload, full pack/travel/setup
+cycle and identity/no-duplicates PASS. Inspected wet camp-first (foreground tree
+blocks it; not a useful showcase) and entrance-296524057410846087 (clear floor,
+standing NPC/forest). Cold currently walking passed, save underway; do not
+rebuild/overwrite A until runner finishes. No other heavy jobs. Prewarmed current
+scale1 terrain cache via --human-terrain-cache,170.09s/168076ms cold fit, done
+session85334; never pretend that is a loading-speed improvement.
+New cda indexed grass shares literal repeated card corners using typed 20byte
+IndirectDrawIndexedArgs and RenderPrimitivesIndexedIndirect; original blades
+remain 16byte args. Same shader/roots/triangles, shared24-index buffer disposed
+on Close, diagnostics can select nonindexed. Actual savanna36camera comparisons
+PASS ZERO changed pixels/maxdelta0. dense-indexed-grass-1 EXIT0 exact source
+receipt: turning123.94 vsnonindexed122.23; travel91.60 vs90.87. Negligible measured
+gain; NOT target success. Earlier7f9 64m plant bins exact8head/32render/7000matrix
+projection PASS but travel91.04 vsprior90.31: no major gain established. GPUnear
+depth trial passed exact jungle/savanna actualviews/casters, but traveljungle
+125.78vs127.33/savanna90.31vs93.88; production flag remains FALSE. All completed
+receipts retained. assets/verification/living-world-performance-progress-20261104
+.json preserves interim measured outcomes +missing historical receipt limits.
+No universal100 claim: savanna remains BELOW100 average, alltravel p95 tails.
+New recorder also separately reports p95>10ms, requires current NPCwet/cold,
+inspected current landscape and current benchmark; not run yet. Feature rollback
+index includes all experiments, no extra full players. All source PUSHED.
+Next: finish cold, actual CURRENT Volcano (corrected rimcamera + /landmark real
+async command test) and Waterfall, then remaining karst/canyon/outcrop command
+scenes as useful, representative larger-view perf, candid final visual/perf/
+asset/source manifest and only then select a clearly qualified checkpoint.
+Do not add more geology before current acceptance. Broad new deltas/fjords/etc
+NOT implemented. Existing42 physics27263river/764span/8tile+6erodedsites+
+349244heightmask remain passing. No animals/humans/weather/sky behaviour changed
+this night. No paid/subagents/ownerapps closed. Two slots/artifacts disposable,
+lock5403/143packs unchanged, owner3files preserved, 3Unityautos restored.
+
 ACTIVE4Nov16:31Z FULLWORLD OVERNIGHT CONTINUES; no owner stop/wrap. Started07:47Z,
 8h is NOT a stop. Selected B/f5385a89/root shortcut unchanged; A internal.
 A latest ScriptsOnly NONDEV built16:22:29Z, SourceCommit6af874fb/SourceChanges[],
