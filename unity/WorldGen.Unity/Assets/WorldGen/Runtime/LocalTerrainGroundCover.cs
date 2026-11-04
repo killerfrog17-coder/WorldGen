@@ -90,7 +90,8 @@ public sealed partial class LocalTerrainExplorer
     void InitializeGroundFloraMaterials()
     {
         if(landMaterial==null)return;
-        if(grassFieldTexture==null)grassFieldTexture=CreateGrassFieldTexture();
+        if(grassFieldTexture==null)grassFieldTexture=Resources.Load<Texture2D>("GroundGrassV2");
+        if(grassFieldTexture==null)throw new InvalidOperationException("Photographed grass ground texture is missing.");
         if(mossFieldTexture==null)mossFieldTexture=CreateGroundMatTexture(false);
         if(lichenFieldTexture==null)lichenFieldTexture=CreateGroundMatTexture(true);
         landMaterial.SetTexture("_GrassField",grassFieldTexture);landMaterial.SetTexture("_MossField",mossFieldTexture);landMaterial.SetTexture("_LichenField",lichenFieldTexture);
@@ -156,38 +157,6 @@ public sealed partial class LocalTerrainExplorer
             pixels[z*size+x]=new Color(.5f+(heights[z*size+x]-mean)*.65f,.5f-sx*1.8f,.5f-sz*1.8f,heights[z*size+x]);
         }
         var texture=new Texture2D(size,size,TextureFormat.RGBA32,true,true){name=lichen?"Stationary lichen crust":"Stationary moss cushions",filterMode=FilterMode.Trilinear,wrapMode=TextureWrapMode.Repeat,anisoLevel=8};
-        texture.SetPixels32(pixels);texture.Apply(true,true);return texture;
-    }
-    static Texture2D CreateGrassFieldTexture()
-    {
-        // Neutral mipped top-down bent ribbons, tinted by the actual world flora.
-        const int size=256;var heights=new float[size*size];uint state=0x713ad5u;
-        float Next(){state^=state<<13;state^=state>>17;state^=state<<5;return (state&0xffffffu)/16777216f;}
-        for(int blade=0;blade<6000;blade++)
-        {
-            float x=Next()*size,z=Next()*size,angle=Next()*Mathf.PI*2,length=3+Next()*14,width=.45f+Next()*.65f;
-            float dx=Mathf.Cos(angle),dz=Mathf.Sin(angle),bend=(Next()-.5f)*3;
-            for(int step=0;step<=12;step++)
-            {
-                float t=step/12f,px=x+dx*length*t-dz*bend*t*t,pz=z+dz*length*t+dx*bend*t*t;
-                int ix=Mathf.FloorToInt(px),iz=Mathf.FloorToInt(pz);float radius=width*(1-t)+.35f;
-                for(int oz=-1;oz<=2;oz++)for(int ox=-1;ox<=2;ox++)
-                {
-                    float distance=Vector2.Distance(new Vector2(ix+ox+.5f,iz+oz+.5f),new Vector2(px,pz));
-                    float h=Mathf.Clamp01(radius+.65f-distance)*Mathf.Lerp(.35f,1,t);
-                    int at=((iz+oz)&255)*size+((ix+ox)&255);heights[at]=Mathf.Max(heights[at],h);
-                }
-            }
-        }
-        float mean=0;foreach(float h in heights)mean+=h;mean/=heights.Length;
-        var pixels=new Color32[heights.Length];
-        for(int z=0;z<size;z++)for(int x=0;x<size;x++)
-        {
-            int at=z*size+x;float sx=heights[z*size+((x+1)&255)]-heights[z*size+((x-1)&255)];
-            float sz=heights[((z+1)&255)*size+x]-heights[((z-1)&255)*size+x];
-            pixels[at]=new Color(.5f+(heights[at]-mean)*.27f,.5f-sx*.22f,.5f-sz*.22f,1);
-        }
-        var texture=new Texture2D(size,size,TextureFormat.RGBA32,true,true){name="Procedural grass mat",wrapMode=TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=8};
         texture.SetPixels32(pixels);texture.Apply(true,true);return texture;
     }
     CoverGpu PrepareGroundCover(TerrainTileKey key,Tile tile,int wx,int wz,bool sprites=false)
@@ -321,31 +290,9 @@ public sealed partial class LocalTerrainExplorer
         float grassRange=TerrainVideoOptions.GrassDistance,bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,grassRange*.75f);
         // Discover missing pages first, then install near-first. Existing pages
         // keep drawing; only pages well outside the draw radius are evicted.
-        if(!TerrainDiagnostics.HoldPlants){foreach(var pair in tiles)
+        if(!TerrainDiagnostics.HoldPlants)
         {
-            var key=pair.Key;var tile=pair.Value;
-            if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||tile.Cover==null||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)||!WorldGenPerformance.Original&&!HasMovingCover(tile)){ReleaseGroundCover(tile);continue;}
-            expiredCoverPages.Clear();
-            foreach(var page in tile.CoverPages.Keys)
-            {
-                double keep=(page.Far?grassRange:bladeRange)+page.Size;
-                if(page.Far&&!TerrainVideoOptions.GrassCanopy||PageDistanceSquared(key,page)>keep*keep)expiredCoverPages.Add(page);
-            }
-            foreach(var page in expiredCoverPages){ReleaseCoverGpu(tile.CoverPages[page]);tile.CoverPages.Remove(page);}
-            for(int pass=0;pass<2;pass++)
-            {
-                bool far=pass==1;if(far?!TerrainVideoOptions.GrassCanopy:key.Level!=0)continue;
-                double size=far?192:48,range=(far?grassRange:bladeRange)+size*.5;
-                if(TerrainLod.DistanceSquared(key,motion.X,motion.Z)>range*range)continue;
-                int x0=(int)Math.Floor(Math.Max(key.X*key.SizeM,motion.X-range)/size),x1=(int)Math.Floor(Math.Min((key.X+1)*key.SizeM-.001,motion.X+range)/size);
-                int z0=(int)Math.Floor(Math.Max(key.Z*key.SizeM,motion.Z-range)/size),z1=(int)Math.Floor(Math.Min((key.Z+1)*key.SizeM-.001,motion.Z+range)/size);
-                for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)
-                {
-                    var page=new CoverPageKey(x,z,far);double distance=PageDistanceSquared(key,page);
-                    if(distance<=range*range&&!tile.CoverPages.ContainsKey(page))coverRequests.Add(new CoverRequest{Key=key,Tile=tile,Page=page,Priority=distance+(far?1e8:0)});
-                }
-            }
-        }
+        CollectGroundCoverRequests(grassRange,bladeRange);
         coverRequests.Sort((a,b)=>a.Priority.CompareTo(b.Priority));
         if(CenterReady)for(int i=0;i<Math.Min(2,coverRequests.Count);i++)
         {
@@ -383,6 +330,38 @@ public sealed partial class LocalTerrainExplorer
                 else Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);
                 GroundCoverDraws++;
             }
+            }
+        }
+    }
+    void CollectGroundCoverRequests(float grassRange,float bladeRange)
+    {
+        foreach(var pair in tiles)
+        {
+            var key=pair.Key;var tile=pair.Value;
+            if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||tile.Cover==null||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)||!WorldGenPerformance.Original&&!HasMovingCover(tile)){ReleaseGroundCover(tile);continue;}
+            expiredCoverPages.Clear();
+            foreach(var page in tile.CoverPages.Keys)
+            {
+                double keep=(page.Far?grassRange:bladeRange)+page.Size;
+                if(page.Far&&!TerrainVideoOptions.GrassCanopy||PageDistanceSquared(key,page)>keep*keep)expiredCoverPages.Add(page);
+            }
+            foreach(var page in expiredCoverPages){ReleaseCoverGpu(tile.CoverPages[page]);tile.CoverPages.Remove(page);}
+            for(int pass=0;pass<2;pass++)
+            {
+                // Coarse resident ground needs near cover too. Restricting it
+                // to L0 leaves an empty ring while detail tiles stream/refine,
+                // because the distant representation fades at GrassNear.
+                // The same terrain coverage mask prevents overlapping LODs.
+                bool far=pass==1;if(far&&!TerrainVideoOptions.GrassCanopy)continue;
+                double size=far?192:48,range=(far?grassRange:bladeRange)+size*.5;
+                if(TerrainLod.DistanceSquared(key,motion.X,motion.Z)>range*range)continue;
+                int x0=(int)Math.Floor(Math.Max(key.X*key.SizeM,motion.X-range)/size),x1=(int)Math.Floor(Math.Min((key.X+1)*key.SizeM-.001,motion.X+range)/size);
+                int z0=(int)Math.Floor(Math.Max(key.Z*key.SizeM,motion.Z-range)/size),z1=(int)Math.Floor(Math.Min((key.Z+1)*key.SizeM-.001,motion.Z+range)/size);
+                for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)
+                {
+                    var page=new CoverPageKey(x,z,far);double distance=PageDistanceSquared(key,page);
+                    if(distance<=range*range&&!tile.CoverPages.ContainsKey(page))coverRequests.Add(new CoverRequest{Key=key,Tile=tile,Page=page,Priority=distance+(far?1e8:0)});
+                }
             }
         }
     }

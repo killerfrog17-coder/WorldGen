@@ -21,6 +21,19 @@ public sealed partial class LocalTerrainExplorer
             int form=x<13?0:x<20?1:x<26?5:6;tile.Cover[at+4+form]=.92f;tile.Cover[at+13]=x<13?1:x<20?2.3f:1;tile.Cover[at+14]=1;tile.Cover[at+15]=x*.0125f;
         }
         var key=new TerrainTileKey(0,0,0,.1);var gpu=e.PrepareGroundCover(key,tile,0,0);tile.Grass=gpu;
+        // Exercise the production page-discovery path with ONLY coarse ground
+        // resident. Previously this produced distant pages but zero near pages,
+        // so walking towards the visible grass erased it around the player.
+        for(int level=0;level<=3;level++)
+        {
+            var resident=new TerrainTileKey(0,0,level,.1);
+            e.tiles.Add(resident,tile);e.coverRequests.Clear();
+            e.CollectGroundCoverRequests(300,30);
+            bool near=false,far=false;
+            foreach(var request in e.coverRequests){near|=!request.Page.Far;far|=request.Page.Far;}
+            if(!near||!far)throw new Exception("Missing grass band on resident terrain level "+level);
+            e.tiles.Clear();
+        }
         yield return new WaitForSecondsRealtime(2.2f);
         var counts=new uint[1];gpu.Count.GetData(counts);
         if(counts[0]<1000)throw new Exception("No compact GPU roots");

@@ -268,23 +268,26 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     // Low plants/moss can coexist with litter. The old full-opacity green mat
     // erased every soil texture under a canopy even when stems were sparse.
     mix*=1-floorWeight*float3(.85,.25,.35);
-    // Match the grass placement gate on the actual rasterized face. Averaged
-    // vertex normals/weights can otherwise smear a grass mat down a cliff.
-    float3 face=cross(worldDx,worldDy);face*=rsqrt(max(1e-12,dot(face,face)));
-    mix.x*=smoothstep(.62,.86,abs(dot(face,TerrainUp().xyz)));
+    // Ground colour follows the continuous terrain normal. A face derivative
+    // here made each individual triangle a different grass/soil material.
+    // Physical stems retain their separate geometric cliff/rooting test.
+    mix.x*=smoothstep(.62,.86,abs(dot(normalize(i.normal),float3(0,1,0))));
     if(TerrainTest(TD_GRASS))mix.x=0;if(TerrainTest(TD_MOSS))mix.y=0;if(TerrainTest(TD_LICHEN))mix.z=0;
     float3 axes=SurfaceAxes(TerrainUp().xyz,TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w,extra);
     float3 vegetation=0;
     [branch] if(mix.x>.001)
     {
-        float3 mat=.5;
-        if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_GrassField,sampler_GrassField),world/8,worldDx/8,worldDy/8,axes),detail);
+        float3 mat=1;
+        float scanScale=2;
+        #ifndef UNITY_COLORSPACE_GAMMA
+        scanScale=4.672;
+        #endif
+        if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_GrassField,sampler_GrassField),world/2,worldDx/2,worldDy/2,axes)*scanScale,detail);
         float tint=.9111;
         #ifndef UNITY_COLORSPACE_GAMMA
         tint=.815;
         #endif
-        float3 normal=normalize(float3((mat.g-.5)*.35,.8,(mat.b-.5)*.35)+n*.25);
-        vegetation+=SurfaceLeafLight(farColor*(tint*mat.r*2),normal,sun,transmission,canopyShade)*mix.x;
+        vegetation+=SurfaceLeafLight(farColor*(tint*mat),normalize(i.normal),sun,transmission,canopyShade)*mix.x;
     }
     [branch] if(mix.y+mix.z>.001)
     {
