@@ -45,7 +45,7 @@ static partial class LocalScatterMeshes
         // LODs. The middle mesh simplifies the surface, not the crown occupancy.
         for(int i=1;i<nodes.Count;i++)
         {
-            var n=nodes[i];if(!needle&&n.P.y<(float)m.CrownBase||n.Children>1)continue;
+            var n=nodes[i];if(!needle&&n.P.y<TreeRenderCrownBase(m)||n.Children>1)continue;
             if(n.Children==1&&nodes[i].Radius>.0045f)continue;
             var r=new Rng(TreeFlora.RenderCode(code),"tree-rebuild-shoot-1",i);
             var axis=(n.P-nodes[n.Parent].P).normalized;
@@ -95,7 +95,7 @@ static partial class LocalScatterMeshes
         var mesh=b.Finish(false);mesh.name="Tree architecture 3 / "+m.Form+" / "+code+" / L"+lod;mesh.SetUVs(1,masks);
         // Give foliage a three-dimensional lighting envelope, retaining detailed
         // twig normals in the shader. Do not alter opaque branch normals.
-        var normals=mesh.normals;var crown=new Vector3(0,((float)m.CrownBase+1)*.5f,0);
+        var normals=mesh.normals;var crown=new Vector3(0,(TreeRenderCrownBase(m)+1)*.5f,0);
         foreach(var pair in woodNormals)normals[pair.Key]=pair.Value;
         for(int i=0;i<normals.Length;i++)if(masks[i].y>1.5f)
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
@@ -196,31 +196,33 @@ static partial class LocalScatterMeshes
     }
     static float OpenNeedleCrown(TreeMorphology m)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(.20f,.35f,(float)m.Openness));
     static float NeedleCrownBase(TreeMorphology m)=>Mathf.Lerp(Mathf.Clamp(.11f+(float)m.CrownBase*.20f,.14f,.23f),.55f,OpenNeedleCrown(m));
+    static float TreeRenderCrownBase(TreeMorphology m)=>m.Strategy==TreeCrownStrategy.OpenWoodland?Mathf.Lerp(.38f,.54f,Mathf.InverseLerp(.64f,.74f,(float)m.CrownBase)):(float)m.CrownBase;
     static List<TreeNode> TreeSkeleton(int code,TreeMorphology m)
     {
         var r=new Rng(TreeFlora.RenderCode(code),"tree-rebuild-skeleton-1");var nodes=new List<TreeNode>(240);
         float leanX=((float)r.Unit()-.5f)*.11f,leanZ=((float)r.Unit()-.5f)*.11f;
         Vector3 Trunk(float y)=>new Vector3(leanX*y*y,y,leanZ*y*y);
-        int trunk=m.Form==TreeGrowthForm.NeedleCrown?24:Mathf.CeilToInt((float)m.CrownBase/.035f);
-        for(int i=0;i<=trunk;i++)nodes.Add(new TreeNode(Trunk((m.Form==TreeGrowthForm.NeedleCrown?1:(float)m.CrownBase)*i/trunk),i-1));
+        int trunk=m.Form==TreeGrowthForm.NeedleCrown?24:Mathf.CeilToInt(TreeRenderCrownBase(m)/.035f);
+        for(int i=0;i<=trunk;i++)nodes.Add(new TreeNode(Trunk((m.Form==TreeGrowthForm.NeedleCrown?1:TreeRenderCrownBase(m))*i/trunk),i-1));
         if(m.Form==TreeGrowthForm.NeedleCrown)
         {
             // Family-specific apical architecture; side limbs compete for a
             // finite crown envelope rather than repeated flat cone tiers.
             for(int tier=Mathf.Max(3,Mathf.CeilToInt(NeedleCrownBase(m)*trunk));tier<trunk;tier+=2)
             {
-                float y=nodes[tier].P.y,open=OpenNeedleCrown(m),baseHeight=NeedleCrownBase(m);
+                float y=nodes[tier].P.y+((float)r.Unit()-.5f)*.024f,open=OpenNeedleCrown(m),baseHeight=NeedleCrownBase(m);
                 float crownT=Mathf.Clamp01((y-baseHeight)/Mathf.Max(.1f,1-baseHeight));
                 float rounded=Mathf.Pow(Mathf.Max(0,Mathf.Sin(crownT*Mathf.PI)),.55f)*.36f;
                 float reach=Mathf.Lerp((1-y)*.43f,rounded,open)*(.55f+((float)m.CrownAspect-.5f)*.90f);
                 int limbs=4+(tier%3);
                 for(int j=0;j<limbs;j++)
                 {
-                    float a=j*2*Mathf.PI/limbs+tier*2.39996f+(float)r.Unit()*.35f;
+                    float a=j*2*Mathf.PI/limbs+tier*2.39996f+(float)r.Unit()*.65f;
+                    float limbReach=reach*(.78f+.36f*(float)r.Unit());
                     var d=new Vector3(Mathf.Cos(a),0,Mathf.Sin(a));int parent=tier;
                     for(int k=1;k<=4;k++)
                     {
-                        float t=k*.25f;var p=nodes[tier].P+d*reach*t+Vector3.up*(.05f*t+Mathf.Lerp(-.10f,.045f,open)*Mathf.Sin(t*Mathf.PI));
+                        float t=k*.25f;var p=nodes[tier].P+d*limbReach*t+Vector3.up*((y-nodes[tier].P.y)*t+.05f*t+Mathf.Lerp(-.10f,.045f,open)*Mathf.Sin(t*Mathf.PI));
                         int branch=nodes.Count;nodes.Add(new TreeNode(p,parent));parent=branch;
                         if(k<4)for(int side=-1;side<=1;side+=2)
                         {var q=p+d*reach*.16f+Vector3.Cross(d,Vector3.up)*side*reach*(1-t)*.48f+Vector3.up*.018f;nodes.Add(new TreeNode(q,branch));}
@@ -252,7 +254,7 @@ static partial class LocalScatterMeshes
                     }
                 }
             }
-            var points=new List<Vector3>(280);float bottom=(float)m.CrownBase-.03f,aspect=spreading?.53f+.10f*(float)m.CrownAspect:.30f+.09f*(float)m.CrownAspect;
+            var points=new List<Vector3>(280);float bottom=TreeRenderCrownBase(m)-.03f,aspect=spreading?.53f+.10f*(float)m.CrownAspect:.30f+.09f*(float)m.CrownAspect;
             for(int i=0;i<280;i++)
             {
                 float y=bottom+(1-bottom)*(float)r.Unit(),q=(y-bottom)/(1-bottom);

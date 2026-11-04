@@ -9,14 +9,17 @@ static partial class LocalScatterMeshes
     {while(mask.Count<b.V.Count)mask.Add(new Vector2(Mathf.Clamp01(b.V[mask.Count].y),type));}
     static void TreeSweep(Builder b,List<Vector2> mask,Vector3 root,Vector3 control,Vector3 tip,float radius,float endRadius,int parts,int sides,Color colour)
     {
-        int first=b.V.Count;
+        int first=b.V.Count;Vector3 previousAxis=Vector3.zero,u=Vector3.zero;
+        float repeats=Mathf.Max(1,Mathf.Round(2*Mathf.PI*radius/.04f));
         for(int j=0;j<=parts;j++)
         {
             float t=j/(float)parts;var p=(1-t)*(1-t)*root+2*t*(1-t)*control+t*t*tip;
             var axis=(2*(1-t)*(control-root)+2*t*(tip-control)).normalized;
-            var u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.94f?Vector3.up:Vector3.right).normalized;var v=Vector3.Cross(axis,u);
+            if(j==0)u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.94f?Vector3.up:Vector3.right).normalized;
+            else u=(Quaternion.FromToRotation(previousAxis,axis)*u).normalized;
+            var v=Vector3.Cross(axis,u);previousAxis=axis;
             float rr=Mathf.Lerp(radius,endRadius,t);
-            for(int k=0;k<=sides;k++){float angle=k*2*Mathf.PI/sides;b.Add(p+(u*Mathf.Cos(angle)+v*Mathf.Sin(angle))*rr,colour,new Vector2(k/(float)sides,t*5));}
+            for(int k=0;k<=sides;k++){float angle=(k%sides)*2*Mathf.PI/sides;b.Add(p+(u*Mathf.Cos(angle)+v*Mathf.Sin(angle))*rr,colour,new Vector2(k/(float)sides*repeats,t*Vector3.Distance(root,tip)/.04f));}
         }
         for(int j=0;j<parts;j++)for(int k=0;k<sides;k++){int a=first+j*(sides+1)+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}TreeMark(b,mask,0);
     }
@@ -43,14 +46,21 @@ static partial class LocalScatterMeshes
         b.Triangle(first+2,first+1,first+4);b.Triangle(first+3,first+2,first+4);TreeMark(b,mask,1);
     }
     static Mesh FinishTreeForm(Builder b,List<Vector2> mask,string name)
-    {var mesh=b.Finish();mesh.SetUVs(1,mask);mesh.RecalculateTangents();mesh.RecalculateBounds();mesh.name=name;return mesh;}
+    {
+        var mesh=b.Finish(false);mesh.SetUVs(1,mask);
+        var vertices=mesh.vertices;var normals=mesh.normals;var shared=new Dictionary<Vector3,Vector3>();
+        for(int i=0;i<vertices.Length;i++)if(mask[i].y<.5f)
+        {shared.TryGetValue(vertices[i],out var sum);shared[vertices[i]]=sum+normals[i];}
+        for(int i=0;i<vertices.Length;i++)if(mask[i].y<.5f)normals[i]=shared[vertices[i]].normalized;
+        mesh.normals=normals;mesh.RecalculateTangents();mesh.RecalculateBounds();mesh.name=name;return mesh;
+    }
     static Mesh BuildFrondTree(int code,int lod,TreeMorphology m)
     {
         var b=new Builder();var mask=new List<Vector2>();var random=new Rng(code,"tree-attached-fronds-2");
         var wood=HerbColour(m.Bark);var leaf=HerbColour(m.Leaf);bool fern=m.Form==TreeGrowthForm.TreeFern;
         float lean=((float)random.Unit()-.5f)*.12f;
         var crown=new Vector3(lean,.78f,lean*.3f);
-        TreeSweep(b,mask,Vector3.zero,new Vector3(lean*.25f,.43f,0),crown,(float)m.TrunkRadius*(fern?1.6f:1),.011f,lod==0?12:6,lod==0?10:6,wood);
+        TreeSweep(b,mask,Vector3.zero,new Vector3(lean*.25f,.43f,0),crown,(float)m.TrunkRadius*(fern?1.6f:1),.011f,lod==0?12:6,lod==0?24:12,wood);
         int count=fern?13:15;
         for(int frond=0;frond<count;frond++)
         {

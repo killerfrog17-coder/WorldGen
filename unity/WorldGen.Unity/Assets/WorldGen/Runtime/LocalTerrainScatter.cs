@@ -638,7 +638,9 @@ public sealed partial class LocalTerrainExplorer
         if(groundCanopyMaterial!=null)Destroy(groundCanopyMaterial);
         if(groundClumpMaterial!=null)Destroy(groundClumpMaterial);
         groundClumpIndices?.Dispose();groundClumpIndices=null;
-        if(grassFieldTexture!=null)Destroy(grassFieldTexture);
+        // Imported shared scan: unlike the old generated mat this is not an
+        // owned Texture2D. Keep the Resources cache valid across world entry.
+        grassFieldTexture=null;
         if(mossFieldTexture!=null)Destroy(mossFieldTexture);if(lichenFieldTexture!=null)Destroy(lichenFieldTexture);
         if(generatedGround!=null)foreach(var texture in generatedGround)Destroy(texture);
         if(treeLeaves!=null)Destroy(treeLeaves);
