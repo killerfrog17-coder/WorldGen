@@ -31,7 +31,7 @@ Shader "WorldGen/GroundClumps"
             struct Root {float4 positionForm,colorHeight,shape,normal,grasses,herbs;};
             StructuredBuffer<Root> _CoverRoots;StructuredBuffer<uint> _VisibleRoots;
             float4 _CoverOrigin,_CoverTileOrigin,_FogColor,_AmbientTint;float _GrassNear,_GrassRange,_GrassWind,_FogDistance,_Daylight,_ClumpDensity;int _CoverLod;uint _CoverSeed;
-            struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float2 uv:TEXCOORD1;float3 color:COLOR;float2 fade:TEXCOORD2;};
+            struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float2 uv:TEXCOORD1;float3 color:COLOR;float2 fade:TEXCOORD2;float2 card:TEXCOORD3;};
             uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
             float Rand(uint x){return (Mix(x)&0xffffffu)/16777216.;}
             float3 ClumpLight(float3 p,float3 n)
@@ -82,14 +82,15 @@ Shader "WorldGen/GroundClumps"
                 float3 eye=GetWorldSpaceNormalizeViewDir(anchor),facing=normalize(cross(eye,float3(0,1,0))+float3(.0001,0,0));
                 facing*=dot(facing,across)<0?-1:1;
                 across=normalize(lerp(across,facing,far?.80:0));
-                float width=.36*lerp(.85,1.2,jitter.y)*(_CoverLod==3?1.4:_CoverLod==4?2:1);
                 float height=clamp(expected*(.80+.40*jitter.y),.10,3.2);
+                float width=clamp(height*.58,.085,.54)*lerp(.85,1.2,jitter.y)*(_CoverLod==3?1.4:_CoverLod==4?2:1);
                 float3 up=normalize(lerp(float3(0,1,0),r.normal.xyz,.12));
                 float3 p=anchor+across*(side*width)+up*(t*height)+WorldGenVegetationOffset(anchor,1)*(_GrassWind*t*t*.65);
                 bool herb=Rand(seed+19)<r.herbs.x;
                 bool warm=!herb&&Rand(seed+23)<r.grasses.y+r.grasses.z+r.grasses.w;
                 float2 tile=herb?float2(0,0):warm?float2(.5,.5):float2(0,.5);
                 o.uv=tile+float2(side*.5+.5,t)*.496+.002;
+                o.card=float2(side*.5+.5,t);
                 float3 palette=r.colorHeight.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 palette=SRGBToLinear(palette);
@@ -100,7 +101,11 @@ Shader "WorldGen/GroundClumps"
             half4 frag(O i):SV_Target
             {
                 float threshold=WorldGenDither(i.positionCS.xy);clip(threshold-i.fade.x);clip(i.fade.y-threshold);
-                half4 tex=SAMPLE_TEXTURE2D(_ClumpAtlas,sampler_ClumpAtlas,i.uv);clip(tex.a-.35);
+                half4 tex=SAMPLE_TEXTURE2D(_ClumpAtlas,sampler_ClumpAtlas,i.uv);
+                // The source is a continuous sward tile. Retire its cut side
+                // edges before they can appear as small rectangular fences.
+                float edge=smoothstep(0,.17,min(i.card.x,1-i.card.x));
+                clip(tex.a*edge-.35);
                 float3 color=i.color*clamp(tex.rgb*4.6,.20,1.5);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFog(_FogColor).rgb,VegetationFogDistance(_FogDistance)),1);
             }
