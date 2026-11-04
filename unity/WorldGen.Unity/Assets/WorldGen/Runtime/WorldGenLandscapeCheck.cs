@@ -36,7 +36,8 @@ public sealed partial class LocalTerrainExplorer
     public static IEnumerator CheckLandscape(string path,string output,string kind)
     {
         Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
-        Application.logMessageReceived+=(message,trace,type)=>{if(type==LogType.Error||type==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
+        bool encounteredError=false;
+        Application.logMessageReceived+=(message,trace,type)=>{if(type==LogType.Error||type==LogType.Exception){encounteredError=true;File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("LANDSCAPE "+text);checks.Add("PASS "+text);Debug.Log("LANDSCAPE "+text);}
         Application.targetFrameRate=60;QualitySettings.vSyncCount=0;AudioListener.volume=0;
         // The harness bypasses the main menu's preference loading. Use an
@@ -454,7 +455,9 @@ public sealed partial class LocalTerrainExplorer
             var destination=model.Patch(owner.Position,20000).Sample(owner.Position);
             Check(!destination.Underwater&&double.IsFinite(owner.motion.Y)&&float.IsFinite(owner.heading)&&float.IsFinite(owner.pitch),"Landmark destination is dry with finite camera placement");
             File.WriteAllText(Path.Combine(output,"landmark.txt"),landmarkKind+" "+owner.Position+"; elevation "+destination.ElevationM+"; generation "+owner.generation);
+            yield return new WaitForSecondsRealtime(3);
         }
+        Check(!encounteredError,"Scene and post-teleport updates contain no runtime errors");
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LANDSCAPE PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }
 }

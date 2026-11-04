@@ -79,7 +79,18 @@ public sealed partial class LocalTerrainExplorer
         return animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug)&&SpawnViewDistance(s)<=s.Profile.PreloadRadiusM);
     }
     double SpawnViewDistance(FaunaPrototypeSpawn spawn)
-    {var at=WildlifeBehaviourEnabled&&!spawn.Profile.tiny&&wildlifeGroups.TryGetValue(spawn.GroupId,out var group)?GroupMemberPosition(spawn,group):spawn.Position;return (at-Position).Length*frame.RadiusM;}
+    {
+        var at=spawn.Position;
+        if(WildlifeBehaviourEnabled&&!spawn.Profile.tiny&&wildlifeGroups.TryGetValue(spawn.GroupId,out var group))
+        {
+            // A completed visual queue can briefly outlive a long teleport.
+            // Such groups cannot be seen here and have no coordinates in this
+            // tangent chart; retain their world records without projecting them.
+            if(V.Dot(group.Position,frame.Origin)<=0)return double.PositiveInfinity;
+            at=GroupMemberPosition(spawn,group);
+        }
+        return (at-Position).Length*frame.RadiusM;
+    }
     void UpdateAnimalFauna()
     {
         if(animalPlanner==null||animalDisposed||!Ready)return;
