@@ -183,7 +183,7 @@ public sealed partial class LocalTerrainExplorer
     void DrawTreeShadowProxies()
     {
         TreeShadowDraws=0;TreeShadowTriangles=0;
-        if(!UseTreeShadowProxies||localSun==null||localSun.shadows==LightShadows.None||localSun.intensity<=0)return;
+        if(WorldGenPerformance.NoTrunkCasters||!UseTreeShadowProxies||localSun==null||localSun.shadows==LightShadows.None||localSun.intensity<=0)return;
         foreach(var batch in treeShadowBatches)
         {
             if(batch.Count==0)continue;

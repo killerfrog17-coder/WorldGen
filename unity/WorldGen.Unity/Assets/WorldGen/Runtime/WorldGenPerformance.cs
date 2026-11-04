@@ -19,6 +19,7 @@ public static class WorldGenPerformance
     public static bool OriginalCase;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
+    public static bool NoTrunkCasters,NoFoliageShadowReceivers;
     public static bool Measuring,ProfileRenderCompletion;
     public static double CompletedRenderMs;
     public static readonly double[] Milliseconds=new double[4];
@@ -333,7 +334,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public bool PerformanceGroundSettled=>Ready&&NearReady&&AllReady&&!DetailPlanning&&jobs.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t));
     public bool PerformanceSettled=>PerformanceGroundSettled&&ScatterReady&&scatterJobs.Count==0&&coverRequests.Count==0&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
-    public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}";
+    public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
     public void PerformanceFreezeDaylight(){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,skyYear);TerrainDiagnostics.FreezeSun=true;}
@@ -516,6 +517,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("foliage-four-tap",()=>WorldGenPerformance.FoliageShadowTaps=4),
             new PerfCase("no-mid-shadows",()=>TerrainVideoOptions.MidPlantShadows=false),
             new PerfCase("no-tree-shadows",()=>TerrainVideoOptions.TreeShadows=false),
+            new PerfCase("no-trunk-casters",()=>WorldGenPerformance.NoTrunkCasters=true),
+            new PerfCase("no-foliage-receivers",()=>WorldGenPerformance.NoFoliageShadowReceivers=true),
             new PerfCase("human-review",()=>{}),
             new PerfCase("forest-community-review",()=>{}),
             new PerfCase("foliage-proxy-compare",()=>TerrainVideoOptions.DistantTreeShadowCards=false),
@@ -534,6 +537,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("grass-cull-fresh",()=>WorldGenPerformance.ForceFreshCoverCull=true),
             new PerfCase("grass-cull-cached",()=>WorldGenPerformance.ForceFreshCoverCull=false),
             new PerfCase("full",()=>{}),
+            new PerfCase("grass-clumps-repeat",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("forest-ready",()=>{}),
             new PerfCase("trees-legacy-alpha",()=>WorldGenPerformance.TreeLegacyAlpha=true),
             new PerfCase("trees-alpha-repeat",()=>{}),
@@ -604,18 +608,19 @@ public sealed partial class WorldGenRuntime
             PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);
             File.AppendAllText(Path.Combine(output,"sites.txt"),$"{site.Item1} cell {site.Item2} {lat:R},{lon:R}; biome {world.Ecology.Habitat[site.Item2].Biome}; relief {world.Ecology.Habitat[site.Item2].ReliefM}\n");
             if(WorldGenPerformance.TraceEnabled)File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyMapMaterials()+"\n");
-            bool previousTerrain=false;
+            bool previousTerrain=false,firstCase=true;
             foreach(var item in cases)
             {
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;
+                WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;
                 // Readiness is explicit; partial scenes are labelled, never silently accepted.
-                yield return null;deadline=Time.realtimeSinceStartupAsDouble+(item.Name=="forest-ready"?900:item.Name=="forest-community-review"?300:item.Name=="view-200km"||item.Name=="full"||item.Terrain&&terrainExplorer.WantedCount>1000?420:150);
+                yield return null;deadline=Time.realtimeSinceStartupAsDouble+(item.Name=="forest-ready"?900:item.Name=="forest-community-review"?300:firstCase||item.Name=="view-200km"||item.Name=="full"||item.Terrain&&terrainExplorer.WantedCount>1000?420:150);
                 double progressAt=0;
                 while(!terrainExplorer.PerformanceSettled&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)
                 {
@@ -624,6 +629,7 @@ public sealed partial class WorldGenRuntime
                     yield return null;
                 }
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
+                firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight();yield return new WaitForSecondsRealtime(4);
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");

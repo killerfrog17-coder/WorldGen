@@ -7,7 +7,8 @@ float4 _WorldGenFoliageShadowSettings;
 Light WorldGenFoliageLight(float3 position,out half canopy)
 {
     Light light=GetMainLight();
-    if(_WorldGenFoliageShadowSettings.x<.5)
+    if(_WorldGenFoliageShadowSettings.w<0){} // Explicit diagnostic: retain canopy, isolate shadow-map receivers.
+    else if(_WorldGenFoliageShadowSettings.x<.5)
     {
         light.shadowAttenuation=MainLightRealtimeShadow(TransformWorldToShadowCoord(position));
     }
