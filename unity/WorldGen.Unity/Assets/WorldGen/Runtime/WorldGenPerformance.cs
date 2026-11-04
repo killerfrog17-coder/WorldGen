@@ -20,6 +20,7 @@ public static class WorldGenPerformance
     public static bool OriginalCase;
     public static bool DisableScatterViewGuard;
     public static bool ForceFreshVisibleGround;
+    public static bool DirectionalScatter;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
@@ -319,17 +320,17 @@ public sealed partial class LocalTerrainExplorer
     }
     public string PerformanceVerifyRotationGuard(string output)
     {
-        Directory.CreateDirectory(output);var oldRotation=view.transform.localRotation;
+        Directory.CreateDirectory(output);var oldRotation=view.transform.localRotation;var oldEye=view.transform.localPosition;float oldHeading=heading,oldPitch=pitch;
         bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard;
         int comparisons=0,maxDelta=0,maxChanged=0;
         try
         {
             for(int yaw=0;yaw<360;yaw+=45)
-            foreach(var offset in new[]{new Vector2(5.7f,0),new Vector2(-5.7f,0),new Vector2(0,5.7f),new Vector2(3.8f,-3.8f)})
+            foreach(var offset in new[]{new Vector2(170,0),new Vector2(-95,0),new Vector2(0,74),new Vector2(45,-74)})
             {
                 PerformanceTurn(yaw);var center=view.transform.localRotation;
                 WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
-                if(scatterCachedGuardDegrees!=ScatterGuardDegrees)throw new InvalidOperationException("Rotation guard is not active in this verification context");
+                if(!scatterCachedAllHeadings)throw new InvalidOperationException("All-heading scatter is not active in this verification context");
                 var guarded=PerformanceInstances(true).GroupBy(s=>s).ToDictionary(g=>g.Key,g=>g.Count(),StringComparer.Ordinal);
                 var guardedCasters=PerformanceInstances(castersOnly:true);
                 view.transform.localRotation=center*Quaternion.Euler(offset.y,offset.x,0);
@@ -365,14 +366,15 @@ public sealed partial class LocalTerrainExplorer
                     throw new InvalidOperationException("Rotation guard render differs from literal camera: yaw "+yaw+", offset "+offset+", max RGB delta "+delta+", changed pixels "+changed);
                 }
                 view.transform.localRotation=center;WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
-                view.transform.localRotation=center*Quaternion.Euler(0,ScatterGuardDegrees+.3f,0);
-                if(!ScatterViewChanged)throw new InvalidOperationException("Beyond-guard rotation failed to invalidate scatter");
+                view.transform.localPosition+=Vector3.right*.6f;
+                if(!ScatterViewChanged)throw new InvalidOperationException("Eye movement failed to invalidate scatter");
+                view.transform.localPosition=oldEye;
             }
-            return "PASS "+comparisons+" within-guard actual-camera renders, visible-instance containment and exact physical caster multisets; max RGB delta "+maxDelta+", at most "+maxChanged+" changed edge pixels (budget 0.001%); beyond-guard rotations invalidate.";
+            return "PASS "+comparisons+" arbitrary-heading actual-camera renders, visible-instance containment and exact physical caster multisets; max RGB delta "+maxDelta+", at most "+maxChanged+" changed edge pixels (budget 0.001%); eye movement invalidates.";
         }
         finally
         {
-            view.transform.localRotation=oldRotation;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;BuildScatterBatches();
+            heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;BuildScatterBatches();
         }
     }
     public void PerformancePose(double height=1.65)

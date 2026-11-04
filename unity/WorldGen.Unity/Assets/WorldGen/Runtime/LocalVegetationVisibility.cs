@@ -11,8 +11,10 @@ public sealed partial class LocalTerrainExplorer
     float occlusionCeiling,vegetationShadowRadius,vegetationShadowDistance,vegetationShadowUp;double vegetationShadowSlope;
     Vector3 scatterEye;Quaternion scatterRotation;Matrix4x4 scatterProjection;int scatterOptions;
     const float ScatterGuardDegrees=6;
-    float scatterCachedGuardDegrees,scatterAngularSlack;
+    float scatterCachedGuardDegrees,scatterAngularSlack;bool scatterCachedAllHeadings;
     float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&SoftCanopyShadows&&TerrainVideoOptions.ScatterFrustum?ScatterGuardDegrees:0;
+    bool CurrentScatterAllHeadings=>CurrentScatterGuardDegrees>0&&!WorldGenPerformance.DirectionalScatter;
+    bool ScatterInFrustum(Bounds box,Vector3 eye)=>scatterCachedAllHeadings||GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(box,eye));
     Bounds ScatterGuardBounds(Bounds box,Vector3 eye)
     {
         if(scatterAngularSlack<=0)return box;
@@ -31,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.GeneratedTrees,TerrainVideoOptions.MidPlantDetail,TerrainVideoOptions.TreeDetail,
         TerrainVideoOptions.VegetationRevision,TerrainVideoOptions.ScatterFrustum,TerrainVideoOptions.VegetationOcclusion),HashCode.Combine(TerrainVideoOptions.VegetationShadows,TerrainVideoOptions.TreeRebuild,TerrainVideoOptions.TreeImpostors));
     bool ScatterViewChanged=>view!=null&&((view.transform.localPosition-scatterEye).sqrMagnitude>.25f||
-        Quaternion.Angle(view.transform.localRotation,scatterRotation)>Mathf.Max(1,scatterCachedGuardDegrees)||scatterCachedGuardDegrees!=CurrentScatterGuardDegrees||view.projectionMatrix!=scatterProjection||scatterOptions!=ScatterOptionsStamp);
+        !scatterCachedAllHeadings&&Quaternion.Angle(view.transform.localRotation,scatterRotation)>Mathf.Max(1,scatterCachedGuardDegrees)||scatterCachedAllHeadings!=CurrentScatterAllHeadings||scatterCachedGuardDegrees!=CurrentScatterGuardDegrees||view.projectionMatrix!=scatterProjection||scatterOptions!=ScatterOptionsStamp);
     void PrepareScatterBounds(ScatterChunk chunk,LocalTerrainFrame preparedFrame=null)
     {
         var boundsFrame=preparedFrame??frame;

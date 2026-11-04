@@ -385,7 +385,7 @@ public sealed partial class LocalTerrainExplorer
         treeWindRoots.Clear();treeWindDirty=true;
         foreach(var batch in drawBatches){batch.Count=0;batchPool.Add(batch);}drawBatches.Clear();activeScatterBatches.Clear();
         var eye=view.transform.localPosition;scatterEye=eye;scatterRotation=view.transform.localRotation;scatterProjection=view.projectionMatrix;scatterOptions=ScatterOptionsStamp;
-        scatterCachedGuardDegrees=CurrentScatterGuardDegrees;scatterAngularSlack=2*Mathf.Sin(scatterCachedGuardDegrees*Mathf.Deg2Rad*.5f);
+        scatterCachedGuardDegrees=CurrentScatterGuardDegrees;scatterCachedAllHeadings=CurrentScatterAllHeadings;scatterAngularSlack=scatterCachedAllHeadings?0:2*Mathf.Sin(scatterCachedGuardDegrees*Mathf.Deg2Rad*.5f);
         GeometryUtility.CalculateFrustumPlanes(view,scatterFrustum);
         PrepareVegetationShadowVisibility();
         long shadowTrace=WorldGenPerformance.TraceBegin();BuildTreeShadowBatches();WorldGenPerformance.TraceEnd(13,shadowTrace);
@@ -395,7 +395,7 @@ public sealed partial class LocalTerrainExplorer
             var chunk=pair.Value;
             if(chunk.Bounds==null)PrepareScatterBounds(chunk);
             var chunkBounds=chunk.AllBounds;chunkBounds.Expand(10+(chunkBounds.center-eye).magnitude*.04f);
-            if(TerrainVideoOptions.ScatterFrustum&&!GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(chunkBounds,eye))&&!MayCastVisibleShadow(chunkBounds,eye))
+            if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(chunkBounds,eye)&&!MayCastVisibleShadow(chunkBounds,eye))
             {ScatterFrustumRejected+=chunk.Source.Instances.Length;continue;}
             bool grouped=!WorldGenPerformance.Original&&chunk.Groups!=null&&chunk.Groups.Length>1;
             for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
@@ -426,7 +426,7 @@ public sealed partial class LocalTerrainExplorer
                 // Include the largest individual visibility margin anywhere in
                 // this bin. Reject only if NONE can be visible or cast a shadow.
                 groupBounds.Expand(10+((groupBounds.center-eye).magnitude+groupBounds.extents.magnitude)*.04f);
-                if(!GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(groupBounds,eye))&&!MayCastVisibleShadow(groupBounds,eye))
+                if(!ScatterInFrustum(groupBounds,eye)&&!MayCastVisibleShadow(groupBounds,eye))
                 {ScatterFrustumRejected+=group.Indices.Length;continue;}
             }
             for(int member=0;member<(grouped?group.Indices.Length:chunk.Source.Instances.Length);member++)
@@ -445,7 +445,7 @@ public sealed partial class LocalTerrainExplorer
                     blend=new ScatterBlend(blend.Near,blend.Far,blend.Blend,distance<VegetationQuality.ForestStart(ForestHandoffReach)?1:ForestOwnsTree(p)?1-VegetationQuality.ForestWeight(distance,ForestHandoffReach):1);
                 if(blend.Visibility<=0)continue;
                 var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
-                bool frustum=TerrainVideoOptions.ScatterFrustum&&!GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(bounds,eye));
+                bool frustum=TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye);
                 bool occluded=!frustum&&TerrainOccluded(bounds,eye),shadowOnly=frustum||occluded;
                 if(frustum)ScatterFrustumRejected++;if(occluded)ScatterTerrainRejected++;
                 if(shadowOnly&&(p.Kind==ScatterKind.Grass||IsSpecialist(p.Kind)||!MayCastVisibleShadow(bounds,eye)))continue;
