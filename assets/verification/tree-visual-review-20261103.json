@@ -1,0 +1,50 @@
+{
+  "Forest": {
+    "accepted": true,
+    "findings": "Inspected current wide and ground captures at High 26/70 m. Mixed narrow and rounded crowns follow the wooded hillside; all nine visible tree and stand models are baked. The ground image shows photographed bark and distinct attached leaves. Under-canopy light remains shaded. Thin near grass and low-resolution distant proxy edges are still visible; this is not a claim of final botanical artwork.",
+    "images": {
+      "wide": "decc279e1d26fdb2658cf6c0dc1cf314b80aaef69ccb0c823b10a1b91b83c4a1",
+      "ground": "a2fe57b5c4e209881e84346f90fcca10e45c84a67d6769d8163cce7241d30ec8"
+    }
+  },
+  "TropicalRainforest": {
+    "accepted": true,
+    "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed TropicalRainforest cell. Broad crowns vary in hue and silhouette; the understory includes fern forms, tall straight trunks and buttressed bases with photographed bark. All nine tree and stand models are baked. Dense canopy is shaded; foliage proxies retain visible simplification at middle distance.",
+    "images": {
+      "wide": "92ae2355530b5374c7a2d67826a7593ed5117fd4860b51ee4d8ca5a9998c07b5",
+      "ground": "da5a9e0a5146369ebfeff03efab5c50d749c8f29b642a6671360971c726b56b0"
+    }
+  },
+  "BorealForest": {
+    "accepted": true,
+    "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed BorealForest cell. This site is open boreal woodland (forest coverage 0.30), not dense taiga. Conical, more exposed needle crowns and occasional broad crowns are visible on the slopes; all nine tree/stand models are baked. Ground capture confirms sparse nearby trees and grass/exposed substrate, rather than providing a close bark specimen. Separate model reviews cover needle crown detail.",
+    "images": {
+      "wide": "8070e4af1069d48bde0d4d6aab393f29e4b1af47e04f8aa09db14f32d4f78b21",
+      "ground": "d69be1638c51e9510a7452f41eb6c196f7fd652e312c6b4bf6b51d3484398639"
+    }
+  },
+  "DryWoodland": {
+    "accepted": true,
+    "findings": "Inspected current wide and ground captures at High 26/70 m. Confirmed MediterraneanWoodland/DryWoodland site has open spacing, exposed trunks, flat spreading crowns and needle crowns, with brighter ground than the closed forests. All twelve visible tree/stand models are baked. Photographed bark and leaves are present; seasonal browning and fully species-specific tree art are outside this pass.",
+    "images": {
+      "wide": "f7380bb7e91102ad185031f17ad2a12dcc426d4172611f346d2002a112fca236",
+      "ground": "e5815a9d0fbafb85a86e6d8ec6cedbdc22eb3a4a3f8abf9dcbde298131dce60c"
+    }
+  },
+  "WoodedSwamp": {
+    "accepted": true,
+    "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed wooded wetland, not a merely moist upland forest. Wide capture contains standing water surrounded by retained trees; the recorded neighbourhood has four pools, 309 reeds and 36 submerged reeds. Ground capture shows close trunks and foliage within dense wet cover. All nine tree/stand models are baked; simplified distant crowns remain visible.",
+    "images": {
+      "wide": "25b6a1f96fcfbc37f0b76383467ba7c5cecad1ef7915cd9451e9a4bf9aec7fe8",
+      "ground": "3d508509a103145ae8719aad7a5c96407b8b96b6d8c2524985cb6d5ad777ce49"
+    }
+  },
+  "Savanna": {
+    "accepted": true,
+    "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed Savanna cell. This particular coastal grassland site is largely open, with flat spreading tree crowns beyond the nearby grass. It verifies open habitat and distant rendering, not close tree detail; the dry-woodland and separate open-woodland model reviews supply that detail. All three visible tree/stand models are baked.",
+    "images": {
+      "wide": "9039806a1a765672e3229bc4dd662840d0fb62c34e2f2b683d5eddbd7849f2a3",
+      "ground": "63e98440101bfe176daf442141f4c757388692b49dbc252190772a56e9588c02"
+    }
+  }
+}

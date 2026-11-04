@@ -113,6 +113,61 @@ pond density and thresholds are game priors rather than claimed measurements
 of Earth's global landform distribution.
 
 
+## Tree surfaces and regional forms (3 November)
+
+The third ordered update replaces procedural leaf marks with photographed CC0
+leaf shoots and five photographed bark surfaces. Seven ambientCG leaf scans and
+five Poly Haven bark scans produce shared colour/normal arrays. Source files,
+licenses, provider hashes and processing are recorded in
+`assets/verification/tree-surface-sources-20261103.json`; editable inputs live in
+`assets-source/vegetation/tree-surfaces`. The ignored inputs and imported arrays
+are backed by immutable GitHub asset packs, rather than scratch directories.
+
+Existing regional placement and lineage variation remain authoritative. Broadleaf,
+needle, tropical broadleaf, open woodland, palm, tree fern, cane and succulent
+forms share the renderer. Needle openness now distinguishes low-branched conical
+crowns from more exposed pine-like crowns. Succulents have ribbed stems and upright
+arms. Palms/ferns use fibrous bark and canes smooth culms. These are generated
+forms, rather than a catalogue of individually modelled botanical species.
+
+The 32-layer 512-pixel BC7 leaf colour/normal arrays occupy 22.37 MB, essentially
+the same payload as the previous 256-pixel RGBA arrays. Bark arrays add 3.50 MB;
+CPU bake pixels add about 2.62 MB. No extra tree draw passes, lights or simulation
+ticks are introduced. Existing near and distant trees use the same scanned art.
+Transparent mip texels receive valid colour, normal and depth padding, while
+occupied texels and alpha retain their values.
+
+Conservative shoot outlines remove empty card area without adding triangles.
+Distant billboards now fit projected model bounds instead of a full enclosing
+sphere. Eleven models across sixteen view directions retain geometric support;
+their billboard area is about 41–47% of the old area. This measures raster area,
+not a promised FPS increase. Separate image comparisons record isolated
+subpixel alpha-edge differences. Active draw batches also keep deferred tree
+bakes resident while the camera is stationary, fixing an observed starvation
+case where visible trees otherwise remained unfinished.
+
+The final packaged tree and indirect-forest shader checks passed. Six actual
+generated environments passed 60 checks at the real High preset (26/70 m mesh
+ranges), with twelve wide/ground images inspected. The savanna fixture is an
+open grassland with distant trees; it is not close tree-detail evidence.
+Earlier landscape fixture images used obsolete 120/450 m defaults and are not
+evidence for the final High-preset appearance.
+
+A sequential comparison used the same wooded 42-resident camp, including 18
+checks per package for camp placement, grass clearing, current binary saves,
+wounds and revisits. Baseline normal-frame means were 8.49/8.23 ms; the tree
+candidate measured 7.96/7.66 ms (6.6% lower across the two samples). Rendering-only
+means were 6.50/6.39 ms. Terrain was still streaming, with 239/233 resident tiles,
+so these are matched camp samples rather than settled whole-world FPS. This
+camp harness keeps identical heavy 120/450 m mesh ranges in both packages.
+The source/package hashes, art budgets, internal image findings and exact
+measurements are recorded in `assets/verification/tree-art-20261103.json`.
+
+This tree-focused pass does not add live plant growth, seasonal leaf shedding,
+fruiting, or a replacement of all shrub/grass artwork. Distant proxies remain
+128 pixels over sixteen directions. Internal visual review does not establish
+owner approval or parity with another game's artwork.
+
 ## Dated adoption and cell maps (3 November)
 
 Current regional rules are `foragers-regional-4`. Technology percentages refer

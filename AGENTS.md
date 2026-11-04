@@ -49,6 +49,53 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED4Nov00:01Z TREE UPDATE VERIFIED. Owner continue mandate still active;
+no stop/wrap received. All three ordered stages now implemented and internally
+verified. Rootshortcut NOW slot-a, managedNONDEV FULL built3Nov23:28:06.5019979Z,
+runtime29159e5d PUSHED. B remains prior landscape checkpoint. Manifest
+assets/verification/tree-art-20261103.json exact Assembly2c473d6a/Core67e6bfe1/
+worker427e1e3c, packed resources recorded. Final sameA trees-release six High
+26/70m actual environments allEXIT0/60checks; twelve images inspected and hashes
+in tree-visual-review-20261103.json. All visible deferredbakes complete with
+stationary camera. Native tree/forest shader paths PASS; earlyalphaRGBexact0,
+tightquad tinyisolatededgepixels, no geometryclipping. Editor11models/33poses/
+20sourcealpha layers pass; quadarea -54.4%mean, NOT wholeFPSclaim. Final isolated
+trees-release-perf B/A same42NPCcamp bothEXIT0/18checks inclactualcurrentbinary
+saves/wounds/revisits/grasscompute. Normalframe8.49/8.23->7.96/7.66ms (-6.6%),
+renderonly6.50->6.39. Terrainstillstreaming239/233tiles, NOT universalFPSproof.
+PreviewSavanna isopen grassland/distanttrees, notcloseartproof; closeforms elsewhere.
+CC0 scans5357inputs/139immutableGitHubpacks, original5154exact;203treeinputs.
+No owned game/editor/build/worker jobs remain. Current source/package frozen;
+do not add new systems or tiny speculative visual tweaks. Owner visual approval
+not inferred. No growth/seasonalleafshedding/fruiting/allshrubart overhaul claimed.
+Owner3files untouched, nopaid/subagents/ownerappsclosed. Stage1/2 immutabletags
+living-npcs-foundation-20261103/living-landscapes-20261103 remainrollback points.
+Final proof/docs/shortcut commit and living-vegetation-20261103 tag/push pending
+at this note; complete these before requesting owner review. Continue per mandate.
+
+ACTIVE3Nov23:40Z CONTINUE. Owner closed game and authorized uncontended comparison.
+Stage1/2 complete; selectedB9358b36/living-landscapes-20261103 UNCHANGED. Stage3
+runtime29159e5d PUSHED/FROZEN. Final FULL managedNONDEV A built23:28:06.5019979Z;
+all3knownUnityautos restored, no editor running. Final native tree+indirectforest
+shader checks PASS trees-release: earlyalpha exact0; conservative tightquad
+comparisons differ only isolated alphaedge pixels (<=28significant native),
+geometry projectedbounds pass. Editor tree-tight-quads-3:11forms/33poses/20source
+supportlayers PASS; meanbillboardarea ratio~.46, NOT FPSclaim. CC0 sevenleaf/five
+bark canonicalart,32x512BC7leaves22.37MBsameold,5bark+3.50MB, CPU19.40MB.
+Final mipnormal/depthpadding packs5357inputs/139immutablepacks REMOTEverified,
+original5154exact. Need final Highpreset26/70m actual6scene reviews currently
+RUNNING PSsession3441 (forestPID2956 then5biomes), source/runtimeunchanged.
+Then sequential uncontended wooded42NPC B/A comparison via
+run-landscape-performance.ps1 -Prefix trees-release-perf -BaselineSlot slot-b
+-CandidateSlot slot-a; no other build/GPU jobs whiletiming. Existing stockforest
+326FPS REJECTED grassclearing, neverciteasforestproof. Old trees-canopy6scenes
+passed butobsolete120/450harness/prepadding, NOT finalpackage acceptance.
+New scripts/record-tree-art.py exists untested; finish actualimage reviewJSON,
+currentpackageproof/perf/docs/session/Git/selectA only aftergatespass. Current
+docs treesection provisional pendingactualresults. No further runtimefeatures
+or tinyarttweaks unlessREALfailure. Owner3files untouched, nopaid/subagents/
+ownerappsclosed. Continue substantive work until explicitownerstop/wrap.
+
 ACTIVE3Nov22:23Z CONTINUE. Stage2 selectedB9358b36/tag living-landscapes-20261103
 UNCHANGED. Stage3 tree art ACTIVE; source8296b6b PUSHED plus later uncommitted.
 New CC0 ambientCG7leaf atlases/PolyHaven5barks authoring in canonical tree-surfaces;

@@ -1,0 +1,1151 @@
+{
+  "recorded_utc": "2026-11-04T00:00:09.264637+00:00",
+  "source": "29159e5d0dbe92a3bbe0dc283ec53f62276f72ac",
+  "baseline": "living-landscapes-20261103",
+  "slot": "builds/slot-a",
+  "build": {
+    "BuiltUtc": "2026-11-03T23:28:06.5019979Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": false,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "7cb05edf49e012389bdbb76abdf289661fd205f148ee7a40704665652de38d40"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "3a5ff52b2c20e63be548c52b23c54196d1dd4ac2f05527b121bafb4b28f80152"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+  },
+  "package": {
+    "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+    "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+    "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+  },
+  "packed_resources": {
+    "globalgamemanagers.assets": "e832535c33ea7eb6886131b89e9160b1ae9716ab90cf2979141a0a8d98bf830d",
+    "globalgamemanagers.assets.resS": "26b24bbd0bdb7017ecbac3b829c0ed7c4848bc343af5702e96ebdb75a7258b04",
+    "resources.assets": "5fe423c431fc7399b4db1f88f6ee44fca1b0e22a334c7d757f3a3f76a7081d20",
+    "resources.assets.resS": "3f87f0775b72332a3b3f8856afd2772c4e31be77a34193bf45470d20e44e8e73",
+    "resources.resource": "0c022d5b34ee9fd4b300d35ad9c1d02088fdb2810d18eb8958f7e8f4c6dcf5e3",
+    "sharedassets0.assets": "38122cb612b4e3250aadcd50000053c888a827e134af8dcc4ced4519f455ed08",
+    "sharedassets0.assets.resS": "393efe6399536384aa91bdfc4e64f244b4d3e1fbb6a4ff145c483ffee64ccb36"
+  },
+  "art_sources": "assets/verification/tree-surface-sources-20261103.json",
+  "surface_budget": {
+    "Formats": [
+      "RGBA_BC7_SRGB",
+      "RGBA_BC7_UNorm",
+      "RGBA_BC7_SRGB",
+      "RGBA_BC7_UNorm"
+    ],
+    "ShootGpuBytes": 22371328,
+    "BarkGpuBytes": 3495520,
+    "PreviousShootGpuBytes": 22369536,
+    "CpuPixelBytes": 19398656,
+    "Layers": [
+      {
+        "Layer": 0,
+        "VisiblePixels": 68941,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.041015625,
+          "y": 0.908203125,
+          "z": 0.041015625,
+          "w": 0.908203125
+        },
+        "CardArea": 0.8671875
+      },
+      {
+        "Layer": 1,
+        "VisiblePixels": 77179,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.041015625,
+          "y": 0.908203125,
+          "z": 0.041015625,
+          "w": 0.908203125
+        },
+        "CardArea": 0.8671875
+      },
+      {
+        "Layer": 2,
+        "VisiblePixels": 77346,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.041015625,
+          "y": 0.908203125,
+          "z": 0.041015625,
+          "w": 0.908203125
+        },
+        "CardArea": 0.8671875
+      },
+      {
+        "Layer": 3,
+        "VisiblePixels": 75776,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.041015625,
+          "y": 0.908203125,
+          "z": 0.041015625,
+          "w": 0.908203125
+        },
+        "CardArea": 0.8671875
+      },
+      {
+        "Layer": 4,
+        "VisiblePixels": 50492,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.052734375,
+          "y": 0.896484375,
+          "z": 0.052734375,
+          "w": 0.896484375
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 5,
+        "VisiblePixels": 53019,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.052734375,
+          "y": 0.896484375,
+          "z": 0.052734375,
+          "w": 0.896484375
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 6,
+        "VisiblePixels": 51698,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.052734375,
+          "y": 0.896484375,
+          "z": 0.052734375,
+          "w": 0.896484375
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 7,
+        "VisiblePixels": 55122,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.052734375,
+          "y": 0.896484375,
+          "z": 0.052734375,
+          "w": 0.896484375
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 8,
+        "VisiblePixels": 71126,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.060546875,
+          "y": 0.900390625,
+          "z": 0.060546875,
+          "w": 0.900390625
+        },
+        "CardArea": 0.83984375
+      },
+      {
+        "Layer": 9,
+        "VisiblePixels": 51381,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.060546875,
+          "y": 0.900390625,
+          "z": 0.060546875,
+          "w": 0.900390625
+        },
+        "CardArea": 0.83984375
+      },
+      {
+        "Layer": 10,
+        "VisiblePixels": 73668,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.060546875,
+          "y": 0.900390625,
+          "z": 0.060546875,
+          "w": 0.900390625
+        },
+        "CardArea": 0.83984375
+      },
+      {
+        "Layer": 11,
+        "VisiblePixels": 52222,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.060546875,
+          "y": 0.900390625,
+          "z": 0.060546875,
+          "w": 0.900390625
+        },
+        "CardArea": 0.83984375
+      },
+      {
+        "Layer": 12,
+        "VisiblePixels": 48176,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.056640625,
+          "y": 0.900390625,
+          "z": 0.056640625,
+          "w": 0.900390625
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 13,
+        "VisiblePixels": 54687,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.056640625,
+          "y": 0.900390625,
+          "z": 0.056640625,
+          "w": 0.900390625
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 14,
+        "VisiblePixels": 51250,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.056640625,
+          "y": 0.900390625,
+          "z": 0.056640625,
+          "w": 0.900390625
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 15,
+        "VisiblePixels": 52538,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.056640625,
+          "y": 0.900390625,
+          "z": 0.056640625,
+          "w": 0.900390625
+        },
+        "CardArea": 0.84375
+      },
+      {
+        "Layer": 16,
+        "VisiblePixels": 30018,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.271484375,
+          "y": 0.728515625,
+          "z": 0.271484375,
+          "w": 0.728515625
+        },
+        "CardArea": 0.45703125
+      },
+      {
+        "Layer": 17,
+        "VisiblePixels": 30919,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.271484375,
+          "y": 0.728515625,
+          "z": 0.271484375,
+          "w": 0.728515625
+        },
+        "CardArea": 0.45703125
+      },
+      {
+        "Layer": 18,
+        "VisiblePixels": 41574,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.271484375,
+          "y": 0.728515625,
+          "z": 0.271484375,
+          "w": 0.728515625
+        },
+        "CardArea": 0.45703125
+      },
+      {
+        "Layer": 19,
+        "VisiblePixels": 30018,
+        "ClippedPixels": 0,
+        "Hull": {
+          "x": 0.271484375,
+          "y": 0.728515625,
+          "z": 0.271484375,
+          "w": 0.728515625
+        },
+        "CardArea": 0.45703125
+      }
+    ]
+  },
+  "model_reviews": [
+    "36984320 form=BroadCrown openness=0.100 near=3768 mid=2262 views=16 ms=1634.8",
+    "305419776 form=NeedleCrown openness=0.100 near=6710 mid=2840 views=16 ms=1289.0",
+    "573855232 form=FrondCrown openness=0.100 near=6240 mid=1062 views=16 ms=573.1",
+    "842290688 form=TreeFern openness=0.100 near=10692 mid=1684 views=16 ms=570.9",
+    "1110726144 form=ArborescentSucculent openness=0.100 near=1608 mid=656 views=16 ms=439.9",
+    "1379161600 form=TallCane openness=0.100 near=3400 mid=1860 views=16 ms=530.6",
+    "41178624 form=BroadCrown openness=0.127 near=3900 mid=1820 views=16 ms=1018.4",
+    "45372928 form=BroadCrown openness=0.127 near=3980 mid=2314 views=16 ms=773.1",
+    "268461312 form=NeedleCrown openness=0.085 near=6710 mid=2840 views=16 ms=1358.6",
+    "268453376 form=NeedleCrown openness=0.229 near=5982 mid=2530 views=16 ms=1281.1",
+    "268442368 form=NeedleCrown openness=0.377 near=3664 mid=1542 views=16 ms=924.4"
+  ],
+  "quad_area_ratios": [
+    0.466336,
+    0.461822,
+    0.466596,
+    0.463619,
+    0.410182,
+    0.462943,
+    0.462422,
+    0.435449,
+    0.457454,
+    0.463175,
+    0.46696
+  ],
+  "quad_area_reduction_mean": 0.5439129090909092,
+  "quad_comparison": {
+    "poses": 33,
+    "max_significant_pixels": 34,
+    "max_mean_rgb_error": 0.00138491,
+    "meaning": "All model vertices fit the projected boxes. Different quad interpolation can flip isolated alpha-edge pixels; mean RGB difference is measured on the 0..255 scale."
+  },
+  "scenes": [
+    {
+      "kind": "Forest",
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Actual": "Forest",
+        "BakedStands": 9,
+        "BakedTrees": 9,
+        "CoverWeights": [
+          0.186311175,
+          0,
+          0,
+          0.000678455,
+          0.095137091,
+          0.204497379,
+          0.171313131,
+          0,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 348.612,
+        "ForestCoverage": 0.5821245235389463,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.7676157,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.537650746,
+          "Y": -0.046536534,
+          "Z": -0.84188243
+        },
+        "PrepareMs": 11650.9014,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.716680765,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 1,
+          "Peat": 0,
+          "Rock": 0.286427528,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.06938059
+        },
+        "Reeds": 0,
+        "Requested": "Forest",
+        "SampleBiome": "TemperateForest",
+        "ScatterPages": 71,
+        "SubmergedReeds": 0,
+        "Tiles": 111,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 22
+      },
+      "checks": 10,
+      "checks_sha256": "4b2c6e1ab414c87cfc6dc99c823498363047307444a479b5a45260717f126b37",
+      "images": {
+        "wide": "decc279e1d26fdb2658cf6c0dc1cf314b80aaef69ccb0c823b10a1b91b83c4a1",
+        "ground": "a2fe57b5c4e209881e84346f90fcca10e45c84a67d6769d8163cce7241d30ec8"
+      },
+      "review": {
+        "accepted": true,
+        "findings": "Inspected current wide and ground captures at High 26/70 m. Mixed narrow and rounded crowns follow the wooded hillside; all nine visible tree and stand models are baked. The ground image shows photographed bark and distinct attached leaves. Under-canopy light remains shaded. Thin near grass and low-resolution distant proxy edges are still visible; this is not a claim of final botanical artwork.",
+        "images": {
+          "wide": "decc279e1d26fdb2658cf6c0dc1cf314b80aaef69ccb0c823b10a1b91b83c4a1",
+          "ground": "a2fe57b5c4e209881e84346f90fcca10e45c84a67d6769d8163cce7241d30ec8"
+        }
+      }
+    },
+    {
+      "kind": "TropicalRainforest",
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Actual": "Rainforest",
+        "BakedStands": 9,
+        "BakedTrees": 9,
+        "CoverWeights": [
+          0.048884173,
+          0.019192973,
+          0.001397067,
+          0.000749826,
+          0.041548848,
+          0.089196408,
+          0.09841216,
+          0.000104391,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 143.006,
+        "ForestCoverage": 0.49369211527708995,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.602273,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.320548664,
+          "Y": -0.666886431,
+          "Z": -0.672689411
+        },
+        "PrepareMs": 11515.128700000001,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.8990295,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0.0130035961,
+          "Loess": 0,
+          "Moisture": 0.946662545,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.160281509
+        },
+        "Reeds": 0,
+        "Requested": "TropicalRainforest",
+        "SampleBiome": "TropicalRainforest",
+        "ScatterPages": 132,
+        "SubmergedReeds": 0,
+        "Tiles": 101,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 30
+      },
+      "checks": 10,
+      "checks_sha256": "4b2c6e1ab414c87cfc6dc99c823498363047307444a479b5a45260717f126b37",
+      "images": {
+        "wide": "92ae2355530b5374c7a2d67826a7593ed5117fd4860b51ee4d8ca5a9998c07b5",
+        "ground": "da5a9e0a5146369ebfeff03efab5c50d749c8f29b642a6671360971c726b56b0"
+      },
+      "review": {
+        "accepted": true,
+        "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed TropicalRainforest cell. Broad crowns vary in hue and silhouette; the understory includes fern forms, tall straight trunks and buttressed bases with photographed bark. All nine tree and stand models are baked. Dense canopy is shaded; foliage proxies retain visible simplification at middle distance.",
+        "images": {
+          "wide": "92ae2355530b5374c7a2d67826a7593ed5117fd4860b51ee4d8ca5a9998c07b5",
+          "ground": "da5a9e0a5146369ebfeff03efab5c50d749c8f29b642a6671360971c726b56b0"
+        }
+      }
+    },
+    {
+      "kind": "BorealForest",
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Actual": "Woodland",
+        "BakedStands": 9,
+        "BakedTrees": 9,
+        "CoverWeights": [
+          0.097690951,
+          0,
+          0,
+          0.000159653,
+          0.053693198,
+          0.044615712,
+          0.155338636,
+          0.011475157,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 83.181,
+        "ForestCoverage": 0.30021984809485236,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 2.9772296,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": -0.333116165,
+          "Y": -0.049352997,
+          "Z": -0.941593279
+        },
+        "PrepareMs": 11905.586500000001,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.4915286,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0.126015991,
+          "Loess": 0,
+          "Moisture": 0.9565199,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 4.336705e-05
+        },
+        "Reeds": 0,
+        "Requested": "BorealForest",
+        "SampleBiome": "BorealForest",
+        "ScatterPages": 81,
+        "SubmergedReeds": 0,
+        "Tiles": 180,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 69
+      },
+      "checks": 10,
+      "checks_sha256": "4b2c6e1ab414c87cfc6dc99c823498363047307444a479b5a45260717f126b37",
+      "images": {
+        "wide": "8070e4af1069d48bde0d4d6aab393f29e4b1af47e04f8aa09db14f32d4f78b21",
+        "ground": "d69be1638c51e9510a7452f41eb6c196f7fd652e312c6b4bf6b51d3484398639"
+      },
+      "review": {
+        "accepted": true,
+        "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed BorealForest cell. This site is open boreal woodland (forest coverage 0.30), not dense taiga. Conical, more exposed needle crowns and occasional broad crowns are visible on the slopes; all nine tree/stand models are baked. Ground capture confirms sparse nearby trees and grass/exposed substrate, rather than providing a close bark specimen. Separate model reviews cover needle crown detail.",
+        "images": {
+          "wide": "8070e4af1069d48bde0d4d6aab393f29e4b1af47e04f8aa09db14f32d4f78b21",
+          "ground": "d69be1638c51e9510a7452f41eb6c196f7fd652e312c6b4bf6b51d3484398639"
+        }
+      }
+    },
+    {
+      "kind": "DryWoodland",
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Actual": "DryWoodland",
+        "BakedStands": 12,
+        "BakedTrees": 12,
+        "CoverWeights": [
+          0.184436694,
+          0.177539009,
+          0.19226739,
+          0.011036751,
+          0.112093888,
+          0.008739105,
+          0.028479727,
+          0.059380431,
+          0.007885986
+        ],
+        "Depth": 0,
+        "Elevation": 8.208,
+        "ForestCoverage": 0.10711220465520746,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 4.3419498999999995,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.760343562,
+          "Y": 0.049466854,
+          "Z": -0.647634696
+        },
+        "PrepareMs": 11365.063100000001,
+        "Province": {
+          "Arid": 0.0185013674,
+          "Badlands": 0,
+          "Canopy": 0.148520708,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.5115495,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0.009368893,
+          "Wet": 0
+        },
+        "Reeds": 6,
+        "Requested": "DryWoodland",
+        "SampleBiome": "MediterraneanWoodland",
+        "ScatterPages": 99,
+        "SubmergedReeds": 4,
+        "Tiles": 110,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 28
+      },
+      "checks": 10,
+      "checks_sha256": "4b2c6e1ab414c87cfc6dc99c823498363047307444a479b5a45260717f126b37",
+      "images": {
+        "wide": "f7380bb7e91102ad185031f17ad2a12dcc426d4172611f346d2002a112fca236",
+        "ground": "e5815a9d0fbafb85a86e6d8ec6cedbdc22eb3a4a3f8abf9dcbde298131dce60c"
+      },
+      "review": {
+        "accepted": true,
+        "findings": "Inspected current wide and ground captures at High 26/70 m. Confirmed MediterraneanWoodland/DryWoodland site has open spacing, exposed trunks, flat spreading crowns and needle crowns, with brighter ground than the closed forests. All twelve visible tree/stand models are baked. Photographed bark and leaves are present; seasonal browning and fully species-specific tree art are outside this pass.",
+        "images": {
+          "wide": "f7380bb7e91102ad185031f17ad2a12dcc426d4172611f346d2002a112fca236",
+          "ground": "e5815a9d0fbafb85a86e6d8ec6cedbdc22eb3a4a3f8abf9dcbde298131dce60c"
+        }
+      }
+    },
+    {
+      "kind": "WoodedSwamp",
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Actual": "WoodedSwamp",
+        "BakedStands": 9,
+        "BakedTrees": 9,
+        "CoverWeights": [
+          0.017431174,
+          0,
+          1.149e-06,
+          0.234005033,
+          0.08867928,
+          0.084562294,
+          0.151620419,
+          0,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 132.168,
+        "ForestCoverage": 0.4993311101378954,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.3122018,
+        "NearbyPools": 4,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.004921601,
+          "Y": -0.464940574,
+          "Z": -0.88532821
+        },
+        "PrepareMs": 11301.031500000001,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.5092,
+          "Clay": 0,
+          "Frozen": 0.0503246,
+          "Glacial": 1,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.990179658,
+          "Peat": 0.0203721747,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.7515714
+        },
+        "Reeds": 309,
+        "Requested": "WoodedSwamp",
+        "SampleBiome": "Marsh",
+        "ScatterPages": 58,
+        "SubmergedReeds": 36,
+        "Tiles": 97,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 131.90736925395524,
+        "WaterRenderers": 61
+      },
+      "checks": 10,
+      "checks_sha256": "4b2c6e1ab414c87cfc6dc99c823498363047307444a479b5a45260717f126b37",
+      "images": {
+        "wide": "25b6a1f96fcfbc37f0b76383467ba7c5cecad1ef7915cd9451e9a4bf9aec7fe8",
+        "ground": "3d508509a103145ae8719aad7a5c96407b8b96b6d8c2524985cb6d5ad777ce49"
+      },
+      "review": {
+        "accepted": true,
+        "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed wooded wetland, not a merely moist upland forest. Wide capture contains standing water surrounded by retained trees; the recorded neighbourhood has four pools, 309 reeds and 36 submerged reeds. Ground capture shows close trunks and foliage within dense wet cover. All nine tree/stand models are baked; simplified distant crowns remain visible.",
+        "images": {
+          "wide": "25b6a1f96fcfbc37f0b76383467ba7c5cecad1ef7915cd9451e9a4bf9aec7fe8",
+          "ground": "3d508509a103145ae8719aad7a5c96407b8b96b6d8c2524985cb6d5ad777ce49"
+        }
+      }
+    },
+    {
+      "kind": "Savanna",
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Actual": "VegetatedPlain",
+        "BakedStands": 3,
+        "BakedTrees": 3,
+        "CoverWeights": [
+          0.22017363,
+          0.073043678,
+          0.046158871,
+          0.045593499,
+          0.10096436,
+          0.031168737,
+          0.063577085,
+          0.016536913,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 8.089,
+        "ForestCoverage": 0.16201338937771725,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.3717335999999998,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.393163338,
+          "Y": -0.66914804,
+          "Z": -0.630605654
+        },
+        "PrepareMs": 11303.2041,
+        "Province": {
+          "Arid": 0,
+          "Badlands": 0,
+          "Canopy": 0.0211998317,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.764785051,
+          "Peat": 0,
+          "Rock": 0.00107938354,
+          "Salt": 0,
+          "Sand": 0,
+          "Wet": 0.156776369
+        },
+        "Reeds": 0,
+        "Requested": "Savanna",
+        "SampleBiome": "Savanna",
+        "ScatterPages": 286,
+        "SubmergedReeds": 0,
+        "Tiles": 106,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 49
+      },
+      "checks": 10,
+      "checks_sha256": "4b2c6e1ab414c87cfc6dc99c823498363047307444a479b5a45260717f126b37",
+      "images": {
+        "wide": "9039806a1a765672e3229bc4dd662840d0fb62c34e2f2b683d5eddbd7849f2a3",
+        "ground": "63e98440101bfe176daf442141f4c757388692b49dbc252190772a56e9588c02"
+      },
+      "review": {
+        "accepted": true,
+        "findings": "Inspected current wide and ground captures at High 26/70 m in a confirmed Savanna cell. This particular coastal grassland site is largely open, with flat spreading tree crowns beyond the nearby grass. It verifies open habitat and distant rendering, not close tree detail; the dry-woodland and separate open-woodland model reviews supply that detail. All three visible tree/stand models are baked.",
+        "images": {
+          "wide": "9039806a1a765672e3229bc4dd662840d0fb62c34e2f2b683d5eddbd7849f2a3",
+          "ground": "63e98440101bfe176daf442141f4c757388692b49dbc252190772a56e9588c02"
+        }
+      }
+    }
+  ],
+  "shaders": [
+    {
+      "kind": "tree",
+      "receipt": {
+        "Slot": "slot-a",
+        "Built": {
+          "BuiltUtc": "2026-11-03T23:28:06.5019979Z",
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "7cb05edf49e012389bdbb76abdf289661fd205f148ee7a40704665652de38d40"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "3a5ff52b2c20e63be548c52b23c54196d1dd4ac2f05527b121bafb4b28f80152"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+        },
+        "Assembly": "2C473D6ABEACB6BADB2901B8FAB44933C31AA78E08FD1632BAF6053766423E55",
+        "Core": "67E6BFE1B10B95B51CD3390BFFF1E996ADA5721EDA6D1641A8529A20DB46DC4C",
+        "Worker": "427E1E3CFF17AAF45114855A5E308CDB0823D847D26FD67FA4C9FFBF5BE48D48"
+      },
+      "pass_sha256": "9dc6061c46a2f8600195e49a7b174d0e74c44ca271cdebceda7795fd41bd8563",
+      "results": "NVIDIA GeForce RTX 4060\n36984320 stage=0 left=27170 right=26901\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=9, mean=0.00144350405092593\n36984320 stage=1 left=26613 right=27200\n305419776 stage=0 left=35036 right=34212\nearly alpha max RGB delta 0\ntight quad max RGB delta 167, significant=16, mean=0.00176432291666667\n305419776 stage=1 left=36961 right=36520\n573855232 stage=0 left=15542 right=15082\nearly alpha max RGB delta 0\ntight quad max RGB delta 6, significant=5, mean=0.000268373842592593\n573855232 stage=1 left=13261 right=13056\n842290688 stage=0 left=12495 right=12378\nearly alpha max RGB delta 0\ntight quad max RGB delta 168, significant=28, mean=0.00177300347222222\n842290688 stage=1 left=10884 right=11694\n1110726144 stage=0 left=12903 right=13584\nearly alpha max RGB delta 0\ntight quad max RGB delta 137, significant=3, mean=0.000301287615740741\n1110726144 stage=1 left=12810 right=13259\n1379161600 stage=0 left=13730 right=13390\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=24, mean=0.00173936631944444\n1379161600 stage=1 left=7874 right=9271\n41178624 stage=0 left=20888 right=22061\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=13, mean=0.00126302083333333\n41178624 stage=1 left=21904 right=23542\n45372928 stage=0 left=26176 right=29772\nearly alpha max RGB delta 0\ntight quad max RGB delta 169, significant=7, mean=0.00128219039351852\n45372928 stage=1 left=27219 right=29997\n"
+    },
+    {
+      "kind": "forest",
+      "receipt": {
+        "Slot": "slot-a",
+        "Built": {
+          "BuiltUtc": "2026-11-03T23:28:06.5019979Z",
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "7cb05edf49e012389bdbb76abdf289661fd205f148ee7a40704665652de38d40"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "3a5ff52b2c20e63be548c52b23c54196d1dd4ac2f05527b121bafb4b28f80152"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+        },
+        "Assembly": "2C473D6ABEACB6BADB2901B8FAB44933C31AA78E08FD1632BAF6053766423E55",
+        "Core": "67E6BFE1B10B95B51CD3390BFFF1E996ADA5721EDA6D1641A8529A20DB46DC4C",
+        "Worker": "427E1E3CFF17AAF45114855A5E308CDB0823D847D26FD67FA4C9FFBF5BE48D48"
+      },
+      "pass_sha256": "88db6c9082fdaf3ebce7bce29a3bc76af80de5fcb95f76585e131b59c53c3eb0",
+      "results": "NVIDIA GeForce RTX 4060\nGPU admission/disable/near-range/finer-field ownership pass\nearly alpha max RGB delta 0\ntight quad max RGB delta 168, significant=6, mean=0.000925202546296296\n36984320 pixels=9461/10041\nearly alpha max RGB delta 0\ntight quad max RGB delta 164, significant=11, mean=0.000964626736111111\n305419776 pixels=12967/13097\n"
+    }
+  ],
+  "camp_comparison": {
+    "baseline": {
+      "package": {
+        "AssemblySha256": "d4b908dd1927f406363f5b1b77c51f0d4e690b85128c23696e4ca5e7589e5547",
+        "BuiltUtc": "2026-11-03T20:44:45.3597502Z",
+        "CoreSha256": "a053b29aca64d8500b1ec606597e7239487783849589010052e593dc0500af2b",
+        "WorkerSha256": "a15d9c1f89c2c07411918fd38923e1da6c20474a21fe1cf80a24caac5e188e0e"
+      },
+      "scene": {
+        "Aridity": 1.9109833471970137,
+        "Canopy": 0.9500000000000006,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 11,
+        "MeanC": 25.82974881612366,
+        "People": 42,
+        "Rain": 3172.675837138729,
+        "Residence": "SeasonalBaseCamps",
+        "Year": 190000
+      },
+      "rows": [
+        {
+          "BackgroundQueryMs": 0.7594000000000001,
+          "Frames": 240,
+          "MaxNpcMs": 7.3402,
+          "MeanFrameMs": 8.48890750000019,
+          "MeanNpcMs": 1.4952129166666668,
+          "MeanStagesMs": [
+            0.07478166666666668,
+            0.04258500000000001,
+            0.014522916666666672,
+            1.0921783333333341,
+            0.1676020833333334
+          ],
+          "Mode": "normal",
+          "P95FrameMs": 12.542800000005627,
+          "P95NpcMs": 2.6123,
+          "Residents": 42,
+          "ScatterChunks": 104,
+          "TerrainReady": false,
+          "Tiles": 239
+        },
+        {
+          "BackgroundQueryMs": 0.8192,
+          "Frames": 240,
+          "MaxNpcMs": 0.1302,
+          "MeanFrameMs": 6.4961349999999625,
+          "MeanNpcMs": 0.04068666666666667,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "render-only",
+          "P95FrameMs": 9.646200000020144,
+          "P95NpcMs": 0.0577,
+          "Residents": 42,
+          "ScatterChunks": 105,
+          "TerrainReady": false,
+          "Tiles": 239
+        },
+        {
+          "BackgroundQueryMs": 0.6618,
+          "Frames": 240,
+          "MaxNpcMs": 0.0951,
+          "MeanFrameMs": 6.301736666666831,
+          "MeanNpcMs": 0.03986958333333334,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "no-residents",
+          "P95FrameMs": 10.066999999992277,
+          "P95NpcMs": 0.0507,
+          "Residents": 42,
+          "ScatterChunks": 105,
+          "TerrainReady": false,
+          "Tiles": 239
+        },
+        {
+          "BackgroundQueryMs": 0.7742,
+          "Frames": 240,
+          "MaxNpcMs": 7.1908,
+          "MeanFrameMs": 8.230299999999838,
+          "MeanNpcMs": 1.383875,
+          "MeanStagesMs": [
+            0.07061916666666664,
+            0.03932916666666667,
+            0.013289166666666652,
+            1.0142666666666669,
+            0.15310708333333334
+          ],
+          "Mode": "normal-repeat",
+          "P95FrameMs": 12.157699999988836,
+          "P95NpcMs": 2.1155,
+          "Residents": 42,
+          "ScatterChunks": 106,
+          "TerrainReady": false,
+          "Tiles": 239
+        }
+      ],
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "reviewed_camp_image_sha256": "e51925926f68bd7c8c669914a43f41d4ecd176b74a4f666b50b5825d24a3a645"
+    },
+    "candidate": {
+      "package": {
+        "AssemblySha256": "2c473d6abeacb6badb2901b8fab44933c31aa78e08fd1632baf6053766423e55",
+        "BuiltUtc": "2026-11-03T23:28:06.6439963Z",
+        "CoreSha256": "67e6bfe1b10b95b51cd3390bfff1e996ada5721eda6d1641a8529a20db46dc4c",
+        "WorkerSha256": "427e1e3cff17aaf45114855a5e308cdb0823d847d26fd67fa4c9ffbf5be48d48"
+      },
+      "scene": {
+        "Aridity": 1.9109833471970137,
+        "Canopy": 0.9500000000000006,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 11,
+        "MeanC": 25.82974881612366,
+        "People": 42,
+        "Rain": 3172.675837138729,
+        "Residence": "SeasonalBaseCamps",
+        "Year": 190000
+      },
+      "rows": [
+        {
+          "BackgroundQueryMs": 0.7257,
+          "Frames": 240,
+          "MaxNpcMs": 6.521,
+          "MeanFrameMs": 7.959613749999998,
+          "MeanNpcMs": 1.388108333333333,
+          "MeanStagesMs": [
+            0.07146291666666661,
+            0.03965166666666664,
+            0.013577916666666667,
+            1.010155,
+            0.1577804166666665
+          ],
+          "Mode": "normal",
+          "P95FrameMs": 12.240800000000718,
+          "P95NpcMs": 2.4249,
+          "Residents": 42,
+          "ScatterChunks": 105,
+          "TerrainReady": false,
+          "Tiles": 233
+        },
+        {
+          "BackgroundQueryMs": 0.7279,
+          "Frames": 240,
+          "MaxNpcMs": 0.1007,
+          "MeanFrameMs": 6.3879929166666,
+          "MeanNpcMs": 0.039412499999999996,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "render-only",
+          "P95FrameMs": 9.352799999987838,
+          "P95NpcMs": 0.0536,
+          "Residents": 42,
+          "ScatterChunks": 106,
+          "TerrainReady": false,
+          "Tiles": 233
+        },
+        {
+          "BackgroundQueryMs": 0.7279,
+          "Frames": 240,
+          "MaxNpcMs": 0.0733,
+          "MeanFrameMs": 5.237083333333341,
+          "MeanNpcMs": 0.03656625000000002,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Mode": "no-residents",
+          "P95FrameMs": 7.196100000015804,
+          "P95NpcMs": 0.0455,
+          "Residents": 42,
+          "ScatterChunks": 106,
+          "TerrainReady": false,
+          "Tiles": 233
+        },
+        {
+          "BackgroundQueryMs": 0.7468,
+          "Frames": 240,
+          "MaxNpcMs": 7.0684,
+          "MeanFrameMs": 7.662167083333434,
+          "MeanNpcMs": 1.356394583333333,
+          "MeanStagesMs": [
+            0.07194166666666663,
+            0.03928583333333331,
+            0.013855,
+            0.9796737499999997,
+            0.15820833333333328
+          ],
+          "Mode": "normal-repeat",
+          "P95FrameMs": 10.529900000022963,
+          "P95NpcMs": 2.2095,
+          "Residents": 42,
+          "ScatterChunks": 107,
+          "TerrainReady": false,
+          "Tiles": 233
+        }
+      ],
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "reviewed_camp_image_sha256": "e65f12a9ea2ac8f889903a4a8e9ed94a3f32bdbb15a1c7dec90fba33f38ceb2a"
+    }
+  },
+  "camp_mean_frame_ratio": 0.9343613226484213,
+  "camp_frame_ratios_by_mode": {
+    "normal": 0.9376487787150255,
+    "render-only": 0.9833528577633681,
+    "no-residents": 0.8310539792998656,
+    "normal-repeat": 0.9309705701291064
+  },
+  "performance_conditions": "Players run sequentially with no competing game/build jobs. The camp harness deliberately retains identical heavy120/450m mesh ranges in both packages; landscape views explicitly use the real High26/70m preset. TerrainReady is retained per sample. Results are not a whole-world FPS guarantee.",
+  "original_locked_inputs_unchanged": 5154,
+  "tree_asset_inputs": 203,
+  "locked_inputs": 5357,
+  "immutable_packs": 139,
+  "architecture": [
+    "Shared photographed branch and bark arrays, compressed BC7, coherent near/far surfaces.",
+    "Existing deterministic lineage/region placement retained; needle openness now affects crown structure.",
+    "Trapezoid shoot cards and projected tree bounding boxes reduce empty raster work.",
+    "Opaque colour, alpha and true surface attributes preserved while transparent mip texels receive valid normal/depth padding.",
+    "Active draw batches keep deferred tree bakes alive with a stationary camera; no new per-tree simulation ticks."
+  ],
+  "limits": [
+    "Generated tree architecture remains an approximation; no new live plant growth, seasonal leaf shedding or fruiting system.",
+    "Distant views remain128px16-direction proxies; no claim of mesh-level detail at all distances.",
+    "No replacement of the broader shrub/grass species catalogue or all of its artwork in this tree-focused pass."
+  ]
+}
