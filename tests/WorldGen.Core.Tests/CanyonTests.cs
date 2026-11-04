@@ -43,6 +43,9 @@ static class CanyonTests
             double high=patch.Sample(rim).ElevationM;if(high-floor<80)continue;
             var frame=new LocalTerrainFrame(center,terrain.RadiusM,0,.1);
             var a=LocalTerrainMesh.Build(terrain,frame,-128,-64,128,32);var b=LocalTerrainMesh.Build(terrain,frame,0,-64,128,32);
+            if(a.WaterTriangles.Length==0&&b.WaterTriangles.Length==0)throw new Exception("Incised canyon has no rendered river");
+            void Check(bool ok,string why){if(!ok)throw new Exception("Canyon water: "+why);}
+            RiverscapeTests.Boundary(a,Check,frame,patch);RiverscapeTests.Boundary(b,Check,frame,patch);
             for(int z=0;z<=32;z++)if(a.Positions[(z*33+32)*3+1]!=b.Positions[z*33*3+1])throw new Exception("Canyon shared tile edge differs");
             if(a.Positions.Any(x=>!float.IsFinite(x))||b.Positions.Any(x=>!float.IsFinite(x)))throw new Exception("Nonfinite canyon mesh");
             rows.Add(new{reach.Source,Position=new[]{center.X,center.Y,center.Z},reach.HalfWidth,reach.Relief,reach.Strength,Floor=floor,Rim=high});

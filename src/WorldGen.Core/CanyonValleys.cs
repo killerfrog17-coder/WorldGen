@@ -52,6 +52,11 @@ namespace WorldGen.Core
                 double province=OrogenMorphology.Smooth(.40,.65,.5+.5*SphereNoise.Sample(center*radius,world.Recipe.Seed^0x63c417,1/35000d));
                 double strength=OrogenMorphology.Smooth(.25,.65,p.Plateau)*sedimentary*OrogenMorphology.Smooth(.2,.65,p.Landscape.Arid)*province;
                 if(strength<.04)continue;
+                // Admission is rare; a well admitted province should display
+                // an incised plateau rather than a barely visible dent. Keep
+                // the weakest margins gradual instead of scaling every cliff
+                // down to a shallow grassland valley.
+                strength=OrogenMorphology.Smooth(.04,.36,strength);
                 double relief=Math.Min(1200,100+.7*p.CoarseReliefM),width=Math.Min(2800,Math.Max(400,.9*relief+widths[source]*16));
                 var reach=new Reach{Source=source,A=a,B=b,LevelA=levels[source],LevelB=levels[next],HalfWidth=width,Relief=relief,Strength=strength};
                 int index=reaches.Count;reaches.Add(reach);
