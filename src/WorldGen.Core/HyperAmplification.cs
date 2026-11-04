@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-remnants-29";
+        public const string Version = "hyper-amplification-falls-30";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -78,7 +78,7 @@ namespace WorldGen.Core
             public ulong Key;
             public V Position;
             public Kind Type;
-            public double Height, Water, RiverBed, Distance, Flow, Crust, Mountain, Hill, Plateau, Sediment, Age, Dryness,Hardness;
+            public double Height, Water, RiverBed, Distance, Flow, Crust, Mountain, Hill, Plateau, Sediment, Age, Dryness,Hardness,Resistance;
             public ulong LakeKey, ChannelKey;
             public double LakeLevel,LakeWeight,SeaWeight;
             public double BasinFloor=double.NegativeInfinity;
@@ -238,6 +238,7 @@ namespace WorldGen.Core
                     Plateau = p.Plateau, Sediment = p.Sediment,
                     Age = world.Recipe.TerrainSource=="Earth"?Lerp(350,20,OrogenMorphology.Smooth(450,1800,p.CoarseReliefM)):D.Clamp((1.95-p.Sharpness)*333,0,600),
                     Hardness=D.Clamp(p.Ground.RockMixA.X+p.Ground.RockMixA.Y+p.Ground.RockMixB.Z),
+                    Resistance=D.Clamp(.90*p.Ground.RockMixA.X+.85*p.Ground.RockMixA.Y+.70*p.Ground.RockMixA.Z+.70*p.Ground.RockMixB.X+.25*p.Ground.RockMixB.Y+.85*p.Ground.RockMixB.Z),
                     Dryness = p.Biome == Biome.Desert ? 1 : p.Biome == Biome.Savanna ? .55 : p.Biome == Biome.Grassland ? .35 : .1,Landscape=p.Landscape };
             }
             // Reconcile actual confluences once. Fine subdivision inherits these
@@ -447,7 +448,7 @@ namespace WorldGen.Core
                 Crust = (a.Crust + b.Crust) * .5, Mountain = (a.Mountain + b.Mountain) * .5,
                 Hill = (a.Hill + b.Hill) * .5, Plateau = (a.Plateau + b.Plateau) * .5,
                 Sediment = (a.Sediment + b.Sediment) * .5, Age = (a.Age + b.Age) * .5, Dryness = (a.Dryness + b.Dryness) * .5,
-                Hardness=(a.Hardness+b.Hardness)*.5,Landscape=LandscapeControls.Blend(a.Landscape,b.Landscape,.5),
+                Hardness=(a.Hardness+b.Hardness)*.5,Resistance=(a.Resistance+b.Resistance)*.5,Landscape=LandscapeControls.Blend(a.Landscape,b.Landscape,.5),
                 Height = (a.Height + b.Height) * .5, Water = (a.Water + b.Water) * .5,
                 RiverBed = (a.RiverBed + b.RiverBed) * .5, Flow = (a.Flow + b.Flow) * .5,SeaWeight=(a.SeaWeight+b.SeaWeight)*.5 };
             if(a.LakeKey!=0||b.LakeKey!=0)

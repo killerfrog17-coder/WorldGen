@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace WorldGen.Core
 {
-    public enum RiverFlowPrimitive : byte { Calm, Turbulent, Cascade }
+    public enum RiverFlowPrimitive : byte { Calm, Turbulent, Cascade, Waterfall }
 
     /// <summary>A finite cross-section pair. Heights and widths belong to the
     /// drainage graph, never to neighbouring dry terrain sample potentials.</summary>
@@ -276,6 +276,7 @@ namespace WorldGen.Core
                         if(i>=lastOutside)s.LevelA=s.LevelB=end;else if(i==lastOutside-1)s.LevelB=end;result[i]=s;
                     }
                 }
+                result=WaterfallProfiles.Apply(result,radius*scale,a.Resistance,source,seed);
                 riverCache[source]=new WeakReference<RiverscapeSpan[]>(result);riverRetained.Enqueue(result);
                 while(riverRetained.Count>128)riverRetained.Dequeue();
                 if(riverCache.Count>512){var expired=new List<int>();foreach(var item in riverCache)if(!item.Value.TryGetTarget(out _))expired.Add(item.Key);foreach(int id in expired)riverCache.Remove(id);}

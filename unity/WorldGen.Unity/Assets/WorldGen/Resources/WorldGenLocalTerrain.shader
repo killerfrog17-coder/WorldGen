@@ -135,10 +135,12 @@ Shader "WorldGen/LocalTerrain"
                         float2 p=i.position.xz+TerrainOrigin().xy;
                         float along=dot(p,direction)-_Time.y*speed;
                         float crossStream=dot(p,across);
-                        float phase=along*2.4+sin(crossStream*1.7)*.4;
-                        float ripples=sin(phase)+.35*sin(along*5.7+crossStream*3.1);
                         float3 geometric=normalize(cross(ddy(i.position),ddx(i.position)));
                         if(geometric.y<0)geometric=-geometric;
+                        float falling=saturate((.65-geometric.y)*4);
+                        along=lerp(along,-i.position.y-_Time.y*max(3,speed),falling);
+                        float phase=along*2.4+sin(crossStream*1.7)*.4;
+                        float ripples=sin(phase)+.35*sin(along*5.7+crossStream*3.1);
                         float amplitude=lerp(.025,.12,turbulence);
                         float3 waterNormal=normalize(geometric+float3(direction.x*cos(phase),0,direction.y*cos(phase))*amplitude+
                             float3(across.x,0,across.y)*sin(crossStream*2.8+along)*amplitude*.5);
@@ -151,6 +153,13 @@ Shader "WorldGen/LocalTerrain"
                         float foam=turbulence*smoothstep(1.12,1.32,ripples)*.45;
                         float3 result=lerp(deep,reflected,fresnel)+sun.color*glint*TerrainDaylight();
                         result=lerp(result,float3(.7,.77,.75)*lerp(.04,1,TerrainDaylight()),foam);
+                        [branch] if(falling>.01)
+                        {
+                            float streak=.5+.5*sin(crossStream*11+.7*sin(crossStream*.8));
+                            float breakup=lerp(.68,1,streak)*(.92+.08*sin(along*5+crossStream*1.6));
+                            float3 aerated=float3(.70,.77,.76)*breakup*(TerrainAmbient().rgb*.45+sun.color*(.58+.42*saturate(dot(waterNormal,sun.direction))))*lerp(.025,1,TerrainDaylight());
+                            result=lerp(result,aerated,falling*(.65+.30*streak));
+                        }
                         return half4(TerrainTestAir(result,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
                     }
                     return half4(TerrainTestAir(farColor*.92*lerp(.035,1,TerrainDaylight())+TerrainAmbient().rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
