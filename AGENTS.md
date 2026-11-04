@@ -49,6 +49,41 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED4Nov18:03Z GEOGRAPHY PLAYTEST HANDOFF; GEOGRAPHY NOW PAUSED.
+Owner explicitly said finish current feature/build, do NOT start another, resume
+geography later after NPC refinement. This supersedes ALL older overnight
+continue-until-stop notes. Await owner direction; do not resume geography on own.
+Root WorldGen.exe - Shortcut.lnk VERIFIED target builds/slot-a/WorldGen.exe,
+empty args/repo CWD/icon A. A managed NONDEV ScriptsOnly Built17:50:46Z,
+runtime f833c678b06d230645a6de5cf857acf8c379cf06. Shader packedbaselinec78c976c
+full17:36:39Z. Terrain43/Hyper38/MeshWire9. Two pending reviewJSON edits in actual
+build stamp are preserved and explicitly nonruntime; runtime source+package exact.
+Current SAME package THREE native cases EXIT0/no failure.txt: living-handoff-
+waterfall, geography-handoff-wet/cold. Actual final waterfall and both entrances
+INSPECTED. Waterfall includes actual motion +true-width/raggededges, current
+landmark and3seconds postjump without runtime errors. NPC physicalwalk/clearing/
+GPUgrass mask/current binary save/full camp lifecycle passed (-SkipPerformance).
+Numeric4012caldera/12actualvolcano sites,4falls/16probes payload,27263rivers/
+764spans/8tiles maxdrawngroundclearance0 PASS. Earlier waterfall with exit0 AND
+runtimeerror INVALIDATED/preserved. f833 skips old visualanimal candidates outside
+newchart on longjump; no animal AI/art changes. Sceneerror cannot be overwritten
+by later success. Final receipt assets/verification/living-world-playtest-20261104
+.json --playtest-only:3current native+4qualifiedhistorical,3historicalbenchmarks.
+This is NOT complete geography acceptance; current performance not remeasured.
+Tall savanna~91.6FPS travel/p9519.1ms remains BELOW100goal; travel tails, fog/crown
+silhouettes, loading cost and missing deltas/coasts/etc saved for later. See
+assets/verification/geography-resume-plan-20261104.json; feature-index separate
+rollbackcommits, visual-review exactimages/rejections, performance-progress raw
+outcomes. No newfeature after ownerhandoff. Code/source/assets backed up GitHub;
+lock5403/143packs unchanged. No owned game/editor/build/test jobs remain.
+Selectionreceipt geography-selection-20261104.json. Attempt to retireoldB generated
+binaries at verified physical D:/WorldGenBuildArtifacts/player-world-feedback was
+AUTOMATIC APPROVAL REVIEW REJECTED before execution, only reason 'blocked by policy'.
+B remains intact; do NOT bypass rejection. Recorded retirement status explicitly;
+canonical2slot junctions preserved. A physical D:/WorldGenBuildArtifacts/player-
+human-natural-review is selected. Owner told blockage in commentary/final.
+Owner3files untouched;3known Unityautos restored. No paid/subagents/ownerappsclosed.
+
 HANDOFF4Nov17:57Z OWNER OVERRIDES ALL OVERNIGHT CONTINUE MANDATES: finish only
 current waterfall feature, package/select for playtest, then PAUSE geography.
 Owner: no rush, but DO NOT start another feature. Geography should resume later,

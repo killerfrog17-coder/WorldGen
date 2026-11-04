@@ -59,5 +59,7 @@
     "Use focused commits, preserve meta GUIDs, keep only the two reusable player locations.",
     "Backward compatibility has zero priority; current-version save/load still needs to work."
   ],
-  "final_handoff_fix": "Distant landmark teleports skip out-of-chart stale fauna candidates without changing group behaviour; scene checks preserve runtime-error failure status."
+  "final_handoff_fix": "Distant landmark teleports skip out-of-chart stale fauna candidates without changing group behaviour; scene checks preserve runtime-error failure status.",
+  "selected_slot": "slot-a",
+  "selection_receipt": "assets/verification/geography-selection-20261104.json"
 }

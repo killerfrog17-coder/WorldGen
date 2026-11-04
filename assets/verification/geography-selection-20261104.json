@@ -1,0 +1,16 @@
+﻿{
+    "SelectedUtc":  "2026-11-04T18:01:33.4949108Z",
+    "Slot":  "slot-a",
+    "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+    "Arguments":  "",
+    "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen",
+    "RuntimeSource":  "f833c678b06d230645a6de5cf857acf8c379cf06",
+    "Package":  {
+                    "AssemblySha256":  "b913e2beac8d7fe52c116510407c5bc48f2409f99b28c5fb5ae1db633a0f7210",
+                    "CoreSha256":  "efb264dcd79d8f96a6ac9862425898a9a5e9c533af307b88672e2a178388c686",
+                    "WorkerSha256":  "8ef30fab7da353a28e25d0ca251d46a4ef8c3c5b23618b33ca3b6173a5b94beb"
+                },
+    "Manifest":  "assets/verification/living-world-playtest-20261104.json",
+    "ResumePlan":  "assets/verification/geography-resume-plan-20261104.json",
+    "Status":  "Geography paused; owner-requested partial playtest. NPC refinement next."
+}

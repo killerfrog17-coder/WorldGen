@@ -1,0 +1,10 @@
+{
+  "utc": "2026-11-04T18:04:31.706555+00:00",
+  "slot": "slot-b",
+  "physical_target": "D:/WorldGenBuildArtifacts/player-world-feedback",
+  "status": "Retained intact: automatic approval review rejected the deletion before execution.",
+  "stated_reason": "blocked by policy",
+  "removed_files": 0,
+  "selected_slot": "slot-a",
+  "retry_policy": "Do not bypass this rejection."
+}

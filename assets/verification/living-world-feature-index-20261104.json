@@ -1,8 +1,8 @@
 {
-  "status": "Owner-requested playtest handoff; final pointer recorded separately. Broader geography acceptance incomplete.",
+  "status": "Selected owner-requested partial playtest; geography paused before further features. Broader visual/performance targets remain incomplete.",
   "baseline": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
-  "selected_slot": "slot-b",
-  "candidate_slot": "slot-a",
+  "selected_slot": "slot-a",
+  "candidate_slot": "slot-b",
   "policy": "Separate feature commits; preserve later unrelated edits when reverting shared files. No extra binary archives. Rebuild derived caches from the resulting terrain version.",
   "features": [
     {
