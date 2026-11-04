@@ -35,6 +35,9 @@ public sealed partial class LocalTerrainExplorer
         // The harness bypasses the main menu's preference loading. Use an
         // explicit real game preset, rather than obsolete120/450m field defaults.
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(3);
+        bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
+        double reviewRange=drylandReview?2000:900,reviewFootprint=drylandReview?1200:600;
+        TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
         var worker=new TerrainMeshProcess(workerPath,world,.1,Path.GetFullPath(path));
@@ -88,7 +91,7 @@ public sealed partial class LocalTerrainExplorer
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
-        var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=900;
+        var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{},world,play,worker:worker);
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((!owner.Ready||!owner.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
@@ -97,13 +100,13 @@ public sealed partial class LocalTerrainExplorer
         var keys=new[]{site.Position,owner.frame.Position(-80,0),owner.frame.Position(80,0)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();deadline=Time.realtimeSinceStartupAsDouble+90;
         while(keys.Any(k=>!owner.scatterChunks.TryGetValue(k,out var chunk)||chunk.Groups==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(keys.All(k=>owner.scatterChunks.TryGetValue(k,out var chunk)&&chunk.Groups!=null),"Actual surrounding vegetation/scatter is resident");
-        deadline=Time.realtimeSinceStartupAsDouble+180;double reportAt=0;
-        while(!owner.AllReady&&owner.terrainRevealRadius<600&&Time.realtimeSinceStartupAsDouble<deadline)
+        deadline=Time.realtimeSinceStartupAsDouble+300;double reportAt=0;
+        while(!owner.AllReady&&owner.terrainRevealRadius<reviewFootprint&&Time.realtimeSinceStartupAsDouble<deadline)
         {
             if(Time.realtimeSinceStartupAsDouble>=reportAt){reportAt=Time.realtimeSinceStartupAsDouble+5;File.WriteAllText(Path.Combine(output,"coverage.txt"),"Tiles "+owner.TileCount+" / "+owner.WantedCount+"; reveal "+owner.terrainRevealRadius+"m; "+owner.Error);}
             yield return null;
         }
-        Check(owner.AllReady||owner.terrainRevealRadius>=400,"Wide capture has an actually loaded surrounding terrain footprint");
+        Check(owner.AllReady||owner.terrainRevealRadius>=reviewFootprint,"Wide capture has an actually loaded surrounding terrain footprint");
         for(int i=0;i<90;i++)yield return null;
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
         if(site.Pond!=null)
@@ -166,6 +169,11 @@ public sealed partial class LocalTerrainExplorer
             foreach(int angle in new[]{90,180,270})yield return owner.StartCoroutine(Capture("ground-"+angle,orientation*Quaternion.Euler(0,angle,0)*new Vector3(0,0,10),true));
             yield return owner.StartCoroutine(Capture("morning-wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f),hour:9));
             yield return owner.StartCoroutine(Capture("morning-ground",orientation*new Vector3(0,0,10),true,9));
+            if(kind=="SandSea")
+            {
+                yield return owner.StartCoroutine(Capture("ridge-walk",orientation*new Vector3(180,0,180),true));
+                yield return owner.StartCoroutine(Capture("morning-ridge-walk",orientation*new Vector3(180,0,180),true,9));
+            }
         }
         File.WriteAllLines(Path.Combine(output,"cameras.txt"),cameraReceipts);
         int reeds=0,submergedReeds=0;var plantPatch=model.Patch(site.Position,5000);

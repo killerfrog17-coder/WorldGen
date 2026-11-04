@@ -82,11 +82,21 @@ namespace WorldGen.Core
             if(dunes>.001)
             {
                 double maturity=Smooth(.25,.8,.5+.5*SphereNoise.Sample(metres,seed^0x3d171,1/7600d));
-                double smallSpacing=35/Math.Tan(31*Math.PI/180)/.22,largeSpacing=120/Math.Tan(31*Math.PI/180)/.22;
+                double smallSpacing=35/Math.Tan(30*Math.PI/180)/.22,largeSpacing=105/Math.Tan(30*Math.PI/180)/.22;
                 // Long stoss slopes meet a sharp crest and a near-repose lee.
                 // A cosine bell rounded both sides into generic rolling hills.
                 double Ridge(double phase){double t=phase-Math.Floor(phase);return t<.78?Math.Pow(t/.78,1.35):(1-t)/.22;}
-                double Profile(double coordinate)=>35*Ridge(coordinate/smallSpacing)*(1-maturity)+120*Ridge(coordinate/largeSpacing)*maturity;
+                double Stoss(double phase){double t=phase-Math.Floor(phase);return Smooth(.02,.14,t)*(1-Smooth(.56,.77,t));}
+                double Profile(double coordinate)
+                {
+                    double small=coordinate/smallSpacing,large=coordinate/largeSpacing;
+                    // Smaller dunes climb the broad windward flank, with their
+                    // own crests. Keep the primary slip face clear: adding an
+                    // unrestricted second wave made intersecting over-steep walls.
+                    double climbing=Ridge(coordinate/155+.13*Math.Sin(coordinate/690));
+                    return (35*Ridge(small)+7*climbing*Stoss(small))*(1-maturity)
+                        +(105*Ridge(large)+17*climbing*Stoss(large))*maturity;
+                }
                 double warp=SphereNoise.Sample(metres,seed^0x5c721,1/2400d)*80;
                 double cross=metres.X*.52-metres.Y*.82+metres.Z*.23;
                 double curve=Math.Sin(cross/1200)*90;

@@ -38,8 +38,13 @@ static class LandscapeExperienceAudit
                 var mesh=LocalTerrainMesh.Build(terrain,frame,-256,-256,512,segments);
                 meshes.Add(new{Segments=segments,Spacing=512d/segments,Minimum=mesh.MinHeightM,Maximum=mesh.MaxHeightM});
             }
+            var estimator=new TerrainDetailEstimator(terrain,frame);var lodTimer=Stopwatch.StartNew();
+            var plan=TerrainAdaptiveLod.Plan(0,0,1.8,.1,new TerrainDetailOptions{ViewDistanceM=2000},estimator.Error,864,68);
+            double coldLodMs=lodTimer.Elapsed.TotalMilliseconds;lodTimer.Restart();
+            TerrainAdaptiveLod.Plan(0,0,1.8,.1,new TerrainDetailOptions{ViewDistanceM=2000},estimator.Error,864,68);
+            var lod=new{Tiles=plan.Count,Vertices=plan.Sum(p=>(long)(p.Value+1)*(p.Value+1)),Metadata=estimator.Count,ColdMs=coldLodMs,WarmMs=lodTimer.Elapsed.TotalMilliseconds};
             var row=new{Kind=kind,Point=new{at.X,at.Y,at.Z},Grid65x65HeightRange=heights.Max()-heights.Min(),ProvinceOffsetRange=offsets.Max()-offsets.Min(),
-                MaximumSlopeDegrees=slopes.Max(),MeanSaltWeight=surfaceWeights.Average(),Meshes=meshes};
+                MaximumSlopeDegrees=slopes.Max(),MeanSaltWeight=surfaceWeights.Average(),Meshes=meshes,Lod=lod};
             string json=JsonSerializer.Serialize(row,new JsonSerializerOptions{WriteIndented=true,IncludeFields=true});
             File.WriteAllText(Path.Combine(output,kind+"-audit.json"),json);Console.WriteLine(json);
         }

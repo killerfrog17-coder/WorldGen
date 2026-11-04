@@ -40,5 +40,29 @@
     "maximum_dune_site_slope_degrees": 32.054750974201134,
     "salt_mean_surface_weight": 0.6812665609828584
   },
-  "review_status": "PROTOTYPE: not built or visually accepted yet."
+  "review_status": "PROTOTYPE: first native dune views rejected as bland; salt crust is recognisable and bare after rooting fix. Larger-context compound-dune/detail candidate pending actual native inspection. No shortcut change.",
+  "first_native": {
+    "source": "770e66d7",
+    "prefix": "experience-first",
+    "visual_acceptance": false,
+    "findings": [
+      "SandSea still reads as broad rolling sand from inspected views.",
+      "Salt polygons and brighter crust appear, but unwanted rooted foliage remains."
+    ]
+  },
+  "rooted_native": {
+    "source": "f0aa2d69",
+    "prefix": "experience-rooted",
+    "visual_acceptance": false,
+    "findings": [
+      "Both native contexts exit 0; all walking eye clearances 1.8m.",
+      "Four walking headings plus morning/noon inspected; salt crust bare and polygonal.",
+      "Dunes still lack intermediate crests; adaptive detail estimator did not include new sand ridge errors."
+    ]
+  },
+  "next_candidate": [
+    "Climbing secondary dunes on stoss flanks; primary slip faces kept clear.",
+    "Cached dune-cusp error included in existing screen-space adaptive terrain detail.",
+    "Actual 2km review range and >=1.2km loaded footprint, plus walking views 250m from centre."
+  ]
 }

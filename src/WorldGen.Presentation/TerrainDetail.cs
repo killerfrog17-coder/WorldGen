@@ -29,29 +29,35 @@ namespace WorldGen.Presentation
     public sealed class TerrainDetailEstimator
     {
         readonly LocalTerrain terrain;readonly LocalTerrainFrame frame;
-        readonly Dictionary<TerrainTileKey,(double amplitude,double wavelength,double bend)> values=new Dictionary<TerrainTileKey,(double,double,double)>();
+        readonly Dictionary<TerrainTileKey,(double amplitude,double wavelength,double bend,double dune)> values=new Dictionary<TerrainTileKey,(double,double,double,double)>();
         public int Count=>values.Count;
         public TerrainDetailEstimator(LocalTerrain terrain,LocalTerrainFrame frame){this.terrain=terrain;this.frame=frame;}
         public double Error(TerrainTileKey key,int segments)
         {
             if(!values.TryGetValue(key,out var v))
             {
-                var heights=new double[9];double amplitude=0,wavelength=double.MaxValue;
+                var heights=new double[9];double amplitude=0,wavelength=double.MaxValue,dune=0;
                 for(int z=0;z<3;z++)for(int x=0;x<3;x++)
                 {
                     var at=frame.Position((key.X+x*.5)*key.SizeM,(key.Z+z*.5)*key.SizeM);
                     var p=terrain.Profile(terrain.NearestCell(at));heights[z*3+x]=p.ElevationM;
                     amplitude=Math.Max(amplitude,p.HillHeightM+p.MountainHeightM*.65);
                     wavelength=Math.Min(wavelength,Math.Max(250,p.RidgeSpacingM)*key.Scale);
+                    double sand=LandscapeProvince.SandSea(at*frame.RadiusM,terrain.SourceSeed,p.Landscape);
+                    dune=Math.Max(dune,OrogenMorphology.Smooth(.08,.4,sand));
                 }
                 double bend=0;
                 for(int z=0;z<3;z++)bend=Math.Max(bend,Math.Abs(heights[z*3+1]-(heights[z*3]+heights[z*3+2])*.5));
                 for(int x=0;x<3;x++)bend=Math.Max(bend,Math.Abs(heights[3+x]-(heights[x]+heights[6+x])*.5));
-                v=(amplitude,wavelength,bend);if(values.Count>=8192)values.Clear();values[key]=v;
+                v=(amplitude,wavelength,bend,dune);if(values.Count>=8192)values.Clear();values[key]=v;
             }
             double step=key.SizeM/segments;
             double local=v.amplitude*.4*Math.Min(1,Math.Pow(step/Math.Max(1,v.wavelength*.2),1.35));
-            return local+v.bend*4/(segments*segments)+step*step/(8*terrain.RadiusM*key.Scale);
+            // Sharp dune crests have a linear sampling error near their cusp,
+            // unlike the smooth regional hill estimate. Without this term a
+            // flat desert profile rendered new high dunes as coarse slabs.
+            double crest=v.dune*Math.Min(55,step*.15);
+            return Math.Max(local,crest)+v.bend*4/(segments*segments)+step*step/(8*terrain.RadiusM*key.Scale);
         }
     }
 
