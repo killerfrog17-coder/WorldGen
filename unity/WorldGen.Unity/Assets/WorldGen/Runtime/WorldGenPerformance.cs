@@ -494,6 +494,43 @@ public sealed partial class LocalTerrainExplorer
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
     public void PerformanceFreezeDaylight(bool summer=false){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,summer?190000+(Position.Z<0?0:.5):skyYear);TerrainDiagnostics.FreezeSun=true;}
+    public string PerformanceReviewGroundSeams(string output,string site)
+    {
+        var rows=new List<string>{"x,z,level,segments,axis,ground_delta,cover_delta,mid_delta,forest_delta"};int pairs=0,bindingMismatch=0;double coverMaximum=0,forestMaximum=0;
+        foreach(var pair in tiles)
+        {
+            var key=pair.Key;var a=pair.Value;if(a.Root==null||!a.Root.activeInHierarchy||TerrainLod.DistanceSquared(key,motion.X,motion.Z)>512*512)continue;
+            if(a.Materials!=null)foreach(var material in a.Materials)
+                if(material.shader.name=="WorldGen/LocalTerrain"&&(material.GetTexture("_GrassField")!=grassFieldTexture||material.GetTexture("_ForestFloor")!=a.ForestFloor||material.GetTexture("_FloraSurface")!=a.FloraSurface))bindingMismatch++;
+            for(int axis=0;axis<2;axis++)
+            {
+                var next=new TerrainTileKey(key.X+(axis==0?1:0),key.Z+(axis==1?1:0),key.Level,key.Scale);
+                if(!tiles.TryGetValue(next,out var b)||b.Segments!=a.Segments||b.Root==null||!b.Root.activeInHierarchy)continue;
+                int n=a.Segments,side=n+1;double h=0,c=0,m=0,f=0;
+                for(int i=0;i<=n;i++)
+                {
+                    int ia=axis==0?i*side+n:n*side+i,ib=axis==0?i*side:i;
+                    h=Math.Max(h,Math.Abs(a.Heights[ia]-b.Heights[ib]));
+                    for(int channel=0;channel<15;channel++)c=Math.Max(c,Math.Abs(a.Cover[ia*16+channel]-b.Cover[ib*16+channel]));
+                    for(int channel=0;channel<6;channel++)m=Math.Max(m,Math.Abs(a.MidCover[ia*6+channel]-b.MidCover[ib*6+channel]));
+                    for(int channel=0;channel<7;channel++)f=Math.Max(f,Math.Abs(a.ForestCover[ia*8+channel]-b.ForestCover[ib*8+channel]));
+                }
+                rows.Add(string.Join(",",key.X,key.Z,key.Level,n,axis,h.ToString("R",CultureInfo.InvariantCulture),c.ToString("R",CultureInfo.InvariantCulture),m.ToString("R",CultureInfo.InvariantCulture),f.ToString("R",CultureInfo.InvariantCulture)));pairs++;coverMaximum=Math.Max(coverMaximum,c);forestMaximum=Math.Max(forestMaximum,f);
+            }
+        }
+        File.WriteAllLines(Path.Combine(output,site+"-ground-edges.csv"),rows);
+        var oldFlags=TerrainDiagnostics.Flags;var rotation=view.transform.localRotation;float adaptation=WeatherVideoOptions.Current.Adaptation;
+        try
+        {
+            WeatherVideoOptions.Current.Adaptation=0;view.transform.localRotation=Quaternion.Euler(12,110,0);
+            foreach(var flags in new[]{(TerrainDiagnosticFlags)0,TerrainDiagnosticFlags.FlatColour|TerrainDiagnosticFlags.Unlit,TerrainDiagnosticFlags.NoForestTint,TerrainDiagnosticFlags.NoGrassMat,TerrainDiagnosticFlags.Unlit})
+            {
+                TerrainDiagnostics.Flags=flags;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-ground-flags-"+(int)flags+".png"));
+            }
+        }
+        finally{TerrainDiagnostics.Flags=oldFlags;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();WeatherVideoOptions.Current.Adaptation=adaptation;view.transform.localRotation=rotation;}
+        return site+": surface diagnostic "+pairs+" equal-grid adjacent pairs, max cover delta "+coverMaximum+", forest delta "+forestMaximum+", material binding mismatches "+bindingMismatch+"; actual component-isolation renders recorded";
+    }
     public IEnumerator PerformanceReviewGrassApproach(string output,string site)
     {
         string table=Path.Combine(output,site+"-grass-approach.csv");File.WriteAllText(table,"east_m,near_pages,lod0_instances,lod1_instances\n");
@@ -797,6 +834,7 @@ public sealed partial class WorldGenRuntime
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("grass-approach-review",()=>{}),
+            new PerfCase("ground-seam-review",()=>{}),
             new PerfCase("small-plant-lighting-review",()=>{}),
             new PerfCase("tree-depth-review",()=>{}),
             new PerfCase("tree-bounded-depth",()=>Shader.SetGlobalFloat("_WorldGenTreeStableDepth",1)),
@@ -951,6 +989,7 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
+                if(item.Name=="ground-seam-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewGroundSeams(output,site.Item1)+"\n");
                 if(item.Name=="grass-approach-review")yield return terrainExplorer.PerformanceReviewGrassApproach(output,site.Item1);
                 if(item.Name=="tree-depth-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewTreeDepth(output,site.Item1)+"\n");
                 if(item.Name=="small-plant-lighting-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewPlantLighting(output,site.Item1)+"\n");
