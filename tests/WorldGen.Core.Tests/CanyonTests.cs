@@ -20,6 +20,7 @@ static class CanyonTests
                 Check(reach.Cut(level-4,distance,level,out _)==level-4,"A pre-existing wet bed is never raised by a broad valley");
             }
             Check(reach.Cut(1650,width,650,out _)==1650&&Math.Abs(reach.Cut(1650,width*.999999,650,out _)-1650)<1e-7,"Canyon support retires continuously before neighbouring uncut ground");
+            Check(reach.Uplift(0)>0&&reach.Uplift(width*12)==0&&reach.Uplift(width*12.01)==0,"The surrounding uplift belongs to a finite plateau province");
         }
         Console.WriteLine($"PASS {checks} bounded cut-only canyon profiles and exposed beds");
     }
@@ -36,6 +37,7 @@ static class CanyonTests
             var patch=terrain.Patch(center,80000);double floor=patch.Sample(center).ElevationM;
             V coarse=(reach.A+reach.B).Unit,coarseSide=V.Cross(coarse,reach.B-reach.A).Unit;
             var wall=patch.Sample((coarse+coarseSide*(reach.HalfWidth*.45/(terrain.RadiusM*.1))).Unit);
+            Console.WriteLine($"Canyon probe {reach.Source}: strength {reach.Strength:F3}, width {reach.HalfWidth:F0}, datum {reach.LevelA:F1}..{reach.LevelB:F1}, floor {floor:F1}, wall {wall.ElevationM:F1}, exposed {wall.Province.CanyonExposure:F3}");
             if(wall.Province.CanyonExposure<.05)continue;
             V rim=(center+side*(reach.HalfWidth*1.05/(terrain.RadiusM*.1))).Unit;
             double high=patch.Sample(rim).ElevationM;if(high-floor<80)continue;

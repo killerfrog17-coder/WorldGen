@@ -5,14 +5,16 @@ using System.Threading;
 namespace WorldGen.Core
 {
     /// <summary>Broad incised valleys in dry uplifted sedimentary provinces.
-    /// Existing drainage owns the floor datum; narrow river geometry remains
-    /// authoritative. These bounded cut-only primitives add no world entities.</summary>
+    /// A bounded local plateau overprint supplies uplift, while existing
+    /// drainage owns the incised floor datum. No extra world entities.</summary>
     public sealed class CanyonValleys
     {
         public sealed class Reach
         {
             public int Source;public V A,B;
             public double LevelA,LevelB,HalfWidth,Relief,Strength;
+            public double Uplift(double distance)
+                =>Relief*.7*Math.Sqrt(Strength)*(1-OrogenMorphology.Smooth(HalfWidth*9,HalfWidth*12,distance));
             public double Floor(double distance,double level)
             {
                 double r=D.Clamp(distance/HalfWidth),t=Math.Max(0,(r-.08)/.92);
@@ -53,7 +55,7 @@ namespace WorldGen.Core
                 double relief=Math.Min(1200,100+.7*p.CoarseReliefM),width=Math.Min(2800,Math.Max(400,.9*relief+widths[source]*16));
                 var reach=new Reach{Source=source,A=a,B=b,LevelA=levels[source],LevelB=levels[next],HalfWidth=width,Relief=relief,Strength=strength};
                 int index=reaches.Count;reaches.Add(reach);
-                double support=(a-b).Length*radius*.5+width+margin;
+                double support=(a-b).Length*radius*.5+width*12+margin;
                 var queue=new Queue<int>();var visited=new HashSet<int>();queue.Enqueue(source);visited.Add(source);
                 while(queue.Count>0)
                 {
@@ -74,6 +76,14 @@ namespace WorldGen.Core
         public double Apply(V point,int face,double ground,out double exposure)
         {
             exposure=0;var found=candidates[face];if(found==null)return ground;
+            double uplift=0;
+            foreach(int index in found)
+            {
+                var reach=Reaches[index];V d=reach.B-reach.A,p=point-reach.A;
+                double u=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)));
+                uplift=Math.Max(uplift,reach.Uplift((p-d*u).Length*radius));
+            }
+            ground+=uplift;
             foreach(int index in found)
             {
                 var reach=Reaches[index];V d=reach.B-reach.A,p=point-reach.A;
