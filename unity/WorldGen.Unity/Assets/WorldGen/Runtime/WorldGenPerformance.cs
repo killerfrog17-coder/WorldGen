@@ -49,10 +49,10 @@ public sealed partial class LocalTerrainExplorer
     }
     public string PerformanceVerifyVegetationScene()
     {
-        var materials=new List<Material>(ownedScatterMaterials);if(groundCoverMaterial!=null)materials.Add(groundCoverMaterial);if(groundCanopyMaterial!=null)materials.Add(groundCanopyMaterial);
+        var materials=new List<Material>(ownedScatterMaterials);if(groundCoverMaterial!=null)materials.Add(groundCoverMaterial);if(groundCanopyMaterial!=null)materials.Add(groundCanopyMaterial);if(groundClumpMaterial!=null)materials.Add(groundClumpMaterial);
         foreach(var material in materials)if(material!=null&&material.HasProperty("_VegetationSceneEnabled"))
         {
-            bool grass=material==groundCoverMaterial||material==groundCanopyMaterial;
+            bool grass=material==groundCoverMaterial||material==groundCanopyMaterial||material==groundClumpMaterial;
             if(grass){material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));}
             else{material.SetVector("_FogColor",landMaterial.GetColor("_FogColor"));material.SetVector("_AmbientTint",landMaterial.GetColor("_AmbientTint"));}
             material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));if(material.HasProperty("_Daylight"))material.SetFloat("_Daylight",landMaterial.GetFloat("_Daylight"));
@@ -509,6 +509,8 @@ public sealed partial class WorldGenRuntime
         double profileView=double.Parse(Argument("--worldgen-perf-view","60000"),CultureInfo.InvariantCulture);
         int profilePlants=int.Parse(Argument("--worldgen-perf-plant-quality","2"));
         var cases=new List<PerfCase>{
+            new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
+            new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
             new PerfCase("human-review",()=>{}),
             new PerfCase("forest-community-review",()=>{}),
             new PerfCase("foliage-proxy-compare",()=>TerrainVideoOptions.DistantTreeShadowCards=false),

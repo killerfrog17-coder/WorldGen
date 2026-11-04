@@ -144,6 +144,17 @@ public sealed partial class LocalTerrainExplorer
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-grass-review"))
+            {
+                foreach(bool clumps in new[]{false,true})
+                {
+                    TerrainVideoOptions.GrassClumps=clumps;
+                    owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                    var comparison=new Texture2D(1536,864,TextureFormat.RGB24,false);comparison.ReadPixels(new Rect(0,0,1536,864),0,0);comparison.Apply();
+                    File.WriteAllBytes(Path.Combine(output,name+(clumps?"-clumps.png":"-blades.png")),comparison.EncodeToPNG());Destroy(comparison);RenderTexture.active=prior;
+                }
+                Check(owner.groundClumpMaterial!=null,"Textured clump shader is supported and loaded");
+            }
             if(Environment.GetCommandLineArgs().Contains("--worldgen-tree-alpha-review"))
             {
                 foreach(float cutoff in new[]{.4f,.30f,.22f})

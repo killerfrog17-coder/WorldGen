@@ -32,7 +32,7 @@ public sealed partial class LocalTerrainExplorer
         public bool CullValid;public Matrix4x4 CullMatrix;public Vector4 CullOrigin,CullRanges;public Vector3 CullEye;
         public Texture CullCoverage;public int CullCoverageRevision;public float CullSize;
     }
-    Material groundCoverMaterial,groundCanopyMaterial;ComputeShader groundCoverPlacement;
+    Material groundCoverMaterial,groundCanopyMaterial,groundClumpMaterial;ComputeShader groundCoverPlacement;
     Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;
     readonly Plane[] coverFrustum=new Plane[6];
     readonly Vector4[] coverCullPlanes=new Vector4[6];
@@ -64,6 +64,13 @@ public sealed partial class LocalTerrainExplorer
         // The middle distance now uses the same procedural leaves, not an
         // unrelated texture-bank shader. Kept separate for per-draw properties.
         groundCanopyMaterial=new Material(shader);
+        var clumpShader=Resources.Load<Shader>("WorldGenGroundClumps");
+        if(clumpShader!=null&&clumpShader.isSupported)
+        {
+            groundClumpMaterial=new Material(clumpShader);
+            groundClumpMaterial.SetTexture("_ClumpAtlas",Resources.Load<Texture2D>("GroundFoliageAtlasV1"));
+            groundClumpMaterial.SetFloat("_VegetationSceneEnabled",1);
+        }
         groundCoverMaterial.SetFloat("_VegetationSceneEnabled",1);groundCanopyMaterial.SetFloat("_VegetationSceneEnabled",1);
         InitializeGroundFloraMaterials();
     }
@@ -208,21 +215,28 @@ public sealed partial class LocalTerrainExplorer
         int near=Mathf.Max(2,Mathf.RoundToInt((detail==0?16:detail==1?32:detail==2?64:96)*TerrainVideoOptions.GrassDensity));
         int baseNear=near,foot=Mathf.CeilToInt(baseNear*Mathf.Max(0,TerrainVideoOptions.GrassNearDensity-1));
         int middle=Mathf.Max(2,Mathf.RoundToInt(baseNear/3f));
-        int segments=detail==0?2:detail==3?4:3,topology=near|(middle<<10)|(segments<<24);
+        bool compact=TerrainVideoOptions.GrassClumps&&groundClumpMaterial!=null;
+        int segments=detail==0?2:detail==3?4:3,topology=near|(middle<<10)|(segments<<24)|(compact?1<<28:0);
         if(gpu.Topology!=topology||gpu.FootCapacity!=foot)
         {
             var args=new GraphicsBuffer.IndirectDrawArgs[6];
             args[0].vertexCountPerInstance=(uint)(near*segments*6);args[1].vertexCountPerInstance=(uint)(middle*2*6);
             for(int lod=2;lod<5;lod++)args[lod].vertexCountPerInstance=(uint)(Mathf.CeilToInt(middle*3f/(1<<(2*(lod-2))))*6);
             args[5].vertexCountPerInstance=(uint)(foot*segments*6);
+            if(compact)
+            {
+                args[0].vertexCountPerInstance=18;args[1].vertexCountPerInstance=12;
+                args[2].vertexCountPerInstance=24;args[3].vertexCountPerInstance=12;args[4].vertexCountPerInstance=6;args[5].vertexCountPerInstance=0;
+            }
             gpu.Args.SetData(args);gpu.Topology=topology;gpu.FootCapacity=foot;gpu.CullValid=false;
         }
         float bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,TerrainVideoOptions.GrassDistance*.75f);
         bool canopy=TerrainVideoOptions.GrassCanopy&&groundCanopyMaterial!=null;
-        var ranges=new Vector4(TerrainVideoOptions.GrassDistance,bladeRange,canopy?1:0,gpu.Sprites?1:0);
+        var ranges=new Vector4(TerrainVideoOptions.GrassDistance,bladeRange,canopy?1:0,(gpu.Sprites?1:0)+(compact?2:0));
         var matrix=camera.projectionMatrix*camera.worldToCameraMatrix;var eye=camera.transform.position;var coverage=tile?.Coverage;
         gpu.Properties.SetVector("_CoverOrigin",origin);gpu.Properties.SetVector("_BladeCounts",new Vector4(near,middle,baseNear,segments));
         gpu.Properties.SetFloat("_GrassNear",bladeRange);gpu.Properties.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
+        gpu.Properties.SetFloat("_ClumpDensity",Mathf.Clamp(TerrainVideoOptions.GrassDensity,.15f,1));
         gpu.Properties.SetFloat("_GrassNearDensity",TerrainVideoOptions.GrassNearDensity);
         if(!WorldGenPerformance.ForceFreshCoverCull&&gpu.CullValid&&gpu.CullMatrix.Equals(matrix)&&gpu.CullOrigin.Equals(origin)&&gpu.CullEye.Equals(eye)&&gpu.CullRanges.Equals(ranges)&&gpu.CullSize==tileSize&&gpu.CullCoverage==coverage&&gpu.CullCoverageRevision==coverVisibilityRevision&&gpu.CullNearDensity==TerrainVideoOptions.GrassNearDensity)
         {GrassCullReuses++;return;}
@@ -241,6 +255,7 @@ public sealed partial class LocalTerrainExplorer
         groundCoverPlacement.SetVector("_CullOrigin",origin);groundCoverPlacement.SetVector("_CullCamera",camera.transform.position);
         groundCoverPlacement.SetVectorArray("_CullPlanes",coverCullPlanes);groundCoverPlacement.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
         groundCoverPlacement.SetInt("_SpritesOnly",gpu.Sprites?1:0);
+        groundCoverPlacement.SetInt("_CompactCover",compact?1:0);
         groundCoverPlacement.SetInt("_CoverageEnabled",tile?.Coverage!=null?1:0);
         groundCoverPlacement.SetFloat("_CoverageSize",tileSize);
         groundCoverPlacement.SetTexture(1,"_TerrainCoverage",tile?.Coverage!=null?tile.Coverage:Texture2D.blackTexture);
@@ -260,6 +275,8 @@ public sealed partial class LocalTerrainExplorer
         }
         coverCleanupComplete=false;
         InitializeGroundCover();if(groundCoverMaterial==null)return;
+        bool compact=TerrainVideoOptions.GrassClumps&&groundClumpMaterial!=null;
+        if(compact)groundClumpMaterial.SetFloat("_GrassWind",TerrainVideoOptions.GrassWind?1:0);
         coverRequests.Clear();
         GeometryUtility.CalculateFrustumPlanes(view,coverFrustum);
         for(int k=0;k<6;k++)coverCullPlanes[k]=new Vector4(coverFrustum[k].normal.x,coverFrustum[k].normal.y,coverFrustum[k].normal.z,coverFrustum[k].distance);
@@ -322,10 +339,10 @@ public sealed partial class LocalTerrainExplorer
             {
                 bool distant=lod>=2&&lod<5;
                 if(sprites!=distant)continue;
-                if(lod==5&&(TerrainVideoOptions.GrassNearDensity<=1||distance2>100))continue;
+                if(lod==5&&(compact||TerrainVideoOptions.GrassNearDensity<=1||distance2>100))continue;
                 if(lod==0&&distance2>.36*bladeRange*bladeRange||lod==1&&distance2>bladeRange*bladeRange)continue;
                 if(lod==2&&distance2>=4*bladeRange*bladeRange||lod==3&&distance2>=16*bladeRange*bladeRange)continue;
-                var material=distant?groundCanopyMaterial:groundCoverMaterial;
+                var material=compact?groundClumpMaterial:distant?groundCanopyMaterial:groundCoverMaterial;
                 if(material==null||distant&&!TerrainVideoOptions.GrassCanopy)continue;
                 gpu.Properties.SetInt("_CoverLod",lod);
                 gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);

@@ -25,6 +25,7 @@ public static partial class TerrainVideoOptions
     public static int ForestShadowResolution=>Math.Min(ForestShadowQuality<2?1024:ForestShadowQuality==2?2048:4096,DawnDuskShadowBudget?VegetationShadowBudget.ResolutionCap(ForestLightUp):4096);
     public static int ForestShadowSamples=>DawnDuskShadowBudget&&ForestLightUp<.10f?2:Math.Min(ForestShadowQuality==0?2:ForestShadowQuality==4?9:4,DistantTreeShadowCards?4:DawnDuskShadowBudget&&ForestLightUp<.28f?4:9);
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
+    public static bool GrassClumps=true;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;
     public static void ApplyPlantQuality(int layer,int quality)
     {
@@ -38,6 +39,7 @@ public static partial class TerrainVideoOptions
     static void LoadVegetation()
     {
         bool Flag(string name,bool fallback=true)=>PlayerPrefs.GetInt("vegetation-"+name,fallback?1:0)!=0;
+        GrassClumps=Flag("grass-clumps");
         float Value(string name,float fallback,float min,float max)
         {float v=PlayerPrefs.GetFloat("vegetation-"+name,fallback);return float.IsNaN(v)||float.IsInfinity(v)?fallback:Mathf.Clamp(v,min,max);}
         SpecialistPlants=Flag("specialists");MidPlants=Flag("mid");GeneratedTrees=Flag("trees");FarForest=Flag("far-forest");
@@ -67,6 +69,7 @@ public static partial class TerrainVideoOptions
     public static void SaveVegetation()
     {
         void Flag(string name,bool value)=>PlayerPrefs.SetInt("vegetation-"+name,value?1:0);
+        Flag("grass-clumps",GrassClumps);
         void Value(string name,float value)=>PlayerPrefs.SetFloat("vegetation-"+name,value);
         Flag("specialists",SpecialistPlants);Flag("mid",MidPlants);Flag("trees",GeneratedTrees);Flag("far-forest",FarForest);
         Value("grass-near-density",GrassNearDensity);Flag("simple-forest-shadows",SimplifiedForestShadows);
@@ -92,6 +95,7 @@ public static partial class TerrainVideoOptions
     }
     public static void ResetVegetation()
     {
+        GrassClumps=true;
         SpecialistPlants=MidPlants=GeneratedTrees=FarForest=true;SpecialistDetail=1;MidPlantDetail=TreeDetail=2;
         SpecialistDensity=MidPlantDensity=TreeDensity=1;SpecialistNearLod=22;SpecialistDistance=140;FungusDistance=65;
         MidNearLod=55;MidFarLod=200;MidMaxDistance=1400;TreeNearLod=120;TreeFarLod=450;TreeMaxDistance=1400;
@@ -153,6 +157,8 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Grass and ground-cover geometry");
         GUI.enabled=enabled&&TerrainVideoOptions.GroundCover;
         PlantQualityRow("Grass quality",TerrainVideoOptions.GrassQuality,0);
+        TerrainVideoOptions.GrassClumps=GUILayout.SelectionGrid(TerrainVideoOptions.GrassClumps?0:1,new[]{"Textured clumps","Individual blades"},2)==0;
+        GUI.enabled=enabled&&TerrainVideoOptions.GroundCover&&!TerrainVideoOptions.GrassClumps;
         GUILayout.Label("Near-foot grass density  "+TerrainVideoOptions.GrassNearDensity.ToString("F1")+"x");
         TerrainVideoOptions.GrassNearDensity=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassNearDensity,1,20)*10)/10;
         GUILayout.Label("1x: no extra. 2x: previous boost. Up to20x (10 times previous). Full boost within5m, smoothly returns to normal by10m. Independent of grass quality; high values can be costly.",MutedStyle());

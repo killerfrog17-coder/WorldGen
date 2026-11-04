@@ -3,7 +3,8 @@ param(
     [ValidatePattern('^[a-z0-9-]+$')][string]$Prefix='regions-first',
     [string]$World='artifacts/npc-20261103/current-190k.world',
     [string[]]$Kinds=@('pond','SandSea','GravelDesert','ClayPan','SaltFlat','FreshwaterMarsh','WoodedSwamp','Peatland','LimestoneUpland','GlacialLowland'),
-    [switch]$TreeAlphaReview
+    [switch]$TreeAlphaReview,
+    [switch]$GrassReview
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -18,6 +19,7 @@ foreach($kind in $Kinds){
     New-Item -ItemType Directory -Force -Path $output | Out-Null
     $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
     if($TreeAlphaReview){$arguments+='--worldgen-tree-alpha-review'}
+    if($GrassReview){$arguments+='--worldgen-grass-review'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
     Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
