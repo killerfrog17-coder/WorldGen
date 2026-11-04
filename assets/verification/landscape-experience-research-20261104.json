@@ -64,5 +64,10 @@
     "Climbing secondary dunes on stoss flanks; primary slip faces kept clear.",
     "Cached dune-cusp error included in existing screen-space adaptive terrain detail.",
     "Actual 2km review range and >=1.2km loaded footprint, plus walking views 250m from centre."
-  ]
+  ],
+  "material_review": {
+    "source_scan": "Poly Haven sand_01: compacted, trampled sand-clay, unsuitable as the dominant loose-dune surface. Actual Diffuse.jpg inspected; retained for mixed/compacted sand.",
+    "loose_sand": "Deep windblown sediment preserves sand on stable slip faces; fine analytic wind ripples replace the trampled normal pattern. Fixed quantised planetary axes preserve phase under1024m texture-anchor wraps; derivatives suppress aliasing.",
+    "budget": "Same14 texture layers and dimensions; no new textures/passes. Near pure-sand pixels skip scanned normal/mask fetches. GPU cost remains to be measured; do not claim FPS acceptance."
+  }
 }
