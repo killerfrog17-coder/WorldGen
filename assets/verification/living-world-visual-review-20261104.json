@@ -1,0 +1,79 @@
+{
+  "scope": "Earth-like local regions, geological landforms, ground surfaces and vegetation. Animals/humans/weather/sky behaviour excluded.",
+  "status": "Review in progress; current landform captures and larger-view performance still pending. Shortcut unchanged.",
+  "limitations": [
+    "100+FPS everywhere at Medium is not achieved: tall-savanna travel remains about 92FPS and travel frame-time tails exceed 10ms.",
+    "Offscreen fixed-site benchmarks are not universal whole-game guarantees; independent GPU timing samples unavailable.",
+    "True river distributary deltas, fjords, arches, complete barrier-island systems, eruptions and caves remain unimplemented.",
+    "Landforms remain a game approximation with visible texture repetition and stylized silhouettes.",
+    "The /landmark command searches bounded generated candidates and may not find every suitable example."
+  ],
+  "native_cases": [
+    {
+      "folder": "artifacts/npc-20261103/living-world-current-wet",
+      "historical_reference_only": false,
+      "images": {
+        "camp-first.png": "f64880a775d963a7bea17405e630779d9d81b2a7d6ce8ad5f87d9771b6682ea8",
+        "entrance-296524057410846087.png": "c1fec1c19c7947b0077911b948ceec4ce8908ac9e9166f497446c93b5eff8f84"
+      },
+      "findings": "Current regression: vegetation outside shelter and cleared floor remain; entrance is unobstructed and complete. Wide camp-first is obscured by a foreground crown and is not a useful showcase. Actual walking, camp cycle and current binary save/load passed."
+    },
+    {
+      "folder": "artifacts/npc-20261103/living-world-current-cold",
+      "historical_reference_only": false,
+      "images": {
+        "camp-first.png": "6c6a38c4dca805133ae00d605a358db395d15d7f9bd572129ab3125eda5c4b68",
+        "entrance-2619840468796699881.png": "637c23446d14eaa00c8e20b48b24a0c5d5518906cf64178723f4cfa51bf9e0f4"
+      },
+      "findings": "Current cold-context regression: fitted complete hide shelters on a slope, visible entrance and bedding, no trunk intrusion. Actual entry/exit, camp cycle and binary save/load passed. Dawn lighting and a square loaded footprint make this a mechanics regression, not a finished landscape showcase."
+    },
+    {
+      "folder": "artifacts/landscape-20261103/living-weathered-canyon",
+      "historical_reference_only": true,
+      "images": {
+        "wide.png": "2c5597ee932e6840c3a0c5545b613aab34b2174b8994cb068bd130d72b0ef1c8",
+        "ground.png": "67e705ec07c9d1ec6bd4d91de950f7a7109eae1cb7356771e0c8a69253e93d02"
+      },
+      "findings": "Historical same-geometry reference: broad incised terraces and gullies with continuous rendered water. More varied than the baseline, but walls remain gamified and rhythmic and the water corridor is broad; not a complete Grand Canyon reconstruction."
+    },
+    {
+      "folder": "artifacts/landscape-20261103/living-weathered-towerkarst",
+      "historical_reference_only": true,
+      "images": {
+        "ground.png": "ebbb6c2fb5d75cf633422e40e183f94d2d0f72fb84c3d6ca973b13593605632e",
+        "wide.png": "eb1f3d95e82d868e3728e242100c718bea52a6a049702513a4f9d79a60742fa0"
+      },
+      "findings": "Historical same-geometry reference: forested carbonate towers and intervening valleys, fractured steep faces. Ground forest floor is dark/subtle; some tiled rock remains. Grounding audit found 59059 roots, zero missing resident ground, maximum error 0.000041m."
+    },
+    {
+      "folder": "artifacts/landscape-20261103/living-weathered-inselberg",
+      "historical_reference_only": true,
+      "images": {
+        "outcrop-base.png": "220c2d5e1580482d4e31f40b3284d1689818706f1245760eaf673afb46b6d1ea",
+        "wide.png": "51402bc843e13707aad58fd7f7ade40048d29ad2e759720e09c18920f883e1f9"
+      },
+      "findings": "Historical same-geometry reference: finite asymmetric isolated red outcrop with fractured weathering; broad silhouette is still stylized and some texture repetition remains."
+    }
+  ],
+  "performance": [
+    {
+      "folder": "artifacts/living-world-20261104/dense-indexed-grass-1",
+      "historical_reference_only": false
+    },
+    {
+      "folder": "artifacts/living-world-20261104/dense-near-depth-1",
+      "historical_reference_only": true
+    },
+    {
+      "folder": "artifacts/living-world-20261104/dense-medium-budget-rest",
+      "historical_reference_only": true
+    }
+  ],
+  "required_current_landforms": [
+    "Volcano",
+    "Waterfall",
+    "TowerKarst",
+    "Canyon",
+    "Inselberg"
+  ]
+}

@@ -80,7 +80,8 @@ def main():
     current_cases = [c for c in cases if c['current_package']]
     for suffix in ['-wet', '-cold']:
         require(any(c['folder'].endswith(suffix) for c in current_cases), f'Missing current NPC regression: {suffix}')
-    require(any(c.get('images') for c in current_cases), 'No inspected current-package landscape')
+    for kind in review['required_current_landforms']:
+        require(any(c.get('landscape_kind') == kind and c.get('images') for c in current_cases), f'No inspected current-package landscape: {kind}')
 
     performance = []
     misses = []
