@@ -391,6 +391,7 @@ public sealed partial class LocalTerrainExplorer
             Material sharedMaterial=null;bool shared=kind==ScatterKind.GeneratedTree&&treeMaterials.TryGetValue(materialKey,out sharedMaterial);
             var material=shared?sharedMaterial:new Material(template){enableInstancing=true};
             material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus||kind==ScatterKind.Branch?0:kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?1:0);material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));
+            material.SetFloat("_SimpleFoliage",kind==ScatterKind.Herb||kind==ScatterKind.MidPlant||kind==ScatterKind.Shrub||kind==ScatterKind.Grass?1:0);
             if(kind==ScatterKind.Herb)
             {
                 var motion=PlantMotion.Herb(variant);

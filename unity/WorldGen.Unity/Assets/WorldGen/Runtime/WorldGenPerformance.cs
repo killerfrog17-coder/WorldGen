@@ -493,6 +493,22 @@ public sealed partial class LocalTerrainExplorer
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
     public void PerformanceFreezeDaylight(bool summer=false){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,summer?190000+(Position.Z<0?0:.5):skyYear);TerrainDiagnostics.FreezeSun=true;}
+    public string PerformanceReviewPlantLighting(string output,string site)
+    {
+        float prior=Shader.GetGlobalFloat("_WorldGenFullPlantPbr"),adaptation=WeatherVideoOptions.Current.Adaptation;var rotation=view.transform.localRotation;
+        try
+        {
+            WeatherVideoOptions.Current.Adaptation=0;
+            foreach(int yaw in new[]{20,200})
+            {
+                view.transform.localRotation=Quaternion.Euler(3,yaw,0);BuildScatterBatches();
+                Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-plant-pbr-"+yaw+".png"));
+                Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-plant-diffuse-"+yaw+".png"));
+            }
+        }
+        finally{Shader.SetGlobalFloat("_WorldGenFullPlantPbr",prior);WeatherVideoOptions.Current.Adaptation=adaptation;view.transform.localRotation=rotation;BuildScatterBatches();}
+        return site+": recorded full-PBR/diffuse small-plant lighting at two literal camera poses and fixed exposure; requires visual inspection, not pixel equality";
+    }
     public string PerformanceReviewVegetation(string output,string site)
     {
         if(!SoftCanopyShadows)throw new InvalidOperationException("Cached canopy shade is not ready; reject the foliage review");
@@ -740,6 +756,8 @@ public sealed partial class WorldGenRuntime
         bool savedSettings=Environment.GetCommandLineArgs().Contains("--worldgen-perf-saved-settings");
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
+            new PerfCase("small-plant-lighting-review",()=>{}),
+            new PerfCase("plants-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("water-query-verify",()=>{}),
             new PerfCase("water-query-fresh",()=>WorldGenPerformance.ForceFreshWaterSamples=true),
             new PerfCase("animal-pose-verify",()=>{}),
@@ -833,6 +851,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
+            new PerfCase("travel-whip-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("travel-whip-native-frustum",()=>WorldGenPerformance.NativeScatterFrustum=true),
             new PerfCase("travel-whip-legacy-groups",()=>WorldGenPerformance.LegacyGroupVisibility=true),
             new PerfCase("travel-whip-narrow",()=>WorldGenPerformance.NarrowScatterGuard=true),
@@ -869,7 +888,7 @@ public sealed partial class WorldGenRuntime
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=WorldGenPerformance.NativeScatterFrustum=false;
-                WorldGenPerformance.GpuNearOcclusion=false;
+                WorldGenPerformance.GpuNearOcclusion=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
@@ -889,6 +908,7 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
+                if(item.Name=="small-plant-lighting-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewPlantLighting(output,site.Item1)+"\n");
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
                 if(item.Name=="water-query-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyWaterSamples()+"\n");
                 if(item.Name=="animal-pose-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyAnimalPoseMath()+"\n");
