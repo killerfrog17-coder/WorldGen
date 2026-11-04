@@ -1,0 +1,32 @@
+{
+  "scope": "Earth-like local landscapes, landforms, surfaces and vegetation; animals, humans, weather and sky excluded",
+  "performance_target": "At least 100 fps at 1920x1080 on owner RTX 4060 / Ryzen 5700X, Medium vegetation, including dense forest. This is a target, not an achieved universal claim.",
+  "rollback_policy": "Independent feature commits pushed regularly; no extra full player copies. Keep source art provenance and immutable asset inputs.",
+  "sources": [
+    {"url": "https://docs.unity3d.com/cn/6000.0/Manual/terrain-Grass.html", "use": "Textured quads and instanced meshes are established vegetation representations; preserve ecological placement while changing rendering."},
+    {"url": "https://pubs.usgs.gov/publication/pp282B", "use": "River patterns depend on discharge, sediment, slope and banks. Avoid the same sinusoid for every river."},
+    {"url": "https://www.usgs.gov/educational-resources/find-feature-meander", "use": "Lowland bends, outer-bank erosion and inner-bank deposition."},
+    {"url": "https://www.usgs.gov/faqs/what-a-hotspot-and-how-do-you-know-its-there?items_per_page=6&page=0", "use": "Reuse plate motion and age-progressive hotspot chains rather than randomly placing volcanoes."},
+    {"url": "https://uluru.gov.au/discover/nature/geology/", "use": "Isolated bedrock remnants and differential erosion; Uluru sandstone and Kata Tjuta conglomerate are distinct geological forms."},
+    {"url": "https://www.nps.gov/grca/learn/nature/grca-geology.htm", "use": "Incised uplifted sedimentary plateaus, strata with different resistance and tributary drainage."},
+    {"url": "https://www.nps.gov/mora/learn/nature/waterfalls.htm", "use": "Waterfalls belong to actual drainage and topographic breaks; separate falling-water geometry from sloping surface ribbons."},
+    {"url": "https://www.nps.gov/grfa/learn/nature/geology.htm", "use": "Bedrock resistance and river incision support knickpoints and falls."},
+    {"url": "https://graysreef.noaa.gov/education/activities/pdfs/gr_what_is_the_story_with_sand.pdf", "use": "Beach sediments reflect source geology, mineral transport and biogenic fragments; avoid uniform white shorelines."},
+    {"url": "https://www.fs.usda.gov/rm/pubs/rmrs_gtr346.pdf", "use": "Forest structure and understory distinguish regional vegetation, not merely green tint."}
+  ],
+  "coverage_review": [
+    {"area": "Grass", "existing_problem": "Expensive blade geometry; uniform grass presentation", "approach": "Selectable textured clumps, physical height and cover retained; legacy blades remain selectable; actual paired screenshot and frame-time checks"},
+    {"area": "Foliage shadows", "existing_problem": "Dense-rainforest baseline 117.5 fps versus 162.5 with vegetation shadows disabled", "approach": "Measure receiver filtering and caster costs separately, retain solid-object and character shadows"},
+    {"area": "Rivers", "existing_problem": "Fractal drainage edges lack convincing small-scale planform; cascades are only heightfield ramps", "approach": "Bounded bank/slope-dependent bends with coupled bed and surface; then real falls and varied reaches, tested at confluences and ocean mouths"},
+    {"area": "Volcanoes", "existing_problem": "Broad hotspot uplifts and plate chains exist; local craters and edifices do not", "approach": "Derive cratered shields/cones and erosion from existing mapped geological features and age"},
+    {"area": "Coasts", "existing_problem": "Local coast mostly follows interpolated elevation", "approach": "Source geology and exposure distinguish beaches, bars, rocky shores and cliffs; retain physical water datum"},
+    {"area": "Regional rock terrain", "existing_problem": "Badlands and karst controls produce only weak metre-scale noise", "approach": "Larger coherent erosional forms, stratified canyon/plateau and bedrock-remnant terrain with appropriate admission"},
+    {"area": "Forests", "existing_problem": "Rainforest has some canopy anatomy and palms but lacks adequate local structural and surface variety", "approach": "Review actual crowns, ground light/cover, understory and materials; improve shared art instead of adding per-tree scripting"}
+  ],
+  "limits": [
+    "These are game approximations, not hydrodynamics or geological simulation.",
+    "The Forest's proprietary implementation has not been inspected. The new grass follows a comparable textured-clump approach, not a claim of identical engine internals.",
+    "Initial three settled static benchmarks do not prove the all-world target. Travel, turning, additional dense regions and frame-time tails remain required.",
+    "PresentMon produced no presentation CSV in the hidden offscreen baseline. Its absence is not GPU timing evidence; app frame windows use explicit GPU drains."
+  ]
+}

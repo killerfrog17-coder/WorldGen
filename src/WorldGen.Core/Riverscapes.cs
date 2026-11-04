@@ -148,17 +148,19 @@ namespace WorldGen.Core
                 double length=(a.Position-b.Position).Length*radius*scale;
                 double width=Math.Min(RiverscapeKernel.HalfWidth(a.Flow,scale),Math.Max(.6,length*.15));
                 int n=Math.Max(16,Math.Min(256,(int)Math.Ceiling(length/Math.Max(24,width*1.5))));
-                var points=new V[n+1];var levels=new double[n+1];var widths=new double[n+1];var depths=new double[n+1];
+                double start=riverDatums[source],end=riverDatums[target];
+                var points=RiverPlanform.Build(t=>RiverPoint(source,t),n,length,width,(start-end)/Math.Max(1,length),
+                    a.Sediment,a.Hardness,radius*scale,a.Key);
+                var levels=new double[n+1];var widths=new double[n+1];var depths=new double[n+1];
                 var faceSet=new SortedSet<int>();
                 void Include(int node){for(int k=riverFaceOffsets[node];k<riverFaceOffsets[node+1];k++)faceSet.Add(riverFaces[k]*3);}
                 Include(source);Include(target);
                 var ids=new int[faceSet.Count];faceSet.CopyTo(ids);var bare=new Patch(this,ids);
-                double start=riverDatums[source],end=riverDatums[target];
                 for(int i=0;i<=n;i++)
                 {
-                    double t=i/(double)n;points[i]=i==0?a.Position:i==n?b.Position:RiverPoint(source,t);
+                    double t=i/(double)n;
                     double ground=bare.Sample(points[i],true).Height;
-                    V tangent=i==n?(points[i]-points[i-1]).Unit:(RiverPoint(source,Math.Min(1,(i+.25)/n))-points[i]).Unit;
+                    V tangent=(points[Math.Min(n,i+1)]-points[Math.Max(0,i-1)]).Unit;
                     V side=V.Cross(points[i],tangent).Unit;
                     // Fit the bounded water profile below BOTH prospective
                     // banks as well as the thalweg. A centre-only fit can leave
