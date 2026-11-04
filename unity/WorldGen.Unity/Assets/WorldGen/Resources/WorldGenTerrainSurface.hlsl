@@ -5,8 +5,6 @@
 float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
 float4 _TerrainGeologyDatum;
 float4 _TerrainBeddingOrigin;
-// Diagnostic A/B only; ordinary play skips invisible soil under opaque grass.
-float _TerrainFullSubstrate;
 
 float3 SurfaceAxes(float3 normal, float count, float extra)
 {
@@ -200,25 +198,10 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     #endif
     float looseFraction=saturate((i.weights.x+i.weights.z+i.weights.w+i.groundB.y)/max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1)));
     albedo=lerp(albedo,floorPigment,floorWeight*detail*looseFraction);
-    float cover=saturate(i.color.a);
-    // Ecological weights/tints remain at every distance. Only their microscopic
-    // material textures retire; these few weights are NOT an 850m texture stack.
-    float4 flora=float4(cover,0,0,cover);
-    if(_FloraSurfaceEnabled>.5&&textures)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
-    float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;mix/=max(1,dot(mix,1));
-    // Low plants/moss can coexist with litter. The old full-opacity green mat
-    // erased every soil texture under a canopy even when stems were sparse.
-    mix*=1-floorWeight*float3(.85,.25,.35);
-    // Ground colour follows the continuous terrain normal. A face derivative
-    // here made each individual triangle a different grass/soil material.
-    // Physical stems retain their separate geometric cliff/rooting test.
-    mix.x*=smoothstep(.62,.86,abs(dot(normalize(i.normal),float3(0,1,0))));
-    if(TerrainTest(TD_GRASS))mix.x=0;if(TerrainTest(TD_MOSS))mix.y=0;if(TerrainTest(TD_LICHEN))mix.z=0;
-    bool substrate=mix.x<.9999||_TerrainFullSubstrate>.5;
     // Stable mean properties of these rough, nonmetallic ground materials.
     // Fine mask variation is reserved for the close High/Ultra path.
     float ao=.93,rough=lerp(.88,.55,saturate(i.groundB.w)),metal=0;
-    [branch] if(substrate&&textures&&detail>.001)
+    [branch] if(textures&&detail>.001)
     {
         int3 layers;float3 fractions;SurfaceLayers(i,extra,floorMix,layers,fractions);
         float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
@@ -256,10 +239,11 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         }
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
-    if(substrate)SurfaceStrata(i,albedo);
-    if(substrate&&textures)SurfaceRockWeathering(i,world,worldDx,worldDy,albedo);
-    if(substrate)SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
+    SurfaceStrata(i,albedo);
+    if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,albedo);
+    SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
+    float cover=saturate(i.color.a);
     [branch] if(distance<16&&!TerrainTest(TD_GRAIN))
     {
         float grain=sin(world.x*29+sin(world.z*17))*sin(world.z*43+world.x*7);
@@ -271,13 +255,26 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
     Light sun=(Light)0;float transmission=0;half canopyShade=1;
     if(!TerrainTest(TD_UNLIT)){sun=WorldGenFoliageLight(i.position,canopyShade);transmission=pow(saturate(dot(-sun.direction,input.viewDirectionWS)),3)*.22;}
-    half3 color=0;
+    half3 color;
     if(TerrainTest(TD_UNLIT))color=albedo;
     else if(TerrainTest(TD_SIMPLE))color=SurfaceLeafLight(albedo,n,sun,transmission,canopyShade);
-    else if(substrate)color=WorldGenCanopyPbr(UniversalFragmentPBR(input,s).rgb,albedo,TerrainAmbient().rgb,ao,canopyShade);
+    else color=WorldGenCanopyPbr(UniversalFragmentPBR(input,s).rgb,albedo,TerrainAmbient().rgb,ao,canopyShade);
 
+    // Ecological weights/tints remain at every distance. Only their microscopic
+    // material textures retire; these few weights are NOT an 850m texture stack.
+    float4 flora=float4(cover,0,0,cover);
+    if(_FloraSurfaceEnabled>.5&&textures)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
+    float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;mix/=max(1,dot(mix,1));
+    // Low plants/moss can coexist with litter. The old full-opacity green mat
+    // erased every soil texture under a canopy even when stems were sparse.
+    mix*=1-floorWeight*float3(.85,.25,.35);
+    // Ground colour follows the continuous terrain normal. A face derivative
+    // here made each individual triangle a different grass/soil material.
+    // Physical stems retain their separate geometric cliff/rooting test.
+    mix.x*=smoothstep(.62,.86,abs(dot(normalize(i.normal),float3(0,1,0))));
+    if(TerrainTest(TD_GRASS))mix.x=0;if(TerrainTest(TD_MOSS))mix.y=0;if(TerrainTest(TD_LICHEN))mix.z=0;
     float3 axes=SurfaceAxes(TerrainUp().xyz,TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w,extra);
-    float3 vegetation=0,grassReflectance=farColor;
+    float3 vegetation=0;
     [branch] if(mix.x>.001)
     {
         float3 mat=1;
@@ -290,8 +287,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         #ifndef UNITY_COLORSPACE_GAMMA
         tint=.815;
         #endif
-        grassReflectance=farColor*(tint*mat);
-        vegetation+=SurfaceLeafLight(grassReflectance,normalize(i.normal),sun,transmission,canopyShade)*mix.x;
+        vegetation+=SurfaceLeafLight(farColor*(tint*mat),normalize(i.normal),sun,transmission,canopyShade)*mix.x;
     }
     [branch] if(mix.y+mix.z>.001)
     {
@@ -333,13 +329,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         #endif
         color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission,canopyShade),saturate(mid.a)*smoothstep(180,1000,distance));
     }
-    if(!TerrainTest(TD_UNLIT))
-    {
-        // Moon/fire light reflects from the visible grass, rather than from
-        // the soil material that has been completely covered by it.
-        if(mix.x<1)color+=(SecondaryCelestialLight(n,albedo)+CampDiffuseLight(i.position,n,albedo))*(1-mix.x);
-        if(mix.x>0)color+=(SecondaryCelestialLight(normalize(i.normal),grassReflectance)+CampDiffuseLight(i.position,normalize(i.normal),grassReflectance))*mix.x;
-    }
+    if(!TerrainTest(TD_UNLIT))color+=SecondaryCelestialLight(n,albedo)+CampDiffuseLight(i.position,n,albedo);
     return half4(TerrainTestAir(color,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
 }
 #endif
