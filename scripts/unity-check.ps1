@@ -104,6 +104,10 @@ if($Il2Cpp -and !$BuildPlayer){throw '-Il2Cpp is a player-build option.'}
 if($BuildPlayer -and $Il2Cpp){$arguments+='--worldgen-il2cpp-player'}
 $assemblyInputs=@()
 if($BuildPlayer){foreach($name in @('WorldGen.Core','WorldGen.Serialization','WorldGen.Presentation','DelaunatorSharp')){$inputDll=Join-Path $project ('Assets/Plugins/WorldGen/'+$name+'.dll');$assemblyInputs+=[ordered]@{Assembly=$name;Path=$inputDll;Sha256=(Get-FileHash -LiteralPath $inputDll).Hash.ToLowerInvariant()}}}
+if($BuildPlayer){
+    $incompleteBuild=Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-incomplete.txt'
+    [IO.File]::WriteAllText($incompleteBuild,'Player packaging has not passed the compiler, shader and input checks. Started '+[DateTime]::UtcNow.ToString('o'))
+}
 $run=Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
 $run.WaitForExit()
 if($run.ExitCode -ne 0){throw "Unity failed. Inspect $log"}
@@ -115,6 +119,7 @@ if($BuildPlayer){
     Copy-Item -LiteralPath (Join-Path $workerOutput 'WorldGen.Cli.exe') -Destination $packagedWorker -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
     [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Mono'});Development=[bool]$DevelopmentPlayer;ScriptsOnly=[bool]$ScriptsOnly;Inputs=$assemblyInputs;TerrainWorkerSha256=(Get-FileHash -LiteralPath (Join-Path $packagedWorker 'WorldGen.Cli.exe')).Hash.ToLowerInvariant()}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
+    Remove-Item -LiteralPath $incompleteBuild
 }
 if($PlayerCheck){
     $output=Join-Path $artifacts 'unity-player'

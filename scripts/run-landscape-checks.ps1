@@ -11,6 +11,7 @@ param(
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repoRoot ('builds/'+$Slot+'/WorldGen.exe')
+if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not review it.'}
 $fixture=Join-Path $repoRoot $World
 if(!(Test-Path -LiteralPath $fixture)){throw 'Generate the disposable world fixture first.'}
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'" | Where-Object {$_.ExecutablePath -eq $player}){throw 'This player slot is already running; leave that session untouched.'}

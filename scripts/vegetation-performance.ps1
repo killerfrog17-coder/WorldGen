@@ -17,6 +17,7 @@ param(
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repo "builds/$PlayerFolder/WorldGen.exe"
+if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not benchmark it.'}
 $inputFile=[IO.Path]::GetFullPath((Join-Path $repo $Snapshot))
 $destination=[IO.Path]::GetFullPath((Join-Path $repo $Output))
 if(!$destination.StartsWith((Join-Path $repo 'artifacts/'),[StringComparison]::OrdinalIgnoreCase)){throw 'Evidence must stay inside artifacts'}
