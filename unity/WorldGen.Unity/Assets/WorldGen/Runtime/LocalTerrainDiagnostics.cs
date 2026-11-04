@@ -100,7 +100,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!TerrainDiagnostics.Active||paused||mapOpen||ecologyOpen)return;
         GUI.Label(new Rect(12,Screen.height-48,Math.Max(1,Screen.width-24),42),
-            "TERRAIN LAB ACTIVE · "+fpsDisplay+" FPS · restore in Game settings > Terrain lab\n"+
+            "DEBUG RENDERING ACTIVE · "+fpsDisplay+" FPS · restore in Game settings > Debug\n"+
             (TerrainDiagnostics.HoldTerrain?"Terrain work held; compare while stationary":DetailPlanning||jobs.Count>0?"Terrain loading; wait before comparing":""));
     }
 }
@@ -110,7 +110,7 @@ public sealed partial class WorldGenRuntime
     static readonly string[] DiagnosticGridNames={"Normal","2× spacing","4× spacing","8× spacing"};
     void DrawTerrainLab()
     {
-        GUILayout.Label("TERRAIN PERFORMANCE LAB",SectionStyle());
+        GUILayout.Label("RENDERING DIAGNOSTICS",SectionStyle());
         GUILayout.Label("Temporary switches. Compare one at a time from the same spot, then restore normal rendering. Nothing here is saved.",MutedStyle());
         if(terrainExplorer==null||!terrainExplorer.Ready){GUILayout.Label("Enter a world to compare rendering.");return;}
         terrainExplorer.DrawTerrainDiagnostics();

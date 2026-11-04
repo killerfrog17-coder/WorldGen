@@ -65,7 +65,7 @@ public static partial class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Terrain lab","Character & help","Debug"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Character & help","Debug"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
@@ -83,15 +83,14 @@ public sealed partial class WorldGenRuntime
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;
             case 5:DrawVegetationOptions();break;
-            case 6:DrawTerrainLab();break;
-            case 8:
+            case 7:
                 GUILayout.Label("CHARACTER ANIMATION",SectionStyle());
                 int animation=GUILayout.SelectionGrid(HumanAnimationOptions.Kimodo?0:1,new[]{"Kimodo · shared body","Legacy · separate first-person arms"},1);
                 if((animation==0)!=HumanAnimationOptions.Kimodo)HumanAnimationOptions.Set(animation==0);
                 GUILayout.Label("Applies immediately to the player and human NPCs. Kimodo uses the same body animation in first and third person; look down to see your body. This choice is saved.",MutedStyle());
-                GUILayout.Space(14);GUILayout.Label("Rendering diagnostics are under Terrain lab.",MutedStyle());
+                GUILayout.Space(14);DrawTerrainLab();
                 break;
-            case 7:
+            case 6:
                 GUILayout.Label("INVENTORY & EQUIPMENT",SectionStyle());
                 GUILayout.Label("F5: quicksave for this playthrough. Save game: keep the name to overwrite that slot, or change it for a separate save. Gameplay continues while the window is unfocused; pause explicitly when needed.");
                 GUILayout.Label("I / Tab: inventory. Drag items between hands, container grids and Nearby; R rotates an item while dragging. Right-click an item for available transfers.");
