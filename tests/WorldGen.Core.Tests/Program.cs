@@ -1,9 +1,12 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--coastal-controls")){CoastalTerrainTests.Controls();return;}
+if(args.Contains("--coastal-world")){CoastalTerrainTests.World(args[1],args[2]);return;}
 if(args.Contains("--volcanic-controls")){VolcanicTerrainTests.Controls();return;}
 if(args.Contains("--volcanic-world")){VolcanicTerrainTests.World(args[1],args[2]);return;}
 if(args.Contains("--river-planform")){RiverPlanformTests.Run();return;}
+if(args.Contains("--river-planform-world")){RiverPlanformTests.World(args[1],args[2]);return;}
 if(args.Contains("--landscape-experience")){LandscapeExperienceAudit.Run(args[1],args[2],args[3]);return;}
 if(args.Contains("--landscape-regions")){LandscapeRegionTests.Run();return;}
 if(args.Contains("--landscape-world")){LandscapeRegionTests.World(args[1],args[2]);return;}

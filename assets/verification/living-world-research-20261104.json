@@ -12,7 +12,10 @@
     {"url": "https://www.nps.gov/mora/learn/nature/waterfalls.htm", "use": "Waterfalls belong to actual drainage and topographic breaks; separate falling-water geometry from sloping surface ribbons."},
     {"url": "https://www.nps.gov/grfa/learn/nature/geology.htm", "use": "Bedrock resistance and river incision support knickpoints and falls."},
     {"url": "https://graysreef.noaa.gov/education/activities/pdfs/gr_what_is_the_story_with_sand.pdf", "use": "Beach sediments reflect source geology, mineral transport and biogenic fragments; avoid uniform white shorelines."},
-    {"url": "https://www.fs.usda.gov/rm/pubs/rmrs_gtr346.pdf", "use": "Forest structure and understory distinguish regional vegetation, not merely green tint."}
+    {"url": "https://www.fs.usda.gov/rm/pubs/rmrs_gtr346.pdf", "use": "Forest structure and understory distinguish regional vegetation, not merely green tint."},
+    {"url": "https://www.nps.gov/articles/rocky-coast-landforms.htm", "use": "Coastal relief, resistant bedrock and sediment supply distinguish cliffs/headlands from protected pocket beaches. Rocky coasts are not restricted to one lithology."},
+    {"url": "https://www.nps.gov/articles/sandy-coast-landforms.htm", "use": "Depositional shelves host beaches, bars, spits and dunes, with broad variation in width and composition."},
+    {"url": "https://oceanservice.noaa.gov/facts/barrier-islands.html", "use": "Bars and barrier chains belong to relatively flat, sediment-supplied coasts. The current local pass provides intermittent nearshore bars, not a complete longshore sediment transport model."}
   ],
   "coverage_review": [
     {"area": "Grass", "existing_problem": "Expensive blade geometry; uniform grass presentation", "approach": "Selectable textured clumps, physical height and cover retained; legacy blades remain selectable; actual paired screenshot and frame-time checks"},

@@ -46,6 +46,8 @@ namespace WorldGen.Core
             surface.Soil*=keep;surface.Sand*=keep;surface.Gravel*=keep;surface.Clay*=keep;
             surface.Organic*=keep;surface.Salt*=keep;surface.Rock+=change;
             surface.Color=ground.SoilColor*surface.Soil+ground.SandColor*surface.Sand+ground.RockColor*(surface.Rock+.85*surface.Gravel)+ground.SoilColor*(.94*surface.Clay)+new V(.18,.14,.10)*surface.Organic+new V(.93,.94,.92)*surface.Salt+new V(.86,.89,.91)*surface.Ice;
+            double beach=D.Clamp((7-Math.Abs(elevation))/6)*D.Clamp(ocean*10)*(1-D.Clamp((1-up-.04)/.45));
+            if(beach>0)surface.Color+=(CoastalTerrain.SandColour(ground)-ground.SandColor)*(surface.Sand*beach);
             return surface;
         }
     }

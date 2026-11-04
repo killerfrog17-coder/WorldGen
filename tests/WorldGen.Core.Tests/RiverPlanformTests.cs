@@ -1,7 +1,29 @@
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 static class RiverPlanformTests
 {
+    public static void World(string path,string output)
+    {
+        var world=WorldGen.Serialization.WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        var rows=new List<object>();int active=0,filters=0,bent=0,banks=0;
+        var candidates=terrain.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008).ToArray();
+        Console.WriteLine($"Metadata candidates {candidates.Length} / {terrain.Hydrology.Channels.Length}");
+        foreach(var channel in candidates.Take(160))
+        {
+            var spans=terrain.Amplification.RiverReach(channel.From);if(spans.Length<8)continue;active++;
+            double length=spans.Sum(s=>(s.B-s.A).Length),chord=(spans[spans.Length-1].B-spans[0].A).Length,sinuosity=length/Math.Max(1e-9,chord);
+            bool filter=channel.WidthM>12&&channel.WidthM<150&&channel.StartM>40&&channel.StartM<1600&&(channel.StartM-channel.EndM)/Math.Max(1,channel.LengthM)<.008;
+            if(filter)filters++;if(sinuosity>1.03)bent++;
+            var middle=spans[spans.Length/2];double half=(middle.WidthA+middle.WidthB)*.5;
+            V center=(middle.A+middle.B).Unit,bank=(center+middle.SideA*((half*2+6)/(terrain.RadiusM*.1))).Unit;
+            bool dry=false;
+            if(sinuosity>1.03){var s=terrain.Patch(bank,10000).Sample(bank);dry=!s.Underwater;if(dry)banks++;}
+            rows.Add(new{channel.From,channel.WidthM,channel.StartM,Grade=(channel.StartM-channel.EndM)/channel.LengthM,Count=spans.Length,Sinuosity=sinuosity,DryBank=dry,Filter=filter});
+        }
+        File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(rows,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        Console.WriteLine($"River selection: {active} active, {filters} channel filter, {bent} sinuous, {banks} dry banks");
+    }
     public static void Run()
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}

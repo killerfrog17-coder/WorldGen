@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-volcano-23";
+        public const string Version = "hyper-amplification-coasts-24";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -853,6 +853,11 @@ namespace WorldGen.Core
                 {
                     double volcanic=owner.Volcanoes.Apply(point,found.Root,height,out double exposure);
                     pre+=volcanic-height;height=volcanic;landscape.BareRock=(float)Math.Max(landscape.BareRock,exposure);
+                    double coastal=CoastalTerrain.Shape(point*(owner.radius*owner.scale),owner.seed,height,
+                        a*found.A.SeaWeight+b*found.B.SeaWeight+c*found.C.SeaWeight,
+                        a*(found.A.Hill+found.A.Mountain)+b*(found.B.Hill+found.B.Mountain)+c*(found.C.Hill+found.C.Mountain),
+                        a*found.A.Sediment+b*found.B.Sediment+c*found.C.Sediment,a*found.A.Hardness+b*found.B.Hardness+c*found.C.Hardness);
+                    pre+=coastal-height;height=coastal;
                     if(!double.IsNaN(water))mask=water-height;
                 }
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
