@@ -441,6 +441,20 @@ public sealed partial class LocalTerrainExplorer
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
             TerrainReveal=owner.terrainRevealRadius,ForestReveal=owner.forestRevealRadius,FogDistance=owner.StreamingFogDistance,
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
+        // Exercise the real asynchronous command only after all scene evidence
+        // is recorded, so its teleport cannot contaminate the reviewed cameras.
+        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="Inselberg"?"outcrop":kind=="TowerKarst"?"karst":null;
+        if(landmarkKind!=null)
+        {
+            var command=owner.ExecuteExplorerCommand("/landmark "+landmarkKind);
+            Check(command.Success,"Landmark command accepts "+landmarkKind);
+            double searchDeadline=Time.realtimeSinceStartupAsDouble+120;int oldGeneration=owner.generation;
+            while(owner.landmarkSearch!=null&&Time.realtimeSinceStartupAsDouble<searchDeadline)yield return null;
+            Check(owner.landmarkSearch==null&&owner.generation>oldGeneration,"Landmark command finds and visits an actual generated example");
+            var destination=model.Patch(owner.Position,20000).Sample(owner.Position);
+            Check(!destination.Underwater&&double.IsFinite(owner.motion.Y)&&float.IsFinite(owner.heading)&&float.IsFinite(owner.pitch),"Landmark destination is dry with finite camera placement");
+            File.WriteAllText(Path.Combine(output,"landmark.txt"),landmarkKind+" "+owner.Position+"; elevation "+destination.ElevationM+"; generation "+owner.generation);
+        }
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LANDSCAPE PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);
     }
 }

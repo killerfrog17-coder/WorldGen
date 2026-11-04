@@ -34,14 +34,15 @@ namespace WorldGen.Presentation
             string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/flora","/fauna","/give","/help","/time","/tp","/weather"};
             if(input.StartsWith("/give ",StringComparison.OrdinalIgnoreCase))options=new[]{"/give small rock","/give pebble","/give large rock","/give stone flake","/give chert","/give quartzite","/give branch","/give short branch","/give pole","/give digging stick","/give wooden spear","/give bag"}.Concat(PortableTechnology.Items.Select(p=>"/give "+p.Name.ToLowerInvariant())).Concat(new[]{"/give list","/give materials","/give deer hide","/give elk hide"}).ToArray();
             if(input.StartsWith("/gamemode ",StringComparison.OrdinalIgnoreCase))options=new[]{"/gamemode survival","/gamemode creative","/gamemode spectator"};
-            return options.Concat(new[]{"/seed","/spawn","/gamemode","/camps","/camps visit"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
+            if(input.StartsWith("/landmark ",StringComparison.OrdinalIgnoreCase))options=new[]{"/landmark volcano","/landmark waterfall","/landmark canyon","/landmark outcrop","/landmark karst"};
+            return options.Concat(new[]{"/seed","/spawn","/gamemode","/camps","/camps visit","/landmark"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
         public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0,WeatherControl? weather=null)
         {
             double localLongitude=longitude??play.PrimeMeridianLongitude,localHour=play.LocalSolarHour(localLongitude);
             var words=(input??"").Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);if(words.Length==0)return new PlayCommandResult(false,"Empty command. Try /help.");
             string command=words[0].ToLowerInvariant();
-            if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help.Concat(new[]{"/seed — show world seed",FaunaSpawnCommands.Help,"/gamemode survival | creative | spectator - /gamemode alone reports current vitals"}).ToArray()):new PlayCommandResult(false,"Usage: /help");
+            if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help.Concat(new[]{"/seed — show world seed",FaunaSpawnCommands.Help,"/gamemode survival | creative | spectator - /gamemode alone reports current vitals","/landmark volcano | waterfall | canyon | outcrop | karst - visit a generated example"}).ToArray()):new PlayCommandResult(false,"Usage: /help");
             if(command=="/weather")
             {
                 if(weather==null)return new PlayCommandResult(false,"Weather commands are available while exploring the world.");
