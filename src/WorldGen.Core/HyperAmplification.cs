@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-planform-21";
+        public const string Version = "hyper-amplification-volcano-22";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -30,6 +30,7 @@ namespace WorldGen.Core
         readonly double radius, scale;
         readonly int seed;
         readonly CellLocator landscapeLocator;
+        public readonly VolcanicTerrain Volcanoes;
         readonly SmallWaterBodies smallWater,wetlandWater;
         public int CachedSmallWaterCandidates=>smallWater.CachedCandidates+wetlandWater.CachedCandidates;
         public SmallLake[] SmallLakesNear(V center,double rangeM)
@@ -285,6 +286,7 @@ namespace WorldGen.Core
                 roots[t].Initialize(nodes[a].Position,nodes[b].Position,nodes[c].Position);
             }
             coarseEdges=controls.ToArray();edgeCache=new WeakReference<Edge>[coarseEdges.Length];
+            Volcanoes=new VolcanicTerrain(world,scale,landscapeLocator,token);
             var incoming=new bool[count];
             for(int i=0;i<count;i++)if(nodeChannels[i]>=0)
             {
@@ -847,6 +849,12 @@ namespace WorldGen.Core
                 var landscape=LandscapeControls.Mix(found.A.Landscape,found.B.Landscape,found.C.Landscape,a,b,c);
                 double landscapeOffset=standingBasin<0&&!standingOcean?LandscapeProvince.HeightOffset(point*(owner.radius*owner.scale),owner.seed,landscape)*OrogenMorphology.Smooth(3,30,pre):0;
                 height+=landscapeOffset;pre+=landscapeOffset;if(!double.IsNaN(water))mask=water-height;
+                if(standingBasin<0)
+                {
+                    double volcanic=owner.Volcanoes.Apply(point,found.Root,height,out double exposure);
+                    pre+=volcanic-height;height=volcanic;landscape.BareRock=(float)Math.Max(landscape.BareRock,exposure);
+                    if(!double.IsNaN(water))mask=water-height;
+                }
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
                     Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,Minimum=minimum,Maximum=maximum,
                     Flow=waterFlow,Speed=speed,Turbulence=turbulence,DetailProtection=1,Landscape=landscape,LandscapeOffset=landscapeOffset};

@@ -25,8 +25,10 @@ public sealed partial class LocalTerrainExplorer
         public double TerrainReveal,ForestReveal,FogDistance;
         public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
         public SmallLake Pond;
+        public VolcanicTerrain.Volcano Volcano;
+        public int RiverReach=-1;
     }
-    sealed class LandscapeReviewSite{public V Position;public SmallLake Pond;public LocalTerrainSample Sample;}
+    sealed class LandscapeReviewSite{public V Position;public SmallLake Pond;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public int RiverReach=-1;public double RiverWidth;}
     public static IEnumerator CheckLandscape(string path,string output,string kind)
     {
         Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
@@ -47,7 +49,29 @@ public sealed partial class LocalTerrainExplorer
         var choose=Task.Run(()=>
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
-            if(kind=="pond")
+            if(kind=="Volcano")
+            {
+                foreach(var volcano in model.Amplification.Volcanoes.Forms.Where(v=>v.AgeMyr==0&&v.RadiusM<=3500).OrderByDescending(v=>v.HeightM))
+                {
+                    var s=model.Patch(volcano.Center,20000).Sample(volcano.Center);
+                    if(s.Underwater||s.ElevationM<20)continue;
+                    return new LandscapeReviewSite{Position=volcano.Center,Sample=s,Volcano=volcano};
+                }
+            }
+            else if(kind=="MeanderingRiver")
+            {
+                foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008).Take(96))
+                {
+                    var spans=model.Amplification.RiverReach(channel.From);if(spans.Length<8)continue;
+                    var middle=spans[spans.Length/2];double half=(middle.WidthA+middle.WidthB)*.5;
+                    V center=(middle.A+middle.B).Unit,bank=(center+middle.SideA*((half*2+6)/(model.RadiusM*.1))).Unit;
+                    var s=model.Patch(bank,10000).Sample(bank);if(s.Underwater)continue;
+                    double pathLength=spans.Sum(span=>(span.B-span.A).Length),chord=(spans[spans.Length-1].B-spans[0].A).Length;
+                    if(pathLength/Math.Max(1e-9,chord)<1.03)continue;
+                    return new LandscapeReviewSite{Position=bank,Sample=s,RiverReach=channel.From,RiverWidth=half*2};
+                }
+            }
+            else if(kind=="pond")
             {
                 foreach(int cell in cells.Where(i=>world.Ecology.Habitat[i].MeanTenthsC>50&&Math.Abs(world.Surface.Cells[i].Position.Z)<.9)
                     .OrderByDescending(i=>model.Profile(i).Landscape.Wet+model.Profile(i).Landscape.Glacial*.4).Take(96))
@@ -91,6 +115,8 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
+        if(site.Volcano!=null){reviewRange=8000;reviewFootprint=Math.Min(6000,site.Volcano.RadiusM*1.8);}
+        if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{},world,play,worker:worker);
@@ -167,7 +193,7 @@ public sealed partial class LocalTerrainExplorer
                 foreach(var material in owner.ownedScatterMaterials)if(material!=null&&material.HasProperty("_TreeViewCutoff"))LocalTreeTextures.BindViews(material);
             }
         }
-        float width=(float)(site.Pond?.Radius??(kind=="SandSea"?180:70));
+        float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??(site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));
         Quaternion orientation=Quaternion.identity;
         if(kind=="SandSea")
         {
@@ -177,6 +203,17 @@ public sealed partial class LocalTerrainExplorer
         }
         yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,10),true));
+        if(site.Volcano!=null)
+        {
+            yield return owner.StartCoroutine(Capture("crater-rim",new Vector3((float)(site.Volcano.RadiusM*site.Volcano.CraterFraction),0,0),true));
+            yield return owner.StartCoroutine(Capture("wide-other-side",new Vector3(-width*.3f,width*.6f,-width*1.5f)));
+            Check(sample.Province.BareRock>.8,"Young volcanic crater has exposed geological substrate");
+        }
+        if(site.RiverReach>=0)
+        {
+            Check(owner.tiles.Values.Any(t=>t.Renderers!=null&&t.Renderers.Length>1),"Reviewed channel has actual uploaded water geometry");
+            yield return owner.StartCoroutine(Capture("river-overview",new Vector3(-width*.4f,width*.7f,-width*1.2f)));
+        }
         if(kind=="SandSea"||kind=="SaltFlat")
         {
             foreach(int angle in new[]{90,180,270})yield return owner.StartCoroutine(Capture("ground-"+angle,orientation*Quaternion.Euler(0,angle,0)*new Vector3(0,0,10),true));
@@ -203,7 +240,7 @@ public sealed partial class LocalTerrainExplorer
         Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
-            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,
+            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,Volcano=site.Volcano,RiverReach=site.RiverReach,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
