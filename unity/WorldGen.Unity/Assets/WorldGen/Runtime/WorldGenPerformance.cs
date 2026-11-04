@@ -21,6 +21,7 @@ public static class WorldGenPerformance
     public static bool DisableScatterViewGuard;
     public static bool ForceFreshVisibleGround;
     public static bool DirectionalScatter;
+    public static bool GpuNearOcclusion;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
@@ -321,7 +322,7 @@ public sealed partial class LocalTerrainExplorer
     public string PerformanceVerifyRotationGuard(string output)
     {
         Directory.CreateDirectory(output);var oldRotation=view.transform.localRotation;var oldEye=view.transform.localPosition;float oldHeading=heading,oldPitch=pitch;
-        bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard;
+        bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard,oldGpuOcclusion=WorldGenPerformance.GpuNearOcclusion;
         int comparisons=0,maxDelta=0,maxChanged=0;
         try
         {
@@ -329,6 +330,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var offset in new[]{new Vector2(170,0),new Vector2(-95,0),new Vector2(0,74),new Vector2(45,-74)})
             {
                 PerformanceTurn(yaw);var center=view.transform.localRotation;
+                WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;
                 WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
                 if(!scatterCachedAllHeadings)throw new InvalidOperationException("All-heading scatter is not active in this verification context");
                 var guarded=PerformanceInstances(true).GroupBy(s=>s).ToDictionary(g=>g.Key,g=>g.Count(),StringComparer.Ordinal);
@@ -336,7 +338,7 @@ public sealed partial class LocalTerrainExplorer
                 view.transform.localRotation=center*Quaternion.Euler(offset.y,offset.x,0);
                 if(ScatterViewChanged)throw new InvalidOperationException("Within-guard camera rotation unexpectedly invalidated scatter");
                 DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var cached=LastCapturePixels;
-                WorldGenPerformance.DisableScatterViewGuard=true;BuildScatterBatches();
+                WorldGenPerformance.DisableScatterViewGuard=true;WorldGenPerformance.GpuNearOcclusion=false;BuildScatterBatches();
                 if(!guardedCasters.SequenceEqual(PerformanceInstances(castersOnly:true)))throw new InvalidOperationException("Rotation guard changed physical model/transform/tint/LOD shadow casters at yaw "+yaw+", offset "+offset);
                 foreach(var instance in PerformanceInstances(true))
                 {
@@ -375,7 +377,7 @@ public sealed partial class LocalTerrainExplorer
                     finally{Destroy(image);}
                     throw new InvalidOperationException("Rotation guard render differs from literal camera: yaw "+yaw+", offset "+offset+", max RGB delta "+delta+", changed pixels "+changed);
                 }
-                view.transform.localRotation=center;WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
+                view.transform.localRotation=center;WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;BuildScatterBatches();
                 view.transform.localPosition+=Vector3.right*.6f;
                 if(!ScatterViewChanged)throw new InvalidOperationException("Eye movement failed to invalidate scatter");
                 view.transform.localPosition=oldEye;
@@ -384,7 +386,7 @@ public sealed partial class LocalTerrainExplorer
         }
         finally
         {
-            heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;BuildScatterBatches();
+            heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;BuildScatterBatches();
         }
     }
     public void PerformancePose(double height=1.65)
@@ -670,6 +672,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("scatter-range-verify",()=>{}),
             new PerfCase("scatter-guard-verify",()=>{}),
             new PerfCase("ground-owner-verify",()=>{}),
+            new PerfCase("scatter-gpu-depth-verify",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("foliage-one-tap",()=>WorldGenPerformance.FoliageShadowTaps=1),
             new PerfCase("foliage-four-tap",()=>WorldGenPerformance.FoliageShadowTaps=4),
             new PerfCase("no-mid-shadows",()=>TerrainVideoOptions.MidPlantShadows=false),
@@ -742,6 +745,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("flying-terrain-only",()=>{terrainExplorer.PerformancePose(60);TerrainVideoOptions.GroundCover=false;terrainExplorer.ScatterEnabled=false;TerrainVideoOptions.FarForest=false;}),
             new PerfCase("turning-original",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("turning",()=>{}),
+            new PerfCase("turning-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("turning-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
             new PerfCase("turning-bands-off",()=>TerrainVideoOptions.FrontToBackTrees=false),
             new PerfCase("turning-depth-on",()=>TerrainVideoOptions.FoliageDepthPrepass=true),
@@ -749,6 +753,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("overlap-verify",()=>{}),
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
+            new PerfCase("travel-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
@@ -773,6 +778,7 @@ public sealed partial class WorldGenRuntime
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;
+                WorldGenPerformance.GpuNearOcclusion=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
@@ -798,6 +804,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="scatter-range-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyVisibility()+"\n");
                 if(item.Name=="scatter-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"rotation-guard"))+"\n");
                 if(item.Name=="ground-owner-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n");
+                if(item.Name=="scatter-gpu-depth-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),"Near GPU depth: "+terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"near-gpu-depth"))+"\n");
                 if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
                 if(item.Name=="full")
                 {

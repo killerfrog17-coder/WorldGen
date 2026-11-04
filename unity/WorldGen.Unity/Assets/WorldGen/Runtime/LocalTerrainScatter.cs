@@ -490,7 +490,7 @@ public sealed partial class LocalTerrainExplorer
                 if(blend.Visibility<=0)continue;
                 var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
                 bool frustum=TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye);
-                bool occluded=!frustum&&TerrainOccluded(bounds,eye),shadowOnly=frustum||occluded;
+                bool occluded=!frustum&&!WorldGenPerformance.GpuNearOcclusion&&TerrainOccluded(bounds,eye),shadowOnly=frustum||occluded;
                 if(frustum)ScatterFrustumRejected++;if(occluded)ScatterTerrainRejected++;
                 if(shadowOnly&&(p.Kind==ScatterKind.Grass||IsSpecialist(p.Kind)||!MayCastVisibleShadow(bounds,eye)))continue;
                 if(shadowOnly&&(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.TreeShadows))continue;
