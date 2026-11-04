@@ -49,6 +49,66 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+SELECTED4Nov00:26Z BRANCH FOLLOW-UP VERIFIED. Rootshortcut NOW slot-b,
+FULL managedNONDEV built00:17:17.5852150Z, runtimef5385a89 PUSHED. All3ordered
+updates implemented/internallyverified; owner visual approval still pending.
+Extra dense TropicalRainforest96689/High/1200m: forest-ready EXIT0,108/108tiles,
+525/525fields,164583roots,all9local/standbakes/noPending. Actualdenseforestimage
+INSPECTED (notemptyclearing). 4248tree source/fullscatter matrices andspatialbins
+EXACT across3alternatecharts;128workeridentities/512ownership checks;4headings
+literaladmission/queueordering pixel0; earlyalphaRGBdelta1. Two SAMEnewB nativeGPU
+tree/forestshader suites PASS. Forest12sec1536x864High benchmark131.33FPS,
+p95 10.09ms,p99 14.55,max66.62/oneGC; NOT universalFPS/hitchfreeclaim. OldB+oldA
+bothfailed BEFOREtiming, so NO forest-only speedup comparison. Parentartproof
+still tree-art-20261103.json runtime29159e5d,60checks/12images/campB-A -6.6%; not
+falsely labellednewBcaptures. New explicitdelta tree-handoff-20261104.json binds
+source/currentpackage/nativeproof/parentmanifest/hash/oldrejections; artwork,
+Core numericalsource,terrain/ecology unchanged. Fix shares ScatterScale and
+ScatterEmbedding so reanchoring no longer squashes branchlength towidth. Source
+and5357inputs/139packs remain backedup; owner3files untouched. No own games,
+editor/build/worker jobs left. Finaldelta proof/docs/session/shortcut included
+in living-vegetation-handoff-20261104 checkpoint and pushed with its tag.
+No newfeatures or speculative styling; ownerreviewquestion remains unanswered.
+Continue per owner mandate, no explicitstop/wrap received.
+
+ACTIVE4Nov00:21Z FOLLOW-UP. SelectedA tree checkpoint unchanged, tag
+living-vegetation-20261103/main07ef646a, runtime29159e5d. Both oldB andselectedA
+extra forest-flat/forest-ready fixtures FAILED same prepared branch scale check,
+before any timing. Rejected JSON/logs retained, never claimdenseforestFPS from
+these. Fixf5385a89 PUSHED; inactiveB FULL managedNONDEV built00:17:17.5852150Z;
+3knownUnityautos restored. Both newB native shader suites trees-handoff PASS.
+Current own PSsession55553 runs correctedB actualTropicalRainforest96689 dense
+forest-ready/High/1200m/1536x864/12sec in artifacts/tree-20261103/settled-forest-
+handoff. Last t129s,108/108tiles,519/525forestfields,160607roots/all9bakesfinished.
+Need wait actualprojection+spatialbin identity, root/admission/alpha/queue checks,
+timing andactual forest image inspection. Preparedsizefix mustpass beforeselectB.
+Parent60scenechecks/12reviews/campcomparison remain artbaselineproof, notnewB
+samepackage scenes. Write explicitdelta proof referencing parentmanifest, native
+shader receipts andnewforestactualtest; do not falsely relabelhistoriccaptures.
+No morefeatures untilactualresult; source3filesonlynormal/sharedScale/Embedding
+anddiagnosticerror. Ownerreviewquestion pending, no reply; keepworking permandate.
+
+ACTIVE4Nov00:14Z CONTINUE after selected tree handoff. Owner review question
+pending, no reply. Additional forest-only test exposed REAL pre-existing branch
+scale mismatch during prepared terrain chart handoff: ordinary branch zscale
+HeightM but prepared path used WidthM for ALL scatter. Dense fixture tests every
+scatter item, hence old misleading 'tree matrix' exception. Baseline B settled
+forest-flat actualTropicalRainforest96689,525fields/164583roots/allbakesfinished
+then FAILED identity beforetiming; NO FPSresult. Evidence settled-forest-baseline.
+SelectedA remains verified tree art package/shortcut. Its unmodified same test
+currently RUNNING PSsession19032/player28304, output settled-forest-candidate;
+expected samefailure; do notoverwrite A or close ownerapps. Runtimefixf5385a89
+PUSHED: both projection paths share ScatterEmbedding/ScatterScale, diagnostics
+identify failed item/kind/component. NEW FIX NOT BUILT/ACCEPTED YET. Need waitA
+failure, FULL managed inactiveB build (B lacks treeartpackeddata; noScriptsOnly),
+then existing forest-ready test samecurrentworld/High/1200m actualsettled woodland.
+Use new outputprefix; no accepted forest-only timing untilactualimageinspected.
+Tree art60scenechecks/nativeGPU/campcomparison still valid forselectedA; source
+changes only branchhandoff anddiagnosticmessage. Finaldelta proof mustexplicitly
+reference parent tree-art manifest andtargeted regression, notlabel old scenes as
+newpackage proof. Keep A selected untilfixchecks pass. No paid/subagents/extra
+players/ownerfileschanged. Continue meaningfulwork per owner mandate.
+
 SELECTED4Nov00:01Z TREE UPDATE VERIFIED. Owner continue mandate still active;
 no stop/wrap received. All three ordered stages now implemented and internally
 verified. Rootshortcut NOW slot-a, managedNONDEV FULL built3Nov23:28:06.5019979Z,

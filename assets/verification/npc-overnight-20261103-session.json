@@ -37,7 +37,7 @@
       "name": "Tree and vegetation variety/quality",
       "blocked_until": "Stage 2 genuinely satisfactory",
       "scope": "Regional tree forms, actual textures and colour variation; critically inspected and performance measured",
-      "status": "Verified and selected slot-a. Runtime 29159e5d, full managed non-development build 2026-11-03T23:28:06.5019979Z. Six actual High-preset scenes/60 checks and twelve inspected images; native tree/forest shader suites pass. Sequential 42-NPC camp comparison: 8.49/8.23 to 7.96/7.66 ms normal frames, terrain streaming in both; eighteen current save/placement/revisit checks per package. Manifest tree-art-20261103.json. Internal verification does not infer owner visual approval."
+      "status": "Verified and selected slot-a. Runtime 29159e5d, full managed non-development build 2026-11-03T23:28:06.5019979Z. Six actual High-preset scenes/60 checks and twelve inspected images; native tree/forest shader suites pass. Sequential 42-NPC camp comparison: 8.49/8.23 to 7.96/7.66 ms normal frames, terrain streaming in both; eighteen current save/placement/revisit checks per package. Manifest tree-art-20261103.json. Internal verification does not infer owner visual approval. Follow-up branch chart-handoff fix f5385a89 selected in slot-b, full managed non-development build 2026-11-04T00:17:17.5852150Z. Dense forest all transforms and bins exact across three charts; two new GPU shader suites pass. Settled 108-tile benchmark 131.3 FPS at 1536x864/High, no forest-only before/after claim. Delta receipt tree-handoff-20261104.json explicitly inherits parent art evidence."
     }
   ],
   "constraints": [
@@ -47,6 +47,6 @@
     "Preserve original authoring assets and unrelated owner files",
     "Do not stop at a milestone while the owner's continue instruction remains active"
   ],
-  "selected_slot_now": "slot-a",
-  "latest_verified_runtime": "29159e5d0dbe92a3bbe0dc283ec53f62276f72ac"
+  "selected_slot_now": "slot-b",
+  "latest_verified_runtime": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e"
 }

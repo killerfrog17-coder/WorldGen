@@ -1,0 +1,212 @@
+{
+  "recorded_utc": "2026-11-04T00:25:07.625908+00:00",
+  "source": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
+  "slot": "builds/slot-b",
+  "package": {
+    "Source": "f5385a89",
+    "Build": {
+      "BuiltUtc": "2026-11-04T00:17:17.5852150Z",
+      "Backend": "Mono",
+      "Development": false,
+      "ScriptsOnly": false,
+      "Inputs": [
+        {
+          "Assembly": "WorldGen.Core",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+          "Sha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003"
+        },
+        {
+          "Assembly": "WorldGen.Serialization",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+          "Sha256": "c41eb03bafc1f13ea9d2f4b6a2233a503ad28ded7a82fb013f08e776d43080c7"
+        },
+        {
+          "Assembly": "WorldGen.Presentation",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+          "Sha256": "e180456b72776f4114f5a0ca7e21abcf31a117601f156c804592ecf19133710c"
+        },
+        {
+          "Assembly": "DelaunatorSharp",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+          "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+        }
+      ],
+      "TerrainWorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+    },
+    "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+    "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+    "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+  },
+  "parent_art_verification": {
+    "path": "assets/verification/tree-art-20261103.json",
+    "sha256": "51a28a1e84810a54d23f9943c7684a6b0a3c79f53863e9c04460eef33281cc7e",
+    "source": "29159e5d0dbe92a3bbe0dc283ec53f62276f72ac"
+  },
+  "scope": "Follow-up branch chart-handoff correctness fix. Prepared and ordinary scatter share embedding and scale; branches retain their long axis instead of collapsing it to their width. All tree artwork, shaders, Core numerical source, terrain and ecology remain unchanged from the parent verified art checkpoint.",
+  "changed_runtime_files": [
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainHandoffScatter.cs",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainScatter.cs",
+    "unity/WorldGen.Unity/Assets/WorldGen/Runtime/WorldGenPerformance.cs"
+  ],
+  "shaders": [
+    {
+      "kind": "tree",
+      "package": {
+        "Slot": "slot-b",
+        "Built": {
+          "BuiltUtc": "2026-11-04T00:17:17.5852150Z",
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "c41eb03bafc1f13ea9d2f4b6a2233a503ad28ded7a82fb013f08e776d43080c7"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "e180456b72776f4114f5a0ca7e21abcf31a117601f156c804592ecf19133710c"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+        },
+        "Assembly": "29F19DC48390749C07CB5D5EE22E6C328EF29293B5E9E992BEA4C4526CF173E0",
+        "Core": "E849FA0CFD83B784BB7BB2494D27FC4F9BCFC238AF1F3F844C0CE6414EE3A003",
+        "Worker": "C5A67155B2164388021DB55BE0246F24297B87E822A4164FEC6DAF9F4DB1D19E"
+      },
+      "results": "NVIDIA GeForce RTX 4060\n36984320 stage=0 left=27170 right=26901\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=9, mean=0.00144350405092593\n36984320 stage=1 left=26613 right=27200\n305419776 stage=0 left=35036 right=34212\nearly alpha max RGB delta 0\ntight quad max RGB delta 167, significant=16, mean=0.00176432291666667\n305419776 stage=1 left=36961 right=36520\n573855232 stage=0 left=15542 right=15082\nearly alpha max RGB delta 0\ntight quad max RGB delta 6, significant=5, mean=0.000268373842592593\n573855232 stage=1 left=13261 right=13056\n842290688 stage=0 left=12495 right=12378\nearly alpha max RGB delta 0\ntight quad max RGB delta 168, significant=28, mean=0.00177300347222222\n842290688 stage=1 left=10884 right=11694\n1110726144 stage=0 left=12903 right=13584\nearly alpha max RGB delta 0\ntight quad max RGB delta 137, significant=3, mean=0.000301287615740741\n1110726144 stage=1 left=12810 right=13259\n1379161600 stage=0 left=13730 right=13390\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=24, mean=0.00173936631944444\n1379161600 stage=1 left=7874 right=9271\n41178624 stage=0 left=20888 right=22061\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=13, mean=0.00126302083333333\n41178624 stage=1 left=21904 right=23542\n45372928 stage=0 left=26176 right=29772\nearly alpha max RGB delta 0\ntight quad max RGB delta 169, significant=7, mean=0.00128219039351852\n45372928 stage=1 left=27219 right=29997\n",
+      "pass_sha256": "9dc6061c46a2f8600195e49a7b174d0e74c44ca271cdebceda7795fd41bd8563"
+    },
+    {
+      "kind": "forest",
+      "package": {
+        "Slot": "slot-b",
+        "Built": {
+          "BuiltUtc": "2026-11-04T00:17:17.5852150Z",
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "c41eb03bafc1f13ea9d2f4b6a2233a503ad28ded7a82fb013f08e776d43080c7"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "e180456b72776f4114f5a0ca7e21abcf31a117601f156c804592ecf19133710c"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+        },
+        "Assembly": "29F19DC48390749C07CB5D5EE22E6C328EF29293B5E9E992BEA4C4526CF173E0",
+        "Core": "E849FA0CFD83B784BB7BB2494D27FC4F9BCFC238AF1F3F844C0CE6414EE3A003",
+        "Worker": "C5A67155B2164388021DB55BE0246F24297B87E822A4164FEC6DAF9F4DB1D19E"
+      },
+      "results": "NVIDIA GeForce RTX 4060\nGPU admission/disable/near-range/finer-field ownership pass\nearly alpha max RGB delta 0\ntight quad max RGB delta 168, significant=6, mean=0.000925202546296296\n36984320 pixels=9461/10041\nearly alpha max RGB delta 0\ntight quad max RGB delta 164, significant=11, mean=0.000964626736111111\n305419776 pixels=12967/13097\n",
+      "pass_sha256": "88db6c9082fdaf3ebce7bce29a3bc76af80de5fcb95f76585e131b59c53c3eb0"
+    }
+  ],
+  "forest": {
+    "command": "scripts/vegetation-performance.ps1 -PlayerFolder slot-b -Snapshot artifacts/npc-20261103/current-190k.world -Output artifacts/tree-20261103/settled-forest-handoff -Sites forest-flat -Cases forest-ready -Seconds 12 -ViewDistance 1200 -PlantQuality 3 -Width 1536 -Height 864 -TimeoutMinutes 12",
+    "site": "forest-flat cell 96689 -1.90272010279214,-31.723627565832903; biome TropicalRainforest; relief 7\n",
+    "machine": "AMD Ryzen 7 5700X 8-Core Processor \nNVIDIA GeForce RTX 4060\nDirect3D 11.0 [level 11.1]\nRAM 32694 MB VRAM 7957 MB\n1536x864, Linear, VSync 0, target -1\nUnity 6000.6.0f1\nUTC 2026-11-04T00:20:03.0849438Z\nSeed 73421; scale .1; clear noon; terrain quality2; view 1200m; vegetation quality3; fine radius153.6m.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\nForced single offscreen URP render 1536x864; automatic camera disabled. Frame timing stats enabled: False. Original CPU paths: False.\n",
+    "checks": "4248 trees: 3 alternate-chart prepared/ordinary matrices and spatial bins exact; shared forest permit and sent-socket cancellation checks pass; 128 IL2CPP/worker exact tree identities; 512 exact ownership cache checks; 0 empty ownership pages retained; alternate-chart max roundtrip 0.0012742m (Core V uses 1e-9 quantization)\nTree initial-alpha early reject vs literal 12-sample views: max RGB delta 1\n4 headings: tree-only bin vs literal individual admission, same visible counts; max RGB delta 0\n4 headings: original vs terrain/individual/field opaque queue tiers, max RGB delta 0\nforest-flat: 25119 loading/idle readiness comparisons passed.\n",
+    "state": "forest-flat forest-ready: fields 525/525, roots 164583, pending False, baked local 9, baked forest 9, pending models 0, texture bytes 50331648\n",
+    "timing": {
+      "site": "forest-flat",
+      "cell": "96689",
+      "biome": "TropicalRainforest",
+      "relief": "7",
+      "case": "forest-ready",
+      "frames": "1577",
+      "seconds": "12.00821",
+      "fps": "131.32686",
+      "p50_ms": "7.19550",
+      "p95_ms": "10.08770",
+      "p99_ms": "14.55290",
+      "max_ms": "66.61630",
+      "over10ms": "81",
+      "over16ms": "15",
+      "scatter_update_ms": "0.14162",
+      "scatter_submit_ms": "0.63618",
+      "grass_submit_ms": "0.29859",
+      "weather_ms": "0.09467",
+      "tiles": "108",
+      "wanted": "108",
+      "objects": "2303",
+      "specialists": "425",
+      "mid": "526",
+      "trees": "1262",
+      "scatter_draws": "129",
+      "grass_draws": "54",
+      "grass_candidates": "718080",
+      "grass_bytes": "99384752",
+      "frustum_rejected": "393386",
+      "terrain_rejected": "0",
+      "settled": "True",
+      "start_qpc": "2798024890",
+      "end_qpc": "2918107007",
+      "gpu_ms": "0.00000",
+      "cpu_ms": "0.00000",
+      "timing_samples": "0",
+      "gpu_drain_ms": "3.46950"
+    },
+    "input_sha256": "E5D8CE3F37AF883F605269F55B12B1E4B0760E49A58BB483B6480FE4DC3ADC28",
+    "accepted_image": {
+      "sha256": "38e162d5c8088ae93f31bd165dee3435b84d23bc23ea815c459e45fa86162cc4",
+      "findings": "Inspected actual dense tropical forest view: trunks and buttressed bases, palms/ferns and overlapping crowns fill the view above tall resident grass. This is not the previously rejected empty clearing. Generated leaf-card and distant-proxy simplification remains visible."
+    },
+    "checks_sha256": "c122185d36d1dc5bf5c42afa9bec5f6586d2f0ff214c30643db8c9cf7eb30f28",
+    "log_sha256": "9a1136ea05686af48feb818999d22cf80627d87fe1521007fa21e7bfe3ceaa15"
+  },
+  "prior_rejections": [
+    {
+      "accepted": false,
+      "exit_code": 1,
+      "source": "9358b36",
+      "failure": "Prepared dense tree matrix differs from ordinary projection",
+      "diagnosis": "Prepared scatter used WidthM on the branch length axis while ordinary scatter uses HeightM. Shared ScatterScale/ScatterEmbedding fix committed as f5385a89. No timings were recorded.",
+      "log_sha256": "d207ca347b78530f03f474a17d4bd597090b6adb47b324463053b67728a63e05"
+    },
+    {
+      "accepted": false,
+      "exit_code": 1,
+      "source": "29159e5d",
+      "failure": "Prepared dense tree matrix differs from ordinary projection",
+      "diagnosis": "Prepared scatter used WidthM on the branch length axis while ordinary scatter uses HeightM. Shared ScatterScale/ScatterEmbedding fix committed as f5385a89. No timings were recorded.",
+      "log_sha256": "46a33e5b9700865e70d3c37165f8500151b3e75010b46be3fa39350d69c428b2"
+    }
+  ],
+  "asset_lock_sha256": "e7f39517b46f1805d6b7c59a2d3daa4680c61b8b542035c9122ce3bf9fd20bb6",
+  "original_art_inputs_unchanged": true,
+  "limits": [
+    "The two prior forest-only runs failed before timing; this is not a before/after forest-only FPS claim.",
+    "The parent six environment reviews and matched NPC-camp comparison are parent-package evidence, explicitly inherited for unchanged artwork; they are not relabelled as new-package captures.",
+    "The 12-second single-site forced offscreen-render benchmark includes GPU completion at window boundaries. It is not a whole-world or interactive FPS guarantee; GPU hardware frame timing was unavailable.",
+    "The sample includes one collection and a 66.62 ms maximum frame. No claim of universally hitch-free play."
+  ]
+}

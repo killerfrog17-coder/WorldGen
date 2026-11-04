@@ -163,6 +163,24 @@ camp harness keeps identical heavy 120/450 m mesh ranges in both packages.
 The source/package hashes, art budgets, internal image findings and exact
 measurements are recorded in `assets/verification/tree-art-20261103.json`.
 
+An additional loaded tropical-forest check exposed an older prepared-chart
+branch-size mismatch in both previous packages: ordinary placement used branch
+length on its long axis, while the handoff path used width. Both paths now share
+scale and embedding functions. The corrected native fixture checked a dense
+source with 4,248 trees and every scatter transform across three alternate charts;
+matrices and spatial bins matched exactly. Root identity, admission, alpha and
+draw-order checks also passed. The new build's two GPU shader suites passed.
+
+That settled forest sample had 108/108 tiles and 525/525 forest pages, with all
+visible models baked. Its actual dense-forest image was inspected. A twelve-second
+1536x864 High-preset offscreen benchmark averaged 131.3 FPS, with 10.09 ms at the
+95th percentile. It included one collection and a 66.62 ms maximum frame. The
+older packages failed correctness checks before timing, so this supplies no
+forest-only speedup comparison. GPU hardware timings were unavailable. The
+separate delta receipt, `assets/verification/tree-handoff-20261104.json`, explicitly
+references the unchanged artwork's parent verification instead of presenting
+old captures as new-package results.
+
 This tree-focused pass does not add live plant growth, seasonal leaf shedding,
 fruiting, or a replacement of all shrub/grass artwork. Distant proxies remain
 128 pixels over sixteen directions. Internal visual review does not establish
