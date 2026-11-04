@@ -65,7 +65,7 @@ public sealed partial class LocalTerrainExplorer
                     V coarse=(reach.A+reach.B).Unit,coarseSide=V.Cross(coarse,reach.B-reach.A).Unit;
                     var wall=patch.Sample((coarse+coarseSide*(reach.HalfWidth*.45/(model.RadiusM*.1))).Unit);
                     if(rim.ElevationM-sample.ElevationM<100||wall.Province.CanyonExposure<.05)continue;
-                    return new LandscapeReviewSite{Position=center,Sample=sample,Canyon=reach,RiverReach=reach.Source,RiverWidth=middle.WidthA*2,Landform=kind};
+                    return new LandscapeReviewSite{Position=center,CoastDirection=side,Sample=sample,Canyon=reach,RiverReach=reach.Source,RiverWidth=middle.WidthA*2,Landform=kind};
                 }
             }
             else if(kind=="Waterfall")
@@ -95,7 +95,8 @@ public sealed partial class LocalTerrainExplorer
             else if(kind=="TowerKarst")
             {
                 bool karst=kind=="TowerKarst";
-                var candidates=cells.Where(i=>karst?model.Profile(i).Landscape.Karst>.35&&model.Profile(i).Landscape.Moisture>.65&&model.Profile(i).Landscape.Glacial<.25&&world.Ecology.Habitat[i].WarmTenthsC>220:model.Profile(i).Landscape.Remnant>.35)
+                var candidates=cells.Where(i=>world.Surface.Cells[i].Neighbors.All(n=>!world.Hydrology.OceanConnected[n]))
+                    .Where(i=>karst?model.Profile(i).Landscape.Karst>.35&&model.Profile(i).Landscape.Moisture>.65&&model.Profile(i).Landscape.Glacial<.25&&world.Ecology.Habitat[i].WarmTenthsC>220:model.Profile(i).Landscape.Remnant>.35)
                     .OrderByDescending(i=>karst?model.Profile(i).Landscape.Karst:model.Profile(i).Landscape.Remnant).Take(128);
                 foreach(int cell in candidates)
                 {
@@ -244,7 +245,7 @@ public sealed partial class LocalTerrainExplorer
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
         double floor=site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
-        var cameraReceipts=new List<string>();
+        var cameraReceipts=new List<string>();Color[] fallMotionPixels=null;
         IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12,bool faceCenter=false)
         {
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
@@ -265,7 +266,7 @@ public sealed partial class LocalTerrainExplorer
                 look=targetPoint-camera;
             }
             cameraReceipts.Add(name+" camera="+camera+" ground="+cameraFloor+" eyeClearance="+(camera.y-cameraFloor)+" solarHour="+hour);
-            owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();
+            owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();owner.UpdatePlayerWater(true);
             owner.BuildScatterBatches();
             double bakedDeadline=Time.realtimeSinceStartupAsDouble+90,nextBakeReport=0;
             bool VisiblePending()=>owner.drawBatches.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked)||owner.forestBatches.Values.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked);
@@ -276,8 +277,15 @@ public sealed partial class LocalTerrainExplorer
             }
             Check(!VisiblePending(),"Visible distant-tree models complete while the review camera stays still");
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
-            owner.SetFog();owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
-            var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
+            owner.SetFog();owner.UpdatePlayerWater(true);owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+            var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
+            if(name=="fall-base"||name=="fall-base-later")
+            {
+                var pixels=new Color[25];for(int z=0;z<5;z++)for(int x=0;x<5;x++)pixels[z*5+x]=image.GetPixel(766+x,430+z);
+                if(fallMotionPixels!=null)Check(pixels.Where((c,i)=>Mathf.Abs(c.r-fallMotionPixels[i].r)+Mathf.Abs(c.g-fallMotionPixels[i].g)+Mathf.Abs(c.b-fallMotionPixels[i].b)>.01f).Count()>10,"Falling water visibly changes in a fixed central sheet sample across actual frames");
+                fallMotionPixels=pixels;
+            }
+            Destroy(image);RenderTexture.active=prior;
             if(Environment.GetCommandLineArgs().Contains("--worldgen-grass-review"))
             {
                 foreach(bool clumps in new[]{false,true})
@@ -327,6 +335,11 @@ public sealed partial class LocalTerrainExplorer
         Quaternion orientation=Quaternion.identity;
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));
+        if(site.Canyon!=null)
+        {
+            V side=site.CoastDirection;
+            orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(side,owner.frame.East),0,(float)V.Dot(side,owner.frame.North)));
+        }
         if(kind=="SandSea")
         {
             var first=new V(.73,.41,.54);double alignment=site.Position.X*first.X+site.Position.Y*first.Y+site.Position.Z*first.Z;
@@ -334,7 +347,7 @@ public sealed partial class LocalTerrainExplorer
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
         }
         yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
-        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,10),true));
+        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(site.Canyon!=null?site.RiverWidth*.8+8:10)),true));
         if(site.Volcano!=null)
         {
             yield return owner.StartCoroutine(Capture("crater-overview",new Vector3(width*.05f,width*.65f,width*.1f)));
@@ -369,6 +382,8 @@ public sealed partial class LocalTerrainExplorer
             TerrainHandoff.Coordinates(owner.frame,basePoint,out double bx,out double bz);
             float by=(float)owner.frame.SurfaceY(basePoint,fall.LevelB+2)-y-.5f;
             yield return owner.StartCoroutine(Capture("fall-base",new Vector3((float)bx,by,(float)bz)));
+            yield return new WaitForSecondsRealtime(.25f);
+            yield return owner.StartCoroutine(Capture("fall-base-later",new Vector3((float)bx,by,(float)bz)));
         }
         if(kind=="SandSea"||kind=="SaltFlat")
         {
