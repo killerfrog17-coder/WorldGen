@@ -49,6 +49,32 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov14:18Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z,
+8h is NOT a stop. Scope/selected B f5385a89 unchanged; A internal only. Latest
+213009a5 PUSHED, A full NONDEV built14:12:11Z at354f511a. Terrain42/Hyper37:
+irregular canyon gullies, finer humid-karst grooves, varied/subtler cliff beds.
+Pure81063 canyon controls PASS (first simplex continuity failure retained;
+new local eight-hash continuous value noise); actual42 three canyon/water/shared
+edge contexts PASS, river27263/764spans/8tiles PASS,6eroded sites PASS. Native41
+6scenes EXIT0; inspected Karst distinct but distant ghost-tree silhouettes need
+diagnosis; canyon/rock bands too regular, new42 correction UNSEEN. Falls actual
+frame motion PASS; still simple sheets. Lianas in latest jungle, no extra draws.
+Range optimisation native ranges-3 PASS strict8heading exact instance sets:
+jungle turn67.54->112.23FPS, travel112.32->128.57; p95 still12.40/14.28ms, NOT
+universal100+ acceptance. Rotation guard-1 strict32pixel test FAILED7pixels
+max22RGB at one view; no instance omissions. New guard-2 isolates ONLY guard
+(retains strict old-path multiset test separately) and checks exact caster sets.
+CURRENT native session87365 running dense-medium-guard-2 (6km/1080Medium,
+range/guard/turn/travel), then queued living-dissected TowerKarst/Canyon/Volcano.
+Tower diagnostic will assert roots meet resident triangles +longvisibility shot
+to distinguish fog contrast from actual floating. No other heavy jobs active.
+UNBUILT213009a5 caches ground TILE ownership by base address, invalidated on
+resident revision/count/frame/dictionary changes; interpolation unchanged.
+Needs next ScriptsOnly build AFTER87365 exits and actual overlap-verify +moving
+performance. Other3 dense contexts still need repeat. ThreeUnityautos restored.
+No subagents/paid/ownerapps closed. Owner3files untouched; lock5403/143packs.
+Do not select A or claim accepted until current physical/visual/perf checks.
+
 ACTIVE4Nov13:21Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z.
 Owner wants Earth-like regions+features/vegetation/world visuals and Medium1080
 100+FPS, excluding animals/humans/weather/sky. Keep working until explicit stop,

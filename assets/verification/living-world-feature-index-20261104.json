@@ -25,7 +25,9 @@
     {
       "name": "Humid tower karst",
       "commits": [
-        "4ffad55b"
+        "4ffad55b",
+        "cc29c3f9",
+        "d4eb2178"
       ],
       "entry": "src/WorldGen.Core/ErodedTerrain.cs"
     },
@@ -34,7 +36,10 @@
       "commits": [
         "2f9bef8b",
         "8361a2f6",
-        "0c52d18f"
+        "0c52d18f",
+        "7fdf55cc",
+        "37929b4a",
+        "d4eb2178"
       ],
       "entry": "src/WorldGen.Core/CanyonValleys.cs"
     },
@@ -50,7 +55,8 @@
       "name": "Sedimentary bedding",
       "commits": [
         "a4edcbd9",
-        "f5207316"
+        "f5207316",
+        "dd2e1edd"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl"
     },
@@ -58,7 +64,9 @@
       "name": "Plant batch CPU culling",
       "commits": [
         "2456a0b3",
-        "28a9db8f"
+        "28a9db8f",
+        "8f82f314",
+        "213009a5"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainScatter.cs"
     },
