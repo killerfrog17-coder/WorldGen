@@ -16,8 +16,21 @@ namespace WorldGen.Core
             public double RadiusM=>Math.Max(RadiusX,RadiusZ);
             public double Coordinate(V p,double radius)
             {
-                V d=(p-Center)*radius;double x=Math.Abs(Dot(d,Axis))/RadiusX,z=Math.Abs(Dot(d,Side))/RadiusZ;
+                V d=(p-Center)*radius;double x=Dot(d,Axis)/RadiusX,z=Dot(d,Side)/RadiusZ;
+                double phase=(Rng.Mix((uint)Cell)&1023)*.006135923;
+                // Uneven shoulders and vertical runoff flutes break the old
+                // perfect loaf/cylinder silhouette. All are metre-addressed
+                // through the form's physical axes, with unchanged finite support.
+                double shoulderZ=1+.08*Math.Sin(x*3.7+phase)+.035*Math.Sin(x*10.3+phase*2);
+                shoulderZ-=.009*(.5+.5*Math.Sin(x*145+phase))*Math.Min(1,Math.Pow(Math.Abs(z),4));
+                double shoulderX=1+.065*Math.Sin(z*4.1-phase)+.025*Math.Sin(z*12.1+phase);
+                x=Math.Abs(x/shoulderX);z=Math.Abs(z/shoulderZ);
                 return Blocky?Math.Pow(x*x*x*x+z*z*z*z,.25):Math.Sqrt(x*x+z*z);
+            }
+            public double Cap(V p,double radius)
+            {
+                V d=(p-Center)*radius;double x=Dot(d,Axis)/RadiusX,z=Dot(d,Side)/RadiusZ;
+                return 1+.025*x-.03*z+.025*Math.Sin(x*3+z*2+Cell*.37);
             }
             public double Profile(double r)
             {
@@ -50,7 +63,7 @@ namespace WorldGen.Core
                 axis=V.Tangent(center,axis).Unit;
                 double a=450+750*random.Unit(),b=a*(.35+.35*random.Unit());
                 var form=new Outcrop{Cell=cell,Center=center,Axis=axis,Side=V.Cross(center,axis).Unit,RadiusX=a,RadiusZ=b,
-                    HeightM=Math.Min(420,b*(.55+.35*random.Unit())),Blocky=profile.Ground.RockWeight(2)>.4||random.Unit()<.25};
+                    HeightM=Math.Min(420,b*(.55+.35*random.Unit())),Blocky=random.Unit()<(profile.Ground.RockWeight(2)>.4?.55:.25)};
                 int index=forms.Count;forms.Add(form);var queue=new Queue<int>();var visited=new HashSet<int>();queue.Enqueue(cell);visited.Add(cell);
                 while(queue.Count>0)
                 {
@@ -75,7 +88,7 @@ namespace WorldGen.Core
             foreach(int index in candidates)
             {
                 var form=Forms[index];double r=form.Coordinate(point,radius);if(r>=1)continue;
-                double shape=form.Profile(r);relief=Math.Max(relief,form.HeightM*shape);
+                double shape=form.Profile(r);relief=Math.Max(relief,form.HeightM*shape*form.Cap(point,radius));
                 exposure=Math.Max(exposure,OrogenMorphology.Smooth(.02,.25,shape));
             }
             return ground+relief;
