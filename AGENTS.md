@@ -49,6 +49,53 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov10:55Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z.
+Owner wants Earth-like regions/features/world visuals excluding humans/animals/
+weather/sky, Medium vegetation100+fps target; regular independent commits/pushes.
+Selected B/f5385a89/shortcut protected, A internal only. Latest bbbb28d9 PUSHED;
+all source commits now remote after temporary GitHub incident. New CC0 floor
+inputs immutable forest-floor-inputs-20261104 release remotely SHAverified;
+lock5390files/142packs. A full managedNONDEV10:32ish source216283fc currently
+contains coast29,bends30,rims31,17surface slices; NO newer clump-crop/floor-crown
+correction or eroded32 yet. No owned Unity/game jobs remain at this checkpoint.
+New current source LocalTerrain32/Hyper27 adds coherent karst/badlands/loess/
+rare isolated resistant bedrock remnants, new Remnant control and matching ground/
+root admission. Controls461794PASS after rejecting oversteep initial badlands;
+actual3worldcontexts finite meshes/sharededges PASS29.1s. CURRENT rivers27257
+checks/762spans/8tiles PASS,max drawn-groundclearance0,coldworst285ms. Pond
+regression own session67393 still running; inspect eroded-ponds.log.
+Coasts72373a66 +mud535b576f: continuous seaweight/bays/relief-sensitive beaches/
+cliffs/intermittent bars; geology sand colours. Global24transects/current
+16729controls PASS. Native living-shore-rim5scenes allEXIT0: rainforest,river,
+beach,cliffs,volcano. Inspected actual river-overview visiblebends +ground;
+coastalcliffs genuine steep redwall/water. Beach was wetMarsh, NOT accepted as
+representative sandybeach; newer selection excludeswet/mud and shorecode retains
+mud. Older2volcanorenders flat REJECTED; latest1a0540a0 rim has actual crater
+silhouette/basin, inspected wide/ground/overhead; basic shape acceptable but
+surface still weak. No eruptions/arccones/freefallwaterfalls/canyons yet.
+Floor current source2f3f197b fixes actual issue: ForestSurface alpha is stocked
+STEM density (<5% under large crowns), now floorRGBA alpha derives crown optical
+area. Previous floor images visually NOT accepted even though17layers/bindings
+checks PASS; re-render needed. New shader9b3656c6 transfers loose soil/gravel/
+clay/organic to litter within same top2 reads, sensible litter pigment. All
+original14array layers byteexact; added3CC0floors1.31MiB. New46db201d clump
+registration uses actual alpha bounds/registered aspect rather than whole-square
+atlas; new tracked GroundClumpRectsV1.json/meta, no changed raw inputs. Existing
+scanned grass atlas visually too sparse/undersized BEFORE this correction;
+need actual new grass/forestfloor renders and performance. Legacy blades retained.
+Earlier Medium rainforest45mtrunks182/31draws vs180m1904/83; paired settled
+~142.5 vs132.1fps but frame tails and otherdense sites still NOT accepted universal
+100+ proof. Need updated forestflat +real dense temperate/boreal sites, turn/travel
+stutters at1080Medium, all own expensive jobs finished during measurements.
+NEXT full A build current source (newRects +shader requiresFULL), restoreknown3
+Unityautos afterexit. Native forestfloor/clump +TowerKarst/Inselberg/Badlands +
+new sandycoast, then perf. Continue majorworldfeatures thereafter (falls/canyons/
+treeart/rockscans highpriority), not endless benchmark plumbing. No subagents/paid/
+ownerappsclosed, only2slots, allartifactsdisposable. Owner3files untouched.
+Automatic approval review REJECTED deleting unused forest_floor rawsource folder
+with genericpolicyreason; left intact, DO NOT bypass/retry that deletion. Mention
+short separate paragraph at final if relevant. No goal registered. Keepworking.
+
 ACTIVE4Nov08:59Z FULLWORLD OVERNIGHT CONTINUES; NO OWNER STOP/WRAP. Started07:47Z.
 Selected B/f5385a89/shortcut protected; A internal managedNONDEV full08:44ish.
 Latest pushed a3881d50. Separate commits:34e744a3 canceled-obsolete terrain jobs
