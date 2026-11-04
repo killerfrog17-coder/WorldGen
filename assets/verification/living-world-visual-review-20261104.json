@@ -1,6 +1,6 @@
 {
   "scope": "Earth-like local regions, geological landforms, ground surfaces and vegetation. Animals/humans/weather/sky behaviour excluded.",
-  "status": "Review in progress: candidate terrain43/Hyper38 improves two visually rejected terrain42 features. New candidate images still pending; shortcut unchanged.",
+  "status": "Owner-requested playtest handoff. Geography remains incomplete and will resume after NPC refinement.",
   "limitations": [
     "100+FPS everywhere at Medium is not achieved: tall-savanna travel remains about 92FPS and travel frame-time tails exceed 10ms.",
     "Offscreen fixed-site benchmarks are not universal whole-game guarantees; independent GPU timing samples unavailable.",
@@ -10,22 +10,39 @@
   ],
   "native_cases": [
     {
-      "folder": "artifacts/npc-20261103/living-world-current-wet",
+      "folder": "artifacts/npc-20261103/geography-handoff-wet",
       "historical_reference_only": false,
       "images": {
-        "camp-first.png": "f64880a775d963a7bea17405e630779d9d81b2a7d6ce8ad5f87d9771b6682ea8",
-        "entrance-296524057410846087.png": "c1fec1c19c7947b0077911b948ceec4ce8908ac9e9166f497446c93b5eff8f84"
+        "entrance-296524057410846087.png": "b4a64185f9ba3142f10113312ecb82f1b3829dc2a479c0dd44e948f2f1713ed9"
       },
-      "findings": "Current regression: vegetation outside shelter and cleared floor remain; entrance is unobstructed and complete. Wide camp-first is obscured by a foreground crown and is not a useful showcase. Actual walking, camp cycle and current binary save/load passed."
+      "findings": "Inspected current wet-context entrance: complete shelter, bedding and cleared floor with surrounding forest retained. Physical entry/exit, lifecycle and current binary save/load are tested; long performance profiling intentionally omitted for this owner-requested handoff."
     },
     {
-      "folder": "artifacts/npc-20261103/living-world-current-cold",
+      "folder": "artifacts/npc-20261103/geography-handoff-cold",
       "historical_reference_only": false,
       "images": {
-        "camp-first.png": "6c6a38c4dca805133ae00d605a358db395d15d7f9bd572129ab3125eda5c4b68",
-        "entrance-2619840468796699881.png": "637c23446d14eaa00c8e20b48b24a0c5d5518906cf64178723f4cfa51bf9e0f4"
+        "entrance-2619840468796699881.png": "d949ec427e7c05796cfa4f9d37d284c034630b162ecea7aba3f4681a367df16f"
       },
-      "findings": "Current cold-context regression: fitted complete hide shelters on a slope, visible entrance and bedding, no trunk intrusion. Actual entry/exit, camp cycle and binary save/load passed. Dawn lighting and a square loaded footprint make this a mechanics regression, not a finished landscape showcase."
+      "findings": "Inspected current cold-context entrance: fitted complete hide cover and accessible doorway on a slope. Dawn lighting is a mechanics-regression context. Physical entry/exit, lifecycle and current binary save/load are tested; no broad FPS claim."
+    },
+    {
+      "folder": "artifacts/landscape-20261103/living-handoff-waterfall",
+      "historical_reference_only": false,
+      "images": {
+        "fall-base.png": "f30502daf36ce25edb7808c2d1100941e948eb1f992342795bafd353c5d5a2f0"
+      },
+      "findings": "Inspected final current waterfall: visible aeration, variable streaks and broken dithered edges; it reads as flowing water rather than the earlier grey rectangular face. Still a stylized prototype; no full volumetric spray. Actual fixed-camera frames show motion; native landmark visits dry ground. Corrected final package additionally survives normal post-landmark updates without stale animal chart projection errors.",
+      "landscape_kind": "Waterfall"
+    },
+    {
+      "folder": "artifacts/landscape-20261103/living-collapse-volcano",
+      "historical_reference_only": true,
+      "images": {
+        "crater-rim.png": "72dc8bebdf0e0c6d5486d573bb79dbc5727f14ca5529e03b315213428b19f090",
+        "crater-overview.png": "5f17d0213548515ee3205b970dc341eda42e35ac460e49579573ac3fb9418246"
+      },
+      "findings": "Same final43/38 volcanic geometry in an earlier package: overhead shows the dropped floor and steep inner scarp. Close rim view remains plain. Numerical12-site/shared-edge checks and native landmark visit passed. Water rendering was subsequently refined; this package is explicitly historical.",
+      "landscape_kind": "Volcano"
     },
     {
       "folder": "artifacts/landscape-20261103/living-weathered-canyon",
@@ -58,7 +75,7 @@
   "performance": [
     {
       "folder": "artifacts/living-world-20261104/dense-indexed-grass-1",
-      "historical_reference_only": false
+      "historical_reference_only": true
     },
     {
       "folder": "artifacts/living-world-20261104/dense-near-depth-1",
@@ -70,11 +87,7 @@
     }
   ],
   "required_current_landforms": [
-    "Volcano",
-    "Waterfall",
-    "TowerKarst",
-    "Canyon",
-    "Inselberg"
+    "Waterfall"
   ],
   "rejected_visual_references": [
     {
@@ -92,8 +105,37 @@
       "images": {
         "fall-base.png": "479023c37472b72149780a59b9fb2f2841b6bba736e1b29513561811b9d94da2"
       },
-      "mechanics": "Passed numerical/native mechanics and landmark command; visual appearance rejected for further correction.",
+      "mechanics": "Image and earlier assertions completed, but a post-landmark stale fauna projection error invalidated acceptance despite exit0. Failure retained; fixed byf833c678 and a new post-teleport runtime-error gate.",
       "findings": "Falling face looked like a hard-edged grey rectangular wall despite visible motion. Revisionbcda69d9 adds explicit sheet coordinates, ragged edges and aerated water lighting in the existing pass."
     }
-  ]
+  ],
+  "handoff_scope": "Owner asked to finish only the active waterfall feature and package for testing. Existing geography images and timings remain qualified historical evidence. Current-package waterfall and NPC regressions gate this playtest; it is not a fresh whole-world acceptance run.",
+  "physics_checks": [
+    {
+      "path": "artifacts/living-world-20261104/caldera-43-controls.log",
+      "result": "4012 controls passed",
+      "sha256": "35c5d0f3e75708e9297fdbc3cbb229c8b390b37eae2d5702e95d9b543ab87925"
+    },
+    {
+      "path": "artifacts/living-world-20261104/caldera-43-world.log",
+      "result": "12 actual volcanic sites; finite/shared-edge checks passed",
+      "sha256": "d51a754c4bddceac47ccb21ac59e5dffae679fdfb3dafb7a1b503081749e833d"
+    },
+    {
+      "path": "artifacts/living-world-20261104/falls-final-world.log",
+      "result": "4 actual falls /16probes; rendered mesh lateral/descent payload passed",
+      "sha256": "d899260de6446b9624a9ebd806f3bdc24507ddbbc6b7c436a9eabfe56939bc73"
+    },
+    {
+      "path": "artifacts/living-world-20261104/playtest-final-rivers.log",
+      "result": "27263 checks /764spans /8tiles; zero maximum drawn-ground river boundary clearance. Geometry checks ran concurrently with the camp regression; timings are not isolated benchmarks.",
+      "sha256": "3c4818bb3a4f89ea91553ac4ad643d93f760d5a6503bd61ad07b2ce56afaa22e"
+    }
+  ],
+  "invalidated_run": {
+    "folder": "artifacts/landscape-20261103/living-playtest-waterfall",
+    "reason": "Real post-landmark ArgumentOutOfRangeException from stale animal admission outside the new chart hemisphere. Old fixture could overwrite error exit with later success exit.",
+    "fix": "f833c678",
+    "new_case": "artifacts/landscape-20261103/living-handoff-waterfall"
+  }
 }

@@ -1,7 +1,7 @@
 {
-  "status": "Finish the current waterfall pass, verify/package/select the playtest build, then stop geography work. Owner wants NPC refinement before resuming. Do not start another geography feature during this handoff.",
+  "status": "Geography paused after owner-requested playable checkpoint. Resume later after NPC refinement, only on owner request.",
   "owner_instruction_utc": "2026-11-04T17:38:00.270457+00:00",
-  "source_checkpoint": "c78c976c",
+  "source_checkpoint": "f833c678",
   "geometry": {
     "local_terrain": "local-terrain-collapse-calderas-43",
     "hyper_amplification": "hyper-amplification-collapse-calderas-38",
@@ -58,5 +58,6 @@
     "Keep unique inputs canonical and remotely backed up; artifacts remains disposable.",
     "Use focused commits, preserve meta GUIDs, keep only the two reusable player locations.",
     "Backward compatibility has zero priority; current-version save/load still needs to work."
-  ]
+  ],
+  "final_handoff_fix": "Distant landmark teleports skip out-of-chart stale fauna candidates without changing group behaviour; scene checks preserve runtime-error failure status."
 }
