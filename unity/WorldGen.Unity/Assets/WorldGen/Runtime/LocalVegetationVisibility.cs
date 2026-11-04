@@ -12,8 +12,15 @@ public sealed partial class LocalTerrainExplorer
     Vector3 scatterEye;Quaternion scatterRotation;Matrix4x4 scatterProjection;int scatterOptions;
     const float ScatterGuardDegrees=6;
     float scatterCachedGuardDegrees,scatterAngularSlack;bool scatterCachedAllHeadings;
+    double scatterTrackedX=double.NaN,scatterTrackedZ,scatterLastTranslation=-1;
     float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&SoftCanopyShadows&&TerrainVideoOptions.ScatterFrustum?ScatterGuardDegrees:0;
-    bool CurrentScatterAllHeadings=>CurrentScatterGuardDegrees>0&&!WorldGenPerformance.DirectionalScatter;
+    bool CurrentScatterAllHeadings=>CurrentScatterGuardDegrees>0&&!WorldGenPerformance.DirectionalScatter&&Time.realtimeSinceStartupAsDouble-scatterLastTranslation>.30;
+    void TrackScatterTranslation()
+    {
+        double dx=motion.X-scatterTrackedX,dz=motion.Z-scatterTrackedZ;
+        if(!double.IsNaN(dx)&&dx*dx+dz*dz>.000001)scatterLastTranslation=Time.realtimeSinceStartupAsDouble;
+        scatterTrackedX=motion.X;scatterTrackedZ=motion.Z;
+    }
     bool ScatterInFrustum(Bounds box,Vector3 eye)=>scatterCachedAllHeadings||GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(box,eye));
     Bounds ScatterGuardBounds(Bounds box,Vector3 eye)
     {

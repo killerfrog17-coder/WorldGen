@@ -130,6 +130,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateScatter()
     {
         if(scatter==null)return;
+        TrackScatterTranslation();
         if(TerrainDiagnostics.HoldPlants)
         {if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();return;}
         // Ground at every LOD can arrive or change beneath already resident
