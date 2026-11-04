@@ -46,11 +46,14 @@ void SurfaceLayers(O i,float extra,float3 litter,out int3 layers,out float3 frac
     float4 a=max(i.weights,0),b=max(i.groundB,0);
     float sum=max(.001,dot(a,1)+dot(b,1));a/=sum;b/=sum;
     layers=int3(0,0,0);fractions=0;
+    float litterCover=saturate(dot(litter,1)),loose=a.x+a.z+a.w+b.y;
     // Select only near pixels. NO material loop or mask fetch beyond texture range.
     [unroll]for(int layer=0;layer<17;layer++)
     {
-        float c=layer>=14?a.x*litter[layer==14?0:layer==15?1:2]:GroundContribution(i,a,b,layer);
-        if(layer==0)c*=1-saturate(dot(litter,1));
+        float c=layer>=14?loose*litter[layer==14?0:layer==15?1:2]:GroundContribution(i,a,b,layer);
+        // Fallen litter covers loose gravel/clay/organic substrate too. Only
+        // replacing soil let those layers displace the scan from Medium's top2.
+        if(layer==0||layer==2||layer==3||layer==5)c*=1-litterCover;
         if(c>fractions.x){fractions.z=fractions.y;layers.z=layers.y;fractions.y=fractions.x;layers.y=layers.x;fractions.x=c;layers.x=layer;}
         else if(c>fractions.y){fractions.z=fractions.y;layers.z=layers.y;fractions.y=c;layers.y=layer;}
         else if(c>fractions.z){fractions.z=c;layers.z=layer;}
@@ -129,6 +132,14 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(_ForestFloorEnabled>.5&&detail>.001)
             floorMix=SAMPLE_TEXTURE2D(_ForestFloor,sampler_ForestFloor,uv).rgb*smoothstep(.05,.38,forestSurface.a);
     }
+    float3 floorPigment=float3(.40,.29,.18)*floorMix.x+float3(.34,.27,.17)*floorMix.y+float3(.31,.29,.18)*floorMix.z;
+    float floorWeight=saturate(dot(floorMix,1));
+    floorPigment/=max(.001,floorWeight);
+    #ifndef UNITY_COLORSPACE_GAMMA
+    floorPigment=SRGBToLinear(floorPigment);
+    #endif
+    float looseFraction=saturate((i.weights.x+i.weights.z+i.weights.w+i.groundB.y)/max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1)));
+    albedo=lerp(albedo,floorPigment,floorWeight*detail*looseFraction);
     // Stable mean properties of these rough, nonmetallic ground materials.
     // Fine mask variation is reserved for the close High/Ultra path.
     float ao=.93,rough=lerp(.88,.55,saturate(i.groundB.w)),metal=0;
