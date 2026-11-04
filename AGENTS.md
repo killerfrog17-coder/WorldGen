@@ -49,6 +49,35 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov08:59Z FULLWORLD OVERNIGHT CONTINUES; NO OWNER STOP/WRAP. Started07:47Z.
+Selected B/f5385a89/shortcut protected; A internal managedNONDEV full08:44ish.
+Latest pushed a3881d50. Separate commits:34e744a3 canceled-obsolete terrain jobs
+(other faults fully logged),f6ad146e clumps,81c7de4b lowlandplanforms,8d5cff76
+foliage1tap,a2fd4569 scannedCC0atlas,a3881d50 immutablepack.5377inputs/141packs;
+new16files15MB ground-clump-inputs-20261104 remotelySHAverified. Only2slots;
+all3knownUnityautos restored. No subagents/paid/appsclosed; owner3filesuntouched.
+GroundClumpAtlas real isolated grass+nettle bakedofflineBlender; first2oldatlas
+cardattempts REJECTED rectangles. Scanned3region native reviews allEXIT0; tropical
+ground inspected but forestfloor texturestillplain. Originalblades selectable.
+Baseline-traced3sites/15cases settled: rainforest117.54/noGrass130.61/noVegShadows
+162.51fps; savanna134.47; hills197butonly3trees NOTdenseproof. PresentMonNO CSV,
+noGPUtimingclaim. Planform1032controls+actual27122checks/762spans/8tilesinclmouths
+PASS;0.00drawngroundclearance. Renderednewriverappearance stillneedsreview.
+RUNNING OWN PSsession65175: scanned3reviewsDONE, now grass-shadow-scanned paired
+benchmark savanna/forest-flat/forest-temperate8cases. Savanna132-141fps settled,
+clumpsnotfasterthanblades. Forestfirstclumps PARTIALfalse/excluded; bladesloading
+t471s. DoNOTheavycompile/test/Blender/othergame during measurements oroverwriteA.
+Cheapsourceeditsokay. Needsettledlateclumprepeatifinitialpartial, inspectCSV.
+UNCOMMITTED/UNBUILT: VolcanicTerrain.cs, Hyper22/LocalTerrain27 hooks,
+LandscapeControls.BareRock+material/cover, VolcanicTerrainTests+Program,
+nativeLandscapeCheck Volcano/MeanderingRiver sites. NOTcompiled/accepted yet.
+Youngshield/caldera+weatheredtrails deriveexistinghotspots, oldsubmergedseamounts
+excluded; NOarcvents yet. Afterbenchmark: compilecontrols/actualworld+sharededges,
+nativecrater+rivercaptures; independentcommit/push. Thenhighestimpactmissing
+features/coasts/waterfalls/karst/badlands/inselbergs/canyons/forestfloor/treeart.
+Research assets/verification/living-world-research-20261104.json. Needworstjungle/
+travel/frame-tails checks; NOuniversal100fpsclaim. Keepworkingallnight.
+
 ACTIVE OVERNIGHT WORLD OVERHAUL 2026-11-04T07:49:20.405177+00:00. OWNER authorizes broad overhaul
 of terrain/regions/features/rivers/coasts/water/vegetation/materials. Excludes
 ANIMALS,HUMANS,WEATHER,SKY appearance/behaviour. Goals Earth-like diverse plausible
