@@ -57,13 +57,13 @@ static class ErodedTerrainTests
             for(int x=-5000;x<5000;x+=37)for(int z=-5000;z<5000;z+=47)
             {
                 V p=new V(x,637100,z);double h=ErodedTerrain.HeightOffset(p,73421,controls),next=ErodedTerrain.HeightOffset(p+new V(.1,0,0),73421,controls);
-                Check(double.IsFinite(h)&&h> -90&&h<225,"Eroded terrain has bounded finite relief");
+                Check(double.IsFinite(h)&&h> -90&&h<285,"Eroded terrain has bounded finite relief");
                 Check(ErodedTerrain.HeightOffset(p,73421,default)==0,"Unrelated ordinary terrain stays exact");
                 low=Math.Min(low,h);high=Math.Max(high,h);slope=Math.Max(slope,Math.Abs(next-h)/.1);
             }
             Check(high-low>(controls.Karst>0?100:controls.Remnant>0?50:controls.Badlands>0?40:15),"Supported geology produces landscape-scale relief, not metre noise");
             Console.WriteLine($"Eroded context karst={controls.Karst} badlands={controls.Badlands} loess={controls.Loess} remnant={controls.Remnant}; height {low:F2}..{high:F2}, slope {slope:F2}");
-            Check(slope<(controls.Karst>0?10:controls.Loess>0?1.5:6),"Regional relief has bounded slopes appropriate to its landform");
+            Check(slope<(controls.Karst>0?28:controls.Loess>0?1.5:6),"Regional relief has bounded slopes appropriate to its landform");
         }
         var sandstone=new GroundProfile{RockMixA=new V(0,0,1),Sand=.6,DepthM=1,Drainage=.8};
         var outcrop=new BedrockRemnants.Outcrop{RadiusX=700,RadiusZ=300,HeightM=250};

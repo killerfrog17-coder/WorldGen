@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-shores-31";
+        public const string Version = "hyper-amplification-karst-32";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -615,6 +615,8 @@ namespace WorldGen.Core
                     double gain=(.12+.68*activity)*(1-.8*node.Plateau)*(1-.6*node.Sediment)
                         *Lerp(1,.28,OrogenMorphology.Smooth(2,7,edge.Depth));
                     gain*=1-.82*node.Landscape.Flatness*(1-OrogenMorphology.Smooth(800,2400,length));
+                    gain*=1-.65*node.Landscape.Karst*OrogenMorphology.Smooth(.45,.80,node.Landscape.Moisture)*(1-node.Landscape.Glacial)
+                        *(1-OrogenMorphology.Smooth(600,1800,length));
                     // A long edge of a sliver triangle is not permission for a
                     // cliff: bound new detail by the incident face's altitude.
                     double altitude=double.MaxValue;

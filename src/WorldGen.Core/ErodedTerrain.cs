@@ -24,8 +24,12 @@ namespace WorldGen.Core
                     +.08*SphereNoise.Sample(metres,seed^0x7e351,1/155d);
                 double wet=Smooth(.45,.80,controls.Moisture)*(1-controls.Glacial);
                 double cones=Math.Pow(Smooth(.25,.85,field),1.4);
-                double towers=Smooth(.30,.62,field)*(.70+.30*Smooth(.62,.91,field));
-                double scale=65+105*(.5+.5*SphereNoise.Sample(metres,seed^0x531d7,1/2700d));
+                // Humid tower karst has isolated steep residuals above broad
+                // low corridors. The old threshold lifted most of the field
+                // into an undifferentiated plateau of rounded hilltops.
+                double towers=Smooth(.53,.72,field)*(.85+.15*Smooth(.72,.91,field));
+                double variation=.5+.5*SphereNoise.Sample(metres,seed^0x531d7,1/2700d);
+                double scale=65+105*variation+wet*(55+45*variation);
                 double doline=Smooth(.60,.86,.5+.5*SphereNoise.Sample(metres,seed^0x152d3,1/110d))*(1-cones);
                 offset+=controls.Karst*(1-.6*controls.Glacial)*(scale*(cones*(1-wet)+towers*wet)-24*doline);
             }
