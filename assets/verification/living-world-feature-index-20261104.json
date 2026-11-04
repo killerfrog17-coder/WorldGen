@@ -68,7 +68,8 @@
         "8f82f314",
         "213009a5",
         "48f861c8",
-        "a8297026"
+        "a8297026",
+        "7f9ca3fa"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainScatter.cs",
       "notes": "Adaptive all-heading batches while still; bounded directional guard during translation. Underlying grouped culling and per-instance caster eligibility have separate checkpoints."
@@ -185,6 +186,14 @@
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainCatalogCommands.cs",
       "notes": "Optional /landmark console command searches existing generated data; it does not create features or change geography."
+    },
+    {
+      "name": "Indexed grass cards",
+      "commits": [
+        "cda1906e"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainGroundCover.cs",
+      "notes": "Shares literal repeated card corners. Does not change shader, density, card geometry or placement. Actual 36-camera index/nonindex comparisons and timed ablation pending."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",

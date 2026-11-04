@@ -78,6 +78,10 @@
     {
       "url": "https://naturalhistory.si.edu/research/botany/research/lianas-and-climbing-plants-neotropics/lianas-introduction",
       "use": "Tropical woody climbers root in the ground, ascend supporting trees and can have dangling branches. Shared-model climbers add no individual plant simulation."
+    },
+    {
+      "url": "https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Graphics.RenderPrimitivesIndexedIndirect.html",
+      "use": "Indexed indirect procedural draws can share the repeated card corners while retaining shader vertex IDs and exact triangles. Requires indexed argument layout; verify actual images, not only shader compilation."
     }
   ],
   "coverage_review": [
