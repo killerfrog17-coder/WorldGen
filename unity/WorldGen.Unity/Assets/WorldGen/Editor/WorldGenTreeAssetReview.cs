@@ -35,7 +35,7 @@ public static class WorldGenTreeAssetReview
                 {
                     if(mesh.vertexCount<100||mesh.triangles.Length<300||mesh.triangles.Any(i=>i<0||i>=mesh.vertexCount))throw new Exception("Invalid tree topology");
                     if(mesh.vertices.Any(v=>!float.IsFinite(v.x)||!float.IsFinite(v.y)||!float.IsFinite(v.z)))throw new Exception("Non-finite tree vertex");
-                    if(mesh.bounds.min.y<-.01||mesh.bounds.max.y>1.3||mesh.bounds.size.x>1.4||mesh.bounds.size.z>1.4)throw new Exception("Tree exceeds existing conservative bounds");
+                    if(mesh.bounds.min.y<-.01||mesh.bounds.max.y>1.3||mesh.bounds.size.x>1.4||mesh.bounds.size.z>1.4)throw new Exception("Tree exceeds existing conservative bounds: "+code+" / "+mesh.name+" / "+mesh.bounds);
                 }
                 var morphology=new TreeMorphology(code);
                 var source=Activator.CreateInstance(baker.GetNestedType("Source"),near,(int)morphology.LeafShape,(int)morphology.BarkPattern);

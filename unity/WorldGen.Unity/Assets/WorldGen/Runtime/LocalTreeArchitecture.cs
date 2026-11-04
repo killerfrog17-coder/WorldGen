@@ -65,7 +65,7 @@ static partial class LocalScatterMeshes
                 if(!needle&&!exposed)up=Quaternion.AngleAxis((j-1)*25,right)*up;
                 float roll=needle?(j==0?-24:36):((float)r.Unit()-.5f)*150;
                 right=Quaternion.AngleAxis(roll,up)*right;var normal=Vector3.Cross(right,up).normalized;
-                float span=(needle?.13f:.112f)*(.8f+(float)r.Unit()*.4f);
+                float span=(needle?.105f:.112f)*(.8f+(float)r.Unit()*.4f);
                 var center=needle?n.P+up*span*.90f:n.P+up*span*.25f+right*((float)r.Unit()-.5f)*span*.45f;
                 int variant=(i+j)%4;float material=2+variant*.1f;
                 Color tint=leaf*new Color(.86f+(float)r.Unit()*.18f,.90f+(float)r.Unit()*.12f,.88f+(float)r.Unit()*.12f,1);
@@ -218,7 +218,7 @@ static partial class LocalScatterMeshes
                 for(int j=0;j<limbs;j++)
                 {
                     float a=j*2*Mathf.PI/limbs+tier*2.39996f+(float)r.Unit()*.65f;
-                    float limbReach=reach*(.78f+.36f*(float)r.Unit());
+                    float limbReach=reach*(.78f+.30f*(float)r.Unit());
                     var d=new Vector3(Mathf.Cos(a),0,Mathf.Sin(a));int parent=tier;
                     for(int k=1;k<=4;k++)
                     {
