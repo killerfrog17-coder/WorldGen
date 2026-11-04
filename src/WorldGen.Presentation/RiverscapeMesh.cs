@@ -12,9 +12,9 @@ namespace WorldGen.Presentation
     {
         struct Point
         {
-            public double X,Y,Z,U,V,T,H;
+            public double X,Y,Z,U,V,T,H,W;
             public static Point Between(Point a,Point b,double t)=>new Point{X=a.X+(b.X-a.X)*t,Y=a.Y+(b.Y-a.Y)*t,
-                Z=a.Z+(b.Z-a.Z)*t,U=a.U+(b.U-a.U)*t,V=a.V+(b.V-a.V)*t,T=a.T+(b.T-a.T)*t,H=a.H+(b.H-a.H)*t};
+                Z=a.Z+(b.Z-a.Z)*t,U=a.U+(b.U-a.U)*t,V=a.V+(b.V-a.V)*t,T=a.T+(b.T-a.T)*t,H=a.H+(b.H-a.H)*t,W=a.W+(b.W-a.W)*t};
         }
         sealed class JunctionPool {public Point Center;public Point[] Ring=Array.Empty<Point>();public double Radius;public bool Outgoing;}
         public static void Append(LocalTerrainMesh mesh,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] samples,CancellationToken token=default)
@@ -46,9 +46,13 @@ namespace WorldGen.Presentation
                 var key=((long)Math.Floor(p.X*500),(long)Math.Floor(p.Y*500),(long)Math.Floor(p.Z*500));
                 for(int dz=-1;dz<=1;dz++)for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)
                     if(vertices.TryGetValue((key.Item1+dx,key.Item2+dy,key.Item3+dz),out var nearby))foreach(int found in nearby)
-                    {double ex=positions[found*3]-p.X,ey=positions[found*3+1]-p.Y,ez=positions[found*3+2]-p.Z;if(ex*ex+ey*ey+ez*ez<.000004)return found;}
+                    {
+                        bool fall=p.W>2.05,otherFall=colors[found*4+3]>2.05;
+                        if(fall!=otherFall||fall&&(Math.Abs(colors[found*4+2]-p.T)>.0001||Math.Abs(colors[found*4+3]-p.W)>.0001))continue;
+                        double ex=positions[found*3]-p.X,ey=positions[found*3+1]-p.Y,ez=positions[found*3+2]-p.Z;if(ex*ex+ey*ey+ez*ez<.000004)return found;
+                    }
                 int id=positions.Count/3;if(!vertices.TryGetValue(key,out var list)){list=new List<int>();vertices.Add(key,list);}list.Add(id);positions.Add((float)p.X);positions.Add((float)p.Y);positions.Add((float)p.Z);
-                colors.Add((float)p.U);colors.Add((float)p.V);colors.Add((float)p.T);colors.Add(2);return id;
+                colors.Add((float)p.U);colors.Add((float)p.V);colors.Add((float)p.T);colors.Add((float)p.W);return id;
             }
             void Final(Point a,Point b,Point c,int depth=0)
             {
@@ -88,7 +92,7 @@ namespace WorldGen.Presentation
             {
                 TerrainHandoff.Coordinates(frame,position,out double x,out double z);
                 return new Point{X=x-mesh.EastM,Z=z-mesh.NorthM,Y=frame.SurfaceY(position,height),
-                    U=V.Dot(flow,frame.East)*speed,V=V.Dot(flow,frame.North)*speed,T=turbulence,H=height};
+                    U=V.Dot(flow,frame.East)*speed,V=V.Dot(flow,frame.North)*speed,T=turbulence,H=height,W=2};
             }
             // The terrain refiner includes these same outer bank edges. The
             // bounded underlap reaches the actual raised bank, not the cut bed.
@@ -143,6 +147,13 @@ namespace WorldGen.Presentation
                 var ar=At((span.A-span.SideA*(wa/frame.RadiusM)).Unit,span.LevelA,flow,span.Speed,span.Turbulence);
                 var bl=At((span.B+span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flow,span.Speed,span.Turbulence);
                 var br=At((span.B-span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flow,span.Speed,span.Turbulence);
+                if(span.Primitive==RiverFlowPrimitive.Waterfall)
+                {
+                    // The existing river colour payload carries signed lateral
+                    // position and descent, without adding a mesh buffer/pass.
+                    // Alpha remains inside the river-type interval 1.5..2.5.
+                    al.T=bl.T=-1;ar.T=br.T=1;al.W=ar.W=2.1;bl.W=br.W=2.2;
+                }
                 Ribbon(al,bl,ar,span.Reach,span.Receiver);Ribbon(ar,bl,br,span.Reach,span.Receiver);
             }
             // Only explicit source graph endpoints get junction pools. Never

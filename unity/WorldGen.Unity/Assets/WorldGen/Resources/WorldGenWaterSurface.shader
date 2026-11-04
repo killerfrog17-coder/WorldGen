@@ -74,7 +74,8 @@ Shader "WorldGen/WaterSurface"
     float2 slope=lerp(Slopes((p-flow*(phase*6))*.42),Slopes((p-flow*(other*6))*.42),blend);
     slope+=Slopes((p+float2(-flow.y,flow.x)*_Time.y*.2)*.09)*.4;
     float3 normal=normalize(cross(ddy(i.position),ddx(i.position)));if(normal.y<0)normal=-normal;
-    float falling=river*smoothstep(.20,.65,1-abs(normal.y));
+    float explicitFall=river*step(2.05,i.data.a);
+    float falling=river*max(explicitFall,smoothstep(.20,.65,1-abs(normal.y)));
     float2 swellSlope=(1-river)*WaterSwellSlope(p,i.data.b,ocean);
     if(river<.5)normal=normalize(float3(-swellSlope.x,1,-swellSlope.y));
     normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.25,.55,saturate(length(wind)/14+river*i.data.z)));
@@ -100,14 +101,19 @@ Shader "WorldGen/WaterSurface"
      // A falling sheet moves down its face, rather than sliding a lake's
      // horizontal ripple texture over a vertical wall. Reuse the same normal
      // atlas, stretched into descending ribbons; no particles or extra pass.
-     float speed=max(3,length(flow));float2 across=float2(-flow.y,flow.x)/speed;
+     float speed=max(3,length(flow));float2 across=float2(-flow.y,flow.x)/max(.001,length(flow));
      float crossStream=dot(p,across),down=-i.position.y-_Time.y*speed;
      float broad=FallNoise(float2(crossStream*.8,down*.045));
      float fine=FallNoise(float2(crossStream*3.1+broad*2,down*.36));
      float filaments=FallNoise(float2(crossStream*8+fine,down*.8));
-     float sheets=.58+.30*broad+.16*fine+.07*filaments;
-     float illumination=.42+.58*saturate(dot(normal,sun.direction));
-     float3 aerated=float3(.72,.79,.78)*sheets*(TerrainAmbient().rgb*.55+sun.color*illumination)*lerp(.035,1,TerrainDaylight());
+     if(explicitFall>.5)clip(1-abs(i.data.z)-(.015+.07*fine+.02*broad));
+     float sheets=.48+.56*smoothstep(.16,.84,broad)+.20*fine+.10*filaments;
+     // Aerated water scatters skylight through its volume; treating it only
+     // as an opaque Lambert face made the falling sheet resemble grey stone.
+     float illumination=.65+.35*saturate(dot(normal,sun.direction));
+     float3 foamLight=float3(.88,.94,.98)*(TerrainAmbient().rgb*.8+sun.color*illumination)*lerp(.035,1,TerrainDaylight());
+     float3 aerated=foamLight*sheets;
+     if(explicitFall>.5)aerated=lerp(aerated,foamLight,smoothstep(.78,1,saturate((i.data.a-2.1)*10))*.55);
      result=lerp(result,aerated,falling*.97);
     }
     return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fog,TerrainFogDistance()),1);
