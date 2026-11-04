@@ -1,0 +1,297 @@
+{
+  "status": "Active render repair; performance floor NOT achieved; selected shortcut remains A/f833.",
+  "candidate_source": "038063471b0534e45994291cc876a9dcdbf768c1",
+  "candidate_slot": "slot-b",
+  "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
+  "target": {
+    "ordinary_fps": 200,
+    "maximum_frame_ms": 10,
+    "finite_scenarios_cannot_establish_universal_floor": true
+  },
+  "changes": {
+    "Debug": "5a7249b2",
+    "near_grass_and_ground": "adf11552",
+    "continuous_trunks_and_crown_budget": [
+      "69fb76ce",
+      "173a6267",
+      "e24da02f"
+    ],
+    "exact_pose_math": "605d80fa",
+    "group_visibility_and_moving_guard": "03806347"
+  },
+  "retired": [
+    {
+      "source": "6b007a3e",
+      "retired_by": "523e6b4f",
+      "reason": "Invisible substrate skip preserved three actual views exactly but did not establish a performance gain; removed."
+    }
+  ],
+  "asset_backup": {
+    "files": 5405,
+    "packs": 144,
+    "new_source": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/grass-ground-inputs-20261104"
+  },
+  "tree_review": "artifacts/render-repair-20261104/tree-fourth",
+  "tree_review_rejected": "artifacts/render-repair-20261104/tree-third: crown exceeded conservative bounds; corrected, earlier failure retained.",
+  "native_grass": "artifacts/render-repair-20261104/grass-clumps-lit: 6400 GPU roots, visible output, L0..L3 production page requests. Isolated white-ground fixture is not real-world art acceptance.",
+  "pose_proof": "savanna-substrate/equivalence.txt: 69120 bit-exact authored matrix components across 8 actual loaded species.",
+  "pending": [
+    "Current group/moving-guard equivalence and timings",
+    "Actual open plains and dense forest regional views/timings",
+    "Saved mixed-quality long-view settings comparison",
+    "Final candid package review and shortcut selection"
+  ],
+  "runs": [
+    {
+      "folder": "artifacts/render-repair-20261104/savanna-first",
+      "complete": true,
+      "source": "3d7c361f9cbbb452fc8d104199d44e99f68c03ea",
+      "summary_sha256": "150819bb2be908918a987e496fdf792f9681b63966a88a1cc2a0225131018507",
+      "rows": [
+        {
+          "case": "grass-clumps",
+          "fps": "115.37181",
+          "p50_ms": "8.41510",
+          "p95_ms": "10.31680",
+          "p99_ms": "13.34570",
+          "max_ms": "40.96890",
+          "over10ms": "161",
+          "frames": "2308",
+          "settled": "True"
+        },
+        {
+          "case": "no-grass",
+          "fps": "129.20050",
+          "p50_ms": "7.55390",
+          "p95_ms": "8.89960",
+          "p99_ms": "10.60750",
+          "max_ms": "40.75070",
+          "over10ms": "31",
+          "frames": "2585",
+          "settled": "True"
+        },
+        {
+          "case": "no-trees",
+          "fps": "129.71079",
+          "p50_ms": "7.42400",
+          "p95_ms": "9.60420",
+          "p99_ms": "12.06800",
+          "max_ms": "40.14670",
+          "over10ms": "96",
+          "frames": "2595",
+          "settled": "True"
+        },
+        {
+          "case": "no-vegetation-shadows",
+          "fps": "135.65684",
+          "p50_ms": "7.20110",
+          "p95_ms": "8.52000",
+          "p99_ms": "10.17100",
+          "max_ms": "39.81510",
+          "over10ms": "30",
+          "frames": "2714",
+          "settled": "True"
+        },
+        {
+          "case": "turning",
+          "fps": "118.71136",
+          "p50_ms": "8.16790",
+          "p95_ms": "9.96270",
+          "p99_ms": "13.79210",
+          "max_ms": "45.66390",
+          "over10ms": "116",
+          "frames": "2375",
+          "settled": "True"
+        },
+        {
+          "case": "turning-whip",
+          "fps": "115.18623",
+          "p50_ms": "8.40290",
+          "p95_ms": "10.37160",
+          "p99_ms": "15.52730",
+          "max_ms": "44.55760",
+          "over10ms": "182",
+          "frames": "2305",
+          "settled": "True"
+        },
+        {
+          "case": "travel",
+          "fps": "84.39489",
+          "p50_ms": "10.20960",
+          "p95_ms": "21.54380",
+          "p99_ms": "26.66510",
+          "max_ms": "47.47720",
+          "over10ms": "921",
+          "frames": "1689",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip",
+          "fps": "69.50287",
+          "p50_ms": "14.57150",
+          "p95_ms": "20.56880",
+          "p99_ms": "23.47580",
+          "max_ms": "51.93680",
+          "over10ms": "1167",
+          "frames": "1391",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/savanna-traced",
+      "complete": true,
+      "source": "75b77fbdd7a50602bc46f5af1056b67359f48495",
+      "summary_sha256": "27b0b768a8739579d041bab9e57047639f75a92b22a28aebe509ed080da3a627",
+      "rows": [
+        {
+          "case": "water-query-verify",
+          "fps": "107.55286",
+          "p50_ms": "9.01950",
+          "p95_ms": "10.97750",
+          "p99_ms": "16.52470",
+          "max_ms": "40.52390",
+          "over10ms": "278",
+          "frames": "2153",
+          "settled": "True"
+        },
+        {
+          "case": "water-query-fresh",
+          "fps": "107.38504",
+          "p50_ms": "9.06310",
+          "p95_ms": "10.93240",
+          "p99_ms": "15.84910",
+          "max_ms": "43.48350",
+          "over10ms": "296",
+          "frames": "2149",
+          "settled": "True"
+        },
+        {
+          "case": "turning",
+          "fps": "107.83689",
+          "p50_ms": "8.96220",
+          "p95_ms": "11.22380",
+          "p99_ms": "15.48970",
+          "max_ms": "42.54280",
+          "over10ms": "374",
+          "frames": "2158",
+          "settled": "True"
+        },
+        {
+          "case": "travel",
+          "fps": "79.45834",
+          "p50_ms": "10.88970",
+          "p95_ms": "21.41590",
+          "p99_ms": "24.99450",
+          "max_ms": "67.25320",
+          "over10ms": "1180",
+          "frames": "1590",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip",
+          "fps": "67.25327",
+          "p50_ms": "15.30510",
+          "p95_ms": "21.19030",
+          "p99_ms": "25.02380",
+          "max_ms": "64.77880",
+          "over10ms": "1146",
+          "frames": "1346",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/savanna-substrate",
+      "complete": true,
+      "source": "69d2273ad729cdbb220f9931559b6db174494728",
+      "summary_sha256": "a9dae40b3941d7bd9bdb5d73a1bf5570b1b3d6497730b7ac6827a549af74848a",
+      "rows": [
+        {
+          "case": "animal-pose-verify",
+          "fps": "127.70259",
+          "p50_ms": "7.65260",
+          "p95_ms": "8.75480",
+          "p99_ms": "11.03840",
+          "max_ms": "38.18050",
+          "over10ms": "37",
+          "frames": "2556",
+          "settled": "True"
+        },
+        {
+          "case": "substrate-verify",
+          "fps": "124.67463",
+          "p50_ms": "7.72890",
+          "p95_ms": "9.75660",
+          "p99_ms": "14.24000",
+          "max_ms": "42.46030",
+          "over10ms": "110",
+          "frames": "2495",
+          "settled": "True"
+        },
+        {
+          "case": "substrate-full",
+          "fps": "129.47761",
+          "p50_ms": "7.52520",
+          "p95_ms": "8.96580",
+          "p99_ms": "11.71950",
+          "max_ms": "43.23770",
+          "over10ms": "54",
+          "frames": "2592",
+          "settled": "True"
+        },
+        {
+          "case": "forest-community-review",
+          "fps": "58.18311",
+          "p50_ms": "16.69400",
+          "p95_ms": "20.69060",
+          "p99_ms": "26.09330",
+          "max_ms": "31.85780",
+          "over10ms": "1164",
+          "frames": "1164",
+          "settled": "True"
+        },
+        {
+          "case": "turning-whip",
+          "fps": "126.70221",
+          "p50_ms": "7.61810",
+          "p95_ms": "9.64590",
+          "p99_ms": "11.60020",
+          "max_ms": "45.00460",
+          "over10ms": "84",
+          "frames": "2536",
+          "settled": "True"
+        },
+        {
+          "case": "travel",
+          "fps": "94.64927",
+          "p50_ms": "8.98750",
+          "p95_ms": "19.08380",
+          "p99_ms": "22.46820",
+          "max_ms": "62.22780",
+          "over10ms": "630",
+          "frames": "1894",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip",
+          "fps": "79.39145",
+          "p50_ms": "13.17960",
+          "p95_ms": "18.95180",
+          "p99_ms": "21.08220",
+          "max_ms": "64.59230",
+          "over10ms": "1075",
+          "frames": "1589",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/savanna-groups",
+      "complete": false,
+      "source": "038063471b0534e45994291cc876a9dcdbf768c1",
+      "summary_sha256": "56b95346e7e73e86c6cccd2c556d794572a8e84aa69d4226b2feac86e850db29",
+      "rows": []
+    }
+  ]
+}

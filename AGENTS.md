@@ -49,6 +49,34 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov22:04Z REPAIR CONTINUES. Source03806347 PUSHED; inactive B FULL managed
+NONDEV BuiltUtc21:58:10Z SourceChanges[] (selected A/f833 untouched). Current own
+benchmark session92267, outer27896/player336/NVML19548: savanna-groups, Medium
+1080/6km/20s, actual scene still loading at224s/1039 of1119 forest pages.
+Do NOT compile/render other jobs while its timing windows run. Cases include
+literal8-heading multiset, moving18degree guard32actual renders, terrain-only,
+moving-whip optimized/legacygroups/narrow6degrees/bothold plusweather-off.
+New group culling skips noncaster bins behind camera, inherits whole-bin inside/
+hill proofs; original individual logic remains reference. New wider moving
+guard18degrees has NOT yet passed its actual comparison. NVML telemetry records
+real changing GPU clocks (not GPU frame timings). No GPU settings modified.
+Last69d savanna-substrate COMPLETE:69120 actual authored pose component bits
+identical across8 species; fauna CPU2.70->1.53ms (movement.37/pose.54), total main
+4.47->3.25ms. static127.70,whipturn126.70,travel94.65,movingwhip79.39FPS, max64ms
+UNACCEPTABLE tails. Batch collect3.15ms mean/4.91ms when rebuilt, upload.11ms.
+Hidden-substrate trial pixel-exact0 but noFPSgain (full129.48 vs skip124.67);
+RETIRED523e6b4f, removed test flags/helper. Ground shader retains adf smooth
+material/real scan. Current clump fixture lighting corrected/inspected green
+plants on white test ground; presence only, not art acceptance. All11 latest
+Editor trees pass tree-fourth/actual close bark + lower irregular forks inspected.
+Partial canonical receipt assets/verification/render-repair-20261104.json now
+exists; update after new runs. New files need Git commit. Need true open plains,
+dense jungle/temperate/boreal and saved mixedUltra/200km actual contexts after
+current culling test. All source/world geometry43 unchanged, no new geography,
+no animal/human behaviours/appearance changed (only exact pose math). No owner
+apps closed, no subagents/paid, original3ownerfiles preserved, Unityautos restored.
+Do not call100floor achieved. Meaningful further work follows measured cost.
+
 ACTIVE4Nov21:43Z RENDER REPAIR CONTINUES. Selected A/f833 protected/shortcut
 unchanged. Current source69d2273a PUSHED; B FULL managed NONDEV build RUNNING
 session97366 (artifacts/unity-build.log). No own player active during build.
