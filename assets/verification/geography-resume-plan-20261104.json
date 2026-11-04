@@ -1,0 +1,62 @@
+{
+  "status": "Finish the current waterfall pass, verify/package/select the playtest build, then stop geography work. Owner wants NPC refinement before resuming. Do not start another geography feature during this handoff.",
+  "owner_instruction_utc": "2026-11-04T17:38:00.270457+00:00",
+  "source_checkpoint": "c78c976c",
+  "geometry": {
+    "local_terrain": "local-terrain-collapse-calderas-43",
+    "hyper_amplification": "hyper-amplification-collapse-calderas-38",
+    "mesh_wire": 9
+  },
+  "rollback_index": "assets/verification/living-world-feature-index-20261104.json",
+  "visual_review": "assets/verification/living-world-visual-review-20261104.json",
+  "performance_evidence": "assets/verification/living-world-performance-progress-20261104.json",
+  "next_priorities": [
+    {
+      "priority": 1,
+      "task": "Close the Medium-vegetation performance gap without reducing ecological density.",
+      "evidence": "Tall-savanna travel about91.6FPS, p95~19.1ms; forests turn139..155 and travel110..126 in the6km fixed-site tests. Not consistent100FPS. GPU hill-rejection replacement,64m bins and indexed cards did not materially resolve the gap.",
+      "direction": "Profile visible-batch rebuilding, streaming installations and overlapping alpha foliage. Keep the old individual-blade option. Measure different views and movement, not only a stationary camera."
+    },
+    {
+      "priority": 2,
+      "task": "Investigate detached-looking distant crowns in fog.",
+      "evidence": "Karst resident-root audit59059 roots, zero missing rendered ground, maxerror0.000041m; long-visibility capture shows real hills beneath the apparent floating groups.",
+      "direction": "Compare per-fragment tree/terrain haze, stand footprint and depth against actual scene geometry. Do not move correct land or trees to hide a rendering problem."
+    },
+    {
+      "priority": 3,
+      "task": "Broader-view performance and distant forest loading.",
+      "evidence": "Typical near terrain is ready in~5sec after prepared data, but complete6..10km forest coverage takes minutes. Larger-view benchmark still pending.",
+      "direction": "Profile hierarchical forest placement/coverage and coarse terrain; preserve a coherent reveal border. Do not conflate full-horizon completion with near-playable loading."
+    },
+    {
+      "priority": 4,
+      "task": "Improve remaining obvious landform visual weaknesses.",
+      "direction": "Caldera geometry now has a dropped floor/scarp, but close rim views are plain. Canyon walls remain stylized/rhythmic; rock textures repeat. Waterfall final pass needs owner art feedback. Preserve finite masks, shared edges and coupled beds/water."
+    },
+    {
+      "priority": 5,
+      "task": "Add the next major missing real landscape after performance/visual stabilization.",
+      "candidates": [
+        "True distributary deltas and wetland networks",
+        "More realistic river bars, floodplains, channel size/depth diversity and tributaries",
+        "Coastline morphology including fjords, barrier islands, bars, coves and regional beaches",
+        "More distinct jungle/tree architecture and ground strata",
+        "Further sparse geological features and unmatched Earth-like region types"
+      ],
+      "not_present": [
+        "Eruptions",
+        "Cave geometry",
+        "Automatic crater-lake hydrology",
+        "Complete global geomorphological or erosion simulation"
+      ]
+    }
+  ],
+  "constraints": [
+    "No changes to animal/human/weather/sky appearance in this geography pass.",
+    "No paid services, signup, subagents or extra full-player folders.",
+    "Keep unique inputs canonical and remotely backed up; artifacts remains disposable.",
+    "Use focused commits, preserve meta GUIDs, keep only the two reusable player locations.",
+    "Backward compatibility has zero priority; current-version save/load still needs to work."
+  ]
+}

@@ -4,7 +4,8 @@ param(
     [string]$World='artifacts/npc-20261103/current-190k.world',
     [string]$StartWorld='artifacts/npc-20261103/startup-0.world',
     [ValidateSet('poses','wet','cold','aquatic','collector','start')]
-    [string[]]$Cases=@('poses','wet','cold','aquatic','collector','start')
+    [string[]]$Cases=@('poses','wet','cold','aquatic','collector','start'),
+    [switch]$SkipPerformance
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -25,7 +26,7 @@ foreach($case in $Cases){
         $fixture=Join-Path $repoRoot $(if($case -eq 'start'){$StartWorld}else{$World})
         $arguments+=@('--worldgen-npc-check',('"'+$fixture+'"'))
         switch($case){
-            'wet' {$arguments+=@('--worldgen-npc-context','wet','--worldgen-npc-hour','11','--worldgen-npc-walk','--worldgen-npc-cycle','--worldgen-npc-perf')}
+            'wet' {$arguments+=@('--worldgen-npc-context','wet','--worldgen-npc-hour','11','--worldgen-npc-walk','--worldgen-npc-cycle');if(!$SkipPerformance){$arguments+='--worldgen-npc-perf'}}
             'cold' {$arguments+=@('--worldgen-npc-context','cold','--worldgen-npc-scale','1','--worldgen-npc-hour','7','--worldgen-npc-walk','--worldgen-npc-cycle')}
             'aquatic' {$arguments+=@('--worldgen-npc-residence','AquaticResidence','--worldgen-npc-permanent','--worldgen-npc-context','coast','--worldgen-npc-hour','20','--worldgen-npc-cycle')}
             'collector' {$arguments+=@('--worldgen-npc-residence','CollectorCamps','--worldgen-npc-scale','0.3','--worldgen-npc-hour','14','--worldgen-npc-cycle','--worldgen-npc-walk')}
