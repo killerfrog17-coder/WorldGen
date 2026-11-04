@@ -8,6 +8,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     Texture2D waterNormalField;LocalWaterScreen waterScreen;
+    LocalTerrain.LocalTerrainPatch waterProjectionPatch;
     double waterSipAt,waterAimAt;WaterTarget aimedWater;
     readonly Dictionary<(int,LocalWaterKind,ulong,int,int,int),WaterSourceCache> waterSourceCache=new Dictionary<(int,LocalWaterKind,ulong,int,int,int),WaterSourceCache>();
     sealed class WaterSourceCache {public long SolarHour,WeatherHour;public WaterSourceEnvironment Environment;}
@@ -35,11 +36,20 @@ public sealed partial class LocalTerrainExplorer
         var data=view.GetUniversalAdditionalCameraData();data.requiresDepthTexture=true;data.requiresColorTexture=true;
         waterScreen=view.gameObject.AddComponent<LocalWaterScreen>();
     }
-    LocalTerrainSample PlayerWaterSample(double x,double z)=>walkingPatch.Sample(frame.Position(x,z));
+    LocalTerrainSample PlayerWaterSample(double x,double z)
+    {
+        V at=frame.Position(x,z);
+        bool Contains(LocalTerrain.LocalTerrainPatch patch)=>patch!=null&&(at-patch.Center).Length*terrain.RadiusM<patch.HalfExtentM*.9;
+        if(Contains(walkingPatch))return walkingPatch.Sample(at);
+        // A spectator or detached review camera can be far from the player.
+        // Query its actual site, retaining just one small additional index.
+        if(!Contains(waterProjectionPatch))waterProjectionPatch=terrain.Patch(at,240/HorizontalScale);
+        return waterProjectionPatch.Sample(at);
+    }
     MotionWater SampleMotionWater(double x,double z)
     {
         if(!Ready||walkingPatch==null)return new MotionWater(double.NaN);
-        var position=frame.Position(x,z);var sample=walkingPatch.Sample(position);
+        var position=frame.Position(x,z);var sample=PlayerWaterSample(x,z);
         if(!sample.Underwater||sample.WaterKind==LocalWaterKind.None)return new MotionWater(double.NaN);
         double level=frame.SurfaceY(position,sample.WaterSurfaceM),floor=VisibleGround(x,z,frame.SurfaceY(position,sample.ElevationM));
         if(level<=floor+.015)return new MotionWater(double.NaN);
