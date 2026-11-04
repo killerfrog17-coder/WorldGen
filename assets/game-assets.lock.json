@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "d6a89ed61c53f9e6af317cca7a043299342c8976",
+  "source_checkpoint": "a2fd4569f9986e73d008ab98a4873d075d7c1e26",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14367,6 +14367,102 @@
       "bytes": 640,
       "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
       "member": "objects/a1be0c8bf2108232388951be9911b948654f69e67dc47358e4cd76c5500f96f0"
+    },
+    "assets-source/vegetation/ground-clumps/bake.json": {
+      "sha256": "4dd159473c60a2ec94197bec4606e9e3b0784e8da6c743eaabb2563b6dc4bfae",
+      "bytes": 872,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/4dd159473c60a2ec94197bec4606e9e3b0784e8da6c743eaabb2563b6dc4bfae"
+    },
+    "assets-source/vegetation/ground-clumps/grass_medium_01/grass_medium_01_1k.blend": {
+      "sha256": "5bbeaf7161508c1de66f137e7fcaec6fdea9c4ac0faa134c384c89c97271bec2",
+      "bytes": 1832028,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/5bbeaf7161508c1de66f137e7fcaec6fdea9c4ac0faa134c384c89c97271bec2"
+    },
+    "assets-source/vegetation/ground-clumps/grass_medium_01/textures/grass_medium_01_alpha_1k.png": {
+      "sha256": "711a8e49af758d6a6ce1f610db858899a27be19da6d1866bd35c13bc7b8ffeff",
+      "bytes": 648718,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/711a8e49af758d6a6ce1f610db858899a27be19da6d1866bd35c13bc7b8ffeff"
+    },
+    "assets-source/vegetation/ground-clumps/grass_medium_01/textures/grass_medium_01_diff_1k.jpg": {
+      "sha256": "71495bd6a11fddcab0aaff38246fea1a7b802a705483f1c7cbca53955daa8050",
+      "bytes": 395673,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/71495bd6a11fddcab0aaff38246fea1a7b802a705483f1c7cbca53955daa8050"
+    },
+    "assets-source/vegetation/ground-clumps/grass_medium_01/textures/grass_medium_01_dry_diff_1k.png": {
+      "sha256": "da85639d6eb8f029b50e7920aaf7e649940541bb24fe6ad239dbae7400af2eb2",
+      "bytes": 2167830,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/da85639d6eb8f029b50e7920aaf7e649940541bb24fe6ad239dbae7400af2eb2"
+    },
+    "assets-source/vegetation/ground-clumps/grass_medium_01/textures/grass_medium_01_nor_gl_1k.exr": {
+      "sha256": "7e9c4ca6dfca96b67e799a268493a6871ffaa215624dd1ade8b09044095f2a1d",
+      "bytes": 2021011,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/7e9c4ca6dfca96b67e799a268493a6871ffaa215624dd1ade8b09044095f2a1d"
+    },
+    "assets-source/vegetation/ground-clumps/grass_medium_01/textures/grass_medium_01_rough_1k.exr": {
+      "sha256": "79a4d6ac2b567c4b7a394a11e1a57c7823730c02878f792153ce5a41dfacedee",
+      "bytes": 900132,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/79a4d6ac2b567c4b7a394a11e1a57c7823730c02878f792153ce5a41dfacedee"
+    },
+    "assets-source/vegetation/ground-clumps/ground-clump-bake.blend": {
+      "sha256": "fb4c8b4cce05c80648fa7bc8201fc614e75d1472f17d2e7076cc0af6a10c716c",
+      "bytes": 401347,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/fb4c8b4cce05c80648fa7bc8201fc614e75d1472f17d2e7076cc0af6a10c716c"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/nettle_plant_1k.blend": {
+      "sha256": "e5278743dcb665f8d8e852b2a3742e67e2722501f9bdd8d31b761e08e91de7f5",
+      "bytes": 1075094,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/e5278743dcb665f8d8e852b2a3742e67e2722501f9bdd8d31b761e08e91de7f5"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/source.json": {
+      "sha256": "ca2170939ac8bc91b69f1f9c83d14058cb24590a3cc057bde686b3b4ad8bb759",
+      "bytes": 2203,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/ca2170939ac8bc91b69f1f9c83d14058cb24590a3cc057bde686b3b4ad8bb759"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/textures/nettle_plant_alpha_1k.png": {
+      "sha256": "61d98e886a20e401f7eb6e2d64e8513b2409e54feb41e83ecbf3b10aaa035810",
+      "bytes": 189288,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/61d98e886a20e401f7eb6e2d64e8513b2409e54feb41e83ecbf3b10aaa035810"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/textures/nettle_plant_diff_1k.jpg": {
+      "sha256": "7172a9971818a18a7cb7ebaa144d9d2313b83d2a6180c9582000f7260542ea7b",
+      "bytes": 388629,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/7172a9971818a18a7cb7ebaa144d9d2313b83d2a6180c9582000f7260542ea7b"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/textures/nettle_plant_dry_diff_1k.png": {
+      "sha256": "87b87ac6f4a6fbab8239c53907d1719bba7d9277e6eaf8659dd005d4ab46fcd3",
+      "bytes": 3534391,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/87b87ac6f4a6fbab8239c53907d1719bba7d9277e6eaf8659dd005d4ab46fcd3"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/textures/nettle_plant_nor_gl_1k.exr": {
+      "sha256": "5416fda896c0fb85e88f228de53f08f01752d6f114b7248e0d0bedd3e2cd16bc",
+      "bytes": 1413912,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/5416fda896c0fb85e88f228de53f08f01752d6f114b7248e0d0bedd3e2cd16bc"
+    },
+    "assets-source/vegetation/ground-clumps/nettle_plant/textures/nettle_plant_rough_1k.exr": {
+      "sha256": "6d9ba4d3003da66d8c8076f91fd2baaeff84be959ba7689579fc33113a25f547",
+      "bytes": 453489,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/6d9ba4d3003da66d8c8076f91fd2baaeff84be959ba7689579fc33113a25f547"
+    },
+    "assets-source/vegetation/ground-clumps/source.json": {
+      "sha256": "b210c7013c0db4cdbb82265efc16ee1925fa52987e62e120f848a8d3a2a8ae26",
+      "bytes": 2281,
+      "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "member": "objects/b210c7013c0db4cdbb82265efc16ee1925fa52987e62e120f848a8d3a2a8ae26"
     },
     "assets-source/vegetation/tree-surfaces/ambientcg/LeafSet005/LeafSet005_1K-PNG_Color.png": {
       "sha256": "6dd0879443f1d94b24a6a4d20af374f9500003a6bcca8a3540e9fad2fb94d5ed",
@@ -33234,6 +33330,14 @@
       "asset_id": 696525072,
       "sha256": "62fd910f894538264d3789866994130e44ed04987df21334e7421f6e5777e0df",
       "bytes": 13269222,
+      "encoding": "zip"
+    },
+    "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip": {
+      "tag": "ground-clump-inputs-20261104",
+      "name": "assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
+      "asset_id": 708838882,
+      "sha256": "92021e8024d86fbe0fff7d22dd198a3541044bdab0a763dfeeb411da88e59e73",
+      "bytes": 15313785,
       "encoding": "zip"
     },
     "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip": {

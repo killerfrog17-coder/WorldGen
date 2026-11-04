@@ -1,0 +1,16 @@
+{
+  "sources": [
+    {"asset": "grass_medium_01", "url": "https://polyhaven.com/a/grass_medium_01", "license": "CC0-1.0"},
+    {"asset": "nettle_plant", "url": "https://polyhaven.com/a/nettle_plant", "license": "CC0-1.0"}
+  ],
+  "license_url": "https://polyhaven.com/license",
+  "download": "python scripts/fetch-ground-clump-source.py",
+  "bake": "Blender background --python scripts/bake-ground-clumps.py",
+  "authoring_root": "assets-source/vegetation/ground-clumps",
+  "output": "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundClumpAtlasV1.png",
+  "art": "1024-square RGBA atlas; three scanned grass silhouettes and one generic broad-leaved herb; transparent orthographic emission bake, no environment/background or baked sun direction",
+  "source_integrity": "Source catalog MD5 checked on download; individual SHA256 recorded in each source.json; required ignored inputs restored through game-assets.lock.json",
+  "runtime": "One shared compressed mipmapped atlas. Three crossed quads close, two middle; distant canonical micro-cells use four/two/one cards. Existing root buffers, ecological placement and camp clearing are shared with blades.",
+  "limitations": "Generic herb representation does not imply every herb is literally nettle. Source model vertices are offline authoring inputs and are not submitted for every runtime plant. Native visual/performance acceptance is recorded separately.",
+  "rejected": "Initial continuous GroundFoliageAtlasV1 cards produced rectangular sward patches; replaced by this isolated model bake."
+}
