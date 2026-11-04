@@ -49,6 +49,27 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+REPORT4Nov04:02Z OWNER requested NPCcamp screenshots +brief illustrated PDF.
+NO GAMEPLAY/BUILD/SHORTCUT CHANGES made. SelectedB f5385a89 unchanged. Six actual
+currentB visits wet11/collector14/morning7/cold11/evening20/sleep23 allEXIT0,
+18mechanicalchecks each/108total,65rawimages/12scheduledactivitylabels in
+artifacts/npc-20261103/npc-report-20261104-*. Fourteen selected images andone
+supplementary issue photo preserved docs/reports/npc-camp-images, reportinputs
+independent ofscratch. Five-page851word PDF docs/reports/WorldGen - NPC Camps
+and Daily Life.pdf rendered andallpages inspected; finalopen/Gitdelivery follows.
+IMPORTANT actual screenshots caught unresolved VISUAL ISSUES despite mechanical
+checks: collector PrepareFood arm protrudes through brushhutcover, somehousehold
+poses overlap/reclineawkwardly; shared work/playposes generic. Some task cameras
+blocked by grass/walls or capture approach before actual action. Do NOT describe
+these as visuallyclean/fullyaccepted. Report explicitlyshows/clipslabels and
+distinguishes data/schedules fromvisibleaction/fullproductioneconomy.
+assets/verification/npc-screenshot-review-20261104.json binds currentpackage,
+6scenes/checkhashes/rawimagehashes/visual_acceptanceFALSE/reporthash. Regenerate
+PDF with scripts/build-npc-camp-report.py usingcanonicalreportimages. Capture
+script scripts/capture-npc-camps.ps1 usesexistingdiagnostic only, noEditorbuild.
+No owned games/testjobs remain. Owner3files untouched; nopaid/subagents/app
+closures. Deliver report forownerinspection; no unrequestedNPCfixes inthis task.
+
 SELECTED4Nov00:26Z BRANCH FOLLOW-UP VERIFIED. Rootshortcut NOW slot-b,
 FULL managedNONDEV built00:17:17.5852150Z, runtimef5385a89 PUSHED. All3ordered
 updates implemented/internallyverified; owner visual approval still pending.

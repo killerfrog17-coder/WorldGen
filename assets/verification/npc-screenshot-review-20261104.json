@@ -1,0 +1,314 @@
+{
+  "recorded_utc": "2026-11-04T04:01:57.034611+00:00",
+  "runtime": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
+  "report": "docs/reports/WorldGen - NPC Camps and Daily Life.pdf",
+  "capture_command": "scripts/capture-npc-camps.ps1 -Slot slot-b -Prefix npc-report-20261104",
+  "cases": [
+    {
+      "case": "wet",
+      "package": {
+        "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+        "BuiltUtc": "2026-11-04T00:17:17.7122136Z",
+        "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+        "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+      },
+      "scene": {
+        "Aridity": 1.9109833471970137,
+        "Canopy": 0.9500000000000006,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 11,
+        "MeanC": 25.82974881612366,
+        "People": 42,
+        "Rain": 3172.675837138729,
+        "Residence": "SeasonalBaseCamps",
+        "Year": 190000
+      },
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "17d41959f770a02a810be2821d55d777e1678475b8220886c265db0e89b0af2c",
+        "entrance-1392370807118312852.png": "f7c4da3228e8fdb45459df3540f7e4303fe5eaf707862c51a6cc7c63346da246",
+        "entrance-296524057410846087.png": "769c93a4883941dec685a59158eb52db4ab8ed54e43aa3d47d75b7693a536f31",
+        "entrance-896074766444162190.png": "5965418a8d506eab059992743e76e471a4b89481e249472c3a7f48959d29bbc4",
+        "residents-first.png": "c13d8987ab7c55259c1d79e923b115d00d79a8e8744bfcd047aac5132d2ac35c",
+        "task-Carried.png": "8d7b5f31bf41a4662080b5b6c5d88aefbb2574ce6cbb83afe4a5f549216a1d30",
+        "task-Childcare.png": "b7226ce7d799e0b80212279e5915b045638ceac0dce573e30bb5ba61d41a3bea",
+        "task-Craft.png": "4b294b08d8ab8abd4fb5d6bf14b096b00dd94a678b95e404187adcfa2214b01c",
+        "task-GatherFuel.png": "d6ec4a2aa653c0130e3659d7a22a2bd4289c30fd0c33e843220f720541d42125",
+        "task-Play.png": "f0ab942d426451fbecbc1979cce4cd0d5c2a4e566a4d3a788508f70bda82979c",
+        "task-RepairShelter.png": "10308b55b4dd3ac072ca86eb9950ea48f731df607e85dc2d7e3008191d2468ef"
+      },
+      "captured_activity_labels": [
+        "Carried",
+        "Childcare",
+        "Craft",
+        "GatherFuel",
+        "Play",
+        "RepairShelter"
+      ]
+    },
+    {
+      "case": "collector",
+      "package": {
+        "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+        "BuiltUtc": "2026-11-04T00:17:17.7122136Z",
+        "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+        "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+      },
+      "scene": {
+        "Aridity": 0.7596173150945977,
+        "Canopy": 0.8,
+        "Context": "temperate",
+        "Cover": "Brush",
+        "Design": "BrushHut",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 10,
+        "LocalHour": 14,
+        "MeanC": 13.424540219566135,
+        "People": 41,
+        "Rain": 738.0329217233167,
+        "Residence": "CollectorCamps",
+        "Year": 190000
+      },
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "a76a2236d3afeebf0ff10972f5bcc2d4e8b7a8ec38f6a5888e054fba5c2b1113",
+        "entrance-1502269996504598712.png": "eb963a8e1772c2a7c99799b73af9f37c9acdf46aad08a84a89d289dc9d90f3c9",
+        "entrance-5636850983678370113.png": "83fdf0b877bea079e4e6f44fb96321aaf9c4e1657566f5c04c4b7c3d82122aaf",
+        "entrance-746468470478216451.png": "0d1d04325c39efe68384c6214774db36261935d11ba55d1248684114d8523170",
+        "residents-first.png": "b9d71d9fb907fd3408dd4944542c025133e0c0f9fd3328e1b8c20686093b305a",
+        "task-Carried.png": "0039c83bdfb8473401770bda99469317adc11743654822fe85530c6bb71099d6",
+        "task-Childcare.png": "b2ddbe91b5ad9b46484fa4421cee24e27078816152a31f6ecb96f87908ef3204",
+        "task-Craft.png": "a5d5136f2fca2201ad44ec5e5334b950521421fc4122f661dd105b3f0bfd8898",
+        "task-Play.png": "786d57fd579f43b281c3685f9dec4920773de5e3f48e2e038e17c2b162eeabee",
+        "task-PrepareFood.png": "0b89412352f682e73a43a7c6aeec1622dc4042df5ced141c526fc7f9896aee41",
+        "task-RepairShelter.png": "148546fa2fad3076a67be2cb02d8f6212c40ae731c7a6ed8590e22bbcdbf2c31",
+        "task-Teach.png": "f01ed4e225a8b90d3829b4a4bc9297938955ae284419e5b9d69f20dfaef94ca3",
+        "task-Travel.png": "e991b6c5ad37971c85f98cba9ea6299382cf386f77f7a29dffb384cd43bd3a59"
+      },
+      "captured_activity_labels": [
+        "Carried",
+        "Childcare",
+        "Craft",
+        "Play",
+        "PrepareFood",
+        "RepairShelter",
+        "Teach",
+        "Travel"
+      ]
+    },
+    {
+      "case": "morning",
+      "package": {
+        "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+        "BuiltUtc": "2026-11-04T00:17:17.7122136Z",
+        "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+        "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+      },
+      "scene": {
+        "Aridity": 1.0771407347024875,
+        "Canopy": 0.8000000000000002,
+        "Context": "temperate",
+        "Cover": "Bark",
+        "Design": "LeanTo",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 10,
+        "LocalHour": 7,
+        "MeanC": 15.783491286436501,
+        "People": 36,
+        "Rain": 1071.0525052618,
+        "Residence": "ResidentialMobility",
+        "Year": 190000
+      },
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "0005de65cb2f36d817443c25b928b29a5434862c251fb9b99324efef8ddb780d",
+        "entrance-2096395356318143584.png": "5eb65628fa7743c619134d7093a5406214b988671763a7304d3098fade6bd2b8",
+        "entrance-296516404305534529.png": "2803f31a3205635da9277d97d2c36e01a1b717441f6ad2039f3b21008e72d474",
+        "entrance-423526180515149152.png": "1343cbc1384f22ecf036e92ffa50e449e3190b891e97b7c20d46ceecc55596cc",
+        "residents-first.png": "fee60ae182a03b6e0727f617068c9356b2ef3206b91b81c67a8b706f8732ee5e",
+        "task-Carried.png": "4f5cf84f7408b9fc65e7353c21197892c2cbc010e4d4b792675c46d5ed346b0a",
+        "task-Childcare.png": "c3a9420a0e241b49ecc91d69accfe03d1d7a9bbef4a5bce3780f37af06208531",
+        "task-Craft.png": "76d73420681a49d85194c1f57a915ed201d62abc0e05cc6f09719153a0b70ca6",
+        "task-GatherFuel.png": "0d9ff66ee940fb8134cde3f708dfbe363becd03041f3ce41bfa6048f77021799",
+        "task-Play.png": "884c16af275e961d98ce4e672ccecde17a24df56650b41bed0014fd58be2b546",
+        "task-RepairShelter.png": "4c7432df1dd42b6f8e4be49a88b2a0321ebe55a5bc105809c7af5bf86522f698",
+        "task-Teach.png": "f6956cc1b94f231d15ad948df2e73f4d75b475401f5e88606c3f6b0dff1e05e5",
+        "task-Travel.png": "930c2c91c01d2b4954c6d720ba745fae4e5672e69d93b767435af3ea1869a76e"
+      },
+      "captured_activity_labels": [
+        "Carried",
+        "Childcare",
+        "Craft",
+        "GatherFuel",
+        "Play",
+        "RepairShelter",
+        "Teach",
+        "Travel"
+      ]
+    },
+    {
+      "case": "cold",
+      "package": {
+        "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+        "BuiltUtc": "2026-11-04T00:17:17.7122136Z",
+        "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+        "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+      },
+      "scene": {
+        "Aridity": 11.320373958604838,
+        "Canopy": 0,
+        "Context": "cold",
+        "Cover": "Hide",
+        "Design": "ConicalTent",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 10,
+        "LocalHour": 11,
+        "MeanC": 1.9262162916954684,
+        "People": 37,
+        "Rain": 3489.6506202323258,
+        "Residence": "ResidentialMobility",
+        "Year": 190000
+      },
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "80693e1278d9467059d3a94f1b71cfbc7644f6107436f8202346bf6a2da4124e",
+        "entrance-2138052561454279186.png": "1fbd384d358e555da5f601921f6a723e18016af5e7334e85d4eacc8b6bb487af",
+        "entrance-2619840468796699881.png": "3477ec94e4f39e4577ae385856f89a8aa7955f05a1fa864df9a90f9c00217749",
+        "entrance-829957145836686349.png": "29edb73bdf339299b4e57ddaaa4f338b58bee26062ff8f3439e75d83c831caf0",
+        "residents-first.png": "7dd86cee71fba09461007403efcaf0925cee509ab93c0224316f4bada7727382",
+        "task-Carried.png": "6bc13963152b60d96e023cef1eaf8fa74d74d6525e833ac602eaae8068fbbc52",
+        "task-Childcare.png": "9f2a809c2d3da6c37d67eeab3ea1be17293f94b8f1af4380ad94ce2a199029ba",
+        "task-Craft.png": "1f6159044e8476febe24e185bec92d0c13e3eda891129a725765a24bc28eae28",
+        "task-GatherFuel.png": "4eabcdf253c50813f290453fdc11f9ab82f6822b3bd24e1f7a2b07dfc2b8d115",
+        "task-GatherPlants.png": "81c6c612bb07a822ad053c092ad7ddb3668dc07b3d35309122826972e54fd054",
+        "task-Play.png": "eb1a771b83068b2a7e07f9da2e64a7066ed182a637eef31661ae7e968b755000",
+        "task-RepairShelter.png": "1f6991b1e14d85cf305bd8f0f1f3393a80cd7b27aa06d339327fb328ee62343e",
+        "task-Teach.png": "85fae1d8e7c314d0d4e66f5d8ce44dfd6dacb4d8910de1ba94040ee2f899a0ab"
+      },
+      "captured_activity_labels": [
+        "Carried",
+        "Childcare",
+        "Craft",
+        "GatherFuel",
+        "GatherPlants",
+        "Play",
+        "RepairShelter",
+        "Teach"
+      ]
+    },
+    {
+      "case": "evening",
+      "package": {
+        "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+        "BuiltUtc": "2026-11-04T00:17:17.7122136Z",
+        "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+        "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+      },
+      "scene": {
+        "Aridity": 0.6162763588485869,
+        "Canopy": 0.85,
+        "Context": "coast",
+        "Cover": "Reed",
+        "Design": "BrushHut",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 12,
+        "LocalHour": 20,
+        "MeanC": 26.740447540659574,
+        "People": 40,
+        "Rain": 1051.0361053403988,
+        "Residence": "AquaticResidence",
+        "Year": 190000
+      },
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "c9c50c51e6cf55d9b4b035d7b001cbbb4bfc50eda12873760d7aa3fbc698a6af",
+        "entrance-3062670514040560026.png": "8966b252275c77529087b1e00ef5cd3ed3198abc5f12ff4384e34ba149459391",
+        "entrance-606263530039764081.png": "435c9381420634884e43c4d2b15a807789ae68efef1b5e2c1c90b12e6f1cc988",
+        "entrance-647029047057957570.png": "a7dc49da9fae97e432be8ec8aef60b91de4d96f7c7ad1ccc6993962d296fb8bb",
+        "residents-first.png": "f321048f67339ac74a6cca2bb1b9beed6efd6e3d9cd13c5e7c4c7543a3523e3e",
+        "task-Carried.png": "9160fbdf58188a029fc775f2be14f465ca84243e884d650915494d43caba3c81",
+        "task-Sleep.png": "d03f9c016202c0ccd78bd203e907eec2559e88d55d4984d3d11a1816dde02212",
+        "task-Socialise.png": "75e3fc10d78c17c0be31d67e2f414311d8e8bd48fb9b451f629c1fc35bdef983"
+      },
+      "captured_activity_labels": [
+        "Carried",
+        "Sleep",
+        "Socialise"
+      ]
+    },
+    {
+      "case": "sleep",
+      "package": {
+        "AssemblySha256": "29f19dc48390749c07cb5d5ee22e6c328ef29293b5e9e992bea4c4526cf173e0",
+        "BuiltUtc": "2026-11-04T00:17:17.7122136Z",
+        "CoreSha256": "e849fa0cfd83b784bb7bb2494d27fc4f9bcfc238af1f3f844c0ce6414ee3a003",
+        "WorkerSha256": "c5a67155b2164388021db55be0246f24297b87e822a4164fec6daf9f4db1d19e"
+      },
+      "scene": {
+        "Aridity": 1.0771407347024875,
+        "Canopy": 0.8000000000000002,
+        "Context": "temperate",
+        "Cover": "Bark",
+        "Design": "LeanTo",
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "Houses": 10,
+        "LocalHour": 23,
+        "MeanC": 15.783491286436501,
+        "People": 36,
+        "Rain": 1071.0525052618,
+        "Residence": "ResidentialMobility",
+        "Year": 190000
+      },
+      "checks": 18,
+      "checks_sha256": "ac72a8ac9a652e25d7fb1a9a03bf0636399d1695b79bb9a740c75b98660bb7dc",
+      "images": {
+        "camp-first.png": "56430f4e87387d2ea2894bfe50a145e2c84de9fb09becf17c24a587ca318d5cb",
+        "entrance-2096395356318143584.png": "5700ab33af44c19f5bbcf1e974f952a6274ff2b1462f89279da4dd26d0f47ead",
+        "entrance-296516404305534529.png": "4a6b59d6ce8525ee2979ba925657a78008915c1dab56fb7f9ac2a46748a8bc4f",
+        "entrance-423526180515149152.png": "168994bce60321c90dafe69445df5fbc1aef956f0279531c8d948f6ca2ca93ba",
+        "residents-first.png": "1170d65116fb9a3ab2fcf2d72690596105c39748526a6757c0ac3c268e770899",
+        "task-Carried.png": "49f5fec1464164bde08028f90eecf45fd160ce3ffeb8796a9bc155d5f1b11fd5",
+        "task-Sleep.png": "8d0d96cbdfda07b36e826de72643d617779e2526fcf5b9df539543def2b041ed"
+      },
+      "captured_activity_labels": [
+        "Carried",
+        "Sleep"
+      ]
+    }
+  ],
+  "mechanical_checks_passed": true,
+  "visual_acceptance": false,
+  "visual_findings": [
+    {
+      "type": "game_visual_issue",
+      "finding": "Food-preparation resident has a limb protruding through the brush-hut covering.",
+      "evidence": "work_food.jpg"
+    },
+    {
+      "type": "game_visual_issue",
+      "finding": "Some household work/rest poses overlap or appear awkwardly reclined; shared action loops are still generic.",
+      "evidence": "docs/reports/npc-camp-images/issue-pose-spacing.jpg"
+    },
+    {
+      "type": "capture_limitation",
+      "finding": "Several task cameras are blocked by grass or hut walls. Scheduled activity does not guarantee the resident has reached the action pose. These frames were excluded or explicitly labelled."
+    }
+  ],
+  "report_image_review": "docs/reports/npc-camp-images/review.json",
+  "report_inputs_disposable_scratch_independent": true,
+  "gameplay_changes_made": false,
+  "supplementary_image": {
+    "source_sha256": "f01ed4e225a8b90d3829b4a4bc9297938955ae284419e5b9d69f20dfaef94ca3",
+    "sha256": "81641a22b9db000aa73df70f4d30f1dbf980d87c38a010afab4b1e9c57615fb1"
+  },
+  "report_sha256": "d433754dab1f29bc993afaffa2cefce2bd2d77b97ea273560a005915cd1db569"
+}
