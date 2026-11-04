@@ -90,6 +90,14 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     void SetFog()
     {
         float distance=(float)Math.Min(viewDistance*.98,streamedFog);
+        // Detached diagnostic cameras must not expose ground beyond the loaded
+        // player-centred disk. Ordinary gameplay never sets this camera.
+        if(landscapeReviewCamera.HasValue)
+        {
+            var camera=landscapeReviewCamera.Value;
+            double dx=camera.x-(motion.X-originX),dz=camera.z-(motion.Z-originZ);
+            distance=(float)Math.Min(distance,Math.Max(40,Math.Min(terrainRevealRadius,forestRevealRadius)-Math.Sqrt(dx*dx+dz*dz)-8));
+        }
         // A settled reveal used to resend the identical uniform to every cached
         // species material every frame. New art is initialized to this datum too.
         if(!WorldGenPerformance.Original&&distance==publishedFog&&publishedFogMaterials==ownedScatterMaterials.Count&&publishedFogLand==landMaterial&&publishedFogWater==waterMaterial)return;

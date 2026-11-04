@@ -152,7 +152,8 @@ public sealed partial class LocalTerrainExplorer
             {
                 bool biomeQuery=Enum.TryParse(kind,out Biome requestedBiome);
                 var requested=biomeQuery?default:(LandscapeRegion)Enum.Parse(typeof(LandscapeRegion),kind);
-                foreach(int cell in cells.Where(i=>biomeQuery?model.Profile(i).Biome==requestedBiome:LandscapeProvince.Region(model.Profile(i).Landscape,world.Surface.Cells[i].Position*(model.RadiusM*.1),world.Recipe.Seed,model.Profile(i).Biome)==requested).Take(96))
+                foreach(int cell in cells.Where(i=>biomeQuery?model.Profile(i).Biome==requestedBiome:LandscapeProvince.Region(model.Profile(i).Landscape,world.Surface.Cells[i].Position*(model.RadiusM*.1),world.Recipe.Seed,model.Profile(i).Biome)==requested)
+                    .OrderByDescending(i=>kind=="Badlands"?model.Profile(i).Landscape.Badlands:0).Take(96))
                 {
                     var patch=model.Patch(world.Surface.Cells[cell].Position,18000);
                     foreach(var offset in new[]{new V(5000,0,0),new V(-6000,0,4000),new V(8500,0,-5000)})
@@ -183,10 +184,11 @@ public sealed partial class LocalTerrainExplorer
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
         File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
-        if(site.Volcano!=null){reviewRange=8000;reviewFootprint=Math.Min(6000,site.Volcano.RadiusM*1.8);}
+        if(site.Volcano!=null){reviewRange=Math.Max(10000,site.Volcano.RadiusM*4.5);reviewFootprint=site.Volcano.RadiusM*3.6;}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         if(site.Coast!=null){reviewRange=3000;reviewFootprint=1600;}
         if(site.Landform!=null){reviewRange=3000;reviewFootprint=1600;}
+        if(site.Outcrop!=null){reviewRange=6000;reviewFootprint=site.Outcrop.RadiusM*3.6;}
         if(site.Fall.HasValue){reviewRange=2500;reviewFootprint=1200;}
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
@@ -195,7 +197,7 @@ public sealed partial class LocalTerrainExplorer
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((!owner.Ready||!owner.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(owner.Ready&&owner.NearReady&&owner.Error=="","Actual worker terrain neighbourhood is uploaded without errors");double loadSeconds=timer.Elapsed.TotalSeconds;
-        owner.TestView(3);owner.TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,7000,2,1,3,0);owner.SetDaylight(12,190000.5);
+        owner.TestView(3);owner.TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,reviewRange*1.5),2,1,3,0);owner.SetDaylight(12,190000.5);
         var keys=new[]{site.Position,owner.frame.Position(-80,0),owner.frame.Position(80,0)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();deadline=Time.realtimeSinceStartupAsDouble+90;
         while(keys.Any(k=>!owner.scatterChunks.TryGetValue(k,out var chunk)||chunk.Groups==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(keys.All(k=>owner.scatterChunks.TryGetValue(k,out var chunk)&&chunk.Groups!=null),"Actual surrounding vegetation/scatter is resident");
@@ -226,6 +228,9 @@ public sealed partial class LocalTerrainExplorer
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
             Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual summer daylight: "+name);
             var camera=new Vector3(offset.x,y+.5f+offset.y,offset.z);
+            double offsetRadius=new Vector2(offset.x,offset.z).magnitude;
+            double inspectedRadius=site.Outcrop?.RadiusM??site.Volcano?.RadiusM??Math.Min(200,reviewFootprint*.2);
+            Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
             camera.y=walking?cameraFloor+1.8f:Mathf.Max(camera.y,cameraFloor+2);
@@ -249,7 +254,7 @@ public sealed partial class LocalTerrainExplorer
             }
             Check(!VisiblePending(),"Visible distant-tree models complete while the review camera stays still");
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
-            owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+            owner.SetFog();owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);RenderTexture.active=prior;
             if(Environment.GetCommandLineArgs().Contains("--worldgen-grass-review"))
             {
