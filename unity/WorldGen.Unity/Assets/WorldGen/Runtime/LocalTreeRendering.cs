@@ -80,8 +80,22 @@ public sealed partial class LocalTerrainExplorer
         if(!CanInstall)return;
         installed=System.Diagnostics.Stopwatch.GetTimestamp();
         if(treeBakeTask!=null||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.GeneratedTrees&&!TerrainVideoOptions.FarForest||!CenterReady||NearTerrainPending())return;
-        bool preferStand=BakedForestModels<3||(BakedTreeModels+BakedForestModels)%3==0;
-        var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&(m.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderBy(m=>m.TreeStand==preferStand?0:1).ThenBy(m=>(m.TreeCode&7)==0?0:1).ThenByDescending(m=>m.LastUsed).FirstOrDefault();
+        double now=Time.realtimeSinceStartupAsDouble;int trees=0,stands=0;bool any=false;
+        foreach(var model in scatterArt.Values)
+        {
+            if(model.TreeBaked){if(model.TreeStand)stands++;else trees++;}
+            if(model.TreeBake&&!model.TreeBaked&&(model.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(model)&&now-model.LastUsed<3)any=true;
+        }
+        // An idle renderer needs no iterator/sort allocations. Preserve the
+        // same stable priority and recency ordering when work actually exists.
+        if(!any)return;
+        bool preferStand=stands<3||(trees+stands)%3==0;ArtModel pending=null;int priority=int.MaxValue;
+        foreach(var model in scatterArt.Values)
+        {
+            if(!model.TreeBake||model.TreeBaked||!(model.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)||treeBakeFailures.Contains(model)||now-model.LastUsed>=3)continue;
+            int rank=(model.TreeStand==preferStand?0:2)+((model.TreeCode&7)==0?0:1);
+            if(pending==null||rank<priority||rank==priority&&model.LastUsed>pending.LastUsed){pending=model;priority=rank;}
+        }
         if(pending==null)return;
         if(!pending.TreeStand&&BakedTreeModels>=TreeBakeLimit)
         {
