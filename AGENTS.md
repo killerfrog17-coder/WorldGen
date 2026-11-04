@@ -49,6 +49,25 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE04Nov06:07Z DRYLAND REVIEW. B f5385a89 selected/UNCHANGED. A internal4c9672d1
+FULL managed built~05:53Z. experience-ripples both EXIT0; all16imagescontactsheet
+reviewed +4dunes fullsize. Shape/salt improved; analytic sand too uniform, REJECTED
+asfinalart. New CC0 PolyHaven aerial_beach_01 actual raw8k Diffuse inspected,
+registered4m crop/periodic PBRprepared. ExistingSand01 is compactedtrampledclay,
+not loose dune sand. Sourceprep script updated; pureSandanalyticshader REMOVED,
+existingPBRsampler now4m Sand repeat; no newlayers/fetches/passes. OfflineUnity
+TerrainSurfaceArtBuilder.Build import EXIT0; known3autosrestored. Budgetactual
+onlyslice1changed, other13byteexact; sameBC7payloads512/256/128. New4ignored raw/
+metadatainputs need free immutableReleasepack+assetlock BEFOREfullA build. Existing
+inventoryscanned-sand-inventory.json5361external (old5357+4); trackedarray changes
+notpartofReleaseinventory. No jobsatnote. LatestCore25/Hyper20/Scatter15,35733PASS;
+aabmaterial vs0bdcurved65x65heightgridsBYTEEXACT/meanSand1/rock0. Source0bdwater/
+sharededgesPASS+27175riverchecks. LatestuncontendedCoreCPUlogfinal-core-cost:
+prep28.361/28.504s, warmland699/739ms vs659/683ms; similar, NOT GPUFPSproof.
+Needsourcecommit, publishraw24MBpack/remotesHA, fullAnewunusedprefix captures,
+actualreviewbeforeanyselection. Optional saltstylequestionpending. No paid/
+subagents/ownerappsclosed; owner3filesuntouched. Allartifactsdisposable.
+
 ACTIVE04Nov05:44Z REGION REVIEW: A internal0bd1ee4c built05:36:13Z; B selected
 f5385a89 unchanged. experience-curved both native EXIT0, larger2km actualfootprint;
 dune crests now curved (not yet fullqualityaccepted), saltbare/bright/polygonal.

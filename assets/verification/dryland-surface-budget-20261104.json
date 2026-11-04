@@ -1,0 +1,33 @@
+{
+  "baseline_source": "4c9672d1",
+  "arrays": {
+    "albedo": {
+      "payload_bytes": 4893728,
+      "changed_slices": [
+        1
+      ],
+      "other13_byte_exact": true,
+      "file_sha256": "d705e6943deb1b1129b76895a956997c2369e8cd073f146796e9381c053dfb59"
+    },
+    "normal": {
+      "payload_bytes": 1223712,
+      "changed_slices": [
+        1
+      ],
+      "other13_byte_exact": true,
+      "file_sha256": "e7c0032039a9f3aa14506d0901474c0ba0e92c309b4c552e488160c5a308e8ba"
+    },
+    "mask": {
+      "payload_bytes": 306208,
+      "changed_slices": [
+        1
+      ],
+      "other13_byte_exact": true,
+      "file_sha256": "42f437967eb076c92b2aa6c5d0d8e860e8f5e639c17f3dd075e84d8eb165b565"
+    }
+  },
+  "sand_repeat_metres": 4,
+  "other_material_repeat_metres": 2,
+  "source_asset": "https://polyhaven.com/a/aerial_beach_01",
+  "license": "CC0-1.0"
+}

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb746d99f3bb44a0902756534ca88808, type: 3}
   m_Name: LocalTerrainArtSet
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   Scatter: []
   GroundMaterial: {fileID: 0}
   Albedo: {fileID: 18700000, guid: 888579090079e3e4bb6e3f9c2543d227, type: 2}

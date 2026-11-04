@@ -40,7 +40,7 @@
     "maximum_dune_site_slope_degrees": 32.054750974201134,
     "salt_mean_surface_weight": 0.6812665609828584
   },
-  "review_status": "PROTOTYPE: first native dune views rejected as bland; salt crust is recognisable and bare after rooting fix. Larger-context compound-dune/detail candidate pending actual native inspection. No shortcut change.",
+  "review_status": "PROTOTYPE: geometry and bare salt crust improved; latest analytic sand material rejected as too uniform. New scanned wind-ripple sand prepared/imported, awaiting packaged game inspection. Selected playable B unchanged.",
   "first_native": {
     "source": "770e66d7",
     "prefix": "experience-first",
@@ -66,8 +66,9 @@
     "Actual 2km review range and >=1.2km loaded footprint, plus walking views 250m from centre."
   ],
   "material_review": {
-    "source_scan": "Poly Haven sand_01: compacted, trampled sand-clay, unsuitable as the dominant loose-dune surface. Actual Diffuse.jpg inspected; retained for mixed/compacted sand.",
-    "loose_sand": "Deep windblown sediment preserves sand on stable slip faces; fine analytic wind ripples replace the trampled normal pattern. Fixed quantised planetary axes preserve phase under1024m texture-anchor wraps; derivatives suppress aliasing.",
-    "budget": "Same14 texture layers and dimensions; no new textures/passes. Near pure-sand pixels skip scanned normal/mask fetches. GPU cost remains to be measured; do not claim FPS acceptance."
+    "rejected_compacted_scan": "sand_01 was trampled sand-clay.",
+    "rejected_procedural": "4c9672d1 analytic ripples looked too uniform in actual game captures experience-ripples.",
+    "current": "aerial_beach_01 CC0 wind-sculpted sand; registered central4m crop of8k30m photograph/normals/ARM, periodic boundaries, dry roughness floor.88. Existing terrain texture array slot1.",
+    "budget": "Only slice1 changes; other13 byte exact. Same14 layers and512/256/128 BC7 payload. Pure-sand analytic helper removed; existing PBR texture sampling restored, sand mapped at4m physical repeat. No added pass/texture fetch. GPU FPS not yet measured."
   }
 }

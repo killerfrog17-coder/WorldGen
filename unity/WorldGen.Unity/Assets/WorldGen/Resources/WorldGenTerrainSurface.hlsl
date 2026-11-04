@@ -71,33 +71,6 @@ float2 SaltCellPoint(float2 cell)
     float3 p=frac(cell.xyx*float3(.1031,.1030,.0973));
     p+=dot(p,p.yzx+33.33);return .15+.7*frac((p.xx+p.yz)*p.zy);
 }
-void SurfaceLooseSand(O i,float3 world,float distance,float3 farColor,float3 geometryNormal,inout float3 albedo,inout float3 normal,inout float rough)
-{
-    float sum=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
-    float sand=smoothstep(.8,.98,max(0,i.weights.y)/sum);
-    if(sand<=.001)return;
-    // The scanned compacted sand/clay has trampled lumps. Deep loose dunes
-    // instead have subtle grain and wind ripples over their actual landform.
-    float grain=clamp(dot(albedo,float3(.2126,.7152,.0722))/max(.02,dot(farColor,float3(.2126,.7152,.0722))),.5,1.5);
-    albedo=lerp(albedo,farColor*(1+(grain-1)*.035),sand);rough=lerp(rough,.96,sand);
-    normal=normalize(lerp(normal,geometryNormal,sand));
-    float detail=(1-smoothstep(35,75,distance))*sand*(_TerrainSurfaceControls.x>.5&&_TerrainSurfaceControls.y>=1&&!TerrainTest(TD_NORMALS)&&!TerrainTest(TD_TEXTURES)?1:0);
-    [branch] if(detail>.001)
-    {
-        // Quantised fixed vectors keep phase invariant under the existing
-        // 1024m texture-anchor wrap. No camera-relative moving pattern.
-        float3 wind1=float3(.75,.40625,.53125),wind2=float3(.125,.84375,-.5),across=float3(-.6875,.4375,.5625);
-        float alignment=dot(TerrainUp().xyz,normalize(wind1)),blend=smoothstep(.2,.6,1-alignment*alignment);
-        float bend=sin(dot(world,across)*.785398163)*.22;
-        float2 phase=float2(dot(world,wind1),dot(world,wind2))*4+bend;
-        detail*=1-smoothstep(.15,.5,max(fwidth(phase.x),fwidth(phase.y)));
-        float2 waves=cos(phase*6.283185307)+.35*cos(phase*12.566370614);
-        float3 gradient=(wind1*waves.x*blend+wind2*waves.y*(1-blend))*.10;
-        float3 pn=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
-        pn=normalize(pn-(gradient-pn*dot(pn,gradient))*detail);
-        normal=normalize(float3(dot(pn,TerrainEast().xyz),dot(pn,TerrainUp().xyz),dot(pn,TerrainNorth().xyz)));
-    }
-}
 void SurfaceSaltCrust(O i,float3 world,float distance,float3 farColor,inout float3 albedo,inout float3 normal,inout float rough)
 {
     float sum=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
@@ -156,16 +129,19 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
         float axes=TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w;
         float3 w=SurfaceAxes(np,axes,extra),colour=0,bump=0;float4 mask=0;
-        bool looseSand=i.weights.y>.98*max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
-        bool colourRead=!TerrainTest(TD_ALBEDO),normalRead=!looseSand&&normalDetail>.001&&_TerrainSurfaceControls.y>=1&&!TerrainTest(TD_NORMALS);
-        bool maskRead=!looseSand&&normalDetail>.001&&_TerrainSurfaceControls.y>=3&&!TerrainTest(TD_MASKS);
+        bool colourRead=!TerrainTest(TD_ALBEDO),normalRead=normalDetail>.001&&_TerrainSurfaceControls.y>=1&&!TerrainTest(TD_NORMALS);
+        bool maskRead=normalDetail>.001&&_TerrainSurfaceControls.y>=3&&!TerrainTest(TD_MASKS);
         [unroll]for(int at=0;at<3;at++)
         {
             [branch] if(fractions[at]>.001)
             {
-                if(colourRead)colour+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),p,dx,dy,w,layers[at]).rgb*fractions[at];
-                if(normalRead)bump+=SurfaceBump(p,dx,dy,w,layers[at])*fractions[at];
-                if(maskRead)mask+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundMasks,sampler_GroundAlbedo),p,dx,dy,w,layers[at])*fractions[at];
+                // Sand is a registered4m scan crop; other material slots keep
+                // their existing2m repeat. No additional texture layer/read.
+                float layerScale=layers[at]==1?.5:1;
+                float3 lp=p*layerScale,ldx=dx*layerScale,ldy=dy*layerScale;
+                if(colourRead)colour+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at]).rgb*fractions[at];
+                if(normalRead)bump+=SurfaceBump(lp,ldx,ldy,w,layers[at])*fractions[at];
+                if(maskRead)mask+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundMasks,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at])*fractions[at];
             }
         }
         float scale=2;
@@ -180,7 +156,6 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         }
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
-    SurfaceLooseSand(i,world,distance,farColor,normalize(i.normal),albedo,n,rough);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
     float cover=saturate(i.color.a);

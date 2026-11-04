@@ -3,50 +3,52 @@
   "materials": [
     {
       "material": "sand",
-      "asset": "sand_01",
-      "url": "https://polyhaven.com/a/sand_01",
+      "asset": "aerial_beach_01",
+      "url": "https://polyhaven.com/a/aerial_beach_01",
       "license": "CC0-1.0",
       "authors": {
         "Rob Tuytel": "All"
       },
       "inputs": {
         "Diffuse": {
-          "path": "assets-source/terrain/surfaces/cc0-regions/sand_01/Diffuse.jpg",
-          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sand_01/sand_01_diff_1k.jpg",
-          "md5": "c914c8edb419f040e04224081a3f79a5",
-          "sha256": "a73b90eaa6d675ef57e7d48a8cf23e1f412e353ab2e29cf73930b8ecd4e76875",
-          "bytes": 485088
+          "path": "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/Diffuse.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/aerial_beach_01/aerial_beach_01_diff_8k.jpg",
+          "md5": "8dad4a7451a80855ccfec4d2cf5d964a",
+          "sha256": "492b89604cd79f733557b590f561ddc9ea51739705d96d9768c4ca1614b44b60",
+          "bytes": 4827362
         },
         "nor_gl": {
-          "path": "assets-source/terrain/surfaces/cc0-regions/sand_01/nor_gl.jpg",
-          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sand_01/sand_01_nor_gl_1k.jpg",
-          "md5": "369b82aa417c77ec85c4c07c4c7b60a0",
-          "sha256": "73984aecdc35b1ffbc322d64b7f8d8165b06970d11f37dd47010609fcb532704",
-          "bytes": 877821
+          "path": "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/nor_gl.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/aerial_beach_01/aerial_beach_01_nor_gl_8k.jpg",
+          "md5": "04f10b3479ead5d8be85c2c8c544b2eb",
+          "sha256": "0a59f38f2dd43985619d3574b9ec67845cce5e86baa9a4767333ab7f539e635f",
+          "bytes": 6612668
         },
         "arm": {
-          "path": "assets-source/terrain/surfaces/cc0-regions/sand_01/arm.jpg",
-          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sand_01/sand_01_arm_1k.jpg",
-          "md5": "3ab2b7731c0430662bdc4d12425411a3",
-          "sha256": "7a331aae0c26cfdba9096fc4fd0b8601d556b3e3ab92ddf4832a1c6a24a7292c",
-          "bytes": 131275
+          "path": "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/arm.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/aerial_beach_01/aerial_beach_01_arm_8k.jpg",
+          "md5": "f9810854b516cd537c845224c72a01dc",
+          "sha256": "0856500cf1b2748b82a5590bc78e6ef33d155cec462c4903d708bb59fc6bfd64",
+          "bytes": 13462892
         }
       },
       "outputs": {
         "albedo": {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/sand-albedo.png",
-          "sha256": "5e35ed2f884f2e34cb58466846acd770225ecf368fbe9769516a0813622b0e50"
+          "sha256": "f5e64dda6a781be893db246f781ac72c133a14a3d1c5de1955705a608ed49f10"
         },
         "normal": {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/sand-normal.png",
-          "sha256": "f24b7ec639f6b96ed88b9d3eed64f08206e68e60e7ea45d80db6a0800c8077ae"
+          "sha256": "b8c363568b9a8b52e65a713f984d71620a5e550269c714f65ea4abbb78c2dcad"
         },
         "mask": {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/sand-mask.png",
-          "sha256": "872f058555c75324f10b9c6a0975f2ec06362d6d11c905c22693887e7870a101"
+          "sha256": "916cee26bc097de97f71cab4874094ac493d973e6b707c1e9cfcd39ef50c084d"
         }
       },
-      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels."
+      "repeat_metres": 4,
+      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels.",
+      "crop": "Registered central4m crop from30m source; periodic-plus-smooth boundaries; dry roughness floor.88."
     },
     {
       "material": "gravel",
@@ -93,7 +95,9 @@
           "sha256": "005c0caf585ef4ae0b239bc11e0c9446c850fd405077abb9598a715cd36a61f6"
         }
       },
-      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels."
+      "repeat_metres": 2,
+      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels.",
+      "crop": null
     },
     {
       "material": "clay",
@@ -141,7 +145,9 @@
           "sha256": "707f6b1d61e5928d674aba899633974fdac4e85d83d50ca9f55b077347c25ac4"
         }
       },
-      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels."
+      "repeat_metres": 2,
+      "bake": "Neutral linear luminance mean, registered scanned OpenGL normals, AO/roughness/metal masks; 512/256/128 pixels.",
+      "crop": null
     }
   ],
   "layers": {
