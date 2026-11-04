@@ -434,6 +434,7 @@ public sealed partial class LocalTerrainExplorer
         PrepareVegetationShadowVisibility();
         long shadowTrace=WorldGenPerformance.TraceBegin();BuildTreeShadowBatches();WorldGenPerformance.TraceEnd(13,shadowTrace);
         ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;GeneratedTreeObjects=0;ScatterFrustumRejected=ScatterTerrainRejected=ScatterShadowOnly=0;
+        long batchPhaseTrace=WorldGenPerformance.TraceBegin();
         foreach(var pair in scatterChunks)
         {
             var chunk=pair.Value;
@@ -511,6 +512,7 @@ public sealed partial class LocalTerrainExplorer
             }
             }
         }
+        WorldGenPerformance.TraceEnd(24,batchPhaseTrace);batchPhaseTrace=WorldGenPerformance.TraceBegin();
         foreach(var batch in drawBatches)
         {
             // Most species/LOD batches are much smaller than the safety capacity.
@@ -531,6 +533,7 @@ public sealed partial class LocalTerrainExplorer
             {if(batch.PartMatrices[j]==null)batch.PartMatrices[j]=new Matrix4x4[batch.Matrices.Length];for(int i=0;i<batch.Count;i++)batch.PartMatrices[j][i]=batch.Matrices[i]*batch.Model.Parts[j].Local;}
         }
         // Generated regional art is a working set, not a permanent world-wide mesh archive.
+        WorldGenPerformance.TraceEnd(25,batchPhaseTrace);
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));

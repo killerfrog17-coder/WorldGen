@@ -44,7 +44,8 @@ public sealed partial class LocalTerrainExplorer
         var sunRoot=new GameObject("Cover sunlight",typeof(Light));var sun=sunRoot.GetComponent<Light>();sun.type=LightType.Directional;sun.intensity=1;sun.transform.rotation=Quaternion.Euler(45,-30,0);RenderSettings.sun=sun;
         var ground=GameObject.CreatePrimitive(PrimitiveType.Plane);ground.layer=30;ground.transform.position=new Vector3(50,50*.4f/102.4f,50);ground.transform.localScale=Vector3.one*30;ground.transform.rotation=Quaternion.Euler(0,0,Mathf.Atan(.4f/102.4f)*Mathf.Rad2Deg);
         var groundMaterial=new Material(Resources.Load<Shader>("WorldGenLocalTerrain"));groundMaterial.SetFloat("_Water",1);groundMaterial.SetFloat("_Daylight",1);ground.GetComponent<MeshRenderer>().sharedMaterial=groundMaterial;
-        e.groundCoverMaterial.SetFloat("_FogDistance",10000);e.groundCoverMaterial.SetFloat("_Daylight",1);e.groundCoverMaterial.SetColor("_AmbientTint",new Color(.22f,.24f,.20f));
+        foreach(var material in new[]{e.groundCoverMaterial,e.groundCanopyMaterial,e.groundClumpMaterial})if(material!=null)
+        {material.SetFloat("_VegetationSceneEnabled",0);material.SetFloat("_FogDistance",10000);material.SetFloat("_Daylight",1);material.SetColor("_AmbientTint",new Color(.22f,.24f,.20f));}
         var target=new RenderTexture(1280,800,24);camera.targetTexture=target;
         Color32[] Capture(bool cover,string name)
         {
