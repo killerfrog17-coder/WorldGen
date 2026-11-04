@@ -49,6 +49,38 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE4Nov15:06Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z.
+Selected B/f5385a89/root shortcut UNCHANGED; A internal. Latest a8297026 PUSHED,
+A ScriptsOnly NONDEV built15:00:46Z over full7c911fb5 packed shader baseline
+14:35:46Z. Terrain42/Hyper37 unchanged. New broad rock weathering in shared
+terrain shader, two-axis blend; UNSEEN in native shots yet. Current own native
+session56853 runs dense-medium-adaptive-1 jungle6km1080Medium, then queued
+living-weathered TowerKarst/Canyon/Inselberg. No other heavy jobs. Must wait
+before rebuilding/overwriting A. Latest runtime includes exact changed-cell
+terrain replacement propagation (47b17063/e56e7d8a) and adaptive batches: while
+still use all headings/GPU clipping; moving uses tighter six-degree batches.
+Current pure349244 changed-triangle/interior/margin/union checks PASS; native
+partial/full actual grid replacement check pending in ground-owner-verify.
+Previous cached-1 PASS32guard renders (max1pixel13RGB) +4835exact cached/fresh
+height queries inclreplacement/remove/restore,15503projection matrices. Turn
+149.60FPS p9512.13ms; travel124.37 p9515.11. All-heading experiment omni-1 PASS
+32 arbitrary-camera renders exact visible containment/casters, max3pixels18RGB;
+turn151.85 p958.37ms, BUT travel109.92 p9520.41 WORSE. Do NOT call universal100+
+achieved. Adaptive+a mask now test that regression, then other3dense sites and
+larger view need run. Pure mask first test failed incorrect corner assumption
+for middle-vertex pattern; corrected test retained as terrain-height-change-2.
+Actual42 living-dissected TowerKarst/Canyon/Volcano all EXIT0 and inspected.
+Karst longvisibility diagnostic confirms real hills under ghost silhouettes;
+56521roots,0missing ground,maxerror.000029m. This is fog contrast, NOT floating.
+Canyon now irregular gullied banks (still basic game approximation); volcano
+caldera present but prior rim camera looked level, fixed faceCenter in7c911.
+Need latest native macro texture visuals, other dense perf, NPC ground/wet/cold
+regression, current proof before selection. Pure81k/actual42 rivers27263 and
+erosion6context passes remain; no geometry edits since42. No further features
+started while performance/visual acceptance incomplete. All new source pushed
+in focused commits; complete rollback index in assets/verification. Lock5403/
+143packs unchanged. No subagents/paid/ownerapps closed; owner3files untouched.
+
 ACTIVE4Nov14:18Z FULLWORLD OVERNIGHT CONTINUES; NO STOP/WRAP. Started07:47Z,
 8h is NOT a stop. Scope/selected B f5385a89 unchanged; A internal only. Latest
 213009a5 PUSHED, A full NONDEV built14:12:11Z at354f511a. Terrain42/Hyper37:
