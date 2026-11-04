@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "2e615693eaf973fb15e7b34bbdd956a0c9a250c9",
+  "source_checkpoint": "3d7c361f9cbbb452fc8d104199d44e99f68c03ea",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14289,6 +14289,18 @@
       "bytes": 4215,
       "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
       "member": "objects/c87715036e499a937cb9d3ccc86c774c4c9fc4774027418995bdcb2839190618"
+    },
+    "assets-source/terrain/surfaces/cc0-grass/leafy_grass/Diffuse.jpg": {
+      "sha256": "cfa40bc9d9417d1852db8753a8d5917f110c40101179f63543c382e39bc05e4a",
+      "bytes": 1195394,
+      "pack": "grass-ground-inputs-20261104/assets-f0da383ef772730b3d30b24f2342767a19f09b987dd36e1070b13bf001798e01.zip",
+      "member": "objects/cfa40bc9d9417d1852db8753a8d5917f110c40101179f63543c382e39bc05e4a"
+    },
+    "assets-source/terrain/surfaces/cc0-grass/leafy_grass/source.json": {
+      "sha256": "b8430541fbb7c4dcf208b7b8825c65385ce43bdedc2d5792d13184f16a36e9de",
+      "bytes": 1956,
+      "pack": "grass-ground-inputs-20261104/assets-f0da383ef772730b3d30b24f2342767a19f09b987dd36e1070b13bf001798e01.zip",
+      "member": "objects/b8430541fbb7c4dcf208b7b8825c65385ce43bdedc2d5792d13184f16a36e9de"
     },
     "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/Diffuse.jpg": {
       "sha256": "492b89604cd79f733557b590f561ddc9ea51739705d96d9768c4ca1614b44b60",
@@ -33494,6 +33506,14 @@
       "asset_id": 696525072,
       "sha256": "62fd910f894538264d3789866994130e44ed04987df21334e7421f6e5777e0df",
       "bytes": 13269222,
+      "encoding": "zip"
+    },
+    "grass-ground-inputs-20261104/assets-f0da383ef772730b3d30b24f2342767a19f09b987dd36e1070b13bf001798e01.zip": {
+      "tag": "grass-ground-inputs-20261104",
+      "name": "assets-f0da383ef772730b3d30b24f2342767a19f09b987dd36e1070b13bf001798e01.zip",
+      "asset_id": 710955043,
+      "sha256": "29620a0ef71fc5eca47a4a7d58c5a40c186407b0800090eb3196a123955fe741",
+      "bytes": 1194048,
       "encoding": "zip"
     },
     "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip": {
