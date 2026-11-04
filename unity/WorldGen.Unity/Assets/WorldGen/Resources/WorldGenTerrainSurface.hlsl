@@ -130,7 +130,10 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         float2 uv=i.coverageUV*(1-_ForestSurface_TexelSize.xy)+.5*_ForestSurface_TexelSize.xy;
         forestSurface=SAMPLE_TEXTURE2D(_ForestSurface,sampler_ForestSurface,uv);
         if(_ForestFloorEnabled>.5&&detail>.001)
-            floorMix=SAMPLE_TEXTURE2D(_ForestFloor,sampler_ForestFloor,uv).rgb*smoothstep(.05,.38,forestSurface.a);
+        {
+            float4 floorSurface=SAMPLE_TEXTURE2D(_ForestFloor,sampler_ForestFloor,uv);
+            floorMix=floorSurface.rgb*smoothstep(.05,.65,floorSurface.a);
+        }
     }
     float3 floorPigment=float3(.40,.29,.18)*floorMix.x+float3(.34,.27,.17)*floorMix.y+float3(.31,.29,.18)*floorMix.z;
     float floorWeight=saturate(dot(floorMix,1));

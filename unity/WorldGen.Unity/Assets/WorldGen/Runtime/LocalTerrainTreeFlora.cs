@@ -43,6 +43,13 @@ public sealed partial class LocalTerrainExplorer
             bool needles=form==TreeGrowthForm.NeedleCrown;
             bool damp=!needles&&(strategy==TreeCrownStrategy.TropicalCanopy||form==TreeGrowthForm.TreeFern);
             pixels[i]=needles?new Color(0,1,0,1):damp?new Color(0,0,1,1):new Color(1,0,0,1);
+            // ForestSurface alpha is stocked stem occupancy, not crown cover.
+            // Use the same crown-area/light interception model as TreeFlora:
+            // broad crowns can cover the floor while stems occupy <5% of it.
+            int at=i*8;double width=tile.ForestCover[at+5],openness=tile.ForestCover[at+6];
+            double crownArea=Math.PI*.25*width*width*(strategy==TreeCrownStrategy.TropicalCanopy?.31:.64);
+            double opticalArea=TreeFlora.PlacementPerM2*crownArea*tile.ForestCover[at+3]*(1-.55*Math.Clamp(openness,0,1));
+            pixels[i].a=(float)(1-Math.Exp(-opticalArea));
         }
         var texture=new Texture2D(side,side,TextureFormat.RGBA32,false,true){name="Forest floor / broadleaf needles damp",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
         texture.SetPixels(pixels);texture.Apply(false,true);return texture;
