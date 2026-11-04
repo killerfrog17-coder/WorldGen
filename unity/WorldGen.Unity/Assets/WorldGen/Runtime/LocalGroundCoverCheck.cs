@@ -10,6 +10,7 @@ public sealed partial class LocalTerrainExplorer
     public static IEnumerator CheckGroundCover(string output)
     {
         Directory.CreateDirectory(output);
+        TerrainVideoOptions.GrassClumps=false; // This fixture exercises the optional original blade geometry.
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var host=new GameObject("Ground cover fixture");var e=host.AddComponent<LocalTerrainExplorer>();e.enabled=false;e.closed=true;
         e.InitializeGroundCover();if(e.groundCoverMaterial==null)throw new Exception("Ground cover GPU path unavailable");

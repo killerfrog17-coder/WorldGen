@@ -637,6 +637,7 @@ public sealed partial class LocalTerrainExplorer
         if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);
         if(groundCanopyMaterial!=null)Destroy(groundCanopyMaterial);
         if(groundClumpMaterial!=null)Destroy(groundClumpMaterial);
+        groundClumpIndices?.Dispose();groundClumpIndices=null;
         if(grassFieldTexture!=null)Destroy(grassFieldTexture);
         if(mossFieldTexture!=null)Destroy(mossFieldTexture);if(lichenFieldTexture!=null)Destroy(lichenFieldTexture);
         if(generatedGround!=null)foreach(var texture in generatedGround)Destroy(texture);

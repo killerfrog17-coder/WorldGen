@@ -22,6 +22,7 @@ public static class WorldGenPerformance
     public static bool ForceFreshVisibleGround;
     public static bool DirectionalScatter;
     public static bool GpuNearOcclusion;
+    public static bool NonIndexedClumps;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
@@ -74,6 +75,11 @@ public sealed partial class LocalTerrainExplorer
         if(delta>1)throw new InvalidOperationException("Shared vegetation scene changed pixels: "+delta);
         return "Legacy material vs shared vegetation scene: max RGB delta "+delta;
     }
+    static uint[] ReadCoverDrawCounts(CoverGpu gpu)
+    {
+        if(gpu.Indexed){var data=new GraphicsBuffer.IndirectDrawIndexedArgs[6];gpu.Args.GetData(data);return data.Select(a=>a.instanceCount).ToArray();}
+        else {var data=new GraphicsBuffer.IndirectDrawArgs[6];gpu.Args.GetData(data);return data.Select(a=>a.instanceCount).ToArray();}
+    }
     public string PerformanceVerifyGrassCullCache()
     {
         int compared=0;var pose=view.transform.localRotation;
@@ -87,12 +93,12 @@ public sealed partial class LocalTerrainExplorer
                 {
                     view.transform.localRotation=pose*Quaternion.Euler(0,turn*21,0);
                     WorldGenPerformance.ForceFreshCoverCull=false;CullGroundCover(gpu,origin,view,pair.Value,(float)pair.Key.SizeM);
-                    var cached=new uint[5][];var counts=new GraphicsBuffer.IndirectDrawArgs[5];gpu.Args.GetData(counts);
-                    for(int lod=0;lod<5;lod++){cached[lod]=new uint[counts[lod].instanceCount];if(cached[lod].Length>0)gpu.Visible[lod].GetData(cached[lod],0,0,cached[lod].Length);Array.Sort(cached[lod]);}
+                    var cached=new uint[5][];var counts=ReadCoverDrawCounts(gpu);
+                    for(int lod=0;lod<5;lod++){cached[lod]=new uint[counts[lod]];if(cached[lod].Length>0)gpu.Visible[lod].GetData(cached[lod],0,0,cached[lod].Length);Array.Sort(cached[lod]);}
                     long before=GrassCullDispatches;CullGroundCover(gpu,origin,view,pair.Value,(float)pair.Key.SizeM);if(GrassCullDispatches!=before)throw new InvalidOperationException("Identical visibility inputs did not reuse grass lists");
-                    WorldGenPerformance.ForceFreshCoverCull=true;CullGroundCover(gpu,origin,view,pair.Value,(float)pair.Key.SizeM);gpu.Args.GetData(counts);
+                    WorldGenPerformance.ForceFreshCoverCull=true;CullGroundCover(gpu,origin,view,pair.Value,(float)pair.Key.SizeM);counts=ReadCoverDrawCounts(gpu);
                     for(int lod=0;lod<5;lod++)
-                    {var fresh=new uint[counts[lod].instanceCount];if(fresh.Length>0)gpu.Visible[lod].GetData(fresh,0,0,fresh.Length);Array.Sort(fresh);if(!fresh.SequenceEqual(cached[lod]))throw new InvalidOperationException("Cached grass visibility changed admitted roots");compared++;}
+                    {var fresh=new uint[counts[lod]];if(fresh.Length>0)gpu.Visible[lod].GetData(fresh,0,0,fresh.Length);Array.Sort(fresh);if(!fresh.SequenceEqual(cached[lod]))throw new InvalidOperationException("Cached grass visibility changed admitted roots");compared++;}
                 }
                 if(compared>=40)break;
             }
@@ -389,6 +395,40 @@ public sealed partial class LocalTerrainExplorer
             heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;BuildScatterBatches();
         }
     }
+    public string PerformanceVerifyIndexedGround(string output)
+    {
+        if(!TerrainVideoOptions.GrassClumps||groundClumpMaterial==null||groundClumpIndices==null)throw new InvalidOperationException("Indexed grass verification needs the real clump renderer");
+        var oldRotation=view.transform.localRotation;bool old=WorldGenPerformance.NonIndexedClumps;int comparisons=0,maxDelta=0,maxChanged=0;
+        try
+        {
+            for(int yaw=0;yaw<360;yaw+=30)foreach(int tilt in new[]{-25,0,25})
+            {
+                view.transform.localRotation=Quaternion.Euler(tilt,yaw,0);
+                WorldGenPerformance.NonIndexedClumps=true;DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var literal=LastCapturePixels;
+                WorldGenPerformance.NonIndexedClumps=false;DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var indexed=LastCapturePixels;
+                int changed=0,delta=0;
+                for(int i=0;i<literal.Length;i++)
+                {
+                    int d=Math.Max(Math.Abs(literal[i].r-indexed[i].r),Math.Max(Math.Abs(literal[i].g-indexed[i].g),Math.Abs(literal[i].b-indexed[i].b)));
+                    delta=Math.Max(delta,d);if(d>2)changed++;
+                }
+                maxDelta=Math.Max(maxDelta,delta);maxChanged=Math.Max(maxChanged,changed);comparisons++;
+                if(changed>literal.Length/100000)
+                {
+                    var image=new Texture2D(weatherCheckTarget.width,weatherCheckTarget.height,TextureFormat.RGB24,false);
+                    try
+                    {
+                        image.SetPixels32(literal);image.Apply();File.WriteAllBytes(Path.Combine(output,"failed-grass-nonindexed.png"),image.EncodeToPNG());
+                        image.SetPixels32(indexed);image.Apply();File.WriteAllBytes(Path.Combine(output,"failed-grass-indexed.png"),image.EncodeToPNG());
+                    }
+                    finally{Destroy(image);}
+                    throw new InvalidOperationException("Indexed grass render differs at yaw "+yaw+", tilt "+tilt+": "+changed+" changed pixels; maximum RGB delta "+delta);
+                }
+            }
+            return "PASS "+comparisons+" actual indexed/nonindexed grass image comparisons; max RGB delta "+maxDelta+", changed pixels "+maxChanged+" (budget 0.001%); identical shader, roots, density, triangles and literal vertex IDs.";
+        }
+        finally{WorldGenPerformance.NonIndexedClumps=old;view.transform.localRotation=oldRotation;}
+    }
     public void PerformancePose(double height=1.65)
     {
         bool changed=motion.X!=0||motion.Z!=0||Math.Abs(HeightAboveGround-height)>.01;
@@ -673,6 +713,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("scatter-guard-verify",()=>{}),
             new PerfCase("ground-owner-verify",()=>{}),
             new PerfCase("scatter-gpu-depth-verify",()=>WorldGenPerformance.GpuNearOcclusion=true),
+            new PerfCase("grass-indexed-verify",()=>{}),
             new PerfCase("foliage-one-tap",()=>WorldGenPerformance.FoliageShadowTaps=1),
             new PerfCase("foliage-four-tap",()=>WorldGenPerformance.FoliageShadowTaps=4),
             new PerfCase("no-mid-shadows",()=>TerrainVideoOptions.MidPlantShadows=false),
@@ -746,6 +787,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-original",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("turning",()=>{}),
             new PerfCase("turning-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
+            new PerfCase("turning-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("turning-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
             new PerfCase("turning-bands-off",()=>TerrainVideoOptions.FrontToBackTrees=false),
             new PerfCase("turning-depth-on",()=>TerrainVideoOptions.FoliageDepthPrepass=true),
@@ -754,6 +796,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
+            new PerfCase("travel-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
@@ -779,6 +822,7 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;
                 WorldGenPerformance.GpuNearOcclusion=false;
+                WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
@@ -805,6 +849,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="scatter-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"rotation-guard"))+"\n");
                 if(item.Name=="ground-owner-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n");
                 if(item.Name=="scatter-gpu-depth-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),"Near GPU depth: "+terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"near-gpu-depth"))+"\n");
+                if(item.Name=="grass-indexed-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyIndexedGround(output)+"\n");
                 if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
                 if(item.Name=="full")
                 {
