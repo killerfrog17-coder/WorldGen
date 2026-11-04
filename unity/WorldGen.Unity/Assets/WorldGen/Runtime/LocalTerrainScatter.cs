@@ -29,7 +29,29 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
     readonly Dictionary<int,V> treePigments=new Dictionary<int,V>();
     V TreePigment(int code){code&=~7;if(!treePigments.TryGetValue(code,out var pigment)){pigment=new TreeMorphology(code).Leaf;treePigments.Add(code,pigment);}return pigment;}
-    readonly HashSet<TerrainTileKey> scatterGroundChanges=new HashSet<TerrainTileKey>();
+    sealed class GroundChanges : HashSet<TerrainTileKey>
+    {
+        readonly Dictionary<TerrainTileKey,TerrainHeightChange> partial=new Dictionary<TerrainTileKey,TerrainHeightChange>();
+        public new void Clear(){base.Clear();partial.Clear();}
+        public new bool Add(TerrainTileKey key){partial.Remove(key);return base.Add(key);}
+        public bool Add(TerrainTileKey key,Tile before,Tile after)
+        {
+            if(before==null||before.Heights==null||after.Heights==null||before.Segments!=after.Segments){Add(key);return true;}
+            var changed=TerrainHeightChange.Compare(before.Heights,after.Heights,after.Segments);if(changed==null)return false;
+            if(Contains(key))
+            {if(partial.TryGetValue(key,out var previous))previous.Union(changed);}
+            else{base.Add(key);partial[key]=changed;}
+            return true;
+        }
+        public bool Affects(TerrainTileKey key,double x,double z,double margin)
+        {
+            double size=key.SizeM,x0=key.X*size,z0=key.Z*size;
+            if(x<x0-margin||x>x0+size+margin||z<z0-margin||z>z0+size+margin)return false;
+            if(!partial.TryGetValue(key,out var changed))return true;
+            double step=size/changed.Segments;return changed.Affects((x-x0)/step,(z-z0)/step,margin/step);
+        }
+    }
+    readonly GroundChanges scatterGroundChanges=new GroundChanges();
     readonly Dictionary<ScatterKey,ScatterChunk> scatterChunks=new Dictionary<ScatterKey,ScatterChunk>();
     readonly Dictionary<ScatterKey,ForestRevealBounds> scatterRevealBounds=new Dictionary<ScatterKey,ForestRevealBounds>();
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
@@ -244,8 +266,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var key in scatterGroundChanges)
         {
             if(key.Level>groundLevel)continue; // An unchanged finer surface still owns this root.
-            double x0=key.X*key.SizeM,z0=key.Z*key.SizeM;
-            if(x>=x0-margin&&x<=x0+key.SizeM+margin&&z>=z0-margin&&z<=z0+key.SizeM+margin)return true;
+            if(scatterGroundChanges.Affects(key,x,z,margin))return true;
         }
         return false;
     }

@@ -340,7 +340,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         else if(prepared==null)BeginTerrainReplacement(key,product,null);
         target[key]=product;if(prepared==null)residentRevision++;
         if(prepared==null)coverageDirty=true;
-        if(prepared==null){scatterGroundRevision++;scatterGroundChanges.Add(key);}lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
+        if(prepared==null&&scatterGroundChanges.Add(key,old,product))scatterGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
         LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);
         frameUploadMs+=timer.Elapsed.TotalMilliseconds;
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms; apply "+applyMs.ToString("F2")+"ms; objects/retire "+(timer.Elapsed.TotalMilliseconds-beforeApply-applyMs).ToString("F2")+"ms; collections "+(GC.CollectionCount(0)-collections)+"; worker buffers "+data.BufferMilliseconds.ToString("F2")+"ms");
