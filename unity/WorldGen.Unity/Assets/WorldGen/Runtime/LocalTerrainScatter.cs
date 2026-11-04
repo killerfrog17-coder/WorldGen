@@ -196,21 +196,47 @@ public sealed partial class LocalTerrainExplorer
         surfaceGroundFallbacks++;return Ground(x,z);
     }
     int surfaceGroundFallbacks;
+    readonly Dictionary<Vector2Int,KeyValuePair<TerrainTileKey,Tile>> visibleGroundOwners=new Dictionary<Vector2Int,KeyValuePair<TerrainTileKey,Tile>>();
+    Dictionary<TerrainTileKey,Tile> visibleGroundTiles;LocalTerrainFrame visibleGroundFrame;
+    int visibleGroundRevision=-1,visibleGroundCount=-1;
     double VisibleGround(double x,double z,double fallback)
         =>VisibleGround(x,z,fallback,out _);
     double VisibleGround(double x,double z,double fallback,out int groundLevel)
     {
-        groundLevel=17;
+        TerrainTileKey key;Tile tile;
+        if(WorldGenPerformance.Original||WorldGenPerformance.ForceFreshVisibleGround)tile=VisibleGroundOwner(x,z,out key);
+        else
+        {
+            // Adaptive tiles end at base-tile boundaries. Every point inside
+            // one base address therefore has the same finest resident owner.
+            // Cache ownership, not the queried/interpolated height. New uploads,
+            // removal and chart swaps invalidate before any root is projected.
+            if(visibleGroundRevision!=residentRevision||visibleGroundCount!=tiles.Count||!ReferenceEquals(visibleGroundTiles,tiles)||!ReferenceEquals(visibleGroundFrame,frame))
+            {
+                visibleGroundOwners.Clear();visibleGroundRevision=residentRevision;visibleGroundCount=tiles.Count;visibleGroundTiles=tiles;visibleGroundFrame=frame;
+            }
+            double unit=TerrainLod.BaseSizeM*HorizontalScale;var address=new Vector2Int((int)Math.Floor(x/unit),(int)Math.Floor(z/unit));
+            if(!visibleGroundOwners.TryGetValue(address,out var owner))
+            {
+                tile=VisibleGroundOwner(x,z,out key);owner=new KeyValuePair<TerrainTileKey,Tile>(key,tile);
+                if(visibleGroundOwners.Count>=8192)visibleGroundOwners.Clear();visibleGroundOwners[address]=owner;
+            }
+            key=owner.Key;tile=owner.Value;
+        }
+        if(tile==null){groundLevel=17;return fallback;}
+        groundLevel=key.Level;int n=tile.Segments,side=n+1;double size=key.SizeM;
+        double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
+        double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
+        return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
+    }
+    Tile VisibleGroundOwner(double x,double z,out TerrainTileKey key)
+    {
         for(int level=0;level<=16;level++)
         {
-            double size=WorldGen.Presentation.TerrainLod.BaseSizeM*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
-            if(!tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
-            groundLevel=level;
-            double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
-            double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
-            return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
+            double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
+            if(tiles.TryGetValue(key,out var tile)&&tile.Heights!=null)return tile;
         }
-        return fallback;
+        key=default;return null;
     }
     bool ChangedGroundAt(double x,double z,double margin=0,int groundLevel=17)
     {

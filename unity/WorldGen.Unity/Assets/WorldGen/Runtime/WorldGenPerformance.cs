@@ -19,6 +19,7 @@ public static class WorldGenPerformance
     public static bool Original=>Enabled&&(original||OriginalCase);
     public static bool OriginalCase;
     public static bool DisableScatterViewGuard;
+    public static bool ForceFreshVisibleGround;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
@@ -476,6 +477,21 @@ public sealed partial class LocalTerrainExplorer
     }
     public string PerformanceVerifySelectiveProjection()
     {
+        int ownerChecks=0;bool oldFresh=WorldGenPerformance.ForceFreshVisibleGround;
+        try
+        {
+            void Compare(double x,double z)
+            {
+                WorldGenPerformance.ForceFreshVisibleGround=true;double literal=VisibleGround(x,z,-12345,out int a);
+                WorldGenPerformance.ForceFreshVisibleGround=false;double cached=VisibleGround(x,z,-12345,out int b);
+                if(a!=b||BitConverter.DoubleToInt64Bits(literal)!=BitConverter.DoubleToInt64Bits(cached))throw new InvalidOperationException("Resident ground owner cache changed a triangle or exact height");
+                ownerChecks++;
+            }
+            foreach(var key in tiles.Keys)foreach(double x in new[]{0d,.31,.999999,1})foreach(double z in new[]{0d,.57,.999999,1})
+                Compare((key.X+x)*key.SizeM,(key.Z+z)*key.SizeM);
+            foreach(var chunk in scatterChunks.Values)foreach(var root in chunk.Roots.Take(8))Compare(root.x+originX,root.z+originZ);
+        }
+        finally{WorldGenPerformance.ForceFreshVisibleGround=oldFresh;}
         var prior=scatterGroundChanges.ToArray();int checkedRoots=0,repairedRoots=0,checkedChunks=0,coarseChecks=0;
         try
         {
@@ -519,7 +535,7 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{scatterGroundChanges.Clear();foreach(var tile in prior)scatterGroundChanges.Add(tile);scatterDirty=true;}
         if(repairedRoots==0)throw new InvalidOperationException("Selective projection fixture did not touch actual roots");
-        return "Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards";
+        return "Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards; "+ownerChecks+" exact cached/fresh resident triangle queries including tile edges";
     }
     public string PerformanceVerifyTreeBands(string output)
     {
