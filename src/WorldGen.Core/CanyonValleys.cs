@@ -34,12 +34,13 @@ namespace WorldGen.Core
             }
         }
         readonly double radius;readonly int[][] candidates;
+        readonly int seed;
         public readonly Reach[] Reaches;
         public int IndexedFaces {get;}
         static double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
         public CanyonValleys(World world,LocalTerrainProfile[] profiles,double scale,double[] levels,double[] widths,CancellationToken token=default)
         {
-            radius=world.Recipe.RadiusKm*1000*scale;var reaches=new List<Reach>();var cells=new Dictionary<int,List<int>>();double margin=0;
+            radius=world.Recipe.RadiusKm*1000*scale;seed=world.Recipe.Seed;var reaches=new List<Reach>();var cells=new Dictionary<int,List<int>>();double margin=0;
             foreach(var p in profiles)margin=Math.Max(margin,p.SupportM*scale);
             for(int source=0;source<profiles.Length;source++)
             {
@@ -78,6 +79,20 @@ namespace WorldGen.Core
                 if(list!=null){list.Sort();candidates[face]=list.ToArray();IndexedFaces++;}
             }
         }
+        public static double ErodedDistance(V metres,int seed,double distance,double halfWidth)
+        {
+            if(distance>=halfWidth*1.6)return distance;
+            // Connected ridges in the noise field carve short tributary-like
+            // gullies into the walls, while leaving the drainage datum intact.
+            // Broad shoulders and finer ravines break continuous railway-like
+            // benches. The same coordinates are used across reaches and tiles.
+            double broad=SphereNoise.Sample(metres,seed^0x45c731,1/1300d);
+            double ridge=1-Math.Abs(SphereNoise.Sample(metres,seed^0x71c315,1/550d)
+                +.25*SphereNoise.Sample(metres,seed^0x137c51,1/160d));
+            double gully=OrogenMorphology.Smooth(.25,.90,ridge);
+            double shoulder=1+.14*broad;
+            return distance*Math.Max(.56,shoulder-.32*gully*gully*gully);
+        }
         public double Apply(V point,int face,double ground,out double exposure)
         {
             exposure=0;var found=candidates[face];if(found==null)return ground;
@@ -96,7 +111,8 @@ namespace WorldGen.Core
                 // Extrapolate the grade through round end caps; a clamped low
                 // downstream level must not undercut the upstream river bank.
                 double level=reach.LevelA+(reach.LevelB-reach.LevelA)*raw;
-                ground=reach.Cut(ground,distance,level,out double bare);exposure=Math.Max(exposure,bare);
+                double eroded=ErodedDistance(point*radius,seed,distance,reach.HalfWidth);
+                ground=reach.Cut(ground,eroded,level,out double bare);exposure=Math.Max(exposure,bare);
             }
             return ground;
         }

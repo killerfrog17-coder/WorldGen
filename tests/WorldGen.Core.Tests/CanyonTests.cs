@@ -21,6 +21,19 @@ static class CanyonTests
             }
             Check(reach.Cut(1650,width,650,out _)==1650&&Math.Abs(reach.Cut(1650,width*.999999,650,out _)-1650)<1e-7,"Canyon support retires continuously before neighbouring uncut ground");
             Check(reach.Uplift(0)>0&&reach.Uplift(width*12)==0&&reach.Uplift(width*12.01)==0,"The surrounding uplift belongs to a finite plateau province");
+            var distances=new HashSet<int>();
+            for(int i=0;i<1000;i++)
+            {
+                var at=new V(1700+i*17,300,54000-i*7);double d=width*.8;
+                double eroded=CanyonValleys.ErodedDistance(at,73421,d,width);
+                Check(double.IsFinite(eroded)&&eroded>=d*.55&&eroded<=d*1.15,"Erosional shoulders and gullies remain bounded");
+                Check(CanyonValleys.ErodedDistance(at,73421,0,width)==0,"Wall erosion preserves the parent drainage datum");
+                Check(CanyonValleys.ErodedDistance(at,73421,width*1.6,width)==width*1.6,"Wall erosion is local to the canyon");
+                double next=CanyonValleys.ErodedDistance(at+new V(.001,0,0),73421,d,width);
+                Check(Math.Abs(next-eroded)<.1,"Gully coordinates remain continuous across arbitrary tile edges");
+                distances.Add((int)Math.Round(eroded));
+            }
+            Check(distances.Count>50,"Canyon shoulders vary along their length rather than making constant-width tracks");
         }
         Console.WriteLine($"PASS {checks} bounded cut-only canyon profiles and exposed beds");
     }
