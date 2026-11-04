@@ -40,6 +40,7 @@ namespace WorldGen.Core
             // A flat evaporite crust covers its bedrock; exposed slopes can
             // still reveal the underlying geology along a basin margin.
             rock*=1-Smooth(.65,.9,ground.Salinity)*Smooth(.94,.995,up);
+            rock*=1-GroundEnvironment.SandMantle(ground,up);
             double change=Math.Max(0,rock-surface.Rock),sum=1-surface.Rock-surface.Ice;
             double keep=sum>0?Math.Max(0,1-change/sum):1;
             surface.Soil*=keep;surface.Sand*=keep;surface.Gravel*=keep;surface.Clay*=keep;

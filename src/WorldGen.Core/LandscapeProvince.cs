@@ -159,6 +159,8 @@ namespace WorldGen.Core
         {
             double sand=Smooth(.12,.4,SandSea(metres,seed,controls)),clay=controls.Clay,salt=controls.Salt;
             p.Sand=p.Sand*(1-sand)+.94*sand;p.Clay*=1-sand;p.Gravel*=1-.92*sand;p.Organic*=1-.85*sand;
+            p.DepthM=Math.Max(p.DepthM,2*sand);
+            if(sand>.85)p.Deposit=ParentDeposit.Windblown;
             p.Clay=p.Clay*(1-clay)+.58*clay;p.Sand=p.Sand*(1-clay)+.14*clay;p.Gravel*=1-.8*clay;
             double pavement=controls.Arid*Smooth(.15,.4,p.Gravel)*(1-sand)*(1-clay)*(1-salt);
             p.Gravel=Math.Max(p.Gravel,.76*pavement);p.DepthM=Math.Min(p.DepthM,Math.Max(.06,1-controls.Rock*controls.Arid)*p.DepthM);

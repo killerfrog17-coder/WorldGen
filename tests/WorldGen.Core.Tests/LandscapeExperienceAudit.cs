@@ -19,8 +19,8 @@ static class LandscapeExperienceAudit
             if(kind!="SandSea"&&kind!="SaltFlat")continue;
             var p=scene.GetProperty("Position");var at=new V(p.GetProperty("X").GetDouble(),p.GetProperty("Y").GetDouble(),p.GetProperty("Z").GetDouble());
             var patch=terrain.Patch(at,18000);var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);
-            var heights=new List<double>();var offsets=new List<double>();var slopes=new List<double>();var surfaceWeights=new List<double>();
-            var csv=new List<string>{"x,z,height,local_y,province_offset,salt_weight"};
+            var heights=new List<double>();var offsets=new List<double>();var slopes=new List<double>();var surfaceWeights=new List<double>();var sandWeights=new List<double>();var rockWeights=new List<double>();
+            var csv=new List<string>{"x,z,height,local_y,province_offset,salt_weight,sand_weight,rock_weight"};
             for(int z=-512;z<=512;z+=16)for(int x=-512;x<=512;x+=16)
             {
                 var position=frame.Position(x,z);var sample=patch.Sample(position);
@@ -28,8 +28,8 @@ static class LandscapeExperienceAudit
                 double east=patch.Sample(frame.Position(x+1,z)).ElevationM,north=patch.Sample(frame.Position(x,z+1)).ElevationM;
                 double up=1/Math.Sqrt(1+Math.Pow(east-sample.ElevationM,2)+Math.Pow(north-sample.ElevationM,2));
                 var ground=LocalGeology.Surface(sample.Ground,position,world.Recipe.Seed,sample.ElevationM,up,sample.OceanInfluence,0,frame.RadiusM);
-                heights.Add(sample.ElevationM);offsets.Add(offset);slopes.Add(Math.Acos(up)*180/Math.PI);surfaceWeights.Add(ground.Salt);
-                csv.Add(FormattableString.Invariant($"{x},{z},{sample.ElevationM},{local},{offset},{ground.Salt}"));
+                heights.Add(sample.ElevationM);offsets.Add(offset);slopes.Add(Math.Acos(up)*180/Math.PI);surfaceWeights.Add(ground.Salt);sandWeights.Add(ground.Sand);rockWeights.Add(ground.Rock);
+                csv.Add(FormattableString.Invariant($"{x},{z},{sample.ElevationM},{local},{offset},{ground.Salt},{ground.Sand},{ground.Rock}"));
             }
             File.WriteAllLines(Path.Combine(output,kind+"-surface.csv"),csv);
             var meshes=new List<object>();
@@ -44,7 +44,7 @@ static class LandscapeExperienceAudit
             TerrainAdaptiveLod.Plan(0,0,1.8,.1,new TerrainDetailOptions{ViewDistanceM=2000},estimator.Error,864,68);
             var lod=new{Tiles=plan.Count,Vertices=plan.Sum(p=>(long)(p.Value+1)*(p.Value+1)),Metadata=estimator.Count,ColdMs=coldLodMs,WarmMs=lodTimer.Elapsed.TotalMilliseconds};
             var row=new{Kind=kind,Point=new{at.X,at.Y,at.Z},Grid65x65HeightRange=heights.Max()-heights.Min(),ProvinceOffsetRange=offsets.Max()-offsets.Min(),
-                MaximumSlopeDegrees=slopes.Max(),MeanSaltWeight=surfaceWeights.Average(),Meshes=meshes,Lod=lod};
+                MaximumSlopeDegrees=slopes.Max(),MeanSaltWeight=surfaceWeights.Average(),MeanSandWeight=sandWeights.Average(),MeanRockWeight=rockWeights.Average(),Meshes=meshes,Lod=lod};
             string json=JsonSerializer.Serialize(row,new JsonSerializerOptions{WriteIndented=true,IncludeFields=true});
             File.WriteAllText(Path.Combine(output,kind+"-audit.json"),json);Console.WriteLine(json);
         }

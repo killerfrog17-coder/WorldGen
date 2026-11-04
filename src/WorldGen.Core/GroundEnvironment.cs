@@ -124,6 +124,13 @@ namespace WorldGen.Core
             V sandColor=rock==RockFamily.Basalt?new V(.29,.28,.25):new V(.65+.06*iron,.58-.19*iron,.43-.20*iron);
             return new GroundProfile{Bedrock=rock,RockMixA=new V(rock==RockFamily.Granite?1:0,rock==RockFamily.Basalt?1:0,rock==RockFamily.Sandstone?1:0),RockMixB=new V(rock==RockFamily.Limestone?1:0,rock==RockFamily.Mudstone?1:0,rock==RockFamily.Metamorphic?1:0),Deposit=deposit,Sand=D.Q(sand,10000),Clay=D.Q(clay,10000),Silt=D.Q(1-sand-clay,10000),Gravel=D.Q(gravel,10000),DepthM=D.Q(depth,1000),Organic=D.Q(organic,10000),PH=D.Q(ph,100),Fertility=D.Q(fertile,10000),Drainage=D.Q(drainage,10000),WaterCapacityMm=D.Q(awc,100),Iron=D.Q(iron,10000),Salinity=D.Q(salt,10000),Weathering=D.Q(weathering,10000),RockColor=rockColor,SoilColor=soil,SandColor=sandColor};
         }
+        public static double SandMantle(GroundProfile p,double up)
+        {
+            if(p.Deposit!=ParentDeposit.Windblown||p.Sand<.85)return 0;
+            return OrogenMorphology.Smooth(.85,.935,p.Sand)*(1-OrogenMorphology.Smooth(.08,.2,p.Gravel))
+                *OrogenMorphology.Smooth(.8,2,p.DepthM)*OrogenMorphology.Smooth(.78,.84,up)
+                *(1-OrogenMorphology.Smooth(.2,.6,p.Salinity));
+        }
         public static GroundSurface Surface(GroundProfile p,V position,int seed,double elevation,double up,double ocean,double ice,double horizontalRadiusM)
         {
             // Physical metre-addressed variation; never reseeded by a tile or nearest-cell ID.
@@ -138,6 +145,10 @@ namespace WorldGen.Core
             double soil=Math.Max(.08,1-sand*.8-gravel*.6-clay*.7-organics*.8-salt);
             double total=soil+sand+gravel+clay+organics+salt,solid=(1-bare)*(1-ice);
             var s=new GroundSurface{Profile=p,Soil=soil/total*solid,Sand=sand/total*solid,Gravel=gravel/total*solid,Clay=clay/total*solid,Organic=organics/total*solid,Salt=salt/total*solid,Rock=bare*(1-ice),Ice=ice,DunePotential=D.Clamp(sand*(1-p.Gravel)*(1-p.Organic*3)*(1-slope))};
+            // A stable sand slip face exposes sand, not bedrock merely because
+            // it is sloped. Preserve snow/ice above the sediment mantle.
+            double mantle=SandMantle(p,up),keep=1-mantle;
+            s.Sand=s.Sand*keep+mantle*(1-ice);s.Soil*=keep;s.Gravel*=keep;s.Clay*=keep;s.Organic*=keep;s.Salt*=keep;s.Rock*=keep;
             s.Color=p.SoilColor*s.Soil+p.SandColor*s.Sand+(p.RockColor*.85)*s.Gravel+(p.SoilColor*.94)*s.Clay+p.RockColor*s.Rock+new V(.93,.94,.92)*s.Salt+new V(.86,.89,.91)*s.Ice;
             return s;
         }

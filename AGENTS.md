@@ -49,6 +49,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE04Nov05:44Z REGION REVIEW: A internal0bd1ee4c built05:36:13Z; B selected
+f5385a89 unchanged. experience-curved both native EXIT0, larger2km actualfootprint;
+dune crests now curved (not yet fullqualityaccepted), saltbare/bright/polygonal.
+Inspected wide/morning/ground90/ridge; remainingimages can bechecked fromfolder.
+Latest analytic actual76.62m surface range/1km,31.70deg maxslope. Source0bd pond/
+sharededge PASS; rivers27175/763spans/8tiles PASS; CPUwarm12675queries713/693ms
+baseline vs738/700ms latest (similar, NOT FPSproof). New materialbug found:
+generic slope exposure turns buried mobile sand into rock/soil. Uncommittedfix
+sets active dunes Windblown+>=2m depth, preserves pure sand on stable slipfaces,
+keeps stony slopes/ice/salt rules; LocalTerrain25 (Hyper20 unchangedgeometry).
+Focused35733PASS incl sandon31degface/snow/stonyexclusion. Actual sand-mantle
+probe RUNNING session26482. Needs commit/scriptsOnlyA/newnativeSandSea+SaltFlat,
+actual visualinspection beforeanyselection. No new GPUtexture/pass/artinput;
+5357locked/139packsunchanged. Optional saltstylequestion stillpending, continue
+independentwork. No paid/subagents/ownerappsclosed. Owner3files preserved.
+
 ACTIVE04Nov05:34Z REGION VISUAL REWORK. Selected B f5385a89 unchanged.
 A internal managed NONDEV123c77ce built~05:27Z. experience-compound SandSea and
 SaltFlat both EXIT0, larger2km range fullyloaded140tiles; allnew images inspected.

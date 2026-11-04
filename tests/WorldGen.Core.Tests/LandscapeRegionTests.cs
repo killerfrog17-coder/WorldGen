@@ -14,6 +14,12 @@ static class LandscapeRegionTests
         var sandy=new GroundProfile{Sand=.94,Clay=.03,Gravel=.02,DepthM=2,Drainage=.85,RockMixA=new V(0,0,1)};
         var dunes=LandscapeProvince.Describe(sandy,Biome.Desert,.08,0,40,0,0);
         Check(dunes.Sand>.85,"Dry loose sand supports dunes");
+        var deepSand=sandy;deepSand.Deposit=ParentDeposit.Windblown;deepSand.SoilColor=new V(.3,.2,.1);deepSand.SandColor=new V(.7,.6,.4);
+        var slipFace=LocalGeology.Surface(deepSand,new V(1,0,0),41,100,Math.Cos(31*Math.PI/180),0,0,637100);
+        Check(slipFace.Sand>.99&&slipFace.Rock<.001,"Deep mobile sand stays sand on a repose-angle dune face");
+        Check(LocalGeology.Surface(deepSand,new V(1,0,0),41,100,Math.Cos(31*Math.PI/180),0,.7,637100).Ice==.7,"Sand mantle preserves overlying snow or ice");
+        var rockySand=deepSand;rockySand.Gravel=.4;
+        Check(GroundEnvironment.SandMantle(rockySand,.86)==0,"Stony windblown terrain does not acquire a pure dune coating");
         var saltControl=new LandscapeControls{Salt=.8f,Arid=1};
         var crust=LandscapeProvince.Ground(sandy,saltControl,new V(1000,2000,3000),41);
         var inlandCrust=LocalGeology.Surface(crust,new V(1,0,0),41,-86,1,0,0,637100);
