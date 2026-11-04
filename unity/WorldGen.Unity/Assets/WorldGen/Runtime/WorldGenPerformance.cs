@@ -7,6 +7,7 @@ using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
 using WorldGen.Presentation;
+using WorldGen.Serialization;
 
 // Opt-in, release-player benchmark. No PlayerPrefs writes, saves, UI automation,
 // screenshots or per-frame file IO in measured windows. One explicit URP render
@@ -338,7 +339,7 @@ public sealed partial class LocalTerrainExplorer
     public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
-    public void PerformanceFreezeDaylight(){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,skyYear);TerrainDiagnostics.FreezeSun=true;}
+    public void PerformanceFreezeDaylight(bool summer=false){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,summer?190000+(Position.Z<0?0:.5):skyYear);TerrainDiagnostics.FreezeSun=true;}
     public string PerformanceReviewVegetation(string output,string site)
     {
         if(!SoftCanopyShadows)throw new InvalidOperationException("Cached canopy shade is not ready; reject the foliage review");
@@ -521,6 +522,16 @@ public sealed partial class WorldGenRuntime
         int Pick(Func<HabitatCell,bool> where,bool steep=false)=>cells.Where(i=>where(world.Ecology.Habitat[i])).OrderBy(i=>steep?-world.Ecology.Habitat[i].ReliefM:world.Ecology.Habitat[i].ReliefM).DefaultIfEmpty(-1).First();
         var sites=new[]{("plains",Pick(h=>h.Biome==Biome.Grassland||h.Biome==Biome.Savanna)),("savanna",Pick(h=>h.Biome==Biome.Savanna)),("forest-flat",Pick(h=>h.Biome==Biome.TemperateForest||h.Biome==Biome.TropicalRainforest)),("forest-temperate",Pick(h=>h.Biome==Biome.TemperateForest)),("forest-hills",Pick(h=>h.Biome==Biome.TemperateForest||h.Biome==Biome.TropicalRainforest,true)),("mountains",Pick(h=>h.Biome==Biome.Alpine||h.Biome==Biome.BorealForest,true)),("desert",Pick(h=>h.Biome==Biome.Desert)),("tundra",Pick(h=>h.Biome==Biome.Tundra))};
         string filter=Argument("--worldgen-perf-sites","");
+        var exactSites=new Dictionary<string,V>();string sitesPath=Argument("--worldgen-perf-sites-file","");
+        if(sitesPath.Length>0)
+        {
+            var set=WorldJson.Read<VegetationBenchmarkSiteSet>(File.ReadAllText(sitesPath));
+            if(set.HistoryHash!=world.Prehistory.Hash)throw new InvalidOperationException("Performance sites belong to another world history");
+            var locator=new CellLocator(world.Surface.Cells);
+            foreach(var s in set.Sites)
+            {if(exactSites.ContainsKey(s.Name)||s.Position.Length<.99)throw new InvalidOperationException("Invalid performance site");exactSites.Add(s.Name,s.Position);}
+            sites=sites.Concat(set.Sites.Select(s=>(s.Name,locator.Nearest(s.Position)))).ToArray();
+        }
         string caseFilter=Argument("--worldgen-perf-cases","");
         double seconds=double.Parse(Argument("--worldgen-perf-seconds","6"),CultureInfo.InvariantCulture);
         double profileView=double.Parse(Argument("--worldgen-perf-view","60000"),CultureInfo.InvariantCulture);
@@ -611,13 +622,13 @@ public sealed partial class WorldGenRuntime
         };
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         File.WriteAllText(Path.Combine(output,"machine.txt"),$"{SystemInfo.processorType}\n{SystemInfo.graphicsDeviceName}\n{SystemInfo.graphicsDeviceVersion}\nRAM {SystemInfo.systemMemorySize} MB VRAM {SystemInfo.graphicsMemorySize} MB\n{Screen.width}x{Screen.height}, {QualitySettings.activeColorSpace}, VSync {QualitySettings.vSyncCount}, target {Application.targetFrameRate}\nUnity {Application.unityVersion}\nUTC {DateTime.UtcNow:o}\nSeed {world.Recipe.Seed}; scale .1; clear noon; terrain quality2; view {profileView}m; vegetation quality{profilePlants}; fine radius153.6m.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\n");
-        File.AppendAllText(Path.Combine(output,"machine.txt"),$"Forced single offscreen URP render {width}x{height}; automatic camera disabled. Frame timing stats enabled: {FrameTimingManager.IsFeatureEnabled()}. Original CPU paths: {WorldGenPerformance.Original}.\n");
+        File.AppendAllText(Path.Combine(output,"machine.txt"),$"Forced single offscreen URP render {width}x{height}; automatic camera disabled. Frame timing stats enabled: {FrameTimingManager.IsFeatureEnabled()}. Original CPU paths: {WorldGenPerformance.Original}.\nExplicit dense-site file: {sitesPath}; these sites use local summer noon.\n");
         File.WriteAllText(Path.Combine(output,"summary.csv"),"site,cell,biome,relief,case,frames,seconds,fps,p50_ms,p95_ms,p99_ms,max_ms,over10ms,over16ms,scatter_update_ms,scatter_submit_ms,grass_submit_ms,weather_ms,tiles,wanted,objects,specialists,mid,trees,scatter_draws,grass_draws,grass_candidates,grass_bytes,frustum_rejected,terrain_rejected,settled,start_qpc,end_qpc,gpu_ms,cpu_ms,timing_samples,gpu_drain_ms\n");
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
             void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);}
-            Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(world.Surface.Cells[site.Item2].Position);
+            Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(exactSites.TryGetValue(site.Item1,out var exactSite)?exactSite:world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer==null||!terrainExplorer.Ready){Debug.LogError("PERF terrain unavailable");Application.Quit(1);yield break;}
             terrainExplorer.PerformanceDrySite();terrainExplorer.TestView(1.65,20,3);terrainExplorer.PerformanceRender(width,height);
@@ -648,7 +659,7 @@ public sealed partial class WorldGenRuntime
                 }
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
-                play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight();yield return new WaitForSecondsRealtime(4);
+                play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");
                 if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}

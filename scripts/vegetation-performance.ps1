@@ -3,6 +3,7 @@ param(
     [string]$Snapshot='world/.trash/6322ddf05ff74f619af02d3b88c8426c-943147b5a5e44d04a492a0a4875581a9/snapshot.world',
     [string]$Output='artifacts/performance-review',
     [string]$Sites='plains,forest-flat,forest-hills,mountains,desert,tundra',
+    [string]$SitesFile='',
     [string]$Cases='',
     [double]$Seconds=6,
     [double]$ViewDistance=60000,
@@ -28,6 +29,7 @@ $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-
 if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
+if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
 $arguments+=@('--worldgen-perf-plant-quality',"$PlantQuality")
 $run=$null;$capture=$null
