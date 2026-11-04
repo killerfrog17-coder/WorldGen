@@ -19,16 +19,22 @@ public static class TerrainSurfaceArtBuilder
             for(int channel=0;channel<3;channel++)
             {
                 int size=sizes[channel];bool linear=channel!=0;
-                var array=new Texture2DArray(size,size,14,TextureFormat.BC7,true,linear){name="Terrain surface "+suffix[channel],wrapMode=TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=4};
+                var array=new Texture2DArray(size,size,17,TextureFormat.BC7,true,linear){name="Terrain surface "+suffix[channel],wrapMode=TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=4};
                 arrays[channel]=array;
-                for(int layer=0;layer<14;layer++)
+                for(int layer=0;layer<17;layer++)
                 {
                     var texture=new Texture2D(128,128,TextureFormat.RGBA32,false,linear){wrapMode=TextureWrapMode.Repeat};
                     try
                     {
                         string material=layer==0?"soil":layer==1?"sand":layer==2?"gravel":layer==3?"clay":layer==6?"crust":layer==4||layer==8?"granite":null;
                         if(material!=null&&!File.Exists(Inputs+"/"+material+"-"+suffix[channel]+".png"))material=null;
-                        if(material!=null)
+                        if(layer>=14)
+                        {
+                            string[] assets={"dry_decay_leaves","forrest_ground_03","brown_mud_leaves_01"};
+                            string input=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../assets-source/terrain/surfaces/cc0-forest-floor",assets[layer-14],suffix[channel]+".jpg"));
+                            if(!ImageConversion.LoadImage(texture,File.ReadAllBytes(input),false))throw new InvalidDataException(input);
+                        }
+                        else if(material!=null)
                         {
                             string input=Inputs+"/"+material+"-"+suffix[channel]+".png";
                             if(!ImageConversion.LoadImage(texture,File.ReadAllBytes(input),false))throw new InvalidDataException(input);
@@ -36,6 +42,25 @@ public static class TerrainSurfaceArtBuilder
                         else{texture.SetPixels(fallback[channel].GetPixels(layer));texture.Apply(false,false);}
                         Color[] pixels=new Color[size*size];
                         for(int y=0;y<size;y++)for(int x=0;x<size;x++)pixels[y*size+x]=texture.GetPixelBilinear((x+.5f)/size,(y+.5f)/size);
+                        if(layer>=14&&channel==0)
+                        {
+                            // The ground's ecological/material tint supplies
+                            // the mean. Preserve scanned leaf/needle contrast
+                            // without multiplying two unrelated brown tints.
+                            Color average=Color.black;
+                            foreach(var pixel in pixels)average+=pixel.linear/pixels.Length;
+                            float target=Mathf.GammaToLinearSpace(.5f);
+                            for(int i=0;i<pixels.Length;i++)
+                            {
+                                var p=pixels[i].linear;
+                                p.r=Mathf.Clamp01(p.r*target/Mathf.Max(.001f,average.r));
+                                p.g=Mathf.Clamp01(p.g*target/Mathf.Max(.001f,average.g));
+                                p.b=Mathf.Clamp01(p.b*target/Mathf.Max(.001f,average.b));
+                                pixels[i]=p.gamma;pixels[i].a=1;
+                            }
+                        }
+                        if(layer>=14&&channel==2)
+                            for(int i=0;i<pixels.Length;i++){var p=pixels[i];pixels[i]=new Color(p.r,p.g,.5f,p.b);}
                         var scaled=new Texture2D(size,size,TextureFormat.RGBA32,true,linear);
                         try
                         {
@@ -57,7 +82,7 @@ public static class TerrainSurfaceArtBuilder
             if(art==null)throw new InvalidOperationException("Existing terrain art set missing");
             art.Albedo=arrays[0];art.Normals=arrays[1];art.Masks=arrays[2];
             EditorUtility.SetDirty(art);AssetDatabase.SaveAssets();
-            Debug.Log("TerrainSurfaceArtV1 published: original soil/granite plus available sand, gravel, clay and crust inputs; BC7 512/256/128, 14 layers, all mip levels. Shader/scene constants/quality ranges unchanged.");
+            Debug.Log("TerrainSurfaceArtV1 published: original14 plus broadleaf/needle/damp floor scans; BC7 512/256/128,17 layers, all mip levels. Maximum sampled layers and texture ranges unchanged.");
         }
         finally{foreach(var texture in fallback)UnityEngine.Object.DestroyImmediate(texture);}
     }

@@ -41,15 +41,16 @@ float3 SurfaceBump(float3 p,float3 dx,float3 dy,float3 w,int layer)
     [branch] if(w.z>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(_GroundNormals,sampler_GroundAlbedo,p.xy,layer,dx.xy,dy.xy).xy*2-1;bump+=float3(a.x,a.y,0)*w.z;}
     return bump;
 }
-void SurfaceLayers(O i,float extra,out int3 layers,out float3 fractions)
+void SurfaceLayers(O i,float extra,float3 litter,out int3 layers,out float3 fractions)
 {
     float4 a=max(i.weights,0),b=max(i.groundB,0);
     float sum=max(.001,dot(a,1)+dot(b,1));a/=sum;b/=sum;
     layers=int3(0,0,0);fractions=0;
     // Select only near pixels. NO material loop or mask fetch beyond texture range.
-    [unroll]for(int layer=0;layer<14;layer++)
+    [unroll]for(int layer=0;layer<17;layer++)
     {
-        float c=GroundContribution(i,a,b,layer);
+        float c=layer>=14?a.x*litter[layer==14?0:layer==15?1:2]:GroundContribution(i,a,b,layer);
+        if(layer==0)c*=1-saturate(dot(litter,1));
         if(c>fractions.x){fractions.z=fractions.y;layers.z=layers.y;fractions.y=fractions.x;layers.y=layers.x;fractions.x=c;layers.x=layer;}
         else if(c>fractions.y){fractions.z=fractions.y;layers.z=layers.y;fractions.y=c;layers.y=layer;}
         else if(c>fractions.z){fractions.z=c;layers.z=layer;}
@@ -120,12 +121,20 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     float normalDetail=1-smoothstep(range.z*.45,max(.01,range.z),distance);
     float extra=1-smoothstep(range.x*.7,max(.01,range.w),distance);
     float3 albedo=farColor;
+    float4 forestSurface=0;float3 floorMix=0;
+    if(_ForestSurfaceEnabled>.5&&textures&&!TerrainTest(TD_FOREST))
+    {
+        float2 uv=i.coverageUV*(1-_ForestSurface_TexelSize.xy)+.5*_ForestSurface_TexelSize.xy;
+        forestSurface=SAMPLE_TEXTURE2D(_ForestSurface,sampler_ForestSurface,uv);
+        if(_ForestFloorEnabled>.5&&detail>.001)
+            floorMix=SAMPLE_TEXTURE2D(_ForestFloor,sampler_ForestFloor,uv).rgb*smoothstep(.05,.38,forestSurface.a);
+    }
     // Stable mean properties of these rough, nonmetallic ground materials.
     // Fine mask variation is reserved for the close High/Ultra path.
     float ao=.93,rough=lerp(.88,.55,saturate(i.groundB.w)),metal=0;
     [branch] if(textures&&detail>.001)
     {
-        int3 layers;float3 fractions;SurfaceLayers(i,extra,layers,fractions);
+        int3 layers;float3 fractions;SurfaceLayers(i,extra,floorMix,layers,fractions);
         float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
         float axes=TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w;
         float3 w=SurfaceAxes(np,axes,extra),colour=0,bump=0;float4 mask=0;
@@ -138,6 +147,8 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
                 // Sand is a registered4m scan crop; other material slots keep
                 // their existing2m repeat. No additional texture layer/read.
                 float layerScale=layers[at]==1?.5:1;
+                // Registered scan dimensions: broadleaf/needles2m, damp1.3m.
+                if(layers[at]==16)layerScale*=2/1.3;
                 float3 lp=p*layerScale,ldx=dx*layerScale,ldy=dy*layerScale;
                 if(colourRead)colour+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at]).rgb*fractions[at];
                 if(normalRead)bump+=SurfaceBump(lp,ldx,ldy,w,layers[at])*fractions[at];
@@ -222,7 +233,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     color=color*(1-dot(mix,1))+vegetation;
     if(_ForestSurfaceEnabled>.5&&TerrainForestEnabled()>.5&&textures&&!TerrainTest(TD_FOREST))
     {
-        float4 forest=SAMPLE_TEXTURE2D(_ForestSurface,sampler_ForestSurface,i.coverageUV*(1-_ForestSurface_TexelSize.xy)+.5*_ForestSurface_TexelSize.xy);
+        float4 forest=forestSurface;
         float3 leaves=forest.rgb;
         #ifndef UNITY_COLORSPACE_GAMMA
         leaves=SRGBToLinear(leaves);

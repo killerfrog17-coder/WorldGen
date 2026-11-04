@@ -1,0 +1,102 @@
+{
+  "materials": [
+    {
+      "name": "litter",
+      "asset": "dry_decay_leaves",
+      "layer": 14,
+      "source": "https://polyhaven.com/a/dry_decay_leaves",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        2000,
+        2000
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dry_decay_leaves/dry_decay_leaves_diff_2k.jpg",
+          "sha256": "4dc7dde86f3db0df3566ca0ae77390000e979db31fbdc861796d2e516e6ad04e",
+          "bytes": 2856071
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dry_decay_leaves/dry_decay_leaves_nor_gl_2k.jpg",
+          "sha256": "76cbbca571145f9facf93db819cb909282df6bde8b81f82b5708be912611c5e1",
+          "bytes": 3920921
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dry_decay_leaves/dry_decay_leaves_arm_2k.jpg",
+          "sha256": "cb2c67afd74d3b955c6eb7b104015272767d10ac963315ea8a20ddbf6e83c0cd",
+          "bytes": 2918224
+        }
+      }
+    },
+    {
+      "name": "needles",
+      "asset": "forrest_ground_03",
+      "layer": 15,
+      "source": "https://polyhaven.com/a/forrest_ground_03",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        2000,
+        2000
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forrest_ground_03/forrest_ground_03_diff_2k.jpg",
+          "sha256": "187a8e33773473939c0e85b5e10ae94eb9e8d91463ab8b74e122d833d2d84dc6",
+          "bytes": 3522953
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forrest_ground_03/forrest_ground_03_nor_gl_2k.jpg",
+          "sha256": "dcc26b4fd27a8e1f1f14558214fbaf1d68a61d9b569eee805793498e4b30098c",
+          "bytes": 6812765
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forrest_ground_03/forrest_ground_03_arm_2k.jpg",
+          "sha256": "1833458cb36e03ab3a4024b6c330f9e1ef6191d9fd841e1b59634267516a7a3c",
+          "bytes": 1249511
+        }
+      }
+    },
+    {
+      "name": "wetlitter",
+      "asset": "brown_mud_leaves_01",
+      "layer": 16,
+      "source": "https://polyhaven.com/a/brown_mud_leaves_01",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        1299.9998331069946,
+        1299.9998331069946
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/brown_mud_leaves_01/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_mud_leaves_01/brown_mud_leaves_01_diff_2k.jpg",
+          "sha256": "29c997d77f56e4ea16d3e998a306be0c17fddb28ab4822657c7cd8249040ffda",
+          "bytes": 4539452
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/brown_mud_leaves_01/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_mud_leaves_01/brown_mud_leaves_01_nor_gl_2k.jpg",
+          "sha256": "b6ec386e00d9d2a1c3a1da6a98a67066b0dfaa88ddb779341df29700cf081bdf",
+          "bytes": 5688696
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/brown_mud_leaves_01/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_mud_leaves_01/brown_mud_leaves_01_arm_2k.jpg",
+          "sha256": "a80135a30b7ea0f29f093269acae10f83d327dcc0a20bc10083da59843988c15",
+          "bytes": 3697743
+        }
+      }
+    }
+  ],
+  "publication": "TerrainSurfaceArtBuilder.Build appends three BC7 slices; old fourteen slices retained. Original scanned normals and AO/roughness are offline inputs.",
+  "budget": "Three 512/256/128-pixel mipmapped BC7 slices, about 1.31 MiB total; existing maximum sampled material count remains unchanged."
+}

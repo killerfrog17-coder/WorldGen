@@ -21,6 +21,8 @@ Shader "WorldGen/LocalTerrain"
         _MidSurfaceEnabled("Mid-height cover weights",Float)=0
         _ForestSurface("Tree canopy colour/coverage",2D)="black"{}
         _ForestSurfaceEnabled("Tree canopy weights",Float)=0
+        _ForestFloor("Broadleaf needle and damp litter weights",2D)="black"{}
+        _ForestFloorEnabled("Forest floor materials",Float)=0
         _ForestFarEnabled("Distant forest colour and volumes",Float)=1
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
@@ -70,6 +72,7 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);
             TEXTURE2D(_MidSurface);SAMPLER(sampler_MidSurface);
             TEXTURE2D(_ForestSurface);SAMPLER(sampler_ForestSurface);
+            TEXTURE2D(_ForestFloor);SAMPLER(sampler_ForestFloor);float _ForestFloorEnabled;
             Texture2D<float4> _TerrainCoverage,_CoverageFadeTimes;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };

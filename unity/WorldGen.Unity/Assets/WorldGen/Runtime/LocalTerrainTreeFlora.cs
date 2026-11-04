@@ -32,4 +32,19 @@ public sealed partial class LocalTerrainExplorer
         var texture=new Texture2D(side,side,TextureFormat.RGBAHalf,false,true){name="Forest canopy colour/coverage",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
         texture.SetPixels(pixels);texture.Apply(false,true);return texture;
     }
+    static Texture2D CreateForestFloorSurface(Tile tile)
+    {
+        if(tile.ForestCover==null||tile.ForestCover.Length==0)return null;
+        int side=tile.Segments+1;var pixels=SurfacePixelStaging(side*side);
+        for(int i=0;i<pixels.Length;i++)
+        {
+            int code=BitConverter.SingleToInt32Bits(tile.ForestCover[i*8+7]);
+            var form=(TreeGrowthForm)((code>>28)&7);var strategy=(TreeCrownStrategy)((code>>22)&3);
+            bool needles=form==TreeGrowthForm.NeedleCrown;
+            bool damp=!needles&&(strategy==TreeCrownStrategy.TropicalCanopy||form==TreeGrowthForm.TreeFern);
+            pixels[i]=needles?new Color(0,1,0,1):damp?new Color(0,0,1,1):new Color(1,0,0,1);
+        }
+        var texture=new Texture2D(side,side,TextureFormat.RGBA32,false,true){name="Forest floor / broadleaf needles damp",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
+        texture.SetPixels(pixels);texture.Apply(false,true);return texture;
+    }
 }
