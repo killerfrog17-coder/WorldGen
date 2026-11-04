@@ -18,6 +18,7 @@ public static class WorldGenPerformance
     static readonly bool original=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-original");
     public static bool Original=>Enabled&&(original||OriginalCase);
     public static bool OriginalCase;
+    public static bool DisableScatterViewGuard;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
     public static bool NoTrunkCasters,NoFoliageShadowReceivers;
@@ -273,12 +274,13 @@ public sealed partial class LocalTerrainExplorer
         if(NearTerrainPending()!=NearTerrainPendingFresh())throw new InvalidOperationException("Near-terrain readiness memo changed scheduling state");
         PerformancePendingComparisons++;
     }
-    string[] PerformanceInstances()
+    string[] PerformanceInstances(bool visibleOnly=false)
     {
         var values=new List<string>();
         foreach(var b in drawBatches)for(int i=0;i<b.Count;i++)
         {
-            var s=new System.Text.StringBuilder();s.Append(b.Key).Append(':').Append((int)b.Shadows);
+            if(visibleOnly&&b.Shadows==UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly)continue;
+            var s=new System.Text.StringBuilder();s.Append(visibleOnly?b.Key&~(1L<<60):b.Key).Append(':').Append((int)b.Shadows);
             for(int n=0;n<16;n++)s.Append(':').Append(BitConverter.SingleToInt32Bits(b.Matrices[i][n]));
             for(int n=0;n<4;n++)s.Append(':').Append(BitConverter.SingleToInt32Bits(b.Colors[i][n])).Append(':').Append(BitConverter.SingleToInt32Bits(b.Fades[i][n]));
             values.Add(s.ToString());
@@ -286,6 +288,12 @@ public sealed partial class LocalTerrainExplorer
         values.Sort(StringComparer.Ordinal);return values.ToArray();
     }
     public string PerformanceVerifyVisibility()
+    {
+        bool old=WorldGenPerformance.DisableScatterViewGuard;WorldGenPerformance.DisableScatterViewGuard=true;
+        try{return PerformanceVerifyLiteralVisibility();}
+        finally{WorldGenPerformance.DisableScatterViewGuard=old;scatterDirty=true;}
+    }
+    string PerformanceVerifyLiteralVisibility()
     {
         if(WorldGenPerformance.Original)return "Original-only run: equivalence check skipped.";
         for(int yaw=0;yaw<360;yaw+=45)
@@ -306,6 +314,59 @@ public sealed partial class LocalTerrainExplorer
             WorldGenPerformance.OriginalCase=false;if(BitConverter.DoubleToInt64Bits(exact)!=BitConverter.DoubleToInt64Bits(Ground(x,5)))throw new InvalidOperationException("Ground memo mismatch");
         }
         return "PASS identical model/transform/tint/LOD/shadow instance multisets at eight headings; exact ground memo and occlusion ceilings.";
+    }
+    public string PerformanceVerifyRotationGuard(string output)
+    {
+        Directory.CreateDirectory(output);var oldRotation=view.transform.localRotation;
+        bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard;
+        int comparisons=0,maxDelta=0;
+        try
+        {
+            for(int yaw=0;yaw<360;yaw+=45)
+            foreach(var offset in new[]{new Vector2(5.7f,0),new Vector2(-5.7f,0),new Vector2(0,5.7f),new Vector2(3.8f,-3.8f)})
+            {
+                PerformanceTurn(yaw);var center=view.transform.localRotation;
+                WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
+                if(scatterCachedGuardDegrees!=ScatterGuardDegrees)throw new InvalidOperationException("Rotation guard is not active in this verification context");
+                var guarded=PerformanceInstances(true).GroupBy(s=>s).ToDictionary(g=>g.Key,g=>g.Count(),StringComparer.Ordinal);
+                view.transform.localRotation=center*Quaternion.Euler(offset.y,offset.x,0);
+                if(ScatterViewChanged)throw new InvalidOperationException("Within-guard camera rotation unexpectedly invalidated scatter");
+                DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var cached=LastCapturePixels;
+                WorldGenPerformance.OriginalCase=true;WorldGenPerformance.DisableScatterViewGuard=true;BuildScatterBatches();
+                foreach(var instance in PerformanceInstances(true))
+                {
+                    if(!guarded.TryGetValue(instance,out int count)||count==0)throw new InvalidOperationException("Rotation guard omitted a literally visible instance at yaw "+yaw+", offset "+offset);
+                    guarded[instance]=count-1;
+                }
+                DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var literal=LastCapturePixels;
+                int delta=0,changed=0;
+                for(int i=0;i<cached.Length;i++)
+                {
+                    int d=Math.Max(Math.Abs(cached[i].r-literal[i].r),Math.Max(Math.Abs(cached[i].g-literal[i].g),Math.Abs(cached[i].b-literal[i].b)));
+                    delta=Math.Max(delta,d);if(d>2)changed++;
+                }
+                maxDelta=Math.Max(maxDelta,delta);comparisons++;
+                if(changed>0)
+                {
+                    var image=new Texture2D(weatherCheckTarget.width,weatherCheckTarget.height,TextureFormat.RGB24,false);
+                    try
+                    {
+                        image.SetPixels32(cached);image.Apply();File.WriteAllBytes(Path.Combine(output,"failed-guard.png"),image.EncodeToPNG());
+                        image.SetPixels32(literal);image.Apply();File.WriteAllBytes(Path.Combine(output,"failed-literal.png"),image.EncodeToPNG());
+                    }
+                    finally{Destroy(image);}
+                    throw new InvalidOperationException("Rotation guard render differs from literal camera: yaw "+yaw+", offset "+offset+", max RGB delta "+delta+", changed pixels "+changed);
+                }
+                view.transform.localRotation=center;WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
+                view.transform.localRotation=center*Quaternion.Euler(0,ScatterGuardDegrees+.3f,0);
+                if(!ScatterViewChanged)throw new InvalidOperationException("Beyond-guard rotation failed to invalidate scatter");
+            }
+            return "PASS "+comparisons+" within-guard actual-camera renders and visible-instance multiset containment; max RGB delta "+maxDelta+"; beyond-guard rotations invalidate.";
+        }
+        finally
+        {
+            view.transform.localRotation=oldRotation;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;BuildScatterBatches();
+        }
     }
     public void PerformancePose(double height=1.65)
     {
@@ -540,6 +601,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
             new PerfCase("scatter-range-verify",()=>{}),
+            new PerfCase("scatter-guard-verify",()=>{}),
             new PerfCase("foliage-one-tap",()=>WorldGenPerformance.FoliageShadowTaps=1),
             new PerfCase("foliage-four-tap",()=>WorldGenPerformance.FoliageShadowTaps=4),
             new PerfCase("no-mid-shadows",()=>TerrainVideoOptions.MidPlantShadows=false),
@@ -666,6 +728,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}
                 if(item.Name=="trees-efficient-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyTreeEfficiency(output)+"\n");
                 if(item.Name=="scatter-range-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyVisibility()+"\n");
+                if(item.Name=="scatter-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"rotation-guard"))+"\n");
                 if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
                 if(item.Name=="full")
                 {

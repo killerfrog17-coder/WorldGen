@@ -102,7 +102,7 @@ public sealed partial class LocalTerrainExplorer
         usingSoftCanopyShadows=SoftCanopyShadows;
         foreach(var b in treeShadowBatches){b.Count=0;treeShadowPool.Add(b);}treeShadowBatches.Clear();treeShadowActive.Clear();TreeShadowObjects=TreeShadowCards=TreeShadowCoarse=0;
         if(!UseTreeShadowProxies||vegetationShadowRadius<=0)return;
-        PrepareTreeShadowFrustum();
+        if(!usingSoftCanopyShadows)PrepareTreeShadowFrustum();
         void Add(int code,int lod,Mesh mesh,Material material,Matrix4x4 matrix,Bounds bounds,float start,float end)
         {
             if(end<=start)return;
@@ -121,7 +121,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var chunk in scatterChunks.Values)
         {
             if(chunk.Bounds==null)PrepareScatterBounds(chunk);
-            if(!MayCastVisibleShadow(chunk.AllBounds,scatterEye)||!TreeShadowReachesView(chunk.AllBounds))continue;
+            if(!MayCastVisibleShadow(chunk.AllBounds,scatterEye)||!usingSoftCanopyShadows&&!TreeShadowReachesView(chunk.AllBounds))continue;
             foreach(var group in chunk.Groups)
             {
                 // Once the canopy field owns crown shade, roots outside the
@@ -129,11 +129,11 @@ public sealed partial class LocalTerrainExplorer
                 // heading-independent rejection before per-tree light tests.
                 float trunkRange=Mathf.Min(vegetationShadowDistance,TerrainVideoOptions.ForestTrunkShadowDistance);
                 if(usingSoftCanopyShadows&&group.RootBounds.SqrDistance(scatterEye)>=trunkRange*trunkRange)continue;
-                if(!group.Trees||!MayCastVisibleShadow(group.Bounds,scatterEye)||!TreeShadowReachesView(group.Bounds))continue;
+                if(!group.Trees||!MayCastVisibleShadow(group.Bounds,scatterEye)||!usingSoftCanopyShadows&&!TreeShadowReachesView(group.Bounds))continue;
                 foreach(int index in group.Indices)
                 {
                     var plant=chunk.Source.Instances[index];var bounds=chunk.Bounds[index];
-                    if(!TerrainVideoOptions.KeepVegetation(plant.Kind,plant.Id)||!MayCastVisibleShadow(bounds,scatterEye)||!TreeShadowReachesView(bounds))continue;
+                    if(!TerrainVideoOptions.KeepVegetation(plant.Kind,plant.Id)||!MayCastVisibleShadow(bounds,scatterEye)||!usingSoftCanopyShadows&&!TreeShadowReachesView(bounds))continue;
                     float distance=Mathf.Sqrt(bounds.SqrDistance(scatterEye)),coverage=(float)VegetationShadowBudget.CasterFade(distance,vegetationShadowDistance);
                     if(coverage<=0)continue;
                     int code=TreeFlora.RenderCode(plant.Variant);

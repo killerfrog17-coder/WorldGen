@@ -10,6 +10,19 @@ public sealed partial class LocalTerrainExplorer
     readonly System.Collections.Generic.HashSet<Tile> vegetationOccluders=new System.Collections.Generic.HashSet<Tile>();int occlusionFrame=-1;
     float occlusionCeiling,vegetationShadowRadius,vegetationShadowDistance,vegetationShadowUp;double vegetationShadowSlope;
     Vector3 scatterEye;Quaternion scatterRotation;Matrix4x4 scatterProjection;int scatterOptions;
+    const float ScatterGuardDegrees=6;
+    float scatterCachedGuardDegrees,scatterAngularSlack;
+    float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&SoftCanopyShadows&&TerrainVideoOptions.ScatterFrustum?ScatterGuardDegrees:0;
+    Bounds ScatterGuardBounds(Bounds box,Vector3 eye)
+    {
+        if(scatterAngularSlack<=0)return box;
+        // For a rotation delta, |R*p-p| <= 2*sin(delta/2)*|p|.
+        // L1 is a conservative inexpensive bound on every point of this box.
+        // The ordinary eye-movement/wind padding remains separate.
+        var d=box.center-eye;var e=box.extents;
+        float reach=Mathf.Abs(d.x)+Mathf.Abs(d.y)+Mathf.Abs(d.z)+e.x+e.y+e.z;
+        box.Expand(2*scatterAngularSlack*reach);return box;
+    }
     public int ScatterFrustumRejected {get;private set;}
     public int ScatterTerrainRejected {get;private set;}
     public int ScatterShadowOnly {get;private set;}
@@ -18,7 +31,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.GeneratedTrees,TerrainVideoOptions.MidPlantDetail,TerrainVideoOptions.TreeDetail,
         TerrainVideoOptions.VegetationRevision,TerrainVideoOptions.ScatterFrustum,TerrainVideoOptions.VegetationOcclusion),HashCode.Combine(TerrainVideoOptions.VegetationShadows,TerrainVideoOptions.TreeRebuild,TerrainVideoOptions.TreeImpostors));
     bool ScatterViewChanged=>view!=null&&((view.transform.localPosition-scatterEye).sqrMagnitude>.25f||
-        Quaternion.Angle(view.transform.localRotation,scatterRotation)>1||view.projectionMatrix!=scatterProjection||scatterOptions!=ScatterOptionsStamp);
+        Quaternion.Angle(view.transform.localRotation,scatterRotation)>Mathf.Max(1,scatterCachedGuardDegrees)||scatterCachedGuardDegrees!=CurrentScatterGuardDegrees||view.projectionMatrix!=scatterProjection||scatterOptions!=ScatterOptionsStamp);
     void PrepareScatterBounds(ScatterChunk chunk,LocalTerrainFrame preparedFrame=null)
     {
         var boundsFrame=preparedFrame??frame;
