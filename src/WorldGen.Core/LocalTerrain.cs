@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-eroded-33";
+        public const string Version = "local-terrain-remnants-34";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -310,7 +310,7 @@ namespace WorldGen.Core
                 double micro = amplified==null?SphereNoise.Sample(km, seed ^ 0x6819, 10):0;
                 double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, sharpness = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
                 bool heightOnly=dry;double rockA=0,rockB=0;
-                int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();var cover=new GroundCoverProfile();var midCover=new MidCoverProfile();var forest=new ForestCoverProfile();
+                int cell = -1,landCell=-1;double bestLandWeight=-1; Biome biome = Biome.Grassland,landBiome=Biome.Grassland;var ground=new GroundProfile();var cover=new GroundCoverProfile();var midCover=new MidCoverProfile();var forest=new ForestCoverProfile();
                 for(int sourceIndex=0;sourceIndex<sources.Length;sourceIndex++)
                 {
                     ref readonly var f=ref sources[sourceIndex];
@@ -335,11 +335,16 @@ namespace WorldGen.Core
                     sediment += weight * f.Sediment; glacier += weight * f.Glacial;
                     if(!heightOnly){var color = CoverColor(f.Biome); red += weight * color.X; green += weight * color.Y; blue += weight * color.Z;}
                     if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome;ground.Bedrock=f.Ground.Bedrock;ground.Deposit=f.Ground.Deposit; }
+                    if(f.Biome!=Biome.Ocean&&weight>bestLandWeight){bestLandWeight=weight;landCell=f.Cell;landBiome=f.Biome;}
                 }
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 if(amplified!=null)
                 {
                     var surface=amplified.Sample(point,dry,mapSpacingM);
+                    // A refined headland/bar can cross a coarse ocean cell.
+                    // Dry shoreline ground uses the adjacent terrestrial
+                    // community rather than retaining an "Ocean" land biome.
+                    if(biome==Biome.Ocean&&surface.Height>0&&landCell>=0){cell=landCell;biome=landBiome;}
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
                     if(!heightOnly)ground=LandscapeProvince.Ground(ground,surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed);
                     if(!heightOnly)LandscapeProvince.Cover(surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed,ref cover,ref midCover,ref forest,ref biome);

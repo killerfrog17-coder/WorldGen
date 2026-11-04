@@ -9,7 +9,7 @@ static class ErodedTerrainTests
         Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);string history=world.Prehistory.Hash;
         var watch=System.Diagnostics.Stopwatch.StartNew();var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var rows=new List<object>();
         var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]).ToArray();
-        foreach(string kind in new[]{"Karst","Badlands","Remnant"})
+        foreach(string kind in new[]{"Karst","Badlands"})
         {
             double Strength(LandscapeControls c)=>kind=="Karst"?c.Karst*(c.Moisture>.65?1:0):kind=="Badlands"?c.Badlands:c.Remnant;
             bool found=false;
@@ -20,7 +20,7 @@ static class ErodedTerrainTests
                 foreach(int x in new[]{-9000,-4500,0,4500,9000})
                 {
                     V at=patch.Position(x,0),metres=at*(terrain.RadiusM*.1);
-                    double expected=kind=="Remnant"?220*ErodedTerrain.Remnant(metres,world.Recipe.Seed,p.Landscape):Math.Abs(ErodedTerrain.HeightOffset(metres,world.Recipe.Seed,p.Landscape));
+                    double expected=Math.Abs(ErodedTerrain.HeightOffset(metres,world.Recipe.Seed,p.Landscape));
                     if(expected<(kind=="Badlands"?8:35))continue;
                     var sample=patch.Sample(at);if(sample.Underwater||Strength(sample.Province)<.2)continue;
                     var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);
@@ -33,14 +33,24 @@ static class ErodedTerrainTests
             }
             if(!found)throw new Exception("Actual world has no accepted eroded context "+kind);
         }
+        var remnants=terrain.Amplification.Remnants;if(remnants.Forms.Length==0)throw new Exception("No actual dry-bedrock outcrops");
+        foreach(var form in remnants.Forms.Take(4))
+        {
+            var patch=terrain.Patch(form.Center,30000);var sample=patch.Sample(form.Center);
+            if(sample.Province.RemnantExposure<.99||sample.Ground.DepthM>.05)throw new Exception("Outcrop does not expose actual bedrock");
+            var frame=new LocalTerrainFrame(form.Center,terrain.RadiusM,0,.1);
+            var left=LocalTerrainMesh.Build(terrain,frame,-64,-32,64,16);var right=LocalTerrainMesh.Build(terrain,frame,0,-32,64,16);
+            for(int z=0;z<=16;z++)if(left.Positions[(z*17+16)*3+1]!=right.Positions[z*17*3+1])throw new Exception("Outcrop shared edge differs");
+            rows.Add(new{Kind="Outcrop",form.Cell,Position=new[]{form.Center.X,form.Center.Y,form.Center.Z},form.HeightM,form.RadiusX,form.RadiusZ,sample.ElevationM});
+        }
         if(world.Prehistory.Hash!=history)throw new Exception("Eroded terrain mutated regional history");
         File.WriteAllText(Path.Combine(output,"eroded-sites.json"),System.Text.Json.JsonSerializer.Serialize(rows,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
-        Console.WriteLine($"PASS {rows.Count} actual eroded landforms, finite meshes and shared tile edges; {watch.Elapsed.TotalSeconds:F2}s");
+        Console.WriteLine($"PASS {rows.Count} actual eroded sites, finite meshes and shared tile edges; {remnants.Forms.Length} outcrops, {remnants.IndexedFaces} admitted faces; {watch.Elapsed.TotalSeconds:F2}s");
     }
     public static void Run()
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
-        var contexts=new[]{new LandscapeControls{Karst=1,Moisture=1},new LandscapeControls{Badlands=1,Arid=1},new LandscapeControls{Loess=1},new LandscapeControls{Remnant=1,Arid=1}};
+        var contexts=new[]{new LandscapeControls{Karst=1,Moisture=1},new LandscapeControls{Badlands=1,Arid=1},new LandscapeControls{Loess=1}};
         foreach(var controls in contexts)
         {
             double low=double.MaxValue,high=double.MinValue,slope=0;
@@ -56,6 +66,10 @@ static class ErodedTerrainTests
             Check(slope<(controls.Karst>0?10:controls.Loess>0?1.5:6),"Regional relief has bounded slopes appropriate to its landform");
         }
         var sandstone=new GroundProfile{RockMixA=new V(0,0,1),Sand=.6,DepthM=1,Drainage=.8};
+        var outcrop=new BedrockRemnants.Outcrop{RadiusX=700,RadiusZ=300,HeightM=250};
+        Check(outcrop.Profile(0)==1&&outcrop.Profile(.6)>.9,"A bedrock mass has a domed cap above a steep skirt, not another rolling hill");
+        Check(outcrop.Profile(1)==0&&outcrop.Profile(.99999)<1e-9,"Outcrop returns continuously to unmodified ground");
+        for(int i=0;i<=1000;i++)Check(double.IsFinite(outcrop.Profile(i/1000d))&&outcrop.Profile(i/1000d)>=0&&outcrop.Profile(i/1000d)<=1,"Finite bounded outcrop profile");
         Check(LandscapeProvince.Describe(sandstone,Biome.Desert,.1,0,120,0,0).Remnant>.5,"Resistant sedimentary desert bedrock can support isolated remnants");
         Check(LandscapeProvince.Describe(sandstone,Biome.Marsh,1,0,120,0,1).Remnant==0,"Wet marshes do not acquire desert monoliths");
         Console.WriteLine($"PASS {checks} eroded terrain checks");

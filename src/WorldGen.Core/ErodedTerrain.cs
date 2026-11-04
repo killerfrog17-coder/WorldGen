@@ -7,14 +7,6 @@ namespace WorldGen.Core
     public static class ErodedTerrain
     {
         static double Smooth(double a,double b,double value)=>RiverscapeKernel.Smooth((value-a)/(b-a));
-        public static double Remnant(V metres,int seed,LandscapeControls controls)
-        {
-            if(controls.Remnant<.05)return 0;
-            double province=Smooth(.62,.79,.5+.5*SphereNoise.Sample(metres,seed^0x6c251,1/4800d));
-            if(province<.001)return 0;
-            double rock=.5+.5*SphereNoise.Sample(metres,seed^0x1a4b7,1/650d);
-            return controls.Remnant*province*Math.Pow(Smooth(.51,.79,rock),.65);
-        }
         public static double HeightOffset(V metres,int seed,LandscapeControls controls)
         {
             double offset=0;
@@ -49,7 +41,6 @@ namespace WorldGen.Core
                     offset+=controls.Loess*province*(28*hills-15*valley*valley*valley);
                 }
             }
-            offset+=220*Remnant(metres,seed,controls);
             return offset;
         }
     }

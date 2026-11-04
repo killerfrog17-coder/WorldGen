@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-eroded-28";
+        public const string Version = "hyper-amplification-remnants-29";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -31,6 +31,7 @@ namespace WorldGen.Core
         readonly int seed;
         readonly CellLocator landscapeLocator;
         public readonly VolcanicTerrain Volcanoes;
+        public readonly BedrockRemnants Remnants;
         readonly SmallWaterBodies smallWater,wetlandWater;
         public int CachedSmallWaterCandidates=>smallWater.CachedCandidates+wetlandWater.CachedCandidates;
         public SmallLake[] SmallLakesNear(V center,double rangeM)
@@ -287,6 +288,7 @@ namespace WorldGen.Core
             }
             coarseEdges=controls.ToArray();edgeCache=new WeakReference<Edge>[coarseEdges.Length];
             Volcanoes=new VolcanicTerrain(world,scale,landscapeLocator,token);
+            Remnants=new BedrockRemnants(world,profiles,scale,token);
             var incoming=new bool[count];
             for(int i=0;i<count;i++)if(nodeChannels[i]>=0)
             {
@@ -853,6 +855,8 @@ namespace WorldGen.Core
                 {
                     double volcanic=owner.Volcanoes.Apply(point,found.Root,height,out double exposure);
                     pre+=volcanic-height;height=volcanic;landscape.BareRock=(float)Math.Max(landscape.BareRock,exposure);
+                    double bedrock=owner.Remnants.Apply(point,found.Root,height,out double remnantExposure);
+                    pre+=bedrock-height;height=bedrock;landscape.RemnantExposure=(float)remnantExposure;
                     double coastal=CoastalTerrain.Shape(point*(owner.radius*owner.scale),owner.seed,height,
                         a*found.A.SeaWeight+b*found.B.SeaWeight+c*found.C.SeaWeight,
                         a*(found.A.Hill+found.A.Mountain)+b*(found.B.Hill+found.B.Mountain)+c*(found.C.Hill+found.C.Mountain),
