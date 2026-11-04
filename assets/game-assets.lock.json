@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "32ff75a9e077e5934472f3e2be7feef5050c03d3",
+  "source_checkpoint": "d6a89ed61c53f9e6af317cca7a043299342c8976",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14212,6 +14212,30 @@
       "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
       "member": "objects/29278cd817714bcc12454d449cce69b3e131ee3d58cba349daea8df5478706a5"
     },
+    "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/Diffuse.jpg": {
+      "sha256": "492b89604cd79f733557b590f561ddc9ea51739705d96d9768c4ca1614b44b60",
+      "bytes": 4827362,
+      "pack": "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "member": "objects/492b89604cd79f733557b590f561ddc9ea51739705d96d9768c4ca1614b44b60"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/arm.jpg": {
+      "sha256": "0856500cf1b2748b82a5590bc78e6ef33d155cec462c4903d708bb59fc6bfd64",
+      "bytes": 13462892,
+      "pack": "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "member": "objects/0856500cf1b2748b82a5590bc78e6ef33d155cec462c4903d708bb59fc6bfd64"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/nor_gl.jpg": {
+      "sha256": "0a59f38f2dd43985619d3574b9ec67845cce5e86baa9a4767333ab7f539e635f",
+      "bytes": 6612668,
+      "pack": "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "member": "objects/0a59f38f2dd43985619d3574b9ec67845cce5e86baa9a4767333ab7f539e635f"
+    },
+    "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/source-metadata.json": {
+      "sha256": "a977aa14f15a9764245822951d7da27bb57bddb5d8c1475364fd5e325bbb8e94",
+      "bytes": 2544,
+      "pack": "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "member": "objects/a977aa14f15a9764245822951d7da27bb57bddb5d8c1475364fd5e325bbb8e94"
+    },
     "assets-source/terrain/surfaces/cc0-regions/gravel_stones/Diffuse.jpg": {
       "sha256": "b77a4c0824f4c860b9230949baca764fdb0651fa0016b2644cd07490f82fac43",
       "bytes": 802344,
@@ -14231,10 +14255,10 @@
       "member": "objects/49b4a592f021e7eb44f1638be5309ef6f0c3c8a51e7c857ffb54dc4836a8a070"
     },
     "assets-source/terrain/surfaces/cc0-regions/gravel_stones/source-metadata.json": {
-      "sha256": "1e3233466293a94b3c0de840733b92755e9e24039ae38cb92fec33e336f90e7d",
+      "sha256": "ef375daedf422099076b680b6d7bba4804b3b844cc48cf3d9542dd04fcf303ed",
       "bytes": 2702,
-      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
-      "member": "objects/1e3233466293a94b3c0de840733b92755e9e24039ae38cb92fec33e336f90e7d"
+      "pack": "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "member": "objects/ef375daedf422099076b680b6d7bba4804b3b844cc48cf3d9542dd04fcf303ed"
     },
     "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/Diffuse.jpg": {
       "sha256": "b49e3d76bbb142c30ce938327f42ffdfd465429dd694fb5c2b731de08d7f6310",
@@ -14255,10 +14279,10 @@
       "member": "objects/f9fc5aa9b9e9c5d67cc77f9f6e95bdddcc6abe97400300603721f1dff4171e69"
     },
     "assets-source/terrain/surfaces/cc0-regions/mud_cracked_dry_03/source-metadata.json": {
-      "sha256": "e4e6ad130dbf84ad46069afa80631ef3ebdc0ff9ab8271900deda21ec9c89383",
+      "sha256": "86a3e75a0b0456d5d2a819c595382cdc15eabcd330afc85cefa206ff8606ea7a",
       "bytes": 2677,
-      "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
-      "member": "objects/e4e6ad130dbf84ad46069afa80631ef3ebdc0ff9ab8271900deda21ec9c89383"
+      "pack": "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "member": "objects/86a3e75a0b0456d5d2a819c595382cdc15eabcd330afc85cefa206ff8606ea7a"
     },
     "assets-source/terrain/surfaces/cc0-regions/sand_01/Diffuse.jpg": {
       "sha256": "a73b90eaa6d675ef57e7d48a8cf23e1f412e353ab2e29cf73930b8ecd4e76875",
@@ -32148,6 +32172,14 @@
     }
   },
   "packs": {
+    "dryland-sand-inputs-20261104/assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip": {
+      "tag": "dryland-sand-inputs-20261104",
+      "name": "assets-eaaedd88b8d27751f3358f72c7ad0fed69bf706ac8b85514c823aa6482e185d3.zip",
+      "asset_id": 708439251,
+      "sha256": "088bada080a50516eb0fba17da2394017245598180f26ab87e229b0f0f9959cb",
+      "bytes": 24801163,
+      "encoding": "zip"
+    },
     "game-assets-20261029-v1/assets-02c0ca33fc26c90a65721c75821d45da65f89b7267aad981aa2e0516a48d787b.zip": {
       "tag": "game-assets-20261029-v1",
       "name": "assets-02c0ca33fc26c90a65721c75821d45da65f89b7267aad981aa2e0516a48d787b.zip",
