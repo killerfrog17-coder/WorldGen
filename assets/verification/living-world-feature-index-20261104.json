@@ -76,6 +76,68 @@
         "689b344a"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTreeArchitecture.cs"
+    },
+    {
+      "name": "Lowland river bends",
+      "commits": [
+        "81c7de4b",
+        "82b52942"
+      ],
+      "entry": "src/WorldGen.Core/RiverPlanform.cs"
+    },
+    {
+      "name": "Hotspot shields, calderas and aged edifices",
+      "commits": [
+        "19854d12",
+        "94429086",
+        "1a0540a0"
+      ],
+      "entry": "src/WorldGen.Core/VolcanicTerrain.cs"
+    },
+    {
+      "name": "Selectable scanned grass clumps",
+      "commits": [
+        "f6ad146e",
+        "6f58fdab",
+        "a2fd4569",
+        "46db201d"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenGroundClumps.shader"
+    },
+    {
+      "name": "Scanned regional forest litter",
+      "commits": [
+        "910c6714",
+        "405eb18d",
+        "9b3656c6",
+        "2f3f197b",
+        "2e615693"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl"
+    },
+    {
+      "name": "Bounded foliage shadow costs",
+      "commits": [
+        "8d5cff76",
+        "986503f6"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalFoliageShadows.cs"
+    },
+    {
+      "name": "Registered fractured rock surfaces",
+      "commits": [
+        "f7558e95",
+        "311abb7e"
+      ],
+      "entry": "assets/verification/rock-surfaces-20261104.json"
+    },
+    {
+      "name": "Broad rock weathering",
+      "commits": [
+        "e35ff898"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl"
     }
-  ]
+  ],
+  "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update."
 }
