@@ -70,8 +70,8 @@ do not add new systems or tiny speculative visual tweaks. Owner visual approval
 not inferred. No growth/seasonalleafshedding/fruiting/allshrubart overhaul claimed.
 Owner3files untouched, nopaid/subagents/ownerappsclosed. Stage1/2 immutabletags
 living-npcs-foundation-20261103/living-landscapes-20261103 remainrollback points.
-Final proof/docs/shortcut commit and living-vegetation-20261103 tag/push pending
-at this note; complete these before requesting owner review. Continue per mandate.
+Proof/docs/shortcut committed as581f0dc1 and PUSHED. Final tag
+living-vegetation-20261103 identifies this selected package. Continue per mandate.
 
 ACTIVE3Nov23:40Z CONTINUE. Owner closed game and authorized uncontended comparison.
 Stage1/2 complete; selectedB9358b36/living-landscapes-20261103 UNCHANGED. Stage3
