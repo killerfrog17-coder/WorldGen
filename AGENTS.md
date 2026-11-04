@@ -49,6 +49,34 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+REVIEW04Nov06:21Z FIRST DRYLAND PROTOTYPE READY FOR OWNER VISUAL FEEDBACK.
+Broader regional overhaul is UNFINISHED; do not call wonder/wholeEarthcatalogue
+achieved. B f5385a89 remains SELECTED/UNCHANGED. A current66652c92 managedNONDEV
+ScriptsOnly built06:13:21Z overFULL23f991ae packed newscans. Actual experience-
+scanned SandSea/SaltFlat BOTH EXIT0,46checks/16images, allcontactsheets +five
+fullsize views inspected. Normalfog verified>=1200m (dunes final1584m); actual
+terrain2km/140tiles, four1.8m walkingheadings +ridgewalk +morning/noon. Dunes now
+curved35/105m scales+climbing smallerforms,76.62m range/1km, max31.70deg; deep
+sand stays sand. Proper CC0 aerial_beach_01 rawwind-ripples replace badtrampled
+sand_01 scan; registeredperiodic4m PBRcrop512/256/128, onlyslice1changed/other13
+BYTEEXACT/samepayload. Analytic sandhelperwasREJECTEDtooUniform and REMOVED.
+Saltbare/bright/polygonal; thisactualsiteincludescoastalcontext, NOT proof of
+complete inlandclosedbasin library. Wider saltcontexts/dunemorphologies, other
+regions' silhouettes/traversal and GPUframecomparison stillneeded beforepromoting.
+Currentmanifest assets/verification/dryland-experience-20261104.json binds exact
+A assembly/Core/worker hashes to all16actualimages/46checks; visualdirectiononly.
+Source66652c92/PBRartd6a89ed6/lock23f991ae PUSHED; newraw25MBfreeimmutableRelease
+ dryland-sand-inputs-20261104 remoteSHAverified,5361inputs/140packs. Layout5968
+PASS. Core35733PASS;0bdgeometry pond/sharededge+27175riverchecks PASS; subsequent
+materialchanges retainboth65x65heightgridsEXACT. CPUfinal-core-cost prep28.361/
+28.504s, warm12675queries699/739ms baseline vs659/683ms currentphysicalcode;
+NOT GPUFPSacceptance. Research/budget/provenance inassets/verification.
+Actualfirstviews shownuser; optional saltstylequestionpending. Existing PDFs
+remain honest OLD checkpoints; no refreshedPDFclaim. Next useownerfeedback to
+refine firstslice/guide remainingregions; keepBsafe. No owned native/Editor/build/
+benchmark jobsremain. No paid/subagents/ownerappsclosed; owner3files untouched;
+allartifactsdisposable. Do not impose an ownerpause that wasnotrequested.
+
 ACTIVE04Nov06:07Z DRYLAND REVIEW. B f5385a89 selected/UNCHANGED. A internal4c9672d1
 FULL managed built~05:53Z. experience-ripples both EXIT0; all16imagescontactsheet
 reviewed +4dunes fullsize. Shape/salt improved; analytic sand too uniform, REJECTED

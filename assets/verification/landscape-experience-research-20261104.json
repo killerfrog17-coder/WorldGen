@@ -40,7 +40,7 @@
     "maximum_dune_site_slope_degrees": 32.054750974201134,
     "salt_mean_surface_weight": 0.6812665609828584
   },
-  "review_status": "PROTOTYPE: geometry and bare salt crust improved; latest analytic sand material rejected as too uniform. New scanned wind-ripple sand prepared/imported, awaiting packaged game inspection. Selected playable B unchanged.",
+  "review_status": "First dryland review prototype packaged and inspected: native SandSea/SaltFlat46checks/16images, exact current package66652c92. Broader regional overhaul unfinished; owner direction review and GPU/frame comparison pending. SelectedBunchanged.",
   "first_native": {
     "source": "770e66d7",
     "prefix": "experience-first",

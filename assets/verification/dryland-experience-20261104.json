@@ -1,0 +1,314 @@
+{
+  "recorded_utc": "2026-11-04T06:20:29.536464+00:00",
+  "runtime_source": "66652c92",
+  "art_source": "d6a89ed6",
+  "selected": false,
+  "candidate_slot": "slot-a",
+  "selected_playable_unchanged": "slot-b / f5385a89",
+  "status": "DRYLAND PROTOTYPE FOR VISUAL REVIEW; broader regional overhaul unfinished",
+  "build": {
+    "BuiltUtc": "2026-11-04T06:13:21.0022365Z",
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "44ed85f863d68da074fa23cd5aef06c259d60c18b3fc810afe562c19bcb2a9a7"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "272f7df0705f0c62c7a3850212a340e698e9cb7140b05a29696a752eff57e825"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "26aff80a80eb68b2f7e37bcf0e3649573b4fb9d9ef091219f3a56f2b794b0579"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "4bc7213fafdf51097c0399267e001707d7e2458b037c9b083bf6aeb2eb6d30c3"
+  },
+  "cases": [
+    {
+      "kind": "sandsea",
+      "package": {
+        "AssemblySha256": "759609520a9516082bd4913811ac93d58e16ab4264fc8c4aa441088cf7ab3684",
+        "BuiltUtc": "2026-11-04T06:13:21.1252358Z",
+        "CoreSha256": "44ed85f863d68da074fa23cd5aef06c259d60c18b3fc810afe562c19bcb2a9a7",
+        "WorkerSha256": "4bc7213fafdf51097c0399267e001707d7e2458b037c9b083bf6aeb2eb6d30c3"
+      },
+      "scene": {
+        "Actual": "SandSea",
+        "BakedStands": 10,
+        "BakedTrees": 0,
+        "CoverWeights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 182.271,
+        "FogDistance": 1584.467753044,
+        "ForestCoverage": 0,
+        "ForestReveal": 1584.467753044,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 2.4033968,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": -0.523478647,
+          "Y": -0.666157032,
+          "Z": -0.531229625
+        },
+        "PrepareMs": 11560.5095,
+        "Province": {
+          "Arid": 0.845289,
+          "Badlands": 0,
+          "Canopy": 0.0007690076,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.259878546,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0,
+          "Sand": 0.426176548,
+          "Wet": 0
+        },
+        "Reeds": 0,
+        "Requested": "SandSea",
+        "SampleBiome": "Desert",
+        "ScatterPages": 371,
+        "SubmergedReeds": 0,
+        "TerrainReveal": 1960,
+        "Tiles": 140,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 0
+      },
+      "checks": 25,
+      "images": [
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/ground-180.png",
+          "sha256": "dcff3a6344ad760137ca567c8b7687feb7b933e35297a76eb15a78ccc4e8beb2"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/ground-270.png",
+          "sha256": "33b905f60032b7766feb00fbc6362e24ff6c705db69319a06b708a0cfdf780e0"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/ground-90.png",
+          "sha256": "5b8dfe6d1de5722c0636b66f8adadb0d6588b34254fb34fd0bfc90331c32cadf"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/ground.png",
+          "sha256": "9b8ea6736403670d4326ac762538de0b4b48970834ca3816351cf254e3ae9482"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/morning-ground.png",
+          "sha256": "373fb39d3d4f9cd9ab4b05881725b9add1954ee2e44be8b8f3e858752633ecdf"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/morning-ridge-walk.png",
+          "sha256": "26a814e7bf9f9cd94e77c8fee1943bf845f90f90708eb6fc7b1288cdc2c181d1"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/morning-wide.png",
+          "sha256": "5d4519d814a48e86b1d3b75b38414932c8962bd1d381265c812b5791b55a6811"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/ridge-walk.png",
+          "sha256": "ead527101b307a07c1c2a4737cf22255acfb4a53c1b2fc8cb88c6611be1672c8"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-sandsea/wide.png",
+          "sha256": "1aa929a3bc4fc16c0e62dd769e09f901eea7ed772f34123f408acf4d590221cd"
+        }
+      ],
+      "visual_review": "All images reviewed in contact sheet; dune ground270/ground90/morningwide/morningridge and salt morningground inspected fullsize. Prototype direction only; owner approval pending."
+    },
+    {
+      "kind": "saltflat",
+      "package": {
+        "AssemblySha256": "759609520a9516082bd4913811ac93d58e16ab4264fc8c4aa441088cf7ab3684",
+        "BuiltUtc": "2026-11-04T06:13:21.1252358Z",
+        "CoreSha256": "44ed85f863d68da074fa23cd5aef06c259d60c18b3fc810afe562c19bcb2a9a7",
+        "WorkerSha256": "4bc7213fafdf51097c0399267e001707d7e2458b037c9b083bf6aeb2eb6d30c3"
+      },
+      "scene": {
+        "Actual": "SaltFlat",
+        "BakedStands": 0,
+        "BakedTrees": 0,
+        "CoverWeights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "Depth": 0,
+        "Elevation": 10.692,
+        "FogDistance": 1960,
+        "ForestCoverage": 0,
+        "ForestReveal": 1960,
+        "HistoryHash": "765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d",
+        "NearLoadSeconds": 3.0938657,
+        "NearbyPools": 0,
+        "PendingTreeBakes": 0,
+        "Pond": null,
+        "Position": {
+          "X": 0.0023618,
+          "Y": -0.869012828,
+          "Z": -0.494783919
+        },
+        "PrepareMs": 11293.7423,
+        "Province": {
+          "Arid": 0.495414048,
+          "Badlands": 0,
+          "Canopy": 0,
+          "Clay": 0,
+          "Frozen": 0,
+          "Glacial": 0,
+          "Karst": 0,
+          "Loess": 0,
+          "Moisture": 0.355291277,
+          "Peat": 0,
+          "Rock": 0,
+          "Salt": 0.4445245,
+          "Sand": 0.05720873,
+          "Wet": 0
+        },
+        "Reeds": 0,
+        "Requested": "SaltFlat",
+        "SampleBiome": "Desert",
+        "ScatterPages": 166,
+        "SubmergedReeds": 0,
+        "TerrainReveal": 1960,
+        "Tiles": 140,
+        "TreeFar": 70,
+        "TreeNear": 26,
+        "TreeQuality": 3,
+        "Water": 0,
+        "WaterRenderers": 40
+      },
+      "checks": 21,
+      "images": [
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/ground-180.png",
+          "sha256": "48659e2d54cb60a45ac1300fcacb6a7621cd913c126aa3a27ec41904dec6155a"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/ground-270.png",
+          "sha256": "80e7c4c6e4ee7b361c2a5d57eb0ac98ae216dddde6a97a1fe7e73b71f094c118"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/ground-90.png",
+          "sha256": "a57c927427cbadd11fda079c29023dd79ee4b200b1bc3248703ef3cf52d057a2"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/ground.png",
+          "sha256": "910a9ac54c0f97553a2db5cf5163d143e6e4566dcfe5544538e64d8189370e2e"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/morning-ground.png",
+          "sha256": "c75839ee5b5af346508f3e27dd42a0556d5f741c96ebf8b71d38e5206779f5a1"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/morning-wide.png",
+          "sha256": "e253a2c2b094955d353c22df5953b6d718d8929ed067389fdb7993798b6e8218"
+        },
+        {
+          "path": "artifacts/landscape-20261103/experience-scanned-saltflat/wide.png",
+          "sha256": "2b4daab132c1d490c9777a976ccce1d253cd3ded8fc12124cce2ed972a0bde76"
+        }
+      ],
+      "visual_review": "All images reviewed in contact sheet; dune ground270/ground90/morningwide/morningridge and salt morningground inspected fullsize. Prototype direction only; owner approval pending."
+    }
+  ],
+  "surface_budget": {
+    "baseline_source": "4c9672d1",
+    "arrays": {
+      "albedo": {
+        "payload_bytes": 4893728,
+        "changed_slices": [
+          1
+        ],
+        "other13_byte_exact": true,
+        "file_sha256": "d705e6943deb1b1129b76895a956997c2369e8cd073f146796e9381c053dfb59"
+      },
+      "normal": {
+        "payload_bytes": 1223712,
+        "changed_slices": [
+          1
+        ],
+        "other13_byte_exact": true,
+        "file_sha256": "e7c0032039a9f3aa14506d0901474c0ba0e92c309b4c552e488160c5a308e8ba"
+      },
+      "mask": {
+        "payload_bytes": 306208,
+        "changed_slices": [
+          1
+        ],
+        "other13_byte_exact": true,
+        "file_sha256": "42f437967eb076c92b2aa6c5d0d8e860e8f5e639c17f3dd075e84d8eb165b565"
+      }
+    },
+    "sand_repeat_metres": 4,
+    "other_material_repeat_metres": 2,
+    "source_asset": "https://polyhaven.com/a/aerial_beach_01",
+    "license": "CC0-1.0"
+  },
+  "asset_backups": {
+    "locked_inputs": 5361,
+    "immutable_packs": 140,
+    "new_release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/dryland-sand-inputs-20261104"
+  },
+  "numeric_checks": {
+    "focused": 35733,
+    "geometry_identity": {
+      "SandSea": {
+        "surface_height_max_difference_m": 0.0,
+        "mean_sand_weight": 1,
+        "mean_rock_weight": 0,
+        "mean_salt_weight": 0
+      },
+      "SaltFlat": {
+        "surface_height_max_difference_m": 0.0,
+        "mean_sand_weight": 0.22215250228376843,
+        "mean_rock_weight": 0.00014182072081158763,
+        "mean_salt_weight": 0.6812665609828584
+      }
+    },
+    "rivers": "0bd1ee4c geometry:27175 checks,763spans,8tiles; material-only changes retain sampled geometry exactly.",
+    "ponds": "0bd1ee4c:actual enclosed ponds/shallow pools and shared-edge meshes passed."
+  },
+  "performance_limits": "Current physical-code comparison:28.361/28.504s preparation; warm12675landqueries699/739ms baseline vs659/683ms candidate. This is CPU terrain cost, not final GPU/FPS acceptance. Texture dimensions/read budget unchanged; only sand slice replaced.",
+  "remaining": [
+    "Owner review of dryland direction.",
+    "Broader regional landform/vegetation diversity remains unfinished.",
+    "More dune morphologies and landscape contexts; salt-flat basin context needs broader sampling.",
+    "Final GPU/frame comparison before promoting candidate."
+  ]
+}
