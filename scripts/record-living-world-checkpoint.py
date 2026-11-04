@@ -84,6 +84,7 @@ def main():
 
     performance = []
     misses = []
+    frame_budget_misses = []
     for item in review['performance']:
         folder = ROOT / item['folder']
         require((folder / 'complete.txt').exists() and (folder / 'input-sha256.txt').exists(), f'Incomplete benchmark: {folder}')
@@ -96,6 +97,8 @@ def main():
             require(all(math.isfinite(float(row[k])) for k in ['fps', 'p95_ms', 'max_ms']), f'Invalid timing: {folder}')
             if current and row['case'] in ('turning', 'travel') and float(row['fps']) < 100:
                 misses.append({'site': row['site'], 'case': row['case'], 'fps': float(row['fps'])})
+            if current and row['case'] in ('turning', 'travel') and float(row['p95_ms']) > 10:
+                frame_budget_misses.append({'site': row['site'], 'case': row['case'], 'p95_ms': float(row['p95_ms'])})
         performance.append({**item, 'package': receipt, 'current_package': current,
                             'summary_sha256': sha(folder / 'summary.csv'), 'rows': rows})
     require(any(p['current_package'] for p in performance), 'No current benchmark')
@@ -106,6 +109,7 @@ def main():
         'scope': review['scope'], 'limitations': review['limitations'],
         'native_cases': cases, 'performance': performance,
         'measured_100fps_misses': misses,
+        'measured_p95_10ms_misses': frame_budget_misses,
         'universal_100fps_claim': False,
         'feature_rollbacks': 'assets/verification/living-world-feature-index-20261104.json',
     }

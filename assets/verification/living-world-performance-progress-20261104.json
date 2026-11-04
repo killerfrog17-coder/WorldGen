@@ -1,0 +1,645 @@
+{
+  "recorded_utc": "2026-11-04T16:46:06.608444+00:00",
+  "status": "Interim measured evidence. 100+FPS everywhere is NOT achieved; average rates do not establish consistent frame times. Indexed grass still under test.",
+  "method": "One explicit uncapped offscreen D3D11/URP render per frame, 1920x1080, Medium vegetation, 6km view, GPU drains at window boundaries; no valid independent GPU timing samples. Actual input world and sites fixed. Travel at 8m/s includes streaming. No concurrent own heavy jobs during measurement windows.",
+  "runs": [
+    {
+      "folder": "artifacts/living-world-20261104/dense-medium-first",
+      "complete": true,
+      "package": null,
+      "receipt_limitation": "No contemporaneous assembly-hash receipt; qualified historical comparison only.",
+      "summary_sha256": "51093994a7aabe7eb02c97606410402a16846fb686b5b4eb05f2d7f4496ad7a0",
+      "measurements": [
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "grass-clumps",
+          "fps": "173.37406",
+          "p50_ms": "5.54040",
+          "p95_ms": "6.90150",
+          "p99_ms": "8.54520",
+          "max_ms": "35.72480",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "grass-blades",
+          "fps": "173.27569",
+          "p50_ms": "5.55500",
+          "p95_ms": "6.90570",
+          "p99_ms": "8.61980",
+          "max_ms": "38.44270",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "turning",
+          "fps": "67.54371",
+          "p50_ms": "16.74890",
+          "p95_ms": "19.52630",
+          "p99_ms": "20.84150",
+          "max_ms": "23.10670",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "travel",
+          "fps": "112.31872",
+          "p50_ms": "6.61840",
+          "p95_ms": "20.68670",
+          "p99_ms": "27.33030",
+          "max_ms": "49.61220",
+          "settled": "False"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "grass-clumps",
+          "fps": "150.05358",
+          "p50_ms": "6.45450",
+          "p95_ms": "8.00960",
+          "p99_ms": "9.93660",
+          "max_ms": "44.55300",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "grass-blades",
+          "fps": "148.05994",
+          "p50_ms": "6.47530",
+          "p95_ms": "8.50250",
+          "p99_ms": "11.42110",
+          "max_ms": "48.85310",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "turning",
+          "fps": "103.67264",
+          "p50_ms": "10.40060",
+          "p95_ms": "13.40650",
+          "p99_ms": "15.00010",
+          "max_ms": "49.53790",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "travel",
+          "fps": "106.19409",
+          "p50_ms": "8.12990",
+          "p95_ms": "16.08410",
+          "p99_ms": "20.58380",
+          "max_ms": "63.43360",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "grass-clumps",
+          "fps": "165.70523",
+          "p50_ms": "5.85280",
+          "p95_ms": "7.06280",
+          "p99_ms": "8.91370",
+          "max_ms": "35.71550",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "grass-blades",
+          "fps": "165.37474",
+          "p50_ms": "5.88060",
+          "p95_ms": "6.92310",
+          "p99_ms": "8.62410",
+          "max_ms": "40.45810",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "turning",
+          "fps": "95.82707",
+          "p50_ms": "12.68110",
+          "p95_ms": "15.51340",
+          "p99_ms": "16.85810",
+          "max_ms": "49.57330",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel",
+          "fps": "114.97547",
+          "p50_ms": "7.16410",
+          "p95_ms": "16.73120",
+          "p99_ms": "21.71290",
+          "max_ms": "61.76360",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "grass-clumps",
+          "fps": "128.16231",
+          "p50_ms": "7.58300",
+          "p95_ms": "8.91320",
+          "p99_ms": "12.11700",
+          "max_ms": "47.33740",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "grass-blades",
+          "fps": "127.78751",
+          "p50_ms": "7.61010",
+          "p95_ms": "8.98390",
+          "p99_ms": "12.44540",
+          "max_ms": "46.50570",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning",
+          "fps": "81.51534",
+          "p50_ms": "14.69690",
+          "p95_ms": "17.18010",
+          "p99_ms": "18.64720",
+          "max_ms": "52.88520",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel",
+          "fps": "84.30130",
+          "p50_ms": "9.62920",
+          "p95_ms": "22.49720",
+          "p99_ms": "25.40330",
+          "max_ms": "66.48740",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/living-world-20261104/dense-medium-budget-1",
+      "complete": false,
+      "package": null,
+      "receipt_limitation": "No contemporaneous assembly-hash receipt; qualified historical comparison only.",
+      "summary_sha256": "4117da90064157f04d4c0cefb2034251e6d3d018b0e75f430e1d5ba4eef25651",
+      "measurements": [
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "scatter-range-verify",
+          "fps": "166.44874",
+          "p50_ms": "5.76450",
+          "p95_ms": "7.22250",
+          "p99_ms": "9.17940",
+          "max_ms": "34.76690",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "scatter-guard-verify",
+          "fps": "164.44956",
+          "p50_ms": "5.77640",
+          "p95_ms": "7.79870",
+          "p99_ms": "10.91700",
+          "max_ms": "39.88400",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "ground-owner-verify",
+          "fps": "165.37640",
+          "p50_ms": "5.78880",
+          "p95_ms": "7.55240",
+          "p99_ms": "9.57590",
+          "max_ms": "32.78100",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "turning",
+          "fps": "152.56931",
+          "p50_ms": "6.30310",
+          "p95_ms": "8.08230",
+          "p99_ms": "10.73800",
+          "max_ms": "35.59050",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "travel",
+          "fps": "125.65698",
+          "p50_ms": "6.67000",
+          "p95_ms": "14.23720",
+          "p99_ms": "22.22420",
+          "max_ms": "54.55250",
+          "settled": "False"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "scatter-range-verify",
+          "fps": "148.43066",
+          "p50_ms": "6.50500",
+          "p95_ms": "8.09760",
+          "p99_ms": "10.16870",
+          "max_ms": "44.71560",
+          "settled": "True"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/living-world-20261104/dense-medium-budget-rest",
+      "complete": true,
+      "package": null,
+      "receipt_limitation": "No contemporaneous assembly-hash receipt; qualified historical comparison only.",
+      "summary_sha256": "bbe7da5620554ac9a1ab7d84672a110d64a9dd4f909a630735605a4c927c6320",
+      "measurements": [
+        {
+          "site": "dense-temperateforest",
+          "case": "scatter-range-verify",
+          "fps": "146.13772",
+          "p50_ms": "6.62060",
+          "p95_ms": "8.53560",
+          "p99_ms": "10.88740",
+          "max_ms": "39.16710",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "scatter-guard-verify",
+          "fps": "143.08620",
+          "p50_ms": "6.63890",
+          "p95_ms": "9.53710",
+          "p99_ms": "12.07460",
+          "max_ms": "40.69660",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "ground-owner-verify",
+          "fps": "144.91813",
+          "p50_ms": "6.63050",
+          "p95_ms": "8.83140",
+          "p99_ms": "11.76180",
+          "max_ms": "43.12610",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "turning",
+          "fps": "139.58994",
+          "p50_ms": "6.92780",
+          "p95_ms": "8.89550",
+          "p99_ms": "12.17840",
+          "max_ms": "42.70000",
+          "settled": "True"
+        },
+        {
+          "site": "dense-temperateforest",
+          "case": "travel",
+          "fps": "109.85251",
+          "p50_ms": "8.18950",
+          "p95_ms": "13.74040",
+          "p99_ms": "18.90930",
+          "max_ms": "55.78540",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-range-verify",
+          "fps": "158.49702",
+          "p50_ms": "6.14420",
+          "p95_ms": "7.23510",
+          "p99_ms": "9.65260",
+          "max_ms": "35.84290",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-guard-verify",
+          "fps": "156.06385",
+          "p50_ms": "6.23910",
+          "p95_ms": "7.40900",
+          "p99_ms": "10.34640",
+          "max_ms": "35.31980",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "ground-owner-verify",
+          "fps": "157.28031",
+          "p50_ms": "6.15030",
+          "p95_ms": "7.47250",
+          "p99_ms": "10.13590",
+          "max_ms": "38.08290",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "turning",
+          "fps": "154.54092",
+          "p50_ms": "6.29510",
+          "p95_ms": "7.35820",
+          "p99_ms": "10.27420",
+          "max_ms": "36.73510",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel",
+          "fps": "118.89449",
+          "p50_ms": "7.38550",
+          "p95_ms": "14.28870",
+          "p99_ms": "18.54210",
+          "max_ms": "48.37740",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "scatter-range-verify",
+          "fps": "118.90900",
+          "p50_ms": "8.22480",
+          "p95_ms": "9.60670",
+          "p99_ms": "12.06300",
+          "max_ms": "42.28890",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "scatter-guard-verify",
+          "fps": "119.42792",
+          "p50_ms": "8.06090",
+          "p95_ms": "9.78730",
+          "p99_ms": "14.86260",
+          "max_ms": "43.12680",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "ground-owner-verify",
+          "fps": "120.06332",
+          "p50_ms": "8.08560",
+          "p95_ms": "9.76600",
+          "p99_ms": "12.01610",
+          "max_ms": "43.01510",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning",
+          "fps": "117.70491",
+          "p50_ms": "8.24950",
+          "p95_ms": "10.10710",
+          "p99_ms": "13.34610",
+          "max_ms": "44.91510",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel",
+          "fps": "88.33028",
+          "p50_ms": "9.88610",
+          "p95_ms": "19.71670",
+          "p99_ms": "22.23070",
+          "max_ms": "50.56390",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/living-world-20261104/dense-near-depth-1",
+      "complete": true,
+      "package": {
+        "AssemblySha256": "82a6d17f30fa3571129c121c58f4b804512fe908c7b953b143532a00c0c98d88",
+        "CoreSha256": "90da2dd4f175bc6ac74fbaf24cd2419f502f26d8be249ab02b3af6c7b7cf209d",
+        "WorkerSha256": "5c85ee50c7a0df04c889bdeb42746a0761e0d9f24f2927ad985c4c22f85c7a41",
+        "Build": {
+          "BuiltUtc": "2026-11-04T16:22:29.8209462Z",
+          "SourceCommit": "6af874fbda30794740f55ac1dfdfa238b2e10b14",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "90da2dd4f175bc6ac74fbaf24cd2419f502f26d8be249ab02b3af6c7b7cf209d"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "5ff852dd7cee4bde83a99ee8db3289ae06d48622d4dba792460c4cf19b3cc000"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "73913a06078c41abe3203018efe39bd494bccec347f80b4ac6f53a471bf56974"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "5c85ee50c7a0df04c889bdeb42746a0761e0d9f24f2927ad985c4c22f85c7a41"
+        },
+        "RecordedUtc": "2026-11-04T16:27:21.7547836Z",
+        "Acquisition": "Recorded during the running comparison; no build or player replacement occurred after launch."
+      },
+      "receipt_limitation": null,
+      "summary_sha256": "d49fb43a302e765e7a9c5b1e889f285f7b402306853e107f44316a33e11d17e0",
+      "measurements": [
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "scatter-gpu-depth-verify",
+          "fps": "164.48772",
+          "p50_ms": "5.81170",
+          "p95_ms": "7.62190",
+          "p99_ms": "9.94170",
+          "max_ms": "41.27610",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "turning",
+          "fps": "154.12921",
+          "p50_ms": "6.23430",
+          "p95_ms": "8.09590",
+          "p99_ms": "10.23110",
+          "max_ms": "33.61380",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "turning-gpu-depth",
+          "fps": "153.15757",
+          "p50_ms": "6.26970",
+          "p95_ms": "8.32660",
+          "p99_ms": "10.38140",
+          "max_ms": "35.51150",
+          "settled": "True"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "travel",
+          "fps": "125.77953",
+          "p50_ms": "6.60680",
+          "p95_ms": "14.51470",
+          "p99_ms": "22.51610",
+          "max_ms": "43.85180",
+          "settled": "False"
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "case": "travel-gpu-depth",
+          "fps": "127.33207",
+          "p50_ms": "6.53320",
+          "p95_ms": "14.18470",
+          "p99_ms": "22.02080",
+          "max_ms": "68.26260",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "scatter-gpu-depth-verify",
+          "fps": "123.09532",
+          "p50_ms": "7.88370",
+          "p95_ms": "9.47690",
+          "p99_ms": "11.50700",
+          "max_ms": "43.84840",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning",
+          "fps": "121.88837",
+          "p50_ms": "7.97290",
+          "p95_ms": "9.67380",
+          "p99_ms": "11.69270",
+          "max_ms": "44.87190",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning-gpu-depth",
+          "fps": "121.66821",
+          "p50_ms": "8.02070",
+          "p95_ms": "9.59770",
+          "p99_ms": "11.94870",
+          "max_ms": "47.17580",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel",
+          "fps": "90.30644",
+          "p50_ms": "9.63290",
+          "p95_ms": "19.65540",
+          "p99_ms": "22.94230",
+          "max_ms": "55.55260",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-gpu-depth",
+          "fps": "93.87623",
+          "p50_ms": "9.57650",
+          "p95_ms": "16.51410",
+          "p99_ms": "19.44750",
+          "max_ms": "56.59840",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/living-world-20261104/dense-finer-bins-1",
+      "complete": true,
+      "package": {
+        "AssemblySha256": "bd827a96e804cf758929c1829c1dd0547fff5b1f13a5d8adb2d202168e6fcc96",
+        "CoreSha256": "79a025a4e173fd156de1861008dca828c326cdb1373681c875fdd8de3f11e838",
+        "WorkerSha256": "9b284310188ec02c0288562e3dfe9628e73433bd6e3483705062733c8cc58fd3",
+        "Build": {
+          "BuiltUtc": "2026-11-04T16:36:05.8468345Z",
+          "SourceCommit": "7f9ca3fa5aec4fb94bffe2734f09f44f677e80a9",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "79a025a4e173fd156de1861008dca828c326cdb1373681c875fdd8de3f11e838"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "d3f0ff2acc584879ca40c85bfb9554fbf599a1b4a3dd31ea6a6dcc47afea4b02"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "5d4bf9200c27e55829c42e7954c61f52110e91153d25a6846bb53e583ceb3a69"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "9b284310188ec02c0288562e3dfe9628e73433bd6e3483705062733c8cc58fd3"
+        },
+        "RecordedUtc": "2026-11-04T16:36:21.7752505Z"
+      },
+      "receipt_limitation": null,
+      "summary_sha256": "5f701c9f1918fbe82a70ae4e01d956db6ceb51477912e4c98543f4da9489e60a",
+      "measurements": [
+        {
+          "site": "savanna-tall",
+          "case": "scatter-range-verify",
+          "fps": "124.99572",
+          "p50_ms": "7.80450",
+          "p95_ms": "9.11920",
+          "p99_ms": "11.09810",
+          "max_ms": "39.09560",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "scatter-guard-verify",
+          "fps": "122.73730",
+          "p50_ms": "7.84530",
+          "p95_ms": "9.76190",
+          "p99_ms": "15.95130",
+          "max_ms": "38.40160",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "ground-owner-verify",
+          "fps": "124.33366",
+          "p50_ms": "7.81130",
+          "p95_ms": "9.24300",
+          "p99_ms": "11.04670",
+          "max_ms": "40.64750",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning",
+          "fps": "121.41391",
+          "p50_ms": "7.98580",
+          "p95_ms": "9.73530",
+          "p99_ms": "12.68150",
+          "max_ms": "30.49480",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel",
+          "fps": "91.03557",
+          "p50_ms": "9.54170",
+          "p95_ms": "19.30850",
+          "p99_ms": "22.35950",
+          "max_ms": "57.65560",
+          "settled": "False"
+        }
+      ]
+    }
+  ]
+}
