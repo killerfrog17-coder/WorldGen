@@ -147,7 +147,7 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     float bare=saturate((i.groundB.x+i.weights.w*.45)/total)*smoothstep(.06,.38,1-abs(normalize(i.normal).y));
     if(bare<.01||_TerrainSurfaceControls.y<1)return;
     // The microscopic scan retires at the normal surface range. A single
-    // dominant-axis read provides broad weathering variation across exposed
+    // two-axis blend provides broad weathering variation across exposed
     // rock faces, using the existing rock array and no extra texture budget.
     int rock=0;float best=i.rocks.x;
     [unroll]for(int k=1;k<6;k++)
@@ -156,7 +156,7 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
         if(weight>best){best=weight;rock=k;}
     }
     float3 normal=normalize(i.normal),planetNormal=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
-    float3 axes=SurfaceAxes(planetNormal,1,0);
+    float3 axes=SurfaceAxes(planetNormal,2,1);
     float shade=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/32,worldDx/32,worldDy/32,axes,8+rock).rgb,float3(.2126,.7152,.0722));
     #ifndef UNITY_COLORSPACE_GAMMA
     shade*=4.672;

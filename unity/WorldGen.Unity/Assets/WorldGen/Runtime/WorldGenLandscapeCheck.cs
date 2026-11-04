@@ -375,7 +375,7 @@ public sealed partial class LocalTerrainExplorer
         if(site.Volcano!=null)
         {
             yield return owner.StartCoroutine(Capture("crater-overview",new Vector3(width*.05f,width*.65f,width*.1f)));
-            yield return owner.StartCoroutine(Capture("crater-rim",new Vector3((float)(site.Volcano.RadiusM*site.Volcano.CraterFraction),0,0),true));
+            yield return owner.StartCoroutine(Capture("crater-rim",new Vector3((float)(site.Volcano.RadiusM*site.Volcano.CraterFraction),0,0),true,faceCenter:true));
             yield return owner.StartCoroutine(Capture("wide-other-side",new Vector3(-width*.3f,width*.6f,-width*1.5f)));
             Check(sample.Province.BareRock>.8,"Young volcanic crater has exposed geological substrate");
         }
