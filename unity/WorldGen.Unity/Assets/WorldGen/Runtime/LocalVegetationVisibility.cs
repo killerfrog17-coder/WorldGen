@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
         if(chunk.Groups!=null&&ReferenceEquals(chunk.GroupsFrame,boundsFrame))
         {
             // Terrain replacements only reproject Y; floating-origin shifts are
-            // uniform multiples of 2048m (also a multiple of the 128m bin size).
+            // uniform multiples of 2048m (also a multiple of the 64m bin size).
             // Membership therefore stays exact until the tangent chart changes.
             foreach(var group in chunk.Groups)
             {
@@ -89,7 +89,7 @@ public sealed partial class LocalTerrainExplorer
         var bins=new System.Collections.Generic.Dictionary<Vector3Int,System.Collections.Generic.List<int>>();
         for(int i=0;i<count;i++)
         {
-            var p=chunk.Roots[i];var key=new Vector3Int(Mathf.FloorToInt(p.x/128),Mathf.FloorToInt(p.z/128),(int)chunk.Source.Instances[i].Kind);
+            var p=chunk.Roots[i];var key=new Vector3Int(Mathf.FloorToInt(p.x/64),Mathf.FloorToInt(p.z/64),(int)chunk.Source.Instances[i].Kind);
             if(!bins.TryGetValue(key,out var list)){list=new System.Collections.Generic.List<int>();bins.Add(key,list);}list.Add(i);
         }
         var groups=new ScatterGroup[bins.Count];int at=0;
