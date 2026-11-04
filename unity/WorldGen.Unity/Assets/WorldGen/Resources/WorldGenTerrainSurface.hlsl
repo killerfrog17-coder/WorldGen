@@ -141,6 +141,30 @@ void SurfaceStrata(O i,inout float3 albedo)
         albedo*=lerp(1,tint,exposed);
     }
 }
+void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout float3 albedo)
+{
+    float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
+    float bare=saturate((i.groundB.x+i.weights.w*.45)/total)*smoothstep(.06,.38,1-abs(normalize(i.normal).y));
+    if(bare<.01||_TerrainSurfaceControls.y<1)return;
+    // The microscopic scan retires at the normal surface range. A single
+    // dominant-axis read provides broad weathering variation across exposed
+    // rock faces, using the existing rock array and no extra texture budget.
+    int rock=0;float best=i.rocks.x;
+    [unroll]for(int k=1;k<6;k++)
+    {
+        float weight=k<4?i.rocks[k&3]:i.rocksB[(k-4)&1];
+        if(weight>best){best=weight;rock=k;}
+    }
+    float3 normal=normalize(i.normal),planetNormal=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
+    float3 axes=SurfaceAxes(planetNormal,1,0);
+    float shade=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/32,worldDx/32,worldDy/32,axes,8+rock).rgb,float3(.2126,.7152,.0722));
+    #ifndef UNITY_COLORSPACE_GAMMA
+    shade*=4.672;
+    #else
+    shade*=2;
+    #endif
+    albedo*=lerp(1,clamp(shade,.55,1.45),bare*.42);
+}
 
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
 {
@@ -216,6 +240,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
     SurfaceStrata(i,albedo);
+    if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,albedo);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
     float cover=saturate(i.color.a);
