@@ -23,7 +23,11 @@ public static partial class TerrainVideoOptions
     public static bool CanopyShade=true;
     public static float ForestShadowDistance=>DawnDuskShadowBudget?(float)VegetationShadowBudget.ShadowRange(ForestLightUp):180;
     public static int ForestShadowResolution=>Math.Min(ForestShadowQuality<2?1024:ForestShadowQuality==2?2048:4096,DawnDuskShadowBudget?VegetationShadowBudget.ResolutionCap(ForestLightUp):4096);
-    public static int ForestShadowSamples=>DawnDuskShadowBudget&&ForestLightUp<.10f?2:Math.Min(ForestShadowQuality==0?2:ForestShadowQuality==4?9:4,DistantTreeShadowCards?4:DawnDuskShadowBudget&&ForestLightUp<.28f?4:9);
+    // Hardware comparison filtering already softens each lookup. Foliage does
+    // not need four/nine receiver taps in addition to the coarse canopy field.
+    // Character/animal/solid-object URP shadow filtering remains independent.
+    public static int ForestShadowSamples=>WorldGenPerformance.FoliageShadowTaps>0?WorldGenPerformance.FoliageShadowTaps:
+        DawnDuskShadowBudget&&ForestLightUp<.10f?1:ForestShadowQuality<=2?1:ForestShadowQuality==3?2:4;
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
     public static bool GrassClumps=true;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;

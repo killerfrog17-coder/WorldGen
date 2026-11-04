@@ -18,6 +18,7 @@ public static class WorldGenPerformance
     public static bool Original=>Enabled&&(original||OriginalCase);
     public static bool OriginalCase;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
+    public static int FoliageShadowTaps;
     public static bool Measuring,ProfileRenderCompletion;
     public static double CompletedRenderMs;
     public static readonly double[] Milliseconds=new double[4];
@@ -511,6 +512,10 @@ public sealed partial class WorldGenRuntime
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
+            new PerfCase("foliage-one-tap",()=>WorldGenPerformance.FoliageShadowTaps=1),
+            new PerfCase("foliage-four-tap",()=>WorldGenPerformance.FoliageShadowTaps=4),
+            new PerfCase("no-mid-shadows",()=>TerrainVideoOptions.MidPlantShadows=false),
+            new PerfCase("no-tree-shadows",()=>TerrainVideoOptions.TreeShadows=false),
             new PerfCase("human-review",()=>{}),
             new PerfCase("forest-community-review",()=>{}),
             new PerfCase("foliage-proxy-compare",()=>TerrainVideoOptions.DistantTreeShadowCards=false),
@@ -604,6 +609,7 @@ public sealed partial class WorldGenRuntime
             {
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
+                WorldGenPerformance.FoliageShadowTaps=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);

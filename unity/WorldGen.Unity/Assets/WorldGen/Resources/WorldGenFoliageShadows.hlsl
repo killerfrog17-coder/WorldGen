@@ -27,7 +27,9 @@ Light WorldGenFoliageLight(float3 position,out half canopy)
             sampling.shadowOffset0*=_WorldGenFoliageShadowSettings.z;
             sampling.shadowOffset1*=_WorldGenFoliageShadowSettings.z;
             half value;
-            if(_WorldGenFoliageShadowSettings.w>8)
+            if(_WorldGenFoliageShadowSettings.w>0&&_WorldGenFoliageShadowSettings.w<1.5)
+                value=SAMPLE_TEXTURE2D_SHADOW(_MainLightShadowmapTexture,sampler_LinearClampCompare,coord.xyz);
+            else if(_WorldGenFoliageShadowSettings.w>8)
             {
                 sampling.shadowmapSize.xy/=max(.1,_WorldGenFoliageShadowSettings.z);
                 sampling.shadowmapSize.zw*=max(.1,_WorldGenFoliageShadowSettings.z);
