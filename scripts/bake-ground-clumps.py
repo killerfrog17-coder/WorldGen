@@ -2,6 +2,7 @@
 import bpy
 import json
 import sys
+import runpy
 from mathutils import Vector
 from pathlib import Path
 
@@ -101,4 +102,5 @@ bpy.ops.file.make_paths_relative()
 bpy.ops.wm.save_as_mainfile(filepath=str(source.parent.parent / "ground-clump-bake.blend"))
 bpy.ops.render.render(write_still=True)
 (source.parent.parent / "bake.json").write_text(json.dumps({"generator": "scripts/bake-ground-clumps.py", "output": destination.relative_to(root).as_posix(), "tiles": receipt}, indent=2) + "\n")
+runpy.run_path(str(root / "scripts/ground-clump-rects.py"), run_name="__main__")
 print("CLUMP ATLAS BAKED", destination)

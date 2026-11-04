@@ -31,6 +31,7 @@ Shader "WorldGen/GroundClumps"
             struct Root {float4 positionForm,colorHeight,shape,normal,grasses,herbs;};
             StructuredBuffer<Root> _CoverRoots;StructuredBuffer<uint> _VisibleRoots;
             float4 _CoverOrigin,_CoverTileOrigin,_FogColor,_AmbientTint;float _GrassNear,_GrassRange,_GrassWind,_FogDistance,_Daylight,_ClumpDensity;int _CoverLod;uint _CoverSeed;
+            float4 _ClumpRects[4],_ClumpAspects;
             struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float2 uv:TEXCOORD1;float3 color:COLOR;float2 fade:TEXCOORD2;float2 card:TEXCOORD3;};
             uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
             float Rand(uint x){return (Mix(x)&0xffffffu)/16777216.;}
@@ -82,15 +83,15 @@ Shader "WorldGen/GroundClumps"
                 float3 eye=GetWorldSpaceNormalizeViewDir(anchor),facing=normalize(cross(eye,float3(0,1,0))+float3(.0001,0,0));
                 facing*=dot(facing,across)<0?-1:1;
                 across=normalize(lerp(across,facing,far?.80:0));
-                float height=clamp(expected*(.80+.40*jitter.y),.10,3.2);
-                float width=clamp(height*.58,.085,.54)*lerp(.85,1.2,jitter.y)*(_CoverLod==3?1.4:_CoverLod==4?2:1);
-                float3 up=normalize(lerp(float3(0,1,0),r.normal.xyz,.12));
-                float3 p=anchor+across*(side*width)+up*(t*height)+WorldGenVegetationOffset(anchor,1)*(_GrassWind*t*t*.65);
                 bool herb=Rand(seed+19)<r.herbs.x;
                 bool warm=!herb&&Rand(seed+23)<r.grasses.y+r.grasses.w;
                 uint variant=herb?3u:warm?2u:Rand(seed+29)<.5?0u:1u;
-                float2 tile=float2(variant&1u,variant>>1u)*.5;
-                o.uv=tile+float2(side*.5+.5,t)*.496+.002;
+                float height=clamp((herb?r.colorHeight.w*.26:expected)*(.80+.40*jitter.y),.10,3.2);
+                float width=clamp(height*_ClumpAspects[variant]*.5,.06,1.4)*lerp(.85,1.2,jitter.y)*(_CoverLod==3?1.4:_CoverLod==4?2:1);
+                float3 up=normalize(lerp(float3(0,1,0),r.normal.xyz,.12));
+                float3 p=anchor+across*(side*width)+up*(t*height)+WorldGenVegetationOffset(anchor,1)*(_GrassWind*t*t*.65);
+                float4 rectangle=_ClumpRects[variant];
+                o.uv=rectangle.xy+float2(side*.5+.5,t)*rectangle.zw;
                 o.card=float2(side*.5+.5,t);
                 float3 palette=r.colorHeight.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA

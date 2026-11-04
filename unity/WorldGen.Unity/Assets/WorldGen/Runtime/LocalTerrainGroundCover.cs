@@ -33,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
         public Texture CullCoverage;public int CullCoverageRevision;public float CullSize;
     }
     Material groundCoverMaterial,groundCanopyMaterial,groundClumpMaterial;ComputeShader groundCoverPlacement;
+    [Serializable] sealed class GroundClumpRegistration {public Vector4[] rectangles;public float[] aspects;}
     Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;
     readonly Plane[] coverFrustum=new Plane[6];
     readonly Vector4[] coverCullPlanes=new Vector4[6];
@@ -67,8 +68,14 @@ public sealed partial class LocalTerrainExplorer
         var clumpShader=Resources.Load<Shader>("WorldGenGroundClumps");
         if(clumpShader!=null&&clumpShader.isSupported)
         {
+            var registrationAsset=Resources.Load<TextAsset>("GroundClumpRectsV1");
+            if(registrationAsset==null)throw new InvalidOperationException("Ground clump atlas registration is missing.");
+            var registration=JsonUtility.FromJson<GroundClumpRegistration>(registrationAsset.text);
+            if(registration?.rectangles?.Length!=4||registration.aspects?.Length!=4)throw new InvalidOperationException("Invalid ground clump atlas registration.");
             groundClumpMaterial=new Material(clumpShader);
             groundClumpMaterial.SetTexture("_ClumpAtlas",Resources.Load<Texture2D>("GroundClumpAtlasV1"));
+            groundClumpMaterial.SetVectorArray("_ClumpRects",registration.rectangles);
+            groundClumpMaterial.SetVector("_ClumpAspects",new Vector4(registration.aspects[0],registration.aspects[1],registration.aspects[2],registration.aspects[3]));
             groundClumpMaterial.SetFloat("_VegetationSceneEnabled",1);
         }
         groundCoverMaterial.SetFloat("_VegetationSceneEnabled",1);groundCanopyMaterial.SetFloat("_VegetationSceneEnabled",1);
