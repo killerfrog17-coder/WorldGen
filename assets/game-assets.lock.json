@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "405eb18d7012daac6a03f18e66ffa5659ce4ef18",
+  "source_checkpoint": "2e615693eaf973fb15e7b34bbdd956a0c9a250c9",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14409,6 +14409,84 @@
       "bytes": 2599,
       "pack": "landscape-source-inputs-20261103/assets-a5b44606945b2fbf78501ed0fec15485fe23f15c335762eeed6775ff18675cc8.zip",
       "member": "objects/664b5530bf0017d49c60632e4f09993704d55542710bd66f7b540455ba7a833b"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/cliff_side/albedo.jpg": {
+      "sha256": "bc6f92d72eb6383ecc3a1094ed9f5b37efb36ccf83cf29699bb5990e6775afee",
+      "bytes": 3387348,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/bc6f92d72eb6383ecc3a1094ed9f5b37efb36ccf83cf29699bb5990e6775afee"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/cliff_side/mask.jpg": {
+      "sha256": "4c7eda3983f14892717baea852690840e6b4f6e7f30fb95f4f2c7c25b1856230",
+      "bytes": 2130381,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/4c7eda3983f14892717baea852690840e6b4f6e7f30fb95f4f2c7c25b1856230"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/cliff_side/normal.jpg": {
+      "sha256": "eec5c0bb3daa1ad72f0f9c1d19caf78e84dfedcf3283b35b5a5dcf163718025f",
+      "bytes": 3585856,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/eec5c0bb3daa1ad72f0f9c1d19caf78e84dfedcf3283b35b5a5dcf163718025f"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/dark_rock/albedo.jpg": {
+      "sha256": "0f01bfec36ec4546e23576a10c52ef073f9eb815826c5fce2a1cdb08cd8188b8",
+      "bytes": 2159653,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/0f01bfec36ec4546e23576a10c52ef073f9eb815826c5fce2a1cdb08cd8188b8"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/dark_rock/mask.jpg": {
+      "sha256": "d3a26098ea5329f78a42e223e57c10f00af2a72854982197cc37cc151aa2fd5f",
+      "bytes": 2750758,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/d3a26098ea5329f78a42e223e57c10f00af2a72854982197cc37cc151aa2fd5f"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/dark_rock/normal.jpg": {
+      "sha256": "abb3c5f1f932693537333a6d467c3e79bb810afa84416d0deaa10ead9fb4f628",
+      "bytes": 3811444,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/abb3c5f1f932693537333a6d467c3e79bb810afa84416d0deaa10ead9fb4f628"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/marble_cliff_01/albedo.jpg": {
+      "sha256": "60107dd781a928957420ea0db2f7e5ea5ebdd6ca81b1af4045a55a8dfb130694",
+      "bytes": 3013368,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/60107dd781a928957420ea0db2f7e5ea5ebdd6ca81b1af4045a55a8dfb130694"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/marble_cliff_01/mask.jpg": {
+      "sha256": "4bc2d3f44d4a387ac46e957224c3b8a691fc3f12a3e330ea222c2e6bb10d2d3f",
+      "bytes": 2566473,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/4bc2d3f44d4a387ac46e957224c3b8a691fc3f12a3e330ea222c2e6bb10d2d3f"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/marble_cliff_01/normal.jpg": {
+      "sha256": "8ea2ed3a93b8761b8b6289d44cbaa0fbf5807508251dcc193145318ec89089a4",
+      "bytes": 2660079,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/8ea2ed3a93b8761b8b6289d44cbaa0fbf5807508251dcc193145318ec89089a4"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/sandstone_cracks/albedo.jpg": {
+      "sha256": "6d3f99604c85a818277150db784ac66e67a4d91ddc255dabf61b3e956564090d",
+      "bytes": 2870078,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/6d3f99604c85a818277150db784ac66e67a4d91ddc255dabf61b3e956564090d"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/sandstone_cracks/mask.jpg": {
+      "sha256": "dceb90e9b1f1c8dfcdb33f953bcd5b585a6ddd25de066255e52ea43b82ade5df",
+      "bytes": 926548,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/dceb90e9b1f1c8dfcdb33f953bcd5b585a6ddd25de066255e52ea43b82ade5df"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/sandstone_cracks/normal.jpg": {
+      "sha256": "904e852268e1fb1bd5c0d035382f6a0e64c98dceea784fe957b1983d98b0231a",
+      "bytes": 4545235,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/904e852268e1fb1bd5c0d035382f6a0e64c98dceea784fe957b1983d98b0231a"
+    },
+    "assets-source/terrain/surfaces/cc0-rock/sources.json": {
+      "sha256": "5feab9902d66aebd5c371c3201bf12dae638274e1e24f957dd67ca1c0c70d4f5",
+      "bytes": 5374,
+      "pack": "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "member": "objects/5feab9902d66aebd5c371c3201bf12dae638274e1e24f957dd67ca1c0c70d4f5"
     },
     "assets-source/terrain/surfaces/granite-repeat-preview.png": {
       "sha256": "018e1e8e9cfd7a7329ecac51ebd81c56141562ccc74cfcd3350141591b9f2c73",
@@ -33448,6 +33526,14 @@
       "asset_id": 705037655,
       "sha256": "949bc1f45e4db4c9aa22833707903b537eacb95a904f8075aaa4f16789f3a214",
       "bytes": 34904015,
+      "encoding": "zip"
+    },
+    "rock-surface-inputs-20261104/assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip": {
+      "tag": "rock-surface-inputs-20261104",
+      "name": "assets-6a3aacdd9325a61feee72de100025d21cc84e01b792d249b4f759ffb318392e1.zip",
+      "asset_id": 709234330,
+      "sha256": "4364eb81a7c551566a8acd04d5bb3ec75d1fe6fee322ae6692465dd074c234a0",
+      "bytes": 34413364,
       "encoding": "zip"
     },
     "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip": {
