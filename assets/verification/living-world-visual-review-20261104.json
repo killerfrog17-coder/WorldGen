@@ -1,6 +1,6 @@
 {
   "scope": "Earth-like local regions, geological landforms, ground surfaces and vegetation. Animals/humans/weather/sky behaviour excluded.",
-  "status": "Review in progress; current landform captures and larger-view performance still pending. Shortcut unchanged.",
+  "status": "Review in progress: candidate terrain43/Hyper38 improves two visually rejected terrain42 features. New candidate images still pending; shortcut unchanged.",
   "limitations": [
     "100+FPS everywhere at Medium is not achieved: tall-savanna travel remains about 92FPS and travel frame-time tails exceed 10ms.",
     "Offscreen fixed-site benchmarks are not universal whole-game guarantees; independent GPU timing samples unavailable.",
@@ -75,5 +75,25 @@
     "TowerKarst",
     "Canyon",
     "Inselberg"
+  ],
+  "rejected_visual_references": [
+    {
+      "kind": "Volcano",
+      "folder": "artifacts/landscape-20261103/living-current-volcano",
+      "images": {
+        "crater-rim.png": "88d24a6c6330320c2031abcc95318055ba857c33cbcae790d22a185895dcce59"
+      },
+      "mechanics": "Passed numerical/native mechanics and landmark command; visual appearance rejected for further correction.",
+      "findings": "Caldera rim view reads too flat. Numerical profile placed its drop across the whole radius, leaving an inner slope around27degrees for this form. Replaced by a dropped floor and steeper bounding scarp in36e5f573."
+    },
+    {
+      "kind": "Waterfall",
+      "folder": "artifacts/landscape-20261103/living-current-waterfall",
+      "images": {
+        "fall-base.png": "479023c37472b72149780a59b9fb2f2841b6bba736e1b29513561811b9d94da2"
+      },
+      "mechanics": "Passed numerical/native mechanics and landmark command; visual appearance rejected for further correction.",
+      "findings": "Falling face looked like a hard-edged grey rectangular wall despite visible motion. Revisionbcda69d9 adds explicit sheet coordinates, ragged edges and aerated water lighting in the existing pass."
+    }
   ]
 }
