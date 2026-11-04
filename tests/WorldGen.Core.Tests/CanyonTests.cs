@@ -29,6 +29,7 @@ static class CanyonTests
                 Check(double.IsFinite(eroded)&&eroded>=d*.55&&eroded<=d*1.15,"Erosional shoulders and gullies remain bounded");
                 Check(CanyonValleys.ErodedDistance(at,73421,0,width)==0,"Wall erosion preserves the parent drainage datum");
                 Check(CanyonValleys.ErodedDistance(at,73421,width*1.6,width)==width*1.6,"Wall erosion is local to the canyon");
+                Check(Math.Abs(CanyonValleys.ErodedDistance(at,73421,width*(1.6-1e-7),width)-width*(1.6-1e-7))<1e-8,"Gully support retires continuously");
                 double next=CanyonValleys.ErodedDistance(at+new V(.001,0,0),73421,d,width);
                 Check(Math.Abs(next-eroded)<.1,"Gully coordinates remain continuous across arbitrary tile edges");
                 distances.Add((int)Math.Round(eroded));

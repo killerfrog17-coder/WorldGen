@@ -91,7 +91,8 @@ namespace WorldGen.Core
                 +.25*SphereNoise.Sample(metres,seed^0x137c51,1/160d));
             double gully=OrogenMorphology.Smooth(.25,.90,ridge);
             double shoulder=1+.14*broad;
-            return distance*Math.Max(.56,shoulder-.32*gully*gully*gully);
+            double retirement=1-OrogenMorphology.Smooth(1.15,1.6,distance/halfWidth);
+            return distance*(1+(Math.Max(.56,shoulder-.32*gully*gully*gully)-1)*retirement);
         }
         public double Apply(V point,int face,double ground,out double exposure)
         {
