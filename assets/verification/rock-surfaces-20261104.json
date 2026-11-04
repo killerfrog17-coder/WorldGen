@@ -1,0 +1,135 @@
+{
+  "materials": [
+    {
+      "name": "stratified",
+      "asset": "cliff_side",
+      "layer": 10,
+      "source": "https://polyhaven.com/a/cliff_side",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        1830.0000429153442,
+        1830.0000429153442
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/cliff_side/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cliff_side/cliff_side_diff_2k.jpg",
+          "sha256": "bc6f92d72eb6383ecc3a1094ed9f5b37efb36ccf83cf29699bb5990e6775afee",
+          "bytes": 3387348
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/cliff_side/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cliff_side/cliff_side_nor_gl_2k.jpg",
+          "sha256": "eec5c0bb3daa1ad72f0f9c1d19caf78e84dfedcf3283b35b5a5dcf163718025f",
+          "bytes": 3585856
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/cliff_side/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cliff_side/cliff_side_arm_2k.jpg",
+          "sha256": "4c7eda3983f14892717baea852690840e6b4f6e7f30fb95f4f2c7c25b1856230",
+          "bytes": 2130381
+        }
+      }
+    },
+    {
+      "name": "carbonate-joints",
+      "asset": "marble_cliff_01",
+      "layer": 11,
+      "source": "https://polyhaven.com/a/marble_cliff_01",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        4299.351692199707,
+        4299.351692199707
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/marble_cliff_01/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_cliff_01/marble_cliff_01_diff_2k.jpg",
+          "sha256": "60107dd781a928957420ea0db2f7e5ea5ebdd6ca81b1af4045a55a8dfb130694",
+          "bytes": 3013368
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/marble_cliff_01/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_cliff_01/marble_cliff_01_nor_gl_2k.jpg",
+          "sha256": "8ea2ed3a93b8761b8b6289d44cbaa0fbf5807508251dcc193145318ec89089a4",
+          "bytes": 2660079
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/marble_cliff_01/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_cliff_01/marble_cliff_01_arm_2k.jpg",
+          "sha256": "4bc2d3f44d4a387ac46e957224c3b8a691fc3f12a3e330ea222c2e6bb10d2d3f",
+          "bytes": 2566473
+        }
+      }
+    },
+    {
+      "name": "weathered-fine",
+      "asset": "sandstone_cracks",
+      "layer": 12,
+      "source": "https://polyhaven.com/a/sandstone_cracks",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        2000,
+        2000
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/sandstone_cracks/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/sandstone_cracks/sandstone_cracks_diff_2k.jpg",
+          "sha256": "6d3f99604c85a818277150db784ac66e67a4d91ddc255dabf61b3e956564090d",
+          "bytes": 2870078
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/sandstone_cracks/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/sandstone_cracks/sandstone_cracks_nor_gl_2k.jpg",
+          "sha256": "904e852268e1fb1bd5c0d035382f6a0e64c98dceea784fe957b1983d98b0231a",
+          "bytes": 4545235
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/sandstone_cracks/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/sandstone_cracks/sandstone_cracks_arm_2k.jpg",
+          "sha256": "dceb90e9b1f1c8dfcdb33f953bcd5b585a6ddd25de066255e52ea43b82ade5df",
+          "bytes": 926548
+        }
+      }
+    },
+    {
+      "name": "metamorphic",
+      "asset": "dark_rock",
+      "layer": 13,
+      "source": "https://polyhaven.com/a/dark_rock",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        2421.1976528167725,
+        2421.199083328247
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/dark_rock/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dark_rock/dark_rock_diff_2k.jpg",
+          "sha256": "0f01bfec36ec4546e23576a10c52ef073f9eb815826c5fce2a1cdb08cd8188b8",
+          "bytes": 2159653
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/dark_rock/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dark_rock/dark_rock_nor_gl_2k.jpg",
+          "sha256": "abb3c5f1f932693537333a6d467c3e79bb810afa84416d0deaa10ead9fb4f628",
+          "bytes": 3811444
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-rock/dark_rock/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dark_rock/dark_rock_arm_2k.jpg",
+          "sha256": "d3a26098ea5329f78a42e223e57c10f00af2a72854982197cc37cc151aa2fd5f",
+          "bytes": 2750758
+        }
+      }
+    }
+  ],
+  "publication": "Replace existing slots 10..13 in the seventeen-layer BC7 terrain arrays. Original granite, basalt, soils and litter slots retained.",
+  "scope": "Natural scanned jointing/erosion patterns, recoloured by generated geology; not empirical field lithology.",
+  "budget": "Same array dimensions, layers, draw passes, maximum sampled materials and GPU bytes."
+}

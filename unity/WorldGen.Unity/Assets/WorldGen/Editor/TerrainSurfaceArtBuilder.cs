@@ -28,10 +28,11 @@ public static class TerrainSurfaceArtBuilder
                     {
                         string material=layer==0?"soil":layer==1?"sand":layer==2?"gravel":layer==3?"clay":layer==6?"crust":layer==4||layer==8?"granite":null;
                         if(material!=null&&!File.Exists(Inputs+"/"+material+"-"+suffix[channel]+".png"))material=null;
-                        if(layer>=14)
+                        string rockAsset=layer==10?"cliff_side":layer==11?"marble_cliff_01":layer==12?"sandstone_cracks":layer==13?"dark_rock":null;
+                        if(layer>=14||rockAsset!=null)
                         {
                             string[] assets={"dry_decay_leaves","forrest_ground_03","brown_mud_leaves_01"};
-                            string input=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../assets-source/terrain/surfaces/cc0-forest-floor",assets[layer-14],suffix[channel]+".jpg"));
+                            string input=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../assets-source/terrain/surfaces",layer>=14?"cc0-forest-floor":"cc0-rock",layer>=14?assets[layer-14]:rockAsset,suffix[channel]+".jpg"));
                             if(!ImageConversion.LoadImage(texture,File.ReadAllBytes(input),false))throw new InvalidDataException(input);
                         }
                         else if(material!=null)
@@ -42,7 +43,7 @@ public static class TerrainSurfaceArtBuilder
                         else{texture.SetPixels(fallback[channel].GetPixels(layer));texture.Apply(false,false);}
                         Color[] pixels=new Color[size*size];
                         for(int y=0;y<size;y++)for(int x=0;x<size;x++)pixels[y*size+x]=texture.GetPixelBilinear((x+.5f)/size,(y+.5f)/size);
-                        if(layer>=14&&channel==0)
+                        if((layer>=14||rockAsset!=null)&&channel==0)
                         {
                             // The ground's ecological/material tint supplies
                             // the mean. Preserve scanned leaf/needle contrast
@@ -59,7 +60,7 @@ public static class TerrainSurfaceArtBuilder
                                 pixels[i]=p.gamma;pixels[i].a=1;
                             }
                         }
-                        if(layer>=14&&channel==2)
+                        if((layer>=14||rockAsset!=null)&&channel==2)
                             for(int i=0;i<pixels.Length;i++){var p=pixels[i];pixels[i]=new Color(p.r,p.g,.5f,p.b);}
                         var scaled=new Texture2D(size,size,TextureFormat.RGBA32,true,linear);
                         try
