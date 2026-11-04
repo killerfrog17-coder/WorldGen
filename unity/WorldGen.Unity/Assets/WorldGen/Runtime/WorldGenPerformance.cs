@@ -332,6 +332,9 @@ public sealed partial class LocalTerrainExplorer
     {
         Directory.CreateDirectory(output);var oldRotation=view.transform.localRotation;var oldEye=view.transform.localPosition;float oldHeading=heading,oldPitch=pitch;
         bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard,oldGpuOcclusion=WorldGenPerformance.GpuNearOcclusion,oldDirectional=WorldGenPerformance.DirectionalScatter;
+        // Prepare() advances adaptation on every manual camera render, even in
+        // the same frame. Hold exposure while comparing only admission/culling.
+        float oldAdaptation=WeatherVideoOptions.Current.Adaptation;WeatherVideoOptions.Current.Adaptation=0;
         if(moving)WorldGenPerformance.DirectionalScatter=true;
         int comparisons=0,maxDelta=0,maxChanged=0;
         try
@@ -392,10 +395,11 @@ public sealed partial class LocalTerrainExplorer
                 if(!ScatterViewChanged)throw new InvalidOperationException("Eye movement failed to invalidate scatter");
                 view.transform.localPosition=oldEye;
             }
-            return "PASS "+comparisons+" arbitrary-heading actual-camera renders, visible-instance containment and exact physical caster multisets; max RGB delta "+maxDelta+", at most "+maxChanged+" changed edge pixels (budget 0.001%); eye movement invalidates.";
+            return "PASS "+comparisons+" actual-camera renders at fixed exposure, visible-instance containment and exact physical caster multisets; max RGB delta "+maxDelta+", at most "+maxChanged+" changed edge pixels (budget 0.001%); eye movement invalidates.";
         }
         finally
         {
+            WeatherVideoOptions.Current.Adaptation=oldAdaptation;
             heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;WorldGenPerformance.DirectionalScatter=oldDirectional;BuildScatterBatches();
         }
     }
@@ -838,7 +842,8 @@ public sealed partial class WorldGenRuntime
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         File.WriteAllText(Path.Combine(output,"machine.txt"),$"{SystemInfo.processorType}\n{SystemInfo.graphicsDeviceName}\n{SystemInfo.graphicsDeviceVersion}\nRAM {SystemInfo.systemMemorySize} MB VRAM {SystemInfo.graphicsMemorySize} MB\n{Screen.width}x{Screen.height}, {QualitySettings.activeColorSpace}, VSync {QualitySettings.vSyncCount}, target {Application.targetFrameRate}\nUnity {Application.unityVersion}\nUTC {DateTime.UtcNow:o}\nSeed {world.Recipe.Seed}; scale .1; clear noon; terrain quality2; view {profileView}m; vegetation quality{profilePlants}; fine radius153.6m.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\n");
         File.AppendAllText(Path.Combine(output,"machine.txt"),$"Forced single offscreen URP render {width}x{height}; automatic camera disabled. Frame timing stats enabled: {FrameTimingManager.IsFeatureEnabled()}. Original CPU paths: {WorldGenPerformance.Original}.\nExplicit dense-site file: {sitesPath}; these sites use local summer noon.\n");
-        File.WriteAllText(Path.Combine(output,"summary.csv"),"site,cell,biome,relief,case,frames,seconds,fps,p50_ms,p95_ms,p99_ms,max_ms,over10ms,over16ms,scatter_update_ms,scatter_submit_ms,grass_submit_ms,weather_ms,tiles,wanted,objects,specialists,mid,trees,scatter_draws,grass_draws,grass_candidates,grass_bytes,frustum_rejected,terrain_rejected,settled,start_qpc,end_qpc,gpu_ms,cpu_ms,timing_samples,gpu_drain_ms\n");
+        File.WriteAllText(Path.Combine(output,"summary.csv"),"site,cell,biome,relief,case,frames,seconds,fps,p50_ms,p95_ms,p99_ms,max_ms,over10ms,over16ms,scatter_update_ms,scatter_submit_ms,grass_submit_ms,weather_ms,tiles,wanted,objects,specialists,mid,trees,scatter_draws,grass_draws,grass_candidates,grass_bytes,frustum_rejected,terrain_rejected,settled,start_qpc,end_qpc,gpu_ms,cpu_ms,timing_samples,gpu_drain_ms,start_utc,end_utc\n");
+        File.WriteAllText(Path.Combine(output,"gc-settings.txt"),"incremental="+UnityEngine.Scripting.GarbageCollector.isIncremental+" mode="+UnityEngine.Scripting.GarbageCollector.GCMode+" slice_ns="+UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds+"\n");
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
@@ -919,6 +924,7 @@ public sealed partial class WorldGenRuntime
                 var timings=new FrameTiming[1];double gpu=0,cpu=0;int timingCount=0;ulong lastTiming=0;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Drain pre-window work before counting renders.
                 WorldGenPerformance.Measuring=true;
+                var windowUtc=DateTime.UtcNow;
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
                 while(Time.realtimeSinceStartupAsDouble-start<seconds)
@@ -955,7 +961,7 @@ public sealed partial class WorldGenRuntime
                 double P(double p)=>sorted[Math.Min(sorted.Length-1,(int)(sorted.Length*p))];
                 var h=world.Ecology.Habitat[site.Item2];
                 string row=string.Join(",",site.Item1,site.Item2,h.Biome,h.ReliefM,item.Name,frames.Count,Perf(elapsed),Perf(frames.Count/elapsed),Perf(P(.5)),Perf(P(.95)),Perf(P(.99)),Perf(sorted.Last()),frames.Count(v=>v>10),frames.Count(v=>v>16.667),Perf(sections[0]/frames.Count),Perf(sections[1]/frames.Count),Perf(sections[2]/frames.Count),Perf(sections[3]/frames.Count),terrainExplorer.PerformanceCounts,terrainExplorer.PerformanceSettled,qpcStart,qpcEnd);
-                row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain);
+                row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain)+","+windowUtc.ToString("O",CultureInfo.InvariantCulture)+","+DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture);
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
