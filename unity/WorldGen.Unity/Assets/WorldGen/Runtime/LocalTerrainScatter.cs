@@ -284,6 +284,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterGroundChanges.Count==0||chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))
         {if(WorldGenPerformance.TraceEnabled)Debug.Log("Forest full-projection fallback: changes="+scatterGroundChanges.Count+", missingGroups="+(chunk.Groups==null)+", chartChanged="+(!ReferenceEquals(chunk.GroupsFrame,frame))+", roots="+chunk.Source.Instances.Length);ProjectScatter(chunk);return;}
         long trace=WorldGenPerformance.TraceBegin();bool changed=false;
+        var chunkMin=chunk.AllBounds.min;var chunkMax=chunk.AllBounds.max;
         foreach(var group in chunk.Groups)
         {
             // A fine terrain replacement must not reproject the entire source
@@ -295,6 +296,8 @@ public sealed partial class LocalTerrainExplorer
                 if(roots.max.x>=x0-.01&&roots.min.x<=x0+key.SizeM+.01&&roots.max.z>=z0-.01&&roots.min.z<=z0+key.SizeM+.01){affected=true;break;}
             }
             if(!affected)continue;
+            var groupMin=group.Bounds.min;var groupMax=group.Bounds.max;
+            var rootMin=group.RootBounds.min;var rootMax=group.RootBounds.max;bool groupChanged=false;
             foreach(int i in group.Indices)
             {
                 var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))continue;
@@ -306,10 +309,21 @@ public sealed partial class LocalTerrainExplorer
                 var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*delta;chunk.Bounds[i]=bounds;
                 // Retained old heights only make these culling bounds more
                 // conservative. Exact leaf/root geometry moves immediately.
-                group.Bounds.Encapsulate(bounds);group.RootBounds.Encapsulate(root);chunk.AllBounds.Encapsulate(bounds);changed=true;
+                // Only Y moved. Accumulate the conservative vertical envelope
+                // in scalars, then write each group's bounds once, rather than
+                // repeatedly reconstructing three full bounds for every root.
+                float bottom=bounds.center.y-bounds.extents.y,top=bounds.center.y+bounds.extents.y;
+                groupMin.y=Math.Min(groupMin.y,bottom);groupMax.y=Math.Max(groupMax.y,top);
+                rootMin.y=Math.Min(rootMin.y,root.y);rootMax.y=Math.Max(rootMax.y,root.y);
+                chunkMin.y=Math.Min(chunkMin.y,bottom);chunkMax.y=Math.Max(chunkMax.y,top);changed=groupChanged=true;
+            }
+            if(groupChanged)
+            {
+                var bounds=group.Bounds;bounds.SetMinMax(groupMin,groupMax);group.Bounds=bounds;
+                bounds=group.RootBounds;bounds.SetMinMax(rootMin,rootMax);group.RootBounds=bounds;
             }
         }
-        if(changed)canopySourceRevision++;
+        if(changed){var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;canopySourceRevision++;}
         WorldGenPerformance.TraceEnd(11,trace);
     }
     void ProjectScatter(ScatterChunk chunk)
