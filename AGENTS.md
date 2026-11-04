@@ -49,6 +49,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+REPORT4Nov04:34Z OWNER requested similar PDF for update2/regionals. Completed
+docs/reports/WorldGen - Regional Landscapes.pdf:5pages/951words/20screenshots,
+ten environments eachwide+ground. All5pages rasterized/visuallychecked andPDF
+opened. Uses EXACT hashverified regions-canopy captures from3242861 regional
+checkpoint BEFOREtreeartupdate; this is explicitlylabelled throughout, NOT new
+tests/currentf538captures. Original84nativechecks retained as historicalproof.
+Shows sand/gravel deserts,claypans,saltflats,openmarsh,woodedswamp,peatland,ponds,
+limestoneuplands/glaciallowlands. Report honestlynotes subtledunes,similar marsh/
+peatart,regularbasinoutlines/staticponds; no completeEarthcatalogue claimed.
+20canonicalJPEGinputs+reviewJSON docs/reports/regional-landscape-images; rebuild
+with scripts/build-regional-landscape-report.py. Source/provenance/PDFSHA bound
+assets/verification/regional-showcase-report-20261104.json. Allartifactsdisposable.
+No runtime/build/shortcut changes, no game/test/editor jobs launched. SelectedB
+f5385a89 unchanged. Owner3files untouched; nopaid/subagents/appclosures.
+PriorNPCreport opened/pushed5d604e0b; its unresolved visualissues remain asbelow.
+
 REPORT4Nov04:02Z OWNER requested NPCcamp screenshots +brief illustrated PDF.
 NO GAMEPLAY/BUILD/SHORTCUT CHANGES made. SelectedB f5385a89 unchanged. Six actual
 currentB visits wet11/collector14/morning7/cold11/evening20/sleep23 allEXIT0,

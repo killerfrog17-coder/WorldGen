@@ -1,0 +1,26 @@
+{
+  "recorded_utc": "2026-11-04T04:33:44.782260+00:00",
+  "report": "docs/reports/WorldGen - Regional Landscapes.pdf",
+  "report_sha256": "ad8064f5cdc4c3ba006402631d10f189203b4fd1c93779a3f4cd0cb4bd92077a",
+  "pages": 5,
+  "words": 951,
+  "image_count": 20,
+  "environment_count": 10,
+  "capture_source": "3242861eb350479d3545467b5b2cbff83d477b91",
+  "capture_source_manifest": "assets/verification/landscape-regions-20261103.json",
+  "capture_source_manifest_sha256": "917b4fd4b04776a96d6e3dc80eb2de4fe71b38f7e574da0e8fccd34d74d7f58d",
+  "capture_note": "Verified regional-update checkpoint captures, before the later tree-art update. These are not new screenshots of the currently selected binary.",
+  "original_native_check_count": 84,
+  "new_game_tests_run": false,
+  "gameplay_changes_made": false,
+  "report_inputs": "docs/reports/regional-landscape-images/review.json",
+  "report_inputs_sha256": "f13e7941fac2926493d0d7c7e5d9a9d86944040eea2aa5b5f628b1671bd1edff",
+  "pdf_render_review": "All five rasterized pages inspected; image, text and page bounds checked.",
+  "observations": [
+    "The dunes look subdued in these overhead summer-lit views; close material detail is more obvious than dramatic relief.",
+    "Open marsh and peatland still look similar in the current plant artwork.",
+    "Many basin outlines are regular-looking. Seasonal pond drying/freezing and a full water budget are not implemented.",
+    "Photographs show only the ten sampled contexts, not every landscape label or Earth environment."
+  ],
+  "scratch_independent": true
+}
