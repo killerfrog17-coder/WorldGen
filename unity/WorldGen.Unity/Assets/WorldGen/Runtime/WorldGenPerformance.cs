@@ -344,17 +344,27 @@ public sealed partial class LocalTerrainExplorer
                     guarded[instance]=count-1;
                 }
                 DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var literal=LastCapturePixels;
-                int delta=0,changed=0;
+                int delta=0,changed=0;bool edgeNoise=true;
                 for(int i=0;i<cached.Length;i++)
                 {
                     int d=Math.Max(Math.Abs(cached[i].r-literal[i].r),Math.Max(Math.Abs(cached[i].g-literal[i].g),Math.Abs(cached[i].b-literal[i].b)));
-                    delta=Math.Max(delta,d);if(d>2)changed++;
+                    delta=Math.Max(delta,d);if(d>2)
+                    {
+                        changed++;int x=i%weatherCheckTarget.width,y=i/weatherCheckTarget.width;
+                        int minR=255,minG=255,minB=255,maxR=0,maxG=0,maxB=0;
+                        for(int yy=Math.Max(0,y-1);yy<=Math.Min(weatherCheckTarget.height-1,y+1);yy++)
+                        for(int xx=Math.Max(0,x-1);xx<=Math.Min(weatherCheckTarget.width-1,x+1);xx++)
+                        {
+                            var c=literal[yy*weatherCheckTarget.width+xx];minR=Math.Min(minR,c.r);maxR=Math.Max(maxR,c.r);minG=Math.Min(minG,c.g);maxG=Math.Max(maxG,c.g);minB=Math.Min(minB,c.b);maxB=Math.Max(maxB,c.b);
+                        }
+                        if(Math.Max(maxR-minR,Math.Max(maxG-minG,maxB-minB))+2<d)edgeNoise=false;
+                    }
                 }
                 maxDelta=Math.Max(maxDelta,delta);maxChanged=Math.Max(maxChanged,changed);comparisons++;
                 // Repacking identical opaque/alpha-tested geometry can change
                 // isolated depth-tie pixels. Visible membership and the entire
                 // physical caster multiset above remain exact requirements.
-                if(changed>cached.Length/100000||delta>32)
+                if(changed>cached.Length/100000||!edgeNoise)
                 {
                     var image=new Texture2D(weatherCheckTarget.width,weatherCheckTarget.height,TextureFormat.RGB24,false);
                     try
