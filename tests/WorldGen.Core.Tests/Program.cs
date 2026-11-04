@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--vegetation-range-controls")){VegetationRangeTests.Run();return;}
 if(args.Contains("--dense-vegetation-sites")){
  var w=WorldFile.ReadFile(args[1]);var t=LocalTerrainDerivationCache.Create(w,horizontalScale:.1);var sites=VegetationBenchmarkSites.Dense(w,t);File.WriteAllText(args[2],WorldJson.Write(sites));foreach(var s in sites.Sites)Console.WriteLine(s.Name+" "+s.Biome+" canopy "+s.CanopyShade);return;
 }

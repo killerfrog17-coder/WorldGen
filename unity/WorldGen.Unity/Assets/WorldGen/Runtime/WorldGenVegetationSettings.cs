@@ -122,6 +122,15 @@ public static partial class TerrainVideoOptions
         uint hash=Rng.Mix((uint)id^Rng.Mix((uint)(id>>32))^0x9a65c4u);
         return (hash&0xffffffu)/16777216f<density;
     }
+    public static double VegetationMaximumDistance(ScatterKind kind,double maximumWidth)
+    {
+        if(kind==ScatterKind.GeneratedTree)
+        {
+            double reach=TreeRebuild&&TreeImpostors?TreeIdentityRange:TreeMaxDistance;
+            return ScatterLodBlend.MaximumDistance(kind,TreeRebuild?Math.Max(maximumWidth,reach/150):maximumWidth,reach);
+        }
+        return ScatterLodBlend.MaximumDistance(kind,maximumWidth,kind==ScatterKind.MidPlant?MidMaxDistance:kind==ScatterKind.Herb?SpecialistDistance:kind==ScatterKind.Fungus?FungusDistance:double.PositiveInfinity);
+    }
     public static ScatterBlend VegetationBlend(ScatterKind kind,double width,double distance)
     {
         if(kind==ScatterKind.GeneratedTree)

@@ -10,7 +10,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
-    sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
+    sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
     sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
@@ -374,6 +374,15 @@ public sealed partial class LocalTerrainExplorer
             for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
             {
             var group=grouped?chunk.Groups[region]:null;
+            if(grouped)
+            {
+                // A fern's 100m range must not inherit a boulder's kilometre
+                // visibility simply because both share a source patch. Reject
+                // whole same-kind bins before touching their individual roots.
+                double range=TerrainVideoOptions.VegetationMaximumDistance(group.Kind,group.MaximumWidth)+.1;
+                if(group.RootBounds.SqrDistance(eye)>=range*range){ScatterFrustumRejected+=group.Indices.Length;continue;}
+                if(IsSpecialist(group.Kind)&&!TerrainVideoOptions.SpecialistPlants||group.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
+            }
             if(grouped&&group.Trees&&!WorldGenPerformance.ForceIndividualTreeAdmission)
             {
                 // Range and ready-field ownership depend on roots, not camera

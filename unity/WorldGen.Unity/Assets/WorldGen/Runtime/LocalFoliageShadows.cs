@@ -124,6 +124,11 @@ public sealed partial class LocalTerrainExplorer
             if(!MayCastVisibleShadow(chunk.AllBounds,scatterEye)||!TreeShadowReachesView(chunk.AllBounds))continue;
             foreach(var group in chunk.Groups)
             {
+                // Once the canopy field owns crown shade, roots outside the
+                // close trunk radius cannot submit any proxy. Apply that
+                // heading-independent rejection before per-tree light tests.
+                float trunkRange=Mathf.Min(vegetationShadowDistance,TerrainVideoOptions.ForestTrunkShadowDistance);
+                if(usingSoftCanopyShadows&&group.RootBounds.SqrDistance(scatterEye)>=trunkRange*trunkRange)continue;
                 if(!group.Trees||!MayCastVisibleShadow(group.Bounds,scatterEye)||!TreeShadowReachesView(group.Bounds))continue;
                 foreach(int index in group.Indices)
                 {

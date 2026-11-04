@@ -67,15 +67,16 @@ public sealed partial class LocalTerrainExplorer
         var bins=new System.Collections.Generic.Dictionary<Vector3Int,System.Collections.Generic.List<int>>();
         for(int i=0;i<count;i++)
         {
-            var p=chunk.Roots[i];var key=new Vector3Int(Mathf.FloorToInt(p.x/128),Mathf.FloorToInt(p.z/128),chunk.Source.Instances[i].Kind==ScatterKind.GeneratedTree?1:0);
+            var p=chunk.Roots[i];var key=new Vector3Int(Mathf.FloorToInt(p.x/128),Mathf.FloorToInt(p.z/128),(int)chunk.Source.Instances[i].Kind);
             if(!bins.TryGetValue(key,out var list)){list=new System.Collections.Generic.List<int>();bins.Add(key,list);}list.Add(i);
         }
         var groups=new ScatterGroup[bins.Count];int at=0;
         foreach(var bin in bins)
         {
             var indices=bin.Value;var b=chunk.Bounds[indices[0]];var roots=new Bounds(chunk.Roots[indices[0]],Vector3.zero);
-            for(int j=1;j<indices.Count;j++){b.Encapsulate(chunk.Bounds[indices[j]]);roots.Encapsulate(chunk.Roots[indices[j]]);}
-            groups[at++]=new ScatterGroup{Bounds=b,RootBounds=roots,Indices=indices.ToArray(),Trees=bin.Key.z!=0};
+            double maximumWidth=chunk.Source.Instances[indices[0]].WidthM;
+            for(int j=1;j<indices.Count;j++){b.Encapsulate(chunk.Bounds[indices[j]]);roots.Encapsulate(chunk.Roots[indices[j]]);maximumWidth=Math.Max(maximumWidth,chunk.Source.Instances[indices[j]].WidthM);}
+            groups[at++]=new ScatterGroup{Bounds=b,RootBounds=roots,Indices=indices.ToArray(),Kind=(ScatterKind)bin.Key.z,MaximumWidth=maximumWidth,Trees=bin.Key.z==(int)ScatterKind.GeneratedTree};
         }
         chunk.Groups=groups;chunk.GroupsFrame=boundsFrame;
     }
