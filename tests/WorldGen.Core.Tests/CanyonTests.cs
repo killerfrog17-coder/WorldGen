@@ -43,11 +43,11 @@ static class CanyonTests
             var a=LocalTerrainMesh.Build(terrain,frame,-128,-64,128,32);var b=LocalTerrainMesh.Build(terrain,frame,0,-64,128,32);
             for(int z=0;z<=32;z++)if(a.Positions[(z*33+32)*3+1]!=b.Positions[z*33*3+1])throw new Exception("Canyon shared tile edge differs");
             if(a.Positions.Any(x=>!float.IsFinite(x))||b.Positions.Any(x=>!float.IsFinite(x)))throw new Exception("Nonfinite canyon mesh");
-            rows.Add(new{reach.Source,Position=center,reach.HalfWidth,reach.Relief,reach.Strength,Floor=floor,Rim=high});
+            rows.Add(new{reach.Source,Position=new[]{center.X,center.Y,center.Z},reach.HalfWidth,reach.Relief,reach.Strength,Floor=floor,Rim=high});
             if(rows.Count==4)break;
         }
         if(rows.Count<2)throw new Exception("Actual world does not supply two genuinely incised canyon contexts");
-        File.WriteAllText(Path.Combine(output,"canyons.json"),WorldJson.Write(rows));
+        File.WriteAllText(Path.Combine(output,"canyons.json"),System.Text.Json.JsonSerializer.Serialize(rows,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {rows.Count} actual incised river contexts, finite meshes and exact shared edges; {clock.Elapsed.TotalSeconds:F2}s");
     }
 }
