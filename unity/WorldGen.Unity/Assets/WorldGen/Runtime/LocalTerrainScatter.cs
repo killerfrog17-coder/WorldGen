@@ -488,7 +488,10 @@ public sealed partial class LocalTerrainExplorer
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
-        long key=ScatterArtKey(p.Kind,variant,lod)|(shadowOnly?1L<<60:0);
+        // Shadow eligibility varies with distance even within one model/LOD.
+        // The old key inherited the first member's shadow mode for the entire
+        // batch, making harmless group reordering change other objects' shadows.
+        long key=ScatterArtKey(p.Kind,variant,lod)|(shadowOnly?1L<<60:0)|(casts?1L<<59:0);
         int distanceBand=TerrainVideoOptions.FrontToBackTrees&&p.Kind==ScatterKind.GeneratedTree&&!shadowOnly?(int)((chunk.Roots[index]-scatterEye).magnitude/64):0;
         var batchKey=(key,distanceBand);
         if(!activeScatterBatches.TryGetValue(batchKey,out var batch)||batch.Count==batch.Matrices.Length)

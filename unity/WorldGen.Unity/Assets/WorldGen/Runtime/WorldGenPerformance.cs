@@ -292,7 +292,7 @@ public sealed partial class LocalTerrainExplorer
         {
             PerformanceTurn(yaw);WorldGenPerformance.OriginalCase=true;BuildScatterBatches();var before=PerformanceInstances();
             WorldGenPerformance.OriginalCase=false;BuildScatterBatches();var after=PerformanceInstances();
-            if(!before.SequenceEqual(after))throw new InvalidOperationException("Visibility optimisation changed submitted instances at yaw "+yaw+" ("+before.Length+" / "+after.Length+")");
+            if(!before.SequenceEqual(after))throw new InvalidOperationException("Visibility optimisation changed submitted instances at yaw "+yaw+" ("+before.Length+" / "+after.Length+")\nOriginal only: "+string.Join("\n",before.Except(after).Take(2))+"\nGrouped only: "+string.Join("\n",after.Except(before).Take(2)));
             foreach(var b in drawBatches)
             {
                 if(!b.Properties.GetVectorArray("_Tint").SequenceEqual(b.Colors.Take(b.Count))||!b.Properties.GetVectorArray("_LodTransition").SequenceEqual(b.Fades.Take(b.Count)))throw new InvalidOperationException("Instanced property upload truncated or changed live entries");
