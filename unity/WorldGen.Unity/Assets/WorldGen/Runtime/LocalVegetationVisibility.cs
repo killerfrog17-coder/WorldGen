@@ -26,7 +26,21 @@ public sealed partial class LocalTerrainExplorer
         if(!WorldGenPerformance.FineCullTrace)return ScatterInFrustumCore(box,eye);
         long trace=WorldGenPerformance.TraceBegin();bool result=ScatterInFrustumCore(box,eye);WorldGenPerformance.TraceEnd(27,trace);return result;
     }
-    bool ScatterInFrustumCore(Bounds box,Vector3 eye)=>scatterCachedAllHeadings||GeometryUtility.TestPlanesAABB(scatterFrustum,ScatterGuardBounds(box,eye));
+    bool ScatterInFrustumCore(Bounds box,Vector3 eye)
+    {
+        if(scatterCachedAllHeadings)return true;box=ScatterGuardBounds(box,eye);
+        // The engine's frustum function is not marked thread-safe. Workers use
+        // the same plane/AABB equation; ordinary sequential draws keep native.
+        if(!scatterParallelCollecting)return GeometryUtility.TestPlanesAABB(scatterFrustum,box);
+        var center=box.center;var extent=box.extents;
+        for(int i=0;i<scatterFrustum.Length;i++)
+        {
+            var plane=scatterFrustum[i];var n=plane.normal;
+            float radius=Mathf.Abs(n.x)*extent.x+Mathf.Abs(n.y)*extent.y+Mathf.Abs(n.z)*extent.z;
+            if(n.x*center.x+n.y*center.y+n.z*center.z+plane.distance+radius<0)return false;
+        }
+        return true;
+    }
     bool ScatterFullyInsideFrustum(Bounds box)
     {
         var center=box.center;var extent=box.extents;
@@ -40,6 +54,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool ScatterGroupCanCast(ScatterKind kind)
     {
+        if(scatterParallelCollecting)return scatterParallelCasts[(int)kind];
         if(!TerrainVideoOptions.VegetationShadows||kind==ScatterKind.Grass||IsSpecialist(kind))return false;
         if(kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows)return false;
         if(kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.TreeShadows||UseTreeShadowProxies&&SoftCanopyShadows))return false;
@@ -138,21 +153,7 @@ public sealed partial class LocalTerrainExplorer
     bool TerrainOccludedCore(Bounds box,Vector3 eye,bool acoustic)
     {
         if((!TerrainVideoOptions.VegetationOcclusion&&!acoustic)||box.SqrDistance(eye)<45*45)return false;
-        if(occlusionFrame!=Time.frameCount)
-        {
-            occlusionFrame=Time.frameCount;vegetationOccluders.Clear();occlusionCeiling=float.NegativeInfinity;
-            foreach(var pair in tiles)
-            {
-                if(pair.Key.Level!=0||pair.Value.Root==null||!pair.Value.Root.activeInHierarchy)continue;
-                var timing=TerrainTiming(pair.Key);
-                if(timing.Out>0||timing.In>0&&Time.time-timing.In<TerrainCoverage.FadeSeconds)continue;
-                if(pair.Value.Heights==null)continue;
-                if(pair.Value.OcclusionMin==null)BuildTerrainOcclusion(pair.Value);
-                if(WorldGenPerformance.Original)foreach(float lower in pair.Value.OcclusionMin)occlusionCeiling=Math.Max(occlusionCeiling,lower);
-                else occlusionCeiling=Math.Max(occlusionCeiling,pair.Value.OcclusionCeiling);
-                vegetationOccluders.Add(pair.Value);
-            }
-        }
+        if(!scatterParallelCollecting)PrepareTerrainOccluders();
         // No eligible slab lower bound can rise above ANY interpolated top ray:
         // avoid seven dictionary/grid queries per plant on open flat terrain.
         if(occlusionCeiling<=Math.Min(eye.y,box.max.y))return false;
@@ -176,6 +177,22 @@ public sealed partial class LocalTerrainExplorer
             if(blocked)return true;
         }
         return false;
+    }
+    void PrepareTerrainOccluders()
+    {
+        if(occlusionFrame==Time.frameCount)return;
+            occlusionFrame=Time.frameCount;vegetationOccluders.Clear();occlusionCeiling=float.NegativeInfinity;
+            foreach(var pair in tiles)
+            {
+                if(pair.Key.Level!=0||pair.Value.Root==null||!pair.Value.Root.activeInHierarchy)continue;
+                var timing=TerrainTiming(pair.Key);
+                if(timing.Out>0||timing.In>0&&Time.time-timing.In<TerrainCoverage.FadeSeconds)continue;
+                if(pair.Value.Heights==null)continue;
+                if(pair.Value.OcclusionMin==null)BuildTerrainOcclusion(pair.Value);
+                if(WorldGenPerformance.Original)foreach(float lower in pair.Value.OcclusionMin)occlusionCeiling=Math.Max(occlusionCeiling,lower);
+                else occlusionCeiling=Math.Max(occlusionCeiling,pair.Value.OcclusionCeiling);
+                vegetationOccluders.Add(pair.Value);
+            }
     }
     static void BuildTerrainOcclusion(Tile tile)
     {

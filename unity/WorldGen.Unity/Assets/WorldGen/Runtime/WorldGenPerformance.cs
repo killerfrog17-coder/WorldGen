@@ -26,6 +26,7 @@ public static class WorldGenPerformance
     public static bool NonIndexedClumps;
     public static bool ForceFreshWaterSamples;
     public static bool LegacyGroupVisibility;
+    public static bool ParallelScatter;
     public static bool NarrowScatterGuard;
     public static bool LegacyTreeResident,LegacyTreeShader,LegacyTreeWind;
     public static int FoliageShadowTaps;
@@ -36,7 +37,7 @@ public static class WorldGenPerformance
     public static readonly double[] Milliseconds=new double[4];
     public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
     public static readonly bool FineCullTrace=TraceEnabled&&Environment.GetCommandLineArgs().Contains("--worldgen-fine-cull-trace");
-    public static readonly double[] TraceMilliseconds=new double[29];static int traceFrame=-1;
+    public static readonly double[] TraceMilliseconds=new double[31];static int traceFrame=-1;
     public static bool SuppressIdleScatter,SkipMapUploads,ForceFreshCoverCull,NoLocalTrees,ForceFreshForestOwnership,TreeLegacyAlpha,SuppressFarForest,ForceIndividualTreeAdmission,DrainEachFrame,LegacyTreeQueues;
     public static long TraceBegin()
     {
@@ -302,6 +303,23 @@ public sealed partial class LocalTerrainExplorer
         }
         values.Sort(StringComparer.Ordinal);return values.ToArray();
     }
+    public string PerformanceVerifyParallelScatter()
+    {
+        bool before=WorldGenPerformance.ParallelScatter,directional=WorldGenPerformance.DirectionalScatter;int start=ParallelScatterBuilds;
+        WorldGenPerformance.DirectionalScatter=true;
+        try
+        {
+            for(int yaw=0;yaw<360;yaw+=45)
+            {
+                PerformanceTurn(yaw);WorldGenPerformance.ParallelScatter=false;BuildScatterBatches();var sequential=PerformanceInstances();
+                WorldGenPerformance.ParallelScatter=true;BuildScatterBatches();var parallel=PerformanceInstances();
+                if(!sequential.SequenceEqual(parallel))throw new InvalidOperationException("Parallel scatter changed model/transform/tint/fade/shadow multiset at "+yaw);
+            }
+            if(ParallelScatterBuilds-start!=8)throw new InvalidOperationException("Parallel scatter was not actually exercised at eight headings");
+            return "PASS eight exact sequential/parallel model, matrix, tint, LOD-fade and shadow instance multisets; engine objects/draw submission remain on main thread";
+        }
+        finally{WorldGenPerformance.ParallelScatter=before;WorldGenPerformance.DirectionalScatter=directional;PerformanceTurn(20);BuildScatterBatches();}
+    }
     public string PerformanceVerifyVisibility()
     {
         bool old=WorldGenPerformance.DisableScatterViewGuard;WorldGenPerformance.DisableScatterViewGuard=true;
@@ -330,10 +348,10 @@ public sealed partial class LocalTerrainExplorer
         }
         return "PASS identical model/transform/tint/LOD/shadow instance multisets at eight headings; exact ground memo and occlusion ceilings.";
     }
-    public string PerformanceVerifyRotationGuard(string output,bool moving=false)
+    public string PerformanceVerifyRotationGuard(string output,bool moving=false,bool parallel=false)
     {
         Directory.CreateDirectory(output);var oldRotation=view.transform.localRotation;var oldEye=view.transform.localPosition;float oldHeading=heading,oldPitch=pitch;
-        bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard,oldGpuOcclusion=WorldGenPerformance.GpuNearOcclusion,oldDirectional=WorldGenPerformance.DirectionalScatter;
+        bool oldOriginal=WorldGenPerformance.OriginalCase,oldDisabled=WorldGenPerformance.DisableScatterViewGuard,oldGpuOcclusion=WorldGenPerformance.GpuNearOcclusion,oldDirectional=WorldGenPerformance.DirectionalScatter,oldParallel=WorldGenPerformance.ParallelScatter;
         // Prepare() advances adaptation on every manual camera render, even in
         // the same frame. Hold exposure while comparing only admission/culling.
         float oldAdaptation=WeatherVideoOptions.Current.Adaptation;WeatherVideoOptions.Current.Adaptation=0;
@@ -345,6 +363,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var offset in moving?new[]{new Vector2(17,0),new Vector2(-17,0),new Vector2(12,12),new Vector2(-12,-12)}:new[]{new Vector2(170,0),new Vector2(-95,0),new Vector2(0,74),new Vector2(45,-74)})
             {
                 PerformanceTurn(yaw);var center=view.transform.localRotation;
+                if(parallel)WorldGenPerformance.ParallelScatter=true;
                 WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;
                 WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;BuildScatterBatches();
                 if(scatterCachedAllHeadings==moving)throw new InvalidOperationException("Wrong moving/stationary scatter verification context");
@@ -353,7 +372,7 @@ public sealed partial class LocalTerrainExplorer
                 view.transform.localRotation=center*Quaternion.Euler(offset.y,offset.x,0);
                 if(ScatterViewChanged)throw new InvalidOperationException("Within-guard camera rotation unexpectedly invalidated scatter");
                 DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var cached=LastCapturePixels;
-                WorldGenPerformance.DisableScatterViewGuard=true;WorldGenPerformance.GpuNearOcclusion=false;BuildScatterBatches();
+                WorldGenPerformance.DisableScatterViewGuard=true;WorldGenPerformance.GpuNearOcclusion=false;if(parallel)WorldGenPerformance.ParallelScatter=false;BuildScatterBatches();
                 if(!guardedCasters.SequenceEqual(PerformanceInstances(castersOnly:true)))throw new InvalidOperationException("Rotation guard changed physical model/transform/tint/LOD shadow casters at yaw "+yaw+", offset "+offset);
                 foreach(var instance in PerformanceInstances(true))
                 {
@@ -392,7 +411,7 @@ public sealed partial class LocalTerrainExplorer
                     finally{Destroy(image);}
                     throw new InvalidOperationException("Rotation guard render differs from literal camera: yaw "+yaw+", offset "+offset+", max RGB delta "+delta+", changed pixels "+changed);
                 }
-                view.transform.localRotation=center;WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;BuildScatterBatches();
+                view.transform.localRotation=center;WorldGenPerformance.OriginalCase=false;WorldGenPerformance.DisableScatterViewGuard=false;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;if(parallel)WorldGenPerformance.ParallelScatter=true;BuildScatterBatches();
                 view.transform.localPosition+=Vector3.right*.6f;
                 if(!ScatterViewChanged)throw new InvalidOperationException("Eye movement failed to invalidate scatter");
                 view.transform.localPosition=oldEye;
@@ -402,7 +421,7 @@ public sealed partial class LocalTerrainExplorer
         finally
         {
             WeatherVideoOptions.Current.Adaptation=oldAdaptation;
-            heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;WorldGenPerformance.DirectionalScatter=oldDirectional;BuildScatterBatches();
+            heading=oldHeading;pitch=oldPitch;view.transform.localRotation=oldRotation;view.transform.localPosition=oldEye;WorldGenPerformance.OriginalCase=oldOriginal;WorldGenPerformance.DisableScatterViewGuard=oldDisabled;WorldGenPerformance.GpuNearOcclusion=oldGpuOcclusion;WorldGenPerformance.DirectionalScatter=oldDirectional;WorldGenPerformance.ParallelScatter=oldParallel;BuildScatterBatches();
         }
     }
     public string PerformanceVerifyIndexedGround(string output)
@@ -802,8 +821,8 @@ public sealed partial class WorldGenRuntime
     static string Perf(double value)=>value.ToString("F5",CultureInfo.InvariantCulture);
     struct StutterRow
     {
-        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky,Batches,Bakes,Projection,Forest,Shadows,CoverDraw,Canopy,ForestDraw,Survival,Prepared,Humans,Player,Fauna,AnimalMove,AnimalPose,BatchCollect,BatchUpload,TerrainOcclusion,FrustumTest,InstanceAppend;public int Gc;public long Heap,MainAllocated,FrameAllocated;
-        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky),Perf(Batches),Perf(Bakes),Perf(Projection),Perf(Forest),Perf(Shadows),Perf(CoverDraw),Perf(Canopy),Perf(ForestDraw),Perf(Survival),Perf(Prepared),Perf(Humans),Perf(Player),Perf(Fauna),Perf(AnimalMove),Perf(AnimalPose),Perf(BatchCollect),Perf(BatchUpload),Perf(TerrainOcclusion),Perf(FrustumTest),Perf(InstanceAppend),FrameAllocated);
+        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky,Batches,Bakes,Projection,Forest,Shadows,CoverDraw,Canopy,ForestDraw,Survival,Prepared,Humans,Player,Fauna,AnimalMove,AnimalPose,BatchCollect,BatchUpload,TerrainOcclusion,FrustumTest,InstanceAppend,ScatterClassify,ScatterAppend;public int Gc;public long Heap,MainAllocated,FrameAllocated;
+        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky),Perf(Batches),Perf(Bakes),Perf(Projection),Perf(Forest),Perf(Shadows),Perf(CoverDraw),Perf(Canopy),Perf(ForestDraw),Perf(Survival),Perf(Prepared),Perf(Humans),Perf(Player),Perf(Fauna),Perf(AnimalMove),Perf(AnimalPose),Perf(BatchCollect),Perf(BatchUpload),Perf(TerrainOcclusion),Perf(FrustumTest),Perf(InstanceAppend),FrameAllocated,Perf(ScatterClassify),Perf(ScatterAppend));
     }
     IEnumerator CheckPerformance()
     {
@@ -846,6 +865,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("animal-pose-verify",()=>{}),
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
             new PerfCase("scatter-range-verify",()=>{}),
+            new PerfCase("scatter-parallel-verify",()=>{}),
+            new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-guard-verify",()=>{}),
             new PerfCase("moving-guard-verify",()=>{}),
             new PerfCase("ground-owner-verify",()=>{}),
@@ -934,6 +955,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
+            new PerfCase("travel-whip-parallel",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("travel-whip-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("travel-whip-legacy-groups",()=>WorldGenPerformance.LegacyGroupVisibility=true),
             new PerfCase("travel-whip-narrow",()=>WorldGenPerformance.NarrowScatterGuard=true),
@@ -970,7 +992,7 @@ public sealed partial class WorldGenRuntime
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
-                WorldGenPerformance.GpuNearOcclusion=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);
+                WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
@@ -990,6 +1012,8 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
+                if(item.Name=="scatter-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter()+"\n");
+                if(item.Name=="moving-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),"Parallel versus sequential: "+terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"moving-parallel"),true,true)+"\n");
                 if(item.Name=="ground-seam-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewGroundSeams(output,site.Item1)+"\n");
                 if(item.Name=="grass-approach-review")yield return terrainExplorer.PerformanceReviewGrassApproach(output,site.Item1);
                 if(item.Name=="tree-depth-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewTreeDepth(output,site.Item1)+"\n");
@@ -1049,7 +1073,7 @@ public sealed partial class WorldGenRuntime
                     {
                         if(now>=heapAt){heap=GC.GetTotalMemory(false);heapAt=now+.25;}
                         var t=WorldGenPerformance.TraceMilliseconds;
-                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16],Survival=t[17],Prepared=t[18],Humans=t[19],Player=t[20],Fauna=t[21],AnimalMove=t[22],AnimalPose=t[23],BatchCollect=t[24],BatchUpload=t[25],TerrainOcclusion=t[26],FrustumTest=t[27],InstanceAppend=t[28],FrameAllocated=allocationRecorder.Valid?allocationRecorder.LastValue:-1});
+                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16],Survival=t[17],Prepared=t[18],Humans=t[19],Player=t[20],Fauna=t[21],AnimalMove=t[22],AnimalPose=t[23],BatchCollect=t[24],BatchUpload=t[25],TerrainOcclusion=t[26],FrustumTest=t[27],InstanceAppend=t[28],FrameAllocated=allocationRecorder.Valid?allocationRecorder.LastValue:-1,ScatterClassify=t[29],ScatterAppend=t[30]});
                     }
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name=="turning-whip"?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
@@ -1074,7 +1098,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
-                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes"}.Concat(stutter.Select(s=>s.ToString())));
+                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
             }
             File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformancePendingComparisons+" loading/idle readiness comparisons passed.\n");

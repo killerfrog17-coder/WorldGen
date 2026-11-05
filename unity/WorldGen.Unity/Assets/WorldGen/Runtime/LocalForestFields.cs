@@ -103,8 +103,8 @@ public sealed partial class LocalTerrainExplorer
         var key=new ForestPageKey((int)(tree.Id>>61),gx/LocalScatter.ForestPageSide,gy/LocalScatter.ForestPageSide,0);
         if(forestOwnershipRevision!=forestOwnershipEpoch){forestOwnership.Clear();forestOwnershipRevision=forestOwnershipEpoch;}
         if(!WorldGenPerformance.ForceFreshForestOwnership&&forestOwnership.TryGetValue(key,out bool owned))return owned;
-        var query=key;for(int level=0;level<=24;level++,query=query.Parent)if(forestFields.TryGetValue(query,out var field)&&field.Ready){forestOwnership[key]=true;return true;}
-        forestOwnership[key]=false;return false;
+        var query=key;for(int level=0;level<=24;level++,query=query.Parent)if(forestFields.TryGetValue(query,out var field)&&field.Ready){if(!scatterParallelCollecting)forestOwnership[key]=true;return true;}
+        if(!scatterParallelCollecting)forestOwnership[key]=false;return false;
     }
     bool ForestOwnsGroup(ScatterChunk chunk,ScatterGroup group)
     {

@@ -11,7 +11,9 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
-    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
+    struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
+    struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
+    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
@@ -423,6 +425,16 @@ public sealed partial class LocalTerrainExplorer
         float height=kind==ScatterKind.Branch||kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.Branch||kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
         var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width)),IdentityScale=width==1&&height==1,Fades=parts.All(part=>part.Material.HasProperty("_LodTransition")),Generated=prefab==null,LastUsed=Time.realtimeSinceStartupAsDouble};scatterArt[key]=model;return model;
     }
+    readonly List<ScatterChunk> scatterCollectWork=new List<ScatterChunk>();
+    readonly ParallelOptions scatterParallelOptions=new ParallelOptions{MaxDegreeOfParallelism=Math.Min(4,Math.Max(1,Environment.ProcessorCount/2))};
+    readonly bool[] scatterParallelCasts=new bool[13];
+    Action<int> scatterCollectAction;Vector3 scatterCollectEye;bool scatterParallelCollecting;
+    public int ParallelScatterBuilds {get;private set;}
+    void QueueScatterAdmission(ScatterChunk chunk,int index,int lod,float low,float high,bool shadowOnly)
+    {
+        if(high-low<.0001f)return;
+        chunk.Admissions.Add(new ScatterAdmission{Index=index,Lod=lod,Low=low,High=high,ShadowOnly=shadowOnly});
+    }
     void BuildScatterBatches()
     {
         long trace=WorldGenPerformance.TraceBegin();
@@ -436,95 +448,31 @@ public sealed partial class LocalTerrainExplorer
         long shadowTrace=WorldGenPerformance.TraceBegin();BuildTreeShadowBatches();WorldGenPerformance.TraceEnd(13,shadowTrace);
         ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;GeneratedTreeObjects=0;ScatterFrustumRejected=ScatterTerrainRejected=ScatterShadowOnly=0;
         long batchPhaseTrace=WorldGenPerformance.TraceBegin();
-        foreach(var pair in scatterChunks)
+        scatterCollectWork.Clear();
+        foreach(var pair in scatterChunks){var chunk=pair.Value;if(chunk.Bounds==null)PrepareScatterBounds(chunk);scatterCollectWork.Add(chunk);}
+        long classifyTrace=WorldGenPerformance.TraceBegin();
+        bool parallel=WorldGenPerformance.ParallelScatter&&!WorldGenPerformance.FineCullTrace&&!WorldGenPerformance.Original&&prefabScatterKinds.Count==0&&Environment.ProcessorCount>=4&&scatterCollectWork.Count>1;
+        if(parallel)
         {
-            var chunk=pair.Value;
-            if(chunk.Bounds==null)PrepareScatterBounds(chunk);
-            var chunkBounds=chunk.AllBounds;chunkBounds.Expand(10+(chunkBounds.center-eye).magnitude*.04f);
-            if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(chunkBounds,eye)&&!MayCastVisibleShadow(chunkBounds,eye))
-            {ScatterFrustumRejected+=chunk.Source.Instances.Length;continue;}
-            bool grouped=!WorldGenPerformance.Original&&chunk.Groups!=null&&chunk.Groups.Length>1;
-            for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
-            {
-            var group=grouped?chunk.Groups[region]:null;
-            bool groupInside=!TerrainVideoOptions.ScatterFrustum||scatterCachedAllHeadings,groupOutside=false,groupHidden=false;
-            if(grouped)
-            {
-                // A fern's 100m range must not inherit a boulder's kilometre
-                // visibility simply because both share a source patch. Reject
-                // whole same-kind bins before touching their individual roots.
-                double range=TerrainVideoOptions.VegetationMaximumDistance(group.Kind,group.MaximumWidth)+.1;
-                if(group.RootBounds.SqrDistance(eye)>=range*range){ScatterFrustumRejected+=group.Indices.Length;continue;}
-                if(IsSpecialist(group.Kind)&&!TerrainVideoOptions.SpecialistPlants||group.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
-            }
-            if(grouped&&group.Trees&&!WorldGenPerformance.ForceIndividualTreeAdmission)
-            {
-                // Range and ready-field ownership depend on roots, not camera
-                // heading. Reject an entire tree-only bin only when EVERY root
-                // would fail the literal individual admission below. Crown and
-                // shadow bounds are deliberately not used for this range test.
-                double localLimit=TerrainVideoOptions.TreeIdentityRange+.1,fieldLimit=ForestHandoffReach+.1;
-                if(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees||group.RootBounds.SqrDistance(eye)>=localLimit*localLimit)continue;
-                if(TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest&&group.RootBounds.SqrDistance(eye)>=fieldLimit*fieldLimit&&ForestOwnsGroup(chunk,group))continue;
-            }
-            if(grouped&&(TerrainVideoOptions.ScatterFrustum||TerrainVideoOptions.VegetationOcclusion))
-            {
-                var groupBounds=group.Bounds;
-                // Include the largest individual visibility margin anywhere in
-                // this bin. Reject only if NONE can be visible or cast a shadow.
-                groupBounds.Expand(10+((groupBounds.center-eye).magnitude+groupBounds.extents.magnitude)*.04f);
-                bool cheapGroups=!WorldGenPerformance.LegacyGroupVisibility;
-                bool groupCasts=!cheapGroups||ScatterGroupCanCast(group.Kind);
-                groupOutside=TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(groupBounds,eye);
-                if(groupOutside&&(!groupCasts||!MayCastVisibleShadow(groupBounds,eye)))
-                {ScatterFrustumRejected+=group.Indices.Length;continue;}
-                if(cheapGroups)
-                {
-                    groupInside|=!groupOutside&&ScatterFullyInsideFrustum(groupBounds);
-                    groupHidden=!groupOutside&&!WorldGenPerformance.GpuNearOcclusion&&TerrainOccluded(groupBounds,eye);
-                    if(groupHidden&&(!groupCasts||!MayCastVisibleShadow(groupBounds,eye)))
-                    {ScatterTerrainRejected+=group.Indices.Length;continue;}
-                }
-                else groupOutside=false;
-            }
-            for(int member=0;member<(grouped?group.Indices.Length:chunk.Source.Instances.Length);member++)
-            {
-                int i=grouped?group.Indices[member]:member;
-                ref readonly var p=ref chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
-                if(CollectedRock(p))continue;
-                if(CampClearedPlant(p))continue;
-                if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
-                if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
-                if(p.Kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees))continue;
-                if(p.Kind==ScatterKind.GeneratedTree&&distance>=TerrainVideoOptions.TreeIdentityRange)continue;
-                if(!TerrainVideoOptions.KeepVegetation(p.Kind,p.Id))continue;
-                var blend=TerrainVideoOptions.VegetationBlend(p.Kind,p.WidthM,distance);
-                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest)
-                    blend=new ScatterBlend(blend.Near,blend.Far,blend.Blend,distance<VegetationQuality.ForestStart(ForestHandoffReach)?1:ForestOwnsTree(p)?1-VegetationQuality.ForestWeight(distance,ForestHandoffReach):1);
-                if(blend.Visibility<=0)continue;
-                var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
-                bool frustum=groupOutside||!groupInside&&TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye);
-                bool occluded=!frustum&&!WorldGenPerformance.GpuNearOcclusion&&(groupHidden||TerrainOccluded(bounds,eye)),shadowOnly=frustum||occluded;
-                if(frustum)ScatterFrustumRejected++;if(occluded)ScatterTerrainRejected++;
-                if(shadowOnly&&(p.Kind==ScatterKind.Grass||IsSpecialist(p.Kind)||!MayCastVisibleShadow(bounds,eye)))continue;
-                if(shadowOnly&&(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.TreeShadows))continue;
-                int minimum=p.Kind==ScatterKind.MidPlant?2-TerrainVideoOptions.MidPlantDetail:p.Kind==ScatterKind.GeneratedTree?2-TerrainVideoOptions.TreeDetail:IsSpecialist(p.Kind)?1-TerrainVideoOptions.SpecialistDetail:0;
-                int nearLod=Math.Max(minimum,blend.Near),farLod=Math.Max(minimum,blend.Far);
-                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&!TerrainVideoOptions.TreeImpostors){nearLod=Math.Min(1,nearLod);farLod=Math.Min(1,farLod);}
-                if(shadowOnly&&p.Kind==ScatterKind.GeneratedTree){nearLod=Math.Max(1,nearLod);farLod=Math.Max(1,farLod);}
-                // Built-in generated art always supports distance intervals.
-                bool compatible=!prefabScatterKinds.Contains(p.Kind)||
-                    Art(p.Kind,p.Variant,nearLod).Fades&&Art(p.Kind,p.Variant,farLod).Fades;
-                if(nearLod==farLod)AddScatterInstance(chunk,i,p,nearLod,0,(float)blend.Visibility,shadowOnly);
-                else if(!compatible)AddScatterInstance(chunk,i,p,blend.Blend<.5?nearLod:farLod,0,1,shadowOnly);
-                else {float split=(float)(blend.Visibility*(1-blend.Blend));AddScatterInstance(chunk,i,p,nearLod,0,split,shadowOnly);AddScatterInstance(chunk,i,p,farLod,split,(float)blend.Visibility,shadowOnly);}
-                if(shadowOnly){ScatterShadowOnly++;continue;}ScatterObjects++;
-                if(IsSpecialist(p.Kind))SpecialistObjects++;
-                if(p.Kind==ScatterKind.MidPlant)MidPlantObjects++;
-                if(p.Kind==ScatterKind.GeneratedTree)GeneratedTreeObjects++;
-            }
-            }
+            // Snapshot engine-owned state before workers run. During this join,
+            // the main thread cannot install terrain or modify scene dictionaries.
+            PrepareTerrainOccluders();
+            if(forestOwnershipRevision!=forestOwnershipEpoch){forestOwnership.Clear();forestOwnershipRevision=forestOwnershipEpoch;}
+            for(int kind=0;kind<scatterParallelCasts.Length;kind++)scatterParallelCasts[kind]=ScatterGroupCanCast((ScatterKind)kind);
+            scatterCollectEye=eye;scatterCollectAction??=index=>CollectScatterChunk(scatterCollectWork[index],scatterCollectEye);
+            scatterParallelCollecting=true;
+            try{Parallel.For(0,scatterCollectWork.Count,scatterParallelOptions,scatterCollectAction);ParallelScatterBuilds++;}
+            finally{scatterParallelCollecting=false;}
         }
+        else foreach(var chunk in scatterCollectWork)CollectScatterChunk(chunk,eye);
+        WorldGenPerformance.TraceEnd(29,classifyTrace);long appendTrace=WorldGenPerformance.TraceBegin();
+        foreach(var chunk in scatterCollectWork)
+        {
+            var counts=chunk.AdmissionCounts;ScatterObjects+=counts.Objects;SpecialistObjects+=counts.Specialists;MidPlantObjects+=counts.Mid;GeneratedTreeObjects+=counts.Trees;
+            ScatterFrustumRejected+=counts.Frustum;ScatterTerrainRejected+=counts.Terrain;ScatterShadowOnly+=counts.Shadow;
+            foreach(var item in chunk.Admissions){ref readonly var plant=ref chunk.Source.Instances[item.Index];AddScatterInstance(chunk,item.Index,plant,item.Lod,item.Low,item.High,item.ShadowOnly);}
+        }
+        WorldGenPerformance.TraceEnd(30,appendTrace);
         WorldGenPerformance.TraceEnd(24,batchPhaseTrace);batchPhaseTrace=WorldGenPerformance.TraceBegin();
         foreach(var batch in drawBatches)
         {
@@ -564,6 +512,95 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         WorldGenPerformance.TraceEnd(9,trace);
+    }
+    void CollectScatterChunk(ScatterChunk chunk,Vector3 eye)
+    {
+        chunk.Admissions.Clear();var counts=new ScatterCounts();
+            var chunkBounds=chunk.AllBounds;chunkBounds.Expand(10+(chunkBounds.center-eye).magnitude*.04f);
+            if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(chunkBounds,eye)&&!MayCastVisibleShadow(chunkBounds,eye))
+            {counts.Frustum+=chunk.Source.Instances.Length;chunk.AdmissionCounts=counts;return;}
+            bool grouped=!WorldGenPerformance.Original&&chunk.Groups!=null&&chunk.Groups.Length>1;
+            for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
+            {
+            var group=grouped?chunk.Groups[region]:null;
+            bool groupInside=!TerrainVideoOptions.ScatterFrustum||scatterCachedAllHeadings,groupOutside=false,groupHidden=false;
+            if(grouped)
+            {
+                // A fern's 100m range must not inherit a boulder's kilometre
+                // visibility simply because both share a source patch. Reject
+                // whole same-kind bins before touching their individual roots.
+                double range=TerrainVideoOptions.VegetationMaximumDistance(group.Kind,group.MaximumWidth)+.1;
+                if(group.RootBounds.SqrDistance(eye)>=range*range){counts.Frustum+=group.Indices.Length;continue;}
+                if(IsSpecialist(group.Kind)&&!TerrainVideoOptions.SpecialistPlants||group.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
+            }
+            if(grouped&&group.Trees&&!WorldGenPerformance.ForceIndividualTreeAdmission)
+            {
+                // Range and ready-field ownership depend on roots, not camera
+                // heading. Reject an entire tree-only bin only when EVERY root
+                // would fail the literal individual admission below. Crown and
+                // shadow bounds are deliberately not used for this range test.
+                double localLimit=TerrainVideoOptions.TreeIdentityRange+.1,fieldLimit=ForestHandoffReach+.1;
+                if(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees||group.RootBounds.SqrDistance(eye)>=localLimit*localLimit)continue;
+                if(TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest&&group.RootBounds.SqrDistance(eye)>=fieldLimit*fieldLimit&&ForestOwnsGroup(chunk,group))continue;
+            }
+            if(grouped&&(TerrainVideoOptions.ScatterFrustum||TerrainVideoOptions.VegetationOcclusion))
+            {
+                var groupBounds=group.Bounds;
+                // Include the largest individual visibility margin anywhere in
+                // this bin. Reject only if NONE can be visible or cast a shadow.
+                groupBounds.Expand(10+((groupBounds.center-eye).magnitude+groupBounds.extents.magnitude)*.04f);
+                bool cheapGroups=!WorldGenPerformance.LegacyGroupVisibility;
+                bool groupCasts=!cheapGroups||ScatterGroupCanCast(group.Kind);
+                groupOutside=TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(groupBounds,eye);
+                if(groupOutside&&(!groupCasts||!MayCastVisibleShadow(groupBounds,eye)))
+                {counts.Frustum+=group.Indices.Length;continue;}
+                if(cheapGroups)
+                {
+                    groupInside|=!groupOutside&&ScatterFullyInsideFrustum(groupBounds);
+                    groupHidden=!groupOutside&&!WorldGenPerformance.GpuNearOcclusion&&TerrainOccluded(groupBounds,eye);
+                    if(groupHidden&&(!groupCasts||!MayCastVisibleShadow(groupBounds,eye)))
+                    {counts.Terrain+=group.Indices.Length;continue;}
+                }
+                else groupOutside=false;
+            }
+            for(int member=0;member<(grouped?group.Indices.Length:chunk.Source.Instances.Length);member++)
+            {
+                int i=grouped?group.Indices[member]:member;
+                ref readonly var p=ref chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
+                if(CollectedRock(p))continue;
+                if(CampClearedPlant(p))continue;
+                if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
+                if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
+                if(p.Kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees))continue;
+                if(p.Kind==ScatterKind.GeneratedTree&&distance>=TerrainVideoOptions.TreeIdentityRange)continue;
+                if(!TerrainVideoOptions.KeepVegetation(p.Kind,p.Id))continue;
+                var blend=TerrainVideoOptions.VegetationBlend(p.Kind,p.WidthM,distance);
+                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest)
+                    blend=new ScatterBlend(blend.Near,blend.Far,blend.Blend,distance<VegetationQuality.ForestStart(ForestHandoffReach)?1:ForestOwnsTree(p)?1-VegetationQuality.ForestWeight(distance,ForestHandoffReach):1);
+                if(blend.Visibility<=0)continue;
+                var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
+                bool frustum=groupOutside||!groupInside&&TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye);
+                bool occluded=!frustum&&!WorldGenPerformance.GpuNearOcclusion&&(groupHidden||TerrainOccluded(bounds,eye)),shadowOnly=frustum||occluded;
+                if(frustum)counts.Frustum++;if(occluded)counts.Terrain++;
+                if(shadowOnly&&(p.Kind==ScatterKind.Grass||IsSpecialist(p.Kind)||!MayCastVisibleShadow(bounds,eye)))continue;
+                if(shadowOnly&&(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.TreeShadows))continue;
+                int minimum=p.Kind==ScatterKind.MidPlant?2-TerrainVideoOptions.MidPlantDetail:p.Kind==ScatterKind.GeneratedTree?2-TerrainVideoOptions.TreeDetail:IsSpecialist(p.Kind)?1-TerrainVideoOptions.SpecialistDetail:0;
+                int nearLod=Math.Max(minimum,blend.Near),farLod=Math.Max(minimum,blend.Far);
+                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&!TerrainVideoOptions.TreeImpostors){nearLod=Math.Min(1,nearLod);farLod=Math.Min(1,farLod);}
+                if(shadowOnly&&p.Kind==ScatterKind.GeneratedTree){nearLod=Math.Max(1,nearLod);farLod=Math.Max(1,farLod);}
+                // Built-in generated art always supports distance intervals.
+                bool compatible=!prefabScatterKinds.Contains(p.Kind)||
+                    Art(p.Kind,p.Variant,nearLod).Fades&&Art(p.Kind,p.Variant,farLod).Fades;
+                if(nearLod==farLod)QueueScatterAdmission(chunk,i,nearLod,0,(float)blend.Visibility,shadowOnly);
+                else if(!compatible)QueueScatterAdmission(chunk,i,blend.Blend<.5?nearLod:farLod,0,1,shadowOnly);
+                else {float split=(float)(blend.Visibility*(1-blend.Blend));QueueScatterAdmission(chunk,i,nearLod,0,split,shadowOnly);QueueScatterAdmission(chunk,i,farLod,split,(float)blend.Visibility,shadowOnly);}
+                if(shadowOnly){counts.Shadow++;continue;}counts.Objects++;
+                if(IsSpecialist(p.Kind))counts.Specialists++;
+                if(p.Kind==ScatterKind.MidPlant)counts.Mid++;
+                if(p.Kind==ScatterKind.GeneratedTree)counts.Trees++;
+            }
+            }
+        chunk.AdmissionCounts=counts;
     }
     void AddScatterInstance(ScatterChunk chunk,int index,in ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant=int.MinValue)
     {

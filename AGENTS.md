@@ -49,6 +49,39 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE5Nov08:02Z OWNER RESUMED ALL-NIGHT PERFORMANCE WORK. Prior FPS pause is
+revoked. Owner explicitly prioritises performance; NO new features until FPS
+and stutter problems are resolved. Selected A/f833/shortcut remains protected;
+reuse inactive B only. No own processes running at resume. Latest native
+boreal-root-mask COMPLETE/source0fb: wet-root GPU gate PASS, material-edge max
+delta reduced .683->.124, bindings exact; actual image review still pending.
+Moving-whip90.35FPS/p9519.70ms/max48.68ms: 100floor NOT achieved. Continue
+diagnostic-only parallel scatter prototype and exact render/instance/caster
+checks before enabling; investigate remaining CPU/GC tails, then actual saved
+mixedUltra/200km profile. No subagents/paid/owner-app closures. Preserve owner3
+files. Manual cleanup requests encountered execution-policy rejection twice;
+linear-continents folder was NOT deleted. Do not claim recovered space.
+
+PAUSED4Nov OWNER FPS REQUEST: stop own game/tests ASAP and do nothing that
+burdens CPU/GPU while owner plays another game. Process inventory confirmed NO
+WorldGen player, Unity Editor, shader compiler, benchmark runner, Python,
+dotnet or nvidia-smi job remains. Owner's Unity Hub left alone. Do NOT resume
+builds, renders, benchmarks or other heavy work until owner releases this pause.
+Selected A/f833 and shortcut untouched. B FULL managed NONDEV SourceCommit
+0fb7f92f6051ac366da1a34b9450b8aff8764fbc BuiltUtc23:16:18.9943647Z,
+SourceChanges[]; known3Unityautos restored. boreal-root-mask native runner37699
+is no longer a process; inspect its completion/results AFTER pause, do not
+assume pass. Ground/root material separation f6f812f4 passed5759 ground-flora
+checks; actual native visual/GPU proof pending review. Managed-frustum trial
+retired0fb; normal native culling retained, fine per-root trace opt-in only.
+UNCOMMITTED diagnostic parallel scatter classification in LocalTerrainScatter,
+LocalVegetationVisibility, LocalForestFields, WorldGenPerformance: preserve;
+UNCOMPILED/UNVERIFIED/default OFF. Review worker API safety, add actual paired
+render/caster equivalence before any enabling. Existing exact pose/root/near
+grass/tree art fixes pushed; 100FPS floor NOT solved, crown reprojection art
+still unaccepted/default OFF, saved-owner-settings benchmark still outstanding.
+Preserve owner prompt deletion and two untracked deer scripts. No new geography.
+
 ACTIVE4Nov22:53Z RENDER REPAIR. Selected A/f833/shortcut protected. Current own
 native benchmark14970: boreal-material-cull, onlydense-borealforest, Medium1080/
 6km/10sec. Candidate B FULLb613f1e5 BuiltUtc22:46:08Z, ScriptsOnlya73932d4
