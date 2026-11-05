@@ -35,13 +35,16 @@ public sealed partial class LocalTerrainExplorer
 
     bool StageGroundPublication(TerrainTileKey key,Tile product)
     {
-        if(!WorldGenPerformance.StagedGroundPublication||GroundPublicationPending||!wanted.ContainsKey(key)||
-            scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision||
-            scatterChunks.Count==0&&forestFields.Count==0)return false;
-        foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))return false;
+        if(!WorldGenPerformance.StagedGroundPublication){groundStageBypass=GroundStageBypass.Disabled;return false;}
+        if(GroundPublicationPending){groundStageBypass=GroundStageBypass.Pending;return false;}
+        if(!wanted.ContainsKey(key)){groundStageBypass=GroundStageBypass.Backdrop;return false;}
+        if(scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision){groundStageBypass=GroundStageBypass.PreviousChanges;return false;}
+        if(scatterChunks.Count==0&&forestFields.Count==0){groundStageBypass=GroundStageBypass.NoRoots;return false;}
+        foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame)){groundStageBypass=GroundStageBypass.UnpreparedGroups;return false;}
+        groundStageBypass=GroundStageBypass.Staged;
         product.Root.SetActive(false);groundPublication.Key=key;groundPublication.Product=product;
         RestartGroundPublication();
-        if(groundPublication.Changes.Count==0){groundPublication.Product=null;groundPublication.ClearEdits();product.Root.SetActive(true);return false;}
+        if(groundPublication.Changes.Count==0){groundStageBypass=GroundStageBypass.Unchanged;groundPublication.Product=null;groundPublication.ClearEdits();product.Root.SetActive(true);return false;}
         return true;
     }
     void RestartGroundPublication()

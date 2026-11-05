@@ -157,7 +157,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 if(affected)ProjectScatterGround(chunk);
             }
-            ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
+            ProjectForestGround();RecordGroundCorrection((System.Diagnostics.Stopwatch.GetTimestamp()-correctionStarted)*1000d/System.Diagnostics.Stopwatch.Frequency);scatterGroundChanges.Clear();groundOrigins.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
             // Terrain publication and its root correction are one atomic job.
             // Other pending art uploads can wait for a later frame's budget.
             installationsThisFrame=Math.Max(1,installationsThisFrame);

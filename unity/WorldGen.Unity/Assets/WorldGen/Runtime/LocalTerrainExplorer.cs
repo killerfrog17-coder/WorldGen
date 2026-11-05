@@ -259,7 +259,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var key in terrainRetirementScratch)
             if(!GroundPublicationPending)
             if(CanRetireTransition(key))
-            {CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;scatterGroundRevision++;scatterGroundChanges.Add(key);}
+            {CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;scatterGroundRevision++;scatterGroundChanges.Add(key);NoteGroundChange(key,GroundOrigin.Retirement);}
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
         componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);
         long weatherTrace=WorldGenPerformance.TraceBegin(),weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);WorldGenPerformance.TraceEnd(3,weatherTrace);
@@ -356,7 +356,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         else if(prepared==null)BeginTerrainReplacement(key,product,null);
         target[key]=product;if(prepared==null)residentRevision++;
         if(prepared==null)coverageDirty=true;
-        if(prepared==null&&scatterGroundChanges.Add(key,old,product))scatterGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
+        if(prepared==null&&scatterGroundChanges.Add(key,old,product)){scatterGroundRevision++;NoteGroundChange(key,GroundOrigin.Upload);}lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
         LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);
         frameUploadMs+=timer.Elapsed.TotalMilliseconds;
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms; apply "+applyMs.ToString("F2")+"ms; objects/retire "+(timer.Elapsed.TotalMilliseconds-beforeApply-applyMs).ToString("F2")+"ms; collections "+(GC.CollectionCount(0)-collections)+"; worker buffers "+data.BufferMilliseconds.ToString("F2")+"ms");

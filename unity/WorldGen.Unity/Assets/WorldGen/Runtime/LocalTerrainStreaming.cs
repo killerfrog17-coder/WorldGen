@@ -51,7 +51,7 @@ public sealed partial class LocalTerrainExplorer
         tile.Root.transform.SetParent(terrainRoot.transform,false);
         tile.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
         tiles[key]=tile;residentRevision++;tile.Root.SetActive(true);coverageDirty=true;installationsThisFrame++;TerrainCacheHits++;
-        scatterGroundRevision++;scatterGroundChanges.Add(key);return true;
+        scatterGroundRevision++;scatterGroundChanges.Add(key);NoteGroundChange(key,GroundOrigin.CacheRestore);return true;
     }
     void ResetStreamingReuse(bool cancelJobs)
     {
