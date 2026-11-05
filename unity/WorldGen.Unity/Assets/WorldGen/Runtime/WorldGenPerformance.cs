@@ -1256,7 +1256,7 @@ public sealed partial class WorldGenRuntime
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
                 long heap=0;double heapAt=0;var endFrame=stutter==null&&!WorldGenPerformance.Presented?null:new WaitForEndOfFrame();
-                var timings=new FrameTiming[1];double gpu=0,cpu=0,cpuMain=0,cpuRender=0,cpuPresentWait=0;int timingCount=0;ulong lastTiming=0;
+                var timings=new FrameTiming[1];double gpu=0,cpu=0,cpuMain=0,cpuRender=0,cpuPresentWait=0,largestRejectedGpu=0;int timingCount=0,rejectedGpuTimings=0;ulong lastTiming=0;
                 using var allocationRecorder=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
                 File.AppendAllText(Path.Combine(output,"gc-settings.txt"),site.Item1+" "+item.Name+" allocation_counter_valid="+allocationRecorder.Valid+"\n");
                 if(WorldGenPerformance.Presented)yield return endFrame;
@@ -1296,7 +1296,16 @@ public sealed partial class WorldGenRuntime
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
                     FrameTimingManager.CaptureFrameTimings();
                     if(FrameTimingManager.GetLatestTimings(1,timings)>0&&timings[0].frameStartTimestamp!=lastTiming&&timings[0].gpuFrameTime>0)
-                    {lastTiming=timings[0].frameStartTimestamp;gpu+=timings[0].gpuFrameTime;cpu+=timings[0].cpuFrameTime;cpuMain+=timings[0].cpuMainThreadFrameTime;cpuRender+=timings[0].cpuRenderThreadFrameTime;cpuPresentWait+=timings[0].cpuMainThreadPresentWaitTime;timingCount++;}
+                    {
+                        lastTiming=timings[0].frameStartTimestamp;double measuredGpu=timings[0].gpuFrameTime;
+                        // The GPU was drained immediately before this window.
+                        // A reported GPU frame longer than the entire elapsed
+                        // window (+5s grace) is a counter error, not throughput.
+                        // Keep every actual frame duration/FPS sample unchanged.
+                        if(double.IsNaN(measuredGpu)||double.IsInfinity(measuredGpu)||measuredGpu>(now-start+5)*1000)
+                        {rejectedGpuTimings++;largestRejectedGpu=Math.Max(largestRejectedGpu,measuredGpu);}
+                        else{gpu+=measuredGpu;cpu+=timings[0].cpuFrameTime;cpuMain+=timings[0].cpuMainThreadFrameTime;cpuRender+=timings[0].cpuRenderThreadFrameTime;cpuPresentWait+=timings[0].cpuMainThreadPresentWaitTime;timingCount++;}
+                    }
                 }
                 double drainStart=Time.realtimeSinceStartupAsDouble;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
@@ -1323,6 +1332,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
+                File.AppendAllText(Path.Combine(output,"gpu-counter-validation.txt"),site.Item1+" "+item.Name+": valid="+timingCount+" rejected="+rejectedGpuTimings+" largest_rejected_ms="+largestRejectedGpu.ToString("R",CultureInfo.InvariantCulture)+"; actual frame/FPS samples never filtered\n");
                 File.AppendAllText(Path.Combine(output,"terrain-upload-pool.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection"}.Concat(stutter.Select(s=>s.ToString())));
