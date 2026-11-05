@@ -29,6 +29,7 @@ public static class WorldGenPerformance
     public static bool ForceFreshWaterSamples;
     public static bool LegacyGroupVisibility;
     public static bool ParallelScatter;
+    public static bool BurstScatter;
     public static bool ScatterRangeCache;
     public static bool MemoHumanInputs;
     public static bool MemoryTrace;
@@ -321,22 +322,22 @@ public sealed partial class LocalTerrainExplorer
         }
         if(!preserveOrder)values.Sort(StringComparer.Ordinal);return values.ToArray();
     }
-    public string PerformanceVerifyParallelScatter()
+    public string PerformanceVerifyParallelScatter(bool burst=false)
     {
-        bool before=WorldGenPerformance.ParallelScatter,directional=WorldGenPerformance.DirectionalScatter;int start=ParallelScatterBuilds;
+        bool before=WorldGenPerformance.ParallelScatter,beforeBurst=WorldGenPerformance.BurstScatter,directional=WorldGenPerformance.DirectionalScatter;int start=burst?BurstScatterBuilds:ParallelScatterBuilds;
         WorldGenPerformance.DirectionalScatter=true;
         try
         {
             for(int yaw=0;yaw<360;yaw+=45)
             {
-                PerformanceTurn(yaw);WorldGenPerformance.ParallelScatter=false;BuildScatterBatches();var sequential=PerformanceInstances();
-                WorldGenPerformance.ParallelScatter=true;BuildScatterBatches();var parallel=PerformanceInstances();
+                PerformanceTurn(yaw);WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=false;BuildScatterBatches();var sequential=PerformanceInstances();
+                WorldGenPerformance.ParallelScatter=!burst;WorldGenPerformance.BurstScatter=burst;BuildScatterBatches();var parallel=PerformanceInstances();
                 if(!sequential.SequenceEqual(parallel))throw new InvalidOperationException("Parallel scatter changed model/transform/tint/fade/shadow multiset at "+yaw);
             }
-            if(ParallelScatterBuilds-start!=8)throw new InvalidOperationException("Parallel scatter was not actually exercised at eight headings");
-            return "PASS eight exact sequential/parallel model, matrix, tint, LOD-fade and shadow instance multisets; engine objects/draw submission remain on main thread";
+            if((burst?BurstScatterBuilds:ParallelScatterBuilds)-start!=8)throw new InvalidOperationException("Requested worker backend was not actually exercised at eight headings: Burst="+burst);
+            return "PASS eight exact sequential/"+(burst?"Burst-compiled":"managed parallel")+" model, matrix, tint, LOD-fade and shadow instance multisets; engine objects/draw submission remain on main thread";
         }
-        finally{WorldGenPerformance.ParallelScatter=before;WorldGenPerformance.DirectionalScatter=directional;PerformanceTurn(20);BuildScatterBatches();}
+        finally{WorldGenPerformance.ParallelScatter=before;WorldGenPerformance.BurstScatter=beforeBurst;WorldGenPerformance.DirectionalScatter=directional;PerformanceTurn(20);BuildScatterBatches();}
     }
     public string PerformanceVerifyHumanInputs()
     {
@@ -385,19 +386,19 @@ public sealed partial class LocalTerrainExplorer
         try{return PerformanceVerifyLiteralVisibility();}
         finally{WorldGenPerformance.DisableScatterViewGuard=old;scatterDirty=true;}
     }
-    public string PerformanceVerifyParallelRenders(string output)
+    public string PerformanceVerifyParallelRenders(string output,bool burst=false)
     {
-        Directory.CreateDirectory(output);bool oldParallel=WorldGenPerformance.ParallelScatter,oldDirectional=WorldGenPerformance.DirectionalScatter;
+        Directory.CreateDirectory(output);bool oldParallel=WorldGenPerformance.ParallelScatter,oldBurst=WorldGenPerformance.BurstScatter,oldDirectional=WorldGenPerformance.DirectionalScatter;
         float oldAdaptation=WeatherVideoOptions.Current.Adaptation,oldHeading=heading,oldPitch=pitch;var oldEye=view.transform.localPosition;var oldRotation=view.transform.localRotation;
-        WeatherVideoOptions.Current.Adaptation=0;WorldGenPerformance.DirectionalScatter=true;int maximum=0,comparisons=0,start=ParallelScatterBuilds;
+        WeatherVideoOptions.Current.Adaptation=0;WorldGenPerformance.DirectionalScatter=true;int maximum=0,comparisons=0,start=burst?BurstScatterBuilds:ParallelScatterBuilds;
         try
         {
             for(int yaw=0;yaw<360;yaw+=45)foreach(var offset in new[]{new Vector3(0,0,0),new Vector3(8,12,0),new Vector3(0,-12,8),new Vector3(-8,20,-8)})
             {
                 var at=oldEye+new Vector3(offset.x,0,offset.z);at.y=(float)SurfaceGround(at.x+originX,at.z+originZ)+1.8f;
                 view.transform.localPosition=at;view.transform.localRotation=Quaternion.Euler(oldPitch+offset.y,yaw,0);
-                WorldGenPerformance.ParallelScatter=false;BuildScatterBatches();var expected=PerformanceInstances(preserveOrder:true);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var sequential=LastCapturePixels;
-                WorldGenPerformance.ParallelScatter=true;BuildScatterBatches();
+                WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=false;BuildScatterBatches();var expected=PerformanceInstances(preserveOrder:true);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var sequential=LastCapturePixels;
+                WorldGenPerformance.ParallelScatter=!burst;WorldGenPerformance.BurstScatter=burst;BuildScatterBatches();
                 if(!expected.SequenceEqual(PerformanceInstances(preserveOrder:true)))throw new InvalidOperationException("Parallel scatter changed exact submitted instance order/data at "+yaw+" / "+offset);
                 DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(null);var parallel=LastCapturePixels;int delta=0;
                 for(int i=0;i<sequential.Length;i++)delta=Math.Max(delta,Math.Max(Math.Abs(sequential[i].r-parallel[i].r),Math.Max(Math.Abs(sequential[i].g-parallel[i].g),Math.Abs(sequential[i].b-parallel[i].b))));
@@ -406,15 +407,15 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var image=new Texture2D(weatherCheckTarget.width,weatherCheckTarget.height,TextureFormat.RGB24,false);
                     try{image.SetPixels32(sequential);image.Apply();File.WriteAllBytes(Path.Combine(output,"failed-sequential.png"),image.EncodeToPNG());image.SetPixels32(parallel);image.Apply();File.WriteAllBytes(Path.Combine(output,"failed-parallel.png"),image.EncodeToPNG());}finally{Destroy(image);}
-                    WorldGenPerformance.ParallelScatter=false;BuildScatterBatches();DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,"failed-reference-repeat.png"));int repeat=0;
+                    WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=false;BuildScatterBatches();DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,"failed-reference-repeat.png"));int repeat=0;
                     for(int i=0;i<sequential.Length;i++)repeat=Math.Max(repeat,Math.Max(Math.Abs(sequential[i].r-LastCapturePixels[i].r),Math.Max(Math.Abs(sequential[i].g-LastCapturePixels[i].g),Math.Abs(sequential[i].b-LastCapturePixels[i].b))));
                     throw new InvalidOperationException("Parallel versus sequential identical-camera render changed pixels: "+yaw+" / "+offset+", max RGB "+delta+"; sequential/reference repeat max RGB "+repeat);
                 }
             }
-            if(ParallelScatterBuilds-start!=comparisons)throw new InvalidOperationException("Parallel renderer comparisons did not exercise workers");
-            return "PASS "+comparisons+" identical-camera sequential/parallel renders with exact model/matrix/tint/fade/caster multisets; fixed exposure, all actors retained; max RGB delta "+maximum;
+            if((burst?BurstScatterBuilds:ParallelScatterBuilds)-start!=comparisons)throw new InvalidOperationException("Renderer comparisons did not exercise requested workers: Burst="+burst);
+            return "PASS "+comparisons+" identical-camera sequential/"+(burst?"Burst-compiled":"managed parallel")+" renders with exact model/matrix/tint/fade/caster multisets; fixed exposure, all actors retained; max RGB delta "+maximum;
         }
-        finally{WorldGenPerformance.ParallelScatter=oldParallel;WorldGenPerformance.DirectionalScatter=oldDirectional;WeatherVideoOptions.Current.Adaptation=oldAdaptation;heading=oldHeading;pitch=oldPitch;view.transform.localPosition=oldEye;view.transform.localRotation=oldRotation;BuildScatterBatches();}
+        finally{WorldGenPerformance.ParallelScatter=oldParallel;WorldGenPerformance.BurstScatter=oldBurst;WorldGenPerformance.DirectionalScatter=oldDirectional;WeatherVideoOptions.Current.Adaptation=oldAdaptation;heading=oldHeading;pitch=oldPitch;view.transform.localPosition=oldEye;view.transform.localRotation=oldRotation;BuildScatterBatches();}
     }
     public string PerformanceVerifyScatterRange()
     {
@@ -1101,11 +1102,15 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-optimized-depth",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.MemoHumanInputs=true;TerrainVideoOptions.FoliageDepthPrepass=true;}),
             new PerfCase("travel-whip-flat-tree",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.MemoHumanInputs=true;Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",1);}),
             new PerfCase("travel-whip-partial-upload",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
+            new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-range-cache-verify",()=>{}),
             new PerfCase("human-weights-verify",()=>{}),
             new PerfCase("forest-upload-verify",()=>{}),
+            new PerfCase("burst-scatter-verify",()=>{}),
+            new PerfCase("burst-render-verify",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("travel-whip-legacy-groups",()=>WorldGenPerformance.LegacyGroupVisibility=true),
             new PerfCase("travel-whip-narrow",()=>WorldGenPerformance.NarrowScatterGuard=true),
@@ -1145,13 +1150,13 @@ public sealed partial class WorldGenRuntime
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
-                WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",0);
+                WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",0);
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
-                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
+                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.GetGlobalFloat("_WorldGenTreeFlatDepth")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;
@@ -1172,6 +1177,8 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="scatter-range-cache-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyScatterRange()+"\n");
                 if(item.Name=="human-weights-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyHumanInputs()+"\n");
                 if(item.Name=="forest-upload-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestUploads()+"\n");
+                if(item.Name=="burst-scatter-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter(true)+"\n");
+                if(item.Name=="burst-render-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelRenders(Path.Combine(output,"burst-renders"),true)+"\n");
                 if(item.Name=="ground-seam-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewGroundSeams(output,site.Item1)+"\n");
                 if(item.Name=="grass-approach-review")yield return terrainExplorer.PerformanceReviewGrassApproach(output,site.Item1);
                 if(item.Name=="tree-depth-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewTreeDepth(output,site.Item1)+"\n");

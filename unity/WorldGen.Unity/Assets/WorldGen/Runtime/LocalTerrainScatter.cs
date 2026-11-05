@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
     struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
     struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
-    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted;public bool RangeValid;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
+    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
@@ -127,7 +127,7 @@ public sealed partial class LocalTerrainExplorer
         }
         double Distance(ScatterKey k){V p=scatter.Position(k)-at;return p.X*p.X+p.Y*p.Y+p.Z*p.Z;}
         scatterPriority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.CompareTo(b);});
-        foreach(var key in scatterChunks.Keys.Where(k=>!scatterWanted.Contains(k)).ToArray()){scatterChunks.Remove(key);canopySourceRevision++;}scatterDirty=true;
+        foreach(var key in scatterChunks.Keys.Where(k=>!scatterWanted.Contains(k)).ToArray()){scatterChunks[key].Burst?.Dispose();scatterChunks.Remove(key);canopySourceRevision++;}scatterDirty=true;
     }
     void UpdateScatter()
     {
@@ -210,7 +210,7 @@ public sealed partial class LocalTerrainExplorer
         WorldGenPerformance.TraceEnd(11,trace);
         frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
         if(installingScatterAt<count||installingScatterRechecks.Count>0)return;
-        PrepareScatterGroups(chunk,frame);chunk.Born=Math.Max(.001f,Time.time);scatterChunks[installingScatterKey]=chunk;
+        PrepareScatterGroups(chunk,frame);chunk.Born=Math.Max(.001f,Time.time);if(scatterChunks.TryGetValue(installingScatterKey,out var replaced)&&!ReferenceEquals(replaced,chunk))replaced.Burst?.Dispose();scatterChunks[installingScatterKey]=chunk;
         canopySourceRevision++;scatterDirty=true;installingScatter=null;installingScatterDirty=null;
     }
     void RequestScatter(ScatterKey key)
@@ -333,7 +333,7 @@ public sealed partial class LocalTerrainExplorer
                 bounds=group.RootBounds;bounds.SetMinMax(rootMin,rootMax);group.RootBounds=bounds;
             }
         }
-        if(changed){chunk.RangeValid=false;var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;canopySourceRevision++;}
+        if(changed){chunk.RootRevision++;chunk.RangeValid=false;var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;canopySourceRevision++;}
         WorldGenPerformance.TraceEnd(11,trace);
     }
     void ProjectScatter(ScatterChunk chunk)
@@ -347,6 +347,7 @@ public sealed partial class LocalTerrainExplorer
             ProjectScatterRoot(chunk,i);
         }
         PrepareScatterBounds(chunk);
+        chunk.RootRevision++;
         canopySourceRevision++;
         WorldGenPerformance.TraceEnd(11,trace);
     }
@@ -470,7 +471,8 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in scatterChunks){var chunk=pair.Value;if(chunk.Bounds==null)PrepareScatterBounds(chunk);scatterCollectWork.Add(chunk);}
         long classifyTrace=WorldGenPerformance.TraceBegin();
         bool parallel=WorldGenPerformance.ParallelScatter&&!WorldGenPerformance.FineCullTrace&&!WorldGenPerformance.Original&&prefabScatterKinds.Count==0&&Environment.ProcessorCount>=4&&scatterCollectWork.Count>1;
-        if(parallel)
+        if(CollectBurstScatter(eye)){}
+        else if(parallel)
         {
             // Snapshot engine-owned state before workers run. During this join,
             // the main thread cannot install terrain or modify scene dictionaries.
@@ -706,6 +708,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeScatter()
     {
+        DisposeBurstScatter();
         DisposePlayerSolids();
         DisposePlayerWater();
         DisposeTreeEfficiency();
