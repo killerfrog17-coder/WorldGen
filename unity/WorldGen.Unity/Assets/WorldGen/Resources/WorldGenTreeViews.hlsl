@@ -3,7 +3,7 @@
 TEXTURE2D_ARRAY(_TreeColourViews);SAMPLER(sampler_TreeColourViews);
 TEXTURE2D_ARRAY(_TreeNormalViews);SAMPLER(sampler_TreeNormalViews);
 // Distance transition, then projected-diameter transition. Zero disables LOD.
-float4 _WorldGenTreeViewRanges;float _WorldGenTreeViewProjection,_WorldGenTreeStableDepth;
+float4 _WorldGenTreeViewRanges;float _WorldGenTreeViewProjection,_WorldGenTreeStableDepth,_WorldGenTreeFlatDepth;
 float2 WorldGenTreeDepthOffset(float2 offset)
 {
     // The 128px bake stores only the front surface. Large reprojection offsets
@@ -48,6 +48,12 @@ void WorldGenTreeFullView(uint index,float3 p,float3 view,float radius,half4 cov
     float2 uv=WorldGenTreeViewUV(index,p,view,radius);
     if(!prefetched)coverage=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
     half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index);
+    if(_WorldGenTreeFlatDepth>.5)
+    {
+        // Optional ordinary multi-view impostor: colour and normal share the
+        // same source texel, without a second depth-driven pair of reads.
+        color=coverage;color.a*=all(uv>=0)&&all(uv<=1);normal=depth.rgb*2-1;return;
+    }
     float t=(coverage.a>.2?(depth.a-.5)*2*radius:0)/max(.2,dot(view,d));
     uv+=WorldGenTreeDepthOffset(float2(dot(view,r),dot(view,u))*t/(2*radius));
     color=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);color.a*=all(uv>=0)&&all(uv<=1);
@@ -132,6 +138,8 @@ half4 WorldGenTreeMaskCoverage(half4 color,float2 uv)
 void WorldGenPreparedTreeFullView(float4 projection,uint index,half4 coverage,out half4 color,out half3 normal)
 {
     half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,projection.xy,index);
+    if(_WorldGenTreeFlatDepth>.5)
+    {color=WorldGenTreeMaskCoverage(coverage,projection.xy);normal=depth.rgb*2-1;return;}
     float2 uv=projection.xy+WorldGenTreeDepthOffset(projection.zw*(coverage.a>.2?depth.a-.5:0));
     color=WorldGenTreeMaskCoverage(SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index),uv);
     normal=(_WorldGenTreeStableDepth>.5?depth.rgb:SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb)*2-1;
