@@ -53,6 +53,34 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov16:02Z PERFORMANCE ONLY CONTINUES. B FULL NONDEV fb3fcd11 BuiltUtc
+16:00:27Z SourceChanges[],known3Unityautos restored; source all PUSHED. Own
+native46315 projection-worker-proof RUNNING hidden, boreal1500m, one offscreen
+projection-parallel-verify case. DO NOT compile/overwrite B until it exits.
+New opt-in ParallelRootProjection DEFAULT OFF: correction dispatches independent
+chunk arrays onto existing4worker pool, read-only height-owner lookup (NO shared
+owner cache writes), waits before terrain retirement/draw, atomic canopy epoch.
+Exact actual worker/main matrix/root/bounds/groundlevel/publication-bit proof
+ADDED but pending current run. Need proof THEN paired presented current/parallel
+FPS before enabling. Selected A/f833/shortcut unchanged. No new geography.
+New08e87218 reuse caller-local abundance arithmetic workspace, NO cached ecology;
+3215 tests PASS incl240 changing populations, duplicates/null/invalidmass/size
+and bit-identical every density, independent retained results. Now in currentB.
+0e allocation-after-reuse COMPLETE +offline allocation-analysis-after-reuse:
+47,605,472bytes/10s across1578 rawframes vs63,639,392/743 before. Builder13.75MiB
+->.012MiB, sound2.08->.001MiB, retirement2.54->0,qualitygap1.16->.319MiB. Profile
+is DEVELOPMENT DIAGNOSTICS, NOT release FPS. New50c scopes +offline slowframe
+reader prove correction is culprit: allocation-analysis-projection-scopes has
+terrain correction28.968/22.087ms in worst two update frames;10calls/54.38ms.
+Install23calls/16ms total,groups9/7.70ms; not main spike cause. Other spike is
+automatic incremental GC26.5ms inclGC.Collect7.67ms. Prior naive manualGC trial
+still RETIRED; no new manual/disabled GC code. Researched official Unity GC docs
+but uncapped idle-time hypothesis NOT accepted as cause (automatic inc really
+runs each frame). After worker proof, main remaining performance tasks are its
+actual speed/tails, ongoing GC, jungle/temperate/savanna current and owner saved
+profile (earlier152.9moving/49msworst). Long60km loading remains unacceptable.
+No owner files changed, lock5405/144. No heavy other jobs during timing windows.
+
 ACTIVE5Nov15:12Z PERFORMANCE ONLY CONTINUES. B FULL DEVELOPMENT0e4e4878 build
 RUNNING session99779, no game active. Finish package,restore3knownUnityautos,
 then run10sec allocation profile in presented1500m boreal, fresh evidence name.

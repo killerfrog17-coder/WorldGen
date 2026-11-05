@@ -1,6 +1,6 @@
 {
   "status": "Performance repair active;100FPS floor NOT achieved;selected A/f833/shortcut unchanged. No new geography.",
-  "candidate_source": "0e4e4878 (diagnostic build pending; selected A unchanged)",
+  "candidate_source": "fb3fcd1122b5dbb9ec20910e18e3d4a861319451",
   "candidate_slot": "slot-b",
   "method": "Latest throughput uses uncapped normal presented D3D11/URP 1920x1080. Earlier offscreen/image/pose fixtures are explicitly not throughput. Normal Medium6km and actual saved mixedSurface4/veg2/60km/depth-prepass settings are separate cases; streaming readiness and frame tails remain recorded. No other own heavy jobs during timing windows.",
   "target": {
@@ -2239,5 +2239,50 @@
     "source": "0e4e4878",
     "core_file_change_checks": 11,
     "status": "Native diagnostic build pending; unchanged metadata reuses prior catalogue without advancing library version; deletion/replacement/explicit reload still rescan"
+  },
+  "latest_allocation_diagnostics": {
+    "source": "0e4e4878878a8b7161d4ae52ae9b914a3d22ab9a",
+    "development_only": true,
+    "evidence": "artifacts/render-repair-20261105/allocation-analysis-after-reuse",
+    "seconds": 10,
+    "raw_frames": 1578,
+    "allocated_bytes": 47605472,
+    "prior_bytes": 63639392,
+    "prior_raw_frames": 743,
+    "grouped_mib": {
+      "builder": 0.012,
+      "unchanged_sound_catalogue": 0.001,
+      "retirement": 0,
+      "quality_footprint": 0.319,
+      "wildlife_abundance": 5.592
+    },
+    "not_release_throughput": true
+  },
+  "atomic_projection_trial": {
+    "source": "fb3fcd1122b5dbb9ec20910e18e3d4a861319451",
+    "enabled_by_default": false,
+    "evidence": "artifacts/render-repair-20261105/projection-worker-proof",
+    "status": "Native exact worker/main proof running; paired speed test pending",
+    "cause_evidence": "artifacts/render-repair-20261105/allocation-analysis-projection-scopes",
+    "terrain_correction_worst_ms": [
+      28.968,
+      22.087
+    ],
+    "scope_total_ms": 54.3807,
+    "scope_calls": 10,
+    "safety": "Read-only resident terrain, distinct chunk arrays, joins before retirement/draw; worker cannot modify shared owner cache"
+  },
+  "abundance_workspace": {
+    "source": "08e87218",
+    "checks_passed": 3215,
+    "behavior": "Temporary arithmetic storage only; every density bit compared with original API across changing populations; earlier results remain owned"
+  },
+  "gc_research": {
+    "implemented_policy": "Original automatic incremental collection retained; failed naive every-frame manual policy stays retired",
+    "links": [
+      "https://docs.unity.com/en-us/engine/6000.5/manual/analysis/performance-memory/managed-memory/incremental-garbage-collection",
+      "https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/scripting/garbagecollector/collectincremental"
+    ],
+    "diagnosis": "Actual profiler shows automatic incremental work every frame and occasional long collection; uncapped-framerate hypothesis not established"
   }
 }
