@@ -53,6 +53,22 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov16:23Z PERFORMANCE ONLY. Trial fb3fcd11 RETIRED by a7c8934d after actual
+presented-parallel-ground COMPLETE: sequential176.752FPS p9511.39/max38.04,
+parallel171.087 p9511.58/max38.96; no material gain. Worker proof remains valid
+but experiment was not useful. Source reverted worker option/helper/proof; kept
+all confirmed optimizations. B is STILL fb3fcd11 NONDEV with trial DEFAULT OFF,
+so its current-case path matches reverted source; no new packaging needed for
+these measurements. Actual package stamp MUST remain fb3, not false a7 stamp.
+One parallel-case GPU sample aggregate is nonsensical3.205e9ms; INVALID GPU metric,
+not frame time. CPU/frame/FPS receipts retained unchanged; validate sensor later.
+Own native21606/player3056 RIGHTMOST runs presented-other-dense-contexts:
+tropicalrainforest,temperateforest,savanna-tall,Medium6km30s turning/currentmoving.
+Do NOT compile/overwrite B or run heavy jobs until all timing windows finish.
+Source PUSHED a7c8934d. Selected A/f833/shortcut unchanged;100FPSfloor NOT solved.
+Need current remaining-context outcomes then target real costs; ongoingGC,
+loading and known historical vertical water-strip art remain unresolved.
+
 ACTIVE5Nov16:14Z PERFORMANCE ONLY. B FULL NONDEV fb3fcd11/source unchanged.
 projection-worker-proof COMPLETE EXIT0/no runtime errors: actual Task.Run worker
 bit-identical to main for23340matrices/root/bounds/groundlevel/publication,
