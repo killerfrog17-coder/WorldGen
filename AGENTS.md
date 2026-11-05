@@ -53,6 +53,37 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov15:12Z PERFORMANCE ONLY CONTINUES. B FULL DEVELOPMENT0e4e4878 build
+RUNNING session99779, no game active. Finish package,restore3knownUnityautos,
+then run10sec allocation profile in presented1500m boreal, fresh evidence name.
+After capture exits run offline WorldGenProfilerReview.Run and inspect measured
+remaining allocations/CPU; MUST return B FULL NONDEV before owner playtest.
+Selected A/f833/shortcut untouched;100FPS floor NOT met. No new geography.
+Current release72e225c1 owner60km mixedSurface4/veg2/depthtrue test COMPLETE:
+turn155.445FPS p9511.59/max42.46, moving152.882 p9511.73/max49.35; UNSETTLED
+244/359 then275/353tiles, explicit long loading failure remains. Evidence
+presented-owner-after-alloc. Earlier bc523 current Medium6km COMPLETE: plains
+moving201.702FPS p9510.37/max27.06; boreal167.291 p9511.07/max42.76. Main human
+phase plains1.0375ms repeated binding ->.0974ms current. No claimed pool FPS gain:
+sequential cache warming confounds; retained bytes bounded16MiB, payloads exact.
+Native current-native-proofs a7 PASS78228 actual bone comparisons max1.192e-7,
+8exact Burst instance sets +32paired renders RGBdelta0,47053 GPU roots readback.
+Native pooled-native-upload bc PASS after returned arrays overwritten beforeApply.
+84eda8a4 scratch lists now use bounded2sets/8MiB per thread, all17Builder scopes
+disposed after finishing uses; mesh-scratch-native PASS312pairs/166598vertices
+including all8UV channels/positions/normals/tangents/colors/indices/bounds.
+72 transition snapshot/retirement loops and cached fog groups remove per-frame
+LINQ allocations;6152 pure fog checks incl160bit-exact changing-plan cases and
+steady allocation limit PASS. transition-noalloc-native actual shader/fades/
+missing or incomplete replacement guards PASS. New0e4e4878 sound metadata index
+avoids reparsing/rebuilding unchanged catalogue every10s;11 file-edit/deletion/
+same-time size/recovery/forcedreload tests PASS, native profile pending. Prior
+fixed2 profile allocation sources: Builder13.75MiB, abundance5.57, sound3.87,
+retirement2.54,qualitygap1.16 per10s. Source PUSHED. Owner3files preserved;
+lock5405/144 unchanged. Old boreal-root-mask image inspected: foreground smooth
+but vertical rectangular water strip still unaccepted historical geography art;
+NOT a current visual acceptance. Still need jungle/temperate/savanna actual FPS.
+
 ACTIVE5Nov14:17Z PERFORMANCE ONLY. B ScriptsOnly NONDEV a7dde058 BuiltUtc14:04:19Z
 over FULL7360. Native44148 current-native-proofs RUNNING hidden: boreal1500m,
 water-aim/human-output/burst-scatter/burst-render/forest-upload exact proofs.
