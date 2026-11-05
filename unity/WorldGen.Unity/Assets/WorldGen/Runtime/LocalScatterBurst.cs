@@ -39,13 +39,13 @@ public sealed partial class LocalTerrainExplorer
         public double TreeIdentity,TreeMaximum,MidMaximum,HerbMaximum,FungusMaximum,Handoff;
         public bool Camp;public double CampX,CampZ,Radius;public V East,North,Origin;
     }
-    // Keep the intermediate sum at float precision before the double sqrt,
-    // matching Vector3.magnitude in the managed reference. Do not let Burst's
-    // vector intrinsic choose a different reduction/approximation for LOD fades.
+    // The managed player's IL evaluation retains wider intermediates for the
+    // magnitude expression. Make that precision explicit in the native job;
+    // roots/subtraction still round to Vector3 floats before this sum.
     static float ScatterDistance(Vector3 a,Vector3 b)
     {
         float x=a.x-b.x,y=a.y-b.y,z=a.z-b.z;
-        float square=x*x+y*y+z*z;return (float)Math.Sqrt((double)square);
+        double square=(double)x*x+(double)y*y+(double)z*z;return (float)Math.Sqrt(square);
     }
     [BurstCompile(FloatMode=FloatMode.Strict,FloatPrecision=FloatPrecision.High,CompileSynchronously=true)]
     struct ScatterAdmissionJob : IJobParallelFor
@@ -234,14 +234,15 @@ public sealed partial class LocalTerrainExplorer
         using var distances=new NativeArray<float>(count,Allocator.TempJob);
         using var compiled=new NativeArray<byte>(count,Allocator.TempJob);
         new ScatterDistanceProbe{Points=points,Distances=distances,Compiled=compiled}.Schedule(count,64).Complete();
-        var eye=new Vector3(.123f,18.375f,-.456f);int changed=0;float maximum=0;
+        var eye=new Vector3(.123f,18.375f,-.456f);int changed=0;float maximum=0;string first="";
         for(int i=0;i<count;i++)
         {
             if(compiled[i]==0)throw new InvalidOperationException("Burst distance probe executed managed fallback");
             float expected=(points[i]-eye).magnitude,actual=distances[i];
-            if(BitConverter.SingleToInt32Bits(expected)!=BitConverter.SingleToInt32Bits(actual)){changed++;maximum=Math.Max(maximum,Math.Abs(expected-actual));}
+            if(BitConverter.SingleToInt32Bits(expected)!=BitConverter.SingleToInt32Bits(actual))
+            {changed++;maximum=Math.Max(maximum,Math.Abs(expected-actual));if(first=="")first="; first point "+points[i].ToString("R")+", reference "+expected.ToString("R")+", native "+actual.ToString("R")+", managed explicit "+ScatterDistance(points[i],eye).ToString("R");}
         }
-        if(changed>0)throw new InvalidOperationException("Burst distance differs from managed Vector3.magnitude: "+changed+"/"+count+", max "+maximum.ToString("R"));
+        if(changed>0)throw new InvalidOperationException("Burst distance differs from managed Vector3.magnitude: "+changed+"/"+count+", max "+maximum.ToString("R")+first);
         return "PASS "+count+" bit-exact Burst-compiled/managed distances across the resident scatter range";
     }
     NativeArray<Plane> burstPlanes;
