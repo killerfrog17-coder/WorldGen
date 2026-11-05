@@ -53,6 +53,35 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov13:00Z PERFORMANCE ONLY. Selected A/f833/shortcut protected.
+Current B ScriptsOnly DEVELOPMENT9474dccc over FULL DEVELOPMENT0ecb (diagnostic
+only),SourceChanges[],3Unityautos restored. Native session30282/player400 runs
+allocation-callstacks-fixed,Medium1500m/10sec with Burst+partial,RIGHTMOST.
+NO other heavy jobs during capture. Check completion then offline Editor reader
+WorldGenProfilerReview.Run into allocation-analysis-fixed, then restore3autos.
+Before owner playtest B MUST return to FULL managed NONDEV (dev setting changed).
+Sourcefc47 prepared defaults Burst/managed fallback/partial uploads ON, bounded
+Medium-or-lower shadows mandatory without changing preferences; warmup no longer
+falls back to full crowns. Culling guard depends on coarse MODE,not cache readiness.
+High/Ultra detailed comparison retained. Source compiled into9474;native integration
+and normal-player performance still needed.100FPS floor NOT achieved.
+Completed saved-coarse039: moving65.26->79.01FPS,sorted77.30/no-depth75.43,all
+unsettled. Present waits.03-.10ms NOT compositor cap. Source7eb camera observer
+64.06vs62.85 no substantial observer issue. Earlier77-vs-current regression still
+unresolved;do NOT claim fixed. Actual saved settings60km/geometry1/surface4/plants2.
+Actual allocation profile0ecb DEVELOPMENT10sec:599frames,102278721GC.Alloc bytes.
+Offline allocation-analysis complete: OnGUI4.11sec inclusive of10,profile overhead
+counts. WildlifeBehaviour.Describe hundreds of thousands of allocations;Nature
+Refresh closure6.74MiB/51841;PollHumans GetCommandLineArgs1.32MiB/19136. Raw379MB.
+New e778 caches planner descriptions by ALL6inputs (private read-only consumers,
+cleared with biota epoch),removes Nature lookup capturing predicates,caches startup
+flag,and read-only pickup prompt skips layout.0ecb caches GUI styles. Tests103
+wildlife+104fauna+33foraging PASS. New229 prompt CPU markers in Dev only;9474
+profilecase selects actual Burst/partial path. Need second capture results to
+locate remaining OnGUI work. First raw/analysis paths under render-repair-20261105.
+All source pushed through9474dccc. Owner3files intact;assets5405/144. No geography,
+subagents,paid,owner-app closure. All visible own windows RIGHTMOST via helper.
+
 ACTIVE5Nov12:15Z PERFORMANCE CONTINUES; no stop request or new geography.
 Selected A/f833 and shortcut remain protected. Current B ScriptsOnly build82198
 source039a865d over FULL4d64 is running. Check completion/stamp/errors and restore

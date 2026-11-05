@@ -1,5 +1,5 @@
 {
-  "status": "Active performance repair;100FPS floor NOT achieved;earlier-to-current regression unresolved;selected A/f833/shortcut untouched.",
+  "status": "Performance repair active;100FPS floor NOT achieved;selected A/f833/shortcut unchanged. No new geography.",
   "candidate_source": "551b974e",
   "candidate_slot": "slot-b",
   "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
@@ -1601,6 +1601,56 @@
         "summary.csv": "4cfa6d3352a540d4fda1c112b533b37eef4d85e45b1ec8c6dda16e57595049ce",
         "player.log": "fd6b5f6ed6828b4b13a15284d43d2c19c4b5bee6b4516cc7388b9987ef52b7d5"
       }
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/presented-saved-coarse",
+      "complete": true,
+      "source": "039a865da445c5a9d0440079e962f3a4b6985ea8",
+      "qualification": "Normal presented player; actual saved60km/mixed video preferences,20second windows. All windows remained unsettled. Coarse foliage improves65.26->79.01FPS;sorting77.30 and no-depth75.43 do not improve this sample. CPU presentation waits.03-.10ms,not a frame-cap/compositor bottleneck.100FPS floor still fails.",
+      "rows": [
+        {
+          "case": "travel-whip-burst-partial",
+          "fps": "65.26214",
+          "p95_ms": "21.47160",
+          "max_ms": "48.55120",
+          "gpu_ms": "8.95728",
+          "cpu_ms": "15.20939",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip-coarse-shadows",
+          "fps": "79.00983",
+          "p95_ms": "19.98990",
+          "max_ms": "51.81080",
+          "gpu_ms": "8.07028",
+          "cpu_ms": "12.60557",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip-coarse-sorted",
+          "fps": "77.29591",
+          "p95_ms": "19.56650",
+          "max_ms": "47.61760",
+          "gpu_ms": "8.47527",
+          "cpu_ms": "12.92056",
+          "settled": "False"
+        },
+        {
+          "case": "travel-whip-coarse-no-depth",
+          "fps": "75.42511",
+          "p95_ms": "20.41010",
+          "max_ms": "55.67690",
+          "gpu_ms": "8.21577",
+          "cpu_ms": "13.29426",
+          "settled": "False"
+        }
+      ],
+      "evidence_sha256": {
+        "package.json": "10d7af9dcaca70bfce30d0da7f235e0d2d6964bb4fee8ac8ccf905b9377abc71",
+        "summary.csv": "198211b17aefa740280ad1685812116467171e9bc97807aa8c7fd1ba91ff3cd9",
+        "cpu-frame-components.csv": "293a1591689072a34350c1986fd2611937bfc3cd66bae45990434bfcd0571a3e",
+        "player.log": "2233dbfda7dca8590a2d9f1b3513e7352acbd18d782fcdbbc60ba2fe8a12b6a7"
+      }
     }
   ],
   "candidate_full_baseline": "b235940052176b17efa3c9149fe9715a337e3b39",
@@ -1624,7 +1674,7 @@
   ],
   "next_candidate_source": "4d64f46f58f446c1b9d1b3f0e4333506fdab84d9",
   "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
-  "current_test": "Build82198: B ScriptsOnly managed NONDEV039a865d with diagnostic frame timing over FULL4d64. Next run compares saved settings with coarse canopy shadows,front-to-back order,and depth prepass; no normal-game flags enabled yet.",
+  "current_test": "B ScriptsOnly DEVELOPMENT9474dccc over FULL DEVELOPMENT0ecb,only for diagnostic capture. Native session30282/player400 RIGHTMOST runs allocation-callstacks-fixed,Medium1500m/10seconds with Burst+partial. No other heavy jobs. After it exits run WorldGenProfilerReview.Run into allocation-analysis-fixed;then return B to normal NONDEV FULL before any owner playtest. Selected A remains unchanged.",
   "ground_mask_repair": {
     "source": "f6f812f4",
     "pure_checks": 5759,
@@ -1639,11 +1689,13 @@
     "parallel_workers": "Exact native image/instance checks pass. Presented boreal moving140.76->147.78FPS; savanna123.15FPS with worker path, still fails required100FPS floor. Default OFF pending final configuration.",
     "range_cache": "48exact boundary/heading checks pass eachsite; combined worker/cache no established throughput gain, OFF.",
     "human_input_memo": "78228actual bone comparisons zero error eachsite; presented human CPU1.207ms baseline vs1.226ms memo, no established gain, OFF.",
-    "partial_forest_upload": "GPU actual data byte-identical after three disjoint block updates/deletion/restoration. Savanna34688bytes vs509824full. Default OFF until real moving transfer/timing measurements. Actual moving20ac root transfer1,408.89->33.53MiB boreal and1,542.39->89.78MiB savanna over30seconds;zero full uploads in partial windows. Modest FPS benefit;floor unmet.",
+    "partial_forest_upload": "Enabled in unaccepted sourcefc47f8d6 after exact GPU byte-readback and actual moving transfer1408.89->33.53MiB boreal/1542.39->89.78MiB savanna. New combined source needs native integration.",
     "ordinary_tree_impostor": "Two texture reads/view instead of four in detailed path; three-angle coverage kept. Actual overhead boreal original/flat inspected: flat reduces reprojection smearing but both retain coarse billboard limitations. OFF pending FPS and other views. Uniform flat-depth toggle showed no material gain;9640d6aa moves it to compile-time shader keyword so disabled normal shader excludes its branch. FULL4d64 build passed;GPU-timed comparison running,not accepted yet.",
-    "burst_native_admission": "Native02493324 passes65536bit-exact distances,8exact instance/caster multisets and32paired images at each dense boreal/savanna;max RGB delta0,compiled execution required. Source20ac adds OFF-by-default incremental collection diagnostic only. Burst remains OFF pending normal presented timing. Current presented20ac within-package worker80.06->Burst83.25FPS boreal,95.54->99.21savanna;whole package slower than77 baseline,unresolved.",
+    "burst_native_admission": "Enabled in unaccepted sourcefc47f8d6 after native exact8sets+32zero-pixel pairs per2sites,65536bit-exact distances,and repeated within-package CPU improvement. Compiled fallback detection retained. Current new combined source still needs native integration/normal-player checks.",
     "incremental_collection_budget": "REJECTED/RETIRED6b90a61c:29FPS both sites,400-432collections/30sec,36-53ms worst collector calls. Never enabled in normal game. Automatic collection retained.",
-    "buffered_terrain_transport": "86f9fcef:64KiB response writes and client reads;duplex raw cancellation/control path retained. Actual worker test194431exact mesh floats/topology/bounds/scatter and forest59+295roots;valid request after cancellation passed. New native loading/FPS still measuring."
+    "buffered_terrain_transport": "86f9fcef:64KiB response writes and client reads;duplex raw cancellation/control path retained. Actual worker test194431exact mesh floats/topology/bounds/scatter and forest59+295roots;valid request after cancellation passed. New native loading/FPS still measuring.",
+    "medium_shadow_policy": "Unaccepted fc47 source forces bounded proxies/cached canopy at Medium or lower without writing preferences;no full-crown fallback while canopy field warms. High/Ultra can retain detailed comparison. Needs native cold-cache/preset checks.",
+    "allocation_repairs": "e778 planner memo uses all six Describe inputs;profiles read only internally. Nature source lookup removes per-root capturing predicates;readonly overlay skips layout;startup arguments cached.0ecb cached GUI styles. Wildlife103/fauna104/foraging33 checks pass. New CPU prompt markers229;second diagnostic9474 running."
   },
   "burst_numeric_rejections": [
     {
@@ -1661,5 +1713,17 @@
     "cpu": "Saved turning rebuilds batches85% of frames;moving92%. CurrentScatterGuardDegrees requires SoftCanopyShadows,so coarse=false disables the camera guard. Saved moving shadow batching1.55ms plus classification3.04ms per rebuild;Burst lowers classification to.615ms.",
     "observer": "Burst+partial64.06FPS vs same+camera observer62.85;no substantial observer regression demonstrated. Earlier77-to-current package regression remains unresolved."
   },
-  "pending_allocation_profile": "Code1a9b/6f3/d8a compiled in7eb but no capture run yet. Explicit travel-whip-allocation-profile requires DevelopmentPlayer; records binary profiler log and allocation stacks. WorldGenProfilerReview.Run is an offline Editor reader. Development FPS is never release throughput."
+  "pending_allocation_profile": "Code1a9b/6f3/d8a compiled in7eb but no capture run yet. Explicit travel-whip-allocation-profile requires DevelopmentPlayer; records binary profiler log and allocation stacks. WorldGenProfilerReview.Run is an offline Editor reader. Development FPS is never release throughput.",
+  "allocation_findings": {
+    "source": "0ecb6a54d7deabfe4a273ed5fe7618fd0b12e7ad",
+    "folder": "artifacts/render-repair-20261105/allocation-analysis",
+    "qualification": "Development profiler diagnostic,not release FPS.599frames and102278721GC.Alloc bytes in10s. Inclusive timings overlap and profiling adds cost.",
+    "hotspots": [
+      "LocalTerrainExplorer.OnGUI:4.11sec inclusive,GUI overlay dominates camera CPU in this diagnostic.",
+      "Repeated WildlifeBehaviour.Describe in background planner:hundreds of thousands of allocations,largest14.15MiB stack196842calls.",
+      "RefreshNatureSources closure stack:6.74MiB/51841calls.",
+      "Per-frame PollHumans Environment.GetCommandLineArgs:1.32MiB/19136calls."
+    ],
+    "raw_sha256": "19ca1993eda0f2156f69c0d7ef8f9655913a6198bc8a31964f9d2f7737a16985"
+  }
 }
