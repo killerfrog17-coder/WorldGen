@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
         public void ClearEdits(){(Work as IDisposable)?.Dispose();Scatter.Clear();Groups.Clear();Chunks.Clear();Roots.Clear();Fields.Clear();Changes.Clear();Work=null;}
     }
     struct ScatterGroundEdit {public ScatterChunk Chunk;public int Index,Level;public float Y;}
-    struct ScatterGroupEdit {public ScatterGroup Group;public Bounds Bounds,RootBounds;}
+    struct ScatterGroupEdit {public ScatterGroup Group;public Bounds Bounds,RootBounds;public int MaximumGroundLevel;}
     struct ScatterChunkEdit {public ScatterChunk Chunk;public Bounds Bounds;}
     struct ForestGroundEdit {public ForestBatch Batch;public int Slot,Level;public ForestRoot Root;public bool Changed;}
     struct ForestFieldEdit {public ForestField Field;public Bounds Bounds;}
@@ -98,7 +98,7 @@ public sealed partial class LocalTerrainExplorer
             root.y=edit.Y;chunk.Roots[i]=root;var matrix=chunk.Matrices[i];matrix.m13=edit.Y;chunk.Matrices[i]=matrix;
             var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*delta;chunk.Bounds[i]=bounds;
         }
-        foreach(var edit in plan.Groups){edit.Group.Bounds=edit.Bounds;edit.Group.RootBounds=edit.RootBounds;}
+        foreach(var edit in plan.Groups){edit.Group.Bounds=edit.Bounds;edit.Group.RootBounds=edit.RootBounds;edit.Group.MaximumGroundLevel=edit.MaximumGroundLevel;}
         foreach(var edit in plan.Chunks){edit.Chunk.AllBounds=edit.Bounds;edit.Chunk.RootRevision++;edit.Chunk.RangeValid=false;canopySourceRevision++;}
         foreach(var edit in plan.Roots)
         {edit.Batch.GroundLevels[edit.Slot]=edit.Level;if(edit.Changed){edit.Batch.Data[edit.Slot]=edit.Root;DirtyForestRoot(edit.Batch,edit.Slot);}}
@@ -137,15 +137,16 @@ public sealed partial class LocalTerrainExplorer
                 // Match the literal correction's conservative group guard.
                 if(!Affected(group.RootBounds,originX,originZ,.01))continue;
                 var groupMin=group.Bounds.min;var groupMax=group.Bounds.max;
-                var rootMin=group.RootBounds.min;var rootMax=group.RootBounds.max;bool groupChanged=false;
+                var rootMin=group.RootBounds.min;var rootMax=group.RootBounds.max;bool groupChanged=false;int maximumGroundLevel=-1;
                 foreach(int i in group.Indices)
                 {
-                    var root=chunk.Roots[i];
+                    var root=chunk.Roots[i];int currentGroundLevel=chunk.GroundLevels[i];
                     if(PublicationChanges(plan,root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))
                     {
                         var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
                         double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
                         float y=(float)PublicationGround(plan,x,z,frame.SurfaceY(p.Position,p.GroundM),out int level)-ScatterEmbedding(p);
+                        currentGroundLevel=level;
                         float delta=y-root.y;
                         plan.Scatter.Add(new ScatterGroundEdit{Chunk=chunk,Index=i,Level=level,Y=y});
                         if(delta!=0)
@@ -157,9 +158,10 @@ public sealed partial class LocalTerrainExplorer
                             chunkMin.y=Math.Min(chunkMin.y,bottom);chunkMax.y=Math.Max(chunkMax.y,top);changed=groupChanged=true;
                         }
                     }
+                    maximumGroundLevel=Math.Max(maximumGroundLevel,currentGroundLevel);
                     if(Due()){yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
                 }
-                if(groupChanged){var bounds=group.Bounds;bounds.SetMinMax(groupMin,groupMax);var roots=group.RootBounds;roots.SetMinMax(rootMin,rootMax);plan.Groups.Add(new ScatterGroupEdit{Group=group,Bounds=bounds,RootBounds=roots});}
+                if(groupChanged||maximumGroundLevel!=group.MaximumGroundLevel){var bounds=group.Bounds;var roots=group.RootBounds;if(groupChanged){bounds.SetMinMax(groupMin,groupMax);roots.SetMinMax(rootMin,rootMax);}plan.Groups.Add(new ScatterGroupEdit{Group=group,Bounds=bounds,RootBounds=roots,MaximumGroundLevel=maximumGroundLevel});}
             }
             if(changed){var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);plan.Chunks.Add(new ScatterChunkEdit{Chunk=chunk,Bounds=bounds});}
         }

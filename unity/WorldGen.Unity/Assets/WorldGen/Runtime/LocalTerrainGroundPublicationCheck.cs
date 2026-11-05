@@ -14,7 +14,7 @@ public sealed partial class LocalTerrainExplorer
         {
             public ScatterChunk Chunk;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;
             public int[] Levels;public Bounds All;public int Revision;public bool RangeValid;
-            public (ScatterGroup group,Bounds bounds,Bounds roots)[] Groups;
+            public (ScatterGroup group,Bounds bounds,Bounds roots,int level)[] Groups;
         }
         readonly List<ChunkState> chunks=new List<ChunkState>();
         readonly List<(ForestBatch batch,ForestRoot[] roots,int[] levels,bool dirty,bool allDirty,bool[] blocks)> forests=new List<(ForestBatch,ForestRoot[],int[],bool,bool,bool[])>();
@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
         public GroundProofState(LocalTerrainExplorer owner)
         {
             explorer=owner;canopy=owner.canopySourceRevision;forest=owner.forestRevision;visibility=owner.nextForestVisibility;
-            foreach(var chunk in owner.scatterChunks.Values)chunks.Add(new ChunkState{Chunk=chunk,Matrices=(Matrix4x4[])chunk.Matrices.Clone(),Roots=(Vector3[])chunk.Roots.Clone(),Bounds=(Bounds[])chunk.Bounds.Clone(),Levels=(int[])chunk.GroundLevels.Clone(),All=chunk.AllBounds,Revision=chunk.RootRevision,RangeValid=chunk.RangeValid,Groups=chunk.Groups.Select(g=>(g,g.Bounds,g.RootBounds)).ToArray()});
+            foreach(var chunk in owner.scatterChunks.Values)chunks.Add(new ChunkState{Chunk=chunk,Matrices=(Matrix4x4[])chunk.Matrices.Clone(),Roots=(Vector3[])chunk.Roots.Clone(),Bounds=(Bounds[])chunk.Bounds.Clone(),Levels=(int[])chunk.GroundLevels.Clone(),All=chunk.AllBounds,Revision=chunk.RootRevision,RangeValid=chunk.RangeValid,Groups=chunk.Groups.Select(g=>(g,g.Bounds,g.RootBounds,g.MaximumGroundLevel)).ToArray()});
             foreach(var batch in owner.forestBatches.Values)forests.Add((batch,batch.Data.ToArray(),batch.GroundLevels.ToArray(),batch.Dirty,batch.AllDirty,(bool[])batch.DirtyBlocks.Clone()));
             foreach(var field in owner.forestFields.Values)fields.Add((field,field.Bounds));
         }
@@ -39,7 +39,7 @@ public sealed partial class LocalTerrainExplorer
                     if(!chunk.Matrices[i].Equals(saved.Matrices[i])||!chunk.Roots[i].Equals(saved.Roots[i])||!chunk.Bounds[i].Equals(saved.Bounds[i])||chunk.GroundLevels[i]!=saved.Levels[i])throw new InvalidOperationException("Staged terrain differs at a scatter root: "+i);
                     count++;
                 }
-                foreach(var group in saved.Groups)if(!group.group.Bounds.Equals(group.bounds)||!group.group.RootBounds.Equals(group.roots))throw new InvalidOperationException("Staged terrain differs in group bounds");
+                foreach(var group in saved.Groups)if(!group.group.Bounds.Equals(group.bounds)||!group.group.RootBounds.Equals(group.roots)||group.group.MaximumGroundLevel!=group.level)throw new InvalidOperationException("Staged terrain differs in group bounds/ground-owner limit");
             }
             foreach(var saved in forests)
             {
@@ -56,7 +56,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var chunk=saved.Chunk;Array.Copy(saved.Matrices,chunk.Matrices,saved.Matrices.Length);Array.Copy(saved.Roots,chunk.Roots,saved.Roots.Length);Array.Copy(saved.Bounds,chunk.Bounds,saved.Bounds.Length);Array.Copy(saved.Levels,chunk.GroundLevels,saved.Levels.Length);
                 chunk.AllBounds=saved.All;chunk.RootRevision=saved.Revision;chunk.RangeValid=saved.RangeValid;
-                foreach(var group in saved.Groups){group.group.Bounds=group.bounds;group.group.RootBounds=group.roots;}
+                foreach(var group in saved.Groups){group.group.Bounds=group.bounds;group.group.RootBounds=group.roots;group.group.MaximumGroundLevel=group.level;}
             }
             foreach(var saved in forests)
             {

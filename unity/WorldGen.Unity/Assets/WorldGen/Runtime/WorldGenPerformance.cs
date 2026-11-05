@@ -1120,6 +1120,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-retained-backdrops",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=true),
+            new PerfCase("travel-whip-retained-staged",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-staged-gc1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true;UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=1000000;}),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("cached-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),

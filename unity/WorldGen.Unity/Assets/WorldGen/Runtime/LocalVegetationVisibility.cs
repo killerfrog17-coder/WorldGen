@@ -123,8 +123,10 @@ public sealed partial class LocalTerrainExplorer
             {
                 var b=chunk.Bounds[group.Indices[0]];
                 var roots=new Bounds(chunk.Roots[group.Indices[0]],Vector3.zero);
-                for(int j=1;j<group.Indices.Length;j++){b.Encapsulate(chunk.Bounds[group.Indices[j]]);roots.Encapsulate(chunk.Roots[group.Indices[j]]);}
+                int maximumGroundLevel=chunk.GroundLevels[group.Indices[0]];
+                for(int j=1;j<group.Indices.Length;j++){b.Encapsulate(chunk.Bounds[group.Indices[j]]);roots.Encapsulate(chunk.Roots[group.Indices[j]]);maximumGroundLevel=Math.Max(maximumGroundLevel,chunk.GroundLevels[group.Indices[j]]);}
                 group.Bounds=b;group.RootBounds=roots;
+                group.MaximumGroundLevel=maximumGroundLevel;
             }
             return;
         }
@@ -139,8 +141,9 @@ public sealed partial class LocalTerrainExplorer
         {
             var indices=bin.Value;var b=chunk.Bounds[indices[0]];var roots=new Bounds(chunk.Roots[indices[0]],Vector3.zero);
             double maximumWidth=chunk.Source.Instances[indices[0]].WidthM;
-            for(int j=1;j<indices.Count;j++){b.Encapsulate(chunk.Bounds[indices[j]]);roots.Encapsulate(chunk.Roots[indices[j]]);maximumWidth=Math.Max(maximumWidth,chunk.Source.Instances[indices[j]].WidthM);}
-            groups[at++]=new ScatterGroup{Bounds=b,RootBounds=roots,Indices=indices.ToArray(),Kind=(ScatterKind)bin.Key.z,MaximumWidth=maximumWidth,Trees=bin.Key.z==(int)ScatterKind.GeneratedTree};
+            int maximumGround=chunk.GroundLevels[indices[0]];
+            for(int j=1;j<indices.Count;j++){b.Encapsulate(chunk.Bounds[indices[j]]);roots.Encapsulate(chunk.Roots[indices[j]]);maximumWidth=Math.Max(maximumWidth,chunk.Source.Instances[indices[j]].WidthM);maximumGround=Math.Max(maximumGround,chunk.GroundLevels[indices[j]]);}
+            groups[at++]=new ScatterGroup{Bounds=b,RootBounds=roots,Indices=indices.ToArray(),Kind=(ScatterKind)bin.Key.z,MaximumWidth=maximumWidth,MaximumGroundLevel=maximumGround,Trees=bin.Key.z==(int)ScatterKind.GeneratedTree};
         }
         chunk.Groups=groups;chunk.GroupsFrame=boundsFrame;
     }

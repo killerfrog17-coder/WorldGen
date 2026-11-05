@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     static readonly Unity.Profiling.ProfilerMarker scatterCorrectionMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterTerrainCorrection"),scatterInstallMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterInstallSlice"),scatterFullProjectionMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterFullProjection"),scatterGroupMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterGroupPreparation");
 #endif
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
-    sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
+    sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1,MaximumGroundLevel;}
     struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
     struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
     sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
@@ -311,18 +311,20 @@ public sealed partial class LocalTerrainExplorer
             bool affected=false;var roots=group.RootBounds;
             foreach(var key in scatterGroundChanges)
             {
+                if(key.Level>group.MaximumGroundLevel)continue;
                 double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;
                 if(roots.max.x>=x0-.01&&roots.min.x<=x0+key.SizeM+.01&&roots.max.z>=z0-.01&&roots.min.z<=z0+key.SizeM+.01){affected=true;break;}
             }
             if(!affected)continue;
             var groupMin=group.Bounds.min;var groupMax=group.Bounds.max;
-            var rootMin=group.RootBounds.min;var rootMax=group.RootBounds.max;bool groupChanged=false;
+            var rootMin=group.RootBounds.min;var rootMax=group.RootBounds.max;bool groupChanged=false;int maximumGroundLevel=-1;
             foreach(int i in group.Indices)
             {
-                var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))continue;
+                var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i])){maximumGroundLevel=Math.Max(maximumGroundLevel,chunk.GroundLevels[i]);continue;}
                 var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
                 double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
                 float y=(float)VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level)-ScatterEmbedding(p);chunk.GroundLevels[i]=level;
+                maximumGroundLevel=Math.Max(maximumGroundLevel,level);
                 float delta=y-root.y;if(delta==0)continue;
                 root.y=y;chunk.Roots[i]=root;var matrix=chunk.Matrices[i];matrix.m13=y;chunk.Matrices[i]=matrix;
                 var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*delta;chunk.Bounds[i]=bounds;
@@ -336,6 +338,7 @@ public sealed partial class LocalTerrainExplorer
                 rootMin.y=Math.Min(rootMin.y,root.y);rootMax.y=Math.Max(rootMax.y,root.y);
                 chunkMin.y=Math.Min(chunkMin.y,bottom);chunkMax.y=Math.Max(chunkMax.y,top);changed=groupChanged=true;
             }
+            group.MaximumGroundLevel=maximumGroundLevel;
             if(groupChanged)
             {
                 var bounds=group.Bounds;bounds.SetMinMax(groupMin,groupMax);group.Bounds=bounds;

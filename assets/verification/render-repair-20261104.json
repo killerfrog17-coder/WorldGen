@@ -3028,7 +3028,7 @@
     "rationale": "Official docs recommend a duration significantly shorter than the target frame interval. Compare automatic1ms vs original3ms with same staged path, actual collection counts/heap/tails. Too-small steps can be counterproductive; measure before adopting."
   },
   "backdrop_churn": {
-    "status": "Compiled73315dc2; native coverage proof PASS; actual presented retention measurement running; default OFF",
+    "status": "Native coverage PASS and first presented retention COMPLETE; default OFF pending broader validation",
     "evidence": "artifacts/render-repair-20261105/presented-ground-causes",
     "actual_source": "3b21ce23",
     "legacy_corrections_over_2ms": 58,
@@ -3116,6 +3116,50 @@
       "partial-replacement.png",
       "half-coarsening.png"
     ],
-    "measurement": "artifacts/render-repair-20261105/presented-retained-backdrops"
+    "measurement": "artifacts/render-repair-20261105/presented-retained-backdrops",
+    "measurement_cases": [
+      {
+        "site": "dense-tropicalrainforest",
+        "cell": "108692",
+        "biome": "TropicalRainforest",
+        "relief": "206",
+        "case": "travel-whip-retained-backdrops",
+        "frames": "7399",
+        "seconds": "45.01149",
+        "fps": "164.38027",
+        "p50_ms": "5.24920",
+        "p95_ms": "11.23080",
+        "p99_ms": "14.71220",
+        "max_ms": "39.34810",
+        "over10ms": "605",
+        "over16ms": "28",
+        "scatter_update_ms": "0.62868",
+        "scatter_submit_ms": "0.46228",
+        "grass_submit_ms": "0.44460",
+        "weather_ms": "0.08665",
+        "tiles": "180",
+        "wanted": "184",
+        "objects": "2746",
+        "specialists": "664",
+        "mid": "929",
+        "trees": "795",
+        "scatter_draws": "117",
+        "grass_draws": "39",
+        "grass_candidates": "606432",
+        "grass_bytes": "83786776",
+        "frustum_rejected": "443227",
+        "terrain_rejected": "881",
+        "settled": "False",
+        "start_qpc": "2184134331",
+        "end_qpc": "2634249188",
+        "gpu_ms": "4.29455",
+        "cpu_ms": "6.15657",
+        "timing_samples": "6124",
+        "gpu_drain_ms": "5.03940",
+        "start_utc": "2026-11-05T18:35:30.9400685Z",
+        "end_utc": "2026-11-05T18:36:15.9566524Z"
+      }
+    ],
+    "finding_after_trial": "Level7 churn removed. Remaining legacy correction maximum11.2583ms vs previous26ms aggregate; average164.38FPS, still39.35ms frame max and100floor NOT achieved. Remaining events are finer uploads/retirement. New group maximum ground-owner level guard added; native full/selective equivalence pending."
   }
 }
