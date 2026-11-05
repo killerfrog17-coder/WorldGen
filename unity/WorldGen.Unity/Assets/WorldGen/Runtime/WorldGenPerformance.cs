@@ -36,6 +36,32 @@ public static class WorldGenPerformance
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
     public static bool NoBuilderBufferReuse;
+    // Diagnostic only. Unlike the retired every-frame collector, this starts
+    // a cycle only after measured heap growth and a cooldown. Automatic GC is
+    // never disabled or replaced; normal gameplay does not call this method.
+    public static bool PacedGcTrial;
+    static long gcPaceHeap;
+    static double gcPaceProbe,gcPaceEarliest;
+    static bool gcPaceActive;
+    public static int GcPaceCalls,GcPaceCycles;
+    public static double GcPaceTotalMs,GcPaceMaximumMs;
+    public static void ResetGcPace()
+    {gcPaceHeap=GC.GetTotalMemory(false);gcPaceProbe=gcPaceEarliest=0;gcPaceActive=false;GcPaceCalls=GcPaceCycles=0;GcPaceTotalMs=GcPaceMaximumMs=0;}
+    public static void StepGcPace(double now)
+    {
+        if(!PacedGcTrial||!UnityEngine.Scripting.GarbageCollector.isIncremental)return;
+        if(!gcPaceActive)
+        {
+            if(now<gcPaceProbe||now<gcPaceEarliest)return;gcPaceProbe=now+.25;
+            long heap=GC.GetTotalMemory(false);if(heap<gcPaceHeap)gcPaceHeap=heap;
+            if(heap-gcPaceHeap<16*1024*1024)return;gcPaceActive=true;
+        }
+        long begin=System.Diagnostics.Stopwatch.GetTimestamp();
+        bool remains=UnityEngine.Scripting.GarbageCollector.CollectIncremental(250000);
+        double ms=(System.Diagnostics.Stopwatch.GetTimestamp()-begin)*1000d/System.Diagnostics.Stopwatch.Frequency;
+        GcPaceCalls++;GcPaceTotalMs+=ms;GcPaceMaximumMs=Math.Max(GcPaceMaximumMs,ms);
+        if(!remains){gcPaceActive=false;gcPaceHeap=GC.GetTotalMemory(false);gcPaceEarliest=now+5;GcPaceCycles++;}
+    }
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -1115,6 +1141,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-gc-paced",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.PacedGcTrial=true),
             new PerfCase("travel-whip-unpooled-terrain",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoTerrainBufferReuse=true),
             new PerfCase("travel-whip-unpooled-models",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoBuilderBufferReuse=true),
             new PerfCase("travel-whip-parallel",()=>WorldGenPerformance.ParallelScatter=true),
@@ -1188,6 +1215,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
+                WorldGenPerformance.PacedGcTrial=false;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -1257,6 +1285,7 @@ public sealed partial class WorldGenRuntime
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
                 long heap=0;double heapAt=0;var endFrame=stutter==null&&!WorldGenPerformance.Presented?null:new WaitForEndOfFrame();
                 var timings=new FrameTiming[1];double gpu=0,cpu=0,cpuMain=0,cpuRender=0,cpuPresentWait=0,largestRejectedGpu=0;int timingCount=0,rejectedGpuTimings=0;ulong lastTiming=0;
+                if(WorldGenPerformance.PacedGcTrial)WorldGenPerformance.ResetGcPace();
                 using var allocationRecorder=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
                 File.AppendAllText(Path.Combine(output,"gc-settings.txt"),site.Item1+" "+item.Name+" allocation_counter_valid="+allocationRecorder.Valid+"\n");
                 if(WorldGenPerformance.Presented)yield return endFrame;
@@ -1294,6 +1323,7 @@ public sealed partial class WorldGenRuntime
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
                     {terrainExplorer.PerformanceTravel((now-start)*8);if(item.Name.StartsWith("travel-whip",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));}
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
+                    WorldGenPerformance.StepGcPace(now);
                     FrameTimingManager.CaptureFrameTimings();
                     if(FrameTimingManager.GetLatestTimings(1,timings)>0&&timings[0].frameStartTimestamp!=lastTiming&&timings[0].gpuFrameTime>0)
                     {
@@ -1333,6 +1363,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.AppendAllText(Path.Combine(output,"gpu-counter-validation.txt"),site.Item1+" "+item.Name+": valid="+timingCount+" rejected="+rejectedGpuTimings+" largest_rejected_ms="+largestRejectedGpu.ToString("R",CultureInfo.InvariantCulture)+"; actual frame/FPS samples never filtered\n");
+                if(WorldGenPerformance.PacedGcTrial)File.AppendAllText(Path.Combine(output,"gc-pacing-trial.txt"),site.Item1+" "+item.Name+": calls="+WorldGenPerformance.GcPaceCalls+" cycles="+WorldGenPerformance.GcPaceCycles+" total_ms="+WorldGenPerformance.GcPaceTotalMs.ToString("R",CultureInfo.InvariantCulture)+" max_call_ms="+WorldGenPerformance.GcPaceMaximumMs.ToString("R",CultureInfo.InvariantCulture)+"; automatic GC remained enabled\n");
                 File.AppendAllText(Path.Combine(output,"terrain-upload-pool.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection"}.Concat(stutter.Select(s=>s.ToString())));
