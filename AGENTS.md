@@ -53,6 +53,19 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov17:39Z PERFORMANCE ONLY. Presented-staged-jungle3607575a COMPLETE:
+current163.18FPS p9511.32/max42.61 vs staged161.64 p9510.84/max39.93; no material
+throughput gain, default OFF. Actual staged prep/publication max1.264ms DURING
+measurement, but old cached restore bypass remained:13.62ms scatter+13.24ms
+forest correction in36.83ms frame. New aea705f5 routes cached restores through
+same optional atomic path. Added actual cache take/preparation/publication native
+fixture with cloned/raised land mesh and full literal root/bounds comparison;
+UNBUILT/UNRUN. Native full root numeric proof earlier6.98mPASS remains valid for
+same arithmetic, not a cache integration proof. Need build now then cached-ground-
+verify before new presented comparison. B3607575a NONDEV, source all pushed except
+latest cache test/docs being committed. No own game currently. SelectedA/shortcut
+untouched,100floor NOT solved. Keep own windows RIGHTMOST; no new geography.
+
 ACTIVE5Nov17:26Z PERFORMANCE ONLY. Native staged-ground-proof-foreground cb22
 COMPLETE EXIT0/no errors:6,975,828 exact components/levels/bounds comparisons,
 150 bit-exact future owner/height queries,5,015 affected roots,4yielded slices;

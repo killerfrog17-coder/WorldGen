@@ -110,8 +110,58 @@ public sealed partial class LocalTerrainExplorer
                 finally{tiles[key]=old;residentRevision++;baseline.Restore();scatterGroundChanges.Clear();}
             }
             if(edits==0)throw new InvalidOperationException("Staged terrain proof did not exercise any root corrections");
+            yield return PerformanceVerifyCachedGroundPublication(output);
             File.WriteAllText(Path.Combine(output,"staged-ground-proof.txt"),"PASS "+checks+" exact scatter/forest component and level comparisons, group/chunk/field bounds, "+queries+" bit-exact future owner/height queries, "+edits+" affected roots, "+slices+" yielded preparation slices; live roots unchanged throughout preparation.\n");
         }
         finally{baseline.Restore();TerrainDiagnostics.HoldTerrain=holdTerrain;TerrainDiagnostics.HoldPlants=holdPlants;scatterDirty=true;}
+    }
+    public IEnumerator PerformanceVerifyCachedGroundPublication(string output)
+    {
+        var key=tiles.Keys.Where(k=>k.Level==0&&!previousTerrain.ContainsKey(k)).OrderBy(k=>TerrainLod.DistanceSquared(k,motion.X,motion.Z)).First();
+        var old=tiles[key];var baseline=new GroundProofState(this);float fadeIn=old.FadeIn,fadeOut=old.FadeOut;
+        var root=UnityEngine.Object.Instantiate(old.Root,terrainRoot.transform);root.name="Cached ground publication proof";root.SetActive(false);
+        foreach(var filter in root.GetComponentsInChildren<MeshFilter>(true))
+        {
+            filter.sharedMesh=UnityEngine.Object.Instantiate(filter.sharedMesh);
+            if(filter.gameObject.name!="Land and seabed")continue;
+            var vertices=filter.sharedMesh.vertices;for(int i=0;i<vertices.Length;i++)vertices[i].y+=.25f;
+            filter.sharedMesh.vertices=vertices;filter.sharedMesh.RecalculateBounds();
+        }
+        var heights=(float[])old.Heights.Clone();for(int i=0;i<heights.Length;i++)heights[i]+=.25f;
+        var product=new Tile{Root=root,Heights=heights,Segments=old.Segments,Edges=old.Edges,BufferBytes=old.BufferBytes};
+        bool selected=false;int slices=0;
+        try
+        {
+            // Obtain the literal result before exercising the actual cache API.
+            tiles[key]=product;residentRevision++;scatterGroundChanges.Add(key,old,product);
+            foreach(var chunk in scatterChunks.Values)
+            {
+                double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;var bounds=chunk.AllBounds;
+                if(bounds.max.x>=x0&&bounds.min.x<=x0+key.SizeM&&bounds.max.z>=z0&&bounds.min.z<=z0+key.SizeM)ProjectScatterGround(chunk);
+            }
+            ProjectForestGround();var expected=new GroundProofState(this);
+            tiles[key]=old;residentRevision++;baseline.Restore();scatterGroundChanges.Clear();
+            TerrainProducts.Put(new TerrainProductKey(key,product.Segments,product.Edges),product,product.BufferBytes);
+            installationsThisFrame=0;frameUploadMs=0;
+            if(!RestoreTerrain(key,product.Segments,product.Edges)||!GroundPublicationPending)throw new InvalidOperationException("Cached tile bypassed staged root preparation");
+            selected=true;
+            while(GroundPublicationPending)
+            {
+                if(!ReferenceEquals(tiles[key],old)||product.Root.activeSelf)throw new InvalidOperationException("Cached terrain became visible before its roots were ready");
+                baseline.Check();AdvanceGroundPublication();slices++;if(slices>1000)throw new InvalidOperationException("Cached root publication did not terminate");
+                if(GroundPublicationPending)yield return null;
+            }
+            if(!ReferenceEquals(tiles[key],product)||!product.Root.activeSelf)throw new InvalidOperationException("Prepared cached terrain was not published");
+            int checkedRoots=expected.Check();
+            File.WriteAllText(Path.Combine(output,"cached-ground-publication.txt"),"PASS actual cache take/preparation/publication, "+slices+" bounded steps, "+checkedRoots+" exact final root/level/bounds comparisons; old ground and roots retained until commit, cloned land mesh raised with the height grid.\n");
+        }
+        finally
+        {
+            bool cancelled=GroundPublicationPending;if(cancelled)CancelGroundPublication();
+            tiles[key]=old;residentRevision++;previousTerrain.Remove(key);old.FadeIn=fadeIn;old.FadeOut=fadeOut;old.Root.SetActive(true);
+            baseline.Restore();scatterGroundChanges.Clear();coverageDirty=true;
+            if(!cancelled&&selected&&product.Root!=null)DestroyTile(product);
+            else if(!selected&&product.Root!=null&&!TerrainProducts.Contains(new TerrainProductKey(key,product.Segments,product.Edges)))DestroyTile(product);
+        }
     }
 }

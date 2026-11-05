@@ -1118,6 +1118,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
+            new PerfCase("cached-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-unpooled-terrain",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoTerrainBufferReuse=true),
             new PerfCase("travel-whip-unpooled-models",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoBuilderBufferReuse=true),
             new PerfCase("travel-whip-parallel",()=>WorldGenPerformance.ParallelScatter=true),
@@ -1237,6 +1238,12 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="moving-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"moving-rotation-guard"),true)+"\n");
                 if(item.Name=="ground-owner-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n");
                 if(item.Name=="staged-ground-verify")yield return terrainExplorer.PerformanceVerifyGroundPublication(output);
+                if(item.Name=="cached-ground-verify")
+                {
+                    bool heldTerrain=TerrainDiagnostics.HoldTerrain,heldPlants=TerrainDiagnostics.HoldPlants;TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;
+                    try{yield return terrainExplorer.PerformanceVerifyCachedGroundPublication(output);}
+                    finally{TerrainDiagnostics.HoldTerrain=heldTerrain;TerrainDiagnostics.HoldPlants=heldPlants;}
+                }
                 if(item.Name=="scatter-gpu-depth-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),"Near GPU depth: "+terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"near-gpu-depth"))+"\n");
                 if(item.Name=="grass-indexed-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyIndexedGround(output)+"\n");
                 if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
