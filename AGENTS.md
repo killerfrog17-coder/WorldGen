@@ -53,6 +53,24 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov17:26Z PERFORMANCE ONLY. Native staged-ground-proof-foreground cb22
+COMPLETE EXIT0/no errors:6,975,828 exact components/levels/bounds comparisons,
+150 bit-exact future owner/height queries,5,015 affected roots,4yielded slices;
+live roots unchanged during prep. Loading108atomic commits,0restarts,maxprepare
+2.7604/maxcommit1.4254ms including coldcalls. OFFSCREEN verifier FPS is NOT normal
+throughput. First2prototype runs retained/rejected: cull counter guard then
+backdrop handling; foreground pipeline now progresses/settles correctly.
+StagedGroundPublication DEFAULT OFF until paired presented measurement. New
+hand/Find/Bag query closures removed ddf6bd33,83Core checks PASS incl allocation
+bound; CenterReady uses identical no-closure scan. New combined B build next.
+Current B cb22 NONDEV SourceChanges[],A/shortcut untouched. Plant scratch UV
+312actual model pairs/166598vertices exactPASS. Broad old local-scatter suite
+fails existing ecological density assertion line39, NO ecology code changed;
+removed unrelated uncommitted optional test. Need paired actual moving current/
+staged in dense jungle, then retain only measured improvements. 100FPSfloor NOT
+solved. All source pushed; restore3known autos after Editor exit. RIGHTMOST all
+own visible windows; no feature geography/subagents/paid/ownerapp closures.
+
 ACTIVE5Nov17:08Z PERFORMANCE ONLY. Paced GC trial COMPLETE/rejected/reverted
 09c471d0: current184.74FPS p9510.30/max37.45 vs trial171.54 p9511.38/max76.52.
 167manual calls total341.34/max29.31ms; automatic GC retained unchanged. No own

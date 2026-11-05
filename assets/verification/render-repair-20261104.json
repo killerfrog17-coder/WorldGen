@@ -2741,12 +2741,40 @@
     "max_call_ms": 29.3073
   },
   "staged_ground_publication": {
-    "status": "UNCOMPILED opt-in prototype; default OFF",
+    "status": "NATIVE correctness PASS; remains default OFF pending release throughput",
     "behavior": "Prepare corrections over bounded main-thread slices while retaining old visible terrain/roots; publish together. Revision/chart/origin/topology guards discard stale preparation; no stale transforms published.",
     "proof": "Added native original/staged root/height/bounds comparison across full, partial and coarse replacements; pending execution.",
     "rejected_first_run": {
       "evidence": "artifacts/render-repair-20261105/staged-ground-proof",
       "reason": "Prototype preparation guard included forest render-culling revision, causing unnecessary restarts. Interrupted own run; no pass claimed. Replace with distinct topology revision."
+    },
+    "proof_evidence": "artifacts/render-repair-20261105/staged-ground-proof-foreground",
+    "actual_package_source": "cb22cdd0",
+    "component_comparisons": 6975828,
+    "bit_exact_future_height_queries": 150,
+    "affected_roots": 5015,
+    "yielded_proof_slices": 4,
+    "loading_commits": 108,
+    "loading_restarts": 0,
+    "loading_max_prepare_ms": 2.7604,
+    "loading_max_commit_ms": 1.4254,
+    "qualification": "Proof and timing rows are offscreen diagnostic evidence, NOT release throughput. Loading counters include cold calls. Original visible roots remain unchanged during preparation.",
+    "rejected_topology_run": {
+      "evidence": "artifacts/render-repair-20261105/staged-ground-proof-topology",
+      "status": "Interrupted; never accepted",
+      "fix": "Backdrop products bypass foreground transaction because they are not in current requested tile set."
     }
+  },
+  "hot_equipment_queries": {
+    "source": "ddf6bd33",
+    "profiled_prior_mib_per_10_seconds": 8.482,
+    "checks_passed": 83,
+    "behavior": "No capturing predicates or item support checks for non-hand items. Preserves first matching ownership and two-handed support. Warmed repeated-query allocation bound passed.",
+    "status": "Core tested; combined player build pending"
+  },
+  "unrelated_test_failure": {
+    "command": "dotnet run --project tests/WorldGen.Core.Tests -c Release -- --local-scatter-only",
+    "failure": "Existing Forest versus open/desert structure is ecological density assertion, LocalScatterTests line39. No scatter-generation/ecology changes made; unrelated optional test edit removed.",
+    "status": "NOT a pass"
   }
 }
