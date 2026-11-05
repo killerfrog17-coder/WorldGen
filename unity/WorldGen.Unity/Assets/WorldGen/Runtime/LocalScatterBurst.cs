@@ -227,11 +227,12 @@ public sealed partial class LocalTerrainExplorer
     public static string PerformanceVerifyBurstDistances()
     {
         const int count=65536;
-        using var points=new NativeArray<Vector3>(count,Allocator.TempJob);
+        var samples=new Vector3[count];
+        uint state=72791;float Next(){state=state*1664525+1013904223;return ((state>>8)/16777216f-.5f)*4000;}
+        for(int i=0;i<count;i++)samples[i]=new Vector3(Next(),Next(),Next());
+        using var points=new NativeArray<Vector3>(samples,Allocator.TempJob);
         using var distances=new NativeArray<float>(count,Allocator.TempJob);
         using var compiled=new NativeArray<byte>(count,Allocator.TempJob);
-        uint state=72791;float Next(){state=state*1664525+1013904223;return ((state>>8)/16777216f-.5f)*4000;}
-        for(int i=0;i<count;i++)points[i]=new Vector3(Next(),Next(),Next());
         new ScatterDistanceProbe{Points=points,Distances=distances,Compiled=compiled}.Schedule(count,64).Complete();
         var eye=new Vector3(.123f,18.375f,-.456f);int changed=0;float maximum=0;
         for(int i=0;i<count;i++)
