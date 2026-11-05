@@ -70,6 +70,24 @@ namespace WorldGen.Core
 
     public static class WildlifeAbundance
     {
+        /// <summary>Caller-owned temporary arithmetic storage. Results keep
+        /// independent dictionaries; no population/habitat values are cached.</summary>
+        public sealed class Workspace
+        {
+            internal readonly List<Taxon> Taxa=new List<Taxon>();
+            readonly HashSet<int> ids=new HashSet<int>();
+            internal double[] Fit=Array.Empty<double>(),Density=Array.Empty<double>(),Predators=Array.Empty<double>();
+            internal readonly double[] Budgets=new double[7];
+            static readonly Comparison<Taxon> byId=(a,b)=>a.Id.CompareTo(b.Id);
+            internal void Prepare(IEnumerable<Taxon> population)
+            {
+                Taxa.Clear();ids.Clear();
+                foreach(var t in population)if(t!=null&&!t.Producer&&!t.BasalResource&&ItemUseRules.Finite(t.MassKg)&&t.MassKg>0&&ids.Add(t.Id))Taxa.Add(t);
+                Taxa.Sort(byId);int n=Taxa.Count;
+                if(Fit.Length<n){int capacity=Math.Max(n,Math.Max(16,Fit.Length*2));Fit=new double[capacity];Density=new double[capacity];Predators=new double[capacity];}
+                else{Array.Clear(Density,0,n);Array.Clear(Predators,0,n);}
+            }
+        }
         public const int Version=2;
         static readonly Food[] PrimaryFoods={Food.Grass,Food.Browse,Food.Fruit,Food.Seed,Food.Nectar,Food.Detritus,Food.Invertebrate};
         public static double EffectiveDayMinutes(double actualMinutes)
@@ -86,15 +104,20 @@ namespace WorldGen.Core
         static int DietCount(Food food)
         {int count=0;for(int bit=1;bit<=256;bit<<=1)if(((int)food&bit)!=0)count++;return Math.Max(1,count);}
         public static WildlifeCommunity Allocate(IEnumerable<Taxon> population,WildlifeHabitat habitat)
+            =>Allocate(population,habitat,null);
+        public static WildlifeCommunity Allocate(IEnumerable<Taxon> population,WildlifeHabitat habitat,Workspace workspace)
         {
-            var taxa=population.Where(t=>t!=null&&!t.Producer&&!t.BasalResource&&ItemUseRules.Finite(t.MassKg)&&t.MassKg>0).GroupBy(t=>t.Id).Select(g=>g.First()).OrderBy(t=>t.Id).ToArray();
-            var result=new WildlifeCommunity();int n=taxa.Length;var fit=new double[n];var density=new double[n];
+            IReadOnlyList<Taxon> taxa;
+            if(workspace==null)taxa=population.Where(t=>t!=null&&!t.Producer&&!t.BasalResource&&ItemUseRules.Finite(t.MassKg)&&t.MassKg>0).GroupBy(t=>t.Id).Select(g=>g.First()).OrderBy(t=>t.Id).ToArray();
+            else{workspace.Prepare(population);taxa=workspace.Taxa;}
+            var result=new WildlifeCommunity();int n=taxa.Count;var fit=workspace?.Fit??new double[n];var density=workspace?.Density??new double[n];
             for(int i=0;i<n;i++){fit[i]=habitat.Fit(taxa[i]);result.DensityPerKm2[taxa[i].Id]=0;}
             double p=ItemUseRules.Finite(habitat.Productivity)?Math.Max(0,Math.Min(3,habitat.Productivity)):0;
             double Resource(double x)=>ItemUseRules.Finite(x)?Math.Max(0,Math.Min(1,x)):0;
             // Separate accessible foods: canopy biomass is not all edible browse.
-            double[] budgets={260*Resource(habitat.Grass)*p,220*Resource(habitat.Browse)*p,12*Resource(habitat.Fruit)*p,16*Resource(habitat.Seed)*p,
-                8*Resource(habitat.Nectar)*p,20*Resource(habitat.Detritus)*p,35*Resource(habitat.Invertebrates)*p};
+            var budgets=workspace?.Budgets??new double[7];
+            budgets[0]=260*Resource(habitat.Grass)*p;budgets[1]=220*Resource(habitat.Browse)*p;budgets[2]=12*Resource(habitat.Fruit)*p;budgets[3]=16*Resource(habitat.Seed)*p;
+            budgets[4]=8*Resource(habitat.Nectar)*p;budgets[5]=20*Resource(habitat.Detritus)*p;budgets[6]=35*Resource(habitat.Invertebrates)*p;
             for(int food=0;food<PrimaryFoods.Length;food++)
             {
                 double total=0;for(int i=0;i<n;i++)if((taxa[i].Eats&PrimaryFoods[food])!=0)total+=fit[i]/DietCount(taxa[i].Eats);
@@ -104,7 +127,7 @@ namespace WorldGen.Core
             }
             // Distribute a small supported predator biomass from each eligible
             // prey pool ONCE across competitors, including fish-only diets.
-            var predatorDensity=new double[n];
+            var predatorDensity=workspace?.Predators??new double[n];
             for(int prey=0;prey<n;prey++)
             {
                 double biomass=density[prey]*taxa[prey].MassKg;if(biomass<=0)continue;

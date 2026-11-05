@@ -14,6 +14,25 @@ static class WildlifeAbundanceTests
     {
         int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
         var forest=new WildlifeHabitat{Productivity=1,Canopy=.7,Shrubs=.3,Grass=.25,Browse=.65,Fruit=.6,Seed=.4,Nectar=.2,Invertebrates=.8,Detritus=.6};
+        var workspace=new WildlifeAbundance.Workspace();var random=new Random(681103);
+        WildlifeCommunity retained=null;double[] retainedValues=null;
+        for(int step=0;step<240;step++)
+        {
+            var population=new Taxon[step%43];
+            for(int i=0;i<population.Length;i++)
+            {
+                if(i%13==0)continue;
+                population[i]=Animal(random.Next(-3,18),i%17==0?double.NaN:i%11==0?0:.01+random.NextDouble()*250,(Food)random.Next(1,256));
+                population[i].Producer=i%19==0;population[i].BasalResource=i%23==0;
+            }
+            var habitat=forest;habitat.Productivity=step%9==0?double.NaN:random.NextDouble()*3;habitat.Canopy=random.NextDouble();habitat.Grass=random.NextDouble();habitat.Browse=random.NextDouble();
+            var original=WildlifeAbundance.Allocate(population,habitat);var reused=WildlifeAbundance.Allocate(population,habitat,workspace);
+            Check(original.DensityPerKm2.Keys.SequenceEqual(reused.DensityPerKm2.Keys),"Reusable population storage preserves filtered, unique, sorted taxon identity");
+            foreach(int id in original.DensityPerKm2.Keys)Check(BitConverter.DoubleToInt64Bits(original.Density(id))==BitConverter.DoubleToInt64Bits(reused.Density(id)),"Reusable population storage preserves every density bit");
+            Check(original.PrimaryCapacity==reused.PrimaryCapacity&&original.PrimaryAllocated==reused.PrimaryAllocated&&original.PreyBiomassKg==reused.PreyBiomassKg&&original.PredatorSupportedBiomassKg==reused.PredatorSupportedBiomassKg,"Reusable population storage preserves resource and predator totals");
+            if(retained!=null)Check(retained.DensityPerKm2.Values.SequenceEqual(retainedValues),"A later population calculation overwrote an earlier community result");
+            retained=reused;retainedValues=reused.DensityPerKm2.Values.ToArray();
+        }
         var deer=Animal(1,100,Food.Browse);var elk=Animal(2,100,Food.Browse);var wolf=Animal(3,40,Food.Vertebrate);var cat=Animal(4,40,Food.Vertebrate);
         var alone=WildlifeAbundance.Allocate(new[]{deer},forest);var together=WildlifeAbundance.Allocate(new[]{deer,elk},forest);
         Check(Math.Abs(alone.Density(1)-together.Density(1)-together.Density(2))<1e-10,"Adding an equivalent browser shares capacity instead of doubling it");

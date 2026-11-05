@@ -107,6 +107,7 @@ namespace WorldGen.Presentation
             if(epoch!=biotaEpoch){pools.Clear();communities.Clear();behaviourProfiles.Clear();biotaEpoch=epoch;}
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
             var communityCache=new Dictionary<(ScatterKey,int),WildlifeCommunity>();
+            var abundanceWorkspace=new WildlifeAbundance.Workspace();
             var siteCache=new Dictionary<ScatterKey,WildlifeHabitat>();
             WildlifeHabitat Site(V point)
             {
@@ -124,7 +125,7 @@ namespace WorldGen.Presentation
                     foreach(double u in new[]{.2,.8})foreach(double v in new[]{.2,.8})site.Add(Site(lattice.Position(key,u,v)),.2);
                     siteCache[key]=site;
                 }
-                found=WildlifeAbundance.Allocate(Community(region,terrain.NearestCell(lattice.Position(key))),site);communityCache[(key,region)]=found;return found;
+                found=WildlifeAbundance.Allocate(Community(region,terrain.NearestCell(lattice.Position(key))),site,abundanceWorkspace);communityCache[(key,region)]=found;return found;
             }
             double latitude=Math.Asin(center.Z)*180/Math.PI;
             foreach(bool detail in new[]{false,true})foreach(var key in lattice.Around(center,detail?220:2400,detail))
