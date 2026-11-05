@@ -42,10 +42,10 @@ public static class WorldGenProfilerReview
                     foreach(ulong address in addresses)
                     {
                         if(!methods.TryGetValue(address,out string method))
-                        {var info=data.ResolveMethodInfo(address);method=info.methodName+" ("+info.sourceFileName+":"+info.sourceFileLine+")";methods[address]=method;}
+                        {var info=data.ResolveMethodInfo(address);method=string.IsNullOrEmpty(info.methodName)?"0x"+address.ToString("X"):info.methodName+" ("+info.sourceFileName+":"+info.sourceFileLine+")";methods[address]=method;}
                         if(!string.IsNullOrWhiteSpace(method))stack.Add(method);
                     }
-                    string key=data.threadName+" / "+(stack.Count>0?string.Join(" <- ",stack):string.Join(" / ",parents.Select(p=>p.Name)));
+                    string key=data.threadName+" / "+string.Join(" / ",parents.Select(p=>p.Name))+(stack.Count>0?" / "+string.Join(" <- ",stack):"");
                     allocations.TryGetValue(key,out var allocation);allocations[key]=(allocation.Bytes+bytes,allocation.Calls+1);totalBytes+=bytes;
                 }
                 int descendants=data.GetSampleChildrenCountRecursive(sample);if(descendants>0)parents.Add((sample+descendants,name));

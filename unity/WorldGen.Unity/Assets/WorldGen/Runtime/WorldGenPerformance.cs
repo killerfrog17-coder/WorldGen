@@ -1128,6 +1128,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
+        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
             throw new InvalidOperationException("Presented throughput requires explicit travel/turning cases; image/pose verifiers use offscreen mode");
