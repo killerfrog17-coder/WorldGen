@@ -53,6 +53,24 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE05Nov18:32Z PERFORMANCE ONLY. Actual per-key cause trace3b21 COMPLETE:
+58legacy corrections >2ms,7Upload(Backdrop),41Retirement,10CacheRestore unchanged.
+Worst15.23/14.63ms from Level7 backdrop upload,12.69ms same Level7 retirement.
+Code PlanBackdrop holds only a few coarse keys; retirement kept dropping still-
+planned fallbacks then scheduler rebuilt them. New73315dc2 opt-in KeepBackdrops
+retains only currently planned coarse tiles under normal finest-surface coverage;
+normal DEFAULT OFF pending actual gain. Also REAL no-op cache fix now uses exact
+height-change comparison, skips vegetation invalidation for identical same-key
+height grids. Native backdrop-coverage-native733 PASS actual production shader,
+no-op cached restore, fade coverage, retained planned/releasable unplanned checks;
+actual partial/coarsening PNGs inspected. Staging remains OFF, normalGC3ms.
+B NONDEV ScriptsOnly73315dc2 SourceChanges[],3known autos restored. Own native
+99580/player21376 RIGHTMOST runs presented-retained-backdrops, jungle6km1080
+Medium45s travel+whip. NO build/overwrite/heavy jobs during timing. Need compare
+FPS/tails and especially cause CSV before enabling. Current selected A/f833/
+shortcut untouched.100FPSfloor NOT solved. Source pushed733; docs note pending.
+No new geography/animals/humans/sky changes, no subagents/paid/ownerappsclosed.
+
 ACTIVE05Nov18:17Z PERFORMANCE ONLY. B NONDEV ScriptsOnly3b21ce23 BuiltUtc18:16:01Z
 SourceChanges[],3known Unityautos restored. Own presented native82653/player31584
 RIGHTMOST runs presented-ground-causes: dense-tropicalrainforest Medium6km1080,
