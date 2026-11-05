@@ -37,6 +37,26 @@ static class TerrainStreamingRevealTests
             Check(distance==limit,"Steady completed loading reaches the configured limit");
         }
         Check(TerrainStreamingReveal.Advance(1000,limit,limit,0)==1000,"Paused time cannot expand the border");
+        foreach(double scale in new[]{.1,1d})
+        {
+            var surface=TerrainLod.Plan(0,0,6000,scale:scale).Where((p,i)=>i%5!=0).ToDictionary(p=>p.Key,p=>p.Value);
+            var cached=new TerrainQualityFootprint(surface);var mutable=new Dictionary<TerrainTileKey,int>();
+            for(int step=0;step<80;step++)
+            {
+                mutable.Clear();foreach(var pair in TerrainLod.Plan(step*41-1600,Math.Sin(step)*700,6000,scale:scale))mutable.Add(pair.Key,step%3==0?32:pair.Value);
+                double px=step*37-1000,pz=Math.Cos(step)*900,expected=limit;
+                foreach(var group in mutable.GroupBy(p=>p.Key.SizeM/p.Value))
+                {
+                    double spacing=group.Key;
+                    var tier=new TerrainCoverageFootprint(surface.Where(p=>p.Value>0&&p.Key.SizeM/p.Value<=spacing*(1+1e-9)).Select(p=>p.Key));
+                    expected=Math.Min(expected,tier.NearestGap(group.Select(p=>p.Key),px,pz,expected));
+                }
+                Check(BitConverter.DoubleToInt64Bits(cached.NearestGap(mutable,px,pz,limit))==BitConverter.DoubleToInt64Bits(expected),"Reused fog groups preserve literal mixed-LOD distances when the requested dictionary changes");
+            }
+            cached.NearestGap(mutable,0,0,limit);long before=GC.GetAllocatedBytesForCurrentThread();
+            for(int step=0;step<1000;step++)cached.NearestGap(mutable,step,0,limit);
+            Check(GC.GetAllocatedBytesForCurrentThread()-before<256000,"Steady fog checks do not reconstruct temporary groups or recursive closures");
+        }
         Console.WriteLine("PASS "+checks+" pure streaming-fog checks; no world or player launched.");
     }
 }

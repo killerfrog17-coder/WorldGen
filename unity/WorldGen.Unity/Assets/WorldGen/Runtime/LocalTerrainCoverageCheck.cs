@@ -68,6 +68,15 @@ public sealed partial class LocalTerrainExplorer
         var grand=new TerrainTileKey(0,0,2,1d/512);explorer.tiles[grand]=new Tile{Root=Quad("grand fallback",8,3,Color.red)};
         explorer.BeginTerrainReplacement(parent,newParent,null);explorer.tiles[parent]=newParent;
         if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
+        explorer.wanted.Clear();explorer.wanted.Add(child,64);tile.Segments=64;tile.FadeIn=tile.FadeOut=0;
+        if(!explorer.CanRetireTransition(parent))throw new Exception("A fully ready fine replacement did not release its parent");
+        explorer.wanted[child]=128;
+        if(explorer.CanRetireTransition(parent))throw new Exception("Retirement accepted the wrong replacement detail");
+        explorer.wanted[child]=64;tile.FadeIn=Time.time;
+        if(explorer.CanRetireTransition(parent))throw new Exception("Retirement discarded a parent before its fine fade completed");
+        tile.FadeIn=0;explorer.wanted.Add(new TerrainTileKey(1,0,0,1d/512),64);
+        if(explorer.CanRetireTransition(parent))throw new Exception("Retirement discarded a parent with a missing replacement quadrant");
+        explorer.wanted.Clear();
         explorer.tiles.Remove(child);explorer.CacheTerrain(child,tile);explorer.ResetStreamingReuse(false);
         if(explorer.CachedTerrainTiles!=0)throw new Exception("Chart invalidation retained old products");
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, exact cache restore/invalidation, complementary halfway incoming/outgoing frames without holes, retained finer children during same-key parent replacement and coarsening without grandparent regression.");

@@ -7,6 +7,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     readonly Dictionary<TerrainTileKey,Tile> previousTerrain=new Dictionary<TerrainTileKey,Tile>();
+    readonly System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,Tile>> transitionSnapshot=new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,Tile>>();
     float TransitionNow=>Math.Max(.001f,Time.time);
     bool FadeComplete(Tile tile)=>tile.FadeOut==0&&(tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds);
     void BeginTerrainReplacement(TerrainTileKey key,Tile next,Tile old)
@@ -29,7 +30,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateTerrainTransitions()
     {
-        foreach(var pair in previousTerrain.ToArray())
+        transitionSnapshot.Clear();foreach(var pair in previousTerrain)transitionSnapshot.Add(pair);
+        foreach(var pair in transitionSnapshot)
             if(!tiles.TryGetValue(pair.Key,out var current)||FadeComplete(current))
             {previousTerrain.Remove(pair.Key);CacheTerrain(pair.Key,pair.Value);}
         foreach(var pair in tiles)
@@ -46,17 +48,22 @@ public sealed partial class LocalTerrainExplorer
     }
     bool CanRetireTransition(TerrainTileKey key)
     {
-        var replacements=wanted.Where(w=>Overlaps(key,w.Key)).ToArray();
-        if(!replacements.All(w=>tiles.TryGetValue(w.Key,out var t)&&t.Segments==w.Value))return false;
-        if(replacements.Length==0)return true;
+        bool any=false,coarser=false,complete=true;
+        foreach(var replacement in wanted)
+        {
+            if(!Overlaps(key,replacement.Key))continue;any=true;
+            if(!tiles.TryGetValue(replacement.Key,out var ready)||ready.Segments!=replacement.Value)return false;
+            coarser|=replacement.Key.Level>key.Level;complete&=FadeComplete(ready);
+        }
+        if(!any)return true;
         var tile=tiles[key];
-        if(replacements.Any(w=>w.Key.Level>key.Level))
+        if(coarser)
         {
             if(previousTerrain.TryGetValue(key,out var previous)){previousTerrain.Remove(key);CacheTerrain(key,previous);tile.FadeIn=0;}
             if(tile.FadeOut==0){tile.FadeIn=0;tile.FadeOut=TransitionNow;coverageDirty=true;}
             return Time.time-tile.FadeOut>=TerrainCoverage.FadeSeconds;
         }
-        return replacements.All(w=>FadeComplete(tiles[w.Key]));
+        return complete;
     }
     TerrainFadeStamp TerrainTiming(TerrainTileKey key,bool coverage=false)
     {

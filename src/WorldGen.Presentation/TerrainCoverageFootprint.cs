@@ -37,23 +37,29 @@ namespace WorldGen.Presentation
         public double NearestGap(IEnumerable<TerrainTileKey> requested,double x,double z,double maximumDistance)
         {
             double nearest=maximumDistance*maximumDistance;
-            void Visit(TerrainTileKey key)
-            {
-                double distance=TerrainLod.DistanceSquared(key,x,z);
-                if(distance>=nearest||full.Contains(key))return;
-                if(key.Level<=0||!partial.Contains(key)){nearest=distance;return;}
-                // Split only partial nodes. A missing quadrant is measured at
-                // ITS bounds, not at the bounds of its already-covered parent.
-                for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(Child(key,i,j));
-            }
             foreach(var key in requested)
-            {
-                bool covered=false;
-                for(var ancestor=key;ancestor.Level<=highest;ancestor=Parent(ancestor))
-                    if(full.Contains(ancestor)){covered=true;break;}
-                if(!covered)Visit(key);
-            }
+                if(!Covered(key))Visit(key,x,z,ref nearest);
             return Math.Sqrt(nearest);
+        }
+        public double NearestGap(List<TerrainTileKey> requested,double x,double z,double maximumDistance)
+        {
+            double nearest=maximumDistance*maximumDistance;
+            for(int i=0;i<requested.Count;i++)if(!Covered(requested[i]))Visit(requested[i],x,z,ref nearest);
+            return Math.Sqrt(nearest);
+        }
+        bool Covered(TerrainTileKey key)
+        {
+            for(var ancestor=key;ancestor.Level<=highest;ancestor=Parent(ancestor))if(full.Contains(ancestor))return true;
+            return false;
+        }
+        void Visit(TerrainTileKey key,double x,double z,ref double nearest)
+        {
+            double distance=TerrainLod.DistanceSquared(key,x,z);
+            if(distance>=nearest||full.Contains(key))return;
+            if(key.Level<=0||!partial.Contains(key)){nearest=distance;return;}
+            // Split partial nodes in the original order, at missing-quadrant
+            // bounds. Keeping the accumulator by reference avoids a closure.
+            for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(Child(key,i,j),x,z,ref nearest);
         }
     }
 }
