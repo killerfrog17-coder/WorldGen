@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEditor.Profiling;
+using UnityEditorInternal;
+
+// Offline only: inspect a short diagnostic player capture after that player
+// closes. These inclusive samples are never presented as release throughput.
+public static class WorldGenProfilerReview
+{
+    public static void Run()
+    {
+        var args=Environment.GetCommandLineArgs();
+        string Argument(string key){int at=Array.IndexOf(args,key);if(at<0||at+1>=args.Length)throw new ArgumentException(key);return args[at+1];}
+        string input=Argument("--worldgen-profile-input"),output=Argument("--worldgen-output");Directory.CreateDirectory(output);
+        if(!ProfilerDriver.LoadProfile(input,false))throw new InvalidOperationException("Cannot load profiler capture: "+input);
+        int first=ProfilerDriver.firstFrameIndex,last=ProfilerDriver.lastFrameIndex;
+        if(first<0||last<first)throw new InvalidOperationException("Capture contains no readable frames");
+        var allocations=new Dictionary<string,(long Bytes,int Calls)>();
+        var timings=new Dictionary<string,(double Ms,int Calls)>();
+        var methods=new Dictionary<ulong,string>();var addresses=new List<ulong>();
+        var parents=new List<(int End,string Name)>();int threads=0;long totalBytes=0;
+        var frames=new List<string>{"frame,main_thread_inclusive_ms"};
+        for(int frame=first;frame<=last;frame++)
+        for(int thread=0;thread<256;thread++)
+        {
+            using var data=ProfilerDriver.GetRawFrameDataView(frame,thread);if(!data.valid)break;threads++;
+            if(thread==0&&data.sampleCount>0)frames.Add(frame+","+data.GetSampleTimeMs(0).ToString("R",CultureInfo.InvariantCulture));
+            parents.Clear();
+            for(int sample=0;sample<data.sampleCount;sample++)
+            {
+                while(parents.Count>0&&parents[parents.Count-1].End<sample)parents.RemoveAt(parents.Count-1);
+                string name=data.GetSampleName(sample),timer=data.threadName+" / "+name;
+                timings.TryGetValue(timer,out var timing);timings[timer]=(timing.Ms+data.GetSampleTimeMs(sample),timing.Calls+1);
+                if(name=="GC.Alloc")
+                {
+                    long bytes=data.GetSampleMetadataCount(sample)>0?data.GetSampleMetadataAsLong(sample,0):0;
+                    addresses.Clear();data.GetSampleCallstack(sample,addresses);var stack=new List<string>();
+                    foreach(ulong address in addresses)
+                    {
+                        if(!methods.TryGetValue(address,out string method))
+                        {var info=data.ResolveMethodInfo(address);method=info.methodName+" ("+info.sourceFileName+":"+info.sourceFileLine+")";methods[address]=method;}
+                        if(!string.IsNullOrWhiteSpace(method))stack.Add(method);
+                    }
+                    string key=data.threadName+" / "+(stack.Count>0?string.Join(" <- ",stack):string.Join(" / ",parents.Select(p=>p.Name)));
+                    allocations.TryGetValue(key,out var allocation);allocations[key]=(allocation.Bytes+bytes,allocation.Calls+1);totalBytes+=bytes;
+                }
+                int descendants=data.GetSampleChildrenCountRecursive(sample);if(descendants>0)parents.Add((sample+descendants,name));
+            }
+        }
+        string Csv(string text)=>"\""+text.Replace("\"","\"\"")+"\"";
+        File.WriteAllLines(Path.Combine(output,"allocations.csv"),new[]{"bytes,calls,stack"}.Concat(allocations.OrderByDescending(p=>p.Value.Bytes).Select(p=>p.Value.Bytes+","+p.Value.Calls+","+Csv(p.Key))));
+        File.WriteAllLines(Path.Combine(output,"inclusive-timings.csv"),new[]{"inclusive_ms,calls,thread_and_marker"}.Concat(timings.OrderByDescending(p=>p.Value.Ms).Select(p=>p.Value.Ms.ToString("R",CultureInfo.InvariantCulture)+","+p.Value.Calls+","+Csv(p.Key))));
+        File.WriteAllLines(Path.Combine(output,"frames.csv"),frames);
+        File.WriteAllText(Path.Combine(output,"complete.txt"),$"Diagnostic DevelopmentPlayer only. Frames {first}..{last}; thread frames {threads}; GC.Alloc bytes {totalBytes}. Inclusive timings overlap; not release FPS.\n");
+    }
+}
