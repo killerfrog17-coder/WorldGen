@@ -57,6 +57,8 @@ public sealed partial class LocalTerrainExplorer
         }
     }
     readonly GroundChanges scatterGroundChanges=new GroundChanges();
+    readonly List<ScatterChunk> scatterCorrectionWork=new List<ScatterChunk>();
+    Action<ScatterChunk> scatterCorrectionAction;
     readonly Dictionary<ScatterKey,ScatterChunk> scatterChunks=new Dictionary<ScatterKey,ScatterChunk>();
     readonly Dictionary<ScatterKey,ForestRevealBounds> scatterRevealBounds=new Dictionary<ScatterKey,ForestRevealBounds>();
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
@@ -147,6 +149,7 @@ public sealed partial class LocalTerrainExplorer
 #endif
             long correctionStarted=System.Diagnostics.Stopwatch.GetTimestamp();
             InvalidateInstallingScatterGround();
+            scatterCorrectionWork.Clear();
             foreach(var chunk in scatterChunks.Values)
             {
                 bool affected=scatterGroundChanges.Count==0||chunk.Bounds==null;
@@ -155,7 +158,16 @@ public sealed partial class LocalTerrainExplorer
                     var b=chunk.AllBounds;double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;
                     if(b.max.x>=x0&&b.min.x<=x0+key.SizeM&&b.max.z>=z0&&b.min.z<=z0+key.SizeM){affected=true;break;}
                 }
-                if(affected)ProjectScatterGround(chunk);
+                if(!affected)continue;
+                if(WorldGenPerformance.ParallelRootProjection&&scatterGroundChanges.Count>0&&chunk.Groups!=null&&ReferenceEquals(chunk.GroupsFrame,frame))scatterCorrectionWork.Add(chunk);
+                else ProjectScatterGround(chunk);
+            }
+            if(scatterCorrectionWork.Count>0)
+            {
+                scatterCorrectionAction??=chunk=>ProjectScatterGround(chunk,true);
+                // Each worker owns separate chunk/root/group arrays. The main
+                // thread waits before any terrain retirement or draw submission.
+                Parallel.ForEach(scatterCorrectionWork,scatterParallelOptions,scatterCorrectionAction);
             }
             ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
             // Terrain publication and its root correction are one atomic job.
@@ -266,6 +278,18 @@ public sealed partial class LocalTerrainExplorer
             key=owner.Key;tile=owner.Value;
         }
         if(tile==null){groundLevel=17;return fallback;}
+        return InterpolateVisibleGround(tile,key,x,z,out groundLevel);
+    }
+    double ReadOnlyVisibleGround(double x,double z,double fallback,out int groundLevel)
+    {
+        // Terrain publication is suspended until all correction workers join.
+        // Workers read immutable height arrays and never write the owner cache.
+        var tile=VisibleGroundOwner(x,z,out var key);
+        if(tile==null){groundLevel=17;return fallback;}
+        return InterpolateVisibleGround(tile,key,x,z,out groundLevel);
+    }
+    static double InterpolateVisibleGround(Tile tile,TerrainTileKey key,double x,double z,out int groundLevel)
+    {
         groundLevel=key.Level;int n=tile.Segments,side=n+1;double size=key.SizeM;
         double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
         double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
@@ -298,11 +322,11 @@ public sealed partial class LocalTerrainExplorer
     }
     static Vector3 ScatterScale(ScatterInstance p)
         =>new Vector3((float)p.WidthM,(float)p.HeightM,(float)(p.Kind==ScatterKind.Branch?p.HeightM:p.WidthM));
-    void ProjectScatterGround(ScatterChunk chunk)
+    void ProjectScatterGround(ScatterChunk chunk,bool worker=false)
     {
         if(scatterGroundChanges.Count==0||chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))
         {if(WorldGenPerformance.TraceEnabled)Debug.Log("Forest full-projection fallback: changes="+scatterGroundChanges.Count+", missingGroups="+(chunk.Groups==null)+", chartChanged="+(!ReferenceEquals(chunk.GroupsFrame,frame))+", roots="+chunk.Source.Instances.Length);ProjectScatter(chunk);return;}
-        long trace=WorldGenPerformance.TraceBegin();bool changed=false;
+        long trace=worker?0:WorldGenPerformance.TraceBegin();bool changed=false;
         var chunkMin=chunk.AllBounds.min;var chunkMax=chunk.AllBounds.max;
         foreach(var group in chunk.Groups)
         {
@@ -322,7 +346,8 @@ public sealed partial class LocalTerrainExplorer
                 var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))continue;
                 var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
                 double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
-                float y=(float)VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level)-ScatterEmbedding(p);chunk.GroundLevels[i]=level;
+                int level;double fallback=frame.SurfaceY(p.Position,p.GroundM);
+                float y=(float)(worker?ReadOnlyVisibleGround(x,z,fallback,out level):VisibleGround(x,z,fallback,out level))-ScatterEmbedding(p);chunk.GroundLevels[i]=level;
                 float delta=y-root.y;if(delta==0)continue;
                 root.y=y;chunk.Roots[i]=root;var matrix=chunk.Matrices[i];matrix.m13=y;chunk.Matrices[i]=matrix;
                 var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*delta;chunk.Bounds[i]=bounds;
@@ -342,8 +367,8 @@ public sealed partial class LocalTerrainExplorer
                 bounds=group.RootBounds;bounds.SetMinMax(rootMin,rootMax);group.RootBounds=bounds;
             }
         }
-        if(changed){chunk.RootRevision++;chunk.RangeValid=false;var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;canopySourceRevision++;}
-        WorldGenPerformance.TraceEnd(11,trace);
+        if(changed){chunk.RootRevision++;chunk.RangeValid=false;var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;System.Threading.Interlocked.Increment(ref canopySourceRevision);}
+        if(!worker)WorldGenPerformance.TraceEnd(11,trace);
     }
     void ProjectScatter(ScatterChunk chunk)
     {

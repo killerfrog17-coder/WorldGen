@@ -36,6 +36,7 @@ public static class WorldGenPerformance
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
     public static bool NoBuilderBufferReuse;
+    public static bool ParallelRootProjection;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -825,7 +826,29 @@ public sealed partial class LocalTerrainExplorer
         if(changed>before.Length*.001)throw new InvalidOperationException("Tree depth prepass changed visible surfaces: "+changed+" pixels, max delta "+delta);
         return "Tree silhouette prepass on/off: "+changed+" pixels >1 RGB difference; max delta "+delta;
     }
-    public string PerformanceVerifySelectiveProjection()
+    void VerifyWorkerProjection(ScatterChunk chunk)
+    {
+        var matrices=(Matrix4x4[])chunk.Matrices.Clone();var roots=(Vector3[])chunk.Roots.Clone();var boxes=(Bounds[])chunk.Bounds.Clone();var levels=(int[])chunk.GroundLevels.Clone();
+        var groupBoxes=chunk.Groups.Select(g=>g.Bounds).ToArray();var groupRoots=chunk.Groups.Select(g=>g.RootBounds).ToArray();
+        var all=chunk.AllBounds;int revision=chunk.RootRevision,canopy=canopySourceRevision;bool range=chunk.RangeValid;
+        ProjectScatterGround(chunk);
+        var expectedMatrices=(Matrix4x4[])chunk.Matrices.Clone();var expectedRoots=(Vector3[])chunk.Roots.Clone();var expectedBoxes=(Bounds[])chunk.Bounds.Clone();var expectedLevels=(int[])chunk.GroundLevels.Clone();
+        var expectedGroupBoxes=chunk.Groups.Select(g=>g.Bounds).ToArray();var expectedGroupRoots=chunk.Groups.Select(g=>g.RootBounds).ToArray();var expectedAll=chunk.AllBounds;
+        int expectedRevision=chunk.RootRevision,expectedCanopy=canopySourceRevision;bool expectedRange=chunk.RangeValid;
+        chunk.Matrices=matrices;chunk.Roots=roots;chunk.Bounds=boxes;chunk.GroundLevels=levels;chunk.AllBounds=all;chunk.RootRevision=revision;chunk.RangeValid=range;canopySourceRevision=canopy;
+        for(int i=0;i<chunk.Groups.Length;i++){chunk.Groups[i].Bounds=groupBoxes[i];chunk.Groups[i].RootBounds=groupRoots[i];}
+        System.Threading.Tasks.Task.Run(()=>ProjectScatterGround(chunk,true)).GetAwaiter().GetResult();
+        bool VectorSame(Vector3 a,Vector3 b)=>BitConverter.SingleToInt32Bits(a.x)==BitConverter.SingleToInt32Bits(b.x)&&BitConverter.SingleToInt32Bits(a.y)==BitConverter.SingleToInt32Bits(b.y)&&BitConverter.SingleToInt32Bits(a.z)==BitConverter.SingleToInt32Bits(b.z);
+        bool BoundsSame(Bounds a,Bounds b)=>VectorSame(a.center,b.center)&&VectorSame(a.extents,b.extents);
+        for(int i=0;i<chunk.Roots.Length;i++)
+        {
+            if(!VectorSame(chunk.Roots[i],expectedRoots[i])||!BoundsSame(chunk.Bounds[i],expectedBoxes[i])||chunk.GroundLevels[i]!=expectedLevels[i])throw new InvalidOperationException("Worker projection changed a root, bounds or terrain owner");
+            for(int j=0;j<16;j++)if(BitConverter.SingleToInt32Bits(chunk.Matrices[i][j])!=BitConverter.SingleToInt32Bits(expectedMatrices[i][j]))throw new InvalidOperationException("Worker projection changed an exact matrix component");
+        }
+        for(int i=0;i<chunk.Groups.Length;i++)if(!BoundsSame(chunk.Groups[i].Bounds,expectedGroupBoxes[i])||!BoundsSame(chunk.Groups[i].RootBounds,expectedGroupRoots[i]))throw new InvalidOperationException("Worker projection changed group envelopes");
+        if(!BoundsSame(chunk.AllBounds,expectedAll)||chunk.RootRevision!=expectedRevision||canopySourceRevision!=expectedCanopy||chunk.RangeValid!=expectedRange)throw new InvalidOperationException("Worker projection changed publication state");
+    }
+    public string PerformanceVerifySelectiveProjection(bool worker=false)
     {
         int ownerChecks=0;bool oldFresh=WorldGenPerformance.ForceFreshVisibleGround;
         try
@@ -875,7 +898,7 @@ public sealed partial class LocalTerrainExplorer
                         root.y+=.25f;chunk.Roots[i]=root;var matrix=chunk.Matrices[i];matrix.m13=root.y;chunk.Matrices[i]=matrix;
                         var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*.25f;chunk.Bounds[i]=bounds;repairedRoots++;
                     }
-                    ProjectScatterGround(chunk);var selective=(Matrix4x4[])chunk.Matrices.Clone();ProjectScatter(chunk);
+                    if(worker)VerifyWorkerProjection(chunk);else ProjectScatterGround(chunk);var selective=(Matrix4x4[])chunk.Matrices.Clone();ProjectScatter(chunk);
                     for(int i=0;i<selective.Length;i++)
                     {
                         if(selective[i]!=chunk.Matrices[i])throw new InvalidOperationException("Selective ground projection differs from full projection at root "+i);
@@ -901,7 +924,7 @@ public sealed partial class LocalTerrainExplorer
                         scatterGroundChanges.Clear();scatterGroundChanges.Add(tile,surface,new Tile{Heights=edgeHeights,Segments=segments});
                         surface.Heights=edgeHeights;
                         foreach(var root in chunk.Roots)if(ChangedGroundAt(root.x+originX,root.z+originZ,.01))partialRoots++;
-                        ProjectScatterGround(chunk);var partial=(Matrix4x4[])chunk.Matrices.Clone();ProjectScatter(chunk);
+                        if(worker)VerifyWorkerProjection(chunk);else ProjectScatterGround(chunk);var partial=(Matrix4x4[])chunk.Matrices.Clone();ProjectScatter(chunk);
                         for(int i=0;i<partial.Length;i++)
                         {
                             if(partial[i]!=chunk.Matrices[i])throw new InvalidOperationException("Changed-cell projection differs from full resident mesh replacement at root "+i);
@@ -918,7 +941,7 @@ public sealed partial class LocalTerrainExplorer
         finally{scatterGroundChanges.Clear();foreach(var tile in prior)scatterGroundChanges.Add(tile);scatterDirty=true;}
         if(repairedRoots==0)throw new InvalidOperationException("Selective projection fixture did not touch actual roots");
         if(partialRoots==0||partialRoots>=partialChecks)throw new InvalidOperationException("Changed-cell projection did not exercise both changed and unchanged actual roots");
-        return "Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards; "+ownerChecks+" exact cached/fresh resident triangle queries including tile edges; partial mesh replacement "+partialChecks+" exact matrices with only "+partialRoots+" affected roots";
+        return (worker?"Actual worker/main matrices, roots, bounds, ownership and publication bits identical. ":"")+"Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards; "+ownerChecks+" exact cached/fresh resident triangle queries including tile edges; partial mesh replacement "+partialChecks+" exact matrices with only "+partialRoots+" affected roots";
     }
     public string PerformanceVerifyTreeBands(string output)
     {
@@ -1028,6 +1051,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("scatter-guard-verify",()=>{}),
             new PerfCase("moving-guard-verify",()=>{}),
             new PerfCase("ground-owner-verify",()=>{}),
+            new PerfCase("projection-parallel-verify",()=>{}),
             new PerfCase("scatter-gpu-depth-verify",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("grass-indexed-verify",()=>{}),
             new PerfCase("foliage-one-tap",()=>WorldGenPerformance.FoliageShadowTaps=1),
@@ -1115,6 +1139,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-parallel-projection",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.ParallelRootProjection=true),
             new PerfCase("travel-whip-unpooled-terrain",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoTerrainBufferReuse=true),
             new PerfCase("travel-whip-unpooled-models",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoBuilderBufferReuse=true),
             new PerfCase("travel-whip-parallel",()=>WorldGenPerformance.ParallelScatter=true),
@@ -1188,6 +1213,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
+                WorldGenPerformance.ParallelRootProjection=false;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -1232,6 +1258,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="scatter-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"rotation-guard"))+"\n");
                 if(item.Name=="moving-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"moving-rotation-guard"),true)+"\n");
                 if(item.Name=="ground-owner-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n");
+                if(item.Name=="projection-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection(true)+"\n");
                 if(item.Name=="scatter-gpu-depth-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),"Near GPU depth: "+terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"near-gpu-depth"))+"\n");
                 if(item.Name=="grass-indexed-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyIndexedGround(output)+"\n");
                 if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
