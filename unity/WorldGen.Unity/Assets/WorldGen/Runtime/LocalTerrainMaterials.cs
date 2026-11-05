@@ -92,7 +92,7 @@ public sealed partial class LocalTerrainExplorer
         Shader.SetGlobalInteger("_TerrainDiagnosticFlags",camera==view?(int)TerrainDiagnostics.Flags:0);
         Shader.SetGlobalVector("_WorldGenFoliageShadowSettings",camera==view&&TerrainVideoOptions.SimplifiedForestShadows?new Vector4(1,TerrainVideoOptions.ForestShadowDistance,TerrainVideoOptions.ForestShadowSoftness,WorldGenPerformance.NoFoliageShadowReceivers?-1:TerrainVideoOptions.ForestShadowSamples):Vector4.zero);
         BindCanopyShade(camera);
-        if(camera==view)
+        if(camera==view&&frame!=null&&terrain!=null)
         {
             Shader.SetGlobalVector("_TerrainSurfaceRanges",TerrainVideoOptions.SurfaceRanges);
             Shader.SetGlobalVector("_TerrainSurfaceControls",TerrainVideoOptions.SurfaceControls);

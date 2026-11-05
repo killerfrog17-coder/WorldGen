@@ -60,6 +60,7 @@ try {
     # being measured; ordinary offscreen evidence remains a hidden helper.
     $playerWindowStyle=if($Presented){'Normal'}else{'Hidden'}
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle $playerWindowStyle -PassThru
+    if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $run.Id}
     if($PresentMon){
         $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -RedirectStandardOutput (Join-Path $destination 'presentmon-output.txt') -RedirectStandardError (Join-Path $destination 'presentmon-error.txt') -WindowStyle Hidden -PassThru
     }
