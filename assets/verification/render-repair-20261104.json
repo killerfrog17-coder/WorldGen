@@ -1605,7 +1605,7 @@
     {
       "folder": "artifacts/render-repair-20261105/presented-saved-coarse",
       "complete": true,
-      "source": "039a865da445c5a9d0440079e962f3a4b6985ea8",
+      "source": "039a865d60906435eb8c8bde053fea526a82218c",
       "qualification": "Normal presented player; actual saved60km/mixed video preferences,20second windows. All windows remained unsettled. Coarse foliage improves65.26->79.01FPS;sorting77.30 and no-depth75.43 do not improve this sample. CPU presentation waits.03-.10ms,not a frame-cap/compositor bottleneck.100FPS floor still fails.",
       "rows": [
         {

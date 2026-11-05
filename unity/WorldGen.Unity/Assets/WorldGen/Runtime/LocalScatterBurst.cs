@@ -276,7 +276,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool CollectBurstScatter(Vector3 eye)
     {
-        if(!WorldGenPerformance.BurstScatter||burstUnavailable||!BurstCompiler.IsEnabled||WorldGenPerformance.Original||WorldGenPerformance.FineCullTrace||WorldGenPerformance.LegacyGroupVisibility||prefabScatterKinds.Count>0)return false;
+        if(frame==null||terrain==null||!WorldGenPerformance.BurstScatter||burstUnavailable||!BurstCompiler.IsEnabled||WorldGenPerformance.Original||WorldGenPerformance.FineCullTrace||WorldGenPerformance.LegacyGroupVisibility||prefabScatterKinds.Count>0)return false;
         PrepareTerrainOccluders();BurstArray(ref burstPlanes,6);BurstArray(ref burstCasts,13);NativeArray<Plane>.Copy(scatterFrustum,0,burstPlanes,0,6);for(int i=0;i<13;i++)burstCasts[i]=ScatterGroupCanCast((ScatterKind)i)?(byte)1:(byte)0;
         if(!burstCollected.IsCreated)burstCollected=new NativeParallelHashSet<ulong>(Math.Max(16,inventoryCollected.Count),Allocator.Persistent);
         if(burstCollectedCount!=inventoryCollected.Count){burstCollected.Clear();if(burstCollected.Capacity<inventoryCollected.Count)burstCollected.Capacity=inventoryCollected.Count;foreach(ulong id in inventoryCollected)burstCollected.Add(id);burstCollectedCount=inventoryCollected.Count;}

@@ -682,7 +682,7 @@ public sealed partial class LocalTerrainExplorer
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
-        ScatterDrawCalls=ForestDrawCalls=TreeShadowDraws=0;if(!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
+        ScatterDrawCalls=ForestDrawCalls=TreeShadowDraws=0;if(!Ready||frame==null||terrain==null||!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
         // Cache publication/teleport invalidation can happen in LateUpdate.
         // Switch crown/trunk submission in the same frame, without a bright flash.
         if(usingCoarseTreeShadows!=CoarseTreeShadows)BuildScatterBatches();
