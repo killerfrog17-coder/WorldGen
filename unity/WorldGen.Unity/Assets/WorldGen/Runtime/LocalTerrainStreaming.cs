@@ -40,6 +40,13 @@ public sealed partial class LocalTerrainExplorer
     {
         if(GroundPublicationPending)return false;
         if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges,false),out var tile))return false;
+        // Reused products need the same atomic root/terrain publication as a
+        // freshly built product. They remain disabled until preparation ends.
+        if(StageGroundPublication(key,tile))
+        {
+            tile.Root.transform.SetParent(terrainRoot.transform,false);
+            installationsThisFrame++;TerrainCacheHits++;return true;
+        }
         tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,tile,old);
         tile.Root.transform.SetParent(terrainRoot.transform,false);
         tile.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
