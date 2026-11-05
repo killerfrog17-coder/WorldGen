@@ -1120,7 +1120,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-coarse-no-depth",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;TerrainVideoOptions.FoliageDepthPrepass=false;}),
             new PerfCase("travel-whip-detailed-foliage",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.DetailedFoliageComparison=true;TerrainVideoOptions.DistantTreeShadowCards=false;}),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
-            new PerfCase("travel-whip-allocation-profile",()=>{}),
+            new PerfCase("travel-whip-allocation-profile",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-range-cache-verify",()=>{}),
             new PerfCase("human-weights-verify",()=>{}),
