@@ -2852,6 +2852,14 @@
         }
       ],
       "interpretation": "No material FPS gain:163.18 current vs161.64 staged; p9511.32 vs10.84ms. Still default OFF. Old nonstaged cached restore path remained and produced13.62ms scatter+13.24ms forest correction in a36.83ms frame. Prepared publication itself max1.264ms in the measured trace. New aea705f5 extends same operation to cached tiles; actual cache test and new measurement pending."
+    },
+    "cache_integration": {
+      "status": "PASS actual native cache take/preparation/publication",
+      "evidence": "artifacts/render-repair-20261105/cached-ground-native",
+      "actual_package_source": "88736fba",
+      "steps": 2,
+      "root_component_level_bounds_checks": 581319,
+      "qualification": "Diagnostic correctness evidence only; old ground and roots retained until commit, cloned raised native land mesh. No normal throughput claim."
     }
   },
   "hot_equipment_queries": {

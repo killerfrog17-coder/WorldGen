@@ -53,6 +53,18 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE05Nov17:48Z PERFORMANCE ONLY. Cached-ground-native88736fba COMPLETE EXIT0,
+no errors: actual cache take/stage/commit2steps,581319 exact root/level/bounds
+comparisons; old terrain retained until commit. Staged path still DEFAULT OFF,
+now includes source aea cache bridge. New10373f56 fixes genuine inactive terrain
+mesh retirement omission; includeInactive=true +reused scratch list. Native
+regression ADDED/UNBUILT: original query0 children, destroy3nested/disabled meshes
+while unrelated mesh survives actual deferred release. NO FPS attribution yet.
+No own game remains. Build latest B NONDEV next, run --worldgen-upload-check,
+then same-package presented current/staged jungle45s. Do not compile during
+measurement. Source pushed, selectedA/shortcut untouched,100FPSfloor NOT solved.
+All own visible windows RIGHTMOST. No new geography/subagents/paid/ownerappsclosed.
+
 ACTIVE5Nov17:39Z PERFORMANCE ONLY. Presented-staged-jungle3607575a COMPLETE:
 current163.18FPS p9511.32/max42.61 vs staged161.64 p9510.84/max39.93; no material
 throughput gain, default OFF. Actual staged prep/publication max1.264ms DURING
