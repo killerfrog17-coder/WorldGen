@@ -53,6 +53,19 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov16:14Z PERFORMANCE ONLY. B FULL NONDEV fb3fcd11/source unchanged.
+projection-worker-proof COMPLETE EXIT0/no runtime errors: actual Task.Run worker
+bit-identical to main for23340matrices/root/bounds/groundlevel/publication,
+1369displacedroots/4chunks,23340coarse-owner guards,3019triangle probes; partial
+replacement23340matrices/92affectedroots. No shared owner cache writes; joins
+before draw/retire. ParallelRootProjection STILL DEFAULT OFF pending actual speed.
+Own native7838/player8980 RIGHTMOST now runs presented-parallel-ground, boreal
+Medium6km30s current vs parallel-projection. No other heavy jobs. Do NOT compile
+or overwrite B until it finishes. Next inspect frame tails/correction cost and
+retain OFF if no useful gain; if gain, further actual contexts still required.
+Source+docs PUSHED04b8df4a; transient GitHub commit_refs rejection retried and
+succeeded. Selected A/f833/shortcut remain unchanged. Owner3files intact.
+
 ACTIVE5Nov16:02Z PERFORMANCE ONLY CONTINUES. B FULL NONDEV fb3fcd11 BuiltUtc
 16:00:27Z SourceChanges[],known3Unityautos restored; source all PUSHED. Own
 native46315 projection-worker-proof RUNNING hidden, boreal1500m, one offscreen

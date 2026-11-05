@@ -2262,7 +2262,7 @@
     "source": "fb3fcd1122b5dbb9ec20910e18e3d4a861319451",
     "enabled_by_default": false,
     "evidence": "artifacts/render-repair-20261105/projection-worker-proof",
-    "status": "Native exact worker/main proof running; paired speed test pending",
+    "status": "Native worker/main bit proof PASS; presented speed comparison running; default OFF",
     "cause_evidence": "artifacts/render-repair-20261105/allocation-analysis-projection-scopes",
     "terrain_correction_worst_ms": [
       28.968,
@@ -2270,7 +2270,18 @@
     ],
     "scope_total_ms": 54.3807,
     "scope_calls": 10,
-    "safety": "Read-only resident terrain, distinct chunk arrays, joins before retirement/draw; worker cannot modify shared owner cache"
+    "safety": "Read-only resident terrain, distinct chunk arrays, joins before retirement/draw; worker cannot modify shared owner cache",
+    "proof": {
+      "matrices": 23340,
+      "displaced_roots": 1369,
+      "chunks": 4,
+      "coarse_parent_guards": 23340,
+      "ground_owner_queries": 3019,
+      "partial_matrices": 23340,
+      "partial_changed_roots": 92,
+      "exact_worker_outputs": "Matrices, root positions, per-root/group/chunk bounds, terrain levels and publication state"
+    },
+    "performance_evidence": "artifacts/render-repair-20261105/presented-parallel-ground"
   },
   "abundance_workspace": {
     "source": "08e87218",
