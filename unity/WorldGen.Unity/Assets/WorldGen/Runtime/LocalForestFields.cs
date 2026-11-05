@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
     readonly List<ForestWork> forestJobs=new List<ForestWork>();readonly HashSet<ForestPageKey> forestWanted=new HashSet<ForestPageKey>();
     readonly Dictionary<ForestPageKey,bool> forestOwnership=new Dictionary<ForestPageKey,bool>();int forestOwnershipRevision=-1,forestOwnershipEpoch;
     ForestPageKey[] forestPriority=Array.Empty<ForestPageKey>();Task<ForestPageKey[]> forestPlan;
-    readonly Stack<int> forestFreeIds=new Stack<int>();int forestNextId,forestRootCount,forestHashMask,forestRevision,forestOptions=-1,forestNextRequest;bool forestMaintenanceDirty;
+    readonly Stack<int> forestFreeIds=new Stack<int>();int forestNextId,forestRootCount,forestHashMask,forestRevision,forestRootTopologyRevision,forestOptions=-1,forestNextRequest;bool forestMaintenanceDirty;
     readonly int[] forestFlags=new int[8192];GraphicsBuffer forestFlagBuffer,forestHashBuffer;
     ComputeShader forestCull;bool forestHashDirty;LocalTerrainFrame forestFrame;V forestPlanAt;double forestPlanRange=-1,nextForestVisibility;int forestGroundRevision=-1,forestCoverageRevision=-1;
     readonly Vector4[] forestPlanes=new Vector4[6];readonly Plane[] forestPlaneWork=new Plane[6];Vector3 forestVisibilityEye=new Vector3(float.NaN,0,0);
@@ -257,6 +257,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ProjectForest(ForestField field)
     {
+        forestRootTopologyRevision++;
         bool first=true;var page=field.Source;
         foreach(var source in page.Roots)
         {
@@ -316,12 +317,14 @@ public sealed partial class LocalTerrainExplorer
         new Vector3(root.Width*3,root.Height*3+root.Width*3*(Math.Abs(root.SlopeX)+Math.Abs(root.SlopeZ)),root.Width*3));
     void RemoveForestField(ForestPageKey key)
     {
+        forestRootTopologyRevision++;
         var field=forestFields[key];foreach(var pair in field.Roots)foreach(int slot in pair.Value){pair.Key.Data[slot]=default;pair.Key.Free.Push(slot);DirtyForestRoot(pair.Key,slot);forestRootCount--;}
         forestFlags[field.Id]=0;forestFreeIds.Push(field.Id);forestFields.Remove(key);forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;
     }
     void CompactForest(ForestBatch batch)
     {
         if(batch.Free.Count<256||batch.Free.Count<batch.Data.Count/3)return;
+        forestRootTopologyRevision++;
         var map=new int[batch.Data.Count];int live=0;for(int i=0;i<batch.Data.Count;i++)if(batch.Data[i].Height>0){map[i]=live;batch.Data[live]=batch.Data[i];batch.GroundLevels[live++]=batch.GroundLevels[i];}
         batch.GroundLevels.RemoveRange(live,batch.Data.Count-live);batch.Data.RemoveRange(live,batch.Data.Count-live);batch.Free.Clear();DirtyAllForestRoots(batch);
         foreach(var field in forestFields.Values)if(field.Roots.TryGetValue(batch,out var slots))for(int i=0;i<slots.Count;i++)slots[i]=map[slots[i]];

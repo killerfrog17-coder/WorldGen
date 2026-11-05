@@ -29,6 +29,9 @@ public sealed partial class LocalTerrainExplorer
     struct ForestFieldEdit {public ForestField Field;public Bounds Bounds;}
     readonly GroundPublication groundPublication=new GroundPublication();
     bool GroundPublicationPending=>groundPublication.Product!=null;
+    int groundPublicationSlices,groundPublicationCommits,groundPublicationRestarts;
+    double groundPublicationMaxPrepareMs,groundPublicationMaxCommitMs;
+    public string PerformanceGroundPublication=>"cumulative_including_loading slices="+groundPublicationSlices+" commits="+groundPublicationCommits+" restarts="+groundPublicationRestarts+" max_prepare_ms="+groundPublicationMaxPrepareMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" max_commit_ms="+groundPublicationMaxCommitMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" pending="+GroundPublicationPending;
 
     bool StageGroundPublication(TerrainTileKey key,Tile product)
     {
@@ -43,8 +46,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void RestartGroundPublication()
     {
-        var plan=groundPublication;plan.ClearEdits();plan.Frame=frame;plan.OriginX=originX;plan.OriginZ=originZ;
-        plan.Resident=residentRevision;plan.ResidentCount=tiles.Count;plan.Canopy=canopySourceRevision;plan.Forest=forestRevision;
+        var plan=groundPublication;if(plan.Work!=null)groundPublicationRestarts++;plan.ClearEdits();plan.Frame=frame;plan.OriginX=originX;plan.OriginZ=originZ;
+        plan.Resident=residentRevision;plan.ResidentCount=tiles.Count;plan.Canopy=canopySourceRevision;plan.Forest=forestRootTopologyRevision;
         tiles.TryGetValue(plan.Key,out var old);plan.Changes.Add(plan.Key,old,plan.Product);
         plan.Work=PrepareGroundPublication(plan);
     }
@@ -60,12 +63,15 @@ public sealed partial class LocalTerrainExplorer
         if(!wanted.TryGetValue(plan.Key,out int segments)||segments!=plan.Product.Segments||
             !wantedEdges.TryGetValue(plan.Key,out var edges)||!TerrainEdges.Equal(edges,plan.Product.Edges))
         {var obsolete=plan.Product;plan.Product=null;plan.ClearEdits();CacheTerrain(plan.Key,obsolete);return;}
-        if(plan.Resident!=residentRevision||plan.ResidentCount!=tiles.Count||plan.Canopy!=canopySourceRevision||plan.Forest!=forestRevision||
+        if(plan.Resident!=residentRevision||plan.ResidentCount!=tiles.Count||plan.Canopy!=canopySourceRevision||plan.Forest!=forestRootTopologyRevision||
             plan.OriginX!=originX||plan.OriginZ!=originZ)RestartGroundPublication();
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
+        long trace=WorldGenPerformance.TraceBegin();
         bool pending=plan.Work.MoveNext();
+        groundPublicationSlices++;groundPublicationMaxPrepareMs=Math.Max(groundPublicationMaxPrepareMs,(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency);
         installationsThisFrame++;
-        if(pending){frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;return;}
+        if(pending){frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;WorldGenPerformance.TraceEnd(32,trace);return;}
+        long commitStarted=System.Diagnostics.Stopwatch.GetTimestamp();
         // No rendering or other update runs inside this publication. All edits
         // were computed against this exact resident/chart/topology revision.
         ApplyGroundPublicationEdits(plan);
@@ -76,7 +82,9 @@ public sealed partial class LocalTerrainExplorer
         foreach(var change in plan.Changes)scatterGroundChanges.Add(change);
         InvalidateInstallingScatterGround();scatterGroundChanges.Clear();scatterGroundRevision++;projectedGroundRevision=scatterGroundRevision;
         forestRevision++;nextForestVisibility=0;scatterDirty=true;plan.ClearEdits();
+        groundPublicationCommits++;groundPublicationMaxCommitMs=Math.Max(groundPublicationMaxCommitMs,(System.Diagnostics.Stopwatch.GetTimestamp()-commitStarted)*1000d/System.Diagnostics.Stopwatch.Frequency);
         frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;
+        WorldGenPerformance.TraceEnd(32,trace);
     }
     void ApplyGroundPublicationEdits(GroundPublication plan)
     {

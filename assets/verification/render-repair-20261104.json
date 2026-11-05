@@ -2233,6 +2233,13 @@
       "pure_checks": 6152,
       "evidence": "artifacts\\render-repair-20261105\\transition-noalloc-native",
       "result": "PASS actual shader coverage/fades and missing/incomplete replacement retirement guards"
+    },
+    "plant_uv_scratch": {
+      "source": "1b14db18",
+      "evidence": "artifacts/render-repair-20261105/mesh-uv-reuse-native",
+      "pairs": 312,
+      "vertices": 166598,
+      "status": "PASS exact native positions/normals/tangents/colors/indices/bounds/eight UV channels against original allocating path"
     }
   },
   "pending_sound_index": {
@@ -2736,6 +2743,10 @@
   "staged_ground_publication": {
     "status": "UNCOMPILED opt-in prototype; default OFF",
     "behavior": "Prepare corrections over bounded main-thread slices while retaining old visible terrain/roots; publish together. Revision/chart/origin/topology guards discard stale preparation; no stale transforms published.",
-    "proof": "Added native original/staged root/height/bounds comparison across full, partial and coarse replacements; pending execution."
+    "proof": "Added native original/staged root/height/bounds comparison across full, partial and coarse replacements; pending execution.",
+    "rejected_first_run": {
+      "evidence": "artifacts/render-repair-20261105/staged-ground-proof",
+      "reason": "Prototype preparation guard included forest render-culling revision, causing unnecessary restarts. Interrupted own run; no pass claimed. Replace with distinct topology revision."
+    }
   }
 }
