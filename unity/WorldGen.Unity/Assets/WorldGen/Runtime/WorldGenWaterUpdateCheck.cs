@@ -38,8 +38,11 @@ public sealed partial class LocalTerrainExplorer
                 {
                     if(PlayerWaterSample(dx*distance,dz*distance).Underwater){wet=distance;continue;}
                     double dry=distance;
-                    for(int k=0;k<16;k++){double mid=(wet+dry)*.5;if(PlayerWaterSample(dx*mid,dz*mid).Underwater)wet=mid;else dry=mid;}
-                    foreach(double bankOffset in new[]{.2,.6,1.2,2.0})foreach(double waterOffset in new[]{.2,.6,1.2})
+                    for(int k=0;k<16;k++){double shoreMid=(wet+dry)*.5;if(PlayerWaterSample(dx*shoreMid,dz*shoreMid).Underwater)wet=shoreMid;else dry=shoreMid;}
+                    foreach(double bankOffset in new[]{.2,.6,1.2,2.0})
+                    {
+                    if(bankFound)break;
+                    foreach(double waterOffset in new[]{.2,.6,1.2})
                     {
                         double bx=dx*(dry+bankOffset),bz=dz*(dry+bankOffset),wx=dx*(wet-waterOffset),wz=dz*(wet-waterOffset);
                         double water=SampleMotionWater(wx,wz).Surface,floor=CampFloor(bx,bz);
@@ -47,6 +50,7 @@ public sealed partial class LocalTerrainExplorer
                         motion.Place(bx,bz,floor);UpdateHumans();UpdateCamera();view.transform.LookAt(new Vector3((float)(wx-originX),(float)water,(float)(wz-originZ)));waterAimAt=0;
                         if(AimedWater(float.PositiveInfinity)==null)continue;
                         nx=wx;nz=wz;bankFound=true;break;
+                    }
                     }
                     break;
                 }
