@@ -106,6 +106,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void PrepareScatterGroups(ScatterChunk chunk,LocalTerrainFrame boundsFrame)
     {
+#if DEVELOPMENT_BUILD
+        using var groupScope=scatterGroupMarker.Auto();
+#endif
         chunk.RangeValid=false;
         int count=chunk.Source.Instances.Length;
         // Static spatial bins avoid revisiting every plant in a half-kilometre

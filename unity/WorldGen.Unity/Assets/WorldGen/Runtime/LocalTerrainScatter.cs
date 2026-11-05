@@ -9,6 +9,9 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+#if DEVELOPMENT_BUILD
+    static readonly Unity.Profiling.ProfilerMarker scatterCorrectionMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterTerrainCorrection"),scatterInstallMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterInstallSlice"),scatterFullProjectionMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterFullProjection"),scatterGroupMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterGroupPreparation");
+#endif
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
     struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
@@ -139,6 +142,9 @@ public sealed partial class LocalTerrainExplorer
         // vegetation. Reproject before this frame's draws, without a 250ms lag.
         if(scatterGroundRevision!=projectedGroundRevision)
         {
+#if DEVELOPMENT_BUILD
+            using var correctionScope=scatterCorrectionMarker.Auto();
+#endif
             long correctionStarted=System.Diagnostics.Stopwatch.GetTimestamp();
             InvalidateInstallingScatterGround();
             foreach(var chunk in scatterChunks.Values)
@@ -189,6 +195,9 @@ public sealed partial class LocalTerrainExplorer
         if(installingScatter==null)return;
         if(!scatterWanted.Contains(installingScatterKey)){installingScatter=null;installingScatterRechecks.Clear();return;}
         if(!CanInstall)return;
+#if DEVELOPMENT_BUILD
+        using var installScope=scatterInstallMarker.Auto();
+#endif
         long installStarted=System.Diagnostics.Stopwatch.GetTimestamp();installationsThisFrame++;
         var chunk=installingScatter;int count=chunk.Source.Instances.Length;
         if(installingScatterFrame!=frame||installingScatterOriginX!=originX||installingScatterOriginZ!=originZ)
@@ -338,6 +347,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void ProjectScatter(ScatterChunk chunk)
     {
+#if DEVELOPMENT_BUILD
+        using var fullProjectionScope=scatterFullProjectionMarker.Auto();
+#endif
         long trace=WorldGenPerformance.TraceBegin();
         var source=chunk.Source.Instances;
         if(chunk.Matrices==null||chunk.Matrices.Length!=source.Length){chunk.Matrices=new Matrix4x4[source.Length];chunk.Roots=new Vector3[source.Length];}

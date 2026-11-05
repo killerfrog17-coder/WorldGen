@@ -24,16 +24,23 @@ public static class WorldGenProfilerReview
         var methods=new Dictionary<ulong,string>();var addresses=new List<ulong>();
         var parents=new List<(int End,string Name)>();int threads=0;long totalBytes=0;
         var frames=new List<string>{"frame,main_thread_inclusive_ms"};
+        var slowSamples=new List<string>{"frame,frame_ms,sample_ms,path"};
         for(int frame=first;frame<=last;frame++)
         for(int thread=0;thread<256;thread++)
         {
             using var data=ProfilerDriver.GetRawFrameDataView(frame,thread);if(!data.valid)break;threads++;
             if(thread==0&&data.sampleCount>0)frames.Add(frame+","+data.GetSampleTimeMs(0).ToString("R",CultureInfo.InvariantCulture));
+            double frameMs=thread==0&&data.sampleCount>0?data.GetSampleTimeMs(0):0;
             parents.Clear();
             for(int sample=0;sample<data.sampleCount;sample++)
             {
                 while(parents.Count>0&&parents[parents.Count-1].End<sample)parents.RemoveAt(parents.Count-1);
                 string name=data.GetSampleName(sample),timer=data.threadName+" / "+name;
+                if(thread==0&&frameMs>=10&&data.GetSampleTimeMs(sample)>=.25)
+                {
+                    string path=string.Join(" / ",parents.Select(p=>p.Name).Concat(new[]{name}));
+                    slowSamples.Add(frame+","+frameMs.ToString("R",CultureInfo.InvariantCulture)+","+data.GetSampleTimeMs(sample).ToString("R",CultureInfo.InvariantCulture)+",\""+path.Replace("\"","\"\"")+"\"");
+                }
                 timings.TryGetValue(timer,out var timing);timings[timer]=(timing.Ms+data.GetSampleTimeMs(sample),timing.Calls+1);
                 if(name=="GC.Alloc")
                 {
@@ -55,6 +62,7 @@ public static class WorldGenProfilerReview
         File.WriteAllLines(Path.Combine(output,"allocations.csv"),new[]{"bytes,calls,stack"}.Concat(allocations.OrderByDescending(p=>p.Value.Bytes).Select(p=>p.Value.Bytes+","+p.Value.Calls+","+Csv(p.Key))));
         File.WriteAllLines(Path.Combine(output,"inclusive-timings.csv"),new[]{"inclusive_ms,calls,thread_and_marker"}.Concat(timings.OrderByDescending(p=>p.Value.Ms).Select(p=>p.Value.Ms.ToString("R",CultureInfo.InvariantCulture)+","+p.Value.Calls+","+Csv(p.Key))));
         File.WriteAllLines(Path.Combine(output,"frames.csv"),frames);
+        File.WriteAllLines(Path.Combine(output,"slow-frame-samples.csv"),slowSamples);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"Diagnostic DevelopmentPlayer only. Frames {first}..{last}; thread frames {threads}; GC.Alloc bytes {totalBytes}. Inclusive timings overlap; not release FPS.\n");
     }
 }
