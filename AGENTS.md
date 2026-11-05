@@ -53,6 +53,24 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE05Nov18:44Z PERFORMANCE ONLY. Presented-retained-backdrops733 COMPLETE:
+164.38FPS p9511.23/max39.35ms (still UNMET100floor). Level7 churn gone; remaining
+correction max11.258ms from finer uploads/removals. Source group-ground-owner guard
+2738c75a now skips spatial bins when ALL root owners are finer than changed tiles;
+int maximum maintained on full/partial/staged projections, included in native
+snapshot comparison. UNVERIFIED until current proof. B NONDEV2738c75a SourceChanges[]
+Built,3knownautosrestored. Own native9334 hidden runs group-ground-owner-proof:
+boreal1500m ground-owner-verify (selective vs FULL projection) then staged-ground-
+verify (all matrices/levels/bounds/maxima +actual cache integration). DO NOT rebuild
+or overwrite B until complete. Next inspect pass/failure, then actual presented
+travel-whip-retained-staged to combine bounded publication+retained fallback.
+KeepBackdrops/Staged both DEFAULT OFF; normalGC3ms. No material FPS gain claimed,
+ordinary~164 jungle, pauses still~40ms. Need remaining source costs after proofs.
+Selected A/f833/rootshortcut protected. Owner3files untouched, allsource pushed273.
+No new geography/features/subagents/paid/ownerappsclosed. RIGHTMOST visible windows.
+IMPORTANT prior mesh-leak theory DISPROVEN for real flat terrain (old query2/2,
+0meshes retained); only inactive-descendant robustness. Do not revive falseclaim.
+
 ACTIVE05Nov18:32Z PERFORMANCE ONLY. Actual per-key cause trace3b21 COMPLETE:
 58legacy corrections >2ms,7Upload(Backdrop),41Retirement,10CacheRestore unchanged.
 Worst15.23/14.63ms from Level7 backdrop upload,12.69ms same Level7 retirement.
