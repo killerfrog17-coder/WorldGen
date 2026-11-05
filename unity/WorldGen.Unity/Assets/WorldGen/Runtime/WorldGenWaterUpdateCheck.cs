@@ -24,7 +24,36 @@ public sealed partial class LocalTerrainExplorer
         double deadline=Time.unscaledTimeAsDouble+80;while(!PerformanceGroundSettled&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
         Check(CenterReady,"Actual coastal terrain loads without modifying the world");
         PlayCommands.Execute(PlayerRules,0,"/time set noon",Math.Atan2(Position.Y,Position.X)*180/Math.PI);WeatherControl.Set("clear");SetDaylight(LocalSolarHour,skyYear);
-        V near=TerrainMapViewport.FromDegrees(.17924039827946195,117.31312959624624);TerrainHandoff.Coordinates(frame,near,out double nx,out double nz);
+        // Geography revisions moved the old literal bank below sea level. Find
+        // a genuinely reachable dry-bank/wet pair in the current coastal mesh.
+        double nx=0,nz=0;bool bankFound=false,fullAim=WorldGenPerformance.FullWaterAim;
+        var seed=PlayerWaterSample(0,0);
+        try
+        {
+            WorldGenPerformance.FullWaterAim=true;
+            for(int spoke=0;spoke<24&&!bankFound;spoke++)
+            {
+                double dx=Math.Sin(spoke*Math.PI/12),dz=Math.Cos(spoke*Math.PI/12),wet=0;
+                for(double distance=2;distance<=200&&!bankFound;distance+=2)
+                {
+                    if(PlayerWaterSample(dx*distance,dz*distance).Underwater){wet=distance;continue;}
+                    double dry=distance;
+                    for(int k=0;k<16;k++){double mid=(wet+dry)*.5;if(PlayerWaterSample(dx*mid,dz*mid).Underwater)wet=mid;else dry=mid;}
+                    foreach(double bankOffset in new[]{.2,.6,1.2,2.0})foreach(double waterOffset in new[]{.2,.6,1.2})
+                    {
+                        double bx=dx*(dry+bankOffset),bz=dz*(dry+bankOffset),wx=dx*(wet-waterOffset),wz=dz*(wet-waterOffset);
+                        double water=SampleMotionWater(wx,wz).Surface,floor=CampFloor(bx,bz);
+                        if(!double.IsFinite(water)||floor<water-.02||floor>water+1.4||PlayerWaterSample(bx,bz).Underwater)continue;
+                        motion.Place(bx,bz,floor);UpdateHumans();UpdateCamera();view.transform.LookAt(new Vector3((float)(wx-originX),(float)water,(float)(wz-originZ)));waterAimAt=0;
+                        if(AimedWater(float.PositiveInfinity)==null)continue;
+                        nx=wx;nz=wz;bankFound=true;break;
+                    }
+                    break;
+                }
+            }
+        }
+        finally{WorldGenPerformance.FullWaterAim=fullAim;waterAimAt=0;}
+        Check(seed.Underwater&&bankFound,"A current rendered dry shore has physically reachable sea water");
         var sample=PlayerWaterSample(nx,nz);var quality=PlayerWaterQuality(sample);Check(sample.Underwater&&!quality.Fresh,"Real sea water is identified as saline");
         Inventory.Items.Clear();InitializeInventory();var stone=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);stone.Place=PossessionPlace.RightHand;Inventory.Items.Add(stone);
         var blade=PortableTechnology.Create(PossessionKind.StoneBlade,Position);blade.Place=PossessionPlace.LeftHand;Inventory.Items.Add(blade);
