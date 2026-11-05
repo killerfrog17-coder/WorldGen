@@ -53,6 +53,18 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov13:38Z PERFORMANCE ONLY. B FULL NONDEV7360d805 BuiltUtc13:37:32Z,
+SourceChanges[]; known3Unityautos restored. Native44840/player12356 RIGHTMOST
+runs presented-water-bounds: Medium6km,30sec,boreal, actual presented camera,
+water/burst/render/upload equivalence + turning/moving old/new water prompt.
+Do not compile or run heavy jobs while it measures; selected A/f833 untouched.
+Allocation fixed2 COMPLETE:743frames,63,639,392bytes/10sec vs102,278,721before.
+Offline allocation-analysis-fixed2 found WaterPrompt3735ms/574calls, Nature484ms,
+Camp87ms, Pickup11ms. 7360 rejects dry rays using conservative resident water
+mesh bounds (unknown owner falls back), preserves physical hit/quality/obstacle
+checks. UNVERIFIED in native until current checks finish; shoreline positive
+drink regression still REQUIRED after benchmark. No100FPS success claim.
+
 ACTIVE5Nov13:16Z PERFORMANCE ONLY. Current B ScriptsOnly DEVELOPMENT e48606d1
 over FULL DEVELOPMENT0ecb;3knownUnityautos restored. Own native72210/player28160
 RIGHTMOST runs allocation-callstacks-fixed2,Medium1500m/10s. No other heavy jobs.

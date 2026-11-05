@@ -1725,5 +1725,24 @@
       "Per-frame PollHumans Environment.GetCommandLineArgs:1.32MiB/19136calls."
     ],
     "raw_sha256": "19ca1993eda0f2156f69c0d7ef8f9655913a6198bc8a31964f9d2f7737a16985"
+  },
+  "latest_water_prompt_repair": {
+    "source": "7360d80584a67d2c30d005e59b5411ccc263c240",
+    "slot": "slot-b",
+    "development": false,
+    "status": "Native paired proof and presented timing in progress; positive shoreline drink regression pending; selected A unchanged",
+    "profiling": {
+      "first_allocated_bytes": 102278721,
+      "fixed_allocated_bytes": 63639392,
+      "window_seconds": 10,
+      "fixed_frames": 743,
+      "water_prompt_inclusive_ms": 3735.47,
+      "water_prompt_calls": 574,
+      "nature_prompt_inclusive_ms": 483.7,
+      "evidence": "artifacts/render-repair-20261105/allocation-analysis-fixed2",
+      "development_only_not_release_throughput": true
+    },
+    "new_evidence": "artifacts/render-repair-20261105/presented-water-bounds",
+    "floor_achieved": false
   }
 }
