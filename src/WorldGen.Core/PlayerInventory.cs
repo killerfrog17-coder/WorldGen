@@ -70,10 +70,18 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public CraftEquipmentState ToolWorkEquipment;
         public PossessionPlace ActiveHand=PossessionPlace.RightHand;
         public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural),Crafts=(Crafts??new List<ItemCraftJob>()).Select(j=>j.Copy()).ToList(),ToolResources=(ToolResources??new List<NaturalToolRecord>()).Select(r=>r.Copy()).ToList(),ToolWorkEquipment=ToolWorkEquipment?.Copy()};
-        public Possession Find(string id)=>Items.FirstOrDefault(i=>i.Id==id);
-        public Possession AtHand(PossessionPlace hand)=>Items.FirstOrDefault(i=>i.Place==hand||i.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand));
+        public Possession Find(string id){foreach(var item in Items)if(item.Id==id)return item;return null;}
+        public Possession AtHand(PossessionPlace hand)
+        {
+            // These are queried by prompts, audio, combat and rendering many
+            // times each frame. Avoid a capturing predicate and only assess
+            // two-hand support for an item that is actually in a hand.
+            foreach(var item in Items)
+                if(item.Place==hand||(item.Place==PossessionPlace.LeftHand||item.Place==PossessionPlace.RightHand)&&item.Hands==2)return item;
+            return null;
+        }
         public IEnumerable<Possession> WornContainers=>Items.Where(i=>PortableTechnology.Worn(i.Place)&&i.ContainerWidth>0).OrderBy(i=>(int)i.Place);
-        public Possession Bag=>Items.FirstOrDefault(i=>i.Place==PossessionPlace.Back);
+        public Possession Bag{get{foreach(var item in Items)if(item.Place==PossessionPlace.Back)return item;return null;}}
         public bool Carried(Possession item)
         {
             var seen=new HashSet<string>();

@@ -63,7 +63,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public void WeatherCheckGpuBarrier(){if(weatherCheckPixel==null)weatherCheckPixel=new Texture2D(1,1,TextureFormat.RGB24,false);var prior=RenderTexture.active;RenderTexture.active=weatherCheckTarget;try{weatherCheckPixel.ReadPixels(new Rect(0,0,1,1),0,0,false);}finally{RenderTexture.active=prior;}}
     public int TileCount=>tiles.Count;
     public int WantedCount=>wanted.Count;
-    public bool CenterReady=>tiles.Keys.Any(k=>motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM);
+    public bool CenterReady
+    {get{foreach(var k in tiles.Keys)if(motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM)return true;return false;}}
     public bool NearReady=>wanted.Count>0&&!NearTerrainPending();
     public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Segments==p.Value&&TerrainEdges.Equal(t.Edges,wantedEdges[p.Key]));
     public V Position=>frame.Position(motion.X,motion.Z);

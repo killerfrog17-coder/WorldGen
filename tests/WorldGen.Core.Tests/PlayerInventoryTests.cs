@@ -65,6 +65,12 @@ static class PlayerInventoryTests
         Check(priority.Hold("first",out _)&&priority.AtHand(PossessionPlace.RightHand)?.Id=="first","Pickup ignores saved hand selection and fills right first");
         Check(priority.Hold("second",out _)&&priority.AtHand(PossessionPlace.LeftHand)?.Id=="second"&&priority.QuickHeld?.Id=="first","Left is fallback, quick action prefers right");
         priority.Move("first",PossessionPlace.Ground,"",0,0,false,out _);Check(priority.QuickHeld?.Id=="second","Quick action falls back to left when right is empty");
+        Possession observed=null;
+        void PollEquipment()
+        {observed=empty.AtHand(PossessionPlace.RightHand);observed=priority.AtHand(PossessionPlace.LeftHand);observed=s.AtHand(PossessionPlace.RightHand);observed=s.Find("large");observed=s.Bag;}
+        for(int i=0;i<1000;i++)PollEquipment();
+        long allocationStart=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<10000;i++)PollEquipment();long queryBytes=GC.GetAllocatedBytesForCurrentThread()-allocationStart;GC.KeepAlive(observed);
+        Check(queryBytes<=512,"Repeated empty/occupied/two-hand equipment queries avoid per-frame garbage: "+queryBytes+" bytes");
         Console.WriteLine("PASS "+count+" inventory packing/ownership/save checks");
     }
 }
