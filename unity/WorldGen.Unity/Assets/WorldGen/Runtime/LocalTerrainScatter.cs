@@ -674,7 +674,7 @@ public sealed partial class LocalTerrainExplorer
         long renderStarted=completion?System.Diagnostics.Stopwatch.GetTimestamp():0;
         long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);
         DrawFireflyGlows();
-        if(weatherCheckTarget!=null&&view!=null)view.Render();
+        if(weatherCheckTarget!=null&&view!=null){long cameraTrace=WorldGenPerformance.TraceBegin();view.Render();WorldGenPerformance.TraceEnd(8,cameraTrace);}
         if(completion){WeatherCheckGpuBarrier();WorldGenPerformance.CompletedRenderMs=(System.Diagnostics.Stopwatch.GetTimestamp()-renderStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;}
     }
     void DrawScatter()

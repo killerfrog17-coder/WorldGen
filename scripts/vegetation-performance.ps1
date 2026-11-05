@@ -11,6 +11,7 @@ param(
     [int]$Width=1920,[int]$Height=1080,
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
+    [switch]$Presented,
     [switch]$StutterTrace,
     [switch]$SavedSettings,
     [switch]$GpuTelemetry,
@@ -26,6 +27,9 @@ if(!$destination.StartsWith((Join-Path $repo 'artifacts/'),[StringComparison]::O
 if(Test-Path -LiteralPath (Join-Path $destination 'summary.csv')){throw 'Choose a new evidence directory; existing results are not overwritten'}
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'A game is already running; leave it untouched and benchmark later'}
 if($PresentMon -and !(Test-Path -LiteralPath (Join-Path $repo 'tools/PresentMon/PresentMon.exe'))){throw 'PresentMon is missing. Restore the pinned standalone tool recorded in assets/verification/presentmon-tool.json before launching a benchmark.'}
+$availableSites=@('plains','forest-flat','forest-hills','mountains','desert','tundra')
+if($SitesFile){$siteValidationPath=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));$availableSites+=@((Get-Content -LiteralPath $siteValidationPath -Raw|ConvertFrom-Json).Sites|ForEach-Object {$_.Name})}
+foreach($requestedSite in $Sites.Split(',')){if($requestedSite -notin $availableSites){throw "Unknown performance site: $requestedSite. Available: $($availableSites -join ', ')"}}
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
 $playerRoot=Split-Path -Parent $player
 $buildStamp=Get-Content -LiteralPath (Join-Path $playerRoot 'build-inputs.json') -Raw | ConvertFrom-Json
@@ -40,6 +44,7 @@ $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
 if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
+if($Presented){$arguments+='--worldgen-perf-presented'}
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
@@ -51,7 +56,10 @@ try {
         $telemetryTool=Get-Command nvidia-smi.exe -ErrorAction Stop
         $telemetry=Start-Process -FilePath $telemetryTool.Source -ArgumentList @('--query-gpu=timestamp,utilization.gpu,clocks.gr,clocks.mem,temperature.gpu,power.draw,memory.used','--format=csv','-l','1','-f',('"'+(Join-Path $destination 'gpu-telemetry.csv')+'"')) -WindowStyle Hidden -PassThru
     }
-    $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru
+    # Presented mode is an interactive game window whose normal swap chain is
+    # being measured; ordinary offscreen evidence remains a hidden helper.
+    $playerWindowStyle=if($Presented){'Normal'}else{'Hidden'}
+    $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle $playerWindowStyle -PassThru
     if($PresentMon){
         $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -RedirectStandardOutput (Join-Path $destination 'presentmon-output.txt') -RedirectStandardError (Join-Path $destination 'presentmon-error.txt') -WindowStyle Hidden -PassThru
     }
