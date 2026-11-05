@@ -678,7 +678,6 @@ public sealed partial class LocalTerrainExplorer
         DrawFireflyGlows();
         if(weatherCheckTarget!=null&&view!=null){long cameraTrace=WorldGenPerformance.TraceBegin();view.Render();WorldGenPerformance.TraceEnd(8,cameraTrace);}
         if(completion){WeatherCheckGpuBarrier();WorldGenPerformance.CompletedRenderMs=(System.Diagnostics.Stopwatch.GetTimestamp()-renderStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;}
-        WorldGenPerformance.ServiceCollections();
     }
     void DrawScatter()
     {
@@ -709,7 +708,6 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeScatter()
     {
-        WorldGenPerformance.RestoreCollections();
         DisposeBurstScatter();
         DisposePlayerSolids();
         DisposePlayerWater();
