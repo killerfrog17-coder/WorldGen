@@ -31,11 +31,11 @@ public sealed partial class LocalTerrainExplorer
     bool GroundPublicationPending=>groundPublication.Product!=null;
     int groundPublicationSlices,groundPublicationCommits,groundPublicationRestarts;
     double groundPublicationMaxPrepareMs,groundPublicationMaxCommitMs;
-    public string PerformanceGroundPublication=>"cumulative_including_loading slices="+groundPublicationSlices+" commits="+groundPublicationCommits+" restarts="+groundPublicationRestarts+" max_prepare_ms="+groundPublicationMaxPrepareMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" max_commit_ms="+groundPublicationMaxCommitMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" pending="+GroundPublicationPending;
+    public string PerformanceGroundPublication=>"cumulative_including_loading slices="+groundPublicationSlices+" commits="+groundPublicationCommits+" restarts="+groundPublicationRestarts+" max_prepare_ms="+groundPublicationMaxPrepareMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" max_commit_ms="+groundPublicationMaxCommitMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" pending="+GroundPublicationPending+" key="+groundPublication.Key.X+","+groundPublication.Key.Z+","+groundPublication.Key.Level+" resident="+groundPublication.Resident+"/"+residentRevision+" canopy="+groundPublication.Canopy+"/"+canopySourceRevision+" topology="+groundPublication.Forest+"/"+forestRootTopologyRevision;
 
     bool StageGroundPublication(TerrainTileKey key,Tile product)
     {
-        if(!WorldGenPerformance.StagedGroundPublication||GroundPublicationPending||
+        if(!WorldGenPerformance.StagedGroundPublication||GroundPublicationPending||!wanted.ContainsKey(key)||
             scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision||
             scatterChunks.Count==0&&forestFields.Count==0)return false;
         foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))return false;

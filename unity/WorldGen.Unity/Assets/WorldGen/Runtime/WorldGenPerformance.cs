@@ -1207,7 +1207,7 @@ public sealed partial class WorldGenRuntime
                 while(!terrainExplorer.PerformanceSettled&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)
                 {
                     if(Time.realtimeSinceStartupAsDouble>=progressAt)
-                    {progressAt=Time.realtimeSinceStartupAsDouble+5;File.AppendAllText(Path.Combine(output,"loading-progress.txt"),site.Item1+" "+item.Name+" t="+Time.realtimeSinceStartupAsDouble.ToString("F1")+" tiles "+terrainExplorer.TileCount+"/"+terrainExplorer.WantedCount+"; "+terrainExplorer.PerformanceForestState+"\n");}
+                    {progressAt=Time.realtimeSinceStartupAsDouble+5;File.AppendAllText(Path.Combine(output,"loading-progress.txt"),site.Item1+" "+item.Name+" t="+Time.realtimeSinceStartupAsDouble.ToString("F1")+" tiles "+terrainExplorer.TileCount+"/"+terrainExplorer.WantedCount+"; "+terrainExplorer.PerformanceForestState+"; "+terrainExplorer.PerformanceGroundPublication+"\n");}
                     yield return null;
                 }
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
