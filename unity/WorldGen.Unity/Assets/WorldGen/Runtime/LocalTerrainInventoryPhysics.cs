@@ -51,6 +51,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawPickupPrompt()
     {
+        // This is a read-only overlay. Keyboard interaction runs in Update;
+        // layout/input events need no terrain queries or pickup icon scans.
+        if(Event.current.type!=EventType.Repaint)return;
         if(!Ready||DeathVisible||Spectating||inventoryOpen||paused||mapOpen||chatOpen||ecologyOpen||!Application.isFocused&&!inventoryReviewMode)return;
         RefreshInventoryNearby();PrepareInventoryIcons();
         float scale=Mathf.Clamp(Screen.height/1080f,.6f,1.8f);

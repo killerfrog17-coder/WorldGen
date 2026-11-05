@@ -26,9 +26,11 @@ public sealed partial class LocalTerrainExplorer
                     var p=chunk.Source.Instances[i];if(p.Kind!=ScatterKind.MidPlant&&p.Kind!=ScatterKind.GeneratedTree&&!IsSpecialist(p.Kind))continue;
                     Vector3 root=chunk.Roots[i];if((root-eye).sqrMagnitude>49||CollectedRock(p)||CampClearedPlant(p))continue;
                     var flora=terrain.FloraRegion(walkingPatch.Sample(p.Position).Cell);ForageProduct[] products=Array.Empty<ForageProduct>();string name="";
-                    if(p.Kind==ScatterKind.MidPlant){var s=flora.MidPlants.FirstOrDefault(s=>(s.MorphologyCode&~3)==(p.Variant&~3));if(s!=null){products=Foraging.Products(s,p.WidthM);name=s.Name;}}
-                    else if(p.Kind==ScatterKind.GeneratedTree){var s=flora.Trees.FirstOrDefault(s=>s.MorphologyCode==(p.Variant&~7));if(s!=null){products=Foraging.Products(s);name=s.Name;}}
-                    else{var s=flora.Specialists.FirstOrDefault(s=>s.MorphologyCode==p.Variant);if(s!=null){products=Foraging.Products(s);name=s.Name;}}
+                    // Capturing p in predicates allocates a closure for every
+                    // root visited, including roots rejected before lookup.
+                    if(p.Kind==ScatterKind.MidPlant){foreach(var s in flora.MidPlants)if((s.MorphologyCode&~3)==(p.Variant&~3)){products=Foraging.Products(s,p.WidthM);name=s.Name;break;}}
+                    else if(p.Kind==ScatterKind.GeneratedTree){foreach(var s in flora.Trees)if(s.MorphologyCode==(p.Variant&~7)){products=Foraging.Products(s);name=s.Name;break;}}
+                    else{foreach(var s in flora.Specialists)if(s.MorphologyCode==p.Variant){products=Foraging.Products(s);name=s.Name;break;}}
                     if(products.Length==0)continue;
                     bool tree=p.Kind==ScatterKind.GeneratedTree;float h=(float)Math.Min(tree?2:p.HeightM,2.5),w=tree?Mathf.Max(.35f,(float)p.WidthM*.12f):Mathf.Max(.12f,(float)p.WidthM);
                     natureSources.Add(new NatureSource{Plant=p,Products=products,Name=name,Bounds=new Bounds(root+Vector3.up*h*.5f,new Vector3(w,h,w))});

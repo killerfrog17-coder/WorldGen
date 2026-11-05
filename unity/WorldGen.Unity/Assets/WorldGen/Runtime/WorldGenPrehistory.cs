@@ -8,6 +8,7 @@ using WorldGen.Presentation;
 
 public sealed partial class WorldGenRuntime
 {
+    static readonly bool localTerrainCheck=Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check");
     HistoryOverlay historyOverlay=HistoryOverlay.Civilizations;
     SettlementMarkerMode settlementMarkerMode=SettlementMarkerMode.CapitalsOnly;
     SettlementMarker[][] cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();Texture2D settlementDot;
@@ -68,7 +69,7 @@ public sealed partial class WorldGenRuntime
         bool run=screen=="Simulation"&&!atlasOpen&&selectedEvent==null&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
         if(humanHistoryProcess!=null&&humanPlayback.Rate>=200*SimulationTime.Year&&humanHistoryReady?.IsCompleted!=true)run=false;
         humanPlayback.Accumulate(elapsed,run);
-        bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
+        bool playingLocal=screen=="Simulation"&&!localTerrainCheck&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
         if(WorldGenPerformance.Enabled)playingLocal=false; // Fixed benchmark sun/weather/calendar; never advance a saved history.
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed)*terrainExplorer.CampTimeRate);
         if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);

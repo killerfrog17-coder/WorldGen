@@ -47,6 +47,16 @@ namespace WorldGen.Presentation
         readonly Dictionary<int,FaunaPrototypeProfile> models=new Dictionary<int,FaunaPrototypeProfile>();
         readonly Dictionary<int,List<int>> pools=new Dictionary<int,List<int>>();
         readonly Dictionary<int,Taxon[]> communities=new Dictionary<int,Taxon[]>();
+        readonly Dictionary<(string,double,Food,bool,bool,string),WildlifeBehaviourProfile> behaviourProfiles=new Dictionary<(string,double,Food,bool,bool,string),WildlifeBehaviourProfile>();
+        WildlifeBehaviourProfile Behaviour(FaunaPrototypeProfile profile,Taxon? taxon)
+        {
+            var key=(profile.slug,taxon?.MassKg??.001,taxon?.Eats??Food.None,profile.medium=="air",profile.tiny,taxon?.Name??"");
+            if(!behaviourProfiles.TryGetValue(key,out var value))
+            {value=WildlifeBehaviour.Describe(key.Item1,key.Item2,key.Item3,key.Item4,key.Item5,key.Item6);behaviourProfiles.Add(key,value);}
+            // Profiles are only read inside this planner, never exposed as
+            // mutable spawn data. Every input participates in the cache key.
+            return value;
+        }
         long biotaEpoch=long.MinValue;
         readonly FaunaPrototypeProfile? firefly;
         public int MappedTaxa=>models.Count;
@@ -94,7 +104,7 @@ namespace WorldGen.Presentation
         {
             var result=new List<FaunaPrototypeSpawn>();var e=world.Ecology;if(e==null)return result;
             long epoch=world.Prehistory?.Foragers?.Seconds/SimulationTime.Year??-1;
-            if(epoch!=biotaEpoch){pools.Clear();communities.Clear();biotaEpoch=epoch;}
+            if(epoch!=biotaEpoch){pools.Clear();communities.Clear();behaviourProfiles.Clear();biotaEpoch=epoch;}
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
             var communityCache=new Dictionary<(ScatterKey,int),WildlifeCommunity>();
             var siteCache=new Dictionary<ScatterKey,WildlifeHabitat>();
@@ -127,7 +137,7 @@ namespace WorldGen.Presentation
                     foreach(int id in Pool(e.Region[neighbor],neighbor))if(!candidates.Contains(id))candidates.Add(id);
                 foreach(int id in candidates)
                 {
-                    var profile=models[id];var behaviour=WildlifeBehaviour.Describe(profile.slug,e.Taxa[id].MassKg,e.Taxa[id].Eats,profile.medium=="air",profile.tiny,e.Taxa[id].Name);
+                    var profile=models[id];var behaviour=Behaviour(profile,e.Taxa[id]);
                     if(detail!=(behaviour.Tier<WildlifeTrackingTier.Resident&&profile.VisibleRadiusM<250))continue;
                     if((middle-center).Length*radius>Math.Max(profile.PreloadRadiusM,behaviour.TrackingM)+(detail?100:800))continue;
                     var taxon=e.Taxa[id];int nativeRegion=region;
@@ -162,7 +172,7 @@ namespace WorldGen.Presentation
                 if(density<=0)return;
                 if(daylightNocturnal)density*=.08;
                 int habitatCell=terrain.NearestCell(lattice.Position(key));var habitat=ForagerHabitat.For(world)?.Cell(habitatCell)?.Habitat??e.Habitat[habitatCell];
-                var behaviour=WildlifeBehaviour.Describe(profile.slug,taxon?.MassKg??.001,taxon?.Eats??Food.None,profile.medium=="air",profile.tiny,taxon?.Name??"");
+                var behaviour=Behaviour(profile,taxon);
                 if(WildlifeBehaviour.Dormant(behaviour,year,latitude,habitat.ColdTenthsC/10.0,temperatureC)||!WildlifeBehaviour.SeasonallyPresent(behaviour,year,latitude,habitat.ColdTenthsC/10.0))return;
                 V a=lattice.Position(key,0,0),b=lattice.Position(key,1,0),c=lattice.Position(key,0,1);
                 double area=V.Cross(b-a,c-a).Length*radius*radius;
