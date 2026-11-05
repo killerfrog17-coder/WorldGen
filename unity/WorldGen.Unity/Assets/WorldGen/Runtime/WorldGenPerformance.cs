@@ -1113,6 +1113,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
+            new PerfCase("travel-whip-allocation-profile",()=>{}),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-range-cache-verify",()=>{}),
             new PerfCase("human-weights-verify",()=>{}),
@@ -1232,6 +1233,15 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.WeatherCheckGpuBarrier(); // Drain pre-window work before counting renders.
                 WorldGenPerformance.Measuring=true;
                 var windowUtc=DateTime.UtcNow;
+                bool allocationProfile=item.Name=="travel-whip-allocation-profile";
+                if(allocationProfile)
+                {
+                    if(!Debug.isDebugBuild)throw new InvalidOperationException("Allocation callstack capture requires an explicit diagnostic DevelopmentPlayer; never interpret its FPS as release throughput.");
+                    UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,site.Item1+"-allocations.raw");
+                    UnityEngine.Profiling.Profiler.enableBinaryLog=true;
+                    UnityEngine.Profiling.Profiler.enableAllocationCallstacks=true;
+                    UnityEngine.Profiling.Profiler.enabled=true;
+                }
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
@@ -1261,6 +1271,13 @@ public sealed partial class WorldGenRuntime
                 double drainStart=Time.realtimeSinceStartupAsDouble;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
                 double gpuDrain=(Time.realtimeSinceStartupAsDouble-drainStart)*1000;
+                if(allocationProfile)
+                {
+                    UnityEngine.Profiling.Profiler.enabled=false;
+                    UnityEngine.Profiling.Profiler.enableAllocationCallstacks=false;
+                    UnityEngine.Profiling.Profiler.enableBinaryLog=false;
+                    File.AppendAllText(Path.Combine(output,"allocation-profile.txt"),site.Item1+": diagnostic DevelopmentPlayer CPU/GC allocation callstacks only; displayed FPS is NOT release throughput.\n");
+                }
                 WorldGenPerformance.Measuring=false;WorldGenPerformance.ProfileRenderCompletion=false;
                 if(renderCosts.Count>0){renderCosts.Sort();File.AppendAllText(Path.Combine(output,"completed-renders.txt"),site.Item1+" "+item.Name+": "+renderCosts.Count+" samples; mean "+renderCosts.Average().ToString("F3")+"ms, median "+renderCosts[renderCosts.Count/2].ToString("F3")+"ms; submission + actual GPU completion, excluding Update/presentation/frame-loop waits.\n");}
                 if(terrainExplorer.Error!="")throw new InvalidOperationException("Performance scene: "+terrainExplorer.Error);
