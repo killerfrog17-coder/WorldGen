@@ -39,7 +39,15 @@ public sealed partial class LocalTerrainExplorer
         public double TreeIdentity,TreeMaximum,MidMaximum,HerbMaximum,FungusMaximum,Handoff;
         public bool Camp;public double CampX,CampZ,Radius;public V East,North,Origin;
     }
-    [BurstCompile(FloatMode=FloatMode.Strict,FloatPrecision=FloatPrecision.Standard,CompileSynchronously=true)]
+    // Keep the intermediate sum at float precision before the double sqrt,
+    // matching Vector3.magnitude in the managed reference. Do not let Burst's
+    // vector intrinsic choose a different reduction/approximation for LOD fades.
+    static float ScatterDistance(Vector3 a,Vector3 b)
+    {
+        float x=a.x-b.x,y=a.y-b.y,z=a.z-b.z;
+        float square=x*x+y*y+z*z;return (float)Math.Sqrt((double)square);
+    }
+    [BurstCompile(FloatMode=FloatMode.Strict,FloatPrecision=FloatPrecision.High,CompileSynchronously=true)]
     struct ScatterAdmissionJob : IJobParallelFor
     {
         [ReadOnly] public NativeArray<ScatterInstance> Source;
@@ -179,7 +187,7 @@ public sealed partial class LocalTerrainExplorer
             }
             for(int member=0;member<group.Count;member++)
             {
-                int i=Indices[group.Start+member];var p=Source[i];double distance=(Roots[i]-Options.Eye).magnitude;
+                int i=Indices[group.Start+member];var p=Source[i];double distance=ScatterDistance(Roots[i],Options.Eye);
                 if((p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch||p.Kind==ScatterKind.Fungus)&&Collected.Contains(p.Id)||Cleared(p))continue;
                 if(Specialist(p.Kind)&&!Options.Specialists||p.Kind==ScatterKind.MidPlant&&!Options.Mid||p.Kind==ScatterKind.GeneratedTree&&(!Options.Tree||Options.NoTrees||distance>=Options.TreeIdentity))continue;
                 float density=p.Kind==ScatterKind.GeneratedTree?Options.TreeDensity:p.Kind==ScatterKind.MidPlant?Options.MidDensity:Specialist(p.Kind)?Options.SpecialistDensity:1;
@@ -202,6 +210,38 @@ public sealed partial class LocalTerrainExplorer
             }
             return result;
         }
+    }
+    [BurstCompile(FloatMode=FloatMode.Strict,FloatPrecision=FloatPrecision.High,CompileSynchronously=true)]
+    struct ScatterDistanceProbe : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<Vector3> Points;
+        [WriteOnly] public NativeArray<float> Distances;
+        [WriteOnly] public NativeArray<byte> Compiled;
+        [BurstDiscard] static void ManagedExecution(ref bool managed){managed=true;}
+        public void Execute(int index)
+        {
+            bool managed=false;ManagedExecution(ref managed);Compiled[index]=managed?(byte)0:(byte)1;
+            Distances[index]=ScatterDistance(Points[index],new Vector3(.123f,18.375f,-.456f));
+        }
+    }
+    public static string PerformanceVerifyBurstDistances()
+    {
+        const int count=65536;
+        using var points=new NativeArray<Vector3>(count,Allocator.TempJob);
+        using var distances=new NativeArray<float>(count,Allocator.TempJob);
+        using var compiled=new NativeArray<byte>(count,Allocator.TempJob);
+        uint state=72791;float Next(){state=state*1664525+1013904223;return ((state>>8)/16777216f-.5f)*4000;}
+        for(int i=0;i<count;i++)points[i]=new Vector3(Next(),Next(),Next());
+        new ScatterDistanceProbe{Points=points,Distances=distances,Compiled=compiled}.Schedule(count,64).Complete();
+        var eye=new Vector3(.123f,18.375f,-.456f);int changed=0;float maximum=0;
+        for(int i=0;i<count;i++)
+        {
+            if(compiled[i]==0)throw new InvalidOperationException("Burst distance probe executed managed fallback");
+            float expected=(points[i]-eye).magnitude,actual=distances[i];
+            if(BitConverter.SingleToInt32Bits(expected)!=BitConverter.SingleToInt32Bits(actual)){changed++;maximum=Math.Max(maximum,Math.Abs(expected-actual));}
+        }
+        if(changed>0)throw new InvalidOperationException("Burst distance differs from managed Vector3.magnitude: "+changed+"/"+count+", max "+maximum.ToString("R"));
+        return "PASS "+count+" bit-exact Burst-compiled/managed distances across the resident scatter range";
     }
     NativeArray<Plane> burstPlanes;
     NativeArray<byte> burstCasts,burstCamp;

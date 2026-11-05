@@ -968,6 +968,14 @@ public sealed partial class WorldGenRuntime
     {
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
+        // Numerical smoke check needs no terrain/forest warmup. This uses the
+        // actual packaged Burst library and rejects managed fallback execution.
+        if(Argument("--worldgen-perf-cases","")=="burst-math-verify")
+        {
+            File.WriteAllText(Path.Combine(output,"equivalence.txt"),LocalTerrainExplorer.PerformanceVerifyBurstDistances()+"\n");
+            File.WriteAllText(Path.Combine(output,"complete.txt"),"Numerical correctness only; no throughput measurement.\n");
+            Application.Quit(0);yield break;
+        }
         double deadline=Time.realtimeSinceStartupAsDouble+300;
         while((!CanExploreTerrain||humanStep!=null||humanPaletteJob!=null||humanPaletteReady!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!CanExploreTerrain){Debug.LogError("PERF world unavailable "+error);Application.Quit(1);yield break;}
