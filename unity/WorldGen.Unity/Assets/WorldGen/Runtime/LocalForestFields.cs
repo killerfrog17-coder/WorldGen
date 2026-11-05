@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public ArtModel Model;public V Pigment;public readonly List<ForestRoot> Data=new List<ForestRoot>();public readonly Stack<int> Free=new Stack<int>();
         public readonly List<int> GroundLevels=new List<int>();
-        public GraphicsBuffer Roots,Visible,Args;public int Capacity;public bool Dirty=true,CullValid;public Matrix4x4 CullMatrix;public Vector3 CullEye;public Vector4 CullChart,CullRange;public int CullRevision;
+        public GraphicsBuffer Roots,Visible,Args;public int Capacity;public bool Dirty=true,AllDirty=true,CullValid;public bool[] DirtyBlocks=Array.Empty<bool>();public Matrix4x4 CullMatrix;public Vector3 CullEye;public Vector4 CullChart,CullRange;public int CullRevision;
         public MaterialPropertyBlock Properties=new MaterialPropertyBlock();
         public void Dispose(){Roots?.Dispose();Visible?.Dispose();Args?.Dispose();CullValid=false;}
     }
@@ -34,6 +34,37 @@ public sealed partial class LocalTerrainExplorer
     sealed class ForestWork {public ForestPageKey Key;public Task<ForestPage> Task;public CancellationTokenSource Cancellation;}
     readonly Dictionary<ForestPageKey,ForestField> forestFields=new Dictionary<ForestPageKey,ForestField>();
     readonly Dictionary<int,ForestBatch> forestBatches=new Dictionary<int,ForestBatch>();
+    public long ForestRootUploadBytes {get;private set;}
+    public long ForestRootUploadCalls {get;private set;}
+    public long ForestRootFullUploads {get;private set;}
+    const int ForestUploadBlock=256;
+    static void DirtyForestRoot(ForestBatch batch,int slot)
+    {
+        batch.Dirty=true;if(batch.AllDirty)return;
+        int blocks=(Math.Max(batch.Data.Count,batch.Capacity)+ForestUploadBlock-1)/ForestUploadBlock;
+        if(batch.DirtyBlocks.Length<blocks)Array.Resize(ref batch.DirtyBlocks,blocks);
+        batch.DirtyBlocks[slot/ForestUploadBlock]=true;
+    }
+    static void DirtyAllForestRoots(ForestBatch batch){batch.Dirty=batch.AllDirty=true;}
+    void UploadForestRoots(ForestBatch batch,bool forceFull=false)
+    {
+        if(!batch.Dirty||batch.Data.Count==0)return;
+        bool marked=false;foreach(bool dirty in batch.DirtyBlocks)if(dirty){marked=true;break;}
+        if(forceFull||!WorldGenPerformance.PartialForestUploads||batch.AllDirty||!marked)
+        {batch.Roots.SetData(batch.Data,0,0,batch.Data.Count);ForestRootUploadCalls++;ForestRootFullUploads++;ForestRootUploadBytes+=(long)batch.Data.Count*64;}
+        else
+        {
+            for(int block=0;block<batch.DirtyBlocks.Length;)
+            {
+                if(!batch.DirtyBlocks[block]){block++;continue;}
+                int first=block++;while(block<batch.DirtyBlocks.Length&&batch.DirtyBlocks[block])block++;
+                int start=first*ForestUploadBlock,count=Math.Min(batch.Data.Count,block*ForestUploadBlock)-start;
+                if(count<=0)continue;
+                batch.Roots.SetData(batch.Data,start,start,count);ForestRootUploadCalls++;ForestRootUploadBytes+=(long)count*64;
+            }
+        }
+        Array.Clear(batch.DirtyBlocks,0,batch.DirtyBlocks.Length);batch.Dirty=batch.AllDirty=false;batch.CullValid=false;
+    }
     readonly List<ForestWork> forestJobs=new List<ForestWork>();readonly HashSet<ForestPageKey> forestWanted=new HashSet<ForestPageKey>();
     readonly Dictionary<ForestPageKey,bool> forestOwnership=new Dictionary<ForestPageKey,bool>();int forestOwnershipRevision=-1,forestOwnershipEpoch;
     ForestPageKey[] forestPriority=Array.Empty<ForestPageKey>();Task<ForestPageKey[]> forestPlan;
@@ -124,7 +155,7 @@ public sealed partial class LocalTerrainExplorer
         {
             // Reproject immutable planet-addressed payloads; never reseed a forest
             // because its terrain chart was replaced.
-            forestFrame=frame;foreach(var batch in forestBatches.Values){batch.Data.Clear();batch.GroundLevels.Clear();batch.Free.Clear();batch.Dirty=true;}
+            forestFrame=frame;foreach(var batch in forestBatches.Values){batch.Data.Clear();batch.GroundLevels.Clear();batch.Free.Clear();DirtyAllForestRoots(batch);}
             forestRootCount=0;foreach(var field in forestFields.Values){field.Roots.Clear();ProjectForest(field);}forestRevision++;forestHashDirty=true;
         }
         if(forestPlan!=null&&forestPlan.IsCompleted)
@@ -239,7 +270,7 @@ public sealed partial class LocalTerrainExplorer
             var root=new ForestRoot{Position=new Vector3((float)px,height-.045f,(float)pz),Width=(float)(tree.WidthM*source.CrownScale),Height=(float)tree.HeightM,Yaw=(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=cellX,CellY=cellY,Face=(uint)page.Key.Face|(densityHash<<8),
                 Tint=new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=source.CrownScale>1.001?1:0};
             ProjectForestRootGround(ref root,out int groundLevel);
-            int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}batch.Dirty=true;forestRootCount++;
+            int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}DirtyForestRoot(batch,slot);forestRootCount++;
             if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
             var b=ForestRootBounds(root);if(first){field.Bounds=b;first=false;}else field.Bounds.Encapsulate(b);
         }
@@ -261,7 +292,7 @@ public sealed partial class LocalTerrainExplorer
                 double margin=root.Padding==0?.01:Math.Max(2,root.Width*.5)+.01;
                 if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,pair.Key.GroundLevels[slot]))continue;
                 var before=root;ProjectForestRootGround(ref root,out int groundLevel);pair.Key.GroundLevels[slot]=groundLevel;
-                if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ)continue;pair.Key.Data[slot]=root;pair.Key.Dirty=true;
+                if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ)continue;pair.Key.Data[slot]=root;DirtyForestRoot(pair.Key,slot);
                 field.Bounds.Encapsulate(ForestRootBounds(root));
             }
         }
@@ -283,14 +314,14 @@ public sealed partial class LocalTerrainExplorer
         new Vector3(root.Width*3,root.Height*3+root.Width*3*(Math.Abs(root.SlopeX)+Math.Abs(root.SlopeZ)),root.Width*3));
     void RemoveForestField(ForestPageKey key)
     {
-        var field=forestFields[key];foreach(var pair in field.Roots)foreach(int slot in pair.Value){pair.Key.Data[slot]=default;pair.Key.Free.Push(slot);pair.Key.Dirty=true;forestRootCount--;}
+        var field=forestFields[key];foreach(var pair in field.Roots)foreach(int slot in pair.Value){pair.Key.Data[slot]=default;pair.Key.Free.Push(slot);DirtyForestRoot(pair.Key,slot);forestRootCount--;}
         forestFlags[field.Id]=0;forestFreeIds.Push(field.Id);forestFields.Remove(key);forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;
     }
     void CompactForest(ForestBatch batch)
     {
         if(batch.Free.Count<256||batch.Free.Count<batch.Data.Count/3)return;
         var map=new int[batch.Data.Count];int live=0;for(int i=0;i<batch.Data.Count;i++)if(batch.Data[i].Height>0){map[i]=live;batch.Data[live]=batch.Data[i];batch.GroundLevels[live++]=batch.GroundLevels[i];}
-        batch.GroundLevels.RemoveRange(live,batch.Data.Count-live);batch.Data.RemoveRange(live,batch.Data.Count-live);batch.Free.Clear();batch.Dirty=true;
+        batch.GroundLevels.RemoveRange(live,batch.Data.Count-live);batch.Data.RemoveRange(live,batch.Data.Count-live);batch.Free.Clear();DirtyAllForestRoots(batch);
         foreach(var field in forestFields.Values)if(field.Roots.TryGetValue(batch,out var slots))for(int i=0;i<slots.Count;i++)slots[i]=map[slots[i]];
     }
     void PrepareForestHash()
@@ -333,9 +364,9 @@ public sealed partial class LocalTerrainExplorer
             if(batch.Capacity<batch.Data.Count)
             {
                 batch.Dispose();batch.Capacity=Mathf.NextPowerOfTwo(Math.Max(64,batch.Data.Count));batch.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,64);batch.Visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,batch.Capacity,4);batch.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);
-                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6}});batch.Dirty=true;
+                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6}});DirtyAllForestRoots(batch);
             }
-            if(batch.Dirty){batch.Roots.SetData(batch.Data,0,0,batch.Data.Count);batch.Dirty=false;batch.CullValid=false;}
+            UploadForestRoots(batch);
             if(!batch.CullValid||!batch.CullMatrix.Equals(matrix)||!batch.CullEye.Equals(eye)||!batch.CullChart.Equals(chart)||!batch.CullRange.Equals(ranges)||batch.CullRevision!=forestRevision)
             {
                 batch.Visible.SetCounterValue(0);forestCull.SetInt("_RootCount",batch.Data.Count);forestCull.SetBuffer(0,"_Roots",batch.Roots);forestCull.SetBuffer(0,"_Visible",batch.Visible);forestCull.Dispatch(0,(batch.Data.Count+63)/64,1,1);GraphicsBuffer.CopyCount(batch.Visible,batch.Args,4);
