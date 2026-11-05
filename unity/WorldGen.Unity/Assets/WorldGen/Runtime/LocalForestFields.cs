@@ -278,6 +278,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ProjectForestGround()
     {
+        long trace=WorldGenPerformance.TraceBegin();
         foreach(var field in forestFields.Values)
         {
             bool affected=scatterGroundChanges.Count==0;
@@ -297,6 +298,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         forestRevision++;nextForestVisibility=0;
+        WorldGenPerformance.TraceEnd(31,trace);
     }
     void ProjectForestRootGround(ref ForestRoot root,out int groundLevel)
     {
