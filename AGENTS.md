@@ -53,6 +53,27 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov14:17Z PERFORMANCE ONLY. B ScriptsOnly NONDEV a7dde058 BuiltUtc14:04:19Z
+over FULL7360. Native44148 current-native-proofs RUNNING hidden: boreal1500m,
+water-aim/human-output/burst-scatter/burst-render/forest-upload exact proofs.
+No compile/overwrite B until it exits. No own Editor/visible window; all visible
+reviews must be RIGHTMOST. Selected A/f833/shortcut unchanged; no new geography.
+Water bounds isolated normal presented run7360 COMPLETE: old76.40035FPS ->
+new133.33686FPS, turning166.90461. Moving p9516.24ms/max44.06ms:100floor NOT solved.
+Both isolated moving cases explicitly had Burst/partial OFF; NOT final production
+proof. a7 includes explicit current whip cases and new output-binding optimization
+269fb3b4 (native bone-pose proof pending current runner). Old shoreline literal
+was6.3m underwater after geography43, so two earlier water tests failed both old/
+new aim. Dynamic CURRENT bank fixture a7 PASSED41 native water/sip/swim/illness/
+inventory checks plus73 old/new aims including22 wettargets; evidence human-
+animation-check/water-bounds-actual-shore-20261105. Retain failures; not a water
+physics change. New UNBUILT98cfe269 bounded16MiB exact-length transient mesh
+transport pool; keeps resident cover grids owned. Core137 tests PASS bit payload,
+concurrent leases, repeated release, truncated read, closed/budget ownership.
+Native upload overwrite-after-return proof added but UNCOMPILED; need build after
+current runner, actual GPU upload + paired pooled/unpooled production FPS. New
+source and docs regularly PUSHED; owner3files intact. Lock5405/144 unchanged.
+
 ACTIVE5Nov13:38Z PERFORMANCE ONLY. B FULL NONDEV7360d805 BuiltUtc13:37:32Z,
 SourceChanges[]; known3Unityautos restored. Native44840/player12356 RIGHTMOST
 runs presented-water-bounds: Medium6km,30sec,boreal, actual presented camera,

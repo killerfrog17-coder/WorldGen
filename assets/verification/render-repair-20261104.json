@@ -1730,7 +1730,7 @@
     "source": "7360d80584a67d2c30d005e59b5411ccc263c240",
     "slot": "slot-b",
     "development": false,
-    "status": "Paired presented dry-site timing passed; shoreline drink regression running; compiled culling and partial uploads were disabled equally in this isolated comparison; production-setting comparison pending",
+    "status": "Isolated presented gain measured; positive current shoreline native regression passed; combined production and pose/culling proof pending",
     "profiling": {
       "first_allocated_bytes": 102278721,
       "fixed_allocated_bytes": 63639392,
@@ -1757,6 +1757,24 @@
       "burst_and_partial_uploads": false,
       "meaning": "Isolates water aim; not final production-path performance proof"
     },
-    "pending_animation_output_change": "269fb3b4; avoid assigning same playable each frame; pose proof and timing required"
+    "pending_animation_output_change": "269fb3b4; avoid assigning same playable each frame; pose proof and timing required",
+    "shoreline": {
+      "evidence": "artifacts/human-animation-check/water-bounds-actual-shore-20261105",
+      "source": "a7dde05812bacd2c8b7f2d7c252cee622dba5b9a",
+      "checks": 41,
+      "aims": 73,
+      "wet_targets": 22,
+      "result": "PASS",
+      "checks_sha256": "2aa825bc2bc1ec24ac601d04f02da992cafdd4b8f9eac95442b4c5e9c9d52d28",
+      "earlier_failures": "Previous literal bank now lies 6.3m underwater after geography43; neither original nor optimized could reach the old target. Failures preserved, actual terrain bank selected for current check."
+    }
+  },
+  "pending_transport_pool": {
+    "source": "98cfe269",
+    "maximum_retained_bytes": 16777216,
+    "maximum_buckets_per_array_type": 128,
+    "core_checks_passed": 137,
+    "native_upload_and_fps": "Pending; no performance gain claimed",
+    "ownership": "Return transport positions/normals/colors/material weights/water/indices only after native copy; resident ground/mid/forest cover grids remain owned"
   }
 }
