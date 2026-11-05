@@ -1,6 +1,6 @@
 {
   "status": "Active render repair; performance floor NOT achieved; selected shortcut remains A/f833.",
-  "candidate_source": "9b86b01c007c7bce76f6d18c588ca0c7befcdd5e",
+  "candidate_source": "72901f9b35a07012311dfd781fb3359cdf0e85c7",
   "candidate_slot": "slot-b",
   "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
   "target": {
@@ -24,7 +24,8 @@
       "source": "6b007a3e",
       "retired_by": "523e6b4f",
       "reason": "Invisible substrate skip preserved three actual views exactly but did not establish a performance gain; removed."
-    }
+    },
+    "Managed frustum 4436314f retired by0fb7f92f: native main-thread path was faster in fine tracing. Worker-only managed equation retained because native frustum is not thread-safe."
   ],
   "asset_backup": {
     "files": 5405,
@@ -36,11 +37,11 @@
   "native_grass": "artifacts/render-repair-20261104/grass-clumps-lit: 6400 GPU roots, visible output, L0..L3 production page requests. Isolated white-ground fixture is not real-world art acceptance.",
   "pose_proof": "savanna-substrate/equivalence.txt: 69120 bit-exact authored matrix components across 8 actual loaded species.",
   "pending": [
-    "Compile/evaluate managed frustum, immutable payload references and matte small-plant shader",
-    "Finish actual open-plains and dense tropical/temperate/boreal views/timings",
-    "Inspect optional bounded tree-depth reprojection against original",
-    "Saved mixed-quality long-view settings comparison",
-    "Final candid package review and shortcut selection"
+    "Performance priority: exact worker-render and conservative range-cache verification, moving/whip measurements; enable only measured useful paths.",
+    "Resolve remaining main-thread/streaming and GC tails; target100FPS floor remains unmet, ordinary200FPS expectation also unmet in dense scenes.",
+    "Run actual saved mixedUltra/200km settings without competing own jobs.",
+    "Final throughput-only runs without preceding artificial verifier allocations; current package hashes and moving frame tails.",
+    "Tree crown reprojection trial remains OFF/unaccepted; no new geography/features before performance goals are met."
   ],
   "runs": [
     {
@@ -589,9 +590,252 @@
           "settled": "False"
         }
       ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/boreal-material-cull",
+      "complete": true,
+      "source": "a73932d43dd197ce831b96ccb3b81d57838f8091",
+      "summary_sha256": "2d6a7d256572dfc097ef121bd85a087471e09c36d253cc5d80ff9833bc9df80d",
+      "qualification": "Fine per-root tracing enabled: intrusive; allocation recorder invalid. Do not infer clean shader or frustum FPS gains.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "grass-clumps",
+          "fps": "141.71331",
+          "p50_ms": "6.60440",
+          "p95_ms": "8.70520",
+          "p99_ms": "18.36850",
+          "max_ms": "31.70150",
+          "over10ms": "25",
+          "frames": "1418",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "grass-approach-review",
+          "fps": "151.33719",
+          "p50_ms": "6.33890",
+          "p95_ms": "7.57080",
+          "p99_ms": "16.84650",
+          "max_ms": "45.29320",
+          "over10ms": "21",
+          "frames": "1514",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "ground-seam-review",
+          "fps": "165.71208",
+          "p50_ms": "5.80650",
+          "p95_ms": "7.13030",
+          "p99_ms": "9.73690",
+          "max_ms": "33.57510",
+          "over10ms": "14",
+          "frames": "1658",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "small-plant-lighting-review",
+          "fps": "162.39776",
+          "p50_ms": "5.90610",
+          "p95_ms": "7.47430",
+          "p99_ms": "10.23800",
+          "max_ms": "36.37830",
+          "over10ms": "20",
+          "frames": "1625",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "tree-depth-review",
+          "fps": "162.32794",
+          "p50_ms": "5.85560",
+          "p95_ms": "7.86340",
+          "p99_ms": "10.67120",
+          "max_ms": "34.20820",
+          "over10ms": "22",
+          "frames": "1625",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "tree-bounded-depth",
+          "fps": "172.17006",
+          "p50_ms": "5.62140",
+          "p95_ms": "6.75660",
+          "p99_ms": "9.20390",
+          "max_ms": "17.23110",
+          "over10ms": "13",
+          "frames": "1723",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "plants-full-pbr",
+          "fps": "155.78696",
+          "p50_ms": "6.11020",
+          "p95_ms": "8.47120",
+          "p99_ms": "10.55170",
+          "max_ms": "20.96110",
+          "over10ms": "27",
+          "frames": "1559",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-range-verify",
+          "fps": "153.66765",
+          "p50_ms": "6.17010",
+          "p95_ms": "8.62800",
+          "p99_ms": "11.51020",
+          "max_ms": "24.33600",
+          "over10ms": "29",
+          "frames": "1538",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "moving-guard-verify",
+          "fps": "161.54860",
+          "p50_ms": "5.88640",
+          "p95_ms": "7.73850",
+          "p99_ms": "10.82090",
+          "max_ms": "33.71190",
+          "over10ms": "20",
+          "frames": "1617",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "82.11930",
+          "p50_ms": "9.43290",
+          "p95_ms": "22.33810",
+          "p99_ms": "32.70200",
+          "max_ms": "45.00960",
+          "over10ms": "356",
+          "frames": "822",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-full-pbr",
+          "fps": "94.47814",
+          "p50_ms": "8.30550",
+          "p95_ms": "19.10390",
+          "p99_ms": "23.13040",
+          "max_ms": "41.60870",
+          "over10ms": "258",
+          "frames": "945",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-native-frustum",
+          "fps": "78.53478",
+          "p50_ms": "10.10950",
+          "p95_ms": "22.83010",
+          "p99_ms": "28.98160",
+          "max_ms": "59.49590",
+          "over10ms": "404",
+          "frames": "786",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261104/boreal-root-mask",
+      "complete": true,
+      "source": "0fb7f92f6051ac366da1a34b9450b8aff8764fbc",
+      "summary_sha256": "0ab18dc260dde23ae827d944fcf008901d8cac638d90f7fdc6097248352217a0",
+      "qualification": "Fine per-root trace disabled. First grass approach window incomplete; forest-community-review synchronously drains GPU and is not normal throughput.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "grass-approach-review",
+          "fps": "112.91031",
+          "p50_ms": "8.29090",
+          "p95_ms": "11.70370",
+          "p99_ms": "26.93800",
+          "max_ms": "44.96950",
+          "over10ms": "195",
+          "frames": "1356",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "ground-seam-review",
+          "fps": "144.85477",
+          "p50_ms": "6.46080",
+          "p95_ms": "9.57250",
+          "p99_ms": "12.38290",
+          "max_ms": "30.55120",
+          "over10ms": "59",
+          "frames": "1739",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "forest-community-review",
+          "fps": "75.13362",
+          "p50_ms": "12.83370",
+          "p95_ms": "16.67780",
+          "p99_ms": "22.12140",
+          "max_ms": "48.28840",
+          "over10ms": "902",
+          "frames": "902",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "123.67398",
+          "p50_ms": "7.79430",
+          "p95_ms": "10.64390",
+          "p99_ms": "15.14340",
+          "max_ms": "47.71440",
+          "over10ms": "134",
+          "frames": "1485",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "90.34519",
+          "p50_ms": "8.99970",
+          "p95_ms": "19.70350",
+          "p99_ms": "26.04060",
+          "max_ms": "48.68280",
+          "over10ms": "405",
+          "frames": "1085",
+          "settled": "False"
+        }
+      ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/parallel-first",
+      "complete": false,
+      "source": "440272284a2293a0bb0f5fc7703592ee187ddc30",
+      "summary_sha256": "f66fb46a48fd02a42e01a2c0fcae95afec9032e2af677813b1426e7c9d95d152",
+      "qualification": "Exited 1 on combined guard/worker image check: 4 pixels, max RGB12. Eight exact worker/native instance sets passed. No moving throughput result; not accepted.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-parallel-verify",
+          "fps": "142.38613",
+          "p50_ms": "6.65440",
+          "p95_ms": "9.27130",
+          "p99_ms": "13.96000",
+          "max_ms": "41.52110",
+          "over10ms": "84",
+          "frames": "2564",
+          "settled": "True"
+        }
+      ]
     }
   ],
-  "candidate_full_baseline": "038063471b0534e45994291cc876a9dcdbf768c1",
+  "candidate_full_baseline": "0fb7f92f6051ac366da1a34b9450b8aff8764fbc",
   "current_visibility_proof": "savanna-groups-fixed-exposure/equivalence.txt: eight exact heading model/transform/tint/LOD/shadow multisets; moving guard32 actual renders at fixed exposure pass, max1 changed edge pixel, maxdelta30, same physical casters and visible membership.",
   "rejected_visibility_evidence": "savanna-groups: moving image comparison failed24 shoulder pixels at maxdelta3 because each manual render advanced exposure. 9b86b01c holds exposure in verifier; actors and original tolerance retained. Failure files preserved.",
   "measured_culling_comparison": {
@@ -612,5 +856,15 @@
   ],
   "next_candidate_source": "a73932d43dd197ce831b96ccb3b81d57838f8091",
   "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
-  "current_test": "artifacts/render-repair-20261104/boreal-material-cull: running, no completion claim"
+  "current_test": "artifacts/render-repair-20261105/parallel-range: running, no completion claim. Parallel and range-cache options remain diagnostic-only, OFF in normal gameplay.",
+  "ground_mask_repair": {
+    "source": "f6f812f4",
+    "pure_checks": 5759,
+    "native": "boreal-root-mask/equivalence.txt: 64 grass, zero wet/cliff/duplicate/succulent roots",
+    "same_grid_material_edge_max_before": 0.682941377,
+    "same_grid_material_edge_max_after": 0.123701512813568,
+    "material_binding_mismatches": 0,
+    "inspected": "boreal-root-mask/dense-borealforest-ground-flags-0.png: earlier straight brown foreground seam removed; no new surface art acceptance claim."
+  },
+  "allocation_limit": "GC.GetAllocatedBytesForCurrentThread returns0 and GC Allocated In Frame recorder is invalid in current NONDEV Mono player. Neither is evidence of zero allocations. GC collection count/whole-frame timings remain usable. Explicit verifier captures/strings can contaminate subsequent collection timing; final throughput runs must omit such verifier allocations."
 }
