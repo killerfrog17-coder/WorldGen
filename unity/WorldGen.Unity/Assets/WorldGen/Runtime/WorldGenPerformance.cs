@@ -1114,6 +1114,9 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-camera-trace",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.TracePresentedCamera=true),
+            new PerfCase("travel-whip-coarse-shadows",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;}),
+            new PerfCase("travel-whip-coarse-sorted",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=TerrainVideoOptions.FrontToBackTrees=true;}),
+            new PerfCase("travel-whip-coarse-no-depth",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;TerrainVideoOptions.FoliageDepthPrepass=false;}),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
             new PerfCase("travel-whip-allocation-profile",()=>{}),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
@@ -1147,6 +1150,7 @@ public sealed partial class WorldGenRuntime
             // Record the distinction from all-Medium instead of presenting a
             // different configuration as the owner's actual gameplay baseline.
             Defaults();
+            File.AppendAllText(Path.Combine(output,"settings.txt"),site.Item1+" canopy="+TerrainVideoOptions.CanopyShade+" proxies="+TerrainVideoOptions.SimplifiedForestShadows+" coarseCrown="+TerrainVideoOptions.DistantTreeShadowCards+" treeShadows="+TerrainVideoOptions.TreeShadows+" frontToBack="+TerrainVideoOptions.FrontToBackTrees+" grassNear="+TerrainVideoOptions.GrassBladeDistance+" grassFar="+TerrainVideoOptions.GrassDistance+"\n");
             File.AppendAllText(Path.Combine(output,"settings.txt"),site.Item1+" saved="+savedSettings+" geometry="+TerrainVideoOptions.Current.Quality+" surface="+TerrainVideoOptions.SurfaceQuality+" grass="+TerrainVideoOptions.GrassQuality+" specialists="+TerrainVideoOptions.SpecialistQuality+" mid="+TerrainVideoOptions.MidQuality+" trees="+TerrainVideoOptions.TreeQuality+" view="+TerrainVideoOptions.Current.ViewDistanceM+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
             Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(exactSites.TryGetValue(site.Item1,out var exactSite)?exactSite:world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
