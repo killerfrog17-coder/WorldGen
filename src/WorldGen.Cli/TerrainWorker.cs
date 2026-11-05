@@ -38,7 +38,11 @@ static class TerrainWorker
                 using var ownedClient=client;using var cancellation=new CancellationTokenSource();
                 try
                 {
-                    using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
+                    // Root packets contain many scalar fields. Coalesce them
+                    // into bulk writes rather than issuing a TCP send per value.
+                    // Keep cancellation's duplex reader on the raw stream.
+                    using var stream=client.GetStream();using var r=new BinaryReader(stream);
+                    using var response=new BufferedStream(stream,65536);using var w=new BinaryWriter(response,System.Text.Encoding.UTF8,true);
                     if(r.ReadString()!=token)throw new InvalidDataException("Invalid terrain session token.");
                     byte command=r.ReadByte();if(command>3)throw new InvalidDataException("Unknown terrain worker command.");
                     double east=0,north=0,size=0;int segments=0;double[] edges=null;LocalTerrainFrame frame=null;ScatterKey key=default;

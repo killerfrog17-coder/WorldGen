@@ -9,7 +9,7 @@ static class TerrainWorkerTests
 {
     public static void Run(string path,string executable,bool recipe=false)
     {
-        var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=new LocalTerrain(world,horizontalScale:.1);
+        var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         string secret=Guid.NewGuid().ToString("N");var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();
         using var child=Process.Start(new ProcessStartInfo{FileName=Path.GetFullPath(executable),Arguments=$"--terrain-worker {((IPEndPoint)listener.LocalEndpoint).Port} --parent {Environment.ProcessId} --terrain-token {secret}",UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden})!;
         try
@@ -51,9 +51,27 @@ static class TerrainWorkerTests
                 if(!actual.Instances.SequenceEqual(expected.Instances)||!actual.Center.Equals(expected.Center))throw new Exception("Worker changed scatter identities, positions, normals, sizes or colours.");
                 count+=actual.Instances.Length;Console.WriteLine("Exact scatter "+key.Detail+": "+actual.Instances.Length+" instances");
             }
+            int forestCell=Enumerable.Range(0,world.ElevationM.Length).First(i=>world.ElevationM[i]>30&&(world.Ecology.Habitat[i].Biome==Biome.BorealForest||world.Ecology.Habitat[i].Biome==Biome.TemperateForest||world.Ecology.Habitat[i].Biome==Biome.TropicalRainforest));
+            var forestScatter=scatter.Address(world.Surface.Cells[forestCell].Position,false);
+            var forestKey=new ForestPageKey(forestScatter.Face,forestScatter.X*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide,forestScatter.Y*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide,0);
+            foreach(var key in new[]{forestKey,forestKey.Parent})
+            {
+                var expected=scatter.BuildForest(key);using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);
+                using var stream=client.GetStream();using var incoming=new BufferedStream(stream,65536);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
+                w.Write(secret);w.Write((byte)3);TerrainMeshWire.WriteForestKey(w,key);if(!r.ReadBoolean())throw new Exception("Forest worker rejected request.");
+                var actual=TerrainMeshWire.ReadForest(r,key);w.Write((byte)0);w.Flush();
+                if(!actual.Roots.SequenceEqual(expected.Roots)||actual.Probes!=expected.Probes)throw new Exception("Buffered worker changed forest root metadata/payload.");
+                count+=actual.Roots.Length;Console.WriteLine("Exact buffered forest "+key.Level+": "+actual.Roots.Length+" roots");
+            }
             // A disconnected request must not poison the next connection.
             using(var client=new TcpClient())
             {client.Connect(IPAddress.Loopback,port);using var w=new BinaryWriter(client.GetStream());w.Write(secret);w.Write((byte)0);var frame=new LocalTerrainFrame(TerrainMapViewport.FromDegrees(27.98,86.92),terrain.RadiusM,0,.1);TerrainMeshWire.WriteRequest(w,frame,10000,10000,3276.8,128,null);w.Write((byte)1);w.Flush();}
+            using(var client=new TcpClient{NoDelay=true})
+            {
+                client.Connect(IPAddress.Loopback,port);using var stream=client.GetStream();using var incoming=new BufferedStream(stream,65536);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
+                var key=scatter.Address(dryPoint,false);w.Write(secret);w.Write((byte)1);TerrainMeshWire.WriteScatterKey(w,key);
+                if(!r.ReadBoolean()||!TerrainMeshWire.ReadScatter(r,key).Instances.SequenceEqual(scatter.Build(key).Instances))throw new Exception("Worker failed a valid buffered request after cancellation.");w.Write((byte)0);w.Flush();
+            }
             Console.WriteLine("PASS "+count+" exact worker mesh floats, terrain/water indices, bounds and cancellation submission");
         }
         finally{listener.Stop();if(!child.HasExited)child.Kill();child.WaitForExit();}
