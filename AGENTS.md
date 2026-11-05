@@ -53,6 +53,23 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov10:45Z PERFORMANCE CONTINUES. Selected A/f833/shortcut protected.
+B ScriptsOnly build63457 running source d58a30d8 over FULL551b/B235 shader;
+check exit/stamp before use and restore3known Unityautos after Editor exits.
+Burst first native proof551b and detailed658 proof FAILED; disabled. Detailed
+proof counts3555/3555, matrices/tints/shadow flags match but sampled LOD fades
+different by 2.1e-7..4.8e-7. Do NOT call this passed. New d58 explicit rounded
+float-distance sum/double sqrt +FloatPrecision.High UNVERIFIED; adds fast
+--worldgen-perf-cases burst-math-verify before terrain warmup (65536 actual
+compiled distances, rejects fallback). First3b probe compile failed CS1654 using
+variable setter, correctedd58. Need run native smoke before broad exact8heads/
+32renders, then presented throughput. Detailed658 job19973 ended exit1, no game
+left. FirstBurst root upload passed47053GPUrecords/45888bytes vs3011392full.
+Presented trace analysis: worker batch rebuild4.87ms boreal/4.44savanna, classify
+2.65/2.77 and append1.69/1.31ms. Gross allocation/GC/stream tails still unresolved.
+All source PUSHED; owner3files intact.100FPS floor NOT solved. No geography.
+All visible windows RIGHTMOST, no subagents/paid/owner-app closure.
+
 ACTIVE5Nov10:13Z ALL-NIGHT PERFORMANCE ONLY, no new features until solved.
 Selected A/f833/shortcut untouched. Latest551b974e PUSHED. Current own B FULL
 managed NONDEV BUILD90609 running; MUST check actual compile/Burst/shader result
