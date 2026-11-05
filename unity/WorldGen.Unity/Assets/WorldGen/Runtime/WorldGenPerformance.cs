@@ -332,7 +332,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 PerformanceTurn(yaw);WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=false;BuildScatterBatches();var sequential=PerformanceInstances();
                 WorldGenPerformance.ParallelScatter=!burst;WorldGenPerformance.BurstScatter=burst;BuildScatterBatches();var parallel=PerformanceInstances();
-                if(!sequential.SequenceEqual(parallel))throw new InvalidOperationException("Parallel scatter changed model/transform/tint/fade/shadow multiset at "+yaw);
+                if(!sequential.SequenceEqual(parallel))throw new InvalidOperationException("Scatter backend changed model/transform/tint/fade/shadow multiset at "+yaw+", Burst="+burst+", counts="+sequential.Length+"/"+parallel.Length+"\nReference only: "+string.Join("\n",sequential.Except(parallel).Take(3))+"\nWorker only: "+string.Join("\n",parallel.Except(sequential).Take(3)));
             }
             if((burst?BurstScatterBuilds:ParallelScatterBuilds)-start!=8)throw new InvalidOperationException("Requested worker backend was not actually exercised at eight headings: Burst="+burst);
             return "PASS eight exact sequential/"+(burst?"Burst-compiled":"managed parallel")+" model, matrix, tint, LOD-fade and shadow instance multisets; engine objects/draw submission remain on main thread";
