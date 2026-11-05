@@ -118,7 +118,9 @@ static partial class LocalScatterMeshes
         var mesh=b.Finish();mesh.name="Generated mid "+m.Form+" "+code+" L"+lod;
         // A fixed species-space box avoids independent LOD normalization changing size.
         mesh.bounds=new Bounds(new Vector3(0,.5f,0),new Vector3(1.3f,1.2f,1.3f));
-        var bend=new List<Vector2>(mesh.vertexCount);foreach(var p in mesh.vertices)bend.Add(new Vector2(Mathf.Clamp01(p.y),0));mesh.SetUVs(1,bend);
+        if(WorldGenPerformance.NoBuilderBufferReuse)
+        {var bend=new List<Vector2>(mesh.vertexCount);foreach(var p in mesh.vertices)bend.Add(new Vector2(Mathf.Clamp01(p.y),0));mesh.SetUVs(1,bend);}
+        else b.SetVerticalBend(mesh);
         return mesh;
     }
 }

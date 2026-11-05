@@ -108,6 +108,12 @@ static partial class LocalScatterMeshes
             for(int y=0;y<rings;y++)for(int x=0;x<sides;x++){int a=first+y*(sides+1)+x;Triangle(a,a+1,a+sides+1);Triangle(a+1,a+sides+2,a+sides+1);}
         }
         public Mesh Finish(bool tangents=true){var mesh=new Mesh();mesh.SetVertices(V);mesh.SetColors(c);mesh.SetUVs(0,uv);mesh.SetTriangles(t,0);mesh.RecalculateNormals();if(tangents)mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;}
+        public void SetVerticalBend(Mesh mesh)
+        {
+            // Finish has copied UV0 into the native mesh. Reuse that temporary
+            // list for UV1 instead of reading all vertices back from native.
+            uv.Clear();foreach(var p in V)uv.Add(new Vector2(Mathf.Clamp01(p.y),0));mesh.SetUVs(1,uv);
+        }
     }
     public static Mesh Build(ScatterKind kind,int detail,int variant)
     {
