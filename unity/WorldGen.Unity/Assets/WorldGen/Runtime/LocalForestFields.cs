@@ -195,7 +195,7 @@ public sealed partial class LocalTerrainExplorer
             frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
             break; // Bounded Unity object / buffer installation work.
         }
-        if(forestPlan==null&&forestMaintenanceDirty)
+        if(forestPlan==null&&forestMaintenanceDirty&&!GroundPublicationPending)
         {
         forestMaintenanceDirty=false;
         foreach(var key in forestFields.Keys.Where(k=>!forestWanted.Contains(k)).ToArray())

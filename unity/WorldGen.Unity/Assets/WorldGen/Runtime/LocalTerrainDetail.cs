@@ -30,7 +30,7 @@ public sealed partial class LocalTerrainExplorer
     // (including while the user has disabled their drawing).
     int ActiveWorkerCount
     {get{int count=jobs.Count+scatterJobs.Count;foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;if(animalPlan!=null&&!animalPlan.IsCompleted)count++;return count;}}
-    bool CanInstall=>installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
+    bool CanInstall=>!GroundPublicationPending&&installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
     bool CanRequest=>Time.realtimeSinceStartupAsDouble>=nextRequestAt;
     public string CheckStreamingState=>"error="+error+"; generation="+generation+"; jobs="+jobs.Count+"; done="+jobs.Count(j=>j.Task.IsCompleted)+"; matched="+jobs.Count(WorkMatchesCurrent)+"; detail="+(detailPlan?.Status.ToString()??"none")+"; installs="+detailOptions.Installations+"; y="+motion.Y+"; "+string.Join(" | ",jobs.Take(3).Select(j=>j.Key.X+","+j.Key.Z+","+j.Key.SizeM+"/"+j.Segments+" gen="+j.Generation+" "+j.Task.Status));
     void ResetDetailFrame()

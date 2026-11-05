@@ -38,6 +38,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool RestoreTerrain(TerrainTileKey key,int segments,double[] edges)
     {
+        if(GroundPublicationPending)return false;
         if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges,false),out var tile))return false;
         tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,tile,old);
         tile.Root.transform.SetParent(terrainRoot.transform,false);
@@ -47,6 +48,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ResetStreamingReuse(bool cancelJobs)
     {
+        CancelGroundPublication();
         ClearTerrainTransitions();
         terrainProducts?.Clear();streamingVX=streamingVZ=0;predictedX=double.NaN;
         prefetchWanted.Clear();prefetchEdges.Clear();prefetchPriority.Clear();
