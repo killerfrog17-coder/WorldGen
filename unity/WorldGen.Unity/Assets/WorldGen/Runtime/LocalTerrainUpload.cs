@@ -41,6 +41,7 @@ public sealed partial class LocalTerrainExplorer
         public float[] Heights,Cover,MidCover,ForestCover;
         bool hasWater;
         public bool HasWater=>hasWater;
+        public Bounds WaterBounds=>hasWater?bounds[1]:default;
         static SynchronizationContext mainContext;static int mainThread,pendingReleases;
         public static int PendingReleases=>Volatile.Read(ref pendingReleases);
         static TerrainUpload Allocate()

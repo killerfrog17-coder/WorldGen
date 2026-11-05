@@ -129,6 +129,51 @@ public sealed partial class LocalTerrainExplorer
         }
         return WaterContamination.Apply(water,sourceWorld.Recipe.Seed,sample.WaterBodyKey,p,radius,PlayerRules.SolarDays,cached.Environment);
     }
+    // Broad phase against the water that is actually drawn. The old prompt
+    // evaluated the entire landscape every 20cm, even on completely dry land.
+    // Unknown/unloaded owners retain that exact fallback; wet candidates still
+    // use the original physical surface, swell, reach and obstruction checks.
+    bool WaterAimMayIntersect(Vector3 eye,Vector3 direction,float reach)
+    {
+        double unit=TerrainLod.BaseSizeM*HorizontalScale;
+        double x=eye.x+originX,z=eye.z+originZ,endX=x+direction.x*reach,endZ=z+direction.z*reach;
+        int x0=(int)Math.Floor(Math.Min(x,endX)/unit),x1=(int)Math.Floor(Math.Max(x,endX)/unit);
+        int z0=(int)Math.Floor(Math.Min(z,endZ)/unit),z1=(int)Math.Floor(Math.Max(z,endZ)/unit);
+        for(int b=z0;b<=z1;b++)for(int a=x0;a<=x1;a++)
+        {
+            var tile=VisibleGroundOwner((a+.5)*unit,(b+.5)*unit,out var key);
+            if(tile==null||!tile.WaterBoundsKnown)return true;
+            if(!tile.HasWater)continue;
+            // Stored mesh bounds already include 3.2m of vertical swell. The
+            // extra margin also covers the original discrete march's crossing
+            // tolerance and horizontal/vertical floating point rounding.
+            var bounds=tile.WaterBounds;bounds.Expand(.5f);
+            var ray=new Ray(new Vector3((float)(x-key.X*key.SizeM),eye.y,(float)(z-key.Z*key.SizeM)),direction);
+            if(bounds.Contains(ray.origin)||bounds.IntersectRay(ray,out float distance)&&distance<=reach+.25f)return true;
+        }
+        return false;
+    }
+    public string PerformanceVerifyWaterAim()
+    {
+        var rotation=view.transform.rotation;bool original=WorldGenPerformance.FullWaterAim;
+        int compared=0,wet=0,rejected=0;float reach=Mathf.Min(15,3+(float)humanCamera.Distance);
+        void Compare()
+        {
+            WorldGenPerformance.FullWaterAim=true;waterAimAt=0;var expected=AimedWater(float.PositiveInfinity);
+            WorldGenPerformance.FullWaterAim=false;waterAimAt=0;var actual=AimedWater(float.PositiveInfinity);
+            if((expected==null)!=(actual==null)||expected!=null&&(expected.Point!=actual.Point||expected.Distance!=actual.Distance||expected.Quality.Name!=actual.Quality.Name||expected.Quality.Fresh!=actual.Quality.Fresh))
+                throw new InvalidOperationException("Water broad phase changed an actual drink target");
+            if(expected!=null)wet++;if(!WaterAimMayIntersect(view.transform.localPosition,view.transform.forward,reach))rejected++;compared++;
+        }
+        try
+        {
+            Compare();
+            for(int yaw=0;yaw<24;yaw++)foreach(float tilt in new[]{8f,30f,65f})
+            {view.transform.rotation=Quaternion.Euler(tilt,yaw*15,0);Compare();}
+        }
+        finally{view.transform.rotation=rotation;WorldGenPerformance.FullWaterAim=original;waterAimAt=0;aimedWater=null;}
+        return "PASS "+compared+" original/bounds-filtered water aims, "+wet+" wet targets, "+rejected+" broad-phase rejections";
+    }
     WaterTarget AimedWater(float maximum)
     {
         var eye=view.transform.localPosition;var direction=view.transform.forward;
@@ -136,6 +181,7 @@ public sealed partial class LocalTerrainExplorer
         waterAimAt=Time.unscaledTimeAsDouble+.1;waterAimEye=eye;waterAimDirection=direction;aimedWater=null;
         if(direction.y>-.03f)return null;
         float reach=Mathf.Min(15,3+(float)humanCamera.Distance),priorY=eye.y;
+        if(!WorldGenPerformance.FullWaterAim&&!WaterAimMayIntersect(eye,direction,reach))return null;
         for(float t=.1f;t<=reach;t+=.2f)
         {
             Vector3 point=eye+direction*t;double x=point.x+originX,z=point.z+originZ;var sample=PlayerWaterSample(x,z);

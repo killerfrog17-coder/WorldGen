@@ -27,6 +27,7 @@ public static class WorldGenPerformance
     public static bool GpuNearOcclusion;
     public static bool NonIndexedClumps;
     public static bool ForceFreshWaterSamples;
+    public static bool FullWaterAim;
     public static bool LegacyGroupVisibility;
     public static bool ParallelScatter=true;
     public static bool BurstScatter=true;
@@ -1011,7 +1012,9 @@ public sealed partial class WorldGenRuntime
             new PerfCase("tree-bounded-depth",()=>Shader.SetGlobalFloat("_WorldGenTreeStableDepth",1)),
             new PerfCase("plants-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("water-query-verify",()=>{}),
+            new PerfCase("water-aim-verify",()=>{}),
             new PerfCase("water-query-fresh",()=>WorldGenPerformance.ForceFreshWaterSamples=true),
+            new PerfCase("travel-whip-full-water-aim",()=>WorldGenPerformance.FullWaterAim=true),
             new PerfCase("animal-pose-verify",()=>{}),
             new PerfCase("grass-blades",()=>TerrainVideoOptions.GrassClumps=false),
             new PerfCase("scatter-range-verify",()=>{}),
@@ -1167,7 +1170,7 @@ public sealed partial class WorldGenRuntime
             {
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
-                WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
+                WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.FullWaterAim=false;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
                 WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
                 WorldGenPerformance.TracePresentedCamera=false;
@@ -1205,6 +1208,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="small-plant-lighting-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewPlantLighting(output,site.Item1)+"\n");
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
                 if(item.Name=="water-query-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyWaterSamples()+"\n");
+                if(item.Name=="water-aim-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyWaterAim()+"\n");
                 if(item.Name=="animal-pose-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyAnimalPoseMath()+"\n");
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");
                 if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}

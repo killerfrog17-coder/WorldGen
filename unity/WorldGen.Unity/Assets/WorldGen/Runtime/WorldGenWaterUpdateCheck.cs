@@ -31,6 +31,7 @@ public sealed partial class LocalTerrainExplorer
         Check(!Inventory.WornContainers.Any(),"Water regression starts with a stone spear and blade, without a bag");
         PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1.1);ApplyPlayerMode();UpdateHumans();UpdateCamera();
         var level=SampleMotionWater(nx,nz).Surface;view.transform.LookAt(new Vector3((float)(nx-originX),(float)level,(float)(nz-originZ)));waterAimAt=0;
+        report.Add(PerformanceVerifyWaterAim());
         Check(AimedWater(float.PositiveInfinity)!=null,"Centre aim reaches actual water from the dry bank");
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.Thirst>50,"Actual E interaction with sea water worsens hydration");
         Check(Inventory.AtHand(PossessionPlace.RightHand)==stone,"Drinking restores the original occupied hand");

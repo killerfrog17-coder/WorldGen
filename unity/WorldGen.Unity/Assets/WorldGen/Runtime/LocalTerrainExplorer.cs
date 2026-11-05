@@ -12,7 +12,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
+    sealed class Tile { public bool WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
@@ -339,7 +339,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(data.HasWater)Part("Water surface",meshes[1],waterMaterial);
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
-        var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes};
+        var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
         foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
