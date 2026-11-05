@@ -361,7 +361,16 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         frameUploadMs+=timer.Elapsed.TotalMilliseconds;
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms; apply "+applyMs.ToString("F2")+"ms; objects/retire "+(timer.Elapsed.TotalMilliseconds-beforeApply-applyMs).ToString("F2")+"ms; collections "+(GC.CollectionCount(0)-collections)+"; worker buffers "+data.BufferMilliseconds.ToString("F2")+"ms");
     }
-    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>())Destroy(filter.sharedMesh);Destroy(tile.Root);}
+    readonly List<MeshFilter> terrainMeshReleaseScratch=new List<MeshFilter>(2);
+    static int ReleaseTerrainMeshes(GameObject root,List<MeshFilter> scratch)
+    {
+        // Cached/retired tile roots are disabled. The default hierarchy query
+        // omits their children and leaves their generated native meshes alive.
+        root.GetComponentsInChildren(true,scratch);int count=0;
+        foreach(var filter in scratch)if(filter.sharedMesh!=null){UnityEngine.Object.Destroy(filter.sharedMesh);count++;}
+        scratch.Clear();return count;
+    }
+    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch);Destroy(tile.Root);}
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;

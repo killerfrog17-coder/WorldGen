@@ -202,6 +202,32 @@ public sealed partial class LocalTerrainExplorer
             using(var upload=TerrainUpload.Prepare(large,CancellationToken.None))
             {var meshes=upload.Apply();try{if(meshes[0].indexFormat!=(count<=65535?IndexFormat.UInt16:IndexFormat.UInt32)||meshes[0].triangles[2]!=count-1)throw new InvalidOperationException("Final terrain geometry exceeded compact index format");}finally{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);}}
         }
+        yield return CheckInactiveTerrainMeshRelease(output);
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"upload-buffers.txt"),"PASS worker-prepared native positions, normals, colors, lithology, indices, bounds, water, controller heights, returned/overwritten transport arrays and cancelled-buffer disposal.");
+    }
+    static System.Collections.IEnumerator CheckInactiveTerrainMeshRelease(string output)
+    {
+        var root=new GameObject("Inactive terrain retirement proof");var meshes=new System.Collections.Generic.List<Mesh>();
+        Mesh Triangle()=>new Mesh{vertices=new[]{Vector3.zero,Vector3.right,Vector3.forward},triangles=new[]{0,1,2}};
+        var unrelated=Triangle();
+        try
+        {
+            Transform parent=root.transform;
+            for(int i=0;i<3;i++)
+            {
+                var child=new GameObject("Land/water child "+i,typeof(MeshFilter));child.transform.SetParent(parent,false);
+                var mesh=Triangle();child.GetComponent<MeshFilter>().sharedMesh=mesh;meshes.Add(mesh);
+                if(i==1)child.SetActive(false);parent=child.transform;
+            }
+            root.SetActive(false);
+            int oldQuery=root.GetComponentsInChildren<MeshFilter>().Length;
+            if(oldQuery!=0)throw new InvalidOperationException("Inactive terrain fixture does not reproduce the old hierarchy-query omission");
+            int released=ReleaseTerrainMeshes(root,new System.Collections.Generic.List<MeshFilter>());UnityEngine.Object.Destroy(root);
+            yield return null;yield return null;
+            foreach(var mesh in meshes)if(mesh!=null)throw new InvalidOperationException("Retired inactive terrain retained a generated native mesh");
+            if(unrelated==null||released!=3)throw new InvalidOperationException("Terrain retirement released an unrelated mesh or missed a nested child");
+            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"terrain-mesh-retirement.txt"),"PASS original default query found0 disabled descendants; production release found/destroyed3 nested land/water meshes, including an individually disabled child; all native mesh references null after retirement; unrelated native mesh retained.\n");
+        }
+        finally{if(root!=null)UnityEngine.Object.Destroy(root);foreach(var mesh in meshes)if(mesh!=null)UnityEngine.Object.Destroy(mesh);UnityEngine.Object.Destroy(unrelated);}
     }
 }

@@ -2865,5 +2865,13 @@
     "command": "dotnet run --project tests/WorldGen.Core.Tests -c Release -- --local-scatter-only",
     "failure": "Existing Forest versus open/desert structure is ecological density assertion, LocalScatterTests line39. No scatter-generation/ecology changes made; unrelated optional test edit removed.",
     "status": "NOT a pass"
+  },
+  "terrain_mesh_retirement": {
+    "status": "UNBUILT correction and native regression added",
+    "finding": "DestroyTile disabled the hierarchy before using default GetComponentsInChildren<MeshFilter>(); inactive child meshes could be omitted and never explicitly destroyed.",
+    "fix": "Include inactive descendants and reuse a caller-owned list. No live terrain mesh ownership or geometry change.",
+    "fps_impact": "NOT measured; do not attribute prior pauses or FPS to this without evidence.",
+    "documentation": "https://docs.unity3d.com/6000.0/Documentation/ScriptReference/GameObject.GetComponentsInChildren.html",
+    "native_check": "Added reproduction of old query omission plus destruction of three nested/inactive generated meshes and retention of an unrelated control mesh, after real deferred native destruction."
   }
 }
