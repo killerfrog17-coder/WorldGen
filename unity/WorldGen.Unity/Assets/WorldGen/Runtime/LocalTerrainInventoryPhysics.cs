@@ -39,6 +39,16 @@ public sealed partial class LocalTerrainExplorer
             if(candidate.Item.Place!=PossessionPlace.Corpse&&candidate.Item.Place!=PossessionPlace.CampStorage&&candidate.Bounds.IntersectRay(ray,out float distance)&&distance<closest){closest=distance;target=candidate;}
         return target;
     }
+    GUISkin pickupPromptSkin;int pickupPromptFont;
+    GUIStyle pickupPromptText,pickupPromptShadow;
+    void PreparePickupPromptStyles(int fontSize)
+    {
+        if(pickupPromptSkin==GUI.skin&&pickupPromptFont==fontSize&&pickupPromptText!=null)return;
+        pickupPromptSkin=GUI.skin;pickupPromptFont=fontSize;
+        pickupPromptShadow=new GUIStyle(GUI.skin.label){fontSize=fontSize,alignment=TextAnchor.MiddleCenter,padding=new RectOffset(),wordWrap=false};
+        pickupPromptShadow.normal.textColor=Color.black;
+        pickupPromptText=new GUIStyle(pickupPromptShadow);pickupPromptText.normal.textColor=new Color(.95f,.95f,.89f);
+    }
     void DrawPickupPrompt()
     {
         if(!Ready||DeathVisible||Spectating||inventoryOpen||paused||mapOpen||chatOpen||ecologyOpen||!Application.isFocused&&!inventoryReviewMode)return;
@@ -58,11 +68,11 @@ public sealed partial class LocalTerrainExplorer
         GUI.color=old;
         var target=AimedPossession();float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
         string nature=CampPrompt(itemDistance)??NaturePrompt(itemDistance)??WaterPrompt(itemDistance);if(target==null&&nature==null)return;
-        var style=new GUIStyle(GUI.skin.label){fontSize=Mathf.RoundToInt(17*scale),alignment=TextAnchor.MiddleCenter,padding=new RectOffset(),wordWrap=false};
+        PreparePickupPromptStyles(Mathf.RoundToInt(17*scale));
         var rect=new Rect(Screen.width*.5f-180*scale,Screen.height*.5f+31*scale,360*scale,30*scale);
         string prompt=nature??(InventoryDisplayName(target.Item)+"  [E]");
-        style.normal.textColor=Color.black;GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),prompt,style);
-        style.normal.textColor=new Color(.95f,.95f,.89f);GUI.Label(rect,prompt,style);
+        GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),prompt,pickupPromptShadow);
+        GUI.Label(rect,prompt,pickupPromptText);
     }
     void ReleasePossession(Possession item,bool fromContainer)
     {
