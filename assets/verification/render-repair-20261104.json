@@ -1,5 +1,5 @@
 {
-  "status": "Active performance repair;100FPS floor NOT achieved;selected A/f833/shortcut untouched. No new geography.",
+  "status": "Active performance repair;100FPS floor NOT achieved;earlier-to-current regression unresolved;selected A/f833/shortcut untouched.",
   "candidate_source": "551b974e",
   "candidate_slot": "slot-b",
   "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
@@ -1277,6 +1277,183 @@
         "player.log": "212d1bceec3853954c83990a3a1d545a48dad51d7070bf443197b64941d0fade",
         "summary.csv": "972c560d6f591d3ce5bdbc9a8435665ca67e40573a4ba86defe9d1a79663674e"
       }
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/presented-burst-budget",
+      "complete": true,
+      "source": "20ac90a0fc0a04f566cd38cef79722790e0ba6ad",
+      "qualification": "Actual automatic presented camera,30seconds/window,Medium1080/6km. Entire package REGRESSED versus77 baseline: do not claim a cross-build improvement. Within-package Burst improves cull CPU2.554->.795ms/rebuild;100FPS floor still fails. GC experiment severely worsens FPS and is retired6b90a61c. No runtime errors/exceptions.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "121.91882",
+          "p95_ms": "12.71790",
+          "max_ms": "44.91370",
+          "over10ms": "1790",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "75.44912",
+          "p95_ms": "22.49320",
+          "max_ms": "59.14400",
+          "over10ms": "1785",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-parallel",
+          "fps": "80.06062",
+          "p95_ms": "20.23240",
+          "max_ms": "62.72680",
+          "over10ms": "1883",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-optimized",
+          "fps": "79.57718",
+          "p95_ms": "20.90360",
+          "max_ms": "57.49700",
+          "over10ms": "1862",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-flat-tree",
+          "fps": "79.91279",
+          "p95_ms": "20.45140",
+          "max_ms": "57.82720",
+          "over10ms": "1906",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-burst",
+          "fps": "83.25448",
+          "p95_ms": "19.52270",
+          "max_ms": "46.50710",
+          "over10ms": "1918",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-burst-partial",
+          "fps": "84.08103",
+          "p95_ms": "18.55650",
+          "max_ms": "54.38970",
+          "over10ms": "1913",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-burst-gc-budget",
+          "fps": "29.52849",
+          "p95_ms": "80.43480",
+          "max_ms": "138.32580",
+          "over10ms": "862",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-memory",
+          "fps": "73.09854",
+          "p95_ms": "23.39030",
+          "max_ms": "57.99080",
+          "over10ms": "1780",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning-whip",
+          "fps": "133.22505",
+          "p95_ms": "9.62310",
+          "max_ms": "50.35420",
+          "over10ms": "122",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip",
+          "fps": "89.29049",
+          "p95_ms": "20.87800",
+          "max_ms": "72.50780",
+          "over10ms": "1185",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-parallel",
+          "fps": "95.53899",
+          "p95_ms": "17.77480",
+          "max_ms": "56.43090",
+          "over10ms": "1193",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-optimized",
+          "fps": "94.97023",
+          "p95_ms": "17.33240",
+          "max_ms": "70.98800",
+          "over10ms": "1219",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-flat-tree",
+          "fps": "95.27319",
+          "p95_ms": "17.36110",
+          "max_ms": "64.56310",
+          "over10ms": "1218",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-burst",
+          "fps": "99.20636",
+          "p95_ms": "15.71740",
+          "max_ms": "60.58560",
+          "over10ms": "1274",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-burst-partial",
+          "fps": "100.85579",
+          "p95_ms": "14.74950",
+          "max_ms": "64.84030",
+          "over10ms": "1230",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-burst-gc-budget",
+          "fps": "29.14715",
+          "p95_ms": "92.14270",
+          "max_ms": "138.60510",
+          "over10ms": "869",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-memory",
+          "fps": "88.70030",
+          "p95_ms": "20.00880",
+          "max_ms": "74.30950",
+          "over10ms": "1213",
+          "settled": "False"
+        }
+      ],
+      "evidence_sha256": {
+        "package.json": "cceda3e32a39e108fabbface841f3e7e93a29a02dd900e21c5abe18026a60d3a",
+        "summary.csv": "7b6fda5bbe3711b931544441c0d524acac2c057feb7a65c00b6f402ccb48fe55",
+        "player.log": "398f8f107925b2ce717bd12f947675fd61cce3bb03641ed67d62c08a06503689",
+        "forest-root-uploads.csv": "5ae588a288932febb9bfb26bec2b21c80fda68c0ea13fccb9b9b30b5d3c43272",
+        "collection-budget.txt": "4ae63ca8949ee4400b96f3ebfd23efc3c8675e929169488a7b2a8799d5a8d7bd"
+      }
     }
   ],
   "candidate_full_baseline": "b235940052176b17efa3c9149fe9715a337e3b39",
@@ -1298,9 +1475,9 @@
     "Crown depth reprojection still produces warped/lumpy results in actual forest overview: NOT accepted; optional bounded offset comparison added, not enabled in normal game.",
     "Artificial camera rotation can expose player shoulder/neck in rearward review captures; retained actors, not a claim about ordinary first-person body behavior."
   ],
-  "next_candidate_source": "20ac90a0fc0a04f566cd38cef79722790e0ba6ad",
+  "next_candidate_source": "4d64f46f58f446c1b9d1b3f0e4333506fdab84d9",
   "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
-  "current_test": "B20ac90a managed NONDEV ScriptsOnly over551b full/B235 packed shaders:normal-camera presented-burst-budget running;9cases30sec at boreal/savanna,Medium1080/6km. No concurrent heavy jobs. Own window31736 rightmost DISPLAY3.",
+  "current_test": "B FULL managed NONDEV4d64f46f with FrameTimingStats enabled, normal preference namespace; known3Unityautos restored. Current66553/native31100 presented-buffered-keyword,boreal Medium1080/6km/7cases30s. Rightmost DISPLAY3, no concurrent heavy jobs. Need inspect actual GPU timings and regression before selection;owner savedmixedUltra200km remains outstanding.",
   "ground_mask_repair": {
     "source": "f6f812f4",
     "pure_checks": 5759,
@@ -1315,10 +1492,11 @@
     "parallel_workers": "Exact native image/instance checks pass. Presented boreal moving140.76->147.78FPS; savanna123.15FPS with worker path, still fails required100FPS floor. Default OFF pending final configuration.",
     "range_cache": "48exact boundary/heading checks pass eachsite; combined worker/cache no established throughput gain, OFF.",
     "human_input_memo": "78228actual bone comparisons zero error eachsite; presented human CPU1.207ms baseline vs1.226ms memo, no established gain, OFF.",
-    "partial_forest_upload": "GPU actual data byte-identical after three disjoint block updates/deletion/restoration. Savanna34688bytes vs509824full. Default OFF until real moving transfer/timing measurements.",
-    "ordinary_tree_impostor": "Two texture reads/view instead of four in detailed path; three-angle coverage kept. Actual overhead boreal original/flat inspected: flat reduces reprojection smearing but both retain coarse billboard limitations. OFF pending FPS and other views.",
-    "burst_native_admission": "Native02493324 passes65536bit-exact distances,8exact instance/caster multisets and32paired images at each dense boreal/savanna;max RGB delta0,compiled execution required. Source20ac adds OFF-by-default incremental collection diagnostic only. Burst remains OFF pending normal presented timing.",
-    "incremental_collection_budget": "Diagnostic only: Manual mode continues incremental collection every frame at1ms slice, restores preceding mode on exit, automatically rejects if heap grows256MiB. OFF;requires real collections,bounded heap and improved full-frame tails before use."
+    "partial_forest_upload": "GPU actual data byte-identical after three disjoint block updates/deletion/restoration. Savanna34688bytes vs509824full. Default OFF until real moving transfer/timing measurements. Actual moving20ac root transfer1,408.89->33.53MiB boreal and1,542.39->89.78MiB savanna over30seconds;zero full uploads in partial windows. Modest FPS benefit;floor unmet.",
+    "ordinary_tree_impostor": "Two texture reads/view instead of four in detailed path; three-angle coverage kept. Actual overhead boreal original/flat inspected: flat reduces reprojection smearing but both retain coarse billboard limitations. OFF pending FPS and other views. Uniform flat-depth toggle showed no material gain;9640d6aa moves it to compile-time shader keyword so disabled normal shader excludes its branch. FULL4d64 build passed;GPU-timed comparison running,not accepted yet.",
+    "burst_native_admission": "Native02493324 passes65536bit-exact distances,8exact instance/caster multisets and32paired images at each dense boreal/savanna;max RGB delta0,compiled execution required. Source20ac adds OFF-by-default incremental collection diagnostic only. Burst remains OFF pending normal presented timing. Current presented20ac within-package worker80.06->Burst83.25FPS boreal,95.54->99.21savanna;whole package slower than77 baseline,unresolved.",
+    "incremental_collection_budget": "REJECTED/RETIRED6b90a61c:29FPS both sites,400-432collections/30sec,36-53ms worst collector calls. Never enabled in normal game. Automatic collection retained.",
+    "buffered_terrain_transport": "86f9fcef:64KiB response writes and client reads;duplex raw cancellation/control path retained. Actual worker test194431exact mesh floats/topology/bounds/scatter and forest59+295roots;valid request after cancellation passed. New native loading/FPS still measuring."
   },
   "burst_numeric_rejections": [
     {

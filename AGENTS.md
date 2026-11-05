@@ -53,6 +53,30 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov11:32Z PERFORMANCE CONTINUES. Selected A/f833/shortcut protected.
+B FULL managed NONDEV4d64f46f (PerformancePlayer enables FrameTimingStats only,
+normal product/prefs namespace kept) passed compile/Burst/shader;3autos restored.
+Current own benchmark66553/player31100 rightmost DISPLAY3: presented-buffered-
+keyword,boreal Medium1080/6km,7cases30s. NO heavy jobs during timing windows.
+Prior presented-burst-budget20ac COMPLETE18cases. Whole package REGRESSED versus
+77: boreal turn121.92 vs187,travel75.45 vs140.76;do NOT claim fixed. Within20ac
+worker80.06->Burst83.25, classify2.554->.795ms/rebuild. Savanna95.54->99.21->
+partial100.86FPS but tails60ms;100floor NOT solved. Partial uploads cut moving
+root bytes1408.89->33.53MiB boreal,1542.39->89.78savanna/30s. GC1ms experiment
+FAILS29FPS/400-432collections per30s/max36-53ms;RETIRED6b90,automatic GC retained.
+New86f9 BUFFERED worker transport64KiB:actual194431mesh floats/topology/bounds/
+scatter and59+295forest roots plus valid request after cancellation PASS current
+worker4d64 (buffered-worker-wire.log). New9640 shader flat-depth option uses
+compile-time keyword WORLDGEN_FLAT_TREE_DEPTH;normal variant excludes trial
+branch. Prior uniform flat shader had no measured FPS gain;current comparison
+must isolate regression,actual GPU timing. Native camera CPU6.3ms in20ac,not
+GPU measurement;gross camera heap growth inclusive/background not attribution.
+After current run MUST do owner savedmixedUltra200km context. Don't start more
+geography/features. All own source/docs pushed;owner3files preserved. Bothslots
+only;artifact source rule. No subagents/paid/owner apps closed. Correctness proof
+024 Burst8exactsets+32renders per2sites remains passing,maxRGB0,65536distances
+bit-exact. Burst and partial still OFF in normal game,not selected yet.
+
 ACTIVE5Nov11:02Z PERFORMANCE CONTINUES. Selected A/f833/shortcut protected.
 B20ac90a ScriptsOnly managed NONDEV BuiltUtc11:00:27Z SourceChanges[] over
 FULL551b/B235 packed shader.3Unityautos restored. Current native session5363,
