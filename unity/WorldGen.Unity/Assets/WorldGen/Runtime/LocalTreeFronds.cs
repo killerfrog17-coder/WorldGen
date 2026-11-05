@@ -56,7 +56,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildFrondTree(int code,int lod,TreeMorphology m)
     {
-        var b=new Builder();var mask=new List<Vector2>();var random=new Rng(code,"tree-attached-fronds-2");
+        using var b=new Builder();var mask=new List<Vector2>();var random=new Rng(code,"tree-attached-fronds-2");
         var wood=HerbColour(m.Bark);var leaf=HerbColour(m.Leaf);bool fern=m.Form==TreeGrowthForm.TreeFern;
         float lean=((float)random.Unit()-.5f)*.12f;
         var crown=new Vector3(lean,.78f,lean*.3f);
@@ -97,7 +97,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildCaneTree(int code,int lod,TreeMorphology m)
     {
-        var b=new Builder();var mask=new List<Vector2>();var r=new Rng(code,"tree-leafy-cane-2");var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
+        using var b=new Builder();var mask=new List<Vector2>();var r=new Rng(code,"tree-leafy-cane-2");var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
         for(int stem=0;stem<5;stem++)
         {
             float angle=stem*2.399963f;var outwards=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));float height=.82f+(float)r.Unit()*.18f;
@@ -120,7 +120,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildSucculentTree(int code,int lod,TreeMorphology m)
     {
-        var b=new Builder();var mask=new List<Vector2>();var rng=new Rng(TreeFlora.RenderCode(code),"ribbed-succulent-1");
+        using var b=new Builder();var mask=new List<Vector2>();var rng=new Rng(TreeFlora.RenderCode(code),"ribbed-succulent-1");
         var skin=HerbColour(m.Leaf)*new Color(1.14f,.94f,1.20f,1);var wood=HerbColour(m.Bark);
         int sides=lod==0?12:8;
         void Stem(Vector3 root,Vector3 control,Vector3 tip,float radius,int segments,bool main)

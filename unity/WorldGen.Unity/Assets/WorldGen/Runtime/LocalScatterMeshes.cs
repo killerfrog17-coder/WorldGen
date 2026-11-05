@@ -6,9 +6,34 @@ using WorldGen.Core;
 /// <summary>Disposable art placeholders, never placement logic. Meshes have UVs/normals and metre-scale reference bounds.</summary>
 static partial class LocalScatterMeshes
 {
-    sealed class Builder
+    sealed class Builder : IDisposable
     {
-        public readonly List<Vector3> V=new List<Vector3>();readonly List<Vector2> uv=new List<Vector2>();readonly List<Color> c=new List<Color>();readonly List<int> t=new List<int>();
+        sealed class Buffers
+        {
+            public readonly List<Vector3> V=new List<Vector3>();public readonly List<Vector2> Uv=new List<Vector2>();public readonly List<Color> Colors=new List<Color>();public readonly List<int> Triangles=new List<int>();
+            public long Bytes=>(long)V.Capacity*12+(long)Uv.Capacity*8+(long)Colors.Capacity*16+(long)Triangles.Capacity*4;
+            public void Clear(){V.Clear();Uv.Clear();Colors.Clear();Triangles.Clear();}
+        }
+        [ThreadStatic] static Stack<Buffers> spare;
+        [ThreadStatic] static long spareBytes;
+        Buffers buffers;readonly bool reuse;
+        public readonly List<Vector3> V;readonly List<Vector2> uv;readonly List<Color> c;readonly List<int> t;
+        public Builder()
+        {
+            reuse=!WorldGenPerformance.NoBuilderBufferReuse;
+            if(reuse&&spare!=null&&spare.Count>0){buffers=spare.Pop();spareBytes-=buffers.Bytes;buffers.Clear();}
+            else buffers=new Buffers();
+            V=buffers.V;uv=buffers.Uv;c=buffers.Colors;t=buffers.Triangles;
+        }
+        public void Dispose()
+        {
+            if(buffers==null)return;var released=buffers;buffers=null;
+            // At most two scratch sets and 8MiB per generating thread. Native
+            // meshes already own their data; no scene/model objects are cached.
+            if(!reuse||released.Bytes>8*1024*1024-spareBytes)return;
+            if(spare==null)spare=new Stack<Buffers>(2);
+            if(spare.Count<2){spare.Push(released);spareBytes+=released.Bytes;}
+        }
         public int Add(Vector3 p,Color color,Vector2 tex){V.Add(p);c.Add(color);uv.Add(tex);return V.Count-1;}
         public void Triangle(int a,int b,int d){t.Add(a);t.Add(b);t.Add(d);}
         public void Tube(Vector3 a,Vector3 b,float radius,float tip,int sides,Color color)
@@ -89,8 +114,8 @@ static partial class LocalScatterMeshes
         if(kind==ScatterKind.Herb||kind==ScatterKind.Fungus)return BuildSpecialist(variant,detail);
         if(kind==ScatterKind.MidPlant)return BuildMidPlant(variant,detail);
         if(kind==ScatterKind.GeneratedTree)return BuildTree(variant,detail);
-        var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
         if(kind==ScatterKind.Branch)return BuildWood(variant,PossessionKind.Branch,false,true);
+        using var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
         if(kind==ScatterKind.Grass)b.Grass(detail,variant);
         else if(kind==ScatterKind.Conifer)b.Conifer(detail,variant,leaf);
         else if(kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop)b.Rock(detail,variant,kind==ScatterKind.Outcrop);

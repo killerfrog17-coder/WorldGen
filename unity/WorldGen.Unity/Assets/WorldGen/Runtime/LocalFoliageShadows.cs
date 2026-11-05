@@ -226,7 +226,7 @@ static partial class LocalScatterMeshes
 {
     public static Mesh BuildTreeShadowTrunk(int code)
     {
-        var m=new TreeMorphology(code);var b=new Builder();
+        var m=new TreeMorphology(code);using var b=new Builder();
         b.Tube(Vector3.zero,Vector3.up*Mathf.Max(.2f,(float)m.CrownBase),(float)m.TrunkRadius,(float)m.TrunkRadius*.45f,6,Color.white);
         var mesh=b.Finish(false);mesh.name="Tree solid-trunk shadow / "+code;return mesh;
     }
@@ -245,7 +245,7 @@ static partial class LocalScatterMeshes
             var key=new Vector3Int(Mathf.Clamp((int)(uv.x/Mathf.Max(.001f,envelope.size.x)*divisions),0,divisions-1),Mathf.Clamp((int)(uv.y/Mathf.Max(.001f,envelope.size.y)*divisions),0,divisions-1),Mathf.Clamp((int)(uv.z/Mathf.Max(.001f,envelope.size.z)*divisions),0,divisions-1));
             if(cells.TryGetValue(key,out var bounds)){bounds.Encapsulate(p);cells[key]=bounds;}else cells.Add(key,new Bounds(p,Vector3.zero));
         }
-        var builder=new Builder();
+        using var builder=new Builder();
         if(divisions<=2&&cells.Count>0)
         {
             bool first=true;var crown=new Bounds();

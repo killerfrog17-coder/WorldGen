@@ -6,7 +6,7 @@ static partial class LocalScatterMeshes
 {
     public static Mesh BuildPortable(Possession item,bool bowString=true)
     {
-        var d=PortableTechnology.Item(item.Kind);var b=new Builder();
+        var d=PortableTechnology.Item(item.Kind);using var b=new Builder();
         Color wood=new Color(.43f,.28f,.13f,0),bone=new Color(.87f,.8f,.59f,0),cord=new Color(.58f,.45f,.25f,0),leather=new Color(.55f,.34f,.19f,0),fur=new Color(.83f,.7f,.53f,1);
         V pigment=ToolStone.Color(item.Variant,new V(.43,.43,.4));Color stone=new Color((float)pigment.X,(float)pigment.Y,(float)pigment.Z,0);
         void Quad(Vector3 a,Vector3 c,Vector3 e,Vector3 f,Color color)

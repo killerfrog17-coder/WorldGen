@@ -8,7 +8,7 @@ static partial class LocalScatterMeshes
 {
     public static Mesh BuildBlueprint(CampBlueprint plan,bool completed,bool preview=false,bool omitHide=false)
     {
-        var b=new Builder();var tags=new List<Vector2>();
+        using var b=new Builder();var tags=new List<Vector2>();
         Vector3 P(V p)=>new Vector3((float)p.X,(float)p.Y,(float)p.Z);
         void Quad(Vector3 a,Vector3 c,Vector3 d,Vector3 e,Color color)
         {int at=b.V.Count;float w=(c-a).magnitude,h=(e-a).magnitude;b.Add(a,color,new Vector2(0,0));b.Add(c,color,new Vector2(w,0));b.Add(d,color,new Vector2(w,h));b.Add(e,color,new Vector2(0,h));b.Triangle(at,at+1,at+2);b.Triangle(at,at+2,at+3);}
@@ -92,7 +92,7 @@ static partial class LocalScatterMeshes
             var pieces=new List<Mesh>();for(int i=0;i<points.Length;i+=4)pieces.Add(BuildCampHide(points.Skip(i).Take(4).ToArray(),from,to));
             var combined=new Mesh();combined.CombineMeshes(pieces.Select(m=>new CombineInstance{mesh=m,transform=Matrix4x4.identity}).ToArray());foreach(var piece in pieces)UnityEngine.Object.Destroy(piece);return combined;
         }
-        var b=new Builder();Vector3 P(V v)=>new Vector3((float)v.X,(float)v.Y,(float)v.Z);
+        using var b=new Builder();Vector3 P(V v)=>new Vector3((float)v.X,(float)v.Y,(float)v.Z);
         var a=Vector3.Lerp(P(points[0]),P(points[1]),from);var c=Vector3.Lerp(P(points[0]),P(points[1]),to);var d=Vector3.Lerp(P(points[3]),P(points[2]),to);var e=Vector3.Lerp(P(points[3]),P(points[2]),from);
         // Modest sag without moving the anchored perimeter; also avoids a
         // flat plastic sheet appearance on large hide panels.

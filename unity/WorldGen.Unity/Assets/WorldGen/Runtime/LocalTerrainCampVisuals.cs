@@ -142,12 +142,12 @@ static partial class LocalScatterMeshes
 {
     public static Mesh BuildCampAsh(float radius)
     {
-        var b=new Builder();b.Crown(new Vector3(0,.008f,0),new Vector3(radius,.007f,radius),20,4,new Color(.17f,.16f,.14f,0),187,.13f);
+        using var b=new Builder();b.Crown(new Vector3(0,.008f,0),new Vector3(radius,.007f,radius),20,4,new Color(.17f,.16f,.14f,0),187,.13f);
         var mesh=b.Finish();mesh.name="Camp ash";mesh.SetUVs(1,Enumerable.Repeat(Vector2.zero,mesh.vertexCount).ToList());return mesh;
     }
     public static Mesh BuildCampMat(float depth,bool leaves,int seed)
     {
-        var b=new Builder();var random=new System.Random(seed);depth=Mathf.Max(.012f,depth);
+        using var b=new Builder();var random=new System.Random(seed);depth=Mathf.Max(.012f,depth);
         for(int i=0;i<1100;i++)
         {
             float x=(float)(random.NextDouble()*2-1)*.48f,z=(float)(random.NextDouble()*2-1)*.95f,y=(float)random.NextDouble()*depth;

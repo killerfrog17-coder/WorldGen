@@ -45,7 +45,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildSpecialist(int code,int detail)
     {
-        var b=new Builder();var m=HerbMorphology.Decode(code);var leaf=HerbColour(m.Leaf);var stem=HerbColour(m.Stem);
+        using var b=new Builder();var m=HerbMorphology.Decode(code);var leaf=HerbColour(m.Leaf);var stem=HerbColour(m.Stem);
         int tubeSides=detail==0?6:4;
         if(m.Form==SpecialistForm.Fungus)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -9,6 +10,38 @@ using WorldGen.Core;
 
 public sealed partial class WorldGenRuntime
 {
+    IEnumerator CheckScatterMeshBuffers(string output)
+    {
+        Directory.CreateDirectory(output);int compared=0;long vertices=0;
+        Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
+        bool original=WorldGenPerformance.NoBuilderBufferReuse;
+        try
+        {
+            foreach(ScatterKind kind in Enum.GetValues(typeof(ScatterKind)))for(int lod=0;lod<3;lod++)for(int variant=0;variant<8;variant++)
+            {
+                Mesh reference=null,reused=null;
+                try
+                {
+                    WorldGenPerformance.NoBuilderBufferReuse=true;reference=LocalScatterMeshes.Build(kind,lod,variant);
+                    WorldGenPerformance.NoBuilderBufferReuse=false;reused=LocalScatterMeshes.Build(kind,lod,variant);
+                    // The second build has already reused/replaced scratch data;
+                    // the original native mesh must remain independently owned.
+                    if(reference.bounds!=reused.bounds||reference.vertexCount!=reused.vertexCount||!reference.vertices.SequenceEqual(reused.vertices)||!reference.normals.SequenceEqual(reused.normals)||!reference.tangents.SequenceEqual(reused.tangents)||!reference.colors.SequenceEqual(reused.colors)||!reference.triangles.SequenceEqual(reused.triangles))
+                        throw new InvalidOperationException("Mesh scratch reuse changed geometry at "+kind+" / "+lod+" / "+variant);
+                    for(int channel=0;channel<8;channel++)
+                    {
+                        var a=new System.Collections.Generic.List<Vector4>();var b=new System.Collections.Generic.List<Vector4>();reference.GetUVs(channel,a);reused.GetUVs(channel,b);
+                        if(!a.SequenceEqual(b))throw new InvalidOperationException("Mesh scratch reuse changed UV"+channel+" at "+kind+" / "+lod+" / "+variant);
+                    }
+                    vertices+=reference.vertexCount;compared++;
+                }
+                finally{if(reference!=null)Destroy(reference);if(reused!=null)Destroy(reused);}
+                if(compared%8==0)yield return null;
+            }
+        }
+        finally{WorldGenPerformance.NoBuilderBufferReuse=original;}
+        File.WriteAllText(Path.Combine(output,"mesh-buffer-checks.txt"),"PASS "+compared+" native model pairs / "+vertices+" vertices: identical positions, normals, tangents, colors, indices, bounds and eight UV channels after scratch reuse; no scene/model objects cached.");Application.Quit(0);
+    }
     IEnumerator CheckTerrainUpload(string output)
     {
         Directory.CreateDirectory(output);Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};

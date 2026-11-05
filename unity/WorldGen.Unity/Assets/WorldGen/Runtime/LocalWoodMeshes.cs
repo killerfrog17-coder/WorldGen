@@ -5,7 +5,7 @@ static partial class LocalScatterMeshes
 {
     public static Mesh BuildWood(int variant,PossessionKind kind,bool peeled,bool ground=false,float aspect=60)
     {
-        var b=new Builder();int shape=variant%4;
+        using var b=new Builder();int shape=variant%4;
         Color bark=variant<4?new Color(.38f,.25f,.14f):new Color(.48f,.45f,.37f),wood=new Color(.72f,.55f,.32f);
         bool raw=kind==PossessionKind.Branch,pointed=kind==PossessionKind.WoodenSpear||kind==PossessionKind.DiggingStick;
         // Construct round limbs in metric proportion before normalizing the

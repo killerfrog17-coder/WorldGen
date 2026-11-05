@@ -8,7 +8,7 @@ static partial class LocalScatterMeshes
     // Separate wood and foliage masks support cheap shading and rooted wind.
     static Mesh BuildLegacyTree(int code,int lod)
     {
-        var b=new Builder();var m=new TreeMorphology(code);var foliage=new List<float>();
+        using var b=new Builder();var m=new TreeMorphology(code);var foliage=new List<float>();
         Color leaf=HerbColour(m.Leaf),wood=HerbColour(m.Bark);int branchSides=lod==0?6:lod==1?4:3;
         var structural=new Rng(code,"tree-individual-structure-1");float leanX=(float)(structural.Unit()-.5)*.05f,leanZ=(float)(structural.Unit()-.5)*.05f;
         Vector3 Direction(float a)=>new Vector3(Mathf.Sin(a),0,Mathf.Cos(a));

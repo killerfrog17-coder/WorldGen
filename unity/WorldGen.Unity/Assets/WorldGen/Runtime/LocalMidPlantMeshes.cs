@@ -8,7 +8,7 @@ static partial class LocalScatterMeshes
 {
     static Mesh BuildMidPlant(int code,int lod)
     {
-        var b=new Builder();var m=new MidMorphology(code);var reproduction=m.Reproduction;
+        using var b=new Builder();var m=new MidMorphology(code);var reproduction=m.Reproduction;
         Color leaf=HerbColour(m.Leaf),wood=HerbColour(m.Wood);
         int segments=lod==0?4:lod==1?2:1,sides=lod==0?6:lod==1?4:3;
         Vector3 Direction(float angle)=>new Vector3(Mathf.Sin(angle),0,Mathf.Cos(angle));
