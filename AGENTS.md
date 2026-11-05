@@ -53,6 +53,22 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE05Nov18:50Z PERFORMANCE ONLY. Group-ground-owner-proof2738 COMPLETE EXIT0,
+no errors: selective/FULL23340matrices,1369displacedroots/4chunks,23340coarseowner
+guards,3019cached/freshtriangles,23340partial-replacement matrices/92affected PASS.
+Staged numeric6,975,828components/levels/bounds/MAXIMUMGROUNDLEVEL,150bitexactowner
+queries,5015affectedroots,6yielded slices PASS; actualcache581319checks/2stepsPASS.
+These are OFFSCREEN correctness fixtures, NOT throughput. B NONDEV2738 unchanged.
+Own presented native25485/player25844 RIGHTMOST now runs presented-retained-
+staged-guard: dense-tropicalrainforest6km1080Medium45s, combo retention+staging
+with verified group-owner guard. NO compile/overwrite/heavy jobs during timing.
+Need actual results/cause CSV, then decide enable/retire. KeepBackdrops andStaged
+remain DEFAULT OFF in normal game; groupguard compiled on, selectedA/f833 still
+protected/shortcut unchanged. Prior retention alone stoppedLevel7churn butavg164
+and39mspeaks;100FPSfloor NOT solved. Allsource pushed273+docs3a558, thisnote pending.
+Owner3files unchanged,3autos restored. No new geography/features/subagents/paid/
+ownerappsclosed. Do not revive disproven normal-terrain mesh-leak claim.
+
 ACTIVE05Nov18:44Z PERFORMANCE ONLY. Presented-retained-backdrops733 COMPLETE:
 164.38FPS p9511.23/max39.35ms (still UNMET100floor). Level7 churn gone; remaining
 correction max11.258ms from finer uploads/removals. Source group-ground-owner guard

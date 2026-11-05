@@ -3161,5 +3161,21 @@
       }
     ],
     "finding_after_trial": "Level7 churn removed. Remaining legacy correction maximum11.2583ms vs previous26ms aggregate; average164.38FPS, still39.35ms frame max and100floor NOT achieved. Remaining events are finer uploads/retirement. New group maximum ground-owner level guard added; native full/selective equivalence pending."
+  },
+  "group_ground_owner_guard": {
+    "source": "2738c75a",
+    "evidence": "artifacts/render-repair-20261105/group-ground-owner-proof",
+    "status": "NATIVE correctness PASS; current combined presented performance running",
+    "full_selective_matrices": 23340,
+    "displaced_roots": 1369,
+    "coarse_owner_checks": 23340,
+    "partial_matrices": 23340,
+    "partial_affected": 92,
+    "ground_queries": 3019,
+    "staged_component_checks": 6975828,
+    "staged_future_owner_queries": 150,
+    "cache_checks": 581319,
+    "normal_throughput_claim": false,
+    "current_timing": "artifacts/render-repair-20261105/presented-retained-staged-guard"
   }
 }
