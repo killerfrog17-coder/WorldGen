@@ -34,6 +34,44 @@ public static class WorldGenPerformance
     public static bool MemoHumanInputs;
     public static bool MemoryTrace;
     public static bool PartialForestUploads;
+    public static bool BudgetCollections;
+    static bool collectionsOwned,collectionBudgetRejected;
+    static UnityEngine.Scripting.GarbageCollector.Mode precedingCollectionMode;
+    public static long CollectionBudgetCalls,CollectionBudgetFallbacks,CollectionBudgetPeakHeap;
+    public static double CollectionBudgetMs,CollectionBudgetMaxMs;
+    static long collectionBudgetInitialHeap;static double collectionBudgetSampleAt;
+    public static long CollectionBudgetInitialHeap=>collectionBudgetInitialHeap;
+    // Diagnostic policy: collections continue every frame under a bounded
+    // incremental slice. Never disable collection or conceal a growing heap.
+    public static void ServiceCollections()
+    {
+        if(!Enabled)return;
+        if(!BudgetCollections){RestoreCollections();collectionBudgetRejected=false;return;}
+        if(collectionBudgetRejected||!UnityEngine.Scripting.GarbageCollector.isIncremental)return;
+        if(!collectionsOwned)
+        {
+            precedingCollectionMode=UnityEngine.Scripting.GarbageCollector.GCMode;
+            collectionBudgetInitialHeap=GC.GetTotalMemory(false);CollectionBudgetPeakHeap=collectionBudgetInitialHeap;
+            collectionBudgetSampleAt=0;CollectionBudgetMaxMs=0;collectionsOwned=true;
+            UnityEngine.Scripting.GarbageCollector.GCMode=UnityEngine.Scripting.GarbageCollector.Mode.Manual;
+        }
+        double now=Time.realtimeSinceStartupAsDouble;
+        if(now>=collectionBudgetSampleAt)
+        {
+            collectionBudgetSampleAt=now+.25;long heap=GC.GetTotalMemory(false);CollectionBudgetPeakHeap=Math.Max(CollectionBudgetPeakHeap,heap);
+            if(heap>collectionBudgetInitialHeap+256L*1024*1024)
+            {CollectionBudgetFallbacks++;RestoreCollections();collectionBudgetRejected=true;return;}
+        }
+        long started=System.Diagnostics.Stopwatch.GetTimestamp();
+        UnityEngine.Scripting.GarbageCollector.CollectIncremental(1000000);
+        double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;
+        CollectionBudgetCalls++;CollectionBudgetMs+=elapsed;CollectionBudgetMaxMs=Math.Max(CollectionBudgetMaxMs,elapsed);
+    }
+    public static void RestoreCollections()
+    {
+        if(!collectionsOwned)return;
+        UnityEngine.Scripting.GarbageCollector.GCMode=precedingCollectionMode;collectionsOwned=false;
+    }
     // Diagnostic gross managed-heap growth, inclusive of nested work and any
     // background allocations. This is not a per-thread allocation counter.
     public static readonly long[] HeapGrowth=new long[31];
@@ -1112,6 +1150,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-partial-upload",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-gc-budget",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BudgetCollections=true),
+            new PerfCase("travel-whip-burst-gc-budget",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.BudgetCollections=true),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-range-cache-verify",()=>{}),
@@ -1160,6 +1200,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
                 WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",0);
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
+                WorldGenPerformance.BudgetCollections=false;WorldGenPerformance.ServiceCollections();
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
@@ -1233,6 +1274,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.Measuring=true;
                 var windowUtc=DateTime.UtcNow;
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
+                long budgetCallsBefore=WorldGenPerformance.CollectionBudgetCalls,budgetFallbacksBefore=WorldGenPerformance.CollectionBudgetFallbacks;double budgetMsBefore=WorldGenPerformance.CollectionBudgetMs;int budgetCollectionsBefore=GC.CollectionCount(0);
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
                 while(Time.realtimeSinceStartupAsDouble-start<seconds)
@@ -1261,6 +1303,7 @@ public sealed partial class WorldGenRuntime
                 double drainStart=Time.realtimeSinceStartupAsDouble;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
                 double gpuDrain=(Time.realtimeSinceStartupAsDouble-drainStart)*1000;
+                if(WorldGenPerformance.BudgetCollections)File.AppendAllText(Path.Combine(output,"collection-budget.txt"),site.Item1+" "+item.Name+" calls="+(WorldGenPerformance.CollectionBudgetCalls-budgetCallsBefore)+" elapsed_ms="+(WorldGenPerformance.CollectionBudgetMs-budgetMsBefore).ToString("F3")+" max_ms="+WorldGenPerformance.CollectionBudgetMaxMs.ToString("F3")+" collections="+(GC.CollectionCount(0)-budgetCollectionsBefore)+" initial_heap="+WorldGenPerformance.CollectionBudgetInitialHeap+" peak_heap="+WorldGenPerformance.CollectionBudgetPeakHeap+" safety_fallbacks="+(WorldGenPerformance.CollectionBudgetFallbacks-budgetFallbacksBefore)+"\n");
                 WorldGenPerformance.Measuring=false;WorldGenPerformance.ProfileRenderCompletion=false;
                 if(renderCosts.Count>0){renderCosts.Sort();File.AppendAllText(Path.Combine(output,"completed-renders.txt"),site.Item1+" "+item.Name+": "+renderCosts.Count+" samples; mean "+renderCosts.Average().ToString("F3")+"ms, median "+renderCosts[renderCosts.Count/2].ToString("F3")+"ms; submission + actual GPU completion, excluding Update/presentation/frame-loop waits.\n");}
                 if(terrainExplorer.Error!="")throw new InvalidOperationException("Performance scene: "+terrainExplorer.Error);
