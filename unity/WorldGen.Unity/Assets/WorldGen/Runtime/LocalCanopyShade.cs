@@ -78,7 +78,7 @@ public sealed partial class LocalTerrainExplorer
             if(canopyTextures[canopyBuild]==null)canopyTextures[canopyBuild]=new Texture2D(CanopySide,CanopySide,TextureFormat.RGBAHalf,false,true){name="Placed-tree canopy shelter",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
             canopyTextures[canopyBuild].SetPixels(canopyPixels);canopyTextures[canopyBuild].Apply(false,false);
             canopyRects[canopyBuild]=new Vector4(canopyAnchor.x,canopyAnchor.y,1/CanopySpan,1);
-            canopyFront=canopyBuild;canopyBlendStarted=Time.realtimeSinceStartupAsDouble;canopyBuiltAnchor=canopyAnchor;canopyBuiltRevision=canopyCapturedRevision;
+            canopyFront=canopyBuild;canopyBlendStarted=Time.unscaledTimeAsDouble;canopyBuiltAnchor=canopyAnchor;canopyBuiltRevision=canopyCapturedRevision;
             canopyPhase=0;nextCanopyBuild=Time.realtimeSinceStartupAsDouble+1;
         }
     }
@@ -111,7 +111,7 @@ public sealed partial class LocalTerrainExplorer
         bool active=camera==view&&CanopyActive&&canopyFront>=0;
         int front=Math.Max(0,canopyFront),previous=1-front;
         bool soft=TerrainVideoOptions.DistantTreeShadowCards;
-        Shader.SetGlobalVector("_WorldGenCanopySettings",new Vector4(active?1:0,(float)Math.Min(1,(Time.realtimeSinceStartupAsDouble-canopyBlendStarted)/.5),soft?-1:90,soft?0:160));
+        Shader.SetGlobalVector("_WorldGenCanopySettings",new Vector4(active?1:0,(float)Math.Max(0,Math.Min(1,(Time.unscaledTimeAsDouble-canopyBlendStarted)/.5)),soft?-1:90,soft?0:160));
         Shader.SetGlobalTexture("_WorldGenCanopyPrevious",canopyTextures[previous]??Texture2D.blackTexture);
         Shader.SetGlobalTexture("_WorldGenCanopyCurrent",canopyTextures[front]??Texture2D.blackTexture);
         Shader.SetGlobalVector("_WorldGenCanopyRect0",canopyRects[previous]);Shader.SetGlobalVector("_WorldGenCanopyRect1",canopyRects[front]);
