@@ -975,6 +975,7 @@ public sealed partial class WorldGenRuntime
     }
     IEnumerator CheckPerformance()
     {
+        ulong originalGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
         // Numerical smoke check needs no terrain/forest warmup. This uses the
@@ -1117,6 +1118,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
+            new PerfCase("travel-whip-staged-gc1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true;UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=1000000;}),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("cached-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-unpooled-terrain",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoTerrainBufferReuse=true),
@@ -1193,6 +1195,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
                 WorldGenPerformance.StagedGroundPublication=false;
+                UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -1270,7 +1273,7 @@ public sealed partial class WorldGenRuntime
                 long heap=0;double heapAt=0;var endFrame=stutter==null&&!WorldGenPerformance.Presented?null:new WaitForEndOfFrame();
                 var timings=new FrameTiming[1];double gpu=0,cpu=0,cpuMain=0,cpuRender=0,cpuPresentWait=0,largestRejectedGpu=0;int timingCount=0,rejectedGpuTimings=0;ulong lastTiming=0;
                 using var allocationRecorder=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
-                File.AppendAllText(Path.Combine(output,"gc-settings.txt"),site.Item1+" "+item.Name+" allocation_counter_valid="+allocationRecorder.Valid+"\n");
+                File.AppendAllText(Path.Combine(output,"gc-settings.txt"),site.Item1+" "+item.Name+" allocation_counter_valid="+allocationRecorder.Valid+" automatic_slice_ns="+UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds+"\n");
                 if(WorldGenPerformance.Presented)yield return endFrame;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Drain pre-window work before counting renders.
                 WorldGenPerformance.Measuring=true;
@@ -1354,6 +1357,7 @@ public sealed partial class WorldGenRuntime
             File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformancePendingComparisons+" loading/idle readiness comparisons passed.\n");
             terrainExplorer.Close();yield return null;yield return null;
         }
+        UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
         File.WriteAllText(Path.Combine(output,"complete.txt"),DateTime.UtcNow.ToString("o"));Application.Quit(0);
     }
 }

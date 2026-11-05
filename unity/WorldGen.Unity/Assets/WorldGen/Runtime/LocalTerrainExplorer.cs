@@ -364,8 +364,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     readonly List<MeshFilter> terrainMeshReleaseScratch=new List<MeshFilter>(2);
     static int ReleaseTerrainMeshes(GameObject root,List<MeshFilter> scratch)
     {
-        // Cached/retired tile roots are disabled. The default hierarchy query
-        // omits their children and leaves their generated native meshes alive.
+        // Include individually disabled descendants too. Disabling only the
+        // root does not by itself establish that Unity omits its active parts.
         root.GetComponentsInChildren(true,scratch);int count=0;
         foreach(var filter in scratch)if(filter.sharedMesh!=null){UnityEngine.Object.Destroy(filter.sharedMesh);count++;}
         scratch.Clear();return count;

@@ -209,7 +209,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var root=new GameObject("Inactive terrain retirement proof");var meshes=new System.Collections.Generic.List<Mesh>();
         Mesh Triangle()=>new Mesh{vertices=new[]{Vector3.zero,Vector3.right,Vector3.forward},triangles=new[]{0,1,2}};
-        var unrelated=Triangle();
+        var unrelated=Triangle();var flat=new GameObject("Original flat terrain retirement control");var flatMeshes=new System.Collections.Generic.List<Mesh>();
         try
         {
             Transform parent=root.transform;
@@ -221,13 +221,17 @@ public sealed partial class LocalTerrainExplorer
             }
             root.SetActive(false);
             int oldQuery=root.GetComponentsInChildren<MeshFilter>().Length;
-            if(oldQuery!=0)throw new InvalidOperationException("Inactive terrain fixture does not reproduce the old hierarchy-query omission");
+            for(int i=0;i<2;i++)
+            {var child=new GameObject("Original land/water part "+i,typeof(MeshFilter));child.transform.SetParent(flat.transform,false);var mesh=Triangle();child.GetComponent<MeshFilter>().sharedMesh=mesh;flatMeshes.Add(mesh);}
+            flat.SetActive(false);var originalFilters=flat.GetComponentsInChildren<MeshFilter>();
+            foreach(var filter in originalFilters)UnityEngine.Object.Destroy(filter.sharedMesh);UnityEngine.Object.Destroy(flat);
             int released=ReleaseTerrainMeshes(root,new System.Collections.Generic.List<MeshFilter>());UnityEngine.Object.Destroy(root);
             yield return null;yield return null;
             foreach(var mesh in meshes)if(mesh!=null)throw new InvalidOperationException("Retired inactive terrain retained a generated native mesh");
             if(unrelated==null||released!=3)throw new InvalidOperationException("Terrain retirement released an unrelated mesh or missed a nested child");
-            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"terrain-mesh-retirement.txt"),"PASS original default query found0 disabled descendants; production release found/destroyed3 nested land/water meshes, including an individually disabled child; all native mesh references null after retirement; unrelated native mesh retained.\n");
+            int flatRemaining=0;foreach(var mesh in flatMeshes)if(mesh!=null)flatRemaining++;
+            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"terrain-mesh-retirement.txt"),"PASS includeInactive release destroyed3 nested meshes and retained unrelated control. Original nested query count="+oldQuery+"/3; original actual flat terrain query count="+originalFilters.Length+"/2; original flat meshes remaining after deferred deletion="+flatRemaining+". Root-disabled omission diagnosis is NOT established unless the flat control retains meshes.\n");
         }
-        finally{if(root!=null)UnityEngine.Object.Destroy(root);foreach(var mesh in meshes)if(mesh!=null)UnityEngine.Object.Destroy(mesh);UnityEngine.Object.Destroy(unrelated);}
+        finally{if(root!=null)UnityEngine.Object.Destroy(root);if(flat!=null)UnityEngine.Object.Destroy(flat);foreach(var mesh in meshes)if(mesh!=null)UnityEngine.Object.Destroy(mesh);foreach(var mesh in flatMeshes)if(mesh!=null)UnityEngine.Object.Destroy(mesh);UnityEngine.Object.Destroy(unrelated);}
     }
 }

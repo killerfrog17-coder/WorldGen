@@ -2875,11 +2875,20 @@
     "status": "NOT a pass"
   },
   "terrain_mesh_retirement": {
-    "status": "UNBUILT correction and native regression added",
-    "finding": "DestroyTile disabled the hierarchy before using default GetComponentsInChildren<MeshFilter>(); inactive child meshes could be omitted and never explicitly destroyed.",
+    "status": "INITIAL diagnosis NOT established; native first fixture rejected an incorrect expected count. New exact flat terrain control pending",
+    "finding": "First native test found a nonzero default-query count under a disabled root, disproving the assumption that all inactive-hierarchy descendants are omitted. Test now records both the actual flat terrain shape and nested individually disabled parts, including old-path deferred destruction. No FPS or memory-leak claim.",
     "fix": "Include inactive descendants and reuse a caller-owned list. No live terrain mesh ownership or geometry change.",
     "fps_impact": "NOT measured; do not attribute prior pauses or FPS to this without evidence.",
     "documentation": "https://docs.unity3d.com/6000.0/Documentation/ScriptReference/GameObject.GetComponentsInChildren.html",
-    "native_check": "Added reproduction of old query omission plus destruction of three nested/inactive generated meshes and retention of an unrelated control mesh, after real deferred native destruction."
+    "native_check": "Added reproduction of old query omission plus destruction of three nested/inactive generated meshes and retention of an unrelated control mesh, after real deferred native destruction.",
+    "first_native_evidence": "artifacts/render-repair-20261105/terrain-mesh-retirement-native"
+  },
+  "automatic_gc_slice_trial": {
+    "status": "Diagnostic only, UNBUILT, normal policy unchanged",
+    "milliseconds": 1,
+    "manual_collections": false,
+    "automatic_collection": "retained",
+    "documentation": "https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/scripting/garbagecollector/incrementaltimeslicenanoseconds",
+    "rationale": "Official docs recommend a duration significantly shorter than the target frame interval. Compare automatic1ms vs original3ms with same staged path, actual collection counts/heap/tails. Too-small steps can be counterproductive; measure before adopting."
   }
 }
