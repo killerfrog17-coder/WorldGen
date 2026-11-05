@@ -83,6 +83,7 @@ Shader "WorldGen/ForestPackets"
             Tags {"LightMode"="UniversalForward"} Cull Off ZWrite On
             HLSLPROGRAM
             #pragma target 4.5
+            #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment frag
@@ -95,6 +96,7 @@ Shader "WorldGen/ForestPackets"
             Name "FoliageDepth" Tags {"LightMode"="WorldGenFoliageDepth"} Cull Off ZWrite On ColorMask 0
             HLSLPROGRAM
             #pragma target 4.5
+            #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment depthFrag

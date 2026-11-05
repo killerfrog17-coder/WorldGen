@@ -715,7 +715,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public string PerformanceReviewTreeDepth(string output,string site)
     {
-        float prior=Shader.GetGlobalFloat("_WorldGenTreeStableDepth"),priorFlat=Shader.GetGlobalFloat("_WorldGenTreeFlatDepth"),adaptation=WeatherVideoOptions.Current.Adaptation;var rotation=view.transform.localRotation;var eye=view.transform.localPosition;
+        float prior=Shader.GetGlobalFloat("_WorldGenTreeStableDepth"),adaptation=WeatherVideoOptions.Current.Adaptation;bool priorFlat=Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH");var rotation=view.transform.localRotation;var eye=view.transform.localPosition;
         try
         {
             WeatherVideoOptions.Current.Adaptation=0;
@@ -723,12 +723,12 @@ public sealed partial class LocalTerrainExplorer
             {
                 view.transform.localPosition=eye+(pose==2?Vector3.up*60:Vector3.zero);
                 view.transform.localRotation=Quaternion.Euler(pose==2?35:3,pose==1?200:20,0);BuildScatterBatches();
-                Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-tree-depth-original-"+pose+".png"));
+                Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-tree-depth-original-"+pose+".png"));
                 Shader.SetGlobalFloat("_WorldGenTreeStableDepth",1);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-tree-depth-bounded-"+pose+".png"));
-                Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",1);DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-tree-depth-flat-"+pose+".png"));
+                Shader.EnableKeyword("WORLDGEN_FLAT_TREE_DEPTH");DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-tree-depth-flat-"+pose+".png"));
             }
         }
-        finally{Shader.SetGlobalFloat("_WorldGenTreeStableDepth",prior);Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",priorFlat);WeatherVideoOptions.Current.Adaptation=adaptation;view.transform.localRotation=rotation;view.transform.localPosition=eye;BuildScatterBatches();}
+        finally{Shader.SetGlobalFloat("_WorldGenTreeStableDepth",prior);if(priorFlat)Shader.EnableKeyword("WORLDGEN_FLAT_TREE_DEPTH");else Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");WeatherVideoOptions.Current.Adaptation=adaptation;view.transform.localRotation=rotation;view.transform.localPosition=eye;BuildScatterBatches();}
         return site+": recorded original/bounded/ordinary multi-view impostors at three literal camera poses and fixed exposure; requires visual inspection";
     }
     public string PerformanceReviewPlantLighting(string output,string site)
@@ -1108,7 +1108,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-human-memo",()=>WorldGenPerformance.MemoHumanInputs=true),
             new PerfCase("travel-whip-optimized",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.MemoHumanInputs=true),
             new PerfCase("travel-whip-optimized-depth",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.MemoHumanInputs=true;TerrainVideoOptions.FoliageDepthPrepass=true;}),
-            new PerfCase("travel-whip-flat-tree",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.MemoHumanInputs=true;Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",1);}),
+            new PerfCase("travel-whip-flat-tree",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.MemoHumanInputs=true;Shader.EnableKeyword("WORLDGEN_FLAT_TREE_DEPTH");}),
             new PerfCase("travel-whip-partial-upload",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
@@ -1158,13 +1158,13 @@ public sealed partial class WorldGenRuntime
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
                 terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=WorldGenPerformance.ForceFreshCoverCull=WorldGenPerformance.NoLocalTrees=WorldGenPerformance.ForceFreshForestOwnership=WorldGenPerformance.TreeLegacyAlpha=WorldGenPerformance.SuppressFarForest=WorldGenPerformance.ForceIndividualTreeAdmission=WorldGenPerformance.DrainEachFrame=WorldGenPerformance.LegacyTreeQueues=false;
                 WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
-                WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.SetGlobalFloat("_WorldGenTreeFlatDepth",0);
+                WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
-                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.GetGlobalFloat("_WorldGenTreeFlatDepth")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
+                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;

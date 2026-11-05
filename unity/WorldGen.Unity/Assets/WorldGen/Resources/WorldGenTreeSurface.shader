@@ -144,6 +144,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment frag
@@ -159,6 +160,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex shadowVert
             #pragma fragment depthFrag
@@ -172,6 +174,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment depthFrag
@@ -185,6 +188,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment depthFrag
