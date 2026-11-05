@@ -1230,7 +1230,7 @@ public sealed partial class WorldGenRuntime
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
                 long heap=0;double heapAt=0;var endFrame=stutter==null&&!WorldGenPerformance.Presented?null:new WaitForEndOfFrame();
-                var timings=new FrameTiming[1];double gpu=0,cpu=0;int timingCount=0;ulong lastTiming=0;
+                var timings=new FrameTiming[1];double gpu=0,cpu=0,cpuMain=0,cpuRender=0,cpuPresentWait=0;int timingCount=0;ulong lastTiming=0;
                 using var allocationRecorder=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
                 File.AppendAllText(Path.Combine(output,"gc-settings.txt"),site.Item1+" "+item.Name+" allocation_counter_valid="+allocationRecorder.Valid+"\n");
                 if(WorldGenPerformance.Presented)yield return endFrame;
@@ -1270,11 +1270,14 @@ public sealed partial class WorldGenRuntime
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
                     FrameTimingManager.CaptureFrameTimings();
                     if(FrameTimingManager.GetLatestTimings(1,timings)>0&&timings[0].frameStartTimestamp!=lastTiming&&timings[0].gpuFrameTime>0)
-                    {lastTiming=timings[0].frameStartTimestamp;gpu+=timings[0].gpuFrameTime;cpu+=timings[0].cpuFrameTime;timingCount++;}
+                    {lastTiming=timings[0].frameStartTimestamp;gpu+=timings[0].gpuFrameTime;cpu+=timings[0].cpuFrameTime;cpuMain+=timings[0].cpuMainThreadFrameTime;cpuRender+=timings[0].cpuRenderThreadFrameTime;cpuPresentWait+=timings[0].cpuMainThreadPresentWaitTime;timingCount++;}
                 }
                 double drainStart=Time.realtimeSinceStartupAsDouble;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
                 double gpuDrain=(Time.realtimeSinceStartupAsDouble-drainStart)*1000;
+                string componentFile=Path.Combine(output,"cpu-frame-components.csv");
+                if(!File.Exists(componentFile))File.WriteAllText(componentFile,"site,case,samples,main_ms,render_ms,present_wait_ms\n");
+                File.AppendAllText(componentFile,site.Item1+","+item.Name+","+timingCount+","+(timingCount>0?cpuMain/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+","+(timingCount>0?cpuRender/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+","+(timingCount>0?cpuPresentWait/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+"\n");
                 if(allocationProfile)
                 {
                     UnityEngine.Profiling.Profiler.enabled=false;
