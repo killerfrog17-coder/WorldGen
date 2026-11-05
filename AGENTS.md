@@ -53,6 +53,31 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov13:16Z PERFORMANCE ONLY. Current B ScriptsOnly DEVELOPMENT e48606d1
+over FULL DEVELOPMENT0ecb;3knownUnityautos restored. Own native72210/player28160
+RIGHTMOST runs allocation-callstacks-fixed2,Medium1500m/10s. No other heavy jobs.
+The previous fixed capture9474 FAILED at startup: default Burst was invoked by
+coarse-mode LateUpdate before frame existed. e486 guards Burst and DrawScatter
+until frame/terrain/Ready. Preserve failed allocation-callstacks-fixed evidence.
+After fixed2 exits run offline WorldGenProfilerReview.Run into allocation-analysis-
+fixed2;inspect actual WorldGen.PickupCandidates/CampPrompt/NaturePrompt/WaterPrompt
+CPU markers and allocation stacks. Then fix measured work,return B FULL NONDEV,
+and rerun real performance + cold-start/native correctness before selection.
+Source fc47 default Burst/Parallel fallback/partial ON;Medium-or-lower always uses
+bounded coarse shadow MODE,independent of canopy cache readiness. Debug comparison
+override DetailedFoliageComparison exists. No saved preferences mutated. Needs
+current native validation;selected A/f833 remains untouched;100FPS floor UNSOLVED.
+e778 caches private planner behaviour profiles with all6inputs,removes per-root
+Nature lookup closures,caches GetCommandLineArgs flag;pickup overlay draws only
+on Repaint. Wildlife103/fauna104/foraging33 tests pass.0ecb GUI style cache retained.
+229 adds Dev-only prompt CPU markers;9474 capture selects Burst/partial. First
+actual profile0ecb:599frames,102MB allocated/10s;OnGUI4.11sec inclusive;Describe
+and Nature closures dominate allocation stacks. Raw+offline analysis preserved.
+Coarse shadow saved039 comparison improved65.26->79.01FPS but remains BELOW100;
+sort77.30/no-depth75.43 did not help. Present wait.03-.10ms is NOT bottleneck.
+No new geography,subagents,paid,owner-app closures. Owner3files and asset5405/144
+preserved. All source pushed e486. Do not leave diagnostic Development B selected.
+
 ACTIVE5Nov13:00Z PERFORMANCE ONLY. Selected A/f833/shortcut protected.
 Current B ScriptsOnly DEVELOPMENT9474dccc over FULL DEVELOPMENT0ecb (diagnostic
 only),SourceChanges[],3Unityautos restored. Native session30282/player400 runs
