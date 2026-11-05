@@ -53,39 +53,43 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
-ACTIVE5Nov09:04Z ALL-NIGHT PERFORMANCE PRIORITY; owner said no features until
-performance solved. Selected A/f833 and shortcut unchanged. Source f7f2e75d
-PUSHED; own B managed NONDEV ScriptsOnly BUILD RUNNING session39643. Do not
-launch B until actual successful stamp and no incomplete marker; restore only
-3 known Unity auto edits AFTER Editor exits. No other own expensive jobs.
-New f7 adds optional -Presented normal automatic camera/swap-chain benchmark
-and gross managed-heap phase growth diagnostic (global/inclusive, NOT per-thread
-allocations), plus camera-render trace. Need compile + actual presented test.
-Current native-proofs a4d2fd0b COMPLETE exit0/no runtime errors: BOTH dense-
-borealforest and savanna-tall, 8exact worker/native instance/caster multisets,
-32identical-camera renders max RGB0, 48range-cache movement-boundary comparisons,
-78228 actual authored human bone comparisons maxerror0 per site. View1500m,
-0.1sec windows are correctness ONLY; never report their FPS as throughput.
-Earlier parallel-first and parallel-range runs FAILED image verifiers; retained.
-Fixture correction raises moved cameras above actual ground and freezes canopy
-blend per Unity frame (Time.unscaledTimeAsDouble), preserves full actor scene.
-729 parallel-range BEFORE failure has real18sec boreal moving throughput:
-sequential105.58/p9517.18ms vs parallel115.11/p9514.32; classify5.50->3.22ms
-per rebuild. Range-cache105.43, combined104.48: NO gain established, remains
-diagnostic OFF. 40ms+GC tails remain UNACCEPTABLE,100floor NOT achieved.
-Parallel and human mixer memo remain default OFF pending actual final timing.
-88c0cc36 reuses per-frame loose-item/terrain collections. Native human memo
-only skips identical native mixer weight writes, no clip/rate/pose changes.
-All source pushed, assetlock5405/144 unchanged, owner3files untouched.
-Next: finish39643, native PRESENTED (actual camera) boreal/savanna 6km1080Medium
-moving baseline/worker/human memo/combined/depth and diagnostic memory growth;
-no concurrent own heavy jobs in timing windows. Final throughput must omit
-preceding verifier allocations. Benchmark script now rejects unknown site names;
-actual savanna name is savanna-tall (NOT dense-savannatall). Need actual saved
-mixedUltra/200km profile. Ground f6 fix inspected: brown foreground seam gone,
-wet-root64/0 GPU proof passes; no broad crown-art acceptance claim. Focus major
-CPU/GPU/stutter improvements, no new geography/other features. No subagents/paid/
-owner-app closures. Owner original prompt deletion +two deer scripts preserved.
+ACTIVE5Nov10:13Z ALL-NIGHT PERFORMANCE ONLY, no new features until solved.
+Selected A/f833/shortcut untouched. Latest551b974e PUSHED. Current own B FULL
+managed NONDEV BUILD90609 running; MUST check actual compile/Burst/shader result
+and stamp/incomplete marker before any launch. Restore only3known Unityautos
+AFTER Editor exits. No other own expensive jobs. New NativeArray/Burst pure
+scatter admission in LocalScatterBurst.cs(+new tracked meta), joined per frame,
+preserves main-thread art/draw order; default OFF, UNCOMPILED/UNVERIFIED yet.
+BurstDiscard marker must prove actual native execution, not managed fallback.
+New cases burst-scatter-verify/burst-render-verify, travel-whip-burst(-partial).
+Native upload-impostor-proofs b235 FULLbaseline COMPLETE exit0/no errors BOTH
+boreal/savanna: real GPU bytes equal CPU after three disjoint clear/move/tint
+updates +full reupload; savanna34688bytes vs509824full. Partial mode OFF pending
+measured benefit. New ordinary multi-view tree shader6811/b235, two reads/view
+instead of four (no depth reprojection), OFF. Inspected boreal overhead pair:
+less smearing in flat mode, still low-detail billboard art; ground/savanna views
+still need inspection. No claim accepted art. Full packed shader baseline b235.
+Actual PRESENTED normal camera77f83d48 run presented-medium-guarded COMPLETE
+14cases30sec: boreal turn187.04FPS/moving140.76/worker147.78/worker+memo149.00;
+savanna worker123.15/worker+memo120.43. Tree depth prepass slowed these contexts.
+40-68ms frame tails STILL UNACCEPTABLE,100floor NOT achieved. These were Medium
+6km, NOT owner saved mixedUltra200km. All moving windows labelled unsettled.
+Native human memo no established gain (human CPU1.207 baseline vs1.226 memo),
+OFF; range cache no established combined gain, OFF. Worker exact32renders/site
+zero pixels plus8exact sets/site pass native-proofs a4; humanoid78228bones/site
+zero error and48range checks/site pass. Tiny0.1s proof FPS NEVER throughput.
+Memory diagnostic gross/global/inclusive (not per-thread): median update heap
+block growth16KB/frame,3collections/30sec. 77 had no automatic-camera phase
+marker; 6811/b235 adds begin/end-camera phase trace for next memory run.
+First presented-medium-first FAILED early null frame in camera binding, fixed77.
+All failed evidence preserved. Full new partial-root code default OFF uses256
+record dirty blocks; allocation/compaction/chart replacement always full upload.
+Next: compile result, native Burst exact checks; source/profile real bottlenecks,
+measure partial/tree shader and normal-camera memory; saved-settings context.
+No subagents/paid/owner-app closures. Place all own visible windows RIGHTMOST via
+scripts/place-review-window.ps1. Last game28984 finished; no own game now. Known
+owner3files unchanged, assetlock5405/144. Canonical partial receipt updated. No
+new geography, no100floor claim. Background CPU/GPU benchmark windows uncontended.
 
 ACTIVE5Nov08:02Z OWNER RESUMED ALL-NIGHT PERFORMANCE WORK. Prior FPS pause is
 revoked. Owner explicitly prioritises performance; NO new features until FPS

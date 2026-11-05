@@ -1,6 +1,6 @@
 {
   "status": "Active render repair; performance floor NOT achieved; selected shortcut remains A/f833.",
-  "candidate_source": "72901f9b35a07012311dfd781fb3359cdf0e85c7",
+  "candidate_source": "551b974e",
   "candidate_slot": "slot-b",
   "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
   "target": {
@@ -37,11 +37,11 @@
   "native_grass": "artifacts/render-repair-20261104/grass-clumps-lit: 6400 GPU roots, visible output, L0..L3 production page requests. Isolated white-ground fixture is not real-world art acceptance.",
   "pose_proof": "savanna-substrate/equivalence.txt: 69120 bit-exact authored matrix components across 8 actual loaded species.",
   "pending": [
-    "Performance priority: exact worker-render and conservative range-cache verification, moving/whip measurements; enable only measured useful paths.",
-    "Resolve remaining main-thread/streaming and GC tails; target100FPS floor remains unmet, ordinary200FPS expectation also unmet in dense scenes.",
-    "Run actual saved mixedUltra/200km settings without competing own jobs.",
-    "Final throughput-only runs without preceding artificial verifier allocations; current package hashes and moving frame tails.",
-    "Tree crown reprojection trial remains OFF/unaccepted; no new geography/features before performance goals are met."
+    "PERFORMANCE ONLY until solved. Compile/package Burst prototype, then exact actual instance and image comparisons requiring real native execution.",
+    "Measure partial root uploads, cheaper impostors and actual normal-camera heap phase growth; keep/reject according to evidence.",
+    "Resolve remaining moving-frame and GC50ms tails; all current runs fail100FPS floor.",
+    "Actual saved mixedUltra/200km profile still outstanding.",
+    "Final uncontended throughput-only current-package runs, no preceding verifier allocation contamination; selected A remains unchanged."
   ],
   "runs": [
     {
@@ -833,10 +833,442 @@
           "settled": "True"
         }
       ]
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/parallel-range",
+      "complete": false,
+      "source": "72901f9b35a07012311dfd781fb3359cdf0e85c7",
+      "qualification": "Real18sec moving timings retained, but run exited1 in image verifier; corrected later in native-proofs. No savanna timing in this aborted run.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-parallel-verify",
+          "fps": "154.38803",
+          "p50_ms": "6.24680",
+          "p95_ms": "7.65530",
+          "p99_ms": "10.69080",
+          "max_ms": "39.43710",
+          "over10ms": "37",
+          "frames": "2780",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "152.70699",
+          "p50_ms": "6.25530",
+          "p95_ms": "8.31610",
+          "p99_ms": "11.15130",
+          "max_ms": "36.72210",
+          "over10ms": "46",
+          "frames": "2750",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "105.57621",
+          "p50_ms": "7.55170",
+          "p95_ms": "17.18200",
+          "p99_ms": "22.55530",
+          "max_ms": "39.70620",
+          "over10ms": "478",
+          "frames": "1901",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-parallel",
+          "fps": "115.11429",
+          "p50_ms": "7.34630",
+          "p95_ms": "14.31900",
+          "p99_ms": "19.16650",
+          "max_ms": "42.64120",
+          "over10ms": "470",
+          "frames": "2073",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-range-cache",
+          "fps": "105.43301",
+          "p50_ms": "7.75740",
+          "p95_ms": "16.67630",
+          "p99_ms": "21.22660",
+          "max_ms": "44.61320",
+          "over10ms": "502",
+          "frames": "1899",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-parallel-range",
+          "fps": "104.48281",
+          "p50_ms": "8.19810",
+          "p95_ms": "15.71700",
+          "p99_ms": "20.31500",
+          "max_ms": "43.34200",
+          "over10ms": "504",
+          "frames": "1882",
+          "settled": "False"
+        }
+      ],
+      "summary_sha256": "c83d54587246697888f0d6837bb4ba37eb92d250f4a4b21812c78266535a68d5",
+      "equivalence_sha256": "982584f7d2c6822a0a85a35485b93dd1b7c9f62f83e2ca981627c09ed00caf3f"
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/native-proofs",
+      "complete": true,
+      "source": "a4d2fd0b6daa54005ad1e9a3e801d6020edc8809",
+      "qualification": "View1500m,0.1sec windows are correctness only: eight exact worker sets,32pixel-identical paired renders,48range-boundary sets and78228human bone comparisons per site. Do NOT interpret its FPS.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-parallel-verify",
+          "fps": "157.99903",
+          "p50_ms": "5.66630",
+          "p95_ms": "11.12310",
+          "p99_ms": "11.12310",
+          "max_ms": "11.12310",
+          "over10ms": "1",
+          "frames": "17",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "moving-parallel-verify",
+          "fps": "68.67272",
+          "p50_ms": "6.04890",
+          "p95_ms": "36.59860",
+          "p99_ms": "36.59860",
+          "max_ms": "36.59860",
+          "over10ms": "2",
+          "frames": "9",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "scatter-range-cache-verify",
+          "fps": "60.74057",
+          "p50_ms": "6.19040",
+          "p95_ms": "23.98190",
+          "p99_ms": "23.98190",
+          "max_ms": "23.98190",
+          "over10ms": "2",
+          "frames": "13",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "human-weights-verify",
+          "fps": "173.95094",
+          "p50_ms": "5.35290",
+          "p95_ms": "8.39500",
+          "p99_ms": "8.39500",
+          "max_ms": "8.39500",
+          "over10ms": "0",
+          "frames": "19",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "scatter-parallel-verify",
+          "fps": "141.84303",
+          "p50_ms": "6.49210",
+          "p95_ms": "11.91310",
+          "p99_ms": "11.91310",
+          "max_ms": "11.91310",
+          "over10ms": "1",
+          "frames": "15",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "moving-parallel-verify",
+          "fps": "85.81086",
+          "p50_ms": "7.25730",
+          "p95_ms": "20.03630",
+          "p99_ms": "20.03630",
+          "max_ms": "20.03630",
+          "over10ms": "2",
+          "frames": "11",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "scatter-range-cache-verify",
+          "fps": "82.04546",
+          "p50_ms": "6.63250",
+          "p95_ms": "21.28910",
+          "p99_ms": "21.28910",
+          "max_ms": "21.28910",
+          "over10ms": "1",
+          "frames": "14",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "human-weights-verify",
+          "fps": "142.41052",
+          "p50_ms": "6.56560",
+          "p95_ms": "9.53870",
+          "p99_ms": "9.53870",
+          "max_ms": "9.53870",
+          "over10ms": "0",
+          "frames": "15",
+          "settled": "True"
+        }
+      ],
+      "summary_sha256": "b9e311654c04aa21aa10e6a1dafd1bd8b248af06401ffccff80f4811b9440450",
+      "equivalence_sha256": "bdb3f56894a352b1abd56b4a92cef4bf0d2105b2bf113fda06918e8d511a0945"
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/presented-medium-first",
+      "complete": false,
+      "source": "f7f2e75d49abba7f51e1307c8c0aa9d870fcb768",
+      "qualification": "Normal automatic-camera startup exposed null frame in terrain camera binding. Exited1 before timing; fixed77f83d48.",
+      "rows": [],
+      "summary_sha256": "9bde1ecd58218273bcb912fd5877805b411f94bc7452d8bb795973a236a165c3"
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/presented-medium-guarded",
+      "complete": true,
+      "source": "77f83d48c93ecc4c11f7a62e046aae55f12f778b",
+      "qualification": "Normal automatic presented1920x1080 window, uncapped, Medium6km30sec. No preceding pose/image verifiers. Memory-trace case intrusive/global/inclusive; not throughput baseline. All moving cases stream and are labelled unsettled.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "187.03885",
+          "p50_ms": "4.94710",
+          "p95_ms": "7.85020",
+          "p99_ms": "12.69550",
+          "max_ms": "41.33030",
+          "over10ms": "160",
+          "frames": "5613",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "140.76254",
+          "p50_ms": "5.54790",
+          "p95_ms": "14.98120",
+          "p99_ms": "19.58770",
+          "max_ms": "42.02930",
+          "over10ms": "762",
+          "frames": "4224",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-parallel",
+          "fps": "147.78406",
+          "p50_ms": "5.61980",
+          "p95_ms": "12.25890",
+          "p99_ms": "18.05820",
+          "max_ms": "51.49870",
+          "over10ms": "587",
+          "frames": "4435",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-human-memo",
+          "fps": "131.07950",
+          "p50_ms": "5.80390",
+          "p95_ms": "16.29400",
+          "p99_ms": "21.93760",
+          "max_ms": "49.45910",
+          "over10ms": "811",
+          "frames": "3934",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-optimized",
+          "fps": "149.00055",
+          "p50_ms": "5.59630",
+          "p95_ms": "12.33180",
+          "p99_ms": "16.69100",
+          "max_ms": "42.86500",
+          "over10ms": "572",
+          "frames": "4471",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-optimized-depth",
+          "fps": "143.65934",
+          "p50_ms": "5.83420",
+          "p95_ms": "12.73320",
+          "p99_ms": "17.27750",
+          "max_ms": "46.13670",
+          "over10ms": "595",
+          "frames": "4311",
+          "settled": "False"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-memory",
+          "fps": "142.57240",
+          "p50_ms": "5.48980",
+          "p95_ms": "14.83130",
+          "p99_ms": "19.01240",
+          "max_ms": "48.70920",
+          "over10ms": "756",
+          "frames": "4278",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "turning-whip",
+          "fps": "168.38168",
+          "p50_ms": "5.72110",
+          "p95_ms": "7.68160",
+          "p99_ms": "9.48940",
+          "max_ms": "43.19960",
+          "over10ms": "46",
+          "frames": "5053",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip",
+          "fps": "111.16319",
+          "p50_ms": "7.19660",
+          "p95_ms": "18.28860",
+          "p99_ms": "23.00640",
+          "max_ms": "53.62620",
+          "over10ms": "845",
+          "frames": "3336",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-parallel",
+          "fps": "123.14508",
+          "p50_ms": "6.90830",
+          "p95_ms": "14.69980",
+          "p99_ms": "18.45060",
+          "max_ms": "60.97530",
+          "over10ms": "800",
+          "frames": "3695",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-human-memo",
+          "fps": "110.09743",
+          "p50_ms": "7.24690",
+          "p95_ms": "17.91140",
+          "p99_ms": "22.87780",
+          "max_ms": "67.66500",
+          "over10ms": "889",
+          "frames": "3305",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-optimized",
+          "fps": "120.42628",
+          "p50_ms": "7.09760",
+          "p95_ms": "14.81770",
+          "p99_ms": "18.55910",
+          "max_ms": "54.86520",
+          "over10ms": "828",
+          "frames": "3614",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-optimized-depth",
+          "fps": "113.05686",
+          "p50_ms": "7.61740",
+          "p95_ms": "15.49280",
+          "p99_ms": "19.23630",
+          "max_ms": "52.39390",
+          "over10ms": "890",
+          "frames": "3393",
+          "settled": "False"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "travel-whip-memory",
+          "fps": "112.76026",
+          "p50_ms": "7.07660",
+          "p95_ms": "17.71180",
+          "p99_ms": "21.77040",
+          "max_ms": "51.10010",
+          "over10ms": "904",
+          "frames": "3384",
+          "settled": "False"
+        }
+      ],
+      "summary_sha256": "d366671f9dbc32dd8b7fa41c22970569bb2b3fc17d8384b76adbf90ac85a855c",
+      "equivalence_sha256": "2cff219daa93c35aea1d872ba55d4e61bb1a3d70c6d51225f53f7595fb870c13"
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/upload-impostor-proofs",
+      "complete": true,
+      "source": "b235940052176b17efa3c9149fe9715a337e3b39",
+      "qualification": "Correctness/art captures only:0.1sec windows must NOT be interpreted as throughput. Actual GPU byte readback after partial root edits and full reupload passes both sites. Flat-tree images require review; mode remains OFF.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "tree-depth-review",
+          "fps": "118.77450",
+          "p50_ms": "6.69940",
+          "p95_ms": "27.21070",
+          "p99_ms": "27.21070",
+          "max_ms": "27.21070",
+          "over10ms": "1",
+          "frames": "13",
+          "settled": "True"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "forest-upload-verify",
+          "fps": "109.82363",
+          "p50_ms": "8.87250",
+          "p95_ms": "10.39510",
+          "p99_ms": "10.39510",
+          "max_ms": "10.39510",
+          "over10ms": "1",
+          "frames": "12",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "tree-depth-review",
+          "fps": "113.98913",
+          "p50_ms": "6.94980",
+          "p95_ms": "23.62780",
+          "p99_ms": "23.62780",
+          "max_ms": "23.62780",
+          "over10ms": "1",
+          "frames": "12",
+          "settled": "True"
+        },
+        {
+          "site": "savanna-tall",
+          "case": "forest-upload-verify",
+          "fps": "143.75996",
+          "p50_ms": "6.79420",
+          "p95_ms": "7.72710",
+          "p99_ms": "7.72710",
+          "max_ms": "7.72710",
+          "over10ms": "0",
+          "frames": "15",
+          "settled": "True"
+        }
+      ],
+      "summary_sha256": "a1632f65445c9493b85e5e68c7f50b368d1affc113208e8e4f86d931eab88a82",
+      "equivalence_sha256": "f1348dd3348ce210f539307da574608a01182a05ed8eeca76cf7c7a2d816edf8"
     }
   ],
-  "candidate_full_baseline": "0fb7f92f6051ac366da1a34b9450b8aff8764fbc",
-  "current_visibility_proof": "savanna-groups-fixed-exposure/equivalence.txt: eight exact heading model/transform/tint/LOD/shadow multisets; moving guard32 actual renders at fixed exposure pass, max1 changed edge pixel, maxdelta30, same physical casters and visible membership.",
+  "candidate_full_baseline": "b235940052176b17efa3c9149fe9715a337e3b39",
+  "current_visibility_proof": "native-proofs/equivalence.txt: two real dense sites, eight exact worker instance multisets and32pixel-identical worker/sequential renders each. Fixed Unity-frame canopy blending; cameras placed above actual ground. All actors retained.",
   "rejected_visibility_evidence": "savanna-groups: moving image comparison failed24 shoulder pixels at maxdelta3 because each manual render advanced exposure. 9b86b01c holds exposure in verifier; actors and original tolerance retained. Failure files preserved.",
   "measured_culling_comparison": {
     "optimized_moving_whip_fps": 89.76387,
@@ -856,7 +1288,7 @@
   ],
   "next_candidate_source": "a73932d43dd197ce831b96ccb3b81d57838f8091",
   "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
-  "current_test": "artifacts/render-repair-20261105/parallel-range: running, no completion claim. Parallel and range-cache options remain diagnostic-only, OFF in normal gameplay.",
+  "current_test": "FULL B build of opt-in Burst culling prototype is running; no current binary performance/compile acceptance claim.",
   "ground_mask_repair": {
     "source": "f6f812f4",
     "pure_checks": 5759,
@@ -866,5 +1298,13 @@
     "material_binding_mismatches": 0,
     "inspected": "boreal-root-mask/dense-borealforest-ground-flags-0.png: earlier straight brown foreground seam removed; no new surface art acceptance claim."
   },
-  "allocation_limit": "GC.GetAllocatedBytesForCurrentThread returns0 and GC Allocated In Frame recorder is invalid in current NONDEV Mono player. Neither is evidence of zero allocations. GC collection count/whole-frame timings remain usable. Explicit verifier captures/strings can contaminate subsequent collection timing; final throughput runs must omit such verifier allocations."
+  "allocation_limit": "GC.GetAllocatedBytesForCurrentThread returns0 and GC Allocated In Frame recorder is invalid in current NONDEV Mono player. Neither is evidence of zero allocations. GC collection count/whole-frame timings remain usable. Explicit verifier captures/strings can contaminate subsequent collection timing; final throughput runs must omit such verifier allocations.",
+  "prototypes": {
+    "parallel_workers": "Exact native image/instance checks pass. Presented boreal moving140.76->147.78FPS; savanna123.15FPS with worker path, still fails required100FPS floor. Default OFF pending final configuration.",
+    "range_cache": "48exact boundary/heading checks pass eachsite; combined worker/cache no established throughput gain, OFF.",
+    "human_input_memo": "78228actual bone comparisons zero error eachsite; presented human CPU1.207ms baseline vs1.226ms memo, no established gain, OFF.",
+    "partial_forest_upload": "GPU actual data byte-identical after three disjoint block updates/deletion/restoration. Savanna34688bytes vs509824full. Default OFF until real moving transfer/timing measurements.",
+    "ordinary_tree_impostor": "Two texture reads/view instead of four in detailed path; three-angle coverage kept. Actual overhead boreal original/flat inspected: flat reduces reprojection smearing but both retain coarse billboard limitations. OFF pending FPS and other views.",
+    "burst_native_admission": "New551b974e static NativeArray snapshots and pure IJobParallelFor kernel, source/terrain/ownership/camp/collected state captured on main; joins before publication and preserves append order. BurstDiscard fallback detection required in native proof. UNCOMPILED/UNVERIFIED at report time; OFF."
+  }
 }
