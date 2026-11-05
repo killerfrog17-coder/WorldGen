@@ -53,6 +53,34 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov12:15Z PERFORMANCE CONTINUES; no stop request or new geography.
+Selected A/f833 and shortcut remain protected. Current B ScriptsOnly build82198
+source039a865d over FULL4d64 is running. Check completion/stamp/errors and restore
+the three known Unity auto edits after Editor exits. No own player is running.
+Next: native saved-settings comparison of coarse canopy shadows, draw ordering,
+and depth prepass using new travel-whip-coarse-* cases; no other heavy jobs.
+Completed presented-buffered-keyword4d64: normal Medium1080/6km still regressed
+versus77;Burst+partial85.81FPS,p9518.23ms,GPU6.94ms/CPU11.65ms. New shader keyword
+and buffered transport did NOT recover previous throughput. Floor NOT solved.
+Completed presented-saved-observer7eb: actual owner preferences are now60km,
+geometry1,surface4,vegetation2,depth prepass true,coarse canopy shadows FALSE.
+Saved moving baseline55.96FPS,Burst+partial64.06,with camera observer62.85.
+Thus observer is NOT the major regression. All saved windows remained unsettled.
+Critical measured issue: coarse=false causes4121 tree shadow casters/1.59M shadow
+triangles and disables CurrentScatterGuardDegrees. Batches rebuild85% of turning
+frames/92% of moving frames;shadow batching1.55ms+classification3.04ms/rebuild;
+Burst lowers classify to.615ms. Need test the cheap setting before changing normal
+renderer/UI. Do NOT mutate personal preferences. Frame components reporting and
+three coarse-shadow cases are new in039,not yet tested. Prior200km note is stale.
+Allocation capture case/Editor offline reader compiled7eb but NOT RUN: explicit
+travel-whip-allocation-profile requires a DevelopmentPlayer, writes profiler raw
+GC allocation callstacks. WorldGenProfilerReview.Run loads it via ProfilerDriver;
+never interpret Development FPS as release throughput. Consider after coarse test
+to locate remaining GC/CPU costs. Default Burst/partial still OFF until acceptance.
+Native Burst exact proofs and buffered worker194431-element test remain passing.
+All source/docs pushed. Place visible own windows RIGHTMOST with helper. No
+subagents, paid services, owner-app closures. Owner3files intact;assets5405/144.
+
 ACTIVE5Nov11:32Z PERFORMANCE CONTINUES. Selected A/f833/shortcut protected.
 B FULL managed NONDEV4d64f46f (PerformancePlayer enables FrameTimingStats only,
 normal product/prefs namespace kept) passed compile/Burst/shader;3autos restored.

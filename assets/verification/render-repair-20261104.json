@@ -1454,6 +1454,153 @@
         "forest-root-uploads.csv": "5ae588a288932febb9bfb26bec2b21c80fda68c0ea13fccb9b9b30b5d3c43272",
         "collection-budget.txt": "4ae63ca8949ee4400b96f3ebfd23efc3c8675e929169488a7b2a8799d5a8d7bd"
       }
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/presented-buffered-keyword",
+      "complete": true,
+      "source": "4d64f46f58f446c1b9d1b3f0e4333506fdab84d9",
+      "qualification": "Medium1080/6km. Native GPU timing valid. Shader compile-time keyword and buffered transport do NOT recover earlier77 throughput. Boreal moving Burst+partial85.81FPS,p9518.23ms;GPU6.94ms,CPU11.65ms.100FPS floor fails.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "115.68409",
+          "p95_ms": "13.28730",
+          "max_ms": "47.22100",
+          "settled": "True",
+          "gpu_ms": "5.42055",
+          "cpu_ms": "8.74981",
+          "timing_samples": "2811"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "73.13275",
+          "p95_ms": "22.99130",
+          "max_ms": "52.73150",
+          "settled": "False",
+          "gpu_ms": "7.19550",
+          "cpu_ms": "13.58874",
+          "timing_samples": "1756"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-parallel",
+          "fps": "82.04022",
+          "p95_ms": "20.29740",
+          "max_ms": "57.87990",
+          "settled": "False",
+          "gpu_ms": "6.92443",
+          "cpu_ms": "12.22215",
+          "timing_samples": "2048"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-optimized",
+          "fps": "80.69062",
+          "p95_ms": "20.38760",
+          "max_ms": "45.39560",
+          "settled": "False",
+          "gpu_ms": "7.06191",
+          "cpu_ms": "12.51248",
+          "timing_samples": "2079"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-flat-tree",
+          "fps": "80.12484",
+          "p95_ms": "20.80350",
+          "max_ms": "54.35210",
+          "settled": "False",
+          "gpu_ms": "6.98466",
+          "cpu_ms": "12.57729",
+          "timing_samples": "2049"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-burst",
+          "fps": "85.20983",
+          "p95_ms": "18.77420",
+          "max_ms": "52.96510",
+          "settled": "False",
+          "gpu_ms": "6.92364",
+          "cpu_ms": "11.77979",
+          "timing_samples": "2161"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-burst-partial",
+          "fps": "85.81206",
+          "p95_ms": "18.23060",
+          "max_ms": "54.64980",
+          "settled": "False",
+          "gpu_ms": "6.93586",
+          "cpu_ms": "11.64561",
+          "timing_samples": "2186"
+        }
+      ],
+      "evidence_sha256": {
+        "package.json": "b5feaba06c73e34058c499a0b49c3a33d6bff4fe7d4ab30b62626a2e7450b2ce",
+        "summary.csv": "2a9903f7580c10ecb1408ce962eed680068c5b930b2b4a247edced105bc4d54d",
+        "player.log": "2616ac34680a85d1aae8c056d9c35eb275dd1b574b28fcc7928d86379917c6c1"
+      }
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/presented-saved-observer",
+      "complete": true,
+      "source": "7eb72b9cc0c7875dd89bcee4dbee5b705c701218",
+      "qualification": "Actual saved settings:60km,geometry1,surface4,all vegetation2,depth prepass true,coarse canopy shadows false. All windows unsettled. Baseline moving55.96FPS;Burst+partial64.06FPS. Optional camera observer62.85FPS,no substantial observer regression shown.4k coarse-disabled tree casters and nearly-per-frame batch rebuilding are major costs.",
+      "rows": [
+        {
+          "site": "dense-borealforest",
+          "case": "turning-whip",
+          "fps": "70.05172",
+          "p95_ms": "20.68520",
+          "max_ms": "51.81890",
+          "settled": "False",
+          "gpu_ms": "7.22523",
+          "cpu_ms": "14.23845",
+          "timing_samples": "1309"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip",
+          "fps": "55.96126",
+          "p95_ms": "24.33900",
+          "max_ms": "59.84760",
+          "settled": "False",
+          "gpu_ms": "8.75580",
+          "cpu_ms": "17.73119",
+          "timing_samples": "909"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-burst-partial",
+          "fps": "64.05926",
+          "p95_ms": "22.23690",
+          "max_ms": "56.51020",
+          "settled": "False",
+          "gpu_ms": "8.31390",
+          "cpu_ms": "15.44771",
+          "timing_samples": "1055"
+        },
+        {
+          "site": "dense-borealforest",
+          "case": "travel-whip-camera-trace",
+          "fps": "62.84765",
+          "p95_ms": "22.45770",
+          "max_ms": "61.58280",
+          "settled": "False",
+          "gpu_ms": "7.76150",
+          "cpu_ms": "15.78017",
+          "timing_samples": "1093"
+        }
+      ],
+      "evidence_sha256": {
+        "package.json": "b26957d2f6fb06f8b3a2974bb40af3ff06084b8f1ce07212c1623044aff6bc4b",
+        "summary.csv": "4cfa6d3352a540d4fda1c112b533b37eef4d85e45b1ec8c6dda16e57595049ce",
+        "player.log": "fd6b5f6ed6828b4b13a15284d43d2c19c4b5bee6b4516cc7388b9987ef52b7d5"
+      }
     }
   ],
   "candidate_full_baseline": "b235940052176b17efa3c9149fe9715a337e3b39",
@@ -1477,7 +1624,7 @@
   ],
   "next_candidate_source": "4d64f46f58f446c1b9d1b3f0e4333506fdab84d9",
   "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
-  "current_test": "B FULL managed NONDEV4d64f46f with FrameTimingStats enabled, normal preference namespace; known3Unityautos restored. Current66553/native31100 presented-buffered-keyword,boreal Medium1080/6km/7cases30s. Rightmost DISPLAY3, no concurrent heavy jobs. Need inspect actual GPU timings and regression before selection;owner savedmixedUltra200km remains outstanding.",
+  "current_test": "Build82198: B ScriptsOnly managed NONDEV039a865d with diagnostic frame timing over FULL4d64. Next run compares saved settings with coarse canopy shadows,front-to-back order,and depth prepass; no normal-game flags enabled yet.",
   "ground_mask_repair": {
     "source": "f6f812f4",
     "pure_checks": 5759,
@@ -1507,5 +1654,12 @@
       "folder": "artifacts/render-repair-20261105/burst-math-high",
       "reason": "Explicitfloat sum still mismatched11607/65536distances,max0.000244m. Explicitdouble expression fixed this in024;burst-math-double passes all65536exactly."
     }
-  ]
+  ],
+  "saved_settings_findings": {
+    "actual": "60km,geometry1,surface4,vegetation2,depth prepass true,coarse crown shadows false",
+    "caster_cost": "4121tree shadow casters,147draws,1590104shadow triangles at initial site versus218/27/2616 in coarse mode. Views/time differ; compare next paired run.",
+    "cpu": "Saved turning rebuilds batches85% of frames;moving92%. CurrentScatterGuardDegrees requires SoftCanopyShadows,so coarse=false disables the camera guard. Saved moving shadow batching1.55ms plus classification3.04ms per rebuild;Burst lowers classification to.615ms.",
+    "observer": "Burst+partial64.06FPS vs same+camera observer62.85;no substantial observer regression demonstrated. Earlier77-to-current package regression remains unresolved."
+  },
+  "pending_allocation_profile": "Code1a9b/6f3/d8a compiled in7eb but no capture run yet. Explicit travel-whip-allocation-profile requires DevelopmentPlayer; records binary profiler log and allocation stacks. WorldGenProfilerReview.Run is an offline Editor reader. Development FPS is never release throughput."
 }
