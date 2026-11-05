@@ -53,6 +53,27 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE05Nov18:17Z PERFORMANCE ONLY. B NONDEV ScriptsOnly3b21ce23 BuiltUtc18:16:01Z
+SourceChanges[],3known Unityautos restored. Own presented native82653/player31584
+RIGHTMOST runs presented-ground-causes: dense-tropicalrainforest Medium6km1080,
+45s travel-whip-staged-ground. NO compile/overwrite/heavy jobs during timing.
+New per-key legacy correction provenance records Upload/CacheRestore/Retirement
+and staging bypass reason in memory, writes *-ground-corrections.csv AFTER window.
+Need actual origin results before changing another path. Prior19d three-case
+completed:163.18baseline/164.47staged/166.60staged1ms automaticGC;40-44ms max,
+2collections EACH; no material gain established, staging DEFAULT OFF, normalGC3ms.
+Legacy correction still~26ms. Root numeric6.98m +actual cache581319checks PASS.
+IMPORTANT correction: alleged normal inactive-terrain mesh leak DISPROVEN by
+terrain-retirement-controls19d: old flat query2/2,0meshes retained; old nested
+query1/3 only due explicitly disabled descendant. Kept general includeInactive
+scratch-list robustness, but NO normal memory leak/FPS claim. Earlier fixture
+incorrectly expected0; failure preserved. Upload/pool native regression alsoPASS.
+Hand/Find/Bag noalloc source ddf83checksPASS; nearplantUV312model pairs exactPASS.
+SelectedA/f833/rootshortcut unchanged.100FPSfloor NOT solved. No new geography,
+subagents/paid/ownerapps closed. Owner3files preserved. All source pushed3b21;
+this docs note pending commit. Next wait native cause CSV, fix measured cause,
+then native equivalence +actual presented timing; do not speculate/claim success.
+
 ACTIVE05Nov17:48Z PERFORMANCE ONLY. Cached-ground-native88736fba COMPLETE EXIT0,
 no errors: actual cache take/stage/commit2steps,581319 exact root/level/bounds
 comparisons; old terrain retained until commit. Staged path still DEFAULT OFF,
