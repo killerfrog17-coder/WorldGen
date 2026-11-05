@@ -33,6 +33,7 @@ public static class WorldGenPerformance
     public static bool ScatterRangeCache;
     public static bool MemoHumanInputs;
     public static bool MemoryTrace;
+    public static bool TracePresentedCamera;
     public static bool PartialForestUploads;
     // Diagnostic gross managed-heap growth, inclusive of nested work and any
     // background allocations. This is not a per-thread allocation counter.
@@ -1112,6 +1113,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-partial-upload",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-camera-trace",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.TracePresentedCamera=true),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
             new PerfCase("travel-whip-allocation-profile",()=>{}),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
@@ -1162,6 +1164,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.FoliageShadowTaps=0;WorldGenPerformance.ForceFreshWaterSamples=WorldGenPerformance.LegacyGroupVisibility=WorldGenPerformance.NarrowScatterGuard=false;
                 WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
+                WorldGenPerformance.TracePresentedCamera=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;

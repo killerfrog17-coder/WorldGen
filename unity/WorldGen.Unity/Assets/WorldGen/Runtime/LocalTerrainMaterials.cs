@@ -72,12 +72,12 @@ public sealed partial class LocalTerrainExplorer
             if(terrainSceneBuffer==null)terrainSceneBuffer=new GraphicsBuffer(GraphicsBuffer.Target.Constant,TerrainSceneVectors,16);
             terrainSceneBuffer.SetData(terrainSceneData);Array.Copy(terrainSceneData,terrainSceneLast,TerrainSceneVectors);TerrainSceneUploads++;
         }
-        if(!terrainSceneSubscribed){RenderPipelineManager.beginCameraRendering+=BindTerrainSceneCamera;if(WorldGenPerformance.Presented)RenderPipelineManager.endCameraRendering+=EndPresentedTerrainCamera;terrainSceneSubscribed=true;}
+        if(!terrainSceneSubscribed){RenderPipelineManager.beginCameraRendering+=BindTerrainSceneCamera;terrainSceneSubscribed=true;}
         Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);
     }
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
     {
-        if(WorldGenPerformance.Presented&&camera==view)presentedCameraTrace=WorldGenPerformance.TraceBegin();
+        if(presentedTraceSubscribed&&camera==view)presentedCameraTrace=WorldGenPerformance.TraceBegin();
         BindCampLights(camera);
         Shader.SetGlobalVector("_WorldGenWaterWind",camera==view?new Vector4((float)CurrentWeather.WindEastMps,(float)CurrentWeather.WindNorthMps,0,0):Vector4.zero);
         BindSharedTreeWind(camera);
@@ -104,9 +104,17 @@ public sealed partial class LocalTerrainExplorer
             if(terrainSceneBuffer!=null)Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);
         }
     }
-    long presentedCameraTrace;
+    long presentedCameraTrace;bool presentedTraceSubscribed;
+    void UpdatePresentedCameraTrace()
+    {
+        bool wanted=WorldGenPerformance.Presented&&(WorldGenPerformance.MemoryTrace||WorldGenPerformance.TracePresentedCamera);
+        if(wanted==presentedTraceSubscribed)return;
+        if(wanted)RenderPipelineManager.endCameraRendering+=EndPresentedTerrainCamera;
+        else RenderPipelineManager.endCameraRendering-=EndPresentedTerrainCamera;
+        presentedTraceSubscribed=wanted;
+    }
     void EndPresentedTerrainCamera(ScriptableRenderContext context,Camera camera)
     {if(camera==view){WorldGenPerformance.TraceEnd(8,presentedCameraTrace);presentedCameraTrace=0;}}
     void DisposeTerrainScene()
-    {if(terrainSceneSubscribed){RenderPipelineManager.beginCameraRendering-=BindTerrainSceneCamera;RenderPipelineManager.endCameraRendering-=EndPresentedTerrainCamera;}terrainSceneSubscribed=false;terrainSceneBuffer?.Dispose();terrainSceneBuffer=null;}
+    {if(terrainSceneSubscribed)RenderPipelineManager.beginCameraRendering-=BindTerrainSceneCamera;if(presentedTraceSubscribed)RenderPipelineManager.endCameraRendering-=EndPresentedTerrainCamera;terrainSceneSubscribed=presentedTraceSubscribed=false;terrainSceneBuffer?.Dispose();terrainSceneBuffer=null;}
 }
