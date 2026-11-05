@@ -37,6 +37,7 @@ public static class WorldGenPerformance
     public static bool NoTerrainBufferReuse;
     public static bool NoBuilderBufferReuse;
     public static bool StagedGroundPublication;
+    public static bool KeepBackdrops;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -1118,6 +1119,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
+            new PerfCase("travel-whip-retained-backdrops",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=true),
             new PerfCase("travel-whip-staged-gc1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true;UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=1000000;}),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("cached-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
@@ -1195,6 +1197,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
                 WorldGenPerformance.StagedGroundPublication=false;
+                WorldGenPerformance.KeepBackdrops=false;
                 UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;

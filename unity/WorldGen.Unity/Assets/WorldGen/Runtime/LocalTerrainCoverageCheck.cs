@@ -51,6 +51,15 @@ public sealed partial class LocalTerrainExplorer
         }
         tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;var reused=Capture("cached-replacement");
         if(reused[32*128+32].g<=reused[32*128+32].r||explorer.TerrainCacheHits!=1)throw new Exception("Cached mesh failed to render after restore");
+        // Restoring a different owned mesh with the same height grid must not
+        // invalidate/reproject the whole vegetation population.
+        tile.Segments=4;tile.Heights=new float[25];explorer.scatterGroundChanges.Clear();
+        var identical=new Tile{Root=Quad("identical cached terrain",2,0,Color.green),Segments=4,Heights=new float[25],Edges=new double[4]};
+        explorer.TerrainProducts.Put(new TerrainProductKey(child,4,identical.Edges),identical,0);
+        explorer.installationsThisFrame=0;explorer.frameUploadMs=0;int groundRevision=explorer.scatterGroundRevision;
+        if(!explorer.RestoreTerrain(child,4,identical.Edges)||explorer.scatterGroundRevision!=groundRevision||explorer.scatterGroundChanges.Count!=0)throw new Exception("Identical cached heights unnecessarily invalidated vegetation");
+        explorer.previousTerrain.Remove(child);explorer.DestroyTile(tile);tile=identical;tile.FadeIn=0;
+        explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         while(Time.time<1.6f)yield return null;
         tile.FadeIn=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         var half=Capture("half-transition");int reds=0,greens=0,holes=0;
@@ -70,6 +79,11 @@ public sealed partial class LocalTerrainExplorer
         if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
         explorer.wanted.Clear();explorer.wanted.Add(child,64);tile.Segments=64;tile.FadeIn=tile.FadeOut=0;
         if(!explorer.CanRetireTransition(parent))throw new Exception("A fully ready fine replacement did not release its parent");
+        bool oldKeep=WorldGenPerformance.KeepBackdrops;WorldGenPerformance.KeepBackdrops=true;explorer.backdrops[parent]=new double[4];
+        if(explorer.CanRetireTransition(parent))throw new Exception("A still-planned coarse backdrop was unnecessarily retired");
+        explorer.backdrops.Clear();
+        if(!explorer.CanRetireTransition(parent))throw new Exception("An unplanned backdrop could not retire");
+        WorldGenPerformance.KeepBackdrops=oldKeep;
         explorer.wanted[child]=128;
         if(explorer.CanRetireTransition(parent))throw new Exception("Retirement accepted the wrong replacement detail");
         explorer.wanted[child]=64;tile.FadeIn=Time.time;
@@ -79,7 +93,7 @@ public sealed partial class LocalTerrainExplorer
         explorer.wanted.Clear();
         explorer.tiles.Remove(child);explorer.CacheTerrain(child,tile);explorer.ResetStreamingReuse(false);
         if(explorer.CachedTerrainTiles!=0)throw new Exception("Chart invalidation retained old products");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, exact cache restore/invalidation, complementary halfway incoming/outgoing frames without holes, retained finer children during same-key parent replacement and coarsening without grandparent regression.");
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression.");
         Application.Quit(0);
     }
 }

@@ -3026,5 +3026,90 @@
     "automatic_collection": "retained",
     "documentation": "https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/scripting/garbagecollector/incrementaltimeslicenanoseconds",
     "rationale": "Official docs recommend a duration significantly shorter than the target frame interval. Compare automatic1ms vs original3ms with same staged path, actual collection counts/heap/tails. Too-small steps can be counterproductive; measure before adopting."
+  },
+  "backdrop_churn": {
+    "status": "UNBUILT opt-in retention trial; no-op cache invalidation correction added",
+    "evidence": "artifacts/render-repair-20261105/presented-ground-causes",
+    "actual_source": "3b21ce23",
+    "legacy_corrections_over_2ms": 58,
+    "origin_counts": {
+      "Upload": 7,
+      "Retirement": 41,
+      "CacheRestore": 10
+    },
+    "worst_rows": [
+      {
+        "absolute_time_s": "260.95195080085034",
+        "frame": "80521",
+        "correction_ms": "15.2341",
+        "player_x": "334.08120959999997",
+        "player_z": "0",
+        "changed_keys": "1",
+        "key_x": "0",
+        "key_z": "-1",
+        "key_level": "7",
+        "key_scale": "0.1",
+        "origin": "Upload",
+        "stage_bypass": "Backdrop"
+      },
+      {
+        "absolute_time_s": "260.97666550085034",
+        "frame": "80522",
+        "correction_ms": "14.6283",
+        "player_x": "334.2908223999998",
+        "player_z": "0",
+        "changed_keys": "1",
+        "key_x": "0",
+        "key_z": "0",
+        "key_level": "7",
+        "key_scale": "0.1",
+        "origin": "Upload",
+        "stage_bypass": "Backdrop"
+      },
+      {
+        "absolute_time_s": "225.67522870085034",
+        "frame": "74750",
+        "correction_ms": "12.7602",
+        "player_x": "51.883900799999992",
+        "player_z": "0",
+        "changed_keys": "1",
+        "key_x": "-1",
+        "key_z": "-1",
+        "key_level": "7",
+        "key_scale": "0.1",
+        "origin": "Upload",
+        "stage_bypass": "Backdrop"
+      },
+      {
+        "absolute_time_s": "232.02027850085034",
+        "frame": "75819",
+        "correction_ms": "12.6885",
+        "player_x": "102.64823520000004",
+        "player_z": "0",
+        "changed_keys": "1",
+        "key_x": "-1",
+        "key_z": "0",
+        "key_level": "7",
+        "key_scale": "0.1",
+        "origin": "Retirement",
+        "stage_bypass": "Unchanged"
+      },
+      {
+        "absolute_time_s": "225.69720290085036",
+        "frame": "74751",
+        "correction_ms": "12.3496",
+        "player_x": "52.072945600000139",
+        "player_z": "0",
+        "changed_keys": "1",
+        "key_x": "-1",
+        "key_z": "0",
+        "key_level": "7",
+        "key_scale": "0.1",
+        "origin": "Upload",
+        "stage_bypass": "Backdrop"
+      }
+    ],
+    "finding": "Largest15.23/14.63ms corrections are repeated level7 backdrop uploads; next12.69ms is retirement of same level7. Current plan uses only a few coarse backdrop keys; retain planned ones under normal finest-surface coverage. Release when outside new plan.",
+    "second_fix": "Cache restore with identical same-address/segment heights no longer queues full vegetation invalidation; native coverage fixture added."
   }
 }

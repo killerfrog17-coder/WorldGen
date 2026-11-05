@@ -15,7 +15,7 @@ public sealed partial class LocalTerrainExplorer
     void NoteGroundChange(TerrainTileKey key,GroundOrigin origin)
     {
         if(!WorldGenPerformance.TraceEnabled)return;
-        groundOrigins.TryGetValue(key,out var previous);groundOrigins[key]=(previous.origin|origin,groundStageBypass);
+        groundOrigins.TryGetValue(key,out var previous);groundOrigins[key]=(previous.origin|origin,origin==GroundOrigin.Retirement?GroundStageBypass.Unknown:groundStageBypass);
     }
     void RecordGroundCorrection(double ms)
     {

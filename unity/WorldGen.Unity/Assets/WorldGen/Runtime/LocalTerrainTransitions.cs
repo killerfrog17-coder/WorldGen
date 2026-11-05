@@ -48,6 +48,11 @@ public sealed partial class LocalTerrainExplorer
     }
     bool CanRetireTransition(TerrainTileKey key)
     {
+        // These few coarse tiles supply a stable fallback for the current
+        // view. Retiring/rebuilding them on every fine-plan change caused
+        // repeated whole-forest corrections. Normal coverage still selects
+        // the finest ready surface; an unplanned backdrop can retire normally.
+        if(WorldGenPerformance.KeepBackdrops&&backdrops.ContainsKey(key))return false;
         bool any=false,coarser=false,complete=true;
         foreach(var replacement in wanted)
         {
