@@ -29,9 +29,14 @@ public sealed partial class LocalTerrainExplorer
         Inventory.Items.Clear();InitializeInventory();var stone=PortableTechnology.Create(PossessionKind.StoneTippedSpear,Position);stone.Place=PossessionPlace.RightHand;Inventory.Items.Add(stone);
         var blade=PortableTechnology.Create(PossessionKind.StoneBlade,Position);blade.Place=PossessionPlace.LeftHand;Inventory.Items.Add(blade);
         Check(!Inventory.WornContainers.Any(),"Water regression starts with a stone spear and blade, without a bag");
-        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1.1);ApplyPlayerMode();UpdateHumans();UpdateCamera();
+        PlayerRules.Mode=GameMode.Survival;Vitals.Restore();PlayerMetabolism.Hydrate(Vitals,-1.1);ApplyPlayerMode();
+        // The fixture is paused before gravity can settle the player onto the
+        // rendered shore. Match actual walking support, rather than leaving the
+        // camera inside a coarser terrain triangle at the analytic height.
+        motion.Place(motion.X,motion.Z,CampFloor(motion.X,motion.Z));UpdateHumans();UpdateCamera();
         var level=SampleMotionWater(nx,nz).Surface;view.transform.LookAt(new Vector3((float)(nx-originX),(float)level,(float)(nz-originZ)));waterAimAt=0;
-        report.Add(PerformanceVerifyWaterAim());
+        var aimReport=PerformanceVerifyWaterAim();report.Add(aimReport);Debug.Log(aimReport);
+        Debug.Log("WATER AIM bank="+PlayerFeet()+" eye="+view.transform.localPosition+" target="+new Vector3((float)(nx-originX),(float)level,(float)(nz-originZ))+" ground="+CampFloor(nx,nz)+" distance="+Vector3.Distance(PlayerFeet(),new Vector3((float)(nx-originX),(float)level,(float)(nz-originZ))));
         Check(AimedWater(float.PositiveInfinity)!=null,"Centre aim reaches actual water from the dry bank");
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.Thirst>50,"Actual E interaction with sea water worsens hydration");
         Check(Inventory.AtHand(PossessionPlace.RightHand)==stone,"Drinking restores the original occupied hand");

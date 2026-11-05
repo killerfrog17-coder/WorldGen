@@ -1730,7 +1730,7 @@
     "source": "7360d80584a67d2c30d005e59b5411ccc263c240",
     "slot": "slot-b",
     "development": false,
-    "status": "Native paired proof and presented timing in progress; positive shoreline drink regression pending; selected A unchanged",
+    "status": "Paired presented dry-site timing passed; shoreline drink regression running; compiled culling and partial uploads were disabled equally in this isolated comparison; production-setting comparison pending",
     "profiling": {
       "first_allocated_bytes": 102278721,
       "fixed_allocated_bytes": 63639392,
@@ -1742,7 +1742,21 @@
       "evidence": "artifacts/render-repair-20261105/allocation-analysis-fixed2",
       "development_only_not_release_throughput": true
     },
-    "new_evidence": "artifacts/render-repair-20261105/presented-water-bounds",
-    "floor_achieved": false
+    "new_evidence": "artifacts/render-repair-20261105/presented-water-bounds-2",
+    "floor_achieved": false,
+    "presented_isolated_comparison": {
+      "old_water_aim_fps": 76.40035,
+      "bounds_filtered_fps": 133.33686,
+      "turning_fps": 166.90461,
+      "moving_p95_ms": 16.2356,
+      "moving_max_ms": 44.0614,
+      "over_10_ms": 937,
+      "moving_frames": 4002,
+      "seconds": 30,
+      "settled_during_movement": false,
+      "burst_and_partial_uploads": false,
+      "meaning": "Isolates water aim; not final production-path performance proof"
+    },
+    "pending_animation_output_change": "269fb3b4; avoid assigning same playable each frame; pose proof and timing required"
   }
 }
