@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     const float ScatterGuardDegrees=18;
     float scatterCachedGuardDegrees,scatterAngularSlack;bool scatterCachedAllHeadings;
     double scatterTrackedX=double.NaN,scatterTrackedZ,scatterLastTranslation=-1;
-    float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&SoftCanopyShadows&&TerrainVideoOptions.ScatterFrustum?(WorldGenPerformance.NarrowScatterGuard?6:ScatterGuardDegrees):0;
+    float CurrentScatterGuardDegrees=>!WorldGenPerformance.Original&&!WorldGenPerformance.DisableScatterViewGuard&&CoarseTreeShadows&&TerrainVideoOptions.ScatterFrustum?(WorldGenPerformance.NarrowScatterGuard?6:ScatterGuardDegrees):0;
     bool CurrentScatterAllHeadings=>CurrentScatterGuardDegrees>0&&!WorldGenPerformance.DirectionalScatter&&Time.realtimeSinceStartupAsDouble-scatterLastTranslation>.30;
     void TrackScatterTranslation()
     {
@@ -57,7 +57,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterParallelCollecting)return scatterParallelCasts[(int)kind];
         if(!TerrainVideoOptions.VegetationShadows||kind==ScatterKind.Grass||IsSpecialist(kind))return false;
         if(kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows)return false;
-        if(kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.TreeShadows||UseTreeShadowProxies&&SoftCanopyShadows))return false;
+        if(kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.TreeShadows||UseTreeShadowProxies&&CoarseTreeShadows))return false;
         return true;
     }
     Bounds ScatterGuardBounds(Bounds box,Vector3 eye)

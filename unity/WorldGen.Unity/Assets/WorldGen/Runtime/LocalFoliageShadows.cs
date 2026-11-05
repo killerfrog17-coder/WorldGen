@@ -15,7 +15,7 @@ public sealed partial class LocalTerrainExplorer
         public Bounds Bounds;public int Count;
     }
     readonly Dictionary<int,Mesh> treeShadowMeshes=new Dictionary<int,Mesh>(),treeShadowTrunkMeshes=new Dictionary<int,Mesh>();
-    bool usingSoftCanopyShadows;
+    bool usingCoarseTreeShadows;
     readonly List<TreeShadowBatch> treeShadowBatches=new List<TreeShadowBatch>(),treeShadowPool=new List<TreeShadowBatch>();
     readonly Dictionary<(int,int,int,int),TreeShadowBatch> treeShadowActive=new Dictionary<(int,int,int,int),TreeShadowBatch>();
     Material treeShadowMaterial;UniversalRenderPipelineAsset foliageShadowPipeline;
@@ -30,13 +30,15 @@ public sealed partial class LocalTerrainExplorer
     public int TreeShadowCards {get;private set;}
     public int TreeShadowCoarse {get;private set;}
     public long TreeShadowTriangles {get;private set;}
-    bool UseTreeShadowProxies=>TerrainVideoOptions.SimplifiedForestShadows&&treeShadowMaterial!=null&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeShadows&&TerrainVideoOptions.VegetationShadows&&!TerrainDiagnostics.HideTrees&&!TerrainDiagnostics.HidePlants;
-    bool SoftCanopyShadows=>TerrainVideoOptions.DistantTreeShadowCards&&CanopyActive&&CanopyShadeReady;
+    bool MediumTreeShadows=>TerrainVideoOptions.TreeQuality<=2&&!WorldGenPerformance.DetailedFoliageComparison;
+    bool CoarseTreeShadows=>!WorldGenPerformance.DetailedFoliageComparison&&(MediumTreeShadows||TerrainVideoOptions.DistantTreeShadowCards);
+    bool UseTreeShadowProxies=>(MediumTreeShadows||TerrainVideoOptions.SimplifiedForestShadows)&&treeShadowMaterial!=null&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeShadows&&TerrainVideoOptions.VegetationShadows&&!TerrainDiagnostics.HideTrees&&!TerrainDiagnostics.HidePlants;
+    bool SoftCanopyShadows=>CoarseTreeShadows&&CanopyActive&&CanopyShadeReady;
     // Once the spatial canopy field is ready it owns ALL crown shade, including
     // trees beyond the close trunk-shadow range. A missing per-species trunk
     // mesh must not accidentally enable the expensive full foliage caster.
     bool ReplaceTreeShadow(in ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&
-        (SoftCanopyShadows||treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(plant.Variant)));
+        (CoarseTreeShadows||treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(plant.Variant)));
 
     void ApplyFoliageShadowOptions()
     {
@@ -99,10 +101,12 @@ public sealed partial class LocalTerrainExplorer
     }
     void BuildTreeShadowBatches()
     {
-        usingSoftCanopyShadows=SoftCanopyShadows;
+        // Medium never falls back to thousands of detailed crown casters while
+        // the spatial shade field warms up. Trunks remain geometric throughout.
+        usingCoarseTreeShadows=CoarseTreeShadows;
         foreach(var b in treeShadowBatches){b.Count=0;treeShadowPool.Add(b);}treeShadowBatches.Clear();treeShadowActive.Clear();TreeShadowObjects=TreeShadowCards=TreeShadowCoarse=0;
         if(!UseTreeShadowProxies||vegetationShadowRadius<=0)return;
-        if(!usingSoftCanopyShadows)PrepareTreeShadowFrustum();
+        if(!usingCoarseTreeShadows)PrepareTreeShadowFrustum();
         void Add(int code,int lod,Mesh mesh,Material material,Matrix4x4 matrix,Bounds bounds,float start,float end)
         {
             if(end<=start)return;
@@ -121,23 +125,23 @@ public sealed partial class LocalTerrainExplorer
         foreach(var chunk in scatterChunks.Values)
         {
             if(chunk.Bounds==null)PrepareScatterBounds(chunk);
-            if(!MayCastVisibleShadow(chunk.AllBounds,scatterEye)||!usingSoftCanopyShadows&&!TreeShadowReachesView(chunk.AllBounds))continue;
+            if(!MayCastVisibleShadow(chunk.AllBounds,scatterEye)||!usingCoarseTreeShadows&&!TreeShadowReachesView(chunk.AllBounds))continue;
             foreach(var group in chunk.Groups)
             {
                 // Once the canopy field owns crown shade, roots outside the
                 // close trunk radius cannot submit any proxy. Apply that
                 // heading-independent rejection before per-tree light tests.
                 float trunkRange=Mathf.Min(vegetationShadowDistance,TerrainVideoOptions.ForestTrunkShadowDistance);
-                if(usingSoftCanopyShadows&&group.RootBounds.SqrDistance(scatterEye)>=trunkRange*trunkRange)continue;
-                if(!group.Trees||!MayCastVisibleShadow(group.Bounds,scatterEye)||!usingSoftCanopyShadows&&!TreeShadowReachesView(group.Bounds))continue;
+                if(usingCoarseTreeShadows&&group.RootBounds.SqrDistance(scatterEye)>=trunkRange*trunkRange)continue;
+                if(!group.Trees||!MayCastVisibleShadow(group.Bounds,scatterEye)||!usingCoarseTreeShadows&&!TreeShadowReachesView(group.Bounds))continue;
                 foreach(int index in group.Indices)
                 {
                     var plant=chunk.Source.Instances[index];var bounds=chunk.Bounds[index];
-                    if(!TerrainVideoOptions.KeepVegetation(plant.Kind,plant.Id)||!MayCastVisibleShadow(bounds,scatterEye)||!usingSoftCanopyShadows&&!TreeShadowReachesView(bounds))continue;
+                    if(!TerrainVideoOptions.KeepVegetation(plant.Kind,plant.Id)||!MayCastVisibleShadow(bounds,scatterEye)||!usingCoarseTreeShadows&&!TreeShadowReachesView(bounds))continue;
                     float distance=Mathf.Sqrt(bounds.SqrDistance(scatterEye)),coverage=(float)VegetationShadowBudget.CasterFade(distance,vegetationShadowDistance);
                     if(coverage<=0)continue;
                     int code=TreeFlora.RenderCode(plant.Variant);
-                    if(usingSoftCanopyShadows)
+                    if(usingCoarseTreeShadows)
                     {
                         float range=Mathf.Min(vegetationShadowDistance,TerrainVideoOptions.ForestTrunkShadowDistance);
                         float trunkDistance=Vector3.Distance(chunk.Roots[index],scatterEye);

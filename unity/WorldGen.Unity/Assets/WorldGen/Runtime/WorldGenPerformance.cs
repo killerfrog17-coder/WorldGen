@@ -28,13 +28,14 @@ public static class WorldGenPerformance
     public static bool NonIndexedClumps;
     public static bool ForceFreshWaterSamples;
     public static bool LegacyGroupVisibility;
-    public static bool ParallelScatter;
-    public static bool BurstScatter;
+    public static bool ParallelScatter=true;
+    public static bool BurstScatter=true;
     public static bool ScatterRangeCache;
     public static bool MemoHumanInputs;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
-    public static bool PartialForestUploads;
+    public static bool PartialForestUploads=true;
+    public static bool DetailedFoliageComparison;
     // Diagnostic gross managed-heap growth, inclusive of nested work and any
     // background allocations. This is not a per-thread allocation counter.
     public static readonly long[] HeapGrowth=new long[31];
@@ -1030,7 +1031,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("trunk-range180",()=>WorldGenPerformance.TreeTrunkShadowRange=180),
             new PerfCase("human-review",()=>{}),
             new PerfCase("forest-community-review",()=>{}),
-            new PerfCase("foliage-proxy-compare",()=>TerrainVideoOptions.DistantTreeShadowCards=false),
+            new PerfCase("foliage-proxy-compare",()=>{TerrainVideoOptions.DistantTreeShadowCards=false;WorldGenPerformance.DetailedFoliageComparison=true;}),
             new PerfCase("trees-efficient-verify",()=>{}),
             new PerfCase("trees-steady-legacy",()=>WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=true),
             new PerfCase("trees-steady-efficient",()=>{}),
@@ -1117,6 +1118,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-coarse-shadows",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;}),
             new PerfCase("travel-whip-coarse-sorted",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=TerrainVideoOptions.FrontToBackTrees=true;}),
             new PerfCase("travel-whip-coarse-no-depth",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;TerrainVideoOptions.FoliageDepthPrepass=false;}),
+            new PerfCase("travel-whip-detailed-foliage",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.DetailedFoliageComparison=true;TerrainVideoOptions.DistantTreeShadowCards=false;}),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
             new PerfCase("travel-whip-allocation-profile",()=>{}),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
@@ -1169,6 +1171,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
                 WorldGenPerformance.TracePresentedCamera=false;
+                WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;

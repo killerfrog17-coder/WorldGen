@@ -685,7 +685,7 @@ public sealed partial class LocalTerrainExplorer
         ScatterDrawCalls=ForestDrawCalls=TreeShadowDraws=0;if(!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
         // Cache publication/teleport invalidation can happen in LateUpdate.
         // Switch crown/trunk submission in the same frame, without a bright flash.
-        if(usingSoftCanopyShadows!=SoftCanopyShadows)BuildScatterBatches();
+        if(usingCoarseTreeShadows!=CoarseTreeShadows)BuildScatterBatches();
         UpdateEfficientTreeMaterials();PrepareSharedTreeWind();
         DrawTreeShadowProxies();
         // Active local batches must keep their deferred tree bake alive even
