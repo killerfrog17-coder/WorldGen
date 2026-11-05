@@ -27,6 +27,9 @@ public sealed partial class LocalTerrainExplorer
     }
     readonly Dictionary<string,DroppedPossession> inventoryDrops=new Dictionary<string,DroppedPossession>();
     readonly Dictionary<(int,int),DropFloor> inventoryFloors=new Dictionary<(int,int),DropFloor>();
+    readonly List<DroppedPossession> inventoryDropCapture=new List<DroppedPossession>(),inventoryDropUpdate=new List<DroppedPossession>();
+    readonly HashSet<(int,int)> inventoryUsedFloors=new HashSet<(int,int)>();
+    readonly List<(int,int)> inventoryRetiredFloors=new List<(int,int)>();
     PhysicsMaterial inventoryDropMaterial;
 
     NearbyPossession AimedPossession()
@@ -106,12 +109,14 @@ public sealed partial class LocalTerrainExplorer
     }
     void CaptureInventoryPhysics()
     {
-        if(frame==null)return;
-        foreach(var drop in inventoryDrops.Values.ToArray())
+        if(frame==null||inventoryDrops.Count==0)return;
+        inventoryDropCapture.Clear();foreach(var drop in inventoryDrops.Values)inventoryDropCapture.Add(drop);
+        foreach(var drop in inventoryDropCapture)
         {
             if(drop.Body==null){RemoveDroppedBody(drop.Item.Id);continue;}
             CaptureDroppedPose(drop);
         }
+        inventoryDropCapture.Clear();
     }
     void CaptureDroppedPose(DroppedPossession drop)
     {
@@ -152,9 +157,11 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateDroppedBodies()
     {
+        if(inventoryDrops.Count==0&&inventoryFloors.Count==0)return;
         bool pause=paused||mapOpen||ecologyOpen||chatOpen;
-        var used=new HashSet<(int,int)>();
-        foreach(var drop in inventoryDrops.Values.ToArray())
+        var used=inventoryUsedFloors;used.Clear();
+        inventoryDropUpdate.Clear();foreach(var drop in inventoryDrops.Values)inventoryDropUpdate.Add(drop);
+        foreach(var drop in inventoryDropUpdate)
         {
             if(drop.Body==null||drop.Collider==null){RemoveDroppedBody(drop.Item.Id);continue;}
             var body=drop.Body;
@@ -170,8 +177,10 @@ public sealed partial class LocalTerrainExplorer
             drop.Quiet=quiet?drop.Quiet+Time.unscaledDeltaTime:0;
             if(drop.Quiet>.8f){CaptureInventoryPhysics();drop.Item.GroundMoving=false;drop.Item.InFlight=false;RemoveDroppedBody(drop.Item.Id,true);}
         }
+        inventoryDropUpdate.Clear();
         CaptureInventoryPhysics();
-        foreach(var key in inventoryFloors.Keys.Where(k=>!used.Contains(k)).ToArray())
+        inventoryRetiredFloors.Clear();foreach(var key in inventoryFloors.Keys)if(!used.Contains(key))inventoryRetiredFloors.Add(key);
+        foreach(var key in inventoryRetiredFloors)
         {var floor=inventoryFloors[key];floor.Root.SetActive(false);Destroy(floor.Root);Destroy(floor.Mesh);inventoryFloors.Remove(key);}
     }
     void ClearInventoryPhysics()

@@ -23,6 +23,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     Dictionary<TerrainTileKey,int> wanted=new Dictionary<TerrainTileKey,int>();
     readonly Dictionary<TerrainTileKey,double[]> wantedEdges=new Dictionary<TerrainTileKey,double[]>();
     readonly List<TerrainTileKey> priority=new List<TerrainTileKey>(); readonly List<Work> jobs=new List<Work>();
+    readonly List<TerrainTileKey> terrainRetirementScratch=new List<TerrainTileKey>();
+    Comparison<Work> terrainJobPriorityComparison;
     readonly CancellationTokenSource cancellation=new CancellationTokenSource();
     Action close; Camera view; Material landMaterial,waterMaterial;
     ExplorationAudioListener audioListener;
@@ -218,7 +220,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         if(!mapOpen){PollTerrainDetail();RefreshStreamingPrediction();}
         // Completed nearby products precede cache-only/hidden background work.
-        jobs.Sort((a,b)=>{double Score(Work w)=>WorkMatchesCurrent(w)?StreamingPriority(w.Key):double.MaxValue;return Score(b).CompareTo(Score(a));});
+        terrainJobPriorityComparison??=(a,b)=>{double Score(Work w)=>WorkMatchesCurrent(w)?StreamingPriority(w.Key):double.MaxValue;return Score(b).CompareTo(Score(a));};
+        jobs.Sort(terrainJobPriorityComparison);
         for(int i=jobs.Count-1;i>=0;i--)
         {
             if(!CanInstall)break;
@@ -250,7 +253,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         UpdateTerrainTransitions();
         // Retain fallback through the transition, not merely until upload.
-        foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)).ToArray())
+        terrainRetirementScratch.Clear();foreach(var key in tiles.Keys)if(!wanted.ContainsKey(key))terrainRetirementScratch.Add(key);
+        foreach(var key in terrainRetirementScratch)
             if(CanRetireTransition(key))
             {CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;scatterGroundRevision++;scatterGroundChanges.Add(key);}
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);

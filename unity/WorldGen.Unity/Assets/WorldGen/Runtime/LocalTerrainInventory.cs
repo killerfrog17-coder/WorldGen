@@ -14,6 +14,8 @@ public sealed partial class LocalTerrainExplorer
     readonly List<NearbyPossession> inventoryNearby=new List<NearbyPossession>(),inventoryMarkers=new List<NearbyPossession>();
     readonly Dictionary<string,GameObject> inventoryVisuals=new Dictionary<string,GameObject>();
     readonly Dictionary<string,PossessionPlace> inventoryVisualPlaces=new Dictionary<string,PossessionPlace>();
+    readonly HashSet<string> inventoryVisualPresent=new HashSet<string>();
+    readonly List<string> inventoryExpiredActions=new List<string>(),inventoryRetiredVisuals=new List<string>();
     bool inventoryOpen,inventoryInitialized;double inventoryNearbyAt;
     string inventoryNotice="",inventorySelected="";float inventoryNoticeUntil;
     Material inventoryBagMaterial;
@@ -217,7 +219,13 @@ public sealed partial class LocalTerrainExplorer
     void UpdateInventoryVisuals()
     {
         if(!inventoryInitialized||humanPlayer==null||!Ready)return;
-        if(viewItemActions.Count>0)foreach(var id in viewItemActions.Where(p=>Time.unscaledTimeAsDouble-p.Value.At>Math.Max(.2,p.Value.Duration)).Select(p=>p.Key).ToArray())viewItemActions.Remove(id);
+        inventoryExpiredActions.Clear();
+        if(viewItemActions.Count>0)
+        {
+            double now=Time.unscaledTimeAsDouble;
+            foreach(var action in viewItemActions)if(now-action.Value.At>Math.Max(.2,action.Value.Duration))inventoryExpiredActions.Add(action.Key);
+            foreach(var id in inventoryExpiredActions)viewItemActions.Remove(id);
+        }
         var body=humanPlayer.Root.transform;
         if(inventoryBoneOwner!=body){inventoryBoneOwner=body;inventoryBones=body.GetComponentsInChildren<Transform>().GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());}
         if(!deathPresented)
@@ -225,7 +233,7 @@ public sealed partial class LocalTerrainExplorer
             if(SharedHumanMotion){UpdateSharedHumanAction();FitSharedHeldHands();AimSharedHead();}
             else {ClearSharedAmmo();RestoreSharedSlings();PoseInventoryHands(humanPlayer,inventoryBones);}
         }
-        var present=new HashSet<string>();
+        var present=inventoryVisualPresent;present.Clear();
         foreach(var item in Inventory.Items)
         {
             if(item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage)continue;
@@ -274,7 +282,8 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         UpdateDroppedBodies();
-        foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){RemoveDroppedBody(id);DestroyInventoryVisual(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
+        inventoryRetiredVisuals.Clear();foreach(var id in inventoryVisuals.Keys)if(!present.Contains(id))inventoryRetiredVisuals.Add(id);
+        foreach(var id in inventoryRetiredVisuals){RemoveDroppedBody(id);DestroyInventoryVisual(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
         if(SharedHumanMotion)UpdateSharedAmmo();
         UpdateViewArms();
     }
