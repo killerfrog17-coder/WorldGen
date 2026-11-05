@@ -53,6 +53,24 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov11:02Z PERFORMANCE CONTINUES. Selected A/f833/shortcut protected.
+B20ac90a ScriptsOnly managed NONDEV BuiltUtc11:00:27Z SourceChanges[] over
+FULL551b/B235 packed shader.3Unityautos restored. Current native session5363,
+own visible player31736 on RIGHTMOST DISPLAY3: presented-burst-budget,9cases30s
+Medium1080/6km boreal+savanna. NO other heavy jobs during timing windows.
+New024 native Burst passes BOTHsites8exact instance/caster multisets +32paired
+images maxRGB0;BurstDiscard enforces compiled path. Actual65536distance smoke
+passes bit-exact after explicitDOUBLE expression intermediates matching managed
+Mono IL evaluation (float-sum11607mismatches failed/preserved). No tolerance
+relaxed. Burst remains OFF pending real normal-camera performance. New20ac
+diagnostic1ms manual incremental GC slices CONTINUE collecting each frame,
+restore original mode on exit, reject256MiB heap growth; defaultOFF. Must show
+real collections/bounded heap and improved tails before enabling. Tests now
+compare baseline/managed/Burst/partial roots/flat tree shading/GC/memory phase.
+Native Burst successful proof no errors/exceptions/JobTempAlloc warning.
+Need actual saved mixedUltra200km context after this run. Still100floor NOT
+solved; no geography/new features. Source/docs pushed;owner3files intact.
+
 ACTIVE5Nov10:45Z PERFORMANCE CONTINUES. Selected A/f833/shortcut protected.
 B ScriptsOnly build63457 running source d58a30d8 over FULL551b/B235 shader;
 check exit/stamp before use and restore3known Unityautos after Editor exits.

@@ -1,5 +1,5 @@
 {
-  "status": "Active render repair; performance floor NOT achieved; selected shortcut remains A/f833.",
+  "status": "Active performance repair;100FPS floor NOT achieved;selected A/f833/shortcut untouched. No new geography.",
   "candidate_source": "551b974e",
   "candidate_slot": "slot-b",
   "method": "Uncapped explicit offscreen D3D11/URP 1920x1080, Medium plants and surface, 6km, 20s windows; no own heavy parallel jobs. Not independently verified presented-frame GPU timing. forest-community-review is deliberately synchronous diagnostics and is excluded from throughput comparisons.",
@@ -1265,6 +1265,18 @@
       ],
       "summary_sha256": "a1632f65445c9493b85e5e68c7f50b368d1affc113208e8e4f86d931eab88a82",
       "equivalence_sha256": "f1348dd3348ce210f539307da574608a01182a05ed8eeca76cf7c7a2d816edf8"
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/burst-proofs-double",
+      "complete": true,
+      "source": "02493324b0c82ea4b760addcb8f6d8d50fb4af51",
+      "qualification": "Correctness only:0.1second windows are NOT throughput. Both sites pass8exact model/matrix/tint/fade/shadow multisets and32same-camera pairs max RGB delta0. Compiled backend required. No errors/exceptions or JobTempAlloc warning in successful log.",
+      "evidence_sha256": {
+        "package.json": "021c4ace312da291499382d22859e7dbd26c4b2363d40bd83816117a626f34ab",
+        "equivalence.txt": "cac8e77d63172fbaf805fc4758465ee91fc52a04164da73ea055f772f4bde7c0",
+        "player.log": "212d1bceec3853954c83990a3a1d545a48dad51d7070bf443197b64941d0fade",
+        "summary.csv": "972c560d6f591d3ce5bdbc9a8435665ca67e40573a4ba86defe9d1a79663674e"
+      }
     }
   ],
   "candidate_full_baseline": "b235940052176b17efa3c9149fe9715a337e3b39",
@@ -1286,9 +1298,9 @@
     "Crown depth reprojection still produces warped/lumpy results in actual forest overview: NOT accepted; optional bounded offset comparison added, not enabled in normal game.",
     "Artificial camera rotation can expose player shoulder/neck in rearward review captures; retained actors, not a claim about ordinary first-person body behavior."
   ],
-  "next_candidate_source": "a73932d43dd197ce831b96ccb3b81d57838f8091",
+  "next_candidate_source": "20ac90a0fc0a04f566cd38cef79722790e0ba6ad",
   "next_full_baseline": "b613f1e55a73ab690fb7513b44c878fb8ca5b52d",
-  "current_test": "FULL B build of opt-in Burst culling prototype is running; no current binary performance/compile acceptance claim.",
+  "current_test": "B20ac90a managed NONDEV ScriptsOnly over551b full/B235 packed shaders:normal-camera presented-burst-budget running;9cases30sec at boreal/savanna,Medium1080/6km. No concurrent heavy jobs. Own window31736 rightmost DISPLAY3.",
   "ground_mask_repair": {
     "source": "f6f812f4",
     "pure_checks": 5759,
@@ -1305,6 +1317,17 @@
     "human_input_memo": "78228actual bone comparisons zero error eachsite; presented human CPU1.207ms baseline vs1.226ms memo, no established gain, OFF.",
     "partial_forest_upload": "GPU actual data byte-identical after three disjoint block updates/deletion/restoration. Savanna34688bytes vs509824full. Default OFF until real moving transfer/timing measurements.",
     "ordinary_tree_impostor": "Two texture reads/view instead of four in detailed path; three-angle coverage kept. Actual overhead boreal original/flat inspected: flat reduces reprojection smearing but both retain coarse billboard limitations. OFF pending FPS and other views.",
-    "burst_native_admission": "New551b974e static NativeArray snapshots and pure IJobParallelFor kernel, source/terrain/ownership/camp/collected state captured on main; joins before publication and preserves append order. BurstDiscard fallback detection required in native proof. UNCOMPILED/UNVERIFIED at report time; OFF."
-  }
+    "burst_native_admission": "Native02493324 passes65536bit-exact distances,8exact instance/caster multisets and32paired images at each dense boreal/savanna;max RGB delta0,compiled execution required. Source20ac adds OFF-by-default incremental collection diagnostic only. Burst remains OFF pending normal presented timing.",
+    "incremental_collection_budget": "Diagnostic only: Manual mode continues incremental collection every frame at1ms slice, restores preceding mode on exit, automatically rejects if heap grows256MiB. OFF;requires real collections,bounded heap and improved full-frame tails before use."
+  },
+  "burst_numeric_rejections": [
+    {
+      "folder": "artifacts/render-repair-20261105/burst-proofs-details",
+      "reason": "Equal3555instance counts/matrices/tints/shadows,but sampled fades differed2.1e-7..4.8e-7;managed magnitude uses wider expression intermediates. Fixed explicitly in024 without relaxing exact instance/pixel thresholds."
+    },
+    {
+      "folder": "artifacts/render-repair-20261105/burst-math-high",
+      "reason": "Explicitfloat sum still mismatched11607/65536distances,max0.000244m. Explicitdouble expression fixed this in024;burst-math-double passes all65536exactly."
+    }
+  ]
 }
