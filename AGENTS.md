@@ -53,6 +53,18 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov16:43Z PERFORMANCE ONLY. Presented other-dense-contexts COMPLETE, own
+player exited, no competing sessions. Actual fb3/default worker OFF: jungle
+169.90turn/159.43moving max58.16ms; temperate185.18/163.61 max75.44ms;
+savanna152.20/139.99 max59.70ms. NOT100floor; moving streams unsettled.
+Own ScriptsOnly B NONDEV build session45293 from272f68b9 RUNNING. Do not mutate
+runtime code during compile. New diagnostic paced-GC trial DEFAULT OFF, auto GC
+retained: after16MiB heap growth, request0.25ms incremental slices until complete,
+then5sec cooldown. Prior naive every-frame GC trial remains retired. Need actual
+paired release measurement/call cost before keeping it. New bea GPU metric guard
+rejects impossible sensor counters only, NEVER frame durations. No shortcut/A
+changes. Windows RIGHTMOST. No geography/features/subagents/paid/ownerapp closure.
+
 ACTIVE5Nov16:23Z PERFORMANCE ONLY. Trial fb3fcd11 RETIRED by a7c8934d after actual
 presented-parallel-ground COMPLETE: sequential176.752FPS p9511.39/max38.04,
 parallel171.087 p9511.58/max38.96; no material gain. Worker proof remains valid
