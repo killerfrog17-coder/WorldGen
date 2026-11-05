@@ -53,6 +53,19 @@ OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
 
+ACTIVE5Nov17:08Z PERFORMANCE ONLY. Paced GC trial COMPLETE/rejected/reverted
+09c471d0: current184.74FPS p9510.30/max37.45 vs trial171.54 p9511.38/max76.52.
+167manual calls total341.34/max29.31ms; automatic GC retained unchanged. No own
+player remains. New UNCOMPILED opt-in staged terrain/root publication DEFAULT OFF:
+retain old visible terrain while root corrections prepare over0.7ms slices, then
+publish terrain+roots atomically; exact native comparison added but NOT run.
+New confirmed-allocation fix1b14 reuses authored plant vertex/UV scratch rather
+than native readback; needs312mesh exact regression. Forest correction now has
+separate trace31. B still272f68b9 NONDEV (rejected GC option OFF except explicit
+trial). A/shortcut protected. Need compile, native mesh+root proofs, then actual
+paired presented measurement before enabling staged path. Do NOT call100floor
+solved. Keep all own visible windows RIGHTMOST; no new features/subagents/paid.
+
 ACTIVE5Nov16:43Z PERFORMANCE ONLY. Presented other-dense-contexts COMPLETE, own
 player exited, no competing sessions. Actual fb3/default worker OFF: jungle
 169.90turn/159.43moving max58.16ms; temperate185.18/163.61 max75.44ms;
