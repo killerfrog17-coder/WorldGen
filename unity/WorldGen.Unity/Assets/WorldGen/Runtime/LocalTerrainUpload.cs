@@ -56,7 +56,7 @@ public sealed partial class LocalTerrainExplorer
             var allocated=Allocate();
             // Always execute the cleanup path, including cancellation before the
             // task starts. Passing token to Task.Run could strand its container.
-            return System.Threading.Tasks.Task.Run(()=>{try{token.ThrowIfCancellationRequested();return Prepare(build(),token,allocated);}catch{allocated.Dispose();throw;}});
+            return System.Threading.Tasks.Task.Run(()=>{LocalTerrainMesh source=null;try{token.ThrowIfCancellationRequested();source=build();return Prepare(source,token,allocated);}catch{allocated.Dispose();throw;}finally{source?.ReleaseUploadBuffers();}});
         }
 
         public static TerrainUpload Prepare(LocalTerrainMesh source,CancellationToken token)
@@ -136,6 +136,7 @@ public sealed partial class LocalTerrainExplorer
     }
 
     readonly System.Collections.Generic.List<double> loadingFrames=new System.Collections.Generic.List<double>();
+    public string PerformanceUploadPool=>meshProcess?.UploadBufferStatistics??"no worker";
     bool loadingProfile;
     int loadingSkip,loadingCollections;
     double largestGroundMs;
@@ -158,8 +159,19 @@ public sealed partial class LocalTerrainExplorer
             Lithology=new float[]{.1f,.2f,.3f,.1f,.2f,.1f,.1f,.2f,.3f,.1f,.2f,.1f,.1f,.2f,.3f,.1f,.2f,.1f},
             Triangles=new[]{0,1,2},WaterPositions=new float[]{0,3,0,3,3,0,0,3,3},
             WaterColors=new float[]{0,0,1,1,0,0,1,1,0,0,1,1},WaterTriangles=new[]{0,1,2}};
-        var task=TerrainUpload.Schedule(()=>source,CancellationToken.None);
+        using var pool=new TerrainUploadBufferPool();
+        LocalTerrainMesh Lease()
+        {
+            using var stream=new System.IO.MemoryStream();
+            using(var writer=new System.IO.BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteMesh(writer,source);
+            stream.Position=0;using var reader=new System.IO.BinaryReader(stream);return TerrainMeshWire.ReadMesh(reader,pool);
+        }
+        var borrowed=Lease();var task=TerrainUpload.Schedule(()=>borrowed,CancellationToken.None);
         while(!task.IsCompleted)yield return null;
+        if(borrowed.Positions.Length!=0)throw new InvalidOperationException("Native upload did not return transport attributes");
+        // Overwrite the returned arrays before Apply. The native prepared mesh
+        // must already own independent vertex/index data at this point.
+        var reused=Lease();for(int i=0;i<reused.Positions.Length;i++)reused.Positions[i]=999;
         using(var upload=task.GetAwaiter().GetResult())
         {
             var meshes=upload.Apply();
@@ -175,6 +187,7 @@ public sealed partial class LocalTerrainExplorer
             }
             finally{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);}
         }
+        reused.ReleaseUploadBuffers();
         bool cancelled=false;
         try{using(var ignored=TerrainUpload.Prepare(source,new CancellationToken(true))){} }catch(OperationCanceledException){cancelled=true;}
         if(!cancelled)throw new InvalidOperationException("Cancelled native buffer preparation was not cancelled/disposed.");
@@ -189,6 +202,6 @@ public sealed partial class LocalTerrainExplorer
             using(var upload=TerrainUpload.Prepare(large,CancellationToken.None))
             {var meshes=upload.Apply();try{if(meshes[0].indexFormat!=(count<=65535?IndexFormat.UInt16:IndexFormat.UInt32)||meshes[0].triangles[2]!=count-1)throw new InvalidOperationException("Final terrain geometry exceeded compact index format");}finally{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);}}
         }
-        System.IO.File.WriteAllText(System.IO.Path.Combine(output,"upload-buffers.txt"),"PASS worker-prepared native positions, normals, colors, lithology, indices, bounds, water, controller heights and cancelled-buffer disposal.");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(output,"upload-buffers.txt"),"PASS worker-prepared native positions, normals, colors, lithology, indices, bounds, water, controller heights, returned/overwritten transport arrays and cancelled-buffer disposal.");
     }
 }

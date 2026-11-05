@@ -34,6 +34,7 @@ public static class WorldGenPerformance
     public static bool ScatterRangeCache;
     public static bool MemoHumanInputs;
     public static bool RepeatHumanOutputBinding;
+    public static bool NoTerrainBufferReuse;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -1113,6 +1114,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-unpooled-terrain",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.NoTerrainBufferReuse=true),
             new PerfCase("travel-whip-parallel",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("travel-whip-range-cache",()=>WorldGenPerformance.ScatterRangeCache=true),
             new PerfCase("travel-whip-parallel-range",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.ScatterRangeCache=true),
@@ -1182,6 +1184,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
                 WorldGenPerformance.TracePresentedCamera=false;
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
+                WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -1317,6 +1320,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
+                File.AppendAllText(Path.Combine(output,"terrain-upload-pool.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));

@@ -22,8 +22,10 @@ namespace WorldGen.Presentation
             for(int at=0;at<bytes;){int n=Math.Min(buffer.Length,bytes-at),got=0;while(got<n){int r=reader.Read(buffer,got,n-got);if(r==0)throw new EndOfStreamException();got+=r;}Buffer.BlockCopy(buffer,0,target,at,n);at+=n;}
         }
         static int Length(BinaryReader reader){int n=reader.ReadInt32();if(n<0||n>8000000)throw new InvalidDataException("Invalid terrain mesh array length.");return n;}
-        static float[] Floats(BinaryReader reader){var data=new float[Length(reader)];ArrayIn(reader,data);return data;}
-        static int[] Ints(BinaryReader reader){var data=new int[Length(reader)];ArrayIn(reader,data);return data;}
+        static float[] Floats(BinaryReader reader,TerrainUploadBufferPool? pool=null)
+        {int length=Length(reader);var data=pool==null?new float[length]:pool.Floats(length);try{ArrayIn(reader,data);return data;}catch{pool?.Return(data);throw;}}
+        static int[] Ints(BinaryReader reader,TerrainUploadBufferPool? pool=null)
+        {int length=Length(reader);var data=pool==null?new int[length]:pool.Ints(length);try{ArrayIn(reader,data);return data;}catch{pool?.Return(data);throw;}}
         static void Vector(BinaryWriter w,V v){w.Write(v.X);w.Write(v.Y);w.Write(v.Z);}
         static V Vector(BinaryReader r)=>new V{X=r.ReadDouble(),Y=r.ReadDouble(),Z=r.ReadDouble()};
         public static void WriteRequest(BinaryWriter w,LocalTerrainFrame frame,double east,double north,double size,int segments,double[] edges)
@@ -45,11 +47,13 @@ namespace WorldGen.Presentation
             foreach(var a in new[]{m.Positions,m.Normals,m.Colors,m.SurfaceWeights,m.GroundWeightsB,m.Lithology,m.WaterPositions,m.WaterColors})ArrayOut(w,a);
             ArrayOut(w,m.Triangles);ArrayOut(w,m.WaterTriangles);ArrayOut(w,m.GroundCover);ArrayOut(w,m.MidCover);ArrayOut(w,m.ForestCover);w.Flush();
         }
-        public static LocalTerrainMesh ReadMesh(BinaryReader r)
+        public static LocalTerrainMesh ReadMesh(BinaryReader r,TerrainUploadBufferPool? pool=null)
         {
             var m=new LocalTerrainMesh{EastM=r.ReadDouble(),NorthM=r.ReadDouble(),SizeM=r.ReadDouble(),MinHeightM=r.ReadDouble(),MaxHeightM=r.ReadDouble(),BuildMilliseconds=r.ReadDouble(),Segments=r.ReadInt32(),GroundVertices=r.ReadInt32()};
             if(m.Segments<4||m.Segments>128||m.GroundVertices<0||m.GroundVertices>16641)throw new InvalidDataException("Invalid terrain mesh dimensions.");
-            m.Positions=Floats(r);m.Normals=Floats(r);m.Colors=Floats(r);m.SurfaceWeights=Floats(r);m.GroundWeightsB=Floats(r);m.Lithology=Floats(r);m.WaterPositions=Floats(r);m.WaterColors=Floats(r);m.Triangles=Ints(r);m.WaterTriangles=Ints(r);
+            m.UploadPool=pool;
+            try{
+            m.Positions=Floats(r,pool);m.Normals=Floats(r,pool);m.Colors=Floats(r,pool);m.SurfaceWeights=Floats(r,pool);m.GroundWeightsB=Floats(r,pool);m.Lithology=Floats(r,pool);m.WaterPositions=Floats(r,pool);m.WaterColors=Floats(r,pool);m.Triangles=Ints(r,pool);m.WaterTriangles=Ints(r,pool);
             m.GroundCover=Floats(r);m.MidCover=Floats(r);m.ForestCover=Floats(r);int vertices=m.Positions.Length/3;
             if(m.ForestCover.Length!=0&&m.ForestCover.Length!=m.GroundVertices*8)throw new InvalidDataException("Incomplete forest cover grid.");
             if(m.MidCover.Length!=0&&m.MidCover.Length!=m.GroundVertices*6)throw new InvalidDataException("Incomplete mid-height cover grid.");
@@ -57,6 +61,7 @@ namespace WorldGen.Presentation
             if(m.Positions.Length%3!=0||m.Normals.Length!=m.Positions.Length||m.Colors.Length!=vertices*4||m.SurfaceWeights.Length!=vertices*4||m.GroundWeightsB.Length!=vertices*4||m.Lithology.Length!=vertices*6||m.WaterColors.Length!=m.WaterPositions.Length/3*4)
                 throw new InvalidDataException("Incomplete terrain mesh attributes.");
             return m;
+            }catch{m.ReleaseUploadBuffers();throw;}
         }
         public static void WriteScatterKey(BinaryWriter w,ScatterKey key)
         {w.Write(Version);w.Write(key.Face);w.Write(key.X);w.Write(key.Y);w.Write(key.Detail);w.Flush();}

@@ -22,6 +22,8 @@ public sealed class TerrainMeshProcess : IDisposable
     readonly CancellationTokenSource lifetime=new CancellationTokenSource();
     readonly Task<Connection> ready;
     readonly object gate=new object();
+    readonly TerrainUploadBufferPool uploadBuffers=new TerrainUploadBufferPool();
+    public string UploadBufferStatistics=>"created_bytes="+uploadBuffers.CreatedBytes+" reused_bytes="+uploadBuffers.ReusedBytes+" retained_bytes="+uploadBuffers.RetainedBytes;
     IntPtr hostHandle;TcpListener bootstrap;
     [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]
     struct StartupInfo
@@ -105,12 +107,12 @@ public sealed class TerrainMeshProcess : IDisposable
                 using(var stream=client.GetStream())using(var incoming=new BufferedStream(stream,65536))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
                 {
                     w.Write(connection.Token);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,east,north,size,segments,edges);
-                    try
+                    LocalTerrainMesh mesh=null;try
                     {
                         if(!r.ReadBoolean())throw new InvalidOperationException("Terrain worker: "+r.ReadString());
-                        var mesh=TerrainMeshWire.ReadMesh(r);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return mesh;
+                        mesh=TerrainMeshWire.ReadMesh(r,WorldGenPerformance.NoTerrainBufferReuse?null:uploadBuffers);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return mesh;
                     }
-                    catch{linked.Token.ThrowIfCancellationRequested();throw;}
+                    catch{mesh?.ReleaseUploadBuffers();linked.Token.ThrowIfCancellationRequested();throw;}
                 }
             }
         }
@@ -173,5 +175,5 @@ public sealed class TerrainMeshProcess : IDisposable
         catch{token.ThrowIfCancellationRequested();lifetime.Token.ThrowIfCancellationRequested();throw;}
     }
     void DisposeHost(){lock(gate){if(hostHandle!=IntPtr.Zero){if(GetExitCodeProcess(hostHandle,out uint code)&&code==259)TerminateProcess(hostHandle,0);CloseHandle(hostHandle);hostHandle=IntPtr.Zero;}}}
-    public void Dispose(){lifetime.Cancel();bootstrap?.Stop();DisposeHost();}
+    public void Dispose(){lifetime.Cancel();bootstrap?.Stop();DisposeHost();uploadBuffers.Dispose();}
 }

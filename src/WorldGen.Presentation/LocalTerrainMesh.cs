@@ -31,6 +31,15 @@ namespace WorldGen.Presentation
 
     public sealed class LocalTerrainMesh
     {
+        internal TerrainUploadBufferPool? UploadPool;
+        /// <summary>Release only leased transport attributes after their native
+        /// copy completes. Ground/mid/forest grids remain owned by the tile.</summary>
+        public void ReleaseUploadBuffers()
+        {
+            var pool=System.Threading.Interlocked.Exchange(ref UploadPool,null);if(pool==null)return;
+            pool.Return(Positions);pool.Return(Normals);pool.Return(Colors);pool.Return(SurfaceWeights);pool.Return(GroundWeightsB);pool.Return(Lithology);pool.Return(WaterPositions);pool.Return(WaterColors);pool.Return(Triangles);pool.Return(WaterTriangles);
+            Positions=Normals=Colors=SurfaceWeights=GroundWeightsB=Lithology=WaterPositions=WaterColors=Array.Empty<float>();Triangles=WaterTriangles=Array.Empty<int>();
+        }
         public float[] Positions = Array.Empty<float>(), Normals = Array.Empty<float>(), Colors = Array.Empty<float>();
         public float[] WaterPositions = Array.Empty<float>(), WaterColors = Array.Empty<float>();
         // UV1: soil/sand/gravel/clay; UV2: rock/organic/salt/ice. Independent from geometry.
