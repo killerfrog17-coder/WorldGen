@@ -55,7 +55,9 @@ public sealed partial class LocalTerrainExplorer
         // layout/input events need no terrain queries or pickup icon scans.
         if(Event.current.type!=EventType.Repaint)return;
         if(!Ready||DeathVisible||Spectating||inventoryOpen||paused||mapOpen||chatOpen||ecologyOpen||!Application.isFocused&&!inventoryReviewMode)return;
+        UnityEngine.Profiling.Profiler.BeginSample("WorldGen.PickupCandidates");
         RefreshInventoryNearby();PrepareInventoryIcons();
+        UnityEngine.Profiling.Profiler.EndSample();
         float scale=Mathf.Clamp(Screen.height/1080f,.6f,1.8f);
         var feet=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
         var old=GUI.color;
@@ -70,7 +72,10 @@ public sealed partial class LocalTerrainExplorer
         }
         GUI.color=old;
         var target=AimedPossession();float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
-        string nature=CampPrompt(itemDistance)??NaturePrompt(itemDistance)??WaterPrompt(itemDistance);if(target==null&&nature==null)return;
+        UnityEngine.Profiling.Profiler.BeginSample("WorldGen.CampPrompt");string nature=CampPrompt(itemDistance);UnityEngine.Profiling.Profiler.EndSample();
+        if(nature==null){UnityEngine.Profiling.Profiler.BeginSample("WorldGen.NaturePrompt");nature=NaturePrompt(itemDistance);UnityEngine.Profiling.Profiler.EndSample();}
+        if(nature==null){UnityEngine.Profiling.Profiler.BeginSample("WorldGen.WaterPrompt");nature=WaterPrompt(itemDistance);UnityEngine.Profiling.Profiler.EndSample();}
+        if(target==null&&nature==null)return;
         PreparePickupPromptStyles(Mathf.RoundToInt(17*scale));
         var rect=new Rect(Screen.width*.5f-180*scale,Screen.height*.5f+31*scale,360*scale,30*scale);
         string prompt=nature??(InventoryDisplayName(target.Item)+"  [E]");
