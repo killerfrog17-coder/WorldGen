@@ -106,6 +106,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void PrepareScatterGroups(ScatterChunk chunk,LocalTerrainFrame boundsFrame)
     {
+        chunk.RangeValid=false;
         int count=chunk.Source.Instances.Length;
         // Static spatial bins avoid revisiting every plant in a half-kilometre
         // source patch whenever the camera turns. This is an additional broad

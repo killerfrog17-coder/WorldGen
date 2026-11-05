@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
     struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
     struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
-    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
+    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted;public bool RangeValid;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
@@ -333,7 +333,7 @@ public sealed partial class LocalTerrainExplorer
                 bounds=group.RootBounds;bounds.SetMinMax(rootMin,rootMax);group.RootBounds=bounds;
             }
         }
-        if(changed){var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;canopySourceRevision++;}
+        if(changed){chunk.RangeValid=false;var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);chunk.AllBounds=bounds;canopySourceRevision++;}
         WorldGenPerformance.TraceEnd(11,trace);
     }
     void ProjectScatter(ScatterChunk chunk)
@@ -430,6 +430,24 @@ public sealed partial class LocalTerrainExplorer
     readonly bool[] scatterParallelCasts=new bool[13];
     Action<int> scatterCollectAction;Vector3 scatterCollectEye;bool scatterParallelCollecting;
     public int ParallelScatterBuilds {get;private set;}
+    const float ScatterRangeMargin=16;
+    void PrepareScatterRange(ScatterChunk chunk,Vector3 eye)
+    {
+        int stamp=HashCode.Combine(TerrainVideoOptions.TreeIdentityRange,TerrainVideoOptions.TreeMaxDistance,TerrainVideoOptions.MidMaxDistance,TerrainVideoOptions.SpecialistDistance,TerrainVideoOptions.FungusDistance,TerrainVideoOptions.TreeRebuild,TerrainVideoOptions.TreeImpostors);
+        if(chunk.RangeValid&&chunk.RangeStamp==stamp&&(chunk.RangeEye-eye).sqrMagnitude<ScatterRangeMargin*ScatterRangeMargin)return;
+        chunk.RangeGroups.Clear();chunk.RangeOmitted=0;
+        foreach(var group in chunk.Groups)
+        {
+            // Distance to an AABB is 1-Lipschitz: a root bin farther than its
+            // draw radius + movement margin stays out of range throughout it.
+            // Keep the ordinary current-eye range, LOD, frustum and hill tests
+            // for every retained bin. No visibility result is cached here.
+            double range=TerrainVideoOptions.VegetationMaximumDistance(group.Kind,group.MaximumWidth)+.1+ScatterRangeMargin;
+            if(group.RootBounds.SqrDistance(eye)>=range*range)chunk.RangeOmitted+=group.Indices.Length;
+            else chunk.RangeGroups.Add(group);
+        }
+        chunk.RangeEye=eye;chunk.RangeStamp=stamp;chunk.RangeValid=true;
+    }
     void QueueScatterAdmission(ScatterChunk chunk,int index,int lod,float low,float high,bool shadowOnly)
     {
         if(high-low<.0001f)return;
@@ -520,9 +538,11 @@ public sealed partial class LocalTerrainExplorer
             if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(chunkBounds,eye)&&!MayCastVisibleShadow(chunkBounds,eye))
             {counts.Frustum+=chunk.Source.Instances.Length;chunk.AdmissionCounts=counts;return;}
             bool grouped=!WorldGenPerformance.Original&&chunk.Groups!=null&&chunk.Groups.Length>1;
-            for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
+            bool rangeCached=grouped&&WorldGenPerformance.ScatterRangeCache;
+            if(rangeCached){PrepareScatterRange(chunk,eye);counts.Frustum+=chunk.RangeOmitted;}
+            for(int region=0;region<(rangeCached?chunk.RangeGroups.Count:grouped?chunk.Groups.Length:1);region++)
             {
-            var group=grouped?chunk.Groups[region]:null;
+            var group=rangeCached?chunk.RangeGroups[region]:grouped?chunk.Groups[region]:null;
             bool groupInside=!TerrainVideoOptions.ScatterFrustum||scatterCachedAllHeadings,groupOutside=false,groupHidden=false;
             if(grouped)
             {
