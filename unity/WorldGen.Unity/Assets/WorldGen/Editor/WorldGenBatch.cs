@@ -63,11 +63,13 @@ public static class WorldGenBatch
         var priorBackend=PlayerSettings.GetScriptingBackend(namedTarget);
         var priorManagedStripping=PlayerSettings.GetManagedStrippingLevel(namedTarget);
         bool priorTiming=PlayerSettings.enableFrameTimingStats;
-        string priorProduct=PlayerSettings.productName;
         try
         {
             if(stripping!=null)stripping.stripUnusedPostProcessingVariants=false;
-            if(arguments.Contains("--worldgen-performance-build")){PlayerSettings.enableFrameTimingStats=true;PlayerSettings.productName=priorProduct+".Performance";}
+            // Keep the same preference namespace so an explicit saved-settings
+            // benchmark really reads the owner's configuration. Helpers never
+            // write those preferences; this option only enables GPU timing.
+            if(arguments.Contains("--worldgen-performance-build"))PlayerSettings.enableFrameTimingStats=true;
             // Owner 1 Nov: fast managed iteration; explicit native packaging for
             // requested major playable releases only.
             bool native=arguments.Contains("--worldgen-il2cpp-player");
@@ -89,6 +91,6 @@ public static class WorldGenBatch
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),locationPathName=output,target=BuildTarget.StandaloneWindows64,options=options});
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Player build failed: "+report.summary.result);
         }
-        finally{PlayerSettings.productName=priorProduct;PlayerSettings.enableFrameTimingStats=priorTiming;if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;PlayerSettings.SetScriptingBackend(namedTarget,priorBackend);PlayerSettings.SetManagedStrippingLevel(namedTarget,priorManagedStripping);}
+        finally{PlayerSettings.enableFrameTimingStats=priorTiming;if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;PlayerSettings.SetScriptingBackend(namedTarget,priorBackend);PlayerSettings.SetManagedStrippingLevel(namedTarget,priorManagedStripping);}
     }
 }
