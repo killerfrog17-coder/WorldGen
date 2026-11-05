@@ -105,6 +105,7 @@ if(args.Contains("--survival-modes-only")){SurvivalModeTests.Run();return;}
 if(args.Contains("--survival-hud-only")){SurvivalHudTests.Run();return;}
 if(args.Contains("--vegetation-community-only")){VegetationCommunityTests.Run();return;}
 if(args.Contains("--streaming-fog-only")){TerrainStreamingRevealTests.Run();return;}
+if(args.Contains("--sound-file-index")){WildlifeSoundFileIndexTests.Run();return;}
 if(args.Contains("--tree-rendering-lod-only")){TreeRenderingLodTests.Run();return;}
 if(args.Contains("--sun-shadow-budget-only")){SunShadowBudgetTests.Run();return;}
 if(args.Contains("--forest-budget-world")){ForestBudgetTests.Run(args[1],args.Length>2?double.Parse(args[2],System.Globalization.CultureInfo.InvariantCulture):60000);return;}

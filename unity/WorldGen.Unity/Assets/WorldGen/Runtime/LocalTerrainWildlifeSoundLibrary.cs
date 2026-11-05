@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
     sealed class CachedWildlifeSound
     {public AudioClip Clip;public string Hash;public double Used;public long Bytes;}
-    sealed class WildlifeScan
-    {public WildlifeSoundCatalogue Catalogue;public int Missing;}
     WildlifeSoundCatalogue wildlifeSounds=new WildlifeSoundCatalogue();
     readonly Dictionary<string,CachedWildlifeSound> wildlifeSoundCache=new Dictionary<string,CachedWildlifeSound>(StringComparer.Ordinal);
     readonly Queue<WildlifeSoundTake> wildlifeSoundQueue=new Queue<WildlifeSoundTake>();
     readonly Queue<WildlifeSoundTake> wildlifeSoundUrgent=new Queue<WildlifeSoundTake>();
     readonly HashSet<string> wildlifeSoundQueued=new HashSet<string>(StringComparer.Ordinal),wildlifeSoundBad=new HashSet<string>(StringComparer.Ordinal);
-    Task<WildlifeScan> wildlifeSoundScan;
+    Task<WildlifeSoundFileIndex> wildlifeSoundScan;
+    WildlifeSoundFileIndex wildlifeLastScan;bool wildlifeForceScan;
     Coroutine wildlifeSoundLoader;UnityWebRequest wildlifeSoundRequest;
     string wildlifeSoundRoot;double wildlifeNextScan,wildlifeNextEvict;int wildlifeMissing,wildlifeCatalogueVersion;
     bool wildlifeLibraryReady;
@@ -37,10 +37,14 @@ public sealed partial class LocalTerrainExplorer
         {
             if(wildlifeSoundScan.Status==TaskStatus.RanToCompletion)
             {
-                var result=wildlifeSoundScan.Result;wildlifeSounds=result.Catalogue;wildlifeMissing=result.Missing;wildlifeLibraryReady=true;wildlifeCatalogueVersion++;
+                var result=wildlifeSoundScan.Result;
+                if(!ReferenceEquals(result,wildlifeLastScan))
+                {
+                wildlifeLastScan=result;wildlifeSounds=result.Catalogue;wildlifeMissing=result.Missing;wildlifeLibraryReady=true;wildlifeCatalogueVersion++;
                 var present=new HashSet<string>(wildlifeSounds.Takes.Select(t=>t.File),StringComparer.Ordinal);
                 foreach(string key in wildlifeSoundCache.Keys.Where(k=>!present.Contains(k)).ToArray())DiscardWildlifeClip(key);
                 wildlifeSoundBad.RemoveWhere(key=>!present.Contains(key));
+                }
             }
             else if(wildlifeSoundScan.IsFaulted)Debug.LogWarning("Wildlife sound catalogue: "+wildlifeSoundScan.Exception.GetBaseException().Message);
             wildlifeSoundScan=null;
@@ -48,18 +52,8 @@ public sealed partial class LocalTerrainExplorer
         if(wildlifeSoundScan==null&&now>=wildlifeNextScan)
         {
             wildlifeNextScan=now+10;string root=wildlifeSoundRoot;
-            wildlifeSoundScan=Task.Run(()=>
-            {
-                var result=new WildlifeScan{Catalogue=new WildlifeSoundCatalogue()};string manifest=Path.Combine(root,"library.tsv");
-                if(!File.Exists(manifest))return result;
-                var catalogue=WildlifeSoundCatalogue.Parse(File.ReadAllText(manifest));
-                foreach(var entry in catalogue.Takes)
-                {
-                    var info=new FileInfo(Path.Combine(root,entry.File));
-                    if(info.Exists&&info.Length>=100&&info.Length<=12*1024*1024)result.Catalogue.Add(entry);else result.Missing++;
-                }
-                return result;
-            },faunaCancel.Token);
+            var prior=wildlifeForceScan?null:wildlifeLastScan;wildlifeForceScan=false;
+            wildlifeSoundScan=Task.Run(()=>WildlifeSoundFileIndex.Scan(root,prior),faunaCancel.Token);
         }
         if(wildlifeSoundLoader==null&&wildlifeSoundQueue.Count+wildlifeSoundUrgent.Count>0)wildlifeSoundLoader=StartCoroutine(LoadWildlifeSoundQueue());
         if(now>=wildlifeNextEvict)
@@ -72,7 +66,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
     }
-    public void ReloadWildlifeAudio(){wildlifeNextScan=0;wildlifeSoundBad.Clear();}
+    public void ReloadWildlifeAudio(){wildlifeNextScan=0;wildlifeForceScan=true;wildlifeSoundBad.Clear();}
     AudioClip WildlifeClip(WildlifeSoundTake take,bool urgent=false)
     {
         if(take==null||faunaDisposed||wildlifeSoundBad.Contains(take.File))return null;
@@ -131,5 +125,6 @@ public sealed partial class LocalTerrainExplorer
         if(wildlifeSoundRequest!=null){wildlifeSoundRequest.Abort();wildlifeSoundRequest.Dispose();wildlifeSoundRequest=null;}
         foreach(var clip in wildlifeSoundCache.Values)Destroy(clip.Clip);wildlifeSoundCache.Clear();wildlifeSoundQueue.Clear();wildlifeSoundUrgent.Clear();wildlifeSoundQueued.Clear();
         if(wildlifeSoundScan!=null)wildlifeSoundScan.ContinueWith(t=>{if(t.IsFaulted){var observed=t.Exception;}},TaskScheduler.Default);
+        wildlifeLastScan=null;
     }
 }
