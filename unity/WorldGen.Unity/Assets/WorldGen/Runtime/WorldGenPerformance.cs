@@ -1101,6 +1101,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-original",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("turning",()=>{}),
             new PerfCase("turning-whip",()=>{}),
+            new PerfCase("turning-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("turning-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("turning-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("turning-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
@@ -1111,6 +1112,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
+            new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-parallel",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("travel-whip-range-cache",()=>WorldGenPerformance.ScatterRangeCache=true),
             new PerfCase("travel-whip-parallel-range",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.ScatterRangeCache=true),
@@ -1121,7 +1123,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-partial-upload",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
-            new PerfCase("travel-whip-repeat-human-binding",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.RepeatHumanOutputBinding=true),
+            new PerfCase("travel-whip-repeat-human-binding",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.RepeatHumanOutputBinding=true),
             new PerfCase("travel-whip-camera-trace",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.TracePresentedCamera=true),
             new PerfCase("travel-whip-coarse-shadows",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;}),
             new PerfCase("travel-whip-coarse-sorted",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=TerrainVideoOptions.FrontToBackTrees=true;}),
@@ -1282,7 +1284,7 @@ public sealed partial class WorldGenRuntime
                         var t=WorldGenPerformance.TraceMilliseconds;
                         stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16],Survival=t[17],Prepared=t[18],Humans=t[19],Player=t[20],Fauna=t[21],AnimalMove=t[22],AnimalPose=t[23],BatchCollect=t[24],BatchUpload=t[25],TerrainOcclusion=t[26],FrustumTest=t[27],InstanceAppend=t[28],FrameAllocated=allocationRecorder.Valid?allocationRecorder.LastValue:-1,ScatterClassify=t[29],ScatterAppend=t[30],CameraRender=t[8],HeapUpdate=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapGrowth[0]:0,HeapScatter=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapGrowth[2]:0,HeapHumans=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapGrowth[19]:0,HeapPlayer=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapGrowth[20]:0,HeapFauna=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapGrowth[21]:0,HeapCamera=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapGrowth[8]:0,HeapIntervalsWithCollection=WorldGenPerformance.MemoryTrace?WorldGenPerformance.HeapIntervalCollections:0});
                     }
-                    if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name=="turning-whip"?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
+                    if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name.StartsWith("turning-whip",StringComparison.Ordinal)?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
                     {terrainExplorer.PerformanceTravel((now-start)*8);if(item.Name.StartsWith("travel-whip",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));}
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
