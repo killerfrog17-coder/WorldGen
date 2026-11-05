@@ -33,6 +33,7 @@ public static class WorldGenPerformance
     public static bool BurstScatter=true;
     public static bool ScatterRangeCache;
     public static bool MemoHumanInputs;
+    public static bool RepeatHumanOutputBinding;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -342,7 +343,7 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{WorldGenPerformance.ParallelScatter=before;WorldGenPerformance.BurstScatter=beforeBurst;WorldGenPerformance.DirectionalScatter=directional;PerformanceTurn(20);BuildScatterBatches();}
     }
-    public string PerformanceVerifyHumanInputs()
+    public string PerformanceVerifyHumanInputs(bool outputBinding=false)
     {
         bool old=WorldGenPerformance.MemoHumanInputs;int samples=0;float maximum=0;
         try
@@ -364,7 +365,9 @@ public sealed partial class LocalTerrainExplorer
                         bool airborne=step%180>=150,crouch=step%180>=120&&step%180<150,swim=step%240>=210;
                         void Apply(HumanActor actor,bool memo)
                         {
-                            WorldGenPerformance.MemoHumanInputs=memo;actor.Shared.Locomotion(speed,airborne,crouch,swim,1f/60,new Vector2(step%80<40?0:-1,1));
+                            WorldGenPerformance.MemoHumanInputs=!outputBinding&&memo;
+                            if(outputBinding){if(memo)BindHumanOutput(actor,actor.Shared.Output);else actor.Output.SetSourcePlayable(actor.Shared.Output);}
+                            actor.Shared.Locomotion(speed,airborne,crouch,swim,1f/60,new Vector2(step%80<40?0:-1,1));
                             actor.Shared.Action(role,step/60d,step%60>=12,step%36>=18,other,step/70d,step%32<16,1f/60,step%50<25,step%30<15,step%40<20);actor.Graph.Evaluate(1f/60);
                         }
                         Apply(reference,false);Apply(cached,true);
@@ -379,7 +382,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 finally{if(reference!=null)DestroyHuman(reference);if(cached!=null)DestroyHuman(cached);}
             }
-            return "PASS "+samples+" actual human bone-pose comparisons across two authored bodies, locomotion/swim/air/crouch and every action layer role; max component error "+maximum;
+            return "PASS "+samples+" actual human bone-pose comparisons ("+(outputBinding?"unchanged output binding":"memoized weights")+") across two authored bodies, locomotion/swim/air/crouch and every action layer role; max component error "+maximum;
         }
         finally{WorldGenPerformance.MemoHumanInputs=old;}
     }
@@ -1013,6 +1016,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("plants-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("water-query-verify",()=>{}),
             new PerfCase("water-aim-verify",()=>{}),
+            new PerfCase("human-output-verify",()=>{}),
             new PerfCase("water-query-fresh",()=>WorldGenPerformance.ForceFreshWaterSamples=true),
             new PerfCase("travel-whip-full-water-aim",()=>WorldGenPerformance.FullWaterAim=true),
             new PerfCase("animal-pose-verify",()=>{}),
@@ -1117,6 +1121,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-partial-upload",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-burst",()=>WorldGenPerformance.BurstScatter=true),
             new PerfCase("travel-whip-burst-partial",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-repeat-human-binding",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.RepeatHumanOutputBinding=true),
             new PerfCase("travel-whip-camera-trace",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.TracePresentedCamera=true),
             new PerfCase("travel-whip-coarse-shadows",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;}),
             new PerfCase("travel-whip-coarse-sorted",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=TerrainVideoOptions.FrontToBackTrees=true;}),
@@ -1174,12 +1179,13 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.GpuNearOcclusion=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.ScatterRangeCache=false;Shader.SetGlobalFloat("_WorldGenFullPlantPbr",0);Shader.SetGlobalFloat("_WorldGenTreeStableDepth",0);Shader.DisableKeyword("WORLDGEN_FLAT_TREE_DEPTH");
                 WorldGenPerformance.MemoHumanInputs=WorldGenPerformance.MemoryTrace=WorldGenPerformance.PartialForestUploads=false;
                 WorldGenPerformance.TracePresentedCamera=false;
+                WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
-                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
+                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" repeatHumanBinding="+WorldGenPerformance.RepeatHumanOutputBinding+" fullWaterAim="+WorldGenPerformance.FullWaterAim+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;
@@ -1209,6 +1215,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="forest-community-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewVegetation(output,site.Item1)+"\n");
                 if(item.Name=="water-query-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyWaterSamples()+"\n");
                 if(item.Name=="water-aim-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyWaterAim()+"\n");
+                if(item.Name=="human-output-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyHumanInputs(true)+"\n");
                 if(item.Name=="animal-pose-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyAnimalPoseMath()+"\n");
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");
                 if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}

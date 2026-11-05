@@ -220,12 +220,12 @@ public sealed partial class LocalTerrainExplorer
                 var held=SharedMainHeld;
                 if(held!=null)swimRole=held.Hands==2||held.Kind==PossessionKind.Bow&&NaturalActing(held)?"SwimCarryTwo":NaturalSide(held)=="l"?"SwimCarryLeft":"SwimCarry";
             }
-            actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);
+            BindHumanOutput(actor,actor.Shared.Output);actor.Shared.Locomotion(speed,airborne,crouch,swimming,dt,actor.LocalVelocity,swimRole);
             // Local residents add their routine/carry layers immediately after
             // this call. Evaluate that combined graph once, not twice.
             if(actor.ResidentId==0){actor.Graph.Evaluate(dt);if(crouch&&!swimming)CorrectHumanCrouch(actor);}return;
         }
-        actor.Output.SetSourcePlayable(actor.Mixer);
+        BindHumanOutput(actor,actor.Mixer);
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
         actor.Airborne=airborne;float total=0;
         // Keep left/right foot phases aligned when mixing clips with different
@@ -256,6 +256,13 @@ public sealed partial class LocalTerrainExplorer
         }
         for(int i=0;i<actor.Inputs.Length;i++)actor.Mixer.SetInputWeight(i,actor.Weights[i]/Mathf.Max(.0001f,total));
         actor.Graph.Evaluate(dt);
+    }
+    static void BindHumanOutput(HumanActor actor,Playable source)
+    {
+        // Reassigning an unchanged output dirties the Animator's bindings.
+        // Keep evaluating its graph normally; only change the binding when the
+        // selected motion system actually changes.
+        if(WorldGenPerformance.RepeatHumanOutputBinding||!actor.Output.GetSourcePlayable().Equals(source))actor.Output.SetSourcePlayable(source);
     }
     static void CorrectHumanCrouch(HumanActor actor)
     {var spine=actor.SneakSpine;var direction=(actor.SneakNeck.position-spine.position).normalized;var desired=(Vector3.up+actor.Root.transform.forward*.2f).normalized;spine.rotation=Quaternion.FromToRotation(direction,desired)*spine.rotation;foreach(var pair in actor.RelaxedArms)pair.Key.localRotation=pair.Value;}
