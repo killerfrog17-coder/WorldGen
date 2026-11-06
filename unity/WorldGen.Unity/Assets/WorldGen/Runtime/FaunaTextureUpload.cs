@@ -92,8 +92,10 @@ public sealed class FaunaTextureUpload : IDisposable
                     {name="Bounded BC7 upload page"};staging.Add(width,source);
             }
             source.SetPixelData(page.Bytes,sourceMip);source.Apply(false,false);
-            if(width<=64)Graphics.CopyTexture(source,0,sourceMip,result,page.Layer,page.Mip);
-            else Graphics.CopyTexture(source,0,0,0,0,width,rows,result,page.Layer,page.Mip,0,page.Y);
+            // Explicit GPU resources avoid an unsupported compressed CPU-region
+            // copy (and its warning for every page). The CPU shadow is unused.
+            if(width<=64)Graphics.CopyTexture(source.graphicsTexture,0,sourceMip,result.graphicsTexture,page.Layer,page.Mip);
+            else Graphics.CopyTexture(source.graphicsTexture,0,0,0,0,width,rows,result.graphicsTexture,page.Layer,page.Mip,0,page.Y);
             Pieces++;uploadedBytes+=page.Length;available.Add(page,cancellation.Token);
             if(uploadedBytes>=256*1024||(Stopwatch.GetTimestamp()-slice)*1000.0/Stopwatch.Frequency>=.35)
             {yield return null;slice=Stopwatch.GetTimestamp();uploadedBytes=0;}

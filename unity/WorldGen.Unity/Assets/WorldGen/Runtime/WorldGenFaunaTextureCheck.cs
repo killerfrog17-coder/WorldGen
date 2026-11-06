@@ -12,20 +12,40 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckFaunaTextureUpload(string input,string output)
     {
         enabled=false;Directory.CreateDirectory(output);QualitySettings.vSyncCount=0;Application.targetFrameRate=-1;
-        var rows=new List<string>{"phase,frame_ms"};string phase="warmup";
         var cameraRoot=new GameObject("Upload fixture camera");cameraRoot.AddComponent<Camera>();
         for(int i=0;i<60;i++)yield return null;
-        phase="original-bundle";
-        var bundleRequest=AssetBundle.LoadFromFileAsync(Path.Combine(Application.streamingAssetsPath,"fauna/hare.fauna"));
+        var args=Environment.GetCommandLineArgs();int at=Array.IndexOf(args,"--fauna-reference-directory");
+        string reference=at>=0?Path.GetFullPath(args[at+1]):Path.Combine(Application.streamingAssetsPath,"fauna");
+        bool multiple=Directory.Exists(input);
+        var files=multiple?Directory.GetFiles(input,"*.coats").OrderBy(p=>p,StringComparer.Ordinal).ToArray():new[]{input};
+        if(files.Length==0)throw new InvalidOperationException("No coat streams to verify");
+        foreach(string file in files)
+        {
+            string slug=Path.GetFileNameWithoutExtension(file),destination=multiple?Path.Combine(output,slug):output;
+            yield return CheckOneFaunaTextureUpload(file,destination,Path.Combine(reference,slug+".fauna"));
+        }
+        if(multiple)File.WriteAllText(Path.Combine(output,"complete.txt"),$"PASS {files.Length} animal coat arrays: each native all-layer/mip comparison and lifetime/error checks passed.\n");
+        Destroy(cameraRoot);Application.Quit(0);
+    }
+    IEnumerator CheckOneFaunaTextureUpload(string input,string output,string originalPath)
+    {
+        Directory.CreateDirectory(output);
+        var rows=new List<string>{"phase,frame_ms"};string phase="original-bundle";
+        var bundleRequest=AssetBundle.LoadFromFileAsync(originalPath);
         while(!bundleRequest.isDone){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         var bundle=bundleRequest.assetBundle;var assetRequest=bundle.LoadAllAssetsAsync<WorldGenFaunaAsset>();
         while(!assetRequest.isDone){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         var original=assetRequest.allAssets.OfType<WorldGenFaunaAsset>().Single().Coats;
+        if(original==null)throw new InvalidDataException("Comparison requires the original embedded coat array: "+originalPath);
         for(int i=0;i<10;i++){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         var read=Task.Run(()=>new FaunaTextureUpload(input));while(!read.IsCompleted)yield return null;
         using var upload=read.Result;var iterator=upload.Upload();phase="sliced-upload";
         while(iterator.MoveNext()){yield return iterator.Current;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         for(int i=0;i<10;i++){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
+        File.WriteAllText(Path.Combine(output,"memory.txt"),
+            $"original_native_bytes={UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(original)}\n"+
+            $"streamed_native_bytes={UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(upload.Result)}\n"+
+            $"original_readable={original.isReadable}\nstreamed_readable={upload.Result.isReadable}\n");
         File.WriteAllLines(Path.Combine(output,"uploads.csv"),rows);
         long comparisons=0;var compare=Resources.Load<ComputeShader>("FaunaTextureCompare");
         if(compare==null)throw new InvalidOperationException("Missing coat comparison kernel");
@@ -61,6 +81,6 @@ public sealed partial class WorldGenRuntime
         }
         File.WriteAllLines(Path.Combine(output,"uploads.csv"),rows);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"PASS {comparisons} exact native decoded RGBA channels across BC7 layers/mips, {upload.Pieces} bounded uploads, {upload.RetainedBufferBytes} reader bytes; canceled worker/native array release and truncated source rejection. Isolated fixture timings are not game FPS.\n");
-        bundle.Unload(true);Destroy(cameraRoot);Application.Quit(0);
+        bundle.Unload(true);
     }
 }
