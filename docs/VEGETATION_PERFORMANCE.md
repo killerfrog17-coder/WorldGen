@@ -520,3 +520,11 @@ all underlying source/export file hashes are still checked. The package verifies
 explicitly preserves the four live terrain textures/arrays already in the prior
 lock, which the generic inventory had omitted. Immutable-pack publication and
 the normal-player test without GPU polling are next.
+
+Publication completed in source827c7984: game-assets-20261106-streamed-fauna
+contains19 new immutable payload packs, each downloaded again and hash-verified.
+The current lock covers5,769 files/165 packs; layout audit passes6,376 checks.
+Matching per-bundle and root dependency manifests were copied with the bundles.
+No required runtime or authoring input was placed in scratch. Source and lock
+are pushed; selected playerA/shortcut remains unchanged. B is being restored to
+FULL NONDEVELOPMENT for the ordinary-path moving comparison without NVML polling.
