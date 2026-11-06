@@ -107,7 +107,7 @@ namespace WorldGen.Core
             {
                 if(!accepted[id])continue;var body=lakeBodies[id];int cell=body.OutletCell;
                 if(body.Endorheic||cell<0||cell>=rootNodes.Length||body.DownstreamCell<0)continue;
-                var node=rootNodes[cell];if(node.Type==Kind.Ocean)continue;
+                ref var node=ref rootNodes[cell];if(node.Type==Kind.Ocean)continue;
                 if(node.Type==Kind.Lake&&node.LakeKey!=(ulong)(uint)(id+1))continue;
                 if(lakeOutletOwners[cell]>=0&&Math.Abs(rootNodes[cell].Water-body.SurfaceElevationM)>.001)continue;
                 lakeOutletOwners[cell]=id;
@@ -127,7 +127,7 @@ namespace WorldGen.Core
                 if((k&4095)==0)token.ThrowIfCancellationRequested();
                 int i=order[k],next=world.Hydrology.Receiver[i];if(next<0||rootNodes[i].Type!=Kind.River)continue;
                 int body=lakeOutletOwners[next];if(body<0||rootNodes[i].Water>=rootNodes[next].Water)continue;
-                var node=rootNodes[i];node.Water=rootNodes[next].Water;
+                ref var node=ref rootNodes[i];node.Water=rootNodes[next].Water;
                 node.Height=node.RiverBed=Math.Min(node.Crust,node.Water);
                 lakeOutletOwners[i]=body;
                 if(node.Crust<node.Water)

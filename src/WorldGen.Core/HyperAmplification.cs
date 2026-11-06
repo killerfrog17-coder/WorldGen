@@ -22,7 +22,8 @@ namespace WorldGen.Core
         readonly Queue<object> retained = new Queue<object>();
         readonly CoarseFace[] roots;
         readonly CoarseEdge[] coarseEdges;
-        readonly Vertex[] rootNodes;
+        readonly RootVertexData[] rootNodes;
+        readonly Vertex[] rootVertices;
         readonly int[] nodeChannels,nodeRivers;
         readonly WeakReference<Face>[] rootCache;
         readonly WeakReference<Edge>[] edgeCache;
@@ -85,6 +86,26 @@ namespace WorldGen.Core
             public double BasinFloor=double.NegativeInfinity;
             public Edge River;
             public bool Wet => Type == Kind.River || Type == Kind.Lake || Type == Kind.Ocean;
+        }
+        // Planet-wide scalar controls do not need one managed object per cell.
+        // Only vertices reached by local refinement need reference identity,
+        // gradient state and incident river links. Lake conditioning finishes
+        // before those vertices are first materialized.
+        struct RootVertexData
+        {
+            public LandscapeControls Landscape;
+            public ulong Key;
+            public V Position;
+            public Kind Type;
+            public double Height, Water, RiverBed, Distance, Flow, Crust, Mountain, Hill, Plateau, Sediment, Age, Dryness,Hardness,Resistance;
+            public ulong LakeKey, ChannelKey;
+            public double LakeLevel,LakeWeight,SeaWeight,BasinFloor;
+            public bool Wet => Type == Kind.River || Type == Kind.Lake || Type == Kind.Ocean;
+            public Vertex Materialize()=>new Vertex {
+                Landscape=Landscape,Key=Key,Position=Position,Type=Type,
+                Height=Height,Water=Water,RiverBed=RiverBed,Distance=Distance,Flow=Flow,Crust=Crust,Mountain=Mountain,Hill=Hill,
+                Plateau=Plateau,Sediment=Sediment,Age=Age,Dryness=Dryness,Hardness=Hardness,Resistance=Resistance,
+                LakeKey=LakeKey,ChannelKey=ChannelKey,LakeLevel=LakeLevel,LakeWeight=LakeWeight,SeaWeight=SeaWeight,BasinFloor=BasinFloor };
         }
         internal sealed class Edge
         {
@@ -212,7 +233,7 @@ namespace WorldGen.Core
         {
             var watch = Stopwatch.StartNew(); radius = world.Recipe.RadiusKm * 1000; scale = horizontalScale; seed = world.Recipe.Seed;
             this.landscapeLocator=landscapeLocator;smallWater=new SmallWaterBodies(seed,radius*scale);wetlandWater=new SmallWaterBodies(seed^0x31b47,radius*scale,true,smallWater);
-            int count = profiles.Length; var nodes = rootNodes = new Vertex[count]; var hydro = world.Hydrology;
+            int count = profiles.Length; var nodes = rootNodes = new RootVertexData[count];rootVertices=new Vertex[count];var hydro = world.Hydrology;
             var heights = new double[count]; var flows = new double[count];
             for (int i = 0; i < count; i++)
             {
@@ -241,7 +262,7 @@ namespace WorldGen.Core
                 double valley = river ? Math.Min(p.MountainHeightM * .24 + p.HillHeightM * .3, Math.Max(4, (p.ElevationM - heights[i]) + p.CoarseReliefM * .07)) : 0;
                 double bed = ocean ? world.ElevationM[i] : lake ? heights[i] : heights[i] - valley - depth;
                 if(river&&world.ElevationM[i]>=0)bed=Math.Max(.02,bed);
-                nodes[i] = new Vertex { Key = Mix((ulong)(uint)seed << 32 | (uint)i), Position = world.Surface.Cells[i].Position,
+                nodes[i] = new RootVertexData { Key = Mix((ulong)(uint)seed << 32 | (uint)i), Position = world.Surface.Cells[i].Position,BasinFloor=double.NegativeInfinity,
                     Type = ocean ? Kind.Ocean : lake ? Kind.Lake : river ? Kind.River : Kind.Terrain,
                     Height = bed, Water = ocean ? 0 : lake ? hydro.Waters[body].SurfaceElevationM : bed + depth,
                     RiverBed = bed, Distance = ocean || lake || river ? 0 : Math.Sqrt(world.Surface.Cells[i].AreaM2) * scale,
@@ -330,13 +351,17 @@ namespace WorldGen.Core
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
         }
 
+        // Called only under gate; all adjacent faces/edges must share exactly
+        // the same live endpoint, including its lazily computed gradient.
+        Vertex RootVertex(int id)=>rootVertices[id]??(rootVertices[id]=rootNodes[id].Materialize());
+
         Edge RootEdge(int id)
         {
             var lookup=edgeCache[id];if(lookup!=null&&lookup.TryGetTarget(out var cached))return cached;
             lock(gate)
             {
                 if(edgeCache[id]!=null&&edgeCache[id].TryGetTarget(out cached))return cached;
-                var source=coarseEdges[id];var edge=NewEdge(rootNodes[source.A],rootNodes[source.B],source.Type,0,source.Key);
+                var source=coarseEdges[id];var edge=NewEdge(RootVertex(source.A),RootVertex(source.B),source.Type,0,source.Key);
                 edge.BasinLevel=LakeDivideLevel(source);
                 edge.Left=new FaceRef(source.Left);if(source.Right>=0)edge.Right=new FaceRef(source.Right);
                 if(edgeCache[id]==null)edgeCache[id]=new WeakReference<Edge>(edge);else edgeCache[id].SetTarget(edge);
@@ -354,9 +379,9 @@ namespace WorldGen.Core
             {
                 if(rootCache[id]!=null&&rootCache[id].TryGetTarget(out cached))return cached;
                 var s=roots[id];
-                void BindRiver(int node){if(rootNodes[node].River==null&&nodeRivers[node]>=0)rootNodes[node].River=RootEdge(nodeRivers[node]);}
+                void BindRiver(int node){var vertex=RootVertex(node);if(vertex.River==null&&nodeRivers[node]>=0)vertex.River=RootEdge(nodeRivers[node]);}
                 BindRiver(s.A);BindRiver(s.B);BindRiver(s.C);
-                var face=NewFace(rootNodes[s.A],rootNodes[s.B],rootNodes[s.C],RootEdge(s.AB),RootEdge(s.BC),RootEdge(s.CA),Mix((ulong)(uint)id+0x9e3779b97f4a7c15UL),0,null,id,0);
+                var face=NewFace(RootVertex(s.A),RootVertex(s.B),RootVertex(s.C),RootEdge(s.AB),RootEdge(s.BC),RootEdge(s.CA),Mix((ulong)(uint)id+0x9e3779b97f4a7c15UL),0,null,id,0);
                 if(rootCache[id]==null)rootCache[id]=new WeakReference<Face>(face);else rootCache[id].SetTarget(face);
                 Retain(face);
                 for(int k=0;k<8;k++){int old=rootSweep++;if(rootSweep==rootCache.Length)rootSweep=0;var weak=rootCache[old];if(weak!=null&&!weak.TryGetTarget(out _))rootCache[old]=null;}

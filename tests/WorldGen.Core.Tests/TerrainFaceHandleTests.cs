@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Security.Cryptography;
 using WorldGen.Core;
 using WorldGen.Presentation;
 using WorldGen.Serialization;
@@ -13,6 +14,67 @@ static class TerrainFaceHandleTests
     static readonly Type FaceRef = typeof(HyperAmplification).GetNestedType("FaceRef", BindingFlags.NonPublic)!;
     static readonly FieldInfo Target = FaceRef.GetField("target", Hidden)!;
     static readonly JsonSerializerOptions Json = new() { IncludeFields = true, IgnoreReadOnlyProperties = true, NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals };
+
+    public static void RootControls(string input, string baseline, bool capture)
+    {
+        var world = WorldFile.ReadFile(input);
+        var terrain = LocalTerrainDerivationCache.Create(world, horizontalScale: .1);
+        var controls = (Array)typeof(HyperAmplification).GetField("rootNodes", Hidden)!.GetValue(terrain.Amplification)!;
+        var fields = controls.GetType().GetElementType()!.GetFields().Where(f =>
+            f.Name is not ("River" or "DetailGradient" or "DetailGradientReady")).OrderBy(f => f.Name).ToArray();
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        using var buffer = new MemoryStream(); using var writer = new BinaryWriter(buffer);
+        void Value(object value)
+        {
+            switch(value)
+            {
+                case double x: writer.Write(x); break;
+                case float x: writer.Write(x); break;
+                case ulong x: writer.Write(x); break;
+                case Enum x: writer.Write(Convert.ToInt32(x)); break;
+                default:
+                    foreach(var field in value.GetType().GetFields().OrderBy(f => f.Name)) Value(field.GetValue(value)!);
+                    break;
+            }
+        }
+        writer.Write(string.Join(",", fields.Select(f => f.Name)));
+        hash.AppendData(buffer.GetBuffer(), 0, (int)buffer.Length);
+        foreach(var node in controls)
+        {
+            buffer.SetLength(0);
+            foreach(var field in fields) Value(field.GetValue(node)!);
+            hash.AppendData(buffer.GetBuffer(), 0, (int)buffer.Length);
+        }
+        string actual = Convert.ToHexString(hash.GetHashAndReset());
+        if(capture) File.WriteAllText(baseline, actual);
+        else if(File.ReadAllText(baseline) != actual) throw new Exception("Coarse terrain/lake/river control values changed");
+        Console.WriteLine($"PASS {controls.Length} complete root control records: {actual}");
+        var cacheField = typeof(HyperAmplification).GetField("rootVertices", Hidden);
+        if(cacheField != null)
+        {
+            var cache = (Array)cacheField.GetValue(terrain.Amplification)!;
+            int realized = cache.Cast<object>().Count(v => v != null);
+            if(realized >= controls.Length / 10) throw new Exception("Cached-world preparation eagerly materialized global terrain vertices");
+            var rootVertex = typeof(HyperAmplification).GetMethod("RootVertex", Hidden)!;
+            object gate = typeof(HyperAmplification).GetField("gate", Hidden)!.GetValue(terrain.Amplification)!;
+            int checkedVertices = 0;
+            for(int id = 0; id < controls.Length; id += 997)
+            {
+                object vertex;
+                lock(gate)
+                {
+                    vertex = rootVertex.Invoke(terrain.Amplification, new object[]{id})!;
+                    if(!ReferenceEquals(vertex, rootVertex.Invoke(terrain.Amplification, new object[]{id})))
+                        throw new Exception("Adjacent topology would receive different root vertex identities");
+                }
+                foreach(var field in fields)
+                    if(!Equals(field.GetValue(controls.GetValue(id)), vertex.GetType().GetField(field.Name)!.GetValue(vertex)))
+                        throw new Exception("Root materialization omitted or changed " + field.Name);
+                checkedVertices++;
+            }
+            Console.WriteLine($"PASS lazy root vertices: {realized}/{controls.Length} initially realized, {checkedVertices} complete field/identity checks.");
+        }
+    }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     static object[] References()
