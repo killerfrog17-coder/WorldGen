@@ -482,3 +482,17 @@ pass complete field/identity checks.750 complete terrain samples across30
 biome/coastal sites remain identical, including reconstruction after collection.
 Lake-spill mutations explicitly write into the value array. This targets GC
 object count; native collection-time improvement is not yet established.
+
+Actual2d95 moving temperate60s:180.12FPS,p9510.22ms,p9913.20ms,max33.01ms,
+584frames>10ms and19>16.7ms. Completed collections29.39/24.11/26.81ms.
+The maximum is lower than the earlier45.70ms, but moderate spikes are more
+frequent; this is NOT a clear frame-tail improvement. Input snapshot unchanged.
+
+Queued-resource trial5a3df0c6 is REJECTED. Removing DontUploadUponCreate and
+waiting for native initialization passes the same39,146,828 hare pixel checks,
+but isolated upload max increases4.69->58.87ms and reported native bytes double
+9,786,896->19,573,792. Both runs confirm threaded texture creation already true.
+No real-game performance claim; option and code removed after the failed trial.
+Original bounded upload remains. Diagnostic allocation capture now uses the
+same retention/staging flags as current gameplay and accepts an explicitly
+recorded shorter warmup; ordinary performance measurement warmup is unchanged.

@@ -1219,7 +1219,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-coarse-no-depth",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;TerrainVideoOptions.DistantTreeShadowCards=true;TerrainVideoOptions.FoliageDepthPrepass=false;}),
             new PerfCase("travel-whip-detailed-foliage",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.DetailedFoliageComparison=true;TerrainVideoOptions.DistantTreeShadowCards=false;}),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
-            new PerfCase("travel-whip-allocation-profile",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-allocation-profile",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("travel-whip-cpu-profile",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-range-cache-verify",()=>{}),
@@ -1291,7 +1291,18 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;
                 // Readiness is explicit; partial scenes are labelled, never silently accepted.
-                yield return null;deadline=Time.realtimeSinceStartupAsDouble+(item.Name=="forest-ready"?900:item.Name=="forest-community-review"?300:firstCase||item.Name=="view-200km"||item.Name=="full"||item.Terrain&&terrainExplorer.WantedCount>1000?420:150);
+                yield return null;
+                double warmup=item.Name=="forest-ready"?900:item.Name=="forest-community-review"?300:firstCase||item.Name=="view-200km"||item.Name=="full"||item.Terrain&&terrainExplorer.WantedCount>1000?420:150;
+                // Short diagnostic captures identify allocation call sites, not
+                // release throughput. Do not spend seven minutes waiting for
+                // distant readiness when that is unrelated to the question.
+                if(item.Name=="travel-whip-allocation-profile"||item.Name=="travel-whip-cpu-profile")
+                {
+                    double requested=double.Parse(Argument("--worldgen-profile-warmup-seconds","-1"),CultureInfo.InvariantCulture);
+                    if(requested>=0)warmup=Math.Min(warmup,Math.Max(10,requested));
+                }
+                File.AppendAllText(Path.Combine(output,"case-settings.txt"),"warmup_limit_seconds="+warmup.ToString(CultureInfo.InvariantCulture)+"\n");
+                deadline=Time.realtimeSinceStartupAsDouble+warmup;
                 double progressAt=0;
                 while(!terrainExplorer.PerformanceSettled&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)
                 {
