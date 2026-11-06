@@ -766,3 +766,19 @@ a requested budget is not assumed to be a hard execution cap. IDisposable restor
 the incoming collector mode/slice. Normal gameplay does not enter this mode.
 Unity API references: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Scripting.GarbageCollector.GCMode.html
 and https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Scripting.GarbageCollector.CollectIncremental.html
+
+Manual scheduling test afd50e8a (`presented-manual-gc`) completed120s:
+177.62FPS,p959.37,p9911.67,max35.56ms,31frames>16.667ms.383 explicit calls
+consumed355.12ms; the maximum requested0.5ms slice actually took15.35ms.
+Several final calls took13-15ms; native collection-associated frames still
+reached35.56/31.82ms. Independent presentation waits reached29.75/29.34ms.
+Heap growth guard did not trip and the original mode was restored. Not accepted
+for normal gameplay: lowerp99 alone does not solve the long pauses. The native
+collection cost cannot be treated as a preemptible hard-budget task.
+Raw frames remain valid. This package wrote the small diagnostic CSV before
+finalizing aggregate elapsed time; f859 moves all evidence IO and mode restoration
+after the measured GPU drain/end timestamp. Existing captures are not rewritten.
+234 adds optional out-and-back travel distance for long tests within one biome;
+default remains the original eastward streaming route. Neither change affects
+ordinary gameplay. Next acceptance coverage should include other dense contexts,
+with explicit route/readiness reporting; this is not a global worst-case proof.
