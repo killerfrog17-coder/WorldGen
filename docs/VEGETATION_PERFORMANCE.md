@@ -456,3 +456,29 @@ Explorer.Update was3.36ms. Neither the100FPS floor nor elimination of all upload
 is established. New52771150 records model loading stages in memory (writes only
 after measurement) and adds native vertex/index-byte plus authored-motion checks
 for the repacked animal bundles. Next: focused CPU profile of the remaining pause.
+
+The complete 40-second Development trace (temperate-streamed-cpu) retains all
+6,577 frames after e15dcfd1 fixed the offline reader's 2,000-frame history limit.
+This is diagnostic, not release FPS. Collection work costs22.01/20.06ms in
+frames1320/5097. Frame1610 contains25.58ms of render-thread Gfx.CreateTexture
+for the hare's1024x1024x7 array: bounding pixel uploads did not eliminate GPU
+resource creation. Frame1291 spends31.91ms waiting for rendering, without an
+attributed corresponding expensive render sample. Absence of a completed-GC
+counter increment does not rule out incremental collector work.
+
+Sequential native model/coat proof e15dcfd1 passes all177 repacks: identical
+authored motion, metadata and native mesh vertex/index buffers, plus all coat
+layer/mip pixels and cancellation/truncation/positive controls. The first527
+fixture incorrectly loaded two bundles with identical internal file identities
+simultaneously; its failure is retained. The corrected fixture snapshots and
+unloads the original before loading the repack. Production assets remain intact.
+
+Source2d95b42e stores planetary root terrain controls in a value array and
+materializes reference-identity vertices only for locally queried terrain.
+All200,000 complete control records retain their SHA256
+683D517E08CCFF249BA4D4836E042E7CA27FF8DE2893C1A9ED7776B1C3B4984A.
+Cached preparation creates0/200,000 root vertex objects;201 sampled vertices
+pass complete field/identity checks.750 complete terrain samples across30
+biome/coastal sites remain identical, including reconstruction after collection.
+Lake-spill mutations explicitly write into the value array. This targets GC
+object count; native collection-time improvement is not yet established.
