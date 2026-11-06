@@ -283,6 +283,10 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     // Low plants/moss can coexist with litter. The old full-opacity green mat
     // erased every soil texture under a canopy even when stems were sparse.
     mix*=1-floorWeight*float3(.85,.25,.35);
+    // The damp forest scan already contains real moss cushions interspersed
+    // with litter. A second opaque moss field erased that photographed layout
+    // and replaced it with large, smooth green islands.
+    mix.y*=1-saturate(floorMix.z);
     // Ground colour follows the continuous terrain normal. A face derivative
     // here made each individual triangle a different grass/soil material.
     // Physical stems retain their separate geometric cliff/rooting test.
