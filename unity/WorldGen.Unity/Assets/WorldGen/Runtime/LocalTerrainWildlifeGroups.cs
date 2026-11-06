@@ -9,7 +9,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     readonly Dictionary<ulong,WildlifeGroup> wildlifeGroups=new Dictionary<ulong,WildlifeGroup>();
-    readonly Dictionary<string,WildlifeBehaviourProfile> wildlifeBehaviours=new Dictionary<string,WildlifeBehaviourProfile>();
+    readonly Dictionary<(string Species,int Taxon),WildlifeBehaviourProfile> wildlifeBehaviours=new Dictionary<(string,int),WildlifeBehaviourProfile>();
     readonly Dictionary<(int,int,int),HashSet<ulong>> wildlifeGroupIndex=new Dictionary<(int,int,int),HashSet<ulong>>();
     readonly HashSet<ulong> activeWildlifeGroups=new HashSet<ulong>();double wildlifeGroupIndexScale;
     readonly Queue<ulong> wildlifeGroupWork=new Queue<ulong>();
@@ -45,7 +45,7 @@ public sealed partial class LocalTerrainExplorer
     bool WildlifeBehaviourEnabled=>!inventoryReviewMode||reviewWildlifeBehaviour;
     WildlifeBehaviourProfile AnimalBehaviour(FaunaPrototypeProfile profile,int taxon=-1)
     {
-        string key=taxon<0?profile.slug:profile.slug+"/"+taxon;if(wildlifeBehaviours.TryGetValue(key,out var result))return result;
+        var key=(profile.slug,taxon<0?-1:taxon);if(wildlifeBehaviours.TryGetValue(key,out var result))return result;
         Taxon data=taxon>=0&&taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[taxon]:null;
         if(data==null){var binding=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,new[]{profile});if(binding.Count>0)data=sourceWorld.Ecology.Taxa[binding.First().Key];}
         result=WildlifeBehaviour.Describe(profile.slug,data?.MassKg??Math.Max(.0001,8*Math.Pow(profile.lengthM,3)),data?.Eats??Food.None,profile.medium=="air",profile.tiny,data?.Name??"");wildlifeBehaviours.Add(key,result);return result;
@@ -121,7 +121,7 @@ public sealed partial class LocalTerrainExplorer
         else if(behaviour.CanHunt&&group.Hunger>(behaviour.Predator?.35:.8))
         {
             Taxon hunter=group.Taxon>=0&&group.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[group.Taxon]:null;
-            var prey=ActiveWildlifeGroupRecords.Where(g=>g.Id!=group.Id&&(g.Position-group.Position).Length*frame.RadiusM<700&&wildlifeBehaviours.TryGetValue(g.Species+"/"+g.Taxon,out var b)&&!b.Predator&&g.Taxon>=0&&g.Taxon<sourceWorld.Ecology.Taxa.Length&&WildlifeNaturalHistory.CompatiblePrey(hunter,sourceWorld.Ecology.Taxa[g.Taxon])&&WildlifeBehaviour.EdiblePrey(hunter?.MassKg??40,behaviour.PackHunter,hunter?.MinPreyKg??0,hunter?.MaxPreyKg??0,sourceWorld.Ecology.Taxa[g.Taxon].MassKg)).OrderBy(g=>(g.Position-group.Position).Length).FirstOrDefault();
+            var prey=ActiveWildlifeGroupRecords.Where(g=>g.Id!=group.Id&&(g.Position-group.Position).Length*frame.RadiusM<700&&g.Taxon>=0&&wildlifeBehaviours.TryGetValue((g.Species,g.Taxon),out var b)&&!b.Predator&&g.Taxon<sourceWorld.Ecology.Taxa.Length&&WildlifeNaturalHistory.CompatiblePrey(hunter,sourceWorld.Ecology.Taxa[g.Taxon])&&WildlifeBehaviour.EdiblePrey(hunter?.MassKg??40,behaviour.PackHunter,hunter?.MinPreyKg??0,hunter?.MaxPreyKg??0,sourceWorld.Ecology.Taxa[g.Taxon].MassKg)).OrderBy(g=>(g.Position-group.Position).Length).FirstOrDefault();
             if(prey!=null){group.Intent=WildlifeIntent.Hunt;group.Goal=prey.Position;return;}
         }
         if(group.Thirst>.45&&profile.medium=="ground")

@@ -81,6 +81,33 @@ public static class WorldGenPerformance
 
 public sealed partial class LocalTerrainExplorer
 {
+    public string PerformanceVerifyHotQueries()
+    {
+        int shaders=0,bindings=0,behaviours=0;
+        foreach(var model in scatterArt.Values)foreach(var part in model.Parts)
+        {
+            var shader=part.Material.shader;bool expected=shader.name=="WorldGen/TreeSurface2";
+            if(IsTreeSurfaceShader(shader)!=expected||IsTreeSurfaceShader(shader)!=expected)
+                throw new InvalidOperationException("Cached tree shader classification differs from the native shader name");
+            shaders++;
+        }
+        foreach(ScatterKind kind in Enum.GetValues(typeof(ScatterKind)))
+        {
+            var expected=artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
+            if(!ReferenceEquals(FindScatterBinding(kind),expected))throw new InvalidOperationException("Scatter binding identity changed: "+kind);
+            bindings++;
+        }
+        foreach(var animal in animals.Values)
+        {
+            var profile=animal.Spawn.Profile;int taxon=animal.Spawn.Taxon;
+            var first=AnimalBehaviour(profile,taxon);
+            if(!ReferenceEquals(first,animal.Behaviour)||!ReferenceEquals(first,AnimalBehaviour(profile,taxon)))
+                throw new InvalidOperationException("Animal behaviour cache changed an admitted animal's profile");
+            behaviours++;
+        }
+        if(behaviours==0)throw new InvalidOperationException("Hot-query proof requires actual admitted animals");
+        return $"PASS hot queries: {shaders} actual shader classifications, {bindings} literal binding identities, {behaviours} admitted animal profile identities; no byte claim (use the allocation profiler).";
+    }
     public string PerformanceVerifyRenderCleanup()
     {
         // Consecutive manual renders within the same Update keep shader time,
@@ -660,7 +687,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public bool PerformanceGroundSettled=>Ready&&NearReady&&AllReady&&!DetailPlanning&&jobs.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t));
     public bool PerformanceSettled=>!GroundPublicationPending&&PerformanceGroundSettled&&ScatterReady&&scatterJobs.Count==0&&coverRequests.Count==0&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
-    public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}";
+    public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}; readiness near={NearReady} all={AllReady} detail={DetailPlanning} jobs={jobs.Count} previous={previousTerrain.Count} retiring={retiringFrames.Count} fades={tiles.Values.Count(t=>!FadeComplete(t))} scatter={ScatterReady} scatterJobs={scatterJobs.Count} coverRequests={coverRequests.Count}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
     public void PerformanceFreezeDaylight(bool summer=false){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,summer?190000+(Position.Z<0?0:.5):skyYear);TerrainDiagnostics.FreezeSun=true;}
@@ -1028,6 +1055,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("grass-approach-review",()=>{}),
             new PerfCase("ground-seam-review",()=>{}),
+            new PerfCase("hot-query-verify",()=>{}),
             new PerfCase("camp-light-selection-verify",()=>{}),
             new PerfCase("small-plant-lighting-review",()=>{}),
             new PerfCase("tree-depth-review",()=>{}),
@@ -1248,6 +1276,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="burst-scatter-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter(true)+"\n");
                 if(item.Name=="burst-render-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelRenders(Path.Combine(output,"burst-renders"),true)+"\n");
                 if(item.Name=="ground-seam-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewGroundSeams(output,site.Item1)+"\n");
+                if(item.Name=="hot-query-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyHotQueries()+"\n");
                 if(item.Name=="camp-light-selection-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyCampLightSelection()+"\n");
                 if(item.Name=="grass-approach-review")yield return terrainExplorer.PerformanceReviewGrassApproach(output,site.Item1);
                 if(item.Name=="tree-depth-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewTreeDepth(output,site.Item1)+"\n");

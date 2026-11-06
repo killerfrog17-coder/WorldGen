@@ -111,7 +111,8 @@ public sealed partial class LocalTerrainExplorer
         // Injured individuals and corpses are physical saved objects, not a new
         // ecological population proposal. Their current location must survive
         // season changes, group travel and the original spawn cell leaving view.
-        InitializeWildlifeHealth();var ids=new HashSet<ulong>(candidates.Select(p=>p.Id));
+        InitializeWildlifeHealth();if(Wildlife.Individuals.Count==0)return;
+        var ids=new HashSet<ulong>(candidates.Select(p=>p.Id));
         var bindings=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,animalProfiles);
         foreach(var record in Wildlife.Individuals)
         {

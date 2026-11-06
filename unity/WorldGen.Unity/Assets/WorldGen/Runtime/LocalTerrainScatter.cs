@@ -33,6 +33,13 @@ public sealed partial class LocalTerrainExplorer
     Texture2DArray treeLeaves;
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
     readonly Dictionary<int,V> treePigments=new Dictionary<int,V>();
+    readonly Dictionary<Shader,bool> treeSurfaceShaders=new Dictionary<Shader,bool>();
+    bool IsTreeSurfaceShader(Shader shader)
+    {
+        if(!treeSurfaceShaders.TryGetValue(shader,out bool matches))
+        {matches=shader.name=="WorldGen/TreeSurface2";treeSurfaceShaders.Add(shader,matches);}
+        return matches;
+    }
     V TreePigment(int code){code&=~7;if(!treePigments.TryGetValue(code,out var pigment)){pigment=new TreeMorphology(code).Leaf;treePigments.Add(code,pigment);}return pigment;}
     sealed class GroundChanges : HashSet<TerrainTileKey>
     {
@@ -378,12 +385,14 @@ public sealed partial class LocalTerrainExplorer
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
     }
+    LocalTerrainArtSet.Binding FindScatterBinding(ScatterKind kind)
+        =>artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
         if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         long key=ScatterArtKey(kind,variant,lod);if(scatterArt.TryGetValue(key,out var found)){found.LastUsed=Time.realtimeSinceStartupAsDouble;return found;}
         if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)return CreateRebuiltTree(key,variant,lod);
-        var binding=artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
+        var binding=FindScatterBinding(kind);
         GameObject prefab=binding==null?null:lod==0?binding.Near:lod==1?(binding.Middle!=null?binding.Middle:binding.Near):(binding.Far!=null?binding.Far:binding.Middle!=null?binding.Middle:binding.Near);
         var parts=new List<ArtPart>();var bounds=new Bounds();bool first=true;
         if(prefab!=null)
@@ -665,7 +674,7 @@ public sealed partial class LocalTerrainExplorer
             if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
             batch.Key=key;batch.Model=Art(p.Kind,variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
             var firstPart=batch.Model.Parts[0];batch.WindSlots.Clear();
-            batch.SharedWind=UseSharedTreeWind&&p.Kind==ScatterKind.GeneratedTree&&batch.Model.Parts.Length==1&&firstPart.Material.shader.name=="WorldGen/TreeSurface2"&&firstPart.Material.GetFloat("_Impostor")<.5f;
+            batch.SharedWind=UseSharedTreeWind&&p.Kind==ScatterKind.GeneratedTree&&batch.Model.Parts.Length==1&&IsTreeSurfaceShader(firstPart.Material.shader)&&firstPart.Material.GetFloat("_Impostor")<.5f;
             batch.WindFlex=batch.SharedWind?firstPart.Material.GetVector("_PlantTraits").x:0;
             activeScatterBatches[batchKey]=batch;drawBatches.Add(batch);
         }

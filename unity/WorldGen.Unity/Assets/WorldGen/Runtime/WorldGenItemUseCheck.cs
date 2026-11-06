@@ -152,7 +152,7 @@ public sealed partial class LocalTerrainExplorer
             Check(pixels.GetPixels32().Count(p=>p.a>64)>100,"Actual textured model thumbnail renders: "+kind);File.WriteAllBytes(Path.Combine(output,"item-"+kind+".png"),pixels.EncodeToPNG());Destroy(pixels);RenderTexture.active=prior;RenderTexture.ReleaseTemporary(target);
         }
         inventoryOpen=false;
-        var labelOwl=animalProfiles.First(p=>p.slug=="owl");var labelledTaxon=sourceWorld.Ecology.Taxa[0];string originalTaxonLabel=labelledTaxon.Name,labelCacheKey=labelOwl.slug+"/0";
+        var labelOwl=animalProfiles.First(p=>p.slug=="owl");var labelledTaxon=sourceWorld.Ecology.Taxa[0];string originalTaxonLabel=labelledTaxon.Name;var labelCacheKey=(labelOwl.slug,0);
         bool hadLabelCache=wildlifeBehaviours.TryGetValue(labelCacheKey,out var priorLabelBehaviour);
         try
         {
