@@ -251,3 +251,40 @@ Primary API references:
 - [Unity RenderMeshInstanced group culling and instance limits](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Graphics.RenderMeshInstanced.html)
 - [Unity frame timing requirements and limits](https://unity.com/blog/engine-platform/detecting-performance-bottlenecks-with-unity-frame-timing-manager)
 - [Unity MaterialPropertyBlock.SetVectorArray array behavior](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/MaterialPropertyBlock.SetVectorArray.html)
+
+## 6 November: walking-query stalls and remaining collection spikes
+
+Actual presented D3D11, 1080p, Medium vegetation, 6 km temperate forest,
+90 seconds moving at 8 m/s with rapid turns, package 1129f68b:
+
+| Path | Mean FPS | p95 frame ms | Worst ms | Frames over 16.7 ms |
+|---|---:|---:|---:|---:|
+| Unindexed walking rivers | 155.76 | 11.56 | 61.81 | 84 |
+| Indexed walking rivers | 179.70 | 9.67 | 66.12 | 34 |
+
+Evidence: artifacts/render-repair-20261106/presented-indexed-rivers.
+Both travel windows continued streaming; neither was fully settled. Cases ran
+sequentially, so cache warming can contribute to the difference. The traced
+query cost itself fell from roughly 0.4-0.6 ms to 0.01-0.03 ms. Crossing the
+500 m query-patch boundary cost 1.325 ms in a 5.872 ms frame. Exact terrain/water
+comparisons passed at 1,025 probes across 41 actual biome/coastal patches, plus
+3,682 probes at the measured site. Indexing is now enabled in source.
+
+The earlier cached-river lock change was present in BOTH cases. Neither had
+the earlier 90+ ms Ground call. This does not establish that all possible
+query stalls are eliminated. Four of the seven largest indexed frames coincide
+with completed garbage collections. The 100 FPS floor remains unmet.
+
+The next package also reuses bounded wildlife-community output dictionaries:
+6,089 arithmetic/ownership checks, 644 complete actual-world spawn records
+across five location/time/weather scenarios, cancellation and retained-output
+checks pass. A focused 1,000-calculation test allocates 552,000 bytes fresh versus
+32,000 bytes with owned output reuse. Values are recomputed, not cached across
+updates. Retention is limited to 128 communities of at most 512 input taxa.
+
+Resident cover-buffer reuse is enabled after the earlier 409 pure checks and
+native upload/cache/retirement/failed-preparation ownership proof. Its prior
+presented comparison reused 40 MB with no material average-FPS regression; it
+has not proved elimination of collection spikes. The free-buffer pool is capped
+at 16 MiB. Combined broader performance validation is pending. Selected slot A
+and the owner's shortcut remain unchanged.
