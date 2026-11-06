@@ -74,7 +74,7 @@ def inventory():
     tree('assets-source/humans/motion/legacy','human-motion-inputs',{'.fbx'})
     tree('assets-source/humans/motion/source-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
     tree('assets-source/humans/motion/animation-library','human-motion-inputs',{'.bvh','.fbx','.glb','.bin','.json','.txt','.md'})
-    tree('unity/WorldGen.Unity/Assets/StreamingAssets/fauna','animal-runtime',{'','.fauna','.json','.manifest','.meta','.md','.txt'})
+    tree('unity/WorldGen.Unity/Assets/StreamingAssets/fauna','animal-runtime',{'','.fauna','.coats','.json','.manifest','.meta','.md','.txt'})
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans','unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance']:
         tree(directory,'human-runtime',{'.asset','.prefab','.mat','.meta','.fbx','.png','.json'})
         add(directory+'.meta','human-runtime')

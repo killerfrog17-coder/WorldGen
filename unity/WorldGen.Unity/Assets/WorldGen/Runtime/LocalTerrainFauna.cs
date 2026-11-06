@@ -192,16 +192,20 @@ public sealed partial class LocalTerrainExplorer
         if(FaunaTextureUpload.TrialDirectory!=null)
         {string trial=Path.Combine(FaunaTextureUpload.TrialDirectory,profile.bundle);if(File.Exists(trial))path=trial;}
         if(!File.Exists(path)){animalLoadFailures.Add(profile.slug);Debug.LogWarning("Missing fauna bundle "+profile.slug);animalLoading=null;yield break;}
+        WorldGenPerformance.TraceFauna(profile.slug,"bundle-request");
         animalBundleRequest=AssetBundle.LoadFromFileAsync(path);yield return animalBundleRequest;
+        WorldGenPerformance.TraceFauna(profile.slug,"bundle-ready");
         animalPendingBundle=animalBundleRequest.assetBundle;animalBundleRequest=null;
         if(animalDisposed){animalPendingBundle?.Unload(true);animalPendingBundle=null;yield break;}
         if(animalPendingBundle==null){animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
         var request=animalPendingBundle.LoadAllAssetsAsync<WorldGenFaunaAsset>();yield return request;
+        WorldGenPerformance.TraceFauna(profile.slug,"asset-ready");
         var asset=request.allAssets.OfType<WorldGenFaunaAsset>().FirstOrDefault();
         if(asset==null||asset.Slug!=profile.slug||asset.BoneCount>AnimalBones||asset.Clips==null||asset.Clips.Length==0)
         {animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
         string hitRoot=Path.Combine(Application.streamingAssetsPath,"fauna-collision"),hitSlug=asset.Slug,hitSource=asset.SourceSha256;int hitBones=asset.BoneCount;
         var hitSkin=Task.Run(()=>new FaunaCollisionSurface(hitSlug,hitSource,hitBones,hitRoot));while(!hitSkin.IsCompleted)yield return null;
+        WorldGenPerformance.TraceFauna(profile.slug,"collision-ready");
         if(animalDisposed||hitSkin.IsFaulted)
         {if(hitSkin.IsFaulted)Debug.LogError("Wildlife hit-skin load: "+hitSkin.Exception.GetBaseException().Message);animalPendingBundle?.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
         string extraPath=Path.Combine(Application.streamingAssetsPath,"fauna-motion",profile.slug+".bin.gz");
@@ -212,6 +216,7 @@ public sealed partial class LocalTerrainExplorer
             if(extra.IsCompletedSuccessfully)extra.Result.Append(asset);else Debug.LogWarning("Additional motion skipped: "+profile.slug+" / "+extra.Exception?.GetBaseException().Message);
         }
         bool ownCoats=asset.Coats==null;
+        WorldGenPerformance.TraceFauna(profile.slug,"motion-ready");
         if(ownCoats)
         {
             string coatPath=Path.Combine(Path.GetDirectoryName(path),profile.slug+".coats");
@@ -221,6 +226,7 @@ public sealed partial class LocalTerrainExplorer
             if(coatRead.IsFaulted)
             {Debug.LogError("Fauna coat stream: "+coatRead.Exception.GetBaseException().Message);animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
             animalCoatUpload=coatRead.Result;var upload=animalCoatUpload.Upload();
+            WorldGenPerformance.TraceFauna(profile.slug,"coat-begin");
             while(true)
             {
                 bool more=false;Exception failure=null;try{more=upload.MoveNext();}catch(Exception error){failure=error;}
@@ -229,12 +235,14 @@ public sealed partial class LocalTerrainExplorer
                 if(!more)break;yield return upload.Current;
             }
             asset.Coats=animalCoatUpload.TakeResult();
+            WorldGenPerformance.TraceFauna(profile.slug,"coat-ready");
             Debug.Log("FAUNA COAT STREAM READY "+profile.slug+" pieces="+animalCoatUpload.Pieces);
             animalCoatUpload.Dispose();animalCoatUpload=null;
         }
         var material=new Material(animalShader){name="Wildlife "+profile.slug};
         material.SetTexture("_Coats",asset.Coats);material.SetTexture("_Mask",asset.Mask);material.SetTexture("_Normals",asset.Normal);material.SetFloat("_VegetationSceneEnabled",1);
         animalModels.Add(profile.slug,new AnimalModel{Asset=asset,Bundle=animalPendingBundle,Material=material,Collision=hitSkin.Result,LastUse=Time.realtimeSinceStartupAsDouble,OwnCoats=ownCoats});
+        WorldGenPerformance.TraceFauna(profile.slug,"model-published");
         animalPendingBundle=null;animalLoading=null;
     }
     bool EvictAnimalModel()

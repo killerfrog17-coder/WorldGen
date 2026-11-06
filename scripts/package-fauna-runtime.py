@@ -2,7 +2,7 @@
 
 Does not launch a player, generate a world, or change any native animal asset.
 """
-import argparse,hashlib,json,shutil
+import argparse,hashlib,json,shutil,struct
 from pathlib import Path
 
 repo=Path(__file__).resolve().parent.parent
@@ -34,6 +34,12 @@ for item in plan:
                  'motion_source_family':inventory[slug]['entry'].get('source_family','Owner-approved deer motion'),
                  'motion_license_note':model['sourceLicense'],'clips':model['clips'],'coat_count':len(model['coats']),
                  'native_skin_sample_max_error':error,'influences':model['influences'],'has_native_motion_morph':model.get('hasMorph',False)})
+    coat_stream=output/(slug+'.coats')
+    if coat_stream.exists():
+        with coat_stream.open('rb') as reader:
+            assert struct.unpack('<iii',reader.read(12))==(0x57474331,model['textureSize'],len(model['coats'])),('Coat stream header',slug)
+        rows[-1].update(coat_stream=coat_stream.name,coat_stream_sha256=hashlib.sha256(coat_stream.read_bytes()).hexdigest(),coat_stream_bytes=coat_stream.stat().st_size)
+assert all('coat_stream' in row for row in rows) or not any('coat_stream' in row for row in rows),'Partially converted animal coat library'
 licenses=output/'licenses';licenses.mkdir(exist_ok=True)
 source_root=repo/'assets-source/animals/motion-library'
 # These small source-side records preserve the upstream URLs and license
@@ -75,5 +81,8 @@ if a.player_folder:
         if not file.is_file() or file.suffix=='.meta' or file.suffix=='.manifest' or file.name=='fauna':continue
         target=dest/file.relative_to(output);target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,target)
     for row in rows:assert hashlib.sha256((dest/row['bundle']).read_bytes()).hexdigest()==row['bundle_sha256']
+    for row in rows:
+        if 'coat_stream' in row:assert hashlib.sha256((dest/row['coat_stream']).read_bytes()).hexdigest()==row['coat_stream_sha256']
 print('VERIFIED',len(rows),'animals,',clips,'movement clips,',coats,'coat layers; max sampled native error',worst)
 print('BUNDLE SIZE',round(sum(r['bundle_bytes'] for r in rows)/1024**2,1),'MiB')
+print('COAT STREAM SIZE',round(sum(r.get('coat_stream_bytes',0) for r in rows)/1024**2,1),'MiB')

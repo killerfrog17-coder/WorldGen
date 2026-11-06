@@ -35,7 +35,7 @@ public sealed partial class WorldGenRuntime
         while(!bundleRequest.isDone){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         var bundle=bundleRequest.assetBundle;var assetRequest=bundle.LoadAllAssetsAsync<WorldGenFaunaAsset>();
         while(!assetRequest.isDone){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
-        var original=assetRequest.allAssets.OfType<WorldGenFaunaAsset>().Single().Coats;
+        var originalAsset=assetRequest.allAssets.OfType<WorldGenFaunaAsset>().Single();var original=originalAsset.Coats;
         if(original==null)throw new InvalidDataException("Comparison requires the original embedded coat array: "+originalPath);
         for(int i=0;i<10;i++){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         var read=Task.Run(()=>new FaunaTextureUpload(input));while(!read.IsCompleted)yield return null;
@@ -65,6 +65,24 @@ public sealed partial class WorldGenRuntime
         compare.Dispatch(0,(original.width+7)/8,(original.width+7)/8,1);
         var positive=AsyncGPUReadback.Request(differences);while(!positive.done)yield return null;
         if(positive.hasError||positive.GetData<uint>()[0]==0)throw new InvalidOperationException("Coat comparison failed its deliberately wrong-layer control");
+        // The streamed package also repacks the model. Compare its authored
+        // motion/metadata and actual native mesh bytes, not just texture pixels.
+        string streamedPath=Path.ChangeExtension(input,".fauna");
+        if(File.Exists(streamedPath))
+        {
+            var streamedRequest=AssetBundle.LoadFromFileAsync(streamedPath);yield return streamedRequest;
+            var streamedBundle=streamedRequest.assetBundle;
+            if(streamedBundle==null)throw new InvalidDataException("Missing streamed model bundle");
+            var modelRequest=streamedBundle.LoadAllAssetsAsync<WorldGenFaunaAsset>();yield return modelRequest;
+            var current=modelRequest.allAssets.OfType<WorldGenFaunaAsset>().Single();
+            if(current.Coats!=null||current.Slug!=originalAsset.Slug||current.SourceSha256!=originalAsset.SourceSha256||current.BoneCount!=originalAsset.BoneCount||current.Height!=originalAsset.Height||
+                !current.Poses.SequenceEqual(originalAsset.Poses)||!SameItems(current.Clips,originalAsset.Clips)||!SameItems(current.Variations,originalAsset.Variations)||
+                !(current.Morphs??Array.Empty<float>()).SequenceEqual(originalAsset.Morphs??Array.Empty<float>()))
+                throw new InvalidDataException("Streamed model metadata or authored motion changed: "+current.Slug);
+            yield return CompareFaunaMeshBuffers(originalAsset.Mesh,current.Mesh);
+            File.WriteAllText(Path.Combine(output,"model.txt"),"PASS authored motion, coat metadata, source identity and all native mesh vertex/index bytes.\n");
+            streamedBundle.Unload(true);
+        }
         var cancelRead=Task.Run(()=>new FaunaTextureUpload(input));while(!cancelRead.IsCompleted)yield return null;
         var canceled=cancelRead.Result;var cancelIterator=canceled.Upload();cancelIterator.MoveNext();var discarded=canceled.Result;
         canceled.Dispose();double deadline=Time.realtimeSinceStartupAsDouble+5;
@@ -82,5 +100,27 @@ public sealed partial class WorldGenRuntime
         File.WriteAllLines(Path.Combine(output,"uploads.csv"),rows);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"PASS {comparisons} exact native decoded RGBA channels across BC7 layers/mips, {upload.Pieces} bounded uploads, {upload.RetainedBufferBytes} reader bytes; canceled worker/native array release and truncated source rejection. Isolated fixture timings are not game FPS.\n");
         bundle.Unload(true);
+    }
+    static bool SameItems<T>(T[] a,T[] b)=>a.Length==b.Length&&a.Zip(b,(x,y)=>JsonUtility.ToJson(x)==JsonUtility.ToJson(y)).All(equal=>equal);
+    static IEnumerator CompareFaunaMeshBuffers(Mesh a,Mesh b)
+    {
+        if(a.vertexCount!=b.vertexCount||a.subMeshCount!=b.subMeshCount||a.indexFormat!=b.indexFormat||!a.bounds.Equals(b.bounds)||
+            !a.GetVertexAttributes().SequenceEqual(b.GetVertexAttributes()))throw new InvalidDataException("Fauna mesh layout changed");
+        for(int sub=0;sub<a.subMeshCount;sub++)if(!a.GetSubMesh(sub).Equals(b.GetSubMesh(sub)))throw new InvalidDataException("Fauna submesh changed");
+        for(int stream=-1;stream<a.vertexBufferCount;stream++)
+        {
+            using var left=stream<0?a.GetIndexBuffer():a.GetVertexBuffer(stream);
+            using var right=stream<0?b.GetIndexBuffer():b.GetVertexBuffer(stream);
+            if(left.count!=right.count||left.stride!=right.stride)throw new InvalidDataException("Fauna native buffer size changed");
+            var first=AsyncGPUReadback.Request(left);var second=AsyncGPUReadback.Request(right);byte[] x=null,y=null;
+            while(x==null||y==null)
+            {
+                if(first.hasError||second.hasError)throw new InvalidOperationException("Fauna native mesh readback failed");
+                if(x==null&&first.done)x=first.GetData<byte>().ToArray();
+                if(y==null&&second.done)y=second.GetData<byte>().ToArray();
+                if(x==null||y==null)yield return null;
+            }
+            if(!x.SequenceEqual(y))throw new InvalidDataException("Fauna native mesh bytes changed");
+        }
     }
 }

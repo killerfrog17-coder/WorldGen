@@ -62,6 +62,16 @@ public static class WorldGenPerformance
     public static readonly double[] Milliseconds=new double[4];
     public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
     public static readonly bool FineCullTrace=TraceEnabled&&Environment.GetCommandLineArgs().Contains("--worldgen-fine-cull-trace");
+    static readonly List<(long Time,string Animal,string Stage)> faunaStages=TraceEnabled?new List<(long,string,string)>(256):null;
+    public static void TraceFauna(string animal,string stage)
+    {if(TraceEnabled&&Measuring&&faunaStages.Count<4096)faunaStages.Add((System.Diagnostics.Stopwatch.GetTimestamp(),animal,stage));}
+    public static void ClearFaunaTrace(){faunaStages?.Clear();}
+    public static void WriteFaunaTrace(string path,long start)
+    {
+        if(!TraceEnabled)return;
+        File.WriteAllLines(path,new[]{"t_s,animal,stage"}.Concat(faunaStages.Select(e=>
+            ((e.Time-start)/(double)System.Diagnostics.Stopwatch.Frequency).ToString("R",CultureInfo.InvariantCulture)+","+e.Animal+","+e.Stage)));
+    }
     public static readonly double[] TraceMilliseconds=new double[48];static int traceFrame=-1;
     public static bool SuppressIdleScatter,SkipMapUploads,ForceFreshCoverCull,NoLocalTrees,ForceFreshForestOwnership,TreeLegacyAlpha,SuppressFarForest,ForceIndividualTreeAdmission,DrainEachFrame,LegacyTreeQueues;
     public static long TraceBegin()
@@ -1368,6 +1378,7 @@ public sealed partial class WorldGenRuntime
                 }
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
+                WorldGenPerformance.ClearFaunaTrace();
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
                 while(Time.realtimeSinceStartupAsDouble-start<seconds)
                 {
@@ -1441,6 +1452,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"gpu-counter-validation.txt"),site.Item1+" "+item.Name+": valid="+timingCount+" rejected="+rejectedGpuTimings+" largest_rejected_ms="+largestRejectedGpu.ToString("R",CultureInfo.InvariantCulture)+"; actual frame/FPS samples never filtered\n");
                 File.AppendAllText(Path.Combine(output,"ground-publication.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceGroundPublication+"\n");
                 if(WorldGenPerformance.TraceEnabled)terrainExplorer.PerformanceWriteGroundTrace(Path.Combine(output,site.Item1+"-"+item.Name+"-ground-corrections.csv"));
+                WorldGenPerformance.WriteFaunaTrace(Path.Combine(output,site.Item1+"-"+item.Name+"-fauna-stages.csv"),qpcStart);
                 File.AppendAllText(Path.Combine(output,"terrain-upload-pool.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection,forest_ground_ms,ground_publication_ms,inventory_ms,planning_ms,terrain_install_ms,terrain_retirement_ms,scheduling_ms,readout_ms,solids_ms,player_camera_ms,player_water_ms,player_combat_ms,player_blood_ms,player_footsteps_ms,player_feedback_ms,player_hud_ms,player_altitude_ms,query_locate_ms,query_profiles_ms,query_shape_ms,query_rivers_ms,query_detail_ms,query_ponds_ms,driver_ms"}.Concat(stutter.Select(s=>s.ToString())));
