@@ -12,6 +12,43 @@ using UnityEngine;
 public static class WorldGenHeapReview
 {
     public static void RunDiagnostics(){WorldGenProfilerReview.Run();Run();}
+    public static void RunGraphicsResources()
+    {
+        var args=Environment.GetCommandLineArgs();
+        string Argument(string name){int at=Array.IndexOf(args,name);if(at<0||at+1>=args.Length)throw new ArgumentException(name);return args[at+1];}
+        string input=Argument("--worldgen-heap-input"),output=Argument("--worldgen-output");Directory.CreateDirectory(output);
+        var assembly=Assembly.Load("Unity.MemoryProfiler.Editor");
+        var readerType=assembly.GetType("Unity.MemoryProfiler.Editor.Format.QueriedSnapshot.FileReader",true);
+        var snapshotType=assembly.GetType("Unity.MemoryProfiler.Editor.CachedSnapshot",true);
+        object reader=Activator.CreateInstance(readerType,true),snapshot=null;
+        try
+        {
+            var status=readerType.GetMethod("Open",Members).Invoke(reader,new object[]{input});
+            if(status.ToString()!="Success")throw new InvalidOperationException("Snapshot reader: "+status);
+            snapshot=Activator.CreateInstance(snapshotType,Members,null,new[]{reader,(object)true},null);
+            // The package completes asynchronous native tables and initializes
+            // disposal state in PostProcess; reading before that is incomplete.
+            var process=(IEnumerator)snapshotType.GetMethod("PostProcess",Members).Invoke(snapshot,new object[]{true});
+            try{while(process.MoveNext()){};}finally{(process as IDisposable)?.Dispose();}
+            var resources=Read(snapshot,"NativeGfxResourceReferences");var roots=Read(snapshot,"NativeRootReferences");
+            var ids=((IEnumerable)Read(resources,"GfxResourceId")).Cast<ulong>().ToArray();
+            var sizes=((IEnumerable)Read(resources,"GfxSize")).Cast<ulong>().ToArray();
+            var links=((IEnumerable)Read(resources,"RootId")).Cast<long>().ToArray();
+            var rootIds=((IEnumerable)Read(roots,"Id")).Cast<long>().ToArray();
+            var names=(string[])Read(roots,"ObjectName");var areas=(string[])Read(roots,"AreaName");
+            var index=new Dictionary<long,int>();for(int i=0;i<rootIds.Length;i++)index[rootIds[i]]=i;
+            string Csv(string text)=>"\""+(text??"").Replace("\"","\"\"")+"\"";
+            using var writer=new StreamWriter(Path.Combine(output,"graphics-resources.csv"));
+            writer.WriteLine("resource_id,bytes,root_id,area,name");
+            for(int i=0;i<ids.Length;i++)
+            {
+                bool found=index.TryGetValue(links[i],out int at);
+                writer.WriteLine(ids[i]+","+sizes[i]+","+links[i]+","+Csv(found?areas[at]:"")+","+Csv(found?names[at]:""));
+            }
+            File.WriteAllText(Path.Combine(output,"complete.txt"),ids.Length+" graphics-resource identities exported from the existing snapshot.\n");
+        }
+        finally{(snapshot as IDisposable)?.Dispose();(reader as IDisposable)?.Dispose();}
+    }
     const BindingFlags Members=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance;
     static object Read(object owner,string name)
     {

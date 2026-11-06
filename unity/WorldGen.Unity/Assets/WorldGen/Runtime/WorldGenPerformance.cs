@@ -1558,7 +1558,8 @@ public sealed partial class WorldGenRuntime
                     if(File.Exists(snapshotPath))throw new InvalidOperationException("Refusing to overwrite an existing heap snapshot.");
                     bool finished=false,succeeded=false;
                     Unity.Profiling.Memory.MemoryProfiler.TakeSnapshot(snapshotPath,(path,success)=>{succeeded=success;finished=true;},
-                        Unity.Profiling.Memory.CaptureFlags.ManagedObjects|Unity.Profiling.Memory.CaptureFlags.NativeObjects);
+                        Unity.Profiling.Memory.CaptureFlags.ManagedObjects|Unity.Profiling.Memory.CaptureFlags.NativeObjects|
+                        Unity.Profiling.Memory.CaptureFlags.NativeAllocations);
                     double snapshotDeadline=Time.realtimeSinceStartupAsDouble+120;
                     while(!finished&&Time.realtimeSinceStartupAsDouble<snapshotDeadline)yield return null;
                     if(!finished||!succeeded)throw new InvalidOperationException("Managed heap snapshot did not complete: "+snapshotPath);
