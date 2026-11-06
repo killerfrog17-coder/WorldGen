@@ -8,6 +8,7 @@ param(
     [string]$FaunaStreamDirectory='',
     [double]$ProfileWarmupSeconds=-1,
     [double]$Seconds=6,
+    [ValidateRange(0,2000)][double]$TravelLoopMeters=0,
     [double]$ViewDistance=60000,
     [int]$PlantQuality=2,
     [int]$Width=1920,[int]$Height=1080,
@@ -53,6 +54,7 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     RequestedSwapChain=$SwapChain
     NativeGcDiagnostic=[bool]$NativeGcProbe
     CpuTimingDiagnostic=[bool]$CpuTiming
+    TravelLoopMeters=$TravelLoopMeters
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
@@ -77,6 +79,7 @@ if($NativeGcProbe){$probeFile=[IO.Path]::GetFullPath((Join-Path $repo $NativeGcP
 if($FaunaStreamDirectory){$streamInput=[IO.Path]::GetFullPath((Join-Path $repo $FaunaStreamDirectory));if(!(Test-Path -LiteralPath $streamInput)){throw 'Fauna stream experiment directory missing'};$arguments+=@('--worldgen-fauna-stream-directory',('"'+$streamInput+'"'))}
 if($ProfileWarmupSeconds -ge 0){$arguments+=@('--worldgen-profile-warmup-seconds',$ProfileWarmupSeconds.ToString([Globalization.CultureInfo]::InvariantCulture))}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
+if($TravelLoopMeters -gt 0){$arguments+=@('--worldgen-perf-travel-loop',$TravelLoopMeters.ToString([Globalization.CultureInfo]::InvariantCulture))}
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
 $arguments+=@('--worldgen-perf-plant-quality',"$PlantQuality")

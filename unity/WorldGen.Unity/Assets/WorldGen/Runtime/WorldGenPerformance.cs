@@ -1212,6 +1212,8 @@ public sealed partial class WorldGenRuntime
         }
         string caseFilter=Argument("--worldgen-perf-cases","");
         double seconds=double.Parse(Argument("--worldgen-perf-seconds","6"),CultureInfo.InvariantCulture);
+        double travelLoop=double.Parse(Argument("--worldgen-perf-travel-loop","0"),CultureInfo.InvariantCulture);
+        if(!double.IsFinite(travelLoop)||travelLoop<0||travelLoop>2000)throw new ArgumentOutOfRangeException("travelLoop");
         double profileView=double.Parse(Argument("--worldgen-perf-view","60000"),CultureInfo.InvariantCulture);
         int profilePlants=int.Parse(Argument("--worldgen-perf-plant-quality","2"));
         bool savedSettings=Environment.GetCommandLineArgs().Contains("--worldgen-perf-saved-settings");
@@ -1595,7 +1597,14 @@ public sealed partial class WorldGenRuntime
                     if(stutter!=null)for(int phase=0;phase<6;phase++)driverBefore[phase]=TerrainQueryTiming.Milliseconds(phase);
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name.StartsWith("turning-whip",StringComparison.Ordinal)?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
-                    {terrainExplorer.PerformanceTravel((now-start)*8);if(item.Name.StartsWith("travel-whip",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));}
+                    {
+                        double travel=(now-start)*8;
+                        // Optional out-and-back route keeps a long diagnostic
+                        // inside its selected biome, instead of climbing a cliff.
+                        // Default remains the original eastward streaming path.
+                        if(travelLoop>0){travel%=2*travelLoop;if(travel>travelLoop)travel=2*travelLoop-travel;}
+                        terrainExplorer.PerformanceTravel(travel);if(item.Name.StartsWith("travel-whip",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));
+                    }
                     if(stutter!=null)
                     {
                         driverMs=(System.Diagnostics.Stopwatch.GetTimestamp()-driverStart)*1000d/System.Diagnostics.Stopwatch.Frequency;
