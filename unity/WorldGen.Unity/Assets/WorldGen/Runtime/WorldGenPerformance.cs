@@ -1455,8 +1455,8 @@ public sealed partial class WorldGenRuntime
                     bool finished=false,succeeded=false;
                     Unity.Profiling.Memory.MemoryProfiler.TakeSnapshot(snapshotPath,(path,success)=>{succeeded=success;finished=true;},
                         Unity.Profiling.Memory.CaptureFlags.ManagedObjects|Unity.Profiling.Memory.CaptureFlags.NativeObjects);
-                    double deadline=Time.realtimeSinceStartupAsDouble+120;
-                    while(!finished&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                    double snapshotDeadline=Time.realtimeSinceStartupAsDouble+120;
+                    while(!finished&&Time.realtimeSinceStartupAsDouble<snapshotDeadline)yield return null;
                     if(!finished||!succeeded)throw new InvalidOperationException("Managed heap snapshot did not complete: "+snapshotPath);
                     File.AppendAllText(Path.Combine(output,"memory-snapshots.txt"),snapshotPath+"\n");
                 }
