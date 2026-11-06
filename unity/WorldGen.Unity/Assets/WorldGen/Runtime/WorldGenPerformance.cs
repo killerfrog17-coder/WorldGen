@@ -35,7 +35,7 @@ public static class WorldGenPerformance
     public static bool MemoHumanInputs;
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
-    public static bool ResidentCoverReuse;
+    public static bool ResidentCoverReuse=true;
     public static bool IndexedWalkingRivers=true;
     public static bool NoBuilderBufferReuse;
     public static bool StagedGroundPublication;
@@ -1184,6 +1184,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-paced-retirement",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=true),
             new PerfCase("travel-whip-staged-retirement",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("travel-whip-cover-pool",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.ResidentCoverReuse=true),
+            new PerfCase("travel-whip-unpooled-cover",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;WorldGenPerformance.ResidentCoverReuse=false;}),
             new PerfCase("travel-whip-indexed-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.IndexedWalkingRivers=true),
             new PerfCase("travel-whip-staged-gc1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true;UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=1000000;}),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
@@ -1261,7 +1262,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.TracePresentedCamera=false;
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
-                WorldGenPerformance.ResidentCoverReuse=false;
+                WorldGenPerformance.ResidentCoverReuse=true;
                 WorldGenPerformance.IndexedWalkingRivers=true;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
                 WorldGenPerformance.StagedGroundPublication=false;
