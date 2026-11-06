@@ -47,6 +47,29 @@ public sealed partial class LocalTerrainExplorer
         return actor.Resident.Name+" · "+actor.Resident.AgeYears.ToString("0")+" years · "+condition+"\n"+
             (group==null?"":f.Cultures[group.Situation.Band.Culture].Name+" · "+f.Languages[group.Situation.Band.Language].Name+" · "+f.Lineages[group.Situation.Band.Lineage].Name+"\n")+actor.CurrentActivity;
     }
+    void ScheduleLivingQuery()
+    {
+        livingQueryAt=Time.unscaledTimeAsDouble+2;var state=sourceWorld.Prehistory;var clock=LivingClock;var observer=Position;
+        var physicalGroups=livingPeople.Values.Select(p=>p.GroupId).ToHashSet();
+        double temperature=CurrentWeather.TemperatureC,rain=CurrentWeather.RainMmPerHour;
+        livingWork=Task.Run(()=>
+        {
+            var timer=System.Diagnostics.Stopwatch.StartNew();var packet=new LivingPacket{Groups=livingPlanner.Nearby(state,clock,observer,50000),SolarDay=clock.SolarDays,Source=state};
+            foreach(var group in packet.Groups)
+            {
+                if(closed)break;
+                foreach(var trace in livingPlanner.RecentCamps(group,clock))
+                    if(HumanLocalLife.Angle(trace.Site.Position,observer)*sourceWorld.Recipe.RadiusKm*1000*clock.HorizontalScale<900)
+                    {packet.Traces.Add(trace);if(!packet.Residents.ContainsKey(group.Band.Id))packet.Residents[group.Band.Id]=livingPlanner.Residents(group);}
+                // Include the whole foraging catchment, not only the camp's
+                // centre. A party can be encountered far from its shelter.
+                if(group.DistanceToPlayerM>2400&&!physicalGroups.Contains(group.Band.Id))continue;
+                var residents=livingPlanner.Residents(group);packet.Residents[group.Band.Id]=residents;
+                packet.Activities[group.Band.Id]=residents.Members.Select(p=>livingPlanner.Activity(group,residents,p,clock,temperature,rain)).ToArray();
+            }
+            packet.Milliseconds=timer.Elapsed.TotalMilliseconds;return packet;
+        });
+    }
     void UpdateLivingHumans(bool stopped,float dt)
     {
         if(sourceWorld?.Prehistory==null||!Prehistory.Foraging(sourceWorld.Prehistory)||humanLibrary==null)return;
@@ -63,29 +86,7 @@ public sealed partial class LocalTerrainExplorer
         UpdateLivingResources();
         if(Time.unscaledTimeAsDouble>=livingCampLifeAt)
         {livingCampLifeAt=Time.unscaledTimeAsDouble+.5;foreach(var group in livingGroups.Values)AdvanceLivingCampLife(group);foreach(var trace in livingTraces.Values)if(trace.CampLoaded)AdvanceLivingTrace(trace);}
-        if(livingWork==null&&Time.unscaledTimeAsDouble>=livingQueryAt)
-        {
-            livingQueryAt=Time.unscaledTimeAsDouble+2;var state=sourceWorld.Prehistory;var clock=LivingClock;var observer=Position;
-            var physicalGroups=livingPeople.Values.Select(p=>p.GroupId).ToHashSet();
-            double temperature=CurrentWeather.TemperatureC,rain=CurrentWeather.RainMmPerHour;
-            livingWork=Task.Run(()=>
-            {
-                var timer=System.Diagnostics.Stopwatch.StartNew();var packet=new LivingPacket{Groups=livingPlanner.Nearby(state,clock,observer,50000),SolarDay=clock.SolarDays,Source=state};
-                foreach(var group in packet.Groups)
-                {
-                    if(closed)break;
-                    foreach(var trace in livingPlanner.RecentCamps(group,clock))
-                        if(HumanLocalLife.Angle(trace.Site.Position,observer)*sourceWorld.Recipe.RadiusKm*1000*clock.HorizontalScale<900)
-                        {packet.Traces.Add(trace);if(!packet.Residents.ContainsKey(group.Band.Id))packet.Residents[group.Band.Id]=livingPlanner.Residents(group);}
-                    // Include the whole foraging catchment, not only the camp's
-                    // centre. A party can be encountered far from its shelter.
-                    if(group.DistanceToPlayerM>2400&&!physicalGroups.Contains(group.Band.Id))continue;
-                    var residents=livingPlanner.Residents(group);packet.Residents[group.Band.Id]=residents;
-                    packet.Activities[group.Band.Id]=residents.Members.Select(p=>livingPlanner.Activity(group,residents,p,clock,temperature,rain)).ToArray();
-                }
-                packet.Milliseconds=timer.Elapsed.TotalMilliseconds;return packet;
-            });
-        }
+        if(livingWork==null&&Time.unscaledTimeAsDouble>=livingQueryAt)ScheduleLivingQuery();
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         foreach(var group in livingOrdered)
         {

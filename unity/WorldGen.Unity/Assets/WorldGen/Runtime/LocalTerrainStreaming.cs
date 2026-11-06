@@ -89,14 +89,16 @@ public sealed partial class LocalTerrainExplorer
         }
         double lead=Math.Min(size*6,Math.Max(size*.6,speed*.75));double x=motion.X+streamingVX/speed*lead,z=motion.Z+streamingVZ/speed*lead;
         if(double.IsNaN(predictedX)||Math.Abs(x-predictedX)>size*.25||Math.Abs(z-predictedZ)>size*.25)
-        {
-            predictedX=x;predictedZ=z;
-            var plan=TerrainLod.Plan(x,z,HeightAboveGround,size*4,HorizontalScale);prefetchEdges=terrainEdgeWorkspace.Build(plan);
-            prefetchWanted=plan.Where(p=>TerrainLod.Immediate(p.Key,x,z)).OrderBy(p=>TerrainLod.DistanceSquared(p.Key,x,z)).Take(12).ToDictionary(p=>p.Key,p=>p.Value);
-            prefetchPriority.Clear();prefetchPriority.AddRange(prefetchWanted.Keys);
-            foreach(var j in jobs)if(j.Prefetch&&(!prefetchWanted.TryGetValue(j.Key,out int detail)||detail!=j.Segments||!TerrainEdges.Equal(j.Edges,prefetchEdges[j.Key])))j.Cancellation?.Cancel();
-        }
+            PlanStreamingPrediction(x,z,size);
         priority.Sort((a,b)=>{int d=StreamingPriority(a).CompareTo(StreamingPriority(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
+    }
+    void PlanStreamingPrediction(double x,double z,double size)
+    {
+        predictedX=x;predictedZ=z;
+        var plan=TerrainLod.Plan(x,z,HeightAboveGround,size*4,HorizontalScale);prefetchEdges=terrainEdgeWorkspace.Build(plan);
+        prefetchWanted=plan.Where(p=>TerrainLod.Immediate(p.Key,x,z)).OrderBy(p=>TerrainLod.DistanceSquared(p.Key,x,z)).Take(12).ToDictionary(p=>p.Key,p=>p.Value);
+        prefetchPriority.Clear();prefetchPriority.AddRange(prefetchWanted.Keys);
+        foreach(var j in jobs)if(j.Prefetch&&(!prefetchWanted.TryGetValue(j.Key,out int detail)||detail!=j.Segments||!TerrainEdges.Equal(j.Edges,prefetchEdges[j.Key])))j.Cancellation?.Cancel();
     }
     bool WorkMatchesCurrent(Work job)=>job.Prepared==null&&job.Generation==generation&&
         (job.Backdrop?backdrops.ContainsKey(job.Key)&&!tiles.ContainsKey(job.Key)&&BackdropNeeded(job.Key):wanted.TryGetValue(job.Key,out int detail)&&detail==job.Segments&&TerrainEdges.Equal(job.Edges,wantedEdges[job.Key]));

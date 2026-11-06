@@ -127,7 +127,10 @@ public sealed partial class LocalTerrainExplorer
             var next=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
             preparedFrame=new PreparedFrame{Frame=next,Root=NewTerrainRoot(false)};
         }
-        var pending=preparedFrame;
+        UpdatePreparedFrameActive(preparedFrame,limit,distance);
+    }
+    void UpdatePreparedFrameActive(PreparedFrame pending,double limit,double distance)
+    {
         if(V.Dot(Position,pending.Frame.Origin)<=0){CancelPreparedFrame();return;}
         TerrainHandoff.Coordinates(pending.Frame,Position,out double x,out double z);
         double altitude=HeightAboveGround;

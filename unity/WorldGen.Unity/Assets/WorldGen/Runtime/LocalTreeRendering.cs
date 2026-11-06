@@ -117,6 +117,10 @@ public sealed partial class LocalTerrainExplorer
                 ReleaseTreeTextures(expired.Value);scatterArt.Remove(expired.Key);
             }
         }
+        ScheduleTreeBake(pending,installed);
+    }
+    void ScheduleTreeBake(ArtModel pending,long installed)
+    {
         long nearKey=ScatterArtKey(ScatterKind.GeneratedTree,pending.TreeCode,0);Mesh source;bool temporary=false;
         if(scatterArt.TryGetValue(nearKey,out var near))source=near.Parts[0].Mesh;
         else{source=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,pending.TreeCode);temporary=true;}

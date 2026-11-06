@@ -18,8 +18,12 @@ public sealed partial class LocalTerrainExplorer
             else if(!work.IsCanceled&&livingGroups.TryGetValue(livingResourceGroup,out var found)&&found.Situation.Camp.Id==livingResourceSite)found.Resources=work.Result;
         }
         if(livingResourceWork!=null)return;
-        var group=livingGroups.Values.FirstOrDefault(g=>g.CampLoaded&&g.Resources==null&&g.Situation.Phase==HumanCampPhase.Occupied);
-        if(group==null)return;
+        foreach(var group in livingGroups.Values)
+            if(group.CampLoaded&&group.Resources==null&&group.Situation.Phase==HumanCampPhase.Occupied)
+            {ScheduleLivingResourceQuery(group);return;}
+    }
+    void ScheduleLivingResourceQuery(LivingGroup group)
+    {
         livingResourceGroup=group.Situation.Band.Id;livingResourceSite=group.Situation.Camp.Id;
         var center=group.Anchor;var data=terrain;double scale=HorizontalScale;var token=cancellation.Token;
         livingResourceWork=Task.Run(()=>

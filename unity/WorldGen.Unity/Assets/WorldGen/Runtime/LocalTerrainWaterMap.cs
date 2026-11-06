@@ -25,6 +25,10 @@ public sealed partial class LocalTerrainExplorer
             riverMapJob=null;
         }
         if(!mapOpen||!mapRivers||sourceWorld==null||terrain==null||riverMapJob!=null||riverMapJobRevision==riverMapRevision||Time.realtimeSinceStartupAsDouble<riverMapDue)return;
+        ScheduleRiverMap();
+    }
+    void ScheduleRiverMap()
+    {
         riverMapCancellation?.Dispose();riverMapCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=riverMapCancellation.Token;
         var viewport=mapViewport.Clone();var source=sourceWorld;var local=terrain;riverMapJobRevision=riverMapRevision;
         riverMapJob=Task.Run(()=>WaterwaysMapImage.Build(source,local,viewport,token:token),token);

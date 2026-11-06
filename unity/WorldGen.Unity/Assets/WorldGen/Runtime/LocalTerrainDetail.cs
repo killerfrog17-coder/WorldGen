@@ -68,6 +68,11 @@ public sealed partial class LocalTerrainExplorer
             detailPlan=null;detailCancellation?.Dispose();detailCancellation=null;
         }
         if(detailPlan!=null||!detailDirty)return;
+        ScheduleTerrainDetailPlan();
+    }
+    // Captured job inputs belong to scheduling, not every idle polling frame.
+    void ScheduleTerrainDetailPlan()
+    {
         detailDirty=false;detailGeneration=generation;detailX=motion.X;detailZ=motion.Z;
         double x=motion.X,z=motion.Z,altitude=HeightAboveGround,scale=HorizontalScale;
         var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;TerrainDiagnostics.Detail(options);
