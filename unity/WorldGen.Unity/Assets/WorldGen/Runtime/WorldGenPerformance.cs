@@ -1631,10 +1631,14 @@ public sealed partial class WorldGenRuntime
                         else{gpu+=measuredGpu;cpu+=timings[0].cpuFrameTime;cpuMain+=timings[0].cpuMainThreadFrameTime;cpuRender+=timings[0].cpuRenderThreadFrameTime;cpuPresentWait+=timings[0].cpuMainThreadPresentWaitTime;timingCount++;}
                     }
                 }
-                manualGc.Dispose();
                 double drainStart=Time.realtimeSinceStartupAsDouble;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
                 double gpuDrain=(Time.realtimeSinceStartupAsDouble-drainStart)*1000;
+                // End measurement before restoring the diagnostic collector or
+                // writing evidence. CSV IO must never become frame throughput.
+                long qpcEnd=System.Diagnostics.Stopwatch.GetTimestamp();double elapsed=Time.realtimeSinceStartupAsDouble-start;
+                var windowEndUtc=DateTime.UtcNow;
+                manualGc.Dispose();
                 manualGc.Write(Path.Combine(output,site.Item1+"-"+item.Name+"-manual-gc.csv"));
                 string componentFile=Path.Combine(output,"cpu-frame-components.csv");
                 if(!File.Exists(componentFile))File.WriteAllText(componentFile,"site,case,samples,main_ms,render_ms,present_wait_ms\n");
@@ -1652,11 +1656,11 @@ public sealed partial class WorldGenRuntime
                 if(renderCosts.Count>0){renderCosts.Sort();File.AppendAllText(Path.Combine(output,"completed-renders.txt"),site.Item1+" "+item.Name+": "+renderCosts.Count+" samples; mean "+renderCosts.Average().ToString("F3")+"ms, median "+renderCosts[renderCosts.Count/2].ToString("F3")+"ms; submission + actual GPU completion, excluding Update/presentation/frame-loop waits.\n");}
                 if(terrainExplorer.Error!="")throw new InvalidOperationException("Performance scene: "+terrainExplorer.Error);
                 if(WorldGenPerformance.TraceEnabled&&item.Name.StartsWith("stutter-map",StringComparison.Ordinal))File.AppendAllText(Path.Combine(output,"map-progress.txt"),item.Name+": "+terrainExplorer.PerformanceMapDiagnostics+"\n");
-                long qpcEnd=System.Diagnostics.Stopwatch.GetTimestamp();double elapsed=Time.realtimeSinceStartupAsDouble-start;var sorted=frames.OrderBy(v=>v).ToArray();
+                var sorted=frames.OrderBy(v=>v).ToArray();
                 double P(double p)=>sorted[Math.Min(sorted.Length-1,(int)(sorted.Length*p))];
                 var h=world.Ecology.Habitat[site.Item2];
                 string row=string.Join(",",site.Item1,site.Item2,h.Biome,h.ReliefM,item.Name,frames.Count,Perf(elapsed),Perf(frames.Count/elapsed),Perf(P(.5)),Perf(P(.95)),Perf(P(.99)),Perf(sorted.Last()),frames.Count(v=>v>10),frames.Count(v=>v>16.667),Perf(sections[0]/frames.Count),Perf(sections[1]/frames.Count),Perf(sections[2]/frames.Count),Perf(sections[3]/frames.Count),terrainExplorer.PerformanceCounts,terrainExplorer.PerformanceSettled,qpcStart,qpcEnd);
-                row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain)+","+windowUtc.ToString("O",CultureInfo.InvariantCulture)+","+DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture);
+                row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain)+","+windowUtc.ToString("O",CultureInfo.InvariantCulture)+","+windowEndUtc.ToString("O",CultureInfo.InvariantCulture);
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
