@@ -832,3 +832,30 @@ All 750 complete terrain probes across 30 sites match, including eviction and
 concurrent reconstruction. Focused water (142+37), sound (69), wildlife (6089),
 ground flora (5759), landscape (35733), fauna (104), crop (8) checks pass.
 Native frame-time benefit is still unmeasured; this is a storage candidate.
+
+
+Packed-habitat player701458d7: native current90s180m routes complete.
+Jungle167.06FPS,p9913.14/max20.56ms,11frames>16.667; savanna151.46FPS,
+p9912.74/max27.73ms,7frames>16.667. Compared with sparse-only: mixed mean/tail
+results, no isolated GC improvement established. Savanna's largest peaks still
+include6.0-7.4ms native stops and19-26ms main-thread frames. Jungle's remaining
+largest observed frames are not collector-overlapping. Native96map probes and
+24,623/22,802 readiness comparisons pass; no player errors. The inspected jungle
+capture retains the existing dark/coarse trunks; this is not a visual acceptance.
+LateUpdate p99 is2.10ms jungle/2.62ms savanna; OnGUI p99 .89/1.13ms. These scopes
+overlap their children and must not be added indiscriminately.
+
+Several large Explorer updates align with32m scatter-neighbourhood refreshes:
+4.02s,33.02s,37.02s on the jungle route have8.9-11.0ms scatter work but only
+3.8-4.1ms batch rebuilding. Refresh recomputes spherical tile positions inside
+every comparison of its distance sort. A diagnostic candidate computes each
+squared distance once, retains the identical tie-break and reuses its workspace.
+15,702 entries at70world/pole/cube-boundary positions match literal order, including
+reversed input. Warm ordering allocates0bytes. Native timing is pending; the
+candidate remains OFF except `travel-whip-cached-scatter-priority`. Added explicit
+`scatter_plan_ms` timing to establish actual cost of the whole refresh.
+
+Frame-timing interpretation checked against Unity6.6 counter reference:
+https://docs.unity.com/en-us/engine/6000.6/manual/analysis/graphics-performance-profiling/profile-rendering/frame-timing-manager/counter-reference
+Active main/render timings exclude presentation waits. A large present-wait value
+alone does not establish which device/OS/driver operation caused the delay.

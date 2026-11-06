@@ -66,6 +66,7 @@ public sealed partial class LocalTerrainExplorer
     readonly GroundChanges scatterGroundChanges=new GroundChanges();
     readonly Dictionary<ScatterKey,ScatterChunk> scatterChunks=new Dictionary<ScatterKey,ScatterChunk>();
     readonly Dictionary<ScatterKey,ForestRevealBounds> scatterRevealBounds=new Dictionary<ScatterKey,ForestRevealBounds>();
+    readonly ScatterPriority scatterDistanceOrder=new ScatterPriority();
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
     readonly Dictionary<long,ArtModel> scatterArt=new Dictionary<long,ArtModel>();readonly List<Mesh> ownedScatterMeshes=new List<Mesh>();readonly List<Material> ownedScatterMaterials=new List<Material>();
     readonly List<DrawBatch> drawBatches=new List<DrawBatch>();readonly List<DrawBatch> batchPool=new List<DrawBatch>();
@@ -122,6 +123,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void RefreshScatterWanted()
     {
+        long trace=WorldGenPerformance.TraceBegin();
+        try
+        {
         scatterX=motion.X;scatterZ=motion.Z;scatterAltitude=HeightAboveGround;scatterWanted.Clear();scatterPriority.Clear();scatterRevealBounds.Clear();fogCheckAt=0;
         if(scatterAltitude<2200)
         {
@@ -136,8 +140,11 @@ public sealed partial class LocalTerrainExplorer
             bounds.Radius=bounds.Radius*1.01+1;scatterRevealBounds.Add(key,bounds);
         }
         double Distance(ScatterKey k){V p=scatter.Position(k)-at;return p.X*p.X+p.Y*p.Y+p.Z*p.Z;}
-        scatterPriority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.CompareTo(b);});
+        if(WorldGenPerformance.CachedScatterPriority)scatterDistanceOrder.Sort(scatter,at,scatterPriority);
+        else scatterPriority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.CompareTo(b);});
         foreach(var key in scatterChunks.Keys.Where(k=>!scatterWanted.Contains(k)).ToArray()){scatterChunks[key].Burst?.Dispose();scatterChunks.Remove(key);canopySourceRevision++;}scatterDirty=true;
+        }
+        finally{WorldGenPerformance.TraceEnd(50,trace);}
     }
     void UpdateScatter()
     {

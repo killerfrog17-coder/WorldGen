@@ -31,6 +31,21 @@ def analyze(root):
             timings.append(dict(t_s=t, **{k: float(row[k]) for k in
                 ("cpu_ms", "main_ms", "render_ms", "present_wait_ms", "gpu_ms")}))
         trace = rows(root / (prefix + "-trace.csv"))
+        # These scopes overlap (e.g. scatter is inside Explorer.Update).
+        # Report them separately rather than summing inclusive durations.
+        scope_names = [name for name in trace[0] if name.endswith("_ms") and
+                       name not in ("t_s", "frame_ms")] if trace else []
+        scope_stats = {}
+        for name in scope_names:
+            values = sorted(float(row[name]) for row in trace)
+            scope_stats[name] = dict(mean=sum(values) / len(values),
+                                    p99=values[min(len(values) - 1, int(len(values) * .99))],
+                                    maximum=values[-1])
+        worst_updates = []
+        for frame in sorted(trace, key=lambda f: float(f["explorer_ms"]), reverse=True)[:10]:
+            worst_updates.append(dict(t_s=float(frame["t_s"]), frame_ms=float(frame["frame_ms"]),
+                                      scopes={name: float(frame[name]) for name in scope_names
+                                              if float(frame[name]) >= .2}))
         peaks = []
         for frame in sorted(trace, key=lambda f: float(f["frame_ms"]), reverse=True)[:20]:
             end = float(frame["t_s"])
@@ -45,6 +60,7 @@ def analyze(root):
                            largest_cpu=sorted(timings, key=lambda r: r["cpu_ms"], reverse=True)[:20],
                            largest_render=sorted(timings, key=lambda r: r["render_ms"], reverse=True)[:10],
                            largest_present_wait=sorted(timings, key=lambda r: r["present_wait_ms"], reverse=True)[:10],
+                           scope_statistics=scope_stats, worst_explorer_updates=worst_updates,
                            worst_observed_frames=peaks))
     return output
 
