@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov22:00Z SPIKES FIRST. Separated-streaming pair71841 COMPLETE EXIT0.
+Control170.984FPS p9510.265/p9913.128/max49.060,579>10/13>16.7;trial170.058FPS
+p959.618/p9911.877/max37.470,409>10/6>16.7. NormalGC pauseframes29.28/31.84,
+trial31.79/30.58 unchanged. Terrain/rebuild overlap20->0, butUpdatep99~6.63same,
+max10.61->11.44, >8ms18->22. Thus promising tails but NO conclusive totalCPUgain;
+SeparateStreamingAndScatter remainsOFF, needsrepeatbeforeadoption. All15coatsready,
+loadingroughlyequal; no changedculling. Same1798normalB forboth; nootherheavyjobs.
+Newd5aab0b familyweakhandles correctnessPASS:12addresses/4siblings/1handle, true
+weaklifetime/independentrefresh; actual46708faceaddresses+11677parentlookups use
+11677handles.750complete terrain samples/30biome-coastal sites EXACT priorbaseline,
+cache-clear reverse reconstruction AND4wayconcurrentqueriesPASS. NoFPSclaimyet.
+B ScriptsOnlyNONDEV0d3678ea build45809 RUNNING, noownplayer. Afterbuildrestore3autos
+thenfresh normal60s moving temperatewithnativeGCobserver toisolatesharedfamilygain.
+Optional87ba CpuTiming flag attaches documented release CPU timing recorders only,
+no permanent PlayerSettingschange; UNVALIDATED. Do not enableit in firstnormal
+familyFPScomparison; useafterifremainingnonGCstallsneedattribution. A/shortcut
+protected, owner3filesuntouched, allsourcepushed0d. No100floorclaim/nootherfeatures.
+
 ACTIVE06Nov21:47Z SPIKES FIRST. B NONDEV1798f72e built21:41:24Z SourceChanges[],
 3autosrestored. Ownrunner71841/player11008 RIGHTMOST runs sequential FRESH normal
 andseparated-streaming60s temperate6kmMedium1080 withnativeGCobserver. DoNOT

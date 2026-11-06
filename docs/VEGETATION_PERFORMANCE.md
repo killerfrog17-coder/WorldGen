@@ -654,7 +654,7 @@ reuse across changed payload sizes, exact submesh ranges/bounds and index-buffer
 readback. Its normal-player temperate60s run averaged163.07FPS,p9511.18ms,
 p9913.67ms,max40.36ms,12 frames over16.667ms. Cumulative mesh counters were
 492 created/87 reused,12.47MB idle. Two collection frames reached29.73/29.50ms;
-the40.36ms frame did not complete a collection and its Explorer.Update cost
+the40.36ms frame had no collection-counter change and its Explorer.Update cost
 was1.57ms. Mesh reuse therefore remains OFF in ordinary gameplay. Spare mesh
 capacity is included in the terrain-cache byte accounting.
 
@@ -693,3 +693,40 @@ The CSV uses native QPC; synthetic offset/cross-frame overlap checks also pass.
 The actual gameplay diagnostic remains separate: no forced collections or GC
 setting changes during its measurement. Native callbacks cannot allocate or
 reenter managed code, and the helper DLL remains loaded until process exit.
+
+6 November, native GC attribution and work scheduling:
+
+- `presented-native-gc-phases`: normal bced3044, 168.86 FPS, p95 10.49 ms,
+  p99 13.56 ms, maximum 34.80 ms. The two largest frames include 8.77 and
+  7.16 ms between native stop/restart events; suspension itself takes about
+  0.26 ms. This is only stop-the-world time, NOT the total cost of incremental
+  collection on the main thread. The earlier development profile's 22 ms
+  CollectIncremental sample is still relevant. Incremental captures emitted no
+  cycle-start/end events, unlike the forced-full-collection positive control.
+- The collector-statistics environment-variable trial produced no statistics
+  in the installed player. No environment or collector setting was retained.
+- `presented-separated-streaming-control` versus `-trial`: fresh normal 1798f72e
+  processes, temperate forest, Medium, 6 km, 1080p, 60 seconds of travel/turning.
+  Control: 170.98 FPS, p95 10.265 / p99 13.128 / maximum 49.060 ms,
+  579 frames over 10 ms and 13 over 16.667 ms. Trial: 170.06 FPS,
+  p95 9.618 / p99 11.877 / maximum 37.470 ms, 409 and 6 frames respectively.
+  Terrain-upload/rebuild overlap fell from 20 frames to zero, but Update p99
+  remained 6.63 ms and its maximum increased from 10.61 to 11.44 ms. Loading
+  progressed normally and all coat sets loaded. Tail improvement is promising,
+  not yet a conclusive overall CPU improvement: the scheduling trial stays OFF.
+- d5aab0ba replaces separate face weak handles with the family's existing weak
+  handle plus the face's two-bit sibling index. Existing face leases already
+  keep siblings alive together; this adds no strong lifetime retention. Tests
+  passed live sibling identity, collection of expired families, independent
+  refresh, 46,708 actual face addresses plus 11,677 parent lookups sharing
+  11,677 handles, and 750 exact complete samples across 30 biome/coastal sites.
+  Samples also match after cache eviction/reconstruction and concurrent queries.
+  Its actual normal-player performance test is still pending.
+
+87ba4ea6 adds optional `-CpuTiming` to the existing runner. It attaches only
+documented release CPU timing counters during the diagnostic; no permanent
+Frame Timing Stats setting or GPU instrumentation is enabled. Observed counter
+values and source-timestamped engine frames are stored separately, because the
+former must not be assumed to describe the current observed frame. Validation
+is pending. Primary reference:
+https://docs.unity.com/en-us/engine/6000.6/manual/analysis/graphics-performance-profiling/profile-rendering/frame-timing-manager/record-timing-data
