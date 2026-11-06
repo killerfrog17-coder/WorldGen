@@ -235,6 +235,14 @@ static class TerrainFaceHandleTests
             concurrent[i]=JsonSerializer.Serialize(patch.Sample(probe.point),Json);
         });
         if(!actual.SequenceEqual(concurrent))throw new Exception("Concurrent neighbour resolution changed terrain after cache reconstruction");
+        foreach(string fieldName in new[]{"rootCache","edgeCache"})
+        {
+            var cache=typeof(HyperAmplification).GetField(fieldName,Hidden)!.GetValue(terrain.Amplification)!;
+            int length=(int)cache.GetType().GetProperty("Length")!.GetValue(cache)!;
+            int slots=(int)cache.GetType().GetProperty("AllocatedReferenceSlots")!.GetValue(cache)!;
+            if(slots>=length/2)throw new Exception("Thirty sparse sites allocated most of the planetary reference cache");
+            Console.WriteLine($"PASS {fieldName} reference slots: {slots}/{length} after 30-site cache reconstruction and concurrent queries.");
+        }
         Console.WriteLine($"PASS {actual.Length} complete terrain samples across {selected.Count} biome/coastal sites, baseline {(capture ? "captured" : "identical")}; all repeated after cache retirement/reconstruction.");
     }
 }

@@ -25,8 +25,8 @@ namespace WorldGen.Core
         readonly RootVertexData[] rootNodes;
         readonly Vertex[] rootVertices;
         readonly int[] nodeChannels,nodeRivers;
-        readonly WeakReference<Face>[] rootCache;
-        readonly WeakReference<Edge>[] edgeCache;
+        readonly PagedReferenceCache<WeakReference<Face>> rootCache;
+        readonly PagedReferenceCache<WeakReference<Edge>> edgeCache;
         int rootSweep,edgeSweep;
         readonly double radius, scale;
         readonly int seed;
@@ -316,7 +316,7 @@ namespace WorldGen.Core
                 edges.Add(key,id);return id;
             }
             roots=new CoarseFace[world.Surface.Triangles.Length/3];
-            rootCache=new WeakReference<Face>[roots.Length];
+            rootCache=new PagedReferenceCache<WeakReference<Face>>(roots.Length);
             // One topological terminal depth across adjacent faces. Stopping
             // independently by triangle size produces a nonconforming HEIGHT
             // field, even if streamed render tiles sample canonical coordinates.
@@ -331,7 +331,7 @@ namespace WorldGen.Core
                 roots[t]=new CoarseFace{A=a,B=b,C=c,AB=MakeEdge(a,b,t),BC=MakeEdge(b,c,t),CA=MakeEdge(c,a,t)};
                 roots[t].Initialize(nodes[a].Position,nodes[b].Position,nodes[c].Position);
             }
-            coarseEdges=controls.ToArray();edgeCache=new WeakReference<Edge>[coarseEdges.Length];
+            coarseEdges=controls.ToArray();edgeCache=new PagedReferenceCache<WeakReference<Edge>>(coarseEdges.Length);
             Volcanoes=new VolcanicTerrain(world,scale,landscapeLocator,token);
             Remnants=new BedrockRemnants(world,profiles,scale,token);
             var incoming=new bool[count];
