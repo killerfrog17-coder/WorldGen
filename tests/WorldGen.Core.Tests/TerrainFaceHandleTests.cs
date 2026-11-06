@@ -111,7 +111,32 @@ static class TerrainFaceHandleTests
             !ReferenceEquals(Target.GetValue(refs[0]), Target.GetValue(refs[1])))
             throw new Exception("Refreshing an expired address mutated a shared old handle");
         GC.KeepAlive(replacement);
+        var shared=SharedAddresses();
+        if(!ReferenceEquals(shared[0],shared[1])||!ReferenceEquals(shared[0],shared[2]))
+            throw new Exception("Incident edges allocated separate copies of the same face address");
+        GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+        if(shared.Any(Alive))throw new Exception("Shared topology address retained its face");
         Console.WriteLine("PASS shared face handles: one per live face, no strong lifetime retention, safe refresh of expired addresses.");
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    static object[] SharedAddresses()
+    {
+        var face=Activator.CreateInstance(Face)!;
+        Face.GetField("Root")!.SetValue(face,12);Face.GetField("Depth")!.SetValue(face,2);Face.GetField("Path")!.SetValue(face,7UL);
+        var edgeType=typeof(HyperAmplification).GetNestedType("Edge",BindingFlags.NonPublic)!;
+        var result=new object[3];
+        for(int i=0;i<3;i++)
+        {
+            var edge=Activator.CreateInstance(edgeType)!;
+            edgeType.GetMethod("Attach")!.Invoke(edge,new[]{face});
+            result[i]=edgeType.GetField("Left")!.GetValue(edge)!;
+            // A repeated attachment follows the Refresh path and must retain
+            // both the shared address and the original topology identity.
+            edgeType.GetMethod("Attach")!.Invoke(edge,new[]{face});
+            if(!ReferenceEquals(result[i],edgeType.GetField("Left")!.GetValue(edge)))throw new Exception("Repeated attachment replaced its address");
+        }
+        return result;
     }
 
     public static void World(string input, string baseline, bool capture)

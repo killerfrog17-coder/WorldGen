@@ -122,9 +122,9 @@ namespace WorldGen.Core
             public WeakReference<EdgeSplit> Children;
             public void Attach(Face face)
             {
-                if (Left == null) Left = new FaceRef(face);
+                if (Left == null) Left = face.Address;
                 else if (Left.Matches(face)) Left.Refresh(face);
-                else if (Right == null) Right = new FaceRef(face);
+                else if (Right == null) Right = face.Address;
                 else if (Right.Matches(face)) Right.Refresh(face);
                 else throw new InvalidOperationException("Amplification edge has more than two incident faces.");
             }
@@ -158,6 +158,19 @@ namespace WorldGen.Core
         internal sealed class Face
         {
             WeakReference<Face> reference;
+            FaceRef address;
+            // All three incident edges address this same immutable topology
+            // identity. Sharing the address avoids three separately traced
+            // objects per refined face; its target remains a weak handle.
+            public FaceRef Address
+            {
+                get
+                {
+                    if(address!=null)return address;
+                    var created=new FaceRef(this);
+                    return Interlocked.CompareExchange(ref address,created,null)??created;
+                }
+            }
             // All incident edges share one weak handle. Never retarget this
             // handle: a reconstructed face owns its own, and old addresses
             // switch to that handle without changing their other neighbours.
