@@ -95,9 +95,11 @@ public sealed partial class LocalTerrainExplorer
             if(!leased.TryGetValue(mesh,out var shape))return false;
             leased.Remove(mesh);
             if(disposed||shape.Bytes>limit){UnityEngine.Object.Destroy(mesh);return true;}
-            // Bounded FIFO eviction prevents one-off water shapes accumulating.
-            while(retired.Count>0&&(Bytes+shape.Bytes>limit||retired.Count>=64))
+            // Retiring a large one-off shape must not destroy a whole queue of
+            // small buffers in one frame. Evict at most one; reject if still full.
+            if(retired.Count>0&&(Bytes+shape.Bytes>limit||retired.Count>=64))
             {var oldest=retired[0];retired.RemoveAt(0);Bytes-=oldest.Shape.Bytes;UnityEngine.Object.Destroy(oldest.Mesh);}
+            if(Bytes+shape.Bytes>limit){UnityEngine.Object.Destroy(mesh);return true;}
             retired.Add(new Retired(mesh,shape));Bytes+=shape.Bytes;return true;
         }
         public void Dispose()
@@ -382,6 +384,15 @@ public sealed partial class LocalTerrainExplorer
             var rejected=tiny.Acquire(3,3,IndexFormat.UInt16);tiny.Release(rejected);
             if(tiny.Bytes!=0||tiny.Retained!=0)throw new InvalidOperationException("Oversized terrain buffer retained");
             yield return null;if(rejected!=null)throw new InvalidOperationException("Oversized terrain buffer not destroyed");
+        }
+        using(var bounded=new TerrainMeshPool(1000))
+        {
+            var a=bounded.Acquire(3,3,IndexFormat.UInt16);var b=bounded.Acquire(3,3,IndexFormat.UInt16);var c=bounded.Acquire(3,3,IndexFormat.UInt16);
+            bounded.Release(a);bounded.Release(b);bounded.Release(c);
+            var large=bounded.Acquire(9,3,IndexFormat.UInt16);bounded.Release(large);
+            if(bounded.Retained!=2||bounded.Bytes>1000)throw new InvalidOperationException("Large retirement burst-evicted multiple small meshes");
+            yield return null;
+            if(a!=null||large!=null||b==null||c==null)throw new InvalidOperationException("Bounded mesh eviction destroyed the wrong resources");
         }
         int reused=pool.Reused;pool.Dispose();yield return null;
         if(first!=null||pool.Bytes!=0)throw new InvalidOperationException("Disposed terrain pool retained meshes");

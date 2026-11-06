@@ -243,7 +243,15 @@ public sealed partial class LocalTerrainExplorer
             WorldGenPerformance.TraceFauna(profile.slug,"coat-begin");
             while(true)
             {
+                // Coroutine resumes happen after the explorer's update. Respect
+                // the same installation budget already used by terrain/trees,
+                // instead of adding another independent upload allowance.
+                if(!CanInstall){yield return null;continue;}
+                int previousPieces=animalCoatUpload.Pieces;bool hadResult=animalCoatUpload.Result!=null;
+                long uploadStarted=System.Diagnostics.Stopwatch.GetTimestamp();
                 bool more=false;Exception failure=null;try{more=upload.MoveNext();}catch(Exception error){failure=error;}
+                if(animalCoatUpload.Pieces!=previousPieces||!hadResult&&animalCoatUpload.Result!=null)
+                {installationsThisFrame++;frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-uploadStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;}
                 if(failure!=null)
                 {Debug.LogError("Fauna coat upload: "+failure.Message);animalCoatUpload.Dispose();animalCoatUpload=null;animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
                 if(!more)break;yield return upload.Current;
