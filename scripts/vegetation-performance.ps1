@@ -67,6 +67,20 @@ if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
 $arguments+=@('--worldgen-perf-plant-quality',"$PlantQuality")
 $run=$null;$capture=$null;$telemetry=$null
+# Unity itself persists window/display settings on exit, even though the test
+# never calls PlayerPrefs.Save. Restore only those keys after our own player.
+$projectSettings=Get-Content -LiteralPath (Join-Path $repo 'unity/WorldGen.Unity/ProjectSettings/ProjectSettings.asset')
+$company=($projectSettings|Select-String '^  companyName: (.+)$').Matches.Groups[1].Value
+$product=($projectSettings|Select-String '^  productName: (.+)$').Matches.Groups[1].Value
+if(!$company -or !$product){throw 'Cannot determine display preference namespace'}
+$displayPreferencePath="Software\$company\$product"
+$displayPreferences=@{}
+$preferenceKey=[Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($displayPreferencePath)
+if($preferenceKey){
+    try{foreach($name in $preferenceKey.GetValueNames()){
+        if($name -like 'Screenmanager*' -or $name -like 'UnitySelectMonitor*'){$displayPreferences[$name]=@($preferenceKey.GetValue($name),$preferenceKey.GetValueKind($name))}
+    }}finally{$preferenceKey.Dispose()}
+}
 try {
     if($GpuTelemetry){
         $telemetryTool=Get-Command nvidia-smi.exe -ErrorAction Stop
@@ -100,4 +114,13 @@ try {
         Write-Warning 'No PresentMon CSV was produced. Do not infer presentation behaviour from this capture.'
     }
     if($telemetry -and !$telemetry.HasExited){Stop-Process -Id $telemetry.Id}
+    $preferenceKey=[Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($displayPreferencePath,$true)
+    if($preferenceKey){
+        try{
+            foreach($name in $preferenceKey.GetValueNames()){
+                if(($name -like 'Screenmanager*' -or $name -like 'UnitySelectMonitor*') -and !$displayPreferences.ContainsKey($name)){$preferenceKey.DeleteValue($name,$false)}
+            }
+            foreach($name in $displayPreferences.Keys){$saved=$displayPreferences[$name];$preferenceKey.SetValue($name,$saved[0],$saved[1])}
+        }finally{$preferenceKey.Dispose()}
+    }
 }
