@@ -1416,10 +1416,13 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.Measuring=true;
                 var windowUtc=DateTime.UtcNow;
                 bool allocationProfile=item.Name=="travel-whip-allocation-profile",cpuProfile=item.Name=="travel-whip-cpu-profile";
+                bool gpuProfile=cpuProfile&&Array.IndexOf(Environment.GetCommandLineArgs(),"--worldgen-gpu-profile")>=0;
+                bool priorGpuProfile=UnityEngine.Profiling.Profiler.GetAreaEnabled(UnityEngine.Profiling.ProfilerArea.GPU);
                 if(allocationProfile||cpuProfile)
                 {
                     if(!Debug.isDebugBuild)throw new InvalidOperationException("Profiler capture requires an explicit diagnostic DevelopmentPlayer; never interpret its FPS as release throughput.");
-                    UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,site.Item1+(allocationProfile?"-allocations.raw":"-cpu.raw"));
+                    UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,site.Item1+(allocationProfile?"-allocations.raw":gpuProfile?"-gpu.raw":"-cpu.raw"));
+                    if(gpuProfile)UnityEngine.Profiling.Profiler.SetAreaEnabled(UnityEngine.Profiling.ProfilerArea.GPU,true);
                     UnityEngine.Profiling.Profiler.enableBinaryLog=true;
                     UnityEngine.Profiling.Profiler.enableAllocationCallstacks=allocationProfile;
                     UnityEngine.Profiling.Profiler.enabled=true;
@@ -1492,7 +1495,9 @@ public sealed partial class WorldGenRuntime
                     UnityEngine.Profiling.Profiler.enabled=false;
                     UnityEngine.Profiling.Profiler.enableAllocationCallstacks=false;
                     UnityEngine.Profiling.Profiler.enableBinaryLog=false;
-                    File.AppendAllText(Path.Combine(output,"allocation-profile.txt"),site.Item1+": diagnostic DevelopmentPlayer CPU capture; allocation callstacks="+allocationProfile+"; displayed FPS is NOT release throughput.\n");
+                    UnityEngine.Profiling.Profiler.logFile="";
+                    if(gpuProfile)UnityEngine.Profiling.Profiler.SetAreaEnabled(UnityEngine.Profiling.ProfilerArea.GPU,priorGpuProfile);
+                    File.AppendAllText(Path.Combine(output,"allocation-profile.txt"),site.Item1+": diagnostic DevelopmentPlayer capture; GPU="+gpuProfile+"; allocation callstacks="+allocationProfile+"; displayed FPS is NOT release throughput.\n");
                 }
                 WorldGenPerformance.Measuring=false;WorldGenPerformance.ProfileRenderCompletion=false;
                 if(renderCosts.Count>0){renderCosts.Sort();File.AppendAllText(Path.Combine(output,"completed-renders.txt"),site.Item1+" "+item.Name+": "+renderCosts.Count+" samples; mean "+renderCosts.Average().ToString("F3")+"ms, median "+renderCosts[renderCosts.Count/2].ToString("F3")+"ms; submission + actual GPU completion, excluding Update/presentation/frame-loop waits.\n");}

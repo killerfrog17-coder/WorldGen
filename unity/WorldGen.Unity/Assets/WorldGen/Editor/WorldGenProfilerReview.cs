@@ -25,6 +25,14 @@ public static class WorldGenProfilerReview
         if(!ProfilerDriver.LoadProfile(input,false))throw new InvalidOperationException("Cannot load profiler capture: "+input);
         int first=ProfilerDriver.firstFrameIndex,last=ProfilerDriver.lastFrameIndex;
         if(first<0||last<first)throw new InvalidOperationException("Capture contains no readable frames");
+        bool inspectGpu=Array.IndexOf(args,"--worldgen-profile-gpu")>=0;
+        var gpuSamplesProperty=typeof(FrameDataView).GetProperty("hasGpuSamples",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic);
+        var gpuTimeColumn=typeof(HierarchyFrameDataView).GetField("columnTotalGpuTime",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic);
+        if(inspectGpu&&(gpuSamplesProperty==null||gpuTimeColumn==null))throw new NotSupportedException("GPU hierarchy fields unavailable in this Editor");
+        int gpuColumn=inspectGpu?(int)gpuTimeColumn.GetRawConstantValue():0,gpuThreadFrames=0;
+        using var gpuOutput=inspectGpu?new StreamWriter(Path.Combine(output,"gpu-samples.csv")):null;
+        gpuOutput?.WriteLine("frame,thread,frame_gpu_ms,sample_gpu_ms,path");
+        var gpuChildren=new List<int>();var gpuPending=new Stack<(int Id,string Path)>();
         var allocations=new Dictionary<string,(long Bytes,int Calls)>();
         var timings=new Dictionary<string,(double Ms,int Calls)>();
         var methods=new Dictionary<ulong,string>();var addresses=new List<ulong>();
@@ -37,6 +45,22 @@ public static class WorldGenProfilerReview
         for(int thread=0;thread<256;thread++)
         {
             using var data=ProfilerDriver.GetRawFrameDataView(frame,thread);if(!data.valid)break;threads++;
+            // GPU events can resolve on the render thread or another thread.
+            // Read the actual GPU columns, never relabel CPU submission time.
+            if(inspectGpu&&(bool)gpuSamplesProperty.GetValue(data))
+            {
+                using var hierarchy=ProfilerDriver.GetHierarchyFrameDataView(frame,thread,HierarchyFrameDataView.ViewModes.Default,gpuColumn,false);
+                if(!hierarchy.valid)throw new InvalidOperationException("Recorded GPU samples have no readable hierarchy");
+                gpuThreadFrames++;gpuPending.Clear();gpuPending.Push((hierarchy.GetRootItemID(),""));
+                while(gpuPending.Count>0)
+                {
+                    var item=gpuPending.Pop();string path=item.Path+hierarchy.GetItemName(item.Id);
+                    double milliseconds=hierarchy.GetItemColumnDataAsDouble(item.Id,gpuColumn);
+                    if(milliseconds>0)gpuOutput.WriteLine(frame+","+Csv(data.threadName)+","+hierarchy.frameGpuTimeMs.ToString("R",CultureInfo.InvariantCulture)+","+milliseconds.ToString("R",CultureInfo.InvariantCulture)+","+Csv(path));
+                    hierarchy.GetItemChildren(item.Id,gpuChildren);
+                    for(int child=gpuChildren.Count-1;child>=0;child--)gpuPending.Push((gpuChildren[child],path+" / "));
+                }
+            }
             if(thread==0&&data.sampleCount>0)frames.Add(frame+","+data.GetSampleTimeMs(0).ToString("R",CultureInfo.InvariantCulture));
             double frameMs=data.sampleCount>0?data.GetSampleTimeMs(0):0;
             parents.Clear();
@@ -93,5 +117,10 @@ public static class WorldGenProfilerReview
         File.WriteAllLines(Path.Combine(output,"collections.csv"),collections);
         File.WriteAllLines(Path.Combine(output,"texture-uploads.csv"),uploads);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"Diagnostic DevelopmentPlayer only. Frames {first}..{last}; thread frames {threads}; GC.Alloc bytes {totalBytes}. Inclusive timings overlap; not release FPS.\n");
+        if(inspectGpu)
+        {
+            gpuOutput.Flush();File.WriteAllText(Path.Combine(output,"gpu-status.txt"),"GPU thread frames with actual samples: "+gpuThreadFrames+". GPU profiling adds overhead; this is not normal-player throughput.\n");
+            if(gpuThreadFrames==0)throw new InvalidOperationException("No actual GPU samples were recorded; this capture cannot attribute GPU cost");
+        }
     }
 }

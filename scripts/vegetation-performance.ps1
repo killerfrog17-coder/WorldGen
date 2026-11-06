@@ -19,6 +19,7 @@ param(
     [switch]$StutterTrace,
     [switch]$SavedSettings,
     [switch]$GpuTelemetry,
+    [switch]$GpuProfile,
     [switch]$MemorySnapshot,
     [switch]$CaptureAfter,
     [switch]$Original
@@ -41,6 +42,7 @@ foreach($requestedSite in $Sites.Split(',')){if($requestedSite -notin $available
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
 $playerRoot=Split-Path -Parent $player
 $buildStamp=Get-Content -LiteralPath (Join-Path $playerRoot 'build-inputs.json') -Raw | ConvertFrom-Json
+if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-profile')){throw 'GPU profiling requires a DevelopmentPlayer and only travel-whip-cpu-profile'}
 [ordered]@{
     AssemblySha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'WorldGen_Data/Managed/Assembly-CSharp.dll') -Algorithm SHA256).Hash.ToLowerInvariant()
     CoreSha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'WorldGen_Data/Managed/WorldGen.Core.dll') -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -55,6 +57,7 @@ if($Original){$arguments+='--worldgen-perf-original'}
 if($SwapChain -eq 'Flip'){$arguments+='-force-d3d11-flip-model'}
 if($SwapChain -eq 'BitBlt'){$arguments+='-force-d3d11-bitblt-model'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
+if($GpuProfile){$arguments+='--worldgen-gpu-profile'}
 if($Presented){
     Add-Type -AssemblyName System.Windows.Forms
     $reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
