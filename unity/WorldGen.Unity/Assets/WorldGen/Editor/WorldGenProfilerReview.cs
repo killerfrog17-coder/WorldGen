@@ -25,6 +25,7 @@ public static class WorldGenProfilerReview
         var parents=new List<(int End,string Name)>();int threads=0;long totalBytes=0;
         var frames=new List<string>{"frame,main_thread_inclusive_ms"};
         var slowSamples=new List<string>{"frame,frame_ms,sample_ms,path"};
+        var collections=new List<string>{"frame,sample_ms,thread,path"};
         for(int frame=first;frame<=last;frame++)
         for(int thread=0;thread<256;thread++)
         {
@@ -36,6 +37,11 @@ public static class WorldGenProfilerReview
             {
                 while(parents.Count>0&&parents[parents.Count-1].End<sample)parents.RemoveAt(parents.Count-1);
                 string name=data.GetSampleName(sample),timer=data.threadName+" / "+name;
+                if(name=="GC.Collect"||name=="GC.Resize"||name=="GarbageCollector.CollectIncremental")
+                {
+                    string path=string.Join(" / ",parents.Select(p=>p.Name).Concat(new[]{name}));
+                    collections.Add(frame+","+data.GetSampleTimeMs(sample).ToString("R",CultureInfo.InvariantCulture)+",\""+data.threadName.Replace("\"","\"\"")+"\",\""+path.Replace("\"","\"\"")+"\"");
+                }
                 if(thread==0&&frameMs>=10&&data.GetSampleTimeMs(sample)>=.25)
                 {
                     string path=string.Join(" / ",parents.Select(p=>p.Name).Concat(new[]{name}));
@@ -63,6 +69,7 @@ public static class WorldGenProfilerReview
         File.WriteAllLines(Path.Combine(output,"inclusive-timings.csv"),new[]{"inclusive_ms,calls,thread_and_marker"}.Concat(timings.OrderByDescending(p=>p.Value.Ms).Select(p=>p.Value.Ms.ToString("R",CultureInfo.InvariantCulture)+","+p.Value.Calls+","+Csv(p.Key))));
         File.WriteAllLines(Path.Combine(output,"frames.csv"),frames);
         File.WriteAllLines(Path.Combine(output,"slow-frame-samples.csv"),slowSamples);
+        File.WriteAllLines(Path.Combine(output,"collections.csv"),collections);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"Diagnostic DevelopmentPlayer only. Frames {first}..{last}; thread frames {threads}; GC.Alloc bytes {totalBytes}. Inclusive timings overlap; not release FPS.\n");
     }
 }
