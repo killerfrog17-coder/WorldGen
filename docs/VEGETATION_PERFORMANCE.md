@@ -372,3 +372,18 @@ Production bundles, coat resolution and rendering remain unchanged pending
 correctness and measured cost. Unity asynchronous upload documentation consulted:
 https://unity.com/blog/engine-platform/understanding-the-async-upload-pipeline
 https://docs.unity3d.com/ScriptReference/Texture-allowThreadedTextureCreation.html
+
+Bounded upload native fixture6e3c21d7 passed39,146,828 decoded RGBA-channel
+comparisons across every hare layer/mip. Original load worst79.95ms versus
+bounded upload5.30ms,259pieces. These are isolated diagnostic timings, not game
+FPS. The crucial fix is DontUploadUponCreate with no destination Apply; an
+earlier prototype mistakenly uploaded the unused full CPU image and took137ms.
+Direct compressed-texture GPU readback is unsupported on this platform, so the
+final fixture compares texels in a compute shader and reads back the mismatch
+counter. Failed prototypes are retained in the evidence directories.
+
+22be22c1 adds an explicit trial-directory override and a streamed hare bundle
+generated from approved authoring inputs. Production assets are unchanged.
+The next acceptance gate is actual presented travel with this bundle, including
+its loading delay and lifetime cleanup. Dynamic array CPU-shadow storage is a
+memory tradeoff still to measure; do not imply this prototype is ready globally.
