@@ -77,12 +77,13 @@ public sealed partial class LocalTerrainExplorer
         var coarse=tiles.Keys.Where(k=>k.Level>=1).OrderBy(k=>TerrainLod.DistanceSquared(k,motion.X,motion.Z)).First();keys.Add(coarse);
         try
         {
-            foreach(var key in keys)foreach(bool partial in new[]{false,true})
+            foreach(var key in keys)foreach(int mode in new[]{0,1,2})
             {
+                bool partial=mode==1,retiring=mode==2;
                 var old=tiles[key];var heights=(float[])old.Heights.Clone();
                 if(partial)heights[heights.Length/2]+=.35f;else for(int i=0;i<heights.Length;i++)heights[i]+=.25f;
                 var next=new Tile{Heights=heights,Segments=old.Segments};
-                var plan=new GroundPublication{Key=key,Product=next,Frame=frame};plan.Changes.Add(key,old,next);
+                var plan=new GroundPublication{Key=key,Product=retiring?old:next,Retiring=retiring,Frame=frame};if(retiring)plan.Changes.Add(key);else plan.Changes.Add(key,old,next);
                 var work=PrepareGroundPublication(plan);int steps=0;
                 while(work.MoveNext())
                 {
@@ -95,10 +96,10 @@ public sealed partial class LocalTerrainExplorer
                 {double px=(key.X+x)*key.SizeM,pz=(key.Z+z)*key.SizeM;double y=PublicationGround(plan,px,pz,-12345,out int level);samples.Add((px,pz,y,level));}
                 try
                 {
-                    tiles[key]=next;residentRevision++;
+                    if(retiring)tiles.Remove(key);else tiles[key]=next;residentRevision++;
                     foreach(var sample in samples)
                     {double actual=VisibleGround(sample.x,sample.z,-12345,out int level);if(level!=sample.level||BitConverter.DoubleToInt64Bits(actual)!=BitConverter.DoubleToInt64Bits(sample.y))throw new InvalidOperationException("Future terrain owner differs from actual publication");queries++;}
-                    scatterGroundChanges.Clear();scatterGroundChanges.Add(key,old,next);
+                    scatterGroundChanges.Clear();if(retiring)scatterGroundChanges.Add(key);else scatterGroundChanges.Add(key,old,next);
                     foreach(var chunk in scatterChunks.Values)
                     {
                         double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;var b=chunk.AllBounds;
@@ -111,9 +112,52 @@ public sealed partial class LocalTerrainExplorer
             }
             if(edits==0)throw new InvalidOperationException("Staged terrain proof did not exercise any root corrections");
             yield return PerformanceVerifyCachedGroundPublication(output);
-            File.WriteAllText(Path.Combine(output,"staged-ground-proof.txt"),"PASS "+checks+" exact scatter/forest component and level comparisons, group/chunk/field bounds, "+queries+" bit-exact future owner/height queries, "+edits+" affected roots, "+slices+" yielded preparation slices; live roots unchanged throughout preparation.\n");
+            yield return PerformanceVerifyGroundRetirement(output);
+            File.WriteAllText(Path.Combine(output,"staged-ground-proof.txt"),"PASS "+checks+" exact scatter/forest component and level comparisons, group/chunk/field bounds, "+queries+" bit-exact future owner/height queries, "+edits+" affected roots, "+slices+" yielded preparation slices; live roots unchanged throughout preparation, including removal to coarser/fallback owners.\n");
         }
         finally{baseline.Restore();TerrainDiagnostics.HoldTerrain=holdTerrain;TerrainDiagnostics.HoldPlants=holdPlants;scatterDirty=true;}
+    }
+    IEnumerator PerformanceVerifyGroundRetirement(string output)
+    {
+        var key=tiles.Keys.Where(k=>k.Level==0&&!previousTerrain.ContainsKey(k)).OrderBy(k=>TerrainLod.DistanceSquared(k,motion.X,motion.Z)).First();
+        var old=tiles[key];var baseline=new GroundProofState(this);
+        bool wasWanted=wanted.TryGetValue(key,out int detail),oldRetirement=WorldGenPerformance.StagedTerrainRetirement;
+        int slices=0;WorldGenPerformance.StagedTerrainRetirement=true;
+        try
+        {
+            tiles.Remove(key);residentRevision++;scatterGroundChanges.Clear();scatterGroundChanges.Add(key);
+            foreach(var chunk in scatterChunks.Values)
+            {
+                double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;var bounds=chunk.AllBounds;
+                if(bounds.max.x>=x0&&bounds.min.x<=x0+key.SizeM&&bounds.max.z>=z0&&bounds.min.z<=z0+key.SizeM)ProjectScatterGround(chunk);
+            }
+            ProjectForestGround();var expected=new GroundProofState(this);
+            tiles[key]=old;residentRevision++;baseline.Restore();scatterGroundChanges.Clear();wanted.Remove(key);
+            if(!CanRetireTransition(key)||!StageGroundRetirement(key,old))throw new InvalidOperationException("Retirement bypassed staged root preparation");
+            // Returning to the same tile cancels removal without destroying it.
+            wanted[key]=old.Segments;AdvanceGroundPublication();
+            if(GroundPublicationPending||!ReferenceEquals(tiles[key],old)||!old.Root.activeSelf)throw new InvalidOperationException("Cancelled retirement removed wanted ground");
+            baseline.Check();wanted.Remove(key);
+            if(!StageGroundRetirement(key,old))throw new InvalidOperationException("Retirement could not restart after cancellation");
+            while(GroundPublicationPending)
+            {
+                if(!ReferenceEquals(tiles[key],old)||!old.Root.activeSelf)throw new InvalidOperationException("Retiring ground disappeared before its root corrections were prepared");
+                baseline.Check();AdvanceGroundPublication();slices++;if(slices>1000)throw new InvalidOperationException("Retirement preparation did not terminate");
+                if(GroundPublicationPending)yield return null;
+            }
+            if(tiles.ContainsKey(key)||old.Root.activeSelf)throw new InvalidOperationException("Prepared retirement was not committed");
+            int checkedRoots=expected.Check();
+            if(!TerrainProducts.Take(new TerrainProductKey(key,old.Segments,old.Edges,false),out var cached)||!ReferenceEquals(cached,old))throw new InvalidOperationException("Retired ground did not remain available in the bounded terrain cache");
+            File.WriteAllText(Path.Combine(output,"staged-ground-retirement.txt"),"PASS actual cancellation/restart/preparation/removal/cache, "+slices+" bounded steps, "+checkedRoots+" exact final root/level/bounds comparisons; visible old terrain and roots retained until atomic removal.\n");
+        }
+        finally
+        {
+            if(GroundPublicationPending)CancelGroundPublication();
+            TerrainProducts.Take(new TerrainProductKey(key,old.Segments,old.Edges,false),out _);
+            tiles[key]=old;residentRevision++;old.Root.SetActive(true);
+            if(wasWanted)wanted[key]=detail;else wanted.Remove(key);
+            baseline.Restore();scatterGroundChanges.Clear();coverageDirty=true;WorldGenPerformance.StagedTerrainRetirement=oldRetirement;
+        }
     }
     public IEnumerator PerformanceVerifyCachedGroundPublication(string output)
     {

@@ -39,6 +39,7 @@ public static class WorldGenPerformance
     public static bool StagedGroundPublication;
     public static bool KeepBackdrops;
     public static bool PacedTerrainRetirement;
+    public static bool StagedTerrainRetirement;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -1123,6 +1124,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-retained-backdrops",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=true),
             new PerfCase("travel-whip-retained-staged",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-paced-retirement",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=true),
+            new PerfCase("travel-whip-staged-retirement",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("travel-whip-staged-gc1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true;UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=1000000;}),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("cached-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
@@ -1202,6 +1204,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.StagedGroundPublication=false;
                 WorldGenPerformance.KeepBackdrops=false;
                 WorldGenPerformance.PacedTerrainRetirement=false;
+                WorldGenPerformance.StagedTerrainRetirement=false;
                 UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;

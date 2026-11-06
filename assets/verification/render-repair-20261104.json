@@ -3184,5 +3184,15 @@
     "latest_timing_qualification": "Owner playing another game; onset unknown. Latest presented-retained-staged-guard timing provisional and must not be used as an uncontended performance claim.",
     "latest_evidence": "artifacts/render-repair-20261105/presented-retained-staged-guard",
     "resume_work": "Remaining legacy corrections are retirement only. Four Level3 removals in one frame take14.546ms. No new retirement budget code implemented yet. Investigate other unexplained Update peaks after uncontended retest."
+  },
+  "retirement_pacing_20261106": {
+    "source": "1d2d92ad",
+    "evidence": "artifacts/render-repair-20261106/retirement-comparison",
+    "baseline_fps": 151.83748,
+    "paced_fps": 151.74553,
+    "baseline_max_correction_ms": 10.387,
+    "paced_max_correction_ms": 7.7354,
+    "paced_max_frame_ms": 42.0109,
+    "result": "No average FPS improvement. Batched4-key retirement replaced by1-key corrections, but individual corrections still exceed7ms. Largest repeated ~40ms frames correlate with GC; synthetic coverage fixture failed because grandparent lacked Edges (fixed in next source). Staged removal extension pending exact native proof. Normal defaults and selected A unchanged."
   }
 }

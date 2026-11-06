@@ -74,7 +74,7 @@ public sealed partial class LocalTerrainExplorer
         explorer.BeginTerrainReplacement(parent,newParent,oldParent);explorer.tiles[parent]=newParent;
         if(explorer.TerrainTiming(child).In>0)throw new Exception("Replacing a parent suppressed already-resident children");
         explorer.previousTerrain.Remove(parent);explorer.DestroyTile(oldParent);explorer.tiles.Remove(parent);
-        var grand=new TerrainTileKey(0,0,2,1d/512);explorer.tiles[grand]=new Tile{Root=Quad("grand fallback",8,3,Color.red)};
+        var grand=new TerrainTileKey(0,0,2,1d/512);explorer.tiles[grand]=new Tile{Root=Quad("grand fallback",8,3,Color.red),Edges=new double[4]};
         explorer.BeginTerrainReplacement(parent,newParent,null);explorer.tiles[parent]=newParent;
         if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
         explorer.wanted.Clear();explorer.wanted.Add(child,64);tile.Segments=64;tile.FadeIn=tile.FadeOut=0;

@@ -49,6 +49,8 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov06:52Z overnight resumed. B NONDEV1d2d92ad paired jungle pacing complete:151.84baseline/151.75paced; no averagegain. Maxcorrection10.39->7.74ms,4keys->1; still42ms GC peaks. No own player remains. New staged retirement source pending compile/proof: preserve old visible tile while root edits prepare, atomic removal+cache; cancellation retains wanted tile. Expanded numeric and actual removal/cancel/cache fixture added. Synthetic coverage first failed missing Edges on fixture grandparent (fixed source). Next build diagnostic DEVELOPMENT for actual allocation capture and native proofs, then return B NONDEV before any selection. A/f833 shortcut unchanged; floorUNSOLVED. No subagents.
+
 ACTIVE06Nov OWNER RESUMED overnight work: full CPU/GPU/testing authorized. Performance first, inspect visuals too; low-cost realism/ground-texture improvements allowed. Hidden windows preferred unless presented rendering is needed for valid measurement; all visible windows RIGHTMOST. Prior pause is historical. No subagents. Next isolate retirement bursts and untraced Update stalls. Selected A/shortcut remain protected.
 
 OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test

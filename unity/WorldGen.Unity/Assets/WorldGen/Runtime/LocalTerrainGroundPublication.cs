@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
     // value-type edit lists keep this work out of the managed allocation stream.
     sealed class GroundPublication
     {
-        public TerrainTileKey Key;public Tile Product;public LocalTerrainFrame Frame;
+        public TerrainTileKey Key;public Tile Product;public bool Retiring;public LocalTerrainFrame Frame;
         public double OriginX,OriginZ;public int Resident,ResidentCount,Canopy,Forest;public IEnumerator Work;
         public readonly GroundChanges Changes=new GroundChanges();
         public readonly List<ScatterGroundEdit> Scatter=new List<ScatterGroundEdit>();
@@ -42,28 +42,44 @@ public sealed partial class LocalTerrainExplorer
         if(scatterChunks.Count==0&&forestFields.Count==0){groundStageBypass=GroundStageBypass.NoRoots;return false;}
         foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame)){groundStageBypass=GroundStageBypass.UnpreparedGroups;return false;}
         groundStageBypass=GroundStageBypass.Staged;
-        product.Root.SetActive(false);groundPublication.Key=key;groundPublication.Product=product;
+        product.Root.SetActive(false);groundPublication.Retiring=false;groundPublication.Key=key;groundPublication.Product=product;
         RestartGroundPublication();
         if(groundPublication.Changes.Count==0){groundStageBypass=GroundStageBypass.Unchanged;groundPublication.Product=null;groundPublication.ClearEdits();product.Root.SetActive(true);return false;}
         return true;
+    }
+    bool StageGroundRetirement(TerrainTileKey key,Tile tile)
+    {
+        if(!WorldGenPerformance.StagedTerrainRetirement||GroundPublicationPending||
+            scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision)return false;
+        if(scatterChunks.Count==0&&forestFields.Count==0)return false;
+        foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))return false;
+        // Product denotes the old, still-visible surface during a retirement.
+        // Its objects remain owned by tiles until the atomic commit.
+        groundPublication.Retiring=true;groundPublication.Key=key;groundPublication.Product=tile;
+        RestartGroundPublication();return true;
     }
     void RestartGroundPublication()
     {
         var plan=groundPublication;if(plan.Work!=null)groundPublicationRestarts++;plan.ClearEdits();plan.Frame=frame;plan.OriginX=originX;plan.OriginZ=originZ;
         plan.Resident=residentRevision;plan.ResidentCount=tiles.Count;plan.Canopy=canopySourceRevision;plan.Forest=forestRootTopologyRevision;
-        tiles.TryGetValue(plan.Key,out var old);plan.Changes.Add(plan.Key,old,plan.Product);
+        tiles.TryGetValue(plan.Key,out var old);if(plan.Retiring)plan.Changes.Add(plan.Key);else plan.Changes.Add(plan.Key,old,plan.Product);
         plan.Work=PrepareGroundPublication(plan);
     }
     void CancelGroundPublication()
     {
         var plan=groundPublication;if(plan.Product==null)return;
-        DestroyTile(plan.Product);plan.Product=null;plan.ClearEdits();
+        if(!plan.Retiring)DestroyTile(plan.Product);plan.Product=null;plan.ClearEdits();
     }
     void AdvanceGroundPublication()
     {
         var plan=groundPublication;if(plan.Product==null)return;
         if(!ReferenceEquals(plan.Frame,frame)){CancelGroundPublication();return;}
-        if(!wanted.TryGetValue(plan.Key,out int segments)||segments!=plan.Product.Segments||
+        if(plan.Retiring)
+        {
+            if(wanted.ContainsKey(plan.Key)||!tiles.TryGetValue(plan.Key,out var retiring)||!ReferenceEquals(retiring,plan.Product)||!CanRetireTransition(plan.Key))
+            {plan.Product=null;plan.ClearEdits();return;}
+        }
+        else if(!wanted.TryGetValue(plan.Key,out int segments)||segments!=plan.Product.Segments||
             !wantedEdges.TryGetValue(plan.Key,out var edges)||!TerrainEdges.Equal(edges,plan.Product.Edges))
         {var obsolete=plan.Product;plan.Product=null;plan.ClearEdits();CacheTerrain(plan.Key,obsolete);return;}
         if(plan.Resident!=residentRevision||plan.ResidentCount!=tiles.Count||plan.Canopy!=canopySourceRevision||plan.Forest!=forestRootTopologyRevision||
@@ -79,9 +95,14 @@ public sealed partial class LocalTerrainExplorer
         // were computed against this exact resident/chart/topology revision.
         ApplyGroundPublicationEdits(plan);
         var product=plan.Product;var key=plan.Key;plan.Product=null;
-        tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,product,old);
-        product.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
-        tiles[key]=product;product.Root.SetActive(true);residentRevision++;coverageDirty=true;
+        if(plan.Retiring){tiles.Remove(key);CacheTerrain(key,product);}
+        else
+        {
+            tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,product,old);
+            product.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
+            tiles[key]=product;product.Root.SetActive(true);
+        }
+        residentRevision++;coverageDirty=true;
         foreach(var change in plan.Changes)scatterGroundChanges.Add(change);
         InvalidateInstallingScatterGround();scatterGroundChanges.Clear();scatterGroundRevision++;projectedGroundRevision=scatterGroundRevision;
         forestRevision++;nextForestVisibility=0;scatterDirty=true;plan.ClearEdits();
@@ -113,8 +134,21 @@ public sealed partial class LocalTerrainExplorer
     {
         double current=VisibleGround(x,z,fallback,out level),size=plan.Key.SizeM;
         if(plan.Key.Level>level||(int)Math.Floor(x/size)!=plan.Key.X||(int)Math.Floor(z/size)!=plan.Key.Z)return current;
-        level=plan.Key.Level;var tile=plan.Product;int n=tile.Segments,side=n+1;
-        double gx=(x/size-plan.Key.X)*n,gz=(z/size-plan.Key.Z)*n;
+        var key=plan.Key;var tile=plan.Product;
+        if(plan.Retiring)
+        {
+            tile=null;
+            for(int candidate=plan.Key.Level+1;candidate<=16;candidate++)
+            {
+                double candidateSize=TerrainLod.BaseSizeM*HorizontalScale*(1<<candidate);
+                var ancestor=new TerrainTileKey((int)Math.Floor(x/candidateSize),(int)Math.Floor(z/candidateSize),candidate,HorizontalScale);
+                if(tiles.TryGetValue(ancestor,out var found)&&found.Heights!=null){key=ancestor;tile=found;break;}
+            }
+            if(tile==null){level=17;return fallback;}
+            size=key.SizeM;
+        }
+        level=key.Level;int n=tile.Segments,side=n+1;
+        double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;
         int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
         double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
         return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);

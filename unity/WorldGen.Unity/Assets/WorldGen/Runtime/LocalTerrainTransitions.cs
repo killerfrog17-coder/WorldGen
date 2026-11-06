@@ -61,6 +61,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var key in terrainRetirementScratch)
         {
             if(!CanRetireTransition(key))continue;
+            if(StageGroundRetirement(key,tiles[key])){installationsThisFrame++;break;}
             CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;
             scatterGroundRevision++;scatterGroundChanges.Add(key);NoteGroundChange(key,GroundOrigin.Retirement);
             if(paced){installationsThisFrame++;break;}
