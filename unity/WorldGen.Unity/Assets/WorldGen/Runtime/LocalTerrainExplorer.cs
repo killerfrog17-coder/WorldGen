@@ -352,7 +352,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(cacheOnly)root.SetActive(false);installationsThisFrame++;
         root.transform.localPosition=new Vector3((float)(data.EastM-(prepared==null?originX:0)),0,(float)(data.NorthM-(prepared==null?originZ:0)));
         int collections=GC.CollectionCount(0);double beforeApply=timer.Elapsed.TotalMilliseconds;
-        var meshes=data.Apply();double applyMs=timer.Elapsed.TotalMilliseconds-beforeApply;
+        var meshes=data.Apply(WorldGenPerformance.ReuseTerrainMeshes?terrainMeshPool:null);double applyMs=timer.Elapsed.TotalMilliseconds-beforeApply;
         void Part(string name,Mesh mesh,Material material){var part=new GameObject(name,typeof(MeshFilter),typeof(MeshRenderer));part.layer=30;part.transform.SetParent(root.transform,false);part.GetComponent<MeshFilter>().sharedMesh=mesh;part.GetComponent<MeshRenderer>().sharedMaterial=material;}
         Part("Land and seabed",meshes[0],landMaterial);
         if(data.HasWater)Part("Water surface",meshes[1],waterMaterial);
@@ -379,15 +379,15 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms; apply "+applyMs.ToString("F2")+"ms; objects/retire "+(timer.Elapsed.TotalMilliseconds-beforeApply-applyMs).ToString("F2")+"ms; collections "+(GC.CollectionCount(0)-collections)+"; worker buffers "+data.BufferMilliseconds.ToString("F2")+"ms");
     }
     readonly List<MeshFilter> terrainMeshReleaseScratch=new List<MeshFilter>(2);
-    static int ReleaseTerrainMeshes(GameObject root,List<MeshFilter> scratch)
+    static int ReleaseTerrainMeshes(GameObject root,List<MeshFilter> scratch,TerrainMeshPool pool=null)
     {
         // Include individually disabled descendants too. Disabling only the
         // root does not by itself establish that Unity omits its active parts.
         root.GetComponentsInChildren(true,scratch);int count=0;
-        foreach(var filter in scratch)if(filter.sharedMesh!=null){UnityEngine.Object.Destroy(filter.sharedMesh);count++;}
+        foreach(var filter in scratch)if(filter.sharedMesh!=null){var mesh=filter.sharedMesh;filter.sharedMesh=null;if(pool==null||!pool.Release(mesh))UnityEngine.Object.Destroy(mesh);count++;}
         scratch.Clear();return count;
     }
-    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.CoverBuffers!=null){tile.CoverBuffers.Dispose();tile.CoverBuffers=null;tile.Cover=tile.MidCover=tile.ForestCover=default;}if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch);Destroy(tile.Root);}
+    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.CoverBuffers!=null){tile.CoverBuffers.Dispose();tile.CoverBuffers=null;tile.Cover=tile.MidCover=tile.ForestCover=default;}if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch,terrainMeshPool);Destroy(tile.Root);}
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;
@@ -436,7 +436,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
     public void Close(){if(closed)return;audioListener?.Dispose();RestoreTerrainDiagnostics();closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){audioListener?.Dispose();DisposeInventory();RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();CancelGroundPublication();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeHumans();DisposeAnimalFauna();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    void OnDestroy(){audioListener?.Dispose();DisposeInventory();RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();CancelGroundPublication();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeHumans();DisposeAnimalFauna();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);terrainMeshPool.Dispose();if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }
 
 /// <summary>Transfer the ears with the active exploration view, including

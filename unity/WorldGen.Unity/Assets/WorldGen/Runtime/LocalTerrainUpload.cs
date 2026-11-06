@@ -48,11 +48,73 @@ public sealed partial class LocalTerrainExplorer
         public Vector2 RockB;
     }
 
+    // Only this explorer's retired terrain meshes enter the pool. Exact buffer
+    // sizes keep vertex counts, topology and bounds identical to fresh uploads.
+    // A frame quarantine avoids immediately rewriting recently submitted draws;
+    // MarkDynamic also lets the driver rename storage if an older draw is live.
+    sealed class TerrainMeshPool : IDisposable
+    {
+        readonly struct Shape : IEquatable<Shape>
+        {
+            public readonly int Vertices,Indices;public readonly IndexFormat Format;
+            public Shape(int vertices,int indices,IndexFormat format){Vertices=vertices;Indices=indices;Format=format;}
+            public long Bytes=>(long)Vertices*Marshal.SizeOf<TerrainVertex>()+(long)Indices*(Format==IndexFormat.UInt16?2:4);
+            public bool Equals(Shape other)=>Vertices==other.Vertices&&Indices==other.Indices&&Format==other.Format;
+        }
+        readonly struct Retired
+        {
+            public readonly Mesh Mesh;public readonly Shape Shape;public readonly int ReadyFrame;
+            public Retired(Mesh mesh,Shape shape){Mesh=mesh;Shape=shape;ReadyFrame=Time.frameCount+4;}
+        }
+        readonly System.Collections.Generic.List<Retired> retired=new System.Collections.Generic.List<Retired>(64);
+        readonly System.Collections.Generic.Dictionary<Mesh,Shape> leased=new System.Collections.Generic.Dictionary<Mesh,Shape>();
+        readonly long limit;bool disposed;
+        public long Bytes{get;private set;}public int Created{get;private set;}public int Reused{get;private set;}
+        public int Retained=>retired.Count;
+        public TerrainMeshPool(long maximumBytes=32L*1024*1024){limit=maximumBytes;}
+        public Mesh Acquire(int vertices,int indices,IndexFormat format)
+        {
+            if(disposed)throw new ObjectDisposedException(nameof(TerrainMeshPool));
+            var shape=new Shape(vertices,indices,format);Mesh mesh=null;
+            for(int i=0;i<retired.Count;i++)
+            {
+                var candidate=retired[i];
+                if(Time.frameCount<candidate.ReadyFrame||!candidate.Shape.Equals(shape))continue;
+                mesh=candidate.Mesh;retired.RemoveAt(i);Bytes-=shape.Bytes;Reused++;break;
+            }
+            if(mesh==null)
+            {
+                mesh=new Mesh{name="Reusable terrain geometry"};
+                try{mesh.MarkDynamic();mesh.SetVertexBufferParams(vertices,TerrainUpload.Layout);mesh.SetIndexBufferParams(indices,format);mesh.subMeshCount=1;Created++;}
+                catch{UnityEngine.Object.Destroy(mesh);throw;}
+            }
+            leased.Add(mesh,shape);return mesh;
+        }
+        public bool Release(Mesh mesh)
+        {
+            if(!leased.TryGetValue(mesh,out var shape))return false;
+            leased.Remove(mesh);
+            if(disposed||shape.Bytes>limit){UnityEngine.Object.Destroy(mesh);return true;}
+            // Bounded FIFO eviction prevents one-off water shapes accumulating.
+            while(retired.Count>0&&(Bytes+shape.Bytes>limit||retired.Count>=64))
+            {var oldest=retired[0];retired.RemoveAt(0);Bytes-=oldest.Shape.Bytes;UnityEngine.Object.Destroy(oldest.Mesh);}
+            retired.Add(new Retired(mesh,shape));Bytes+=shape.Bytes;return true;
+        }
+        public void Dispose()
+        {
+            if(disposed)return;disposed=true;
+            foreach(var item in retired)UnityEngine.Object.Destroy(item.Mesh);
+            foreach(var mesh in leased.Keys)UnityEngine.Object.Destroy(mesh);
+            retired.Clear();leased.Clear();Bytes=0;
+        }
+    }
+    readonly TerrainMeshPool terrainMeshPool=new TerrainMeshPool();
+
     // Allocate the native container on the main thread. Its MeshData can then
     // be filled by the existing worker without constructing Unity objects there.
     sealed class TerrainUpload : IDisposable
     {
-        static readonly VertexAttributeDescriptor[] Layout={
+        public static readonly VertexAttributeDescriptor[] Layout={
             new VertexAttributeDescriptor(VertexAttribute.Position,VertexAttributeFormat.Float32,3),
             new VertexAttributeDescriptor(VertexAttribute.Normal,VertexAttributeFormat.Float32,3),
             new VertexAttributeDescriptor(VertexAttribute.Color,VertexAttributeFormat.Float32,4),
@@ -148,14 +210,37 @@ public sealed partial class LocalTerrainExplorer
             }
             catch{result.Dispose();throw;}
         }
-        public Mesh[] Apply()
+        public Mesh[] Apply(TerrainMeshPool pool=null)
         {
             if(live==0)throw new ObjectDisposedException(nameof(TerrainUpload));
+            if(pool!=null)return ApplyReused(pool);
             var meshes=new Mesh[bounds.Length];for(int i=0;i<meshes.Length;i++)meshes[i]=new Mesh{indexFormat=formats[i]};
             try{Mesh.ApplyAndDisposeWritableMeshData(buffers,meshes,MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);}
             catch{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);throw;}
             live=0;for(int i=0;i<meshes.Length;i++)meshes[i].bounds=bounds[i];
             if(!hasWater){UnityEngine.Object.Destroy(meshes[1]);return new[]{meshes[0]};}return meshes;
+        }
+        Mesh[] ApplyReused(TerrainMeshPool pool)
+        {
+            var meshes=new Mesh[hasWater?2:1];
+            const MeshUpdateFlags flags=MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices;
+            try
+            {
+                for(int i=0;i<meshes.Length;i++)
+                {
+                    var data=buffers[i];var submesh=data.GetSubMesh(0);
+                    var mesh=meshes[i]=pool.Acquire(data.vertexCount,submesh.indexCount,formats[i]);
+                    // Never reset buffer parameters on a reused mesh: doing so
+                    // would recreate the storage this path exists to preserve.
+                    mesh.SetVertexBufferData(data.GetVertexData<TerrainVertex>(),0,0,data.vertexCount,0,flags);
+                    if(formats[i]==IndexFormat.UInt16)mesh.SetIndexBufferData(data.GetIndexData<ushort>(),0,0,submesh.indexCount,flags);
+                    else mesh.SetIndexBufferData(data.GetIndexData<uint>(),0,0,submesh.indexCount,flags);
+                    mesh.SetSubMesh(0,submesh,flags);mesh.bounds=bounds[i];
+                }
+                return meshes;
+            }
+            catch{foreach(var mesh in meshes)if(mesh!=null)pool.Release(mesh);throw;}
+            finally{buffers.Dispose();live=0;}
         }
         public void Dispose()
         {
@@ -172,7 +257,7 @@ public sealed partial class LocalTerrainExplorer
     }
 
     readonly System.Collections.Generic.List<double> loadingFrames=new System.Collections.Generic.List<double>();
-    public string PerformanceUploadPool=>(meshProcess?.UploadBufferStatistics??"no worker")+" native_cover_resident_bytes="+ResidentCoverBuffers.ResidentBytes;
+    public string PerformanceUploadPool=>(meshProcess?.UploadBufferStatistics??"no worker")+" native_cover_resident_bytes="+ResidentCoverBuffers.ResidentBytes+" mesh_created="+terrainMeshPool.Created+" mesh_reused="+terrainMeshPool.Reused+" mesh_retained="+terrainMeshPool.Retained+" mesh_retained_bytes="+terrainMeshPool.Bytes;
     bool loadingProfile;
     int loadingSkip,loadingCollections;
     double largestGroundMs;
@@ -239,8 +324,68 @@ public sealed partial class LocalTerrainExplorer
             {var meshes=upload.Apply();try{if(meshes[0].indexFormat!=(count<=65535?IndexFormat.UInt16:IndexFormat.UInt32)||meshes[0].triangles[2]!=count-1)throw new InvalidOperationException("Final terrain geometry exceeded compact index format");}finally{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);}}
         }
         yield return CheckResidentCoverOwnership(source,output);
+        yield return CheckReusedTerrainMeshes(source,output);
         yield return CheckInactiveTerrainMeshRelease(output);
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"upload-buffers.txt"),"PASS worker-prepared native positions, normals, colors, lithology, indices, bounds, water, controller heights, returned/overwritten transport arrays and cancelled-buffer disposal.");
+    }
+    static System.Collections.IEnumerator CheckReusedTerrainMeshes(LocalTerrainMesh source,string output)
+    {
+        using var pool=new TerrainMeshPool();long compared=0;Mesh first=null;
+        void Equal(Mesh expected,Mesh actual)
+        {
+            if(expected.vertexCount!=actual.vertexCount||expected.indexFormat!=actual.indexFormat||expected.bounds!=actual.bounds||!expected.GetSubMesh(0).Equals(actual.GetSubMesh(0)))
+                throw new InvalidOperationException("Reused terrain mesh shape/bounds differ");
+            using var a=Mesh.AcquireReadOnlyMeshData(expected);using var b=Mesh.AcquireReadOnlyMeshData(actual);
+            void Bytes(NativeArray<byte> left,NativeArray<byte> right)
+            {if(left.Length!=right.Length)throw new InvalidOperationException("Reused mesh buffer length differs");for(int i=0;i<left.Length;i++){compared++;if(left[i]!=right[i])throw new InvalidOperationException("Reused mesh byte differs at "+i);}}
+            Bytes(a[0].GetVertexData<byte>(),b[0].GetVertexData<byte>());Bytes(a[0].GetIndexData<byte>(),b[0].GetIndexData<byte>());
+        }
+        for(int round=0;round<3;round++)
+        {
+            source.Positions[1]+=1.25f;source.Colors[0]+=.125f;source.WaterPositions[1]+=.5f;
+            using var original=TerrainUpload.Prepare(source,CancellationToken.None);
+            using var replacement=TerrainUpload.Prepare(source,CancellationToken.None);
+            var expected=original.Apply();var actual=replacement.Apply(pool);
+            try
+            {
+                if(round==0)first=actual[0];else if(actual[0]!=first)throw new InvalidOperationException("Matching retired mesh was recreated instead of reused");
+                for(int part=0;part<actual.Length;part++)
+                {
+                    Equal(expected[part],actual[part]);
+                    using var gpu=actual[part].GetVertexBuffer(0);
+                    var readback=AsyncGPUReadback.Request(gpu);while(!readback.done)yield return null;
+                    if(readback.hasError)throw new InvalidOperationException("Reused terrain GPU readback failed");
+                    using var reference=Mesh.AcquireReadOnlyMeshData(expected[part]);
+                    var referenceBytes=reference[0].GetVertexData<byte>();var gpuBytes=readback.GetData<byte>();
+                    if(referenceBytes.Length!=gpuBytes.Length)throw new InvalidOperationException("Reused terrain GPU byte count differs");
+                    for(int i=0;i<gpuBytes.Length;i++){compared++;if(referenceBytes[i]!=gpuBytes[i])throw new InvalidOperationException("Reused terrain GPU payload is stale");}
+                }
+            }
+            finally{foreach(var mesh in expected)UnityEngine.Object.Destroy(mesh);foreach(var mesh in actual)if(!pool.Release(mesh))throw new InvalidOperationException("Terrain lease was lost");}
+            // A newly released buffer must not be borrowed in the same frame.
+            var quarantined=pool.Acquire(3,3,IndexFormat.UInt16);
+            if(quarantined==first)throw new InvalidOperationException("Terrain buffer quarantine was bypassed");
+            pool.Release(quarantined);
+            for(int frame=0;frame<4;frame++)yield return null;
+        }
+        if(pool.Reused<4||pool.Bytes>32L*1024*1024)throw new InvalidOperationException("Terrain reuse did not occur or exceeded its bound");
+        foreach(int vertices in new[]{65535,65536,70003})
+        {
+            var large=new LocalTerrainMesh{GroundVertices=3,Segments=4,Positions=new float[vertices*3],Normals=new float[vertices*3],Colors=new float[vertices*4],SurfaceWeights=new float[vertices*4],GroundWeightsB=new float[vertices*4],Lithology=new float[vertices*6],Triangles=new[]{0,vertices-2,vertices-1}};
+            using var original=TerrainUpload.Prepare(large,CancellationToken.None);using var replacement=TerrainUpload.Prepare(large,CancellationToken.None);
+            var expected=original.Apply();var actual=replacement.Apply(pool);
+            try{if(actual.Length!=1)throw new InvalidOperationException("Dry terrain unexpectedly created a water mesh");Equal(expected[0],actual[0]);}
+            finally{foreach(var mesh in expected)UnityEngine.Object.Destroy(mesh);foreach(var mesh in actual)pool.Release(mesh);}
+        }
+        using(var tiny=new TerrainMeshPool(1))
+        {
+            var rejected=tiny.Acquire(3,3,IndexFormat.UInt16);tiny.Release(rejected);
+            if(tiny.Bytes!=0||tiny.Retained!=0)throw new InvalidOperationException("Oversized terrain buffer retained");
+            yield return null;if(rejected!=null)throw new InvalidOperationException("Oversized terrain buffer not destroyed");
+        }
+        int reused=pool.Reused;pool.Dispose();yield return null;
+        if(first!=null||pool.Bytes!=0)throw new InvalidOperationException("Disposed terrain pool retained meshes");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(output,"reused-terrain-meshes.txt"),"PASS "+compared+" exact CPU/GPU byte comparisons, wet/dry geometry, 16/32-bit indices, quarantine, ownership, capacity and disposal; reused="+reused+". GPU resource creation/frame-time benefit requires presented measurement.\n");
     }
     static System.Collections.IEnumerator CheckResidentCoverOwnership(LocalTerrainMesh source,string output)
     {

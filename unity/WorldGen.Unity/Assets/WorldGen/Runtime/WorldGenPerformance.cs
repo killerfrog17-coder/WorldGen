@@ -55,6 +55,7 @@ public static class WorldGenPerformance
     public static bool MemoHumanInputs;
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
+    public static bool ReuseTerrainMeshes;
     public static bool ResidentCoverReuse=true;
     public static bool IndexedWalkingRivers=true;
     public static bool NoBuilderBufferReuse;
@@ -1207,6 +1208,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
+            new PerfCase("travel-whip-reused-meshes",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.ReuseTerrainMeshes=true),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("turning-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("turning-whip-resident-only",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
@@ -1300,6 +1302,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.TracePresentedCamera=false;
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
+                WorldGenPerformance.ReuseTerrainMeshes=false;
                 WorldGenPerformance.ResidentCoverReuse=true;
                 WorldGenPerformance.IndexedWalkingRivers=true;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
