@@ -48,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
         double square=(double)x*x+(double)y*y+(double)z*z;return (float)Math.Sqrt(square);
     }
     [BurstCompile(FloatMode=FloatMode.Strict,FloatPrecision=FloatPrecision.High,CompileSynchronously=true)]
-    struct ScatterAdmissionJob : IJobParallelFor
+    struct ScatterAdmissionJob : IJobParallelFor, IJob
     {
         [ReadOnly] public NativeArray<ScatterInstance> Source;
         [ReadOnly] public NativeArray<Vector3> Roots;
@@ -67,6 +67,14 @@ public sealed partial class LocalTerrainExplorer
         [NativeDisableParallelForRestriction] public NativeArray<ScatterAdmission> Admissions;
         public BurstScatterOptions Options;public bool Grouped;
         [BurstDiscard] static void ManagedExecution(ref bool managed){managed=true;}
+        public void Execute()
+        {
+            // Resident patches already provide ample independent jobs. Avoid
+            // scheduling four tiny work items for every patch on a camera move.
+            bool managed=false;ManagedExecution(ref managed);
+            for(int index=0;index<Groups.Length;index++)
+            {var result=Classify(index);result.Managed=managed;Results[index]=result;}
+        }
         public void Execute(int partition)
         {
             bool managed=false;ManagedExecution(ref managed);
@@ -297,12 +305,12 @@ public sealed partial class LocalTerrainExplorer
         {
             foreach(var chunk in scatterCollectWork)
             {
-                chunk.Admissions.Clear();chunk.AdmissionCounts=default;if(chunk.Source.Instances.Length==0)continue;
+                chunk.BurstAdmissions=false;chunk.Admissions.Clear();chunk.AdmissionCounts=default;if(chunk.Source.Instances.Length==0)continue;
                 var bounds=chunk.AllBounds;bounds.Expand(10+(bounds.center-eye).magnitude*.04f);
                 if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye)&&!MayCastVisibleShadow(bounds,eye)){chunk.AdmissionCounts=new ScatterCounts{Frustum=chunk.Source.Instances.Length};continue;}
                 PrepareBurstChunk(chunk);var b=chunk.Burst;
                 var job=new ScatterAdmissionJob{Source=b.Source,Roots=b.Roots,Bounds=b.Bounds,Indices=b.Indices,Groups=b.Groups,Owners=b.Owners,Results=b.Results,Admissions=b.Admissions,Planes=burstPlanes,Casts=burstCasts,CampMask=burstCamp,Collected=burstCollected,Forest=burstForest,Slabs=burstSlabs,SlabInfo=burstSlabInfo,SlabMinimum=burstSlabMinimum,Options=o,Grouped=chunk.Groups.Length>1};
-                burstJobs.Add(job.Schedule(4,1));burstScheduled.Add(chunk);
+                burstJobs.Add(WorldGenPerformance.CompactScatterJobs?job.Schedule():job.Schedule(4,1));burstScheduled.Add(chunk);
             }
             JobHandle.ScheduleBatchedJobs();
         }
@@ -314,9 +322,10 @@ public sealed partial class LocalTerrainExplorer
             {
                 var result=b.Results[i];if(result.Managed){burstUnavailable=true;return false;}
                 var c=result.Counts;counts.Objects+=c.Objects;counts.Specialists+=c.Specialists;counts.Mid+=c.Mid;counts.Trees+=c.Trees;counts.Frustum+=c.Frustum;counts.Terrain+=c.Terrain;counts.Shadow+=c.Shadow;
-                int start=b.Groups[i].Start*2;for(int j=0;j<result.Count;j++)chunk.Admissions.Add(b.Admissions[start+j]);
+                if(!WorldGenPerformance.CompactScatterJobs)
+                {int start=b.Groups[i].Start*2;for(int j=0;j<result.Count;j++)chunk.Admissions.Add(b.Admissions[start+j]);}
             }
-            chunk.AdmissionCounts=counts;
+            chunk.AdmissionCounts=counts;chunk.BurstAdmissions=WorldGenPerformance.CompactScatterJobs;
         }
         BurstScatterBuilds++;return true;
     }

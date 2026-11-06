@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1,MaximumGroundLevel;}
     struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
     struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
-    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
+    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid,BurstAdmissions;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
@@ -514,7 +514,19 @@ public sealed partial class LocalTerrainExplorer
         {
             var counts=chunk.AdmissionCounts;ScatterObjects+=counts.Objects;SpecialistObjects+=counts.Specialists;MidPlantObjects+=counts.Mid;GeneratedTreeObjects+=counts.Trees;
             ScatterFrustumRejected+=counts.Frustum;ScatterTerrainRejected+=counts.Terrain;ScatterShadowOnly+=counts.Shadow;
-            foreach(var item in chunk.Admissions){ref readonly var plant=ref chunk.Source.Instances[item.Index];AddScatterInstance(chunk,item.Index,plant,item.Lod,item.Low,item.High,item.ShadowOnly);}
+            if(chunk.BurstAdmissions)
+            {
+                // Jobs have completed. Consume their resident output directly,
+                // preserving the exact group/member order of the managed path.
+                var b=chunk.Burst;
+                for(int group=0;group<b.Groups.Length;group++)
+                {
+                    int start=b.Groups[group].Start*2,count=b.Results[group].Count;
+                    for(int i=0;i<count;i++)
+                    {var item=b.Admissions[start+i];ref readonly var plant=ref chunk.Source.Instances[item.Index];AddScatterInstance(chunk,item.Index,plant,item.Lod,item.Low,item.High,item.ShadowOnly);}
+                }
+            }
+            else foreach(var item in chunk.Admissions){ref readonly var plant=ref chunk.Source.Instances[item.Index];AddScatterInstance(chunk,item.Index,plant,item.Lod,item.Low,item.High,item.ShadowOnly);}
         }
         WorldGenPerformance.TraceEnd(30,appendTrace);
         WorldGenPerformance.TraceEnd(24,batchPhaseTrace);batchPhaseTrace=WorldGenPerformance.TraceBegin();
@@ -559,7 +571,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CollectScatterChunk(ScatterChunk chunk,Vector3 eye)
     {
-        chunk.Admissions.Clear();var counts=new ScatterCounts();
+        chunk.BurstAdmissions=false;chunk.Admissions.Clear();var counts=new ScatterCounts();
             var chunkBounds=chunk.AllBounds;chunkBounds.Expand(10+(chunkBounds.center-eye).magnitude*.04f);
             if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(chunkBounds,eye)&&!MayCastVisibleShadow(chunkBounds,eye))
             {counts.Frustum+=chunk.Source.Instances.Length;chunk.AdmissionCounts=counts;return;}

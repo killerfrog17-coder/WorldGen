@@ -1,5 +1,53 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov21:00Z SPIKES FIRST. Latest size-class normal test COMPLETE:163.07FPS,
+p9511.18/p9913.67/max40.36ms,12frames>16.7. Pool492created87reused/12.47MBidle;
+reuse improved modestly, NOT an established hitch fix; normalReuseTerrainMeshes
+staysOFF. GCframes29.73/29.50,40.36 nonGC frame ~71ms aftercollection; no proven
+causal attribution. No own game remains. New opt-in CompactScatterJobs DEFAULT
+OFF: one Burst job per resident patch instead4tiny partitions; consume native
+admissions directly, no managed list roundtrip. Actual output/render proofs
+added using existing eight-heading/32render reference fixtures. UNBUILT/UNRUN.
+Next compileB NONDEV, native proofs, actual moving comparison beforeacceptance.
+Shared terrain/fauna upload budget remainsON. Benchmark startpoolcounter line
+included. A/f833shortcut protected; owner3filesuntouched. No geography/subagents.
+
+ACTIVE06Nov20:42Z SPIKES FIRST. B ScriptsOnly NONDEVfaf96b7c built20:37:59Z,
+3autos restored. New size-class terrain pool replaces exact-size keys with pow2
+capacity; exact submesh ranges/bounds remain, unused capacity never drawn. Cache
+BufferBytes now includes spare capacity; diagnostics count actual vertices.
+size-class-mesh-native PASS20,916,350 CPU/GPU bytes incl changed3->4vertex reuse,
+GPU index readback,16/32bit,capacity and eviction/lifetime. All source PUSHEDfaf.
+Own runner82348/player17604 RIGHTMOST runs presented-size-class-meshes,
+temperate6kmMedium1080/60sec moving/whip; warmup106sec. No compile/overwrite/heavy
+work until exit. DefaultReuseTerrainMeshes STILL OFF; no newFPSclaim yet.
+IMPORTANT repeatc27 uncapped was163.80FPS,max51.44,17>16.7,2GC. Exact pool NOT
+proven cure:517created/57reused. Freshcap120 samec27=117.57FPS,max24.53,9>16.7,
+1GC whose frame24.53; doesNOTfixGC. Usercapunchanged. All15coatmodelsloaded with
+sharedCanInstall budget. Prior9b43->25 firstcomparison was not replicated; doNOT
+claim that as establishedgain. New uncommitted benchmark-only line writes start
+poolcounters beforetiming, for future allocation deltas. No other runtime edits.
+Next inspect bucket run counts/tails, then choose measured nextstep; drawingbatch
+rebuild8.7ms also measured(mainappend4.3/classify3.1), existing stationary all-
+headings guard alreadyexists; do not blindly repeatthat. Terrain worker ALREADY
+BelowNormal via CreateProcess flags0x08004000. A/f833shortcut untouched,owner3files
+untouched. No subagents/features/paid/ownerappclosure. Currentcheckpointpending.
+
+ACTIVE06Nov20:23Z SPIKES FIRST. B ScriptsOnly NONDEVc27f57f4 built20:18:38Z
+SourceChanges[],3autos restored. reused-mesh-bounded-native PASS20,915,506bytes
+plus at-most-one-eviction/capacity/lifetime checks. Own runner39918/player23860
+RIGHTMOST runs presented-shared-budget-uncapped first, then fresh-process
+presented-shared-budget-cap120. Each temperate6kmMedium1080/60sec moving-whip,
+trace+captureafter. SAMEc27build, meshreuseON both; cap120 only second. Current
+first warmup176sec144/326. Do NOT compile/overwrite/runheavy untilBOTHfinish.
+New budget sharing needs actual fauna-loading verification; so far15model coat
+READY messages progressing normally. Native proof does not itself test gameplay
+budget. Need compare completedGC counts/tails, not a lucky window with0GC.
+Prior9b pair control166.56/max43.61/13>16.7 vs reuse164.75/max25.25/5; promising,
+not definitive. Meshreuse DEFAULT OFF in normal game pending followup; cap normal
+unchanged. SourcePUSHEDc27/docs385fdee2. No uncommitted runtime code. Current
+checkpoint pendingcommit. A/f833/shortcut protected; no features/subagents/paid.
+
 ACTIVE06Nov20:17Z SPIKES FIRST. Paired9b7 normal fresh-player tests COMPLETE:
 control166.56FPS,p9510.83/max43.61,13>16.7; reuse164.75,p9510.38/max25.25,5>16.7.
 Reuse largest25.25/24.76 coincideGC; control43.61notGC. Pool507created/54reused,
