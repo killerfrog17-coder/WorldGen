@@ -44,7 +44,7 @@ namespace WorldGen.Core
         bool[] riverActive;
         int[] riverIncoming;
         readonly object riverGate=new object();
-        readonly Dictionary<int,WeakReference<RiverscapeSpan[]>> riverCache=new Dictionary<int,WeakReference<RiverscapeSpan[]>>();
+        readonly System.Collections.Concurrent.ConcurrentDictionary<int,WeakReference<RiverscapeSpan[]>> riverCache=new System.Collections.Concurrent.ConcurrentDictionary<int,WeakReference<RiverscapeSpan[]>>();
         readonly Queue<RiverscapeSpan[]> riverRetained=new Queue<RiverscapeSpan[]>();
         public int RiverscapeReachCount {get;private set;}
         public double RiverscapeFittingMilliseconds {get;private set;}
@@ -141,9 +141,13 @@ namespace WorldGen.Core
 
         RiverscapeSpan[] PrepareRiverscape(int source)
         {
+            // Published spans are immutable. A resident river must not wait
+            // behind another thread fitting an unrelated, newly visited reach.
+            // Only misses, construction and bounded retention need riverGate.
+            if(riverCache.TryGetValue(source,out var weak)&&weak.TryGetTarget(out var cached))return cached;
             lock(riverGate)
             {
-                if(riverCache.TryGetValue(source,out var weak)&&weak.TryGetTarget(out var cached))return cached;
+                if(riverCache.TryGetValue(source,out weak)&&weak.TryGetTarget(out cached))return cached;
                 int target=riverReceivers[source];var a=rootNodes[source];var b=rootNodes[target];
                 double length=(a.Position-b.Position).Length*radius*scale;
                 double width=Math.Min(RiverscapeKernel.HalfWidth(a.Flow,scale),Math.Max(.6,length*.15));
@@ -279,7 +283,7 @@ namespace WorldGen.Core
                 result=WaterfallProfiles.Apply(result,radius*scale,a.Resistance,source,seed);
                 riverCache[source]=new WeakReference<RiverscapeSpan[]>(result);riverRetained.Enqueue(result);
                 while(riverRetained.Count>128)riverRetained.Dequeue();
-                if(riverCache.Count>512){var expired=new List<int>();foreach(var item in riverCache)if(!item.Value.TryGetTarget(out _))expired.Add(item.Key);foreach(int id in expired)riverCache.Remove(id);}
+                if(riverCache.Count>512){var expired=new List<int>();foreach(var item in riverCache)if(!item.Value.TryGetTarget(out _))expired.Add(item.Key);foreach(int id in expired)riverCache.TryRemove(id,out _);}
                 return result;
             }
         }
