@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov17:25Z SPIKES FIRST. Untraced pacing comparison COMPLETE, all frames
+focused: current183.60FPS/p958.96/p9911.35/max22.84ms/1over16.667; cap240
+179.19/p9510.16/max30.41/15over; queue1 98.47/max29.13/62over. Trials REJECTED;
+normal target/queue unchanged. B rebuilt NONDEV ScriptsOnly4aa91e59 at17:19:56Z,
+SourceChanges[],3autos restored: reverted Cell CLASS now packaged. No own game.
+New benchmark-only turning-whip-current/resident-only isolates static-scene
+streaming: holds terrain/plants AFTER normal warmup, turns in place, existing
+render/culling/animals remain active. UNBUILT until next package. Need native
+comparison with actual clock traces. No artificial FPS win via missing travel
+coverage; held case diagnostic only.100FPSfloor still UNMET. A/f833/shortcut
+untouched; owner3files preserved. No subagents/paid/features/ownerapps closed.
+All own visible windows RIGHTMOST. Prior inlineCell/pacing data are not current
+class-layout throughput proofs. Do not claim floor solved or OS/compositor cause.
+
 ## Owner requirement: compatibility
 
 OWNER3Nov: backward compatibility has ZERO priority. Updates may break old

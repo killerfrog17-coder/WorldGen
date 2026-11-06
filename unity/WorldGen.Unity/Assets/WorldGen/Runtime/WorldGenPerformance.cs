@@ -1065,6 +1065,7 @@ public sealed partial class WorldGenRuntime
         TerrainQueryTiming.Enabled=WorldGenPerformance.TraceEnabled;
         ulong originalGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
         int originalTargetFps=Application.targetFrameRate,originalQueuedFrames=QualitySettings.maxQueuedFrames;
+        bool originalHoldTerrain=TerrainDiagnostics.HoldTerrain,originalHoldPlants=TerrainDiagnostics.HoldPlants;
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
         // Numerical smoke check needs no terrain/forest warmup. This uses the
@@ -1208,6 +1209,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
+            new PerfCase("turning-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
+            new PerfCase("turning-whip-resident-only",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("travel-whip-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
             new PerfCase("travel-whip-current-queue1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;QualitySettings.maxQueuedFrames=1;}),
             new PerfCase("travel-whip-immediate-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
@@ -1305,6 +1308,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.StagedTerrainRetirement=false;
                 UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
                 Application.targetFrameRate=originalTargetFps;QualitySettings.maxQueuedFrames=originalQueuedFrames;
+                TerrainDiagnostics.HoldTerrain=originalHoldTerrain;TerrainDiagnostics.HoldPlants=originalHoldPlants;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -1390,6 +1394,12 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="flying-60m"){terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-flying.png"));yield return new WaitForSecondsRealtime(1);}
                 if(item.Name=="human-review")yield return terrainExplorer.PerformanceHumanReview(output);
                 WorldGenPerformance.ProfileRenderCompletion=item.Name=="forest-community-review"||item.Name=="foliage-proxy-compare";
+                // Diagnostic only: finish normal warmup before holding resources.
+                // The camera turns in place, so this does not gain throughput by
+                // walking beyond the loaded foliage. Animals and all existing
+                // draw/cull work remain live. This is NOT a playable mode.
+                if(item.Name=="turning-whip-resident-only")TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;
+                File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" hold_terrain="+TerrainDiagnostics.HoldTerrain+" hold_plants="+TerrainDiagnostics.HoldPlants+"\n");
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
                 var engineTimings=WorldGenPerformance.TraceEnabled?new List<(double Observed,FrameTiming Timing)>(20000):null;
@@ -1554,6 +1564,7 @@ public sealed partial class WorldGenRuntime
         }
         UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
         Application.targetFrameRate=originalTargetFps;QualitySettings.maxQueuedFrames=originalQueuedFrames;
+        TerrainDiagnostics.HoldTerrain=originalHoldTerrain;TerrainDiagnostics.HoldPlants=originalHoldPlants;
         File.WriteAllText(Path.Combine(output,"complete.txt"),DateTime.UtcNow.ToString("o"));Application.Quit(0);
     }
 }
