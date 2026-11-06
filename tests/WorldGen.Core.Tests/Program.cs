@@ -5,6 +5,8 @@ if(args.Contains("--terrain-face-handles")){TerrainFaceHandleTests.Handles();ret
 if(args.Contains("--terrain-root-controls")){TerrainFaceHandleTests.RootControls(args[1],args[2],args.Contains("--capture"));return;}
 if(args.Contains("--terrain-face-world")){TerrainFaceHandleTests.World(args[1],args[2],args.Contains("--capture"));return;}
 if(args.Contains("--surface-edge-storage")){SurfaceEdgeStorageTests.Run();return;}
+if(args.Contains("--surface-cell-storage")){SurfaceCellStorageTests.Run(args[1],args[2],args.Contains("--capture"));return;}
+if(args.Contains("--hydrology-controls-only")){int count=0;HydrologyTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine($"PASS {count} hydrology controls");return;}
 if(args.Contains("--terrain-query-index-world")){TerrainQueryCostTests.VerifyWorld(args[1]);return;}
 if(args.Contains("--riverscape-cache")){RiverscapeCacheTests.Run(args[1]);return;}
 if(args.Contains("--terrain-query-cost")){TerrainQueryCostTests.Run(args[1]);return;}
