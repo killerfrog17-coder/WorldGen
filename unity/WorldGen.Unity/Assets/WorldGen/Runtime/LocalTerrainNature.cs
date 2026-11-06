@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var p=chunk.Source.Instances[i];if(p.Kind!=ScatterKind.MidPlant&&p.Kind!=ScatterKind.GeneratedTree&&!IsSpecialist(p.Kind))continue;
                     Vector3 root=chunk.Roots[i];if((root-eye).sqrMagnitude>49||CollectedRock(p)||CampClearedPlant(p))continue;
-                    var flora=terrain.FloraRegion(walkingPatch.Sample(p.Position).Cell);ForageProduct[] products=Array.Empty<ForageProduct>();string name="";
+                    var flora=terrain.FloraRegion(walkingPatch.CommunityCell(p.Position));ForageProduct[] products=Array.Empty<ForageProduct>();string name="";
                     // Capturing p in predicates allocates a closure for every
                     // root visited, including roots rejected before lookup.
                     if(p.Kind==ScatterKind.MidPlant){foreach(var s in flora.MidPlants)if((s.MorphologyCode&~3)==(p.Variant&~3)){products=Foraging.Products(s,p.WidthM);name=s.Name;break;}}

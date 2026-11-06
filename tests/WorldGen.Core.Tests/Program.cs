@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--terrain-community")){TerrainCommunityTests.Run(args[1]);return;}
 if(args.Contains("--terrain-read-stream")){TerrainReadStreamTests.Run();TerrainUploadBufferTests.Run();return;}
 if(args.Contains("--runtime-allocation")){RuntimeAllocationTests.Run();return;}
 if(args.Contains("--terrain-height-change")){TerrainHeightChangeTests.Run();return;}

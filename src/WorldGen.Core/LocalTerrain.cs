@@ -261,6 +261,28 @@ namespace WorldGen.Core
             }
             public LocalTerrainSample Sample(double eastM, double northM) => Sample(Position(eastM, northM));
             public LocalTerrainSample Sample(V point)=>SampleAt(point,0);
+            /// <summary>The exact dominant community selected by Sample, without
+            /// evaluating height, waterways, soil or local landforms. Coarse ocean
+            /// winners retain the full shoreline test because refined dry ground
+            /// can belong to a neighbouring terrestrial community.</summary>
+            public int CommunityCell(V point)
+            {
+                double norm=point.X*point.X+point.Y*point.Y+point.Z*point.Z;
+                if(double.IsNaN(norm)||Math.Abs(norm-1)>.000001)throw new ArgumentOutOfRangeException(nameof(point),"A unit planetary position is required.");
+                double dx=point.X-Center.X,dy=point.Y-Center.Y,dz=point.Z-Center.Z;
+                if((dx*dx+dy*dy+dz*dz)*owner.RadiusM*owner.RadiusM>HalfExtentM*HalfExtentM*2.01+1)throw new ArgumentOutOfRangeException(nameof(point),"Point outside indexed terrain patch.");
+                double px=point.X*owner.RadiusM,py=point.Y*owner.RadiusM,pz=point.Z*owner.RadiusM,best=-1;
+                int cell=-1;Biome biome=Biome.Grassland;
+                foreach(var f in sources)
+                {
+                    double x=px-f.Center.X*owner.RadiusM,y=py-f.Center.Y*owner.RadiusM,z=pz-f.Center.Z*owner.RadiusM;
+                    double distance=(x*x+y*y+z*z)/(f.SupportM*f.SupportM);if(distance>=1)continue;
+                    double r=Math.Sqrt(distance),t=1-r,weight=t*t*t*t*(1+4*r);
+                    if(weight>best){best=weight;cell=f.Cell;biome=f.Biome;}
+                }
+                if(cell<0)throw new InvalidOperationException("Terrain patch has no supporting world cells.");
+                return amplified!=null&&biome==Biome.Ocean?SampleAt(point,0).Cell:cell;
+            }
             /// <summary>Exact blended raw forest potential, without terrain or
             /// unrelated ground-layer queries. A placement admission filter,
             /// NOT final height/water/slope or a substitute for those checks.</summary>
