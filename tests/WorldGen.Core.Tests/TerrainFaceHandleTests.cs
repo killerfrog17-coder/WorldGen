@@ -106,7 +106,7 @@ static class TerrainFaceHandleTests
             throw new Exception("Sibling faces allocated separate weak lifetime handles");
         GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
         for(int i=0;i<refs.Length;i++)
-            if(!ReferenceEquals(faces.GetValue(i/3),FaceRef.GetMethod("Resolve")!.Invoke(refs[i],new object?[]{null})))
+            if(!ReferenceEquals(faces.GetValue(i/3),FaceRef.GetMethod("Resolve")!.Invoke(refs[i],new object[]{null})))
                 throw new Exception("Shared-family address resolved the wrong sibling or lost a live family");
         GC.KeepAlive(faces);return refs;
     }
