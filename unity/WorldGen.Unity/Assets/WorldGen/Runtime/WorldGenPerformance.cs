@@ -1113,6 +1113,62 @@ public sealed partial class WorldGenRuntime
         public PerfCase(string name,Action apply,bool terrain=false){Name=name;Apply=apply;Terrain=terrain;}
     }
     static string Perf(double value)=>value.ToString("F5",CultureInfo.InvariantCulture);
+    // Explicit benchmark only. Unlike the retired extra-GC trial this owns
+    // scheduling, so Unity cannot add an automatic step on the same frame.
+    // Always restores the incoming mode; memory growth aborts the experiment.
+    sealed class ManualGcTrial : IDisposable
+    {
+        readonly UnityEngine.Scripting.GarbageCollector.Mode originalMode;
+        readonly ulong originalSlice;
+        readonly List<(double Time,double Ms,long Heap,bool Pending)> calls;
+        readonly long highWater;
+        long nextCollect;
+        double nextPoll,nextStart;
+        bool active,disposed;
+        public string Failure="";
+        public ManualGcTrial(bool enabled)
+        {
+            originalMode=UnityEngine.Scripting.GarbageCollector.GCMode;
+            originalSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
+            if(!enabled)return;
+            if(!UnityEngine.Scripting.GarbageCollector.isIncremental)throw new InvalidOperationException("Manual GC trial requires incremental collection");
+            calls=new List<(double,double,long,bool)>(20000);
+            long heap=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
+            highWater=heap+256L*1024*1024;nextCollect=heap+16L*1024*1024;
+            UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=500000;
+            UnityEngine.Scripting.GarbageCollector.GCMode=UnityEngine.Scripting.GarbageCollector.Mode.Manual;
+        }
+        public void Step(double time)
+        {
+            if(calls==null||disposed)return;
+            long heap=0;
+            if(time>=nextPoll)
+            {
+                nextPoll=time+.1;heap=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
+                if(heap>highWater){Failure="Heap grew by more than 256 MiB; automatic collection restored";Dispose();return;}
+                if(!active&&time>=nextStart&&heap>=nextCollect)active=true;
+            }
+            if(!active)return;
+            long started=System.Diagnostics.Stopwatch.GetTimestamp();
+            active=UnityEngine.Scripting.GarbageCollector.CollectIncremental(500000);
+            double ms=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            if(!active){heap=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();nextCollect=heap+16L*1024*1024;nextStart=time+2;}
+            calls.Add((time,ms,heap,active));
+        }
+        public void Dispose()
+        {
+            if(disposed||calls==null)return;
+            disposed=true;
+            UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalSlice;
+            UnityEngine.Scripting.GarbageCollector.GCMode=originalMode;
+        }
+        public void Write(string path)
+        {
+            if(calls==null)return;
+            File.WriteAllLines(path,new[]{"t_s,call_ms,heap_bytes,work_remains"}.Concat(calls.Select(c=>string.Join(",",Perf(c.Time),Perf(c.Ms),c.Heap,c.Pending))));
+            File.WriteAllText(path+".status",Failure.Length==0?"Completed; original collector mode restored":Failure);
+        }
+    }
     struct StutterRow
     {
         public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky,Batches,Bakes,Projection,Forest,Shadows,CoverDraw,Canopy,ForestDraw,Survival,Prepared,Humans,Player,Fauna,AnimalMove,AnimalPose,BatchCollect,BatchUpload,TerrainOcclusion,FrustumTest,InstanceAppend,ScatterClassify,ScatterAppend,CameraRender,ForestGround,GroundPublication,Inventory,Planning,Install,Retirement,Scheduling,Readout,Solids,PlayerCamera,PlayerWater,PlayerCombat,PlayerBlood,PlayerFootsteps,PlayerFeedback,PlayerHud,PlayerAltitude,QueryLocate,QueryProfiles,QueryShape,QueryRivers,QueryDetail,QueryPonds,Driver;public int Gc,HeapIntervalsWithCollection;public long Heap,MainAllocated,FrameAllocated,HeapUpdate,HeapScatter,HeapHumans,HeapPlayer,HeapFauna,HeapCamera;
@@ -1275,6 +1331,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
             new PerfCase("travel-whip-current-queue1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;QualitySettings.maxQueuedFrames=1;}),
             new PerfCase("travel-whip-separated-streaming",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.SeparateStreamingAndScatter=true;}),
+            new PerfCase("travel-whip-manual-gc",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;}),
             new PerfCase("travel-whip-immediate-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-unindexed-ground",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;WorldGenPerformance.IndexedWalkingRivers=false;}),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
@@ -1508,12 +1565,14 @@ public sealed partial class WorldGenRuntime
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
                 File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" presentation="+Screen.fullScreenMode+" resolution="+Screen.width+"x"+Screen.height+" vSync="+QualitySettings.vSyncCount+" targetFps="+Application.targetFrameRate+" queuedFrames="+QualitySettings.maxQueuedFrames+"\n");
                 var clockBridge=WorldGenPerformance.TraceEnabled?WorldGenPerformance.CaptureNativeClock():default;
+                using var manualGc=new ManualGcTrial(item.Name=="travel-whip-manual-gc");
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 WorldGenPerformance.ClearFaunaTrace();
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
                 while(Time.realtimeSinceStartupAsDouble-start<seconds)
                 {
                     yield return endFrame;
+                    manualGc.Step(Time.realtimeSinceStartupAsDouble-start);
                     if(Application.isFocused)focusedFrames++;else unfocusedFrames++;
                     // DIAGNOSTIC ONLY: distinguish unbounded offscreen queueing
                     // from work that remains slow when every render completes.
@@ -1563,9 +1622,11 @@ public sealed partial class WorldGenRuntime
                         else{gpu+=measuredGpu;cpu+=timings[0].cpuFrameTime;cpuMain+=timings[0].cpuMainThreadFrameTime;cpuRender+=timings[0].cpuRenderThreadFrameTime;cpuPresentWait+=timings[0].cpuMainThreadPresentWaitTime;timingCount++;}
                     }
                 }
+                manualGc.Dispose();
                 double drainStart=Time.realtimeSinceStartupAsDouble;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
                 double gpuDrain=(Time.realtimeSinceStartupAsDouble-drainStart)*1000;
+                manualGc.Write(Path.Combine(output,site.Item1+"-"+item.Name+"-manual-gc.csv"));
                 string componentFile=Path.Combine(output,"cpu-frame-components.csv");
                 if(!File.Exists(componentFile))File.WriteAllText(componentFile,"site,case,samples,main_ms,render_ms,present_wait_ms\n");
                 File.AppendAllText(componentFile,site.Item1+","+item.Name+","+timingCount+","+(timingCount>0?cpuMain/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+","+(timingCount>0?cpuRender/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+","+(timingCount>0?cpuPresentWait/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+"\n");
