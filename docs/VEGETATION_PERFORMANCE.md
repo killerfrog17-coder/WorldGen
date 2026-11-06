@@ -496,3 +496,27 @@ No real-game performance claim; option and code removed after the failed trial.
 Original bounded upload remains. Diagnostic allocation capture now uses the
 same retention/staging flags as current gameplay and accepts an explicitly
 recorded shorter warmup; ordinary performance measurement warmup is unchanged.
+
+Allocation stacks d989/e1ba use the same45s diagnostic warmup and10s capture,
+not release FPS. NearTerrainPendingFresh/ActiveItemCraft/NextVisibleAnimalModel
+previously allocated0.303/0.303/0.247MiB and14,223 objects combined; those call
+sites allocate nothing in the second capture after direct enumerator loops.
+Total allocation41.54->41.76MB does not improve: the later capture creates more
+resident terrain data. Floats includes both transient transport and required
+resident cover grids; do not attribute every such allocation to a pool miss.
+The transient pool does saturate its16MiB budget in the longer route. e1ba lets
+old sizes yield to the current working set instead of permanently retaining the
+first128 lengths.414 ownership/pressure/concurrency/byte checks and actual native
+upload/cancel/cache/overwrite proofs pass. No native FPS gain established yet.
+
+Production rollout preserves all177 verified mesh/pose payloads and830 exact
+BC7 coat layers. New .coats files live in canonical StreamingAssets/fauna, never
+scratch; original .fauna.meta GUIDs are retained. The exporter defaults to
+streaming; --fauna-embedded-coats explicitly produces reference arrays. Source
+receipts predate the repository path reorganization, so packaging accepts their
+exact approved asset-lock hashes while preserving the original exporter hash;
+all underlying source/export file hashes are still checked. The package verifies
+541 movement clips, maximum sampled skin error4.8923e-7. Asset inventory now also
+explicitly preserves the four live terrain textures/arrays already in the prior
+lock, which the generic inventory had omitted. Immutable-pack publication and
+the normal-player test without GPU polling are next.

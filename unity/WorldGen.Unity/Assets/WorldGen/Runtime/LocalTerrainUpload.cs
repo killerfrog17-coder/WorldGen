@@ -248,7 +248,7 @@ public sealed partial class LocalTerrainExplorer
             if(!failed)throw new InvalidOperationException("Invalid native upload unexpectedly succeeded");
             long warmed=covers.CreatedBytes;var recovered=Lease();recovered.ReleaseUploadBuffers();
             if(covers.CreatedBytes!=warmed)throw new InvalidOperationException("Failed native preparation stranded cover buffers");
-            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"resident-cover-ownership.txt"),"PASS actual worker/native upload, upload disposal, cache retention/take, competing overwrite, tile retirement and failed preparation preserve exclusive ground/mid/forest ownership. Pool remains bounded and experimental/default OFF.");
+            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"resident-cover-ownership.txt"),"PASS actual worker/native upload, upload disposal, cache retention/take, competing overwrite, tile retirement and failed preparation preserve exclusive ground/mid/forest ownership. Pool remains bounded.");
         }
         finally{explorer.terrainProducts?.Clear();if(tile!=null)explorer.DestroyTile(tile);UnityEngine.Object.Destroy(host);}
         yield return null;

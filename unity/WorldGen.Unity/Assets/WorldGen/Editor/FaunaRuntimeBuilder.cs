@@ -58,7 +58,9 @@ public static class FaunaRuntimeBuilder
         Debug.Log("FAUNA ECOLOGY MAP "+mapped.Count+" taxa; all "+catalogue.animals.Length+" models mapped or explicitly derived fireflies.");
         var args=Environment.GetCommandLineArgs();int at=Array.IndexOf(args,"--fauna-slugs");
         var selected=at>=0?new HashSet<string>(args[at+1].Split(',')):null;
-        bool streamed=args.Contains("--fauna-stream-coats");int outputAt=Array.IndexOf(args,"--fauna-output");
+        // Production streams the exact BC7 pixels in bounded pages. Embedded
+        // arrays remain an explicit authoring/reference export for comparison.
+        bool streamed=!args.Contains("--fauna-embedded-coats");int outputAt=Array.IndexOf(args,"--fauna-output");
         string output=outputAt>=0?Path.GetFullPath(args[outputAt+1]):Path.Combine(Application.streamingAssetsPath,"fauna");
         Directory.CreateDirectory(output);
         Directory.CreateDirectory(Cache);AssetDatabase.Refresh();var builds=new List<AssetBundleBuild>();

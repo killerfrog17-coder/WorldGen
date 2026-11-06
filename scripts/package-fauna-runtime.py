@@ -14,11 +14,17 @@ catalogue=json.loads((repo/'unity/WorldGen.Unity/Assets/WorldGen/Resources/World
 inventory={r['slug']:r for r in json.loads((root/'native-inventory.json').read_text())['animals']}
 assert len(plan)==len(catalogue)==177 and {r['slug'] for r in plan}=={r['slug'] for r in catalogue}
 signature=hashlib.sha256((repo/'scripts/export-fauna-runtime.py').read_bytes()+(repo/'scripts/fauna_runtime_surface.py').read_bytes()+(repo/'scripts/fauna_runtime_uv.py').read_bytes()).hexdigest()
+approved=json.loads((repo/'assets/game-assets.lock.json').read_text())['files']
 output=repo/'unity/WorldGen.Unity/Assets/StreamingAssets/fauna';output.mkdir(parents=True,exist_ok=True)
 rows=[];worst=0;clips=0;coats=0
 for item in plan:
     slug=item['slug'];folder=export_root/slug;receipt=json.loads((folder/'receipt.json').read_text());model=json.loads((folder/'model.json').read_text())
-    assert receipt['complete'] and receipt['exporter_sha256']==signature,slug
+    # A tool path edit does not invalidate already-approved artwork. Preserve
+    # its original exporter provenance and verify the immutable receipt plus
+    # every source/output byte, instead of forcing unrelated rebakes.
+    receipt_key=(folder/'receipt.json').relative_to(repo).as_posix()
+    sealed_receipt=approved.get(receipt_key,{}).get('sha256')==hashlib.sha256((folder/'receipt.json').read_bytes()).hexdigest()
+    assert receipt['complete'] and (receipt['exporter_sha256']==signature or sealed_receipt),('Unverified source export',slug)
     assert receipt['source_sha256']==item['source_sha256']==model['source_sha256']==hashlib.sha256((repo/item['path']).read_bytes()).hexdigest(),slug
     for name,digest in receipt['files'].items():assert hashlib.sha256((folder/name).read_bytes()).hexdigest()==digest,(slug,name)
     assert all(c['role'] in {'idle','walk','trot','run','fly','glide','swim'} for c in model['clips']),slug
@@ -30,6 +36,7 @@ for item in plan:
     bundle=output/(slug+'.fauna');assert bundle.is_file(),('Missing bundle',slug)
     clips+=len(model['clips']);coats+=len(model['coats'])
     rows.append({'slug':slug,'name':item['name'],'source_sha256':item['source_sha256'],
+                 'exporter_sha256':receipt['exporter_sha256'],
                  'bundle':bundle.name,'bundle_sha256':hashlib.sha256(bundle.read_bytes()).hexdigest(),'bundle_bytes':bundle.stat().st_size,
                  'motion_source_family':inventory[slug]['entry'].get('source_family','Owner-approved deer motion'),
                  'motion_license_note':model['sourceLicense'],'clips':model['clips'],'coat_count':len(model['coats']),

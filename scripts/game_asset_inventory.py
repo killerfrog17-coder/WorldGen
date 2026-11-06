@@ -64,6 +64,11 @@ def inventory():
     tree('assets-source/terrain/surfaces','terrain-authoring-source',{'.png','.jpg','.json','.txt'})
     tree('assets-source/vegetation/tree-surfaces','tree-authoring-source',{'.png','.jpg','.json','.txt'})
     tree('assets-source/vegetation/ground-clumps','ground-clump-authoring-source',{'.blend','.png','.jpg','.exr','.json','.txt'})
+    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1']:
+        tree(directory,'terrain-runtime-art',{'.png','.asset','.bytes','.meta'})
+        add(directory+'.meta','terrain-runtime-art')
+    add('unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png','terrain-runtime-art',True)
+    add('unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png.meta','terrain-runtime-art')
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1']:
         tree(directory,'tree-runtime-art',{'.png','.asset','.bytes','.meta'})
         add(directory+'.meta','tree-runtime-art')

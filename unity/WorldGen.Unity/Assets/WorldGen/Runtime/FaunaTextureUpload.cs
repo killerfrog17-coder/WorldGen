@@ -9,8 +9,8 @@ using Stopwatch=System.Diagnostics.Stopwatch;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
-// Experimental bounded native upload. Not used by normal fauna until the
-// packaged render/byte-equivalence and moving-player comparisons pass.
+// Bounded native upload of the approved BC7 coat pixels. Model publication
+// waits for every layer/mip; cancellation retains no partially visible animal.
 public sealed class FaunaTextureUpload : IDisposable
 {
     public static readonly string TrialDirectory=FindTrialDirectory();
