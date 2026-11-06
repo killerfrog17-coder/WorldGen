@@ -19,6 +19,10 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("ITEM TOUCHUP "+text);report.Add("PASS "+text);}
         yield return null;Application.targetFrameRate=30;QualitySettings.vSyncCount=0;
         var owner=new GameObject("Item touchup fixture").AddComponent<LocalTerrainExplorer>();owner.enabled=false;
+        owner.PreparePickupIcons();
+        double iconDeadline=Time.realtimeSinceStartupAsDouble+15;
+        while(owner.pickupIconRequests!=null&&Time.realtimeSinceStartupAsDouble<iconDeadline){owner.UpdatePickupIconLoads();yield return null;}
+        Check(owner.pickupIconRequests==null,"Asynchronous pickup icons finish without requiring a GUI repaint");
         Possession Stone(string id,ToolStoneMaterial material,double mass)=>new Possession{Id=id,Kind=PossessionKind.LargeRock,MassKg=mass,WidthM=.18,HeightM=.13,DepthM=.15,Position=new V(1,0,0),Variant=ToolStone.Encode(material,0)};
         var ordinary=Stone("granite",ToolStoneMaterial.Granite,3);var core=Stone("chert",ToolStoneMaterial.Chert,3);var spent=Stone("spent",ToolStoneMaterial.Chert,.03);
         Check(ordinary.Hands==1&&core.Hands==1,"Compact3kg stones use one hand in the native player");

@@ -24,7 +24,7 @@ public sealed partial class LocalTerrainExplorer
     Transform inventoryBoneOwner;Dictionary<string,Transform> inventoryBones;
     void InitializeInventory()
     {
-        if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();PrepareItemAudio();PrepareItemPhysics();
+        if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();PrepareItemAudio();PrepareItemPhysics();PreparePickupIcons();
         // Demo NPC humans are not restored with the session. Their numeric
         // IDs can be reused, so an old arrow must not bind to a new person.
         foreach(var item in Inventory.Items.Where(p=>p.AttachedHuman!=0))ReleaseProjectileAttachment(item);
@@ -178,7 +178,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateInventory()
     {
-        if(!Ready)return;InitializeInventory();UpdateItemAudioLoads();UpdateGiveItems();UpdatePortableAppearances();
+        if(!Ready)return;InitializeInventory();UpdatePickupIconLoads();UpdateItemAudioLoads();UpdateGiveItems();UpdatePortableAppearances();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
         if(DeathVisible){PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();return;}
         if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();UpdateWorldToolWork();UpdateItemThumbnails();

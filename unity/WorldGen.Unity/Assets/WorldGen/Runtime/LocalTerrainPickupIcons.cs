@@ -4,6 +4,28 @@ public sealed partial class LocalTerrainExplorer
 {
     Texture2D pickupCategoryAtlas,flakeableStonePickup;
     readonly Texture2D[] rockSizePickups=new Texture2D[3];
+    static readonly string[] PickupIconResources={"PickupCategoryMasksV1","FlakeableStonePickupV1","PickupPebbleV1","PickupSmallRockV1","PickupLargeRockV1"};
+    ResourceRequest[] pickupIconRequests;bool pickupIconsPrepared;
+    void PreparePickupIcons()
+    {
+        if(pickupIconsPrepared)return;pickupIconsPrepared=true;
+        pickupIconRequests=new ResourceRequest[PickupIconResources.Length];
+        for(int i=0;i<pickupIconRequests.Length;i++)pickupIconRequests[i]=Resources.LoadAsync<Texture2D>(PickupIconResources[i]);
+    }
+    void UpdatePickupIconLoads()
+    {
+        if(pickupIconRequests==null)return;
+        bool pending=false;
+        for(int i=0;i<pickupIconRequests.Length;i++)
+        {
+            var request=pickupIconRequests[i];if(request==null)continue;
+            if(!request.isDone){pending=true;continue;}
+            var texture=request.asset as Texture2D;
+            if(i==0)pickupCategoryAtlas=texture;else if(i==1)flakeableStonePickup=texture;else rockSizePickups[i-2]=texture;
+            pickupIconRequests[i]=null;
+        }
+        if(!pending)pickupIconRequests=null;
+    }
     int PickupCategory(Possession item)
     {
         if(StoneCrafting.Rock(item))return 0;if(WoodCrafting.Wood(item))return item.Kind==PossessionKind.WoodenSpear?3:1;if(item.Kind==PossessionKind.StoneFlake)return 2;
@@ -28,16 +50,19 @@ public sealed partial class LocalTerrainExplorer
         if(Foraging.Food(item)){texture=PortableIcon(item);return texture!=null;}
         if(StoneCrafting.Rock(item)&&StoneCrafting.WorkpieceReason(item).Length==0)
         {
-            if(flakeableStonePickup==null)flakeableStonePickup=Resources.Load<Texture2D>("FlakeableStonePickupV1");
+            // Preparation starts with the inventory, not on first visibility.
+            // A cold synchronous Resources.Load here stalled GUI.Repaint and
+            // the render thread waiting for the atlas upload. While loading,
+            // omit this icon instead of blocking or showing the wrong stone.
+            if(pickupIconRequests!=null)return (texture=flakeableStonePickup)!=null;
             if(flakeableStonePickup!=null){texture=flakeableStonePickup;return true;}
         }
         if(StoneCrafting.Rock(item))
         {
             int size=(int)StoneCrafting.Size(item);
-            if(rockSizePickups[size]==null)rockSizePickups[size]=Resources.Load<Texture2D>(size==0?"PickupPebbleV1":size==1?"PickupSmallRockV1":"PickupLargeRockV1");
+            if(pickupIconRequests!=null)return (texture=rockSizePickups[size])!=null;
             if(rockSizePickups[size]!=null){texture=rockSizePickups[size];return true;}
         }
-        if(pickupCategoryAtlas==null)pickupCategoryAtlas=Resources.Load<Texture2D>("PickupCategoryMasksV1");
         texture=pickupCategoryAtlas;int category=PickupCategory(item);uv=new Rect((category%4)*.25f,(2-category/4)/3f,.25f,1/3f);return texture!=null;
     }
     void DrawPickupCategory(Rect rect,Possession item)
