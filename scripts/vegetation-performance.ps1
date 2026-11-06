@@ -15,6 +15,7 @@ param(
     [switch]$PresentMon,
     [switch]$Presented,
     [ValidateSet('Windowed','Borderless','Exclusive')][string]$WindowMode='Windowed',
+    [ValidateSet('Default','Flip','BitBlt')][string]$SwapChain='Default',
     [switch]$StutterTrace,
     [switch]$SavedSettings,
     [switch]$GpuTelemetry,
@@ -24,6 +25,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 if($WindowMode -ne 'Windowed' -and !$Presented){throw 'Fullscreen comparisons require a presented player'}
+if($SwapChain -ne 'Default' -and !$Presented){throw 'Swap-chain comparisons require a presented player'}
 $repo=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repo "builds/$PlayerFolder/WorldGen.exe"
 if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not benchmark it.'}
@@ -44,11 +46,14 @@ $buildStamp=Get-Content -LiteralPath (Join-Path $playerRoot 'build-inputs.json')
     CoreSha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'WorldGen_Data/Managed/WorldGen.Core.dll') -Algorithm SHA256).Hash.ToLowerInvariant()
     WorkerSha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'TerrainWorker/WorldGen.Cli.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
     Build=$buildStamp
+    RequestedSwapChain=$SwapChain
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
 if($Original){$arguments+='--worldgen-perf-original'}
+if($SwapChain -eq 'Flip'){$arguments+='-force-d3d11-flip-model'}
+if($SwapChain -eq 'BitBlt'){$arguments+='-force-d3d11-bitblt-model'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Presented){
     Add-Type -AssemblyName System.Windows.Forms

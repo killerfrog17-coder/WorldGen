@@ -1197,7 +1197,6 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-original",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("turning",()=>{}),
             new PerfCase("turning-whip",()=>{}),
-            new PerfCase("turning-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("turning-gpu-depth",()=>WorldGenPerformance.GpuNearOcclusion=true),
             new PerfCase("turning-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("turning-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
@@ -1261,6 +1260,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
+        if(cases.Select(c=>c.Name).Distinct(StringComparer.Ordinal).Count()!=cases.Count)
+            throw new InvalidOperationException("Performance case names must be unique; duplicate names overwrite evidence.");
         if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
