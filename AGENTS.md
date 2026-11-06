@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov23:20Z SPIKES FIRST. Own ScriptsOnly NONDEV B build49579 RUNNING
+from701458d7, audit6376PASS. No game currently; A/f833/shortcut protected.
+Do not mutate runtime during build; restore3knownUnityautos after Editor exits.
+New HabitatCell struct packs200k numeric records; optional habitat consumers use
+Nullable to preserve all missing-data fallbacks. Construction assignment moved
+to completed record. Mutation audit found no other production alias write.
+Core prechange planet/habitat/regenerated/65dated hashes EXACT; current JSON,
+workerwire/fullworldsave+historyroundtrip PASS. Array17,600,024bytes/200k records.
+750terrain samples/30sites+reverseexpiry+parallel reconstruction EXACT. Focused
+water142+37,sound69,abundance6089,groundflora5759,landscape35733,fauna104,crop8PASS.
+Need native build/load and same90s180m jungle/savanna routes withGC+CpuTiming;
+benefit UNMEASURED. Includes017 late_ms/gui_ms trace diagnostics newlycompiled.
+Previous sparse40829 COMPLETE: jungle162.51FPS,p9913.78/max42.29(38msPresentWait),
+savanna154.76,p9912.87/max23.37(GC-associated),11/13frames>16.7. Mixed vsbaseline,
+retained sparsecache as verifiedmemoryreduction, NOTstutterfix. Fullfactsdocs.
+No ownotherheavyjobs, no newfeatures/art, no subagents, RIGHTMOST visiblewindows.
+Owner3files preserved. Allsourcepushed701. Never claim100FPSfloor solved.
+
+
 ACTIVE06Nov22:58Z SPIKES FIRST. Ownrunner40829/player23124 RIGHTMOST running
 presented-sparse-cache-loops,densejungle then savanna,Medium6km1080/90s/180mloop.
 B ScriptsOnlyNONDEVd81b9413 built/3autosrestored, includes50a sparseweakcache.
