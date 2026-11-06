@@ -11,13 +11,18 @@ static partial class LocalScatterMeshes
         sealed class Buffers
         {
             public readonly List<Vector3> V=new List<Vector3>();public readonly List<Vector2> Uv=new List<Vector2>();public readonly List<Color> Colors=new List<Color>();public readonly List<int> Triangles=new List<int>();
-            public long Bytes=>(long)V.Capacity*12+(long)Uv.Capacity*8+(long)Colors.Capacity*16+(long)Triangles.Capacity*4;
-            public void Clear(){V.Clear();Uv.Clear();Colors.Clear();Triangles.Clear();}
+            public readonly List<Vector2> TreeMask=new List<Vector2>();public readonly List<Vector3> Normals=new List<Vector3>();
+            public readonly Dictionary<Vector3,Vector3> SharedNormals=new Dictionary<Vector3,Vector3>();int sharedPeak;
+            public long Bytes=>(long)V.Capacity*12+(long)Uv.Capacity*8+(long)Colors.Capacity*16+(long)Triangles.Capacity*4+(long)TreeMask.Capacity*8+(long)Normals.Capacity*12+(long)Math.Max(sharedPeak,SharedNormals.Count)*80;
+            public void Clear(){V.Clear();Uv.Clear();Colors.Clear();Triangles.Clear();TreeMask.Clear();Normals.Clear();sharedPeak=Math.Max(sharedPeak,SharedNormals.Count);SharedNormals.Clear();}
         }
         [ThreadStatic] static Stack<Buffers> spare;
         [ThreadStatic] static long spareBytes;
         Buffers buffers;readonly bool reuse;
         public readonly List<Vector3> V;readonly List<Vector2> uv;readonly List<Color> c;readonly List<int> t;
+        public List<Vector2> TreeMask=>buffers.TreeMask;
+        public List<Vector3> Normals=>buffers.Normals;
+        public Dictionary<Vector3,Vector3> SharedNormals=>buffers.SharedNormals;
         public Builder()
         {
             reuse=!WorldGenPerformance.NoBuilderBufferReuse;

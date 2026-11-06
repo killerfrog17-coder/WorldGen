@@ -14,10 +14,18 @@ public sealed partial class WorldGenRuntime
     {
         Directory.CreateDirectory(output);int compared=0;long vertices=0;
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
-        bool original=WorldGenPerformance.NoBuilderBufferReuse;
+        bool original=WorldGenPerformance.NoBuilderBufferReuse,originalTrees=TerrainVideoOptions.TreeRebuild;TerrainVideoOptions.TreeRebuild=true;
+        System.Collections.Generic.IEnumerable<int> Variants(ScatterKind kind)
+        {
+            for(int i=0;i<8;i++)yield return i;
+            if(kind!=ScatterKind.GeneratedTree)yield break;
+            // Ordinary 0..7 variants exercise only BroadCrown. Include the
+            // actual encoded species forms that use frond/cane normal welding.
+            for(int form=1;form<=5;form++)for(int founder=1;founder<=4;founder++)yield return (form<<28)|(founder*337<<8)|(founder&7);
+        }
         try
         {
-            foreach(ScatterKind kind in Enum.GetValues(typeof(ScatterKind)))for(int lod=0;lod<3;lod++)for(int variant=0;variant<8;variant++)
+            foreach(ScatterKind kind in Enum.GetValues(typeof(ScatterKind)))for(int lod=0;lod<3;lod++)foreach(int variant in Variants(kind))
             {
                 Mesh reference=null,reused=null;
                 try
@@ -39,7 +47,7 @@ public sealed partial class WorldGenRuntime
                 if(compared%8==0)yield return null;
             }
         }
-        finally{WorldGenPerformance.NoBuilderBufferReuse=original;}
+        finally{WorldGenPerformance.NoBuilderBufferReuse=original;TerrainVideoOptions.TreeRebuild=originalTrees;}
         File.WriteAllText(Path.Combine(output,"mesh-buffer-checks.txt"),"PASS "+compared+" native model pairs / "+vertices+" vertices: identical positions, normals, tangents, colors, indices, bounds and eight UV channels after scratch reuse; no scene/model objects cached.");Application.Quit(0);
     }
     IEnumerator CheckTerrainUpload(string output)

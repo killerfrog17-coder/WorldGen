@@ -48,15 +48,22 @@ static partial class LocalScatterMeshes
     static Mesh FinishTreeForm(Builder b,List<Vector2> mask,string name)
     {
         var mesh=b.Finish(false);mesh.SetUVs(1,mask);
-        var vertices=mesh.vertices;var normals=mesh.normals;var shared=new Dictionary<Vector3,Vector3>();
-        for(int i=0;i<vertices.Length;i++)if(mask[i].y<.5f)
+        // Native mesh already owns Builder's vertices; use that exact source
+        // and a bounded scratch normal list instead of two native array copies.
+        IList<Vector3> vertices=WorldGenPerformance.NoBuilderBufferReuse?(IList<Vector3>)mesh.vertices:b.V;
+        IList<Vector3> normals;
+        if(WorldGenPerformance.NoBuilderBufferReuse)normals=mesh.normals;
+        else{mesh.GetNormals(b.Normals);normals=b.Normals;}
+        var shared=b.SharedNormals;
+        for(int i=0;i<vertices.Count;i++)if(mask[i].y<.5f)
         {shared.TryGetValue(vertices[i],out var sum);shared[vertices[i]]=sum+normals[i];}
-        for(int i=0;i<vertices.Length;i++)if(mask[i].y<.5f)normals[i]=shared[vertices[i]].normalized;
-        mesh.normals=normals;mesh.RecalculateTangents();mesh.RecalculateBounds();mesh.name=name;return mesh;
+        for(int i=0;i<vertices.Count;i++)if(mask[i].y<.5f)normals[i]=shared[vertices[i]].normalized;
+        if(WorldGenPerformance.NoBuilderBufferReuse)mesh.normals=(Vector3[])normals;else mesh.SetNormals(b.Normals);
+        mesh.RecalculateTangents();mesh.RecalculateBounds();mesh.name=name;return mesh;
     }
     static Mesh BuildFrondTree(int code,int lod,TreeMorphology m)
     {
-        using var b=new Builder();var mask=new List<Vector2>();var random=new Rng(code,"tree-attached-fronds-2");
+        using var b=new Builder();var mask=b.TreeMask;var random=new Rng(code,"tree-attached-fronds-2");
         var wood=HerbColour(m.Bark);var leaf=HerbColour(m.Leaf);bool fern=m.Form==TreeGrowthForm.TreeFern;
         float lean=((float)random.Unit()-.5f)*.12f;
         var crown=new Vector3(lean,.78f,lean*.3f);
@@ -97,7 +104,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildCaneTree(int code,int lod,TreeMorphology m)
     {
-        using var b=new Builder();var mask=new List<Vector2>();var r=new Rng(code,"tree-leafy-cane-2");var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
+        using var b=new Builder();var mask=b.TreeMask;var r=new Rng(code,"tree-leafy-cane-2");var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
         for(int stem=0;stem<5;stem++)
         {
             float angle=stem*2.399963f;var outwards=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));float height=.82f+(float)r.Unit()*.18f;
@@ -120,7 +127,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildSucculentTree(int code,int lod,TreeMorphology m)
     {
-        using var b=new Builder();var mask=new List<Vector2>();var rng=new Rng(TreeFlora.RenderCode(code),"ribbed-succulent-1");
+        using var b=new Builder();var mask=b.TreeMask;var rng=new Rng(TreeFlora.RenderCode(code),"ribbed-succulent-1");
         var skin=HerbColour(m.Leaf)*new Color(1.14f,.94f,1.20f,1);var wood=HerbColour(m.Bark);
         int sides=lod==0?12:8;
         void Stem(Vector3 root,Vector3 control,Vector3 tip,float radius,int segments,bool main)

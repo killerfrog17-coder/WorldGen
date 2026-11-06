@@ -20,7 +20,7 @@ static partial class LocalScatterMeshes
         if(m.Form==TreeGrowthForm.FrondCrown||m.Form==TreeGrowthForm.TreeFern)return BuildFrondTree(code,lod,m);
         if(m.Form==TreeGrowthForm.TallCane)return BuildCaneTree(code,lod,m);
         if(m.Form==TreeGrowthForm.ArborescentSucculent)return BuildSucculentTree(code,lod,m);
-        var nodes=TreeSkeleton(code,m);using var b=new Builder();var masks=new List<Vector2>();
+        var nodes=TreeSkeleton(code,m);using var b=new Builder();var masks=b.TreeMask;
         var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
         var hull=LocalTreeTextures.ShootHull((int)m.LeafShape);
         bool needle=m.Form==TreeGrowthForm.NeedleCrown;
