@@ -96,13 +96,21 @@ public sealed partial class LocalTerrainExplorer
         if(GUILayout.Button("Restore normal rendering")){TerrainDiagnostics.Reset();ApplyTerrainDiagnostics();}
         GUILayout.EndHorizontal();
     }
+    readonly GUIContent diagnosticOverlayContent=new GUIContent();
+    string diagnosticOverlayFps;int diagnosticOverlayState=-1;
     void DrawTerrainDiagnosticOverlay()
     {
-        if(!TerrainDiagnostics.Active||paused||mapOpen||ecologyOpen)return;
-        GUI.Label(new Rect(12,Screen.height-48,Math.Max(1,Screen.width-24),42),
-            "DEBUG RENDERING ACTIVE · "+fpsDisplay+" FPS · restore in Game settings > Debug\n"+
-            (TerrainDiagnostics.HoldTerrain?"Terrain work held; compare while stationary":DetailPlanning||jobs.Count>0?"Terrain loading; wait before comparing":""));
+        if(Event.current.type!=EventType.Repaint||!TerrainDiagnostics.Active||paused||mapOpen||ecologyOpen)return;
+        int state=TerrainDiagnostics.HoldTerrain?2:DetailPlanning||jobs.Count>0?1:0;
+        if(diagnosticOverlayFps!=fpsDisplay||diagnosticOverlayState!=state)
+        {
+            diagnosticOverlayFps=fpsDisplay;diagnosticOverlayState=state;
+            diagnosticOverlayContent.text="DEBUG RENDERING ACTIVE ? "+fpsDisplay+" FPS ? restore in Game settings > Debug\n"+
+                (state==2?"Terrain work held; compare while stationary":state==1?"Terrain loading; wait before comparing":"");
+        }
+        GUI.Label(new Rect(12,Screen.height-48,Math.Max(1,Screen.width-24),42),diagnosticOverlayContent);
     }
+
 }
 
 public sealed partial class WorldGenRuntime

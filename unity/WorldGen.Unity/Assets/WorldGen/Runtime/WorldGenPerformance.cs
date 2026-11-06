@@ -20,6 +20,17 @@ public static class WorldGenPerformance
     public static readonly bool Presented=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-presented");
     static readonly bool original=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-original");
     public static bool Original=>Enabled&&(original||OriginalCase);
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")] static extern bool QueryPerformanceCounter(out long value);
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")] static extern bool QueryPerformanceFrequency(out long value);
+    // Mono Stopwatch and engine/ETW counters can have equal frequencies but
+    // different origins. A once-per-window sandwich relates their timelines.
+    public static (long Before,long Native,long After,long Frequency) CaptureNativeClock()
+    {
+        long before=System.Diagnostics.Stopwatch.GetTimestamp(),native=0,frequency=0;
+        if(Application.platform==RuntimePlatform.WindowsPlayer||Application.platform==RuntimePlatform.WindowsEditor)
+        {if(!QueryPerformanceCounter(out native))native=0;if(!QueryPerformanceFrequency(out frequency))frequency=0;}
+        return(before,native,System.Diagnostics.Stopwatch.GetTimestamp(),frequency);
+    }
     public static bool OriginalCase;
     public static bool DisableScatterViewGuard;
     public static bool ForceFreshVisibleGround;
@@ -1390,6 +1401,7 @@ public sealed partial class WorldGenRuntime
                     UnityEngine.Profiling.Profiler.enabled=true;
                 }
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
+                var clockBridge=WorldGenPerformance.TraceEnabled?WorldGenPerformance.CaptureNativeClock():default;
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 WorldGenPerformance.ClearFaunaTrace();
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
@@ -1483,6 +1495,9 @@ public sealed partial class WorldGenRuntime
                     // to the current gameplay frame. Include invalid counters
                     // in this raw diagnostic file; aggregate validation above
                     // never removes measured wall-clock frame durations.
+                    File.WriteAllText(Path.Combine(output,site.Item1+"-"+item.Name+"-clock-bridge.csv"),
+                        "managed_before,system_qpc,managed_after,system_hz,managed_hz,engine_hz\n"+
+                        string.Join(",",clockBridge.Before,clockBridge.Native,clockBridge.After,clockBridge.Frequency,System.Diagnostics.Stopwatch.Frequency,FrameTimingManager.GetCpuTimerFrequency())+"\n");
                     File.WriteAllText(Path.Combine(output,"engine-timing-clock.txt"),"engine_cpu_hz="+FrameTimingManager.GetCpuTimerFrequency()+" stopwatch_hz="+System.Diagnostics.Stopwatch.Frequency+"\n");
                     File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-engine-timings.csv"),
                         new[]{"observed_t_s,frame_start,first_submit,present_called,frame_complete,cpu_ms,main_ms,render_ms,present_wait_ms,gpu_ms"}.Concat(engineTimings.Select(s=>
