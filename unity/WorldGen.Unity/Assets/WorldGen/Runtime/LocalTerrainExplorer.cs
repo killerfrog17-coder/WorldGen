@@ -316,8 +316,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     void UpdateCamera(){if(landscapeReviewCamera.HasValue){view.transform.localPosition=landscapeReviewCamera.Value;view.transform.localRotation=landscapeReviewRotation;return;}if(deathPresented){UpdateDeathCamera();return;}if(humanPlayer!=null){UpdateHumanCamera();return;}view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
     int residentRevision,nearMemoFrame=-1,nearMemoRevision,nearMemoCount;double nearMemoX,nearMemoZ;bool nearMemoPending;
     Dictionary<TerrainTileKey,int> nearMemoWanted;
-    bool NearTerrainPendingFresh()=>wanted.Any(p=>ImmediateTerrain(p.Key)&&
-        (!tiles.TryGetValue(p.Key,out var tile)||tile.Segments!=p.Value||!TerrainEdges.Equal(tile.Edges,wantedEdges[p.Key])));
+    bool NearTerrainPendingFresh()
+    {
+        foreach(var pair in wanted)if(ImmediateTerrain(pair.Key)&&
+            (!tiles.TryGetValue(pair.Key,out var tile)||tile.Segments!=pair.Value||!TerrainEdges.Equal(tile.Edges,wantedEdges[pair.Key])))return true;
+        return false;
+    }
     bool NearTerrainPending()
     {
         if(WorldGenPerformance.Original)return NearTerrainPendingFresh();

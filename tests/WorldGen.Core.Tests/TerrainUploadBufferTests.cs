@@ -33,6 +33,29 @@ static class TerrainUploadBufferTests
         Check(ground.SequenceEqual(source.GroundCover),"Concurrent reuse modified a retained resident cover grid");
         using(var small=new TerrainUploadBufferPool(1024))
         {using var stream=new MemoryStream(bytes);using var reader=new BinaryReader(stream);var mesh=TerrainMeshWire.ReadMesh(reader,small);mesh.ReleaseUploadBuffers();Check(small.RetainedBytes<=1024,"Pool exceeded its byte budget");}
+        var privateMethods=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+        var rentFloat=typeof(TerrainUploadBufferPool).GetMethod("Floats",privateMethods)!;
+        var returnFloat=typeof(TerrainUploadBufferPool).GetMethod("Return",privateMethods,null,new[]{typeof(float[])},null)!;
+        float[] Rent(TerrainUploadBufferPool owner,int length)=>(float[])rentFloat.Invoke(owner,new object[]{length})!;
+        void Give(TerrainUploadBufferPool owner,float[] data)=>returnFloat.Invoke(owner,new object[]{data});
+        using(var changing=new TerrainUploadBufferPool(1024*1024))
+        {
+            for(int length=1;length<=256;length++)Give(changing,Rent(changing,length));
+            var recent=Rent(changing,256);Give(changing,recent);
+            Check(ReferenceEquals(recent,Rent(changing,256)),"The first 128 historical lengths permanently excluded new mesh sizes");
+            Check(changing.RetainedBytes<=1024*1024,"Adaptive lengths exceeded their byte limit");
+        }
+        using(var pressure=new TerrainUploadBufferPool(1024))
+        {
+            var held=Rent(pressure,100);held[0]=123;
+            Give(pressure,Rent(pressure,200));
+            var recent=Rent(pressure,240);recent[0]=456;Give(pressure,recent);
+            Check(pressure.RetainedBytes<=1024,"Replacement exceeded its byte limit");
+            var reused=Rent(pressure,240);
+            Check(ReferenceEquals(recent,reused)&&reused[0]==456,"Budget saturation rejected the current working set forever");
+            Check(held[0]==123&&!ReferenceEquals(held,reused),"Cache eviction changed an outstanding lease");
+            Give(pressure,held);Give(pressure,reused);
+        }
         var last=Read(bytes);pool.Dispose();last.ReleaseUploadBuffers();Check(pool.RetainedBytes==0,"Late upload completion refilled a closed pool");
         using(var transport=new TerrainUploadBufferPool())
         using(var covers=new TerrainUploadBufferPool())

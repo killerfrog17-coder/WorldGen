@@ -77,8 +77,9 @@ public sealed partial class LocalTerrainExplorer
     }
     FaunaPrototypeSpawn NextVisibleAnimalModel()
     {
-        V at=Position;double radius=frame.RadiusM;
-        return animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug)&&SpawnViewDistance(s)<=s.Profile.PreloadRadiusM);
+        foreach(var spawn in animalWanted)
+            if(!animalModels.ContainsKey(spawn.Profile.slug)&&!animalLoadFailures.Contains(spawn.Profile.slug)&&SpawnViewDistance(spawn)<=spawn.Profile.PreloadRadiusM)return spawn;
+        return null;
     }
     double SpawnViewDistance(FaunaPrototypeSpawn spawn)
     {
