@@ -359,7 +359,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
         var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
-        foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
+        foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.GetSubMesh(0).vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.ForestSurface=CreateForestSurface(product);if(product.ForestSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;

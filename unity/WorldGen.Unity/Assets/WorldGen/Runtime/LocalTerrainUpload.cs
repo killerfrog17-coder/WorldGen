@@ -48,8 +48,9 @@ public sealed partial class LocalTerrainExplorer
         public Vector2 RockB;
     }
 
-    // Only this explorer's retired terrain meshes enter the pool. Exact buffer
-    // sizes keep vertex counts, topology and bounds identical to fresh uploads.
+    // Only this explorer's retired terrain meshes enter the pool. Size classes
+    // tolerate different seam/water vertex counts without reallocating buffers.
+    // Submesh ranges and bounds still describe ONLY the actual geometry.
     // A frame quarantine avoids immediately rewriting recently submitted draws;
     // MarkDynamic also lets the driver rename storage if an older draw is live.
     sealed class TerrainMeshPool : IDisposable
@@ -57,7 +58,8 @@ public sealed partial class LocalTerrainExplorer
         readonly struct Shape : IEquatable<Shape>
         {
             public readonly int Vertices,Indices;public readonly IndexFormat Format;
-            public Shape(int vertices,int indices,IndexFormat format){Vertices=vertices;Indices=indices;Format=format;}
+            public Shape(int vertices,int indices,IndexFormat format){Vertices=Capacity(vertices);Indices=Capacity(indices);Format=format;}
+            static int Capacity(int count){if(count==0)return 0;int size=1;while(size<count)size=checked(size*2);return size;}
             public long Bytes=>(long)Vertices*Marshal.SizeOf<TerrainVertex>()+(long)Indices*(Format==IndexFormat.UInt16?2:4);
             public bool Equals(Shape other)=>Vertices==other.Vertices&&Indices==other.Indices&&Format==other.Format;
         }
@@ -71,6 +73,7 @@ public sealed partial class LocalTerrainExplorer
         readonly long limit;bool disposed;
         public long Bytes{get;private set;}public int Created{get;private set;}public int Reused{get;private set;}
         public int Retained=>retired.Count;
+        public long CapacityBytes(Mesh mesh)=>leased[mesh].Bytes;
         public TerrainMeshPool(long maximumBytes=32L*1024*1024){limit=maximumBytes;}
         public Mesh Acquire(int vertices,int indices,IndexFormat format)
         {
@@ -85,7 +88,7 @@ public sealed partial class LocalTerrainExplorer
             if(mesh==null)
             {
                 mesh=new Mesh{name="Reusable terrain geometry"};
-                try{mesh.MarkDynamic();mesh.SetVertexBufferParams(vertices,TerrainUpload.Layout);mesh.SetIndexBufferParams(indices,format);mesh.subMeshCount=1;Created++;}
+                try{mesh.MarkDynamic();mesh.SetVertexBufferParams(shape.Vertices,TerrainUpload.Layout);mesh.SetIndexBufferParams(shape.Indices,format);mesh.subMeshCount=1;Created++;}
                 catch{UnityEngine.Object.Destroy(mesh);throw;}
             }
             leased.Add(mesh,shape);return mesh;
@@ -232,6 +235,9 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var data=buffers[i];var submesh=data.GetSubMesh(0);
                     var mesh=meshes[i]=pool.Acquire(data.vertexCount,submesh.indexCount,formats[i]);
+                    // The terrain cache must account for retained capacity too,
+                    // not just the smaller live geometry stored in this lease.
+                    BufferBytes+=pool.CapacityBytes(mesh)-(long)data.vertexCount*Marshal.SizeOf<TerrainVertex>()-(long)submesh.indexCount*(formats[i]==IndexFormat.UInt16?2:4);
                     // Never reset buffer parameters on a reused mesh: doing so
                     // would recreate the storage this path exists to preserve.
                     mesh.SetVertexBufferData(data.GetVertexData<TerrainVertex>(),0,0,data.vertexCount,0,flags);
@@ -335,11 +341,11 @@ public sealed partial class LocalTerrainExplorer
         using var pool=new TerrainMeshPool();long compared=0;Mesh first=null;
         void Equal(Mesh expected,Mesh actual)
         {
-            if(expected.vertexCount!=actual.vertexCount||expected.indexFormat!=actual.indexFormat||expected.bounds!=actual.bounds||!expected.GetSubMesh(0).Equals(actual.GetSubMesh(0)))
+            if(expected.vertexCount>actual.vertexCount||expected.indexFormat!=actual.indexFormat||expected.bounds!=actual.bounds||!expected.GetSubMesh(0).Equals(actual.GetSubMesh(0)))
                 throw new InvalidOperationException("Reused terrain mesh shape/bounds differ");
             using var a=Mesh.AcquireReadOnlyMeshData(expected);using var b=Mesh.AcquireReadOnlyMeshData(actual);
             void Bytes(NativeArray<byte> left,NativeArray<byte> right)
-            {if(left.Length!=right.Length)throw new InvalidOperationException("Reused mesh buffer length differs");for(int i=0;i<left.Length;i++){compared++;if(left[i]!=right[i])throw new InvalidOperationException("Reused mesh byte differs at "+i);}}
+            {if(left.Length>right.Length)throw new InvalidOperationException("Reused mesh buffer is too short");for(int i=0;i<left.Length;i++){compared++;if(left[i]!=right[i])throw new InvalidOperationException("Reused mesh byte differs at "+i);}}
             Bytes(a[0].GetVertexData<byte>(),b[0].GetVertexData<byte>());Bytes(a[0].GetIndexData<byte>(),b[0].GetIndexData<byte>());
         }
         for(int round=0;round<3;round++)
@@ -359,8 +365,8 @@ public sealed partial class LocalTerrainExplorer
                     if(readback.hasError)throw new InvalidOperationException("Reused terrain GPU readback failed");
                     using var reference=Mesh.AcquireReadOnlyMeshData(expected[part]);
                     var referenceBytes=reference[0].GetVertexData<byte>();var gpuBytes=readback.GetData<byte>();
-                    if(referenceBytes.Length!=gpuBytes.Length)throw new InvalidOperationException("Reused terrain GPU byte count differs");
-                    for(int i=0;i<gpuBytes.Length;i++){compared++;if(referenceBytes[i]!=gpuBytes[i])throw new InvalidOperationException("Reused terrain GPU payload is stale");}
+                    if(referenceBytes.Length>gpuBytes.Length)throw new InvalidOperationException("Reused terrain GPU buffer is too short");
+                    for(int i=0;i<referenceBytes.Length;i++){compared++;if(referenceBytes[i]!=gpuBytes[i])throw new InvalidOperationException("Reused terrain GPU payload is stale");}
                 }
             }
             finally{foreach(var mesh in expected)UnityEngine.Object.Destroy(mesh);foreach(var mesh in actual)if(!pool.Release(mesh))throw new InvalidOperationException("Terrain lease was lost");}
@@ -371,6 +377,26 @@ public sealed partial class LocalTerrainExplorer
             for(int frame=0;frame<4;frame++)yield return null;
         }
         if(pool.Reused<4||pool.Bytes>32L*1024*1024)throw new InvalidOperationException("Terrain reuse did not occur or exceeded its bound");
+        var changedShape=new LocalTerrainMesh{GroundVertices=4,Segments=4,Positions=new float[]{0,1,0,1,2,0,1,3,1,0,4,1},Normals=new float[12],Colors=new float[16],SurfaceWeights=new float[16],GroundWeightsB=new float[16],Lithology=new float[24],Triangles=new[]{0,2,3}};
+        using(var original=TerrainUpload.Prepare(changedShape,CancellationToken.None))
+        using(var replacement=TerrainUpload.Prepare(changedShape,CancellationToken.None))
+        {
+            var expected=original.Apply();var actual=replacement.Apply(pool);
+            try
+            {
+                Equal(expected[0],actual[0]);if(actual[0]!=first)throw new InvalidOperationException("Size-class reuse missed changed geometry within the same capacity");
+                using var vertices=actual[0].GetVertexBuffer(0);using var indices=actual[0].GetIndexBuffer();
+                var vertexRead=AsyncGPUReadback.Request(vertices);var indexRead=AsyncGPUReadback.Request(indices);
+                while(!vertexRead.done||!indexRead.done)yield return null;
+                if(vertexRead.hasError||indexRead.hasError)throw new InvalidOperationException("Changed-size terrain GPU readback failed");
+                using var reference=Mesh.AcquireReadOnlyMeshData(expected[0]);
+                var expectedVertices=reference[0].GetVertexData<byte>();var expectedIndices=reference[0].GetIndexData<byte>();
+                var actualVertices=vertexRead.GetData<byte>();var actualIndices=indexRead.GetData<byte>();
+                for(int i=0;i<expectedVertices.Length;i++){compared++;if(expectedVertices[i]!=actualVertices[i])throw new InvalidOperationException("Changed-size GPU vertices stale");}
+                for(int i=0;i<expectedIndices.Length;i++){compared++;if(expectedIndices[i]!=actualIndices[i])throw new InvalidOperationException("Changed-size GPU topology stale");}
+            }
+            finally{foreach(var mesh in expected)UnityEngine.Object.Destroy(mesh);foreach(var mesh in actual)pool.Release(mesh);}
+        }
         foreach(int vertices in new[]{65535,65536,70003})
         {
             var large=new LocalTerrainMesh{GroundVertices=3,Segments=4,Positions=new float[vertices*3],Normals=new float[vertices*3],Colors=new float[vertices*4],SurfaceWeights=new float[vertices*4],GroundWeightsB=new float[vertices*4],Lithology=new float[vertices*6],Triangles=new[]{0,vertices-2,vertices-1}};
@@ -385,12 +411,12 @@ public sealed partial class LocalTerrainExplorer
             if(tiny.Bytes!=0||tiny.Retained!=0)throw new InvalidOperationException("Oversized terrain buffer retained");
             yield return null;if(rejected!=null)throw new InvalidOperationException("Oversized terrain buffer not destroyed");
         }
-        using(var bounded=new TerrainMeshPool(1000))
+        using(var bounded=new TerrainMeshPool(1400))
         {
             var a=bounded.Acquire(3,3,IndexFormat.UInt16);var b=bounded.Acquire(3,3,IndexFormat.UInt16);var c=bounded.Acquire(3,3,IndexFormat.UInt16);
             bounded.Release(a);bounded.Release(b);bounded.Release(c);
-            var large=bounded.Acquire(9,3,IndexFormat.UInt16);bounded.Release(large);
-            if(bounded.Retained!=2||bounded.Bytes>1000)throw new InvalidOperationException("Large retirement burst-evicted multiple small meshes");
+            var large=bounded.Acquire(5,3,IndexFormat.UInt16);bounded.Release(large);
+            if(bounded.Retained!=2||bounded.Bytes>1400)throw new InvalidOperationException("Large retirement burst-evicted multiple small meshes");
             yield return null;
             if(a!=null||large!=null||b==null||c==null)throw new InvalidOperationException("Bounded mesh eviction destroyed the wrong resources");
         }
