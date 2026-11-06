@@ -686,3 +686,10 @@ outside gameplay is the required positive control before accepting any data.
 Sources: Unity's public profiler ABI and Boehm event mapping:
 https://github.com/Unity-Technologies/mono/blob/unity-main/mono/metadata/profiler.h
 https://github.com/Unity-Technologies/mono/blob/unity-main/mono/metadata/boehm-gc.c
+
+Native observer positive control now PASS in NONDEVbced3044:16 events across
+two actual forced collections, including each stop-lock/suspend/restart phase.
+The CSV uses native QPC; synthetic offset/cross-frame overlap checks also pass.
+The actual gameplay diagnostic remains separate: no forced collections or GC
+setting changes during its measurement. Native callbacks cannot allocate or
+reenter managed code, and the helper DLL remains loaded until process exit.

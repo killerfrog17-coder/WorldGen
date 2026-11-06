@@ -1,5 +1,17 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov21:24Z SPIKES FIRST. B ScriptsOnly NONDEVbced3044 built21:22:12Z,
+SourceChanges[],3autosrestored. Native-gc-observer-proof EXIT0:16 actual Mono
+events from2forcedcollections, all0/6/10/7/8/9/11/5 phases observed. Clock parser
+synthetic regression PASSoffset,cross-framepauseoverlap,distinctsuspend/stopped/
+resume,cycleNOTpause,calibrationuncertainty. Own runner11790/player1380 RIGHTMOST
+nowruns presented-native-gc-phases,normalB temperate6kmMedium1080/60s movingwhip,
+optional scratchnativeGC DLL, noforcedcollections/settingschangesinwindow.
+Do NOT compile/overwrite/heavyjobs untilcomplete. Need analyze-gc-probe.py output
+toattribute realhitches beforeanother change. CompactScatterJobs RETIRED after
+nogain;meshreuse stillOFF. Sharedterrain/faunabudgetON. A/f833shortcutprotected.
+Noownerfilesmodified,nootherheavyjobs. Allsourcepushedbced; currentnotepending.
+
 ACTIVE06Nov21:20Z SPIKES FIRST. Compact comparison53659 COMPLETE/no own game.
 Control169.45/max28.34/8>16.7 vscompact169.71/max45.77/6>16.7. Rebuildmedian
 3.132->3.309,p954.384->4.491; classify.915->.985,append1.734->1.837. NOgain;
