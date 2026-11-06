@@ -2,12 +2,12 @@
 Texture2DArray<float4> _Original;
 Texture2DArray<float4> _Current;
 RWStructuredBuffer<uint> _Mismatch;
-int _Width,_Mip,_Layer;
+int _Width,_Mip,_Layer,_CurrentLayerOffset;
 [numthreads(8,8,1)]
 void Compare(uint3 id:SV_DispatchThreadID)
 {
     if(id.x>=(uint)_Width||id.y>=(uint)_Width)return;
     float4 a=_Original.Load(int4(id.xy,_Layer,_Mip));
-    float4 b=_Current.Load(int4(id.xy,_Layer,_Mip));
+    float4 b=_Current.Load(int4(id.xy,_Layer+_CurrentLayerOffset,_Mip));
     if(any(a!=b))InterlockedAdd(_Mismatch[0],1);
 }

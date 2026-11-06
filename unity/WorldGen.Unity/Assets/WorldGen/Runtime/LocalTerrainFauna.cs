@@ -39,6 +39,7 @@ public sealed partial class LocalTerrainExplorer
     Matrix4x4[] animalBoneData=Array.Empty<Matrix4x4>();double animalAllocationRetry;
     GraphicsBuffer animalBoneBuffer;Shader animalShader;Coroutine animalLoading;AssetBundleCreateRequest animalBundleRequest;AssetBundle animalPendingBundle;
     FaunaTextureUpload animalCoatUpload;
+    Task<FaunaTextureUpload> animalCoatRead;
     static LocalTerrainExplorer animalSceneOwner;
     V animalPlanAt;double nextAnimalPlan;int animalCandidates;bool animalDisposed;
     readonly bool animalDisabled=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--worldgen-no-animals");
@@ -214,12 +215,19 @@ public sealed partial class LocalTerrainExplorer
         if(ownCoats)
         {
             string coatPath=Path.Combine(Path.GetDirectoryName(path),profile.slug+".coats");
-            var coatRead=Task.Run(()=>new FaunaTextureUpload(coatPath));while(!coatRead.IsCompleted)yield return null;
+            var coatRead=animalCoatRead=Task.Run(()=>new FaunaTextureUpload(coatPath));while(!coatRead.IsCompleted)yield return null;
             if(animalDisposed)yield break;
+            animalCoatRead=null;
             if(coatRead.IsFaulted)
             {Debug.LogError("Fauna coat stream: "+coatRead.Exception.GetBaseException().Message);animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
             animalCoatUpload=coatRead.Result;var upload=animalCoatUpload.Upload();
-            while(upload.MoveNext())yield return upload.Current;
+            while(true)
+            {
+                bool more=false;Exception failure=null;try{more=upload.MoveNext();}catch(Exception error){failure=error;}
+                if(failure!=null)
+                {Debug.LogError("Fauna coat upload: "+failure.Message);animalCoatUpload.Dispose();animalCoatUpload=null;animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
+                if(!more)break;yield return upload.Current;
+            }
             asset.Coats=animalCoatUpload.TakeResult();
             Debug.Log("FAUNA COAT STREAM READY "+profile.slug+" pieces="+animalCoatUpload.Pieces);
             animalCoatUpload.Dispose();animalCoatUpload=null;
@@ -414,6 +422,8 @@ public sealed partial class LocalTerrainExplorer
         if(animalBundleRequest!=null)
         {var request=animalBundleRequest;if(request.isDone)request.assetBundle?.Unload(true);else request.completed+=_=>request.assetBundle?.Unload(true);}
         if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalCoatUpload?.Dispose();animalCoatUpload=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;
+        if(animalCoatRead!=null)
+        {animalCoatRead.ContinueWith(t=>{if(t.IsCompletedSuccessfully)t.Result.CancelUnstarted();else _=t.Exception;},TaskScheduler.Default);animalCoatRead=null;}
         foreach(var id in animals.Keys.ToArray())RemoveAnimal(id);
         foreach(var model in animalModels.Values){Destroy(model.Material);if(model.OwnCoats)Destroy(model.Asset.Coats);if(model.Bundle!=null)model.Bundle.Unload(true);}animalModels.Clear();
         if(ReferenceEquals(animalSceneOwner,this)){Shader.SetGlobalBuffer("_FaunaBones",(GraphicsBuffer)null);animalSceneOwner=null;}
