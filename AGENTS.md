@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov22:58Z SPIKES FIRST. Ownrunner40829/player23124 RIGHTMOST running
+presented-sparse-cache-loops,densejungle then savanna,Medium6km1080/90s/180mloop.
+B ScriptsOnlyNONDEVd81b9413 built/3autosrestored, includes50a sparseweakcache.
+Do NOTcompile/overwrite/heavytests untilbothsitesfinish. Junglemeasurementactive.
+Pagedtests52518PASS:millionaddresses,equivalence/indexboundaries,65537concurrent
+publications,weakexpiry,0warmlookupbytes. World75195PASS:750complete samples/30
+biome-coastal sites identicalbaseline, reversecacheeviction+4wayqueries. Actual
+rootcache36650/399996slots,edge51039/599994; combined87689vs999990reference slots.
+NoactualFPSgainclaimedyet. Source01759be8 UNBUILT adds trace-onlyLateUpdate/OnGUI
+timings, Trace+heaparrays50slots, appendedlate_ms/gui_ms; normalgameunchanged.
+Allsourcepushed017. No newart/features/animals/weather changes.
+Previousnative81259 COMPLETE,current34e: jungle166.53FPS,p9510.16/p9912.65/
+max25.47,8>16.7; savanna151.78,p9511.16/p9913.57/max34.64,12>16.7. Both90s
+out-and-back,streaming/unsettled. JungleworstGC-associated; savannalargestwaits
+31.80/25.01ms vs main4.95/5.56. Nativeanalysis+screenshotsinspected.96profile
+probes +24232/23121readinesscomparisonsPASS. Not100floor/globalworstproof.
+A/f833/shortcutandowner3filesprotected. No ownotherheavyjobs. No subagents.
+
 ACTIVE06Nov22:42Z SPIKES FIRST. Ownrunner81259/player26800 RIGHTMOST runs
 presented-dense-loops: current automaticGC, jungle then savanna,Medium6km1080,
 90s each,180mout-and-back. B NONDEV34e27143 built/3autosrestored; includesloop
