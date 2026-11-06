@@ -49,6 +49,28 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov17:13Z SPIKES FIRST. Own runner93584/player7932 RIGHTMOST runs
+presented-pacing-untraced: temperateMedium6km1080,60s EACH current/cap240/queue1,
+normal windowed, NO detailed tracing. Focus counts recorded; all frame times
+retained. NO compile/overwrite/heavyjobs until all3cases exit. B NONDEV8ba89c2d
+BuiltUtc17:03:31, SourceChanges[],3autosrestored. B STILL includes inlineCell
+experiment. Sourcec6518390 REVERTED a9 inlineCell after no demonstrated tail
+benefit; do NOT falsely restampB. Need return B to reverted source AFTER run.
+Pacing experiments only benchmark cases; normal uncapped/queue/defaultGC3ms
+unchanged. Record actual target/queued settings percase +focused/unfocusedframes.
+InlineCell native COMPLETE169.36FPS,p9511.39/p9914.31/max42.26,11>16.667,1GC;
+GCframe24.30ms/main26.16, no proven improvement vs prior169.03/34.10max. Worst
+42/35/32ms aligned with40/27/28ms present waits. Heap898-986MiB but changing
+GC phase prevents attribution of whole delta. Correctness6checks/200kfullhash/
+6994queries/fullcurrentworld save/562hydro passed, NOT FPS evidence; retained in
+Gita9 and receipts. Revert restores whole class layout +fixture loops; baseline
+JSON remains. Upstream Mono array descriptors untyped for arrays with refs is
+additional caution, NOT verified engine-specific causality; don't claim it
+caused slowdown. Source8ba/c651 committed notyetpushed; latestpushed0c2dd9dd.
+Next analyze untraced baseline/cap/queue tails/focus, keep trials OFF unless
+material gain, rebuild reverted Cell source.100FPSfloor remains UNMET. A/f833/
+shortcut protected; owner3files untouched. No features/subagents/paid/ownerapps.
+
 ACTIVE06Nov16:51Z SPIKES FIRST. B NONDEV ScriptsOnlya9acf718 BuiltUtc16:48:37,
 SourceChanges[],3knownautosrestored. Own runner96697/player2084 RIGHTMOST runs
 presented-inline-cells, temperateMedium6km1080/60s moving-whip WINDOWED. No heavy
