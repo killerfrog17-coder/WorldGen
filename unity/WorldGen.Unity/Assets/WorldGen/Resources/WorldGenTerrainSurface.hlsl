@@ -231,8 +231,8 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
                 // Sand is a registered4m scan crop; other material slots keep
                 // their existing2m repeat. No additional texture layer/read.
                 float layerScale=layers[at]==1?.5:1;
-                // Registered scan dimensions: broadleaf/needles2m, damp1.3m.
-                if(layers[at]==16)layerScale*=2/1.3;
+                // Registered scan dimensions: broadleaf/needles2m, damp3m.
+                if(layers[at]==16)layerScale*=2/3.0;
                 if(layers[at]==10)layerScale*=2/1.83;
                 if(layers[at]==11)layerScale*=2/4.3;
                 if(layers[at]==13)layerScale*=2/2.4212;
@@ -316,6 +316,11 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         {
             float3 mat=.5;
             if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_MossField,sampler_MossField),world/.45,worldDx/.45,worldDy/.45,axes),detail);
+            // Reuse the photographed relief to break up the cushion boundary;
+            // smooth analytic contours alone looked like airbrushed green ovals.
+            // No extra texture read, and the other cover weights stay bounded.
+            float edge=smoothstep(.2,.8,mix.y+(mat.r-.5)*.8);
+            mix.y=lerp(mix.y,min(edge,max(0,1-mix.x-mix.z)),detail);
             float3 normal=normalize(n+float3(mat.g-.5,0,mat.b-.5)*1.3);
             vegetation+=moss*(mat.r*2)*SurfaceMatLight(normal,sun,canopyShade)*mix.y;
         }

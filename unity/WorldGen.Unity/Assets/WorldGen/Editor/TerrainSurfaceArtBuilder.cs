@@ -13,7 +13,7 @@ public static class TerrainSurfaceArtBuilder
     {
         Directory.CreateDirectory(Output);AssetDatabase.Refresh();
         var fallback=LocalGroundTextures.Create(true);var arrays=new Texture2DArray[3];
-        var suffix=new[]{"albedo","normal","mask"};var sizes=new[]{512,256,128};
+        var suffix=new[]{"albedo","normal","mask"};var sizes=new[]{1024,512,128};
         try
         {
             for(int channel=0;channel<3;channel++)
@@ -31,7 +31,7 @@ public static class TerrainSurfaceArtBuilder
                         string rockAsset=layer==10?"cliff_side":layer==11?"marble_cliff_01":layer==12?"sandstone_cracks":layer==13?"dark_rock":null;
                         if(layer>=14||rockAsset!=null)
                         {
-                            string[] assets={"dry_decay_leaves","forrest_ground_03","brown_mud_leaves_01"};
+                            string[] assets={"dry_decay_leaves","forrest_ground_03","forest_leaves_02"};
                             string input=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../assets-source/terrain/surfaces",layer>=14?"cc0-forest-floor":"cc0-rock",layer>=14?assets[layer-14]:rockAsset,suffix[channel]+".jpg"));
                             if(!ImageConversion.LoadImage(texture,File.ReadAllBytes(input),false))throw new InvalidDataException(input);
                         }
@@ -83,7 +83,7 @@ public static class TerrainSurfaceArtBuilder
             if(art==null)throw new InvalidOperationException("Existing terrain art set missing");
             art.Albedo=arrays[0];art.Normals=arrays[1];art.Masks=arrays[2];
             EditorUtility.SetDirty(art);AssetDatabase.SaveAssets();
-            Debug.Log("TerrainSurfaceArtV1 published: original14 plus broadleaf/needle/damp floor scans; BC7 512/256/128,17 layers, all mip levels. Maximum sampled layers and texture ranges unchanged.");
+            Debug.Log("TerrainSurfaceArtV1 published: original14 plus broadleaf/needle/damp floor scans; BC7 1024/512/128,17 layers, all mip levels. Maximum sampled layers and texture ranges unchanged.");
         }
         finally{foreach(var texture in fallback)UnityEngine.Object.DestroyImmediate(texture);}
     }

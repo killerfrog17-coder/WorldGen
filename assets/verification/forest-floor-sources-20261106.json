@@ -1,0 +1,102 @@
+{
+  "materials": [
+    {
+      "name": "litter",
+      "asset": "dry_decay_leaves",
+      "layer": 14,
+      "source": "https://polyhaven.com/a/dry_decay_leaves",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        2000,
+        2000
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dry_decay_leaves/dry_decay_leaves_diff_2k.jpg",
+          "sha256": "4dc7dde86f3db0df3566ca0ae77390000e979db31fbdc861796d2e516e6ad04e",
+          "bytes": 2856071
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dry_decay_leaves/dry_decay_leaves_nor_gl_2k.jpg",
+          "sha256": "76cbbca571145f9facf93db819cb909282df6bde8b81f82b5708be912611c5e1",
+          "bytes": 3920921
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/dry_decay_leaves/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/dry_decay_leaves/dry_decay_leaves_arm_2k.jpg",
+          "sha256": "cb2c67afd74d3b955c6eb7b104015272767d10ac963315ea8a20ddbf6e83c0cd",
+          "bytes": 2918224
+        }
+      }
+    },
+    {
+      "name": "needles",
+      "asset": "forrest_ground_03",
+      "layer": 15,
+      "source": "https://polyhaven.com/a/forrest_ground_03",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        2000,
+        2000
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forrest_ground_03/forrest_ground_03_diff_2k.jpg",
+          "sha256": "187a8e33773473939c0e85b5e10ae94eb9e8d91463ab8b74e122d833d2d84dc6",
+          "bytes": 3522953
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forrest_ground_03/forrest_ground_03_nor_gl_2k.jpg",
+          "sha256": "dcc26b4fd27a8e1f1f14558214fbaf1d68a61d9b569eee805793498e4b30098c",
+          "bytes": 6812765
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forrest_ground_03/forrest_ground_03_arm_2k.jpg",
+          "sha256": "1833458cb36e03ab3a4024b6c330f9e1ef6191d9fd841e1b59634267516a7a3c",
+          "bytes": 1249511
+        }
+      }
+    },
+    {
+      "name": "wetlitter",
+      "asset": "forest_leaves_02",
+      "layer": 16,
+      "source": "https://polyhaven.com/a/forest_leaves_02",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "dimensions_mm": [
+        3000.9725093841553,
+        3000.9801387786865
+      ],
+      "files": {
+        "albedo": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forest_leaves_02/albedo.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forest_leaves_02/forest_leaves_02_diffuse_2k.jpg",
+          "sha256": "9c38b2b151a0415457a6914966422cfca5a546c94674442e5395e0b1e908a196",
+          "bytes": 1668009
+        },
+        "normal": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forest_leaves_02/normal.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forest_leaves_02/forest_leaves_02_nor_gl_2k.jpg",
+          "sha256": "af0346114834c347a8d6a138f6ea16a97b0bec8d6e4db32c24f1c7e482163235",
+          "bytes": 2323898
+        },
+        "mask": {
+          "path": "assets-source/terrain/surfaces/cc0-forest-floor/forest_leaves_02/mask.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forest_leaves_02/forest_leaves_02_arm_2k.jpg",
+          "sha256": "d8423b522d86285e26036d27fc51f4db7b8c6716b1558deb4575b288e14c28b7",
+          "bytes": 1066850
+        }
+      }
+    }
+  ],
+  "publication": "TerrainSurfaceArtBuilder.Build keeps seventeen BC7 slices. Damp floor now uses photographed moss, fallen leaves and twigs instead of living ground plants over mud. Original scanned normals and AO/roughness are offline inputs.",
+  "budget": "1024/512/128-pixel mipmapped BC7 albedo/normal/mask arrays, about 28.7 MiB across all seventeen layers. Texture fetch count, layer count and ranges unchanged; about 21.25 MiB above the previous 512/256/128 arrays."
+}

@@ -16,7 +16,7 @@ def read(url):
     request = urllib.request.Request(url, headers={"User-Agent": "WorldGen offline asset authoring github.com/killerfrog17-coder/WorldGen"})
     return urllib.request.urlopen(request, timeout=90).read()
 
-for name, asset, layer in [("litter", "dry_decay_leaves", 14), ("needles", "forrest_ground_03", 15), ("wetlitter", "brown_mud_leaves_01", 16)]:
+for name, asset, layer in [("litter", "dry_decay_leaves", 14), ("needles", "forrest_ground_03", 15), ("wetlitter", "forest_leaves_02", 16)]:
     folder = base / asset
     folder.mkdir(parents=True, exist_ok=True)
     catalog = json.loads(read("https://api.polyhaven.com/files/" + asset))
@@ -34,6 +34,6 @@ for name, asset, layer in [("litter", "dry_decay_leaves", 14), ("needles", "forr
         print(asset, channel, len(data))
     materials.append(record)
 (base / "sources.json").write_text(json.dumps(materials, indent=2) + "\n", encoding="utf-8")
-(root / "assets/verification/forest-floor-sources-20261104.json").write_text(json.dumps({"materials": materials,
-    "publication": "TerrainSurfaceArtBuilder.Build appends three BC7 slices; old fourteen slices retained. Original scanned normals and AO/roughness are offline inputs.",
-    "budget": "Three 512/256/128-pixel mipmapped BC7 slices, about 1.31 MiB total; existing maximum sampled material count remains unchanged."}, indent=2) + "\n", encoding="utf-8")
+(root / "assets/verification/forest-floor-sources-20261106.json").write_text(json.dumps({"materials": materials,
+    "publication": "TerrainSurfaceArtBuilder.Build keeps seventeen BC7 slices. Damp floor now uses photographed moss, fallen leaves and twigs instead of living ground plants over mud. Original scanned normals and AO/roughness are offline inputs.",
+    "budget": "1024/512/128-pixel mipmapped BC7 albedo/normal/mask arrays, about 28.7 MiB across all seventeen layers. Texture fetch count, layer count and ranges unchanged; about 21.25 MiB above the previous 512/256/128 arrays."}, indent=2) + "\n", encoding="utf-8")
