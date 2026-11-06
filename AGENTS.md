@@ -49,6 +49,53 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov16:51Z SPIKES FIRST. B NONDEV ScriptsOnlya9acf718 BuiltUtc16:48:37,
+SourceChanges[],3knownautosrestored. Own runner96697/player2084 RIGHTMOST runs
+presented-inline-cells, temperateMedium6km1080/60s moving-whip WINDOWED. No heavy
+jobs/build/overwrite until exit. New a9 trial stores Cell as inline struct,
+removes only null-record branch, adjusts8hydrology fixture writes to ref iteration.
+Actual200k cell full hash,6994spatial-query entries,regenerated4096 topology,
+current JSON+workerwire+FULL81MBworld save/reload PASS;200krecordallocation16MB
+->11.2MB, removes200kseparate objects. Native FPS/GC gain UNPROVEN pendingrun.
+562 targeted hydrology checks PASS. Broad --hydrology-only stopped BEFORE these
+at existing WorldInterfaceTests69 outdated speed ladder expectingmax10k while
+unchanged SimulationClockView supports100k; no unrelated change made. Initial
+small-world serialization fixture lacked subcell geography; replaced with real
+complete world test, failure retained in session. Baseline cell-storage-before-
+complete.json. Structural storage only, no new geography/behaviour/features.
+Prior391 paired presentation comparison COMPLETE: Exclusive173.39FPS,p959.03/
+p9911.53/max30.94,5>16.667; Windowed169.03,p9510.51/p9912.57/max34.10,6>16.667.
+No clear fix; normal display mode unchanged. Exclusive worst hasGPU25.33/present
+wait23.42ms, separateGC24/27.6. WindowedworstGC34.1 andpresentation24.58.100floor
+UNSOLVED. Screen prefs restored by runner; own exclusive bounds1920,0..3840,1080
+andfocusTrue verified read-only. SelectedA/f833/shortcut/owner3files untouched.
+Sourcea9 committed notyetpushed;latestpushed7d. Thisnoteuncommitted. Next read
+actual inlinecell run vs391windowed, retain only if no regression/usefulgain.
+
+ACTIVE06Nov16:30Z SPIKES FIRST. B NONDEV ScriptsOnly39102ced built successfully,
+3 known autos restored; source through7d013336 PUSHED. Own runner3812/player4656
+RIGHTMOST runs presented-exclusive, temperateMedium6km1080/60s moving-whip. No
+other heavy jobs/build/overwrite until exit. This is diagnostic fullscreen mode
+comparison, NOT a default game setting change; runner restores only Unity's
+display preference keys after its player exits. Need matched Windowed same B
+after Exclusive, with -monitor3 in both. No PresentMon repeated: prior attempted
+capture had NO CSV (invalid), despite process alive; native engine clock remains
+valid. Prior120s cdaf windowed194.32FPS p959.08/p9912.23/max43.13,16frames>16.667,
+5completedGC. Longer route exits forest onto cliff: NOT comparable average to60s
+175FPS, and no gain claimed. Native clock bridge uncertainty.186ms attributes
+43ms spike at66.83s to32.46ms presentation wait (main4.38,render3.08,GPU4.62);
+33.72ms at82s to27.11ms wait. Separate GC24-30ms remains.100floorUNSOLVED.
+75a removes idle map scheduling closures, regional biota cache-hit capture and
+projectile LINQ iterator;11biota checksPASS,0bytes/10k warm lookups; one initial
+zero-tolerance test failed then passed, now1KiB allowance excludes per-call
+allocation while tolerating runtime warmup. Map helpers not separately exercised
+yet, same control flow with scheduling extraction. No geometry/behaviour changed.
+Screenshot120s cliff has repeated rock texture/green stripes; NOT visualapproval.
+Old heap snapshot predates rootlazy/address/nativecover changes; do not treat
+its counts as current. Upstream Mono allocates no-reference vectors atomic,
+so moving158MB numeric LocalTerrainProfile array native is NOT justified by
+size alone. No such change written. A/f833/shortcut/owner3files untouched.
+
 ACTIVE06Nov16:14Z SPIKES FIRST, cheap visual improvement secondary. B cdaf136c
 NONDEV ScriptsOnly built successfully; 3 known Unity autos restored. Own runner
 54709/player29892 RIGHTMOST runs presented-clock-presentmon: temperate Medium
