@@ -22,6 +22,7 @@ param(
     [switch]$GpuProfile,
     [switch]$MemorySnapshot,
     [switch]$CaptureAfter,
+    [switch]$CpuTiming,
     [string]$NativeGcProbe='',
     [switch]$Original
 )
@@ -51,6 +52,7 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     Build=$buildStamp
     RequestedSwapChain=$SwapChain
     NativeGcDiagnostic=[bool]$NativeGcProbe
+    CpuTimingDiagnostic=[bool]$CpuTiming
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
@@ -59,6 +61,7 @@ if($Original){$arguments+='--worldgen-perf-original'}
 if($SwapChain -eq 'Flip'){$arguments+='-force-d3d11-flip-model'}
 if($SwapChain -eq 'BitBlt'){$arguments+='-force-d3d11-bitblt-model'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
+if($CpuTiming){if(!$StutterTrace){throw 'CPU frame timing requires StutterTrace for timestamp correlation'};$arguments+='--worldgen-cpu-timing'}
 if($GpuProfile){$arguments+='--worldgen-gpu-profile'}
 if($Presented){
     Add-Type -AssemblyName System.Windows.Forms
