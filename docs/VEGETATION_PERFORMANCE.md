@@ -859,3 +859,22 @@ Frame-timing interpretation checked against Unity6.6 counter reference:
 https://docs.unity.com/en-us/engine/6000.6/manual/analysis/graphics-performance-profiling/profile-rendering/frame-timing-manager/counter-reference
 Active main/render timings exclude presentation waits. A large present-wait value
 alone does not establish which device/OS/driver operation caused the delay.
+
+
+### Paused for owner restart, 6 November 23:40 UTC
+
+`presented-scatter-priority` completed both same-package 90s jungle routes.
+Whole neighbourhood refresh: literal17calls mean4.9517/max6.4488ms; precomputed
+16calls mean2.0061/max3.2233ms. This confirms a localized reduction of roughly3ms
+per refresh. Literal refresh-associated frames reached15.78ms; optimized largest
+refresh frame12.06ms. Exact key order was already verified independently.
+Whole-run results are mixed: literal167.67FPS,p9912.60/max27.61ms,7frames>16.667;
+optimized163.34FPS,p9913.52/max21.57ms,18frames>16.667. Do not describe the localized
+saving as a general elimination of stutter. The optimized run's worst Explorer
+update combines6.26ms visibility batches and3.33ms fauna; those costs remain.
+Candidate is compiled in B0c6e90f1 but DEFAULT OFF outside its explicit test case.
+No new build or shortcut change during wrap-up. Next resume: inspect remaining
+batch/GC causes, repeat the new ordering in another context before promotion,
+and consider retaining computed reveal bounds to reduce the remaining2ms refresh
+without changing selected neighbourhoods. No reveal-bound cache has been written.
+All benchmark players exited; MSBuild/compiler servers were shut down.

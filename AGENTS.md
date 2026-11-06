@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+PAUSED06Nov23:40Z OWNER RESTART. User gave6-7min at23:35:20Z; all own game,
+Unity,worker/build jobs exited; dotnet build-server shutdown completed. DO NOT
+restart heavywork until owner resumes. Selected A/f833/shortcut untouched.
+B ScriptsOnly NONDEV0c6e90f1 SourceChanges[];3knownUnityautosrestored.
+Latest native83408 presented-scatter-priority COMPLETE EXIT0. Actual fullrefresh
+old17calls mean4.9517/max6.4488ms -> candidate16calls mean2.0061/max3.2233ms.
+Localized~3ms saving CONFIRMED; exact15702keys/70locations/0warmalloc PASS.
+Wholeframe result MIXED: old167.67FPS p9912.60/max27.61,7>16.667; new163.34
+p9913.52/max21.57,18>16.667. Do NOT claimoverallstutterfix/100floor. Candidate
+CachedScatterPriority remains DEFAULT OFF; onlyexplicitcase enables. No runtime
+changes or newbuild aftercomparison. Arrays51slots,scatter_plan_ms measured.
+Next afterresume: inspectremainingbatch/GC peaks and repeatnewsortothercontext,
+then decidepromotion. Potential retainstable revealbounds toreduce remaining2ms
+refresh; NO SUCHcodewritten. Sourceallpushed0c6, thischeckpoint/docs pendingpush.
+Packedhabitat701 exactworld/terrain/currentroundtrip passed; nativeprior167jungle/
+151savanna, stillGC6-7msstopspikes; storagebenefit not generalFPSproof. Sparsecache
+50a retained for verifiedmemoryreduction, not provenhitchfix. Detailed docs and
+allrawcaptures under artifacts/render-repair-20261106. No otherfeatures/art,
+no subagents, owner3filespreserved. AllvisibleownwindowsRIGHTMOST whenresumed.
+
+
 ACTIVE06Nov23:31Z SPIKES FIRST. Own ScriptsOnlyNONDEV B build48694 from0c6e90f1
 RUNNING; no game. Do not mutate runtime during compile; restore3knownUnityautos.
 New opt-in CachedScatterPriority DEFAULT OFF computes spherical distance once
