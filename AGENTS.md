@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov19:00Z SPIKES FIRST. Latest owner asks what changed overnight;
+answered honestly: primarily performance, no substantial visual pass, shortcut
+still selected A/f833 Nov4. Do not imply owner has newer B through shortcut.
+B FULL NONDEV b791f5ab built18:49:47Z SourceChanges[],3knownautos restored.
+Native async-pickup-native PASS19 checks and actual GPU icon PNG inspected.
+Compiled polling-il-before/after confirms7 unconditional entry display-class
+allocations removed; callbacks still created when jobs actually schedule.
+Presented-async-icons-cold-jobs COMPLETE169.0FPS,p9510.67,p9912.94,max40.42ms,
+709>10/8>16.667 versus prior177.32/max29.03. NO frame-tail gain established;
+both moving/unsettled, no diagnostic trace in latest. Screenshot still poor
+repetitive bare ground/green islands; NOT visual approval. No own game remains.
+Async-icons-allocation diagnostic showed no synchronous GUI atlas Load/Upload
+wait;14.93MB allocations/1557frames10s. Larger GC/presentation stalls remain.
+Latest7 closure fixes847 +fixtureb791 pushed. Need measured remaining cause,
+not more blind minor optimizations. Consider current heap snapshot after native
+cover/rootlazy/address changes (existing old heap is no longer current), with
+CPU trace in diagnostic build; restore FULL NONDEV before owner playtest.
+No new source changes pending. A/shortcut protected,owner3files preserved.
+All visible own windows RIGHTMOST; no subagents/features/paid/ownerappclosures.
+
 ACTIVE06Nov18:33Z SPIKES FIRST. B ScriptsOnly DEVELOPMENT fcd62634 over FULL
 e84beec0;3known autos restored. Own runner38873 RIGHTMOST runs async-icons-
 allocation10s, temperate6kmMedium, normal warmup. No compile/overwrite/heavyjobs

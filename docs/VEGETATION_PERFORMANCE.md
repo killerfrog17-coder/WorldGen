@@ -570,3 +570,34 @@ and reconstructing in reverse order. Normal-player timing remains pending.
 Source 4bbb0290 adds optional `-CaptureAfter` to the benchmark runner. Its normal
 presented-frame screenshot is taken after timing and counters are finalized;
 readback/PNG encoding cannot contaminate the measurement window.
+
+November 6, latest checkpoint: the normal NONDEV b791f5ab temperate forest
+moving/rapid-turn test completed at 168.98 FPS, p95 10.67 ms, p99 12.94 ms,
+maximum 40.42 ms; 709 frames exceeded 10 ms and eight exceeded 16.667 ms.
+The preceding normal c9 test was 177.32 FPS /29.03 ms maximum. Both routes
+streamed terrain during travel. No frame-tail improvement is established by
+the latest allocation changes; the 100 FPS floor remains unmet.
+
+Native pickup checks passed all19 assertions, including asynchronous readiness,
+original imported texture selection and actual GPU rendering. The diagnostic
+capture after asynchronous preparation contains no synchronous pickup atlas
+Load/Upload wait in GUI.Repaint. Beforehand, that path cost9.28 ms on the main
+thread and7.59 ms waiting for texture upload on the render thread. Seven idle
+polling methods also now have zero unconditional entry display-class allocations
+in the built player, versus one each before; scheduled jobs still allocate their
+captured inputs when needed. These are specific correctness/allocation findings,
+not evidence that collection pauses are solved.
+
+Actual GPU profiler analysis uses the installed Unity version's SampleGPU marker
+and GPU-time column. Two large diagnostic CPU frames spent22.19/19.75 ms in
+CollectIncremental. Their reported GPU frame durations include19.31/17.38 ms
+PresentAfterDraw waits; actual camera GPU work was4.26/3.39 ms. Do not mistake
+those frame totals for expensive foliage shaders. Other presentation stalls
+remain unresolved and cannot all be attributed to garbage collection.
+
+Evidence is under artifacts/render-repair-20261106: async-pickup-native,
+polling-il-before/after.json, async-icons-allocation-analysis,
+temperate-gpu-analysis-fixed, presented-no-timing-stats and
+presented-async-icons-cold-jobs. The new screenshot still shows repetitive bare
+ground and green patches; it is not visual acceptance. The owner shortcut still
+selects A/f833 (November4); B is a separate, unselected test build.
