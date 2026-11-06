@@ -1,5 +1,49 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov20:17Z SPIKES FIRST. Paired9b7 normal fresh-player tests COMPLETE:
+control166.56FPS,p9510.83/max43.61,13>16.7; reuse164.75,p9510.38/max25.25,5>16.7.
+Reuse largest25.25/24.76 coincideGC; control43.61notGC. Pool507created/54reused,
+7.24MBretained. PromisingFIRSTcomparison, bothunsettled; no100floor/allstallsfixed.
+Default ReuseTerrainMeshes STILL OFF. Newc27f57f4 source PUSHED: coat uploads now
+respect same CanInstall budget as terrain/forest; pool evictsatmost1oldbuffer per
+return to avoid cleanupburst; native evictionfixture added; 120FPS cases added
+(actualidleheadroom, unlike prior240aboveactualFPS). Normal cap unchanged.
+Own ScriptsOnly NONDEV B build28323 RUNNING; no player. Finish/restore3autos,
+run --worldgen-upload-check fresh reused-mesh-bounded-native, then actual fresh
+pooled uncapped vs pooled120 comparisons. No heavyjobs duringmeasurement.
+Allvisiblewindows RIGHTMOST. A/f833/shortcut untouched; owner3files untouched.
+Current sourcepushc27; docs+AGENTS checkpoint pending. No features/subagents/paid.
+
+ACTIVE06Nov20:02Z SPIKES FIRST owner explicitly resumed and prioritizes tails
+over averageFPS. New9b7ce4c5 bounded retired terrain Mesh reuse trial DEFAULT OFF:
+32MiB/64idle meshes, exact vertex/index/format match,4frame quarantine, dynamic
+buffers, SetVertex/IndexBufferData without resetting capacity, scene-owned cleanup.
+Native reused-mesh-native PASS20,915,506 CPU/GPU bytes, wet/dry,16/32bit indices,
+quarantine/identity/budget/disposal. Source PUSHED9b7. B ScriptsOnly NONDEV9b7 over
+FULL204;3Unityautos restored. Own runner39118 sequentially runs two FRESH player
+processes: presented-mesh-reuse-control(current) then presented-mesh-reuse-trial
+(reused-meshes), temperate6kmMedium1080,60sec travel+whip each, trace+captureafter.
+Current firstplayer13260 RIGHTMOST. No compile/overwrite/heavy work during timing.
+Need BOTH results and actual mesh_reused counters before accepting. No claimed
+performance gain, no shared-budget change yet. Prior presented-coverage-ancestors
+ended during warmup~238sec with no complete/result; preserve as incomplete, do
+not treat as success. A/f833/shortcut untouched, owner3files preserved. No features,
+subagents/paid/ownerappclosure. Current genuine worst spikes remain GC+GPU uploads.
+
+ACTIVE06Nov19:50Z SPIKES FIRST. B FULL NONDEV204a9795 BuiltUtc19:48:21Z,
+SourceChanges[],3Unityautos restored. Own presented runner3778/player27576
+RIGHTMOST now runs presented-coverage-ancestors: temperateMedium6km1080,
+60sec moving/rapidturn, StutterTrace+CaptureAfter. Do NOT compile/overwriteB or
+run other heavy work until exit. This is first NORMAL current coverage-ancestor
+performance check. Prior diagnostic fog sum125.61->66.97ms/30sec,max3.828->1.398,
+but latest diagnostic had NO collection while prior did; no overalltail claim.
+Current native exporter matched6193resources, slowest12retained buffer uploads
+allMesh; old25.66msoutlier NOT reproduced/attributed. No bufferpool written.
+Source/editor/docs pushed204a9795; current checkpoint uncommitted. A/f833Nov4
+shortcut remains unchanged. Latest normal169FPS/max40.42,100floorUNMET.
+Owner asked what changed overnight: explained mostly performance, modestphoto
+moss/litter, repetitive ground stillunaccepted. No newfeatures/subagents/paid.
+
 ACTIVE06Nov19:49Z SPIKES FIRST. Current-native-ownership DEVELOPMENT d83
 capture COMPLETE and exited; offline native-ownership-analysis and native-object-
 owners COMPLETE. NativeAllocations capture now exports6193graphics resources;

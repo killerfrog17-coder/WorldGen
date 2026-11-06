@@ -616,3 +616,28 @@ The latest capture is a30-second DEVELOPMENT CPU diagnostic, not release FPS.
 Its15.683ms maximum is not evidence of a100FPS floor. The coverage-ancestor
 early-out still needs a normal-player comparison. Native object naming is
 exported offline only and adds no gameplay overhead.
+
+November 6, retired mesh reuse trial9b7ce4c5: two independent normal-player
+launches ran the same temperate6kmMedium1080 route,60seconds moving/rapidturn.
+Control:166.56FPS,p9510.83,p9913.49,max43.61ms,13frames over16.667ms.
+Reuse:164.75FPS,p9510.38,p9912.96,max25.25ms,5frames over16.667ms.
+The two largest reuse hitches(25.25/24.76ms) coincide with completedGC; the
+control's43.61ms outlier does not. This is a promising first comparison, not
+proof that all GPU stalls are solved. Both routes were streaming/unsettled,
+with different resident/grass counts; do not attribute the entire delta solely
+to reuse. Native counters show507created/54reused meshes and7.24MB idle storage.
+
+Reuse remains DEFAULT OFF pending followup. It keeps exact vertex/index sizes
+and formats, waits4frames after retirement, and bounds idle retention to32MiB/
+64meshes. New buffers use MarkDynamic; reused buffers receive data without
+resetting their capacity. Scene disposal releases both idle and leased meshes.
+Native reused-mesh-native passed20,915,506 CPU/GPU byte comparisons, wet/dry
+geometry,16/32bit indices, delayed reuse, size bounds and disposal. No terrain
+geometry/material changes. Reference: https://docs.unity.com/en-us/engine/6000.5/script-reference/unityengine/mesh/markdynamic
+
+Followupc27f57f4 shares the existing terrain/tree installation allowance with
+fauna coat uploads, and bounds pool eviction to one old mesh per return. Added
+120FPS diagnostic cases to test actual idle headroom(the prior240FPS trial
+did not leave headroom below measured throughput). User FPS preferences are
+unchanged. Unity documents incremental GC use of idle target-frame time:
+https://docs.unity3d.com/cn/6000.0/ScriptReference/Scripting.GarbageCollector-incrementalTimeSliceNanoseconds.html
