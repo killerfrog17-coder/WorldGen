@@ -288,3 +288,36 @@ presented comparison reused 40 MB with no material average-FPS regression; it
 has not proved elimination of collection spikes. The free-buffer pool is capped
 at 16 MiB. Combined broader performance validation is pending. Selected slot A
 and the owner's shortcut remain unchanged.
+
+The combined c7a9d3a6 package completed fresh presented 60-second moving tests:
+jungle165.67 FPS /39.00 ms worst /39 frames over16.7 ms; temperate163.86 /51.33 /27;
+savanna152.89 /50.37 /21. All continued streaming. These are partial improvements,
+not a100FPS-floor pass.
+
+Staged terrain was then tested FIRST in8102bdeb, followed by immediate updates on
+the same jungle route. Staged160.77FPS /61.43ms worst /10 frames over16.7ms;
+immediate167.12 /43.12 /41. Staging reduces recurring terrain hitches at a small
+mean-throughput cost; the three largest staged frames completed garbage
+collections. It is enabled for the owner's revised worst-frame priority.
+Evidence: artifacts/render-repair-20261106/presented-staged-first.
+
+Tree branch/path/normal scratch reuse passed372native model pairs /316,138vertices
+with every position,normal,tangent,colour,index,bounds and all8UV channels exact.
+
+A sparse root-cache reference-array experiment is retained only in Git926512ee,
+reverted by d18e5f01. Pure1,061,328slot checks and550actual-world terrain/span
+comparisons passed, but the actual reference-slot reduction was only999,990 to
+912,707 after world preparation; no native FPS improvement was measured. About
+76,000weak wrappers retained about29,000live targets in the pure-world probe;
+that is not proof of the player collection-stall cause.
+
+Next: coverage texture reuse removes repeated native Texture2D replacement and
+Color[] upload allocation while preserving the shader payload. Native proof and
+presented validation are pending. The worst61ms frame spent46.63ms in the coverage
+phase coincident with collection; that identifies an allocation trigger, not a
+claim that coverage arithmetic alone costs46ms.
+
+Unity references consulted for these investigations:
+https://docs.unity.com/en-us/engine/6000.0/manual/analysis/performance-memory/managed-memory/incremental-garbage-collection
+https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/texture2d/setpixeldata
+No additional manual collection scheduling or GC disabling was introduced.
