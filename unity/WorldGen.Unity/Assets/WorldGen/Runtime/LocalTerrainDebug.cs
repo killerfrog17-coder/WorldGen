@@ -86,6 +86,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void OnGUI()
     {
+        long wholeGui=WorldGenPerformance.TraceBegin();
+        try
+        {
         if(MenuSkin!=null)GUI.skin=MenuSkin;
         GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
         if(DeathVisible){DrawPlayerDeath();return;}
@@ -97,6 +100,8 @@ public sealed partial class LocalTerrainExplorer
         DrawWildlifeRadar();
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
         DrawWorldMap();DrawPickupPrompt();DrawCraftAwareness();DrawCampUi();
+        }
+        finally{WorldGenPerformance.TraceEnd(49,wholeGui);}
     }
     public void Pause(){paused=true;mapOpen=false;CaptureMouse();}
     public string TestDebugText()=>FastDebugText()+"\n"+DebugText();

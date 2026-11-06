@@ -703,6 +703,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void LateUpdate()
     {
+        long wholeLate=WorldGenPerformance.TraceBegin();
+        try
+        {
         if(closed)return;UpdatePresentedCameraTrace();CaptureMouse();UpdateAttachedProjectiles();UpdateInventoryVisuals();if(SharedHumanMotion)UpdateCamera();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);
         bool completion=WorldGenPerformance.Measuring&&WorldGenPerformance.ProfileRenderCompletion&&weatherCheckTarget!=null&&view!=null;
         long renderStarted=completion?System.Diagnostics.Stopwatch.GetTimestamp():0;
@@ -710,6 +713,8 @@ public sealed partial class LocalTerrainExplorer
         DrawFireflyGlows();
         if(weatherCheckTarget!=null&&view!=null){long cameraTrace=WorldGenPerformance.TraceBegin();view.Render();WorldGenPerformance.TraceEnd(8,cameraTrace);}
         if(completion){WeatherCheckGpuBarrier();WorldGenPerformance.CompletedRenderMs=(System.Diagnostics.Stopwatch.GetTimestamp()-renderStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;}
+        }
+        finally{WorldGenPerformance.TraceEnd(48,wholeLate);}
     }
     void DrawScatter()
     {
