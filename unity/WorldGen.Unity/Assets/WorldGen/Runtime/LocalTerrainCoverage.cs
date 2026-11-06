@@ -26,7 +26,8 @@ public sealed partial class LocalTerrainExplorer
         // Coverage masks can use a coarse fallback, but the reveal frontier must
         // wait for the requested sampling detail. Include resolution changes.
         var surfaces=tiles.Select(p=>new System.Collections.Generic.KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments));
-        if(fogFootprint==null||!fogFootprint.Matches(surfaces)){fogFootprint=new TerrainQualityFootprint(surfaces);fogCheckAt=0;}
+        if(fogFootprint==null){fogFootprint=new TerrainQualityFootprint(surfaces);fogCheckAt=0;}
+        else if(!fogFootprint.Matches(surfaces)){fogFootprint.Reset(surfaces);fogCheckAt=0;}
         // Only actual resident ancestors can need holes. Avoid scanning all
         // resident tiles for every tile whenever a single product arrives.
         var children=new System.Collections.Generic.Dictionary<TerrainTileKey,System.Collections.Generic.List<TerrainTileKey>>();

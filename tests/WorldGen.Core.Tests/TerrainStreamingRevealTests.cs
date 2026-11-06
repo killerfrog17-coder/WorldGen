@@ -57,6 +57,37 @@ static class TerrainStreamingRevealTests
             for(int step=0;step<1000;step++)cached.NearestGap(mutable,step,0,limit);
             Check(GC.GetAllocatedBytesForCurrentThread()-before<256000,"Steady fog checks do not reconstruct temporary groups or recursive closures");
         }
+        // Exercise invalidation as the resident terrain itself changes, including
+        // removal of the highest ancestor, resolution changes and empty regions.
+        var reused=new TerrainQualityFootprint(Array.Empty<KeyValuePair<TerrainTileKey,int>>());
+        var cases=new List<Dictionary<TerrainTileKey,int>>();
+        for(int step=0;step<12;step++)
+        {
+            var data=TerrainLod.Plan(step*130-700,step*71-400,6000,scale:step%2==0?.1:1)
+                .Where((p,i)=>i%4!=step%4).ToDictionary(p=>p.Key,p=>step%3==0?32:p.Value);
+            if(step==5)data.Clear();cases.Add(data);
+        }
+        for(int step=0;step<120;step++)
+        {
+            var data=cases[step%cases.Count];reused.Reset(data);
+            Check(reused.Matches(data),"Reset retains exactly the current resident keys and resolutions");
+            var fresh=new TerrainQualityFootprint(data);
+            for(int probe=0;probe<5;probe++)
+            {
+                var plan=cases[(step+probe+3)%cases.Count];double px=step*31-900,pz=probe*117-400;
+                Check(BitConverter.DoubleToInt64Bits(reused.NearestGap(plan,px,pz,limit))==BitConverter.DoubleToInt64Bits(fresh.NearestGap(plan,px,pz,limit)),"Reused coverage sets preserve exact gaps across changing residents, scale, ancestor levels and empty regions");
+            }
+        }
+        var fixedResident=cases[0];var fixedRequest=cases[2];
+        for(int i=0;i<10;i++){reused.Reset(fixedResident);reused.NearestGap(fixedRequest,0,0,limit);}
+        long allocationStart=GC.GetAllocatedBytesForCurrentThread();
+        for(int i=0;i<100;i++)new TerrainQualityFootprint(fixedResident).NearestGap(fixedRequest,i,0,limit);
+        long freshBytes=GC.GetAllocatedBytesForCurrentThread()-allocationStart;
+        allocationStart=GC.GetAllocatedBytesForCurrentThread();
+        for(int i=0;i<100;i++){reused.Reset(fixedResident);reused.NearestGap(fixedRequest,i,0,limit);}
+        long reusedBytes=GC.GetAllocatedBytesForCurrentThread()-allocationStart;
+        Check(reusedBytes<freshBytes/10,"Resident updates reuse coverage storage instead of rebuilding dictionaries and sets");
+        Console.WriteLine($"Resident coverage allocation: fresh {freshBytes} bytes, reused {reusedBytes} bytes / 100 rebuilds.");
         Console.WriteLine("PASS "+checks+" pure streaming-fog checks; no world or player launched.");
     }
 }

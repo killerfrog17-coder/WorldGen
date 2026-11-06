@@ -9,11 +9,17 @@ namespace WorldGen.Presentation
     public sealed class TerrainCoverageFootprint
     {
         const int MaximumLevel=23;
-        readonly HashSet<TerrainTileKey> source,full,partial=new HashSet<TerrainTileKey>();
+        readonly HashSet<TerrainTileKey> source=new HashSet<TerrainTileKey>(),full=new HashSet<TerrainTileKey>(),partial=new HashSet<TerrainTileKey>();
         int highest;
         public TerrainCoverageFootprint(IEnumerable<TerrainTileKey> visible)
+        {Reset(visible);}
+        // Rebuild the exact union while keeping the backing storage. Streaming
+        // changes coverage frequently; this is scratch reuse, not stale data.
+        public void Reset(IEnumerable<TerrainTileKey> visible)
         {
-            source=new HashSet<TerrainTileKey>(visible);full=new HashSet<TerrainTileKey>(source);
+            source.Clear();full.Clear();partial.Clear();highest=0;
+            foreach(var key in visible)source.Add(key);
+            full.UnionWith(source);
             foreach(var key in source)
             {
                 highest=Math.Max(highest,key.Level);

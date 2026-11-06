@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace WorldGen.Presentation
 {
@@ -8,12 +7,21 @@ namespace WorldGen.Presentation
     /// requested surface detail. A horizon backdrop is not finished near ground.</summary>
     public sealed class TerrainQualityFootprint
     {
-        readonly Dictionary<TerrainTileKey,int> source;
+        readonly Dictionary<TerrainTileKey,int> source=new Dictionary<TerrainTileKey,int>();
         readonly Dictionary<double,TerrainCoverageFootprint> tiers=new Dictionary<double,TerrainCoverageFootprint>();
+        readonly HashSet<double> validTiers=new HashSet<double>();
+        readonly List<TerrainTileKey> tierKeys=new List<TerrainTileKey>();
         readonly Dictionary<double,List<TerrainTileKey>> requestedGroups=new Dictionary<double,List<TerrainTileKey>>();
         readonly List<double> requestedOrder=new List<double>();
         public TerrainQualityFootprint(IEnumerable<KeyValuePair<TerrainTileKey,int>> visible)
-        {source=visible.ToDictionary(p=>p.Key,p=>p.Value);}
+        {Reset(visible);}
+        public void Reset(IEnumerable<KeyValuePair<TerrainTileKey,int>> visible)
+        {
+            source.Clear();foreach(var pair in visible)source.Add(pair.Key,pair.Value);
+            // Every resident/quality change invalidates every spacing tier.
+            // Rebuild lazily on the next query, reusing only its storage.
+            validTiers.Clear();
+        }
         public bool Matches(IEnumerable<KeyValuePair<TerrainTileKey,int>> visible)
         {
             int count=0;foreach(var p in visible){count++;if(!source.TryGetValue(p.Key,out int segments)||segments!=p.Value)return false;}return count==source.Count;
@@ -30,17 +38,17 @@ namespace WorldGen.Presentation
             }
             foreach(double spacing in requestedOrder)
             {
-                if(!tiers.TryGetValue(spacing,out var footprint))
-                {footprint=BuildTier(spacing);tiers.Add(spacing,footprint);}
+                if(!validTiers.Contains(spacing))
+                {
+                    tierKeys.Clear();foreach(var pair in source)if(pair.Value>0&&pair.Key.SizeM/pair.Value<=spacing*(1+1e-9))tierKeys.Add(pair.Key);
+                    if(tiers.TryGetValue(spacing,out var previous))previous.Reset(tierKeys);
+                    else tiers.Add(spacing,new TerrainCoverageFootprint(tierKeys));
+                    validTiers.Add(spacing);
+                }
+                var footprint=tiers[spacing];
                 nearest=Math.Min(nearest,footprint.NearestGap(requestedGroups[spacing],x,z,nearest));
             }
             return nearest;
-        }
-        TerrainCoverageFootprint BuildTier(double spacing)
-        {
-            var keys=new List<TerrainTileKey>();
-            foreach(var pair in source)if(pair.Value>0&&pair.Key.SizeM/pair.Value<=spacing*(1+1e-9))keys.Add(pair.Key);
-            return new TerrainCoverageFootprint(keys);
         }
     }
 }
