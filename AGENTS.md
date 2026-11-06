@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov22:28Z SPIKES FIRST. B ScriptsOnly NONDEV afd50e8a built22:25:03Z,
+SourceChanges[],3Unityautos restored. Ownrunner51357/player1092 RIGHTMOST runs
+presented-manual-gc,temperate6kmMedium1080/120s,CPUtiming+nativeGC. No compile/
+overwrite/heavyjobs untilcomplete. Benchmark-only manual collector0.5ms requests,
+16MiB growth trigger,256MiB growth abort; restores originalmode/slice viaDispose.
+Unlike retiredextra-autoGCtrial it disables automatic scheduling ONLYinexplicit
+measurement window. UNVALIDATED; normal gameplay remainsautomatic. Need actual
+callcosts/heap/nativeevents/tails; do not mistake requestedbudget forhardcap.
+Family-cpu pair93650 COMPLETE:normal175.55FPS,p9510.27/p9913.34/max32.24/26>16.7;
+separated167.69,p9510.76/p9913.30/max51.94/13>16.7. Nooverallgain, separationOFF.
+138nativeevents,0unmatched. Normal32mspeak main29.32/STW7.31; other30/28mspeaks
+presentwait25.02/23.93ms. Trial52mspeak presentwait44.30/main6.76/render2.13/GPU10.72.
+Source-timestampedengine dataVALID; unsupportedpresentRecorderreplacedwithTotal
+CPU inb6c, sourcevalidatedcompileonly. Newanalyzerlabelsnearbyframes, notexact
+sameboundaries. Longerrouteexitsforestontocliff; NOTglobalworstdenseforestproof.
+No100floorclaim. Priorflip/BitBlt/exclusive/queue1 testsalreadyfailed; don'trepeat
+withoutnewbasis. Allsourcepushedafd+docs746. A/f833/shortcut/owner3filesuntouched.
+No newfeatures/geography/subagents/paid/ownerappclosures. KeepRIGHTMOSTwindows.
+
 ACTIVE06Nov22:12Z SPIKES FIRST. Family-handles native10648 COMPLETE:168.997FPS,
 p9510.706/p9914.049/max25.172ms,676>10/13>16.7. GC-associated frames18.663/25.172
 (nativeSTW4.802/9.773ms) vs prior29-32ms; promising lowercollectoroverhead, NOT
