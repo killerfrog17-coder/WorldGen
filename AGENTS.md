@@ -49,6 +49,44 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov16:14Z SPIKES FIRST, cheap visual improvement secondary. B cdaf136c
+NONDEV ScriptsOnly built successfully; 3 known Unity autos restored. Own runner
+54709/player29892 RIGHTMOST runs presented-clock-presentmon: temperate Medium
+6km1080,120s moving/turning, PresentMon11544 and new once-per-window native/Mono
+clock bridge. NO builds/heavy competing work/overwrite until complete. PresentMon
+warned about privilege but remains running; CSV not yet present, don't assume
+successful capture. Rightmost DISPLAY3 is60Hz, main180Hz; presentation hypothesis
+UNPROVEN, do not blame monitor or move windows. Previous d8 motion+edges run
+COMPLETE174.54FPS,p959.42/p9912.13/max24.68ms,5frames>16.67ms vs prior10; two worst
+24.68/24.03ms coincide GC. One-run improvement not proof100floor (still UNMET).
+GPU spike31.94ms previous run did not recur (latestmax15.58), not claimed fixed.
+cdaf also caches debug overlay text/GUIContent (profile1.91MB/10s); savings not
+yet reprofiled. All earlier native ownership/motion/edge proofs remain PASS.
+Current source cdaf committed, not yet pushed; latest pushed358a. A/f833/shortcut
+unchanged, owner3files untouched. No new features/subagents/paid/owner-app closure.
+Next finish actual timing, align clocks/engine/PresentMon if capture valid, then
+target confirmed remaining GC/presentation spikes. No GUILayout/maxQueuedFrames/
+exclusive-fullscreen/cell-struct changes written. Heap snapshot exists under
+temperate-cpu-heap-analysis/heap; do not recapture blindly. Existing source world
+LocalTerrainProfile array158MB is numeric-only; no proven GC cost attribution.
+
+ACTIVE06Nov15:52Z SPIKES FIRST. B NONDEV ScriptsOnlyd8d3a6f6 Built successfully,
+3knownautos restored. Native reused-edge-native EXIT0, actual uploaded/shader
+boundary0.000000954m vs4.296082m brokencontrol,53068changedpixelsPASS.
+Own presented runner49839/player25196 RIGHTMOST now runs presented-worker-motion-
+reused-edges: temperateMedium6km1080/60s travel-whip-current, timestamped engine
+trace and post-window screenshot. NO builds/heavyjobs/overwrite until exit.
+Source5159worker-motion proof87packs/12.8McomponentsPASS zero publicationalloc;
+d8edgeworkspace25,796checksPASS6.675MB->.686MBfixtures. BothnotyetFPSvalidated.
+Previous nativecovernormal171.77FPS,max33.74ms,2GC+GPU31.94msstall;100floorUNSOLVED.
+Next read actualnormaltail/GC/engine results; consider PresentMon/native-clock
+bridge for GPUstall attribution (NOT IMPLEMENTED), moreallocationfixes only
+measured. Debug warning overlay1.91MB/10s fromprofile remainspossible cachetarget;
+NO SUCH CODE WRITTEN. New geography/features forbidden; cheapvisualimprovements
+secondary. Allsourcepushed358a0e34; thisnoteuncommitted. A/f833/shortcutunchanged,
+owner3filespreserved. No subagents/paid/owner-app closures.
+
+
 ACTIVE06Nov15:47Z SPIKES FIRST. Own B ScriptsOnly NONDEV build66501 fromd8d3a6f6
 RUNNING. NO game active. After build restore3knownUnityautos, native boundary
 check, then normal presented temperate60s same route; no heavy competing work.
