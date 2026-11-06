@@ -1445,6 +1445,21 @@ public sealed partial class WorldGenRuntime
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection,forest_ground_ms,ground_publication_ms,inventory_ms,planning_ms,terrain_install_ms,terrain_retirement_ms,scheduling_ms,readout_ms,solids_ms,player_camera_ms,player_water_ms,player_combat_ms,player_blood_ms,player_footsteps_ms,player_feedback_ms,player_hud_ms,player_altitude_ms,query_locate_ms,query_profiles_ms,query_shape_ms,query_rivers_ms,query_detail_ms,query_ponds_ms,driver_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
+                // Explicit diagnostic capture AFTER the measurement has ended.
+                // Snapshot pauses and file IO must never enter an FPS window.
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-memory-snapshot"))
+                {
+                    if(!Debug.isDebugBuild)throw new InvalidOperationException("Heap snapshots require a diagnostic DevelopmentPlayer, not the playtest build.");
+                    string snapshotPath=Path.Combine(output,site.Item1+"-"+item.Name+".snap");
+                    if(File.Exists(snapshotPath))throw new InvalidOperationException("Refusing to overwrite an existing heap snapshot.");
+                    bool finished=false,succeeded=false;
+                    Unity.Profiling.Memory.MemoryProfiler.TakeSnapshot(snapshotPath,(path,success)=>{succeeded=success;finished=true;},
+                        Unity.Profiling.Memory.CaptureFlags.ManagedObjects|Unity.Profiling.Memory.CaptureFlags.NativeObjects);
+                    double deadline=Time.realtimeSinceStartupAsDouble+120;
+                    while(!finished&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                    if(!finished||!succeeded)throw new InvalidOperationException("Managed heap snapshot did not complete: "+snapshotPath);
+                    File.AppendAllText(Path.Combine(output,"memory-snapshots.txt"),snapshotPath+"\n");
+                }
             }
             File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformancePendingComparisons+" loading/idle readiness comparisons passed.\n");
             terrainExplorer.Close();yield return null;yield return null;

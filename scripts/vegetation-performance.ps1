@@ -15,6 +15,7 @@ param(
     [switch]$StutterTrace,
     [switch]$SavedSettings,
     [switch]$GpuTelemetry,
+    [switch]$MemorySnapshot,
     [switch]$Original
 )
 $ErrorActionPreference='Stop'
@@ -46,6 +47,7 @@ if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Presented){$arguments+='--worldgen-perf-presented'}
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
+if($MemorySnapshot){$arguments+='--worldgen-memory-snapshot'}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
