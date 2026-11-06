@@ -4,6 +4,36 @@ using WorldGen.Serialization;
 
 static class SurfaceTransitionTests
 {
+    public static void CoverageCache()
+    {
+        int checks=0;void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
+        var cache=new TerrainFadeCache();var input=new List<TerrainFadeStamp>();var random=new Random(8128);
+        TerrainFadeTree previous=null;float[] previousNodes=Array.Empty<float>(),previousTimes=Array.Empty<float>();
+        for(int iteration=0;iteration<500;iteration++)
+        {
+            var parent=new TerrainTileKey(-2,3,iteration%9==0?5:4,iteration%11==0?.2:.1);
+            input.Clear();
+            for(int j=0;j<iteration%25;j++)
+            {
+                int depth=1+random.Next(4),span=1<<depth;
+                var child=new TerrainTileKey(parent.X*span+random.Next(span+2),parent.Z*span+random.Next(span+2),parent.Level-depth,parent.Scale);
+                input.Add(new TerrainFadeStamp(child,random.Next(8),random.Next(8)));
+            }
+            var expected=TerrainCoverage.BuildFaded(parent,input);var actual=cache.Update(parent,input);
+            Check(expected.Nodes.SequenceEqual(actual.Nodes)&&expected.Timings.SequenceEqual(actual.Timings),"Cached coverage changed the uncached topology or fade data");
+            Check(ReferenceEquals(actual,cache.Update(parent,input)),"Identical input did not reuse its output");
+            if(previous!=null)Check(previous.Nodes.SequenceEqual(previousNodes)&&previous.Timings.SequenceEqual(previousTimes),"A changed input mutated an earlier published coverage snapshot");
+            previous=actual;previousNodes=(float[])actual.Nodes.Clone();previousTimes=(float[])actual.Timings.Clone();
+        }
+        var tile=new TerrainTileKey(0,0,2,.1);input.Clear();input.Add(new TerrainFadeStamp(new TerrainTileKey(0,0,1,.1),1,0));
+        var original=cache.Update(tile,input);input[0]=new TerrainFadeStamp(input[0].Key,2,3);
+        var changed=cache.Update(tile,input);
+        Check(!ReferenceEquals(original,changed)&&original.Timings[0]==1&&changed.Timings[0]==2&&changed.Timings[1]==3,"Fade-only edits were ignored or overwrote live output");
+        for(int i=0;i<100;i++)cache.Update(tile,input);
+        long before=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<10000;i++)cache.Update(tile,input);
+        Check(GC.GetAllocatedBytesForCurrentThread()-before<=256,"Unchanged resident coverage still allocates per update");
+        Console.WriteLine($"PASS {checks} coverage cache checks: exact uncached topology/timings, changed key/scale/fades, immutable prior outputs, and allocation-free steady updates.");
+    }
     public static void Run(string path)
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}

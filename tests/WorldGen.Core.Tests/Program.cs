@@ -126,6 +126,7 @@ if(args.Contains("--vegetation-quality-only")){VegetationQualityTests.Run();retu
 if(args.Contains("--tree-field-only")){TreeFieldTests.Run();return;}
 if(args.Contains("--ground-flora")){GroundFloraTests.Run(args.Length>1?args[1]:null);return;}
 if(args.Contains("--surface-transitions")){SurfaceTransitionTests.Run(args[1]);return;}
+if(args.Contains("--coverage-cache")){SurfaceTransitionTests.CoverageCache();return;}
 if(args.Contains("--terrain-detail")){TerrainDetailTests.Run(args.Length>1?args[1]:null);return;}
 if(args.Contains("--streaming-reuse")){StreamingReuseTests.Run(args[1]);return;}
 if(args.Contains("--lod-debug")){LodDebugTests.Run(args.Length>1?args[1]:null);return;}

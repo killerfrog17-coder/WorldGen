@@ -6,6 +6,8 @@ public sealed partial class LocalTerrainExplorer
 {
     bool coverageDirty;
     float[] coveragePixelScratch=System.Array.Empty<float>();
+    readonly System.Collections.Generic.List<TerrainFadeStamp> coverageTimingScratch=new System.Collections.Generic.List<TerrainFadeStamp>();
+    readonly System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,int>> coverageSurfaces=new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,int>>();
     Texture2D CoverageTexture(Texture2D texture,float[] values)
     {
         if(values.Length==0){if(texture!=null)Destroy(texture);return null;}
@@ -22,25 +24,33 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateTerrainCoverage()
     {
-        if(!coverageDirty)return;coverVisibilityRevision++;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;var keys=tiles.Keys.ToArray();
+        if(!coverageDirty)return;coverVisibilityRevision++;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;
+        coverageSurfaces.Clear();int maximum=0;
+        foreach(var pair in tiles)
+        {
+            maximum=System.Math.Max(maximum,pair.Key.Level);pair.Value.CoverageChildren?.Clear();
+            coverageSurfaces.Add(new System.Collections.Generic.KeyValuePair<TerrainTileKey,int>(pair.Key,pair.Value.Segments));
+        }
         // Coverage masks can use a coarse fallback, but the reveal frontier must
         // wait for the requested sampling detail. Include resolution changes.
-        var surfaces=tiles.Select(p=>new System.Collections.Generic.KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments));
+        var surfaces=coverageSurfaces;
         if(fogFootprint==null){fogFootprint=new TerrainQualityFootprint(surfaces);fogCheckAt=0;}
         else if(!fogFootprint.Matches(surfaces)){fogFootprint.Reset(surfaces);fogCheckAt=0;}
         // Only actual resident ancestors can need holes. Avoid scanning all
         // resident tiles for every tile whenever a single product arrives.
-        var children=new System.Collections.Generic.Dictionary<TerrainTileKey,System.Collections.Generic.List<TerrainTileKey>>();
-        int maximum=keys.Length==0?0:keys.Max(k=>k.Level);
-        foreach(var fine in keys)for(int depth=1;depth<=maximum-fine.Level;depth++)
+        foreach(var fine in tiles.Keys)for(int depth=1;depth<=maximum-fine.Level;depth++)
         {
             var ancestor=new TerrainTileKey(fine.X>>depth,fine.Z>>depth,fine.Level+depth,fine.Scale);
-            if(!tiles.ContainsKey(ancestor))continue;
-            if(!children.TryGetValue(ancestor,out var list)){list=new System.Collections.Generic.List<TerrainTileKey>();children.Add(ancestor,list);}list.Add(fine);
+            if(!tiles.TryGetValue(ancestor,out var owner))continue;
+            if(owner.CoverageChildren==null)owner.CoverageChildren=new System.Collections.Generic.List<TerrainTileKey>();
+            owner.CoverageChildren.Add(fine);
         }
         foreach(var pair in tiles)
         {
-            var tile=pair.Value;var tree=children.TryGetValue(pair.Key,out var finer)?TerrainCoverage.BuildFaded(pair.Key,finer.Select(k=>TerrainTiming(k,true))):new TerrainFadeTree();
+            var tile=pair.Value;coverageTimingScratch.Clear();
+            if(tile.CoverageChildren!=null)foreach(var key in tile.CoverageChildren)coverageTimingScratch.Add(TerrainTiming(key,true));
+            if(tile.CoverageInputs==null)tile.CoverageInputs=new TerrainFadeCache();
+            var tree=tile.CoverageInputs.Update(pair.Key,coverageTimingScratch);
             var nodes=tree.Nodes;
             if(tile.CoverageNodes==null||!tile.CoverageNodes.SequenceEqual(nodes)||tile.CoverageTimingNodes==null||!tile.CoverageTimingNodes.SequenceEqual(tree.Timings))
             {

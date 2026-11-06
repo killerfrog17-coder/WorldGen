@@ -10,6 +10,24 @@ namespace WorldGen.Presentation
     }
     public sealed class TerrainFadeTree
     {public float[] Nodes=Array.Empty<float>(),Timings=Array.Empty<float>();}
+    /// <summary>One resident tile's last exact coverage input. Unrelated tile
+    /// publications do not rebuild its unchanged quadtree and timing arrays.</summary>
+    public sealed class TerrainFadeCache
+    {
+        readonly List<TerrainFadeStamp> stamps=new List<TerrainFadeStamp>();
+        TerrainTileKey key;
+        TerrainFadeTree? result;
+        public TerrainFadeTree Update(TerrainTileKey tile,IReadOnlyList<TerrainFadeStamp> resident)
+        {
+            bool same=result!=null&&key.Equals(tile)&&stamps.Count==resident.Count;
+            if(same)for(int i=0;i<stamps.Count;i++)
+                if(!stamps[i].Key.Equals(resident[i].Key)||!stamps[i].In.Equals(resident[i].In)||!stamps[i].Out.Equals(resident[i].Out))
+                {same=false;break;}
+            if(same)return result!;
+            key=tile;stamps.Clear();for(int i=0;i<resident.Count;i++)stamps.Add(resident[i]);
+            return result=TerrainCoverage.BuildFaded(tile,stamps);
+        }
+    }
     /// <summary>Sparse exact quadtree holes in a resident fallback tile. No
     /// terrain heights change and missing children never remove coverage.</summary>
     public static class TerrainCoverage
