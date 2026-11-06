@@ -26,10 +26,11 @@ public sealed partial class WorldGenRuntime
         using var upload=read.Result;var iterator=upload.Upload();phase="sliced-upload";
         while(iterator.MoveNext()){yield return iterator.Current;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         for(int i=0;i<10;i++){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
+        File.WriteAllLines(Path.Combine(output,"uploads.csv"),rows);
         long comparisons=0;
         for(int mip=0;mip<original.mipmapCount;mip++)
         {
-            var old=AsyncGPUReadback.Request(original,mip);var current=AsyncGPUReadback.Request(upload.Result,mip);
+            var old=AsyncGPUReadback.Request(original,mip,TextureFormat.RGBA32);var current=AsyncGPUReadback.Request(upload.Result,mip,TextureFormat.RGBA32);
             while(!old.done||!current.done)yield return null;
             if(old.hasError||current.hasError)throw new InvalidOperationException("Coat native readback failed");
             for(int layer=0;layer<original.depth;layer++)
@@ -40,7 +41,7 @@ public sealed partial class WorldGenRuntime
             }
         }
         File.WriteAllLines(Path.Combine(output,"uploads.csv"),rows);
-        File.WriteAllText(Path.Combine(output,"complete.txt"),$"PASS {comparisons} exact native BC7 bytes, {upload.Pieces} bounded uploads. Isolated fixture timings are not game FPS.\n");
+        File.WriteAllText(Path.Combine(output,"complete.txt"),$"PASS {comparisons} exact native decoded RGBA bytes across BC7 layers/mips, {upload.Pieces} bounded uploads. Isolated fixture timings are not game FPS.\n");
         bundle.Unload(true);Destroy(cameraRoot);Application.Quit(0);
     }
 }
