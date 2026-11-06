@@ -480,6 +480,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BuildScatterBatches()
     {
+        long budgetStarted=WorldGenPerformance.SeparateStreamingAndScatter?System.Diagnostics.Stopwatch.GetTimestamp():0;
         long trace=WorldGenPerformance.TraceBegin();
         lastBatchTime=Time.realtimeSinceStartupAsDouble;scatterDirty=false;
         treeWindRoots.Clear();treeWindDirty=true;
@@ -556,6 +557,13 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         WorldGenPerformance.TraceEnd(9,trace);
+        if(budgetStarted!=0)
+        {
+            // Later fauna/forest work shares the cost of this rebuild rather
+            // than treating a busy frame as an unused streaming budget.
+            frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-budgetStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            installationsThisFrame=Math.Max(1,installationsThisFrame);
+        }
     }
     void CollectScatterChunk(ScatterChunk chunk,Vector3 eye)
     {

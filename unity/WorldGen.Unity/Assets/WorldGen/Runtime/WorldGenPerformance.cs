@@ -56,6 +56,7 @@ public static class WorldGenPerformance
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
     public static bool ReuseTerrainMeshes;
+    public static bool SeparateStreamingAndScatter;
     public static bool ResidentCoverReuse=true;
     public static bool IndexedWalkingRivers=true;
     public static bool NoBuilderBufferReuse;
@@ -1273,6 +1274,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-reused-meshes-cap120",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.ReuseTerrainMeshes=true;Application.targetFrameRate=120;}),
             new PerfCase("travel-whip-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
             new PerfCase("travel-whip-current-queue1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;QualitySettings.maxQueuedFrames=1;}),
+            new PerfCase("travel-whip-separated-streaming",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.SeparateStreamingAndScatter=true;}),
             new PerfCase("travel-whip-immediate-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-unindexed-ground",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;WorldGenPerformance.IndexedWalkingRivers=false;}),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
@@ -1362,6 +1364,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.ReuseTerrainMeshes=false;
+                WorldGenPerformance.SeparateStreamingAndScatter=false;
                 WorldGenPerformance.ResidentCoverReuse=true;
                 WorldGenPerformance.IndexedWalkingRivers=true;
                 WorldGenPerformance.NoBuilderBufferReuse=false;

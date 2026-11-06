@@ -161,7 +161,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+(Spectating?playState.HeightAboveGround:Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround));UpdateCamera();}
             ApplyPlayerMode();
         }
-        UpdateLandmarkSearch();ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
+        UpdateLandmarkSearch();ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;reserveScatterFrame=false;double movementStartX=motion.X,movementStartZ=motion.Z;
         long inventoryTrace=WorldGenPerformance.TraceBegin();UpdateInventory();WorldGenPerformance.TraceEnd(33,inventoryTrace);
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
@@ -226,6 +226,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         playerTrace=WorldGenPerformance.TraceBegin();double altitude=HeightAboveGround;WorldGenPerformance.TraceEnd(47,playerTrace);
         WorldGenPerformance.TraceEnd(20,componentTrace);
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
+        ReserveScatterFrame();
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         long planningTrace=WorldGenPerformance.TraceBegin();
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);

@@ -30,7 +30,20 @@ public sealed partial class LocalTerrainExplorer
     // (including while the user has disabled their drawing).
     int ActiveWorkerCount
     {get{int count=jobs.Count+scatterJobs.Count;foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;if(animalPlan!=null&&!animalPlan.IsCompleted)count++;return count;}}
-    bool CanInstall=>!GroundPublicationPending&&installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
+    bool reserveScatterFrame;double lastStreamingOpportunity;
+    // A necessary visible-set rebuild cannot be delayed when the camera turns.
+    // Prefer a different frame for optional uploads, but guarantee an upload
+    // opportunity every 100 ms even during uninterrupted fast movement.
+    void ReserveScatterFrame()
+    {
+        reserveScatterFrame=false;
+        if(!WorldGenPerformance.SeparateStreamingAndScatter||scatter==null)return;
+        double now=Time.realtimeSinceStartupAsDouble;
+        bool rebuilding=scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&now-lastBatchTime>1;
+        if(rebuilding&&now-lastStreamingOpportunity<.1)reserveScatterFrame=true;
+        else lastStreamingOpportunity=now;
+    }
+    bool CanInstall=>!reserveScatterFrame&&!GroundPublicationPending&&installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
     bool CanRequest=>Time.realtimeSinceStartupAsDouble>=nextRequestAt;
     public string CheckStreamingState=>"error="+error+"; generation="+generation+"; jobs="+jobs.Count+"; done="+jobs.Count(j=>j.Task.IsCompleted)+"; matched="+jobs.Count(WorkMatchesCurrent)+"; detail="+(detailPlan?.Status.ToString()??"none")+"; installs="+detailOptions.Installations+"; y="+motion.Y+"; "+string.Join(" | ",jobs.Take(3).Select(j=>j.Key.X+","+j.Key.Z+","+j.Key.SizeM+"/"+j.Segments+" gen="+j.Generation+" "+j.Task.Status));
     void ResetDetailFrame()
