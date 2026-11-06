@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov23:31Z SPIKES FIRST. Own ScriptsOnlyNONDEV B build48694 from0c6e90f1
+RUNNING; no game. Do not mutate runtime during compile; restore3knownUnityautos.
+New opt-in CachedScatterPriority DEFAULT OFF computes spherical distance once
+perkey instead of twicepercomparison. Pure15702key/70world+cube+pole exactorder,
+reversedinput,0warmallocation PASS. NativewholeRefreshScatterWanted trace50 now
+added, arrays51slots, scatter_plan_ms. Need paired samepackage jungle90s180m
+travel-whip-current vs travel-whip-cached-scatter-priority afterbuild. This targets
+repeat32m refresh spikes (jungle4/33/37s:scatter9-11ms,batchesonly3.8-4.1ms).
+Packedhabitat native79285 COMPLETE EXIT0: jungle167.06FPS,p9913.14/max20.56,
+11>16.667; savanna151.46,p9912.74/max27.73,7>16.667. Mixedresults, noisolatedGC
+improvement claimed. SavannapeaksstillGC6-7msstops/19-26msmain. Junglelargestnot
+GC-overlapping. NewLate/GUI p99 2.10/.89jungle,2.62/1.13savanna. Actual96mapprobes
+and24623/22802readinesschecksPASS;0errors,allframesfocused. JunglePNGinspected,
+existingdark/coarsetrunksnotvisuallyaccepted. B was701; currentbuildreplacing.
+Source/docs allpushed0c6. A/f833/shortcutowner3filesuntouched. No newfeatures/art,
+subagents orownerappclosures; allvisibleownwindowsRIGHTMOST. 100floor NOTsolved.
+
+
 ACTIVE06Nov23:20Z SPIKES FIRST. Own ScriptsOnly NONDEV B build49579 RUNNING
 from701458d7, audit6376PASS. No game currently; A/f833/shortcut protected.
 Do not mutate runtime during build; restore3knownUnityautos after Editor exits.
