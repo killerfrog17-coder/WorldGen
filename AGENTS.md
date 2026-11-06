@@ -1,5 +1,76 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov19:49Z SPIKES FIRST. Current-native-ownership DEVELOPMENT d83
+capture COMPLETE and exited; offline native-ownership-analysis and native-object-
+owners COMPLETE. NativeAllocations capture now exports6193graphics resources;
+joined actual same-process profiler BufferIDs to snapshot RootReferenceId and
+NativeObjects. Twelve slowest retained resources are Mesh buffers, mostly439400
+bytes (=4225 terrain vertices *104). Largest current init2.55ms; previous25.66ms
+outlier did NOT repeat, cannot identify old-process ID using this new snapshot.
+Current diagnostic30sec max15.683ms, NOT release performance/100floor proof.
+New Editor-only exporter adds native object type/name; no mesh/buffer pooling
+implemented. Need FULL NONDEV B next (currently FULL DEVELOPMENT d83), then
+normal temperate moving60sec check of latest coverage-ancestor optimization.
+All own players/Editors exited. Three known autos restored. Selected A/f833
+shortcut untouched, owner3files preserved. Source/docs checkpoint pending commit.
+Owner status explained: mostly spike work, modest photo moss/litter only, visual
+quality still unaccepted; lastNORMAL169/max40.42ms. No features/subagents/paid.
+
+ACTIVE06Nov19:30Z SPIKES FIRST. B FULL DEVELOPMENT build49951 fromd83c4d2e
+RUNNING; no game. Finish/restore3autos then NEW current-native-ownership CPU
+profile30s+StutterTrace+MemorySnapshot (now includes NativeAllocations) in same
+temperate6kmMedium route. Do NOT use Development FPS as normal throughput.
+Reason: existing current-heap-cpu renderer frame3021 Gfx.InitializeBuffer cost
+25.6645ms, BufferID1152924551509907568 (0x100002c569931870); next main frame3022
+waited24.1715ms. Other2buffers sameframe IDs1152924551509904688/9909968 cheap.
+Old snapshot omitted native allocations and exports0graphics-resource records;
+cannot attribute to terrain/grass/forest yet. Do NOT label stall fixed.
+Newd83 offline reader exports buffer-uploads.csv (current-buffer-analysis PASS
+31625metadata samples). Heap graphics exporter must callPostProcess; first
+current-graphics-resource-analysis FAILED with incomplete native tables/Dispose
+NRE, corrected current-graphics-resource-analysis-fixed succeeds but0resources.
+New explicit diagnostic snapshot includes NativeAllocations to obtain resource
+ownership. Existing capture retained; all source d83+3c PUSHED.
+B previous FULL NONDEV3c05d0ae built19:18:40Z, NEVER ran new presented FPS because
+identified buffer bottleneck before launching planned comparison. Coverage union
+early-out640+6873proofsPASS, isolated22%faster, actual FPS pending. Current heap
+2.113mobjects/856.93MB, GC22.158ms persists. LastNORMAL169/max40.42;100floorUNMET.
+Return FULL NONDEV before owner playtest; A/f833Nov4 shortcut protected. Owner
+asked overnight work, answered performance focus, modestphoto moss/litter only,
+no substantialvisual upgrade; newer test also looks repetitive/NOT accepted.
+No subagents/features/paid/ownerappclosures; RIGHTMOST visible windows.
+
+ACTIVE06Nov19:15Z SPIKES FIRST. B FULL NONDEV build58996 from3c05d0ae RUNNING;
+no game. Finish/restore3knownUnityautos, then normal presented current moving
+temperate6kmMedium60s with StutterTrace to inspect fog CPU and remaining tails.
+New3c exact coverage ancestor early-out: once partial.Add(parent) fails its full
+ancestor chain is already present. Terrain+forest change;640 exhaustive set
+comparisons inclnegative/mixedscale/duplicates/levels/order/clears PASS, existing
+6873fog/reveal checks PASS. Isolated1000quality rebuild+query359.822->281.629ms;
+NOT gameFPS. Source/tests PUSHED3c; AGENTS latest changes uncommitted.
+Current-heap-cpu DEVELOPMENT454 COMPLETE30s capture +snapshot; offline
+current-heap-cpu-analysis COMPLETE. 2,113,068objects/856,929,606bytes vs old
+3,154,573/1,053,489,206 (oldsnapshot predates memorychanges; NOT exactpairedscene).
+Yet main CollectIncremental22.158ms persists, innerGC5.912; separate29ms
+presentation stall remains. Currenttrace reveals fog3.828ms andcoverage1.56ms
+in17.22ms frame, motivating measured ancestor duplication fix. Other fog3ms
+peaks overlapscatter3ms. No overallGCfix/100floor claim. LastNORMAL169/max40.42.
+No current visual work besides prior actual Nov6photo moss/litter improvements;
+corrected owner explanation to include those modest changes. A/f833Nov4 shortcut
+unchanged. No subagents/features/paid/ownerappclosures; RIGHTMOST visible windows.
+
+ACTIVE06Nov19:04Z current-heap-cpu diagnostic RUNNING own runner97072/player
+25452 RIGHTMOST. B FULL DEVELOPMENT454fe73d built19:02:07Z SourceChanges[],
+3knownUnityautos restored. 30s temperate6kmMedium CPU-profile+StutterTrace and
+heap snapshot AFTER timed window; no GPU query capture. No compile/heavyjobs
+or overwrite B during run. Need offline WorldGenHeapReview.RunDiagnostics
+with profile-input raw and heap-input snap from this fresh directory, separate
+heap-output subfolder. Restore FULL NONDEV before playtest. No runtime changes
+since b791. Latest normal169FPS/max40.42,100floor UNMET; no gain claimed.
+Owner asked overnight progress, answered honestly: no substantial visual pass;
+A/f833Nov4 shortcut unchanged and new B also intentionally same appearance.
+Followup explicitly reported new169/max40 result. No features/subagents.
+
 ACTIVE06Nov19:00Z SPIKES FIRST. Latest owner asks what changed overnight;
 answered honestly: primarily performance, no substantial visual pass, shortcut
 still selected A/f833 Nov4. Do not imply owner has newer B through shortcut.

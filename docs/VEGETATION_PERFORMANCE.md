@@ -601,3 +601,18 @@ temperate-gpu-analysis-fixed, presented-no-timing-stats and
 presented-async-icons-cold-jobs. The new screenshot still shows repetitive bare
 ground and green patches; it is not visual acceptance. The owner shortcut still
 selects A/f833 (November4); B is a separate, unselected test build.
+
+November 6, native buffer attribution: the current-native-ownership diagnostic
+snapshot includes NativeAllocations and exports6,193 graphics-resource identities.
+The offline reader joins profiler BufferID to graphics resource/root and native
+object type. Its twelve slowest retained buffer uploads belong to Mesh objects;
+most are439,400 bytes, matching the65x65 terrain grid's104-byte vertex format.
+The maximum initialization in this capture is2.55ms. The previous capture's
+25.66ms initialization did not recur, and its process-specific ID cannot be
+joined to the new snapshot. Do not treat that old outlier as conclusively
+attributed or fixed. No mesh/buffer pooling has been implemented.
+
+The latest capture is a30-second DEVELOPMENT CPU diagnostic, not release FPS.
+Its15.683ms maximum is not evidence of a100FPS floor. The coverage-ancestor
+early-out still needs a normal-player comparison. Native object naming is
+exported offline only and adds no gameplay overhead.

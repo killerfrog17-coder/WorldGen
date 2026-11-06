@@ -12,6 +12,7 @@ using UnityEngine;
 public static class WorldGenHeapReview
 {
     public static void RunDiagnostics(){WorldGenProfilerReview.Run();Run();}
+    public static void RunBufferDiagnostics(){WorldGenProfilerReview.Run();RunGraphicsResources();}
     public static void RunGraphicsResources()
     {
         var args=Environment.GetCommandLineArgs();
@@ -37,13 +38,21 @@ public static class WorldGenHeapReview
             var rootIds=((IEnumerable)Read(roots,"Id")).Cast<long>().ToArray();
             var names=(string[])Read(roots,"ObjectName");var areas=(string[])Read(roots,"AreaName");
             var index=new Dictionary<long,int>();for(int i=0;i<rootIds.Length;i++)index[rootIds[i]]=i;
+            var nativeObjects=Read(snapshot,"NativeObjects");
+            var objectRoots=((IEnumerable)Read(nativeObjects,"RootReferenceId")).Cast<long>().ToArray();
+            var objectNames=(string[])Read(nativeObjects,"ObjectName");
+            var objectTypes=((IEnumerable)Read(nativeObjects,"NativeTypeArrayIndex")).Cast<int>().ToArray();
+            var typeNames=(string[])Read(Read(snapshot,"NativeTypes"),"TypeName");
+            var objectsByRoot=new Dictionary<long,int>();
+            for(int i=0;i<objectRoots.Length;i++)if(objectRoots[i]>0)objectsByRoot[objectRoots[i]]=i;
             string Csv(string text)=>"\""+(text??"").Replace("\"","\"\"")+"\"";
             using var writer=new StreamWriter(Path.Combine(output,"graphics-resources.csv"));
-            writer.WriteLine("resource_id,bytes,root_id,area,name");
+            writer.WriteLine("resource_id,bytes,root_id,area,name,object_type,object_name");
             for(int i=0;i<ids.Length;i++)
             {
                 bool found=index.TryGetValue(links[i],out int at);
-                writer.WriteLine(ids[i]+","+sizes[i]+","+links[i]+","+Csv(found?areas[at]:"")+","+Csv(found?names[at]:""));
+                bool objectFound=objectsByRoot.TryGetValue(links[i],out int objectAt);
+                writer.WriteLine(ids[i]+","+sizes[i]+","+links[i]+","+Csv(found?areas[at]:"")+","+Csv(found?names[at]:"")+","+Csv(objectFound?typeNames[objectTypes[objectAt]]:"")+","+Csv(objectFound?objectNames[objectAt]:""));
             }
             File.WriteAllText(Path.Combine(output,"complete.txt"),ids.Length+" graphics-resource identities exported from the existing snapshot.\n");
         }
