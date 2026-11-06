@@ -12,6 +12,26 @@ public sealed partial class LocalTerrainExplorer
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var host=new GameObject("Coverage shader check");var explorer=host.AddComponent<LocalTerrainExplorer>();explorer.enabled=false;
         explorer.terrainRoot=host;
+        Texture2D reused=null;int payloadFloats=0,reusedObjects=0;
+        foreach(int length in new[]{4,64,1020,1024,1028,2048,12,0,4})
+        {
+            var values=new float[length];for(int i=0;i<length;i++)values[i]=(float)Math.Sin(i*.173+length)*17;
+            var previous=reused;int previousHeight=previous!=null?previous.height:0;
+            reused=explorer.CoverageTexture(reused,values);
+            if(length==0){if(reused!=null)throw new Exception("Empty coverage retained a texture");continue;}
+            int height=(length/4+255)/256;
+            if(previous!=null&&previousHeight==height){if(!ReferenceEquals(previous,reused))throw new Exception("Same-sized coverage upload replaced its native texture");reusedObjects++;}
+            var literal=new Texture2D(256,height,TextureFormat.RGBAFloat,false,true);
+            var expected=new Color[256*height];for(int i=0;i<length/4;i++)expected[i]=new Color(values[4*i],values[4*i+1],values[4*i+2],values[4*i+3]);
+            literal.SetPixels(expected);literal.Apply(false,false);
+            var a=literal.GetRawTextureData<float>();var b=reused.GetRawTextureData<float>();
+            if(a.Length!=b.Length)throw new Exception("Coverage upload changed native format or dimensions");
+            for(int i=0;i<a.Length;i++){if(BitConverter.SingleToInt32Bits(a[i])!=BitConverter.SingleToInt32Bits(b[i]))throw new Exception("Coverage upload changed float payload or zero padding");payloadFloats++;}
+            Destroy(literal);
+        }
+        if(reused!=null)Destroy(reused);
+        if(reusedObjects<3)throw new Exception("Coverage check did not exercise object reuse");
+        File.WriteAllText(Path.Combine(output,"coverage-texture-reuse.txt"),$"PASS {payloadFloats} literal/reused native float components including shrink/grow, zero padding, empty uploads and {reusedObjects} same-sized object reuses.");
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");
         if(shader==null||!shader.isSupported)throw new Exception("Coverage shader unsupported");
         var material=new Material(shader);material.SetFloat("_Water",1);material.SetFloat("_Daylight",1);material.SetFloat("_FogDistance",1e9f);

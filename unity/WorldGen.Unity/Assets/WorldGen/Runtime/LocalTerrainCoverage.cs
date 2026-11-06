@@ -5,6 +5,21 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     bool coverageDirty;
+    float[] coveragePixelScratch=System.Array.Empty<float>();
+    Texture2D CoverageTexture(Texture2D texture,float[] values)
+    {
+        if(values.Length==0){if(texture!=null)Destroy(texture);return null;}
+        int height=(values.Length/4+255)/256,count=256*height*4;
+        if(texture==null||texture.width!=256||texture.height!=height)
+        {
+            if(texture!=null)Destroy(texture);
+            texture=new Texture2D(256,height,TextureFormat.RGBAFloat,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
+        }
+        if(coveragePixelScratch.Length<count)coveragePixelScratch=new float[count];
+        System.Array.Copy(values,coveragePixelScratch,values.Length);
+        System.Array.Clear(coveragePixelScratch,values.Length,count-values.Length);
+        texture.SetPixelData(coveragePixelScratch,0);texture.Apply(false,false);return texture;
+    }
     void UpdateTerrainCoverage()
     {
         if(!coverageDirty)return;coverVisibilityRevision++;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;var keys=tiles.Keys.ToArray();
@@ -29,14 +44,10 @@ public sealed partial class LocalTerrainExplorer
             if(tile.CoverageNodes==null||!tile.CoverageNodes.SequenceEqual(nodes)||tile.CoverageTimingNodes==null||!tile.CoverageTimingNodes.SequenceEqual(tree.Timings))
             {
                 tile.CoverageNodes=nodes;tile.CoverageTimingNodes=tree.Timings;
-                if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);
-                Texture2D Texture(float[] values)
-                {
-                    if(values.Length==0)return null;int count=values.Length/4,height=(count+255)/256;var pixels=new Color[256*height];
-                    for(int i=0;i<count;i++)pixels[i]=new Color(values[i*4],values[i*4+1],values[i*4+2],values[i*4+3]);
-                    var t=new Texture2D(256,height,TextureFormat.RGBAFloat,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};t.SetPixels(pixels);t.Apply(false,true);return t;
-                }
-                tile.Coverage=Texture(nodes);tile.CoverageTimes=Texture(tree.Timings);
+                // Keep native texture objects across timing/content updates.
+                // One shared padded float buffer replaces a fresh Color[] per
+                // upload; the texture owns its readable copy after SetPixelData.
+                tile.Coverage=CoverageTexture(tile.Coverage,nodes);tile.CoverageTimes=CoverageTexture(tile.CoverageTimes,tree.Timings);
             }
             var timing=TerrainTiming(pair.Key);
             BindTerrainTile(tile,tile,pair.Key,new Vector4(timing.In,timing.Out,0,0));
