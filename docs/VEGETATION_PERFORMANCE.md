@@ -352,3 +352,23 @@ The official Memory Profiler1.2.0 is pinned for offline analysis. Explicit
 DevelopmentPlayer. Such player FPS is never release-throughput evidence. Source
 8c2bb808 includes the adapter, not a completed heap diagnosis. Selected slot A
 and the owner shortcut remain unchanged.
+
+The diagnostic capture and official heap crawl are now complete. The temperate
+route reproduced a69.81ms frame at9.75seconds, with only1.39ms Explorer work.
+The previous render-thread frame spent69.056ms in Async.UploadTexture, including
+27.875ms Gfx.CreateTexture. Its native metadata identifies a1024x1024,11mip,
+seven-layer array; archive CAB11918477d14a643ed04663fdd1e9493e matches hare.fauna.
+This is a native asset-upload stall, independently of the32.049ms incremental
+collection in frame2705. The render-thread/main-thread frame offset matters.
+
+Evidence: temperate-cpu-heap-current, temperate-cpu-render-independent,
+temperate-upload-paths under artifacts/render-repair-20261106. The official heap
+crawl reports3,154,573managed objects/1,053,489,206object bytes. Large value-only
+buffers do not by themselves establish the collector scanning cost.
+
+Source3d3ebe0e adds an isolated64-row BC7 upload experiment and full native
+all-mip/all-layer byte-equivalence check. It is not enabled for normal fauna.
+Production bundles, coat resolution and rendering remain unchanged pending
+correctness and measured cost. Unity asynchronous upload documentation consulted:
+https://unity.com/blog/engine-platform/understanding-the-async-upload-pipeline
+https://docs.unity3d.com/ScriptReference/Texture-allowThreadedTextureCreation.html

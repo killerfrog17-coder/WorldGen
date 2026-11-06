@@ -47,10 +47,10 @@ public sealed class FaunaTextureUpload : IDisposable
         yield return null;
         for(int layer=0;layer<Layers;layer++)for(int mip=0;mip<Mips;mip++)
         {
-            int width=Math.Max(1,Size>>mip),rows=Math.Min(64,width);
+            int width=Math.Max(1,Size>>mip),rows=Math.Min(64,width),sourceMip=width==1?2:width==2?1:0;
             if(!staging.TryGetValue(width,out var source))
             {
-                source=new Texture2D(width,rows,format,TextureCreationFlags.DontInitializePixels)
+                source=new Texture2D(Math.Max(4,width),Math.Max(4,rows),format,TextureCreationFlags.DontInitializePixels|(width<4?TextureCreationFlags.MipChain:0))
                     {name="Bounded BC7 upload page"};staging.Add(width,source);
                 scratch.Add(width,new byte[Math.Max(1,(width+3)/4)*Math.Max(1,(rows+3)/4)*16]);
             }
@@ -58,8 +58,9 @@ public sealed class FaunaTextureUpload : IDisposable
             for(int y=0,offset=0;y<width;y+=rows,offset+=bytes.Length)
             {
                 Buffer.BlockCopy(data[layer*Mips+mip],offset,bytes,0,bytes.Length);
-                source.SetPixelData(bytes,0);source.Apply(false,false);
-                Graphics.CopyTexture(source,0,0,0,0,width,rows,result,layer,mip,0,y);
+                source.SetPixelData(bytes,sourceMip);source.Apply(false,false);
+                if(width<=64)Graphics.CopyTexture(source,0,sourceMip,result,layer,mip);
+                else Graphics.CopyTexture(source,0,0,0,0,width,rows,result,layer,mip,0,y);
                 Pieces++;yield return null;
             }
         }
