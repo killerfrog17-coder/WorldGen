@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov18:03Z SPIKES FIRST. B FULL NONDEV c9d1b90a BuiltUtc17:54:45Z,
+SourceChanges[],3known autos restored. Own runner65160/player25052 RIGHTMOST
+running presented-no-timing-stats, temperate6kmMedium1080 moving60s, untraced.
+Actual machine.txt confirms FrameTimingStats FALSE. Do not compile/overwrite B
+or run heavy jobs while timing. Latest native flip control172.26FPS/max31.28ms,
+816>10ms/13>16.667, versus BitBlt167.91/max40.37; neither fixes spikes. Default
+swapchain/cap/queue unchanged. Native c9 includes6282 two fauna selection closure
+removals and127e opt-in GPU diagnostic capture/reader, plus unique-case guard.
+GPU recording/review NOT yet exercised; normal compile PASS. If no-FTstats still
+hitches, next FULL Development WITHOUT PerformancePlayer then -GpuProfile with
+travel-whip-cpu-profile; actual GPU samples required, not CPU relabeling. Return
+FULL NONDEV afterward. No current FPS gain claim/100floor UNMET. A/f833/shortcut
+unchanged. No new geography/features/agents/paid/ownerappsclosed. Owner3files
+preserved. All own visible windows RIGHTMOST. Keep spike priority, cheap visual
+quality second; no density cuts or lowered visibility to manufacture FPS.
+
 ACTIVE06Nov17:51Z SPIKES FIRST. B NONDEV af946f4f unchanged; own runner49603/
 player4308 RIGHTMOST running presented-flip-current60s moving temperate6kmMedium.
 NO builds/heavy jobs until it exits. BitBlt completed167.91FPS,p959.43/max40.37;
