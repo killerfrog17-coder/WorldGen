@@ -130,8 +130,9 @@ public sealed partial class LocalTerrainExplorer
     void UpdateAttachedProjectiles()
     {
         if(!inventoryInitialized||!Ready)return;
-        foreach(var item in Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&(p.AttachedAnimal!=0||p.AttachedHuman!=0)))
+        foreach(var item in Inventory.Items)
         {
+            if(item.Place!=PossessionPlace.Ground||(item.AttachedAnimal==0&&item.AttachedHuman==0))continue;
             Matrix4x4 matrix=Matrix4x4.identity;bool found=false;
             if(item.AttachedAnimal!=0&&animals.TryGetValue(item.AttachedAnimal,out var animal)&&!animal.Retired&&animal.Root!=null&&wildlifeSkeletons!=null&&wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton)&&item.AttachedBone>=0&&item.AttachedBone<skeleton.bones.Length)
             {matrix=AnimalBoneWorld(animal,item.AttachedBone,skeleton);found=true;}

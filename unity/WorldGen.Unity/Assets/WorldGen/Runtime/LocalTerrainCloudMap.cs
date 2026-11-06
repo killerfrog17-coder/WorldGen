@@ -34,6 +34,11 @@ public sealed partial class LocalTerrainExplorer
         if(hour!=cloudMapHour&&cloudMapJob==null&&Time.realtimeSinceStartupAsDouble>=cloudMapDue)
         {cloudMapHour=hour;cloudMapRevision++;}
         if(cloudMapJob!=null||cloudMapJobRevision==cloudMapRevision||Time.realtimeSinceStartupAsDouble<cloudMapDue)return;
+        StartCloudMapWork();
+    }
+    // Allocate the worker closure only when a map job is actually scheduled.
+    void StartCloudMapWork()
+    {
         cloudMapCancellation?.Dispose();cloudMapCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=cloudMapCancellation.Token;
         var viewport=mapViewport.Clone();var source=sourceWorld;var local=terrain;var weather=worldWeather;double days=weatherDays;string mode=WeatherControl.Mode;cloudMapJobRevision=cloudMapRevision;
         cloudMapDue=Time.realtimeSinceStartupAsDouble+3;

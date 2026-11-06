@@ -36,6 +36,11 @@ public sealed partial class LocalTerrainExplorer
         if(!mapOpen||terrain==null)return;
         InitializeMapSelection();if(mapInspectLayer!=mapLayer){mapInspectLayer=mapLayer;SelectMapPoint(mapSelection);}
         if(!mapInspectDirty||mapInspectJob!=null)return;
+        StartMapInspection();
+    }
+    // The map is normally closed; don't allocate its worker closure every frame.
+    void StartMapInspection()
+    {
         mapInspectDirty=false;mapInspectCancellation?.Dispose();mapInspectCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=mapInspectCancellation.Token;
         var point=mapSelection;var layer=mapLayer;var source=sourceWorld;var local=terrain;double meridian=playState?.PrimeMeridianLongitude??0;mapInspectJobRevision=mapInspectRevision;
         mapInspectJob=Task.Run(()=>TerrainMapSampling.Inspect(local,source,point,layer,token,meridian),token);

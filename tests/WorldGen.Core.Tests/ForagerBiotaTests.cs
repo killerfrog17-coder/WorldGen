@@ -13,6 +13,15 @@ static class ForagerBiotaTests
             f.Districts[0].Passages=new[]{new ForagerPassage{To=1,DistanceM=100000}};f.Districts[1].Passages=new[]{new ForagerPassage{To=0,DistanceM=100000}};
             f.Biota=new[]{new ForagerBiotaDistrict{District=0,Taxa=new[]{0},Abundance=new[]{.8},BaselineFood=new[]{0d,0,1,0,0}},new ForagerBiotaDistrict{District=1},new ForagerBiotaDistrict{District=2}};return f;
         }
+        var cachedState=State();var cachedRegion=ForagerBiota.CurrentRegion(world,cachedState,0);
+        for(int i=0;i<1000;i++)ForagerBiota.CurrentRegion(world,cachedState,0);
+        long allocated=GC.GetAllocatedBytesForCurrentThread();bool same=true;
+        for(int i=0;i<10000;i++)same&=ReferenceEquals(cachedRegion,ForagerBiota.CurrentRegion(world,cachedState,0));
+        allocated=GC.GetAllocatedBytesForCurrentThread()-allocated;
+        Check(same&&allocated<1024,$"Warm regional wildlife lookups preserve their canonical row without per-call captured-state allocations (same={same}, bytes={allocated})");
+        Console.WriteLine($"Regional cache: {allocated} bytes for 10,000 warm lookups");
+        var separateState=State();var separateRegion=ForagerBiota.CurrentRegion(world,separateState,0);
+        Check(!ReferenceEquals(cachedRegion,separateRegion)&&cachedRegion.Taxa.SequenceEqual(separateRegion.Taxa)&&cachedRegion.Abundance.SequenceEqual(separateRegion.Abundance),"Separate simulation states keep independent, identical derived ecology");
         var f=State();var warm=ForagerEcology.At(world.Recipe.Seed,f.Districts[0],0);var cold=ForagerEcology.At(world.Recipe.Seed,f.Districts[1],0);
         Check(ForagerBiota.Suitability(species,f.Districts[0],warm,100)>.5&&ForagerBiota.Suitability(species,f.Districts[1],cold,100)==0,"A taxon's thermal limits change actual habitat suitability");
         ForagerEnvironment[] EnvironmentAt(int year)=>f.Districts.Select(d=>ForagerEcology.At(world.Recipe.Seed,d,year)).ToArray();

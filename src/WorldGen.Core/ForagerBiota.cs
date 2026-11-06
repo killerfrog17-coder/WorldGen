@@ -17,6 +17,9 @@ namespace WorldGen.Core
         sealed class LocalRows {public readonly Dictionary<int,ForagerBiotaDistrict> Rows=new Dictionary<int,ForagerBiotaDistrict>();}
         static readonly ConditionalWeakTable<ForagerDistrict[],RealmSources> Sources=new ConditionalWeakTable<ForagerDistrict[],RealmSources>();
         static readonly ConditionalWeakTable<ForagerState,LocalRows> Derived=new ConditionalWeakTable<ForagerState,LocalRows>();
+        // Keep the captured state factory off the common cache-hit path: C#
+        // otherwise creates its closure before CurrentRegion's early return.
+        static RealmSources RegionSources(ForagerState f)=>Sources.GetValue(f.Districts,_=>new RealmSources(f));
         // Species rosters are local projections, not globally advanced actors.
         public static ForagerBiotaDistrict CurrentRegion(World world,ForagerState f,int region)
         {
@@ -24,7 +27,7 @@ namespace WorldGen.Core
             {
                 if(cache.Rows.TryGetValue(region,out var found))return found;
                 var d=f.Districts[region];var e=ForagerEcology.At(world.Recipe.Seed,d,f.Seconds/(double)SimulationTime.Year,world.ElevationM[d.Cell]);
-                var source=Sources.GetValue(f.Districts,_=>new RealmSources(f)).Taxa[d.Realm];var ids=new List<int>();var abundance=new List<double>();
+                var source=RegionSources(f).Taxa[d.Realm];var ids=new List<int>();var abundance=new List<double>();
                 foreach(int id in source)
                 {
                     var taxon=world.Ecology.Taxa[id];double value=Suitability(taxon,d,e,world.ElevationM[d.Cell]);int guild=Guild(taxon);
