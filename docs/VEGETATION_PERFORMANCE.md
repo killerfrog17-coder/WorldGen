@@ -407,3 +407,52 @@ post-construction object-reference mutation consumers were found.4105 current
 storage/canonical-hash/JSON/worker-wire checks pass;600k edges allocate14,400,024
 bytes rather than600k separately allocated objects. Actual200k world integrity
 and current save/load tests pass. Native GC/frame-time improvement is unmeasured.
+
+Buffered native fixture107634e5 passed39,146,828 exact decoded RGBA channels,
+including a deliberately wrong-layer positive control, canceled producer/native
+array cleanup and truncated-file rejection. Reader retention is256KiB. Isolated
+original upload worst68.545ms versus3.768ms bounded upload; these are not game FPS.
+
+Actual presented107634e5 with original fauna loading and inline mesh-edge storage:
+179.25FPS, p959.19ms, max81.535ms. The81ms frame remains at9.762seconds (known
+hare upload); completed-GC frames35.94/39.83ms remain. Object-count reduction is
+verified, but this does not establish a material GC-pause gain. Next comparison
+uses the buffered hare transport on the same package and route.
+
+That buffered107634e5 comparison completed:178.75FPS,p959.14ms,p9911.48ms,
+max43.73ms,296frames>10ms and4>16.7ms, versus original179.25FPS,p959.19ms,
+max81.54ms,325>10ms and8>16.7ms. Largest three buffered frames33.07/33.61/43.73ms
+coincide with completed collections; no other frame exceeded16.69ms. Still
+unsettled and sequential, so this establishes removal of the targeted upload
+hitch, not a100FPS floor or a general average gain.
+
+Sourceef550cbb uses explicit GraphicsTexture CopyTexture overloads to avoid
+attempting unsupported BC7 CPU-region copies and logging a warning per page.
+Unity documents that GraphicsTexture copies operate on GPU data only:
+https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Graphics.CopyTexture.html
+All177 streamed animal sets were derived in scratch from canonical approved
+inputs for further native comparison. Production bundles/asset lock unchanged.
+The native fixture now accepts a whole folder and records native memory usage.
+
+Source4c8d9895 shares one immutable weak handle per fine terrain face rather than
+one per incident edge. Expired addresses switch to a reconstructed face's handle;
+they never retarget a shared handle. Lifetime/refresh checks pass.750 complete
+terrain samples across30biome/coastal sites match a pre-change capture, including
+reverse-order reconstruction after cache retirement and collection. Actual
+native collection-time improvement remains unmeasured. This does not revive the
+previously rejected sparse root-cache paging trial.
+
+Native4c8d9895 all-species proof passed177 arrays /4,138,378,840 exact decoded
+RGBA channels, each positive control/cancellation/truncation check, without copy
+warnings. Engine-reported native texture bytes total1,034,617,120 for each path;
+the streamed readable flag differs, so this metric alone does not prove that no
+CPU shadow allocation exists. Assets are still derived trial outputs, not yet
+published production inputs.
+
+Actual4c all-streamed fauna/shared-face-handle travel:178.44FPS,p959.21ms,
+p9911.49ms,max45.70ms,349frames>10ms,5>16.7ms. Completed-collection frames were
+24.21/32.57/34.40ms; largest45.70ms at34.606s was not a completed collection and
+Explorer.Update was3.36ms. Neither the100FPS floor nor elimination of all uploads
+is established. New52771150 records model loading stages in memory (writes only
+after measurement) and adds native vertex/index-byte plus authored-motion checks
+for the repacked animal bundles. Next: focused CPU profile of the remaining pause.
