@@ -70,16 +70,26 @@ public sealed partial class WorldGenRuntime
         string streamedPath=Path.ChangeExtension(input,".fauna");
         if(File.Exists(streamedPath))
         {
+            // Unity identifies both bundles by their serialized-file identity.
+            // Snapshot the original before unloading it, then load the repack.
+            var expectedSlug=originalAsset.Slug;var expectedSource=originalAsset.SourceSha256;
+            var expectedBones=originalAsset.BoneCount;var expectedHeight=originalAsset.Height;
+            var expectedPoses=originalAsset.Poses;var expectedClips=originalAsset.Clips;
+            var expectedVariations=originalAsset.Variations;var expectedMorphs=originalAsset.Morphs;
+            FaunaMeshSnapshot expectedMesh=null;
+            yield return ReadFaunaMeshBuffers(originalAsset.Mesh,value=>expectedMesh=value);
+            bundle.Unload(true);bundle=null;
             var streamedRequest=AssetBundle.LoadFromFileAsync(streamedPath);yield return streamedRequest;
             var streamedBundle=streamedRequest.assetBundle;
             if(streamedBundle==null)throw new InvalidDataException("Missing streamed model bundle");
             var modelRequest=streamedBundle.LoadAllAssetsAsync<WorldGenFaunaAsset>();yield return modelRequest;
             var current=modelRequest.allAssets.OfType<WorldGenFaunaAsset>().Single();
-            if(current.Coats!=null||current.Slug!=originalAsset.Slug||current.SourceSha256!=originalAsset.SourceSha256||current.BoneCount!=originalAsset.BoneCount||current.Height!=originalAsset.Height||
-                !current.Poses.SequenceEqual(originalAsset.Poses)||!SameItems(current.Clips,originalAsset.Clips)||!SameItems(current.Variations,originalAsset.Variations)||
-                !(current.Morphs??Array.Empty<float>()).SequenceEqual(originalAsset.Morphs??Array.Empty<float>()))
+            if(current.Coats!=null||current.Slug!=expectedSlug||current.SourceSha256!=expectedSource||current.BoneCount!=expectedBones||current.Height!=expectedHeight||
+                !current.Poses.SequenceEqual(expectedPoses)||!SameItems(current.Clips,expectedClips)||!SameItems(current.Variations,expectedVariations)||
+                !(current.Morphs??Array.Empty<float>()).SequenceEqual(expectedMorphs??Array.Empty<float>()))
                 throw new InvalidDataException("Streamed model metadata or authored motion changed: "+current.Slug);
-            yield return CompareFaunaMeshBuffers(originalAsset.Mesh,current.Mesh);
+            FaunaMeshSnapshot actualMesh=null;yield return ReadFaunaMeshBuffers(current.Mesh,value=>actualMesh=value);
+            if(!expectedMesh.SameAs(actualMesh))throw new InvalidDataException("Streamed native mesh bytes or layout changed: "+current.Slug);
             File.WriteAllText(Path.Combine(output,"model.txt"),"PASS authored motion, coat metadata, source identity and all native mesh vertex/index bytes.\n");
             streamedBundle.Unload(true);
         }
@@ -99,28 +109,29 @@ public sealed partial class WorldGenRuntime
         }
         File.WriteAllLines(Path.Combine(output,"uploads.csv"),rows);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"PASS {comparisons} exact native decoded RGBA channels across BC7 layers/mips, {upload.Pieces} bounded uploads, {upload.RetainedBufferBytes} reader bytes; canceled worker/native array release and truncated source rejection. Isolated fixture timings are not game FPS.\n");
-        bundle.Unload(true);
+        if(bundle!=null)bundle.Unload(true);
     }
     static bool SameItems<T>(T[] a,T[] b)=>a.Length==b.Length&&a.Zip(b,(x,y)=>JsonUtility.ToJson(x)==JsonUtility.ToJson(y)).All(equal=>equal);
-    static IEnumerator CompareFaunaMeshBuffers(Mesh a,Mesh b)
+    sealed class FaunaMeshSnapshot
     {
-        if(a.vertexCount!=b.vertexCount||a.subMeshCount!=b.subMeshCount||a.indexFormat!=b.indexFormat||!a.bounds.Equals(b.bounds)||
-            !a.GetVertexAttributes().SequenceEqual(b.GetVertexAttributes()))throw new InvalidDataException("Fauna mesh layout changed");
-        for(int sub=0;sub<a.subMeshCount;sub++)if(!a.GetSubMesh(sub).Equals(b.GetSubMesh(sub)))throw new InvalidDataException("Fauna submesh changed");
-        for(int stream=-1;stream<a.vertexBufferCount;stream++)
+        public int Vertices;public IndexFormat Index;public Bounds Bounds;
+        public VertexAttributeDescriptor[] Attributes;public SubMeshDescriptor[] Submeshes;
+        public readonly List<byte[]> Buffers=new List<byte[]>();
+        public bool SameAs(FaunaMeshSnapshot other)=>Vertices==other.Vertices&&Index==other.Index&&Bounds.Equals(other.Bounds)&&
+            Attributes.SequenceEqual(other.Attributes)&&Submeshes.SequenceEqual(other.Submeshes)&&Buffers.Count==other.Buffers.Count&&
+            Buffers.Zip(other.Buffers,(a,b)=>a.SequenceEqual(b)).All(equal=>equal);
+    }
+    static IEnumerator ReadFaunaMeshBuffers(Mesh mesh,Action<FaunaMeshSnapshot> complete)
+    {
+        var result=new FaunaMeshSnapshot{Vertices=mesh.vertexCount,Index=mesh.indexFormat,Bounds=mesh.bounds,Attributes=mesh.GetVertexAttributes(),
+            Submeshes=Enumerable.Range(0,mesh.subMeshCount).Select(mesh.GetSubMesh).ToArray()};
+        for(int stream=-1;stream<mesh.vertexBufferCount;stream++)
         {
-            using var left=stream<0?a.GetIndexBuffer():a.GetVertexBuffer(stream);
-            using var right=stream<0?b.GetIndexBuffer():b.GetVertexBuffer(stream);
-            if(left.count!=right.count||left.stride!=right.stride)throw new InvalidDataException("Fauna native buffer size changed");
-            var first=AsyncGPUReadback.Request(left);var second=AsyncGPUReadback.Request(right);byte[] x=null,y=null;
-            while(x==null||y==null)
-            {
-                if(first.hasError||second.hasError)throw new InvalidOperationException("Fauna native mesh readback failed");
-                if(x==null&&first.done)x=first.GetData<byte>().ToArray();
-                if(y==null&&second.done)y=second.GetData<byte>().ToArray();
-                if(x==null||y==null)yield return null;
-            }
-            if(!x.SequenceEqual(y))throw new InvalidDataException("Fauna native mesh bytes changed");
+            using var buffer=stream<0?mesh.GetIndexBuffer():mesh.GetVertexBuffer(stream);
+            var read=AsyncGPUReadback.Request(buffer);while(!read.done)yield return null;
+            if(read.hasError)throw new InvalidOperationException("Fauna native mesh readback failed");
+            result.Buffers.Add(read.GetData<byte>().ToArray());
         }
+        complete(result);
     }
 }

@@ -16,6 +16,12 @@ public static class WorldGenProfilerReview
         var args=Environment.GetCommandLineArgs();
         string Argument(string key){int at=Array.IndexOf(args,key);if(at<0||at+1>=args.Length)throw new ArgumentException(key);return args[at+1];}
         string input=Argument("--worldgen-profile-input"),output=Argument("--worldgen-output");Directory.CreateDirectory(output);
+        // This disposable offline Editor must not silently keep only the final
+        // 2,000 frames and lose the hitch near the start of a captured route.
+        var history=typeof(ProfilerDriver).GetMethod("SetMaxFrameHistoryLength",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic);
+        if(history==null)throw new NotSupportedException("Profiler history control is unavailable");
+        history.Invoke(null,new object[]{20000});
+        typeof(ProfilerDriver).GetMethod("SetAutomaticMemoryManagement",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic)?.Invoke(null,new object[]{false});
         if(!ProfilerDriver.LoadProfile(input,false))throw new InvalidOperationException("Cannot load profiler capture: "+input);
         int first=ProfilerDriver.firstFrameIndex,last=ProfilerDriver.lastFrameIndex;
         if(first<0||last<first)throw new InvalidOperationException("Capture contains no readable frames");
