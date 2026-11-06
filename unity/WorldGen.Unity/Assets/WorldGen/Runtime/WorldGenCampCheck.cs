@@ -29,12 +29,14 @@ public sealed partial class LocalTerrainExplorer
                 for(int j=0;j<count;j++){if(!ReferenceEquals(expected[j],nearestCampFires[j]))throw new InvalidOperationException("Camp light order changed");checkedObjects++;}
             }
             for(int i=0;i<10;i++)SelectCampLights();
+            long controlBefore=GC.GetAllocatedBytesForCurrentThread();var allocationControl=new byte[1024];
+            bool allocationCounterValid=GC.GetAllocatedBytesForCurrentThread()>controlBefore;GC.KeepAlive(allocationControl);
             long before=GC.GetAllocatedBytesForCurrentThread();
             for(int i=0;i<1000;i++)SelectCampLights();
             long allocated=GC.GetAllocatedBytesForCurrentThread()-before;
-            if(allocated!=0)throw new InvalidOperationException("Camp light query allocated "+allocated+" bytes");
+            if(allocationCounterValid&&allocated!=0)throw new InvalidOperationException("Camp light query allocated "+allocated+" bytes");
             Camp.Objects.Clear();if(SelectCampLights()!=0||nearestCampFires.Any(f=>f!=null))throw new InvalidOperationException("Camp light query retains retired fires");
-            return "PASS camp nearest-four stable selection "+checkedObjects+" original-query comparisons; 1000 warm queries "+allocated+" bytes; retired references cleared";
+            return "PASS camp nearest-four stable selection "+checkedObjects+" original-query comparisons; "+(allocationCounterValid?"1000 warm queries "+allocated+" bytes":"per-thread allocation counter unavailable in this player; no byte claim")+"; retired references cleared";
         }
         finally{Camp.Objects.Clear();Camp.Objects.AddRange(saved);SelectCampLights();}
     }

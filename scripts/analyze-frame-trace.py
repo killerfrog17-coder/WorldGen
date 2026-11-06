@@ -37,7 +37,9 @@ def summarize(path, top):
             "over10ms": sum(v > 10 for v in durations),
             "over16ms": sum(v > 16 for v in durations),
             "collections": rows[-1]["gc0"] - rows[0]["gc0"],
-            "main_allocated_bytes_per_second": allocated/max(.001, elapsed),
+            # Some release Mono players expose the API but return zero for
+            # every sample. That is unavailable telemetry, not zero allocation.
+            "main_allocated_bytes_per_second": allocated/max(.001, elapsed) if rows[-1].get("allocated_main_total", 0)>0 else None,
             "heap_min_mib": min(r["heap_bytes"] for r in rows)/1048576,
             "heap_max_mib": max(r["heap_bytes"] for r in rows)/1048576,
             "peaks": peaks}
