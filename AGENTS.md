@@ -1,6 +1,15 @@
 # WorldGen repository instructions
 
-ACTIVE06Nov22:00Z SPIKES FIRST. Separated-streaming pair71841 COMPLETE EXIT0.
+ACTIVE06Nov22:12Z SPIKES FIRST. Family-handles native10648 COMPLETE:168.997FPS,
+p9510.706/p9914.049/max25.172ms,676>10/13>16.7. GC-associated frames18.663/25.172
+(nativeSTW4.802/9.773ms) vs prior29-32ms; promising lowercollectoroverhead, NOT
+complete spikefix.48mapprofile probes+55541readinesscomparisonsPASS. Noowncompiler.
+Ownrunner93650/player28104 RIGHTMOST nowruns presented-family-cpu-timing,0d3678B,
+same temperate6kmMedium1080,120s EACH current/separated, optionalCpuTiming+nativeGC.
+Observer spans bothcases and writesonce atend; CPUcounteravailabilityUNVALIDATED.
+DO NOTcompile/overwriteB/runheavyjobs untilfinished. Needactualtimingvalidity,
+source-timestampedphaseattribution andrepeat schedulingtails beforeadoption.
+Separated-streaming pair71841 COMPLETE EXIT0.
 Control170.984FPS p9510.265/p9913.128/max49.060,579>10/13>16.7;trial170.058FPS
 p959.618/p9911.877/max37.470,409>10/6>16.7. NormalGC pauseframes29.28/31.84,
 trial31.79/30.58 unchanged. Terrain/rebuild overlap20->0, butUpdatep99~6.63same,
@@ -11,8 +20,8 @@ Newd5aab0b familyweakhandles correctnessPASS:12addresses/4siblings/1handle, true
 weaklifetime/independentrefresh; actual46708faceaddresses+11677parentlookups use
 11677handles.750complete terrain samples/30biome-coastal sites EXACT priorbaseline,
 cache-clear reverse reconstruction AND4wayconcurrentqueriesPASS. NoFPSclaimyet.
-B ScriptsOnlyNONDEV0d3678ea build45809 RUNNING, noownplayer. Afterbuildrestore3autos
-thenfresh normal60s moving temperatewithnativeGCobserver toisolatesharedfamilygain.
+B ScriptsOnlyNONDEV0d3678ea built22:00:47Z SourceChanges[],3autosrestored.
+Family60s captureused schedulingOFF; new120s pairdiagnostic testsboth.
 Optional87ba CpuTiming flag attaches documented release CPU timing recorders only,
 no permanent PlayerSettingschange; UNVALIDATED. Do not enableit in firstnormal
 familyFPScomparison; useafterifremainingnonGCstallsneedattribution. A/shortcut

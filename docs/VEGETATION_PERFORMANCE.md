@@ -721,7 +721,14 @@ reenter managed code, and the helper DLL remains loaded until process exit.
   refresh, 46,708 actual face addresses plus 11,677 parent lookups sharing
   11,677 handles, and 750 exact complete samples across 30 biome/coastal sites.
   Samples also match after cache eviction/reconstruction and concurrent queries.
-  Its actual normal-player performance test is still pending.
+  Its normal-player 60-second test (`presented-family-handles`, 0d3678ea,
+  scheduling trial OFF) averaged 169.00 FPS, p95 10.706 / p99 14.049 /
+  maximum 25.172 ms, with 13 frames over 16.667 ms. Collection-associated frames
+  were 18.663 and 25.172 ms, containing 4.802 and 9.773 ms of native stop/restart
+  time respectively. This suggests lower collector overhead than the preceding
+  29–32 ms collection frames, but ordinary tail variation remains and one run
+  does not establish a complete stutter fix. Native 48 profile probes and 55,541
+  readiness comparisons also passed.
 
 87ba4ea6 adds optional `-CpuTiming` to the existing runner. It attaches only
 documented release CPU timing counters during the diagnostic; no permanent
