@@ -51,7 +51,6 @@ public static class WorldGenPerformance
     public static bool LegacyGroupVisibility;
     public static bool ParallelScatter=true;
     public static bool BurstScatter=true;
-    public static bool CompactScatterJobs;
     public static bool ScatterRangeCache;
     public static bool MemoHumanInputs;
     public static bool RepeatHumanOutputBinding;
@@ -1314,9 +1313,6 @@ public sealed partial class WorldGenRuntime
             new PerfCase("forest-upload-verify",()=>{}),
             new PerfCase("burst-scatter-verify",()=>{}),
             new PerfCase("burst-render-verify",()=>WorldGenPerformance.BurstScatter=true),
-            new PerfCase("compact-scatter-verify",()=>WorldGenPerformance.CompactScatterJobs=true),
-            new PerfCase("compact-scatter-render-verify",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.CompactScatterJobs=true),
-            new PerfCase("travel-whip-compact-scatter",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.CompactScatterJobs=true),
             new PerfCase("travel-whip-full-pbr",()=>Shader.SetGlobalFloat("_WorldGenFullPlantPbr",1)),
             new PerfCase("travel-whip-legacy-groups",()=>WorldGenPerformance.LegacyGroupVisibility=true),
             new PerfCase("travel-whip-narrow",()=>WorldGenPerformance.NarrowScatterGuard=true),
@@ -1366,7 +1362,6 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.ReuseTerrainMeshes=false;
-                WorldGenPerformance.CompactScatterJobs=false;
                 WorldGenPerformance.ResidentCoverReuse=true;
                 WorldGenPerformance.IndexedWalkingRivers=true;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
@@ -1414,8 +1409,8 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="scatter-range-cache-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyScatterRange()+"\n");
                 if(item.Name=="human-weights-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyHumanInputs()+"\n");
                 if(item.Name=="forest-upload-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestUploads()+"\n");
-                if(item.Name=="burst-scatter-verify"||item.Name=="compact-scatter-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter(true)+"\n");
-                if(item.Name=="burst-render-verify"||item.Name=="compact-scatter-render-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelRenders(Path.Combine(output,"burst-renders"),true)+"\n");
+                if(item.Name=="burst-scatter-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter(true)+"\n");
+                if(item.Name=="burst-render-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelRenders(Path.Combine(output,"burst-renders"),true)+"\n");
                 if(item.Name=="ground-seam-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewGroundSeams(output,site.Item1)+"\n");
                 if(item.Name=="hot-query-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyHotQueries()+"\n");
                 if(item.Name=="camp-light-selection-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyCampLightSelection()+"\n");

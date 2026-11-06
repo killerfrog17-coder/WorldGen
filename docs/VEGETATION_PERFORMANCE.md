@@ -668,3 +668,21 @@ presented-shared-budget-cap120,presented-size-class-meshes,
 compact-scatter-native-fixed, all under artifacts/render-repair-20261106.
 The first compact-scatter-native launch was aborted because its command-line
 case list was incorrectly space-separated; it supplies no test evidence.
+
+The compact scatter experiment passed eight exact instance sets and32 paired
+renders with zero pixel difference, but failed its performance gate. Fresh
+171ea744 control169.45FPS/max28.34ms/8frames>16.667ms versus trial169.71/max45.77/
+6frames>16.667ms. Rebuild median3.132->3.309ms,p954.384->4.491ms;
+classification median0.915->0.985ms,append1.734->1.837ms. It is retired, not
+enabled. Both routes remained streaming and this is not a global worst-case test.
+
+The optional native GC observer records Mono profiler API3 events into a bounded
+native buffer. Its callbacks do no managed work, allocation, locks or file IO.
+This is needed because collection-counter changes alone do not identify exact
+pause duration; earlier wording calling these "completed collections" was too
+strong. The observer records stop/suspend/restart phases and cycle boundaries
+separately, using native QPC to align with frame traces. A forced collection
+outside gameplay is the required positive control before accepting any data.
+Sources: Unity's public profiler ABI and Boehm event mapping:
+https://github.com/Unity-Technologies/mono/blob/unity-main/mono/metadata/profiler.h
+https://github.com/Unity-Technologies/mono/blob/unity-main/mono/metadata/boehm-gc.c

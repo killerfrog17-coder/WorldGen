@@ -1,5 +1,15 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov21:20Z SPIKES FIRST. Compact comparison53659 COMPLETE/no own game.
+Control169.45/max28.34/8>16.7 vscompact169.71/max45.77/6>16.7. Rebuildmedian
+3.132->3.309,p954.384->4.491; classify.915->.985,append1.734->1.837. NOgain;
+trial source RETIRED, existingBurst4partitions/listoutputrestored. Largesttrial
+45.77 frame had2.21msExplorer andNOrebuild. No100floor claim. Bstill171NONDEV.
+NativeGCobserver compiled C /O2 /W4 /WX PASS, scratchDLL SHA256B89ADA15601ABF44...
+New C#bindings/positivecontrol UNBUILT. Next ScriptsOnlyB compile,restore3autos,
+--worldgen-gc-probe-check hidden actualMono test, thennormalopt-inGCcapture ifPASS.
+AllvisiblewindowsRIGHTMOST; A/f833shortcutuntouched; owner3filesuntouched.
+
 ACTIVE06Nov21:14Z SPIKES FIRST. 53659 comparison still running SECOND fresh
 presented-compact-scatter-trial; first control COMPLETE169.45FPS,p959.90/p9912.68,
 max28.34,8>16.7ms. No gain claim until trial/phasecounts. Both useB171 NONDEV,
