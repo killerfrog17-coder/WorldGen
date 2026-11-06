@@ -79,17 +79,17 @@ namespace WorldGen.Core
         GroundProfile Describe(int cell)
         {
             var p=world.Surface.Cells[cell].Position;int seed=world.Recipe.Seed;
-            var h=world.Ecology!=null&&cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[cell]:null;
+            HabitatCell? h=world.Ecology!=null&&cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[cell]:null;
             double geology=D.Clamp(.5+.85*SphereNoise.Sample(p,seed^0x47b2,7)),facies=.5+.5*SphereNoise.Sample(p,seed^0x7219,23);
             double craton=Field(world.CratonPermille,cell),fold=Field(world.FoldPermille,cell),basin=Field(world.BasinPermille,cell);
             RockFamily rock=geology<.25?RockFamily.Sandstone:geology<.43?RockFamily.Limestone:geology<.62?RockFamily.Mudstone:geology<.80?RockFamily.Granite:RockFamily.Metamorphic;
             if(Field(world.MantlePermille,cell)>.7&&facies>.52)rock=RockFamily.Basalt;
             else if(craton>.65&&geology>.45)rock=RockFamily.Granite;
             else if(fold>.6&&geology>.65)rock=RockFamily.Metamorphic;
-            double warm=h==null?15:h.MeanTenthsC/10.0,moist=h==null?.7:h.AridityMilli/1000.0;
-            double dry=D.Clamp((.55-moist)/.55),wet=h==null?0:D.Clamp((100-h.WaterTableCm)/100.0);
-            double relief=h==null?0:h.ReliefM,flood=h==null?0:h.FloodFractionPermille/1000.0;
-            double frozen=h==null?0:h.PermafrostPermille/1000.0;
+            double warm=h==null?15:h.Value.MeanTenthsC/10.0,moist=h==null?.7:h.Value.AridityMilli/1000.0;
+            double dry=D.Clamp((.55-moist)/.55),wet=h==null?0:D.Clamp((100-h.Value.WaterTableCm)/100.0);
+            double relief=h==null?0:h.Value.ReliefM,flood=h==null?0:h.Value.FloodFractionPermille/1000.0;
+            double frozen=h==null?0:h.Value.PermafrostPermille/1000.0;
             bool glacial=cell<world.Glaciated.Length&&world.Glaciated[cell];
             ParentDeposit deposit=flood>.12?ParentDeposit.Alluvium:glacial?ParentDeposit.Glacial:dry>.5&&basin>.3&&facies>.6?ParentDeposit.Windblown:ParentDeposit.Residual;
             if(deposit==ParentDeposit.Residual&&warm<18&&moist>.3&&moist<1.2&&relief<400&&facies<.4)
@@ -109,9 +109,9 @@ namespace WorldGen.Core
             if(deposit==ParentDeposit.Loess)depth=Math.Max(1.3,depth);
             depth*=1-.7*frozen;
             double organic=D.Clamp((.025+.10*wet+.045*D.Clamp((12-warm)/20))*(1-.9*dry)*(1-.5*D.Clamp(warm/30)));
-            if(h!=null&&(h.Biome==Biome.Grassland||h.Biome==Biome.Savanna))organic+=.035*(1-dry);
-            if(h!=null&&h.Biome==Biome.Peatland){organic=.45;depth=Math.Max(1,depth);}
-            double salt=h==null||h.Biome==Biome.Ocean?0:D.Clamp(h.SalinityMilliPpt/5000.0);
+            if(h!=null&&(h.Value.Biome==Biome.Grassland||h.Value.Biome==Biome.Savanna))organic+=.035*(1-dry);
+            if(h!=null&&h.Value.Biome==Biome.Peatland){organic=.45;depth=Math.Max(1,depth);}
+            double salt=h==null||h.Value.Biome==Biome.Ocean?0:D.Clamp(h.Value.SalinityMilliPpt/5000.0);
             double ph=Math.Max(4,Math.Min(9,6.5+(rock==RockFamily.Limestone?1.1:rock==RockFamily.Basalt?.4:0)+.8*dry-1.8*weathering-1.3*organic));
             double fertile=D.Clamp((rock==RockFamily.Basalt?.85:rock==RockFamily.Granite?.48:.65)*(1-.65*weathering)+.20*flood+organic);
             if(deposit==ParentDeposit.Loess)fertile=Math.Max(.72,fertile);

@@ -376,7 +376,6 @@ namespace WorldGen.Core
         }
         static void HabitatRecord(BinaryWriter w, HabitatCell h)
         {
-            if(h==null){w.Write((byte)0);return;}
             w.Write((byte)1);w.Write("WorldGen.Core.HabitatCell");
             void I(string name,int value){w.Write(name);Integer(w,value);}
             void E(string name,string type,int value){w.Write(name);w.Write((byte)1);w.Write(type);w.Write(value);}

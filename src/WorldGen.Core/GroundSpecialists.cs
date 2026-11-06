@@ -49,10 +49,10 @@ namespace WorldGen.Core
         public static double Canopy(Biome biome)=>biome==Biome.TropicalRainforest?.92:biome==Biome.TemperateRainforest?.88:biome==Biome.BorealForest?.78:biome==Biome.TemperateForest?.74:biome==Biome.TropicalSeasonalForest?.6:biome==Biome.MediterraneanWoodland?.35:biome==Biome.Mangrove?.65:.08;
         public static GroundSpecialist[] Create(World world,int region,int province)
         {
-            var ecology=world.Ecology;HabitatCell h=null;
+            var ecology=world.Ecology;HabitatCell? h=null;
             if(ecology!=null&&region>=0&&region<ecology.Regions.Length){int cell=ecology.Regions[region].RepresentativeCell;if(cell>=0&&cell<ecology.Habitat.Length)h=ecology.Habitat[cell];}
-            double warm=h==null?18:h.WarmTenthsC*.1,wet=h==null?.8:h.AridityMilli*.001,shade=h==null?.2:Canopy(h.Biome);
-            bool cold=h!=null&&(h.Biome==Biome.Tundra||h.Biome==Biome.Alpine);
+            double warm=h==null?18:h.Value.WarmTenthsC*.1,wet=h==null?.8:h.Value.AridityMilli*.001,shade=h==null?.2:Canopy(h.Value.Biome);
+            bool cold=h!=null&&(h.Value.Biome==Biome.Tundra||h.Value.Biome==Biome.Alpine);
             var result=new GroundSpecialist[10];
             for(int i=0;i<result.Length;i++)
             {
@@ -72,21 +72,21 @@ namespace WorldGen.Core
                     MaxSalinity=.025+.08*founder.Unit(),ColonyM=5+22*founder.Unit()};
                 if(form==SpecialistForm.Fern){species.Moisture=Math.Max(.75,species.Moisture);species.Shade=Math.Max(.48,species.Shade);}
                 if(form==SpecialistForm.Fungus){species.Moisture=Math.Max(.6,species.Moisture);species.Shade=i==8?Math.Max(.25,species.Shade):Math.Max(.55,species.Shade);}
-                if(form!=SpecialistForm.Fungus&&h!=null&&(h.Biome==Biome.SaltMarsh||h.Biome==Biome.Mangrove))species.MaxSalinity=.6+.35*founder.Unit();
+                if(form!=SpecialistForm.Fungus&&h!=null&&(h.Value.Biome==Biome.SaltMarsh||h.Value.Biome==Biome.Mangrove))species.MaxSalinity=.6+.35*founder.Unit();
                 result[i]=species;
             }
             return result;
         }
-        public static double Suitability(GroundSpecialist s,HabitatCell h,GroundProfile soil,Biome biome,double warm,double shade)
+        public static double Suitability(GroundSpecialist s,HabitatCell? h,GroundProfile soil,Biome biome,double warm,double shade)
         {
             if(biome==Biome.Ocean||biome==Biome.Ice||biome==Biome.Desert||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
-            double wet=h==null?.8:h.AridityMilli*.001;
+            double wet=h==null?.8:h.Value.AridityMilli*.001;
             wet*=.75+.35*D.Clamp(soil.WaterCapacityMm/100)+.2*(1-soil.Drainage);
             double moisture=Math.Exp(-Math.Pow((wet-s.Moisture)/Math.Max(.25,s.Moisture*.65),2));
             double light=Math.Exp(-Math.Pow((shade-s.Shade)/.45,2));
             double temperature=D.Clamp((warm-s.MinWarmC)/5)*D.Clamp((s.MaxWarmC-warm)/5);
             double ph=D.Clamp((soil.PH-s.MinPH)/.7)*D.Clamp((s.MaxPH-soil.PH)/.7),salt=1-D.Clamp(soil.Salinity/Math.Max(.01,s.MaxSalinity));
-            double flooding=h==null?0:h.FloodFractionPermille*.001;
+            double flooding=h==null?0:h.Value.FloodFractionPermille*.001;
             double roots=D.Clamp(soil.DepthM/.18)*(.45+.55*soil.Fertility)*(1-.7*soil.Gravel);
             double floodPenalty=.8-.6*D.Clamp((s.Moisture-.9)/.8);
             double suitability=moisture*light*temperature*ph*salt*roots*(1-floodPenalty*flooding);

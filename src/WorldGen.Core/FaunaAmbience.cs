@@ -80,7 +80,7 @@ namespace WorldGen.Core
             if(kind==FaunaSoundKind.Owl){result.Activity.StartSolarHour=18;result.Activity.DurationHours=12;result.Activity.MinTemperatureC=-18;result.Acoustics.PhraseGapSeconds=20;result.Acoustics.RelativeLoudness=.55;}
             return result;
         }
-        public static double HabitatGain(FaunaVoiceProfile p,HabitatCell h,LocalTerrainSample sample)
+        public static double HabitatGain(FaunaVoiceProfile p,HabitatCell? h,LocalTerrainSample sample)
         {
             if(h==null||sample.Underwater||sample.Biome==Biome.Ocean||sample.Biome==Biome.Ice||sample.Ground.Salinity>.4)return 0;
             if(p.Candidate!=null)
@@ -92,8 +92,8 @@ namespace WorldGen.Core
             if(p.Kind==FaunaSoundKind.Raven)return D.Clamp(.2+sample.Forest.Coverage+sample.Cover.Coverage*.5);
             if(p.Kind==FaunaSoundKind.Pigeon||p.Kind==FaunaSoundKind.Hummingbird)return D.Clamp(sample.Forest.Coverage*2+sample.Cover.Coverage*.5);
             if((int)p.Kind>=4)return D.Clamp(sample.Forest.Coverage*2);
-            double refuge=Math.Max(sample.RiverInfluence,Math.Max(h.FloodFractionPermille*.001,D.Clamp((180-h.WaterTableCm)/180.0)));
-            double dampForest=D.Clamp((h.AridityMilli*.001-.65)/.5)*D.Clamp(sample.Ground.Organic*3)*(1-sample.Ground.Drainage*.7);
+            double refuge=Math.Max(sample.RiverInfluence,Math.Max(h.Value.FloodFractionPermille*.001,D.Clamp((180-h.Value.WaterTableCm)/180.0)));
+            double dampForest=D.Clamp((h.Value.AridityMilli*.001-.65)/.5)*D.Clamp(sample.Ground.Organic*3)*(1-sample.Ground.Drainage*.7);
             return D.Clamp(Math.Max(refuge,dampForest));
         }
         static double Smooth(double a,double b,double v){double x=D.Clamp((v-a)/(b-a));return x*x*(3-2*x);}

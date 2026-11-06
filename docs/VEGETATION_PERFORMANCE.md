@@ -804,3 +804,31 @@ Logical root references399,996 now occupy36,650slots; edge references599,994 now
 occupy51,039slots, including page directories. Original weak lifetime and eviction
 policy remain unchanged. Root vertex storage is unchanged. Actual native GC/frame
 benefit remains UNMEASURED; fewer reference slots alone is not proof of a hitch fix.
+
+
+### 6 November: sparse-cache comparison and habitat-array candidate
+
+The sparse-cache native comparison completed in `presented-sparse-cache-loops`.
+Against `presented-dense-loops`, same 90-second 180m routes and Medium settings:
+- Jungle 166.53 -> 162.51 FPS; p99 12.65 -> 13.78ms, maximum 25.47 -> 42.29ms.
+  The new maximum has a 38.09ms presentation wait, 4.24ms main-thread work and
+  no native collector overlap. Explorer mean/p99 improved slightly, but total
+  frame tails did not. No general stutter gain is established.
+- Savanna 151.78 -> 154.76 FPS; p99 13.57 -> 12.87ms, maximum 34.64 -> 23.37ms.
+  Frames above 16.667ms increased 12 -> 13. Several remaining peaks overlap
+  native collector stops. Identical grass counts; streamed tile counts vary.
+The sparse cache is retained as a verified reference-storage reduction, not a
+claimed hitch fix. Both sites remain below the requested 100 FPS floor on tails.
+
+Next candidate stores the reference-free 88-byte HabitatCell records inline,
+removing 200,000 separately allocated objects from this world's graph. Optional
+inputs explicitly retain nullable/fallback behavior. Ecology construction writes
+back only after populating each record. Mutation sites were audited; no other
+production habitat mutation requires reference aliasing.
+`--habitat-storage-world` passes pre-change whole-planet, habitat, regenerated
+habitat and 65 dated-projection hashes; current JSON, worker transport and full
+world save/reload pass. A 200,000-record array allocates 17,600,024 bytes.
+All 750 complete terrain probes across 30 sites match, including eviction and
+concurrent reconstruction. Focused water (142+37), sound (69), wildlife (6089),
+ground flora (5759), landscape (35733), fauna (104), crop (8) checks pass.
+Native frame-time benefit is still unmeasured; this is a storage candidate.

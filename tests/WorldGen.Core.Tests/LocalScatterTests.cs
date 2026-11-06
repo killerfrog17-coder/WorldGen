@@ -39,7 +39,7 @@ static class LocalScatterTests
         check(Trees(a)>Trees(grass.Build(grass.Address(point)))*5&&Trees(dry.Build(dry.Address(point)))==0,"Forest versus open/desert structure is ecological, not uniform random scatter");
         var frozen=new LocalScatter(new LocalTerrain(Fixture(Biome.TemperateForest,30)));
         check(Trees(frozen.Build(frozen.Address(point)))==0,"Cold summer conditions exclude trees even if a coarse biome label says forest");
-        var saltyWorld=Fixture(Biome.TemperateForest);foreach(var h in saltyWorld.Ecology.Habitat)h.SalinityMilliPpt=10000;
+        var saltyWorld=Fixture(Biome.TemperateForest);for(int i=0;i<saltyWorld.Ecology.Habitat.Length;i++)saltyWorld.Ecology.Habitat[i].SalinityMilliPpt=10000;
         var salty=new LocalScatter(new LocalTerrain(saltyWorld));check(Trees(salty.Build(salty.Address(point)))==0,"Saline soils exclude ordinary forest trees");
         foreach(var p in a.Instances)
         {

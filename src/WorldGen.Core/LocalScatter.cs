@@ -90,10 +90,10 @@ namespace WorldGen.Core
                         if(solidCenter.HasValue&&(p-solidCenter.Value).Length*terrain.RadiusM*scale>solidRadiusM)continue;
                         var sample=patch.Sample(p);
                         if(sample.ElevationM<2||sample.Underwater)continue;
-                        var env=world.Ecology!=null&&sample.Cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[sample.Cell]:null;
+                        HabitatCell? env=world.Ecology!=null&&sample.Cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[sample.Cell]:null;
                         Biome biome=sample.Biome;if(biome==Biome.Freshwater||biome==Biome.SalineLake||biome==Biome.Ocean)continue;
-                        double wet=env==null?.7:D.Clamp(env.AridityMilli/1300.0,.03,1.4);
-                        double warm=env==null?18:env.WarmTenthsC/10.0-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
+                        double wet=env==null?.7:D.Clamp(env.Value.AridityMilli/1300.0,.03,1.4);
+                        double warm=env==null?18:env.Value.WarmTenthsC/10.0-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
                         double trees=0,cover=.6;
                         switch(biome)
                         {
@@ -115,7 +115,7 @@ namespace WorldGen.Core
                         double cluster=D.Clamp(.55+.6*SphereNoise.Sample(km,seed^0x3921,3)+.18*SphereNoise.Sample(km,seed^0x7231,13));
                         trees*=cluster*D.Clamp((warm-6)/6)*D.Clamp(wet/.55);
                         trees*=.15+.85*sample.Ground.RootingSupport(biome==Biome.Mangrove,biome==Biome.Mangrove);
-                        if(env!=null){trees*=1-.75*env.PermafrostPermille/1000.0;if(env.SalinityMilliPpt>5000&&biome!=Biome.Mangrove)trees=0;}
+                        if(env!=null){trees*=1-.75*env.Value.PermafrostPermille/1000.0;if(env.Value.SalinityMilliPpt>5000&&biome!=Biome.Mangrove)trees=0;}
                         // Cube projection's area Jacobian keeps density comparable at face centres, edges and corners.
                         double cu=(key.X+u)*2/Divisions(key.Detail)-1,cv=(key.Y+v)*2/Divisions(key.Detail)-1;
                         double jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);

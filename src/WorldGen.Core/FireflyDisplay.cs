@@ -8,7 +8,7 @@ namespace WorldGen.Core
     {
         static double Smooth(double low,double high,double value)
         {double t=Math.Max(0,Math.Min(1,(value-low)/(high-low)));return t*t*(3-2*t);}
-        public static double HabitatGain(AmbientFaunaSpecies species,HabitatCell habitat,LocalTerrainSample local)
+        public static double HabitatGain(AmbientFaunaSpecies species,HabitatCell? habitat,LocalTerrainSample local)
         {
             if(species?.Family!=AmbientFaunaFamily.Firefly||habitat==null||local.Underwater||local.Biome==Biome.Ocean||local.Biome==Biome.Ice)return 0;
             double cover=Math.Min(1,local.Cover.Coverage+local.MidCover.Coverage+local.Forest.Coverage*.5);

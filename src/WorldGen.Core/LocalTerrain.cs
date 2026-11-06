@@ -61,12 +61,12 @@ namespace WorldGen.Core
                     double scale = (h - world.ElevationM[i]) / Math.Max(1, length2 * RadiusM);
                     gx += delta.X * scale; gy += delta.Y * scale; gz += delta.Z * scale;
                 }
-                var habitat = world.Ecology != null && world.Ecology.Habitat.Length > i ? world.Ecology.Habitat[i] : null;
+                HabitatCell? habitat = world.Ecology != null && world.Ecology.Habitat.Length > i ? world.Ecology.Habitat[i] : null;
                 double relief = high - low;
                 // High, low-relief interiors are plateaus, not Himalayan peaks.
                 // On measured Earth this is an inference, not a named-region override.
                 double sediment = habitat == null ? At(world.BasinPermille, i) / 1500.0
-                    : Math.Max(habitat.FloodFractionPermille / 1000.0, habitat.Soil == SoilKind.Alluvial ? .85 : 0);
+                    : Math.Max(habitat.Value.FloodFractionPermille / 1000.0, habitat.Value.Soil == SoilKind.Alluvial ? .85 : 0);
                 var landform=new TerrainRelief(world.ElevationM[i],relief,At(world.FoldPermille,i)/1000.0,At(world.PlateauPermille,i)/1000.0,sediment);
                 double plateau=landform.Plateau,hill=landform.HillsM,ridge=landform.MountainsM;
                 V axis = axes[i];
@@ -99,9 +99,9 @@ namespace WorldGen.Core
                 profiles[i].Forest=TreeFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).Trees,treeSetting);
                 profiles[i].Forest.ReferenceElevationM=profiles[i].ElevationM;
                 profiles[i].Landscape=LandscapeProvince.Describe(profiles[i].Ground,profiles[i].Biome,
-                    habitat==null?.7:habitat.AridityMilli/1000d,profiles[i].Forest.Coverage,relief,
-                    habitat==null?0:habitat.PermafrostPermille/1000d,
-                    habitat==null?0:habitat.FloodFractionPermille/1000d,profiles[i].Glacial);
+                    habitat==null?.7:habitat.Value.AridityMilli/1000d,profiles[i].Forest.Coverage,relief,
+                    habitat==null?0:habitat.Value.PermafrostPermille/1000d,
+                    habitat==null?0:habitat.Value.FloodFractionPermille/1000d,profiles[i].Glacial);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
             faceOffsets = new int[profiles.Length + 1]; foreach(int id in world.Surface.Triangles) faceOffsets[id + 1]++;

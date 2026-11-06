@@ -87,7 +87,7 @@ public sealed partial class LocalTerrainExplorer
     }
     WaterQuality PlayerWaterAppearance(LocalTerrainSample sample)
     {
-        var ecology=sourceWorld?.Ecology;HabitatCell habitat=ecology!=null&&sample.Cell>=0&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;double lakeSalinity=double.NaN;
+        var ecology=sourceWorld?.Ecology;HabitatCell? habitat=ecology!=null&&sample.Cell>=0&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;double lakeSalinity=double.NaN;
         if(sample.WaterKind==LocalWaterKind.Lake&&!SmallWaterBodies.IsLocal(sample.WaterBodyKey)&&ecology!=null)
         {int body=sourceWorld.Hydrology.WaterBody[sample.Cell];if(body>=0&&body<ecology.WaterSalinityPpt.Length)lakeSalinity=ecology.WaterSalinityPpt[body];}
         return WaterQuality.From(sample,habitat,lakeSalinity);

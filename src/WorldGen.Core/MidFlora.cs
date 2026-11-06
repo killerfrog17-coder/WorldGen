@@ -84,9 +84,9 @@ namespace WorldGen.Core
         static string Word(ref Rng r)=>syllables[(int)(r.Unit()*syllables.Length)]+syllables[(int)(r.Unit()*syllables.Length)];
         public static MidPlantSpecies[] Create(World world,int region,int province)
         {
-            HabitatCell h=null;var e=world.Ecology;
+            HabitatCell? h=null;var e=world.Ecology;
             if(e!=null&&region>=0&&region<e.Regions.Length){int id=e.Regions[region].RepresentativeCell;if(id>=0&&id<e.Habitat.Length)h=e.Habitat[id];}
-            double warm=h==null?18:h.WarmTenthsC*.1,wet=h==null?.8:h.AridityMilli*.001;
+            double warm=h==null?18:h.Value.WarmTenthsC*.1,wet=h==null?.8:h.Value.AridityMilli*.001;
             var result=new MidPlantSpecies[14];
             for(int i=0;i<result.Length;i++)
             {
@@ -96,14 +96,14 @@ namespace WorldGen.Core
                 string genus=Word(ref a)+"a",name=char.ToUpperInvariant(genus[0])+genus.Substring(1)+" "+Word(ref b)+"is";
                 double height=form==MidGrowthForm.DwarfHeath?.16+.44*a.Unit():form==MidGrowthForm.LargeFern?.65+1.05*a.Unit():
                     form==MidGrowthForm.ReedStand?1.2+1.8*a.Unit():form==MidGrowthForm.Succulent?.35+1.5*a.Unit():.65+1.95*a.Unit();
-                if(h!=null&&(h.Biome==Biome.Tundra||h.Biome==Biome.Alpine)&&form!=MidGrowthForm.DwarfHeath)height*=.48;
+                if(h!=null&&(h.Value.Biome==Biome.Tundra||h.Value.Biome==Biome.Alpine)&&form!=MidGrowthForm.DwarfHeath)height*=.48;
                 double moisture=form==MidGrowthForm.OpenScrub||form==MidGrowthForm.Succulent?.12+.35*a.Unit():
                     form==MidGrowthForm.ReedStand?1.1+.65*a.Unit():form==MidGrowthForm.LargeFern?.95+.65*a.Unit():D.Clamp(wet*(.8+.4*a.Unit()),.3,1.6);
                 double shade=form==MidGrowthForm.LargeFern?.48+.30*a.Unit():form==MidGrowthForm.LeafyBush?GroundSpecialists.Canopy(h?.Biome??Biome.Grassland)*.65+.25*a.Unit():.03+.2*a.Unit();
                 result[i]=new MidPlantSpecies{Id=((ulong)(uint)region<<32)|(uint)i,RegionId=region,ProvinceId=province,MorphologyCode=code,Name=name,Founder=genus,LeafColor=new MidMorphology(code).Leaf,
                     Form=form,HeightM=D.Q(height,1000),WidthM=D.Q(height*(form==MidGrowthForm.DwarfHeath?2.4:form==MidGrowthForm.ReedStand?.65:form==MidGrowthForm.Succulent?1:1.3)*(.8+.4*b.Unit()),1000),
                     Moisture=moisture,Shade=shade,MinWarmC=warm-12-8*a.Unit(),MaxWarmC=warm+12+7*a.Unit(),MinPH=3.9+1.5*a.Unit(),MaxPH=7.5+1.1*a.Unit(),
-                    MaxSalinity=h!=null&&(h.Biome==Biome.SaltMarsh||h.Biome==Biome.Mangrove)?.65+.3*a.Unit():.04+.15*a.Unit(),
+                    MaxSalinity=h!=null&&(h.Value.Biome==Biome.SaltMarsh||h.Value.Biome==Biome.Mangrove)?.65+.3*a.Unit():.04+.15*a.Unit(),
                     ColonyM=12+65*a.Unit(),FloodTolerance=form==MidGrowthForm.ReedStand?.95:.15+.45*a.Unit(),DroughtTolerance=form==MidGrowthForm.Succulent||form==MidGrowthForm.OpenScrub?.85:.2+.4*a.Unit()};
             }
             return result;
@@ -115,7 +115,7 @@ namespace WorldGen.Core
             double maximum=Math.Min(1.2,s.HeightM*.4),depth=sample.WaterSurfaceM-sample.ElevationM;
             return 1-OrogenMorphology.Smooth(maximum*.6,maximum,depth);
         }
-        public static double Suitability(MidPlantSpecies s,HabitatCell h,GroundProfile soil,Biome biome,double warm,double? localShade=null,double inundationDepth=0)
+        public static double Suitability(MidPlantSpecies s,HabitatCell? h,GroundProfile soil,Biome biome,double warm,double? localShade=null,double inundationDepth=0)
         {
             if(inundationDepth>0)
             {
@@ -123,8 +123,8 @@ namespace WorldGen.Core
                 if(biome==Biome.Freshwater)biome=Biome.Marsh;
             }
             if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
-            bool cold=biome==Biome.Tundra||biome==Biome.Alpine;double wet=h==null?.8:h.AridityMilli*.001;
-            double flood=h==null?0:Math.Max(h.FloodFractionPermille*.001,D.Clamp((100-h.WaterTableCm)/100d));
+            bool cold=biome==Biome.Tundra||biome==Biome.Alpine;double wet=h==null?.8:h.Value.AridityMilli*.001;
+            double flood=h==null?0:Math.Max(h.Value.FloodFractionPermille*.001,D.Clamp((100-h.Value.WaterTableCm)/100d));
             if(inundationDepth>0){wet=Math.Max(wet,1.25);flood=1;}
             double shade=localShade??GroundSpecialists.Canopy(biome),weight=1;
             switch(s.Form)
@@ -157,12 +157,12 @@ namespace WorldGen.Core
         }
         public static int ColonyMembers(MidGrowthForm form)=>form==MidGrowthForm.DwarfHeath?4:
             form==MidGrowthForm.ArchingCane||form==MidGrowthForm.ReedStand?3:form==MidGrowthForm.LargeFern?2:1;
-        public static MidCoverProfile Describe(HabitatCell h,GroundProfile ground,MidPlantSpecies[] species,Biome biome)
+        public static MidCoverProfile Describe(HabitatCell? h,GroundProfile ground,MidPlantSpecies[] species,Biome biome)
         {
             var p=new MidCoverProfile();double sum=0,area=0;
             foreach(var s in species)
             {
-                double w=Suitability(s,h,ground,biome,h==null?18:h.WarmTenthsC*.1);sum+=w;
+                double w=Suitability(s,h,ground,biome,h==null?18:h.Value.WarmTenthsC*.1);sum+=w;
                 p.Color+=s.LeafColor*w;p.HeightM+=s.HeightM*w;p.WidthM+=s.WidthM*w;
                 area+=s.WidthM*s.WidthM*.60*ColonyMembers(s.Form)*w;
             }

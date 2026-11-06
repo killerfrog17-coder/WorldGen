@@ -10,12 +10,12 @@ namespace WorldGen.Core
         public bool Fresh=>SalinityPpt<.5;
         public string Name=>SalinityPpt>=30?"Salt water":!Fresh?"Brackish / saline water":Kind==LocalWaterKind.River?"Fresh river water":"Fresh lake water";
         public string Description=>Fresh?"Untreated; safety is uncertain":SalinityPpt>=7?"Too salty to hydrate you":"Salty, untreated water";
-        public static WaterQuality From(LocalTerrainSample sample,HabitatCell habitat=null,double lakeSalinity=double.NaN)
+        public static WaterQuality From(LocalTerrainSample sample,HabitatCell? habitat=null,double lakeSalinity=double.NaN)
         {
             double salinity=sample.WaterKind==LocalWaterKind.Ocean?35:.08;
             if(sample.WaterKind==LocalWaterKind.Lake)salinity=SmallWaterBodies.IsLocal(sample.WaterBodyKey)?.08:double.IsFinite(lakeSalinity)?lakeSalinity:(habitat?.SalinityMilliPpt??80)*.001;
             if(sample.WaterKind==LocalWaterKind.River&&habitat?.Flooding==FloodRegime.Tidal&&sample.WaterSurfaceM<2)
-                salinity=Math.Max(salinity,habitat.SalinityMilliPpt*.001*D.Clamp(1-Math.Max(0,sample.WaterSurfaceM)/2));
+                salinity=Math.Max(salinity,habitat.Value.SalinityMilliPpt*.001*D.Clamp(1-Math.Max(0,sample.WaterSurfaceM)/2));
             double mud=D.Clamp(sample.Sediment*.75+sample.WaterTurbulence*.1+(habitat?.FloodFractionPermille??0)*.00025);
             // Appearance and salinity do not establish whether infectious material
             // is present. The source model supplies that separately.

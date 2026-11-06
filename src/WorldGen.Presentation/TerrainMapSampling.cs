@@ -68,7 +68,7 @@ namespace WorldGen.Presentation
             if(sample.Underwater||sample.ElevationM<2)return 0;
             if(world!=null)
             {
-                var e=world.Ecology;var h=e!=null&&sample.Cell>=0&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
+                var e=world.Ecology;HabitatCell? h=e!=null&&sample.Cell>=0&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 double sum=0;foreach(var species in terrain.FloraRegion(sample.Cell).Trees)
                     sum+=TreeFlora.SpeciesWeight(species,h,sample,point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale,world.ElevationM[sample.Cell]);
                 if(sum<.001)return 0;
@@ -157,7 +157,7 @@ namespace WorldGen.Presentation
                 return prefix+height+(layer==Layer.Bathymetry?"\nDepth below sea datum "+F(Math.Max(0,-s.ElevationM))+" m":"")+"\nFull-detail terrain query at selection; preview is footprint-filtered.";
             }
             if(world==null)return prefix+"Source cell "+cell+"; saved layer data unavailable.";
-            var w=world;string value;var h=w.Ecology!=null&&cell<w.Ecology.Habitat.Length?w.Ecology.Habitat[cell]:null;
+            var w=world;string value;HabitatCell? h=w.Ecology!=null&&cell<w.Ecology.Habitat.Length?w.Ecology.Habitat[cell]:null;
             ClimateSeason? season=layer==Layer.TemperatureSpring||layer==Layer.PrecipitationSpring?w.Climate.NorthernSpring:layer==Layer.TemperatureSummer||layer==Layer.PrecipitationSummer||layer==Layer.WindSummer||layer==Layer.OceanCurrentsSummer?w.Climate.NorthernSummer:layer==Layer.TemperatureAutumn||layer==Layer.PrecipitationAutumn?w.Climate.NorthernAutumn:layer==Layer.TemperatureWinter||layer==Layer.PrecipitationWinter||layer==Layer.WindWinter||layer==Layer.OceanCurrentsWinter?w.Climate.NorthernWinter:null;
             if(season!=null)
             {
@@ -171,13 +171,13 @@ namespace WorldGen.Presentation
                 case Layer.Climate:value=w.Climate.Classification[cell].ToString()+" · Köppen classification";break;
                 case Layer.Biomes:value=h?.Biome.ToString()??"No ecology";break;
                 case Layer.Ecoregions:int region=w.Ecology==null?-1:w.Ecology.Region[cell];value=region<0?"No terrestrial ecoregion":w.Ecology!.Regions[region].Name+" · region "+region;break;
-                case Layer.Soils:value=h==null?"No ecology":h.Soil+" · cell soil category";break;
-                case Layer.Aridity:value=h==null?"No ecology":F(h.AridityMilli*.001)+" precipitation/PET";break;
-                case Layer.Floodplains:value=h==null?"No ecology":F(h.FloodFractionPermille*.1)+"% potential flood extent · "+h.FloodDaysPerYear+" days/year";break;
-                case Layer.WaterTable:value=h==null?"No ecology":F(h.WaterTableCm*.01)+" m below ground (proxy)";break;
-                case Layer.Permafrost:value=h==null?"No ecology":F(h.PermafrostPermille*.1)+"% potential";break;
-                case Layer.Salinity:value=h==null?"No ecology":F(h.SalinityMilliPpt*.001)+" ppt";break;
-                case Layer.FirePotential:value=h==null?"No ecology":F(h.FirePotentialPermille*.1)+"% index";break;
+                case Layer.Soils:value=h==null?"No ecology":h.Value.Soil+" · cell soil category";break;
+                case Layer.Aridity:value=h==null?"No ecology":F(h.Value.AridityMilli*.001)+" precipitation/PET";break;
+                case Layer.Floodplains:value=h==null?"No ecology":F(h.Value.FloodFractionPermille*.1)+"% potential flood extent · "+h.Value.FloodDaysPerYear+" days/year";break;
+                case Layer.WaterTable:value=h==null?"No ecology":F(h.Value.WaterTableCm*.01)+" m below ground (proxy)";break;
+                case Layer.Permafrost:value=h==null?"No ecology":F(h.Value.PermafrostPermille*.1)+"% potential";break;
+                case Layer.Salinity:value=h==null?"No ecology":F(h.Value.SalinityMilliPpt*.001)+" ppt";break;
+                case Layer.FirePotential:value=h==null?"No ecology":F(h.Value.FirePotentialPermille*.1)+"% index";break;
                 case Layer.Continentality:value=F(w.Climate.ContinentalityPermille[cell]*.1)+"% index";break;
                 case Layer.Microplates:value="Plate "+w.CellMicroplate[cell];break;
                 case Layer.ParentPlates:value="Superplate "+w.Microplates[w.CellMicroplate[cell]].ParentAffinityId;break;

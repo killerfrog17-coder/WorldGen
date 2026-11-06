@@ -22,9 +22,9 @@ namespace WorldGen.Core
                 if(sample.Biome==Biome.Ice||sample.ElevationM<2||sample.Underwater&&sample.WaterSurfaceM-sample.ElevationM>1.2)continue;
                 double rooted=LandscapeProvince.RootedAdmission(sample.Province,p*(terrain.RadiusM*scale),seed);
                 if(rooted<=0)continue;
-                var e=world.Ecology;var habitat=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
+                var e=world.Ecology;HabitatCell? habitat=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).MidPlants;
-                double warm=habitat==null?18:habitat.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]),sum=0;
+                double warm=habitat==null?18:habitat.Value.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]),sum=0;
                 double shade=TreeFlora.CanopyShade(sample.Forest,p,seed,terrain.RadiusM*scale);
                 for(int i=0;i<species.Length;i++)
                 {

@@ -22,8 +22,8 @@ namespace WorldGen.Core
             double low=world.ElevationM[cell],high=low;
             foreach(int next in world.Surface.Cells[cell].Neighbors){low=Math.Min(low,world.ElevationM[next]);high=Math.Max(high,world.ElevationM[next]);}
             double At(int[] values)=>cell<values.Length?values[cell]/1000.0:0;
-            var habitat=world.Ecology!=null&&cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[cell]:null;
-            double sediment=habitat==null?At(world.BasinPermille)/1.5:Math.Max(habitat.FloodFractionPermille/1000.0,habitat.Soil==SoilKind.Alluvial?.85:0);
+            HabitatCell? habitat=world.Ecology!=null&&cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[cell]:null;
+            double sediment=habitat==null?At(world.BasinPermille)/1.5:Math.Max(habitat.Value.FloodFractionPermille/1000.0,habitat.Value.Soil==SoilKind.Alluvial?.85:0);
             return new TerrainRelief(world.ElevationM[cell],high-low,At(world.FoldPermille),At(world.PlateauPermille),sediment);
         }
     }

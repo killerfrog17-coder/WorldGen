@@ -30,15 +30,15 @@ namespace WorldGen.Core
     {
         public const string Version="landscape-provinces-1";
         static double Smooth(double a,double b,double value)=>OrogenMorphology.Smooth(a,b,value);
-        public static Biome WetlandTreeSetting(HabitatCell h,GroundProfile ground,V metres,int seed)
+        public static Biome WetlandTreeSetting(HabitatCell? h,GroundProfile ground,V metres,int seed)
         {
             if(h==null)return Biome.Grassland;
-            if(h.Biome!=Biome.Marsh||h.WarmTenthsC<120||h.PermafrostPermille>500||ground.DepthM<.3||ground.Salinity>.08||h.FloodFractionPermille>900)return h.Biome;
+            if(h.Value.Biome!=Biome.Marsh||h.Value.WarmTenthsC<120||h.Value.PermafrostPermille>500||ground.DepthM<.3||ground.Salinity>.08||h.Value.FloodFractionPermille>900)return h.Value.Biome;
             // The coarse "marsh" class previously prohibited woody wetlands
             // everywhere. Seasonally saturated, forest-capable substrates have
             // coherent wooded provinces alongside open herbaceous marshes.
-            if(.5+.5*SphereNoise.Sample(metres,seed^0x53f782,1/5200d)<.51)return h.Biome;
-            return h.WarmTenthsC>250?Biome.TropicalRainforest:h.WarmTenthsC>160?Biome.TemperateForest:Biome.BorealForest;
+            if(.5+.5*SphereNoise.Sample(metres,seed^0x53f782,1/5200d)<.51)return h.Value.Biome;
+            return h.Value.WarmTenthsC>250?Biome.TropicalRainforest:h.Value.WarmTenthsC>160?Biome.TemperateForest:Biome.BorealForest;
         }
         public static LandscapeControls Describe(GroundProfile ground,Biome biome,double moisture,double canopy,double relief,double frozen,double flood,double glacial=0)
         {

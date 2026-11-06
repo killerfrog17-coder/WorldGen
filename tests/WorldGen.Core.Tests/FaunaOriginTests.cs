@@ -46,7 +46,7 @@ public static class FaunaOriginTests
                 case "coastal":untouched.Lineage.RequiresCoast=true;break;case "aquatic":untouched.Lineage.Aquatic=true;break;
                 case "freshwater":untouched.Lineage.RequiresFreshwater=true;break;case "producer":untouched.Producer=true;untouched.Rank=TaxonRank.Species;break;}
             // Eligibility remains real: add the required habitat to both choices.
-            foreach(var h in choices.Ecology.Habitat)h.Habitat=Habitat.Open|Habitat.Coastal|Habitat.Freshwater;
+            for(int i=0;i<choices.Ecology.Habitat.Length;i++)choices.Ecology.Habitat[i].Habitat=Habitat.Open|Habitat.Coastal|Habitat.Freshwater;
             check(Origin(choices,untouched)==0,"Source breadth leaves this excluded category unchanged: "+kind);
         }
         var rare=Chain(1,1000000000L);check(Origin(rare,t)==0,"A genuinely isolated source is allowed; no minimum range or extra seed is invented");

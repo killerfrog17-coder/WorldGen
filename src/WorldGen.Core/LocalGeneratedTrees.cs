@@ -79,7 +79,7 @@ namespace WorldGen.Core
                     forest=sample.Forest;stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
                     if(admission>forest.Coverage*stand*TreeFlora.Stocking(forest))return false;
                 }
-                var e=world.Ecology;var h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
+                var e=world.Ecology;HabitatCell? h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Trees;double sum=0;
                 for(int i=0;i<species.Length;i++)
                 {
@@ -101,7 +101,7 @@ namespace WorldGen.Core
                 // pioneer trees remaining in a closed stand. Suppressed young
                 // cohorts stay smaller; openings release the same lineage.
                 if(size<.65)size*=1-.35*TreeFlora.CanopyShade(forest,at,seed,terrain.RadiusM*scale)*(1-s.ShadeTolerance);
-                double localWarm=(h==null?18:h.WarmTenthsC*.1)-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
+                double localWarm=(h==null?18:h.Value.WarmTenthsC*.1)-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
                 double growth=D.Clamp((localWarm-5)/12);growth=growth*growth*(3-2*growth);
                 size*=(.28+.72*growth)*(.65+.35*D.Clamp(sample.Ground.DepthM/.6));
                 double tint=.93+.12*r.Unit();

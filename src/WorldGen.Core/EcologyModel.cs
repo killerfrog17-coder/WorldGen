@@ -60,7 +60,9 @@ namespace WorldGen.Core
         public int Docility,PanicResistance;
         [System.Runtime.Serialization.OptionalField] public AnimalEcotype Ecotype;
     }
-    [Serializable] public sealed class HabitatCell
+    // Numeric records stay together rather than creating one managed object per
+    // world cell. Optional habitat inputs use Nullable<HabitatCell> explicitly.
+    [Serializable] public struct HabitatCell
     {
         public int PetMm, AridityMilli, WaterDeficitMm, GrowingDays, ColdTenthsC, WarmTenthsC, MeanTenthsC, WarmSeasonDryPermille;
         public int WaterTableCm, PermafrostPermille, FloodFractionPermille, FloodDaysPerYear, FloodPulsesPerYear;

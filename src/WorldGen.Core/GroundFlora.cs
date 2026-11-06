@@ -64,22 +64,22 @@ namespace WorldGen.Core
         public GroundCoverProfile Cell(int cell,GroundProfile soil)
         {
             var e=world.Ecology;
-            var h=e!=null&&cell<e.Habitat.Length?e.Habitat[cell]:null;
+            HabitatCell? h=e!=null&&cell<e.Habitat.Length?e.Habitat[cell]:null;
             int region=e!=null&&cell<e.Region.Length?e.Region[cell]:0;
             var flora=Region(region);
             return Describe(h,soil,flora);
         }
-        public static GroundCoverProfile Describe(HabitatCell h,GroundProfile soil,GroundFloraRegion flora)
+        public static GroundCoverProfile Describe(HabitatCell? h,GroundProfile soil,GroundFloraRegion flora)
         {
-            if(h!=null&&(h.Biome==Biome.Ocean||h.Biome==Biome.Ice))return default;
-            double warm=h==null?18:h.WarmTenthsC*.1,wet=h==null?.8:h.AridityMilli*.001;
+            if(h!=null&&(h.Value.Biome==Biome.Ocean||h.Value.Biome==Biome.Ice))return default;
+            double warm=h==null?18:h.Value.WarmTenthsC*.1,wet=h==null?.8:h.Value.AridityMilli*.001;
             double cold=D.Clamp((warm+1)/9),hot=D.Clamp((warm-18)/14),moist=D.Clamp((wet-.12)/.85);
-            double flood=h==null?0:Math.Max(h.FloodFractionPermille*.001,D.Clamp((120-h.WaterTableCm)/120.0));
-            double shade=h==null?0:h.Biome==Biome.TropicalRainforest?.94:h.Biome==Biome.TemperateRainforest?.88:
-                h.Biome==Biome.BorealForest?.78:h.Biome==Biome.TemperateForest?.75:h.Biome==Biome.TropicalSeasonalForest?.58:h.Biome==Biome.MediterraneanWoodland?.3:0;
-            double salt=Math.Max(soil.Salinity,h==null?0:D.Clamp(h.SalinityMilliPpt/35000.0));
+            double flood=h==null?0:Math.Max(h.Value.FloodFractionPermille*.001,D.Clamp((120-h.Value.WaterTableCm)/120.0));
+            double shade=h==null?0:h.Value.Biome==Biome.TropicalRainforest?.94:h.Value.Biome==Biome.TemperateRainforest?.88:
+                h.Value.Biome==Biome.BorealForest?.78:h.Value.Biome==Biome.TemperateForest?.75:h.Value.Biome==Biome.TropicalSeasonalForest?.58:h.Value.Biome==Biome.MediterraneanWoodland?.3:0;
+            double salt=Math.Max(soil.Salinity,h==null?0:D.Clamp(h.Value.SalinityMilliPpt/35000.0));
             double roots=D.Clamp(soil.DepthM/.25)*(.4+.6*soil.Fertility)*(1-.7*soil.Gravel);
-            bool tundra=h!=null&&(h.Biome==Biome.Tundra||h.Biome==Biome.Alpine);
+            bool tundra=h!=null&&(h.Value.Biome==Biome.Tundra||h.Value.Biome==Biome.Alpine);
             var profile=new GroundCoverProfile();double sum=0;
             for(int f=0;f<9;f++)
             {
@@ -99,7 +99,7 @@ namespace WorldGen.Core
                 // Explicit project rule: Desert gets bare substrate/crust, never
                 // grass inferred from a coarse groundwater estimate. Genuine
                 // wetlands/grasslands retain their own habitat classifications.
-                if(h!=null&&h.Biome==Biome.Desert)w=f==7?Math.Min(w,.08):0;
+                if(h!=null&&h.Value.Biome==Biome.Desert)w=f==7?Math.Min(w,.08):0;
                 // Open cold ground is not a temperate meadow. Wet tundra keeps
                 // sedges; moist sites support moss without needing forest shade,
                 // while exposed/drier ground favours lichens and short tufts.

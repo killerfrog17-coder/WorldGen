@@ -28,7 +28,7 @@ namespace WorldGen.Core
             for(int i=0;i<n;i++)
             {
                 if((i&1023)==0) token.ThrowIfCancellationRequested();
-                var c=w.Surface.Cells[i]; var a=new HabitatCell(); e.Habitat[i]=a;
+                var c=w.Surface.Cells[i]; var a=new HabitatCell();
                 int low=int.MaxValue,high=int.MinValue; foreach(int j in c.Neighbors) { low=Math.Min(low,w.ElevationM[j]); high=Math.Max(high,w.ElevationM[j]); }
                 a.ReliefM=Math.Max(0,high-low);
                 int p=0,sumT=0,cold=10000,warm=-10000,deficit=0,pet=0,growing=0,dry=0;
@@ -78,6 +78,7 @@ namespace WorldGen.Core
                 // the terrestrial biome need not itself be a tidal wetland.
                 if(w.Recipe.EcologyProfile==EarthFaunaPack.Version&&!ocean&&coast)a.Habitat|=Habitat.Coastal;
                 if(w.Recipe.EcologyProfile==EarthFaunaPack.Version&&a.Biome==Biome.SalineLake)a.Habitat|=Habitat.Wetland;
+                e.Habitat[i]=a;
             }
         }
         // Oudin-style radiation/temperature PET. Quarterly averages cannot resolve

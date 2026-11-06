@@ -17,9 +17,9 @@ namespace WorldGen.Core
                 double u=(x+.08+.84*random.Unit())/side,v=(y+.08+.84*random.Unit())/side;
                 V p=Position(key,u,v);var sample=patch.Sample(p);var biome=sample.Biome;
                 if(sample.Underwater||sample.ElevationM<2||biome==Biome.Desert||biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)continue;
-                var ecology=world.Ecology;var h=ecology!=null&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;
+                var ecology=world.Ecology;HabitatCell? h=ecology!=null&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Specialists;V physical=p*(terrain.RadiusM*scale/1000);
-                double warm=h==null?18:h.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
+                double warm=h==null?18:h.Value.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
                 double shade=TreeFlora.CanopyShade(sample.Forest,p,seed,terrain.RadiusM*scale);
                 double sum=0;
                 for(int i=0;i<species.Length;i++)

@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--habitat-storage-world")){HabitatStorageTests.World(args[1],args[2],args.Contains("--capture"));return;}
 if(args.Contains("--paged-reference-cache")){PagedReferenceCacheTests.Run();return;}
 if(args.Contains("--terrain-face-handles")){TerrainFaceHandleTests.Handles();return;}
 if(args.Contains("--terrain-root-controls")){TerrainFaceHandleTests.RootControls(args[1],args[2],args.Contains("--capture"));return;}

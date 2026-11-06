@@ -29,7 +29,7 @@ namespace WorldGen.Core
             for(int step=0;step<5;step++)
             {
                 var h=world.Ecology.Habitat[cell];
-                if(h!=null){use+=weight*(D.Clamp(h.ProductivityGCM2Year/2200d)*.35+((h.Habitat&Habitat.Wetland)!=0?.12:0));total+=weight;}
+                {use+=weight*(D.Clamp(h.ProductivityGCM2Year/2200d)*.35+((h.Habitat&Habitat.Wetland)!=0?.12:0));total+=weight;}
                 if(cell>=world.Surface.Cells.Length||world.Surface.Cells[cell].Neighbors==null)break;
                 int upstream=-1;long area=-1;
                 foreach(int n in world.Surface.Cells[cell].Neighbors)

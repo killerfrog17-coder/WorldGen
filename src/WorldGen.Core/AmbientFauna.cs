@@ -103,7 +103,7 @@ namespace WorldGen.Core
         IReadOnlyList<AmbientFaunaSpecies> CreateRegion(int region)
         {
             var e=world.Ecology;var r=e.Regions[region];int province=r.ProvinceId,cell=r.RepresentativeCell;
-            HabitatCell h=cell>=0&&cell<e.Habitat.Length?e.Habitat[cell]:null;
+            HabitatCell? h=cell>=0&&cell<e.Habitat.Length?e.Habitat[cell]:null;
             var result=new AmbientFaunaSpecies[lineages.Count];
             for(int i=0;i<result.Length;i++)
             {
@@ -132,7 +132,7 @@ namespace WorldGen.Core
                     StartSolarHour=Trait(ref founder,ref branch,cicada?8:17,cicada?11:20),DurationHours=Trait(ref founder,ref branch,cicada?7:8,cicada?10:12),
                     MinTemperatureC=Trait(ref founder,ref branch,cicada?16:firefly?11:7,cicada?23:firefly?17:14),
                     PreferredTemperatureC=Trait(ref founder,ref branch,24,30),MaxTemperatureC=Trait(ref founder,ref branch,35,42),
-                    SeasonCue=h!=null&&h.ColdTenthsC>=180?InsectSeasonCue.WarmMoistOpportunities:InsectSeasonCue.AnnualWarmSeason,
+                    SeasonCue=h!=null&&h.Value.ColdTenthsC>=180?InsectSeasonCue.WarmMoistOpportunities:InsectSeasonCue.AnnualWarmSeason,
                     SeasonPeakOffsetDays=Trait(ref founder,ref branch,-25,35),AdultDisplayWindowDays=Trait(ref founder,ref branch,firefly?14:cicada?35:50,firefly?65:cicada?110:170),
                     RainSuppressionMmPerHour=Trait(ref founder,ref branch,1,5),WindSuppressionMps=Trait(ref founder,ref branch,3,8)
                 };
@@ -164,13 +164,13 @@ namespace WorldGen.Core
         }
         /// <summary>Constant-time abiotic potential only: no native-range, local
         /// plant-host, water-edge or live-occupancy assertion.</summary>
-        public static double HabitatSuitability(AmbientFaunaSpecies s,HabitatCell h)
+        public static double HabitatSuitability(AmbientFaunaSpecies s,HabitatCell? h)
         {
-            if(h==null||h.Biome==Biome.Ocean||h.Biome==Biome.Ice||h.Biome==Biome.Freshwater||h.Biome==Biome.SalineLake||(s.Habitats&h.Habitat)==0)return 0;
-            double warmth=D.Clamp((h.WarmTenthsC*.1-s.MinWarmSeasonC)/5)*D.Clamp((s.MaxWarmSeasonC-h.WarmTenthsC*.1)/5);
-            double moisture=D.Clamp((h.AridityMilli*.001-s.MinAridityRatio)/.35);
-            double salt=1-D.Clamp(h.SalinityMilliPpt/(s.MaxSalinityPpt*1000));
-            double woody=s.MinCanopyFraction<=0?1:D.Clamp((AnimalEcotypes.Canopy(h)*.001-s.MinCanopyFraction)/.3);
+            if(h==null||h.Value.Biome==Biome.Ocean||h.Value.Biome==Biome.Ice||h.Value.Biome==Biome.Freshwater||h.Value.Biome==Biome.SalineLake||(s.Habitats&h.Value.Habitat)==0)return 0;
+            double warmth=D.Clamp((h.Value.WarmTenthsC*.1-s.MinWarmSeasonC)/5)*D.Clamp((s.MaxWarmSeasonC-h.Value.WarmTenthsC*.1)/5);
+            double moisture=D.Clamp((h.Value.AridityMilli*.001-s.MinAridityRatio)/.35);
+            double salt=1-D.Clamp(h.Value.SalinityMilliPpt/(s.MaxSalinityPpt*1000));
+            double woody=s.MinCanopyFraction<=0?1:D.Clamp((AnimalEcotypes.Canopy(h.Value)*.001-s.MinCanopyFraction)/.3);
             return D.Q(D.Clamp(warmth*moisture*salt*woody),1000000);
         }
     }
