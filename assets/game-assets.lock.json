@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "6b6678e7167760a0e25a601962baff18a6c1c113",
+  "source_checkpoint": "d430df8047732ae0193d066a14078f6477686a94",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14266,6 +14266,24 @@
       "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
       "member": "objects/27ea9cf7778fd3f5eacc24159d2cfc040878125c2289c3bccc49be5806e87bd1"
     },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forest_leaves_02/albedo.jpg": {
+      "sha256": "9c38b2b151a0415457a6914966422cfca5a546c94674442e5395e0b1e908a196",
+      "bytes": 1668009,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/9c38b2b151a0415457a6914966422cfca5a546c94674442e5395e0b1e908a196"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forest_leaves_02/mask.jpg": {
+      "sha256": "d8423b522d86285e26036d27fc51f4db7b8c6716b1558deb4575b288e14c28b7",
+      "bytes": 1066850,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/d8423b522d86285e26036d27fc51f4db7b8c6716b1558deb4575b288e14c28b7"
+    },
+    "assets-source/terrain/surfaces/cc0-forest-floor/forest_leaves_02/normal.jpg": {
+      "sha256": "af0346114834c347a8d6a138f6ea16a97b0bec8d6e4db32c24f1c7e482163235",
+      "bytes": 2323898,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/af0346114834c347a8d6a138f6ea16a97b0bec8d6e4db32c24f1c7e482163235"
+    },
     "assets-source/terrain/surfaces/cc0-forest-floor/forrest_ground_03/albedo.jpg": {
       "sha256": "187a8e33773473939c0e85b5e10ae94eb9e8d91463ab8b74e122d833d2d84dc6",
       "bytes": 3522953,
@@ -14285,10 +14303,10 @@
       "member": "objects/dcc26b4fd27a8e1f1f14558214fbaf1d68a61d9b569eee805793498e4b30098c"
     },
     "assets-source/terrain/surfaces/cc0-forest-floor/sources.json": {
-      "sha256": "c87715036e499a937cb9d3ccc86c774c4c9fc4774027418995bdcb2839190618",
-      "bytes": 4215,
-      "pack": "forest-floor-inputs-20261104/assets-6054c1d8ea347af3a6e4cc6ee5897018dfdd1c43348b961f4e90649abd5378ab.zip",
-      "member": "objects/c87715036e499a937cb9d3ccc86c774c4c9fc4774027418995bdcb2839190618"
+      "sha256": "cafb4134ce6c11383adb4770de4399491c336570db57a8f557ded4c6ad5f82d8",
+      "bytes": 4185,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/cafb4134ce6c11383adb4770de4399491c336570db57a8f557ded4c6ad5f82d8"
     },
     "assets-source/terrain/surfaces/cc0-grass/leafy_grass/Diffuse.jpg": {
       "sha256": "cfa40bc9d9417d1852db8753a8d5917f110c40101179f63543c382e39bc05e4a",
@@ -32392,6 +32410,24 @@
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/8fe01c1d2456516fe9c3776855852f73eb3f9d4e2d02da90a8c15d7571f2a9b5"
     },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/albedo.asset": {
+      "sha256": "2f9703d9df02b4f0ea58f41cf1a2d421520ed441eac4622086894055e56f93ac",
+      "bytes": 47537224,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/2f9703d9df02b4f0ea58f41cf1a2d421520ed441eac4622086894055e56f93ac"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/mask.asset": {
+      "sha256": "af83c036b5414c6080b0607ab4b46a897f1e1fb0c70d359904263bc0e6c069f1",
+      "bytes": 744511,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/af83c036b5414c6080b0607ab4b46a897f1e1fb0c70d359904263bc0e6c069f1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/normal.asset": {
+      "sha256": "daac914db53e9aaf7892560510a96187e2b877530d8deff8302e3082188849a9",
+      "bytes": 11885636,
+      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "member": "objects/daac914db53e9aaf7892560510a96187e2b877530d8deff8302e3082188849a9"
+    },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1.meta": {
       "sha256": "20f269bc5621aeb76c055cfd49a911bf3033afaa23abcc8b4b9b484eaf6c7a7d",
       "bytes": 172,
@@ -33578,6 +33614,14 @@
       "asset_id": 709234330,
       "sha256": "4364eb81a7c551566a8acd04d5bb3ec75d1fe6fee322ae6692465dd074c234a0",
       "bytes": 34413364,
+      "encoding": "zip"
+    },
+    "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip": {
+      "tag": "terrain-ground-detail-20261106-v1",
+      "name": "assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
+      "asset_id": 716458304,
+      "sha256": "d28a4758996887cb5137191cc95b00e8e260bf860159849e6570f0af2c048538",
+      "bytes": 31175871,
       "encoding": "zip"
     },
     "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip": {
