@@ -212,7 +212,8 @@ public sealed partial class LocalTerrainExplorer
         string extraPath=Path.Combine(Application.streamingAssetsPath,"fauna-motion",profile.slug+".bin.gz");
         if(File.Exists(extraPath))
         {
-            var extra=Task.Run(()=>new FaunaAdditionalMotion(extraPath,hitSlug,hitSource,hitBones));while(!extra.IsCompleted)yield return null;
+            var basePoses=asset.Poses;var baseMorphs=asset.Morphs;var baseClips=asset.Clips;var extraToken=cancellation.Token;
+            var extra=Task.Run(()=>new FaunaAdditionalMotion(extraPath,hitSlug,hitSource,hitBones,basePoses,baseMorphs,baseClips,extraToken));while(!extra.IsCompleted)yield return null;
             if(animalDisposed){animalPendingBundle?.Unload(true);animalPendingBundle=null;animalLoading=null;yield break;}
             if(extra.IsCompletedSuccessfully)extra.Result.Append(asset);else Debug.LogWarning("Additional motion skipped: "+profile.slug+" / "+extra.Exception?.GetBaseException().Message);
         }
