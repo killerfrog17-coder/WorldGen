@@ -14,6 +14,7 @@ param(
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
     [switch]$Presented,
+    [ValidateSet('Windowed','Borderless','Exclusive')][string]$WindowMode='Windowed',
     [switch]$StutterTrace,
     [switch]$SavedSettings,
     [switch]$GpuTelemetry,
@@ -22,6 +23,7 @@ param(
     [switch]$Original
 )
 $ErrorActionPreference='Stop'
+if($WindowMode -ne 'Windowed' -and !$Presented){throw 'Fullscreen comparisons require a presented player'}
 $repo=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repo "builds/$PlayerFolder/WorldGen.exe"
 if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not benchmark it.'}
@@ -48,7 +50,13 @@ $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
 if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
-if($Presented){$arguments+='--worldgen-perf-presented'}
+if($Presented){
+    Add-Type -AssemblyName System.Windows.Forms
+    $reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
+    $reviewMonitorIndex=[regex]::Match($reviewMonitor.DeviceName,'\d+$').Value
+    if(!$reviewMonitorIndex){throw 'Cannot identify rightmost monitor for presented comparison'}
+    $arguments+=@('--worldgen-perf-presented','--worldgen-perf-window-mode',$WindowMode,'-monitor',$reviewMonitorIndex)
+}
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
 if($MemorySnapshot){$arguments+='--worldgen-memory-snapshot'}
 if($CaptureAfter){$arguments+='--worldgen-perf-capture-after'}
@@ -87,5 +95,9 @@ try {
     # Only processes started by this invocation, never an owner's player.
     if($run -and !$run.HasExited){Stop-Process -Id $run.Id}
     if($capture -and !$capture.HasExited){if(!$capture.WaitForExit(10000)){Stop-Process -Id $capture.Id}}
+    if($PresentMon -and !(Test-Path -LiteralPath (Join-Path $destination 'presentmon.csv'))){
+        'INVALID: PresentMon did not produce a CSV; game frame measurements remain separate.' | Set-Content -LiteralPath (Join-Path $destination 'presentmon-status.txt')
+        Write-Warning 'No PresentMon CSV was produced. Do not infer presentation behaviour from this capture.'
+    }
     if($telemetry -and !$telemetry.HasExited){Stop-Process -Id $telemetry.Id}
 }

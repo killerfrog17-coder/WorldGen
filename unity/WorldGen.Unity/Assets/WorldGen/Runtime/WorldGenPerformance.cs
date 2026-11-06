@@ -18,6 +18,15 @@ public static class WorldGenPerformance
 {
     public static readonly bool Enabled=Environment.GetCommandLineArgs().Contains("--worldgen-performance");
     public static readonly bool Presented=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-presented");
+    public static readonly FullScreenMode PresentationMode=ReadPresentationMode();
+    static FullScreenMode ReadPresentationMode()
+    {
+        var args=Environment.GetCommandLineArgs();int index=Array.IndexOf(args,"--worldgen-perf-window-mode");
+        if(!Presented||index<0)return FullScreenMode.Windowed;
+        if(index+1>=args.Length)throw new ArgumentException("Missing performance window mode");
+        switch(args[index+1])
+        {case "Windowed":return FullScreenMode.Windowed;case "Borderless":return FullScreenMode.FullScreenWindow;case "Exclusive":return FullScreenMode.ExclusiveFullScreen;default:throw new ArgumentException("Unknown performance window mode");}
+    }
     static readonly bool original=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-original");
     public static bool Original=>Enabled&&(original||OriginalCase);
     [System.Runtime.InteropServices.DllImport("kernel32.dll")] static extern bool QueryPerformanceCounter(out long value);
@@ -703,7 +712,7 @@ public sealed partial class LocalTerrainExplorer
         {
             // Real player loop/presentation for throughput evidence. Pixel
             // verification continues to use the separate offscreen path.
-            Screen.SetResolution(width,height,FullScreenMode.Windowed);view.targetTexture=null;view.enabled=true;return;
+            Screen.SetResolution(width,height,WorldGenPerformance.PresentationMode);view.targetTexture=null;view.enabled=true;return;
         }
         // Exactly one full URP camera render per LateUpdate, even on a noninteractive
         // desktop. Disabled automatic camera prevents double rendering if shown.
@@ -1401,6 +1410,7 @@ public sealed partial class WorldGenRuntime
                     UnityEngine.Profiling.Profiler.enabled=true;
                 }
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
+                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" presentation="+Screen.fullScreenMode+" resolution="+Screen.width+"x"+Screen.height+" vSync="+QualitySettings.vSyncCount+" targetFps="+Application.targetFrameRate+"\n");
                 var clockBridge=WorldGenPerformance.TraceEnabled?WorldGenPerformance.CaptureNativeClock():default;
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 WorldGenPerformance.ClearFaunaTrace();
