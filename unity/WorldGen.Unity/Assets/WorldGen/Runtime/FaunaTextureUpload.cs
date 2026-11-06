@@ -39,11 +39,10 @@ public sealed class FaunaTextureUpload : IDisposable
     public IEnumerator Upload()
     {
         var format=GraphicsFormat.RGBA_BC7_SRGB;
-        result=new Texture2DArray(Size,Size,Layers,format,TextureCreationFlags.MipChain|TextureCreationFlags.DontInitializePixels)
+        result=new Texture2DArray(Size,Size,Layers,format,TextureCreationFlags.MipChain|TextureCreationFlags.DontInitializePixels|TextureCreationFlags.DontUploadUponCreate)
             {name="Streamed native coat pigments",filterMode=FilterMode.Trilinear,wrapMode=TextureWrapMode.Clamp,anisoLevel=2};
-        // Allocate the destination once; discard its CPU copy before GPU-only
-        // subregion copies. No later Apply can overwrite the copied pixels.
-        result.Apply(false,true);
+        // GPU-only destination: do not upload an unused full-sized CPU image
+        // before the bounded copies. Apply would reintroduce the same stall.
         yield return null;
         for(int layer=0;layer<Layers;layer++)for(int mip=0;mip<Mips;mip++)
         {
