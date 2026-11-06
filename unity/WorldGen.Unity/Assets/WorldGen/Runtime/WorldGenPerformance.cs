@@ -38,10 +38,10 @@ public static class WorldGenPerformance
     public static bool ResidentCoverReuse=true;
     public static bool IndexedWalkingRivers=true;
     public static bool NoBuilderBufferReuse;
-    public static bool StagedGroundPublication;
-    public static bool KeepBackdrops;
-    public static bool PacedTerrainRetirement;
-    public static bool StagedTerrainRetirement;
+    public static bool StagedGroundPublication=true;
+    public static bool KeepBackdrops=true;
+    public static bool PacedTerrainRetirement=true;
+    public static bool StagedTerrainRetirement=true;
     public static bool MemoryTrace;
     public static bool TracePresentedCamera;
     public static bool PartialForestUploads=true;
@@ -1176,7 +1176,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
-            new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
+            new PerfCase("travel-whip-immediate-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-unindexed-ground",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;WorldGenPerformance.IndexedWalkingRivers=false;}),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-retained-backdrops",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=true),
