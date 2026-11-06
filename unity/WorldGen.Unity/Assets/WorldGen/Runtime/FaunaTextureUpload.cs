@@ -14,6 +14,9 @@ using UnityEngine.Experimental.Rendering;
 public sealed class FaunaTextureUpload : IDisposable
 {
     public static readonly string TrialDirectory=FindTrialDirectory();
+    // Comparison only: let Unity queue native resource creation before the
+    // first copy instead of making that copy force a deferred allocation.
+    public static readonly bool EagerResourceCreation=Array.IndexOf(Environment.GetCommandLineArgs(),"--worldgen-fauna-eager-resource")>=0;
     static string FindTrialDirectory()
     {var args=Environment.GetCommandLineArgs();int i=Array.IndexOf(args,"--worldgen-fauna-stream-directory");return i>=0&&i+1<args.Length?Path.GetFullPath(args[i+1]):null;}
     public readonly int Size,Layers,Mips;
@@ -71,11 +74,21 @@ public sealed class FaunaTextureUpload : IDisposable
     {
         if(disposed)throw new ObjectDisposedException(nameof(FaunaTextureUpload));
         var format=GraphicsFormat.RGBA_BC7_SRGB;
-        result=new Texture2DArray(Size,Size,Layers,format,TextureCreationFlags.MipChain|TextureCreationFlags.DontInitializePixels|TextureCreationFlags.DontUploadUponCreate)
+        result=new Texture2DArray(Size,Size,Layers,format,TextureCreationFlags.MipChain|TextureCreationFlags.DontInitializePixels|
+            (EagerResourceCreation?0:TextureCreationFlags.DontUploadUponCreate))
             {name="Streamed native coat pigments",filterMode=FilterMode.Trilinear,wrapMode=TextureWrapMode.Clamp,anisoLevel=2};
         // GPU-only destination: do not upload an unused full-sized CPU image
         // before the bounded copies. Apply would reintroduce the same stall.
         yield return null;
+        if(EagerResourceCreation)
+        {
+            var native=result.graphicsTexture;double deadline=Time.realtimeSinceStartupAsDouble+10;
+            while(native.state!=UnityEngine.Rendering.GraphicsTextureState.InitializedOnRenderThread)
+            {
+                if(Time.realtimeSinceStartupAsDouble>deadline)throw new TimeoutException("Native coat resource did not finish creation");
+                yield return null;
+            }
+        }
         long slice=Stopwatch.GetTimestamp();int uploadedBytes=0;
         while(true)
         {

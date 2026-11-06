@@ -43,6 +43,7 @@ public sealed partial class WorldGenRuntime
         while(iterator.MoveNext()){yield return iterator.Current;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         for(int i=0;i<10;i++){yield return null;rows.Add(phase+","+(Time.unscaledDeltaTime*1000).ToString("R",System.Globalization.CultureInfo.InvariantCulture));}
         File.WriteAllText(Path.Combine(output,"memory.txt"),
+            $"threaded_creation={Texture.allowThreadedTextureCreation}\neager_creation={FaunaTextureUpload.EagerResourceCreation}\n"+
             $"original_native_bytes={UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(original)}\n"+
             $"streamed_native_bytes={UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(upload.Result)}\n"+
             $"original_readable={original.isReadable}\nstreamed_readable={upload.Result.isReadable}\n");
