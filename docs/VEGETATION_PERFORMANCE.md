@@ -321,3 +321,34 @@ Unity references consulted for these investigations:
 https://docs.unity.com/en-us/engine/6000.0/manual/analysis/performance-memory/managed-memory/incremental-garbage-collection
 https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/texture2d/setpixeldata
 No additional manual collection scheduling or GC disabling was introduced.
+
+Coverage texture reuse passed 10,240 bitwise native float comparisons, four
+same-size native texture reuses, shrinking/growing/padding/empty cases, and the
+actual production shader coverage, fade, cache and retirement fixture. Captures
+were inspected. Package21ac6f73, presented jungle60s:181.70FPS,p959.38ms,
+worst36.60ms,11frames over16.7ms. Largest three frames completed collections;
+no obvious new texture-upload stall, but not a controlled throughput-gain claim.
+
+Resident fog footprint reuse d20ab318 invalidates every spacing tier on resident
+changes, rebuilding exact unions into retained sets. 6,873 checks passed,
+including720 changing-resident/scale/quality/empty-case checks.100rebuilds allocate
+45,424,800bytes fresh versus115,200reused. Current presented60s routes:
+
+| Site | Mean FPS | p95 ms | Worst ms | Frames over16.7ms |
+|---|---:|---:|---:|---:|
+| Tropical forest |177.05|9.70|43.16|6|
+| Temperate forest |168.75|10.19|83.65|8|
+| Tall savanna |169.04|9.71|53.15|5|
+
+Evidence: artifacts/render-repair-20261106/presented-fog-storage-reuse.
+All moving windows were unsettled. Worst-frame target remains unmet. The83ms
+temperate frame has only1.34ms Explorer work and no completed collection in that
+trace row. Do not attribute every remaining stall to GC. Separate diagnostic
+full-CPU and managed-heap capture is next. Heap bytes around1.1-1.2GiB alone do
+not identify live reference-scanning cost or prove a leak.
+
+The official Memory Profiler1.2.0 is pinned for offline analysis. Explicit
+`-MemorySnapshot` captures only AFTER the timed window and requires a diagnostic
+DevelopmentPlayer. Such player FPS is never release-throughput evidence. Source
+8c2bb808 includes the adapter, not a completed heap diagnosis. Selected slot A
+and the owner shortcut remain unchanged.
