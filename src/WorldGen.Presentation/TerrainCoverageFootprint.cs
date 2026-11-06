@@ -23,7 +23,11 @@ namespace WorldGen.Presentation
             foreach(var key in source)
             {
                 highest=Math.Max(highest,key.Level);
-                for(var parent=Parent(key);parent.Level<=MaximumLevel;parent=Parent(parent))partial.Add(parent);
+                // A previously visited ancestor already contributed its entire
+                // chain. Stop there instead of rehashing shared parents up to
+                // level23 for every resident tile and every quality tier.
+                for(var parent=Parent(key);parent.Level<=MaximumLevel;parent=Parent(parent))
+                    if(!partial.Add(parent))break;
                 // Four complete children are indistinguishable from a loaded
                 // parent for fog, regardless of their segment counts/edge jobs.
                 var at=key;

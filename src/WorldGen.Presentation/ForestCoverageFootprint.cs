@@ -18,7 +18,10 @@ namespace WorldGen.Presentation
             full=new HashSet<ForestPageKey>(ready);
             foreach(var key in new List<ForestPageKey>(full))
             {
-                for(var parent=key.Parent;parent.Level<=MaximumLevel;parent=parent.Parent)partial.Add(parent);
+                // The first existing parent has already populated every higher
+                // ancestor on this cube face. The exact union is unchanged.
+                for(var parent=key.Parent;parent.Level<=MaximumLevel;parent=parent.Parent)
+                    if(!partial.Add(parent))break;
                 var at=key;
                 while(at.Level<MaximumLevel)
                 {
