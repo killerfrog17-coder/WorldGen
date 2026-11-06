@@ -387,3 +387,23 @@ generated from approved authoring inputs. Production assets are unchanged.
 The next acceptance gate is actual presented travel with this bundle, including
 its loading delay and lifetime cleanup. Dynamic array CPU-shadow storage is a
 memory tradeoff still to measure; do not imply this prototype is ready globally.
+
+Actual same-package22be22c1 temperate60s moving/whipping comparison:
+streamed hare first176.42FPS,p9510.58ms,max41.44ms,19frames>16.7ms;
+original second183.22FPS,p959.42ms,max76.17ms,7frames>16.7ms.
+Original's76ms is at9.756seconds, matching the identified upload; streamed's
+two largest41/37ms frames coincide with completed collections. This removes the
+largest observed hitch but is not a universal tail/mean improvement or100FPS floor.
+Evidence: presented-streamed-hare and presented-hare-original. All windows remain
+unsettled. Sequential cache warming can favor the second run; no broad mean-gain claim.
+
+Source107634e5 changes the experiment to four recycled64KiB read pages, rather
+than a9MiB managed payload, and upload batches capped256KiB/.35ms. Native texel
+equivalence must be repeated because batching reuses staging textures within a
+frame. Added wrong-layer positive control, cancellation and truncated-source checks.
+
+d390bd0e makes the fixed six-integer mesh Edge a value record. No identity or
+post-construction object-reference mutation consumers were found.4105 current
+storage/canonical-hash/JSON/worker-wire checks pass;600k edges allocate14,400,024
+bytes rather than600k separately allocated objects. Actual200k world integrity
+and current save/load tests pass. Native GC/frame-time improvement is unmeasured.
