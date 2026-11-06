@@ -104,7 +104,7 @@ public sealed class TerrainMeshProcess : IDisposable
             using(linked.Token.Register(()=>client.Close()))
             {
                 client.Connect(IPAddress.Loopback,connection.Port);
-                using(var stream=client.GetStream())using(var incoming=new BufferedStream(stream,65536))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
+                using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
                 {
                     w.Write(connection.Token);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,east,north,size,segments,edges);
                     LocalTerrainMesh mesh=null;try
@@ -127,7 +127,7 @@ public sealed class TerrainMeshProcess : IDisposable
             using(var client=new TcpClient{NoDelay=true})using(linked.Token.Register(()=>client.Close()))
             {
                 client.Connect(IPAddress.Loopback,connection.Port);
-                using(var stream=client.GetStream())using(var incoming=new BufferedStream(stream,65536))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
+                using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
                 {
                     w.Write(connection.Token);w.Write((byte)1);TerrainMeshWire.WriteScatterKey(w,key);
                     if(!r.ReadBoolean())throw new InvalidOperationException("Scatter worker: "+r.ReadString());
@@ -146,7 +146,7 @@ public sealed class TerrainMeshProcess : IDisposable
             using(var client=new TcpClient{NoDelay=true})using(linked.Token.Register(()=>client.Close()))
             {
                 client.Connect(IPAddress.Loopback,connection.Port);
-                using(var stream=client.GetStream())using(var incoming=new BufferedStream(stream,65536))using(var r=new BinaryReader(incoming,Encoding.UTF8,true))using(var w=new BinaryWriter(stream,Encoding.UTF8,true))
+                using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,Encoding.UTF8,true))using(var w=new BinaryWriter(stream,Encoding.UTF8,true))
                 {w.Write(connection.Token);w.Write((byte)3);TerrainMeshWire.WriteForestKey(w,key);w.Flush();requestSent?.Invoke();if(!r.ReadBoolean())throw new InvalidOperationException("Forest worker: "+r.ReadString());var page=TerrainMeshWire.ReadForest(r,key);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return page;}
             }
         }
@@ -162,7 +162,7 @@ public sealed class TerrainMeshProcess : IDisposable
                 using(var client=new TcpClient{NoDelay=true})using(linked.Token.Register(()=>client.Close()))
                 {
                     client.Connect(IPAddress.Loopback,connection.Port);
-                    using(var stream=client.GetStream())using(var incoming=new BufferedStream(stream,65536))using(var r=new BinaryReader(incoming,Encoding.UTF8,true))using(var w=new BinaryWriter(stream,Encoding.UTF8,true))
+                    using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,Encoding.UTF8,true))using(var w=new BinaryWriter(stream,Encoding.UTF8,true))
                     {
                         w.Write(connection.Token);w.Write((byte)2);TerrainMapWire.WriteRequest(w,revision,view,layer,width);
                         if(!r.ReadBoolean())throw new InvalidOperationException("Map worker: "+r.ReadString());

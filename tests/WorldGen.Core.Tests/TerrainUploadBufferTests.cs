@@ -13,7 +13,7 @@ static class TerrainUploadBufferTests
             GroundCover=Values(400,20),MidCover=Values(150,21),ForestCover=Values(200,22)};
         byte[] Encode(LocalTerrainMesh mesh){using var stream=new MemoryStream();using var writer=new BinaryWriter(stream);TerrainMeshWire.WriteMesh(writer,mesh);return stream.ToArray();}
         var bytes=Encode(source);using var pool=new TerrainUploadBufferPool();
-        LocalTerrainMesh Read(byte[] data){using var stream=new MemoryStream(data);using var reader=new BinaryReader(stream);return TerrainMeshWire.ReadMesh(reader,pool);}
+        LocalTerrainMesh Read(byte[] data){using var stream=new MemoryStream(data);using var incoming=new TerrainReadStream(stream);using var reader=new BinaryReader(incoming);return TerrainMeshWire.ReadMesh(reader,pool);}
         var first=Read(bytes);var second=Read(bytes);
         Check(!ReferenceEquals(first.Positions,second.Positions),"Concurrent leases aliased positions");
         var ground=first.GroundCover;var mid=first.MidCover;var forest=first.ForestCover;

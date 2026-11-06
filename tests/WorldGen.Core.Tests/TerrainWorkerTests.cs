@@ -31,7 +31,7 @@ static class TerrainWorkerTests
                 double size=(at-dryPoint).Length<1e-12?102.4:204.8;
                 var frame=new LocalTerrainFrame(at,terrain.RadiusM,terrain.Patch(at).Sample(0,0).ElevationM,.1);
                 using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);
-                using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
+                using var stream=client.GetStream();using var incoming=new TerrainReadStream(stream);using var r=new BinaryReader(incoming);using var w=new BinaryWriter(stream);
                 double step=size/32;var intervals=new[]{0d,step*2,0,0,1,0,size*.5,step*.5,1,size*.5,size,step*2};
                 w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,0,0,size,32,intervals);
                 if(!r.ReadBoolean())throw new Exception("Worker rejected valid request.");
@@ -46,7 +46,7 @@ static class TerrainWorkerTests
             foreach(bool detail in new[]{false,true})
             {
                 var key=scatter.Address(TerrainMapViewport.FromDegrees(35.6,-83.5),detail);var expected=scatter.Build(key);
-                using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
+                using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);using var stream=client.GetStream();using var incoming=new TerrainReadStream(stream);using var r=new BinaryReader(incoming);using var w=new BinaryWriter(stream);
                 w.Write(secret);w.Write((byte)1);TerrainMeshWire.WriteScatterKey(w,key);if(!r.ReadBoolean())throw new Exception("Scatter worker rejected request.");var actual=TerrainMeshWire.ReadScatter(r,key);w.Write((byte)0);w.Flush();
                 if(!actual.Instances.SequenceEqual(expected.Instances)||!actual.Center.Equals(expected.Center))throw new Exception("Worker changed scatter identities, positions, normals, sizes or colours.");
                 count+=actual.Instances.Length;Console.WriteLine("Exact scatter "+key.Detail+": "+actual.Instances.Length+" instances");
@@ -57,7 +57,7 @@ static class TerrainWorkerTests
             foreach(var key in new[]{forestKey,forestKey.Parent})
             {
                 var expected=scatter.BuildForest(key);using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);
-                using var stream=client.GetStream();using var incoming=new BufferedStream(stream,65536);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
+                using var stream=client.GetStream();using var incoming=new TerrainReadStream(stream);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
                 w.Write(secret);w.Write((byte)3);TerrainMeshWire.WriteForestKey(w,key);if(!r.ReadBoolean())throw new Exception("Forest worker rejected request.");
                 var actual=TerrainMeshWire.ReadForest(r,key);w.Write((byte)0);w.Flush();
                 if(!actual.Roots.SequenceEqual(expected.Roots)||actual.Probes!=expected.Probes)throw new Exception("Buffered worker changed forest root metadata/payload.");
@@ -68,7 +68,7 @@ static class TerrainWorkerTests
             {client.Connect(IPAddress.Loopback,port);using var w=new BinaryWriter(client.GetStream());w.Write(secret);w.Write((byte)0);var frame=new LocalTerrainFrame(TerrainMapViewport.FromDegrees(27.98,86.92),terrain.RadiusM,0,.1);TerrainMeshWire.WriteRequest(w,frame,10000,10000,3276.8,128,null);w.Write((byte)1);w.Flush();}
             using(var client=new TcpClient{NoDelay=true})
             {
-                client.Connect(IPAddress.Loopback,port);using var stream=client.GetStream();using var incoming=new BufferedStream(stream,65536);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
+                client.Connect(IPAddress.Loopback,port);using var stream=client.GetStream();using var incoming=new TerrainReadStream(stream);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
                 var key=scatter.Address(dryPoint,false);w.Write(secret);w.Write((byte)1);TerrainMeshWire.WriteScatterKey(w,key);
                 if(!r.ReadBoolean()||!TerrainMeshWire.ReadScatter(r,key).Instances.SequenceEqual(scatter.Build(key).Instances))throw new Exception("Worker failed a valid buffered request after cancellation.");w.Write((byte)0);w.Flush();
             }
