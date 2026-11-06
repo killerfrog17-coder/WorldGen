@@ -26,9 +26,8 @@ public static class WorldGenProfilerReview
         int first=ProfilerDriver.firstFrameIndex,last=ProfilerDriver.lastFrameIndex;
         if(first<0||last<first)throw new InvalidOperationException("Capture contains no readable frames");
         bool inspectGpu=Array.IndexOf(args,"--worldgen-profile-gpu")>=0;
-        var gpuSamplesProperty=typeof(FrameDataView).GetProperty("hasGpuSamples",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic);
         var gpuTimeColumn=typeof(HierarchyFrameDataView).GetField("columnTotalGpuTime",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic);
-        if(inspectGpu&&(gpuSamplesProperty==null||gpuTimeColumn==null))throw new NotSupportedException("GPU hierarchy fields unavailable in this Editor");
+        if(inspectGpu&&gpuTimeColumn==null)throw new NotSupportedException("GPU hierarchy column unavailable in this Editor");
         int gpuColumn=inspectGpu?(int)gpuTimeColumn.GetRawConstantValue():0,gpuThreadFrames=0;
         using var gpuOutput=inspectGpu?new StreamWriter(Path.Combine(output,"gpu-samples.csv")):null;
         gpuOutput?.WriteLine("frame,thread,frame_gpu_ms,sample_gpu_ms,path");
@@ -45,27 +44,13 @@ public static class WorldGenProfilerReview
         for(int thread=0;thread<256;thread++)
         {
             using var data=ProfilerDriver.GetRawFrameDataView(frame,thread);if(!data.valid)break;threads++;
-            // GPU events can resolve on the render thread or another thread.
-            // Read the actual GPU columns, never relabel CPU submission time.
-            if(inspectGpu&&(bool)gpuSamplesProperty.GetValue(data))
-            {
-                using var hierarchy=ProfilerDriver.GetHierarchyFrameDataView(frame,thread,HierarchyFrameDataView.ViewModes.Default,gpuColumn,false);
-                if(!hierarchy.valid)throw new InvalidOperationException("Recorded GPU samples have no readable hierarchy");
-                gpuThreadFrames++;gpuPending.Clear();gpuPending.Push((hierarchy.GetRootItemID(),""));
-                while(gpuPending.Count>0)
-                {
-                    var item=gpuPending.Pop();string path=item.Path+hierarchy.GetItemName(item.Id);
-                    double milliseconds=hierarchy.GetItemColumnDataAsDouble(item.Id,gpuColumn);
-                    if(milliseconds>0)gpuOutput.WriteLine(frame+","+Csv(data.threadName)+","+hierarchy.frameGpuTimeMs.ToString("R",CultureInfo.InvariantCulture)+","+milliseconds.ToString("R",CultureInfo.InvariantCulture)+","+Csv(path));
-                    hierarchy.GetItemChildren(item.Id,gpuChildren);
-                    for(int child=gpuChildren.Count-1;child>=0;child--)gpuPending.Push((gpuChildren[child],path+" / "));
-                }
-            }
+            bool hasGpuSamples=false;
             if(thread==0&&data.sampleCount>0)frames.Add(frame+","+data.GetSampleTimeMs(0).ToString("R",CultureInfo.InvariantCulture));
             double frameMs=data.sampleCount>0?data.GetSampleTimeMs(0):0;
             parents.Clear();
             for(int sample=0;sample<data.sampleCount;sample++)
             {
+                if(inspectGpu&&(data.GetSampleFlags(sample)&Unity.Profiling.LowLevel.MarkerFlags.SampleGPU)!=0)hasGpuSamples=true;
                 while(parents.Count>0&&parents[parents.Count-1].End<sample)parents.RemoveAt(parents.Count-1);
                 string name=data.GetSampleName(sample)??"",timer=data.threadName+" / "+name;
                 if((name.Contains("Texture")||name.Contains("AsyncRead"))&&data.GetSampleMetadataCount(sample)>0)
@@ -107,6 +92,23 @@ public static class WorldGenProfilerReview
                     allocations.TryGetValue(key,out var allocation);allocations[key]=(allocation.Bytes+bytes,allocation.Calls+1);totalBytes+=bytes;
                 }
                 int descendants=data.GetSampleChildrenCountRecursive(sample);if(descendants>0)parents.Add((sample+descendants,name));
+            }
+            // Unity 6000.6 exposes the SampleGPU marker flag, not the newer
+            // hasGpuSamples property. GPU events may resolve on any thread.
+            // Read actual GPU columns, never relabel CPU submission time.
+            if(inspectGpu&&hasGpuSamples)
+            {
+                using var hierarchy=ProfilerDriver.GetHierarchyFrameDataView(frame,thread,HierarchyFrameDataView.ViewModes.Default,gpuColumn,false);
+                if(!hierarchy.valid)throw new InvalidOperationException("Recorded GPU samples have no readable hierarchy");
+                gpuThreadFrames++;gpuPending.Clear();gpuPending.Push((hierarchy.GetRootItemID(),""));
+                while(gpuPending.Count>0)
+                {
+                    var item=gpuPending.Pop();string path=item.Path+hierarchy.GetItemName(item.Id);
+                    double milliseconds=hierarchy.GetItemColumnDataAsDouble(item.Id,gpuColumn);
+                    if(milliseconds>0)gpuOutput.WriteLine(frame+","+Csv(data.threadName)+","+hierarchy.frameGpuTimeMs.ToString("R",CultureInfo.InvariantCulture)+","+milliseconds.ToString("R",CultureInfo.InvariantCulture)+","+Csv(path));
+                    hierarchy.GetItemChildren(item.Id,gpuChildren);
+                    for(int child=gpuChildren.Count-1;child>=0;child--)gpuPending.Push((gpuChildren[child],path+" / "));
+                }
             }
         }
         string Csv(string text)=>"\""+text.Replace("\"","\"\"")+"\"";
