@@ -11,6 +11,7 @@ using UnityEngine;
 // Reflection keeps package-internal types out of the game's assembly contracts.
 public static class WorldGenHeapReview
 {
+    public static void RunDiagnostics(){WorldGenProfilerReview.Run();Run();}
     const BindingFlags Members=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance;
     static object Read(object owner,string name)
     {
@@ -24,7 +25,7 @@ public static class WorldGenHeapReview
     {
         var args=Environment.GetCommandLineArgs();
         string Argument(string name){int at=Array.IndexOf(args,name);if(at<0||at+1>=args.Length)throw new ArgumentException(name);return args[at+1];}
-        string input=Argument("--worldgen-heap-input"),output=Argument("--worldgen-output");Directory.CreateDirectory(output);
+        string input=Argument("--worldgen-heap-input"),output=Argument(args.Contains("--worldgen-heap-output")?"--worldgen-heap-output":"--worldgen-output");Directory.CreateDirectory(output);
         var assembly=Assembly.Load("Unity.MemoryProfiler.Editor");
         var readerType=assembly.GetType("Unity.MemoryProfiler.Editor.Format.QueriedSnapshot.FileReader",true);
         var snapshotType=assembly.GetType("Unity.MemoryProfiler.Editor.CachedSnapshot",true);

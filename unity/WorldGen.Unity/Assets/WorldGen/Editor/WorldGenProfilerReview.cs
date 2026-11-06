@@ -26,25 +26,40 @@ public static class WorldGenProfilerReview
         var frames=new List<string>{"frame,main_thread_inclusive_ms"};
         var slowSamples=new List<string>{"frame,frame_ms,sample_ms,path"};
         var collections=new List<string>{"frame,sample_ms,thread,path"};
+        var uploads=new List<string>{"frame,sample_ms,thread,marker,metadata"};
         for(int frame=first;frame<=last;frame++)
         for(int thread=0;thread<256;thread++)
         {
             using var data=ProfilerDriver.GetRawFrameDataView(frame,thread);if(!data.valid)break;threads++;
             if(thread==0&&data.sampleCount>0)frames.Add(frame+","+data.GetSampleTimeMs(0).ToString("R",CultureInfo.InvariantCulture));
-            double frameMs=thread==0&&data.sampleCount>0?data.GetSampleTimeMs(0):0;
+            double frameMs=data.sampleCount>0?data.GetSampleTimeMs(0):0;
             parents.Clear();
             for(int sample=0;sample<data.sampleCount;sample++)
             {
                 while(parents.Count>0&&parents[parents.Count-1].End<sample)parents.RemoveAt(parents.Count-1);
-                string name=data.GetSampleName(sample),timer=data.threadName+" / "+name;
+                string name=data.GetSampleName(sample)??"",timer=data.threadName+" / "+name;
+                if((name.Contains("Texture")||name.Contains("AsyncRead"))&&data.GetSampleMetadataCount(sample)>0)
+                {
+                    var descriptors=data.GetMarkerMetadataInfo(data.GetSampleMarkerId(sample));var values=new List<string>();
+                    for(int m=0;descriptors!=null&&m<data.GetSampleMetadataCount(sample)&&m<descriptors.Length;m++)
+                    {
+                        var kind=(Unity.Profiling.LowLevel.ProfilerMarkerDataType)descriptors[m].type;string value="<"+kind+">";
+                        if(kind==Unity.Profiling.LowLevel.ProfilerMarkerDataType.String16)value=data.GetSampleMetadataAsString(sample,m);
+                        else if((byte)kind==8)value=System.Text.Encoding.UTF8.GetString(data.GetSampleMetadataAsSpan<byte>(sample,m).ToArray()).TrimEnd('\0');
+                        else if(kind==Unity.Profiling.LowLevel.ProfilerMarkerDataType.Int32||kind==Unity.Profiling.LowLevel.ProfilerMarkerDataType.UInt32)value=data.GetSampleMetadataAsInt(sample,m).ToString();
+                        else if(kind==Unity.Profiling.LowLevel.ProfilerMarkerDataType.Int64||kind==Unity.Profiling.LowLevel.ProfilerMarkerDataType.UInt64)value=data.GetSampleMetadataAsLong(sample,m).ToString();
+                        values.Add(descriptors[m].name+"="+value);
+                    }
+                    uploads.Add(frame+","+data.GetSampleTimeMs(sample).ToString("R",CultureInfo.InvariantCulture)+",\""+data.threadName.Replace("\"","\"\"")+"\",\""+name.Replace("\"","\"\"")+"\",\""+string.Join("; ",values).Replace("\"","\"\"")+"\"");
+                }
                 if(name=="GC.Collect"||name=="GC.Resize"||name=="GarbageCollector.CollectIncremental")
                 {
                     string path=string.Join(" / ",parents.Select(p=>p.Name).Concat(new[]{name}));
                     collections.Add(frame+","+data.GetSampleTimeMs(sample).ToString("R",CultureInfo.InvariantCulture)+",\""+data.threadName.Replace("\"","\"\"")+"\",\""+path.Replace("\"","\"\"")+"\"");
                 }
-                if(thread==0&&frameMs>=10&&data.GetSampleTimeMs(sample)>=.25)
+                if((thread==0||data.threadName=="Render Thread")&&frameMs>=10&&data.GetSampleTimeMs(sample)>=.25)
                 {
-                    string path=string.Join(" / ",parents.Select(p=>p.Name).Concat(new[]{name}));
+                    string path=(thread==0?"":data.threadName+" / ")+string.Join(" / ",parents.Select(p=>p.Name).Concat(new[]{name}));
                     slowSamples.Add(frame+","+frameMs.ToString("R",CultureInfo.InvariantCulture)+","+data.GetSampleTimeMs(sample).ToString("R",CultureInfo.InvariantCulture)+",\""+path.Replace("\"","\"\"")+"\"");
                 }
                 timings.TryGetValue(timer,out var timing);timings[timer]=(timing.Ms+data.GetSampleTimeMs(sample),timing.Calls+1);
@@ -70,6 +85,7 @@ public static class WorldGenProfilerReview
         File.WriteAllLines(Path.Combine(output,"frames.csv"),frames);
         File.WriteAllLines(Path.Combine(output,"slow-frame-samples.csv"),slowSamples);
         File.WriteAllLines(Path.Combine(output,"collections.csv"),collections);
+        File.WriteAllLines(Path.Combine(output,"texture-uploads.csv"),uploads);
         File.WriteAllText(Path.Combine(output,"complete.txt"),$"Diagnostic DevelopmentPlayer only. Frames {first}..{last}; thread frames {threads}; GC.Alloc bytes {totalBytes}. Inclusive timings overlap; not release FPS.\n");
     }
 }
