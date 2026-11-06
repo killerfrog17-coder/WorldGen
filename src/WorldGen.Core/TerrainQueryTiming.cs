@@ -9,7 +9,7 @@ namespace WorldGen.Core
     public static class TerrainQueryTiming
     {
         [ThreadStatic] public static bool Enabled;
-        [ThreadStatic] static long[]? ticks;
+        [ThreadStatic] static long[] ticks;
         public static long Begin()=>Enabled?Stopwatch.GetTimestamp():0;
         public static void End(int phase,long started)
         {if(started!=0){ticks??=new long[6];ticks[phase]+=Stopwatch.GetTimestamp()-started;}}
