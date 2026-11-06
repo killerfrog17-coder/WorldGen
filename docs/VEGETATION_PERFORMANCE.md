@@ -737,3 +737,32 @@ values and source-timestamped engine frames are stored separately, because the
 former must not be assumed to describe the current observed frame. Validation
 is pending. Primary reference:
 https://docs.unity.com/en-us/engine/6000.6/manual/analysis/graphics-performance-profiling/profile-rendering/frame-timing-manager/record-timing-data
+
+6 November, two-minute source-timestamped CPU comparison (0d3678ea):
+`presented-family-cpu-timing` completed both temperate6kmMedium1080 cases.
+Normal:175.55FPS,p9510.27,p9913.34,max32.24ms,26frames>16.667ms.
+Separated streaming:167.69FPS,p9510.76,p9913.30,max51.94ms,13frames>16.667ms.
+Second case was warmer and had different resident counts. This does NOT confirm
+an overall improvement; separation remains OFF. Both were streaming/unsettled.
+Native observer138events has zero unmatched stop/resume sequences. CPU main/render
+recorders are valid, but present-wait has no ProfilerRecorder counter; the valid
+source-timestamped FrameTiming records provide it. b6c replaces the unsupported
+recorder with CPU Total Frame Time, without changing normal gameplay settings.
+Normal32.24ms hitch contains a29.32ms main-thread frame and7.31ms native GC pause.
+Other30.33/28.74ms hitches have25.02/23.93ms presentation waits, with only3.56/
+4.23ms main work. Trial51.94ms hitch has44.30ms present wait,6.76ms main work,
+2.13ms render CPU and10.72ms GPU. Thus neither gameplay scripts nor foliage GPU
+work alone explains every hitch. Existing flip/BitBlt/fullscreen/queue trials
+already failed to eliminate these waits; do not repeat them without new evidence.
+`analyze-frame-phases.py` uses native source timestamps, never observation time,
+and explicitly labels nearby engine frames rather than asserting exact boundary
+pairing. Clock uncertainty is recorded. No global worst-case/100FPS claim.
+
+afd50e8a adds an UNVALIDATED benchmark-only manual-GC experiment. It owns GC
+scheduling (unlike the retired extra-step experiment with automatic GC enabled),
+uses0.5ms requested slices after16MiB heap growth, and restores automatic behavior
+if heap grows256MiB. Actual call durations and remaining-work results are recorded;
+a requested budget is not assumed to be a hard execution cap. IDisposable restores
+the incoming collector mode/slice. Normal gameplay does not enter this mode.
+Unity API references: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Scripting.GarbageCollector.GCMode.html
+and https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Scripting.GarbageCollector.CollectIncremental.html
