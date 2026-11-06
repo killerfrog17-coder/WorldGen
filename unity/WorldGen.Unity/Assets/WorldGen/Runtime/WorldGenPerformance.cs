@@ -1481,9 +1481,11 @@ public sealed partial class WorldGenRuntime
                 bool cpuTiming=Environment.GetCommandLineArgs().Contains("--worldgen-cpu-timing");
                 using var mainTimingRecorder=cpuTiming?ProfilerRecorder.StartNew(ProfilerCategory.Internal,"CPU Main Thread Frame Time",1):default;
                 using var renderTimingRecorder=cpuTiming?ProfilerRecorder.StartNew(ProfilerCategory.Internal,"CPU Render Thread Frame Time",1):default;
-                using var presentTimingRecorder=cpuTiming?ProfilerRecorder.StartNew(ProfilerCategory.Internal,"CPU Main Thread Present Wait Time",1):default;
-                var cpuTimingRows=cpuTiming?new List<(double Observed,long Main,long Render,long Wait)>(20000):null;
-                if(cpuTiming)File.AppendAllText(Path.Combine(output,"cpu-timing-status.txt"),site.Item1+" "+item.Name+" main="+mainTimingRecorder.Valid+" render="+renderTimingRecorder.Valid+" present="+presentTimingRecorder.Valid+"\n");
+                // Present-wait has no Profiler counter; it is available only
+                // in the source-timestamped FrameTiming records below.
+                using var totalTimingRecorder=cpuTiming?ProfilerRecorder.StartNew(ProfilerCategory.Internal,"CPU Total Frame Time",1):default;
+                var cpuTimingRows=cpuTiming?new List<(double Observed,long Main,long Render,long Total)>(20000):null;
+                if(cpuTiming)File.AppendAllText(Path.Combine(output,"cpu-timing-status.txt"),site.Item1+" "+item.Name+" main="+mainTimingRecorder.Valid+" render="+renderTimingRecorder.Valid+" total="+totalTimingRecorder.Valid+"\n");
                 File.AppendAllText(Path.Combine(output,"gc-settings.txt"),site.Item1+" "+item.Name+" allocation_counter_valid="+allocationRecorder.Valid+" automatic_slice_ns="+UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds+"\n");
                 if(WorldGenPerformance.Presented)yield return endFrame;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Drain pre-window work before counting renders.
@@ -1518,7 +1520,7 @@ public sealed partial class WorldGenRuntime
                     // This is intentionally synchronous and never normal play.
                     if(WorldGenPerformance.DrainEachFrame)terrainExplorer.WeatherCheckGpuBarrier();
                     double now=Time.realtimeSinceStartupAsDouble;double frameMs=(now-previous)*1000;frames.Add(frameMs);previous=now;
-                    if(cpuTiming)cpuTimingRows.Add((now-start,mainTimingRecorder.Valid?mainTimingRecorder.LastValue:-1,renderTimingRecorder.Valid?renderTimingRecorder.LastValue:-1,presentTimingRecorder.Valid?presentTimingRecorder.LastValue:-1));
+                    if(cpuTiming)cpuTimingRows.Add((now-start,mainTimingRecorder.Valid?mainTimingRecorder.LastValue:-1,renderTimingRecorder.Valid?renderTimingRecorder.LastValue:-1,totalTimingRecorder.Valid?totalTimingRecorder.LastValue:-1));
                     if(WorldGenPerformance.ProfileRenderCompletion&&frames.Count>2&&WorldGenPerformance.CompletedRenderMs>0)renderCosts.Add(WorldGenPerformance.CompletedRenderMs);
                     if(stutter!=null)
                     {
@@ -1594,7 +1596,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.WriteFaunaTrace(Path.Combine(output,site.Item1+"-"+item.Name+"-fauna-stages.csv"),qpcStart);
                 File.AppendAllText(Path.Combine(output,"terrain-upload-pool.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
-                if(cpuTiming)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-cpu-observed.csv"),new[]{"observed_t_s,main_ns,render_ns,present_wait_ns"}.Concat(cpuTimingRows.Select(s=>string.Join(",",Perf(s.Observed),s.Main,s.Render,s.Wait))));
+                if(cpuTiming)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-cpu-observed.csv"),new[]{"observed_t_s,main_ns,render_ns,total_ns"}.Concat(cpuTimingRows.Select(s=>string.Join(",",Perf(s.Observed),s.Main,s.Render,s.Total))));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection,forest_ground_ms,ground_publication_ms,inventory_ms,planning_ms,terrain_install_ms,terrain_retirement_ms,scheduling_ms,readout_ms,solids_ms,player_camera_ms,player_water_ms,player_combat_ms,player_blood_ms,player_footsteps_ms,player_feedback_ms,player_hud_ms,player_altitude_ms,query_locate_ms,query_profiles_ms,query_shape_ms,query_rivers_ms,query_detail_ms,query_ponds_ms,driver_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
                 File.AppendAllText(Path.Combine(output,"focus.txt"),site.Item1+" "+item.Name+" focused_frames="+focusedFrames+" unfocused_frames="+unfocusedFrames+"\n");
