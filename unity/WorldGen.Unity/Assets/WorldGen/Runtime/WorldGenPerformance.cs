@@ -1032,7 +1032,6 @@ public sealed partial class WorldGenRuntime
     }
     IEnumerator CheckPerformance()
     {
-        HyperAmplification.PagedRootCaches=Environment.GetCommandLineArgs().Contains("--worldgen-paged-terrain-cache");
         TerrainQueryTiming.Enabled=WorldGenPerformance.TraceEnabled;
         ulong originalGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};

@@ -17,8 +17,6 @@ namespace WorldGen.Core
     {
         public const string Version = "hyper-amplification-collapse-calderas-38";
         public const double FinestSpacingM = 8;
-        // Opt-in comparison until actual player frame tails are measured.
-        public static bool PagedRootCaches;
         const int WorkingSet = 32768;
         readonly object gate = new object();
         readonly Queue<object> retained = new Queue<object>();
@@ -26,16 +24,8 @@ namespace WorldGen.Core
         readonly CoarseEdge[] coarseEdges;
         readonly Vertex[] rootNodes;
         readonly int[] nodeChannels,nodeRivers;
-        readonly SparseReferenceArray<WeakReference<Face>> rootCache;
-        readonly SparseReferenceArray<WeakReference<Edge>> edgeCache;
-        public long RootCacheReferenceSlots=>rootCache.AllocatedSlots+edgeCache.AllocatedSlots;
-        public (int Handles,int Live) RootCacheHandles()
-        {
-            int handles=0,live=0;
-            for(int i=0;i<rootCache.Length;i++){var weak=rootCache[i];if(weak==null)continue;handles++;if(weak.TryGetTarget(out _))live++;}
-            for(int i=0;i<edgeCache.Length;i++){var weak=edgeCache[i];if(weak==null)continue;handles++;if(weak.TryGetTarget(out _))live++;}
-            return(handles,live);
-        }
+        readonly WeakReference<Face>[] rootCache;
+        readonly WeakReference<Edge>[] edgeCache;
         int rootSweep,edgeSweep;
         readonly double radius, scale;
         readonly int seed;
@@ -283,7 +273,7 @@ namespace WorldGen.Core
                 edges.Add(key,id);return id;
             }
             roots=new CoarseFace[world.Surface.Triangles.Length/3];
-            rootCache=new SparseReferenceArray<WeakReference<Face>>(roots.Length,PagedRootCaches);
+            rootCache=new WeakReference<Face>[roots.Length];
             // One topological terminal depth across adjacent faces. Stopping
             // independently by triangle size produces a nonconforming HEIGHT
             // field, even if streamed render tiles sample canonical coordinates.
@@ -298,7 +288,7 @@ namespace WorldGen.Core
                 roots[t]=new CoarseFace{A=a,B=b,C=c,AB=MakeEdge(a,b,t),BC=MakeEdge(b,c,t),CA=MakeEdge(c,a,t)};
                 roots[t].Initialize(nodes[a].Position,nodes[b].Position,nodes[c].Position);
             }
-            coarseEdges=controls.ToArray();edgeCache=new SparseReferenceArray<WeakReference<Edge>>(coarseEdges.Length,PagedRootCaches);
+            coarseEdges=controls.ToArray();edgeCache=new WeakReference<Edge>[coarseEdges.Length];
             Volcanoes=new VolcanicTerrain(world,scale,landscapeLocator,token);
             Remnants=new BedrockRemnants(world,profiles,scale,token);
             var incoming=new bool[count];

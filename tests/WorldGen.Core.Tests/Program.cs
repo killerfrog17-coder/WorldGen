@@ -1,8 +1,6 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
-if(args.Contains("--sparse-reference-slots")){SparseReferenceArrayTests.Run();return;}
-if(args.Contains("--sparse-reference-world")){SparseReferenceArrayTests.World(args[1]);return;}
 if(args.Contains("--terrain-query-index-world")){TerrainQueryCostTests.VerifyWorld(args[1]);return;}
 if(args.Contains("--riverscape-cache")){RiverscapeCacheTests.Run(args[1]);return;}
 if(args.Contains("--terrain-query-cost")){TerrainQueryCostTests.Run(args[1]);return;}
