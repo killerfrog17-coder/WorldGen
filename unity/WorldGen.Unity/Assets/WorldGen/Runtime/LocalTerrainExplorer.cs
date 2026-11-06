@@ -159,11 +159,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             ApplyPlayerMode();
         }
         UpdateLandmarkSearch();ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
-        UpdateInventory();
+        long inventoryTrace=WorldGenPerformance.TraceBegin();UpdateInventory();WorldGenPerformance.TraceEnd(33,inventoryTrace);
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         UpdatePlayerDeath();
-        PreparePlayerSolids();
+        long solidsTrace=WorldGenPerformance.TraceBegin();PreparePlayerSolids();WorldGenPerformance.TraceEnd(39,solidsTrace);
         motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;
         if(!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null||blueprintPlacement!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&(Application.isFocused||testKeyboard!=null))
         {
@@ -217,10 +217,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         WorldGenPerformance.TraceEnd(20,componentTrace);
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
+        long planningTrace=WorldGenPerformance.TraceBegin();
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         if(!mapOpen){PollTerrainDetail();RefreshStreamingPrediction();}
+        WorldGenPerformance.TraceEnd(34,planningTrace);
         AdvanceGroundPublication();
+        long installTrace=WorldGenPerformance.TraceBegin();
         // Completed nearby products precede cache-only/hidden background work.
         terrainJobPriorityComparison??=(a,b)=>{double Score(Work w)=>WorkMatchesCurrent(w)?StreamingPriority(w.Key):double.MaxValue;return Score(b).CompareTo(Score(a));};
         jobs.Sort(terrainJobPriorityComparison);
@@ -253,20 +256,18 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(!WorkMatchesCurrent(job))continue;
             Upload(job.Key,upload,job.Edges);
         }
-        UpdateTerrainTransitions();
-        // Retain fallback through the transition, not merely until upload.
-        terrainRetirementScratch.Clear();foreach(var key in tiles.Keys)if(!wanted.ContainsKey(key))terrainRetirementScratch.Add(key);
-        foreach(var key in terrainRetirementScratch)
-            if(!GroundPublicationPending)
-            if(CanRetireTransition(key))
-            {CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;scatterGroundRevision++;scatterGroundChanges.Add(key);NoteGroundChange(key,GroundOrigin.Retirement);}
+        WorldGenPerformance.TraceEnd(35,installTrace);
+        long retirementTrace=WorldGenPerformance.TraceBegin();
+        UpdateTerrainTransitions();RetireObsoleteTerrain();
+        WorldGenPerformance.TraceEnd(36,retirementTrace);
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
         componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);
         long weatherTrace=WorldGenPerformance.TraceBegin(),weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);WorldGenPerformance.TraceEnd(3,weatherTrace);
-        UpdateDebugReadout();
+        long readoutTrace=WorldGenPerformance.TraceBegin();UpdateDebugReadout();WorldGenPerformance.TraceEnd(38,readoutTrace);
         if(mapOpen){UpdateTerrainCoverage();UpdateStreamingFog();RetireTerrainGradually();return;}
         // Nearby ground always goes first, including when a hidden replacement
         // chart is overdue. Do not let scatter or far work monopolize both slots.
+        long schedulingTrace=WorldGenPerformance.TraceBegin();
         bool nearPending=NearTerrainPending();
         // Free ONE occupied lane only if neither lane is serving near ground.
         // Continually cancelling all background work would itself cause churn.
@@ -297,6 +298,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         SchedulePreparedWork(false);
         if(TerrainBuildRequests>priorTerrainRequests)forestScheduledFirst=false;
         ScheduleForestWork();
+        WorldGenPerformance.TraceEnd(37,schedulingTrace);
         UpdateTerrainCoverage();UpdateStreamingFog();
         RetireTerrainGradually();
         if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();

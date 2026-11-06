@@ -3177,5 +3177,12 @@
     "cache_checks": 581319,
     "normal_throughput_claim": false,
     "current_timing": "artifacts/render-repair-20261105/presented-retained-staged-guard"
+  },
+  "owner_performance_pause": {
+    "utc": "2026-11-05T18:57:26.267028+00:00",
+    "status": "Paused heavy work; no own game/editor/build/benchmark/telemetry processes remain",
+    "latest_timing_qualification": "Owner playing another game; onset unknown. Latest presented-retained-staged-guard timing provisional and must not be used as an uncontended performance claim.",
+    "latest_evidence": "artifacts/render-repair-20261105/presented-retained-staged-guard",
+    "resume_work": "Remaining legacy corrections are retirement only. Four Level3 removals in one frame take14.546ms. No new retirement budget code implemented yet. Investigate other unexplained Update peaks after uncontended retest."
   }
 }

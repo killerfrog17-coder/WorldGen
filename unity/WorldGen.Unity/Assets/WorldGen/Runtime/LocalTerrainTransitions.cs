@@ -46,6 +46,26 @@ public sealed partial class LocalTerrainExplorer
             }
         }
     }
+    void RetireObsoleteTerrain()
+    {
+        if(GroundPublicationPending)return;
+        // Retiring several tiles at once forces all displaced vegetation to
+        // correct in the same frame. Leave redundant ground resident until its
+        // turn; the existing coverage shader still chooses the finest surface.
+        // Share the install allowance so removal cannot add another correction
+        // on top of a newly published terrain or forest payload.
+        bool paced=WorldGenPerformance.PacedTerrainRetirement;
+        if(paced&&installationsThisFrame!=0)return;
+        terrainRetirementScratch.Clear();
+        foreach(var key in tiles.Keys)if(!wanted.ContainsKey(key))terrainRetirementScratch.Add(key);
+        foreach(var key in terrainRetirementScratch)
+        {
+            if(!CanRetireTransition(key))continue;
+            CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;
+            scatterGroundRevision++;scatterGroundChanges.Add(key);NoteGroundChange(key,GroundOrigin.Retirement);
+            if(paced){installationsThisFrame++;break;}
+        }
+    }
     bool CanRetireTransition(TerrainTileKey key)
     {
         // These few coarse tiles supply a stable fallback for the current

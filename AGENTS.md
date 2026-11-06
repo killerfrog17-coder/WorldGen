@@ -49,9 +49,28 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov OWNER RESUMED overnight work: full CPU/GPU/testing authorized. Performance first, inspect visuals too; low-cost realism/ground-texture improvements allowed. Hidden windows preferred unless presented rendering is needed for valid measurement; all visible windows RIGHTMOST. Prior pause is historical. No subagents. Next isolate retirement bursts and untraced Update stalls. Selected A/shortcut remain protected.
+
 OWNER5Nov: put ALL windows we open on the RIGHTMOST monitor. Presented test
 runner calls scripts/place-review-window.ps1 for its own player only, preserves
 render resolution/focus/stacking. Use the helper for future own review windows.
+
+PAUSED05Nov18:57Z OWNER PLAYING ANOTHER GAME: do nothing that affects CPU/GPU
+performance; explicitly no useful timing under contention. All own WorldGen,
+Editor,shader,build,benchmark,Python,dotnet/NVML jobs ALREADY EXITED; process
+inventory confirms none. Do NOT restart heavy jobs until owner releases pause.
+Selected A/f833/shortcut unchanged. B NONDEV2738c75a and source04d69e62 pushed.
+Latest presented-retained-staged-guard finished before pause:163.94FPS,max55.06ms,
+legacy causes ONLY retirement32rows, max14.546ms from4Level3 removals in oneframe;
+latest timing PROVISIONAL because owner game start time unknown. Do NOT claim
+uncontended gain or100floor. Numeric native guard/cache proofs remainPASS.
+Next after resume: isolate retirement bursts (currently removes ALL obsolete
+ready tiles in one update; consider one removal per frame/shared install budget),
+and inspect >40ms Update peaks with low scatter from latest trace/log. NO SUCH
+new retirement code has been written. Retention+staging remain defaultOFF, group
+owner guard compiled; no publication/shortcut selected. No other features.
+Only this lightweight pause checkpoint written; no network/background work needed.
+Owner3files untouched,3known autos restored; keep all own visible windows RIGHTMOST.
 
 ACTIVE05Nov18:50Z PERFORMANCE ONLY. Group-ground-owner-proof2738 COMPLETE EXIT0,
 no errors: selective/FULL23340matrices,1369displacedroots/4chunks,23340coarseowner

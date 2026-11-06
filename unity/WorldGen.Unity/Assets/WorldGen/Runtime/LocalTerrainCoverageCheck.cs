@@ -90,10 +90,22 @@ public sealed partial class LocalTerrainExplorer
         if(explorer.CanRetireTransition(parent))throw new Exception("Retirement discarded a parent before its fine fade completed");
         tile.FadeIn=0;explorer.wanted.Add(new TerrainTileKey(1,0,0,1d/512),64);
         if(explorer.CanRetireTransition(parent))throw new Exception("Retirement discarded a parent with a missing replacement quadrant");
+        explorer.wanted.Clear();explorer.wanted.Add(child,64);
+        bool oldPaced=WorldGenPerformance.PacedTerrainRetirement;WorldGenPerformance.PacedTerrainRetirement=true;
+        int residentBefore=explorer.tiles.Count;explorer.installationsThisFrame=1;
+        explorer.RetireObsoleteTerrain();
+        if(explorer.tiles.Count!=residentBefore)throw new Exception("Retirement did not share the current installation budget");
+        explorer.installationsThisFrame=0;explorer.RetireObsoleteTerrain();
+        if(explorer.tiles.Count!=residentBefore-1||!explorer.tiles.ContainsKey(child))throw new Exception("Paced retirement removed more than one tile or wanted terrain");
+        explorer.RetireObsoleteTerrain();
+        if(explorer.tiles.Count!=residentBefore-1)throw new Exception("Paced retirement reused the same frame's allowance");
+        explorer.installationsThisFrame=0;explorer.RetireObsoleteTerrain();
+        if(explorer.tiles.Count!=1||!explorer.tiles.ContainsKey(child))throw new Exception("Paced retirement never released its remaining redundant tiles");
+        WorldGenPerformance.PacedTerrainRetirement=oldPaced;
         explorer.wanted.Clear();
         explorer.tiles.Remove(child);explorer.CacheTerrain(child,tile);explorer.ResetStreamingReuse(false);
         if(explorer.CachedTerrainTiles!=0)throw new Exception("Chart invalidation retained old products");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression.");
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
         Application.Quit(0);
     }
 }
