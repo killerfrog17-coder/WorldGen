@@ -115,6 +115,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         var at=frame.Position(x,z);
         if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
+        if(WorldGenPerformance.IndexedWalkingRivers)walkingPatch.RiverSpans();
         double elevation=WorldGenPerformance.Original?walkingPatch.Sample(at).ElevationM:walkingPatch.Elevation(at);double height=frame.SurfaceY(at,elevation);
         groundMemoElevation=elevation;
         double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;

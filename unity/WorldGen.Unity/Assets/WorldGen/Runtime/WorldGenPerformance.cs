@@ -36,6 +36,7 @@ public static class WorldGenPerformance
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
     public static bool ResidentCoverReuse;
+    public static bool IndexedWalkingRivers;
     public static bool NoBuilderBufferReuse;
     public static bool StagedGroundPublication;
     public static bool KeepBackdrops;
@@ -644,6 +645,13 @@ public sealed partial class LocalTerrainExplorer
         motion.X=motion.Z=0;motion.Y=Ground(0,0)+height;motion.Flying=true;heading=20;pitch=height>10?12:3;
         if(changed)RefreshWanted();UpdateCamera();
     }
+    public void PerformanceWalkingQueryMode()
+    {
+        // Recreate both comparison cases, so an indexed first case cannot
+        // silently leave its index enabled for the following baseline.
+        walkingPatch=terrain.Patch(frame.Position(motion.X,motion.Z),2048/HorizontalScale);groundMemoFrame=null;
+        if(WorldGenPerformance.IndexedWalkingRivers)walkingPatch.RiverSpans();
+    }
     public void PerformanceTurn(float yaw){heading=yaw;UpdateCamera();}
     public string PerformanceVerifyAnimalPoseMath()
     {
@@ -1175,6 +1183,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-paced-retirement",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=true),
             new PerfCase("travel-whip-staged-retirement",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("travel-whip-cover-pool",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.ResidentCoverReuse=true),
+            new PerfCase("travel-whip-indexed-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.IndexedWalkingRivers=true),
             new PerfCase("travel-whip-staged-gc1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true;UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=1000000;}),
             new PerfCase("staged-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("cached-ground-verify",()=>WorldGenPerformance.StagedGroundPublication=true),
@@ -1252,6 +1261,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.ResidentCoverReuse=false;
+                WorldGenPerformance.IndexedWalkingRivers=false;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
                 WorldGenPerformance.StagedGroundPublication=false;
                 WorldGenPerformance.KeepBackdrops=false;
@@ -1262,7 +1272,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
-                WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
+                WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();terrainExplorer.PerformanceWalkingQueryMode();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" repeatHumanBinding="+WorldGenPerformance.RepeatHumanOutputBinding+" fullWaterAim="+WorldGenPerformance.FullWaterAim+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
