@@ -106,11 +106,18 @@ namespace WorldGen.Core
         public static WildlifeCommunity Allocate(IEnumerable<Taxon> population,WildlifeHabitat habitat)
             =>Allocate(population,habitat,null);
         public static WildlifeCommunity Allocate(IEnumerable<Taxon> population,WildlifeHabitat habitat,Workspace workspace)
+            =>AllocateInto(population,habitat,workspace,new WildlifeCommunity());
+        /// <summary>Overwrite caller-owned output storage. The caller must not
+        /// reuse it while an earlier consumer still needs its values.</summary>
+        public static WildlifeCommunity AllocateInto(IEnumerable<Taxon> population,WildlifeHabitat habitat,Workspace workspace,WildlifeCommunity result)
         {
+            if(result==null)throw new ArgumentNullException(nameof(result));
+            result.DensityPerKm2.Clear();
+            result.PrimaryCapacity=result.PrimaryAllocated=result.PreyBiomassKg=result.PredatorSupportedBiomassKg=0;
             IReadOnlyList<Taxon> taxa;
             if(workspace==null)taxa=population.Where(t=>t!=null&&!t.Producer&&!t.BasalResource&&ItemUseRules.Finite(t.MassKg)&&t.MassKg>0).GroupBy(t=>t.Id).Select(g=>g.First()).OrderBy(t=>t.Id).ToArray();
             else{workspace.Prepare(population);taxa=workspace.Taxa;}
-            var result=new WildlifeCommunity();int n=taxa.Count;var fit=workspace?.Fit??new double[n];var density=workspace?.Density??new double[n];
+            int n=taxa.Count;var fit=workspace?.Fit??new double[n];var density=workspace?.Density??new double[n];
             for(int i=0;i<n;i++){fit[i]=habitat.Fit(taxa[i]);result.DensityPerKm2[taxa[i].Id]=0;}
             double p=ItemUseRules.Finite(habitat.Productivity)?Math.Max(0,Math.Min(3,habitat.Productivity)):0;
             double Resource(double x)=>ItemUseRules.Finite(x)?Math.Max(0,Math.Min(1,x)):0;

@@ -47,6 +47,8 @@ namespace WorldGen.Presentation
         readonly Dictionary<int,FaunaPrototypeProfile> models=new Dictionary<int,FaunaPrototypeProfile>();
         readonly Dictionary<int,List<int>> pools=new Dictionary<int,List<int>>();
         readonly Dictionary<int,Taxon[]> communities=new Dictionary<int,Taxon[]>();
+        readonly WildlifeAbundance.Workspace abundanceWorkspace=new WildlifeAbundance.Workspace();
+        readonly List<WildlifeCommunity> abundanceResults=new List<WildlifeCommunity>();
         readonly Dictionary<(string,double,Food,bool,bool,string),WildlifeBehaviourProfile> behaviourProfiles=new Dictionary<(string,double,Food,bool,bool,string),WildlifeBehaviourProfile>();
         WildlifeBehaviourProfile Behaviour(FaunaPrototypeProfile profile,Taxon? taxon)
         {
@@ -107,7 +109,7 @@ namespace WorldGen.Presentation
             if(epoch!=biotaEpoch){pools.Clear();communities.Clear();behaviourProfiles.Clear();biotaEpoch=epoch;}
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
             var communityCache=new Dictionary<(ScatterKey,int),WildlifeCommunity>();
-            var abundanceWorkspace=new WildlifeAbundance.Workspace();
+            int abundanceResultIndex=0;
             var siteCache=new Dictionary<ScatterKey,WildlifeHabitat>();
             WildlifeHabitat Site(V point)
             {
@@ -125,7 +127,18 @@ namespace WorldGen.Presentation
                     foreach(double u in new[]{.2,.8})foreach(double v in new[]{.2,.8})site.Add(Site(lattice.Position(key,u,v)),.2);
                     siteCache[key]=site;
                 }
-                found=WildlifeAbundance.Allocate(Community(region,terrain.NearestCell(lattice.Position(key))),site,abundanceWorkspace);communityCache[(key,region)]=found;return found;
+                var population=Community(region,terrain.NearestCell(lattice.Position(key)));
+                // Only storage survives a Build, never ecological values. Each
+                // current community has its own result; no result escapes into
+                // spawn records. Bound retained dictionaries for large worlds.
+                if(abundanceResultIndex<128&&population.Length<=512)
+                {
+                    if(abundanceResultIndex==abundanceResults.Count)abundanceResults.Add(new WildlifeCommunity());
+                    found=abundanceResults[abundanceResultIndex++];
+                    WildlifeAbundance.AllocateInto(population,site,abundanceWorkspace,found);
+                }
+                else found=WildlifeAbundance.Allocate(population,site,abundanceWorkspace);
+                communityCache[(key,region)]=found;return found;
             }
             double latitude=Math.Asin(center.Z)*180/Math.PI;
             foreach(bool detail in new[]{false,true})foreach(var key in lattice.Around(center,detail?220:2400,detail))

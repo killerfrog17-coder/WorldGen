@@ -15,6 +15,7 @@ static class WildlifeAbundanceTests
         int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
         var forest=new WildlifeHabitat{Productivity=1,Canopy=.7,Shrubs=.3,Grass=.25,Browse=.65,Fruit=.6,Seed=.4,Nectar=.2,Invertebrates=.8,Detritus=.6};
         var workspace=new WildlifeAbundance.Workspace();var random=new Random(681103);
+        var output=new WildlifeCommunity();
         WildlifeCommunity retained=null;double[] retainedValues=null;
         for(int step=0;step<240;step++)
         {
@@ -27,6 +28,10 @@ static class WildlifeAbundanceTests
             }
             var habitat=forest;habitat.Productivity=step%9==0?double.NaN:random.NextDouble()*3;habitat.Canopy=random.NextDouble();habitat.Grass=random.NextDouble();habitat.Browse=random.NextDouble();
             var original=WildlifeAbundance.Allocate(population,habitat);var reused=WildlifeAbundance.Allocate(population,habitat,workspace);
+            WildlifeAbundance.AllocateInto(population,habitat,workspace,output);
+            Check(original.DensityPerKm2.Keys.SequenceEqual(output.DensityPerKm2.Keys),"Reusable output removes all previous taxon identities");
+            foreach(int id in original.DensityPerKm2.Keys)Check(BitConverter.DoubleToInt64Bits(original.Density(id))==BitConverter.DoubleToInt64Bits(output.Density(id)),"Reusable output preserves each density bit");
+            Check(original.PrimaryCapacity==output.PrimaryCapacity&&original.PrimaryAllocated==output.PrimaryAllocated&&original.PreyBiomassKg==output.PreyBiomassKg&&original.PredatorSupportedBiomassKg==output.PredatorSupportedBiomassKg,"Reusable output resets all resource totals");
             Check(original.DensityPerKm2.Keys.SequenceEqual(reused.DensityPerKm2.Keys),"Reusable population storage preserves filtered, unique, sorted taxon identity");
             foreach(int id in original.DensityPerKm2.Keys)Check(BitConverter.DoubleToInt64Bits(original.Density(id))==BitConverter.DoubleToInt64Bits(reused.Density(id)),"Reusable population storage preserves every density bit");
             Check(original.PrimaryCapacity==reused.PrimaryCapacity&&original.PrimaryAllocated==reused.PrimaryAllocated&&original.PreyBiomassKg==reused.PreyBiomassKg&&original.PredatorSupportedBiomassKg==reused.PredatorSupportedBiomassKg,"Reusable population storage preserves resource and predator totals");
@@ -34,6 +39,15 @@ static class WildlifeAbundanceTests
             retained=reused;retainedValues=reused.DensityPerKm2.Values.ToArray();
         }
         var deer=Animal(1,100,Food.Browse);var elk=Animal(2,100,Food.Browse);var wolf=Animal(3,40,Food.Vertebrate);var cat=Animal(4,40,Food.Vertebrate);
+        var allocationPopulation=new[]{deer,elk,wolf,cat};
+        for(int i=0;i<10;i++){WildlifeAbundance.Allocate(allocationPopulation,forest,workspace);WildlifeAbundance.AllocateInto(allocationPopulation,forest,workspace,output);}
+        long before=GC.GetAllocatedBytesForCurrentThread();
+        for(int i=0;i<1000;i++)WildlifeAbundance.Allocate(allocationPopulation,forest,workspace);
+        long freshBytes=GC.GetAllocatedBytesForCurrentThread()-before;before=GC.GetAllocatedBytesForCurrentThread();
+        for(int i=0;i<1000;i++)WildlifeAbundance.AllocateInto(allocationPopulation,forest,workspace,output);
+        long reusedBytes=GC.GetAllocatedBytesForCurrentThread()-before;
+        Check(freshBytes>0&&reusedBytes<freshBytes/4,"Owned output storage removes repeated community dictionary growth");
+        Console.WriteLine($"Community output allocations: fresh {freshBytes}, reused {reusedBytes} bytes /1000 calculations.");
         var alone=WildlifeAbundance.Allocate(new[]{deer},forest);var together=WildlifeAbundance.Allocate(new[]{deer,elk},forest);
         Check(Math.Abs(alone.Density(1)-together.Density(1)-together.Density(2))<1e-10,"Adding an equivalent browser shares capacity instead of doubling it");
         Check(together.Density(1)<alone.Density(1),"An unrendered ecological competitor still reduces the represented deer's allowance");
@@ -86,6 +100,30 @@ static class WildlifeAbundanceTests
         var state=new WildlifeState{PopulationVersion=WildlifeAbundance.Version};var copy=state.Copy();var restored=WorldJson.Read<WildlifeState>(WorldJson.Write(state));restored.Validate();
         Check(copy.PopulationVersion==state.PopulationVersion&&restored.PopulationVersion==state.PopulationVersion,"Population projection version is deep-copy/save compatible");
         Console.WriteLine("PASS "+checks+" wildlife resource, competition, habitat and encounter-pacing checks");
+    }
+    public static void VerifyPlannerReuse(string path)
+    {
+        var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        var profiles=WorldJson.Read<FaunaPrototypeCatalogue>(File.ReadAllText("unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenFaunaCatalogue.json")).animals;
+        var reused=new FaunaPrototypePlanner(world,terrain,profiles,.1);
+        System.Collections.Generic.List<FaunaPrototypeSpawn> retained=null;string retainedText=null;int count=0;
+        foreach(var site in new[]{(27.068410281540114,-167.35387593971296,12d,15d,.25),
+            (27.068410281540114,-167.35387593971296,21d,7d,.75),
+            (0d,25d,6d,27d,.4),(50d,10d,15d,-5d,.9),
+            (27.068410281540114,-167.35387593971296,12d,15d,.25)})
+        {
+            var point=TerrainMapViewport.FromDegrees(site.Item1,site.Item2);
+            var fresh=new FaunaPrototypePlanner(world,terrain,profiles,.1);
+            var expected=fresh.Build(point,.1,site.Item3,CancellationToken.None,site.Item5,site.Item4);
+            var actual=reused.Build(point,.1,site.Item3,CancellationToken.None,site.Item5,site.Item4);
+            if(WorldJson.Write(expected)!=WorldJson.Write(actual))throw new Exception("Reused planner changed complete spawn data");
+            if(retained!=null&&WorldJson.Write(retained)!=retainedText)throw new Exception("Later build mutated retained spawns");
+            retained=actual;retainedText=WorldJson.Write(actual);count+=actual.Count;
+            try{reused.Build(point,.1,site.Item3,new CancellationToken(true),site.Item5,site.Item4);throw new Exception("Cancellation ignored");}
+            catch(OperationCanceledException){}
+        }
+        if(count==0)throw new Exception("No actual-world spawn coverage");
+        Console.WriteLine($"PASS {count} complete actual-world spawn records across five changing site/time/weather scenarios, retained results and cancellation.");
     }
     public static void WorldReport(string path,string output)
     {
