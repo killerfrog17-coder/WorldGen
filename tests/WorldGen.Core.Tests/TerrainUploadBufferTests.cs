@@ -34,6 +34,42 @@ static class TerrainUploadBufferTests
         using(var small=new TerrainUploadBufferPool(1024))
         {using var stream=new MemoryStream(bytes);using var reader=new BinaryReader(stream);var mesh=TerrainMeshWire.ReadMesh(reader,small);mesh.ReleaseUploadBuffers();Check(small.RetainedBytes<=1024,"Pool exceeded its byte budget");}
         var last=Read(bytes);pool.Dispose();last.ReleaseUploadBuffers();Check(pool.RetainedBytes==0,"Late upload completion refilled a closed pool");
-        Console.WriteLine($"PASS {checks} terrain transport pool checks: exact payloads, concurrent ownership, zero new transient arrays after warmup, retained grids, truncated reads, bounded and late disposal; {warmed} bytes warmup");
+        using(var transport=new TerrainUploadBufferPool())
+        using(var covers=new TerrainUploadBufferPool())
+        {
+            LocalTerrainMesh Covered(byte[] payload){using var stream=new MemoryStream(payload);using var reader=new BinaryReader(stream);return TerrainMeshWire.ReadMesh(reader,transport,covers);}
+            var decoded=Covered(bytes);Check(Encode(decoded).SequenceEqual(bytes),"Resident pooling changed the wire payload");
+            var lease=decoded.TakeCoverBuffers()!;var held=lease.Ground;
+            Check(decoded.GroundCover.Length==0&&decoded.TakeCoverBuffers()==null,"Cover ownership was not transferred exactly once");
+            decoded.ReleaseUploadBuffers();
+            Check(held.SequenceEqual(source.GroundCover)&&covers.RetainedBytes==0,"Upload completion returned live cover grids");
+            var competing=Covered(bytes);
+            Check(!ReferenceEquals(competing.GroundCover,held),"A live resident cover grid was leased twice");
+            competing.ReleaseUploadBuffers();lease.Dispose();lease.Dispose();
+            Check(lease.Ground.Length==0&&lease.Mid.Length==0&&lease.Forest.Length==0,"Retired cover owner retained returned arrays");
+            long warmedCovers=covers.CreatedBytes;
+            for(int i=0;i<128;i++)
+            {
+                var decodedAgain=Covered(bytes);Check(Encode(decodedAgain).SequenceEqual(bytes),"Reused resident grids changed their payload");
+                using var resident=decodedAgain.TakeCoverBuffers();decodedAgain.ReleaseUploadBuffers();
+                Check(resident!.Ground.SequenceEqual(source.GroundCover),"Transport disposal corrupted transferred grids");
+            }
+            Check(covers.CreatedBytes==warmedCovers&&covers.ReusedBytes>0,"Resident cover grids still allocated after retirement warmup");
+            foreach(int missing in new[]{1,500,1200,2100})
+            {
+                try{Covered(bytes.Take(bytes.Length-missing).ToArray());throw new Exception("Truncated resident grids were accepted");}catch(EndOfStreamException){}
+                var a=Covered(bytes);var b=Covered(bytes);
+                Check(!ReferenceEquals(a.GroundCover,b.GroundCover)&&!ReferenceEquals(a.MidCover,b.MidCover)&&!ReferenceEquals(a.ForestCover,b.ForestCover),"Failed resident read returned an array twice");
+                Check(Encode(a).SequenceEqual(bytes)&&Encode(b).SequenceEqual(bytes),"Recovery after truncated resident read changed values");
+                a.ReleaseUploadBuffers();b.ReleaseUploadBuffers();
+            }
+            Parallel.For(0,32,_=>{var m=Covered(bytes);if(!Encode(m).SequenceEqual(bytes))throw new Exception("Concurrent resident read changed values");using var owner=m.TakeCoverBuffers();m.ReleaseUploadBuffers();if(!owner!.Ground.SequenceEqual(source.GroundCover))throw new Exception("Concurrent upload completion corrupted a resident");});
+            var originalForest=source.ForestCover;source.ForestCover=Values(199,22);var invalidGrid=Encode(source);source.ForestCover=originalForest;
+            try{Covered(invalidGrid);throw new Exception("Invalid cover dimensions were accepted");}catch(InvalidDataException){}
+            var validAfterInvalid=Covered(bytes);Check(Encode(validAfterInvalid).SequenceEqual(bytes),"Cover validation failure damaged subsequent ownership");validAfterInvalid.ReleaseUploadBuffers();
+            var late=Covered(bytes);var lateLease=late.TakeCoverBuffers();late.ReleaseUploadBuffers();covers.Dispose();lateLease!.Dispose();
+            Check(covers.RetainedBytes==0,"Late resident retirement refilled a closed pool");
+        }
+        Console.WriteLine($"PASS {checks} terrain transport/resident pool checks: exact payloads, concurrent ownership, zero new arrays after warmup, transferred grids, truncated/invalid reads, bounded and late disposal; {warmed} bytes transient warmup");
     }
 }

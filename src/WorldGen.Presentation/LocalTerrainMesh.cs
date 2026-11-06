@@ -32,10 +32,18 @@ namespace WorldGen.Presentation
     public sealed class LocalTerrainMesh
     {
         internal TerrainUploadBufferPool? UploadPool;
-        /// <summary>Release only leased transport attributes after their native
-        /// copy completes. Ground/mid/forest grids remain owned by the tile.</summary>
+        internal TerrainCoverBuffers? CoverBuffers;
+        public TerrainCoverBuffers? TakeCoverBuffers()
+        {
+            var owned=Interlocked.Exchange(ref CoverBuffers,null);
+            if(owned!=null)GroundCover=MidCover=ForestCover=Array.Empty<float>();
+            return owned;
+        }
+        /// <summary>Release transport attributes and any cover lease not transferred
+        /// to the upload/tile. Transferred resident grids remain with their owner.</summary>
         public void ReleaseUploadBuffers()
         {
+            var abandoned=TakeCoverBuffers();abandoned?.Dispose();
             var pool=System.Threading.Interlocked.Exchange(ref UploadPool,null);if(pool==null)return;
             pool.Return(Positions);pool.Return(Normals);pool.Return(Colors);pool.Return(SurfaceWeights);pool.Return(GroundWeightsB);pool.Return(Lithology);pool.Return(WaterPositions);pool.Return(WaterColors);pool.Return(Triangles);pool.Return(WaterTriangles);
             Positions=Normals=Colors=SurfaceWeights=GroundWeightsB=Lithology=WaterPositions=WaterColors=Array.Empty<float>();Triangles=WaterTriangles=Array.Empty<int>();

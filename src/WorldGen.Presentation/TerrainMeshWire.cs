@@ -47,14 +47,21 @@ namespace WorldGen.Presentation
             foreach(var a in new[]{m.Positions,m.Normals,m.Colors,m.SurfaceWeights,m.GroundWeightsB,m.Lithology,m.WaterPositions,m.WaterColors})ArrayOut(w,a);
             ArrayOut(w,m.Triangles);ArrayOut(w,m.WaterTriangles);ArrayOut(w,m.GroundCover);ArrayOut(w,m.MidCover);ArrayOut(w,m.ForestCover);w.Flush();
         }
-        public static LocalTerrainMesh ReadMesh(BinaryReader r,TerrainUploadBufferPool? pool=null)
+        public static LocalTerrainMesh ReadMesh(BinaryReader r,TerrainUploadBufferPool? pool=null,TerrainUploadBufferPool? coverPool=null)
         {
             var m=new LocalTerrainMesh{EastM=r.ReadDouble(),NorthM=r.ReadDouble(),SizeM=r.ReadDouble(),MinHeightM=r.ReadDouble(),MaxHeightM=r.ReadDouble(),BuildMilliseconds=r.ReadDouble(),Segments=r.ReadInt32(),GroundVertices=r.ReadInt32()};
             if(m.Segments<4||m.Segments>128||m.GroundVertices<0||m.GroundVertices>16641)throw new InvalidDataException("Invalid terrain mesh dimensions.");
             m.UploadPool=pool;
             try{
             m.Positions=Floats(r,pool);m.Normals=Floats(r,pool);m.Colors=Floats(r,pool);m.SurfaceWeights=Floats(r,pool);m.GroundWeightsB=Floats(r,pool);m.Lithology=Floats(r,pool);m.WaterPositions=Floats(r,pool);m.WaterColors=Floats(r,pool);m.Triangles=Ints(r,pool);m.WaterTriangles=Ints(r,pool);
-            m.GroundCover=Floats(r);m.MidCover=Floats(r);m.ForestCover=Floats(r);int vertices=m.Positions.Length/3;
+            float[] ground=Array.Empty<float>(),mid=Array.Empty<float>(),forest=Array.Empty<float>();
+            try
+            {
+                m.GroundCover=ground=Floats(r,coverPool);m.MidCover=mid=Floats(r,coverPool);m.ForestCover=forest=Floats(r,coverPool);
+                if(coverPool!=null)m.CoverBuffers=new TerrainCoverBuffers(coverPool,ground,mid,forest);
+            }
+            catch{if(coverPool!=null){coverPool.Return(ground);coverPool.Return(mid);coverPool.Return(forest);}throw;}
+            int vertices=m.Positions.Length/3;
             if(m.ForestCover.Length!=0&&m.ForestCover.Length!=m.GroundVertices*8)throw new InvalidDataException("Incomplete forest cover grid.");
             if(m.MidCover.Length!=0&&m.MidCover.Length!=m.GroundVertices*6)throw new InvalidDataException("Incomplete mid-height cover grid.");
             if(m.GroundCover.Length!=0&&m.GroundCover.Length!=m.GroundVertices*16)throw new InvalidDataException("Incomplete ground-cover grid.");

@@ -23,7 +23,8 @@ public sealed class TerrainMeshProcess : IDisposable
     readonly Task<Connection> ready;
     readonly object gate=new object();
     readonly TerrainUploadBufferPool uploadBuffers=new TerrainUploadBufferPool();
-    public string UploadBufferStatistics=>"created_bytes="+uploadBuffers.CreatedBytes+" reused_bytes="+uploadBuffers.ReusedBytes+" retained_bytes="+uploadBuffers.RetainedBytes;
+    readonly TerrainUploadBufferPool coverBuffers=new TerrainUploadBufferPool();
+    public string UploadBufferStatistics=>"created_bytes="+uploadBuffers.CreatedBytes+" reused_bytes="+uploadBuffers.ReusedBytes+" retained_bytes="+uploadBuffers.RetainedBytes+" cover_created_bytes="+coverBuffers.CreatedBytes+" cover_reused_bytes="+coverBuffers.ReusedBytes+" cover_retained_bytes="+coverBuffers.RetainedBytes;
     IntPtr hostHandle;TcpListener bootstrap;
     [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]
     struct StartupInfo
@@ -110,7 +111,7 @@ public sealed class TerrainMeshProcess : IDisposable
                     LocalTerrainMesh mesh=null;try
                     {
                         if(!r.ReadBoolean())throw new InvalidOperationException("Terrain worker: "+r.ReadString());
-                        mesh=TerrainMeshWire.ReadMesh(r,WorldGenPerformance.NoTerrainBufferReuse?null:uploadBuffers);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return mesh;
+                        mesh=TerrainMeshWire.ReadMesh(r,WorldGenPerformance.NoTerrainBufferReuse?null:uploadBuffers,WorldGenPerformance.ResidentCoverReuse?coverBuffers:null);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return mesh;
                     }
                     catch{mesh?.ReleaseUploadBuffers();linked.Token.ThrowIfCancellationRequested();throw;}
                 }
@@ -175,5 +176,5 @@ public sealed class TerrainMeshProcess : IDisposable
         catch{token.ThrowIfCancellationRequested();lifetime.Token.ThrowIfCancellationRequested();throw;}
     }
     void DisposeHost(){lock(gate){if(hostHandle!=IntPtr.Zero){if(GetExitCodeProcess(hostHandle,out uint code)&&code==259)TerminateProcess(hostHandle,0);CloseHandle(hostHandle);hostHandle=IntPtr.Zero;}}}
-    public void Dispose(){lifetime.Cancel();bootstrap?.Stop();DisposeHost();uploadBuffers.Dispose();}
+    public void Dispose(){lifetime.Cancel();bootstrap?.Stop();DisposeHost();uploadBuffers.Dispose();coverBuffers.Dispose();}
 }

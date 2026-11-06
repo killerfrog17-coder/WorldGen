@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace WorldGen.Presentation
 {
-    /// <summary>Bounded exact-length buffers for decoded mesh attributes that
-    /// are discarded after native upload. Persistent cover grids never enter
-    /// this pool. A leased mesh owns its buffers until ReleaseUploadBuffers.</summary>
+    /// <summary>Bounded exact-length decoded buffers. Transport attributes use
+    /// one pool and release after native upload. Persistent cover grids use a
+    /// separate pool and an explicit TerrainCoverBuffers lease until retirement.</summary>
     public sealed class TerrainUploadBufferPool : IDisposable
     {
         readonly object gate=new object();

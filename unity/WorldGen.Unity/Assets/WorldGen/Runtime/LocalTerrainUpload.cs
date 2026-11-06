@@ -39,6 +39,8 @@ public sealed partial class LocalTerrainExplorer
         public int Segments;
         public long BufferBytes;
         public float[] Heights,Cover,MidCover,ForestCover;
+        TerrainCoverBuffers coverBuffers;
+        public TerrainCoverBuffers TakeCoverBuffers()=>Interlocked.Exchange(ref coverBuffers,null);
         bool hasWater;
         public bool HasWater=>hasWater;
         public Bounds WaterBounds=>hasWater?bounds[1]:default;
@@ -65,7 +67,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var watch=System.Diagnostics.Stopwatch.StartNew();
             result.EastM=source.EastM;result.NorthM=source.NorthM;result.Segments=source.Segments;result.BuildMilliseconds=source.BuildMilliseconds;
-            result.Heights=new float[source.GroundVertices];result.Cover=source.GroundCover;result.MidCover=source.MidCover;result.ForestCover=source.ForestCover;result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
+            result.Heights=new float[source.GroundVertices];result.Cover=source.GroundCover;result.MidCover=source.MidCover;result.ForestCover=source.ForestCover;result.coverBuffers=source.TakeCoverBuffers();result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
             result.formats=new IndexFormat[2];
             try
             {
@@ -124,6 +126,7 @@ public sealed partial class LocalTerrainExplorer
         }
         public void Dispose()
         {
+            TakeCoverBuffers()?.Dispose();
             if(Interlocked.Exchange(ref live,0)==0)return;
             var owned=buffers;
             if(Thread.CurrentThread.ManagedThreadId==mainThread){owned.Dispose();return;}
@@ -202,8 +205,53 @@ public sealed partial class LocalTerrainExplorer
             using(var upload=TerrainUpload.Prepare(large,CancellationToken.None))
             {var meshes=upload.Apply();try{if(meshes[0].indexFormat!=(count<=65535?IndexFormat.UInt16:IndexFormat.UInt32)||meshes[0].triangles[2]!=count-1)throw new InvalidOperationException("Final terrain geometry exceeded compact index format");}finally{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);}}
         }
+        yield return CheckResidentCoverOwnership(source,output);
         yield return CheckInactiveTerrainMeshRelease(output);
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"upload-buffers.txt"),"PASS worker-prepared native positions, normals, colors, lithology, indices, bounds, water, controller heights, returned/overwritten transport arrays and cancelled-buffer disposal.");
+    }
+    static System.Collections.IEnumerator CheckResidentCoverOwnership(LocalTerrainMesh source,string output)
+    {
+        source.GroundCover=new float[source.GroundVertices*16];source.MidCover=new float[source.GroundVertices*6];source.ForestCover=new float[source.GroundVertices*8];
+        foreach(var grid in new[]{source.GroundCover,source.MidCover,source.ForestCover})for(int i=0;i<grid.Length;i++)grid[i]=(i+1)*.03125f;
+        using var transport=new TerrainUploadBufferPool();using var covers=new TerrainUploadBufferPool();
+        LocalTerrainMesh Lease()
+        {
+            using var stream=new System.IO.MemoryStream();using(var writer=new System.IO.BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteMesh(writer,source);
+            stream.Position=0;using var reader=new System.IO.BinaryReader(stream);return TerrainMeshWire.ReadMesh(reader,transport,covers);
+        }
+        void Exact(Tile tile)
+        {
+            var actual=new[]{tile.Cover,tile.MidCover,tile.ForestCover};var expected=new[]{source.GroundCover,source.MidCover,source.ForestCover};
+            for(int g=0;g<actual.Length;g++)for(int i=0;i<expected[g].Length;i++)if(actual[g][i]!=expected[g][i])throw new InvalidOperationException("Resident cover changed before retirement");
+        }
+        var host=new GameObject("Resident cover ownership proof");var explorer=host.AddComponent<LocalTerrainExplorer>();explorer.enabled=false;
+        Tile tile=null;var key=new TerrainTileKey(0,0,0);var edges=new double[4];
+        try
+        {
+            var task=TerrainUpload.Schedule(Lease,CancellationToken.None);while(!task.IsCompleted)yield return null;
+            using(var upload=task.GetAwaiter().GetResult())
+            {
+                var meshes=upload.Apply();var root=new GameObject("Resident cover tile");
+                foreach(var mesh in meshes){var child=new GameObject("Uploaded mesh",typeof(MeshFilter));child.transform.SetParent(root.transform,false);child.GetComponent<MeshFilter>().sharedMesh=mesh;}
+                tile=new Tile{Root=root,Segments=source.Segments,Edges=edges,Cover=upload.Cover,MidCover=upload.MidCover,ForestCover=upload.ForestCover,CoverBuffers=upload.TakeCoverBuffers()};
+            }
+            Exact(tile);if(covers.RetainedBytes!=0)throw new InvalidOperationException("Upload disposal returned resident cover");
+            explorer.CacheTerrain(key,tile);Exact(tile);if(covers.RetainedBytes!=0)throw new InvalidOperationException("Caching returned resident cover");
+            var other=Lease();foreach(var grid in new[]{other.GroundCover,other.MidCover,other.ForestCover})for(int i=0;i<grid.Length;i++)grid[i]=999;
+            Exact(tile);other.ReleaseUploadBuffers();
+            if(!explorer.TerrainProducts.Take(new TerrainProductKey(key,source.Segments,edges),out var restored)||!ReferenceEquals(restored,tile))throw new InvalidOperationException("Cover tile cache did not preserve ownership");
+            Exact(restored);long before=covers.RetainedBytes;explorer.DestroyTile(tile);
+            if(covers.RetainedBytes<=before||tile.Cover.Length!=0||tile.MidCover.Length!=0||tile.ForestCover.Length!=0)throw new InvalidOperationException("Actual retirement did not release cover ownership");tile=null;
+            var cancelled=TerrainUpload.Schedule(()=>{var m=Lease();m.Triangles[0]=-1;return m;},CancellationToken.None);
+            while(!cancelled.IsCompleted)yield return null;
+            bool failed=false;try{cancelled.GetAwaiter().GetResult();}catch(InvalidOperationException){failed=true;}
+            if(!failed)throw new InvalidOperationException("Invalid native upload unexpectedly succeeded");
+            long warmed=covers.CreatedBytes;var recovered=Lease();recovered.ReleaseUploadBuffers();
+            if(covers.CreatedBytes!=warmed)throw new InvalidOperationException("Failed native preparation stranded cover buffers");
+            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"resident-cover-ownership.txt"),"PASS actual worker/native upload, upload disposal, cache retention/take, competing overwrite, tile retirement and failed preparation preserve exclusive ground/mid/forest ownership. Pool remains bounded and experimental/default OFF.");
+        }
+        finally{explorer.terrainProducts?.Clear();if(tile!=null)explorer.DestroyTile(tile);UnityEngine.Object.Destroy(host);}
+        yield return null;
     }
     static System.Collections.IEnumerator CheckInactiveTerrainMeshRelease(string output)
     {
