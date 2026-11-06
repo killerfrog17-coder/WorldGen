@@ -3218,5 +3218,38 @@
     "shader_current_code": 0,
     "shader_docs": "https://docs.unity3d.com/2023.2/Documentation/Manual/SRPBatcher.html",
     "result": "Compiled reference/current SRP compatibility proof PASS. First attempt before camera rendering returned uninitialized for BOTH; retained as failed fixture. Actual gameplay/FPS comparison pending."
+  },
+  "batched_retirement_release_20261106": {
+    "source": "ccc368c2",
+    "evidence": "artifacts/render-repair-20261106/presented-batched-retirement",
+    "paced_fps": 173.56835,
+    "staged_fps": 176.93706,
+    "paced_p95_ms": 10.0034,
+    "staged_p95_ms": 9.6525,
+    "paced_p99_ms": 12.2681,
+    "staged_p99_ms": 11.9853,
+    "paced_max_ms": 40.2571,
+    "staged_max_ms": 34.8575,
+    "staged_legacy_corrections": 0,
+    "result": "Same-package staged vs paced improvement modest. Prior pre-batching paced151.74553FPS; combined shader/cache changes now173.56835, not isolated shader attribution. 34ms worst frames coincide with GC count changes. 100FPSfloor remains unmet; alternatives defaultOFF."
+  },
+  "pooled_read_stream_20261106": {
+    "source": "ca71d4a1",
+    "pure_checks": 363729,
+    "mesh_pool_checks": 137,
+    "worker_exact_checks": 194431,
+    "evidence": "artifacts/render-repair-20261106/pooled-reader-worker.log",
+    "warm_1000_reader_bytes": 56000,
+    "result": "PASS partial reads, EOF, simultaneous leases, direct reads, disposal, exact worker mesh/scatter/forest and valid response after cancellation."
+  },
+  "forest_floor_visual_20261106": {
+    "evidence": "artifacts/render-repair-20261106/floor-batched-visual",
+    "bindings": 0,
+    "equal_grid_pairs": 108,
+    "near_floor_alpha": "mean .85-.89, maxima .96",
+    "finding": "Moss-isolation image proves uniform green is dominated by moss, not missing forest-floor weights. Photographed patch material prepared; actual visuals and release GPU cost pending.",
+    "moss_source": "https://ambientcg.com/view?id=Moss001",
+    "license": "https://docs.ambientcg.com/license/",
+    "release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/terrain-moss-20261106-v1"
   }
 }
