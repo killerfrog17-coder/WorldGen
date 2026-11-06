@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
         for(int level=0;level<=16;level++)
         {
             double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);var key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
-            if(!tiles.TryGetValue(key,out var tile)||tile.Cover==null||tile.Segments<=0)continue;
+            if(!tiles.TryGetValue(key,out var tile)||!tile.Cover.IsCreated||tile.Segments<=0)continue;
             int n=tile.Segments,side=n+1;double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;
             int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
             double Node(int xx,int zz,int c)=>tile.Cover[(zz*side+xx)*16+c];

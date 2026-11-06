@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
     }
     static Texture2D CreateForestSurface(Tile tile)
     {
-        if(tile.ForestCover==null||tile.ForestCover.Length==0)return null;
+        if(!tile.ForestCover.IsCreated||tile.ForestCover.Length==0)return null;
         int side=tile.Segments+1;var pixels=SurfacePixelStaging(side*side);
         for(int i=0;i<pixels.Length;i++){int at=i*8;pixels[i]=new Color(tile.ForestCover[at],tile.ForestCover[at+1],tile.ForestCover[at+2],tile.ForestCover[at+3]);}
         var texture=new Texture2D(side,side,TextureFormat.RGBAHalf,false,true){name="Forest canopy colour/coverage",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
@@ -34,7 +34,7 @@ public sealed partial class LocalTerrainExplorer
     }
     static Texture2D CreateForestFloorSurface(Tile tile)
     {
-        if(tile.ForestCover==null||tile.ForestCover.Length==0)return null;
+        if(!tile.ForestCover.IsCreated||tile.ForestCover.Length==0)return null;
         int side=tile.Segments+1;var pixels=SurfacePixelStaging(side*side);
         for(int i=0;i<pixels.Length;i++)
         {

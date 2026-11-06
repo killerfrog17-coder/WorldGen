@@ -109,7 +109,7 @@ public sealed partial class LocalTerrainExplorer
     }
     static Texture2D CreateFloraSurface(Tile tile)
     {
-        if(tile.Cover==null||tile.Cover.Length==0)return null;
+        if(!tile.Cover.IsCreated||tile.Cover.Length==0)return null;
         int side=tile.Segments+1;var pixels=SurfacePixelStaging(side*side);
         for(int i=0;i<pixels.Length;i++)
         {
@@ -338,7 +338,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in tiles)
         {
             var key=pair.Key;var tile=pair.Value;
-            if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||tile.Cover==null||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)||!WorldGenPerformance.Original&&!HasMovingCover(tile)){ReleaseGroundCover(tile);continue;}
+            if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||!tile.Cover.IsCreated||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)||!WorldGenPerformance.Original&&!HasMovingCover(tile)){ReleaseGroundCover(tile);continue;}
             expiredCoverPages.Clear();
             foreach(var page in tile.CoverPages.Keys)
             {
@@ -375,7 +375,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(tile.MovingCover>=0)return tile.MovingCover!=0;
         var values=tile.Cover;
-        if(values==null||values.Length%16!=0)return true; // Unknown is not empty.
+        if(!values.IsCreated||values.Length%16!=0)return true; // Unknown is not empty.
         bool movingSupport=false,heightSupport=false;
         for(int at=0;at<values.Length;at+=16)
         {

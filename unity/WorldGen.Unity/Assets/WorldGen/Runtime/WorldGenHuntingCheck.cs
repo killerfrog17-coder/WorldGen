@@ -158,7 +158,7 @@ public sealed partial class LocalTerrainExplorer
         double floor=Ground(px,pz)+200;var fixture=new Dictionary<TerrainTileKey,Tile>();
         double size=TerrainLod.BaseSizeM*HorizontalScale;int cx=(int)Math.Floor(px/size),cz=(int)Math.Floor(pz/size);
         for(int x=cx-2;x<=cx+2;x++)for(int z=cz-2;z<=cz+12;z++)
-        {var cover=new float[64];for(int k=0;k<4;k++){cover[k*16+3]=.8f;cover[k*16+5]=.8f;cover[k*16+13]=3;cover[k*16+15]=(float)floor;}fixture[new TerrainTileKey(x,z,0,HorizontalScale)]=new Tile{Segments=1,Heights=new[]{(float)floor,(float)floor,(float)floor,(float)floor},Cover=cover};}
+        {var cover=new float[64];for(int k=0;k<4;k++){cover[k*16+3]=.8f;cover[k*16+5]=.8f;cover[k*16+13]=3;cover[k*16+15]=(float)floor;}var resident=new ResidentCoverBuffers(cover,null,null);fixture[new TerrainTileKey(x,z,0,HorizontalScale)]=new Tile{Segments=1,Heights=new[]{(float)floor,(float)floor,(float)floor,(float)floor},Cover=resident.Ground,CoverBuffers=resident};}
         try
         {
             tiles=fixture;motion.Place(px,pz,floor);motion.Flying=false;
@@ -177,7 +177,7 @@ public sealed partial class LocalTerrainExplorer
             Place(20);Observe(3,1);Check(roo.Awareness.Mode!=WildlifeAwareness.Fleeing,"A nearby first sighting allows a reaction interval");
             Observe(3,40);Check(roo.Awareness.Mode==WildlifeAwareness.Fleeing,"Sustained credible nearby approach still triggers escape");
         }
-        finally{tiles=oldTiles;CurrentWeather=weather;huntingCoverAt=oldCoverAt;motion.Place(px,pz,Ground(px,pz));roo.X=px;roo.Z=pz+20;roo.Planet=frame.Position(roo.X,roo.Z);roo.GroundY=Ground(roo.X,roo.Z);roo.Awareness=new WildlifeAwarenessState();UpdateAnimal(roo,0);UpdateHumans();UpdateCamera();}
+        finally{foreach(var tile in fixture.Values)DestroyTile(tile);tiles=oldTiles;CurrentWeather=weather;huntingCoverAt=oldCoverAt;motion.Place(px,pz,Ground(px,pz));roo.X=px;roo.Z=pz+20;roo.Planet=frame.Position(roo.X,roo.Z);roo.GroundY=Ground(roo.X,roo.Z);roo.Awareness=new WildlifeAwarenessState();UpdateAnimal(roo,0);UpdateHumans();UpdateCamera();}
         bool oldReview=reviewWildlifeBehaviour;reviewWildlifeBehaviour=true;
         ulong gid=991990;wildlifeGroups[gid]=new WildlifeGroup{Position=frame.Position(px,pz+150),Heading=0,Members=1};
         try{var moved=new FaunaPrototypeSpawn{Profile=deer.Spawn.Profile,GroupId=gid,Position=frame.Position(px,pz+2300)};Check(SpawnViewDistance(moved)<250,"Model admission uses a tracked group's current position rather than its distant original home");}

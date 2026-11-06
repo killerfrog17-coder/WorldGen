@@ -347,7 +347,7 @@ public sealed partial class LocalTerrainExplorer
         int pages=0;var count=new uint[1];
         foreach(var tile in tiles.Values)
         {
-            if(tile.Cover==null||tile.Cover.Length==0||HasMovingCover(tile))continue;
+            if(!tile.Cover.IsCreated||tile.Cover.Length==0||HasMovingCover(tile))continue;
             foreach(var page in tile.CoverPages.Values)
             {
                 page.Count.GetData(count);

@@ -14,7 +14,8 @@ public sealed partial class LocalTerrainExplorer
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var host=new GameObject("Ground cover fixture");var e=host.AddComponent<LocalTerrainExplorer>();e.enabled=false;e.closed=true;
         e.InitializeGroundCover();if(e.groundCoverMaterial==null)throw new Exception("Ground cover GPU path unavailable");
-        var tile=new Tile{Segments=32,Cover=new float[33*33*16]};
+        using var covers=new ResidentCoverBuffers(new float[33*33*16],null,null);
+        var tile=new Tile{Segments=32,Cover=covers.Ground};
         for(int z=0;z<33;z++)for(int x=0;x<33;x++)
         {
             int at=(z*33+x)*16;tile.Cover[at]=.31f;tile.Cover[at+1]=.44f;tile.Cover[at+2]=.16f;tile.Cover[at+3]=.92f;
@@ -71,6 +72,6 @@ public sealed partial class LocalTerrainExplorer
         camera.transform.position=new Vector3(54,12,4);camera.transform.LookAt(new Vector3(54,0,48));yield return null;Capture(true,"overview");
         camera.transform.position=new Vector3(48,1.75f,20);camera.transform.LookAt(new Vector3(49,1.70f,60));yield return null;Capture(true,"tallgrass");
         File.WriteAllText(Path.Combine(output,"ground-cover-check.txt"),"PASS native GPU generation/indirect rendering: "+counts[0]+" compact roots; "+changed+" changed pixels; "+(gpu.Bytes/1048576d).ToString("F2")+"MiB fixture buffers. Not actual-world performance/art acceptance.");
-        ReleaseGroundCover(tile);Application.Quit(0);
+        ReleaseGroundCover(tile);covers.Dispose();Application.Quit(0);
     }
 }

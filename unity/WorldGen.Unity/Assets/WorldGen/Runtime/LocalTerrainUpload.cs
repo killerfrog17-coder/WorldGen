@@ -8,6 +8,36 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+    // The terrain worker returns its managed wire leases immediately after
+    // copying. Resident grids remain available for CPU stealth sampling and GPU
+    // rebuilding without keeping those large arrays in the managed heap.
+    sealed class ResidentCoverBuffers : IDisposable
+    {
+        public NativeArray<float> Ground,Mid,Forest;
+        int disposed;
+        long bytes;
+        static long residentBytes;
+        public static long ResidentBytes=>Interlocked.Read(ref residentBytes);
+        public ResidentCoverBuffers(float[] ground,float[] mid,float[] forest)
+        {
+            try{Ground=Copy(ground);Mid=Copy(mid);Forest=Copy(forest);}
+            catch{Dispose();throw;}
+        }
+        NativeArray<float> Copy(float[] source)
+        {
+            if(source==null||source.Length==0)return default;
+            var result=new NativeArray<float>(source.Length,Allocator.Persistent,NativeArrayOptions.UninitializedMemory);
+            try{result.CopyFrom(source);}catch{result.Dispose();throw;}
+            long count=(long)source.Length*sizeof(float);bytes+=count;Interlocked.Add(ref residentBytes,count);return result;
+        }
+        public void Dispose()
+        {
+            if(Interlocked.Exchange(ref disposed,1)!=0)return;
+            if(Ground.IsCreated)Ground.Dispose();if(Mid.IsCreated)Mid.Dispose();if(Forest.IsCreated)Forest.Dispose();
+            Ground=Mid=Forest=default;Interlocked.Add(ref residentBytes,-bytes);bytes=0;
+        }
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     struct TerrainVertex
     {
@@ -38,9 +68,9 @@ public sealed partial class LocalTerrainExplorer
         public double EastM,NorthM,BuildMilliseconds,BufferMilliseconds;
         public int Segments;
         public long BufferBytes;
-        public float[] Heights,Cover,MidCover,ForestCover;
-        TerrainCoverBuffers coverBuffers;
-        public TerrainCoverBuffers TakeCoverBuffers()=>Interlocked.Exchange(ref coverBuffers,null);
+        public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;
+        ResidentCoverBuffers coverBuffers;
+        public ResidentCoverBuffers TakeCoverBuffers()=>Interlocked.Exchange(ref coverBuffers,null);
         bool hasWater;
         public bool HasWater=>hasWater;
         public Bounds WaterBounds=>hasWater?bounds[1]:default;
@@ -67,10 +97,13 @@ public sealed partial class LocalTerrainExplorer
         {
             var watch=System.Diagnostics.Stopwatch.StartNew();
             result.EastM=source.EastM;result.NorthM=source.NorthM;result.Segments=source.Segments;result.BuildMilliseconds=source.BuildMilliseconds;
-            result.Heights=new float[source.GroundVertices];result.Cover=source.GroundCover;result.MidCover=source.MidCover;result.ForestCover=source.ForestCover;result.coverBuffers=source.TakeCoverBuffers();result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
+            result.Heights=new float[source.GroundVertices];result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
             result.formats=new IndexFormat[2];
             try
             {
+                result.coverBuffers=new ResidentCoverBuffers(source.GroundCover,source.MidCover,source.ForestCover);
+                result.Cover=result.coverBuffers.Ground;result.MidCover=result.coverBuffers.Mid;result.ForestCover=result.coverBuffers.Forest;
+                source.TakeCoverBuffers()?.Dispose();
                 for(int i=0;i<result.Heights.Length;i++)result.Heights[i]=source.Positions[i*3+1];
                 for(int part=0;part<result.bounds.Length;part++)
                 {
@@ -213,6 +246,11 @@ public sealed partial class LocalTerrainExplorer
     {
         source.GroundCover=new float[source.GroundVertices*16];source.MidCover=new float[source.GroundVertices*6];source.ForestCover=new float[source.GroundVertices*8];
         foreach(var grid in new[]{source.GroundCover,source.MidCover,source.ForestCover})for(int i=0;i<grid.Length;i++)grid[i]=(i+1)*.03125f;
+        // Encoded morphology and signed zero must survive as bits, not merely
+        // equal numeric values. The grid is also read back from a real GPU buffer.
+        source.ForestCover[7]=BitConverter.Int32BitsToSingle(unchecked((int)0xffc12345));source.GroundCover[0]=-0f;
+        long nativeBefore=ResidentCoverBuffers.ResidentBytes;
+        long expectedBytes=(long)(source.GroundCover.Length+source.MidCover.Length+source.ForestCover.Length)*sizeof(float);
         using var transport=new TerrainUploadBufferPool();using var covers=new TerrainUploadBufferPool();
         LocalTerrainMesh Lease()
         {
@@ -222,7 +260,7 @@ public sealed partial class LocalTerrainExplorer
         void Exact(Tile tile)
         {
             var actual=new[]{tile.Cover,tile.MidCover,tile.ForestCover};var expected=new[]{source.GroundCover,source.MidCover,source.ForestCover};
-            for(int g=0;g<actual.Length;g++)for(int i=0;i<expected[g].Length;i++)if(actual[g][i]!=expected[g][i])throw new InvalidOperationException("Resident cover changed before retirement");
+            for(int g=0;g<actual.Length;g++)for(int i=0;i<expected[g].Length;i++)if(BitConverter.SingleToInt32Bits(actual[g][i])!=BitConverter.SingleToInt32Bits(expected[g][i]))throw new InvalidOperationException("Resident cover changed before retirement");
         }
         var host=new GameObject("Resident cover ownership proof");var explorer=host.AddComponent<LocalTerrainExplorer>();explorer.enabled=false;
         Tile tile=null;var key=new TerrainTileKey(0,0,0);var edges=new double[4];
@@ -235,20 +273,35 @@ public sealed partial class LocalTerrainExplorer
                 foreach(var mesh in meshes){var child=new GameObject("Uploaded mesh",typeof(MeshFilter));child.transform.SetParent(root.transform,false);child.GetComponent<MeshFilter>().sharedMesh=mesh;}
                 tile=new Tile{Root=root,Segments=source.Segments,Edges=edges,Cover=upload.Cover,MidCover=upload.MidCover,ForestCover=upload.ForestCover,CoverBuffers=upload.TakeCoverBuffers()};
             }
-            Exact(tile);if(covers.RetainedBytes!=0)throw new InvalidOperationException("Upload disposal returned resident cover");
-            explorer.CacheTerrain(key,tile);Exact(tile);if(covers.RetainedBytes!=0)throw new InvalidOperationException("Caching returned resident cover");
+            Exact(tile);
+            if(covers.RetainedBytes!=expectedBytes||ResidentCoverBuffers.ResidentBytes!=nativeBefore+expectedBytes)throw new InvalidOperationException("Native resident grids did not release managed transport leases immediately");
+            using(var gpu=new GraphicsBuffer(GraphicsBuffer.Target.Structured,tile.ForestCover.Length,sizeof(float)))
+            {
+                gpu.SetData(tile.ForestCover);var readback=new float[tile.ForestCover.Length];gpu.GetData(readback);
+                for(int i=0;i<readback.Length;i++)if(BitConverter.SingleToInt32Bits(readback[i])!=BitConverter.SingleToInt32Bits(source.ForestCover[i]))throw new InvalidOperationException("Native cover GPU upload altered encoded values");
+            }
+            explorer.CacheTerrain(key,tile);Exact(tile);
+            if(ResidentCoverBuffers.ResidentBytes!=nativeBefore+expectedBytes)throw new InvalidOperationException("Caching released native resident cover");
             var other=Lease();foreach(var grid in new[]{other.GroundCover,other.MidCover,other.ForestCover})for(int i=0;i<grid.Length;i++)grid[i]=999;
             Exact(tile);other.ReleaseUploadBuffers();
             if(!explorer.TerrainProducts.Take(new TerrainProductKey(key,source.Segments,edges),out var restored)||!ReferenceEquals(restored,tile))throw new InvalidOperationException("Cover tile cache did not preserve ownership");
-            Exact(restored);long before=covers.RetainedBytes;explorer.DestroyTile(tile);
-            if(covers.RetainedBytes<=before||tile.Cover.Length!=0||tile.MidCover.Length!=0||tile.ForestCover.Length!=0)throw new InvalidOperationException("Actual retirement did not release cover ownership");tile=null;
+            Exact(restored);explorer.DestroyTile(tile);
+            if(ResidentCoverBuffers.ResidentBytes!=nativeBefore||tile.Cover.IsCreated||tile.MidCover.IsCreated||tile.ForestCover.IsCreated)throw new InvalidOperationException("Actual retirement did not release native cover ownership");tile=null;
             var cancelled=TerrainUpload.Schedule(()=>{var m=Lease();m.Triangles[0]=-1;return m;},CancellationToken.None);
             while(!cancelled.IsCompleted)yield return null;
             bool failed=false;try{cancelled.GetAwaiter().GetResult();}catch(InvalidOperationException){failed=true;}
             if(!failed)throw new InvalidOperationException("Invalid native upload unexpectedly succeeded");
+            if(ResidentCoverBuffers.ResidentBytes!=nativeBefore)throw new InvalidOperationException("Failed upload stranded native cover allocation");
+            using(var cancel=new CancellationTokenSource())
+            {
+                var stopped=TerrainUpload.Schedule(()=>{var m=Lease();cancel.Cancel();return m;},cancel.Token);
+                while(!stopped.IsCompleted)yield return null;
+                bool observed=false;try{stopped.GetAwaiter().GetResult();}catch(OperationCanceledException){observed=true;}
+                if(!observed||ResidentCoverBuffers.ResidentBytes!=nativeBefore)throw new InvalidOperationException("Cancellation during preparation retained native cover");
+            }
             long warmed=covers.CreatedBytes;var recovered=Lease();recovered.ReleaseUploadBuffers();
             if(covers.CreatedBytes!=warmed)throw new InvalidOperationException("Failed native preparation stranded cover buffers");
-            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"resident-cover-ownership.txt"),"PASS actual worker/native upload, upload disposal, cache retention/take, competing overwrite, tile retirement and failed preparation preserve exclusive ground/mid/forest ownership. Pool remains bounded.");
+            System.IO.File.WriteAllText(System.IO.Path.Combine(output,"resident-cover-ownership.txt"),"PASS actual worker-owned native ground/mid/forest buffers: immediate managed lease return, bit-exact GPU readback including encoded NaN and signed zero, cache retention/take, competing overwritten managed leases, tile retirement, failed preparation and in-flight cancellation. Native bytes return to baseline; pool reuses released transport buffers.");
         }
         finally{explorer.terrainProducts?.Clear();if(tile!=null)explorer.DestroyTile(tile);UnityEngine.Object.Destroy(host);}
         yield return null;
