@@ -72,7 +72,7 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);
             TEXTURE2D(_MidSurface);SAMPLER(sampler_MidSurface);
             TEXTURE2D(_ForestSurface);SAMPLER(sampler_ForestSurface);
-            TEXTURE2D(_ForestFloor);SAMPLER(sampler_ForestFloor);float _ForestFloorEnabled;
+            TEXTURE2D(_ForestFloor);SAMPLER(sampler_ForestFloor);
             Texture2D<float4> _TerrainCoverage,_CoverageFadeTimes;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };

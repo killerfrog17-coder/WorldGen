@@ -3194,5 +3194,29 @@
     "paced_max_correction_ms": 7.7354,
     "paced_max_frame_ms": 42.0109,
     "result": "No average FPS improvement. Batched4-key retirement replaced by1-key corrections, but individual corrections still exceed7ms. Largest repeated ~40ms frames correlate with GC; synthetic coverage fixture failed because grandparent lacked Edges (fixed in next source). Staged removal extension pending exact native proof. Normal defaults and selected A unchanged."
+  },
+  "staged_retirement_20261106": {
+    "source": "959daded",
+    "evidence": "artifacts/render-repair-20261106/retirement-proof-allocation",
+    "exact_component_checks": 13702752,
+    "future_owner_queries": 225,
+    "actual_retirement_checks": 761264,
+    "actual_retirement_steps": 3,
+    "result": "PASS exact removal to coarser/fallback, unchanged live roots during preparation, cancellation/restart, atomic removal and bounded-cache transfer. DEVELOPMENT capture not throughput; default remains off pending release comparison."
+  },
+  "allocation_floor_buffer_20261106": {
+    "allocation_source": "a824a799",
+    "capture_bytes_10sec": 20741850,
+    "evidence": "artifacts/render-repair-20261106/allocation-analysis",
+    "allocation_checks": 6563,
+    "cache_lookup_bytes": 0,
+    "terrain_edge_reference_bytes": 17973216,
+    "terrain_edge_current_bytes": 6085856,
+    "shader_evidence": "artifacts/render-repair-20261106/floor-buffer-rendered",
+    "shader_reference_code": 10,
+    "shader_reference_reason": "Material property is found in another cbuffer than UnityPerMaterial (_ForestFloorEnabled)",
+    "shader_current_code": 0,
+    "shader_docs": "https://docs.unity3d.com/2023.2/Documentation/Manual/SRPBatcher.html",
+    "result": "Compiled reference/current SRP compatibility proof PASS. First attempt before camera rendering returned uninitialized for BOTH; retained as failed fixture. Actual gameplay/FPS comparison pending."
   }
 }

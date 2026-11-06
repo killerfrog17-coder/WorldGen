@@ -6,7 +6,7 @@ CBUFFER_START(UnityPerMaterial)
 float4 _FloraSurface_TexelSize,_MidSurface_TexelSize,_ForestSurface_TexelSize;
 float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint,_LodFade;
 float4 _AirGeometry;
-float _FloraSurfaceEnabled,_MidSurfaceEnabled,_ForestSurfaceEnabled,_ForestFarEnabled;
+float _FloraSurfaceEnabled,_MidSurfaceEnabled,_ForestSurfaceEnabled,_ForestFarEnabled,_ForestFloorEnabled;
 float _CoverageEnabled,_CoverageTileSize,_TransitionEnabled,_LodSafetyRadius;
 float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora,_TerrainSceneEnabled;
 float _AirObserverM,_AirHaze,_SecondaryLightCount;

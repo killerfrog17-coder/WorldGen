@@ -667,12 +667,22 @@ public sealed partial class LocalTerrainExplorer
     public string PerformanceReviewGroundSeams(string output,string site)
     {
         var rows=new List<string>{"x,z,level,segments,axis,ground_delta,cover_delta,mid_delta,forest_delta"};int pairs=0,bindingMismatch=0;double coverMaximum=0,forestMaximum=0;
+        var floorRows=new List<string>{"x,z,level,distance_m,samples,mean_stem_occupancy,mean_crown_width_m,mean_floor_alpha,max_floor_alpha"};
         foreach(var pair in tiles)
         {
             var key=pair.Key;var a=pair.Value;if(a.Root==null||!a.Root.activeInHierarchy||TerrainLod.DistanceSquared(key,motion.X,motion.Z)>512*512)continue;
             if(a.Heights==null||a.Cover?.Length!=a.Heights.Length*16||a.MidCover?.Length!=a.Heights.Length*6||a.ForestCover?.Length!=a.Heights.Length*8)continue;
+            double occupancy=0,widthSum=0,alphaSum=0,alphaMax=0;
+            for(int sample=0;sample<a.Heights.Length;sample++)
+            {
+                int index=sample*8,code=BitConverter.SingleToInt32Bits(a.ForestCover[index+7]);var strategy=(TreeCrownStrategy)((code>>22)&3);
+                double width=a.ForestCover[index+5],stock=a.ForestCover[index+3],open=a.ForestCover[index+6];
+                double alpha=1-Math.Exp(-TreeFlora.PlacementPerM2*Math.PI*.25*width*width*(strategy==TreeCrownStrategy.TropicalCanopy?.31:.64)*stock*(1-.55*Math.Clamp(open,0,1)));
+                occupancy+=stock;widthSum+=width;alphaSum+=alpha;alphaMax=Math.Max(alphaMax,alpha);
+            }
+            floorRows.Add(FormattableString.Invariant($"{key.X},{key.Z},{key.Level},{Math.Sqrt(TerrainLod.DistanceSquared(key,motion.X,motion.Z))},{a.Heights.Length},{occupancy/a.Heights.Length},{widthSum/a.Heights.Length},{alphaSum/a.Heights.Length},{alphaMax}"));
             if(a.Materials!=null)foreach(var material in a.Materials)
-                if(material.shader.name=="WorldGen/LocalTerrain"&&(material.GetTexture("_GrassField")!=grassFieldTexture||material.GetTexture("_ForestFloor")!=a.ForestFloor||material.GetTexture("_FloraSurface")!=a.FloraSurface))bindingMismatch++;
+                if(material.shader.name=="WorldGen/LocalTerrain"&&(material.GetTexture("_GrassField")!=grassFieldTexture||material.GetTexture("_ForestFloor")!=a.ForestFloor||material.GetFloat("_ForestFloorEnabled")!=(a.ForestFloor==null?0:1)||material.GetTexture("_FloraSurface")!=a.FloraSurface))bindingMismatch++;
             for(int axis=0;axis<2;axis++)
             {
                 var next=new TerrainTileKey(key.X+(axis==0?1:0),key.Z+(axis==1?1:0),key.Level,key.Scale);
@@ -691,11 +701,12 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         File.WriteAllLines(Path.Combine(output,site+"-ground-edges.csv"),rows);
+        File.WriteAllLines(Path.Combine(output,site+"-forest-floor.csv"),floorRows);
         var oldFlags=TerrainDiagnostics.Flags;var rotation=view.transform.localRotation;float adaptation=WeatherVideoOptions.Current.Adaptation;
         try
         {
             WeatherVideoOptions.Current.Adaptation=0;view.transform.localRotation=Quaternion.Euler(12,110,0);
-            foreach(var flags in new[]{(TerrainDiagnosticFlags)0,TerrainDiagnosticFlags.FlatColour|TerrainDiagnosticFlags.Unlit,TerrainDiagnosticFlags.NoForestTint,TerrainDiagnosticFlags.NoGrassMat,TerrainDiagnosticFlags.Unlit})
+            foreach(var flags in new[]{(TerrainDiagnosticFlags)0,TerrainDiagnosticFlags.FlatColour|TerrainDiagnosticFlags.Unlit,TerrainDiagnosticFlags.NoForestTint,TerrainDiagnosticFlags.NoGrassMat,TerrainDiagnosticFlags.NoMoss,TerrainDiagnosticFlags.NoLichen,TerrainDiagnosticFlags.Unlit})
             {
                 TerrainDiagnostics.Flags=flags;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,site+"-ground-flags-"+(int)flags+".png"));
             }

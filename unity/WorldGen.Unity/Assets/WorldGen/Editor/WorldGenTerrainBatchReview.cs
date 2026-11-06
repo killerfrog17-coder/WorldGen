@@ -14,6 +14,39 @@ public static class WorldGenTerrainBatchReview
     const BindingFlags Instance=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public;
     const BindingFlags Static=BindingFlags.Static|BindingFlags.NonPublic|BindingFlags.Public;
     static Action finish,cleanup;
+    public static void CheckFloorBuffer()
+    {
+        try
+        {
+            string output=Path.GetFullPath("../../artifacts/render-repair-20261106/floor-buffer-rendered");Directory.CreateDirectory(output);ShaderUtil.allowAsyncCompilation=false;
+            string Reference(string path)
+            {
+                var process=new System.Diagnostics.Process{StartInfo=new System.Diagnostics.ProcessStartInfo("git","show 959daded:"+path){WorkingDirectory=Path.GetFullPath("../.."),UseShellExecute=false,RedirectStandardOutput=true,CreateNoWindow=true}};
+                process.Start();string value=process.StandardOutput.ReadToEnd();process.WaitForExit();if(process.ExitCode!=0)throw new Exception("Missing shader reference");return value;
+            }
+            const string resources="unity/WorldGen.Unity/Assets/WorldGen/Resources/";
+            string before=Reference(resources+"WorldGenLocalTerrain.shader").Replace("WorldGen/LocalTerrain","WorldGen/FloorBufferReference");
+            before=before.Replace("#include \"WorldGenTerrainMaterial.hlsl\"",Reference(resources+"WorldGenTerrainMaterial.hlsl"));
+            before=before.Replace("#include \"WorldGen","#include \"Assets/WorldGen/Resources/WorldGen");
+            var oldShader=ShaderUtil.CreateShaderAsset(before);var current=Resources.Load<Shader>("WorldGenLocalTerrain");
+            var method=typeof(ShaderUtil).GetMethod("GetSRPBatcherCompatibilityCode",Static);var reason=typeof(ShaderUtil).GetMethod("GetSRPBatcherCompatibilityIssueReason",Static);
+            var lines=new System.Collections.Generic.List<string>();int[] codes=new int[2];int at=0;
+            var plane=GameObject.CreatePrimitive(PrimitiveType.Plane);plane.layer=30;
+            var camera=new GameObject("Floor buffer proof camera").AddComponent<Camera>();camera.enabled=false;camera.cullingMask=1<<30;camera.orthographic=true;camera.orthographicSize=6;camera.transform.position=new Vector3(0,10,0);camera.transform.rotation=Quaternion.Euler(90,0,0);
+            camera.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing=false;var target=new RenderTexture(64,64,24);target.Create();camera.targetTexture=target;
+            foreach(var shader in new[]{oldShader,current})
+            {
+                var material=new Material(shader);plane.GetComponent<MeshRenderer>().sharedMaterial=material;camera.Render();camera.Render();
+                foreach(var message in ShaderUtil.GetShaderMessages(shader))if(message.severity.ToString()=="Error")throw new Exception(message.message);
+                int code=(int)method.Invoke(null,new object[]{shader,0});codes[at++]=code;
+                lines.Add(shader.name+": code="+code+" "+(code==0?"compatible":reason.Invoke(null,new object[]{shader,0,code})));UnityEngine.Object.DestroyImmediate(material);
+            }
+            File.WriteAllLines(Path.Combine(output,"result.txt"),lines);
+            if(codes[0]==0||codes[1]!=0)throw new Exception("Expected old incompatible/current compatible material layout");
+            File.WriteAllText(Path.Combine(output,"PASS.txt"),"Compiled reference/current shader: misplaced forest-floor scalar broke SRP batching; current layout is compatible.");EditorApplication.Exit(0);
+        }
+        catch(Exception error){Debug.LogException(error);EditorApplication.Exit(1);}
+    }
     public static void Run()
     {
         try{Review();finish();}catch(Exception error){cleanup?.Invoke();Debug.LogException(error);EditorApplication.Exit(1);}
