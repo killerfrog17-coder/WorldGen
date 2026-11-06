@@ -113,6 +113,62 @@ public static class WorldGenPerformance
     public static void End(int slot,long start){if(start!=0)Milliseconds[slot]=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*1000.0/System.Diagnostics.Stopwatch.Frequency;}
 }
 
+// Opt-in diagnostic only. Native callbacks record timestamps without ever
+// entering managed code while Mono has stopped its threads. The module remains
+// loaded until process exit because callback removal can race an in-flight call.
+static class WorldGenNativeGcProbe
+{
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    struct Event {public long Qpc;public int Kind;public uint Generation,Thread;public int Serial;}
+    [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.Cdecl)]
+    delegate int Control();
+    [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.Cdecl)]
+    delegate int ReadEvent(int index,out Event value);
+    [System.Runtime.InteropServices.DllImport("kernel32.dll",CharSet=System.Runtime.InteropServices.CharSet.Unicode,SetLastError=true)]
+    static extern IntPtr LoadLibraryW(string path);
+    [System.Runtime.InteropServices.DllImport("kernel32.dll",CharSet=System.Runtime.InteropServices.CharSet.Ansi,ExactSpelling=true)]
+    static extern IntPtr GetProcAddress(IntPtr library,string name);
+    static IntPtr module;static Control stop;static ReadEvent read;static bool active;
+    static T Bind<T>(string name) where T:Delegate
+    {var address=GetProcAddress(module,name);if(address==IntPtr.Zero)throw new InvalidOperationException("Missing GC probe export: "+name);return System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<T>(address);}
+    public static void Start(string path)
+    {
+        if(string.IsNullOrEmpty(path)||active)return;
+        if(Application.platform!=RuntimePlatform.WindowsPlayer)throw new InvalidOperationException("Native GC diagnostic requires the Windows managed player");
+        module=LoadLibraryW(Path.GetFullPath(path));
+        if(module==IntPtr.Zero)throw new InvalidOperationException("Could not load GC diagnostic: "+System.Runtime.InteropServices.Marshal.GetLastWin32Error());
+        if(Bind<Control>("WorldGenGcEventSize")()!=System.Runtime.InteropServices.Marshal.SizeOf<Event>())throw new InvalidOperationException("GC probe event layout mismatch");
+        stop=Bind<Control>("WorldGenGcStop");read=Bind<ReadEvent>("WorldGenGcRead");
+        int result=Bind<Control>("WorldGenGcStart")();if(result!=1)throw new InvalidOperationException("Native GC diagnostic rejected startup: "+result);
+        active=true;
+    }
+    public static int Write(string output,bool requireCollection=false)
+    {
+        if(!active)return 0;int count=stop();active=false;Directory.CreateDirectory(output);
+        int written=0;bool start=false,end=false,stopped=false,restarted=false;
+        using(var file=new StreamWriter(Path.Combine(output,"native-gc-events.csv")))
+        {
+            file.WriteLine("native_qpc,event,generation,thread,serial");
+            for(int i=0;i<Math.Min(count,131072);i++)if(read(i,out var e)!=0)
+            {file.WriteLine(e.Qpc+","+e.Kind+","+e.Generation+","+e.Thread+","+e.Serial);written++;start|=e.Kind==0;end|=e.Kind==5;stopped|=e.Kind==6;restarted|=e.Kind==9;}
+        }
+        File.WriteAllText(Path.Combine(output,"native-gc-status.txt"),"Recorded "+written+" of "+count+" events. Events: 0 cycle start,5 cycle end,6 pre-stop,7 post-stop,8 pre-restart,9 post-restart,10 stop-lock acquired,11 restart-lock released. Native QPC matches the trace clock bridge. Observer only; no collector settings changed.\n");
+        if(count>131072||written!=count)throw new InvalidOperationException("Native GC evidence overflowed or has incomplete events");
+        if(requireCollection&&(!start||!end||!stopped||!restarted))throw new InvalidOperationException("Native GC observer missed the forced positive-control collection");
+        return written;
+    }
+    public static void Check(string path,string output)
+    {
+        try
+        {
+            if(string.IsNullOrEmpty(path))throw new ArgumentException("GC probe DLL required");
+            Start(path);GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+            int events=Write(output,true);File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS actual Mono collection/start-stop callbacks: "+events+" events\n");Application.Quit(0);
+        }
+        catch(Exception e){Debug.LogException(e);Application.Quit(1);}
+    }
+}
+
 public sealed partial class LocalTerrainExplorer
 {
     public string PerformanceVerifyHotQueries()
@@ -1064,6 +1120,7 @@ public sealed partial class WorldGenRuntime
     }
     IEnumerator CheckPerformance()
     {
+        string nativeGcProbe=Argument("--worldgen-gc-probe","");
         TerrainQueryTiming.Enabled=WorldGenPerformance.TraceEnabled;
         ulong originalGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
         int originalTargetFps=Application.targetFrameRate,originalQueuedFrames=QualitySettings.maxQueuedFrames;
@@ -1424,6 +1481,7 @@ public sealed partial class WorldGenRuntime
                 if(WorldGenPerformance.Presented)yield return endFrame;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Drain pre-window work before counting renders.
                 terrainExplorer.PerformanceBeginGroundTrace();
+                WorldGenNativeGcProbe.Start(nativeGcProbe);
                 WorldGenPerformance.Measuring=true;
                 var windowUtc=DateTime.UtcNow;
                 bool allocationProfile=item.Name=="travel-whip-allocation-profile",cpuProfile=item.Name=="travel-whip-cpu-profile";
@@ -1583,6 +1641,7 @@ public sealed partial class WorldGenRuntime
         UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
         Application.targetFrameRate=originalTargetFps;QualitySettings.maxQueuedFrames=originalQueuedFrames;
         TerrainDiagnostics.HoldTerrain=originalHoldTerrain;TerrainDiagnostics.HoldPlants=originalHoldPlants;
+        WorldGenNativeGcProbe.Write(output);
         File.WriteAllText(Path.Combine(output,"complete.txt"),DateTime.UtcNow.ToString("o"));Application.Quit(0);
     }
 }

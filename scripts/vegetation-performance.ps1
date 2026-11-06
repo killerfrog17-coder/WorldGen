@@ -22,6 +22,7 @@ param(
     [switch]$GpuProfile,
     [switch]$MemorySnapshot,
     [switch]$CaptureAfter,
+    [string]$NativeGcProbe='',
     [switch]$Original
 )
 $ErrorActionPreference='Stop'
@@ -49,6 +50,7 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     WorkerSha256=(Get-FileHash -LiteralPath (Join-Path $playerRoot 'TerrainWorker/WorldGen.Cli.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
     Build=$buildStamp
     RequestedSwapChain=$SwapChain
+    NativeGcDiagnostic=[bool]$NativeGcProbe
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
@@ -68,6 +70,7 @@ if($Presented){
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
 if($MemorySnapshot){$arguments+='--worldgen-memory-snapshot'}
 if($CaptureAfter){$arguments+='--worldgen-perf-capture-after'}
+if($NativeGcProbe){$probeFile=[IO.Path]::GetFullPath((Join-Path $repo $NativeGcProbe));if(!(Test-Path -LiteralPath $probeFile)){throw 'Build the optional native GC observer first'};$arguments+=@('--worldgen-gc-probe',('"'+$probeFile+'"'))}
 if($FaunaStreamDirectory){$streamInput=[IO.Path]::GetFullPath((Join-Path $repo $FaunaStreamDirectory));if(!(Test-Path -LiteralPath $streamInput)){throw 'Fauna stream experiment directory missing'};$arguments+=@('--worldgen-fauna-stream-directory',('"'+$streamInput+'"'))}
 if($ProfileWarmupSeconds -ge 0){$arguments+=@('--worldgen-profile-warmup-seconds',$ProfileWarmupSeconds.ToString([Globalization.CultureInfo]::InvariantCulture))}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}

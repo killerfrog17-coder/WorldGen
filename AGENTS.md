@@ -1,5 +1,34 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov21:14Z SPIKES FIRST. 53659 comparison still running SECOND fresh
+presented-compact-scatter-trial; first control COMPLETE169.45FPS,p959.90/p9912.68,
+max28.34,8>16.7ms. No gain claim until trial/phasecounts. Both useB171 NONDEV,
+not selectedA. DO NOT compile or overwriteB before53659exits.
+New UNBUILT diagnostic source prepared during waits: tools/worldgen-gc-probe/
+probe.c observes public Mono API3 GC events into fixednative4MB buffer; callbacks
+NEVER callmanagedcode/allocate/IO/lock. Optional --worldgen-gc-probe path, entirely
+absentnormalgame. scripts/build-gc-probe.ps1 createsdisposableDLL inartifacts;
+--worldgen-gc-probe-check positivecontrol added butUNRUN. Native DLL deliberately
+neverunloaded because callbackremovalcanrace. scripts/analyze-gc-probe.py will
+align6/7/8/9 stop/resume with existingnativeQPCbridge; cycles0/5 NOTpausetimes.
+Need compilehelper+ScriptsOnlyB AFTERcomparison, run actualnativepositivecontrol
+beforeusingdata. WPR NOTstarted(non-elevatedtoken). No other heavyjobs. Runtime
+source modifications after171 are only opt-inGCdiagnostics, not alteredrendering.
+Need authoritativepauseintervals: CollectionCount changesalone do NOT identify
+exact stop/end duration; earliercompleted-collection wording was too strong.
+
+ACTIVE06Nov21:05Z SPIKES FIRST. Compact-scatter-native-fixed COMPLETE EXIT0:
+8 exact instance multisets and32 paired actual renders, exact submitted order,
+maxRGBdelta0;37,060 readiness comparisons. New job path is actually Burst.
+B171ea744 NONDEV unchanged; own runner53659 runs TWO fresh presented temperate
+6kmMedium1080/60sec travel-whip tests: presented-compact-scatter-control THEN
+presented-compact-scatter-trial. Currentcontrolplayer19540RIGHTMOST. Do not
+compile/overwrite/runheavy until BOTHexit. CompactScatterJobs defaultOFF pending
+timing,meshreuseOFF both. Need compare classify/append/rebuild tails as well as
+wholeframeGC/stalls; do not promise100floor. WPR tools available,statusnotrecording;
+noETWcapturestarted. Cfree11GB; avoidlargeunboundeddiagnosticfiles. Source/docs
+pushed3c614138; owner3filesuntouched,A/f833shortcutprotected. No new features.
+
 ACTIVE06Nov20:59Z SPIKES FIRST. Latest size-class normal test COMPLETE:163.07FPS,
 p9511.18/p9913.67/max40.36ms,12frames>16.7. Pool492created87reused/12.47MBidle;
 reuse improved modestly, NOT an established hitch fix; normalReuseTerrainMeshes
