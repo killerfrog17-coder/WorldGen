@@ -69,8 +69,8 @@ public sealed partial class LocalTerrainExplorer
             // Synthetic tiles have zero segments and no stitching requirements.
             throw new Exception("Native mesh product cache failed to restore");
         }
-        tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;var reused=Capture("cached-replacement");
-        if(reused[32*128+32].g<=reused[32*128+32].r||explorer.TerrainCacheHits!=1)throw new Exception("Cached mesh failed to render after restore");
+        tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;var cachedImage=Capture("cached-replacement");
+        if(cachedImage[32*128+32].g<=cachedImage[32*128+32].r||explorer.TerrainCacheHits!=1)throw new Exception("Cached mesh failed to render after restore");
         // Restoring a different owned mesh with the same height grid must not
         // invalidate/reproject the whole vegetation population.
         tile.Segments=4;tile.Heights=new float[25];explorer.scatterGroundChanges.Clear();
