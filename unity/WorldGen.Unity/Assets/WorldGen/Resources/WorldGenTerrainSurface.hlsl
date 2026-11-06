@@ -6,6 +6,21 @@ float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
 float4 _TerrainGeologyDatum;
 float4 _TerrainBeddingOrigin;
 
+float SurfacePatchHash(float2 p)
+{float3 h=frac(float3(p.x,p.y,p.x)*.1031);h+=dot(h,h.yzx+33.33);return frac((h.x+h.y)*h.z);}
+float SurfaceMossPatch(float3 world,float amount,float detail)
+{
+    // Ecological cover is area, not translucent green paint over every pixel.
+    // Stable metre-scale cushions reveal litter between them. Analytic noise
+    // adds no material fetch, geometry, draw call or per-frame CPU work.
+    float2 p=float2(dot(world,TerrainEast().xyz),dot(world,TerrainNorth().xyz))/1.8;
+    float2 cell=floor(p),f=frac(p);f=f*f*(3-2*f);
+    float noise=lerp(lerp(SurfacePatchHash(cell),SurfacePatchHash(cell+float2(1,0)),f.x),lerp(SurfacePatchHash(cell+float2(0,1)),SurfacePatchHash(cell+1),f.x),f.y);
+    float width=max(.045,fwidth(noise)*1.5);
+    float patch=smoothstep(1-amount-width,1-amount+width,noise);
+    return lerp(amount,patch,detail);
+}
+
 float3 SurfaceAxes(float3 normal, float count, float extra)
 {
     float3 w=pow(abs(normal),4);
@@ -264,7 +279,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     // material textures retire; these few weights are NOT an 850m texture stack.
     float4 flora=float4(cover,0,0,cover);
     if(_FloraSurfaceEnabled>.5&&textures)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
-    float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;mix/=max(1,dot(mix,1));
+    float3 mix=max(0,float3(flora.a/.45,flora.g,flora.b/.45))*_GroundFlora;
     // Low plants/moss can coexist with litter. The old full-opacity green mat
     // erased every soil texture under a canopy even when stems were sparse.
     mix*=1-floorWeight*float3(.85,.25,.35);
@@ -272,6 +287,8 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     // here made each individual triangle a different grass/soil material.
     // Physical stems retain their separate geometric cliff/rooting test.
     mix.x*=smoothstep(.62,.86,abs(dot(normalize(i.normal),float3(0,1,0))));
+    if(mix.y>.001)mix.y=SurfaceMossPatch(world,saturate(mix.y),detail);
+    mix/=max(1,dot(mix,1));
     if(TerrainTest(TD_GRASS))mix.x=0;if(TerrainTest(TD_MOSS))mix.y=0;if(TerrainTest(TD_LICHEN))mix.z=0;
     float3 axes=SurfaceAxes(TerrainUp().xyz,TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w,extra);
     float3 vegetation=0;
@@ -298,9 +315,9 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(mix.y>.001)
         {
             float3 mat=.5;
-            if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_MossField,sampler_MossField),world/.8,worldDx/.8,worldDy/.8,axes),detail);
+            if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_MossField,sampler_MossField),world/.45,worldDx/.45,worldDy/.45,axes),detail);
             float3 normal=normalize(n+float3(mat.g-.5,0,mat.b-.5)*1.3);
-            vegetation+=lerp(farColor,moss,.4)*(mat.r*2)*SurfaceMatLight(normal,sun,canopyShade)*mix.y;
+            vegetation+=moss*(mat.r*2)*SurfaceMatLight(normal,sun,canopyShade)*mix.y;
         }
         if(mix.z>.001)
         {

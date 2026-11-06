@@ -737,7 +737,7 @@ public sealed partial class LocalTerrainExplorer
         // Imported shared scan: unlike the old generated mat this is not an
         // owned Texture2D. Keep the Resources cache valid across world entry.
         grassFieldTexture=null;
-        if(mossFieldTexture!=null)Destroy(mossFieldTexture);if(lichenFieldTexture!=null)Destroy(lichenFieldTexture);
+        if(ownedMossField&&mossFieldTexture!=null)Destroy(mossFieldTexture);mossFieldTexture=null;ownedMossField=false;if(lichenFieldTexture!=null)Destroy(lichenFieldTexture);
         if(generatedGround!=null)foreach(var texture in generatedGround)Destroy(texture);
         if(treeLeaves!=null)Destroy(treeLeaves);
         foreach(var mesh in ownedScatterMeshes)Destroy(mesh);foreach(var material in ownedScatterMaterials)Destroy(material);

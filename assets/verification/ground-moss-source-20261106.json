@@ -1,0 +1,23 @@
+{
+  "asset": "Moss001",
+  "page": "https://ambientcg.com/view?id=Moss001",
+  "license": "CC0-1.0",
+  "license_url": "https://docs.ambientcg.com/license/",
+  "download": "https://ambientcg.com/get?file=Moss001_1K-JPG.zip",
+  "repeat_metres": 0.45,
+  "processing": "R mean-normalized linear photographed luminance; G/B OpenGL tangent normal X/Y; A=1. Existing one-fetch mat layout, linear BC7 mipmapped 1024px.",
+  "files": {
+    "assets-source/terrain/surfaces/cc0-moss/Moss001/Moss001_1K-JPG_Color.jpg": {
+      "bytes": 1982728,
+      "sha256": "cbea8a60833b60f8bdc3073e48ba9d3963efe35dc5cca9c4d47a5a6874c6f898"
+    },
+    "assets-source/terrain/surfaces/cc0-moss/Moss001/Moss001_1K-JPG_NormalGL.jpg": {
+      "bytes": 2575139,
+      "sha256": "007cc53876eeca3a522d84e99a9495584fc15ce7e21f8b0e24dd266f2f7e591a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png": {
+      "bytes": 3240594,
+      "sha256": "19b8da469508807a465436036a4144836b8bdffbc339a2d1ef586f8f97e7edee"
+    }
+  }
+}

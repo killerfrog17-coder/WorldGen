@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     Material groundCoverMaterial,groundCanopyMaterial,groundClumpMaterial;ComputeShader groundCoverPlacement;
     GraphicsBuffer groundClumpIndices;
     [Serializable] sealed class GroundClumpRegistration {public Vector4[] rectangles;public float[] aspects;}
-    Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;
+    Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;bool ownedMossField;
     readonly Plane[] coverFrustum=new Plane[6];
     readonly Vector4[] coverCullPlanes=new Vector4[6];
     public bool GroundCoverEnabled=true;
@@ -92,7 +92,7 @@ public sealed partial class LocalTerrainExplorer
         if(landMaterial==null)return;
         if(grassFieldTexture==null)grassFieldTexture=Resources.Load<Texture2D>("GroundGrassV2");
         if(grassFieldTexture==null)throw new InvalidOperationException("Photographed grass ground texture is missing.");
-        if(mossFieldTexture==null)mossFieldTexture=CreateGroundMatTexture(false);
+        if(mossFieldTexture==null){mossFieldTexture=Resources.Load<Texture2D>("GroundMossV1");ownedMossField=mossFieldTexture==null;if(ownedMossField)mossFieldTexture=CreateGroundMatTexture(false);}
         if(lichenFieldTexture==null)lichenFieldTexture=CreateGroundMatTexture(true);
         landMaterial.SetTexture("_GrassField",grassFieldTexture);landMaterial.SetTexture("_MossField",mossFieldTexture);landMaterial.SetTexture("_LichenField",lichenFieldTexture);
     }
