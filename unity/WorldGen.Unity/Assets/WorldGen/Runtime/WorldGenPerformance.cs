@@ -1064,6 +1064,7 @@ public sealed partial class WorldGenRuntime
     {
         TerrainQueryTiming.Enabled=WorldGenPerformance.TraceEnabled;
         ulong originalGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
+        int originalTargetFps=Application.targetFrameRate,originalQueuedFrames=QualitySettings.maxQueuedFrames;
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
         // Numerical smoke check needs no terrain/forest warmup. This uses the
@@ -1207,6 +1208,8 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
+            new PerfCase("travel-whip-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
+            new PerfCase("travel-whip-current-queue1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;QualitySettings.maxQueuedFrames=1;}),
             new PerfCase("travel-whip-immediate-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
             new PerfCase("travel-whip-unindexed-ground",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;WorldGenPerformance.IndexedWalkingRivers=false;}),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
@@ -1301,6 +1304,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.PacedTerrainRetirement=false;
                 WorldGenPerformance.StagedTerrainRetirement=false;
                 UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
+                Application.targetFrameRate=originalTargetFps;QualitySettings.maxQueuedFrames=originalQueuedFrames;
                 WorldGenPerformance.DetailedFoliageComparison=false;
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
@@ -1389,7 +1393,7 @@ public sealed partial class WorldGenRuntime
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
                 var engineTimings=WorldGenPerformance.TraceEnabled?new List<(double Observed,FrameTiming Timing)>(20000):null;
-                ulong lastRawTiming=0;
+                ulong lastRawTiming=0;int focusedFrames=0,unfocusedFrames=0;
                 double driverMs=0,driverGroundMs=0;var driverQueries=new double[6];var driverBefore=new double[6];
                 long heap=0;double heapAt=0;var endFrame=stutter==null&&!WorldGenPerformance.Presented?null:new WaitForEndOfFrame();
                 var timings=new FrameTiming[1];double gpu=0,cpu=0,cpuMain=0,cpuRender=0,cpuPresentWait=0,largestRejectedGpu=0;int timingCount=0,rejectedGpuTimings=0;ulong lastTiming=0;
@@ -1410,7 +1414,7 @@ public sealed partial class WorldGenRuntime
                     UnityEngine.Profiling.Profiler.enabled=true;
                 }
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
-                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" presentation="+Screen.fullScreenMode+" resolution="+Screen.width+"x"+Screen.height+" vSync="+QualitySettings.vSyncCount+" targetFps="+Application.targetFrameRate+"\n");
+                File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" presentation="+Screen.fullScreenMode+" resolution="+Screen.width+"x"+Screen.height+" vSync="+QualitySettings.vSyncCount+" targetFps="+Application.targetFrameRate+" queuedFrames="+QualitySettings.maxQueuedFrames+"\n");
                 var clockBridge=WorldGenPerformance.TraceEnabled?WorldGenPerformance.CaptureNativeClock():default;
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 WorldGenPerformance.ClearFaunaTrace();
@@ -1418,6 +1422,7 @@ public sealed partial class WorldGenRuntime
                 while(Time.realtimeSinceStartupAsDouble-start<seconds)
                 {
                     yield return endFrame;
+                    if(Application.isFocused)focusedFrames++;else unfocusedFrames++;
                     // DIAGNOSTIC ONLY: distinguish unbounded offscreen queueing
                     // from work that remains slow when every render completes.
                     // This is intentionally synchronous and never normal play.
@@ -1498,6 +1503,7 @@ public sealed partial class WorldGenRuntime
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
                 if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms,survival_ms,prepared_frame_ms,humans_ms,player_ms,fauna_ms,animal_move_ms,animal_pose_ms,batch_collect_ms,batch_upload_ms,terrain_occlusion_ms,frustum_test_ms,instance_append_ms,gc_allocated_in_frame_bytes,scatter_classify_ms,scatter_append_ms,camera_render_ms,heap_growth_update_bytes,heap_growth_scatter_bytes,heap_growth_humans_bytes,heap_growth_player_bytes,heap_growth_fauna_bytes,heap_growth_camera_bytes,heap_intervals_with_collection,forest_ground_ms,ground_publication_ms,inventory_ms,planning_ms,terrain_install_ms,terrain_retirement_ms,scheduling_ms,readout_ms,solids_ms,player_camera_ms,player_water_ms,player_combat_ms,player_blood_ms,player_footsteps_ms,player_feedback_ms,player_hud_ms,player_altitude_ms,query_locate_ms,query_profiles_ms,query_shape_ms,query_rivers_ms,query_detail_ms,query_ponds_ms,driver_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
+                File.AppendAllText(Path.Combine(output,"focus.txt"),site.Item1+" "+item.Name+" focused_frames="+focusedFrames+" unfocused_frames="+unfocusedFrames+"\n");
                 if(engineTimings!=null)
                 {
                     // Engine samples arrive asynchronously; retain their own
@@ -1547,6 +1553,7 @@ public sealed partial class WorldGenRuntime
             terrainExplorer.Close();yield return null;yield return null;
         }
         UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=originalGcSlice;
+        Application.targetFrameRate=originalTargetFps;QualitySettings.maxQueuedFrames=originalQueuedFrames;
         File.WriteAllText(Path.Combine(output,"complete.txt"),DateTime.UtcNow.ToString("o"));Application.Quit(0);
     }
 }
