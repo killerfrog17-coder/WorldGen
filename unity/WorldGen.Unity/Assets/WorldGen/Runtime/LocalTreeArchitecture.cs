@@ -95,27 +95,31 @@ static partial class LocalScatterMeshes
         var mesh=b.Finish(false);mesh.name="Tree architecture 3 / "+m.Form+" / "+code+" / L"+lod;mesh.SetUVs(1,masks);
         // Give foliage a three-dimensional lighting envelope, retaining detailed
         // twig normals in the shader. Do not alter opaque branch normals.
-        var normals=mesh.normals;var crown=new Vector3(0,(TreeRenderCrownBase(m)+1)*.5f,0);
+        IList<Vector3> normals;
+        if(WorldGenPerformance.NoBuilderBufferReuse)normals=mesh.normals;
+        else{mesh.GetNormals(b.Normals);normals=b.Normals;}
+        var crown=new Vector3(0,(TreeRenderCrownBase(m)+1)*.5f,0);
         foreach(var pair in woodNormals)normals[pair.Key]=pair.Value;
-        for(int i=0;i<normals.Length;i++)if(masks[i].y>1.5f)
+        for(int i=0;i<normals.Count;i++)if(masks[i].y>1.5f)
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
-        mesh.normals=normals;mesh.RecalculateTangents();return mesh;
+        if(WorldGenPerformance.NoBuilderBufferReuse)mesh.normals=(Vector3[])normals;else mesh.SetNormals(b.Normals);
+        mesh.RecalculateTangents();return mesh;
     }
     static Dictionary<int,Vector3> BuildContinuousTreeWood(Builder b,List<TreeNode> nodes,int lod,Color wood)
     {
-        var normals=new Dictionary<int,Vector3>();var continuation=new int[nodes.Count];
-        for(int i=0;i<continuation.Length;i++)continuation[i]=-1;
+        var normals=b.WoodNormals;var continuation=b.WoodContinuation;
+        for(int i=0;i<nodes.Count;i++)continuation.Add(-1);
         for(int i=1;i<nodes.Count;i++)
         {
             int parent=nodes[i].Parent,previous=continuation[parent];
             if(previous<0||nodes[i].Radius>nodes[previous].Radius)continuation[parent]=i;
         }
-        var distance=new float[nodes.Count];
-        for(int i=1;i<nodes.Count;i++)distance[i]=distance[nodes[i].Parent]+Vector3.Distance(nodes[i].P,nodes[nodes[i].Parent].P);
+        var distance=b.WoodDistance;distance.Add(0);
+        for(int i=1;i<nodes.Count;i++)distance.Add(distance[nodes[i].Parent]+Vector3.Distance(nodes[i].P,nodes[nodes[i].Parent].P));
         for(int first=0;first<nodes.Count;first++)
         {
             if(first>0&&continuation[nodes[first].Parent]==first)continue;
-            var path=new List<int>();if(first>0)path.Add(nodes[first].Parent);
+            var path=b.WoodPath;path.Clear();if(first>0)path.Add(nodes[first].Parent);
             int node=first;while(node>=0){path.Add(node);node=continuation[node];}
             if(path.Count<2)continue;
             float maxRadius=0;for(int j=first==0?0:1;j<path.Count;j++)maxRadius=Mathf.Max(maxRadius,nodes[path[j]].Radius);
