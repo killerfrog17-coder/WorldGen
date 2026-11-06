@@ -393,6 +393,7 @@ namespace WorldGen.Core
         }
         static void CellRecord(BinaryWriter writer, Cell cell)
         {
+            if (cell == null) { writer.Write((byte)0); return; }
             writer.Write((byte)1); writer.Write("WorldGen.Core.Cell");
             writer.Write("AreaM2"); writer.Write((byte)1); writer.Write("System.Int64"); writer.Write(cell.AreaM2);
             writer.Write("DistanceM"); Write(writer, cell.DistanceM); writer.Write("Id"); Integer(writer, cell.Id);

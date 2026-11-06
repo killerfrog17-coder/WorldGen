@@ -64,12 +64,12 @@ public static class HydrologyTests
         }
         check(cascadeLakes[0].MeanInflowM3PerS > cascadeLakes[1].MeanInflowM3PerS, "Downstream lake inflow includes upstream lake outflow");
 
-        var tectonic = Fixture(); foreach (ref var cell in tectonic.Surface.Cells.AsSpan()) cell.AreaM2 = 100_000_000_000;
+        var tectonic = Fixture(); foreach (var cell in tectonic.Surface.Cells) cell.AreaM2 = 100_000_000_000;
         tectonic.Features = new[] { new Feature { Kind = FeatureKind.MarineBasin, Cells = new[] { 2, 3 } } };
         Hydrology.Build(tectonic, default, new FixedRunoff(.5, .1));
         check(tectonic.Hydrology.Waters.Any(x => x.Kind != WaterKind.Ocean), "Large tectonic basin retains water after bounded outlet conditioning");
 
-        var unresolved = Fixture(); foreach (ref var cell in unresolved.Surface.Cells.AsSpan()) cell.AreaM2 = 100_000_000_000;
+        var unresolved = Fixture(); foreach (var cell in unresolved.Surface.Cells) cell.AreaM2 = 100_000_000_000;
         Hydrology.Build(unresolved, default, new FixedRunoff(.5, .1)); Validate(unresolved, check);
         check(unresolved.Hydrology.Depressions.Single().UnresolvedSpillway && unresolved.Hydrology.Depressions.Single().SpillwayIncisionM <= 200, "Narrow obstruction receives bounded inspectable hydraulic conditioning");
         check(unresolved.ElevationM.SequenceEqual(originalHeights) && unresolved.Hydrology.Waters.Any(x => x.Kind != WaterKind.Ocean), "Conditioning lowers lake storage without deleting basin or changing terrain");
@@ -86,7 +86,7 @@ public static class HydrologyTests
         check(partialLake.MeanInflowM3PerS > partialLake.EvaporationM3PerS && partialLake.VolumeM3 < lake.VolumeM3, "Drier basin stores less actual water while routing residual flow onward");
 
         var terminal = Fixture(); terminal.ElevationM[3] = -900;
-        foreach (ref var cell in terminal.Surface.Cells.AsSpan()) cell.AreaM2 = 150_000_000_000;
+        foreach (var cell in terminal.Surface.Cells) cell.AreaM2 = 150_000_000_000;
         Array.Fill(terminal.Climate.NorthernSpring.PrecipitationMm, 0); Array.Fill(terminal.Climate.NorthernSummer.PrecipitationMm, 0); Array.Fill(terminal.Climate.NorthernAutumn.PrecipitationMm, 0); Array.Fill(terminal.Climate.NorthernWinter.PrecipitationMm, 0);
         Hydrology.Build(terminal, default, new FixedRunoff(.04, .01)); Validate(terminal, check);
         var terminalLake = terminal.Hydrology.Waters.Single(b => b.Kind != WaterKind.Ocean);
@@ -103,13 +103,13 @@ public static class HydrologyTests
 
         var aridHighBasin = Fixture(); aridHighBasin.ElevationM = new[] { -100, 700, 300, 250, 900 };
         Array.Fill(aridHighBasin.Climate.NorthernSpring.PrecipitationMm, 0); Array.Fill(aridHighBasin.Climate.NorthernSummer.PrecipitationMm, 0); Array.Fill(aridHighBasin.Climate.NorthernAutumn.PrecipitationMm, 0); Array.Fill(aridHighBasin.Climate.NorthernWinter.PrecipitationMm, 0);
-        foreach (ref var cell in aridHighBasin.Surface.Cells.AsSpan()) { cell.AreaM2 = 20_000_000_000; Array.Fill(cell.DistanceM, 800000); }
+        foreach (var cell in aridHighBasin.Surface.Cells) { cell.AreaM2 = 20_000_000_000; Array.Fill(cell.DistanceM, 800000); }
         Hydrology.Build(aridHighBasin, default, new FixedRunoff(.01, .005)); Validate(aridHighBasin, check);
         var highLake = aridHighBasin.Hydrology.Waters.Single(b => b.Kind != WaterKind.Ocean);
         check(highLake.Endorheic && !highLake.SubgridOutlet && highLake.OutletCell < 0 && aridHighBasin.Hydrology.Receiver[aridHighBasin.Hydrology.Depressions.Single().PitCell] < 0,
             "Arid strongly confined above-sea basin retains genuine closed drainage");
 
-        var broadBarrier = Fixture(); foreach (ref var cell in broadBarrier.Surface.Cells.AsSpan()) { cell.AreaM2 = 100_000_000_000; Array.Fill(cell.DistanceM, 800000); }
+        var broadBarrier = Fixture(); foreach (var cell in broadBarrier.Surface.Cells) { cell.AreaM2 = 100_000_000_000; Array.Fill(cell.DistanceM, 800000); }
         Hydrology.Build(broadBarrier, default, new FixedRunoff(.5, .1));
         check(!broadBarrier.Hydrology.Depressions.Single().UnresolvedSpillway, "Wide barrier receives no explicit bounded hydraulic incision");
         check(broadBarrier.Hydrology.Waters.Any(b => b.SubgridOutlet), "Unresolved coarse humid drainage is separately tagged from proved hydraulic incision");
@@ -149,7 +149,7 @@ public static class HydrologyTests
                 "Rebased amount applies reciprocally to effective open-water loss, including the previous-default setting");
 
             var scaledTerminal = Fixture(); scaledTerminal.Recipe.LakeAmountPercent = amount; scaledTerminal.ElevationM[3] = -900;
-            foreach (ref var cell in scaledTerminal.Surface.Cells.AsSpan()) cell.AreaM2 = 150_000_000_000;
+            foreach (var cell in scaledTerminal.Surface.Cells) cell.AreaM2 = 150_000_000_000;
             foreach (var season in new[] { scaledTerminal.Climate.NorthernSpring, scaledTerminal.Climate.NorthernSummer, scaledTerminal.Climate.NorthernAutumn, scaledTerminal.Climate.NorthernWinter })
                 Array.Fill(season.PrecipitationMm, 0);
             Hydrology.Build(scaledTerminal, default, new FixedRunoff(.001, .001)); Validate(scaledTerminal, check);
@@ -160,7 +160,7 @@ public static class HydrologyTests
                 "Rebased terminal delivery is 2/40/100 percent at 5/100/1000 slider values, saturating rather than creating water");
         }
         var zeroTerminal = Fixture(); zeroTerminal.Recipe.LakeAmountPercent = 0; zeroTerminal.ElevationM[3] = -900;
-        foreach (ref var cell in zeroTerminal.Surface.Cells.AsSpan()) cell.AreaM2 = 150_000_000_000;
+        foreach (var cell in zeroTerminal.Surface.Cells) cell.AreaM2 = 150_000_000_000;
         Hydrology.Build(zeroTerminal, default, new FixedRunoff(.04, .01)); Validate(zeroTerminal, check);
         check(zeroTerminal.Hydrology.Waters.All(b => b.Kind == WaterKind.Ocean) && zeroTerminal.Hydrology.DryBasinTransmissionLossM3PerS > 0,
             "No-lakes terminal water budget records dry transmission loss rather than discarding water silently");
@@ -169,7 +169,7 @@ public static class HydrologyTests
         foreach (double amount in new[] { .05, 2.5, 5, 100, 1000 })
         {
             var rainFed = Fixture(); rainFed.Recipe.LakeAmountPercent = amount; rainFed.ElevationM[3] = -900;
-            foreach (ref var cell in rainFed.Surface.Cells.AsSpan()) cell.AreaM2 = 150_000_000_000;
+            foreach (var cell in rainFed.Surface.Cells) cell.AreaM2 = 150_000_000_000;
             foreach (var season in new[] { rainFed.Climate.NorthernSpring, rainFed.Climate.NorthernSummer, rainFed.Climate.NorthernAutumn, rainFed.Climate.NorthernWinter })
             { Array.Fill(season.PrecipitationMm, 450); Array.Fill(season.TemperatureTenthsC, 200); }
             Hydrology.Build(rainFed, default, new FixedRunoff(0, 0)); Validate(rainFed, check);

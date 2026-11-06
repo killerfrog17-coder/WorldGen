@@ -3,12 +3,9 @@ using System.Collections.Generic;
 namespace WorldGen.Core
 {
     [Serializable]
-    // Fixed topology records have no independent object identity. Inline storage
-    // avoids a separately allocated/traced object for every planetary cell.
-    public struct Cell
+    public sealed class Cell
     {
-        public int Id; public V Position; public long AreaM2; public int[] Neighbors; public int[] DistanceM;
-        public Cell(){Id=0;Position=default;AreaM2=0;Neighbors=Array.Empty<int>();DistanceM=Array.Empty<int>();}
+        public int Id; public V Position; public long AreaM2; public int[] Neighbors = Array.Empty<int>(); public int[] DistanceM = Array.Empty<int>();
     }
     [Serializable]
     // Fixed mesh topology is a six-integer record, not an identity-bearing
