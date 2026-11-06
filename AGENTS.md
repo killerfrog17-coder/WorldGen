@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov22:42Z SPIKES FIRST. Ownrunner81259/player26800 RIGHTMOST runs
+presented-dense-loops: current automaticGC, jungle then savanna,Medium6km1080,
+90s each,180mout-and-back. B NONDEV34e27143 built/3autosrestored; includesloop
+and IOendtimestampfix but NOTnewpagedcache. No compile/heavytests/overwrite until
+bothsitesfinish. Currentjunglewarmup~190s. Newsource50a94f50 UNCOMPILED/UNTESTED:
+rootCache/edgeCache fixedlogicaladdress now64-reference lazy pages; nullclear
+doesnotallocate, volatilepublication/CASsupportsconcurrentaccess, weaklifetime
+unchanged. PagedReferenceCacheTests added; run --paged-reference-cache then
+--terrain-face-handles and --terrain-face-world against terrain-face-baseline.jsonl
+AFTERbenchmark, beforebuild/nativecomparison. NoFPSgainclaimed. RootVerticesstill
+oldarray. Need actualreference-slotcount and all750exactsamples/reconstruction/
+concurrency, then normalnativeGC/tails beforeacceptance. Allsourcepushed50a.
+ManualGC51357 COMPLETE:177.62FPS,p959.37/p9911.67/max35.56ms,31>16.7.383calls
+355.12ms total,max15.35ms despite0.5msrequest; several13-15msfinalcalls. Heapguard
+didnottrip,originalmode restored. REJECTEDfornormalgame; defaultautomaticunchanged.
+35.56/31.82framesGC-associated; independentpresentwait29.75/29.34ms. Experimental
+case retainedonlyexplicit. afdsummaryincludedtinyCSVwritebeforeendtimestamp;
+rawframevaluesvalid,f859 fixesfuturemeasurementboundary. A/f833/shortcut protected.
+No100floor/globalworstclaim. No features/subagents/ownerappclosure. Owner3filesintact.
+
 ACTIVE06Nov22:28Z SPIKES FIRST. B ScriptsOnly NONDEV afd50e8a built22:25:03Z,
 SourceChanges[],3Unityautos restored. Ownrunner51357/player1092 RIGHTMOST runs
 presented-manual-gc,temperate6kmMedium1080/120s,CPUtiming+nativeGC. No compile/
