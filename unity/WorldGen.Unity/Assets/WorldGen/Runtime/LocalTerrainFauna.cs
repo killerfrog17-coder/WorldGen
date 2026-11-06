@@ -81,6 +81,18 @@ public sealed partial class LocalTerrainExplorer
             if(!animalModels.ContainsKey(spawn.Profile.slug)&&!animalLoadFailures.Contains(spawn.Profile.slug)&&SpawnViewDistance(spawn)<=spawn.Profile.PreloadRadiusM)return spawn;
         return null;
     }
+    FaunaPrototypeSpawn NextManualAnimalModel()
+    {
+        foreach(var spawn in animalManualWanted)
+            if(!animalModels.ContainsKey(spawn.Profile.slug)&&!animalLoadFailures.Contains(spawn.Profile.slug))return spawn;
+        return null;
+    }
+    FaunaPrototypeProfile NextPortableCoatModel()
+    {
+        foreach(var profile in animalProfiles)
+            if(portableCoatWanted.Contains(profile.slug)&&!animalModels.ContainsKey(profile.slug)&&!animalLoadFailures.Contains(profile.slug))return profile;
+        return null;
+    }
     double SpawnViewDistance(FaunaPrototypeSpawn spawn)
     {
         var at=spawn.Position;
@@ -161,8 +173,8 @@ public sealed partial class LocalTerrainExplorer
             }
             if(animalLoading==null&&CenterReady)
             {
-                var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??NextVisibleAnimalModel();
-                var profile=animalProfiles.FirstOrDefault(p=>portableCoatWanted.Contains(p.slug)&&!animalModels.ContainsKey(p.slug)&&!animalLoadFailures.Contains(p.slug))??next?.Profile;
+                var next=NextManualAnimalModel()??NextVisibleAnimalModel();
+                var profile=NextPortableCoatModel()??next?.Profile;
                 if(profile!=null)
                 {
                     EvictAnimalModel(); // Recycle unused models, never discard an active species for a count.
