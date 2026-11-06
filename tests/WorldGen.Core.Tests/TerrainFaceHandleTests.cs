@@ -79,11 +79,36 @@ static class TerrainFaceHandleTests
     [MethodImpl(MethodImplOptions.NoInlining)]
     static object[] References()
     {
-        var face = Activator.CreateInstance(Face)!;
-        Face.GetField("Root")!.SetValue(face, 12);
-        Face.GetField("Depth")!.SetValue(face, 2);
-        Face.GetField("Path")!.SetValue(face, 7UL);
+        var face = Family().GetValue(3)!;
         return Enumerable.Range(0, 3).Select(_ => Activator.CreateInstance(FaceRef, face)!).ToArray();
+    }
+
+    static Array Family()
+    {
+        var split=typeof(HyperAmplification).GetNestedType("FaceSplit",BindingFlags.NonPublic)!;
+        var family=Activator.CreateInstance(split)!;var faces=Array.CreateInstance(Face,4);
+        split.GetField("Faces")!.SetValue(family,faces);
+        for(int i=0;i<4;i++)
+        {
+            var face=Activator.CreateInstance(Face)!;faces.SetValue(face,i);
+            Face.GetField("Root")!.SetValue(face,12);Face.GetField("Depth")!.SetValue(face,2);
+            Face.GetField("Path")!.SetValue(face,(ulong)(4+i));Face.GetField("Lease")!.SetValue(face,family);
+        }
+        return faces;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    static object[] FamilyReferences()
+    {
+        var faces=Family();var refs=new object[12];
+        for(int i=0;i<refs.Length;i++)refs[i]=Activator.CreateInstance(FaceRef,faces.GetValue(i/3)!)!;
+        if(refs.Any(r=>!ReferenceEquals(Target.GetValue(r),Target.GetValue(refs[0]))))
+            throw new Exception("Sibling faces allocated separate weak lifetime handles");
+        GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+        for(int i=0;i<refs.Length;i++)
+            if(!ReferenceEquals(faces.GetValue(i/3),FaceRef.GetMethod("Resolve")!.Invoke(refs[i],new object?[]{null})))
+                throw new Exception("Shared-family address resolved the wrong sibling or lost a live family");
+        GC.KeepAlive(faces);return refs;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -101,10 +126,7 @@ static class TerrainFaceHandleTests
             throw new Exception("Three references to one face created distinct weak handles");
         GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
         if (refs.Any(Alive)) throw new Exception("Shared handle retained an otherwise unreachable face");
-        var replacement = Activator.CreateInstance(Face)!;
-        Face.GetField("Root")!.SetValue(replacement, 12);
-        Face.GetField("Depth")!.SetValue(replacement, 2);
-        Face.GetField("Path")!.SetValue(replacement, 7UL);
+        var replacement = Family().GetValue(3)!;
         FaceRef.GetMethod("Refresh")!.Invoke(refs[0], new[] { replacement });
         FaceRef.GetMethod("Refresh")!.Invoke(refs[1], new[] { replacement });
         if (!Alive(refs[0]) || !Alive(refs[1]) || Alive(refs[2]) ||
@@ -116,14 +138,16 @@ static class TerrainFaceHandleTests
             throw new Exception("Incident edges allocated separate copies of the same face address");
         GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
         if(shared.Any(Alive))throw new Exception("Shared topology address retained its face");
-        Console.WriteLine("PASS shared face handles: one per live face, no strong lifetime retention, safe refresh of expired addresses.");
+        var siblings=FamilyReferences();
+        GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+        if(siblings.Any(Alive))throw new Exception("Sibling addresses retained an otherwise unreachable family");
+        Console.WriteLine("PASS shared family handles: twelve incident addresses share one weak handle, exact sibling resolution, no strong lifetime retention, safe refresh of expired addresses.");
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     static object[] SharedAddresses()
     {
-        var face=Activator.CreateInstance(Face)!;
-        Face.GetField("Root")!.SetValue(face,12);Face.GetField("Depth")!.SetValue(face,2);Face.GetField("Path")!.SetValue(face,7UL);
+        var face=Family().GetValue(3)!;
         var edgeType=typeof(HyperAmplification).GetNestedType("Edge",BindingFlags.NonPublic)!;
         var result=new object[3];
         for(int i=0;i<3;i++)
@@ -137,6 +161,32 @@ static class TerrainFaceHandleTests
             if(!ReferenceEquals(result[i],edgeType.GetField("Left")!.GetValue(edge)))throw new Exception("Repeated attachment replaced its address");
         }
         return result;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    static void CheckLiveFamilies(HyperAmplification owner)
+    {
+        var retained=(Queue<object>)typeof(HyperAmplification).GetField("retained",Hidden)!.GetValue(owner)!;
+        int groups=0,addresses=0;
+        foreach(var family in retained)
+        {
+            if(family.GetType().Name!="FaceSplit")continue;
+            var handle=family.GetType().GetField("Reference")!.GetValue(family);
+            var parent=family.GetType().GetField("Parent")!.GetValue(family)!;
+            if(!ReferenceEquals(handle,Face.GetField("Children")!.GetValue(parent)))
+                throw new Exception("Live parent and family do not share their weak handle");
+            foreach(var face in (Array)family.GetType().GetField("Faces")!.GetValue(family)!)
+            {
+                var address=Face.GetProperty("Address")!.GetValue(face)!;
+                if(!ReferenceEquals(handle,Target.GetValue(address))||
+                    !ReferenceEquals(face,FaceRef.GetMethod("Resolve")!.Invoke(address,new object[]{owner})))
+                    throw new Exception("Actual terrain family failed handle sharing or sibling identity");
+                addresses++;
+            }
+            groups++;
+        }
+        if(groups==0)throw new Exception("Actual terrain handle check visited no families");
+        Console.WriteLine($"PASS actual terrain: {addresses} face addresses + {groups} parent lookups share {groups} weak handles.");
     }
 
     public static void World(string input, string baseline, bool capture)
@@ -173,10 +223,18 @@ static class TerrainFaceHandleTests
             var expected = File.ReadAllLines(baseline);
             if (!actual.SequenceEqual(expected)) throw new Exception("Current terrain differs from pre-change complete samples");
         }
+        CheckLiveFamilies(terrain.Amplification!);
         ((Queue<object>)typeof(HyperAmplification).GetField("retained", Hidden)!.GetValue(terrain.Amplification)!).Clear();
         GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
         var rebuilt = Samples(true);
         if (!actual.SequenceEqual(rebuilt)) throw new Exception("Terrain differs after cache retirement and reverse-order reconstruction");
+        var concurrent=new string[probes.Count];
+        Parallel.For(0,probes.Count,new ParallelOptions{MaxDegreeOfParallelism=4},i=>
+        {
+            var probe=probes[i];var patch=terrain.Patch(world.Surface.Cells[probe.cell].Position,20480);
+            concurrent[i]=JsonSerializer.Serialize(patch.Sample(probe.point),Json);
+        });
+        if(!actual.SequenceEqual(concurrent))throw new Exception("Concurrent neighbour resolution changed terrain after cache reconstruction");
         Console.WriteLine($"PASS {actual.Length} complete terrain samples across {selected.Count} biome/coastal sites, baseline {(capture ? "captured" : "identical")}; all repeated after cache retirement/reconstruction.");
     }
 }

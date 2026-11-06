@@ -58,18 +58,18 @@ namespace WorldGen.Core
         {
             readonly int root,depth;
             readonly ulong path;
-            WeakReference<Face> target;
-            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth>0)target=face.Reference;}
+            WeakReference<FaceSplit> target;
+            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth>0)target=((FaceSplit)face.Lease).Reference;}
             public FaceRef(int root){this.root=root;depth=0;path=0;}
             public bool Matches(Face face)=>root==face.Root&&depth==face.Depth&&path==face.Path;
-            public void Refresh(Face face){if(target!=null)target=face.Reference;}
+            public void Refresh(Face face){if(depth>0)target=((FaceSplit)face.Lease).Reference;}
             public Face Resolve(HyperAmplification owner)
             {
                 if(depth==0)return owner.RootFace(root);
-                if(target.TryGetTarget(out var face))return face;
-                face=owner.RootFace(root);
+                if(target.TryGetTarget(out var family))return family.Faces[(int)(path&3)];
+                var face=owner.RootFace(root);
                 for(int level=1;level<=depth;level++)face=owner.Split(face).Faces[(int)((path>>((depth-level)*2))&3)];
-                target=face.Reference;return face;
+                target=((FaceSplit)face.Lease).Reference;return face;
             }
         }
         internal sealed class Vertex
@@ -135,7 +135,16 @@ namespace WorldGen.Core
             public Edge First, Last;
             public Edge At(Vertex endpoint) => ReferenceEquals(First.A, endpoint) || ReferenceEquals(First.B, endpoint) ? First : Last;
         }
-        internal sealed class FaceSplit { public Face Parent;public Face[] Faces; }
+        internal sealed class FaceSplit
+        {
+            public Face Parent;public Face[] Faces;
+            // A face already holds its entire four-face family through Lease.
+            // Its address can therefore share this weak lifetime handle with
+            // its siblings and the parent's child lookup. Never retarget it:
+            // reconstructed families get a new handle and old addresses refresh.
+            public readonly WeakReference<FaceSplit> Reference;
+            public FaceSplit(){Reference=new WeakReference<FaceSplit>(this);}
+        }
         // Primitive control arrays are not millions of separately traced heap
         // objects. Actual faces/edges are realized only around queried points.
         struct CoarseEdge { public int A,B,Left,Right;public Kind Type;public ulong Key; }
@@ -157,7 +166,6 @@ namespace WorldGen.Core
         }
         internal sealed class Face
         {
-            WeakReference<Face> reference;
             FaceRef address;
             // All three incident edges address this same immutable topology
             // identity. Sharing the address avoids three separately traced
@@ -169,18 +177,6 @@ namespace WorldGen.Core
                     if(address!=null)return address;
                     var created=new FaceRef(this);
                     return Interlocked.CompareExchange(ref address,created,null)??created;
-                }
-            }
-            // All incident edges share one weak handle. Never retarget this
-            // handle: a reconstructed face owns its own, and old addresses
-            // switch to that handle without changing their other neighbours.
-            public WeakReference<Face> Reference
-            {
-                get
-                {
-                    if(reference!=null)return reference;
-                    var created=new WeakReference<Face>(this);
-                    return Interlocked.CompareExchange(ref reference,created,null)??created;
                 }
             }
             public Vertex A, B, C;
@@ -455,7 +451,7 @@ namespace WorldGen.Core
                     string Point(Vertex x)=>x.Position.X.ToString("R")+","+x.Position.Y.ToString("R")+","+x.Position.Z.ToString("R");
                     throw new InvalidOperationException("Inverted child triangle at depth "+depth+", root "+face.Root+", path "+face.Path+", parent size "+face.Size+", parent determinant "+face.Orientation+", child "+child.Orientation+", child path "+child.Path+", A "+Point(face.A)+", B "+Point(face.B)+", C "+Point(face.C)+", ab "+Point(a)+", bc "+Point(b)+", ca "+Point(c));
                 }
-                if(face.Children==null)face.Children=new WeakReference<FaceSplit>(group);else face.Children.SetTarget(group);
+                face.Children=group.Reference;
                 Retain(group); return group;
             }
         }
