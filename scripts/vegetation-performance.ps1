@@ -5,6 +5,7 @@ param(
     [string]$Sites='plains,forest-flat,forest-hills,mountains,desert,tundra',
     [string]$SitesFile='',
     [string]$Cases='',
+    [string]$FaunaStreamDirectory='',
     [double]$Seconds=6,
     [double]$ViewDistance=60000,
     [int]$PlantQuality=2,
@@ -48,6 +49,7 @@ if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Presented){$arguments+='--worldgen-perf-presented'}
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
 if($MemorySnapshot){$arguments+='--worldgen-memory-snapshot'}
+if($FaunaStreamDirectory){$streamInput=[IO.Path]::GetFullPath((Join-Path $repo $FaunaStreamDirectory));if(!(Test-Path -LiteralPath $streamInput)){throw 'Fauna stream experiment directory missing'};$arguments+=@('--worldgen-fauna-stream-directory',('"'+$streamInput+'"'))}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))

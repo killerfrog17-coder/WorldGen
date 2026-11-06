@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
 {
     const int InitialAnimalCapacity=128,AnimalBones=128;
     sealed class AnimalModel
-    {public WorldGenFaunaAsset Asset;public AssetBundle Bundle;public Material Material;public int Users;public double LastUse;public FaunaCollisionSurface Collision;}
+    {public WorldGenFaunaAsset Asset;public AssetBundle Bundle;public Material Material;public int Users;public double LastUse;public FaunaCollisionSurface Collision;public bool OwnCoats;}
     sealed class Animal
     {
         public FaunaPrototypeSpawn Spawn;public AnimalModel Model;public GameObject Root;public MeshRenderer Renderer;public MaterialPropertyBlock Props;
@@ -38,6 +38,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Stack<int> animalSlots=new Stack<int>();
     Matrix4x4[] animalBoneData=Array.Empty<Matrix4x4>();double animalAllocationRetry;
     GraphicsBuffer animalBoneBuffer;Shader animalShader;Coroutine animalLoading;AssetBundleCreateRequest animalBundleRequest;AssetBundle animalPendingBundle;
+    FaunaTextureUpload animalCoatUpload;
     static LocalTerrainExplorer animalSceneOwner;
     V animalPlanAt;double nextAnimalPlan;int animalCandidates;bool animalDisposed;
     readonly bool animalDisabled=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--worldgen-no-animals");
@@ -187,6 +188,8 @@ public sealed partial class LocalTerrainExplorer
     IEnumerator LoadAnimalModel(FaunaPrototypeProfile profile)
     {
         string path=Path.Combine(Application.streamingAssetsPath,"fauna",profile.bundle);
+        if(FaunaTextureUpload.TrialDirectory!=null)
+        {string trial=Path.Combine(FaunaTextureUpload.TrialDirectory,profile.bundle);if(File.Exists(trial))path=trial;}
         if(!File.Exists(path)){animalLoadFailures.Add(profile.slug);Debug.LogWarning("Missing fauna bundle "+profile.slug);animalLoading=null;yield break;}
         animalBundleRequest=AssetBundle.LoadFromFileAsync(path);yield return animalBundleRequest;
         animalPendingBundle=animalBundleRequest.assetBundle;animalBundleRequest=null;
@@ -207,9 +210,23 @@ public sealed partial class LocalTerrainExplorer
             if(animalDisposed){animalPendingBundle?.Unload(true);animalPendingBundle=null;animalLoading=null;yield break;}
             if(extra.IsCompletedSuccessfully)extra.Result.Append(asset);else Debug.LogWarning("Additional motion skipped: "+profile.slug+" / "+extra.Exception?.GetBaseException().Message);
         }
+        bool ownCoats=asset.Coats==null;
+        if(ownCoats)
+        {
+            string coatPath=Path.Combine(Path.GetDirectoryName(path),profile.slug+".coats");
+            var coatRead=Task.Run(()=>new FaunaTextureUpload(coatPath));while(!coatRead.IsCompleted)yield return null;
+            if(animalDisposed)yield break;
+            if(coatRead.IsFaulted)
+            {Debug.LogError("Fauna coat stream: "+coatRead.Exception.GetBaseException().Message);animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
+            animalCoatUpload=coatRead.Result;var upload=animalCoatUpload.Upload();
+            while(upload.MoveNext())yield return upload.Current;
+            asset.Coats=animalCoatUpload.TakeResult();
+            Debug.Log("FAUNA COAT STREAM READY "+profile.slug+" pieces="+animalCoatUpload.Pieces);
+            animalCoatUpload.Dispose();animalCoatUpload=null;
+        }
         var material=new Material(animalShader){name="Wildlife "+profile.slug};
         material.SetTexture("_Coats",asset.Coats);material.SetTexture("_Mask",asset.Mask);material.SetTexture("_Normals",asset.Normal);material.SetFloat("_VegetationSceneEnabled",1);
-        animalModels.Add(profile.slug,new AnimalModel{Asset=asset,Bundle=animalPendingBundle,Material=material,Collision=hitSkin.Result,LastUse=Time.realtimeSinceStartupAsDouble});
+        animalModels.Add(profile.slug,new AnimalModel{Asset=asset,Bundle=animalPendingBundle,Material=material,Collision=hitSkin.Result,LastUse=Time.realtimeSinceStartupAsDouble,OwnCoats=ownCoats});
         animalPendingBundle=null;animalLoading=null;
     }
     bool EvictAnimalModel()
@@ -218,7 +235,7 @@ public sealed partial class LocalTerrainExplorer
             !animalManualWanted.Any(s=>s.Profile.slug==p.Key)&&
             !animalWanted.Any(s=>s.Profile.slug==p.Key&&SpawnViewDistance(s)<=s.Profile.PreloadRadiusM))
             .OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
-        Destroy(old.Value.Material);old.Value.Bundle.Unload(true);animalModels.Remove(old.Key);return true;
+        Destroy(old.Value.Material);if(old.Value.OwnCoats)Destroy(old.Value.Asset.Coats);old.Value.Bundle.Unload(true);animalModels.Remove(old.Key);return true;
     }
     bool AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model,bool manual=false)
     {
@@ -396,9 +413,9 @@ public sealed partial class LocalTerrainExplorer
         DisposeFireflyGlows();
         if(animalBundleRequest!=null)
         {var request=animalBundleRequest;if(request.isDone)request.assetBundle?.Unload(true);else request.completed+=_=>request.assetBundle?.Unload(true);}
-        if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;
+        if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalCoatUpload?.Dispose();animalCoatUpload=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;
         foreach(var id in animals.Keys.ToArray())RemoveAnimal(id);
-        foreach(var model in animalModels.Values){Destroy(model.Material);if(model.Bundle!=null)model.Bundle.Unload(true);}animalModels.Clear();
+        foreach(var model in animalModels.Values){Destroy(model.Material);if(model.OwnCoats)Destroy(model.Asset.Coats);if(model.Bundle!=null)model.Bundle.Unload(true);}animalModels.Clear();
         if(ReferenceEquals(animalSceneOwner,this)){Shader.SetGlobalBuffer("_FaunaBones",(GraphicsBuffer)null);animalSceneOwner=null;}
         animalBoneBuffer?.Dispose();animalBoneBuffer=null;
         birdPerchGeometry.Clear();wildlifeNeighbours.Clear();wildlifeGroups.Clear();wildlifeBehaviours.Clear();wildlifeGroupIndex.Clear();activeWildlifeGroups.Clear();wildlifeGroupWork.Clear();

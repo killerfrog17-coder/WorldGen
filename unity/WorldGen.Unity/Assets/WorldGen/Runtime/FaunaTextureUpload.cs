@@ -9,6 +9,9 @@ using UnityEngine.Experimental.Rendering;
 // packaged render/byte-equivalence and moving-player comparisons pass.
 public sealed class FaunaTextureUpload : IDisposable
 {
+    public static readonly string TrialDirectory=FindTrialDirectory();
+    static string FindTrialDirectory()
+    {var args=Environment.GetCommandLineArgs();int i=Array.IndexOf(args,"--worldgen-fauna-stream-directory");return i>=0&&i+1<args.Length?Path.GetFullPath(args[i+1]):null;}
     public readonly int Size,Layers,Mips;
     readonly byte[][] data;
     readonly Dictionary<int,Texture2D> staging=new Dictionary<int,Texture2D>();

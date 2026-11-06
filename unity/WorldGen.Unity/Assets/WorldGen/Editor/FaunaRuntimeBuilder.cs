@@ -19,7 +19,12 @@ public static class FaunaRuntimeBuilder
         string slug=Arg("--fauna-slugs"),directory=Path.Combine(root,"assets-source/animals/exports",slug);
         var meta=JsonUtility.FromJson<Model>(File.ReadAllText(Path.Combine(directory,"model.json")));
         string output=Arg("--worldgen-output");Directory.CreateDirectory(output);
-        using var writer=new BinaryWriter(File.Create(Path.Combine(output,slug+".coats")));
+        WriteCoats(directory,meta,Path.Combine(output,slug+".coats"));
+        Debug.Log("FAUNA TEXTURE PROTOTYPE "+slug);
+    }
+    static void WriteCoats(string directory,Model meta,string output)
+    {
+        using var writer=new BinaryWriter(File.Create(output));
         writer.Write(0x57474331);writer.Write(meta.textureSize);writer.Write(meta.coats.Length);
         for(int layer=0;layer<meta.coats.Length;layer++)
         {
@@ -29,7 +34,6 @@ public static class FaunaRuntimeBuilder
             {var bytes=source.GetPixelData<byte>(mip).ToArray();writer.Write(bytes.Length);writer.Write(bytes);}
             UnityEngine.Object.DestroyImmediate(source);
         }
-        Debug.Log("FAUNA TEXTURE PROTOTYPE "+slug);
     }
     const string Cache="Assets/WorldGen/Editor/GeneratedFauna";
     [Serializable] sealed class Model
@@ -54,13 +58,16 @@ public static class FaunaRuntimeBuilder
         Debug.Log("FAUNA ECOLOGY MAP "+mapped.Count+" taxa; all "+catalogue.animals.Length+" models mapped or explicitly derived fireflies.");
         var args=Environment.GetCommandLineArgs();int at=Array.IndexOf(args,"--fauna-slugs");
         var selected=at>=0?new HashSet<string>(args[at+1].Split(',')):null;
+        bool streamed=args.Contains("--fauna-stream-coats");int outputAt=Array.IndexOf(args,"--fauna-output");
+        string output=outputAt>=0?Path.GetFullPath(args[outputAt+1]):Path.Combine(Application.streamingAssetsPath,"fauna");
+        Directory.CreateDirectory(output);
         Directory.CreateDirectory(Cache);AssetDatabase.Refresh();var builds=new List<AssetBundleBuild>();
         foreach(var directory in Directory.GetDirectories(input).OrderBy(p=>p,StringComparer.Ordinal))
         {
             string slug=Path.GetFileName(directory);if(selected!=null&&!selected.Contains(slug))continue;
             if(!File.Exists(Path.Combine(directory,"receipt.json")))throw new InvalidDataException("Incomplete animal export: "+slug);
             var meta=JsonUtility.FromJson<Model>(File.ReadAllText(Path.Combine(directory,"model.json")));
-            string path=Cache+"/"+slug+".asset",stamp=Cache+"/"+slug+".stamp";
+            string stem=Cache+"/"+slug+(streamed?"-stream":""),path=stem+".asset",stamp=stem+".stamp";
             string signature;
             using(var hash=SHA256.Create())signature=BitConverter.ToString(hash.ComputeHash(File.ReadAllBytes(Path.Combine(Application.dataPath,"WorldGen/Editor/FaunaRuntimeBuilder.cs"))));
             signature+="\n"+File.ReadAllText(Path.Combine(directory,"receipt.json"));
@@ -79,15 +86,15 @@ public static class FaunaRuntimeBuilder
                     asset.Morphs=new float[asset.Poses.Length/meta.bones];for(int i=0;i<asset.Morphs.Length;i++)asset.Morphs[i]=F(morph);
                     if(morph.BaseStream.Position!=morph.BaseStream.Length)throw new InvalidDataException("Fauna morph count");
                 }
-                asset.Coats=CoatArray(directory,meta);AssetDatabase.AddObjectToAsset(asset.Coats,asset);
+                if(!streamed){asset.Coats=CoatArray(directory,meta);AssetDatabase.AddObjectToAsset(asset.Coats,asset);}
                 asset.Mask=Texture(directory,"mask.png",true);AssetDatabase.AddObjectToAsset(asset.Mask,asset);
                 asset.Normal=Texture(directory,"normal.png",true);AssetDatabase.AddObjectToAsset(asset.Normal,asset);
                 EditorUtility.SetDirty(asset);AssetDatabase.SaveAssets();File.WriteAllText(stamp,signature);
                 Debug.Log("FAUNA ASSET "+slug+" "+meta.vertices+" vertices / "+meta.clips.Length+" clips / "+meta.coats.Length+" coats");
             }
             builds.Add(new AssetBundleBuild{assetBundleName=slug+".fauna",assetNames=new[]{path}});
+            if(streamed)WriteCoats(directory,meta,Path.Combine(output,slug+".coats"));
         }
-        string output=Path.Combine(Application.streamingAssetsPath,"fauna");Directory.CreateDirectory(output);
         var result=BuildPipeline.BuildAssetBundles(output,builds.ToArray(),BuildAssetBundleOptions.ChunkBasedCompression|BuildAssetBundleOptions.StrictMode,BuildTarget.StandaloneWindows64);
         if(result==null)throw new InvalidOperationException("Fauna asset bundle build failed");
         Debug.Log("FAUNA BUNDLES READY "+builds.Count+"; source natives were read-only; no game launched.");
