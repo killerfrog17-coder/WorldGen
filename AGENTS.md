@@ -49,6 +49,40 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov15:47Z SPIKES FIRST. Own B ScriptsOnly NONDEV build66501 fromd8d3a6f6
+RUNNING. NO game active. After build restore3knownUnityautos, native boundary
+check, then normal presented temperate60s same route; no heavy competing work.
+B previous5159 NONDEV native fauna-worker-motion COMPLETE EXIT0:87originalextra
+motionpacks/12,804,980exactpalette+morphcomponents, clipoffset/baseidentity,
+cancel/stale/truncatedchecksPASS. Publication0managedbytes. Now combined arrays
+prepared directly on worker (old main Append allocated2.87MB forhare, plus1.64MB
+intermediate). No animation/look changes. Newd8 terrainEdgeWorkspace at all4
+runtime build sites;25,796exactchecksPASS inclchanging/retainedoutputs/concurrent
+ownworkspaces/6144tileoversizedfallback. Scratch allocation6.675MB->.686MB fixture,
+NO FPS claim yet. Native cover memorygain remains, normal last171.77/max33.74
+100floorUNSOLVED;2GC+oneGPUstall. Latest Development10s allocation analysis22.64MB
+(no FPS): extra motion4.5MB, debug overlay1.91MB, remaining terrainedges~1.5MB,
+mainUpdate6.29MBtotal, residentwirecover no longer dominant. A/f833/shortcut
+UNTOUCHED,owner3files preserved. Source through8290pushed;5159/d8 pendingpush.
+No features/subagents/paid/owner-app closures. RIGHTMOST visible windows.
+
+
+ACTIVE06Nov15:31Z SPIKES FIRST. B FULL DEVELOPMENT8290b421 BuiltUtc15:29:09Z,
+SourceChanges[],3knownUnityautos restored. Own presented runner76880/player22868
+RIGHTMOST captures native-cover-allocation: temperateMedium6km,240s warmup,
+10s allocation callstacks. NO compile/overwrite/heavy jobs until exit. Then
+WorldGenProfilerReview.Run offline into native-cover-allocation-analysis.
+Return B FULL NONDEV before playtest. Native cover actual production numeric/
+GPU/ownership/grass proofs PASS, managedheap~175-216MB lower but NO tailgain;
+latest normal171.77FPS/max33.74ms. New engine trace isolates GPU31.94ms+present
+wait29.44ms at55.62s from GC24-27ms at19/40s. New baseline SAME single-site old
+coverallocated196.65MB vsnew1.19MB, reused31.94->228.41MB; bigger261MB prior
+figure was a multi-site run. Memoryclaim remains; avoid exactFPSattribution.
+Selected A/f833/shortcut untouched. Owner3files intact, sourcepushed8290. No
+features/subagents/paid/owner-app closures. Need actual remaining allocation
+stacks before further changes.100FPSfloorUNSOLVED.
+
+
 ACTIVE06Nov15:25Z SPIKES FIRST. Native cover572 current B NONDEV PASS actual
 worker upload/GPU encoded bits/cache retention/competing managed overwrite/
 cancellation/retirement; grass GPU6400roots322205pixelsPASS. Actual temperate
