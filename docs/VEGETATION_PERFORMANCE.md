@@ -528,3 +528,45 @@ Matching per-bundle and root dependency manifests were copied with the bundles.
 No required runtime or authoring input was placed in scratch. Source and lock
 are pushed; selected playerA/shortcut remains unchanged. B is being restored to
 FULL NONDEVELOPMENT for the ordinary-path moving comparison without NVML polling.
+# 6 November: remaining frame tails and terrain coverage reuse
+
+The normal player with canonical streamed fauna and no NVML polling completed
+`presented-production-no-nvml`: 168.94 FPS, p95 10.71 ms, p99 12.81 ms,
+maximum 39.61 ms; 694 frames over 10 ms and 11 over 16.667 ms in 60 seconds.
+This is not the requested 100 FPS floor. Removing telemetry did not eliminate
+the unexplained stalls. Three completed collections coincided with 22.99,
+24.09 and 31.61 ms frames. A separate coverage refresh cost 5.98 ms inside a
+17.56 ms frame. The largest frame had only 1.89 ms of measured Explorer work;
+its remaining cost is not attributed by that trace.
+
+Source 74e0234a stores each tile's exact coverage inputs and reuses its existing
+tree when they are unchanged. Ancestor lists and surface/timing scratch storage
+are reused as well. Topology, fade timing and the production shader are unchanged.
+1,501 pure checks compare against the original builder, including changed
+inputs, immutable prior outputs and allocation-free repeated queries. The
+`coverage-cache-native` player fixture passed actual shader coverage, incoming
+and outgoing fades, cache restoration, partial replacement, coarsening and
+retirement guards. The normal `presented-coverage-cache` comparison completed:
+171.65 FPS, p95 9.77 ms, p99 12.16 ms, maximum 29.91 ms; 433 frames over 10 ms
+and 10 over 16.667 ms. Coverage maximum fell from 7.47 to 1.43 ms, with total
+coverage CPU 349.83 to 312.50 ms over the minute. Different streaming completion
+and timing prevent attributing every frame improvement to this change. Neither
+run satisfies the floor.
+
+Source cfc37b76 limits fauna population scratch to the current lattice location.
+Every region needed by that location still receives an independent result, and
+no ecological values persist between builds. An independently recorded baseline
+matches all 644 complete spawn records across five location/time/weather cases,
+including retained results and cancellation. Reused Build allocations fell from
+21,522,176 to 1,666,632 bytes in that fixture. This is allocation evidence, not
+a claim about normal-player collection times.
+
+Source 6795de4c shares one weak topology address between a refined terrain face's
+incident edges instead of allocating separate equivalent addresses. Shared-handle
+lifetime/reattachment checks pass, as do 750 complete terrain samples across
+30 biome/coastal sites against the pre-change baseline and after clearing caches
+and reconstructing in reverse order. Normal-player timing remains pending.
+
+Source 4bbb0290 adds optional `-CaptureAfter` to the benchmark runner. Its normal
+presented-frame screenshot is taken after timing and counters are finalized;
+readback/PNG encoding cannot contaminate the measurement window.
