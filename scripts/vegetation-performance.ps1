@@ -18,6 +18,7 @@ param(
     [switch]$SavedSettings,
     [switch]$GpuTelemetry,
     [switch]$MemorySnapshot,
+    [switch]$CaptureAfter,
     [switch]$Original
 )
 $ErrorActionPreference='Stop'
@@ -50,6 +51,7 @@ if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Presented){$arguments+='--worldgen-perf-presented'}
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
 if($MemorySnapshot){$arguments+='--worldgen-memory-snapshot'}
+if($CaptureAfter){$arguments+='--worldgen-perf-capture-after'}
 if($FaunaStreamDirectory){$streamInput=[IO.Path]::GetFullPath((Join-Path $repo $FaunaStreamDirectory));if(!(Test-Path -LiteralPath $streamInput)){throw 'Fauna stream experiment directory missing'};$arguments+=@('--worldgen-fauna-stream-directory',('"'+$streamInput+'"'))}
 if($ProfileWarmupSeconds -ge 0){$arguments+=@('--worldgen-profile-warmup-seconds',$ProfileWarmupSeconds.ToString([Globalization.CultureInfo]::InvariantCulture))}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
