@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov18:33Z SPIKES FIRST. B ScriptsOnly DEVELOPMENT fcd62634 over FULL
+e84beec0;3known autos restored. Own runner38873 RIGHTMOST runs async-icons-
+allocation10s, temperate6kmMedium, normal warmup. No compile/overwrite/heavyjobs
+during timing. This is diagnostic only; restore FULL NONDEV before playtest.
+Ordinary no-FrameTimingStats capture c9 COMPLETE177.32FPS,p959.33/max29.03ms,
+340>10/4>16.667;100floor NOT solved. GPU capture e84 COMPLETE60s; offline
+temperate-gpu-analysis-fixed actual16124GPUthreadframes/8063frames,110932487
+GC.Alloc bytes. First reader FAILED due upstream-only hasGpuSamples property;
+8df4 uses installed SampleGPU marker flag and actual GPU column; native PASS.
+HighestCPU31.02/28.30ms coincide22.19/19.75ms CollectIncremental; GPU frame24.22/
+21.39 includes19.31/17.38ms PresentAfterDraw waits, actual camera4.26/3.39ms.
+Do NOT label these GPU shader spikes. Separate frame57 OnGUI synchronous atlas
+load9.28ms, render Texture.WaitForAsyncUpload7.59ms,1448x1086 exactly matches
+PickupCategoryMasksV1. New fcd asynchronously loads all5pickup masks during
+inventory initialization; OnGUI does NO synchronous Resource.Load. Current
+capture verifies removal and remaining allocation stacks. Frame72 had5.50ms
+GUI1024x1024 upload, possibly font atlas; NOT yet attributed/fixed. Source
+feedback fixture updated to await requests; latest UNBUILT followup removes
+obsolete <=256flake-icon assertion and checks actual packaged names (no art
+resize). Need native fixture after next build. No core topology changes made;
+flattening Cell neighbor/distance arrays only considered, not proven. Source
+fcd/reader pushed; current docs/test followup pending. A/f833/shortcut protected,
+owner3files unchanged, all own visible windows RIGHTMOST. No features/subagents.
+
 ACTIVE06Nov18:03Z SPIKES FIRST. B FULL NONDEV c9d1b90a BuiltUtc17:54:45Z,
 SourceChanges[],3known autos restored. Own runner65160/player25052 RIGHTMOST
 running presented-no-timing-stats, temperate6kmMedium1080 moving60s, untraced.
