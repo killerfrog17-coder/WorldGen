@@ -641,3 +641,30 @@ fauna coat uploads, and bounds pool eviction to one old mesh per return. Added
 did not leave headroom below measured throughput). User FPS preferences are
 unchanged. Unity documents incremental GC use of idle target-frame time:
 https://docs.unity3d.com/cn/6000.0/ScriptReference/Scripting.GarbageCollector-incrementalTimeSliceNanoseconds.html
+
+November 6 follow-up: the first mesh-pool improvement did not reproduce reliably.
+Fresh c27f57f4 uncapped travel averaged163.80FPS with a51.44ms maximum and17
+frames over16.667ms. Its120FPS comparison averaged117.57FPS, maximum24.53ms,
+with9 frames over16.667ms. The largest capped frame completed a collection;
+idle headroom did not remove the GC pause. All15 fauna coat sets loaded with
+the shared upload allowance. Neither run establishes a general frame-time win.
+
+The faf96b7c size-class mesh pool passed20,916,350 CPU/GPU byte checks, including
+reuse across changed payload sizes, exact submesh ranges/bounds and index-buffer
+readback. Its normal-player temperate60s run averaged163.07FPS,p9511.18ms,
+p9913.67ms,max40.36ms,12 frames over16.667ms. Cumulative mesh counters were
+492 created/87 reused,12.47MB idle. Two collection frames reached29.73/29.50ms;
+the40.36ms frame did not complete a collection and its Explorer.Update cost
+was1.57ms. Mesh reuse therefore remains OFF in ordinary gameplay. Spare mesh
+capacity is included in the terrain-cache byte accounting.
+
+171ea744 tests coarser Burst vegetation jobs and direct consumption of their
+native admission output. Previously each patch scheduled four work items and
+copied native results into managed lists before assembling the same draws.
+This is an opt-in experiment, not yet an accepted performance improvement.
+Existing exact instance/order and paired-render checks now exercise this path.
+Evidence directories: presented-shared-budget-uncapped,
+presented-shared-budget-cap120,presented-size-class-meshes,
+compact-scatter-native-fixed, all under artifacts/render-repair-20261106.
+The first compact-scatter-native launch was aborted because its command-line
+case list was incorrectly space-separated; it supplies no test evidence.

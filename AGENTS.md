@@ -1,14 +1,17 @@
 # WorldGen repository instructions
 
-ACTIVE06Nov21:00Z SPIKES FIRST. Latest size-class normal test COMPLETE:163.07FPS,
+ACTIVE06Nov20:59Z SPIKES FIRST. Latest size-class normal test COMPLETE:163.07FPS,
 p9511.18/p9913.67/max40.36ms,12frames>16.7. Pool492created87reused/12.47MBidle;
 reuse improved modestly, NOT an established hitch fix; normalReuseTerrainMeshes
 staysOFF. GCframes29.73/29.50,40.36 nonGC frame ~71ms aftercollection; no proven
 causal attribution. No own game remains. New opt-in CompactScatterJobs DEFAULT
 OFF: one Burst job per resident patch instead4tiny partitions; consume native
 admissions directly, no managed list roundtrip. Actual output/render proofs
-added using existing eight-heading/32render reference fixtures. UNBUILT/UNRUN.
-Next compileB NONDEV, native proofs, actual moving comparison beforeacceptance.
+added using existing eight-heading/32render reference fixtures. B171ea744 NONDEV
+ScriptsOnly built20:57:45Z,3autosrestored. Own runner57219 hidden now runs
+compact-scatter-native-fixed at1500m temperate; do not overwrite until exit.
+Firstnative launch aborted for space-separated case list, no evidence. Next
+inspect native proofs then actual moving comparison beforeacceptance.
 Shared terrain/fauna upload budget remainsON. Benchmark startpoolcounter line
 included. A/f833shortcut protected; owner3filesuntouched. No geography/subagents.
 
