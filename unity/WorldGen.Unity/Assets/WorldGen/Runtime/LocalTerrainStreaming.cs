@@ -91,7 +91,7 @@ public sealed partial class LocalTerrainExplorer
         if(double.IsNaN(predictedX)||Math.Abs(x-predictedX)>size*.25||Math.Abs(z-predictedZ)>size*.25)
         {
             predictedX=x;predictedZ=z;
-            var plan=TerrainLod.Plan(x,z,HeightAboveGround,size*4,HorizontalScale);prefetchEdges=TerrainEdges.Build(plan);
+            var plan=TerrainLod.Plan(x,z,HeightAboveGround,size*4,HorizontalScale);prefetchEdges=terrainEdgeWorkspace.Build(plan);
             prefetchWanted=plan.Where(p=>TerrainLod.Immediate(p.Key,x,z)).OrderBy(p=>TerrainLod.DistanceSquared(p.Key,x,z)).Take(12).ToDictionary(p=>p.Key,p=>p.Value);
             prefetchPriority.Clear();prefetchPriority.AddRange(prefetchWanted.Keys);
             foreach(var j in jobs)if(j.Prefetch&&(!prefetchWanted.TryGetValue(j.Key,out int detail)||detail!=j.Segments||!TerrainEdges.Equal(j.Edges,prefetchEdges[j.Key])))j.Cancellation?.Cancel();

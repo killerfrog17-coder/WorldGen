@@ -63,22 +63,38 @@ namespace WorldGen.Presentation
             return Pack(tile,spans,new PackingScratch());
         }
         sealed class Line{public readonly List<Side> Low=new List<Side>(),High=new List<Side>();}
-        public static Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)
+        public static Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)=>new Workspace().Build(leaves);
+
+        // One serial caller owns a workspace. Only intermediate neighbour lists
+        // are reused; returned edge arrays/dictionaries remain independent.
+        public sealed class Workspace
         {
-            var result=new Dictionary<TerrainTileKey,double[]>(leaves.Count);
-            var spans=new Dictionary<TerrainTileKey,List<Span>>(leaves.Count);
-            var vertical=new Dictionary<(double,long),Line>();var horizontal=new Dictionary<(double,long),Line>();
-            void Add(Dictionary<(double,long),Line> lines,long at,TerrainTileKey tile,long start,long end,int index,bool high,double step)
-            {var key=(tile.Scale,at);if(!lines.TryGetValue(key,out var line)){line=new Line();lines.Add(key,line);}(high?line.High:line.Low).Add(new Side{Start=start,End=end,Tile=tile,Index=index,Step=step});}
-            foreach(var pair in leaves)
+            readonly Dictionary<TerrainTileKey,List<Span>> spans=new Dictionary<TerrainTileKey,List<Span>>();
+            readonly Dictionary<(double,long),Line> vertical=new Dictionary<(double,long),Line>(),horizontal=new Dictionary<(double,long),Line>();
+            readonly List<Line> lines=new List<Line>();readonly List<List<Span>> spanLists=new List<List<Span>>();
+            readonly PackingScratch packing=new PackingScratch();int lineIndex,spanIndex;
+            public Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)
             {
-                var k=pair.Key;spans.Add(k,new List<Span>());long size=1L<<k.Level,x=(long)k.X<<k.Level,z=(long)k.Z<<k.Level;double step=k.SizeM/pair.Value;
-                Add(vertical,x,k,z,z+size,0,false,step);Add(vertical,x+size,k,z,z+size,1,true,step);
-                Add(horizontal,z,k,x,x+size,2,false,step);Add(horizontal,z+size,k,x,x+size,3,true,step);
+                // Exceptional giant plans must not permanently enlarge a normal
+                // explorer's scratch retention. Their output remains unchanged.
+                return leaves.Count>4096?new Workspace().BuildCore(leaves):BuildCore(leaves);
             }
-            void Match(Dictionary<(double,long),Line> lines)
+            Line TakeLine()
             {
-                foreach(var line in lines.Values)
+                if(lineIndex==lines.Count)lines.Add(new Line());var line=lines[lineIndex++];line.Low.Clear();line.High.Clear();return line;
+            }
+            List<Span> TakeSpans()
+            {
+                if(spanIndex==spanLists.Count)spanLists.Add(new List<Span>());var result=spanLists[spanIndex++];result.Clear();return result;
+            }
+            void Add(Dictionary<(double,long),Line> target,long at,TerrainTileKey tile,long start,long end,int index,bool high,double step)
+            {
+                var key=(tile.Scale,at);if(!target.TryGetValue(key,out var line)){line=TakeLine();target.Add(key,line);}
+                (high?line.High:line.Low).Add(new Side{Start=start,End=end,Tile=tile,Index=index,Step=step});
+            }
+            void Match(Dictionary<(double,long),Line> target)
+            {
+                foreach(var line in target.Values)
                 {
                     line.High.Sort((a,b)=>a.Start.CompareTo(b.Start));
                     foreach(var a in line.Low)foreach(var b in line.High)
@@ -93,7 +109,18 @@ namespace WorldGen.Presentation
                     }
                 }
             }
-            Match(vertical);Match(horizontal);var packing=new PackingScratch();foreach(var pair in spans)result.Add(pair.Key,Pack(pair.Key,pair.Value,packing));return result;
+            Dictionary<TerrainTileKey,double[]> BuildCore(IReadOnlyDictionary<TerrainTileKey,int> leaves)
+            {
+                lineIndex=spanIndex=0;spans.Clear();vertical.Clear();horizontal.Clear();
+                var result=new Dictionary<TerrainTileKey,double[]>(leaves.Count);
+                foreach(var pair in leaves)
+                {
+                    var k=pair.Key;spans.Add(k,TakeSpans());long size=1L<<k.Level,x=(long)k.X<<k.Level,z=(long)k.Z<<k.Level;double step=k.SizeM/pair.Value;
+                    Add(vertical,x,k,z,z+size,0,false,step);Add(vertical,x+size,k,z,z+size,1,true,step);
+                    Add(horizontal,z,k,x,x+size,2,false,step);Add(horizontal,z+size,k,x,x+size,3,true,step);
+                }
+                Match(vertical);Match(horizontal);foreach(var pair in spans)result.Add(pair.Key,Pack(pair.Key,pair.Value,packing));return result;
+            }
         }
     }
 }

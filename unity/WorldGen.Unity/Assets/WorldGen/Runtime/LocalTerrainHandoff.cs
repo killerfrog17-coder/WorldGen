@@ -138,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
             pending.X=x;pending.Z=z;pending.Altitude=altitude;pending.Range=viewDistance;
             pending.Wanted=InitialDetailPlan(x,z,altitude);
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
-            foreach(var pair in TerrainEdges.Build(pending.Wanted))pending.Edges.Add(pair.Key,pair.Value);
+            foreach(var pair in terrainEdgeWorkspace.Build(pending.Wanted))pending.Edges.Add(pair.Key,pair.Value);
             pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
             pending.CoveragePriority.Sort((a,b)=>b.Level.CompareTo(a.Level));pending.SortAt=0;
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)&&!pending.Wanted.Keys.Any(w=>Overlaps(k,w))).ToArray())

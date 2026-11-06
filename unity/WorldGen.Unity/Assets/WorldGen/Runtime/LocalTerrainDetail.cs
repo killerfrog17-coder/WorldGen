@@ -79,7 +79,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void AdoptDetailPlan(Dictionary<TerrainTileKey,int> plan)
     {
-        wanted=plan;wantedEdges.Clear();foreach(var p in TerrainEdges.Build(wanted))wantedEdges.Add(p.Key,p.Value);
+        wanted=plan;wantedEdges.Clear();foreach(var p in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(p.Key,p.Value);
         priority.Clear();priority.AddRange(wanted.Keys);
         foreach(var job in jobs)if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&!WorkMatchesCurrent(job))job.Cancellation?.Cancel();
         priority.Sort((a,b)=>StreamingPriority(a).CompareTo(StreamingPriority(b)));fogCheckAt=0;

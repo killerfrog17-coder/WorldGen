@@ -15,6 +15,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
     sealed class Tile { public bool WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;public ResidentCoverBuffers CoverBuffers;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public TerrainFadeCache CoverageInputs; public List<TerrainTileKey> CoverageChildren; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
+    readonly TerrainEdges.Workspace terrainEdgeWorkspace=new TerrainEdges.Workspace();
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
     TerrainMeshProcess meshProcess;
@@ -337,7 +338,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
         detailCancellation?.Cancel();detailDirty=true;
         wanted=InitialDetailPlan(motion.X,motion.Z,plannedAltitude);priority.Clear();priority.AddRange(wanted.Keys);PlanBackdrop();
-        wantedEdges.Clear();foreach(var pair in TerrainEdges.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
+        wantedEdges.Clear();foreach(var pair in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){CacheTerrain(key,tiles[key]);tiles.Remove(key);}
         foreach(var job in jobs)
             if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!TerrainEdges.Equal(job.Edges,wantedEdges[job.Key])))job.Cancellation?.Cancel();
