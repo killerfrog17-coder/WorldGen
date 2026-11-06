@@ -53,6 +53,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Start()
     {
         Application.runInBackground = true;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-fauna-texture-check")){StartCoroutine(CheckFaunaTextureUpload(Argument("--worldgen-fauna-texture-check",""),Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-landscape-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckLandscape(Argument("--worldgen-landscape-check",""),Argument("--worldgen-output",""),Argument("--worldgen-landscape-kind","pond")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-pose-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckNpcPoses(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-check")){enabled=false;StartCoroutine(LocalTerrainExplorer.CheckLivingHumans(Argument("--worldgen-npc-check",""),Argument("--worldgen-output","")));return;}

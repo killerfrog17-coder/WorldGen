@@ -10,6 +10,27 @@ using UnityEngine.Rendering;
 /// <summary>CPU-only native-asset conversion and per-animal streaming bundles.</summary>
 public static class FaunaRuntimeBuilder
 {
+    // Isolated transport experiment. Re-encodes the existing approved source
+    // with the same BC7 compressor; never replaces the production bundles.
+    public static void ExportTexturePrototype()
+    {
+        var args=Environment.GetCommandLineArgs();string Arg(string key)=>args[Array.IndexOf(args,key)+1];
+        string root=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
+        string slug=Arg("--fauna-slugs"),directory=Path.Combine(root,"assets-source/animals/exports",slug);
+        var meta=JsonUtility.FromJson<Model>(File.ReadAllText(Path.Combine(directory,"model.json")));
+        string output=Arg("--worldgen-output");Directory.CreateDirectory(output);
+        using var writer=new BinaryWriter(File.Create(Path.Combine(output,slug+".coats")));
+        writer.Write(0x57474331);writer.Write(meta.textureSize);writer.Write(meta.coats.Length);
+        for(int layer=0;layer<meta.coats.Length;layer++)
+        {
+            var source=Texture(directory,"coat-"+layer+".png",false);
+            writer.Write(source.mipmapCount);
+            for(int mip=0;mip<source.mipmapCount;mip++)
+            {var bytes=source.GetPixelData<byte>(mip).ToArray();writer.Write(bytes.Length);writer.Write(bytes);}
+            UnityEngine.Object.DestroyImmediate(source);
+        }
+        Debug.Log("FAUNA TEXTURE PROTOTYPE "+slug);
+    }
     const string Cache="Assets/WorldGen/Editor/GeneratedFauna";
     [Serializable] sealed class Model
     {
