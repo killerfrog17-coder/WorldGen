@@ -1159,6 +1159,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-detailed-foliage",()=>{WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.DetailedFoliageComparison=true;TerrainVideoOptions.DistantTreeShadowCards=false;}),
             new PerfCase("travel-whip-memory",()=>WorldGenPerformance.MemoryTrace=true),
             new PerfCase("travel-whip-allocation-profile",()=>WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-cpu-profile",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("moving-parallel-verify",()=>WorldGenPerformance.ParallelScatter=true),
             new PerfCase("scatter-range-cache-verify",()=>{}),
             new PerfCase("human-weights-verify",()=>{}),
@@ -1173,7 +1174,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-nonindexed",()=>WorldGenPerformance.NonIndexedClumps=true),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
-        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile");
+        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
             throw new InvalidOperationException("Presented throughput requires explicit travel/turning cases; image/pose verifiers use offscreen mode");
@@ -1300,13 +1301,13 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.PerformanceBeginGroundTrace();
                 WorldGenPerformance.Measuring=true;
                 var windowUtc=DateTime.UtcNow;
-                bool allocationProfile=item.Name=="travel-whip-allocation-profile";
-                if(allocationProfile)
+                bool allocationProfile=item.Name=="travel-whip-allocation-profile",cpuProfile=item.Name=="travel-whip-cpu-profile";
+                if(allocationProfile||cpuProfile)
                 {
-                    if(!Debug.isDebugBuild)throw new InvalidOperationException("Allocation callstack capture requires an explicit diagnostic DevelopmentPlayer; never interpret its FPS as release throughput.");
-                    UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,site.Item1+"-allocations.raw");
+                    if(!Debug.isDebugBuild)throw new InvalidOperationException("Profiler capture requires an explicit diagnostic DevelopmentPlayer; never interpret its FPS as release throughput.");
+                    UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,site.Item1+(allocationProfile?"-allocations.raw":"-cpu.raw"));
                     UnityEngine.Profiling.Profiler.enableBinaryLog=true;
-                    UnityEngine.Profiling.Profiler.enableAllocationCallstacks=true;
+                    UnityEngine.Profiling.Profiler.enableAllocationCallstacks=allocationProfile;
                     UnityEngine.Profiling.Profiler.enabled=true;
                 }
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
@@ -1350,12 +1351,12 @@ public sealed partial class WorldGenRuntime
                 string componentFile=Path.Combine(output,"cpu-frame-components.csv");
                 if(!File.Exists(componentFile))File.WriteAllText(componentFile,"site,case,samples,main_ms,render_ms,present_wait_ms\n");
                 File.AppendAllText(componentFile,site.Item1+","+item.Name+","+timingCount+","+(timingCount>0?cpuMain/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+","+(timingCount>0?cpuRender/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+","+(timingCount>0?cpuPresentWait/timingCount:0).ToString("F5",CultureInfo.InvariantCulture)+"\n");
-                if(allocationProfile)
+                if(allocationProfile||cpuProfile)
                 {
                     UnityEngine.Profiling.Profiler.enabled=false;
                     UnityEngine.Profiling.Profiler.enableAllocationCallstacks=false;
                     UnityEngine.Profiling.Profiler.enableBinaryLog=false;
-                    File.AppendAllText(Path.Combine(output,"allocation-profile.txt"),site.Item1+": diagnostic DevelopmentPlayer CPU/GC allocation callstacks only; displayed FPS is NOT release throughput.\n");
+                    File.AppendAllText(Path.Combine(output,"allocation-profile.txt"),site.Item1+": diagnostic DevelopmentPlayer CPU capture; allocation callstacks="+allocationProfile+"; displayed FPS is NOT release throughput.\n");
                 }
                 WorldGenPerformance.Measuring=false;WorldGenPerformance.ProfileRenderCompletion=false;
                 if(renderCosts.Count>0){renderCosts.Sort();File.AppendAllText(Path.Combine(output,"completed-renders.txt"),site.Item1+" "+item.Name+": "+renderCosts.Count+" samples; mean "+renderCosts.Average().ToString("F3")+"ms, median "+renderCosts[renderCosts.Count/2].ToString("F3")+"ms; submission + actual GPU completion, excluding Update/presentation/frame-loop waits.\n");}
