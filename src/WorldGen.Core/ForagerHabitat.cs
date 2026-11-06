@@ -14,7 +14,10 @@ namespace WorldGen.Core
         }
         static readonly ConditionalWeakTable<PrehistoryState,ForagerHabitat> Cache=new ConditionalWeakTable<PrehistoryState,ForagerHabitat>();
         public static ForagerHabitat For(World world,PrehistoryState state=null)
-        {state=state??world.Prehistory;return state?.Foragers==null?null:Cache.GetValue(state,s=>new ForagerHabitat(world,s));}
+        {state=state??world.Prehistory;if(state?.Foragers==null)return null;return Cache.TryGetValue(state,out var habitat)?habitat:CacheMiss(world,state);}
+        // Keep the capturing factory outside the hot lookup method: otherwise
+        // its display class is allocated even when the weak cache already hits.
+        static ForagerHabitat CacheMiss(World world,PrehistoryState state)=>Cache.GetValue(state,s=>new ForagerHabitat(world,s));
         readonly World world;readonly PrehistoryState state;readonly System.Collections.Generic.Dictionary<int,Local> cells;readonly object gate=new object();
         ForagerHabitat(World w,PrehistoryState s){world=w;state=s;cells=new System.Collections.Generic.Dictionary<int,Local>();}
         public Local Cell(int cell)

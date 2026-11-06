@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--runtime-allocation")){RuntimeAllocationTests.Run();return;}
 if(args.Contains("--terrain-height-change")){TerrainHeightChangeTests.Run();return;}
 if(args.Contains("--canyon-controls")){CanyonTests.Controls();return;}
 if(args.Contains("--canyon-world")){CanyonTests.World(args[1],args[2]);return;}

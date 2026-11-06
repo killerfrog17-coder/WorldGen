@@ -15,13 +15,15 @@ namespace WorldGen.Presentation
         // Four legacy maxima, optionally followed by edge/start/end/spacing
         // records for edges whose neighbours do not share one sampling grid.
         // Intervals are local metres. Keep uniform-edge requests compact.
-        static double[] Pack(TerrainTileKey tile,List<Span> spans)
+        sealed class PackingScratch
+        {public readonly List<double> Data=new List<double>();public readonly List<Span> Parts=new List<Span>(),Joined=new List<Span>();}
+        static double[] Pack(TerrainTileKey tile,List<Span> spans,PackingScratch scratch)
         {
-            var data=new List<double>{0,0,0,0};
+            var data=scratch.Data;data.Clear();for(int i=0;i<4;i++)data.Add(0);
             for(int edge=0;edge<4;edge++)
             {
-                var parts=spans.FindAll(s=>s.Edge==edge);if(parts.Count==0)continue;
-                parts.Sort((a,b)=>a.Start.CompareTo(b.Start));var joined=new List<Span>();
+                var parts=scratch.Parts;parts.Clear();foreach(var span in spans)if(span.Edge==edge)parts.Add(span);if(parts.Count==0)continue;
+                parts.Sort((a,b)=>a.Start.CompareTo(b.Start));var joined=scratch.Joined;joined.Clear();
                 foreach(var part in parts)
                 {
                     data[edge]=Math.Max(data[edge],part.Step);
@@ -58,7 +60,7 @@ namespace WorldGen.Presentation
                 lo=Math.Max(x,a);hi=Math.Min(x+size,a+other);
                 if(lo<hi){if(b+other==z)spans.Add(new Span{Edge=2,Start=(lo-x)*unit,End=(hi-x)*unit,Step=step});if(b==z+size)spans.Add(new Span{Edge=3,Start=(lo-x)*unit,End=(hi-x)*unit,Step=step});}
             }
-            return Pack(tile,spans);
+            return Pack(tile,spans,new PackingScratch());
         }
         sealed class Line{public readonly List<Side> Low=new List<Side>(),High=new List<Side>();}
         public static Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)
@@ -91,7 +93,7 @@ namespace WorldGen.Presentation
                     }
                 }
             }
-            Match(vertical);Match(horizontal);foreach(var pair in spans)result.Add(pair.Key,Pack(pair.Key,pair.Value));return result;
+            Match(vertical);Match(horizontal);var packing=new PackingScratch();foreach(var pair in spans)result.Add(pair.Key,Pack(pair.Key,pair.Value,packing));return result;
         }
     }
 }
