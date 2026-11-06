@@ -103,7 +103,7 @@ if(args.Contains("--item-use-only")){ItemUseTests.Run();return;}
 if(args.Contains("--save-slots-only")){SaveSlotTests.Run();return;}
 if(args.Contains("--fireflies-only")){FireflyTests.Run(args[1]);return;}
 if(args.Contains("--wildlife-abundance-only")){WildlifeAbundanceTests.Run();return;}
-if(args.Contains("--wildlife-planner-reuse")){WildlifeAbundanceTests.VerifyPlannerReuse(args[1]);return;}
+if(args.Contains("--wildlife-planner-reuse")){WildlifeAbundanceTests.VerifyPlannerReuse(args[1],args.Length>2?args[2]:null,args.Contains("--record"));return;}
 if(args.Contains("--wildlife-abundance-world")){WildlifeAbundanceTests.WorldReport(args[1],args[2]);return;}
 if(args.Contains("--portable-crafting-only")){PortableCraftingTests.Run();return;}
 if(args.Contains("--fallen-branches-only")){FallenBranchTests.Run();return;}

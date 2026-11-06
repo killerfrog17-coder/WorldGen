@@ -101,12 +101,13 @@ static class WildlifeAbundanceTests
         Check(copy.PopulationVersion==state.PopulationVersion&&restored.PopulationVersion==state.PopulationVersion,"Population projection version is deep-copy/save compatible");
         Console.WriteLine("PASS "+checks+" wildlife resource, competition, habitat and encounter-pacing checks");
     }
-    public static void VerifyPlannerReuse(string path)
+    public static void VerifyPlannerReuse(string path,string baseline=null,bool record=false)
     {
         var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         var profiles=WorldJson.Read<FaunaPrototypeCatalogue>(File.ReadAllText("unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenFaunaCatalogue.json")).animals;
         var reused=new FaunaPrototypePlanner(world,terrain,profiles,.1);
         System.Collections.Generic.List<FaunaPrototypeSpawn> retained=null;string retainedText=null;int count=0;
+        var records=new List<string>();long bytes=0;
         foreach(var site in new[]{(27.068410281540114,-167.35387593971296,12d,15d,.25),
             (27.068410281540114,-167.35387593971296,21d,7d,.75),
             (0d,25d,6d,27d,.4),(50d,10d,15d,-5d,.9),
@@ -115,7 +116,9 @@ static class WildlifeAbundanceTests
             var point=TerrainMapViewport.FromDegrees(site.Item1,site.Item2);
             var fresh=new FaunaPrototypePlanner(world,terrain,profiles,.1);
             var expected=fresh.Build(point,.1,site.Item3,CancellationToken.None,site.Item5,site.Item4);
+            long before=GC.GetAllocatedBytesForCurrentThread();
             var actual=reused.Build(point,.1,site.Item3,CancellationToken.None,site.Item5,site.Item4);
+            bytes+=GC.GetAllocatedBytesForCurrentThread()-before;records.Add(WorldJson.Write(actual));
             if(WorldJson.Write(expected)!=WorldJson.Write(actual))throw new Exception("Reused planner changed complete spawn data");
             if(retained!=null&&WorldJson.Write(retained)!=retainedText)throw new Exception("Later build mutated retained spawns");
             retained=actual;retainedText=WorldJson.Write(actual);count+=actual.Count;
@@ -123,7 +126,13 @@ static class WildlifeAbundanceTests
             catch(OperationCanceledException){}
         }
         if(count==0)throw new Exception("No actual-world spawn coverage");
-        Console.WriteLine($"PASS {count} complete actual-world spawn records across five changing site/time/weather scenarios, retained results and cancellation.");
+        if(baseline!=null)
+        {
+            string encoded=WorldJson.Write(records);
+            if(record)File.WriteAllText(baseline,encoded);
+            else if(File.ReadAllText(baseline)!=encoded)throw new Exception("Complete spawn records changed from the independent pre-change planner baseline");
+        }
+        Console.WriteLine($"PASS {count} complete actual-world spawn records across five changing site/time/weather scenarios, retained results and cancellation; reused Build allocated {bytes} bytes.");
     }
     public static void WorldReport(string path,string output)
     {

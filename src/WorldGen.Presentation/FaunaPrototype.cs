@@ -108,9 +108,12 @@ namespace WorldGen.Presentation
             long epoch=world.Prehistory?.Foragers?.Seconds/SimulationTime.Year??-1;
             if(epoch!=biotaEpoch){pools.Clear();communities.Clear();behaviourProfiles.Clear();biotaEpoch=epoch;}
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
-            var communityCache=new Dictionary<(ScatterKey,int),WildlifeCommunity>();
+            // Add consumes population values immediately for this lattice key;
+            // no community object escapes into the spawn records. Keep one
+            // key's region results, rather than every visited site's results.
+            var communityCache=new Dictionary<int,WildlifeCommunity>();
             int abundanceResultIndex=0;
-            var siteCache=new Dictionary<ScatterKey,WildlifeHabitat>();
+            WildlifeHabitat keySite=default;bool hasKeySite=false;
             WildlifeHabitat Site(V point)
             {
                 var sample=patch.Sample(point);var climate=ForagerHabitat.For(world)?.Cell(sample.Cell)?.Habitat??e.Habitat[sample.Cell];
@@ -119,13 +122,13 @@ namespace WorldGen.Presentation
             }
             WildlifeCommunity Population(ScatterKey key,int region)
             {
-                if(communityCache.TryGetValue((key,region),out var found))return found;
-                if(!siteCache.TryGetValue(key,out var site))
+                if(communityCache.TryGetValue(region,out var found))return found;
+                if(!hasKeySite)
                 {
-                    site=new WildlifeHabitat{Biome=patch.Sample(lattice.Position(key)).Biome};
-                    site.Add(Site(lattice.Position(key)),.2);
-                    foreach(double u in new[]{.2,.8})foreach(double v in new[]{.2,.8})site.Add(Site(lattice.Position(key,u,v)),.2);
-                    siteCache[key]=site;
+                    keySite=new WildlifeHabitat{Biome=patch.Sample(lattice.Position(key)).Biome};
+                    keySite.Add(Site(lattice.Position(key)),.2);
+                    foreach(double u in new[]{.2,.8})foreach(double v in new[]{.2,.8})keySite.Add(Site(lattice.Position(key,u,v)),.2);
+                    hasKeySite=true;
                 }
                 var population=Community(region,terrain.NearestCell(lattice.Position(key)));
                 // Only storage survives a Build, never ecological values. Each
@@ -135,15 +138,17 @@ namespace WorldGen.Presentation
                 {
                     if(abundanceResultIndex==abundanceResults.Count)abundanceResults.Add(new WildlifeCommunity());
                     found=abundanceResults[abundanceResultIndex++];
-                    WildlifeAbundance.AllocateInto(population,site,abundanceWorkspace,found);
+                    WildlifeAbundance.AllocateInto(population,keySite,abundanceWorkspace,found);
                 }
-                else found=WildlifeAbundance.Allocate(population,site,abundanceWorkspace);
-                communityCache[(key,region)]=found;return found;
+                else found=WildlifeAbundance.Allocate(population,keySite,abundanceWorkspace);
+                communityCache[region]=found;return found;
             }
             double latitude=Math.Asin(center.Z)*180/Math.PI;
             foreach(bool detail in new[]{false,true})foreach(var key in lattice.Around(center,detail?220:2400,detail))
             {
-                token.ThrowIfCancellationRequested();V middle=lattice.Position(key);int cell=terrain.NearestCell(middle),region=e.Region[cell];
+                token.ThrowIfCancellationRequested();
+                communityCache.Clear();abundanceResultIndex=0;hasKeySite=false;
+                V middle=lattice.Position(key);int cell=terrain.NearestCell(middle),region=e.Region[cell];
                 var candidates=new List<int>(Pool(region,cell));
                 // Marine feeding pools are recorded on coastal land regions.
                 // Consult bounded neighboring cells, never a global coast scan.
