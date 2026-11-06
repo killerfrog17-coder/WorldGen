@@ -36,7 +36,7 @@ public static class WorldGenPerformance
     public static bool RepeatHumanOutputBinding;
     public static bool NoTerrainBufferReuse;
     public static bool ResidentCoverReuse;
-    public static bool IndexedWalkingRivers;
+    public static bool IndexedWalkingRivers=true;
     public static bool NoBuilderBufferReuse;
     public static bool StagedGroundPublication;
     public static bool KeepBackdrops;
@@ -1177,6 +1177,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true),
+            new PerfCase("travel-whip-unindexed-ground",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=true;WorldGenPerformance.IndexedWalkingRivers=false;}),
             new PerfCase("travel-whip-staged-ground",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=true),
             new PerfCase("travel-whip-retained-backdrops",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=true),
             new PerfCase("travel-whip-retained-staged",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=true),
@@ -1261,7 +1262,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.RepeatHumanOutputBinding=false;
                 WorldGenPerformance.NoTerrainBufferReuse=false;
                 WorldGenPerformance.ResidentCoverReuse=false;
-                WorldGenPerformance.IndexedWalkingRivers=false;
+                WorldGenPerformance.IndexedWalkingRivers=true;
                 WorldGenPerformance.NoBuilderBufferReuse=false;
                 WorldGenPerformance.StagedGroundPublication=false;
                 WorldGenPerformance.KeepBackdrops=false;
