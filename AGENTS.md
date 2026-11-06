@@ -49,6 +49,22 @@ weights and user worlds are not cleanup targets. Preserve Unity `.meta` GUIDs.
 
 ## Current owner work to preserve
 
+ACTIVE06Nov15:25Z SPIKES FIRST. Native cover572 current B NONDEV PASS actual
+worker upload/GPU encoded bits/cache retention/competing managed overwrite/
+cancellation/retirement; grass GPU6400roots322205pixelsPASS. Actual temperate
+60s presented-native-cover COMPLETE:171.77FPS p9511.02/max33.74ms,10frames>16.7,
+2collections. Managed heap963-1041MB vs1138-1257MB old4bbb; covercreated1.19MB
+vs260.97MB (different loading totals), reused228.41MB. MEMORY reduction proven,
+NO tail gain (old172.31/max30.07/3largeframes). New engine raw timings identify
+55.62s33.74mswall stall:31.94msGPU then29.44mspresentwait; separate19.04/40.53s
+24-27ms completed collections. Do not conflate GPU and GC; CPU clock origins
+DIFFER across managed/engine despite same10MHz frequency; align durations/order,
+not absolute raw values. No own player remains. Next Dev allocation callstack
+capture for remaining Update/worker allocations, then return FULL NONDEV before
+playtest. B not selected; A/f833/shortcut unchanged. Source pushed9f924 except
+native byte counter/comment current. Owner3files unchanged. No geography/features.
+
+
 ACTIVE06Nov SPIKES FIRST, native resident cover trial. Prior normal4bbb three-site
 60s moving/turning results: jungle181.20FPS/max39.77ms/5frames>16.7;
 temperate172.31/max30.07/3; savanna171.42/max34.70/4. 100FPS floor UNSOLVED.

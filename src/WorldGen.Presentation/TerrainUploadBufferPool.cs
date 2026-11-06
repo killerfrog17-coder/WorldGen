@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace WorldGen.Presentation
 {
     /// <summary>Bounded exact-length decoded buffers. Transport attributes use
-    /// one pool and release after native upload. Persistent cover grids use a
-    /// separate pool and an explicit TerrainCoverBuffers lease until retirement.</summary>
+    /// one pool and release after native upload. Cover grids use a separate pool and explicit TerrainCoverBuffers lease.
+    /// Unity releases that wire lease after copying to owned native residency.</summary>
     public sealed class TerrainUploadBufferPool : IDisposable
     {
         readonly object gate=new object();

@@ -172,7 +172,7 @@ public sealed partial class LocalTerrainExplorer
     }
 
     readonly System.Collections.Generic.List<double> loadingFrames=new System.Collections.Generic.List<double>();
-    public string PerformanceUploadPool=>meshProcess?.UploadBufferStatistics??"no worker";
+    public string PerformanceUploadPool=>(meshProcess?.UploadBufferStatistics??"no worker")+" native_cover_resident_bytes="+ResidentCoverBuffers.ResidentBytes;
     bool loadingProfile;
     int loadingSkip,loadingCollections;
     double largestGroundMs;
