@@ -827,8 +827,11 @@ namespace WorldGen.Core
             }
             public Surface Sample(V point,bool bare=false,double mapSpacingM=0,bool localWater=true)
             {
+                long query=TerrainQueryTiming.Begin();
                 var found=Locate(point,out double a,out double b,out double c,mapSpacingM);
+                TerrainQueryTiming.End(0,query);query=TerrainQueryTiming.Begin();
                 var pa=Profile(found.A);var pb=Profile(found.B);var pc=Profile(found.C);
+                TerrainQueryTiming.End(1,query);query=TerrainQueryTiming.Begin();
                 double pre=a*found.A.Height+b*found.B.Height+c*found.C.Height;
                 double height=a*pa.Height+b*pb.Height+c*pc.Height;
                 // Preserve accepted standing-water ground exactly; elsewhere
@@ -877,14 +880,16 @@ namespace WorldGen.Core
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
                     Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,Minimum=minimum,Maximum=maximum,
                     Flow=waterFlow,Speed=speed,Turbulence=turbulence,DetailProtection=1,Landscape=landscape,LandscapeOffset=landscapeOffset};
+                TerrainQueryTiming.End(2,query);
                 if(!bare)
                 {
                     // Overview pixels need not build metre-scale channels or
                     // the sub-metre beauty pass. Normal Sample's zero path is literal.
-                    if(mapSpacingM<=128)ApplyRiverscape(point,ref result);
-                    if(mapSpacingM<=FinestSpacingM)ApplySurfaceDetail(point,found,a,b,c,ref result);
+                    query=TerrainQueryTiming.Begin();if(mapSpacingM<=128)ApplyRiverscape(point,ref result);TerrainQueryTiming.End(3,query);
+                    query=TerrainQueryTiming.Begin();if(mapSpacingM<=FinestSpacingM)ApplySurfaceDetail(point,found,a,b,c,ref result);TerrainQueryTiming.End(4,query);
                     if(localWater&&mapSpacingM<=128&&result.Kind==LocalWaterKind.None&&landscape.Moisture>=.18)
                     {
+                        query=TerrainQueryTiming.Begin();
                         var pond=owner.smallWater.At(point,smallWaterGround);
                         if(pond==null&&landscape.Wet>=.5)pond=owner.wetlandWater.At(point,smallWaterGround);
                         if(pond!=null)
@@ -895,6 +900,7 @@ namespace WorldGen.Core
                             result.Footprint=(1-r)*pond.Radius;result.Minimum=result.Maximum=pond.Level;
                             result.Speed=result.Turbulence=0;
                         }
+                        TerrainQueryTiming.End(5,query);
                     }
                 }
                 return result;
