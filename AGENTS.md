@@ -1,5 +1,38 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov21:47Z SPIKES FIRST. B NONDEV1798f72e built21:41:24Z SourceChanges[],
+3autosrestored. Ownrunner71841/player11008 RIGHTMOST runs sequential FRESH normal
+andseparated-streaming60s temperate6kmMedium1080 withnativeGCobserver. DoNOT
+compile/overwrite/runheavyjobs untilbothcomplete. Currentcontrol warmup~250s.
+NEW UNCOMPILED source change HyperAmplification FaceRef targets family's existing
+FaceSplit weakhandle +pathlast2bits, not separateWeakReference<Face> perface;
+parent.Children shares same immutable familyhandle. Preserves existing Lease
+lifetime; no newstrongretention. Priorheap49438facehandles expectedmostlyremoved.
+Testsupdated:12addresses/4siblings share1handle, exactsiblingidentityafterGC,
+expiredfamilycollects/refreshedaddressesindependent, actualretainedfamilyproof,
+fullsamplebaseline/cache-clear/concurrentqueryequivalence. NOT RUN YET.
+After71841: dotnet handle/world tests againstexisting terrain-face-baseline.jsonl,
+thenbuildB/nativepresentedtrialONLYifPASS. Keep1798schedulingtrialOFFpendingactual
+tails. NoGCfix/100floorclaim. Owner3files/Ashortcutprotected. Sourcefamilyuncommitted.
+
+ACTIVE06Nov21:40Z SPIKES FIRST. Native-gc-phases COMPLETE normalbced:168.86FPS,
+p9510.49/p9913.56/max34.80ms,20>16.7.42events,no unmatched;5STW intervals inwindow.
+Largest34.80/30.57frames contain8.77/7.16ms native stop/resume;thread suspension
+~.26ms. This measures ONLY STW, NOT all main-thread incrementalGC work. Earlier
+Dev CollectIncremental22ms remains relevant; cannot infer remaining time is notGC.
+Incremental capture hasNO0/5 cycle events; forcedfull positivecontrol did. Mono
+GC_PRINT_STATS/GC_PRINT_VERBOSE_STATS/GC_LOG_FILE quickpositivecontrol produced
+NOcollectorlog; no further logging or environment changes retained.
+New1798f72e opt-in SeparateStreamingAndScatter DEFAULT OFF: reserve imminent
+visible-set rebuild frames from optional uploads, guaranteed opportunity100ms;
+charge actual rebuild to shared frameUpload budget. Camera/ground corrections
+remain immediate. UNVALIDATED performance, do not enable without evidence.
+B ScriptsOnly NONDEV build session71167 RUNNING; no game. Afterbuild restore3autos,
+run paired normal/separated temperate6km1080Medium60s movingwhip, comparetails
+andloading, inspectimages. No heavyjobs duringmeasure. A/f833shortcutunchanged,
+meshpoolOFF,sharedterrain/faunabudgetON. Sourcepushed1798;noteuncommitted.
+Owner3files untouched. RIGHTMOST ownvisiblewindows. No features/subagents/paid.
+
 ACTIVE06Nov21:24Z SPIKES FIRST. B ScriptsOnly NONDEVbced3044 built21:22:12Z,
 SourceChanges[],3autosrestored. Native-gc-observer-proof EXIT0:16 actual Mono
 events from2forcedcollections, all0/6/10/7/8/9/11/5 phases observed. Clock parser
