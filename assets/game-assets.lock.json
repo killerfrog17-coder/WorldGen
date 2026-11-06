@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "3d7c361f9cbbb452fc8d104199d44e99f68c03ea",
+  "source_checkpoint": "6b6678e7167760a0e25a601962baff18a6c1c113",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14301,6 +14301,24 @@
       "bytes": 1956,
       "pack": "grass-ground-inputs-20261104/assets-f0da383ef772730b3d30b24f2342767a19f09b987dd36e1070b13bf001798e01.zip",
       "member": "objects/b8430541fbb7c4dcf208b7b8825c65385ce43bdedc2d5792d13184f16a36e9de"
+    },
+    "assets-source/terrain/surfaces/cc0-moss/Moss001/Moss001_1K-JPG_Color.jpg": {
+      "sha256": "cbea8a60833b60f8bdc3073e48ba9d3963efe35dc5cca9c4d47a5a6874c6f898",
+      "bytes": 1982728,
+      "pack": "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip",
+      "member": "objects/cbea8a60833b60f8bdc3073e48ba9d3963efe35dc5cca9c4d47a5a6874c6f898"
+    },
+    "assets-source/terrain/surfaces/cc0-moss/Moss001/Moss001_1K-JPG_NormalGL.jpg": {
+      "sha256": "007cc53876eeca3a522d84e99a9495584fc15ce7e21f8b0e24dd266f2f7e591a",
+      "bytes": 2575139,
+      "pack": "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip",
+      "member": "objects/007cc53876eeca3a522d84e99a9495584fc15ce7e21f8b0e24dd266f2f7e591a"
+    },
+    "assets-source/terrain/surfaces/cc0-moss/Moss001/source.json": {
+      "sha256": "c729291c8de0ec6d2c54d29be1bd46e54534eea1cf5398bcb84d58ce4712fb59",
+      "bytes": 1034,
+      "pack": "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip",
+      "member": "objects/c729291c8de0ec6d2c54d29be1bd46e54534eea1cf5398bcb84d58ce4712fb59"
     },
     "assets-source/terrain/surfaces/cc0-regions/aerial_beach_01/Diffuse.jpg": {
       "sha256": "492b89604cd79f733557b590f561ddc9ea51739705d96d9768c4ca1614b44b60",
@@ -30712,6 +30730,12 @@
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/ed1fd0a7471cf8b5133873e1fc46587b8bdc36928607c5587644e98007ea47fb"
     },
+    "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png": {
+      "sha256": "19b8da469508807a465436036a4144836b8bdffbc339a2d1ef586f8f97e7edee",
+      "bytes": 3240594,
+      "pack": "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip",
+      "member": "objects/19b8da469508807a465436036a4144836b8bdffbc339a2d1ef586f8f97e7edee"
+    },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance.meta": {
       "sha256": "3c98ec6276d742ed9d17442ddb0f067b201515563975e7ca2c9ce59f9632617c",
       "bytes": 172,
@@ -33554,6 +33578,14 @@
       "asset_id": 709234330,
       "sha256": "4364eb81a7c551566a8acd04d5bb3ec75d1fe6fee322ae6692465dd074c234a0",
       "bytes": 34413364,
+      "encoding": "zip"
+    },
+    "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip": {
+      "tag": "terrain-moss-20261106-v1",
+      "name": "assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip",
+      "asset_id": 716313509,
+      "sha256": "c27a2276ddeffb6318c456d4db4514db2a4759c4e8a056e3645fb67ad6c1584e",
+      "bytes": 7802129,
       "encoding": "zip"
     },
     "tree-canopy-inputs-20261103/assets-c985a703135d4e33fb52817c0bc5e474312c539a5df6bc38e39ee937ca5106aa.zip": {
