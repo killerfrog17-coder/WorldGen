@@ -401,7 +401,6 @@ namespace WorldGen.Core
         }
         static void EdgeRecord(BinaryWriter writer, Edge edge)
         {
-            if (edge == null) { writer.Write((byte)0); return; }
             writer.Write((byte)1); writer.Write("WorldGen.Core.Edge");
             writer.Write("A"); Integer(writer, edge.A); writer.Write("B"); Integer(writer, edge.B); writer.Write("Id"); Integer(writer, edge.Id);
             writer.Write("LengthM"); Integer(writer, edge.LengthM); writer.Write("TriangleA"); Integer(writer, edge.TriangleA); writer.Write("TriangleB"); Integer(writer, edge.TriangleB);

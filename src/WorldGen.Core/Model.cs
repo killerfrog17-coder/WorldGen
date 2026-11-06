@@ -8,7 +8,9 @@ namespace WorldGen.Core
         public int Id; public V Position; public long AreaM2; public int[] Neighbors = Array.Empty<int>(); public int[] DistanceM = Array.Empty<int>();
     }
     [Serializable]
-    public sealed class Edge
+    // Fixed mesh topology is a six-integer record, not an identity-bearing
+    // graph node. Inline storage avoids one managed allocation per edge.
+    public struct Edge
     {
         public int Id, A, B, TriangleA, TriangleB, LengthM;
     }
