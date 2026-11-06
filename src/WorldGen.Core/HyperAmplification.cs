@@ -58,17 +58,17 @@ namespace WorldGen.Core
             readonly int root,depth;
             readonly ulong path;
             WeakReference<Face> target;
-            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth>0)target=new WeakReference<Face>(face);}
+            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth>0)target=face.Reference;}
             public FaceRef(int root){this.root=root;depth=0;path=0;}
             public bool Matches(Face face)=>root==face.Root&&depth==face.Depth&&path==face.Path;
-            public void Refresh(Face face){if(target!=null)target.SetTarget(face);}
+            public void Refresh(Face face){if(target!=null)target=face.Reference;}
             public Face Resolve(HyperAmplification owner)
             {
                 if(depth==0)return owner.RootFace(root);
                 if(target.TryGetTarget(out var face))return face;
                 face=owner.RootFace(root);
                 for(int level=1;level<=depth;level++)face=owner.Split(face).Faces[(int)((path>>((depth-level)*2))&3)];
-                target.SetTarget(face);return face;
+                target=face.Reference;return face;
             }
         }
         internal sealed class Vertex
@@ -136,6 +136,19 @@ namespace WorldGen.Core
         }
         internal sealed class Face
         {
+            WeakReference<Face> reference;
+            // All incident edges share one weak handle. Never retarget this
+            // handle: a reconstructed face owns its own, and old addresses
+            // switch to that handle without changing their other neighbours.
+            public WeakReference<Face> Reference
+            {
+                get
+                {
+                    if(reference!=null)return reference;
+                    var created=new WeakReference<Face>(this);
+                    return Interlocked.CompareExchange(ref reference,created,null)??created;
+                }
+            }
             public Vertex A, B, C;
             public Edge AB, BC, CA;
             public ulong Key;

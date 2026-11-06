@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--terrain-face-handles")){TerrainFaceHandleTests.Handles();return;}
+if(args.Contains("--terrain-face-world")){TerrainFaceHandleTests.World(args[1],args[2],args.Contains("--capture"));return;}
 if(args.Contains("--surface-edge-storage")){SurfaceEdgeStorageTests.Run();return;}
 if(args.Contains("--terrain-query-index-world")){TerrainQueryCostTests.VerifyWorld(args[1]);return;}
 if(args.Contains("--riverscape-cache")){RiverscapeCacheTests.Run(args[1]);return;}
