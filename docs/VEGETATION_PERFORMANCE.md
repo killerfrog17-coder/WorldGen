@@ -782,3 +782,25 @@ after the measured GPU drain/end timestamp. Existing captures are not rewritten.
 default remains the original eastward streaming route. Neither change affects
 ordinary gameplay. Next acceptance coverage should include other dense contexts,
 with explicit route/readiness reporting; this is not a global worst-case proof.
+
+Broader34e27143 native baseline (`presented-dense-loops`),90s each,Medium6km1080,
+180m out-and-back with rapid turns; normal automaticGC, scheduling trialOFF:
+- Jungle166.53FPS,p9510.16,p9912.65,max25.47ms,847frames>10ms,8>16.667ms.
+  Largest25.47/19.54ms frames overlap6.51/5.46ms native stops; other17ms frames
+  include visibility/update work. Screenshot remains within the forest.
+- Savanna151.78FPS,p9511.16,p9913.57,max34.64ms,1270>10ms,12>16.667ms.
+  Largest34.64/32.15ms frames have31.80/25.01ms present waits;20.17ms frame
+  overlaps6.74ms native stop. This is not a foliage-shader attribution.
+Both are streaming/unsettled during movement, not a global worst-case guarantee.
+48profile comparisons per site and24,232/23,121 readiness comparisons passed.
+Both screenshots inspected; remaining coarse dark buttresses and repetitive
+vegetation are not newly visually accepted. No visual changes in this pass.
+
+50a94f50 sparse weak-cache storage passes its standalone million-address/index/
+concurrent-publication/weak-lifetime/no-allocation checks. Actual750complete terrain
+samples across30biome/coastal sites remain identical to the pre-change baseline,
+including reverse reconstruction after eviction and4way concurrent queries.
+Logical root references399,996 now occupy36,650slots; edge references599,994 now
+occupy51,039slots, including page directories. Original weak lifetime and eviction
+policy remain unchanged. Root vertex storage is unchanged. Actual native GC/frame
+benefit remains UNMEASURED; fewer reference slots alone is not proof of a hitch fix.
