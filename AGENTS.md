@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+ACTIVE06Nov17:51Z SPIKES FIRST. B NONDEV af946f4f unchanged; own runner49603/
+player4308 RIGHTMOST running presented-flip-current60s moving temperate6kmMedium.
+NO builds/heavy jobs until it exits. BitBlt completed167.91FPS,p959.43/max40.37;
+still GPU/presentation andGC spikes, not a fix. Initial combined shell falsely
+threw after success from stale LASTEXITCODE; actual first runner/player completed
+and snapshot unchanged. Flip control launched separately. Native held-scene
+isolation complete: actual full-current187.18FPS,max36.73,2>16.667 vs held195.26,
+max20.72,1>16.667. Held peakGC; full-current42.487s peak had30.69ms presentwait,
+main3.30/render3.51ms. No fauna stream events in that settled run. Holding terrain
+is NOT a playable fix. Benchmark accidentally duplicated turning-whip-current:
+first legacy3flags201.76/15.07max, second full7flags187.18/36.73; summary retains
+both, per-case trace/capture holds SECOND. Sourcec696 removes duplicate and adds
+uniqueness guard, unbuilt. Source6282 removes2actual per-frame model-selection
+predicates (~418448bytes/10s prior diagnostic), selection order unchanged; UNBUILT.
+Source127e adds opt-in Development GPU capture and actual hierarchy GPU columns
+across threads, not CPU relabeling; UNBUILT. All pushed. After flip, first consider
+FULL normal NONDEV WITHOUT PerformancePlayer (normal FrameTimingStats OFF) to
+rule out timing instrumentation/presentation observer effects. GPU diagnostic
+if needed must be FULL Development; return FULL NONDEV afterward. No normal cap,
+queue/swapchain changes.100FPSfloor UNMET. A/f833/shortcut protected, owner3files
+untouched. No new geography/features/agents/paid/ownerappsclosed. Keep RIGHTMOST.
+
 ACTIVE06Nov17:25Z SPIKES FIRST. Untraced pacing comparison COMPLETE, all frames
 focused: current183.60FPS/p958.96/p9911.35/max22.84ms/1over16.667; cap240
 179.19/p9510.16/max30.41/15over; queue1 98.47/max29.13/62over. Trials REJECTED;
