@@ -23,10 +23,16 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         if(livingSiteWork!=null||scatter==null)return;
-        bool Needed(LivingGroup g)=>!g.Grounded&&g.Residents!=null&&g.SiteSurvey==null;
-        var group=livingOrdered.FirstOrDefault(g=>Needed(g)&&g.Situation.DistanceToPlayerM<1000&&g.Situation.Phase!=HumanCampPhase.Travelling)
-            ??livingTraces.Values.Where(g=>Needed(g)&&HumanDistance(g.Situation.Camp.Position,Position)<250).OrderBy(g=>g.TraceAge).FirstOrDefault();
-        if(group==null)return;
+        LivingGroup group=null;
+        foreach(var g in livingOrdered)
+            if(!g.Grounded&&g.Residents!=null&&g.SiteSurvey==null&&g.Situation.DistanceToPlayerM<1000&&g.Situation.Phase!=HumanCampPhase.Travelling){group=g;break;}
+        if(group==null)foreach(var g in livingTraces.Values)
+            if(!g.Grounded&&g.Residents!=null&&g.SiteSurvey==null&&HumanDistance(g.Situation.Camp.Position,Position)<250&&(group==null||g.TraceAge<group.TraceAge))group=g;
+        if(group!=null)StartLivingSiteSurvey(group);
+    }
+    // Keep the worker closure out of the per-frame no-work path.
+    void StartLivingSiteSurvey(LivingGroup group)
+    {
         livingSiteGroup=group.Situation.Band.Id;livingSiteId=group.Situation.Camp.Id;
         var situation=group.Situation;var people=group.Residents;var source=scatter;var token=cancellation.Token;double radius=group.SiteSurveyRadius,planet=frame.RadiusM;int seed=sourceWorld.Recipe.Seed;
         livingSiteWork=Task.Run(()=>

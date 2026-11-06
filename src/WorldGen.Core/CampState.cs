@@ -24,7 +24,7 @@ namespace WorldGen.Core
         public double FuelKg=>Materials.Where(CampRules.Fuel).Sum(p=>p.MassKg);
         public double BeddingDepthM=>Kind==CampKind.Bedding?Math.Min(.4,Materials.Sum(p=>p.MassKg/(p.Kind==PossessionKind.LeafLitter?45:p.Kind==PossessionKind.ReedBundle?40:CampRules.Hide(p)?650:32))/1.8):0;
         public double Stability=>Kind!=CampKind.Stake||Materials.Count==0?0:D.Clamp(EmbedM/Math.Max(.08,Materials[0].HeightM*.2)*Math.Sqrt(Materials[0].WidthM/.03)*SoilFirmness);
-        public double FuelEnergyKg=>Materials.Where(CampRules.Fuel).Sum(p=>p.MassKg*CampRules.FuelEnergy(p));
+        public double FuelEnergyKg {get{double sum=0;foreach(var p in Materials)if(CampRules.Fuel(p))sum+=p.MassKg*CampRules.FuelEnergy(p);return sum;}}
         public double FirePowerKw=>!Burning?EmberSeconds>0?.8*D.Clamp(EmberSeconds/1800):0:8*(1-Math.Exp(-FuelEnergyKg/2))*(1-Wetness*.7);
         public IEnumerable<Possession> OwnedMaterials()=>Materials.Concat(CookingItems??Enumerable.Empty<Possession>()).Concat((FrameJoints??new List<FrameJoint>()).SelectMany(j=>j.Bindings??new List<Possession>())).Concat(Blueprint?.Parts.SelectMany(p=>p.Materials)??Enumerable.Empty<Possession>());
         public CampObject Copy(){var c=(CampObject)MemberwiseClone();c.Materials=Materials.Select(p=>p.Copy()).ToList();c.CookingItems=(CookingItems??new List<Possession>()).Select(p=>p.Copy()).ToList();c.FrameJoints=(FrameJoints??new List<FrameJoint>()).Select(j=>j.Copy()).ToList();c.Blueprint=Blueprint?.Copy();return c;}

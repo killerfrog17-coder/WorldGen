@@ -12,6 +12,27 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<string,CampVisual> campVisuals=new Dictionary<string,CampVisual>();
     Material campFlameMaterial,campEmberMaterial;
     readonly Vector4[] campLightPositions=new Vector4[4],campLightColours=new Vector4[4];bool campLightTestOff;int campLightCount;
+    readonly CampObject[] nearestCampFires=new CampObject[4];
+    readonly double[] nearestCampFireDistances=new double[4];
+    int SelectCampLights()
+    {
+        int count=0;
+        foreach(var c in Camp.Objects)
+        {
+            if(c.Kind!=CampKind.Fire||!(c.FirePowerKw>0))continue;
+            double distance=(c.Position-Position).Length;
+            if(distance*frame.RadiusM>18)continue;
+            int at=count;
+            // Keep the original stable ordering for equal distances.
+            while(at>0&&distance<nearestCampFireDistances[at-1])at--;
+            if(at==4)continue;
+            for(int i=Math.Min(count,3);i>at;i--)
+            {nearestCampFires[i]=nearestCampFires[i-1];nearestCampFireDistances[i]=nearestCampFireDistances[i-1];}
+            nearestCampFires[at]=c;nearestCampFireDistances[at]=distance;count=Math.Min(count+1,4);
+        }
+        Array.Clear(nearestCampFires,count,4-count);
+        return count;
+    }
     Quaternion CampSurfaceRotation(CampObject c)
     {
         if(c.Kind==CampKind.FrameWood)return FrameRotation(c);
@@ -24,9 +45,9 @@ public sealed partial class LocalTerrainExplorer
     {
         campLightCount=0;
         if(camera==view&&!campLightTestOff)
-        foreach(var c in Camp.Objects.Where(c=>c.Kind==CampKind.Fire&&c.FirePowerKw>0).OrderBy(c=>(c.Position-Position).Length))
+        for(int i=0,count=SelectCampLights();i<count;i++)
         {
-            if((c.Position-Position).Length*frame.RadiusM>18)continue;
+            var c=nearestCampFires[i];
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);var p=transform.TransformPoint(new Vector3((float)(x-originX),(float)CampFloor(x,z)+.45f,(float)(z-originZ)));
             campLightPositions[campLightCount]=new Vector4(p.x,p.y,p.z,81);float intensity=(float)c.FirePowerKw*3*Mathf.Lerp(1,.08f,(float)(SkyFrame?.Daylight??0))*(.94f+.06f*Mathf.Sin(Time.time*13.7f));campLightColours[campLightCount]=new Vector4(intensity,intensity*.34f,intensity*.075f,1);if(++campLightCount==4)break;
         }

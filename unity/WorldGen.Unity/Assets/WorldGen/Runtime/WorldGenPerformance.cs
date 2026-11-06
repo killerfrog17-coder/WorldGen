@@ -1028,6 +1028,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
             new PerfCase("grass-approach-review",()=>{}),
             new PerfCase("ground-seam-review",()=>{}),
+            new PerfCase("camp-light-selection-verify",()=>{}),
             new PerfCase("small-plant-lighting-review",()=>{}),
             new PerfCase("tree-depth-review",()=>{}),
             new PerfCase("tree-bounded-depth",()=>Shader.SetGlobalFloat("_WorldGenTreeStableDepth",1)),
@@ -1247,6 +1248,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="burst-scatter-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter(true)+"\n");
                 if(item.Name=="burst-render-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelRenders(Path.Combine(output,"burst-renders"),true)+"\n");
                 if(item.Name=="ground-seam-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewGroundSeams(output,site.Item1)+"\n");
+                if(item.Name=="camp-light-selection-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyCampLightSelection()+"\n");
                 if(item.Name=="grass-approach-review")yield return terrainExplorer.PerformanceReviewGrassApproach(output,site.Item1);
                 if(item.Name=="tree-depth-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewTreeDepth(output,site.Item1)+"\n");
                 if(item.Name=="small-plant-lighting-review")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceReviewPlantLighting(output,site.Item1)+"\n");

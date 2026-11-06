@@ -10,6 +10,34 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
+    public string PerformanceVerifyCampLightSelection()
+    {
+        var saved=Camp.Objects.ToArray();int checkedObjects=0;
+        try
+        {
+            Camp.Objects.Clear();
+            // Reverse distances, exact ties, unlit fires, bedding and out-of-range fires.
+            for(int i=0;i<48;i++)
+            {
+                var c=new CampObject{Kind=i%7==0?CampKind.Bedding:CampKind.Fire,EmberSeconds=i%5==0?0:1500,
+                    Position=frame.Position(motion.X+(47-i)/2, motion.Z)};
+                Camp.Objects.Add(c);
+                var expected=Camp.Objects.Where(f=>f.Kind==CampKind.Fire&&f.FirePowerKw>0).OrderBy(f=>(f.Position-Position).Length)
+                    .Where(f=>(f.Position-Position).Length*frame.RadiusM<=18).Take(4).ToArray();
+                int count=SelectCampLights();
+                if(count!=expected.Length)throw new InvalidOperationException("Camp light selection count changed");
+                for(int j=0;j<count;j++){if(!ReferenceEquals(expected[j],nearestCampFires[j]))throw new InvalidOperationException("Camp light order changed");checkedObjects++;}
+            }
+            for(int i=0;i<10;i++)SelectCampLights();
+            long before=GC.GetAllocatedBytesForCurrentThread();
+            for(int i=0;i<1000;i++)SelectCampLights();
+            long allocated=GC.GetAllocatedBytesForCurrentThread()-before;
+            if(allocated!=0)throw new InvalidOperationException("Camp light query allocated "+allocated+" bytes");
+            Camp.Objects.Clear();if(SelectCampLights()!=0||nearestCampFires.Any(f=>f!=null))throw new InvalidOperationException("Camp light query retains retired fires");
+            return "PASS camp nearest-four stable selection "+checkedObjects+" original-query comparisons; 1000 warm queries "+allocated+" bytes; retired references cleared";
+        }
+        finally{Camp.Objects.Clear();Camp.Objects.AddRange(saved);SelectCampLights();}
+    }
     public IEnumerator CheckCampFlow(string output,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("CAMP "+text);report.Add("PASS "+text);Debug.Log("CAMP PASS "+text);}
