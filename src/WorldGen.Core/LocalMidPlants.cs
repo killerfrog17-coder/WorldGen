@@ -38,8 +38,8 @@ namespace WorldGen.Core
                 double pick=r.Unit()*sum;int selected=species.Length-1;for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){selected=i;break;}}
                 var s=species[selected];V east=V.Cross(Math.Abs(p.Z)<.99?new V(0,0,1):new V(0,1,0),p).Unit,north=V.Cross(p,east).Unit;
                 double delta=1/(terrain.RadiusM*scale);
-                double sx=(patch.Sample((p+east*delta).Unit).ElevationM-patch.Sample((p-east*delta).Unit).ElevationM)*.5;
-                double sz=(patch.Sample((p+north*delta).Unit).ElevationM-patch.Sample((p-north*delta).Unit).ElevationM)*.5;
+                double sx=(patch.Elevation((p+east*delta).Unit)-patch.Elevation((p-east*delta).Unit))*.5;
+                double sz=(patch.Elevation((p+north*delta).Unit)-patch.Elevation((p-north*delta).Unit))*.5;
                 if(sx*sx+sz*sz>.85*.85)continue;
                 int members=MidFlora.ColonyMembers(s.Form);
                 for(int member=0;member<members;member++)

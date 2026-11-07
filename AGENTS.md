@@ -42,6 +42,21 @@ index probes +196 exact warm/reverse complete samples PASS. Numeric index1.62MB,
 terrain). Coast32743,reader363729,transport414,planform1032 regressionsPASS.
 Next commit/build ScriptsOnly A; native GlacialTrough screenshot and landmark
 review, inspect all images BEFORE acceptance/perf. No source mutation during build.
+UPDATE08:55Z A434 built; GlacialTrough native34847 FAILED full-surrounding
+coverage gate after300s:212/424tiles,1.72kmground/1.67kmforest, no PNGs, no visual
+acceptance. Keep fail evidence. B60834 comparison COMPLETE after420s casewarmup,
+only250/514tiles,6sec162FPS/max36.32 NOTrepresentativeperformance. Thus loadcost
+predates newglacier. Own standaloneworker sweeps11225/92835 COMPLETE oldB/newA:
+terrain0.7-1.2s100mtile,scatter1.3-2s,forest1-4ms, broadlysameboth. NativeNone now.
+SourceUNBUILT optimization replaces12unusedfullsurface queries in scatter slopes
+with exact D.Q finalheight API. CurrentCore vs unchangedA434 reference9fullwire
+payloads/6680items EXACT, plus47369 broaderworker194431meshfloats/index/bounds/
+cancellation +883/92scatter +59/295forestrootsPASS. No gain claimed untilnewworker.
+Newtesthelper TerrainWorkerCostTests takes --verify-payload for exactcomparison;
+omit flag when intentionally comparing differentterrainversions. PendingNative
+review-only diagnostics adds detailed loading history/jobkeys and scalar trough
+receipt (readonlystruct previously serialized{}). Next commit/build A, measure
+same packagedworker outputs/costs, redo native largestvalley unchangedgates.
 Finish actual/native shore appearance, water/ground/root checks and moving tails
 before next feature. unity-check now passes rightmost monitor. Next priorities
 adaptive: glaciated mountain/valley character, coupled wetland/river-coast variety,

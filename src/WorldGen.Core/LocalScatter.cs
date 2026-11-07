@@ -133,8 +133,8 @@ namespace WorldGen.Core
                         // Local slope, not absolute altitude, determines whether a plant can root here.
                         V east=V.Cross(Math.Abs(p.Z)<.99?new V(0,0,1):new V(0,1,0),p).Unit,north=V.Cross(p,east).Unit;
                         double e=1.5/(terrain.RadiusM*scale);
-                        double sx=(patch.Sample((p+east*e).Unit).ElevationM-patch.Sample((p-east*e).Unit).ElevationM)/3;
-                        double sz=(patch.Sample((p+north*e).Unit).ElevationM-patch.Sample((p-north*e).Unit).ElevationM)/3;
+                        double sx=(patch.Elevation((p+east*e).Unit)-patch.Elevation((p-east*e).Unit))/3;
+                        double sz=(patch.Elevation((p+north*e).Unit)-patch.Elevation((p-north*e).Unit))/3;
                         double slope=Math.Sqrt(sx*sx+sz*sz);
                         bool tree=kind==ScatterKind.Broadleaf||kind==ScatterKind.Conifer||kind==ScatterKind.SavannaTree;
                         if((tree&&slope>.65)||(kind==ScatterKind.Grass&&slope>.9)||(kind==ScatterKind.Shrub&&slope>.8)||(!tree&&kind!=ScatterKind.Grass&&kind!=ScatterKind.Shrub&&slope>1.6))continue;

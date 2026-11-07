@@ -37,8 +37,8 @@ namespace WorldGen.Core
                 var s=species[selected];
                 V east=V.Cross(Math.Abs(p.Z)<.99?new V(0,0,1):new V(0,1,0),p).Unit,north=V.Cross(p,east).Unit;
                 double e=1.0/(terrain.RadiusM*scale);
-                double sx=(patch.Sample((p+east*e).Unit).ElevationM-patch.Sample((p-east*e).Unit).ElevationM)*.5;
-                double sz=(patch.Sample((p+north*e).Unit).ElevationM-patch.Sample((p-north*e).Unit).ElevationM)*.5;
+                double sx=(patch.Elevation((p+east*e).Unit)-patch.Elevation((p-east*e).Unit))*.5;
+                double sz=(patch.Elevation((p+north*e).Unit)-patch.Elevation((p-north*e).Unit))*.5;
                 if(sx*sx+sz*sz>.65*.65)continue;
                 double size=.78+.44*random.Unit(),tint=.91+.15*random.Unit();
                 if(biome==Biome.Tundra||biome==Biome.Alpine)size=Math.Min(size,.16/Math.Max(.01,s.HeightM));
