@@ -1,5 +1,70 @@
 # WorldGen repository instructions
 
+LATEST07Nov16:46Z OVERNIGHT until18Z/noon; onePDF END ONLY/openChromeLEFTMOST.
+Ownrunner65792/player12864 RIGHTMOST runs sand-distance-baseline-moving onA
+438e3280. Dune349.12FPS/p9910.74/max18.26/1>16.667 complete; secondGLforest
+stillwarming. DO NOT build/heavyjobs/overwrite untilfinished. B0c8shortcut
+protected. Broadnative49312 COMPLETE sixEXIT0 SandSea/SaltFlat/WarmMarsh/
+TowerKarst/Volcano/Waterfall. Dunes texturefades tooquickly; WarmMarsh cold9.5/
+warm23.2 actual, stillbasicgrassypond; karstPNGinspected, VolcanoPNGinspected.
+IMPORTANT volcano13km native exposed109.5s coarsebackdroptile. New2402edc7
+removes eagerRiverSpans from sparsefarSubpatch ONLY; mainbatchprimingretained.
+Actual3far26/52km completepayloads EXACT438->source (BuildMs ONLYnormalization)
+sparse-backdrop-rivers-proof-v1. OldReleaseworker34.84/19.25/8.56s vsnewDebug
+source9.03/7.94/2.10s; componentNOTnative/FPS. No otherhelpercurrentlyactive.
+Newsource6f6845ac+d3647158 extends existing generatedSand albedo to160m on
+Medium+openSand. Reuses SAMEclose-read, no duplicate fetch; normal/mask/extra
+rangesunchanged. Cover/canopyguard; no newassets. UNBUILT needsFULLAshaderbuild
+after65792 finishes, restore3autos; nativeSandSea/CoastalBeach/Volcano thenpaired
+same sand+GLmovingcase. No otherfeaturesuntilvalidated. Allsourcepushedd364.
+Rockcolourtrial4ae RETIRED438 (same4Corefilesexactcd2/61/55/24), don'tincludeits
+picturesasfinal. Scalarfinal7923+101466+119694+214371 PASS in0.93s.
+FinalreportJSON+12acceptedJPEG in docs/reports/geography-20261107; NO PDF yet.
+NeedlatestSand imagesifaccepted, performancefinaltable/Mango225+179rows, layout
+andvisualPDFreview, chooseAshortcutonlyacceptedbuild, finalpush. Owner3files
+untouched/no subagents/animal-human-weather-skyedits. Obsolete1.4GBrawdelete
+policyBLOCKED,file remains, no bypass; shortfinaldisclosure required. C~5GB.
+
+
+LATEST07Nov16:18Z OVERNIGHT until18Z/noon. A ScriptsOnlyNONDEV438e3280 built
+16:16:51Z SourceChanges[],3autosrestored; B0c8/shortcutprotected. EXTRArockcolour
+trial4ae RETIRED438: canyon256FPS/max14.87, forest147.88/p9915.10/max24.98/
+33>16.667 vsprior159.70/13.11/25.45/13. Visualmean~1.56RGB8bit benefit too
+subtle foruncertainty. NOcausalregression/gainclaim. Production4Corefiles
+literalEXACTcd2a61/55/24; originalshader947 retained. New native-onlyaa654
+WarmMarsh alias +actualclimatereceipt; no biome/normalgamechanges.
+Ownrunner49312/player21556 RIGHTMOST hidden broadnativeSandSea,SaltFlat,
+WarmMarsh,TowerKarst,Volcano,Waterfall. NoFPSmeasurementactive. Finalfocused
+Corecontrolssuite RUNNING; testsbuilt7.41sexit0. No builds duringnative.
+Rockcolour4contextsallEXIT0/138checks/imagesinspected but RETIRED, do not
+use its pictures/performance as final. Use retained originalaccepted source
+captures now12JPEG +JSON saved docs/reports/geography-20261107; NO PDF emitted.
+Afterbroadsweep inspect/fixobviousfaults then current movingforest validation;
+finish finalreportatend/openLEFTMOST, selectAonlyacceptedbuild, pushsource.
+~1h42to18Z; continue usefulwork, do not stop early. Owner3filesuntouched.
+No subagents/animal-human-weather-sky edits. Deleteobsolete1.4GB capturewas
+policyBLOCKED; file remains, don'tbypass; shortfinaldisclosure required.
+
+
+LATEST07Nov15:54Z OVERNIGHT until18Z/noon, onePDF AT END/ChromeLEFTMOST.
+Ownrunner38644/player5024 RIGHTMOST hidden native rock-coatings-v1: pinned
+Canyon80974 thenFjordWoodland/GlacialTrough/WavePlatform. A ScriptsOnlyNONDEV
+4ae25c2d built15:51:52Z SourceChanges[],3autosrestored; B0c8/shortcutprotected.
+Rock RGBonly126361checks/72lineagehashesPASS;24terrain physical packets vs61
+EXACT normalizingBuildMs/terrainRGB ONLY, alpha/allgeometry/water/cover retained;
+21unexposedwoodland FULLpackets EXACT. Use rock-coatings-*-physical-v2; first
+v1 mislabeled skippedscatter rows as exact, corrected diagnostic/rerunv2. Native
+and newmovingcomparisonPENDING. No runtime edits duringnative currently.
+Mango61moving COMPLETE: exact0m starts225.28FPS/p9911.84/max18.05/2>16.667;
+denser178.62/p9910.93/max16.06/0.96mapprobes/26364readinesschecksPASS,focused,
+nooverallgain/globalfloorclaim. PNGinspected. MetadataPUSHEDa60e, source4ae.
+Finalreport fivepageJSON +8embeddedJPEGinputs prepared in docs/reports/
+geography-20261107; NO PDF emitted yet. Need remaining latestcanyon/FJ/GL captures,
+addMango table rows/newrockperformance; render/review/openPDFonlyatend.
+Still~2h beforedeadline; do not stop early. Owner3files preserved, no subagents.
+Delete1.4GB obsoletecapturepolicyBLOCKED remains; do NOT bypass, finaldisclose.
+
+
 LATEST07Nov15:44Z OVERNIGHT until18Z/noon; onePDF END ONLY/ChromeLEFTMOST.
 Ownrunner86954/player27248 RIGHTMOST runs mangrove-zonation-moving-v1,
 two exact-start tidal Medium1080/6km/60s180m routes. DO NOT build/heavyjobs/

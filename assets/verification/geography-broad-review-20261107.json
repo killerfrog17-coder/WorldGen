@@ -1,0 +1,73 @@
+{
+  "source": "438e3280",
+  "status": "Six native contexts passed; retained regions reviewed alongside new geography. These are verification contexts, not six newly added features.",
+  "contexts": [
+    {
+      "kind": "sandsea",
+      "evidence": "artifacts\\landscape-20261103\\geography-broad-native-v1-20261107-sandsea",
+      "exit": 0,
+      "checks": 38,
+      "near_ready_seconds": 2.4734436,
+      "actual_landscape": "SandSea",
+      "sample_biome": "Desert",
+      "review": "Coherent crests and generated close sand; middle-distance albedo fades too early. Candidate sand-range refinement pending.",
+      "climate_receipt": "cell=46909; biome=Grassland; cold=10.4C; warm=24.5C; mean=17.900000000000002C"
+    },
+    {
+      "kind": "saltflat",
+      "evidence": "artifacts\\landscape-20261103\\geography-broad-native-v1-20261107-saltflat",
+      "exit": 0,
+      "checks": 32,
+      "near_ready_seconds": 2.5679566,
+      "actual_landscape": "SaltFlat",
+      "sample_biome": "Desert",
+      "review": "Bright polygonal crust; stylized but distinct from ordinary desert.",
+      "climate_receipt": "cell=50585; biome=Savanna; cold=17.8C; warm=22.900000000000002C; mean=20.1C"
+    },
+    {
+      "kind": "warmmarsh",
+      "evidence": "artifacts\\landscape-20261103\\geography-broad-native-v1-20261107-warmmarsh",
+      "exit": 0,
+      "checks": 22,
+      "near_ready_seconds": 2.7776669,
+      "actual_landscape": "FreshwaterMarsh",
+      "sample_biome": "Marsh",
+      "review": "Actual warm marsh climate and402nearby reeds; still looks like a grassy pond and needs a stronger vegetation art pass.",
+      "climate_receipt": "cell=39207; biome=Marsh; cold=9.5C; warm=23.200000000000003C; mean=16.8C"
+    },
+    {
+      "kind": "towerkarst",
+      "evidence": "artifacts\\landscape-20261103\\geography-broad-native-v1-20261107-towerkarst",
+      "exit": 0,
+      "checks": 30,
+      "near_ready_seconds": 2.4451679,
+      "actual_landscape": "LimestoneUpland",
+      "sample_biome": "TropicalRainforest",
+      "review": "Steep limestone towers and wooded tops remain readable; no new shape change in this review.",
+      "climate_receipt": "cell=53329; biome=TropicalRainforest; cold=16.2C; warm=23.200000000000003C; mean=19.6C"
+    },
+    {
+      "kind": "volcano",
+      "evidence": "artifacts\\landscape-20261103\\geography-broad-native-v1-20261107-volcano",
+      "exit": 0,
+      "checks": 30,
+      "near_ready_seconds": 2.6756420999999997,
+      "actual_landscape": "RockyUpland",
+      "sample_biome": "BorealForest",
+      "review": "Caldera and bare upper cone remain distinct. Large-view coarse loading is unacceptable; exact sparse-query optimization pending.",
+      "climate_receipt": "cell=113642; biome=BorealForest; cold=14.4C; warm=15.8C; mean=15.100000000000001C"
+    },
+    {
+      "kind": "waterfall",
+      "evidence": "artifacts\\landscape-20261103\\geography-broad-native-v1-20261107-waterfall",
+      "exit": 0,
+      "checks": 34,
+      "near_ready_seconds": 2.8242138999999997,
+      "actual_landscape": "RockyUpland",
+      "sample_biome": "TemperateForest",
+      "review": "Actual waterfall and river surface regression; native checks passed.",
+      "climate_receipt": "cell=162761; biome=TemperateForest; cold=4C; warm=20.3C; mean=11.600000000000001C"
+    }
+  ],
+  "limits": "Native render checks are not ordinary FPS measurements. No global100FPSfloor or finished-region-art claim."
+}

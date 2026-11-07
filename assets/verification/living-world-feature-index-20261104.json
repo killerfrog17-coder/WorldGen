@@ -301,6 +301,18 @@
       "commits":["4ae25c2d"],
       "entry":"src/WorldGen.Core/LandscapeProvince.cs",
       "notes":"RETIRED optional RGB-only field. Numerical and native checks passed but visual gain was subtle and moving forest results were worse/inconclusive. Not part of final game; original61/55/24 colour pipeline restored. Existing shader947, physical canyons/fjords and generated art retained. Evidence rock-surface-coatings-20261107.json."
+    },
+    {
+      "name":"Sparse backdrop river preparation",
+      "commits":["2402edc7"],
+      "entry":"src/WorldGen.Presentation/LocalTerrainMesh.cs",
+      "notes":"Remove eager all-river preparation from sparsely sampled large-tile subpatches; retain dense-tile batch priming. Three actual26/52km backdrop complete payloads EXACT, BuildMs only normalized. Native and moving acceptance pending. Preserve1edb dense-tile optimization if reverting. Evidence sparse-backdrop-rivers-20261107.json."
+    },
+    {
+      "name":"Generated sand detail through middle distance",
+      "commits":["6f6845ac","d3647158"],
+      "entry":"unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl",
+      "notes":"Medium+ open sand reuses existing albedo reads and extends only the dominant albedo path to160m; no new normal/mask range, texture asset or shader pass. Native/performance acceptance pending. Preserve earlier generated ground, river lighting and shader947 rock weathering if reverting. Evidence sand-distance-detail-20261107.json."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",
