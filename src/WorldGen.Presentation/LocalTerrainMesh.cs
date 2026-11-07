@@ -148,7 +148,8 @@ namespace WorldGen.Presentation
                 mesh.Normals[i * 3] = (float)(nx / length); mesh.Normals[i * 3 + 1] = (float)up; mesh.Normals[i * 3 + 2] = (float)(nz / length);
                 double snow=sample.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0;
                 var groundSurface=LocalGeology.Surface(sample.Ground,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
-                    sample.ElevationM,up,sample.OceanInfluence,snow,terrain.RadiusM*frame.HorizontalScale);
+                    sample.ElevationM,up,sample.OceanInfluence,snow,terrain.RadiusM*frame.HorizontalScale,
+                    sample.Province.RemnantExposure*(1-D.Clamp(sample.RiverSand+sample.RiverGravel)));
                 for(int layer=0;layer<4;layer++){mesh.SurfaceWeights[i*4+layer]=(float)groundSurface.Weight(layer);mesh.GroundWeightsB[i*4+layer]=(float)groundSurface.Weight(layer+4);}
                 for(int layer=0;layer<6;layer++)mesh.Lithology[i*6+layer]=(float)sample.Ground.RockWeight(layer);
                 V color = groundSurface.Color;

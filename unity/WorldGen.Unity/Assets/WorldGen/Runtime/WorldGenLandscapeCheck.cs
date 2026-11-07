@@ -416,7 +416,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(site.Landform!=null)
         {
-            yield return owner.StartCoroutine(Capture("landform-side",new Vector3(width,0,-width*.3f),true));
+            yield return owner.StartCoroutine(Capture("landform-side",new Vector3(width,0,-width*.3f),true,faceCenter:site.Outcrop!=null));
             yield return owner.StartCoroutine(Capture("landform-overview",new Vector3(-width*.5f,width*.8f,-width*1.4f)));
             yield return owner.StartCoroutine(Capture("landform-morning",new Vector3(width*.3f,width*.6f,width*1.5f),hour:9));
             if(site.Outcrop!=null)yield return owner.StartCoroutine(Capture("outcrop-base",orientation*new Vector3(0,0,(float)site.Outcrop.RadiusZ*1.16f),true,faceCenter:true));

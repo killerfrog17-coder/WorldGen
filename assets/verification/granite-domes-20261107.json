@@ -1,9 +1,10 @@
 {
   "scope": "Sparse rounded granite uplands with optional steep joint faces, generated as part of existing terrain.",
-  "status": "Core scalar and actual-world checks passed; native rendering and performance pending.",
+  "status": "Revised shape and material/vegetation fixes pass core tests. Second native review and final performance comparison pending.",
   "versions": {
-    "local": "local-terrain-granite-domes-45",
-    "amplification": "hyper-amplification-granite-domes-40"
+    "local": "local-terrain-granite-domes-46",
+    "amplification": "hyper-amplification-granite-domes-41",
+    "scatter": "local-scatter-bare-bedrock-17"
   },
   "sources": [
     {
@@ -26,18 +27,28 @@
     "Rock exposure suppresses mature rooted vegetation, with a smooth finite foot and no bare disk behind a cut face."
   ],
   "checks": {
-    "scalar": 2010,
+    "scalar": 2019,
     "actual_world_domes": 35,
     "jointed": 14,
     "terrain_samples": 2904,
-    "exposed_samples": 1441,
+    "exposed_samples": 1118,
     "mesh_triangles": 4096,
     "canonical_world_hash": "unchanged",
-    "preparation_ms_single_observation": 1716.4587
+    "preparation_ms_single_observation": 1734.3068,
+    "scatter_items_checked": 28,
+    "rooted_items_on_bare_summit": 0
   },
   "limits": [
     "Heightfield approximation cannot represent an overhang, detached slab or cave.",
     "Static landform, not a tectonic uplift, erosion or historical glacier simulation.",
     "Existing rock textures are reused; native visual acceptance is still required."
-  ]
+  ],
+  "rejected_review": {
+    "capture": "artifacts/landscape-20261103/granite-native-v1-*",
+    "reasons": [
+      "Hemisphere with narrow edge fade produced a steep annular skirt and broad cap silhouette. Replaced with a continuously rounded profile grading into its foot.",
+      "Flat exposed summit retained excessive soil and sparse herbs. Existing mesh/map material weights now honor actual remnant exposure, preserving snow and deposited alluvium; rooted scatter excludes bare summits.",
+      "Shutdown raised an AssetBundle.Unload error after the success marker. Separate teardown guard and strict failure-marker check added; original captures are not reported as passing."
+    ]
+  }
 }

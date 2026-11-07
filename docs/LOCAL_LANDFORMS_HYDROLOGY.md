@@ -1,4 +1,4 @@
-# Landforms and local water — 20 October 2026
+# Landforms and local water â€” 20 October 2026
 
 Owner-authorized large-scale relief correction plus the first shared local
 river/lake implementation. This is not a finished erosion/coastal simulation.
@@ -14,10 +14,10 @@ Generate a new procedural world to see the changed macro mountain model.
 Measured Earth relief is not multiplied or sculpted.
 
 The old default continental uplift included a factor6. New relief removes that
-factor and uses retained shortening `(.28 + 2.05*u²)*(.72 + .38*v)` across belts
+factor and uses retained shortening `(.28 + 2.05*uÂ²)*(.72 + .38*v)` across belts
 and along strike. Collision fronts use230km support times existing width
 variation, rather than520km; broad hinterland plateaus rise behind the front
-and roll off gradually. Subduction ranges use150–310km support times width
+and roll off gradually. Subduction ranges use150â€“310km support times width
 variation. Fold provenance is narrower too. Synthetic tectonic ages/coupling
 are still priors, not reconstructed plate histories.
 
@@ -101,7 +101,7 @@ Independent implementation; no reference source or assets copied.
 - [NASA Himalayan topography](https://science.nasa.gov/earth/earth-observatory/himalayan-topography-39160/): distinguish elevated plateau from the rugged southern front.
 - [USGS Appalachian geology](https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-shenandoah-national-park): older eroded ranges and resistant bedrock.
 - [NPS Texas geology](https://home.nps.gov/articles/nps-geodiversity-atlas-lyndon-b-johnson-national-historical-park-texas.htm): dissected limestone uplands, not small copies of alpine ranges.
-- [Génevaux et al.2013](https://cs.purdue.edu/homes/bbenes/papers/Genevaux13ToG.pdf): terrain/river primitives and blended carving; inspiration, not a reproduction of the paper's complete watershed synthesis.
+- [GÃ©nevaux et al.2013](https://cs.purdue.edu/homes/bbenes/papers/Genevaux13ToG.pdf): terrain/river primitives and blended carving; inspiration, not a reproduction of the paper's complete watershed synthesis.
 - [Grenier et al.2024](https://onlinelibrary.wiley.com/doi/10.1111/cgf.14992): directed multiscale patterns constrained by low-resolution relief. An independently implemented compact27-kernel oriented phasor field supplies nested ravines; it does not reproduce their Gaussian-field construction or complete method.
 - [USGS hydraulic geometry](https://pubs.usgs.gov/sir/2004/5042/): sublinear width/depth relationships; local coefficients here are illustrative, not calibrated regional regressions.
 - [NPS rocky coasts](https://www.nps.gov/articles/rocky-coast-landforms.htm) and [glacial valleys](https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm): cliff coasts and fjords need structural/glacial valley provenance, not just extra beach noise.
@@ -163,3 +163,20 @@ establish a universal frame-rate floor or resolve existing stutters.
 Primary references: USGS, Dynamic relations for deposition of sediment on floodplains
 and point bars (2018); NPS Geodiversity Atlas, Arkansas Post National Memorial.
 Source links and model limits are retained in the feature record.
+
+## Granite dome uplands (7 November 2026)
+
+Sparse granitic uplands now support rounded exposed masses, including wooded
+climates. Admission uses lithology, relief, sediment cover and wet/saline ground;
+current ice, ocean and immediately coastal sources are excluded. Some masses
+have a steep joint face. Existing dry bedrock forms retain their original seeds
+and physical shape. Terrain profiles and the existing face index carry the new
+forms, with no extra objects, materials, texture samples, draw calls or frame tick.
+
+The first native review was rejected: a narrow edge fade made a cliff ring, and
+flat summits retained too much soil and some herbs. The revised continuous crown
+and foot, explicit exposed-rock material weights, and rooted-scatter exclusion
+address those failures. Snow and deposited river sediment retain their cover.
+These are heightfield approximations, without caves or overhangs. The optional
+/landmark dome command visits an actual generated example. Native acceptance and
+performance evidence are maintained in assets/verification/granite-domes-20261107.json.

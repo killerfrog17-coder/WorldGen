@@ -119,7 +119,8 @@ namespace WorldGen.Presentation
                         if(s.Underwater)color=s.WaterKind==LocalWaterKind.Ocean?GlobeView.Elevation((int)Math.Min(-1,s.ElevationM)):new V(.055,.27,.39);
                         else
                         {
-                            var soil=LocalGeology.Surface(s.Ground,p,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?1:0,radius);
+                            var soil=LocalGeology.Surface(s.Ground,p,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?1:0,radius,
+                                s.Province.RemnantExposure*(1-D.Clamp(s.RiverSand+s.RiverGravel)));
                             var cover=GroundFlora.Surface(s.Cover,p,terrain.SourceSeed,radius,s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0,s.Biome,TreeFlora.CanopyShade(s.Forest,p,terrain.SourceSeed,radius)*TreeFlora.SlopeAdmission(up));
                             color=Mix(soil.Color,cover.Color*.90,cover.Coverage/.45);
                             var forest=TreeFlora.Surface(s.Forest,p,terrain.SourceSeed,radius,s.ElevationM,up,s.Underwater);

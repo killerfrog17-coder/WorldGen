@@ -110,7 +110,8 @@ namespace WorldGen.Presentation
                 double here=frame.SurfaceY(at,s.ElevationM);
                 double nx=(here-Height(p.X+1,p.Z)),nz=(here-Height(p.X,p.Z+1));
                 double length=Math.Sqrt(nx*nx+1+nz*nz),up=1/length;
-                var surface=LocalGeology.Surface(s.Ground,at,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0,terrain.RadiusM*frame.HorizontalScale);
+                var surface=LocalGeology.Surface(s.Ground,at,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0,terrain.RadiusM*frame.HorizontalScale,
+                    s.Province.RemnantExposure*(1-D.Clamp(s.RiverSand+s.RiverGravel)));
                 int id=samples.Count;samples.Add(s);Remember(key,id);
                 double height=frame.SurfaceY(at,s.ElevationM);
                 // Keep the existing collapsed tile perimeter exactly linear;

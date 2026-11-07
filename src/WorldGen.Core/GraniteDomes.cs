@@ -17,7 +17,9 @@ namespace WorldGen.Core
         public static double Profile(double radius)
         {
             if(radius>=1)return 0;
-            return Math.Sqrt(Math.Max(0,1-radius*radius))*(1-Smooth(.80,1,radius));
+            // A rounded convex crown grades into a concave foot. Multiplying a
+            // hemisphere by a narrow edge fade created an artificial cliff ring.
+            double t=Math.Max(0,1-radius*radius);return t*Math.Sqrt(t);
         }
         public static double JointFace(double axialCoordinate,bool jointed)
             =>jointed?Smooth(-.48,-.37,axialCoordinate):1;
