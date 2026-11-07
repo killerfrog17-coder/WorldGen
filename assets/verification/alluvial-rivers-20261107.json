@@ -41,16 +41,20 @@
     "exposed_bar_samples": 132,
     "river_ground_meshes_without_open_edges": 15,
     "canonical_world_hash": "unchanged",
-    "native_visual_and_performance": "pending"
+    "native_visual_and_performance": "pending",
+    "point_bar_mesh_checks": "Three actual point-bar meshes at102.4/64,204.8/32,3276.8/16 have finite water and contained bank edges using actual refined land triangles."
   },
   "existing_failure": {
     "test": "--water-coupling-world",
-    "location": "river-1715 x202.2874755859375 z44.44773864746094",
-    "error": "Exposed lateral water edge 0.209m above drawn bed",
-    "baseline": "Identical coordinates and height reproduced against built B0c6e90f1 assemblies in separate scratch test project. This is not introduced by the alluvial update.",
+    "original_edge_result": "The 0.209m ocean-mouth result was a diagnostic false positive: the old test interpolated the original regular grid instead of actual refined terrain triangles. Corrected to indexed triangle interpolation.",
+    "remaining_assertion": "Water shaping raised terrain instead of cutting its bed: river-2134. Reproduces with both old B0c6 assemblies and candidate, after the corrected edge check passes. Full suite therefore remains failing, not claimed accepted.",
     "evidence": [
-      "artifacts/geography-20261107/water-world.txt",
-      "artifacts/geography-20261107/water-world-baseline.txt"
+      "artifacts/geography-20261107/water-world-rendered-ground.txt",
+      "artifacts/geography-20261107/water-world-baseline-rendered.txt"
     ]
+  },
+  "visual_review": {
+    "first_alluvial_run": "Rejected: wide camera was beyond useful reveal fog and ground camera faced away from river. Framing corrected; new capture pending.",
+    "meandering_context": "Native runtime reports21checks PASS; launcher could not find a hidden window after capture. Changed offscreen script to explicit batchmode, with rightmost-monitor argument for any platform window."
   }
 }

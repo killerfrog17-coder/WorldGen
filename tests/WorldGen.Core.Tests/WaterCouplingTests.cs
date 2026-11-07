@@ -183,20 +183,35 @@ static class WaterCouplingTests
         Console.WriteLine("PASS "+checks+" water coupling checks");
     }
 
-    static int ContainedBoundary(LocalTerrainMesh mesh,Func<double,double,double,bool> include=null,Action<double,double,double> trace=null)
+    internal static int ContainedBoundary(LocalTerrainMesh mesh,Func<double,double,double,bool> include=null,Action<double,double,double> trace=null)
     {
         var incidence=new Dictionary<(int,int),int>();
         void Edge(int a,int b){var pair=(Math.Min(a,b),Math.Max(a,b));incidence.TryGetValue(pair,out int count);incidence[pair]=count+1;}
         for(int k=0;k<mesh.WaterTriangles.Length;k+=3)
         {int a=mesh.WaterTriangles[k],b=mesh.WaterTriangles[k+1],c=mesh.WaterTriangles[k+2];Edge(a,b);Edge(b,c);Edge(c,a);}
-        double Ground(double x,double z)
+        const int binSide=16;var landBins=new List<int>[binSide*binSide];
+        int Bin(double coordinate)=>Math.Clamp((int)Math.Floor(coordinate/mesh.SizeM*binSide),0,binSide-1);
+        for(int k=0;k<mesh.Triangles.Length;k+=3)
         {
-            int n=mesh.Segments,side=n+1;double gx=x/mesh.SizeM*n,gz=z/mesh.SizeM*n;
-            int a=Math.Max(0,Math.Min(n-1,(int)Math.Floor(gx))),b=Math.Max(0,Math.Min(n-1,(int)Math.Floor(gz)));
-            double u=gx-a,v=gz-b;
-            var p=mesh.Positions;double h00=p[(b*side+a)*3+1],h10=p[(b*side+a+1)*3+1],h01=p[((b+1)*side+a)*3+1];
-            if(u+v<=1)return h00+(h10-h00)*u+(h01-h00)*v;
-            double h11=p[((b+1)*side+a+1)*3+1];return h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
+            int a=mesh.Triangles[k]*3,b=mesh.Triangles[k+1]*3,c=mesh.Triangles[k+2]*3;var p=mesh.Positions;
+            int x0=Bin(Math.Min(p[a],Math.Min(p[b],p[c]))),x1=Bin(Math.Max(p[a],Math.Max(p[b],p[c])));
+            int z0=Bin(Math.Min(p[a+2],Math.Min(p[b+2],p[c+2]))),z1=Bin(Math.Max(p[a+2],Math.Max(p[b+2],p[c+2])));
+            for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)(landBins[z*binSide+x]??=new List<int>()).Add(k);
+        }
+        double RenderedGround(double x,double z)
+        {
+            // River refinement adds vertices and triangles; the original four
+            // grid heights no longer describe the actual drawn surface.
+            var p=mesh.Positions;var indices=mesh.Triangles;
+            foreach(int k in landBins[Bin(z)*binSide+Bin(x)]??Enumerable.Empty<int>())
+            {
+                int a=indices[k]*3,b=indices[k+1]*3,c=indices[k+2]*3;
+                double bx=p[b]-p[a],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cz=p[c+2]-p[a+2],det=bx*cz-bz*cx;
+                if(Math.Abs(det)<1e-12)continue;
+                double u=((x-p[a])*cz-(z-p[a+2])*cx)/det,v=(bx*(z-p[a+2])-bz*(x-p[a]))/det;
+                if(u>=-1e-6&&v>=-1e-6&&u+v<=1.000001)return p[a+1]+u*(p[b+1]-p[a+1])+v*(p[c+1]-p[a+1]);
+            }
+            throw new Exception("No actual drawn land triangle beneath tested water edge");
         }
         int checkedEdges=0;
         bool Covered(double x,double z,double y,double edgeX,double edgeZ)
@@ -224,7 +239,7 @@ static class WaterCouplingTests
             double margin=Math.Max(.0001,mesh.SizeM*.000001);
             if(x<=margin||z<=margin||x>=mesh.SizeM-margin||z>=mesh.SizeM-margin)continue;
             if(mesh.Positions.Length==9&&Math.Abs(x+z-mesh.SizeM)<margin)continue;
-            double ground=mesh.Positions.Length==9?-2+.75*x:Ground(x,z);
+            double ground=mesh.Positions.Length==9?-2+.75*x:RenderedGround(x,z);
             // Conservative underlap gives adjacent triangles unequal hidden
             // edge lengths. A one-incidence index edge is not an exposed edge
             // if water actually covers BOTH sides of its midpoint.
