@@ -22,6 +22,7 @@ public static class PdfReportWindows {
  [DllImport("user32.dll")] static extern bool AttachThreadInput(uint a,uint b,bool on);
  [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
  [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr h,IntPtr after,int x,int y,int w,int hgt,uint flags);
+ [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h,int command);
  public static IntPtr[] Chrome() {
   var windows=new List<IntPtr>();EnumWindows((h,p)=>{var s=new StringBuilder(256);GetClassName(h,s,256);if(IsWindowVisible(h)&&s.ToString()=="Chrome_WidgetWin_1"){var title=new StringBuilder(1024);GetWindowText(h,title,1024);uint id;GetWindowThreadProcessId(h,out id);try{if(System.Diagnostics.Process.GetProcessById((int)id).ProcessName=="chrome"&&title.ToString().Contains("Google Chrome"))windows.Add(h);}catch{}}return true;},IntPtr.Zero);return windows.ToArray();
  }
@@ -55,7 +56,20 @@ if($target -and [PdfReportWindows]::Activate($target)){
     Start-Process -FilePath $chrome -ArgumentList @('--new-window','--new-tab',('--window-position='+$x+','+$y),('--window-size='+$w+','+$h),('"'+$uri+'"')) -WindowStyle Normal | Out-Null
     for($attempt=0;$attempt -lt 50;$attempt++){
         $new=[PdfReportWindows]::Chrome()|Where-Object {$_ -notin $known}|Select-Object -First 1
-        if($new){[void][PdfReportWindows]::SetWindowPos($new,[IntPtr]::Zero,$x,$y,$w,$h,0x0040);Write-Output 'Opened PDF in a new Chrome window/tab on the leftmost monitor.';break}
+        if($new){
+            # Chrome can initially expose a transient window and then restore saved
+            # maximized bounds. Position the settled report window after navigation.
+            Start-Sleep -Seconds 2
+            $new=[PdfReportWindows]::Chrome()|Where-Object {$_ -notin $known}|Select-Object -First 1
+            if(!$new){continue}
+            [void][PdfReportWindows]::ShowWindow($new,9)
+            [void][PdfReportWindows]::SetWindowPos($new,[IntPtr]::Zero,$x,$y,$w,$h,0x0040)
+            $placed=New-Object PdfReportWindows+Rect
+            [void][PdfReportWindows]::GetWindowRect($new,[ref]$placed)
+            $center=($placed.Left+$placed.Right)/2
+            if($center -lt $left.Bounds.Left -or $center -ge $left.Bounds.Right){throw 'Report window did not remain on the leftmost monitor'}
+            Write-Output 'Opened PDF in a new Chrome window/tab on the leftmost monitor.';break
+        }
         Start-Sleep -Milliseconds 100
     }
     if(!$new){throw 'Could not verify the new report window'}
