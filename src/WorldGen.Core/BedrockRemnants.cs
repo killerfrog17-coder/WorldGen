@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace WorldGen.Core
 {
-    /// <summary>Sparse resistant bedrock masses in admitted dry geology. Coarse
+    /// <summary>Sparse resistant bedrock masses in admitted geology. Coarse
     /// cells select candidates by physical area; indexed finite footprints own
     /// local relief, instead of turning every noise crest into another hill.</summary>
     public sealed class BedrockRemnants
@@ -12,12 +12,17 @@ namespace WorldGen.Core
         public sealed class Outcrop
         {
             public int Cell;public V Center,Axis,Side;
-            public double RadiusX,RadiusZ,HeightM;public bool Blocky;
+            public double RadiusX,RadiusZ,HeightM;public bool Blocky,Dome,Jointed;
             public double RadiusM=>Math.Max(RadiusX,RadiusZ);
             public double Coordinate(V p,double radius)
             {
                 V d=(p-Center)*radius;double x=Dot(d,Axis)/RadiusX,z=Dot(d,Side)/RadiusZ;
                 double phase=(Rng.Mix((uint)Cell)&1023)*.006135923;
+                if(Dome)
+                {
+                    x/=1+.035*Math.Sin(z*3.2+phase);z/=1+.045*Math.Sin(x*2.7-phase);
+                    return Math.Sqrt(x*x+z*z);
+                }
                 // Uneven shoulders and vertical runoff flutes break the old
                 // perfect loaf/cylinder silhouette. All are metre-addressed
                 // through the form's physical axes, with unchanged finite support.
@@ -30,11 +35,13 @@ namespace WorldGen.Core
             public double Cap(V p,double radius)
             {
                 V d=(p-Center)*radius;double x=Dot(d,Axis)/RadiusX,z=Dot(d,Side)/RadiusZ;
-                return 1+.025*x-.03*z+.025*Math.Sin(x*3+z*2+Cell*.37);
+                double cap=1+.025*x-.03*z+.025*Math.Sin(x*3+z*2+Cell*.37);
+                return Dome?cap*GraniteDomes.JointFace(x,Jointed):cap;
             }
             public double Profile(double r)
             {
                 if(r>=1)return 0;
+                if(Dome)return GraniteDomes.Profile(r);
                 return (.68+.32*Math.Sqrt(Math.Max(0,1-r*r)))*(1-RiverscapeKernel.Smooth((r-.78)/.22));
             }
         }
@@ -49,11 +56,14 @@ namespace WorldGen.Core
             for(int cell=0;cell<profiles.Length;cell++)
             {
                 if((cell&4095)==0)token.ThrowIfCancellationRequested();
-                var profile=profiles[cell];if(profile.Landscape.Remnant<.45||world.ElevationM[cell]<20||world.Hydrology.OceanConnected[cell])continue;
+                var profile=profiles[cell];if(world.ElevationM[cell]<20||world.Hydrology.OceanConnected[cell])continue;
+                bool dry=profile.Landscape.Remnant>=.45;
+                double domeAdmission=dry?0:GraniteDomes.Admission(profile);if(!dry&&domeAdmission<=.01)continue;
                 bool coastal=false;foreach(int n in world.Surface.Cells[cell].Neighbors)if(world.Hydrology.OceanConnected[n]){coastal=true;break;}if(coastal)continue;
-                V center=world.Surface.Cells[cell].Position;var random=new Rng(world.Recipe.Seed,"bedrock-remnant-1",cell);
+                V center=world.Surface.Cells[cell].Position;var random=new Rng(world.Recipe.Seed,dry?"bedrock-remnant-1":"granite-dome-1",cell);
                 double province=OrogenMorphology.Smooth(.50,.75,.5+.5*SphereNoise.Sample(center*radius,world.Recipe.Seed^0x6c251,1/14000d));
-                double chance=world.Surface.Cells[cell].AreaM2*scale*scale/250000000d*province*profile.Landscape.Remnant;
+                double chance=dry?world.Surface.Cells[cell].AreaM2*scale*scale/250000000d*province*profile.Landscape.Remnant
+                    :world.Surface.Cells[cell].AreaM2*scale*scale/500000000d*province*domeAdmission;
                 if(random.Unit()>=Math.Min(.2,chance))continue;
                 V east=V.Tangent(center,new V(0,0,1));if(east.Length<.5)east=V.Tangent(center,new V(1,0,0));
                 V north=V.Cross(center,east).Unit;double angle=random.Unit()*Math.PI*2;
@@ -61,9 +71,10 @@ namespace WorldGen.Core
                 double offset=Math.Min(3000,Math.Sqrt(world.Surface.Cells[cell].AreaM2)*scale*.35);
                 center=(center+east*((random.Unit()*2-1)*offset/radius)+north*((random.Unit()*2-1)*offset/radius)).Unit;
                 axis=V.Tangent(center,axis).Unit;
-                double a=450+750*random.Unit(),b=a*(.35+.35*random.Unit());
+                double a=dry?450+750*random.Unit():500+950*random.Unit(),b=a*(dry?.35+.35*random.Unit():.65+.30*random.Unit());
                 var form=new Outcrop{Cell=cell,Center=center,Axis=axis,Side=V.Cross(center,axis).Unit,RadiusX=a,RadiusZ=b,
-                    HeightM=Math.Min(420,b*(.55+.35*random.Unit())),Blocky=random.Unit()<(profile.Ground.RockWeight(2)>.4?.55:.25)};
+                    HeightM=dry?Math.Min(420,b*(.55+.35*random.Unit())):Math.Min(650,b*(.35+.40*random.Unit())),
+                    Blocky=dry&&random.Unit()<(profile.Ground.RockWeight(2)>.4?.55:.25),Dome=!dry,Jointed=!dry&&random.Unit()<.35};
                 int index=forms.Count;forms.Add(form);var queue=new Queue<int>();var visited=new HashSet<int>();queue.Enqueue(cell);visited.Add(cell);
                 while(queue.Count>0)
                 {
@@ -88,8 +99,8 @@ namespace WorldGen.Core
             foreach(int index in candidates)
             {
                 var form=Forms[index];double r=form.Coordinate(point,radius);if(r>=1)continue;
-                double shape=form.Profile(r);relief=Math.Max(relief,form.HeightM*shape*form.Cap(point,radius));
-                exposure=Math.Max(exposure,OrogenMorphology.Smooth(.02,.25,shape));
+                double shape=form.Profile(r),cap=form.Cap(point,radius);relief=Math.Max(relief,form.HeightM*shape*cap);
+                exposure=Math.Max(exposure,OrogenMorphology.Smooth(.02,.25,form.Dome?shape*cap:shape));
             }
             return ground+relief;
         }

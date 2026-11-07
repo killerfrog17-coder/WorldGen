@@ -9,11 +9,11 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NaturalLandmark {public string Name;public V Point,Focus;public double FocusM;}
     Task<NaturalLandmark> landmarkSearch;int landmarkGeneration;
-    const string LandmarkUsage="/landmark volcano | waterfall | canyon | outcrop | karst";
+    const string LandmarkUsage="/landmark volcano | waterfall | canyon | outcrop | dome | karst";
     PlayCommandResult ExecuteLandmark(string[] words)
     {
         if(words.Length!=2)return new PlayCommandResult(words.Length==1,LandmarkUsage);
-        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","outcrop","karst"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
+        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","outcrop","dome","karst"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
         if(!Ready||sourceWorld==null)return new PlayCommandResult(false,"Terrain is not ready yet.");
         if(landmarkSearch!=null)return new PlayCommandResult(false,"A landmark search is already running.");
         var model=terrain;var world=sourceWorld;double scale=HorizontalScale;landmarkGeneration=generation;
@@ -34,10 +34,10 @@ public sealed partial class LocalTerrainExplorer
             var rim=(form.Center+form.Axis*(form.RadiusM*form.CraterFraction*1.05/radius)).Unit;
             var site=Site(form.Form+" "+form.FeatureId,rim,form.Center);if(site!=null)return site;
         }
-        if(kind=="outcrop")foreach(var form in model.Amplification.Remnants.Forms.OrderByDescending(f=>f.HeightM).Take(128))
+        if(kind=="outcrop"||kind=="dome")foreach(var form in model.Amplification.Remnants.Forms.Where(f=>f.Dome==(kind=="dome")).OrderByDescending(f=>f.HeightM).Take(128))
         {
             var point=(form.Center+form.Side*(form.RadiusZ*1.3/radius)).Unit;
-            var site=Site("Bedrock outcrop "+form.Cell,point,form.Center);if(site!=null)return site;
+            var site=Site((form.Dome?"Granite dome ":"Bedrock outcrop ")+form.Cell,point,form.Center);if(site!=null)return site;
         }
         if(kind=="canyon")foreach(var form in model.Amplification.Canyons.Reaches.OrderByDescending(f=>f.Strength*f.Relief).Take(80))
         {

@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+ACTIVE07Nov04:33Z ENVIRONMENT/GEOGRAPHY owner explicitly resumed. Alluvial
+corridor source and evidence pushed5dd92d53; B8f758a98 NONDEV built04:07:30Z,
+3Unityautos restored. NativeAlluvialRiver/MeanderingRiver v2 EXIT0, images viewed;
+bar vegetation fixed. Paired river251.20->247.94FPS with sameGPU/percentiles;
+after65ms main outlier not reproduced by diagnostic repeat215.88FPS/max20.23,
+4>16.667, largest overlaps7.53ms nativeGC stop/resume. No universal100floor or
+GC cure claimed. Source river-query cost unchanged. Full facts feature manifest.
+CURRENT own runner60813/player6452 RIGHTMOST running granite-before, same frozen
+B8f no dome code: Medium6km1080/60s180mtravelwhip, site granite-survey/sites.json.
+Do NOT compile/overwriteB/heavytests until exit. A/f833/shortcut untouched.
+UNCOMMITTED granite dome feature source: BedrockRemnants, newGraniteDomes,
+LocalTerrain45/Hyper40, /landmark dome, nativeGraniteDome review and tests.
+Core2010PASS; actualworld35domes/14jointed,2904samples/1441exposed,4096triangles,
+worldhashunchanged; preparation1.72sec single observation. Native NOT YET BUILT.
+Shared existing terrain/spatial index/materials, no newobjects/draws/frame ticks.
+Next finish baseline60813, focusedcommit+push, ScriptsOnly NONDEV B build,
+restore3knownUnityautos, nativeGraniteDome screenshot review, then same afterFPS.
+Need inspect actual silhouette/rock textures; not accepted by code tests alone.
+No subagents, paid use, ownerappclosure; ownerprompt deletion +2deerscripts intact.
+All visible own windows RIGHTMOST. Artifacts disposable, only2reusable buildslots.
+
 ACTIVE07Nov04:06Z ENVIRONMENT/GEOGRAPHY explicitlyresumed byowner; performance
 accepted fornow, preservebudget. No game/Editor active. NextbuildB pending for
 newalluvialplantgates. Source542801b8 implementslocalriverbars+bankmaterials,

@@ -84,9 +84,9 @@ public sealed partial class LocalTerrainExplorer
                     }
                 }
             }
-            else if(kind=="Inselberg")
+            else if(kind=="Inselberg"||kind=="GraniteDome"||kind=="JointedDome")
             {
-                foreach(var outcrop in model.Amplification.Remnants.Forms.OrderByDescending(f=>f.HeightM))
+                foreach(var outcrop in model.Amplification.Remnants.Forms.Where(f=>f.Dome==(kind!="Inselberg")&&(kind!="JointedDome"||f.Jointed)).OrderByDescending(f=>f.HeightM))
                 {
                     var sample=model.Patch(outcrop.Center,30000).Sample(outcrop.Center);
                     if(sample.Underwater||sample.Province.RemnantExposure<.9)continue;
@@ -420,6 +420,12 @@ public sealed partial class LocalTerrainExplorer
             yield return owner.StartCoroutine(Capture("landform-overview",new Vector3(-width*.5f,width*.8f,-width*1.4f)));
             yield return owner.StartCoroutine(Capture("landform-morning",new Vector3(width*.3f,width*.6f,width*1.5f),hour:9));
             if(site.Outcrop!=null)yield return owner.StartCoroutine(Capture("outcrop-base",orientation*new Vector3(0,0,(float)site.Outcrop.RadiusZ*1.16f),true,faceCenter:true));
+            if(site.Outcrop!=null&&site.Outcrop.Dome)
+            {
+                var axis=site.Outcrop.Axis;
+                var offset=new Vector3((float)V.Dot(axis,owner.frame.East),0,(float)V.Dot(axis,owner.frame.North))*(float)(-site.Outcrop.RadiusX*.85);
+                yield return owner.StartCoroutine(Capture("dome-joint-face",offset,true,faceCenter:true));
+            }
         }
         if(site.Fall.HasValue)
         {
@@ -466,7 +472,7 @@ public sealed partial class LocalTerrainExplorer
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
         // is recorded, so its teleport cannot contaminate the reviewed cameras.
-        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="Inselberg"?"outcrop":kind=="TowerKarst"?"karst":null;
+        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="Inselberg"?"outcrop":kind=="GraniteDome"||kind=="JointedDome"?"dome":kind=="TowerKarst"?"karst":null;
         if(landmarkKind!=null)
         {
             var command=owner.ExecuteExplorerCommand("/landmark "+landmarkKind);

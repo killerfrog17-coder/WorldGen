@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--granite-domes")){GraniteDomeTests.Run();return;}
+if(args.Contains("--granite-dome-world")){GraniteDomeTests.World(args[1],args[2]);return;}
 if(args.Contains("--alluvial-rivers")){RiverAlluviumTests.Run();return;}
 if(args.Contains("--alluvial-world")){RiverAlluviumTests.World(args[1],args[2]);return;}
 if(args.Contains("--scatter-priority")){ScatterPriorityTests.Run(args[1]);return;}

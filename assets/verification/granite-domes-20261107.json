@@ -1,0 +1,43 @@
+{
+  "scope": "Sparse rounded granite uplands with optional steep joint faces, generated as part of existing terrain.",
+  "status": "Core scalar and actual-world checks passed; native rendering and performance pending.",
+  "versions": {
+    "local": "local-terrain-granite-domes-45",
+    "amplification": "hyper-amplification-granite-domes-40"
+  },
+  "sources": [
+    {
+      "url": "https://www.nps.gov/yose/learn/nature/geology-exhibits.htm",
+      "use": "Granitic joint patterns and exfoliation produce rounded summits and steep fractured faces."
+    },
+    {
+      "url": "https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-yosemite-national-park",
+      "use": "Granitic uplands can retain forest around exposed rock masses; do not restrict all prominent bedrock to deserts."
+    }
+  ],
+  "placement": [
+    "Granitic bedrock predominance, substantial relief, low sediment cover, nonmarsh and nonsaline ground.",
+    "Exclude current icefields, ocean and immediately coastal source cells.",
+    "Sparse physical-area sampling inside coherent geological provinces; not one monument per biome or noise crest."
+  ],
+  "rendering": [
+    "Existing terrain mesh, lithology layers and indexed finite footprints.",
+    "No new scenery objects, materials, alpha foliage, texture samples, draw calls or frame tick.",
+    "Rock exposure suppresses mature rooted vegetation, with a smooth finite foot and no bare disk behind a cut face."
+  ],
+  "checks": {
+    "scalar": 2010,
+    "actual_world_domes": 35,
+    "jointed": 14,
+    "terrain_samples": 2904,
+    "exposed_samples": 1441,
+    "mesh_triangles": 4096,
+    "canonical_world_hash": "unchanged",
+    "preparation_ms_single_observation": 1716.4587
+  },
+  "limits": [
+    "Heightfield approximation cannot represent an overhang, detached slab or cave.",
+    "Static landform, not a tectonic uplift, erosion or historical glacier simulation.",
+    "Existing rock textures are reused; native visual acceptance is still required."
+  ]
+}
