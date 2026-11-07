@@ -7,6 +7,7 @@ param(
     [switch]$GrassReview,
     [switch]$TreeShadowReview,
     [switch]$BarkReview,
+    [switch]$WaterShadingReview,
     [ValidateRange(0,4)][int]$PlantQuality=3
 )
 $ErrorActionPreference='Stop'
@@ -31,6 +32,7 @@ foreach($kind in $Kinds){
     if($GrassReview){$arguments+='--worldgen-grass-review'}
     if($TreeShadowReview){$arguments+='--worldgen-tree-shadow-review'}
     if($BarkReview){$arguments+='--worldgen-bark-review'}
+    if($WaterShadingReview){$arguments+='--worldgen-water-shading-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
     $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
     Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()

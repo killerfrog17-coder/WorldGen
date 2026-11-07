@@ -348,6 +348,24 @@ public sealed partial class LocalTerrainExplorer
                 fallMotionPixels=pixels;
             }
             Destroy(image);RenderTexture.active=prior;
+            if(name=="valley-axis"&&arguments.Contains("--worldgen-water-shading-review"))
+            {
+                var waterMaterials=owner.tiles.Values.Where(t=>t.Materials!=null).SelectMany(t=>t.Materials).Where(m=>m!=null&&m.shader.name=="WorldGen/WaterSurface").Distinct().ToArray();
+                Check(waterMaterials.Length>0,"Water shading review finds actual uploaded water materials");
+                string[] modes={"geometry-normal","ripple-normal","depth","flow"};
+                try
+                {
+                    foreach(var material in waterMaterials)material.EnableKeyword("WORLDGEN_WATER_REVIEW");
+                    for(int mode=0;mode<modes.Length;mode++)
+                    {
+                        foreach(var material in waterMaterials)material.SetFloat("_WaterReview",mode+1);
+                        owner.view.Render();RenderTexture.active=target;
+                        var diagnostic=new Texture2D(1536,864,TextureFormat.RGB24,false);diagnostic.ReadPixels(new Rect(0,0,1536,864),0,0);diagnostic.Apply();
+                        File.WriteAllBytes(Path.Combine(output,"water-"+modes[mode]+".png"),diagnostic.EncodeToPNG());Destroy(diagnostic);RenderTexture.active=prior;
+                    }
+                }
+                finally{foreach(var material in waterMaterials){material.SetFloat("_WaterReview",0);material.DisableKeyword("WORLDGEN_WATER_REVIEW");}}
+            }
             if(name=="wide"&&site.Landform=="TowerKarst")
             {
                 // Diagnose silhouettes against the ACTUAL resident triangles,

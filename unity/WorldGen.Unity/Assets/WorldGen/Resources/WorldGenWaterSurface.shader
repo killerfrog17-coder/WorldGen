@@ -4,6 +4,7 @@ Shader "WorldGen/WaterSurface"
  {
   _Water("Water",Float)=1 _WaterNormals("Water slopes",2D)="gray"{}
   [HideInInspector] _SwellScale("Swell displacement",Float)=1
+  [HideInInspector] _WaterReview("Water review",Float)=0
   _FogDistance("Fog distance",Float)=200000 _FogColor("Sky colour",Color)=(.57,.69,.76,1)
   _AmbientTint("Ambient",Color)=(.12,.14,.17,1) _Daylight("Daylight",Float)=1
   [HideInInspector] _TerrainSceneEnabled("Shared scene",Float)=0
@@ -25,6 +26,7 @@ Shader "WorldGen/WaterSurface"
    #pragma target 3.5
    #pragma vertex vert
    #pragma fragment frag
+   #pragma multi_compile_local_fragment _ WORLDGEN_WATER_REVIEW
    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
@@ -35,6 +37,9 @@ Shader "WorldGen/WaterSurface"
    #include "WorldGenWaterMotion.hlsl"
    TEXTURE2D(_WaterNormals);SAMPLER(sampler_WaterNormals);
    Texture2D<float4> _TerrainCoverage,_CoverageFadeTimes;
+   #if defined(WORLDGEN_WATER_REVIEW)
+   float _WaterReview;
+   #endif
    struct A {float4 positionOS:POSITION;float4 color:COLOR;};
    struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float4 data:TEXCOORD1;float2 coverage:TEXCOORD2;};
    O vert(A v)
@@ -74,6 +79,9 @@ Shader "WorldGen/WaterSurface"
     float2 slope=lerp(Slopes((p-flow*(phase*6))*.42),Slopes((p-flow*(other*6))*.42),blend);
     slope+=Slopes((p+float2(-flow.y,flow.x)*_Time.y*.2)*.09)*.4;
     float3 normal=normalize(cross(ddy(i.position),ddx(i.position)));if(normal.y<0)normal=-normal;
+    #if defined(WORLDGEN_WATER_REVIEW)
+    float3 geometricNormal=normal;
+    #endif
     float explicitFall=river*step(2.05,i.data.a);
     float turbulence=lerp(saturate(i.data.z),.85,explicitFall);
     float falling=river*max(explicitFall,smoothstep(.20,.65,1-abs(normal.y)));
@@ -84,6 +92,12 @@ Shader "WorldGen/WaterSurface"
     float2 screen=i.positionCS.xy/_ScaledScreenParams.xy;float raw=SampleSceneDepth(screen);
     float eyeDepth=LinearEyeDepth(raw,_ZBufferParams),surfaceDepth=-TransformWorldToView(i.position).z;
     float thickness=max(0,eyeDepth-surfaceDepth);
+    #if defined(WORLDGEN_WATER_REVIEW)
+    if(_WaterReview>.5&&_WaterReview<1.5)return half4(saturate(float3(.5+geometricNormal.x*3,.5+geometricNormal.z*3,.5)),1);
+    if(_WaterReview>1.5&&_WaterReview<2.5)return half4(saturate(float3(.5+normal.x,.5+normal.z,.5)),1);
+    if(_WaterReview>2.5&&_WaterReview<3.5)return half4(saturate(thickness/5).xxx,1);
+    if(_WaterReview>3.5)return half4(saturate(float3(.5+flow.x*.1,.5+flow.y*.1,turbulence)),1);
+    #endif
     float2 refracted=clamp(screen+normal.xz*.008*saturate(thickness),.001,.999);
     if(LinearEyeDepth(SampleSceneDepth(refracted),_ZBufferParams)<surfaceDepth)refracted=screen;
     float3 behind=SampleSceneColor(refracted),fog=TerrainFogColor().rgb;
