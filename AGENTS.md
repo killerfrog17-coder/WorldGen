@@ -1,5 +1,75 @@
 # WorldGen repository instructions
 
+ACTIVE07Nov23:44Z — B FULL Mono NONDEV b12f41d5 built23:42:24Z clean,
+3Unityautosrestored. Ownrunner68882/player2300 RIGHTMOST hidden runs native
+cliff-candidate-v2-20261107-canyon on SAME playable200k seed73421 year0 world.
+Do NOT overwrite B/build until exit. Source immutable b12, tests20898PASS
+after FINAL normalized9meshes,262actualcliffs. Current shape3200/1050/260tris.
+First lego14825 native EXIT0 but VISUALLY REJECTED; don't reuse its screenshots
+as success. Revised3CC0 scans +existing generated textures +corrected albedo
+are only now being visually tested. Need inspect ALLnew cliff mass/roof shots.
+Source4files8.46MB uploaded+downloadSHAverified release asset-dependencies-cliffs-
+20261107; merged into main asset lock5902files; layout6509PASS. Git source+runtime
+meshes pushedb12; mainlock,publicationproof,newUnitymetas currentlyuncommitted.
+Publisher delta lock assets/verification/cliff-geometry-source.lock.json keeps
+source-only provenance; all original pack bindings preserved. No source/artifacts
+dependency. Confirm native roof collider/appearance then coast+forest regressions
+and paired60s moving tests at actualcanyon+forest beforepromotingB. A protected.
+No other own game currently. Owner3files intact; no subagents. OnefinalPDF only.
+
+ACTIVE 07Nov23:42Z — seams/rocky cliffs, NOT delivered yet. Selected A/8c75
+protected. Own FULL Mono NONDEV B build8375 RUNNING from b12f41d5; no game.
+Do not mutate runtime during compile. Restore3known Unity autos after exit.
+Seam source e8bff421 terrain62/wire10 PASS176pure+176actual200k/814local/
+25796allocation. Exact normals/material/cover C0 at mixed edges; point corner
+constraints do not alter geometric edge grids. Keep water-root channel13 gate.
+Baseline native A playable200k Canyon143181 EXIT0 screenshots available under
+artifacts/landscape-20261103/cliff-before-playable-20261107-canyon.
+Prototype14825 B v1 NativeEXIT0/roofcollisionPASS but VISUALLY REJECTED: lego
+blocks and black duplicated albedo. NOT accepted, do not select that package.
+New b12 replaces those forms with3CC0 PolyHaven scanned geometries, mirrored,
+closed in Blender and decimated3200/1050/260triangles. Existing generated rock
+textures only; shader marked-cliff colour no longer multiplies two full albedos.
+Nine binary meshes ~380KB tracked in Resources/CliffRockV1; source blend files
+8.5MB in assets-source/terrain/rocks/polyhaven still need GitHub release-backed
+publication (inventory allow-list already updated). No source input in artifacts.
+Simple-solidify/export-projection trials FAILED; final NON_MANIFOLD thickness
+export closes real volume. Pure binary topology/normal/volume checks and actual
+placement20,898 PASS before normalized final re-export; current final rerun31687
+still active (collect output). Source controls include262 real cliff instances.
+Core CliffRocks v26 coarse cached corner gate limits detailed slope probes.
+Native v2 mandatory: run B Canyon -CliffReview on SAME playable.world; inspect
+cliff-mass0..2/overhang; verify actual shared collider roof and images BEFORE
+performance. Baseline fixed landform-side camera can be inside added solid;
+do not pretend it is a playable same-camera comparison. Need native forest/
+coastal regression and paired moving Medium1080/6km before selecting B.
+World fixture artifacts/terrain-surfaces-20261107/playable.world generated
+Continental200k seed73421 then --human-fixture year0. Initial uninitialized
+fixture failed old wind code's null simulation; corrected harness, no weather edit.
+Only two reusable builds, all windows RIGHTMOST/hidden. One final PDF LEFTMOST.
+Owner3files preserved. Latest source pushed b12; new generated Unity metas pending.
+
+ACTIVE 07Nov23:13Z — owner requests terrain seams AND rocky 3D cliffs/overhangs.
+Protect selected A/8c75e05d; use B for candidate. No subagents. Own baseline
+native A PID7584/runner52866 Canyon on fresh playable200k fixture is running
+RIGHTMOST hidden; initial raw fixture failed because it lacked simulation state.
+Do not mislabel that harness failure a terrain failure. Playable fixture created
+with --human-fixture year0; same input must be used for candidate comparison.
+Seam source: terrain62/wire10, coarse float normal/material/cover interpolation,
+zero-length edge records for corner derivative radii, vertex normal transform
+does NOT renormalize before rasterization. 176 pure +176 actual200k, 814 local,
+25796 allocation checks PASS. Physical gap~1e-6m. Native/performance PENDING.
+Evidence terrain-surface-seams-20261107.json. Preserve channel13 water root gate.
+Separate UNACCEPTED cliff prototype: Core CliffRocks marker1<<20 on Outcrop
+variants; main rock channel steep exposed mass placement; 3/5 rows jointed 3D
+blocks reuse generated rock arrays and existing nearby nonconvex colliders.
+Outward wall direction is stored in Normal for marked variants; radial vertical
+and physical anchor retained. No Native review yet. Need pure shape/placement
+tests, B FULL Mono NONDEV, native compare and actual collision/overhang check,
+then moving tests before promotion. No Unity build currently. Owner3files intact.
+All fresh temporary worlds/evidence artifacts/terrain-surfaces-20261107, disposable.
+One final screenshot PDF; Chrome LEFTMOST. All Unity/player windows RIGHTMOST.
+
 LATEST 07 Nov 17:51Z — GEOGRAPHY DELIVERED; final handoff until noon/18Z.
 Existing root shortcut now selects slot-a FULL Mono NONDEV 8c75e05d, built
 17:09:50Z with SourceChanges[]. Known Unity autos restored; no own game,

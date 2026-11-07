@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "repository": "killerfrog17-coder/WorldGen",
+  "source_checkpoint": "b12f41d5190dc552dd93359ae26a0b211a7a3965",
+  "transport": "GitHub Releases; no Git LFS or metered asset storage",
+  "files": {
+    "assets-source/terrain/rocks/polyhaven/namaqualand_cliff_01.blend": {
+      "sha256": "eba0ae3947ec26c866f9174b6a70816d96b1d3c543356fa6d27f0d8a4eef09f1",
+      "bytes": 6351627,
+      "pack": "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
+      "member": "objects/eba0ae3947ec26c866f9174b6a70816d96b1d3c543356fa6d27f0d8a4eef09f1"
+    },
+    "assets-source/terrain/rocks/polyhaven/rock_face_01.blend": {
+      "sha256": "e6de5faaad702bc3be9930049851f91d444edb230adaba93b3272a753f1b8e92",
+      "bytes": 980558,
+      "pack": "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
+      "member": "objects/e6de5faaad702bc3be9930049851f91d444edb230adaba93b3272a753f1b8e92"
+    },
+    "assets-source/terrain/rocks/polyhaven/rock_face_02.blend": {
+      "sha256": "ea9190628d994180657090cfe22144e13715a3b861fd659b8fd07e29c95748cf",
+      "bytes": 1127323,
+      "pack": "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
+      "member": "objects/ea9190628d994180657090cfe22144e13715a3b861fd659b8fd07e29c95748cf"
+    },
+    "assets-source/terrain/rocks/polyhaven/sources.json": {
+      "sha256": "cdbb7f7419d610b7d4f73108a54a4fa36fe40bb6154819ec8b31b4a70fce9526",
+      "bytes": 1719,
+      "pack": "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
+      "member": "objects/cdbb7f7419d610b7d4f73108a54a4fa36fe40bb6154819ec8b31b4a70fce9526"
+    }
+  },
+  "packs": {
+    "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip": {
+      "tag": "asset-dependencies-cliffs-20261107",
+      "name": "assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
+      "asset_id": 722301933,
+      "sha256": "31085718200b9c5eba1b15bb006f63d055565d169f501e99ed61ed3020e52402",
+      "bytes": 8430378,
+      "encoding": "zip"
+    }
+  }
+}
