@@ -36,11 +36,13 @@ namespace WorldGen.Core
         {
             var surface=GroundEnvironment.Surface(ground,position,seed,elevation,up,ocean,ice,radiusM);
             var geology=Describe(ground,position,seed,radiusM,up);
-            double rock=Math.Max(geology.Exposure,D.Clamp(exposedBedrock))*(1-ice)*(1-D.Clamp(ocean*10)*D.Clamp((8-Math.Abs(elevation))/6));
+            double looseExposure=geology.Exposure*(1-D.Clamp(ocean*10)*D.Clamp((8-Math.Abs(elevation))/6))*(1-GroundEnvironment.SandMantle(ground,up));
+            // A physical bare-rock mask overrides the generic sandy-foreshore
+            // heuristic. Ice and actual saline crust can still cover bedrock.
+            double rock=Math.Max(looseExposure,D.Clamp(exposedBedrock))*(1-ice);
             // A flat evaporite crust covers its bedrock; exposed slopes can
             // still reveal the underlying geology along a basin margin.
             rock*=1-Smooth(.65,.9,ground.Salinity)*Smooth(.94,.995,up);
-            rock*=1-GroundEnvironment.SandMantle(ground,up);
             double change=Math.Max(0,rock-surface.Rock),sum=1-surface.Rock-surface.Ice;
             double keep=sum>0?Math.Max(0,1-change/sum):1;
             surface.Soil*=keep;surface.Sand*=keep;surface.Gravel*=keep;surface.Clay*=keep;

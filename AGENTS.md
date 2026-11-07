@@ -8,6 +8,21 @@ captures as successful results. Link the finished PDF in the update handoff and
 open it in a new Chrome tab on the leftmost monitor. This report-viewing preference
 overrides the rightmost-monitor rule for PDFs; other review windows stay rightmost.
 
+ACTIVE07Nov OVERNIGHT GEOGRAPHY. Owner resumed features/regions until local
+NOON (18:00UTC) unless interrupted. ALL Unity windows RIGHTMOST; only ONE PDF
+at END, accumulate inputs but do not open interim PDFs. No subagents. Selected
+B/0c8fdc0a protected playable baseline with generated ground/bark; A free candidate
+(recheck processes). No game/Editor now; core shore-platform-world session91204
+running. Uncommitted/unbuilt coast draft: monotone wave-cut platforms, shared
+ShoreExposure with soil/root/material consumers, LocalTerrain47/Hyper42. Pure
+coastal35543 checks PASS, actual-world test pending. No visual/FPS claim yet.
+Finish actual/native shore appearance, water/ground/root checks and moving tails
+before next feature. unity-check now passes rightmost monitor. Next priorities
+adaptive: glaciated mountain/valley character, coupled wetland/river-coast variety,
+further regional rock/forest differences. No animal/human/weather/sky appearance
+changes. Preserve two slots, Git/release-backed inputs, disposable artifacts.
+Owner3files intact. Working plan: geography-night-plan-20261107.json.
+
 READY07Nov GENERATED GROUND delivered. B FULL NONDEV Mono0c8fdc0a built
 07:04:50Z; shortcut selects B. SourceChanges only asset-lock publication metadata;
 no uncommitted runtime code. Source6335774f+0c8fdc0a pushed.19 active generated

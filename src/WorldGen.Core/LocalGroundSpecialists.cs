@@ -17,7 +17,7 @@ namespace WorldGen.Core
                 double u=(x+.08+.84*random.Unit())/side,v=(y+.08+.84*random.Unit())/side;
                 V p=Position(key,u,v);var sample=patch.Sample(p);var biome=sample.Biome;
                 if(sample.Underwater||sample.ElevationM<2||biome==Biome.Desert||biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)continue;
-                double rooted=(1-OrogenMorphology.Smooth(.02,.98,sample.Province.RemnantExposure))*RiverAlluvium.RootedAdmission(sample.RiverSand,sample.RiverGravel);
+                double rooted=(1-OrogenMorphology.Smooth(.02,.98,sample.Province.ExposedRock))*RiverAlluvium.RootedAdmission(sample.RiverSand,sample.RiverGravel);
                 if(rooted<=0||rooted<1&&random.Unit()>rooted)continue;
                 var ecology=world.Ecology;HabitatCell? h=ecology!=null&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Specialists;V physical=p*(terrain.RadiusM*scale/1000);

@@ -114,6 +114,14 @@ public sealed partial class LocalTerrainExplorer
                     }
                 }
             }
+            else if(kind=="WavePlatform")
+            {
+                foreach(var coast in CoastalSites.WavePlatforms(world,model))
+                {
+                    var sample=model.Patch(coast.Position,10000).Sample(coast.Position);
+                    return new LandscapeReviewSite{Position=coast.Position,Sample=sample,Coast=kind,CoastDirection=coast.Seaward};
+                }
+            }
             else if(kind=="CoastalBeach"||kind=="CoastalCliffs")
             {
                 bool cliffs=kind=="CoastalCliffs";
@@ -425,6 +433,12 @@ public sealed partial class LocalTerrainExplorer
         }
         if(site.Coast!=null)
         {
+            if(site.Coast=="WavePlatform")
+            {
+                Check(sample.Province.ShoreExposure>=.5,"Wave-cut shore uses an actual exposed coastal platform");
+                var physical=LocalGeology.Surface(sample.Ground,site.Position,world.Recipe.Seed,sample.ElevationM,1,sample.OceanInfluence,0,model.RadiusM*.1,sample.Province.ExposedRock);
+                Check(physical.Rock>=sample.Province.ShoreExposure-.01,"Actual platform binds exposed rock rather than generic beach sand");
+            }
             Check(sample.WaterKind==LocalWaterKind.Ocean&&sample.WaterSurfaceM==0,"Coast shares the actual ocean datum");
             Check(sample.Biome!=Biome.Ocean,"Dry refined shoreline uses its adjacent land community");
             yield return owner.StartCoroutine(Capture("coast-along",orientation*new Vector3(width,0,-20),true));

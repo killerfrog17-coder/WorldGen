@@ -9,11 +9,11 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NaturalLandmark {public string Name;public V Point,Focus;public double FocusM;}
     Task<NaturalLandmark> landmarkSearch;int landmarkGeneration;
-    const string LandmarkUsage="/landmark volcano | waterfall | canyon | outcrop | dome | karst";
+    const string LandmarkUsage="/landmark volcano | waterfall | canyon | outcrop | dome | karst | shore";
     PlayCommandResult ExecuteLandmark(string[] words)
     {
         if(words.Length!=2)return new PlayCommandResult(words.Length==1,LandmarkUsage);
-        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","outcrop","dome","karst"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
+        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","outcrop","dome","karst","shore"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
         if(!Ready||sourceWorld==null)return new PlayCommandResult(false,"Terrain is not ready yet.");
         if(landmarkSearch!=null)return new PlayCommandResult(false,"A landmark search is already running.");
         var model=terrain;var world=sourceWorld;double scale=HorizontalScale;landmarkGeneration=generation;
@@ -28,6 +28,11 @@ public sealed partial class LocalTerrainExplorer
             var ground=model.Patch(point,2000/scale).Sample(point);if(ground.Underwater)return null;
             var target=model.Patch(focus,2000/scale).Sample(focus);
             return new NaturalLandmark{Name=name,Point=point,Focus=focus,FocusM=level??(target.Underwater?target.WaterSurfaceM:target.ElevationM)};
+        }
+        if(kind=="shore")foreach(var coast in CoastalSites.WavePlatforms(world,model))
+        {
+            var focus=(coast.Position-coast.Seaward*(70/radius)).Unit;
+            var site=Site("Rocky wave-cut shore "+coast.Cell,coast.Position,focus);if(site!=null)return site;
         }
         if(kind=="volcano")foreach(var form in model.Amplification.Volcanoes.Forms.OrderBy(f=>f.AgeMyr).ThenByDescending(f=>f.HeightM).Take(128))
         {

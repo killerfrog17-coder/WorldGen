@@ -99,6 +99,11 @@ $buildRoot=Join-Path $repoRoot 'builds'
 $playerOutput=[IO.Path]::GetFullPath((Join-Path $buildRoot ($PlayerFolder+'/WorldGen.exe')))
 if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($buildRoot)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside the permanent build root'}
 $arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
+Add-Type -AssemblyName System.Windows.Forms
+$unityMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
+$unityMonitorIndex=[regex]::Match($unityMonitor.DeviceName,'\d+$').Value
+if(!$unityMonitorIndex){throw 'Cannot identify the rightmost Unity monitor'}
+$arguments+=@('-monitor',$unityMonitorIndex)
 if($DevelopmentPlayer){$arguments+='--worldgen-development-player'}
 if($PerformancePlayer){$arguments+='--worldgen-performance-build'}
 if($ScriptsOnly){if(!$BuildPlayer){throw '-ScriptsOnly requires -BuildPlayer.'};$arguments+='--worldgen-scripts-only'}

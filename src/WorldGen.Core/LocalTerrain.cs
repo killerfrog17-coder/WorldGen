@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-granite-domes-46";
+        public const string Version = "local-terrain-rock-shores-47";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -373,8 +373,8 @@ namespace WorldGen.Core
                     if(!heightOnly)RiverAlluvium.Ground(surface.RiverSand,surface.RiverGravel,ref ground,ref cover,ref midCover,ref forest);
                     if(!heightOnly&&surface.Kind==LocalWaterKind.Ocean&&surface.Height>=0&&biome!=Biome.Mangrove&&biome!=Biome.SaltMarsh)
                     {
-                        double beach=CoastalTerrain.BeachBand(ground,surface.Height,ocean/sum);
-                        ground=CoastalTerrain.ShoreGround(ground,surface.Height,ocean/sum);
+                        double beach=CoastalTerrain.BeachBand(ground,surface.Height,ocean/sum,surface.Landscape.ShoreExposure);
+                        ground=CoastalTerrain.ShoreGround(ground,surface.Height,ocean/sum,surface.Landscape.ShoreExposure);
                         cover.ScaleWeights(1-.98*beach);midCover.Coverage*=1-.98*beach;forest.Coverage*=1-beach;
                     }
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
