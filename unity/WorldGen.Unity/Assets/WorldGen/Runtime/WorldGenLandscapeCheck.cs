@@ -11,6 +11,15 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
+    public sealed class GlacialTroughReceipt
+    {
+        public int Source,Target;public double HalfWidth,Relief,Strength;
+        public static GlacialTroughReceipt From(GlacialValleys.Reach? reach)
+        {
+            if(!reach.HasValue)return null;var r=reach.Value;
+            return new GlacialTroughReceipt{Source=r.Source,Target=r.Target,HalfWidth=r.HalfWidth,Relief=r.Relief,Strength=r.Strength};
+        }
+    }
     // Explicit test camera held across frames while the ordinary renderer
     // completes newly visible tree art. Normal gameplay leaves this unset.
     Vector3? landscapeReviewCamera;Quaternion landscapeReviewRotation;
@@ -29,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
         public BedrockRemnants.Outcrop Outcrop;
         public RiverscapeSpan? Fall;
         public CanyonValleys.Reach Canyon;
-        public GlacialValleys.Reach? Trough;
+        public GlacialTroughReceipt Trough;
         public int RiverReach=-1;
         public string Coast,Landform;
     }
@@ -246,7 +255,7 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
-        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=site.Trough,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
+        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
         if(site.Volcano!=null){reviewRange=Math.Max(10000,site.Volcano.RadiusM*4.5);reviewFootprint=site.Volcano.RadiusM*3.6;}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         if(site.Coast!=null){reviewRange=3000;reviewFootprint=1600;}
@@ -269,7 +278,13 @@ public sealed partial class LocalTerrainExplorer
         deadline=Time.realtimeSinceStartupAsDouble+300;double reportAt=0;
         while((!owner.AllReady&&owner.terrainRevealRadius<reviewFootprint||owner.StreamingFogDistance<reviewFootprint)&&Time.realtimeSinceStartupAsDouble<deadline)
         {
-            if(Time.realtimeSinceStartupAsDouble>=reportAt){reportAt=Time.realtimeSinceStartupAsDouble+5;File.WriteAllText(Path.Combine(output,"coverage.txt"),"Tiles "+owner.TileCount+" / "+owner.WantedCount+"; terrain "+owner.terrainRevealRadius+"m; forest "+owner.forestRevealRadius+"m; fog "+owner.StreamingFogDistance+"m; "+owner.Error);}
+            if(Time.realtimeSinceStartupAsDouble>=reportAt)
+            {
+                reportAt=Time.realtimeSinceStartupAsDouble+5;
+                string active=string.Join(" | ",owner.jobs.Select(j=>$"{j.Key.X},{j.Key.Z},L{j.Key.Level},size{j.Key.SizeM:F1},n{j.Segments}:{j.Task.Status}"));
+                string state=$"t={Time.realtimeSinceStartupAsDouble:F1}s; {owner.Diagnostics}; terrain {owner.terrainRevealRadius:F1}m; forest {owner.forestRevealRadius:F1}m; fog {owner.StreamingFogDistance:F1}m; {owner.PerformanceForestState}; active {active}; {owner.Error}";
+                File.WriteAllText(Path.Combine(output,"coverage.txt"),state);File.AppendAllText(Path.Combine(output,"loading-history.txt"),state+"\n");
+            }
             yield return null;
         }
         Check(owner.AllReady||owner.terrainRevealRadius>=reviewFootprint,"Wide capture has an actually loaded surrounding terrain footprint");
@@ -519,7 +534,7 @@ public sealed partial class LocalTerrainExplorer
         Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
-            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=site.Trough,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
+            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
