@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+LATEST07Nov15:44Z OVERNIGHT until18Z/noon; onePDF END ONLY/ChromeLEFTMOST.
+Ownrunner86954/player27248 RIGHTMOST runs mangrove-zonation-moving-v1,
+two exact-start tidal Medium1080/6km/60s180m routes. DO NOT build/heavyjobs/
+overwriteA until complete. A ScriptsOnlyNONDEVcd2a2f97 overFULL6c9bb23e;
+3Unityautos restored, B0c8/shortcutprotected. Native mangrove-zonation-v1 EXIT0,
+roots-pneumatophore/tidal-waterline PNGs inspected: low pegs/air prop roots.
+22435world/7923controls/72inlandhashes/21outsidehabitatfullpacketsPASS. New
+UNBUILT rock-coatings62/56/25 source in LandscapeProvince: one350m planetary
+field only explicitbare rock, iron/weathering oxide and damp/frozen staining;
+RGBONLY, no newassets/pass/tick. RockCoatingTests +worker --geometry-only
+pendingcompile AFTERperf. Preserve fullworkerproof; geometry-only normalizes
+terrainRGB and BuildMs ONLY, skips scatter equality (stone tints may differ).
+Need native samecanyon80974+FJ/glacial +movingperformance before acceptance.
+Latestcanyon same80974+second81351 nativeEXIT0/imagesinspected; newmoving
+canyon240.45FPS/p9912.32/max30.20/3>16.7; GENUINE inlandglacial159.70/
+p9913.11/max25.45/13>16.7. Old225FPS GLlabel actually dryFJbank, corrected.
+No100floor claim. All source throughcd2a+docs0c555PUSHED. Userowner3files
+untouched. Finalreport builderccf committed, NO PDF emitted. C~5GBfree.
+Delete obsolete1.4GB raw capture was policyBLOCKED; do NOT retry/bypass;
+final short disclosure required. No subagents/animal-human-weather-skychanges.
+
+
 LATEST07Nov14:43Z OVERNIGHT until18:00UTC/noon; onePDF END ONLY/ChromeLEFTMOST.
 Ownrunner22342/player22168 RIGHTMOST runs materials-moving-regressions, A
 ScriptsOnlyNONDEV10b1f0ea overFULL6c9bb23e (rockshader947). Jungle177.22FPS,
