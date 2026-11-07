@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+ACTIVE07Nov23:57Z — B FULL Mono NONDEV536e0c3e built23:54:20Z SourceChanges[];
+3Unityautosrestored. Ownrunner93726/player7596 RIGHTMOST hidden runs revised
+cliff-candidate-v3-20261107-canyon. No build/overwrite untilcomplete. A8c75
+shortcut stillprotected. V2b12 nativeEXIT0 but REJECTED forsolidify spikes and
+upright slabs; do NOT accept b12 images. Latest export PRESERVES raw scan front,
+removes2-8nonmanifold scraps, NO solidify, shape BVH deviation bounded .035/.08/.2
+near/mid/far (actual muchsmaller). Direct runtime-binary Workbench previews all3
+inspected and natural, no spikes. Terrain behind supplies solid interior; open
+front mesh supports real ledges. Root centered into slope with sampled NORMAL,
+not radial upright. Nativecamera/collidercenter uses actual instance matrix.
+Core scatter27, terrain62, wire10. Controls21512PASS/262actualcliffs. Source536
+pushed. Need current native appearance + physical roof pass beforeacceptance.
+If good: coastal regression, then paired moving60s Medium1080/6km on same
+playable.world, sites canyon-floor +forest-flat, cases travel-whip-current,
+TravelLoop180m, StutterTrace/CaptureAfter/Presented. Sites file prepared:
+artifacts/terrain-surfaces-20261107/performance-sites.json (hash61047...).
+No heavyjobs duringtiming; allvisibleRIGHTMOST. Final screenshotPDF LEFTMOST.
+Source originals already release-backed and5902-lock6509auditPASS. Mainlock/
+newmetas committed cdc1b110. Both rejected versions retained only inGit/evidence,
+not extra executable archives. User3files untouched; no subagents.
+
 ACTIVE07Nov23:44Z — B FULL Mono NONDEV b12f41d5 built23:42:24Z clean,
 3Unityautosrestored. Ownrunner68882/player2300 RIGHTMOST hidden runs native
 cliff-candidate-v2-20261107-canyon on SAME playable200k seed73421 year0 world.
