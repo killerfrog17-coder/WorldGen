@@ -169,10 +169,13 @@ namespace WorldGen.Core
             }
             p.SoilColor*=1-.22*controls.Wet;
             double remnant=controls.ExposedRock;
-            p.DepthM*=1-.995*remnant;p.Organic*=1-remnant;
+            p.DepthM*=1-.995*remnant;
             if(remnant>.5)p.Deposit=ParentDeposit.Residual;
             p.Organic=Math.Max(p.Organic,.12*controls.Wet);
             if(controls.Peat>.1){p.Organic=Math.Max(p.Organic,.45*controls.Peat);p.SoilColor=p.SoilColor*(1-.55*controls.Peat);}
+            // Wet/peat floors cannot put organic soil back onto explicitly
+            // exposed bedrock after erosion has removed that soil cover.
+            p.Organic*=1-remnant;
             double volcanic=D.Clamp(controls.BareRock);
             if(volcanic>0)
             {

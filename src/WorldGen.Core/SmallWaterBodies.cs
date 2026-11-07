@@ -17,7 +17,7 @@ namespace WorldGen.Core
         public double Radius,Aspect,Heading,Level,Depth,Phase;
         public ulong Id;
         public bool Complex;
-        public double BedExtent=>Complex?1.3:1;
+        public double BedExtent=>Complex?1.3:1.4;
         public double NormalizedRadius(V position,double planetRadius)
         {
             V delta=position-Center;double x=(delta.X*East.X+delta.Y*East.Y+delta.Z*East.Z)*planetRadius;

@@ -115,7 +115,7 @@ namespace WorldGen.Core
             double maximum=Math.Min(1.2,s.HeightM*.4),depth=sample.WaterSurfaceM-sample.ElevationM;
             return 1-OrogenMorphology.Smooth(maximum*.6,maximum,depth);
         }
-        public static double Suitability(MidPlantSpecies s,HabitatCell? h,GroundProfile soil,Biome biome,double warm,double? localShade=null,double inundationDepth=0)
+        public static double Suitability(MidPlantSpecies s,HabitatCell? h,GroundProfile soil,Biome biome,double warm,double? localShade=null,double inundationDepth=0,double localWet=0)
         {
             if(inundationDepth>0)
             {
@@ -125,6 +125,10 @@ namespace WorldGen.Core
             if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
             bool cold=biome==Biome.Tundra||biome==Biome.Alpine;double wet=h==null?.8:h.Value.AridityMilli*.001;
             double flood=h==null?0:Math.Max(h.Value.FloodFractionPermille*.001,D.Clamp((100-h.Value.WaterTableCm)/100d));
+            // A saturated local shore may lie inside a broadly drier habitat
+            // cell. Use that existing local evidence without inventing water
+            // or bypassing species temperature, pH, salt and light limits.
+            wet=Math.Max(wet,1.25*localWet);flood=Math.Max(flood,localWet);
             if(inundationDepth>0){wet=Math.Max(wet,1.25);flood=1;}
             double shade=localShade??GroundSpecialists.Canopy(biome),weight=1;
             switch(s.Form)

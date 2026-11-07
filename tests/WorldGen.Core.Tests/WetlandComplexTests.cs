@@ -57,6 +57,32 @@ static class WetlandComplexTests
         Check(excluded.At(probe,p=>new SmallWaterGround(100,0,LocalWaterKind.None,default))==null,"Dry region cannot acquire a wetland complex");
         var slope=new SmallWaterBodies(seed,radius,complexRegion:p=>true);
         Check(slope.At(probe,p=>new SmallWaterGround(100+(p.Y-probe.Y)*radius*.2,0,LocalWaterKind.None,wet))==null,"A steep slope cannot acquire a floating independent wetland plane");
+        int shoreWet=0,shoreDry=0;
+        for(int x=-80;x<=80;x++)for(int z=-20;z<=20;z++)
+        {
+            V p=new V(x*1.7,800,z*1.7);double original=100.25;
+            double bed=WetlandMicrorelief.Bed(original,100,wet,p,seed);
+            Check(bed<=original&&bed>=original-.85,"Existing standing-water shore has bounded cut-only microrelief");
+            if(bed<100)shoreWet++;else shoreDry++;
+            double adjacent=WetlandMicrorelief.Bed(original,100,wet,p+new V(.001,0,0),seed);
+            Check(Math.Abs(adjacent-bed)<.001,"Shore microrelief is continuous in physical space");
+            Check(WetlandMicrorelief.Bed(102,100,wet,p,seed)==102,"Higher shore remains exactly unchanged");
+            Check(WetlandMicrorelief.Bed(original,100,default,p,seed)==original,"Dry-region lake shores remain exactly unchanged");
+        }
+        Check(shoreWet>100&&shoreDry>100,"Existing lake fringes support both flooded hollows and retained hummocks");
+        var reed=new MidPlantSpecies{Form=MidGrowthForm.ReedStand,HeightM=2,Moisture=1.2,Shade=.1,MinWarmC=0,MaxWarmC=45,MinPH=5,MaxPH=8.5,MaxSalinity=.1,FloodTolerance=1};
+        var soil=new GroundProfile{DepthM=1,PH=7,WaterCapacityMm=100,Fertility=.7,Gravel=.1};
+        var habitat=new HabitatCell{AridityMilli=800,WaterTableCm=300};
+        double dryFit=MidFlora.Suitability(reed,habitat,soil,Biome.Marsh,20,.1);
+        double wetFit=MidFlora.Suitability(reed,habitat,soil,Biome.Marsh,20,.1,0,.9);
+        Check(dryFit==0&&wetFit>.1,"Locally saturated shores support reeds even when the broad habitat water table is deeper");
+        Check(MidFlora.Suitability(reed,habitat,soil,Biome.Marsh,20,.1,0,0)==dryFit,"Default upland flora fit is unchanged");
+        soil.Salinity=.2;Check(MidFlora.Suitability(reed,habitat,soil,Biome.Marsh,20,.1,0,.9)==0,"Saturated freshwater shores do not bypass species salt limits");
+        soil.Salinity=0;soil.PH=3;Check(MidFlora.Suitability(reed,habitat,soil,Biome.Peatland,20,.1,0,.9)==0,"Acid bogs do not acquire unsuitable generic tall reeds");
+        var wetRock=new LandscapeControls{Wet=1,Peat=1,GlacialExposure=1};
+        Check(LandscapeProvince.Ground(new GroundProfile{DepthM=1,Organic=.5},wetRock,new V(800,900,700),seed).Organic==0,"Peat and wetland organic floors cannot recolonize an explicitly bare rock wall");
+        wetRock.GlacialExposure=0;
+        Check(LandscapeProvince.Ground(new GroundProfile{DepthM=1,Organic=.5},wetRock,new V(800,900,700),seed).Organic>=.45,"Wetland peat floor remains on soil-bearing ground");
         Console.WriteLine($"PASS {checks} wetland containment/discovery/shape checks; {all.Count} complexes, {wetCount} wet and {dryCount} dry interior probes");
     }
 
@@ -112,6 +138,30 @@ static class WetlandComplexTests
             }
             rows.Add(new{body.Id,body.Radius,body.Level,body.Depth,Center=new[]{body.Center.X,body.Center.Y,body.Center.Z},WetPoint=new[]{wetPoint.X,wetPoint.Y,wetPoint.Z},Wet=localWet,Dry=localDry});
         }
+        var shoreAt=sites[0];var shorePatch=terrain.Patch(shoreAt,10000);shorePatch.RiverSpans();
+        var shoreFrame=new LocalTerrainFrame(shoreAt,terrain.RadiusM,0,.1);int shoreWet=0,shoreDry=0;
+        const double existingHead=131.90736925395524;
+        var knownShore=shorePatch.Sample(shoreAt);
+        Check(knownShore.WaterKind==LocalWaterKind.Lake&&knownShore.WaterSurfaceM==existingHead,"Known wetland pond retains its previous accepted head");
+        for(int z=-10;z<=10;z++)for(int x=-10;x<=10;x++)
+        {
+            var s=shorePatch.Sample(shoreFrame.Position(x*6,z*6));
+            if(s.WaterBodyKey!=knownShore.WaterBodyKey)continue;
+            Check(s.WaterKind==LocalWaterKind.Lake&&s.WaterSurfaceM==existingHead,"One finite shore retains its accepted constant head/ownership");
+            if(s.Underwater)shoreWet++;else shoreDry++;
+        }
+        Check(shoreWet>10&&shoreDry>10,"Actual wooded lake fringe contains inundated hollows and dry ground");
+        var scatter=new LocalScatter(terrain,.1);var vegetation=scatter.Build(scatter.Address(shoreAt));int trees=0;
+        foreach(var tree in vegetation.Instances.Where(i=>i.Kind==ScatterKind.GeneratedTree))
+        {
+            var s=terrain.Patch(tree.Position,1000).Sample(tree.Position);trees++;
+            Check(!s.Underwater&&tree.GroundM==s.ElevationM,"Actual generated trees root on retained dry terrain, never in flooded hollows");
+        }
+        Check(trees>0,"Actual wooded shore exercises the production tree-placement path");
+        var shoreLeft=LocalTerrainMesh.Build(terrain,shoreFrame,-100,-50,100,32);
+        var shoreRight=LocalTerrainMesh.Build(terrain,shoreFrame,0,-50,100,32);
+        for(int z=0;z<=32;z++)Check(shoreLeft.Positions[(z*33+32)*3+1]==shoreRight.Positions[z*33*3+1],"Shared chunk edges remain EXACT across standing-water shore hollows");
+        rows.Add(new{Kind="Existing lake fringe",Head=existingHead,Wet=shoreWet,Dry=shoreDry,DryRootedTrees=trees});
         Check(world.Prehistory.Hash==history,"Wetland generation never mutates history");
         File.WriteAllText(Path.Combine(output,"complexes.json"),System.Text.Json.JsonSerializer.Serialize(rows,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {checks} actual wetland water/terrain/edge checks; {bodies.Count} admitted complexes, {wet} wet and {dry} dry interior probes");

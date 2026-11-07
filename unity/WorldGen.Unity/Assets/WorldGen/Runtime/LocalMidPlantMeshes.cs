@@ -11,6 +11,12 @@ static partial class LocalScatterMeshes
         using var b=new Builder();var m=new MidMorphology(code);var reproduction=m.Reproduction;
         Color leaf=HerbColour(m.Leaf),wood=HerbColour(m.Wood);
         int segments=lod==0?4:lod==1?2:1,sides=lod==0?6:lod==1?4:3;
+        if(m.Form==MidGrowthForm.ReedStand)
+        {
+            // Thin green culms need silhouette, not six-sided woody tubes.
+            // Preserve the stem/leaf count while reducing subpixel geometry.
+            wood=Color.Lerp(leaf,wood,.15f);segments=lod==0?2:1;sides=3;
+        }
         Vector3 Direction(float angle)=>new Vector3(Mathf.Sin(angle),0,Mathf.Cos(angle));
         void Shoot(Vector3 a,Vector3 c,Vector3 end,float radius)
         {

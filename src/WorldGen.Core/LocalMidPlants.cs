@@ -29,7 +29,7 @@ namespace WorldGen.Core
                 for(int i=0;i<species.Length;i++)
                 {
                     double admission=MidFlora.WaterAdmission(species[i],sample);
-                    double fit=admission<=0?0:admission*MidFlora.Suitability(species[i],habitat,sample.Ground,sample.Biome,warm,shade,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0);
+                    double fit=admission<=0?0:admission*MidFlora.Suitability(species[i],habitat,sample.Ground,sample.Biome,warm,shade,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,sample.Province.Wet);
                     weights[i]=fit<.005?0:fit*MidFlora.Colony(species[i],p,seed,terrain.RadiusM*scale);sum+=weights[i];
                 }
                 double cu=(key.X+u)*2/divisions-1,cv=(key.Y+v)*2/divisions-1,jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
