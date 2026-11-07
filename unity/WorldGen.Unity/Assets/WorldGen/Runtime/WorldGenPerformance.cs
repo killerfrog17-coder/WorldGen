@@ -41,6 +41,7 @@ public static class WorldGenPerformance
         return(before,native,System.Diagnostics.Stopwatch.GetTimestamp(),frequency);
     }
     public static bool OriginalCase;
+    public static bool WaterSurfaceCamera;
     public static bool DisableScatterViewGuard;
     public static bool ForceFreshVisibleGround;
     public static bool DirectionalScatter;
@@ -730,7 +731,7 @@ public sealed partial class LocalTerrainExplorer
     public void PerformancePose(double height=1.65)
     {
         bool changed=motion.X!=0||motion.Z!=0||Math.Abs(HeightAboveGround-height)>.01;
-        motion.X=motion.Z=0;motion.Y=Ground(0,0)+height;motion.Flying=true;heading=20;pitch=height>10?12:3;
+        motion.X=motion.Z=0;motion.Y=PerformanceFloor(0,0)+height;motion.Flying=true;heading=20;pitch=height>10?12:3;
         if(changed)RefreshWanted();UpdateCamera();
     }
     public void PerformanceWalkingQueryMode()
@@ -763,7 +764,13 @@ public sealed partial class LocalTerrainExplorer
         if(models==0)throw new InvalidOperationException("No actual animal motions loaded for pose comparison");
         return "PASS "+compared+" bit-exact authored bone matrix components across "+models+" loaded species; unchanged clips, sample times and blend math";
     }
-    public void PerformanceTravel(double east){motion.X=east;motion.Y=Ground(motion.X,motion.Z)+1.65;UpdateCamera();}
+    double PerformanceFloor(double x,double z)
+    {
+        double floor=Ground(x,z);if(!WorldGenPerformance.WaterSurfaceCamera)return floor;
+        double water=SampleMotionWater(x,z).Surface;
+        return double.IsFinite(water)?Math.Max(floor,water):floor;
+    }
+    public void PerformanceTravel(double east){motion.X=east;motion.Y=PerformanceFloor(motion.X,motion.Z)+1.65;UpdateCamera();}
     public void PerformanceRender(int width,int height)
     {
         if(WorldGenPerformance.Presented)
@@ -1326,6 +1333,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip",()=>{}),
             new PerfCase("travel-whip-reused-meshes",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.ReuseTerrainMeshes=true),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
+            new PerfCase("travel-whip-water-surface",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.WaterSurfaceCamera=true;terrainExplorer.PerformancePose();}),
             new PerfCase("travel-whip-cached-scatter-priority",()=>WorldGenPerformance.CachedScatterPriority=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("turning-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("turning-whip-resident-only",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
@@ -1439,7 +1447,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.NonIndexedClumps=false;
                 WorldGenPerformance.NoTrunkCasters=WorldGenPerformance.NoFoliageShadowReceivers=false;
                 WorldGenPerformance.TreeTrunkShadowRange=0;
-                WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();terrainExplorer.PerformanceWalkingQueryMode();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
+                WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;WorldGenPerformance.WaterSurfaceCamera=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();terrainExplorer.PerformanceWalkingQueryMode();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" repeatHumanBinding="+WorldGenPerformance.RepeatHumanOutputBinding+" fullWaterAim="+WorldGenPerformance.FullWaterAim+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
