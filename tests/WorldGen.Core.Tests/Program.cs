@@ -12,7 +12,8 @@ if(args.Contains("--wetland-complex-controls")){WetlandComplexTests.Controls();r
 if(args.Contains("--wetland-complex-world")){WetlandComplexTests.World(args[1],args[2]);return;}
 if(args.Contains("--wetland-query-cost")){WetlandComplexTests.QueryCost(args[1],args[2]);return;}
 if(args.Contains("--river-surface-grades")){RiverSurfaceGradeTests.Run(args[1]);return;}
-if(args.Contains("--terrain-worker-cost")){TerrainWorkerCostTests.Run(args[1],args[2],args[3],args[4],args.Contains("--verify-payload"));return;}
+if(args.Contains("--rock-coatings")){RockCoatingTests.Run();return;}
+if(args.Contains("--terrain-worker-cost")){TerrainWorkerCostTests.Run(args[1],args[2],args[3],args[4],args.Contains("--verify-payload"),args.Contains("--geometry-only"));return;}
 if(args.Contains("--glacial-trough-controls")){GlacialValleyTests.Controls();return;}
 if(args.Contains("--glacial-trough-world")){GlacialValleyTests.World(args[1],args[2]);return;}
 if(args.Contains("--granite-domes")){GraniteDomeTests.Run();return;}
