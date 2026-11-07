@@ -41,7 +41,8 @@
         "0c52d18f",
         "7fdf55cc",
         "37929b4a",
-        "d4eb2178"
+        "d4eb2178",
+        "900a289f"
       ],
       "entry": "src/WorldGen.Core/CanyonValleys.cs"
     },
@@ -279,9 +280,21 @@
     },
     {
       "name":"Intertidal mangrove lineages and aerial roots",
-      "commits":["bb8b7bc7","7c85f91b"],
+      "commits":["bb8b7bc7","7c85f91b","cd2a2f97"],
       "entry":"src/WorldGen.Core/TreeFlora.cs",
-      "notes":"Also shared near/far rooting predicate, continuous tree architecture and offline TidalForestSites finder. Three inherited root forms in existing mapped warm mangrove provinces. Outside-habitat72 lineage hashes and42 full worker packets exact. Native/performance pending; see mangrove-forests-20261107.json. Preserve older continuous bark/wrap architecture when reverting."
+      "notes":"Also shared near/far rooting predicate, continuous tree architecture and offline TidalForestSites finder. Three inherited root forms in existing mapped warm mangrove provinces. Initial native and two moving routes passed; newer root/size inundation refinement has core proof but awaits native/performance. See mangrove-forests-20261107.json and mangrove-zonation-20261107.json. Preserve older continuous bark/wrap architecture when reverting."
+    },
+    {
+      "name":"Canyon lookup storage and repeated erosion queries",
+      "commits":["dec70876"],
+      "entry":"src/WorldGen.Core/CanyonValleys.cs",
+      "notes":"Independent exact optimization:21full worker packets unchanged. Numeric1,603,600byte index replaces399,996 reference slots/450 small arrays; lazily reuse same per-point noise. Not a proven frame-hitch fix. Preserve when reverting only900a canyon morphology. Evidence canyon-index-20261107.json."
+    },
+    {
+      "name":"Irregular rock bedding tones and larger macro weathering",
+      "commits":["947107b2"],
+      "entry":"unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl",
+      "notes":"Same existing generated rock arrays, fetch count and draw passes. Native four-context review and combined jungle/savanna routes passed, occasional stalls remain. Retain earlier river lighting/ground art if reverting this shading. Evidence rock-macro-weathering-20261107.json."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",
