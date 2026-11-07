@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+LATEST07Nov10:22Z OVERNIGHT GEOGRAPHY until18:00UTC/noon unless interrupted.
+Owner wants Unity RIGHTMOST and ONE PDF at END ONLY (Chrome LEFTMOST).
+Selected B/0c8fdc0a protected, shortcut untouched. A FULL NONDEV679b4626 built;
+known3Unityautos restored. Own native river98111 and waterfall/pond42240 COMPLETE
+EXIT0, no own player/Editor now. River rectangular lighting bands diagnosed with
+held-camera shader modes and removed by shared station grade/tangent shading;
+waterfall motion and pond regression PASS. No new normal buffer/pass/texture.
+Glacial v2 native41PASS; moving150.96FPS,p9915.21/max46.87,28>16.7: spikes remain,
+NOT100floor. River-batch index verified21exactpackets; packaged12tiles5783.6->
+1573.7ms, scatter1340-2037->55-118ms; real loading/component benefit, NOTFPSfix.
+UNBUILT wetland complexes source now LocalTerrain51/Hyper45: wet-primary pond
+candidates120-280m, shallow hollows/dry hummocks, cut max1.2m, finite same head.
+Scalar74429/existing35733/actual18112checks4complexes PASS. Native art/FPS NOTyet
+accepted. First strict admission failed; actualgentleterrain/cutbound revised,
+failure evidence retained. New native WetlandComplex kind prepared. Next focused
+commit, ScriptsOnly A, restore3autos, native WetlandComplex+swamp+marsh, inspect
+and fix actual look; then native moving/loading comparison. No subagents.
+Owner3files preserved: deleted WorldGen_OneShot_Prompt.md and two untracked deer
+scripts; NEVER stage/revert those. About8GB Cfree; no extra build copies. Keep
+generated bark/ground, no animal/human/weather/sky appearance changes. Source
+679+b018 pushed; wetland changes presently uncommitted. Evidence assets/verification.
+
 Owner reporting preference: future visual updates should include a concise,
 well-organized PDF with actual in-game screenshots demonstrating the changes.
 Include before/after views when available, short captions, relevant performance

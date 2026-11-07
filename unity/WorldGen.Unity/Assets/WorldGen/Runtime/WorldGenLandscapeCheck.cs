@@ -210,6 +210,21 @@ public sealed partial class LocalTerrainExplorer
                     return new LandscapeReviewSite{Position=bank,Sample=s,RiverReach=channel.From,RiverWidth=half*2};
                 }
             }
+            else if(kind=="WetlandComplex")
+            {
+                foreach(int cell in cells.Where(i=>model.Profile(i).Landscape.Wet>.8&&world.Ecology.Habitat[i].WarmTenthsC>80)
+                    .OrderBy(i=>Rng.Mix(unchecked((uint)i^0x32175u))).Take(48))
+                foreach(var pond in model.Amplification.SmallLakesNear(world.Surface.Cells[cell].Position,4000).Where(p=>p.Complex))
+                {
+                    var patch=model.Patch(pond.Center,6000);
+                    for(int z=-3;z<=3;z++)for(int x=-3;x<=3;x++)
+                    {
+                        V at=(pond.Center+pond.East*(x*pond.Radius/5/(model.RadiusM*.1))+pond.North*(z*pond.Radius/5/(model.RadiusM*.1))).Unit;
+                        var s=patch.Sample(at);if(s.Underwater&&s.WaterBodyKey==pond.Id&&s.WaterSurfaceM-s.ElevationM>.03)
+                            return new LandscapeReviewSite{Position=at,Pond=pond,Sample=s};
+                    }
+                }
+            }
             else if(kind=="pond")
             {
                 foreach(int cell in cells.Where(i=>world.Ecology.Habitat[i].MeanTenthsC>50&&Math.Abs(world.Surface.Cells[i].Position.Z)<.9)
@@ -296,7 +311,7 @@ public sealed partial class LocalTerrainExplorer
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
         if(site.Pond!=null)
         {
-            Check(sample.Underwater&&SmallWaterBodies.IsLocal(sample.WaterBodyKey)&&sample.WaterSurfaceM-sample.ElevationM>.9,"Pond contains actual water above its cut bed");
+            Check(sample.Underwater&&SmallWaterBodies.IsLocal(sample.WaterBodyKey)&&sample.WaterSurfaceM-sample.ElevationM>(site.Pond.Complex?.01:.9),"Pond contains actual water above its cut bed");
             Check(owner.PlayerWaterAppearance(sample).Fresh,"Actual player drinking path classifies the local pond as freshwater");
             Check(double.IsFinite(owner.SampleMotionWater(0,0).Surface),"Swimming controller sees the same pond surface");
             Check(owner.tiles.Values.Any(t=>t.Renderers!=null&&t.Renderers.Length>1),"Actual uploaded tiles contain water renderers");

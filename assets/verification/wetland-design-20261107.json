@@ -1,0 +1,22 @@
+{
+  "status":"Design only; do not start production changes until glacial native/performance gates are complete.",
+  "problem":"Existing wooded-swamp captures read mostly as dry forest with isolated small oval pools. Marsh and swamp need coherent wet ground/open water, emergent plants and dry hummocks rather than a generic lawn.",
+  "research":[
+    {"url":"https://water.usgs.gov/nwsum/WSP2425/hydrology.html","application":"Separate groundwater/depression wetlands from river floodplain/backwater wetlands; standing pools need physically contained datums."},
+    {"url":"https://eros.usgs.gov/earthshots/oxbow-lakes","application":"Oxbows are abandoned meanders, not arbitrary crescents anywhere in a wet biome."},
+    {"url":"https://www.nps.gov/articles/rocky-coast-landforms.htm","application":"A future fjord must be an ocean-connected flooded glacial trough, not a detached sea-level water sheet."}
+  ],
+  "leading_candidate":"Extend the surveyed SmallWaterBodies wetland path into larger irregular shallow complexes with dry hummocks and connected lobes/channels. Preserve ordinary ponds separately. Choose dimensions/admission after surveying actual marsh sites, not by blindly increasing every radius.",
+  "requirements":[
+    "One constant surveyed head per finite complex; actual shared bed, shoreline mask, swimming/drinking classification and rooted vegetation.",
+    "Contained dry outer collar; do not excavate giant steep-sided bowls on sloping forest ground or float a water plane across it.",
+    "Dry hummocks use inherited soil or physically bounded peat deposition, allowing trees on emergent patches; shallow water admits reeds/rushes and removes upland lawn.",
+    "Coherent wetland intensity/style provinces; peatland, open marsh, wooded swamp and ordinary upland forest should remain distinct.",
+    "Grid/support/thinning math must guarantee complete candidate discovery at grid and sphere-face boundaries. Existing3D shell stencil is27cells; budget any increase explicitly.",
+    "Existing terrain/water meshes and materials, no extra scenery draw objects or global wetland simulation. Keep caching bounded.",
+    "Numerical containment, exact shared edges, candidate-order/cache-eviction stability; actual native water/vegetation captures and moving-frame/loading evidence."
+  ],
+  "source_files":["src/WorldGen.Core/SmallWaterBodies.cs","src/WorldGen.Core/HyperAmplification.cs","src/WorldGen.Core/LandscapeProvince.cs"],
+  "other_followups":["ExposedRock currently removes organic matter before the wet/peat floor is re-added. Consider moving that suppression after wet/peat application, with a focused wet bare-wall test; do not mix into the current exact-output performance proof.","Fjords/cirques/oxbows remain future candidates; pick the most visible missing geography after the next accepted feature rather than treating this list as mandatory."],
+  "reports":"One PDF at end only. Retain failures and actual acceptance limits. All own Unity/player windows rightmost."
+}

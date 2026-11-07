@@ -69,8 +69,8 @@ static class LandscapeRegionTests
         foreach(var lake in lakes)
         {
             Check(SmallWaterBodies.IsLocal(lake.Id),"Local pond identity is distinct from source lakes");
-            Check(lake.Level<100&&lake.Bed(100,0)<lake.Level-1,"Water stands inside an actual cut basin");
-            Check(lake.Bed(100,1.5)==100,"Local pond preserves terrain outside its collar");
+            Check(lake.Level<100&&lake.Bed(100,0,lake.Center*radius)<lake.Level-1,"Water stands inside an actual cut basin");
+            Check(lake.Bed(100,1.5,lake.Center*radius)==100,"Local pond preserves terrain outside its collar");
             Check(lake.Radius>=12&&lake.Radius<=90,"Ponds have bounded physical dimensions");
             int before=probes;var same=basins.At(lake.Center,Flat);Check(same?.Id==lake.Id&&before==probes,"Warm pond query reuses the accepted survey");
             var dry=new SmallWaterBodies(73421,radius);
@@ -91,7 +91,7 @@ static class LandscapeRegionTests
         foreach(var pool in shallow)
         {
             Check(pool.Depth>=.18&&pool.Depth<=.85,"Wetland pools stay shallow");
-            Check(pool.Bed(100,0)<pool.Level&&pool.Level<100,"Shallow pools have actual depressed beds");
+            Check(pool.Bed(100,0,pool.Center*radius)<pool.Level&&pool.Level<100,"Shallow pools have actual depressed beds");
             foreach(var lake in lakes)Check((pool.Center-lake.Center).Length*radius>(pool.Radius+lake.Radius)*1.9,"Fine wetland and deep pond collars do not intersect");
         }
         for(int i=0;i<shallow.Length;i++)for(int j=0;j<i;j++)
@@ -150,7 +150,7 @@ static class LandscapeRegionTests
             Console.WriteLine("Pond search "+candidate.Cell+" wet "+candidate.P.Landscape.Wet+" found "+lakes.Length+" shallow "+lakes.Count(l=>l.Depth<1));
             if(lakes.Length==0)continue;
             File.WriteAllText(Path.Combine(output,"ponds.json"),WorldJson.Write(lakes));
-            foreach(var lake in lakes.Where(l=>l.Depth>=1).Take(2).Concat(lakes.Where(l=>l.Depth<1).Take(2)))
+            foreach(var lake in lakes.Where(l=>l.Depth>=1&&!l.Complex).Take(2).Concat(lakes.Where(l=>l.Depth<1&&!l.Complex).Take(2)))
             {
                 var patch=terrain.Patch(lake.Center,2000);var s=patch.Sample(lake.Center);
                 if(!s.Underwater||s.WaterBodyKey!=lake.Id||!double.IsFinite(s.ElevationM)||s.WaterSurfaceM-s.ElevationM<Math.Min(.9,lake.Depth*.9))throw new Exception("Actual pond centre does not contain its modelled water");
@@ -164,7 +164,7 @@ static class LandscapeRegionTests
                     for(int i=0;i<mesh.WaterPositions.Length;i+=3)
                     {
                         var point=frame.Position(mesh.EastM+mesh.WaterPositions[i],mesh.NorthM+mesh.WaterPositions[i+2]);
-                        if(!lakes.Any(body=>body.NormalizedRadius(point,frame.RadiusM)<=1.15))
+                        if(!lakes.Any(body=>body.NormalizedRadius(point,frame.RadiusM)<=body.BedExtent+.15))
                             throw new Exception("Pond water mesh escaped every surveyed enclosed footprint");
                     }
                 }

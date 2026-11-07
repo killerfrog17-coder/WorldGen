@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-glacial-troughs-44";
+        public const string Version = "hyper-amplification-wetland-complexes-45";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -242,7 +242,9 @@ namespace WorldGen.Core
         internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token,CellLocator landscapeLocator,double[] cachedRiverDatums=null)
         {
             var watch = Stopwatch.StartNew(); radius = world.Recipe.RadiusKm * 1000; scale = horizontalScale; seed = world.Recipe.Seed;
-            this.landscapeLocator=landscapeLocator;smallWater=new SmallWaterBodies(seed,radius*scale);wetlandWater=new SmallWaterBodies(seed^0x31b47,radius*scale,true,smallWater);
+            this.landscapeLocator=landscapeLocator;
+            smallWater=new SmallWaterBodies(seed,radius*scale,complexRegion:p=>profiles[landscapeLocator.Nearest(p)].Landscape.Wet>=.6);
+            wetlandWater=new SmallWaterBodies(seed^0x31b47,radius*scale,true,smallWater);
             int count = profiles.Length; var nodes = rootNodes = new RootVertexData[count];rootVertices=new Vertex[count];var hydro = world.Hydrology;
             var heights = new double[count]; var flows = new double[count];
             for (int i = 0; i < count; i++)
@@ -949,9 +951,9 @@ namespace WorldGen.Core
                         if(pond!=null)
                         {
                             double r=pond.NormalizedRadius(point,owner.radius*owner.scale);
-                            result.Height=pond.Bed(result.Height,r);result.Water=pond.Level;result.Mask=pond.Level-result.Height;
+                            result.Height=pond.Bed(result.Height,r,point*(owner.radius*owner.scale));result.Water=pond.Level;result.Mask=pond.Level-result.Height;
                             result.Kind=LocalWaterKind.Lake;result.BodyKey=pond.Id;result.Gradient=default;result.Flow=default;
-                            result.Footprint=(1-r)*pond.Radius;result.Minimum=result.Maximum=pond.Level;
+                            result.Footprint=(pond.BedExtent-r)*pond.Radius;result.Minimum=result.Maximum=pond.Level;
                             result.Speed=result.Turbulence=0;
                         }
                         TerrainQueryTiming.End(5,query);

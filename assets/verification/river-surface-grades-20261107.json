@@ -1,5 +1,5 @@
 {
-  "status":"Numerical station/render checks passed; native appearance and moving performance pending.",
+  "status":"Numerical station/render checks and actual native river/waterfall/pond checks passed. Moving performance of final combined candidate pending.",
   "diagnosis":"Held-camera diagnostic renders show rectangular bands in actual geometric normals while depth and flow remain continuous. Per-span normals drive abrupt Fresnel/specular changes.",
   "change":"Prepare continuous station grades on the complete immutable river reach after bank and waterfall fitting. Ordinary ribbons interpolate those grades and shared centerline tangents; explicit waterfalls keep their physical sheet normal and descent attributes.",
   "payload":"Existing float4 water color: xy flow velocity, z turbulence, ordinary alpha 2 - .5 * bounded grade (1.7..2), waterfall alpha 2.1..2.2. No added vertex stream, mesh, draw pass or texture fetch. Heights, banks, beds and water footprints do not change.",
@@ -7,5 +7,6 @@
   "waterfall_regression":{"actual_falls":4,"probes":16,"paired_wet_beds_and_render_payload":"passed","evidence":"artifacts/geography-night-20261107/river-grades-waterfalls"},
   "limitations":"No waterfalls in the station sample; separate actual-waterfall regression covers their distinct payload. No FPS gain claimed.",
   "baseline":"artifacts/landscape-20261103/water-shading-diagnostic-20261107-glacialtrough",
+  "native":{"river":"artifacts/landscape-20261103/river-grades-native-20261107-glacialtrough","waterfall":"artifacts/landscape-20261103/river-grades-regression-20261107-waterfall","pond":"artifacts/landscape-20261103/river-grades-regression-20261107-pond","all_exit":0,"screenshots":"Inspected: rectangular river lighting bands removed; actual falling-sheet motion and ordinary pond preserved. Underlying river planform/geometry remains the previous version."},
   "versions":{"localTerrain":"local-terrain-river-surface-grades-50"}
 }
