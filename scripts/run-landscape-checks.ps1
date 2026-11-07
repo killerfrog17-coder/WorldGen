@@ -8,6 +8,7 @@ param(
     [switch]$TreeShadowReview,
     [switch]$BarkReview,
     [switch]$WaterShadingReview,
+    [switch]$CliffReview,
     [ValidateRange(0,4)][int]$PlantQuality=3,
     [int]$SourceCell=-1
 )
@@ -34,6 +35,7 @@ foreach($kind in $Kinds){
     if($TreeShadowReview){$arguments+='--worldgen-tree-shadow-review'}
     if($BarkReview){$arguments+='--worldgen-bark-review'}
     if($WaterShadingReview){$arguments+='--worldgen-water-shading-review'}
+    if($CliffReview){$arguments+='--worldgen-cliff-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
     if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru

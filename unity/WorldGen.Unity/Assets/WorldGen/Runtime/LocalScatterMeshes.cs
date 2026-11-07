@@ -123,6 +123,21 @@ static partial class LocalScatterMeshes
             }
             for(int y=0;y<rings;y++)for(int x=0;x<sides;x++){int a=first+y*(sides+1)+x;Triangle(a,a+1,a+sides+1);Triangle(a+1,a+sides+2,a+sides+1);}
         }
+        public void Cliff(int detail,int variant)
+        {
+            int grid=detail==0?3:detail==1?2:1;
+            for(int row=0;row<CliffRocks.Rows(variant);row++)for(int column=0;column<CliffRocks.Columns;column++)for(int face=0;face<6;face++)
+            {
+                int first=V.Count;
+                for(int z=0;z<=grid;z++)for(int x=0;x<=grid;x++)
+                {
+                    var p=CliffRocks.Surface(variant,row,column,face,x*2d/grid-1,z*2d/grid-1);
+                    Add(new Vector3((float)p.X,(float)p.Y,(float)p.Z),Color.white,new Vector2(x/(float)grid,z/(float)grid));
+                }
+                for(int z=0;z<grid;z++)for(int x=0;x<grid;x++)
+                {int a=first+z*(grid+1)+x;Triangle(a,a+1,a+grid+1);Triangle(a+1,a+grid+2,a+grid+1);}
+            }
+        }
         public Mesh Finish(bool tangents=true){var mesh=new Mesh();mesh.SetVertices(V);mesh.SetColors(c);mesh.SetUVs(0,uv);mesh.SetTriangles(t,0);mesh.RecalculateNormals();if(tangents)mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;}
         public void SetVerticalBend(Mesh mesh)
         {
@@ -140,6 +155,7 @@ static partial class LocalScatterMeshes
         using var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
         if(kind==ScatterKind.Grass)b.Grass(detail,variant);
         else if(kind==ScatterKind.Conifer)b.Conifer(detail,variant,leaf);
+        else if(kind==ScatterKind.Outcrop&&CliffRocks.Is(variant))b.Cliff(detail,variant);
         else if(kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop)b.Rock(detail,variant,kind==ScatterKind.Outcrop);
         else if(kind==ScatterKind.Shrub)
         {
@@ -165,6 +181,6 @@ static partial class LocalScatterMeshes
             foreach(var indices in groups.Values){var n=Vector3.zero;foreach(int i in indices)n+=normals[i];n.Normalize();foreach(int i in indices)normals[i]=n;}
             result.normals=normals;result.RecalculateTangents();
         }
-        result.name=kind+" placeholder L"+detail+" V"+variant;return result;
+        result.name=(kind==ScatterKind.Outcrop&&CliffRocks.Is(variant)?"Jointed cliff bedrock":kind+" placeholder")+" L"+detail+" V"+variant;return result;
     }
 }

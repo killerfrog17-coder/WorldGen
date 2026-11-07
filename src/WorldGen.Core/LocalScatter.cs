@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed partial class LocalScatter
     {
-        public const string Version="local-scatter-tidal-zonation-24";
+        public const string Version="local-scatter-cliff-rocks-25";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -97,6 +97,12 @@ namespace WorldGen.Core
                         if(sample.ElevationM<2||sample.Underwater)continue;
                         HabitatCell? env=world.Ecology!=null&&sample.Cell<world.Ecology.Habitat.Length?world.Ecology.Habitat[sample.Cell]:null;
                         Biome biome=sample.Biome;if(biome==Biome.Freshwater||biome==Biome.SalineLake||biome==Biome.Ocean)continue;
+                        if(!key.Detail&&channel==1&&CliffRocks.Potential(sample))
+                        {
+                            double cliffU=(key.X+u)*2/Divisions(false)-1,cliffV=(key.Y+v)*2/Divisions(false)-1;
+                            double spacing=512d/side/Math.Pow(1+cliffU*cliffU+cliffV*cliffV,.75);
+                            if(CliffRocks.TryCreate(id,p,sample,patch,terrain.RadiusM*scale,spacing,seed,out var cliff)){result.Add(cliff);continue;}
+                        }
                         double wet=env==null?.7:D.Clamp(env.Value.AridityMilli/1300.0,.03,1.4);
                         double warm=env==null?18:env.Value.WarmTenthsC/10.0-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
                         double trees=0,cover=.6;

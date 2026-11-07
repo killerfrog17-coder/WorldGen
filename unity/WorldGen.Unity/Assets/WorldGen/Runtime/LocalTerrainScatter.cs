@@ -334,8 +334,10 @@ public sealed partial class LocalTerrainExplorer
             var rootMin=group.RootBounds.min;var rootMax=group.RootBounds.max;bool groupChanged=false;int maximumGroundLevel=-1;
             foreach(int i in group.Indices)
             {
+                var p=chunk.Source.Instances[i];
+                if(p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant))continue;
                 var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i])){maximumGroundLevel=Math.Max(maximumGroundLevel,chunk.GroundLevels[i]);continue;}
-                var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
+                double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
                 double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
                 float y=(float)VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level)-ScatterEmbedding(p);chunk.GroundLevels[i]=level;
                 maximumGroundLevel=Math.Max(maximumGroundLevel,level);
@@ -384,12 +386,19 @@ public sealed partial class LocalTerrainExplorer
     {
             var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
             double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);chunk.GroundLevels[i]=level;
-            bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
+            bool cliff=p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant);
+            if(cliff){y=frame.SurfaceY(p.Position,p.GroundM);chunk.GroundLevels[i]=-1;} // Geological mass, not a root fitted to a coarse terrain triangle.
+            bool herb=IsSpecialist(p.Kind),vertical=cliff||herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
             // An ellipsoidal mesh touching at its bottom point looks levitating.
             // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
             var position=new Vector3((float)(x-originX),(float)y-ScatterEmbedding(p),(float)(z-originZ));chunk.Roots[i]=position;
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
+            if(cliff)
+            {
+                var outward=new Vector3((float)V.Dot(p.Normal,frame.East),(float)V.Dot(p.Normal,frame.Origin),(float)V.Dot(p.Normal,frame.North));
+                rotation=Quaternion.LookRotation(outward,normal);
+            }
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
     }
     LocalTerrainArtSet.Binding FindScatterBinding(ScatterKind kind)
@@ -399,7 +408,7 @@ public sealed partial class LocalTerrainExplorer
         if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         long key=ScatterArtKey(kind,variant,lod);if(scatterArt.TryGetValue(key,out var found)){found.LastUsed=Time.realtimeSinceStartupAsDouble;return found;}
         if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)return CreateRebuiltTree(key,variant,lod);
-        var binding=FindScatterBinding(kind);
+        var binding=kind==ScatterKind.Outcrop&&CliffRocks.Is(variant)?null:FindScatterBinding(kind);
         GameObject prefab=binding==null?null:lod==0?binding.Near:lod==1?(binding.Middle!=null?binding.Middle:binding.Near):(binding.Far!=null?binding.Far:binding.Middle!=null?binding.Middle:binding.Near);
         var parts=new List<ArtPart>();var bounds=new Bounds();bool first=true;
         if(prefab!=null)
@@ -448,8 +457,10 @@ public sealed partial class LocalTerrainExplorer
             if(kind==ScatterKind.Branch){material.SetFloat("_TreeSurface",1);material.SetFloat("_TreeBarkPattern",1);}
             if(rock)
             {
-                material.SetFloat("_RockLayer",8+(int)ToolStone.Family(variant));material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
+                bool cliff=kind==ScatterKind.Outcrop&&CliffRocks.Is(variant);
+                material.SetFloat("_RockLayer",8+(int)(cliff?CliffRocks.Family(variant):ToolStone.Family(variant)));material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
                 material.SetTexture("_RockNormals",landMaterial.GetTexture("_GroundNormals"));material.SetFloat("_RockLayers",landMaterial.GetFloat("_RockLayers"));
+                if(cliff)material.SetFloat("_Cull",2);
             }
             if(!shared){RegisterScatterMaterial(material);if(kind==ScatterKind.GeneratedTree)treeMaterials[materialKey]=material;}
             parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});

@@ -1,0 +1,11 @@
+{
+  "status": "Prototype; source controls pass, native appearance/collision/performance not yet accepted",
+  "scope": "Three-dimensional jointed masses on exposed steep walls, within the existing Outcrop instancing/culling/nearby-collider system. No change to the authoritative heightfield or unrelated vegetation density.",
+  "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded.",
+  "geometry": "48 lithology/shape combinations. Massive rock has3 rows, layered rock5 rows; three unequal blocks per row, bevelled fracture faces and variable ledge projection. Near972/1620triangles, middle432/720, far108/180. Existing generated rock albedo/normal arrays; no new texture pass.",
+  "collision": "Reuse actual nearby nonconvex rock mesh colliders. Radial vertical and outward wall direction preserve undercut ledges. Geological anchors do not move onto changing coarse terrain triangles.",
+  "controls": {"checks":60491,"actual_cliffs":262,"first_build_aggregate_ms":1023.0,"timing_limit":"Background component aggregate across selected canyon patches, not frame time"},
+  "versions": {"scatter":"local-scatter-cliff-rocks-25","variant_marker":1048576},
+  "research": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-visibility-tool-in-unreal-engine",
+  "research_application": "Keep efficient height terrain for broad ground and use actual solid mesh geometry where a heightfield cannot represent projecting roofs. This pass adds ledges, not underground tunnel excavation."
+}
