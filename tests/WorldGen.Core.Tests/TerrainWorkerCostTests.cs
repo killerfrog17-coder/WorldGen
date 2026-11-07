@@ -57,14 +57,15 @@ static class TerrainWorkerCostTests
                 w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,request.Item1,request.Item2,request.Item3,request.Item4,null);w.Flush();
                 if(!r.ReadBoolean())throw new Exception("Worker request failed: "+r.ReadString());
                 var mesh=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();child.Refresh();watch.Stop();double cpuMs=child.TotalProcessorTime.TotalMilliseconds-cpu;
-                string hash=MeshHash(mesh,geometryOnly);
+                string hash=MeshHash(mesh,geometryOnly);int changedRgb=0;double maxRgbDelta=0;
                 if(verifyCurrent)
                 {
                     double step=request.Item3/request.Item4;
                     var expected=LocalTerrainMesh.Build(model,frame,request.Item1,request.Item2,request.Item3,request.Item4,edgeSteps:new[]{step,step,step,step});
                     if(MeshHash(expected,geometryOnly)!=hash)throw new Exception("Packaged/current terrain/water/cover wire payload differs at "+request+", terrain RGB excluded: "+geometryOnly);
+                    if(geometryOnly)for(int i=0;i<mesh.Colors.Length;i++)if(i%4!=3&&mesh.Colors[i]!=expected.Colors[i]){changedRgb++;maxRgbDelta=Math.Max(maxRgbDelta,Math.Abs(mesh.Colors[i]-expected.Colors[i]));}
                 }
-                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),TerrainRgbExcluded=geometryOnly};rows.Add(row);
+                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),TerrainRgbExcluded=geometryOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
                 File.WriteAllText(Path.Combine(output,"tiles.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
                 Console.WriteLine($"{version} tile {request.Item1},{request.Item2}/{request.Item3} n{request.Item4}: {row.ElapsedMs:F1}ms wall / {row.BuildMilliseconds:F1}ms build / {row.CpuMs:F1}ms CPU");
             }

@@ -265,9 +265,15 @@ public sealed partial class LocalTerrainExplorer
             }
             else
             {
-                bool biomeQuery=Enum.TryParse(kind,out Biome requestedBiome);
-                var requested=biomeQuery?default:(LandscapeRegion)Enum.Parse(typeof(LandscapeRegion),kind);
+                // Inspection-only alias: compare warm perennial marsh with
+                // the existing cold glacial marsh, without changing habitats.
+                bool warmMarsh=kind=="WarmMarsh";
+                bool WarmEnough(int id)=>world.Ecology.Habitat[id].ColdTenthsC>=80&&world.Ecology.Habitat[id].WarmTenthsC>=220;
+                string query=warmMarsh?"FreshwaterMarsh":kind;
+                bool biomeQuery=Enum.TryParse(query,out Biome requestedBiome);
+                var requested=biomeQuery?default:(LandscapeRegion)Enum.Parse(typeof(LandscapeRegion),query);
                 foreach(int cell in cells.Where(i=>biomeQuery?model.Profile(i).Biome==requestedBiome:LandscapeProvince.Region(model.Profile(i).Landscape,world.Surface.Cells[i].Position*(model.RadiusM*.1),world.Recipe.Seed,model.Profile(i).Biome)==requested)
+                    .Where(i=>!warmMarsh||WarmEnough(i))
                     .OrderByDescending(i=>kind=="Badlands"?model.Profile(i).Landscape.Badlands:0).Take(96))
                 {
                     var patch=model.Patch(world.Surface.Cells[cell].Position,18000);
@@ -286,6 +292,7 @@ public sealed partial class LocalTerrainExplorer
                                     double a=angle*Math.PI/8;
                                     var bank=(pond.Center+(pond.East*Math.Cos(a)+pond.North*Math.Sin(a))*(radius*pond.Radius/(model.RadiusM*.1))).Unit;
                                     var bankSample=model.Patch(bank,3000).Sample(bank);
+                                    if(warmMarsh&&!WarmEnough(bankSample.Cell))continue;
                                     if(!bankSample.Underwater&&bankSample.Landscape==requested&&(requested!=LandscapeRegion.WoodedSwamp||bankSample.Forest.Coverage>.2))
                                         return new LandscapeReviewSite{Position=bank,Sample=bankSample,WetlandPool=pond,CoastDirection=(bank-pond.Center).Unit};
                                 }
@@ -299,6 +306,8 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
+        var localHabitat=world.Ecology.Habitat[site.Sample.Cell];
+        File.WriteAllText(Path.Combine(output,"review-climate.txt"),$"cell={site.Sample.Cell}; biome={localHabitat.Biome}; cold={localHabitat.ColdTenthsC*.1:R}C; warm={localHabitat.WarmTenthsC*.1:R}C; mean={localHabitat.MeanTenthsC*.1:R}C");
         File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
         if(site.Volcano!=null){reviewRange=Math.Max(10000,site.Volcano.RadiusM*4.5);reviewFootprint=site.Volcano.RadiusM*3.6;}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
