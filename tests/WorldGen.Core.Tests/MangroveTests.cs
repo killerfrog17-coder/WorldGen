@@ -51,6 +51,16 @@ static class MangroveTests
                 Check(s.Morphology.CrownBase>=.19&&s.Morphology.CrownBase<=.31&&s.LeafHabit==TreeLeafHabit.Evergreen,"Low forking evergreen coastal architecture");
                 Check(s.Morphology.LeafShape==TreeLeafShape.Oval||s.Morphology.LeafShape==TreeLeafShape.Lanceolate,"Simple mangrove leaves rather than arbitrary lobed or compound foliage");
                 var root=TreeFlora.RootForm(s.MorphologyCode);roots.Add(root);Check(root!=TreeRootForm.Ordinary,"Every tidal lineage has an inherited aerial root form");
+                Check(TreeFlora.TidalInundation(s.MorphologyCode,s.HeightM,0)==1,"Dry tidal mud retains its previous species admission");
+                double previousWaterFit=1;
+                for(int j=0;j<=25;j++)
+                {
+                    double fit=TreeFlora.TidalInundation(s.MorphologyCode,s.HeightM,j*.05);
+                    Check(fit>=0&&fit<=previousWaterFit,"Flood tolerance retires continuously and monotonically with actual water depth");previousWaterFit=fit;
+                }
+                Check(TreeFlora.TidalInundation(s.MorphologyCode,s.HeightM,2)==0,"Permanent deep inundation cannot drown the aerating roots");
+                if(root==TreeRootForm.Prop)Check(TreeFlora.TidalInundation(s.MorphologyCode,s.HeightM,.2)>0,"Prop-root lineages can occupy the flooded seaward fringe");
+                else Check(TreeFlora.TidalInundation(s.MorphologyCode,s.HeightM,.3)==0,"Low pegs and knees prefer higher intertidal mud");
                 Check(TreeFlora.RootForm(TreeFlora.RenderCode(s.MorphologyCode))==root,"Near and baked distant anatomy share the same root type");
                 var p=new ForestCoverProfile{MorphologyCode=s.MorphologyCode,Coverage=.7,WarmC=30,HeightM=s.HeightM,WidthM=s.WidthM};
                 Check(TreeFlora.Rooting(p,.2,false,0,Biome.Mangrove),"Bare low tidal mud can support mapped mangroves");
@@ -60,7 +70,7 @@ static class MangroveTests
                 var cold=habitat;cold.ColdTenthsC=-20;
                 Check(TreeFlora.Suitability(s,cold,soil,Biome.Mangrove)==0,"Freezing winters exclude mangroves");
                 Check(TreeFlora.Suitability(s,habitat,soil,Biome.Mangrove)>0,"Warm saturated mildly saline soil supports the lineage");
-                Check(TreeFlora.Surface(p,new V(1,0,0),seed,637100,-.8,1,true,.8,Biome.Mangrove).Coverage>0,"Terrain/map forest surface includes the same shallow tidal roots");
+                Check(TreeFlora.Surface(p,new V(1,0,0),seed,637100,-.8,1,true,.8,Biome.Mangrove).Coverage>0,"Terrain/map shallow tidal cover remains a potential bound; the shared species/size predicate owns actual roots");
                 Check(TreeFlora.Surface(p,new V(1,0,0),seed,637100,-2,1,true,2,Biome.Mangrove).Coverage==0,"Distant terrain forest does not paint deep water");
             }
             foreach(var s in species.Where(s=>s.Form!=TreeGrowthForm.BroadCrown))Check(TreeFlora.Suitability(s,habitat,soil,Biome.Peatland)==0,"Peat label at a coastal mud flat cannot turn palms or conifers into salt-adapted mangroves");
@@ -97,7 +107,12 @@ static class MangroveTests
                 Check(TreeFlora.Rooting(sample.Forest,sample.ElevationM,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,model.Profile(sample.Cell).Biome),"Every admitted tree obeys the shared physical rooting rule");
                 if(!isTidal){Check(!sample.Underwater&&sample.ElevationM>=2,"Inland lineages retain their old water/height exclusion");continue;}
                 tidal++;forms.Add(TreeFlora.RootForm(tree.Variant));if(sample.ElevationM<2)low++;
-                if(sample.Underwater){submerged++;Check(sample.WaterSurfaceM-sample.ElevationM<=1.25,"Submerged mangrove roots remain in shallow water");}
+                if(sample.Underwater)
+                {
+                    submerged++;double depth=sample.WaterSurfaceM-sample.ElevationM;
+                    Check(depth<=1.25,"Submerged mangrove roots remain in shallow water");
+                    Check(TreeFlora.TidalInundation(tree.Variant,tree.HeightM,depth)>0,"Actual size cohort leaves its inherited aerating roots above mean water");
+                }
             }
             Check(tidal>0,"Actual coastal scatter contains tidal-anatomy trees");
             var independent=new LocalScatter(model,.1);var far=new Dictionary<ulong,ScatterInstance>();int pages=LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide;

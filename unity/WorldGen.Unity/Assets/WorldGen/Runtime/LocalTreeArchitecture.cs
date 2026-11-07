@@ -354,7 +354,7 @@ static partial class LocalScatterMeshes
                     // pegs or looped knees project above the surface.
                     var foot=d*spread-Vector3.up*.025f;int root=nodes.Count;nodes.Add(new TreeNode(foot,0){Radius=.0028f});
                     if(form==TreeRootForm.Pneumatophore)
-                        Path(root,foot+Vector3.up*.04f,foot+Vector3.up*(.055f+.025f*(float)roots.Unit()),.0028f,2);
+                        Path(root,foot+Vector3.up*.025f,foot+Vector3.up*(.035f+.015f*(float)roots.Unit()),.0028f,2);
                     else Path(root,foot+Vector3.up*(.10f+.035f*(float)roots.Unit()),foot+d*.07f,.0055f,5);
                 }
             }

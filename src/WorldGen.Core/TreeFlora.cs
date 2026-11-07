@@ -114,13 +114,23 @@ namespace WorldGen.Core
     /// random combinations at every region or plant. Saved food webs stay literal.</summary>
     public static class TreeFlora
     {
-        public const string Version="tree-flora-mangroves-5";
+        public const string Version="tree-flora-tidal-zonation-6";
         public const double PlacementPerM2=.055;
         public static int RenderCode(int code)=>code&0x70ffff00;
         public static int ModelCode(int code,int lod)
         {if(lod>=2)return RenderCode(code);var form=(TreeGrowthForm)((code>>28)&7);return form==TreeGrowthForm.BroadCrown||form==TreeGrowthForm.NeedleCrown?code&~7:code;}
         public static bool TidalCode(int code)=>((code>>28)&7)==(int)TreeGrowthForm.BroadCrown&&((code>>22)&3)==(int)TreeCrownStrategy.Mangrove;
         public static TreeRootForm RootForm(int code)=>!TidalCode(code)?TreeRootForm.Ordinary:(TreeRootForm)(1+Rng.Mix((uint)((code>>8)&16383))%3);
+        public static double TidalInundation(int code,double height,double depth)
+        {
+            if(!TidalCode(code)||depth<=0)return 1;
+            if(height<=0||double.IsNaN(height)||double.IsInfinity(height))return 0;
+            // Mean-water admission follows actual aerating-root height. Prop
+            // roots tolerate deeper inundation; low breathing pegs and knees
+            // occupy higher mud. Overlapping soft limits, not rigid zones.
+            var form=RootForm(code);double limit=Math.Min(1.25,height*(form==TreeRootForm.Prop?.06:form==TreeRootForm.Pneumatophore?.005:.012));
+            return 1-Smooth((depth-limit*.35)/(limit*.65));
+        }
         public static bool Rooting(ForestCoverProfile profile,double elevation,bool underwater,double depth=0,Biome? biome=null)
         {
             // Only mapped warm coastal lineages get this exception. Ordinary
@@ -133,6 +143,8 @@ namespace WorldGen.Core
         public static double SpeciesWeight(TreeSpecies species,HabitatCell? habitat,LocalTerrainSample sample,V at,int seed,double radius,double sourceElevation)
         {
             double fit=Suitability(species,habitat,sample.Ground,sample.Biome,sample.ElevationM-sourceElevation);
+            if(sample.Underwater&&species.Morphology.Strategy==TreeCrownStrategy.Mangrove)
+                fit*=TidalInundation(species.MorphologyCode,species.HeightM,sample.WaterSurfaceM-sample.ElevationM);
             if(fit<=0)return 0;
             double colony=.5+.5*SphereNoise.Sample(at*(radius/1000),seed^(species.MorphologyCode&~255),2.4);
             return fit*(.25+.75*D.Clamp((colony-.2)/.6));

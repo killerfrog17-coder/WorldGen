@@ -105,9 +105,15 @@ namespace WorldGen.Core
                 double localWarm=(h==null?18:h.Value.WarmTenthsC*.1)-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
                 double growth=D.Clamp((localWarm-5)/12);growth=growth*growth*(3-2*growth);
                 size*=(.28+.72*growth)*(.65+.35*D.Clamp(sample.Ground.DepthM/.6));
+                double height=D.Q(s.HeightM*size,1000);
+                if(sample.Underwater&&s.Morphology.Strategy==TreeCrownStrategy.Mangrove)
+                {
+                    double inundation=TreeFlora.TidalInundation(s.MorphologyCode,height,sample.WaterSurfaceM-sample.ElevationM);
+                    if(inundation<=0||r.Unit()>inundation)return false;
+                }
                 double tint=.93+.12*r.Unit();
                 tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode|(int)(r.Unit()*6),Position=at,Normal=(at-east*sx-north*sz).Unit,
-                    GroundM=sample.ElevationM,HeightM=D.Q(s.HeightM*size,1000),WidthM=D.Q(s.WidthM*size*(.88+.24*r.Unit()),1000),
+                    GroundM=sample.ElevationM,HeightM=height,WidthM=D.Q(s.WidthM*size*(.88+.24*r.Unit()),1000),
                     YawDegrees=D.Q(r.Unit()*360,1000),Color=new V(tint,tint,tint)};return true;
         }
     }
