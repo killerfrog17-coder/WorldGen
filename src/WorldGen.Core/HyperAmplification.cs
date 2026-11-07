@@ -810,26 +810,19 @@ namespace WorldGen.Core
             readonly HyperAmplification owner;
             readonly int[] faces;
             readonly Func<V,SmallWaterGround> smallWaterGround;
-            readonly bool canonicalFromRoot;
-            sealed class WaterSurveyContext
-            {
-                public readonly int Cell;public readonly Patch Region;
-                public WaterSurveyContext(int cell,Patch region){Cell=cell;Region=region;}
-            }
-            WaterSurveyContext[] waterSurveyContexts;
             Face last;
-            public Patch(HyperAmplification owner, int[] triangleOffsets,bool canonicalFromRoot=false)
+            public Patch(HyperAmplification owner, int[] triangleOffsets)
             {
-                this.owner=owner;this.canonicalFromRoot=canonicalFromRoot;smallWaterGround=SmallWaterGroundAt;faces=new int[triangleOffsets.Length];
+                this.owner=owner;smallWaterGround=SmallWaterGroundAt;faces=new int[triangleOffsets.Length];
                 for(int i=0;i<faces.Length;i++)faces[i]=triangleOffsets[i]/3;
             }
             Face Locate(V point,out double a,out double b,out double c,double mapSpacingM=0)
             {
                 Face found = null; a = b = c = 0;
-                if (!canonicalFromRoot&&last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
+                if (last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
                 if(found==null)foreach(int id in faces)if(owner.roots[id].Coordinates(point,out a,out b,out c)>=-1e-7){found=owner.RootFace(id);break;}
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
-                if(!canonicalFromRoot)last = found;
+                last = found;
                 while (found.Depth < owner.terminalDepth&&(mapSpacingM<=0||found.Size>mapSpacingM))
                 {
                     var split = owner.Split(found); Face next = null; double best = -1e10;
@@ -868,41 +861,18 @@ namespace WorldGen.Core
                 // controller/sky queries commonly remain in this same terminal
                 // face. Keep it (and its leases), not just its coarse ancestor:
                 // no repeated root-to-leaf walk or locking of background splits.
-                if(!canonicalFromRoot)last=found;
+                last=found;
                 a = Math.Max(0, a); b = Math.Max(0, b); c = Math.Max(0, c); double sum = a + b + c; a /= sum; b /= sum; c /= sum;
                 return found;
             }
             internal SmallWaterGround SmallWaterGroundAt(V point)
             {
-                int cell=owner.landscapeLocator.Nearest(point),slot=cell&3;
-                var contexts=Volatile.Read(ref waterSurveyContexts);
-                if(contexts==null)
-                {
-                    var created=new WaterSurveyContext[4];
-                    contexts=Interlocked.CompareExchange(ref waterSurveyContexts,created,null)??created;
-                }
-                var context=Volatile.Read(ref contexts[slot]);
-                if(context==null||context.Cell!=cell)
-                {
-                    var nearby=new System.Collections.Generic.HashSet<int>();
-                    void Add(int vertex){for(int i=owner.riverFaceOffsets[vertex];i<owner.riverFaceOffsets[vertex+1];i++)nearby.Add(owner.riverFaces[i]*3);}
-                    for(int i=owner.riverFaceOffsets[cell];i<owner.riverFaceOffsets[cell+1];i++)
-                    {var f=owner.roots[owner.riverFaces[i]];Add(f.A);Add(f.B);Add(f.C);}
-                    var offsets=new int[nearby.Count];nearby.CopyTo(offsets);Array.Sort(offsets);
-                    V center=owner.rootNodes[cell].Position;double extent=0;
-                    foreach(int offset in offsets)
-                    {
-                        var f=owner.roots[offset/3];
-                        for(int k=0;k<3;k++){int node=k==0?f.A:k==1?f.B:f.C;extent=Math.Max(extent,(owner.rootNodes[node].Position-center).Length*owner.radius*owner.scale);}
-                    }
-                    // Select for the entire immutable neighbourhood BEFORE
-                    // publication. Reusing a first-point/extent1 selection
-                    // would silently omit rivers at later survey points.
-                    var region=new Patch(owner,offsets,canonicalFromRoot:true);
-                    region.SetRiverRegion(center,extent+100);region.SelectRiverscapes(center,extent+100);
-                    context=new WaterSurveyContext(cell,region);Volatile.Write(ref contexts[slot],context);
-                }
-                var surface=context.Region.Sample(point,false,0,false);
+                int cell=owner.landscapeLocator.Nearest(point);var nearby=new System.Collections.Generic.HashSet<int>();
+                void Add(int vertex){for(int i=owner.riverFaceOffsets[vertex];i<owner.riverFaceOffsets[vertex+1];i++)nearby.Add(owner.riverFaces[i]*3);}
+                for(int i=owner.riverFaceOffsets[cell];i<owner.riverFaceOffsets[cell+1];i++)
+                {var f=owner.roots[owner.riverFaces[i]];Add(f.A);Add(f.B);Add(f.C);}
+                var offsets=new int[nearby.Count];nearby.CopyTo(offsets);Array.Sort(offsets);
+                var surface=new Patch(owner,offsets).Sample(point,false,0,false);
                 return new SmallWaterGround(surface.Height,surface.Water,surface.Kind,surface.Landscape);
             }
             public Surface Sample(V point,bool bare=false,double mapSpacingM=0,bool localWater=true)
