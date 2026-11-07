@@ -145,14 +145,16 @@ void SurfaceStrata(O i,inout float3 albedo)
         float3 regional=_TerrainBeddingOrigin.xyz+(TerrainEast().xyz*radial.x+TerrainNorth().xyz*radial.y+TerrainUp().xyz*i.position.y)*.0001;
         float folded=altitude+sin(dot(regional,float3(.27,.41,.13))+_TerrainBeddingOrigin.w)*30
             +sin(dot(regional,float3(1.1,.7,.9)))*9;
-        // Unequal bed thickness, gently dipping regional strata and weaker
-        // carbonate contrast avoid identical chocolate stripes on every cliff.
+        // Unequal bed thickness and gently dipping regional strata. Adjacent
+        // beds inherit independent tones, joined continuously: a repeating
+        // sawtooth made every valley look like the same striped layer cake.
         float strata=folded+sin(folded*.031)*8+sin(folded*.097)*2;
-        float bed=smoothstep(.12,.76,frac(strata/29));
+        float layer=strata/29,index=floor(layer),blend=smoothstep(.08,.92,frac(layer));
+        float seed=_TerrainBeddingOrigin.w*71.3;
+        float bed=lerp(SurfacePatchHash(float2(index,seed)),SurfacePatchHash(float2(index+1,seed)),blend);
         float carbonate=saturate(i.rocks.w/max(.001,sedimentary));
         float3 tint=lerp(lerp(float3(1.055,1.03,1),float3(.85,.81,.76),bed),
             lerp(float3(1.025,1.025,1.02),float3(.93,.94,.94),bed),carbonate);
-        tint+=sin(strata*1.13)*.012;
         albedo*=lerp(1,tint,exposed);
     }
 }
@@ -163,7 +165,9 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     if(bare<.01||_TerrainSurfaceControls.y<1)return;
     // The microscopic scan retires at the normal surface range. A single
     // two-axis blend provides broad weathering variation across exposed
-    // rock faces, using the existing rock array and no extra texture budget.
+    // rock faces. At32m the generated rock grain averaged away over distant
+    // walls;128m keeps larger patches visible. Same existing two fetches,
+    // texture array and wrapped1024m anchor, with no new material or pass.
     int rock=0;float best=i.rocks.x;
     [unroll]for(int k=1;k<6;k++)
     {
@@ -172,13 +176,13 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     }
     float3 normal=normalize(i.normal),planetNormal=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
     float3 axes=SurfaceAxes(planetNormal,2,1);
-    float shade=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/32,worldDx/32,worldDy/32,axes,8+rock).rgb,float3(.2126,.7152,.0722));
+    float shade=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/128,worldDx/128,worldDy/128,axes,8+rock).rgb,float3(.2126,.7152,.0722));
     #ifndef UNITY_COLORSPACE_GAMMA
     shade*=4.672;
     #else
     shade*=2;
     #endif
-    albedo*=lerp(1,clamp(shade,.55,1.45),bare*.42);
+    albedo*=lerp(1,clamp(shade,.55,1.45),bare*.62);
 }
 
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
