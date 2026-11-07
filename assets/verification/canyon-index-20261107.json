@@ -1,0 +1,8 @@
+{
+  "status":"Exact output checks passed. Storage/query optimization retained independently of forthcoming canyon shape changes. No frame-time gain claimed.",
+  "change":"Replace399996-slot per-face reference array with numeric compressed rows; remove450 retained per-face arrays. Evaluate the identical world-space erosion field lazily once per point rather than once per overlapping reach.",
+  "world":{"reaches":4,"indexed_faces":450,"numeric_index_bytes":1603600,"old_reference_slots":399996,"old_nonempty_arrays":450},
+  "proof":{"controls":81063,"actual_incised_contexts":3,"complete_worker_packets_exact":21,"normalization":"BuildMs only; terrain vertices/normals/cover/material/water and forest/scatter/detail payloads byte-exact against packaged pre-change worker","shared_water_edges":"passed, maximum drawn-ground clearance0m","evidence":["artifacts/geography-night-20261107/canyon-csr-wire-v2","artifacts/geography-night-20261107/canyon-csr-world"]},
+  "rejected_test_attempt":"First compile was not complete before launching a test helper, causing Windows output DLL locks; that build failed and initial old-runner wire output is not evidence. Waited for all helpers to exit, completed clean build and reran controls/landlocked/v2 wire proof successfully.",
+  "limits":"Verified memory/reference reduction, not a demonstrated fix for collector stalls or overall stutter. No terrain/cache version change needed because physical output is exact."
+}

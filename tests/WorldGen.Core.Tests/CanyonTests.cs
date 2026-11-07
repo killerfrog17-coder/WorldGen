@@ -42,7 +42,7 @@ static class CanyonTests
     {
         Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);var clock=System.Diagnostics.Stopwatch.StartNew();
         var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var canyons=terrain.Amplification.Canyons;
-        Console.WriteLine($"Canyon candidate reaches {canyons.Reaches.Length}, indexed faces {canyons.IndexedFaces}; prepare {clock.Elapsed.TotalSeconds:F2}s");
+        Console.WriteLine($"Canyon candidate reaches {canyons.Reaches.Length}, indexed faces {canyons.IndexedFaces}, numeric index {canyons.IndexBytes} bytes; prepare {clock.Elapsed.TotalSeconds:F2}s");
         var rows=new List<object>();
         foreach(var reach in canyons.Reaches.OrderByDescending(r=>r.Strength*r.Relief).Take(40))
         {

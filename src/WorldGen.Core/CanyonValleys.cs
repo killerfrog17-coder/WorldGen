@@ -33,10 +33,11 @@ namespace WorldGen.Core
                 return ground+cut;
             }
         }
-        readonly double radius;readonly int[][] candidates;
+        readonly double radius;readonly int[] offsets,indices;
         readonly int seed;
         public readonly Reach[] Reaches;
         public int IndexedFaces {get;}
+        public int IndexBytes=>sizeof(int)*(offsets.Length+indices.Length);
         static double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
         public CanyonValleys(World world,LocalTerrainProfile[] profiles,double scale,double[] levels,double[] widths,CancellationToken token=default)
         {
@@ -70,18 +71,19 @@ namespace WorldGen.Core
                     foreach(int adjacent in world.Surface.Cells[cell].Neighbors)if(visited.Add(adjacent))queue.Enqueue(adjacent);
                 }
             }
-            Reaches=reaches.ToArray();candidates=new int[world.Surface.Triangles.Length/3][];
-            for(int face=0;face<candidates.Length;face++)
+            Reaches=reaches.ToArray();int faces=world.Surface.Triangles.Length/3;offsets=new int[faces+1];var packed=new List<int>();
+            for(int face=0;face<faces;face++)
             {
                 if((face&8191)==0)token.ThrowIfCancellationRequested();List<int> list=null;
                 for(int k=0;k<3;k++)if(cells.TryGetValue(world.Surface.Triangles[face*3+k],out var found))
                     foreach(int index in found){if(list==null)list=new List<int>();if(!list.Contains(index))list.Add(index);}
-                if(list!=null){list.Sort();candidates[face]=list.ToArray();IndexedFaces++;}
+                if(list!=null){list.Sort();packed.AddRange(list);IndexedFaces++;}
+                offsets[face+1]=packed.Count;
             }
+            indices=packed.ToArray();
         }
-        public static double ErodedDistance(V metres,int seed,double distance,double halfWidth)
+        static double ErosionFactor(V metres,int seed)
         {
-            if(distance>=halfWidth*1.6)return distance;
             // Connected ridges in the noise field carve short tributary-like
             // gullies into the walls, while leaving the drainage datum intact.
             // Broad shoulders and finer ravines break continuous railway-like
@@ -90,29 +92,41 @@ namespace WorldGen.Core
             double ridge=1-Math.Abs(LandscapeNoise.Value(metres,seed^0x71c315,1/550d)
                 +.25*LandscapeNoise.Value(metres,seed^0x137c51,1/160d));
             double gully=OrogenMorphology.Smooth(.25,.90,ridge);
-            double shoulder=1+.14*broad;
-            double retirement=1-OrogenMorphology.Smooth(1.15,1.6,distance/halfWidth);
-            return distance*(1+(Math.Max(.56,shoulder-.32*gully*gully*gully)-1)*retirement);
+            double shoulder=1+.14*broad;return Math.Max(.56,shoulder-.32*gully*gully*gully);
         }
+        static double ErodedDistance(double factor,double distance,double halfWidth)
+        {
+            if(distance>=halfWidth*1.6)return distance;
+            double retirement=1-OrogenMorphology.Smooth(1.15,1.6,distance/halfWidth);
+            return distance*(1+(factor-1)*retirement);
+        }
+        public static double ErodedDistance(V metres,int seed,double distance,double halfWidth)
+            =>distance>=halfWidth*1.6?distance:ErodedDistance(ErosionFactor(metres,seed),distance,halfWidth);
         public double Apply(V point,int face,double ground,out double exposure)
         {
-            exposure=0;var found=candidates[face];if(found==null)return ground;
+            exposure=0;int first=offsets[face],last=offsets[face+1];if(first==last)return ground;
             double uplift=0;
-            foreach(int index in found)
+            for(int k=first;k<last;k++)
             {
-                var reach=Reaches[index];V d=reach.B-reach.A,p=point-reach.A;
+                var reach=Reaches[indices[k]];V d=reach.B-reach.A,p=point-reach.A;
                 double u=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)));
                 uplift=Math.Max(uplift,reach.Uplift((p-d*u).Length*radius));
             }
             ground+=uplift;
-            foreach(int index in found)
+            double erosion=double.NaN;
+            for(int k=first;k<last;k++)
             {
-                var reach=Reaches[index];V d=reach.B-reach.A,p=point-reach.A;
+                var reach=Reaches[indices[k]];V d=reach.B-reach.A,p=point-reach.A;
                 double raw=Dot(p,d)/Math.Max(1e-30,Dot(d,d)),u=D.Clamp(raw),distance=(p-d*u).Length*radius;
                 // Extrapolate the grade through round end caps; a clamped low
                 // downstream level must not undercut the upstream river bank.
                 double level=reach.LevelA+(reach.LevelB-reach.LevelA)*raw;
-                double eroded=ErodedDistance(point*radius,seed,distance,reach.HalfWidth);
+                // This world-space field is shared by every overlapping reach.
+                // Evaluate once only when the point actually enters a gully's
+                // support; do not repeat three noise queries per candidate.
+                double eroded=distance;
+                if(distance<reach.HalfWidth*1.6)
+                {if(double.IsNaN(erosion))erosion=ErosionFactor(point*radius,seed);eroded=ErodedDistance(erosion,distance,reach.HalfWidth);}
                 ground=reach.Cut(ground,eroded,level,out double bare);exposure=Math.Max(exposure,bare);
             }
             return ground;
