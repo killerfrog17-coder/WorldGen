@@ -90,7 +90,11 @@
     "sha256": "168c9d5439560efec74ef3614d9500d9be37ec6162094944b89e44edce131163",
     "screenshots": 12,
     "canonical_inputs": "docs/reports/geography-20261107",
-    "review": "All five rendered pages inspected; no overflow; lowest content bottom56.76pt."
+    "review": "All five rendered pages inspected; no overflow; lowest content bottom56.76pt.",
+    "opened_utc": "2026-11-07T17:50:22.8751180Z",
+    "opened_in": "New Chrome PDF tab, leftmost display DISPLAY2",
+    "verified_window_title": "WorldGen | Overnight geography - Google Chrome",
+    "verified_window_bounds": [-1896, 24, -24, 1008]
   },
   "artifact_delete_rejection": {
     "path": "artifacts/render-repair-20261106/temperate-gpu-passes/dense-temperateforest-gpu.raw",

@@ -1,5 +1,51 @@
 # WorldGen repository instructions
 
+LATEST 07 Nov 17:51Z — GEOGRAPHY DELIVERED; final handoff until noon/18Z.
+Existing root shortcut now selects slot-a FULL Mono NONDEV 8c75e05d, built
+17:09:50Z with SourceChanges[]. Known Unity autos restored; no own game,
+Unity or CLI workers remain. Protect selected A; reuse B for future work.
+All runtime source pushed. Final five-page, twelve-screenshot report and
+canonical inputs pushed in 8c50a988; report is OPEN in Chrome on LEFTMOST
+display (verified bounds -1896,24 to -24,1008). Unity/player windows RIGHTMOST.
+Report: docs/reports/geography-20261107/WorldGen - Geography Overnight 2026-11-07.pdf
+Verification: assets/verification/geography-night-final-20261107.json
+Final Medium1080/6km moving routes: dune 464.79FPS/max16.99ms, inland glacial
+forest 155.72/max25.83, jungle 168.69/max36.03, savanna 170.58/max23.62.
+57,593 focused frames; 0 unfocused. Absolute 100FPS floor remains UNMET.
+Native sparse-backdrop river fix: largest same-site tile 109.50s -> 5.83s;
+three complete far packets EXACT and ground screenshot pixel EXACT. This
+is background loading improvement, not total startup/main-frame timing.
+Retain shores, glacial valleys/fjords, wetlands, mangroves, canyon scale,
+river lighting/indexing, rockshader947. Both extra ground-colour and sand
+distance trials RETIRED; final HLSL exact438, four Core files exactcd2.
+Broad cliff/marsh art, dune diversity, mixed-LOD shading and frame spikes
+remain follow-ups in geography-night-plan-20261107.json; do not claim complete.
+No further runtime features/tests before handoff. Owner's three files preserved;
+no subagents, no extra binary archives. The obsolete 1.4GB raw profiler capture
+deletion was blocked by automatic review ("blocked by policy"); it REMAINS.
+Never bypass that rejection; final response must disclose it separately.
+
+LATEST07Nov17:13Z FINALQA until18Z/noon. A FULLMonoNONDEV8c75e05d built
+17:09:50Z SourceChanges[],3autosrestored; ownrunner88001/player31396 RIGHTMOST
+runs sparse-backdrop-final-moving sameDune+GL60s180mMedium1080/6km. NO build/
+heavyjobs untilfinished. Both optionalcolour4ae/438 and Sand6f/d364/36/8c
+trials RETIRED. Sandcorrectalpha v2 meanridge.086/.070/.048RGB, stilltoo
+subtle forfarlookup. FINALHLSL exact438(shader947); final4Corefilesexactcd2
+(terrain61/amp55/scatter24). Finalnewruntimechangeaftercd2 is exact2402
+sparse-backdrop eager river removal +native-onlyWarmMarsh review helper.
+Do notclaimnewSandvisuals/useitsbeforeafterinPDF. Existing12acceptedJPEG/
+5pageJSON docs/reports/geography-20261107 retained; NO PDF emitted yet.
+Same13kmVolcano nativeold109.5stile->new5.834s; groundpixelEXACT/crater~.000003
+RGB mean. Three fullfarpacketsEXACT. Thisisloading, notmain-frameFPSclaim.
+Baselinepair438 completeDune349.12/p9910.74/max18.26/1>16.667 andGL150.73/
+p9914.81/max41.17/28. Need currentresults, analyze andupdatefinaltable, add
+Mango225/179rows +honest100floorUNMET. Then PDFbuild/render/inspect/openChrome
+LEFTMOST at END, switchrootshortcutTarget/IconAonlykeepingrootWorkingDir and
+Arguments, source/docsfinalpush. User3files preserved/no subagents. C4.8GBfree.
+No newfeaturesnow; finish meaningfulQA andconciseenddeliveryuntil18Z. Obsolete
+1.4GBrawcapturepolicyBLOCKED remains, no bypass; shortfinaldisclosure required.
+
+
 LATEST07Nov17:04Z until18Z/noon; one finalPDF/openChromeLEFTMOST. A FULLMono
 NONDEV36e06e9d built17:02:26Z SourceChanges[],3autosrestored. B0c8/shortcut
 stillprotected. Ownrunner3810/player24504 RIGHTMOST hidden nativeSandSea and
