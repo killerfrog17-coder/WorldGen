@@ -295,6 +295,12 @@
       "commits":["947107b2"],
       "entry":"unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl",
       "notes":"Same existing generated rock arrays, fetch count and draw passes. Native four-context review and combined jungle/savanna routes passed, occasional stalls remain. Retain earlier river lighting/ground art if reverting this shading. Evidence rock-macro-weathering-20261107.json."
+    },
+    {
+      "name":"Exposed bedrock surface coatings",
+      "commits":["4ae25c2d"],
+      "entry":"src/WorldGen.Core/LandscapeProvince.cs",
+      "notes":"RETIRED optional RGB-only field. Numerical and native checks passed but visual gain was subtle and moving forest results were worse/inconclusive. Not part of final game; original61/55/24 colour pipeline restored. Existing shader947, physical canyons/fjords and generated art retained. Evidence rock-surface-coatings-20261107.json."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",

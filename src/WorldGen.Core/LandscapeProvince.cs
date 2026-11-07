@@ -176,19 +176,6 @@ namespace WorldGen.Core
             // Wet/peat floors cannot put organic soil back onto explicitly
             // exposed bedrock after erosion has removed that soil cover.
             p.Organic*=1-remnant;
-            if(remnant>.001)
-            {
-                // Broad, planet-stable surface coatings. The same point keeps
-                // its colour across chunks, camera origins and terrain LODs.
-                // This changes appearance only, never the physical substrate.
-                double weather=LandscapeNoise.Value(metres,seed^0x3b7219,1/350d);
-                double stain=1-Smooth(-.6,.3,weather);
-                double damp=Smooth(.35,.85,controls.Moisture)*(1-.75*controls.Frozen);
-                double oxide=.22*stain*D.Clamp(p.Iron*(.3+.7*p.Weathering))*(1-.65*damp);
-                V aged=p.RockColor*(1+.18*weather);
-                aged=(aged*(1-oxide)+new V(.54,.30,.16)*oxide)*(1-.30*damp*stain);
-                p.RockColor=p.RockColor*(1-remnant)+aged*remnant;
-            }
             double volcanic=D.Clamp(controls.BareRock);
             if(volcanic>0)
             {
