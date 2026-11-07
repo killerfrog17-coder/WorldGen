@@ -1,6 +1,6 @@
 {
   "scope": "Wave-cut rock benches and scarps on erosion-dominated ocean shores, sharing existing terrain and water.",
-  "status": "Revised native review passes and shows an actual broad bench/scarp. Performance comparison running; final acceptance pending.",
+  "status": "Static landform retained after revised numerical, native and moving-camera checks. Broader art quality and frame tails remain unfinished.",
   "commits": ["1ea5e9d8", "37d57293"],
   "versions": {"local":"local-terrain-rock-shores-48", "amplification":"hyper-amplification-rock-shores-43", "scatter":"local-scatter-exposed-shores-18"},
   "sources": [{"url":"https://www.nps.gov/articles/coastal-processes-erosion.htm", "application":"Differentiate wave-eroded resistant rock shores from sediment-rich beaches and sheltered deposits."}],
@@ -21,16 +21,26 @@
     "candidate_commit":"37d57293",
     "revised_evidence":"artifacts/landscape-20261103/rocky-shores-wide-20261107-waveplatform",
     "exit_code":0,
-    "runtime_checks":25,
+    "runtime_checks":27,
     "review":"Ground and along-shore views show a walkable exposed bench below the inherited headland. Elevated view shows the connected shelf and ocean. No extra ocean sheet, visible gaps or underwater review camera.",
     "sandy_regression":"artifacts/landscape-20261103/rocky-shores-night-20261107-coastalbeach",
     "sandy_regression_exit":0,
     "limitations":"The physical form is improved; bare rock surface remains too uniform and the surrounding existing terrain/vegetation art is not fully accepted."
   },
+  "performance": {
+    "conditions":"1920x1080, Medium vegetation, 6km, same actual world/coordinate; 60s moving 180m loop plus rapid turns, fresh ordinary Mono nondevelopment processes, uncontended and all frames focused.",
+    "baseline":{"fps":206.46984,"p95_ms":9.15370,"p99_ms":11.27250,"max_ms":37.52360,"over10ms":338,"over16ms":13,"explorer_mean_ms":1.53020,"shape_mean_ms":0.007578},
+    "candidate":{"fps":210.80150,"p95_ms":11.04730,"p99_ms":12.68460,"max_ms":29.93860,"over10ms":1120,"over16ms":4,"explorer_mean_ms":1.37759,"shape_mean_ms":0.008974},
+    "evidence":["artifacts/geography-night-20261107/shore-baseline","artifacts/geography-night-20261107/shore-candidate"],
+    "assessment":"Mixed frame tails: higher average and fewer frames over16.7ms, worse p95/p99 and more over10ms. Shape cost increases about0.0014ms per frame. No general renderer or stutter improvement claim.",
+    "limits":"Physical terrain and visible geometry differ; the old route ends underwater beside its steep shore. Neither moving scene is fully settled. This tests practical traversal of the changed coast, not equal-geometry rendering or global performance.",
+    "map_profile_probes_per_build":48,
+    "readiness_comparisons":[17973,23348]
+  },
   "limits": [
     "Long-term wave exposure is a geographic proxy rather than a physical wave-energy simulation.",
     "A heightfield cannot form overhangs, detached sea arches or caves.",
-    "No claim of a universal 100 FPS floor; uncontended moving/turning comparison is pending.",
+    "No claim of a universal 100 FPS floor; the moving/turning comparison remains mixed.",
     "Two numerical sites in one world do not establish global distribution or complete coast variety."
   ]
 }
