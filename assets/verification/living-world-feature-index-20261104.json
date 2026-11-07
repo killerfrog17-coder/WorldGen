@@ -267,9 +267,21 @@
     },
     {
       "name":"Wetland complexes, shores and organic hummocks",
-      "commits":["97e25e10","c64aceec","d2eeba65"],
+      "commits":["97e25e10","c64aceec","d2eeba65","3b1c95de"],
       "entry":"src/WorldGen.Core/SmallWaterBodies.cs",
-      "notes":"Also WetlandMicrorelief, local mid-plant fit and lighter green reed culms. Initial native prototype visually REJECTED; latest refinement and performance review still ongoing. Evidence wetland-complexes-20261107.json and wetland-shores-20261107.json. Preserve generic bare-rock organic-floor ordering fix when reverting wetlands if other exposed landforms remain."
+      "notes":"Also WetlandMicrorelief, local mid-plant fit and lighter green reed culms. Initial native prototype visually REJECTED; latest irregular pool/hummock refinement passed native and moving tests but marsh vegetation still looks basic. Evidence wetland-pools-20261107.json. Preserve generic bare-rock organic-floor ordering fix when reverting wetlands if other exposed landforms remain."
+    },
+    {
+      "name":"Connected glacial fjord coasts",
+      "commits":["68ed9320","85bd51a2","e955d1fb","b2580566","9054b708"],
+      "entry":"src/WorldGen.Core/FjordCoasts.cs",
+      "notes":"Shared physical U-cut, bounded ocean ownership and inundated main-stem river datum. Initial floating river and overexposure errors caught/fixed. Native and exact-start moving checks passed; rock art still basic. Evidence fjord-coasts-20261107.json. Retain independent general river surface lighting/index preparation on inverse patch. 7c2283e4/7e84fcc8 are opt-in benchmark water-camera corrections, not production geography."
+    },
+    {
+      "name":"Intertidal mangrove lineages and aerial roots",
+      "commits":["bb8b7bc7"],
+      "entry":"src/WorldGen.Core/TreeFlora.cs",
+      "notes":"Also shared near/far rooting predicate, continuous tree architecture and offline TidalForestSites finder. Three inherited root forms in existing mapped warm mangrove provinces. Outside-habitat72 lineage hashes and42 full worker packets exact. Native/performance pending; see mangrove-forests-20261107.json. Preserve older continuous bark/wrap architecture when reverting."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",

@@ -1,5 +1,69 @@
 # WorldGen repository instructions
 
+LATEST07Nov13:53Z OVERNIGHT until18:00UTC/noon unless owner interrupts. One PDF
+at END ONLY/Chrome LEFTMOST; all own visible Unity/player RIGHTMOST, no subagents.
+Owner3files/B0c8+shortcut protected. A ScriptsOnlyNONDEVbb8b7bc7 built13:51Z;
+3knownUnityautos restored. Ownrunner10507/player12040 RIGHTMOST now runs
+mangrove-native-v1-20261107; NO overwrite/buildA until exited. MangoCore2702,
+actual29048/3sites/6567tidal/2771submerged/3rootforms each PASS.72inlandlineage
+hashes EXACT +42 full nonMango workerwirepackets EXACT(normalizeBuildMs only).
+Mango sourcePUSHEDbb8, LocalTerrain58/Hyper52/Scatter21. Shared one-mesh opaque
+roots, existing generatedbark/foliage/budgets; no new objects/pass/tick. Native
+art/perf NOT YETaccepted. PerformanceDrySite relocates any point<=5m even dry;
+do not benchmark .35mMango shore as if exact. Need dry>5m interior Mango or new
+explicit fixture bypass/proof. Current watercase requires genuinely submerged
+start and exact<=3cm; cannotuse dryshore with thatcase.
+FJ exactsurfaceperf7e84 COMPLETE: high304.54FPS,p9912.01/max20.47/1>16.7;
+woods235.40,p9911.02/max23.96/1>16.7. Medium1080/6km60s180mloop+whip focused,
+unsettled. Prior7c dry-relocated runs REJECTED as water evidence. Nativev4FJ+
+woodland/swim/salt passed; Pond/Waterfall/GlacialTrough regressions runtime0 and
+imagesinspected. Uniform rock walls/regularbedding still poor. No100floorclaim.
+Source edits afterbuild onlyverification/docs. FJ+FeatureIndexmetadata pending
+push. Cfree~5GB. One1.4GBobsoleteprofilercapture deletion auto-reviewBLOCKED;
+do NOTretrybypass. File remains; useralreadytold; disclosebrieflyinfinal too.
+
+LATEST07Nov12:54Z OVERNIGHT until18:00UTC/noon unless owner interrupts. Do NOT
+stop early. One PDF at END ONLY, Chrome LEFTMOST. All Unity/player windows
+RIGHTMOST or hidden. No subagents. Preserve owner3files. Baseline B/0c8+shortcut
+still protected. A ScriptsOnly NONDEV7c2283e4 built12:51Z, SourceChanges[],3known
+Unityautos restored. Own native runner starts fjord-native-v4-20261107:
+FjordWoodland THEN Fjord. NOToverwrite/compileA until both exit. Nativeonly; no
+otherheavyjobs. Physical LocalTerrain57/Hyper51/scatter20, allsourcePUSHED7c.
+Fjords37/865sections, CSR1.89MB/2833faces/max83candidates.8092controls/4325sea
+probes/138brute-index/205exactcached samples+projectedactualwatercoverage PASS.
+All37mouth/head identities identical atscales.01,.1,.5,1,2; standalone index
+44.7..68.2ms, NOTgame-startuptiming. Geometry follows smooth inherited drainage,
+bounded width/wallrelief, ocean0/station0. v1floating19mriverREJECTED/fixed.
+v2native runtime0 but VISUALREJECT; v3threecases runtime0 with actualswimfloat,
+water connected andcurved, BUTtoo uniformlybarebrown. Found exposure1 even at
+wooded deepbasin: nonwinning adjacentwall masks contaminated winning surface.
+9054fix makes exposure belong to winning cut, overrides supersededGLmask and
+grades exposure byactualsectionwallsteepness. Known173461counterexample PASS.
+v4native is FIRST visualreviewofthis correction; do NOTclaimartaccepted yet.
+New opt-in travel-whip-water-surface uses SAMEcurrent flags and maxground/wave
+surface forcamera. Ordinary grounded benchmark would sit on285m-deepseabed!
+Afterv4 inspectshots, run SAMEA moving60s180mloop/whip/Medium1080/6km at
+fjord-high,fjord-woodland using artifacts/geography-night-20261107/
+fjord-performance-sites.json and that explicitwatercase. Need water/pond/glacial
+native regressions, finalordinaryforestperformance, source/docs/push/shortcut/
+ONEfinalPDF. Neverclaim100floor: priorglacial151FPS/max47ms; wetlandswooded181/
+max16.15, marsh238/max18.04, peat246/max19.58. Sparse/querycache experiments not
+hitchfixes; surveycache49dfreverted d4ab neverpackaged. Art limits documented.
+Possible NEXT afterfjordsatisfactory: mangrove ecosystems currentlygenericdry
+trees; current TryTree rejectsALLunderwater and<2m, TreeFlora.Surface same.
+Research NOAA oceanservice.noaa.gov/facts/mangroves.html +FloridaMuseum mangrove
+adaptations/species +NParks: warm sheltered intertidal, shallow mud, prop/peg/
+knee-root diversity. NO MANGROVE SOURCE WRITTEN. Leadingplan: BroadCrownStrategy
+3(unused2bitcode) forMango-only seeded anatomy, shorterlowfork crowns, shared
+continuouswood proprootpaths, selective shallowtidal rooting using existing tree
+lattice/budgets; keep inland species EXACT. Must update both TryTree and
+TreeFlora.Surface/distant consumers, preserve near/far equality and slope/soil/
+salt/warm gates. No newtick/pass; reusegeneratedbark/foliage. Needactual native
+treegeometry/mangrove locations and movingperformance beforeacceptance. Not
+permission toskipunfinishedfjordgates. Canplan/readwhileAimmutable testsrun.
+StorageC~5GB. One obsolete1.4GBprofiler raw deletion blocked byautomaticreview
+(onlyreason blocked bypolicy); file remains, no workaround/retry. Disclosefinal.
+
 LATEST07Nov12:12Z OVERNIGHT until18:00UTC/noon unless owner interrupts. ONE PDF
 at END ONLY, Chrome LEFTMOST; own Unity/player windows RIGHTMOST or hidden.
 Selected B/0c8fdc0a and shortcut protected. Candidate A still3b1c95de/terrain53;
