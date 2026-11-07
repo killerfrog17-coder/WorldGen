@@ -478,7 +478,7 @@ public sealed partial class LocalTerrainExplorer
                 var wall=model.Patch(coarse,20000).Sample((coarse+site.CoastDirection*(trough.HalfWidth*.6/(model.RadiusM*.1))).Unit);
                 Check(wall.Province.GlacialExposure>.03,"Actual glaciated trough has physically exposed valley walls");
                 Check(sample.Underwater&&sample.WaterKind==LocalWaterKind.River,"Modern river occupies the shared eroded trough floor");
-                yield return owner.StartCoroutine(Capture("valley-floor",orientation*new Vector3(width*.3f,0,site.RiverWidth*1.3f+12),true,faceCenter:true));
+                yield return owner.StartCoroutine(Capture("valley-floor",orientation*new Vector3(width*.3f,0,(float)(site.RiverWidth*1.3+12)),true,faceCenter:true));
                 yield return owner.StartCoroutine(Capture("valley-axis",orientation*new Vector3(width*.65f,width*.12f,0)));
             }
         }
