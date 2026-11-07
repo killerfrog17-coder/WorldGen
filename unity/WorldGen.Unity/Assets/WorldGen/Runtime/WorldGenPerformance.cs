@@ -740,6 +740,13 @@ public sealed partial class LocalTerrainExplorer
         if(error>.03||!sample.Underwater||sample.WaterKind==LocalWaterKind.None)throw new InvalidOperationException("Water benchmark was relocated or lost its actual submerged site: "+error+"m / "+sample.WaterKind);
         return "PASS exact submerged benchmark location, error "+error+"m; water "+sample.WaterKind+" at "+sample.WaterSurfaceM+"m, bed "+sample.ElevationM+"m";
     }
+    public string PerformanceTidalSiteProof(V requested)
+    {
+        double error=(Position-requested).Length*terrain.RadiusM*HorizontalScale;var sample=walkingPatch.Sample(Position);
+        if(error>.03||terrain.Profile(sample.Cell).Biome!=Biome.Mangrove||!TreeFlora.TidalCode(sample.Forest.MorphologyCode)||sample.ElevationM< -1.25)
+            throw new InvalidOperationException("Tidal benchmark was relocated or lost actual mangrove habitat: "+error+"m / "+sample.Biome);
+        return "PASS exact mapped mangrove benchmark location, error "+error+"m; bed "+sample.ElevationM+"m, forest "+sample.Forest.Coverage;
+    }
     public void PerformanceWalkingQueryMode()
     {
         // Recreate both comparison cases, so an indexed first case cannot
@@ -1340,6 +1347,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-reused-meshes",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.ReuseTerrainMeshes=true),
             new PerfCase("travel-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("travel-whip-water-surface",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.WaterSurfaceCamera=true;terrainExplorer.PerformancePose();}),
+            new PerfCase("travel-whip-tidal-surface",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.WaterSurfaceCamera=true;terrainExplorer.PerformancePose();}),
             new PerfCase("travel-whip-cached-scatter-priority",()=>WorldGenPerformance.CachedScatterPriority=WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("turning-whip-current",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
             new PerfCase("turning-whip-resident-only",()=>WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true),
@@ -1399,7 +1407,7 @@ public sealed partial class WorldGenRuntime
         };
         if(cases.Select(c=>c.Name).Distinct(StringComparer.Ordinal).Count()!=cases.Count)
             throw new InvalidOperationException("Performance case names must be unique; duplicate names overwrite evidence.");
-        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface");
+        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface"||c.Name=="travel-whip-tidal-surface");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
             throw new InvalidOperationException("Presented throughput requires explicit travel/turning cases; image/pose verifiers use offscreen mode");
@@ -1421,10 +1429,10 @@ public sealed partial class WorldGenRuntime
             Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(exactSites.TryGetValue(site.Item1,out var exactSite)?exactSite:world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer==null||!terrainExplorer.Ready){Debug.LogError("PERF terrain unavailable");Application.Quit(1);yield break;}
-            if(caseFilter=="travel-whip-water-surface")
+            if(caseFilter=="travel-whip-water-surface"||caseFilter=="travel-whip-tidal-surface")
             {
                 V requested=exactSites.TryGetValue(site.Item1,out var waterSite)?waterSite:world.Surface.Cells[site.Item2].Position;
-                File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceWaterSiteProof(requested)+"\n");
+                File.AppendAllText(Path.Combine(output,"equivalence.txt"),(caseFilter=="travel-whip-water-surface"?terrainExplorer.PerformanceWaterSiteProof(requested):terrainExplorer.PerformanceTidalSiteProof(requested))+"\n");
                 WorldGenPerformance.WaterSurfaceCamera=true;terrainExplorer.PerformancePose();
             }
             else terrainExplorer.PerformanceDrySite();

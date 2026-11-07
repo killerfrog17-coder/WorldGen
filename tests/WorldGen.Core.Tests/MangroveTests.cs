@@ -4,6 +4,39 @@ using WorldGen.Serialization;
 
 static class MangroveTests
 {
+    public static void PerformanceSites(string input,string output)
+    {
+        var world=WorldFile.ReadFile(input);var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        double radius=model.RadiusM*.1;var sites=new List<object>();
+        foreach(var coast in TidalForestSites.Nearshore(world,model).Take(8))
+        {
+            var right=V.Cross(coast.Position,coast.Seaward).Unit;V? chosen=null;
+            for(int inland=80;inland<=640&&!chosen.HasValue;inland+=40)
+            for(int lateral=-160;lateral<=160&&!chosen.HasValue;lateral+=80)
+            {
+                V p=(coast.Position+(coast.Seaward*(-inland)+right*lateral)/radius).Unit;var patch=model.Patch(p,10000);var sample=patch.Sample(p);
+                if(sample.Underwater||sample.ElevationM<0||sample.ElevationM>40||sample.Forest.Coverage<.35||model.Profile(sample.Cell).Biome!=Biome.Mangrove||!TreeFlora.TidalCode(sample.Forest.MorphologyCode))continue;
+                // The explicit tidal benchmark retains low mud-flat starts.
+                // Reject routes leaving tidal habitat or entering deep water;
+                // the production water surface supplies camera height.
+                var east=V.Cross(new V(0,0,1),p).Unit;bool route=true;
+                foreach(int distance in new[]{-180,-90,90,180})
+                {
+                    V at=(p+east*(distance/radius)).Unit;var s=patch.Sample(at);
+                    if(s.ElevationM< -1.25||model.Profile(s.Cell).Biome!=Biome.Mangrove||!TreeFlora.TidalCode(s.Forest.MorphologyCode))route=false;
+                }
+                if(route)chosen=p;
+            }
+            if(!chosen.HasValue)continue;
+            var atStart=model.Patch(chosen.Value,5000).Sample(chosen.Value);string name="mangrove-"+(sites.Count+1);
+            sites.Add(new{Name=name,Biome="Mangrove",Position=new{chosen.Value.X,chosen.Value.Y,chosen.Value.Z},CanopyShade=0,Elevation=atStart.ElevationM,ForestCoverage=atStart.Forest.Coverage});
+            Console.WriteLine($"{name}: cell{atStart.Cell}, dry height{atStart.ElevationM}, forest{atStart.Forest.Coverage}");
+            if(sites.Count==2)break;
+        }
+        if(sites.Count==0)throw new Exception("No shallow benchmark start and route in real mapped mangroves");
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));
+        File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(new{HistoryHash=world.Prehistory.Hash,Sites=sites},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+    }
     public static void Controls()
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
@@ -33,6 +66,14 @@ static class MangroveTests
             foreach(var s in species.Where(s=>s.Form!=TreeGrowthForm.BroadCrown))Check(TreeFlora.Suitability(s,habitat,soil,Biome.Peatland)==0,"Peat label at a coastal mud flat cannot turn palms or conifers into salt-adapted mangroves");
         }
         Check(roots.SetEquals(new[]{TreeRootForm.Prop,TreeRootForm.Pneumatophore,TreeRootForm.Knee}),"Seeded lineage diversity includes prop roots, breathing pegs and knees");
+        double Understory(double canopy)
+        {
+            var c=new GroundCoverProfile();for(int f=0;f<9;f++)c.SetWeight(f,.1);
+            var mid=new MidCoverProfile{Coverage=.3};var forest=new ForestCoverProfile{Coverage=canopy};var biome=Biome.Mangrove;
+            LandscapeProvince.Cover(new LandscapeControls{Wet=1,Canopy=(float)canopy},new V(1,0,0),17,ref c,ref mid,ref forest,ref biome);
+            return Enumerable.Range(0,9).Sum(c.Weight);
+        }
+        Check(Understory(.9)<Understory(.1)*.05,"Closed tidal forest exposes mud and roots while open saltmarsh margins retain their herb cover");
         var inland=new ForestCoverProfile{MorphologyCode=123<<8,Coverage=.8,WarmC=25,HeightM=20,WidthM=12};
         Check(!TreeFlora.Rooting(inland,-.5,true,.5,Biome.Mangrove)&&!TreeFlora.Rooting(inland,1,false,0,Biome.Mangrove),"Ordinary inland trees retain their previous submerged/low-shore exclusion");
         Console.WriteLine($"PASS {checks} tidal lineage, rooting, climate and shared forest-surface controls");

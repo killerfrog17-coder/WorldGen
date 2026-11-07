@@ -143,6 +143,7 @@ namespace WorldGen.Core
             }
             double moisture=Math.Exp(-Math.Pow((wet*(.8+.3*D.Clamp(soil.WaterCapacityMm/100))-s.Moisture)/Math.Max(.3,s.Moisture*.8),2));
             double light=Math.Exp(-Math.Pow((shade-s.Shade)/.65,2));
+            if(biome==Biome.Mangrove||h!=null&&h.Value.Biome==Biome.Mangrove)light*=Math.Pow(1-shade,2);
             if(s.Form==MidGrowthForm.OpenScrub||s.Form==MidGrowthForm.Succulent||s.Form==MidGrowthForm.ReedStand)light*=D.Clamp((1-shade)/.60);
             double temperature=D.Clamp((warm-s.MinWarmC)/6)*D.Clamp((s.MaxWarmC-warm)/6);
             double ph=D.Clamp((soil.PH-s.MinPH)/.8)*D.Clamp((s.MaxPH-soil.PH)/.8),salt=1-D.Clamp(soil.Salinity/Math.Max(.01,s.MaxSalinity));

@@ -188,6 +188,7 @@ namespace WorldGen.Core
         }
         public static void Cover(LandscapeControls controls,V metres,int seed,ref GroundCoverProfile cover,ref MidCoverProfile mid,ref ForestCoverProfile forest,ref Biome biome)
         {
+            bool tidalForest=biome==Biome.Mangrove;
             double wet=Smooth(.25,.6,controls.Wet);
             if(wet>0)
             {
@@ -203,6 +204,14 @@ namespace WorldGen.Core
                     cover.Stature*=.65;biome=Biome.Peatland;
                 }
                 else if(wet>.8&&open>.75)biome=Biome.Marsh;
+            }
+            if(tidalForest)
+            {
+                // Enclosed saline tidal forest has exposed mud/root litter,
+                // not a freshwater sedge lawn. Keep open saltmarsh margins;
+                // do this after the wetland minimum sedge floor above.
+                double enclosed=Smooth(.25,.75,controls.Canopy);
+                cover.ScaleWeights(1-.98*enclosed);mid.Coverage*=1-.95*enclosed;
             }
             // The compact ecology/material kernel can include neighbouring
             // grasslands. Active mobile sediment still prevents a rooted lawn.
