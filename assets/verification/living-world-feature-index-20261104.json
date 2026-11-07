@@ -1,5 +1,5 @@
 {
-  "status": "Selected owner-requested partial playtest; geography paused before further features. Broader visual/performance targets remain incomplete.",
+  "status": "Environment/geography work resumed by owner on6November after performance checkpoint. Selected slot remains A; new geography is being checked in B.",
   "baseline": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
   "selected_slot": "slot-a",
   "candidate_slot": "slot-b",
@@ -198,6 +198,16 @@
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainGroundCover.cs",
       "notes": "Same shader, density, card geometry and placement. Actual savanna36camera indexed/nonindexed comparison passed with ZERO pixel differences. About1% measured speed difference; no major performance improvement claimed."
+    },
+    {
+      "name": "Alluvial river corridors",
+      "commits": [
+        "542801b8",
+        "3499d47c",
+        "8f758a98"
+      ],
+      "entry": "src/WorldGen.Core/RiverAlluvium.cs",
+      "notes": "Static inner bars, outer-bank depth and shared transported-material/vegetation masks. No extra draw calls. Validation: assets/verification/alluvial-rivers-20261107.json."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",

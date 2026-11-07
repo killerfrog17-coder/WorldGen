@@ -127,3 +127,39 @@ Himalaya/Tibet/Andes/Appalachians/Texas/coast plus river/lake views, or generate
 collision/cordillera/old-range/plain/water sites. Screenshots must be inspected;
 passing scalar checks alone is not visual acceptance. See VALIDATION.md for the
 final build and evidence, not an intermediate development capture.
+
+
+## Alluvial river corridors (7 November 2026)
+
+LocalTerrain44 / HyperAmplification39 add static deposits to existing low-gradient
+paired rivers. Reach width, gradient, transported sediment, bed resistance and
+signed bend curvature admit the feature; small creeks, steep channels and strong
+bedrock confinement limit it. Curved inner banks can emerge as sand/gravel bars,
+while outer banks deepen. Water keeps its original longitudinal datum and clips
+against the same cut-only terrain. This is not a migrating channel/flood model.
+Existing ground layers carry the deposits. Shared local admission removes mature
+rooted plants from actively bare deposits, including specialist and midplant paths.
+No new scenery objects, materials, draw calls or per-frame simulation are added.
+
+Checks:8901 scalar constraints;39actual spans/39wet centers/132exposed bar samples;
+528contained edges on three refined point-bar meshes;200nearby plants with zero
+rooted on active deposits;152772canonical forest placement checks. Canonical world
+hash stays unchanged. Correctly framed native wide/close river captures and the
+ordinary meander review pass without runtime errors. First wide capture was
+rejected because its detached camera put the feature beyond useful reveal fog.
+
+The old water-edge test used regular-grid heights after river triangulation had
+refined the ground. It now indexes the actual rendered triangles. The original
+0.209m edge failure was a false positive; a subsequent old pre-water-height
+assertion still fails identically against both old and new assemblies. Therefore
+the broad water-world suite is not reported as passing. Alluvial-specific actual
+water/land edge checks pass. Details and current performance evidence are in
+assets/verification/alluvial-rivers-20261107.json. The first paired route measured251.2 before and247.9FPS after with effectively
+unchanged GPU and percentile costs. A65ms main-thread outlier did not reproduce
+in the diagnostic repeat (215.9FPS,20.23ms maximum, four frames above16.667ms).
+The repeat maximum overlapped7.53ms native GC stop/resume. These results do not
+establish a universal frame-rate floor or resolve existing stutters.
+
+Primary references: USGS, Dynamic relations for deposition of sediment on floodplains
+and point bars (2018); NPS Geodiversity Atlas, Arkansas Post National Memorial.
+Source links and model limits are retained in the feature record.

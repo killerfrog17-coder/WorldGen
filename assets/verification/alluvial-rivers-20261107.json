@@ -1,6 +1,6 @@
 {
   "scope": "Static alluvial river corridors: exposed inner bars, deeper outer bends and transported bank materials.",
-  "status": "Implementation and scalar checks complete; actual-world, native visual and performance checks pending.",
+  "status": "Native visual review and alluvial-specific physical checks passed. First paired steady frame costs unchanged; repeated run did not reproduce the 65ms outlier. Existing frame stalls remain; no universal FPS floor claimed.",
   "terrain_versions": {
     "local": "local-terrain-alluvial-banks-44",
     "amplification": "hyper-amplification-alluvial-banks-39"
@@ -41,7 +41,7 @@
     "exposed_bar_samples": 132,
     "river_ground_meshes_without_open_edges": 15,
     "canonical_world_hash": "unchanged",
-    "native_visual_and_performance": "pending",
+    "native_visual_and_performance": "Two native reviews passed; paired movement/turning measurement and diagnostic repeat completed.",
     "point_bar_mesh_checks": "Three actual point-bar meshes at102.4/64,204.8/32,3276.8/16 have finite water and contained bank edges using actual refined land triangles.",
     "actual_refined_bank_edges": 528,
     "nearby_plants_checked": 200,
@@ -58,11 +58,43 @@
     ]
   },
   "visual_review": {
-    "first_alluvial_run": "Rejected: wide camera was beyond useful reveal fog and ground camera faced away from river. Framing corrected; new capture pending.",
-    "meandering_context": "Native runtime reports21checks PASS; launcher could not find a hidden window after capture. Changed offscreen script to explicit batchmode, with rightmost-monitor argument for any platform window."
+    "accepted_capture": "artifacts/landscape-20261103/alluvial-native-v2-alluvialriver",
+    "ordinary_meander": "artifacts/landscape-20261103/alluvial-native-v2-meanderingriver",
+    "result": "Elevated view shows broad inner bank and narrow opposite shore; close view shows water and bare deposited ground. No exposed ribbon seams seen in these views. Existing region/vegetation art remains approximate.",
+    "rejected_capture": "v1 alluvial overview obscured by diagnostic-camera fog; retained as rejected evidence."
   },
   "source_commits": [
     "542801b8",
-    "3499d47c"
-  ]
+    "3499d47c",
+    "8f758a98"
+  ],
+  "performance": {
+    "conditions": "1080p, Medium vegetation,6km,60s movement+rapidturn,180m loop, same source world and site",
+    "before": {
+      "fps": 251.20084,
+      "p95_ms": 7.0265,
+      "p99_ms": 9.8389,
+      "maximum_ms": 39.4039,
+      "gpu_ms": 2.56339
+    },
+    "after": {
+      "fps": 247.93526,
+      "p95_ms": 7.0339,
+      "p99_ms": 9.8497,
+      "maximum_ms": 65.2646,
+      "gpu_ms": 2.56105
+    },
+    "interpretation": "First paired steady frame/GPU costs effectively unchanged. The 65ms main-thread outlier was not reproduced; attribution remains unresolved. Diagnostic repeat was slower overall, with four frames above16.667ms and a20.23ms maximum overlapping7.53ms native GC stop/resume. These noisy whole-frame results do not establish a performance improvement or universal100FPS floor. Local river-query cost remained small: mean .0130 to .0133ms, p99 .0377 to .0344ms.",
+    "repeat": {
+      "fps": 215.88242,
+      "p95_ms": 9.1592,
+      "p99_ms": 11.312,
+      "maximum_ms": 20.2273,
+      "frames_over_16_667_ms": 4,
+      "gpu_ms": 3.5979,
+      "native_gc_events": 42,
+      "unmatched_gc_events": 0,
+      "largest_frame_gc_stop_resume_overlap_ms": 7.5304
+    }
+  }
 }
