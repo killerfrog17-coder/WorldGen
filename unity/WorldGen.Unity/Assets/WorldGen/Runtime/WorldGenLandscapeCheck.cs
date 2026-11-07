@@ -346,7 +346,8 @@ public sealed partial class LocalTerrainExplorer
         {
             Check(sample.Underwater&&sample.WaterKind==LocalWaterKind.Ocean&&sample.WaterSurfaceM==0,"Fjord has real sea-level water above its eroded bed");
             Check(!owner.PlayerWaterAppearance(sample).Fresh,"Actual player drinking path classifies flooded fjord as salt water");
-            Check(Math.Abs(owner.SampleMotionWater(0,0).Surface)<.01,"Swimming controller sees the same sea datum");
+            double seaY=owner.frame.SurfaceY(site.Position,0),swell=WaterSurface.Swell(0,0,Time.time,owner.CurrentWeather.WindEastMps,owner.CurrentWeather.WindNorthMps,-sample.ElevationM,true);
+            Check(Math.Abs(owner.SampleMotionWater(0,0).Surface-seaY-swell)<.01,"Swimming controller sees the same sea datum and ordinary wave displacement in the local frame");
             Check(owner.tiles.Values.Any(t=>t.Renderers!=null&&t.Renderers.Length>1),"Flooded inlet has actual uploaded ocean renderers");
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
