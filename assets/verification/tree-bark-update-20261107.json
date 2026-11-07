@@ -1,0 +1,178 @@
+{
+  "status": "validated and selected for next launch",
+  "recorded_utc": "2026-11-07T06:02:59.395167+00:00",
+  "runtime_build": {
+    "BuiltUtc": "2026-11-07T05:53:44.1244659Z",
+    "SourceCommit": "969e5c62128902e24d739813f4e80d12a3701f25",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "53cb33cab67e01f3aa369a1f347e8b970c68054eb7e18b7a0124bac18a9223ee"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "f3245c51f1cc7d53c15b73b17a7da3ebb36dd5fb2146f53f20abec94a5406fc4"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "b67f4c22cd28ebeba0f36979430489ad3f8262cb68ebbe50ba907586523fd528"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "be0da0ef6d5f5197db3d83de4cfd9c86fb5c0a3981e2cc9b021bb8cd5b5a70c8"
+  },
+  "shortcut": {
+    "PreviousTarget": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+    "Target": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
+    "WorkingDirectory": "C:\\Users\\kille\\Desktop\\WorldGen",
+    "ChangedUtc": "2026-11-07T06:02:11.4744168Z",
+    "OwnerRunningSlotUntouched": "slot-a"
+  },
+  "feature_commits": [
+    "69fb76ce",
+    "1d164476",
+    "9f1bcd48",
+    "40b34117",
+    "0c257d32",
+    "969e5c62"
+  ],
+  "scope": "Continuous trunk implementation included from staged candidate; new taper normals, exact wrap tangents, periodic bark authoring, linear exposure and mip filtering, semantic bark layer selection.",
+  "model_budget": {
+    "models": 11,
+    "near_and_middle_counts_identical": true,
+    "counts": {
+      "36984320": [
+        3046,
+        1940
+      ],
+      "305419776": [
+        5770,
+        2564
+      ],
+      "573855232": [
+        2976,
+        1134
+      ],
+      "842290688": [
+        4164,
+        1756
+      ],
+      "1110726144": [
+        1608,
+        656
+      ],
+      "1379161600": [
+        1780,
+        1320
+      ],
+      "41178624": [
+        3142,
+        1638
+      ],
+      "45372928": [
+        2956,
+        1946
+      ],
+      "268461312": [
+        6570,
+        2564
+      ],
+      "268453376": [
+        5200,
+        2312
+      ],
+      "268442368": [
+        3528,
+        1590
+      ]
+    },
+    "bark_gpu_bytes": 3495520,
+    "cpu_surface_bank_bytes": 19398656
+  },
+  "triangle_comparison_baseline": "Staged continuous-trunk renderer before bark pass; not the older selected f833 build.",
+  "bark_support": "PASS 330241 published bark boundary, unit-normal and linear-mip checks; existing5x512 BC7 colour/normal arrays.",
+  "mesh_buffer": "PASS 372 native model pairs / 316138 vertices: identical positions, normals, tangents, colors, indices, bounds and eight UV channels after scratch reuse; no scene/model objects cached.",
+  "final_native_shaders": {
+    "tree": {
+      "result": "NVIDIA GeForce RTX 4060\n36984320 stage=0 left=27965 right=27229\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=20, mean=0.00257631655092593\n36984320 stage=1 left=28870 right=28333\n305419776 stage=0 left=30249 right=30877\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=20, mean=0.00141963252314815\n305419776 stage=1 left=33164 right=32767\n573855232 stage=0 left=14385 right=13964\nearly alpha max RGB delta 0\ntight quad max RGB delta 166, significant=31, mean=0.001474609375\n573855232 stage=1 left=12188 right=12065\n842290688 stage=0 left=11309 right=11137\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=37, mean=0.0022728587962963\n842290688 stage=1 left=9872 right=10379\n1110726144 stage=0 left=12903 right=13584\nearly alpha max RGB delta 0\ntight quad max RGB delta 137, significant=3, mean=0.000301287615740741\n1110726144 stage=1 left=12810 right=13259\n1379161600 stage=0 left=12116 right=11821\nearly alpha max RGB delta 0\ntight quad max RGB delta 142, significant=30, mean=0.00081958912037037\n1379161600 stage=1 left=6022 right=7203\n41178624 stage=0 left=19507 right=20022\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=24, mean=0.00211877893518519\n41178624 stage=1 left=20497 right=21659\n45372928 stage=0 left=29853 right=28367\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=15, mean=0.00222439236111111\n45372928 stage=1 left=28716 right=28790",
+      "exit": 0
+    },
+    "forest": {
+      "result": "NVIDIA GeForce RTX 4060\nGPU admission/disable/near-range/finer-field ownership pass\nearly alpha max RGB delta 0\ntight quad max RGB delta 160, significant=5, mean=0.00081958912037037\n36984320 pixels=10300/10540\nearly alpha max RGB delta 0\ntight quad max RGB delta 165, significant=10, mean=0.00102756076388889\n305419776 pixels=11819/11902",
+      "exit": 0
+    }
+  },
+  "actual_forest_checks": [
+    "PASS Actual generated world supplies the requested context",
+    "PASS Actual worker terrain neighbourhood is uploaded without errors",
+    "PASS Actual surrounding vegetation/scatter is resident",
+    "PASS Wide capture has an actually loaded surrounding terrain footprint",
+    "PASS Normal terrain and vegetation reveal expose the reviewed landscape extent",
+    "PASS Actual player has all seventeen registered surface layers",
+    "PASS Actual water review uses the production water surface shader",
+    "PASS Actual uploaded ground materials bind forest-floor weights",
+    "PASS Canonical local terrain remains finite",
+    "PASS Art capture uses actual summer daylight: wide",
+    "PASS Detached capture has resident coverage beyond the reviewed feature: wide",
+    "PASS Visible distant-tree models complete while the review camera stays still",
+    "PASS Art capture uses actual summer daylight: ground",
+    "PASS Detached capture has resident coverage beyond the reviewed feature: ground",
+    "PASS Visible distant-tree models complete while the review camera stays still",
+    "PASS Bark review finds actual resident individual tree roots",
+    "PASS Art capture uses actual summer daylight: bark-forest-0",
+    "PASS Detached capture has resident coverage beyond the reviewed feature: bark-forest-0",
+    "PASS Visible distant-tree models complete while the review camera stays still",
+    "PASS Art capture uses actual summer daylight: bark-forest-1",
+    "PASS Detached capture has resident coverage beyond the reviewed feature: bark-forest-1",
+    "PASS Visible distant-tree models complete while the review camera stays still",
+    "PASS Art capture uses actual summer daylight: bark-forest-2",
+    "PASS Detached capture has resident coverage beyond the reviewed feature: bark-forest-2",
+    "PASS Visible distant-tree models complete while the review camera stays still",
+    "PASS Local landscape queries do not mutate regional history",
+    "PASS Scene and post-teleport updates contain no runtime errors"
+  ],
+  "performance": "No additional material layers, shader samples or draw passes. No live FPS benchmark while owner slot-a game was running; no global frame-rate guarantee.",
+  "limits": [
+    "Generated fissured bark relief inferred from colour, not measured geometry.",
+    "Existing procedural branch junction architecture retained."
+  ],
+  "asset_backup": {
+    "release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/game-assets-bark-20261107-v1",
+    "source_checkpoint": "9f1bcd482f530f1b8a0fb80f8e8df00566f4c4ed",
+    "files": 5771,
+    "packs": 166,
+    "all_payloads_uploaded_and_download_verified": true,
+    "source_bytes": 9283298348,
+    "remote_bytes": 5687961013,
+    "manifest_sha256": "3eb52a5d3a6faac83ece03821bc1bbf16d2dcd37e6555777f04f0f8803de325d"
+  },
+  "asset_restore_verify": {
+    "files": 5771,
+    "verified": 5771,
+    "missing_or_changed": []
+  },
+  "report": {
+    "path": "docs/reports/WorldGen - Tree Trunks and Bark.pdf",
+    "pages": 3,
+    "sha256": "01e10f1cbf148cd582b025ad093ba694902977b00401dc5837b2802ed369060f",
+    "all_pages_visually_reviewed": true,
+    "opened": "new Chrome tab/window on leftmost monitor"
+  },
+  "generated_asset": {
+    "tool": "built-in image_gen",
+    "master": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png",
+    "full_prompt": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/source.json"
+  },
+  "owner_session": "Existing slot-a process14192 left running; owner files untouched; no extra binary archives."
+}

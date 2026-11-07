@@ -8,6 +8,24 @@ captures as successful results. Link the finished PDF in the update handoff and
 open it in a new Chrome tab on the leftmost monitor. This report-viewing preference
 overrides the rightmost-monitor rule for PDFs; other review windows stay rightmost.
 
+READY07Nov TREE BARK delivered. Shortcut now selects verified B/969e5c62,
+ScriptsOnly NONDEV Mono built05:53:44Z over full resource build1d164476.
+Owner A/f833 session PID14192 remains running and untouched; do not overwrite A
+or close it. No own player/Editor/worker remains. Three Unity autos restored;
+owner3files preserved. Continuous trunks previously staged69fb now included;
+new smooth taper normals and exact wrap tangents remove lighting splits.
+Five bark layers rebuilt with unclipped linear exposure, periodic boundaries,
+normalized normals/mips; one generated master, four existing CC0 scans. Same
+11models near/mid triangle counts as staged candidate; same3,495,520GPU bytes,
+19,398,656CPU surface bank. 330241bark checks,372native buffer pairs/316138verts,
+final packaged tree+forest shaders and actual forest world checks PASS. No FPS
+comparison while owner game active; no 100floor or overall visual claim.
+All5771canonical asset files remotely backed up and restore verify PASS; release
+game-assets-bark-20261107-v1 and lock tracked. Report docs/reports/WorldGen - Tree
+Trunks and Bark.pdf opened in NEW Chrome tab on LEFTMOST monitor; all3pages
+visually checked. Evidence assets/verification/tree-bark-update-20261107.json.
+Geography remains at prior checkpoint, no unrelated new feature. No subagents.
+
 READY07Nov04:54Z ENVIRONMENT/GEOGRAPHY checkpoint. No own game/Editor/build
 or worker jobs remain. Runtime source all pusheddbb1bb1a; latest B ScriptsOnly
 NONDEV built04:44:02Z SourceChanges[],3knownUnityautos restored. Selected A/f833

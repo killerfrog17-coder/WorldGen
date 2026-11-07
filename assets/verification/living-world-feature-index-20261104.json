@@ -1,8 +1,8 @@
 {
-  "status": "Environment/geography work resumed by owner on6November after performance checkpoint. Selected slot remains A; new geography is being checked in B.",
+  "status": "Geography checkpoint retained; tree bark pass validated and selected in slot-b on7November. Existing owner slot-a session left running.",
   "baseline": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
-  "selected_slot": "slot-a",
-  "candidate_slot": "slot-b",
+  "selected_slot": "slot-b",
+  "candidate_slot": "slot-a (unavailable while owner game running)",
   "policy": "Separate feature commits; preserve later unrelated edits when reverting shared files. No extra binary archives. Rebuild derived caches from the resulting terrain version.",
   "features": [
     {
@@ -217,6 +217,16 @@
       ],
       "entry": "src/WorldGen.Core/GraniteDomes.cs",
       "notes": "Sparse geology/relief admission; existing terrain index and materials. Native v1 rejected; current validation assets/verification/granite-domes-20261107.json. Material support also corrects explicit dry bedrock exposure without changing its seed or shape."
+    },
+    {
+      "name": "Continuous trunk wrap shading and periodic bark materials",
+      "commits": [
+        "69fb76ce",
+        "1d164476",
+        "969e5c62"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTreeArchitecture.cs",
+      "notes": "Authoring: scripts/prepare-tree-bark.py. Source and derived art restored through assets/game-assets.lock.json. See assets/verification/tree-bark-update-20261107.json and screenshot PDF. Existing continuous trunks included; new smooth normals/tangents, bark exposure/tiling/mips and semantic layer mapping. Preserve later unrelated renderer edits on revert."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",
