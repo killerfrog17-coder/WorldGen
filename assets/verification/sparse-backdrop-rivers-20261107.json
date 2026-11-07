@@ -1,0 +1,10 @@
+{
+  "status":"All three actual far-tile full payloads EXACT versus packaged438, normalizing BuildMs only. Native candidate and moving checks pending; not packaged yet.",
+  "problem":"The13km volcano review exposed a52km/n8 backdrop tile taking109.5seconds. The large-tile fallback constructs multiple15km subpatches, each sampled at only a handful of positions, but primes all river reaches across every subpatch.",
+  "change":"Retain the exact lazy point query for sparse large-tile subpatches. Dense regular terrain patches continue priming their shared batch river index, retaining the earlier loading improvement.",
+  "scope":"One eager RiverSpans call removed from sparse backdrop sampling. No resolution reduction, river omission, water simplification or changed physical terrain version is intended.",
+  "proof_plan":["Compare complete worker payloads for the actual volcano backdrop: two52km/n8 tiles and one26km/n8 tile; normalize BuildMs only", "Package the candidate and repeat the native volcano review, including visible water and terrain coverage", "Do not label a background worker improvement as a proven frame-hitch fix"],
+  "baseline":"438e3280/terrain61 worker; native geography-broad-native-v1-20261107-volcano",
+  "component":{"evidence":"artifacts/geography-night-20261107/sparse-backdrop-rivers-proof-v1","full_payloads_exact":3,"normalization":"BuildMs only; includes all colours/normals/terrain/water/indices/ecology grids","worker_release_build_ms":[34839.2595,19249.3871,8557.0413],"source_debug_build_ms":[9026.9504,7938.4321,2104.0166],"limits":"Worker Release versus source Debug CoreCLR component comparison in one offline audit; not equal native render builds, not main-thread frame times or proof of total startup/FPS gain."},
+  "actual_native_baseline":{"largest_tile_build_ms":109501.3,"next_tile_build_ms":77702.1,"near_ready_seconds":2.6756421,"view_distance_m":13537.746481984914,"limits":"This native overview deliberately requests a much larger view than the standard6km moving routes. Individual worker build time is not a main-thread frame duration or total startup time."}
+}
