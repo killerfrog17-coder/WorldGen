@@ -1,0 +1,11 @@
+{
+  "scope":"Prepare the existing exact river-span spatial index before dense terrain/scatter batch sampling.",
+  "status":"Exact numerical/transport equivalence passed. Local component timing improved; packaged/native loading comparison pending.",
+  "entry_files":["src/WorldGen.Core/LocalScatter.cs","src/WorldGen.Presentation/LocalTerrainMesh.cs"],
+  "finding":"The regular terrain grid and scatter projections scanned whole nearby river reaches. Channel refinement prepared the same patch's spatial index only after the regular-grid work had finished.",
+  "change":"Prepare once at the batch entry, including bounded subpatches of far terrain. Actual river algorithms, span order, kernel, water datum, sampling spacing and index bounds remain unchanged.",
+  "main_thread":"One-off walking/player patches keep their existing lazy path; no automatic index setup was added to arbitrary samples.",
+  "proof":{"reference_package":"slot-a71ff8c60","complete_wire_payloads":21,"terrain_payloads":12,"vegetation_payloads":9,"method":"All serialized terrain, water, flora and placement fields must match the unchanged packaged worker; normalize only the measured mesh build-duration field.","evidence":"artifacts/geography-night-20261107/worker-river-index-equivalence","world_literal_indexed_samples":1025,"world_contexts":41,"wet_samples":238,"indexed_spans":3789,"broader_worker_mesh_floats":194431,"broader_worker_indices_bounds_cancellation":"passed"},
+  "component_observations":{"literal_tile_ms":912.6918,"indexed_tile_ms":228.1272,"literal_river_scope_ms":765.4922,"indexed_river_scope_ms":142.2402,"vertices":6167,"conditions":"One instrumented CoreCLR100m/64segment tile at the same glacial valley coordinate; full output equivalence separately checked.","limits":"Component observations, not whole-game FPS or proof of all loading times. New packaged worker/native scene still required."},
+  "costs":"A temporary finite index per worker batch; no new global world layer, scenery, tick, shader sample, density reduction or draw call. Existing working-set lifetime remains batch-owned."
+}

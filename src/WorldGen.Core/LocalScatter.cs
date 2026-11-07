@@ -68,6 +68,11 @@ namespace WorldGen.Core
         ScatterPatch BuildContents(ScatterKey key,CancellationToken token,V? solidCenter,double solidRadiusM)
         {
             V center=Position(key);var patch=terrain.Patch(center,(key.Detail?110:840)/scale);var result=new List<ScatterInstance>();
+            // This batch makes thousands of nearby queries. Prepare the exact
+            // finite-span index once instead of scanning whole reaches for each
+            // plant and each of its slope probes. One-off walking queries keep
+            // their existing lazy path and do not acquire a new setup hitch.
+            token.ThrowIfCancellationRequested();patch.RiverSpans();
             double nominal=2*terrain.RadiusM*scale/Divisions(key.Detail),area=nominal*nominal;
             int grid=key.Detail?32:64;
             for(int channel=0;channel<(key.Detail?2:4);channel++)

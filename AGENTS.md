@@ -57,6 +57,20 @@ omit flag when intentionally comparing differentterrainversions. PendingNative
 review-only diagnostics adds detailed loading history/jobkeys and scalar trough
 receipt (readonlystruct previously serialized{}). Next commit/build A, measure
 same packagedworker outputs/costs, redo native largestvalley unchangedgates.
+UPDATE09:14Z A71ff built/restored3autos; own workers1507/29422/96285 COMPLETE,
+no game/Editor. Slopeheight-only cost essentially unchanged, kept exact deadwork
+removal, no gainclaimed. Measured localtile912.7ms:riverqueries765.5ms (84%).
+FOUND actual index already existed but terrain regulargrid/scatter never primed
+it before thousands ofqueries. Source now explicitlyprimes batchpatches only;
+walking/player one-off queries unchanged (avoid addedsetuphitches). UNBUILT.
+CurrentCore vs unchangedA71ff fullwire21payloads(12terrain+9vegetation) EXACT
+inclallterrain/water/cover/indices, normalize onlyBuildMilliseconds;1025complete
+literal/index samples/41biome-coast contexts +194431broaderworkerfloats PASS.
+Localinstrumented same6167vertex tile now228.1ms (river142.2); NOTgameFPS.
+Next commit/buildA, packagedworker samecost/hash audit, nativeGlacialTrough
+v2 unchanged3477mcoverage/300stimeout, then inspectactualimages+movementtails.
+Evidence river-batch-index-20261107.json; proof artifacts/geography-night-20261107/
+worker-river-index-equivalence. Do notpromote glacial visuals yet. Owner3intact.
 Finish actual/native shore appearance, water/ground/root checks and moving tails
 before next feature. unity-check now passes rightmost monitor. Next priorities
 adaptive: glaciated mountain/valley character, coupled wetland/river-coast variety,
