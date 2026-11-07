@@ -1,5 +1,33 @@
 # WorldGen repository instructions
 
+ACTIVE07Nov04:06Z ENVIRONMENT/GEOGRAPHY explicitlyresumed byowner; performance
+accepted fornow, preservebudget. No game/Editor active. NextbuildB pending for
+newalluvialplantgates. Source542801b8 implementslocalriverbars+bankmaterials,
+LocalTerrain44/Hyper39. 3499d47c addsactualrefinedtriangle wateredgeverifier and
+correctsAlluvialRiver reviewframing. NativeB3499 built/3autosrestored, but new
+uncommittedRootedAdmission inLocalMidPlants/GroundSpecialists/legacyScatter;
+LocalScatterVersion16. Corealluvial8901PASS, actual39spans/39wetcenters/132exposed
+samples,3actualbar meshes/528containedwateredges,200nearbyplants/0rootedonbarebars;
+canonicalworldhashunchanged. Forest152772,groundflora5759,water241PASS.
+Baselinepresented river-beforeCOMPLETE251.20FPS,p999.84/max39.40/60s1080Medium6km
+180mwhip,126>10/8>16.667. Need SAMEafterlatestbuild; no performancegainclaimed.
+FirstnativeAlluvialRiverB542 EXIT0/noerrors but WIDEIMAGESREJECTED fog obscures
+feature; groundlookfacedaway. 3499 harness nowclosercamera+fogproof+correctground
+angle, NOTYETRUN. MeanderingRiver native21PASS, but runscripthelper failed on
+hiddenwindow afteractualsuccessfulcapture; offscreen script nowexplicitbatchmode,
+rightmost-monitorargument. Sourcechangeswerebuild3499; no codeafterframing except
+newCoreplantgates+testnonvacuity. Needcommit+build, restore3autos, nativeAlluvialRiver
+v2andMeanderingRiver, inspectPNGs, thenafterFPS. Bothslotsonly,A/f833shortcutprotected.
+Globalwaterworldtest initiallyfalse0.209m edge usedoriginalgrid notrefinedtriangles;
+correctedactualtrianglelookup passes thatedge. Then oldassert "Water shaping raised"
+at river2134 FAILS BOTHoldB0c6andcandidate. Do NOTclaimglobalwaterSuitePASS or newbug;
+controls/evidence water-world-rendered-ground /water-world-baseline-rendered retained.
+Alluvial-specificedgeproof528PASS. Inputsunchanged. Artifactsscratchonly, C~9GBfree.
+No newfeaturesbesidesalluvialcorridors, no animal/human/weather/sky appearancechange,
+no subagents/paid. Ownerdeletedprompt+2deerscripts untouched. Resumeplan03Novstale;
+new workexplicitlyauthorized. No ownheavyjobsduringfutureFPSwindows.
+
+
 ACTIVE07Nov03:46Z ENVIRONMENT RESUMED byowner. Performance level accepted fornow;
 user explicitly requestsregions/features continuation with no performance regression.
 No more performance-only mandate. Currenttask staticalluvialrivercorridors: bank

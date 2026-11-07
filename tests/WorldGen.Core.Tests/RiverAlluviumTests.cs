@@ -39,6 +39,7 @@ static class RiverAlluviumTests
         RiverAlluvium.Ground(.55,.35,ref ground,ref cover,ref mid,ref forest);
         Check(Math.Abs(ground.Sand+ground.Clay+ground.Silt-1)<1e-12&&ground.Gravel<=1,"Sediment fractions stay normalized");
         Check(ground.Deposit==ParentDeposit.Alluvium&&ground.Organic<.02&&forest.Coverage<.1,"Active bars carry alluvium with sparse mature vegetation");
+        Check(RiverAlluvium.RootedAdmission(0,0)==1&&RiverAlluvium.RootedAdmission(.4,.2)==0,"Rooted scatter admits ordinary ground and excludes active bare deposits");
         Console.WriteLine($"PASS {checks} alluvial profile, eligibility, symmetry, bank, sediment and vegetation checks");
     }
     public static void World(string input,string output)
@@ -47,7 +48,7 @@ static class RiverAlluviumTests
         var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);double physical=model.RadiusM*.1;
         var candidates=model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<180&&c.StartM>15&&c.StartM<1800&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
             .OrderBy(c=>Rng.Mix(unchecked((uint)c.From^(uint)world.Recipe.Seed))).Take(48);
-        var examples=new List<object>();int spansChecked=0,wetCenters=0,bars=0;double best=0;V bestSite=default;
+        var examples=new List<object>();int spansChecked=0,wetCenters=0,bars=0;double best=0;V bestSite=default,vegetationSite=default;
         foreach(var channel in candidates)
         {
             var spans=model.Amplification.RiverReach(channel.From);
@@ -63,6 +64,7 @@ static class RiverAlluviumTests
                     if(sample.ElevationM>sample.WaterSurfaceM+.1&&(sample.Ground.Organic>.15||sample.Forest.Coverage>.1))
                         throw new Exception("Exposed active point bar retains peat or mature forest");
                     bars++;double score=(sample.ElevationM-sample.WaterSurfaceM)*Math.Sqrt(width);
+                    if(vegetationSite.Length<.1)vegetationSite=at;
                     if(examples.Count<16)examples.Add(new{Reach=channel.From,Position=new{at.X,at.Y,at.Z},WidthM=width*2,Height=sample.ElevationM-sample.WaterSurfaceM,Ground=sample.Ground.TextureName,sample.Forest.Coverage});
                     if(score>best){best=score;bestSite=at;}
                 }
@@ -77,9 +79,17 @@ static class RiverAlluviumTests
             if(!mesh.WaterPositions.All(float.IsFinite)||mesh.WaterTriangles.Length==0)throw new Exception("Actual point-bar mesh lacks finite water");
             bankEdges+=WaterCouplingTests.ContainedBoundary(mesh);
         }
+        var scatter=new LocalScatter(model);var scatterPatch=model.Patch(vegetationSite,20000);int plants=0;
+        foreach(bool detail in new[]{false,true})foreach(var plant in scatter.Build(scatter.Address(vegetationSite,detail)).Instances)
+        {
+            if(plant.Kind is ScatterKind.Stone or ScatterKind.Boulder or ScatterKind.Outcrop or ScatterKind.Branch)continue;
+            var s=scatterPatch.Sample(plant.Position);plants++;
+            if(RiverAlluvium.RootedAdmission(s.RiverSand,s.RiverGravel)<=0)throw new Exception("Rooted scatter appears on an active bare bar");
+        }
+        if(plants==0)throw new Exception("Vegetation test needs a nonempty planted river neighbourhood");
         if(StateHash.Compute(world)!=original)throw new Exception("Local deposits changed canonical world/history inputs");
         Directory.CreateDirectory(output);
-        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{spansChecked,wetCenters,bars,bankEdges,examples},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{spansChecked,wetCenters,bars,bankEdges,plants,examples},new JsonSerializerOptions{WriteIndented=true}));
         File.WriteAllText(Path.Combine(output,"sites.json"),WorldJson.Write(new VegetationBenchmarkSiteSet{HistoryHash=world.Prehistory.Hash,Sites=new[]{new VegetationBenchmarkSite{Name="alluvial-bar",Position=bestSite,Biome="TemperateForest"}}}));
         Console.WriteLine($"PASS actual {spansChecked} alluvial spans, {wetCenters} wet centers, {bars} exposed inner-bar samples; canonical world unchanged.");
     }

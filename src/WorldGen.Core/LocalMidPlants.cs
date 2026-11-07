@@ -20,7 +20,7 @@ namespace WorldGen.Core
                 if(r.Unit()>MidFlora.StandDensity(p,seed,terrain.RadiusM*scale))continue;
                 var sample=patch.Sample(p);
                 if(sample.Biome==Biome.Ice||sample.ElevationM<2||sample.Underwater&&sample.WaterSurfaceM-sample.ElevationM>1.2)continue;
-                double rooted=LandscapeProvince.RootedAdmission(sample.Province,p*(terrain.RadiusM*scale),seed);
+                double rooted=LandscapeProvince.RootedAdmission(sample.Province,p*(terrain.RadiusM*scale),seed)*RiverAlluvium.RootedAdmission(sample.RiverSand,sample.RiverGravel);
                 if(rooted<=0)continue;
                 var e=world.Ecology;HabitatCell? habitat=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).MidPlants;

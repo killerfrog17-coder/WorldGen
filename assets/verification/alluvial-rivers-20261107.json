@@ -30,7 +30,7 @@
     "Bar dimensions and coefficients are bounded game approximations."
   ],
   "correctness": {
-    "scalar_checks": 8900,
+    "scalar_checks": 8901,
     "waterfall_controls": 369,
     "planform_checks": 1032,
     "river_primitives": 9463,
@@ -42,7 +42,11 @@
     "river_ground_meshes_without_open_edges": 15,
     "canonical_world_hash": "unchanged",
     "native_visual_and_performance": "pending",
-    "point_bar_mesh_checks": "Three actual point-bar meshes at102.4/64,204.8/32,3276.8/16 have finite water and contained bank edges using actual refined land triangles."
+    "point_bar_mesh_checks": "Three actual point-bar meshes at102.4/64,204.8/32,3276.8/16 have finite water and contained bank edges using actual refined land triangles.",
+    "actual_refined_bank_edges": 528,
+    "nearby_plants_checked": 200,
+    "canonical_forest_placement_checks": 152772,
+    "rooted_scatter_on_active_bars": 0
   },
   "existing_failure": {
     "test": "--water-coupling-world",
@@ -56,5 +60,9 @@
   "visual_review": {
     "first_alluvial_run": "Rejected: wide camera was beyond useful reveal fog and ground camera faced away from river. Framing corrected; new capture pending.",
     "meandering_context": "Native runtime reports21checks PASS; launcher could not find a hidden window after capture. Changed offscreen script to explicit batchmode, with rightmost-monitor argument for any platform window."
-  }
+  },
+  "source_commits": [
+    "542801b8",
+    "3499d47c"
+  ]
 }

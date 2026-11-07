@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed partial class LocalScatter
     {
-        public const string Version="local-scatter-dryland-15";
+        public const string Version="local-scatter-alluvial-banks-16";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -116,6 +116,7 @@ namespace WorldGen.Core
                         trees*=cluster*D.Clamp((warm-6)/6)*D.Clamp(wet/.55);
                         trees*=.15+.85*sample.Ground.RootingSupport(biome==Biome.Mangrove,biome==Biome.Mangrove);
                         if(env!=null){trees*=1-.75*env.Value.PermafrostPermille/1000.0;if(env.Value.SalinityMilliPpt>5000&&biome!=Biome.Mangrove)trees=0;}
+                        double rooted=RiverAlluvium.RootedAdmission(sample.RiverSand,sample.RiverGravel);trees*=rooted;cover*=rooted;
                         // Cube projection's area Jacobian keeps density comparable at face centres, edges and corners.
                         double cu=(key.X+u)*2/Divisions(key.Detail)-1,cv=(key.Y+v)*2/Divisions(key.Detail)-1;
                         double jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);

@@ -32,6 +32,8 @@ namespace WorldGen.Core
             double height=1-Smooth(.6,Math.Max(2,depth+1),terrain-level);
             return D.Clamp(Smooth(.08,.32,strength)*bank*height);
         }
+        public static double RootedAdmission(double sand,double gravel)
+            =>sand<=0&&gravel<=0?1:1-Smooth(.12,.45,sand+gravel);
         public static void Ground(double sand,double gravel,ref GroundProfile ground,ref GroundCoverProfile cover,ref MidCoverProfile mid,ref ForestCoverProfile forest)
         {
             double amount=D.Clamp(sand+gravel);if(amount<=0)return;
@@ -45,7 +47,7 @@ namespace WorldGen.Core
             ground.Deposit=amount>.35?ParentDeposit.Alluvium:ground.Deposit;
             // Active deposits have a sparse pioneer margin, not mature forest
             // or a lawn crossing an exposed gravel/sand bar.
-            double bare=Smooth(.12,.45,amount);
+            double bare=1-RootedAdmission(sand,gravel);
             cover.ScaleWeights(1-.99*bare);mid.Coverage*=1-.99*bare;forest.Coverage*=1-bare;
         }
     }
