@@ -1,90 +1,81 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>Editor-only art publication; runtime keeps its current shader/samples.</summary>
+/// <summary>Publish generated material data into the existing17-layer layout.</summary>
 public static class TerrainSurfaceArtBuilder
 {
     const string Inputs="Assets/WorldGen/Editor/TerrainSurfaceArtV1";
     const string Output="Assets/WorldGen/Resources/TerrainSurfaceArtV1";
-    [MenuItem("WorldGen/Art/Build first terrain surface textures")]
+    [MenuItem("WorldGen/Art/Build generated ground surfaces")]
     public static void Build()
     {
         Directory.CreateDirectory(Output);AssetDatabase.Refresh();
-        var fallback=LocalGroundTextures.Create(true);var arrays=new Texture2DArray[3];
-        var suffix=new[]{"albedo","normal","mask"};var sizes=new[]{1024,512,128};
-        try
+        var arrays=new Texture2DArray[3];var suffix=new[]{"albedo","normal","mask"};var sizes=new[]{1024,512,128};
+        for(int channel=0;channel<3;channel++)
         {
-            for(int channel=0;channel<3;channel++)
+            int size=sizes[channel];bool linear=channel!=0;
+            var array=new Texture2DArray(size,size,17,TextureFormat.BC7,true,linear){name="Generated terrain "+suffix[channel],wrapMode=TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=4};
+            try
             {
-                int size=sizes[channel];bool linear=channel!=0;
-                var array=new Texture2DArray(size,size,17,TextureFormat.BC7,true,linear){name="Terrain surface "+suffix[channel],wrapMode=TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=4};
-                arrays[channel]=array;
                 for(int layer=0;layer<17;layer++)
                 {
-                    var texture=new Texture2D(128,128,TextureFormat.RGBA32,false,linear){wrapMode=TextureWrapMode.Repeat};
+                    string input=Inputs+"/layer-"+layer.ToString("D2")+"-"+suffix[channel]+".png";
+                    var source=new Texture2D(2,2,TextureFormat.RGBA32,false,linear);
                     try
                     {
-                        string material=layer==0?"soil":layer==1?"sand":layer==2?"gravel":layer==3?"clay":layer==6?"crust":layer==4||layer==8?"granite":null;
-                        if(material!=null&&!File.Exists(Inputs+"/"+material+"-"+suffix[channel]+".png"))material=null;
-                        string rockAsset=layer==10?"cliff_side":layer==11?"marble_cliff_01":layer==12?"sandstone_cracks":layer==13?"dark_rock":null;
-                        if(layer>=14||rockAsset!=null)
-                        {
-                            string[] assets={"dry_decay_leaves","forrest_ground_03","forest_leaves_02"};
-                            string input=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../assets-source/terrain/surfaces",layer>=14?"cc0-forest-floor":"cc0-rock",layer>=14?assets[layer-14]:rockAsset,suffix[channel]+".jpg"));
-                            if(!ImageConversion.LoadImage(texture,File.ReadAllBytes(input),false))throw new InvalidDataException(input);
-                        }
-                        else if(material!=null)
-                        {
-                            string input=Inputs+"/"+material+"-"+suffix[channel]+".png";
-                            if(!ImageConversion.LoadImage(texture,File.ReadAllBytes(input),false))throw new InvalidDataException(input);
-                        }
-                        else{texture.SetPixels(fallback[channel].GetPixels(layer));texture.Apply(false,false);}
-                        Color[] pixels=new Color[size*size];
-                        for(int y=0;y<size;y++)for(int x=0;x<size;x++)pixels[y*size+x]=texture.GetPixelBilinear((x+.5f)/size,(y+.5f)/size);
-                        if((layer>=14||rockAsset!=null)&&channel==0)
-                        {
-                            // The ground's ecological/material tint supplies
-                            // the mean. Preserve scanned leaf/needle contrast
-                            // without multiplying two unrelated brown tints.
-                            Color average=Color.black;
-                            foreach(var pixel in pixels)average+=pixel.linear/pixels.Length;
-                            float target=Mathf.GammaToLinearSpace(.5f);
-                            for(int i=0;i<pixels.Length;i++)
-                            {
-                                var p=pixels[i].linear;
-                                p.r=Mathf.Clamp01(p.r*target/Mathf.Max(.001f,average.r));
-                                p.g=Mathf.Clamp01(p.g*target/Mathf.Max(.001f,average.g));
-                                p.b=Mathf.Clamp01(p.b*target/Mathf.Max(.001f,average.b));
-                                pixels[i]=p.gamma;pixels[i].a=1;
-                            }
-                        }
-                        if((layer>=14||rockAsset!=null)&&channel==2)
-                            for(int i=0;i<pixels.Length;i++){var p=pixels[i];pixels[i]=new Color(p.r,p.g,.5f,p.b);}
+                        if(!ImageConversion.LoadImage(source,File.ReadAllBytes(input),false)||source.width!=size||source.height!=size)throw new InvalidDataException(input);
+                        var levels=Mips(source.GetPixels32(),size,channel);
                         var scaled=new Texture2D(size,size,TextureFormat.RGBA32,true,linear);
                         try
                         {
-                            scaled.SetPixels(pixels);scaled.Apply(true,false);
-                            EditorUtility.CompressTexture(scaled,TextureFormat.BC7,TextureCompressionQuality.Best);
+                            for(int mip=0;mip<levels.Count;mip++)scaled.SetPixels32(levels[mip],mip);
+                            scaled.Apply(false,false);EditorUtility.CompressTexture(scaled,TextureFormat.BC7,TextureCompressionQuality.Best);
                             if(scaled.format!=TextureFormat.BC7)throw new InvalidOperationException("BC7 compression failed");
                             for(int mip=0;mip<scaled.mipmapCount;mip++)array.SetPixelData(scaled.GetPixelData<byte>(mip),mip,layer);
                         }
                         finally{UnityEngine.Object.DestroyImmediate(scaled);}
                     }
-                    finally{UnityEngine.Object.DestroyImmediate(texture);}
+                    finally{UnityEngine.Object.DestroyImmediate(source);}
                 }
                 array.Apply(false,true);string path=Output+"/"+suffix[channel]+".asset";
                 var existing=AssetDatabase.LoadAssetAtPath<Texture2DArray>(path);
-                if(existing==null)AssetDatabase.CreateAsset(array,path);
-                else{EditorUtility.CopySerialized(array,existing);UnityEngine.Object.DestroyImmediate(array);arrays[channel]=existing;EditorUtility.SetDirty(existing);}
+                if(existing==null){AssetDatabase.CreateAsset(array,path);arrays[channel]=array;array=null;}
+                else{EditorUtility.CopySerialized(array,existing);arrays[channel]=existing;EditorUtility.SetDirty(existing);}
             }
-            var art=AssetDatabase.LoadAssetAtPath<LocalTerrainArtSet>("Assets/WorldGen/Resources/LocalTerrainArtSet.asset");
-            if(art==null)throw new InvalidOperationException("Existing terrain art set missing");
-            art.Albedo=arrays[0];art.Normals=arrays[1];art.Masks=arrays[2];
-            EditorUtility.SetDirty(art);AssetDatabase.SaveAssets();
-            Debug.Log("TerrainSurfaceArtV1 published: original14 plus broadleaf/needle/damp floor scans; BC7 1024/512/128,17 layers, all mip levels. Maximum sampled layers and texture ranges unchanged.");
+            finally{if(array!=null)UnityEngine.Object.DestroyImmediate(array);}
         }
-        finally{foreach(var texture in fallback)UnityEngine.Object.DestroyImmediate(texture);}
+        foreach(string name in new[]{"GroundGrassV2","GroundMossV1","GroundLichenV1"})
+        {
+            var importer=(TextureImporter)AssetImporter.GetAtPath("Assets/WorldGen/Resources/"+name+".png");
+            if(importer==null)throw new InvalidDataException(name);
+            importer.sRGBTexture=name=="GroundGrassV2";importer.isReadable=false;importer.mipmapEnabled=true;importer.wrapMode=TextureWrapMode.Repeat;importer.filterMode=FilterMode.Trilinear;importer.anisoLevel=4;importer.maxTextureSize=name=="GroundLichenV1"?256:1024;
+            var settings=importer.GetDefaultPlatformTextureSettings();settings.format=TextureImporterFormat.BC7;settings.maxTextureSize=importer.maxTextureSize;importer.SetPlatformTextureSettings(settings);
+            settings=importer.GetPlatformTextureSettings("Standalone");settings.overridden=true;settings.format=TextureImporterFormat.BC7;settings.maxTextureSize=importer.maxTextureSize;importer.SetPlatformTextureSettings(settings);importer.SaveAndReimport();
+        }
+        var art=AssetDatabase.LoadAssetAtPath<LocalTerrainArtSet>("Assets/WorldGen/Resources/LocalTerrainArtSet.asset");
+        if(art==null)throw new InvalidOperationException("Terrain art set missing");
+        art.Albedo=arrays[0];art.Normals=arrays[1];art.Masks=arrays[2];EditorUtility.SetDirty(art);AssetDatabase.SaveAssets();
+        Debug.Log("GENERATED GROUND PUBLISHED:17 BC7 layers1024/512/128, grass/moss1024, lichen256; no new samples/passes.");
     }
+    public static List<Color32[]> Mips(Color32[] pixels,int size,int channel)
+    {
+        Color Decode(Color32 value){Color c=value;if(channel==0)return c.linear;if(channel==1)return new Color(c.r*2-1,c.g*2-1,c.b*2-1,1);return c;}
+        Color32 Encode(Color value){if(channel==0)return value.gamma;if(channel==1){var n=new Vector3(value.r,value.g,value.b).normalized;return new Color(n.x*.5f+.5f,n.y*.5f+.5f,n.z*.5f+.5f,1);}return value;}
+        var levels=new List<Color32[]>();var current=(Color32[])pixels.Clone();
+        for(int width=size;;width/=2)
+        {
+            if(width>1)for(int axis=0;axis<2;axis++)for(int k=0;k<width;k++)
+            {int a=axis==0?k:k*width,b=axis==0?(width-1)*width+k:k*width+width-1;current[a]=current[b]=Encode((Decode(current[a])+Decode(current[b]))*.5f);}
+            levels.Add(current);if(width==1)break;
+            int next=width/2;var reduced=new Color32[next*next];
+            for(int y=0;y<next;y++)for(int x=0;x<next;x++)
+            {Color sum=Color.clear;for(int dy=0;dy<2;dy++)for(int dx=0;dx<2;dx++)sum+=Decode(current[(y*2+dy)*width+x*2+dx]);reduced[y*next+x]=Encode(sum*.25f);}
+            current=reduced;
+        }
+        return levels;
+    }
+    public static void BatchReview(){try{Build();WorldGenGroundArtReview.Run();}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}
 }

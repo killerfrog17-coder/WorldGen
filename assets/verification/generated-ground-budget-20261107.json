@@ -1,0 +1,79 @@
+{
+  "arrays": {
+    "albedo": {
+      "payload_bytes": 23768176,
+      "changed_layers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "payload_sha256": "80ce0c5673a6850a72aaa57cbe5c4072b69619cb064235b979b512721ee3748f"
+    },
+    "normal": {
+      "payload_bytes": 5942384,
+      "changed_layers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "payload_sha256": "fcaad2c9cec4aff926a807fd5dd5cde5c512debf365680d8f6b6df3c1eb38d2b"
+    },
+    "mask": {
+      "payload_bytes": 371824,
+      "changed_layers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "payload_sha256": "838ef0480a0867d1409cf717e732ee6edaef2d4a6f197b843d89bbcd2e2cdb25"
+    }
+  },
+  "same_terrain_payload_bytes": true,
+  "terrain_gpu_bytes": 30082384,
+  "lichen_gpu_before": 349524,
+  "lichen_gpu_after": 87408,
+  "grass_moss_dimensions_unchanged": true,
+  "shader_changes": false
+}

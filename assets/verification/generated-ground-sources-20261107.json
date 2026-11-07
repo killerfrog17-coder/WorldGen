@@ -1,0 +1,684 @@
+{
+  "version": "generated-ground-1",
+  "generator": "built-in image_gen",
+  "materials": [
+    {
+      "key": "soil",
+      "layers": [
+        0
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/soil.png",
+      "master_sha256": "7c01ce41c058df4ad8835ec9dc7a3c9fd5e48b281901940d0a2b5e865c4d5241",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-albedo.png",
+          "sha256": "908e44e0d11c3109d4d1de4469a17e30e6e4ee306afe24557f7617adb8e70872",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-normal.png",
+          "sha256": "7e467fbd302dc7b0039aa8cabcdbaad138666db08a4f3190804f9b7bfc33851b",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-mask.png",
+          "sha256": "5a384d785c7d30f6818c16e144736d414cd3d0c619d544a3d2977fc983b77765",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "sand",
+      "layers": [
+        1
+      ],
+      "cover": null,
+      "repeat_metres": 4,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/sand.png",
+      "master_sha256": "888cb6c9a96bec56e427df6ad0c54a3b7c50e2cfbf37cdb64587a75c85ab6bdc",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-albedo.png",
+          "sha256": "67f0135f459c06916aa7526864aa99b66f91ca911c2ea93186e25c020ddd0105",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-normal.png",
+          "sha256": "200238abd711e9367974ed93be6371de536f6a211faef6957295727ae9268d1b",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-mask.png",
+          "sha256": "5e5fd1ed466c7c87a903cbcb734cdee15b2fd669c0d54f4e9ead3ae72062f00f",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "gravel",
+      "layers": [
+        2
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/gravel.png",
+      "master_sha256": "ab0f1e287e83ee4c1a31d4a09b18e3ea9e3f5ace23d570437e44afa5ae82c8dd",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-albedo.png",
+          "sha256": "ace3f669b235cd64108c8da9965d7aa625919336c40c53d682c3db444c154f0a",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-normal.png",
+          "sha256": "51cb8d046224b5c6d1f89c92c30582d958e5c1a84463204dc3862ccb604b6127",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-mask.png",
+          "sha256": "5ce6b48d2fa3ab2baef27d4e7ee6c76f3e0b087333709ed33ff53ee1aecc9fe3",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "clay",
+      "layers": [
+        3
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/clay.png",
+      "master_sha256": "61aaebbbaea0d472cdfa7f917ebc8d7847bee0e4368feada04eb596cd69e9e49",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-albedo.png",
+          "sha256": "fe562ffb1ef99dd3be8ca964218507702a6bf5a119cfabc8f8b68930664c0535",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-normal.png",
+          "sha256": "9ad3d333a4ace600d2dac7bf1206714365afb34ba22334eaadc2943e6a867f1e",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-mask.png",
+          "sha256": "8d66572eb0cba4c6ae41b7496cd13ec4a0b935283670347de1749e72a9e48e52",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "granite",
+      "layers": [
+        4,
+        8
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/granite.png",
+      "master_sha256": "4eb26d11806e7260d5edac38baf37733b201cfcca0b781fb8dd9b8d3f92a57ff",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-albedo.png",
+          "sha256": "fdfe3f1550554c5b1a860987e88f87dd890f5f6e5e9ca08d8e71cd978de4ccb7",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-normal.png",
+          "sha256": "3470a0c3f8d2d7e758e7bb9f813648970f46f2cce302d64ed4ae541259709fa2",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-mask.png",
+          "sha256": "8af85b4359d83e4aa68fcf91fd1f8d24249758b8be0af80cfa818196b3efc795",
+          "size": [
+            128,
+            128
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-albedo.png",
+          "sha256": "fdfe3f1550554c5b1a860987e88f87dd890f5f6e5e9ca08d8e71cd978de4ccb7",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-normal.png",
+          "sha256": "3470a0c3f8d2d7e758e7bb9f813648970f46f2cce302d64ed4ae541259709fa2",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-mask.png",
+          "sha256": "8af85b4359d83e4aa68fcf91fd1f8d24249758b8be0af80cfa818196b3efc795",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "basalt",
+      "layers": [
+        9
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/basalt.png",
+      "master_sha256": "eb1af1ae15d611962fd78ffb886bc2014f2c1318e483a23f99b199d57b338c07",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-albedo.png",
+          "sha256": "c15be916f898eca9c0a7cedec00a634a886a481f83bd80232056f0a916f8c66d",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-normal.png",
+          "sha256": "2eaa2ec554c1472888cfeae96460d43dcb0a522dbceb05c62005fe2e6df0d78e",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-mask.png",
+          "sha256": "1c1392b48bad26aba948a8fd0fb2c73d85cc6d98a47913a87374a55df096c065",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "sandstone",
+      "layers": [
+        10
+      ],
+      "cover": null,
+      "repeat_metres": 1.83,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/sandstone.png",
+      "master_sha256": "21c0b9b149ab94f63bc11692c716340f9199fa733cfc79c8b2e112e70cfa97e5",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-albedo.png",
+          "sha256": "bb21a2b30c138ca37c811ef38c2c24d2e1b06c74cd72a183b3461c89580a1efe",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-normal.png",
+          "sha256": "363feac9f3f9001bd6643307e5284250974f084f107c68ac544f155064232a41",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-mask.png",
+          "sha256": "aaac8bb80beed63186564fdb55dab779b4ab8b92d76ef29fc1529efb338a0ace",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "limestone",
+      "layers": [
+        11
+      ],
+      "cover": null,
+      "repeat_metres": 4.3,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/limestone.png",
+      "master_sha256": "84cbad8720172b4da1195a8ce893478aa5acb49b26c6966164694e3f1f4751ef",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-albedo.png",
+          "sha256": "e9a590622110e41b3590084471bbd16b0f71918ced3205f296ef9d5a02e5426c",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-normal.png",
+          "sha256": "d1d466935a1ab252cd2b6b37e5ed844957fde64792786bf36508dd4010bbd82e",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-mask.png",
+          "sha256": "665628b7a8ad2128da8fc6321979a326421493ed7850084b32481fa2641421ea",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mudstone",
+      "layers": [
+        12
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/mudstone.png",
+      "master_sha256": "d493d39f6cfb7e1fed29ff2afc984565e2beb6378919ca87868952edd976c1cf",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-albedo.png",
+          "sha256": "65c755e723b0522314847d0944e0f7680a245192f94f9ba5b14efa8944118fc9",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-normal.png",
+          "sha256": "c7e0cebf85e55e55f6874c8723053d095de2fe497239413beaa42eb5c91e62d5",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-mask.png",
+          "sha256": "04c912b0e85b465d183c1eefdb5363dd088bf7fc4b896b5e233d4efb286af929",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "metamorphic",
+      "layers": [
+        13
+      ],
+      "cover": null,
+      "repeat_metres": 2.4212,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/metamorphic.png",
+      "master_sha256": "9c3c9698f6f7f31a1b5ef142898e5e37946386266928715312d461dd5c67af3f",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-albedo.png",
+          "sha256": "eb54ea70ef97734cf9f450fb25148949ebc5609044e1f676db17b1f0bb8e3455",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-normal.png",
+          "sha256": "f23b9bfddedbf9b8029528251e5c7b0694198d0ad997b600ec768f95f65a6ed5",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-mask.png",
+          "sha256": "85098aac2190792e17ab891229862bbb5538f87ec4269a81f1e61ac588221ee4",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "organic",
+      "layers": [
+        5
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/organic.png",
+      "master_sha256": "d7d40db9a71d2b4b4b8e94e72ba0900d14caf5a1a3a01348882046886f3494a0",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-albedo.png",
+          "sha256": "fca3a08b8300e768fb2c5dbb14afb1aa5b98891c8d3ddd963d36f091d213e649",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-normal.png",
+          "sha256": "bc780c23d3346c04bbfbe2d27304b792d424dbfdc12e4f9a004eea086430eafd",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-mask.png",
+          "sha256": "16d33144d6e86f99e26c39240dae3fb45954321a98eab47e862c68e75c8464db",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ice",
+      "layers": [
+        7
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/ice.png",
+      "master_sha256": "ffe5fd8232a6fee0cf981e5cfa82da635f648c5ab28602be5348b6ec5addba30",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-albedo.png",
+          "sha256": "545cc827f843c804ebf5fbb6425f8ecc099d79ad7b0d39e750d10b64244e0378",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-normal.png",
+          "sha256": "b0c91a5582be365fca91826ede4f5cb7b11b301c874d0c82a1e7046692b1df85",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-mask.png",
+          "sha256": "0b0b0ccf50ebd06f2c2cc49522027a7e3a10cdce9012c9d1cb2bd3b2163975f8",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "broadleaf",
+      "layers": [
+        14
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/broadleaf.png",
+      "master_sha256": "4e955983c400e9d5b656fc49ed2f55c7e6d3ec3ab3b4b8e7ee0cc8d25084c51c",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-albedo.png",
+          "sha256": "bd7693bfafbe9b930fb8f64327d363e509eda6e7b6b1783229c3a6613c1660c8",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-normal.png",
+          "sha256": "c09913a867dafff5da6117bfa2d47e04eb72182808cfe7a8295ab01acd31d434",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-mask.png",
+          "sha256": "3b25f3d1a18f15d00f11732348da2e4d63429622a6459479f96d37e6e522d29a",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "needles",
+      "layers": [
+        15
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/needles.png",
+      "master_sha256": "d20bdb99b6817ba6ed1708995fdeefbc80f9d74f748aa79712bfdeac13e01856",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-albedo.png",
+          "sha256": "64daca71d5b4b086685baf6997e20c2dbf0b9a108dc0b461bc533453b631ac18",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-normal.png",
+          "sha256": "f6d6c156c4cbab2864f99a05d353372cb1dff3240c197f659923b32526a10a0c",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-mask.png",
+          "sha256": "43c042a60eb1ee07536306fac7ab6fe413a7d885627bba9957a9cf4ee87baca9",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "damp",
+      "layers": [
+        16
+      ],
+      "cover": null,
+      "repeat_metres": 3,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/damp.png",
+      "master_sha256": "c396ac70d68277742cf3dfb4366a016c012cfb7c7c832ccd5d5ca2ad04b149f9",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-albedo.png",
+          "sha256": "b118676d613e77b1c57230044b57bc5fab62dbe6d1680fc5f02217994cdc9811",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-normal.png",
+          "sha256": "a3f5e29d0f79806678808a3b87bd805be8538578ff4d64b0624e3ec929a273db",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-mask.png",
+          "sha256": "e84b9f425f2297c441baf71bc663b7e7f8127cd7a2aa7dd74393d6cc1715541b",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "salt",
+      "layers": [
+        6
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/salt.png",
+      "master_sha256": "61f10c297cf2f2a34e965ccf9ed98d6da4d35565be923ea340c308286471ef76",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-albedo.png",
+          "sha256": "3f07efebabd049d6c1595d69b01d21b29e28d11db41766e7f8b6ff069a76b51d",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-normal.png",
+          "sha256": "22f3f95374276608c774be6a2fd1948ea05ad6dbc07752614087a42db3346430",
+          "size": [
+            512,
+            512
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-mask.png",
+          "sha256": "ca374de14c84080c28cafc7f5b4a0f6a07814c23e292b9ede490aa534ec2050d",
+          "size": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "key": "grass",
+      "layers": [],
+      "cover": "grass",
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/grass.png",
+      "master_sha256": "b4a3c29e4e30c7a08a637a0a14c5437e91f0fdadbe98c714dc465f6e2da8c0b3",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundGrassV2.png",
+          "sha256": "d6e753251ccc69b4272f033f9ac5d28c6ea3a058b54b00622ba3c1c9c9865923",
+          "size": [
+            1024,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "key": "moss",
+      "layers": [],
+      "cover": "moss",
+      "repeat_metres": 0.45,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/moss.png",
+      "master_sha256": "4d56bb49d5d4f9131d59022995cc58bee72adfe00ab1a80760d7c0ae53d7c1bf",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png",
+          "sha256": "b73306d07a0a87bba4a41fabfcde51b2c2cf6a2cddf625593b45277be15e36bd",
+          "size": [
+            1024,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lichen",
+      "layers": [],
+      "cover": "lichen",
+      "repeat_metres": 0.8,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/lichen.png",
+      "master_sha256": "7a12a3da4ec5f1c58dfe927f14a99745b5c185c0028dd742825e610316ac86bc",
+      "generated": true,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundLichenV1.png",
+          "sha256": "686a59d4e44d878820c2d850fea18c6f28b049874778f564d2f1eafd39d7d1a3",
+          "size": [
+            256,
+            256
+          ]
+        }
+      ]
+    }
+  ],
+  "normal_mask_note": "Approximate luminance-derived relief, conservative dry roughness and nonmetallic masks. No measured PBR claim.",
+  "processing": "Neutral linear RGB means retain existing ecological/geological macro tints; low-frequency light compensation, periodic-plus-smooth boundaries, narrow exact edge closure.",
+  "budget": "Existing17 BC7 terrain layers at1024/512/128; grass1024 and packed moss1024 unchanged, packed lichen256 BC7 replaces procedural256 RGBA32. No extra shader read/pass.",
+  "full_prompts": "assets/verification/ground-generation-prompts-20261107.json"
+}

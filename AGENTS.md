@@ -8,6 +8,22 @@ captures as successful results. Link the finished PDF in the update handoff and
 open it in a new Chrome tab on the leftmost monitor. This report-viewing preference
 overrides the rightmost-monitor rule for PDFs; other review windows stay rightmost.
 
+ACTIVE07Nov GENERATED GROUND. Owner requests all ground textures redone with
+image generation.19 built-in masters saved under assets-source/terrain/surfaces/
+ai/ground-set-20261107; full prompts assets/verification/ground-generation-
+prompts-20261107.json. Includes all17terrain layers (granite shared4/8) plus grass,
+moss,lichen. Offline compiler scripts/prepare-generated-ground.py preserves
+ecological macro tints, periodic boundaries and approximate derived relief/masks.
+Editor publish/review PASS462697checks and20production shader renders, images
+inspected grass/broadleaf. Exact terrain payload30,082,384bytes unchanged; all17
+slices changed across3arrays. Lichen256RGBA32->BC7 nominal349524->87408bytes;
+grass/moss1024 unchanged. No shader/placement/geography changes. No liveFPSclaim.
+Next: full NONDEV Mono B build (temporarily select A; owner A14192 still running,
+never close/overwrite A), restore3Unityautos, actual Forest/SandSea/Savanna/
+LimestoneUpland captures, inspect them, verified asset release+restore, screenshot
+PDF open NEW leftmost Chrome tab, select validated B and final evidence/push.
+No subagents, owner3files preserved. Other visible windows RIGHTMOST.
+
 READY07Nov ALL-GENERATED BARK. Owner requested image generation for all bark.
 Four new built-in masters in assets-source/vegetation/tree-surfaces/ai/bark-set-
 20261107/ plus previous generated fissured master. All five now generated;

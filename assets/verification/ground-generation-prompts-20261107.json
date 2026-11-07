@@ -1,0 +1,210 @@
+{
+  "tool": "built-in image_gen",
+  "created_utc": "2026-11-07",
+  "assets": [
+    {
+      "key": "soil",
+      "layers": [
+        0
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/soil.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-b13f2a05-f613-42fb-88ad-a9357fafe444.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural crumbly mineral loam soil over a two-metre square patch. Small irregular fine aggregates, fine silt/sand grains, very few tiny embedded mineral flecks, subdued gray-brown and taupe tones, slight natural variation. Real visible soil structure, not fuzzy noise, not chunky gravel. No plants, grass, roots, leaves or huge stones."
+    },
+    {
+      "key": "sand",
+      "layers": [
+        1
+      ],
+      "cover": null,
+      "repeat_metres": 4,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/sand.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-f87e9c1e-2ed1-4f2c-bc8d-b254da2e6806.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: clean natural dune/beach sand over a four-metre square patch. Fine densely packed quartz grains and restrained low-relief wind ripples with irregular subtle spacing around 10–25 cm; broad gentle organic drift pattern without huge dunes. Pale neutral buff and warm gray, subdued saturation. No shells, pebbles, vegetation, large ridges or stark shadow lines. Not perfectly parallel ruler-drawn stripes."
+    },
+    {
+      "key": "gravel",
+      "layers": [
+        2
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/gravel.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-dbbc4294-5112-44a0-87f3-549c8a3728b8.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural mixed fine gravel and gritty mineral sediment over a two-metre square patch. Densely scattered irregular rounded and subangular stones mostly 1–5 cm across, occasional 8 cm stone, many fine grains between them. Weathered gray, tan and muted charcoal mineral variety, modest contrast. No giant boulders, jewel-like stones, plants or perfect uniform cobblestone tessellation. Real outdoor gravel, not decorative landscaping."
+    },
+    {
+      "key": "clay",
+      "layers": [
+        3
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/clay.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-e5c3cc86-4135-4613-8658-687fffa2be8d.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: naturally exposed dry fine clay and silt over a two-metre square patch. Compact dusty matte gray-brown sediment with small irregular desiccation polygons, thin shallow cracks, gently curled minute plate edges and fine powder. Restrained texture, no huge black chasms or thick stone blocks, no brick patterns. No vegetation."
+    },
+    {
+      "key": "granite",
+      "layers": [
+        4,
+        8
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/granite.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-8316fbd5-405c-4993-b1bc-b0f3b317f2a3.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: weathered granite bedrock over a two-metre square patch, viewed perpendicular to a flat rock face. Fine interlocking quartz/feldspar/mica crystals, irregular shallow weathered facets and sparse subtle branching joints. Neutral warm gray with off-white and charcoal mineral grains, subdued local contrast. No large black chasms, piled boulders, bricks, lichen or moss. Real unpolished outdoor granite, not a kitchen countertop."
+    },
+    {
+      "key": "basalt",
+      "layers": [
+        9
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/basalt.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-c6e4b78c-439c-4d3e-b5e4-6cdb852d83a0.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural weathered basalt bedrock over a two-metre square rock face. Dense fine-grained dark gray volcanic rock, fine pits and occasional small vesicles, subtle irregular shallow fractures and worn surfaces, slight gray-brown weathering. No giant columns, lava glow, glossy black obsidian, dramatic black holes, huge angular blocks, plants or lichen. Do not make the overall image near-black; natural mid dark gray under flat lighting."
+    },
+    {
+      "key": "sandstone",
+      "layers": [
+        10
+      ],
+      "cover": null,
+      "repeat_metres": 1.83,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/sandstone.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-180a9d15-bb42-4e38-a128-4a5e6cef173c.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural sandstone bedrock over an approximately 1.83-metre square face. Fine visible sand grains, subtly uneven eroded bedding laminae with varied thin thickness and gentle irregular inclination, shallow granular weathering and occasional small joints. Desaturated beige gray and muted warm buff, no vivid orange. No stacked masonry, giant cracks, canyon scene, cliffs in perspective, fossils or vegetation."
+    },
+    {
+      "key": "limestone",
+      "layers": [
+        11
+      ],
+      "cover": null,
+      "repeat_metres": 4.3,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/limestone.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-ad12afd1-431a-4689-bcf9-2e58f545156a.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: weathered limestone bedrock over a 4.3-metre square face. Restrained pale gray-buff calcite rock, subtle cloudy mineral fabric, shallow small irregular solution pits and fine thin branching hairline fissures. Natural rough unpolished outdoor limestone, lightly weathered with modest texture contrast. No huge black karst holes, decorative marble veins, buildings, piled rocks or vegetation."
+    },
+    {
+      "key": "mudstone",
+      "layers": [
+        12
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/mudstone.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-5fba6b9a-01d4-4201-aac5-83acceb07de8.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: fine-grained weathered mudstone/shale bedrock over a two-metre square face. Thin naturally splitting irregular sedimentary laminae with gentle undulations, tiny chips and fine dusty mineral grain, irregular shallow cross joints. Muted gray-brown and taupe, restrained contrast. No uniform horizontal stripe pattern, bricks, huge dark gaps, loose rock pile or vegetation."
+    },
+    {
+      "key": "metamorphic",
+      "layers": [
+        13
+      ],
+      "cover": null,
+      "repeat_metres": 2.4212,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/metamorphic.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-5fc46aa7-07c6-45d5-8f0f-f70c3eae5fe2.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: naturally weathered metamorphic gneiss/schist bedrock over an approximately 2.4-metre square face. Fine interlocking minerals, subtle folded and inclined foliation, small broken quartz threads with slight gray/charcoal/muted buff variation. Organic irregular rock structure, not perfectly parallel stripes or polished decorative marble. No glittery highlights, plants, lichens or large black cracks."
+    },
+    {
+      "key": "organic",
+      "layers": [
+        5
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/organic.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-6c49a1c6-8bbf-48d1-9c63-9f863ac40e18.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural exposed organic peat/humus over a two-metre square ground patch. Fine decomposed fibrous plant material, crumbly dark earthy aggregates, tiny partially decomposed woody fragments, subdued dark umber and cool brown. Flat matte moist earth, not waterlogged shiny mud, no recognizable fresh leaves, moss carpet, grass or mushrooms. Keep fine texture legible and naturally varied rather than a uniform near-black surface."
+    },
+    {
+      "key": "ice",
+      "layers": [
+        7
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/ice.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-434a4cd8-4fac-417a-8a55-b93f7f772155.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural opaque weathered glacial ice/firn surface over a two-metre square ground patch. Fine compacted granular pale ice, subtle frost crystals and shallow ablation pitting, a few hairline irregular cracks, restrained pale gray-white with very slight cold blue variation. No big dark crevasses, blue glowing glacier scene, large snow drifts, glittering highlights, sunlight or transparent water."
+    },
+    {
+      "key": "broadleaf",
+      "layers": [
+        14
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/broadleaf.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-f684f201-b6e5-494b-8f95-dbe606347dc5.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: realistic temperate broadleaf forest floor over a two-metre square patch. Dense naturally overlapping dead oak/beech-like leaves at real leaf size about 5–15cm, many torn fragments, small twigs and glimpses of dark humus. Weathered muted tan, gray-brown and faded rust with fine veins and curled organic edges. No single huge leaf, bright autumn orange carpet, green grass, living plants, moss, mushrooms, pine needles or acorns featured prominently. Irregular varied leaf sizes and orientations, not a uniform decorative leaf pattern."
+    },
+    {
+      "key": "needles",
+      "layers": [
+        15
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/needles.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-f02dc172-6724-41df-8259-6ea68a7a5046.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: realistic dry conifer forest floor over a two-metre square patch. A dense irregular mat of small overlapping fallen pine/spruce needles mostly 2–7cm long, broken needle fragments and occasional thin twigs, with dark fine humus beneath. Muted tawny brown, gray-brown and faded chestnut. No giant cones, fresh green branches, broad leaves, grass, mushrooms or giant geometric zigzags. Fine authentic directional chaos rather than combed straw or uniform lines."
+    },
+    {
+      "key": "damp",
+      "layers": [
+        16
+      ],
+      "cover": null,
+      "repeat_metres": 3,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/damp.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-0a8b071c-30e7-4868-a6eb-9575cb4f35fc.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: realistic damp mixed forest floor over a three-metre square patch. Partly decomposed dark broadleaf litter and fine twigs interspersed with irregular small low moss cushions, moist dark humus visible between them. Subdued earthy brown, olive and dull deep green, with real small-scale leaf vein and moss texture. Moss covers about one third in irregular patches with crumbly natural edges, never a solid uniform green carpet. No standing plants, flowers, mushrooms, puddles, big rocks or large black gaps."
+    },
+    {
+      "key": "salt",
+      "layers": [
+        6
+      ],
+      "cover": null,
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/salt.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-9c95ca50-dea2-417b-8deb-fcd9867841b3.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural dry salt-flat crust over a two-metre square patch. Pale off-white and cool warm-gray fine crystalline mineral surface, subtle irregular small polygonal desiccation outlines with low white raised rims and faint dusty gray seams. Fine salt grains and quiet powdery texture. No dramatic black cracks, huge hexagons, snow, brown mud, standing water, shine or glitter. Modest local contrast; larger salt polygons are represented separately by game terrain."
+    },
+    {
+      "key": "grass",
+      "layers": [],
+      "cover": "grass",
+      "repeat_metres": 2,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/grass.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-7cddd2e7-b70d-43a6-b003-19dac272d97c.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: naturally growing short meadow grass ground surface over a two-metre square patch. Dense but irregular interwoven small fine grass blades, varied bent and gently curled leaves mostly 2–10 cm, some faded straw and small glimpses of earth beneath. Authentic wild grass sward, not perfectly manicured lawn, not large tropical leaves, not clover. Restrained muted olive green, soft straw and earth tones, with readable real blade shapes and fine veins, not flat green noise. No flowers, tall upright grass clumps, bushes, mushrooms or broad leaves."
+    },
+    {
+      "key": "moss",
+      "layers": [],
+      "cover": "moss",
+      "repeat_metres": 0.45,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/moss.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-f5c13da3-670e-44c0-a43d-7599af7dbaf5.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: living low cushion moss seen directly overhead over a 45-centimetre square patch. Dense miniature branching leafy shoots and tiny interlocking feathery rosettes, uneven small natural cushions with fine visible individual leaf structure. Restrained olive, muted yellow-green and dark green, slight natural variation, very small brown fragments. Real miniature moss, not long grass, ferns, coral, broad tropical leaves or a fuzzy uniform carpet. No bare large rocks, flowers or mushrooms."
+    },
+    {
+      "key": "lichen",
+      "layers": [],
+      "cover": "lichen",
+      "repeat_metres": 0.8,
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/lichen.png",
+      "original": "C:\\Users\\kille\\.codex\\generated_images\\01a0fa13-856b-7f40-ab01-51bc91fe8f33\\exec-55f6d5a8-3690-4929-b99a-7d416db4a608.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless video-game ground base-color/albedo texture. Generate ONE square high-resolution orthographic material tile, surface seen straight-on with no perspective, filling every pixel edge to edge. Fine realistic natural detail across the whole surface, even density, no large distinctive central motif. Flat diffuse neutral lighting with no directional shadows, highlights, vignette, depth of field or brightness gradient; game lighting supplies illumination. Seamless repeating on all four edges. No horizon, landscape scene, preview sphere, labels, borders, text, footprints, rubbish, human objects, animals or insects. Produce only the albedo material. Subject: natural low crustose and small foliose ground lichen seen directly overhead over a 70-centimetre square patch. Irregular closely packed tiny pale gray-olive rounded and branching lobes with fine cracked crust, restrained gray-beige and subtle yellow-green, some darker fine mineral substrate visible in small gaps. Fine rugged dry matte surface, not coral branches, moss fuzz, ordinary leaves or bright neon orange lichen. No large raised clumps, rocks as objects, flowers or greenery."
+    }
+  ]
+}

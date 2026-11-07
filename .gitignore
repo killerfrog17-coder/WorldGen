@@ -78,6 +78,7 @@ unity/WorldGen.Unity/Assets/StreamingAssets/fauna-motion.meta
 /unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1.meta
 /assets/first-person/*.blend[0-9]*
 /unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png
+/unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-*
 /unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/albedo.asset
 /unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/normal.asset
 /unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/mask.asset

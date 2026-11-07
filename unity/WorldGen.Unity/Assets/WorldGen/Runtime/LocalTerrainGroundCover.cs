@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     Material groundCoverMaterial,groundCanopyMaterial,groundClumpMaterial;ComputeShader groundCoverPlacement;
     GraphicsBuffer groundClumpIndices;
     [Serializable] sealed class GroundClumpRegistration {public Vector4[] rectangles;public float[] aspects;}
-    Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;bool ownedMossField;
+    Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;
     readonly Plane[] coverFrustum=new Plane[6];
     readonly Vector4[] coverCullPlanes=new Vector4[6];
     public bool GroundCoverEnabled=true;
@@ -91,9 +91,9 @@ public sealed partial class LocalTerrainExplorer
     {
         if(landMaterial==null)return;
         if(grassFieldTexture==null)grassFieldTexture=Resources.Load<Texture2D>("GroundGrassV2");
-        if(grassFieldTexture==null)throw new InvalidOperationException("Photographed grass ground texture is missing.");
-        if(mossFieldTexture==null){mossFieldTexture=Resources.Load<Texture2D>("GroundMossV1");ownedMossField=mossFieldTexture==null;if(ownedMossField)mossFieldTexture=CreateGroundMatTexture(false);}
-        if(lichenFieldTexture==null)lichenFieldTexture=CreateGroundMatTexture(true);
+        if(mossFieldTexture==null)mossFieldTexture=Resources.Load<Texture2D>("GroundMossV1");
+        if(lichenFieldTexture==null)lichenFieldTexture=Resources.Load<Texture2D>("GroundLichenV1");
+        if(grassFieldTexture==null||mossFieldTexture==null||lichenFieldTexture==null)throw new InvalidOperationException("Generated ground cover material is missing.");
         landMaterial.SetTexture("_GrassField",grassFieldTexture);landMaterial.SetTexture("_MossField",mossFieldTexture);landMaterial.SetTexture("_LichenField",lichenFieldTexture);
     }
     // Unity-main-thread staging only. Every consumer overwrites every pixel and
@@ -132,32 +132,6 @@ public sealed partial class LocalTerrainExplorer
             properties.SetFloat("_ForestFloorEnabled",tile.ForestFloor==null?0:1);
             if(tile.ForestFloor!=null)properties.SetTexture("_ForestFloor",tile.ForestFloor);
         }
-    }
-    static Texture2D CreateGroundMatTexture(bool lichen)
-    {
-        const int size=256;var heights=new float[size*size];
-        float Hash(int x,int z){uint h=unchecked((uint)x*73856093u^(uint)z*19349663u^(lichen?0x239ad2u:0x51937u));h^=h>>16;h*=0x7feb352du;h^=h>>15;return (h&65535)/65535f;}
-        float Noise(int x,int z,int period)
-        {
-            float px=x*period/(float)size,pz=z*period/(float)size;int ix=Mathf.FloorToInt(px),iz=Mathf.FloorToInt(pz);
-            float a=px-ix,b=pz-iz;a=a*a*(3-2*a);b=b*b*(3-2*b);int mask=period-1;
-            return Mathf.Lerp(Mathf.Lerp(Hash(ix&mask,iz&mask),Hash((ix+1)&mask,iz&mask),a),Mathf.Lerp(Hash(ix&mask,(iz+1)&mask),Hash((ix+1)&mask,(iz+1)&mask),a),b);
-        }
-        float mean=0;
-        for(int z=0;z<size;z++)for(int x=0;x<size;x++)
-        {
-            float clump=Noise(x,z,8),grain=Noise(x,z,64);
-            float h=lichen?Mathf.SmoothStep(.12f,.85f,clump)*.65f+grain*.16f:clump*.42f+Noise(x,z,32)*.36f+grain*.22f;
-            heights[z*size+x]=h;mean+=h;
-        }
-        mean/=heights.Length;var pixels=new Color32[heights.Length];
-        for(int z=0;z<size;z++)for(int x=0;x<size;x++)
-        {
-            float sx=heights[z*size+((x+1)&255)]-heights[z*size+((x-1)&255)],sz=heights[((z+1)&255)*size+x]-heights[((z-1)&255)*size+x];
-            pixels[z*size+x]=new Color(.5f+(heights[z*size+x]-mean)*.65f,.5f-sx*1.8f,.5f-sz*1.8f,heights[z*size+x]);
-        }
-        var texture=new Texture2D(size,size,TextureFormat.RGBA32,true,true){name=lichen?"Stationary lichen crust":"Stationary moss cushions",filterMode=FilterMode.Trilinear,wrapMode=TextureWrapMode.Repeat,anisoLevel=8};
-        texture.SetPixels32(pixels);texture.Apply(true,true);return texture;
     }
     CoverGpu PrepareGroundCover(TerrainTileKey key,Tile tile,int wx,int wz,bool sprites=false)
     {
