@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+LATEST07Nov17:04Z until18Z/noon; one finalPDF/openChromeLEFTMOST. A FULLMono
+NONDEV36e06e9d built17:02:26Z SourceChanges[],3autosrestored. B0c8/shortcut
+stillprotected. Ownrunner3810/player24504 RIGHTMOST hidden nativeSandSea and
+CoastalBeach v2. IMPORTANT firstSandnativev1 visuallyREJECTED: guardread
+ForestSurface.RGBleafcolour, not alphaoccupancy; ridgeRGBdelta~.005 andwide
+identical. Correct36 uses alpha .005..03, verify realvisiblechange BEFOREperf.
+Sandextension reusesexistingclose-albedoread, Medium+only, plant/woodcoverguard,
+64..160m fade; no newnormal/masks/assets/pass. No morefeatures now; finishQA.
+ExactSparseBackdrop2402 CONFIRMED nativeVolcano13.5km: largesttile109501.3ms
+->5833.9ms, last77702.1->2385.8, groundPNGpixelEXACT/cratermean~.000003RGB,
+wide~.77RGBmean (minorforesttimingdiff). Allnative v1Sand/Coast/Volcano EXIT0,
+butSand v1artnotaccepted. Exact3far26/52kmpacketsBuildMs-only normalizedPASS;
+originaldensebatchindexprimingretained. NoFPS/stutter/globalstartuptimeclaim.
+Baseline sand-distance-baseline-moving COMPLETE438: Dune349.12/p9910.74/
+max18.26/1>16.667; GL150.73/p9914.81/max41.17/28. Sameactualdunecoordinate0m
+shift and GLdryhelper113.137m ->169451/446.958m/glacial.7058. Need samepair
+candidate afterv2native. AllSourcePUSHED36, docs e027; sparse metadata latest
+uncommitted. NoFPSmeasurementcurrently. C4.8GBfree. FinalreportJSON+12JPG
+inputs docs/reports/geography-20261107, NO PDF yet; addacceptedSandbefore/after
+ifgood, latestpairedtableandMango225/179, thenrender+inspectfinalPDFonlyatend.
+Keepworkinguntil18Z. Owner3filesuntouched; no subagents/animal-human-weather-
+sky edits. Obsolete1.4GBcapturedeletepolicyBLOCKED remains, no bypass; final
+shortdisclosure required. Shortcutonlyafteraccepted finalbuild; PRESERVE its
+existingWorkingDirectory repositoryroot andArguments, changeTarget/Icon toA.
+
+
 LATEST07Nov16:46Z OVERNIGHT until18Z/noon; onePDF END ONLY/openChromeLEFTMOST.
 Ownrunner65792/player12864 RIGHTMOST runs sand-distance-baseline-moving onA
 438e3280. Dune349.12FPS/p9910.74/max18.26/1>16.667 complete; secondGLforest
