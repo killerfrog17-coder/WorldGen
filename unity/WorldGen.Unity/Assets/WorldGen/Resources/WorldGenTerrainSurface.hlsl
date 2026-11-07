@@ -185,31 +185,6 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     albedo*=lerp(1,clamp(shade,.55,1.45),bare*.62);
 }
 
-void SurfaceSandDistance(O i,float3 world,float3 worldDx,float3 worldDy,float distance,float detail,float canopy,inout float3 albedo)
-{
-    if(TerrainTest(TD_ALBEDO)||TerrainTest(TD_NEAR))return;
-    float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
-    float sand=saturate(i.weights.y/total);
-    float extension=(1-detail)*(1-smoothstep(64,160,distance))*smoothstep(.70,.95,sand)
-        *(1-smoothstep(.05,.25,saturate(i.color.a)))*(1-smoothstep(.05,.30,canopy));
-    [branch]if(extension>.001)
-    {
-        // Preserve the registered generated sand's4m footprint after the
-        // general close-material path retires. Albedo only, at most two
-        // existing-array reads; no distant normal or mask sampling.
-        float3 normal=normalize(i.normal);
-        float3 planetNormal=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
-        float scale=.5/max(.05,_TextureMetres);
-        float3 colour=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world*scale,worldDx*scale,worldDy*scale,SurfaceAxes(planetNormal,2,1),1).rgb;
-        #ifndef UNITY_COLORSPACE_GAMMA
-        colour*=4.672;
-        #else
-        colour*=2;
-        #endif
-        albedo*=lerp(1,colour,extension*.88);
-    }
-}
-
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
 {
     float3 n=normalize(i.normal);
@@ -242,10 +217,21 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     #endif
     float looseFraction=saturate((i.weights.x+i.weights.z+i.weights.w+i.groundB.y)/max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1)));
     albedo=lerp(albedo,floorPigment,floorWeight*detail*looseFraction);
+    // Open sand retains its generated4m detail farther out. Reuse the
+    // existing sample where the close path is already active; beyond that
+    // range its normal/mask/extra-layer reads remain retired.
+    float albedoDetail=detail;
+    if(_TerrainSurfaceControls.y>=2&&!TerrainTest(TD_NEAR))
+    {
+        float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
+        float sand=smoothstep(.70,.95,saturate(i.weights.y/total));
+        float open=(1-smoothstep(.05,.25,saturate(i.color.a)))*(1-smoothstep(.05,.30,forestSurface.r));
+        albedoDetail=max(detail,(1-smoothstep(64,160,distance))*sand*open);
+    }
     // Stable mean properties of these rough, nonmetallic ground materials.
     // Fine mask variation is reserved for the close High/Ultra path.
     float ao=.93,rough=lerp(.88,.55,saturate(i.groundB.w)),metal=0;
-    [branch] if(textures&&detail>.001)
+    [branch] if(textures&&albedoDetail>.001)
     {
         int3 layers;float3 fractions;SurfaceLayers(i,extra,floorMix,layers,fractions);
         float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
@@ -275,7 +261,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         #ifndef UNITY_COLORSPACE_GAMMA
         scale=4.672;
         #endif
-        if(colourRead)albedo*=lerp(1,colour*scale,detail*.88);
+        if(colourRead)albedo*=lerp(1,colour*scale,albedoDetail*.88);
         if(normalRead)
         {
             bump-=np*dot(np,bump);np=normalize(np+bump*normalDetail);
@@ -284,7 +270,6 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
     SurfaceStrata(i,albedo);
-    if(textures)SurfaceSandDistance(i,world,worldDx,worldDy,distance,detail,forestSurface.r,albedo);
     if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,albedo);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
