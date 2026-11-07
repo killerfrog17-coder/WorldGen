@@ -47,10 +47,11 @@ def validate(p):
     a=np.asarray(Image.open(p))
     assert np.array_equal(a[0],a[-1]) and np.array_equal(a[:,0],a[:,-1]),str(p)
     return {'path':p.relative_to(ROOT).as_posix(),'sha256':sha(p),'size':list(a.shape[:2])}
-def build():
+def build(only=None):
     OUT.mkdir(parents=True,exist_ok=True);records=[]
     strengths={'sand':.0015,'gravel':.006,'clay':.0025,'granite':.003,'basalt':.003,'sandstone':.0025,'limestone':.003,'mudstone':.003,'metamorphic':.003,'broadleaf':.0035,'needles':.002,'damp':.003,'moss':.00055,'lichen':.0007,'ice':.0015,'salt':.001}
     for source in json.loads(PROMPTS.read_text(encoding='utf-8'))['assets']:
+        if only is not None and source['key']!=only:continue
         key=source['key'];master=ROOT/source['master'];c=colour(master);outputs=[]
         for layer in source['layers']:
             h,n=relief(c,512,source['repeat_metres'],strengths.get(key,.0018))
@@ -71,8 +72,19 @@ def build():
             packed=np.stack([lum,n[:,:,0]*.5+.5,n[:,:,1]*.5+.5,np.ones_like(lum)],axis=2)
             p=RES/('GroundMossV1.png' if key=='moss' else 'GroundLichenV1.png');save(p,close_edges(packed));outputs.append(validate(p))
         records.append({**{k:source[k] for k in ['key','layers','cover','repeat_metres','master']},'master_sha256':sha(master),'generated':True,'outputs':outputs})
-    assert sorted(layer for r in records for layer in r['layers'])==list(range(17))
+    if only is not None:
+        previous=json.loads((ROOT/'assets/verification/generated-ground-sources-20261107.json').read_text(encoding='utf-8'))['materials']
+        updated={row['key']:row for row in previous};updated.update({row['key']:row for row in records})
+        records=[updated[row['key']] for row in json.loads(PROMPTS.read_text(encoding='utf-8'))['assets']]
+        for row in records:
+            assert sha(ROOT/row['master'])==row['master_sha256'],row['key']
+            for output in row['outputs']:assert sha(ROOT/output['path'])==output['sha256'],output['path']
+    assert len(records)==19 and sorted(layer for r in records for layer in r['layers'])==list(range(17))
     result={'version':'generated-ground-1','generator':'built-in image_gen','materials':records,'normal_mask_note':'Approximate luminance-derived relief, conservative dry roughness and nonmetallic masks. No measured PBR claim.','processing':'Neutral linear RGB means retain existing ecological/geological macro tints; low-frequency light compensation, periodic-plus-smooth boundaries, narrow exact edge closure.','budget':'Existing17 BC7 terrain layers at1024/512/128; grass1024 and packed moss1024 unchanged, packed lichen256 BC7 replaces procedural256 RGBA32. No extra shader read/pass.','full_prompts':PROMPTS.relative_to(ROOT).as_posix()}
     (ROOT/'assets/verification/generated-ground-sources-20261107.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     print('PASS19 generated masters,17 layer triples and3 cover textures; exact repeat edges and unit relief normals.')
-if __name__=='__main__':build()
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--only',help='Recompile one material while retaining the verified published set.');args=parser.parse_args()
+    if args.only and args.only not in [r['key'] for r in json.loads(PROMPTS.read_text(encoding='utf-8'))['assets']]:parser.error('Unknown material')
+    build(args.only)

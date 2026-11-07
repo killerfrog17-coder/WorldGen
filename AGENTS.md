@@ -22,6 +22,18 @@ Next: full NONDEV Mono B build (temporarily select A; owner A14192 still running
 never close/overwrite A), restore3Unityautos, actual Forest/SandSea/Savanna/
 LimestoneUpland captures, inspect them, verified asset release+restore, screenshot
 PDF open NEW leftmost Chrome tab, select validated B and final evidence/push.
+Native633 FULL B06:47:39Z and Forest/SandSea/Savanna/LimestoneUpland all EXIT0.
+However grassv1 REJECTED in actual slope review: tangled thin strands. New built-in
+grass-v2.png has flat tapered blades; prompt metadata updated; --only grass
+recompiles only this map. Editor-grass-v2 review session28026 running. Need inspect
+grass PNG then focused source push/full B rebuild, backup new master with new
+release/lock (prior5897assets already verified remotely), and repeat Forest,
+Savanna,Limestone captures. SandSea633 has unchanged material bank and may be
+retained with actual source receipt. Current PDF and docs report captures are
+UNFINISHED draft with grassv1; must replace before opening/presenting. Script
+scripts/build-ground-texture-report.py exists,3pages,19master catalogue. Do not
+claim final screenshots before new review. Shortcut currently B/633 but B idle;
+temporarily select A for next build, never overwrite running A14192.
 No subagents, owner3files preserved. Other visible windows RIGHTMOST.
 
 READY07Nov ALL-GENERATED BARK. Owner requested image generation for all bark.

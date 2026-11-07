@@ -624,13 +624,13 @@
       "layers": [],
       "cover": "grass",
       "repeat_metres": 2,
-      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/grass.png",
-      "master_sha256": "b4a3c29e4e30c7a08a637a0a14c5437e91f0fdadbe98c714dc465f6e2da8c0b3",
+      "master": "assets-source/terrain/surfaces/ai/ground-set-20261107/grass-v2.png",
+      "master_sha256": "b19cf56632b39dd41cf1e732637cc3f97b6f4045610d9d04dd8f3a5c261532f0",
       "generated": true,
       "outputs": [
         {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundGrassV2.png",
-          "sha256": "d6e753251ccc69b4272f033f9ac5d28c6ea3a058b54b00622ba3c1c9c9865923",
+          "sha256": "36fe178ea66f040f01d9eca86de6a31470d2c6330996e88a03f1b59789f086d9",
           "size": [
             1024,
             1024
