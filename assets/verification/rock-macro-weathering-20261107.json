@@ -1,9 +1,10 @@
 {
-  "status":"Source prepared; native appearance, origin continuity and moving performance pending. Not selected for owner play.",
+  "status":"Native valley/canyon/fjord views passed and inspected. Repeating banding removed; broad walls remain smooth/uniform. Moving regression currently running. Not selected for owner play.",
   "problem":"Distant exposed walls lose fine generated texture detail and show identical repeating29m bedding ramps. Actual glacial-trough and fjord screenshots resemble uniformly brown striped slopes.",
   "change":"Adjacent sedimentary beds receive independently inherited tones with continuous smooth joins, preserving the existing gently dipping variable-thickness coordinate. Remove the unfiltered metre-scale sine. Existing generated rock macro sample changes32m to128m and stronger bounded modulation so larger weathering patches survive at distance.",
   "performance_contract":"Same17 generated material layers, same existing at-most-two macro rock texture fetches, unchanged geometry, draw passes, normals, collision and world data. Two small analytic hashes replace one repeating ramp; no new asset or CPU tick.",
-  "continuity":"128m repeat divides the existing1024m wrapped anchor exactly. Bed endpoints join identical hash values on both sides. Native shader/origin tests still required before acceptance.",
+  "continuity":"128m repeat divides the existing1024m wrapped anchor exactly. Bed endpoints join identical hash values on both sides. No geometry or material-coordinate contract changed; no separate forced-origin native render comparison performed.",
+  "native":{"source":"10b1f0ea ScriptsOnly over full6c9bb23e","evidence":"artifacts/landscape-20261103/rock-materials-native-v2-20261107","contexts":["Mangrove","GlacialTrough","Canyon","FjordWoodland"],"all_exit":0,"images_inspected":["glacialtrough/valley-axis","glacialtrough/landform-side","canyon/landform-overview","fjordwoodland/landform-overview","mangrove/tidal-waterline"],"result":"Old equal ramp stripes no longer dominate valley walls. Native ocean/river vegetation integration remains intact. Existing canyon has overly regular physical terraces; that geometry is a separate forthcoming refinement."},
   "research":["https://www.nps.gov/articles/desertvarnish.htm","https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-arches-national-park"],
   "limits":"Surface variation, not simulated erosion or actual water runoff. Retains geographic bedrock colour; no claim that a shader creates missing cliff geometry."
 }

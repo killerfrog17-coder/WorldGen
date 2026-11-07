@@ -35,7 +35,7 @@ static class MangroveTests
         }
         if(sites.Count==0)throw new Exception("No shallow benchmark start and route in real mapped mangroves");
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));
-        File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(new{HistoryHash=world.Prehistory.Hash,Sites=sites},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(new{HistoryHash=world.Prehistory?.Hash,Sites=sites},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
     }
     public static void Controls()
     {
@@ -80,7 +80,7 @@ static class MangroveTests
     }
     public static void World(string input,string output)
     {
-        Directory.CreateDirectory(output);var world=WorldFile.ReadFile(input);string history=world.Prehistory.Hash;int checks=0;
+        Directory.CreateDirectory(output);var world=WorldFile.ReadFile(input);string history=world.Prehistory?.Hash;int checks=0;
         void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
         var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var sites=TidalForestSites.Nearshore(world,model).Take(3).ToArray();
         int mapped=Enumerable.Range(0,world.Surface.Cells.Length).Count(i=>model.Profile(i).Biome==Biome.Mangrove);
@@ -111,7 +111,7 @@ static class MangroveTests
             Console.WriteLine($"Tidal coast {site.Cell}: trees {trees.Count}, tidal {tidal}, low {low}, submerged {submerged}, forms {string.Join(",",forms)}");
             rows.Add(new{site.Cell,Position=new[]{site.Position.X,site.Position.Y,site.Position.Z},site.Height,site.ForestCoverage,Trees=trees.Count,Tidal=tidal,LowShore=low,Submerged=submerged,Forms=forms.Select(f=>f.ToString()).ToArray()});
         }
-        Check(rows.Count>0,"Actual world mangrove evidence exists");Check(world.Prehistory.Hash==history,"Tidal forest derivation does not mutate broad history");
+        Check(rows.Count>0,"Actual world mangrove evidence exists");Check(world.Prehistory?.Hash==history,"Tidal forest derivation does not mutate broad history");
         File.WriteAllText(Path.Combine(output,"mangroves.json"),System.Text.Json.JsonSerializer.Serialize(new{MappedCells=mapped,Checks=checks,Sites=rows},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {checks} actual tidal rooting and exact near/far forest checks");
     }

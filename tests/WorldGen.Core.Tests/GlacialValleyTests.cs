@@ -37,7 +37,7 @@ static class GlacialValleyTests
     }
     public static void World(string path,string output)
     {
-        Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);string history=world.Prehistory.Hash;
+        Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);string history=world.Prehistory?.Hash;
         var clock=System.Diagnostics.Stopwatch.StartNew();var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);double prepared=clock.Elapsed.TotalSeconds;
         var valleys=terrain.Amplification.Glaciers;double radius=terrain.RadiusM*.1;
         Console.WriteLine($"Glacial reaches {valleys.Reaches.Length}, faces {valleys.IndexedFaces}, index {valleys.IndexBytes} bytes, max candidates {valleys.MaximumCandidates}; prepare {prepared:F2}s");
@@ -95,7 +95,7 @@ static class GlacialValleyTests
             var reconstructed=warm.Patch(point.Point,5000).Sample(point.Point);
             if(StateHash.Compute(reconstructed)!=StateHash.Compute(point.Sample))throw new Exception("Warm/reverse-order glacial reconstruction changed terrain, water, soil or vegetation");
         }
-        if(world.Prehistory.Hash!=history)throw new Exception("Local glacial terrain changed broad history");
+        if(world.Prehistory?.Hash!=history)throw new Exception("Local glacial terrain changed broad history");
         File.WriteAllText(Path.Combine(output,"glacial-valleys.json"),System.Text.Json.JsonSerializer.Serialize(new{PreparedSeconds=prepared,Reaches=valleys.Reaches.Length,valleys.IndexedFaces,valleys.IndexBytes,valleys.MaximumCandidates,IndexProbes=probes,ExactCachedSamples=checkedPoints.Count,Sites=rows},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {rows.Count} actual glacial river valleys, {probes} exact index comparisons, terrain/water boundaries/shared edges/history; {clock.Elapsed.TotalSeconds:F2}s");
     }

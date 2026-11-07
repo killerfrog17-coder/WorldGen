@@ -7,7 +7,7 @@ static class FjordCoastTests
     public static void Run(string input,string output)
     {
         Directory.CreateDirectory(output);int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
-        var timer=System.Diagnostics.Stopwatch.StartNew();var world=WorldFile.ReadFile(input);string history=world.Prehistory.Hash;
+        var timer=System.Diagnostics.Stopwatch.StartNew();var world=WorldFile.ReadFile(input);string history=world.Prehistory?.Hash;
         var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);double prepared=timer.Elapsed.TotalSeconds;
         var fjords=terrain.Amplification.Fjords;double radius=terrain.RadiusM*.1;
         Console.WriteLine($"Fjords {fjords.Inlets.Length}, sections {fjords.Sections.Length}, faces {fjords.IndexedFaces}, index {fjords.IndexBytes} bytes, max candidates {fjords.MaximumCandidates}, prepare {prepared:F2}s");
@@ -87,9 +87,15 @@ static class FjordCoastTests
             }
         }
         var cached=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);Check(cached.Amplification.UsedCachedRiverDatums,"Fjord terrain supports cached final river derivation");
-        var wooded=fjords.Inlets.First(f=>f.Mouth==173461);var woodedSection=fjords.Sections[wooded.First+wooded.Count/2];V woodedCenter=(woodedSection.A+woodedSection.B).Unit;
-        var woodedSample=terrain.Patch(woodedCenter,5000).Sample(woodedCenter);
-        Check(woodedSample.Province.GlacialExposure<.05&&woodedSample.Forest.Coverage>.3,"A neighbour's nonwinning wall cannot strip soil/forest potential from the wooded inlet basin");
+        // This exact regression belongs to the saved190k fixture. Fresh seeds
+        // still run every general mask/index/sea proof above and must not be
+        // required to contain one unrelated world's numbered river mouth.
+        if(history=="765d3d8fbb32b12e291f5f5c3766c041a9b119f2d87017143e030aea6ded5b7d")
+        {
+            var wooded=fjords.Inlets.First(f=>f.Mouth==173461);var woodedSection=fjords.Sections[wooded.First+wooded.Count/2];V woodedCenter=(woodedSection.A+woodedSection.B).Unit;
+            var woodedSample=terrain.Patch(woodedCenter,5000).Sample(woodedCenter);
+            Check(woodedSample.Province.GlacialExposure<.05&&woodedSample.Forest.Coverage>.3,"A neighbour's nonwinning wall cannot strip soil/forest potential from the wooded inlet basin");
+        }
         foreach(var (p,s) in exact.AsEnumerable().Reverse())Check(StateHash.Compute(cached.Patch(p,50000).Sample(p))==StateHash.Compute(s),"Cached reverse-order terrain/water/soil reconstruction is exact");
         var profiles=Enumerable.Range(0,world.Surface.Cells.Length).Select(terrain.Profile).ToArray();var scaleRows=new List<object>();
         foreach(double scale in new[]{.01,.5,1d,2})
@@ -99,7 +105,7 @@ static class FjordCoastTests
             Check(resized.Inlets.All(f=>double.IsFinite(f.HalfWidth)&&f.HalfWidth>0&&f.Depth>0),"Rescaled inlet dimensions remain finite and positive");
             scaleRows.Add(new{Scale=scale,Inlets=resized.Inlets.Length,Sections=resized.Sections.Length,resized.IndexBytes,PrepareMs=clock.Elapsed.TotalMilliseconds});
         }
-        Check(world.Prehistory.Hash==history,"Local fjord terrain does not mutate broad history");
+        Check(world.Prehistory?.Hash==history,"Local fjord terrain does not mutate broad history");
         File.WriteAllText(Path.Combine(output,"fjords.json"),System.Text.Json.JsonSerializer.Serialize(new{PreparedSeconds=prepared,Checks=checks,Inlets=fjords.Inlets.Length,Sections=fjords.Sections.Length,fjords.IndexBytes,fjords.IndexedFaces,fjords.MaximumCandidates,IndexProbes=indexProbes,ContinuousWetProbes=wetProbes,ExactCachedSamples=exact.Count,Scales=scaleRows,Sites=rows},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {checks} fjord controls, {wetProbes} continuous ocean probes, {indexProbes} exhaustive index comparisons; {timer.Elapsed.TotalSeconds:F2}s");
     }
