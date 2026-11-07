@@ -32,15 +32,18 @@ namespace WorldGen.Core
             {
                 if(radius>=1.3)return original;
                 int key=unchecked((int)((uint)Id^(uint)(Id>>32)));
-                double pattern=LandscapeNoise.Value(metres,key,1/55d)+.23*LandscapeNoise.Value(metres,key^0x31b47,1/22d);
+                double pattern=LandscapeNoise.Value(metres,key,1/55d)+.23*LandscapeNoise.Value(metres,key^0x31b47,1/22d)+.18*LandscapeNoise.Value(metres,key^0x7513,1/10d);
                 double hummock=OrogenMorphology.Smooth(.10,.48,Math.Abs(pattern));
                 double target=Level-Depth+(Depth+.3)*hummock;
                 // Retain inherited higher ground. The water table fills low
                 // hollows; it must not excavate an entire sloping forest into
                 // a deep, flat-bottomed artificial pond.
-                target=Math.Max(original-1.2,target);
+                // Roots/litter/peat can also build low organic hummocks on
+                // already saturated low ground. Bound this deposition rather
+                // than treating every wetland form as bedrock erosion only.
+                target=Math.Max(original-1.2,Math.Min(original+.4,target));
                 double fade=1-OrogenMorphology.Smooth(.8,1.3,radius);
-                return original+(Math.Min(original,target)-original)*fade;
+                return original+(target-original)*fade;
             }
             if(radius>=1.4)return original;
             double blend=1-OrogenMorphology.Smooth(.82,1.4,radius),bowl=Level-Depth*(1-radius*radius);

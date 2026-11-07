@@ -35,7 +35,7 @@ static class WetlandComplexTests
                     for(int k=0;k<30;k++){double m=(lo+hi)*.5;var p=(lake.Center+direction*(m/radius)).Unit;if(lake.NormalizedRadius(p,radius)<q)lo=m;else hi=m;}
                     V point=(lake.Center+direction*((lo+hi)*.5/radius)).Unit;
                     double r=lake.NormalizedRadius(point,radius),bed=lake.Bed(100,r,point*radius);
-                    Check(double.IsFinite(bed)&&bed<=100&&bed>=lake.Level-lake.Depth-1e-9,"Finite cut-only bed and bounded standing depth");
+                    Check(double.IsFinite(bed)&&bed<=100.4&&bed>=lake.Level-lake.Depth-1e-9,"Finite bounded wetland bed and standing depth");
                     if(q<1.29)Check(bodies.At(point,Flat)?.Id==lake.Id,"27-cell address lookup must discover the entire physical bed, including grid/sphere boundaries");
                     if(q>=1.31)Check(bed==100,"Outer collar is exactly unchanged and dry");
                     if(q<.8){if(bed<lake.Level)wetCount++;else dryCount++;}
@@ -44,6 +44,15 @@ static class WetlandComplexTests
             all.AddRange(lakes);
         }
         Check(wetCount>100&&dryCount>100,"Complexes must contain both shallow water and emergent dry hummocks");
+        var raised=all[0];int deposition=0;
+        for(int x=-12;x<=12;x++)for(int z=-12;z<=12;z++)
+        {
+            V point=(raised.Center+raised.East*(x*2/radius)+raised.North*(z*2/radius)).Unit;
+            double original=raised.Level-.1,r=raised.NormalizedRadius(point,radius),bed=raised.Bed(original,r,point*radius);
+            Check(bed<=original+.4000001&&bed>=original-1.2000001,"Low saturated ground has bounded organic deposition and incision");
+            if(bed>original+.01)deposition++;
+        }
+        Check(deposition>10,"Actual hummock function can build organic ground above a saturated hollow");
         var ordinary=new SmallWaterBodies(seed,radius);
         var disabled=new SmallWaterBodies(seed,radius,complexRegion:p=>false);
         foreach(var at in ordinary.Candidates(centres[0],3000))
@@ -122,7 +131,7 @@ static class WetlandComplexTests
                 Check(s.WaterKind==LocalWaterKind.Lake&&s.WaterBodyKey==body.Id,"Water and hummocks retain their one finite owner");
                 var original=beforeWater(p);
                 Check(s.WaterSurfaceM==body.Level,"Shared exact constant water head");
-                Check(s.ElevationM<=original.Height+.001&&original.Height-s.ElevationM<=1.201,"Bounded actual cut-only ground");
+                Check(s.ElevationM<=original.Height+.401&&original.Height-s.ElevationM<=1.201,"Bounded actual incision and organic hummock deposition");
                 if(s.Underwater){wet++;localWet++;wetPoint=p;Check(s.WaterSurfaceM-s.ElevationM<=Math.Max(body.Depth,body.Level-original.Height)+.002,"Actual depth stays shallow unless inherited ground is already deeper");}
                 else{dry++;localDry++;}
             }

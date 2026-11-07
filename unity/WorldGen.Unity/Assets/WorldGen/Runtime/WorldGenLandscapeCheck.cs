@@ -55,7 +55,8 @@ public sealed partial class LocalTerrainExplorer
         var arguments=Environment.GetCommandLineArgs();int qualityOption=Array.IndexOf(arguments,"--worldgen-landscape-quality");
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
         bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
-        double reviewRange=drylandReview?2000:900,reviewFootprint=drylandReview?1200:600;
+        bool wideReview=drylandReview||kind=="WetlandComplex";
+        double reviewRange=wideReview?2000:900,reviewFootprint=wideReview?1200:600;
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
