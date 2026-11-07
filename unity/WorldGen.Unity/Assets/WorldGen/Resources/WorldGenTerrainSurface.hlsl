@@ -225,7 +225,9 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     {
         float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
         float sand=smoothstep(.70,.95,saturate(i.weights.y/total));
-        float open=(1-smoothstep(.05,.25,saturate(i.color.a)))*(1-smoothstep(.05,.30,forestSurface.r));
+        // Forest RGB is leaf colour even on unstocked ground; alpha is
+        // stocked stem occupancy. Broad crowns shade with little stem area.
+        float open=(1-smoothstep(.05,.25,saturate(i.color.a)))*(1-smoothstep(.005,.03,forestSurface.a));
         albedoDetail=max(detail,(1-smoothstep(64,160,distance))*sand*open);
     }
     // Stable mean properties of these rough, nonmetallic ground materials.
