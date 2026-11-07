@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+LATEST07Nov14:10Z OVERNIGHT until18:00UTC/noon. Ownrunner6379/player28036
+RIGHTMOST measures mangrove-moving-v1, A ScriptsOnlyNONDEV7c85f91b. Firstsite
+COMPLETE235.55FPS,p999.10/max26.78ms,1>16.7; second stillwarming/measuring.
+Do NOTcompile/overwrite/runheavy until BOTHexit. No100floorclaim. Exact low
+tidal start proof retained (newexplicittravel-whip-tidal-surface),180mloop+
+whip Medium1080/6km60s each. Sites generatedactualdry1.116/2.978m; no relocation.
+NativeMango v2 COMPLETEEXIT0/50checks, roots3forms/coastimagesinspected: mud
+visible, dense incorrect sedge lawn fixed; genericfoliage artstillbasic. Core
+2703+21outsidehabitatwirepacketsPASSunderstory. Physicalgeometryunchanged59/53/
+22. SourcePUSHED636818ea adds real floodedprop-root waterline shot forNEXTbuild.
+UNBUILTshader947107b2 removes identicalrepeatingbedtones and uses same existing
+generatedrockmacrofetch at128m instead32m; needs FULLbuild/nativereview/perf.
+No addedtexture/pass. No morefeatures untilcurrentMango/materialsverified.
+After6379: inspectbothcaptures/trace; FULLNONDEV A from636, restore3knownautos,
+native Mangrove/GlacialTrough/Canyon/FjordWoodland (sequential), inspectimages.
+Then actualmovingcurrentcombined regression forest/jungle/savanna. B/0c8shortcut
+stillprotected, owner3files intact, no subagents. OnePDFonlyEND/ChromeLEFTMOST.
+Cfree5.38GB;blockedobsoletecapturedeletionremainsblocked; no bypass/retry.
+
 LATEST07Nov13:53Z OVERNIGHT until18:00UTC/noon unless owner interrupts. One PDF
 at END ONLY/Chrome LEFTMOST; all own visible Unity/player RIGHTMOST, no subagents.
 Owner3files/B0c8+shortcut protected. A ScriptsOnlyNONDEVbb8b7bc7 built13:51Z;
