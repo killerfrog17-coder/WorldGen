@@ -1,17 +1,17 @@
 {
-  "status": "Revised scan-based candidate; source checks pass, new native appearance and performance pending",
+  "status": "Revised clean scanned-face candidate; numerical/source-distance checks pass, slope-fit native review pending",
   "scope": "Three-dimensional jointed masses on exposed steep walls, within the existing Outcrop instancing/culling/nearby-collider system. No change to the authoritative heightfield or unrelated vegetation density.",
   "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded.",
-  "geometry": "Three CC0 scanned cliff shapes, mirrored and mapped to inherited lithology. Closed collision backing and three bounded LODs:3200/1050/260triangles. Geometry only; game uses its existing generated rock albedo/normal arrays.",
-  "collision": "Reuse actual nearby nonconvex rock mesh colliders. Radial vertical and outward wall direction preserve undercut ledges. Geological anchors do not move onto changing coarse terrain triangles.",
+  "geometry": "Three CC0 scanned rock faces with mirrored variants and inherited lithology. Preserve the scanned front surface, remove nonmanifold scraps and reduce3200/1050/260triangles. Do not solidify acute cracks. Embedded terrain supplies the interior behind each face; the actual mesh preserves projecting ledges.",
+  "collision": "Use nearby nonconvex surface colliders plus existing physical terrain. Faces lean along the sampled wall normal and are centered into the wall; do not float upright above it.",
   "controls": {
-    "checks": 20898,
+    "checks": 21512,
     "actual_cliffs": 262,
-    "closed_meshes": 9,
+    "surface_meshes": 9,
     "timing_limit": "Background component costs are not frame-time measurements"
   },
   "versions": {
-    "scatter": "local-scatter-cliff-rocks-26",
+    "scatter": "local-scatter-cliff-rocks-27",
     "variant_marker": 1048576
   },
   "research": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-visibility-tool-in-unreal-engine",
@@ -25,5 +25,59 @@
     "reason": "Regular stacked block pattern and double-multiplied dark rock colour were visually unacceptable"
   },
   "material_fix": "Marked cliff material uses full generated stone albedo with only a small tint, rather than multiplying two full stone colours; normal strength is restrained. Other rock/item materials retain their existing behavior.",
-  "source_manifest": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/sources.json"
+  "source_manifest": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/sources.json",
+  "rejected_scan_conversion": {
+    "source": "b12f41d5",
+    "native": "artifacts/landscape-20261103/cliff-candidate-v2-20261107-canyon",
+    "runtime_exit": 0,
+    "visual_accepted": false,
+    "reason": "Solidifying acute scan cracks created spikes; upright placement also protruded above slopes"
+  },
+  "source_shape_proof": [
+    {
+      "asset": "rock_face_01",
+      "lod": 0,
+      "maximum_reference_deviation": 0.003928257618099451
+    },
+    {
+      "asset": "rock_face_01",
+      "lod": 1,
+      "maximum_reference_deviation": 0.008157201111316681
+    },
+    {
+      "asset": "rock_face_01",
+      "lod": 2,
+      "maximum_reference_deviation": 0.01482843142002821
+    },
+    {
+      "asset": "rock_face_02",
+      "lod": 0,
+      "maximum_reference_deviation": 0.007135921623557806
+    },
+    {
+      "asset": "rock_face_02",
+      "lod": 1,
+      "maximum_reference_deviation": 0.008805620484054089
+    },
+    {
+      "asset": "rock_face_02",
+      "lod": 2,
+      "maximum_reference_deviation": 0.026497503742575645
+    },
+    {
+      "asset": "namaqualand_cliff_01",
+      "lod": 0,
+      "maximum_reference_deviation": 0.012360054068267345
+    },
+    {
+      "asset": "namaqualand_cliff_01",
+      "lod": 1,
+      "maximum_reference_deviation": 0.017156662419438362
+    },
+    {
+      "asset": "namaqualand_cliff_01",
+      "lod": 2,
+      "maximum_reference_deviation": 0.01841292902827263
+    }
+  ]
 }

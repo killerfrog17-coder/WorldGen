@@ -3,7 +3,7 @@
 Run with --background --disable-autoexec --python this.py -- --inspect first.
 """
 from pathlib import Path
-import sys, json, math
+import sys, json, math, struct
 import bpy, bmesh
 from mathutils import Vector
 
@@ -13,8 +13,18 @@ REVIEW = ROOT / 'artifacts/terrain-surfaces-20261107/source-models'
 REVIEW.mkdir(parents=True, exist_ok=True)
 entries = json.loads((SOURCE/'sources.json').read_text())['assets']
 inspection = []
-for entry in entries:
-    bpy.ops.wm.open_mainfile(filepath=str(ROOT/entry['file']), load_ui=False, use_scripts=False)
+runtime='--runtime' in sys.argv
+for source_index,entry in enumerate(entries):
+    if runtime:
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+        blob=(ROOT/f'unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-{source_index}-l0.bytes').read_bytes()
+        magic,nv,ni=struct.unpack_from('<III',blob);assert magic==0x31435257
+        packed=[struct.unpack_from('<8f',blob,12+i*32) for i in range(nv)]
+        vertices=[(p[0],-p[2],p[1]) for p in packed];indices=struct.unpack_from('<'+'I'*ni,blob,12+nv*32)
+        mesh=bpy.data.meshes.new('Actual runtime surface');mesh.from_pydata(vertices,[],[indices[i:i+3] for i in range(0,ni,3)]);mesh.update()
+        for p in mesh.polygons:p.use_smooth=True
+        obj=bpy.data.objects.new('Actual runtime surface',mesh);bpy.context.collection.objects.link(obj)
+    else:bpy.ops.wm.open_mainfile(filepath=str(ROOT/entry['file']), load_ui=False, use_scripts=False)
     objects = [o for o in bpy.data.objects if o.type == 'MESH']
     info = []
     for obj in objects:
@@ -41,5 +51,5 @@ for entry in entries:
         cam_data=bpy.data.cameras.new('ReviewCamera');cam=bpy.data.objects.new('ReviewCamera',cam_data);scene.collection.objects.link(cam)
         cam.location=center+Vector((.6,side*2.6,1))*size;cam.rotation_euler=(center-cam.location).to_track_quat('-Z','Y').to_euler()
         cam_data.type='ORTHO';cam_data.ortho_scale=size*1.4;scene.camera=cam
-        scene.render.filepath=str(REVIEW/(entry['name']+f'-{side}.png'));bpy.ops.render.render(write_still=True)
-(REVIEW/'inspection.json').write_text(json.dumps(inspection,indent=2))
+        scene.render.filepath=str(REVIEW/(('runtime-' if runtime else '')+entry['name']+f'-{side}.png'));bpy.ops.render.render(write_still=True)
+(REVIEW/('runtime-inspection.json' if runtime else 'inspection.json')).write_text(json.dumps(inspection,indent=2))

@@ -27,9 +27,8 @@ namespace WorldGen.Core
             if(top-bottom<8)return false;
             uint hash=Rng.Mix((uint)id^(uint)(id>>32)^unchecked((uint)seed));double variation=(hash&65535)/65535d;
             result=new ScatterInstance{Id=id,Kind=ScatterKind.Outcrop,Variant=Encode(sample.Ground.Bedrock,(int)(hash>>16)&7),Position=point,
-                // For a cliff instance Normal is the outward wall direction;
-                // its vertical axis remains the planet's radial up direction.
-                Normal=outward,GroundM=sample.ElevationM,HeightM=D.Q(D.Clamp((top-bottom)*1.18+4,12,280),1000),
+                Normal=(outward+point*(1/slope)).Unit,GroundM=sample.ElevationM,
+                HeightM=D.Q(D.Clamp(((top-bottom)*1.18+4)*Math.Sqrt(1+1/(slope*slope)),12,280),1000),
                 WidthM=D.Q(spacing*(1.65+variation*.35),1000),YawDegrees=0,Color=sample.Ground.RockColor};
             return true;
         }

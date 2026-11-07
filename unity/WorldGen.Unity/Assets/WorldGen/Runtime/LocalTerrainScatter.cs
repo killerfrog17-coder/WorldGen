@@ -398,6 +398,11 @@ public sealed partial class LocalTerrainExplorer
             {
                 var outward=new Vector3((float)V.Dot(p.Normal,frame.East),(float)V.Dot(p.Normal,frame.Origin),(float)V.Dot(p.Normal,frame.North));
                 rotation=Quaternion.LookRotation(outward,normal);
+                // Center the scanned face on the wall and lean its vertical
+                // axis uphill. A radial upright slab protrudes above the hill.
+                position=new Vector3((float)(x-originX),(float)y,(float)(z-originZ))
+                    -(rotation*Vector3.up)*(float)(p.HeightM*.5)-outward*(float)(p.WidthM*.12);
+                chunk.Roots[i]=position;
             }
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
     }

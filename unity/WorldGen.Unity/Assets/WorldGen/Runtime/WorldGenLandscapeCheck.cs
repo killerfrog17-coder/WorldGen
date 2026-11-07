@@ -631,8 +631,8 @@ public sealed partial class LocalTerrainExplorer
                 Check(mesh.triangles.Length/3<=3200,"Cliff near geometry is bounded to3200triangles per mass");
                 if(!reachableRoof.HasValue&&owner.ReviewCliffRoof(item.Chunk,item.Index,out var roof))reachableRoof=roof;
                 if(i>=3)continue;
-                var center=item.Chunk.Roots[item.Index]+Vector3.up*(float)(rock.HeightM*.5);
-                var outward=new Vector3((float)V.Dot(rock.Normal,owner.frame.East),0,(float)V.Dot(rock.Normal,owner.frame.North)).normalized;
+                var center=item.Chunk.Matrices[item.Index].MultiplyPoint3x4(new Vector3(0,.5f,.12f));
+                var outward=new Vector3((float)V.Dot(rock.Normal,owner.frame.East),(float)V.Dot(rock.Normal,owner.frame.Origin),(float)V.Dot(rock.Normal,owner.frame.North)).normalized;
                 var camera=center+outward*(float)(rock.WidthM*.9)+Vector3.Cross(Vector3.up,outward)*(float)(rock.WidthM*.25);
                 yield return owner.StartCoroutine(Capture("cliff-mass-"+i,new Vector3(camera.x,camera.y-y-.5f,camera.z),inspectionTarget:center));
             }
