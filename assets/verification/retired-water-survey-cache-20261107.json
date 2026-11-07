@@ -1,0 +1,7 @@
+{
+  "status":"RETIRED. Experiment49dfd6d3 reverted by d4ab3b03; never packaged into a playable game. No survey-context cache in production.",
+  "reason":"Small reduction in allocations/warm component time did not justify extra retained contexts and complexity; large first-visit hierarchy/river construction stalls remained.",
+  "correctness":{"exact_samples":816,"biome_edge_sites":19,"cold_warm_reverse_parallel":"passed","whole_serialized_worker_packets":42,"normalized_fields":"BuildMilliseconds only","wire_evidence":["artifacts/geography-night-20261107/wetland-context-wire-woods","artifacts/geography-night-20261107/wetland-context-wire-glacial"]},
+  "component_measurement":{"queries_per_site":2601,"sites":["woods","marsh","peat"],"before_cold_total_ms":[469.30,307.82,782.50],"trial_cold_total_ms":[455.71,300.37,748.40],"before_cold_max_ms":[68.7118,29.5795,167.657],"trial_cold_max_ms":[83.2336,30.4934,170.0157],"combined_cold_allocation_saved_bytes":529222,"limits":"CoreCLR query component, not actual game FPS or frame times. Wire fixtures ran concurrently and their timing must not be used as performance evidence. Earlier before-v1 warm timings included boxed equality checks and are invalid; before-v2 corrected that."},
+  "evidence":["artifacts/geography-night-20261107/wetland-query-cost-before-v2","artifacts/geography-night-20261107/wetland-query-cost-contexts"]
+}

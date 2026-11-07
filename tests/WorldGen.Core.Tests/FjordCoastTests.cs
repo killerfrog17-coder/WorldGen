@@ -51,18 +51,36 @@ static class FjordCoastTests
                 var a=LocalTerrainMesh.Build(terrain,frame,-128,-64,128,32);var b=LocalTerrainMesh.Build(terrain,frame,0,-64,128,32);
                 Check(a.WaterTriangles.Length>0&&b.WaterTriangles.Length>0,"Submerged inlet has rendered ocean geometry on both adjacent tiles");
                 for(int z=0;z<=32;z++)Check(a.Positions[(z*33+32)*3+1]==b.Positions[z*33*3+1],"Fjord ground tiles agree exactly at shared edge");
-                Console.WriteLine("Water kinds: "+string.Join(",",a.WaterColors.Where((_,i)=>i%4==3).Distinct())+" / "+string.Join(",",b.WaterColors.Where((_,i)=>i%4==3).Distinct()));
-                foreach(var mesh in new[]{a,b})
-                {
-                    var levels=new List<double>();for(int k=0;k<mesh.WaterColors.Length/4;k++)if(mesh.WaterColors[k*4+3]!=3)
-                    {var p=frame.Position(mesh.EastM+mesh.WaterPositions[k*3],mesh.NorthM+mesh.WaterPositions[k*3+2]);levels.Add(mesh.WaterPositions[k*3+1]-frame.SurfaceY(p,0));}
-                    Console.WriteLine("Nonsea vertices "+levels.Count+" sea-relative range "+(levels.Count>0?levels.Min()+".."+levels.Max():"none"));
-                }
                 Check(a.WaterColors.Where((_,i)=>i%4==3).All(v=>v==3)&&b.WaterColors.Where((_,i)=>i%4==3).All(v=>v==3),"Fjord mesh uses existing ocean surface encoding");
                 var crossPatch=terrain.Patch(center,50000);
                 for(int j=-20;j<=20;j++)
                 {V p=(center+side*(j*inlet.HalfWidth/15/radius)).Unit;var sample=crossPatch.Sample(p);exact.Add((p,sample));Check(Math.Abs(crossPatch.Elevation(p)-sample.ElevationM)<=.002,"Collision height agrees with complete fjord sample");}
                 rows.Add(new{inlet.Mouth,inlet.Ocean,inlet.Head,inlet.LengthM,inlet.HalfWidth,inlet.Depth,inlet.Relief,inlet.Count,Position=new[]{center.X,center.Y,center.Z},Shallowest=shallowest});
+                if(rows.Count<=3)
+                {
+                    var start=fjords.Sections[inlet.First];var end=fjords.Sections[inlet.First+inlet.Count-1];
+                    double low=0,high=Math.Max(middle.WidthA,middle.WidthB)*1.6;
+                    for(int j=0;j<20;j++)
+                    {
+                        double d=(low+high)*.5;var sample=crossPatch.Sample((center+side*(d/radius)).Unit);
+                        if(sample.Underwater&&sample.WaterKind==LocalWaterKind.Ocean&&sample.WaterSurfaceM-sample.ElevationM>5)low=d;else high=d;
+                    }
+                    V bank=(center+side*(low/radius)).Unit;
+                    foreach(var (label,at) in new[]{("head",start.A),("mouth",end.A),("bank",bank)})
+                    {
+                        var waterFrame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);var mesh=LocalTerrainMesh.Build(terrain,waterFrame,-128,-128,256,64);
+                        var local=terrain.Patch(at,5000);int wet=0;
+                        for(int z=1;z<32;z++)for(int x=1;x<32;x++)
+                        {
+                            double mx=x*8,mz=z*8;V p=waterFrame.Position(mesh.EastM+mx,mesh.NorthM+mz);var sample=local.Sample(p);
+                            if(!sample.Underwater||sample.WaterKind!=LocalWaterKind.Ocean||sample.WaterSurfaceM-sample.ElevationM<3)continue;
+                            wet++;Check(Covered(mesh,mx,mz,waterFrame.SurfaceY(p,0)),"Actual ocean water triangles cover submerged "+label+" in inlet "+inlet.Mouth);
+                        }
+                        Check(wet>0,"Coverage proof includes actual submerged "+label+" points");
+                        Check(mesh.WaterPositions.All(float.IsFinite),"Head/mouth/bank water geometry stays finite");
+                        Console.WriteLine($"  {label}: {wet} actual wet points covered by water triangles");
+                    }
+                }
             }
         }
         var cached=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);Check(cached.Amplification.UsedCachedRiverDatums,"Fjord terrain supports cached final river derivation");
@@ -76,5 +94,20 @@ static class FjordCoastTests
         double Dot(V u,V v)=>u.X*v.X+u.Y*v.Y+u.Z*v.Z;
         double det=Dot(a,V.Cross(b,c));if(Math.Abs(det)<1e-30)return false;
         return Math.Min(Dot(p,V.Cross(b,c))/det,Math.Min(Dot(p,V.Cross(c,a))/det,Dot(p,V.Cross(a,b))/det))>=-1e-8;
+    }
+    static bool Covered(LocalTerrainMesh mesh,double x,double z,double expectedY)
+    {
+        var p=mesh.WaterPositions;var triangles=mesh.WaterTriangles;
+        for(int i=0;i<triangles.Length;i+=3)
+        {
+            int a=triangles[i]*3,b=triangles[i+1]*3,c=triangles[i+2]*3;
+            double bx=p[b]-p[a],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cz=p[c+2]-p[a+2],det=bx*cz-bz*cx;
+            if(Math.Abs(det)<1e-12)continue;
+            double u=((x-p[a])*cz-(z-p[a+2])*cx)/det,v=(bx*(z-p[a+2])-bz*(x-p[a]))/det;
+            if(u< -1e-6||v< -1e-6||u+v>1.000001)continue;
+            double y=p[a+1]+(p[b+1]-p[a+1])*u+(p[c+1]-p[a+1])*v;
+            if(Math.Abs(y-expectedY)<.025)return true;
+        }
+        return false;
     }
 }
