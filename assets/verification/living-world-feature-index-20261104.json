@@ -1,8 +1,8 @@
 {
-  "status": "Geography checkpoint retained; tree bark pass validated and selected in slot-b on7November. Existing owner slot-a session left running.",
+  "status": "Generated ground pass validated and selected in slot-b; geography and generated bark checkpoints retained. Owner game never closed by this work.",
   "baseline": "f5385a89199ffb82b57cc5127c6ab908b36e0c7e",
   "selected_slot": "slot-b",
-  "candidate_slot": "slot-a (unavailable while owner game running)",
+  "candidate_slot": "slot-a (recheck running owner processes before reuse)",
   "policy": "Separate feature commits; preserve later unrelated edits when reverting shared files. No extra binary archives. Rebuild derived caches from the resulting terrain version.",
   "features": [
     {
@@ -228,6 +228,15 @@
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTreeArchitecture.cs",
       "notes": "Authoring: scripts/prepare-tree-bark.py. Source and derived art restored through assets/game-assets.lock.json. See assets/verification/tree-bark-update-20261107.json and screenshot PDF. Existing continuous trunks included; new smooth normals/tangents, bark exposure/tiling/mips and semantic layer mapping. Preserve later unrelated renderer edits on revert. All five bark layers replaced by built-in image generation in294fcc40; previous scans remain only as historical source inputs."
+    },
+    {
+      "name": "All-generated ground and cover surface materials",
+      "commits": [
+        "6335774f",
+        "0c8fdc0a"
+      ],
+      "entry": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtBuilder.cs",
+      "notes": "19 active generated masters cover17 existing terrain layers plus3 cover maps. Grassv1 visually rejected; v2 uses flat tapered blades. No geography/geometry/shader changes; same30,082,384 terrain GPU bytes, lichen256 compressed. Sources: scripts/prepare-generated-ground.py and assets/verification/generated-ground-sources-20261107.json. Evidence: generated-ground-update-20261107.json. Restore asset lock from pre-ground6c960ba1 with restore-game-assets.py --replace to undo art independently, while retaining unrelated later work."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",

@@ -8,33 +8,32 @@ captures as successful results. Link the finished PDF in the update handoff and
 open it in a new Chrome tab on the leftmost monitor. This report-viewing preference
 overrides the rightmost-monitor rule for PDFs; other review windows stay rightmost.
 
-ACTIVE07Nov GENERATED GROUND. Owner requests all ground textures redone with
-image generation.19 built-in masters saved under assets-source/terrain/surfaces/
-ai/ground-set-20261107; full prompts assets/verification/ground-generation-
-prompts-20261107.json. Includes all17terrain layers (granite shared4/8) plus grass,
-moss,lichen. Offline compiler scripts/prepare-generated-ground.py preserves
-ecological macro tints, periodic boundaries and approximate derived relief/masks.
-Editor publish/review PASS462697checks and20production shader renders, images
-inspected grass/broadleaf. Exact terrain payload30,082,384bytes unchanged; all17
-slices changed across3arrays. Lichen256RGBA32->BC7 nominal349524->87408bytes;
-grass/moss1024 unchanged. No shader/placement/geography changes. No liveFPSclaim.
-Next: full NONDEV Mono B build (temporarily select A; owner A14192 still running,
-never close/overwrite A), restore3Unityautos, actual Forest/SandSea/Savanna/
-LimestoneUpland captures, inspect them, verified asset release+restore, screenshot
-PDF open NEW leftmost Chrome tab, select validated B and final evidence/push.
-Native633 FULL B06:47:39Z and Forest/SandSea/Savanna/LimestoneUpland all EXIT0.
-However grassv1 REJECTED in actual slope review: tangled thin strands. New built-in
-grass-v2.png has flat tapered blades; prompt metadata updated; --only grass
-recompiles only this map. Editor-grass-v2 review session28026 running. Need inspect
-grass PNG then focused source push/full B rebuild, backup new master with new
-release/lock (prior5897assets already verified remotely), and repeat Forest,
-Savanna,Limestone captures. SandSea633 has unchanged material bank and may be
-retained with actual source receipt. Current PDF and docs report captures are
-UNFINISHED draft with grassv1; must replace before opening/presenting. Script
-scripts/build-ground-texture-report.py exists,3pages,19master catalogue. Do not
-claim final screenshots before new review. Shortcut currently B/633 but B idle;
-temporarily select A for next build, never overwrite running A14192.
-No subagents, owner3files preserved. Other visible windows RIGHTMOST.
+READY07Nov GENERATED GROUND delivered. B FULL NONDEV Mono0c8fdc0a built
+07:04:50Z; shortcut selects B. SourceChanges only asset-lock publication metadata;
+no uncommitted runtime code. Source6335774f+0c8fdc0a pushed.19 active generated
+masters cover17 terrain layers (granite shared4/8) plus grass/moss/lichen. Canonical
+masters assets-source/terrain/surfaces/ai/ground-set-20261107; full prompts and
+sources assets/verification/ground-generation-prompts-20261107.json and generated-
+ground-sources-20261107.json. Three known Unity autos restored. No own jobs remain;
+owner A was never closed/overwritten and has since exited. Recheck slots next time.
+Editor462697layout/mip/unit-normal/linear-light checks +20 production shader
+renders PASS. Initial grassv1 REJECTED for tangled strands on actual slopes;
+new generated grass-v2 flat tapered blades accepted in actual final Forest,
+Savanna,LimestoneUpland captures: allEXIT0/no runtime or shutdown errors. SandSea
+633 alsoEXIT0, retained because17-layer bank byte-exact and cover weights all0.
+Actual forest before/after camera/history/site/quality EXACT. No new geometry,
+geography, vegetation density, shader passes or samples. Terrain payload exactly
+30,082,384bytes; cover grass/moss1024 unchanged, lichen256RGBA32->BC7 nominal
+349524->87408bytes. No FPS benchmark or global100floor claim. Approximate relief/
+roughness, no measured-PBR claim. All5898locked assets restore verify PASS;
+release game-assets-generated-ground-20261107-v1 + grass-20261107-v2 verified
+via download/SHA256. Lock saved in Git; no extra executable archives.
+Report docs/reports/WorldGen - Generated Ground Textures.pdf (3pages,~2.9MB)
+visually checked and opened NEW Chrome tab on LEFTMOST. Originals+receipts saved
+under docs/reports/ground-textures-20261107; artifacts entirely disposable. Full
+evidence assets/verification/generated-ground-update-20261107.json; focused
+rollback index updated. Owner3files preserved. No subagents. Other visible own
+windows RIGHTMOST. Geography features remain paused at prior checkpoint.
 
 READY07Nov ALL-GENERATED BARK. Owner requested image generation for all bark.
 Four new built-in masters in assets-source/vegetation/tree-surfaces/ai/bark-set-

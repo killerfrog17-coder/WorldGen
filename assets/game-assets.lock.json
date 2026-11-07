@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "294fcc40a7d3417398742a6840d85b2b0e7caa08",
+  "source_checkpoint": "0c8fdc0a43c95001478273e7b345f79e52959c92",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14205,6 +14205,126 @@
       "bytes": 3553543,
       "pack": "npc-source-inputs-20261103/assets-9094191076a76b632b55c68a00ba48f2cd284a562a3078fdc4d6782828b1f37c.zip",
       "member": "objects/47fe33831a3929567c733356dd66243116e05df2ace1f884ddca0080b728229f"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/basalt.png": {
+      "sha256": "eb1af1ae15d611962fd78ffb886bc2014f2c1318e483a23f99b199d57b338c07",
+      "bytes": 3788073,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/eb1af1ae15d611962fd78ffb886bc2014f2c1318e483a23f99b199d57b338c07"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/broadleaf.png": {
+      "sha256": "4e955983c400e9d5b656fc49ed2f55c7e6d3ec3ab3b4b8e7ee0cc8d25084c51c",
+      "bytes": 3966676,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/4e955983c400e9d5b656fc49ed2f55c7e6d3ec3ab3b4b8e7ee0cc8d25084c51c"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/clay.png": {
+      "sha256": "61aaebbbaea0d472cdfa7f917ebc8d7847bee0e4368feada04eb596cd69e9e49",
+      "bytes": 3528664,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/61aaebbbaea0d472cdfa7f917ebc8d7847bee0e4368feada04eb596cd69e9e49"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/damp.png": {
+      "sha256": "c396ac70d68277742cf3dfb4366a016c012cfb7c7c832ccd5d5ca2ad04b149f9",
+      "bytes": 3994396,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/c396ac70d68277742cf3dfb4366a016c012cfb7c7c832ccd5d5ca2ad04b149f9"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/granite.png": {
+      "sha256": "4eb26d11806e7260d5edac38baf37733b201cfcca0b781fb8dd9b8d3f92a57ff",
+      "bytes": 4161841,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/4eb26d11806e7260d5edac38baf37733b201cfcca0b781fb8dd9b8d3f92a57ff"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/grass-v2.png": {
+      "sha256": "b19cf56632b39dd41cf1e732637cc3f97b6f4045610d9d04dd8f3a5c261532f0",
+      "bytes": 3696978,
+      "pack": "game-assets-ground-grass-20261107-v2/assets-1c12b4a6ee041bc7a77e5c2f471bc58e5def8fd6f7537afba72668c6a8677646.zip",
+      "member": "objects/b19cf56632b39dd41cf1e732637cc3f97b6f4045610d9d04dd8f3a5c261532f0"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/grass.png": {
+      "sha256": "b4a3c29e4e30c7a08a637a0a14c5437e91f0fdadbe98c714dc465f6e2da8c0b3",
+      "bytes": 4555173,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/b4a3c29e4e30c7a08a637a0a14c5437e91f0fdadbe98c714dc465f6e2da8c0b3"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/gravel.png": {
+      "sha256": "ab0f1e287e83ee4c1a31d4a09b18e3ea9e3f5ace23d570437e44afa5ae82c8dd",
+      "bytes": 4403416,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/ab0f1e287e83ee4c1a31d4a09b18e3ea9e3f5ace23d570437e44afa5ae82c8dd"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/ice.png": {
+      "sha256": "ffe5fd8232a6fee0cf981e5cfa82da635f648c5ab28602be5348b6ec5addba30",
+      "bytes": 2932833,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/ffe5fd8232a6fee0cf981e5cfa82da635f648c5ab28602be5348b6ec5addba30"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/lichen.png": {
+      "sha256": "7a12a3da4ec5f1c58dfe927f14a99745b5c185c0028dd742825e610316ac86bc",
+      "bytes": 4686777,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/7a12a3da4ec5f1c58dfe927f14a99745b5c185c0028dd742825e610316ac86bc"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/limestone.png": {
+      "sha256": "84cbad8720172b4da1195a8ce893478aa5acb49b26c6966164694e3f1f4751ef",
+      "bytes": 3587105,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/84cbad8720172b4da1195a8ce893478aa5acb49b26c6966164694e3f1f4751ef"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/metamorphic.png": {
+      "sha256": "9c3c9698f6f7f31a1b5ef142898e5e37946386266928715312d461dd5c67af3f",
+      "bytes": 4026494,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/9c3c9698f6f7f31a1b5ef142898e5e37946386266928715312d461dd5c67af3f"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/moss.png": {
+      "sha256": "4d56bb49d5d4f9131d59022995cc58bee72adfe00ab1a80760d7c0ae53d7c1bf",
+      "bytes": 4087353,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/4d56bb49d5d4f9131d59022995cc58bee72adfe00ab1a80760d7c0ae53d7c1bf"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/mudstone.png": {
+      "sha256": "d493d39f6cfb7e1fed29ff2afc984565e2beb6378919ca87868952edd976c1cf",
+      "bytes": 3321604,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/d493d39f6cfb7e1fed29ff2afc984565e2beb6378919ca87868952edd976c1cf"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/needles.png": {
+      "sha256": "d20bdb99b6817ba6ed1708995fdeefbc80f9d74f748aa79712bfdeac13e01856",
+      "bytes": 4661626,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/d20bdb99b6817ba6ed1708995fdeefbc80f9d74f748aa79712bfdeac13e01856"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/organic.png": {
+      "sha256": "d7d40db9a71d2b4b4b8e94e72ba0900d14caf5a1a3a01348882046886f3494a0",
+      "bytes": 3639265,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/d7d40db9a71d2b4b4b8e94e72ba0900d14caf5a1a3a01348882046886f3494a0"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/salt.png": {
+      "sha256": "61f10c297cf2f2a34e965ccf9ed98d6da4d35565be923ea340c308286471ef76",
+      "bytes": 3474779,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/61f10c297cf2f2a34e965ccf9ed98d6da4d35565be923ea340c308286471ef76"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/sand.png": {
+      "sha256": "888cb6c9a96bec56e427df6ad0c54a3b7c50e2cfbf37cdb64587a75c85ab6bdc",
+      "bytes": 3439906,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/888cb6c9a96bec56e427df6ad0c54a3b7c50e2cfbf37cdb64587a75c85ab6bdc"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/sandstone.png": {
+      "sha256": "21c0b9b149ab94f63bc11692c716340f9199fa733cfc79c8b2e112e70cfa97e5",
+      "bytes": 3776780,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/21c0b9b149ab94f63bc11692c716340f9199fa733cfc79c8b2e112e70cfa97e5"
+    },
+    "assets-source/terrain/surfaces/ai/ground-set-20261107/soil.png": {
+      "sha256": "7c01ce41c058df4ad8835ec9dc7a3c9fd5e48b281901940d0a2b5e865c4d5241",
+      "bytes": 3907853,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "member": "objects/7c01ce41c058df4ad8835ec9dc7a3c9fd5e48b281901940d0a2b5e865c4d5241"
     },
     "assets-source/terrain/surfaces/bake-report.json": {
       "sha256": "29278cd817714bcc12454d449cce69b3e131ee3d58cba349daea8df5478706a5",
@@ -30676,6 +30796,618 @@
       "pack": "game-assets-20261029-v1/assets-502757297d117042b4bcadf27eb8d246dc261f7a7ad069f5fbe04f2c4faccfde.zip",
       "member": "objects/898462ca91c03d2763ed5df7e0d668412e4046384d2ff5659277d35a0946d6a3"
     },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-albedo.png": {
+      "sha256": "908e44e0d11c3109d4d1de4469a17e30e6e4ee306afe24557f7617adb8e70872",
+      "bytes": 2465597,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/908e44e0d11c3109d4d1de4469a17e30e6e4ee306afe24557f7617adb8e70872"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-albedo.png.meta": {
+      "sha256": "89f35ea3aec62c27de9f543cda1f60d994a2911337a0a9a376e0c443dc073a95",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/89f35ea3aec62c27de9f543cda1f60d994a2911337a0a9a376e0c443dc073a95"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-mask.png": {
+      "sha256": "5a384d785c7d30f6818c16e144736d414cd3d0c619d544a3d2977fc983b77765",
+      "bytes": 28807,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/5a384d785c7d30f6818c16e144736d414cd3d0c619d544a3d2977fc983b77765"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-mask.png.meta": {
+      "sha256": "4bb66aab5866041c83f137e3430b3422705bc4bbda07a5b24de984222bb1162c",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/4bb66aab5866041c83f137e3430b3422705bc4bbda07a5b24de984222bb1162c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-normal.png": {
+      "sha256": "7e467fbd302dc7b0039aa8cabcdbaad138666db08a4f3190804f9b7bfc33851b",
+      "bytes": 580313,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/7e467fbd302dc7b0039aa8cabcdbaad138666db08a4f3190804f9b7bfc33851b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-00-normal.png.meta": {
+      "sha256": "36a1cf1b90623327a649449832e4ab9d578ba3fe59e31f7d11651a31eef845cc",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/36a1cf1b90623327a649449832e4ab9d578ba3fe59e31f7d11651a31eef845cc"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-albedo.png": {
+      "sha256": "67f0135f459c06916aa7526864aa99b66f91ca911c2ea93186e25c020ddd0105",
+      "bytes": 1892381,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/67f0135f459c06916aa7526864aa99b66f91ca911c2ea93186e25c020ddd0105"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-albedo.png.meta": {
+      "sha256": "afa6d5cf237b9d326c8597bf7f63b2b93f775862312238123adcdb1bce51dfca",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/afa6d5cf237b9d326c8597bf7f63b2b93f775862312238123adcdb1bce51dfca"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-mask.png": {
+      "sha256": "5e5fd1ed466c7c87a903cbcb734cdee15b2fd669c0d54f4e9ead3ae72062f00f",
+      "bytes": 25163,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/5e5fd1ed466c7c87a903cbcb734cdee15b2fd669c0d54f4e9ead3ae72062f00f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-mask.png.meta": {
+      "sha256": "b8effc1de8d24951cbe75f9b67db27a6efc902f152ec92971533b00e521cfbdf",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/b8effc1de8d24951cbe75f9b67db27a6efc902f152ec92971533b00e521cfbdf"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-normal.png": {
+      "sha256": "200238abd711e9367974ed93be6371de536f6a211faef6957295727ae9268d1b",
+      "bytes": 412826,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/200238abd711e9367974ed93be6371de536f6a211faef6957295727ae9268d1b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-01-normal.png.meta": {
+      "sha256": "074d56e69c50cddbe2d3afdfd3910249631ae7894153fff4876c726612dc8225",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/074d56e69c50cddbe2d3afdfd3910249631ae7894153fff4876c726612dc8225"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-albedo.png": {
+      "sha256": "ace3f669b235cd64108c8da9965d7aa625919336c40c53d682c3db444c154f0a",
+      "bytes": 2560184,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/ace3f669b235cd64108c8da9965d7aa625919336c40c53d682c3db444c154f0a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-albedo.png.meta": {
+      "sha256": "7b529bc90b40ece8c01dfaae1c52ce76ee38c59fa87dab5345b47f086120a2a8",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/7b529bc90b40ece8c01dfaae1c52ce76ee38c59fa87dab5345b47f086120a2a8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-mask.png": {
+      "sha256": "5ce6b48d2fa3ab2baef27d4e7ee6c76f3e0b087333709ed33ff53ee1aecc9fe3",
+      "bytes": 29223,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/5ce6b48d2fa3ab2baef27d4e7ee6c76f3e0b087333709ed33ff53ee1aecc9fe3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-mask.png.meta": {
+      "sha256": "e4bd31f50e502ada6386f04300786b051e8480bb71c7e74cb42d199a981f1e29",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/e4bd31f50e502ada6386f04300786b051e8480bb71c7e74cb42d199a981f1e29"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-normal.png": {
+      "sha256": "51cb8d046224b5c6d1f89c92c30582d958e5c1a84463204dc3862ccb604b6127",
+      "bytes": 684948,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/51cb8d046224b5c6d1f89c92c30582d958e5c1a84463204dc3862ccb604b6127"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-02-normal.png.meta": {
+      "sha256": "a179838e42a9e868d84148ed7a08d30ddd3834fc6f51ca0ed26997b624693d7a",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/a179838e42a9e868d84148ed7a08d30ddd3834fc6f51ca0ed26997b624693d7a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-albedo.png": {
+      "sha256": "fe562ffb1ef99dd3be8ca964218507702a6bf5a119cfabc8f8b68930664c0535",
+      "bytes": 2105319,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/fe562ffb1ef99dd3be8ca964218507702a6bf5a119cfabc8f8b68930664c0535"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-albedo.png.meta": {
+      "sha256": "53f7e3f6bfde3dd14f68f63dd5d9ce91539343a78f554bb653fdf82143198c80",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/53f7e3f6bfde3dd14f68f63dd5d9ce91539343a78f554bb653fdf82143198c80"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-mask.png": {
+      "sha256": "8d66572eb0cba4c6ae41b7496cd13ec4a0b935283670347de1749e72a9e48e52",
+      "bytes": 28326,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/8d66572eb0cba4c6ae41b7496cd13ec4a0b935283670347de1749e72a9e48e52"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-mask.png.meta": {
+      "sha256": "6338cf45be681afb29a47acc9048b82e74274529dd2bc678a87cb3cf244da6aa",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/6338cf45be681afb29a47acc9048b82e74274529dd2bc678a87cb3cf244da6aa"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-normal.png": {
+      "sha256": "9ad3d333a4ace600d2dac7bf1206714365afb34ba22334eaadc2943e6a867f1e",
+      "bytes": 601393,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/9ad3d333a4ace600d2dac7bf1206714365afb34ba22334eaadc2943e6a867f1e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-03-normal.png.meta": {
+      "sha256": "d94e3507956cfa8b769f99ef36fb874239f2613409cf23cd8b644654d05db46d",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/d94e3507956cfa8b769f99ef36fb874239f2613409cf23cd8b644654d05db46d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-albedo.png": {
+      "sha256": "fdfe3f1550554c5b1a860987e88f87dd890f5f6e5e9ca08d8e71cd978de4ccb7",
+      "bytes": 2345544,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/fdfe3f1550554c5b1a860987e88f87dd890f5f6e5e9ca08d8e71cd978de4ccb7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-albedo.png.meta": {
+      "sha256": "2ba9d0b6aaaf519a6b1a6bf9598592415eb0a1c00bbad7c906f832bba26791ea",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/2ba9d0b6aaaf519a6b1a6bf9598592415eb0a1c00bbad7c906f832bba26791ea"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-mask.png": {
+      "sha256": "8af85b4359d83e4aa68fcf91fd1f8d24249758b8be0af80cfa818196b3efc795",
+      "bytes": 28971,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/8af85b4359d83e4aa68fcf91fd1f8d24249758b8be0af80cfa818196b3efc795"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-mask.png.meta": {
+      "sha256": "ddbb64a28a22ae1c545350d2305772830f571cbd02a913b9f138455762d8acc5",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/ddbb64a28a22ae1c545350d2305772830f571cbd02a913b9f138455762d8acc5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-normal.png": {
+      "sha256": "3470a0c3f8d2d7e758e7bb9f813648970f46f2cce302d64ed4ae541259709fa2",
+      "bytes": 612696,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/3470a0c3f8d2d7e758e7bb9f813648970f46f2cce302d64ed4ae541259709fa2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-04-normal.png.meta": {
+      "sha256": "7a62db392679ad9d065482e3b94c4b5f5fa169632b171d8070230f6960b57ae9",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/7a62db392679ad9d065482e3b94c4b5f5fa169632b171d8070230f6960b57ae9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-albedo.png": {
+      "sha256": "fca3a08b8300e768fb2c5dbb14afb1aa5b98891c8d3ddd963d36f091d213e649",
+      "bytes": 2693510,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/fca3a08b8300e768fb2c5dbb14afb1aa5b98891c8d3ddd963d36f091d213e649"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-albedo.png.meta": {
+      "sha256": "38cb1f2729cb1047825f28dff5e3b71f1739ad96efa36de0c47de0254bd2b5b6",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/38cb1f2729cb1047825f28dff5e3b71f1739ad96efa36de0c47de0254bd2b5b6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-mask.png": {
+      "sha256": "16d33144d6e86f99e26c39240dae3fb45954321a98eab47e862c68e75c8464db",
+      "bytes": 29346,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/16d33144d6e86f99e26c39240dae3fb45954321a98eab47e862c68e75c8464db"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-mask.png.meta": {
+      "sha256": "1d7812c4e12d8015640683dca8dd8cae564f7180e4497570c0279300d03cd87d",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/1d7812c4e12d8015640683dca8dd8cae564f7180e4497570c0279300d03cd87d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-normal.png": {
+      "sha256": "bc780c23d3346c04bbfbe2d27304b792d424dbfdc12e4f9a004eea086430eafd",
+      "bytes": 562013,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/bc780c23d3346c04bbfbe2d27304b792d424dbfdc12e4f9a004eea086430eafd"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-05-normal.png.meta": {
+      "sha256": "0777eec616e73579492fd29c68df82a8619edc44da04f0526b6597fb340b888a",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/0777eec616e73579492fd29c68df82a8619edc44da04f0526b6597fb340b888a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-albedo.png": {
+      "sha256": "3f07efebabd049d6c1595d69b01d21b29e28d11db41766e7f8b6ff069a76b51d",
+      "bytes": 1809784,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/3f07efebabd049d6c1595d69b01d21b29e28d11db41766e7f8b6ff069a76b51d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-albedo.png.meta": {
+      "sha256": "eccfc330942e934e333282d8b5baa6124d19bbc37ce42640124845a6d345ccd6",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/eccfc330942e934e333282d8b5baa6124d19bbc37ce42640124845a6d345ccd6"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-mask.png": {
+      "sha256": "ca374de14c84080c28cafc7f5b4a0f6a07814c23e292b9ede490aa534ec2050d",
+      "bytes": 27863,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/ca374de14c84080c28cafc7f5b4a0f6a07814c23e292b9ede490aa534ec2050d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-mask.png.meta": {
+      "sha256": "78caa5f2bf89e0ae9947a9f504b520d29ef17832ede0f9859956906b7c035149",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/78caa5f2bf89e0ae9947a9f504b520d29ef17832ede0f9859956906b7c035149"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-normal.png": {
+      "sha256": "22f3f95374276608c774be6a2fd1948ea05ad6dbc07752614087a42db3346430",
+      "bytes": 487302,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/22f3f95374276608c774be6a2fd1948ea05ad6dbc07752614087a42db3346430"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-06-normal.png.meta": {
+      "sha256": "1bcd0bb01c540808d742993f7ffe20334f328501bc2013b8f8143fe0ae9ed99f",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/1bcd0bb01c540808d742993f7ffe20334f328501bc2013b8f8143fe0ae9ed99f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-albedo.png": {
+      "sha256": "545cc827f843c804ebf5fbb6425f8ecc099d79ad7b0d39e750d10b64244e0378",
+      "bytes": 1551658,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/545cc827f843c804ebf5fbb6425f8ecc099d79ad7b0d39e750d10b64244e0378"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-albedo.png.meta": {
+      "sha256": "006d684ff69ce34ba2ba842ca9f2e8072ce77883024bb728318ab049368189ab",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/006d684ff69ce34ba2ba842ca9f2e8072ce77883024bb728318ab049368189ab"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-mask.png": {
+      "sha256": "0b0b0ccf50ebd06f2c2cc49522027a7e3a10cdce9012c9d1cb2bd3b2163975f8",
+      "bytes": 29066,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/0b0b0ccf50ebd06f2c2cc49522027a7e3a10cdce9012c9d1cb2bd3b2163975f8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-mask.png.meta": {
+      "sha256": "2d507a0c29f472decbb9058b8deb8b51be0bd6005ce3e7af065301421060f32d",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/2d507a0c29f472decbb9058b8deb8b51be0bd6005ce3e7af065301421060f32d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-normal.png": {
+      "sha256": "b0c91a5582be365fca91826ede4f5cb7b11b301c874d0c82a1e7046692b1df85",
+      "bytes": 498699,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/b0c91a5582be365fca91826ede4f5cb7b11b301c874d0c82a1e7046692b1df85"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-07-normal.png.meta": {
+      "sha256": "5865db8b1f06443753efc5591b1bcd015c638c8188ea9e4e830daf81edbae165",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/5865db8b1f06443753efc5591b1bcd015c638c8188ea9e4e830daf81edbae165"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-albedo.png": {
+      "sha256": "fdfe3f1550554c5b1a860987e88f87dd890f5f6e5e9ca08d8e71cd978de4ccb7",
+      "bytes": 2345544,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/fdfe3f1550554c5b1a860987e88f87dd890f5f6e5e9ca08d8e71cd978de4ccb7"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-albedo.png.meta": {
+      "sha256": "abbfec7466b479b05647285aff73c0705019946b240c0a4ccf5a833c009fcfc1",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/abbfec7466b479b05647285aff73c0705019946b240c0a4ccf5a833c009fcfc1"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-mask.png": {
+      "sha256": "8af85b4359d83e4aa68fcf91fd1f8d24249758b8be0af80cfa818196b3efc795",
+      "bytes": 28971,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/8af85b4359d83e4aa68fcf91fd1f8d24249758b8be0af80cfa818196b3efc795"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-mask.png.meta": {
+      "sha256": "25f41fbef89d57b776fc088f1876eae44340834ad2bf034bfbd27ebe21af4692",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/25f41fbef89d57b776fc088f1876eae44340834ad2bf034bfbd27ebe21af4692"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-normal.png": {
+      "sha256": "3470a0c3f8d2d7e758e7bb9f813648970f46f2cce302d64ed4ae541259709fa2",
+      "bytes": 612696,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/3470a0c3f8d2d7e758e7bb9f813648970f46f2cce302d64ed4ae541259709fa2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-08-normal.png.meta": {
+      "sha256": "1636f34317be439f2593f4da4c2bdc7c33a7258a5887fea7d2061c4fea988ea0",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/1636f34317be439f2593f4da4c2bdc7c33a7258a5887fea7d2061c4fea988ea0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-albedo.png": {
+      "sha256": "c15be916f898eca9c0a7cedec00a634a886a481f83bd80232056f0a916f8c66d",
+      "bytes": 2435705,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/c15be916f898eca9c0a7cedec00a634a886a481f83bd80232056f0a916f8c66d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-albedo.png.meta": {
+      "sha256": "98e3682d9d74e3ffa4425d39b10695fa1c32aee9ef3edc8d237fe6808b89fe7b",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/98e3682d9d74e3ffa4425d39b10695fa1c32aee9ef3edc8d237fe6808b89fe7b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-mask.png": {
+      "sha256": "1c1392b48bad26aba948a8fd0fb2c73d85cc6d98a47913a87374a55df096c065",
+      "bytes": 28326,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/1c1392b48bad26aba948a8fd0fb2c73d85cc6d98a47913a87374a55df096c065"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-mask.png.meta": {
+      "sha256": "c64871b7c18ec4bac8b1c50594fecf52455b73a8792052caadf5d4283de25747",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/c64871b7c18ec4bac8b1c50594fecf52455b73a8792052caadf5d4283de25747"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-normal.png": {
+      "sha256": "2eaa2ec554c1472888cfeae96460d43dcb0a522dbceb05c62005fe2e6df0d78e",
+      "bytes": 624370,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/2eaa2ec554c1472888cfeae96460d43dcb0a522dbceb05c62005fe2e6df0d78e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-09-normal.png.meta": {
+      "sha256": "c12562d73868c87a1ec421f83303c68018734b3df1deba34e76148673ec0e05f",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/c12562d73868c87a1ec421f83303c68018734b3df1deba34e76148673ec0e05f"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-albedo.png": {
+      "sha256": "bb21a2b30c138ca37c811ef38c2c24d2e1b06c74cd72a183b3461c89580a1efe",
+      "bytes": 2071855,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/bb21a2b30c138ca37c811ef38c2c24d2e1b06c74cd72a183b3461c89580a1efe"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-albedo.png.meta": {
+      "sha256": "8731dcd4465794f6bc8d6cc7f8dec30f06af36f1903d69cc1060f2db5e77b130",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/8731dcd4465794f6bc8d6cc7f8dec30f06af36f1903d69cc1060f2db5e77b130"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-mask.png": {
+      "sha256": "aaac8bb80beed63186564fdb55dab779b4ab8b92d76ef29fc1529efb338a0ace",
+      "bytes": 24708,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/aaac8bb80beed63186564fdb55dab779b4ab8b92d76ef29fc1529efb338a0ace"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-mask.png.meta": {
+      "sha256": "55f36aa52e58baa389daddbc119a437a300ccbf4185823b7b8f923c1a7dc5f23",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/55f36aa52e58baa389daddbc119a437a300ccbf4185823b7b8f923c1a7dc5f23"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-normal.png": {
+      "sha256": "363feac9f3f9001bd6643307e5284250974f084f107c68ac544f155064232a41",
+      "bytes": 563462,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/363feac9f3f9001bd6643307e5284250974f084f107c68ac544f155064232a41"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-10-normal.png.meta": {
+      "sha256": "ff6c085445c61dc11c58f351ff68ae23b5b1873450a8ba6c622aa068e1760e66",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/ff6c085445c61dc11c58f351ff68ae23b5b1873450a8ba6c622aa068e1760e66"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-albedo.png": {
+      "sha256": "e9a590622110e41b3590084471bbd16b0f71918ced3205f296ef9d5a02e5426c",
+      "bytes": 1956834,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/e9a590622110e41b3590084471bbd16b0f71918ced3205f296ef9d5a02e5426c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-albedo.png.meta": {
+      "sha256": "9d30004ff2b19994ad29cfc7064a591b4794e1696bcc4c962be09c2289485344",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/9d30004ff2b19994ad29cfc7064a591b4794e1696bcc4c962be09c2289485344"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-mask.png": {
+      "sha256": "665628b7a8ad2128da8fc6321979a326421493ed7850084b32481fa2641421ea",
+      "bytes": 28164,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/665628b7a8ad2128da8fc6321979a326421493ed7850084b32481fa2641421ea"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-mask.png.meta": {
+      "sha256": "ae9d3e7d723d460380a2eb473451e7f64ed5a208bed2839dc326d3cc381647e2",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/ae9d3e7d723d460380a2eb473451e7f64ed5a208bed2839dc326d3cc381647e2"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-normal.png": {
+      "sha256": "d1d466935a1ab252cd2b6b37e5ed844957fde64792786bf36508dd4010bbd82e",
+      "bytes": 505381,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/d1d466935a1ab252cd2b6b37e5ed844957fde64792786bf36508dd4010bbd82e"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-11-normal.png.meta": {
+      "sha256": "549d8dc48b8baecdd2205704b5b78c2750dd16594470e019df07461fe62f511a",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/549d8dc48b8baecdd2205704b5b78c2750dd16594470e019df07461fe62f511a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-albedo.png": {
+      "sha256": "65c755e723b0522314847d0944e0f7680a245192f94f9ba5b14efa8944118fc9",
+      "bytes": 2018140,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/65c755e723b0522314847d0944e0f7680a245192f94f9ba5b14efa8944118fc9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-albedo.png.meta": {
+      "sha256": "1a0e125588d1c6a6cd32f617763a90648b2145bbcf56a28452936d131281f5c0",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/1a0e125588d1c6a6cd32f617763a90648b2145bbcf56a28452936d131281f5c0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-mask.png": {
+      "sha256": "04c912b0e85b465d183c1eefdb5363dd088bf7fc4b896b5e233d4efb286af929",
+      "bytes": 25772,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/04c912b0e85b465d183c1eefdb5363dd088bf7fc4b896b5e233d4efb286af929"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-mask.png.meta": {
+      "sha256": "0400a42c5c0076eef927bfb850de215ec80a9a48afe496037fecf7eec939a4a4",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/0400a42c5c0076eef927bfb850de215ec80a9a48afe496037fecf7eec939a4a4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-normal.png": {
+      "sha256": "c7e0cebf85e55e55f6874c8723053d095de2fe497239413beaa42eb5c91e62d5",
+      "bytes": 561942,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/c7e0cebf85e55e55f6874c8723053d095de2fe497239413beaa42eb5c91e62d5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-12-normal.png.meta": {
+      "sha256": "a62477afab53c5814109bcc2869bca13ab6fe6a01402dbeba54af06cf6c6c794",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/a62477afab53c5814109bcc2869bca13ab6fe6a01402dbeba54af06cf6c6c794"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-albedo.png": {
+      "sha256": "eb54ea70ef97734cf9f450fb25148949ebc5609044e1f676db17b1f0bb8e3455",
+      "bytes": 2332016,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/eb54ea70ef97734cf9f450fb25148949ebc5609044e1f676db17b1f0bb8e3455"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-albedo.png.meta": {
+      "sha256": "eadaf3a77e0a04873045fb5e487b2e275d7c423c7124bbaf117c935ff6039954",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/eadaf3a77e0a04873045fb5e487b2e275d7c423c7124bbaf117c935ff6039954"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-mask.png": {
+      "sha256": "85098aac2190792e17ab891229862bbb5538f87ec4269a81f1e61ac588221ee4",
+      "bytes": 27309,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/85098aac2190792e17ab891229862bbb5538f87ec4269a81f1e61ac588221ee4"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-mask.png.meta": {
+      "sha256": "43131931f66752f5ec7ecd85b3e0dffb374e1e43ff4646edf6ae25855ad72ea8",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/43131931f66752f5ec7ecd85b3e0dffb374e1e43ff4646edf6ae25855ad72ea8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-normal.png": {
+      "sha256": "f23b9bfddedbf9b8029528251e5c7b0694198d0ad997b600ec768f95f65a6ed5",
+      "bytes": 576368,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/f23b9bfddedbf9b8029528251e5c7b0694198d0ad997b600ec768f95f65a6ed5"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-13-normal.png.meta": {
+      "sha256": "44d921cfbe27a6a13113a7d197a8cbca331c5afd9700b36b5684d74bb6ce4e4d",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/44d921cfbe27a6a13113a7d197a8cbca331c5afd9700b36b5684d74bb6ce4e4d"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-albedo.png": {
+      "sha256": "bd7693bfafbe9b930fb8f64327d363e509eda6e7b6b1783229c3a6613c1660c8",
+      "bytes": 2533202,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/bd7693bfafbe9b930fb8f64327d363e509eda6e7b6b1783229c3a6613c1660c8"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-albedo.png.meta": {
+      "sha256": "6f94f4396adda5fa7e28f35e24564348193392d87f5e8f4b82237c5cb4a1c0b0",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/6f94f4396adda5fa7e28f35e24564348193392d87f5e8f4b82237c5cb4a1c0b0"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-mask.png": {
+      "sha256": "3b25f3d1a18f15d00f11732348da2e4d63429622a6459479f96d37e6e522d29a",
+      "bytes": 28037,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/3b25f3d1a18f15d00f11732348da2e4d63429622a6459479f96d37e6e522d29a"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-mask.png.meta": {
+      "sha256": "0cbc7acdc47eebd9a51f1bcfdd3d49f22c638c87e7036b35beed5ff34ee00d07",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/0cbc7acdc47eebd9a51f1bcfdd3d49f22c638c87e7036b35beed5ff34ee00d07"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-normal.png": {
+      "sha256": "c09913a867dafff5da6117bfa2d47e04eb72182808cfe7a8295ab01acd31d434",
+      "bytes": 581376,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/c09913a867dafff5da6117bfa2d47e04eb72182808cfe7a8295ab01acd31d434"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-14-normal.png.meta": {
+      "sha256": "a9debbf70aa516fc7b17c963eddb214a3f617219230bf66dd46709ba196a8f33",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/a9debbf70aa516fc7b17c963eddb214a3f617219230bf66dd46709ba196a8f33"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-albedo.png": {
+      "sha256": "64daca71d5b4b086685baf6997e20c2dbf0b9a108dc0b461bc533453b631ac18",
+      "bytes": 2850853,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/64daca71d5b4b086685baf6997e20c2dbf0b9a108dc0b461bc533453b631ac18"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-albedo.png.meta": {
+      "sha256": "c7730bdc2ecf32306867106f4caf2820b9d3c05a206edfab8f4df025548b9da3",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/c7730bdc2ecf32306867106f4caf2820b9d3c05a206edfab8f4df025548b9da3"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-mask.png": {
+      "sha256": "43c042a60eb1ee07536306fac7ab6fe413a7d885627bba9957a9cf4ee87baca9",
+      "bytes": 29344,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/43c042a60eb1ee07536306fac7ab6fe413a7d885627bba9957a9cf4ee87baca9"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-mask.png.meta": {
+      "sha256": "46234629d7640c330aa99d8fde69c620bca7db524ed1eb0f59f676278d0dfe70",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/46234629d7640c330aa99d8fde69c620bca7db524ed1eb0f59f676278d0dfe70"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-normal.png": {
+      "sha256": "f6d6c156c4cbab2864f99a05d353372cb1dff3240c197f659923b32526a10a0c",
+      "bytes": 597898,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "member": "objects/f6d6c156c4cbab2864f99a05d353372cb1dff3240c197f659923b32526a10a0c"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-15-normal.png.meta": {
+      "sha256": "4c63d48d42bf62d180a367a62e464930a66bf82121be3e3a9a7c750ba9bab869",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/4c63d48d42bf62d180a367a62e464930a66bf82121be3e3a9a7c750ba9bab869"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-albedo.png": {
+      "sha256": "b118676d613e77b1c57230044b57bc5fab62dbe6d1680fc5f02217994cdc9811",
+      "bytes": 2762480,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/b118676d613e77b1c57230044b57bc5fab62dbe6d1680fc5f02217994cdc9811"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-albedo.png.meta": {
+      "sha256": "36a819dc2aa5583ab38139b8f5316661be2ee40a4f48355282281edba7452add",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/36a819dc2aa5583ab38139b8f5316661be2ee40a4f48355282281edba7452add"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-mask.png": {
+      "sha256": "e84b9f425f2297c441baf71bc663b7e7f8127cd7a2aa7dd74393d6cc1715541b",
+      "bytes": 28543,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/e84b9f425f2297c441baf71bc663b7e7f8127cd7a2aa7dd74393d6cc1715541b"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-mask.png.meta": {
+      "sha256": "bb7a51bd510135ecd673e377a7a262b6453c2ee071b61777a39cf4da0db35114",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/bb7a51bd510135ecd673e377a7a262b6453c2ee071b61777a39cf4da0db35114"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-normal.png": {
+      "sha256": "a3f5e29d0f79806678808a3b87bd805be8538578ff4d64b0624e3ec929a273db",
+      "bytes": 556012,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/a3f5e29d0f79806678808a3b87bd805be8538578ff4d64b0624e3ec929a273db"
+    },
+    "unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1/layer-16-normal.png.meta": {
+      "sha256": "a128202a484e14c3c87b8d9964bad917e8f35a20425bc7643293f376170a8951",
+      "bytes": 3069,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/a128202a484e14c3c87b8d9964bad917e8f35a20425bc7643293f376170a8951"
+    },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1.meta": {
       "sha256": "8e3b78e001b3665c25ca407a1210727713ccc87779356800a1f7ff8b191ec2d0",
       "bytes": 172,
@@ -32915,10 +33647,10 @@
       "member": "objects/ed1fd0a7471cf8b5133873e1fc46587b8bdc36928607c5587644e98007ea47fb"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png": {
-      "sha256": "19b8da469508807a465436036a4144836b8bdffbc339a2d1ef586f8f97e7edee",
-      "bytes": 3240594,
-      "pack": "terrain-moss-20261106-v1/assets-ca6580967b84544b993fe65b619534d453ff0bf84b53c1a2b2fdf8e3f70a3c11.zip",
-      "member": "objects/19b8da469508807a465436036a4144836b8bdffbc339a2d1ef586f8f97e7edee"
+      "sha256": "b73306d07a0a87bba4a41fabfcde51b2c2cf6a2cddf625593b45277be15e36bd",
+      "bytes": 3071459,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/b73306d07a0a87bba4a41fabfcde51b2c2cf6a2cddf625593b45277be15e36bd"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance.meta": {
       "sha256": "3c98ec6276d742ed9d17442ddb0f067b201515563975e7ca2c9ce59f9632617c",
@@ -34577,22 +35309,22 @@
       "member": "objects/8fe01c1d2456516fe9c3776855852f73eb3f9d4e2d02da90a8c15d7571f2a9b5"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/albedo.asset": {
-      "sha256": "2f9703d9df02b4f0ea58f41cf1a2d421520ed441eac4622086894055e56f93ac",
-      "bytes": 47537224,
-      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
-      "member": "objects/2f9703d9df02b4f0ea58f41cf1a2d421520ed441eac4622086894055e56f93ac"
+      "sha256": "9a1f81a3b4d4b50e4fc803304b71f6ef192d3244d0ac56c9bcfbdb5411f781d6",
+      "bytes": 47537226,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "member": "objects/9a1f81a3b4d4b50e4fc803304b71f6ef192d3244d0ac56c9bcfbdb5411f781d6"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/mask.asset": {
-      "sha256": "af83c036b5414c6080b0607ab4b46a897f1e1fb0c70d359904263bc0e6c069f1",
-      "bytes": 744511,
-      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
-      "member": "objects/af83c036b5414c6080b0607ab4b46a897f1e1fb0c70d359904263bc0e6c069f1"
+      "sha256": "0ba4bf742e0d16cafd1db30fde8eaa06bae8ac06afa171d5e3832fc057e4fb31",
+      "bytes": 744513,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/0ba4bf742e0d16cafd1db30fde8eaa06bae8ac06afa171d5e3832fc057e4fb31"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1/normal.asset": {
-      "sha256": "daac914db53e9aaf7892560510a96187e2b877530d8deff8302e3082188849a9",
-      "bytes": 11885636,
-      "pack": "terrain-ground-detail-20261106-v1/assets-ea080eea6e0eb7e8f812ba65cf8dec9fcfcc7530674210f18994b9e9f29d8449.zip",
-      "member": "objects/daac914db53e9aaf7892560510a96187e2b877530d8deff8302e3082188849a9"
+      "sha256": "7e81b301e6dc95fedfff0a012797e5a6d53512aa4e051f7efcad6bc25b5420a6",
+      "bytes": 11885638,
+      "pack": "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "member": "objects/7e81b301e6dc95fedfff0a012797e5a6d53512aa4e051f7efcad6bc25b5420a6"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1.meta": {
       "sha256": "20f269bc5621aeb76c055cfd49a911bf3033afaa23abcc8b4b9b484eaf6c7a7d",
@@ -35828,6 +36560,46 @@
       "asset_id": 719741768,
       "sha256": "51645c14a1ead8ea4ca27b33fd72b2baabad0569737e1cf5f55e972f469f1b9a",
       "bytes": 19479635,
+      "encoding": "zip"
+    },
+    "game-assets-generated-ground-20261107-v1/assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip": {
+      "tag": "game-assets-generated-ground-20261107-v1",
+      "name": "assets-09f9445df7c4bdd33590613aee974a820f38a3f650a188e1fe92114c40100441.zip",
+      "asset_id": 719886869,
+      "sha256": "eef5c82237f08991698f145910a714645150357752828cfc1889359b75c3224d",
+      "bytes": 61264724,
+      "encoding": "zip"
+    },
+    "game-assets-generated-ground-20261107-v1/assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip": {
+      "tag": "game-assets-generated-ground-20261107-v1",
+      "name": "assets-2c75b9df65aba6e18552032e7e6c3e9aafd6b246734e2228748534f56ad894ff.zip",
+      "asset_id": 719887099,
+      "sha256": "48b63f28534bceb5b04b52228993fe1995496a718101edefefcf0a74564ce774",
+      "bytes": 33437663,
+      "encoding": "zip"
+    },
+    "game-assets-generated-ground-20261107-v1/assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip": {
+      "tag": "game-assets-generated-ground-20261107-v1",
+      "name": "assets-4eb59e4f716245eef51e0060a204f6bccf173c58d8605bb46f32df870d4eeb5d.zip",
+      "asset_id": 719887521,
+      "sha256": "e3c3d6ccae0e324ee4d58c6c7d3a0970fcff0e8ffa0e7a5713ce2beb25eb821a",
+      "bytes": 12616907,
+      "encoding": "zip"
+    },
+    "game-assets-generated-ground-20261107-v1/assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip": {
+      "tag": "game-assets-generated-ground-20261107-v1",
+      "name": "assets-c39e8ad83a06df907fcc786b1ceec3bdbecf98f2f91b501f360abb8b50aa474c.zip",
+      "asset_id": 719887327,
+      "sha256": "e1bdd928cbc2c19d2f666917f742a43ad1957c16aa97f2cb23960a6a323f7a3a",
+      "bytes": 43722038,
+      "encoding": "zip"
+    },
+    "game-assets-ground-grass-20261107-v2/assets-1c12b4a6ee041bc7a77e5c2f471bc58e5def8fd6f7537afba72668c6a8677646.zip": {
+      "tag": "game-assets-ground-grass-20261107-v2",
+      "name": "assets-1c12b4a6ee041bc7a77e5c2f471bc58e5def8fd6f7537afba72668c6a8677646.zip",
+      "asset_id": 719923747,
+      "sha256": "6d11f4ede711ecca5f6eabf0203069a1a421e79211fa543a06e6b69f73c3b763",
+      "bytes": 3610364,
       "encoding": "zip"
     },
     "game-assets-human-appearance-20261031-v1/assets-5502f5587800e05d997b57ed5ee525cdb6ee204657725c0355360d66e88e746c.zip": {
