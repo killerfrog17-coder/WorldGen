@@ -79,6 +79,14 @@
       "application": "Talus is gravity-fed angular debris below steep rocky sources, not arbitrary mountain gravel."
     }
   ],
+  "dune_followup_research": {
+    "status": "Research and source inspection only; not added to delivered build",
+    "current_source": "LandscapeProvince.HeightOffset uses two fixed planetary wave families with curved crests and a steep lee face. Its second family prevents radial degeneration; it is not a classification of regional dune types.",
+    "design_direction": "Use stable regional sediment availability, vegetation anchoring and long-term wind-direction diversity to choose coherent dune fields. Add finite crescent forms, multidirectional star forms and vegetated parabolic margins instead of making every sand sea a variant of continuous parallel ridges. Instant weather gusts should not reshape terrain.",
+    "source": "https://www.nps.gov/grsa/learn/nature/dune-types.htm",
+    "source_findings": "The NPS distinguishes reversing dunes from opposing winds, star dunes from multiple wind directions, barchan dunes in one-direction low-vegetation settings, and parabolic dunes with vegetation-held arms.",
+    "review_gate": "Inspect actual ground-level profiles and broad field silhouettes under the same noon lighting. Keep common water/root/material sampling and existing moving/loading budgets; no extra scenery mesh or per-frame erosion is proposed."
+  },
   "shading_followup_audit": {
     "status": "Source inspection only; no runtime change, extra test or new visual-fix claim",
     "source": "src/WorldGen.Presentation/LocalTerrainMesh.cs:125-175",
