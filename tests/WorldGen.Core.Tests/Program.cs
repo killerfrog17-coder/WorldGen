@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--glacial-trough-controls")){GlacialValleyTests.Controls();return;}
+if(args.Contains("--glacial-trough-world")){GlacialValleyTests.World(args[1],args[2]);return;}
 if(args.Contains("--granite-domes")){GraniteDomeTests.Run();return;}
 if(args.Contains("--granite-dome-world")){GraniteDomeTests.World(args[1],args[2]);return;}
 if(args.Contains("--alluvial-rivers")){RiverAlluviumTests.Run();return;}

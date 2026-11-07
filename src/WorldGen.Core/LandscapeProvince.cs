@@ -14,8 +14,8 @@ namespace WorldGen.Core
     // of nearest-cell switches. Shared refined vertices carry the same mixture.
     public struct LandscapeControls
     {
-        public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Frozen,Arid,Wet,Peat,Moisture,Canopy,BareRock,Remnant,RemnantExposure,CanyonExposure,ShoreExposure;
-        public double ExposedRock=>Math.Max(ShoreExposure,Math.Max(RemnantExposure,CanyonExposure));
+        public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Frozen,Arid,Wet,Peat,Moisture,Canopy,BareRock,Remnant,RemnantExposure,CanyonExposure,ShoreExposure,GlacialExposure;
+        public double ExposedRock=>Math.Max(GlacialExposure,Math.Max(ShoreExposure,Math.Max(RemnantExposure,CanyonExposure)));
         public static LandscapeControls Blend(LandscapeControls a,LandscapeControls b,double t)
             => Mix(a,b,default,1-t,t,0);
         public static LandscapeControls Mix(LandscapeControls a,LandscapeControls b,LandscapeControls c,double x,double y,double z)
@@ -23,7 +23,7 @@ namespace WorldGen.Core
                 Sand=(float)(a.Sand*x+b.Sand*y+c.Sand*z),Clay=(float)(a.Clay*x+b.Clay*y+c.Clay*z),Salt=(float)(a.Salt*x+b.Salt*y+c.Salt*z),
                 Badlands=(float)(a.Badlands*x+b.Badlands*y+c.Badlands*z),Loess=(float)(a.Loess*x+b.Loess*y+c.Loess*z),Karst=(float)(a.Karst*x+b.Karst*y+c.Karst*z),
                 Rock=(float)(a.Rock*x+b.Rock*y+c.Rock*z),Glacial=(float)(a.Glacial*x+b.Glacial*y+c.Glacial*z),Frozen=(float)(a.Frozen*x+b.Frozen*y+c.Frozen*z),Arid=(float)(a.Arid*x+b.Arid*y+c.Arid*z),Wet=(float)(a.Wet*x+b.Wet*y+c.Wet*z),CanyonExposure=(float)(a.CanyonExposure*x+b.CanyonExposure*y+c.CanyonExposure*z),ShoreExposure=(float)(a.ShoreExposure*x+b.ShoreExposure*y+c.ShoreExposure*z),
-                Peat=(float)(a.Peat*x+b.Peat*y+c.Peat*z),Moisture=(float)(a.Moisture*x+b.Moisture*y+c.Moisture*z),Canopy=(float)(a.Canopy*x+b.Canopy*y+c.Canopy*z),BareRock=(float)(a.BareRock*x+b.BareRock*y+c.BareRock*z),Remnant=(float)(a.Remnant*x+b.Remnant*y+c.Remnant*z),RemnantExposure=(float)(a.RemnantExposure*x+b.RemnantExposure*y+c.RemnantExposure*z)};
+                Peat=(float)(a.Peat*x+b.Peat*y+c.Peat*z),Moisture=(float)(a.Moisture*x+b.Moisture*y+c.Moisture*z),Canopy=(float)(a.Canopy*x+b.Canopy*y+c.Canopy*z),BareRock=(float)(a.BareRock*x+b.BareRock*y+c.BareRock*z),Remnant=(float)(a.Remnant*x+b.Remnant*y+c.Remnant*z),RemnantExposure=(float)(a.RemnantExposure*x+b.RemnantExposure*y+c.RemnantExposure*z),GlacialExposure=(float)(a.GlacialExposure*x+b.GlacialExposure*y+c.GlacialExposure*z)};
         public double Flatness=>Math.Max(Wet*.8,Math.Max(Clay,Salt));
     }
 

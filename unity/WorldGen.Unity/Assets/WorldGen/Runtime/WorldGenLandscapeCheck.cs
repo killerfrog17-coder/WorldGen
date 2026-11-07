@@ -29,10 +29,11 @@ public sealed partial class LocalTerrainExplorer
         public BedrockRemnants.Outcrop Outcrop;
         public RiverscapeSpan? Fall;
         public CanyonValleys.Reach Canyon;
+        public GlacialValleys.Reach? Trough;
         public int RiverReach=-1;
         public string Coast,Landform;
     }
-    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public RiverscapeSpan? Fall;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
+    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public RiverscapeSpan? Fall;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
     public static IEnumerator CheckLandscape(string path,string output,string kind)
     {
         Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
@@ -56,7 +57,20 @@ public sealed partial class LocalTerrainExplorer
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
             if(arguments.Contains("--worldgen-bark-review"))cells=cells.Where(i=>model.Profile(i).CoarseReliefM<180);
-            if(kind=="Canyon")
+            if(kind=="GlacialTrough")
+            {
+                foreach(var reach in model.Amplification.Glaciers.Reaches.OrderByDescending(r=>r.Strength*r.Relief).Take(80))
+                {
+                    var spans=model.Amplification.RiverReach(reach.Source);if(spans.Length<4)continue;
+                    var middle=spans[spans.Length/2];V center=(middle.A+middle.B).Unit,coarse=(reach.A+reach.B).Unit,side=V.Cross(coarse,reach.B-reach.A).Unit;
+                    var patch=model.Patch(center,60000);var sample=patch.Sample(center);
+                    var wall=patch.Sample((coarse+side*(reach.HalfWidth*.6/(model.RadiusM*.1))).Unit);
+                    var rim=patch.Sample((coarse+side*(reach.HalfWidth*1.1/(model.RadiusM*.1))).Unit);
+                    if(sample.Biome==Biome.Ice||wall.Province.GlacialExposure<.03||rim.ElevationM-sample.ElevationM<80)continue;
+                    return new LandscapeReviewSite{Position=center,CoastDirection=side,Sample=sample,Trough=reach,RiverReach=reach.Source,RiverWidth=middle.WidthA*2,Landform=kind};
+                }
+            }
+            else if(kind=="Canyon")
             {
                 foreach(var reach in model.Amplification.Canyons.Reaches.Where(r=>r.HalfWidth<1800).OrderByDescending(r=>r.Strength*r.Relief).Take(80))
                 {
@@ -232,7 +246,7 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("No suitable actual landscape context: "+kind);
         });
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
-        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
+        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=site.Trough,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
         if(site.Volcano!=null){reviewRange=Math.Max(10000,site.Volcano.RadiusM*4.5);reviewFootprint=site.Volcano.RadiusM*3.6;}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         if(site.Coast!=null){reviewRange=3000;reviewFootprint=1600;}
@@ -240,6 +254,7 @@ public sealed partial class LocalTerrainExplorer
         if(site.Outcrop!=null){reviewRange=6000;reviewFootprint=site.Outcrop.RadiusM*3.6;}
         if(site.Fall.HasValue){reviewRange=2500;reviewFootprint=1200;}
         if(site.Canyon!=null){reviewRange=Math.Max(6000,site.Canyon.HalfWidth*4.5);reviewFootprint=site.Canyon.HalfWidth*3.6;}
+        if(site.Trough.HasValue){reviewRange=Math.Max(6000,site.Trough.Value.HalfWidth*4.5);reviewFootprint=site.Trough.Value.HalfWidth*3.6;}
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
@@ -280,7 +295,7 @@ public sealed partial class LocalTerrainExplorer
             Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual summer daylight: "+name);
             var camera=new Vector3(offset.x,y+.5f+offset.y,offset.z);
             double offsetRadius=new Vector2(offset.x,offset.z).magnitude;
-            double inspectedRadius=site.Outcrop?.RadiusM??site.Volcano?.RadiusM??site.Canyon?.HalfWidth??Math.Min(200,reviewFootprint*.2);
+            double inspectedRadius=site.Outcrop?.RadiusM??site.Volcano?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??Math.Min(200,reviewFootprint*.2);
             Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
@@ -387,13 +402,13 @@ public sealed partial class LocalTerrainExplorer
                 WorldGenPerformance.TreeTrunkShadowRange=0;
             }
         }
-        float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??site.Outcrop?.RadiusM??site.Canyon?.HalfWidth??(site.Fall.HasValue?Math.Min(350,Math.Max(80,(site.Fall.Value.LevelA-site.Fall.Value.LevelB)*1.6+site.RiverWidth*2)):site.Landform!=null?300:site.Coast!=null?220:site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));
+        float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??site.Outcrop?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??(site.Fall.HasValue?Math.Min(350,Math.Max(80,(site.Fall.Value.LevelA-site.Fall.Value.LevelB)*1.6+site.RiverWidth*2)):site.Landform!=null?300:site.Coast!=null?220:site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));
         if(kind=="AlluvialRiver")width=(float)Math.Min(350,Math.Max(160,site.RiverWidth*3));
         Quaternion orientation=Quaternion.identity;
         if(kind=="AlluvialRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));
-        if(site.Canyon!=null)
+        if(site.Canyon!=null||site.Trough.HasValue)
         {
             V side=site.CoastDirection;
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(side,owner.frame.East),0,(float)V.Dot(side,owner.frame.North)));
@@ -405,7 +420,7 @@ public sealed partial class LocalTerrainExplorer
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
         }
         yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
-        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null?site.RiverWidth*.8+8:10)),true));
+        yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null||site.Trough.HasValue?site.RiverWidth*.8+8:10)),true));
         if(arguments.Contains("--worldgen-bark-review"))
         {
             var roots=owner.forestFields.Values.Where(f=>f.Ready).SelectMany(f=>f.Roots.SelectMany(pair=>pair.Value.Select(slot=>pair.Key.Data[slot])))
@@ -457,6 +472,15 @@ public sealed partial class LocalTerrainExplorer
                 var offset=new Vector3((float)V.Dot(axis,owner.frame.East),0,(float)V.Dot(axis,owner.frame.North))*(float)(-site.Outcrop.RadiusX*.85);
                 yield return owner.StartCoroutine(Capture("dome-joint-face",offset,true,faceCenter:true));
             }
+            if(site.Trough.HasValue)
+            {
+                var trough=site.Trough.Value;V coarse=(trough.A+trough.B).Unit;
+                var wall=model.Patch(coarse,20000).Sample((coarse+site.CoastDirection*(trough.HalfWidth*.6/(model.RadiusM*.1))).Unit);
+                Check(wall.Province.GlacialExposure>.03,"Actual glaciated trough has physically exposed valley walls");
+                Check(sample.Underwater&&sample.WaterKind==LocalWaterKind.River,"Modern river occupies the shared eroded trough floor");
+                yield return owner.StartCoroutine(Capture("valley-floor",orientation*new Vector3(width*.3f,0,site.RiverWidth*1.3f+12),true,faceCenter:true));
+                yield return owner.StartCoroutine(Capture("valley-axis",orientation*new Vector3(width*.65f,width*.12f,0)));
+            }
         }
         if(site.Fall.HasValue)
         {
@@ -495,7 +519,7 @@ public sealed partial class LocalTerrainExplorer
         Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
-            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
+            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=site.Trough,Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
@@ -503,7 +527,7 @@ public sealed partial class LocalTerrainExplorer
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
         // is recorded, so its teleport cannot contaminate the reviewed cameras.
-        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="Inselberg"?"outcrop":kind=="GraniteDome"||kind=="JointedDome"?"dome":kind=="TowerKarst"?"karst":null;
+        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="GlacialTrough"?"glacial":kind=="Inselberg"?"outcrop":kind=="GraniteDome"||kind=="JointedDome"?"dome":kind=="TowerKarst"?"karst":null;
         if(landmarkKind!=null)
         {
             var command=owner.ExecuteExplorerCommand("/landmark "+landmarkKind);

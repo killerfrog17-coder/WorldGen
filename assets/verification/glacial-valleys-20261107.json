@@ -1,0 +1,15 @@
+{
+  "scope":"Inherited U-shaped mountain valleys attached to mapped glacial erosion and existing drainage.",
+  "status":"Numerical and actual-world tests passed; native screenshots and moving performance pending.",
+  "versions":{"terrain":"local-terrain-glacial-troughs-49","amplification":"hyper-amplification-glacial-troughs-44"},
+  "research":[
+    {"url":"https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm","application":"Glacial troughs widen pre-existing valleys, with broad floors and steep enclosing sides."},
+    {"url":"https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-yosemite-national-park","application":"Use linked glaciation, bedrock and drainage rather than an arbitrary scenic bowl in every mountain region."}
+  ],
+  "placement":["Both ends of an existing upland drainage reach carry mapped glacial erosion.","Require substantial inherited mountain relief and a significant channel; exclude ocean endpoints and low/coastal floors.","Erode inherited ground only. Preserve accepted standing lakes and the river's narrower modern channel/alluvium."],
+  "implementation":["Static finite U-profile cuts; no new scenery mesh, draw call, texture sample or live glacier tick.","Numeric compressed-row index retains no per-face managed list/reference graph.","Construct before river bank fitting; final reconciled river datums are shared by the trough floor.","Physical rock-wall exposure reaches the existing soil/material/rooted vegetation path.","Local terrain and amplification versions invalidate incompatible derived datums."],
+  "numerical":{"scalar_checks":119694,"actual_world_valleys":4,"eligible_reaches":50,"indexed_faces":2291,"index_bytes":1621736,"maximum_face_candidates":13,"exhaustive_index_comparisons":731,"exact_cached_reverse_order_samples":196,"water_and_shared_edges":"passed","history_mutation":"none","evidence":"artifacts/geography-night-20261107/glacial-core-v2"},
+  "cache":{"checks":21,"cold_concurrent_seconds":22.2045253,"warm_seconds":1.3201075,"cache_bytes":1600040,"evidence":"artifacts/geography-night-20261107/glacial-cache-v1","limits":"Full local terrain preparation observations, not the isolated cost of glacial index construction or total game startup."},
+  "regressions":{"coastal_controls":32743,"terrain_reader":363729,"terrain_transport":414,"river_planform":1032},
+  "limits":["Static morphological approximation, not a glacier flow/erosion simulation.","This pass does not add cirques, hanging lakes, overhangs or ocean-connected fjords.","Numerical evidence is not visual acceptance or proof of a universal frame floor."]
+}

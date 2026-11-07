@@ -57,7 +57,7 @@ namespace WorldGen.Core
         public RiverscapeSpan[] RiverReach(int source)
             =>source<0||source>=riverActive.Length||!riverActive[source]?Array.Empty<RiverscapeSpan>():(RiverscapeSpan[])PrepareRiverscape(source).Clone();
 
-        void BuildRiverscapes(World world,CancellationToken token,double[] cachedDatums)
+        void BuildRiverscapes(World world,LocalTerrainProfile[] profiles,CancellationToken token,double[] cachedDatums)
         {
             int count=rootNodes.Length;riverReceivers=world.Hydrology.Receiver;
             riverDatums=new double[count];riverNodeWidths=new double[count];riverNodeDepths=new double[count];riverActive=new bool[count];riverIncoming=new int[count];
@@ -89,6 +89,10 @@ namespace WorldGen.Core
             }
             for(int i=0;i<count;i++)if(riverNodeWidths[i]>0)
             {riverNodeWidths[i]=Math.Min(riverNodeWidths[i],Math.Max(.6,incidentLengths[i]*.15));riverNodeDepths[i]=Math.Min(riverNodeDepths[i],riverNodeWidths[i]*.75);}
+            // Construct the inherited troughs BEFORE bank fitting. Cached and
+            // freshly derived water levels then sample exactly the same ground.
+            // Final reconciled levels remain the shared trough-floor reference.
+            Glaciers=new GlacialValleys(world,profiles,scale,riverDatums,riverNodeWidths,token);
             // Wide junctions must fit their available valley walls BEFORE the
             // graph levels are reconciled. Fitting the ribbons afterwards cannot
             // repair a fixed node datum that stands above an outer bank hollow.

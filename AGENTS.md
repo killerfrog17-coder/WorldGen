@@ -31,6 +31,17 @@ samecoordinate, not equal rendered geometry. Uncommitted GlacialValleys.cs +
 GlacialValleyTests.cs prototype UNHOOKED/UNBUILT; numeric CSR index intended,
 existing drainage + mapped glaciation gates, cut-only Uprofile, no scenery draws.
 No feature2 geometry active yet. No other heavy jobs; owner3files untouched.
+UPDATE08:24Z shore paired COMPLETE: B206.47FPS p959.15/p9911.27/max37.52,
+13>16.7; A210.80 p9511.05/p9912.68/max29.94,4>16.7. MIXED, no overallstutter
+gain. Shape mean.007578->.008974ms. No own games/Editor now. Shore retained as
+static form, rock surface stilluniform; B endcamera underwater means no accepted
+visual before/after pair. Evidence f9fc pushed. New GlacialValleys HOOKED now,
+UNBUILT native; local49/Hyper44. 119694 scalar,4 actual river valleys,731exact
+index probes +196 exact warm/reverse complete samples PASS. Numeric index1.62MB,
+50reaches/2291faces/max13 candidates. Cache21checks PASS(cold22.2/warm1.32s whole
+terrain). Coast32743,reader363729,transport414,planform1032 regressionsPASS.
+Next commit/build ScriptsOnly A; native GlacialTrough screenshot and landmark
+review, inspect all images BEFORE acceptance/perf. No source mutation during build.
 Finish actual/native shore appearance, water/ground/root checks and moving tails
 before next feature. unity-check now passes rightmost monitor. Next priorities
 adaptive: glaciated mountain/valley character, coupled wetland/river-coast variety,

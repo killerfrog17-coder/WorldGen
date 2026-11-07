@@ -9,11 +9,11 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NaturalLandmark {public string Name;public V Point,Focus;public double FocusM;}
     Task<NaturalLandmark> landmarkSearch;int landmarkGeneration;
-    const string LandmarkUsage="/landmark volcano | waterfall | canyon | outcrop | dome | karst | shore";
+    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | outcrop | dome | karst | shore";
     PlayCommandResult ExecuteLandmark(string[] words)
     {
         if(words.Length!=2)return new PlayCommandResult(words.Length==1,LandmarkUsage);
-        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","outcrop","dome","karst","shore"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
+        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","outcrop","dome","karst","shore"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
         if(!Ready||sourceWorld==null)return new PlayCommandResult(false,"Terrain is not ready yet.");
         if(landmarkSearch!=null)return new PlayCommandResult(false,"A landmark search is already running.");
         var model=terrain;var world=sourceWorld;double scale=HorizontalScale;landmarkGeneration=generation;
@@ -43,6 +43,12 @@ public sealed partial class LocalTerrainExplorer
         {
             var point=(form.Center+form.Side*(form.RadiusZ*1.3/radius)).Unit;
             var site=Site((form.Dome?"Granite dome ":"Bedrock outcrop ")+form.Cell,point,form.Center);if(site!=null)return site;
+        }
+        if(kind=="glacial")foreach(var form in model.Amplification.Glaciers.Reaches.OrderByDescending(f=>f.Strength*f.Relief).Take(80))
+        {
+            V focus=(form.A+form.B).Unit,side=V.Cross(focus,form.B-form.A).Unit;
+            var point=(focus+side*(form.HalfWidth*.35/radius)).Unit;
+            var site=Site("Glacial valley "+form.Source,point,focus);if(site!=null)return site;
         }
         if(kind=="canyon")foreach(var form in model.Amplification.Canyons.Reaches.OrderByDescending(f=>f.Strength*f.Relief).Take(80))
         {
