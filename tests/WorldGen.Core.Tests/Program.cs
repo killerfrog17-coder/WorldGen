@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-surface-grades")){RiverSurfaceGradeTests.Run(args[1]);return;}
 if(args.Contains("--terrain-worker-cost")){TerrainWorkerCostTests.Run(args[1],args[2],args[3],args[4],args.Contains("--verify-payload"));return;}
 if(args.Contains("--glacial-trough-controls")){GlacialValleyTests.Controls();return;}
 if(args.Contains("--glacial-trough-world")){GlacialValleyTests.World(args[1],args[2]);return;}

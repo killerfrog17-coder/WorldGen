@@ -50,7 +50,7 @@ static class RiverscapeTests
             // a global cross-terrain sheet would exceed the bound by kilometres.
             for(int i=0;i<mesh.WaterTriangles.Length;i+=3)
             {
-                int a=mesh.WaterTriangles[i],b=mesh.WaterTriangles[i+1],c=mesh.WaterTriangles[i+2];if(Math.Abs(mesh.WaterColors[a*4+3]-2)>.25)continue;
+                int a=mesh.WaterTriangles[i],b=mesh.WaterTriangles[i+1],c=mesh.WaterTriangles[i+2];if(Math.Abs(mesh.WaterColors[a*4+3]-2)>.4)continue;
                 foreach(int q in new[]{b,c})
                 {double dx=mesh.WaterPositions[a*3]-mesh.WaterPositions[q*3],dz=mesh.WaterPositions[a*3+2]-mesh.WaterPositions[q*3+2];Check(Math.Sqrt(dx*dx+dz*dz)<=204.8*1.415,"No cross-world river triangles");}
             }
@@ -116,7 +116,7 @@ static class RiverscapeTests
         }
         foreach(var edge in incidence.Where(e=>e.Value==1))
         {
-            int a=edge.Key.Item1,b=edge.Key.Item2;if(Math.Abs(mesh.WaterColors[a*4+3]-2)>.25)continue;
+            int a=edge.Key.Item1,b=edge.Key.Item2;if(Math.Abs(mesh.WaterColors[a*4+3]-2)>.4)continue;
             var p=mesh.WaterPositions;double x=(p[a*3]+p[b*3])*.5,z=(p[a*3+2]+p[b*3+2])*.5,y=(p[a*3+1]+p[b*3+1])*.5;
             if(Math.Abs(p[a*3]-p[b*3])+Math.Abs(p[a*3+2]-p[b*3+2])<.001)continue; // sub-millimetre clipping slivers
             if(x<.001||z<.001||x>mesh.SizeM-.001||z>mesh.SizeM-.001)continue;

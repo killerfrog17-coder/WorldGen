@@ -85,6 +85,13 @@ Shader "WorldGen/WaterSurface"
     float explicitFall=river*step(2.05,i.data.a);
     float turbulence=lerp(saturate(i.data.z),.85,explicitFall);
     float falling=river*max(explicitFall,smoothstep(.20,.65,1-abs(normal.y)));
+    // A reach supplies shared station grades, independent of tile clipping.
+    // Keep the physical geometric normal for explicit waterfall sheets only.
+    if(river>.5&&explicitFall<.5)
+    {
+     float grade=max(0,(2-i.data.a)*2);
+     normal=normalize(float3(flow.x*grade/max(.001,length(flow)),1,flow.y*grade/max(.001,length(flow))));
+    }
     float2 swellSlope=(1-river)*WaterSwellSlope(p,i.data.b,ocean);
     if(river<.5)normal=normalize(float3(-swellSlope.x,1,-swellSlope.y));
     normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.25,.55,saturate(length(wind)/14+river*turbulence)));

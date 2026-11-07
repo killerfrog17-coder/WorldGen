@@ -1,0 +1,10 @@
+{
+  "status":"Numerical station/render checks passed; native appearance and moving performance pending.",
+  "diagnosis":"Held-camera diagnostic renders show rectangular bands in actual geometric normals while depth and flow remain continuous. Per-span normals drive abrupt Fresnel/specular changes.",
+  "change":"Prepare continuous station grades on the complete immutable river reach after bank and waterfall fitting. Ordinary ribbons interpolate those grades and shared centerline tangents; explicit waterfalls keep their physical sheet normal and descent attributes.",
+  "payload":"Existing float4 water color: xy flow velocity, z turbulence, ordinary alpha 2 - .5 * bounded grade (1.7..2), waterfall alpha 2.1..2.2. No added vertex stream, mesh, draw pass or texture fetch. Heights, banks, beds and water footprints do not change.",
+  "checks":{"stationRender":16208,"actualSpans":4026,"gradedSpans":1869,"ordinaryRenderVertices":101,"waterfallsInThisSample":0},
+  "limitations":"Actual falling sheets require the separate waterfall world regression; zero waterfalls in the station sample is not evidence of waterfall coverage. No FPS gain claimed.",
+  "baseline":"artifacts/landscape-20261103/water-shading-diagnostic-20261107-glacialtrough",
+  "versions":{"localTerrain":"local-terrain-river-surface-grades-50"}
+}

@@ -13,6 +13,7 @@ namespace WorldGen.Core
         public V A,B,SideA,SideB;
         public double LevelA,LevelB,WidthA,WidthB,Depth,DepthA,DepthB,Speed,Turbulence,Bend;
         public double BankBendA,BankBendB,Alluvium,BedGravel;
+        public double SurfaceGradeA,SurfaceGradeB;
         public int Reach,From,To,Receiver;
         public RiverFlowPrimitive Primitive;
     }
@@ -31,6 +32,23 @@ namespace WorldGen.Core
         {if(radius>=1||radius<0)return 0;double x=1-radius*radius;return x*x*x;}
         public static double Smooth(double t){t=D.Clamp(t);return t*t*t*(10+t*(-15+6*t));}
         public static double HalfWidth(double sourceFlow,double scale)=>RiverHydraulics.HalfWidth(sourceFlow,scale);
+        // Prepare on the complete immutable reach, before tiles select spans.
+        // Averaging mesh normals independently per tile would expose tile seams.
+        public static void PrepareSurfaceGrades(RiverscapeSpan[] spans,double radiusM)
+        {
+            for(int station=0;station<=spans.Length;station++)
+            {
+                double grade=0;
+                if(station>0&&station<spans.Length&&spans[station-1].Primitive!=RiverFlowPrimitive.Waterfall&&spans[station].Primitive!=RiverFlowPrimitive.Waterfall)
+                {
+                    var before=spans[station-1];var after=spans[station];
+                    double run=((before.B-before.A).Length+(after.B-after.A).Length)*radiusM;
+                    grade=Math.Max(0,Math.Min(.6,(before.LevelA-after.LevelB)/Math.Max(.001,run)));
+                }
+                if(station>0){var previous=spans[station-1];previous.SurfaceGradeB=grade;spans[station-1]=previous;}
+                if(station<spans.Length){var next=spans[station];next.SurfaceGradeA=grade;spans[station]=next;}
+            }
+        }
     }
 
     public sealed partial class HyperAmplification
@@ -297,6 +315,7 @@ namespace WorldGen.Core
                     }
                 }
                 result=WaterfallProfiles.Apply(result,radius*scale,a.Resistance,source,seed);
+                RiverscapeKernel.PrepareSurfaceGrades(result,radius*scale);
                 riverCache[source]=new WeakReference<RiverscapeSpan[]>(result);riverRetained.Enqueue(result);
                 while(riverRetained.Count>128)riverRetained.Dequeue();
                 if(riverCache.Count>512){var expired=new List<int>();foreach(var item in riverCache)if(!item.Value.TryGetTarget(out _))expired.Add(item.Key);foreach(int id in expired)riverCache.TryRemove(id,out _);}

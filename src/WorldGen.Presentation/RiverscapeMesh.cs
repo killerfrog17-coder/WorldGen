@@ -138,15 +138,20 @@ namespace WorldGen.Presentation
             {
                 if(span.LevelA==0&&span.LevelB==0)continue;
                 token.ThrowIfCancellationRequested();
-                V flow=(span.B-span.A).Unit;
                 // Bounded under-land overlap, analogous to accepted standing
                 // shores. The actual drawn land still clips the surface; this
                 // does not move its elevation or flood an unbounded valley.
                 double wa=span.WidthA+HiddenBankOverlap(span.WidthA),wb=span.WidthB+HiddenBankOverlap(span.WidthB);
-                var al=At((span.A+span.SideA*(wa/frame.RadiusM)).Unit,span.LevelA,flow,span.Speed,span.Turbulence);
-                var ar=At((span.A-span.SideA*(wa/frame.RadiusM)).Unit,span.LevelA,flow,span.Speed,span.Turbulence);
-                var bl=At((span.B+span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flow,span.Speed,span.Turbulence);
-                var br=At((span.B-span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flow,span.Speed,span.Turbulence);
+                V flowA=V.Cross(span.SideA,span.A).Unit,flowB=V.Cross(span.SideB,span.B).Unit;
+                var al=At((span.A+span.SideA*(wa/frame.RadiusM)).Unit,span.LevelA,flowA,span.Speed,span.Turbulence);
+                var ar=At((span.A-span.SideA*(wa/frame.RadiusM)).Unit,span.LevelA,flowA,span.Speed,span.Turbulence);
+                var bl=At((span.B+span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flowB,span.Speed,span.Turbulence);
+                var br=At((span.B-span.SideB*(wb/frame.RadiusM)).Unit,span.LevelB,flowB,span.Speed,span.Turbulence);
+                // River alpha 1.7..2 carries a bounded continuous surface grade;
+                // 2.1..2.2 remains reserved for actual falling-sheet progress.
+                // Reuse the existing payload: no extra vertex buffer or pass.
+                al.W=ar.W=2-span.SurfaceGradeA*.5;
+                bl.W=br.W=2-span.SurfaceGradeB*.5;
                 if(span.Primitive==RiverFlowPrimitive.Waterfall)
                 {
                     // The existing river colour payload carries signed lateral
