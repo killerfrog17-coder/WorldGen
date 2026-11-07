@@ -38,7 +38,10 @@ static class FjordCoastTests
                     Check(face>=0,"Find a real coarse face for fjord index proof");
                     double indexed=fjords.Apply(center,face,3000,out double fp,out double bare),brute=3000,bf=double.NegativeInfinity,be=0;
                     foreach(var section in fjords.Sections)
-                    {brute=Math.Min(brute,section.Cut(center,radius,3000,out double local,out double exposure));bf=Math.Max(bf,local);be=Math.Max(be,exposure);}
+                    {
+                        double cut=section.Cut(center,radius,3000,out double local,out double exposure);
+                        if(cut<brute){brute=cut;be=exposure;}else if(cut==brute)be=Math.Min(be,exposure);bf=Math.Max(bf,local);
+                    }
                     Check(indexed==brute&&bare==be&&(fp==bf||fp<=0&&bf<=0),"Numeric face index agrees with exhaustive physical sections");indexProbes++;
                 }
             }
@@ -84,6 +87,9 @@ static class FjordCoastTests
             }
         }
         var cached=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);Check(cached.Amplification.UsedCachedRiverDatums,"Fjord terrain supports cached final river derivation");
+        var wooded=fjords.Inlets.First(f=>f.Mouth==173461);var woodedSection=fjords.Sections[wooded.First+wooded.Count/2];V woodedCenter=(woodedSection.A+woodedSection.B).Unit;
+        var woodedSample=terrain.Patch(woodedCenter,5000).Sample(woodedCenter);
+        Check(woodedSample.Province.GlacialExposure<.05&&woodedSample.Forest.Coverage>.3,"A neighbour's nonwinning wall cannot strip soil/forest potential from the wooded inlet basin");
         foreach(var (p,s) in exact.AsEnumerable().Reverse())Check(StateHash.Compute(cached.Patch(p,50000).Sample(p))==StateHash.Compute(s),"Cached reverse-order terrain/water/soil reconstruction is exact");
         var profiles=Enumerable.Range(0,world.Surface.Cells.Length).Select(terrain.Profile).ToArray();var scaleRows=new List<object>();
         foreach(double scale in new[]{.01,.5,1d,2})

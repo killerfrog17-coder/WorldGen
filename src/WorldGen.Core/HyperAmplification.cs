@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-fjord-coasts-50";
+        public const string Version = "hyper-amplification-fjord-coasts-51";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -940,7 +940,8 @@ namespace WorldGen.Core
                     if(owner.Fjords!=null)
                     {
                         double inlet=owner.Fjords.Apply(point,found.Root,height,out fjordFootprint,out double fjordExposure);
-                        pre+=inlet-height;height=inlet;landscape.GlacialExposure=(float)Math.Max(landscape.GlacialExposure,fjordExposure);
+                        if(inlet<height)landscape.GlacialExposure=(float)fjordExposure;
+                        pre+=inlet-height;height=inlet;
                     }
                     if(fjordFootprint>0)
                     {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;footprint=fjordFootprint;mask=-height;}

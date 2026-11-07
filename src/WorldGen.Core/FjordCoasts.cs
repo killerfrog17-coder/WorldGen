@@ -42,7 +42,12 @@ namespace WorldGen.Core
                 }
                 double floor=-depth+(depth+Relief)*sectionR*sectionR*sectionR*sectionR;
                 double cut=Math.Min(0,floor-ground)*RiverscapeKernel.Smooth((1-r)/.16);
-                exposure=OrogenMorphology.Smooth(8,80,-cut)*OrogenMorphology.Smooth(.35,.70,r)*(1-OrogenMorphology.Smooth(.83,1,r));
+                // Inherited erosion is not perpetually fresh stripped rock.
+                // Gentler former valley slopes can regain soil and forest;
+                // steep enclosing walls remain exposed. Actual plant slope
+                // admission still checks the final shared physical surface.
+                double grade=4*(depth+Relief)*sectionR*sectionR*sectionR/width;
+                exposure=OrogenMorphology.Smooth(8,80,-cut)*OrogenMorphology.Smooth(.35,.70,r)*(1-OrogenMorphology.Smooth(.83,1,r))*OrogenMorphology.Smooth(1.0,2.6,grade);
                 return ground+cut;
             }
         }
@@ -166,7 +171,11 @@ namespace WorldGen.Core
             for(int i=offsets[face];i<offsets[face+1];i++)
             {
                 double cut=Sections[indices[i]].Cut(point,radius,ground,out double localFootprint,out double bare);
-                result=Math.Min(result,cut);footprint=Math.Max(footprint,localFootprint);exposure=Math.Max(exposure,bare);
+                // Only the section that owns the final eroded surface owns
+                // its exposure. A neighbouring section's shallower wall must
+                // not paint the deeper winning basin as bare cliff.
+                if(cut<result){result=cut;exposure=bare;}else if(cut==result)exposure=Math.Min(exposure,bare);
+                footprint=Math.Max(footprint,localFootprint);
             }
             return result;
         }
