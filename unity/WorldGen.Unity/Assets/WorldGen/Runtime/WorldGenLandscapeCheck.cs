@@ -55,6 +55,7 @@ public sealed partial class LocalTerrainExplorer
         var choose=Task.Run(()=>
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
+            if(arguments.Contains("--worldgen-bark-review"))cells=cells.Where(i=>model.Profile(i).CoarseReliefM<180);
             if(kind=="Canyon")
             {
                 foreach(var reach in model.Amplification.Canyons.Reaches.Where(r=>r.HalfWidth<1800).OrderByDescending(r=>r.Strength*r.Relief).Take(80))
@@ -399,13 +400,13 @@ public sealed partial class LocalTerrainExplorer
         if(arguments.Contains("--worldgen-bark-review"))
         {
             var roots=owner.forestFields.Values.Where(f=>f.Ready).SelectMany(f=>f.Roots.SelectMany(pair=>pair.Value.Select(slot=>pair.Key.Data[slot])))
-                .Where(r=>(r.Field>>16)==0&&r.Height>6&&r.Height<45)
+                .Where(r=>(r.Field>>16)==0&&r.Height>6&&r.Height<45&&r.SlopeX*r.SlopeX+r.SlopeZ*r.SlopeZ<.04f)
                 .OrderBy(r=>r.Position.x*r.Position.x+r.Position.z*r.Position.z).Take(3).ToArray();
             Check(roots.Length>0,"Bark review finds actual resident individual tree roots");
             for(int i=0;i<roots.Length;i++)
             {
                 var tree=roots[i];var center=tree.Position-new Vector3((float)owner.originX,0,(float)owner.originZ);
-                var toward=new Vector3(-center.x,0,-center.z).normalized;if(toward.sqrMagnitude<.5f)toward=Vector3.back;
+                var toward=RenderSettings.sun!=null?-RenderSettings.sun.transform.forward:Vector3.back;toward.y=0;toward.Normalize();if(toward.sqrMagnitude<.5f)toward=Vector3.back;
                 var offset=center+toward*Mathf.Max(1.6f,tree.Height*.05f+1);offset.y=0;
                 yield return owner.StartCoroutine(Capture("bark-forest-"+i,offset,true,inspectionTarget:center+Vector3.up*1.6f));
             }
