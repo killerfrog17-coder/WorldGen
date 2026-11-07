@@ -1,6 +1,6 @@
 {
   "scope": "Sparse rounded granite uplands with optional steep joint faces, generated as part of existing terrain.",
-  "status": "Revised shape and material/vegetation fixes pass core tests. Second native review and final performance comparison pending.",
+  "status": "Revised scalar, actual-world, native visual/runtime and paired movement/turning checks complete. Accepted as a static terrain feature; broader art quality and universal frame floors remain unfinished.",
   "versions": {
     "local": "local-terrain-granite-domes-46",
     "amplification": "hyper-amplification-granite-domes-41",
@@ -41,7 +41,7 @@
   "limits": [
     "Heightfield approximation cannot represent an overhang, detached slab or cave.",
     "Static landform, not a tectonic uplift, erosion or historical glacier simulation.",
-    "Existing rock textures are reused; native visual acceptance is still required."
+    "Existing rock textures are reused; this feature is not a complete world-material or distant-atmosphere overhaul."
   ],
   "rejected_review": {
     "capture": "artifacts/landscape-20261103/granite-native-v1-*",
@@ -50,5 +50,69 @@
       "Flat exposed summit retained excessive soil and sparse herbs. Existing mesh/map material weights now honor actual remnant exposure, preserving snow and deposited alluvium; rooted scatter excludes bare summits.",
       "Shutdown raised an AssetBundle.Unload error after the success marker. Separate teardown guard and strict failure-marker check added; original captures are not reported as passing."
     ]
+  },
+  "source_commits": [
+    "a8570582",
+    "dbb1bb1a"
+  ],
+  "independent_cleanup_commit": "3451591f",
+  "native": {
+    "build_commit": "dbb1bb1a",
+    "build_utc": "2026-11-07T04:44:02.2837447Z",
+    "backend": "Mono",
+    "development": false,
+    "source_changes": [],
+    "cases": [
+      "artifacts/landscape-20261103/granite-native-v2-granitedome",
+      "artifacts/landscape-20261103/granite-native-v2-jointeddome"
+    ],
+    "checks_per_case": 35,
+    "exit_codes": [
+      0,
+      0
+    ],
+    "failure_markers": 0,
+    "review": "Ground and base views show bare rock with continuously graded shoulders; joint-face view shows the steep variant. Native landmark searches visit dry generated examples. No runtime or shutdown exceptions in either revised case.",
+    "image_limits": [
+      "The jointed case ground camera intersects a loose boulder; use the separate first-case ground image for material review.",
+      "Elevated overviews retain the existing distant navy horizon/atmosphere mismatch and coarse terrain detail. These captures do not constitute acceptance of the whole environment art pipeline."
+    ],
+    "near_upload_seconds": [
+      4.4193761,
+      4.8346619
+    ],
+    "near_upload_limit": "Measured after reading and preparing the source world; not total startup. Full wide forest/reveal coverage still takes minutes."
+  },
+  "performance": {
+    "conditions": "Same source world and coordinate;1920x1080, Medium vegetation,6km,60s180m travel loop with rapid turns; normal managed nondevelopment player, trace+CPU timing; no competing jobs.",
+    "before": {
+      "fps": 224.47174,
+      "p95_ms": 9.1907,
+      "p99_ms": 11.2681,
+      "max_ms": 30.0928,
+      "over10ms": 381.0,
+      "over16ms": 6.0,
+      "gpu_ms": 3.35394,
+      "objects": 1914.0,
+      "trees": 40.0,
+      "scatter_draws": 119.0,
+      "grass_draws": 38.0
+    },
+    "after": {
+      "fps": 342.5281,
+      "p95_ms": 8.7328,
+      "p99_ms": 9.6329,
+      "max_ms": 15.3445,
+      "over10ms": 135.0,
+      "over16ms": 0.0,
+      "gpu_ms": 2.27269,
+      "objects": 125.0,
+      "trees": 0.0,
+      "scatter_draws": 27.0,
+      "grass_draws": 0.0
+    },
+    "focused_frames_after": 20553,
+    "unfocused_frames_after": 0,
+    "interpretation": "No regression observed on the feature route. Bare granite correctly replaces the former near grass/trees, lowering visible work; this is not an identical-image optimisation or a global FPS gain.135frames still exceeded10ms, so a universal100FPS floor is not claimed. Existing river-route variability is documented separately."
   }
 }

@@ -180,3 +180,12 @@ address those failures. Snow and deposited river sediment retain their cover.
 These are heightfield approximations, without caves or overhangs. The optional
 /landmark dome command visits an actual generated example. Native acceptance and
 performance evidence are maintained in assets/verification/granite-domes-20261107.json.
+
+Revised native rounded/jointed scenes each pass35checks with no runtime/shutdown
+errors. The jointed close-ground camera is obstructed by a loose boulder;
+the independent rounded summit frame supplies the material review. Elevated
+views still expose existing distant atmosphere/coarse-detail limitations.
+The same-coordinate Medium1080p movement/turning route measured224.47FPS before
+and342.53FPS after, p99 11.27 to9.63ms, maximum30.09 to15.34ms. The bare rock
+replaces near grass and trees, so this is a feature-budget result, not a global
+renderer speedup.135frames still exceeded10ms; no universal100FPS floor claimed.

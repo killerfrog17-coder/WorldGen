@@ -1,5 +1,5 @@
 {
-  "status": "Geography paused after owner-requested playable checkpoint. Resume later after NPC refinement, only on owner request.",
+  "status": "Environment/geography resumed by owner on6November after accepting the performance checkpoint for now. Historical4November priorities retained below; do not mistake their measurements for current results.",
   "owner_instruction_utc": "2026-11-04T17:38:00.270457+00:00",
   "source_checkpoint": "f833c678",
   "geometry": {
@@ -61,5 +61,15 @@
   ],
   "final_handoff_fix": "Distant landmark teleports skip out-of-chart stale fauna candidates without changing group behaviour; scene checks preserve runtime-error failure status.",
   "selected_slot": "slot-a",
-  "selection_receipt": "assets/verification/geography-selection-20261104.json"
+  "selection_receipt": "assets/verification/geography-selection-20261104.json",
+  "current_work": {
+    "alluvial_corridors": "Implemented, native reviewed and measured; see alluvial-rivers-20261107.json.",
+    "granite_uplands": "Core checked and revised after rejected first native review; final native/performance gates in progress.",
+    "next_candidates": [
+      "Improve regional rock/ground character with the existing material budget.",
+      "Coastal inlets and genuine distributary/braided networks require shared hydrology/geometry design before visual work; do not overlay disconnected decorative water.",
+      "Keep improving jungle architecture and ground strata without increasing overlapping foliage or adding dense objects."
+    ],
+    "performance_rule": "Prefer static sampled fields and reuse existing terrain/material paths; compare moving/rapid-turn frame tails, not only standing FPS."
+  }
 }

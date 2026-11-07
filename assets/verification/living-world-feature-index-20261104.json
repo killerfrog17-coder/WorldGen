@@ -208,6 +208,15 @@
       ],
       "entry": "src/WorldGen.Core/RiverAlluvium.cs",
       "notes": "Static inner bars, outer-bank depth and shared transported-material/vegetation masks. No extra draw calls. Validation: assets/verification/alluvial-rivers-20261107.json."
+    },
+    {
+      "name": "Rounded and jointed granite uplands",
+      "commits": [
+        "a8570582",
+        "dbb1bb1a"
+      ],
+      "entry": "src/WorldGen.Core/GraniteDomes.cs",
+      "notes": "Sparse geology/relief admission; existing terrain index and materials. Native v1 rejected; current validation assets/verification/granite-domes-20261107.json. Material support also corrects explicit dry bedrock exposure without changing its seed or shape."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",

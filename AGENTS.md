@@ -1,5 +1,36 @@
 # WorldGen repository instructions
 
+READY07Nov04:54Z ENVIRONMENT/GEOGRAPHY checkpoint. No own game/Editor/build
+or worker jobs remain. Runtime source all pusheddbb1bb1a; latest B ScriptsOnly
+NONDEV built04:44:02Z SourceChanges[],3knownUnityautos restored. Selected A/f833
+and shortcut still untouched/protected. Owner3files preserved. No subagents.
+Two geography additions: alluvial river corridors (542/3499/8f) and granite dome
+uplands (a857+dbb). Independent345 fixes destroyed-bundle teardown and strict
+native failure-marker checks. Granite v1 captures REJECTED for cap/skirt shape,
+soil/herbs on bare summits, plus shutdown exception despite exit0. Revised v2
+GraniteDome/JointedDome both EXIT0,35checks EACH, no failure.txt; PNGs inspected.
+Continuous crown/foot, optional steep joint, explicit existing-layer rock weights,
+snow/alluvial cover preserved; bare rooted scatter excluded. One jointed ground
+camera blocked by loose boulder; separate rounded ground/base views inspected.
+Elevated views retain existing navy distant horizon/coarse-detail limitations;
+NOT global art approval. Core2019, actual35domes/14jointed,2904samples/1118exposed,
+4096triangles/28scatteritems, canonicalworldhashunchanged PASS. Landscape35733;
+alluvial39spans/39wetcenters/132bars passes after final dome changes. LocalTerrain46,
+Hyper41, LocalScatter17. Shared terrain/index/materials; no addedobjects/drawpasses.
+Paired granite samecoordinate Medium6km1080/60s180mtravelwhip:224.47->342.53FPS,
+p9911.27->9.63/max30.09->15.34ms,6->0frames>16.667;135still>10ms. Correct bare
+rock removes formernear vegetation (1914->125objects,38->0grassdraws); NOT global
+renderer improvement/100floor proof. All20553afterframes focused. Source unchanged.
+River pair251.20->247.94FPS steadycostsame;65ms main outlier not reproduced in
+repeat215.88/max20.23 with7.53msGC overlap. Do NOT claim all stutters fixed.
+Detailed manifests assets/verification/{alluvial-rivers,granite-domes}-20261107.json;
+raw captures artifacts/geography-20261107 and artifacts/landscape-20261103.
+Owner requested continued regional/features variety with performance protected;
+future directions in geography-resume-plan and feature rollback index. Genuine
+braided/delta/inlet water needs shared hydrology; do not add decorative ribbons.
+No new changes to animal/human/weather/sky appearance. Only two reusable builds;
+all visible own windows RIGHTMOST. Artifacts remain disposable; C~9GBfree.
+
 ACTIVE07Nov04:33Z ENVIRONMENT/GEOGRAPHY owner explicitly resumed. Alluvial
 corridor source and evidence pushed5dd92d53; B8f758a98 NONDEV built04:07:30Z,
 3Unityautos restored. NativeAlluvialRiver/MeanderingRiver v2 EXIT0, images viewed;
