@@ -265,7 +265,7 @@ public sealed partial class LocalTerrainExplorer
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
         double floor=site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
         var cameraReceipts=new List<string>();Color[] fallMotionPixels=null;
-        IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12,bool faceCenter=false)
+        IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12,bool faceCenter=false,Vector3? targetPoint=null)
         {
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
             Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual summer daylight: "+name);
@@ -278,6 +278,7 @@ public sealed partial class LocalTerrainExplorer
             camera.y=walking?cameraFloor+1.8f:Mathf.Max(camera.y,cameraFloor+2);
             var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
             if(faceCenter)look=new Vector3(0,y+.5f,0)-camera;
+            if(targetPoint.HasValue)look=targetPoint.Value-camera;
             if(site.Fall.HasValue)
             {
                 var fall=site.Fall.Value;V at=(fall.A+fall.B).Unit;TerrainHandoff.Coordinates(owner.frame,at,out double fx,out double fz);
@@ -395,6 +396,20 @@ public sealed partial class LocalTerrainExplorer
         }
         yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null?site.RiverWidth*.8+8:10)),true));
+        if(arguments.Contains("--worldgen-bark-review"))
+        {
+            var roots=owner.forestFields.Values.Where(f=>f.Ready).SelectMany(f=>f.Roots.SelectMany(pair=>pair.Value.Select(slot=>pair.Key.Data[slot])))
+                .Where(r=>(r.Field>>16)==0&&r.Height>6&&r.Height<45)
+                .OrderBy(r=>r.Position.x*r.Position.x+r.Position.z*r.Position.z).Take(3).ToArray();
+            Check(roots.Length>0,"Bark review finds actual resident individual tree roots");
+            for(int i=0;i<roots.Length;i++)
+            {
+                var tree=roots[i];var center=tree.Position-new Vector3((float)owner.originX,0,(float)owner.originZ);
+                var toward=new Vector3(-center.x,0,-center.z).normalized;if(toward.sqrMagnitude<.5f)toward=Vector3.back;
+                var offset=center+toward*Mathf.Max(1.6f,tree.Height*.05f+1);offset.y=0;
+                yield return owner.StartCoroutine(Capture("bark-forest-"+i,offset,true,targetPoint:center+Vector3.up*1.6f));
+            }
+        }
         if(site.Volcano!=null)
         {
             yield return owner.StartCoroutine(Capture("crater-overview",new Vector3(width*.05f,width*.65f,width*.1f)));
