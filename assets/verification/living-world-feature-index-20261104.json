@@ -279,7 +279,7 @@
     },
     {
       "name":"Intertidal mangrove lineages and aerial roots",
-      "commits":["bb8b7bc7"],
+      "commits":["bb8b7bc7","7c85f91b"],
       "entry":"src/WorldGen.Core/TreeFlora.cs",
       "notes":"Also shared near/far rooting predicate, continuous tree architecture and offline TidalForestSites finder. Three inherited root forms in existing mapped warm mangrove provinces. Outside-habitat72 lineage hashes and42 full worker packets exact. Native/performance pending; see mangrove-forests-20261107.json. Preserve older continuous bark/wrap architecture when reverting."
     }

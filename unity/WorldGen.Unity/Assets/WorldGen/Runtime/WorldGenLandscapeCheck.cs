@@ -535,6 +535,16 @@ public sealed partial class LocalTerrainExplorer
                 File.AppendAllText(Path.Combine(output,"mangrove-models.txt"),TreeFlora.RootForm(tree.Variant)+" code="+tree.Variant+" vertices="+mesh.vertexCount+" triangles="+mesh.triangles.Length/3+" height="+tree.HeightM+" ground="+tree.GroundM+"\n");Destroy(mesh);
                 yield return owner.StartCoroutine(Capture("roots-"+TreeFlora.RootForm(tree.Variant).ToString().ToLowerInvariant(),offset,true,inspectionTarget:center+Vector3.up*Mathf.Min(1.4f,(float)tree.HeightM*.12f)));
             }
+            var flooded=owner.scatterChunks.Values.Where(c=>c.Source?.Instances!=null).SelectMany(c=>c.Source.Instances)
+                .Where(t=>t.Kind==ScatterKind.GeneratedTree&&TreeFlora.TidalCode(t.Variant)&&TreeFlora.RootForm(t.Variant)==TreeRootForm.Prop&&t.GroundM<-.15&&t.GroundM>-.9&&(t.Position-site.Position).Length*model.RadiusM*.1<70)
+                .OrderBy(t=>(t.Position-site.Position).Length).ToArray();
+            Check(flooded.Length>0,"Actual resident prop-root tree grows in shallow coastal water");
+            var waterTree=flooded[0];var waterRoot=model.Patch(waterTree.Position,3000).Sample(waterTree.Position);
+            Check(waterRoot.Underwater&&waterRoot.WaterKind==LocalWaterKind.Ocean&&waterRoot.WaterSurfaceM==0,"Flooded mangrove shares the real salt-water surface");
+            TerrainHandoff.Coordinates(owner.frame,waterTree.Position,out double wx,out double wz);
+            var waterCenter=new Vector3((float)wx,(float)owner.frame.SurfaceY(waterTree.Position,0),(float)wz);
+            var shoreward=orientation*Vector3.forward;var waterOffset=waterCenter+shoreward*4;waterOffset.y=0;
+            yield return owner.StartCoroutine(Capture("tidal-waterline",waterOffset,true,inspectionTarget:waterCenter+Vector3.up*.7f));
         }
         if(arguments.Contains("--worldgen-bark-review"))
         {

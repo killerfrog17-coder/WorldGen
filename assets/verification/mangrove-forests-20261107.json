@@ -1,10 +1,10 @@
 {
-  "status": "Core and actual-world checks passed; native appearance and performance pending. Not selected for owner play yet.",
+  "status": "Revised native appearance passed with exposed mud and visible three root forms. Actual moving performance currently running; not selected for owner play yet.",
   "scope": "Existing mapped warm intertidal mangrove provinces gain salt-tolerant broad-crown lineages, lower spreading crowns and inherited prop, breathing-peg or knee roots. Ordinary inland trees and their placement remain unchanged.",
   "rendering": "Root paths join existing shared opaque continuous tree meshes with generated bark, analytic normals/tangents and lower-trunk damp staining. No per-tree object, extra material, render pass, tick or point light. Existing placement lattice, density and culling budgets retained.",
   "rooting": "Mapped mangrove lineage only; dry tidal ground at or above sea level, or submerged ground no deeper than1.25m. Same near scatter, far forest and terrain/map cover predicate. Ordinary trees retain dry ground >=2m requirement. No universal lake/ocean colonization exception.",
   "checks": {
-    "controls": 2702,
+    "controls": 2703,
     "world_checks": 29048,
     "mapped_mangrove_cells": 319,
     "actual_sites": 3,
@@ -15,6 +15,7 @@
     "inland_lineage_snapshots_exact": 72,
     "outside_mangrove_worker_packets_exact": 42,
     "worker_packet_normalization": "BuildMs only; full terrain/forest/scatter/detail wire packets match packaged pre-mangrove worker in woodland swamp and glacial contexts.",
+    "understory_worker_packets_exact": 21,
     "history_unchanged": true
   },
   "evidence": [
@@ -29,5 +30,8 @@
     "https://www.nparks.gov.sg/publications-resources/articles/recognising-trees-of-the-mangroves"
   ],
   "visit": "/landmark mangrove",
-  "versions": {"terrain": "local-terrain-tidal-forests-58", "amplification": "hyper-amplification-tidal-forests-52", "scatter": "local-scatter-tidal-forests-21"}
+  "native_v1": {"source":"bb8b7bc7","evidence":"artifacts/landscape-20261103/mangrove-native-v1-20261107-mangrove","exit":0,"all_root_form_images_inspected":true,"status":"Architecture visible, root meshes finite/single-material; understory visually rejected","meshes":{"prop":{"vertices":2587,"triangles":3126},"knee":{"vertices":2892,"triangles":3708},"pneumatophore":{"vertices":3195,"triangles":4036}},"near_ready_seconds":3.148294,"limits":"Selected prototypes and one native shore, not a global maximum triangle count or startup bound"},
+  "native_v2": {"source":"7c85f91b","evidence":"artifacts/landscape-20261103/mangrove-native-v2-20261107-mangrove","exit":0,"checks":50,"images_inspected":["roots-prop","roots-pneumatophore","roots-knee","coast-along"],"result":"Closed canopy now exposes mud and individual breathing pegs/knees, while scattered foliage remains. Prop-root forest is visually distinct from ordinary inland woodland. Generic existing foliage artwork remains; not a claim of finished tree art."},
+  "understory": "Mapped mangrove canopy gradually suppresses freshwater-style ground/mid foliage after the wetland sedge minimum. Open saltmarsh margins retain cover. Actual mid-plant species retain all salt/pH/temperature rules and additionally respect dense tidal shade. 7c85f91b. No ground/water shape change.",
+  "versions": {"terrain": "local-terrain-tidal-understory-59", "amplification": "hyper-amplification-tidal-understory-53", "scatter": "local-scatter-tidal-understory-22"}
 }
