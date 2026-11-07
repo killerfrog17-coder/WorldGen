@@ -4,12 +4,12 @@ using System.IO.Compression;
 using UnityEditor;
 using UnityEngine;
 
-// Authoring only. Publish real shoot/bark scans once, not during world loading.
+// Authoring only. Publish scanned shoots and generated bark, not during loading.
 public static class TreeSurfaceArtBuilder
 {
     const string Inputs="Assets/WorldGen/Editor/TreeSurfaceArtV1";
     const string Output="Assets/WorldGen/Resources/TreeSurfaceArtV1";
-    [MenuItem("WorldGen/Art/Build scanned tree surfaces")]
+    [MenuItem("WorldGen/Art/Build tree surfaces")]
     public static void Build()
     {
         Directory.CreateDirectory(Output);
@@ -33,7 +33,7 @@ public static class TreeSurfaceArtBuilder
             for(int channel=0;channel<2;channel++)
             {
                 var levels=channel==0?prepared.Colours:prepared.Normals;
-                var array=new Texture2DArray(512,512,layers,TextureFormat.BC7,true,channel==1){name="Scanned tree "+prefix+(channel==0?" albedo":" normals"),wrapMode=group==0?TextureWrapMode.Clamp:TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=4};
+                var array=new Texture2DArray(512,512,layers,TextureFormat.BC7,true,channel==1){name=(group==0?"Scanned tree ":"Generated tree ")+prefix+(channel==0?" albedo":" normals"),wrapMode=group==0?TextureWrapMode.Clamp:TextureWrapMode.Repeat,filterMode=FilterMode.Trilinear,anisoLevel=4};
                 for(int layer=0;layer<layers;layer++)
                 {
                     var scaled=new Texture2D(512,512,TextureFormat.RGBA32,true,channel==1);

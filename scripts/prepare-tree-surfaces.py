@@ -166,7 +166,7 @@ def build():
     report={'version':'tree-surfaces-1','leaves':LEAVES,'bark_patterns':{name:record['source'] for name,record in zip(['Smooth','Fissured','Scaly','Fibrous','Peeling'],bark_records)},
       'licenses':['https://docs.ambientcg.com/license/','https://polyhaven.com/license'],
       'research':[{'url':'https://unity.com/how-to/gpu-optimization','application':'Keep cutout geometry/overdraw bounded, reuse instanced art and measure actual forest views.'}],
-      'processing':'Photographed isolated leaf alpha/normal cutouts, neutral mean tint, deterministic attached twig assemblies, RGB edge dilation. Continuous blade interiors retain geometric frond silhouettes. Registered scanned bark. TreeSurfaceArtBuilder preserves alpha coverage and pads surface colour/normal/depth at every mip.',
+      'processing':'Photographed isolated leaf alpha/normal cutouts, neutral mean tint, deterministic attached twig assemblies, RGB edge dilation. Continuous blade interiors retain geometric frond silhouettes. Five generated bark layers with approximate luminance-derived relief; provenance in tree-bark-sources-20261107.json. TreeSurfaceArtBuilder preserves alpha coverage and pads surface colour/normal/depth at every mip.',
       'gpu':'32 shoot layers x512 BC7 colour/normal; 5 bark layers x512 BC7 colour/normal. CPU bake pixels downsampled to256. No extra draw calls or shadow lights.',
       'inputs':inputs,'outputs':[{'path':p.relative_to(ROOT).as_posix(),'sha256':sha(p),'bytes':p.stat().st_size} for p in outputs]}
     (ROOT/'assets/verification/tree-surface-sources-20261103.json').write_text(json.dumps(report,indent=2)+'\n')
