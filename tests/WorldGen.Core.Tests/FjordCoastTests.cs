@@ -4,6 +4,25 @@ using WorldGen.Serialization;
 
 static class FjordCoastTests
 {
+    public static void Landlocked(string input,string output)
+    {
+        var world=WorldFile.ReadFile(input);int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
+        Check(!world.Hydrology.OceanConnected.Any(x=>x),"This extreme fixture really has no ocean");
+        var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var fjords=model.Amplification.Fjords;
+        Check(fjords.Inlets.Length==0&&fjords.Sections.Length==0&&fjords.IndexedFaces==0,"No-ocean world cannot acquire glacial sea inlets");
+        int mangroves=Enumerable.Range(0,world.Surface.Cells.Length).Count(i=>model.Profile(i).Biome==Biome.Mangrove);
+        Check(mangroves==0,"Arid landlocked world does not fabricate intertidal mangrove forests");
+        int faces=world.Surface.Triangles.Length/3;
+        for(int face=0;face<faces;face+=Math.Max(1,faces/256))
+        {
+            var ids=world.Surface.Triangles;V p=(world.Surface.Cells[ids[face*3]].Position+world.Surface.Cells[ids[face*3+1]].Position+world.Surface.Cells[ids[face*3+2]].Position).Unit;
+            double value=fjords.Apply(p,face,1234,out double footprint,out double mask);
+            Check(value==1234&&footprint<=0&&mask==0,"Empty coastal index preserves inherited ground and material/water ownership");
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));
+        File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(new{Checks=checks,Cells=world.Surface.Cells.Length,Seed=world.Recipe.Seed,MangroveCells=mangroves,Fjords=fjords.Inlets.Length,IndexBytes=fjords.IndexBytes}));
+        Console.WriteLine($"PASS {checks} no-ocean coastal terrain and habitat exclusions");
+    }
     public static void Run(string input,string output)
     {
         Directory.CreateDirectory(output);int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}

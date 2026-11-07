@@ -6,6 +6,7 @@ if(args.Contains("--mangrove-world")){MangroveTests.World(args[1],args[2]);retur
 if(args.Contains("--mangrove-perf-sites")){MangroveTests.PerformanceSites(args[1],args[2]);return;}
 if(args.Contains("--tree-lineage-snapshot")){TreeLineageSnapshotTests.Run(args[1],args.Length>2?args[2]:null);return;}
 if(args.Contains("--fjord-coasts")){FjordCoastTests.Run(args[1],args[2]);return;}
+if(args.Contains("--landlocked-coasts")){FjordCoastTests.Landlocked(args[1],args[2]);return;}
 if(args.Contains("--fjord-coast-survey")){FjordCoastSurvey.Run(args[1],args[2]);return;}
 if(args.Contains("--wetland-complex-controls")){WetlandComplexTests.Controls();return;}
 if(args.Contains("--wetland-complex-world")){WetlandComplexTests.World(args[1],args[2]);return;}

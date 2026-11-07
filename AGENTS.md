@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+LATEST07Nov14:43Z OVERNIGHT until18:00UTC/noon; onePDF END ONLY/ChromeLEFTMOST.
+Ownrunner22342/player22168 RIGHTMOST runs materials-moving-regressions, A
+ScriptsOnlyNONDEV10b1f0ea overFULL6c9bb23e (rockshader947). Jungle177.22FPS,
+p9912.65/max41.09/3>16.7; savanna165.09,p9912.00/max21.15/1>16.7. GLlast
+stillrunning; NO build/heavyjobs/overwrite untilcomplete. Allfocus.100floorNOT
+solved. Native rock-materials-v2 all4Mango/Glacial/Canyon/FJWood EXIT0/images
+inspected; equalstripesgone, broadwallsstilluniform. Mango actualfloodedprop
+tree122m away captured; v1extra fixture70msearchFAILED;500mcorrected, no actual
+tree moved. 2fresh200kworlds generated viaCLI10.8/9.8s (nottotalgame startup).
+Alternate Iceage38071 FJ8200/48inlets/6555sea/177brute/205cachePASS; Mango4449/
+184mapped/3sites/3forms/280submergedexactnearfarPASS. Testsnowacceptnullhistory
+forfreshworlds; exact173461regression stillrequiredonlyknownsavedfixturehash.
+Source/tests/docs PUSHEDde63. UNCOMMITTED CoreCanyonValleys numericCSR +lazy
+one-per-point erosionfield hoist, intended EXACTsamegeometry; DO NOTaddmorph
+changes before42/21workerwireproof vs currentA. SourceTestsadds--landlocked-
+coasts fornew aridallland seed7919 but UNCOMPILED/UNRUN. TestDLL currentlyprior
+compiled noCSR. New finalPDFbuilder sourceuncommitted (NO PDF generated).
+After22342: buildDebugtests, controls+landlocked+oldAworker --terrain-worker-cost
+current190k.world oldAworker canyon-performance-sites.json canyon-csr-wire
+--verify-payload. IfEXACTcommit/pushCSR separate THENnewCanyonmorph/versions.
+Plannedphysicalrefinement: largerirregulardominantbeds, inclinedweakbeds, plateau
+height-linkedrelief; sameplacement/rivers; native+water/perfproofbeforeacceptance.
+B/0c8shortcut/owner3files protected; no subagents. No futurefeatureuntilquality.
+
 LATEST07Nov14:10Z OVERNIGHT until18:00UTC/noon. Ownrunner6379/player28036
 RIGHTMOST measures mangrove-moving-v1, A ScriptsOnlyNONDEV7c85f91b. Firstsite
 COMPLETE235.55FPS,p999.10/max26.78ms,1>16.7; second stillwarming/measuring.
