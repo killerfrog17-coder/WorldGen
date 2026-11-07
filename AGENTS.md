@@ -1,5 +1,11 @@
 # WorldGen repository instructions
 
+Owner reporting preference: future visual updates should include a concise,
+well-organized PDF with actual in-game screenshots demonstrating the changes.
+Include before/after views when available, short captions, relevant performance
+results with test conditions, and known issues. Do not present untested or rejected
+captures as successful results. Link the finished PDF in the update handoff.
+
 READY07Nov04:54Z ENVIRONMENT/GEOGRAPHY checkpoint. No own game/Editor/build
 or worker jobs remain. Runtime source all pusheddbb1bb1a; latest B ScriptsOnly
 NONDEV built04:44:02Z SourceChanges[],3knownUnityautos restored. Selected A/f833
