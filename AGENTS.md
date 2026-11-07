@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+ACTIVE07Nov03:46Z ENVIRONMENT RESUMED byowner. Performance level accepted fornow;
+user explicitly requestsregions/features continuation with no performance regression.
+No more performance-only mandate. Currenttask staticalluvialrivercorridors: bank
+materials+exposedinnerbars/deeperouterbanks, existingground/watermesh, no newprops
+orperframeAI. UNCOMMITTED sourceLocalTerrain44/Hyper39 bumps; generateddatums must
+rebuild. Core8900scalarchecksPASS; actualworldsurvey70959 RUNNING (no game).
+Baseline native92638 COMPLETE B0c6: meander-corridor251.20FPS,p999.84/max39.40,
+126>10ms/8>16.667/60s,6km1080Medium180mtravel+whip. Inputunchanged. Store artifacts/
+geography-20261107/river-before. Newpending feature needsactualworld water/bed/bar
+checks, nativeAlluvialRiver screenshots, inspectedimages andsame-siteafterFPS
+beforeacceptance. No drawcall/shadercost additionsintended. CurrentB0c unchanged;
+A/f833/shortcut protected. No nativebuild yet. Owner3filesuntouched,no subagents.
+All visible ownwindowsRIGHTMOST. Currenttrace candidateCachedScatterPriority OFF.
+
+
 PAUSED06Nov23:40Z OWNER RESTART. User gave6-7min at23:35:20Z; all own game,
 Unity,worker/build jobs exited; dotnet build-server shutdown completed. DO NOT
 restart heavywork until owner resumes. Selected A/f833/shortcut untouched.

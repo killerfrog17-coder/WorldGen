@@ -12,6 +12,7 @@ namespace WorldGen.Core
     {
         public V A,B,SideA,SideB;
         public double LevelA,LevelB,WidthA,WidthB,Depth,DepthA,DepthB,Speed,Turbulence,Bend;
+        public double BankBendA,BankBendB,Alluvium,BedGravel;
         public int Reach,From,To,Receiver;
         public RiverFlowPrimitive Primitive;
     }
@@ -192,6 +193,15 @@ namespace WorldGen.Core
                 levels[1]=levels[0];levels[n-1]=levels[n];
                 for(int i=2;i<n;i++)levels[i]=Math.Min(levels[i-1],levels[i]);
                 if(riverIncoming[source]==0){widths[0]=depths[0]=0;widths[1]*=.5;depths[1]=Math.Min(depths[1],widths[1]*.75);}
+                var bankBends=new double[n+1];
+                double alluvium=RiverAlluvium.Strength(width,(start-end)/Math.Max(1,length),a.Sediment,a.Hardness);
+                double bedGravel=D.Clamp(.1+.65*a.Hardness+.2*(1-a.Sediment));
+                if(alluvium>0)for(int i=1;i<n;i++)
+                {
+                    V incoming=points[i]-points[i-1],outgoing=points[i+1]-points[i];
+                    V side=V.Cross(points[i],(incoming+outgoing).Unit).Unit;
+                    bankBends[i]=RiverAlluvium.Curvature(incoming.Unit,outgoing.Unit,side,(incoming.Length+outgoing.Length)*.5*radius*scale,widths[i]);
+                }
                 var result=new RiverscapeSpan[n];
                 for(int i=0;i<n;i++)
                 {
@@ -204,6 +214,8 @@ namespace WorldGen.Core
                     result[i]=new RiverscapeSpan{A=points[i],B=points[i+1],SideA=V.Cross(points[i],tangentA).Unit,SideB=V.Cross(points[i+1],tangentB).Unit,
                         LevelA=levels[i],LevelB=levels[i+1],WidthA=widths[i],WidthB=widths[i+1],Depth=depth,DepthA=depths[i],DepthB=depths[i+1],
                         Speed=section.Speed,Turbulence=section.Turbulence,Bend=D.Clamp(RiverDot(tangentB-tangentA,V.Cross(points[i],tangentA))*.8,-.6,.6),
+                        BankBendA=bankBends[i],BankBendB=bankBends[i+1],BedGravel=bedGravel,
+                        Alluvium=alluvium*RiverscapeKernel.Smooth((i+.5)/n/.12)*RiverscapeKernel.Smooth((1-(i+.5)/n)/.12),
                         Reach=source,Receiver=target,From=i==0?source:-1,To=i==n-1?target:-1,
                         Primitive=slope>.08?RiverFlowPrimitive.Cascade:slope>.004?RiverFlowPrimitive.Turbulent:RiverFlowPrimitive.Calm};
                 }
@@ -431,10 +443,18 @@ namespace WorldGen.Core
                     // shallower point bar, without tilting the water surface.
                     double depth=span.DepthA+(span.DepthB-span.DepthA)*u;
                     double bed=level-depth*(1-Math.Min(1,relative*relative))*(1+span.Bend*signed);
+                    if(inside&&span.Alluvium>0&&span.Primitive==RiverFlowPrimitive.Calm)
+                        bed=RiverAlluvium.Bed(bed,level,depth,relative,signed,span.BankBendA+(span.BankBendB-span.BankBendA)*u,span.Alluvium);
                     if(!inside)bed=level-bankDistance*.35;
                     double weight=inside?1:RiverscapeKernel.Weight(-bankDistance/(support-width));
                     current.DetailProtection=Math.Min(current.DetailProtection,1-weight);
                     current.Height=Math.Min(current.Height,current.Height+(Math.Min(current.Height,bed)-current.Height)*weight);
+                    if(span.Alluvium>0&&span.Primitive==RiverFlowPrimitive.Calm)
+                    {
+                        double deposit=RiverAlluvium.Deposit(level,current.Height,depth,relative,span.Alluvium);
+                        current.RiverSand=Math.Max(current.RiverSand,deposit*(1-span.BedGravel));
+                        current.RiverGravel=Math.Max(current.RiverGravel,deposit*span.BedGravel);
+                    }
                     if(current.Height<0&&span.LevelA==0&&span.LevelB==0)
                     {
                         current.Kind=LocalWaterKind.Ocean;current.BodyKey=1;current.Water=0;current.Mask=-current.Height;

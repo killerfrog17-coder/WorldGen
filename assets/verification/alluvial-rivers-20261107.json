@@ -1,0 +1,56 @@
+{
+  "scope": "Static alluvial river corridors: exposed inner bars, deeper outer bends and transported bank materials.",
+  "status": "Implementation and scalar checks complete; actual-world, native visual and performance checks pending.",
+  "terrain_versions": {
+    "local": "local-terrain-alluvial-banks-44",
+    "amplification": "hyper-amplification-alluvial-banks-39"
+  },
+  "sources": [
+    {
+      "url": "https://www.usgs.gov/publications/dynamic-relations-deposition-sediment-floodplains-and-point-bars-a-freely-meandering",
+      "use": "Floodplain and point-bar deposition varies with discharge and flood history; use finite coherent channel-aligned deposits."
+    },
+    {
+      "url": "https://www.nps.gov/articles/nps-geodiversity-atlas-arkansas-post-national-memorial-arkansas.htm",
+      "use": "Low-gradient meanders erode outer banks and deposit inside bends."
+    },
+    {
+      "url": "https://www.nps.gov/articles/braided-stream.htm",
+      "use": "Braided channels require actual branching/merging networks; do not label this single-channel bar update as braided rivers."
+    }
+  ],
+  "performance_design": [
+    "Prepare bounded coefficients with existing lazy river spans.",
+    "No extra scenery objects, materials, water ribbons, draw calls or per-frame simulation.",
+    "Use the existing shared physical sampler and existing sand/gravel surface layers.",
+    "Actual native fixed-site movement/turning comparison required before acceptance."
+  ],
+  "limits": [
+    "No migration through time, distributary deltas, braided networks or dynamic flood sediment transport in this feature.",
+    "Bar dimensions and coefficients are bounded game approximations."
+  ],
+  "correctness": {
+    "scalar_checks": 8900,
+    "waterfall_controls": 369,
+    "planform_checks": 1032,
+    "river_primitives": 9463,
+    "water_coupling_controls": 241,
+    "landscape_controls": 35733,
+    "actual_spans": 39,
+    "wet_centers": 39,
+    "exposed_bar_samples": 132,
+    "river_ground_meshes_without_open_edges": 15,
+    "canonical_world_hash": "unchanged",
+    "native_visual_and_performance": "pending"
+  },
+  "existing_failure": {
+    "test": "--water-coupling-world",
+    "location": "river-1715 x202.2874755859375 z44.44773864746094",
+    "error": "Exposed lateral water edge 0.209m above drawn bed",
+    "baseline": "Identical coordinates and height reproduced against built B0c6e90f1 assemblies in separate scratch test project. This is not introduced by the alluvial update.",
+    "evidence": [
+      "artifacts/geography-20261107/water-world.txt",
+      "artifacts/geography-20261107/water-world-baseline.txt"
+    ]
+  }
+}

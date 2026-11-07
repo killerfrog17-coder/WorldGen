@@ -146,6 +146,24 @@ public sealed partial class LocalTerrainExplorer
                     return new LandscapeReviewSite{Position=volcano.Center,Sample=s,Volcano=volcano};
                 }
             }
+            else if(kind=="AlluvialRiver")
+            {
+                foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<180&&c.StartM>15&&c.StartM<1800&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
+                    .OrderByDescending(c=>c.WidthM).ThenBy(c=>c.From).Take(64))
+                {
+                    var spans=model.Amplification.RiverReach(channel.From);
+                    foreach(var span in spans.Where(s=>s.Alluvium>.15&&s.Primitive==RiverFlowPrimitive.Calm)
+                        .OrderByDescending(s=>Math.Abs(s.BankBendA+s.BankBendB)*s.Alluvium).Take(4))
+                    {
+                        double half=(span.WidthA+span.WidthB)*.5;V center=(span.A+span.B).Unit,side=(span.SideA+span.SideB).Unit;
+                        int sign=span.BankBendA+span.BankBendB>=0?1:-1;
+                        V bar=(center+side*(sign*half*.82/(model.RadiusM*.1))).Unit;
+                        var s=model.Patch(bar,8000).Sample(bar);
+                        if(s.Underwater||s.WaterKind!=LocalWaterKind.River||s.ElevationM<s.WaterSurfaceM+.04||s.WaterFootprintM<.2)continue;
+                        return new LandscapeReviewSite{Position=bar,Sample=s,RiverReach=channel.From,RiverWidth=half*2,CoastDirection=side*-sign};
+                    }
+                }
+            }
             else if(kind=="MeanderingRiver")
             {
                 foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
@@ -358,6 +376,7 @@ public sealed partial class LocalTerrainExplorer
         }
         float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??site.Outcrop?.RadiusM??site.Canyon?.HalfWidth??(site.Fall.HasValue?Math.Min(350,Math.Max(80,(site.Fall.Value.LevelA-site.Fall.Value.LevelB)*1.6+site.RiverWidth*2)):site.Landform!=null?300:site.Coast!=null?220:site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));
         Quaternion orientation=Quaternion.identity;
+        if(kind=="AlluvialRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));
         if(site.Canyon!=null)

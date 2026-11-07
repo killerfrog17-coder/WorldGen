@@ -16,6 +16,7 @@ namespace WorldGen.Core
             result.WidthA=span.WidthA*(1-a)+span.WidthB*a;result.WidthB=span.WidthA*(1-b)+span.WidthB*b;
             result.DepthA=span.DepthA*(1-a)+span.DepthB*a;result.DepthB=span.DepthA*(1-b)+span.DepthB*b;
             result.Depth=(result.DepthA+result.DepthB)*.5;result.LevelA=levelA;result.LevelB=levelB;
+            result.BankBendA=span.BankBendA*(1-a)+span.BankBendB*a;result.BankBendB=span.BankBendA*(1-b)+span.BankBendB*b;
             result.From=a==0?span.From:-1;result.To=b==1?span.To:-1;return result;
         }
         public static RiverscapeSpan[] Apply(RiverscapeSpan[] spans,double physicalRadius,double resistance,int source,int seed)

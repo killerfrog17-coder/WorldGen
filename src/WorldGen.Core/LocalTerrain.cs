@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-collapse-calderas-43";
+        public const string Version = "local-terrain-alluvial-banks-44";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -370,6 +370,7 @@ namespace WorldGen.Core
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
                     if(!heightOnly)ground=LandscapeProvince.Ground(ground,surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed);
                     if(!heightOnly)LandscapeProvince.Cover(surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed,ref cover,ref midCover,ref forest,ref biome);
+                    if(!heightOnly)RiverAlluvium.Ground(surface.RiverSand,surface.RiverGravel,ref ground,ref cover,ref midCover,ref forest);
                     if(!heightOnly&&surface.Kind==LocalWaterKind.Ocean&&surface.Height>=0&&biome!=Biome.Mangrove&&biome!=Biome.SaltMarsh)
                     {
                         double beach=CoastalTerrain.BeachBand(ground,surface.Height,ocean/sum);
@@ -380,7 +381,7 @@ namespace WorldGen.Core
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
                         Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,Cover=cover,MidCover=midCover,Forest=forest,
                         CoverColor=new V(red/sum,green/sum,blue/sum),OceanInfluence=ocean/sum,
-                        WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,
+                        WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,RiverSand=surface.RiverSand,RiverGravel=surface.RiverGravel,
                         WaterKind=surface.Kind,WaterBodyKey=surface.BodyKey,WaterGradient=surface.Gradient,WaterFootprintM=surface.Footprint,
                         WaterFlow=surface.Flow,WaterSpeedMPerS=surface.Speed,WaterTurbulence=surface.Turbulence,ContinuousWaterSurface=surface.Kind==LocalWaterKind.River,
                         WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum,
@@ -474,6 +475,7 @@ namespace WorldGen.Core
         public LandscapeRegion Landscape;
         public LandscapeControls Province;
         public double ElevationM, PreWaterElevationM, BaseElevationM, WaterSurfaceM, WaterMaskM, RiverInfluence, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
+        public double RiverSand,RiverGravel;
         public int Cell;
         public V CoverColor;
         public Biome Biome;

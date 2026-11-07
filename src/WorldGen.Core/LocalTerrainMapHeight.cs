@@ -34,7 +34,7 @@ namespace WorldGen.Core
                 return new LocalTerrainSample{Cell=cell,ElevationM=D.Q(s.Height,1000),BaseElevationM=D.Q(s.UnshapedHeight,1000),PreWaterElevationM=D.Q(s.UnshapedHeight,1000),
                     WaterSurfaceM=s.Water,WaterMaskM=s.Mask,WaterKind=s.Kind,WaterBodyKey=s.BodyKey,WaterGradient=s.Gradient,WaterFootprintM=s.Footprint,
                     WaterMinimumM=s.Minimum,WaterMaximumM=s.Maximum,WaterFlow=s.Flow,WaterSpeedMPerS=s.Speed,WaterTurbulence=s.Turbulence,
-                    RiverInfluence=s.RiverInfluence,ContinuousWaterSurface=s.Kind==LocalWaterKind.River,Province=s.Landscape,
+                    RiverInfluence=s.RiverInfluence,RiverSand=s.RiverSand,RiverGravel=s.RiverGravel,ContinuousWaterSurface=s.Kind==LocalWaterKind.River,Province=s.Landscape,
                     Landscape=LandscapeProvince.Region(s.Landscape,point*(owner.RadiusM*owner.HorizontalScale),owner.seed,owner.profiles[cell].Biome)};
             }
         }
@@ -61,6 +61,7 @@ namespace WorldGen.Core
             ground.Divide(sum);cover.Divide(sum);mid.Divide(sum);forest.Divide(sum);
             ground=LandscapeProvince.Ground(ground,sample.Province,point*(RadiusM*HorizontalScale),seed);
             var biome=sample.Biome;LandscapeProvince.Cover(sample.Province,point*(RadiusM*HorizontalScale),seed,ref cover,ref mid,ref forest,ref biome);sample.Biome=biome;
+            RiverAlluvium.Ground(sample.RiverSand,sample.RiverGravel,ref ground,ref cover,ref mid,ref forest);
             if(sample.WaterKind==LocalWaterKind.Ocean&&sample.ElevationM>=0&&biome!=Biome.Mangrove&&biome!=Biome.SaltMarsh)
             {
                 double beach=CoastalTerrain.BeachBand(ground,sample.ElevationM,ocean/sum);
