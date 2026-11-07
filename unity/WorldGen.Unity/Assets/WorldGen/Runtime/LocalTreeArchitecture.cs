@@ -21,7 +21,7 @@ static partial class LocalScatterMeshes
         if(m.Form==TreeGrowthForm.TallCane)return BuildCaneTree(code,lod,m);
         if(m.Form==TreeGrowthForm.ArborescentSucculent)return BuildSucculentTree(code,lod,m);
         var nodes=TreeSkeleton(code,m);using var b=new Builder();var masks=b.TreeMask;
-        var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
+        var leaf=HerbColour(m.Leaf);var wood=LocalTreeTextures.BarkTint(m.Bark);
         var hull=LocalTreeTextures.ShootHull((int)m.LeafShape);
         bool needle=m.Form==TreeGrowthForm.NeedleCrown;
         void Mark(float type){while(masks.Count<b.V.Count)masks.Add(new Vector2(Mathf.Clamp01(b.V[masks.Count].y),type));}
@@ -103,7 +103,7 @@ static partial class LocalScatterMeshes
         for(int i=0;i<normals.Count;i++)if(masks[i].y>1.5f)
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
         if(WorldGenPerformance.NoBuilderBufferReuse)mesh.normals=(Vector3[])normals;else mesh.SetNormals(b.Normals);
-        mesh.RecalculateTangents();return mesh;
+        mesh.RecalculateTangents();ApplyTreeWoodTangents(b,mesh);return mesh;
     }
     static Dictionary<int,Vector3> BuildContinuousTreeWood(Builder b,List<TreeNode> nodes,int lod,Color wood)
     {
@@ -141,18 +141,33 @@ static partial class LocalScatterMeshes
                 float radius=n.Radius;
                 if(first>0&&ring==0)radius=Mathf.Min(radius,nodes[first].Radius*1.25f);
                 float along=distance[path[ring]];
+                float previousRadius=ring>0?nodes[path[ring-1]].Radius:radius;
+                if(first>0&&ring==1)previousRadius=Mathf.Min(previousRadius,nodes[first].Radius*1.25f);
+                float nextRadius=ring+1<path.Count?nodes[path[ring+1]].Radius:radius;
+                float previousLength=ring>0?Vector3.Distance(n.P,nodes[path[ring-1]].P):0;
+                float nextLength=ring+1<path.Count?Vector3.Distance(n.P,nodes[path[ring+1]].P):0;
+                float dr=(nextRadius-previousRadius)/Mathf.Max(.0001f,previousLength+nextLength);
                 for(int k=0;k<=sides;k++)
                 {
                     float angle=(k%sides)*2*Mathf.PI/sides;var radial=u*Mathf.Cos(angle)+v*Mathf.Sin(angle);
                     int at=b.Add(n.P+radial*radius,wood,new Vector2(k/(float)sides*repeats,along/.04f));
-                    float dr=ring+1<path.Count?(nodes[path[ring+1]].Radius-radius)/Mathf.Max(.0001f,Vector3.Distance(n.P,nodes[path[ring+1]].P)):0;
                     normals.Add(at,(radial-axis*dr).normalized);
+                    var tangent=-u*Mathf.Sin(angle)+v*Mathf.Cos(angle);
+                    b.WoodTangents.Add(at,new Vector4(tangent.x,tangent.y,tangent.z,1));
                 }
                 if(ring>0)for(int k=0;k<sides;k++)
                 {int a=start+(ring-1)*(sides+1)+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}
             }
         }
         return normals;
+    }
+    static void ApplyTreeWoodTangents(Builder b,Mesh mesh)
+    {
+        // Exact cylindrical UV differential on both sides of the wrap. A
+        // triangle-derived tangent sees only one adjacent face at each duplicate.
+        mesh.GetTangents(b.Tangents);
+        foreach(var pair in b.WoodTangents)b.Tangents[pair.Key]=pair.Value;
+        mesh.SetTangents(b.Tangents);
     }
     // Inherited crown openness gives pine-like high, rounded crowns as well as
     // the low, layered fir/spruce habit. These are shared art archetypes, not

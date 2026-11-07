@@ -29,7 +29,7 @@ public static class TreeSurfaceArtBuilder
                 }
                 finally{UnityEngine.Object.DestroyImmediate(texture);}
             }
-            var prepared=LocalTreeTextures.Prepare(colours,normals,512);
+            var prepared=group==0?LocalTreeTextures.Prepare(colours,normals,512):LocalTreeTextures.PrepareBark(colours,normals,512);
             for(int channel=0;channel<2;channel++)
             {
                 var levels=channel==0?prepared.Colours:prepared.Normals;

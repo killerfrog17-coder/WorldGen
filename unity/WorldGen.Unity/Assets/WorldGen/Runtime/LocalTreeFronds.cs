@@ -14,12 +14,19 @@ static partial class LocalScatterMeshes
         for(int j=0;j<=parts;j++)
         {
             float t=j/(float)parts;var p=(1-t)*(1-t)*root+2*t*(1-t)*control+t*t*tip;
-            var axis=(2*(1-t)*(control-root)+2*t*(tip-control)).normalized;
+            var derivative=2*(1-t)*(control-root)+2*t*(tip-control);var axis=derivative.normalized;
             if(j==0)u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.94f?Vector3.up:Vector3.right).normalized;
             else u=(Quaternion.FromToRotation(previousAxis,axis)*u).normalized;
             var v=Vector3.Cross(axis,u);previousAxis=axis;
             float rr=Mathf.Lerp(radius,endRadius,t);
-            for(int k=0;k<=sides;k++){float angle=(k%sides)*2*Mathf.PI/sides;b.Add(p+(u*Mathf.Cos(angle)+v*Mathf.Sin(angle))*rr,colour,new Vector2(k/(float)sides*repeats,t*Vector3.Distance(root,tip)/.04f));}
+            float dr=(endRadius-radius)/Mathf.Max(.0001f,derivative.magnitude);
+            for(int k=0;k<=sides;k++)
+            {
+                float angle=(k%sides)*2*Mathf.PI/sides;var radial=u*Mathf.Cos(angle)+v*Mathf.Sin(angle);
+                int at=b.Add(p+radial*rr,colour,new Vector2(k/(float)sides*repeats,t*Vector3.Distance(root,tip)/.04f));
+                b.WoodNormals.Add(at,(radial-axis*dr).normalized);
+                var tangent=-u*Mathf.Sin(angle)+v*Mathf.Cos(angle);b.WoodTangents.Add(at,new Vector4(tangent.x,tangent.y,tangent.z,1));
+            }
         }
         for(int j=0;j<parts;j++)for(int k=0;k<sides;k++){int a=first+j*(sides+1)+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}TreeMark(b,mask,0);
     }
@@ -58,13 +65,14 @@ static partial class LocalScatterMeshes
         for(int i=0;i<vertices.Count;i++)if(mask[i].y<.5f)
         {shared.TryGetValue(vertices[i],out var sum);shared[vertices[i]]=sum+normals[i];}
         for(int i=0;i<vertices.Count;i++)if(mask[i].y<.5f)normals[i]=shared[vertices[i]].normalized;
+        foreach(var pair in b.WoodNormals)normals[pair.Key]=pair.Value;
         if(WorldGenPerformance.NoBuilderBufferReuse)mesh.normals=(Vector3[])normals;else mesh.SetNormals(b.Normals);
-        mesh.RecalculateTangents();mesh.RecalculateBounds();mesh.name=name;return mesh;
+        mesh.RecalculateTangents();ApplyTreeWoodTangents(b,mesh);mesh.RecalculateBounds();mesh.name=name;return mesh;
     }
     static Mesh BuildFrondTree(int code,int lod,TreeMorphology m)
     {
         using var b=new Builder();var mask=b.TreeMask;var random=new Rng(code,"tree-attached-fronds-2");
-        var wood=HerbColour(m.Bark);var leaf=HerbColour(m.Leaf);bool fern=m.Form==TreeGrowthForm.TreeFern;
+        var wood=LocalTreeTextures.BarkTint(m.Bark);var leaf=HerbColour(m.Leaf);bool fern=m.Form==TreeGrowthForm.TreeFern;
         float lean=((float)random.Unit()-.5f)*.12f;
         var crown=new Vector3(lean,.78f,lean*.3f);
         TreeSweep(b,mask,Vector3.zero,new Vector3(lean*.25f,.43f,0),crown,(float)m.TrunkRadius*(fern?1.6f:1),.011f,lod==0?12:6,lod==0?24:12,wood);
@@ -104,7 +112,7 @@ static partial class LocalScatterMeshes
     }
     static Mesh BuildCaneTree(int code,int lod,TreeMorphology m)
     {
-        using var b=new Builder();var mask=b.TreeMask;var r=new Rng(code,"tree-leafy-cane-2");var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
+        using var b=new Builder();var mask=b.TreeMask;var r=new Rng(code,"tree-leafy-cane-2");var leaf=HerbColour(m.Leaf);var wood=LocalTreeTextures.BarkTint(m.Bark);
         for(int stem=0;stem<5;stem++)
         {
             float angle=stem*2.399963f;var outwards=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));float height=.82f+(float)r.Unit()*.18f;

@@ -14,10 +14,12 @@ static partial class LocalScatterMeshes
             public readonly List<Vector2> TreeMask=new List<Vector2>();public readonly List<Vector3> Normals=new List<Vector3>();
             public readonly Dictionary<Vector3,Vector3> SharedNormals=new Dictionary<Vector3,Vector3>();int sharedPeak;
             public readonly Dictionary<int,Vector3> WoodNormals=new Dictionary<int,Vector3>();int woodPeak;
+            public readonly Dictionary<int,Vector4> WoodTangents=new Dictionary<int,Vector4>();
+            public readonly List<Vector4> Tangents=new List<Vector4>();
             public readonly List<int> WoodPath=new List<int>(),WoodContinuation=new List<int>();
             public readonly List<float> WoodDistance=new List<float>();
-            public long Bytes=>(long)V.Capacity*12+(long)Uv.Capacity*8+(long)Colors.Capacity*16+(long)Triangles.Capacity*4+(long)TreeMask.Capacity*8+(long)Normals.Capacity*12+(long)Math.Max(sharedPeak,SharedNormals.Count)*80+(long)Math.Max(woodPeak,WoodNormals.Count)*64+(long)(WoodPath.Capacity+WoodContinuation.Capacity+WoodDistance.Capacity)*4;
-            public void Clear(){V.Clear();Uv.Clear();Colors.Clear();Triangles.Clear();TreeMask.Clear();Normals.Clear();sharedPeak=Math.Max(sharedPeak,SharedNormals.Count);SharedNormals.Clear();woodPeak=Math.Max(woodPeak,WoodNormals.Count);WoodNormals.Clear();WoodPath.Clear();WoodContinuation.Clear();WoodDistance.Clear();}
+            public long Bytes=>(long)V.Capacity*12+(long)Uv.Capacity*8+(long)Colors.Capacity*16+(long)Triangles.Capacity*4+(long)TreeMask.Capacity*8+(long)Normals.Capacity*12+(long)Tangents.Capacity*16+(long)Math.Max(sharedPeak,SharedNormals.Count)*80+(long)Math.Max(woodPeak,Math.Max(WoodNormals.Count,WoodTangents.Count))*144+(long)(WoodPath.Capacity+WoodContinuation.Capacity+WoodDistance.Capacity)*4;
+            public void Clear(){V.Clear();Uv.Clear();Colors.Clear();Triangles.Clear();TreeMask.Clear();Normals.Clear();Tangents.Clear();sharedPeak=Math.Max(sharedPeak,SharedNormals.Count);SharedNormals.Clear();woodPeak=Math.Max(woodPeak,Math.Max(WoodNormals.Count,WoodTangents.Count));WoodNormals.Clear();WoodTangents.Clear();WoodPath.Clear();WoodContinuation.Clear();WoodDistance.Clear();}
         }
         [ThreadStatic] static Stack<Buffers> spare;
         [ThreadStatic] static long spareBytes;
@@ -27,6 +29,8 @@ static partial class LocalScatterMeshes
         public List<Vector3> Normals=>buffers.Normals;
         public Dictionary<Vector3,Vector3> SharedNormals=>buffers.SharedNormals;
         public Dictionary<int,Vector3> WoodNormals=>buffers.WoodNormals;
+        public Dictionary<int,Vector4> WoodTangents=>buffers.WoodTangents;
+        public List<Vector4> Tangents=>buffers.Tangents;
         public List<int> WoodPath=>buffers.WoodPath;
         public List<int> WoodContinuation=>buffers.WoodContinuation;
         public List<float> WoodDistance=>buffers.WoodDistance;

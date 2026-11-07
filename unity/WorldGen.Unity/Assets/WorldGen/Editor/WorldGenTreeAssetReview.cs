@@ -23,6 +23,7 @@ public static class WorldGenTreeAssetReview
             var command=Environment.GetCommandLineArgs();int outputAt=Array.IndexOf(command,"--tree-review-output");
             string folder=outputAt>=0?Path.GetFullPath(command[outputAt+1]):Path.GetFullPath(Path.Combine(Application.dataPath,"../../../artifacts/tree-baked-assets"));Directory.CreateDirectory(folder);
             CheckSurfaceSupport(folder);
+            CheckBarkSupport(folder);
             var codes=new List<int>{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600};
             var needles=Enumerable.Range(0,128).Select(i=>0x10000000|(i<<8)).OrderBy(c=>new TreeMorphology(c).Openness).ToArray();
             codes.Add(needles[0]);codes.Add(needles[64]);codes.Add(needles[127]);
@@ -36,6 +37,7 @@ public static class WorldGenTreeAssetReview
                     if(mesh.vertexCount<100||mesh.triangles.Length<300||mesh.triangles.Any(i=>i<0||i>=mesh.vertexCount))throw new Exception("Invalid tree topology");
                     if(mesh.vertices.Any(v=>!float.IsFinite(v.x)||!float.IsFinite(v.y)||!float.IsFinite(v.z)))throw new Exception("Non-finite tree vertex");
                     if(mesh.bounds.min.y<-.01||mesh.bounds.max.y>1.3||mesh.bounds.size.x>1.4||mesh.bounds.size.z>1.4)throw new Exception("Tree exceeds existing conservative bounds: "+code+" / "+mesh.name+" / "+mesh.bounds);
+                    CheckWoodSeams(mesh);
                 }
                 var morphology=new TreeMorphology(code);
                 var source=Activator.CreateInstance(baker.GetNestedType("Source"),near,(int)morphology.LeafShape,(int)morphology.BarkPattern);
@@ -57,7 +59,7 @@ public static class WorldGenTreeAssetReview
                 for(int i=0;i<16;i++)atlas.SetPixels32((i%4)*128,(i/4)*128,128,128,pixels[i]);atlas.Apply();
                 File.WriteAllBytes(Path.Combine(folder,code+"-views.png"),atlas.EncodeToPNG());
                 if(!Environment.GetCommandLineArgs().Contains("-nographics"))Capture(folder,code,near,result,texture);
-                string line=code+" form="+morphology.Form+" openness="+morphology.Openness.ToString("F3")+" near="+near.triangles.Length/3+" mid="+middle.triangles.Length/3+" views=16 ms="+timer.Elapsed.TotalMilliseconds.ToString("F1");
+                string line=code+" form="+morphology.Form+" bark="+morphology.BarkPattern+" openness="+morphology.Openness.ToString("F3")+" near="+near.triangles.Length/3+" mid="+middle.triangles.Length/3+" views=16 ms="+timer.Elapsed.TotalMilliseconds.ToString("F1");
                 File.AppendAllText(Path.Combine(folder,"results.txt"),line+"\n");Debug.Log("TREE ASSET PASS "+line);
                 UnityEngine.Object.DestroyImmediate(near);UnityEngine.Object.DestroyImmediate(middle);UnityEngine.Object.DestroyImmediate(atlas);
             }
@@ -70,6 +72,44 @@ public static class WorldGenTreeAssetReview
         public string[] Formats;
         public long ShootGpuBytes,BarkGpuBytes,PreviousShootGpuBytes,CpuPixelBytes;
         public LayerSupport[] Layers;
+    }
+    static void CheckWoodSeams(Mesh mesh)
+    {
+        var vertices=mesh.vertices;var uv=mesh.uv;var mask=mesh.uv2;var normals=mesh.normals;var tangents=mesh.tangents;
+        var groups=new Dictionary<Vector3,List<int>>();int seams=0;
+        for(int i=0;i<vertices.Length;i++)if(mask[i].y<.5f)
+        {
+            if(!groups.TryGetValue(vertices[i],out var indices)){indices=new List<int>();groups.Add(vertices[i],indices);}
+            foreach(int j in indices)if(Mathf.Abs(uv[i].x-uv[j].x)>.9f&&Mathf.Abs(uv[i].y-uv[j].y)<.00001f)
+            {
+                seams++;
+                if(Vector3.Dot(normals[i],normals[j])<.999f||Vector3.Dot((Vector3)tangents[i],(Vector3)tangents[j])<.99f||tangents[i].w!=tangents[j].w)
+                    throw new Exception("Visible normal/tangent split at wrapped wood seam: "+mesh.name+" / "+i+" / "+j);
+            }
+            indices.Add(i);
+        }
+        if(mask.Any(m=>m.y<.5f)&&seams<2)throw new Exception("Wood seam check has no wrapped-ring pairs: "+mesh.name);
+    }
+    static void CheckBarkSupport(string folder)
+    {
+        int checks=0;var flat=new Color32[16];var vector=new Color32[16];
+        for(int i=0;i<16;i++){flat[i]=i%2==0?new Color32(0,0,0,255):new Color32(255,255,255,255);vector[i]=new Color32(128,128,255,255);}
+        var prepared=LocalTreeTextures.PrepareBark(new[]{flat},new[]{vector},4);
+        if(prepared.Colours[0][2][0].r<180||prepared.Colours[0][2][0].r>194)throw new Exception("Bark mips must average light in linear space");checks++;
+        for(int layer=0;layer<5;layer++)
+        {
+            var pixels=LocalTreeTextures.BarkColour[layer];var normals=LocalTreeTextures.BarkNormals[layer];const int size=LocalTreeTextures.Size;
+            for(int i=0;i<size;i++)
+            {
+                if(!pixels[i].Equals(pixels[(size-1)*size+i])||!pixels[i*size].Equals(pixels[i*size+size-1]))throw new Exception("Published CPU bark bank has an open repeat boundary");checks+=2;
+            }
+            foreach(var p in normals)
+            {
+                var n=new Vector3(p.r/127.5f-1,p.g/127.5f-1,p.b/127.5f-1);
+                if(Mathf.Abs(n.magnitude-1)>.008f)throw new Exception("Published bark normal is not unit length");checks++;
+            }
+        }
+        File.WriteAllText(Path.Combine(folder,"bark-support.txt"),"PASS "+checks+" published bark boundary, unit-normal and linear-mip checks; existing5x512 BC7 colour/normal arrays.");
     }
     [Serializable] sealed class LayerSupport
     {

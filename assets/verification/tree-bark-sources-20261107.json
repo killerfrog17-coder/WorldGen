@@ -1,0 +1,141 @@
+{
+  "version": "tree-bark-2",
+  "size": 512,
+  "layers": 5,
+  "records": [
+    {
+      "layer": 0,
+      "source": "assets-source/vegetation/tree-surfaces/polyhaven/chinese_hackberry_bark/Diffuse.jpg",
+      "source_sha256": "dea0ece8e153a614331f51291eefdee71b8f5948395eecb40ffcd9aa67016913",
+      "generated": false,
+      "mean_linear_rgb": [
+        0.3210229047466085,
+        0.22775440913929884,
+        0.12272267360727107
+      ],
+      "clipped_white_fraction": 0.0,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-albedo.png",
+          "sha256": "c3b1295aa7e918d9d0ddc4f9e4f51010a344ae3a393ccb9827370b3289e2207a"
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-normal.png",
+          "sha256": "951e36426db70de596cc907ad9cf091b9ffc5077d93d44c84d3357de72a51b3b"
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "source": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png",
+      "source_sha256": "0a9f8069ea8dd6bcee654163648575e81a81067f63b9598741f9fbceb6bd3d28",
+      "generated": true,
+      "mean_linear_rgb": [
+        0.20941133251846092,
+        0.1629468058149595,
+        0.12382778731693923
+      ],
+      "clipped_white_fraction": 0.0,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-albedo.png",
+          "sha256": "6a74e7fd2f0c64b30cc3bbee302c82514edc7a54b39c01db5c44d28417f500dd"
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-01-normal.png",
+          "sha256": "53a0286f13b6c4c5982302cab6cda89af7306b98971d9b68168491090642a62d"
+        }
+      ]
+    },
+    {
+      "layer": 2,
+      "source": "assets-source/vegetation/tree-surfaces/polyhaven/pine_bark/Diffuse.jpg",
+      "source_sha256": "89ddfbff0388d30caff902ba600cdf75eb1e651ca71ece6594b5a9b27abb47ab",
+      "generated": false,
+      "mean_linear_rgb": [
+        0.23933301324682393,
+        0.15358874410936948,
+        0.09314736090270687
+      ],
+      "clipped_white_fraction": 0.0,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-albedo.png",
+          "sha256": "f143514f9b4c3d637b67e920cade5114bc916d869f811a563581ee55b06f78be"
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-normal.png",
+          "sha256": "7f088458e490279cf7051219b2e382f3e4b8e5445470a2bd861e4ea1cc17c5f2"
+        }
+      ]
+    },
+    {
+      "layer": 3,
+      "source": "assets-source/vegetation/tree-surfaces/polyhaven/palm_bark/Diffuse.jpg",
+      "source_sha256": "80cbe5ee11af799db082cdb342601a70b81a5f54b98eb587e87dcb5bf5e1f395",
+      "generated": false,
+      "mean_linear_rgb": [
+        0.23583537155285142,
+        0.18121994224691873,
+        0.1420068879898421
+      ],
+      "clipped_white_fraction": 0.0,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-albedo.png",
+          "sha256": "6d636cc792196d4b480e752ebdc185a2a8c6e93a9b8c25d784bdf765f49930d0"
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-normal.png",
+          "sha256": "b8630bda8b7d1095fa1bfab4941531f5d0c221ee1b9b7d1d923296a0b9c06a36"
+        }
+      ]
+    },
+    {
+      "layer": 4,
+      "source": "assets-source/vegetation/tree-surfaces/polyhaven/metasequoia_bark/Diffuse.jpg",
+      "source_sha256": "38821f7d363a5df6ed29a36c6fa331be22290f01ebfd9ce1619edaf165739a77",
+      "generated": false,
+      "mean_linear_rgb": [
+        0.2298943776947969,
+        0.1151752087996625,
+        0.06043225436947627
+      ],
+      "clipped_white_fraction": 0.0,
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-albedo.png",
+          "sha256": "7e22da14c234acf07c9fc43cd8231a944befd4c9e1542c537ace1778e15c8479"
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-normal.png",
+          "sha256": "58e49637cb768a3b6d943665e8a89a3f176549fc41d5dffad704ede2770eac24"
+        }
+      ]
+    }
+  ],
+  "processing": "Linear-light scalar luminance exposure; original chroma retained; periodic-plus-smooth and a narrow residual boundary correction; paired scanned normals for four layers, approximate luminance-derived relief for the generated fissured layer. No runtime processing.",
+  "research": [
+    {
+      "url": "https://docs.unity.com/en-us/engine/6000.6/script-reference/unityengine/mesh/recalculatenormals",
+      "application": "UV duplicates need matching normals and tangents; recalculating triangle normals alone does not guarantee a smooth wrap."
+    },
+    {
+      "url": "https://helpx.adobe.com/substance-3d-b2m/desktop/parameters.html",
+      "application": "Separate base colour from lighting, make it tile, normalize surface vectors; luminance-derived relief is an approximation."
+    },
+    {
+      "url": "https://helios2.mi.parisdescartes.fr/~moisan/papers/2009-11r.pdf",
+      "application": "Offline periodic-plus-smooth boundary correction; independently implemented from the published equations."
+    },
+    {
+      "url": "https://polyhaven.com/license",
+      "application": "Four existing scan-based material pairs remain CC0; the separately recorded generated fissured source is not mislabeled CC0."
+    }
+  ],
+  "generation": {
+    "tool": "built-in image_gen",
+    "master": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png",
+    "prompt": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/source.json"
+  }
+}

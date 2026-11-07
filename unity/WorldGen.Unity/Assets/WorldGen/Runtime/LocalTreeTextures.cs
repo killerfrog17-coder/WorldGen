@@ -27,6 +27,15 @@ public static class LocalTreeTextures
         BindViews(material);
     }
     public static void BindViews(Material material)=>material.SetFloat("_TreeViewCutoff",DistantCutoff);
+    public static Color BarkTint(V pigment)
+    {
+        // The material supplies absolute bark reflectance. Species pigment is
+        // a modest relative tint, rather than a second dark albedo multiplied in.
+        float l=(float)(pigment.X*.2126+pigment.Y*.7152+pigment.Z*.0722);
+        float shade=Mathf.Lerp(.82f,.96f,Mathf.InverseLerp(.20f,.72f,l));
+        float Channel(double c)=>Mathf.Clamp(shade*(.96f+.04f*(float)c/Mathf.Max(.01f,l)),.75f,1);
+        return new Color(Channel(pigment.X),Channel(pigment.Y),Channel(pigment.Z),1).gamma;
+    }
     // A conservative trapezoid removes empty card corners with the SAME vertex
     // and triangle count. Union all four variants, including faint edge pixels.
     // Both mesh LODs retain identical UV/alpha support and branch positions.
@@ -115,6 +124,44 @@ public static class LocalTreeTextures
             prepared.Colours[layer]=cs.ToArray();prepared.Normals[layer]=nsLevels.ToArray();
         }
         return prepared;
+    }
+    // Authoring-only bark chain: opaque repeat boundaries, linear-light colour
+    // filtering and unit-vector normal filtering. Foliage alpha processing stays
+    // unchanged. The published GPU/CPU banks retain their existing dimensions.
+    public static Prepared PrepareBark(Color32[][] colours,Color32[][] normals,int size)
+    {
+        var result=new Prepared{Colours=new Color32[colours.Length][][],Normals=new Color32[colours.Length][][]};
+        Color32 Colour(Vector3 linear)=>(Color32)new Color(linear.x,linear.y,linear.z,1).gamma;
+        Vector3 Linear(Color32 p){var c=((Color)p).linear;return new Vector3(c.r,c.g,c.b);}
+        Vector3 Normal(Color32 p)=>new Vector3(p.r/127.5f-1,p.g/127.5f-1,p.b/127.5f-1);
+        Color32 Encode(Vector3 n){n.Normalize();return (Color32)new Color(n.x*.5f+.5f,n.y*.5f+.5f,n.z*.5f+.5f,1);}
+        for(int layer=0;layer<colours.Length;layer++)
+        {
+            var cs=new System.Collections.Generic.List<Color32[]>();var ns=new System.Collections.Generic.List<Color32[]>();
+            var c=(Color32[])colours[layer].Clone();var n=(Color32[])normals[layer].Clone();
+            for(int width=size;;width/=2)
+            {
+                for(int i=0;i<n.Length;i++)n[i]=Encode(Normal(n[i]));
+                if(width>1)for(int axis=0;axis<2;axis++)for(int k=0;k<width;k++)
+                {
+                    int a=axis==0?k:k*width,b=axis==0?(width-1)*width+k:k*width+width-1;
+                    c[a]=c[b]=Colour((Linear(c[a])+Linear(c[b]))*.5f);
+                    n[a]=n[b]=Encode(Normal(n[a])+Normal(n[b]));
+                }
+                cs.Add(c);ns.Add(n);if(width==1)break;
+                int nextWidth=width/2;var nc=new Color32[nextWidth*nextWidth];var nn=new Color32[nc.Length];
+                for(int y=0;y<nextWidth;y++)for(int x=0;x<nextWidth;x++)
+                {
+                    var colour=Vector3.zero;var normal=Vector3.zero;
+                    for(int dy=0;dy<2;dy++)for(int dx=0;dx<2;dx++)
+                    {int at=(y*2+dy)*width+x*2+dx;colour+=Linear(c[at]);normal+=Normal(n[at]);}
+                    int index=y*nextWidth+x;nc[index]=Colour(colour*.25f);nn[index]=Encode(normal);
+                }
+                c=nc;n=nn;
+            }
+            result.Colours[layer]=cs.ToArray();result.Normals[layer]=ns.ToArray();
+        }
+        return result;
     }
     static int ClosestSurface(int best,int candidate,int x,int y,int width)
     {

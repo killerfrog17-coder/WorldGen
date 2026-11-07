@@ -155,16 +155,15 @@ def build():
                 p=OUTPUT/f'shoot-{layer:02d}-{channel}.png';Image.fromarray(data).save(p);outputs.append(p)
             preview=Image.fromarray(ca);sheet.paste(preview,(variant*SIZE,family*SIZE),preview)
     scratch=ROOT/'artifacts/tree-research';scratch.mkdir(parents=True,exist_ok=True);sheet.resize((1024,2048)).save(scratch/'shoots.png')
-    for layer,id in enumerate(BARK):
-        f=SOURCE/'polyhaven'/id
-        c=np.asarray(Image.open(f/'Diffuse.jpg').convert('RGB').resize((512,512),Image.Resampling.LANCZOS))/255
-        a=linear(c);mean=a.mean(axis=(0,1));c=srgb(np.clip(a*(.65/np.maximum(.01,mean)),.001,1))
-        n=np.asarray(Image.open(f/'nor_gl.jpg').convert('RGB').resize((512,512),Image.Resampling.LANCZOS))/255*2-1
-        n/=np.maximum(.001,np.linalg.norm(n,axis=2,keepdims=True))
-        for channel,data in [('albedo',c),('normal',n*.5+.5)]:
-            p=OUTPUT/f'bark-{layer:02d}-{channel}.png';image(data).save(p);outputs.append(p)
+    # Bark has a separate reproducible compiler: preserve physical colour and
+    # periodic boundaries instead of clipping channels toward a white mean.
+    from importlib.util import spec_from_file_location,module_from_spec
+    spec=spec_from_file_location('tree_bark',ROOT/'scripts/prepare-tree-bark.py')
+    bark=module_from_spec(spec);spec.loader.exec_module(bark)
+    bark_records=bark.build()
+    outputs.extend(ROOT/out['path'] for record in bark_records for out in record['outputs'])
     inputs=[{'path':p.relative_to(ROOT).as_posix(),'sha256':sha(p),'bytes':p.stat().st_size} for p in sorted(SOURCE.rglob('*')) if p.is_file()]
-    report={'version':'tree-surfaces-1','leaves':LEAVES,'bark_patterns':dict(zip(['Smooth','Fissured','Scaly','Fibrous','Peeling'],BARK)),
+    report={'version':'tree-surfaces-1','leaves':LEAVES,'bark_patterns':{name:record['source'] for name,record in zip(['Smooth','Fissured','Scaly','Fibrous','Peeling'],bark_records)},
       'licenses':['https://docs.ambientcg.com/license/','https://polyhaven.com/license'],
       'research':[{'url':'https://unity.com/how-to/gpu-optimization','application':'Keep cutout geometry/overdraw bounded, reuse instanced art and measure actual forest views.'}],
       'processing':'Photographed isolated leaf alpha/normal cutouts, neutral mean tint, deterministic attached twig assemblies, RGB edge dilation. Continuous blade interiors retain geometric frond silhouettes. Registered scanned bark. TreeSurfaceArtBuilder preserves alpha coverage and pads surface colour/normal/depth at every mip.',
