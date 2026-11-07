@@ -1,0 +1,428 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 436.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\fjord.jpg",
+    "bottom": 452.08976377952774,
+    "height": 277
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 395.6097637795277,
+    "height": 25.6
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 224.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\shore.jpg",
+    "bottom": 240.60976377952773,
+    "height": 143
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 224.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\glacial.jpg",
+    "bottom": 240.60976377952773,
+    "height": 143
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 171.32976377952772,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 144.60976377952773,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 126.80976377952773,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 438.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\mangrove-waterline.jpg",
+    "bottom": 454.08976377952774,
+    "height": 275
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 397.6097637795277,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 229.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\mangrove-pegs.jpg",
+    "bottom": 245.60976377952773,
+    "height": 140
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 229.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\mangrove-knees.jpg",
+    "bottom": 245.60976377952773,
+    "height": 140
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 176.32976377952772,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 149.60976377952773,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 131.8097637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 447.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\swamp.jpg",
+    "bottom": 463.08976377952774,
+    "height": 266
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 406.6097637795277,
+    "height": 25.6
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 236.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\marsh.jpg",
+    "bottom": 252.60976377952773,
+    "height": 142
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 236.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\peat.jpg",
+    "bottom": 252.60976377952773,
+    "height": 142
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 196.12976377952774,
+    "height": 25.6
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 169.40976377952774,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 138.80976377952774,
+    "height": 25.6
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 112.08976377952774,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 81.48976377952775,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 568.851003937008,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\canyon-before.jpg",
+    "bottom": 584.731003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 557.971003937008,
+    "height": 21.76
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\canyon-after.jpg",
+    "bottom": 584.731003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 504.5710039370081,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 223.69100393700808,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261107\\images\\canyon-side.jpg",
+    "bottom": 239.57100393700807,
+    "height": 253
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 183.09100393700808,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 156.37100393700808,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 138.57100393700807,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 323.7697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 280.3697637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 253.64976377952772,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 210.2497637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 183.5297637795277,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 140.1297637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 113.40976377952771,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 70.0097637795277,
+    "height": 38.400000000000006
+  }
+]

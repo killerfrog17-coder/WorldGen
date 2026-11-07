@@ -1,0 +1,86 @@
+[
+  {
+    "image": "images\\shore.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\rocky-shores-wide-20261107-waveplatform\\coast-along.png",
+    "raw_sha256": "d532412c0c2551f10025ac886abe9369fe5d7afa5fbbdd40552f7f0c16d29136",
+    "jpeg_sha256": "3c344f477f816d912fd22691d551b4fa09610e6b45484b5f44609f013d06f917",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\mangrove-waterline.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\mangrove-zonation-native-v1-20261107-mangrove\\tidal-waterline.png",
+    "raw_sha256": "712778b798daa21f3ef7237e47baa412cf111f6c0932df2d58eb77042bbc4332",
+    "jpeg_sha256": "2031320afe3ab27cc439030dc330e57c90d3cbb6b3dc21d1a3443eee4df9ab1b",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\mangrove-pegs.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\mangrove-zonation-native-v1-20261107-mangrove\\roots-pneumatophore.png",
+    "raw_sha256": "3652d6a4fae8a76e1c25b41850d96176db7d80be3930767d4502625345d8cb90",
+    "jpeg_sha256": "2267a41a904d94138a182dd56950ac1da2aaa9af6fcd938533449f1cf4139551",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\mangrove-knees.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\mangrove-zonation-native-v1-20261107-mangrove\\roots-knee.png",
+    "raw_sha256": "91d3f1209a196895a781de51f3c347df22e645e5683c624f1e7bf31508164a52",
+    "jpeg_sha256": "23c7febe44f262fc275246157e393d5a018bdf308353689dfb1a79380d14d2d3",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\swamp.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\wetland-pools-native-v3-20261107-woodedswamp\\wetland-waterline.png",
+    "raw_sha256": "b8eb1d5dc99d03cab3be8bc21f993b7fae216bf5592a0a7465e9d0678456b815",
+    "jpeg_sha256": "780fcf110628a6e423b55346a9fa67f70662c4d5b41a1703548a6a10b4346c9a",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\marsh.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\wetland-pools-native-v3-20261107-freshwatermarsh\\wetland-waterline.png",
+    "raw_sha256": "4b555a6a660338b51d41e9ffb194ea4dd8693f855161d473a615c9a04e2afc19",
+    "jpeg_sha256": "aad031af0de85adb2dff8d910a9a29eacb4ebb1b3ea1b5119ca216cf47e86a11",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\peat.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\wetland-pools-native-v3-20261107-wetlandcomplex\\wide.png",
+    "raw_sha256": "429c7a3e1aff688d16e2666b948e3c6141d6879edf372708ee850f2d769f4c0b",
+    "jpeg_sha256": "4ebc86878132bd23580ec3fb7aed57e809bc816ac295436f93c4bf82cbb2fc1c",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\canyon-before.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\rock-materials-native-v2-20261107-canyon\\landform-overview.png",
+    "raw_sha256": "042fcd2c657436dfda3782c9a7ebe8d5ee4f8a77409e1a403cfe6515f0d89453",
+    "jpeg_sha256": "79855def2c8772b8520158a495256638ef38141df72d4faad7b82121a2456d1c",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\fjord.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\rock-materials-native-v2-20261107-fjordwoodland\\landform-overview.png",
+    "raw_sha256": "64bd0c4783aea804d0dda59ab7bdcc2bd2bd7bace9a255967dce055f215a398c",
+    "jpeg_sha256": "77547b2dde66d22a067237fba415d1aaf9ef4f38d1679ba738f4c560e3afec26",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\glacial.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\rock-materials-native-v2-20261107-glacialtrough\\valley-axis.png",
+    "raw_sha256": "8a0f500686a3eb4e7ba9967124275c35fe2580e901a5d6c27a2f896c805c8869",
+    "jpeg_sha256": "fe1d8718c9274acf7222f112997a183002accd701ccf553ae7661f374cb294f3",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\canyon-after.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\canyon-formations-native-v1-20261107-canyon\\landform-overview.png",
+    "raw_sha256": "a2af4152f05a65ee273a2a225de33867c4f5f49a6c16c3afbce33e7a81ac9d83",
+    "jpeg_sha256": "b45d91d7ee6fea2cd7eb527e7c69da37de07508670f7ef78c6ea6e8f6cd53bfd",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  },
+  {
+    "image": "images\\canyon-side.jpg",
+    "raw_capture": "artifacts\\landscape-20261103\\canyon-formations-native-v1-20261107-canyon\\landform-side.png",
+    "raw_sha256": "f474647807663dcbc060aafb268d6a9119c770634d97830c71e86b7344931df2",
+    "jpeg_sha256": "8d5a866a9e1f22ad06330c4d1bf5ea958b0ed6257b64d6a1d37d5978def2f807",
+    "processing": "JPEG encoding only; no crop, retouch, brightness or colour alteration"
+  }
+]

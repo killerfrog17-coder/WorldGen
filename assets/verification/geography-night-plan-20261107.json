@@ -1,22 +1,90 @@
 {
   "owner_resumed_utc": "2026-11-07T07:24:17Z",
   "work_until_local": "2026-11-07T12:00:00-06:00 unless owner interrupts",
-  "baseline": {"selected_slot":"slot-b", "runtime_commit":"0c8fdc0a", "source_handoff":"6f894beb"},
+  "baseline": {
+    "selected_slot": "slot-b",
+    "runtime_commit": "0c8fdc0a",
+    "source_handoff": "6f894beb"
+  },
   "delivery": "One concise screenshot PDF at the end, new Chrome tab leftmost. All other own Unity/player windows rightmost; hidden where practical. No interim PDFs.",
-  "constraints": ["Only two reusable builds; protect selected baseline", "No subagents", "Do not close owner processes", "No animal/human/weather/sky appearance changes", "Keep generated bark and ground", "No disconnected decorative water", "Git or verified release-backed canonical inputs; artifacts disposable"],
-  "priorities": [
-    {"order":1,"candidate":"Rocky shore morphology", "goal":"Wave-cut platforms/scarps, depositional coves/beaches retained; shared sea datum, terrain, root and material masks", "status":"Static geometry retained after native and paired moving checks; mixed tails, no general speed gain claimed; surface remains uniform"},
-    {"order":2,"candidate":"Glaciated mountain/valley character", "goal":"Glacier-conditioned trough and rock exposure attached to terrain/drainage, not arbitrary scenic meshes", "status":"Numerical/native troughs and37connected fjords retained; current genuine inland moving160FPS/max25ms, exact-surface fjords305/235FPS. No floor guarantee. River lighting bands independently removed; exact batch-index loading speedup retained."},
-    {"order":3,"candidate":"Wetland and river/coast diversity", "goal":"Coherent marsh/swamp water and drainage landforms; genuinely connected water if needed", "status":"Revised pool/hummock morphology and local plant suitability passed actual edges, roots, three native contexts and moving tests. Woods181FPS/max16ms, marsh238/max18, peat246/max20. Basic marsh art still needs work."},
-    {"order":4,"candidate":"Further regional rock/forest character", "goal":"Choose next visible missing Earth-like character; protect foliage overlap and moving frame tails", "status":"Mangroves with3root forms and size-specific flood fit retained:225/179FPS, worst18/16ms. Larger canyon formations retained:240FPS/max30ms. Rockshader947 retained; extra full-ground colour-noise trial4ae RETIRED438 after subtle visual gain and inconclusive/worse forest timing. No broad FPS gain claimed."}
+  "constraints": [
+    "Only two reusable builds; protect selected baseline",
+    "No subagents",
+    "Do not close owner processes",
+    "No animal/human/weather/sky appearance changes",
+    "Keep generated bark and ground",
+    "No disconnected decorative water",
+    "Git or verified release-backed canonical inputs; artifacts disposable"
   ],
-  "remaining_review":"Current A rebuild438 restores exact61/55/24 production pipeline with inspection-only WarmMarsh alias. Next broader native dunes/salt/warmmarsh/karst/volcano/waterfall, then final moving checks. One final PDF only, preserve actual capture inputs in docs/reports.",
-  "later_work":["Broad cliff surfaces and marsh vegetation need stronger art; do not mistake subtle palette changes for finished landscapes", "Mixed-LOD material/normal interpolation is an independent existing seam limitation", "100FPS worst-frame floor remains unmet; no universal200FPS claim", "Geography remains static morphology rather than geological-time erosion/tides"],
-  "gates": ["Pure bounds/continuity/admission", "Actual-world sites/no history mutation", "Shared terrain edge and ground/water/material/vegetation agreement", "Inspect native screenshots and reject obvious faults", "Uncontended moving/rapid-turn tails and loading against baseline", "Focused commits, rollback index and honest end report"],
+  "priorities": [
+    {
+      "order": 1,
+      "candidate": "Rocky shore morphology",
+      "goal": "Wave-cut platforms/scarps, depositional coves/beaches retained; shared sea datum, terrain, root and material masks",
+      "status": "Static geometry retained after native and paired moving checks; mixed tails, no general speed gain claimed; surface remains uniform"
+    },
+    {
+      "order": 2,
+      "candidate": "Glaciated mountain/valley character",
+      "goal": "Glacier-conditioned trough and rock exposure attached to terrain/drainage, not arbitrary scenic meshes",
+      "status": "Numerical/native troughs and37connected fjords retained; current genuine inland moving160FPS/max25ms, exact-surface fjords305/235FPS. No floor guarantee. River lighting bands independently removed; exact batch-index loading speedup retained."
+    },
+    {
+      "order": 3,
+      "candidate": "Wetland and river/coast diversity",
+      "goal": "Coherent marsh/swamp water and drainage landforms; genuinely connected water if needed",
+      "status": "Revised pool/hummock morphology and local plant suitability passed actual edges, roots, three native contexts and moving tests. Woods181FPS/max16ms, marsh238/max18, peat246/max20. Basic marsh art still needs work."
+    },
+    {
+      "order": 4,
+      "candidate": "Further regional rock/forest character",
+      "goal": "Choose next visible missing Earth-like character; protect foliage overlap and moving frame tails",
+      "status": "Mangroves with3root forms and size-specific flood fit retained:225/179FPS, worst18/16ms. Larger canyon formations retained:240FPS/max30ms. Rockshader947 retained; extra full-ground colour-noise trial4ae RETIRED438 after subtle visual gain and inconclusive/worse forest timing. No broad FPS gain claimed."
+    }
+  ],
+  "remaining_review": "Owner visual/playtest review. Final code/native/direct-index/four moving routes and five-page PDF layout reviewed; the100FPSfloor and full Earth-like visual breadth remain unfinished.",
+  "later_work": [
+    "Resume after the owner's NPC-refinement pass, rather than starting another geography feature at handoff",
+    "Broad cliff surfaces and marsh vegetation need stronger art; do not mistake subtle palette changes for finished landscapes",
+    "Dune-form diversity: finite crescent fields and multidirectional forms qualified by sediment/wind context; extending minified grain textures did not improve broad views",
+    "Reedbed silhouettes/colonies across warm and cold marshes need stronger ground-level review",
+    "Volcanic flank/flow detail and humid/cold exposed-rock character; prioritize ground-level experience over distant hero views",
+    "Mixed-LOD material/normal interpolation is an independent existing seam limitation",
+    "100FPS worst-frame floor remains unmet; no universal200FPS claim",
+    "Geography remains static morphology rather than geological-time erosion/tides"
+  ],
+  "gates": [
+    "Pure bounds/continuity/admission",
+    "Actual-world sites/no history mutation",
+    "Shared terrain edge and ground/water/material/vegetation agreement",
+    "Inspect native screenshots and reject obvious faults",
+    "Uncontended moving/rapid-turn tails and loading against baseline",
+    "Focused commits, rollback index and honest end report"
+  ],
   "research": [
-    {"url":"https://www.nps.gov/articles/coastal-processes-erosion.htm","application":"Qualify rock coast erosion by material and regional wave exposure rather than flattening every shore."},
-    {"url":"https://www.nps.gov/mora/learn/management/upload/Geologic-Features-and-Processes.pdf","application":"Glacial troughs, cirques, ridges and hanging tributaries form related landforms."},
-    {"url":"https://nsidc.org/learn/parts-cryosphere/glaciers/why-glaciers-matter","application":"Condition glacial erosion on glaciation rather than putting it in every warm upland."},
-    {"url":"https://apps.usgs.gov/thesaurus/term-simple.php?code=1.5.5&thcode=4","application":"Talus is gravity-fed angular debris below steep rocky sources, not arbitrary mountain gravel."}
-  ]
+    {
+      "url": "https://www.nps.gov/articles/coastal-processes-erosion.htm",
+      "application": "Qualify rock coast erosion by material and regional wave exposure rather than flattening every shore."
+    },
+    {
+      "url": "https://www.nps.gov/mora/learn/management/upload/Geologic-Features-and-Processes.pdf",
+      "application": "Glacial troughs, cirques, ridges and hanging tributaries form related landforms."
+    },
+    {
+      "url": "https://nsidc.org/learn/parts-cryosphere/glaciers/why-glaciers-matter",
+      "application": "Condition glacial erosion on glaciation rather than putting it in every warm upland."
+    },
+    {
+      "url": "https://apps.usgs.gov/thesaurus/term-simple.php?code=1.5.5&thcode=4",
+      "application": "Talus is gravity-fed angular debris below steep rocky sources, not arbitrary mountain gravel."
+    }
+  ],
+  "delivered": {
+    "runtime_commit": "8c75e05d6bd18cecde279e31fe012c8a132d4262",
+    "slot": "slot-a",
+    "report": "docs/reports/geography-20261107/WorldGen - Geography Overnight 2026-11-07.pdf",
+    "verification": "assets/verification/geography-night-final-20261107.json",
+    "open_report_monitor": "leftmost; Unity/game review windows rightmost",
+    "resume_priority": "Owner NPC refinement first, then geography follow-ups listed here"
+  }
 }

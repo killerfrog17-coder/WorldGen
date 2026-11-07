@@ -1,0 +1,122 @@
+{
+  "status": "Delivered candidate selected in existing shortcut; code/native/direct-index/final moving checks complete. One final screenshot PDF reviewed. Absolute100FPS floor is NOT met.",
+  "runtime_commit": "8c75e05d6bd18cecde279e31fe012c8a132d4262",
+  "built_utc": "2026-11-07T17:09:50.9676469Z",
+  "backend": "Mono",
+  "development": false,
+  "source_changes_at_build": [],
+  "slot": "slot-a",
+  "generated_art": "Existing generated bark/ground retained. Both optional full-ground colour and extended sand trials retired.",
+  "controls": {
+    "mangrove": 7923,
+    "wetland": 101466,
+    "glacial": 119694,
+    "canyon": 214371,
+    "direct_index_full_samples": 1025,
+    "direct_index_patches": 41,
+    "direct_index_wet_samples": 238,
+    "direct_index_spans": 3789,
+    "asset_audit": 6505,
+    "locked_asset_files": 5898,
+    "large_backdrop_complete_packets_exact": 3
+  },
+  "native_broad_contexts": [
+    "SandSea",
+    "SaltFlat",
+    "WarmMarsh",
+    "TowerKarst",
+    "Volcano",
+    "Waterfall"
+  ],
+  "final_moving": [
+    {
+      "site": "dune-sea",
+      "frames": 27889,
+      "seconds": 60.00357,
+      "fps": 464.78903,
+      "p99_ms": 7.8928,
+      "max_ms": 16.987,
+      "frames_over16_667ms": 1,
+      "evidence": "artifacts\\geography-night-20261107\\sparse-backdrop-final-moving",
+      "focus": "dune-sea travel-whip-current focused_frames=27889 unfocused_frames=0\nglacial-forest-floor travel-whip-current focused_frames=9345 unfocused_frames=0",
+      "placement": "dune-sea requested=(-0.523478647,-0.666157032,-0.531229625); actual=(-0.523478647,-0.666157032,-0.531229625); displacement=0m; cell=46909; biome=Desert; landscape=SandSea; ground=182.271m; underwater=False; water=None/NaNm; glacial=0\nglacial-forest-floor requested=(-0.71023608100011559,-0.10120692689539341,0.69665046270995); actual=(-0.710340387,-0.101094953,0.696560367); displacement=113.1374922m; cell=169451; biome=TemperateRainforest; landscape=GlacialLowland; ground=446.958m; underwater=False; water=None/NaNm; glacial=0.70580844809340049"
+    },
+    {
+      "site": "glacial-forest-floor",
+      "frames": 9345,
+      "seconds": 60.01097,
+      "fps": 155.72153,
+      "p99_ms": 13.6009,
+      "max_ms": 25.8305,
+      "frames_over16_667ms": 18,
+      "evidence": "artifacts\\geography-night-20261107\\sparse-backdrop-final-moving",
+      "focus": "dune-sea travel-whip-current focused_frames=27889 unfocused_frames=0\nglacial-forest-floor travel-whip-current focused_frames=9345 unfocused_frames=0",
+      "placement": "dune-sea requested=(-0.523478647,-0.666157032,-0.531229625); actual=(-0.523478647,-0.666157032,-0.531229625); displacement=0m; cell=46909; biome=Desert; landscape=SandSea; ground=182.271m; underwater=False; water=None/NaNm; glacial=0\nglacial-forest-floor requested=(-0.71023608100011559,-0.10120692689539341,0.69665046270995); actual=(-0.710340387,-0.101094953,0.696560367); displacement=113.1374922m; cell=169451; biome=TemperateRainforest; landscape=GlacialLowland; ground=446.958m; underwater=False; water=None/NaNm; glacial=0.70580844809340049"
+    },
+    {
+      "site": "dense-tropicalrainforest",
+      "frames": 10123,
+      "seconds": 60.01085,
+      "fps": 168.68616,
+      "p99_ms": 12.0894,
+      "max_ms": 36.0261,
+      "frames_over16_667ms": 5,
+      "evidence": "artifacts\\geography-night-20261107\\final-jungle-savanna-moving",
+      "focus": "dense-tropicalrainforest travel-whip-current focused_frames=10123 unfocused_frames=0\nsavanna-tall travel-whip-current focused_frames=10236 unfocused_frames=0",
+      "placement": "dense-tropicalrainforest requested=(-0.587366508,-0.804592507,0.087358365); actual=(-0.587366508,-0.804592507,0.087358365); displacement=0m; cell=108692; biome=TropicalRainforest; landscape=Rainforest; ground=1570.35m; underwater=False; water=River/1570.3498269225092m; glacial=0\nsavanna-tall requested=(-0.889997055,-0.336424424,0.307772399); actual=(-0.889997055,-0.336424424,0.307772399); displacement=0m; cell=130822; biome=Savanna; landscape=VegetatedPlain; ground=138.015m; underwater=False; water=None/NaNm; glacial=0"
+    },
+    {
+      "site": "savanna-tall",
+      "frames": 10236,
+      "seconds": 60.0087,
+      "fps": 170.57527,
+      "p99_ms": 11.1894,
+      "max_ms": 23.6221,
+      "frames_over16_667ms": 1,
+      "evidence": "artifacts\\geography-night-20261107\\final-jungle-savanna-moving",
+      "focus": "dense-tropicalrainforest travel-whip-current focused_frames=10123 unfocused_frames=0\nsavanna-tall travel-whip-current focused_frames=10236 unfocused_frames=0",
+      "placement": "dense-tropicalrainforest requested=(-0.587366508,-0.804592507,0.087358365); actual=(-0.587366508,-0.804592507,0.087358365); displacement=0m; cell=108692; biome=TropicalRainforest; landscape=Rainforest; ground=1570.35m; underwater=False; water=River/1570.3498269225092m; glacial=0\nsavanna-tall requested=(-0.889997055,-0.336424424,0.307772399); actual=(-0.889997055,-0.336424424,0.307772399); displacement=0m; cell=130822; biome=Savanna; landscape=VegetatedPlain; ground=138.015m; underwater=False; water=None/NaNm; glacial=0"
+    }
+  ],
+  "limits": [
+    "Representative clear-summer-noon Medium1080/6km moving routes, not a world-wide worst-case proof",
+    "Occasional frame stalls remain; broad cliff/marsh art and mixed-LOD shading need work",
+    "109.5s->5.83s refers to a background tile in the same13km volcano review, not total startup or main-frame duration"
+  ],
+  "report": {
+    "path": "docs\\reports\\geography-20261107\\WorldGen - Geography Overnight 2026-11-07.pdf",
+    "pages": 5,
+    "bytes": 3964878,
+    "sha256": "168c9d5439560efec74ef3614d9500d9be37ec6162094944b89e44edce131163",
+    "screenshots": 12,
+    "canonical_inputs": "docs/reports/geography-20261107",
+    "review": "All five rendered pages inspected; no overflow; lowest content bottom56.76pt."
+  },
+  "artifact_delete_rejection": {
+    "path": "artifacts/render-repair-20261106/temperate-gpu-passes/dense-temperateforest-gpu.raw",
+    "bytes": 1407422101,
+    "reason": "blocked by policy",
+    "file_remains": true,
+    "no_bypass": true
+  },
+  "remaining_peak_facts": {
+    "evidence": "artifacts/geography-night-20261107/final-frame-peak-context.json",
+    "worst_average_sampled_route": "Inland glacial forest155.72FPS; not a world-wide worst-case search",
+    "worst_final_frame": "Jungle36.0261ms, Explorer1.543ms/Late.8497ms and no neighboring completed-collection counter change",
+    "collection_counter_coincidences": [
+      "Dune16.987ms overlaps counter increment and11.0012ms late forest submission scope",
+      "Savanna23.6221ms overlaps counter increment and8.0773ms late forest submission scope",
+      "Inland forest25.8305ms overlaps counter increment; Explorer4.1871ms"
+    ],
+    "limits": "Nested scopes overlap and counters are not native pause durations. No completed counter change does not exclude incremental collection. Untracked render/presentation waits also remain possible. Do not attribute these peaks to triangle count, shader cost or GC causally from this trace alone.",
+    "next_measurement": "If resuming spike work, align native collector stop/resume events with main/render/present timing before changing scheduling or graphics quality."
+  },
+  "shortcut": {
+    "path": "WorldGen.exe - Shortcut.lnk",
+    "selected_slot": "slot-a",
+    "target": "builds/slot-a/WorldGen.exe",
+    "working_directory": "C:/Users/kille/Desktop/WorldGen",
+    "arguments_preserved": true,
+    "icon_matches_target": true
+  }
+}

@@ -1,0 +1,307 @@
+{
+  "title": "WorldGen | Overnight geography",
+  "date": "7 NOVEMBER 2026",
+  "pages": [
+    {
+      "title": "Coasts with a history",
+      "subtitle": "Connected fjords, exposed shore platforms and inherited glacial valleys.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "images/fjord.jpg",
+              "caption": "A generated glacial inlet: continuous sea level, steep walls and forested lower banks."
+            }
+          ],
+          "max_height": 277
+        },
+        {
+          "text": "Fjords now follow qualifying glaciated coastal drainage. Their underwater basins and sills belong to the terrain itself; connected rivers meet the same sea datum. They remain a geographically selective feature rather than appearing on every coast."
+        },
+        {
+          "images": [
+            {
+              "file": "images/shore.jpg",
+              "caption": "Wave-cut rock shelf beneath an exposed headland."
+            },
+            {
+              "file": "images/glacial.jpg",
+              "caption": "An inland, forested U-shaped trough follows inherited drainage."
+            }
+          ],
+          "max_height": 143
+        },
+        {
+          "text": "Rocky shore platforms depend on resistant rock, exposure, sediment supply and relief. Sandy coves keep their depositional character. Glacial valleys gain broad floors and steep shoulders where the world already records glaciation. These are shared ground surfaces, with matching water, rooted vegetation and collision sampling."
+        },
+        {
+          "heading": "Visit in game",
+          "text": "<b>/landmark fjord</b> &nbsp; <b>/landmark shore</b> &nbsp; <b>/landmark glacial</b>"
+        }
+      ],
+      "sources": [
+        [
+          "NPS coastal erosion",
+          "https://www.nps.gov/articles/coastal-processes-erosion.htm"
+        ],
+        [
+          "NSIDC glaciers",
+          "https://nsidc.org/learn/parts-cryosphere/glaciers/why-glaciers-matter"
+        ]
+      ]
+    },
+    {
+      "title": "A different kind of forest",
+      "subtitle": "Warm tidal mangrove provinces gain inherited aerial roots and open muddy understories.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "images/mangrove-waterline.jpg",
+              "caption": "An actual flooded prop-root tree. The water, mud and tree use the same ground and sea level."
+            }
+          ],
+          "max_height": 275
+        },
+        {
+          "text": "Mangrove trees now differ from inland broadleaves: lower spreading crowns, salt-tolerant rooting and three inherited root forms. Enclosed canopies suppress the freshwater grass lawn, exposing mud and litter. Open margins retain more low vegetation."
+        },
+        {
+          "images": [
+            {
+              "file": "images/mangrove-pegs.jpg",
+              "caption": "Short breathing pegs emerge near the mud surface."
+            },
+            {
+              "file": "images/mangrove-knees.jpg",
+              "caption": "Knee roots provide another lineage-specific form."
+            }
+          ],
+          "max_height": 140
+        },
+        {
+          "text": "Flood tolerance varies with root form and actual tree size. Low pegs favour higher mud; prop-root trees can occupy deeper shallows. Near trees and distant forest pages use the same admission rule. This uses a static mean water level, not a new tidal simulation."
+        },
+        {
+          "heading": "Visit in game",
+          "text": "<b>/landmark mangrove</b>. Root forms are inherited by procedural lineages, so they remain consistent when revisiting a place."
+        }
+      ],
+      "sources": [
+        [
+          "Florida Museum mangrove zonation",
+          "https://www.floridamuseum.ufl.edu/southflorida/habitats/mangroves/zonation/"
+        ],
+        [
+          "UF/IFAS mangroves",
+          "https://ask.ifas.ufl.edu/publication/FR460"
+        ]
+      ]
+    },
+    {
+      "title": "Water threaded through wetlands",
+      "subtitle": "Irregular shallow hollows, organic hummocks and connected freshwater habitat.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "images/swamp.jpg",
+              "caption": "Wooded wetland: shallow water and dry rooted hummocks coexist."
+            }
+          ],
+          "max_height": 266
+        },
+        {
+          "text": "Shallow hollows and organic hummocks leave dry ground between water pockets. Smaller pools gain irregular arms only where their surveyed rims support a stable water level."
+        },
+        {
+          "images": [
+            {
+              "file": "images/marsh.jpg",
+              "caption": "An open freshwater marsh pool."
+            },
+            {
+              "file": "images/peat.jpg",
+              "caption": "A larger wetland complex with an irregular shore."
+            }
+          ],
+          "max_height": 142
+        },
+        {
+          "text": "Soil, salt, temperature and canopy still determine which plants grow. Ordinary deep ponds keep their bowls. The same physical bed controls water, rooted vegetation and collision."
+        },
+        {
+          "heading": "River continuity",
+          "text": "Shared station slopes and tangents remove the repeated lighting bands between river segments. Waterfall and pond checks passed alongside the revised river surface."
+        },
+        {
+          "heading": "What still needs work",
+          "text": "This is a physical and ecological improvement. Marsh vegetation remains visually basic, and reeds and pool margins still need a stronger art pass."
+        }
+      ]
+    },
+    {
+      "title": "More substantial canyon country",
+      "subtitle": "Rare sedimentary plateaus gain deeper relief, wider valleys and less uniform bedding.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "images/canyon-before.jpg",
+              "caption": "Earlier shape: shallow, repetitive terraces."
+            },
+            {
+              "file": "images/canyon-after.jpg",
+              "caption": "The same canyon with larger relief and varied inclined beds. Overview framing scales with width."
+            }
+          ],
+          "max_height": 155
+        },
+        {
+          "text": "The existing rare canyon provinces now inherit more relief from their elevated plateau setting. Smooth inclined weak beds replace the repeated flat stair treads, and erosion varies along the valley. The valley floor still follows its river?s height; the ground and water meet at shared edges."
+        },
+        {
+          "images": [
+            {
+              "file": "images/canyon-side.jpg",
+              "caption": "Along the revised canyon: broad valley floor, eroded shoulders and exposed sedimentary walls."
+            }
+          ],
+          "max_height": 253
+        },
+        {
+          "text": "Rock shading uses irregular bed tones and larger-scale weathering within the existing generated texture arrays. Broad walls are more varied, but this is still a stylized terrain surface, with room for better exposed-rock detail."
+        },
+        {
+          "heading": "Visit in game",
+          "text": "<b>/landmark canyon</b>. The admitted canyon provinces remain rare; this does not add a canyon around every river."
+        }
+      ],
+      "sources": [
+        [
+          "USGS sedimentary landscapes",
+          "https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-arches-national-park"
+        ],
+        [
+          "NPS rock coatings",
+          "https://www.nps.gov/articles/desertvarnish.htm"
+        ]
+      ]
+    },
+    {
+      "title": "Performance and limits",
+      "subtitle": "Medium vegetation, 1920x1080, 6 km; Ryzen 7 5700X and RTX 4060 (8 GB).",
+      "blocks": [
+        {
+          "text": "Clear local summer noon, world scale 0.1. Each route ran for 60 seconds with a 180 m out-and-back path and rapid turns while streaming remained active. These are representative checks, not a global worst-case guarantee."
+        },
+        {
+          "table": {
+            "headers": [
+              "Route",
+              "Average FPS",
+              "99% below (ms)",
+              "Worst frame ms"
+            ],
+            "widths": [
+              0.43,
+              0.19,
+              0.19,
+              0.19
+            ],
+            "rows": [
+              [
+                "Dune field (final)",
+                "465",
+                "7.89",
+                "16.99"
+              ],
+              [
+                "Dense jungle (final)",
+                "169",
+                "12.09",
+                "36.03"
+              ],
+              [
+                "Tall savanna (final)",
+                "171",
+                "11.19",
+                "23.62"
+              ],
+              [
+                "Inland glacial forest (final)",
+                "156",
+                "13.60",
+                "25.83"
+              ],
+              [
+                "Canyon bank",
+                "240",
+                "12.32",
+                "30.20"
+              ],
+              [
+                "High fjord, exact surface",
+                "305",
+                "12.01",
+                "20.47"
+              ],
+              [
+                "Wooded fjord, exact surface",
+                "235",
+                "11.02",
+                "23.96"
+              ],
+              [
+                "Wooded wetland",
+                "181",
+                "11.61",
+                "16.15"
+              ],
+              [
+                "Freshwater marsh",
+                "238",
+                "10.44",
+                "18.04"
+              ],
+              [
+                "Peat complex",
+                "246",
+                "10.21",
+                "19.58"
+              ],
+              [
+                "Mangrove, open route",
+                "225",
+                "11.84",
+                "18.05"
+              ],
+              [
+                "Mangrove, denser route",
+                "179",
+                "10.93",
+                "16.06"
+              ]
+            ]
+          }
+        },
+        {
+          "heading": "The 100 FPS floor is not solved",
+          "text": "100 FPS needs frames below 10 ms. Forest frames still cross that threshold regularly, with occasional 25-36 ms stalls in the final runs. Several averages exceed 200 FPS; dense forest does not do so consistently. These results do not establish a universal speedup."
+        },
+        {
+          "heading": "Faster distant terrain",
+          "text": "Sparse backdrop tiles now query only the river data they need. In the same large volcano overview, the slowest background tile fell from <b>109.5 seconds to 5.8 seconds</b>. Three complete large-tile outputs remained byte-identical. This is a background loading improvement, not a whole-game startup time or frame-hitch guarantee."
+        },
+        {
+          "heading": "Cost kept bounded",
+          "text": "Landforms reuse terrain and water meshes; roots share each tree's mesh and bark material. No new per-frame geography simulation or extra rock shader pass was added. Broad cliffs, marsh vegetation and existing mixed-LOD shading boundaries remain unfinished."
+        },
+        {
+          "heading": "Verification and rollback",
+          "text": "Checks cover physical bounds, continuity, water ownership, shared ground edges, near/far tree agreement and unchanged regional history. In-game screenshots were inspected, with failed prototypes revised. Features have focused Git commits and a revert index, so an individual change can be removed while retaining unrelated work."
+        }
+      ]
+    }
+  ]
+}
