@@ -1,6 +1,6 @@
 {
   "scope":"Inherited U-shaped mountain valleys attached to mapped glacial erosion and existing drainage.",
-  "status":"Numerical and actual-world tests passed; native screenshots and moving performance pending.",
+  "status":"Numerical and actual-world tests passed; native v2 passed and screenshots inspected. Moving performance measured; frame spikes and unfinished surface art remain.",
   "versions":{"terrain":"local-terrain-glacial-troughs-49","amplification":"hyper-amplification-glacial-troughs-44"},
   "research":[
     {"url":"https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm","application":"Glacial troughs widen pre-existing valleys, with broad floors and steep enclosing sides."},
@@ -11,5 +11,7 @@
   "numerical":{"scalar_checks":119694,"actual_world_valleys":4,"eligible_reaches":50,"indexed_faces":2291,"index_bytes":1621736,"maximum_face_candidates":13,"exhaustive_index_comparisons":731,"exact_cached_reverse_order_samples":196,"water_and_shared_edges":"passed","history_mutation":"none","evidence":"artifacts/geography-night-20261107/glacial-core-v2"},
   "cache":{"checks":21,"cold_concurrent_seconds":22.2045253,"warm_seconds":1.3201075,"cache_bytes":1600040,"evidence":"artifacts/geography-night-20261107/glacial-cache-v1","limits":"Full local terrain preparation observations, not the isolated cost of glacial index construction or total game startup."},
   "regressions":{"coastal_controls":32743,"terrain_reader":363729,"terrain_transport":414,"river_planform":1032},
-  "limits":["Static morphological approximation, not a glacier flow/erosion simulation.","This pass does not add cirques, hanging lakes, overhangs or ocean-connected fjords.","Numerical evidence is not visual acceptance or proof of a universal frame floor."]
+  "native":{"first_attempt":"artifacts/landscape-20261103/glacial-trough-native-v1-glacialtrough","first_attempt_status":"FAILED coverage timeout, no screenshots; not accepted as a pass","accepted_geometry":"artifacts/landscape-20261103/glacial-trough-native-v2-glacialtrough","checks":41,"exit":0,"tiles":428,"near_load_seconds":3.960,"full_ready_radius_m":3599,"observed":"Broad forested valley floor and exposed enclosing slopes, continuous water/banks. Slopes remain uniformly brown/rounded; river segment-lighting bands being addressed separately.","screenshots_inspected":["wide","ground","river-overview","landform-side","landform-overview","landform-morning","valley-floor","valley-axis"]},
+  "moving":{"evidence":"artifacts/geography-night-20261107/glacial-indexed-moving","package":"1edb7828","quality":"Medium 1920x1080, 6km, 60 seconds, 180m out-and-back with rapid camera turns","fps":150.96172,"p95_ms":12.0281,"p99_ms":15.2054,"max_ms":46.8686,"frames_over_16_7ms":28,"all_focused_frames":9059,"limits":"Unsettled streaming route, no comparable fully-loaded old-geometry baseline. Does not meet universal 100FPS floor and is not a stutter improvement claim."},
+  "limits":["Static morphological approximation, not a glacier flow/erosion simulation.","This pass does not add cirques, hanging lakes, overhangs or ocean-connected fjords.","Native shape works but surrounding surface/art remains unfinished; numerical/runtime success is not final art acceptance."]
 }
