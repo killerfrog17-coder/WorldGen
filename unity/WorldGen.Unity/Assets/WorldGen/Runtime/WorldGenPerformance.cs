@@ -747,6 +747,11 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("Tidal benchmark was relocated or lost actual mangrove habitat: "+error+"m / "+sample.Biome);
         return "PASS exact mapped mangrove benchmark location, error "+error+"m; bed "+sample.ElevationM+"m, forest "+sample.Forest.Coverage;
     }
+    public string PerformanceSiteReceipt(V requested)
+    {
+        var sample=walkingPatch.Sample(Position);double moved=(Position-requested).Length*terrain.RadiusM*HorizontalScale;
+        return $"requested=({requested.X:R},{requested.Y:R},{requested.Z:R}); actual=({Position.X:R},{Position.Y:R},{Position.Z:R}); displacement={moved:R}m; cell={sample.Cell}; biome={sample.Biome}; landscape={sample.Landscape}; ground={sample.ElevationM:R}m; underwater={sample.Underwater}; water={sample.WaterKind}/{sample.WaterSurfaceM:R}m; glacial={sample.GlacialInfluence:R}";
+    }
     public void PerformanceWalkingQueryMode()
     {
         // Recreate both comparison cases, so an indexed first case cannot
@@ -1436,6 +1441,8 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.WaterSurfaceCamera=true;terrainExplorer.PerformancePose();
             }
             else terrainExplorer.PerformanceDrySite();
+            V nominated=exactSites.TryGetValue(site.Item1,out var nominatedSite)?nominatedSite:world.Surface.Cells[site.Item2].Position;
+            File.AppendAllText(Path.Combine(output,"site-receipts.txt"),site.Item1+" "+terrainExplorer.PerformanceSiteReceipt(nominated)+"\n");
             terrainExplorer.TestView(1.65,20,3);terrainExplorer.PerformanceRender(width,height);
             TerrainMapViewport.Degrees(terrainExplorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
             PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);
