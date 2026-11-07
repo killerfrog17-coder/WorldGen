@@ -1,11 +1,29 @@
 {
-  "status": "Prototype; source controls pass, native appearance/collision/performance not yet accepted",
+  "status": "Revised scan-based candidate; source checks pass, new native appearance and performance pending",
   "scope": "Three-dimensional jointed masses on exposed steep walls, within the existing Outcrop instancing/culling/nearby-collider system. No change to the authoritative heightfield or unrelated vegetation density.",
   "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded.",
-  "geometry": "48 lithology/shape combinations. Massive rock has3 rows, layered rock5 rows; three unequal blocks per row, bevelled fracture faces and variable ledge projection. Near972/1620triangles, middle432/720, far108/180. Existing generated rock albedo/normal arrays; no new texture pass.",
+  "geometry": "Three CC0 scanned cliff shapes, mirrored and mapped to inherited lithology. Closed collision backing and three bounded LODs:3200/1050/260triangles. Geometry only; game uses its existing generated rock albedo/normal arrays.",
   "collision": "Reuse actual nearby nonconvex rock mesh colliders. Radial vertical and outward wall direction preserve undercut ledges. Geological anchors do not move onto changing coarse terrain triangles.",
-  "controls": {"checks":60491,"actual_cliffs":262,"first_build_aggregate_ms":1023.0,"timing_limit":"Background component aggregate across selected canyon patches, not frame time"},
-  "versions": {"scatter":"local-scatter-cliff-rocks-25","variant_marker":1048576},
+  "controls": {
+    "checks": 20898,
+    "actual_cliffs": 262,
+    "closed_meshes": 9,
+    "timing_limit": "Background component costs are not frame-time measurements"
+  },
+  "versions": {
+    "scatter": "local-scatter-cliff-rocks-26",
+    "variant_marker": 1048576
+  },
   "research": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-visibility-tool-in-unreal-engine",
-  "research_application": "Keep efficient height terrain for broad ground and use actual solid mesh geometry where a heightfield cannot represent projecting roofs. This pass adds ledges, not underground tunnel excavation."
+  "research_application": "Keep efficient height terrain for broad ground and use actual solid mesh geometry where a heightfield cannot represent projecting roofs. This pass adds ledges, not underground tunnel excavation.",
+  "prototype_rejection": {
+    "source": "14825d2c",
+    "native": "artifacts/landscape-20261103/cliff-candidate-v1-20261107-canyon",
+    "runtime_exit": 0,
+    "collision_passed": true,
+    "visual_accepted": false,
+    "reason": "Regular stacked block pattern and double-multiplied dark rock colour were visually unacceptable"
+  },
+  "material_fix": "Marked cliff material uses full generated stone albedo with only a small tint, rather than multiplying two full stone colours; normal strength is restrained. Other rock/item materials retain their existing behavior.",
+  "source_manifest": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/sources.json"
 }

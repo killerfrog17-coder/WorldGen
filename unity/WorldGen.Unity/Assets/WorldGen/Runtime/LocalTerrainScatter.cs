@@ -460,7 +460,7 @@ public sealed partial class LocalTerrainExplorer
                 bool cliff=kind==ScatterKind.Outcrop&&CliffRocks.Is(variant);
                 material.SetFloat("_RockLayer",8+(int)(cliff?CliffRocks.Family(variant):ToolStone.Family(variant)));material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
                 material.SetTexture("_RockNormals",landMaterial.GetTexture("_GroundNormals"));material.SetFloat("_RockLayers",landMaterial.GetFloat("_RockLayers"));
-                if(cliff)material.SetFloat("_Cull",2);
+                if(cliff){material.SetFloat("_Cull",2);material.SetFloat("_CliffSurface",1);}
             }
             if(!shared){RegisterScatterMaterial(material);if(kind==ScatterKind.GeneratedTree)treeMaterials[materialKey]=material;}
             parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});

@@ -7,22 +7,33 @@ static class CliffRockTests
     public static void Run(string path)
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
-        var signatures=new HashSet<string>();int ledges=0;
         foreach(RockFamily family in Enum.GetValues<RockFamily>())for(int shape=0;shape<8;shape++)
         {
-            int code=CliffRocks.Encode(family,shape);Check(CliffRocks.Is(code)&&CliffRocks.Family(code)==family,"Cliff anatomy retains its exact lithology");
-            var points=new List<V>();
-            for(int row=0;row<CliffRocks.Rows(code);row++)for(int column=0;column<3;column++)for(int face=0;face<6;face++)
-            for(int z=0;z<=3;z++)for(int x=0;x<=3;x++)
-            {
-                var p=CliffRocks.Surface(code,row,column,face,x*2d/3-1,z*2d/3-1);
-                Check(double.IsFinite(p.X)&&double.IsFinite(p.Y)&&double.IsFinite(p.Z)&&Math.Abs(p.X)<1&&p.Y>-.2&&p.Y<1.2&&Math.Abs(p.Z)<.6,"Jointed block surface is finite and bounded at every resolution");points.Add(p);
-            }
-            signatures.Add(string.Join("|",points.Where((_,i)=>i%97==0).Select(p=>$"{p.X:R},{p.Y:R},{p.Z:R}")));
-            double Front(int row)=>Enumerable.Range(0,3).SelectMany(column=>new[]{-1d,0,1}.SelectMany(u=>new[]{-1d,0,1}.Select(v=>CliffRocks.Surface(code,row,column,4,u,v).Z))).Max();
-            if(Enumerable.Range(0,CliffRocks.Rows(code)-1).Any(row=>Front(row+1)-Front(row)>.025))ledges++;
+            int code=CliffRocks.Encode(family,shape);Check(CliffRocks.Is(code)&&CliffRocks.Family(code)==family&&CliffRocks.Model(code)>=0&&CliffRocks.Model(code)<3,"Cliff anatomy retains lithology and a valid source model");
         }
-        Check(signatures.Count==48&&ledges>32,"Lineages vary and provide projecting ledges rather than one repeated ellipsoid");
+        int downFaces=0;
+        for(int source=0;source<3;source++)for(int lod=0;lod<3;lod++)
+        {
+            string file=$"unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-{source}-l{lod}.bytes";
+            using var reader=new BinaryReader(File.OpenRead(file));Check(reader.ReadUInt32()==0x31435257,"Recorded cliff geometry header");
+            int vertices=reader.ReadInt32(),indices=reader.ReadInt32();Check(indices/3<=new[]{3200,1050,260}[lod],"Cliff LOD respects the triangle budget");
+            var positions=new V[vertices];
+            for(int i=0;i<vertices;i++)
+            {
+                positions[i]=new V(reader.ReadSingle(),reader.ReadSingle(),reader.ReadSingle());var normal=new V(reader.ReadSingle(),reader.ReadSingle(),reader.ReadSingle());
+                Check(double.IsFinite(positions[i].X)&&double.IsFinite(positions[i].Y)&&double.IsFinite(positions[i].Z)&&normal.Length>.9&&normal.Length<1.1,"Scan geometry and normals are finite and usable");reader.ReadSingle();reader.ReadSingle();
+            }
+            var edges=new Dictionary<(int,int),int>();double volume=0;
+            for(int t=0;t<indices;t+=3)
+            {
+                int a=reader.ReadInt32(),b=reader.ReadInt32(),c=reader.ReadInt32();Check(a>=0&&a<vertices&&b>=0&&b<vertices&&c>=0&&c<vertices,"Cliff indices remain in range");
+                foreach(var edge in new[]{(a,b),(b,c),(c,a)}){var sorted=(Math.Min(edge.Item1,edge.Item2),Math.Max(edge.Item1,edge.Item2));edges.TryGetValue(sorted,out int count);edges[sorted]=count+1;}
+                var cross=V.Cross(positions[b]-positions[a],positions[c]-positions[a]);if(cross.Y<-.00001)downFaces++;volume+=V.Dot(positions[a],V.Cross(positions[b],positions[c]))/6;
+            }
+            Check(edges.Values.All(n=>n==2)&&volume>0,"Prepared scan is a closed outward-facing collision solid");
+            Check(reader.BaseStream.Position==reader.BaseStream.Length,"Cliff data is complete without trailing arrays");
+        }
+        Check(downFaces>50,"Prepared geometry contains real downward-facing ledge surfaces");
         var wet=new LocalTerrainSample{ElevationM=5,WaterSurfaceM=10,WaterMaskM=1,Biome=Biome.TemperateForest};
         Check(!CliffRocks.TryCreate(1,new V(1,0,0),wet,null,637100,32,1,out _),"Submerged ground cannot create cliff masses or trigger terrain probes");
         if(path!=null)

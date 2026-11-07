@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed partial class LocalScatter
     {
-        public const string Version="local-scatter-cliff-rocks-25";
+        public const string Version="local-scatter-cliff-rocks-26";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -73,6 +73,20 @@ namespace WorldGen.Core
             // plant and each of its slope probes. One-off walking queries keep
             // their existing lazy path and do not acquire a new setup hitch.
             token.ThrowIfCancellationRequested();patch.RiverSpans();
+            System.Collections.Generic.Dictionary<(int,int),double> cliffHeights=null;
+            bool BroadCliff(int x,int y,int side,double spacing,double height)
+            {
+                if(cliffHeights==null)cliffHeights=new System.Collections.Generic.Dictionary<(int,int),double>();
+                double low=height,high=height;
+                for(int dz=0;dz<2;dz++)for(int dx=0;dx<2;dx++)
+                {
+                    var corner=(x+dx,y+dz);
+                    if(!cliffHeights.TryGetValue(corner,out double h))
+                    {h=patch.Elevation(Position(key,corner.Item1/(double)side,corner.Item2/(double)side));cliffHeights.Add(corner,h);}
+                    low=Math.Min(low,h);high=Math.Max(high,h);
+                }
+                return high-low>Math.Max(6,spacing*.35);
+            }
             double nominal=2*terrain.RadiusM*scale/Divisions(key.Detail),area=nominal*nominal;
             int grid=key.Detail?32:64;
             for(int channel=0;channel<(key.Detail?2:4);channel++)
@@ -101,7 +115,7 @@ namespace WorldGen.Core
                         {
                             double cliffU=(key.X+u)*2/Divisions(false)-1,cliffV=(key.Y+v)*2/Divisions(false)-1;
                             double spacing=512d/side/Math.Pow(1+cliffU*cliffU+cliffV*cliffV,.75);
-                            if(CliffRocks.TryCreate(id,p,sample,patch,terrain.RadiusM*scale,spacing,seed,out var cliff)){result.Add(cliff);continue;}
+                            if(BroadCliff(x,y,side,spacing,sample.ElevationM)&&CliffRocks.TryCreate(id,p,sample,patch,terrain.RadiusM*scale,spacing,seed,out var cliff)){result.Add(cliff);continue;}
                         }
                         double wet=env==null?.7:D.Clamp(env.Value.AridityMilli/1300.0,.03,1.4);
                         double warm=env==null?18:env.Value.WarmTenthsC/10.0-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);

@@ -1,0 +1,131 @@
+{
+  "format": "WRC1 little-endian xyz/normal/uv/index",
+  "license": "CC0-1.0 geometry; existing generated game textures",
+  "sources": [
+    {
+      "name": "rock_face_01",
+      "page": "https://polyhaven.com/a/rock_face_01",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/1k/rock_face_01/rock_face_01_1k.blend",
+      "file": "assets-source/terrain/rocks/polyhaven/rock_face_01.blend",
+      "bytes": 980558,
+      "sha256": "e6de5faaad702bc3be9930049851f91d444edb230adaba93b3272a753f1b8e92",
+      "textures_downloaded": false
+    },
+    {
+      "name": "rock_face_02",
+      "page": "https://polyhaven.com/a/rock_face_02",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/1k/rock_face_02/rock_face_02_1k.blend",
+      "file": "assets-source/terrain/rocks/polyhaven/rock_face_02.blend",
+      "bytes": 1127323,
+      "sha256": "ea9190628d994180657090cfe22144e13715a3b861fd659b8fd07e29c95748cf",
+      "textures_downloaded": false
+    },
+    {
+      "name": "namaqualand_cliff_01",
+      "page": "https://polyhaven.com/a/namaqualand_cliff_01",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/1k/namaqualand_cliff_01/namaqualand_cliff_01_1k.blend",
+      "file": "assets-source/terrain/rocks/polyhaven/namaqualand_cliff_01.blend",
+      "bytes": 6351627,
+      "sha256": "eba0ae3947ec26c866f9174b6a70816d96b1d3c543356fa6d27f0d8a4eef09f1",
+      "textures_downloaded": false
+    }
+  ],
+  "meshes": [
+    {
+      "asset": "rock_face_01",
+      "lod": 0,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-0-l0.bytes",
+      "vertices": 1602,
+      "triangles": 3200,
+      "closed": true,
+      "bytes": 89676,
+      "sha256": "15edee220fa7e83ccf0cf3cc28b70e5bdb3f0215a979fff35932f124197a325e"
+    },
+    {
+      "asset": "rock_face_01",
+      "lod": 1,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-0-l1.bytes",
+      "vertices": 527,
+      "triangles": 1050,
+      "closed": true,
+      "bytes": 29476,
+      "sha256": "a3c76b67dfb54a2ceb9ebc092a36ec45b6881b7b6c16e132bb318b205722aa6b"
+    },
+    {
+      "asset": "rock_face_01",
+      "lod": 2,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-0-l2.bytes",
+      "vertices": 132,
+      "triangles": 260,
+      "closed": true,
+      "bytes": 7356,
+      "sha256": "0486b0b61fe3a1570e30e2f74927c529a9610ba893355ad7d772a15386a961b7"
+    },
+    {
+      "asset": "rock_face_02",
+      "lod": 0,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-1-l0.bytes",
+      "vertices": 1592,
+      "triangles": 3200,
+      "closed": true,
+      "bytes": 89356,
+      "sha256": "d9070768ec1efa8ed7f9a0534e8384a6168b3d0c3d0675deccab36bb581b3948"
+    },
+    {
+      "asset": "rock_face_02",
+      "lod": 1,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-1-l1.bytes",
+      "vertices": 517,
+      "triangles": 1050,
+      "closed": true,
+      "bytes": 29156,
+      "sha256": "cf43009e60f8d98d794341925e56e7ed0910194e9a5344e29aaa173b26436434"
+    },
+    {
+      "asset": "rock_face_02",
+      "lod": 2,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-1-l2.bytes",
+      "vertices": 126,
+      "triangles": 260,
+      "closed": true,
+      "bytes": 7164,
+      "sha256": "cb1de53b6649d6b17e0ef06c041ae791aa55dc8f582ab28bac4d204bf1b7b5a3"
+    },
+    {
+      "asset": "namaqualand_cliff_01",
+      "lod": 0,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-2-l0.bytes",
+      "vertices": 1598,
+      "triangles": 3200,
+      "closed": true,
+      "bytes": 89548,
+      "sha256": "3b1f187b82d7138e9545157569c7a54476955f008948407a0f1c33db117ea67c"
+    },
+    {
+      "asset": "namaqualand_cliff_01",
+      "lod": 1,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-2-l1.bytes",
+      "vertices": 523,
+      "triangles": 1050,
+      "closed": true,
+      "bytes": 29348,
+      "sha256": "7909cdb215bd95053588500e28b439d1f449477a70bfa97ad7fd58ce77f69a25"
+    },
+    {
+      "asset": "namaqualand_cliff_01",
+      "lod": 2,
+      "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-2-l2.bytes",
+      "vertices": 128,
+      "triangles": 260,
+      "closed": true,
+      "bytes": 7228,
+      "sha256": "e39244edaf9f3830ff0485efe2262b47c4703eced1f5e09dda35c5fb136ca80a"
+    }
+  ]
+}

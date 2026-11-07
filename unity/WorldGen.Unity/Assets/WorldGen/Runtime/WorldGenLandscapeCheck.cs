@@ -628,7 +628,7 @@ public sealed partial class LocalTerrainExplorer
             for(int i=0;i<cliffs.Length;i++)
             {
                 var item=cliffs[i];var rock=item.Chunk.Source.Instances[item.Index];var mesh=owner.Art(rock.Kind,rock.Variant,0).Parts[0].Mesh;
-                Check(mesh.triangles.Length/3<=1620,"Cliff near geometry is bounded to1620triangles per mass");
+                Check(mesh.triangles.Length/3<=3200,"Cliff near geometry is bounded to3200triangles per mass");
                 if(!reachableRoof.HasValue&&owner.ReviewCliffRoof(item.Chunk,item.Index,out var roof))reachableRoof=roof;
                 if(i>=3)continue;
                 var center=item.Chunk.Roots[item.Index]+Vector3.up*(float)(rock.HeightM*.5);

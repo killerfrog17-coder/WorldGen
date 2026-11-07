@@ -62,6 +62,9 @@ def inventory():
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
     tree('assets-source/terrain/surfaces','terrain-authoring-source',{'.png','.jpg','.json','.txt'})
+    tree('assets-source/terrain/rocks','terrain-rock-source',{'.blend','.json','.txt'})
+    tree('unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1','terrain-rock-runtime',{'.bytes','.json','.meta'})
+    add('unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1.meta','terrain-rock-runtime')
     tree('assets-source/vegetation/tree-surfaces','tree-authoring-source',{'.png','.jpg','.json','.txt'})
     tree('assets-source/vegetation/ground-clumps','ground-clump-authoring-source',{'.blend','.png','.jpg','.exr','.json','.txt'})
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1']:

@@ -8,6 +8,7 @@ Shader "WorldGen/LocalScatter"
         _NormalStrength("Normal strength",Range(0,2))=1 _Cutoff("Alpha cutoff",Range(0,1))=.4
         _RockAlbedo("Rock detail",2DArray)=""{} _RockNormals("Rock normals",2DArray)=""{}
         _RockLayer("Lithology",Float)=8 _RockLayers("Use rock textures",Float)=0
+        _CliffSurface("Full-colour cliff material",Float)=0
         [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha clip",Float)=0
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
         _HerbWind("Root-anchored herb bending",Float)=0
@@ -47,7 +48,7 @@ Shader "WorldGen/LocalScatter"
             #include "WorldGenTree.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
             TEXTURE2D_ARRAY(_RockAlbedo);SAMPLER(sampler_RockAlbedo);TEXTURE2D_ARRAY(_RockNormals);
-            float _RockLayer,_RockLayers;
+            float _RockLayer,_RockLayers,_CliffSurface;
             float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint,_PlantTraits;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance,_HerbWind;
             float _TreeSurface,_TreeLeafShape,_TreeBarkPattern,_SimpleFoliage,_WorldGenFullPlantPbr;
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -105,8 +106,11 @@ Shader "WorldGen/LocalScatter"
                     float3 w=pow(abs(n),4);w/=max(.001,w.x+w.y+w.z);float3 p=i.position*.65;
                     float3 grain=SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.yz,_RockLayer).rgb*w.x+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xz,_RockLayer).rgb*w.y+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xy,_RockLayer).rgb*w.z;
                     float3 a=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.yz,_RockLayer).xyz*2-1,b=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xz,_RockLayer).xyz*2-1,c=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xy,_RockLayer).xyz*2-1;
-                    n=normalize(n+float3(0,a.x,a.y)*w.x+float3(b.x,0,b.y)*w.y+float3(c.x,c.y,0)*w.z);
-                    tex.rgb*=grain*2;
+                    n=normalize(n+(float3(0,a.x,a.y)*w.x+float3(b.x,0,b.y)*w.y+float3(c.x,c.y,0)*w.z)*lerp(1,.4,saturate(_CliffSurface)));
+                    // Generated scans already contain their stone's albedo.
+                    // Applying another full dark rock colour crushed it twice.
+                    tex.rgb*=grain*lerp(2,1,saturate(_CliffSurface));
+                    tint=lerp(tint,lerp(1,tint,.12),saturate(_CliffSurface));
                 }
                 float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_BaseMap,i.uv);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
