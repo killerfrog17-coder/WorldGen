@@ -8,7 +8,8 @@ namespace WorldGen.Core
     public enum TreeBarkPattern { Smooth, Fissured, Scaly, Fibrous, Peeling }
     public enum TreeLeafHabit { Evergreen, ColdDeciduous, DroughtDeciduous }
     public enum TreeFruitForm { Spores, Cone, FleshyFruit, Nut, DryCapsule, WingedSeed }
-    public enum TreeCrownStrategy { General, TropicalCanopy, OpenWoodland }
+    public enum TreeCrownStrategy { General, TropicalCanopy, OpenWoodland, Mangrove }
+    public enum TreeRootForm { Ordinary, Prop, Pneumatophore, Knee }
 
     /// <summary>Species-space anatomy: inherited founder traits, a small province
     /// branch and smaller regional variation. Low three code bits are individuals'
@@ -35,6 +36,7 @@ namespace WorldGen.Core
             CrownAspect=(.55+.55*r.Unit())*branch;BranchLift=.15+.55*r.Unit();Forking=.35+.65*r.Unit();
             if(Strategy==TreeCrownStrategy.TropicalCanopy){CrownBase=.58+.10*r.Unit();CrownAspect=.85+.20*r.Unit();BranchLift=.35+.25*r.Unit();}
             if(Strategy==TreeCrownStrategy.OpenWoodland){CrownBase=.64+.10*r.Unit();CrownAspect=1.05+.25*r.Unit();BranchLift=.12+.16*r.Unit();}
+            if(Strategy==TreeCrownStrategy.Mangrove){CrownBase=.20+.10*r.Unit();CrownAspect=.80+.25*r.Unit();BranchLift=.18+.20*r.Unit();}
             TrunkRadius=(.014+.015*r.Unit())*branch;Branches=8+(int)(r.Unit()*6);Leaflets=5+(int)(r.Unit()*4);
             if(Strategy==TreeCrownStrategy.TropicalCanopy)TrunkRadius*=.55;
             LeafAspect=.22+.48*r.Unit();LeafLobes=3+(int)(r.Unit()*3);Openness=.08+.30*r.Unit();
@@ -48,6 +50,8 @@ namespace WorldGen.Core
             // Consume the inherited draw above so all other traits stay stable.
             if(Form==TreeGrowthForm.FrondCrown||Form==TreeGrowthForm.TreeFern)BarkPattern=TreeBarkPattern.Fibrous;
             if(Form==TreeGrowthForm.TallCane||Form==TreeGrowthForm.ArborescentSucculent)BarkPattern=TreeBarkPattern.Smooth;
+            if(Strategy==TreeCrownStrategy.Mangrove)
+            {LeafShape=(founder&1)==0?TreeLeafShape.Oval:TreeLeafShape.Lanceolate;BarkPattern=(founder&2)==0?TreeBarkPattern.Smooth:TreeBarkPattern.Fissured;}
             WoodDensityKgM3=(Form==TreeGrowthForm.NeedleCrown?330+260*r.Unit():420+420*r.Unit())*branch;
             HardnessIndex=D.Clamp((WoodDensityKgM3-250)/700*.75+.25*r.Unit());
             DecayResistance=.15+.75*r.Unit();RelativeGrowth=D.Clamp(1.15-WoodDensityKgM3/1100+(r.Unit()-.5)*.25);
@@ -110,11 +114,20 @@ namespace WorldGen.Core
     /// random combinations at every region or plant. Saved food webs stay literal.</summary>
     public static class TreeFlora
     {
-        public const string Version="tree-flora-4";
+        public const string Version="tree-flora-mangroves-5";
         public const double PlacementPerM2=.055;
         public static int RenderCode(int code)=>code&0x70ffff00;
         public static int ModelCode(int code,int lod)
         {if(lod>=2)return RenderCode(code);var form=(TreeGrowthForm)((code>>28)&7);return form==TreeGrowthForm.BroadCrown||form==TreeGrowthForm.NeedleCrown?code&~7:code;}
+        public static bool TidalCode(int code)=>((code>>28)&7)==(int)TreeGrowthForm.BroadCrown&&((code>>22)&3)==(int)TreeCrownStrategy.Mangrove;
+        public static TreeRootForm RootForm(int code)=>!TidalCode(code)?TreeRootForm.Ordinary:(TreeRootForm)(1+Rng.Mix((uint)((code>>8)&16383))%3);
+        public static bool Rooting(ForestCoverProfile profile,double elevation,bool underwater,double depth=0,Biome? biome=null)
+        {
+            // Only mapped warm coastal lineages get this exception. Ordinary
+            // trees cannot colonise lakes, open ocean or submerged riverbeds.
+            bool tidal=biome==Biome.Mangrove&&TidalCode(profile.MorphologyCode);
+            return tidal?(underwater?depth>=0&&depth<=1.25:elevation>=0):!underwater&&elevation>=2;
+        }
         public static double HabitatAdmission(LocalTerrainSample sample)=>D.Clamp(sample.Forest.Coverage*Stocking(sample.Forest));
         public static double SlopeAdmission(double up)=>D.Clamp((up-.60)/.22);
         public static double SpeciesWeight(TreeSpecies species,HabitatCell? habitat,LocalTerrainSample sample,V at,int seed,double radius,double sourceElevation)
@@ -142,6 +155,7 @@ namespace WorldGen.Core
                 var branch=new Rng(world.Recipe.Seed,"tree-province-branch-1",unchecked(province*31+family));
                 var local=new Rng(world.Recipe.Seed,"tree-region-branch-1",unchecked(region*31+family));
                 var strategy=form!=TreeGrowthForm.BroadCrown?TreeCrownStrategy.General:
+                    h!=null&&h.Value.Biome==Biome.Mangrove?TreeCrownStrategy.Mangrove:
                     h!=null&&(h.Value.Biome==Biome.TropicalRainforest||h.Value.Biome==Biome.TropicalSeasonalForest)?TreeCrownStrategy.TropicalCanopy:
                     h!=null&&(h.Value.Biome==Biome.Savanna||h.Value.Biome==Biome.MediterraneanWoodland)?TreeCrownStrategy.OpenWoodland:TreeCrownStrategy.General;
                 int code=((int)(founder.Next()&16383)<<8)|((int)strategy<<22)|((int)(branch.Unit()*16)<<24)|((int)(local.Unit()*32)<<3)|((int)form<<28);
@@ -152,22 +166,25 @@ namespace WorldGen.Core
                 double height=founderHeight*(.90+.20*branch.Unit())*(.95+.10*local.Unit());
                 if(strategy==TreeCrownStrategy.TropicalCanopy)height=(29+10*founder.Unit())*(.94+.12*branch.Unit())*(.96+.08*local.Unit());
                 if(strategy==TreeCrownStrategy.OpenWoodland)height=(7+8*founder.Unit())*(.94+.12*local.Unit());
+                if(strategy==TreeCrownStrategy.Mangrove)height=(8+8*founder.Unit())*(.92+.16*branch.Unit())*(.95+.10*local.Unit());
                 double width=height*(form==TreeGrowthForm.NeedleCrown?.32:form==TreeGrowthForm.FrondCrown?.55:form==TreeGrowthForm.TreeFern?.85:
                     form==TreeGrowthForm.ArborescentSucculent?.45:form==TreeGrowthForm.TallCane?.25:.45+.40*founder.Unit());
                 if(strategy==TreeCrownStrategy.OpenWoodland)width=height*(1.0+.5*founder.Unit());
                 if(strategy==TreeCrownStrategy.TropicalCanopy)width=height*(.55+.20*founder.Unit());
+                if(strategy==TreeCrownStrategy.Mangrove)width=height*(.75+.25*founder.Unit());
                 double ancestralMoisture=.35+1.3*founder.Unit(),moisture=ancestralMoisture*.65+D.Clamp(wet,.2,2)*.35;
                 if(form==TreeGrowthForm.TreeFern)moisture=Math.Max(1.1,moisture);
                 if(form==TreeGrowthForm.ArborescentSucculent)moisture=.12+.2*founder.Unit();
                 var habit=form==TreeGrowthForm.NeedleCrown||form==TreeGrowthForm.FrondCrown||form==TreeGrowthForm.TreeFern||form==TreeGrowthForm.ArborescentSucculent?
                     TreeLeafHabit.Evergreen:cold< -2?TreeLeafHabit.ColdDeciduous:wet<.7?TreeLeafHabit.DroughtDeciduous:TreeLeafHabit.Evergreen;
+                if(strategy==TreeCrownStrategy.Mangrove)habit=TreeLeafHabit.Evergreen;
                 result.Add(new TreeSpecies{Id=((ulong)(uint)region<<32)|(uint)family,RegionId=region,ProvinceId=province,FamilyId=family,MorphologyCode=code,
                     Name=char.ToUpperInvariant(genus[0])+genus.Substring(1)+" "+epithet,FamilyName=genus,ProvinceBranch=province+" / "+genus,
                     Form=form,LeafHabit=habit,HeightM=D.Q(height,1000),WidthM=D.Q(width,1000),Morphology=m,Reproduction=new TreeReproduction(code),
                     LeafLengthM=form==TreeGrowthForm.FrondCrown||form==TreeGrowthForm.TreeFern?1.5+2*founder.Unit():form==TreeGrowthForm.NeedleCrown?.015+.045*founder.Unit():.04+.15*founder.Unit(),
                     Moisture=moisture,ShadeTolerance=form==TreeGrowthForm.TreeFern?.65+.25*founder.Unit():.15+.65*founder.Unit(),
-                    MinWarmC=form==TreeGrowthForm.NeedleCrown?5:form==TreeGrowthForm.BroadCrown?9:18,MaxWarmC=form==TreeGrowthForm.NeedleCrown?32:48,
-                    MinColdC=form==TreeGrowthForm.NeedleCrown?-55:form==TreeGrowthForm.BroadCrown?-35:form==TreeGrowthForm.ArborescentSucculent?-5:1,
+                    MinWarmC=strategy==TreeCrownStrategy.Mangrove?18:form==TreeGrowthForm.NeedleCrown?5:form==TreeGrowthForm.BroadCrown?9:18,MaxWarmC=form==TreeGrowthForm.NeedleCrown?32:48,
+                    MinColdC=strategy==TreeCrownStrategy.Mangrove?0:form==TreeGrowthForm.NeedleCrown?-55:form==TreeGrowthForm.BroadCrown?-35:form==TreeGrowthForm.ArborescentSucculent?-5:1,
                     MaxSalinity=h!=null&&h.Value.Biome==Biome.Mangrove?.7+.25*founder.Unit():.035+.10*founder.Unit(),FloodTolerance=h!=null&&h.Value.Biome==Biome.Mangrove?.95:.12+.55*founder.Unit(),
                     DroughtTolerance=form==TreeGrowthForm.ArborescentSucculent?.95:D.Clamp(1.1-moisture*.55),LongevityYears=50+450*founder.Unit(),SeedMassG=.005+Math.Pow(founder.Unit(),3)*12});
             }
@@ -197,7 +214,7 @@ namespace WorldGen.Core
             if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
             // Mangrove salt/flood tolerance must not turn every unrelated
             // regional lineage into a mangrove-shaped palm or tree fern.
-            if(biome==Biome.Mangrove&&s.Form!=TreeGrowthForm.BroadCrown)return 0;
+            if((biome==Biome.Mangrove||h!=null&&h.Value.Biome==Biome.Mangrove)&&s.Form!=TreeGrowthForm.BroadCrown)return 0;
             double wet=h==null?.9:h.Value.AridityMilli*.001,warm=(h==null?18:h.Value.WarmTenthsC*.1)-elevationOffset*.006,cold=(h==null?5:h.Value.ColdTenthsC*.1)-elevationOffset*.006;
             double fit=D.Clamp((warm-s.MinWarmC)/5)*D.Clamp((s.MaxWarmC-warm)/7)*D.Clamp((cold-s.MinColdC)/8);
             fit*=Math.Exp(-Math.Pow((wet-s.Moisture)/Math.Max(.3,s.Moisture*.75),2));
@@ -276,9 +293,9 @@ namespace WorldGen.Core
             if(h!=null){p.GapThreshold+=.045*h.Value.FirePotentialPermille*.001;p.StandVariation+=.15*h.Value.FirePotentialPermille*.001;}
             return p;
         }
-        public static ForestCoverProfile Surface(ForestCoverProfile p,V point,int seed,double radius,double elevation,double up,bool underwater)
+        public static ForestCoverProfile Surface(ForestCoverProfile p,V point,int seed,double radius,double elevation,double up,bool underwater,double waterDepth=0,Biome? biome=null)
         {
-            p.Coverage*=underwater||elevation<2?0:Stand(p,point,seed,radius)*Stocking(p)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
+            p.Coverage*=!Rooting(p,elevation,underwater,waterDepth,biome)?0:Stand(p,point,seed,radius)*Stocking(p)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
             return p;
         }
     }

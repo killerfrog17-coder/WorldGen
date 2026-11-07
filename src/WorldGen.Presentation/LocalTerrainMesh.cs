@@ -164,7 +164,8 @@ namespace WorldGen.Presentation
                     mid.Coverage*MidFlora.StandDensity(frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*D.Clamp((up-.65)/.25);
                 int midAt=i*6;mesh.MidCover[midAt]=(float)mid.Color.X;mesh.MidCover[midAt+1]=(float)mid.Color.Y;mesh.MidCover[midAt+2]=(float)mid.Color.Z;
                 mesh.MidCover[midAt+3]=(float)midAmount;mesh.MidCover[midAt+4]=(float)mid.HeightM;mesh.MidCover[midAt+5]=(float)mid.WidthM;
-                var forest=TreeFlora.Surface(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,sample.ElevationM,up,sample.Underwater);
+                var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
+                var forest=TreeFlora.Surface(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,sample.ElevationM,up,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,rootBiome);
                 int forestAt=i*8;mesh.ForestCover[forestAt]=(float)forest.Color.X;mesh.ForestCover[forestAt+1]=(float)forest.Color.Y;mesh.ForestCover[forestAt+2]=(float)forest.Color.Z;
                 mesh.ForestCover[forestAt+3]=(float)forest.Coverage;mesh.ForestCover[forestAt+4]=(float)forest.HeightM;mesh.ForestCover[forestAt+5]=(float)forest.WidthM;mesh.ForestCover[forestAt+6]=(float)forest.Openness;
                 // Discrete representative anatomy in the existing spare word;

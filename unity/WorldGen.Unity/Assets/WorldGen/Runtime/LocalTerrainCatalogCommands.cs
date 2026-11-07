@@ -9,11 +9,11 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NaturalLandmark {public string Name;public V Point,Focus;public double FocusM;}
     Task<NaturalLandmark> landmarkSearch;int landmarkGeneration;
-    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | fjord | outcrop | dome | karst | shore";
+    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | fjord | outcrop | dome | karst | shore | mangrove";
     PlayCommandResult ExecuteLandmark(string[] words)
     {
         if(words.Length!=2)return new PlayCommandResult(words.Length==1,LandmarkUsage);
-        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","fjord","outcrop","dome","karst","shore"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
+        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","fjord","outcrop","dome","karst","shore","mangrove"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
         if(!Ready||sourceWorld==null)return new PlayCommandResult(false,"Terrain is not ready yet.");
         if(landmarkSearch!=null)return new PlayCommandResult(false,"A landmark search is already running.");
         var model=terrain;var world=sourceWorld;double scale=HorizontalScale;landmarkGeneration=generation;
@@ -33,6 +33,11 @@ public sealed partial class LocalTerrainExplorer
         {
             var focus=(coast.Position-coast.Seaward*(70/radius)).Unit;
             var site=Site("Rocky wave-cut shore "+coast.Cell,coast.Position,focus);if(site!=null)return site;
+        }
+        if(kind=="mangrove")foreach(var coast in TidalForestSites.Nearshore(world,model))
+        {
+            var focus=(coast.Position+coast.Seaward*(20/radius)).Unit;
+            var site=Site("Tidal mangrove forest "+coast.Cell,coast.Position,focus,0);if(site!=null)return site;
         }
         if(kind=="fjord")foreach(var form in model.Amplification.Fjords.Inlets.OrderByDescending(f=>f.LengthM*f.Relief))
         {

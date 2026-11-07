@@ -1,0 +1,33 @@
+{
+  "status": "Core and actual-world checks passed; native appearance and performance pending. Not selected for owner play yet.",
+  "scope": "Existing mapped warm intertidal mangrove provinces gain salt-tolerant broad-crown lineages, lower spreading crowns and inherited prop, breathing-peg or knee roots. Ordinary inland trees and their placement remain unchanged.",
+  "rendering": "Root paths join existing shared opaque continuous tree meshes with generated bark, analytic normals/tangents and lower-trunk damp staining. No per-tree object, extra material, render pass, tick or point light. Existing placement lattice, density and culling budgets retained.",
+  "rooting": "Mapped mangrove lineage only; dry tidal ground at or above sea level, or submerged ground no deeper than1.25m. Same near scatter, far forest and terrain/map cover predicate. Ordinary trees retain dry ground >=2m requirement. No universal lake/ocean colonization exception.",
+  "checks": {
+    "controls": 2702,
+    "world_checks": 29048,
+    "mapped_mangrove_cells": 319,
+    "actual_sites": 3,
+    "tidal_trees": 6567,
+    "trees_below_old_2m_gate": 6180,
+    "shallow_submerged_trees": 2771,
+    "root_forms_each_site": 3,
+    "inland_lineage_snapshots_exact": 72,
+    "outside_mangrove_worker_packets_exact": 42,
+    "worker_packet_normalization": "BuildMs only; full terrain/forest/scatter/detail wire packets match packaged pre-mangrove worker in woodland swamp and glacial contexts.",
+    "history_unchanged": true
+  },
+  "evidence": [
+    "artifacts/geography-night-20261107/mangrove-world-v1",
+    "artifacts/geography-night-20261107/mangrove-wire-woods",
+    "artifacts/geography-night-20261107/mangrove-wire-glacial",
+    "tests/golden/tree-lineages/inland-20261107.json"
+  ],
+  "research": [
+    "https://oceanservice.noaa.gov/facts/mangroves.html",
+    "https://www.floridamuseum.ufl.edu/southflorida/habitats/mangroves/adaptations/",
+    "https://www.nparks.gov.sg/publications-resources/articles/recognising-trees-of-the-mangroves"
+  ],
+  "visit": "/landmark mangrove",
+  "versions": {"terrain": "local-terrain-tidal-forests-58", "amplification": "hyper-amplification-tidal-forests-52", "scatter": "local-scatter-tidal-forests-21"}
+}

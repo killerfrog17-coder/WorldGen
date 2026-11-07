@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--mangrove-controls")){MangroveTests.Controls();return;}
+if(args.Contains("--mangrove-world")){MangroveTests.World(args[1],args[2]);return;}
+if(args.Contains("--tree-lineage-snapshot")){TreeLineageSnapshotTests.Run(args[1],args.Length>2?args[2]:null);return;}
 if(args.Contains("--fjord-coasts")){FjordCoastTests.Run(args[1],args[2]);return;}
 if(args.Contains("--fjord-coast-survey")){FjordCoastSurvey.Run(args[1],args[2]);return;}
 if(args.Contains("--wetland-complex-controls")){WetlandComplexTests.Controls();return;}

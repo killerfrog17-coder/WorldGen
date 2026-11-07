@@ -123,7 +123,8 @@ namespace WorldGen.Presentation
                                 s.Province.ExposedRock*(1-D.Clamp(s.RiverSand+s.RiverGravel)));
                             var cover=GroundFlora.Surface(s.Cover,p,terrain.SourceSeed,radius,s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0,s.Biome,TreeFlora.CanopyShade(s.Forest,p,terrain.SourceSeed,radius)*TreeFlora.SlopeAdmission(up));
                             color=Mix(soil.Color,cover.Color*.90,cover.Coverage/.45);
-                            var forest=TreeFlora.Surface(s.Forest,p,terrain.SourceSeed,radius,s.ElevationM,up,s.Underwater);
+                            var rootBiome=TreeFlora.TidalCode(s.Forest.MorphologyCode)?terrain.Profile(s.Cell).Biome:s.Biome;
+                            var forest=TreeFlora.Surface(s.Forest,p,terrain.SourceSeed,radius,s.ElevationM,up,s.Underwater,s.Underwater?s.WaterSurfaceM-s.ElevationM:0,rootBiome);
                             color=Mix(color,s.MidCover.Color,s.MidCover.Coverage*MidFlora.StandDensity(p,terrain.SourceSeed,radius));color=Mix(color,forest.Color,forest.Coverage*.8);
                         }
                         color*=shade;

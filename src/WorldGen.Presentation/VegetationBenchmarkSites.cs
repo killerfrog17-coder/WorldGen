@@ -28,7 +28,7 @@ namespace WorldGen.Presentation
                         double dx=(patch.Sample(patch.Position(offset.X+step,offset.Z)).ElevationM-sample.ElevationM)/20;
                         double dz=(patch.Sample(patch.Position(offset.X,offset.Z+step)).ElevationM-sample.ElevationM)/20;
                         double up=1/Math.Sqrt(1+dx*dx+dz*dz);if(up<.85)continue;
-                        var forest=TreeFlora.Surface(sample.Forest,at,world.Recipe.Seed,radius,sample.ElevationM,up,false);
+                        var forest=TreeFlora.Surface(sample.Forest,at,world.Recipe.Seed,radius,sample.ElevationM,up,false,0,sample.Biome);
                         double shade=TreeFlora.CanopyShade(sample.Forest,at,world.Recipe.Seed,radius);
                         double score=biome==Biome.Savanna?sample.Cover.Stature*(sample.Cover.Grasses.X+sample.Cover.Grasses.Y+sample.Cover.Grasses.Z)*(1-shade):shade*Math.Min(1,forest.Coverage/.03);
                         if(score<=bestScore)continue;bestScore=score;

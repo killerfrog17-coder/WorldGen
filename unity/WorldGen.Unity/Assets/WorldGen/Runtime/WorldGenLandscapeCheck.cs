@@ -74,7 +74,15 @@ public sealed partial class LocalTerrainExplorer
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
             if(arguments.Contains("--worldgen-bark-review"))cells=cells.Where(i=>model.Profile(i).CoarseReliefM<180);
-            if(kind=="Fjord"||kind=="FjordMouth"||kind=="FjordWoodland")
+            if(kind=="Mangrove")
+            {
+                foreach(var coast in TidalForestSites.Nearshore(world,model))
+                {
+                    var sample=model.Patch(coast.Position,5000).Sample(coast.Position);
+                    return new LandscapeReviewSite{Position=coast.Position,CoastDirection=coast.Seaward,Sample=sample,Coast=kind,Landform=kind};
+                }
+            }
+            else if(kind=="Fjord"||kind=="FjordMouth"||kind=="FjordWoodland")
             {
                 var inlets=model.Amplification.Fjords.Inlets.OrderByDescending(f=>kind=="FjordWoodland"?model.Profile(f.Mouth).Forest.Coverage/(1+f.Relief/900):f.LengthM*f.Relief);
                 foreach(var inlet in inlets)
@@ -510,6 +518,24 @@ public sealed partial class LocalTerrainExplorer
         yield return owner.StartCoroutine(Capture("wide",orientation*wideOffset));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null||site.Trough.HasValue?site.RiverWidth*.8+8:10)),true));
         if(site.WetlandPool!=null)yield return owner.StartCoroutine(Capture("wetland-waterline",orientation*new Vector3(0,0,4),true));
+        if(kind=="Mangrove")
+        {
+            var actual=owner.scatterChunks.Values.Where(c=>c.Source?.Instances!=null).SelectMany(c=>c.Source.Instances)
+                .Where(t=>t.Kind==ScatterKind.GeneratedTree&&TreeFlora.TidalCode(t.Variant)&&(t.Position-site.Position).Length*model.RadiusM*.1<70)
+                .GroupBy(t=>TreeFlora.RootForm(t.Variant)).Select(g=>g.OrderBy(t=>(t.Position-site.Position).Length).First()).ToArray();
+            Check(actual.Length>=2,"Actual resident tidal forest contains multiple inherited aerial root forms");
+            foreach(var tree in actual)
+            {
+                TerrainHandoff.Coordinates(owner.frame,tree.Position,out double tx,out double tz);
+                var center=new Vector3((float)tx,(float)owner.frame.SurfaceY(tree.Position,tree.GroundM),(float)tz);
+                var toward=RenderSettings.sun!=null?-RenderSettings.sun.transform.forward:Vector3.back;toward.y=0;toward.Normalize();if(toward.sqrMagnitude<.5f)toward=Vector3.back;
+                var offset=center+toward*Mathf.Max(2.2f,(float)tree.HeightM*.20f);offset.y=0;
+                var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,tree.Variant);
+                Check(mesh.subMeshCount==1&&mesh.vertices.All(v=>float.IsFinite(v.x)&&float.IsFinite(v.y)&&float.IsFinite(v.z)),"Aerial roots share the existing finite single-mesh tree architecture");
+                File.AppendAllText(Path.Combine(output,"mangrove-models.txt"),TreeFlora.RootForm(tree.Variant)+" code="+tree.Variant+" vertices="+mesh.vertexCount+" triangles="+mesh.triangles.Length/3+" height="+tree.HeightM+" ground="+tree.GroundM+"\n");Destroy(mesh);
+                yield return owner.StartCoroutine(Capture("roots-"+TreeFlora.RootForm(tree.Variant).ToString().ToLowerInvariant(),offset,true,inspectionTarget:center+Vector3.up*Mathf.Min(1.4f,(float)tree.HeightM*.12f)));
+            }
+        }
         if(arguments.Contains("--worldgen-bark-review"))
         {
             var roots=owner.forestFields.Values.Where(f=>f.Ready).SelectMany(f=>f.Roots.SelectMany(pair=>pair.Value.Select(slot=>pair.Key.Data[slot])))
@@ -617,7 +643,7 @@ public sealed partial class LocalTerrainExplorer
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
         // is recorded, so its teleport cannot contaminate the reviewed cameras.
-        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="GlacialTrough"?"glacial":site.Fjord.HasValue?"fjord":kind=="Inselberg"?"outcrop":kind=="GraniteDome"||kind=="JointedDome"?"dome":kind=="TowerKarst"?"karst":null;
+        string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="GlacialTrough"?"glacial":site.Fjord.HasValue?"fjord":kind=="Mangrove"?"mangrove":kind=="Inselberg"?"outcrop":kind=="GraniteDome"||kind=="JointedDome"?"dome":kind=="TowerKarst"?"karst":null;
         if(landmarkKind!=null)
         {
             var command=owner.ExecuteExplorerCommand("/landmark "+landmarkKind);

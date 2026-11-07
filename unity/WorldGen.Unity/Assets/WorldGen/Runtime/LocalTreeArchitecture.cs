@@ -25,7 +25,7 @@ static partial class LocalScatterMeshes
         var hull=LocalTreeTextures.ShootHull((int)m.LeafShape);
         bool needle=m.Form==TreeGrowthForm.NeedleCrown;
         void Mark(float type){while(masks.Count<b.V.Count)masks.Add(new Vector2(Mathf.Clamp01(b.V[masks.Count].y),type));}
-        var woodNormals=BuildContinuousTreeWood(b,nodes,lod,wood);Mark(0);
+        var woodNormals=BuildContinuousTreeWood(b,nodes,lod,wood,m.Strategy==TreeCrownStrategy.Mangrove);Mark(0);
         if(m.Strategy==TreeCrownStrategy.TropicalCanopy)
         {
             // Tapered basal buttresses, not repeated spikes at every branch.
@@ -59,7 +59,7 @@ static partial class LocalScatterMeshes
                 // Needles follow the twig, with a rolled horizontal spray.
                 // Broad leaves use overlapping crown clusters, not conspicuous
                 // green sticks pointing in an unrelated random direction.
-                bool exposed=m.Strategy==TreeCrownStrategy.OpenWoodland;
+                bool exposed=m.Strategy==TreeCrownStrategy.OpenWoodland||m.Strategy==TreeCrownStrategy.Mangrove;
                 var up=needle?axis:(axis*(exposed?.55f:.82f)+Vector3.up*(exposed?.45f:.18f)).normalized;
                 var right=Vector3.Cross(up,Mathf.Abs(up.y)<.94f?Vector3.up:Vector3.right).normalized;
                 if(!needle&&!exposed)up=Quaternion.AngleAxis((j-1)*25,right)*up;
@@ -105,7 +105,7 @@ static partial class LocalScatterMeshes
         if(WorldGenPerformance.NoBuilderBufferReuse)mesh.normals=(Vector3[])normals;else mesh.SetNormals(b.Normals);
         mesh.RecalculateTangents();ApplyTreeWoodTangents(b,mesh);return mesh;
     }
-    static Dictionary<int,Vector3> BuildContinuousTreeWood(Builder b,List<TreeNode> nodes,int lod,Color wood)
+    static Dictionary<int,Vector3> BuildContinuousTreeWood(Builder b,List<TreeNode> nodes,int lod,Color wood,bool tidal=false)
     {
         var normals=b.WoodNormals;var continuation=b.WoodContinuation;
         for(int i=0;i<nodes.Count;i++)continuation.Add(-1);
@@ -125,6 +125,8 @@ static partial class LocalScatterMeshes
             float maxRadius=0;for(int j=first==0?0:1;j<path.Count;j++)maxRadius=Mathf.Max(maxRadius,nodes[path[j]].Radius);
             if(lod>0&&maxRadius<.0014f)continue;
             int sides=first==0?(lod==0?24:12):maxRadius>.009f?(lod==0?8:5):maxRadius>.003f?(lod==0?5:3):3,start=b.V.Count;
+            bool aerialRoot=tidal&&first>0&&nodes[path[path.Count-1]].P.y<.07f&&nodes[path[0]].P.y<.22f;
+            if(aerialRoot)sides=lod==0?8:5;
             Vector3 previousAxis=Vector3.zero,u=Vector3.zero;
             float circumference=2*Mathf.PI*Mathf.Max(.001f,maxRadius);
             // One UV repeat per ~4cm of a 1m reference tree, rather than one
@@ -150,7 +152,9 @@ static partial class LocalScatterMeshes
                 for(int k=0;k<=sides;k++)
                 {
                     float angle=(k%sides)*2*Mathf.PI/sides;var radial=u*Mathf.Cos(angle)+v*Mathf.Sin(angle);
-                    int at=b.Add(n.P+radial*radius,wood,new Vector2(k/(float)sides*repeats,along/.04f));
+                    float stain=tidal?Mathf.Lerp(.72f,1,Mathf.SmoothStep(0,1,Mathf.InverseLerp(.02f,.15f,n.P.y))):1;
+                    var tint=tidal?new Color(wood.r*stain,wood.g*stain,wood.b*stain,wood.a):wood;
+                    int at=b.Add(n.P+radial*radius,tint,new Vector2(k/(float)sides*repeats,along/.04f));
                     normals.Add(at,(radial-axis*dr).normalized);
                     var tangent=-u*Mathf.Sin(angle)+v*Mathf.Cos(angle);
                     b.WoodTangents.Add(at,new Vector4(tangent.x,tangent.y,tangent.z,1));
@@ -251,7 +255,7 @@ static partial class LocalScatterMeshes
         }
         else
         {
-            bool spreading=m.Strategy==TreeCrownStrategy.OpenWoodland;
+            bool spreading=m.Strategy==TreeCrownStrategy.OpenWoodland||m.Strategy==TreeCrownStrategy.Mangrove;
             if(spreading)
             {
                 // Adult open-grown crowns have load-bearing spreading limbs,
@@ -317,6 +321,44 @@ static partial class LocalScatterMeshes
         {
             float basal=i<=trunk?1+.35f*Mathf.Pow(1-i/(float)trunk,1.5f):1;
             nodes[i].Radius=Mathf.Max(.0009f,(float)m.TrunkRadius*Mathf.Pow(tips[i]/tips[0],.52f)*basal);
+        }
+        if(m.Strategy==TreeCrownStrategy.Mangrove)
+        {
+            // Small shared opaque root paths use the same continuous rings,
+            // generated bark, normals and tangents as the trunk. No separate
+            // root object, material, draw pass or per-instance growth script.
+            var roots=new Rng(code,"mangrove-root-1");var form=TreeFlora.RootForm(code);
+            int count=form==TreeRootForm.Prop?6+(int)(roots.Unit()*3):form==TreeRootForm.Pneumatophore?12:6;
+            void Path(int parent,Vector3 control,Vector3 end,float radius,int steps=4)
+            {
+                var start=nodes[parent].P;int previous=parent;
+                for(int step=1;step<=steps;step++)
+                {
+                    float t=step/(float)steps;var p=start*((1-t)*(1-t))+control*(2*(1-t)*t)+end*(t*t);
+                    int next=nodes.Count;nodes.Add(new TreeNode(p,previous){Radius=Mathf.Max(.0014f,radius*(1-.7f*t))});previous=next;
+                }
+            }
+            for(int i=0;i<count;i++)
+            {
+                float angle=i*2.39996f+(float)roots.Unit()*.5f;var d=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
+                float spread=.20f+.12f*(float)roots.Unit();
+                if(form==TreeRootForm.Prop)
+                {
+                    float y=.09f+.08f*(float)roots.Unit();int parent=0;
+                    for(int j=1;j<=trunk;j++)if(Mathf.Abs(nodes[j].P.y-y)<Mathf.Abs(nodes[parent].P.y-y))parent=j;
+                    Path(parent,d*(spread*.60f)+Vector3.up*(nodes[parent].P.y*.96f),d*spread-Vector3.up*.025f,(float)m.TrunkRadius*.42f);
+                }
+                else
+                {
+                    // Lateral roots stay just below mud; only the breathing
+                    // pegs or looped knees project above the surface.
+                    var foot=d*spread-Vector3.up*.025f;int root=nodes.Count;nodes.Add(new TreeNode(foot,0){Radius=.0028f});
+                    if(form==TreeRootForm.Pneumatophore)
+                        Path(root,foot+Vector3.up*.04f,foot+Vector3.up*(.055f+.025f*(float)roots.Unit()),.0028f,2);
+                    else Path(root,foot+Vector3.up*(.10f+.035f*(float)roots.Unit()),foot+d*.07f,.0055f,5);
+                }
+            }
+            foreach(var n in nodes)n.Children=0;for(int i=1;i<nodes.Count;i++)nodes[nodes[i].Parent].Children++;
         }
         return nodes;
     }

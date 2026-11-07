@@ -71,7 +71,8 @@ namespace WorldGen.Core
                 if(r.Unit()>densityCap)return false;
                 var forest=patch.ForestProfile(at);double potential=forest.Coverage,stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
                 if(admission>potential*stand*TreeFlora.Stocking(forest))return false;
-                var sample=patch.Sample(at);if(sample.Underwater||sample.ElevationM<2)return false;
+                var sample=patch.Sample(at);var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
+                if(!TreeFlora.Rooting(sample.Forest,sample.ElevationM,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,rootBiome))return false;
                 // The raw forest profile is only an upper admission bound.
                 // Final substrate/wetland exclusions own actual near/far trees.
                 if(sample.Forest.Coverage<forest.Coverage-1e-9)
