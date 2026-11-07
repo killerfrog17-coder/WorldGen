@@ -60,12 +60,13 @@ public sealed partial class LocalTerrainExplorer
         // The harness bypasses the main menu's preference loading. Use an
         // explicit real game preset, rather than obsolete120/450m field defaults.
         var arguments=Environment.GetCommandLineArgs();int qualityOption=Array.IndexOf(arguments,"--worldgen-landscape-quality");
+        int sourceOption=Array.IndexOf(arguments,"--worldgen-landscape-source"),pinnedSource=sourceOption<0?-1:int.Parse(arguments[sourceOption+1]);
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
         bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
         bool wideReview=drylandReview||kind=="WetlandComplex";
         double reviewRange=wideReview?2000:900,reviewFootprint=wideReview?1200:600;
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
-        var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory.Hash;
+        var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory?.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
         var worker=new TerrainMeshProcess(workerPath,world,.1,Path.GetFullPath(path));
         var timer=System.Diagnostics.Stopwatch.StartNew();var setup=Task.Run(()=>{worker.Prepare(default);return LocalTerrainDerivationCache.Create(world,horizontalScale:.1);});
@@ -108,7 +109,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="Canyon")
             {
-                foreach(var reach in model.Amplification.Canyons.Reaches.Where(r=>r.HalfWidth<1800).OrderByDescending(r=>r.Strength*r.Relief).Take(80))
+                foreach(var reach in model.Amplification.Canyons.Reaches.Where(r=>r.HalfWidth<1800&&(pinnedSource<0||r.Source==pinnedSource)).OrderByDescending(r=>r.Strength*r.Relief).Take(80))
                 {
                     var spans=model.Amplification.RiverReach(reach.Source);if(spans.Length<4)continue;
                     var middle=spans[spans.Length/2];V center=(middle.A+middle.B).Unit,side=(middle.SideA+middle.SideB).Unit;
@@ -642,7 +643,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         int pools=model.Amplification.SmallLakesNear(site.Position,250).Length;
-        Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
+        Check(world.Prehistory?.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
             WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,WetlandPool=site.WetlandPool,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,

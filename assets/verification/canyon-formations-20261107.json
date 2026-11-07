@@ -1,0 +1,11 @@
+{
+  "status":"Revised core profiles, actual water/edge meshes and outside-habitat payloads passed. Native visual and moving checks pending; not selected for owner play.",
+  "problem":"The existing canyon review has identical narrow28m staircase terraces and modest relief even on a high plateau. Increasing texture detail alone does not correct that physical shape.",
+  "change":"Keep the same rare sedimentary/arid plateau admission and inherited rivers. Available incision now considers plateau altitude as well as local hill relief, bounded180..1500m. Dominant70m formations have continuously warped thickness and inclined weaker beds rather than equal flat stair treads. Existing finite uplift, gullies, river fitting and soil/root exposure retained.",
+  "performance":"Same physical terrain renderer and existing material arrays, no extra mesh/object/pass/tick. Independent exact numeric-index/noise optimization in dec70876 remains separately revertible. New physical formulation adds two scalar sines only within admitted canyon wall evaluations.",
+  "checks":{"controls":214371,"actual_incised_contexts":3,"existing_reaches":4,"new_reaches":4,"indexed_faces":546,"index_bytes":1604632,"outside_canyon_worker_packets_exact":21,"shared_terrain_water_edges":"passed, maximum drawn-ground clearance0m","evidence":["artifacts/geography-night-20261107/canyon-formations-core-v1","artifacts/geography-night-20261107/canyon-formations-wire-woods"]},
+  "native_comparison":"Pin source80974 in the same saved world to avoid changing review landmarks when the ranking changes. Old half-width1016.5m becomes1376.7m. New candidate81351 is also available as a separate context.",
+  "research":["https://www.nps.gov/grca/learn/nature/grca-geology.htm","https://home.nps.gov/grca/learn/nature/geologicformations.htm","https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-grand-canyon-national-park"],
+  "limits":"A bounded static morphology, not tectonic uplift or million-year erosion simulation. Shader bedding and physical formation scale are different levels of detail. No claim that all canyon geometries are finished.",
+  "versions":{"terrain":"local-terrain-canyon-formations-60","amplification":"hyper-amplification-canyon-formations-54","scatter":"local-scatter-canyon-formations-23"}
+}

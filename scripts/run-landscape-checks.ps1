@@ -8,7 +8,8 @@ param(
     [switch]$TreeShadowReview,
     [switch]$BarkReview,
     [switch]$WaterShadingReview,
-    [ValidateRange(0,4)][int]$PlantQuality=3
+    [ValidateRange(0,4)][int]$PlantQuality=3,
+    [int]$SourceCell=-1
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -34,6 +35,7 @@ foreach($kind in $Kinds){
     if($BarkReview){$arguments+='--worldgen-bark-review'}
     if($WaterShadingReview){$arguments+='--worldgen-water-shading-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
+    if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
     Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)

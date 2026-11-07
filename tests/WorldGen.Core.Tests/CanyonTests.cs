@@ -9,15 +9,20 @@ static class CanyonTests
         int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
         foreach(double width in new[]{400d,1000,2800})foreach(double relief in new[]{150d,500,1200})
         {
-            var reach=new CanyonValleys.Reach{HalfWidth=width,Relief=relief,Strength=.8};double previous=0;
+            var reach=new CanyonValleys.Reach{HalfWidth=width,Relief=relief,Strength=.8};
+            foreach(double level in new[]{150d,650,1400,3100})
+            {
+            double previous=0;
             for(int i=0;i<=1000;i++)
             {
-                double distance=width*i/1000,level=650,top=level+1000;
+                double distance=width*i/1000,top=level+1000;
                 double floor=reach.Floor(distance,level),cut=reach.Cut(top,distance,level,out double exposure);
                 Check(double.IsFinite(floor)&&floor>=level&&floor>=previous,"Terraced canyon walls rise continuously away from the floor");
                 Check(double.IsFinite(cut)&&cut<=top&&cut>=level,"Canyon primitives only cut dry ground and never cut below their river datum");
-                Check(exposure>=0&&exposure<=1,"Canyon rock exposure stays bounded");previous=floor;
+                Check(exposure>=0&&exposure<=1,"Canyon rock exposure stays bounded");
+                if(i>300)Check(floor>previous,"Weak canyon beds retain inclined slopes instead of identical flat stairs");previous=floor;
                 Check(reach.Cut(level-4,distance,level,out _)==level-4,"A pre-existing wet bed is never raised by a broad valley");
+            }
             }
             Check(reach.Cut(1650,width,650,out _)==1650&&Math.Abs(reach.Cut(1650,width*.999999,650,out _)-1650)<1e-7,"Canyon support retires continuously before neighbouring uncut ground");
             Check(reach.Uplift(0)>0&&reach.Uplift(width*12)==0&&reach.Uplift(width*12.01)==0,"The surrounding uplift belongs to a finite plateau province");

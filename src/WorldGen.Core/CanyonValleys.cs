@@ -18,10 +18,14 @@ namespace WorldGen.Core
             public double Floor(double distance,double level)
             {
                 double r=D.Clamp(distance/HalfWidth),t=Math.Max(0,(r-.08)/.92);
-                double h=level+3+Relief*Math.Pow(t,1.55),q=h/28,b=Math.Floor(q),f=q-b;
-                // Resistant beds form short cliffs; weaker intervals form
-                // benches. Bedding remains horizontal across neighbouring cuts.
-                double terraced=28*(b+RiverscapeKernel.Smooth((f-.28)/.34));
+                double h=level+3+Relief*Math.Pow(t,1.55);
+                // Dominant resistant formations alternate with inclined weak
+                // beds. The former equal28m terraces made regular staircases
+                // and aliasing sawteeth instead of broad cliffs and talus slopes.
+                // The warped phase stays monotone; neighbouring cuts share
+                // absolute bed elevation rather than restarting at every reach.
+                double q=h/70+.30*Math.Sin(h/350)+.10*Math.Sin(h/110),f=q-Math.Floor(q);
+                double terraced=h+70*.65*(RiverscapeKernel.Smooth((f-.18)/.68)-f);
                 return Math.Max(level+1,terraced);
             }
             public double Cut(double ground,double distance,double level,out double exposure)
@@ -59,7 +63,10 @@ namespace WorldGen.Core
                 // the weakest margins gradual instead of scaling every cliff
                 // down to a shallow grassland valley.
                 strength=OrogenMorphology.Smooth(.04,.36,strength);
-                double relief=Math.Min(1200,100+.7*p.CoarseReliefM),width=Math.Min(2800,Math.Max(400,.9*relief+widths[source]*16));
+                // Flat high plateaus can carry deeply incised rivers despite
+                // modest local hill relief. Tie available incision to inherited
+                // plateau altitude too, without adding more canyon provinces.
+                double relief=Math.Min(1500,Math.Max(180,.42*p.ElevationM+.65*p.CoarseReliefM)),width=Math.Min(2800,Math.Max(400,.9*relief+widths[source]*16));
                 var reach=new Reach{Source=source,A=a,B=b,LevelA=levels[source],LevelB=levels[next],HalfWidth=width,Relief=relief,Strength=strength};
                 int index=reaches.Count;reaches.Add(reach);
                 double support=(a-b).Length*radius*.5+width*12+margin;
