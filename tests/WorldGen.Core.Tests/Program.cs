@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--fjord-coasts")){FjordCoastTests.Run(args[1],args[2]);return;}
+if(args.Contains("--fjord-coast-survey")){FjordCoastSurvey.Run(args[1],args[2]);return;}
 if(args.Contains("--wetland-complex-controls")){WetlandComplexTests.Controls();return;}
 if(args.Contains("--wetland-complex-world")){WetlandComplexTests.World(args[1],args[2]);return;}
 if(args.Contains("--wetland-query-cost")){WetlandComplexTests.QueryCost(args[1],args[2]);return;}

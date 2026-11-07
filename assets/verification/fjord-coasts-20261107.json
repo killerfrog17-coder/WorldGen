@@ -1,0 +1,11 @@
+{
+  "status":"Prototype numerical and actual-world checks passed; native visual and moving performance review pending. Not final visual acceptance.",
+  "geology":"Mapped glacial river mouths, connected upland main stems, at least300m landward relief and3.5km inherited drainage. Stop at accepted lake nodes, unsuitable glaciation/elevation or35km. Existing ice and drainage locate the inlets; no arbitrary world-wide feature quota.",
+  "geometry":"Static cut-only finite U-shaped sections along the actual displaced drainage spine. Shared endpoint dimensions, rounded head, below-sea basin and mouth sill. Same terrain/collision/water/soil/root fields. Numeric face index; no extra scenery, live simulation or drawing pass.",
+  "water":"Ocean head exactly0/body1 with bounded corridor ownership. Inundated main-stem station datums are also0, including narrow rivers that bypass ordinary bank fitting. Zero-level river junction fans no longer overlap receiving sea geometry.",
+  "caught_during_tests":"Initial prototype retained an18.919m-high floating river junction above a correctly flooded bed. Actual water-mesh encoding/height test rejected it; shared drainage levels corrected before packaging.",
+  "checks":{"inlets":37,"sections":865,"continuous_ocean_probes":4325,"index_brute_comparisons":138,"exact_cached_samples":205,"controls":975,"index_bytes":1892084,"indexed_faces":2845,"maximum_candidates":84,"history_unchanged":true,"evidence":"artifacts/geography-night-20261107/fjord-core-v5"},
+  "research":["https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm","https://www.nps.gov/articles/rocky-coast-landforms.htm"],
+  "versions":{"terrain":"local-terrain-fjord-coasts-55","amplification":"hyper-amplification-fjord-coasts-49"},
+  "remaining":["Inspect native central inlet/mouth views and salt-water/swimming integration","Verify water triangle coverage at heads, mouths and finite sea boundaries","Measure actual moving/rapid-turn/loading performance","Inspect cold-world/arctic and forested coasts; no claim that all fjord types are finished"]
+}

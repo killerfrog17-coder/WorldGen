@@ -91,6 +91,10 @@ namespace WorldGen.Core
                 var node=rootNodes[i];int next=riverReceivers[i];
                 riverDatums[i]=node.Type==Kind.Ocean?0:node.Type==Kind.Lake?node.LakeLevel:node.Height-.15;
                 if(lakeOutletOwners[i]>=0)riverDatums[i]=lakeLevels[lakeOutletOwners[i]];
+                // Inundated glacial main-stem stations are receiving ocean,
+                // including narrow channels that bypass ordinary bank fitting.
+                // Their old inland datums must not emit floating river ribbons.
+                if(Fjords.OceanNode(i))riverDatums[i]=0;
                 // Discharge represents a source catchment area. Shrinking both
                 // horizontal axes shrinks its visual discharge by scale².
                 riverActive[i]=next>=0&&nodeChannels[i]>=0&&coarseEdges[nodeChannels[i]].Type==Kind.River&&
@@ -132,7 +136,7 @@ namespace WorldGen.Core
             for(int node=0;!cached&&node<count;node++)
             {
                 if((node&1023)==0)token.ThrowIfCancellationRequested();
-                if(riverNodeWidths[node]<16||rootNodes[node].Type==Kind.Lake||rootNodes[node].Type==Kind.Ocean)continue;
+                if(riverNodeWidths[node]<16||rootNodes[node].Type==Kind.Lake||rootNodes[node].Type==Kind.Ocean||Fjords.OceanNode(node))continue;
                 var faceSet=new SortedSet<int>();
                 for(int k=riverFaceOffsets[node];k<riverFaceOffsets[node+1];k++)
                 {

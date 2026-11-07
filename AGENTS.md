@@ -1,5 +1,59 @@
 # WorldGen repository instructions
 
+LATEST07Nov12:12Z OVERNIGHT until18:00UTC/noon unless owner interrupts. ONE PDF
+at END ONLY, Chrome LEFTMOST; own Unity/player windows RIGHTMOST or hidden.
+Selected B/0c8fdc0a and shortcut protected. Candidate A still3b1c95de/terrain53;
+all wetland v3 native cases EXIT0, screenshots inspected: only modest improvement,
+marsh still grassy pond/basic reeds. Moving openmarsh238.21FPS,p9910.44/max18.04,
+peat245.85,p9910.21/max19.58; NOT100floor proof. Woods paired185.87->180.68FPS,
+p9911.906->11.611/max17.158->16.151; similar performance, no hitchfix claim.
+Survey cache experiment49df RETIRED/reverted d4ab; exact42wire packets/816 samples
+passed but only~.53MB combined allocation saving and cold170ms max persisted.
+NEW source fjords55/Hyper49:37glaciated ocean-connected inlets/865sections,
+numericCSR1.89MB/2845faces/max84candidates. Actual975controls/4325continuous sea
+probes/138brute-index/205exactcached samples/sharedgroundedges/history PASS.
+Initial floating18.919m river junction REJECTED; shared flooded node datums0 and
+no duplicate zero-level junction fans fixed. Native Fjord/FjordMouth review and
+/landmark fjord added but UNBUILT/UNREVIEWED. Next ScriptsOnlyA build then actual
+native shots, projected-water coverage and moving performance. No own game active.
+Do not call fjords visually accepted. Owner3files preserved. No subagents.
+Storage C~5.2GB; obsolete1.4GBraw profiler deletion REJECTED by automatic approval
+review(blocked by policy), file remains; no retry/circumvention. Final disclose.
+
+LATEST07Nov11:13Z OVERNIGHT GEOGRAPHY still until18:00UTC/noon unless interrupted.
+Unity/player visible windows RIGHTMOST; ONE PDF at END ONLY, Chrome LEFTMOST.
+Selected B/0c8fdc0a+shortcut protected. A ScriptsOnly NONDEV3b1c95de built11:11Z
+over full679b;3knownUnityautos restored. Own native runner now starts new
+wetland-pools-native-v3-20261107: WoodedSwamp,FreshwaterMarsh,WetlandComplex,
+hidden/rightmost. Do NOToverwrite/compileA until all3exit. No perf runner active.
+Latest physical source LocalTerrain53/Hyper47/SmallWaterBodies5, allpushed3b1.
+Large wetland pools v2 native shows irregular arms/islands; small swamp pools
+still toooval, so latest unreviewed refinement gives fine pools bounded hollow/
+hummock morphology too. Runtime53 has Hummocks distinct from large Complex,
+anchored fine hollow pattern, max1.2mcut/.4morganicdeposition; rejects unreachable
+smallpoolheads. Native now inspects actual dry interior hummock+wet hollow,
+camera points towardpool; not identical old/new camera positions. Scalar101466,
+legacylandscape35902, actual20490/4largecomplexes PASS; fine pond61wet/137dry
+samples+2197dryrootedtrees/exactgroundedges PASS. No final art acceptance yet.
+Baseline A51 wetland-shores-baseline COMPLETE185.87FPS,p9911.906/max17.158ms,
+1>16.7,11154allfocused frames,6km/Medium1080/60s180mloop+whip. Newcandidate
+moving comparison pending; NOT100floorproof. No game remains frombaseline.
+New test --wetland-query-cost current190k.world output: before-v2 validcomponent
+CoreCLR (warm assertions outsidetiming);2601queriesper woods/marsh/peat, cold
+max68.71/29.58/167.66ms; first peat pondscope30.63ms. Initial hierarchy/river
+construction dominates; do not call it GPU or generalFPS. Original before run
+has warm boxing inmeasurement, don't use warm numbers. Next proposed exact
+optimization: bounded4immutable survey contexts per Hyper.Patch/nearestcell,
+reuse rootface neighbourhood and preselect conservative regional rivercandidates
+beforepublication. MUST preserve querydomain (cannotcache first-point extent1
+candidates and reuse elsewhere). No cache code written yet. Test fullworker
+payloads against immutable A53 and cold/warm/reverse/parallel samples BEFORE
+build and before any speed claim. No mainthreadindexbuild automatically.
+Fjord design JSON only, NO FJORD CODE. Do not start untilwetland quality/perf
+accepted. Remaining baseline/native/proof evidence in assets/verification and
+artifacts/geography-night-20261107. CurrentSource3b1, owner3files preserved.
+No subagents, extra game copies, animal/human/weather/sky appearance changes.
+
 LATEST07Nov10:22Z OVERNIGHT GEOGRAPHY until18:00UTC/noon unless interrupted.
 Owner wants Unity RIGHTMOST and ONE PDF at END ONLY (Chrome LEFTMOST).
 Selected B/0c8fdc0a protected, shortcut untouched. A FULL NONDEV679b4626 built;

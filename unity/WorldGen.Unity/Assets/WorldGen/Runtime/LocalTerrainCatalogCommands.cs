@@ -9,11 +9,11 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NaturalLandmark {public string Name;public V Point,Focus;public double FocusM;}
     Task<NaturalLandmark> landmarkSearch;int landmarkGeneration;
-    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | outcrop | dome | karst | shore";
+    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | fjord | outcrop | dome | karst | shore";
     PlayCommandResult ExecuteLandmark(string[] words)
     {
         if(words.Length!=2)return new PlayCommandResult(words.Length==1,LandmarkUsage);
-        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","outcrop","dome","karst","shore"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
+        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","fjord","outcrop","dome","karst","shore"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
         if(!Ready||sourceWorld==null)return new PlayCommandResult(false,"Terrain is not ready yet.");
         if(landmarkSearch!=null)return new PlayCommandResult(false,"A landmark search is already running.");
         var model=terrain;var world=sourceWorld;double scale=HorizontalScale;landmarkGeneration=generation;
@@ -33,6 +33,16 @@ public sealed partial class LocalTerrainExplorer
         {
             var focus=(coast.Position-coast.Seaward*(70/radius)).Unit;
             var site=Site("Rocky wave-cut shore "+coast.Cell,coast.Position,focus);if(site!=null)return site;
+        }
+        if(kind=="fjord")foreach(var form in model.Amplification.Fjords.Inlets.OrderByDescending(f=>f.LengthM*f.Relief))
+        {
+            var section=model.Amplification.Fjords.Sections[form.First+form.Count/2];V focus=(section.A+section.B).Unit,side=V.Cross(focus,section.B-section.A).Unit;
+            foreach(int sign in new[]{1,-1})for(double r=.55;r<=1.25;r+=.025)
+            {
+                var point=(focus+side*(sign*form.HalfWidth*r/radius)).Unit;
+                var ground=model.Patch(point,2000/scale).Sample(point);if(ground.Underwater||ground.ElevationM<.3||ground.ElevationM>120)continue;
+                var site=Site("Glacial fjord "+form.Mouth,point,focus,0);if(site!=null)return site;
+            }
         }
         if(kind=="volcano")foreach(var form in model.Amplification.Volcanoes.Forms.OrderBy(f=>f.AgeMyr).ThenByDescending(f=>f.HeightM).Take(128))
         {

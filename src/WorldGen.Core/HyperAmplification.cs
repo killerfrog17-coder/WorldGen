@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-wetland-pools-47";
+        public const string Version = "hyper-amplification-fjord-coasts-49";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -35,6 +35,7 @@ namespace WorldGen.Core
         public readonly BedrockRemnants Remnants;
         public readonly CanyonValleys Canyons;
         public GlacialValleys Glaciers {get;private set;}
+        public readonly FjordCoasts Fjords;
         readonly SmallWaterBodies smallWater,wetlandWater;
         public int CachedSmallWaterCandidates=>smallWater.CachedCandidates+wetlandWater.CachedCandidates;
         public SmallLake[] SmallLakesNear(V center,double rangeM)
@@ -358,6 +359,7 @@ namespace WorldGen.Core
             }
             BuildLakeBasins(world,token);
             ConditionLakeSpills(world,token);
+            Fjords=new FjordCoasts(world,profiles,scale,landscapeLocator,RiverPoint,token);
             BuildRiverscapes(world,profiles,token,cachedRiverDatums);
             Canyons=new CanyonValleys(world,profiles,scale,riverDatums,riverNodeWidths,token);
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
@@ -931,6 +933,17 @@ namespace WorldGen.Core
                         a*found.A.Sediment+b*found.B.Sediment+c*found.C.Sediment,a*found.A.Hardness+b*found.B.Hardness+c*found.C.Hardness,out double shoreExposure);
                     landscape.ShoreExposure=(float)shoreExposure;
                     pre+=coastal-height;height=coastal;
+                    // The already drowned trough owns its seabed. Applying
+                    // depositional beach noise afterwards could dam a shallow
+                    // mouth sill above the shared ocean datum.
+                    double fjordFootprint=double.NegativeInfinity;
+                    if(owner.Fjords!=null)
+                    {
+                        double inlet=owner.Fjords.Apply(point,found.Root,height,out fjordFootprint,out double fjordExposure);
+                        pre+=inlet-height;height=inlet;landscape.GlacialExposure=(float)Math.Max(landscape.GlacialExposure,fjordExposure);
+                    }
+                    if(fjordFootprint>0)
+                    {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;footprint=fjordFootprint;mask=-height;}
                     if(!double.IsNaN(water))mask=water-height;
                 }
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,

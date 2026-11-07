@@ -103,7 +103,10 @@ namespace WorldGen.Presentation
                 V flow=(span.B-span.A).Unit;
                 void Junction(int id,V at,double level,double width)
                 {
-                    if(id<0||width<.01)return;
+                    // Zero-datum channels already belong to the connected sea
+                    // surface, just like the skipped flat ribbons above. A
+                    // second junction fan would overlap that ocean geometry.
+                    if(id<0||width<.01||level==0)return;
                     var center=At(at,level,flow,span.Speed,span.Turbulence);
                     width=RiverscapeKernel.JunctionRadius(width);bool outgoing=span.From==id;
                     if(junctions.TryGetValue(id,out var previous)&&previous.Radius>=width&&(!outgoing||previous.Outgoing))return;

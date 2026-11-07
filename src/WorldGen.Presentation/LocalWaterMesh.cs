@@ -104,7 +104,8 @@ namespace WorldGen.Presentation
                         if(jointRiver&&(sample.WaterKind==LocalWaterKind.Ocean||sample.WaterKind==LocalWaterKind.Lake))level=sample.WaterSurfaceM;
                         if(water.WaterKind==LocalWaterKind.Lake||water.WaterKind==LocalWaterKind.Ocean)level=water.WaterSurfaceM;
                         bool localPond=water.WaterKind==LocalWaterKind.Lake&&SmallWaterBodies.IsLocal(water.WaterBodyKey);
-                        double footprint=!localPond&&(water.WaterKind==LocalWaterKind.Ocean||water.WaterKind==LocalWaterKind.Lake||jointRiver)?1:same?(sample.WaterKind==LocalWaterKind.None?sample.WaterMaskM:sample.WaterFootprintM):-Math.Max(1,step);
+                        bool boundedSea=water.WaterKind==LocalWaterKind.Ocean&&double.IsFinite(water.WaterFootprintM);
+                        double footprint=!localPond&&!boundedSea&&(water.WaterKind==LocalWaterKind.Ocean||water.WaterKind==LocalWaterKind.Lake||jointRiver)?1:same?(sample.WaterKind==LocalWaterKind.None?sample.WaterMaskM:sample.WaterFootprintM):-Math.Max(1,step);
                         // Infinity is useful in Core for unrestricted ocean
                         // interiors, not in polygon intersection arithmetic.
                         footprint=Math.Max(-1e9,Math.Min(1e9,footprint));
