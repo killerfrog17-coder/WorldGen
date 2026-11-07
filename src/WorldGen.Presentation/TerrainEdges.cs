@@ -16,8 +16,8 @@ namespace WorldGen.Presentation
         // records for edges whose neighbours do not share one sampling grid.
         // Intervals are local metres. Keep uniform-edge requests compact.
         sealed class PackingScratch
-        {public readonly List<double> Data=new List<double>();public readonly List<Span> Parts=new List<Span>(),Joined=new List<Span>();}
-        static double[] Pack(TerrainTileKey tile,List<Span> spans,PackingScratch scratch)
+        {public readonly List<double> Data=new List<double>();public readonly List<Span> Parts=new List<Span>(),Joined=new List<Span>(),Points=new List<Span>();public readonly HashSet<(int,long)> Seen=new HashSet<(int,long)>();}
+        static double[] Pack(TerrainTileKey tile,List<Span> spans,PackingScratch scratch,double step,Dictionary<(double,long,long),double> corners)
         {
             var data=scratch.Data;data.Clear();for(int i=0;i<4;i++)data.Add(0);
             for(int edge=0;edge<4;edge++)
@@ -34,14 +34,36 @@ namespace WorldGen.Presentation
                 if(joined.Count==1&&Math.Abs(joined[0].Start)<tile.SizeM*1e-10&&Math.Abs(joined[0].End-tile.SizeM)<tile.SizeM*1e-10)continue;
                 foreach(var part in joined){data.Add(edge);data.Add(part.Start);data.Add(part.End);data.Add(part.Step);}
             }
+            // Zero-length records carry the maximum incident sampling radius
+            // at corners/T-junctions. They never change geometric edge grids.
+            var points=scratch.Points;points.Clear();scratch.Seen.Clear();
+            long ox=(long)tile.X<<tile.Level,oz=(long)tile.Z<<tile.Level,size=1L<<tile.Level;double unit=TerrainLod.BaseSizeM*tile.Scale;
+            void Point(int edge,long along)
+            {
+                if(!scratch.Seen.Add((edge,along)))return;
+                long x=edge<2?ox+(edge==1?size:0):ox+along,z=edge<2?oz+along:oz+(edge==3?size:0);
+                if(corners.TryGetValue((tile.Scale,x,z),out double radius)&&radius>step*1.001)
+                    points.Add(new Span{Edge=edge,Start=along*unit,End=along*unit,Step=radius});
+            }
+            Point(0,0);Point(0,size);Point(1,0);Point(1,size);
+            foreach(var span in spans){Point(span.Edge,(long)Math.Round(span.Start/unit));Point(span.Edge,(long)Math.Round(span.End/unit));}
+            points.Sort((a,b)=>a.Edge!=b.Edge?a.Edge.CompareTo(b.Edge):a.Start.CompareTo(b.Start));
+            foreach(var point in points){data.Add(point.Edge);data.Add(point.Start);data.Add(point.End);data.Add(point.Step);}
             return data.ToArray();
         }
         public static double At(double[] edges,int edge,double localMetres)
         {
             bool sliced=false;double spacing=0;
-            for(int i=4;i<edges.Length;i+=4)if((int)edges[i]==edge)
+            for(int i=4;i<edges.Length;i+=4)if((int)edges[i]==edge&&edges[i+1]!=edges[i+2])
             {sliced=true;double epsilon=Math.Max(1e-8,Math.Abs(edges[i+2])*1e-10);if(localMetres>=edges[i+1]-epsilon&&localMetres<=edges[i+2]+epsilon)spacing=Math.Max(spacing,edges[i+3]);}
             return sliced?spacing:edges[edge];
+        }
+        public static double SurfaceAt(double[] edges,int edge,double localMetres)
+        {
+            double radius=At(edges,edge,localMetres);
+            for(int i=4;i<edges.Length;i+=4)if((int)edges[i]==edge&&edges[i+1]==edges[i+2]
+                &&Math.Abs(localMetres-edges[i+1])<=Math.Max(1e-8,Math.Abs(edges[i+1])*1e-10))radius=Math.Max(radius,edges[i+3]);
+            return radius;
         }
         public static void Validate(double[] edges)
         {
@@ -60,7 +82,18 @@ namespace WorldGen.Presentation
                 lo=Math.Max(x,a);hi=Math.Min(x+size,a+other);
                 if(lo<hi){if(b+other==z)spans.Add(new Span{Edge=2,Start=(lo-x)*unit,End=(hi-x)*unit,Step=step});if(b==z+size)spans.Add(new Span{Edge=3,Start=(lo-x)*unit,End=(hi-x)*unit,Step=step});}
             }
-            return Pack(tile,spans,new PackingScratch());
+            var corners=new Dictionary<(double,long,long),double>();
+            long tx=(long)tile.X<<tile.Level,tz=(long)tile.Z<<tile.Level,ts=1L<<tile.Level;
+            void Corner(long xx,long zz)
+            {
+                double radius=0;foreach(var pair in leaves){var k=pair.Key;if(k.Scale!=tile.Scale)continue;long size=1L<<k.Level,ax=(long)k.X<<k.Level,az=(long)k.Z<<k.Level;
+                    if(xx>=ax&&xx<=ax+size&&zz>=az&&zz<=az+size)radius=Math.Max(radius,k.SizeM/pair.Value);}
+                corners[(tile.Scale,xx,zz)]=radius;
+            }
+            Corner(tx,tz);Corner(tx+ts,tz);Corner(tx,tz+ts);Corner(tx+ts,tz+ts);
+            foreach(var span in spans)foreach(double offset in new[]{span.Start,span.End})
+            {long along=(long)Math.Round(offset/unit);Corner(span.Edge<2?tx+(span.Edge==1?ts:0):tx+along,span.Edge<2?tz+along:tz+(span.Edge==3?ts:0));}
+            return Pack(tile,spans,new PackingScratch(),tile.SizeM/leaves[tile],corners);
         }
         sealed class Line{public readonly List<Side> Low=new List<Side>(),High=new List<Side>();}
         public static Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)=>new Workspace().Build(leaves);
@@ -73,6 +106,9 @@ namespace WorldGen.Presentation
             readonly Dictionary<(double,long),Line> vertical=new Dictionary<(double,long),Line>(),horizontal=new Dictionary<(double,long),Line>();
             readonly List<Line> lines=new List<Line>();readonly List<List<Span>> spanLists=new List<List<Span>>();
             readonly PackingScratch packing=new PackingScratch();int lineIndex,spanIndex;
+            readonly Dictionary<(double,long,long),double> corners=new Dictionary<(double,long,long),double>();
+            void Corner(double scale,long x,long z,double step)
+            {var key=(scale,x,z);if(!corners.TryGetValue(key,out double prior)||step>prior)corners[key]=step;}
             public Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)
             {
                 // Exceptional giant plans must not permanently enlarge a normal
@@ -92,10 +128,11 @@ namespace WorldGen.Presentation
                 var key=(tile.Scale,at);if(!target.TryGetValue(key,out var line)){line=TakeLine();target.Add(key,line);}
                 (high?line.High:line.Low).Add(new Side{Start=start,End=end,Tile=tile,Index=index,Step=step});
             }
-            void Match(Dictionary<(double,long),Line> target)
+            void Match(Dictionary<(double,long),Line> target,bool verticalEdge)
             {
-                foreach(var line in target.Values)
+                foreach(var entry in target)
                 {
+                    var line=entry.Value;
                     line.High.Sort((a,b)=>a.Start.CompareTo(b.Start));
                     foreach(var a in line.Low)foreach(var b in line.High)
                     {
@@ -105,21 +142,25 @@ namespace WorldGen.Presentation
                             long lo=Math.Max(a.Start,b.Start),hi=Math.Min(a.End,b.End);double unit=TerrainLod.BaseSizeM*a.Tile.Scale;
                             spans[a.Tile].Add(new Span{Edge=a.Index,Start=(lo-a.Start)*unit,End=(hi-a.Start)*unit,Step=b.Step});
                             spans[b.Tile].Add(new Span{Edge=b.Index,Start=(lo-b.Start)*unit,End=(hi-b.Start)*unit,Step=a.Step});
+                            double radius=Math.Max(a.Step,b.Step);
+                            Corner(entry.Key.Item1,verticalEdge?entry.Key.Item2:lo,verticalEdge?lo:entry.Key.Item2,radius);
+                            Corner(entry.Key.Item1,verticalEdge?entry.Key.Item2:hi,verticalEdge?hi:entry.Key.Item2,radius);
                         }
                     }
                 }
             }
             Dictionary<TerrainTileKey,double[]> BuildCore(IReadOnlyDictionary<TerrainTileKey,int> leaves)
             {
-                lineIndex=spanIndex=0;spans.Clear();vertical.Clear();horizontal.Clear();
+                lineIndex=spanIndex=0;spans.Clear();vertical.Clear();horizontal.Clear();corners.Clear();
                 var result=new Dictionary<TerrainTileKey,double[]>(leaves.Count);
                 foreach(var pair in leaves)
                 {
                     var k=pair.Key;spans.Add(k,TakeSpans());long size=1L<<k.Level,x=(long)k.X<<k.Level,z=(long)k.Z<<k.Level;double step=k.SizeM/pair.Value;
+                    Corner(k.Scale,x,z,step);Corner(k.Scale,x+size,z,step);Corner(k.Scale,x,z+size,step);Corner(k.Scale,x+size,z+size,step);
                     Add(vertical,x,k,z,z+size,0,false,step);Add(vertical,x+size,k,z,z+size,1,true,step);
                     Add(horizontal,z,k,x,x+size,2,false,step);Add(horizontal,z+size,k,x,x+size,3,true,step);
                 }
-                Match(vertical);Match(horizontal);foreach(var pair in spans)result.Add(pair.Key,Pack(pair.Key,pair.Value,packing));return result;
+                Match(vertical,true);Match(horizontal,false);foreach(var pair in spans)result.Add(pair.Key,Pack(pair.Key,pair.Value,packing,pair.Key.SizeM/leaves[pair.Key],corners));return result;
             }
         }
     }

@@ -122,23 +122,6 @@ namespace WorldGen.Presentation
                     if (x >= 0 && x < side && z >= 0 && z < side) samples[z * side + x] = sample;
                 }
             }
-            // Presentation-only edge collapse: the finer boundary follows the adjacent coarse triangle edge.
-            // This prevents exposed vertical skirts/sawteeth; the authoritative height function is unchanged.
-            if(edgeSteps!=null)
-            {
-                TerrainEdges.Validate(edgeSteps);
-                for(int boundary=0;boundary<4;boundary++)
-                {
-                    for(int i=0;i<side;i++)
-                    {
-                        double coarse=TerrainEdges.At(edgeSteps,boundary,i*step);if(coarse<=step*1.001)continue;
-                        int x=boundary==0?0:boundary==1?segments:i,z=boundary==2?0:boundary==3?segments:i;
-                        double along=(boundary<2?northM:eastM)+i*step,lo=Math.Floor(along/coarse)*coarse,t=(along-lo)/coarse;
-                        double Height(double a){double xx=boundary<2?eastM+x*step:a,zz=boundary<2?a:northM+z*step;var p=frame.Position(xx,zz);return frame.SurfaceY(p,Sample(xx,zz,p).ElevationM);}
-                        heights[(z+1)*halo+x+1]=Height(lo)*(1-t)+Height(lo+coarse)*t;
-                    }
-                }
-            }
             mesh.Positions = new float[ground * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[ground * 4];
             mesh.SurfaceWeights=new float[mesh.Colors.Length];
             mesh.GroundWeightsB=new float[mesh.Colors.Length];
@@ -152,41 +135,24 @@ namespace WorldGen.Presentation
                 mesh.WaterPositions[i * 3] = (float)(x * step); mesh.WaterPositions[i * 3 + 1] = (float)frame.SurfaceY(frame.Position(eastM + x * step, northM + z * step), 0); mesh.WaterPositions[i * 3 + 2] = (float)(z * step);
                 mesh.WaterColors[i * 4] = .13f; mesh.WaterColors[i * 4 + 1] = .37f; mesh.WaterColors[i * 4 + 2] = .46f; mesh.WaterColors[i * 4 + 3] = (float)sample.OceanInfluence;
                 double nx = (heights[at - 1] - heights[at + 1]) / (2 * step), nz = (heights[at - halo] - heights[at + halo]) / (2 * step);
-                double length = Math.Sqrt(nx * nx + 1 + nz * nz); double up = 1 / length;
-                mesh.Normals[i * 3] = (float)(nx / length); mesh.Normals[i * 3 + 1] = (float)up; mesh.Normals[i * 3 + 2] = (float)(nz / length);
-                double snow=sample.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0;
-                var groundSurface=LocalGeology.Surface(sample.Ground,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
-                    sample.ElevationM,up,sample.OceanInfluence,snow,terrain.RadiusM*frame.HorizontalScale,
-                    sample.Province.ExposedRock*(1-D.Clamp(sample.RiverSand+sample.RiverGravel)));
-                for(int layer=0;layer<4;layer++){mesh.SurfaceWeights[i*4+layer]=(float)groundSurface.Weight(layer);mesh.GroundWeightsB[i*4+layer]=(float)groundSurface.Weight(layer+4);}
-                for(int layer=0;layer<6;layer++)mesh.Lithology[i*6+layer]=(float)sample.Ground.RockWeight(layer);
-                V color = groundSurface.Color;
-                double canopyShade=sample.Underwater?0:TreeFlora.CanopyShade(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*TreeFlora.SlopeAdmission(up);
-                var cover=GroundFlora.Surface(sample.Cover,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
-                    terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow,sample.Biome,canopyShade);
-                double coverage=D.Clamp(cover.Coverage);
-                var mid=sample.MidCover;double midAmount=sample.Underwater||sample.ElevationM<2?0:
-                    mid.Coverage*MidFlora.StandDensity(frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*D.Clamp((up-.65)/.25);
-                int midAt=i*6;mesh.MidCover[midAt]=(float)mid.Color.X;mesh.MidCover[midAt+1]=(float)mid.Color.Y;mesh.MidCover[midAt+2]=(float)mid.Color.Z;
-                mesh.MidCover[midAt+3]=(float)midAmount;mesh.MidCover[midAt+4]=(float)mid.HeightM;mesh.MidCover[midAt+5]=(float)mid.WidthM;
-                var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
-                var forest=TreeFlora.Surface(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,sample.ElevationM,up,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,rootBiome);
-                int forestAt=i*8;mesh.ForestCover[forestAt]=(float)forest.Color.X;mesh.ForestCover[forestAt+1]=(float)forest.Color.Y;mesh.ForestCover[forestAt+2]=(float)forest.Color.Z;
-                mesh.ForestCover[forestAt+3]=(float)forest.Coverage;mesh.ForestCover[forestAt+4]=(float)forest.HeightM;mesh.ForestCover[forestAt+5]=(float)forest.WidthM;mesh.ForestCover[forestAt+6]=(float)forest.Openness;
-                // Discrete representative anatomy in the existing spare word;
-                // preserve bits, never interpolate this as a numeric float.
-                mesh.ForestCover[forestAt+7]=BitConverter.Int32BitsToSingle(forest.MorphologyCode);
-                double visibleCover=D.Clamp(coverage/.45);
-                color=color*(1-visibleCover)+cover.Color*(.90*visibleCover);
-                if(mesh.GroundCover.Length>0)
-                {
-                    int coverAt=i*16;mesh.GroundCover[coverAt]=(float)cover.Color.X;mesh.GroundCover[coverAt+1]=(float)cover.Color.Y;
-                    mesh.GroundCover[coverAt+2]=(float)cover.Color.Z;mesh.GroundCover[coverAt+3]=(float)coverage;
-                    for(int form=0;form<9;form++)mesh.GroundCover[coverAt+4+form]=(float)cover.Weight(form);
-                    mesh.GroundCover[coverAt+13]=(float)cover.Stature;mesh.GroundCover[coverAt+14]=(float)cover.LeafWidth;mesh.GroundCover[coverAt+15]=(float)y;
-                }
-                mesh.Colors[i * 4] = (float)color.X; mesh.Colors[i * 4 + 1] = (float)color.Y; mesh.Colors[i * 4 + 2] = (float)color.Z; mesh.Colors[i * 4 + 3] = (float)coverage;
+                var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,frame.Position(eastM+x*step,northM+z*step),sample,nx,nz);
+                TerrainSurfaceVertex.Write(mesh,i,vertex,vertex,0);
             }
+            double Height(double x,double z)
+            {
+                double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
+                if(ix>=-1&&ix<=side&&iz>=-1&&iz<=side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+1)*halo+ix+1];
+                var p=frame.Position(x,z);
+                return frame.SurfaceY(p,patch!=null?patch.Elevation(p):Sample(x,z,p).ElevationM);
+            }
+            TerrainSurfaceVertex Boundary(double x,double z,double h)
+            {
+                double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
+                var p=frame.Position(x,z);
+                var sample=ix>=0&&ix<side&&iz>=0&&iz<side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7?samples[iz*side+ix]:Sample(x,z,p);
+                return TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
+            }
+            TerrainSurfaceEdges.Apply(mesh,edgeSteps,Boundary,token);
             mesh.Triangles=SurfaceTriangles(segments);
             // Planned neighbors already share collapsed triangle edges above.
             // The old >=80m perimeter skirts also appeared on INTERIOR fallback

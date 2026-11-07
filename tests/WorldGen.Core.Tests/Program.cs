@@ -187,6 +187,7 @@ if(args.Contains("--exploration-music-only")){int n=0;ExplorationMusicTests.Run(
 if(args.Contains("--play-session-only")){int n=0;PlaySessionTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" gameplay/save/scale assertions");return;}
 if(args.Contains("--local-scatter-only")){int n=0;LocalScatterTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local scatter assertions");return;}
 if(args.Contains("--local-terrain-native")){int n=0,at=Array.IndexOf(args,"--local-terrain-native");LocalTerrainTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact IL2CPP/CLR terrain probes");return;}
+if(args.Contains("--terrain-surface-seams")){TerrainSurfaceSeamTests.Run(args.Length>1?args[1]:null);return;}
 if(args.Contains("--local-terrain-only")){int n=0;LocalTerrainTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local terrain assertions");return;}
 if(args.Contains("--local-terrain-world")){int n=0;LocalTerrainTests.World(args[Array.IndexOf(args,"--local-terrain-world")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world local terrain assertions");return;}
 if(args.Contains("--domestic-only")){int n=0;HistoryDomesticPoliticsTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" domestic politics assertions");return;}

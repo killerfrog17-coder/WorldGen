@@ -1,0 +1,19 @@
+{
+  "status": "Source and numerical checks passed; native visual and performance acceptance pending",
+  "problem": "Only boundary heights were stitched. Normals and slope-derived materials used each tile's own derivative spacing; intermediate fine vertices did not reproduce coarse-edge attributes. The vertex shader also normalized these intermediate normals before interpolation.",
+  "change": "Use the coarse boundary's complete float surface attributes and derivative radius. Carry sparse point constraints at corners and T-junctions, including diagonally incident coarse tiles. Normalize lighting normals after raster interpolation. Physical terrain function and terrain resolution are unchanged.",
+  "limits": "Does not replace triangular cliff geometry. Cliff rock geometry is a separate follow-up. Conservative water-root exclusion channel13 intentionally remains grid-dependent and is not asserted as a colour/material attribute.",
+  "checks": {
+    "synthetic_mixed_edges": 176,
+    "procedural_200k_mixed_edges": 176,
+    "local_terrain": 814,
+    "cache_edge_allocation": 25796,
+    "edge_original_bytes": 17973216,
+    "edge_new_bytes": 8157952,
+    "edge_reused_workspace_bytes": 1176128,
+    "actual_shared_gap_m": 0.000001
+  },
+  "versions": {"terrain": "local-terrain-surface-stitching-62", "worker_wire": 10},
+  "research": "https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry",
+  "research_application": "Geometry and shading need matching transitions into a coarser level; stitching positions alone is insufficient. This implementation uses the existing CPU-generated worker mesh and adds no render pass or per-frame terrain sampling."
+}
