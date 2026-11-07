@@ -450,8 +450,8 @@ public sealed partial class LocalTerrainExplorer
         DisposeWildlifeRadar();
         DisposeFireflyGlows();
         if(animalBundleRequest!=null)
-        {var request=animalBundleRequest;if(request.isDone)request.assetBundle?.Unload(true);else request.completed+=_=>request.assetBundle?.Unload(true);}
-        if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalCoatUpload?.Dispose();animalCoatUpload=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;
+        {var request=animalBundleRequest;if(request.isDone)UnloadLiveAnimalBundle(request.assetBundle);else request.completed+=_=>UnloadLiveAnimalBundle(request.assetBundle);animalBundleRequest=null;}
+        if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalCoatUpload?.Dispose();animalCoatUpload=null;UnloadLiveAnimalBundle(animalPendingBundle);animalPendingBundle=null;
         if(animalCoatRead!=null)
         {animalCoatRead.ContinueWith(t=>{if(t.IsCompletedSuccessfully)t.Result.CancelUnstarted();else _=t.Exception;},TaskScheduler.Default);animalCoatRead=null;}
         foreach(var id in animals.Keys.ToArray())RemoveAnimal(id);
@@ -459,5 +459,11 @@ public sealed partial class LocalTerrainExplorer
         if(ReferenceEquals(animalSceneOwner,this)){Shader.SetGlobalBuffer("_FaunaBones",(GraphicsBuffer)null);animalSceneOwner=null;}
         animalBoneBuffer?.Dispose();animalBoneBuffer=null;
         birdPerchGeometry.Clear();wildlifeNeighbours.Clear();wildlifeGroups.Clear();wildlifeBehaviours.Clear();wildlifeGroupIndex.Clear();activeWildlifeGroups.Clear();wildlifeGroupWork.Clear();
+    }
+    static void UnloadLiveAnimalBundle(AssetBundle bundle)
+    {
+        // On application shutdown Unity may have destroyed the native bundle
+        // already. ?. tests only the managed wrapper and still calls Unload.
+        if(bundle!=null)bundle.Unload(true);
     }
 }
