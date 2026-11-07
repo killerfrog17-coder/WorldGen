@@ -53,7 +53,7 @@ if($target -and [PdfReportWindows]::Activate($target)){
     $chrome=@('C:/Program Files/Google/Chrome/Application/chrome.exe','C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',"$env:LOCALAPPDATA/Google/Chrome/Application/chrome.exe")|Where-Object {Test-Path -LiteralPath $_}|Select-Object -First 1
     if(!$chrome){throw 'Chrome was not found'}
     $known=@([PdfReportWindows]::Chrome());$x=$left.Bounds.X+24;$y=$left.Bounds.Y+24;$w=$left.WorkingArea.Width-48;$h=$left.WorkingArea.Height-48
-    Start-Process -FilePath $chrome -ArgumentList @('--new-window','--new-tab',('--window-position='+$x+','+$y),('--window-size='+$w+','+$h),('"'+$uri+'"')) -WindowStyle Normal | Out-Null
+    Start-Process -FilePath $chrome -ArgumentList @('--new-window',('--window-position='+$x+','+$y),('--window-size='+$w+','+$h),('"'+$uri+'"')) -WindowStyle Normal | Out-Null
     for($attempt=0;$attempt -lt 50;$attempt++){
         $new=[PdfReportWindows]::Chrome()|Where-Object {$_ -notin $known}|Select-Object -First 1
         if($new){
