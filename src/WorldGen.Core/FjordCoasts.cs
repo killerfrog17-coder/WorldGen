@@ -20,8 +20,9 @@ namespace WorldGen.Core
         {
             public readonly V A,B;
             public readonly double WidthA,WidthB,DepthA,DepthB,Relief;
-            public Section(V a,V b,double wa,double wb,double da,double db,double relief)
-            {A=a;B=b;WidthA=wa;WidthB=wb;DepthA=da;DepthB=db;Relief=relief;}
+            readonly int seed;
+            public Section(V a,V b,double wa,double wb,double da,double db,double relief,int seed)
+            {A=a;B=b;WidthA=wa;WidthB=wb;DepthA=da;DepthB=db;Relief=relief;this.seed=seed;}
             public double Cut(V point,double radius,double ground,out double footprint,out double exposure)
             {
                 V delta=B-A,p=point-A;
@@ -30,7 +31,16 @@ namespace WorldGen.Core
                 double width=WidthA+(WidthB-WidthA)*along,r=distance/width;
                 footprint=width-distance;exposure=0;if(r>=1)return ground;
                 double depth=DepthA+(DepthB-DepthA)*along;
-                double floor=-depth+(depth+Relief)*r*r*r*r;
+                // Broad buttresses and rock-wall recesses retire before the
+                // untouched outer collar and the smooth submerged basin. The
+                // field is planet-addressed and identical across sections.
+                double wall=OrogenMorphology.Smooth(.25,.45,r)*(1-OrogenMorphology.Smooth(.80,1,r)),sectionR=r;
+                if(wall>.001)
+                {
+                    V metres=point*radius;
+                    sectionR+=wall*(.065*LandscapeNoise.Value(metres,seed^0x2f98a,1/220d)+.025*LandscapeNoise.Value(metres,seed^0x65b93,1/75d));
+                }
+                double floor=-depth+(depth+Relief)*sectionR*sectionR*sectionR*sectionR;
                 double cut=Math.Min(0,floor-ground)*RiverscapeKernel.Smooth((1-r)/.16);
                 exposure=OrogenMorphology.Smooth(8,80,-cut)*OrogenMorphology.Smooth(.35,.70,r)*(1-OrogenMorphology.Smooth(.83,1,r));
                 return ground+cut;
@@ -47,7 +57,7 @@ namespace WorldGen.Core
         public int IndexBytes=>sizeof(int)*(offsets.Length+indices.Length);
         public int CandidateCount(int face)=>offsets.Length==0?0:offsets[face+1]-offsets[face];
         static double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
-        public FjordCoasts(World world,LocalTerrainProfile[] profiles,double scale,CellLocator locator,Func<int,double,V> channel,CancellationToken token=default)
+        public FjordCoasts(World world,LocalTerrainProfile[] profiles,double scale,CellLocator locator,CancellationToken token=default)
         {
             radius=world.Recipe.RadiusKm*1000*scale;int count=profiles.Length;
             var best=new int[count];for(int i=0;i<count;i++)best[i]=-1;
@@ -74,30 +84,46 @@ namespace WorldGen.Core
                 {
                     int next=best[at];if(next<0||Lake(next)||profiles[next].Glacial<.35||world.ElevationM[next]>1400||Flow(next)<.04)break;
                     double run=(world.Surface.Cells[at].Position-world.Surface.Cells[next].Position).Length*radius;
-                    if(length+run>35000)break;
+                    // Geography admission follows the horizontal world scale;
+                    // larger maps must not lose all inlets because one coarse
+                    // drainage edge exceeds a fixed playable-world distance.
+                    if(length+run>350000*scale)break;
                     path.Add(next);length+=run;high=Math.Max(high,world.ElevationM[next]);at=next;
                 }
                 double relief=high-world.ElevationM[mouth];
-                if(path.Count<2||length<3500||relief<300)continue;
-                double width=Math.Min(1800,Math.Max(450,300+relief*.35+Math.Sqrt(length)*2));
+                if(path.Count<2||length<35000*scale||relief<300)continue;
+                double width=Math.Min(1800,Math.Max(450,300+relief*.35+Math.Sqrt(length*.1/scale)*2))*Math.Sqrt(scale/.1);
                 double depth=Math.Min(450,Math.Max(45,relief*.20));int first=sections.Count;
                 // Head to open sea. Sections share endpoint dimensions exactly;
                 // finite rounded caps close the head without an abrupt trench.
                 path.Reverse();path.Add(ocean);double total=length+(world.Surface.Cells[mouth].Position-world.Surface.Cells[ocean].Position).Length*radius,walked=0;
                 foreach(int node in path)oceanNodes.Add(node);
+                double phase=(Rng.Mix(unchecked((uint)world.Recipe.Seed^(uint)mouth))>>8)*(Math.PI*2/16777216d);
                 for(int link=0;link<path.Count-1;link++)
                 {
                     int source=path[link],target=path[link+1];double run=(world.Surface.Cells[source].Position-world.Surface.Cells[target].Position).Length*radius;
-                    int steps=Math.Max(4,Math.Min(32,(int)Math.Ceiling(run/650)));
-                    V a=channel(source,0);
+                    int steps=Math.Max(4,Math.Min(64,(int)Math.Ceiling(run/(650*Math.Sqrt(scale/.1)))));
+                    V pa=world.Surface.Cells[source].Position,pb=world.Surface.Cells[target].Position;
+                    V previous=link>0?world.Surface.Cells[path[link-1]].Position:pa*2-pb;
+                    V following=link+2<path.Count?world.Surface.Cells[path[link+2]].Position:pb*2-pa;
+                    V ta=(pb-previous)*.5,tb=(following-pa)*.5;
+                    V Spine(double t)
+                    {
+                        // A glacier smooths the broad inherited valley. It does
+                        // not reproduce every metre-scale river meander as a
+                        // scallop in kilometre-high valley walls.
+                        double t2=t*t,t3=t2*t;
+                        return (pa*(2*t3-3*t2+1)+ta*(t3-2*t2+t)+pb*(-2*t3+3*t2)+tb*(t3-t2)).Unit;
+                    }
+                    V a=Spine(0);
                     for(int j=1;j<=steps;j++)
                     {
-                        V b=channel(source,j/(double)steps);double ta=(walked+run*(j-1)/steps)/total,tb=(walked+run*j/steps)/total;
-                        double Width(double t)=>width*(.55+.50*RiverscapeKernel.Smooth(t));
+                        V b=Spine(j/(double)steps);double ua=(walked+run*(j-1)/steps)/total,ub=(walked+run*j/steps)/total;
+                        double Width(double t)=>width*(.55+.50*RiverscapeKernel.Smooth(t))*(.90+.10*Math.Cos(t*Math.PI*6+phase));
                         // A shallow mouth sill and a deeper inland basin, all
                         // below sea level. This is inherited erosion, not tide.
                         double Depth(double t)=>depth*(.35+.65*Math.Sin(Math.PI*Math.Min(1,t)));
-                        sections.Add(new Section(a,b,Width(ta),Width(tb),Depth(ta),Depth(tb),Math.Min(1600,relief)));a=b;
+                        sections.Add(new Section(a,b,Width(ua),Width(ub),Depth(ua),Depth(ub),Math.Min(1600,relief),world.Recipe.Seed));a=b;
                     }
                     walked+=run;
                 }

@@ -1,5 +1,5 @@
 {
-  "status":"Design only. No fjord code implemented. Consider AFTER wetland revision passes native/performance review.",
+  "status":"Design implemented and being refined. See fjord-coasts-20261107.json for actual source, rejected native prototypes and current validation; this file retains the original planning rationale.",
   "priority_reason":"Ocean-connected glacial inlets are a prominent missing Earth landform. Current mountain troughs explicitly exclude low coastal endpoints.",
   "research":[{"url":"https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm","application":"Fjords are steep glacial valleys with below-sea floors inundated by the ocean; require actual connection, not detached sea-level sheets."},{"url":"https://www.nps.gov/articles/rocky-coast-landforms.htm","application":"Rocky coast glacial history, inherited valleys, wave exposure and depositional coves form a related coastal setting."}],
   "leading_architecture":[

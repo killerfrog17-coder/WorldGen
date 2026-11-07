@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-fjord-coasts-49";
+        public const string Version = "hyper-amplification-fjord-coasts-50";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -359,7 +359,7 @@ namespace WorldGen.Core
             }
             BuildLakeBasins(world,token);
             ConditionLakeSpills(world,token);
-            Fjords=new FjordCoasts(world,profiles,scale,landscapeLocator,RiverPoint,token);
+            Fjords=new FjordCoasts(world,profiles,scale,landscapeLocator,token);
             BuildRiverscapes(world,profiles,token,cachedRiverDatums);
             Canyons=new CanyonValleys(world,profiles,scale,riverDatums,riverNodeWidths,token);
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;

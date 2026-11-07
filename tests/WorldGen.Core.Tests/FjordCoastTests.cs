@@ -85,8 +85,16 @@ static class FjordCoastTests
         }
         var cached=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);Check(cached.Amplification.UsedCachedRiverDatums,"Fjord terrain supports cached final river derivation");
         foreach(var (p,s) in exact.AsEnumerable().Reverse())Check(StateHash.Compute(cached.Patch(p,50000).Sample(p))==StateHash.Compute(s),"Cached reverse-order terrain/water/soil reconstruction is exact");
+        var profiles=Enumerable.Range(0,world.Surface.Cells.Length).Select(terrain.Profile).ToArray();var scaleRows=new List<object>();
+        foreach(double scale in new[]{.01,.5,1d,2})
+        {
+            var clock=System.Diagnostics.Stopwatch.StartNew();var resized=new FjordCoasts(world,profiles,scale,locator);
+            Check(resized.Inlets.Select(f=>(f.Mouth,f.Ocean,f.Head)).SequenceEqual(fjords.Inlets.Select(f=>(f.Mouth,f.Ocean,f.Head))),"Mapped fjord admission is stable across horizontal scale "+scale);
+            Check(resized.Inlets.All(f=>double.IsFinite(f.HalfWidth)&&f.HalfWidth>0&&f.Depth>0),"Rescaled inlet dimensions remain finite and positive");
+            scaleRows.Add(new{Scale=scale,Inlets=resized.Inlets.Length,Sections=resized.Sections.Length,resized.IndexBytes,PrepareMs=clock.Elapsed.TotalMilliseconds});
+        }
         Check(world.Prehistory.Hash==history,"Local fjord terrain does not mutate broad history");
-        File.WriteAllText(Path.Combine(output,"fjords.json"),System.Text.Json.JsonSerializer.Serialize(new{PreparedSeconds=prepared,Checks=checks,Inlets=fjords.Inlets.Length,Sections=fjords.Sections.Length,fjords.IndexBytes,fjords.IndexedFaces,fjords.MaximumCandidates,IndexProbes=indexProbes,ContinuousWetProbes=wetProbes,ExactCachedSamples=exact.Count,Sites=rows},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(output,"fjords.json"),System.Text.Json.JsonSerializer.Serialize(new{PreparedSeconds=prepared,Checks=checks,Inlets=fjords.Inlets.Length,Sections=fjords.Sections.Length,fjords.IndexBytes,fjords.IndexedFaces,fjords.MaximumCandidates,IndexProbes=indexProbes,ContinuousWetProbes=wetProbes,ExactCachedSamples=exact.Count,Scales=scaleRows,Sites=rows},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"PASS {checks} fjord controls, {wetProbes} continuous ocean probes, {indexProbes} exhaustive index comparisons; {timer.Elapsed.TotalSeconds:F2}s");
     }
     static bool Contains(V a,V b,V c,V p)

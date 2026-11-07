@@ -74,9 +74,10 @@ public sealed partial class LocalTerrainExplorer
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
             if(arguments.Contains("--worldgen-bark-review"))cells=cells.Where(i=>model.Profile(i).CoarseReliefM<180);
-            if(kind=="Fjord"||kind=="FjordMouth")
+            if(kind=="Fjord"||kind=="FjordMouth"||kind=="FjordWoodland")
             {
-                foreach(var inlet in model.Amplification.Fjords.Inlets.OrderByDescending(f=>f.LengthM*f.Relief))
+                var inlets=model.Amplification.Fjords.Inlets.OrderByDescending(f=>kind=="FjordWoodland"?model.Profile(f.Mouth).Forest.Coverage/(1+f.Relief/900):f.LengthM*f.Relief);
+                foreach(var inlet in inlets)
                 {
                     int sectionIndex=inlet.First+(kind=="FjordMouth"?inlet.Count*4/5:inlet.Count/2);
                     var section=model.Amplification.Fjords.Sections[sectionIndex];V center=(section.A+section.B).Unit,side=V.Cross(center,section.B-section.A).Unit;
@@ -348,6 +349,9 @@ public sealed partial class LocalTerrainExplorer
             Check(!owner.PlayerWaterAppearance(sample).Fresh,"Actual player drinking path classifies flooded fjord as salt water");
             double seaY=owner.frame.SurfaceY(site.Position,0),swell=WaterSurface.Swell(0,0,Time.time,owner.CurrentWeather.WindEastMps,owner.CurrentWeather.WindNorthMps,-sample.ElevationM,true);
             Check(Math.Abs(owner.SampleMotionWater(0,0).Surface-seaY-swell)<.01,"Swimming controller sees the same sea datum and ordinary wave displacement in the local frame");
+            var swimmer=new TerrainMotion{Water=owner.SampleMotionWater};swimmer.Place(0,0,owner.Ground(0,0));swimmer.Y=seaY+swell-.5;
+            for(int i=0;i<300;i++)swimmer.Move(1d/60,0,0,0,0,0,false,false,owner.PlayerSolidGround);
+            Check(swimmer.Swimming&&Math.Abs(swimmer.Y-owner.SampleMotionWater(swimmer.X,swimmer.Z).Surface-.12)<.15,"Actual movement controller floats in the deep fjord instead of falling onto its seabed");
             Check(owner.tiles.Values.Any(t=>t.Renderers!=null&&t.Renderers.Length>1),"Flooded inlet has actual uploaded ocean renderers");
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
@@ -502,7 +506,8 @@ public sealed partial class LocalTerrainExplorer
             var direction=1-alignment*alignment<.4?new V(.13,.85,-.51):first;
             orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(direction,owner.frame.East),0,(float)V.Dot(direction,owner.frame.North)));
         }
-        yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
+        var wideOffset=site.Fjord.HasValue?new Vector3(width*.12f,Mathf.Max(width*1.2f,(float)site.Fjord.Value.Relief),width*.5f):new Vector3(width*.3f,width*.6f,width*1.5f);
+        yield return owner.StartCoroutine(Capture("wide",orientation*wideOffset));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null||site.Trough.HasValue?site.RiverWidth*.8+8:10)),true));
         if(site.WetlandPool!=null)yield return owner.StartCoroutine(Capture("wetland-waterline",orientation*new Vector3(0,0,4),true));
         if(arguments.Contains("--worldgen-bark-review"))
