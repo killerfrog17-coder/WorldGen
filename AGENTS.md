@@ -12,10 +12,25 @@ ACTIVE07Nov OVERNIGHT GEOGRAPHY. Owner resumed features/regions until local
 NOON (18:00UTC) unless interrupted. ALL Unity windows RIGHTMOST; only ONE PDF
 at END, accumulate inputs but do not open interim PDFs. No subagents. Selected
 B/0c8fdc0a protected playable baseline with generated ground/bark; A free candidate
-(recheck processes). No game/Editor now; core shore-platform-world session91204
-running. Uncommitted/unbuilt coast draft: monotone wave-cut platforms, shared
-ShoreExposure with soil/root/material consumers, LocalTerrain47/Hyper42. Pure
-coastal35543 checks PASS, actual-world test pending. No visual/FPS claim yet.
+(recheck processes). A ScriptsOnly NONDEV37d57293 built; three known Unity autos
+restored. Own native review26931/player6008 hidden RIGHTMOST running revised
+WavePlatform. Do not overwrite A or run heavy work until it exits. First native
+coast review passed runtime checks but visual REJECTED: shelf too narrow, one
+camera underwater. Revised broader monotone profile and walkable discovery gate;
+LocalTerrain48/Hyper43. Scalar32743 +2actual shores/9exposed/1300queries PASS,
+exact edges/height/datum/history. No visual/FPS acceptance yet. Next inspect new
+PNG then paired B/A moving/turning shore test, then glacial mountain architecture.
+Source37d pushed; evidence assets/verification/rocky-shores-20261107.json.
+UPDATE08:11Z revised shore native26931 EXIT0, actual walkable bench/scarp images
+inspected, no watercamera/gaps; rock surface still uniform. Own A perf94671/player
+3952 RIGHTMOST now measures shore candidate; do not compile/overwrite/heavytests
+until exits. Same B29758 COMPLETE206.47FPS,p9911.27/max37.52,13>16.7;0unfocused.
+DO NOT claim gain before candidate result. B screenshot ends underwater beside
+old steep slope, so not an accepted visual before/after pair. Candidate route is
+samecoordinate, not equal rendered geometry. Uncommitted GlacialValleys.cs +
+GlacialValleyTests.cs prototype UNHOOKED/UNBUILT; numeric CSR index intended,
+existing drainage + mapped glaciation gates, cut-only Uprofile, no scenery draws.
+No feature2 geometry active yet. No other heavy jobs; owner3files untouched.
 Finish actual/native shore appearance, water/ground/root checks and moving tails
 before next feature. unity-check now passes rightmost monitor. Next priorities
 adaptive: glaciated mountain/valley character, coupled wetland/river-coast variety,

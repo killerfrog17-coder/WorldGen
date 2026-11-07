@@ -5,7 +5,7 @@
   "delivery": "One concise screenshot PDF at the end, new Chrome tab leftmost. All other own Unity/player windows rightmost; hidden where practical. No interim PDFs.",
   "constraints": ["Only two reusable builds; protect selected baseline", "No subagents", "Do not close owner processes", "No animal/human/weather/sky appearance changes", "Keep generated bark and ground", "No disconnected decorative water", "Git or verified release-backed canonical inputs; artifacts disposable"],
   "priorities": [
-    {"order":1,"candidate":"Rocky shore morphology", "goal":"Wave-cut platforms/scarps, depositional coves/beaches retained; shared sea datum, terrain, root and material masks", "status":"35543 pure checks and2 actual-world shore sites passed; not native accepted yet"},
+    {"order":1,"candidate":"Rocky shore morphology", "goal":"Wave-cut platforms/scarps, depositional coves/beaches retained; shared sea datum, terrain, root and material masks", "status":"Revised broader bench native runtime/visual checks passed; paired B/A movement/turning performance running; surface remains uniform"},
     {"order":2,"candidate":"Glaciated mountain/valley character", "goal":"Glacier-conditioned trough/cirque/rock exposure attached to terrain/drainage, not arbitrary scenic meshes", "status":"research/architecture"},
     {"order":3,"candidate":"Wetland and river/coast diversity", "goal":"Coherent marsh/swamp water and drainage landforms; genuinely connected water if needed", "status":"conditional on preceding acceptance"},
     {"order":4,"candidate":"Further regional rock/forest character", "goal":"Choose next visible missing Earth-like character; protect foliage overlap and moving frame tails", "status":"adaptive"}

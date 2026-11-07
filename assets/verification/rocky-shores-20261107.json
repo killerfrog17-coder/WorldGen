@@ -1,0 +1,36 @@
+{
+  "scope": "Wave-cut rock benches and scarps on erosion-dominated ocean shores, sharing existing terrain and water.",
+  "status": "Revised native review passes and shows an actual broad bench/scarp. Performance comparison running; final acceptance pending.",
+  "commits": ["1ea5e9d8", "37d57293"],
+  "versions": {"local":"local-terrain-rock-shores-48", "amplification":"hyper-amplification-rock-shores-43", "scatter":"local-scatter-exposed-shores-18"},
+  "sources": [{"url":"https://www.nps.gov/articles/coastal-processes-erosion.htm", "application":"Differentiate wave-eroded resistant rock shores from sediment-rich beaches and sheltered deposits."}],
+  "implementation": [
+    "Static metre-addressed regional wave-exposure proxy, inherited relief, rock hardness and sediment supply control admission.",
+    "Monotone shallow platform/scarp profile preserves sea zero; no closed tide basin, displaced ocean or decorative water ribbon.",
+    "Explicit bare-rock mask reaches soil depth, organic matter, terrain/map/channel materials, rooted scatter and ground cover.",
+    "Sandy coves and bars retain the earlier depositional profile outside the admitted rock coast.",
+    "No new frame tick, scenery object, draw call, texture sample or shader pass. Existing terrain query does the scalar shaping."
+  ],
+  "numerical": {"revised_scalar_checks":32743, "actual_world_shores":2, "actual_exposed_samples":9, "queries":1300, "edge_height_water_history_checks":"passed", "current_evidence":"artifacts/geography-night-20261107/shore-platform-core-v3"},
+  "rejected_review": {
+    "evidence":"artifacts/landscape-20261103/rocky-shores-night-20261107-waveplatform",
+    "reason":"The first profile made an almost invisible shelf on steep headlands. One along-shore camera also stood on submerged seabed. Neither is accepted as successful visual evidence.",
+    "revision":"Broaden inherited height band for wave erosion, keep upper/deep ground unchanged, require a walkable bench for review discovery, and hold coastal review cameras above the sea surface."
+  },
+  "native": {
+    "candidate_commit":"37d57293",
+    "revised_evidence":"artifacts/landscape-20261103/rocky-shores-wide-20261107-waveplatform",
+    "exit_code":0,
+    "runtime_checks":25,
+    "review":"Ground and along-shore views show a walkable exposed bench below the inherited headland. Elevated view shows the connected shelf and ocean. No extra ocean sheet, visible gaps or underwater review camera.",
+    "sandy_regression":"artifacts/landscape-20261103/rocky-shores-night-20261107-coastalbeach",
+    "sandy_regression_exit":0,
+    "limitations":"The physical form is improved; bare rock surface remains too uniform and the surrounding existing terrain/vegetation art is not fully accepted."
+  },
+  "limits": [
+    "Long-term wave exposure is a geographic proxy rather than a physical wave-energy simulation.",
+    "A heightfield cannot form overhangs, detached sea arches or caves.",
+    "No claim of a universal 100 FPS floor; uncontended moving/turning comparison is pending.",
+    "Two numerical sites in one world do not establish global distribution or complete coast variety."
+  ]
+}
