@@ -734,6 +734,12 @@ public sealed partial class LocalTerrainExplorer
         motion.X=motion.Z=0;motion.Y=PerformanceFloor(0,0)+height;motion.Flying=true;heading=20;pitch=height>10?12:3;
         if(changed)RefreshWanted();UpdateCamera();
     }
+    public string PerformanceWaterSiteProof(V requested)
+    {
+        double error=(Position-requested).Length*terrain.RadiusM*HorizontalScale;var sample=walkingPatch.Sample(Position);
+        if(error>.03||!sample.Underwater||sample.WaterKind==LocalWaterKind.None)throw new InvalidOperationException("Water benchmark was relocated or lost its actual submerged site: "+error+"m / "+sample.WaterKind);
+        return "PASS exact submerged benchmark location, error "+error+"m; water "+sample.WaterKind+" at "+sample.WaterSurfaceM+"m, bed "+sample.ElevationM+"m";
+    }
     public void PerformanceWalkingQueryMode()
     {
         // Recreate both comparison cases, so an indexed first case cannot
@@ -1393,7 +1399,7 @@ public sealed partial class WorldGenRuntime
         };
         if(cases.Select(c=>c.Name).Distinct(StringComparer.Ordinal).Count()!=cases.Count)
             throw new InvalidOperationException("Performance case names must be unique; duplicate names overwrite evidence.");
-        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile");
+        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
             throw new InvalidOperationException("Presented throughput requires explicit travel/turning cases; image/pose verifiers use offscreen mode");
@@ -1415,7 +1421,14 @@ public sealed partial class WorldGenRuntime
             Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(exactSites.TryGetValue(site.Item1,out var exactSite)?exactSite:world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer==null||!terrainExplorer.Ready){Debug.LogError("PERF terrain unavailable");Application.Quit(1);yield break;}
-            terrainExplorer.PerformanceDrySite();terrainExplorer.TestView(1.65,20,3);terrainExplorer.PerformanceRender(width,height);
+            if(caseFilter=="travel-whip-water-surface")
+            {
+                V requested=exactSites.TryGetValue(site.Item1,out var waterSite)?waterSite:world.Surface.Cells[site.Item2].Position;
+                File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceWaterSiteProof(requested)+"\n");
+                WorldGenPerformance.WaterSurfaceCamera=true;terrainExplorer.PerformancePose();
+            }
+            else terrainExplorer.PerformanceDrySite();
+            terrainExplorer.TestView(1.65,20,3);terrainExplorer.PerformanceRender(width,height);
             TerrainMapViewport.Degrees(terrainExplorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
             PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);
             File.AppendAllText(Path.Combine(output,"sites.txt"),$"{site.Item1} cell {site.Item2} {lat:R},{lon:R}; biome {world.Ecology.Habitat[site.Item2].Biome}; relief {world.Ecology.Habitat[site.Item2].ReliefM}\n");
