@@ -142,7 +142,7 @@ static class WetlandComplexTests
         // predates the sub-metre beauty pass too, so it is not a valid reference
         // for measuring this later basin cut.
         var contextType=typeof(HyperAmplification).GetNestedType("Patch",System.Reflection.BindingFlags.NonPublic);
-        var context=Activator.CreateInstance(contextType,System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic,null,new object[]{terrain.Amplification,Array.Empty<int>()},null);
+        var context=Activator.CreateInstance(contextType,System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic,null,new object[]{terrain.Amplification,Array.Empty<int>(),false},null);
         var beforeWater=(Func<V,SmallWaterGround>)Delegate.CreateDelegate(typeof(Func<V,SmallWaterGround>),context,contextType.GetMethod("SmallWaterGroundAt",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic));
         int checks=0,wet=0,dry=0;
         void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
