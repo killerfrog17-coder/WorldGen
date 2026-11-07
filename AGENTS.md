@@ -8,6 +8,24 @@ captures as successful results. Link the finished PDF in the update handoff and
 open it in a new Chrome tab on the leftmost monitor. This report-viewing preference
 overrides the rightmost-monitor rule for PDFs; other review windows stay rightmost.
 
+READY07Nov ALL-GENERATED BARK. Owner requested image generation for all bark.
+Four new built-in masters in assets-source/vegetation/tree-surfaces/ai/bark-set-
+20261107/ plus previous generated fissured master. All five now generated;
+normal relief derived offline. Source294fcc40 pushed; Editor BatchReview PASS
+11forms/2LODs,330241bark checks, identical triangle counts/bank sizes. Full NONDEV
+Mono B built06:13:21Z SourceChanges[]; shortcut selects B/294fcc40. No own jobs
+remain. Owner A/PID14192 left untouched. Source geometry,
+shader and leaves unchanged. New asset release game-assets-all-generated-bark-
+20261107-v1 downloaded/hash verified; restore5776/5776 PASS. Lock saved in Git.
+Three known Unity autos restored. Packaged tree/forest shaders PASS; actual
+forest BarkReview EXIT0/27checks/no runtime or shutdown errors. Inspected new
+resident smooth bark and peeling/scaly/palm asset views. Report updated with
+all-generated swatches, matched peeling/scaly before/after, new actual-world hero;
+all3PDFpages visually checked and opened NEW leftmost Chrome tab. Evidence and
+full five-prompt set are assets/verification/tree-bark-*-20261107.json.
+No live FPS measurement while owner A running; no performance gain claim.
+Owner3files preserved. No subagents. Other visible own windows RIGHTMOST.
+
 READY07Nov TREE BARK delivered. Shortcut now selects verified B/969e5c62,
 ScriptsOnly NONDEV Mono built05:53:44Z over full resource build1d164476.
 Owner A/f833 session PID14192 remains running and untouched; do not overwrite A

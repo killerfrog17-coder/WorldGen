@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "9f1bcd482f530f1b8a0fb80f8e8df00566f4c4ed",
+  "source_checkpoint": "294fcc40a7d3417398742a6840d85b2b0e7caa08",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14667,6 +14667,36 @@
       "bytes": 2281,
       "pack": "ground-clump-inputs-20261104/assets-b834e8520f2fb7e280b9ff418667a509cf51fb90628ad7813f81d165554f168a.zip",
       "member": "objects/b210c7013c0db4cdbb82265efc16ee1925fa52987e62e120f848a8d3a2a8ae26"
+    },
+    "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/fibrous.png": {
+      "sha256": "97d62217cf991ad4f982be4306c7c21bc10470f10de4c32010342812190b6ac8",
+      "bytes": 3800090,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/97d62217cf991ad4f982be4306c7c21bc10470f10de4c32010342812190b6ac8"
+    },
+    "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/peeling.png": {
+      "sha256": "73097d8c83750d1f0ee85b609e36c326e6bbf3913b578e0d79364e3cfdc55815",
+      "bytes": 3611691,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/73097d8c83750d1f0ee85b609e36c326e6bbf3913b578e0d79364e3cfdc55815"
+    },
+    "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/scaly.png": {
+      "sha256": "5ce67b110992007db5a397a01f68811a7a51f41254abb99136b3e440ba4aa7f9",
+      "bytes": 4071959,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/5ce67b110992007db5a397a01f68811a7a51f41254abb99136b3e440ba4aa7f9"
+    },
+    "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/smooth.png": {
+      "sha256": "f593919bb86b58d8da6d5bc8801ad9469685401e5a82ce295e9f44df60a70271",
+      "bytes": 3983270,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/f593919bb86b58d8da6d5bc8801ad9469685401e5a82ce295e9f44df60a70271"
+    },
+    "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/sources.json": {
+      "sha256": "e84e6455facf025e4c3e42bca4df1e82b49defee42670e1586fa02159908ca8e",
+      "bytes": 6924,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/e84e6455facf025e4c3e42bca4df1e82b49defee42670e1586fa02159908ca8e"
     },
     "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png": {
       "sha256": "0a9f8069ea8dd6bcee654163648575e81a81067f63b9598741f9fbceb6bd3d28",
@@ -30653,10 +30683,10 @@
       "member": "objects/8e3b78e001b3665c25ca407a1210727713ccc87779356800a1f7ff8b191ec2d0"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-albedo.png": {
-      "sha256": "c3b1295aa7e918d9d0ddc4f9e4f51010a344ae3a393ccb9827370b3289e2207a",
-      "bytes": 494105,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/c3b1295aa7e918d9d0ddc4f9e4f51010a344ae3a393ccb9827370b3289e2207a"
+      "sha256": "82b1d6505dc646e2e910ad6024644909995435a0df79352310bb75d6cdf95c4b",
+      "bytes": 590384,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/82b1d6505dc646e2e910ad6024644909995435a0df79352310bb75d6cdf95c4b"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-albedo.png.meta": {
       "sha256": "f7ace5519b0660a0c87578bb8f4f6ea80c9c5f5c35853a9b8c2f81842a95f7c1",
@@ -30665,10 +30695,10 @@
       "member": "objects/f7ace5519b0660a0c87578bb8f4f6ea80c9c5f5c35853a9b8c2f81842a95f7c1"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-normal.png": {
-      "sha256": "951e36426db70de596cc907ad9cf091b9ffc5077d93d44c84d3357de72a51b3b",
-      "bytes": 375930,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/951e36426db70de596cc907ad9cf091b9ffc5077d93d44c84d3357de72a51b3b"
+      "sha256": "9dae8a78f0e8422eb8d77831d841de578ea650708d8e8583acaf92b6064b42b3",
+      "bytes": 712923,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/9dae8a78f0e8422eb8d77831d841de578ea650708d8e8583acaf92b6064b42b3"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-00-normal.png.meta": {
       "sha256": "f10514cb85e2beb6dc959d7ca903b296c0830e7098bdbc0cc4a8638c9c5af00b",
@@ -30701,10 +30731,10 @@
       "member": "objects/cf26315d7d0da0563069f0bf7e187c72a4a770c3019916382abc191b4e9722ff"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-albedo.png": {
-      "sha256": "f143514f9b4c3d637b67e920cade5114bc916d869f811a563581ee55b06f78be",
-      "bytes": 513185,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/f143514f9b4c3d637b67e920cade5114bc916d869f811a563581ee55b06f78be"
+      "sha256": "07e85605f4cb98b429a7375f181be95e034ff533f3f01e8728bc72141c5a240b",
+      "bytes": 614837,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/07e85605f4cb98b429a7375f181be95e034ff533f3f01e8728bc72141c5a240b"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-albedo.png.meta": {
       "sha256": "59225684a0b326eabfcd9360c52c47e899df613bfb0a3bef3466c35f9cfcd355",
@@ -30713,10 +30743,10 @@
       "member": "objects/59225684a0b326eabfcd9360c52c47e899df613bfb0a3bef3466c35f9cfcd355"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-normal.png": {
-      "sha256": "7f088458e490279cf7051219b2e382f3e4b8e5445470a2bd861e4ea1cc17c5f2",
-      "bytes": 565778,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/7f088458e490279cf7051219b2e382f3e4b8e5445470a2bd861e4ea1cc17c5f2"
+      "sha256": "c99f819e1b363006ee26c5699630e78991c42c57777642c3ea899ff655d61d50",
+      "bytes": 725453,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/c99f819e1b363006ee26c5699630e78991c42c57777642c3ea899ff655d61d50"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-02-normal.png.meta": {
       "sha256": "2ac923f594c43d28cf4840f981747227a5dc1a3030b9051efd443e646ca603ba",
@@ -30725,10 +30755,10 @@
       "member": "objects/2ac923f594c43d28cf4840f981747227a5dc1a3030b9051efd443e646ca603ba"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-albedo.png": {
-      "sha256": "6d636cc792196d4b480e752ebdc185a2a8c6e93a9b8c25d784bdf765f49930d0",
-      "bytes": 481661,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/6d636cc792196d4b480e752ebdc185a2a8c6e93a9b8c25d784bdf765f49930d0"
+      "sha256": "dcf3582713bad7deda0d710956a8bc6bb0de858e076c8c35ba1d5252a41395cf",
+      "bytes": 510337,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/dcf3582713bad7deda0d710956a8bc6bb0de858e076c8c35ba1d5252a41395cf"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-albedo.png.meta": {
       "sha256": "e38c71064faea526e1cb6430e1dbe98e0ad4088c7888c29ad99b7893a116d9cf",
@@ -30737,10 +30767,10 @@
       "member": "objects/e38c71064faea526e1cb6430e1dbe98e0ad4088c7888c29ad99b7893a116d9cf"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-normal.png": {
-      "sha256": "b8630bda8b7d1095fa1bfab4941531f5d0c221ee1b9b7d1d923296a0b9c06a36",
-      "bytes": 571202,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/b8630bda8b7d1095fa1bfab4941531f5d0c221ee1b9b7d1d923296a0b9c06a36"
+      "sha256": "96f34416aba11a21a10ddb2315c9f3793828655e7bb280740746a0f88d79b136",
+      "bytes": 675349,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/96f34416aba11a21a10ddb2315c9f3793828655e7bb280740746a0f88d79b136"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-03-normal.png.meta": {
       "sha256": "7559623c79a2343fefa136cebda3e98b59dddab11888bd4f3df8d22b3b584780",
@@ -30749,10 +30779,10 @@
       "member": "objects/7559623c79a2343fefa136cebda3e98b59dddab11888bd4f3df8d22b3b584780"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-albedo.png": {
-      "sha256": "7e22da14c234acf07c9fc43cd8231a944befd4c9e1542c537ace1778e15c8479",
-      "bytes": 543213,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/7e22da14c234acf07c9fc43cd8231a944befd4c9e1542c537ace1778e15c8479"
+      "sha256": "72032ff38cdbb3f29d95f972a517ce56e068c144ce51910637a1bc15bde063b5",
+      "bytes": 561297,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/72032ff38cdbb3f29d95f972a517ce56e068c144ce51910637a1bc15bde063b5"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-albedo.png.meta": {
       "sha256": "b658b629ece34d42c66ad245c422e54f732897748f312d51b4549ede3a8dd415",
@@ -30761,10 +30791,10 @@
       "member": "objects/b658b629ece34d42c66ad245c422e54f732897748f312d51b4549ede3a8dd415"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-normal.png": {
-      "sha256": "58e49637cb768a3b6d943665e8a89a3f176549fc41d5dffad704ede2770eac24",
-      "bytes": 500542,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/58e49637cb768a3b6d943665e8a89a3f176549fc41d5dffad704ede2770eac24"
+      "sha256": "c3c55cc232b4f5a1b89b61750121c744a937ead909dbf7842ecee786deb7123e",
+      "bytes": 676839,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/c3c55cc232b4f5a1b89b61750121c744a937ead909dbf7842ecee786deb7123e"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1/bark-04-normal.png.meta": {
       "sha256": "59ef9f7f5731af0f685dff33d2e996fad201753f7e0dc598a8599450f8883cc4",
@@ -34571,10 +34601,10 @@
       "member": "objects/20f269bc5621aeb76c055cfd49a911bf3033afaa23abcc8b4b9b484eaf6c7a7d"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-albedo.asset": {
-      "sha256": "4003457cbf00ad2483dd15200f0befbc85612c4c93415dcc6b2e2c9eafbeee09",
-      "bytes": 3496389,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/4003457cbf00ad2483dd15200f0befbc85612c4c93415dcc6b2e2c9eafbeee09"
+      "sha256": "62a4c7385799162e61d2490f3fd40e1f547ab05ad6ca193e944acf27149006a5",
+      "bytes": 3496391,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/62a4c7385799162e61d2490f3fd40e1f547ab05ad6ca193e944acf27149006a5"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-albedo.asset.meta": {
       "sha256": "4810d3507869ff8585e7ef900e4238ae9bd27eefbecd7d2e4839fa224b0b6d1b",
@@ -34583,10 +34613,10 @@
       "member": "objects/4810d3507869ff8585e7ef900e4238ae9bd27eefbecd7d2e4839fa224b0b6d1b"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-normal.asset": {
-      "sha256": "4a9fe304ae87b5909f2d071ad1803eb49a7cd76654d64ceb4c9cc3981e87ce84",
-      "bytes": 3496390,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/4a9fe304ae87b5909f2d071ad1803eb49a7cd76654d64ceb4c9cc3981e87ce84"
+      "sha256": "c945df3089c5318b799b14fd49ac02d86c650503b5d035e9f80bbc8fda072c2c",
+      "bytes": 3496392,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/c945df3089c5318b799b14fd49ac02d86c650503b5d035e9f80bbc8fda072c2c"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/bark-normal.asset.meta": {
       "sha256": "9faffbda7e46e2247a7e6989e8f1503c8522ddcccaf3fea91f705f97e28316d3",
@@ -34595,10 +34625,10 @@
       "member": "objects/9faffbda7e46e2247a7e6989e8f1503c8522ddcccaf3fea91f705f97e28316d3"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/pixels.bytes": {
-      "sha256": "cc072efa2add1a4f8f0f55e9637a057108e7863e667f9eedecd782d0058d61ca",
-      "bytes": 6546529,
-      "pack": "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip",
-      "member": "objects/cc072efa2add1a4f8f0f55e9637a057108e7863e667f9eedecd782d0058d61ca"
+      "sha256": "aaad1bb41c3a9d6f937c5365214ccb38887407335c0dd2bef293cfba2ed516fb",
+      "bytes": 6838939,
+      "pack": "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "member": "objects/aaad1bb41c3a9d6f937c5365214ccb38887407335c0dd2bef293cfba2ed516fb"
     },
     "unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1/pixels.bytes.meta": {
       "sha256": "884fdd272e8905087764093adf47f21836bc39c62fe57982573d185526016730",
@@ -35782,6 +35812,14 @@
       "asset_id": 717399700,
       "sha256": "cc3f69a7facbb189e95eebd56c163ec9a48c955dc4dc12731148a9b447637ad0",
       "bytes": 21205063,
+      "encoding": "zip"
+    },
+    "game-assets-all-generated-bark-20261107-v1/assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip": {
+      "tag": "game-assets-all-generated-bark-20261107-v1",
+      "name": "assets-b1b05379c0e8ef9b285e8c2a8da1d4038cd72746900bd03fac764a31d5b8a26a.zip",
+      "asset_id": 719814034,
+      "sha256": "2982a20b509fb23e3fb08944798188a7876384d5d93d04bb48cd83cba75e1cd4",
+      "bytes": 30584611,
       "encoding": "zip"
     },
     "game-assets-bark-20261107-v1/assets-8c745ba9023e4d606c29e932386ce6c18d529b379e65c7cbf7c6edaae39d8cd0.zip": {

@@ -1,28 +1,28 @@
 {
   "status": "validated and selected for next launch",
-  "recorded_utc": "2026-11-07T06:02:59.395167+00:00",
+  "recorded_utc": "2026-11-07T06:17:52.726096+00:00",
   "runtime_build": {
-    "BuiltUtc": "2026-11-07T05:53:44.1244659Z",
-    "SourceCommit": "969e5c62128902e24d739813f4e80d12a3701f25",
+    "BuiltUtc": "2026-11-07T06:13:21.7864487Z",
+    "SourceCommit": "294fcc40a7d3417398742a6840d85b2b0e7caa08",
     "SourceChanges": [],
     "Backend": "Mono",
     "Development": false,
-    "ScriptsOnly": true,
+    "ScriptsOnly": false,
     "Inputs": [
       {
         "Assembly": "WorldGen.Core",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
-        "Sha256": "53cb33cab67e01f3aa369a1f347e8b970c68054eb7e18b7a0124bac18a9223ee"
+        "Sha256": "7a526a23d2b605d5880e60c0fb21d6024b2b4078dad7dec2afa348cd5f8f8e10"
       },
       {
         "Assembly": "WorldGen.Serialization",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
-        "Sha256": "f3245c51f1cc7d53c15b73b17a7da3ebb36dd5fb2146f53f20abec94a5406fc4"
+        "Sha256": "74a2acad3d548806f844d8572375bde7533f36f9d64a758f34cf2f178c3059ec"
       },
       {
         "Assembly": "WorldGen.Presentation",
         "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
-        "Sha256": "b67f4c22cd28ebeba0f36979430489ad3f8262cb68ebbe50ba907586523fd528"
+        "Sha256": "efaf8687106c9fbffca70b264f7f046ed0b83fb47f245724688db63d8fc9241d"
       },
       {
         "Assembly": "DelaunatorSharp",
@@ -30,13 +30,13 @@
         "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
       }
     ],
-    "TerrainWorkerSha256": "be0da0ef6d5f5197db3d83de4cfd9c86fb5c0a3981e2cc9b021bb8cd5b5a70c8"
+    "TerrainWorkerSha256": "e7c4ce40b988b5e529d2fbd816c09fbae4f0f7e0cdee3ac749e0ab64926116a5"
   },
   "shortcut": {
     "PreviousTarget": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
     "Target": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
     "WorkingDirectory": "C:\\Users\\kille\\Desktop\\WorldGen",
-    "ChangedUtc": "2026-11-07T06:02:11.4744168Z",
+    "ChangedUtc": "2026-11-07T06:17:52.726096+00:00",
     "OwnerRunningSlotUntouched": "slot-a"
   },
   "feature_commits": [
@@ -45,9 +45,10 @@
     "9f1bcd48",
     "40b34117",
     "0c257d32",
-    "969e5c62"
+    "969e5c62",
+    "294fcc40"
   ],
-  "scope": "Continuous trunk implementation included from staged candidate; new taper normals, exact wrap tangents, periodic bark authoring, linear exposure and mip filtering, semantic bark layer selection.",
+  "scope": "Retain preceding continuous trunk/wrap shading repair; all five bark layers now use built-in image-generated masters and approximate offline relief normals. Geometry, shaders and foliage unchanged in this revision.",
   "model_budget": {
     "models": 11,
     "near_and_middle_counts_identical": true,
@@ -105,11 +106,11 @@
   "mesh_buffer": "PASS 372 native model pairs / 316138 vertices: identical positions, normals, tangents, colors, indices, bounds and eight UV channels after scratch reuse; no scene/model objects cached.",
   "final_native_shaders": {
     "tree": {
-      "result": "NVIDIA GeForce RTX 4060\n36984320 stage=0 left=27965 right=27229\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=20, mean=0.00257631655092593\n36984320 stage=1 left=28870 right=28333\n305419776 stage=0 left=30249 right=30877\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=20, mean=0.00141963252314815\n305419776 stage=1 left=33164 right=32767\n573855232 stage=0 left=14385 right=13964\nearly alpha max RGB delta 0\ntight quad max RGB delta 166, significant=31, mean=0.001474609375\n573855232 stage=1 left=12188 right=12065\n842290688 stage=0 left=11309 right=11137\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=37, mean=0.0022728587962963\n842290688 stage=1 left=9872 right=10379\n1110726144 stage=0 left=12903 right=13584\nearly alpha max RGB delta 0\ntight quad max RGB delta 137, significant=3, mean=0.000301287615740741\n1110726144 stage=1 left=12810 right=13259\n1379161600 stage=0 left=12116 right=11821\nearly alpha max RGB delta 0\ntight quad max RGB delta 142, significant=30, mean=0.00081958912037037\n1379161600 stage=1 left=6022 right=7203\n41178624 stage=0 left=19507 right=20022\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=24, mean=0.00211877893518519\n41178624 stage=1 left=20497 right=21659\n45372928 stage=0 left=29853 right=28367\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=15, mean=0.00222439236111111\n45372928 stage=1 left=28716 right=28790",
+      "result": "NVIDIA GeForce RTX 4060\n36984320 stage=0 left=27965 right=27229\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=20, mean=0.00265733506944444\n36984320 stage=1 left=28870 right=28333\n305419776 stage=0 left=30249 right=30877\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=23, mean=0.00154441550925926\n305419776 stage=1 left=33164 right=32767\n573855232 stage=0 left=14385 right=13964\nearly alpha max RGB delta 0\ntight quad max RGB delta 166, significant=26, mean=0.00146412037037037\n573855232 stage=1 left=12188 right=12065\n842290688 stage=0 left=11309 right=11137\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=39, mean=0.00232819733796296\n842290688 stage=1 left=9872 right=10379\n1110726144 stage=0 left=12903 right=13584\nearly alpha max RGB delta 0\ntight quad max RGB delta 137, significant=3, mean=0.000301287615740741\n1110726144 stage=1 left=12810 right=13259\n1379161600 stage=0 left=12116 right=11821\nearly alpha max RGB delta 0\ntight quad max RGB delta 137, significant=32, mean=0.00081127025462963\n1379161600 stage=1 left=6022 right=7203\n41178624 stage=0 left=19507 right=20022\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=23, mean=0.00220703125\n41178624 stage=1 left=20497 right=21659\n45372928 stage=0 left=29853 right=28367\nearly alpha max RGB delta 0\ntight quad max RGB delta 170, significant=17, mean=0.00228443287037037\n45372928 stage=1 left=28716 right=28790",
       "exit": 0
     },
     "forest": {
-      "result": "NVIDIA GeForce RTX 4060\nGPU admission/disable/near-range/finer-field ownership pass\nearly alpha max RGB delta 0\ntight quad max RGB delta 160, significant=5, mean=0.00081958912037037\n36984320 pixels=10300/10540\nearly alpha max RGB delta 0\ntight quad max RGB delta 165, significant=10, mean=0.00102756076388889\n305419776 pixels=11819/11902",
+      "result": "NVIDIA GeForce RTX 4060\nGPU admission/disable/near-range/finer-field ownership pass\nearly alpha max RGB delta 0\ntight quad max RGB delta 160, significant=7, mean=0.000878544560185185\n36984320 pixels=10300/10540\nearly alpha max RGB delta 0\ntight quad max RGB delta 165, significant=14, mean=0.00110894097222222\n305419776 pixels=11819/11902",
       "exit": 0
     }
   },
@@ -144,35 +145,43 @@
   ],
   "performance": "No additional material layers, shader samples or draw passes. No live FPS benchmark while owner slot-a game was running; no global frame-rate guarantee.",
   "limits": [
-    "Generated fissured bark relief inferred from colour, not measured geometry.",
+    "All generated bark relief inferred from colour, not measured geometry.",
     "Existing procedural branch junction architecture retained."
   ],
   "asset_backup": {
-    "release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/game-assets-bark-20261107-v1",
-    "source_checkpoint": "9f1bcd482f530f1b8a0fb80f8e8df00566f4c4ed",
-    "files": 5771,
-    "packs": 166,
+    "release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/game-assets-all-generated-bark-20261107-v1",
+    "source_checkpoint": "294fcc40a7d3417398742a6840d85b2b0e7caa08",
+    "files": 5776,
+    "packs": 167,
     "all_payloads_uploaded_and_download_verified": true,
-    "source_bytes": 9283298348,
-    "remote_bytes": 5687961013,
-    "manifest_sha256": "3eb52a5d3a6faac83ece03821bc1bbf16d2dcd37e6555777f04f0f8803de325d"
+    "source_bytes": 9300086499,
+    "remote_bytes": 5718545624,
+    "manifest_sha256": "9b790e8a6ecf04db38f934d5769dbf674330fc0a7f4ffe601b87d9719d27b39b"
   },
   "asset_restore_verify": {
-    "files": 5771,
-    "verified": 5771,
+    "files": 5776,
+    "verified": 5776,
     "missing_or_changed": []
   },
   "report": {
     "path": "docs/reports/WorldGen - Tree Trunks and Bark.pdf",
     "pages": 3,
-    "sha256": "01e10f1cbf148cd582b025ad093ba694902977b00401dc5837b2802ed369060f",
+    "sha256": "e50c6c1d32a7a510992d10c586987d39c25ec0862326a9aeb4894638b8f21c1a",
     "all_pages_visually_reviewed": true,
     "opened": "new Chrome tab/window on leftmost monitor"
   },
   "generated_asset": {
     "tool": "built-in image_gen",
-    "master": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png",
-    "full_prompt": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/source.json"
+    "all_five": true,
+    "full_prompt_set": "assets/verification/tree-bark-generation-prompts-20261107.json",
+    "masters": [
+      "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/smooth.png",
+      "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png",
+      "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/scaly.png",
+      "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/fibrous.png",
+      "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/peeling.png"
+    ]
   },
-  "owner_session": "Existing slot-a process14192 left running; owner files untouched; no extra binary archives."
+  "owner_session": "Existing slot-a process14192 left running; owner files untouched; no extra binary archives.",
+  "mesh_buffer_scope": "Previous372-pair native buffer proof retained: no geometry or buffer-code changes in this generated-bark-only revision."
 }

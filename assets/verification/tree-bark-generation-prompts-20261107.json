@@ -1,0 +1,37 @@
+{
+  "tool": "built-in image_gen",
+  "created_utc": "2026-11-07",
+  "assets": [
+    {
+      "key": "smooth",
+      "layer": 0,
+      "master": "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/smooth.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: production video-game tree bark base-color/albedo texture. Create ONE square high-resolution seamless texture tile, an orthographic straight-on scan of a FLAT unwrapped bark surface that fills every pixel. Physical coverage approximately one metre square, many fine details rather than gigantic chunks. Photorealistic natural material, restrained saturation, neutral diffuse illumination with no directional lighting or cast shadows, no highlights, no gradient, no vignette. Texture must repeat seamlessly on all four edges; avoid a distinctive large motif or regular band that reveals tiling. No trunk silhouette, tree scene, background, preview sphere, panels, lettering, watermark, moss, leaves or insects. Only bark base colour. Subject: smooth broadleaf tree bark resembling beech or young hackberry. Warm neutral gray with subtle olive and taupe undertones, compact fine pores, delicate wrinkles, thin irregular fissures and a few small subtle lenticels. Quiet realistic mottling without stark white lichen spots, large orange blotches or deep craggy ridges. Clearly recognisable tree bark up close, not stone, leather or fabric. No horizontal seams."
+    },
+    {
+      "key": "fissured",
+      "layer": 1,
+      "master": "assets-source/vegetation/tree-surfaces/ai/fissured-bark-20261107/albedo.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: production video-game tree bark base-color texture, not a photograph of an entire tree. Create ONE square high-resolution seamless tile of mature temperate oak-like fissured bark, straight-on orthographic surface scan, flat unwrapped surface fills every pixel edge to edge. Real natural cool gray-brown bark, irregular narrow vertical elongated interlocking ridges, small weathered scales and fine fibers, branching deep grooves with no huge gashes, subtle realistic color variation. Physical coverage about 1 metre square: many fine details, not giant chunky plates. Neutral diffuse overcast illumination, lighting removed as much as possible for base-color/albedo use: no directional shadows, no bright highlights, no gradient, no vignette, no ambient light baked in. Seamlessly repeatable on all four edges with continuous texture and no horizontal bands. Detailed natural material of a real forest tree, restrained saturation and realistic midtone reflectance, no painted or cartoon styling. No moss, lichen, leaves, insects, trunk silhouette, environment, frame, lettering, watermarks, split panels, or material preview sphere. Only the seamless bark base color."
+    },
+    {
+      "key": "scaly",
+      "layer": 2,
+      "master": "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/scaly.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: production video-game tree bark base-color/albedo texture. Create ONE square high-resolution seamless texture tile, an orthographic straight-on scan of a FLAT unwrapped bark surface that fills every pixel. Physical coverage approximately one metre square, many fine details rather than gigantic chunks. Photorealistic natural material, restrained saturation, neutral diffuse illumination with no directional lighting or cast shadows, no highlights, no gradient, no vignette. Texture must repeat seamlessly on all four edges; avoid a distinctive large motif or regular band that reveals tiling. No trunk silhouette, tree scene, background, preview sphere, panels, lettering, watermark, moss, leaves or insects. Only bark base colour. Subject: mature scaly pine bark. Natural gray-brown weathered outer scales with restrained reddish brown in thin cracks. Small irregular interlocking polygonal and elongated plates, approximately 2\u20137 cm across, subtly layered flaky rims, fine woody fibrous surface texture. Rich fine irregular details and modest natural variation, no repeated honeycomb, no huge gashes, no strong orange colour cast. Do not bake directional shadows into the plates."
+    },
+    {
+      "key": "fibrous",
+      "layer": 3,
+      "master": "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/fibrous.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: production video-game tree bark base-color/albedo texture. Create ONE square high-resolution seamless texture tile, an orthographic straight-on scan of a FLAT unwrapped bark surface that fills every pixel. Physical coverage approximately one metre square, many fine details rather than gigantic chunks. Photorealistic natural material, restrained saturation, neutral diffuse illumination with no directional lighting or cast shadows, no highlights, no gradient, no vignette. Texture must repeat seamlessly on all four edges; avoid a distinctive large motif or regular band that reveals tiling. No trunk silhouette, tree scene, background, preview sphere, panels, lettering, watermark, moss, leaves or insects. Only bark base colour. Subject: tropical palm trunk bark with fine gray-tan vertical woody fibers and subtle remnants of old leaf-base scars. Fine longitudinal striations and rough compact fibers; a few thin gently curving irregular horizontal scars should be sparse and low contrast, without creating bold rings, grid lines, stacked cylinders, or brick patterns. Neutral weathered gray-brown and buff coloration, organic fibrous material, not woven fabric. No protruding spikes or loose hanging vegetation."
+    },
+    {
+      "key": "peeling",
+      "layer": 4,
+      "master": "assets-source/vegetation/tree-surfaces/ai/bark-set-20261107/peeling.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: production video-game tree bark base-color/albedo texture. Create ONE square high-resolution seamless texture tile, an orthographic straight-on scan of a FLAT unwrapped bark surface that fills every pixel. Physical coverage approximately one metre square, many fine details rather than gigantic chunks. Photorealistic natural material, restrained saturation, neutral diffuse illumination with no directional lighting or cast shadows, no highlights, no gradient, no vignette. Texture must repeat seamlessly on all four edges; avoid a distinctive large motif or regular band that reveals tiling. No trunk silhouette, tree scene, background, preview sphere, panels, lettering, watermark, moss, leaves or insects. Only bark base colour. Subject: shredded and peeling woody bark like mature redwood or metasequoia. Long narrow irregular vertical fibrous strips in restrained warm brown, gray-brown and muted cinnamon tones, thin curling edges and fine layered woody grain, small branching shallow crevices. Weathered natural tree bark, not bright orange, not white birch, not paper scraps, not rope or cloth. Fine strips at believable scale, not giant uniform planks. Keep base colour free of directional shadows."
+    }
+  ],
+  "processing": "512px production albedo and approximate luminance-derived normals, with offline periodic boundaries and normalized mip chains."
+}

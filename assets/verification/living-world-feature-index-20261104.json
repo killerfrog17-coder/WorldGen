@@ -223,10 +223,11 @@
       "commits": [
         "69fb76ce",
         "1d164476",
-        "969e5c62"
+        "969e5c62",
+        "294fcc40"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTreeArchitecture.cs",
-      "notes": "Authoring: scripts/prepare-tree-bark.py. Source and derived art restored through assets/game-assets.lock.json. See assets/verification/tree-bark-update-20261107.json and screenshot PDF. Existing continuous trunks included; new smooth normals/tangents, bark exposure/tiling/mips and semantic layer mapping. Preserve later unrelated renderer edits on revert."
+      "notes": "Authoring: scripts/prepare-tree-bark.py. Source and derived art restored through assets/game-assets.lock.json. See assets/verification/tree-bark-update-20261107.json and screenshot PDF. Existing continuous trunks included; new smooth normals/tangents, bark exposure/tiling/mips and semantic layer mapping. Preserve later unrelated renderer edits on revert. All five bark layers replaced by built-in image generation in294fcc40; previous scans remain only as historical source inputs."
     }
   ],
   "revert_notes": "Use focused inverse patches for shared files, preserving later unrelated edits. Changing physical terrain invalidates derived river datums: bump LocalTerrain/HyperAmplification derivation versions and rebuild the worker/player. Do not delete shared immutable art inputs needed by remaining features. No changes to animals/humans/weather/sky in this update.",
