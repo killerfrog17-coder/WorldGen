@@ -324,6 +324,7 @@
     },
     {
       "name": "Exposed bedrock surface coatings",
+      "retired_by": "438e3280",
       "commits": [
         "4ae25c2d"
       ],
@@ -340,9 +341,11 @@
     },
     {
       "name": "Generated sand detail through middle distance",
+      "retired_by": "8c75e05d",
       "commits": [
         "6f6845ac",
-        "d3647158"
+        "d3647158",
+        "36e06e9d"
       ],
       "entry": "unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenTerrainSurface.hlsl",
       "notes": "RETIRED after corrected native review: physical-scale grains minify away, ridge mean RGB change only.086/.070/.048. Original shader947 is restored exactly; no extended sand lookup in final game. Generated ground, river lighting and rock weathering retained. Evidence sand-distance-detail-20261107.json."

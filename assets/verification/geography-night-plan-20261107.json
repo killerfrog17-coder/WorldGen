@@ -27,7 +27,7 @@
       "order": 2,
       "candidate": "Glaciated mountain/valley character",
       "goal": "Glacier-conditioned trough and rock exposure attached to terrain/drainage, not arbitrary scenic meshes",
-      "status": "Numerical/native troughs and37connected fjords retained; current genuine inland moving160FPS/max25ms, exact-surface fjords305/235FPS. No floor guarantee. River lighting bands independently removed; exact batch-index loading speedup retained."
+      "status": "Numerical/native troughs and37connected fjords retained; final genuine inland moving155.72FPS/max25.83ms, exact-surface fjords305/235FPS. No floor guarantee. River lighting bands independently removed; exact batch-index loading speedup retained."
     },
     {
       "order": 3,
@@ -79,6 +79,14 @@
       "application": "Talus is gravity-fed angular debris below steep rocky sources, not arbitrary mountain gravel."
     }
   ],
+  "shading_followup_audit": {
+    "status": "Source inspection only; no runtime change, extra test or new visual-fix claim",
+    "source": "src/WorldGen.Presentation/LocalTerrainMesh.cs:125-175",
+    "observation": "Fine boundary positions collapse onto coarse triangle edges, but normals still use a central difference at each tile's own step. That up value also drives geology weights and ground/forest cover. Shared boundary positions therefore do not by themselves guarantee matching normals or material attributes at different detail levels.",
+    "next_step": "Capture a pinned mixed-detail boundary with geometry, unlit colour and normal views separated. Compare actual coarse/fine shared endpoint attributes before choosing a bounded interpolation or common-derivative solution.",
+    "constraints": "Do not blindly add four full terrain samples per vertex. Preserve physical height, water, root admission and the sparse-backdrop loading improvement. Check corners and changing neighbors, then repeat moving frame tails and loading before promotion.",
+    "handoff_checks": "Four packaged assembly SHA256 hashes match build-inputs; all93 feature commits and37 entry paths exist. Selected runtime remains8c75e05d."
+  },
   "delivered": {
     "runtime_commit": "8c75e05d6bd18cecde279e31fe012c8a132d4262",
     "slot": "slot-a",
