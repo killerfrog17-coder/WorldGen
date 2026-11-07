@@ -40,7 +40,7 @@ public static class WorldGenTreeAssetReview
                     CheckWoodSeams(mesh);
                 }
                 var morphology=new TreeMorphology(code);
-                var source=Activator.CreateInstance(baker.GetNestedType("Source"),near,(int)morphology.LeafShape,(int)morphology.BarkPattern);
+                var source=Activator.CreateInstance(baker.GetNestedType("Source"),near,(int)morphology.LeafShape,LocalTreeTextures.BarkLayer(morphology));
                 object result=baker.GetMethod("Bake").Invoke(null,new[]{source,(object)CancellationToken.None});
                 var pixels=(Color32[][])result.GetType().GetField("Colours").GetValue(result);
                 if(pixels.Length!=16||pixels.Any(p=>p.Count(c=>c.a>=102)<100))throw new Exception("Missing tree bake views/coverage");
@@ -175,7 +175,7 @@ public static class WorldGenTreeAssetReview
         textures.GetMethods().Single(m=>m.Name=="Upload"&&m.GetParameters().Length==6).Invoke(null,args);var colours=(Texture2DArray)args[4];var normals=(Texture2DArray)args[5];
         var leaves=new object[]{null,null};textures.GetMethod("Create").Invoke(null,leaves);
         var morphology=new TreeMorphology(code);var shader=Shader.Find("WorldGen/TreeSurface2");if(shader==null||!shader.isSupported)throw new Exception("Prototype shader unsupported");
-        var material=new Material(shader){enableInstancing=true};material.SetTexture("_TreeLeaves",(Texture)leaves[0]);material.SetTexture("_TreeLeafNormals",(Texture)leaves[1]);material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",(int)morphology.BarkPattern);textures.GetMethod("BindBark").Invoke(null,new object[]{material});material.SetFloat("_Wind",0);material.SetFloat("_FogDistance",10000);
+        var material=new Material(shader){enableInstancing=true};material.SetTexture("_TreeLeaves",(Texture)leaves[0]);material.SetTexture("_TreeLeafNormals",(Texture)leaves[1]);material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",LocalTreeTextures.BarkLayer(morphology));textures.GetMethod("BindBark").Invoke(null,new object[]{material});material.SetFloat("_Wind",0);material.SetFloat("_FogDistance",10000);
         material.SetColor("_AmbientTint",new Color(.16f,.19f,.23f));var far=new Material(material);far.SetFloat("_Impostor",1);far.SetTexture("_TreeColourViews",colours);far.SetTexture("_TreeNormalViews",normals);
         var center=(Vector3)result.GetType().GetField("Center").GetValue(result);float radius=(float)result.GetType().GetField("Radius").GetValue(result);far.SetVector("_ImpostorBounds",new Vector4(center.x,center.y,center.z,radius));
         var extents=(Vector3)result.GetType().GetField("Extents").GetValue(result);far.SetVector("_ImpostorExtents",new Vector4(extents.x,extents.y,extents.z,4*radius/128));

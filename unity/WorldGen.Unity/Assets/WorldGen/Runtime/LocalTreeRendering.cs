@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
             if(SystemInfo.graphicsShaderLevel>=45)material.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
             material.SetTexture("_TreeLeaves",rebuiltLeaves);material.SetTexture("_TreeLeafNormals",rebuiltLeafNormals);
             LocalTreeTextures.BindBark(material);
-            material.SetFloat("_TreeLeafShape",(int)m.LeafShape);material.SetFloat("_TreeBarkPattern",(int)m.BarkPattern);
+            material.SetFloat("_TreeLeafShape",(int)m.LeafShape);material.SetFloat("_TreeBarkPattern",LocalTreeTextures.BarkLayer(m));
             material.SetFloat("_Wind",(float)m.Flexibility);material.SetVector("_PlantTraits",new Vector4((float)m.Flexibility,.5f,.7f,1));
             material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));
             material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);treeMaterials.Add(materialKey,material);
@@ -125,7 +125,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.TryGetValue(nearKey,out var near))source=near.Parts[0].Mesh;
         else{source=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,pending.TreeCode);temporary=true;}
         var morphology=new TreeMorphology(pending.TreeCode);
-        var snapshot=new LocalTreeImpostor.Source(source,(int)morphology.LeafShape,(int)morphology.BarkPattern);if(temporary)Destroy(source);
+        var snapshot=new LocalTreeImpostor.Source(source,(int)morphology.LeafShape,LocalTreeTextures.BarkLayer(morphology));if(temporary)Destroy(source);
         var token=cancellation.Token;pending.TreeQueued=true;treeBakeOwner=pending;
         treeBakeTask=Task.Run(()=>{var result=LocalTreeImpostor.Bake(snapshot,token);result.Prepared=LocalTreeTextures.Prepare(result.Colours,result.Normals,LocalTreeImpostor.Size,token);return result;},token);
         installationsThisFrame++;frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;

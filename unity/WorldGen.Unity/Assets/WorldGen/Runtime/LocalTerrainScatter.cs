@@ -441,7 +441,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var morphology=new TreeMorphology(variant);material.SetFloat("_TreeSurface",1);
                 if(treeLeaves==null)treeLeaves=LocalTreeLeaves.Create();material.SetTexture("_TreeLeaves",treeLeaves);
-                material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",(int)morphology.BarkPattern);
+                material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",LocalTreeTextures.BarkLayer(morphology));
                 material.SetFloat("_Wind",lod<2?(float)morphology.Flexibility:0);
                 material.SetVector("_PlantTraits",new Vector4((float)morphology.Flexibility,.5f,.7f,1));
             }

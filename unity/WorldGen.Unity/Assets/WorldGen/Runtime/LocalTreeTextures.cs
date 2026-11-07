@@ -27,6 +27,14 @@ public static class LocalTreeTextures
         BindViews(material);
     }
     public static void BindViews(Material material)=>material.SetFloat("_TreeViewCutoff",DistantCutoff);
+    public static int BarkLayer(TreeMorphology morphology)
+    {
+        // Palm leaf-base scars are not conifer bark. Reuse the existing shredded
+        // bark layer for fibrous woody trunks, without adding another material.
+        if(morphology.BarkPattern==TreeBarkPattern.Fibrous&&morphology.Form!=TreeGrowthForm.FrondCrown&&morphology.Form!=TreeGrowthForm.TreeFern)
+            return (int)TreeBarkPattern.Peeling;
+        return (int)morphology.BarkPattern;
+    }
     public static Color BarkTint(V pigment)
     {
         // The material supplies absolute bark reflectance. Species pigment is

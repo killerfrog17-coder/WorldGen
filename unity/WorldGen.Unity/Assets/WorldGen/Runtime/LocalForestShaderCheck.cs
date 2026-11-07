@@ -40,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(int code in new[]{0x02345600,0x12345600})
         {
             var morphology=new TreeMorphology(code);
-            var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);var bake=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,(int)morphology.BarkPattern),CancellationToken.None);
+            var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);var bake=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,LocalTreeTextures.BarkLayer(morphology)),CancellationToken.None);
             LocalTreeTextures.Upload(bake.Colours,bake.Normals,128,"Forest check",out var colour,out var normals);material.SetTexture("_TreeColourViews",colour);material.SetTexture("_TreeNormalViews",normals);material.SetVector("_ImpostorBounds",new Vector4(bake.Center.x,bake.Center.y,bake.Center.z,bake.Radius));
             material.SetVector("_ImpostorExtents",LocalTreeImpostor.QuadExtents(bake));
             if(Count()!=2)throw new Exception("Forest culler failed restored draw");var parameters=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(Vector3.zero,Vector3.one*10),matProps=props,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,args,1);camera.Render();

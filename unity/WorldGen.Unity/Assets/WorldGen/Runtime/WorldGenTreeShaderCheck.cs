@@ -83,13 +83,13 @@ public sealed partial class WorldGenRuntime
         foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600})
         {
             var morphology=new TreeMorphology(code);
-            var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",(int)morphology.BarkPattern);
+            var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",LocalTreeTextures.BarkLayer(morphology));
             for(int stage=0;stage<2;stage++)
             {
                 Mesh drawn=mesh;var drawMaterial=material;
                 if(stage==1)
                 {
-                    var data=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,(int)morphology.BarkPattern),CancellationToken.None);
+                    var data=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(mesh,(int)morphology.LeafShape,LocalTreeTextures.BarkLayer(morphology)),CancellationToken.None);
                     LocalTreeTextures.Upload(data.Colours,data.Normals,128,"Native check views",out var colour,out var normals);
                     drawMaterial=new Material(material);drawMaterial.SetFloat("_Impostor",1);drawMaterial.SetTexture("_TreeColourViews",colour);drawMaterial.SetTexture("_TreeNormalViews",normals);drawMaterial.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));
                     drawMaterial.SetVector("_ImpostorExtents",LocalTreeImpostor.QuadExtents(data));
