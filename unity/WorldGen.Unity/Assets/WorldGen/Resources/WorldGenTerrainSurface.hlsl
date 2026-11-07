@@ -185,6 +185,31 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     albedo*=lerp(1,clamp(shade,.55,1.45),bare*.62);
 }
 
+void SurfaceSandDistance(O i,float3 world,float3 worldDx,float3 worldDy,float distance,float detail,float canopy,inout float3 albedo)
+{
+    if(TerrainTest(TD_ALBEDO)||TerrainTest(TD_NEAR))return;
+    float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
+    float sand=saturate(i.weights.y/total);
+    float extension=(1-detail)*(1-smoothstep(64,160,distance))*smoothstep(.70,.95,sand)
+        *(1-smoothstep(.05,.25,saturate(i.color.a)))*(1-smoothstep(.05,.30,canopy));
+    [branch]if(extension>.001)
+    {
+        // Preserve the registered generated sand's4m footprint after the
+        // general close-material path retires. Albedo only, at most two
+        // existing-array reads; no distant normal or mask sampling.
+        float3 normal=normalize(i.normal);
+        float3 planetNormal=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
+        float scale=.5/max(.05,_TextureMetres);
+        float3 colour=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world*scale,worldDx*scale,worldDy*scale,SurfaceAxes(planetNormal,2,1),1).rgb;
+        #ifndef UNITY_COLORSPACE_GAMMA
+        colour*=4.672;
+        #else
+        colour*=2;
+        #endif
+        albedo*=lerp(1,colour,extension*.88);
+    }
+}
+
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
 {
     float3 n=normalize(i.normal);
@@ -259,6 +284,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
     SurfaceStrata(i,albedo);
+    if(textures)SurfaceSandDistance(i,world,worldDx,worldDy,distance,detail,forestSurface.r,albedo);
     if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,albedo);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
