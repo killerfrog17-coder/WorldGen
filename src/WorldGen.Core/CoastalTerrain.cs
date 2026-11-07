@@ -35,7 +35,7 @@ namespace WorldGen.Core
         // A monotone profile with a shallow submerged/emersed rock platform,
         // a steeper scarp, and an unchanged upper coast. No displaced water mesh.
         public static double PlatformProfile(double height)
-            =>height*(1-.94*Smooth(-20,-2,height)*(1-Smooth(12,32,height)));
+            =>height*(1-.98*Smooth(-20,-2,height)*(1-Smooth(80,180,height)));
         public static double Shape(V metres,int seed,double height,double seaWeight,double relief,double sediment,double hardness)
             =>Shape(metres,seed,height,seaWeight,relief,sediment,hardness,out _);
         public static double Shape(V metres,int seed,double height,double seaWeight,double relief,double sediment,double hardness,out double exposure)
@@ -43,8 +43,9 @@ namespace WorldGen.Core
             exposure=0;
             // All-land root faces have zero sea weight at their boundary too.
             // A hard "coastal triangle" gate would split neighbouring tiles.
-            double admission=Smooth(0,.025,seaWeight)*(1-Smooth(55,180,Math.Abs(height)));
-            if(admission<=0)return height;
+            double seaAdmission=Smooth(0,.025,seaWeight);
+            if(seaAdmission<=0||Math.Abs(height)>=260)return height;
+            double admission=seaAdmission*(1-Smooth(55,180,Math.Abs(height)));
             double rocky=Smooth(60,650,relief)*(.25+.75*D.Clamp(hardness));
             double deposits=Deposition(metres,seed,relief,sediment,hardness);
             double embayment=SphereNoise.Sample(metres,seed^0x71c49,1/1400d)*30
@@ -66,11 +67,16 @@ namespace WorldGen.Core
                 // every coast or a fresh random decision at each query.
                 double waves=Smooth(.38,.70,.5+.5*SphereNoise.Sample(metres,seed^0x6b175,1/3600d));
                 platform=Smooth(.12,.55,rocky*(1-Smooth(.30,.75,deposits))*waves);
-                h+=(PlatformProfile(h)-h)*platform;
                 bar*=1-platform;
             }
             double result=height+(h+bar-height)*admission;
-            exposure=admission*platform*Smooth(-8,-.2,result)*(1-Smooth(35,75,result));
+            // Erosion of a high rock coast needs a wider inherited height band
+            // than the depositional beach profile. Otherwise the supposed bench
+            // is only centimetres wide on a steep headland. The upper transition
+            // remains monotone, without adding a rim or a disconnected shelf.
+            double erosion=seaAdmission*platform*(1-Smooth(180,260,Math.Abs(height)));
+            result+=(PlatformProfile(result)-result)*erosion;
+            exposure=erosion*Smooth(-8,-.2,result)*(1-Smooth(35,75,result));
             return result;
         }
 

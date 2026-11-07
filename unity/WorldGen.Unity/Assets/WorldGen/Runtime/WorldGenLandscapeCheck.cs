@@ -284,6 +284,7 @@ public sealed partial class LocalTerrainExplorer
             Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
+            if(site.Coast!=null)cameraFloor=Mathf.Max(cameraFloor,(float)owner.frame.SurfaceY(cameraPoint,0));
             camera.y=walking?cameraFloor+1.8f:Mathf.Max(camera.y,cameraFloor+2);
             var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
             if(faceCenter)look=new Vector3(0,y+.5f,0)-camera;
@@ -441,7 +442,7 @@ public sealed partial class LocalTerrainExplorer
             }
             Check(sample.WaterKind==LocalWaterKind.Ocean&&sample.WaterSurfaceM==0,"Coast shares the actual ocean datum");
             Check(sample.Biome!=Biome.Ocean,"Dry refined shoreline uses its adjacent land community");
-            yield return owner.StartCoroutine(Capture("coast-along",orientation*new Vector3(width,0,-20),true));
+            yield return owner.StartCoroutine(Capture("coast-along",orientation*new Vector3(site.Coast=="WavePlatform"?22:width,0,site.Coast=="WavePlatform"?0:-20),true));
             yield return owner.StartCoroutine(Capture("coast-seaward",orientation*new Vector3(0,width*.35f,width*1.3f)));
         }
         if(site.Landform!=null)

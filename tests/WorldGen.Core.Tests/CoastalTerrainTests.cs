@@ -13,7 +13,7 @@ static class CoastalTerrainTests
         {
             var p=new V(27000,i*7,42000);double h=-220+i*.44;
             double shaped=CoastalTerrain.Shape(p,731,h,.5,relief,sediment,.7);
-            Check(double.IsFinite(shaped)&&Math.Abs(shaped-h)<90,"Coasts have finite bounded local relief");
+            Check(double.IsFinite(shaped)&&Math.Abs(shaped-h)<150,"Coasts have finite bounded local relief");
             Check(CoastalTerrain.Shape(p,731,h,0,relief,sediment,.7)==h,"Unconnected inland terrain remains exact");
             if(Math.Abs(h)>=180)Check(shaped==h,"Deep sea and upland ground remain exact");
             double edge=CoastalTerrain.Shape(p,731,h,1e-8,relief,sediment,.7);
@@ -37,12 +37,12 @@ static class CoastalTerrainTests
         double previous=double.NegativeInfinity;
         for(int j=0;j<=12000;j++)
         {
-            double h=-40+j*.01,value=CoastalTerrain.PlatformProfile(h);
+            double h=-40+j*.025,value=CoastalTerrain.PlatformProfile(h);
             Check(value>=previous,"Wave-cut profile remains monotone, with no closed tide basin or inverted shore");previous=value;
-            if(h<=-20||h>=32)Check(Math.Abs(value-h)<1e-10,"Platform does not move deep seabed or upper coast");
+            if(h<=-20||h>=180)Check(Math.Abs(value-h)<1e-10,"Platform does not move deep seabed or upper coast");
         }
         Check(CoastalTerrain.PlatformProfile(0)==0,"Platform profile retains the ocean datum");
-        Check(CoastalTerrain.PlatformProfile(10)<.7&&CoastalTerrain.PlatformProfile(32)-CoastalTerrain.PlatformProfile(12)>30,"Shallow platform leads to a steep coastal scarp");
+        Check(CoastalTerrain.PlatformProfile(80)<1.7&&CoastalTerrain.PlatformProfile(180)-CoastalTerrain.PlatformProfile(80)>170,"Broad shallow platform leads to a steep coastal scarp");
         Check(CoastalTerrain.BeachBand(sandy,1,.3,1)==0,"Explicit wave-cut rock is not painted as a sandy beach");
         var bare=LocalGeology.Surface(sandy,new V(1,0,0),731,1,1,.3,0,6371000,1);
         Check(bare.Rock>.99&&bare.Sand<.01,"Explicit bare shore rock overrides generic ocean sand suppression");

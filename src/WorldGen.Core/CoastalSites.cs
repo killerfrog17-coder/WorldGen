@@ -24,10 +24,17 @@ namespace WorldGen.Core
                 V low=land,high=sea;if(patch.Sample(low).Underwater)continue;
                 for(int j=0;j<20;j++){V mid=(low+high).Unit;if(patch.Sample(mid).ElevationM>0)low=mid;else high=mid;}
                 V direction=V.Tangent(low,sea).Unit;
-                foreach(double offset in new[]{12d,28,55,110,220})
+                foreach(double offset in new[]{220d,110,55,28,12})
                 {
                     V p=(low-direction*(offset/(terrain.RadiusM*terrain.HorizontalScale))).Unit;var s=patch.Sample(p);
                     if(s.Underwater||s.WaterKind!=LocalWaterKind.Ocean||s.Province.ShoreExposure<.5||s.ElevationM>20||s.Biome==Biome.Ice)continue;
+                    // Pick an actual walkable bench, not merely an exposed
+                    // point on the scarp. Debug discovery must demonstrate the
+                    // feature without manufacturing a flatter review scene.
+                    double step=5/(terrain.RadiusM*terrain.HorizontalScale);
+                    var inland=patch.Sample((p-direction*step).Unit);
+                    var outward=patch.Sample((p+direction*step).Unit);
+                    if(outward.Underwater||Math.Abs(inland.ElevationM-outward.ElevationM)>3)continue;
                     yield return new Site(cell,p,direction,s.Province.ShoreExposure,s.ElevationM);break;
                 }
             }
