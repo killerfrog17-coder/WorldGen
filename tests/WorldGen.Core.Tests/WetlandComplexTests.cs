@@ -4,6 +4,45 @@ using WorldGen.Serialization;
 
 static class WetlandComplexTests
 {
+    public static void QueryCost(string path,string output)
+    {
+        Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);
+        var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        int arid=Enumerable.Range(0,world.Surface.Cells.Length).First(i=>terrain.Profile(i).Biome==Biome.Desert);
+        var dryPoint=world.Surface.Cells[arid].Position;terrain.Patch(dryPoint,1000).Sample(dryPoint);
+        var sites=new[]{("woods",new V(.004921601,-.464940574,-.88532821).Unit),("marsh",new V(.032332564,-.451417,-.891727143).Unit),("peat",new V(.716451886,-.196812427,-.669299308).Unit)};
+        var reports=new List<object>();
+        foreach(var site in sites)
+        {
+            var patch=terrain.Patch(site.Item2,10000);var frame=new LocalTerrainFrame(site.Item2,terrain.RadiusM,0,.1);
+            var points=(from z in Enumerable.Range(0,51) from x in Enumerable.Range(0,51) select frame.Position(x*10-250,z*10-250)).ToArray();
+            var samples=new LocalTerrainSample[points.Length];var costs=new double[points.Length];var ponds=new double[points.Length];var allocated=new long[points.Length];
+            try
+            {
+                TerrainQueryTiming.Enabled=true;
+                for(int i=0;i<points.Length;i++)
+                {
+                    TerrainQueryTiming.Clear();long bytes=GC.GetAllocatedBytesForCurrentThread(),start=System.Diagnostics.Stopwatch.GetTimestamp();
+                    samples[i]=patch.Sample(points[i]);costs[i]=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*1000d/System.Diagnostics.Stopwatch.Frequency;
+                    allocated[i]=GC.GetAllocatedBytesForCurrentThread()-bytes;ponds[i]=TerrainQueryTiming.Milliseconds(5);
+                }
+            }
+            finally{TerrainQueryTiming.Enabled=false;}
+            var repeated=new LocalTerrainSample[points.Length];
+            long warmBytes=GC.GetAllocatedBytesForCurrentThread(),warmStart=System.Diagnostics.Stopwatch.GetTimestamp();
+            for(int i=0;i<points.Length;i++)repeated[i]=patch.Sample(points[i]);
+            double warmMs=(System.Diagnostics.Stopwatch.GetTimestamp()-warmStart)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            warmBytes=GC.GetAllocatedBytesForCurrentThread()-warmBytes;
+            for(int i=0;i<points.Length;i++)if(!repeated[i].Equals(samples[i]))throw new Exception("Cold/warm query changed actual complete wetland sample");
+            var sorted=costs.Order().ToArray();
+            var report=new{Site=site.Item1,Queries=points.Length,FirstSweepMs=costs.Sum(),FirstSweepMaxMs=costs.Max(),FirstSweepP99Ms=sorted[(int)(sorted.Length*.99)],ColdAllocated=allocated.Sum(),WarmSweepMs=warmMs,WarmAllocated=warmBytes,
+                Worst=Enumerable.Range(0,points.Length).OrderByDescending(i=>costs[i]).Take(12).Select(i=>new{Index=i,Ms=costs[i],PondsMs=ponds[i],Allocated=allocated[i]}).ToArray()};
+            reports.Add(report);Console.WriteLine($"{site.Item1}: first {report.FirstSweepMs:F2}ms, max {report.FirstSweepMaxMs:F2}ms, p99 {report.FirstSweepP99Ms:F3}ms; warm {warmMs:F2}ms; exact {points.Length} samples");
+        }
+        File.WriteAllText(Path.Combine(output,"query-cost.json"),System.Text.Json.JsonSerializer.Serialize(reports,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        Console.WriteLine("Component CoreCLR query latency/allocation diagnostic, NOT Unity frame time or FPS.");
+    }
+
     public static void Controls()
     {
         int checks=0,wetCount=0,dryCount=0;
@@ -147,9 +186,11 @@ static class WetlandComplexTests
             }
             rows.Add(new{body.Id,body.Radius,body.Level,body.Depth,Center=new[]{body.Center.X,body.Center.Y,body.Center.Z},WetPoint=new[]{wetPoint.X,wetPoint.Y,wetPoint.Z},Wet=localWet,Dry=localDry});
         }
-        var shoreAt=sites[0];var shorePatch=terrain.Patch(shoreAt,10000);shorePatch.RiverSpans();
+        var pool=terrain.Amplification.SmallLakesNear(sites[0],600).Where(p=>p.Hummocks&&!p.Complex&&p.Radius>20)
+            .OrderBy(p=>(p.Center-sites[0]).Length).First();
+        var shoreAt=pool.Center;var shorePatch=terrain.Patch(shoreAt,10000);shorePatch.RiverSpans();
         var shoreFrame=new LocalTerrainFrame(shoreAt,terrain.RadiusM,0,.1);int shoreWet=0,shoreDry=0;
-        const double existingHead=131.90736925395524;
+        double existingHead=pool.Level;
         var knownShore=shorePatch.Sample(shoreAt);
         Check(knownShore.WaterKind==LocalWaterKind.Lake&&knownShore.WaterSurfaceM==existingHead,"Known wetland pond retains its previous accepted head");
         for(int z=-10;z<=10;z++)for(int x=-10;x<=10;x++)

@@ -1,0 +1,21 @@
+{
+  "status":"Design only. No fjord code implemented. Consider AFTER wetland revision passes native/performance review.",
+  "priority_reason":"Ocean-connected glacial inlets are a prominent missing Earth landform. Current mountain troughs explicitly exclude low coastal endpoints.",
+  "research":[{"url":"https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm","application":"Fjords are steep glacial valleys with below-sea floors inundated by the ocean; require actual connection, not detached sea-level sheets."},{"url":"https://www.nps.gov/articles/rocky-coast-landforms.htm","application":"Rocky coast glacial history, inherited valleys, wave exposure and depositional coves form a related coastal setting."}],
+  "leading_architecture":[
+    "Derive bounded trough chains from existing drainage ending in the connected ocean, gated by mapped inherited glaciation and substantial actual coastal relief. Do not add fjords to every rocky or cold shore.",
+    "Follow a finite main upstream drainage path; stop at accepted inland lakes, unsuitable relief/glaciation, excessive elevation or bounded chain length. Shared root endpoints keep connected branches coherent.",
+    "Use the existing numeric glacial face index and static cut-only U cross-sections with finite end caps. Below-sea centre floor; high enclosing walls; actual terrain/collision/soil/root masks.",
+    "Build BEFORE river bank fitting, consistently for cold and cached datums. Never float a new water head over existing ground.",
+    "Return bounded connected-sea ownership from the same admitted corridor. After river bed shaping, assign sea head exactly zero only on submerged connected trough terrain; retain existing accepted standing lakes. Use the ordinary ocean water mesh/waves/drinking classification.",
+    "No new scenery objects, draw pass, live erosion or global tick. Share existing terrain/water workers and culling budgets."
+  ],
+  "mandatory_gates":[
+    "Actual founder/chain counts and reasonable scarcity; mapped source/relief admission.",
+    "Trace the submerged centreline to existing ocean at dense physical intervals: no isolated inlets, dry dams, wrong heads, floating water, water intersections or phantom sea below dry terrain.",
+    "Exact shared terrain edges and paired water clipping, cached/cold/query-order results and immutable history; protect source lake datums and ordinary nonfjord terrain.",
+    "Native shore-level and overview screenshots inspected, actual salt/fresh classification and swimming paths verified.",
+    "Uncontended loading, moving/turning frame tails in coastal and dense forest contexts. No blanket 100FPS claim from a single site."
+  ],
+  "known_risks":["River endpoint datum reconciliation when terrain is carved below zero", "Coarse map shoreline versus fine physical inlet", "Source lake ownership and estuarine junctions", "Exact finite sea footprint and connection through all shared caps", "Sheltered inlet waves should eventually differ from open-ocean waves", "Do not let this start before current wetland quality is resolved"]
+}

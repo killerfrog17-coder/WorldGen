@@ -33,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
         public int TreeQuality;public float TreeNear,TreeFar;
         public double TerrainReveal,ForestReveal,FogDistance;
         public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
-        public SmallLake Pond;
+        public SmallLake Pond,WetlandPool;
         public VolcanicTerrain.Volcano Volcano;
         public BedrockRemnants.Outcrop Outcrop;
         public RiverscapeSpan? Fall;
@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
         public int RiverReach=-1;
         public string Coast,Landform;
     }
-    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public RiverscapeSpan? Fall;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
+    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond,WetlandPool;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public RiverscapeSpan? Fall;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
     public static IEnumerator CheckLandscape(string path,string output,string kind)
     {
         Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
@@ -248,18 +248,19 @@ public sealed partial class LocalTerrainExplorer
                     {
                         var at=patch.Position(offset.X,offset.Z);var s=patch.Sample(at);
                         if(s.Underwater||s.ElevationM<=5||(biomeQuery?s.Biome!=requestedBiome:s.Landscape!=requested))continue;
-                        if(!biomeQuery&&requested==LandscapeRegion.WoodedSwamp)
+                        if(!biomeQuery&&(requested==LandscapeRegion.WoodedSwamp||requested==LandscapeRegion.FreshwaterMarsh))
                         {
                             // Test the actual conjunction of woody cover and
                             // standing water, rather than another dry bank.
-                            foreach(var pond in model.Amplification.SmallLakesNear(at,450))
+                            foreach(var pond in model.Amplification.SmallLakesNear(at,450).Where(p=>p.Hummocks))
                             {
-                                foreach(int side in new[]{-1,1})
+                                foreach(double radius in new[]{.35,.65,.9})for(int angle=0;angle<16;angle++)
                                 {
-                                    var bank=(pond.Center+pond.North*(side*pond.Radius*1.35/(model.RadiusM*.1))).Unit;
+                                    double a=angle*Math.PI/8;
+                                    var bank=(pond.Center+(pond.East*Math.Cos(a)+pond.North*Math.Sin(a))*(radius*pond.Radius/(model.RadiusM*.1))).Unit;
                                     var bankSample=model.Patch(bank,3000).Sample(bank);
-                                    if(!bankSample.Underwater&&bankSample.Landscape==requested&&bankSample.Forest.Coverage>.2)
-                                        return new LandscapeReviewSite{Position=bank,Sample=bankSample};
+                                    if(!bankSample.Underwater&&bankSample.Landscape==requested&&(requested!=LandscapeRegion.WoodedSwamp||bankSample.Forest.Coverage>.2))
+                                        return new LandscapeReviewSite{Position=bank,Sample=bankSample,WetlandPool=pond,CoastDirection=(bank-pond.Center).Unit};
                                 }
                             }
                             continue;
@@ -316,6 +317,12 @@ public sealed partial class LocalTerrainExplorer
             Check(owner.PlayerWaterAppearance(sample).Fresh,"Actual player drinking path classifies the local pond as freshwater");
             Check(double.IsFinite(owner.SampleMotionWater(0,0).Surface),"Swimming controller sees the same pond surface");
             Check(owner.tiles.Values.Any(t=>t.Renderers!=null&&t.Renderers.Length>1),"Actual uploaded tiles contain water renderers");
+        }
+        if(site.WetlandPool!=null)
+        {
+            var hollow=model.Patch(site.WetlandPool.Center,3000).Sample(site.WetlandPool.Center);
+            Check(!sample.Underwater&&hollow.Underwater&&hollow.WaterBodyKey==site.WetlandPool.Id,"Wetland review contains a dry interior hummock and its actual flooded hollow");
+            Check(hollow.WaterSurfaceM==site.WetlandPool.Level&&owner.PlayerWaterAppearance(hollow).Fresh,"Flooded hollow retains one accepted fresh water head");
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
         double floor=site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
@@ -454,6 +461,7 @@ public sealed partial class LocalTerrainExplorer
         float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??site.Outcrop?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??(site.Fall.HasValue?Math.Min(350,Math.Max(80,(site.Fall.Value.LevelA-site.Fall.Value.LevelB)*1.6+site.RiverWidth*2)):site.Landform!=null?300:site.Coast!=null?220:site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));
         if(kind=="AlluvialRiver")width=(float)Math.Min(350,Math.Max(160,site.RiverWidth*3));
         Quaternion orientation=Quaternion.identity;
+        if(site.WetlandPool!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(kind=="AlluvialRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));
@@ -470,6 +478,7 @@ public sealed partial class LocalTerrainExplorer
         }
         yield return owner.StartCoroutine(Capture("wide",orientation*new Vector3(width*.3f,width*.6f,width*1.5f)));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null||site.Trough.HasValue?site.RiverWidth*.8+8:10)),true));
+        if(site.WetlandPool!=null)yield return owner.StartCoroutine(Capture("wetland-waterline",orientation*new Vector3(0,0,4),true));
         if(arguments.Contains("--worldgen-bark-review"))
         {
             var roots=owner.forestFields.Values.Where(f=>f.Ready).SelectMany(f=>f.Roots.SelectMany(pair=>pair.Value.Select(slot=>pair.Key.Data[slot])))
@@ -568,7 +577,7 @@ public sealed partial class LocalTerrainExplorer
         Check(world.Prehistory.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
-            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
+            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,WetlandPool=site.WetlandPool,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,

@@ -14,25 +14,29 @@ namespace WorldGen.Core
     public sealed class SmallLake
     {
         public V Center,East,North;
-        public double Radius,Aspect,Heading,Level,Depth,Phase;
+        public double Radius,Aspect,Heading,Level,Depth,Phase,HummockBias;
         public ulong Id;
-        public bool Complex;
-        public double BedExtent=>Complex?1.3:1.4;
+        public bool Complex,Hummocks;
+        public double BedExtent=>Hummocks?1.3:1.4;
+        internal double HummockPattern(V metres)
+        {
+            int key=unchecked((int)((uint)Id^(uint)(Id>>32)));
+            return LandscapeNoise.Value(metres,key,1/55d)+.23*LandscapeNoise.Value(metres,key^0x31b47,1/22d)+.18*LandscapeNoise.Value(metres,key^0x7513,1/10d);
+        }
         public double NormalizedRadius(V position,double planetRadius)
         {
             V delta=position-Center;double x=(delta.X*East.X+delta.Y*East.Y+delta.Z*East.Z)*planetRadius;
             double z=(delta.X*North.X+delta.Y*North.Y+delta.Z*North.Z)*planetRadius;
             double c=Math.Cos(Heading),s=Math.Sin(Heading),a=(x*c-z*s)/Aspect,b=x*s+z*c;
-            double angle=Math.Atan2(b,a),edge=1+(Complex?.115:.07)*Math.Sin(angle*3+Phase)+(Complex?.065:.04)*Math.Cos(angle*7-Phase);
+            double angle=Math.Atan2(b,a),edge=1+(Hummocks?.115:.07)*Math.Sin(angle*3+Phase)+(Hummocks?.065:.04)*Math.Cos(angle*7-Phase);
             return Math.Sqrt(a*a+b*b)/(Radius*edge);
         }
         public double Bed(double original,double radius,V metres)
         {
-            if(Complex)
+            if(Hummocks)
             {
                 if(radius>=1.3)return original;
-                int key=unchecked((int)((uint)Id^(uint)(Id>>32)));
-                double pattern=LandscapeNoise.Value(metres,key,1/55d)+.23*LandscapeNoise.Value(metres,key^0x31b47,1/22d)+.18*LandscapeNoise.Value(metres,key^0x7513,1/10d);
+                double pattern=HummockPattern(metres)-HummockBias;
                 double hummock=OrogenMorphology.Smooth(.10,.48,Math.Abs(pattern));
                 double target=Level-Depth+(Depth+.3)*hummock;
                 // Retain inherited higher ground. The water table fills low
@@ -56,7 +60,7 @@ namespace WorldGen.Core
     /// cell resolution and query order. Only visited candidates are surveyed.</summary>
     public sealed class SmallWaterBodies
     {
-        public const string Version="small-wetland-complexes-4";
+        public const string Version="small-wetland-pools-5";
         public const double GridM=768;
         public static bool IsLocal(ulong id)=>(id&0x8000000000000000UL)!=0;
         readonly int seed;readonly double planetRadius,grid;readonly bool wetland;readonly SmallWaterBodies exclusion;
@@ -140,6 +144,10 @@ namespace WorldGen.Core
             // A surveyed gentle enclosed collar is required. Never put an
             // independent fixed water plane on a mountain slope or river mouth.
             if(max-min>Math.Max(1.3,radius*(complex?.04:wetland?.08:.045)))return null;
+            // A small wetland hollow must reach its accepted head without
+            // exceeding the bounded incision. Do not create a dry raised patch
+            // where the old unbounded bowl merely forced water onto a slope.
+            if(wetland&&g.Height-min>.9)return null;
             if(complex)
             {
                 for(int i=0;i<32;i++)
@@ -154,8 +162,13 @@ namespace WorldGen.Core
                 if(innerMin>min+.4)return null;
             }
             ulong identity=0x8000000000000000UL|((ulong)hash<<31)|Hash((int)(center.X*1000000),(int)(center.Y*1000000),(int)(center.Z*1000000),seed^0x35719);
-            return new SmallLake{Center=center,East=east,North=north,Radius=radius,Aspect=aspect,Heading=heading,
-                Level=min-(complex?.45:wetland?.1:.65),Depth=complex?.25+.5*Unit(hash,7):wetland?.18+.67*Unit(hash,7):1.1+Unit(hash,7)*Math.Min(5,radius*.065),Phase=Unit(hash,8)*Math.PI*2,Id=identity,Complex=complex};
+            var lake=new SmallLake{Center=center,East=east,North=north,Radius=radius,Aspect=aspect,Heading=heading,
+                Level=min-(complex?.45:wetland?.1:.65),Depth=complex?.25+.5*Unit(hash,7):wetland?.18+.67*Unit(hash,7):1.1+Unit(hash,7)*Math.Min(5,radius*.065),Phase=Unit(hash,8)*Math.PI*2,Id=identity,Complex=complex,Hummocks=complex||wetland};
+            // Fine pools represent a surveyed hollow, not a random slice of
+            // an enormous peat ridge. Anchor their local pattern at that
+            // hollow while retaining world-addressed details and finite fades.
+            if(wetland)lake.HummockBias=lake.HummockPattern(center*planetRadius);
+            return lake;
         }
         bool OverlapsCandidate(V center,double radius)
         {

@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-wetland-shores-46";
+        public const string Version = "hyper-amplification-wetland-pools-47";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -943,7 +943,7 @@ namespace WorldGen.Core
                     // the sub-metre beauty pass. Normal Sample's zero path is literal.
                     query=TerrainQueryTiming.Begin();if(mapSpacingM<=128)ApplyRiverscape(point,ref result);TerrainQueryTiming.End(3,query);
                     query=TerrainQueryTiming.Begin();if(mapSpacingM<=FinestSpacingM)ApplySurfaceDetail(point,found,a,b,c,ref result);TerrainQueryTiming.End(4,query);
-                    bool localComplex=false;double shoreFade=1;
+                    bool localHummocks=false;double shoreFade=1;
                     if(localWater&&mapSpacingM<=128&&result.Kind==LocalWaterKind.None&&landscape.Moisture>=.18)
                     {
                         query=TerrainQueryTiming.Begin();
@@ -956,11 +956,11 @@ namespace WorldGen.Core
                             result.Kind=LocalWaterKind.Lake;result.BodyKey=pond.Id;result.Gradient=default;result.Flow=default;
                             result.Footprint=(pond.BedExtent-r)*pond.Radius;result.Minimum=result.Maximum=pond.Level;
                             result.Speed=result.Turbulence=0;
-                            localComplex=pond.Complex;shoreFade=1-OrogenMorphology.Smooth(1,1.4,r);
+                            localHummocks=pond.Hummocks;shoreFade=1-OrogenMorphology.Smooth(1,1.4,r);
                         }
                         TerrainQueryTiming.End(5,query);
                     }
-                    if(mapSpacingM<=128&&result.Kind==LocalWaterKind.Lake&&!localComplex)
+                    if(mapSpacingM<=128&&result.Kind==LocalWaterKind.Lake&&!localHummocks)
                     {
                         result.Height=WetlandMicrorelief.Bed(result.Height,result.Water,landscape,point*(owner.radius*owner.scale),owner.seed,shoreFade);
                         result.Mask=result.Water-result.Height;

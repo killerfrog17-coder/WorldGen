@@ -91,7 +91,15 @@ static class LandscapeRegionTests
         foreach(var pool in shallow)
         {
             Check(pool.Depth>=.18&&pool.Depth<=.85,"Wetland pools stay shallow");
-            Check(pool.Bed(100,0,pool.Center*radius)<pool.Level&&pool.Level<100,"Shallow pools have actual depressed beds");
+            Check(pool.Hummocks&&pool.Level<100,"Shallow pools use the saturated hollow/hummock bed");
+            bool hollow=false;
+            for(int probe=0;probe<32;probe++)
+            {
+                double angle=probe*Math.PI/8,r=(probe<16?.3:.6)*pool.Radius;
+                var point=(pool.Center+pool.East*(r*Math.Cos(angle)/radius)+pool.North*(r*Math.Sin(angle)/radius)).Unit;
+                if(pool.Bed(100,pool.NormalizedRadius(point,radius),point*radius)<pool.Level)hollow=true;
+            }
+            Check(hollow,"Surveyed shallow pool contains an actual wet hollow rather than assuming its centre is submerged");
             foreach(var lake in lakes)Check((pool.Center-lake.Center).Length*radius>(pool.Radius+lake.Radius)*1.9,"Fine wetland and deep pond collars do not intersect");
         }
         for(int i=0;i<shallow.Length;i++)for(int j=0;j<i;j++)
@@ -153,7 +161,7 @@ static class LandscapeRegionTests
             foreach(var lake in lakes.Where(l=>l.Depth>=1&&!l.Complex).Take(2).Concat(lakes.Where(l=>l.Depth<1&&!l.Complex).Take(2)))
             {
                 var patch=terrain.Patch(lake.Center,2000);var s=patch.Sample(lake.Center);
-                if(!s.Underwater||s.WaterBodyKey!=lake.Id||!double.IsFinite(s.ElevationM)||s.WaterSurfaceM-s.ElevationM<Math.Min(.9,lake.Depth*.9))throw new Exception("Actual pond centre does not contain its modelled water");
+                if(!s.Underwater||s.WaterBodyKey!=lake.Id||!double.IsFinite(s.ElevationM)||s.WaterSurfaceM-s.ElevationM<(lake.Hummocks?.01:Math.Min(.9,lake.Depth*.9)))throw new Exception("Actual pond centre does not contain its modelled water");
                 var frame=new LocalTerrainFrame(lake.Center,terrain.RadiusM,0,.1);
                 var left=LocalTerrainMesh.Build(terrain,frame,-128,-64,128,32);
                 var right=LocalTerrainMesh.Build(terrain,frame,0,-64,128,32);
