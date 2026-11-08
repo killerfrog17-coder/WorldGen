@@ -1,6 +1,6 @@
 {
   "utc": "2026-11-08T09:23:45.412025+00:00",
-  "status": "Unbuilt candidate; native and performance acceptance pending. Broader alluvial fixture found an open water edge under investigation.",
+  "status": "Built A ScriptsOnly Mono NONDEV 23de7d6c; native alluvial115180 and meander143549 EXIT0, images inspected. Inner bar/outer wooded margin visibly improved on selected alluvial reach. Not an exact camera pair (same reach, changed chosen bar anchor). New native pond/wetland EXIT0, shoreline image checked. Paired performance pending.",
   "changes": [
     "Prepare bank strengths on shared stations after final water-profile fitting",
     "Use continuous local grade and tapering at true waterfalls instead of the calm/turbulent animation category",
@@ -129,5 +129,214 @@
     "ChangedRgbComponents": 0,
     "MaxRgbDelta": 0
   },
-  "bank_material": "Broad sediment margin now follows inner-bend side; straight/cut banks have a narrow active margin. Uses existing sediment materials and rooted-vegetation admission."
+  "bank_material": "Broad sediment margin now follows inner-bend side; straight/cut banks have a narrow active margin. Uses existing sediment materials and rooted-vegetation admission.",
+  "actual_model": {
+    "spansChecked": 12,
+    "wetCenters": 12,
+    "bars": 42,
+    "bankEdges": 11,
+    "plants": 10138,
+    "examples": [
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739692336,
+          "Y": 0.459104661,
+          "Z": -0.492014388
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.6780706759303037,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739692325,
+          "Y": 0.459110571,
+          "Z": -0.49200889
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.5592685590835202,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739692314,
+          "Y": 0.459116482,
+          "Z": -0.492003392
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.4414660444963161,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739692302,
+          "Y": 0.459122393,
+          "Z": -0.491997894
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.5366630950780902,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.740037383,
+          "Y": 0.45888924,
+          "Z": -0.491696388
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.29755462121912757,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.74003579,
+          "Y": 0.458896078,
+          "Z": -0.491692403
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.2774500093199528,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.740034198,
+          "Y": 0.458902915,
+          "Z": -0.491688418
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.24234855552609424,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.740032605,
+          "Y": 0.458909753,
+          "Z": -0.491684434
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.20624180063538766,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739619385,
+          "Y": 0.459171589,
+          "Z": -0.4920616
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.6723887528179553,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739620785,
+          "Y": 0.459176242,
+          "Z": -0.492055154
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.8221732286444734,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739622186,
+          "Y": 0.459180894,
+          "Z": -0.492048707
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.7849653958185385,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 50626,
+        "Position": {
+          "X": -0.739623585,
+          "Y": 0.459185546,
+          "Z": -0.49204226
+        },
+        "WidthM": 102.85872694878579,
+        "Height": 0.7137516035805938,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 52127,
+        "Position": {
+          "X": -0.042819332,
+          "Y": -0.876873159,
+          "Z": -0.478810994
+        },
+        "WidthM": 127.83871942562129,
+        "Height": 0.6237374823993136,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 52127,
+        "Position": {
+          "X": -0.042810123,
+          "Y": -0.876875403,
+          "Z": -0.478807706
+        },
+        "WidthM": 127.83871942562129,
+        "Height": 1.051737482399318,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 52127,
+        "Position": {
+          "X": -0.042800913,
+          "Y": -0.876877648,
+          "Z": -0.478804419
+        },
+        "WidthM": 127.83871942562129,
+        "Height": 1.0527374823993156,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      },
+      {
+        "Reach": 52127,
+        "Position": {
+          "X": -0.042791704,
+          "Y": -0.876879893,
+          "Z": -0.478801131
+        },
+        "WidthM": 127.83871942562129,
+        "Height": 0.7497374823993184,
+        "Ground": "loamy sand",
+        "Coverage": 0
+      }
+    ],
+    "BankBoundaryPass": false,
+    "BankFailures": [
+      "Exposed lateral water edge 0.585m above drawn bed at 2045.959,501.280; tile 3276.8/16"
+    ]
+  },
+  "additional_controls": {
+    "waterfall_checks": 369,
+    "mixed_canyon_seam_checks": 176
+  }
 }

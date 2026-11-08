@@ -87,7 +87,7 @@ static class RiverAlluviumTests
                     if(sample.ElevationM>sample.WaterSurfaceM+.1&&(sample.Ground.Organic>.15||sample.Forest.Coverage>.1))
                         throw new Exception("Exposed active point bar retains peat or mature forest");
                     bars++;double score=(sample.ElevationM-sample.WaterSurfaceM)*Math.Sqrt(width);
-                    if(vegetationSite.Length<.1)vegetationSite=at;
+                    if(vegetationSite.Length<.1&&model.Profile(sample.Cell).Forest.Coverage>.25)vegetationSite=at;
                     if(examples.Count<16)examples.Add(new{Reach=channel.From,Position=new{at.X,at.Y,at.Z},WidthM=width*2,Height=sample.ElevationM-sample.WaterSurfaceM,Ground=sample.Ground.TextureName,sample.Forest.Coverage});
                     if(score>best){best=score;bestSite=at;bestReach=channel.From;}
                 }
@@ -109,8 +109,12 @@ static class RiverAlluviumTests
                 File.WriteAllText(Path.Combine(output,"failed-edge.json"),JsonSerializer.Serialize(new{Source=bestReach,Position=new[]{bestSite.X,bestSite.Y,bestSite.Z},Point=new[]{at.X,at.Y,at.Z},LocalX=x,LocalZ=z,LocalY=y,Origin=new[]{frame.Origin.X,frame.Origin.Y,frame.Origin.Z},East=new[]{frame.East.X,frame.East.Y,frame.East.Z},North=new[]{frame.North.X,frame.North.Y,frame.North.Z},frame.RadiusM,frame.AltitudeM,frame.HorizontalScale,WaterKind=edge.WaterKind.ToString(),edge.WaterBodyKey,WaterSurfaceM=double.IsFinite(edge.WaterSurfaceM)?(double?)edge.WaterSurfaceM:null,edge.WaterFootprintM}));
             });}catch(Exception error)when(error.Message.StartsWith("Exposed lateral water edge")){bankFailures.Add(error.Message);}
         }
+        if(vegetationSite.Length<.1)throw new Exception("Vegetation fixture needs a point bar in a forested region");
         var scatter=new LocalScatter(model);var scatterPatch=model.Patch(vegetationSite,20000);int plants=0;
-        foreach(bool detail in new[]{false,true})foreach(var plant in scatter.Build(scatter.Address(vegetationSite,detail)).Instances)
+        var vegetationFrame=new LocalTerrainFrame(vegetationSite,model.RadiusM,0,.1);
+        var pages=new HashSet<ScatterKey>();
+        foreach(bool detail in new[]{false,true})for(int z=-1;z<=1;z++)for(int x=-1;x<=1;x++)pages.Add(scatter.Address(vegetationFrame.Position(x*256,z*256),detail));
+        foreach(var page in pages)foreach(var plant in scatter.Build(page).Instances)
         {
             if(plant.Kind is ScatterKind.Stone or ScatterKind.Boulder or ScatterKind.Outcrop or ScatterKind.Branch)continue;
             var s=scatterPatch.Sample(plant.Position);plants++;
