@@ -209,7 +209,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="AlluvialRiver")
             {
-                foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<180&&c.StartM>15&&c.StartM<1800&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
+                foreach(var channel in model.Hydrology.Channels.Where(c=>(pinnedSource<0||c.From==pinnedSource)&&c.WidthM>12&&c.WidthM<180&&c.StartM>15&&c.StartM<1800&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
                     .OrderByDescending(c=>c.WidthM).ThenBy(c=>c.From).Take(64))
                 {
                     var spans=model.Amplification.RiverReach(channel.From);
@@ -227,7 +227,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="MeanderingRiver")
             {
-                foreach(var channel in model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
+                foreach(var channel in model.Hydrology.Channels.Where(c=>(pinnedSource<0||c.From==pinnedSource)&&c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
                     .OrderBy(c=>Rng.Mix(unchecked((uint)c.From^(uint)world.Recipe.Seed))).Take(160))
                 {
                     var spans=model.Amplification.RiverReach(channel.From);if(spans.Length<8)continue;
