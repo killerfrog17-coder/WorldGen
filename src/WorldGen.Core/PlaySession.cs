@@ -54,7 +54,9 @@ namespace WorldGen.Core
             if(!Enum.IsDefined(typeof(GameMode),Mode))throw new ArgumentException("Invalid game mode.");
             Identity?.Validate();
             Survival=Survival??new PlayerSurvival();Survival.Validate();
-            Inventory=Inventory??new PlayerInventory();Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
+            Inventory=Inventory??new PlayerInventory();
+            if(Identity!=null&&string.Equals(Inventory.PlayerName,Identity.Person.Name,StringComparison.OrdinalIgnoreCase))Inventory.PlayerName=Identity.Person.Name;
+            Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
             Camp=Camp??new CampState();Camp.Validate();Humans=Humans??new HumanLocalState();Humans.Validate();
             CampBlueprints.ValidateContents(Camp,Inventory);
             var carriedIds=new System.Collections.Generic.HashSet<string>(Inventory.Items.ConvertAll(p=>p.Id));

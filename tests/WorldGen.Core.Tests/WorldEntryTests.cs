@@ -14,6 +14,7 @@ static class WorldEntryTests
         {
             var entry=PlayerWorldEntry.RandomResident(world,play,seed);var repeated=PlayerWorldEntry.RandomResident(world,play,seed);
             var id=entry.Identity;id.Validate();
+            Check(char.IsUpper(id.Person.Name[0]),"Generated character names are capitalized");
             Check(id.Person.Id==repeated.Identity.Person.Id&&id.Group==repeated.Identity.Group,"Selection must be stable for a seed");
             Check(HumanLocalLife.SpatialAdmission(world.Recipe.Seed,id.Group,play.Settings.HorizontalScale),"Chosen community must exist at the played scale");
             Check(id.Person.AgeYears>=18&&id.Family.Any(f=>f.Id==id.Person.Id),"Adult identity must be present in the family's actual record");

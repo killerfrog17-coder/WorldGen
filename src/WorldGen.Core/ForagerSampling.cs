@@ -264,7 +264,7 @@ namespace WorldGen.Core
             {
                 long id=record.Id;double age=years-record.BirthYear;
                 var person=new ForagerPersonSample{Id=id,Household=record.Household,Mother=record.Mother,Father=record.Father,Partner=age>=18?record.Partner:-1,Female=record.Female,AgeYears=age,BirthYear=record.BirthYear,DeathYear=record.DeathYear,
-                    Name=LanguageGenerator.WordWithRootSeed(f.Languages[band.Language].Sounds,"person",unchecked((int)id)).Text,
+                    Name=LanguageGenerator.Capitalize(LanguageGenerator.WordWithRootSeed(f.Languages[band.Language].Sounds,"person",unchecked((int)id)).Text),
                     Role=age<5?"Young child":age<13?"Child and learner":age<19?"Apprentice forager":age>58?"Experienced elder":"Adult forager",Appearance=new double[8],Knowledge=new double[ForagerTechnology.Count],Skills=new double[ForagerTechnology.Count]};
                 var languages=new List<ForagerLanguageKnowledge>{new ForagerLanguageKnowledge{Language=band.Language,Native=true,Fluency=D.Clamp((age-.7)/5)}};
                 foreach(var opportunity in languageOpportunities)

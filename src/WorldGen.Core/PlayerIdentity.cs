@@ -20,7 +20,7 @@ namespace WorldGen.Core
             copy.Techniques=(bool[])Techniques.Clone();return copy;
         }
         public static ForagerPersonSample CopyPerson(ForagerPersonSample p)=>p==null?null:new ForagerPersonSample{
-            Id=p.Id,Household=p.Household,Mother=p.Mother,Father=p.Father,Partner=p.Partner,Name=p.Name,Role=p.Role,Female=p.Female,
+            Id=p.Id,Household=p.Household,Mother=p.Mother,Father=p.Father,Partner=p.Partner,Name=LanguageGenerator.Capitalize(p.Name),Role=p.Role,Female=p.Female,
             AgeYears=p.AgeYears,BirthYear=p.BirthYear,DeathYear=p.DeathYear,Appearance=(double[])p.Appearance.Clone(),Knowledge=(double[])p.Knowledge.Clone(),Skills=(double[])p.Skills.Clone(),
             Languages=p.Languages.Select(l=>new ForagerLanguageKnowledge{Language=l.Language,Fluency=l.Fluency,Native=l.Native}).ToArray()};
         public void Validate()
@@ -28,6 +28,7 @@ namespace WorldGen.Core
             if(Group<=0||Person==null||Person.Id<=0||string.IsNullOrWhiteSpace(Person.Name)||Family==null||Techniques==null||
                 Person.Appearance==null||Person.Knowledge==null||Person.Skills==null||Person.Languages==null||!double.IsFinite(Person.AgeYears)||Person.AgeYears<18)
                 throw new ArgumentException("Invalid controlled resident identity.");
+            Person.Name=LanguageGenerator.Capitalize(Person.Name);
         }
     }
     public sealed class ResidentEntry
