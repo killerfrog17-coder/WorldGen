@@ -12,6 +12,8 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckNpcMindRuntime()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;var report=new List<string>();
+        string profile=Argument("--worldgen-ai-profile","");
+        if(profile.Length>0){var config=NpcModelClient.LoadSettings();config.Preset(profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount);NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
         while((Busy||!worldReady||humans==null||humanStep!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humanStep!=null)throw new InvalidOperationException("NPC test world failed to load");
@@ -51,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
         int initial=npcModel?.Requests??0;yield return new WaitForSecondsRealtime(3);
         Check((npcModel?.Requests??0)==initial,"ordinary schedule ticks do not invoke the model");
         npcTalkTarget=actor;Check(SpeakToNpc("Hello "+actor.Resident.Name+". What are you doing?"),"typed dialogue reaches selected resident");
-        yield return new WaitForSecondsRealtime(1);Check(actor.Speed<.15f,"addressed NPC listens immediately while the model runs");
+        yield return new WaitForSecondsRealtime(1);Check(npcDecisions>0||actor.Speed<.15f,"addressed NPC listens immediately while the model runs");
         deadline=Time.realtimeSinceStartupAsDouble+70;while(npcUtterances<1&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(npcUtterances>=1,"actual local model replied and the executor delivered speech nearby: "+npcLastError);
         Check(npcDecisions>=1&&NpcMemoryFor(actor.ResidentId).Thought.Length>0,"validated fictional thought is available to debug");

@@ -334,6 +334,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     }
     void Update()
     {
+        if(aiPreview!=null){if(screen!="Options")DisposeAiPreview();else aiPreview.ReleaseIfIdle();}
         PollSimulationRenderBudget();
         if(Keyboard.current!=null&&Keyboard.current.f11Key.wasPressedThisFrame)SetFullscreen(!Screen.fullScreen);
         PollWorldEntry();

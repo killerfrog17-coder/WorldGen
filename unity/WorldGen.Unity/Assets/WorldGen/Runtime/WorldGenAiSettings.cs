@@ -23,6 +23,7 @@ public sealed partial class WorldGenRuntime
     }
     void DrawAiSettings()
     {
+        SettingsAiClient?.ReleaseIfIdle();
         if(aiDraft==null||aiDraftRevision!=NpcModelClient.SettingsRevision)ReloadAiDraft();
         if(aiSettingsTest?.IsCompleted==true)
         {
@@ -37,7 +38,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.BeginHorizontal();
         foreach(var preset in new[]{"CPU","Hybrid","GPU"})if(GUILayout.Button(preset)){aiDraft.Preset(preset=="CPU"?0:preset=="Hybrid"?1:2,Environment.ProcessorCount);aiDirty=true;}
         GUILayout.EndHorizontal();GUILayout.Label("CPU: protects GPU resources. Hybrid: shares work. GPU: prioritizes response speed. All use the same model.",MutedStyle());
-        aiDraft.GpuLayers=AiSlider("GPU layers",aiDraft.GpuLayers,0,37,"0 = CPU only. 37 = full offload. More layers use more graphics memory and can compete with rendering.");
+        aiDraft.GpuLayers=AiSlider("GPU layers (requested)",aiDraft.GpuLayers,0,37,"0 = CPU only. 37 requests full offload; status shows the actual result. More layers use more VRAM and can compete with rendering.");
         GUILayout.Label(SystemInfo.graphicsDeviceName+" · "+(SystemInfo.graphicsMemorySize/1024f).ToString("0.0")+" GB total VRAM",MutedStyle());
         aiDraft.Threads=AiSlider("CPU threads",aiDraft.Threads,1,Environment.ProcessorCount,"More CPU workers may speed up inference, but can compete with the game. More is not always faster.");
         aiDraft.BriefReplies=GUILayout.Toggle(aiDraft.BriefReplies,"Brief replies");GUILayout.Label("Shorter speech and thoughts reduce the amount of text the model must generate.",MutedStyle());
@@ -69,7 +70,7 @@ public sealed partial class WorldGenRuntime
         if(GUILayout.Button("Test saved settings"))aiSettingsTest=TestAiForSettings();
         GUILayout.EndHorizontal();GUI.enabled=enabled;
         if(GUILayout.Button("Unload AI now")){DisposeAiPreview();terrainExplorer?.ReloadNpcAiSettings();aiNotice="AI unloaded. It will load again when needed.";}
-        GUILayout.Label("The short synthetic test measures reply time, not game FPS. Loading ahead avoids model startup work but does not remove prompt processing.",MutedStyle());
+        GUILayout.Label("The short test measures reply time, not FPS. A first GPU request can be slower while shaders prepare; repeat to measure warmed-up replies.",MutedStyle());
         if(aiSettingsTest!=null)GUILayout.Label("Working… The menu remains usable.");if(aiNotice.Length>0)GUILayout.Label(aiNotice,MutedStyle());
     }
     async Task<string> WarmAiForSettings(){await EnsureSettingsAiClient().WarmUp();return "Model loaded.";}

@@ -73,7 +73,8 @@ public sealed partial class LocalTerrainExplorer
         }
         if(now<npcObserveAt)return;npcObserveAt=now+1.5;
         npcPlans.Keys.Where(id=>!livingPeople.ContainsKey(id)).ToList().ForEach(id=>npcPlans.Remove(id));
-        if(now<npcNextBackground||npcModel!=null&&!npcModel.Config.BackgroundReactions)return;
+        if(now<npcNextBackground)return;
+        npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled||!npcModel.Config.BackgroundReactions)return;
         foreach(var actor in humanNpcs)
         {
             if(actor.Resident==null||actor.Health<=0||actor.CurrentActivity==HumanActivity.Sleep||PlayerRules.Identity?.Group==actor.GroupId||npcSeenVisitors.Contains(actor.GroupId))continue;
