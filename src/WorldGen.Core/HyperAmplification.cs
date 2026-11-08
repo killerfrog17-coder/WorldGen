@@ -924,7 +924,7 @@ namespace WorldGen.Core
                 {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;footprint=double.PositiveInfinity;mask=-height;}
                 double influence=OrogenMorphology.Smooth(0,.04,a*found.A.Flow+b*found.B.Flow+c*found.C.Flow);
                 var landscape=LandscapeControls.Mix(found.A.Landscape,found.B.Landscape,found.C.Landscape,a,b,c);
-                if(standingBasin<0&&!standingOcean&&landscape.Sand>.001)
+                if(standingBasin<0&&!standingOcean&&landscape.Sand>.08)
                 {
                     landscape.Sand*=(float)SandFoundation(point);
                 }

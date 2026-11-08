@@ -83,7 +83,7 @@ namespace WorldGen.Core
         public static double HeightOffset(V metres,int seed,LandscapeControls controls)
         {
             double dunes=SandSea(metres,seed,controls),result=0;
-            if(dunes>.001)
+            if(dunes>.08)
             {
                 double envelope=Smooth(.08,.4,dunes);
                 DuneForms.FieldWeights(metres,controls,dunes,out double crescent,out double transverse,out double star,out double wind,out double across,seed);
