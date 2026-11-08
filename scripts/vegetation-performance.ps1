@@ -26,6 +26,7 @@ param(
     [switch]$CaptureAfter,
     [switch]$CpuTiming,
     [switch]$HideWaterDrawing,
+    [switch]$LegacyReedFar,
     [string]$NativeGcProbe='',
     [switch]$Original
 )
@@ -57,12 +58,14 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     NativeGcDiagnostic=[bool]$NativeGcProbe
     CpuTimingDiagnostic=[bool]$CpuTiming
     HideWaterDrawingDiagnostic=[bool]$HideWaterDrawing
+    LegacyReedFarDiagnostic=[bool]$LegacyReedFar
     TravelLoopMeters=$TravelLoopMeters
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
 $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-screen-height',"$Height",'--worldgen-performance',('"'+$inputFile+'"'),'--worldgen-output',('"'+$destination+'"'),'--worldgen-perf-width',"$Width",'--worldgen-perf-height',"$Height",'--worldgen-perf-sites',('"'+$Sites+'"'),'--worldgen-perf-seconds',$Seconds.ToString([Globalization.CultureInfo]::InvariantCulture),'-logFile',('"'+(Join-Path $destination 'player.log')+'"'))
 if($Original){$arguments+='--worldgen-perf-original'}
+if($LegacyReedFar){$arguments+='--worldgen-perf-legacy-reed-far'}
 if($SwapChain -eq 'Flip'){$arguments+='-force-d3d11-flip-model'}
 if($SwapChain -eq 'BitBlt'){$arguments+='-force-d3d11-bitblt-model'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}

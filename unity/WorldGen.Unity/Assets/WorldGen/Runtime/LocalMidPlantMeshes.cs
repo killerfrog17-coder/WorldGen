@@ -79,6 +79,27 @@ static partial class LocalScatterMeshes
         }
         else if(m.Form==MidGrowthForm.ReedStand)
         {
+            if(lod==2&&!WorldGenPerformance.LegacyReedFar)
+            {
+                // At this distance individual culms are subpixel. Three opaque
+                // tapered blades retain the stand silhouette without tube rings
+                // and two segmented leaves for every distant stem.
+                for(int j=0;j<3;j++)
+                {
+                    var r=new Rng(code&~MidFlora.TidalEmergentBit,"mid-reed-far-1",j);
+                    float angle=j*2.39996f;var dir=Direction(angle);
+                    var root=dir*(.30f*Mathf.Sqrt((j+.3f)/3));
+                    var tip=root+dir*.10f+Vector3.up*(.70f+.25f*(float)r.Unit());
+                    var mid=Vector3.Lerp(root,tip,.38f);
+                    var side=Vector3.Cross(dir,Vector3.up)*.028f;
+                    var lower=leaf*new Color(.72f,.79f,.68f,1);
+                    int a=b.Add(root,lower,Vector2.zero),l=b.Add(mid-side,leaf,new Vector2(0,.38f));
+                    int t=b.Add(tip,leaf,Vector2.one),right=b.Add(mid+side,leaf,new Vector2(1,.38f));
+                    b.Triangle(a,l,right);b.Triangle(l,t,right);
+                }
+            }
+            else
+            {
             int stems=lod==0?15:lod==1?10:7;
             for(int j=0;j<stems;j++)
             {
@@ -100,6 +121,7 @@ static partial class LocalScatterMeshes
                     for(int sign=-1;sign<=1;sign+=2)Foliage(tip-Vector3.up*.07f,tip+Direction(a)*(.055f*sign),.004f,seedColour);
                 }
                 else if(lod<2&&!m.TidalEmergent&&j%3==0)b.Crown(tip-Vector3.up*.045f,new Vector3(.015f,.06f,.015f),5,3,new Color(.46f,.35f,.18f),code+j,.05f);
+            }
             }
         }
         else

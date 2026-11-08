@@ -18,6 +18,7 @@ public static class WorldGenPerformance
 {
     public static readonly bool Enabled=Environment.GetCommandLineArgs().Contains("--worldgen-performance");
     public static readonly bool Presented=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-presented");
+    public static readonly bool LegacyReedFar=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-perf-legacy-reed-far");
     public static readonly FullScreenMode PresentationMode=ReadPresentationMode();
     static FullScreenMode ReadPresentationMode()
     {
@@ -1117,7 +1118,17 @@ public sealed partial class LocalTerrainExplorer
                 for(int sub=0;sub<mesh.subMeshCount;sub++)triangles[kind]+=mesh.GetIndexCount(sub)/3;
             }
         }
-        return "kind,renderers,vertices,triangles\nland,"+renderers[0]+","+vertices[0]+","+triangles[0]+"\nwater,"+renderers[1]+","+vertices[1]+","+triangles[1]+"\n";
+        var text="kind,renderers,vertices,triangles\nland,"+renderers[0]+","+vertices[0]+","+triangles[0]+"\nwater,"+renderers[1]+","+vertices[1]+","+triangles[1]+"\n";
+        long reedInstances=0,reedVertices=0,reedTriangles=0;
+        foreach(var batch in drawBatches)
+        {
+            if((ScatterKind)((batch.Key>>2)&63)!=ScatterKind.MidPlant)continue;
+            var morphology=new MidMorphology((int)(batch.Key>>8));if(morphology.Form!=MidGrowthForm.ReedStand)continue;
+            reedInstances+=batch.Count;
+            foreach(var part in batch.Model.Parts)
+            {reedVertices+=(long)part.Mesh.vertexCount*batch.Count;reedTriangles+=(long)(part.Mesh.GetIndexCount(part.Submesh)/3)*batch.Count;}
+        }
+        return text+"submitted-reeds,"+reedInstances+","+reedVertices+","+reedTriangles+"\n";
     }
     public string PerformanceVerifyTrunkBudget()
     {
