@@ -70,8 +70,12 @@ namespace WorldGen.Presentation
                         return (lake.Center+lake.East*(x/frame.RadiusM)+lake.North*(z/frame.RadiusM)).Unit;
                     }
                     void Edge(V a,V b)=>exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});
-                    const int sectors=12;
-                    foreach(double radius in new[]{.65,1.55})
+                    // Tiny distant ponds need a closed basin, not the same
+                    // ring arrangement as a well-resolved shore. Extra finite
+                    // lines otherwise create many intersections in one cell.
+                    bool distant=step>lake.Radius*.8;
+                    int sectors=distant?8:12;
+                    foreach(double radius in distant?new[]{1.55}:new[]{.65,1.55})
                         for(int i=0;i<sectors;i++)Edge(Ring(i*Math.PI*2/sectors,radius),Ring((i+1)*Math.PI*2/sectors,radius));
                     for(int i=0;i<2;i++)Edge(Ring(i*Math.PI/2,1.55),Ring(i*Math.PI/2+Math.PI,1.55));
                 }
