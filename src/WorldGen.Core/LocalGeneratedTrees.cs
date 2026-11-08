@@ -64,7 +64,7 @@ namespace WorldGen.Core
                 double u=(x+.08+.84*r.Unit())/side,v=(y+.08+.84*r.Unit())/side;V at=Position(key,u,v);
                 // A blended profile cannot exceed the largest supporting source.
                 // Skip vast sparse areas before detailed terrain or species work.
-                double admission=r.Unit();if(admission>patch.MaximumForestCoverage)return false;
+                double admission=r.Unit();if(patch.MaximumForestCoverage<=0||admission>patch.MaximumForestCoverage)return false;
                 double cu=(key.X+u)*2/divisions-1,cv=(key.Y+v)*2/divisions-1,jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
                 // Cheap upper admission before expensive local surface queries.
                 double densityCap=D.Clamp(nominal*nominal*jacobian/(side*side)*TreeFlora.PlacementPerM2);

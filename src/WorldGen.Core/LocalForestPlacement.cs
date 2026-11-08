@@ -99,7 +99,14 @@ namespace WorldGen.Core
                 int nx=Math.Min(stride,count-left),ny=Math.Min(stride,count-bottom),area=checked(nx*ny);
                 // Exact census through 4x4; sparse nodes stay exact through 16x16.
                 var middle=new ScatterKey(key.Face,Math.Min(Divisions(false)-1,(left+nx/2)/TreeCandidateSide),Math.Min(Divisions(false)-1,(bottom+ny/2)/TreeCandidateSide));
-                double support=Patch(middle).ForestPotential(ForestPosition(key.Face,left+nx*.5,bottom+ny*.5));
+                var middlePatch=Patch(middle);var midpoint=ForestPosition(key.Face,left+nx*.5,bottom+ny*.5);
+                // Normalising a cube-face point is 1-Lipschitz here. This
+                // conservative L1 reach includes every jittered candidate in
+                // the node. Prune only if the WHOLE node is inside a patch
+                // whose supporting forest profiles are exactly zero.
+                if(middlePatch.MaximumForestCoverage<=0&&
+                    (midpoint-middlePatch.Center).Length*terrain.RadiusM*scale+TreeLatticeStep*(nx+ny)+1<=middlePatch.HalfExtentM*scale)continue;
+                double support=middlePatch.ForestPotential(midpoint);
                 int budget=area<=16||support<.08&&area<=256?area:Math.Min(support>=.15?8:32,area);
                 int admitted=0,minX=int.MaxValue,minY=int.MaxValue,maxX=int.MinValue,maxY=int.MinValue;ScatterInstance representative=default;double best=double.PositiveInfinity;
                 // Odd multiplier gives a permutation of power-of-two squares;

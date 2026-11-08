@@ -43,7 +43,7 @@ static class TerrainWorkerCostTests
     }
     // Explicit offline audit of packaged workers. It never starts Unity or
     // changes runtime preferences, and does not treat component cost as FPS.
-    public static void Run(string path,string executable,string sitesPath,string output,bool verifyCurrent=false,bool geometryOnly=false,bool farTiles=false,bool reportCurrent=false,bool surfaceAttributesOnly=false)
+    public static void Run(string path,string executable,string sitesPath,string output,bool verifyCurrent=false,bool geometryOnly=false,bool farTiles=false,bool reportCurrent=false,bool surfaceAttributesOnly=false,bool ignoreForestProbeCount=false)
     {
         if(geometryOnly&&surfaceAttributesOnly)throw new ArgumentException("Choose one explicit comparison normalization");
         Directory.CreateDirectory(output);var world=WorldFile.ReadPlanetaryFile(path);
@@ -53,6 +53,9 @@ static class TerrainWorkerCostTests
         var frame=new LocalTerrainFrame(at,world.Recipe.RadiusKm*1000,sites.RootElement.TryGetProperty("AltitudeM",out var altitude)?altitude.GetDouble():0,.1);
         bool boundaryReview=sites.RootElement.TryGetProperty("CheckWaterBoundary",out var boundary)&&boundary.GetBoolean();
         bool terrainOnly=sites.RootElement.TryGetProperty("TerrainOnly",out var only)&&only.GetBoolean();
+            bool forestOnly=sites.RootElement.TryGetProperty("ForestOnly",out var forestOnlyValue)&&forestOnlyValue.GetBoolean();
+            int forestLevel=sites.RootElement.TryGetProperty("ForestLevel",out var levelValue)?levelValue.GetInt32():0;
+            if(forestLevel<0||forestLevel>15)throw new ArgumentOutOfRangeException("ForestLevel");
         string secret=Guid.NewGuid().ToString("N");var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();var watch=Stopwatch.StartNew();
         using var child=Process.Start(new ProcessStartInfo{FileName=Path.GetFullPath(executable),Arguments=$"--terrain-worker {((IPEndPoint)listener.LocalEndpoint).Port} --parent {Environment.ProcessId} --terrain-token {secret}",UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden})!;
         try
@@ -102,9 +105,10 @@ static class TerrainWorkerCostTests
             if(!farTiles&&!terrainOnly)foreach(var delta in new[]{(0d,0d),(512d,0d),(0d,512d)})foreach(bool detail in new[]{false,true})
             {
                 V position=frame.Position(delta.Item1,delta.Item2);var key=scatter.Address(position,detail);
-                var forest=new ForestPageKey(key.Face,key.X*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide,key.Y*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide,0);
+                var forest=new ForestPageKey(key.Face,(key.X*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide)>>forestLevel,(key.Y*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide)>>forestLevel,forestLevel);
                 foreach(byte command in new byte[]{1,3})
                 {
+                    if(forestOnly&&command!=3)continue;
                     if(detail&&command==3)continue;
                     using var client=new TcpClient{NoDelay=true,ReceiveTimeout=120000};client.Connect(IPAddress.Loopback,port);
                     using var stream=client.GetStream();using var incoming=new TerrainReadStream(stream);using var r=new BinaryReader(incoming);using var w=new BinaryWriter(stream);
@@ -114,15 +118,17 @@ static class TerrainWorkerCostTests
                     ScatterPatch actualScatter=command==1?TerrainMeshWire.ReadScatter(r,key):null;ForestPage actualForest=command==3?TerrainMeshWire.ReadForest(r,forest):null;
                     int count=actualScatter?.Instances.Length??actualForest!.Roots.Length;
                     w.Write((byte)0);w.Flush();child.Refresh();watch.Stop();double cpuMs=child.TotalProcessorTime.TotalMilliseconds-cpu;
+                    int? originalProbes=actualForest?.Probes,currentProbes=null;
+                    if(command==3&&ignoreForestProbeCount)actualForest!.Probes=0;
                     using var payload=new MemoryStream();using(var encoded=new BinaryWriter(payload,System.Text.Encoding.UTF8,true)){if(command==1)TerrainMeshWire.WriteScatter(encoded,actualScatter!);else TerrainMeshWire.WriteForest(encoded,actualForest!);}
                     string hash=Convert.ToHexString(SHA256.HashData(payload.ToArray())).ToLowerInvariant();
                     if(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly)
                     {
-                        using var expectedPayload=new MemoryStream();using(var encoded=new BinaryWriter(expectedPayload,System.Text.Encoding.UTF8,true)){if(command==1)TerrainMeshWire.WriteScatter(encoded,scatter.Build(key));else TerrainMeshWire.WriteForest(encoded,scatter.BuildForest(forest));}
+                        using var expectedPayload=new MemoryStream();using(var encoded=new BinaryWriter(expectedPayload,System.Text.Encoding.UTF8,true)){if(command==1)TerrainMeshWire.WriteScatter(encoded,scatter.Build(key));else {var expectedForest=scatter.BuildForest(forest);currentProbes=expectedForest.Probes;if(ignoreForestProbeCount)expectedForest.Probes=0;TerrainMeshWire.WriteForest(encoded,expectedForest);}}
                         string expected=Convert.ToHexString(SHA256.HashData(expectedPayload.ToArray())).ToLowerInvariant();
                         if(expected!=hash)throw new Exception("Packaged/current complete vegetation payload differs at "+delta+", detail "+detail+", command "+command);
                     }
-                    var row=new{Kind=command==1?(detail?"scatter-detail":"scatter"):"forest",East=delta.Item1,North=delta.Item2,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,Items=count,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly?true:null)};rows.Add(row);
+                    var row=new{Kind=command==1?(detail?"scatter-detail":"scatter"):"forest",East=delta.Item1,North=delta.Item2,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,Items=count,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly&&!(command==3&&ignoreForestProbeCount)?true:null),ExactForestRoots=(bool?)(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly&&command==3&&ignoreForestProbeCount?true:null),ForestProbeCountExcluded=command==3&&ignoreForestProbeCount,OriginalProbes=originalProbes,CurrentProbes=currentProbes};rows.Add(row);
                     File.WriteAllText(Path.Combine(output,"tiles.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
                     Console.WriteLine($"{version} {row.Kind} {delta}: {row.ElapsedMs:F1}ms wall / {row.CpuMs:F1}ms CPU, {count} items");
                 }

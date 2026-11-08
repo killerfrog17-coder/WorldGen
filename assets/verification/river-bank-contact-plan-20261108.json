@@ -1,5 +1,13 @@
 {
-  "status": "Diagnosis only. No new bank geometry or water-level change has been implemented.",
+  "status": "Bounded symmetric-width prototype RETIRED after two strict actual-world failures. Main and packaged b9d6529a contain no prototype hook or geometry change.",
+  "retired_experiment": {
+    "branch": "experiment/river-bank-width-20261108-1710",
+    "commit": "ac524a33",
+    "world_gate": "Both v1 and v2 retain the exact source52127 open-edge counterexample; neither is a fix.",
+    "validation": "Whole-reach validation rejects changed span24 at t0.5 even with proposed half-width111.8589m. Terrain bank height is not monotonic farther from the centreline, so station-wise symmetric expansion does not reliably contain the paired ribbon.",
+    "rollback": "Experiment preserved on its own pushed branch; main restored exactly to b9 runtime. No additional player archive."
+  },
+  "recommended_next_design": "Investigate finite asymmetric bank/backwater footprints when fixed downstream head floods an adjacent valley hollow. Generate/cache the shared terrain-water ownership in workers, keep graph junction heads consistent, and use the same footprint for water rendering, swimming/drinking and vegetation. Avoid per-frame flood searches or forced terrain raising.",
   "fixture": {
     "world": "seed73421/history61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
     "reach": 52127,
