@@ -398,6 +398,7 @@ public sealed partial class LocalTerrainExplorer
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
             if(site.Coast!=null||site.Fjord.HasValue)cameraFloor=Mathf.Max(cameraFloor,(float)owner.frame.SurfaceY(cameraPoint,0));
+            if(site.Pond!=null&&cameraGround.Underwater)cameraFloor=Mathf.Max(cameraFloor,(float)owner.frame.SurfaceY(cameraPoint,cameraGround.WaterSurfaceM));
             camera.y=walking?cameraFloor+1.8f:Mathf.Max(camera.y,cameraFloor+2);
             if(!walking&&!inspectionTarget.HasValue&&offset.y>30)
                 camera.y=Mathf.Max(camera.y,cameraFloor+Mathf.Min(400,offset.y*.5f));
@@ -584,6 +585,7 @@ public sealed partial class LocalTerrainExplorer
         var wideOffset=site.Fjord.HasValue?new Vector3(width*.12f,Mathf.Max(width*1.2f,(float)site.Fjord.Value.Relief),width*.5f):new Vector3(width*.3f,width*.6f,width*1.5f);
         yield return owner.StartCoroutine(Capture("wide",orientation*wideOffset));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null||site.Trough.HasValue?site.RiverWidth*.8+8:10)),true));
+        if(site.Pond!=null)yield return owner.StartCoroutine(Capture("pond-waterline",orientation*new Vector3(0,0,width*1.15f),true,faceCenter:true));
         if(site.WetlandPool!=null)yield return owner.StartCoroutine(Capture("wetland-waterline",orientation*new Vector3(0,0,4),true));
         if(kind=="Mangrove")
         {
