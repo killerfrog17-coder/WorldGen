@@ -75,9 +75,9 @@ public sealed partial class LocalTerrainExplorer
         if(now<npcNextBackground)return;
         foreach(var actor in humanNpcs)
         {
-            if(actor.Resident==null||actor.Health<=0||actor.CurrentActivity==HumanActivity.Sleep||PlayerRules.Identity?.Group==actor.GroupId||npcSeenVisitors.Contains(actor.ResidentId))continue;
+            if(actor.Resident==null||actor.Health<=0||actor.CurrentActivity==HumanActivity.Sleep||PlayerRules.Identity?.Group==actor.GroupId||npcSeenVisitors.Contains(actor.GroupId))continue;
             double range=HumanDistance(actor.Planet,Position);if(range>12||!LivingNoticesVisitor(actor,range))continue;
-            npcSeenVisitors.Add(actor.ResidentId);QueueNpcEvent(actor,"An unfamiliar visitor is visibly near the camp.");npcNextBackground=now+20;break;
+            npcSeenVisitors.Add(actor.GroupId);QueueNpcEvent(actor,"An unfamiliar visitor is visibly near the camp.");npcNextBackground=now+20;break;
         }
     }
     IEnumerable<string> NpcTargets(HumanActor actor)

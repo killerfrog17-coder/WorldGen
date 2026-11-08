@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class WorldGenRuntime
 {
@@ -33,7 +34,7 @@ public sealed partial class LocalTerrainExplorer
         while(!humanNpcs.Any(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident?.AgeYears>=18&&p.Health>0)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         var actor=humanNpcs.Where(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident?.AgeYears>=18&&p.Health>0).OrderBy(p=>HumanDistance(p.Planet,Position)).FirstOrDefault();
         Check(actor!=null,"actual adult resident exists in the player's community");
-        npcSeenVisitors.UnionWith(humanNpcs.Where(p=>p.Resident!=null).Select(p=>p.ResidentId));npcEvents.Clear();
+        npcSeenVisitors.UnionWith(humanNpcs.Where(p=>p.Resident!=null).Select(p=>p.GroupId));npcEvents.Clear();
         PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();TestHumanView(0);paused=false;mapOpen=ecologyOpen=false;
         void Stand(double range)
         {
