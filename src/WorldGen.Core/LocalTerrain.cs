@@ -123,6 +123,20 @@ namespace WorldGen.Core
         public LocalTerrainProfile Profile(int cell)
         { if (cell < 0 || cell >= profiles.Length) throw new ArgumentOutOfRangeException(nameof(cell)); return profiles[cell]; }
         public int NearestCell(V point)=>locator.Nearest(point);
+        /// <summary>Cheap presentation estimate from immutable feature indices.
+        /// No local-height sampling, subdivision or river construction.</summary>
+        public double SharpPresentationRelief(V point,int nearest)
+        {
+            if(Amplification==null)return 0;
+            for(int k=faceOffsets[nearest];k<faceOffsets[nearest+1];k++)
+            {
+                int t=faces[k];V a=profiles[world.Surface.Triangles[t]].Center,b=profiles[world.Surface.Triangles[t+1]].Center,c=profiles[world.Surface.Triangles[t+2]].Center;
+                double det=V.Dot(a,V.Cross(b,c));
+                if(Math.Min(V.Dot(point,V.Cross(b,c))/det,Math.Min(V.Dot(point,V.Cross(c,a))/det,V.Dot(point,V.Cross(a,b))/det))< -1e-7)continue;
+                return Math.Max(Amplification.Canyons?.PresentationRelief(point,t/3)??0,Amplification.Glaciers?.PresentationRelief(point,t/3)??0);
+            }
+            return 0;
+        }
         /// <summary>Read-only continuous display of a historical source scalar;
         /// never applies today's terrain detail to an earlier geological stage.</summary>
         public double SourceField(V point,int[] values)

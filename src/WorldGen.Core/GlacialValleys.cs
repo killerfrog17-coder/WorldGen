@@ -85,6 +85,18 @@ namespace WorldGen.Core
             indices=packed.ToArray();
         }
         public double Level(Reach reach,double fraction)=>levels[reach.Source]+(levels[reach.Target]-levels[reach.Source])*fraction;
+        public double PresentationRelief(V point,int face)
+        {
+            double relief=0;
+            for(int k=offsets[face];k<offsets[face+1];k++)
+            {
+                var r=Reaches[indices[k]];V d=r.B-r.A,p=point-r.A;double u=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)));
+                double ratio=(p-d*u).Length*radius/r.HalfWidth;
+                double wall=OrogenMorphology.Smooth(.1,.3,ratio)*(1-OrogenMorphology.Smooth(1,1.5,ratio));
+                relief=Math.Max(relief,Math.Min(80,r.Relief*.08*r.Strength)*wall);
+            }
+            return relief;
+        }
         public double Apply(V point,int face,double ground,out double exposure)
         {
             exposure=0;

@@ -109,6 +109,18 @@ namespace WorldGen.Core
         }
         public static double ErodedDistance(V metres,int seed,double distance,double halfWidth)
             =>distance>=halfWidth*1.6?distance:ErodedDistance(ErosionFactor(metres,seed),distance,halfWidth);
+        public double PresentationRelief(V point,int face)
+        {
+            double relief=0;
+            for(int k=offsets[face];k<offsets[face+1];k++)
+            {
+                var r=Reaches[indices[k]];V d=r.B-r.A,p=point-r.A;double u=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)));
+                double ratio=(p-d*u).Length*radius/r.HalfWidth;
+                double wall=OrogenMorphology.Smooth(.04,.18,ratio)*(1-OrogenMorphology.Smooth(1,1.7,ratio));
+                relief=Math.Max(relief,Math.Min(100,r.Relief*.10*r.Strength)*wall);
+            }
+            return relief;
+        }
         public double Apply(V point,int face,double ground,out double exposure)
         {
             exposure=0;int first=offsets[face],last=offsets[face+1];if(first==last)return ground;

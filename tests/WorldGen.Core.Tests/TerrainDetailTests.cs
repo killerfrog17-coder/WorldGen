@@ -57,6 +57,19 @@ static class TerrainDetailTests
         {
             var world=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(world);
             var terrain=new LocalTerrain(world,horizontalScale:.1);var origin=world.Surface.Cells[Enumerable.Range(0,world.Surface.Cells.Length).First(i=>terrain.Profile(i).MountainHeightM>50)].Position;
+            long groups=terrain.Amplification.SubdivisionGroups;int featureChecks=0;
+            foreach(var r in terrain.Amplification.Canyons.Reaches.OrderByDescending(r=>r.Relief*r.Strength).Take(8))
+            {
+                V center=(r.A+r.B).Unit,side=V.Cross(center,r.B-r.A).Unit;
+                var at=(center+side*(r.HalfWidth*.5/(terrain.RadiusM*.1))).Unit;
+                double wall=terrain.SharpPresentationRelief(at,terrain.NearestCell(at));
+                Check(wall>0&&wall<=100,"Canyon walls contribute bounded relief even on a flat plateau");featureChecks++;
+                var localFrame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);var localEstimate=new TerrainDetailEstimator(terrain,localFrame);
+                var key=new TerrainTileKey(0,0,2,.1);double coarse=localEstimate.Error(key,16),fine=localEstimate.Error(key,64);
+                Check(coarse>fine&&localEstimate.Count==1&&fine==localEstimate.Error(key,64),"Feature detail decreases with refinement and reuses one immutable metadata entry");
+            }
+            Check(terrain.Amplification.SubdivisionGroups==groups,"Presentation metadata never constructs local terrain subdivision groups");
+            Console.WriteLine($"Indexed cliff relief: {featureChecks} canyon contexts; no terrain subdivision");
             var frame=new LocalTerrainFrame(origin,terrain.RadiusM,0,.1);var estimator=new TerrainDetailEstimator(terrain,frame);
             foreach(int q in new[]{0,2,4})
             {

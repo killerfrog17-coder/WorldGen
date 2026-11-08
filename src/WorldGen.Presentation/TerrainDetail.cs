@@ -29,18 +29,19 @@ namespace WorldGen.Presentation
     public sealed class TerrainDetailEstimator
     {
         readonly LocalTerrain terrain;readonly LocalTerrainFrame frame;
-        readonly Dictionary<TerrainTileKey,(double amplitude,double wavelength,double bend,double dune)> values=new Dictionary<TerrainTileKey,(double,double,double,double)>();
+        readonly Dictionary<TerrainTileKey,(double amplitude,double wavelength,double bend,double dune,double sharp)> values=new Dictionary<TerrainTileKey,(double,double,double,double,double)>();
         public int Count=>values.Count;
         public TerrainDetailEstimator(LocalTerrain terrain,LocalTerrainFrame frame){this.terrain=terrain;this.frame=frame;}
         public double Error(TerrainTileKey key,int segments)
         {
             if(!values.TryGetValue(key,out var v))
             {
-                var heights=new double[9];double amplitude=0,wavelength=double.MaxValue,dune=0;
+                var heights=new double[9];double amplitude=0,wavelength=double.MaxValue,dune=0,sharp=0;
                 for(int z=0;z<3;z++)for(int x=0;x<3;x++)
                 {
                     var at=frame.Position((key.X+x*.5)*key.SizeM,(key.Z+z*.5)*key.SizeM);
-                    var p=terrain.Profile(terrain.NearestCell(at));heights[z*3+x]=p.ElevationM;
+                    int cell=terrain.NearestCell(at);var p=terrain.Profile(cell);heights[z*3+x]=p.ElevationM;
+                    sharp=Math.Max(sharp,terrain.SharpPresentationRelief(at,cell));
                     amplitude=Math.Max(amplitude,p.HillHeightM+p.MountainHeightM*.65);
                     wavelength=Math.Min(wavelength,Math.Max(250,p.RidgeSpacingM)*key.Scale);
                     double sand=LandscapeProvince.SandSea(at*frame.RadiusM,terrain.SourceSeed,p.Landscape);
@@ -49,7 +50,7 @@ namespace WorldGen.Presentation
                 double bend=0;
                 for(int z=0;z<3;z++)bend=Math.Max(bend,Math.Abs(heights[z*3+1]-(heights[z*3]+heights[z*3+2])*.5));
                 for(int x=0;x<3;x++)bend=Math.Max(bend,Math.Abs(heights[3+x]-(heights[x]+heights[6+x])*.5));
-                v=(amplitude,wavelength,bend,dune);if(values.Count>=8192)values.Clear();values[key]=v;
+                v=(amplitude,wavelength,bend,dune,sharp);if(values.Count>=8192)values.Clear();values[key]=v;
             }
             double step=key.SizeM/segments;
             double local=v.amplitude*.4*Math.Min(1,Math.Pow(step/Math.Max(1,v.wavelength*.2),1.35));
@@ -57,7 +58,11 @@ namespace WorldGen.Presentation
             // unlike the smooth regional hill estimate. Without this term a
             // flat desert profile rendered new high dunes as coarse slabs.
             double crest=v.dune*Math.Min(55,step*.15);
-            return Math.Max(local,crest)+v.bend*4/(segments*segments)+step*step/(8*terrain.RadiusM*key.Scale);
+            // Incised walls can be steep inside an otherwise flat plateau.
+            // Their70m beds and gullies were absent from the regional hills
+            // estimate, leaving large visible triangular slabs in the distance.
+            double wall=v.sharp*Math.Min(1,Math.Pow(step/140,1.3));
+            return Math.Max(Math.Max(local,crest),wall)+v.bend*4/(segments*segments)+step*step/(8*terrain.RadiusM*key.Scale);
         }
     }
 
