@@ -1,17 +1,17 @@
 {
-  "status": "Curvature-fit candidate: actual native review and performance pending",
+  "status": "Close-range natural faces and exterior ledge verified in native render; overall coverage/art review and uncontended performance pending",
   "scope": "Three-dimensional jointed masses on exposed steep walls, within the existing Outcrop instancing/culling/nearby-collider system. No change to the authoritative heightfield or unrelated vegetation density.",
-  "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded.",
-  "geometry": "Three CC0 scanned fronts, affine front-plane calibrated, explicit flat backs with manifold volume; near/mid/far caps 3200/1050/260 triangles. No solidify modifier.",
+  "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded. Masses now shrink or reject when eight footprint samples deviate more than6.5percent of width from the reference plane.",
+  "geometry": "Three CC0 scanned fronts with calibrated datum, positive interior relief and recessed perimeter; explicit closed flat backs; caps3200/1050/260 triangles. Existing generated rock textures use terrain-calibrated pigment.",
   "collision": "Use nearby nonconvex surface colliders plus existing physical terrain. Faces lean along the sampled wall normal and are centered into the wall; do not float upright above it.",
   "controls": {
-    "checks": 21512,
-    "actual_cliffs": 262,
+    "checks": 18579,
+    "actual_cliffs": 75,
     "surface_meshes": 9,
     "timing_limit": "Background component costs are not frame-time measurements"
   },
   "versions": {
-    "scatter": "local-scatter-cliff-rocks-30",
+    "scatter": "local-scatter-cliff-rocks-31",
     "variant_marker": 1048576
   },
   "research": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-visibility-tool-in-unreal-engine",
@@ -163,5 +163,35 @@
     "runtime_exit": 0,
     "visual_accepted": false,
     "reason": "Colour improved but large plane fit exposed backing on curved terrace walls. Added shrink/reject fit across eight footprint controls; minimum inner front relief and stricter front-ledged roof check."
+  },
+  "detail_estimator": {
+    "source": "ae42c87d",
+    "checks": 1403,
+    "actual_canyon_contexts": 8,
+    "terrain_subdivision_groups_created": 0,
+    "actual_60km_plan_ms": [
+      7.7,
+      9.3,
+      44.5
+    ],
+    "qualities": [
+      0,
+      2,
+      4
+    ],
+    "note": "Component metadata plan timing, not frame times or startup; native visual and performance verification pending"
+  },
+  "native_latest": {
+    "source": "5006d0a4",
+    "native": "artifacts/landscape-20261103/cliff-candidate-v7-20261107-canyon",
+    "runtime_exit": 0,
+    "exterior_ledge_line_of_sight": true,
+    "close_faces_inspected": true,
+    "overall_visual_accepted": false,
+    "limits": "Large smooth portions of the canyon remain; owner is reviewing a visible in-game moving route. Earlier underside shots had invalid interior camera placement and must not be shown as successful results."
+  },
+  "live_review": {
+    "folder": "artifacts/terrain-surfaces-20261107/live-owner-review",
+    "purpose": "Visible owner review only; another game is running, so FPS data is not valid for performance comparisons"
   }
 }
