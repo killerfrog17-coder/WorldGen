@@ -1,10 +1,10 @@
 {
   "title": "WorldGen - Geography Overnight",
   "date": "08 NOVEMBER 2026",
-  "status": "Draft inputs; generate one final PDF only after accepted work and performance review",
+  "status": "Delivered: selected slotB FULL Mono nondevelopment79c72494; four clean paired routes completed after owner confirmed PC idle. Source pushed; final report metadata preserved.",
   "pages": [
     {
-      "title": "Rivers that meet their banks",
+      "title": "Smoother river bars",
       "subtitle": "Continuous exposed bars and better shallow-water geometry",
       "blocks": [
         {
@@ -33,7 +33,7 @@
           "max_height": 250
         },
         {
-          "text": "This improves the banks, not the entire river network. Some courses remain too ribbon-like, and a separate legacy bank-overlap defect remains unresolved.",
+          "text": "Some courses remain too ribbon-like, and a separate legacy bank-overlap defect remains unresolved.",
           "size": 9
         }
       ]
@@ -58,13 +58,13 @@
           "heading": "Bounded cost"
         },
         {
-          "text": "Refinement applies to finite ponds that need it, rather than tessellating the whole ocean. Distant ponds use a smaller constraint pattern. Terrain, water, vegetation and saved-history checks accompany the visual review."
+          "text": "Refinement applies to finite ponds that need it. Distant ponds use a smaller constraint pattern. Terrain, water, vegetation and saved-history checks accompany the visual review."
         },
         {
           "heading": "Still to improve"
         },
         {
-          "text": "Wetland vegetation remains a separate art and placement task. Correct water coverage alone does not make a convincing reed bed or swamp."
+          "text": "Vegetation placement and art need further work. Shallow-water planting is shown on page 4."
         }
       ]
     },
@@ -73,7 +73,7 @@
       "subtitle": "A distinct sand landscape alongside the existing connected ridges",
       "blocks": [
         {
-          "text": "Separated crescent dunes add curved crests, tapered horns and a steeper lee face. Their placement uses existing sandy terrain, seasonal wind diversity and a bounded terrain-suitability proxy. It is not a full airflow or sand-transport simulation."
+          "text": "Separated crescent dunes add curved crests, tapered horns and a steeper lee face. Their placement uses existing sandy terrain, seasonal wind diversity and a bounded terrain-suitability proxy."
         },
         {
           "images": [
@@ -92,19 +92,19 @@
             }
           ],
           "max_height": 245
-        },
-        {
-          "text": "The star-dune experiment was rejected after in-game inspection and is disabled. These captures show the retained crescent implementation.",
-          "size": 9
         }
       ]
     },
     {
-      "title": "Wetlands with rooted emergents",
-      "subtitle": "Freshwater reed beds and salt-tolerant tidal grasses/rushes",
+      "title": "Wetlands and tidal planting",
+      "subtitle": "Plants rooted in shallow water, with coastal grasses/rushes",
       "blocks": [
         {
-          "text": "Wetland plants can now root in shallow water and below the previous two-metre elevation cutoff. Coastal variants use tidal habitat and salinity limits, with grass/rush shapes instead of freshwater cattail heads. Depth, current, temperature, soil and canopy constraints remain."
+          "text": "Included in the updated build selected by the usual WorldGen shortcut.",
+          "size": 9
+        },
+        {
+          "text": "Wetland plants can now grow in shallow water and below the old two-metre elevation cutoff. Coastal variants use tidal habitat and salt tolerance, with grass/rush shapes. Depth, current, temperature, soil and canopy limits remain."
         },
         {
           "images": [
@@ -133,74 +133,91 @@
           "max_height": 180
         },
         {
-          "text": "Terrain and water geometry are unchanged in the paired packet checks. The existing plant candidate grid is retained. Denser establishment adds instances, so performance remains an acceptance gate; this draft is not a claim that the candidate is on the shortcut.",
+          "text": "A twofold establishment boost adds emergent stands; distant reeds use simple shared meshes. Checked terrain and water geometry match the prior version. Vegetation art still needs refinement.",
           "size": 9
         },
         {
-          "text": "Art remains basic. This is a habitat/placement correction, not a finished wetland art overhaul.",
+          "text": "Both before/after pairs use identical camera files and actual game captures.",
           "size": 9
         }
       ]
     },
     {
-      "title": "Performance and limits",
-      "subtitle": "Moving tests, explicit conditions, and unfinished work",
+      "title": "Checks and remaining work",
+      "subtitle": "Matched moving routes and checks on the selected build",
       "blocks": [
         {
-          "text": "RTX 4060 / Ryzen 7 5700X, 1920 x 1080, Medium, 6 km view, 45-second moving loops with rapid turns. All recorded frames focused. These are selected routes, not proof of the worst location in the world."
+          "text": "RTX 4060 / Ryzen 7 5700X; 1920 x 1080; Medium; 6 km view; clear local-summer noon. Each route runs a 45-second, 180-metre loop with rapid turns. Timing traces were enabled. The owner confirmed the PC idle. All 167,776 recorded frames were focused."
         },
         {
           "table": {
             "headers": [
               "Route",
-              "Earlier FPS",
-              "Current FPS",
-              "Current p99 / max"
+              "Before FPS",
+              "Updated FPS",
+              "Updated p99 / max"
             ],
             "rows": [
               [
-                "Crescent site",
-                "753",
-                "752",
-                "2.56 / 11.87 ms"
+                "Crescent dunes",
+                "775",
+                "783",
+                "2.45 / 12.14 ms"
               ],
               [
                 "Dense jungle",
-                "193",
-                "195",
-                "10.39 / 32.89 ms"
+                "204",
+                "205",
+                "10.15 / 17.44 ms"
               ],
               [
-                "Temperate forest",
-                "193",
-                "197",
-                "10.92 / 28.89 ms"
+                "Mangrove waterline",
+                "413",
+                "391",
+                "5.67 / 11.70 ms"
+              ],
+              [
+                "Salt marsh",
+                "494",
+                "462",
+                "4.88 / 30.35 ms"
               ]
             ],
             "widths": [
               0.3,
-              0.19,
-              0.19,
-              0.32
+              0.17,
+              0.18,
+              0.35
             ]
           }
         },
         {
-          "text": "Mean performance is comparable on these routes. The maxima are individual observations, not a proven spike improvement. Final results use the clean full build; an earlier package with worse timing was rejected.",
+          "text": "Dry routes are effectively unchanged. Added wetland vegetation costs about 5-6% at these sites. Streaming remained active, and scene contents differ deliberately in wetlands. These four routes do not establish a global worst case or a guaranteed frame floor.",
           "size": 9
         },
         {
-          "heading": "Known limits"
+          "heading": "Additional verified fixes"
         },
         {
-          "text": "The absolute 100 FPS floor is still unmet. Frame spikes remain. A legacy river-bank overlap defect, overly regular smaller rivers and broad wetland vegetation are follow-ups. Rejected star-dune captures are excluded from this report."
+          "text": "Coarse terrain/map queries previously depended on earlier queries, differing by up to 2.43 metres. The correction passed 810 order checks, with 21 complete game payload comparisons unchanged."
         },
         {
-          "heading": "Research and evidence"
-        },
-        {
-          "text": "Landform guidance: <link href=\"https://www.nps.gov/articles/meandering-stream.htm\">National Park Service - meandering streams</link>; <link href=\"https://www.nps.gov/grsa/learn/nature/dune-types.htm\">National Park Service - dune types</link>. Captures and rebuild inputs are preserved beside this report; verification records live under assets/verification. Disposable artifacts are not required to rebuild the PDF.",
+          "text": "Proven zero-forest nodes now skip empty placement work. Tested empty L4 requests dropped from 262,144 probes to zero; checked jungle/coastal tree data stayed identical. No total-startup gain is claimed.",
           "size": 9
+        },
+        {
+          "heading": "Still open"
+        },
+        {
+          "text": "The absolute 100 FPS floor remains unmet. Spikes, a legacy river-bank gap, regular smaller river shapes and wetland art remain follow-ups. The failed river-width experiment is isolated on its own Git branch and is absent from this build."
+        },
+        {
+          "text": "Trace buffers can allocate during measurement; some worst frames may include diagnostic overhead. The recorded spikes do not establish their normal-game cause.",
+          "size": 8.5
+        },
+        {
+          "text": "Research: <link href=\"https://www.nps.gov/articles/meandering-stream.htm\">NPS - meandering streams</link>; <link href=\"https://www.nps.gov/grsa/learn/nature/dune-types.htm\">NPS - dune types</link>. Captures and PDF rebuild inputs are preserved beside this report; verification records are under assets/verification.",
+          "size": 8.5
         }
       ]
     }

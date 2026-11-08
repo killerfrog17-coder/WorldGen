@@ -1,5 +1,5 @@
 {
-  "status": "Final source correction verified; native package not yet rebuilt.",
+  "status": "Delivered in selected slotB FULL Mono nondevelopment79c72494; functional/native checks passed, clean four-route paired performance complete. See geography-night-final-20261108.json for measured costs and limits.",
   "terrain_version": 75,
   "scope": "Display-only SampleMap positive-footprint queries. No claim that this repairs physical 3D river edges or improves gameplayFPS.",
   "cause": "Locate could reuse a terminal physical hint for a coarse query, and a neighbouring coarse hint could represent a different stopping level across a bent hierarchy boundary.",
@@ -1082,5 +1082,6 @@
     "wetland": 101466,
     "actual_cached_river_reaches": 9,
     "concurrent_readers_per_reach": 16
-  }
+  },
+  "final_performance_record": "assets/verification/geography-night-final-20261108.json"
 }

@@ -1,5 +1,5 @@
 {
-  "status": "Source checks passed; final player build/native review pending.",
+  "status": "Delivered in selected slotB FULL Mono nondevelopment79c72494; functional/native checks passed, clean four-route paired performance complete. See geography-night-final-20261108.json for measured costs and limits.",
   "scatter_version": 44,
   "change": "Skip only nodes wholly within the indexed domain of a patch whose supporting source forest coverage is exactly zero. Conservative cube-face L1 bound includes every jittered candidate plus1m numerical margin. Positive potential, including sparse forest, follows the previous placement path.",
   "zero_probability": "Explicitly reject zero forest potential, including the former theoretical RNG-zero admission edge case.",
@@ -8,9 +8,9 @@
   "counts": {
     "terrain_packets": 12,
     "scatter_packets": 6,
-    "forest_pages": 12,
-    "ocean_l4_probes_before_per_page": 262144,
-    "ocean_l4_probes_after_per_page": 0
+    "forest_requests": 12,
+    "ocean_l4_probes_before_per_empty_request": 262144,
+    "ocean_l4_probes_after_per_empty_request": 0
   },
   "runs": {
     "empty-forest-wire-v1": [
@@ -585,5 +585,7 @@
         "CurrentProbes": 13808
       }
     ]
-  }
+  },
+  "scope_note": "Request count is not a claim of12 distinct spatial pages; nearby coarse requests can address the same page. All are checked against the unchanged packaged reference.",
+  "final_performance_record": "assets/verification/geography-night-final-20261108.json"
 }

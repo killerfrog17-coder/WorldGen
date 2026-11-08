@@ -1,0 +1,1298 @@
+{
+  "owner_idle_confirmation": "ok all closed now actually",
+  "conditions": "RTX4060/Ryzen5700X; clear local-summer noon; Medium;1920x1080;6km;45s/180m moving loop and rapid turns; borderless presented; no concurrent build/test/analysis; water A then B, dry B then A. Active streaming; settled flags retained.",
+  "scope": "Four matched routes, not global worst-case or a guaranteed frame floor. Indexed trace components overlap and can be delayed; they do not independently establish spike cause.",
+  "total_focused_frames": 167776,
+  "total_unfocused_frames": 0,
+  "pairs": [
+    {
+      "site": "mangrove-water",
+      "baseline_fps": 413.48018,
+      "candidate_fps": 391.10569,
+      "fps_change_percent": -5.411260583276334,
+      "baseline_p99_ms": 5.0538,
+      "candidate_p99_ms": 5.668,
+      "baseline_max_ms": 28.9305,
+      "candidate_max_ms": 11.6954,
+      "baseline_over_16_667ms": 1,
+      "candidate_over_16_667ms": 0,
+      "baseline_objects": "909",
+      "candidate_objects": "2143",
+      "baseline_settled": "False",
+      "candidate_settled": "True"
+    },
+    {
+      "site": "saltmarsh-water",
+      "baseline_fps": 494.15167,
+      "candidate_fps": 462.36789,
+      "fps_change_percent": -6.431988785953113,
+      "baseline_p99_ms": 4.31,
+      "candidate_p99_ms": 4.8823,
+      "baseline_max_ms": 30.2707,
+      "candidate_max_ms": 30.3466,
+      "baseline_over_16_667ms": 2,
+      "candidate_over_16_667ms": 2,
+      "baseline_objects": "331",
+      "candidate_objects": "1715",
+      "baseline_settled": "False",
+      "candidate_settled": "True"
+    },
+    {
+      "site": "barchan-dunes",
+      "baseline_fps": 775.43327,
+      "candidate_fps": 782.91827,
+      "fps_change_percent": 0.9652668114175755,
+      "baseline_p99_ms": 2.5262,
+      "candidate_p99_ms": 2.4536,
+      "baseline_max_ms": 16.6654,
+      "candidate_max_ms": 12.1424,
+      "baseline_over_16_667ms": 0,
+      "candidate_over_16_667ms": 0,
+      "baseline_objects": "22",
+      "candidate_objects": "22",
+      "baseline_settled": "False",
+      "candidate_settled": "False"
+    },
+    {
+      "site": "dense-tropicalrainforest",
+      "baseline_fps": 203.68444,
+      "candidate_fps": 204.77858,
+      "fps_change_percent": 0.5371740718142393,
+      "baseline_p99_ms": 10.3087,
+      "candidate_p99_ms": 10.1481,
+      "baseline_max_ms": 20.0752,
+      "candidate_max_ms": 17.4395,
+      "baseline_over_16_667ms": 1,
+      "candidate_over_16_667ms": 1,
+      "baseline_objects": "3704",
+      "candidate_objects": "3707",
+      "baseline_settled": "False",
+      "candidate_settled": "False"
+    }
+  ],
+  "runs": {
+    "water-a": {
+      "directory": "artifacts\\geography-night-20261108\\final-idle-water-a-v1",
+      "complete_utc": "2026-11-08T18:01:40.2603537Z",
+      "build": {
+        "BuiltUtc": "2026-11-08T13:43:41.6510491Z",
+        "SourceCommit": "9cb2eb010c1dc88950b6fc1b328989896f729383",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "401830a1a9f04b25eee8a5a384842f4973fb2d169506379ff153ba53cc23d971"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "04d588ae6aedc3cd76ab389392a996405ce5ed67d0be67ae927f024d41fe87be"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "05937fe7de52474ce9bc67252d857429e5ea9d812a5b1087b95003a53046f418"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "3f7fc2d76bc9001837c02df1af5d4ea095e3881a8cf0e2c8793acd3d5de91f80"
+      },
+      "input_sha256": "B500DC328BB3E0B3B492B844D743244830145511759028391C9A26A61131C4E3",
+      "focus": "mangrove-water travel-whip-water-surface focused_frames=18611 unfocused_frames=0\nsaltmarsh-water travel-whip-water-surface focused_frames=22239 unfocused_frames=0\n",
+      "site_receipts": "mangrove-water requested=(-0.876280631,0.404619675,-0.261562942); actual=(-0.876280632,0.404619675,-0.261562942); displacement=0.00063710000000000014m; cell=73759; biome=Mangrove; landscape=TidalWetland; ground=-0.136m; underwater=True; water=Ocean/0m; glacial=0\nsaltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186556; biome=Marsh; landscape=FreshwaterMarsh; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "equivalence": "PASS exact submerged benchmark location, error 0.0006371m; water Ocean at 0m, bed -0.136m\n48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\nmangrove-water: 16738 loading/idle readiness comparisons passed.\nPASS exact submerged benchmark location, error 0.0006371m; water Ocean at 0m, bed -0.467m\n48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\nsaltmarsh-water: 34115 loading/idle readiness comparisons passed.\n",
+      "settings": "mangrove-water canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nmangrove-water saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\nsaltmarsh-water canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nsaltmarsh-water saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\n",
+      "case_settings": "mangrove-water travel-whip-water-surface parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nmangrove-water travel-whip-water-surface presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\nsaltmarsh-water travel-whip-water-surface parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nsaltmarsh-water travel-whip-water-surface presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+      "frames": 40850,
+      "rows": [
+        {
+          "site": "mangrove-water",
+          "cell": "73759",
+          "biome": "Mangrove",
+          "relief": "15",
+          "case": "travel-whip-water-surface",
+          "frames": "18611",
+          "seconds": "45.01062",
+          "fps": "413.48018",
+          "p50_ms": "2.29780",
+          "p95_ms": "3.76920",
+          "p99_ms": "5.05380",
+          "max_ms": "28.93050",
+          "over10ms": "3",
+          "over16ms": "1",
+          "scatter_update_ms": "0.09584",
+          "scatter_submit_ms": "0.12717",
+          "grass_submit_ms": "0.19899",
+          "weather_ms": "0.04037",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "909",
+          "specialists": "0",
+          "mid": "544",
+          "trees": "364",
+          "scatter_draws": "50",
+          "grass_draws": "39",
+          "grass_candidates": "357533",
+          "grass_bytes": "51620704",
+          "frustum_rejected": "71786",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "1278223499",
+          "end_qpc": "1728329741",
+          "gpu_ms": "1.61120",
+          "cpu_ms": "2.40002",
+          "timing_samples": "13353",
+          "gpu_drain_ms": "3.23970",
+          "start_utc": "2026-11-08T17:59:13.8712914Z",
+          "end_utc": "2026-11-08T17:59:58.8832103Z",
+          "frames_over_10ms": 3,
+          "frames_over_16_667ms": 1,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.00725300000023,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "9.85252",
+              "frame_ms": "28.93050",
+              "gc0": "599",
+              "components_ms": {
+                "explorer_ms": 1.5187,
+                "late_ms": 0.8565,
+                "fauna_ms": 0.8331,
+                "animal_move_ms": 0.4365,
+                "cover_draw_ms": 0.377
+              }
+            },
+            {
+              "t_s": "16.91272",
+              "frame_ms": "15.89970",
+              "gc0": "600",
+              "components_ms": {
+                "explorer_ms": 0.9615,
+                "late_ms": 0.5417,
+                "fauna_ms": 0.5188,
+                "animal_move_ms": 0.3125,
+                "cover_draw_ms": 0.2796
+              }
+            },
+            {
+              "t_s": "16.46341",
+              "frame_ms": "15.86180",
+              "gc0": "600",
+              "components_ms": {
+                "explorer_ms": 1.6879,
+                "late_ms": 0.6814,
+                "gui_ms": 0.653,
+                "coverage_ms": 0.4836,
+                "fauna_ms": 0.4578
+              }
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 3654
+        },
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "22239",
+          "seconds": "45.00440",
+          "fps": "494.15167",
+          "p50_ms": "1.89070",
+          "p95_ms": "3.09170",
+          "p99_ms": "4.31000",
+          "max_ms": "30.27070",
+          "over10ms": "4",
+          "over16ms": "2",
+          "scatter_update_ms": "0.07549",
+          "scatter_submit_ms": "0.07384",
+          "grass_submit_ms": "0.32529",
+          "weather_ms": "0.05207",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "331",
+          "specialists": "0",
+          "mid": "329",
+          "trees": "0",
+          "scatter_draws": "28",
+          "grass_draws": "44",
+          "grass_candidates": "509185",
+          "grass_bytes": "72834188",
+          "frustum_rejected": "28410",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "2281960555",
+          "end_qpc": "2732004571",
+          "gpu_ms": "1.12910",
+          "cpu_ms": "2.00864",
+          "timing_samples": "15364",
+          "gpu_drain_ms": "1.69950",
+          "start_utc": "2026-11-08T18:00:54.2456091Z",
+          "end_utc": "2026-11-08T18:01:39.2504847Z",
+          "frames_over_10ms": 4,
+          "frames_over_16_667ms": 2,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.002644800000304,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "35.50221",
+              "frame_ms": "30.27070",
+              "gc0": "611",
+              "components_ms": {
+                "explorer_ms": 0.927,
+                "late_ms": 0.5757,
+                "coverage_ms": 0.4581,
+                "cover_draw_ms": 0.4127,
+                "scheduling_ms": 0.1042
+              }
+            },
+            {
+              "t_s": "16.59609",
+              "frame_ms": "19.81970",
+              "gc0": "611",
+              "components_ms": {
+                "late_ms": 0.7143,
+                "explorer_ms": 0.5512,
+                "cover_draw_ms": 0.4692,
+                "sky_ms": 0.4528,
+                "humans_ms": 0.1418
+              }
+            },
+            {
+              "t_s": "16.40655",
+              "frame_ms": "10.69160",
+              "gc0": "610",
+              "components_ms": {
+                "late_ms": 0.6957,
+                "explorer_ms": 0.6949,
+                "cover_draw_ms": 0.4685,
+                "humans_ms": 0.1675,
+                "terrain_retirement_ms": 0.1365
+              }
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 17744
+        }
+      ]
+    },
+    "water-b": {
+      "directory": "artifacts\\geography-night-20261108\\final-idle-water-b-v1",
+      "complete_utc": "2026-11-08T18:06:32.2770275Z",
+      "build": {
+        "BuiltUtc": "2026-11-08T17:34:54.3207873Z",
+        "SourceCommit": "79c7249461bb3d96942529345f2dddf7d4296860",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "8a93587485effed3d1f4d049ecde450341e7027a8a191d644b8bee106839ba59"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "bce915412a51a6988a38b043feb40cd49dc78229e1e1d5809f9e5e8e73193ce7"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "7f29a9ad89672bd96406b05f94aafad10f2a939a1ae54a23569f667d0be0ffe9"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "d301b46bac4724cb9c2a3db8d6d58c3c2da85b27cf3567cf1abe7c254f9ba04a"
+      },
+      "input_sha256": "B500DC328BB3E0B3B492B844D743244830145511759028391C9A26A61131C4E3",
+      "focus": "mangrove-water travel-whip-water-surface focused_frames=17601 unfocused_frames=0\nsaltmarsh-water travel-whip-water-surface focused_frames=20808 unfocused_frames=0\n",
+      "site_receipts": "mangrove-water requested=(-0.876280631,0.404619675,-0.261562942); actual=(-0.876280632,0.404619675,-0.261562942); displacement=0.00063710000000000014m; cell=73759; biome=Mangrove; landscape=TidalWetland; ground=-0.136m; underwater=True; water=Ocean/0m; glacial=0\nsaltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186179; biome=SaltMarsh; landscape=TidalWetland; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "equivalence": "PASS exact submerged benchmark location, error 0.0006371m; water Ocean at 0m, bed -0.136m\n48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\nmangrove-water: 17399 loading/idle readiness comparisons passed.\nPASS exact submerged benchmark location, error 0.0006371m; water Ocean at 0m, bed -0.467m\n48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\nsaltmarsh-water: 28905 loading/idle readiness comparisons passed.\n",
+      "settings": "mangrove-water canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nmangrove-water saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\nsaltmarsh-water canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nsaltmarsh-water saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\n",
+      "case_settings": "mangrove-water travel-whip-water-surface parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nmangrove-water travel-whip-water-surface presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\nsaltmarsh-water travel-whip-water-surface parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nsaltmarsh-water travel-whip-water-surface presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+      "frames": 38409,
+      "rows": [
+        {
+          "site": "mangrove-water",
+          "cell": "73759",
+          "biome": "Mangrove",
+          "relief": "15",
+          "case": "travel-whip-water-surface",
+          "frames": "17601",
+          "seconds": "45.00318",
+          "fps": "391.10569",
+          "p50_ms": "2.41250",
+          "p95_ms": "4.11240",
+          "p99_ms": "5.66800",
+          "max_ms": "11.69540",
+          "over10ms": "2",
+          "over16ms": "0",
+          "scatter_update_ms": "0.13282",
+          "scatter_submit_ms": "0.15937",
+          "grass_submit_ms": "0.20452",
+          "weather_ms": "0.04237",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "2143",
+          "specialists": "0",
+          "mid": "1784",
+          "trees": "358",
+          "scatter_draws": "53",
+          "grass_draws": "39",
+          "grass_candidates": "357533",
+          "grass_bytes": "51620704",
+          "frustum_rejected": "180568",
+          "terrain_rejected": "0",
+          "settled": "True",
+          "start_qpc": "1377139337",
+          "end_qpc": "1827171176",
+          "gpu_ms": "1.62502",
+          "cpu_ms": "2.52130",
+          "timing_samples": "12559",
+          "gpu_drain_ms": "3.10060",
+          "start_utc": "2026-11-08T18:04:00.8029899Z",
+          "end_utc": "2026-11-08T18:04:45.8068377Z",
+          "frames_over_10ms": 2,
+          "frames_over_16_667ms": 0,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.00000659999989,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "30.59634",
+              "frame_ms": "11.69540",
+              "gc0": "588",
+              "components_ms": {
+                "gui_ms": 0.6235,
+                "explorer_ms": 0.5911,
+                "late_ms": 0.3185,
+                "fauna_ms": 0.2913,
+                "cover_draw_ms": 0.1448
+              }
+            },
+            {
+              "t_s": "41.93382",
+              "frame_ms": "10.05600",
+              "gc0": "588",
+              "components_ms": {
+                "explorer_ms": 3.7896,
+                "scatter_ms": 1.6803,
+                "batches_ms": 1.649,
+                "late_ms": 1.5685,
+                "batch_collect_ms": 1.4726
+              }
+            },
+            {
+              "t_s": "0.07561",
+              "frame_ms": "9.47650",
+              "gc0": "587",
+              "components_ms": {
+                "explorer_ms": 3.3772,
+                "scatter_ms": 2.045,
+                "batches_ms": 1.8471,
+                "batch_collect_ms": 1.5815,
+                "gui_ms": 1.1039
+              }
+            }
+          ],
+          "worst_frame_neighbourhood": [
+            {
+              "t_s": "30.57930",
+              "frame_ms": "5.26260",
+              "gc0": "587",
+              "explorer_ms": "0.51400",
+              "late_ms": "0.28960",
+              "gui_ms": "0.61230",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.04290",
+              "forest_ms": "0.00300",
+              "fauna_ms": "0.23830"
+            },
+            {
+              "t_s": "30.58464",
+              "frame_ms": "5.34290",
+              "gc0": "587",
+              "explorer_ms": "0.59040",
+              "late_ms": "0.29820",
+              "gui_ms": "0.65390",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.04000",
+              "forest_ms": "0.00270",
+              "fauna_ms": "0.31890"
+            },
+            {
+              "t_s": "30.59634",
+              "frame_ms": "11.69540",
+              "gc0": "588",
+              "explorer_ms": "0.59110",
+              "late_ms": "0.31850",
+              "gui_ms": "0.62350",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.04360",
+              "forest_ms": "0.00320",
+              "fauna_ms": "0.29130"
+            },
+            {
+              "t_s": "30.59946",
+              "frame_ms": "3.12070",
+              "gc0": "588",
+              "explorer_ms": "1.37230",
+              "late_ms": "0.29040",
+              "gui_ms": "0.62410",
+              "terrain_install_ms": "0.00000",
+              "scheduling_ms": "0.04190",
+              "forest_ms": "0.00290",
+              "fauna_ms": "0.23900"
+            },
+            {
+              "t_s": "30.60094",
+              "frame_ms": "1.47920",
+              "gc0": "588",
+              "explorer_ms": "0.47070",
+              "late_ms": "0.30280",
+              "gui_ms": "0.02400",
+              "terrain_install_ms": "0.00000",
+              "scheduling_ms": "0.03880",
+              "forest_ms": "0.00280",
+              "fauna_ms": "0.22970"
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 12229
+        },
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "20808",
+          "seconds": "45.00312",
+          "fps": "462.36789",
+          "p50_ms": "2.01120",
+          "p95_ms": "3.38750",
+          "p99_ms": "4.88230",
+          "max_ms": "30.34660",
+          "over10ms": "2",
+          "over16ms": "2",
+          "scatter_update_ms": "0.12006",
+          "scatter_submit_ms": "0.12011",
+          "grass_submit_ms": "0.31482",
+          "weather_ms": "0.05041",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "1715",
+          "specialists": "0",
+          "mid": "1713",
+          "trees": "0",
+          "scatter_draws": "48",
+          "grass_draws": "44",
+          "grass_candidates": "509185",
+          "grass_bytes": "72834188",
+          "frustum_rejected": "64615",
+          "terrain_rejected": "0",
+          "settled": "True",
+          "start_qpc": "2431815142",
+          "end_qpc": "2881846390",
+          "gpu_ms": "1.22430",
+          "cpu_ms": "2.12377",
+          "timing_samples": "13482",
+          "gpu_drain_ms": "2.58060",
+          "start_utc": "2026-11-08T18:05:46.2708431Z",
+          "end_utc": "2026-11-08T18:06:31.2738654Z",
+          "frames_over_10ms": 2,
+          "frames_over_16_667ms": 2,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.000487200000094,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "24.16242",
+              "frame_ms": "30.34660",
+              "gc0": "599",
+              "components_ms": {
+                "late_ms": 0.4474,
+                "explorer_ms": 0.3299,
+                "cover_draw_ms": 0.2914,
+                "humans_ms": 0.0798,
+                "player_ms": 0.0528
+              }
+            },
+            {
+              "t_s": "16.46641",
+              "frame_ms": "18.93830",
+              "gc0": "599",
+              "components_ms": {
+                "explorer_ms": 2.2379,
+                "scatter_ms": 1.7049,
+                "late_ms": 1.2106,
+                "batches_ms": 1.053,
+                "batch_collect_ms": 0.9491
+              }
+            },
+            {
+              "t_s": "22.67605",
+              "frame_ms": "9.71250",
+              "gc0": "599",
+              "components_ms": {
+                "explorer_ms": 5.3331,
+                "late_ms": 2.0662,
+                "fog_ms": 1.7079,
+                "scatter_ms": 1.3795,
+                "batches_ms": 1.3417
+              }
+            }
+          ],
+          "worst_frame_neighbourhood": [
+            {
+              "t_s": "24.13040",
+              "frame_ms": "4.02740",
+              "gc0": "599",
+              "explorer_ms": "1.54330",
+              "late_ms": "0.58600",
+              "gui_ms": "0.03570",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.06340",
+              "forest_ms": "0.00290",
+              "fauna_ms": "0.00710"
+            },
+            {
+              "t_s": "24.13208",
+              "frame_ms": "1.67750",
+              "gc0": "599",
+              "explorer_ms": "0.33540",
+              "late_ms": "0.49790",
+              "gui_ms": "0.02600",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.05070",
+              "forest_ms": "0.00280",
+              "fauna_ms": "0.00520"
+            },
+            {
+              "t_s": "24.16242",
+              "frame_ms": "30.34660",
+              "gc0": "599",
+              "explorer_ms": "0.32990",
+              "late_ms": "0.44740",
+              "gui_ms": "0.05040",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.04720",
+              "forest_ms": "0.00290",
+              "fauna_ms": "0.00500"
+            },
+            {
+              "t_s": "24.16571",
+              "frame_ms": "3.28260",
+              "gc0": "599",
+              "explorer_ms": "0.46910",
+              "late_ms": "0.61020",
+              "gui_ms": "0.03440",
+              "terrain_install_ms": "0.00020",
+              "scheduling_ms": "0.07030",
+              "forest_ms": "0.00490",
+              "fauna_ms": "0.00690"
+            },
+            {
+              "t_s": "24.16746",
+              "frame_ms": "1.75240",
+              "gc0": "599",
+              "explorer_ms": "0.36590",
+              "late_ms": "0.53370",
+              "gui_ms": "0.02880",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.06580",
+              "forest_ms": "0.00290",
+              "fauna_ms": "0.00620"
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 11105
+        }
+      ]
+    },
+    "dry-b": {
+      "directory": "artifacts\\geography-night-20261108\\final-idle-dry-b-v1",
+      "complete_utc": "2026-11-08T18:11:42.1652932Z",
+      "build": {
+        "BuiltUtc": "2026-11-08T17:34:54.3207873Z",
+        "SourceCommit": "79c7249461bb3d96942529345f2dddf7d4296860",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "8a93587485effed3d1f4d049ecde450341e7027a8a191d644b8bee106839ba59"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "bce915412a51a6988a38b043feb40cd49dc78229e1e1d5809f9e5e8e73193ce7"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "7f29a9ad89672bd96406b05f94aafad10f2a939a1ae54a23569f667d0be0ffe9"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "d301b46bac4724cb9c2a3db8d6d58c3c2da85b27cf3567cf1abe7c254f9ba04a"
+      },
+      "input_sha256": "B500DC328BB3E0B3B492B844D743244830145511759028391C9A26A61131C4E3",
+      "focus": "barchan-dunes travel-whip-current focused_frames=35234 unfocused_frames=0\ndense-tropicalrainforest travel-whip-current focused_frames=9218 unfocused_frames=0\n",
+      "site_receipts": "barchan-dunes requested=(0.132257016,0.908432958,0.396557236); actual=(0.132257016,0.908432959,0.396557236); displacement=0.00063710000000000014m; cell=139657; biome=Desert; landscape=SandSheet; ground=63.62m; underwater=False; water=None/NaNm; glacial=0\ndense-tropicalrainforest requested=(0.381914478,0.918764738,-0.100063418); actual=(0.381914478,0.918764738,-0.100063418); displacement=0m; cell=89820; biome=TropicalRainforest; landscape=Rainforest; ground=142.139m; underwater=False; water=River/142.13882536311962m; glacial=0\n",
+      "equivalence": "48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\nbarchan-dunes: 13895 loading/idle readiness comparisons passed.\n48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\ndense-tropicalrainforest: 20164 loading/idle readiness comparisons passed.\n",
+      "settings": "barchan-dunes canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nbarchan-dunes saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\ndense-tropicalrainforest canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\ndense-tropicalrainforest saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\n",
+      "case_settings": "barchan-dunes travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nbarchan-dunes travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\ndense-tropicalrainforest travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\ndense-tropicalrainforest travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+      "frames": 44452,
+      "rows": [
+        {
+          "site": "barchan-dunes",
+          "cell": "139657",
+          "biome": "Desert",
+          "relief": "24",
+          "case": "travel-whip-current",
+          "frames": "35234",
+          "seconds": "45.00342",
+          "fps": "782.91827",
+          "p50_ms": "1.22930",
+          "p95_ms": "1.76690",
+          "p99_ms": "2.45360",
+          "max_ms": "12.14240",
+          "over10ms": "3",
+          "over16ms": "0",
+          "scatter_update_ms": "0.04933",
+          "scatter_submit_ms": "0.02287",
+          "grass_submit_ms": "0.03719",
+          "weather_ms": "0.03256",
+          "tiles": "202",
+          "wanted": "196",
+          "objects": "22",
+          "specialists": "0",
+          "mid": "22",
+          "trees": "0",
+          "scatter_draws": "4",
+          "grass_draws": "0",
+          "grass_candidates": "0",
+          "grass_bytes": "0",
+          "frustum_rejected": "2177",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "937048629",
+          "end_qpc": "1387082868",
+          "gpu_ms": "1.10870",
+          "cpu_ms": "1.28223",
+          "timing_samples": "29067",
+          "gpu_drain_ms": "1.17730",
+          "start_utc": "2026-11-08T18:08:07.5452446Z",
+          "end_utc": "2026-11-08T18:08:52.5500584Z",
+          "frames_over_10ms": 3,
+          "frames_over_16_667ms": 0,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.00218680000013,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "38.13274",
+              "frame_ms": "12.14240",
+              "gc0": "592",
+              "components_ms": {
+                "explorer_ms": 0.3187,
+                "late_ms": 0.1307,
+                "humans_ms": 0.0853,
+                "player_ms": 0.0631,
+                "player_water_ms": 0.0572
+              }
+            },
+            {
+              "t_s": "1.85657",
+              "frame_ms": "11.95520",
+              "gc0": "591",
+              "components_ms": {
+                "sky_ms": 0.3911,
+                "explorer_ms": 0.2696,
+                "late_ms": 0.1257,
+                "humans_ms": 0.0754,
+                "player_ms": 0.0595
+              }
+            },
+            {
+              "t_s": "38.11208",
+              "frame_ms": "11.07360",
+              "gc0": "591",
+              "components_ms": {
+                "explorer_ms": 0.3496,
+                "late_ms": 0.1418,
+                "humans_ms": 0.0761,
+                "player_ms": 0.0737,
+                "terrain_retirement_ms": 0.0704
+              }
+            }
+          ],
+          "worst_frame_neighbourhood": [
+            {
+              "t_s": "38.11658",
+              "frame_ms": "4.49720",
+              "gc0": "591",
+              "explorer_ms": "0.67500",
+              "late_ms": "0.11340",
+              "gui_ms": "0.06910",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.03340",
+              "forest_ms": "0.00180",
+              "fauna_ms": "0.00270"
+            },
+            {
+              "t_s": "38.12059",
+              "frame_ms": "4.01600",
+              "gc0": "591",
+              "explorer_ms": "0.28160",
+              "late_ms": "0.11540",
+              "gui_ms": "0.01940",
+              "terrain_install_ms": "0.00000",
+              "scheduling_ms": "0.03110",
+              "forest_ms": "0.00170",
+              "fauna_ms": "0.00250"
+            },
+            {
+              "t_s": "38.13274",
+              "frame_ms": "12.14240",
+              "gc0": "592",
+              "explorer_ms": "0.31870",
+              "late_ms": "0.13070",
+              "gui_ms": "0.02680",
+              "terrain_install_ms": "0.00020",
+              "scheduling_ms": "0.03640",
+              "forest_ms": "0.00190",
+              "fauna_ms": "0.00260"
+            },
+            {
+              "t_s": "38.13376",
+              "frame_ms": "1.02210",
+              "gc0": "592",
+              "explorer_ms": "0.28200",
+              "late_ms": "0.12230",
+              "gui_ms": "0.02780",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.03370",
+              "forest_ms": "0.00180",
+              "fauna_ms": "0.00250"
+            },
+            {
+              "t_s": "38.13545",
+              "frame_ms": "1.69230",
+              "gc0": "592",
+              "explorer_ms": "0.35910",
+              "late_ms": "0.14310",
+              "gui_ms": "0.01870",
+              "terrain_install_ms": "0.00020",
+              "scheduling_ms": "0.03980",
+              "forest_ms": "0.00210",
+              "fauna_ms": "0.00270"
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 30004
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "cell": "89820",
+          "biome": "TropicalRainforest",
+          "relief": "109",
+          "case": "travel-whip-current",
+          "frames": "9218",
+          "seconds": "45.01447",
+          "fps": "204.77858",
+          "p50_ms": "4.52370",
+          "p95_ms": "7.99200",
+          "p99_ms": "10.14810",
+          "max_ms": "17.43950",
+          "over10ms": "108",
+          "over16ms": "1",
+          "scatter_update_ms": "0.45797",
+          "scatter_submit_ms": "0.44331",
+          "grass_submit_ms": "0.39856",
+          "weather_ms": "0.07540",
+          "tiles": "204",
+          "wanted": "196",
+          "objects": "3707",
+          "specialists": "1158",
+          "mid": "1047",
+          "trees": "1282",
+          "scatter_draws": "142",
+          "grass_draws": "44",
+          "grass_candidates": "615460",
+          "grass_bytes": "86996640",
+          "frustum_rejected": "540468",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "2627226226",
+          "end_qpc": "3077370969",
+          "gpu_ms": "3.74290",
+          "cpu_ms": "4.91472",
+          "timing_samples": "7415",
+          "gpu_drain_ms": "4.47550",
+          "start_utc": "2026-11-08T18:10:56.5635478Z",
+          "end_utc": "2026-11-08T18:11:41.5776931Z",
+          "frames_over_10ms": 108,
+          "frames_over_16_667ms": 1,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.00997379999991,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "0.07925",
+              "frame_ms": "17.43950",
+              "gc0": "610",
+              "components_ms": {
+                "late_ms": 0.953,
+                "explorer_ms": 0.9203,
+                "fauna_ms": 0.4757,
+                "cover_draw_ms": 0.4184,
+                "animal_move_ms": 0.1421
+              }
+            },
+            {
+              "t_s": "16.82278",
+              "frame_ms": "14.40270",
+              "gc0": "610",
+              "components_ms": {
+                "explorer_ms": 7.4633,
+                "scatter_ms": 6.4308,
+                "batches_ms": 3.4519,
+                "late_ms": 3.2525,
+                "batch_collect_ms": 2.9751
+              }
+            },
+            {
+              "t_s": "16.22810",
+              "frame_ms": "13.54050",
+              "gc0": "610",
+              "components_ms": {
+                "explorer_ms": 8.8502,
+                "scatter_ms": 6.0974,
+                "batches_ms": 6.0707,
+                "batch_collect_ms": 5.3781,
+                "scatter_append_ms": 4.1366
+              }
+            }
+          ],
+          "worst_frame_neighbourhood": [
+            {
+              "t_s": "0.05600",
+              "frame_ms": "11.60680",
+              "gc0": "609",
+              "explorer_ms": "6.29540",
+              "late_ms": "1.06810",
+              "gui_ms": "0.06740",
+              "terrain_install_ms": "0.00020",
+              "scheduling_ms": "0.06160",
+              "forest_ms": "0.00270",
+              "fauna_ms": "2.24640"
+            },
+            {
+              "t_s": "0.06181",
+              "frame_ms": "5.81180",
+              "gc0": "609",
+              "explorer_ms": "0.94890",
+              "late_ms": "0.84760",
+              "gui_ms": "0.07460",
+              "terrain_install_ms": "0.00020",
+              "scheduling_ms": "0.05450",
+              "forest_ms": "0.00300",
+              "fauna_ms": "0.60520"
+            },
+            {
+              "t_s": "0.07925",
+              "frame_ms": "17.43950",
+              "gc0": "610",
+              "explorer_ms": "0.92030",
+              "late_ms": "0.95300",
+              "gui_ms": "0.06110",
+              "terrain_install_ms": "0.00020",
+              "scheduling_ms": "0.05600",
+              "forest_ms": "0.00330",
+              "fauna_ms": "0.47570"
+            },
+            {
+              "t_s": "0.08518",
+              "frame_ms": "5.93460",
+              "gc0": "610",
+              "explorer_ms": "3.70010",
+              "late_ms": "0.87010",
+              "gui_ms": "0.05660",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.04720",
+              "forest_ms": "0.00210",
+              "fauna_ms": "0.44760"
+            },
+            {
+              "t_s": "0.08899",
+              "frame_ms": "3.80560",
+              "gc0": "610",
+              "explorer_ms": "1.07980",
+              "late_ms": "1.08450",
+              "gui_ms": "0.04670",
+              "terrain_install_ms": "0.00010",
+              "scheduling_ms": "0.05270",
+              "forest_ms": "0.00310",
+              "fauna_ms": "0.53830"
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 8
+        }
+      ]
+    },
+    "dry-a": {
+      "directory": "artifacts\\geography-night-20261108\\final-idle-dry-a-v1",
+      "complete_utc": "2026-11-08T18:17:00.2475594Z",
+      "build": {
+        "BuiltUtc": "2026-11-08T13:43:41.6510491Z",
+        "SourceCommit": "9cb2eb010c1dc88950b6fc1b328989896f729383",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "401830a1a9f04b25eee8a5a384842f4973fb2d169506379ff153ba53cc23d971"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "04d588ae6aedc3cd76ab389392a996405ce5ed67d0be67ae927f024d41fe87be"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "05937fe7de52474ce9bc67252d857429e5ea9d812a5b1087b95003a53046f418"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "3f7fc2d76bc9001837c02df1af5d4ea095e3881a8cf0e2c8793acd3d5de91f80"
+      },
+      "input_sha256": "B500DC328BB3E0B3B492B844D743244830145511759028391C9A26A61131C4E3",
+      "focus": "barchan-dunes travel-whip-current focused_frames=34896 unfocused_frames=0\ndense-tropicalrainforest travel-whip-current focused_frames=9169 unfocused_frames=0\n",
+      "site_receipts": "barchan-dunes requested=(0.132257016,0.908432958,0.396557236); actual=(0.132257016,0.908432959,0.396557236); displacement=0.00063710000000000014m; cell=139657; biome=Desert; landscape=SandSheet; ground=63.62m; underwater=False; water=None/NaNm; glacial=0\ndense-tropicalrainforest requested=(0.381914478,0.918764738,-0.100063418); actual=(0.381914478,0.918764738,-0.100063418); displacement=0m; cell=89820; biome=TropicalRainforest; landscape=Rainforest; ground=142.139m; underwater=False; water=River/142.13882536311962m; glacial=0\n",
+      "equivalence": "48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\nbarchan-dunes: 14027 loading/idle readiness comparisons passed.\n48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.\ndense-tropicalrainforest: 20035 loading/idle readiness comparisons passed.\n",
+      "settings": "barchan-dunes canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nbarchan-dunes saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\ndense-tropicalrainforest canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\ndense-tropicalrainforest saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\n",
+      "case_settings": "barchan-dunes travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nbarchan-dunes travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\ndense-tropicalrainforest travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\ndense-tropicalrainforest travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+      "frames": 44065,
+      "rows": [
+        {
+          "site": "barchan-dunes",
+          "cell": "139657",
+          "biome": "Desert",
+          "relief": "24",
+          "case": "travel-whip-current",
+          "frames": "34896",
+          "seconds": "45.00194",
+          "fps": "775.43327",
+          "p50_ms": "1.23520",
+          "p95_ms": "1.77840",
+          "p99_ms": "2.52620",
+          "max_ms": "16.66540",
+          "over10ms": "4",
+          "over16ms": "0",
+          "scatter_update_ms": "0.04974",
+          "scatter_submit_ms": "0.02302",
+          "grass_submit_ms": "0.03724",
+          "weather_ms": "0.03367",
+          "tiles": "202",
+          "wanted": "196",
+          "objects": "22",
+          "specialists": "0",
+          "mid": "22",
+          "trees": "0",
+          "scatter_draws": "4",
+          "grass_draws": "0",
+          "grass_candidates": "0",
+          "grass_bytes": "0",
+          "frustum_rejected": "2177",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "990948402",
+          "end_qpc": "1440967806",
+          "gpu_ms": "1.13289",
+          "cpu_ms": "1.29219",
+          "timing_samples": "29787",
+          "gpu_drain_ms": "1.62630",
+          "start_utc": "2026-11-08T18:13:23.8772706Z",
+          "end_utc": "2026-11-08T18:14:08.8802051Z",
+          "frames_over_10ms": 4,
+          "frames_over_16_667ms": 0,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.000261400000085,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "16.38827",
+              "frame_ms": "16.66540",
+              "gc0": "585",
+              "components_ms": {
+                "explorer_ms": 2.0116,
+                "late_ms": 0.667,
+                "coverage_ms": 0.5037,
+                "forest_draw_ms": 0.4967,
+                "fog_ms": 0.4708
+              }
+            },
+            {
+              "t_s": "16.29733",
+              "frame_ms": "14.52240",
+              "gc0": "584",
+              "components_ms": {
+                "explorer_ms": 1.1935,
+                "coverage_ms": 0.4651,
+                "terrain_install_ms": 0.3138,
+                "late_ms": 0.1812,
+                "player_ms": 0.1021
+              }
+            },
+            {
+              "t_s": "38.51578",
+              "frame_ms": "13.79390",
+              "gc0": "586",
+              "components_ms": {
+                "explorer_ms": 0.4904,
+                "late_ms": 0.2244,
+                "humans_ms": 0.1414,
+                "player_ms": 0.1039,
+                "player_water_ms": 0.0915
+              }
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 12622
+        },
+        {
+          "site": "dense-tropicalrainforest",
+          "cell": "89820",
+          "biome": "TropicalRainforest",
+          "relief": "109",
+          "case": "travel-whip-current",
+          "frames": "9169",
+          "seconds": "45.01571",
+          "fps": "203.68444",
+          "p50_ms": "4.53170",
+          "p95_ms": "8.03860",
+          "p99_ms": "10.30870",
+          "max_ms": "20.07520",
+          "over10ms": "122",
+          "over16ms": "1",
+          "scatter_update_ms": "0.46355",
+          "scatter_submit_ms": "0.46263",
+          "grass_submit_ms": "0.40440",
+          "weather_ms": "0.07610",
+          "tiles": "204",
+          "wanted": "198",
+          "objects": "3704",
+          "specialists": "1157",
+          "mid": "1045",
+          "trees": "1282",
+          "scatter_draws": "149",
+          "grass_draws": "44",
+          "grass_candidates": "615460",
+          "grass_bytes": "86996640",
+          "frustum_rejected": "540486",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "2698859667",
+          "end_qpc": "3149016774",
+          "gpu_ms": "3.75851",
+          "cpu_ms": "4.94102",
+          "timing_samples": "7540",
+          "gpu_drain_ms": "5.13020",
+          "start_utc": "2026-11-08T18:16:14.6681317Z",
+          "end_utc": "2026-11-08T18:16:59.6847064Z",
+          "frames_over_10ms": 122,
+          "frames_over_16_667ms": 1,
+          "frames_over_33_333ms": 0,
+          "frame_sum_seconds": 45.010551400000125,
+          "worst_indexed_trace_samples": [
+            {
+              "t_s": "0.08611",
+              "frame_ms": "20.07520",
+              "gc0": "603",
+              "components_ms": {
+                "explorer_ms": 4.1839,
+                "scatter_ms": 3.137,
+                "batches_ms": 3.0191,
+                "batch_collect_ms": 2.5278,
+                "scatter_append_ms": 1.7708
+              }
+            },
+            {
+              "t_s": "16.86284",
+              "frame_ms": "14.68960",
+              "gc0": "603",
+              "components_ms": {
+                "explorer_ms": 8.7137,
+                "scatter_ms": 7.5594,
+                "batches_ms": 3.9411,
+                "forest_ms": 3.574,
+                "batch_collect_ms": 3.3769
+              }
+            },
+            {
+              "t_s": "28.99970",
+              "frame_ms": "14.65820",
+              "gc0": "603",
+              "components_ms": {
+                "explorer_ms": 9.0921,
+                "scatter_ms": 5.6938,
+                "batches_ms": 3.0803,
+                "batch_collect_ms": 2.6241,
+                "scatter_plan_ms": 2.5846
+              }
+            }
+          ],
+          "worst_frame_trace_index_zero_based": 9
+        }
+      ]
+    }
+  },
+  "spike_attribution": "Three candidate worst-frame samples coincide with a GC0 counter increase (dune, mangrove, jungle). Salt-marsh30.35ms spike has no collection-counter increase and is not explained by same-index recorded CPU sections. Correlation is not full causality; instrumentation is incomplete and spans can overlap/delay. No solved-spike claim.",
+  "selected_slot": "slot-b",
+  "selected_source": "79c7249461bb3d96942529345f2dddf7d4296860",
+  "selection_reason": "Dry routes effectively unchanged; added wetland plants cost5.4/6.4percent at checked water sites. Accepted as a measured feature tradeoff; no guaranteed frame floor or global stutter improvement.",
+  "shortcut": {
+    "Target": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
+    "WorkingDirectory": "C:\\Users\\kille\\Desktop\\WorldGen",
+    "Arguments": "",
+    "Icon": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe,0"
+  },
+  "known_issues": [
+    "Absolute100FPS floor remains unmet",
+    "Legacy river-bank overlap/gap is unresolved; failed width prototype absent from main",
+    "Smaller rivers remain regular/ribbon-like",
+    "Wetland art and broader regional diversity need further work"
+  ],
+  "diagnostic_limit": "Timing traces enabled for both slots. Harness allocates List<StutterRow>(30000) and grows it if exceeded; candidate dune worst index30004 coincides with GC counter increase shortly after that boundary. Jungle worst samples are indices8/9 near measurement startup. Some worst frames may include diagnostic allocations/collection. These records alone cannot isolate normal-game spike causes. No gameplay spike-elimination claim.",
+  "final_package_checks": [
+    {
+      "path": "WorldGen_Data/Managed/Assembly-CSharp.dll",
+      "sha256": "c0df9d34909a548eb2c68be498994f5e74448cba48d2c63e7734939e9a242d0b",
+      "matches_measured_package": true
+    },
+    {
+      "path": "WorldGen_Data/Managed/WorldGen.Core.dll",
+      "sha256": "8a93587485effed3d1f4d049ecde450341e7027a8a191d644b8bee106839ba59",
+      "matches_measured_package": true
+    },
+    {
+      "path": "TerrainWorker/WorldGen.Cli.exe",
+      "sha256": "d301b46bac4724cb9c2a3db8d6d58c3c2da85b27cf3567cf1abe7c254f9ba04a",
+      "matches_measured_package": true
+    }
+  ],
+  "report": {
+    "path": "docs\\reports\\geography-20261108\\WorldGen - Geography Overnight 2026-11-08.pdf",
+    "sha256": "5c0a21e994835f6a1a0199aa3f67ca3396c13b5bc7cce8e435f1ba08e43f66b6",
+    "pages": 5,
+    "actual_game_captures": 10,
+    "all_pages_rendered_and_visually_inspected": true,
+    "chrome_windows": [
+      {
+        "title": "WorldGen - Geography Overnight - Google Chrome",
+        "bounds": [
+          -1896,
+          24,
+          -24,
+          1016
+        ]
+      }
+    ],
+    "image_inputs": [
+      {
+        "file": "river-before.jpg",
+        "sha256": "da20a56b4a1a3690981ca47147268a3ab3151dbd4c4e997ed5c27bbc434df641",
+        "bytes": 472454
+      },
+      {
+        "file": "river-banks.jpg",
+        "sha256": "0a98135cd60fd62a7568a3a0b342b5a164a69939a3de61e4f9bc8f18605c6747",
+        "bytes": 502584
+      },
+      {
+        "file": "river-ground.jpg",
+        "sha256": "79af0f2fbbb5ffe66424ef785ccb00b65100e34362f56e3688d7ecba51fa04ee",
+        "bytes": 361368
+      },
+      {
+        "file": "pond-shore-review.jpg",
+        "sha256": "f0e78de444bd9dc0dd548b6e7fc19bfb490f16737a16749ea1e9b98bdc49858c",
+        "bytes": 348473
+      },
+      {
+        "file": "crescent-raking.jpg",
+        "sha256": "4922efb04f97990530b182c59d1cdad9179366ad8ed6fdceb16365d921baccc6",
+        "bytes": 102822
+      },
+      {
+        "file": "crescent-face.jpg",
+        "sha256": "dcabe4e9a62aecdfaedf4129a25a3aa328843c5497aacca70a04c4651255eda6",
+        "bytes": 146796
+      },
+      {
+        "file": "wetland-fresh-before.jpg",
+        "sha256": "e6942ea7c519dd05e05229db7e15386f54ed3385be0c56bfb2404b5227a7ad8f",
+        "bytes": 264328
+      },
+      {
+        "file": "wetland-fresh-after.jpg",
+        "sha256": "b35c57be2b9c303fc12e05f595d73d652210a4abe89a18482adba0150585c60e",
+        "bytes": 259798
+      },
+      {
+        "file": "tidal-water-before.jpg",
+        "sha256": "86d7c7e1a9d77db4cccd3e578615d092e2f6ad39b016e958ddfa3b3969708050",
+        "bytes": 280870
+      },
+      {
+        "file": "tidal-water-after.jpg",
+        "sha256": "fb6e742ce40c87f5a0ae391ac7f6062167b129c0f81f8ef67c6deb669f3ec736",
+        "bytes": 277121
+      }
+    ]
+  },
+  "final_player_log_checks": [
+    {
+      "run": "water-a",
+      "sha256": "a385360f8c340864fe3c6e89f13b34da81abf8b705966dfc7e51c588042131ea",
+      "runtime_error_matches": []
+    },
+    {
+      "run": "water-b",
+      "sha256": "2647ca93027bd61775ea87859cde14774187ea2e6a0b72e553fdac8b254b83c0",
+      "runtime_error_matches": []
+    },
+    {
+      "run": "dry-b",
+      "sha256": "bf4c019741a4cf9c03452ba4f6ce35b0b5cbe2aa7bdfec88299a5bc2a8e18117",
+      "runtime_error_matches": []
+    },
+    {
+      "run": "dry-a",
+      "sha256": "383f02a7456a6a73e2fd1c25106c4343942d3231a9dde39a9a9b55065dd450ec",
+      "runtime_error_matches": []
+    }
+  ],
+  "final_source_audit": "No runtime changes pending beyond selected79c72494; checked positive reed pigment bounds, forest-node conservative full-domain guard, map-vs-physical hint isolation. Approved textures unchanged. No animal/human or sky/weather appearance changes."
+}

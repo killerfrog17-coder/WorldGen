@@ -1,0 +1,348 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 690.6897637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 518.4510039370081,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\river-before.jpg",
+    "bottom": 534.3310039370081,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 507.5710039370081,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\river-banks.jpg",
+    "bottom": 534.3310039370081,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 226.69100393700808,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\river-ground.jpg",
+    "bottom": 242.57100393700807,
+    "height": 250
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 200.17100393700807,
+    "height": 11.52
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 690.6897637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 366.21724409448836,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\pond-shore-review.jpg",
+    "bottom": 382.09724409448836,
+    "height": 296.5925196850394
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 336.49724409448834,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 305.8972440944883,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 279.1772440944883,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 261.3772440944883,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 430.6097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\crescent-raking.jpg",
+    "bottom": 446.4897637795277,
+    "height": 245
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 154.72976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\crescent-face.jpg",
+    "bottom": 170.60976377952773,
+    "height": 245
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 717.5697637795278,
+    "height": 11.52
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 679.9697637795277,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 507.73100393700804,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\wetland-fresh-before.jpg",
+    "bottom": 523.611003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 507.73100393700804,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\wetland-fresh-after.jpg",
+    "bottom": 523.611003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 332.49224409448834,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\tidal-water-before.jpg",
+    "bottom": 348.37224409448834,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 332.49224409448834,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\geography-20261108\\tidal-water-after.jpg",
+    "bottom": 348.37224409448834,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 294.4522440944883,
+    "height": 23.04
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 270.93224409448834,
+    "height": 11.52
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 523.4497637795278,
+    "height": 23.04
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 496.72976377952773,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 466.1297637795277,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 431.0897637795277,
+    "height": 23.04
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 404.36976377952766,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 373.76976377952764,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 340.00976377952765,
+    "height": 21.76
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 306.24976377952765,
+    "height": 21.76
+  }
+]

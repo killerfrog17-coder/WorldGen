@@ -17,5 +17,11 @@
     "Further geography only after river change is satisfactory; dune diversity and wetland vegetation are candidates",
     "One concise final screenshot PDF and regular focused Git pushes; save honest continuation state if interrupted"
   ],
-  "status": "Selected/protected A9cb clean FULL retains river continuity, finite pond coverage and crescent dune fields. These passed native reviews and matched moving routes. Wetland habitat revision passed ecological/physical/native tests but its initial performance failed; B904 is held back. Far reed geometry and batching are being tested against presentation variability. New all-species far batching is unbuilt. No additional geography feature before that performance gate is resolved. One final screenshot PDF at noon/18Z, not yet emitted. Legacy source52127 bank gap remains unresolved: diagnostic shows fixed water above natural bank until roughly32m farther out; no runtime bank fix has been written."
+  "status": "Delivered selectedB79c72494 FULL MonoNONDEV: continuous river bars, finite pond shores, crescent dunes, balanced wetland vegetation, display-map query order fix and empty-forest placement pruning. Four clean paired moving routes completed167776focused/0unfocused frames. Dry means unchanged, added wetland plants cost5-6percent at checked sites; absolute100FPSfloor unmet. Failed river-width prototype remains isolated on pushed experiment branch ac524a33, absent from main. Final five-page/10-screenshot PDF and canonical inputs retained under docs/reports/geography-20261108.",
+  "next_session": [
+    "Owner playtests selected checkpoint; NPC work only when requested next",
+    "Retain approved ground/bark/cliff textures",
+    "Remaining geography: asymmetric/backwater river-bank containment, small-river naturalism, wetland art and further regional variety",
+    "Performance follow-up: three candidate worst frames coincide with GC counters; salt-marsh30ms spike unattributed; no solved-spike claim"
+  ]
 }

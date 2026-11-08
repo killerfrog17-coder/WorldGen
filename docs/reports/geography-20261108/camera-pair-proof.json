@@ -1,0 +1,21 @@
+{
+  "scope": "Complete native camera files for the two accepted wetland image pairs. Retained here so disposable artifacts are not required to inspect the comparison.",
+  "pairs": [
+    {
+      "kind": "warmmarsh",
+      "sha256": "addd033355be45ce9cfe66aedc67641941ee67a9dcf3e274e83d74b6ffc9b6e3",
+      "complete_camera_files_equal": true,
+      "contents": "wide camera=(105.00, 42.50, -21.00) look=(-105.00, -42.00, 21.00) ground=0.1072893 eyeClearance=42.3928 solarHour=12\r\nground camera=(10.00, 2.04, 0.00) look=(-10.00, -1.00, 0.00) ground=0.239657 eyeClearance=1.8 solarHour=12\r\nwetland-waterline camera=(4.00, 2.01, 0.00) look=(-4.00, -0.40, 0.00) ground=0.2106861 eyeClearance=1.8 solarHour=12\r\n",
+      "before_path": "artifacts\\landscape-20261103\\wetland-vegetation-before-v1-20261108-warmmarsh\\cameras.txt",
+      "after_path": "artifacts\\landscape-20261103\\wetland-balanced-v1-20261108-warmmarsh\\cameras.txt"
+    },
+    {
+      "kind": "mangrove",
+      "sha256": "2b34b2ddd0c91ca12d5769c29e425f243174528ec537cebafbc0392be2dd099d",
+      "complete_camera_files_equal": true,
+      "contents": "wide camera=(273.19, 180.50, 368.74) look=(-273.19, -180.00, -368.74) ground=-0.5167575 eyeClearance=181.016 solarHour=12\r\nground camera=(4.26, 1.72, 9.05) look=(-4.26, -1.00, -9.05) ground=-0.08228189 eyeClearance=1.8 solarHour=12\r\nroots-knee camera=(-12.08, 1.88, 6.02) look=(0.00, -1.14, 2.20) ground=0.08486619 eyeClearance=1.8 solarHour=12\r\nroots-prop camera=(5.48, 1.74, 1.92) look=(0.00, -0.56, 2.20) ground=-0.05623876 eyeClearance=1.8 solarHour=12\r\nroots-pneumatophore camera=(4.15, 1.69, 20.56) look=(0.00, -0.53, 2.20) ground=-0.1145545 eyeClearance=1.8 solarHour=12\r\ntidal-waterline camera=(61.92, 1.45, 23.76) look=(-1.70, -1.10, -3.62) ground=-0.3546727 eyeClearance=1.8 solarHour=12\r\ncoast-along camera=(262.87, 1.38, -145.94) look=(-262.87, -30.07, 145.94) ground=-0.4221976 eyeClearance=1.8 solarHour=12\r\ncoast-seaward camera=(166.20, 105.50, 352.81) look=(-166.20, -105.00, -352.81) ground=-0.4709948 eyeClearance=105.9702 solarHour=12\r\nlandform-side camera=(300.00, 1.37, -90.00) look=(-300.00, -31.32, 90.00) ground=-0.4280816 eyeClearance=1.8 solarHour=12\r\nlandform-overview camera=(-150.00, 240.50, -420.00) look=(150.00, -240.00, 420.00) ground=3.306402 eyeClearance=237.1928 solarHour=12\r\nlandform-morning camera=(90.00, 180.50, 450.00) look=(-90.00, -180.00, -450.00) ground=-0.5167133 eyeClearance=181.0159 solarHour=9\r\n",
+      "before_path": "artifacts\\landscape-20261103\\wetland-vegetation-before-v1-20261108-mangrove\\cameras.txt",
+      "after_path": "artifacts\\landscape-20261103\\wetland-balanced-v1-20261108-mangrove\\cameras.txt"
+    }
+  ]
+}

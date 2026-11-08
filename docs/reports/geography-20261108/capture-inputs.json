@@ -1,5 +1,5 @@
 {
-  "status": "Report inputs only; one final PDF after all accepted work",
+  "status": "Final canonical inputs;10 actual game screenshots embedded in the five-page report. Per-capture source commits retained.",
   "captures": [
     {
       "file": "river-before.jpg",
@@ -29,13 +29,13 @@
       "file": "crescent-raking.jpg",
       "source_capture": "artifacts\\landscape-20261103\\crescent-final-v1-20261108-barchandunes\\dune-raking.png",
       "source_commit": "d7790f30",
-      "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Performance pending."
+      "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Matched moving performance documented in the final report."
     },
     {
       "file": "crescent-face.jpg",
       "source_capture": "artifacts\\landscape-20261103\\crescent-final-v1-20261108-barchandunes\\dune-face.png",
       "source_commit": "d7790f30",
-      "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Performance pending."
+      "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Matched moving performance documented in the final report."
     },
     {
       "file": "wetland-fresh-before.jpg",
@@ -51,9 +51,9 @@
     },
     {
       "file": "wetland-fresh-after.jpg",
-      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-v1-20261108-warmmarsh\\wetland-waterline.png",
-      "source_commit": "4a92fd82",
-      "caption": "Accepted freshwater placement revision; later changes are marine-only."
+      "source_capture": "artifacts/landscape-20261103/wetland-balanced-v1-20261108-warmmarsh/wetland-waterline.png",
+      "source_commit": "1eebf924",
+      "caption": "Final balanced twofold establishment; actual in-game freshwater shoreline, Medium. Native checks passed; paired camera file byte-exact to baseline."
     },
     {
       "file": "tidal-water-before.jpg",
@@ -63,9 +63,11 @@
     },
     {
       "file": "tidal-water-after.jpg",
-      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-v3-20261108-mangrove\\tidal-waterline.png",
-      "source_commit": "cb76798f",
-      "caption": "Revised actual tidal waterline with coastal grass/rush forms; native runtime passed, FPS pending."
+      "source_capture": "artifacts/landscape-20261103/wetland-balanced-v1-20261108-mangrove/tidal-waterline.png",
+      "source_commit": "1eebf924",
+      "caption": "Final balanced tidal grasses/rushes; actual in-game capture, Medium. Native checks passed; entire camera file byte-exact to baseline."
     }
-  ]
+  ],
+  "selected_player_source": "79c72494",
+  "camera_proof": "camera-pair-proof.json"
 }
