@@ -41,7 +41,7 @@ public sealed partial class LocalTerrainExplorer
             var result=ExecuteExplorerCommand(message)??command?.Invoke(message)??new PlayCommandResult(false,"Commands are not ready yet.");
             foreach(string line in result.Lines)chatLines.Add(new ChatLine{Text=line,At=Time.realtimeSinceStartupAsDouble,Error=!result.Success});
         }
-        else chatLines.Add(new ChatLine{Text="<You> "+message,At=Time.realtimeSinceStartupAsDouble});
+        else {chatLines.Add(new ChatLine{Text="<You> "+message,At=Time.realtimeSinceStartupAsDouble});SpeakToNpc(message);}
         while(chatLines.Count>100)chatLines.RemoveAt(0);
     }
     bool HandleChatKeys()

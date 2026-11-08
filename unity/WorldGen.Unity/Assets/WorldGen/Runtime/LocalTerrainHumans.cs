@@ -138,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateHumans()
     {
         if(humanPlayer==null||!Ready||humanReviewPose)return;
-        bool stopped=paused||mapOpen||ecologyOpen||chatOpen;
+        bool stopped=paused||mapOpen||ecologyOpen||CommandChatStopped;
         float dt=stopped?0:Math.Min(.1f,Time.unscaledDeltaTime);
         bool changed=!ReferenceEquals(humanFrame,frame);
         if(changed)
@@ -173,7 +173,7 @@ public sealed partial class LocalTerrainExplorer
             {humanSpawnQueued--;SpawnHumans(1);if((System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency>2)break;}
         }
         if(profileLiving)Array.Clear(livingCosts,0,livingCosts.Length);
-        long livingTickStart=System.Diagnostics.Stopwatch.GetTimestamp();UpdateLivingHumans(stopped,dt);
+        long livingTickStart=System.Diagnostics.Stopwatch.GetTimestamp();UpdateLivingHumans(stopped,dt);UpdateNpcMinds(stopped);
         foreach(var npc in humanNpcs)
         {
             if(npc.ResidentId!=0){if(!livingBenchmarkFreeze)UpdateLivingHuman(npc,stopped,dt);continue;}
@@ -348,7 +348,7 @@ public sealed partial class LocalTerrainExplorer
     void DestroyHuman(HumanActor human){ClearNpcProps(human);DestroyInventoryVisual(human.InfantCarrier);DisposeHumanCombatSurface(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()
     {
-        CaptureLivingHumans();DisposeLivingHumans();
+        DisposeNpcMinds();CaptureLivingHumans();DisposeLivingHumans();
         RenderPipelineManager.beginCameraRendering-=BindHumanCamera;Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",0);Shader.SetGlobalFloat("_WorldGenFirstPersonBodyVisible",0);
         if(humanPlayer!=null)DestroyHuman(humanPlayer);humanPlayer=null;
         foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanLibrary=null;

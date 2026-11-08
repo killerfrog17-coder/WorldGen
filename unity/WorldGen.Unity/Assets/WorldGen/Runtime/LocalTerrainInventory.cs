@@ -163,6 +163,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var target=AimedPossession();
             float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
+            if(TryNpcInteract(itemDistance))return true;
             if(TryCampInteract(itemDistance))return true;
             if(TryNatureInteract(itemDistance))return true;
             if(TryWaterInteract(itemDistance))return true;

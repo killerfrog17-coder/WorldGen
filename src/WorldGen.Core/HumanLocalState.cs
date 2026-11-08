@@ -10,9 +10,12 @@ namespace WorldGen.Core
         public List<HumanPersonMemory> People=new List<HumanPersonMemory>();
         public List<HumanCampMemory> Camps=new List<HumanCampMemory>();
         public List<HumanGroupMemory> Groups=new List<HumanGroupMemory>();
-        public HumanLocalState Copy()=>new HumanLocalState{People=People.Select(p=>p.Copy()).ToList(),Camps=Camps.Select(c=>c.Copy()).ToList(),Groups=Groups.Select(g=>g.Copy()).ToList()};
+        [System.Runtime.Serialization.OptionalField] public List<NpcMemory> Minds=new List<NpcMemory>();
+        public HumanLocalState Copy()=>new HumanLocalState{People=People.Select(p=>p.Copy()).ToList(),Camps=Camps.Select(c=>c.Copy()).ToList(),Groups=Groups.Select(g=>g.Copy()).ToList(),Minds=(Minds??new List<NpcMemory>()).Select(m=>m.Copy()).ToList()};
         public void Validate()
         {
+            Minds??=new List<NpcMemory>();
+            if(Minds.Any(m=>m==null||m.Person<=0||m.Recent==null||m.Recent.Count>12||m.Recent.Any(s=>s==null||s.Length>360)||(m.Thought??"").Length>160||(m.Trigger??"").Length>160)||Minds.Select(m=>m.Person).Distinct().Count()!=Minds.Count)throw new ArgumentException("Invalid NPC memories.");
             if(People==null||Camps==null||Groups==null||People.Any(p=>p==null)||Camps.Any(c=>c==null)||Groups.Any(g=>g==null))throw new ArgumentException("Invalid local human records.");
             if(People.Select(p=>p.Person).Distinct().Count()!=People.Count||Camps.Select(c=>c.Site).Distinct().Count()!=Camps.Count||Groups.Select(g=>g.Group).Distinct().Count()!=Groups.Count)throw new ArgumentException("Duplicate local human identity.");
             foreach(var p in People)if(p.Person<=0||!double.IsFinite(p.Health)||p.Health<0||p.Health>100||!double.IsFinite(p.SolarDays)||p.SolarDays<0||!double.IsFinite(p.Position.Length)||p.Position.Length>0&&Math.Abs(p.Position.Length-1)>1e-5)throw new ArgumentException("Invalid local person memory.");

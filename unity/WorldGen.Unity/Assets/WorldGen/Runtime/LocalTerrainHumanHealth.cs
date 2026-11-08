@@ -14,7 +14,7 @@ public sealed partial class LocalTerrainExplorer
             if(Vitals.Health<before){PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f,true);PaintHumanBlood(actor,hit,before-Vitals.Health);PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();CapturePlayerBlood();}
             return;
         }
-        if(actor.Health<=0)return;actor.Health=Math.Max(0,actor.Health-damage);PaintHumanBlood(actor,hit,damage);AlarmLivingGroup(actor);
+        if(actor.Health<=0)return;actor.Health=Math.Max(0,actor.Health-damage);PaintHumanBlood(actor,hit,damage);AlarmLivingGroup(actor);QueueNpcEvent(actor,"You were struck and your group is alarmed.",priority:3);
         PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f);
         if(actor.Health<=0)
         {

@@ -1,0 +1,42 @@
+{
+  "runtime": {
+    "name": "llama.cpp",
+    "version": "b12211",
+    "url": "https://github.com/ggml-org/llama.cpp/releases/download/b12211/llama-b12211-bin-win-cpu-x64.zip",
+    "sha256": "23729000408c6968faf5e322afc99319d3b8c576ba872ef7663d9b89810090f3",
+    "bytes": 24886431,
+    "license": "MIT",
+    "license_url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b12211/LICENSE"
+  },
+  "model": {
+    "name": "Qwen3.5-2B",
+    "quantization": "Q4_K_M",
+    "file": "Qwen3.5-2B-Q4_K_M.gguf",
+    "repository": "unsloth/Qwen3.5-2B-GGUF",
+    "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+    "url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf",
+    "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "bytes": 1280835840,
+    "license": "Apache-2.0",
+    "upstream": "https://huggingface.co/Qwen/Qwen3.5-2B"
+  },
+  "defaults": {
+    "threads": 2,
+    "context": 2048,
+    "max_output_tokens": 160,
+    "gpu_layers": 0,
+    "host": "127.0.0.1"
+  },
+  "rejected_baseline": {
+    "name": "Qwen3.5-0.8B",
+    "quantization": "Q4_K_M",
+    "file": "Qwen3.5-0.8B-Q4_K_M.gguf",
+    "repository": "unsloth/Qwen3.5-0.8B-GGUF",
+    "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+    "url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/6ab461498e2023f6e3c1baea90a8f0fe38ab64d0/Qwen3.5-0.8B-Q4_K_M.gguf",
+    "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+    "bytes": 532517120,
+    "license": "Apache-2.0",
+    "upstream": "https://huggingface.co/Qwen/Qwen3.5-0.8B"
+  }
+}

@@ -329,7 +329,8 @@ public sealed partial class LocalTerrainExplorer
         bool tending=group.TenderDuty?.Person==actor.ResidentId&&Time.unscaledTimeAsDouble<group.TendUntil;
         var routine=tending?group.TenderDuty:actor.Routine;actor.CurrentActivity=routine.Activity;
         V target=tending?routine.Position:LivingPosition(group,routine.Position);
-        if(!tending)target=LivingResourceTarget(actor,group,target);
+        bool mind=ApplyNpcPlan(actor,ref routine,ref target);
+        if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
         target=LivingDryGoal(actor,target);
         string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);
@@ -352,7 +353,7 @@ public sealed partial class LocalTerrainExplorer
                 actor.TargetSpeed=distance>(doorway?.2:.35)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,Math.Max(.12,distance*1.5)):0;
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
                 else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
-                else if(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare)
+                else if(!mind&&(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare))
                 {TerrainHandoff.Coordinates(frame,group.Grounded?group.Anchor:group.Situation.Camp.Position,out double gx,out double gz);actor.TargetYaw=(float)(Math.Atan2(gx-actor.Motor.X,gz-actor.Motor.Z)*180/Math.PI);}
                 // Slow down while turning, particularly near a precise work or
                 // entrance target. Otherwise a walking-speed minimum makes a

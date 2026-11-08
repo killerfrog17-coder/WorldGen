@@ -9,6 +9,7 @@ public sealed partial class LocalTerrainExplorer
     public PlayCommandResult ExecuteExplorerCommand(string text)
     {
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+        if(words.Length>0&&(words[0].Equals("/npcai",StringComparison.OrdinalIgnoreCase)||words[0].Equals("/npcthoughts",StringComparison.OrdinalIgnoreCase)))return ExecuteNpcMindCommand(words);
         if(words.Length>0&&words[0].Equals("/camps",StringComparison.OrdinalIgnoreCase))return ExecuteLivingCamps(words);
         if(words.Length>0&&words[0].Equals("/landmark",StringComparison.OrdinalIgnoreCase))return ExecuteLandmark(words);
         if(words.Length>0&&words[0].Equals("/gamemode",StringComparison.OrdinalIgnoreCase))return ExecuteGameMode(words);

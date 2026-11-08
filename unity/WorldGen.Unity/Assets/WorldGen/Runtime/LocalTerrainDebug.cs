@@ -99,7 +99,7 @@ public sealed partial class LocalTerrainExplorer
         if(debugOpen)DrawDebugOverlay();
         DrawWildlifeRadar();
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
-        DrawWorldMap();DrawPickupPrompt();DrawCraftAwareness();DrawCampUi();
+        DrawWorldMap();DrawPickupPrompt();DrawCraftAwareness();DrawCampUi();DrawNpcMind();
         }
         finally{WorldGenPerformance.TraceEnd(49,wholeGui);}
     }

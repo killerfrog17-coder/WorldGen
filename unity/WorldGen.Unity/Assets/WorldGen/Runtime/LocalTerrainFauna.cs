@@ -149,7 +149,7 @@ public sealed partial class LocalTerrainExplorer
             }
             animalPlan=null;
         }
-        bool stopped=paused||mapOpen||ecologyOpen||chatOpen;
+        bool stopped=paused||mapOpen||ecologyOpen||CommandChatStopped;
         if(!stopped&&CenterReady&&HeightAboveGround<1200&&animalPlan==null&&
            (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>50))
         {

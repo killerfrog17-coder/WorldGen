@@ -61,7 +61,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdatePlayerSurvival(double dx,double dz)
     {
         if(respawnWaiting){if(!CenterReady)return;respawnWaiting=false;}
-        if(!SurvivalActive||paused||mapOpen||ecologyOpen||chatOpen||!Ready)return;
+        if(!SurvivalActive||paused||mapOpen||ecologyOpen||CommandChatStopped||!Ready)return;
         double dt=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
         if(weatherProvider==null||dt<=0)return;
         if(Time.unscaledTimeAsDouble>=survivalEnvironmentAt)
