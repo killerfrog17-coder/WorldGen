@@ -513,7 +513,6 @@ public sealed partial class LocalTerrainExplorer
     void QueueScatterAdmission(ScatterChunk chunk,int index,int lod,float low,float high,bool shadowOnly)
     {
         if(high-low<.0001f)return;
-        if(landscapeContinuousCliffReview&&p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant))return;
         chunk.Admissions.Add(new ScatterAdmission{Index=index,Lod=lod,Low=low,High=high,ShadowOnly=shadowOnly});
     }
     void BuildScatterBatches()
@@ -702,6 +701,7 @@ public sealed partial class LocalTerrainExplorer
     void AddScatterInstanceCore(ScatterChunk chunk,int index,in ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant)
     {
         if(high-low<.0001f)return;
+        if(landscapeContinuousCliffReview&&p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant))return;
         bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&
             (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
         if(ReplaceTreeShadow(p))casts=false;
