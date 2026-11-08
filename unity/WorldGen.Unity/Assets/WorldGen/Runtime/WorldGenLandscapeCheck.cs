@@ -60,6 +60,7 @@ public sealed partial class LocalTerrainExplorer
         // The harness bypasses the main menu's preference loading. Use an
         // explicit real game preset, rather than obsolete120/450m field defaults.
         var arguments=Environment.GetCommandLineArgs();int qualityOption=Array.IndexOf(arguments,"--worldgen-landscape-quality");
+        bool presented=arguments.Contains("--worldgen-landscape-presented");
         int sourceOption=Array.IndexOf(arguments,"--worldgen-landscape-source"),pinnedSource=sourceOption<0?-1:int.Parse(arguments[sourceOption+1]);
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
         bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
@@ -373,6 +374,11 @@ public sealed partial class LocalTerrainExplorer
             Check(owner.tiles.Values.Any(t=>t.Renderers!=null&&t.Renderers.Length>1),"Flooded inlet has actual uploaded ocean renderers");
         }
         var target=new RenderTexture(1536,864,24);target.Create();var prior=RenderTexture.active;owner.view.targetTexture=target;
+        if(presented)
+        {
+            owner.view.enabled=false;
+            var display=owner.gameObject.AddComponent<WorldGenLandscapePresenter>();display.View=owner.view;display.Surface=target;
+        }
         double floor=site.Fjord.HasValue?0:site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
         var cameraReceipts=new List<string>();Color[] fallMotionPixels=null;
         IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12,bool faceCenter=false,Vector3? inspectionTarget=null)
@@ -409,6 +415,23 @@ public sealed partial class LocalTerrainExplorer
             Check(!VisiblePending(),"Visible distant-tree models complete while the review camera stays still");
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
             owner.SetFog();
+            if(presented)
+            {
+                // A slow parallax pass gives the owner spatial context. Keep
+                // exact final capture poses and reserve whip turns for stress
+                // tests. Close ground/roof poses hold still to avoid clipping.
+                bool orbit=name.StartsWith("cliff-mass-")||camera.y-cameraFloor>30;
+                var focus=camera+look;double start=Time.realtimeSinceStartupAsDouble;
+                while(Time.realtimeSinceStartupAsDouble-start<10)
+                {
+                    float t=(float)((Time.realtimeSinceStartupAsDouble-start)/10);
+                    float angle=orbit?6*Mathf.Sin(t*Mathf.PI*2):0;
+                    var scenic=focus+Quaternion.AngleAxis(angle,Vector3.up)*(camera-focus);
+                    owner.landscapeReviewCamera=scenic;owner.landscapeReviewRotation=Quaternion.LookRotation(focus-scenic);
+                    owner.UpdateCamera();yield return null;
+                }
+                owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();
+            }
             if(kind=="AlluvialRiver")Check((camera-new Vector3(0,y+.5f,0)).magnitude<owner.publishedFog*.85f,"Alluvial feature center is inside the actual camera reveal distance");
             owner.UpdatePlayerWater(true);owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());

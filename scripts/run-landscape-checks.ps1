@@ -9,6 +9,7 @@ param(
     [switch]$BarkReview,
     [switch]$WaterShadingReview,
     [switch]$CliffReview,
+    [switch]$Presented,
     [ValidateRange(0,4)][int]$PlantQuality=3,
     [int]$SourceCell=-1
 )
@@ -29,7 +30,8 @@ foreach($kind in $Kinds){
     if(Test-Path -LiteralPath (Join-Path $output 'exit-code.txt')){throw 'Preserve completed evidence and choose a new prefix.'}
     New-Item -ItemType Directory -Force -Path $output | Out-Null
     # These render into explicit textures, so no interactive window is needed.
-    $arguments=@('-batchmode','-monitor',$reviewMonitorIndex,'-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
+    $arguments=@('-monitor',$reviewMonitorIndex,'-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
+    if($Presented){$arguments+='--worldgen-landscape-presented'}else{$arguments+='-batchmode'}
     if($TreeAlphaReview){$arguments+='--worldgen-tree-alpha-review'}
     if($GrassReview){$arguments+='--worldgen-grass-review'}
     if($TreeShadowReview){$arguments+='--worldgen-tree-shadow-review'}
@@ -38,7 +40,9 @@ foreach($kind in $Kinds){
     if($CliffReview){$arguments+='--worldgen-cliff-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
     if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
-    $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
+    $style=if($Presented){'Normal'}else{'Hidden'}
+    $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle $style -PassThru
+    if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $process.Id}
     Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
     Write-Output ($kind+' EXIT '+$process.ExitCode)
