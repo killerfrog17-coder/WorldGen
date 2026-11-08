@@ -63,7 +63,7 @@ public sealed partial class WorldGenRuntime
         else
         {
             var r=new Rect(x,Screen.height*.08f,Math.Min(680,Screen.width-x-30),Screen.height*.84f);MenuCard(r);GUILayout.BeginArea(new Rect(r.x+24,r.y+22,r.width-48,r.height-44));GUILayout.Label("SETTINGS",TitleStyle(29));GUILayout.Space(12);DrawSettingsPage();
-            if(MenuButton("Back"))screen=optionsReturn;GUILayout.EndArea();
+            if(MenuButton("Back")){DisposeAiPreview();screen=optionsReturn;}GUILayout.EndArea();
         }
     }
     void DrawNewGameSetup(float width)

@@ -65,11 +65,11 @@ public static partial class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Character & help","Debug"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Character & help","Debug","AI"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
-        if(selected!=settingsCategory){settingsCategory=selected;settingsScroll=Vector2.zero;GUI.FocusControl(null);}
+        if(selected!=settingsCategory){if(settingsCategory==8)DisposeAiPreview();settingsCategory=selected;settingsScroll=Vector2.zero;GUI.FocusControl(null);}
         GUILayout.Space(12);settingsScroll=GUILayout.BeginScrollView(settingsScroll);
         switch(settingsCategory)
         {
@@ -83,6 +83,7 @@ public sealed partial class WorldGenRuntime
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;
             case 5:DrawVegetationOptions();break;
+            case 8:DrawAiSettings();break;
             case 7:
                 GUILayout.Label("CHARACTER ANIMATION",SectionStyle());
                 int animation=GUILayout.SelectionGrid(HumanAnimationOptions.Kimodo?0:1,new[]{"Kimodo · shared body","Legacy · separate first-person arms"},1);

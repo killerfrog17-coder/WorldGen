@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateNpcMinds(bool stopped)
     {
         if(closed)return;
+        npcModel?.ReleaseIfIdle();
         if(npcTalkTarget!=null&&(npcTalkTarget.Health<=0||!livingPeople.ContainsKey(npcTalkTarget.ResidentId)||HumanDistance(npcTalkTarget.Planet,Position)>24))npcTalkTarget=null;
         if(stopped)return;
         double now=Time.unscaledTimeAsDouble;
@@ -57,7 +58,7 @@ public sealed partial class LocalTerrainExplorer
             }
             catch(Exception ex){npcPlans.Remove(item.Person);npcLastError=ex.Message;if(item.Priority>=3)PostExplorerChat("NPC response unavailable: "+npcLastError,true);}
         }
-        if(npcThinking==null&&npcEvents.Count>0)
+        if(npcThinking==null&&npcEvents.Count>0&&npcModel?.IsBusy!=true)
         {
             var item=npcEvents.Take(now);
             if(item!=null&&livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<40)
@@ -72,12 +73,12 @@ public sealed partial class LocalTerrainExplorer
         }
         if(now<npcObserveAt)return;npcObserveAt=now+1.5;
         npcPlans.Keys.Where(id=>!livingPeople.ContainsKey(id)).ToList().ForEach(id=>npcPlans.Remove(id));
-        if(now<npcNextBackground)return;
+        if(now<npcNextBackground||npcModel!=null&&!npcModel.Config.BackgroundReactions)return;
         foreach(var actor in humanNpcs)
         {
             if(actor.Resident==null||actor.Health<=0||actor.CurrentActivity==HumanActivity.Sleep||PlayerRules.Identity?.Group==actor.GroupId||npcSeenVisitors.Contains(actor.GroupId))continue;
             double range=HumanDistance(actor.Planet,Position);if(range>12||!LivingNoticesVisitor(actor,range))continue;
-            npcSeenVisitors.Add(actor.GroupId);QueueNpcEvent(actor,"An unfamiliar visitor is visibly near the camp.");npcNextBackground=now+20;break;
+            npcSeenVisitors.Add(actor.GroupId);QueueNpcEvent(actor,"An unfamiliar visitor is visibly near the camp.");npcNextBackground=now+(npcModel?.Config.VisitorCooldownSeconds??20);break;
         }
     }
     IEnumerable<string> NpcTargets(HumanActor actor,long speaker)
@@ -102,7 +103,7 @@ public sealed partial class LocalTerrainExplorer
         bool sameBand=item.Speaker==0?PlayerRules.Identity?.Group==actor.GroupId:livingPeople.TryGetValue(item.Speaker,out var peer)&&peer.GroupId==actor.GroupId;
         string speakerName=sameBand?speakerPerson?.Name??"visitor":"unfamiliar visitor";
         s.Append(" Speaker: ").Append(speakerName).Append("; ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; target ").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
-        var memory=NpcMemoryFor(actor.ResidentId);foreach(var line in memory.Recent.Skip(Math.Max(0,memory.Recent.Count-2)))s.Append(" Memory: ").Append(NpcDecision.Clean(line,180));
+        var memory=NpcMemoryFor(actor.ResidentId);foreach(var line in memory.Recent.Skip(Math.Max(0,memory.Recent.Count-(npcModel?.Config.HistoryRecords??2))))s.Append(" Memory: ").Append(NpcDecision.Clean(line,180));
         s.Append(" Event: ").Append(item.Trigger).Append(". Quoted dialogue: ").Append(JsonUtility.ToJson(new NpcQuotedWords{words=item.Words}));
         return s.ToString();
     }
@@ -180,8 +181,12 @@ public sealed partial class LocalTerrainExplorer
         if(debug){if(option!="status")npcThoughts=option=="on";return new PlayCommandResult(true,"NPC thoughts: "+(npcThoughts?"on":"off")+". Shows intentions, actual actions and conditions.");}
         npcModel??=new NpcModelClient();if(option=="off"){npcModel.Dispose();npcModel=null;npcEvents.Clear();npcPlans.Clear();npcThinking=null;npcPending=null;npcModel=new NpcModelClient();npcModel.Config.Enabled=false;}
         if(option=="on"){DisposeNpcMinds();npcPending=null;npcModel=new NpcModelClient();npcModel.Config.Enabled=true;npcLastError="";}
+        if(option!="status")NpcModelClient.SaveSettings(npcModel.Config);
         return new PlayCommandResult(true,"NPC model: "+(npcModel.Config.Enabled?npcModel.Config.ModelName:"disabled")+" · "+npcModel.Status+" · "+npcModel.Requests+" requests · last "+npcModel.LastSeconds.ToString("0.0")+"s",NpcModelClient.ConfigPath,npcLastError.Length>0?npcLastError:"Thinking occurs only on special events; schedules run independently.");
     }
+    internal NpcModelClient NpcAiRuntime=>npcModel;
+    internal NpcModelClient EnsureNpcAiRuntime()=>npcModel??(npcModel=new NpcModelClient());
+    internal void ReloadNpcAiSettings(){DisposeNpcMinds();npcPending=null;npcLastError="";npcModel=new NpcModelClient();}
     void DrawNpcMind()
     {
         if(paused||mapOpen||ecologyOpen||DeathVisible)return;

@@ -54,7 +54,7 @@ public sealed partial class WorldGenRuntime
             else {gameSettingsScroll=GUILayout.BeginScrollView(gameSettingsScroll);DrawPlaySettings(true);DrawSkySettings();GUILayout.EndScrollView();}
             if(playPauseTab=="World settings"&&terrainExplorer.HorizontalScale!=play.Settings.HorizontalScale&&MenuButton("Apply scale and reload terrain"))
             {ReturnFromPlay("Simulation");RequestTerrain();}
-            if(MenuButton("Back"))playPauseTab="";
+            if(MenuButton("Back")){DisposeAiPreview();playPauseTab="";}
         }
         GUILayout.EndArea();
     }
@@ -104,7 +104,7 @@ public sealed partial class WorldGenRuntime
             GUILayout.FlexibleSpace();if(MenuButton("Main menu")){humanPlaying=false;simulationPaused=false;screen="Menu";}
         }
         else
-        {if(playPauseTab=="World settings"){gameSettingsScroll=GUILayout.BeginScrollView(gameSettingsScroll);DrawPlaySettings();DrawSkySettings();GUILayout.EndScrollView();}else DrawSettingsPage();if(MenuButton("Back"))playPauseTab="";}
+        {if(playPauseTab=="World settings"){gameSettingsScroll=GUILayout.BeginScrollView(gameSettingsScroll);DrawPlaySettings();DrawSkySettings();GUILayout.EndScrollView();}else DrawSettingsPage();if(MenuButton("Back")){DisposeAiPreview();playPauseTab="";}}
         GUILayout.EndArea();
     }
 }

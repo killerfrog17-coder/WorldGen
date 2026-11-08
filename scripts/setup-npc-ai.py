@@ -38,12 +38,21 @@ if not (target/'llama-server.exe').exists():
     if len(servers)!=1:raise RuntimeError('Expected one local server executable')
     server=servers[0]
 else:server=target/'llama-server.exe'
+gpu=manifest['gpu_runtime'];gpu_archive=cache/(gpu['version']+'-vulkan.zip');gpu_target=cache/('llama-'+gpu['version']+'-vulkan')
+if not (gpu_target/'llama-server.exe').exists():
+    download(gpu,gpu_archive);gpu_target.mkdir(exist_ok=True)
+    with zipfile.ZipFile(gpu_archive) as package:
+        for member in package.infolist():
+            if not (gpu_target/member.filename).resolve().is_relative_to(gpu_target.resolve()):raise RuntimeError('Unsafe archive path')
+        package.extractall(gpu_target)
 model=cache/manifest['model']['file'];download(manifest['model'],model)
 license_path=target/'WORLDGEN-RUNTIME-LICENSE.txt'
 if not license_path.exists():
     license_path.write_bytes(urllib.request.urlopen(runtime['license_url']).read())
-config={'ServerPath':str(server),'ModelPath':str(model),'ModelName':manifest['model']['name'],'Threads':2,'ContextTokens':2048,'MaxTokens':160,'BaseUrl':'','ApiKeyEnvironment':'','Enabled':True}
+config={'ServerPath':str(server),'ModelPath':str(model),'ModelName':manifest['model']['name'],'GpuServerPath':str(gpu_target/'llama-server.exe'),'Threads':2,'ContextTokens':2048,'MaxTokens':160,'BaseUrl':'','ApiKeyEnvironment':'','Enabled':True}
 config_path=cache/'settings.json'
-if not config_path.exists():config_path.write_text(json.dumps(config,indent=2)+'\n')
+if config_path.exists():
+    existing=json.loads(config_path.read_text());existing.setdefault('GpuServerPath',config['GpuServerPath']);config=existing
+config_path.write_text(json.dumps(config,indent=2)+'\n')
 (cache/'provenance.json').write_text(json.dumps(manifest,indent=2)+'\n')
 print('NPC model ready: '+str(config_path),flush=True)

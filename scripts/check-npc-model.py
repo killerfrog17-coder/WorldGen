@@ -3,7 +3,7 @@ from pathlib import Path
 import json, os, socket, subprocess, time, urllib.request, argparse
 
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);parser.add_argument('--gpu-layers',type=int,default=0);parser.add_argument('--threads',type=int,default=2);parser.add_argument('--cases',type=int,default=6);args=parser.parse_args()
 out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
 config=json.loads((Path(os.environ['LOCALAPPDATA'])/'WorldGen/NpcAI/settings.json').read_text())
 source=(ROOT/'unity/WorldGen.Unity/Assets/WorldGen/Runtime/NpcModelClient.cs').read_text()
@@ -19,14 +19,14 @@ cases=[('work','YOU: fojuce, male,34. Current activity: gathering wild plants fo
 ('injury','YOU: Nara. Health65. Current activity: gathering wild plants. An unfamiliar visitor target player struck you. The group is alarmed. Distance4m. No one has spoken.'),
 ('visitor','YOU: fojuce. Current activity: collecting fallen branches for campfire. You visibly noticed an unfamiliar visitor near the camp, target player,9m away. No one has spoken. No visible attack.')]
 with (out/'server.log').open('w') as log:
-    proc=subprocess.Popen([config['ServerPath'],'-m',config['ModelPath'],'--host','127.0.0.1','--port',str(port),'-t','2','-tb','2','-c','2048','-np','1','-ngl','0','--poll','0','--prio','-1','--no-webui','--reasoning','off','--reasoning-budget','0'],stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
+    proc=subprocess.Popen([config['GpuServerPath'] if args.gpu_layers else config['ServerPath'],'-m',config['ModelPath'],'--host','127.0.0.1','--port',str(port),'-t',str(args.threads),'-tb',str(args.threads),'-c','2048','-np','1','-ngl',str(args.gpu_layers),'--poll','0','--prio','-1','--no-webui','--reasoning','off','--reasoning-budget','0'],stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
     try:
         for i in range(80):
             try:
                 if urllib.request.urlopen(url+'/health',timeout=1).status==200:break
             except Exception:time.sleep(.25)
         results=[]
-        for label,context in cases:
+        for label,context in cases[:args.cases]:
             payload={'messages':[{'role':'system','content':prompt},{'role':'user','content':context}],'response_format':{'type':'json_schema','json_schema':{'name':'decision','strict':True,'schema':schema}},'max_tokens':160,'temperature':.5,'chat_template_kwargs':{'enable_thinking':False}}
             started=time.monotonic();response=json.load(urllib.request.urlopen(urllib.request.Request(url+'/v1/chat/completions',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'}),timeout=45))
             text=response['choices'][0]['message']['content'];decision=json.loads(text)
@@ -34,6 +34,6 @@ with (out/'server.log').open('w') as log:
             assert decision['target']!='none' or decision['action'] in ('rest','wait','resume')
             result={'case':label,'context':context,'seconds':time.monotonic()-started,'decision':decision,'usage':response.get('usage'),'timings':response.get('timings')};results.append(result)
             print(json.dumps(result),flush=True)
-        (out/'cases.json').write_text(json.dumps({'model':config['ModelName'],'threads':2,'gpu_layers':0,'cases':results},indent=2))
+        (out/'cases.json').write_text(json.dumps({'model':config['ModelName'],'threads':args.threads,'gpu_layers':args.gpu_layers,'cases':results},indent=2))
     finally:
         proc.terminate();proc.wait(timeout=10)
