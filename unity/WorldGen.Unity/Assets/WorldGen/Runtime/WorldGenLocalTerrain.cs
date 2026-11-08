@@ -58,7 +58,7 @@ public sealed partial class WorldGenRuntime
                 {
                     try{preparingWorker.Prepare(token);}
                     catch(OperationCanceledException){throw;}
-                    catch(Exception){token.ThrowIfCancellationRequested();} // Same local fallback if worker startup fails.
+                    catch(Exception ex){token.ThrowIfCancellationRequested();Debug.LogWarning("Terrain worker preparation failed; using local sampler: "+ex.Message);} // Same local fallback if worker startup fails.
                 }
                 return LocalTerrainDerivationCache.Create(source,token,scale);
             }, token);

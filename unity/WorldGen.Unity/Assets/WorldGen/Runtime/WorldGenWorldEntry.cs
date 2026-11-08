@@ -19,10 +19,11 @@ public sealed partial class WorldGenRuntime
     {
         if(worldEntryWork!=null||humanStep!=null)return;
         var source=world;var session=play.Copy();int seed=Guid.NewGuid().GetHashCode();
-        PrepareLocalTerrain();var preparing=localTerrainTask;worldEntryError="";
+        PrepareLocalTerrain();var preparing=localTerrainTask;worldEntryError="";bool diagnostic=Environment.GetCommandLineArgs().Contains("--worldgen-entry-check");
+        if(diagnostic)Debug.Log("ENTRY preparing scale="+session.Settings.HorizontalScale+" / terrain="+preparing.Status);
         worldEntryWork=Task.Run(async()=>
         {
-            var terrain=await preparing;var rng=new System.Random(seed);var landRng=new Rng(seed,"world-entry-land",0);ResidentEntry entry=resident?PlayerWorldEntry.RandomResident(source,session,seed):null;
+            var terrain=await preparing;if(diagnostic)Debug.Log("ENTRY sampler ready");var rng=new System.Random(seed);var landRng=new Rng(seed,"world-entry-land",0);ResidentEntry entry=resident?PlayerWorldEntry.RandomResident(source,session,seed):null;
             V point=entry?.Position??ExplorerNavigation.RandomPoint(ref landRng);bool dry=false;
             for(int attempt=0;attempt<1024;attempt++)
             {
@@ -70,7 +71,7 @@ public sealed partial class WorldGenRuntime
                     session.Inventory.Items.Add(item);
                 }
             }
-            session.Validate();return session;
+            session.Validate();if(diagnostic)Debug.Log("ENTRY prepared "+session.Mode+" / resident="+(session.Identity?.Person.Id??0));return session;
         });
     }
     void PollWorldEntry()
