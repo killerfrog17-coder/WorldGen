@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][int]$ReviewProcessId)
+param([Parameter(Mandatory=$true)][int]$ReviewProcessId,[ValidateSet('Leftmost','Rightmost')][string]$Monitor='Rightmost')
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.Windows.Forms
 if(-not ('WorldGenReviewWindowPlacement' -as [type])){
@@ -15,7 +15,7 @@ public static class WorldGenReviewWindowPlacement {
 }
 $previousReviewDpi=[WorldGenReviewWindowPlacement]::SetThreadDpiAwarenessContext([IntPtr]::new(-4))
 try{
-    $reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
+    $reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending:($Monitor -eq 'Rightmost')|Select-Object -First 1
     $reviewDeadline=[DateTime]::UtcNow.AddSeconds(15)
     do{
         $reviewProcess=Get-Process -Id $ReviewProcessId -ErrorAction Stop
@@ -31,6 +31,6 @@ try{
     # Preserve resolution, focus and stacking; move only the caller's own window.
     if(-not [WorldGenReviewWindowPlacement]::SetWindowPos($reviewProcess.MainWindowHandle,[IntPtr]::Zero,$reviewX,$reviewY,0,0,0x0015)){throw 'Cannot move review window'}
     if(-not [WorldGenReviewWindowPlacement]::GetWindowRect($reviewProcess.MainWindowHandle,[ref]$reviewBounds)){throw 'Cannot verify review window placement'}
-    if($reviewBounds.Left -lt $reviewMonitor.Bounds.Left -or $reviewBounds.Left -ge $reviewMonitor.Bounds.Right){throw 'Review window is not on the rightmost monitor'}
+    if($reviewBounds.Left -lt $reviewMonitor.Bounds.Left -or $reviewBounds.Left -ge $reviewMonitor.Bounds.Right){throw 'Review window is not on the selected monitor'}
     Write-Output ('Review window '+$ReviewProcessId+' on '+$reviewMonitor.DeviceName+' at '+$reviewBounds.Left+','+$reviewBounds.Top)
 }finally{[void][WorldGenReviewWindowPlacement]::SetThreadDpiAwarenessContext($previousReviewDpi)}

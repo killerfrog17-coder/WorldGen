@@ -77,5 +77,23 @@
       "exact_opposing_edges": true,
       "encoded_unit_normal_max_error": 0.006464570847540929
     }
-  ]
+  ],
+  "native_v1": {
+    "source": "f04f83a1",
+    "exit_code": 0,
+    "path": "artifacts/landscape-20261103/cliff-materials-v1-20261108-canyon",
+    "accepted": false,
+    "finding": "Dedicated face colours alone still read as diagonal fine grain on the terrain; larger canyon shelves remain too repetitive."
+  },
+  "native_v2": {
+    "source": "2c90aaa8",
+    "path": "artifacts/landscape-20261103/cliff-materials-v2-20261108-canyon",
+    "status": "Complete runtime pass; close wall material improvement inspected, overall cliff geometry still being refined.",
+    "method": "Two-axis wall charts use shared physical altitude, not floor-oriented triplanar mapping. Existing fine ground grain fades continuously on exposed rock. No added texture reads/passes or geometry.",
+    "runtime_exit": 0,
+    "material_rgb_mean_absolute_delta": 7.30172566229424,
+    "material_changed_pixels": 1208156,
+    "material_total_pixels": 1327104,
+    "ground_tile_bindings_verified": true
+  }
 }

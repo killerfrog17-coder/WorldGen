@@ -684,6 +684,8 @@ public sealed partial class LocalTerrainExplorer
             yield return owner.StartCoroutine(Capture("cliff-wall-context",new Vector3(contextEye.x,contextEye.y-y-.5f,contextEye.z),inspectionTarget:wallTarget));
             var nearEye=wallTarget+wallNormal*20+Vector3.up*5;
             yield return owner.StartCoroutine(Capture("cliff-wall-near",new Vector3(nearEye.x,nearEye.y-y-.5f,nearEye.z),inspectionTarget:wallTarget));
+            var touchEye=wallTarget+wallNormal*4+Vector3.up*.6f;
+            yield return owner.StartCoroutine(Capture("cliff-wall-touch",new Vector3(touchEye.x,touchEye.y-y-.5f,touchEye.z),inspectionTarget:wallTarget));
             var cliffs=owner.scatterChunks.Values.Where(chunk=>chunk.Roots!=null)
                 .SelectMany(chunk=>Enumerable.Range(0,chunk.Source.Instances.Length).Where(i=>chunk.Source.Instances[i].Kind==ScatterKind.Outcrop&&CliffRocks.Is(chunk.Source.Instances[i].Variant)).Select(i=>new{Chunk=chunk,Index=i}))
                 .OrderBy(item=>item.Chunk.Roots[item.Index].sqrMagnitude).Take(8).ToArray();

@@ -10,6 +10,7 @@ param(
     [switch]$WaterShadingReview,
     [switch]$CliffReview,
     [switch]$Presented,
+    [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateRange(0,4)][int]$PlantQuality=3,
     [int]$SourceCell=-1
 )
@@ -19,9 +20,9 @@ $player=Join-Path $repoRoot ('builds/'+$Slot+'/WorldGen.exe')
 if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not review it.'}
 $fixture=Join-Path $repoRoot $World
 Add-Type -AssemblyName System.Windows.Forms
-$reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
-$reviewMonitorIndex=[regex]::Match($reviewMonitor.DeviceName,'\d+$').Value
-if(!$reviewMonitorIndex){throw 'Cannot identify the rightmost monitor'}
+$reviewScreen=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending:($ReviewMonitor -eq 'Rightmost')|Select-Object -First 1
+$reviewMonitorIndex=[regex]::Match($reviewScreen.DeviceName,'\d+$').Value
+if(!$reviewMonitorIndex){throw 'Cannot identify the selected review monitor'}
 if(!(Test-Path -LiteralPath $fixture)){throw 'Generate the disposable world fixture first.'}
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'" | Where-Object {$_.ExecutablePath -eq $player}){throw 'This player slot is already running; leave that session untouched.'}
 foreach($kind in $Kinds){
@@ -42,7 +43,7 @@ foreach($kind in $Kinds){
     if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
     $style=if($Presented){'Normal'}else{'Hidden'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle $style -PassThru
-    if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $process.Id}
+    if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $ReviewMonitor}
     Write-Output ($kind+' PID '+$process.Id);$process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
     Write-Output ($kind+' EXIT '+$process.ExitCode)
