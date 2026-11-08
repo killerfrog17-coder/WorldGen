@@ -709,11 +709,15 @@ public sealed partial class LocalTerrainExplorer
         if(casts&&!MayCastVisibleShadow(chunk.Bounds[index],scatterEye))casts=false;
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
+        // Reed stands already vary through instance yaw, dimensions, tint and
+        // wind. Reuse one close stem arrangement per species instead of four
+        // otherwise identical materials with only a few instances in each.
+        bool reed=p.Kind==ScatterKind.MidPlant&&((variant>>27)&7)==(int)MidGrowthForm.ReedStand;
+        if(reed&&!WorldGenPerformance.LegacyReedFar)variant&=~3;
         // All distant reeds use the same tiny silhouette. Keep each species'
         // pigment in the instance tint, as with shared distant tree models.
         // This changes neither their identities nor roots/scales/rotations.
-        bool sharedReed=p.Kind==ScatterKind.MidPlant&&lod==2&&!WorldGenPerformance.LegacyReedFar&&
-            ((variant>>27)&7)==(int)MidGrowthForm.ReedStand;
+        bool sharedReed=reed&&lod==2&&!WorldGenPerformance.LegacyReedFar;
         int reedSpecies=variant;
         if(sharedReed)variant=(int)MidGrowthForm.ReedStand<<27;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));

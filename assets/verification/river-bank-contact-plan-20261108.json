@@ -1,0 +1,26 @@
+{
+  "status": "Diagnosis only. No new bank geometry or water-level change has been implemented.",
+  "fixture": {
+    "world": "seed73421/history61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+    "reach": 52127,
+    "receiver": 51517,
+    "position": [-0.042102725,-0.875960391,-0.480542145],
+    "half_width_m": 63.919359712810646,
+    "fixed_water_m": 36.1888413585601,
+    "natural_render_bank_m": 35.541,
+    "at_extra_32m_natural_m": 36.481,
+    "at_extra_32m_coupled_m": 36.278
+  },
+  "cause": "The shared downstream datum prevents this flat interior span from being lowered to a local bank hollow. The nominal width and its two-metre render underlap end above lower dry terrain. Removing the underlap alone cannot create a physically contained shoreline.",
+  "next_experiment": "Consider bounded, one-time fitting of calm interior span widths to available natural banks while preserving graph endpoint datums and shared station identity. Probe the actual paired quadrilateral edges, not only average centreline sides. Do not activate globally before testing its query cost and native morphology.",
+  "requirements": [
+    "No global water-head shift, terrain raising, vertical water skirts or test whitelists.",
+    "Keep junction collars and their physical/render pool widths consistent.",
+    "Preserve shared station widths between adjacent spans and cached/indexed/uncached query equivalence.",
+    "Keep fitting finite and cached; no repeated per-frame bank searches or major cold loading regression.",
+    "Check the exact existing failed point plus complete open-edge audits at near, mixed and far mesh detail.",
+    "Inspect actual native river/junction/lake/ocean views before accepting the experiment.",
+    "If not justified or complete, retain this as an unresolved legacy defect; do not present it as fixed."
+  ],
+  "diagnostic": "LocalLakeWaterTests.ProbeEdge now records cross-bank natural/coupled elevations; raw result is disposable, this canonical counterexample is retained."
+}

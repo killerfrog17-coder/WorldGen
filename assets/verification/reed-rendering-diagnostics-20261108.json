@@ -1,0 +1,563 @@
+{
+  "status": "Diagnostic evidence, not acceptance of the candidate. All-species sharing is still unbuilt/unmeasured.",
+  "observations": [
+    "Same-start submitted reed geometry 780438 vertices/660656 triangles ->97038/65696, same4136 submitted instances.",
+    "Presented timing varies greatly even with identical geometry:244 vs420FPS for the legacy path in different clean builds. Do not ascribe all deltas to geometry.",
+    "Offscreen protected A573 vsB438FPS-equivalent indicates real remaining render/update overhead. Offscreen is not playableFPS.",
+    "The second variant-sharing optimization saved only3 final-view draws. All-species sharing with preserved pigment is prepared next."
+  ],
+  "runs": [
+    {
+      "evidence": "artifacts\\geography-night-20261108\\reed-far-legacy-salt-v1",
+      "package": {
+        "AssemblySha256": "5c9280b3d4b43ad3f7dcb00746580369289f4bc47d0293861f67244bcfe48c13",
+        "CoreSha256": "6075285c0683055488ccc8b8cb02b50ca83ce9d901201bdac31bacfaec763087",
+        "WorkerSha256": "48b498b47c48b6ce96b7b1ca94a193f0d51ff12fd5652dfd203ac62c72462455",
+        "Build": {
+          "BuiltUtc": "2026-11-08T15:28:01.1360973Z",
+          "SourceCommit": "a9be972dbf0a572edb56d495500a2995bbf9aa1d",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "6075285c0683055488ccc8b8cb02b50ca83ce9d901201bdac31bacfaec763087"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "f3e75e3a0233f464e93818240ea86cc9a1c9d39f8e7b10b6ae1eada062e170ab"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "0704824691d59a7e750cebf1a8b3892fd02551cb100bf3fda85b049251655a18"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "48b498b47c48b6ce96b7b1ca94a193f0d51ff12fd5652dfd203ac62c72462455"
+        },
+        "RequestedSwapChain": "Default",
+        "NativeGcDiagnostic": false,
+        "CpuTimingDiagnostic": true,
+        "HideWaterDrawingDiagnostic": false,
+        "LegacyReedFarDiagnostic": true,
+        "TravelLoopMeters": 180,
+        "RecordedUtc": "2026-11-08T15:31:03.5361790Z"
+      },
+      "summary": [
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "10998",
+          "seconds": "45.00687",
+          "fps": "244.36268",
+          "p50_ms": "2.43100",
+          "p95_ms": "10.33370",
+          "p99_ms": "11.42000",
+          "max_ms": "15.14100",
+          "over10ms": "895",
+          "over16ms": "0",
+          "scatter_update_ms": "0.23053",
+          "scatter_submit_ms": "0.16403",
+          "grass_submit_ms": "0.31891",
+          "weather_ms": "0.04714",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "2679",
+          "specialists": "0",
+          "mid": "2677",
+          "trees": "0",
+          "scatter_draws": "58",
+          "grass_draws": "44",
+          "grass_candidates": "509185",
+          "grass_bytes": "72834188",
+          "frustum_rejected": "97766",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "1340749665",
+          "end_qpc": "1790818431",
+          "gpu_ms": "3.65529",
+          "cpu_ms": "4.33970",
+          "timing_samples": "8110",
+          "gpu_drain_ms": "2.73160",
+          "start_utc": "2026-11-08T15:33:17.8287246Z",
+          "end_utc": "2026-11-08T15:34:02.8371332Z"
+        }
+      ],
+      "geometry": "saltmarsh-water travel-whip-water-surface hide_water=False\nkind,renderers,vertices,triangles\nland,200,263566,504536\nwater,149,72393,119743\nsubmitted-reeds,4136,780438,660656\n",
+      "site": "saltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186179; biome=SaltMarsh; landscape=TidalWetland; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "focus": "saltmarsh-water travel-whip-water-surface focused_frames=10998 unfocused_frames=0\n"
+    },
+    {
+      "evidence": "artifacts\\geography-night-20261108\\reed-far-optimized-salt-v1",
+      "package": {
+        "AssemblySha256": "5c9280b3d4b43ad3f7dcb00746580369289f4bc47d0293861f67244bcfe48c13",
+        "CoreSha256": "6075285c0683055488ccc8b8cb02b50ca83ce9d901201bdac31bacfaec763087",
+        "WorkerSha256": "48b498b47c48b6ce96b7b1ca94a193f0d51ff12fd5652dfd203ac62c72462455",
+        "Build": {
+          "BuiltUtc": "2026-11-08T15:28:01.1360973Z",
+          "SourceCommit": "a9be972dbf0a572edb56d495500a2995bbf9aa1d",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "6075285c0683055488ccc8b8cb02b50ca83ce9d901201bdac31bacfaec763087"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "f3e75e3a0233f464e93818240ea86cc9a1c9d39f8e7b10b6ae1eada062e170ab"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "0704824691d59a7e750cebf1a8b3892fd02551cb100bf3fda85b049251655a18"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "48b498b47c48b6ce96b7b1ca94a193f0d51ff12fd5652dfd203ac62c72462455"
+        },
+        "RequestedSwapChain": "Default",
+        "NativeGcDiagnostic": false,
+        "CpuTimingDiagnostic": true,
+        "HideWaterDrawingDiagnostic": false,
+        "LegacyReedFarDiagnostic": false,
+        "TravelLoopMeters": 180,
+        "RecordedUtc": "2026-11-08T15:34:04.9195804Z"
+      },
+      "summary": [
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "13215",
+          "seconds": "45.00396",
+          "fps": "293.64085",
+          "p50_ms": "2.42940",
+          "p95_ms": "8.11950",
+          "p99_ms": "8.87870",
+          "max_ms": "36.36640",
+          "over10ms": "38",
+          "over16ms": "1",
+          "scatter_update_ms": "0.20513",
+          "scatter_submit_ms": "0.15908",
+          "grass_submit_ms": "0.31762",
+          "weather_ms": "0.04517",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "2681",
+          "specialists": "0",
+          "mid": "2679",
+          "trees": "0",
+          "scatter_draws": "58",
+          "grass_draws": "45",
+          "grass_candidates": "509185",
+          "grass_bytes": "72834188",
+          "frustum_rejected": "97764",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "1339067558",
+          "end_qpc": "1789107144",
+          "gpu_ms": "1.95151",
+          "cpu_ms": "3.00508",
+          "timing_samples": "8396",
+          "gpu_drain_ms": "1.91800",
+          "start_utc": "2026-11-08T15:36:18.9559654Z",
+          "end_utc": "2026-11-08T15:37:03.9603370Z"
+        }
+      ],
+      "geometry": "saltmarsh-water travel-whip-water-surface hide_water=False\nkind,renderers,vertices,triangles\nland,200,263566,504536\nwater,149,72393,119743\nsubmitted-reeds,4136,97038,65696\n",
+      "site": "saltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186179; biome=SaltMarsh; landscape=TidalWetland; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "focus": "saltmarsh-water travel-whip-water-surface focused_frames=13215 unfocused_frames=0\n"
+    },
+    {
+      "evidence": "artifacts\\geography-night-20261108\\reed-batched-legacy-salt-v1",
+      "package": {
+        "AssemblySha256": "a99ba5802e9336573678db8b750f7932527ed70668218b4734fee12c7d6c0474",
+        "CoreSha256": "325dd609231f81a5e89109f7d22ed6d50029fecd1dbbe2c898dd25d7ba0b9c9a",
+        "WorkerSha256": "3e6113c18773e93910a6e6f791c73375ea247bb80783290d14afd431274f0932",
+        "Build": {
+          "BuiltUtc": "2026-11-08T15:40:41.1122766Z",
+          "SourceCommit": "904f834cea7d08b8114e35409602a7f3149141f4",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "325dd609231f81a5e89109f7d22ed6d50029fecd1dbbe2c898dd25d7ba0b9c9a"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "1df743ac07b2975c392dc53372a6aef975c2cf1cb62686ca90a312f21b546783"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "94f4bf736513c6c34f760a40e18101bad364217fb08aa084eda9ffaaecac5552"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "3e6113c18773e93910a6e6f791c73375ea247bb80783290d14afd431274f0932"
+        },
+        "RequestedSwapChain": "Default",
+        "NativeGcDiagnostic": false,
+        "CpuTimingDiagnostic": true,
+        "HideWaterDrawingDiagnostic": false,
+        "LegacyReedFarDiagnostic": true,
+        "TravelLoopMeters": 180,
+        "RecordedUtc": "2026-11-08T15:41:28.2677680Z"
+      },
+      "summary": [
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "18891",
+          "seconds": "45.00226",
+          "fps": "419.77895",
+          "p50_ms": "2.19070",
+          "p95_ms": "3.89700",
+          "p99_ms": "5.63580",
+          "max_ms": "17.37560",
+          "over10ms": "3",
+          "over16ms": "1",
+          "scatter_update_ms": "0.15729",
+          "scatter_submit_ms": "0.16167",
+          "grass_submit_ms": "0.32134",
+          "weather_ms": "0.04707",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "2595",
+          "specialists": "0",
+          "mid": "2593",
+          "trees": "0",
+          "scatter_draws": "58",
+          "grass_draws": "44",
+          "grass_candidates": "509185",
+          "grass_bytes": "72834188",
+          "frustum_rejected": "100921",
+          "terrain_rejected": "0",
+          "settled": "True",
+          "start_qpc": "1356877617",
+          "end_qpc": "1806900210",
+          "gpu_ms": "1.31425",
+          "cpu_ms": "2.33645",
+          "timing_samples": "12440",
+          "gpu_drain_ms": "1.83460",
+          "start_utc": "2026-11-08T15:43:44.2004574Z",
+          "end_utc": "2026-11-08T15:44:29.2034159Z"
+        }
+      ],
+      "geometry": "saltmarsh-water travel-whip-water-surface hide_water=False\nkind,renderers,vertices,triangles\nland,200,263566,504536\nwater,149,72393,119743\nsubmitted-reeds,4136,780438,660656\n",
+      "site": "saltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186179; biome=SaltMarsh; landscape=TidalWetland; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "focus": "saltmarsh-water travel-whip-water-surface focused_frames=18891 unfocused_frames=0\n"
+    },
+    {
+      "evidence": "artifacts\\geography-night-20261108\\reed-batched-optimized-salt-v1",
+      "package": {
+        "AssemblySha256": "a99ba5802e9336573678db8b750f7932527ed70668218b4734fee12c7d6c0474",
+        "CoreSha256": "325dd609231f81a5e89109f7d22ed6d50029fecd1dbbe2c898dd25d7ba0b9c9a",
+        "WorkerSha256": "3e6113c18773e93910a6e6f791c73375ea247bb80783290d14afd431274f0932",
+        "Build": {
+          "BuiltUtc": "2026-11-08T15:40:41.1122766Z",
+          "SourceCommit": "904f834cea7d08b8114e35409602a7f3149141f4",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "325dd609231f81a5e89109f7d22ed6d50029fecd1dbbe2c898dd25d7ba0b9c9a"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "1df743ac07b2975c392dc53372a6aef975c2cf1cb62686ca90a312f21b546783"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "94f4bf736513c6c34f760a40e18101bad364217fb08aa084eda9ffaaecac5552"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "3e6113c18773e93910a6e6f791c73375ea247bb80783290d14afd431274f0932"
+        },
+        "RequestedSwapChain": "Default",
+        "NativeGcDiagnostic": false,
+        "CpuTimingDiagnostic": true,
+        "HideWaterDrawingDiagnostic": false,
+        "LegacyReedFarDiagnostic": false,
+        "TravelLoopMeters": 180,
+        "RecordedUtc": "2026-11-08T15:44:31.6041837Z"
+      },
+      "summary": [
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "14582",
+          "seconds": "45.00395",
+          "fps": "324.01600",
+          "p50_ms": "2.26510",
+          "p95_ms": "7.30900",
+          "p99_ms": "8.09150",
+          "max_ms": "15.14820",
+          "over10ms": "14",
+          "over16ms": "0",
+          "scatter_update_ms": "0.18093",
+          "scatter_submit_ms": "0.15074",
+          "grass_submit_ms": "0.30875",
+          "weather_ms": "0.04435",
+          "tiles": "200",
+          "wanted": "196",
+          "objects": "2734",
+          "specialists": "0",
+          "mid": "2732",
+          "trees": "0",
+          "scatter_draws": "55",
+          "grass_draws": "45",
+          "grass_candidates": "509185",
+          "grass_bytes": "72834188",
+          "frustum_rejected": "100887",
+          "terrain_rejected": "0",
+          "settled": "True",
+          "start_qpc": "1336166258",
+          "end_qpc": "1786205786",
+          "gpu_ms": "1.88723",
+          "cpu_ms": "2.85517",
+          "timing_samples": "9471",
+          "gpu_drain_ms": "2.05130",
+          "start_utc": "2026-11-08T15:46:45.3498486Z",
+          "end_utc": "2026-11-08T15:47:30.3545747Z"
+        }
+      ],
+      "geometry": "saltmarsh-water travel-whip-water-surface hide_water=False\nkind,renderers,vertices,triangles\nland,200,263566,504536\nwater,149,72393,119743\nsubmitted-reeds,4136,97038,65696\n",
+      "site": "saltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186179; biome=SaltMarsh; landscape=TidalWetland; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "focus": "saltmarsh-water travel-whip-water-surface focused_frames=14582 unfocused_frames=0\n"
+    },
+    {
+      "evidence": "artifacts\\geography-night-20261108\\wetland-offscreen-a-v1",
+      "package": {
+        "AssemblySha256": "1486ea7f7ae51e0cfcc580ba48362ef4a1925527375092ea24434cda8bf91296",
+        "CoreSha256": "401830a1a9f04b25eee8a5a384842f4973fb2d169506379ff153ba53cc23d971",
+        "WorkerSha256": "3f7fc2d76bc9001837c02df1af5d4ea095e3881a8cf0e2c8793acd3d5de91f80",
+        "Build": {
+          "BuiltUtc": "2026-11-08T13:43:41.6510491Z",
+          "SourceCommit": "9cb2eb010c1dc88950b6fc1b328989896f729383",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "401830a1a9f04b25eee8a5a384842f4973fb2d169506379ff153ba53cc23d971"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "04d588ae6aedc3cd76ab389392a996405ce5ed67d0be67ae927f024d41fe87be"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "05937fe7de52474ce9bc67252d857429e5ea9d812a5b1087b95003a53046f418"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "3f7fc2d76bc9001837c02df1af5d4ea095e3881a8cf0e2c8793acd3d5de91f80"
+        },
+        "RequestedSwapChain": "Default",
+        "NativeGcDiagnostic": false,
+        "CpuTimingDiagnostic": true,
+        "HideWaterDrawingDiagnostic": false,
+        "LegacyReedFarDiagnostic": false,
+        "TravelLoopMeters": 180,
+        "RecordedUtc": "2026-11-08T15:48:58.1464659Z"
+      },
+      "summary": [
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "17208",
+          "seconds": "30.02755",
+          "fps": "573.07371",
+          "p50_ms": "1.69160",
+          "p95_ms": "2.27430",
+          "p99_ms": "3.11430",
+          "max_ms": "11.21090",
+          "over10ms": "1",
+          "over16ms": "0",
+          "scatter_update_ms": "0.06231",
+          "scatter_submit_ms": "0.05208",
+          "grass_submit_ms": "0.27000",
+          "weather_ms": "0.03290",
+          "tiles": "182",
+          "wanted": "178",
+          "objects": "35",
+          "specialists": "0",
+          "mid": "34",
+          "trees": "0",
+          "scatter_draws": "10",
+          "grass_draws": "30",
+          "grass_candidates": "487627",
+          "grass_bytes": "66786224",
+          "frustum_rejected": "32031",
+          "terrain_rejected": "0",
+          "settled": "True",
+          "start_qpc": "1445734251",
+          "end_qpc": "1746009792",
+          "gpu_ms": "0.00000",
+          "cpu_ms": "0.00000",
+          "timing_samples": "0",
+          "gpu_drain_ms": "26.71740",
+          "start_utc": "2026-11-08T15:51:22.9075405Z",
+          "end_utc": "2026-11-08T15:51:52.9360874Z"
+        }
+      ],
+      "geometry": "saltmarsh-water travel-whip-water-surface hide_water=False\nkind,renderers,vertices,triangles\nland,200,263566,504536\nwater,149,72393,119743\n",
+      "site": "saltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186556; biome=Marsh; landscape=FreshwaterMarsh; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "focus": "saltmarsh-water travel-whip-water-surface focused_frames=0 unfocused_frames=17208\n"
+    },
+    {
+      "evidence": "artifacts\\geography-night-20261108\\wetland-offscreen-b-v1",
+      "package": {
+        "AssemblySha256": "a99ba5802e9336573678db8b750f7932527ed70668218b4734fee12c7d6c0474",
+        "CoreSha256": "325dd609231f81a5e89109f7d22ed6d50029fecd1dbbe2c898dd25d7ba0b9c9a",
+        "WorkerSha256": "3e6113c18773e93910a6e6f791c73375ea247bb80783290d14afd431274f0932",
+        "Build": {
+          "BuiltUtc": "2026-11-08T15:40:41.1122766Z",
+          "SourceCommit": "904f834cea7d08b8114e35409602a7f3149141f4",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": false,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "325dd609231f81a5e89109f7d22ed6d50029fecd1dbbe2c898dd25d7ba0b9c9a"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "1df743ac07b2975c392dc53372a6aef975c2cf1cb62686ca90a312f21b546783"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "94f4bf736513c6c34f760a40e18101bad364217fb08aa084eda9ffaaecac5552"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "3e6113c18773e93910a6e6f791c73375ea247bb80783290d14afd431274f0932"
+        },
+        "RequestedSwapChain": "Default",
+        "NativeGcDiagnostic": false,
+        "CpuTimingDiagnostic": true,
+        "HideWaterDrawingDiagnostic": false,
+        "LegacyReedFarDiagnostic": false,
+        "TravelLoopMeters": 180,
+        "RecordedUtc": "2026-11-08T15:51:55.2965640Z"
+      },
+      "summary": [
+        {
+          "site": "saltmarsh-water",
+          "cell": "186556",
+          "biome": "Ocean",
+          "relief": "91",
+          "case": "travel-whip-water-surface",
+          "frames": "13154",
+          "seconds": "30.00362",
+          "fps": "438.41375",
+          "p50_ms": "2.14110",
+          "p95_ms": "3.59130",
+          "p99_ms": "4.70670",
+          "max_ms": "20.05300",
+          "over10ms": "1",
+          "over16ms": "1",
+          "scatter_update_ms": "0.14046",
+          "scatter_submit_ms": "0.13322",
+          "grass_submit_ms": "0.28660",
+          "weather_ms": "0.03633",
+          "tiles": "182",
+          "wanted": "178",
+          "objects": "1681",
+          "specialists": "0",
+          "mid": "1679",
+          "trees": "0",
+          "scatter_draws": "47",
+          "grass_draws": "30",
+          "grass_candidates": "487627",
+          "grass_bytes": "66786224",
+          "frustum_rejected": "104505",
+          "terrain_rejected": "0",
+          "settled": "True",
+          "start_qpc": "1407826943",
+          "end_qpc": "1707863181",
+          "gpu_ms": "0.00000",
+          "cpu_ms": "0.00000",
+          "timing_samples": "0",
+          "gpu_drain_ms": "2.10420",
+          "start_utc": "2026-11-08T15:54:16.2002734Z",
+          "end_utc": "2026-11-08T15:54:46.2046811Z"
+        }
+      ],
+      "geometry": "saltmarsh-water travel-whip-water-surface hide_water=False\nkind,renderers,vertices,triangles\nland,200,263566,504536\nwater,149,72393,119743\nsubmitted-reeds,4136,97038,65696\n",
+      "site": "saltmarsh-water requested=(0.478334598,0.158010148,0.863845359); actual=(0.478334598,0.158010148,0.86384536); displacement=0.00063710000000000014m; cell=186179; biome=SaltMarsh; landscape=TidalWetland; ground=-0.467m; underwater=True; water=Ocean/0m; glacial=0.10813237814434989\n",
+      "focus": "saltmarsh-water travel-whip-water-surface focused_frames=13154 unfocused_frames=0\n"
+    }
+  ]
+}
