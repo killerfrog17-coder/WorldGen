@@ -42,10 +42,11 @@ public sealed partial class LocalTerrainExplorer
             {double angle=attempt*Math.PI/12,x=actor.Motor.X+Math.Cos(angle)*range,z=actor.Motor.Z+Math.Sin(angle)*range;double floor=VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM);
             if(double.IsNaN(floor))continue;motion.Place(x,z,floor);UpdateCamera();var toward=actor.Root.transform.position+Vector3.up*1.05f-view.transform.position;
             if(TraceCombatObstacle(new Ray(view.transform.position,toward.normalized),toward.magnitude-.15f)==null)break;}
-            motion.Flying=false;UpdateCamera();var point=actor.Root.transform.position+Vector3.up*1.05f;var delta=view.transform.InverseTransformDirection(point-view.transform.position);
-            var worldDelta=transform.InverseTransformDirection(point-view.transform.position).normalized;heading=Mathf.Atan2(worldDelta.x,worldDelta.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(worldDelta.y)*Mathf.Rad2Deg;UpdateCamera();
+            motion.Flying=false;
+            for(int aim=0;aim<8;aim++){UpdateHumans();UpdateCamera();var bone=actor.Root.GetComponentsInChildren<Transform>().First(t=>t.name=="spine_02");var worldDelta=transform.InverseTransformDirection(bone.position-view.transform.position).normalized;heading=Mathf.Atan2(worldDelta.x,worldDelta.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(worldDelta.y)*Mathf.Rad2Deg;UpdateCamera();}
         }
         Stand(2.8);yield return null;
+        var diagnosticHit=TraceLiving(new Ray(view.transform.position,view.transform.forward),4.5f);File.WriteAllText(Path.Combine(output,"aim.txt"),"Activity="+actor.CurrentActivity+" / intended="+actor.ResidentId+" / hit="+diagnosticHit?.Human?.ResidentId+" / origin="+view.transform.position+" / forward="+view.transform.forward+" / actor="+actor.Root.transform.position);Capture(Path.Combine(output,"aim.png"));
         Check(TryNpcInteract(float.MaxValue),"aimed E interaction reaches the resident using the real hit surface");CloseChat();
         int initial=npcModel?.Requests??0;yield return new WaitForSecondsRealtime(3);
         Check((npcModel?.Requests??0)==initial,"ordinary schedule ticks do not invoke the model");

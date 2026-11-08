@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class MindPlan
     {
         public NpcDecision Decision;public NpcEventQueue.Event Event;public double Until;public bool Spoke;
-        public string Stage="Approaching";
+        public string Stage="Approaching";public readonly HumanActivitySample Routine=new HumanActivitySample();
     }
     readonly Dictionary<long,MindPlan> npcPlans=new Dictionary<long,MindPlan>();
     readonly HashSet<long> npcSeenVisitors=new HashSet<long>();
@@ -136,7 +136,7 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        routine=new HumanActivitySample{Activity=d.action=="rest"?HumanActivity.Rest:d.action=="flee"?HumanActivity.Retreat:move?HumanActivity.Watch:HumanActivity.Socialise,Person=actor.ResidentId,Group=actor.GroupId,Position=target};
+        routine=plan.Routine;routine.Activity=d.action=="rest"?HumanActivity.Rest:d.action=="flee"?HumanActivity.Retreat:move?HumanActivity.Watch:HumanActivity.Socialise;routine.Person=actor.ResidentId;routine.Group=actor.GroupId;routine.Position=target;
         actor.CurrentActivity=routine.Activity;return true;
     }
     void NpcSay(HumanActor actor,MindPlan plan)
