@@ -13,19 +13,32 @@ namespace WorldGen.Core
         {
             public int Source;public V A,B;
             public double LevelA,LevelB,HalfWidth,Relief,Strength;
+            public double BeddingA,BeddingB;
+            public int BeddingSeed;
+            double BedVariation(int bed,uint salt)
+            {
+                unchecked
+                {
+                    uint h=(uint)bed^(uint)BeddingSeed^salt;h^=h>>16;h*=0x7feb352d;h^=h>>15;h*=0x846ca68b;h^=h>>16;
+                    return (h&0xffffff)/16777215d;
+                }
+            }
             public double Uplift(double distance)
                 =>Relief*.7*Math.Sqrt(Strength)*(1-OrogenMorphology.Smooth(HalfWidth*9,HalfWidth*12,distance));
             public double Floor(double distance,double level)
             {
                 double r=D.Clamp(distance/HalfWidth),t=Math.Max(0,(r-.08)/.92);
                 double h=level+3+Relief*Math.Pow(t,1.55);
-                // Dominant resistant formations alternate with inclined weak
-                // beds. The former equal28m terraces made regular staircases
-                // and aliasing sawteeth instead of broad cliffs and talus slopes.
-                // The warped phase stays monotone; neighbouring cuts share
-                // absolute bed elevation rather than restarting at every reach.
-                double q=h/70+.30*Math.Sin(h/350)+.10*Math.Sin(h/110),f=q-Math.Floor(q);
-                double terraced=h+70*.65*(RiverscapeKernel.Smooth((f-.18)/.68)-f);
+                // A few thick resistant formations separated by weaker slopes,
+                // rather than the same shelf every70m. Bed identity and strength
+                // are shared across adjacent reaches; a slowly varying inherited
+                // phase bends them regionally without per-point noise queries.
+                double along=Math.Abs(LevelB-LevelA)>1e-7?D.Clamp((level-LevelA)/(LevelB-LevelA)):.5;
+                double geologicalHeight=h+BeddingA*(1-along)+BeddingB*along;
+                double q=geologicalHeight/180+.22*Math.Sin(geologicalHeight/420)+.08*Math.Sin(geologicalHeight/160);
+                int bed=(int)Math.Floor(q);double f=q-bed;
+                double resistance=.10+.65*BedVariation(bed,0x1d943a7),start=.10+.12*BedVariation(bed,0x63ac421),span=.56+.20*BedVariation(bed,0x472b149);
+                double terraced=h+180*resistance*(RiverscapeKernel.Smooth((f-start)/span)-f);
                 return Math.Max(level+1,terraced);
             }
             public double Cut(double ground,double distance,double level,out double exposure)
@@ -67,7 +80,8 @@ namespace WorldGen.Core
                 // modest local hill relief. Tie available incision to inherited
                 // plateau altitude too, without adding more canyon provinces.
                 double relief=Math.Min(1500,Math.Max(180,.42*p.ElevationM+.65*p.CoarseReliefM)),width=Math.Min(2800,Math.Max(400,.9*relief+widths[source]*16));
-                var reach=new Reach{Source=source,A=a,B=b,LevelA=levels[source],LevelB=levels[next],HalfWidth=width,Relief=relief,Strength=strength};
+                var reach=new Reach{Source=source,A=a,B=b,LevelA=levels[source],LevelB=levels[next],HalfWidth=width,Relief=relief,Strength=strength,
+                    BeddingSeed=seed,BeddingA=120*SphereNoise.Sample(a*radius,seed^0x5a374b,1/180000d),BeddingB=120*SphereNoise.Sample(b*radius,seed^0x5a374b,1/180000d)};
                 int index=reaches.Count;reaches.Add(reach);
                 double support=(a-b).Length*radius*.5+width*12+margin;
                 var queue=new Queue<int>();var visited=new HashSet<int>();queue.Enqueue(source);visited.Add(source);

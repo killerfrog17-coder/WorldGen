@@ -1,0 +1,15 @@
+{
+  "status": "Numerical controls passed; actual world/edges finishing, native appearance pending",
+  "source": "Unbuilt terrain65/amplification58/scatter33",
+  "method": "Thicker unequal dominant formations with seeded resistance and weak inclined beds. Monotone altitude warp and shared node bedding phases; no per-point noise calls added, no extra objects or passes.",
+  "checks": {
+    "monotone_cut_only_profile_controls": 214372
+  },
+  "research": [
+    {
+      "url": "https://home.nps.gov/subjects/geology/plate-tectonics-passive-continental-margins.htm",
+      "application": "Resistant sandstone/limestone can form steep cliffs, weaker shale gentler slopes; use unequal resistance rather than a repeated universal staircase."
+    }
+  ],
+  "performance": "No new FPS measurement; owner is playing another game."
+}

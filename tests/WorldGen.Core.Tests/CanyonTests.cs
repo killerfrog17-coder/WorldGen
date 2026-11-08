@@ -41,12 +41,18 @@ static class CanyonTests
             }
             Check(distances.Count>50,"Canyon shoulders vary along their length rather than making constant-width tracks");
         }
+        var first=new CanyonValleys.Reach{HalfWidth=1600,Relief=1200,Strength=.8,BeddingSeed=73421};
+        var second=new CanyonValleys.Reach{HalfWidth=1600,Relief=1200,Strength=.8,BeddingSeed=91};
+        Check(Enumerable.Range(200,600).Count(i=>Math.Abs(first.Floor(i*2,1400)-second.Floor(i*2,1400))>10)>100,"Independent geology seeds produce different dominant formations, not identical global staircases");
         Console.WriteLine($"PASS {checks} bounded cut-only canyon profiles and exposed beds");
     }
     public static void World(string path,string output)
     {
         Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);var clock=System.Diagnostics.Stopwatch.StartNew();
         var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var canyons=terrain.Amplification.Canyons;
+        var bySource=canyons.Reaches.ToDictionary(r=>r.Source);
+        foreach(var r in canyons.Reaches)if(bySource.TryGetValue(world.Hydrology.Receiver[r.Source],out var next)&&r.BeddingB!=next.BeddingA)
+            throw new Exception("Adjacent reaches do not share their geological bedding datum");
         Console.WriteLine($"Canyon candidate reaches {canyons.Reaches.Length}, indexed faces {canyons.IndexedFaces}, numeric index {canyons.IndexBytes} bytes; prepare {clock.Elapsed.TotalSeconds:F2}s");
         var rows=new List<object>();
         foreach(var reach in canyons.Reaches.OrderByDescending(r=>r.Strength*r.Relief).Take(40))
