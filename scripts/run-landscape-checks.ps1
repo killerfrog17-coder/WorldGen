@@ -10,6 +10,7 @@ param(
     [switch]$WaterShadingReview,
     [switch]$CliffReview,
     [switch]$Presented,
+    [ValidateSet('Windowed','Borderless')][string]$WindowMode='Windowed',
     [switch]$KeepOpen,
     [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateRange(0,4)][int]$PlantQuality=3,
@@ -17,6 +18,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 if($KeepOpen -and (!$Presented -or $Kinds.Count -ne 1)){throw 'KeepOpen requires one presented review kind.'}
+if($WindowMode -eq 'Borderless' -and !$Presented){throw 'Borderless review requires a presented player'}
 $repoRoot=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repoRoot ('builds/'+$Slot+'/WorldGen.exe')
 if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not review it.'}
@@ -33,8 +35,11 @@ foreach($kind in $Kinds){
     if(Test-Path -LiteralPath (Join-Path $output 'exit-code.txt')){throw 'Preserve completed evidence and choose a new prefix.'}
     New-Item -ItemType Directory -Force -Path $output | Out-Null
     # These render into explicit textures, so no interactive window is needed.
-    $arguments=@('-monitor',$reviewMonitorIndex,'-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
+    $reviewWidth=if($WindowMode -eq 'Borderless'){$reviewScreen.Bounds.Width}else{1536}
+    $reviewHeight=if($WindowMode -eq 'Borderless'){$reviewScreen.Bounds.Height}else{864}
+    $arguments=@('-monitor',$reviewMonitorIndex,'-screen-width',[string]$reviewWidth,'-screen-height',[string]$reviewHeight,'-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
     if($Presented){$arguments+='--worldgen-landscape-presented'}else{$arguments+='-batchmode'}
+    if($WindowMode -eq 'Borderless'){$arguments+=@('--worldgen-landscape-window-mode','Borderless')}
     if($KeepOpen){$arguments+='--worldgen-landscape-keep-open'}
     if($TreeAlphaReview){$arguments+='--worldgen-tree-alpha-review'}
     if($GrassReview){$arguments+='--worldgen-grass-review'}

@@ -1,6 +1,6 @@
 {
   "utc": "2026-11-08T11:34:26.474905+00:00",
-  "status": "Water checkpoint held for presentation-cost diagnosis; no shortcut promotion",
+  "status": "Matched borderless pond comparison passed; visual dune candidate still unaccepted",
   "conditions": "1920x1080 Medium, 6km, 45s 180m moving loop with turns; windowed; exact requested starts; all focused",
   "candidate": "A FULL Mono nondev c0f55bb8",
   "reference": "B f5936062",
@@ -442,8 +442,118 @@
       ],
       "receipts": "pond-water requested=(-0.15858058,0.532420732,-0.831492853); actual=(-0.15858058,0.532420732,-0.831492853); displacement=0m; cell=16641; biome=Peatland; landscape=Peatland; ground=38.066m; underwater=True; water=Lake/42.742841844451831m; glacial=0.42293304956564859\nwetland-water requested=(-0.125929174,0.37764606,-0.917346879); actual=(-0.125929174,0.37764606,-0.917346879); displacement=0m; cell=8190; biome=Marsh; landscape=FreshwaterMarsh; ground=16.489m; underwater=True; water=Lake/16.529190897763439m; glacial=0.05072750628862141\n",
       "focus": "pond-water travel-whip-water-surface focused_frames=12288 unfocused_frames=0\nwetland-water travel-whip-water-surface focused_frames=14306 unfocused_frames=0\n"
+    },
+    "pond-borderless-diagnostic-a": {
+      "complete": true,
+      "summary": [
+        {
+          "site": "pond-water",
+          "cell": "16641",
+          "biome": "TemperateForest",
+          "relief": "54",
+          "case": "travel-whip-water-surface",
+          "frames": "12455",
+          "seconds": "35.00518",
+          "fps": "355.80447",
+          "p50_ms": "2.59320",
+          "p95_ms": "4.67410",
+          "p99_ms": "6.99560",
+          "max_ms": "18.87980",
+          "over10ms": "6",
+          "over16ms": "1",
+          "scatter_update_ms": "0.21091",
+          "scatter_submit_ms": "0.23150",
+          "grass_submit_ms": "0.36280",
+          "weather_ms": "0.04764",
+          "tiles": "198",
+          "wanted": "190",
+          "objects": "2219",
+          "specialists": "147",
+          "mid": "1960",
+          "trees": "8",
+          "scatter_draws": "85",
+          "grass_draws": "41",
+          "grass_candidates": "601714",
+          "grass_bytes": "85347320",
+          "frustum_rejected": "175245",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "1433650181",
+          "end_qpc": "1783702019",
+          "gpu_ms": "1.67658",
+          "cpu_ms": "2.78843",
+          "timing_samples": "8774",
+          "gpu_drain_ms": "3.11100",
+          "start_utc": "2026-11-08T11:55:09.9280920Z",
+          "end_utc": "2026-11-08T11:55:44.9342454Z"
+        }
+      ],
+      "receipts": "pond-water requested=(-0.15858058,0.532420732,-0.831492853); actual=(-0.15858058,0.532420732,-0.831492853); displacement=0m; cell=16641; biome=Peatland; landscape=Peatland; ground=38.066m; underwater=True; water=Lake/42.742841844451831m; glacial=0.42293304956564859\n",
+      "focus": "pond-water travel-whip-water-surface focused_frames=12455 unfocused_frames=0\n",
+      "presentation": "pond-water travel-whip-water-surface parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\npond-water travel-whip-water-surface presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+      "presentmon_available": false
+    },
+    "pond-borderless-diagnostic-b": {
+      "complete": true,
+      "summary": [
+        {
+          "site": "pond-water",
+          "cell": "16641",
+          "biome": "TemperateForest",
+          "relief": "54",
+          "case": "travel-whip-water-surface",
+          "frames": "12484",
+          "seconds": "35.00465",
+          "fps": "356.63832",
+          "p50_ms": "2.58520",
+          "p95_ms": "4.64100",
+          "p99_ms": "6.89580",
+          "max_ms": "41.00600",
+          "over10ms": "9",
+          "over16ms": "1",
+          "scatter_update_ms": "0.21268",
+          "scatter_submit_ms": "0.23672",
+          "grass_submit_ms": "0.36954",
+          "weather_ms": "0.04657",
+          "tiles": "198",
+          "wanted": "190",
+          "objects": "2196",
+          "specialists": "147",
+          "mid": "1937",
+          "trees": "8",
+          "scatter_draws": "84",
+          "grass_draws": "41",
+          "grass_candidates": "601714",
+          "grass_bytes": "85347320",
+          "frustum_rejected": "175237",
+          "terrain_rejected": "0",
+          "settled": "False",
+          "start_qpc": "1443594179",
+          "end_qpc": "1793640722",
+          "gpu_ms": "1.64305",
+          "cpu_ms": "2.76823",
+          "timing_samples": "8902",
+          "gpu_drain_ms": "3.11520",
+          "start_utc": "2026-11-08T11:58:37.3692191Z",
+          "end_utc": "2026-11-08T11:59:12.3747138Z"
+        }
+      ],
+      "receipts": "pond-water requested=(-0.15858058,0.532420732,-0.831492853); actual=(-0.15858058,0.532420732,-0.831492853); displacement=0m; cell=16641; biome=Peatland; landscape=Peatland; ground=38.066m; underwater=True; water=Lake/42.742841844451831m; glacial=0.42293304956564859\n",
+      "focus": "pond-water travel-whip-water-surface focused_frames=12484 unfocused_frames=0\n",
+      "presentation": "pond-water travel-whip-water-surface parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\npond-water travel-whip-water-surface presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+      "presentmon_available": false
     }
   },
-  "conclusion": "Pond and fresh marsh candidate slower in both orders; measured gameplay Update differs only about .05ms. Diagnostic engine timing + PresentMon show long presentation/GPU waits with actual GPU busy max3.30ms; exclusive comparison pending. Do not label this a proven geometry or shader regression. River mean/p99 improved in first pair. 100FPS absolute floor not met.",
-  "known_water_edge": "source52127 .585m boundary already present exactly in baseline; strict containment gate still fails"
+  "conclusion": "Windowed pond slowdown repeated, but matched FULLSCREEN BORDERLESS actual0m 35s moving pond routes are essentially equal: candidate355.80FPS/p996.996ms vs baseline356.64/p996.896. Candidate GPUmean1.677ms, baseline1.643ms with valid Unity CPU timing. This supports a window-presentation/wait explanation rather than a large new geometry cost; it does not prove a specific DWM mechanism. No PresentMon CSV from either borderless run, so do not claim IndependentFlip was measured. One spike each: candidate18.88ms, old baseline41.01ms; 100FPS absolute floor still unmet. New dunes were already proved21packet-exact at this pond site.",
+  "known_water_edge": "source52127 .585m boundary already present exactly in baseline; strict containment gate still fails",
+  "sources": [
+    {
+      "title": "Unity flip-model swapchain documentation",
+      "url": "https://docs.unity.com/en-us/engine/6000.5/script-reference/unityeditor/playersettings/useflipmodelswapchain"
+    },
+    {
+      "title": "PresentMon official metrics",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/main/README-ConsoleApplication.md"
+    }
+  ]
 }

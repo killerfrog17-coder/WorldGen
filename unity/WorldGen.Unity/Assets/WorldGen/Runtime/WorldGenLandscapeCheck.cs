@@ -62,6 +62,10 @@ public sealed partial class LocalTerrainExplorer
         // explicit real game preset, rather than obsolete120/450m field defaults.
         var arguments=Environment.GetCommandLineArgs();int qualityOption=Array.IndexOf(arguments,"--worldgen-landscape-quality");
         bool presented=arguments.Contains("--worldgen-landscape-presented");
+        int windowOption=Array.IndexOf(arguments,"--worldgen-landscape-window-mode");
+        if(presented&&windowOption>=0&&arguments[windowOption+1]=="Borderless")
+        {Screen.SetResolution(Screen.width,Screen.height,FullScreenMode.FullScreenWindow);yield return null;}
+        File.WriteAllText(Path.Combine(output,"review-window.txt"),Screen.fullScreenMode+" "+Screen.width+"x"+Screen.height+" presented="+presented);
         int sourceOption=Array.IndexOf(arguments,"--worldgen-landscape-source"),pinnedSource=sourceOption<0?-1:int.Parse(arguments[sourceOption+1]);
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
         bool duneReview=kind=="BarchanDunes"||kind=="StarDunes";
