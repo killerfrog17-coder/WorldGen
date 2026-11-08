@@ -1,0 +1,122 @@
+{
+  "title": "WorldGen - NPC Thoughts and Dialogue",
+  "section": "NPC FOUNDATION",
+  "footer": "Actual packaged-game captures - event-driven local NPC prototype",
+  "date": "08 NOVEMBER 2026",
+  "pages": [
+    {
+      "title": "People can respond and act",
+      "subtitle": "Schedules continue; special events can prompt a short thought and a temporary intention.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "npc-conversation.jpg",
+              "caption": "Actual local-model reply from fojuce: ?I am gathering wild plants for food and materials.? The optional panel shows current activity, condition, thought and intention. Captured before the final name-capitalization touch-up (Fojuce / Janapsip)."
+            }
+          ],
+          "max_height": 280
+        },
+        {
+          "table": {
+            "headers": [
+              "Try it",
+              "What happens"
+            ],
+            "rows": [
+              [
+                "Look at a tribal NPC and press E",
+                "Type a message, then Enter. The NPC listens immediately; the model replies asynchronously. Enter opens another message while that person remains nearby."
+              ],
+              [
+                "/npcthoughts on | off",
+                "Inspect the aimed, selected or nearest resident: actual activity/speed, health, breath/fatigue, normal routine, current plan and short fictional thought."
+              ],
+              [
+                "/npcai status | on | off",
+                "Inspect or disable the local model. Ordinary schedules continue independently. Settings live in the shared per-user NPC cache."
+              ]
+            ],
+            "widths": [
+              0.31,
+              0.69
+            ]
+          }
+        },
+        {
+          "text": "<b>Verified:</b> 17 Core mind assertions and 17 actual game checks: interaction, immediate listening, real replies, physical approach before speech, rest/resume, memory and owned-host cleanup. Another 120 identity/selection/save assertions include capitalization checks for twelve generated residents.",
+          "size": 9
+        },
+        {
+          "text": "<b>Current limit:</b> replies are text in English translation. The small model can still invent incidental details; it cannot grant items or perform unsupported actions. Full-context CPU replies can be slow: the final native reply took 22.05 seconds. No new FPS claim is made.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "Small, bounded decisions",
+      "subtitle": "One shared local model; no world-wide NPC thinking loop.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "thought-panel.jpg",
+              "caption": "Actual debug panel cropped from the same game frame. ?Thought? is a generated character intention; actual activity is read from the live actor."
+            }
+          ],
+          "max_height": 180
+        },
+        {
+          "table": {
+            "headers": [
+              "Part",
+              "Implemented behavior"
+            ],
+            "rows": [
+              [
+                "Triggers",
+                "Direct speech; nearby NPC address; injury; one observer noticing an unfamiliar visitor per community. Ordinary movement does not request inference."
+              ],
+              [
+                "Budget",
+                "One request in flight; queue of eight, with direct speech priority. Passive events have cooldowns. A visitor can trigger at most one background request per 20 seconds across nearby communities."
+              ],
+              [
+                "Context",
+                "Actual identity, age, band, culture/language, known techniques, family links, current work/condition, nearby targets and short memories."
+              ],
+              [
+                "Execution",
+                "Approach, speak, wait, rest, flee or resume. Only supplied target identities are accepted. Existing navigation moves the actor; urgent group alarms override the model."
+              ],
+              [
+                "Memory",
+                "Up to twelve short records per encountered person, saved with local world state. Live action plans are temporary and expire back to the routine."
+              ],
+              [
+                "Local runtime",
+                "Qwen3-4B-Instruct-2507 Q4_K_M, llama.cpp b12211. Two low-priority CPU threads, no GPU offload. Loaded only on the first event. A Windows job binds host lifetime to the game."
+              ]
+            ],
+            "widths": [
+              0.22,
+              0.78
+            ]
+          }
+        },
+        {
+          "text": "The 0.8B and 2B trials were rejected for confused speakers or unsupported details. Six structured 4B smoke cases returned valid decisions; the final packaged-game conversation was inspected separately. This remains a prototype dialogue model, not a complete NPC reasoning system.",
+          "size": 9
+        },
+        {
+          "text": "<b>Rebuild inputs:</b> pinned model/runtime hashes and licenses in assets/npc-ai/runtime.json; setup-npc-ai.py installs the shared cache; check-npc-model.py repeats the CPU model cases. Full test receipts are in assets/verification/npc-minds-20261108.json.",
+          "size": 9
+        },
+        {
+          "text": "<b>Primary sources:</b> <a href=\"https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507\">Qwen model card / Apache-2.0 license</a>; <a href=\"https://github.com/ggml-org/llama.cpp/tree/b12211/tools/server\">llama.cpp server / MIT license</a>.",
+          "size": 8
+        }
+      ]
+    }
+  ]
+}

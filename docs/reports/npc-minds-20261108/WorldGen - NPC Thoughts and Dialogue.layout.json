@@ -1,0 +1,94 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 422.32976377952775,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-minds-20261108\\npc-conversation.jpg",
+    "bottom": 449.08976377952774,
+    "height": 280
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 217.76976377952775,
+    "height": 34.56
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 182.72976377952776,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 533.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\npc-minds-20261108\\thought-panel.jpg",
+    "bottom": 549.0897637795277,
+    "height": 180
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 226.16976377952776,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 191.12976377952776,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 168.88976377952775,
+    "height": 10.24
+  }
+]
