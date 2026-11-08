@@ -67,6 +67,9 @@ static class WetlandVegetationTests
         var cover=new GroundCoverProfile{Stature=1};var mid=new MidCoverProfile();var forest=new ForestCoverProfile();var biome=Biome.SaltMarsh;
         LandscapeProvince.Cover(new LandscapeControls{Wet=1,Peat=1},new V(10,20,30),73421,ref cover,ref mid,ref forest,ref biome);
         Check(biome==Biome.SaltMarsh,"Organic tidal marsh remains tidal rather than being renamed freshwater peatland");
+        biome=Biome.Ocean;
+        LandscapeProvince.Cover(new LandscapeControls{Wet=1,Peat=1},new V(10,20,30),73421,ref cover,ref mid,ref forest,ref biome);
+        Check(biome==Biome.Ocean,"Wet neighbouring profiles do not rename offshore ocean into a terrestrial marsh or peatland");
         var fake=new World{Recipe=Recipe.Preset("Preview"),Ecology=new EcologyResult{Regions=new[]{new Ecoregion{RepresentativeCell=0,ProvinceId=3}},Habitat=new[]{saline}}};
         var a=MidFlora.Create(fake,0,3);var b=MidFlora.Create(fake,0,3);
         for(int i=0;i<a.Length;i++)

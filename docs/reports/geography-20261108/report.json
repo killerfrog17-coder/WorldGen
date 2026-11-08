@@ -107,32 +107,40 @@
           "text": "RTX 4060 / Ryzen 7 5700X, 1920 ? 1080, Medium, 6 km view, 45-second moving loops with rapid turns. All recorded frames focused. These are selected routes, not proof of the worst location in the world."
         },
         {
-          "table": [
-            [
+          "table": {
+            "headers": [
               "Route",
               "Earlier FPS",
               "Current FPS",
               "Current p99 / max"
             ],
-            [
-              "Crescent site",
-              "753",
-              "752",
-              "2.56 / 11.87 ms"
+            "rows": [
+              [
+                "Crescent site",
+                "753",
+                "752",
+                "2.56 / 11.87 ms"
+              ],
+              [
+                "Dense jungle",
+                "193",
+                "195",
+                "10.39 / 32.89 ms"
+              ],
+              [
+                "Temperate forest",
+                "193",
+                "197",
+                "10.92 / 28.89 ms"
+              ]
             ],
-            [
-              "Dense jungle",
-              "193",
-              "195",
-              "10.39 / 32.89 ms"
-            ],
-            [
-              "Temperate forest",
-              "193",
-              "197",
-              "10.92 / 28.89 ms"
+            "widths": [
+              0.3,
+              0.19,
+              0.19,
+              0.32
             ]
-          ]
+          }
         },
         {
           "text": "Mean performance is comparable on these routes. The maxima are individual observations, not a proven spike improvement. Final results use the clean full build; an earlier package with worse timing was rejected.",

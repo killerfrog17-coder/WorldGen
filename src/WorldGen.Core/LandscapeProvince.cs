@@ -211,12 +211,12 @@ namespace WorldGen.Core
                 for(int f=0;f<3;f++)cover.SetWeight(f,cover.Weight(f)*(1-.92*wet));
                 cover.SetWeight(3,Math.Max(cover.Weight(3),.36*wet*open));
                 forest.Coverage*=1-.985*wet*open;
-                if(controls.Peat>.55&&!tidalWetland)
+                if(controls.Peat>.55&&!tidalWetland&&biome!=Biome.Ocean)
                 {
                     cover.SetWeight(6,Math.Max(cover.Weight(6),.35*wet));
                     cover.Stature*=.65;biome=Biome.Peatland;
                 }
-                else if(wet>.8&&open>.75&&!tidalWetland)biome=Biome.Marsh;
+                else if(wet>.8&&open>.75&&!tidalWetland&&biome!=Biome.Ocean)biome=Biome.Marsh;
             }
             if(tidalForest)
             {

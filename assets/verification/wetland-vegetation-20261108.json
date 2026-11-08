@@ -1,10 +1,10 @@
 {
   "utc": "2026-11-08T14:15:37.463433+00:00",
-  "status": "v1 all three native contexts passed runtime/placement checks; freshwater visual accepted. Coastal v1 art RETIRED: freshwater cattail heads inappropriate for marine ecotypes. v2 uses basal blades and fine flowering sprays at same stem/leaf LOD counts. Native v2 and FPS still pending.",
+  "status": "Terrain73 source audit passed128215 checks; strict actual submerged saltmarsh fixture now retains mapped saltmarsh identity. Native coastal v3 and FPS pending. v1 freshwater retained, v1 coastal cattail visuals retired.",
   "versions": {
-    "terrain": 72,
+    "terrain": 73,
     "amplification": 64,
-    "scatter": 41,
+    "scatter": 42,
     "wire": 10
   },
   "changes": [
@@ -13,17 +13,18 @@
     "Admit marine-adapted emergents in shallow mapped tidal water, never offshore ocean or fast/deep water.",
     "Use physical coastal habitat salinity for marine ecotypes; freshwater soil-index limits remain unchanged.",
     "Strengthen relative emergent establishment in wetlands with the same helper for near placement and expected distant cover. Keep the existing candidate grid, ID layout, colony sizes, models and material passes.",
-    "Shorter coastal emergent phenotypes with a reserved bit30 coastal form flag. Founder bits/names and colony noise are preserved. Coastal mesh uses grass/rush basal blades and fine flowering sprays, no cigar seed heads."
+    "Shorter coastal emergent phenotypes with a reserved bit30 coastal form flag. Founder bits/names and colony noise are preserved. Coastal mesh uses grass/rush basal blades and fine flowering sprays, no cigar seed heads.",
+    "Preserve adjacent mapped tidal habitat below sea level only within1.2m depth, wetland support>0.5 and ocean mixture<0.75. Prevent generic wet material blending from renaming offshore Ocean into Marsh/Peatland. No height, water datum or footprint change."
   ],
   "constraints": "Species pH, temperature, soil depth, salt, flow and canopy limits remain. ReedStand includes emergent grasses/rushes; the coastal variants are not ordinary freshwater reeds. More admitted instances may have a cost: native moving comparison is still required.",
   "tests": {
-    "controls": 92,
+    "controls": 93,
     "wetland_regression": 101466,
     "landscape_regression": 35902,
     "pond_regression": 138,
     "world": {
-      "checks": 120049,
-      "ElapsedSeconds": 17.0651646,
+      "checks": 128215,
+      "ElapsedSeconds": 17.5953385,
       "WorldHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
       "Sites": [
         {
@@ -74,11 +75,11 @@
           "Ground": 0.651,
           "Water": 0,
           "Pages": 9,
-          "Instances": 13872,
-          "Reeds": 12495,
-          "Submerged": 68,
-          "LowTidal": 9066,
-          "MaximumDepth": 0.659
+          "Instances": 15240,
+          "Reeds": 13863,
+          "Submerged": 1422,
+          "LowTidal": 10436,
+          "MaximumDepth": 0.724
         }
       ]
     },
@@ -103,7 +104,46 @@
       }
     ],
     "tropical_upland_complete_wire_packets_exact": 21,
-    "temperate_full_wire_failure": "Retained failure: only MidCover differs in diagnostic tile,25338 components,max1.9073486328125e-6; no other arrays/bounds differ. Do not claim all upland packets exact."
+    "temperate_full_wire_failure": "Retained failure: only MidCover differs in diagnostic tile,25338 components,max1.9073486328125e-6; no other arrays/bounds differ. Do not claim all upland packets exact.",
+    "strict_submerged_fixtures": [
+      {
+        "Name": "warm-marsh-water",
+        "Position": {
+          "X": -0.477462766,
+          "Y": 0.654419239,
+          "Z": -0.586314563
+        },
+        "Ground": 37.733,
+        "Water": 37.90761243790032,
+        "Kind": "Lake",
+        "Biome": "Marsh"
+      },
+      {
+        "Name": "mangrove-water",
+        "Position": {
+          "X": -0.876280631,
+          "Y": 0.404619675,
+          "Z": -0.261562942
+        },
+        "Ground": -0.136,
+        "Water": 0,
+        "Kind": "Ocean",
+        "Biome": "Mangrove"
+      },
+      {
+        "Name": "saltmarsh-water",
+        "Position": {
+          "X": 0.478334598,
+          "Y": 0.158010148,
+          "Z": 0.863845359
+        },
+        "Ground": -0.467,
+        "Water": 0,
+        "Kind": "Ocean",
+        "Biome": "SaltMarsh"
+      }
+    ],
+    "physical_reference71_status": "Earlier36 packets passed; rerunning same explicit geometry+water proof for73 before native acceptance."
   },
   "sources": [
     "https://research.fs.usda.gov/feis/species-reviews/phraus",

@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-wetland-establishment-72";
+        public const string Version = "local-terrain-shallow-tidal-habitat-73";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -390,9 +390,14 @@ namespace WorldGen.Core
                 {
                     var surface=amplified.Sample(point,dry,mapSpacingM);
                     // A refined headland/bar can cross a coarse ocean cell.
-                    // Dry shoreline ground uses the adjacent terrestrial
-                    // community rather than retaining an "Ocean" land biome.
-                    if(biome==Biome.Ocean&&surface.Height>0&&landCell>=0){cell=landCell;biome=landBiome;}
+                    // Dry ground uses the adjacent land community. Preserve a
+                    // mapped tidal community just below mean sea level too:
+                    // emergents root in shallow flooded mud, not only dry land.
+                    // Keep this bounded by depth, actual wetland support and
+                    // coastal mixture; it cannot seed ordinary offshore ocean.
+                    bool shallowTidal=MidFlora.Tidal(landBiome)&&surface.Kind==LocalWaterKind.Ocean&&surface.Water==0&&
+                        surface.Height>=-1.2&&surface.Landscape.Wet>.5&&ocean/sum<.75;
+                    if(biome==Biome.Ocean&&landCell>=0&&(surface.Height>0||shallowTidal)){cell=landCell;biome=landBiome;}
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
                     if(!heightOnly)ground=LandscapeProvince.Ground(ground,surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed);
                     if(!heightOnly)LandscapeProvince.Cover(surface.Landscape,point*(owner.RadiusM*owner.HorizontalScale),seed,ref cover,ref midCover,ref forest,ref biome);
