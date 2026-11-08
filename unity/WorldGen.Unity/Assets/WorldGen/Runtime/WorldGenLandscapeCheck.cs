@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
         bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
         bool wideReview=drylandReview||kind=="WetlandComplex";
-        double reviewRange=wideReview?2000:900,reviewFootprint=wideReview?1200:600;
+        double reviewRange=arguments.Contains("--worldgen-cliff-review")?6000:wideReview?2000:900,reviewFootprint=wideReview?1200:600;
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory?.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
@@ -624,12 +624,12 @@ public sealed partial class LocalTerrainExplorer
                 .SelectMany(chunk=>Enumerable.Range(0,chunk.Source.Instances.Length).Where(i=>chunk.Source.Instances[i].Kind==ScatterKind.Outcrop&&CliffRocks.Is(chunk.Source.Instances[i].Variant)).Select(i=>new{Chunk=chunk,Index=i}))
                 .OrderBy(item=>item.Chunk.Roots[item.Index].sqrMagnitude).Take(8).ToArray();
             Check(cliffs.Length>0,"Actual resident exposed walls contain jointed cliff geometry");
-            owner.PreparePlayerSolids();Vector3? reachableRoof=null;
+            owner.PreparePlayerSolids();Vector3? reachableRoof=null;Vector3 roofEye=default;
             for(int i=0;i<cliffs.Length;i++)
             {
                 var item=cliffs[i];var rock=item.Chunk.Source.Instances[item.Index];var mesh=owner.Art(rock.Kind,rock.Variant,0).Parts[0].Mesh;
                 Check(mesh.triangles.Length/3<=3200,"Cliff near geometry is bounded to3200triangles per mass");
-                if(!reachableRoof.HasValue&&owner.ReviewCliffRoof(item.Chunk,item.Index,out var roof))reachableRoof=roof;
+                if(!reachableRoof.HasValue&&owner.ReviewCliffRoof(item.Chunk,item.Index,out var roof,out var eye)){reachableRoof=roof;roofEye=eye;}
                 if(i>=3)continue;
                 var center=item.Chunk.Matrices[item.Index].MultiplyPoint3x4(new Vector3(0,.5f,0));
                 var outward=new Vector3((float)V.Dot(rock.Normal,owner.frame.East),(float)V.Dot(rock.Normal,owner.frame.Origin),(float)V.Dot(rock.Normal,owner.frame.North)).normalized;
@@ -638,7 +638,7 @@ public sealed partial class LocalTerrainExplorer
             }
             Check(reachableRoof.HasValue,"Actual nonconvex cliff collider has a downward-facing ledge more than2.3m above physical ground");
             var beneath=reachableRoof.Value;
-            yield return owner.StartCoroutine(Capture("cliff-overhang",new Vector3(beneath.x,0,beneath.z),true,inspectionTarget:beneath));
+            yield return owner.StartCoroutine(Capture("cliff-overhang",new Vector3(roofEye.x,roofEye.y-y-.5f,roofEye.z),inspectionTarget:beneath));
         }
         if(site.Fall.HasValue)
         {

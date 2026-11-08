@@ -35,7 +35,7 @@ namespace WorldGen.Core
             // buried backing as a rectangular wall or a thin isolated flap.
             V upright=(point-normal*V.Dot(point,normal)).Unit,sideways=V.Cross(upright,normal).Unit;
             bool fits=false;
-            for(int attempt=0;attempt<4;attempt++)
+            for(int attempt=0;attempt<5;attempt++)
             {
                 fits=true;
                 for(int y=-1;y<=1&&fits;y++)for(int x=-1;x<=1;x++)

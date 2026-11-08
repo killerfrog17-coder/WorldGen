@@ -6,9 +6,9 @@ public sealed partial class LocalTerrainExplorer
 {
     // Opt-in native review only. Queries the same nonconvex meshes and nearby
     // collider installation that ordinary player movement uses.
-    bool ReviewCliffRoof(ScatterChunk chunk,int index,out Vector3 roof)
+    bool ReviewCliffRoof(ScatterChunk chunk,int index,out Vector3 roof,out Vector3 eye)
     {
-        roof=default;var source=chunk.Source.Instances[index];
+        roof=eye=default;var source=chunk.Source.Instances[index];
         var center=chunk.Matrices[index].MultiplyPoint3x4(new Vector3(0,.5f,0));
         RefreshPlayerSolids(center,center);
         if(!scatterSolids.TryGetValue(source.Id,out var solid))return false;
@@ -26,8 +26,13 @@ public sealed partial class LocalTerrainExplorer
                 var candidate=(a+b+c)/3;var local=transform.InverseTransformPoint(candidate);
                 var at=frame.Position(local.x+originX,local.z+originZ);double floor=frame.SurfaceY(at,patch.Elevation(at));
                 if(local.y-floor<2.3)continue;
-                if(collider.Raycast(new Ray(candidate-transform.up*.08f,transform.up),out var hit,.16f)&&hit.distance<.12f)
-                {roof=local;return true;}
+                var outside=candidate+face*Mathf.Clamp((float)source.WidthM*.15f,2,6);
+                var outsideLocal=transform.InverseTransformPoint(outside);var outsideAt=frame.Position(outsideLocal.x+originX,outsideLocal.z+originZ);
+                double outsideFloor=frame.SurfaceY(outsideAt,patch.Elevation(outsideAt));
+                if(outsideLocal.y-outsideFloor<1.65)continue;
+                var ray=new Ray(outside,(candidate-outside).normalized);float distance=(candidate-outside).magnitude;
+                if(collider.Raycast(ray,out var hit,distance+.1f)&&(hit.point-candidate).sqrMagnitude<.01f)
+                {roof=local;eye=outsideLocal;return true;}
                 if(++probes>128)return false;
             }
         }
