@@ -1,0 +1,21 @@
+{
+  "started_utc": "2026-11-08T07:50:34Z",
+  "intent": "Continue geography overnight while owner sleeps; preserve approved cliff materials.",
+  "constraints": [
+    "No subagents",
+    "Two reusable game slots only; protect selected build",
+    "All canonical inputs Git/release backed; artifacts disposable",
+    "Game reviews leftmost per latest owner override; Unity hidden/rightmost; final PDF Chrome leftmost",
+    "No changes to animal/human models or sky/weather appearance",
+    "No new runtime source edits/builds during native performance measurements"
+  ],
+  "sequence": [
+    "Uncontended moving comparison of current cliff candidate vs selected baseline; inspect frame tails and actual placement before promotion",
+    "Inspect actual current lowland meander/alluvial and small/wide channel views; research morphology and diagnose remaining realism gaps",
+    "Implement strongest justified river morphology/bank improvement with shared terrain-water-root geometry and bounded query cost",
+    "Validate real junctions, receiving water, mixed detail and actual visuals; paired moving/loading checks before acceptance",
+    "Further geography only after river change is satisfactory; dune diversity and wetland vegetation are candidates",
+    "One concise final screenshot PDF and regular focused Git pushes; save honest continuation state if interrupted"
+  ],
+  "status": "Starting paired cliff performance; river design not decided until current views/data reviewed."
+}

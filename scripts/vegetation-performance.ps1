@@ -15,6 +15,7 @@ param(
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
     [switch]$Presented,
+    [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateSet('Windowed','Borderless','Exclusive')][string]$WindowMode='Windowed',
     [ValidateSet('Default','Flip','BitBlt')][string]$SwapChain='Default',
     [switch]$StutterTrace,
@@ -67,9 +68,9 @@ if($CpuTiming){if(!$StutterTrace){throw 'CPU frame timing requires StutterTrace 
 if($GpuProfile){$arguments+='--worldgen-gpu-profile'}
 if($Presented){
     Add-Type -AssemblyName System.Windows.Forms
-    $reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
-    $reviewMonitorIndex=[regex]::Match($reviewMonitor.DeviceName,'\d+$').Value
-    if(!$reviewMonitorIndex){throw 'Cannot identify rightmost monitor for presented comparison'}
+    $reviewScreen=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending:($ReviewMonitor -eq 'Rightmost')|Select-Object -First 1
+    $reviewMonitorIndex=[regex]::Match($reviewScreen.DeviceName,'\d+$').Value
+    if(!$reviewMonitorIndex){throw 'Cannot identify selected monitor for presented comparison'}
     $arguments+=@('--worldgen-perf-presented','--worldgen-perf-window-mode',$WindowMode,'-monitor',$reviewMonitorIndex)
 }
 if($SavedSettings){$arguments+='--worldgen-perf-saved-settings'}
@@ -107,7 +108,7 @@ try {
     # being measured; ordinary offscreen evidence remains a hidden helper.
     $playerWindowStyle=if($Presented){'Normal'}else{'Hidden'}
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle $playerWindowStyle -PassThru
-    if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $run.Id}
+    if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $run.Id -Monitor $ReviewMonitor}
     if($PresentMon){
         $capture=Start-Process -FilePath (Join-Path $repo 'tools/PresentMon/PresentMon.exe') -ArgumentList @('--process_id',"$($run.Id)",'--output_file',('"'+(Join-Path $destination 'presentmon.csv')+'"'),'--qpc_time','--no_console_stats','--terminate_on_proc_exit','--session_name',"WorldGenPerf$($run.Id)") -RedirectStandardOutput (Join-Path $destination 'presentmon-output.txt') -RedirectStandardError (Join-Path $destination 'presentmon-error.txt') -WindowStyle Hidden -PassThru
     }

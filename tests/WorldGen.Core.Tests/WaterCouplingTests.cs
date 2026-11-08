@@ -276,7 +276,7 @@ static class WaterCouplingTests
                 bankEdges+=ContainedBoundary(mesh,trace:(xx,zz,yy)=>{
                     Console.WriteLine($"EDGE {site.Item1} at {xx:R},{zz:R},{yy:R}");
                     var edgeAt=frame.Position(mesh.EastM+xx,mesh.NorthM+zz);var edgeSample=patch.Sample(edgeAt);
-                    Console.WriteLine($"seaY {frame.SurfaceY(edgeAt,0):R}; exact kind {edgeSample.WaterKind}, level {edgeSample.WaterSurfaceM:R}, exactY {frame.SurfaceY(edgeAt,edgeSample.WaterSurfaceM):R}");
+                    Console.WriteLine($"seaY {frame.SurfaceY(edgeAt,0):R}; exact kind {edgeSample.WaterKind}, level {edgeSample.WaterSurfaceM:R}, exactY {frame.SurfaceY(edgeAt,edgeSample.WaterSurfaceM):R}, exactGround {edgeSample.ElevationM:R}, exactGroundY {frame.SurfaceY(edgeAt,edgeSample.ElevationM):R}, underwater {edgeSample.Underwater}, footprint {edgeSample.WaterFootprintM:R}");
                     var wp=mesh.WaterPositions;int printed=0;
                     for(int kk=0;kk<mesh.WaterTriangles.Length;kk+=3)
                     {
@@ -295,7 +295,12 @@ static class WaterCouplingTests
                 for(int k=0;k<mesh.WaterPositions.Length;k+=3)
                 {
                     double x=mesh.EastM+mesh.WaterPositions[k],z=mesh.NorthM+mesh.WaterPositions[k+2];var at=frame.Position(x,z);var s=patch.Sample(at);
-                    if(s.ElevationM>s.PreWaterElevationM+.002)throw new Exception("Water shaping raised terrain instead of cutting its bed: "+site.Item1);
+                    if(s.ElevationM>s.PreWaterElevationM+.002)
+                    {
+                        var withoutDetail=patch.SampleMap(at,8.00001);
+                        Console.WriteLine($"RAISE DIAGNOSTIC {site.Item1}: x{x:R} z{z:R}; point{at.X:R},{at.Y:R},{at.Z:R}; kind{s.WaterKind}, underwater{s.Underwater}, footprint{s.WaterFootprintM:R}, mask{s.WaterMaskM:R}; final{s.ElevationM:R}, preWater{s.PreWaterElevationM:R}, withoutDetail{withoutDetail.ElevationM:R}; terrain{LocalTerrain.Version}");
+                        throw new Exception("Water shaping raised terrain instead of cutting its bed: "+site.Item1);
+                    }
                     maxRaise=Math.Max(maxRaise,s.ElevationM-s.PreWaterElevationM);
                     tileRaise=Math.Max(tileRaise,s.ElevationM-s.PreWaterElevationM);
                     if(double.IsNaN(s.WaterSurfaceM)||s.WaterMaskM<-.5){unsupported++;continue;}
