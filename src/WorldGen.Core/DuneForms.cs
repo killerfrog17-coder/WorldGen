@@ -2,8 +2,8 @@ using System;
 
 namespace WorldGen.Core
 {
-    // Static finite dune forms. Not connected to terrain until native review and
-    // budget checks pass. Wind is the downwind coordinate; across is transverse.
+    // Static finite dune forms over the existing terrain heightfield.
+    // Wind is the downwind coordinate; across is transverse.
     public static class DuneForms
     {
         static double Smooth(double a,double b,double x)
@@ -48,8 +48,22 @@ namespace WorldGen.Core
             // Quarter means omit local mountain-valley deflection. Admit that
             // extra diversity only where relief and a coherent subgrid field
             // support it, not as random star dunes in every sandy desert.
-            double scattering=.85*Smooth(250,1600,relief)*Smooth(.42,.82,Regime(wind,across,seed^0x631b7));
+            double scattering=Deflection(relief)*Smooth(.42,.82,Regime(wind,across,seed^0x631b7));
             return 1-(1-seasonal)*(1-scattering);
+        }
+        public static double Deflection(double relief)=>.95*Smooth(250,1600,relief);
+        public static double LocalVariability(V metres,LandscapeControls controls,int seed)
+        {
+            Coordinates(metres,out double wind,out double across);
+            return LocalVariability(wind,across,controls,seed);
+        }
+        static double LocalVariability(double wind,double across,LandscapeControls controls,int seed)
+        {
+            // Interpolate the regional susceptibility, then evaluate subgrid
+            // deflection HERE. Sampling its phase at coarse cell centres first
+            // aliases the field and erases local multidirectional provinces.
+            double scattering=controls.DuneWindDeflection>0?controls.DuneWindDeflection*Smooth(.42,.82,Regime(wind,across,seed^0x631b7)):0;
+            return 1-(1-controls.DuneWindVariability)*(1-scattering);
         }
 
         // Coherent subgrid scattering potential, used with seasonal winds and
@@ -64,14 +78,16 @@ namespace WorldGen.Core
         }
         public static void Weights(double regime,out double barchan,out double transverse,out double star)
         {barchan=1-Smooth(.28,.4,regime);star=Smooth(.62,.76,regime);transverse=1-barchan-star;}
-        public static void FieldWeights(V metres,LandscapeControls controls,double sandSea,out double barchan,out double transverse,out double star,out double wind,out double across)
+        public static void FieldWeights(V metres,LandscapeControls controls,double sandSea,out double barchan,out double transverse,out double star,out double wind,out double across,int seed=0)
         {
             double confidence=Coordinates(metres,out wind,out across);
-            Weights(controls.DuneWindVariability,out barchan,out _,out star);
+            Weights(LocalVariability(wind,across,controls,seed),out barchan,out _,out star);
             // Stable winds with abundant sand make connected ridges; isolated
             // crescents belong to lower-supply parts of the same sand province.
             barchan*=confidence*(1-Smooth(.65,.95,sandSea));
             star*=confidence*Smooth(.3,.55,sandSea);
+            double active=(1-Smooth(.2,.6,controls.Frozen))*(1-Smooth(.1,.6,controls.Glacial));
+            barchan*=active;star*=active;
             transverse=1-barchan-star;
         }
 
@@ -91,14 +107,15 @@ namespace WorldGen.Core
             double crestSlope=2*advance*q/halfSpan;
             return Math.Max(0,h-offset*Math.Tan(27*Math.PI/180)/Math.Sqrt(1+crestSlope*crestSlope));
         }
-        public static double Barchans(double wind,double across,int seed)
+        public static double Barchans(double wind,double across,int seed,double scale=1)
         {
+            if(scale<=0)return 0;
             const double spacing=520;int ix=(int)Math.Floor(wind/spacing),iz=(int)Math.Floor(across/spacing);double result=0;
             for(int z=iz-1;z<=iz+1;z++)for(int x=ix-1;x<=ix+1;x++)
             {
                 uint key=Key(x,z,seed^0x497b1);if(Unit(key,0x823f1u)>.82)continue;
                 double u=wind-(x+.2+.6*Unit(key,0x4173u))*spacing,v=across-(z+.2+.6*Unit(key,0x7123u))*spacing;
-                double h=12+25*Unit(key,0x8a719u),span=h*(4.2+2.4*Unit(key,0x371b7u));
+                double h=(12+25*Unit(key,0x8a719u))*scale,span=h*(4.2+2.4*Unit(key,0x371b7u));
                 if(Math.Abs(v)>=span||u<-h*6.5||u>span*.65+h*2)continue;
                 result=Math.Max(result,Barchan(u,v,h,span,span*.65,h*6.5));
             }
@@ -115,15 +132,16 @@ namespace WorldGen.Core
             // rather than a direction-dependent discontinuity at the centre.
             return height*(1-t)*(1-.22*Smooth(.05,.6,t)*(1-arm));
         }
-        public static double Stars(double wind,double across,int seed)
+        public static double Stars(double wind,double across,int seed,double scale=1)
         {
+            if(scale<=0)return 0;
             const double spacing=2400;int ix=(int)Math.Floor(wind/spacing),iz=(int)Math.Floor(across/spacing);double result=0;
             for(int z=iz-1;z<=iz+1;z++)for(int x=ix-1;x<=ix+1;x++)
             {
                 uint key=Key(x,z,seed^0x714d3);if(Unit(key,0x8b721u)>.78)continue;
                 double u=wind-(x+.32+.36*Unit(key,0x2173u))*spacing,v=across-(z+.32+.36*Unit(key,0x9183u))*spacing;
-                double radius=720+330*Unit(key,0x513b7u);if(u*u+v*v>=radius*radius)continue;
-                double height=Math.Min(radius*.25,75+110*Unit(key,0x4b915u));
+                double radius=(720+330*Unit(key,0x513b7u))*scale;if(u*u+v*v>=radius*radius)continue;
+                double height=Math.Min(radius*.25,(75+110*Unit(key,0x4b915u))*scale);
                 double px=Unit(key,0x51375u)*2-1,pz=Unit(key,0x2a913u)*2-1,n=Math.Sqrt(px*px+pz*pz);
                 if(n<.00001){px=1;pz=0;n=1;}
                 result=Math.Max(result,Star(u,v,height,radius,px/n,pz/n));

@@ -48,8 +48,9 @@ public sealed partial class LocalTerrainExplorer
         public FjordReceipt Fjord;
         public int RiverReach=-1;
         public string Coast,Landform;
+        public DuneLandmark Dune;
     }
-    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond,WetlandPool;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public FjordCoasts.Inlet? Fjord;public RiverscapeSpan? Fall;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
+    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond,WetlandPool;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public FjordCoasts.Inlet? Fjord;public RiverscapeSpan? Fall;public DuneLandmark Dune;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
     public static IEnumerator CheckLandscape(string path,string output,string kind)
     {
         Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
@@ -63,9 +64,11 @@ public sealed partial class LocalTerrainExplorer
         bool presented=arguments.Contains("--worldgen-landscape-presented");
         int sourceOption=Array.IndexOf(arguments,"--worldgen-landscape-source"),pinnedSource=sourceOption<0?-1:int.Parse(arguments[sourceOption+1]);
         TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.ApplyAllPlantQuality(qualityOption>=0?int.Parse(arguments[qualityOption+1]):3);
-        bool drylandReview=kind=="SandSea"||kind=="SaltFlat";
+        bool duneReview=kind=="BarchanDunes"||kind=="StarDunes";
+        bool drylandReview=kind=="SandSea"||kind=="SaltFlat"||duneReview;
         bool wideReview=drylandReview||kind=="WetlandComplex";
         double reviewRange=arguments.Contains("--worldgen-cliff-review")?6000:wideReview?2000:900,reviewFootprint=wideReview?1200:600;
+        if(duneReview){reviewRange=6000;reviewFootprint=kind=="StarDunes"?3200:1800;}
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory?.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
@@ -76,7 +79,13 @@ public sealed partial class LocalTerrainExplorer
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
             if(arguments.Contains("--worldgen-bark-review"))cells=cells.Where(i=>model.Profile(i).CoarseReliefM<180);
-            if(kind=="Mangrove")
+            if(duneReview)
+            {
+                var dune=DuneLandmarks.Find(world,model,kind=="StarDunes",source:pinnedSource);
+                if(dune==null)throw new InvalidOperationException("No actual suitable "+kind+" field found");
+                return new LandscapeReviewSite{Position=dune.Position,CoastDirection=dune.Downwind,Dune=dune,Sample=model.Patch(dune.Position,3000).Sample(dune.Position),Landform=kind};
+            }
+            else if(kind=="Mangrove")
             {
                 foreach(var coast in TidalForestSites.Nearshore(world,model))
                 {
@@ -309,11 +318,11 @@ public sealed partial class LocalTerrainExplorer
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
         var localHabitat=world.Ecology.Habitat[site.Sample.Cell];
         File.WriteAllText(Path.Combine(output,"review-climate.txt"),$"cell={site.Sample.Cell}; biome={localHabitat.Biome}; cold={localHabitat.ColdTenthsC*.1:R}C; warm={localHabitat.WarmTenthsC*.1:R}C; mean={localHabitat.MeanTenthsC*.1:R}C");
-        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Elevation=site.Sample.ElevationM}));
+        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Dune=site.Dune,Elevation=site.Sample.ElevationM}));
         if(site.Volcano!=null){reviewRange=Math.Max(10000,site.Volcano.RadiusM*4.5);reviewFootprint=site.Volcano.RadiusM*3.6;}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         if(site.Coast!=null){reviewRange=3000;reviewFootprint=1600;}
-        if(site.Landform!=null){reviewRange=3000;reviewFootprint=1600;}
+        if(site.Landform!=null&&!duneReview){reviewRange=3000;reviewFootprint=1600;}
         if(site.Outcrop!=null){reviewRange=6000;reviewFootprint=site.Outcrop.RadiusM*3.6;}
         if(site.Fall.HasValue){reviewRange=2500;reviewFootprint=1200;}
         if(site.Canyon!=null){reviewRange=Math.Max(6000,site.Canyon.HalfWidth*4.5);reviewFootprint=site.Canyon.HalfWidth*3.6;}
@@ -355,6 +364,11 @@ public sealed partial class LocalTerrainExplorer
         Check(owner.waterMaterial.shader.name=="WorldGen/WaterSurface","Actual water review uses the production water surface shader");
         Check(owner.tiles.Values.Any(t=>t.Materials!=null&&t.Materials.Any(m=>m!=null&&m.HasProperty("_ForestFloorEnabled")&&m.GetFloat("_ForestFloorEnabled")>.5f&&m.GetTexture("_ForestFloor")!=null)),"Actual uploaded ground materials bind forest-floor weights");
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
+        if(site.Dune!=null)
+        {
+            Check(!sample.Underwater&&sample.Province.Sand>.2&&sample.Province.Frozen<.2,"Actual dune inspection is dry mobile sand rather than an icefield or flooded basin");
+            Check(site.Dune.Weight>.55&&site.Dune.FeatureHeightM>(kind=="StarDunes"?40:5),"Reviewed dune has actual fine-scale form support and meaningful relief");
+        }
         if(site.Pond!=null)
         {
             Check(sample.Underwater&&SmallWaterBodies.IsLocal(sample.WaterBodyKey)&&sample.WaterSurfaceM-sample.ElevationM>(site.Pond.Complex?.01:.9),"Pond contains actual water above its cut bed");
@@ -393,7 +407,7 @@ public sealed partial class LocalTerrainExplorer
             Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual summer daylight: "+name);
             var camera=new Vector3(offset.x,y+.5f+offset.y,offset.z);
             double offsetRadius=new Vector2(offset.x,offset.z).magnitude;
-            double inspectedRadius=site.Outcrop?.RadiusM??site.Volcano?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??site.Fjord?.HalfWidth??Math.Min(200,reviewFootprint*.2);
+            double inspectedRadius=site.Dune?.RadiusM??site.Outcrop?.RadiusM??site.Volcano?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??site.Fjord?.HalfWidth??Math.Min(200,reviewFootprint*.2);
             Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
@@ -565,11 +579,13 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         float width=(float)(site.Pond?.Radius??site.Volcano?.RadiusM??site.Outcrop?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??site.Fjord?.HalfWidth??(site.Fall.HasValue?Math.Min(350,Math.Max(80,(site.Fall.Value.LevelA-site.Fall.Value.LevelB)*1.6+site.RiverWidth*2)):site.Landform!=null?300:site.Coast!=null?220:site.RiverReach>=0?Math.Min(800,Math.Max(300,site.RiverWidth*14)):kind=="SandSea"?180:70));
+        if(site.Dune!=null)width=(float)site.Dune.RadiusM;
         if(kind=="AlluvialRiver")width=(float)Math.Min(350,Math.Max(160,site.RiverWidth*3));
         Quaternion orientation=Quaternion.identity;
         if(site.WetlandPool!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(kind=="AlluvialRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
+        if(site.Dune!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));
         if(site.Canyon!=null||site.Trough.HasValue||site.Fjord.HasValue)
         {
@@ -586,6 +602,11 @@ public sealed partial class LocalTerrainExplorer
         yield return owner.StartCoroutine(Capture("wide",orientation*wideOffset));
         yield return owner.StartCoroutine(Capture("ground",orientation*new Vector3(0,0,(float)(kind=="AlluvialRiver"?-6:site.Canyon!=null||site.Trough.HasValue?site.RiverWidth*.8+8:10)),true));
         if(site.Pond!=null)yield return owner.StartCoroutine(Capture("pond-waterline",orientation*new Vector3(0,0,width*1.15f),true,faceCenter:true));
+        if(site.Dune!=null)
+        {
+            yield return owner.StartCoroutine(Capture("dune-face",orientation*new Vector3(0,0,width*.65f),true,faceCenter:true));
+            yield return owner.StartCoroutine(Capture("dune-raking",orientation*new Vector3(width*.3f,width*.65f,width*1.4f),hour:9.5,faceCenter:true));
+        }
         if(site.WetlandPool!=null)yield return owner.StartCoroutine(Capture("wetland-waterline",orientation*new Vector3(0,0,4),true));
         if(kind=="Mangrove")
         {
@@ -728,7 +749,7 @@ public sealed partial class LocalTerrainExplorer
         Check(world.Prehistory?.Hash==history,"Local landscape queries do not mutate regional history");
         File.WriteAllText(Path.Combine(output,"scene.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Actual=sample.Landscape.ToString(),HistoryHash=history,Position=site.Position,Elevation=sample.ElevationM,
             Water=double.IsFinite(sample.WaterSurfaceM)?sample.WaterSurfaceM:0,Depth=sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,PrepareMs=preparation,NearLoadSeconds=loadSeconds,Tiles=owner.tiles.Count,ScatterPages=owner.scatterChunks.Count,
-            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,WetlandPool=site.WetlandPool,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,
+            WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,WetlandPool=site.WetlandPool,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Dune=site.Dune,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
             TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,

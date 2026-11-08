@@ -1,0 +1,90 @@
+{
+  "utc": "2026-11-08T11:36:53.989448+00:00",
+  "status": "Terrain controls and actual-world geometry passed; native art and performance NOT accepted yet",
+  "versions": {
+    "terrain": 69,
+    "amplification": 62,
+    "scatter": 37,
+    "wire": 10
+  },
+  "geometry": "Finite barchan crescents and three-armed star dunes on existing heightfield. Connected transverse ridges remain in high-supply unidirectional sand. No added scenery objects, texture assets, render passes or gameplay tick.",
+  "suitability_model": "Seasonal wind-vector variation plus a bounded coherent proxy for mountain/valley deflection. This is NOT resolved airflow or a palaeowind reconstruction. Regional susceptibility is interpolated before local deflection is evaluated to avoid coarse sampling aliasing.",
+  "constraints": [
+    "Existing sandy/arid province only",
+    "Frozen/glacial attenuation",
+    "Crescents favor lower sand supply and persistent wind",
+    "Stars require strong directional variability and sufficient sand",
+    "Explicit asynchronous landmark search, not per-frame search"
+  ],
+  "checks": {
+    "pure_controls": 11730,
+    "landscape_regressions": 35902,
+    "alluvial_controls": 8921,
+    "finite_pond_controls": 138,
+    "actual_world": {
+      "checks": 1943,
+      "maximumStep": 0.34600000000000364,
+      "ElapsedSeconds": 7.4186964,
+      "WorldHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
+      "examples": [
+        {
+          "Form": "barchan",
+          "Source": 138136,
+          "Position": [
+            -0.040236096,
+            0.92332467,
+            0.381906545
+          ],
+          "Downwind": [
+            0.909612274,
+            -0.124328643,
+            0.396418845
+          ],
+          "FeatureHeightM": 32.46380652996423,
+          "RadiusM": 240,
+          "Sand": 0.5732230108935094,
+          "WindVariability": 0.24251645803451538,
+          "Weight": 1
+        },
+        {
+          "Form": "star",
+          "Source": 52507,
+          "Position": [
+            0.678337819,
+            -0.559888046,
+            -0.475797414
+          ],
+          "Downwind": [
+            0.726819014,
+            0.416431576,
+            0.54618574
+          ],
+          "FeatureHeightM": 61.904921828673295,
+          "RadiusM": 1050,
+          "Sand": 0.5298151354311744,
+          "WindVariability": 0.7481986104463036,
+          "Weight": 0.9901199826920241
+        }
+      ]
+    }
+  },
+  "native_review_kinds": [
+    "BarchanDunes",
+    "StarDunes"
+  ],
+  "commands": [
+    "/landmark barchans",
+    "/landmark stardunes"
+  ],
+  "sources": [
+    {
+      "title": "NPS: Dune Types / mountain wind deflection at Great Sand Dunes",
+      "url": "https://www.nps.gov/grsa/learn/nature/dune-types.htm"
+    }
+  ],
+  "known_limits": [
+    "Raster terrain approximation; no sand transport simulation",
+    "Star suitability uses an explicit local-wind proxy",
+    "Native appearance and moving FPS still require review"
+  ]
+}

@@ -5,6 +5,47 @@ using System.Text.Json;
 
 static class DuneFormTests
 {
+    public static void World(string input,string output)
+    {
+        var world=WorldFile.ReadFile(input);string hash=StateHash.Compute(world);
+        var timer=System.Diagnostics.Stopwatch.StartNew();var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+        var examples=new List<DuneLandmark>();double maximumStep=0;
+        foreach(bool star in new[]{false,true})
+        {
+            var form=DuneLandmarks.Find(world,model,star,report:Console.WriteLine);Check(form!=null,"The actual world must contain a qualifying "+(star?"star":"crescent")+" dune");
+            if(form==null)continue;examples.Add(form);
+            var patch=model.Patch(form.Position,4000/model.HorizontalScale);var center=patch.Sample(form.Position);
+            Check(!center.Underwater&&center.Province.Frozen<.2&&form.Weight>.55,"Selected dune is dry and has actual fine-scale regime support");
+            Check(form.FeatureHeightM>(star?40:5),"Selected feature has meaningful relief rather than merely a desert label");
+            var frame=new LocalTerrainFrame(form.Position,model.RadiusM,center.ElevationM,.1);
+            for(int z=-8;z<=8;z++)for(int x=-8;x<=8;x++)
+            {
+                double east=x*form.RadiusM/8,north=z*form.RadiusM/8;
+                var p=frame.Position(east,north);var a=patch.Sample(p);var b=patch.Sample(frame.Position(east+.1,north));
+                double difference=Math.Abs(b.ElevationM-a.ElevationM);maximumStep=Math.Max(maximumStep,difference);
+                Check(double.IsFinite(a.ElevationM)&&double.IsFinite(b.ElevationM),"Dune terrain remains finite across its body and margins");
+                Check(difference<1,"A ten-centimetre dune step must not contain a metre-scale discontinuity");
+                Check(a.Province.DuneWindVariability>=0&&a.Province.DuneWindVariability<=1,"Interpolated wind regime remains bounded");
+            }
+            var left=LocalTerrainMesh.Build(model,frame,-128,-64,128,32);var right=LocalTerrainMesh.Build(model,frame,0,-64,128,32);
+            for(int z=0;z<=32;z++)for(int axis=0;axis<3;axis++)
+            {
+                double a=left.Positions[(z*33+32)*3+axis]+(axis==0?left.EastM:axis==2?left.NorthM:0);
+                double b=right.Positions[z*33*3+axis]+(axis==0?right.EastM:axis==2?right.NorthM:0);
+                Check(a==b,"Dune tiles share exactly the same frame-space edge vertices");
+            }
+            Check(left.WaterTriangles.Length+right.WaterTriangles.Length==0,"Actual dune summits do not acquire phantom water");
+            Check(left.Positions.All(float.IsFinite)&&right.Positions.All(float.IsFinite),"Actual dune render mesh contains finite geometry");
+            left.ReleaseUploadBuffers();right.ReleaseUploadBuffers();
+        }
+        Check(StateHash.Compute(world)==hash,"Dune derivation does not change the canonical world");
+        Directory.CreateDirectory(output);
+        var records=examples.Select(f=>new{f.Form,f.Source,Position=new[]{f.Position.X,f.Position.Y,f.Position.Z},Downwind=new[]{f.Downwind.X,f.Downwind.Y,f.Downwind.Z},f.FeatureHeightM,f.RadiusM,f.Sand,f.WindVariability,f.Weight});
+        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{checks,maximumStep,ElapsedSeconds=timer.Elapsed.TotalSeconds,WorldHash=hash,examples=records},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(output,"sites.json"),WorldJson.Write(new VegetationBenchmarkSiteSet{HistoryHash=world.Prehistory.Hash,Sites=examples.Select(f=>new VegetationBenchmarkSite{Name=f.Form+"-dunes",Position=f.Position,Biome="Desert"}).ToArray()}));
+        Console.WriteLine($"PASS {checks} actual-world dune admission, finite terrain, local continuity and exact tile-edge checks; max ten-centimetre step {maximumStep:F4}m; {timer.Elapsed.TotalSeconds:F2}s");
+    }
     public static void Survey(string path,string output)
     {
         var world=WorldFile.ReadPlanetaryFile(path);var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
@@ -15,11 +56,11 @@ static class DuneFormTests
             var at=world.Surface.Cells[i].Position;
             double sand=LandscapeProvince.SandSea(at*(model.RadiusM*.1),world.Recipe.Seed,p);if(sand<.2)continue;
             if(c.NorthernSpring.WindEastMilli.Length<=i||c.NorthernSummer.WindEastMilli.Length<=i||c.NorthernAutumn.WindEastMilli.Length<=i||c.NorthernWinter.WindEastMilli.Length<=i)continue;
-            double seasonal=DuneForms.SeasonalVariability(c,i),v=p.DuneWindVariability;
+            double seasonal=DuneForms.SeasonalVariability(c,i),v=DuneForms.LocalVariability(at*(model.RadiusM*.1),p,world.Recipe.Seed);
             histogram[Math.Min(9,(int)(v*10))]++;
             seasonalHistogram[Math.Min(9,(int)(seasonal*10))]++;
             double chart=DuneForms.Coordinates(at*(model.RadiusM*.1),out _,out _);
-            DuneForms.FieldWeights(at*(model.RadiusM*.1),p,sand,out double barchan,out _,out double star,out _,out _);
+            DuneForms.FieldWeights(at*(model.RadiusM*.1),p,sand,out double barchan,out _,out double star,out _,out _,world.Recipe.Seed);
             rows.Add((v,barchan,star,new{Cell=i,Position=new{at.X,at.Y,at.Z},Sand=sand,SeasonalVariability=seasonal,WindVariability=v,ChartConfidence=chart,BarchanWeight=barchan,StarWeight=star,profile.CoarseReliefM,profile.ElevationM}));
         }
         File.WriteAllText(output,JsonSerializer.Serialize(new{Count=rows.Count,Histogram=histogram,SeasonalHistogram=seasonalHistogram,MostVariable=rows.OrderByDescending(r=>r.variability).Take(12).Select(r=>r.value),MostPersistent=rows.OrderBy(r=>r.variability).Take(12).Select(r=>r.value),StarRegions=rows.OrderByDescending(r=>r.star).Take(12).Select(r=>r.value),BarchanRegions=rows.OrderByDescending(r=>r.barchan).Take(12).Select(r=>r.value)},new JsonSerializerOptions{WriteIndented=true}));
@@ -44,6 +85,8 @@ static class DuneFormTests
         Check(crescent==0&&ridge==1,"Abundant sand retains connected transverse ridges even with persistent winds");
         DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=1},.8,out _,out ridge,out double starWeight,out _,out _);
         Check(starWeight>.99&&ridge<.01,"Multidirectional winds and sufficient sand support star dunes");
+        DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=1,Frozen=1},.8,out crescent,out ridge,out starWeight,out _,out _);
+        Check(crescent==0&&starWeight==0&&ridge==1,"Frozen terrain cannot acquire newly active finite dune forms");
         Check(DuneForms.Barchan(0,0,20,120,72,130)==20,"A barchan has one central crest height");
         Check(DuneForms.Barchan(-60,0,20,120,72,130)>0&&DuneForms.Barchan(60,0,20,120,72,130)==0,"The stoss extends farther upwind than the steep lee extends downwind");
         Check(DuneForms.Barchan(0,121,20,120,72,130)==0,"A crescent has finite transverse extent");
@@ -83,6 +126,6 @@ static class DuneFormTests
             double a=DuneForms.Barchans(boundary-.001,i*19,173),b=DuneForms.Barchans(boundary+.001,i*19,173);
             Check(Math.Abs(a-b)<.01,"Changing candidate-grid cell cannot introduce a height seam");
         }
-        Console.WriteLine($"PASS {checks} finite dune form checks; maximum sampled crescent slope {Math.Atan(maximumSlope)*180/Math.PI:F2} degrees. Terrain remains unhooked.");
+        Console.WriteLine($"PASS {checks} finite dune form checks; maximum sampled crescent slope {Math.Atan(maximumSlope)*180/Math.PI:F2} degrees.");
     }
 }

@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-continuous-river-banks-68";
+        public const string Version = "local-terrain-dune-diversity-69";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -103,8 +103,8 @@ namespace WorldGen.Core
                     habitat==null?0:habitat.Value.PermafrostPermille/1000d,
                     habitat==null?0:habitat.Value.FloodFractionPermille/1000d,profiles[i].Glacial);
                 double seasonalWind=DuneForms.SeasonalVariability(world.Climate,i);
-                profiles[i].Landscape.DuneWindVariability=(float)(profiles[i].Landscape.Sand>.001
-                    ?DuneForms.TerrainVariability(seasonalWind,relief,center*(RadiusM*horizontalScale),seed):seasonalWind);
+                profiles[i].Landscape.DuneWindVariability=(float)seasonalWind;
+                profiles[i].Landscape.DuneWindDeflection=(float)DuneForms.Deflection(relief);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
             faceOffsets = new int[profiles.Length + 1]; foreach(int id in world.Surface.Triangles) faceOffsets[id + 1]++;

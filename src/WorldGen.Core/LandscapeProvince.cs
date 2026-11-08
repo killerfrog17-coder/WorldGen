@@ -15,13 +15,13 @@ namespace WorldGen.Core
     public struct LandscapeControls
     {
         public float Sand,Clay,Salt,Badlands,Loess,Karst,Rock,Glacial,Frozen,Arid,Wet,Peat,Moisture,Canopy,BareRock,Remnant,RemnantExposure,CanyonExposure,ShoreExposure,GlacialExposure;
-        public float DuneWindVariability;
+        public float DuneWindVariability,DuneWindDeflection;
         public double ExposedRock=>Math.Max(GlacialExposure,Math.Max(ShoreExposure,Math.Max(RemnantExposure,CanyonExposure)));
         public static LandscapeControls Blend(LandscapeControls a,LandscapeControls b,double t)
             => Mix(a,b,default,1-t,t,0);
         public static LandscapeControls Mix(LandscapeControls a,LandscapeControls b,LandscapeControls c,double x,double y,double z)
             =>new LandscapeControls{
-                Sand=(float)(a.Sand*x+b.Sand*y+c.Sand*z),Clay=(float)(a.Clay*x+b.Clay*y+c.Clay*z),Salt=(float)(a.Salt*x+b.Salt*y+c.Salt*z),DuneWindVariability=(float)(a.DuneWindVariability*x+b.DuneWindVariability*y+c.DuneWindVariability*z),
+                Sand=(float)(a.Sand*x+b.Sand*y+c.Sand*z),Clay=(float)(a.Clay*x+b.Clay*y+c.Clay*z),Salt=(float)(a.Salt*x+b.Salt*y+c.Salt*z),DuneWindVariability=(float)(a.DuneWindVariability*x+b.DuneWindVariability*y+c.DuneWindVariability*z),DuneWindDeflection=(float)(a.DuneWindDeflection*x+b.DuneWindDeflection*y+c.DuneWindDeflection*z),
                 Badlands=(float)(a.Badlands*x+b.Badlands*y+c.Badlands*z),Loess=(float)(a.Loess*x+b.Loess*y+c.Loess*z),Karst=(float)(a.Karst*x+b.Karst*y+c.Karst*z),
                 Rock=(float)(a.Rock*x+b.Rock*y+c.Rock*z),Glacial=(float)(a.Glacial*x+b.Glacial*y+c.Glacial*z),Frozen=(float)(a.Frozen*x+b.Frozen*y+c.Frozen*z),Arid=(float)(a.Arid*x+b.Arid*y+c.Arid*z),Wet=(float)(a.Wet*x+b.Wet*y+c.Wet*z),CanyonExposure=(float)(a.CanyonExposure*x+b.CanyonExposure*y+c.CanyonExposure*z),ShoreExposure=(float)(a.ShoreExposure*x+b.ShoreExposure*y+c.ShoreExposure*z),
                 Peat=(float)(a.Peat*x+b.Peat*y+c.Peat*z),Moisture=(float)(a.Moisture*x+b.Moisture*y+c.Moisture*z),Canopy=(float)(a.Canopy*x+b.Canopy*y+c.Canopy*z),BareRock=(float)(a.BareRock*x+b.BareRock*y+c.BareRock*z),Remnant=(float)(a.Remnant*x+b.Remnant*y+c.Remnant*z),RemnantExposure=(float)(a.RemnantExposure*x+b.RemnantExposure*y+c.RemnantExposure*z),GlacialExposure=(float)(a.GlacialExposure*x+b.GlacialExposure*y+c.GlacialExposure*z)};
@@ -30,7 +30,7 @@ namespace WorldGen.Core
 
     public static class LandscapeProvince
     {
-        public const string Version="landscape-provinces-1";
+        public const string Version="landscape-provinces-dune-forms-2";
         static double Smooth(double a,double b,double value)=>OrogenMorphology.Smooth(a,b,value);
         public static Biome WetlandTreeSetting(HabitatCell? h,GroundProfile ground,V metres,int seed)
         {
@@ -85,6 +85,11 @@ namespace WorldGen.Core
             double dunes=SandSea(metres,seed,controls),result=0;
             if(dunes>.001)
             {
+                double envelope=Smooth(.08,.4,dunes);
+                DuneForms.FieldWeights(metres,controls,dunes,out double crescent,out double transverse,out double star,out double wind,out double across,seed);
+                double ridgeHeight=0;
+                if(transverse>.000001)
+                {
                 double maturity=Smooth(.25,.8,.5+.5*SphereNoise.Sample(metres,seed^0x3d171,1/7600d));
                 double smallSpacing=35/Math.Tan(30*Math.PI/180)/.22,largeSpacing=105/Math.Tan(30*Math.PI/180)/.22;
                 // Long stoss slopes meet a sharp crest and a near-repose lee.
@@ -115,8 +120,14 @@ namespace WorldGen.Core
                 // locations, stretching local dunes towards infinity. Blend a
                 // second nonparallel family there without blending huge phases.
                 double blend=Smooth(.2,.6,1-alignment*alignment),ridge=first*blend+second*(1-blend);
+                ridgeHeight=ridge*crestHeight;
+                }
                 double secondary=.5+.5*SphereNoise.Sample(metres,seed^0x2b531,1/170d);
-                result+=Smooth(.08,.4,dunes)*(ridge*crestHeight+1.2*secondary);
+                result+=envelope*(transverse*ridgeHeight+1.2*secondary);
+                // Scale finite bodies in both height AND footprint as supply
+                // retires, keeping their lee slopes instead of flattening them.
+                if(crescent>.000001)result+=crescent*DuneForms.Barchans(wind,across,seed,envelope);
+                if(star>.000001)result+=star*DuneForms.Stars(wind,across,seed,envelope);
             }
             result+=ErodedTerrain.HeightOffset(metres,seed,controls);
             if(controls.Rock>.01)result+=controls.Rock*.65*SphereNoise.Sample(metres,seed^0x17ba3,1/14d);
