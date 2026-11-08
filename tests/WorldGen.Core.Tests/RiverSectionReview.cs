@@ -19,7 +19,8 @@ static class RiverSectionReview
         for(int i=0;i<spans.Length;i++)
         {
             var s=spans[i];double length=(s.B-s.A).Length*radius;
-            stations.Add(new{Index=i,Length=length,s.LevelA,s.LevelB,s.WidthA,s.WidthB,s.DepthA,s.DepthB,s.Alluvium,s.BankBendA,s.BankBendB,Primitive=s.Primitive.ToString()});
+            V center=(s.A+s.B).Unit;
+            stations.Add(new{Index=i,Position=new{center.X,center.Y,center.Z},Length=length,s.LevelA,s.LevelB,s.WidthA,s.WidthB,s.DepthA,s.DepthB,s.Alluvium,s.BankBendA,s.BankBendB,Primitive=s.Primitive.ToString()});
             if(i==0||s.Primitive==RiverFlowPrimitive.Waterfall||spans[i-1].Primitive==RiverFlowPrimitive.Waterfall)continue;
             V direction=(s.B-spans[i-1].A).Unit;
             var patch=model.Patch(s.A,3000);

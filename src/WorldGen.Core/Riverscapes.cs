@@ -16,6 +16,7 @@ namespace WorldGen.Core
         public double SurfaceGradeA,SurfaceGradeB;
         public int Reach,From,To,Receiver;
         public RiverFlowPrimitive Primitive;
+        internal RiverscapeBasis Basis;
     }
 
     public static class RiverscapeKernel
@@ -313,6 +314,7 @@ namespace WorldGen.Core
                 result=WaterfallProfiles.Apply(result,radius*scale,a.Resistance,source,seed);
                 RiverAlluvium.PrepareBanks(result,radius*scale,alluvium);
                 RiverscapeKernel.PrepareSurfaceGrades(result,radius*scale);
+                for(int i=0;i<result.Length;i++)result[i].Basis=new RiverscapeBasis(result[i],radius*scale);
                 riverCache[source]=new WeakReference<RiverscapeSpan[]>(result);riverRetained.Enqueue(result);
                 while(riverRetained.Count>128)riverRetained.Dequeue();
                 if(riverCache.Count>512){var expired=new List<int>();foreach(var item in riverCache)if(!item.Value.TryGetTarget(out _))expired.Add(item.Key);foreach(int id in expired)riverCache.TryRemove(id,out _);}
@@ -417,12 +419,13 @@ namespace WorldGen.Core
                     current.Minimum=current.Maximum=level;current.Gradient=default;current.RiverInfluence=1;
                     int next=owner.riverReceivers[node];if(next>=0){current.Flow=(owner.rootNodes[next].Position-at).Unit;var section=new RiverSection(level,width,owner.riverNodeDepths[node],RiverHydraulics.Discharge(owner.rootNodes[node].Flow,owner.scale),0,owner.rootNodes[node].Sediment);current.Speed=section.Speed;current.Turbulence=section.Turbulence;}
                 }
-                void Apply(RiverscapeSpan span,ref Surface current)
+                void Apply(in RiverscapeSpan span,ref Surface current)
                 {
-                    V d=span.B-span.A,p=point-span.A;double dd=RiverDot(d,d),raw=RiverDot(p,d)/Math.Max(1e-30,dd),u=D.Clamp(raw);
+                    ref readonly var basis=ref span.Basis;
+                    V d=basis.D,p=point-span.A;double dd=basis.DD,raw=RiverDot(p,d)/Math.Max(1e-30,dd),u=D.Clamp(raw);
                     double distance=(p-d*u).Length*physical,width=span.WidthA+(span.WidthB-span.WidthA)*u;
                     double support=width*5+4;if(distance>=support)return;
-                    V ta=V.Cross(span.SideA,span.A).Unit,tb=V.Cross(span.SideB,span.B).Unit;
+                    V ta=basis.TangentA,tb=basis.TangentB;
                     bool before=RiverDot(p,ta)<-1e-10,after=RiverDot(point-span.B,tb)>1e-10;
                     // Adjacent paired cross-sections partition longitudinal
                     // space. Round caps at EVERY station used to let a lower
@@ -431,11 +434,8 @@ namespace WorldGen.Core
                     bool inside=bankDistance>=0;
                     if(span.WidthA+span.WidthB>.0001)
                     {
-                        V axis=(d-span.A*RiverDot(d,span.A)).Unit,side=V.Cross(span.A,axis).Unit;
-                        double x=RiverDot(p,axis)*physical,z=RiverDot(p,side)*physical,bx=RiverDot(d,axis)*physical,bz=RiverDot(d,side)*physical;
-                        double lax=RiverDot(span.SideA,axis)*span.WidthA,laz=RiverDot(span.SideA,side)*span.WidthA;
-                        double lbx=bx+RiverDot(span.SideB,axis)*span.WidthB,lbz=bz+RiverDot(span.SideB,side)*span.WidthB;
-                        double rax=-lax,raz=-laz,rbx=2*bx-lbx,rbz=2*bz-lbz;
+                        double x=RiverDot(p,basis.Axis)*physical,z=RiverDot(p,basis.Side)*physical;
+                        double lax=basis.LAX,laz=basis.LAZ,lbx=basis.LBX,lbz=basis.LBZ,rax=basis.RAX,raz=basis.RAZ,rbx=basis.RBX,rbz=basis.RBZ;
                         double Plane(double ax,double az,double qx,double qz,double rx,double rz,double ah,double qh,double rh,out double value,out double bs,out double bt)
                         {
                             double det=(qx-ax)*(rz-az)-(qz-az)*(rx-ax);
@@ -501,7 +501,7 @@ namespace WorldGen.Core
                     V offset=point-riverRegionCenter;
                     var bin=((int)Math.Floor(RiverDot(offset,riverEast)*physical/riverBinSize),(int)Math.Floor(RiverDot(offset,riverNorth)*physical/riverBinSize));
                     if(riverBins.TryGetValue(bin,out var nearby))foreach(int index in nearby)
-                    {var s=localRiverscapes[index];Apply(s,ref surface);Pool(s.From,s.A,s.WidthA,ref surface);Pool(s.To,s.B,s.WidthB,ref surface);}
+                    {ref readonly var s=ref localRiverscapes[index];Apply(in s,ref surface);Pool(s.From,s.A,s.WidthA,ref surface);Pool(s.To,s.B,s.WidthB,ref surface);}
                 }
                 else
                 {
@@ -516,7 +516,8 @@ namespace WorldGen.Core
                         double t=D.Clamp(RiverDot(p,d)/Math.Max(1e-30,RiverDot(d,d)));
                         double width=Math.Max(owner.riverNodeWidths[id],owner.riverNodeWidths[next]);
                         if((p-d*t).Length*physical>d.Length*physical*.4+width*5+4)continue;
-                        foreach(var span in owner.PrepareRiverscape(id)){Apply(span,ref surface);Pool(span.From,span.A,span.WidthA,ref surface);Pool(span.To,span.B,span.WidthB,ref surface);}
+                        var reach=owner.PrepareRiverscape(id);
+                        for(int i=0;i<reach.Length;i++){ref readonly var span=ref reach[i];Apply(in span,ref surface);Pool(span.From,span.A,span.WidthA,ref surface);Pool(span.To,span.B,span.WidthB,ref surface);}
                     }
                 }
                 if(lake)
