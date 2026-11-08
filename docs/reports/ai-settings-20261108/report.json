@@ -25,7 +25,7 @@
           "heading": "Start here"
         },
         {
-          "text": "Choose <b>GPU</b>, keep <b>Brief replies</b> on, then press <b>Apply &amp; restart AI</b>. Use <b>Test saved settings</b> to check latency. If gameplay develops GPU/memory pressure, try <b>Hybrid</b> or reduce requested GPU layers. The owner?s previous CPU settings remain unchanged until Apply."
+          "text": "Choose <b>GPU</b>, keep <b>Brief replies</b> on, then press <b>Apply &amp; restart AI</b>. Use <b>Test saved settings</b> to check latency. If gameplay develops GPU/memory pressure, try <b>Hybrid</b> or reduce requested GPU layers. Your previous CPU settings remain unchanged until Apply."
         },
         {
           "table": {
