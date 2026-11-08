@@ -6,6 +6,29 @@ namespace WorldGen.Core
     {
         internal sealed partial class Patch
         {
+            double SandFoundation(V point)
+            {
+                // One continuous coarse heightfield at a GLOBAL fixed depth.
+                // Central differences smooth its slopes over eighty metres;
+                // no per-face mask discontinuities, recursive surface queries,
+                // fine-gradient construction, or new spatial caches.
+                var previous=last;last=foundationLast;
+                try
+                {
+                    double epsilon=80/(owner.radius*owner.scale);
+                    double Height(V offset)
+                    {
+                        var face=Locate((point+offset).Unit,out double a,out double b,out double c,maximumDepth:owner.foundationDepth);
+                        return a*face.A.Height+b*face.B.Height+c*face.C.Height;
+                    }
+                    double x=(Height(new V(epsilon,0,0))-Height(new V(-epsilon,0,0)))/160;
+                    double y=(Height(new V(0,epsilon,0))-Height(new V(0,-epsilon,0)))/160;
+                    double z=(Height(new V(0,0,epsilon))-Height(new V(0,0,-epsilon)))/160;
+                    var gradient=new V(x,y,z);gradient-=point*V.Dot(point,gradient);
+                    return DuneForms.FoundationAdmission(gradient.Length);
+                }
+                finally{foundationLast=last;last=previous;}
+            }
             double RawDetailHeight(V point)
             {
                 var f=Locate(point,out double a,out double b,out double c);

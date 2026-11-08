@@ -39,10 +39,21 @@ static class DuneFormTests
             Check(left.Positions.All(float.IsFinite)&&right.Positions.All(float.IsFinite),"Actual dune render mesh contains finite geometry");
             left.ReleaseUploadBuffers();right.ReleaseUploadBuffers();
         }
+        int sharedRoots=0;
+        foreach(var edge in world.Surface.Edges)
+        {
+            if(model.Profile(edge.A).Landscape.Sand<.4||model.Profile(edge.B).Landscape.Sand<.4)continue;
+            V at=(world.Surface.Cells[edge.A].Position+world.Surface.Cells[edge.B].Position).Unit;
+            var wide=model.Patch(at,4000/model.HorizontalScale).Sample(at);if(wide.Underwater||wide.Province.Sand<.2)continue;
+            var tiny=model.Patch(at,1/model.HorizontalScale).Sample(at);
+            Check(wide.ElevationM==tiny.ElevationM&&wide.Province.Sand==tiny.Province.Sand,"Foundation probes preserve identical terrain in tiny/wide patches on a shared base-face edge");
+            if(++sharedRoots==8)break;
+        }
+        Check(sharedRoots>=2,"Actual world supplies exposed sandy base-face edges for the foundation domain test");
         Check(StateHash.Compute(world)==hash,"Dune derivation does not change the canonical world");
         Directory.CreateDirectory(output);
         var records=examples.Select(f=>new{f.Form,f.Source,Position=new[]{f.Position.X,f.Position.Y,f.Position.Z},Downwind=new[]{f.Downwind.X,f.Downwind.Y,f.Downwind.Z},f.FeatureHeightM,f.RadiusM,f.Sand,f.WindVariability,f.Weight});
-        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{checks,maximumStep,ElapsedSeconds=timer.Elapsed.TotalSeconds,WorldHash=hash,examples=records},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{checks,maximumStep,sharedRoots,ElapsedSeconds=timer.Elapsed.TotalSeconds,WorldHash=hash,examples=records},new JsonSerializerOptions{WriteIndented=true}));
         File.WriteAllText(Path.Combine(output,"sites.json"),WorldJson.Write(new VegetationBenchmarkSiteSet{HistoryHash=world.Prehistory.Hash,Sites=examples.Select(f=>new VegetationBenchmarkSite{Name=f.Form+"-dunes",Position=f.Position,Biome="Desert"}).ToArray()}));
         Console.WriteLine($"PASS {checks} actual-world dune admission, finite terrain, local continuity and exact tile-edge checks; max ten-centimetre step {maximumStep:F4}m; {timer.Elapsed.TotalSeconds:F2}s");
     }
@@ -78,7 +89,20 @@ static class DuneFormTests
         Check(mountain>=.3&&mountain<=1,"Subgrid mountain scattering is a bounded addition to measured seasonal variability");
         var blend=LandscapeControls.Mix(new LandscapeControls{DuneWindVariability=.2f},new LandscapeControls{DuneWindVariability=.6f},new LandscapeControls{DuneWindVariability=1},.2,.3,.5);
         Check(Math.Abs(blend.DuneWindVariability-.72)<1e-6,"Shared terrain controls interpolate the wind regime instead of resetting it at refined vertices");
-        V chartPole=new V(-.6805,.4507,.5777).Unit*637100;
+        V chartPole=new V(0,1,0)*637100;
+        Check(DuneForms.FoundationAdmission(.05)==1&&DuneForms.FoundationAdmission(.5)==0,"Finite dune provinces retain gentle basins and exclude steep bedrock slopes");
+        for(int i=0;i<1200;i++)
+        {
+            double z=1-2*(i+.5)/1200,angle=i*2.399963229728653;V at=new V(Math.Sqrt(1-z*z)*Math.Cos(angle),Math.Sqrt(1-z*z)*Math.Sin(angle),z);
+            V east=V.Cross(Math.Abs(z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
+            double confidence=DuneForms.Coordinates(at*637100,out double u,out double v);
+            if(confidence<.001)continue;
+            // Four metres stays well above the canonical vector quantization.
+            DuneForms.Coordinates((at+east*(4d/637100)).Unit*637100,out double eu,out double ev);
+            DuneForms.Coordinates((at+north*(4d/637100)).Unit*637100,out double nu,out double nv);
+            double jacobian=Math.Abs((eu-u)*(nv-v)-(ev-v)*(nu-u))/16;
+            Check(jacobian>.57&&jacobian<1.001,"Every active finite-dune chart has two well-conditioned tangent axes");
+        }
         DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=0},.5,out double crescent,out double ridge,out _,out _,out _);
         Check(crescent>.99&&ridge<.01,"Persistent winds and lower sand supply support isolated crescents");
         DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=0},.95,out crescent,out ridge,out _,out _,out _);

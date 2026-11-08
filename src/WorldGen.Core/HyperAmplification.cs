@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-dune-diversity-62";
+        public const string Version = "hyper-amplification-dune-foundations-63";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -47,7 +47,7 @@ namespace WorldGen.Core
             {var lake=wetlandWater.At(candidate,probe.SmallWaterGroundAt);if(lake!=null)found[lake.Id]=lake;}
             var result=new SmallLake[found.Count];found.Values.CopyTo(result,0);Array.Sort(result,(a,b)=>a.Id.CompareTo(b.Id));return result;
         }
-        readonly int terminalDepth;
+        readonly int terminalDepth,foundationDepth;
         long subdivisions;
         public double PreparationMilliseconds { get; private set; }
         public int RootFaces => roots.Length;
@@ -328,6 +328,7 @@ namespace WorldGen.Core
             int targetDepth=0;
             while(nominalArea>FinestSpacingM*FinestSpacingM&&targetDepth<20){nominalArea*=.25;targetDepth++;}
             terminalDepth=targetDepth;
+            foundationDepth=Math.Max(0,Math.Min(terminalDepth,(int)Math.Floor(Math.Log(radius*scale*Math.Sqrt(4*Math.PI/count)/160,2))));
             for (int t = 0; t < roots.Length; t++)
             {
                 if ((t & 4095) == 0) token.ThrowIfCancellationRequested();
@@ -812,20 +813,34 @@ namespace WorldGen.Core
             readonly HyperAmplification owner;
             readonly int[] faces;
             readonly Func<V,SmallWaterGround> smallWaterGround;
-            Face last;
+            Face last,foundationLast;
             public Patch(HyperAmplification owner, int[] triangleOffsets)
             {
                 this.owner=owner;smallWaterGround=SmallWaterGroundAt;faces=new int[triangleOffsets.Length];
                 for(int i=0;i<faces.Length;i++)faces[i]=triangleOffsets[i]/3;
             }
-            Face Locate(V point,out double a,out double b,out double c,double mapSpacingM=0)
+            Face Locate(V point,out double a,out double b,out double c,double mapSpacingM=0,int maximumDepth=int.MaxValue)
             {
                 Face found = null; a = b = c = 0;
-                if (last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
+                if (last != null&&last.Depth<=maximumDepth&&last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
                 if(found==null)foreach(int id in faces)if(owner.roots[id].Coordinates(point,out a,out b,out c)>=-1e-7){found=owner.RootFace(id);break;}
+                // Foundation probes have a fixed eighty-metre radius, even
+                // when the caller owns a tiny patch beside a base-face edge.
+                // Only these coarse probes may use the bounded incident CSR
+                // fallback; ordinary sample domain validation is unchanged.
+                if(found==null&&maximumDepth!=int.MaxValue)
+                {
+                    int cell=owner.landscapeLocator.Nearest(point);
+                    for(int i=owner.riverFaceOffsets[cell];i<owner.riverFaceOffsets[cell+1];i++)
+                    {
+                        int id=owner.riverFaces[i];
+                        if(owner.roots[id].Coordinates(point,out a,out b,out c)<-1e-7)continue;
+                        found=owner.RootFace(id);break;
+                    }
+                }
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
                 last = found;
-                while (found.Depth < owner.terminalDepth&&(mapSpacingM<=0||found.Size>mapSpacingM))
+                while (found.Depth < Math.Min(owner.terminalDepth,maximumDepth)&&(mapSpacingM<=0||found.Size>mapSpacingM))
                 {
                     var split = owner.Split(found); Face next = null; double best = -1e10;
                     double ba = 0, bb = 0, bc = 0;
@@ -909,6 +924,10 @@ namespace WorldGen.Core
                 {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;footprint=double.PositiveInfinity;mask=-height;}
                 double influence=OrogenMorphology.Smooth(0,.04,a*found.A.Flow+b*found.B.Flow+c*found.C.Flow);
                 var landscape=LandscapeControls.Mix(found.A.Landscape,found.B.Landscape,found.C.Landscape,a,b,c);
+                if(standingBasin<0&&!standingOcean&&landscape.Sand>.001)
+                {
+                    landscape.Sand*=(float)SandFoundation(point);
+                }
                 double landscapeOffset=standingBasin<0&&!standingOcean?LandscapeProvince.HeightOffset(point*(owner.radius*owner.scale),owner.seed,landscape)*OrogenMorphology.Smooth(3,30,pre):0;
                 height+=landscapeOffset;pre+=landscapeOffset;if(!double.IsNaN(water))mask=water-height;
                 if(standingBasin<0)

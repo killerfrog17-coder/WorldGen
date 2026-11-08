@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-dune-diversity-69";
+        public const string Version = "local-terrain-dune-foundations-70";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -104,6 +104,14 @@ namespace WorldGen.Core
                     habitat==null?0:habitat.Value.FloodFractionPermille/1000d,profiles[i].Glacial);
                 double seasonalWind=DuneForms.SeasonalVariability(world.Climate,i);
                 profiles[i].Landscape.DuneWindVariability=(float)seasonalWind;
+            }
+            // Mountain/valley winds also reach adjacent flat basins. Using only
+            // the local relief put multidirectional dunes on mountain slopes.
+            // Prepare this bounded regional susceptibility once, not per query.
+            for(int i=0;i<profiles.Length;i++)if(profiles[i].Landscape.Sand>.001)
+            {
+                double relief=profiles[i].CoarseReliefM;
+                foreach(int neighbour in world.Surface.Cells[i].Neighbors)relief=Math.Max(relief,profiles[neighbour].CoarseReliefM*.85);
                 profiles[i].Landscape.DuneWindDeflection=(float)DuneForms.Deflection(relief);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();

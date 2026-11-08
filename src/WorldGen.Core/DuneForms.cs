@@ -33,15 +33,25 @@ namespace WorldGen.Core
         }
         public static double Coordinates(V metres,out double wind,out double across)
         {
-            double first=metres.X*.73+metres.Y*.41+metres.Z*.54;
-            double alignment=first/Math.Max(.000001,metres.Length);
-            double blend=Smooth(.2,.6,1-alignment*alignment);
-            across=metres.X*-.6805+metres.Y*.4507+metres.Z*.5777;
-            wind=blend>=.5?first:metres.X*.13+metres.Y*.85-metres.Z*.51;
-            // Fade finite bodies to the existing ridge family in the overlap
-            // between charts, rather than blending unrelated finite summits.
-            return blend>=.5?Smooth(.5,.95,blend):1-Smooth(.05,.5,blend);
+            Chart(metres,out V u,out V v,out double gap);
+            wind=V.Dot(metres,u);across=V.Dot(metres,v);
+            // A finite two-dimensional form needs TWO independent tangent
+            // coordinates. Dominant-axis charts retain a Jacobian >=1/sqrt(3),
+            // unlike the old wave projection that collapsed into long strips.
+            // Retire finite bodies before changing charts; the continuous old
+            // ridge family fills these overlap zones.
+            return Smooth(.04,.20,gap);
         }
+        static void Chart(V p,out V u,out V v,out double gap)
+        {
+            double x=Math.Abs(p.X),y=Math.Abs(p.Y),z=Math.Abs(p.Z),length=Math.Max(.000001,p.Length);
+            if(x>=y&&x>=z){u=new V(0,.41,.54).Unit;v=new V(0,-u.Z,u.Y);gap=(x-Math.Max(y,z))/length;}
+            else if(y>=z){u=new V(.73,0,.54).Unit;v=new V(-u.Z,0,u.X);gap=(y-Math.Max(x,z))/length;}
+            else{u=new V(.73,.41,0).Unit;v=new V(-u.Y,u.X,0);gap=(z-Math.Max(x,y))/length;}
+        }
+        public static V WindDirection(V point)
+        {Chart(point,out V wind,out _,out _);return V.Tangent(point,wind);}
+        public static double FoundationAdmission(double slope)=>1-Smooth(.12,.40,slope);
         public static double TerrainVariability(double seasonal,double relief,V metres,int seed)
         {
             Coordinates(metres,out double wind,out double across);

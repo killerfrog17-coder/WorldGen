@@ -50,27 +50,35 @@ namespace WorldGen.Core
                     double envelope=OrogenMorphology.Smooth(.08,.4,sand);
                     return weight*(star?DuneForms.Stars(u,v,world.Recipe.Seed,envelope):DuneForms.Barchans(u,v,world.Recipe.Seed,envelope));
                 }
-                double range=star?2400:900,step=star?160:60,best=0,bx=0,bz=0;
+                double range=star?4000:1200,step=star?200:60;
+                var peaks=new List<(double x,double z,double height)>();
                 for(double z=-range;z<=range;z+=step)for(double x=-range;x<=range;x+=step)
                 {
-                    double h=Height(At(x,z),controls,out _,out _);if(h>best){best=h;bx=x;bz=z;}
+                    double h=Height(At(x,z),controls,out _,out _);if(h>(star?40:5))peaks.Add((x,z,h));
                 }
-                if(best<(star?45:6))continue;
-                double anchorX=bx,anchorZ=bz;
-                for(int z=-4;z<=4;z++)for(int x=-4;x<=4;x++)
+                if(peaks.Count==0)continue;
+                var patch=terrain.Patch(center,(range+500)/terrain.HorizontalScale);
+                var inspected=new List<(double x,double z)>();double separation=star?500:120;
+                double bestActual=0;
+                foreach(var peak in peaks.OrderByDescending(p=>p.height))
                 {
-                    double px=anchorX+x*step/8,pz=anchorZ+z*step/8,h=Height(At(px,pz),controls,out _,out _);
-                    if(h>best){best=h;bx=px;bz=pz;}
+                    if(inspected.Any(p=>(p.x-peak.x)*(p.x-peak.x)+(p.z-peak.z)*(p.z-peak.z)<separation*separation))continue;
+                    if(inspected.Count>=16)break;inspected.Add((peak.x,peak.z));token.ThrowIfCancellationRequested();
+                    // A coarse potential summit may sit on rock. Check several
+                    // separated bodies and their nearby shoulders in the REAL
+                    // evaluator rather than accepting one convenient label.
+                    for(int z=-1;z<=1;z++)for(int x=-1;x<=1;x++)
+                    {
+                        V point=At(peak.x+x*step/4,peak.z+z*step/4);var sample=patch.Sample(point);
+                        double actual=Height(point,sample.Province,out double actualWeight,out double actualSand);bestActual=Math.Max(bestActual,actual);
+                        if(sample.Underwater||actualWeight<.55||actual<(star?40:5)||sample.Province.Frozen>.2)continue;
+                        if(sample.ElevationM<actual+35)continue; // Prefer full inland relief over the coastal height fade for this review.
+                        report?.Invoke($"Dune {candidate.cell}: actual peak {actual:F2}m, weight {actualWeight:F3}, sand {actualSand:F3}, local wind {DuneForms.LocalVariability(point*radius,sample.Province,world.Recipe.Seed):F3}, inspected bodies {inspected.Count}");
+                        return new DuneLandmark{Position=point,Downwind=DuneForms.WindDirection(point),Form=star?"star":"barchan",Source=candidate.cell,
+                            FeatureHeightM=actual,RadiusM=star?1050:240,Sand=actualSand,WindVariability=DuneForms.LocalVariability(point*radius,sample.Province,world.Recipe.Seed),Weight=actualWeight};
+                    }
                 }
-                V point=At(bx,bz);var patch=terrain.Patch(point,3000/terrain.HorizontalScale);var sample=patch.Sample(point);
-                double actual=Height(point,sample.Province,out double actualWeight,out double actualSand);
-                report?.Invoke($"Dune {candidate.cell}: coarse peak {best:F2}m; fine peak {actual:F2}m, weight {actualWeight:F3}, sand {actualSand:F3}, seasonal {sample.Province.DuneWindVariability:F3}, deflection {sample.Province.DuneWindDeflection:F3}, local wind {DuneForms.LocalVariability(point*radius,sample.Province,world.Recipe.Seed):F3}, frozen {sample.Province.Frozen:F3}, glacial {sample.Province.Glacial:F3}, underwater {sample.Underwater}");
-                if(sample.Underwater||actualWeight<.55||actual<(star?40:5)||sample.Province.Frozen>.2)continue;
-                double first=point.X*.73+point.Y*.41+point.Z*.54;
-                double blend=OrogenMorphology.Smooth(.2,.6,1-first*first);
-                V wind=blend>=.5?new V(.73,.41,.54):new V(.13,.85,-.51);
-                return new DuneLandmark{Position=point,Downwind=V.Tangent(point,wind),Form=star?"star":"barchan",Source=candidate.cell,
-                    FeatureHeightM=actual,RadiusM=star?1050:240,Sand=actualSand,WindVariability=DuneForms.LocalVariability(point*radius,sample.Province,world.Recipe.Seed),Weight=actualWeight};
+                report?.Invoke($"Dune {candidate.cell}: {inspected.Count} candidate bodies rejected; largest actual contribution {bestActual:F2}m");
             }
             return null;
         }
