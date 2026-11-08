@@ -70,10 +70,10 @@ namespace WorldGen.Presentation
                         return (lake.Center+lake.East*(x/frame.RadiusM)+lake.North*(z/frame.RadiusM)).Unit;
                     }
                     void Edge(V a,V b)=>exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});
-                    const int sectors=24;
-                    foreach(double radius in new[]{.65,1.05,1.55})
+                    const int sectors=12;
+                    foreach(double radius in new[]{.65,1.55})
                         for(int i=0;i<sectors;i++)Edge(Ring(i*Math.PI*2/sectors,radius),Ring((i+1)*Math.PI*2/sectors,radius));
-                    for(int i=0;i<4;i++)Edge(Ring(i*Math.PI/4,1.55),Ring(i*Math.PI/4+Math.PI,1.55));
+                    for(int i=0;i<2;i++)Edge(Ring(i*Math.PI/2,1.55),Ring(i*Math.PI/2+Math.PI,1.55));
                 }
                 source=exact.ToArray();
             }

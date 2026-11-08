@@ -12,12 +12,14 @@ if(args.Contains("--wetland-complex-controls")){WetlandComplexTests.Controls();r
 if(args.Contains("--wetland-complex-world")){WetlandComplexTests.World(args[1],args[2]);return;}
 if(args.Contains("--wetland-query-cost")){WetlandComplexTests.QueryCost(args[1],args[2]);return;}
 if(args.Contains("--river-surface-grades")){RiverSurfaceGradeTests.Run(args[1]);return;}
-if(args.Contains("--terrain-worker-cost")){TerrainWorkerCostTests.Run(args[1],args[2],args[3],args[4],args.Contains("--verify-payload"),args.Contains("--geometry-only"),args.Contains("--far-tiles"));return;}
+if(args.Contains("--terrain-worker-cost")){TerrainWorkerCostTests.Run(args[1],args[2],args[3],args[4],args.Contains("--verify-payload"),args.Contains("--geometry-only"),args.Contains("--far-tiles"),args.Contains("--report-current"));return;}
 if(args.Contains("--glacial-trough-controls")){GlacialValleyTests.Controls();return;}
 if(args.Contains("--glacial-trough-world")){GlacialValleyTests.World(args[1],args[2]);return;}
 if(args.Contains("--granite-domes")){GraniteDomeTests.Run();return;}
 if(args.Contains("--granite-dome-world")){GraniteDomeTests.World(args[1],args[2]);return;}
 if(args.Contains("--local-lake-water")){LocalLakeWaterTests.Run();return;}
+if(args.Contains("--water-mesh-edge")){LocalLakeWaterTests.ReviewMesh(args[1],double.Parse(args[2]),double.Parse(args[3]));return;}
+if(args.Contains("--water-edge-probe")){LocalLakeWaterTests.ProbeEdge(args[1],args[2],args[3]);return;}
 if(args.Contains("--river-section-review")){RiverSectionReview.Run(args[1],int.Parse(args[2]),args[3],args.Contains("--require-continuity"));return;}
 if(args.Contains("--alluvial-rivers")){RiverAlluviumTests.Run();return;}
 if(args.Contains("--alluvial-world")){RiverAlluviumTests.World(args[1],args[2]);return;}

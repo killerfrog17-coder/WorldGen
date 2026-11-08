@@ -1,8 +1,48 @@
 using WorldGen.Core;
 using WorldGen.Presentation;
+using WorldGen.Serialization;
+using System.Text.Json;
 
 static class LocalLakeWaterTests
 {
+    public static void ProbeEdge(string worldPath,string edgePath,string output)
+    {
+        using var json=JsonDocument.Parse(File.ReadAllText(edgePath));var root=json.RootElement;
+        V Vector(string name){var p=root.GetProperty(name);return new V(p[0].GetDouble(),p[1].GetDouble(),p[2].GetDouble());}
+        var world=WorldFile.ReadPlanetaryFile(worldPath);var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        V point=Vector("Point");double radius=model.RadiusM*.1;var patch=model.Patch(point,3000);
+        var physical=patch.Sample(point);var raw=patch.SampleMap(point,129);
+        double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
+        var rows=new List<(double distance,object value)>();
+        foreach(var span in patch.RiverSpans())
+        {
+            V d=span.B-span.A,p=point-span.A;double u=Math.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)),0,1);
+            double distance=(p-d*u).Length*radius,width=span.WidthA*(1-u)+span.WidthB*u;
+            if(distance>width+15)continue;
+            V side=(span.SideA*(1-u)+span.SideB*u).Unit;
+            V bank=(span.A*(1-u)+span.B*u+side*(Math.Sign(Dot(p,side))*(width+2)/radius)).Unit;
+            var bed=patch.SampleMap(bank,129);
+            rows.Add((Math.Abs(distance-width-2),new{span.Reach,span.Receiver,span.From,span.To,U=u,Distance=distance,Width=width,span.WidthA,span.WidthB,span.LevelA,span.LevelB,Primitive=span.Primitive.ToString(),BankOriginal=bed.ElevationM,OriginalAtPoint=raw.ElevationM,ActualAtPoint=physical.ElevationM}));
+        }
+        var selected=rows.OrderBy(r=>r.distance).Take(12).Select(r=>r.value).ToArray();
+        File.WriteAllText(output,JsonSerializer.Serialize(selected,new JsonSerializerOptions{WriteIndented=true}));
+        Console.WriteLine(File.ReadAllText(output));
+    }
+    public static void ReviewMesh(string path,double x,double z)
+    {
+        using var reader=new BinaryReader(File.OpenRead(path));var mesh=TerrainMeshWire.ReadMesh(reader);
+        var edges=new Dictionary<(int,int),int>();
+        for(int i=0;i<mesh.WaterTriangles.Length;i+=3)for(int j=0;j<3;j++)
+        {int a=mesh.WaterTriangles[i+j],b=mesh.WaterTriangles[i+(j+1)%3];var key=(Math.Min(a,b),Math.Max(a,b));edges.TryGetValue(key,out int count);edges[key]=count+1;}
+        foreach(var row in edges.Where(p=>p.Value==1).OrderBy(p=>{
+            int a=p.Key.Item1*3,b=p.Key.Item2*3;
+            double dx=(mesh.WaterPositions[a]+mesh.WaterPositions[b])*.5-x,dz=(mesh.WaterPositions[a+2]+mesh.WaterPositions[b+2])*.5-z;return dx*dx+dz*dz;
+        }).Take(3))
+        {
+            foreach(int i in new[]{row.Key.Item1,row.Key.Item2})Console.WriteLine($"edge vertex {i}: {mesh.WaterPositions[i*3]:R},{mesh.WaterPositions[i*3+1]:R},{mesh.WaterPositions[i*3+2]:R}; payload {string.Join(',',mesh.WaterColors.Skip(i*4).Take(4))}");
+        }
+        Console.WriteLine($"Land vertices {mesh.Positions.Length/3}, triangles {mesh.Triangles.Length/3}; water vertices {mesh.WaterPositions.Length/3}, triangles {mesh.WaterTriangles.Length/3}");
+    }
     public static void Run()
     {
         int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}

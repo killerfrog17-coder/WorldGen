@@ -25,13 +25,15 @@ static class TerrainWorkerCostTests
     }
     // Explicit offline audit of packaged workers. It never starts Unity or
     // changes runtime preferences, and does not treat component cost as FPS.
-    public static void Run(string path,string executable,string sitesPath,string output,bool verifyCurrent=false,bool geometryOnly=false,bool farTiles=false)
+    public static void Run(string path,string executable,string sitesPath,string output,bool verifyCurrent=false,bool geometryOnly=false,bool farTiles=false,bool reportCurrent=false)
     {
         Directory.CreateDirectory(output);var world=WorldFile.ReadPlanetaryFile(path);
         using var sites=JsonDocument.Parse(File.ReadAllText(sitesPath).TrimStart('\ufeff'));
         var point=sites.RootElement.GetProperty("Sites")[0].GetProperty("Position");
         V at=new V(point.GetProperty("X").GetDouble(),point.GetProperty("Y").GetDouble(),point.GetProperty("Z").GetDouble());
-        var frame=new LocalTerrainFrame(at,world.Recipe.RadiusKm*1000,0,.1);
+        var frame=new LocalTerrainFrame(at,world.Recipe.RadiusKm*1000,sites.RootElement.TryGetProperty("AltitudeM",out var altitude)?altitude.GetDouble():0,.1);
+        bool boundaryReview=sites.RootElement.TryGetProperty("CheckWaterBoundary",out var boundary)&&boundary.GetBoolean();
+        bool terrainOnly=sites.RootElement.TryGetProperty("TerrainOnly",out var only)&&only.GetBoolean();
         string secret=Guid.NewGuid().ToString("N");var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();var watch=Stopwatch.StartNew();
         using var child=Process.Start(new ProcessStartInfo{FileName=Path.GetFullPath(executable),Arguments=$"--terrain-worker {((IPEndPoint)listener.LocalEndpoint).Port} --parent {Environment.ProcessId} --terrain-token {secret}",UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden})!;
         try
@@ -50,6 +52,7 @@ static class TerrainWorkerCostTests
             File.WriteAllText(Path.Combine(output,"worker.json"),JsonSerializer.Serialize(new{Executable=Path.GetFullPath(executable),Assembly=assembly,Surface=version,PreparationSeconds=prepare},new JsonSerializerOptions{WriteIndented=true}));
             var requests=new[]{(0d,0d,102.4,64),(102.4,0d,102.4,64),(-102.4,0d,102.4,64),(0d,102.4,102.4,64),(0d,-102.4,102.4,64),(-1024d,-1024d,409.6,32),(1024d,-1024d,409.6,32),(1024d,1024d,409.6,32),(-1024d,1024d,409.6,32),(-2048d,0d,819.2,32),(2048d,0d,819.2,32),(0d,2048d,819.2,32)};
             if(farTiles)requests=new[]{(-52428.8,-52428.8,52428.8,8),(0d,-52428.8,52428.8,8),(0d,0d,26214.4,8)};
+            if(sites.RootElement.TryGetProperty("Requests",out var custom))requests=custom.EnumerateArray().Select(p=>(p.GetProperty("East").GetDouble(),p.GetProperty("North").GetDouble(),p.GetProperty("Size").GetDouble(),p.GetProperty("Segments").GetInt32())).ToArray();
             foreach(var request in requests)
             {
                 using var client=new TcpClient{NoDelay=true,ReceiveTimeout=120000};client.Connect(IPAddress.Loopback,port);
@@ -59,19 +62,23 @@ static class TerrainWorkerCostTests
                 if(!r.ReadBoolean())throw new Exception("Worker request failed: "+r.ReadString());
                 var mesh=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();child.Refresh();watch.Stop();double cpuMs=child.TotalProcessorTime.TotalMilliseconds-cpu;
                 string hash=MeshHash(mesh,geometryOnly);int changedRgb=0;double maxRgbDelta=0;double? currentBuildMs=null;
-                if(verifyCurrent)
+                string bankBoundaryError=null;
+                if(boundaryReview)try{WaterCouplingTests.ContainedBoundary(mesh);}catch(Exception error){bankBoundaryError=error.Message;}
+                int? currentVertices=null,currentWaterVertices=null;bool? currentMatches=null;
+                if(verifyCurrent||reportCurrent)
                 {
                     double step=request.Item3/request.Item4;
                     var expected=LocalTerrainMesh.Build(model,frame,request.Item1,request.Item2,request.Item3,request.Item4,edgeSteps:new[]{step,step,step,step});
                     currentBuildMs=expected.BuildMilliseconds;
-                    if(MeshHash(expected,geometryOnly)!=hash)throw new Exception("Packaged/current terrain/water/cover wire payload differs at "+request+", terrain RGB excluded: "+geometryOnly);
+                    currentVertices=expected.Positions.Length/3;currentWaterVertices=expected.WaterPositions.Length/3;currentMatches=MeshHash(expected,geometryOnly)==hash;
+                    if(verifyCurrent&&currentMatches!=true)throw new Exception("Packaged/current terrain/water/cover wire payload differs at "+request+", terrain RGB excluded: "+geometryOnly);
                     if(geometryOnly)for(int i=0;i<mesh.Colors.Length;i++)if(i%4!=3&&mesh.Colors[i]!=expected.Colors[i]){changedRgb++;maxRgbDelta=Math.Max(maxRgbDelta,Math.Abs(mesh.Colors[i]-expected.Colors[i]));}
                 }
-                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,ExpectedCurrentBuildMs=currentBuildMs,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),TerrainRgbExcluded=geometryOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
+                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,ExpectedCurrentBuildMs=currentBuildMs,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,CurrentVertices=currentVertices,CurrentWaterVertices=currentWaterVertices,CurrentPayloadMatches=currentMatches,BankBoundaryError=bankBoundaryError,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),TerrainRgbExcluded=geometryOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
                 File.WriteAllText(Path.Combine(output,"tiles.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
                 Console.WriteLine($"{version} tile {request.Item1},{request.Item2}/{request.Item3} n{request.Item4}: {row.ElapsedMs:F1}ms wall / {row.BuildMilliseconds:F1}ms build / {row.CpuMs:F1}ms CPU");
             }
-            if(!farTiles)foreach(var delta in new[]{(0d,0d),(512d,0d),(0d,512d)})foreach(bool detail in new[]{false,true})
+            if(!farTiles&&!terrainOnly)foreach(var delta in new[]{(0d,0d),(512d,0d),(0d,512d)})foreach(bool detail in new[]{false,true})
             {
                 V position=frame.Position(delta.Item1,delta.Item2);var key=scatter.Address(position,detail);
                 var forest=new ForestPageKey(key.Face,key.X*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide,key.Y*LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide,0);
