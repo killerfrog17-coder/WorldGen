@@ -1,14 +1,18 @@
 {
-  "status": "Prototype controls and actual mixed-detail seams passed; native appearance and performance pending",
+  "status": "Revised true3D surface-addressed, slope-scaled prototype: native validation pending",
   "owner_direction": "Continuously rocky exposed walls; separate meshes only for ledges/overhangs",
-  "method": "Planet-addressed3D fracture cut on explicitly exposed walls or inherited hard-rock steep slopes. One shared physical function, bounded0..5.35m cut. No new objects, render passes or world updates. Existing rivers and water-near protection retained.",
+  "method": "Planet-addressed3D fracture cut at actual surface altitude. Base field0..5.35m, slope/exposure scaling at most3.2, existing river/water-near protection retained. Same physical function for terrain/roots/movement. Independent ledge placement thinned to one third before expensive fitting.",
   "checks": {
     "bounded_repeatable_fracture_samples_and_boundaries": 16892,
-    "actual_procedural_200k_mixed_detail_seams": 176
+    "actual_procedural_200k_mixed_detail_seams": 176,
+    "actual_first_pass_with_river_protection": 19270,
+    "actual_protected_river_samples": 64,
+    "actual_first_pass_cliff_placement": 18491
   },
   "versions": {
-    "terrain": "local-terrain-fractured-cliffs-63",
-    "amplification": "hyper-amplification-fractured-cliffs-56"
+    "terrain": "local-terrain-fractured-cliffs-64",
+    "amplification": "hyper-amplification-fractured-cliffs-57",
+    "scatter": "local-scatter-cliff-rocks-32"
   },
   "research": [
     {
@@ -16,5 +20,11 @@
       "application": "Continuous world-space3D functions for rock structure; retain efficient broad height terrain and use separate closed meshes for actual overhangs. This pass does not adopt whole-world volumetric meshing."
     }
   ],
-  "performance": "No frame-rate claim; visible owner review is contended by another game, so its timing is excluded."
+  "performance": "No frame-rate claim; visible owner review is contended by another game, so its timing is excluded.",
+  "rejected_first_pass": {
+    "source": "b76eaf59",
+    "native": "artifacts/landscape-20261103/cliff-fractures-native-v1-20261108-canyon",
+    "runtime_exit": 0,
+    "reason": "Too subtle; addresses projected onto the sea-level sphere stretch fracture cells vertically on steep walls. Actual surface altitude and bounded slope scaling are added in the revision."
+  }
 }

@@ -47,12 +47,19 @@ static class CliffSurfaceDetailTests
                     {Check(fine.WaterSurfaceM==unadorned.WaterSurfaceM&&Math.Abs(fine.ElevationM-unadorned.ElevationM)<.003,"Modern river water and bed remain literal across beauty-detail retirement");wet++;continue;}
                     if(fine.Province.CanyonExposure<.3||fine.Underwater)continue;
                     exposed++;double cut=unadorned.ElevationM-fine.ElevationM;deepest=Math.Max(deepest,cut);if(cut>2)incised++;
-                    Check(Math.Abs(cut)<7.2,"Actual wall relief remains within fracture plus pre-existing beauty-detail bounds");
+                    Check(Math.Abs(cut)<19,"Actual wall relief remains within slope-scaled fracture plus pre-existing beauty-detail bounds");
                     Check(Math.Abs(fine.ElevationM-patch.Elevation(at))<.002,"Physical height-only queries include the same fractured surface");
+                }
+                foreach(var span in terrain.Amplification.RiverReach(r.Source).Where(s=>s.Primitive!=RiverFlowPrimitive.Waterfall).Take(16))
+                {
+                    V at=(span.A+span.B).Unit;var river=terrain.Patch(at,5000);var fine=river.Sample(at);var withoutBeauty=river.SampleMap(at,8.00001);
+                    if(fine.WaterKind!=LocalWaterKind.River)continue;
+                    Check(fine.WaterSurfaceM==withoutBeauty.WaterSurfaceM&&Math.Abs(fine.ElevationM-withoutBeauty.ElevationM)<.003,"Actual modern river bed and surface remain unchanged by cliff beauty detail");wet++;
                 }
             }
             Console.WriteLine($"Actual canyon beauty controls: exposed{exposed}, incised>2m{incised}, protected river{wet}, deepest{deepest:F3}m");
             Check(exposed>0&&incised>0,"The continuous field actually affects exposed generated canyon walls");
+            Check(wet>=8,"Actual river protection is exercised, not merely inferred from dry-wall samples");
             Console.WriteLine($"PASS {checks} total fracture controls including actual world");
         }
     }

@@ -17,6 +17,10 @@ namespace WorldGen.Core
         public static bool TryCreate(ulong id,V point,LocalTerrainSample sample,LocalTerrain.LocalTerrainPatch patch,double radius,double spacing,int seed,out ScatterInstance result)
         {
             result=default;if(!Potential(sample))return false;
+            uint hash=Rng.Mix((uint)id^(uint)(id>>32)^unchecked((uint)seed));
+            // The continuous substrate owns wall coverage. Separate meshes are
+            // occasional projecting ledges, not a rock on every lattice slot.
+            if(hash%3!=0)return false;
             V east=V.Cross(Math.Abs(point.Z)<.99?new V(0,0,1):new V(0,1,0),point).Unit,north=V.Cross(point,east).Unit;
             double probe=D.Clamp(spacing*.3,4,12),e=probe/radius;
             double sx=(patch.Elevation((point+east*e).Unit)-patch.Elevation((point-east*e).Unit))/(2*probe);
@@ -25,7 +29,7 @@ namespace WorldGen.Core
             V outward=(east*(-sx)+north*(-sz)).Unit;
             double half=spacing*.7/radius,top=patch.Elevation((point-outward*half).Unit),bottom=patch.Elevation((point+outward*half).Unit);
             if(top-bottom<8)return false;
-            uint hash=Rng.Mix((uint)id^(uint)(id>>32)^unchecked((uint)seed));double variation=(hash&65535)/65535d;
+            double variation=(hash&65535)/65535d;
             double width=spacing*(1.65+variation*.35);int family=0;
             for(int i=1;i<6;i++)if(sample.Ground.RockWeight(i)>sample.Ground.RockWeight(family))family=i;
             V normal=(outward+point*(1/slope)).Unit;

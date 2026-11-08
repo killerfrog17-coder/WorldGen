@@ -53,7 +53,14 @@ namespace WorldGen.Core
                 double inheritedSlope=(ga*a+gb*b+gc*c).Length/(owner.radius*owner.scale);
                 double wall=Math.Max(s.Landscape.CanyonExposure,Math.Max(s.Landscape.GlacialExposure,s.Landscape.ShoreExposure));
                 wall=Math.Max(wall,s.Landscape.Rock*OrogenMorphology.Smooth(.8,1.8,inheritedSlope)*(1-sediment));
-                double fracture=CliffSurfaceDetail.Cut(metres,owner.seed,wall,a*f.A.Hardness+b*f.B.Hardness+c*f.C.Hardness);
+                // Rock joints live on the actual3D wall, including altitude.
+                // Projecting their addresses onto sea level stretches a small
+                // cell into a tall groove as the cliff approaches vertical.
+                V rockMetres=point*(owner.radius*owner.scale+s.Height);
+                double strength=Math.Max(Math.Sqrt(1+inheritedSlope*inheritedSlope),1+2.2*Math.Max(s.Landscape.CanyonExposure,Math.Max(s.Landscape.GlacialExposure,s.Landscape.ShoreExposure)));
+                strength=Math.Min(3.2,strength);
+                if(!double.IsNaN(s.Water))strength=Math.Min(strength,Math.Max(0,(s.Height-s.Water-5)/5.35));
+                double fracture=CliffSurfaceDetail.Cut(rockMetres,owner.seed,wall,a*f.A.Hardness+b*f.B.Hardness+c*f.C.Hardness)*strength;
                 s.Height+=(delta+detail+fracture)*protection;
                 if(!double.IsNaN(s.Water))s.Mask=s.Water-s.Height;
             }
