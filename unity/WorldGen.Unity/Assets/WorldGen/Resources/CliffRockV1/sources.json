@@ -1,7 +1,7 @@
 {
   "format": "WRC1 little-endian xyz/normal/uv/index",
   "license": "CC0-1.0 geometry; existing generated game textures",
-  "interior": "Embedded terrain supplies the rock interior; front mesh preserves real ledges",
+  "interior": "Closed flat backing embedded in terrain; calibrated front preserves scanned ledges",
   "sources": [
     {
       "name": "rock_face_01",
@@ -42,109 +42,154 @@
       "asset": "rock_face_01",
       "lod": 0,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-0-l0.bytes",
-      "vertices": 1757,
-      "triangles": 3196,
-      "closed": false,
+      "vertices": 1586,
+      "triangles": 3166,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.003928257618099451,
-      "bytes": 94588,
-      "sha256": "cca5e8a389a5391ba342ae3b8d844a1e6290107d81da7b09c890e17f51b44961"
+      "front_plane_fit": [
+        0.07121353963066344,
+        -0.6267652853682193,
+        -0.23458593233238378
+      ],
+      "maximum_reference_deviation": 0.006187310442328453,
+      "bytes": 88756,
+      "sha256": "99794ccfd8540d22d7a35109be36124ce0771cada1b85f68d45f3e1dba00060e"
     },
     {
       "asset": "rock_face_01",
       "lod": 1,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-0-l1.bytes",
-      "vertices": 604,
-      "triangles": 1048,
-      "closed": false,
+      "vertices": 460,
+      "triangles": 914,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.008157201111316681,
-      "bytes": 31916,
-      "sha256": "a4c60f2020936f408135bf78dcb045904c6fed3410d085cfc104217fe3a68e32"
+      "front_plane_fit": [
+        0.07121353963066344,
+        -0.6267652853682193,
+        -0.23458593233238378
+      ],
+      "maximum_reference_deviation": 0.010148667730391026,
+      "bytes": 25700,
+      "sha256": "2ca9717d79458dd4accdba5d33b29924e77ba6334e24c8316f36ea3e97c1635d"
     },
     {
       "asset": "rock_face_01",
       "lod": 2,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-0-l2.bytes",
-      "vertices": 164,
-      "triangles": 258,
-      "closed": false,
+      "vertices": 106,
+      "triangles": 206,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.01482843142002821,
-      "bytes": 8356,
-      "sha256": "42431f25970d0d95427202f4e7cf43f6894bedaae3d3fcdaf4e3423d884bac28"
+      "front_plane_fit": [
+        0.07121353963066344,
+        -0.6267652853682193,
+        -0.23458593233238378
+      ],
+      "maximum_reference_deviation": 0.016635984182357788,
+      "bytes": 5876,
+      "sha256": "a9dee2a58ecc0c94fbaa8efb39b55242b79a73c42d3a4d6383180c82e81255f6"
     },
     {
       "asset": "rock_face_02",
       "lod": 0,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-1-l0.bytes",
-      "vertices": 1721,
-      "triangles": 3192,
-      "closed": false,
+      "vertices": 1502,
+      "triangles": 2998,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.007135921623557806,
-      "bytes": 93388,
-      "sha256": "a2b374cd1f08769e0ae43d9252c5d9a3d2e8304b1cfc4b78abf28a87ae14d0b1"
+      "front_plane_fit": [
+        0.23969828061859055,
+        -0.5336200438714698,
+        -0.16068962904608103
+      ],
+      "maximum_reference_deviation": 0.012441602535545826,
+      "bytes": 84052,
+      "sha256": "ca876dbb5d21922798db3bcc6f229b2d3a4e8378e6c81b4826db3ed166420467"
     },
     {
       "asset": "rock_face_02",
       "lod": 1,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-1-l1.bytes",
-      "vertices": 592,
-      "triangles": 1043,
-      "closed": false,
+      "vertices": 422,
+      "triangles": 838,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.008805620484054089,
-      "bytes": 31472,
-      "sha256": "62449a5d04d1c2d83477d8c45361e9a495d3b7b24a3922f0b1f6e402f966a6b1"
+      "front_plane_fit": [
+        0.23969828061859055,
+        -0.5336200438714698,
+        -0.16068962904608103
+      ],
+      "maximum_reference_deviation": 0.020088376477360725,
+      "bytes": 23572,
+      "sha256": "ab078d54c65fa168431ac995b6d8b2d560a1cd3c9cffc80b680eaa4588dbfa91"
     },
     {
       "asset": "rock_face_02",
       "lod": 2,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-1-l2.bytes",
-      "vertices": 159,
-      "triangles": 253,
-      "closed": false,
+      "vertices": 85,
+      "triangles": 164,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.026497503742575645,
-      "bytes": 8136,
-      "sha256": "c45ca0d62c18ff58277901ab96f78ea285ddc33cc694524ce6ce5dc905dc132c"
+      "front_plane_fit": [
+        0.23969828061859055,
+        -0.5336200438714698,
+        -0.16068962904608103
+      ],
+      "maximum_reference_deviation": 0.034338973462581635,
+      "bytes": 4700,
+      "sha256": "13f2882a1a89ceb57523baf7680af50b168315e0f3d5ab335a91559f850dc57d"
     },
     {
       "asset": "namaqualand_cliff_01",
       "lod": 0,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-2-l0.bytes",
-      "vertices": 1679,
-      "triangles": 3200,
-      "closed": false,
+      "vertices": 1403,
+      "triangles": 2806,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.012360054068267345,
-      "bytes": 92140,
-      "sha256": "01abe36315a72c5a710686db456cf7a6793879053e98d48c68d047f514e69583"
+      "front_plane_fit": [
+        -0.013271967049252854,
+        -0.21378204838683754,
+        0.02189094393793197
+      ],
+      "maximum_reference_deviation": 0.012802394106984138,
+      "bytes": 78580,
+      "sha256": "324633ed5eb2800f73af41ac351301b37df3e9729952031a96479d2445f29ea4"
     },
     {
       "asset": "namaqualand_cliff_01",
       "lod": 1,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-2-l1.bytes",
-      "vertices": 566,
-      "triangles": 1050,
-      "closed": false,
+      "vertices": 390,
+      "triangles": 780,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.017156662419438362,
-      "bytes": 30724,
-      "sha256": "59db41278e3e072adfb7eb735891d6867c27d152099cebd3d50bb7a0ae31588a"
+      "front_plane_fit": [
+        -0.013271967049252854,
+        -0.21378204838683754,
+        0.02189094393793197
+      ],
+      "maximum_reference_deviation": 0.025280920788645744,
+      "bytes": 21852,
+      "sha256": "d3a161f299299301789ba4758e3fbddeff8d88a0ce4241db92089237c6280201"
     },
     {
       "asset": "namaqualand_cliff_01",
       "lod": 2,
       "file": "unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1/cliff-2-l2.bytes",
-      "vertices": 147,
-      "triangles": 260,
-      "closed": false,
+      "vertices": 82,
+      "triangles": 164,
+      "closed": true,
       "surface_collision": true,
-      "maximum_reference_deviation": 0.01841292902827263,
-      "bytes": 7836,
-      "sha256": "994b0b1f83cbdf9badf5053b33985de87c331332b3487941d5af74e77cccd45a"
+      "front_plane_fit": [
+        -0.013271967049252854,
+        -0.21378204838683754,
+        0.02189094393793197
+      ],
+      "maximum_reference_deviation": 0.037805065512657166,
+      "bytes": 4604,
+      "sha256": "afbb97e6823e7895675d7415c9452532e17f3a9b96a4f1edb41f3b2bbcbc8311"
     }
   ]
 }

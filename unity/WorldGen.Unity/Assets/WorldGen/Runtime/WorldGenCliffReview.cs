@@ -9,7 +9,7 @@ public sealed partial class LocalTerrainExplorer
     bool ReviewCliffRoof(ScatterChunk chunk,int index,out Vector3 roof)
     {
         roof=default;var source=chunk.Source.Instances[index];
-        var center=chunk.Matrices[index].MultiplyPoint3x4(new Vector3(0,.5f,.12f));
+        var center=chunk.Matrices[index].MultiplyPoint3x4(new Vector3(0,.5f,0));
         RefreshPlayerSolids(center,center);
         if(!scatterSolids.TryGetValue(source.Id,out var solid))return false;
         var patch=terrain.Patch(source.Position,5000);int probes=0;

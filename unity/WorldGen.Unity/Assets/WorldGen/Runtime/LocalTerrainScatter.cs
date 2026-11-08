@@ -401,7 +401,7 @@ public sealed partial class LocalTerrainExplorer
                 // Center the scanned face on the wall and lean its vertical
                 // axis uphill. A radial upright slab protrudes above the hill.
                 position=new Vector3((float)(x-originX),(float)y,(float)(z-originZ))
-                    -(rotation*Vector3.up)*(float)(p.HeightM*.5)-outward*(float)(p.WidthM*.12);
+                    -(rotation*Vector3.up)*(float)(p.HeightM*.5)-outward*(float)(p.WidthM*.03);
                 chunk.Roots[i]=position;
             }
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));

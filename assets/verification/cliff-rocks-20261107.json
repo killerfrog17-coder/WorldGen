@@ -1,8 +1,8 @@
 {
-  "status": "Revised clean scanned-face candidate; numerical/source-distance checks pass, slope-fit native review pending",
+  "status": "Closed calibrated scan candidate: native placement and performance pending",
   "scope": "Three-dimensional jointed masses on exposed steep walls, within the existing Outcrop instancing/culling/nearby-collider system. No change to the authoritative heightfield or unrelated vegetation density.",
   "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded.",
-  "geometry": "Three CC0 scanned rock faces with mirrored variants and inherited lithology. Preserve the scanned front surface, remove nonmanifold scraps and reduce3200/1050/260triangles. Do not solidify acute cracks. Embedded terrain supplies the interior behind each face; the actual mesh preserves projecting ledges.",
+  "geometry": "Three CC0 scanned fronts, affine front-plane calibrated, explicit flat backs with manifold volume; near/mid/far caps 3200/1050/260 triangles. No solidify modifier.",
   "collision": "Use nearby nonconvex surface colliders plus existing physical terrain. Faces lean along the sampled wall normal and are centered into the wall; do not float upright above it.",
   "controls": {
     "checks": 21512,
@@ -11,7 +11,7 @@
     "timing_limit": "Background component costs are not frame-time measurements"
   },
   "versions": {
-    "scatter": "local-scatter-cliff-rocks-27",
+    "scatter": "local-scatter-cliff-rocks-28",
     "variant_marker": 1048576
   },
   "research": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-visibility-tool-in-unreal-engine",
@@ -37,47 +37,108 @@
     {
       "asset": "rock_face_01",
       "lod": 0,
-      "maximum_reference_deviation": 0.003928257618099451
+      "maximum_reference_deviation": 0.006187310442328453,
+      "front_plane_fit": [
+        0.07121353963066344,
+        -0.6267652853682193,
+        -0.23458593233238378
+      ],
+      "closed": true
     },
     {
       "asset": "rock_face_01",
       "lod": 1,
-      "maximum_reference_deviation": 0.008157201111316681
+      "maximum_reference_deviation": 0.010148667730391026,
+      "front_plane_fit": [
+        0.07121353963066344,
+        -0.6267652853682193,
+        -0.23458593233238378
+      ],
+      "closed": true
     },
     {
       "asset": "rock_face_01",
       "lod": 2,
-      "maximum_reference_deviation": 0.01482843142002821
+      "maximum_reference_deviation": 0.016635984182357788,
+      "front_plane_fit": [
+        0.07121353963066344,
+        -0.6267652853682193,
+        -0.23458593233238378
+      ],
+      "closed": true
     },
     {
       "asset": "rock_face_02",
       "lod": 0,
-      "maximum_reference_deviation": 0.007135921623557806
+      "maximum_reference_deviation": 0.012441602535545826,
+      "front_plane_fit": [
+        0.23969828061859055,
+        -0.5336200438714698,
+        -0.16068962904608103
+      ],
+      "closed": true
     },
     {
       "asset": "rock_face_02",
       "lod": 1,
-      "maximum_reference_deviation": 0.008805620484054089
+      "maximum_reference_deviation": 0.020088376477360725,
+      "front_plane_fit": [
+        0.23969828061859055,
+        -0.5336200438714698,
+        -0.16068962904608103
+      ],
+      "closed": true
     },
     {
       "asset": "rock_face_02",
       "lod": 2,
-      "maximum_reference_deviation": 0.026497503742575645
+      "maximum_reference_deviation": 0.034338973462581635,
+      "front_plane_fit": [
+        0.23969828061859055,
+        -0.5336200438714698,
+        -0.16068962904608103
+      ],
+      "closed": true
     },
     {
       "asset": "namaqualand_cliff_01",
       "lod": 0,
-      "maximum_reference_deviation": 0.012360054068267345
+      "maximum_reference_deviation": 0.012802394106984138,
+      "front_plane_fit": [
+        -0.013271967049252854,
+        -0.21378204838683754,
+        0.02189094393793197
+      ],
+      "closed": true
     },
     {
       "asset": "namaqualand_cliff_01",
       "lod": 1,
-      "maximum_reference_deviation": 0.017156662419438362
+      "maximum_reference_deviation": 0.025280920788645744,
+      "front_plane_fit": [
+        -0.013271967049252854,
+        -0.21378204838683754,
+        0.02189094393793197
+      ],
+      "closed": true
     },
     {
       "asset": "namaqualand_cliff_01",
       "lod": 2,
-      "maximum_reference_deviation": 0.01841292902827263
+      "maximum_reference_deviation": 0.037805065512657166,
+      "front_plane_fit": [
+        -0.013271967049252854,
+        -0.21378204838683754,
+        0.02189094393793197
+      ],
+      "closed": true
     }
-  ]
+  ],
+  "rejected_open_conversion": {
+    "source": "536e0c3e",
+    "native": "artifacts/landscape-20261103/cliff-candidate-v3-20261107-canyon",
+    "runtime_exit": 0,
+    "visual_accepted": false,
+    "reason": "Front datum buried most of the face; open outer edges appeared as thin panels"
+  }
 }
