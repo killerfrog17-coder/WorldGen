@@ -181,7 +181,7 @@ namespace WorldGen.Core
             // Rhizomatous emergents establish coherent stands where wetland
             // evidence already exists. Preserve the shared candidate/ID budget
             // and every species constraint; ordinary uplands remain exact.
-            return fit*(s.Form==MidGrowthForm.ReedStand&&Wetland(biome)?6:1);
+            return fit*(s.Form==MidGrowthForm.ReedStand&&Wetland(biome)?2:1);
         }
         public static double Colony(MidPlantSpecies s,V position,int seed,double physicalRadiusM)
         {
