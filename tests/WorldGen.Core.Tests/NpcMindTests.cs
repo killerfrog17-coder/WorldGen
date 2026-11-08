@@ -9,6 +9,8 @@ static class NpcMindTests
     public static void Run()
     {
         int count=0;void Check(bool ok,string what){if(!ok)throw new Exception(what);count++;}
+        var promptQueue=new NpcEventQueue();promptQueue.Add(new NpcEventQueue.Event{Person=1,Priority=1},0);
+        Check(promptQueue.Add(new NpcEventQueue.Event{Person=1,Priority=3},.1),"Direct speech bypasses passive-event cooldown");
         var q=new NpcEventQueue();
         Check(q.Take(0)==null,"Idle minds schedule no inference");
         Check(q.Add(new NpcEventQueue.Event{Person=1,Priority=1,Trigger="visitor"},0),"Special event admitted");

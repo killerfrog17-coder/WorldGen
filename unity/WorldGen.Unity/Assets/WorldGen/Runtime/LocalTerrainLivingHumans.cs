@@ -351,6 +351,7 @@ public sealed partial class LocalTerrainExplorer
             else
             {
                 actor.TargetSpeed=distance>(doorway?.2:.35)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,Math.Max(.12,distance*1.5)):0;
+                if(mind&&routine.Activity==HumanActivity.Retreat&&distance>2)actor.TargetSpeed=personRunSpeed(actor.Resident);
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
                 else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
                 else if(!mind&&(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare))

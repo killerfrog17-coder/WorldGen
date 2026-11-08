@@ -9,16 +9,16 @@
     "license_url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b12211/LICENSE"
   },
   "model": {
-    "name": "Qwen3.5-2B",
+    "name": "Qwen3-4B-Instruct-2507",
     "quantization": "Q4_K_M",
-    "file": "Qwen3.5-2B-Q4_K_M.gguf",
-    "repository": "unsloth/Qwen3.5-2B-GGUF",
-    "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
-    "url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf",
-    "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
-    "bytes": 1280835840,
+    "file": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+    "repository": "unsloth/Qwen3-4B-Instruct-2507-GGUF",
+    "revision": "a06e946bb6b655725eafa393f4a9745d460374c9",
+    "url": "https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF/resolve/a06e946bb6b655725eafa393f4a9745d460374c9/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+    "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+    "bytes": 2497281120,
     "license": "Apache-2.0",
-    "upstream": "https://huggingface.co/Qwen/Qwen3.5-2B"
+    "upstream": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507"
   },
   "defaults": {
     "threads": 2,
@@ -38,5 +38,17 @@
     "bytes": 532517120,
     "license": "Apache-2.0",
     "upstream": "https://huggingface.co/Qwen/Qwen3.5-0.8B"
+  },
+  "rejected_2b": {
+    "name": "Qwen3.5-2B",
+    "quantization": "Q4_K_M",
+    "file": "Qwen3.5-2B-Q4_K_M.gguf",
+    "repository": "unsloth/Qwen3.5-2B-GGUF",
+    "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+    "url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf",
+    "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "bytes": 1280835840,
+    "license": "Apache-2.0",
+    "upstream": "https://huggingface.co/Qwen/Qwen3.5-2B"
   }
 }

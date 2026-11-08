@@ -74,6 +74,7 @@ public sealed partial class LocalTerrainExplorer
         var saved=LivingState.Copy();saved.Validate();Check(saved.Minds.Any(m=>m.Person==actor.ResidentId&&m.Recent.Count>0),"short memories survive the session copy");
         npcTalkTarget=actor;OpenChat();Check(!CommandChatStopped,"conversation input keeps NPC simulation running");CloseChat();
         File.WriteAllText(Path.Combine(output,"final-memory.json"),JsonUtility.ToJson(NpcMemoryFor(actor.ResidentId),true));
+        File.WriteAllText(Path.Combine(output,"model-receipt.txt"),npcModel.Config.ModelName+" / threads "+npcModel.Config.Threads+" / requests "+npcModel.Requests+" / last seconds "+npcModel.LastSeconds+" / prompt tokens "+npcModel.LastPromptTokens+" / generated tokens "+npcModel.LastGeneratedTokens);
         int host=npcModel.OwnedProcessId;DisposeNpcMinds();yield return new WaitForSecondsRealtime(.5f);
         bool alive=false;try{alive=!System.Diagnostics.Process.GetProcessById(host).HasExited;}catch(ArgumentException){}
         Check(host>0&&!alive,"leaving the explorer terminates its own local host");
