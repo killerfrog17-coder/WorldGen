@@ -1,5 +1,6 @@
 #ifndef WORLDGEN_TERRAIN_SURFACE_INCLUDED
 #define WORLDGEN_TERRAIN_SURFACE_INCLUDED
+#include "WorldGenCliffSurface.hlsl"
 // Camera-scoped settings, never per-tile property blocks/material rewrites.
 // Ranges: full detail, last texture, last normal/mask, last extra layer/axis.
 float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
@@ -158,7 +159,7 @@ void SurfaceStrata(O i,inout float3 albedo)
         albedo*=lerp(1,tint,exposed);
     }
 }
-void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout float3 albedo)
+void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3 altitude,inout float3 albedo)
 {
     float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
     float bare=saturate((i.groundB.x+i.weights.w*.45)/total)*smoothstep(.06,.38,1-abs(normalize(i.normal).y));
@@ -175,7 +176,7 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     float3 axes=SurfaceAxes(planetNormal,2,1);
     float3 grain;
     if(_CliffLayers>.5)
-        grain=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world/8,worldDx/8,worldDy/8,axes,rock>=2&&rock<=4?1:0).rgb;
+        grain=CliffFaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world,worldDx,worldDy,altitude,CliffFaceAxes(planetNormal,TerrainUp().xyz),rock>=2&&rock<=4?1:0).rgb;
     else
         grain=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/128,worldDx/128,worldDy/128,axes,8+rock).rgb,float3(.2126,.7152,.0722));
     #ifndef UNITY_COLORSPACE_GAMMA
@@ -192,6 +193,9 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     float3 world=TerrainTextureAnchor().xyz+TerrainEast().xyz*(i.position.x+TerrainOrigin().x)+TerrainNorth().xyz*(i.position.z+TerrainOrigin().y)+TerrainUp().xyz*i.position.y;
     float3 p=world/max(.05,_TextureMetres),dx=ddx(p),dy=ddy(p);
     float3 worldDx=ddx(world),worldDy=ddy(world);
+    float2 radial=i.position.xz+_TerrainGeologyDatum.zw;
+    float height=i.position.y+_TerrainGeologyDatum.x+dot(radial,radial)*_TerrainGeologyDatum.y;
+    float3 cliffAltitude=float3(height,ddx(height),ddy(height));
     float4 range=_TerrainSurfaceRanges;
     if(TerrainTest(TD_NEAR))range.y=min(range.y,max(1,_TerrainDiagnosticRadius));
     bool textures=_TerrainSurfaceControls.x>.5&&!TerrainTest(TD_TEXTURES);
@@ -242,13 +246,28 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
                 if(layers[at]==11)layerScale*=2/4.3;
                 if(layers[at]==13)layerScale*=2/2.4212;
                 float3 lp=p*layerScale,ldx=dx*layerScale,ldy=dy*layerScale;
-                if(colourRead)colour+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at]).rgb*fractions[at];
+                bool wallLayer=_CliffLayers>.5&&layers[at]>=8&&layers[at]<=13;
+                int cliffLayer=layers[at]>=10&&layers[at]<=12?1:0;
+                float3 cliffAxes=CliffFaceAxes(np,TerrainUp().xyz);
+                float wallBlend=smoothstep(.06,.38,1-abs(n.y));
+                if(colourRead)
+                {
+                    float3 fine=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at]).rgb;
+                    // The dedicated wall read below owns broad joints. Fade
+                    // floor-like fine grain out continuously, retaining it on
+                    // flatter bedrock without an angle-triggered material seam.
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    if(wallLayer)fine=lerp(fine,1/4.672,wallBlend);
+                    #else
+                    if(wallLayer)fine=lerp(fine,.5,wallBlend);
+                    #endif
+                    colour+=fine*fractions[at];
+                }
                 if(normalRead)
                 {
-                    if(_CliffLayers>.5&&layers[at]>=8&&layers[at]<=13)
+                    if(wallLayer)
                     {
-                        int rock=layers[at]-8;
-                        bump+=SurfaceBumpArray(TEXTURE2D_ARRAY_ARGS(_CliffNormals,sampler_GroundAlbedo),world/8,worldDx/8,worldDy/8,w,rock>=2&&rock<=4?1:0)*fractions[at];
+                        bump+=CliffFaceBump(TEXTURE2D_ARRAY_ARGS(_CliffNormals,sampler_GroundAlbedo),world,worldDx,worldDy,cliffAltitude,cliffAxes,TerrainUp().xyz,cliffLayer)*fractions[at]*wallBlend;
                     }
                     else bump+=SurfaceBumpArray(TEXTURE2D_ARRAY_ARGS(_GroundNormals,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at])*fractions[at];
                 }
@@ -268,7 +287,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
     SurfaceStrata(i,albedo);
-    if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,albedo);
+    if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,cliffAltitude,albedo);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
     float cover=saturate(i.color.a);

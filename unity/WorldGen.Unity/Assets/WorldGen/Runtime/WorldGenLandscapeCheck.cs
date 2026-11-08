@@ -346,6 +346,12 @@ public sealed partial class LocalTerrainExplorer
         Check(owner.StreamingFogDistance>=reviewFootprint,"Normal terrain and vegetation reveal expose the reviewed landscape extent");
         for(int i=0;i<90;i++)yield return null;
         Check(owner.artSet!=null&&owner.artSet.Albedo!=null&&owner.artSet.Albedo.depth==17&&owner.artSet.Normals.depth==17&&owner.artSet.Masks.depth==17,"Actual player has all seventeen registered surface layers");
+        if(arguments.Contains("--worldgen-cliff-review"))
+        {
+            Check(owner.artSet.CliffAlbedo!=null&&owner.artSet.CliffAlbedo.depth==2&&owner.artSet.CliffNormals!=null&&owner.artSet.CliffNormals.depth==2,"Actual player has both generated cliff-face materials");
+            var walls=owner.tiles.Values.Where(t=>t.Materials!=null).SelectMany(t=>t.Materials).Where(m=>m.shader.name=="WorldGen/LocalTerrain"&&m.GetFloat("_Water")<.5f).ToArray();
+            Check(walls.Length>0&&walls.All(m=>m.GetFloat("_CliffLayers")>.5f&&m.GetTexture("_CliffAlbedo")==owner.artSet.CliffAlbedo&&m.GetTexture("_CliffNormals")==owner.artSet.CliffNormals),"Every uploaded ground tile binds the generated cliff arrays");
+        }
         Check(owner.waterMaterial.shader.name=="WorldGen/WaterSurface","Actual water review uses the production water surface shader");
         Check(owner.tiles.Values.Any(t=>t.Materials!=null&&t.Materials.Any(m=>m!=null&&m.HasProperty("_ForestFloorEnabled")&&m.GetFloat("_ForestFloorEnabled")>.5f&&m.GetTexture("_ForestFloor")!=null)),"Actual uploaded ground materials bind forest-floor weights");
         var sample=owner.walkingPatch.Sample(site.Position);Check(double.IsFinite(sample.ElevationM),"Canonical local terrain remains finite");
@@ -393,6 +399,8 @@ public sealed partial class LocalTerrainExplorer
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
             if(site.Coast!=null||site.Fjord.HasValue)cameraFloor=Mathf.Max(cameraFloor,(float)owner.frame.SurfaceY(cameraPoint,0));
             camera.y=walking?cameraFloor+1.8f:Mathf.Max(camera.y,cameraFloor+2);
+            if(!walking&&!inspectionTarget.HasValue&&offset.y>30)
+                camera.y=Mathf.Max(camera.y,cameraFloor+Mathf.Min(400,offset.y*.5f));
             var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
             if(faceCenter)look=new Vector3(0,y+.5f,0)-camera;
             if(inspectionTarget.HasValue)look=inspectionTarget.Value-camera;
@@ -425,7 +433,7 @@ public sealed partial class LocalTerrainExplorer
                 while(Time.realtimeSinceStartupAsDouble-start<10)
                 {
                     float t=(float)((Time.realtimeSinceStartupAsDouble-start)/10);
-                    float angle=orbit?6*Mathf.Sin(t*Mathf.PI*2):0;
+                    float angle=orbit?-6*(1-Mathf.SmoothStep(0,1,t)):0;
                     var scenic=focus+Quaternion.AngleAxis(angle,Vector3.up)*(camera-focus);
                     owner.landscapeReviewCamera=scenic;owner.landscapeReviewRotation=Quaternion.LookRotation(focus-scenic);
                     owner.UpdateCamera();yield return null;
@@ -435,6 +443,32 @@ public sealed partial class LocalTerrainExplorer
             if(kind=="AlluvialRiver")Check((camera-new Vector3(0,y+.5f,0)).magnitude<owner.publishedFog*.85f,"Alluvial feature center is inside the actual camera reveal distance");
             owner.UpdatePlayerWater(true);owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
+            if(name=="cliff-wall-near"&&arguments.Contains("--worldgen-cliff-review"))
+            {
+                var walls=owner.tiles.Values.Where(t=>t.Materials!=null).SelectMany(t=>t.Materials).Where(m=>m.shader.name=="WorldGen/LocalTerrain"&&m.GetFloat("_Water")<.5f).ToArray();
+                var actual=image.GetPixels32();
+                try
+                {
+                    foreach(var wall in walls)wall.SetFloat("_CliffLayers",0);
+                    owner.view.Render();RenderTexture.active=target;
+                    var fallback=new Texture2D(1536,864,TextureFormat.RGB24,false);
+                    try
+                    {
+                        fallback.ReadPixels(new Rect(0,0,1536,864),0,0);fallback.Apply();
+                        File.WriteAllBytes(Path.Combine(output,"cliff-wall-material-off.png"),fallback.EncodeToPNG());
+                        var before=fallback.GetPixels32();long delta=0;int changed=0;
+                        for(int pixel=0;pixel<actual.Length;pixel++)
+                        {
+                            int difference=Math.Abs(actual[pixel].r-before[pixel].r)+Math.Abs(actual[pixel].g-before[pixel].g)+Math.Abs(actual[pixel].b-before[pixel].b);
+                            delta+=difference;if(difference>3)changed++;
+                        }
+                        File.WriteAllText(Path.Combine(output,"cliff-material-difference.txt"),"Same-camera material-only RGB mean absolute difference="+(delta/(actual.Length*3d))+"; changed pixels="+changed+"/"+actual.Length);
+                        Check(changed>actual.Length*.05,"Generated wall material visibly affects actual terrain, independently of the separate ledge meshes");
+                    }
+                    finally{Destroy(fallback);}
+                }
+                finally{foreach(var wall in walls)wall.SetFloat("_CliffLayers",1);RenderTexture.active=prior;}
+            }
             if(name=="fall-base"||name=="fall-base-later")
             {
                 var pixels=new Color[25];for(int z=0;z<5;z++)for(int x=0;x<5;x++)pixels[z*5+x]=image.GetPixel(766+x,430+z);
