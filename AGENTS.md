@@ -1,3 +1,5 @@
+LATEST08Nov18:30Z FINAL READY, do not endbefore18:32Z owner40minunlesssteered. Selected/protectedB79c72494 FULLMonoNONDEV17:34:54 clean, shortcutTarget/IconB preservingrootWorkingDir/emptyargs. Allruntimepushed79; finalreport/pairedproofpushed49ac265a, last untracedspotcheck metadata/PDF refresh beingpushednow. No own game/Unity/CLIworkers. ONE final5page10screenshotPDF openChromeLEFTMOST title/bounds reverified[-1896,24,-24,1016]. Paired167776focused frames detailedbelow; extrauntraceddune34698focused,771FPS/p992.50/max11.14ms/1>10,0unfocused; total202474. DisablingdetaileddiagnosticsdidNOTeliminateallspikes. No100FPSfloorclaim/no causalspikeattribution. Capturedframes/sourcepacketproof/reportinputs retained canonical assets/verification+docs. No newruntimeedits after79, no moreruntimetests/featuresbeforehandoff. ReuseA forfutureworkafterownerplaytest/NPCdirection. Owner3files preserved/no subagents/noextraarchives. Historicalprofilerdeleteauto-reviewPOLICYBLOCKED remainsunperformed; briefseparatefinaldisclosure. Finalhandoffat18:32 withPDFlink/shortcut/push/remainingissues.
+
 LATEST08Nov18:25Z FINAL CHECKPOINT. Owner requested another30-40min at17:52; finishat/after18:32Z unlesssteered, NO morefeatures. ALLfour idle pairedcomparisons COMPLETE73564 EXIT0;167776focused/0unfocused frames. Ownerexplicitallclosed17:55. Selected shortcut NOW B FULLMonoNONDEV79c72494 built17:34:54 SourceChanges[]; Target/IconB, repositoryrootWorkingDirectory andemptyargs preserved/verified. PROTECT B; reuseA nextsession ifneeded. Finalpackage Assembly/Core/worker hashes matchmeasuredB. All3knownUnityautosrestored; no own game/Unity/CLIworkers. MainruntimeALL PUSHED79. Owner3filesuntouched.
 FINAL45s180mloop+whip Medium1080/6km/BORDERLESS clear localsummernoon: A->B dune775.43->782.92FPS,p99B2.45/max12.14ms; jungle203.68->204.78,p99B10.15/max17.44; Mango413.48->391.11,p99B5.67/max11.70; Salt494.15->462.37,p99B4.88/max30.35. Dryeffectivelysame; addedwetlandplantscost5.4/6.4percent. Active streaming/settledflags preserved. NO global100FPSfloor/stutterelimination claim. ThreeBworstframesGC-correlated; duneindex30004 justaftertraceList30000growth; someworstframesmayincludediagnosticoverhead. Saltspikeunattributed. No newdiagnosticruntimeedits.
 DELIVERED: continuous riverbars/finite pondshores/crescentdunes (retainedA); balanced2xwetlandestablishment withproperlow/tidal/saltrooting+sharedfarreeds; display-onlymaphintfix810checks+21exactpackets; emptyforestpruning12requests/12terrain/6scatterexactexceptdiagnosticProbes (262144->0emptyL4). Physical75/Hyper64/scatter44/MidFlora3/wire10. Wetlandnativefinalandfinal79Warm EXIT0/imagesreviewed. Approvedground/bark/cliff retained; noanimal/human/sky/weatherappearancechanges.
@@ -72,7 +74,7 @@ ACTIVE08Nov00:30Z B FULL c9016994 building runner72273; immutable runtime until 
 
 ACTIVE08Nov00:14Z terrain/cliffs. B FULL7696e993 building; do not mutate runtime or overwrite until exit. A8c75/shortcut protected. V3native536 EXIT0 but VISUALLY REJECTED: buried face/thin sheet edges. New calibrated reference plane + explicit flat backing avoids solidify spikes, all9manifold/positive-volume meshes checked18695PASS/262actual cliffs. Direct runtime previews inspected. Scatter28, terrain62/wire10. New native v4 Canyon pending; visual/performance NOT accepted. Then coastal/forest ground regression, paired moving Medium1080/6km/60s/180m oldA vsnewB, finalPDFleftmost and acceptedshortcutonly. Original inputs release-backed/5902lock6509auditPASS. Owner3files untouched/no subagents.
 
-ACTIVE07Nov23:57Z — B FULL Mono NONDEV536e0c3e built23:54:20Z SourceChanges[];
+ACTIVE07Nov23:57Z â€” B FULL Mono NONDEV536e0c3e built23:54:20Z SourceChanges[];
 3Unityautosrestored. Ownrunner93726/player7596 RIGHTMOST hidden runs revised
 cliff-candidate-v3-20261107-canyon. No build/overwrite untilcomplete. A8c75
 shortcut stillprotected. V2b12 nativeEXIT0 but REJECTED forsolidify spikes and
@@ -93,7 +95,7 @@ Source originals already release-backed and5902-lock6509auditPASS. Mainlock/
 newmetas committed cdc1b110. Both rejected versions retained only inGit/evidence,
 not extra executable archives. User3files untouched; no subagents.
 
-ACTIVE07Nov23:44Z — B FULL Mono NONDEV b12f41d5 built23:42:24Z clean,
+ACTIVE07Nov23:44Z â€” B FULL Mono NONDEV b12f41d5 built23:42:24Z clean,
 3Unityautosrestored. Ownrunner68882/player2300 RIGHTMOST hidden runs native
 cliff-candidate-v2-20261107-canyon on SAME playable200k seed73421 year0 world.
 Do NOT overwrite B/build until exit. Source immutable b12, tests20898PASS
@@ -110,7 +112,7 @@ dependency. Confirm native roof collider/appearance then coast+forest regression
 and paired60s moving tests at actualcanyon+forest beforepromotingB. A protected.
 No other own game currently. Owner3files intact; no subagents. OnefinalPDF only.
 
-ACTIVE 07Nov23:42Z — seams/rocky cliffs, NOT delivered yet. Selected A/8c75
+ACTIVE 07Nov23:42Z â€” seams/rocky cliffs, NOT delivered yet. Selected A/8c75
 protected. Own FULL Mono NONDEV B build8375 RUNNING from b12f41d5; no game.
 Do not mutate runtime during compile. Restore3known Unity autos after exit.
 Seam source e8bff421 terrain62/wire10 PASS176pure+176actual200k/814local/
@@ -142,7 +144,7 @@ fixture failed old wind code's null simulation; corrected harness, no weather ed
 Only two reusable builds, all windows RIGHTMOST/hidden. One final PDF LEFTMOST.
 Owner3files preserved. Latest source pushed b12; new generated Unity metas pending.
 
-ACTIVE 07Nov23:13Z — owner requests terrain seams AND rocky 3D cliffs/overhangs.
+ACTIVE 07Nov23:13Z â€” owner requests terrain seams AND rocky 3D cliffs/overhangs.
 Protect selected A/8c75e05d; use B for candidate. No subagents. Own baseline
 native A PID7584/runner52866 Canyon on fresh playable200k fixture is running
 RIGHTMOST hidden; initial raw fixture failed because it lacked simulation state.
@@ -163,7 +165,7 @@ then moving tests before promotion. No Unity build currently. Owner3files intact
 All fresh temporary worlds/evidence artifacts/terrain-surfaces-20261107, disposable.
 One final screenshot PDF; Chrome LEFTMOST. All Unity/player windows RIGHTMOST.
 
-LATEST 07 Nov 17:51Z — GEOGRAPHY DELIVERED; final handoff until noon/18Z.
+LATEST 07 Nov 17:51Z â€” GEOGRAPHY DELIVERED; final handoff until noon/18Z.
 Existing root shortcut now selects slot-a FULL Mono NONDEV 8c75e05d, built
 17:09:50Z with SourceChanges[]. Known Unity autos restored; no own game,
 Unity or CLI workers remain. Protect selected A; reuse B for future work.
@@ -2834,7 +2836,7 @@ Current B3242861 NPCwet31/cold31 PASS/EXIT0; walking, setup/pack/travel/save/wou
 and vegetation-safe floors PASS. Actual current forest/cold residents views
 inspected (wet camp-first itself occluded by nearby tree; residents-first clear).
 First wetperf42NPC2.61/2.14ms vsold1.35 was CONTENDED: owner's A PID3260 +worker
-were running alongside own B. Owner answered "Closed—run the comparison";
+were running alongside own B. Owner answered "Closedâ€”run the comparison";
 verified Aclosed. Do notcallthat regression or accepttimings. New own helper
 scripts/run-landscape-performance.ps1 usesONLYexistingA thenB sequentially,
 no walk/cycle flags for matched performance context. Active session22268:

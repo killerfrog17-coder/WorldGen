@@ -212,7 +212,7 @@
           "text": "The absolute 100 FPS floor remains unmet. Spikes, a legacy river-bank gap, regular smaller river shapes and wetland art remain follow-ups. The failed river-width experiment is isolated on its own Git branch and is absent from this build."
         },
         {
-          "text": "Trace buffers can allocate during measurement; some worst frames may include diagnostic overhead. The recorded spikes do not establish their normal-game cause.",
+          "text": "Trace buffers can allocate during measurement. A final dune check without detailed diagnostics averaged 771 FPS, with an 11.14 ms worst frame; removing diagnostics did not eliminate every spike. Their normal-game causes remain unresolved.",
           "size": 8.5
         },
         {

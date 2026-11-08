@@ -1204,7 +1204,7 @@
   ],
   "report": {
     "path": "docs\\reports\\geography-20261108\\WorldGen - Geography Overnight 2026-11-08.pdf",
-    "sha256": "5c0a21e994835f6a1a0199aa3f67ca3396c13b5bc7cce8e435f1ba08e43f66b6",
+    "sha256": "9b1fcfcdd8672d8ee9577b57056ffa39abe84c4fb033cb4b4049e02c20e90b86",
     "pages": 5,
     "actual_game_captures": 10,
     "all_pages_rendered_and_visually_inspected": true,
@@ -1270,7 +1270,8 @@
         "sha256": "fb6e742ce40c87f5a0ae391ac7f6062167b129c0f81f8ef67c6deb669f3ec736",
         "bytes": 277121
       }
-    ]
+    ],
+    "last_verified_utc": "2026-11-08T18:29:00.461775+00:00"
   },
   "final_player_log_checks": [
     {
@@ -1294,5 +1295,168 @@
       "runtime_error_matches": []
     }
   ],
-  "final_source_audit": "No runtime changes pending beyond selected79c72494; checked positive reed pigment bounds, forest-node conservative full-domain guard, map-vs-physical hint isolation. Approved textures unchanged. No animal/human or sky/weather appearance changes."
+  "final_source_audit": "No runtime changes pending beyond selected79c72494; checked positive reed pigment bounds, forest-node conservative full-domain guard, map-vs-physical hint isolation. Approved textures unchanged. No animal/human or sky/weather appearance changes.",
+  "additional_untraced_dune_check": {
+    "directory": "artifacts\\geography-night-20261108\\final-idle-untraced-dune-b-v1",
+    "rows": [
+      {
+        "site": "barchan-dunes",
+        "cell": "139657",
+        "biome": "Desert",
+        "relief": "24",
+        "case": "travel-whip-current",
+        "frames": "34698",
+        "seconds": "45.00792",
+        "fps": "770.93093",
+        "p50_ms": "1.24480",
+        "p95_ms": "1.78070",
+        "p99_ms": "2.49940",
+        "max_ms": "11.13900",
+        "over10ms": "1",
+        "over16ms": "0",
+        "scatter_update_ms": "0.04995",
+        "scatter_submit_ms": "0.02308",
+        "grass_submit_ms": "0.03670",
+        "weather_ms": "0.03327",
+        "tiles": "202",
+        "wanted": "196",
+        "objects": "22",
+        "specialists": "0",
+        "mid": "22",
+        "trees": "0",
+        "scatter_draws": "4",
+        "grass_draws": "0",
+        "grass_candidates": "0",
+        "grass_bytes": "0",
+        "frustum_rejected": "2134",
+        "terrain_rejected": "0",
+        "settled": "False",
+        "start_qpc": "928014513",
+        "end_qpc": "1378093767",
+        "gpu_ms": "0.00000",
+        "cpu_ms": "0.00000",
+        "timing_samples": "0",
+        "gpu_drain_ms": "2.10020",
+        "start_utc": "2026-11-08T18:26:57.1078989Z",
+        "end_utc": "2026-11-08T18:27:42.1159852Z"
+      }
+    ],
+    "focus": "barchan-dunes travel-whip-current focused_frames=34698 unfocused_frames=0\n",
+    "package": {
+      "AssemblySha256": "c0df9d34909a548eb2c68be498994f5e74448cba48d2c63e7734939e9a242d0b",
+      "CoreSha256": "8a93587485effed3d1f4d049ecde450341e7027a8a191d644b8bee106839ba59",
+      "WorkerSha256": "d301b46bac4724cb9c2a3db8d6d58c3c2da85b27cf3567cf1abe7c254f9ba04a",
+      "Build": {
+        "BuiltUtc": "2026-11-08T17:34:54.3207873Z",
+        "SourceCommit": "79c7249461bb3d96942529345f2dddf7d4296860",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": false,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "8a93587485effed3d1f4d049ecde450341e7027a8a191d644b8bee106839ba59"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "bce915412a51a6988a38b043feb40cd49dc78229e1e1d5809f9e5e8e73193ce7"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "7f29a9ad89672bd96406b05f94aafad10f2a939a1ae54a23569f667d0be0ffe9"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "d301b46bac4724cb9c2a3db8d6d58c3c2da85b27cf3567cf1abe7c254f9ba04a"
+      },
+      "RequestedSwapChain": "Default",
+      "NativeGcDiagnostic": false,
+      "CpuTimingDiagnostic": false,
+      "HideWaterDrawingDiagnostic": false,
+      "LegacyReedFarDiagnostic": false,
+      "TravelLoopMeters": 180,
+      "RecordedUtc": "2026-11-08T18:25:24.1005157Z"
+    },
+    "settings": "barchan-dunes canopy=True proxies=True coarseCrown=True treeShadows=True frontToBack=False grassNear=30 grassFar=300\nbarchan-dunes saved=False geometry=2 surface=2 grass=2 specialists=2 mid=2 trees=2 view=6000 depthPrepass=False\n",
+    "case_settings": "barchan-dunes travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False\nwarmup_limit_seconds=420\nbarchan-dunes travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2\n",
+    "complete_utc": "2026-11-08T18:27:42.4075950Z",
+    "interpretation": "No detailed timing traces/CpuTiming/GpuTelemetry; same selected build and site.771FPS/max11.14ms,1frame>10ms. Does not eliminate all spikes or establish100FPSfloor. Single spot check, no causal attribution or performance-gain claim."
+  },
+  "all_recorded_focused_frames_including_spot_check": 202474,
+  "feature_history_reference_points": [
+    {
+      "feature": "Continuous river bars",
+      "commits": [
+        "f0be46c0",
+        "a2a4af4e"
+      ],
+      "note": "Morphology and inner/outer bank refinement; inspect later shared terrain dependencies before reverting."
+    },
+    {
+      "feature": "Finite pond refinement budget",
+      "commits": [
+        "23de7d6c",
+        "6fe243e3"
+      ],
+      "note": "Near closure plus distant-only constraint budget."
+    },
+    {
+      "feature": "Crescent dune terrain",
+      "commits": [
+        "64799e87",
+        "bf6a7f73",
+        "5688ca62",
+        "d7790f30"
+      ],
+      "note": "Initial source also included the subsequently retired star prototype. Final selected source has crescents only."
+    },
+    {
+      "feature": "Wetland rooting/forms and balanced establishment",
+      "commits": [
+        "4a92fd82",
+        "554dfad2",
+        "cb76798f",
+        "1eebf924"
+      ],
+      "note": "Habitat/form source then final reduced twofold establishment."
+    },
+    {
+      "feature": "Reed rendering simplification and shared meshes",
+      "commits": [
+        "a9be972d",
+        "904f834c",
+        "7bd6d41d",
+        "247fb30f"
+      ]
+    },
+    {
+      "feature": "Display-map query order fix",
+      "commits": [
+        "b9d6529a"
+      ]
+    },
+    {
+      "feature": "Proven empty-forest work pruning",
+      "commits": [
+        "79c72494"
+      ]
+    },
+    {
+      "feature": "Rejected river width experiment",
+      "branch": "experiment/river-bank-width-20261108-1710",
+      "commits": [
+        "ac524a33"
+      ],
+      "note": "Absent from main and selected player. Strict bank containment failed; do not merge as an accepted fix."
+    }
+  ],
+  "history_scope": "Reference points for feature review, not a promise that all commits can be reverted independently without accounting for later shared changes. Runtime source and authored inputs remain Git-backed; built players and raw test artifacts are disposable."
 }
