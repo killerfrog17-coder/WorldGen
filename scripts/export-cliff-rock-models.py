@@ -7,6 +7,7 @@ import bpy,bmesh,json,struct,hashlib
 import numpy as np
 from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
+from mathutils.kdtree import KDTree
 
 ROOT=Path(__file__).resolve().parents[1]
 sources=json.loads((ROOT/'assets-source/terrain/rocks/polyhaven/sources.json').read_text())['assets']
@@ -49,10 +50,13 @@ def close_back(mesh):
         components.append(group)
     keep=max(components,key=lambda group:sum(f.calc_area() for f in group))
     bmesh.ops.delete(bm,geom=[f for group in components if group is not keep for f in group],context='FACES')
+    bmesh.ops.delete(bm,geom=[e for e in bm.edges if not e.link_faces],context='EDGES')
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
     boundary=[e for e in bm.edges if e.is_boundary];directed={}
     for edge in boundary:
         loop=edge.link_loops[0];a=loop.vert;b=loop.link_loop_next.vert
-        assert a not in directed,'Unsplit scan boundary junction';directed[a]=b
+        assert a not in directed,f'Unsplit scan boundary junction: {len(a.link_faces)} faces, {sum(e.is_boundary for e in a.link_edges)} boundary edges'
+        directed[a]=b
     loops=[]
     while directed:
         start=next(iter(directed));loop=[start];v=directed.pop(start)
@@ -60,13 +64,16 @@ def close_back(mesh):
         loops.append(loop)
     def area(loop):return abs(sum(a.co.x*b.co.y-b.co.x*a.co.y for a,b in zip(loop,loop[1:]+loop[:1])))
     outer=max(loops,key=area)
+    def cap(loop):
+        center=bm.verts.new(sum((v.co for v in loop),Vector())/len(loop))
+        for a,b in zip(loop,loop[1:]+loop[:1]):bm.faces.new((b,a,center))
     for hole in loops:
-        if hole is not outer:bm.faces.new(tuple(reversed(hole)))
+        if hole is not outer:cap(hole)
     depth=min(v.co.z for v in bm.verts)-.08
     back=[bm.verts.new((v.co.x,v.co.y,depth)) for v in outer]
     for i,a in enumerate(outer):j=(i+1)%len(outer);bm.faces.new((outer[j],a,back[i],back[j]))
-    bm.faces.new(tuple(reversed(back)));bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces))
-    assert all(e.is_manifold for e in bm.edges),'Backing is not closed'
+    cap(back);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces))
+    assert all(e.is_manifold for e in bm.edges),f'Backing is not closed: {[(len(e.link_faces),len(e.verts[0].link_faces)) for e in bm.edges if not e.is_manifold][:8]}'
     assert abs(bm.calc_volume(signed=True))>.005,'Backing lost its volume'
     if bm.calc_volume(signed=True)<0:bmesh.ops.reverse_faces(bm,faces=list(bm.faces))
     bm.to_mesh(mesh);bm.free()
@@ -88,6 +95,20 @@ for asset_index,entry in enumerate(sources):
     fit=np.linalg.lstsq(matrix*np.sqrt(weights[:,None]),samples[:,2]*np.sqrt(weights),rcond=None)[0]
     residual=samples[:,2]-matrix[:,:2]@fit[:2];order=np.argsort(residual);datum=float(residual[order][np.searchsorted(np.cumsum(weights[order]),weights.sum()*.2)])
     for v in original.vertices:v.co.z-=float(fit[0])*v.co.x+float(fit[1])*(v.co.y-.5)+datum
+    # The scan perimeter must enter the host wall. A cut edge protruding
+    # through a heightfield exposes a thin triangular panel from underneath.
+    boundary_counts={}
+    for face in original.polygons:
+        ids=list(face.vertices)
+        for a,b in zip(ids,ids[1:]+ids[:1]):
+            edge=tuple(sorted((a,b)));boundary_counts[edge]=boundary_counts.get(edge,0)+1
+    rim=sorted({v for edge,count in boundary_counts.items() if count==1 for v in edge})
+    tree=KDTree(len(rim))
+    for i,index in enumerate(rim):v=original.vertices[index].co;tree.insert((v.x,v.y,0),i)
+    tree.balance()
+    for v in original.vertices:
+        distance=tree.find((v.co.x,v.co.y,0))[2];t=min(1,distance/.13);blend=t*t*(3-2*t)
+        v.co.z=-.17+(v.co.z+.17+.08)*blend
     original.update()
     reference=bmesh.new();reference.from_mesh(original);reference_tree=BVHTree.FromBMesh(reference);reference.free()
     obj.matrix_world=Matrix.Identity(4)
@@ -137,7 +158,7 @@ for asset_index,entry in enumerate(sources):
         for v in mesh.vertices:blob+=struct.pack('<8f',*v.co,*v.normal,v.co.x,v.co.y)
         for p in mesh.polygons:blob+=struct.pack('<3I',*p.vertices)
         target_file=out/f'cliff-{asset_index}-l{lod}.bytes';target_file.write_bytes(blob)
-        records.append({'asset':entry['name'],'lod':lod,'file':target_file.relative_to(ROOT).as_posix(),'vertices':len(mesh.vertices),'triangles':len(mesh.polygons),'closed':True,'surface_collision':True,'front_plane_fit':[float(fit[0]),float(fit[1]),datum],'maximum_reference_deviation':deviation,'bytes':len(blob),'sha256':hashlib.sha256(blob).hexdigest()})
+        records.append({'asset':entry['name'],'lod':lod,'file':target_file.relative_to(ROOT).as_posix(),'vertices':len(mesh.vertices),'triangles':len(mesh.polygons),'closed':True,'embedded_rim':True,'surface_collision':True,'front_plane_fit':[float(fit[0]),float(fit[1]),datum],'maximum_reference_deviation':deviation,'bytes':len(blob),'sha256':hashlib.sha256(blob).hexdigest()})
         print(json.dumps(records[-1]),flush=True)
     bpy.data.meshes.remove(original)
 (out/'sources.json').write_text(json.dumps({'format':'WRC1 little-endian xyz/normal/uv/index','license':'CC0-1.0 geometry; existing generated game textures','interior':'Closed flat backing embedded in terrain; calibrated front preserves scanned ledges','sources':sources,'meshes':records},indent=2))

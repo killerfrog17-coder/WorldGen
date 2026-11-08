@@ -52,6 +52,9 @@ static class CliffRockTests
                 {
                     found++;var sample=model.Patch(rock.Position,3000).Sample(rock.Position);
                     Check(Math.Abs(rock.GroundM-sample.ElevationM)<.001&&rock.HeightM>=12&&rock.HeightM<=280&&rock.WidthM>0,"Actual cliff remains fitted to the shared physical terrain");
+                    Check(rock.HeightM<=rock.WidthM*2.2+.003,"Scan proportions cannot stretch into long thin wall spikes");
+                    int dominant=0;for(int i=1;i<6;i++)if(sample.Ground.RockWeight(i)>sample.Ground.RockWeight(dominant))dominant=i;
+                    Check((int)CliffRocks.Family(rock.Variant)==dominant,"Cliff material follows the terrain's dominant blended lithology");
                     double up=V.Dot(rock.Normal,rock.Position);
                     Check(up>0&&up<.62&&Math.Abs(rock.Normal.Length-1)<1e-6,"Actual face normal fits a steep wall rather than an upright floating slab");
                 }

@@ -26,10 +26,12 @@ namespace WorldGen.Core
             double half=spacing*.7/radius,top=patch.Elevation((point-outward*half).Unit),bottom=patch.Elevation((point+outward*half).Unit);
             if(top-bottom<8)return false;
             uint hash=Rng.Mix((uint)id^(uint)(id>>32)^unchecked((uint)seed));double variation=(hash&65535)/65535d;
-            result=new ScatterInstance{Id=id,Kind=ScatterKind.Outcrop,Variant=Encode(sample.Ground.Bedrock,(int)(hash>>16)&7),Position=point,
+            double width=spacing*(1.65+variation*.35);int family=0;
+            for(int i=1;i<6;i++)if(sample.Ground.RockWeight(i)>sample.Ground.RockWeight(family))family=i;
+            result=new ScatterInstance{Id=id,Kind=ScatterKind.Outcrop,Variant=Encode((RockFamily)family,(int)(hash>>16)&7),Position=point,
                 Normal=(outward+point*(1/slope)).Unit,GroundM=sample.ElevationM,
-                HeightM=D.Q(D.Clamp(((top-bottom)*1.18+4)*Math.Sqrt(1+1/(slope*slope)),12,280),1000),
-                WidthM=D.Q(spacing*(1.65+variation*.35),1000),YawDegrees=0,Color=sample.Ground.RockColor};
+                HeightM=D.Q(D.Clamp(((top-bottom)*1.18+4)*Math.Sqrt(1+1/(slope*slope)),12,Math.Min(280,width*2.2)),1000),
+                WidthM=D.Q(width,1000),YawDegrees=0,Color=sample.Ground.RockColor};
             return true;
         }
     }

@@ -107,10 +107,14 @@ Shader "WorldGen/LocalScatter"
                     float3 grain=SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.yz,_RockLayer).rgb*w.x+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xz,_RockLayer).rgb*w.y+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xy,_RockLayer).rgb*w.z;
                     float3 a=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.yz,_RockLayer).xyz*2-1,b=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xz,_RockLayer).xyz*2-1,c=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xy,_RockLayer).xyz*2-1;
                     n=normalize(n+(float3(0,a.x,a.y)*w.x+float3(b.x,0,b.y)*w.y+float3(c.x,c.y,0)*w.z)*lerp(1,.4,saturate(_CliffSurface)));
-                    // Generated scans already contain their stone's albedo.
-                    // Applying another full dark rock colour crushed it twice.
-                    tex.rgb*=grain*lerp(2,1,saturate(_CliffSurface));
-                    tint=lerp(tint,lerp(1,tint,.12),saturate(_CliffSurface));
+                    // Match terrain's colour calibration: the lithology's
+                    // procedural pigment is modulated by mean-normalized scan
+                    // colour, rather than replacing it with a neutral slab.
+                    float cliffScale=2;
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    cliffScale=4.672;
+                    #endif
+                    tex.rgb*=grain*lerp(2,cliffScale,saturate(_CliffSurface));
                 }
                 float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_BaseMap,i.uv);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
