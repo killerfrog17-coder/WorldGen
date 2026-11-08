@@ -31,6 +31,11 @@ static class RiverAlluviumTests
         }
         Check(RiverAlluvium.Deposit(100,120,2,1,1)==0,"High valley walls are not painted as sand banks");
         Check(RiverAlluvium.Deposit(100,100,2,2,1)==0,"Depositional material has finite lateral support");
+        double innerBank=RiverAlluvium.Deposit(100,100.15,4,1.3,1,1.3,.9);
+        double outerBank=RiverAlluvium.Deposit(100,100.15,4,1.3,1,-1.3,.9);
+        Check(innerBank>.5&&outerBank==0,"Broad deposits occupy the inner point bar rather than clearing both banks equally");
+        Check(innerBank==RiverAlluvium.Deposit(100,100.15,4,1.3,1,-1.3,-.9),"Opposite river bends mirror the same sediment distribution");
+        Check(RiverAlluvium.Deposit(100,100.15,4,1.3,1,1.3,0)==0,"A straight reach does not create a broad continuous beach");
         const double radius=637100;
         var points=Enumerable.Range(0,8).Select(i=>new V(1,i*80/radius,Math.Sin(i*.9)*45/radius).Unit).ToArray();
         var sides=Enumerable.Range(0,8).Select(i=>V.Cross(points[i],points[Math.Min(7,i+1)]-points[Math.Max(0,i-1)]).Unit).ToArray();
@@ -91,15 +96,18 @@ static class RiverAlluviumTests
         if(spansChecked<10||wetCenters<spansChecked*.9||bars==0)throw new Exception($"Actual alluvial channels incomplete: {spansChecked} spans, {wetCenters} wet centers, {bars} exposed bars");
         var barSample=model.Patch(bestSite,10000).Sample(bestSite);
         Console.WriteLine($"Selected bar on reach {bestReach}: {bestSite.X:R},{bestSite.Y:R},{bestSite.Z:R}");
-        var frame=new LocalTerrainFrame(bestSite,model.RadiusM,barSample.ElevationM,.1);int bankEdges=0;
+        var frame=new LocalTerrainFrame(bestSite,model.RadiusM,barSample.ElevationM,.1);int bankEdges=0;var bankFailures=new List<string>();
         foreach(var shape in new[]{(size:102.4,segments:64),(size:204.8,segments:32),(size:3276.8,segments:16)})
         {
             var mesh=LocalTerrainMesh.Build(model,frame,-shape.size/2,-shape.size/2,shape.size,shape.segments);
             if(!mesh.WaterPositions.All(float.IsFinite)||mesh.WaterTriangles.Length==0)throw new Exception("Actual point-bar mesh lacks finite water");
-            bankEdges+=WaterCouplingTests.ContainedBoundary(mesh,trace:(x,z,y)=>{
+            try{bankEdges+=WaterCouplingTests.ContainedBoundary(mesh,trace:(x,z,y)=>{
                 var at=frame.Position(mesh.EastM+x,mesh.NorthM+z);var edge=model.Patch(at,3000).Sample(at);
                 Console.WriteLine($"OPEN ALLUVIAL EDGE {x:R},{z:R},{y:R}; actual {at.X:R},{at.Y:R},{at.Z:R}; {edge.WaterKind}/{edge.WaterBodyKey}, physical ground {edge.ElevationM:R}, water {edge.WaterSurfaceM:R}, footprint {edge.WaterFootprintM:R}, wet {edge.Underwater}");
-            });
+                Directory.CreateDirectory(output);
+                using(var bytes=File.Create(Path.Combine(output,"failed-mesh.bin")))using(var writer=new BinaryWriter(bytes))TerrainMeshWire.WriteMesh(writer,mesh);
+                File.WriteAllText(Path.Combine(output,"failed-edge.json"),JsonSerializer.Serialize(new{Source=bestReach,Position=new[]{bestSite.X,bestSite.Y,bestSite.Z},Point=new[]{at.X,at.Y,at.Z},LocalX=x,LocalZ=z,LocalY=y,Origin=new[]{frame.Origin.X,frame.Origin.Y,frame.Origin.Z},East=new[]{frame.East.X,frame.East.Y,frame.East.Z},North=new[]{frame.North.X,frame.North.Y,frame.North.Z},frame.RadiusM,frame.AltitudeM,frame.HorizontalScale,WaterKind=edge.WaterKind.ToString(),edge.WaterBodyKey,WaterSurfaceM=double.IsFinite(edge.WaterSurfaceM)?(double?)edge.WaterSurfaceM:null,edge.WaterFootprintM}));
+            });}catch(Exception error)when(error.Message.StartsWith("Exposed lateral water edge")){bankFailures.Add(error.Message);}
         }
         var scatter=new LocalScatter(model);var scatterPatch=model.Patch(vegetationSite,20000);int plants=0;
         foreach(bool detail in new[]{false,true})foreach(var plant in scatter.Build(scatter.Address(vegetationSite,detail)).Instances)
@@ -111,8 +119,9 @@ static class RiverAlluviumTests
         if(plants==0)throw new Exception("Vegetation test needs a nonempty planted river neighbourhood");
         if(StateHash.Compute(world)!=original)throw new Exception("Local deposits changed canonical world/history inputs");
         Directory.CreateDirectory(output);
-        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{spansChecked,wetCenters,bars,bankEdges,plants,examples},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(output,"survey.json"),JsonSerializer.Serialize(new{spansChecked,wetCenters,bars,bankEdges,plants,examples,BankBoundaryPass=bankFailures.Count==0,BankFailures=bankFailures},new JsonSerializerOptions{WriteIndented=true}));
         File.WriteAllText(Path.Combine(output,"sites.json"),WorldJson.Write(new VegetationBenchmarkSiteSet{HistoryHash=world.Prehistory.Hash,Sites=new[]{new VegetationBenchmarkSite{Name="alluvial-bar",Position=bestSite,Biome="TemperateForest"}}}));
-        Console.WriteLine($"PASS actual {spansChecked} alluvial spans, {wetCenters} wet centers, {bars} exposed inner-bar samples; canonical world unchanged.");
+        Console.WriteLine($"Actual model checks: {spansChecked} alluvial spans, {wetCenters} wet centers, {bars} exposed inner-bar samples; canonical world unchanged; bank issues {bankFailures.Count}.");
+        if(bankFailures.Count>0)throw new Exception("Alluvial bank boundary gate failed; model/vegetation results and failing geometry retained in "+output);
     }
 }

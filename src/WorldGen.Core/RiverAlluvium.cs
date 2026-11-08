@@ -51,10 +51,15 @@ namespace WorldGen.Core
             // against this same terrain, so it exposes land rather than a decal.
             return Math.Min(level+Math.Min(1.2,.15+depth*.25),original+correction);
         }
-        public static double Deposit(double level,double terrain,double depth,double relative,double strength)
+        public static double Deposit(double level,double terrain,double depth,double relative,double strength,double signed=0,double bend=0)
         {
             if(strength<=0||relative>=1.85)return 0;
-            double bank=Smooth(.35,.65,relative)*(1-Smooth(1.15,1.85,relative));
+            // A broad point bar belongs on the INSIDE of a bend. Painting the
+            // whole support on both banks made every river a cleared sand road.
+            // Straight/cut banks retain a narrow active margin; rising bare bars
+            // inside the wet footprint still receive their exposed sediment.
+            double inner=Smooth(.05,.35,Math.Abs(bend))*Smooth(-.12,.18,bend*signed);
+            double bank=Smooth(.35,.65,relative)*(1-Smooth(1.015,1.16+.59*inner,relative));
             if(relative<1)bank=Math.Max(bank,Smooth(-.02,.05,terrain-level));
             double height=1-Smooth(.6,Math.Max(2,depth+1),terrain-level);
             return D.Clamp(Smooth(.08,.32,strength)*bank*height);

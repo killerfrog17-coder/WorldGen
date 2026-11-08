@@ -471,15 +471,16 @@ namespace WorldGen.Core
                     double depth=span.DepthA+(span.DepthB-span.DepthA)*u;
                     double bed=level-depth*(1-Math.Min(1,relative*relative))*(1+span.Bend*signed);
                     double alluvium=span.AlluviumA+(span.AlluviumB-span.AlluviumA)*u;
+                    double bankBend=span.BankBendA+(span.BankBendB-span.BankBendA)*u;
                     if(inside&&alluvium>0)
-                        bed=RiverAlluvium.Bed(bed,level,depth,relative,signed,span.BankBendA+(span.BankBendB-span.BankBendA)*u,alluvium);
+                        bed=RiverAlluvium.Bed(bed,level,depth,relative,signed,bankBend,alluvium);
                     if(!inside)bed=level-bankDistance*.35;
                     double weight=inside?1:RiverscapeKernel.Weight(-bankDistance/(support-width));
                     current.DetailProtection=Math.Min(current.DetailProtection,1-weight);
                     current.Height=Math.Min(current.Height,current.Height+(Math.Min(current.Height,bed)-current.Height)*weight);
                     if(alluvium>0)
                     {
-                        double deposit=RiverAlluvium.Deposit(level,current.Height,depth,relative,alluvium);
+                        double deposit=RiverAlluvium.Deposit(level,current.Height,depth,relative,alluvium,signed,bankBend);
                         current.RiverSand=Math.Max(current.RiverSand,deposit*(1-span.BedGravel));
                         current.RiverGravel=Math.Max(current.RiverGravel,deposit*span.BedGravel);
                     }

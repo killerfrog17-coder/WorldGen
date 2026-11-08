@@ -101,9 +101,33 @@
     "world_state_unchanged": true,
     "elapsed_seconds": 45.22
   },
-  "broader_alluvial_gate": "FAILED open edge 0.585m above drawn bed at local x2045.959 z501.280 on 3276.8m/16 tile; type not yet diagnosed; not accepted as complete",
+  "broader_alluvial_gate": "FAILED exposed bank edge, proven present in original f593 packaged worker at exactly the same x/z and 0.585m height. A pre-existing fitting problem; not claimed fixed.",
   "references": [
     "https://www.nps.gov/articles/meandering-stream.htm",
     "https://www.nps.gov/articles/braided-stream.htm"
-  ]
+  ],
+  "baseline_edge_proof": {
+    "Kind": "terrain",
+    "East": -1638.4,
+    "North": -1638.4,
+    "Size": 3276.8,
+    "Segments": 16,
+    "ElapsedMs": 1122.3352,
+    "CpuMs": 1250,
+    "BuildMilliseconds": 1114.5768,
+    "ExpectedCurrentBuildMs": 1808.8763,
+    "Vertices": 6864,
+    "WaterVertices": 746,
+    "CurrentVertices": 6864,
+    "CurrentWaterVertices": 746,
+    "CurrentPayloadMatches": false,
+    "BankBoundaryError": "Exposed lateral water edge 0.585m above drawn bed at 2045.959,501.280; tile 3276.8/16",
+    "PayloadSha256": "55717a0f03d941dd38f48fdb4cd8c82eea7d659ab7740b868dcfe85335b927fc",
+    "ExactCurrentPayload": null,
+    "ExactPhysicalPayload": null,
+    "TerrainRgbExcluded": false,
+    "ChangedRgbComponents": 0,
+    "MaxRgbDelta": 0
+  },
+  "bank_material": "Broad sediment margin now follows inner-bend side; straight/cut banks have a narrow active margin. Uses existing sediment materials and rooted-vegetation admission."
 }
