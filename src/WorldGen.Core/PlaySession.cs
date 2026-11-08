@@ -34,6 +34,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double PrimeMeridianLongitude;
         public bool HasPlayer,Flying;
         [System.Runtime.Serialization.OptionalField] public int PlayerHumanVariant=-1;
+        [System.Runtime.Serialization.OptionalField] public PlayerIdentity Identity;
         [System.Runtime.Serialization.OptionalField] public double CameraDistance;
         [System.Runtime.Serialization.OptionalField] public bool CameraDistanceLocked;
         [System.Runtime.Serialization.OptionalField] public int HumanRunStyle;
@@ -46,11 +47,12 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public WildlifeState Wildlife=new WildlifeState();
         [System.Runtime.Serialization.OptionalField] public CampState Camp=new CampState();
         [System.Runtime.Serialization.OptionalField] public HumanLocalState Humans=new HumanLocalState();
-        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();s.Inventory=Inventory?.Copy()??new PlayerInventory();s.Wildlife=Wildlife?.Copy()??new WildlifeState();s.Camp=Camp?.Copy()??new CampState();s.Humans=Humans?.Copy()??new HumanLocalState();return s;}
+        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();s.Inventory=Inventory?.Copy()??new PlayerInventory();s.Wildlife=Wildlife?.Copy()??new WildlifeState();s.Camp=Camp?.Copy()??new CampState();s.Humans=Humans?.Copy()??new HumanLocalState();s.Identity=Identity?.Copy();return s;}
         public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
             if(!Enum.IsDefined(typeof(GameMode),Mode))throw new ArgumentException("Invalid game mode.");
+            Identity?.Validate();
             Survival=Survival??new PlayerSurvival();Survival.Validate();
             Inventory=Inventory??new PlayerInventory();Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
             Camp=Camp??new CampState();Camp.Validate();Humans=Humans??new HumanLocalState();Humans.Validate();

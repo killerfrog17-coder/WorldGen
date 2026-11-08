@@ -101,7 +101,7 @@ public sealed partial class LocalTerrainExplorer
             if(group.Activities==null)continue;
             foreach(var activity in group.Activities)
             {
-                if(livingPeople.ContainsKey(activity.Person))continue;
+                if(livingPeople.ContainsKey(activity.Person)||PlayerRules.Identity?.Person.Id==activity.Person)continue;
                 bool away=activity.Activity==HumanActivity.Travel||activity.Activity==HumanActivity.GatherPlants||activity.Activity==HumanActivity.GatherFuel||activity.Activity==HumanActivity.FetchWater||activity.Activity==HumanActivity.Carried;
                 if(!group.Grounded&&group.Situation.Phase!=HumanCampPhase.Travelling&&!away)continue;
                 V point=LivingPosition(group,activity.Position);
@@ -296,8 +296,7 @@ public sealed partial class LocalTerrainExplorer
         if(!ResolveLivingDryPoint(point,group.Grounded?group.Anchor:group.Situation.Camp.Position,out point))return false;
         TerrainHandoff.Coordinates(frame,point,out double x,out double z);
         double residentFloor=VisibleGround(x,z,double.NaN);if(double.IsNaN(residentFloor))return false;
-        uint hash=HumanHash(person.Id);double pigment=person.Appearance.Length>0?person.Appearance[0]:.5,curl=person.Appearance.Length>3?person.Appearance[3]:.5;
-        int variant=person.Female?pigment>.62&&curl>.48?0:pigment<.38?2:4:person.AgeYears>55&&pigment<.55?5:pigment>.5?3:1;
+        uint hash=HumanHash(person.Id);int variant=PlayerWorldEntry.Variant(person);
         int id=unchecked((int)(hash&0x3fffffffu))+100000;
         while(humanNpcs.Any(p=>p.Id==id))id++;
         var ageModel=Resources.Load<WorldGenHumanAgeLibrary>("HumanAges/Library")?.Find(humanLibrary.People[variant].Variant,person.AgeYears);
@@ -363,7 +362,7 @@ public sealed partial class LocalTerrainExplorer
             // Unfamiliar visitors attract a look, not supernatural detection or
             // an immediate full-speed flight response. Aggression raises alarm.
             double playerRange=Math.Sqrt(Math.Pow(actor.Motor.X-motion.X,2)+Math.Pow(actor.Motor.Z-motion.Z,2));
-            if(!alarm&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
+            if(!alarm&&PlayerRules.Identity?.Group!=actor.GroupId&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
                 actor.TargetYaw=(float)(Math.Atan2(motion.X-actor.Motor.X,motion.Z-actor.Motor.Z)*180/Math.PI);
             if(Time.unscaledTime<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
             ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35),CurrentWeather.TemperatureC);
@@ -500,7 +499,14 @@ public sealed partial class LocalTerrainExplorer
         memory.Health=actor.Health;memory.Dead=actor.Health<=0;memory.Position=actor.Planet;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=actor.Bleeding?.Copy();
     }
     void CaptureLivingHumans()
-    {foreach(var actor in livingPeople.Values)CaptureLivingPerson(actor);foreach(var group in livingGroups.Values)StoreLivingCamp(group);foreach(var trace in livingTraces.Values)StoreLivingCamp(trace);}
+    {
+        if(PlayerRules.Identity!=null)
+        {
+            var identity=PlayerRules.Identity;var memory=LivingState.People.FirstOrDefault(p=>p.Person==identity.Person.Id);
+            if(memory==null){memory=new HumanPersonMemory{Person=identity.Person.Id,Group=identity.Group};LivingState.People.Add(memory);}
+            memory.Position=Position;memory.Health=Vitals.Health;memory.Dead=Vitals.Dead;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=Vitals.Bleeding?.Copy();
+        }
+        foreach(var actor in livingPeople.Values)CaptureLivingPerson(actor);foreach(var group in livingGroups.Values)StoreLivingCamp(group);foreach(var trace in livingTraces.Values)StoreLivingCamp(trace);}
     void AlarmLivingGroup(HumanActor actor)
     {
         if(actor.ResidentId==0)return;var memory=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId);

@@ -13,13 +13,14 @@ public sealed partial class LocalTerrainExplorer
     Rect wildlifeRadarPanel;
     bool wildlifeRadarOpen,radarF3Pending,radarPreviousDebug,radarPreviousFull;
     double wildlifeRadarRefreshAt;
-    const double WildlifeRadarRange=3000;
+    const double WildlifeRadarRange=50000;
     struct WildlifeRadarDot
-    {public V Position;public WildlifeTrackingTier Tier;public bool Group,Inactive,Dead;public int Members;public string Label;}
+    {public byte HumanKind;public V Position;public WildlifeTrackingTier Tier;public bool Group,Inactive,Dead;public int Members;public string Label;}
     readonly List<WildlifeRadarDot> wildlifeRadarDots=new List<WildlifeRadarDot>();
     readonly int[] wildlifeRadarTierCounts=new int[4];
-    int wildlifeRadarActors,wildlifeRadarGroups;
-    Texture2D wildlifeRadarRing,wildlifeRadarDisc;
+    int wildlifeRadarActors,wildlifeRadarGroups,radarHumanActors,radarHumanCamps,radarHumanCommunities;
+    Texture2D wildlifeRadarRing,wildlifeRadarDisc,wildlifeRadarDashedRing;
+    static readonly Color[] HumanRadarColors={Color.white,new Color(.87f,.66f,1),new Color(.3f,1,.87f),new Color(.85f,.65f,1)};
     GUIStyle wildlifeRadarText,wildlifeRadarTitle;
     static readonly Color[] WildlifeRadarColors={new Color(.55f,.92f,.45f),new Color(.35f,.8f,1),new Color(1,.76f,.3f),new Color(1,.4f,.5f)};
     static readonly string[] WildlifeRadarNames={"Fleeting / insects","Local / small animals","Resident groups","Notable / large animals"};
@@ -59,19 +60,43 @@ public sealed partial class LocalTerrainExplorer
                 Label=profile.name+" / "+members+" coarse members / "+group.Intent+(inactive?" / outside active range":"")});
             wildlifeRadarGroups++;if(!inactive)wildlifeRadarTierCounts[(int)behaviour.Tier]+=members;
         }
+        RefreshHumanRadar();
+    }
+    void RefreshHumanRadar()
+    {
+        radarHumanActors=radarHumanCamps=radarHumanCommunities=0;
+        foreach(var person in humanNpcs)
+        {
+            if(person.Root==null||HumanDistance(person.Planet,Position)>WildlifeRadarRange)continue;
+            radarHumanActors++;
+            wildlifeRadarDots.Add(new WildlifeRadarDot{HumanKind=1,Position=person.Planet,Dead=person.Health<=0,Members=1,
+                Label=(person.Resident?.Name??"Human")+" / "+(person.Health<=0?"corpse":person.CurrentActivity.ToString())+" / physical actor"});
+        }
+        foreach(var group in livingOrdered)
+        {
+            var situation=group.Situation;if(HumanDistance(situation.Position,Position)>WildlifeRadarRange)continue;
+            radarHumanCommunities++;
+            bool schedules=group.Residents!=null&&situation.DistanceToPlayerM<=2400;
+            wildlifeRadarDots.Add(new WildlifeRadarDot{HumanKind=3,Position=situation.Position,Group=true,Members=situation.Band.People,Inactive=!schedules,
+                Label=situation.Band.Name+" / "+situation.Band.People+" people / "+situation.Phase+" / "+(schedules?"local schedules":"coarse projection")});
+            if(situation.Phase==HumanCampPhase.Travelling)continue;
+            radarHumanCamps++;
+            wildlifeRadarDots.Add(new WildlifeRadarDot{HumanKind=2,Position=group.Grounded?group.Anchor:situation.Camp.Position,Group=true,Members=1,Inactive=!group.CampLoaded,
+                Label=situation.Band.Name+" camp / "+situation.Camp.Design+" / "+(group.CampLoaded?"physical camp":group.Grounded?"surveyed site":"projected site")});
+        }
     }
     void PrepareWildlifeRadar()
     {
         if(wildlifeRadarRing==null)
         {
-            Texture2D Circle(bool ring)
+            Texture2D Circle(bool ring,bool dashed=false)
             {
                 const int size=64;var texture=new Texture2D(size,size,TextureFormat.RGBA32,false){name=ring?"Wildlife radar ring":"Wildlife radar point",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
                 var pixels=new Color[size*size];for(int y=0;y<size;y++)for(int x=0;x<size;x++)
-                {float d=new Vector2(x+.5f-size*.5f,y+.5f-size*.5f).magnitude;float a=ring?Mathf.Clamp01(1.5f-Mathf.Abs(d-29)):Mathf.Clamp01(30-d);pixels[y*size+x]=new Color(1,1,1,a);}
+                {float d=new Vector2(x+.5f-size*.5f,y+.5f-size*.5f).magnitude;float a=ring?Mathf.Clamp01(1.5f-Mathf.Abs(d-29)):Mathf.Clamp01(30-d);if(dashed&&((int)((Mathf.Atan2(y+.5f-size*.5f,x+.5f-size*.5f)+Mathf.PI)*24/Mathf.PI)&1)==0)a=0;pixels[y*size+x]=new Color(1,1,1,a);}
                 texture.SetPixels(pixels);texture.Apply(false,true);return texture;
             }
-            wildlifeRadarRing=Circle(true);wildlifeRadarDisc=Circle(false);
+            wildlifeRadarRing=Circle(true);wildlifeRadarDisc=Circle(false);wildlifeRadarDashedRing=Circle(true,true);
         }
         wildlifeRadarText??=new GUIStyle(GUI.skin.label){fontSize=12,alignment=TextAnchor.MiddleLeft,normal={textColor=Color.white}};
         wildlifeRadarTitle??=new GUIStyle(wildlifeRadarText){fontSize=16,fontStyle=FontStyle.Bold};
@@ -80,10 +105,10 @@ public sealed partial class LocalTerrainExplorer
     {
         scale=Mathf.Clamp(Screen.height/1080f,.8f,1.5f);float top=12,bottom=Screen.height-12;
         if(debugOpen&&debugFull){PrepareDebugLayout();top=debugCornerRects[1].yMax+10;bottom=debugCornerRects[3].yMin-10;}
-        float available=Mathf.Max(1,bottom-top);compact=available<620*scale;
+        float available=Mathf.Max(1,bottom-top);compact=available<700*scale;
         diameter=compact?Mathf.Max(30,Mathf.Min(300*scale,available-100*scale)):380*scale;
         float width=Mathf.Min(Screen.width-24,compact?diameter+225*scale:440*scale);
-        float height=Mathf.Min(available,compact?diameter+100*scale:620*scale);
+        float height=Mathf.Min(available,compact?diameter+100*scale:700*scale);
         return new Rect(Screen.width-12-width,top+(available-height)*.5f,width,height);
     }
     void DrawWildlifeRadar()
@@ -91,12 +116,15 @@ public sealed partial class LocalTerrainExplorer
         if(!wildlifeRadarOpen||!Ready||mapOpen||ecologyOpen||chatOpen||inventoryOpen||DeathVisible)return;
         RefreshWildlifeRadar();if(Event.current.type!=EventType.Repaint)return;PrepareWildlifeRadar();
         var panel=WildlifeRadarLayout(out float scale,out bool compact,out float diameter);wildlifeRadarPanel=panel;float width=panel.width,height=panel.height;
-        var prior=GUI.color;GUI.color=new Color(.035f,.055f,.065f,.94f);GUI.DrawTexture(panel,Texture2D.whiteTexture);GUI.color=Color.white;
+        var prior=GUI.color;GUI.color=new Color(.035f,.055f,.065f,.18f);GUI.DrawTexture(panel,Texture2D.whiteTexture);GUI.color=Color.white;
         Vector2 mouse=Event.current.mousePosition-panel.position;
         GUI.BeginGroup(panel);wildlifeRadarText.fontSize=Mathf.Max(10,Mathf.RoundToInt(12*scale));wildlifeRadarTitle.fontSize=Mathf.RoundToInt(16*scale);
-        GUI.Label(new Rect(16*scale,9*scale,width-32*scale,25*scale),"WILDLIFE RADAR",wildlifeRadarTitle);
-        GUI.Label(new Rect(16*scale,34*scale,width-32*scale,20*scale),"3 km / north up / expanded near-field scale",wildlifeRadarText);
+        GUI.Label(new Rect(16*scale,9*scale,width-32*scale,25*scale),"LIFE RADAR",wildlifeRadarTitle);
+        GUI.Label(new Rect(16*scale,34*scale,width-32*scale,20*scale),"50 km / north up / expanded near-field scale",wildlifeRadarText);
         Vector2 center=new Vector2(compact?diameter*.5f+12*scale:width*.5f,compact?diameter*.5f+65*scale:259*scale);float radius=diameter*.5f;
+        float outer=radius*32/29;
+        GUI.color=new Color(.85f,.65f,1,.5f);GUI.DrawTexture(new Rect(center.x-outer,center.y-outer,outer*2,outer*2),wildlifeRadarDashedRing);
+        GUI.color=Color.white;GUI.Label(new Rect(center.x+4*scale,center.y-radius-12*scale,90*scale,18*scale),"50 km",wildlifeRadarText);
         for(int i=3;i>=0;i--)
         {
             double range=WildlifeRadarRings[i];float r=(float)(Math.Log(1+range/50)/Math.Log(1+WildlifeRadarRange/50))*radius;
@@ -108,8 +136,9 @@ public sealed partial class LocalTerrainExplorer
         string hovered="";
         foreach(var dot in wildlifeRadarDots)
         {
-            var at=center+WildlifeRadarPoint(dot.Position,radius);Color color=dot.Dead?new Color(.65f,.65f,.65f):WildlifeRadarColors[(int)dot.Tier];if(dot.Inactive)color.a=.28f;
-            float size=(dot.Group?12:dot.Dead?5:7)*scale;GUI.color=color;GUI.DrawTexture(new Rect(at.x-size*.5f,at.y-size*.5f,size,size),dot.Group?wildlifeRadarRing:wildlifeRadarDisc);
+            var at=center+WildlifeRadarPoint(dot.Position,radius);Color color=dot.Dead?new Color(.65f,.65f,.65f):dot.HumanKind>0?HumanRadarColors[dot.HumanKind]:WildlifeRadarColors[(int)dot.Tier];if(dot.Inactive)color.a=.5f;
+            float size=(dot.Group?12:dot.Dead?5:7)*scale;GUI.color=color;GUI.DrawTexture(new Rect(at.x-size*.5f,at.y-size*.5f,size,size),dot.HumanKind==3?wildlifeRadarDashedRing:dot.Group?wildlifeRadarRing:wildlifeRadarDisc);
+            if(dot.HumanKind==2){GUI.DrawTexture(new Rect(at.x-1.5f*scale,at.y-1.5f*scale,3*scale,3*scale),wildlifeRadarDisc);}
             if(dot.Group&&dot.Members>1){GUI.color=Color.white;GUI.Label(new Rect(at.x+6*scale,at.y-9*scale,36*scale,18*scale),dot.Members.ToString(),wildlifeRadarText);}
             if((mouse-at).sqrMagnitude<100*scale*scale)hovered=dot.Label;
         }
@@ -120,21 +149,26 @@ public sealed partial class LocalTerrainExplorer
         float y=compact?70*scale:460*scale,legendX=compact?diameter+24*scale:16*scale;
         for(int i=0;i<4;i++)
         {GUI.color=WildlifeRadarColors[i];GUI.DrawTexture(new Rect(legendX+2*scale,y+5*scale,9*scale,9*scale),wildlifeRadarRing);GUI.color=Color.white;GUI.Label(new Rect(legendX+20*scale,y,width-legendX-24*scale,20*scale),WildlifeRadarNames[i]+" : "+wildlifeRadarTierCounts[i],wildlifeRadarText);y+=21*scale;}
+        foreach(var row in new[]{("People",radarHumanActors,1),("Camps",radarHumanCamps,2),("Communities / 50 km",radarHumanCommunities,3)})
+        {
+            GUI.color=HumanRadarColors[row.Item3];GUI.DrawTexture(new Rect(legendX+2*scale,y+5*scale,9*scale,9*scale),row.Item3==3?wildlifeRadarDashedRing:row.Item3==2?wildlifeRadarRing:wildlifeRadarDisc);
+            GUI.color=Color.white;GUI.Label(new Rect(legendX+20*scale,y,width-legendX-24*scale,20*scale),row.Item1+" : "+row.Item2,wildlifeRadarText);y+=21*scale;
+        }
         if(compact)
         {
-            GUI.Label(new Rect(legendX,y+2*scale,width-legendX-8*scale,40*scale),"Solid: actor / Hollow: group\nGrey: corpse / Dim: inactive",wildlifeRadarText);
+            GUI.Label(new Rect(legendX,y+2*scale,width-legendX-8*scale,40*scale),"Solid: actor / Hollow: camp or group\nDotted: community / Dim: coarse",wildlifeRadarText);
             GUI.Label(new Rect(legendX,y+46*scale,width-legendX-8*scale,40*scale),wildlifeRadarActors+" actors\n"+wildlifeRadarGroups+" coarse groups",wildlifeRadarText);
         }
         else
         {
-            GUI.Label(new Rect(16*scale,y+2*scale,width-30*scale,20*scale),"Solid: actor   Hollow: coarse group   Grey: corpse",wildlifeRadarText);
+            GUI.Label(new Rect(16*scale,y+2*scale,width-30*scale,20*scale),"Solid: actor / Hollow: group or camp / Dotted: community",wildlifeRadarText);
             GUI.Label(new Rect(16*scale,y+22*scale,width-30*scale,20*scale),wildlifeRadarActors+" actors / "+wildlifeRadarGroups+" coarse groups; dim = inactive",wildlifeRadarText);
         }
         if(hovered.Length>0)GUI.Label(new Rect(16*scale,height-26*scale,width-30*scale,20*scale),hovered,wildlifeRadarText);
         GUI.EndGroup();GUI.color=prior;
     }
     void DisposeWildlifeRadar()
-    {if(wildlifeRadarRing!=null)Destroy(wildlifeRadarRing);if(wildlifeRadarDisc!=null)Destroy(wildlifeRadarDisc);wildlifeRadarDots.Clear();}
+    {if(wildlifeRadarRing!=null)Destroy(wildlifeRadarRing);if(wildlifeRadarDisc!=null)Destroy(wildlifeRadarDisc);if(wildlifeRadarDashedRing!=null)Destroy(wildlifeRadarDashedRing);wildlifeRadarDots.Clear();}
     IEnumerator CheckWildlifeRadar(Animal focus,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("RADAR "+text);report.Add("PASS "+text);Debug.Log("RADAR PASS "+text);}

@@ -63,7 +63,9 @@ public sealed partial class LocalTerrainExplorer
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;
         humanCamera.Restore(playState?.CameraDistance??0,playState?.CameraDistanceLocked??false);humanCameraDistance=(float)humanCamera.Distance;
-        humanPlayer=CreateHuman(variant,1);RestorePlayerBlood();humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
+        humanPlayer=CreateHuman(variant,1);
+        if(playState?.Identity!=null){humanPlayer.ResidentId=playState.Identity.Person.Id;humanPlayer.GroupId=playState.Identity.Group;humanPlayer.Resident=playState.Identity.Person;humanPlayer.Root.name=playState.Identity.Person.Name;}
+        RestorePlayerBlood();humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
         humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
     }

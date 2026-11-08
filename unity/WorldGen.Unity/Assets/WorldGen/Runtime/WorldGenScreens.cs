@@ -77,6 +77,7 @@ public sealed partial class WorldGenRuntime
         if(cameraView==null)return;
         GUI.skin=Theme();GUI.skin.label.wordWrap=true;GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
         GUI.skin.button.fontSize=14;GUI.skin.label.fontSize=14;
+        if(worldEntryOpen){DrawWorldEntry();return;}
         if(libraryOpen){DrawWorldLibrary();return;}
         if(saveDialog){DrawSaveDialog();return;}
         if(screen=="Menu" || screen=="Options")

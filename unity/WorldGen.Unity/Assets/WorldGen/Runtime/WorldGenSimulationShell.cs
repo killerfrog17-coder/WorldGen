@@ -88,7 +88,7 @@ public sealed partial class WorldGenRuntime
         DrawSocietyMarks();var state=world?.Prehistory;GUI.enabled=!atlasOpen;
         GUI.Box(new Rect(0,0,Screen.width,52),"");
         if(GUI.Button(new Rect(8,7,100,36),"World [W]"))WorldAtlasKey();
-        GUI.enabled=!atlasOpen&&CanRequestTerrain;if(GUI.Button(new Rect(114,7,105,36),new GUIContent(play.HasPlayer?"Resume game":"Enter world","Play in the generated world")))RequestTerrain();
+        GUI.enabled=!atlasOpen&&CanRequestTerrain;if(GUI.Button(new Rect(114,7,105,36),new GUIContent(play.HasPlayer?"Resume game":"Enter world","Play in the generated world")))ChooseWorldEntry();
         GUILayout.BeginArea(new Rect(Mathf.Max(232,Screen.width-600),7,Mathf.Min(594,Screen.width-238),40));GUILayout.BeginHorizontal();
         GUILayout.Label(state==null?"Preparing…":SimulationClockView.Date(state,humanPlayback.Rate),new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold},GUILayout.Width(165));DrawIceCycle(state);
         GUI.enabled=!atlasOpen&&humans!=null&&!simulationPaused;

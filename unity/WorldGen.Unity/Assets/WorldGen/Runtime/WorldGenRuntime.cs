@@ -118,6 +118,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")){screen="Setup";BeginWork(false,Argument("--worldgen-local-terrain-check",""));StartCoroutine(CheckLocalTerrain());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-entry-check")){screen="Setup";BeginWork(false,Argument("--worldgen-entry-check",""));StartCoroutine(CheckWorldEntry());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-death-check")){screen="Setup";BeginWork(false,Argument("--worldgen-death-check",""));StartCoroutine(CheckPlayerDeathFlow());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-item-use-check")){screen="Setup";BeginWork(false,Argument("--worldgen-item-use-check",""));StartCoroutine(CheckItemUseRuntime());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-portable-craft-check")){screen="Setup";BeginWork(false,Argument("--worldgen-portable-craft-check",""));StartCoroutine(CheckPortableCraftingRuntime());}
@@ -336,18 +337,18 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         UpdateMusic();HandleQuickSave(Keyboard.current,Application.isFocused);
         if(terrainExplorer!=null){PollHumans();return;}if(terrainReturnFrame==Time.frameCount)return;
         if(continueLoadedGame&&humans!=null&&!Busy&&humanStep==null){continueLoadedGame=false;RequestTerrain();}
-        if((screen=="Setup"||screen=="Simulation")&&!saveDialog&&!atlasOpen&&!simulationPaused&&GUIUtility.keyboardControl==0&&Keyboard.current!=null&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
+        if((screen=="Setup"||screen=="Simulation")&&!saveDialog&&!worldEntryOpen&&!atlasOpen&&!simulationPaused&&GUIUtility.keyboardControl==0&&Keyboard.current!=null&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
         {
             if(Keyboard.current.rKey.wasPressedThisFrame){showRivers=!showRivers;ApplyCachedDisplay();}
             if(screen=="Simulation"&&Keyboard.current.cKey.wasPressedThisFrame)settlementMarkerMode=SettlementMarkers.Next(settlementMarkerMode);
         }
-        if(screen=="Simulation"&&!saveDialog&&Keyboard.current!=null)
+        if(screen=="Simulation"&&!worldEntryOpen&&!saveDialog&&Keyboard.current!=null)
         {
             if(Keyboard.current.escapeKey.wasPressedThisFrame){if(atlasOpen)CloseWorldAtlas();else ToggleSimulationPause();}
             else if(!simulationPaused&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed&&Keyboard.current.wKey.wasPressedThisFrame&&!atlasSearchFocused&&(atlasOpen||GUIUtility.keyboardControl==0))WorldAtlasKey();
         }
         PollHumans();
-        if(screen=="Simulation"&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!atlasSearchFocused)
+        if(screen=="Simulation"&&!worldEntryOpen&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!atlasSearchFocused)
         {
             if(Keyboard.current.spaceKey.wasPressedThisFrame)humanPlaying=!humanPlaying;
             bool add=Keyboard.current.equalsKey.wasPressedThisFrame||Keyboard.current.numpadPlusKey.wasPressedThisFrame,subtract=Keyboard.current.minusKey.wasPressedThisFrame||Keyboard.current.numpadMinusKey.wasPressedThisFrame;
@@ -417,7 +418,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
             cameraView.orthographic = false; cameraView.transform.position = new Vector3(0, 0, -globeDistance);
             if (autoRotate && !dragging) yaw += 6 * Time.deltaTime;
         }
-        var mouse = Mouse.current; if (mouse == null || saveDialog || libraryOpen || simulationPaused || screen=="Menu" || screen=="Options") return; var pos = mouse.position.ReadValue();
+        var mouse = Mouse.current; if (mouse == null || worldEntryOpen || saveDialog || libraryOpen || simulationPaused || screen=="Menu" || screen=="Options") return; var pos = mouse.position.ReadValue();
         if (screen=="Setup" && mouse.leftButton.wasPressedThisFrame && Math.Abs(pos.x - PanelWidth) < 7) resizingPanel = true;
         if (resizingPanel) { panelWidth = pos.x; if (!mouse.leftButton.isPressed) resizingPanel = false; }
         float inspectorTop=expandedInspection ? Screen.height : layer==Layer.Simulation?120:65;

@@ -207,16 +207,16 @@ namespace WorldGen.Core
         public ForagerCampSample[] SeasonalCamps=Array.Empty<ForagerCampSample>();
         public long[] ContactBands=Array.Empty<long>();
     }
-    public sealed class ForagerPersonRecord
+    [Serializable] public sealed class ForagerPersonRecord
     {
         public long Id,Household,Mother=-1,Father=-1,Partner=-1;
         public bool Female;public double BirthYear,DeathYear;
     }
-    public sealed class ForagerLanguageKnowledge
+    [Serializable] public sealed class ForagerLanguageKnowledge
     {
         public int Language;public double Fluency;public bool Native;
     }
-    public sealed class ForagerPersonSample
+    [Serializable] public sealed class ForagerPersonSample
     {
         public long Id,Household,Mother=-1,Father=-1,Partner=-1;
         public string Name="",Role="";public bool Female;public double AgeYears,BirthYear,DeathYear;

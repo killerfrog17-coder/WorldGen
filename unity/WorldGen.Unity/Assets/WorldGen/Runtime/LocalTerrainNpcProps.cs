@@ -9,19 +9,7 @@ public sealed partial class LocalTerrainExplorer
     void ClearNpcProps(HumanActor actor){foreach(var prop in actor.NpcProps)DestroyInventoryVisual(prop.Root);actor.NpcProps.Clear();actor.PropRole="";}
     string NpcCarryRole(HumanActor actor,LivingGroup group)
     {
-        if(actor.Resident.AgeYears<12||actor.Routine.Activity==HumanActivity.Sleep||actor.Routine.Activity==HumanActivity.Carried)return null;
-        var routine=actor.CurrentActivity;
-        if(actor.Routine.Role=="FuelOutbound")return null;
-        if(actor.Routine.Role=="FuelReturn")return "CarryLarge";
-        if(actor.Routine.Role.StartsWith("Water"))return group.BandHas(29)?routine==HumanActivity.FetchWater?"Drink":"WaterCarry":null;
-        if(routine==HumanActivity.TendFire)return "FuelTend";
-        if(routine==HumanActivity.Craft)return "WorkKnapping";
-        if(routine==HumanActivity.PrepareFood)return "Eat";
-        if(routine==HumanActivity.FetchWater)return "Drink";
-        if(routine==HumanActivity.GatherFuel)return "CarryLarge";
-        if(routine==HumanActivity.Travel&&group.BandHas(3)&&HumanHash(actor.ResidentId)%4!=0)return "SpearReady1";
-        if(routine==HumanActivity.GatherPlants&&group.BandHas(28))return "ToolReady";
-        return null;
+        return HumanEquipment.Role(actor.Resident,actor.Routine,actor.CurrentActivity,group.Residents?.Techniques??group.Situation.Band.Techniques);
     }
     void UpdateNpcProps(HumanActor actor,LivingGroup group,string role)
     {
@@ -41,10 +29,7 @@ public sealed partial class LocalTerrainExplorer
             ClearNpcProps(actor);actor.PropRole=role;
             void Add(PossessionKind kind,string side,bool back=false)
             {
-                var item=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,actor.Planet):new Possession{Kind=kind,Position=actor.Planet,WoodSoundness=.9,WoodStraightness=.8};
-                item.Id="npc-tool-"+actor.ResidentId.ToString("x")+"-"+side+"-"+kind;
-                if(kind==PossessionKind.SmallRock){item.MassKg=side=="l"?.6:.16;item.WidthM=side=="l"?.095:.065;item.HeightM=side=="l"?.11:.07;item.DepthM=side=="l"?.085:.055;item.Variant=ToolStone.Encode(side=="l"?ToolStoneMaterial.Chert:ToolStoneMaterial.Granite,(int)(HumanHash(actor.ResidentId)%12));}
-                if(kind==PossessionKind.WoodenSpear){item.MassKg=.9;item.WidthM=.025;item.DepthM=.025;item.HeightM=1.8;}
+                var item=HumanEquipment.Item(kind,actor.ResidentId,side,actor.Planet);
                 var root=CreatePossessionVisual(item,30);root.transform.SetParent(actor.Root.transform,true);actor.NpcProps.Add(new NpcProp{Item=item,Root=root,Side=side,Back=back});
             }
             if(role=="WorkKnapping"){Add(PossessionKind.SmallRock,"l");Add(PossessionKind.SmallRock,"r");}

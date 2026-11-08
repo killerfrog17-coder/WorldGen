@@ -95,7 +95,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.BeginArea(new Rect(r.x+26,r.y+24,r.width-52,r.height-48));GUILayout.Label(playPauseTab.Length==0?"WORLD SIMULATION":playPauseTab.ToUpperInvariant(),TitleStyle(25));GUILayout.Space(18);
         if(playPauseTab.Length==0)
         {
-            GUI.enabled=CanRequestTerrain;if(MenuButton(play.HasPlayer?"Resume game":"Enter world")){simulationPaused=false;RequestTerrain();}GUI.enabled=true;
+            GUI.enabled=CanRequestTerrain;if(MenuButton(play.HasPlayer?"Resume game":"Enter world")){simulationPaused=false;ChooseWorldEntry();}GUI.enabled=true;
             if(MenuButton("Return to simulation"))ToggleSimulationPause();
             if(MenuButton("Game settings"))playPauseTab="Game settings";
             if(MenuButton("World settings"))playPauseTab="World settings";
