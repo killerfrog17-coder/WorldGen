@@ -1,5 +1,5 @@
 {
-  "status": "Photo-colour calibration v2 UNBUILT; earlier native results describe the prior neutralized textures only.",
+  "status": "Photo-colour calibration v2 built and two native reviews passed runtime assertions. Overall cliff art NOT accepted; interactive woodland review pending.",
   "materials": [
     {
       "key": "massive",
@@ -96,15 +96,68 @@
     "finding": "Dedicated face colours alone still read as diagonal fine grain on the terrain; larger canyon shelves remain too repetitive."
   },
   "native_v2": {
-    "source": "2c90aaa8",
-    "path": "artifacts/landscape-20261103/cliff-materials-v2-20261108-canyon",
-    "status": "Complete runtime pass; close wall material improvement inspected, overall cliff geometry still being refined.",
-    "method": "Two-axis wall charts use shared physical altitude, not floor-oriented triplanar mapping. Existing fine ground grain fades continuously on exposed rock. No added texture reads/passes or geometry.",
-    "runtime_exit": 0,
-    "material_rgb_mean_absolute_delta": 7.30172566229424,
-    "material_changed_pixels": 1208156,
-    "material_total_pixels": 1327104,
-    "ground_tile_bindings_verified": true
+    "source": "cd492b32",
+    "full_build_utc": "2026-11-08T03:10:49Z",
+    "cases": [
+      {
+        "kind": "coastalcliffs",
+        "exit_code": 0,
+        "passed_assertions": 25,
+        "evidence": "artifacts/landscape-20261103/cliff-photo-v2-20261108-coastalcliffs",
+        "history_hash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73"
+      },
+      {
+        "kind": "canyon",
+        "exit_code": 0,
+        "passed_assertions": 68,
+        "evidence": "artifacts/landscape-20261103/cliff-photo-v2-20261108-canyon",
+        "history_hash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73"
+      }
+    ],
+    "comparison": {
+      "cliff-wall-material-off.png": {
+        "same_dimensions": true,
+        "pixel_exact": true,
+        "mean_absolute_rgb8_difference": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "cliff-wall-context.png": {
+        "same_dimensions": true,
+        "pixel_exact": false,
+        "mean_absolute_rgb8_difference": [
+          13.035899221161266,
+          17.921754436728396,
+          19.24737774884259
+        ]
+      },
+      "cliff-wall-near.png": {
+        "same_dimensions": true,
+        "pixel_exact": false,
+        "mean_absolute_rgb8_difference": [
+          20.35159565489969,
+          25.698545856240354,
+          26.78705060040509
+        ]
+      },
+      "cliff-wall-touch.png": {
+        "same_dimensions": true,
+        "pixel_exact": false,
+        "mean_absolute_rgb8_difference": [
+          42.86161370924962,
+          39.5401927806713,
+          34.343960232204864
+        ]
+      }
+    },
+    "limitations": [
+      "Matching material-off pixels verify the canyon comparison at that camera; earlier baseline did not record all camera receipts.",
+      "Coastal close view mostly shows soil; not suitable evidence of rock-material quality.",
+      "Canyon material reads as layered stone, but protruding meshes still look separate in places.",
+      "No FPS measurements while owner is gaming; no performance improvement claimed."
+    ]
   },
   "material_revision": "Shared retained photo colour, world chart and scale on terrain and cliff models. Restrained multiscale normal relief. No terrain shape changes in this revision."
 }
