@@ -9,18 +9,35 @@ public sealed partial class LocalTerrainExplorer
     bool ReviewCliffWall(out Vector3 target,out Vector3 outward)
     {
         target=outward=default;
-        var candidates=scatterChunks.Values.Where(c=>c.Roots!=null)
-            .SelectMany(c=>System.Linq.Enumerable.Range(0,c.Source.Instances.Length).Where(i=>c.Source.Instances[i].Kind==ScatterKind.Outcrop&&CliffRocks.Is(c.Source.Instances[i].Variant)).Select(i=>c.Source.Instances[i]))
-            .OrderBy(p=>(p.Position-frame.Origin).Length).Take(24);
-        foreach(var source in candidates)foreach(int sign in new[]{-1,1})
+        // Inspect actual resident ground, independent of synthetic cliff masses.
+        // Uploaded height grids supply cheap candidate slopes; only the nearest
+        // candidates require exact physical terrain and clear-camera checks.
+        var candidates=new System.Collections.Generic.List<(double X,double Z,double Distance)>();
+        foreach(var pair in tiles)
         {
-            V across=V.Cross(source.Position,source.Normal).Unit;
-            V at=(source.Position+across*(sign*Math.Max(24,source.WidthM*.9)/(terrain.RadiusM*HorizontalScale))).Unit;
+            var tile=pair.Value;int segments=tile.Segments,side=segments+1;
+            if(segments<4||tile.Heights==null||tile.Heights.Length<side*side)continue;
+            double spacing=pair.Key.SizeM/segments;if(spacing>12)continue;
+            for(int z=1;z<segments;z+=2)for(int x=1;x<segments;x+=2)
+            {
+                int index=z*side+x;
+                double sx=(tile.Heights[index+1]-tile.Heights[index-1])/(2*spacing);
+                double sz=(tile.Heights[index+side]-tile.Heights[index-side])/(2*spacing);
+                if(sx*sx+sz*sz<1.4)continue;
+                double px=pair.Key.X*pair.Key.SizeM+x*spacing,pz=pair.Key.Z*pair.Key.SizeM+z*spacing,distance=px*px+pz*pz;
+                if(distance<1200*1200)candidates.Add((px,pz,distance));
+            }
+        }
+        foreach(var source in candidates.OrderBy(p=>p.Distance).ThenBy(p=>p.X).ThenBy(p=>p.Z).Take(128))
+        {
+            V at=frame.Position(source.X,source.Z);
             var patch=terrain.Patch(at,12000);var sample=patch.Sample(at);if(sample.Underwater)continue;
             V e=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,n=V.Cross(at,e).Unit;double step=4/(terrain.RadiusM*HorizontalScale);
             double sx=(patch.Elevation((at+e*step).Unit)-patch.Elevation((at-e*step).Unit))/8;
             double sz=(patch.Elevation((at+n*step).Unit)-patch.Elevation((at-n*step).Unit))/8;
-            V normal=(at-e*sx-n*sz).Unit;if(V.Dot(normal,at)>.65)continue;
+            V normal=(at-e*sx-n*sz).Unit;double up=V.Dot(normal,at);if(up>.65)continue;
+            var material=LocalGeology.Surface(sample.Ground,at,terrain.SourceSeed,sample.ElevationM,up,sample.OceanInfluence,0,terrain.RadiusM*HorizontalScale,sample.Province.ExposedRock);
+            if(material.Rock<.6)continue;
             TerrainHandoff.Coordinates(frame,at,out double x,out double z);
             var point=new Vector3((float)(x-originX),(float)frame.SurfaceY(at,sample.ElevationM)+.5f,(float)(z-originZ));
             var face=new Vector3((float)V.Dot(normal,frame.East),(float)V.Dot(normal,frame.Origin),(float)V.Dot(normal,frame.North)).normalized;
@@ -31,40 +48,6 @@ public sealed partial class LocalTerrainExplorer
                 if(q.y-frame.SurfaceY(p,patch.Elevation(p))<.8){clear=false;break;}
             }
             if(!clear)continue;target=point;outward=face;return true;
-        }
-        return false;
-    }
-    // Opt-in native review only. Queries the same nonconvex meshes and nearby
-    // collider installation that ordinary player movement uses.
-    bool ReviewCliffRoof(ScatterChunk chunk,int index,out Vector3 roof,out Vector3 eye)
-    {
-        roof=eye=default;var source=chunk.Source.Instances[index];
-        var center=chunk.Matrices[index].MultiplyPoint3x4(new Vector3(0,.5f,0));
-        RefreshPlayerSolids(center,center);
-        if(!scatterSolids.TryGetValue(source.Id,out var solid))return false;
-        var patch=terrain.Patch(source.Position,5000);int probes=0;
-        foreach(var collider in solid.Root.GetComponentsInChildren<MeshCollider>())
-        {
-            var mesh=collider.sharedMesh;var vertices=mesh.vertices;var triangles=mesh.triangles;
-            for(int i=0;i<triangles.Length;i+=3)
-            {
-                var a=collider.transform.TransformPoint(vertices[triangles[i]]);var b=collider.transform.TransformPoint(vertices[triangles[i+1]]);var c=collider.transform.TransformPoint(vertices[triangles[i+2]]);
-                var face=Vector3.Cross(b-a,c-a).normalized;
-                var outward=collider.transform.TransformDirection(Vector3.forward);
-                if(Vector3.Dot(face,transform.up)>-.15f||Vector3.Dot(face,outward)<.1f)continue;
-                if((vertices[triangles[i]].z+vertices[triangles[i+1]].z+vertices[triangles[i+2]].z)/3<.07f)continue;
-                var candidate=(a+b+c)/3;var local=transform.InverseTransformPoint(candidate);
-                var at=frame.Position(local.x+originX,local.z+originZ);double floor=frame.SurfaceY(at,patch.Elevation(at));
-                if(local.y-floor<2.3)continue;
-                var outside=candidate+face*Mathf.Clamp((float)source.WidthM*.15f,2,6);
-                var outsideLocal=transform.InverseTransformPoint(outside);var outsideAt=frame.Position(outsideLocal.x+originX,outsideLocal.z+originZ);
-                double outsideFloor=frame.SurfaceY(outsideAt,patch.Elevation(outsideAt));
-                if(outsideLocal.y-outsideFloor<1.65)continue;
-                var ray=new Ray(outside,(candidate-outside).normalized);float distance=(candidate-outside).magnitude;
-                if(collider.Raycast(ray,out var hit,distance+.1f)&&(hit.point-candidate).sqrMagnitude<.01f)
-                {roof=local;eye=outsideLocal;return true;}
-                if(++probes>128)return false;
-            }
         }
         return false;
     }

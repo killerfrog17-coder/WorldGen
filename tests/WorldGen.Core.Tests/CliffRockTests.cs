@@ -42,24 +42,18 @@ static class CliffRockTests
             var sites=model.Amplification.Canyons.Reaches.OrderByDescending(r=>r.Relief).Take(3)
                 .SelectMany(r=>new[]{-.65,.65}.Select(side=>((r.A+r.B).Unit+V.Cross((r.A+r.B).Unit,r.B-r.A).Unit*(r.HalfWidth*side/(model.RadiusM*.1))).Unit)).ToArray();
             if(sites.Length==0)sites=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.ElevationM[i]>30).OrderByDescending(i=>model.Profile(i).MountainHeightM).Take(6).Select(i=>world.Surface.Cells[i].Position).ToArray();
-            int found=0;double elapsed=0;
+            int found=0,ordinary=0;double elapsed=0;
             foreach(var key in sites.Select(p=>scatter.Address(p)).Distinct())
             {
                 var watch=System.Diagnostics.Stopwatch.StartNew();var a=scatter.Build(key);elapsed+=watch.Elapsed.TotalMilliseconds;
                 var b=scatter.Build(key);Check(a.Instances.Length==b.Instances.Length&&a.Instances.Zip(b.Instances).All(p=>p.First.Id==p.Second.Id&&p.First.Variant==p.Second.Variant&&p.First.GroundM==p.Second.GroundM),"Repeated patch reconstruction retains identities and physical anchors");
-                Check(a.Instances.Select(p=>p.Id).Distinct().Count()==a.Instances.Length,"Cliff insertion never duplicates an existing rock identity");
-                foreach(var rock in a.Instances.Where(p=>p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant)))
-                {
-                    found++;var sample=model.Patch(rock.Position,3000).Sample(rock.Position);
-                    Check(Math.Abs(rock.GroundM-sample.ElevationM)<.001&&rock.HeightM>=12&&rock.HeightM<=280&&rock.WidthM>0,"Actual cliff remains fitted to the shared physical terrain");
-                    Check(rock.HeightM<=rock.WidthM*2.2+.003,"Scan proportions cannot stretch into long thin wall spikes");
-                    int dominant=0;for(int i=1;i<6;i++)if(sample.Ground.RockWeight(i)>sample.Ground.RockWeight(dominant))dominant=i;
-                    Check((int)CliffRocks.Family(rock.Variant)==dominant,"Cliff material follows the terrain's dominant blended lithology");
-                    double up=V.Dot(rock.Normal,rock.Position);
-                    Check(up>0&&up<.62&&Math.Abs(rock.Normal.Length-1)<1e-6,"Actual face normal fits a steep wall rather than an upright floating slab");
-                }
+                Check(a.Instances.Select(p=>p.Id).Distinct().Count()==a.Instances.Length,"Natural rocks retain unique identities");
+                found+=a.Instances.Count(p=>p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant));
+                ordinary+=a.Instances.Count(p=>p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Outcrop&&!CliffRocks.Is(p.Variant));
             }
-            Check(found>0,"Real qualifying canyon terrain produces cliff geometry");Console.WriteLine($"Actual cliffs {found}; first-build aggregate {elapsed:F1}ms, not a frame-time measurement");
+            Check(found==0,"Oversized synthetic cliff masses are retired even on qualifying canyon terrain");
+            Check(ordinary>0,"Ordinary boulders and natural outcrops remain present");
+            Console.WriteLine($"Actual synthetic cliffs {found}, ordinary rocks {ordinary}; first-build aggregate {elapsed:F1}ms, not a frame-time measurement");
         }
         Console.WriteLine($"PASS {checks} cliff shape, ledge and placement checks");
     }

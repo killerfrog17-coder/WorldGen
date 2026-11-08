@@ -33,5 +33,14 @@
     "a3833a8d",
     "951e63b2"
   ],
-  "asset_rights": "References are for analysis only. Game assets remain our generated masters and previously approved CC0 source geometry."
+  "asset_rights": "References are for analysis only. Game assets remain our generated masters and previously approved CC0 source geometry.",
+  "owner_feedback": "Close rock texture looks quite good; large clump rocks look unrealistic and obviously scattered.",
+  "current_direction": "Keep approved texture direction. Remove oversized synthetic cliff-scatter masses and older cellular terrain carving; ordinary boulders/outcrops remain. Native clean-wall review pending.",
+  "retired_scatter": {
+    "version": 35,
+    "actual_checks": 18280,
+    "actual_synthetic_cliff_masses": 0,
+    "actual_ordinary_rocks": 292,
+    "scope": "Six qualifying canyon patches; these are component assertions, not frame-rate measurements."
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "status": "Physical experiment unaccepted: corrected native wall views remain plain; dedicated material review pending.",
+  "status": "RETIRED: cellular cliff carving removed in39f8efce after the wide native view exposed repeated coarse facets.",
   "owner_direction": "Continuously rocky exposed walls; separate meshes only for ledges/overhangs",
   "method": "Planet-addressed3D fracture cut at actual surface altitude. Base field0..5.35m, slope/exposure scaling at most3.2, existing river/water-near protection retained. Same physical function for terrain/roots/movement. Independent ledge placement thinned to one third before expensive fitting.",
   "checks": {
@@ -32,5 +32,18 @@
     "exit_code": 0,
     "evidence": "artifacts/landscape-20261103/cliff-fractures-native-v3-20261108-canyon",
     "visual_result": "Proper70m/context and20m/near wall views still fine-grained brown surface; do not present as final success."
+  },
+  "retirement": {
+    "reason": "Owner wants subtle shapes and better texturing. The height-only cellular pass survived the earlier mesh-prototype revert; distance-faded material review made its repetitive facets clear.",
+    "retained": "Pre-existing bounded cubic reconstruction and small terrain detail; generated cliff materials; no new shape system.",
+    "current_versions": {
+      "terrain": 67,
+      "amplification": 60
+    },
+    "validation": {
+      "actual_canyon_mixed_detail_seams": 176,
+      "adaptive_terrain_checks": 1403
+    },
+    "rejected_visual": "artifacts/landscape-20261103/cliff-photo-ledges-v4-20261108-glacialtrough/ground.png"
   }
 }

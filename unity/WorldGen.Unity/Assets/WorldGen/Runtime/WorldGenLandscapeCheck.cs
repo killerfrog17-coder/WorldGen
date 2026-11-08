@@ -686,25 +686,8 @@ public sealed partial class LocalTerrainExplorer
             yield return owner.StartCoroutine(Capture("cliff-wall-near",new Vector3(nearEye.x,nearEye.y-y-.5f,nearEye.z),inspectionTarget:wallTarget));
             var touchEye=wallTarget+wallNormal*4+Vector3.up*.6f;
             yield return owner.StartCoroutine(Capture("cliff-wall-touch",new Vector3(touchEye.x,touchEye.y-y-.5f,touchEye.z),inspectionTarget:wallTarget));
-            var cliffs=owner.scatterChunks.Values.Where(chunk=>chunk.Roots!=null)
-                .SelectMany(chunk=>Enumerable.Range(0,chunk.Source.Instances.Length).Where(i=>chunk.Source.Instances[i].Kind==ScatterKind.Outcrop&&CliffRocks.Is(chunk.Source.Instances[i].Variant)).Select(i=>new{Chunk=chunk,Index=i}))
-                .OrderBy(item=>item.Chunk.Roots[item.Index].sqrMagnitude).Take(8).ToArray();
-            Check(cliffs.Length>0,"Actual resident exposed walls contain jointed cliff geometry");
-            owner.PreparePlayerSolids();Vector3? reachableRoof=null;Vector3 roofEye=default;
-            for(int i=0;i<cliffs.Length;i++)
-            {
-                var item=cliffs[i];var rock=item.Chunk.Source.Instances[item.Index];var mesh=owner.Art(rock.Kind,rock.Variant,0).Parts[0].Mesh;
-                Check(mesh.triangles.Length/3<=3200,"Cliff near geometry is bounded to3200triangles per mass");
-                if(!reachableRoof.HasValue&&owner.ReviewCliffRoof(item.Chunk,item.Index,out var roof,out var eye)){reachableRoof=roof;roofEye=eye;}
-                if(i>=3)continue;
-                var center=item.Chunk.Matrices[item.Index].MultiplyPoint3x4(new Vector3(0,.5f,0));
-                var outward=new Vector3((float)V.Dot(rock.Normal,owner.frame.East),(float)V.Dot(rock.Normal,owner.frame.Origin),(float)V.Dot(rock.Normal,owner.frame.North)).normalized;
-                var camera=center+outward*(float)(rock.WidthM*.9)+Vector3.Cross(Vector3.up,outward)*(float)(rock.WidthM*.25);
-                yield return owner.StartCoroutine(Capture("cliff-mass-"+i,new Vector3(camera.x,camera.y-y-.5f,camera.z),inspectionTarget:center));
-            }
-            Check(reachableRoof.HasValue,"Actual nonconvex cliff collider has a downward-facing ledge more than2.3m above physical ground");
-            var beneath=reachableRoof.Value;
-            yield return owner.StartCoroutine(Capture("cliff-overhang",new Vector3(roofEye.x,roofEye.y-y-.5f,roofEye.z),inspectionTarget:beneath));
+            Check(owner.scatterChunks.Values.All(chunk=>chunk.Source.Instances.All(p=>p.Kind!=ScatterKind.Outcrop||!CliffRocks.Is(p.Variant))),
+                "Retired oversized cliff-scatter masses are absent from actual resident terrain");
         }
         if(site.Fall.HasValue)
         {
