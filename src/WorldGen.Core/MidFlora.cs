@@ -22,7 +22,7 @@ namespace WorldGen.Core
         public readonly double FleshToxicity, SeedToxicity, LeafToxicity, ContactIrritation, FruitNutrition;
         public MidReproduction(MidGrowthForm form, int code)
         {
-            var r=new Rng(code&~3,"mid-reproduction-1");
+            var r=new Rng(code&~(3|MidFlora.TidalEmergentBit),"mid-reproduction-1");
             HasFlowers=form!=MidGrowthForm.LargeFern;
             bool fleshy=HasFlowers&&form!=MidGrowthForm.ReedStand&&r.Unit()<.65;
             Fruit=form==MidGrowthForm.LargeFern?MidFruitForm.None:form==MidGrowthForm.ReedStand?MidFruitForm.SeedHead:
@@ -42,13 +42,15 @@ namespace WorldGen.Core
     public readonly struct MidMorphology
     {
         public readonly MidGrowthForm Form;
+        public readonly bool TidalEmergent;
         public readonly int Branches, Leaves, Petals;
         public readonly double LeafAspect, CrownSpread, Flexibility, Thorniness;
         public readonly V Leaf, Wood, Blossom, Fruit;
         public readonly MidReproduction Reproduction;
         public MidMorphology(int code)
         {
-            Form=(MidGrowthForm)((code>>27)&7);var r=new Rng(code&~3,"mid-morphology-1");
+            Form=(MidGrowthForm)((code>>27)&7);TidalEmergent=Form==MidGrowthForm.ReedStand&&(code&MidFlora.TidalEmergentBit)!=0;
+            var r=new Rng(code&~(3|MidFlora.TidalEmergentBit),"mid-morphology-1");
             Branches=4+(int)(r.Unit()*5);Leaves=5+(int)(r.Unit()*5);Petals=3+(int)(r.Unit()*5);
             LeafAspect=.22+.58*r.Unit();CrownSpread=.65+.55*r.Unit();
             Flexibility=Form==MidGrowthForm.Succulent?0:Form==MidGrowthForm.ReedStand?.8:Form==MidGrowthForm.LargeFern?.65:
@@ -83,7 +85,9 @@ namespace WorldGen.Core
     /// ecology/history rules. Four model variants per species, not one mesh per plant.</summary>
     public static class MidFlora
     {
-        public const string Version="mid-flora-wetland-establishment-2";
+        public const string Version="mid-flora-tidal-emergent-3";
+        // Bits27..29 encode growth form; bit30 was previously unused.
+        public const int TidalEmergentBit=1<<30;
         public static bool Wetland(Biome biome)=>biome==Biome.Marsh||biome==Biome.SaltMarsh||biome==Biome.Mangrove||biome==Biome.Peatland;
         public static bool Tidal(Biome biome)=>biome==Biome.SaltMarsh||biome==Biome.Mangrove;
         public static bool Rooting(LocalTerrainSample sample)=>sample.Biome!=Biome.Ice&&
@@ -116,7 +120,10 @@ namespace WorldGen.Core
                     MaxSalinity=h!=null&&(h.Value.Biome==Biome.SaltMarsh||h.Value.Biome==Biome.Mangrove)?.65+.3*a.Unit():.04+.15*a.Unit(),
                     ColonyM=12+65*a.Unit(),FloodTolerance=form==MidGrowthForm.ReedStand?.95:.15+.45*a.Unit(),DroughtTolerance=form==MidGrowthForm.Succulent||form==MidGrowthForm.OpenScrub?.85:.2+.4*a.Unit()};
                 if(form==MidGrowthForm.ReedStand&&h!=null&&Tidal(h.Value.Biome))
+                {
                     result[i].WaterSalinityLimitPpt=35+25*D.Clamp((result[i].MaxSalinity-.65)/.3);
+                    result[i].MorphologyCode|=TidalEmergentBit;
+                }
             }
             return result;
         }
@@ -178,7 +185,7 @@ namespace WorldGen.Core
         }
         public static double Colony(MidPlantSpecies s,V position,int seed,double physicalRadiusM)
         {
-            double n=.5+.5*SphereNoise.Sample(position*(physicalRadiusM/1000),seed^(s.MorphologyCode&~3),1000/s.ColonyM);
+            double n=.5+.5*SphereNoise.Sample(position*(physicalRadiusM/1000),seed^(s.MorphologyCode&~(3|TidalEmergentBit)),1000/s.ColonyM);
             double t=D.Clamp((n-.29)/.43);return t*t*(3-2*t);
         }
         public static double StandDensity(V position,int seed,double physicalRadiusM)

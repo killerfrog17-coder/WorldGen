@@ -36,6 +36,18 @@
       "source_capture": "artifacts\\landscape-20261103\\crescent-final-v1-20261108-barchandunes\\dune-face.png",
       "source_commit": "d7790f30",
       "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Performance pending."
+    },
+    {
+      "file": "wetland-fresh-before.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-before-v1-20261108-warmmarsh\\wetland-waterline.png",
+      "source_commit": "9cb2eb01",
+      "caption": "Baseline only, before wetland vegetation revision; actual in-game capture, Medium."
+    },
+    {
+      "file": "wetland-tidal-before.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-before-v1-20261108-mangrove\\ground.png",
+      "source_commit": "9cb2eb01",
+      "caption": "Baseline only, before wetland vegetation revision; actual in-game capture, Medium."
     }
   ]
 }

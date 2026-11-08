@@ -9,6 +9,21 @@ using WorldGen.Serialization;
 
 static class TerrainWorkerCostTests
 {
+    static string[] AttributeChanges(LocalTerrainMesh a,LocalTerrainMesh b)
+    {
+        var changes=new List<string>();
+        foreach(var (name,x,y) in new[]{("positions",a.Positions,b.Positions),("normals",a.Normals,b.Normals),("colors",a.Colors,b.Colors),("soil",a.SurfaceWeights,b.SurfaceWeights),("groundB",a.GroundWeightsB,b.GroundWeightsB),("lithology",a.Lithology,b.Lithology),("waterPositions",a.WaterPositions,b.WaterPositions),("waterColors",a.WaterColors,b.WaterColors),("groundCover",a.GroundCover,b.GroundCover),("midCover",a.MidCover,b.MidCover),("forestCover",a.ForestCover,b.ForestCover)})
+        {
+            if(x.Length!=y.Length){changes.Add(name+": length "+x.Length+" -> "+y.Length);continue;}
+            int count=0;double maximum=0;
+            for(int i=0;i<x.Length;i++)if(BitConverter.SingleToInt32Bits(x[i])!=BitConverter.SingleToInt32Bits(y[i])){count++;maximum=Math.Max(maximum,Math.Abs(x[i]-y[i]));}
+            if(count>0)changes.Add(name+": "+count+" components, max "+maximum.ToString("R"));
+        }
+        if(!a.Triangles.SequenceEqual(b.Triangles))changes.Add("land indices differ");
+        if(!a.WaterTriangles.SequenceEqual(b.WaterTriangles))changes.Add("water indices differ");
+        if(a.MinHeightM!=b.MinHeightM||a.MaxHeightM!=b.MaxHeightM||a.GroundVertices!=b.GroundVertices)changes.Add("bounds/regular grid metadata differ");
+        return changes.ToArray();
+    }
     static string MeshHash(LocalTerrainMesh mesh,bool geometryOnly=false,bool surfaceAttributesOnly=false)
     {
         double elapsed=mesh.BuildMilliseconds;
@@ -69,18 +84,20 @@ static class TerrainWorkerCostTests
                 string bankBoundaryError=null;
                 if(boundaryReview)try{WaterCouplingTests.ContainedBoundary(mesh);}catch(Exception error){bankBoundaryError=error.Message;}
                 int? currentVertices=null,currentWaterVertices=null;bool? currentMatches=null;
+                string[] currentDifferences=Array.Empty<string>();
                 if(verifyCurrent||reportCurrent)
                 {
                     double step=request.Item3/request.Item4;
                     var expected=LocalTerrainMesh.Build(model,frame,request.Item1,request.Item2,request.Item3,request.Item4,edgeSteps:new[]{step,step,step,step});
                     currentBuildMs=expected.BuildMilliseconds;
                     currentVertices=expected.Positions.Length/3;currentWaterVertices=expected.WaterPositions.Length/3;currentMatches=MeshHash(expected,geometryOnly,surfaceAttributesOnly)==hash;
-                    if(verifyCurrent&&currentMatches!=true)throw new Exception("Packaged/current terrain/water/cover wire payload differs at "+request+", terrain RGB excluded: "+geometryOnly+", surface attributes excluded: "+surfaceAttributesOnly);
+                    if(currentMatches!=true)currentDifferences=AttributeChanges(mesh,expected);
                     if(geometryOnly)for(int i=0;i<mesh.Colors.Length;i++)if(i%4!=3&&mesh.Colors[i]!=expected.Colors[i]){changedRgb++;maxRgbDelta=Math.Max(maxRgbDelta,Math.Abs(mesh.Colors[i]-expected.Colors[i]));}
                 }
-                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,ExpectedCurrentBuildMs=currentBuildMs,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,CurrentVertices=currentVertices,CurrentWaterVertices=currentWaterVertices,CurrentPayloadMatches=currentMatches,BankBoundaryError=bankBoundaryError,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),ExactGeometryWaterPayload=(bool?)(verifyCurrent&&surfaceAttributesOnly?true:null),SurfaceAttributesExcluded=surfaceAttributesOnly,TerrainRgbExcluded=geometryOnly||surfaceAttributesOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
+                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,ExpectedCurrentBuildMs=currentBuildMs,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,CurrentVertices=currentVertices,CurrentWaterVertices=currentWaterVertices,CurrentPayloadMatches=currentMatches,CurrentDifferences=currentDifferences,BankBoundaryError=bankBoundaryError,PayloadSha256=hash,ExactCurrentPayload=verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly?currentMatches:null,ExactPhysicalPayload=verifyCurrent&&geometryOnly?currentMatches:null,ExactGeometryWaterPayload=verifyCurrent&&surfaceAttributesOnly?currentMatches:null,SurfaceAttributesExcluded=surfaceAttributesOnly,TerrainRgbExcluded=geometryOnly||surfaceAttributesOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
                 File.WriteAllText(Path.Combine(output,"tiles.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
                 Console.WriteLine($"{version} tile {request.Item1},{request.Item2}/{request.Item3} n{request.Item4}: {row.ElapsedMs:F1}ms wall / {row.BuildMilliseconds:F1}ms build / {row.CpuMs:F1}ms CPU");
+                if(verifyCurrent&&currentMatches!=true)throw new Exception("Packaged/current payload differs at "+request+": "+string.Join("; ",currentDifferences));
             }
             if(!farTiles&&!terrainOnly)foreach(var delta in new[]{(0d,0d),(512d,0d),(0d,512d)})foreach(bool detail in new[]{false,true})
             {

@@ -1,10 +1,10 @@
 {
   "utc": "2026-11-08T14:15:37.463433+00:00",
-  "status": "Source/controls/actual-world checks passed; native visuals and FPS acceptance pending",
+  "status": "v1 all three native contexts passed runtime/placement checks; freshwater visual accepted. Coastal v1 art RETIRED: freshwater cattail heads inappropriate for marine ecotypes. v2 uses basal blades and fine flowering sprays at same stem/leaf LOD counts. Native v2 and FPS still pending.",
   "versions": {
     "terrain": 72,
     "amplification": 64,
-    "scatter": 40,
+    "scatter": 41,
     "wire": 10
   },
   "changes": [
@@ -13,11 +13,11 @@
     "Admit marine-adapted emergents in shallow mapped tidal water, never offshore ocean or fast/deep water.",
     "Use physical coastal habitat salinity for marine ecotypes; freshwater soil-index limits remain unchanged.",
     "Strengthen relative emergent establishment in wetlands with the same helper for near placement and expected distant cover. Keep the existing candidate grid, ID layout, colony sizes, models and material passes.",
-    "Shorter coastal emergent phenotypes; species names and morphology lineage codes remain stable."
+    "Shorter coastal emergent phenotypes with a reserved bit30 coastal form flag. Founder bits/names and colony noise are preserved. Coastal mesh uses grass/rush basal blades and fine flowering sprays, no cigar seed heads."
   ],
   "constraints": "Species pH, temperature, soil depth, salt, flow and canopy limits remain. ReedStand includes emergent grasses/rushes; the coastal variants are not ordinary freshwater reeds. More admitted instances may have a cost: native moving comparison is still required.",
   "tests": {
-    "controls": 90,
+    "controls": 92,
     "wetland_regression": 101466,
     "landscape_regression": 35902,
     "pond_regression": 138,
@@ -81,7 +81,29 @@
           "MaximumDepth": 0.659
         }
       ]
-    }
+    },
+    "physical_reference71": [
+      {
+        "site": "warm-marsh",
+        "packets": 12,
+        "exact_geometry_water": true,
+        "excluded": "BuildMilliseconds + land Colors/SurfaceWeights/GroundWeightsB/GroundCover/MidCover/ForestCover ONLY; land positions/normals/indices/bounds/lithology and complete water retained"
+      },
+      {
+        "site": "tidal-mangrove",
+        "packets": 12,
+        "exact_geometry_water": true,
+        "excluded": "BuildMilliseconds + land Colors/SurfaceWeights/GroundWeightsB/GroundCover/MidCover/ForestCover ONLY; land positions/normals/indices/bounds/lithology and complete water retained"
+      },
+      {
+        "site": "tidal-saltmarsh",
+        "packets": 12,
+        "exact_geometry_water": true,
+        "excluded": "BuildMilliseconds + land Colors/SurfaceWeights/GroundWeightsB/GroundCover/MidCover/ForestCover ONLY; land positions/normals/indices/bounds/lithology and complete water retained"
+      }
+    ],
+    "tropical_upland_complete_wire_packets_exact": 21,
+    "temperate_full_wire_failure": "Retained failure: only MidCover differs in diagnostic tile,25338 components,max1.9073486328125e-6; no other arrays/bounds differ. Do not claim all upland packets exact."
   },
   "sources": [
     "https://research.fs.usda.gov/feis/species-reviews/phraus",
@@ -89,5 +111,11 @@
     "https://research.fs.usda.gov/feis/species-reviews/spaalt",
     "https://myfwc.com/research/habitat/coastal-wetlands/salt-marshes/",
     "https://oceanservice.noaa.gov/facts/saltmarsh.html"
+  ],
+  "limits": [
+    "v1 coastal pictures are not final accepted art",
+    "Initial world audit serialization failed after habitat assertions; fixed explicit XYZ report and reran successfully",
+    "Worker comparison timings overlapped build/other verification: hashes only, not performance evidence",
+    "Wetland placement correction is not a complete wetland art overhaul"
   ]
 }

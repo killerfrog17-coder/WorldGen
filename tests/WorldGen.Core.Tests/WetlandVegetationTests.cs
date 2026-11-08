@@ -5,6 +5,30 @@ using WorldGen.Serialization;
 
 static class WetlandVegetationTests
 {
+    public static void PerformanceSites(string input,string output)
+    {
+        var world=WorldFile.ReadFile(input);var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        var marsh=TidalMarshSites.Nearshore(world,model).First();
+        var mangrove=TidalForestSites.Nearshore(world,model).First();
+        var sites=new List<VegetationBenchmarkSite>();var receipts=new List<object>();
+        foreach(var (name,center) in new[]{("warm-marsh-water",new V(-.4774612,.654411578,-.586324388)),("mangrove-water",mangrove.Position),("saltmarsh-water",marsh.Position)})
+        {
+            var patch=model.Patch(center,5000);var frame=new LocalTerrainFrame(center,model.RadiusM,0,.1);V? chosen=null;
+            for(int ring=1;ring<=64&&!chosen.HasValue;ring++)for(int i=0;i<24&&!chosen.HasValue;i++)
+            {
+                var at=frame.Position(ring*8*Math.Cos(i*Math.PI/12),ring*8*Math.Sin(i*Math.PI/12));var s=patch.Sample(at);
+                if(s.Underwater&&s.WaterSurfaceM-s.ElevationM>=.1&&s.WaterSurfaceM-s.ElevationM<=1.1&&
+                    (name=="warm-marsh-water"?s.WaterKind==LocalWaterKind.Lake:s.WaterKind==LocalWaterKind.Ocean&&MidFlora.Tidal(s.Biome)))chosen=at;
+            }
+            if(!chosen.HasValue)throw new Exception("No actual shallow submerged benchmark point: "+name);
+            var sample=patch.Sample(chosen.Value);
+            sites.Add(new VegetationBenchmarkSite{Name=name,Position=chosen.Value,Biome=sample.Biome.ToString()});
+            receipts.Add(new{Name=name,Position=new{chosen.Value.X,chosen.Value.Y,chosen.Value.Z},Ground=sample.ElevationM,Water=sample.WaterSurfaceM,Kind=sample.WaterKind.ToString(),Biome=sample.Biome.ToString()});
+        }
+        File.WriteAllText(output,WorldJson.Write(new VegetationBenchmarkSiteSet{HistoryHash=world.Prehistory.Hash,Sites=sites.ToArray()}));
+        File.WriteAllText(output+".receipts.json",JsonSerializer.Serialize(receipts,new JsonSerializerOptions{WriteIndented=true}));
+        Console.WriteLine("PASS three explicit actual shallow-water rendering fixtures; use travel-whip-water-surface, no dry-site relocation");
+    }
     public static void Controls()
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
@@ -46,7 +70,7 @@ static class WetlandVegetationTests
         var fake=new World{Recipe=Recipe.Preset("Preview"),Ecology=new EcologyResult{Regions=new[]{new Ecoregion{RepresentativeCell=0,ProvinceId=3}},Habitat=new[]{saline}}};
         var a=MidFlora.Create(fake,0,3);var b=MidFlora.Create(fake,0,3);
         for(int i=0;i<a.Length;i++)
-        {Check(a[i].Name==b[i].Name&&a[i].MorphologyCode==b[i].MorphologyCode&&a[i].HeightM==b[i].HeightM,"Generated coastal taxa remain deterministic");if(a[i].Form==MidGrowthForm.ReedStand)Check(a[i].WaterSalinityLimitPpt>=35&&a[i].WaterSalinityLimitPpt<=60,"Coastal emergents receive bounded physical salt tolerance");}
+        {Check(a[i].Name==b[i].Name&&a[i].MorphologyCode==b[i].MorphologyCode&&a[i].HeightM==b[i].HeightM,"Generated coastal taxa remain deterministic");if(a[i].Form==MidGrowthForm.ReedStand){Check(a[i].WaterSalinityLimitPpt>=35&&a[i].WaterSalinityLimitPpt<=60,"Coastal emergents receive bounded physical salt tolerance");Check(a[i].Morphology.TidalEmergent,"Marine-adapted taxa use coastal grass/rush morphology rather than freshwater cattails");}}
         Console.WriteLine($"PASS {checks} wetland vegetation habitat/constraint controls");
     }
 

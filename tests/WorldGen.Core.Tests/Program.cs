@@ -3,6 +3,7 @@ using WorldGen.Serialization;
 using WorldGen.Presentation;
 if(args.Contains("--wetland-vegetation-controls")){WetlandVegetationTests.Controls();return;}
 if(args.Contains("--wetland-vegetation-world")){WetlandVegetationTests.World(args[1],args[2]);return;}
+if(args.Contains("--wetland-vegetation-perf-sites")){WetlandVegetationTests.PerformanceSites(args[1],args[2]);return;}
 if(args.Contains("--mangrove-controls")){MangroveTests.Controls();return;}
 if(args.Contains("--mangrove-world")){MangroveTests.World(args[1],args[2]);return;}
 if(args.Contains("--mangrove-perf-sites")){MangroveTests.PerformanceSites(args[1],args[2]);return;}

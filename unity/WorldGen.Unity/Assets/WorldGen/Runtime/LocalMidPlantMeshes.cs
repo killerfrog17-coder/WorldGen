@@ -82,12 +82,24 @@ static partial class LocalScatterMeshes
             int stems=lod==0?15:lod==1?10:7;
             for(int j=0;j<stems;j++)
             {
-                var r=new Rng(code,"mid-reed-1",j);float a=j*2.39996f;
+                var r=new Rng(code&~MidFlora.TidalEmergentBit,"mid-reed-1",j);float a=j*2.39996f;
                 Vector3 dir=Direction(a),root=dir*(.30f*Mathf.Sqrt((j+.3f)/15)),tip=root+dir*.075f+Vector3.up*(.65f+.3f*(float)r.Unit());
                 Shoot(root,Vector3.Lerp(root,tip,.5f),tip,.0045f*Mathf.Sqrt(15f/stems));
                 int leaves=lod==0?4:2;
-                for(int k=0;k<leaves;k++){float t=.22f+k*.5f/leaves;var at=Vector3.Lerp(root,tip,t);Foliage(at,at+Direction(a+k*2.4f)*.20f+Vector3.up*.16f,.012f*Mathf.Sqrt(4f/leaves),leaf);}
-                if(lod<2&&j%3==0)b.Crown(tip-Vector3.up*.045f,new Vector3(.015f,.06f,.015f),5,3,new Color(.46f,.35f,.18f),code+j,.05f);
+                for(int k=0;k<leaves;k++)
+                {
+                    float t=m.TidalEmergent?.04f+k*.12f/leaves:.22f+k*.5f/leaves;var at=Vector3.Lerp(root,tip,t);
+                    Foliage(at,at+Direction(a+k*2.4f)*(m.TidalEmergent?.27f:.20f)+Vector3.up*(m.TidalEmergent?.48f+.2f*(float)r.Unit():.16f),
+                        (m.TidalEmergent?.014f:.012f)*Mathf.Sqrt(4f/leaves),leaf);
+                }
+                if(lod<2&&m.TidalEmergent&&j%4==0)
+                {
+                    // Coastal grasses/rushes have fine flowering sprays,
+                    // not the thick cigar seed heads of freshwater cattails.
+                    var seedColour=new Color(.46f,.40f,.23f);
+                    for(int sign=-1;sign<=1;sign+=2)Foliage(tip-Vector3.up*.07f,tip+Direction(a)*(.055f*sign),.004f,seedColour);
+                }
+                else if(lod<2&&!m.TidalEmergent&&j%3==0)b.Crown(tip-Vector3.up*.045f,new Vector3(.015f,.06f,.015f),5,3,new Color(.46f,.35f,.18f),code+j,.05f);
             }
         }
         else
