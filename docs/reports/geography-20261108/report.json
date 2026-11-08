@@ -1,5 +1,5 @@
 {
-  "title": "WorldGen \u00e2\u20ac\u201d Geography Overnight",
+  "title": "WorldGen - Geography Overnight",
   "date": "08 NOVEMBER 2026",
   "status": "Draft inputs; generate one final PDF only after accepted work and performance review",
   "pages": [
@@ -104,7 +104,7 @@
       "subtitle": "Moving tests, explicit conditions, and unfinished work",
       "blocks": [
         {
-          "text": "RTX 4060 / Ryzen 7 5700X, 1920 ? 1080, Medium, 6 km view, 45-second moving loops with rapid turns. All recorded frames focused. These are selected routes, not proof of the worst location in the world."
+          "text": "RTX 4060 / Ryzen 7 5700X, 1920 x 1080, Medium, 6 km view, 45-second moving loops with rapid turns. All recorded frames focused. These are selected routes, not proof of the worst location in the world."
         },
         {
           "table": {
@@ -156,7 +156,7 @@
           "heading": "Research and evidence"
         },
         {
-          "text": "Landform guidance: <link href=\"https://www.nps.gov/articles/meandering-stream.htm\">National Park Service \u00e2\u20ac\u201d meandering streams</link>; <link href=\"https://www.nps.gov/grsa/learn/nature/dune-types.htm\">National Park Service \u00e2\u20ac\u201d dune types</link>. Captures and rebuild inputs are preserved beside this report; verification records live under assets/verification. Disposable artifacts are not required to rebuild the PDF.",
+          "text": "Landform guidance: <link href=\"https://www.nps.gov/articles/meandering-stream.htm\">National Park Service - meandering streams</link>; <link href=\"https://www.nps.gov/grsa/learn/nature/dune-types.htm\">National Park Service - dune types</link>. Captures and rebuild inputs are preserved beside this report; verification records live under assets/verification. Disposable artifacts are not required to rebuild the PDF.",
           "size": 9
         }
       ]
