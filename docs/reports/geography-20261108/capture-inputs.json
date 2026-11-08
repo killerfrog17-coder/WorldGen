@@ -1,0 +1,29 @@
+{
+  "status": "Report inputs only; one final PDF after all accepted work",
+  "captures": [
+    {
+      "file": "river-before.jpg",
+      "source_capture": "artifacts/landscape-20261103/river-before-20261108-alluvialriver/river-overview.png",
+      "source_commit": "f5936062",
+      "caption": "Earlier alluvial river, reach115180; stepped cross-sections."
+    },
+    {
+      "file": "river-banks.jpg",
+      "source_capture": "artifacts/landscape-20261103/river-banks-v1-20261108-alluvialriver/river-overview.png",
+      "source_commit": "23de7d6c",
+      "caption": "Continuous banks on same reach; selected bar anchor/view differs."
+    },
+    {
+      "file": "river-ground.jpg",
+      "source_capture": "artifacts/landscape-20261103/river-banks-v1-20261108-alluvialriver/ground.png",
+      "source_commit": "23de7d6c",
+      "caption": "Ground view of the exposed inner bar."
+    },
+    {
+      "file": "pond-shore-review.jpg",
+      "source_capture": "artifacts/landscape-20261103/pond-budget-v1-20261108-pond/pond-waterline.png",
+      "source_commit": "23de7d6c",
+      "caption": "Accepted shoreline review; later distant-only budget has no near-payload difference."
+    }
+  ]
+}
