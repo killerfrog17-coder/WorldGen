@@ -322,6 +322,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
+        owner.landscapeContinuousCliffReview=arguments.Contains("--worldgen-continuous-cliff-review");
         owner.Initialize(Task.FromResult(model),site.Position,()=>{},world,play,worker:worker);
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((!owner.Ready||!owner.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
@@ -404,6 +405,16 @@ public sealed partial class LocalTerrainExplorer
             var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
             if(faceCenter)look=new Vector3(0,y+.5f,0)-camera;
             if(inspectionTarget.HasValue)look=inspectionTarget.Value-camera;
+            if(owner.landscapeContinuousCliffReview&&name.StartsWith("cliff-wall"))
+            {
+                // Inspect the near terrain product, rather than zooming a
+                // detached camera into geometry streamed around the river.
+                owner.motion.X=camera.x+owner.originX;owner.motion.Z=camera.z+owner.originZ;
+                owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+TerrainMotion.EyeHeightM;
+                owner.RefreshWanted();double nearDeadline=Time.realtimeSinceStartupAsDouble+90;
+                while(!owner.NearReady&&Time.realtimeSinceStartupAsDouble<nearDeadline)yield return null;
+                Check(owner.NearReady,"Continuous cliff inspection streams actual near-detail terrain at the camera");
+            }
             if(site.Fall.HasValue)
             {
                 var fall=site.Fall.Value;V at=(fall.A+fall.B).Unit;TerrainHandoff.Coordinates(owner.frame,at,out double fx,out double fz);
@@ -684,8 +695,47 @@ public sealed partial class LocalTerrainExplorer
             yield return owner.StartCoroutine(Capture("cliff-wall-context",new Vector3(contextEye.x,contextEye.y-y-.5f,contextEye.z),inspectionTarget:wallTarget));
             var nearEye=wallTarget+wallNormal*20+Vector3.up*5;
             yield return owner.StartCoroutine(Capture("cliff-wall-near",new Vector3(nearEye.x,nearEye.y-y-.5f,nearEye.z),inspectionTarget:wallTarget));
-            var touchEye=wallTarget+wallNormal*4+Vector3.up*.6f;
+            var touchEye=wallTarget+wallNormal*(owner.landscapeContinuousCliffReview?12:4)+Vector3.up*.6f;
             yield return owner.StartCoroutine(Capture("cliff-wall-touch",new Vector3(touchEye.x,touchEye.y-y-.5f,touchEye.z),inspectionTarget:wallTarget));
+            if(owner.landscapeContinuousCliffReview)
+            {
+                // Visual prototype: judge the terrain itself with separate
+                // outcrop models hidden. Slow lateral motion exposes depth.
+                var tangent=Vector3.Cross(Vector3.up,wallNormal).normalized;
+                var pathTask=Task.Run(()=>
+                {
+                    var route=new Vector3[61];var patch=model.Patch(site.Position,10000);
+                    for(int i=0;i<route.Length;i++)
+                    {
+                        var eye=wallTarget+tangent*(i-30)+wallNormal*16+Vector3.up*1.8f;
+                        var at=owner.frame.Position(eye.x+owner.originX,eye.z+owner.originZ);
+                        eye.y=(float)owner.frame.SurfaceY(at,patch.Elevation(at))+1.8f;
+                        route[i]=eye;
+                    }
+                    return route;
+                });
+                while(!pathTask.IsCompleted)yield return null;var route=pathTask.GetAwaiter().GetResult();
+                double start=Time.realtimeSinceStartupAsDouble;bool saved=false;
+                while(Time.realtimeSinceStartupAsDouble-start<60)
+                {
+                    float time=(float)(Time.realtimeSinceStartupAsDouble-start);int step=Mathf.Min(59,(int)time);
+                    var eye=Vector3.Lerp(route[step],route[step+1],time-step);
+                    var across=new Vector3(wallNormal.x,0,wallNormal.z).normalized;
+                    var focus=eye+tangent*15-across*10+Vector3.up*5;
+                    owner.motion.X=eye.x+owner.originX;owner.motion.Z=eye.z+owner.originZ;owner.motion.Y=eye.y;
+                    owner.landscapeReviewCamera=eye;owner.landscapeReviewRotation=Quaternion.LookRotation(focus-eye);owner.UpdateCamera();
+                    if(!saved&&time>=30)
+                    {
+                        owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                        var shot=new Texture2D(1536,864,TextureFormat.RGB24,false);shot.ReadPixels(new Rect(0,0,1536,864),0,0);shot.Apply();
+                        File.WriteAllBytes(Path.Combine(output,"cliff-along-wall.png"),shot.EncodeToPNG());Destroy(shot);RenderTexture.active=prior;saved=true;
+                    }
+                    yield return null;
+                }
+                File.WriteAllText(Path.Combine(output,"prototype-status.txt"),"Visual-only connected cliff-mesh prototype; separate outcrops hidden. Dedicated mesh collision is pending; not a playable/performance signoff.");
+            }
+            else
+            {
             var cliffs=owner.scatterChunks.Values.Where(chunk=>chunk.Roots!=null)
                 .SelectMany(chunk=>Enumerable.Range(0,chunk.Source.Instances.Length).Where(i=>chunk.Source.Instances[i].Kind==ScatterKind.Outcrop&&CliffRocks.Is(chunk.Source.Instances[i].Variant)).Select(i=>new{Chunk=chunk,Index=i}))
                 .OrderBy(item=>item.Chunk.Roots[item.Index].sqrMagnitude).Take(8).ToArray();
@@ -705,6 +755,7 @@ public sealed partial class LocalTerrainExplorer
             Check(reachableRoof.HasValue,"Actual nonconvex cliff collider has a downward-facing ledge more than2.3m above physical ground");
             var beneath=reachableRoof.Value;
             yield return owner.StartCoroutine(Capture("cliff-overhang",new Vector3(roofEye.x,roofEye.y-y-.5f,roofEye.z),inspectionTarget:beneath));
+            }
         }
         if(site.Fall.HasValue)
         {

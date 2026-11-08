@@ -54,6 +54,19 @@ static class TerrainSurfaceSeamTests
             {
                 var fine=pair.Item1;var coarse=pair.Item2;int edge=pair.Item3;
                 Check(TerrainBoundaryTests.Gap(fine,coarse,edge)<.001,"Surface shading never opens a geometric boundary");
+                foreach(int axis in new[]{0,2})
+                {
+                    bool vertical=edge<2;double gap=0,start=vertical?fine.NorthM:fine.EastM,other=vertical?coarse.NorthM:coarse.EastM;
+                    double fineOrigin=axis==0?fine.EastM:fine.NorthM,coarseOrigin=axis==0?coarse.EastM:coarse.NorthM;
+                    for(int k=0;k<=fine.Segments;k++)
+                    {
+                        double at=start+k*fine.SizeM/fine.Segments;if(at<other-1e-7||at>other+coarse.SizeM+1e-7)continue;
+                        double f=(at-other)/coarse.SizeM*coarse.Segments;int lo=Math.Clamp((int)Math.Floor(f),0,coarse.Segments-1);double t=f-lo;
+                        double value=coarse.Positions[Index(coarse.Segments,edge^1,lo)*3+axis]*(1-t)+coarse.Positions[Index(coarse.Segments,edge^1,lo+1)*3+axis]*t+coarseOrigin;
+                        gap=Math.Max(gap,Math.Abs(fine.Positions[Index(fine.Segments,edge,k)*3+axis]+fineOrigin-value));
+                    }
+                    Check(gap<.001,$"Connected cliff vertices join in horizontal axis{axis}: {gap:R}m");
+                }
                 Check(AttributeGap(fine,coarse,edge,m=>m.Normals,3,3)<2e-6,"Interpolated lighting normals match across detail levels");
                 Check(AttributeGap(fine,coarse,edge,m=>m.Colors,4,4)<2e-6,"Albedo and cover alpha match across detail levels");
                 Check(AttributeGap(fine,coarse,edge,m=>m.SurfaceWeights,4,4)<2e-6&&AttributeGap(fine,coarse,edge,m=>m.GroundWeightsB,4,4)<2e-6,"All geology material weights match across detail levels");

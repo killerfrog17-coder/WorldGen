@@ -193,7 +193,8 @@ public sealed partial class LocalTerrainExplorer
                         if((i&1023)==0)token.ThrowIfCancellationRequested();
                         var p=new Vector3(positions[i*3],positions[i*3+1],positions[i*3+2]);low=Vector3.Min(low,p);high=Vector3.Max(high,p);
                         var v=new TerrainVertex{Position=p,Normal=water?Vector3.up:new Vector3(source.Normals[i*3],source.Normals[i*3+1],source.Normals[i*3+2]),
-                            Color=new Color(colors[i*4],colors[i*4+1],colors[i*4+2],colors[i*4+3]),Uv=new Vector2((float)(source.EastM+p.x)*.5f,(float)(source.NorthM+p.z)*.5f)};
+                            Color=new Color(colors[i*4],colors[i*4+1],colors[i*4+2],colors[i*4+3]),Uv=water?new Vector2((float)(source.EastM+p.x)*.5f,(float)(source.NorthM+p.z)*.5f):
+                            i<source.GroundVertices?new Vector2((float)((i%(source.Segments+1))*source.SizeM/source.Segments),(float)((i/(source.Segments+1))*source.SizeM/source.Segments)):new Vector2(p.x,p.z)};
                         if(!water)
                         {
                             v.GroundA=new Vector4(source.SurfaceWeights[i*4],source.SurfaceWeights[i*4+1],source.SurfaceWeights[i*4+2],source.SurfaceWeights[i*4+3]);

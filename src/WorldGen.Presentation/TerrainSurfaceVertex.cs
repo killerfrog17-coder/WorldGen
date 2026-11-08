@@ -7,7 +7,7 @@ namespace WorldGen.Presentation
     // interpolate the same float attributes that the coarse triangles submit.
     internal struct TerrainSurfaceVertex
     {
-        public V Normal,Color;
+        public V Normal,Color,CliffOffset;
         public GroundSurface Material;
         public GroundProfile Ground;
         public GroundCoverProfile Cover;
@@ -30,7 +30,24 @@ namespace WorldGen.Presentation
             var biome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
             var forest=TreeFlora.Surface(sample.Forest,point,terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,sample.ElevationM,up,
                 sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,biome);
-            return new TerrainSurfaceVertex{Normal=new V(nx/length,up,nz/length),Color=material.Color*(1-visible)+cover.Color*(.90*visible),
+            V offset=default,normal=new V(nx/length,up,nz/length);
+            double wall=OrogenMorphology.Smooth(.18,.48,1-up)*Math.Max(material.Rock,sample.Province.ExposedRock);
+            if(!sample.Underwater&&sample.WaterKind!=LocalWaterKind.River&&sample.ElevationM>8&&wall>.001)
+            {
+                double clearance=double.IsNaN(sample.WaterSurfaceM)?1:OrogenMorphology.Smooth(8,20,sample.ElevationM-sample.WaterSurfaceM);
+                double hardness=1-.65*sample.Ground.RockWeight((int)RockFamily.Mudstone);
+                double amount=CliffSurfaceDetail.Outward(point*(terrain.RadiusM*frame.HorizontalScale+sample.ElevationM),terrain.SourceSeed,hardness,out V gradient)*wall*clearance;
+                double horizontal=Math.Sqrt(nx*nx+nz*nz);
+                if(horizontal>.001)
+                {
+                    var direction=new V(nx/horizontal,0,nz/horizontal);offset=direction*amount;
+                    double gx=V.Dot(gradient,frame.East-frame.Origin*nx)*wall*clearance;
+                    double gz=V.Dot(gradient,frame.North-frame.Origin*nz)*wall*clearance;
+                    V tangentX=new V(1,-nx,0)+direction*gx,tangentZ=new V(0,-nz,1)+direction*gz;
+                    normal=V.Cross(tangentZ,tangentX).Unit;
+                }
+            }
+            return new TerrainSurfaceVertex{Normal=normal,CliffOffset=offset,Color=material.Color*(1-visible)+cover.Color*(.90*visible),
                 Material=material,Ground=sample.Ground,Cover=cover,Mid=mid,Forest=forest,Coverage=coverage,MidAmount=midAmount,Height=frame.SurfaceY(point,sample.ElevationM)};
         }
         static float Mix(double a,double b,double t)=>(float)((float)a*(1-t)+(float)b*t);
@@ -38,6 +55,9 @@ namespace WorldGen.Presentation
         {target[at]=Mix(a.X,b.X,t);target[at+1]=Mix(a.Y,b.Y,t);target[at+2]=Mix(a.Z,b.Z,t);}
         public static void Write(LocalTerrainMesh mesh,int i,TerrainSurfaceVertex a,TerrainSurfaceVertex b,double t)
         {
+            int side=mesh.Segments+1;double step=mesh.SizeM/mesh.Segments;
+            mesh.Positions[i*3]=(float)((i%side)*step+Mix(a.CliffOffset.X,b.CliffOffset.X,t));
+            mesh.Positions[i*3+2]=(float)((i/side)*step+Mix(a.CliffOffset.Z,b.CliffOffset.Z,t));
             Vector(mesh.Normals,i*3,a.Normal,b.Normal,t);Vector(mesh.Colors,i*4,a.Color,b.Color,t);mesh.Colors[i*4+3]=Mix(a.Coverage,b.Coverage,t);
             for(int k=0;k<4;k++){mesh.SurfaceWeights[i*4+k]=Mix(a.Material.Weight(k),b.Material.Weight(k),t);mesh.GroundWeightsB[i*4+k]=Mix(a.Material.Weight(k+4),b.Material.Weight(k+4),t);}
             for(int k=0;k<6;k++)mesh.Lithology[i*6+k]=Mix(a.Ground.RockWeight(k),b.Ground.RockWeight(k),t);

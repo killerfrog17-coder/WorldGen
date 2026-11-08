@@ -30,6 +30,7 @@ public sealed partial class LocalTerrainExplorer
         public Matrix4x4[][] PartMatrices;
     }
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
+    bool landscapeContinuousCliffReview;
     Texture2DArray treeLeaves;
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
     readonly Dictionary<int,V> treePigments=new Dictionary<int,V>();
@@ -512,6 +513,7 @@ public sealed partial class LocalTerrainExplorer
     void QueueScatterAdmission(ScatterChunk chunk,int index,int lod,float low,float high,bool shadowOnly)
     {
         if(high-low<.0001f)return;
+        if(landscapeContinuousCliffReview&&p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant))return;
         chunk.Admissions.Add(new ScatterAdmission{Index=index,Lod=lod,Low=low,High=high,ShadowOnly=shadowOnly});
     }
     void BuildScatterBatches()

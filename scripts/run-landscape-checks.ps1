@@ -9,6 +9,7 @@ param(
     [switch]$BarkReview,
     [switch]$WaterShadingReview,
     [switch]$CliffReview,
+    [switch]$ContinuousCliffReview,
     [switch]$Presented,
     [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateRange(0,4)][int]$PlantQuality=3,
@@ -39,6 +40,7 @@ foreach($kind in $Kinds){
     if($BarkReview){$arguments+='--worldgen-bark-review'}
     if($WaterShadingReview){$arguments+='--worldgen-water-shading-review'}
     if($CliffReview){$arguments+='--worldgen-cliff-review'}
+    if($ContinuousCliffReview){$arguments+=@('--worldgen-cliff-review','--worldgen-continuous-cliff-review')}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
     if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
     $style=if($Presented){'Normal'}else{'Hidden'}
