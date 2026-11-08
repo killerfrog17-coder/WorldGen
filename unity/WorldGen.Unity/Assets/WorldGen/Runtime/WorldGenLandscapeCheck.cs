@@ -322,7 +322,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
-        owner.Initialize(Task.FromResult(model),site.Position,()=>{},world,play,worker:worker);
+        owner.Initialize(Task.FromResult(model),site.Position,()=>{if(arguments.Contains("--worldgen-landscape-keep-open"))Application.Quit(0);},world,play,worker:worker);
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((!owner.Ready||!owner.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(owner.Ready&&owner.NearReady&&owner.Error=="","Actual worker terrain neighbourhood is uploaded without errors");double loadSeconds=timer.Elapsed.TotalSeconds;
@@ -751,6 +751,20 @@ public sealed partial class LocalTerrainExplorer
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
         // is recorded, so its teleport cannot contaminate the reviewed cameras.
+        if(presented&&arguments.Contains("--worldgen-landscape-keep-open"))
+        {
+            Check(!encounteredError,"Interactive scenic review starts without runtime errors");
+            File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);
+            var eye=owner.view.transform.localPosition;var angles=owner.view.transform.localRotation.eulerAngles;
+            owner.motion.X=eye.x+owner.originX;owner.motion.Z=eye.z+owner.originZ;owner.motion.Y=eye.y;
+            owner.heading=angles.y;owner.pitch=angles.x>180?angles.x-360:angles.x;
+            owner.landscapeReviewCamera=null;owner.view.targetTexture=null;owner.view.enabled=true;
+            Destroy(owner.GetComponent<WorldGenLandscapePresenter>());target.Release();Destroy(target);
+            owner.RefreshWanted();owner.UpdateCamera();if(Application.isFocused)owner.CaptureMouse();
+            File.WriteAllText(Path.Combine(output,"interactive-ready.txt"),"Actual spectator controls active. No performance measurement. Close this review normally before rebuilding its slot.");
+            while(owner!=null)yield return null;
+            yield break;
+        }
         string landmarkKind=kind=="Volcano"?"volcano":kind=="Waterfall"?"waterfall":kind=="Canyon"?"canyon":kind=="GlacialTrough"?"glacial":site.Fjord.HasValue?"fjord":kind=="Mangrove"?"mangrove":kind=="Inselberg"?"outcrop":kind=="GraniteDome"||kind=="JointedDome"?"dome":kind=="TowerKarst"?"karst":null;
         if(landmarkKind!=null)
         {

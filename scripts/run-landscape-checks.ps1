@@ -10,11 +10,13 @@ param(
     [switch]$WaterShadingReview,
     [switch]$CliffReview,
     [switch]$Presented,
+    [switch]$KeepOpen,
     [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateRange(0,4)][int]$PlantQuality=3,
     [int]$SourceCell=-1
 )
 $ErrorActionPreference='Stop'
+if($KeepOpen -and (!$Presented -or $Kinds.Count -ne 1)){throw 'KeepOpen requires one presented review kind.'}
 $repoRoot=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repoRoot ('builds/'+$Slot+'/WorldGen.exe')
 if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not review it.'}
@@ -33,6 +35,7 @@ foreach($kind in $Kinds){
     # These render into explicit textures, so no interactive window is needed.
     $arguments=@('-monitor',$reviewMonitorIndex,'-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-landscape-check',('"'+$fixture+'"'),'--worldgen-landscape-kind',$kind,'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
     if($Presented){$arguments+='--worldgen-landscape-presented'}else{$arguments+='-batchmode'}
+    if($KeepOpen){$arguments+='--worldgen-landscape-keep-open'}
     if($TreeAlphaReview){$arguments+='--worldgen-tree-alpha-review'}
     if($GrassReview){$arguments+='--worldgen-grass-review'}
     if($TreeShadowReview){$arguments+='--worldgen-tree-shadow-review'}

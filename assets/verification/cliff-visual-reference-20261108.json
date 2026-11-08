@@ -1,0 +1,37 @@
+{
+  "status": "Reference-led material test; not a new terrain/climbing system",
+  "owner_direction": "Mostly better texturing, subtle shape changes. AC3 Frontier and vanilla Skyrim are references; Skyrim example not a prescription for Grand Canyon geography.",
+  "primary_sources": [
+    {
+      "url": "https://store.steampowered.com/app/72850/The_Elder_Scrolls_V_Skyrim/",
+      "screenshots": [
+        "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/72850/ss_c1dce7ea799bebeecc085bbe4879b27e6e05a33c.1920x1080.jpg?t=1788199504",
+        "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/72850/ss_5ad7ed4bb147a59ced32257a80008285f0722822.1920x1080.jpg?t=1788199504",
+        "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/72850/ss_59ceb8acb69485f50f236d6a10a5e5c47856681b.1920x1080.jpg?t=1788199504"
+      ],
+      "note": "Original publisher screenshots, not texture mods."
+    },
+    {
+      "url": "https://www.gamedeveloper.com/design/skyrim-s-modular-approach-to-level-design",
+      "authors": "Joel Burgess and Nathan Purkeypile; Bethesda/GDC2013",
+      "note": "Primary developer account of modular art/level design; no specific cliff shader implementation claimed."
+    },
+    {
+      "url": "https://www.ubisoft.com/en-sg/game/assassins-creed/news/6ADQRcGbxh6HlOuIvTAKc/the-art-of-assassins-creed-iii",
+      "note": "Publisher art context; AC3 remains a visual target, not a copied asset source."
+    }
+  ],
+  "visual_inferences": [
+    "Use coherent stone colour across the wall and supporting rock meshes.",
+    "Readable broad fractures and restrained fine grain; avoid exaggerated noisy normals.",
+    "Keep large shapes and silhouettes composed; add only small real ledges as needed.",
+    "Texture detail is not a replacement for real climbable holds later."
+  ],
+  "test_source": "cd492b32",
+  "test": "Material-only; core geometry exactly ffa926b0/963bbd03. Retained generated master colour, shared wall/model coordinates and8m scale, normal relief reduced.",
+  "rejected_geometry": [
+    "a3833a8d",
+    "951e63b2"
+  ],
+  "asset_rights": "References are for analysis only. Game assets remain our generated masters and previously approved CC0 source geometry."
+}
