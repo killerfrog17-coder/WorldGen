@@ -1,19 +1,19 @@
 {
   "utc": "2026-11-08T11:36:53.989448+00:00",
-  "status": "Crescent art accepted at70, final71 runtime build/native/performance pending. Star terrain RETIRED after two rejected native views.",
+  "status": "Final71 crescent native review passed34 checks; crescent art accepted by agent, owner review pending. Performance promotion ON HOLD: A406/167/171FPS versus B753/193/193 on three borderless moving routes; reverse A479/167/170 reproduces most gap. Engine render times similar, but candidate presentation waits longer. Diagnosis ongoing. Star terrain RETIRED after two rejected native views.",
   "versions": {
     "terrain": 71,
     "amplification": 64,
     "scatter": 39,
     "wire": 10
   },
-  "geometry": "Finite barchans and three-armed stars use three dominant-axis spherical charts; active chart Jacobian stays >=1/sqrt(3). Chart boundaries retire into the existing continuous ridge family. No extra scenery objects, textures, render passes or gameplay tick.",
+  "geometry": "Active finite barchans use three dominant-axis spherical charts; active chart Jacobian stays >=1/sqrt(3). Chart boundaries retire into the existing continuous ridge family. Star primitive remains offline only, runtime star weight is zero. No extra scenery objects, textures, render passes or gameplay tick.",
   "suitability_model": "Seasonal direction diversity + bounded proxy for mountain/valley wind deflection, including neighbouring high ground. Fine-scale steep-bedrock exclusion uses six coarse height probes on one globally fixed subdivision depth, smoothed over80m. No per-face slope mask or recursive full terrain samples. This is a suitability proxy, NOT resolved airflow or a sand transport solver.",
   "constraints": [
     "Existing sandy/arid province only",
     "Frozen/glacial attenuation",
     "Crescents favor lower sand supply and persistent wind",
-    "Stars require strong directional variability and sufficient sand",
+    "Multidirectional wind retains the earlier connected ridge family; rejected star terrain is not implemented",
     "Explicit asynchronous landmark search, not per-frame search"
   ],
   "checks": {

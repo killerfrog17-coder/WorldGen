@@ -1,0 +1,24 @@
+{
+  "status": "Planning only; blocked on current dune performance acceptance",
+  "intent": "Make wetland vegetation fit real shallow-water and tidal habitats without increasing the global candidate grid or per-frame work.",
+  "findings": [
+    "LocalMidPlants excludes every point below two metres elevation, including valid tidal wetlands.",
+    "MidFlora excludes all ocean water, even for generated salt-tolerant wetland taxa.",
+    "LandscapeProvince.Cover can rename open saltmarsh to freshwater marsh.",
+    "GroundProfile.Salinity saturates at five ppt; current nominally salt-tolerant plant limits are below that saturated index. Check actual habitats before choosing a correction.",
+    "The existing 48x48 candidate grid, three-member reed colonies and 15/10/7-stem meshes provide a bounded initial implementation. IDs reserve only four members per candidate."
+  ],
+  "first_pass": [
+    "Capture actual freshwater marsh and tidal wetland baselines at fixed coordinates.",
+    "Correct elevation, tidal-water and saltmarsh identity gates while retaining depth, current, salinity, temperature, soil, canopy and slope constraints.",
+    "Improve reed establishment selectively in supported wetland habitats; do not create uniform monocultures or increase upland density.",
+    "Keep near placement and expected distant cover consistent.",
+    "Verify deterministic IDs, rooted shallow-water placement, unchanged physical terrain/water, unchanged upland packets, actual native visuals and moving performance before acceptance."
+  ],
+  "sources": [
+    "https://research.fs.usda.gov/feis/species-reviews/phraus",
+    "https://plants.sc.egov.usda.gov/DocumentLibrary/plantguide/pdf/pg_phau7.pdf",
+    "https://nas.er.usgs.gov/queries/greatLakes/FactSheet.aspx?HUCNumber=DGreatLakes&Potential=N&Species_ID=2937&Type=0",
+    "https://tpwd.texas.gov/education/resources/aquatic-science/tas/chapters/chapter-10/"
+  ]
+}

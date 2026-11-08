@@ -24,6 +24,18 @@
       "source_capture": "artifacts/landscape-20261103/pond-budget-v1-20261108-pond/pond-waterline.png",
       "source_commit": "23de7d6c",
       "caption": "Accepted shoreline review; later distant-only budget has no near-payload difference."
+    },
+    {
+      "file": "crescent-raking.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\crescent-final-v1-20261108-barchandunes\\dune-raking.png",
+      "source_commit": "d7790f30",
+      "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Performance pending."
+    },
+    {
+      "file": "crescent-face.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\crescent-final-v1-20261108-barchandunes\\dune-face.png",
+      "source_commit": "d7790f30",
+      "caption": "Final crescent field, source139657; actual game capture, Medium. Agent visual acceptance; owner has not reviewed. Performance pending."
     }
   ]
 }
