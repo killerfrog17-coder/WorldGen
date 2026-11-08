@@ -1,0 +1,45 @@
+{
+  "utc": "2026-11-08T09:06:10.856562+00:00",
+  "scope": "Rendering of already detected finite local ponds; physical water/terrain functions unchanged",
+  "world": "artifacts/terrain-surfaces-20261107/playable.world",
+  "history": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+  "state_sha256": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
+  "baseline_failure": {
+    "test": "water-coupling-world",
+    "kind": "Exposed pond edge inside its physical footprint",
+    "tile_m": 3276.8,
+    "segments": 16,
+    "first_edge_local_xz": [
+      2642.000488,
+      1618.000488
+    ],
+    "physical_footprint_m": 62.067,
+    "exposed_edge_height_m": 0.393
+  },
+  "changes": [
+    "Resolve a detected pond descriptor once per mesh, and use its finite boundary even at corners without the body ID",
+    "Visit nearby triangles through grid buckets rather than requiring a wet corner on every triangle",
+    "Add bounded basin ring constraints only where grid spacing undersamples an encountered pond",
+    "Project finite-pond water vertices onto their fixed spherical datum; bound chord error without refining the distant ocean"
+  ],
+  "tests": {
+    "local_pond": {
+      "checks": 138,
+      "max_datum_error_m": 0.001062
+    },
+    "actual_world": {
+      "water_vertices": 8167,
+      "contained_bank_edges": 1004,
+      "outside_exact_footprint_linear_lod": 260,
+      "maximum_reported_level_error_m": 0.042,
+      "maximum_bank_raise_including_dry_surface_detail_m": 0.02,
+      "total_seconds": 44.97
+    },
+    "water_coupling_checks": 241,
+    "alluvial_checks": 8901,
+    "planform_checks": 1032
+  },
+  "test_correction": "The cut-only assertion now excludes independent sub-metre dry-surface detail and admits only the existing bounded 0.4m organic wetland deposition. Actual drawn bank containment assertion remains unchanged.",
+  "status": "Core and presentation checks passed; native visual/loading/performance acceptance pending",
+  "cost_note": "Counterexample coarse tile about 249ms in Debug versus about 55-65ms before, with water triangle count 869. Local background preparation cost, not measured native FPS. No world-wide pond enumeration."
+}

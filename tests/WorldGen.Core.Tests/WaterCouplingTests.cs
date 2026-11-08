@@ -214,7 +214,7 @@ static class WaterCouplingTests
             throw new Exception("No actual drawn land triangle beneath tested water edge");
         }
         int checkedEdges=0;
-        bool Covered(double x,double z,double y,double edgeX,double edgeZ)
+        bool Covered(double x,double z,double y,double edgeX,double edgeZ,double levelTolerance=.005)
         {
             var p=mesh.WaterPositions;var t=mesh.WaterTriangles;
             for(int k=0;k<t.Length;k+=3)
@@ -227,7 +227,7 @@ static class WaterCouplingTests
                 // AT the shared edge. Comparing both side probes to one fixed
                 // height wrongly reports holes on legitimately sloping rivers.
                 double eu=((edgeX-p[a])*cz-(edgeZ-p[a+2])*cx)/det,ev=(bx*(edgeZ-p[a+2])-bz*(edgeX-p[a]))/det;
-                if(u>=-1e-7&&v>=-1e-7&&u+v<=1.0000001&&Math.Abs(p[a+1]+eu*(p[b+1]-p[a+1])+ev*(p[c+1]-p[a+1])-y)<.005)return true;
+                if(u>=-1e-7&&v>=-1e-7&&u+v<=1.0000001&&Math.Abs(p[a+1]+eu*(p[b+1]-p[a+1])+ev*(p[c+1]-p[a+1])-y)<levelTolerance)return true;
             }
             return false;
         }
@@ -248,6 +248,7 @@ static class WaterCouplingTests
                 double dx=p[ib]-p[ia],dz=p[ib+2]-p[ia+2],len=Math.Sqrt(dx*dx+dz*dz);
                 double eps=Math.Min(.01,len*.01);dx=dx/len*eps;dz=dz/len*eps;
                 if(Covered(x-dz,z+dx,y,x,z)&&Covered(x+dz,z-dx,y,x,z))continue;
+                Console.WriteLine($"OPEN EDGE projected coverage left={Covered(x-dz,z+dx,y,x,z,double.PositiveInfinity)} right={Covered(x+dz,z-dx,y,x,z,double.PositiveInfinity)}");
             }
             if(y-ground>.055){trace?.Invoke(x,z,y);throw new Exception($"Exposed lateral water edge {y-ground:F3}m above drawn bed at {x:F3},{z:F3}; tile {mesh.SizeM}/{mesh.Segments}");}
             checkedEdges++;
@@ -297,9 +298,15 @@ static class WaterCouplingTests
                     double x=mesh.EastM+mesh.WaterPositions[k],z=mesh.NorthM+mesh.WaterPositions[k+2];var at=frame.Position(x,z);var s=patch.Sample(at);
                     if(s.ElevationM>s.PreWaterElevationM+.002)
                     {
+                        // PreWater is captured before the independent dry-ground
+                        // surface detail. Test water shaping with that detail
+                        // filtered out, and admit only the model's explicit
+                        // bounded organic deposition in a known wetland hollow.
                         var withoutDetail=patch.SampleMap(at,8.00001);
-                        Console.WriteLine($"RAISE DIAGNOSTIC {site.Item1}: x{x:R} z{z:R}; point{at.X:R},{at.Y:R},{at.Z:R}; kind{s.WaterKind}, underwater{s.Underwater}, footprint{s.WaterFootprintM:R}, mask{s.WaterMaskM:R}; final{s.ElevationM:R}, preWater{s.PreWaterElevationM:R}, withoutDetail{withoutDetail.ElevationM:R}; terrain{LocalTerrain.Version}");
-                        throw new Exception("Water shaping raised terrain instead of cutting its bed: "+site.Item1);
+                        var lake=s.WaterKind==LocalWaterKind.Lake?patch.LocalLakeAt(s.WaterBodyKey,at):null;
+                        double allowedDeposit=lake!=null&&lake.Hummocks?.4:0;
+                        if(withoutDetail.ElevationM>withoutDetail.PreWaterElevationM+allowedDeposit+.002)
+                            throw new Exception($"Unmodelled terrain raising at {site.Item1}: {withoutDetail.ElevationM-withoutDetail.PreWaterElevationM:F4}m, allowed {allowedDeposit}m");
                     }
                     maxRaise=Math.Max(maxRaise,s.ElevationM-s.PreWaterElevationM);
                     tileRaise=Math.Max(tileRaise,s.ElevationM-s.PreWaterElevationM);

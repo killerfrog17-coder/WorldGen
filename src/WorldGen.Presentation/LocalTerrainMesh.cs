@@ -159,7 +159,7 @@ namespace WorldGen.Presentation
             // boundaries, making manufactured cliffs through loaded terrain.
             // Keep the sampled land surface; never extrude those opaque walls.
             var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
-            LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null);
+            LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null,patch==null?null:new Func<ulong,V,SmallLake>(patch.LocalLakeAt));
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
             GroundCoverGrid.ExcludeWater(mesh);
             // Distant vegetation is now a separately culled baked-tree field.

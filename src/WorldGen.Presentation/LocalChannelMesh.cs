@@ -50,6 +50,31 @@ namespace WorldGen.Presentation
                         Edge(ol,pl);Edge(orr,pr);Edge(ol,orr);Edge(pl,pr);
                     }
                 }
+                // A known pond also needs its basin in the drawn land. A coarse
+                // triangle otherwise bridges the hollow, or stays submerged
+                // beyond the finite water outline. Refine only encountered ponds
+                // that are undersampled at this LOD; no neighbourhood survey.
+                var pondIds=new HashSet<ulong>();
+                for(int index=0;index<original.Length;index++)
+                {
+                    var sample=original[index];
+                    if(!sample.Underwater||sample.WaterKind!=LocalWaterKind.Lake||!SmallWaterBodies.IsLocal(sample.WaterBodyKey)||!pondIds.Add(sample.WaterBodyKey))continue;
+                    var point=frame.Position(mesh.EastM+mesh.Positions[index*3],mesh.NorthM+mesh.Positions[index*3+2]);
+                    var lake=patch.LocalLakeAt(sample.WaterBodyKey,point);
+                    if(lake==null||step<=lake.Radius*.2)continue;
+                    V Ring(double angle,double radius)
+                    {
+                        double edge=1+(lake.Hummocks?.115:.07)*Math.Sin(angle*3+lake.Phase)+(lake.Hummocks?.065:.04)*Math.Cos(angle*7-lake.Phase);
+                        double a=Math.Cos(angle)*radius*lake.Radius*edge*lake.Aspect,b=Math.Sin(angle)*radius*lake.Radius*edge;
+                        double c=Math.Cos(lake.Heading),s=Math.Sin(lake.Heading),x=a*c+b*s,z=-a*s+b*c;
+                        return (lake.Center+lake.East*(x/frame.RadiusM)+lake.North*(z/frame.RadiusM)).Unit;
+                    }
+                    void Edge(V a,V b)=>exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});
+                    const int sectors=24;
+                    foreach(double radius in new[]{.65,1.05,1.55})
+                        for(int i=0;i<sectors;i++)Edge(Ring(i*Math.PI*2/sectors,radius),Ring((i+1)*Math.PI*2/sectors,radius));
+                    for(int i=0;i<4;i++)Edge(Ring(i*Math.PI/4,1.55),Ring(i*Math.PI/4+Math.PI,1.55));
+                }
                 source=exact.ToArray();
             }
             if(source.Length==0)return original;
