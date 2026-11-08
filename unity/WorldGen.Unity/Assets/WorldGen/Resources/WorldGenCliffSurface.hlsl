@@ -9,12 +9,8 @@ float3 CliffMeanColour(int layer)
     #endif
     return mean;
 }
-float3 CliffFaceColour(float3 photo,float3 pigment,int layer,float viewDistance)
+float3 CliffFaceColour(float3 photo,float3 pigment)
 {
-    // Preserve the close photograph, suppress recognisable eight-metre repeats
-    // across distant walls. Shared by terrain and meshes, without extra reads.
-    float3 mean=CliffMeanColour(layer);
-    photo=lerp(photo,mean,.88*smoothstep(80,300,viewDistance));
     float lum=max(.015,dot(pigment,float3(.2126,.7152,.0722)));
     float reference=.18;
     #ifdef UNITY_COLORSPACE_GAMMA

@@ -159,7 +159,7 @@ void SurfaceStrata(O i,inout float3 albedo)
         albedo*=lerp(1,tint,exposed);
     }
 }
-void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3 altitude,float viewDistance,inout float3 albedo)
+void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3 altitude,inout float3 albedo)
 {
     float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
     float wall=smoothstep(.06,.38,1-abs(normalize(i.normal).y));
@@ -189,7 +189,7 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3
         grain=CliffMeanColour(cliffLayer);
         [branch]if(wall>.01)
             grain=lerp(grain,CliffFaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world,worldDx,worldDy,altitude,CliffFaceAxes(planetNormal,TerrainUp().xyz),cliffLayer).rgb,wall);
-        albedo=lerp(albedo,CliffFaceColour(grain,albedo,cliffLayer,viewDistance),bare);
+        albedo=lerp(albedo,CliffFaceColour(grain,albedo),bare);
         return;
     }
     else
@@ -302,7 +302,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         if(maskRead){ao=lerp(ao,mask.r,normalDetail);rough=lerp(rough,mask.g,normalDetail);metal=mask.a*normalDetail;}
     }
     SurfaceStrata(i,albedo);
-    if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,cliffAltitude,distance,albedo);
+    if(textures)SurfaceRockWeathering(i,world,worldDx,worldDy,cliffAltitude,albedo);
     SurfaceSaltCrust(i,world,distance,farColor,albedo,n,rough);
     if(TerrainTest(TD_MASKS)){ao=.9;rough=.85;metal=0;}
     float cover=saturate(i.color.a);
