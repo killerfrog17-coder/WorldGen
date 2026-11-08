@@ -18,6 +18,8 @@ if(args.Contains("--glacial-trough-world")){GlacialValleyTests.World(args[1],arg
 if(args.Contains("--granite-domes")){GraniteDomeTests.Run();return;}
 if(args.Contains("--granite-dome-world")){GraniteDomeTests.World(args[1],args[2]);return;}
 if(args.Contains("--local-lake-water")){LocalLakeWaterTests.Run();return;}
+if(args.Contains("--dune-form-controls")){DuneFormTests.Run();return;}
+if(args.Contains("--dune-climate-survey")){DuneFormTests.Survey(args[1],args[2]);return;}
 if(args.Contains("--water-mesh-edge")){LocalLakeWaterTests.ReviewMesh(args[1],double.Parse(args[2]),double.Parse(args[3]));return;}
 if(args.Contains("--water-edge-probe")){LocalLakeWaterTests.ProbeEdge(args[1],args[2],args[3]);return;}
 if(args.Contains("--river-section-review")){RiverSectionReview.Run(args[1],int.Parse(args[2]),args[3],args.Contains("--require-continuity"));return;}

@@ -1,0 +1,45 @@
+{
+  "utc": "2026-11-08T10:21:04.662686+00:00",
+  "status": "Unhooked prototype; no terrain or visuals changed by these forms yet",
+  "goal": "Distinct realistic finite crescent and star dunes alongside existing transverse ridges, with stable geographic scale and no new render pass",
+  "placement": "Use sand availability, aridity, vegetation/frozen gates, and measured seasonal wind directional variability. Survey current world before selecting actual native sites. Existing stable world charts retain orientation; exact palaeowind alignment is not implemented.",
+  "forms": {
+    "barchans": {
+      "grid_m": 520,
+      "height_m": [
+        12,
+        37
+      ],
+      "morphology": "Long gentle stoss, bounded steep lee, two lower downwind horns, irregular finite feature placement"
+    },
+    "stars": {
+      "grid_m": 2400,
+      "height_m": [
+        75,
+        185
+      ],
+      "morphology": "One continuous summit and three descending ridges with finite support"
+    },
+    "transverse": "Retain existing approved sharp ridges and scale where sand supply and wind regime favor them"
+  },
+  "tests": {
+    "count": 11723,
+    "max_sampled_barchan_slope_degrees": 27.0,
+    "checks": [
+      "Finite support and bounds",
+      "Wind/axial/multidirectional classification",
+      "Crescent horns and long stoss versus short lee",
+      "Continuous star summit and three arms",
+      "Grid-boundary continuity and seed variation"
+    ]
+  },
+  "next": [
+    "Compile and run seasonal-wind survey after current worker test exits",
+    "Require river/pond performance checkpoint before terrain integration",
+    "Integrate climate regime as a blended scalar, avoid variable local phases that distort wavelength",
+    "Inspect actual-game figures, native roots/water/LOD seams and moving performance before acceptance"
+  ],
+  "references": [
+    "https://www.nps.gov/grsa/learn/nature/dune-types.htm"
+  ]
+}
