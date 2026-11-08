@@ -1,10 +1,10 @@
 {
   "utc": "2026-11-08T14:15:37.463433+00:00",
-  "status": "Habitat/native checks passed; cb76798f density revision failed moving performance gate. Protected A9cb remains selected. Far reed simplification a9be972d requires matched controlled measurement before promotion.",
+  "status": "Balanced twofold establishment 1eebf924:93controls and71874actualworld checks passed;9 current physical/water packet comparisons exact. Native appearance and moving performance still pending; protected A9cb remains selected.",
   "versions": {
-    "terrain": 73,
+    "terrain": 74,
     "amplification": 64,
-    "scatter": 42,
+    "scatter": 43,
     "wire": 10
   },
   "changes": [
@@ -23,8 +23,8 @@
     "landscape_regression": 35902,
     "pond_regression": 138,
     "world": {
-      "checks": 128215,
-      "ElapsedSeconds": 17.5953385,
+      "checks": 71874,
+      "ElapsedSeconds": 46.2135667,
       "WorldHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
       "Sites": [
         {
@@ -39,9 +39,9 @@
           "Ground": 38.239,
           "Water": 37.90761243790032,
           "Pages": 9,
-          "Instances": 7877,
-          "Reeds": 7835,
-          "Submerged": 21,
+          "Instances": 5033,
+          "Reeds": 4986,
+          "Submerged": 18,
           "LowTidal": 0,
           "MaximumDepth": 0.606612437900317
         },
@@ -57,29 +57,29 @@
           "Ground": 0.35,
           "Water": 0,
           "Pages": 9,
-          "Instances": 21634,
-          "Reeds": 12633,
-          "Submerged": 2182,
-          "LowTidal": 5378,
-          "MaximumDepth": 0.915
+          "Instances": 15765,
+          "Reeds": 6624,
+          "Submerged": 1106,
+          "LowTidal": 2891,
+          "MaximumDepth": 0.899
         },
         {
           "Name": "tidal-saltmarsh",
           "Position": {
-            "X": 0.478267085,
-            "Y": 0.157847613,
-            "Z": 0.863912453
+            "X": -0.706693401,
+            "Y": 0.391780253,
+            "Z": -0.589145712
           },
-          "Cell": 186179,
+          "Cell": 40722,
           "Biome": "SaltMarsh",
           "Ground": 0.651,
           "Water": 0,
           "Pages": 9,
-          "Instances": 15240,
-          "Reeds": 13863,
-          "Submerged": 1422,
-          "LowTidal": 10436,
-          "MaximumDepth": 0.724
+          "Instances": 7141,
+          "Reeds": 6561,
+          "Submerged": 528,
+          "LowTidal": 4398,
+          "MaximumDepth": 0.706
         }
       ]
     },
@@ -146,7 +146,68 @@
         "Biome": "SaltMarsh"
       }
     ],
-    "physical_reference71_status": "36/36 complete geometry+water packets exact for final73 with explicit surface-attribute exclusions only. Concurrent proof timings are not performance evidence."
+    "physical_reference71_status": "36/36 complete geometry+water packets exact for final73 with explicit surface-attribute exclusions only. Concurrent proof timings are not performance evidence.",
+    "sixfold_world": {
+      "checks": 128215,
+      "ElapsedSeconds": 17.5953385,
+      "WorldHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
+      "Sites": [
+        {
+          "Name": "warm-marsh",
+          "Position": {
+            "X": -0.4774612,
+            "Y": 0.654411578,
+            "Z": -0.586324388
+          },
+          "Cell": 41358,
+          "Biome": "Marsh",
+          "Ground": 38.239,
+          "Water": 37.90761243790032,
+          "Pages": 9,
+          "Instances": 7877,
+          "Reeds": 7835,
+          "Submerged": 21,
+          "LowTidal": 0,
+          "MaximumDepth": 0.606612437900317
+        },
+        {
+          "Name": "tidal-mangrove",
+          "Position": {
+            "X": -0.876238281,
+            "Y": 0.404683964,
+            "Z": -0.261605362
+          },
+          "Cell": 73759,
+          "Biome": "Mangrove",
+          "Ground": 0.35,
+          "Water": 0,
+          "Pages": 9,
+          "Instances": 21634,
+          "Reeds": 12633,
+          "Submerged": 2182,
+          "LowTidal": 5378,
+          "MaximumDepth": 0.915
+        },
+        {
+          "Name": "tidal-saltmarsh",
+          "Position": {
+            "X": 0.478267085,
+            "Y": 0.157847613,
+            "Z": 0.863912453
+          },
+          "Cell": 186179,
+          "Biome": "SaltMarsh",
+          "Ground": 0.651,
+          "Water": 0,
+          "Pages": 9,
+          "Instances": 15240,
+          "Reeds": 13863,
+          "Submerged": 1422,
+          "LowTidal": 10436,
+          "MaximumDepth": 0.724
+        }
+      ]
+    }
   },
   "sources": [
     "https://research.fs.usda.gov/feis/species-reviews/phraus",
@@ -695,5 +756,268 @@
     ],
     "conditions": "45s, 180m loop+whip, strict actual submerged starts, Medium1080/6km/Borderless, all focused. Additional CPU/GPU/presentation cost; do not attribute all timing to reed geometry.",
     "decision": "DO NOT PROMOTE cb76798f: freshwater 374->273, mangrove398->281, saltmarsh517->268 FPS."
-  }
+  },
+  "establishment_boost": 2,
+  "density_decision": "Sixfold establishment was experimental and is retired after the rendering comparisons. Retain habitat/salinity/rooting corrections with a smaller twofold weighting, original candidate grid and colony/ID budget.",
+  "balanced_physical_proof": {
+    "count": 9,
+    "normalization": "BuildMilliseconds plus six land surface attribute arrays only; land positions/normals/indices/bounds/lithology and complete water payload retained. Timings competed with packaging; hashes only, no cost/gain claim.",
+    "sites": [
+      {
+        "site": "warm-marsh-water",
+        "rows": [
+          {
+            "Kind": "terrain",
+            "East": 0,
+            "North": 0,
+            "Size": 102.4,
+            "Segments": 64,
+            "ElapsedMs": 314.2754,
+            "CpuMs": 328.125,
+            "BuildMilliseconds": 306.2151,
+            "ExpectedCurrentBuildMs": 428.3924,
+            "Vertices": 4225,
+            "WaterVertices": 23,
+            "CurrentVertices": 4225,
+            "CurrentWaterVertices": 23,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "e17624a477a3077f4078fe2a27403b40311575f7031c6aac7072b2a00440455f",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          },
+          {
+            "Kind": "terrain",
+            "East": -1024,
+            "North": -1024,
+            "Size": 409.6,
+            "Segments": 32,
+            "ElapsedMs": 107.8235,
+            "CpuMs": 125,
+            "BuildMilliseconds": 107.0381,
+            "ExpectedCurrentBuildMs": 136.3492,
+            "Vertices": 1355,
+            "WaterVertices": 268,
+            "CurrentVertices": 1355,
+            "CurrentWaterVertices": 268,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "00e9ca81a254844f51bda9839c5e3310edb8ebfa866ddd55654306033f651697",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          },
+          {
+            "Kind": "terrain",
+            "East": 0,
+            "North": 2048,
+            "Size": 819.2,
+            "Segments": 32,
+            "ElapsedMs": 115.8857,
+            "CpuMs": 218.75,
+            "BuildMilliseconds": 115.3546,
+            "ExpectedCurrentBuildMs": 156.9357,
+            "Vertices": 1128,
+            "WaterVertices": 27,
+            "CurrentVertices": 1128,
+            "CurrentWaterVertices": 27,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "b1ca842b369014921f5d3cd305a9dd04507e9fa321a8ce62137997802eead075",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          }
+        ]
+      },
+      {
+        "site": "mangrove-water",
+        "rows": [
+          {
+            "Kind": "terrain",
+            "East": 0,
+            "North": 0,
+            "Size": 102.4,
+            "Segments": 64,
+            "ElapsedMs": 211.8079,
+            "CpuMs": 218.75,
+            "BuildMilliseconds": 203.4648,
+            "ExpectedCurrentBuildMs": 300.4387,
+            "Vertices": 4225,
+            "WaterVertices": 4224,
+            "CurrentVertices": 4225,
+            "CurrentWaterVertices": 4224,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "a949de9be633b0bfb5b32d90f11ea9a5e541819f1e0de65e0728cfde917b4fec",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          },
+          {
+            "Kind": "terrain",
+            "East": -1024,
+            "North": -1024,
+            "Size": 409.6,
+            "Segments": 32,
+            "ElapsedMs": 74.7734,
+            "CpuMs": 62.5,
+            "BuildMilliseconds": 73.9365,
+            "ExpectedCurrentBuildMs": 111.3685,
+            "Vertices": 1387,
+            "WaterVertices": 340,
+            "CurrentVertices": 1387,
+            "CurrentWaterVertices": 340,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "7a1055c1f285986314b637768517971312d63e6e67ec650e23896b6878ae15c5",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          },
+          {
+            "Kind": "terrain",
+            "East": 0,
+            "North": 2048,
+            "Size": 819.2,
+            "Segments": 32,
+            "ElapsedMs": 51.2869,
+            "CpuMs": 46.875,
+            "BuildMilliseconds": 50.7157,
+            "ExpectedCurrentBuildMs": 68.2333,
+            "Vertices": 1089,
+            "WaterVertices": 1145,
+            "CurrentVertices": 1089,
+            "CurrentWaterVertices": 1145,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "67c83c65054c8d8c147ffa58c00b67dfdd418b7a63fecfff60ed0db9054a2413",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          }
+        ]
+      },
+      {
+        "site": "saltmarsh-water",
+        "rows": [
+          {
+            "Kind": "terrain",
+            "East": 0,
+            "North": 0,
+            "Size": 102.4,
+            "Segments": 64,
+            "ElapsedMs": 225.3861,
+            "CpuMs": 250,
+            "BuildMilliseconds": 216.3647,
+            "ExpectedCurrentBuildMs": 298.1528,
+            "Vertices": 5190,
+            "WaterVertices": 687,
+            "CurrentVertices": 5190,
+            "CurrentWaterVertices": 687,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "f1053a080c8f1e2c62a744cfc98c63978a44784fe601ebf6760f39c35180a0a1",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          },
+          {
+            "Kind": "terrain",
+            "East": -1024,
+            "North": -1024,
+            "Size": 409.6,
+            "Segments": 32,
+            "ElapsedMs": 25.399,
+            "CpuMs": 46.875,
+            "BuildMilliseconds": 24.877,
+            "ExpectedCurrentBuildMs": 43.7882,
+            "Vertices": 1089,
+            "WaterVertices": 1091,
+            "CurrentVertices": 1089,
+            "CurrentWaterVertices": 1091,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "e226eb4d59b084cf74a4c0d8b97e53c6afb0c8a87a68fb3879e82d00b797da5b",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          },
+          {
+            "Kind": "terrain",
+            "East": 0,
+            "North": 2048,
+            "Size": 819.2,
+            "Segments": 32,
+            "ElapsedMs": 115.342,
+            "CpuMs": 109.375,
+            "BuildMilliseconds": 114.9216,
+            "ExpectedCurrentBuildMs": 166.0696,
+            "Vertices": 1089,
+            "WaterVertices": 1053,
+            "CurrentVertices": 1089,
+            "CurrentWaterVertices": 1053,
+            "CurrentPayloadMatches": true,
+            "CurrentDifferences": [],
+            "BankBoundaryError": null,
+            "PayloadSha256": "646615b814bb206497b95f19ec076aab0aa641b0ad1aa7ee2bc26fd876a6a911",
+            "ExactCurrentPayload": null,
+            "ExactPhysicalPayload": null,
+            "ExactGeometryWaterPayload": true,
+            "SurfaceAttributesExcluded": true,
+            "TerrainRgbExcluded": true,
+            "ChangedRgbComponents": 0,
+            "MaxRgbDelta": 0
+          }
+        ]
+      }
+    ]
+  },
+  "rendering_changes": [
+    "Far reeds:12vertices/6triangles instead of seven tubular stems and segmented leaves.",
+    "Share one close stem arrangement per species; per-instance yaw/scale/tint/wind remain.",
+    "Share the distant reed silhouette across species while retaining species pigment in instance colour.",
+    "No new textures, shader passes or per-frame simulation."
+  ]
 }
