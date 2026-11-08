@@ -50,7 +50,7 @@ def build(manifest, output):
             c.showPage()
         c.setFillColor(green)
         c.rect(0, h-7, w, 7, fill=1, stroke=0)
-        paragraph('WORLDGEN  /  GEOGRAPHY REVIEW  /  ' + data['date'], margin, h-27, usable, 8, True, green)
+        paragraph('WORLDGEN  /  ' + data.get('section', 'GEOGRAPHY REVIEW') + '  /  ' + data['date'], margin, h-27, usable, 8, True, green)
         paragraph(entry['title'], margin, h-48, usable, 24, True)
         y = paragraph(entry.get('subtitle', ''), margin, h-82, usable, 10, color=muted) - 18
         c.setStrokeColor(line)

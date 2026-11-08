@@ -73,14 +73,17 @@ public sealed partial class WorldGenRuntime
             session.Validate();return session;
         });
     }
-    void DrawWorldEntry()
+    void PollWorldEntry()
     {
         if(worldEntryWork?.IsCompleted==true)
         {
             var work=worldEntryWork;worldEntryWork=null;
-            if(work.IsFaulted)worldEntryError=work.Exception.GetBaseException().Message;
+            if(work.IsFaulted){worldEntryError=work.Exception.GetBaseException().Message;Debug.LogWarning("World entry: "+worldEntryError);}
             else{play=work.Result;worldEntryOpen=false;RequestTerrain();return;}
         }
+    }
+    void DrawWorldEntry()
+    {
         float width=Math.Min(470,Screen.width-32),height=play.HasPlayer?360:310;var rect=new Rect((Screen.width-width)*.5f,(Screen.height-height)*.5f,width,height);MenuCard(rect);
         GUILayout.BeginArea(new Rect(rect.x+26,rect.y+22,rect.width-52,rect.height-44));GUILayout.Label("ENTER WORLD",TitleStyle(26));GUILayout.Space(14);
         GUI.enabled=worldEntryWork==null&&humanStep==null;

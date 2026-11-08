@@ -334,6 +334,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     {
         PollSimulationRenderBudget();
         if(Keyboard.current!=null&&Keyboard.current.f11Key.wasPressedThisFrame)SetFullscreen(!Screen.fullScreen);
+        PollWorldEntry();
         UpdateMusic();HandleQuickSave(Keyboard.current,Application.isFocused);
         if(terrainExplorer!=null){PollHumans();return;}if(terrainReturnFrame==Time.frameCount)return;
         if(continueLoadedGame&&humans!=null&&!Busy&&humanStep==null){continueLoadedGame=false;RequestTerrain();}

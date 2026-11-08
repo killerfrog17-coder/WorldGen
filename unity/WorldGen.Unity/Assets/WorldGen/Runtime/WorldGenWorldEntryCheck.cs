@@ -12,20 +12,20 @@ public sealed partial class WorldGenRuntime
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
         var report=new List<string>();
-        void Check(bool ok,string text){if(!ok){Debug.LogError("ENTRY CHECK "+text);Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);}
+        void Check(bool ok,string text){if(!ok){Debug.LogError("ENTRY CHECK "+text);Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);Debug.Log("ENTRY PASS "+text);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
         while((Busy||!worldReady||humans==null||humanStep!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(worldReady&&!Busy&&humanStep==null,"existing saved world is ready");humanPlaying=false;
-        ChooseWorldEntry();yield return null;yield return new WaitForEndOfFrame();
+        ChooseWorldEntry();Check(worldEntryOpen,"entry choices open");yield return new WaitForSecondsRealtime(2);yield return new WaitForEndOfFrame();
         var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"entry-options.png"),image.EncodeToPNG());Destroy(image);
-        StartWorldEntry(false);deadline=Time.realtimeSinceStartupAsDouble+240;
-        while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        StartWorldEntry(false);Check(worldEntryWork!=null,"creative selection starts its background task");deadline=Time.realtimeSinceStartupAsDouble+240;
+        while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline){if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;}
         Check(terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.CenterReady,"random-land entry loads actual ground");
         Check(play.Identity==null&&play.Mode==GameMode.Creative&&terrainExplorer.IsWalking==false,"random-land entry uses Creative flight and no NPC identity");
         terrainExplorer.Capture(Path.Combine(output,"creative-land.png"));
         ReturnFromPlay("Simulation");while(terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
-        ChooseWorldEntry();StartWorldEntry(true);deadline=Time.realtimeSinceStartupAsDouble+240;
-        while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        ChooseWorldEntry();StartWorldEntry(true);Check(worldEntryWork!=null,"resident selection starts its background task");deadline=Time.realtimeSinceStartupAsDouble+240;
+        while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline){if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;}
         Check(terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.CenterReady,"resident entry loads actual ground");
         Check(play.Identity!=null&&play.Mode==GameMode.Survival&&terrainExplorer.IsWalking,"resident starts in Survival");
         long identity=play.Identity.Person.Id,group=play.Identity.Group;
@@ -44,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public IEnumerator CheckControlledResident(string output,List<string> report,bool capture=true)
     {
-        void Check(bool ok,string text){if(!ok){Debug.LogError("RESIDENT CHECK "+text);Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);}
+        void Check(bool ok,string text){if(!ok){Debug.LogError("RESIDENT CHECK "+text);Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);Debug.Log("ENTRY PASS "+text);}
         var identity=PlayerRules.Identity;
         double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((humanPlayer==null||!livingGroups.ContainsKey(identity.Group)||humanNpcs.All(p=>p.GroupId!=identity.Group))&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
