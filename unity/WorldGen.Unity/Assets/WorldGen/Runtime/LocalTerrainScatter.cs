@@ -33,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
     Texture2DArray treeLeaves;
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
     readonly Dictionary<int,V> treePigments=new Dictionary<int,V>();
+    readonly Dictionary<int,V> reedFarPigments=new Dictionary<int,V>();
     readonly Dictionary<Shader,bool> treeSurfaceShaders=new Dictionary<Shader,bool>();
     bool IsTreeSurfaceShader(Shader shader)
     {
@@ -41,6 +42,7 @@ public sealed partial class LocalTerrainExplorer
         return matches;
     }
     V TreePigment(int code){code&=~7;if(!treePigments.TryGetValue(code,out var pigment)){pigment=new TreeMorphology(code).Leaf;treePigments.Add(code,pigment);}return pigment;}
+    V ReedFarPigment(int code){code&=~(3|MidFlora.TidalEmergentBit);if(!reedFarPigments.TryGetValue(code,out var pigment)){pigment=new MidMorphology(code).Leaf;reedFarPigments.Add(code,pigment);}return pigment;}
     sealed class GroundChanges : HashSet<TerrainTileKey>
     {
         readonly Dictionary<TerrainTileKey,TerrainHeightChange> partial=new Dictionary<TerrainTileKey,TerrainHeightChange>();
@@ -707,11 +709,13 @@ public sealed partial class LocalTerrainExplorer
         if(casts&&!MayCastVisibleShadow(chunk.Bounds[index],scatterEye))casts=false;
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
-        // The low two bits select close structural variants, not species or
-        // colour. Share the tiny distant reed silhouette so four equivalent
-        // variants can join one instanced draw; roots/scales/rotations remain.
-        if(p.Kind==ScatterKind.MidPlant&&lod==2&&!WorldGenPerformance.LegacyReedFar&&
-            ((variant>>27)&7)==(int)MidGrowthForm.ReedStand)variant&=~3;
+        // All distant reeds use the same tiny silhouette. Keep each species'
+        // pigment in the instance tint, as with shared distant tree models.
+        // This changes neither their identities nor roots/scales/rotations.
+        bool sharedReed=p.Kind==ScatterKind.MidPlant&&lod==2&&!WorldGenPerformance.LegacyReedFar&&
+            ((variant>>27)&7)==(int)MidGrowthForm.ReedStand;
+        int reedSpecies=variant;
+        if(sharedReed)variant=(int)MidGrowthForm.ReedStand<<27;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         // Shadow eligibility varies with distance even within one model/LOD.
         // The old key inherited the first member's shadow mode for the entire
@@ -739,6 +743,8 @@ public sealed partial class LocalTerrainExplorer
             treeWindRoots.Add(new TreeWindRoot{PositionFlex=new Vector4(m.m03,m.m13,m.m23,batch.WindFlex),HeightAxis=new Vector4(m.m01,m.m11,m.m21,0)});
         }
         batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
+        if(sharedReed)
+        {var actual=ReedFarPigment(reedSpecies);var shared=ReedFarPigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/shared.X),(float)(p.Color.Y*actual.Y/shared.Y),(float)(p.Color.Z*actual.Z/shared.Z),1);}
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&lod==2)
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;

@@ -22,7 +22,14 @@ static class LocalLakeWaterTests
             V side=(span.SideA*(1-u)+span.SideB*u).Unit;
             V bank=(span.A*(1-u)+span.B*u+side*(Math.Sign(Dot(p,side))*(width+2)/radius)).Unit;
             var bed=patch.SampleMap(bank,129);
-            rows.Add((Math.Abs(distance-width-2),new{span.Reach,span.Receiver,span.From,span.To,U=u,Distance=distance,Width=width,span.WidthA,span.WidthB,span.LevelA,span.LevelB,Primitive=span.Primitive.ToString(),BankOriginal=bed.ElevationM,OriginalAtPoint=raw.ElevationM,ActualAtPoint=physical.ElevationM}));
+                var crossBank=new List<object>();
+                foreach(double extra in new[]{0d,2,4,8,16,32,64,128})for(int sign=-1;sign<=1;sign+=2)
+                {
+                    V probe=(span.A*(1-u)+span.B*u+side*(sign*(width+extra)/radius)).Unit;
+                    var natural=patch.SampleMap(probe,129);var coupled=patch.Sample(probe);
+                    crossBank.Add(new{ExtraM=extra,Side=sign,NaturalM=natural.ElevationM,CoupledM=coupled.ElevationM,Water=coupled.WaterKind.ToString()});
+                }
+                rows.Add((Math.Abs(distance-width-2),new{span.Reach,span.Receiver,span.From,span.To,U=u,Distance=distance,Width=width,span.WidthA,span.WidthB,span.LevelA,span.LevelB,Primitive=span.Primitive.ToString(),BankOriginal=bed.ElevationM,OriginalAtPoint=raw.ElevationM,ActualAtPoint=physical.ElevationM,CrossBank=crossBank}));
         }
         var selected=rows.OrderBy(r=>r.distance).Take(12).Select(r=>r.value).ToArray();
         File.WriteAllText(output,JsonSerializer.Serialize(selected,new JsonSerializerOptions{WriteIndented=true}));

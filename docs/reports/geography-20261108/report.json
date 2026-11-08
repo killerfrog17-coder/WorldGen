@@ -100,6 +100,49 @@
       ]
     },
     {
+      "title": "Wetlands with rooted emergents",
+      "subtitle": "Freshwater reed beds and salt-tolerant tidal grasses/rushes",
+      "blocks": [
+        {
+          "text": "Wetland plants can now root in shallow water and below the previous two-metre elevation cutoff. Coastal variants use tidal habitat and salinity limits, with grass/rush shapes instead of freshwater cattail heads. Depth, current, temperature, soil and canopy constraints remain."
+        },
+        {
+          "images": [
+            {
+              "file": "wetland-fresh-before.jpg",
+              "caption": "Earlier freshwater shoreline."
+            },
+            {
+              "file": "wetland-fresh-after.jpg",
+              "caption": "More emergent stands in the same freshwater setting."
+            }
+          ],
+          "max_height": 180
+        },
+        {
+          "images": [
+            {
+              "file": "tidal-water-before.jpg",
+              "caption": "Earlier mangrove waterline."
+            },
+            {
+              "file": "tidal-water-after.jpg",
+              "caption": "Coastal emergents at the same camera and waterline."
+            }
+          ],
+          "max_height": 180
+        },
+        {
+          "text": "Terrain and water geometry are unchanged in the paired packet checks. The existing plant candidate grid is retained. Denser establishment adds instances, so performance remains an acceptance gate; this draft is not a claim that the candidate is on the shortcut.",
+          "size": 9
+        },
+        {
+          "text": "Art remains basic. This is a habitat/placement correction, not a finished wetland art overhaul.",
+          "size": 9
+        }
+      ]
+    },
+    {
       "title": "Performance and limits",
       "subtitle": "Moving tests, explicit conditions, and unfinished work",
       "blocks": [
