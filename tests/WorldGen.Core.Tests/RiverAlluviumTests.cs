@@ -31,6 +31,24 @@ static class RiverAlluviumTests
         }
         Check(RiverAlluvium.Deposit(100,120,2,1,1)==0,"High valley walls are not painted as sand banks");
         Check(RiverAlluvium.Deposit(100,100,2,2,1)==0,"Depositional material has finite lateral support");
+        const double radius=637100;
+        var points=Enumerable.Range(0,8).Select(i=>new V(1,i*80/radius,Math.Sin(i*.9)*45/radius).Unit).ToArray();
+        var sides=Enumerable.Range(0,8).Select(i=>V.Cross(points[i],points[Math.Min(7,i+1)]-points[Math.Max(0,i-1)]).Unit).ToArray();
+        var sections=Enumerable.Range(0,7).Select(i=>new RiverscapeSpan{A=points[i],B=points[i+1],SideA=sides[i],SideB=sides[i+1],
+            LevelA=100-i*.05,LevelB=100-(i+1)*.05,WidthA=12,WidthB=12,Bend=.04,Primitive=i%2==0?RiverFlowPrimitive.Calm:RiverFlowPrimitive.Turbulent}).ToArray();
+        var allCalm=(RiverscapeSpan[])sections.Clone();for(int i=0;i<allCalm.Length;i++)allCalm[i].Primitive=RiverFlowPrimitive.Calm;
+        RiverAlluvium.PrepareBanks(sections,radius,.8);RiverAlluvium.PrepareBanks(allCalm,radius,.8);
+        for(int i=0;i<sections.Length;i++)
+        {
+            Check(sections[i].AlluviumA==allCalm[i].AlluviumA&&sections[i].AlluviumB==allCalm[i].AlluviumB,"Changing only flow animation category cannot change the riverbed's bank profile");
+            if(i>0)Check(sections[i-1].AlluviumB==sections[i].AlluviumA&&sections[i-1].BankBendB==sections[i].BankBendA,"Adjacent sections share the exact same bank strength and bend");
+        }
+        Check(sections[3].Alluvium>.5,"Calm/turbulent transitions retain nonzero deposition where the physical grade allows it");
+        Check(sections[0].AlluviumA==0&&sections[^1].AlluviumB==0,"Bar profiles retire at the actual drainage endpoints");
+        sections[3].Primitive=RiverFlowPrimitive.Waterfall;RiverAlluvium.PrepareBanks(sections,radius,.8);
+        Check(sections[2].AlluviumB==0&&sections[3].AlluviumA==0&&sections[3].AlluviumB==0&&sections[4].AlluviumA==0,"Neighbouring banks taper continuously to zero at a real waterfall");
+        string unconfined=StateHash.Compute(allCalm);RiverAlluvium.PrepareBanks(allCalm,radius,0);
+        Check(StateHash.Compute(allCalm)==unconfined,"An ineligible reach retains its existing profiles exactly");
         var ground=new GroundProfile{Sand=.4,Clay=.3,Silt=.3,Gravel=.1,Organic=.12,DepthM=1,Drainage=.5};
         var cover=new GroundCoverProfile{Grasses=new V(.8,0,0)};var mid=new MidCoverProfile{Coverage=.7};var forest=new ForestCoverProfile{Coverage=.6};
         string before=StateHash.Compute(new object[]{ground,cover,mid,forest});
@@ -48,7 +66,7 @@ static class RiverAlluviumTests
         var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);double physical=model.RadiusM*.1;
         var candidates=model.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<180&&c.StartM>15&&c.StartM<1800&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
             .OrderBy(c=>Rng.Mix(unchecked((uint)c.From^(uint)world.Recipe.Seed))).Take(48);
-        var examples=new List<object>();int spansChecked=0,wetCenters=0,bars=0;double best=0;V bestSite=default,vegetationSite=default;
+        var examples=new List<object>();int spansChecked=0,wetCenters=0,bars=0,bestReach=-1;double best=0;V bestSite=default,vegetationSite=default;
         foreach(var channel in candidates)
         {
             var spans=model.Amplification.RiverReach(channel.From);
@@ -66,18 +84,22 @@ static class RiverAlluviumTests
                     bars++;double score=(sample.ElevationM-sample.WaterSurfaceM)*Math.Sqrt(width);
                     if(vegetationSite.Length<.1)vegetationSite=at;
                     if(examples.Count<16)examples.Add(new{Reach=channel.From,Position=new{at.X,at.Y,at.Z},WidthM=width*2,Height=sample.ElevationM-sample.WaterSurfaceM,Ground=sample.Ground.TextureName,sample.Forest.Coverage});
-                    if(score>best){best=score;bestSite=at;}
+                    if(score>best){best=score;bestSite=at;bestReach=channel.From;}
                 }
             }
         }
         if(spansChecked<10||wetCenters<spansChecked*.9||bars==0)throw new Exception($"Actual alluvial channels incomplete: {spansChecked} spans, {wetCenters} wet centers, {bars} exposed bars");
         var barSample=model.Patch(bestSite,10000).Sample(bestSite);
+        Console.WriteLine($"Selected bar on reach {bestReach}: {bestSite.X:R},{bestSite.Y:R},{bestSite.Z:R}");
         var frame=new LocalTerrainFrame(bestSite,model.RadiusM,barSample.ElevationM,.1);int bankEdges=0;
         foreach(var shape in new[]{(size:102.4,segments:64),(size:204.8,segments:32),(size:3276.8,segments:16)})
         {
             var mesh=LocalTerrainMesh.Build(model,frame,-shape.size/2,-shape.size/2,shape.size,shape.segments);
             if(!mesh.WaterPositions.All(float.IsFinite)||mesh.WaterTriangles.Length==0)throw new Exception("Actual point-bar mesh lacks finite water");
-            bankEdges+=WaterCouplingTests.ContainedBoundary(mesh);
+            bankEdges+=WaterCouplingTests.ContainedBoundary(mesh,trace:(x,z,y)=>{
+                var at=frame.Position(mesh.EastM+x,mesh.NorthM+z);var edge=model.Patch(at,3000).Sample(at);
+                Console.WriteLine($"OPEN ALLUVIAL EDGE {x:R},{z:R},{y:R}; actual {at.X:R},{at.Y:R},{at.Z:R}; {edge.WaterKind}/{edge.WaterBodyKey}, physical ground {edge.ElevationM:R}, water {edge.WaterSurfaceM:R}, footprint {edge.WaterFootprintM:R}, wet {edge.Underwater}");
+            });
         }
         var scatter=new LocalScatter(model);var scatterPatch=model.Patch(vegetationSite,20000);int plants=0;
         foreach(bool detail in new[]{false,true})foreach(var plant in scatter.Build(scatter.Address(vegetationSite,detail)).Instances)

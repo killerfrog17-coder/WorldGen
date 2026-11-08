@@ -1,0 +1,109 @@
+{
+  "utc": "2026-11-08T09:23:45.412025+00:00",
+  "status": "Unbuilt candidate; native and performance acceptance pending. Broader alluvial fixture found an open water edge under investigation.",
+  "changes": [
+    "Prepare bank strengths on shared stations after final water-profile fitting",
+    "Use continuous local grade and tapering at true waterfalls instead of the calm/turbulent animation category",
+    "Interpolate bed depth, bend and bank strength in the same paired section coordinates as water elevation",
+    "Retire duplicate earlier bank preparation; no added terrain queries, draw passes or simulation ticks"
+  ],
+  "measurements": [
+    {
+      "reach": 115180,
+      "sections": 62,
+      "sample_separation_m": 0.1,
+      "before_max_ground_difference_m": 4.798000000000002,
+      "after_max_ground_difference_m": 0.030000000000001137,
+      "after_max_water_difference_m": 0.0009551005927050937,
+      "before_largest_rows": [
+        {
+          "Index": 37,
+          "Q": -0.4,
+          "GroundJump": 4.798000000000002,
+          "WaterJump": 0.0007163845512252465,
+          "Before": {
+            "ElevationM": 173.735,
+            "WaterSurfaceM": 178.8654217590102,
+            "Kind": "River"
+          },
+          "After": {
+            "ElevationM": 168.937,
+            "WaterSurfaceM": 178.86470537445896,
+            "Kind": "River"
+          }
+        },
+        {
+          "Index": 16,
+          "Q": 0.4,
+          "GroundJump": 4.7949999999999875,
+          "WaterJump": 0.0004854733050763116,
+          "Before": {
+            "ElevationM": 183.998,
+            "WaterSurfaceM": 185.1248354475439,
+            "Kind": "River"
+          },
+          "After": {
+            "ElevationM": 179.203,
+            "WaterSurfaceM": 185.1243499742388,
+            "Kind": "River"
+          }
+        }
+      ],
+      "after_diagnostic_rows": 0
+    },
+    {
+      "reach": 143549,
+      "sections": 259,
+      "sample_separation_m": 0.1,
+      "before_max_ground_difference_m": 0.3690000000000282,
+      "after_max_ground_difference_m": 0.033999999999991815,
+      "after_max_water_difference_m": 0.008226767464634577,
+      "before_largest_rows": [
+        {
+          "Index": 226,
+          "Q": 0.4,
+          "GroundJump": 0.3690000000000282,
+          "WaterJump": 0.0004751626420329558,
+          "Before": {
+            "ElevationM": 543.559,
+            "WaterSurfaceM": 546.2473551652008,
+            "Kind": "River"
+          },
+          "After": {
+            "ElevationM": 543.928,
+            "WaterSurfaceM": 546.2468800025588,
+            "Kind": "River"
+          }
+        },
+        {
+          "Index": 226,
+          "Q": -0.4,
+          "GroundJump": 0.3689999999999145,
+          "WaterJump": 0.0004760725930736953,
+          "Before": {
+            "ElevationM": 544.103,
+            "WaterSurfaceM": 546.2473573573336,
+            "Kind": "River"
+          },
+          "After": {
+            "ElevationM": 543.734,
+            "WaterSurfaceM": 546.2468812847405,
+            "Kind": "River"
+          }
+        }
+      ],
+      "after_diagnostic_rows": 0
+    }
+  ],
+  "ordinary_water_regression": {
+    "water_vertices": 8167,
+    "contained_bank_edges": 1004,
+    "world_state_unchanged": true,
+    "elapsed_seconds": 45.22
+  },
+  "broader_alluvial_gate": "FAILED open edge 0.585m above drawn bed at local x2045.959 z501.280 on 3276.8m/16 tile; type not yet diagnosed; not accepted as complete",
+  "references": [
+    "https://www.nps.gov/articles/meandering-stream.htm",
+    "https://www.nps.gov/articles/braided-stream.htm"
+  ]
+}

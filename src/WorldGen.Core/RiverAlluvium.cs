@@ -15,6 +15,33 @@ namespace WorldGen.Core
             V change=outgoing-incoming;
             return D.Clamp((change.X*side.X+change.Y*side.Y+change.Z*side.Z)*halfWidth*12/Math.Max(.01,distance),-.9,.9);
         }
+        // Geometry follows shared stations, not the categorical flow animation.
+        // Otherwise a calm/turbulent boundary abruptly loses its entire bar.
+        public static void PrepareBanks(RiverscapeSpan[] spans,double radius,double reachStrength)
+        {
+            if(reachStrength<=0||spans.Length==0)return;
+            var strength=new double[spans.Length+1];var bends=new double[strength.Length];
+            double total=0;foreach(var s in spans)total+=(s.B-s.A).Length*radius;
+            double travelled=0;
+            for(int i=1;i<spans.Length;i++)
+            {
+                var before=spans[i-1];var after=spans[i];
+                double previous=(before.B-before.A).Length*radius,next=(after.B-after.A).Length*radius;
+                travelled+=previous;double t=travelled/Math.Max(.001,total);
+                double grade=Math.Max(0,(before.LevelA-after.LevelB)/Math.Max(.001,previous+next));
+                bool falls=before.Primitive==RiverFlowPrimitive.Waterfall||after.Primitive==RiverFlowPrimitive.Waterfall;
+                strength[i]=falls?0:reachStrength*Smooth(0,.12,t)*(1-Smooth(.88,1,t))*(1-Smooth(.004,.025,grade));
+                bends[i]=Curvature((before.B-before.A).Unit,(after.B-after.A).Unit,after.SideA,(previous+next)*.5,after.WidthA);
+            }
+            for(int i=0;i<spans.Length;i++)
+            {
+                var s=spans[i];s.AlluviumA=strength[i];s.AlluviumB=strength[i+1];s.Alluvium=(strength[i]+strength[i+1])*.5;
+                s.BankBendA=bends[i];s.BankBendB=bends[i+1];
+                // Alluvial asymmetry is supplied by the continuous bank field.
+                // Retire the old independent per-span correction on these reaches.
+                s.Bend=0;spans[i]=s;
+            }
+        }
         public static double Bed(double original,double level,double depth,double relative,double signed,double bend,double strength)
         {
             if(strength<=0)return original;

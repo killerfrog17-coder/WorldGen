@@ -18,6 +18,7 @@ if(args.Contains("--glacial-trough-world")){GlacialValleyTests.World(args[1],arg
 if(args.Contains("--granite-domes")){GraniteDomeTests.Run();return;}
 if(args.Contains("--granite-dome-world")){GraniteDomeTests.World(args[1],args[2]);return;}
 if(args.Contains("--local-lake-water")){LocalLakeWaterTests.Run();return;}
+if(args.Contains("--river-section-review")){RiverSectionReview.Run(args[1],int.Parse(args[2]),args[3],args.Contains("--require-continuity"));return;}
 if(args.Contains("--alluvial-rivers")){RiverAlluviumTests.Run();return;}
 if(args.Contains("--alluvial-world")){RiverAlluviumTests.World(args[1],args[2]);return;}
 if(args.Contains("--scatter-priority")){ScatterPriorityTests.Run(args[1]);return;}
