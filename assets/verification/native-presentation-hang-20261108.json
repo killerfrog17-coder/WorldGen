@@ -1,5 +1,5 @@
 {
-  "status": "Native wait identified; visual-harness pacing workaround NOT yet validated",
+  "status": "Visual harness workaround validated in both presented borderless dune scenes; no runtime errors. Underlying engine/driver issue not claimed fixed.",
   "scope": "Presented landscape review only; no normal gameplay settings changed",
   "engine": "Unity6000.6.0f1 Windows64 Mono nondevelopment",
   "observations": [
@@ -19,5 +19,11 @@
     "No claim a terrain deadlock occurred",
     "No claim this resolves gameplay spikes or all driver problems",
     "No raw memory dumps created"
-  ]
+  ],
+  "validation": {
+    "source": "7750cf1e",
+    "BarchanDunes": "EXIT0/34 checks; completed beyond former76s stall",
+    "StarDunes": "EXIT0/34 checks; completed beyond former76s stall",
+    "art": "Star art separately rejected; runtime success is not visual acceptance"
+  }
 }

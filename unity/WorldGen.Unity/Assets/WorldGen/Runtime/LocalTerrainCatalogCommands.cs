@@ -9,11 +9,11 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NaturalLandmark {public string Name;public V Point,Focus;public double FocusM;}
     Task<NaturalLandmark> landmarkSearch;int landmarkGeneration;
-    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | fjord | outcrop | dome | karst | shore | mangrove | barchans | stardunes";
+    const string LandmarkUsage="/landmark volcano | waterfall | canyon | glacial | fjord | outcrop | dome | karst | shore | mangrove | barchans";
     PlayCommandResult ExecuteLandmark(string[] words)
     {
         if(words.Length!=2)return new PlayCommandResult(words.Length==1,LandmarkUsage);
-        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","fjord","outcrop","dome","karst","shore","mangrove","barchans","stardunes"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
+        string kind=words[1].ToLowerInvariant();if(!new[]{"volcano","waterfall","canyon","glacial","fjord","outcrop","dome","karst","shore","mangrove","barchans"}.Contains(kind))return new PlayCommandResult(false,LandmarkUsage);
         if(!Ready||sourceWorld==null)return new PlayCommandResult(false,"Terrain is not ready yet.");
         if(landmarkSearch!=null)return new PlayCommandResult(false,"A landmark search is already running.");
         var model=terrain;var world=sourceWorld;double scale=HorizontalScale;landmarkGeneration=generation;
@@ -29,11 +29,11 @@ public sealed partial class LocalTerrainExplorer
             var target=model.Patch(focus,2000/scale).Sample(focus);
             return new NaturalLandmark{Name=name,Point=point,Focus=focus,FocusM=level??(target.Underwater?target.WaterSurfaceM:target.ElevationM)};
         }
-        if(kind=="barchans"||kind=="stardunes")
+        if(kind=="barchans")
         {
-            var dune=DuneLandmarks.Find(world,model,kind=="stardunes");if(dune==null)return null;
+            var dune=DuneLandmarks.Find(world,model,false);if(dune==null)return null;
             V point=(dune.Position-dune.Downwind*(dune.RadiusM*.8/radius)).Unit;
-            return Site((kind=="stardunes"?"Star dunes ":"Crescent dunes ")+dune.Source,point,dune.Position);
+            return Site("Crescent dunes "+dune.Source,point,dune.Position);
         }
         if(kind=="shore")foreach(var coast in CoastalSites.WavePlatforms(world,model))
         {

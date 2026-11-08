@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-dune-foundations-63";
+        public const string Version = "hyper-amplification-dune-crescents-64";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -926,7 +926,16 @@ namespace WorldGen.Core
                 var landscape=LandscapeControls.Mix(found.A.Landscape,found.B.Landscape,found.C.Landscape,a,b,c);
                 if(standingBasin<0&&!standingOcean&&landscape.Sand>.08)
                 {
-                    landscape.Sand*=(float)SandFoundation(point);
+                    // Retire the foundation modifier with the same continuous
+                    // wind/chart/supply weight as the accepted crescent family.
+                    // Unaccepted star provinces retain their existing terrain.
+                    V metres=point*(owner.radius*owner.scale);
+                    double supply=LandscapeProvince.SandSea(metres,owner.seed,landscape);
+                    if(supply>.08)
+                    {
+                        DuneForms.FieldWeights(metres,landscape,supply,out double potential,out _,out _,out _,out _,owner.seed);
+                        if(potential>0)landscape.Sand*=(float)(1-potential*(1-SandFoundation(point)));
+                    }
                 }
                 double landscapeOffset=standingBasin<0&&!standingOcean?LandscapeProvince.HeightOffset(point*(owner.radius*owner.scale),owner.seed,landscape)*OrogenMorphology.Smooth(3,30,pre):0;
                 height+=landscapeOffset;pre+=landscapeOffset;if(!double.IsNaN(water))mask=water-height;

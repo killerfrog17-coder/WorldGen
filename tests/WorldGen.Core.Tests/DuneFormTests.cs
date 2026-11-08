@@ -11,7 +11,7 @@ static class DuneFormTests
         var timer=System.Diagnostics.Stopwatch.StartNew();var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
         var examples=new List<DuneLandmark>();double maximumStep=0;
-        foreach(bool star in new[]{false,true})
+        foreach(bool star in new[]{false})
         {
             var form=DuneLandmarks.Find(world,model,star,report:Console.WriteLine);Check(form!=null,"The actual world must contain a qualifying "+(star?"star":"crescent")+" dune");
             if(form==null)continue;examples.Add(form);
@@ -108,7 +108,7 @@ static class DuneFormTests
         DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=0},.95,out crescent,out ridge,out _,out _,out _);
         Check(crescent==0&&ridge==1,"Abundant sand retains connected transverse ridges even with persistent winds");
         DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=1},.8,out _,out ridge,out double starWeight,out _,out _);
-        Check(starWeight>.99&&ridge<.01,"Multidirectional winds and sufficient sand support star dunes");
+        Check(starWeight==0&&ridge==1,"Unaccepted star terrain stays inactive and preserves the existing connected ridge family");
         DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=1,Frozen=1},.8,out crescent,out ridge,out starWeight,out _,out _);
         Check(crescent==0&&starWeight==0&&ridge==1,"Frozen terrain cannot acquire newly active finite dune forms");
         Check(DuneForms.Barchan(0,0,20,120,72,130)==20,"A barchan has one central crest height");

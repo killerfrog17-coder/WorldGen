@@ -91,7 +91,11 @@ namespace WorldGen.Core
         public static void FieldWeights(V metres,LandscapeControls controls,double sandSea,out double barchan,out double transverse,out double star,out double wind,out double across,int seed=0)
         {
             double confidence=Coordinates(metres,out wind,out across);
-            Weights(LocalVariability(wind,across,controls,seed),out barchan,out _,out star);
+            Weights(LocalVariability(wind,across,controls,seed),out barchan,out _,out _);
+            // The star primitive is retained for offline research, but the
+            // actual-world substrate still dominated its native renders. Do
+            // not activate that unaccepted terrain family in normal gameplay.
+            star=0;
             // Stable winds with abundant sand make connected ridges; isolated
             // crescents belong to lower-supply parts of the same sand province.
             barchan*=confidence*(1-Smooth(.65,.95,sandSea));

@@ -1,10 +1,10 @@
 {
   "utc": "2026-11-08T11:36:53.989448+00:00",
-  "status": "Revision70 tested mathematically and in actual terrain; native art/performance NOT accepted. Prior revision69 native scenes passed runtime but art was REJECTED.",
+  "status": "Crescent art accepted at70, final71 runtime build/native/performance pending. Star terrain RETIRED after two rejected native views.",
   "versions": {
-    "terrain": 70,
-    "amplification": 63,
-    "scatter": 38,
+    "terrain": 71,
+    "amplification": 64,
+    "scatter": 39,
     "wire": 10
   },
   "geometry": "Finite barchans and three-armed stars use three dominant-axis spherical charts; active chart Jacobian stays >=1/sqrt(3). Chart boundaries retire into the existing continuous ridge family. No extra scenery objects, textures, render passes or gameplay tick.",
@@ -22,10 +22,10 @@
     "alluvial_controls": 8921,
     "finite_pond_controls": 138,
     "actual_world": {
-      "checks": 1952,
-      "maximumStep": 0.5380000000000109,
+      "checks": 981,
+      "maximumStep": 0.059000000000004604,
       "sharedRoots": 8,
-      "ElapsedSeconds": 8.4388231,
+      "ElapsedSeconds": 41.7727263,
       "WorldHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
       "examples": [
         {
@@ -46,36 +46,87 @@
           "Sand": 0.3254570350683061,
           "WindVariability": 0.21194720268249512,
           "Weight": 1
-        },
-        {
-          "Form": "star",
-          "Source": 50562,
-          "Position": [
-            0.847169539,
-            -0.190311227,
-            -0.496069964
-          ],
-          "Downwind": [
-            0.502523765,
-            0.5902043,
-            0.631766373
-          ],
-          "FeatureHeightM": 95.19983140008468,
-          "RadiusM": 1050,
-          "Sand": 0.5982778668403625,
-          "WindVariability": 0.853036855154198,
-          "Weight": 1
         }
       ]
-    }
+    },
+    "retired_star_original_packets": [
+      {
+        "Kind": "terrain",
+        "East": 0,
+        "North": 0,
+        "Size": 102.4,
+        "Segments": 64,
+        "ElapsedMs": 117.4464,
+        "CpuMs": 125,
+        "BuildMilliseconds": 108.884,
+        "ExpectedCurrentBuildMs": 178.0761,
+        "Vertices": 4225,
+        "WaterVertices": 0,
+        "CurrentVertices": 4225,
+        "CurrentWaterVertices": 0,
+        "CurrentPayloadMatches": true,
+        "BankBoundaryError": null,
+        "PayloadSha256": "49c03e46f657b13c7d6f216cf8f24173fb4df8ea5ea777e7d30e56bb89ede945",
+        "ExactCurrentPayload": true,
+        "ExactPhysicalPayload": null,
+        "TerrainRgbExcluded": false,
+        "ChangedRgbComponents": 0,
+        "MaxRgbDelta": 0
+      },
+      {
+        "Kind": "terrain",
+        "East": 102.4,
+        "North": 0,
+        "Size": 102.4,
+        "Segments": 64,
+        "ElapsedMs": 63.5857,
+        "CpuMs": 62.5,
+        "BuildMilliseconds": 62.6385,
+        "ExpectedCurrentBuildMs": 145.5021,
+        "Vertices": 4225,
+        "WaterVertices": 0,
+        "CurrentVertices": 4225,
+        "CurrentWaterVertices": 0,
+        "CurrentPayloadMatches": true,
+        "BankBoundaryError": null,
+        "PayloadSha256": "8722c784bfc5ffaaacbdea555126cda54ade30bace2ff21abbed126b49594114",
+        "ExactCurrentPayload": true,
+        "ExactPhysicalPayload": null,
+        "TerrainRgbExcluded": false,
+        "ChangedRgbComponents": 0,
+        "MaxRgbDelta": 0
+      },
+      {
+        "Kind": "terrain",
+        "East": -102.4,
+        "North": 0,
+        "Size": 102.4,
+        "Segments": 64,
+        "ElapsedMs": 71.0038,
+        "CpuMs": 156.25,
+        "BuildMilliseconds": 70.0784,
+        "ExpectedCurrentBuildMs": 137.5533,
+        "Vertices": 4225,
+        "WaterVertices": 0,
+        "CurrentVertices": 4225,
+        "CurrentWaterVertices": 0,
+        "CurrentPayloadMatches": true,
+        "BankBoundaryError": null,
+        "PayloadSha256": "a41ef9c2f4b0fa9bb8754e7f49841eabcd68dabda1ff5eff11fbc743d6cf53de",
+        "ExactCurrentPayload": true,
+        "ExactPhysicalPayload": null,
+        "TerrainRgbExcluded": false,
+        "ChangedRgbComponents": 0,
+        "MaxRgbDelta": 0
+      }
+    ],
+    "retirement_scope": "Three complete dry-terrain packets at the rejected star site are byte-exact with original protectedB f59367, BuildMs only normalized."
   },
   "native_review_kinds": [
-    "BarchanDunes",
-    "StarDunes"
+    "BarchanDunes"
   ],
   "commands": [
-    "/landmark barchans",
-    "/landmark stardunes"
+    "/landmark barchans"
   ],
   "sources": [
     {
@@ -84,9 +135,10 @@
     }
   ],
   "known_limits": [
-    "Actual-world dune shapes still require new native visual review",
-    "Foundation performs six bounded coarse point locations in sandy dry terrain; moving/loading performance still needs validation",
-    "One visible windowed native review hung outside managed frames; hidden rendering passed. Borderless review path prepared; no runtime cause proven."
+    "Final71 crescent build and moving performance still pending",
+    "Star primitive remains offline math only, not an implemented game feature",
+    "Barchan foundation only changes supported wind/chart/supply provinces; modifier retires continuously with that same weight",
+    "Earlier global100FPSfloor still unmet"
   ],
   "outside_dune_proof": {
     "reference": "A a8e39c81 physical69",
@@ -464,5 +516,25 @@
   "rejected_trials": [
     "69: native crescent low coastal fade / visually too flat; star on mountainous bed / stretched projection. Runtime passed both hidden scenes; do not use these as accepted screenshots.",
     "70 initial nodal fine-gradient foundation: actual checks passed but world audit took46.9s; replaced with fixed coarse-depth field, same suite8.5s. Component audit only, not FPS."
-  ]
+  ],
+  "active_forms": [
+    "barchan",
+    "existing transverse"
+  ],
+  "deferred_forms": [
+    "star"
+  ],
+  "native_reviews": {
+    "70-barchan": {
+      "exit": 0,
+      "runtime": "34 checks pass",
+      "art": "Accepted as rough crescent field; horns and curved lee visible; owner has not reviewed",
+      "source": "7750cf1e"
+    },
+    "70-star": {
+      "exit": 0,
+      "runtime": "34 checks pass",
+      "art": "REJECTED; underlying mountain substrate still dominates. Production star weight set0 at71; no stardunes gameplay command."
+    }
+  }
 }
