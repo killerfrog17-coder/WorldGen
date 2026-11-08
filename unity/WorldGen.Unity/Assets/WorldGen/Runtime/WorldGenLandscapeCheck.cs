@@ -57,11 +57,16 @@ public sealed partial class LocalTerrainExplorer
         bool encounteredError=false;
         Application.logMessageReceived+=(message,trace,type)=>{if(type==LogType.Error||type==LogType.Exception){encounteredError=true;File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("LANDSCAPE "+text);checks.Add("PASS "+text);Debug.Log("LANDSCAPE "+text);}
-        Application.targetFrameRate=60;QualitySettings.vSyncCount=0;AudioListener.volume=0;
+        AudioListener.volume=0;
         // The harness bypasses the main menu's preference loading. Use an
         // explicit real game preset, rather than obsolete120/450m field defaults.
         var arguments=Environment.GetCommandLineArgs();int qualityOption=Array.IndexOf(arguments,"--worldgen-landscape-quality");
         bool presented=arguments.Contains("--worldgen-landscape-presented");
+        // Keep visual reviews paced without the driver's positive-target-FPS
+        // timestamp wait. That wait stalled two visible runs outside managed
+        // code; batch screenshots and uncapped gameplay benchmarks completed.
+        // This harness never changes the owner's saved display settings.
+        Application.targetFrameRate=presented?-1:60;QualitySettings.vSyncCount=presented?1:0;
         int windowOption=Array.IndexOf(arguments,"--worldgen-landscape-window-mode");
         if(presented&&windowOption>=0&&arguments[windowOption+1]=="Borderless")
         {Screen.SetResolution(Screen.width,Screen.height,FullScreenMode.FullScreenWindow);yield return null;}
