@@ -58,6 +58,9 @@ public sealed partial class LocalTerrainExplorer
         wildlifeRadarOpen=true;wildlifeRadarRefreshAt=0;RefreshWildlifeRadar();
         Check(radarHumanCommunities>0&&radarHumanActors>0&&wildlifeRadarDots.Any(p=>p.HumanKind==3),"radar contains coarse communities and physical people");
         Check(group.Situation.Phase==HumanCampPhase.Travelling||wildlifeRadarDots.Any(p=>p.HumanKind==2),"occupied/projected camp sites appear on radar");
+        UpdateSurvivalHud();var radarBounds=WildlifeRadarLayout(out _,out _,out _);
+        if(survivalHudCanvas!=null&&survivalHudCanvas.enabled)
+        {survivalHud.rectTransform.GetWorldCorners(radarHudCorners);Check(radarBounds.yMax<=Screen.height-radarHudCorners[1].y-10,"radar stays above the actual survival HUD bounds");}
         if(capture)
         {
             humanCamera.Restore(4,false);humanCameraDistance=4;UpdateHumans();UpdateCamera();

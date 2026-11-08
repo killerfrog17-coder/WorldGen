@@ -20,6 +20,7 @@ public sealed partial class LocalTerrainExplorer
     readonly int[] wildlifeRadarTierCounts=new int[4];
     int wildlifeRadarActors,wildlifeRadarGroups,radarHumanActors,radarHumanCamps,radarHumanCommunities;
     Texture2D wildlifeRadarRing,wildlifeRadarDisc,wildlifeRadarDashedRing;
+    readonly Vector3[] radarHudCorners=new Vector3[4];
     static readonly Color[] HumanRadarColors={Color.white,new Color(.87f,.66f,1),new Color(.3f,1,.87f),new Color(.85f,.65f,1)};
     GUIStyle wildlifeRadarText,wildlifeRadarTitle;
     static readonly Color[] WildlifeRadarColors={new Color(.55f,.92f,.45f),new Color(.35f,.8f,1),new Color(1,.76f,.3f),new Color(1,.4f,.5f)};
@@ -91,9 +92,9 @@ public sealed partial class LocalTerrainExplorer
         {
             Texture2D Circle(bool ring,bool dashed=false)
             {
-                const int size=64;var texture=new Texture2D(size,size,TextureFormat.RGBA32,false){name=ring?"Wildlife radar ring":"Wildlife radar point",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
+                const int size=256;var texture=new Texture2D(size,size,TextureFormat.RGBA32,false){name=ring?"Wildlife radar ring":"Wildlife radar point",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
                 var pixels=new Color[size*size];for(int y=0;y<size;y++)for(int x=0;x<size;x++)
-                {float d=new Vector2(x+.5f-size*.5f,y+.5f-size*.5f).magnitude;float a=ring?Mathf.Clamp01(1.5f-Mathf.Abs(d-29)):Mathf.Clamp01(30-d);if(dashed&&((int)((Mathf.Atan2(y+.5f-size*.5f,x+.5f-size*.5f)+Mathf.PI)*24/Mathf.PI)&1)==0)a=0;pixels[y*size+x]=new Color(1,1,1,a);}
+                {float d=new Vector2(x+.5f-size*.5f,y+.5f-size*.5f).magnitude;float a=ring?Mathf.Clamp01(1.5f-Mathf.Abs(d-size*29f/64)):Mathf.Clamp01(size*30f/64-d);if(dashed&&((int)((Mathf.Atan2(y+.5f-size*.5f,x+.5f-size*.5f)+Mathf.PI)*24/Mathf.PI)&1)==0)a=0;pixels[y*size+x]=new Color(1,1,1,a);}
                 texture.SetPixels(pixels);texture.Apply(false,true);return texture;
             }
             wildlifeRadarRing=Circle(true);wildlifeRadarDisc=Circle(false);wildlifeRadarDashedRing=Circle(true,true);
@@ -105,6 +106,11 @@ public sealed partial class LocalTerrainExplorer
     {
         scale=Mathf.Clamp(Screen.height/1080f,.8f,1.5f);float top=12,bottom=Screen.height-12;
         if(debugOpen&&debugFull){PrepareDebugLayout();top=debugCornerRects[1].yMax+10;bottom=debugCornerRects[3].yMin-10;}
+        if(survivalHudCanvas!=null&&survivalHudCanvas.enabled&&survivalHud!=null)
+        {
+            survivalHud.rectTransform.GetWorldCorners(radarHudCorners);
+            bottom=Mathf.Min(bottom,Screen.height-radarHudCorners[1].y-12);
+        }
         float available=Mathf.Max(1,bottom-top);compact=available<700*scale;
         diameter=compact?Mathf.Max(30,Mathf.Min(300*scale,available-100*scale)):380*scale;
         float width=Mathf.Min(Screen.width-24,compact?diameter+225*scale:440*scale);
