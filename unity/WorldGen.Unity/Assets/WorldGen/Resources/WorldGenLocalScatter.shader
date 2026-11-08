@@ -117,7 +117,7 @@ Shader "WorldGen/LocalScatter"
                         float3 cliffBump=CliffFaceBump(TEXTURE2D_ARRAY_ARGS(_RockNormals,sampler_RockAlbedo),world,dx,dy,altitude,w,up,_RockLayer);
                         cliffBump-=pn*dot(pn,cliffBump);pn=normalize(pn+cliffBump);
                         n=normalize(float3(dot(pn,east),dot(pn,up),dot(pn,north)));
-                        tex.rgb=CliffFaceColour(photo,tint);tint=1;
+                        tex.rgb=CliffFaceColour(photo,tint,(int)_RockLayer,length(i.position-_WorldSpaceCameraPos));tint=1;
                     }
                     else
                     {
@@ -132,7 +132,7 @@ Shader "WorldGen/LocalScatter"
                     #ifndef UNITY_COLORSPACE_GAMMA
                     cliffScale=4.672;
                     #endif
-                    if(_CliffSurface>1.5){tex.rgb=CliffFaceColour(grain,tint);tint=1;}
+                    if(_CliffSurface>1.5){tex.rgb=CliffFaceColour(grain,tint,(int)_RockLayer,length(i.position-_WorldSpaceCameraPos));tint=1;}
                     else tex.rgb*=grain*lerp(2,cliffScale,saturate(_CliffSurface));
                     }
                 }
