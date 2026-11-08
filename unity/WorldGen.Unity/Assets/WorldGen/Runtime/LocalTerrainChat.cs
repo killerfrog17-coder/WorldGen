@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(inventoryOpen||DeathVisible||paused||mapOpen||ecologyOpen)return;chatOpen=true;chatText=prefix;chatCaret=prefix.Length;chatOpenedFrame=Time.frameCount;chatHistoryIndex=chatHistory.Count;chatDraft="";chatSelectAll=false;chatScroll=0;GUIUtility.keyboardControl=0;CaptureMouse();
     }
-    void CloseChat(){chatOpen=false;chatSelectAll=false;CaptureMouse();}
+    void CloseChat(){EndNpcListening();chatOpen=false;chatSelectAll=false;CaptureMouse();}
     void ChatCharacter(char character)
     {
         if(closed||!Application.isFocused&&!inventoryReviewMode)return;

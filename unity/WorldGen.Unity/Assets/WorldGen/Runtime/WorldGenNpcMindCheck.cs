@@ -51,6 +51,7 @@ public sealed partial class LocalTerrainExplorer
         int initial=npcModel?.Requests??0;yield return new WaitForSecondsRealtime(3);
         Check((npcModel?.Requests??0)==initial,"ordinary schedule ticks do not invoke the model");
         npcTalkTarget=actor;Check(SpeakToNpc("Hello "+actor.Resident.Name+". What are you doing?"),"typed dialogue reaches selected resident");
+        yield return new WaitForSecondsRealtime(1);Check(actor.Speed<.15f,"addressed NPC listens immediately while the model runs");
         deadline=Time.realtimeSinceStartupAsDouble+70;while(npcUtterances<1&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(npcUtterances>=1,"actual local model replied and the executor delivered speech nearby: "+npcLastError);
         Check(npcDecisions>=1&&NpcMemoryFor(actor.ResidentId).Thought.Length>0,"validated fictional thought is available to debug");

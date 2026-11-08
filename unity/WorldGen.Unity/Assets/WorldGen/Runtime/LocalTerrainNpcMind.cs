@@ -11,7 +11,7 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class MindPlan
     {
-        public NpcDecision Decision;public NpcEventQueue.Event Event;public double Until;public bool Spoke;
+        public NpcDecision Decision;public NpcEventQueue.Event Event;public double Until;public bool Spoke,Listening;
         public string Stage="Approaching";public readonly HumanActivitySample Routine=new HumanActivitySample();
     }
     readonly Dictionary<long,MindPlan> npcPlans=new Dictionary<long,MindPlan>();
@@ -26,11 +26,11 @@ public sealed partial class LocalTerrainExplorer
         LivingState.Minds??=new List<NpcMemory>();var memory=LivingState.Minds.FirstOrDefault(m=>m.Person==person);
         if(memory==null){memory=new NpcMemory{Person=person};LivingState.Minds.Add(memory);}return memory;
     }
-    void QueueNpcEvent(HumanActor actor,string trigger,string words="",int priority=1,long speaker=0,int depth=0)
+    bool QueueNpcEvent(HumanActor actor,string trigger,string words="",int priority=1,long speaker=0,int depth=0)
     {
-        if(actor?.Resident==null||actor.Health<=0||actor.Resident.AgeYears<4||closed)return;
-        npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled)return;
-        npcEvents.Add(new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth},Time.unscaledTimeAsDouble);
+        if(actor?.Resident==null||actor.Health<=0||actor.Resident.AgeYears<4||closed)return false;
+        npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled)return false;
+        return npcEvents.Add(new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth},Time.unscaledTimeAsDouble);
     }
     void UpdateNpcMinds(bool stopped)
     {
@@ -55,7 +55,7 @@ public sealed partial class LocalTerrainExplorer
                     else npcPlans[actor.ResidentId]=new MindPlan{Decision=decision,Event=item,Until=now+Math.Max(15,decision.seconds+15)};
                 }
             }
-            catch(Exception ex){npcLastError=ex.Message;if(item.Priority>=3)PostExplorerChat("NPC response unavailable: "+npcLastError,true);}
+            catch(Exception ex){npcPlans.Remove(item.Person);npcLastError=ex.Message;if(item.Priority>=3)PostExplorerChat("NPC response unavailable: "+npcLastError,true);}
         }
         if(npcThinking==null&&npcEvents.Count>0)
         {
@@ -132,7 +132,7 @@ public sealed partial class LocalTerrainExplorer
                 if(!plan.Spoke){plan.Spoke=true;if(d.speech.Length>0&&distance<6)NpcSay(actor,plan);}TerrainHandoff.Coordinates(frame,goal,out var gx,out var gz);double dx=actor.Motor.X-gx,dz=actor.Motor.Z-gz,n=Math.Max(.01,Math.Sqrt(dx*dx+dz*dz));target=frame.Position(actor.Motor.X+dx/n*15,actor.Motor.Z+dz/n*15);plan.Stage="Withdrawing";}
             else
             {
-                plan.Stage=d.action=="rest"?"Resting":d.speech.Length>0?"Conversing":"Waiting";
+                plan.Stage=plan.Listening?"Listening":d.action=="rest"?"Resting":d.speech.Length>0?"Conversing":"Waiting";
                 TerrainHandoff.Coordinates(frame,goal,out var gx,out var gz);if(distance>.3)actor.TargetYaw=(float)(Math.Atan2(gx-actor.Motor.X,gz-actor.Motor.Z)*180/Math.PI);
                 if(!plan.Spoke)
                 {
@@ -155,14 +155,23 @@ public sealed partial class LocalTerrainExplorer
     {
         var ray=new Ray(view.transform.position,view.transform.forward);var hit=TraceLiving(ray,4.5f);
         if(hit?.Human?.Resident==null||hit.Distance>=itemDistance||TraceCombatObstacle(ray,Math.Max(0,hit.Distance-.1f),checkGround:false)!=null)return false;
-        npcTalkTarget=hit.Human;OpenChat();return true;
+        npcTalkTarget=hit.Human;NpcListen(npcTalkTarget);OpenChat();return true;
     }
     bool SpeakToNpc(string message)
     {
         var actor=npcTalkTarget;if(actor==null||actor.Health<=0||HumanDistance(actor.Planet,Position)>20)return false;
         NpcMemoryFor(actor.ResidentId).Remember((PlayerRules.Identity?.Person.Name??"Visitor")+" said: "+message);
         npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled){PostExplorerChat("Local NPC model disabled or not installed. /npcai status",true);return true;}
-        QueueNpcEvent(actor,"You were directly addressed.",message,3);return true;
+        if(QueueNpcEvent(actor,"You were directly addressed.",message,3))NpcListen(actor);else PostExplorerChat(actor.Resident.Name+" is still responding.");return true;
+    }
+    void NpcListen(HumanActor actor)
+    {
+        // Listening is an immediate scripted reaction, not a model request.
+        npcPlans[actor.ResidentId]=new MindPlan{Decision=new NpcDecision{action="wait",target="player",seconds=30},Event=new NpcEventQueue.Event{Person=actor.ResidentId},Until=Time.unscaledTimeAsDouble+35,Spoke=true,Listening=true,Stage="Listening"};
+    }
+    void EndNpcListening()
+    {
+        if(npcTalkTarget!=null&&npcPlans.TryGetValue(npcTalkTarget.ResidentId,out var plan)&&plan.Listening&&npcPending?.Person!=npcTalkTarget.ResidentId)npcPlans.Remove(npcTalkTarget.ResidentId);
     }
     PlayCommandResult ExecuteNpcMindCommand(string[] words)
     {
