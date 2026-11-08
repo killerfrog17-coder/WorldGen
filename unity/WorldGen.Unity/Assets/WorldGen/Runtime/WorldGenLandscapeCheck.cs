@@ -402,7 +402,7 @@ public sealed partial class LocalTerrainExplorer
                 var targetPoint=new Vector3((float)fx,(float)owner.frame.SurfaceY(at,(fall.LevelA+fall.LevelB)*.5),(float)fz);
                 look=targetPoint-camera;
             }
-            cameraReceipts.Add(name+" camera="+camera+" ground="+cameraFloor+" eyeClearance="+(camera.y-cameraFloor)+" solarHour="+hour);
+            cameraReceipts.Add(name+" camera="+camera+" look="+look+" ground="+cameraFloor+" eyeClearance="+(camera.y-cameraFloor)+" solarHour="+hour);
             owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();owner.UpdatePlayerWater(true);
             owner.BuildScatterBatches();
             double bakedDeadline=Time.realtimeSinceStartupAsDouble+90,nextBakeReport=0;
@@ -620,7 +620,9 @@ public sealed partial class LocalTerrainExplorer
         }
         if(site.Landform!=null)
         {
-            yield return owner.StartCoroutine(Capture("landform-side",new Vector3(width,0,-width*.3f),true,faceCenter:site.Outcrop!=null));
+            if(site.Canyon!=null)
+                yield return owner.StartCoroutine(Capture("landform-side",new Vector3(width,(float)site.Canyon.Relief*.7f,-width*.3f)));
+            else yield return owner.StartCoroutine(Capture("landform-side",new Vector3(width,0,-width*.3f),true,faceCenter:site.Outcrop!=null));
             yield return owner.StartCoroutine(Capture("landform-overview",new Vector3(-width*.5f,width*.8f,-width*1.4f)));
             yield return owner.StartCoroutine(Capture("landform-morning",new Vector3(width*.3f,width*.6f,width*1.5f),hour:9));
             if(site.Outcrop!=null)yield return owner.StartCoroutine(Capture("outcrop-base",orientation*new Vector3(0,0,(float)site.Outcrop.RadiusZ*1.16f),true,faceCenter:true));
@@ -643,6 +645,11 @@ public sealed partial class LocalTerrainExplorer
         }
         if(arguments.Contains("--worldgen-cliff-review"))
         {
+            Check(owner.ReviewCliffWall(out var wallTarget,out var wallNormal),"Actual steep exposed wall has a clear70m inspection line");
+            var contextEye=wallTarget+wallNormal*70+Vector3.up*15;
+            yield return owner.StartCoroutine(Capture("cliff-wall-context",new Vector3(contextEye.x,contextEye.y-y-.5f,contextEye.z),inspectionTarget:wallTarget));
+            var nearEye=wallTarget+wallNormal*20+Vector3.up*5;
+            yield return owner.StartCoroutine(Capture("cliff-wall-near",new Vector3(nearEye.x,nearEye.y-y-.5f,nearEye.z),inspectionTarget:wallTarget));
             var cliffs=owner.scatterChunks.Values.Where(chunk=>chunk.Roots!=null)
                 .SelectMany(chunk=>Enumerable.Range(0,chunk.Source.Instances.Length).Where(i=>chunk.Source.Instances[i].Kind==ScatterKind.Outcrop&&CliffRocks.Is(chunk.Source.Instances[i].Variant)).Select(i=>new{Chunk=chunk,Index=i}))
                 .OrderBy(item=>item.Chunk.Roots[item.Index].sqrMagnitude).Take(8).ToArray();

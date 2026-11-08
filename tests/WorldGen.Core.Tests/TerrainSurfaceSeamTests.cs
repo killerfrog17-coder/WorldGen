@@ -21,7 +21,7 @@ static class TerrainSurfaceSeamTests
         }
         return gap;
     }
-    public static void Run(string path)
+    public static void Run(string path,bool canyon=false)
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
         var world=path==null?null:WorldFile.ReadFile(path);
@@ -33,6 +33,13 @@ static class TerrainSurfaceSeamTests
         var terrain=new LocalTerrain(world,horizontalScale:.1);
         int originCell=path==null?world.Surface.Cells.Length/3:Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.ElevationM[i]>30).OrderByDescending(i=>terrain.Profile(i).MountainHeightM).First();
         var origin=world.Surface.Cells[originCell].Position;
+        if(canyon)
+        {
+            var reach=terrain.Amplification.Canyons.Reaches.OrderByDescending(r=>r.Relief*r.Strength).First();
+            V center=(reach.A+reach.B).Unit,side=V.Cross(center,reach.B-reach.A).Unit;
+            origin=(center+side*(reach.HalfWidth*.45/(terrain.RadiusM*.1))).Unit;
+            Console.WriteLine($"Actual fractured canyon seam context: source{reach.Source}");
+        }
         Console.WriteLine($"Surface-seam terrain: cell{originCell}, elevation{world.ElevationM[originCell]}, inherited relief{terrain.Profile(originCell).MountainHeightM}");
         foreach(double scale in new[]{.1,.3,1d})for(int turn=0;turn<4;turn++)
         {
