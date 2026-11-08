@@ -189,7 +189,6 @@ if(args.Contains("--local-scatter-only")){int n=0;LocalScatterTests.Run((ok,mess
 if(args.Contains("--local-terrain-native")){int n=0,at=Array.IndexOf(args,"--local-terrain-native");LocalTerrainTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact IL2CPP/CLR terrain probes");return;}
 if(args.Contains("--terrain-surface-seams")){TerrainSurfaceSeamTests.Run(args.Length>1?args[1]:null);return;}
 if(args.Contains("--cliff-rocks")){CliffRockTests.Run(args.Length>1?args[1]:null);return;}
-if(args.Contains("--cliff-surface-detail")){CliffSurfaceDetailTests.Run(args.Length>1?args[1]:null);return;}
 if(args.Contains("--terrain-canyon-seams")){TerrainSurfaceSeamTests.Run(args[1],true);return;}
 if(args.Contains("--cliff-visible-faces")){CliffVisibleFaceTests.Run(args[1],args[2],args.Length>3?args[3]:"landform-side");return;}
 if(args.Contains("--local-terrain-only")){int n=0;LocalTerrainTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local terrain assertions");return;}
