@@ -1,0 +1,146 @@
+{
+  "title": "WorldGen - AI Settings Guide",
+  "section": "AI SETTINGS",
+  "footer": "Same local model - actual settings and NPC captures",
+  "date": "08 NOVEMBER 2026",
+  "pages": [
+    {
+      "title": "Choose your AI budget",
+      "subtitle": "Settings > AI, from the main menu or in-game Game settings. No world reload required.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "ai-settings-top.jpg",
+              "caption": "Actual AI tab with the GPU starting preset selected. Presets and sliders use the existing Qwen3-4B model."
+            },
+            {
+              "file": "ai-settings-status.jpg",
+              "caption": "Status confirms real GPU offload. Apply, load, test and unload controls are part of the same scrollable page."
+            }
+          ],
+          "max_height": 280
+        },
+        {
+          "heading": "Start here"
+        },
+        {
+          "text": "Choose <b>GPU</b>, keep <b>Brief replies</b> on, then press <b>Apply &amp; restart AI</b>. Use <b>Test saved settings</b> to check latency. If gameplay develops GPU/memory pressure, try <b>Hybrid</b> or reduce requested GPU layers. The owner?s previous CPU settings remain unchanged until Apply."
+        },
+        {
+          "table": {
+            "headers": [
+              "Same short prompt",
+              "Reply time",
+              "Hardware"
+            ],
+            "rows": [
+              [
+                "CPU",
+                "13.74 s",
+                "2 threads / 0 GPU layers"
+              ],
+              [
+                "Hybrid",
+                "3.81 s",
+                "4 threads / 18 GPU layers"
+              ],
+              [
+                "GPU",
+                "0.99 s",
+                "4 threads / 37 GPU layers"
+              ]
+            ],
+            "widths": [
+              0.28,
+              0.22,
+              0.5
+            ]
+          }
+        },
+        {
+          "text": "One request per profile; the same 301-token input and existing model. Outputs were 52/55/55 tokens. Timing excludes model loading and uses a warmed GPU shader cache. This comparison does not measure game FPS.",
+          "size": 9
+        },
+        {
+          "text": "<b>Actual game:</b> the final NPC conversation returned in <b>1.56 seconds</b> with 705 input / 49 output tokens, while the forest scene was running. Nine Core settings checks, thirteen packaged-menu checks and seventeen actual-world NPC checks passed.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "What each control does",
+      "subtitle": "Speed, memory and behavior have different tradeoffs.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Control",
+              "Meaning and tradeoff"
+            ],
+            "rows": [
+              [
+                "Enable NPC AI",
+                "Turns model-generated dialogue/thoughts on or off. Ordinary NPC routines continue."
+              ],
+              [
+                "GPU layers: 0-37",
+                "How much of this model runs on the graphics card. More usually speeds inference but consumes VRAM shared with the game. Status shows actual offload, which can differ from the request."
+              ],
+              [
+                "CPU threads",
+                "CPU workers for prompt processing and generation. More can be faster but may compete with the game; maximum threads is not necessarily best."
+              ],
+              [
+                "Brief replies / output limit",
+                "Brief asks for shorter speech and thoughts. Output tokens are a hard ceiling on the structured answer; too small a ceiling can cut off a response."
+              ],
+              [
+                "CPU priority",
+                "Low lets gameplay take precedence during CPU contention. Normal gives AI a fairer share and may affect gameplay responsiveness."
+              ],
+              [
+                "Context window / memory entries",
+                "Context is the maximum text capacity and reserves memory. Entries control recent conversation/intentions sent with each request. More history adds input work; a larger window alone does not make the model smarter."
+              ],
+              [
+                "Creativity",
+                "Higher values vary wording and decisions more, with a greater chance of mistakes. It is not an intelligence setting."
+              ],
+              [
+                "Visitor reactions / spacing",
+                "Controls unsolicited responses to unfamiliar visitors. Wider spacing reduces background requests, not the time needed for an individual answer. Direct speech and injury events retain priority."
+              ],
+              [
+                "Idle unload",
+                "Frees model RAM/VRAM after inactivity. Zero keeps it loaded. Reloading adds startup delay; idle loaded models retain memory even without thinking."
+              ]
+            ],
+            "widths": [
+              0.28,
+              0.72
+            ]
+          }
+        },
+        {
+          "heading": "Applying and measuring"
+        },
+        {
+          "text": "<b>Apply &amp; restart AI</b> saves this PC's settings and cancels pending replies. <b>Load model</b> prepares the host without inventing an NPC thought. <b>Test saved settings</b> runs a short synthetic exchange and reports input/output tokens and latency. <b>Unload AI now</b> frees the host immediately; another event can load it again."
+        },
+        {
+          "text": "The first GPU request can be unusually slow while the driver prepares shaders: the initial cold test took about 16 seconds; repeated short requests were around 1-1.6 seconds. Repeat a test to see warmed-up latency.",
+          "size": 9
+        },
+        {
+          "text": "All profiles share the same pinned Qwen3-4B-Instruct-2507 Q4_K_M file. GPU support adds the free Vulkan runtime, not another model. Local inference uses no paid service. Full receipts and test conditions: assets/verification/ai-settings-20261108.json.",
+          "size": 9
+        },
+        {
+          "text": "<b>Primary reference:</b> <a href=\"https://github.com/ggml-org/llama.cpp/blob/b12211/tools/server/README.md\">llama.cpp b12211 server controls</a>; <a href=\"https://github.com/ggml-org/llama.cpp/blob/b12211/docs/build.md\">Vulkan backend documentation</a>.",
+          "size": 8
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 427.5496795890206,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\ai-settings-20261108\\ai-settings-top.jpg",
+    "bottom": 454.3096795890206,
+    "height": 274.7800841905071
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 427.5496795890206,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\ai-settings-20261108\\ai-settings-status.jpg",
+    "bottom": 454.3096795890206,
+    "height": 274.7800841905071
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 397.8296795890206,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 354.42967958902057,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 200.38967958902057,
+    "height": 23.04
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 165.34967958902058,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 331.3697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 287.96976377952774,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 252.92976377952775,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 217.88976377952775,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 195.64976377952775,
+    "height": 10.24
+  }
+]
