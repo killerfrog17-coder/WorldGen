@@ -102,6 +102,9 @@ namespace WorldGen.Core
                     habitat==null?.7:habitat.Value.AridityMilli/1000d,profiles[i].Forest.Coverage,relief,
                     habitat==null?0:habitat.Value.PermafrostPermille/1000d,
                     habitat==null?0:habitat.Value.FloodFractionPermille/1000d,profiles[i].Glacial);
+                double seasonalWind=DuneForms.SeasonalVariability(world.Climate,i);
+                profiles[i].Landscape.DuneWindVariability=(float)(profiles[i].Landscape.Sand>.001
+                    ?DuneForms.TerrainVariability(seasonalWind,relief,center*(RadiusM*horizontalScale),seed):seasonalWind);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
             faceOffsets = new int[profiles.Length + 1]; foreach(int id in world.Surface.Triangles) faceOffsets[id + 1]++;

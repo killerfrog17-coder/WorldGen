@@ -8,18 +8,21 @@ static class DuneFormTests
     public static void Survey(string path,string output)
     {
         var world=WorldFile.ReadPlanetaryFile(path);var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
-        var c=world.Climate;int[] histogram=new int[10];var rows=new List<(double variability,object value)>();
+        var c=world.Climate;int[] histogram=new int[10],seasonalHistogram=new int[10];var rows=new List<(double variability,double barchan,double star,object value)>();
         for(int i=0;i<world.Surface.Cells.Length;i++)
         {
             var profile=model.Profile(i);var p=profile.Landscape;if(profile.ElevationM<0||p.Sand<.2||p.Frozen>.2||p.Arid<.6)continue;
             var at=world.Surface.Cells[i].Position;
             double sand=LandscapeProvince.SandSea(at*(model.RadiusM*.1),world.Recipe.Seed,p);if(sand<.2)continue;
             if(c.NorthernSpring.WindEastMilli.Length<=i||c.NorthernSummer.WindEastMilli.Length<=i||c.NorthernAutumn.WindEastMilli.Length<=i||c.NorthernWinter.WindEastMilli.Length<=i)continue;
-            double v=DuneForms.WindVariability(c.NorthernSpring.WindEastMilli[i],c.NorthernSpring.WindNorthMilli[i],c.NorthernSummer.WindEastMilli[i],c.NorthernSummer.WindNorthMilli[i],c.NorthernAutumn.WindEastMilli[i],c.NorthernAutumn.WindNorthMilli[i],c.NorthernWinter.WindEastMilli[i],c.NorthernWinter.WindNorthMilli[i]);
+            double seasonal=DuneForms.SeasonalVariability(c,i),v=p.DuneWindVariability;
             histogram[Math.Min(9,(int)(v*10))]++;
-            rows.Add((v,new{Cell=i,Position=new{at.X,at.Y,at.Z},Sand=sand,WindVariability=v,profile.CoarseReliefM,profile.ElevationM}));
+            seasonalHistogram[Math.Min(9,(int)(seasonal*10))]++;
+            double chart=DuneForms.Coordinates(at*(model.RadiusM*.1),out _,out _);
+            DuneForms.FieldWeights(at*(model.RadiusM*.1),p,sand,out double barchan,out _,out double star,out _,out _);
+            rows.Add((v,barchan,star,new{Cell=i,Position=new{at.X,at.Y,at.Z},Sand=sand,SeasonalVariability=seasonal,WindVariability=v,ChartConfidence=chart,BarchanWeight=barchan,StarWeight=star,profile.CoarseReliefM,profile.ElevationM}));
         }
-        File.WriteAllText(output,JsonSerializer.Serialize(new{Count=rows.Count,Histogram=histogram,MostVariable=rows.OrderByDescending(r=>r.variability).Take(12).Select(r=>r.value),MostPersistent=rows.OrderBy(r=>r.variability).Take(12).Select(r=>r.value)},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(output,JsonSerializer.Serialize(new{Count=rows.Count,Histogram=histogram,SeasonalHistogram=seasonalHistogram,MostVariable=rows.OrderByDescending(r=>r.variability).Take(12).Select(r=>r.value),MostPersistent=rows.OrderBy(r=>r.variability).Take(12).Select(r=>r.value),StarRegions=rows.OrderByDescending(r=>r.star).Take(12).Select(r=>r.value),BarchanRegions=rows.OrderByDescending(r=>r.barchan).Take(12).Select(r=>r.value)},new JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"Dune climate candidates {rows.Count}; variability deciles {string.Join(',',histogram)}");
     }
     public static void Run()
@@ -28,6 +31,19 @@ static class DuneFormTests
         Check(DuneForms.WindVariability(1,0,2,0,3,0,4,0)==0,"Persistent winds retain a unidirectional regime despite changing strength");
         Check(DuneForms.WindVariability(1,0,-1,0,1,0,-1,0)==.5,"Opposing seasonal winds remain an axial regime rather than multidirectional stars");
         Check(DuneForms.WindVariability(1,0,0,1,-1,0,0,-1)==1,"Four balanced wind directions produce a multidirectional regime");
+        V site=new V(.3,.8,.51).Unit*637100;
+        Check(Math.Abs(DuneForms.TerrainVariability(.3,0,site,173)-.3)<1e-12,"Flat ground cannot invent orographic wind scattering");
+        double mountain=DuneForms.TerrainVariability(.3,1800,site,173);
+        Check(mountain>=.3&&mountain<=1,"Subgrid mountain scattering is a bounded addition to measured seasonal variability");
+        var blend=LandscapeControls.Mix(new LandscapeControls{DuneWindVariability=.2f},new LandscapeControls{DuneWindVariability=.6f},new LandscapeControls{DuneWindVariability=1},.2,.3,.5);
+        Check(Math.Abs(blend.DuneWindVariability-.72)<1e-6,"Shared terrain controls interpolate the wind regime instead of resetting it at refined vertices");
+        V chartPole=new V(-.6805,.4507,.5777).Unit*637100;
+        DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=0},.5,out double crescent,out double ridge,out _,out _,out _);
+        Check(crescent>.99&&ridge<.01,"Persistent winds and lower sand supply support isolated crescents");
+        DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=0},.95,out crescent,out ridge,out _,out _,out _);
+        Check(crescent==0&&ridge==1,"Abundant sand retains connected transverse ridges even with persistent winds");
+        DuneForms.FieldWeights(chartPole,new LandscapeControls{DuneWindVariability=1},.8,out _,out ridge,out double starWeight,out _,out _);
+        Check(starWeight>.99&&ridge<.01,"Multidirectional winds and sufficient sand support star dunes");
         Check(DuneForms.Barchan(0,0,20,120,72,130)==20,"A barchan has one central crest height");
         Check(DuneForms.Barchan(-60,0,20,120,72,130)>0&&DuneForms.Barchan(60,0,20,120,72,130)==0,"The stoss extends farther upwind than the steep lee extends downwind");
         Check(DuneForms.Barchan(0,121,20,120,72,130)==0,"A crescent has finite transverse extent");

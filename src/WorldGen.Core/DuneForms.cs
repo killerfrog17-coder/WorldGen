@@ -24,10 +24,36 @@ namespace WorldGen.Core
             double axial=Math.Min(1,Math.Sqrt(axisX*axisX+axisY*axisY)/total);
             return Math.Max(0,Math.Min(1,1-(directed+axial)*.5));
         }
+        public static double SeasonalVariability(ClimateResult climate,int cell)
+        {
+            if(climate==null||cell<0)return .5;
+            var a=climate.NorthernSpring;var b=climate.NorthernSummer;var c=climate.NorthernAutumn;var d=climate.NorthernWinter;
+            if(a.WindEastMilli.Length<=cell||a.WindNorthMilli.Length<=cell||b.WindEastMilli.Length<=cell||b.WindNorthMilli.Length<=cell||c.WindEastMilli.Length<=cell||c.WindNorthMilli.Length<=cell||d.WindEastMilli.Length<=cell||d.WindNorthMilli.Length<=cell)return .5;
+            return WindVariability(a.WindEastMilli[cell],a.WindNorthMilli[cell],b.WindEastMilli[cell],b.WindNorthMilli[cell],c.WindEastMilli[cell],c.WindNorthMilli[cell],d.WindEastMilli[cell],d.WindNorthMilli[cell]);
+        }
+        public static double Coordinates(V metres,out double wind,out double across)
+        {
+            double first=metres.X*.73+metres.Y*.41+metres.Z*.54;
+            double alignment=first/Math.Max(.000001,metres.Length);
+            double blend=Smooth(.2,.6,1-alignment*alignment);
+            across=metres.X*-.6805+metres.Y*.4507+metres.Z*.5777;
+            wind=blend>=.5?first:metres.X*.13+metres.Y*.85-metres.Z*.51;
+            // Fade finite bodies to the existing ridge family in the overlap
+            // between charts, rather than blending unrelated finite summits.
+            return blend>=.5?Smooth(.5,.95,blend):1-Smooth(.05,.5,blend);
+        }
+        public static double TerrainVariability(double seasonal,double relief,V metres,int seed)
+        {
+            Coordinates(metres,out double wind,out double across);
+            // Quarter means omit local mountain-valley deflection. Admit that
+            // extra diversity only where relief and a coherent subgrid field
+            // support it, not as random star dunes in every sandy desert.
+            double scattering=.85*Smooth(250,1600,relief)*Smooth(.42,.82,Regime(wind,across,seed^0x631b7));
+            return 1-(1-seasonal)*(1-scattering);
+        }
 
-        // Regional proxy for long-term wind-direction variability, independent
-        // of individual weather gusts. Fixed coordinates avoid changing dune
-        // wavelength when a local noise value changes.
+        // Coherent subgrid scattering potential, used with seasonal winds and
+        // terrain relief. It does not independently choose a desert's dune type.
         public static double Regime(double wind,double across,int seed)
         {
             double x=wind/11000,z=across/11000;int ix=(int)Math.Floor(x),iz=(int)Math.Floor(z);
@@ -38,6 +64,16 @@ namespace WorldGen.Core
         }
         public static void Weights(double regime,out double barchan,out double transverse,out double star)
         {barchan=1-Smooth(.28,.4,regime);star=Smooth(.62,.76,regime);transverse=1-barchan-star;}
+        public static void FieldWeights(V metres,LandscapeControls controls,double sandSea,out double barchan,out double transverse,out double star,out double wind,out double across)
+        {
+            double confidence=Coordinates(metres,out wind,out across);
+            Weights(controls.DuneWindVariability,out barchan,out _,out star);
+            // Stable winds with abundant sand make connected ridges; isolated
+            // crescents belong to lower-supply parts of the same sand province.
+            barchan*=confidence*(1-Smooth(.65,.95,sandSea));
+            star*=confidence*Smooth(.3,.55,sandSea);
+            transverse=1-barchan-star;
+        }
 
         public static double Barchan(double wind,double across,double height,double halfSpan,double advance,double stoss)
         {

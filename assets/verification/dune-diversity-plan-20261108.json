@@ -23,7 +23,7 @@
     "transverse": "Retain existing approved sharp ridges and scale where sand supply and wind regime favor them"
   },
   "tests": {
-    "count": 11723,
+    "count": 11729,
     "max_sampled_barchan_slope_degrees": 27.0,
     "checks": [
       "Finite support and bounds",
@@ -41,5 +41,34 @@
   ],
   "references": [
     "https://www.nps.gov/grsa/learn/nature/dune-types.htm"
-  ]
+  ],
+  "wind_source": "Four seasonal climate vectors, using directed and axial resultants; a bounded coherent relief-based scattering proxy supplies unresolved mountain-valley variation. Prepared once per source profile and blended with the other controls; no per-frame wind/terrain simulation.",
+  "survey": {
+    "candidates": 6546,
+    "seasonal_deciles": [
+      3838,
+      1150,
+      566,
+      401,
+      518,
+      70,
+      3,
+      0,
+      0,
+      0
+    ],
+    "with_subgrid_deflection_deciles": [
+      3781,
+      1151,
+      584,
+      412,
+      529,
+      77,
+      5,
+      3,
+      4,
+      0
+    ],
+    "result": "Rare star-suitable mountainous sand provinces and numerous persistent-wind crescent provinces found. Forms remain unhooked."
+  }
 }
