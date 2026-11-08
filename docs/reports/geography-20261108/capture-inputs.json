@@ -48,6 +48,24 @@
       "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-before-v1-20261108-mangrove\\ground.png",
       "source_commit": "9cb2eb01",
       "caption": "Baseline only, before wetland vegetation revision; actual in-game capture, Medium."
+    },
+    {
+      "file": "wetland-fresh-after.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-v1-20261108-warmmarsh\\wetland-waterline.png",
+      "source_commit": "4a92fd82",
+      "caption": "Accepted freshwater placement revision; later changes are marine-only."
+    },
+    {
+      "file": "tidal-water-before.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-before-v1-20261108-mangrove\\tidal-waterline.png",
+      "source_commit": "9cb2eb01",
+      "caption": "Earlier actual tidal waterline; same camera as revised view."
+    },
+    {
+      "file": "tidal-water-after.jpg",
+      "source_capture": "artifacts\\landscape-20261103\\wetland-vegetation-v3-20261108-mangrove\\tidal-waterline.png",
+      "source_commit": "cb76798f",
+      "caption": "Revised actual tidal waterline with coastal grass/rush forms; native runtime passed, FPS pending."
     }
   ]
 }
