@@ -1,8 +1,9 @@
 using WorldGen.Core;
+using WorldGen.Serialization;
 
 static class CliffSurfaceDetailTests
 {
-    public static void Run()
+    public static void Run(string path=null)
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
         double min=0,max=-100,total=0;int n=0;
@@ -32,5 +33,27 @@ static class CliffSurfaceDetailTests
             Check(Math.Abs(CliffSurfaceDetail.Cut(p-e,i,1,.5)-CliffSurfaceDetail.Cut(p+e,i,1,.5))<.001,"Random seeded cell boundaries preserve continuous rock relief");
         }
         Console.WriteLine($"PASS {checks} fracture relief controls; range{min:F3}..{max:F3}m mean{total/n:F3}m");
+        if(path!=null)
+        {
+            var world=WorldFile.ReadFile(path);var terrain=new LocalTerrain(world,horizontalScale:.1);int exposed=0,incised=0,wet=0;double deepest=0;
+            foreach(var r in terrain.Amplification.Canyons.Reaches.OrderByDescending(r=>r.Relief*r.Strength).Take(4))
+            {
+                V center=(r.A+r.B).Unit,side=V.Cross(center,r.B-r.A).Unit;
+                var wall=(center+side*(r.HalfWidth*.45/(terrain.RadiusM*.1))).Unit;var patch=terrain.Patch(wall,10000);
+                for(int z=-8;z<=8;z++)for(int x=-8;x<=8;x++)
+                {
+                    V at=patch.Position(x*80,z*80);var fine=patch.Sample(at);var unadorned=patch.SampleMap(at,8.00001);
+                    if(fine.WaterKind==LocalWaterKind.River)
+                    {Check(fine.WaterSurfaceM==unadorned.WaterSurfaceM&&Math.Abs(fine.ElevationM-unadorned.ElevationM)<.003,"Modern river water and bed remain literal across beauty-detail retirement");wet++;continue;}
+                    if(fine.Province.CanyonExposure<.3||fine.Underwater)continue;
+                    exposed++;double cut=unadorned.ElevationM-fine.ElevationM;deepest=Math.Max(deepest,cut);if(cut>2)incised++;
+                    Check(Math.Abs(cut)<7.2,"Actual wall relief remains within fracture plus pre-existing beauty-detail bounds");
+                    Check(Math.Abs(fine.ElevationM-patch.Elevation(at))<.002,"Physical height-only queries include the same fractured surface");
+                }
+            }
+            Console.WriteLine($"Actual canyon beauty controls: exposed{exposed}, incised>2m{incised}, protected river{wet}, deepest{deepest:F3}m");
+            Check(exposed>0&&incised>0,"The continuous field actually affects exposed generated canyon walls");
+            Console.WriteLine($"PASS {checks} total fracture controls including actual world");
+        }
     }
 }
