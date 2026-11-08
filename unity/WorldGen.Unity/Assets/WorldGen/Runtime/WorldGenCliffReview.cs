@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
