@@ -6,19 +6,6 @@ static class CliffSurfaceDetailTests
     public static void Run(string path=null)
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
-        for(int i=0;i<3000;i++)
-        {
-            var p=new V((i-1500)*.417,1753.41+i*.031,-143.73+i*.39);double v=CliffSurfaceDetail.Outward(p,73421,.8,out V gradient);
-            Check(double.IsFinite(v)&&v>=0&&v<=8,"Continuous rock geometry has a finite8m envelope");
-            // V deliberately quantizes every operation to1e-9. A1mm physical
-            // difference resolves the derivative without amplifying that grid.
-            double e=.001;var d=new V(e,0,0);
-            double numeric=(CliffSurfaceDetail.Outward(p+d,73421,.8)-CliffSurfaceDetail.Outward(p-d,73421,.8))/(2*e);
-            Check(Math.Abs(numeric-gradient.X)<.002,$"Analytic rock-face slope matches the submitted geometry field: i{i}, numeric{numeric:R}, gradient{gradient.X:R}, point{p}");
-            double cell=(i-1500)*(18+12*.8);var boundary=new V(cell,p.Y,p.Z);
-            var boundaryStep=new V(.00001,0,0);
-            Check(Math.Abs(CliffSurfaceDetail.Outward(boundary+boundaryStep,i,.8)-CliffSurfaceDetail.Outward(boundary-boundaryStep,i,.8))<.001,"Rock blocks join across lattice boundaries");
-        }
         double min=0,max=-100,total=0;int n=0;
         foreach(int seed in new[]{73421,-12,0})foreach(double hardness in new[]{0d,.5,1d})
         for(int z=-10;z<=10;z++)for(int x=-10;x<=10;x++)

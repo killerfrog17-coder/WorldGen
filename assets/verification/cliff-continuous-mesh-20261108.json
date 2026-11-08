@@ -1,0 +1,40 @@
+{
+  "status": "REJECTED by owner; connected-mesh experiment backed out before any playable promotion",
+  "source": "951e63b2",
+  "owner_feedback": "Still a flat cliff with separate rocks on about20% of its surface; requested continuous real cliff shape.",
+  "versions": {
+    "terrain": 66,
+    "amplification": 59,
+    "scatter": 34
+  },
+  "method": "Continuous connected mesh positions offset horizontally0..8m across exposed rock. Shared cellular tilted faces and analytic gradients. Full XYZ edge constraints, base-grid coverage UVs. Retired old height-only fracture experiment.",
+  "checks": {
+    "new_bounded_geometry_gradients_lattice_continuity": 9000,
+    "full_xyz_mixed_detail": 224
+  },
+  "native_next": "cliff-continuous-v1-20261108-canyon; Leftmost scenic grounded pass, all separate cliff outcrop instances hidden.",
+  "remaining": [
+    "Inspect actual geometry without outcrops",
+    "Near fine-tile asynchronous collision and actual controller/picking tests if art retained",
+    "Rewrite retired height-fracture world tests for actual mesh geometry",
+    "Forest slope/coast/water regression",
+    "Uncontended moving performance deferred while owner gaming",
+    "One final screenshot PDF at end; no shortcut promotion before acceptance"
+  ],
+  "research": [
+    {
+      "url": "https://unity.com/how-to/enhanced-physics-performance-smooth-gameplay",
+      "application": "Bake generated collision off the main thread and reuse the exact baked mesh/options; avoid synchronous MeshCollider cooking."
+    },
+    {
+      "url": "https://docs.unity.cn/2022.1/Documentation/ScriptReference/Physics.BakeMesh.html",
+      "application": "BakeMesh is thread-safe, but never bake the same mesh concurrently. Preserve mesh ownership until the job ends."
+    }
+  ],
+  "rejection": "Patchy/jagged shadows and excessive geometry changes. Owner clarified AC3 Frontier and vanilla Skyrim as visual references: better texturing with subtle shape changes; no climbing system yet.",
+  "source_reverted": [
+    "951e63b2",
+    "a3833a8d"
+  ],
+  "physics": "Unhooked collision experiment removed; do not implement this rejected geometry."
+}

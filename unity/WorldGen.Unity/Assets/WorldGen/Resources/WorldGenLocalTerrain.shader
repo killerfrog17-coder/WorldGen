@@ -78,11 +78,11 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D(_ForestSurface);SAMPLER(sampler_ForestSurface);
             TEXTURE2D(_ForestFloor);SAMPLER(sampler_ForestFloor);
             Texture2D<float4> _TerrainCoverage,_CoverageFadeTimes;
-            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float2 terrainGrid:TEXCOORD0;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
+            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };
             // Boundary vertices carry the coarse edge's interpolated normal.
             // Normalizing here would bend that interpolation a second time.
-            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS,false);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.terrainGrid/max(.001,_CoverageTileSize);return o;}
+            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS,false);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.positionOS.xz/max(.001,_CoverageTileSize);return o;}
             float GroundContribution(O i,float4 weights,float4 groundB,int layer)
             {
                 float contribution=layer<4?weights[layer&3]:layer<8?groundB[layer&3]:groundB.x*(layer<12?i.rocks[(layer-8)&3]:i.rocksB[(layer-12)&1])*_RockLayers;
