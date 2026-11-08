@@ -11,6 +11,9 @@ Shader "WorldGen/LocalTerrain"
         _GroundMasks("R AO, G roughness, B height, A metallic",2DArray)=""{}
         _TextureMetres("Repeat metres",Float)=2
         _RockLayers("Six lithology layers",Float)=0
+        _CliffAlbedo("Generated cliff faces",2DArray)=""{}
+        _CliffNormals("Generated cliff face normals",2DArray)=""{}
+        _CliffLayers("Cliff material binding",Float)=0
         _GroundFlora("Ground canopy shading",Float)=0
         _GrassField("Filtered grass mat: colour and slope",2D)="gray"{}
         _MossField("Stationary moss cushions",2D)="gray"{}
@@ -67,6 +70,7 @@ Shader "WorldGen/LocalTerrain"
             #include "WorldGenTerrainDiagnostics.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
+            TEXTURE2D_ARRAY(_CliffAlbedo);TEXTURE2D_ARRAY(_CliffNormals);
             TEXTURE2D(_GrassField);SAMPLER(sampler_GrassField);
             TEXTURE2D(_MossField);SAMPLER(sampler_MossField);TEXTURE2D(_LichenField);SAMPLER(sampler_LichenField);
             TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);

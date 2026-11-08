@@ -103,7 +103,7 @@ Shader "WorldGen/LocalScatter"
                 n=normalize(n+(t*bump.x+cross(n,t)*i.tangent.w*bump.y)*_NormalStrength);
                 if(_RockLayers>.5)
                 {
-                    float3 w=pow(abs(n),4);w/=max(.001,w.x+w.y+w.z);float3 p=i.position*.65;
+                    float3 w=pow(abs(n),4);w/=max(.001,w.x+w.y+w.z);float3 p=i.position*(_CliffSurface>1.5?.125:.65);
                     float3 grain=SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.yz,_RockLayer).rgb*w.x+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xz,_RockLayer).rgb*w.y+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xy,_RockLayer).rgb*w.z;
                     float3 a=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.yz,_RockLayer).xyz*2-1,b=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xz,_RockLayer).xyz*2-1,c=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xy,_RockLayer).xyz*2-1;
                     n=normalize(n+(float3(0,a.x,a.y)*w.x+float3(b.x,0,b.y)*w.y+float3(c.x,c.y,0)*w.z)*lerp(1,.4,saturate(_CliffSurface)));

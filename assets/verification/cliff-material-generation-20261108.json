@@ -1,0 +1,61 @@
+{
+  "status": "Generated masters inspected; runtime material validation pending",
+  "materials": [
+    {
+      "key": "massive",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless tileable PBR game material, base-color master, one square full-bleed image. Primary request: a realistic continuous rugged granite cliff face, photographed straight-on orthographically, representing an 8 metre by 8 metre portion of exposed solid bedrock. Large interlocking angular rock planes with irregular diagonal and vertical fracture joints, natural weathered ledges, chipped edges and fine mineral grain. Broad rock faces between joints roughly 30 cm to 1.5 m, with subordinate small fissures. Neutral pale grey stone with restrained warm mineral variation. This is a continuous cliff, not loose piled stones, brickwork, cobblestones or a gravel floor. Even soft overcast diffuse illumination appropriate to an albedo material; no directional lighting, cast shadows, glare or vignette. Edge-to-edge rock; no sky, horizon, ground, vegetation, objects, text, labels, border or watermark. Seamless on opposite edges; organic unequal joint spacing and no obvious repeating focal feature. Crisp photogrammetry-like surface detail, believable geology, entirely natural rock.",
+      "generator": "built-in image_gen",
+      "generated": true,
+      "registered_repeat_metres": 8,
+      "master": "assets-source/terrain/surfaces/ai/cliff-set-20261108/massive.png",
+      "master_sha256": "e0956c6b8fb3f3d14d4997906299609ad078e498459ab7f4e270cbec02e5fede",
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-albedo.png",
+          "sha256": "f37ba9b7c274547cded38d613d3a3facc27ebd97ceba6d37963f81bf3fd05eaa",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-normal.png",
+          "sha256": "1727aefe60bcb8dae2d00a3ac84b2ddd22e533f81b90eb2d33d59ea3dd1d6455",
+          "size": [
+            512,
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "key": "stratified",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless tileable PBR game material, base-color master, one square full-bleed image. Primary request: a realistic continuous exposed stratified sandstone cliff face, straight-on orthographic view, representing an 8 metre by 8 metre portion of solid cliff. Broad angular sandstone ledges and fractured bedrock slabs, sedimentary bedding of unequal thickness from 25 cm to 1.2 m, intersected by irregular vertical and diagonal joints. Eroded shallow pockets, chipped rock faces, subtle thin lamination and fine grains. Restrained warm pale beige and stone grey pigment, without orange oversaturation. The whole surface is coherent solid geological strata, not loose piled rocks, masonry, brickwork or a gravel floor. Even flat diffuse overcast illumination suitable for a base-color material; no cast shadows, hard directional illumination, specular highlights or vignette. Full-bleed rock to all edges, seamless opposite borders. No sky, horizon, ground, plants, objects, text, labels, border or watermark. Avoid evenly spaced stripes, repeating identical shelves or a single distinctive central landmark. Crisp realistic natural rock, photogrammetry-like detail.",
+      "generator": "built-in image_gen",
+      "generated": true,
+      "registered_repeat_metres": 8,
+      "master": "assets-source/terrain/surfaces/ai/cliff-set-20261108/stratified.png",
+      "master_sha256": "02e08dcd4840400c868b0ba14bb7f9eec15d0ebb1cc535b285391a8acecde5d2",
+      "outputs": [
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-albedo.png",
+          "sha256": "a500a1554dd52a01a18556ee6ac573f1437a25f908b6ff60d335d4be25631eba",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        {
+          "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-normal.png",
+          "sha256": "e82d2da1a1715af45a276eb11e54d4935272ca2728adb002ba0925187309edfc",
+          "size": [
+            512,
+            512
+          ]
+        }
+      ]
+    }
+  ],
+  "processing": "Linear mean-normalized colour, periodic-plus-smooth and exact opposing edges. Luminance-derived 6.5cm RMS relief approximation at 8m repeat; not measured photogrammetry/PBR.",
+  "runtime_budget": "Two BC7 layers: colour1024, normals512. Replace existing cliff/terrain rock reads; no new pass or extra texture reads. Existing17-layer ground bank unchanged."
+}

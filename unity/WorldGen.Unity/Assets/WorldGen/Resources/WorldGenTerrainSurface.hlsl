@@ -50,12 +50,12 @@ float3 SurfaceMat(TEXTURE2D_PARAM(tex,samp),float3 p,float3 dx,float3 dy,float3 
     [branch] if(w.z>.001)value+=SAMPLE_TEXTURE2D_GRAD(tex,samp,p.xy,dx.xy,dy.xy).rgb*w.z;
     return value;
 }
-float3 SurfaceBump(float3 p,float3 dx,float3 dy,float3 w,int layer)
+float3 SurfaceBumpArray(TEXTURE2D_ARRAY_PARAM(tex,samp),float3 p,float3 dx,float3 dy,float3 w,int layer)
 {
     float3 bump=0;
-    [branch] if(w.x>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(_GroundNormals,sampler_GroundAlbedo,p.yz,layer,dx.yz,dy.yz).xy*2-1;bump+=float3(0,a.x,a.y)*w.x;}
-    [branch] if(w.y>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(_GroundNormals,sampler_GroundAlbedo,p.xz,layer,dx.xz,dy.xz).xy*2-1;bump+=float3(a.x,0,a.y)*w.y;}
-    [branch] if(w.z>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(_GroundNormals,sampler_GroundAlbedo,p.xy,layer,dx.xy,dy.xy).xy*2-1;bump+=float3(a.x,a.y,0)*w.z;}
+    [branch] if(w.x>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(tex,samp,p.yz,layer,dx.yz,dy.yz).xy*2-1;bump+=float3(0,a.x,a.y)*w.x;}
+    [branch] if(w.y>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(tex,samp,p.xz,layer,dx.xz,dy.xz).xy*2-1;bump+=float3(a.x,0,a.y)*w.y;}
+    [branch] if(w.z>.001){float2 a=SAMPLE_TEXTURE2D_ARRAY_GRAD(tex,samp,p.xy,layer,dx.xy,dy.xy).xy*2-1;bump+=float3(a.x,a.y,0)*w.z;}
     return bump;
 }
 void SurfaceLayers(O i,float extra,float3 litter,out int3 layers,out float3 fractions)
@@ -163,11 +163,8 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
     float bare=saturate((i.groundB.x+i.weights.w*.45)/total)*smoothstep(.06,.38,1-abs(normalize(i.normal).y));
     if(bare<.01||_TerrainSurfaceControls.y<1)return;
-    // The microscopic scan retires at the normal surface range. A single
-    // two-axis blend provides broad weathering variation across exposed
-    // rock faces. At32m the generated rock grain averaged away over distant
-    // walls;128m keeps larger patches visible. Same existing two fetches,
-    // texture array and wrapped1024m anchor, with no new material or pass.
+    // Dedicated8m wall material replaces the former128m grey weathering read.
+    // Same two-axis fetch budget; independent of the microscopic ground range.
     int rock=0;float best=i.rocks.x;
     [unroll]for(int k=1;k<6;k++)
     {
@@ -176,13 +173,17 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,inout 
     }
     float3 normal=normalize(i.normal),planetNormal=normal.x*TerrainEast().xyz+normal.y*TerrainUp().xyz+normal.z*TerrainNorth().xyz;
     float3 axes=SurfaceAxes(planetNormal,2,1);
-    float shade=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/128,worldDx/128,worldDy/128,axes,8+rock).rgb,float3(.2126,.7152,.0722));
+    float3 grain;
+    if(_CliffLayers>.5)
+        grain=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world/8,worldDx/8,worldDy/8,axes,rock>=2&&rock<=4?1:0).rgb;
+    else
+        grain=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/128,worldDx/128,worldDy/128,axes,8+rock).rgb,float3(.2126,.7152,.0722));
     #ifndef UNITY_COLORSPACE_GAMMA
-    shade*=4.672;
+    grain*=4.672;
     #else
-    shade*=2;
+    grain*=2;
     #endif
-    albedo*=lerp(1,clamp(shade,.55,1.45),bare*.62);
+    albedo*=lerp(1,clamp(grain,_CliffLayers>.5?.22:.55,_CliffLayers>.5?2.1:1.45),bare*(_CliffLayers>.5?.94:.62));
 }
 
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
@@ -242,7 +243,15 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
                 if(layers[at]==13)layerScale*=2/2.4212;
                 float3 lp=p*layerScale,ldx=dx*layerScale,ldy=dy*layerScale;
                 if(colourRead)colour+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at]).rgb*fractions[at];
-                if(normalRead)bump+=SurfaceBump(lp,ldx,ldy,w,layers[at])*fractions[at];
+                if(normalRead)
+                {
+                    if(_CliffLayers>.5&&layers[at]>=8&&layers[at]<=13)
+                    {
+                        int rock=layers[at]-8;
+                        bump+=SurfaceBumpArray(TEXTURE2D_ARRAY_ARGS(_CliffNormals,sampler_GroundAlbedo),world/8,worldDx/8,worldDy/8,w,rock>=2&&rock<=4?1:0)*fractions[at];
+                    }
+                    else bump+=SurfaceBumpArray(TEXTURE2D_ARRAY_ARGS(_GroundNormals,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at])*fractions[at];
+                }
                 if(maskRead)mask+=SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundMasks,sampler_GroundAlbedo),lp,ldx,ldy,w,layers[at])*fractions[at];
             }
         }

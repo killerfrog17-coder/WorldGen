@@ -100,6 +100,9 @@ public sealed partial class LocalTerrainExplorer
         landMaterial.SetTexture("_GroundMasks",groundArt?artSet.Masks:generatedGround[2]);
         landMaterial.SetFloat("_TextureMetres",artSet==null?2:Math.Max(.05f,artSet.TextureRepeatMetres));
         landMaterial.SetFloat("_RockLayers",groundArt&&artSet.Albedo.depth<14?0:1);
+        bool cliffArt=artSet!=null&&artSet.CliffAlbedo!=null&&artSet.CliffNormals!=null&&artSet.CliffAlbedo.depth==2&&artSet.CliffNormals.depth==2;
+        landMaterial.SetFloat("_CliffLayers",cliffArt?1:0);
+        if(cliffArt){landMaterial.SetTexture("_CliffAlbedo",artSet.CliffAlbedo);landMaterial.SetTexture("_CliffNormals",artSet.CliffNormals);}
         InitializeGroundFloraMaterials();
         precedingSun=RenderSettings.sun;precedingAmbient=RenderSettings.ambientMode;precedingSky=RenderSettings.ambientSkyColor;precedingEquator=RenderSettings.ambientEquatorColor;precedingGround=RenderSettings.ambientGroundColor;lightingSaved=true;
         var lightRoot=new GameObject("Local sunlight",typeof(Light));lightRoot.transform.SetParent(transform,false);lightRoot.transform.rotation=Quaternion.Euler(48,-35,0);
@@ -465,7 +468,17 @@ public sealed partial class LocalTerrainExplorer
                 bool cliff=kind==ScatterKind.Outcrop&&CliffRocks.Is(variant);
                 material.SetFloat("_RockLayer",8+(int)(cliff?CliffRocks.Family(variant):ToolStone.Family(variant)));material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
                 material.SetTexture("_RockNormals",landMaterial.GetTexture("_GroundNormals"));material.SetFloat("_RockLayers",landMaterial.GetFloat("_RockLayers"));
-                if(cliff){material.SetFloat("_Cull",2);material.SetFloat("_CliffSurface",1);}
+                if(cliff)
+                {
+                    material.SetFloat("_Cull",2);material.SetFloat("_CliffSurface",1);
+                    if(landMaterial.GetFloat("_CliffLayers")>.5f)
+                    {
+                        int family=(int)CliffRocks.Family(variant);
+                        material.SetFloat("_RockLayer",family>=2&&family<=4?1:0);
+                        material.SetTexture("_RockAlbedo",artSet.CliffAlbedo);material.SetTexture("_RockNormals",artSet.CliffNormals);
+                        material.SetFloat("_CliffSurface",2);
+                    }
+                }
             }
             if(!shared){RegisterScatterMaterial(material);if(kind==ScatterKind.GeneratedTree)treeMaterials[materialKey]=material;}
             parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});

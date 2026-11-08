@@ -67,8 +67,8 @@ def inventory():
     add('unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1.meta','terrain-rock-runtime')
     tree('assets-source/vegetation/tree-surfaces','tree-authoring-source',{'.png','.jpg','.json','.txt'})
     tree('assets-source/vegetation/ground-clumps','ground-clump-authoring-source',{'.blend','.png','.jpg','.exr','.json','.txt'})
-    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1']:
-        tree(directory,'terrain-runtime-art',{'.png','.asset','.bytes','.meta'})
+    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TerrainSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TerrainSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffSurfaceArtV1']:
+        tree(directory,'terrain-runtime-art',{'.png','.asset','.bytes','.meta','.txt'})
         add(directory+'.meta','terrain-runtime-art')
     add('unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png','terrain-runtime-art',True)
     add('unity/WorldGen.Unity/Assets/WorldGen/Resources/GroundMossV1.png.meta','terrain-runtime-art')

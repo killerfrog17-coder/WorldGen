@@ -56,6 +56,7 @@ public static class WorldGenBatch
         var allowed=new[]{"slot-a","slot-b"}.Select(slot=>Path.GetFullPath(Path.Combine(Root,"builds",slot,"WorldGen.exe")));
         if(!allowed.Contains(output,StringComparer.OrdinalIgnoreCase))throw new InvalidOperationException("Per-update player copies are retired. Use the two reusable build slots.");
         Directory.CreateDirectory(Path.GetDirectoryName(output));
+        if(!arguments.Contains("--worldgen-scripts-only"))CliffSurfaceArtBuilder.EnsureBuilt();
         // Runtime-created cameras are invisible to scene-only postprocess stripping analysis.
         var stripping=UnityEngine.Rendering.GraphicsSettings.GetRenderPipelineSettings<UnityEngine.Rendering.Universal.URPShaderStrippingSetting>();
         bool prior=stripping!=null&&stripping.stripUnusedPostProcessingVariants;

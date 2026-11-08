@@ -18,6 +18,8 @@ public sealed class LocalTerrainArtSet : ScriptableObject
     public Material GroundMaterial;
     [Tooltip("Eight layers: soil,sand,gravel,clay,rock,organic,salt,ice. Albedo sRGB; normals/masks linear. Old four-layer arrays use fallback textures.")]
     public Texture2DArray Albedo,Normals,Masks;
+    [Tooltip("Optional generated cliff-face colour/normals: massive and stratified,8m repeat.")]
+    public Texture2DArray CliffAlbedo,CliffNormals;
     [Tooltip("Mask channels: R occlusion, G roughness, B height (reserved), A metallic.")]
     public float TextureRepeatMetres=2;
 }
