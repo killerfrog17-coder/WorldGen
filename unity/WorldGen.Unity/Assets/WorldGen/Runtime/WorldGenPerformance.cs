@@ -1102,6 +1102,23 @@ public sealed partial class LocalTerrainExplorer
         return "Tree distance batches: same "+count+" admitted objects; "+changed+" pixels >1 RGB difference, max delta "+delta;
     }
     public string PerformanceCounts=>string.Join(",",TileCount,WantedCount,ScatterObjects,SpecialistObjects,MidPlantObjects,GeneratedTreeObjects,ScatterDrawCalls,GroundCoverDraws,GroundCoverCandidates,GroundCoverBytes,ScatterFrustumRejected,ScatterTerrainRejected);
+    public string PerformanceTerrainGeometry()
+    {
+        // Metadata only, once BEFORE timing. No vertex/index buffer readback.
+        var vertices=new long[2];var triangles=new long[2];var renderers=new int[2];
+        foreach(var tile in tiles.Values)
+        {
+            if(tile.Renderers==null)continue;
+            for(int i=0;i<tile.Renderers.Length;i++)
+            {
+                var renderer=tile.Renderers[i];if(renderer==null)continue;
+                var mesh=renderer.GetComponent<MeshFilter>()?.sharedMesh;if(mesh==null)continue;
+                int kind=i==0?0:1;renderers[kind]++;vertices[kind]+=mesh.vertexCount;
+                for(int sub=0;sub<mesh.subMeshCount;sub++)triangles[kind]+=mesh.GetIndexCount(sub)/3;
+            }
+        }
+        return "kind,renderers,vertices,triangles\nland,"+renderers[0]+","+vertices[0]+","+triangles[0]+"\nwater,"+renderers[1]+","+vertices[1]+","+triangles[1]+"\n";
+    }
     public string PerformanceVerifyTrunkBudget()
     {
         if(!SoftCanopyShadows)return "Soft canopy inactive; trunk budget does not replace the detailed fallback.";
@@ -1206,6 +1223,7 @@ public sealed partial class WorldGenRuntime
         ulong originalGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
         int originalTargetFps=Application.targetFrameRate,originalQueuedFrames=QualitySettings.maxQueuedFrames;
         bool originalHoldTerrain=TerrainDiagnostics.HoldTerrain,originalHoldPlants=TerrainDiagnostics.HoldPlants;
+        bool hideWaterDrawing=Environment.GetCommandLineArgs().Contains("--worldgen-perf-hide-water");
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
         // Numerical smoke check needs no terrain/forest warmup. This uses the
@@ -1478,6 +1496,7 @@ public sealed partial class WorldGenRuntime
                 WorldGenPerformance.LegacyTreeResident=WorldGenPerformance.LegacyTreeShader=WorldGenPerformance.LegacyTreeWind=false;WorldGenPerformance.WaterSurfaceCamera=false;Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();terrainExplorer.PerformanceWalkingQueryMode();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" parallel="+WorldGenPerformance.ParallelScatter+" burst="+WorldGenPerformance.BurstScatter+" partialUploads="+WorldGenPerformance.PartialForestUploads+" flatTree="+Shader.IsKeywordEnabled("WORLDGEN_FLAT_TREE_DEPTH")+" rangeCache="+WorldGenPerformance.ScatterRangeCache+" humanMemo="+WorldGenPerformance.MemoHumanInputs+" repeatHumanBinding="+WorldGenPerformance.RepeatHumanOutputBinding+" fullWaterAim="+WorldGenPerformance.FullWaterAim+" memoryTrace="+WorldGenPerformance.MemoryTrace+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
                 terrainExplorer.PerformanceTreeAlpha(!WorldGenPerformance.TreeLegacyAlpha);
+                if(hideWaterDrawing){TerrainDiagnostics.HideWater=true;TerrainDiagnostics.Changed();}
                 terrainExplorer.PerformanceTreeQueues(!WorldGenPerformance.LegacyTreeQueues);
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;
                 // Readiness is explicit; partial scenes are labelled, never silently accepted.
@@ -1563,6 +1582,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="turning-whip-resident-only")TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;
                 File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" hold_terrain="+TerrainDiagnostics.HoldTerrain+" hold_plants="+TerrainDiagnostics.HoldPlants+"\n");
                 File.AppendAllText(Path.Combine(output,"terrain-upload-pool-before.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
+                File.AppendAllText(Path.Combine(output,"terrain-geometry.txt"),site.Item1+" "+item.Name+" hide_water="+hideWaterDrawing+"\n"+terrainExplorer.PerformanceTerrainGeometry());
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
                 var engineTimings=WorldGenPerformance.TraceEnabled?new List<(double Observed,FrameTiming Timing)>(20000):null;

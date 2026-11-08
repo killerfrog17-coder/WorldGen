@@ -25,6 +25,7 @@ param(
     [switch]$MemorySnapshot,
     [switch]$CaptureAfter,
     [switch]$CpuTiming,
+    [switch]$HideWaterDrawing,
     [string]$NativeGcProbe='',
     [switch]$Original
 )
@@ -55,6 +56,7 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     RequestedSwapChain=$SwapChain
     NativeGcDiagnostic=[bool]$NativeGcProbe
     CpuTimingDiagnostic=[bool]$CpuTiming
+    HideWaterDrawingDiagnostic=[bool]$HideWaterDrawing
     TravelLoopMeters=$TravelLoopMeters
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
@@ -65,6 +67,7 @@ if($SwapChain -eq 'Flip'){$arguments+='-force-d3d11-flip-model'}
 if($SwapChain -eq 'BitBlt'){$arguments+='-force-d3d11-bitblt-model'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($CpuTiming){if(!$StutterTrace){throw 'CPU frame timing requires StutterTrace for timestamp correlation'};$arguments+='--worldgen-cpu-timing'}
+if($HideWaterDrawing){$arguments+='--worldgen-perf-hide-water'}
 if($GpuProfile){$arguments+='--worldgen-gpu-profile'}
 if($Presented){
     Add-Type -AssemblyName System.Windows.Forms
@@ -120,6 +123,7 @@ try {
     }
     if($run.ExitCode -ne 0){throw "Benchmark exited $($run.ExitCode); inspect player.log"}
     if(!(Test-Path -LiteralPath (Join-Path $destination 'complete.txt'))){throw 'No completion marker'}
+    if($HideWaterDrawing -and (!(Test-Path -LiteralPath (Join-Path $destination 'terrain-geometry.txt')) -or !(Select-String -LiteralPath (Join-Path $destination 'terrain-geometry.txt') -SimpleMatch 'hide_water=True' -Quiet))){throw 'This packaged player did not confirm the requested hidden-water diagnostic'}
     if((Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash -ne $before){throw 'Input snapshot changed'}
     $before | Out-File -LiteralPath (Join-Path $destination 'input-sha256.txt') -Encoding ascii
     Write-Output "Completed, input unchanged: $destination"
