@@ -1,0 +1,93 @@
+{
+  "utc": "2026-11-08T14:15:37.463433+00:00",
+  "status": "Source/controls/actual-world checks passed; native visuals and FPS acceptance pending",
+  "versions": {
+    "terrain": 72,
+    "amplification": 64,
+    "scatter": 40,
+    "wire": 10
+  },
+  "changes": [
+    "Retain saltmarsh/mangrove identity through wetland material blending.",
+    "Allow low-lying mapped wetland roots; retain ordinary beach/upland height exclusion.",
+    "Admit marine-adapted emergents in shallow mapped tidal water, never offshore ocean or fast/deep water.",
+    "Use physical coastal habitat salinity for marine ecotypes; freshwater soil-index limits remain unchanged.",
+    "Strengthen relative emergent establishment in wetlands with the same helper for near placement and expected distant cover. Keep the existing candidate grid, ID layout, colony sizes, models and material passes.",
+    "Shorter coastal emergent phenotypes; species names and morphology lineage codes remain stable."
+  ],
+  "constraints": "Species pH, temperature, soil depth, salt, flow and canopy limits remain. ReedStand includes emergent grasses/rushes; the coastal variants are not ordinary freshwater reeds. More admitted instances may have a cost: native moving comparison is still required.",
+  "tests": {
+    "controls": 90,
+    "wetland_regression": 101466,
+    "landscape_regression": 35902,
+    "pond_regression": 138,
+    "world": {
+      "checks": 120049,
+      "ElapsedSeconds": 17.0651646,
+      "WorldHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
+      "Sites": [
+        {
+          "Name": "warm-marsh",
+          "Position": {
+            "X": -0.4774612,
+            "Y": 0.654411578,
+            "Z": -0.586324388
+          },
+          "Cell": 41358,
+          "Biome": "Marsh",
+          "Ground": 38.239,
+          "Water": 37.90761243790032,
+          "Pages": 9,
+          "Instances": 7877,
+          "Reeds": 7835,
+          "Submerged": 21,
+          "LowTidal": 0,
+          "MaximumDepth": 0.606612437900317
+        },
+        {
+          "Name": "tidal-mangrove",
+          "Position": {
+            "X": -0.876238281,
+            "Y": 0.404683964,
+            "Z": -0.261605362
+          },
+          "Cell": 73759,
+          "Biome": "Mangrove",
+          "Ground": 0.35,
+          "Water": 0,
+          "Pages": 9,
+          "Instances": 21634,
+          "Reeds": 12633,
+          "Submerged": 2182,
+          "LowTidal": 5378,
+          "MaximumDepth": 0.915
+        },
+        {
+          "Name": "tidal-saltmarsh",
+          "Position": {
+            "X": 0.478267085,
+            "Y": 0.157847613,
+            "Z": 0.863912453
+          },
+          "Cell": 186179,
+          "Biome": "SaltMarsh",
+          "Ground": 0.651,
+          "Water": 0,
+          "Pages": 9,
+          "Instances": 13872,
+          "Reeds": 12495,
+          "Submerged": 68,
+          "LowTidal": 9066,
+          "MaximumDepth": 0.659
+        }
+      ]
+    }
+  },
+  "sources": [
+    "https://research.fs.usda.gov/feis/species-reviews/phraus",
+    "https://plants.usda.gov/DocumentLibrary/plantguide/pdf/pg_spal.pdf",
+    "https://research.fs.usda.gov/feis/species-reviews/spaalt",
+    "https://myfwc.com/research/habitat/coastal-wetlands/salt-marshes/",
+    "https://oceanservice.noaa.gov/facts/saltmarsh.html"
+  ]
+}

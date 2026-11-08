@@ -70,6 +70,10 @@ namespace WorldGen.Core
         public ulong Id;public int RegionId,ProvinceId,MorphologyCode;public string Name="",Founder="";
         public MidGrowthForm Form;public double HeightM,WidthM,Moisture,Shade,MinWarmC,MaxWarmC,MinPH,MaxPH,MaxSalinity,ColonyM;
         public double FloodTolerance,DroughtTolerance;
+        // Physical water salinity for coastal emergents. The ordinary soil
+        // salt index saturates at five ppt and cannot describe seawater.
+        // Zero retains the existing soil-index fit for inland taxa.
+        public double WaterSalinityLimitPpt;
         public V LeafColor;
         public MidMorphology Morphology=>new MidMorphology(MorphologyCode);
         public MidReproduction Reproduction=>new MidReproduction(Form,MorphologyCode);
@@ -79,7 +83,12 @@ namespace WorldGen.Core
     /// ecology/history rules. Four model variants per species, not one mesh per plant.</summary>
     public static class MidFlora
     {
-        public const string Version="mid-flora-1";
+        public const string Version="mid-flora-wetland-establishment-2";
+        public static bool Wetland(Biome biome)=>biome==Biome.Marsh||biome==Biome.SaltMarsh||biome==Biome.Mangrove||biome==Biome.Peatland;
+        public static bool Tidal(Biome biome)=>biome==Biome.SaltMarsh||biome==Biome.Mangrove;
+        public static bool Rooting(LocalTerrainSample sample)=>sample.Biome!=Biome.Ice&&
+            (sample.ElevationM>=2||Wetland(sample.Biome))&&
+            (!sample.Underwater||sample.WaterSurfaceM-sample.ElevationM<=1.2);
         static readonly string[] syllables={"al","ber","cer","dor","el","fen","gal","hir","il","jun","kor","lin","mer","nor","or","pel","ran","sil","tor","val"};
         static string Word(ref Rng r)=>syllables[(int)(r.Unit()*syllables.Length)]+syllables[(int)(r.Unit()*syllables.Length)];
         public static MidPlantSpecies[] Create(World world,int region,int province)
@@ -97,6 +106,7 @@ namespace WorldGen.Core
                 double height=form==MidGrowthForm.DwarfHeath?.16+.44*a.Unit():form==MidGrowthForm.LargeFern?.65+1.05*a.Unit():
                     form==MidGrowthForm.ReedStand?1.2+1.8*a.Unit():form==MidGrowthForm.Succulent?.35+1.5*a.Unit():.65+1.95*a.Unit();
                 if(h!=null&&(h.Value.Biome==Biome.Tundra||h.Value.Biome==Biome.Alpine)&&form!=MidGrowthForm.DwarfHeath)height*=.48;
+                if(form==MidGrowthForm.ReedStand&&h!=null&&Tidal(h.Value.Biome))height*=h.Value.Biome==Biome.SaltMarsh?.65:.8;
                 double moisture=form==MidGrowthForm.OpenScrub||form==MidGrowthForm.Succulent?.12+.35*a.Unit():
                     form==MidGrowthForm.ReedStand?1.1+.65*a.Unit():form==MidGrowthForm.LargeFern?.95+.65*a.Unit():D.Clamp(wet*(.8+.4*a.Unit()),.3,1.6);
                 double shade=form==MidGrowthForm.LargeFern?.48+.30*a.Unit():form==MidGrowthForm.LeafyBush?GroundSpecialists.Canopy(h?.Biome??Biome.Grassland)*.65+.25*a.Unit():.03+.2*a.Unit();
@@ -105,13 +115,16 @@ namespace WorldGen.Core
                     Moisture=moisture,Shade=shade,MinWarmC=warm-12-8*a.Unit(),MaxWarmC=warm+12+7*a.Unit(),MinPH=3.9+1.5*a.Unit(),MaxPH=7.5+1.1*a.Unit(),
                     MaxSalinity=h!=null&&(h.Value.Biome==Biome.SaltMarsh||h.Value.Biome==Biome.Mangrove)?.65+.3*a.Unit():.04+.15*a.Unit(),
                     ColonyM=12+65*a.Unit(),FloodTolerance=form==MidGrowthForm.ReedStand?.95:.15+.45*a.Unit(),DroughtTolerance=form==MidGrowthForm.Succulent||form==MidGrowthForm.OpenScrub?.85:.2+.4*a.Unit()};
+                if(form==MidGrowthForm.ReedStand&&h!=null&&Tidal(h.Value.Biome))
+                    result[i].WaterSalinityLimitPpt=35+25*D.Clamp((result[i].MaxSalinity-.65)/.3);
             }
             return result;
         }
         public static double WaterAdmission(MidPlantSpecies s,LocalTerrainSample sample)
         {
             if(!sample.Underwater)return 1;
-            if(s.Form!=MidGrowthForm.ReedStand||sample.WaterKind==LocalWaterKind.Ocean||sample.WaterSpeedMPerS>.5)return 0;
+            if(s.Form!=MidGrowthForm.ReedStand||sample.WaterSpeedMPerS>.5)return 0;
+            if(sample.WaterKind==LocalWaterKind.Ocean&&(!Tidal(sample.Biome)||s.WaterSalinityLimitPpt<=0))return 0;
             double maximum=Math.Min(1.2,s.HeightM*.4),depth=sample.WaterSurfaceM-sample.ElevationM;
             return 1-OrogenMorphology.Smooth(maximum*.6,maximum,depth);
         }
@@ -147,8 +160,21 @@ namespace WorldGen.Core
             if(s.Form==MidGrowthForm.OpenScrub||s.Form==MidGrowthForm.Succulent||s.Form==MidGrowthForm.ReedStand)light*=D.Clamp((1-shade)/.60);
             double temperature=D.Clamp((warm-s.MinWarmC)/6)*D.Clamp((s.MaxWarmC-warm)/6);
             double ph=D.Clamp((soil.PH-s.MinPH)/.8)*D.Clamp((s.MaxPH-soil.PH)/.8),salt=1-D.Clamp(soil.Salinity/Math.Max(.01,s.MaxSalinity));
+            if(s.WaterSalinityLimitPpt>0&&(Tidal(biome)||h!=null&&Tidal(h.Value.Biome)))
+            {
+                double ppt=Math.Max(soil.Salinity*5,h==null?0:h.Value.SalinityMilliPpt*.001);
+                salt=1-OrogenMorphology.Smooth(s.WaterSalinityLimitPpt*.4,s.WaterSalinityLimitPpt,ppt);
+            }
             double roots=D.Clamp(soil.DepthM/(s.Form==MidGrowthForm.DwarfHeath?.12:.28))*(.55+.45*soil.Fertility)*(1-.6*soil.Gravel);
             return D.Clamp(weight*moisture*light*temperature*ph*salt*roots*(1-flood*(1-s.FloodTolerance)));
+        }
+        public static double EstablishmentWeight(MidPlantSpecies s,HabitatCell? h,GroundProfile soil,Biome biome,double warm,double? localShade=null,double inundationDepth=0,double localWet=0)
+        {
+            double fit=Suitability(s,h,soil,biome,warm,localShade,inundationDepth,localWet);
+            // Rhizomatous emergents establish coherent stands where wetland
+            // evidence already exists. Preserve the shared candidate/ID budget
+            // and every species constraint; ordinary uplands remain exact.
+            return fit*(s.Form==MidGrowthForm.ReedStand&&Wetland(biome)?6:1);
         }
         public static double Colony(MidPlantSpecies s,V position,int seed,double physicalRadiusM)
         {
@@ -167,7 +193,7 @@ namespace WorldGen.Core
             var p=new MidCoverProfile();double sum=0,area=0;
             foreach(var s in species)
             {
-                double w=Suitability(s,h,ground,biome,h==null?18:h.Value.WarmTenthsC*.1);sum+=w;
+                double w=EstablishmentWeight(s,h,ground,biome,h==null?18:h.Value.WarmTenthsC*.1);sum+=w;
                 p.Color+=s.LeafColor*w;p.HeightM+=s.HeightM*w;p.WidthM+=s.WidthM*w;
                 area+=s.WidthM*s.WidthM*.60*ColonyMembers(s.Form)*w;
             }

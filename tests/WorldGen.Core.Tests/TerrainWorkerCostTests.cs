@@ -9,24 +9,28 @@ using WorldGen.Serialization;
 
 static class TerrainWorkerCostTests
 {
-    static string MeshHash(LocalTerrainMesh mesh,bool geometryOnly=false)
+    static string MeshHash(LocalTerrainMesh mesh,bool geometryOnly=false,bool surfaceAttributesOnly=false)
     {
         double elapsed=mesh.BuildMilliseconds;
         float[] original=mesh.Colors;
+        var surface=mesh.SurfaceWeights;var second=mesh.GroundWeightsB;
+        var ground=mesh.GroundCover;var mid=mesh.MidCover;var forest=mesh.ForestCover;
         using var bytes=new MemoryStream();
         try
         {
             mesh.BuildMilliseconds=0;
             if(geometryOnly){mesh.Colors=(float[])original.Clone();for(int i=0;i<mesh.Colors.Length;i++)if(i%4!=3)mesh.Colors[i]=0;}
+            if(surfaceAttributesOnly)mesh.Colors=mesh.SurfaceWeights=mesh.GroundWeightsB=mesh.GroundCover=mesh.MidCover=mesh.ForestCover=Array.Empty<float>();
             using(var writer=new BinaryWriter(bytes,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteMesh(writer,mesh);
         }
-        finally{mesh.BuildMilliseconds=elapsed;mesh.Colors=original;}
+        finally{mesh.BuildMilliseconds=elapsed;mesh.Colors=original;mesh.SurfaceWeights=surface;mesh.GroundWeightsB=second;mesh.GroundCover=ground;mesh.MidCover=mid;mesh.ForestCover=forest;}
         return Convert.ToHexString(SHA256.HashData(bytes.ToArray())).ToLowerInvariant();
     }
     // Explicit offline audit of packaged workers. It never starts Unity or
     // changes runtime preferences, and does not treat component cost as FPS.
-    public static void Run(string path,string executable,string sitesPath,string output,bool verifyCurrent=false,bool geometryOnly=false,bool farTiles=false,bool reportCurrent=false)
+    public static void Run(string path,string executable,string sitesPath,string output,bool verifyCurrent=false,bool geometryOnly=false,bool farTiles=false,bool reportCurrent=false,bool surfaceAttributesOnly=false)
     {
+        if(geometryOnly&&surfaceAttributesOnly)throw new ArgumentException("Choose one explicit comparison normalization");
         Directory.CreateDirectory(output);var world=WorldFile.ReadPlanetaryFile(path);
         using var sites=JsonDocument.Parse(File.ReadAllText(sitesPath).TrimStart('\ufeff'));
         var point=sites.RootElement.GetProperty("Sites")[0].GetProperty("Position");
@@ -61,7 +65,7 @@ static class TerrainWorkerCostTests
                 w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,request.Item1,request.Item2,request.Item3,request.Item4,null);w.Flush();
                 if(!r.ReadBoolean())throw new Exception("Worker request failed: "+r.ReadString());
                 var mesh=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();child.Refresh();watch.Stop();double cpuMs=child.TotalProcessorTime.TotalMilliseconds-cpu;
-                string hash=MeshHash(mesh,geometryOnly);int changedRgb=0;double maxRgbDelta=0;double? currentBuildMs=null;
+                string hash=MeshHash(mesh,geometryOnly,surfaceAttributesOnly);int changedRgb=0;double maxRgbDelta=0;double? currentBuildMs=null;
                 string bankBoundaryError=null;
                 if(boundaryReview)try{WaterCouplingTests.ContainedBoundary(mesh);}catch(Exception error){bankBoundaryError=error.Message;}
                 int? currentVertices=null,currentWaterVertices=null;bool? currentMatches=null;
@@ -70,11 +74,11 @@ static class TerrainWorkerCostTests
                     double step=request.Item3/request.Item4;
                     var expected=LocalTerrainMesh.Build(model,frame,request.Item1,request.Item2,request.Item3,request.Item4,edgeSteps:new[]{step,step,step,step});
                     currentBuildMs=expected.BuildMilliseconds;
-                    currentVertices=expected.Positions.Length/3;currentWaterVertices=expected.WaterPositions.Length/3;currentMatches=MeshHash(expected,geometryOnly)==hash;
-                    if(verifyCurrent&&currentMatches!=true)throw new Exception("Packaged/current terrain/water/cover wire payload differs at "+request+", terrain RGB excluded: "+geometryOnly);
+                    currentVertices=expected.Positions.Length/3;currentWaterVertices=expected.WaterPositions.Length/3;currentMatches=MeshHash(expected,geometryOnly,surfaceAttributesOnly)==hash;
+                    if(verifyCurrent&&currentMatches!=true)throw new Exception("Packaged/current terrain/water/cover wire payload differs at "+request+", terrain RGB excluded: "+geometryOnly+", surface attributes excluded: "+surfaceAttributesOnly);
                     if(geometryOnly)for(int i=0;i<mesh.Colors.Length;i++)if(i%4!=3&&mesh.Colors[i]!=expected.Colors[i]){changedRgb++;maxRgbDelta=Math.Max(maxRgbDelta,Math.Abs(mesh.Colors[i]-expected.Colors[i]));}
                 }
-                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,ExpectedCurrentBuildMs=currentBuildMs,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,CurrentVertices=currentVertices,CurrentWaterVertices=currentWaterVertices,CurrentPayloadMatches=currentMatches,BankBoundaryError=bankBoundaryError,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),TerrainRgbExcluded=geometryOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
+                var row=new{Kind="terrain",East=request.Item1,North=request.Item2,Size=request.Item3,Segments=request.Item4,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,mesh.BuildMilliseconds,ExpectedCurrentBuildMs=currentBuildMs,Vertices=mesh.Positions.Length/3,WaterVertices=mesh.WaterPositions.Length/3,CurrentVertices=currentVertices,CurrentWaterVertices=currentWaterVertices,CurrentPayloadMatches=currentMatches,BankBoundaryError=bankBoundaryError,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly?true:null),ExactPhysicalPayload=(bool?)(verifyCurrent&&geometryOnly?true:null),ExactGeometryWaterPayload=(bool?)(verifyCurrent&&surfaceAttributesOnly?true:null),SurfaceAttributesExcluded=surfaceAttributesOnly,TerrainRgbExcluded=geometryOnly||surfaceAttributesOnly,ChangedRgbComponents=changedRgb,MaxRgbDelta=maxRgbDelta};rows.Add(row);
                 File.WriteAllText(Path.Combine(output,"tiles.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
                 Console.WriteLine($"{version} tile {request.Item1},{request.Item2}/{request.Item3} n{request.Item4}: {row.ElapsedMs:F1}ms wall / {row.BuildMilliseconds:F1}ms build / {row.CpuMs:F1}ms CPU");
             }
@@ -95,13 +99,13 @@ static class TerrainWorkerCostTests
                     w.Write((byte)0);w.Flush();child.Refresh();watch.Stop();double cpuMs=child.TotalProcessorTime.TotalMilliseconds-cpu;
                     using var payload=new MemoryStream();using(var encoded=new BinaryWriter(payload,System.Text.Encoding.UTF8,true)){if(command==1)TerrainMeshWire.WriteScatter(encoded,actualScatter!);else TerrainMeshWire.WriteForest(encoded,actualForest!);}
                     string hash=Convert.ToHexString(SHA256.HashData(payload.ToArray())).ToLowerInvariant();
-                    if(verifyCurrent&&!geometryOnly)
+                    if(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly)
                     {
                         using var expectedPayload=new MemoryStream();using(var encoded=new BinaryWriter(expectedPayload,System.Text.Encoding.UTF8,true)){if(command==1)TerrainMeshWire.WriteScatter(encoded,scatter.Build(key));else TerrainMeshWire.WriteForest(encoded,scatter.BuildForest(forest));}
                         string expected=Convert.ToHexString(SHA256.HashData(expectedPayload.ToArray())).ToLowerInvariant();
                         if(expected!=hash)throw new Exception("Packaged/current complete vegetation payload differs at "+delta+", detail "+detail+", command "+command);
                     }
-                    var row=new{Kind=command==1?(detail?"scatter-detail":"scatter"):"forest",East=delta.Item1,North=delta.Item2,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,Items=count,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly?true:null)};rows.Add(row);
+                    var row=new{Kind=command==1?(detail?"scatter-detail":"scatter"):"forest",East=delta.Item1,North=delta.Item2,ElapsedMs=watch.Elapsed.TotalMilliseconds,CpuMs=cpuMs,Items=count,PayloadSha256=hash,ExactCurrentPayload=(bool?)(verifyCurrent&&!geometryOnly&&!surfaceAttributesOnly?true:null)};rows.Add(row);
                     File.WriteAllText(Path.Combine(output,"tiles.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
                     Console.WriteLine($"{version} {row.Kind} {delta}: {row.ElapsedMs:F1}ms wall / {row.CpuMs:F1}ms CPU, {count} items");
                 }

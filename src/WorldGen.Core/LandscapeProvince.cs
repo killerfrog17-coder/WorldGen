@@ -201,6 +201,7 @@ namespace WorldGen.Core
         public static void Cover(LandscapeControls controls,V metres,int seed,ref GroundCoverProfile cover,ref MidCoverProfile mid,ref ForestCoverProfile forest,ref Biome biome)
         {
             bool tidalForest=biome==Biome.Mangrove;
+            bool tidalWetland=tidalForest||biome==Biome.SaltMarsh;
             double wet=Smooth(.25,.6,controls.Wet);
             if(wet>0)
             {
@@ -210,12 +211,12 @@ namespace WorldGen.Core
                 for(int f=0;f<3;f++)cover.SetWeight(f,cover.Weight(f)*(1-.92*wet));
                 cover.SetWeight(3,Math.Max(cover.Weight(3),.36*wet*open));
                 forest.Coverage*=1-.985*wet*open;
-                if(controls.Peat>.55)
+                if(controls.Peat>.55&&!tidalWetland)
                 {
                     cover.SetWeight(6,Math.Max(cover.Weight(6),.35*wet));
                     cover.Stature*=.65;biome=Biome.Peatland;
                 }
-                else if(wet>.8&&open>.75)biome=Biome.Marsh;
+                else if(wet>.8&&open>.75&&!tidalWetland)biome=Biome.Marsh;
             }
             if(tidalForest)
             {

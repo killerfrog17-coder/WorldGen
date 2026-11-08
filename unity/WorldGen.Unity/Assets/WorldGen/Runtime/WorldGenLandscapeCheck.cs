@@ -102,6 +102,16 @@ public sealed partial class LocalTerrainExplorer
                     return new LandscapeReviewSite{Position=coast.Position,CoastDirection=coast.Seaward,Sample=sample,Coast=kind,Landform=kind};
                 }
             }
+            else if(kind=="SaltMarsh")
+            {
+                // Review actual intertidal ground. The generic inland finder
+                // deliberately rejects ground <=5m and cannot inspect this.
+                foreach(var coast in TidalMarshSites.Nearshore(world,model,pinnedSource))
+                {
+                    var sample=model.Patch(coast.Position,5000).Sample(coast.Position);
+                    return new LandscapeReviewSite{Position=coast.Position,Sample=sample,CoastDirection=coast.Seaward,Landform="SaltMarsh"};
+                }
+            }
             else if(kind=="Fjord"||kind=="FjordMouth"||kind=="FjordWoodland")
             {
                 var inlets=model.Amplification.Fjords.Inlets.OrderByDescending(f=>kind=="FjordWoodland"?model.Profile(f.Mouth).Forest.Coverage/(1+f.Relief/900):f.LengthM*f.Relief);
