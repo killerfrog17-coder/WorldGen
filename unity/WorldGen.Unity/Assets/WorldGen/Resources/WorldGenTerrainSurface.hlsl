@@ -162,7 +162,10 @@ void SurfaceStrata(O i,inout float3 albedo)
 void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3 altitude,float viewDistance,inout float3 albedo)
 {
     float total=max(.001,dot(max(i.weights,0),1)+dot(max(i.groundB,0),1));
-    float bare=saturate((i.groundB.x+i.weights.w*.45)/total)*smoothstep(.06,.38,1-abs(normalize(i.normal).y));
+    float wall=smoothstep(.06,.38,1-abs(normalize(i.normal).y));
+    float bare=saturate((i.groundB.x+i.weights.w*.45)/total);
+    if(_CliffLayers<.5)bare*=wall;
+    else bare=saturate((i.groundB.x+i.weights.w*.45*wall)/total);
     if(bare<.01||_TerrainSurfaceControls.y<1)return;
     // Dedicated8m wall material replaces the former128m grey weathering read.
     // Same two-axis fetch budget; independent of the microscopic ground range.
@@ -177,8 +180,16 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3
     float3 grain;
     if(_CliffLayers>.5)
     {
-        grain=CliffFaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world,worldDx,worldDy,altitude,CliffFaceAxes(planetNormal,TerrainUp().xyz),rock>=2&&rock<=4?1:0).rgb;
-        albedo=lerp(albedo,CliffFaceColour(grain,albedo,rock>=2&&rock<=4?1:0,viewDistance),bare);
+        int cliffLayer=rock>=2&&rock<=4?1:0;
+        // Flatter rock ledges share the wall's stone colour. Previously the
+        // entire photo faded out with slope, exposing orange/green triangles
+        // from the old ground colour inside an otherwise continuous rock face.
+        // The vertical chart still fades out on shelves to avoid stretching;
+        // soil/vegetation weights and all physical ground data remain intact.
+        grain=CliffMeanColour(cliffLayer);
+        [branch]if(wall>.01)
+            grain=lerp(grain,CliffFaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world,worldDx,worldDy,altitude,CliffFaceAxes(planetNormal,TerrainUp().xyz),cliffLayer).rgb,wall);
+        albedo=lerp(albedo,CliffFaceColour(grain,albedo,cliffLayer,viewDistance),bare);
         return;
     }
     else

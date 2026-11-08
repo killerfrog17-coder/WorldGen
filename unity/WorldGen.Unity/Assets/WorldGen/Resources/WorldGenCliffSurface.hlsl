@@ -1,15 +1,19 @@
 #ifndef WORLDGEN_CLIFF_SURFACE_INCLUDED
 #define WORLDGEN_CLIFF_SURFACE_INCLUDED
-float3 CliffFaceColour(float3 photo,float3 pigment,int layer,float viewDistance)
+float3 CliffMeanColour(int layer)
 {
-    // Preserve the close photograph, but suppress its recognisable eight-metre
-    // repetition across distant valley walls. These are the generated masters'
-    // linear mean colours (cliff-material-generation-20261108.json). No extra
-    // texture read or alternative geometry is needed; both surfaces share this.
+    // Generated masters' linear means: cliff-material-generation-20261108.json.
     float3 mean=layer==0?float3(.303344,.281661,.244894):float3(.377209,.306061,.229586);
     #ifdef UNITY_COLORSPACE_GAMMA
     mean=LinearToSRGB(mean);
     #endif
+    return mean;
+}
+float3 CliffFaceColour(float3 photo,float3 pigment,int layer,float viewDistance)
+{
+    // Preserve the close photograph, suppress recognisable eight-metre repeats
+    // across distant walls. Shared by terrain and meshes, without extra reads.
+    float3 mean=CliffMeanColour(layer);
     photo=lerp(photo,mean,.88*smoothstep(80,300,viewDistance));
     float lum=max(.015,dot(pigment,float3(.2126,.7152,.0722)));
     float reference=.18;
