@@ -1,6 +1,6 @@
 {
   "utc": "2026-11-08T11:36:53.989448+00:00",
-  "status": "Final71 crescent native review passed34 checks; crescent art accepted by agent, owner review pending. Performance promotion ON HOLD: A406/167/171FPS versus B753/193/193 on three borderless moving routes; reverse A479/167/170 reproduces most gap. Engine render times similar, but candidate presentation waits longer. Diagnosis ongoing. Star terrain RETIRED after two rejected native views.",
+  "status": "Final71 crescent native34 checks/art accepted by agent; owner unseen. Performance HOLD: oldB code with A assets also slow; oldB serialized data in same A slot recovers dune771FPS. Clean full rebuild/retest next. No global100FPS floor claim. Stars retired.",
   "versions": {
     "terrain": 71,
     "amplification": 64,
