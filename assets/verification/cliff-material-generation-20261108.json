@@ -1,5 +1,5 @@
 {
-  "status": "Generated masters inspected; runtime material validation pending",
+  "status": "Generated and baked; native canyon/forest/coast appearance review pending.",
   "materials": [
     {
       "key": "massive",
@@ -57,5 +57,25 @@
     }
   ],
   "processing": "Linear mean-normalized colour, periodic-plus-smooth and exact opposing edges. Luminance-derived 6.5cm RMS relief approximation at 8m repeat; not measured photogrammetry/PBR.",
-  "runtime_budget": "Two BC7 layers: colour1024, normals512. Replace existing cliff/terrain rock reads; no new pass or extra texture reads. Existing17-layer ground bank unchanged."
+  "runtime_budget": "Two BC7 layers: colour1024, normals512. Replace existing cliff/terrain rock reads; no new pass or extra texture reads. Existing17-layer ground bank unchanged.",
+  "authoring_checks": [
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-albedo.png",
+      "exact_opposing_edges": true
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-normal.png",
+      "exact_opposing_edges": true,
+      "encoded_unit_normal_max_error": 0.006464570847540929
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-albedo.png",
+      "exact_opposing_edges": true
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-normal.png",
+      "exact_opposing_edges": true,
+      "encoded_unit_normal_max_error": 0.006464570847540929
+    }
+  ]
 }

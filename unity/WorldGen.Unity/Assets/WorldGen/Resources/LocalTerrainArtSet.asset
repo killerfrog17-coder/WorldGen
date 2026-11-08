@@ -17,4 +17,6 @@ MonoBehaviour:
   Albedo: {fileID: 18700000, guid: 888579090079e3e4bb6e3f9c2543d227, type: 2}
   Normals: {fileID: 18700000, guid: 4d50b1e5190796d4081ee8fcbb64a5f3, type: 2}
   Masks: {fileID: 18700000, guid: e6d539a90d668104ba420756bbc39080, type: 2}
+  CliffAlbedo: {fileID: 18700000, guid: 4e86e96564ff2154fb8d2615b0be332a, type: 2}
+  CliffNormals: {fileID: 18700000, guid: 60f971b0c90b4c24e8e54b2509c5382c, type: 2}
   TextureRepeatMetres: 2

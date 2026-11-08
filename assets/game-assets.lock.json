@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "b12f41d5190dc552dd93359ae26a0b211a7a3965",
+  "source_checkpoint": "f04f83a10a5d6d3aebb8565ffbb0b5dcb4e7f60d",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "assets-source/animals/anatomy/badger/Animal - Painted Species Review.blend": {
@@ -14229,6 +14229,18 @@
       "bytes": 1719,
       "pack": "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
       "member": "objects/cdbb7f7419d610b7d4f73108a54a4fa36fe40bb6154819ec8b31b4a70fce9526"
+    },
+    "assets-source/terrain/surfaces/ai/cliff-set-20261108/massive.png": {
+      "sha256": "e0956c6b8fb3f3d14d4997906299609ad078e498459ab7f4e270cbec02e5fede",
+      "bytes": 4229110,
+      "pack": "asset-dependencies-cliff-materials-20261108/assets-f7acbaee78d21343d3dfde104f115e86e89feb29950f62a416223989298ad52d.zip",
+      "member": "objects/e0956c6b8fb3f3d14d4997906299609ad078e498459ab7f4e270cbec02e5fede"
+    },
+    "assets-source/terrain/surfaces/ai/cliff-set-20261108/stratified.png": {
+      "sha256": "02e08dcd4840400c868b0ba14bb7f9eec15d0ebb1cc535b285391a8acecde5d2",
+      "bytes": 3519336,
+      "pack": "asset-dependencies-cliff-materials-20261108/assets-f7acbaee78d21343d3dfde104f115e86e89feb29950f62a416223989298ad52d.zip",
+      "member": "objects/02e08dcd4840400c868b0ba14bb7f9eec15d0ebb1cc535b285391a8acecde5d2"
     },
     "assets-source/terrain/surfaces/ai/ground-set-20261107/basalt.png": {
       "sha256": "eb1af1ae15d611962fd78ffb886bc2014f2c1318e483a23f99b199d57b338c07",
@@ -35418,6 +35430,14 @@
     }
   },
   "packs": {
+    "asset-dependencies-cliff-materials-20261108/assets-f7acbaee78d21343d3dfde104f115e86e89feb29950f62a416223989298ad52d.zip": {
+      "tag": "asset-dependencies-cliff-materials-20261108",
+      "name": "assets-f7acbaee78d21343d3dfde104f115e86e89feb29950f62a416223989298ad52d.zip",
+      "asset_id": 722553453,
+      "sha256": "ab9f4dd5519d065307d2d55c256cd0b41800fcb981d83cf26da3581c80a051bc",
+      "bytes": 7474259,
+      "encoding": "zip"
+    },
     "asset-dependencies-cliffs-20261107/assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip": {
       "tag": "asset-dependencies-cliffs-20261107",
       "name": "assets-6396472b998a0d5c0933f5a518ccd217d2fe7fd4990f70ee4871f6e5cef52090.zip",
