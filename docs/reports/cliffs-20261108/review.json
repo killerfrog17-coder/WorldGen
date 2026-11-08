@@ -1,0 +1,128 @@
+{
+  "title": "WorldGen | Cliff materials and cleanup",
+  "date": "7 November 2026",
+  "source_commit": "f5936062056e68087aa9e059003cb3fb72cd0c7b",
+  "inputs": {
+    "fjord-before.jpg": {
+      "source": "artifacts/landscape-20261103/cliff-photo-distance-v3-20261108-fjordwoodland/wide.png",
+      "source_sha256": "5f6ac8bb58be402259c42432c9f6b8c1b3c8492a06ceabd5671bb514745792b4",
+      "sha256": "139b67db46862a0939145ce10e1f2b68bbd26b89319ac9cdc7210bea6c9ddf47"
+    },
+    "fjord-current.jpg": {
+      "source": "artifacts/landscape-20261103/cliff-clean-texture-v6-20261108-fjordwoodland/wide.png",
+      "source_sha256": "d2c46c72262968c31044312b171afcc88f10788ea38864b1c6cace751135fdef",
+      "sha256": "5af9b37940d2c7e77e0165e5f5fc9ff11527c391023a3e4e204f49a9c8f20e0a"
+    },
+    "rock-wall.jpg": {
+      "source": "artifacts/landscape-20261103/cliff-clean-texture-v6-20261108-fjordwoodland/cliff-wall-context.png",
+      "source_sha256": "6fc923afafb9feb0fe7a25e9d25c981a9c42fd597f9348f2efc442ee87c78f63",
+      "sha256": "6a635050d9034d65c46ac1ee7f1a86ecf277172a76648d22b75bc7503211e761"
+    }
+  },
+  "comparison": {
+    "same_fjord_position": true,
+    "same_history": true,
+    "same_wide_camera": true,
+    "before_camera": "wide camera=(295.23, 757.10, 38.23) look=(-295.23, -694.75, -38.23) ground=86.21572 eyeClearance=670.8855 solarHour=12",
+    "current_camera": "wide camera=(295.23, 757.10, 38.23) look=(-295.23, -694.75, -38.23) ground=86.21572 eyeClearance=670.8855 solarHour=12"
+  },
+  "pages": [
+    {
+      "title": "Cliff materials & cleaner walls",
+      "subtitle": "The rock texture direction is retained. The oversized cliff-scatter masses and repeated cellular carving are removed.",
+      "blocks": [
+        {
+          "heading": "EARLIER CLIFF EXPERIMENT",
+          "images": [
+            {
+              "file": "fjord-before.jpg",
+              "caption": "Earlier version: large attached rock masses stand apart from the valley walls."
+            }
+          ],
+          "max_height": 235
+        },
+        {
+          "heading": "CURRENT REVISION",
+          "images": [
+            {
+              "file": "fjord-current.jpg",
+              "caption": "The same fjord after cleanup. Ordinary trees, boulders and natural outcrops remain."
+            }
+          ],
+          "max_height": 235
+        },
+        {
+          "text": "The extra distance fade was also retired: it made the rock surface too flat in wider views. The generated material now retains its detail through normal texture mipmapping.",
+          "size": 9.5
+        }
+      ]
+    },
+    {
+      "title": "Continuous rock surface",
+      "subtitle": "Actual game capture in the wooded fjord. The wall material no longer depends on covering the terrain with large scatter meshes.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "rock-wall.jpg",
+              "caption": "Current exposed rock: continuous layered texture, with ordinary vegetation and small rocks still present."
+            }
+          ],
+          "max_height": 250
+        },
+        {
+          "table": {
+            "headers": [
+              "Validation",
+              "Result"
+            ],
+            "widths": [
+              0.49,
+              0.51
+            ],
+            "rows": [
+              [
+                "Actual canyon surface seams",
+                "176 assertions passed"
+              ],
+              [
+                "Adaptive terrain planning",
+                "1,403 checks passed"
+              ],
+              [
+                "Canyon scatter reconstruction",
+                "0 synthetic cliff masses; 292 ordinary rocks"
+              ],
+              [
+                "Final wooded-cliff review",
+                "48 runtime/scene checks passed; interactive review remains open"
+              ],
+              [
+                "Frame-rate comparison",
+                "Deferred while another game is running; no new FPS claim"
+              ]
+            ]
+          }
+        },
+        {
+          "text": "<b>Scope:</b> two generated cliff material families, about 3.33 MiB of shared texture data. No new terrain mesh layer or render pass. The approved close texture is retained.",
+          "size": 9.3
+        },
+        {
+          "text": "<b>Still to do:</b> better integrated ledges and overhangs, plus refinement of visible repetition on long uniform walls. The global 100 FPS goal is not signed off. The main shortcut remains on the protected previous build; this review uses slot B.",
+          "size": 9.3
+        }
+      ],
+      "sources": [
+        [
+          "Original Skyrim visual reference",
+          "https://store.steampowered.com/app/72850/The_Elder_Scrolls_V_Skyrim/"
+        ],
+        [
+          "Bethesda modular design talk",
+          "https://www.gamedeveloper.com/design/skyrim-s-modular-approach-to-level-design"
+        ]
+      ]
+    }
+  ]
+}

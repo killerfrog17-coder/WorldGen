@@ -1,0 +1,113 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 714.3697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 458.4897637795277,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\cliffs-20261108\\fjord-before.jpg",
+    "bottom": 474.3697637795277,
+    "height": 235
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 428.7697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 172.8897637795277,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\cliffs-20261108\\fjord-current.jpg",
+    "bottom": 188.7697637795277,
+    "height": 235
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 133.5697637795277,
+    "height": 24.32
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 463.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\cliffs-20261108\\rock-wall.jpg",
+    "bottom": 479.08976377952774,
+    "height": 250
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 253.40176377952776,
+    "height": 23.808000000000003
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 217.59376377952776,
+    "height": 23.808000000000003
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  }
+]

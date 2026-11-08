@@ -1,5 +1,5 @@
 {
-  "status": "Photo-colour calibration v2 built and two native reviews passed runtime assertions. Overall cliff art NOT accepted; interactive woodland review pending.",
+  "status": "Owner approved close texture direction. Oversized cliff masses, cellular carving and excessive distance fade retired; final wooded-cliff native checks passed.",
   "materials": [
     {
       "key": "massive",
@@ -159,5 +159,26 @@
       "No FPS measurements while owner is gaming; no performance improvement claimed."
     ]
   },
-  "material_revision": "Shared retained photo colour, world chart and scale on terrain and cliff models. Restrained multiscale normal relief. No terrain shape changes in this revision."
+  "material_revision": "Shared retained photo colour, world chart and scale on terrain and cliff models. Restrained multiscale normal relief. No terrain shape changes in this revision.",
+  "final_review": {
+    "source_commit": "f5936062056e68087aa9e059003cb3fb72cd0c7b",
+    "built_utc": "2026-11-08T04:12:47.0237003Z",
+    "versions": {
+      "terrain": 67,
+      "amplification": 60,
+      "scatter": 35
+    },
+    "native": "artifacts/landscape-20261103/cliff-clean-texture-v6-20261108-fjordwoodland",
+    "passed_assertions": 48,
+    "interactive_open": true,
+    "same_history_as_before": true,
+    "same_wide_camera_as_before": true,
+    "report": "docs/reports/cliffs-20261108/WorldGen - Cliff Material Review.pdf",
+    "fps": "Not measured: owner is gaming. No FPS gain or global floor claim.",
+    "limitations": [
+      "Natural integrated overhangs are deferred; synthetic scatter masses no longer spawn.",
+      "Two broad generated material families; long-wall repetition still needs refinement.",
+      "Root shortcut remains on protected slot A; candidate review runs slot B."
+    ]
+  }
 }

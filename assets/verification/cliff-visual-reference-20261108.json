@@ -1,5 +1,5 @@
 {
-  "status": "Reference-led material test; not a new terrain/climbing system",
+  "status": "Owner accepted texture direction; oversized clumps removed and final native review passed. Not a complete cliff/overhang system.",
   "owner_direction": "Mostly better texturing, subtle shape changes. AC3 Frontier and vanilla Skyrim are references; Skyrim example not a prescription for Grand Canyon geography.",
   "primary_sources": [
     {
@@ -35,12 +35,17 @@
   ],
   "asset_rights": "References are for analysis only. Game assets remain our generated masters and previously approved CC0 source geometry.",
   "owner_feedback": "Close rock texture looks quite good; large clump rocks look unrealistic and obviously scattered.",
-  "current_direction": "Keep approved texture direction. Remove oversized synthetic cliff-scatter masses and older cellular terrain carving; ordinary boulders/outcrops remain. Native clean-wall review pending.",
+  "current_direction": "Keep approved generated material. No oversized synthetic cliff masses and no cellular terrain carving. Ordinary rocks remain.",
   "retired_scatter": {
     "version": 35,
     "actual_checks": 18280,
     "actual_synthetic_cliff_masses": 0,
     "actual_ordinary_rocks": 292,
-    "scope": "Six qualifying canyon patches; these are component assertions, not frame-rate measurements."
+    "scope": "Both sides of three canyon reaches; component assertions, not frame-rate measurements."
+  },
+  "retired_distance_fade": {
+    "source": "db689739",
+    "retired_in": "f5936062",
+    "reason": "Excessively flattened the wider wall; the repeated large facets belonged to retired geometry, so the strong colour fade was inappropriate."
   }
 }
