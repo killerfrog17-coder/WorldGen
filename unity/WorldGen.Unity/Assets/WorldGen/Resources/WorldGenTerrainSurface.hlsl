@@ -176,7 +176,11 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3
     float3 axes=SurfaceAxes(planetNormal,2,1);
     float3 grain;
     if(_CliffLayers>.5)
+    {
         grain=CliffFaceArray(TEXTURE2D_ARRAY_ARGS(_CliffAlbedo,sampler_GroundAlbedo),world,worldDx,worldDy,altitude,CliffFaceAxes(planetNormal,TerrainUp().xyz),rock>=2&&rock<=4?1:0).rgb;
+        albedo=lerp(albedo,CliffFaceColour(grain,albedo),bare);
+        return;
+    }
     else
         grain=dot(SurfaceArray(TEXTURE2D_ARRAY_ARGS(_GroundAlbedo,sampler_GroundAlbedo),world/128,worldDx/128,worldDy/128,axes,8+rock).rgb,float3(.2126,.7152,.0722));
     #ifndef UNITY_COLORSPACE_GAMMA
@@ -184,7 +188,7 @@ void SurfaceRockWeathering(O i,float3 world,float3 worldDx,float3 worldDy,float3
     #else
     grain*=2;
     #endif
-    albedo*=lerp(1,clamp(grain,_CliffLayers>.5?.22:.55,_CliffLayers>.5?2.1:1.45),bare*(_CliffLayers>.5?.94:.62));
+    albedo*=lerp(1,clamp(grain,.55,1.45),bare*.62);
 }
 
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)

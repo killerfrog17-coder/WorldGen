@@ -43,12 +43,14 @@ Shader "WorldGen/LocalScatter"
             #include "WorldGenFoliageShadows.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenVegetationScene.hlsl"
+            #include "WorldGenCliffSurface.hlsl"
             #include "WorldGenLodFade.hlsl"
             #include "WorldGenWind.hlsl"
             #include "WorldGenTree.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
             TEXTURE2D_ARRAY(_RockAlbedo);SAMPLER(sampler_RockAlbedo);TEXTURE2D_ARRAY(_RockNormals);
             float _RockLayer,_RockLayers,_CliffSurface;
+            float4 _TerrainGeologyDatum;
             float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint,_PlantTraits;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance,_HerbWind;
             float _TreeSurface,_TreeLeafShape,_TreeBarkPattern,_SimpleFoliage,_WorldGenFullPlantPbr;
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -103,18 +105,36 @@ Shader "WorldGen/LocalScatter"
                 n=normalize(n+(t*bump.x+cross(n,t)*i.tangent.w*bump.y)*_NormalStrength);
                 if(_RockLayers>.5)
                 {
+                    float3 east=_VegetationSceneData[6].xyz,north=_VegetationSceneData[7].xyz,up=_VegetationSceneData[8].xyz;
+                    float2 radial=i.position.xz+_VegetationSceneData[3].xy;
+                    float3 world=_VegetationSceneData[5].xyz+east*radial.x+north*radial.y+up*i.position.y;
+                    float height=i.position.y+_TerrainGeologyDatum.x+dot(radial,radial)*_TerrainGeologyDatum.y;
+                    float3 altitude=float3(height,ddx(height),ddy(height)),dx=ddx(world),dy=ddy(world);
+                    if(_CliffSurface>1.5&&_VegetationSceneEnabled>.5&&abs(n.y)<.92)
+                    {
+                        float3 pn=n.x*east+n.y*up+n.z*north,w=CliffFaceAxes(pn,up);
+                        float3 photo=CliffFaceArray(TEXTURE2D_ARRAY_ARGS(_RockAlbedo,sampler_RockAlbedo),world,dx,dy,altitude,w,_RockLayer).rgb;
+                        float3 cliffBump=CliffFaceBump(TEXTURE2D_ARRAY_ARGS(_RockNormals,sampler_RockAlbedo),world,dx,dy,altitude,w,up,_RockLayer);
+                        cliffBump-=pn*dot(pn,cliffBump);pn=normalize(pn+cliffBump);
+                        n=normalize(float3(dot(pn,east),dot(pn,up),dot(pn,north)));
+                        tex.rgb=CliffFaceColour(photo,tint);tint=1;
+                    }
+                    else
+                    {
                     float3 w=pow(abs(n),4);w/=max(.001,w.x+w.y+w.z);float3 p=i.position*(_CliffSurface>1.5?.125:.65);
+                    if(_CliffSurface>1.5&&_VegetationSceneEnabled>.5)p=world/8;
                     float3 grain=SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.yz,_RockLayer).rgb*w.x+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xz,_RockLayer).rgb*w.y+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xy,_RockLayer).rgb*w.z;
                     float3 a=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.yz,_RockLayer).xyz*2-1,b=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xz,_RockLayer).xyz*2-1,c=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xy,_RockLayer).xyz*2-1;
                     n=normalize(n+(float3(0,a.x,a.y)*w.x+float3(b.x,0,b.y)*w.y+float3(c.x,c.y,0)*w.z)*lerp(1,.4,saturate(_CliffSurface)));
-                    // Match terrain's colour calibration: the lithology's
-                    // procedural pigment is modulated by mean-normalized scan
-                    // colour, rather than replacing it with a neutral slab.
+                    // Generated cliffs retain the shared stone photo colour;
+                    // ordinary small rocks keep their original grain multiply.
                     float cliffScale=2;
                     #ifndef UNITY_COLORSPACE_GAMMA
                     cliffScale=4.672;
                     #endif
-                    tex.rgb*=grain*lerp(2,cliffScale,saturate(_CliffSurface));
+                    if(_CliffSurface>1.5){tex.rgb=CliffFaceColour(grain,tint);tint=1;}
+                    else tex.rgb*=grain*lerp(2,cliffScale,saturate(_CliffSurface));
+                    }
                 }
                 float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_BaseMap,i.uv);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);

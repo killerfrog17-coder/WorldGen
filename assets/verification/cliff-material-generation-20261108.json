@@ -1,5 +1,5 @@
 {
-  "status": "Generated and baked; native canyon/forest/coast appearance review pending.",
+  "status": "Photo-colour calibration v2 UNBUILT; earlier native results describe the prior neutralized textures only.",
   "materials": [
     {
       "key": "massive",
@@ -12,7 +12,7 @@
       "outputs": [
         {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-albedo.png",
-          "sha256": "f37ba9b7c274547cded38d613d3a3facc27ebd97ceba6d37963f81bf3fd05eaa",
+          "sha256": "91df6070395ce0c22f081cf575d13fe3e4a92b54bab658193ba0acd6aab9b989",
           "size": [
             1024,
             1024
@@ -20,12 +20,17 @@
         },
         {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-normal.png",
-          "sha256": "1727aefe60bcb8dae2d00a3ac84b2ddd22e533f81b90eb2d33d59ea3dd1d6455",
+          "sha256": "f779f7ad6373dfcc9dee566eed7d3d7fc0a9a320e469570c4a942bb16fa5c579",
           "size": [
             512,
             512
           ]
         }
+      ],
+      "linear_mean_colour": [
+        0.3033440558814486,
+        0.2816610551327923,
+        0.24489422856923165
       ]
     },
     {
@@ -39,7 +44,7 @@
       "outputs": [
         {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-albedo.png",
-          "sha256": "a500a1554dd52a01a18556ee6ac573f1437a25f908b6ff60d335d4be25631eba",
+          "sha256": "22e0e538d6d8dc0f7c877014d0d791dfd25ae420a134be33ec75657c9bb344c0",
           "size": [
             1024,
             1024
@@ -47,17 +52,22 @@
         },
         {
           "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-normal.png",
-          "sha256": "e82d2da1a1715af45a276eb11e54d4935272ca2728adb002ba0925187309edfc",
+          "sha256": "8bd60d9ba4b1bdaab006058656adf093980156f73e35a482d2c6e2a60d2433a8",
           "size": [
             512,
             512
           ]
         }
+      ],
+      "linear_mean_colour": [
+        0.3772094146228121,
+        0.30606138177843506,
+        0.2295863630258009
       ]
     }
   ],
-  "processing": "Linear mean-normalized colour, periodic-plus-smooth and exact opposing edges. Luminance-derived 6.5cm RMS relief approximation at 8m repeat; not measured photogrammetry/PBR.",
-  "runtime_budget": "Two BC7 layers: colour1024, normals512. Replace existing cliff/terrain rock reads; no new pass or extra texture reads. Existing17-layer ground bank unchanged.",
+  "processing": "Generated stone colour retained, periodic-plus-smooth and exact opposing edges. Approximate relief:1.8cm broad plus1mm fine RMS at8m repeat, upward-v normal convention. Not measured PBR.",
+  "runtime_budget": "Two BC7 layers: colour1024, normals512. Existing17-layer ground bank unchanged; no geometry change.",
   "authoring_checks": [
     {
       "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-albedo.png",
@@ -66,7 +76,7 @@
     {
       "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-00-normal.png",
       "exact_opposing_edges": true,
-      "encoded_unit_normal_max_error": 0.006464570847540929
+      "encoded_unit_normal_max_error": 0.006278843038372006
     },
     {
       "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-albedo.png",
@@ -75,7 +85,7 @@
     {
       "path": "unity/WorldGen.Unity/Assets/WorldGen/Editor/CliffSurfaceArtV1/layer-01-normal.png",
       "exact_opposing_edges": true,
-      "encoded_unit_normal_max_error": 0.006464570847540929
+      "encoded_unit_normal_max_error": 0.006093149935492259
     }
   ],
   "native_v1": {
@@ -95,5 +105,6 @@
     "material_changed_pixels": 1208156,
     "material_total_pixels": 1327104,
     "ground_tile_bindings_verified": true
-  }
+  },
+  "material_revision": "Shared retained photo colour, world chart and scale on terrain and cliff models. Restrained multiscale normal relief. No terrain shape changes in this revision."
 }

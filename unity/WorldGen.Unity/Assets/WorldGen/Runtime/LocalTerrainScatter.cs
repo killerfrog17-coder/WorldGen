@@ -477,6 +477,7 @@ public sealed partial class LocalTerrainExplorer
                         material.SetFloat("_RockLayer",family>=2&&family<=4?1:0);
                         material.SetTexture("_RockAlbedo",artSet.CliffAlbedo);material.SetTexture("_RockNormals",artSet.CliffNormals);
                         material.SetFloat("_CliffSurface",2);
+                        material.SetTexture("_BaseMap",Texture2D.whiteTexture);material.SetFloat("_NormalStrength",0);
                     }
                 }
             }

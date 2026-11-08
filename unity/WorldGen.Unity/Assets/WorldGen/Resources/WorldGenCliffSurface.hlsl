@@ -1,5 +1,16 @@
 #ifndef WORLDGEN_CLIFF_SURFACE_INCLUDED
 #define WORLDGEN_CLIFF_SURFACE_INCLUDED
+float3 CliffFaceColour(float3 photo,float3 pigment)
+{
+    float lum=max(.015,dot(pigment,float3(.2126,.7152,.0722)));
+    float reference=.18;
+    #ifdef UNITY_COLORSPACE_GAMMA
+    reference=.46;
+    #endif
+    float3 hue=lerp(1,clamp(pigment/lum,.7,1.3),.22);
+    float value=lerp(1,clamp(lum/reference,.65,1.25),.25);
+    return photo*hue*value;
+}
 // Wall charts share physical altitude for v, so sedimentary bedding remains
 // horizontal at every latitude. u uses periodic planet coordinates. The two
 // dominant contour axes avoid projecting the wall image onto a floor plane.
