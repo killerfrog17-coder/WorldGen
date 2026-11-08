@@ -4,7 +4,11 @@
     "world": "seed73421/history61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
     "reach": 52127,
     "receiver": 51517,
-    "position": [-0.042102725,-0.875960391,-0.480542145],
+    "position": [
+      -0.042102725,
+      -0.875960391,
+      -0.480542145
+    ],
     "half_width_m": 63.919359712810646,
     "fixed_water_m": 36.1888413585601,
     "natural_render_bank_m": 35.541,
@@ -22,5 +26,306 @@
     "Inspect actual native river/junction/lake/ocean views before accepting the experiment.",
     "If not justified or complete, retain this as an unresolved legacy defect; do not present it as fixed."
   ],
-  "diagnostic": "LocalLakeWaterTests.ProbeEdge now records cross-bank natural/coupled elevations; raw result is disposable, this canonical counterexample is retained."
+  "diagnostic": "LocalLakeWaterTests.ProbeEdge now records cross-bank natural/coupled elevations; raw result is disposable, this canonical counterexample is retained.",
+  "corrected_physical_probe": [
+    {
+      "Reach": 52127,
+      "Receiver": 51517,
+      "From": -1,
+      "To": -1,
+      "U": 0.7764256869581099,
+      "Distance": 65.7773895,
+      "Width": 63.919359712810646,
+      "WidthA": 63.919359712810646,
+      "WidthB": 63.919359712810646,
+      "LevelA": 36.1888413585601,
+      "LevelB": 36.1888413585601,
+      "Primitive": "Calm",
+      "BankMap129M": 35.696,
+      "BankPreWaterM": 35.541,
+      "BankCoupledM": 35.541,
+      "Map129AtPoint": 35.773,
+      "ActualAtPoint": 35.586,
+      "CrossBank": [
+        {
+          "ExtraM": 0,
+          "Side": -1,
+          "Map129M": 37.563,
+          "PreWaterM": 37.523,
+          "CoupledM": 36.213,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 0,
+          "Side": 1,
+          "Map129M": 35.664,
+          "PreWaterM": 35.514,
+          "CoupledM": 35.514,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 2,
+          "Side": -1,
+          "Map129M": 37.486,
+          "PreWaterM": 37.431,
+          "CoupledM": 36.912,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 2,
+          "Side": 1,
+          "Map129M": 35.696,
+          "PreWaterM": 35.541,
+          "CoupledM": 35.541,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 4,
+          "Side": -1,
+          "Map129M": 37.408,
+          "PreWaterM": 37.339,
+          "CoupledM": 37.339,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 4,
+          "Side": 1,
+          "Map129M": 35.735,
+          "PreWaterM": 35.592,
+          "CoupledM": 35.592,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 8,
+          "Side": -1,
+          "Map129M": 37.28,
+          "PreWaterM": 37.202,
+          "CoupledM": 37.202,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 8,
+          "Side": 1,
+          "Map129M": 35.813,
+          "PreWaterM": 35.639,
+          "CoupledM": 35.639,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 16,
+          "Side": -1,
+          "Map129M": 37.159,
+          "PreWaterM": 37.116,
+          "CoupledM": 37.116,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 16,
+          "Side": 1,
+          "Map129M": 35.895,
+          "PreWaterM": 35.722,
+          "CoupledM": 35.722,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 32,
+          "Side": -1,
+          "Map129M": 36.873,
+          "PreWaterM": 36.984,
+          "CoupledM": 36.983,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 32,
+          "Side": 1,
+          "Map129M": 36.481,
+          "PreWaterM": 36.277,
+          "CoupledM": 36.278,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 64,
+          "Side": -1,
+          "Map129M": 36.875,
+          "PreWaterM": 36.997,
+          "CoupledM": 36.998,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 64,
+          "Side": 1,
+          "Map129M": 38.518,
+          "PreWaterM": 39.443,
+          "CoupledM": 39.446,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 128,
+          "Side": -1,
+          "Map129M": 41.087,
+          "PreWaterM": 40.906,
+          "CoupledM": 40.878,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 128,
+          "Side": 1,
+          "Map129M": 40.482,
+          "PreWaterM": 40.259,
+          "CoupledM": 40.272,
+          "Water": "None"
+        }
+      ]
+    },
+    {
+      "Reach": 52127,
+      "Receiver": 51517,
+      "From": -1,
+      "To": -1,
+      "U": 0,
+      "Distance": 70.3536788,
+      "Width": 63.919359712810646,
+      "WidthA": 63.919359712810646,
+      "WidthB": 63.919359712810646,
+      "LevelA": 36.1888413585601,
+      "LevelB": 36.1888413585601,
+      "Primitive": "Calm",
+      "BankMap129M": 36.148,
+      "BankPreWaterM": 36.348,
+      "BankCoupledM": 36.348,
+      "Map129AtPoint": 35.773,
+      "ActualAtPoint": 35.586,
+      "CrossBank": [
+        {
+          "ExtraM": 0,
+          "Side": -1,
+          "Map129M": 37.921,
+          "PreWaterM": 37.694,
+          "CoupledM": 36.189,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 0,
+          "Side": 1,
+          "Map129M": 36.123,
+          "PreWaterM": 36.293,
+          "CoupledM": 36.189,
+          "Water": "River"
+        },
+        {
+          "ExtraM": 2,
+          "Side": -1,
+          "Map129M": 37.843,
+          "PreWaterM": 37.613,
+          "CoupledM": 36.887,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 2,
+          "Side": 1,
+          "Map129M": 36.148,
+          "PreWaterM": 36.348,
+          "CoupledM": 36.348,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 4,
+          "Side": -1,
+          "Map129M": 37.765,
+          "PreWaterM": 37.531,
+          "CoupledM": 37.531,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 4,
+          "Side": 1,
+          "Map129M": 36.172,
+          "PreWaterM": 36.403,
+          "CoupledM": 36.403,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 8,
+          "Side": -1,
+          "Map129M": 37.608,
+          "PreWaterM": 37.357,
+          "CoupledM": 37.357,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 8,
+          "Side": 1,
+          "Map129M": 36.222,
+          "PreWaterM": 36.537,
+          "CoupledM": 36.537,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 16,
+          "Side": -1,
+          "Map129M": 37.295,
+          "PreWaterM": 36.993,
+          "CoupledM": 36.992,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 16,
+          "Side": 1,
+          "Map129M": 36.887,
+          "PreWaterM": 36.899,
+          "CoupledM": 36.899,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 32,
+          "Side": -1,
+          "Map129M": 37.03,
+          "PreWaterM": 36.892,
+          "CoupledM": 36.891,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 32,
+          "Side": 1,
+          "Map129M": 38.305,
+          "PreWaterM": 38.119,
+          "CoupledM": 38.117,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 64,
+          "Side": -1,
+          "Map129M": 36.504,
+          "PreWaterM": 36.54,
+          "CoupledM": 36.537,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 64,
+          "Side": 1,
+          "Map129M": 39.9,
+          "PreWaterM": 40.351,
+          "CoupledM": 40.344,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 128,
+          "Side": -1,
+          "Map129M": 41.102,
+          "PreWaterM": 41.308,
+          "CoupledM": 41.32,
+          "Water": "None"
+        },
+        {
+          "ExtraM": 128,
+          "Side": 1,
+          "Map129M": 41.21,
+          "PreWaterM": 41.542,
+          "CoupledM": 41.536,
+          "Water": "None"
+        }
+      ]
+    }
+  ],
+  "probe_note": "Earlier NaturalM labels used display-only SampleMap129 and could inherit a full-detail hint. The final probe now records Map129M and literal full-detail PreWaterM separately. The physical bank gap remains; do not use overview values as a raw natural-bank solver."
 }

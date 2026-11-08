@@ -822,7 +822,14 @@ namespace WorldGen.Core
             Face Locate(V point,out double a,out double b,out double c,double mapSpacingM=0,int maximumDepth=int.MaxValue)
             {
                 Face found = null; a = b = c = 0;
-                if (last != null&&last.Depth<=maximumDepth&&last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
+                // A terminal walking hint cannot answer a coarser map query:
+                // the descent only moves down, so reusing it silently ignores
+                // the requested footprint. A neighbouring coarse face may also
+                // be a different valid stopping level across a bent boundary.
+                // Map queries resolve their own hierarchy; physical hints stay
+                // fast and are never evicted by display-only sampling.
+                Face hint=mapSpacingM>0?null:last;
+                if (hint != null&&hint.Depth<=maximumDepth&&hint.Coordinates(point, out a, out b, out c) >= -1e-7) found = hint;
                 if(found==null)foreach(int id in faces)if(owner.roots[id].Coordinates(point,out a,out b,out c)>=-1e-7){found=owner.RootFace(id);break;}
                 // Foundation probes have a fixed eighty-metre radius, even
                 // when the caller owns a tiny patch beside a base-face edge.
@@ -839,7 +846,7 @@ namespace WorldGen.Core
                     }
                 }
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
-                last = found;
+                if(mapSpacingM<=0)last=found;
                 while (found.Depth < Math.Min(owner.terminalDepth,maximumDepth)&&(mapSpacingM<=0||found.Size>mapSpacingM))
                 {
                     var split = owner.Split(found); Face next = null; double best = -1e10;
@@ -878,7 +885,7 @@ namespace WorldGen.Core
                 // controller/sky queries commonly remain in this same terminal
                 // face. Keep it (and its leases), not just its coarse ancestor:
                 // no repeated root-to-leaf walk or locking of background splits.
-                last=found;
+                if(mapSpacingM<=0)last=found;
                 a = Math.Max(0, a); b = Math.Max(0, b); c = Math.Max(0, c); double sum = a + b + c; a /= sum; b /= sum; c /= sum;
                 return found;
             }
