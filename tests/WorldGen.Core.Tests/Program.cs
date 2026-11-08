@@ -2,6 +2,7 @@ using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
 if(args.Contains("--map-footprint-order")){TerrainFootprintOrderTests.Run(args[1],args[2]);return;}
+if(args.Contains("--river-bank-fit-probe")){LocalLakeWaterTests.ProbeFit(args[1]);return;}
 if(args.Contains("--wetland-vegetation-controls")){WetlandVegetationTests.Controls();return;}
 if(args.Contains("--wetland-vegetation-world")){WetlandVegetationTests.World(args[1],args[2]);return;}
 if(args.Contains("--wetland-vegetation-perf-sites")){WetlandVegetationTests.PerformanceSites(args[1],args[2]);return;}

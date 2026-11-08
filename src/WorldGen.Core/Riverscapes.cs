@@ -312,6 +312,7 @@ namespace WorldGen.Core
                     }
                 }
                 result=WaterfallProfiles.Apply(result,radius*scale,a.Resistance,source,seed);
+                RiverBankContainment.Fit(result,radius*scale,end,alluvium,p=>bare.Sample(p,true).Height);
                 RiverAlluvium.PrepareBanks(result,radius*scale,alluvium);
                 RiverscapeKernel.PrepareSurfaceGrades(result,radius*scale);
                 for(int i=0;i<result.Length;i++)result[i].Basis=new RiverscapeBasis(result[i],radius*scale);

@@ -5,6 +5,14 @@ using System.Text.Json;
 
 static class LocalLakeWaterTests
 {
+    public static void ProbeFit(string input)
+    {
+        var world=WorldFile.ReadPlanetaryFile(input);var model=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        var spans=model.Amplification.RiverReach(52127);var patch=model.Patch(spans[spans.Length/2].A,40000);
+        Console.WriteLine("max alluvium "+spans.Max(s=>s.Alluvium)+"; flat interior "+spans.Count(s=>s.From<0&&s.To<0&&s.LevelA==spans.Last().LevelB&&s.LevelB==spans.Last().LevelB));
+        int count=RiverBankContainment.Fit(spans,model.RadiusM*.1,spans.Last().LevelB,spans.Max(s=>s.Alluvium),p=>patch.Sample(p).PreWaterElevationM,Console.WriteLine);
+        Console.WriteLine("Fitted "+count+" spans");
+    }
     public static void ProbeEdge(string worldPath,string edgePath,string output)
     {
         using var json=JsonDocument.Parse(File.ReadAllText(edgePath));var root=json.RootElement;
