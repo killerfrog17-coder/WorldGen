@@ -50,7 +50,11 @@ namespace WorldGen.Core
                 double amplitude=(.035+.20*activity)*(1-.7*D.Clamp(sediment));
                 V metres=point*(owner.radius*owner.scale);
                 double detail=amplitude*(SphereNoise.Sample(metres,owner.seed^0x62b47,1/27d)+.30*SphereNoise.Sample(metres,owner.seed^0x51a23,1/8d));
-                s.Height+=(delta+detail)*protection;
+                double inheritedSlope=(ga*a+gb*b+gc*c).Length/(owner.radius*owner.scale);
+                double wall=Math.Max(s.Landscape.CanyonExposure,Math.Max(s.Landscape.GlacialExposure,s.Landscape.ShoreExposure));
+                wall=Math.Max(wall,s.Landscape.Rock*OrogenMorphology.Smooth(.8,1.8,inheritedSlope)*(1-sediment));
+                double fracture=CliffSurfaceDetail.Cut(metres,owner.seed,wall,a*f.A.Hardness+b*f.B.Hardness+c*f.C.Hardness);
+                s.Height+=(delta+detail+fracture)*protection;
                 if(!double.IsNaN(s.Water))s.Mask=s.Water-s.Height;
             }
         }
