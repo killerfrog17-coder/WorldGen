@@ -57,7 +57,7 @@ def build(manifest, output):
         c.line(margin, 30, w-margin, 30)
         c.setFont('Body', 8)
         c.setFillColor(muted)
-        c.drawString(margin, 17, 'Actual game captures • Medium vegetation unless stated')
+        c.drawString(margin, 17, data.get('footer', 'Actual game captures • Medium vegetation unless stated'))
         c.drawRightString(w-margin, 17, f'{page} / {len(data["pages"])}')
         c.bookmarkPage(f'page{page}')
         c.addOutlineEntry(entry['title'], f'page{page}', 0)

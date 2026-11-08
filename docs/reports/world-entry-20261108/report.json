@@ -1,0 +1,104 @@
+{
+  "title": "WorldGen - World Entry and Life Radar",
+  "section": "WORLD ENTRY",
+  "footer": "Actual game captures - prototype world-entry update",
+  "date": "08 NOVEMBER 2026",
+  "pages": [
+    {
+      "title": "Choose a place in the world",
+      "subtitle": "Creative exploration or an existing tribal life",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "entry-options.jpg",
+              "caption": "Entry choices in the actual game. Existing characters also have a Resume option."
+            }
+          ],
+          "max_height": 260
+        },
+        {
+          "table": {
+            "headers": [
+              "Choice",
+              "Starting experience"
+            ],
+            "rows": [
+              [
+                "Random land - Creative",
+                "A random safe land location, Creative mode and flight."
+              ],
+              [
+                "Become a random adult NPC",
+                "Survival mode; the generated person's body, name, tribe, family links, languages and knowledge. Held items follow the same rules as NPC props."
+              ],
+              [
+                "Resume current character",
+                "Keep the existing person, location and inventory."
+              ]
+            ],
+            "widths": [
+              0.34,
+              0.66
+            ]
+          }
+        },
+        {
+          "text": "The controlled resident is excluded from NPC spawning. Their identity survives leaving for the world simulation and saving/reloading. Some residents naturally have empty hands; there is no universal starter bag."
+        },
+        {
+          "text": "Childhood and dialogue are not part of this prototype.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "People, camps and communities",
+      "subtitle": "F3 + A opens the expanded life radar",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "resident-radar.jpg",
+              "caption": "Actual resident entry with the expanded radar. The dark background is mostly transparent."
+            }
+          ],
+          "max_height": 300
+        },
+        {
+          "table": {
+            "headers": [
+              "Human marker",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "Filled lilac dot",
+                "A physical human actor; grey indicates a corpse."
+              ],
+              [
+                "Mint hollow marker + centre",
+                "A camp site. Dim markers have not been physically loaded."
+              ],
+              [
+                "Dotted lilac ring + count",
+                "A community and its total population. Dim means coarse projection; nearby groups have local schedules."
+              ]
+            ],
+            "widths": [
+              0.38,
+              0.62
+            ]
+          }
+        },
+        {
+          "text": "The plot extends to 50 km and retains the expanded near-field scale and animal range rings. Human markers read the existing local simulation; opening the radar does not create another global NPC simulation."
+        },
+        {
+          "text": "Checks passed: 108 Core identity, deterministic-selection, equipment and serialization assertions; 28 packaged-game assertions covering both starts, tribe presence, no duplicate resident, family links, radar, HUD bounds and resuming the same person. No new performance claim is made from this check.",
+          "size": 9
+        }
+      ]
+    }
+  ]
+}
