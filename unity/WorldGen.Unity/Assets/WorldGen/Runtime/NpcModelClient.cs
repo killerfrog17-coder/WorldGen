@@ -27,7 +27,9 @@ sealed class NpcModelClient : IDisposable
     Process owned;string endpoint,key;bool disposed;
     public int LastPromptTokens,LastGeneratedTokens;
     public NpcAiSettings Config;public string Status="Waiting for an event";public int Requests;public double LastSeconds;
-    public static string ConfigPath=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"WorldGen","NpcAI","settings.json");
+    internal static string TestSettingsPath;
+    public string BackendInfo="CPU / not loaded";
+    public static string ConfigPath=>TestSettingsPath??Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"WorldGen","NpcAI","settings.json");
     public static int SettingsRevision;
     public bool IsBusy {get;private set;}
     long lastUse=Stopwatch.GetTimestamp();
@@ -94,9 +96,10 @@ sealed class NpcModelClient : IDisposable
         string executable=Config.GpuLayers>0?Config.GpuServerPath:Config.ServerPath;
         if(!File.Exists(executable)||!File.Exists(Config.ModelPath))throw new FileNotFoundException("Local NPC model is not installed; run scripts/setup-npc-ai.py.");
         Status="Loading local model";int port;var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();port=((IPEndPoint)listener.LocalEndpoint).Port;listener.Stop();key=Guid.NewGuid().ToString("N");
-        string root=Path.GetDirectoryName(ConfigPath);string args="-m \""+Config.ModelPath.Replace("\"","")+"\" --host 127.0.0.1 --port "+port+" --api-key "+key+" -t "+Config.Threads+" -tb "+Config.Threads+" -c "+Config.ContextTokens+" -np 1 -ngl "+Config.GpuLayers+" --poll 0 --prio "+Config.Priority+" --no-webui --reasoning off --reasoning-budget 0";
+        string root=Path.GetDirectoryName(ConfigPath);string args="-m \""+Config.ModelPath.Replace("\"","")+"\" --host 127.0.0.1 --port "+port+" --api-key "+key+" -t "+Config.Threads+" -tb "+Config.Threads+" -c "+Config.ContextTokens+" -np 1 -ngl "+Config.GpuLayers+" --poll 0 --prio "+Config.Priority+" --no-webui --verbosity 5 --reasoning off --reasoning-budget 0";
+        BackendInfo=Config.GpuLayers>0?"GPU requested; loading":"CPU";
         owned=new Process{StartInfo=new ProcessStartInfo(executable,args){UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=root,RedirectStandardOutput=true,RedirectStandardError=true}};
-        owned.OutputDataReceived+=(s,e)=>{};owned.ErrorDataReceived+=(s,e)=>{};owned.Start();job.Attach(owned);owned.BeginOutputReadLine();owned.BeginErrorReadLine();
+        owned.OutputDataReceived+=(s,e)=>{};owned.ErrorDataReceived+=(s,e)=>{if(e.Data!=null&&e.Data.Contains("offloaded "))BackendInfo=e.Data.Substring(e.Data.IndexOf("offloaded "));};owned.Start();job.Attach(owned);owned.BeginOutputReadLine();owned.BeginErrorReadLine();
         string url="http://127.0.0.1:"+port;
         for(int i=0;i<80;i++)
         {

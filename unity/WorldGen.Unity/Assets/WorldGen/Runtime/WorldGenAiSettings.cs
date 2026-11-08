@@ -61,7 +61,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(10);GUILayout.Label(aiDirty?"Unsaved changes. Apply restarts the AI host and cancels pending replies.":"Settings saved per PC. Applying requires no world reload.",MutedStyle());
         GUILayout.BeginHorizontal();if(GUILayout.Button("Apply & restart AI"))ApplyAiSettings();if(GUILayout.Button("Discard changes")){ReloadAiDraft();aiNotice="";}GUILayout.EndHorizontal();
         var client=SettingsAiClient;GUILayout.Space(12);GUILayout.Label("AI STATUS",SectionStyle());
-        GUILayout.Label(client?.Status??"Not loaded");
+        GUILayout.Label(client?.Status??"Not loaded");if(client!=null)GUILayout.Label(client.BackendInfo,MutedStyle());
         if(client?.LastSeconds>0)GUILayout.Label("Last request: "+client.LastSeconds.ToString("0.00")+" s · "+client.LastPromptTokens+" input / "+client.LastGeneratedTokens+" output tokens");
         bool enabled=GUI.enabled;GUI.enabled=enabled&&!aiDirty&&aiSettingsTest==null&&client?.IsBusy!=true&&aiDraft.Enabled;
         GUILayout.BeginHorizontal();

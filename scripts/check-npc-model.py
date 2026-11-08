@@ -19,7 +19,7 @@ cases=[('work','YOU: fojuce, male,34. Current activity: gathering wild plants fo
 ('injury','YOU: Nara. Health65. Current activity: gathering wild plants. An unfamiliar visitor target player struck you. The group is alarmed. Distance4m. No one has spoken.'),
 ('visitor','YOU: fojuce. Current activity: collecting fallen branches for campfire. You visibly noticed an unfamiliar visitor near the camp, target player,9m away. No one has spoken. No visible attack.')]
 with (out/'server.log').open('w') as log:
-    proc=subprocess.Popen([config['GpuServerPath'] if args.gpu_layers else config['ServerPath'],'-m',config['ModelPath'],'--host','127.0.0.1','--port',str(port),'-t',str(args.threads),'-tb',str(args.threads),'-c','2048','-np','1','-ngl',str(args.gpu_layers),'--poll','0','--prio','-1','--no-webui','--reasoning','off','--reasoning-budget','0'],stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
+    proc=subprocess.Popen([config['GpuServerPath'] if args.gpu_layers else config['ServerPath'],'-m',config['ModelPath'],'--host','127.0.0.1','--port',str(port),'-t',str(args.threads),'-tb',str(args.threads),'-c','2048','-np','1','-ngl',str(args.gpu_layers),'--poll','0','--prio','-1','--no-webui','--verbosity','5','--reasoning','off','--reasoning-budget','0'],stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
     try:
         for i in range(80):
             try:
