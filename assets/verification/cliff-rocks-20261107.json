@@ -1,5 +1,5 @@
 {
-  "status": "Recessed-rim proportion/material revision: native appearance pending",
+  "status": "Curvature-fit candidate: actual native review and performance pending",
   "scope": "Three-dimensional jointed masses on exposed steep walls, within the existing Outcrop instancing/culling/nearby-collider system. No change to the authoritative heightfield or unrelated vegetation density.",
   "placement": "Reuse main rock lattice samples; eligible exposed or thin-soil rock gets bounded height-only slope probes. Only slopes above about52degrees and at least8m local relief create masses. Submerged ground, glacier biome and mobile sand are excluded.",
   "geometry": "Three CC0 scanned fronts, affine front-plane calibrated, explicit flat backs with manifold volume; near/mid/far caps 3200/1050/260 triangles. No solidify modifier.",
@@ -11,7 +11,7 @@
     "timing_limit": "Background component costs are not frame-time measurements"
   },
   "versions": {
-    "scatter": "local-scatter-cliff-rocks-29",
+    "scatter": "local-scatter-cliff-rocks-30",
     "variant_marker": 1048576
   },
   "research": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-visibility-tool-in-unreal-engine",
@@ -37,7 +37,7 @@
     {
       "asset": "rock_face_01",
       "lod": 0,
-      "maximum_reference_deviation": 0.0044881259091198444,
+      "maximum_reference_deviation": 0.004041052423417568,
       "front_plane_fit": [
         0.07121353963066344,
         -0.6267652853682193,
@@ -49,7 +49,7 @@
     {
       "asset": "rock_face_01",
       "lod": 1,
-      "maximum_reference_deviation": 0.012678766623139381,
+      "maximum_reference_deviation": 0.008619430474936962,
       "front_plane_fit": [
         0.07121353963066344,
         -0.6267652853682193,
@@ -61,7 +61,7 @@
     {
       "asset": "rock_face_01",
       "lod": 2,
-      "maximum_reference_deviation": 0.01989671401679516,
+      "maximum_reference_deviation": 0.01984584331512451,
       "front_plane_fit": [
         0.07121353963066344,
         -0.6267652853682193,
@@ -73,7 +73,7 @@
     {
       "asset": "rock_face_02",
       "lod": 0,
-      "maximum_reference_deviation": 0.011659400537610054,
+      "maximum_reference_deviation": 0.011218331754207611,
       "front_plane_fit": [
         0.23969828061859055,
         -0.5336200438714698,
@@ -85,7 +85,7 @@
     {
       "asset": "rock_face_02",
       "lod": 1,
-      "maximum_reference_deviation": 0.013780662789940834,
+      "maximum_reference_deviation": 0.01439583022147417,
       "front_plane_fit": [
         0.23969828061859055,
         -0.5336200438714698,
@@ -97,7 +97,7 @@
     {
       "asset": "rock_face_02",
       "lod": 2,
-      "maximum_reference_deviation": 0.020091136917471886,
+      "maximum_reference_deviation": 0.024313122034072876,
       "front_plane_fit": [
         0.23969828061859055,
         -0.5336200438714698,
@@ -109,7 +109,7 @@
     {
       "asset": "namaqualand_cliff_01",
       "lod": 0,
-      "maximum_reference_deviation": 0.009721671231091022,
+      "maximum_reference_deviation": 0.008835460990667343,
       "front_plane_fit": [
         -0.013271967049252854,
         -0.21378204838683754,
@@ -121,7 +121,7 @@
     {
       "asset": "namaqualand_cliff_01",
       "lod": 1,
-      "maximum_reference_deviation": 0.016698544844985008,
+      "maximum_reference_deviation": 0.012581164948642254,
       "front_plane_fit": [
         -0.013271967049252854,
         -0.21378204838683754,
@@ -133,7 +133,7 @@
     {
       "asset": "namaqualand_cliff_01",
       "lod": 2,
-      "maximum_reference_deviation": 0.034784309566020966,
+      "maximum_reference_deviation": 0.025118224322795868,
       "front_plane_fit": [
         -0.013271967049252854,
         -0.21378204838683754,
@@ -156,5 +156,12 @@
     "runtime_exit": 0,
     "visual_accepted": false,
     "reason": "Stretched proportions and exposed perimeter fragments; neutral rock material mismatched blended host terrain"
+  },
+  "rejected_rim_conversion": {
+    "source": "8396db36",
+    "native": "artifacts/landscape-20261103/cliff-candidate-v5-20261107-canyon",
+    "runtime_exit": 0,
+    "visual_accepted": false,
+    "reason": "Colour improved but large plane fit exposed backing on curved terrace walls. Added shrink/reject fit across eight footprint controls; minimum inner front relief and stricter front-ledged roof check."
   }
 }

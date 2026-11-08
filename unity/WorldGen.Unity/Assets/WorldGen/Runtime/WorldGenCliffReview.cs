@@ -19,7 +19,10 @@ public sealed partial class LocalTerrainExplorer
             for(int i=0;i<triangles.Length;i+=3)
             {
                 var a=collider.transform.TransformPoint(vertices[triangles[i]]);var b=collider.transform.TransformPoint(vertices[triangles[i+1]]);var c=collider.transform.TransformPoint(vertices[triangles[i+2]]);
-                if(Vector3.Dot(Vector3.Cross(b-a,c-a).normalized,transform.up)>-.15f)continue;
+                var face=Vector3.Cross(b-a,c-a).normalized;
+                var outward=collider.transform.TransformDirection(Vector3.forward);
+                if(Vector3.Dot(face,transform.up)>-.15f||Vector3.Dot(face,outward)<.1f)continue;
+                if((vertices[triangles[i]].z+vertices[triangles[i+1]].z+vertices[triangles[i+2]].z)/3<.07f)continue;
                 var candidate=(a+b+c)/3;var local=transform.InverseTransformPoint(candidate);
                 var at=frame.Position(local.x+originX,local.z+originZ);double floor=frame.SurfaceY(at,patch.Elevation(at));
                 if(local.y-floor<2.3)continue;

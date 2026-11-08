@@ -52,15 +52,15 @@ def close_back(mesh):
     bmesh.ops.delete(bm,geom=[f for group in components if group is not keep for f in group],context='FACES')
     bmesh.ops.delete(bm,geom=[e for e in bm.edges if not e.link_faces],context='EDGES')
     bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
-    boundary=[e for e in bm.edges if e.is_boundary];directed={}
+    boundary=[e for e in bm.edges if e.is_boundary];adjacent={}
     for edge in boundary:
-        loop=edge.link_loops[0];a=loop.vert;b=loop.link_loop_next.vert
-        assert a not in directed,f'Unsplit scan boundary junction: {len(a.link_faces)} faces, {sum(e.is_boundary for e in a.link_edges)} boundary edges'
-        directed[a]=b
-    loops=[]
-    while directed:
-        start=next(iter(directed));loop=[start];v=directed.pop(start)
-        while v!=start:loop.append(v);v=directed.pop(v)
+        a,b=edge.verts;adjacent.setdefault(a,[]).append(b);adjacent.setdefault(b,[]).append(a)
+    assert all(len(n)==2 for n in adjacent.values()),'Unsplit scan boundary junction'
+    loops=[];unseen=set(adjacent)
+    while unseen:
+        start=next(iter(unseen));loop=[start];previous=start;v=adjacent[start][0];unseen.remove(start)
+        while v!=start:
+            loop.append(v);unseen.remove(v);following=next(p for p in adjacent[v] if p!=previous);previous,v=v,following
         loops.append(loop)
     def area(loop):return abs(sum(a.co.x*b.co.y-b.co.x*a.co.y for a,b in zip(loop,loop[1:]+loop[:1])))
     outer=max(loops,key=area)
@@ -108,7 +108,7 @@ for asset_index,entry in enumerate(sources):
     tree.balance()
     for v in original.vertices:
         distance=tree.find((v.co.x,v.co.y,0))[2];t=min(1,distance/.13);blend=t*t*(3-2*t)
-        v.co.z=-.17+(v.co.z+.17+.08)*blend
+        v.co.z=-.17+(max(.10,v.co.z+.10)+.17)*blend
     original.update()
     reference=bmesh.new();reference.from_mesh(original);reference_tree=BVHTree.FromBMesh(reference);reference.free()
     obj.matrix_world=Matrix.Identity(4)
