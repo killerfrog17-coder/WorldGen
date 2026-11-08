@@ -707,6 +707,11 @@ public sealed partial class LocalTerrainExplorer
         if(casts&&!MayCastVisibleShadow(chunk.Bounds[index],scatterEye))casts=false;
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
+        // The low two bits select close structural variants, not species or
+        // colour. Share the tiny distant reed silhouette so four equivalent
+        // variants can join one instanced draw; roots/scales/rotations remain.
+        if(p.Kind==ScatterKind.MidPlant&&lod==2&&!WorldGenPerformance.LegacyReedFar&&
+            ((variant>>27)&7)==(int)MidGrowthForm.ReedStand)variant&=~3;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         // Shadow eligibility varies with distance even within one model/LOD.
         // The old key inherited the first member's shadow mode for the entire
