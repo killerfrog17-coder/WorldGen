@@ -14,7 +14,7 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok){File.WriteAllLines(Path.Combine(output,"failed-checks.txt"),report.Concat(new[]{"FAIL "+text}));Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);Debug.Log("NPC DAILY PASS "+text);}
         npcModel??=new NpcModelClient();npcModel.Config.Enabled=false;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
         double until=Time.unscaledTimeAsDouble+100;
-        while((!livingGroups.TryGetValue(PlayerRules.Identity.Group,out var ready)||!ready.CampLoaded||livingPeople.Values.Count(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=3&&p.Resident.AgeYears<14)<2)&&Time.unscaledTimeAsDouble<until)yield return null;
+        while((!livingGroups.TryGetValue(PlayerRules.Identity.Group,out var ready)||!ready.CampLoaded||livingPeople.Values.Count(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=3&&p.Resident.AgeYears<14)<2||livingPeople.Values.Count(p=>p.GroupId==PlayerRules.Identity.Group&&p.Health>0)<15)&&Time.unscaledTimeAsDouble<until)yield return null;
         Check(livingGroups.TryGetValue(PlayerRules.Identity.Group,out var group)&&group.CampLoaded,"The controlled resident's actual camp is loaded");
         var kids=livingPeople.Values.Where(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=3&&p.Resident.AgeYears<14).Take(2).ToArray();Check(kids.Length==2,"Two actual generated children are present, without inserting fake residents");paused=true;
         livingQueryAt=Time.unscaledTimeAsDouble+45;while(livingWork!=null)yield return null;
@@ -30,6 +30,26 @@ public sealed partial class LocalTerrainExplorer
         Check(kids.All(p=>p.TaskDetail.Contains("chasing game")&&p.TaskDetail.Contains(kids.First(o=>o!=p).Resident.Name)),"Debug activities name the actual playmate and game");
         Check(fire.Burning,"The existing material-backed hearth is actually lit for the crossing check");var across=frame.Position(cx+3,cz+1);var around=NpcPlayAroundHearth(kids[0],across);Check(HumanDistance(around,fire.Position)>2.5&&HumanDistance(around,across)>.5,"A chasing child routes around a lit hearth rather than through its centre");
         var adults=livingPeople.Values.Where(p=>p.GroupId==group.Situation.Band.Id&&p.Resident.AgeYears>=18).ToArray();Check(adults.Length>1,"Actual adult bandmates are available");
+        // Controlled real-resident sight probe: more than one sensory batch,
+        // all on the hearth's known clear ground. No invented people or
+        // remembered locations substitute for the actual eyes/occlusion path.
+        var observer=adults[0];var crowd=livingPeople.Values.Where(p=>p.GroupId==observer.GroupId&&p!=observer&&p.Health>0).Take(14).ToArray();
+        Check(crowd.Length>12,"More than twelve actual bandmates are available for the fair visual-check probe");
+        var placements=crowd.Concat(new[]{observer}).Select(p=>(Actor:p,X:p.Motor.X,Z:p.Motor.Z,Yaw:p.Yaw,Planet:p.Planet,Activity:p.CurrentActivity,Age:p.SimulationAge,Daily:p.Daily)).ToArray();
+        var observerMemory=NpcMemoryFor(observer.ResidentId);var previousSocial=observerMemory.Social.Copy();var eyes=NpcAwarenessFor(observer);int previousCursor=eyes.PeopleCursor;
+        try
+        {
+            Place(observer,cx,cz,0);observer.CurrentActivity=HumanActivity.Watch;
+            foreach(var p in crowd)Place(p,cx+.6,cz+.8,180);
+            Physics.SyncTransforms();observerMemory.Social.KnownPeople.RemoveAll(k=>crowd.Any(p=>p.ResidentId==k.Person));
+            for(int i=0;i<(livingPeople.Count+11)/12+1;i++){observer.SimulationAge+=2;eyes.NextSense=0;npcSenseFrame=-1;UpdateNpcAwareness(observer);}
+            Check(crowd.All(p=>observerMemory.Social.KnownPeople.Any(k=>k.Person==p.ResidentId&&HumanDistance(k.LastPosition,p.Planet)<.1)),"Bounded visual checks eventually recognise every visible actual bandmate beyond the first twelve");
+        }
+        finally
+        {
+            foreach(var p in placements){Place(p.Actor,p.X,p.Z,p.Yaw);p.Actor.Planet=p.Planet;p.Actor.CurrentActivity=p.Activity;p.Actor.SimulationAge=p.Age;p.Actor.Daily=p.Daily;}
+            observerMemory.Social=previousSocial;eyes.PeopleCursor=previousCursor;eyes.People.Clear();eyes.NextSense=0;Physics.SyncTransforms();
+        }
         File.WriteAllText(Path.Combine(output,"family-roster.json"),JsonUtility.ToJson(group.Residents,true));
         var parent=adults.FirstOrDefault(p=>group.Residents.Members.Any(k=>k.AgeYears<14&&(k.Mother==p.ResidentId||k.Father==p.ResidentId||k.Household==p.Resident.Household)));Check(parent!=null,"A real parent or household caregiver is physically present with children");
         var child=group.Residents.Members.First(k=>k.AgeYears<14&&(k.Mother==parent.ResidentId||k.Father==parent.ResidentId||k.Household==parent.Resident.Household));var social=NpcMemoryFor(parent.ResidentId).Social;

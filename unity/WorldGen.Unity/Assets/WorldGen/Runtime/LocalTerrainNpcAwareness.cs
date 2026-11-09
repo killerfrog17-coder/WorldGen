@@ -10,7 +10,8 @@ public sealed partial class LocalTerrainExplorer
     sealed class NpcAnimalView {public Animal Animal;public string Name;public double Distance,At;public bool Dangerous;}
     sealed class NpcAwareness
     {
-        public double NextSense;public NpcPersonality Personality;
+        public double NextSense;public NpcPersonality Personality;public int PeopleCursor;
+        public readonly List<HumanActor> People=new List<HumanActor>();
         public readonly List<NpcAnimalView> Visible=new List<NpcAnimalView>();
         public string Environment="";public int Cell=-1;public double EnvironmentAt;
     }
@@ -80,9 +81,23 @@ public sealed partial class LocalTerrainExplorer
                 if(first&&distance<25)QueueNpcEvent(actor,"You have just noticed a "+name+" nearby. Your concern is about that animal. React proportionately; seeing it does not mean it has attacked.");
             }
             // Knowing that a relative exists does not reveal their whereabouts.
-            foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.GroupId==actor.GroupId&&HumanDistance(actor.Planet,p.Planet)<Math.Min(22,range)).Take(12))
-                if(NpcSees(actor,other.Root.transform.position+transform.up*.7f,range))
-                {if(other.Health<=0)DiscoverNpcDeath(actor,other);else state.See(other.ResidentId,other.Planet,PlayerRules.SolarDays);}
+            // Rotate the bounded visual checks. Repeatedly taking the first
+            // twelve people made everyone later in a busy camp invisible to
+            // family concern even while standing in plain sight.
+            var people=perception.People;people.Clear();
+            foreach(var other in livingPeople.Values)
+                if(other!=actor&&other.GroupId==actor.GroupId&&HumanDistance(actor.Planet,other.Planet)<Math.Min(22,range))people.Add(other);
+            if(people.Count>0)
+            {
+                int start=perception.PeopleCursor%people.Count,count=Math.Min(12,people.Count);
+                for(int i=0;i<count;i++)
+                {
+                    var other=people[(start+i)%people.Count];
+                    if(NpcSees(actor,other.Root.transform.position+transform.up*.7f,range))
+                    {if(other.Health<=0)DiscoverNpcDeath(actor,other);else state.See(other.ResidentId,other.Planet,PlayerRules.SolarDays);}
+                }
+                perception.PeopleCursor=(start+count)%people.Count;
+            }
             if(humanPlayer?.Resident!=null&&humanPlayer.GroupId==actor.GroupId&&HumanDistance(actor.Planet,Position)<Math.Min(22,range)&&NpcSees(actor,transform.TransformPoint(PlayerFeet())+transform.up,range))
             {if(DeathVisible)DiscoverNpcDeath(actor,humanPlayer);else state.See(humanPlayer.ResidentId,Position,PlayerRules.SolarDays);}
         }
