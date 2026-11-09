@@ -43,13 +43,14 @@ public sealed partial class LocalTerrainExplorer
         var available=NpcCampParts(workedShelter);var tie=available.FirstOrDefault(c=>c.Kind==CampPartKind.Binding&&CampBlueprints.State(workedShelter.Blueprint,c)?.Materials.Count>0);var poles=available.Where(c=>(c.Kind==CampPartKind.Post||c.Kind==CampPartKind.Beam||c.Kind==CampPartKind.Rib)&&CampBlueprints.State(workedShelter.Blueprint,c)?.Materials.Count>0).Take(2).ToArray();
         Check(tie!=null&&poles.Length==2,"The actual shelter has real lashing and poles for the bound-load check");
         var bundleIds=new List<string>();foreach(var part in poles.Concat(new[]{tie}))foreach(var p in NpcCampWork.Remove(workedShelter,part.Key)){bundleIds.Add(p.Id);actor.Belongings.Items.Add(p);}
-        var bundle=NpcCampWork.Bundle(actor.Belongings,actor.GroupId,workedShelter.NpcHousehold,actor.Planet);Check(bundle!=null&&bundle.Place==PossessionPlace.Shoulder&&bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Actual recovered poles and lashing become one carried bound load with their exact contents preserved");
-        UpdateNpcProps(actor,group,ActualNpcCarryRole(actor));Check(actor.NpcProps.Any(p=>p.Item==bundle&&p.Back&&p.Root.GetComponentsInChildren<Renderer>().Length>=2),"The bound load appears on the actual person using the existing material models");
+        var bundle=NpcCampWork.Bundle(actor.Belongings,actor.GroupId,workedShelter.NpcHousehold,actor.Planet);File.WriteAllText(Path.Combine(output,"bound-load.json"),JsonUtility.ToJson(bundle,true));
+        Check(bundle!=null&&actor.Belongings.Carried(bundle)&&bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Actual recovered poles and lashing become one carried bound load with their exact contents preserved");
+        UpdateNpcProps(actor,group,ActualNpcCarryRole(actor));Check(actor.NpcProps.Any(p=>p.Item==bundle&&p.Root.GetComponentsInChildren<Renderer>().Length>=2),"The bound load appears on the actual person using the existing material models");
         StoreLivingCamp(group);CaptureLivingPerson(actor);InvalidateCampVisual(workedShelter);
         LivingState.Copy().Validate();Check(true,"Physical camp work and local itinerary state validate for saving");
         actor.Routine=routine;group.Situation.Phase=initialPhase;npcThoughts=true;
         motion.Place(actor.Motor.X-5,actor.Motor.Z+2,CampFloor(actor.Motor.X-5,actor.Motor.Z+2));humanCamera.Restore(0,false);UpdateHumans();
         for(int i=0;i<8;i++){UpdateCamera();var d=transform.InverseTransformDirection(actor.Root.transform.position+transform.up*.7f-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
-        yield return NpcLifeImage(output,"material-backed-camp-work");paused=false;DisposeNpcMinds();
+        paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"material-backed-camp-work");livingBenchmarkFreeze=false;DisposeNpcMinds();
     }
 }

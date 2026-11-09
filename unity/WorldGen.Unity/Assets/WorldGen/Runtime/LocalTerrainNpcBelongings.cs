@@ -91,6 +91,7 @@ public sealed partial class LocalTerrainExplorer
         if(held.Kind==PossessionKind.WoodenSpear||held.Kind==PossessionKind.StoneTippedSpear||held.Kind==PossessionKind.BoneTippedSpear)return "SpearReady1";
         if(Foraging.Food(held))return actor.CurrentActivity==HumanActivity.PrepareFood?"Eat":"ToolReady";
         if(held.Kind==PossessionKind.KindlingBundle||held.Kind==PossessionKind.Branch)return "CarryLarge";
+        if(held.Kind==PossessionKind.CampBundle)return "CarryLarge";
         if(held.Kind==PossessionKind.HidePouch||held.Kind==PossessionKind.BarkContainer)return actor.CurrentActivity==HumanActivity.FetchWater?"Drink":"WaterCarry";
         return "ToolReady";
     }

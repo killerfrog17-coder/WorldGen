@@ -42,6 +42,23 @@ public sealed partial class LocalTerrainExplorer
         Check(parent.Daily.Missing==0&&social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==child.Id),"Actually seeing the child again resolves the search");PlayerRules.SolarDays=previousDay;
         var privateBed=Camp.Objects.FirstOrDefault(c=>c.Kind==CampKind.Bedding&&c.NpcGroup==group.Situation.Band.Id&&c.NpcHousehold!=PlayerRules.Identity.Person.Household);
         Check(privateBed!=null&&!PlayerMayUseCamp(privateBed),"An actual other family's sleeping place is marked private");
+        var helper=adults.FirstOrDefault(p=>p!=parent&&NpcAwarenessFor(p).Personality.Courage>=.2&&NpcAwarenessFor(p).Personality.Kindness+NpcCloseness(p,parent)>=.65);Check(helper!=null,"An actual willing adult is available for the spoken search request");
+        Place(parent,cx+3,cz+3,90);parent.CurrentActivity=HumanActivity.Rest;Place(helper,cx+4,cz+3,270);helper.CurrentActivity=HumanActivity.Rest;
+        foreach(var adult in adults.Where(p=>p!=parent)){adult.Daily=null;NpcMemoryFor(adult.ResidentId).Social.Incidents.RemoveAll(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==child.Id);}
+        int helpers=RecruitNpcSearch(parent,child,frame.Position(cx+20,cz+5));
+        Check(helpers>0&&livingPeople.Values.Any(p=>p!=parent&&p.Daily?.Missing==child.Id&&NpcMemoryFor(p.ResidentId).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==child.Id&&!e.FirstHand)),"An audible request recruits actual nearby adults with explicitly reported last-known information");
+        Check(livingPeople.Values.Where(p=>p!=parent&&p.Daily?.Missing==child.Id).All(p=>!NpcMemoryFor(p.ResidentId).Social.KnownPeople.Any(k=>k.Person==child.Id&&k.SeenDead)),"Search recruits do not gain supernatural knowledge of an unseen death");
+        var baby=group.Residents.Members.FirstOrDefault(p=>p.AgeYears<3);Check(baby!=null,"The actual household roster includes a young child for the caregiver check");
+        double babyUntil=Time.unscaledTimeAsDouble+30;
+        while(!livingPeople.ContainsKey(baby.Id)&&Time.unscaledTimeAsDouble<babyUntil){CreateLivingHuman(group,baby,new HumanActivitySample{Person=baby.Id,Group=group.Situation.Band.Id,Activity=HumanActivity.Carried,Partner=0,Position=group.Anchor,Destination=group.Anchor},group.Anchor,LivingState.People.FirstOrDefault(p=>p.Person==baby.Id));yield return null;}
+        Check(livingPeople.TryGetValue(baby.Id,out var infant),"The normal resident/model factory creates that same real young child");
+        double bx=cx+42,bz=cz+27;Place(infant,bx,bz,0);infant.Routine=new HumanActivitySample{Person=baby.Id,Group=infant.GroupId,Activity=HumanActivity.Carried,Partner=0,Position=infant.Planet};NpcPersonRecord(infant).Caregiver=long.MaxValue;
+        // Ensure the controlled child is genuinely separated from all eligible adults.
+        foreach(var adult in adults)if(HumanDistance(adult.Planet,infant.Planet)<3)Place(adult,cx+5,cz+3,0);
+        var putDown=infant.Planet;UpdateCarriedHuman(infant,.1f);Check(HumanDistance(infant.Planet,putDown)<.05&&infant.CurrentActivity==HumanActivity.Rest,"Without a reachable caregiver the young child remains where put down instead of teleporting to a distant adult");
+        Place(helper,bx+.9,bz,270);helper.CurrentActivity=HumanActivity.Rest;helper.Routine=new HumanActivitySample{Activity=HumanActivity.Rest,Position=helper.Planet};helper.Speed=helper.TargetSpeed=0;UpdateCarriedHuman(infant,.1f);
+        Check(NpcPersonRecord(infant).Caregiver==helper.ResidentId&&HumanDistance(infant.Planet,helper.Planet)<.1,"An actual adult who approaches within reach can take over care");
+        Check(NpcMemoryFor(helper.ResidentId).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Help&&e.Subject==infant.ResidentId),"The real caregiver remembers taking responsibility for the child");
         LivingState.Copy().Validate();Check(true,"Sleep/play/search and social memories remain valid local state");
         // Aim the actual first-person camera at children in the camp, not an
         // unrelated horizon. This is an evidence scene, not an FPS benchmark.

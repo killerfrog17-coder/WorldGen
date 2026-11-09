@@ -1,0 +1,26 @@
+{
+  "tested_commit": "32e663c3",
+  "native_case": "artifacts\\npc-overnight-20261109\\camp-v1-community",
+  "checks": [
+    "PASS An actual adult host exists",
+    "PASS Another real projected community exists as the returning resident's origin",
+    "PASS An established welcoming host can offer guest status before sufficient membership support",
+    "PASS An uninvited outsider does not acquire the community's property permissions",
+    "PASS The invitation executor welcomes a guest without silently promoting full membership",
+    "PASS The welcomed guest receives the actual communal-sharing permission",
+    "PASS A guest invitation does not grant another person's private tools",
+    "PASS The actual leader can offer membership after multiple established directed relationships",
+    "PASS Accepted membership changes affiliation while preserving the same person",
+    "PASS Joining preserves ancestry and existing family relationships",
+    "PASS Joining neither creates a replacement loadout nor loses carried possessions",
+    "PASS The joined resident occurs once in the local roster",
+    "PASS One valid endorsement records support without making the player chief",
+    "PASS A controlled majority of actual adult members establishes the new coordinator",
+    "PASS The host has specific personal positions on proposed customs",
+    "PASS A discussion records an individual's vote rather than imposing the chief's wish",
+    "PASS A controlled majority adopts a specific local custom through the executor",
+    "PASS Membership, real possessions, decisions and preserved identity validate together",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limits": "Controlled directed relationships and council support; AI disabled. No natural political emergence or semantic model claim."
+}

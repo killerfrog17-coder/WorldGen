@@ -1,0 +1,21 @@
+{
+  "tested_commit": "32e663c3",
+  "native_case": "artifacts\\npc-overnight-20261109\\camp-v1-camp",
+  "checks": [
+    "PASS The actual generated household camp is loaded",
+    "PASS The actual shelter contains recoverable portable contributions",
+    "PASS An itinerary progress change alone does not remove, create or swap any material",
+    "PASS A real adult claims a specific existing component",
+    "PASS The worker walks to the structure and spends work time before dismantling a component",
+    "PASS The removed component no longer owns its recovered goods",
+    "PASS The same recovered materials are carried or physically set down, rather than deleted",
+    "PASS Physical dismantling conserves all material identities and mass",
+    "PASS Recovered shelter cargo is really carried and excluded from automatic fire fuel",
+    "PASS A worker physically supplies and finishes the missing component using the recovered stock",
+    "PASS Reassembly conserves the same material identities and mass",
+    "PASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel",
+    "PASS Physical camp work and local itinerary state validate for saving",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limits": "One actual worker approach, timed dismantling and reassembly; not an entire followed migration. Captured image rejected because pause menu obscures scene. New bound loads not yet accepted natively."
+}

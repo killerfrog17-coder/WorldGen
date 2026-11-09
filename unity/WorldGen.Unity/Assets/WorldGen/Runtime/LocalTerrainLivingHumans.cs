@@ -335,7 +335,7 @@ public sealed partial class LocalTerrainExplorer
         bool safety=!stopped&&ApplyNpcSafety(actor,ref routine,ref target);mind|=safety;
         if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
         bool dailyTask=!stopped&&!mind&&PrepareNpcDailyTask(actor,group,routine,ref target);
-        if(dailyTask&&actor.CurrentActivity==HumanActivity.Watch&&routine.Activity!=HumanActivity.Watch)routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=HumanActivity.Watch,Role="SearchMissing",Position=target,Destination=target};
+        if(dailyTask&&actor.CurrentActivity!=routine.Activity)routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=actor.CurrentActivity,Role=actor.CurrentActivity==HumanActivity.Watch?"SearchMissing":"Mourning",Position=target,Destination=target};
         bool campTask=!stopped&&!mind&&!dailyTask&&PrepareNpcCampTask(actor,group,ref routine,dt,ref target);
         bool materialTask=campTask||!mind&&!dailyTask&&PrepareNpcMaterialTask(actor,group,routine,dt,ref target);
         if(!stopped&&!mind&&!materialTask&&!dailyTask)PrepareNpcTaskGear(actor,group,routine,ref target);
