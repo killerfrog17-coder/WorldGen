@@ -35,7 +35,8 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in npcSpeech)
         {
             var line=pair.Value;
-            if(line.Actor.Health<=0||!livingPeople.ContainsKey(pair.Key)||!NpcPlayerCanHear(line.Actor)){speechFinished.Add(pair.Key);continue;}
+            if(line.Actor.Health<=0||!livingPeople.ContainsKey(pair.Key)||!NpcPlayerCanHearRecently(line.Actor)){speechFinished.Add(pair.Key);continue;}
+            if(!NpcPlayerCanHear(line.Actor)){if(line.Voice!=null)line.Voice.Pause();continue;}
             int previous=line.Pace.Shown;line.Pace.Advance(Math.Min(.1,Time.unscaledDeltaTime),npcModel?.Config.SpeechCharactersPerSecond??24);MumbleSpeech(line,previous);
             if(HumanDistance(line.Actor.Planet,Position)<12){line.Chat.Text="<"+line.Actor.Resident.Name+"> "+line.Pace.Visible;line.Chat.At=Time.realtimeSinceStartupAsDouble;}
             if(line.Final&&line.Pace.Complete&&!line.Delivered){line.Delivered=true;DeliverNpcSpeech(line.Actor,line.Event,line.Pace.Available,line.Target);speechFinished.Add(pair.Key);}
@@ -44,7 +45,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void FinishNpcSpeech(HumanActor actor,NpcEventQueue.Event heard,string words,string target)
     {
-        if(!NpcPlayerCanHear(actor))return;
+        if(!NpcPlayerCanHearRecently(actor))return;
         var line=SpeechLine(actor,heard);line.Pace.Available=words;line.Final=true;line.Target=target;
     }
     void AbortNpcSpeech(NpcEventQueue.Event heard)

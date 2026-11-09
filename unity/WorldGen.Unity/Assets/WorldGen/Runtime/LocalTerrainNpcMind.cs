@@ -64,8 +64,8 @@ public sealed partial class LocalTerrainExplorer
         if(stopped)return;
         double now=Time.unscaledTimeAsDouble;
         if(npcSocialCheckTrace&&npcEvents.Count>0)Debug.Log("NPC SOCIAL DISPATCH before prune="+npcEvents.Count+" now="+now);
-        npcEvents.PruneBackground(NpcBackgroundRelevant);
-        if(npcPending?.Background==true&&npcPending!=npcSuppressed&&!NpcBackgroundRelevant(npcPending))
+        npcEvents.PruneBackground(NpcBackgroundStillRelevant);
+        if(npcPending?.Background==true&&npcPending!=npcSuppressed&&!NpcBackgroundStillRelevant(npcPending))
         {npcSuppressed=npcPending;npcModel?.CancelCurrent();AbortNpcSpeech(npcPending);npcPlans.Remove(npcPending.Person);}
         if(npcThinking!=null&&npcThinking.IsCompleted)
         {
@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 if(work.IsFaulted)throw work.Exception.GetBaseException();if(work.IsCanceled)throw new OperationCanceledException();
                 bool direct=item.Direct&&npcTalkTarget?.ResidentId==item.Person;
-                if(livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<50&&now-item.At<(direct?240:45)&&(!item.Background||NpcBackgroundRelevant(item)))
+                if(livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<50&&now-item.At<(direct?240:45)&&(!item.Background||NpcBackgroundStillRelevant(item)))
                 {
                     var decision=JsonUtility.FromJson<NpcDecision>(work.Result);
                     if(decision==null||!decision.Validate(npcPendingTargets))throw new InvalidOperationException("Invalid NPC decision");
@@ -94,7 +94,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var item=npcEvents.Take(now,id=>!NpcSpeaking(id));
             if(npcSocialCheckTrace)Debug.Log("NPC SOCIAL DISPATCH item="+item?.Person+" at="+item?.At+" actor="+(item!=null&&livingPeople.ContainsKey(item.Person))+" enabled="+npcModel?.Config.Enabled+" remaining="+npcEvents.Count);
-            if(item!=null&&livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<40&&(!item.Background||NpcBackgroundRelevant(item)))
+            if(item!=null&&livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<40&&(!item.Background||NpcBackgroundStillRelevant(item)))
             {
                 npcModel??=new NpcModelClient();if(npcModel.Config.Enabled)
                 {

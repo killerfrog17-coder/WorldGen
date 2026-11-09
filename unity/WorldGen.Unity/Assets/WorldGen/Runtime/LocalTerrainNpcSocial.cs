@@ -9,18 +9,24 @@ public sealed partial class LocalTerrainExplorer
     sealed class SocialConversation {public long A,B;public int Turns=4;public double Until;public NpcDiscussion Discussion;public bool Recorded;}
     SocialConversation npcConversation;double npcSocialAt,npcWaitSocialDay,npcSocialScanAt,npcAmbientAt;long npcSocialSequence;int npcSocialCursor;
     readonly System.Collections.Generic.Dictionary<long,(double At,Vector3 Ear,Vector3 Source,bool Audible)> npcHearing=new System.Collections.Generic.Dictionary<long,(double,Vector3,Vector3,bool)>();
+    readonly System.Collections.Generic.Dictionary<long,double> npcLastHeard=new System.Collections.Generic.Dictionary<long,double>();
     bool NpcPlayerCanHear(HumanActor actor)
     {
         if(actor?.Root==null||actor.Health<=0||view==null)return false;
         var source=actor.Root.transform.position+Vector3.up;var ear=view.transform.position;var delta=source-ear;float distance=delta.magnitude;if(distance>=10)return false;
         double now=Time.unscaledTimeAsDouble;
-        if(npcHearing.TryGetValue(actor.ResidentId,out var cached)&&now-cached.At<.3&&(ear-cached.Ear).sqrMagnitude<.25f&&(source-cached.Source).sqrMagnitude<.25f)return cached.Audible;
+        if(npcHearing.TryGetValue(actor.ResidentId,out var cached)&&now-cached.At<.3&&(ear-cached.Ear).sqrMagnitude<.25f&&(source-cached.Source).sqrMagnitude<.25f){if(cached.Audible)npcLastHeard[actor.ResidentId]=now;return cached.Audible;}
         bool audible=distance<.1f||TraceCombatObstacle(new Ray(ear,delta/distance),Math.Max(0,distance-.15f))==null;
-        if(npcHearing.Count>=128)npcHearing.Clear();npcHearing[actor.ResidentId]=(now,ear,source,audible);return audible;
+        if(npcHearing.Count>=128){npcHearing.Clear();npcLastHeard.Clear();}npcHearing[actor.ResidentId]=(now,ear,source,audible);if(audible)npcLastHeard[actor.ResidentId]=now;return audible;
     }
+    bool NpcPlayerCanHearRecently(HumanActor actor)=>NpcPlayerCanHear(actor)||actor?.Root!=null&&actor.Health>0&&
+        (actor.Root.transform.position-view.transform.position).sqrMagnitude<144&&npcLastHeard.TryGetValue(actor.ResidentId,out double at)&&Time.unscaledTimeAsDouble-at<2;
     bool NpcBackgroundRelevant(NpcEventQueue.Event item)
-        =>livingPeople.TryGetValue(item.Person,out var actor)&&NpcPlayerCanHear(actor)&&
-        (item.Speaker==0||livingPeople.TryGetValue(item.Speaker,out var peer)&&NpcPlayerCanHear(peer)&&NpcCanHear(actor,peer.Root.transform.position+Vector3.up,5));
+        =>NpcBackgroundRelevant(item,false);
+    bool NpcBackgroundStillRelevant(NpcEventQueue.Event item)=>NpcBackgroundRelevant(item,true);
+    bool NpcBackgroundRelevant(NpcEventQueue.Event item,bool recent)
+        =>livingPeople.TryGetValue(item.Person,out var actor)&&(recent?NpcPlayerCanHearRecently(actor):NpcPlayerCanHear(actor))&&
+        (item.Speaker==0||livingPeople.TryGetValue(item.Speaker,out var peer)&&(recent?NpcPlayerCanHearRecently(peer):NpcPlayerCanHear(peer))&&NpcCanHear(actor,peer.Root.transform.position+Vector3.up,5));
     bool NpcBackgroundAvailable=>npcThinking==null&&npcModel?.IsBusy!=true&&npcEvents.Count==0&&!npcSpeech.Values.Any(s=>!s.Delivered)&&!(chatOpen&&npcTalkTarget!=null);
     bool NpcCanHear(HumanActor listener,Vector3 source,float radius)
     {var at=listener.Root.transform.position+Vector3.up;var delta=source-at;return delta.magnitude<radius&&(delta.magnitude<.1f||TraceCombatObstacle(new Ray(at,delta.normalized),Math.Max(0,delta.magnitude-.1f),checkGround:false)==null);}
@@ -49,7 +55,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateNpcSocial()
     {
         double now=Time.unscaledTimeAsDouble;
-        if(npcConversation!=null&&(now>npcConversation.Until||!livingPeople.TryGetValue(npcConversation.A,out var a0)||!livingPeople.TryGetValue(npcConversation.B,out var b0)||!NpcPlayerCanHear(a0)||!NpcPlayerCanHear(b0)||a0.CurrentActivity==HumanActivity.Retreat||b0.CurrentActivity==HumanActivity.Retreat))CancelNpcConversation();
+        if(npcConversation!=null&&(now>npcConversation.Until||!livingPeople.TryGetValue(npcConversation.A,out var a0)||!livingPeople.TryGetValue(npcConversation.B,out var b0)||!NpcPlayerCanHearRecently(a0)||!NpcPlayerCanHearRecently(b0)||a0.CurrentActivity==HumanActivity.Retreat||b0.CurrentActivity==HumanActivity.Retreat))CancelNpcConversation();
         UpdateNpcProceduralSocial();
         if(campResting)WaitNpcApproach();
     }

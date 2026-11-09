@@ -66,7 +66,10 @@ public sealed partial class LocalTerrainExplorer
         npcModel.Config.Enabled=false;npcHearing.Clear();
         var barrier=new GameObject("Social hearing test wall");barrier.transform.position=(view.transform.position+recipient.Root.transform.position+Vector3.up)*.5f;
         var wall=barrier.AddComponent<BoxCollider>();wall.size=new Vector3(.3f,3,3);Physics.SyncTransforms();
-        Check(!NpcPlayerCanHear(recipient),"A nearby solid wall blocks player earshot");DestroyImmediate(barrier);npcHearing.Clear();
+        Check(!NpcPlayerCanHear(recipient),"A nearby solid wall blocks player earshot");
+        Check(NpcPlayerCanHearRecently(recipient),"A brief occlusion does not instantly cancel an already audible exchange");
+        npcLastHeard[recipient.ResidentId]=Time.unscaledTimeAsDouble-3;
+        Check(!NpcPlayerCanHearRecently(recipient),"Sustained occlusion expires the in-progress conversation grace period");DestroyImmediate(barrier);npcHearing.Clear();
         // This capture shows actual residents, not a fabricated generated conversation.
         npcThoughts=true;NpcMemoryFor(recipient.ResidentId).Trigger="Procedural social exchange";NpcMemoryFor(recipient.ResidentId).Thought="Shared a witnessed theft report; no generated transcript.";
         Place(recipient,motion.X+4,motion.Z-.7,270);Place(other,motion.X+4,motion.Z+.7,270);UpdateCamera();
