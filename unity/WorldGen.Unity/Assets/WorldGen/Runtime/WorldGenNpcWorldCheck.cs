@@ -47,10 +47,15 @@ public sealed partial class LocalTerrainExplorer
         // Clear the controlled probe's pending reaction before the real-model test.
         npcEvents.Clear();npcPlans.Clear();paused=false;
         double x=second.Motor.X-2,z=second.Motor.Z;motion.Place(x,z,Ground(x,z));motion.Flying=false;UpdateHumans();UpdateCamera();
+        // The sensory fixture may spend time streaming the wolf while these
+        // residents continue their separate trips. Keep the cancellation probe
+        // a controlled close conversation, not a test of where their trips end.
+        if(HumanDistance(first.Planet,second.Planet)>10)
+        {first.Motor.Place(second.Motor.X+3,second.Motor.Z,Ground(second.Motor.X+3,second.Motor.Z));first.Planet=frame.Position(first.Motor.X,first.Motor.Z);first.Root.transform.localPosition=new Vector3((float)(first.Motor.X-originX),(float)(first.Motor.Y-WorldGen.Presentation.TerrainMotion.EyeHeightM),(float)(first.Motor.Z-originZ));}
         npcModel??=new NpcModelClient();npcModel.Config.BackgroundReactions=false;
         int requests=npcModel.Requests,decisions=npcDecisions;npcModel.Config.BackgroundReactions=true;Check(QueueNpcEvent(first,"A familiar bandmate is passing nearby; greet them briefly."),"A background event is admitted before the player speaks");npcModel.Config.BackgroundReactions=false;UpdateNpcMinds(false);
         until=Time.unscaledTimeAsDouble+190;while(npcModel.Requests==requests&&npcThinking!=null&&!npcThinking.IsCompleted&&Time.unscaledTimeAsDouble<until)yield return null;
-        Check(npcPending?.Person==first.ResidentId&&npcThinking!=null&&!npcThinking.IsCompleted,"A real background model request is in flight");var interrupted=npcPending;int spoken=npcUtterances;
+        Check(npcPending?.Person==first.ResidentId&&npcThinking!=null&&!npcThinking.IsCompleted,"A real background model request is in flight: "+npcModel.Status+" / "+npcLastError);var interrupted=npcPending;int spoken=npcUtterances;
         npcTalkTarget=second;Check(SpeakToNpc("What time of day is it, and what is the weather like here?"),"The player can directly address a different resident while background inference runs");
         Check(npcSuppressed==interrupted&&npcEvents.HasDirect(second.ResidentId),"Player speech cancels the lower-priority request and goes to the front");
         until=Time.unscaledTimeAsDouble+190;while(npcUtterances==spoken&&Time.unscaledTimeAsDouble<until&&npcLastError.Length==0)yield return null;
