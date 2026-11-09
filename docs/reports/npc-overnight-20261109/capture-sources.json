@@ -1,0 +1,37 @@
+{
+  "grounded-dialogue": {
+    "source": "artifacts/npc-overnight-20261109/action-dialogue-v3-dialogue/grounded-local-model-dialogue.png",
+    "tested_build": "199d6730",
+    "file": "grounded-dialogue.jpg",
+    "caption": "Actual Qwen3.5-9B replies and an executed invitation; controlled welcoming host.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "morning-camp": {
+    "source": "artifacts/npc-20261103/npc-built-camp-v1-morning/camp-first.png",
+    "tested_build": "8dc02fe2",
+    "file": "morning-camp.jpg",
+    "caption": "Actual nine-shelter,34-person morning camp. Existing bark lean-tos; no spawned NPC command.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "children-in-camp": {
+    "source": "artifacts/npc-20261103/npc-built-camp-v1-morning/task-Play.png",
+    "tested_build": "8dc02fe2",
+    "file": "children-in-camp.jpg",
+    "caption": "A child moving between household shelters while adults remain by the hearth. Snapshot is not evidence of an entire play sequence.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "completed-fire-routine": {
+    "source": "artifacts/npc-overnight-20261109/routine-work-v8-routine/completed-material-fire-routine.png",
+    "tested_build": "520634a7",
+    "file": "completed-fire-routine.jpg",
+    "caption": "After actual gathering,return and cold fire starting. Controlled qualified firemaker/one real drill; fuel and tinder were gathered physically.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "night-household": {
+    "source": "artifacts/npc-20261103/npc-overnight-scenes-v2-sleep/task-Sleep.png",
+    "tested_build": "f41a5985",
+    "file": "night-household.jpg",
+    "caption": "Household sleep at23:00; a few campmates remain awake by the fire. Existing dark night lighting, no brightness edit.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  }
+}

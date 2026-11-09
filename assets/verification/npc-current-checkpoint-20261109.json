@@ -1,0 +1,1140 @@
+{
+  "recorded_utc": "2026-11-09T16:47:47.275485+00:00",
+  "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
+  "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
+  "cases": {
+    "built_morning": {
+      "folder": "artifacts/npc-20261103/npc-built-camp-v1-morning",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 23408,
+        "startedUtc": "/Date(1794242134929)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T16:26:43.1136773Z",
+          "SourceCommit": "8dc02fe2b6a475f8bdf2076e1daaf1556c0a6aad",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "d76bf7e9d343dd6ada6c3f3e22433ec16605550513dc563902267d66e4fb7f5b"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "798b3647e13491158072ca13f3b5c2c65d58c1b90865f7a76d614d1acdd431ab"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "974cfcbd64d8e3fce9b479a3185684a3845f2e78574d1a69454d55076af7f110"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "209ac495ffdbcbfe04848c55b5a50cb9aea411fbfc2f35f233adab5bddf3feae"
+        }
+      },
+      "package.json": {
+        "AssemblySha256": "8b93d723266133b76fccc9c700b189d7f7eb0d9a8e66f5fbff4de1f7d0cdf4bb",
+        "BuiltUtc": "2026-11-09T16:26:43.2336794Z",
+        "CoreSha256": "d76bf7e9d343dd6ada6c3f3e22433ec16605550513dc563902267d66e4fb7f5b",
+        "WorkerSha256": "209ac495ffdbcbfe04848c55b5a50cb9aea411fbfc2f35f233adab5bddf3feae"
+      },
+      "scene-info.json": {
+        "Aridity": 0.9253073917050145,
+        "Canopy": 0.7799999999999997,
+        "Context": "temperate",
+        "Cover": "Bark",
+        "Design": "LeanTo",
+        "HistoryHash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+        "Houses": 9,
+        "LocalHour": 7,
+        "MeanC": 18.310703913608357,
+        "People": 34,
+        "Rain": 1159.272877329075,
+        "Residence": "ResidentialMobility",
+        "Year": 0
+      },
+      "performance.json": [
+        {
+          "BackgroundQueryMs": 0.6243000000000001,
+          "Frames": 1794,
+          "Height": 864,
+          "MaxFrameMs": 61.48730000001024,
+          "MaxNpcMs": 7.573,
+          "MaxResidents": 34,
+          "MeanFrameMs": 16.72628706800448,
+          "MeanNpcMs": 2.500777257525087,
+          "MeanStagesMs": [
+            1.1711401895206253,
+            0.1195755295429208,
+            0.04175011148272023,
+            0.8429357859531768,
+            0.24129292084726867
+          ],
+          "MinResidents": 34,
+          "Mode": "normal",
+          "Over10Ms": 1356,
+          "Over1667Ms": 408,
+          "P95FrameMs": 45.224599999997395,
+          "P95NpcMs": 5.246,
+          "P99FrameMs": 50.249399999998445,
+          "P99NpcMs": 6.0683,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 112,
+          "Seconds": 30.00695900000001,
+          "TerrainReady": true,
+          "Tiles": 200,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.5693,
+          "Frames": 4040,
+          "Height": 864,
+          "MaxFrameMs": 49.681800000001886,
+          "MaxNpcMs": 0.5041,
+          "MaxResidents": 34,
+          "MeanFrameMs": 7.426780866336641,
+          "MeanNpcMs": 0.03113054455445567,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "MinResidents": 34,
+          "Mode": "render-only",
+          "Over10Ms": 391,
+          "Over1667Ms": 43,
+          "P95FrameMs": 11.274299999996629,
+          "P95NpcMs": 0.0403,
+          "P99FrameMs": 16.788600000012366,
+          "P99NpcMs": 0.0652,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 112,
+          "Seconds": 30.004194699999985,
+          "TerrainReady": true,
+          "Tiles": 200,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.5813,
+          "Frames": 5146,
+          "Height": 864,
+          "MaxFrameMs": 35.72810000000004,
+          "MaxNpcMs": 0.5793,
+          "MaxResidents": 34,
+          "MeanFrameMs": 5.830393315196265,
+          "MeanNpcMs": 0.026773882627283283,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "MinResidents": 34,
+          "Mode": "no-residents",
+          "Over10Ms": 103,
+          "Over1667Ms": 40,
+          "P95FrameMs": 8.020500000014863,
+          "P95NpcMs": 0.0333,
+          "P99FrameMs": 12.064699999996265,
+          "P99NpcMs": 0.0586,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 112,
+          "Seconds": 30.003203999999982,
+          "TerrainReady": true,
+          "Tiles": 200,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.6081,
+          "Frames": 3723,
+          "Height": 864,
+          "MaxFrameMs": 29.68870000000834,
+          "MaxNpcMs": 6.3045,
+          "MaxResidents": 34,
+          "MeanFrameMs": 8.059177383830226,
+          "MeanNpcMs": 1.4966543916196595,
+          "MeanStagesMs": [
+            0.6163025785656732,
+            0.061121837228042,
+            0.03476521622347572,
+            0.5076661294654845,
+            0.21101257050765482
+          ],
+          "MinResidents": 34,
+          "Mode": "normal-repeat",
+          "Over10Ms": 391,
+          "Over1667Ms": 32,
+          "P95FrameMs": 10.836299999994026,
+          "P95NpcMs": 3.9032,
+          "P99FrameMs": 15.749700000014855,
+          "P99NpcMs": 4.4356,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 112,
+          "Seconds": 30.00431739999999,
+          "TerrainReady": true,
+          "Tiles": 200,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        }
+      ],
+      "checks": [
+        "PASS An admitted real simulated community exists",
+        "PASS Actual local terrain and centre tiles are ready",
+        "PASS Natural residents stream from world history, without a spawn command",
+        "PASS Natural camp passes local ground validation and is loaded",
+        "PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp",
+        "PASS Camp consists of real player-compatible objects/materials",
+        "PASS Native camp validates with real terrain footing surveys",
+        "PASS Occupied camp shelters retain every fitted roof/frame component",
+        "PASS Actual surrounding scatter pages are resident before accepting camp environment captures",
+        "PASS Physical NPCs retain named family identities and actual scheduled tasks",
+        "PASS Broad local group tracking is bounded at 50km plus foraging catchment",
+        "PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders",
+        "PASS Occupied shelter floor has a full-strength ground clearing mask",
+        "PASS Packed compute shader removes grass inside the real camp floor and retains grass outside",
+        "PASS Named camp objects and local memories survive actual player capture and serialization",
+        "PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects",
+        "PASS Aggression preserves wounds and the actual victim's local memory",
+        "PASS Unloading/revisiting a camp does not duplicate its objects"
+      ],
+      "streaming-status.txt": "People 1 / expected near 18; ground False; loaded False; attempt 0; survey 200m / ms; objects 0",
+      "terrain-start-status.txt": "Ready True; centre False; tiles 0 / 196; residents 0; error ; position 0,1.65049002384026,0; target 0.991658969,0.088817762,-0.093401794",
+      "exit-code.txt": "0"
+    },
+    "open_air_wet": {
+      "folder": "artifacts/npc-20261103/npc-overnight-perf-v2-wet",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 28080,
+        "startedUtc": "/Date(1794239657545)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:53:17.4729097Z",
+          "SourceCommit": "f41a598576dad4ac8ed47596f3186adc64f2a0fe",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "b496b649e01fad651b975ea1e283539f470b30045d9304af95108a7a498df547"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "18801737820c427167eeaebe4b6fe3e49c3efd21bd534b0cb604313b2c14424d"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+        }
+      },
+      "package.json": {
+        "AssemblySha256": "0ffd693191dd31eb02b12c1665e33f70435c3eb3981b03d735fa388d563efcc7",
+        "BuiltUtc": "2026-11-09T15:53:17.5949100Z",
+        "CoreSha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7",
+        "WorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+      },
+      "scene-info.json": {
+        "Aridity": 1.957140786065197,
+        "Canopy": 0.9500000000000001,
+        "Context": "wet",
+        "Cover": "Brush",
+        "Design": "Windbreak",
+        "HistoryHash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+        "Houses": 0,
+        "LocalHour": 11,
+        "MeanC": 23.72010422418218,
+        "People": 34,
+        "Rain": 3027.116247802956,
+        "Residence": "ResidentialMobility",
+        "Year": 0
+      },
+      "performance.json": [
+        {
+          "BackgroundQueryMs": 0.6279,
+          "Frames": 4228,
+          "Height": 864,
+          "MaxFrameMs": 43.12269999999785,
+          "MaxNpcMs": 9.9511,
+          "MaxResidents": 34,
+          "MeanFrameMs": 7.097235454115429,
+          "MeanNpcMs": 1.0858595553453165,
+          "MeanStagesMs": [
+            0.3663539025543989,
+            0.2170042100283822,
+            0.053461210974456275,
+            0.2037495033112585,
+            0.1691227294228944
+          ],
+          "MinResidents": 34,
+          "Mode": "normal",
+          "Over10Ms": 328,
+          "Over1667Ms": 158,
+          "P95FrameMs": 11.963899999997807,
+          "P95NpcMs": 3.243,
+          "P99FrameMs": 35.79440000000034,
+          "P99NpcMs": 4.8402,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 118,
+          "Seconds": 30.007111499999993,
+          "TerrainReady": true,
+          "Tiles": 185,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.5699000000000001,
+          "Frames": 6447,
+          "Height": 864,
+          "MaxFrameMs": 15.661399999999048,
+          "MaxNpcMs": 0.2852,
+          "MaxResidents": 34,
+          "MeanFrameMs": 4.653397750891885,
+          "MeanNpcMs": 0.029975228788583826,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "MinResidents": 34,
+          "Mode": "render-only",
+          "Over10Ms": 24,
+          "Over1667Ms": 0,
+          "P95FrameMs": 7.710599999995793,
+          "P95NpcMs": 0.0383,
+          "P99FrameMs": 8.546899999998914,
+          "P99NpcMs": 0.0555,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 118,
+          "Seconds": 30.000455300000013,
+          "TerrainReady": true,
+          "Tiles": 180,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.5096,
+          "Frames": 6950,
+          "Height": 864,
+          "MaxFrameMs": 18.016999999986183,
+          "MaxNpcMs": 0.2101,
+          "MaxResidents": 34,
+          "MeanFrameMs": 4.316664071942446,
+          "MeanNpcMs": 0.02855541007194231,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "MinResidents": 34,
+          "Mode": "no-residents",
+          "Over10Ms": 14,
+          "Over1667Ms": 2,
+          "P95FrameMs": 6.020000000006576,
+          "P95NpcMs": 0.0371,
+          "P99FrameMs": 7.85799999999881,
+          "P99NpcMs": 0.0561,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 119,
+          "Seconds": 30.0008153,
+          "TerrainReady": true,
+          "Tiles": 179,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.5097,
+          "Frames": 5705,
+          "Height": 864,
+          "MaxFrameMs": 22.41109999999935,
+          "MaxNpcMs": 6.4735,
+          "MaxResidents": 34,
+          "MeanFrameMs": 5.259330429447849,
+          "MeanNpcMs": 0.8660616126205077,
+          "MeanStagesMs": [
+            0.2777669412795793,
+            0.1791583523225244,
+            0.05167360210341788,
+            0.09979751095530208,
+            0.18553127081507523
+          ],
+          "MinResidents": 34,
+          "Mode": "normal-repeat",
+          "Over10Ms": 36,
+          "Over1667Ms": 3,
+          "P95FrameMs": 7.586699999990287,
+          "P95NpcMs": 2.4168,
+          "P99FrameMs": 9.45400000000518,
+          "P99NpcMs": 3.6947,
+          "Residents": 34,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 116,
+          "Seconds": 30.004480100000023,
+          "TerrainReady": true,
+          "Tiles": 179,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        }
+      ],
+      "checks": [
+        "PASS An admitted real simulated community exists",
+        "PASS Actual local terrain and centre tiles are ready",
+        "PASS Natural residents stream from world history, without a spawn command",
+        "PASS Natural camp passes local ground validation and is loaded",
+        "PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp",
+        "PASS Camp consists of real player-compatible objects/materials",
+        "PASS Native camp validates with real terrain footing surveys",
+        "PASS Occupied camp shelters retain every fitted roof/frame component",
+        "PASS Actual surrounding scatter pages are resident before accepting camp environment captures",
+        "PASS Physical NPCs retain named family identities and actual scheduled tasks",
+        "PASS Broad local group tracking is bounded at 50km plus foraging catchment",
+        "PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders",
+        "PASS Named camp objects and local memories survive actual player capture and serialization",
+        "PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects",
+        "PASS Aggression preserves wounds and the actual victim's local memory",
+        "PASS Unloading/revisiting a camp does not duplicate its objects"
+      ],
+      "streaming-status.txt": "People 17 / expected near 14; ground True; loaded True; attempt 13; survey 200m / 1035.0215ms; objects 10",
+      "terrain-start-status.txt": "Ready True; centre False; tiles 0 / 196; residents 0; error ; position 0.0117610052805044,1.65057346594914,-0.017147936057002; target 0.97515489,0.220115853,-0.024938953",
+      "exit-code.txt": "0"
+    },
+    "open_air_collector": {
+      "folder": "artifacts/npc-20261103/npc-overnight-perf-v2-collector",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 25468,
+        "startedUtc": "/Date(1794239920761)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:53:17.4729097Z",
+          "SourceCommit": "f41a598576dad4ac8ed47596f3186adc64f2a0fe",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "b496b649e01fad651b975ea1e283539f470b30045d9304af95108a7a498df547"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "18801737820c427167eeaebe4b6fe3e49c3efd21bd534b0cb604313b2c14424d"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+        }
+      },
+      "package.json": {
+        "AssemblySha256": "0ffd693191dd31eb02b12c1665e33f70435c3eb3981b03d735fa388d563efcc7",
+        "BuiltUtc": "2026-11-09T15:53:17.5949100Z",
+        "CoreSha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7",
+        "WorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+      },
+      "scene-info.json": {
+        "Aridity": 0.27107054852451373,
+        "Canopy": 0,
+        "Context": "temperate",
+        "Cover": "Brush",
+        "Design": "Windbreak",
+        "HistoryHash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+        "Houses": 0,
+        "LocalHour": 14,
+        "MeanC": 18.237755125379948,
+        "People": 23,
+        "Rain": 332.2402753121845,
+        "Residence": "CollectorCamps",
+        "Year": 0
+      },
+      "performance.json": [
+        {
+          "BackgroundQueryMs": 0.39840000000000003,
+          "Frames": 5367,
+          "Height": 864,
+          "MaxFrameMs": 19.52700000001073,
+          "MaxNpcMs": 3.6081,
+          "MaxResidents": 23,
+          "MeanFrameMs": 5.591352822806032,
+          "MeanNpcMs": 0.4549490031675034,
+          "MeanStagesMs": [
+            0.13411563256940584,
+            0.023113825228246666,
+            0.013568380845910218,
+            0.1934858952860071,
+            0.05780033538289559
+          ],
+          "MinResidents": 23,
+          "Mode": "normal",
+          "Over10Ms": 510,
+          "Over1667Ms": 2,
+          "P95FrameMs": 10.208800000015117,
+          "P95NpcMs": 0.7395,
+          "P99FrameMs": 10.707899999999881,
+          "P99NpcMs": 0.9112,
+          "Residents": 23,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 128,
+          "Seconds": 30.008790599999998,
+          "TerrainReady": true,
+          "Tiles": 144,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.3436,
+          "Frames": 5362,
+          "Height": 864,
+          "MaxFrameMs": 14.005600000018603,
+          "MaxNpcMs": 0.1732,
+          "MaxResidents": 23,
+          "MeanFrameMs": 5.5951118985453085,
+          "MeanNpcMs": 0.02132998881014548,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "MinResidents": 23,
+          "Mode": "render-only",
+          "Over10Ms": 181,
+          "Over1667Ms": 0,
+          "P95FrameMs": 9.926299999989396,
+          "P95NpcMs": 0.0282,
+          "P99FrameMs": 10.369800000006535,
+          "P99NpcMs": 0.0464,
+          "Residents": 23,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 128,
+          "Seconds": 30.00099,
+          "TerrainReady": true,
+          "Tiles": 144,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.3175,
+          "Frames": 7073,
+          "Height": 864,
+          "MaxFrameMs": 16.08070000000339,
+          "MaxNpcMs": 0.1515,
+          "MaxResidents": 23,
+          "MeanFrameMs": 4.2418540647532765,
+          "MeanNpcMs": 0.0187537395730243,
+          "MeanStagesMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "MinResidents": 23,
+          "Mode": "no-residents",
+          "Over10Ms": 81,
+          "Over1667Ms": 0,
+          "P95FrameMs": 9.083099999998012,
+          "P95NpcMs": 0.0233,
+          "P99FrameMs": 10.268100000018876,
+          "P99NpcMs": 0.0348,
+          "Residents": 23,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 128,
+          "Seconds": 30.002633800000012,
+          "TerrainReady": true,
+          "Tiles": 144,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        },
+        {
+          "BackgroundQueryMs": 0.3796,
+          "Frames": 5366,
+          "Height": 864,
+          "MaxFrameMs": 15.710699999999633,
+          "MaxNpcMs": 3.5759,
+          "MaxResidents": 23,
+          "MeanFrameMs": 5.59140026090196,
+          "MeanNpcMs": 0.47008619083115816,
+          "MeanStagesMs": [
+            0.13873531494595595,
+            0.02319685054043982,
+            0.014142191576593374,
+            0.20477040626164708,
+            0.056463306000745644
+          ],
+          "MinResidents": 23,
+          "Mode": "normal-repeat",
+          "Over10Ms": 401,
+          "Over1667Ms": 0,
+          "P95FrameMs": 10.140500000005659,
+          "P95NpcMs": 0.7933,
+          "P99FrameMs": 10.679800000019668,
+          "P99NpcMs": 0.9435,
+          "Residents": 23,
+          "Route": "Radius24m scenic camp orbit; same path and duration per mode",
+          "ScatterChunks": 128,
+          "Seconds": 30.003453800000017,
+          "TerrainReady": true,
+          "Tiles": 144,
+          "TreeQuality": 2,
+          "UnfocusedFrames": 0,
+          "ViewDistanceM": 6000,
+          "Width": 1536
+        }
+      ],
+      "checks": [
+        "PASS An admitted real simulated community exists",
+        "PASS Actual local terrain and centre tiles are ready",
+        "PASS Natural residents stream from world history, without a spawn command",
+        "PASS Natural camp passes local ground validation and is loaded",
+        "PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp",
+        "PASS Camp consists of real player-compatible objects/materials",
+        "PASS Native camp validates with real terrain footing surveys",
+        "PASS Occupied camp shelters retain every fitted roof/frame component",
+        "PASS Actual surrounding scatter pages are resident before accepting camp environment captures",
+        "PASS Physical NPCs retain named family identities and actual scheduled tasks",
+        "PASS Broad local group tracking is bounded at 50km plus foraging catchment",
+        "PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders",
+        "PASS Named camp objects and local memories survive actual player capture and serialization",
+        "PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects",
+        "PASS Aggression preserves wounds and the actual victim's local memory",
+        "PASS Unloading/revisiting a camp does not duplicate its objects"
+      ],
+      "streaming-status.txt": "People 4 / expected near 17; ground False; loaded False; attempt 0; survey 200m / 104.3944ms; objects 0",
+      "terrain-start-status.txt": "Ready True; centre False; tiles 0 / 140; residents 0; error ; position 0,1.64838470658278,0; target 0.947376826,0.130036876,-0.292519332",
+      "exit-code.txt": "0"
+    },
+    "built_night": {
+      "folder": "artifacts/npc-20261103/npc-overnight-scenes-v2-sleep",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 23780,
+        "startedUtc": "/Date(1794241203516)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:53:17.4729097Z",
+          "SourceCommit": "f41a598576dad4ac8ed47596f3186adc64f2a0fe",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "b496b649e01fad651b975ea1e283539f470b30045d9304af95108a7a498df547"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "18801737820c427167eeaebe4b6fe3e49c3efd21bd534b0cb604313b2c14424d"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+        }
+      },
+      "package.json": {
+        "AssemblySha256": "0ffd693191dd31eb02b12c1665e33f70435c3eb3981b03d735fa388d563efcc7",
+        "BuiltUtc": "2026-11-09T15:53:17.5949100Z",
+        "CoreSha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7",
+        "WorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+      },
+      "scene-info.json": {
+        "Aridity": 0.9253073917050145,
+        "Canopy": 0.7799999999999997,
+        "Context": "temperate",
+        "Cover": "Bark",
+        "Design": "LeanTo",
+        "HistoryHash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+        "Houses": 9,
+        "LocalHour": 23,
+        "MeanC": 18.310703913608357,
+        "People": 34,
+        "Rain": 1159.272877329075,
+        "Residence": "ResidentialMobility",
+        "Year": 0
+      },
+      "checks": [
+        "PASS An admitted real simulated community exists",
+        "PASS Actual local terrain and centre tiles are ready",
+        "PASS Natural residents stream from world history, without a spawn command",
+        "PASS Natural camp passes local ground validation and is loaded",
+        "PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp",
+        "PASS Camp consists of real player-compatible objects/materials",
+        "PASS Native camp validates with real terrain footing surveys",
+        "PASS Occupied camp shelters retain every fitted roof/frame component",
+        "PASS Actual surrounding scatter pages are resident before accepting camp environment captures",
+        "PASS Physical NPCs retain named family identities and actual scheduled tasks",
+        "PASS Broad local group tracking is bounded at 50km plus foraging catchment",
+        "PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders",
+        "PASS Occupied shelter floor has a full-strength ground clearing mask",
+        "PASS Packed compute shader removes grass inside the real camp floor and retains grass outside",
+        "PASS Named camp objects and local memories survive actual player capture and serialization",
+        "PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects",
+        "PASS Aggression preserves wounds and the actual victim's local memory",
+        "PASS Unloading/revisiting a camp does not duplicate its objects"
+      ],
+      "streaming-status.txt": "People 1 / expected near 33; ground False; loaded False; attempt 0; survey 200m / ms; objects 0",
+      "terrain-start-status.txt": "Ready True; centre False; tiles 0 / 132; residents 0; error ; position 0,1.65049002384026,0; target 0.991658969,0.088817762,-0.093401794",
+      "exit-code.txt": "0"
+    },
+    "dense_forest_placement_failure": {
+      "folder": "artifacts/npc-20261103/npc-shelters-perf-v1-wet",
+      "accepted": false,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 24000,
+        "startedUtc": "/Date(1794241672581)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T16:26:43.1136773Z",
+          "SourceCommit": "8dc02fe2b6a475f8bdf2076e1daaf1556c0a6aad",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "d76bf7e9d343dd6ada6c3f3e22433ec16605550513dc563902267d66e4fb7f5b"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "798b3647e13491158072ca13f3b5c2c65d58c1b90865f7a76d614d1acdd431ab"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "974cfcbd64d8e3fce9b479a3185684a3845f2e78574d1a69454d55076af7f110"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "209ac495ffdbcbfe04848c55b5a50cb9aea411fbfc2f35f233adab5bddf3feae"
+        }
+      },
+      "package.json": {
+        "AssemblySha256": "8b93d723266133b76fccc9c700b189d7f7eb0d9a8e66f5fbff4de1f7d0cdf4bb",
+        "BuiltUtc": "2026-11-09T16:26:43.2336794Z",
+        "CoreSha256": "d76bf7e9d343dd6ada6c3f3e22433ec16605550513dc563902267d66e4fb7f5b",
+        "WorkerSha256": "209ac495ffdbcbfe04848c55b5a50cb9aea411fbfc2f35f233adab5bddf3feae"
+      },
+      "streaming-status.txt": "People 17 / expected near 26; ground False; loaded False; attempt 15131; survey 1200m / 13409.2314ms; objects 0",
+      "terrain-start-status.txt": "Ready True; centre False; tiles 0 / 196; residents 0; error ; position 0,1.65052349230833,0; target 0.928170853,-0.370668051,-0.033227465",
+      "failure.txt": "InvalidOperationException: LIVING HUMANS Natural camp passes local ground validation and is loaded\nLocalTerrainExplorer+<>c__DisplayClass2886_0.<CheckLivingHumans>g__Check|1 (System.Boolean ok, System.String message) (at <e39503ba5dd64f48ab6be1769522e72b>:0)\nLocalTerrainExplorer+<CheckLivingHumans>d__2886.MoveNext () (at <e39503ba5dd64f48ab6be1769522e72b>:0)\nUnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <9cbb64a954b741deb68ec58553207f43>:0)\nUnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&, String&)\n",
+      "exit-code.txt": "1"
+    },
+    "cold_worker_failure": {
+      "folder": "artifacts/npc-20261103/npc-overnight-scenes-v1-cold",
+      "accepted": false,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 18584,
+        "startedUtc": "/Date(1794240786322)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:53:17.4729097Z",
+          "SourceCommit": "f41a598576dad4ac8ed47596f3186adc64f2a0fe",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "b496b649e01fad651b975ea1e283539f470b30045d9304af95108a7a498df547"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "18801737820c427167eeaebe4b6fe3e49c3efd21bd534b0cb604313b2c14424d"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+        }
+      },
+      "package.json": {
+        "AssemblySha256": "0ffd693191dd31eb02b12c1665e33f70435c3eb3981b03d735fa388d563efcc7",
+        "BuiltUtc": "2026-11-09T15:53:17.5949100Z",
+        "CoreSha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7",
+        "WorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+      },
+      "terrain-start-status.txt": "Ready False; centre False; tiles 0 / 0; residents 0; error Unable to read data from the transport connection: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.\n\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000.; position 0,0,0; target 0.418047114,0.29174381,-0.860303528",
+      "failure.txt": "InvalidOperationException: LIVING HUMANS Actual local terrain and centre tiles are ready\nLocalTerrainExplorer+<>c__DisplayClass2886_0.<CheckLivingHumans>g__Check|1 (System.Boolean ok, System.String message) (at <7729eb42b0744a259e589f8dc7289c3a>:0)\nLocalTerrainExplorer+<CheckLivingHumans>d__2886.MoveNext () (at <7729eb42b0744a259e589f8dc7289c3a>:0)\nUnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <9cbb64a954b741deb68ec58553207f43>:0)\nUnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&, String&)\n",
+      "exit-code.txt": "1"
+    },
+    "safe_fire_routine": {
+      "folder": "artifacts/npc-overnight-20261109/routine-work-v8-routine",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 4124,
+        "startedUtc": "/Date(1794238738384)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:36:38.7967407Z",
+          "SourceCommit": "520634a799b6cc5c390a990761346430a687a415",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "18c26f1af200d0c46c59cbd27ee65be3d6db59c03909556cd59a69ffd4c4b2b4"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "61d87525332b1d4b30d8950945ce939caf1684051934b7490d806fe5c14054af"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "9664ea9fe3b553be72baf18d8c6643fcbbc75c496e7c4ebd2b1e5f7d55df96ed"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "47a45e93cd6a23f603e7a00c26cfcc7b51f950d638620041ea9e775110c3040f"
+        }
+      },
+      "result.json": {
+        "finishedUtc": "/Date(1794238889513)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS The real camp and surrounding natural-resource tiles load",
+        "PASS The worker actually walks out, gathers a real resource, and returns a load to the household",
+        "PASS The delivered items really leave the hands/carrier and exist once on the ground",
+        "PASS The actual delivered load is on the household doorstep rather than left at its source",
+        "PASS The delivered load includes an actual shared-ledger natural branch",
+        "PASS A qualified worker completes a cold start through physical material retrieval, preparation and fire-drill work",
+        "PASS The fire tender finishes beside the hearth rather than standing in the burning fuel",
+        "PASS The fire-making kit is actually retrieved and carried, rather than assumed to exist",
+        "PASS The full movement/material/fire cycle validates for saving",
+        "PASS captured session validates with conversation memories"
+      ]
+    },
+    "body_and_eave_navigation": {
+      "folder": "artifacts/npc-overnight-20261109/routine-work-v8-navigation",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 18112,
+        "startedUtc": "/Date(1794238645572)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:36:38.7967407Z",
+          "SourceCommit": "520634a799b6cc5c390a990761346430a687a415",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "18c26f1af200d0c46c59cbd27ee65be3d6db59c03909556cd59a69ffd4c4b2b4"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "61d87525332b1d4b30d8950945ce939caf1684051934b7490d806fe5c14054af"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "9664ea9fe3b553be72baf18d8c6643fcbbc75c496e7c4ebd2b1e5f7d55df96ed"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "47a45e93cd6a23f603e7a00c26cfcc7b51f950d638620041ea9e775110c3040f"
+        }
+      },
+      "result.json": {
+        "finishedUtc": "/Date(1794238738366)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS A real camp and adult resident load for collision-aware local navigation",
+        "PASS The real capsule walks around a six-metre solid barrier instead of crossing it or spinning against it",
+        "PASS Actual swept-body contact routes around a head-height beam missed by the chest look-ahead sphere",
+        "PASS The collision-aware resident retains a valid persistent identity and position",
+        "PASS captured session validates with conversation memories"
+      ]
+    },
+    "safety_latest": {
+      "folder": "artifacts/npc-overnight-20261109/final-reactions-v1-safety",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 24832,
+        "startedUtc": "/Date(1794240642107)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:53:17.4729097Z",
+          "SourceCommit": "f41a598576dad4ac8ed47596f3186adc64f2a0fe",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "b496b649e01fad651b975ea1e283539f470b30045d9304af95108a7a498df547"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "18801737820c427167eeaebe4b6fe3e49c3efd21bd534b0cb604313b2c14424d"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+        }
+      },
+      "result.json": {
+        "finishedUtc": "/Date(1794240712004)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS Actual adult residents exist for local violence checks",
+        "PASS The defender physically equips the actual spear",
+        "PASS The hurt resident identifies the actually visible attacker",
+        "PASS A person behind a real solid receives no telepathic group alarm",
+        "PASS A witnessed threat overrides the actual physical routine",
+        "PASS A healthy armed adult can stand and defend instead of universally fleeing",
+        "PASS An NPC defensive strike with a real spear can hit the player's actual body",
+        "PASS Ongoing wound damage is not reported as a new player assault",
+        "PASS A real resident dies and becomes a physical ragdoll",
+        "PASS A hidden bandmate does not know that the resident died",
+        "PASS Actually discovering the body creates remembered death and grief",
+        "PASS Finding the body does not reveal an unwitnessed killer",
+        "PASS Witnessed consequences and dropped possessions validate together",
+        "PASS captured session validates with conversation memories"
+      ]
+    },
+    "animal_contact_latest": {
+      "folder": "artifacts/npc-overnight-20261109/final-reactions-v1-encounter",
+      "accepted": true,
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 23336,
+        "startedUtc": "/Date(1794240712024)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T15:53:17.4729097Z",
+          "SourceCommit": "f41a598576dad4ac8ed47596f3186adc64f2a0fe",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ddabaaa481ef3f54659bbe90faef07284088772c9ac9ceffddc1bfd354d937e7"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "b496b649e01fad651b975ea1e283539f470b30045d9304af95108a7a498df547"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "18801737820c427167eeaebe4b6fe3e49c3efd21bd534b0cb604313b2c14424d"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "18912d109e1fb2ebe65d296e91189acc3c426749a8872ad5c980578c68309593"
+        }
+      },
+      "result.json": {
+        "finishedUtc": "/Date(1794240785499)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS Actual bandmates exist for the wildlife contact and witness checks",
+        "PASS An actual wolf loads through the normal animal asset path",
+        "PASS A distant animal cannot damage a resident without physical contact",
+        "PASS Real animal contact reaches the resident's posed body and removes health",
+        "PASS The bite creates an actual coarse bleeding wound",
+        "PASS A seeing bandmate remembers the particular wolf attacking the person",
+        "PASS A bandmate behind the real solid wall does not learn the unseen attack",
+        "PASS A threatened animal can direct its defensive response at the actual NPC rather than the player",
+        "PASS A fatal contact produces the real resident corpse and ragdoll",
+        "PASS The witness who discovers the body retains the death alongside the witnessed cause",
+        "PASS The hidden observer does not receive an omniscient death notification",
+        "PASS Animal-caused wounds, real corpse goods and witness memories validate for saving",
+        "PASS captured session validates with conversation memories"
+      ]
+    },
+    "prop_reuse_native": {
+      "folder": "artifacts/npc-overnight-20261109/prop-reuse-v1-belongings",
+      "accepted": true,
+      "checks": [
+        "PASS Two actual adult residents exist",
+        "PASS The physical actor uses its saved inventory rather than a prop-only loadout",
+        "PASS Repeated visual task changes create or delete no actual goods",
+        "PASS Every displayed NPC possession is a real carried item",
+        "PASS The real resident wears a persistent carrier for the visual transfer test",
+        "PASS Switching the same actual tool between hands preserves its visual object and updates the grip",
+        "PASS Adding and removing a held item retains the unchanged worn carrier and removes only that item visual",
+        "PASS A healthy resident's complete belongings survive session copying",
+        "PASS Personal belongings remain marked as another person's property",
+        "PASS An owned real ground item can actually be stolen",
+        "PASS A seeing owner remembers who took the specific item",
+        "PASS A resident behind a real wall does not learn the theft magically",
+        "PASS Possession changes physically while the original ownership remains recorded",
+        "PASS Witnessed theft changes mood and the directed relationship",
+        "PASS The aimed owned item uses the actual red theft-prompt style",
+        "PASS No possession ID exists in both the world and an NPC inventory",
+        "PASS Owned goods and social consequences validate after the real transfer",
+        "PASS captured session validates with conversation memories"
+      ],
+      "result": {
+        "finishedUtc": "/Date(1794243543079)/",
+        "exitCode": 0
+      }
+    }
+  },
+  "performance_limits": [
+    "No before/after build comparison. Modes are component diagnostics in an advancing scene.",
+    "Built morning camp: 34 residents, nine shelters, Medium 1536x864, 6000m view. First normal average about 60 FPS, repeat about124; maximum61.49ms. No100FPS floor.",
+    "Earlier wet/collector performance sites have zero huts; do not claim these show sheltered camps.",
+    "Rejected 191130m-view-distance performance case is excluded."
+  ],
+  "remaining": [
+    "New exact camp spatial index needs native literal/index equivalence and dense-forest placement retry.",
+    "Full followed migration not yet proven.",
+    "Finite transported embers unimplemented.",
+    "Cold and coastal scenic retries still pending.",
+    "Final report, accepted checkpoint shortcut and final handoff not yet done."
+  ],
+  "new_camp_index": {
+    "source": "91f4566b",
+    "core_checks": 1002,
+    "queried_obstacles": 103091,
+    "full_scan_reference_visits": 18000000,
+    "warm_queries": 20000,
+    "warm_allocated_bytes": 0,
+    "native": "7a408aea wet retry RUNNING; ab59184f test found validsite~980m butcameraoutsidecamploadrange, retainedFAIL"
+  }
+}

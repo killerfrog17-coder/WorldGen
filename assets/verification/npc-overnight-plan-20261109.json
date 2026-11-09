@@ -24,19 +24,19 @@
     },
     {
       "id": "daily_life",
-      "status": "Native37bbb7 27PASS moving children, audible reported search helpers, actual roster infant no teleport and nearby caregiver; current complete routine QA unbuilt.",
+      "status": "37bbb7 native27PASS children/search/caregivers; current nine-shelter night/morning scenic and save checks PASS.",
       "scope": "Less synchronized schedules, daily sleep variation/awakenings, affinity/family company, child play groups and chase/hide behavior, risk/culture-dependent watch duties, grief and overdue-person concern/search.",
       "acceptance": "Across varied camps/day-night times show different actual activities and sleepers; family beds coherent; play involves peers; observers cannot search on omniscient death flags."
     },
     {
       "id": "camp_mobility",
-      "status": "Native37bbb7 17PASS actual packing/reassembly, exact IDs+mass and carried bound loads. Full followed migration still not proven. Current partial-initial-camp staging and walking/cold-fire QA UNBUILT.",
+      "status": "Material-backed component packing/reassembly/cargo17PASS; initialstock19PASS; actual safe walking cold-fire routine10PASS. Entire followed migration remains unproven.",
       "scope": "Material-backed fire tending and setup/packing, persistent portable shelter bundles and environmental transport decisions, visible paced tent work, coherent abandoned traces.",
       "acceptance": "Follow a migration without tents vanishing or material duplication. Hide covers/cordage transfer; frame wood carried where locally scarce. Fires use actual fuel and ignition technique."
     },
     {
       "id": "camp_variety",
-      "status": "Core482 synthetic ecological/cultural checks and broadHumanLife17932PASS; six eligible existing shelter families, three found in sampled actual world. Regional scenic review still pending.",
+      "status": "Core482 and actualHumanLife17932PASS. Actual nine-lean-to bark camp day/night accepted mechanically; densewetforest placement failed and under investigation. Cold/coast scenic retries pending.",
       "scope": "Research-backed shelter/residence/group-size variation using existing Paleolithic blueprint families; ecology, season, available material and culture affect layout and shelter.",
       "acceptance": "Several actual distinct regional camps and seasons inspected; no unsupported farming/modern nomadic technology or arbitrary universal chief."
     },
@@ -79,7 +79,7 @@
     "NPCs physically approach, work, carry and consume/feed the finite materials; no role-change item factory.",
     "Cancel or preserve references when a crafting tool leaves its inventory; transfer container subtrees and natural identity together."
   ],
-  "material_checkpoint": "Native hauling and household ground deposit pass on5552/9675; complete cold-fire routine still FAILED at physical tinder approach.539d adds wall-tangent steering, actual nearby grass preference and shared cleared-ground exclusion; new native navigation/routine/camp/belongings/material sequence RUNNING.",
+  "material_checkpoint": "520634a7 native v8 safe cold-fire routine10PASS and body/eave navigation5PASS. v5 full camp19, belongings15 and material15PASS; latest actual safety14/animalcontact13PASS. 91f4566b exact spatial camp obstacle index Core1002PASS, native pending.",
   "inventory_query_allocation": {
     "queries": 40000,
     "reference_bytes": 7040000,
@@ -94,5 +94,6 @@
     "Finite ember transport for non-firemaking bands remains unimplemented; do not imply it works.",
     "Final concise screenshot PDF only at end, select candidate shortcut only after acceptance, Git pushes."
   ],
-  "current_note": "All game/Unity tests RIGHTMOST. Owner selected A a738 protected; candidate B539d native sequence currently running. New family context includes only personally learned local deaths. Core conversation22 and material51 checks pass. Actual Qwen9B15PASS on199d includes working guest invitation. No final PDF/shortcut update yet."
+  "current_note": "All game/Unity tests RIGHTMOST. Owner selected A a738 protected; candidate B539d native sequence currently running. New family context includes only personally learned local deaths. Core conversation22 and material51 checks pass. Actual Qwen9B15PASS on199d includes working guest invitation. No final PDF/shortcut update yet.",
+  "verification_checkpoint": "Actual nine-shelter34-person morning/night camps pass; first two valid performance sites are OPEN-AIR and not shelter evidence. Sheltered morning normal60FPS/repeat124FPS/max61.49ms; no100FPSfloor. Denseforest rigid layout still failed; new exact index and faster budgeted search under verification."
 }

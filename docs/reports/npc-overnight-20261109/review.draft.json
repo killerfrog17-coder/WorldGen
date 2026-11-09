@@ -19,6 +19,15 @@
         {
           "heading": "A real local-model check",
           "text": "Qwen3.5-9B correctly named the camp organizers, described the current morning weather, listed regional foods and explained the actual mortuary custom. Its generated invitation also granted guest access through the game executor. This was one controlled welcoming host, not a guarantee that every model response will be correct."
+        },
+        {
+          "images": [
+            {
+              "file": "grounded-dialogue.jpg",
+              "caption": "Actual Qwen3.5-9B replies and an executed invitation; controlled welcoming host."
+            }
+          ],
+          "max_height": 250
         }
       ]
     },
@@ -27,7 +36,7 @@
       "subtitle": "Individual routines and relationships give the camp more than a shared timetable.",
       "blocks": [
         {
-          "text": "Extended kinship includes cousins, aunts, uncles and grandparents. Personal friendships, friction, trust, respect and grievances affect company and responses. Gifts and returning stolen property transfer real items and change the recipient?s view of the player."
+          "text": "Extended kinship includes cousins, aunts, uncles and grandparents. Personal friendships, friction, trust, respect and grievances affect company and responses. Gifts and returning stolen property transfer real items and change the recipient's view of the player."
         },
         {
           "heading": "Children and nights",
@@ -35,7 +44,20 @@
         },
         {
           "heading": "People are not omniscient",
-          "text": "A caregiver can worry about an overdue relative and ask nearby people to search the last known place. Helpers receive a reported concern, not the missing person?s present location or fate. Seeing a return brings relief; learning of a death can produce grief. Dialogue family facts reflect only losses the observer has learned about."
+          "text": "A caregiver can worry about an overdue relative and ask nearby people to search the last known place. Helpers receive a reported concern, not the missing person's present location or fate. Seeing a return brings relief; learning of a death can produce grief. Dialogue family facts reflect only losses the observer has learned about."
+        },
+        {
+          "images": [
+            {
+              "file": "children-in-camp.jpg",
+              "caption": "Morning: a moving child among adults and real household shelters."
+            },
+            {
+              "file": "night-household.jpg",
+              "caption": "23:00: household sleepers and a few awake campmates. Existing poses and lighting."
+            }
+          ],
+          "max_height": 170
         }
       ]
     },
@@ -44,15 +66,24 @@
       "subtitle": "Scheduled intentions use finite materials instead of summoning task props.",
       "blocks": [
         {
-          "text": "Each person?s inventory persists. Displayed tools are actual held or carried items; task changes do not create replacements. Private property and household beds produce red restricted prompts, and only witnesses learn who took an item."
+          "text": "Each person's inventory persists. Displayed tools are actual held or carried items; task changes do not create replacements. Private property and household beds produce red restricted prompts, and only witnesses learn who took an item."
         },
         {
           "heading": "Building and moving",
           "text": "Workers approach a particular component, spend work time, remove its actual materials and carry or set them down. Recovered lashing can bind poles and coverings into a load. Unbinding returns the original pieces and their provenance. Wood is carried where scarce; uncarried frames and old hearths can remain."
         },
         {
-          "heading": "Acceptance still pending",
-          "text": "Component dismantling, reassembly and a carried load passed native checks with exact identities and mass conserved. Full followed migration and the complete cold-fire routine remain under active verification; these must not be presented as finished."
+          "heading": "What was actually checked",
+          "text": "Physical component dismantling/reassembly and carried loads conserve exact identities and mass. The complete walking/gathering/return/cold-fire routine now passes, including safe fire clearance. An uninterrupted whole-band migration is still unproven; transported embers are not implemented."
+        },
+        {
+          "images": [
+            {
+              "file": "completed-fire-routine.jpg",
+              "caption": "After actual gathering,return and cold fire starting. Controlled qualified firemaker/one real drill; fuel and tinder were gathered physically."
+            }
+          ],
+          "max_height": 245
         }
       ]
     },
@@ -85,8 +116,53 @@
           "text": "The camp planner can select lean-tos, ridge and conical tents, brush huts, longer huts and open canopies where the available techniques support them. Winter and warm-season covering choices differ; useful fitted poles can travel with the household."
         },
         {
-          "heading": "Performance verification pending",
-          "text": "The new benchmark repeats a slow scenic camp orbit with normal NPC updates, rendering alone and residents hidden. It records frame tails and focus as well as the NPC update cost. Capped functional tests are not FPS evidence. Results will be inserted only after the isolated runs finish."
+          "heading": "Measured, not a frame-rate guarantee",
+          "text": "Medium vegetation and surfaces,1536x864,6km view,model inference disabled. Four30-second scenic orbits separate active updates,rendering and hidden residents. All accepted frames were focused and initial terrain was ready. First/repeat differences are not a causal before/after comparison."
+        },
+        {
+          "table": {
+            "headers": [
+              "Scene",
+              "Residents / roofs",
+              "Normal & repeat FPS",
+              "Worst frame"
+            ],
+            "rows": [
+              [
+                "Wet open-air",
+                "34 /0",
+                "141 /190",
+                "43.1ms"
+              ],
+              [
+                "Collector open-air",
+                "23 /0",
+                "179 /179",
+                "19.5ms"
+              ],
+              [
+                "Woodland built camp",
+                "34 /9",
+                "60 /124",
+                "61.5ms"
+              ]
+            ],
+            "widths": [
+              0.28,
+              0.21,
+              0.3,
+              0.21
+            ]
+          }
+        },
+        {
+          "images": [
+            {
+              "file": "morning-camp.jpg",
+              "caption": "Actual nine-shelter,34-person morning camp. Existing bark lean-tos; no spawned NPC command."
+            }
+          ],
+          "max_height": 175
         },
         {
           "heading": "Remaining limits",
