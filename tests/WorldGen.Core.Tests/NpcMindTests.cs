@@ -25,6 +25,17 @@ static class NpcMindTests
         var cold=new NpcEventQueue();cold.Add(new NpcEventQueue.Event{Person=1,Priority=3},0);Check(cold.HasDirect(1)&&cold.Take(90)?.Person==1,"Direct dialogue survives a cold model load");
         cold.Add(new NpcEventQueue.Event{Person=2,Priority=1},0);Check(cold.Take(90)==null,"Passive observations retain their short expiry");
         cold.Add(new NpcEventQueue.Event{Person=3,Priority=3},0);Check(cold.Take(241)==null&&!cold.HasDirect(3),"Direct dialogue still has a bounded lifetime");
+        var background=new NpcEventQueue();
+        background.Add(new NpcEventQueue.Event{Person=1,Priority=3,Background=true},0);
+        Check(!background.HasDirect(1),"A witness reaction is not player dialogue even at high priority");
+        background.Add(new NpcEventQueue.Event{Person=2,Priority=3,Background=true},.1);
+        Check(background.Count==1,"Background witnesses cannot build a backlog");
+        Check(background.Add(new NpcEventQueue.Event{Person=2,Priority=3,Words="hello"},.2)&&background.HasDirect(2),"Player speech immediately supersedes the same witness reaction");
+        Check(!background.Add(new NpcEventQueue.Event{Person=3,Priority=3,Background=true},.3)&&background.Take(.3).Words=="hello","Background events cannot displace queued player speech");
+        background.Add(new NpcEventQueue.Event{Person=4,Priority=2,Speaker=5,Background=true},1);
+        Check(background.Add(new NpcEventQueue.Event{Person=4,Priority=3,Words="question"},1.1),"Ambient conversation cannot impose its cooldown on a player question");background.Clear();
+        background.Add(new NpcEventQueue.Event{Person=6,Priority=3,Background=true},0);Check(background.Take(9)==null,"Old witness narration is discarded instead of replaying later");
+        background.Add(new NpcEventQueue.Event{Person=7,Priority=2,Background=true},10);background.PruneBackground(e=>false);Check(background.Count==0,"Leaving earshot removes ambient work");
         var decision=new NpcDecision{action="teleport",target="player"};
         Check(!decision.Validate(new[]{"player","none"}),"No arbitrary executor action");
         decision.action="approach";decision.target="person:500";Check(!decision.Validate(new[]{"player","none"}),"No unseen target");

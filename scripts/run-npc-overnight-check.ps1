@@ -2,6 +2,7 @@ param(
     [ValidateSet('belongings','safety','world','material','daily','social','community','camp','dialogue','encounter','routine','navigation')][string[]]$Cases=@('belongings','safety'),
     [Parameter(Mandatory=$true)][ValidatePattern('^[a-z0-9-]+$')][string]$Prefix,
     [ValidateSet('Leftmost','Rightmost')][string]$Monitor='Leftmost',
+    [ValidateSet('slot-a','slot-b')][string]$Slot='slot-b',
     [string]$World='artifacts/terrain-surfaces-20261107/playable.world',
     [switch]$ContinueOnFailure
 )
@@ -20,8 +21,8 @@ foreach($case in $Cases){
     $testName=if($case -eq 'dialogue'){'grounded-dialogue'}else{$case}
     $arguments=@(('--worldgen-npc-'+$testName+'-check'),('"'+(Join-Path $repo $World)+'"'),'--worldgen-entry-seed','3','--worldgen-ai-profile','hybrid','--worldgen-ai-model','qwen35','--worldgen-shared-gpu','--worldgen-output',('"'+$out+'"'),'--worldgen-library-root',('"'+(Join-Path $out 'library')+'"'),'-force-d3d11','-screen-width','1600','-screen-height','900','-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'-logFile',('"'+(Join-Path $out 'player.log')+'"'))
     # Visible review uses the owner's currently selected monitor.
-    $process=Start-Process -FilePath (Join-Path $repo 'builds/slot-b/WorldGen.exe') -ArgumentList $arguments -PassThru
-    @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor=$Monitor;build=(Get-Content (Join-Path $repo 'builds/slot-b/build-inputs.json') -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $out 'owned-process.json')
+    $process=Start-Process -FilePath (Join-Path $repo ('builds/'+$Slot+'/WorldGen.exe')) -ArgumentList $arguments -PassThru
+    @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor=$Monitor;build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $out 'owned-process.json')
     & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $Monitor
     $process.WaitForExit()
     @{exitCode=$process.ExitCode;finishedUtc=[DateTime]::UtcNow}|ConvertTo-Json|Set-Content (Join-Path $out 'result.json')

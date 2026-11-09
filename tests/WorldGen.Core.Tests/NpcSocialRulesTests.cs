@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.IO;
+using System.Runtime.Serialization;
 using WorldGen.Core;
 
 static class NpcSocialRulesTests
@@ -29,6 +31,21 @@ static class NpcSocialRulesTests
         var difference=NpcDiscussion.For(warm,guarded,c);Check(difference.Disagreement&&difference.FirstView!=difference.SecondView&&difference.Topic.Contains("food"),"Different personal convictions produce a concrete disagreement inside one culture");
         NpcSocialRules.SharedConversation(gifts,7,2,true,difference.Topic);Check(gifts.Tie(7,2).Grievance>0&&gifts.Incidents.Any(e=>e.Kind==NpcIncidentKind.Argument),"Actually delivered disagreement affects the named person's relationship");
         double fondness=gifts.Tie(8,2).Affection;NpcSocialRules.SharedConversation(gifts,8,2,false,"work");Check(gifts.Tie(8,2).Affection>fondness,"Friendly shared time develops personal affection");
+        var witness=new NpcSocialState();NpcSocialRules.Assault(witness,1,2,8,.8,3,new V(1,0,0),"You saw an assault.");
+        var listener=new NpcSocialState();listener.KnownPeople.Add(new NpcKnownPerson{Person=2,LastSeenSolarDay=1,LastPosition=new V(0,1,0)});
+        Check(NpcSocialExchange.ShareOne(witness,listener,1,"Ari",3.2),"Social facts spread without generating a transcript");
+        var rumor=listener.Incidents.Single();Check(!rumor.FirstHand&&rumor.Reporter==1&&rumor.OriginPerson==1&&rumor.SolarDay==3&&rumor.Confidence==.75&&rumor.Detail.Contains("reported"),"Hearsay preserves provenance, date and reduced confidence");
+        double trust=listener.Tie(8,3.2).Trust;Check(!NpcSocialExchange.ShareOne(witness,listener,1,"Ari",3.3)&&listener.Tie(8,3.3).Trust==trust,"Repeating gossip does not multiply relationship penalties");
+        var third=new NpcSocialState();Check(NpcSocialExchange.ShareOne(listener,third,4,"Bela",3.4)&&third.Incidents.Single().Confidence<rumor.Confidence,"Forwarded reports lose confidence and retain their origin");
+        Check(!NpcSocialExchange.ShareOne(third,witness,5,"Cai",3.5)&&!NpcSocialExchange.ShareOne(witness,witness,1,"Ari",3.5),"Gossip cannot loop back into an original eyewitness or self");
+        Check(!NpcSocialExchange.ShareOne(witness,new NpcSocialState(),1,"Ari",6),"Old incidents are not spread indefinitely");
+        NpcSocialRules.DiscoverDeath(witness,2,1,3.6,new V(1,0,0),"Relative");
+        Check(NpcSocialExchange.ShareOne(witness,listener,1,"Ari",3.7,.8)&&listener.Grief>0&&listener.KnownPeople.Single().SeenDead,"A reliable report can inform a relative of a death");
+        Check(listener.KnownPeople.Single().LastSeenSolarDay==1&&listener.KnownPeople.Single().LastPosition.Y==1,"A report does not fabricate a new personal sighting");
+        var privateOnly=new NpcSocialState();privateOnly.Record(new NpcIncident{Kind=NpcIncidentKind.Argument,Actor=1,Subject=2,SolarDay=3,Position=new V(1,0,0),Detail="private words"});Check(!NpcSocialExchange.ShareOne(privateOnly,new NpcSocialState(),1,"Ari",3.1),"Routine private conversation content is not broadcast as gossip");
+        listener.NextSocialSolarDay=4;var copied=listener.Copy();copied.Incidents[0].Detail="changed";Check(listener.Incidents[0].Detail!="changed"&&copied.NextSocialSolarDay==4,"Social exchange state copies independently");
+        var serializer=new DataContractSerializer(typeof(NpcSocialState));using(var stream=new MemoryStream())
+        {serializer.WriteObject(stream,listener);stream.Position=0;var loaded=(NpcSocialState)serializer.ReadObject(stream);loaded.Validate();Check(loaded.NextSocialSolarDay==4&&loaded.Incidents.Any(e=>e.OriginPerson==1&&!e.FirstHand),"Cooldowns and hearsay survive save/reload");}
         Console.WriteLine("NPC social response checks PASS: "+checks);
     }
 }

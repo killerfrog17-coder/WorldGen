@@ -33,24 +33,28 @@ namespace WorldGen.Core
     // thinking ticks; direct speech supersedes an older observation for a person.
     public sealed class NpcEventQueue
     {
-        public sealed class Event {public long Person;public string Trigger,Words;public long Speaker,DialogueSequence;public int Priority,Depth;public double At;}
+        public sealed class Event {public long Person;public string Trigger,Words;public long Speaker,DialogueSequence;public int Priority,Depth;public double At;public bool Background;public bool Direct=>Priority>=3&&!Background;}
         readonly List<Event> events=new List<Event>();readonly Dictionary<long,double> admitted=new Dictionary<long,double>(),direct=new Dictionary<long,double>();
         public int Count=>events.Count;
         public bool Add(Event item,double now)
         {
             if(item.Person<=0||!double.IsFinite(now))return false;
-            bool dialogue=item.Priority>=3||item.Priority==2&&item.Speaker>0;
-            if(dialogue){if(direct.TryGetValue(item.Person,out var spoken)&&now-spoken<1.5)return false;}
-            else if(admitted.TryGetValue(item.Person,out var last)&&now-last<90)return false;
-            var previous=events.Find(e=>e.Person==item.Person);if(previous!=null){if(previous.Priority>item.Priority)return false;events.Remove(previous);}
+            bool dialogue=item.Priority==2&&item.Speaker>0;
+            if(item.Direct){if(direct.TryGetValue(item.Person,out var spoken)&&now-spoken<1.5)return false;}
+            else if(admitted.TryGetValue(item.Person,out var last)&&now-last<(dialogue?1.5:90))return false;
+            if(item.Direct)events.RemoveAll(e=>e.Background);
+            else if(item.Background&&events.Any(e=>e.Direct))return false;
+            if(item.Background)events.RemoveAll(e=>e.Background);
+            var previous=events.Find(e=>e.Person==item.Person);if(previous!=null){if(previous.Direct&&!item.Direct||previous.Priority>item.Priority&&!item.Direct)return false;events.Remove(previous);}
             if(events.Count>=8){var lowest=events.OrderBy(e=>e.Priority).ThenBy(e=>e.At).First();if(lowest.Priority>=item.Priority)return false;events.Remove(lowest);}
-            item.At=now;events.Add(item);admitted[item.Person]=now;if(dialogue)direct[item.Person]=now;return true;
+            item.At=now;events.Add(item);admitted[item.Person]=now;if(item.Direct)direct[item.Person]=now;return true;
         }
         public Event Take(double now,Func<long,bool> available=null)
         {
-            events.RemoveAll(e=>now-e.At>(e.Priority>=3?240:40));var item=events.Where(e=>available==null||available(e.Person)).OrderByDescending(e=>e.Priority).ThenBy(e=>e.At).FirstOrDefault();if(item!=null)events.Remove(item);return item;
+            events.RemoveAll(e=>now-e.At>(e.Background?8:e.Priority>=3?240:40));var item=events.Where(e=>available==null||available(e.Person)).OrderByDescending(e=>e.Direct).ThenByDescending(e=>e.Priority).ThenBy(e=>e.At).FirstOrDefault();if(item!=null)events.Remove(item);return item;
         }
-        public bool HasDirect(long person)=>events.Any(e=>e.Person==person&&e.Priority>=3);
+        public bool HasDirect(long person)=>events.Any(e=>e.Person==person&&e.Direct);
+        public void PruneBackground(Func<Event,bool> relevant)=>events.RemoveAll(e=>e.Background&&!relevant(e));
         public void CancelSocial()=>events.RemoveAll(e=>e.Priority<3&&e.Speaker>0);
         public void Clear(){events.Clear();admitted.Clear();direct.Clear();}
     }

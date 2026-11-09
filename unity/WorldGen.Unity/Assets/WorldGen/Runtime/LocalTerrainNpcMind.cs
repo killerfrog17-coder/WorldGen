@@ -11,7 +11,7 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class MindPlan
     {
-        public NpcDecision Decision;public NpcEventQueue.Event Event;public double Until;public bool Spoke,Listening;
+        public NpcDecision Decision;public NpcEventQueue.Event Event;public double Until;public bool Spoke,Listening,ProceduralSocial;
         public string Stage="Approaching";public readonly HumanActivitySample Routine=new HumanActivitySample();
     }
     readonly Dictionary<long,MindPlan> npcPlans=new Dictionary<long,MindPlan>();
@@ -43,9 +43,15 @@ public sealed partial class LocalTerrainExplorer
     {
         if(actor?.Resident==null||actor.Health<=0||actor.Resident.AgeYears<4||closed)return false;
         npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled)return false;
-        if(priority<3&&!npcModel.Config.BackgroundReactions)return false;
-        var item=new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth};
+        bool direct=priority>=3&&speaker==0&&!string.IsNullOrWhiteSpace(words);
+        var item=new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth,Background=!direct};
+        if(!direct)
+        {
+            bool reply=speaker>0&&npcConversation!=null&&(npcConversation.A==actor.ResidentId||npcConversation.B==actor.ResidentId);
+            if(!npcModel.Config.BackgroundReactions||!NpcBackgroundAvailable||!NpcBackgroundRelevant(item)||!reply&&Time.unscaledTimeAsDouble<npcAmbientAt)return false;
+        }
         if(!npcEvents.Add(item,Time.unscaledTimeAsDouble))return false;
+        if(!direct)npcAmbientAt=Time.unscaledTimeAsDouble+Math.Max(12,npcModel.Config.VisitorCooldownSeconds);
         if(item.Words.Length>0){var person=NpcSpeaker(actor,speaker,out bool known);item.DialogueSequence=NpcMemoryFor(actor.ResidentId).Hear(NpcSpeakerKey(speaker),known?person?.Name??"Visitor":"Visitor",item.Words).Sequence;}
         return true;
     }
@@ -56,6 +62,9 @@ public sealed partial class LocalTerrainExplorer
         if(npcTalkTarget!=null&&(npcTalkTarget.Health<=0||!livingPeople.ContainsKey(npcTalkTarget.ResidentId)||HumanDistance(npcTalkTarget.Planet,Position)>24))npcTalkTarget=null;
         if(stopped)return;
         double now=Time.unscaledTimeAsDouble;
+        npcEvents.PruneBackground(NpcBackgroundRelevant);
+        if(npcPending?.Background==true&&npcPending!=npcSuppressed&&!NpcBackgroundRelevant(npcPending))
+        {npcSuppressed=npcPending;npcModel?.CancelCurrent();AbortNpcSpeech(npcPending);npcPlans.Remove(npcPending.Person);}
         if(npcThinking!=null&&npcThinking.IsCompleted)
         {
             var work=npcThinking;var item=npcPending;npcThinking=null;npcPending=null;
@@ -63,8 +72,8 @@ public sealed partial class LocalTerrainExplorer
             else try
             {
                 if(work.IsFaulted)throw work.Exception.GetBaseException();if(work.IsCanceled)throw new OperationCanceledException();
-                bool direct=item.Priority>=3&&npcTalkTarget?.ResidentId==item.Person;
-                if(livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<50&&now-item.At<(direct?240:45))
+                bool direct=item.Direct&&npcTalkTarget?.ResidentId==item.Person;
+                if(livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<50&&now-item.At<(direct?240:45)&&(!item.Background||NpcBackgroundRelevant(item)))
                 {
                     var decision=JsonUtility.FromJson<NpcDecision>(work.Result);
                     if(decision==null||!decision.Validate(npcPendingTargets))throw new InvalidOperationException("Invalid NPC decision");
@@ -77,12 +86,12 @@ public sealed partial class LocalTerrainExplorer
                     else npcPlans[actor.ResidentId]=new MindPlan{Decision=decision,Event=item,Until=now+Math.Max(15,decision.seconds+15)};
                 }
             }
-            catch(Exception ex){AbortNpcSpeech(item);npcPlans.Remove(item.Person);npcLastError=ex.Message;if(item.Priority>=3)PostExplorerChat("NPC response unavailable: "+npcLastError,true);}
+            catch(Exception ex){AbortNpcSpeech(item);npcPlans.Remove(item.Person);npcLastError=ex.Message;if(item.Direct)PostExplorerChat("NPC response unavailable: "+npcLastError,true);}
         }
         if(npcThinking==null&&npcEvents.Count>0&&npcModel?.IsBusy!=true)
         {
             var item=npcEvents.Take(now,id=>!NpcSpeaking(id));
-            if(item!=null&&livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<40)
+            if(item!=null&&livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<40&&(!item.Background||NpcBackgroundRelevant(item)))
             {
                 npcModel??=new NpcModelClient();if(npcModel.Config.Enabled)
                 {
@@ -161,7 +170,7 @@ public sealed partial class LocalTerrainExplorer
                 if(!plan.Spoke){plan.Spoke=true;if(d.speech.Length>0&&distance<6)NpcSay(actor,plan);}TerrainHandoff.Coordinates(frame,goal,out var gx,out var gz);double dx=actor.Motor.X-gx,dz=actor.Motor.Z-gz,n=Math.Max(.01,Math.Sqrt(dx*dx+dz*dz));target=frame.Position(actor.Motor.X+dx/n*15,actor.Motor.Z+dz/n*15);plan.Stage="Withdrawing";}
             else
             {
-                plan.Stage=plan.Listening?"Listening":d.action=="rest"?"Resting":d.speech.Length>0?"Conversing":"Waiting";
+                plan.Stage=plan.Listening?"Listening":plan.ProceduralSocial?"Socialising":d.action=="rest"?"Resting":d.speech.Length>0?"Conversing":"Waiting";
                 TerrainHandoff.Coordinates(frame,goal,out var gx,out var gz);if(distance>.3)actor.TargetYaw=(float)(Math.Atan2(gx-actor.Motor.X,gz-actor.Motor.Z)*180/Math.PI);
                 if(!plan.Spoke)
                 {
@@ -196,7 +205,7 @@ public sealed partial class LocalTerrainExplorer
         if(QueueNpcEvent(actor,"You were directly addressed.",message,3))
         {
             CancelNpcConversation();
-            if(npcPending!=null&&(npcPending.Priority<3||npcPending.Person!=actor.ResidentId))
+            if(npcPending!=null&&(npcPending.Background||npcPending.Person!=actor.ResidentId))
             {var interrupted=npcPending;npcSuppressed=interrupted;npcModel.CancelCurrent();AbortNpcSpeech(interrupted);npcPlans.Remove(interrupted.Person);}
             NpcListen(actor);foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,transform.TransformPoint(PlayerFeet())+Vector3.up,4)).Take(3))NpcMemoryFor(other.ResidentId).Hear(NpcSpeakerKey(0),PlayerRules.Identity?.Person?.Name??"Visitor",message);
         }

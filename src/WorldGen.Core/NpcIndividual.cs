@@ -26,6 +26,7 @@ namespace WorldGen.Core
     {
         public long Sequence,Actor,Subject;public ulong Animal;public NpcIncidentKind Kind;
         public double SolarDay,Confidence=1;public V Position;public string Detail="";public bool FirstHand=true;
+        [System.Runtime.Serialization.OptionalField] public long OriginPerson,OriginSequence,Reporter;
         public NpcIncident Copy()=>(NpcIncident)MemberwiseClone();
     }
     [Serializable] public sealed class NpcRelationship
@@ -43,9 +44,10 @@ namespace WorldGen.Core
     [Serializable] public sealed class NpcSocialState
     {
         public double UpdatedSolarDay=-1,Fear,Anger,Grief,Contentment=.35;
+        [System.Runtime.Serialization.OptionalField] public double NextSocialSolarDay;
         public long EventSequence;public List<NpcIncident> Incidents=new List<NpcIncident>();
         public List<NpcRelationship> Relationships=new List<NpcRelationship>();public List<NpcKnownPerson> KnownPeople=new List<NpcKnownPerson>();
-        public NpcSocialState Copy()=>new NpcSocialState{UpdatedSolarDay=UpdatedSolarDay,Fear=Fear,Anger=Anger,Grief=Grief,Contentment=Contentment,EventSequence=EventSequence,Incidents=Incidents.Select(x=>x.Copy()).ToList(),Relationships=Relationships.Select(x=>x.Copy()).ToList(),KnownPeople=KnownPeople.Select(x=>x.Copy()).ToList()};
+        public NpcSocialState Copy()=>new NpcSocialState{UpdatedSolarDay=UpdatedSolarDay,NextSocialSolarDay=NextSocialSolarDay,Fear=Fear,Anger=Anger,Grief=Grief,Contentment=Contentment,EventSequence=EventSequence,Incidents=Incidents.Select(x=>x.Copy()).ToList(),Relationships=Relationships.Select(x=>x.Copy()).ToList(),KnownPeople=KnownPeople.Select(x=>x.Copy()).ToList()};
         public void Advance(double solarDay)
         {
             double elapsed=UpdatedSolarDay<0?0:Math.Max(0,solarDay-UpdatedSolarDay);UpdatedSolarDay=solarDay;
@@ -72,7 +74,7 @@ namespace WorldGen.Core
         public void Validate()
         {
             bool Unit(double v)=>double.IsFinite(v)&&v>=0&&v<=1;
-            if(!double.IsFinite(UpdatedSolarDay)||UpdatedSolarDay< -1||!Unit(Fear)||!Unit(Anger)||!Unit(Grief)||!Unit(Contentment)||EventSequence<0||Incidents==null||Relationships==null||KnownPeople==null||Incidents.Count>24||Relationships.Count>48||KnownPeople.Count>64)throw new ArgumentException("Invalid local social state.");
+            if(!double.IsFinite(UpdatedSolarDay)||UpdatedSolarDay< -1||!double.IsFinite(NextSocialSolarDay)||NextSocialSolarDay<0||!Unit(Fear)||!Unit(Anger)||!Unit(Grief)||!Unit(Contentment)||EventSequence<0||Incidents==null||Relationships==null||KnownPeople==null||Incidents.Count>24||Relationships.Count>48||KnownPeople.Count>64)throw new ArgumentException("Invalid local social state.");
             if(Incidents.Any(e=>e==null||e.Sequence<1||e.Sequence>EventSequence||!double.IsFinite(e.SolarDay)||e.SolarDay<0||!Unit(e.Confidence)||e.Detail==null||e.Detail.Length>220)||Relationships.Any(r=>r==null||r.Other<=0||!double.IsFinite(r.Trust)||Math.Abs(r.Trust)>1||!double.IsFinite(r.Affection)||Math.Abs(r.Affection)>1||!Unit(r.Respect)||!Unit(r.Grievance)||!Unit(r.Fear))||KnownPeople.Any(p=>p==null||p.Person<=0||!double.IsFinite(p.LastSeenSolarDay)))throw new ArgumentException("Invalid local social record.");
         }
     }

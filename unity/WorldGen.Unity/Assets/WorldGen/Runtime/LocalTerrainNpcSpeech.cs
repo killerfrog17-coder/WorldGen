@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(npcSpeechFrame==Time.frameCount)return;npcSpeechFrame=Time.frameCount;
         if(stopped){foreach(var line in npcSpeech.Values)if(line.Voice!=null)line.Voice.Pause();return;}
-        if(npcPending!=null&&npcPending!=npcSuppressed&&npcThinking!=null&&livingPeople.TryGetValue(npcPending.Person,out var speaking)&&speaking.Health>0&&HumanDistance(speaking.Planet,Position)<(npcPending.Speaker>0?12:6)&&
+        if(npcPending!=null&&npcPending!=npcSuppressed&&npcThinking!=null&&livingPeople.TryGetValue(npcPending.Person,out var speaking)&&speaking.Health>0&&NpcPlayerCanHear(speaking)&&
             (npcPending.Speaker==0||livingPeople.TryGetValue(npcPending.Speaker,out var listener)&&HumanDistance(listener.Planet,speaking.Planet)<5))
         {
             string text=npcModel?.StreamedSpeech??"";
@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in npcSpeech)
         {
             var line=pair.Value;
-            if(line.Actor.Health<=0||!livingPeople.ContainsKey(pair.Key)||HumanDistance(line.Actor.Planet,Position)>22){speechFinished.Add(pair.Key);continue;}
+            if(line.Actor.Health<=0||!livingPeople.ContainsKey(pair.Key)||!NpcPlayerCanHear(line.Actor)){speechFinished.Add(pair.Key);continue;}
             int previous=line.Pace.Shown;line.Pace.Advance(Math.Min(.1,Time.unscaledDeltaTime),npcModel?.Config.SpeechCharactersPerSecond??24);MumbleSpeech(line,previous);
             if(HumanDistance(line.Actor.Planet,Position)<12){line.Chat.Text="<"+line.Actor.Resident.Name+"> "+line.Pace.Visible;line.Chat.At=Time.realtimeSinceStartupAsDouble;}
             if(line.Final&&line.Pace.Complete&&!line.Delivered){line.Delivered=true;DeliverNpcSpeech(line.Actor,line.Event,line.Pace.Available,line.Target);speechFinished.Add(pair.Key);}
@@ -44,6 +44,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void FinishNpcSpeech(HumanActor actor,NpcEventQueue.Event heard,string words,string target)
     {
+        if(!NpcPlayerCanHear(actor))return;
         var line=SpeechLine(actor,heard);line.Pace.Available=words;line.Final=true;line.Target=target;
     }
     void AbortNpcSpeech(NpcEventQueue.Event heard)
