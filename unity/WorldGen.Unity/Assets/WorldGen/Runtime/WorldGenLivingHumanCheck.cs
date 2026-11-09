@@ -50,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
                 var group=planner.Group(state,new HumanLifeClock(SimulationTime.Seconds(state)+play.PendingHistorySeconds,play.SolarDays,60,play.Settings.CalendarDaysPerDay,scale),cohort.Id,ordinal);
                 double prime=Math.Atan2(group.Position.Y,group.Position.X)*180/Math.PI;
                 group=planner.Group(state,new HumanLifeClock(SimulationTime.Seconds(state)+play.PendingHistorySeconds,play.SolarDays,60,play.Settings.CalendarDaysPerDay,scale,prime),cohort.Id,ordinal);
-                if(group.Phase==HumanCampPhase.Occupied&&(!Environment.GetCommandLineArgs().Contains("--worldgen-npc-permanent")||group.PermanentBase)){chosen=group;break;}
+                if(group.Camp.ShelterAvailable&&group.Phase==HumanCampPhase.Occupied&&(!Environment.GetCommandLineArgs().Contains("--worldgen-npc-permanent")||group.PermanentBase)){chosen=group;break;}
             }
             if(chosen!=null)break;
         }
@@ -92,7 +92,7 @@ public sealed partial class LocalTerrainExplorer
         Check(expectedHome.All(id=>owner.livingPeople.ContainsKey(id)),"Scheduled home residents are actually present; distant foragers are not required to crowd the camp");
         Check(owner.Camp.Objects.Any(c=>c.NpcGroup==chosen.Band.Id),"Camp consists of real player-compatible objects/materials");
         owner.Camp.Validate();Check(true,"Native camp validates with real terrain footing surveys");
-        Check(owner.Camp.Objects.Where(c=>c.NpcGroup==chosen.Band.Id&&c.Blueprint!=null).All(c=>CampBlueprints.Complete(c.Blueprint)),"Occupied camp shelters retain every fitted roof/frame component");
+        Check(owner.Camp.Objects.Any(c=>c.NpcGroup==chosen.Band.Id&&c.Blueprint!=null)&&owner.Camp.Objects.Where(c=>c.NpcGroup==chosen.Band.Id&&c.Blueprint!=null).All(c=>CampBlueprints.Complete(c.Blueprint)),"Occupied camp shelters retain every fitted roof/frame component");
         TerrainHandoff.Coordinates(owner.frame,groupRuntime.Anchor,out double anchorX,out double anchorZ);
         var plantKeys=new[]{owner.frame.Position(anchorX,anchorZ),owner.frame.Position(anchorX-45,anchorZ-45),owner.frame.Position(anchorX+45,anchorZ+45)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();
         double plantsUntil=Time.realtimeSinceStartupAsDouble+120;

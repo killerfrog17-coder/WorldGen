@@ -17,8 +17,8 @@ $settings=@{
     wet=@('--worldgen-npc-context','wet','--worldgen-npc-hour','11')
     collector=@('--worldgen-npc-residence','CollectorCamps','--worldgen-npc-scale','0.3','--worldgen-npc-hour','14')
     morning=@('--worldgen-npc-context','temperate','--worldgen-npc-hour','7')
-    cold=@('--worldgen-npc-context','cold','--worldgen-npc-scale','1','--worldgen-npc-hour','11')
-    evening=@('--worldgen-npc-residence','AquaticResidence','--worldgen-npc-permanent','--worldgen-npc-context','coast','--worldgen-npc-hour','20')
+    cold=@('--worldgen-npc-context','cold','--worldgen-npc-scale','0.1','--worldgen-npc-hour','11')
+    evening=@('--worldgen-npc-context','coast','--worldgen-npc-hour','20')
     sleep=@('--worldgen-npc-context','temperate','--worldgen-npc-hour','23')
 }
 foreach($case in $Cases){
