@@ -46,7 +46,11 @@ public sealed partial class LocalTerrainExplorer
         npcMaterialSearches++;task.SearchAt=actor.SimulationAge+3+HumanHash(actor.ResidentId)%20*.1;
         task.Purpose=purpose;task.Natural=false;task.Grass=false;task.Loose=null;task.Product=null;task.Work=0;
         var construction=purpose=="shelter"?task.Construction:null;var component=construction==null?null:CampBlueprints.Components(construction).FirstOrDefault(c=>c.Key==task.ConstructionKey);
-        bool Match(Possession p)=>component!=null?CampBlueprints.Suitable(construction,component,p):p.CampMaterial==0&&(purpose=="bedding"?p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle:purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:purpose=="cutter"?WoodCrafting.Cutter(p):NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p));
+        // Gathering follows the same cutting prerequisite as actual supply.
+        // Without a cutter, do not repeatedly collect overlong poles that the
+        // worker cannot use and then abandon them while searching again.
+        bool canCut=component!=null&&actor.Belongings.Items.Any(p=>actor.Belongings.Carried(p)&&WoodCrafting.Cutter(p));
+        bool Match(Possession p)=>component!=null?CampBlueprints.Suitable(construction,component,p)&&(component.Kg>0||p.HeightM<=component.LengthM+.1||canCut):p.CampMaterial==0&&(purpose=="bedding"?p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle:purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:purpose=="cutter"?WoodCrafting.Cutter(p):NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p));
         var community=livingGroups[actor.GroupId];bool wild=actor.CurrentActivity==HumanActivity.GatherFuel||actor.CurrentActivity==HumanActivity.GatherPlants;
         if(community.MaterialStockRadius<=0||community.MaterialStockSite!=community.Situation.Camp.Id)
         {community.MaterialStockSite=community.Situation.Camp.Id;community.MaterialStockRadius=HumanCampLayout.Radius(community.Residents,community.Situation.Camp.Id,sourceWorld.Recipe.Seed)+5;}
