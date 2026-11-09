@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
     CampObject sleepingBed;
     bool CampUiOpen=>campMenu!=null||campGroundMenu||campSleepMenu||campPlansOpen;
     bool CampBusy=>CampUiOpen||campPlaceMaterial!=null||blueprintPlacement!=null||blueprintJob!=null||campSleeping||campResting;
-    public double CampTimeRate=>campSleeping||campResting?32:1;
+    public double CampTimeRate=>campResting?LocalSceneDelta/Math.Max(.001,Time.unscaledDeltaTime):campSleeping?32:1;
     double campGroundAt;Vector3 campGroundEye,campGroundDirection,campGroundPoint;LocalTerrainSample campGroundSample;bool campGroundHit;
     bool CampGround(out Vector3 point,out LocalTerrainSample sample,bool refresh=false)
     {
@@ -92,7 +92,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(HandleBlueprintKeys(k))return true;
         if(blueprintJob!=null&&k.escapeKey.wasPressedThisFrame){CancelBlueprintWork();return true;}
-        if(campSleeping||campResting){if(k.escapeKey.wasPressedThisFrame||k.spaceKey.wasPressedThisFrame)WakeCamp("You wake up.");return true;}
+        if(campSleeping||campResting){if(k.escapeKey.wasPressedThisFrame||k.spaceKey.wasPressedThisFrame||campResting&&(k.wKey.wasPressedThisFrame||k.aKey.wasPressedThisFrame||k.sKey.wasPressedThisFrame||k.dKey.wasPressedThisFrame||k.eKey.wasPressedThisFrame))WakeCamp(campResting?"You stop waiting.":"You wake up.");return true;}
         if(CampUiOpen){if(k.escapeKey.wasPressedThisFrame){campMenu=null;campGroundMenu=campSleepMenu=false;CaptureMouse();}return true;}
         if(campPlaceMaterial!=null)
         {

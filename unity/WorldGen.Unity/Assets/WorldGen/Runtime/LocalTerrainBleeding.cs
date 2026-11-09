@@ -72,7 +72,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateCombatBleeding()
     {
         if(!Ready||paused||mapOpen||ecologyOpen||chatOpen)return;
-        double dt=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime)),now=Time.unscaledTimeAsDouble;
+        double dt=LocalSceneDelta,now=Time.unscaledTimeAsDouble;
         if(SurvivalActive&&!Vitals.Dead&&Vitals.Bleeding!=null)
         {
             AdvanceWound(Vitals.Bleeding,dt,huntingSpeed/6);Vitals.Health=Math.Min(Vitals.Health,BleedingRules.HealthLimit(Vitals.Bleeding,100));

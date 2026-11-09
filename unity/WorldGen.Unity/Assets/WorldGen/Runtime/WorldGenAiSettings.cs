@@ -55,6 +55,8 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label(SystemInfo.graphicsDeviceName+" · "+(SystemInfo.graphicsMemorySize/1024f).ToString("0.0")+" GB total VRAM",MutedStyle());
         aiDraft.Threads=AiSlider("Generation CPU threads",aiDraft.Threads,1,Environment.ProcessorCount,"More CPU workers may speed up inference, but can compete with the game. More is not always faster.");
         aiDraft.BriefReplies=GUILayout.Toggle(aiDraft.BriefReplies,"Brief replies");GUILayout.Label("Shorter speech and thoughts reduce the amount of text the model must generate.",MutedStyle());
+        aiDraft.MumbleSpeech=GUILayout.Toggle(aiDraft.MumbleSpeech,"Mumbled NPC speech");
+        aiDraft.SpeechCharactersPerSecond=AiSlider("Dialogue reading pace",aiDraft.SpeechCharactersPerSecond,12,60,"Characters per second. Text arrives as generated and is revealed no faster than this pace.");
         bool dirtyBeforeFold=GUI.changed;GUI.changed=false;aiAdvanced=GUILayout.Toggle(aiAdvanced,"Advanced AI settings");GUI.changed=dirtyBeforeFold;
         if(aiAdvanced)
         {
@@ -73,7 +75,7 @@ public sealed partial class WorldGenRuntime
             aiDraft.MaxTokens=AiSlider("Output token limit",aiDraft.MaxTokens,128,384,"A token is roughly a word fragment. This is a hard ceiling, not a requested reply length; too low can cut off a valid response.");
             GUILayout.Label("Creativity  "+aiDraft.Temperature.ToString("0.00"));aiDraft.Temperature=Mathf.Round(GUILayout.HorizontalSlider(aiDraft.Temperature,0,1.2f)*20)/20;
             GUILayout.Label("Higher values increase variation and the chance of mistakes. This does not make the model smarter.",MutedStyle());
-            aiDraft.BackgroundReactions=GUILayout.Toggle(aiDraft.BackgroundReactions,"Allow unsolicited reactions to unfamiliar visitors");
+            aiDraft.BackgroundReactions=GUILayout.Toggle(aiDraft.BackgroundReactions,"Nearby conversations and unsolicited greetings");
             aiDraft.VisitorCooldownSeconds=AiSlider("Background reaction spacing (seconds)",aiDraft.VisitorCooldownSeconds,20,300,"Minimum spacing between new visitor thoughts across nearby communities. Direct dialogue and injury reactions keep priority.");
             aiDraft.IdleMinutes=AiSlider("Unload after inactivity (minutes)",aiDraft.IdleMinutes,0,30,"0 = keep loaded. Unloading releases model memory/VRAM; the next interaction must load it again.");
         }
@@ -83,6 +85,7 @@ public sealed partial class WorldGenRuntime
         var client=SettingsAiClient;GUILayout.Space(12);GUILayout.Label("AI STATUS",SectionStyle());
         GUILayout.Label(client?.Status??"Not loaded");if(client!=null)GUILayout.Label(client.BackendInfo,MutedStyle());
         if(client?.LastSeconds>0)GUILayout.Label("Last request: "+client.LastSeconds.ToString("0.00")+" s · "+client.LastPromptTokens+" input / "+client.LastGeneratedTokens+" output tokens");
+        if(client?.LastFirstSpeechSeconds>0)GUILayout.Label("First speech text: "+client.LastFirstSpeechSeconds.ToString("0.00")+" s",MutedStyle());
         if(client?.LastTokensPerSecond>0)GUILayout.Label("Generation: "+client.LastTokensPerSecond.ToString("0.0")+" tokens/s; model load: "+client.LastLoadSeconds.ToString("0.00")+" s",MutedStyle());
         bool enabled=GUI.enabled;GUI.enabled=enabled&&!aiDirty&&aiSettingsTest==null&&client?.IsBusy!=true&&aiDraft.Enabled;
         GUILayout.BeginHorizontal();

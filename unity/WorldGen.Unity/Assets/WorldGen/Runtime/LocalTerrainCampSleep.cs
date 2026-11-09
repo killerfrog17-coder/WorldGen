@@ -13,6 +13,7 @@ public sealed partial class LocalTerrainExplorer
         var water=SampleMotionWater(motion.X,motion.Z);
         if(double.IsFinite(water.Surface)&&water.Surface>CampFloor(motion.X,motion.Z)+.02){InventoryFeedback("Choose dry ground to lie down.");return;}
         if(!rest&&SleepRules.Sleepiness(Vitals,LocalSolarHour)<12&&SurvivalActive){InventoryFeedback("You are not sleepy enough. You can still rest.");return;}
+        if(rest){bed=null;CancelNpcConversation();npcWaitSocialDay=PlayerRules.SolarDays+(240+HumanHash(PlayerRules.Identity?.Person?.Id??1)%240)/(PlayerRules.Settings.RealMinutesPerDay*60);}
         if(bed!=null)
         {
             if(!Camp.Objects.Contains(bed)||(Position-bed.Position).Length*frame.RadiusM>4){InventoryFeedback("The bedding is out of reach.");return;}
@@ -23,13 +24,13 @@ public sealed partial class LocalTerrainExplorer
             motion.Place(x,z,CampFloor(x,z)+platform);humanPlayer.TargetYaw=humanPlayer.Yaw=(float)bed.Heading;
         }
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);SetInventoryOpen(false);
-        campMenu=null;campGroundMenu=campSleepMenu=false;campResting=rest;campSleeping=!rest;Vitals.SleepBoutSeconds=0;Vitals.LastSleepHour=LocalSolarHour;campSleepHealth=Vitals.Health;sleepingBed=bed;CaptureMouse();
+        campMenu=null;campGroundMenu=campSleepMenu=false;campResting=rest;campSleeping=!rest;if(!rest){Vitals.SleepBoutSeconds=0;Vitals.LastSleepHour=LocalSolarHour;}campSleepHealth=Vitals.Health;sleepingBed=bed;waitStarted=PlayerRules.SolarDays;waitClock.Reset();waitFrame=-1;CaptureMouse();
     }
     void WakeCamp(string reason)
     {
         if(!campSleeping&&!campResting)return;
         if(campSleeping&&Vitals.SleepBoutSeconds>3*3600){double difference=(Vitals.LastSleepHour-Vitals.SleepPhaseHour+36)%24-12;Vitals.SleepPhaseHour=(Vitals.SleepPhaseHour+difference*.12+24)%24;}
-        campSleeping=campResting=false;sleepingBed=null;sleepingAnimalPositions.Clear();InventoryFeedback(reason);CaptureMouse();
+        campSleeping=campResting=false;sleepingBed=null;sleepingAnimalPositions.Clear();waitFrame=-1;InventoryFeedback(reason);CaptureMouse();
     }
     void UpdateCampSleep()
     {
@@ -57,7 +58,8 @@ public sealed partial class LocalTerrainExplorer
             var style=new GUIStyle(GUI.skin.label){alignment=TextAnchor.MiddleCenter,wordWrap=true};
             GUI.Label(new Rect(Screen.width*.25f,Screen.height-100,Screen.width*.5f,60),campPlaceKind==CampKind.FrameWood?campPlaceReason:campPlaceValid?"Place "+campPlaceMaterial.Name.ToLowerInvariant()+"  [LMB]   Rotate [wheel]   Cancel [RMB]":campPlaceReason,style);return;
         }
-        if(campSleeping||campResting)
+        if(campResting){DrawWaiting();return;}
+        if(campSleeping)
         {
             InventoryFill(new Rect(0,0,Screen.width,Screen.height),new Color(.015f,.02f,.026f,campSleeping?.98f:.65f));
             var r=new Rect(Screen.width*.5f-210,Screen.height*.5f-95,420,200);GUILayout.BeginArea(r);

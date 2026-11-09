@@ -87,7 +87,7 @@ public sealed partial class LocalTerrainExplorer
         survivalEnvironment.Swimming=motion.Swimming;survivalEnvironment.SwimEffort=motion.SwimEffort;
         survivalEnvironment.Insulation=campSleeping?CampRules.BedInsulation(sleepingBed):0;
         double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
-        SurvivalRules.Advance(Vitals,dt*CampTimeRate,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
+        SurvivalRules.Advance(Vitals,campResting||campSleeping?LocalSceneDelta:dt,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
         foreach(var fire in Camp.Objects)
         {
             double distance=(Position-fire.Position).Length*frame.RadiusM;if(distance>.55||fire.Kind!=CampKind.Fire)continue;
@@ -100,7 +100,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateSurvivalHud()
     {
-        bool show=SurvivalActive&&!inventoryOpen&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!campSleeping&&!campResting&&!(debugOpen&&debugFull);
+        bool show=SurvivalActive&&!inventoryOpen&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!campSleeping&&!(debugOpen&&debugFull);
         if(!show){if(survivalHudCanvas!=null)survivalHudCanvas.enabled=false;return;}
         if(survivalHudCanvas==null)
         {

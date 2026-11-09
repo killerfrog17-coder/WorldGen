@@ -151,7 +151,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateViewArms()
     {
         if(humanPlayer==null||!inventoryInitialized)return;
-        bool visible=!SharedHumanMotion&&humanHideBody&&!DeathVisible&&!Spectating&&!inventoryOpen&&!campSleeping&&!campResting;
+        bool visible=!SharedHumanMotion&&humanHideBody&&!DeathVisible&&!Spectating&&!inventoryOpen&&!campSleeping;
         if(!visible){viewArmsVisible=false;if(viewArms!=null)viewArms.Root.SetActive(false);return;}
         EnsureViewArms();viewArms.Root.SetActive(true);viewArmsVisible=true;
         var right=Inventory.AtHand(PossessionPlace.RightHand);var left=Inventory.AtHand(PossessionPlace.LeftHand);var main=itemCharge?.Weapon??pendingRanged?.Charge.Weapon??right??left;

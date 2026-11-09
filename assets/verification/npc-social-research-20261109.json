@@ -1,0 +1,28 @@
+{
+  "purpose": "Research-informed local social projection from persistent cultural norms, without tracking individual tribes globally.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21393537/",
+      "finding": "Cross-society co-residence data show both kin and unrelated people in residence groups; one nuclear family or one fixed universal band structure is insufficient."
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8020663/",
+      "finding": "Institutionalized inequality varies among foragers and is associated with resource and social conditions; it cannot be reduced to one universal chief or to climate alone."
+    },
+    {
+      "url": "https://anthro.vancouver.wsu.edu/documents/584/garfield_et_al_2019.pdf",
+      "finding": "Leadership can be task-specific, competence-based and non-coercive; other forager societies exhibit stronger authority."
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11982242/",
+      "finding": "Teaching and leadership interact in egalitarian foraging societies."
+    }
+  ],
+  "implementation_choices": [
+    "Residence, aggregation and existing prestige/sharing/kin norms determine a local decision tradition. This is a game model, not a claim that these thresholds are historical laws.",
+    "Competence and experience select named coordinators, guides, teachers and mediators without a male-only rule.",
+    "Biological extended kinship uses the actual generated family graph. Stable affinities and cultural norms add non-kin ties.",
+    "Nearby conversation is resolved only in the player’s audible scene; remote groups retain deterministic schedules.",
+    "Real inventories, hunting and resource-dependent camp decisions are explicitly deferred to the owner’s next update."
+  ]
+}

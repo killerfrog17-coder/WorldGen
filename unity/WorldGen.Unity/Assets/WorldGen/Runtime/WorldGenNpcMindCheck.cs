@@ -16,7 +16,7 @@ public sealed partial class WorldGenRuntime
         string profile=Argument("--worldgen-ai-profile","");
         if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);
         if(Environment.GetCommandLineArgs().Contains("--worldgen-shared-gpu")){config.GpuReserveMiB=2048;config.Threads=Math.Max(1,Environment.ProcessorCount/2);config.BatchThreads=config.Threads;config.Priority=-1;config.Polling=0;config.InferenceFps=15;}
-        NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
+        config.BackgroundReactions=false;NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
         while((Busy||!worldReady||humans==null||humanStep!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humanStep!=null)throw new InvalidOperationException("NPC test world failed to load");
@@ -64,9 +64,18 @@ public sealed partial class LocalTerrainExplorer
             yield return new WaitForSecondsRealtime(.3f);
             Check(npcPlans.TryGetValue(actor.ResidentId,out waiting)&&waiting.Listening,"pending direct dialogue keeps listening beyond the old timeout");
         }
-        deadline=Time.realtimeSinceStartupAsDouble+200;while(npcUtterances<1&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        bool sawStream=false,sawSpatialVoice=false;
+        deadline=Time.realtimeSinceStartupAsDouble+200;while(npcUtterances<1&&Time.realtimeSinceStartupAsDouble<deadline)
+        {
+            if(npcThinking!=null&&!npcThinking.IsCompleted&&npcSpeech.Values.Any(s=>s.Pace.Shown>0))sawStream=true;
+            if(npcSpeech.Values.Any(s=>s.Voice!=null&&s.Voice.spatialBlend==1&&s.Voice.transform.parent==s.Actor.Root.transform))sawSpatialVoice=true;
+            if(sawStream&&!File.Exists(Path.Combine(output,"stream-preview.png"))&&npcSpeech.Values.Any(s=>s.Pace.Shown>=12)){Capture(Path.Combine(output,"stream-preview.png"));}
+            yield return null;
+        }
         Check(npcUtterances>=1,"actual local model replied and the executor delivered speech nearby: "+npcLastError+" / "+npcModel?.Status+" / "+npcModel?.BackendInfo);
         Check(npcDecisions>=1&&NpcMemoryFor(actor.ResidentId).Thought.Length>0,"validated fictional thought is available to debug");
+        Check(sawStream&&npcModel.LastFirstSpeechSeconds>0&&npcModel.LastFirstSpeechSeconds<npcModel.LastSeconds,"actual speech is displayed before the complete decision finishes generating");
+        Check(!npcModel.Config.MumbleSpeech||sawSpatialVoice,"prototype mumble is attached to the actual speaker as positional audio");
         npcThoughts=true;yield return new WaitForEndOfFrame();var screen=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"npc-conversation.png"),screen.EncodeToPNG());Destroy(screen);
         File.WriteAllText(Path.Combine(output,"first-memory.json"),JsonUtility.ToJson(NpcMemoryFor(actor.ResidentId),true));
         npcPlans.Remove(actor.ResidentId);Stand(6);yield return null;int utterances=npcUtterances;

@@ -275,7 +275,8 @@ namespace WorldGen.Core
             if(hour<begin||hour>end){result.Activity=HumanActivity.PrepareFood;return result;}
             if(hour<begin+journey){fraction=(hour-begin)/Math.Max(.001,journey);result.Activity=HumanActivity.Travel;result.SpeedMps=1.15;result.Position=Interpolate(home,target,fraction);result.Destination=target;}
             else if(hour>end-journey){fraction=(hour-(end-journey))/Math.Max(.001,journey);result.Activity=HumanActivity.Travel;result.SpeedMps=1.15;result.Position=Interpolate(target,home,fraction);result.Destination=home;}
-            else{result.Activity=HumanActivity.GatherPlants;result.Position=Offset(target,.006/clock.HorizontalScale,homeBearing);result.Destination=result.Position;result.Progress=(hour-begin-journey)/Math.Max(.001,end-begin-2*journey);}
+            else{result.Activity=HumanActivity.GatherPlants;result.Position=Offset(target,.006/clock.HorizontalScale,homeBearing);result.Destination=result.Position;result.Progress=(hour-begin-journey)/Math.Max(.001,end-begin-2*journey);
+                if(result.Progress>.38&&result.Progress<.46+.1*culture.GuestAccess){result.Activity=culture.GuestAccess>.45?HumanActivity.Socialise:HumanActivity.Rest;result.Role="ForagingBreak";}}
             return result;
         }
         void WorkTrip(HumanActivitySample result,V home,V work,double hour,double begin,double end,HumanLifeClock clock,HumanActivity activity,string label)

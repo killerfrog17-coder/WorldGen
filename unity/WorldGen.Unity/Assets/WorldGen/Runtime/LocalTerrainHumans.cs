@@ -163,7 +163,7 @@ public sealed partial class LocalTerrainExplorer
         humanPlayer.LocalVelocity=new Vector2(localVelocity.x,localVelocity.z);
         AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Swimming&&!motion.Grounded,crouch,dt,motion.Swimming);
         AimSharedHead();
-        if(campSleeping||campResting)
+        if(campSleeping)
         {humanPlayer.Root.transform.localRotation=Quaternion.Euler(90,humanPlayer.Yaw,0);humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM)+.18f+(float)(sleepingBed?.BeddingDepthM??0),(float)(motion.Z-originZ))-Quaternion.Euler(0,humanPlayer.Yaw,0)*Vector3.forward*.7f;}
         }
         if(!stopped&&CenterReady&&humanSpawnQueued>0)
@@ -174,9 +174,10 @@ public sealed partial class LocalTerrainExplorer
         }
         if(profileLiving)Array.Clear(livingCosts,0,livingCosts.Length);
         long livingTickStart=System.Diagnostics.Stopwatch.GetTimestamp();UpdateLivingHumans(stopped,dt);UpdateNpcMinds(stopped);
+        int localSteps=stopped?1:LocalSceneSteps;float localDt=stopped?0:campResting||campSleeping?(float)(LocalSceneDelta/localSteps):dt;
         foreach(var npc in humanNpcs)
         {
-            if(npc.ResidentId!=0){if(!livingBenchmarkFreeze)UpdateLivingHuman(npc,stopped,dt);continue;}
+            if(npc.ResidentId!=0){if(!livingBenchmarkFreeze)for(int step=0;step<localSteps;step++)UpdateLivingHuman(npc,stopped,localDt);continue;}
             if(npc.Health<=0){if(npc.Ragdoll!=null)npc.Ragdoll.SetPaused(stopped);continue;}
             if(dt>0)
             {
@@ -208,7 +209,7 @@ public sealed partial class LocalTerrainExplorer
             npc.Root.transform.localPosition=new Vector3((float)(npc.Motor.X-originX),(float)(npc.Motor.Y-TerrainMotion.EyeHeightM),(float)(npc.Motor.Z-originZ));
             npc.Root.transform.localRotation=Quaternion.Euler(0,npc.Yaw,0);
         }
-        livingTickMs=ElapsedHumanMs(livingTickStart);
+        livingTickMs=ElapsedHumanMs(livingTickStart);WaitCpu(livingTickStart);
         humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.
     }

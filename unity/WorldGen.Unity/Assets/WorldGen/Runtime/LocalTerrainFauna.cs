@@ -184,7 +184,8 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        float dt=stopped?0:Math.Min(.1f,Time.unscaledDeltaTime);if(!stopped){UpdateWildlifeGroups();IndexWildlifeNeighbours();}
+        long waitBegan=System.Diagnostics.Stopwatch.GetTimestamp();int localSteps=stopped?1:LocalSceneSteps;
+        float dt=stopped?0:campResting||campSleeping?(float)LocalSceneDelta:Math.Min(.1f,Time.unscaledDeltaTime);if(!stopped){UpdateWildlifeGroups();IndexWildlifeNeighbours();}
         animalRemoval.Clear();int paletteLength=0;
         foreach(var pair in animals)
         {
@@ -193,11 +194,11 @@ public sealed partial class LocalTerrainExplorer
             if(distance>animal.Spawn.Profile.VisibleRadiusM*1.25&&(animal.Dead||!(animal.Bleeding?.Rate>1e-7)))animal.Wanted=false;
             animal.Fade=Mathf.MoveTowards(animal.Fade,animal.Wanted?1:0,Math.Max(.001f,dt)*2);
             if(!animal.Wanted&&animal.Fade<=0){animalRemoval.Add(pair.Key);continue;}
-            UpdateAnimal(animal,dt);
+            for(int step=0;step<localSteps;step++)UpdateAnimal(animal,dt/localSteps);
             paletteLength=Math.Max(paletteLength,(animal.Slot+1)*AnimalBones);
         }
         foreach(ulong id in animalRemoval)RemoveAnimal(id);
-        if(paletteLength>0)animalBoneBuffer.SetData(animalBoneData,0,0,paletteLength);
+        if(paletteLength>0)animalBoneBuffer.SetData(animalBoneData,0,0,paletteLength);WaitCpu(waitBegan);
     }
     IEnumerator LoadAnimalModel(FaunaPrototypeProfile profile)
     {

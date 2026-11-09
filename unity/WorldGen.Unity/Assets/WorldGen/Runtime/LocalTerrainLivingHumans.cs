@@ -15,6 +15,7 @@ public sealed partial class LocalTerrainExplorer
         public bool BandHas(int k)=>(Residents?.Techniques??Situation.Band.Techniques)[k];
         public HumanActivitySample TenderDuty;public CampObject TendedFire;public double TendUntil,NextTend;
         public NpcResourceSites Resources;
+        public ForagerSocialLife Social;public ForagerCulture SocialCulture;
         public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200;
     }
     sealed class LivingPacket
@@ -49,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ScheduleLivingQuery()
     {
-        livingQueryAt=Time.unscaledTimeAsDouble+2;var state=sourceWorld.Prehistory;var clock=LivingClock;var observer=Position;
+        livingQueryAt=Time.unscaledTimeAsDouble+Math.Max(.05,2/Math.Max(1,CampTimeRate));var state=sourceWorld.Prehistory;var clock=LivingClock;var observer=Position;
         var physicalGroups=livingPeople.Values.Select(p=>p.GroupId).ToHashSet();
         double temperature=CurrentWeather.TemperatureC,rain=CurrentWeather.RainMmPerHour;
         livingWork=Task.Run(()=>

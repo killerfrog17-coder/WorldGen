@@ -17,6 +17,7 @@ namespace WorldGen.Presentation
         public int Threads=2,ContextTokens=4096,MaxTokens=160,GpuLayers,ConversationTurns=6,Priority=-1,IdleMinutes=10,VisitorCooldownSeconds=20;
         public int BatchThreads,ModelLayers=37,ModelExpertLayers,CpuExpertLayers,GpuReserveMiB=1024,Polling,InferenceFps;
         public bool Enabled=true,BriefReplies,BackgroundReactions=true,PreloadModel;
+        public bool MumbleSpeech=true;public int SpeechCharactersPerSecond=24;
         public float Temperature=.5f;
         public NpcAiSettings Copy()=>(NpcAiSettings)MemberwiseClone();
         public string ServerExecutable=>GpuLayers==0?ServerPath:GpuBackend=="cuda"?CudaServerPath:GpuServerPath;
@@ -32,6 +33,7 @@ namespace WorldGen.Presentation
             InferenceFps=InferenceFps<=0?0:Math.Max(15,Math.Min(120,InferenceFps));
             ContextTokens=ContextTokens<=2048?2048:ContextTokens<=4096?4096:8192;
             MaxTokens=Math.Max(128,Math.Min(384,MaxTokens));ConversationTurns=Math.Max(0,Math.Min(12,ConversationTurns));
+            SpeechCharactersPerSecond=Math.Max(12,Math.Min(60,SpeechCharactersPerSecond));
             Priority=Math.Max(-1,Math.Min(2,Priority));IdleMinutes=Math.Max(0,Math.Min(30,IdleMinutes));VisitorCooldownSeconds=Math.Max(20,Math.Min(300,VisitorCooldownSeconds));
             Temperature=float.IsNaN(Temperature)||float.IsInfinity(Temperature)?.5f:Math.Max(0,Math.Min(1.2f,Temperature));
         }

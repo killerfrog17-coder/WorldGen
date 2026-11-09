@@ -41,7 +41,7 @@ public sealed partial class LocalTerrainExplorer
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
-    bool WantsMouseLook=>!closed&&Application.isFocused&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen&&!CampUiOpen&&!campSleeping&&!campResting;
+    bool WantsMouseLook=>!closed&&Application.isFocused&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen&&!CampUiOpen&&!campSleeping;
     void CaptureMouse()
     {
         if(passiveSkyCheck||passiveReanchorCheck)return;

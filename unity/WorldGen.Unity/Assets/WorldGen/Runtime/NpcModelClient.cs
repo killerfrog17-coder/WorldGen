@@ -16,12 +16,14 @@ using WorldGen.Core;
 // background inference in Update(), and no weights in either build slot.
 sealed class NpcModelClient : IDisposable
 {
-    [Serializable] sealed class Choice {public NpcChatMessage message;public string finish_reason;}
+    [Serializable] sealed class Delta {public string content;}
+    [Serializable] sealed class Choice {public NpcChatMessage message;public Delta delta;public string finish_reason;}
     [Serializable] sealed class Usage {public int prompt_tokens,completion_tokens;}
     [Serializable] sealed class Timings {public double predicted_per_second;}
     [Serializable] sealed class Response {public Choice[] choices;public Usage usage;public Timings timings;}
     [Serializable] sealed class Template {public bool enable_thinking=false;}
-    [Serializable] sealed class Request {public NpcChatMessage[] messages;public string model;public int max_tokens;public float temperature=.5f;public bool stream=false;public Template chat_template_kwargs=new Template();}
+    [Serializable] sealed class StreamOptions {public bool include_usage=true;}
+    [Serializable] sealed class Request {public NpcChatMessage[] messages;public string model;public int max_tokens;public float temperature=.5f;public bool stream=true;public StreamOptions stream_options=new StreamOptions();public Template chat_template_kwargs=new Template();}
     [Serializable] sealed class AppliedTemplate {public string prompt;}
     [Serializable] sealed class Tokenized {public int[] tokens;}
     [Serializable] sealed class TokenizeRequest {public string content;public bool add_special=false,parse_special=true;}
@@ -33,7 +35,11 @@ sealed class NpcModelClient : IDisposable
     public int LastPromptTokens,LastGeneratedTokens;
     public NpcAiSettings Config;public string Status="Waiting for an event";public int Requests;public double LastSeconds;
     public double LastLoadSeconds,LastTokensPerSecond;
+    public double LastFirstSpeechSeconds;
     internal NpcChatMessage[] LastMessages;
+    volatile string streamedSpeech="";CancellationTokenSource requestCancellation;
+    public string StreamedSpeech=>streamedSpeech;
+    public void CancelCurrent()=>requestCancellation?.Cancel();
     internal static string TestSettingsPath;
     public string BackendInfo="CPU / not loaded";
     public static string ConfigPath=>TestSettingsPath??Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"WorldGen","NpcAI","settings.json");
@@ -84,7 +90,7 @@ sealed class NpcModelClient : IDisposable
     {
         if(disposed||!Config.Enabled)throw new InvalidOperationException("NPC model is disabled or missing. Run scripts/setup-npc-ai.py, then /npcai on.");
         if(IsBusy)throw new InvalidOperationException("An AI request is already running.");
-        IsBusy=true;var watch=Stopwatch.StartNew();try{await Start();LastLoadSeconds=watch.Elapsed.TotalSeconds;Status="Thinking";Requests++;
+        IsBusy=true;streamedSpeech="";LastFirstSpeechSeconds=LastSeconds=LastTokensPerSecond=0;LastGeneratedTokens=LastPromptTokens=0;requestCancellation=CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);var watch=Stopwatch.StartNew();try{await Start();requestCancellation.Token.ThrowIfCancellationRequested();LastLoadSeconds=watch.Elapsed.TotalSeconds;Status="Thinking";Requests++;
         bool conversation=history!=null||current!=null||statements!=null;
         var request=new Request{model=Config.ModelName,max_tokens=Config.MaxTokens,temperature=Config.Temperature};
         int historyLimit=history?.Length??0,statementLimit=8;
@@ -101,7 +107,7 @@ sealed class NpcModelClient : IDisposable
             }
         }
         LastMessages=request.messages;
-        string fields="{\"type\":\"object\",\"properties\":{\"thought\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?70:120)+"},\"action\":{\"type\":\"string\",\"enum\":ACTIONS},\"target\":{\"type\":\"string\",\"enum\":TARGETS},\"speech\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?220:280)+"},\"seconds\":{\"type\":\"integer\",\"minimum\":2,\"maximum\":30}},\"required\":[\"thought\",\"action\",\"target\",\"speech\",\"seconds\"],\"additionalProperties\":false}";
+        string fields="{\"type\":\"object\",\"properties\":{\"speech\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?220:280)+"},\"thought\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?70:120)+"},\"action\":{\"type\":\"string\",\"enum\":ACTIONS},\"target\":{\"type\":\"string\",\"enum\":TARGETS},\"seconds\":{\"type\":\"integer\",\"minimum\":2,\"maximum\":30}},\"required\":[\"speech\",\"thought\",\"action\",\"target\",\"seconds\"],\"additionalProperties\":false}";
         string directed=targets.Replace("\"none\",","").Replace(",\"none\"","").Replace("\"none\"","");
         string moving=fields.Replace("ACTIONS","[\"speak\",\"approach\",\"flee\"]").Replace("TARGETS",directed);
         string resting=fields.Replace("ACTIONS","[\"wait\",\"rest\",\"resume\"]").Replace("TARGETS",targets);
@@ -111,16 +117,33 @@ sealed class NpcModelClient : IDisposable
         {
             if(!string.IsNullOrEmpty(key))message.Headers.Authorization=new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",key);
             message.Content=new StringContent(json,Encoding.UTF8,"application/json");
-            using(var response=await http.SendAsync(message,lifetime.Token))
+            using(var timeout=CancellationTokenSource.CreateLinkedTokenSource(requestCancellation.Token))
+            {
+                timeout.CancelAfter(TimeSpan.FromSeconds(180));
+            using(var response=await http.SendAsync(message,HttpCompletionOption.ResponseHeadersRead,timeout.Token))
             {
                 if(!response.IsSuccessStatusCode)throw new InvalidOperationException("NPC model HTTP "+(int)response.StatusCode);
-                string body=await response.Content.ReadAsStringAsync();if(body.Length>32768)throw new InvalidOperationException("NPC response too large");
-                var result=JsonUtility.FromJson<Response>(body);
-                if(result?.choices==null||result.choices.Length==0||result.choices[0].finish_reason=="length")throw new InvalidOperationException("NPC response incomplete");
-                LastSeconds=watch.Elapsed.TotalSeconds;LastTokensPerSecond=result.timings?.predicted_per_second??0;LastPromptTokens=result.usage?.prompt_tokens??0;LastGeneratedTokens=result.usage?.completion_tokens??0;Status="Ready";return result.choices[0].message.content;
+                var decoder=new NpcSpeechStream();bool finished=false,done=false;Usage usage=null;Timings timing=null;double firstToken=0;
+                using(var stream=await response.Content.ReadAsStreamAsync())
+                using(var cancel=timeout.Token.Register(()=>stream.Dispose()))
+                using(var reader=new StreamReader(stream,Encoding.UTF8))
+                {
+                    string line;while((line=await reader.ReadLineAsync())!=null)
+                    {
+                        timeout.Token.ThrowIfCancellationRequested();if(!line.StartsWith("data:",StringComparison.Ordinal))continue;
+                        string payload=line.Substring(5).Trim();if(payload=="[DONE]"){done=true;break;}if(payload.Length==0)continue;
+                        if(payload.Length>65536)throw new InvalidOperationException("NPC stream event too large");
+                        var part=JsonUtility.FromJson<Response>(payload);if(part?.usage!=null)usage=part.usage;if(part?.timings!=null)timing=part.timings;
+                        if(part?.choices==null)continue;
+                        foreach(var choice in part.choices){if(choice.finish_reason=="length")throw new InvalidOperationException("NPC response incomplete");if(choice.finish_reason=="stop")finished=true;if(firstToken==0&&!string.IsNullOrEmpty(choice.delta?.content))firstToken=watch.Elapsed.TotalSeconds;decoder.Append(choice.delta?.content);streamedSpeech=decoder.Speech;if(LastFirstSpeechSeconds==0&&streamedSpeech.Length>0)LastFirstSpeechSeconds=watch.Elapsed.TotalSeconds;}
+                    }
+                }
+                if(!done||!finished||decoder.Json.Length==0)throw new InvalidOperationException("NPC stream ended before a complete reply");
+                LastSeconds=watch.Elapsed.TotalSeconds;LastPromptTokens=usage?.prompt_tokens??0;LastGeneratedTokens=usage?.completion_tokens??0;LastTokensPerSecond=timing?.predicted_per_second??LastGeneratedTokens/Math.Max(.01,LastSeconds-firstToken);Status="Ready";return decoder.Json;
+            }
             }
         }
-            }catch(Exception ex){if(endpoint==null)ReleaseHost();Status="Error: "+ex.Message;throw;}finally{IsBusy=false;lastUse=Stopwatch.GetTimestamp();}
+            }catch(Exception ex){if(endpoint==null)ReleaseHost();Status="Error: "+ex.Message;throw;}finally{requestCancellation?.Dispose();requestCancellation=null;IsBusy=false;lastUse=Stopwatch.GetTimestamp();}
     }
     const string SystemPrompt=NpcConversationPrompt.SystemPrompt;
     async Task<string> LocalJson(string route,string json)

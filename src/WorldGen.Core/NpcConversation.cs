@@ -58,6 +58,8 @@ namespace WorldGen.Core
         }
         public NpcDialogueTurn[] DialogueFor(long speaker,long before,int turns)
             =>(Conversation??new List<NpcDialogueTurn>()).Where(t=>t.Interlocutor==speaker&&(before<=0||t.Sequence<before||t.FromNpc&&t.ReplyTo>0&&t.ReplyTo<before)).TakeLast(Math.Max(0,turns)*2).Select(t=>t.Copy()).ToArray();
+        public NpcDialogueTurn[] SceneDialogue(long before,int turns)
+            =>(Conversation??new List<NpcDialogueTurn>()).Where(t=>before<=0||t.Sequence<before||t.FromNpc&&t.ReplyTo>0&&t.ReplyTo<before).TakeLast(Math.Max(0,turns)*2).Select(t=>t.Copy()).ToArray();
         public NpcHeardStatement[] Recall(long speaker,string query,long through=long.MaxValue,int maximum=8)
         {
             var terms=new HashSet<string>(Words(query).Select(Term).Where(w=>!StopWords.Contains(w)));

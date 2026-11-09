@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateCamp()
     {
         if(Ready&&!campAudioStarted){campAudioStarted=true;campAudioLoading=StartCoroutine(LoadCampRecordings());}
-        if(Ready&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&!DeathVisible)Camp.SimulatedSeconds+=Math.Min(.25,Time.unscaledDeltaTime)*CampTimeRate*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
+        if(Ready&&!paused&&!mapOpen&&!CommandChatStopped&&!ecologyOpen&&!DeathVisible)Camp.SimulatedSeconds+=LocalSceneDelta*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
         UpdateCampPlacement();UpdateBlueprintPlacement();UpdateBlueprintWork();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
         RefreshFrameStructure();
         long npcVisualStart=System.Diagnostics.Stopwatch.GetTimestamp();int npcVisualsAdded=0;
