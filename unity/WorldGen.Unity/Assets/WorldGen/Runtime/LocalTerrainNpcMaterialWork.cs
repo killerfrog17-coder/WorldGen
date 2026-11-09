@@ -36,7 +36,9 @@ public sealed partial class LocalTerrainExplorer
         task.Purpose=purpose;task.Natural=false;task.Grass=false;task.Loose=null;task.Product=null;task.Work=0;
         bool Match(Possession p)=>purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p);
         var community=livingGroups[actor.GroupId];bool wild=actor.CurrentActivity==HumanActivity.GatherFuel||actor.CurrentActivity==HumanActivity.GatherPlants;
-        double campRadius=HumanCampLayout.Radius(community.Residents,community.Situation.Camp.Id,sourceWorld.Recipe.Seed)+5;
+        if(community.MaterialStockRadius<=0||community.MaterialStockSite!=community.Situation.Camp.Id)
+        {community.MaterialStockSite=community.Situation.Camp.Id;community.MaterialStockRadius=HumanCampLayout.Radius(community.Residents,community.Situation.Camp.Id,sourceWorld.Recipe.Seed)+5;}
+        double campRadius=community.MaterialStockRadius;
         var loose=Inventory.Items.Where(p=>Match(p)&&NpcCanUseWorldItem(actor,p)&&(!wild||HumanDistance(NpcWorldItemPosition(p),community.Anchor)>campRadius)).OrderBy(p=>HumanDistance(actor.Planet,NpcWorldItemPosition(p))).FirstOrDefault();
         if(loose!=null){task.Loose=loose;task.Point=NpcWorldItemPosition(loose);task.Needed=5;return true;}
         if(purpose=="kit")return false;
@@ -170,7 +172,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var stock=actor.Belongings;var branch=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.Kind==PossessionKind.Branch&&p.WidthM<=.06&&p.WidthM>.025);if(branch==null)return false;
         var job=stock.Crafts.FirstOrDefault(j=>j.RecipeId=="split-kindling");
-        if(job==null){if(!PortableCrafting.Plan(stock,stock.Items.Where(stock.Carried),PortableCrafting.Recipe("split-kindling"),branch.Id,out var plan,out _))return false;job=PortableCrafting.Start(stock,plan);}
+        if(job==null||!job.Running){if(!PortableCrafting.Plan(stock,stock.Items.Where(stock.Carried),PortableCrafting.Recipe("split-kindling"),branch.Id,out var plan,out _))return false;job=PortableCrafting.Start(stock,plan);}
         actor.TaskDetail="splitting actual wood into thin kindling";actor.TaskWaiting=false;
         var result=StoneCrafting.Advance(stock,job,dt,PlayerRules.Settings);
         if(result!=null&&result.Place==PossessionPlace.Ground){stock.Items.Remove(result);NpcCarryProduced(actor,result);}return true;

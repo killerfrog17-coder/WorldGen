@@ -14,10 +14,13 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok){File.WriteAllLines(Path.Combine(output,"failed-checks.txt"),report.Concat(new[]{"FAIL "+text}));Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);Debug.Log("NPC MATERIAL PASS "+text);}
         npcModel??=new NpcModelClient();npcModel.Config.Enabled=false;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
         double until=Time.unscaledTimeAsDouble+90;while(!livingPeople.Values.Any(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18)&&Time.unscaledTimeAsDouble<until)yield return null;
-        var actor=livingPeople.Values.FirstOrDefault(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18);Check(actor!=null,"An actual adult resident exists for material work");var group=livingGroups[actor.GroupId];paused=true;
+        var actor=livingPeople.Values.FirstOrDefault(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18);Check(actor!=null,"An actual adult resident exists for material work");var group=livingGroups[actor.GroupId];
         void Stand(V at)
         {TerrainHandoff.Coordinates(frame,at,out double x,out double z);actor.Motor.Place(x,z,VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM));actor.Planet=frame.Position(x,z);actor.Root.transform.localPosition=new Vector3((float)(x-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(z-originZ));}
-        var branch=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.Branch&&!CollectedRock(p)&&RockPossession(p).MassKg<=4).OrderBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();
+        ScatterInstance branch=default;until=Time.unscaledTimeAsDouble+60;
+        while(branch.Id==0&&Time.unscaledTimeAsDouble<until)
+        {branch=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.Branch&&!CollectedRock(p)&&RockPossession(p).MassKg<=4).OrderBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();if(branch.Id==0)yield return null;}
+        paused=true;File.WriteAllText(Path.Combine(output,"material-site.txt"),"chunks="+scatterChunks.Count+"; biome="+walkingPatch.Sample(actor.Planet).Biome+"; cell="+walkingPatch.Sample(actor.Planet).Cell+"; branch="+branch.Id);
         Check(branch.Id!=0,"A real uncollected fallen branch exists in loaded scatter");Stand(branch.Position);
         var task=new NpcMaterialTask{Purpose="fuel",Plant=branch,Point=branch.Position,Natural=true,Needed=8};V target=actor.Planet;int before=npcMaterialHarvests;
         NpcGatherMaterial(actor,task,1,ref target);

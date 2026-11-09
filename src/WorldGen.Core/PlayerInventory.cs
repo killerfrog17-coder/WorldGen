@@ -86,15 +86,15 @@ namespace WorldGen.Core
         public Possession Bag{get{foreach(var item in Items)if(item.Place==PossessionPlace.Back)return item;return null;}}
         public bool Carried(Possession item)
         {
-            var seen=new HashSet<string>();
-            while(item!=null&&seen.Add(item.Id))
+            int remaining=Items.Count+1;
+            while(item!=null&&remaining-->0)
             {if(item.Place==PossessionPlace.Ground||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage)return false;if(item.Place!=PossessionPlace.Container)return true;item=Find(item.ContainerId);}
             return false;
         }
         public bool InWornEquipment(Possession item)
         {
-            var seen=new HashSet<string>();
-            while(item!=null&&seen.Add(item.Id))
+            int remaining=Items.Count+1;
+            while(item!=null&&remaining-->0)
             {if(item.Place!=PossessionPlace.Container)return PortableTechnology.Worn(item.Place);item=Find(item.ContainerId);}
             return false;
         }

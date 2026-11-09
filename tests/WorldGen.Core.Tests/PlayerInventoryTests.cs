@@ -71,6 +71,20 @@ static class PlayerInventoryTests
         for(int i=0;i<1000;i++)PollEquipment();
         long allocationStart=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<10000;i++)PollEquipment();long queryBytes=GC.GetAllocatedBytesForCurrentThread()-allocationStart;GC.KeepAlive(observed);
         Check(queryBytes<=512,"Repeated empty/occupied/two-hand equipment queries avoid per-frame garbage: "+queryBytes+" bytes");
+        var load=WithBag();var inside=Rock("inside");inside.Place=PossessionPlace.Container;inside.ContainerId=load.Bag.Id;load.Items.Add(inside);
+        var loose=Rock("loose");load.Items.Add(loose);var held=Rock("held");held.Place=PossessionPlace.RightHand;load.Items.Add(held);
+        var cycleA=Rock("cycle-a");var cycleB=Rock("cycle-b");cycleA.Place=cycleB.Place=PossessionPlace.Container;cycleA.ContainerId=cycleB.Id;cycleB.ContainerId=cycleA.Id;load.Items.Add(cycleA);load.Items.Add(cycleB);
+        bool Reference(Possession item,bool worn)
+        {
+            var seen=new System.Collections.Generic.HashSet<string>();while(item!=null&&seen.Add(item.Id))
+            {if(item.Place!=PossessionPlace.Container)return worn?PortableTechnology.Worn(item.Place):item.Place!=PossessionPlace.Ground&&item.Place!=PossessionPlace.Corpse&&item.Place!=PossessionPlace.CampStorage;item=load.Find(item.ContainerId);}return false;
+        }
+        foreach(var item in load.Items)Check(load.Carried(item)==Reference(item,false)&&load.InWornEquipment(item)==Reference(item,true),"Allocation-free ownership ancestry matches the reference for carried, packed, ground and cyclic data");
+        bool carried=false;for(int i=0;i<1000;i++){carried^=load.Carried(inside);carried^=load.InWornEquipment(inside);}
+        allocationStart=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<10000;i++){carried^=load.Carried(inside);carried^=load.Carried(loose);carried^=load.Carried(held);carried^=load.InWornEquipment(inside);}long loadBytes=GC.GetAllocatedBytesForCurrentThread()-allocationStart;
+        allocationStart=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<10000;i++){carried^=Reference(inside,false);carried^=Reference(loose,false);carried^=Reference(held,false);carried^=Reference(inside,true);}long referenceBytes=GC.GetAllocatedBytesForCurrentThread()-allocationStart;GC.KeepAlive(carried);
+        Check(loadBytes<=512&&referenceBytes>1000000,"Carrying queries remove per-call garbage: "+referenceBytes+" reference bytes -> "+loadBytes+" current bytes");
         Console.WriteLine("PASS "+count+" inventory packing/ownership/save checks");
+        Console.WriteLine("Carrying-query component allocation: "+referenceBytes+" -> "+loadBytes+" bytes / 40,000 queries (not an FPS measurement)");
     }
 }

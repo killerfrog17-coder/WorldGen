@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
         public NpcResourceSites Resources;
         public ForagerSocialLife Social;public ForagerCulture SocialCulture;
         public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200;
+        public long MaterialStockSite;public double MaterialStockRadius;
     }
     sealed class LivingPacket
     {
@@ -367,8 +368,9 @@ public sealed partial class LocalTerrainExplorer
             if(!alarm&&PlayerRules.Identity?.Group!=actor.GroupId&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
                 actor.TargetYaw=(float)(Math.Atan2(motion.X-actor.Motor.X,motion.Z-actor.Motor.Z)*180/Math.PI);
             if(actor.SimulationAge<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
-            actor.TargetSpeed*=(float)(actor.Belongings?.LoadSpeedScale??1);
-            ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35)*(actor.Belongings?.LoadEffort??1),CurrentWeather.TemperatureC);
+            if(actor.SimulationAge>=actor.LoadAt){actor.LoadAt=actor.SimulationAge+.25;actor.CarriedKg=actor.Belongings?.CarriedMassKg??0;}
+            actor.TargetSpeed*=(float)(1/(1+Math.Pow(Math.Max(0,actor.CarriedKg-8)/25,1.5)));
+            ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35)*(1+actor.CarriedKg/30),CurrentWeather.TemperatureC);
             actor.TargetSpeed=Math.Min(actor.TargetSpeed,6*(float)actor.Exertion.PowerScale);
             actor.Yaw=Mathf.MoveTowardsAngle(actor.Yaw,actor.TargetYaw,dt*95);actor.Speed=Mathf.MoveTowards(actor.Speed,actor.TargetSpeed,dt*1.6f);
             if(actor.SimulationAge>=actor.ObstacleAt)

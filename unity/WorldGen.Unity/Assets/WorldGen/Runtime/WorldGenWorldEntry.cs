@@ -18,7 +18,7 @@ public sealed partial class WorldGenRuntime
     void StartWorldEntry(bool resident)
     {
         if(worldEntryWork!=null||humanStep!=null)return;
-        var source=world;var session=play.Copy();int seed=Guid.NewGuid().GetHashCode();if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-mind-check"))seed=int.Parse(Argument("--worldgen-entry-seed","3"));
+        var source=world;var session=play.Copy();int seed=Guid.NewGuid().GetHashCode();if(int.TryParse(Argument("--worldgen-entry-seed",""),out int requestedEntrySeed))seed=requestedEntrySeed;
         PrepareLocalTerrain();var preparing=localTerrainTask;worldEntryError="";bool diagnostic=Environment.GetCommandLineArgs().Contains("--worldgen-entry-check");
         if(diagnostic)Debug.Log("ENTRY preparing scale="+session.Settings.HorizontalScale+" / terrain="+preparing.Status);
         worldEntryWork=Task.Run(async()=>
