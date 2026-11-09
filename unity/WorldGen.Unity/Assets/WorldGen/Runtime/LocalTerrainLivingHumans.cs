@@ -171,12 +171,20 @@ public sealed partial class LocalTerrainExplorer
         var traceIds=new HashSet<long>();
         foreach(var trace in packet.Traces)
         {
+            // This packet may have predicted departure before the local work
+            // hold above kept the band packing. A current camp cannot also be
+            // owned by an abandoned-site renderer or its retirement path.
+            if(livingGroups.TryGetValue(trace.Group,out var occupant)&&occupant.Situation.Phase!=HumanCampPhase.Travelling&&occupant.Situation.Camp.Id==trace.Site.Id)continue;
             traceIds.Add(trace.Site.Id);if(livingTraces.TryGetValue(trace.Site.Id,out var oldTrace)){oldTrace.TraceAge=trace.AgeSolarDays;continue;}
             var source=packet.Groups.First(g=>g.Band.Id==trace.Group);
             packet.Residents.TryGetValue(trace.Group,out var traceResidents);
             livingTraces[trace.Site.Id]=new LivingGroup{TraceOnly=true,TraceAge=trace.AgeSolarDays,Residents=traceResidents,Situation=new HumanGroupSituation{Band=source.Band,Camp=trace.Site,Position=trace.Site.Position,DepartureDay=trace.AbandonedCalendarDay,Phase=HumanCampPhase.Travelling}};
         }
-        foreach(var id in livingTraces.Keys.Where(id=>!traceIds.Contains(id)).ToArray()){UnloadLivingCamp(livingTraces[id]);livingTraces.Remove(id);}
+        foreach(var id in livingTraces.Keys.Where(id=>!traceIds.Contains(id)).ToArray())
+        {
+            var trace=livingTraces[id];bool occupied=livingGroups.TryGetValue(trace.Situation.Band.Id,out var occupant)&&occupant.CampLoaded&&occupant.Situation.Phase!=HumanCampPhase.Travelling&&occupant.Situation.Camp.Id==id;
+            if(!occupied)UnloadLivingCamp(trace);livingTraces.Remove(id);
+        }
         livingOrdered=livingGroups.Values.OrderBy(g=>g.Situation.DistanceToPlayerM).ToArray();
     }
     bool TryLivingCampGround(LivingGroup group,out V anchor)

@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public sealed class NpcCyclePersonRow{public string Name,TaskDetail;public float Speed;public double NavigationX,NavigationZ,Kg;}
     public sealed class NpcCycleStatus
-    {public string WaitingFor,Phase;public bool CampLoaded,Grounded;public int PlacementAttempt,OldParts,Packed,Supplied,Worked;public NpcCampTravel Travel;public NpcCyclePersonRow[] People;}
+    {public string WaitingFor,Phase;public bool CampLoaded,Grounded;public long CurrentSite,OldSite;public int PlacementAttempt,OldParts,Packed,Supplied,Worked;public NpcCampTravel Travel;public NpcCyclePersonRow[] People;}
     static IEnumerator CheckLivingCampCycle(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP CYCLE "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP CYCLE "+text);}
@@ -36,17 +36,24 @@ public sealed partial class LocalTerrainExplorer
             owner.PlayerRules.PendingHistorySeconds=day*SimulationTime.Day-SimulationTime.Seconds(owner.sourceWorld.Prehistory)-owner.PlayerRules.CalendarOffsetSeconds;
             owner.livingQueryAt=0;
         }
+        void TickClock()
+        {
+            // This standalone fixture has no outer play-session clock driver.
+            double solar=Math.Min(.1,Time.unscaledDeltaTime)/(baseline.DayMinutes*60);
+            owner.PlayerRules.SolarDays+=solar;owner.PlayerRules.PendingHistorySeconds+=solar*baseline.CalendarRate*SimulationTime.Day;
+        }
         IEnumerator Await(Func<bool> condition,string description)
         {
             double end=Time.realtimeSinceStartupAsDouble+240,statusAt=0;
             while(!condition()&&Time.realtimeSinceStartupAsDouble<end)
             {
+                TickClock();
                 if(group.Grounded&&!group.CampLoaded&&owner.HumanDistance(group.Anchor,owner.Position)>450)
                 {TerrainHandoff.Coordinates(owner.frame,group.Anchor,out double x,out double z);owner.motion.Place(x,z,owner.VisibleGround(x,z,0));}
                 if(Time.realtimeSinceStartupAsDouble>=statusAt)
                 {
                     statusAt=Time.realtimeSinceStartupAsDouble+3;
-                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg}).ToArray()}));
+                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,CurrentSite=group.Situation.Camp.Id,OldSite=oldSite,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg}).ToArray()}));
                 }
                 yield return null;
             }
@@ -56,9 +63,11 @@ public sealed partial class LocalTerrainExplorer
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Packing,"The actual community enters its scheduled packing phase");
         yield return Await(()=>Parts()<fullParts,"Actual workers remove shelter components instead of itinerary progress deleting them");
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Travelling&&!group.CampLoaded,"The camp is packed away as the family group departs");
+        var packedGoods=ActualGoods().Where(p=>portable.ContainsKey(p.Id)).ToArray();
+        Check(packedGoods.Length==portable.Count&&packedGoods.Select(p=>p.Id).Distinct().Count()==portable.Count&&packedGoods.All(p=>Math.Abs(p.MassKg-portable[p.Id])<1e-8),"A work-delayed departure preserves every original portable contribution instead of an abandoned trace deleting the active camp");
         Check(owner.LivingState.Camps.Any(c=>c.Site==oldSite&&c.AbandonedCalendarDay>=0&&c.Objects.Any(o=>o.Kind==CampKind.Bedding)&&c.Objects.Where(o=>o.Blueprint!=null).All(o=>!owner.NpcCampParts(o).Any(p=>NpcCampWork.Portable(o.Blueprint,p,owner.NpcCarryCampPoles(group))&&CampBlueprints.State(o.Blueprint,p)?.Materials.Count>0))),"Departure leaves dated bedding/hearths and any uncarried frames, with their portable contributions actually removed");
         var walking=owner.livingPeople.Values.Where(p=>p.GroupId==band&&p.Health>0&&p.Resident.AgeYears>=12).ToDictionary(p=>p.ResidentId,p=>p.Planet);
-        double walkUntil=Time.realtimeSinceStartupAsDouble+18;while(Time.realtimeSinceStartupAsDouble<walkUntil)yield return null;
+        double walkUntil=Time.realtimeSinceStartupAsDouble+18;while(Time.realtimeSinceStartupAsDouble<walkUntil){TickClock();yield return null;}
         Check(owner.livingPeople.Values.Any(p=>walking.TryGetValue(p.ResidentId,out var start)&&owner.HumanDistance(start,p.Planet)>1),"Observed travellers physically begin moving after packing");
         double delay=owner.NpcTravel(group).DelayCalendarDays;
         // Explicit coarse travel skip, not a claim of following every metre.
