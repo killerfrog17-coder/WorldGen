@@ -20,7 +20,7 @@ PASS Sustained occlusion expires the in-progress conversation grace period
 PASS No gift or refusal duplicates a possession ID
 PASS Social transactions and their real possessions validate together
 PASS An audible procedural encounter admits one optional live-model conversation
-PASS Both actual residents deliver a live Qwen conversational turn (2): 
+PASS Both actual residents deliver a live Qwen conversational turn (2):
 PASS Live ambient speech streams without building more than one queued request
-PASS Player dialogue interrupts the ambient exchange and receives a real model reply: 
+PASS Player dialogue interrupts the ambient exchange and receives a real model reply:
 PASS captured session validates with conversation memories
