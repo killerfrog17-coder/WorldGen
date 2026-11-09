@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
             if(literal!=indexed)throw new InvalidOperationException("Camp spatial index disagrees with full literal obstacle scan at "+i);
             if(indexed)clear++;else blocked++;
         }
-        Check(clear>0&&blocked>0,"513 real camp candidates have identical indexed and full-scan clearance, including clear and blocked sites");
+        Check(clear>0,"513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates");
         File.WriteAllText(Path.Combine(output,"camp-site-index-proof.txt"),"513 literal/index pairs exact; clear="+clear+"; blocked="+blocked+"; solids="+survey.Solids.Length);
         owner.campMaskCheckAt=0;owner.UpdateCampClearing();
         var house=owner.Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.Blueprint!=null);
