@@ -15,7 +15,9 @@ public sealed partial class LocalTerrainExplorer
         var band=group.Residents;var culture=sourceWorld.Prehistory.Foragers.Cultures[band.Culture];
         if(group.Social==null||group.SocialCulture!=culture){group.Social=ForagerSocialLife.Create(culture,band);group.SocialCulture=culture;}
         var social=group.Social;var text=new StringBuilder(" Camp customs: "+social.DecisionMaking+" "+social.Sharing+" "+social.Visitors+" "+social.SpeechStyle+" "+social.Roles(band));
-        var ties=band.Members.Where(p=>p.Id!=actor.ResidentId&&p.AgeYears>=4).Select(p=>(person:p,affinity:ForagerSocialLife.Affinity(culture,actor.Resident,p,band))).OrderByDescending(p=>p.affinity).ToArray();
+        var personal=NpcMemoryFor(actor.ResidentId).Social;
+        var ties=band.Members.Where(p=>p.Id!=actor.ResidentId&&p.AgeYears>=4).Select(p=>(person:p,affinity:NpcSocialRules.Affinity(culture,actor.Resident,p,band,personal))).OrderByDescending(p=>p.affinity).ToArray();
+        if(speaker!=null)text.Append(" Your actual feelings toward the speaker: ").Append(NpcSocialRules.Opinion(personal,speaker.Id)).Append('.');
         foreach(var tie in ties.Take(2))if(tie.affinity>.45)text.Append(" You often enjoy talking and working with ").Append(tie.person.Name).Append('.');
         if(ties.Length>0&&ties[ties.Length-1].affinity<-.25)text.Append(" You have some personal friction with ").Append(ties[ties.Length-1].person.Name).Append("; this does not mean violence.");
         foreach(var subject in new[]{actor.Resident,speaker})if(subject!=null&&band.Members.Any(p=>p.Id==subject.Id))
@@ -43,7 +45,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(a.ResidentId>=b.ResidentId||a.GroupId!=b.GroupId||HumanDistance(a.Planet,b.Planet)>6)continue;
             var group=livingGroups[a.GroupId];var c=sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture];
-            double score=ForagerSocialLife.Affinity(c,a.Resident,b.Resident,group.Residents)+Rng.Value(c.Seed,"conversation-pair",unchecked((int)(++npcSocialSequence)^ (int)a.ResidentId^(int)b.ResidentId))*.6;
+            double score=NpcSocialRules.Affinity(c,a.Resident,b.Resident,group.Residents,NpcMemoryFor(a.ResidentId).Social)+Rng.Value(c.Seed,"conversation-pair",unchecked((int)(++npcSocialSequence)^ (int)a.ResidentId^(int)b.ResidentId))*.6;
             if(score>best){best=score;first=a;second=b;}
         }
         if(first==null)return;

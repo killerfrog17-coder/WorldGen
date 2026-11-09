@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
         }
         return surface;
     }
-    CombatHit TraceLiving(Ray ray,float reach,bool includePlayer=false)
+    CombatHit TraceLiving(Ray ray,float reach,bool includePlayer=false,HumanActor ignored=null)
     {
         CombatHit hit=null;float closest=reach;
         foreach(var animal in animals.Values)
@@ -48,6 +48,7 @@ public sealed partial class LocalTerrainExplorer
         IEnumerable<HumanActor> humans=humanNpcs;if(includePlayer&&humanPlayer!=null)humans=humans.Concat(new[]{humanPlayer});
         foreach(var human in humans)
         {
+            if(human==ignored)continue;
             if(human==humanPlayer?DeathVisible:human.Health<=0)continue;
             foreach(var renderer in human.Root.GetComponentsInChildren<SkinnedMeshRenderer>())
             {

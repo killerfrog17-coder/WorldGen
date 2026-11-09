@@ -75,12 +75,14 @@ public sealed partial class LocalTerrainExplorer
                 bool first=old==null||PlayerRules.SolarDays-old.SolarDay>.1;
                 double concern=(distance<12?.8:distance<30?.45:.18)*(1-perception.Personality.Courage*.45);
                 state.Fear=Math.Max(state.Fear,concern);
+                NoticeNpcAnimalThreat(actor,animal,distance);
                 state.Record(new NpcIncident{Kind=NpcIncidentKind.AnimalSeen,Animal=animal.Spawn.Id,SolarDay=PlayerRules.SolarDays,Position=animal.Planet,Detail="You saw a "+name+" "+(distance<15?"close by":distance<35?"nearby":"farther away")+". It was "+(animal.BehaviourAction=="hunt"?"hunting":animal.BehaviourAction=="attack"?"attacking":"moving or resting")+"."});
                 if(first&&distance<25)QueueNpcEvent(actor,"You have just noticed a "+name+" nearby. Your concern is about that animal. React proportionately; seeing it does not mean it has attacked.");
             }
             // Knowing that a relative exists does not reveal their whereabouts.
             foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.GroupId==actor.GroupId&&HumanDistance(actor.Planet,p.Planet)<Math.Min(22,range)).Take(12))
-                if(NpcSees(actor,other.Root.transform.position+transform.up*.7f,range))state.See(other.ResidentId,other.Planet,PlayerRules.SolarDays,other.Health<=0);
+                if(NpcSees(actor,other.Root.transform.position+transform.up*.7f,range))
+                {if(other.Health<=0)DiscoverNpcDeath(actor,other);else state.See(other.ResidentId,other.Planet,PlayerRules.SolarDays);}
         }
         finally{npcSenseTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-began;}
     }

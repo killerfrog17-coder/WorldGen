@@ -21,7 +21,7 @@ namespace WorldGen.Core
         }
         public string Describe()=>"Personality: "+(Courage>.7?"bold":Courage<.3?"cautious about danger":"weighs risks")+", "+Speech+". Often interested in "+Interest+". Kindness "+(Kindness>.65?"generous":Kindness<.3?"guarded":"selective")+"; competition "+(Ambition>.65?"important":"not a main concern")+".";
     }
-    public enum NpcIncidentKind { AnimalSeen,AnimalHeard,Assault,Death,Theft,Trespass,Help,Missing,Returned,Argument,Reconciliation,Invitation,Leadership }
+    public enum NpcIncidentKind { AnimalSeen,AnimalHeard,Assault,Death,Theft,Trespass,Help,Missing,Returned,Argument,Reconciliation,Invitation,Leadership,DistressHeard }
     [Serializable] public sealed class NpcIncident
     {
         public long Sequence,Actor,Subject;public ulong Animal;public NpcIncidentKind Kind;

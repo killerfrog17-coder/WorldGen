@@ -333,6 +333,7 @@ public sealed partial class LocalTerrainExplorer
         if(!stopped)UpdateNpcAwareness(actor);
         V target=tending?routine.Position:LivingPosition(group,routine.Position);
         bool mind=ApplyNpcPlan(actor,ref routine,ref target);
+        bool safety=!stopped&&ApplyNpcSafety(actor,ref routine,ref target);mind|=safety;
         if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
         if(!mind)PrepareNpcTaskGear(actor,group,routine,ref target);
         target=LivingDryGoal(actor,target);
@@ -344,18 +345,11 @@ public sealed partial class LocalTerrainExplorer
         if(dt>0)
         {
             double dx=tx-actor.Motor.X,dz=tz-actor.Motor.Z,distance=Math.Sqrt(dx*dx+dz*dz);
-            var memory=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId);
-            bool alarm=memory!=null&&memory.AlarmUntilSolarDay>PlayerRules.SolarDays&&HumanDistance(actor.Planet,memory.ThreatPosition)<85;
-            if(alarm)
-            {
-                actor.CurrentActivity=HumanActivity.Retreat;
-                TerrainHandoff.Coordinates(frame,memory.ThreatPosition,out double hx,out double hz);dx=actor.Motor.X-hx;dz=actor.Motor.Z-hz;distance=Math.Sqrt(dx*dx+dz*dz);
-                if(distance<90){actor.TargetSpeed=personRunSpeed(actor.Resident);actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);}else actor.TargetSpeed=0;
-            }
-            else
+            bool alarm=safety;
             {
                 actor.TargetSpeed=distance>(doorway?.2:.35)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,Math.Max(.12,distance*1.5)):0;
                 if(mind&&routine.Activity==HumanActivity.Retreat&&distance>2)actor.TargetSpeed=personRunSpeed(actor.Resident);
+                if(safety&&actor.Threat.Response==NpcDangerResponse.Withdraw)actor.TargetSpeed=Math.Min(actor.TargetSpeed,1.6f);
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
                 else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
                 else if(!mind&&(routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach||routine.Activity==HumanActivity.Childcare))
@@ -414,7 +408,9 @@ public sealed partial class LocalTerrainExplorer
                 if(crouch&&actual<=.2f&&role!="SleepSide")role="SitGround";
                 actor.Shared?.Routine(role,(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
                 string upperRole=hearth&&actual<=.2f&&routine.Activity==HumanActivity.Socialise?"Social":carryRole=="WaterCarry"?"ToolReady":carryRole;
-                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:upperRole,(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
+                double strikeAge=actor.SimulationAge-actor.NpcAttackStarted;
+                if(strikeAge>=0&&strikeAge<.7)upperRole=ItemUseRules.Profile(actor.Belongings?.QuickHeld).Primary==ItemPrimaryUse.Thrust?"SpearThrust1":"Punch";
+                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:upperRole,strikeAge>=0&&strikeAge<.7?strikeAge:(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
                 actor.Graph.Evaluate(0);if(crouch&&role==null)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);
                 string groundRole=role??(actual<.08f?"Idle":actual<2?"Walk":actual<4.5f?"Run":"Sprint");
                 actor.PoseGroundLift=0;
@@ -515,13 +511,6 @@ public sealed partial class LocalTerrainExplorer
             memory.Position=Position;memory.Health=Vitals.Health;memory.Dead=Vitals.Dead;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=Vitals.Bleeding?.Copy();
         }
         foreach(var actor in livingPeople.Values)CaptureLivingPerson(actor);foreach(var group in livingGroups.Values)StoreLivingCamp(group);foreach(var trace in livingTraces.Values)StoreLivingCamp(trace);}
-    void AlarmLivingGroup(HumanActor actor)
-    {
-        if(actor.ResidentId==0)return;var memory=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId);
-        if(memory==null){memory=new HumanGroupMemory{Group=actor.GroupId};LivingState.Groups.Add(memory);}
-        memory.Trust=Math.Max(-1,memory.Trust-.45);memory.Fear=Math.Min(1,memory.Fear+.5);memory.ThreatPosition=Position;
-        memory.AlarmUntilSolarDay=PlayerRules.SolarDays+120/(PlayerRules.Settings.RealMinutesPerDay*60);memory.LastSolarDay=PlayerRules.SolarDays;CaptureLivingPerson(actor);
-    }
     void DisposeLivingHumans(){DisposeCampClearing();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
     PlayCommandResult ExecuteLivingCamps(string[] words)
     {

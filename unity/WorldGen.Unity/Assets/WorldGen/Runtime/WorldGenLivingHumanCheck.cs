@@ -135,7 +135,7 @@ public sealed partial class LocalTerrainExplorer
         Check(fromDisk.Humans.Camps.Count==packet.Humans.Camps.Count&&fromDisk.Camp.Objects.Select(c=>c.Id).SequenceEqual(packet.Camp.Objects.Select(c=>c.Id)),"Actual named binary save cold-loads resident camp provenance and exact material-backed objects");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-cycle"))yield return CheckLivingCampCycle(owner,groupRuntime,output,checks);
         var actor=owner.livingPeople.Values.First(p=>p.Resident.AgeYears>=18);long identity=actor.ResidentId;owner.DamageHuman(actor,12,null,Vector3.forward);owner.CaptureLivingHumans();
-        Check(play.Humans.People.Single(p=>p.Person==identity).Health==actor.Health&&play.Humans.Groups.Single(g=>g.Group==actor.GroupId).Trust<0,"Aggression preserves wounds and community alarm/relationship consequences");
+        Check(play.Humans.People.Single(p=>p.Person==identity).Health==actor.Health&&owner.NpcMemoryFor(identity).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Assault),"Aggression preserves wounds and the actual victim's local memory");
         owner.UnloadLivingCamp(groupRuntime);owner.LoadLivingCamp(groupRuntime);owner.Camp.Validate();
         Check(owner.Camp.Objects.Select(c=>c.Id).Distinct().Count()==owner.Camp.Objects.Count,"Unloading/revisiting a camp does not duplicate its objects");
         File.WriteAllLines(Path.Combine(output,"checks.txt"),checks);Debug.Log("LIVING HUMANS PASS "+checks.Count);owner.view.targetTexture=null;target.Release();Destroy(target);Application.Quit(0);

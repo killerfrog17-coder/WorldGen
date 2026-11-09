@@ -91,7 +91,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(human.Health<=0||human.Bleeding==null)continue;
             AdvanceWound(human.Bleeding,dt,human.Speed/6);double health=BleedingRules.HealthLimit(human.Bleeding,100);
-            if(health<=0)DamageHuman(human,human.Health+.001,null,Vector3.up);else human.Health=Math.Min(human.Health,health);
+            if(health<=0)DamageHuman(human,human.Health+.001,null,Vector3.up,woundOnly:true);else human.Health=Math.Min(human.Health,health);
             human.TargetSpeed=Math.Min(human.TargetSpeed,6*(float)BleedingRules.Mobility(human.Bleeding));
             DropBloodSign((ulong)(0xf000000000000000UL+(uint)human.Id),human.Bleeding,human.Planet,0,now);
         }

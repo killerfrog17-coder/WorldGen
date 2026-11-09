@@ -40,7 +40,10 @@ public sealed partial class LocalTerrainExplorer
             Check(item.OwnerPerson==actor.ResidentId&&Inventory.AtHand(PossessionPlace.RightHand)==item,"Possession changes physically while the original ownership remains recorded");
             Check(NpcMemoryFor(actor.ResidentId).Social.Anger>0&&NpcMemoryFor(actor.ResidentId).Social.Relationships.Any(t=>t.Other==PlayerPropertyKey&&t.Grievance>0),"Witnessed theft changes mood and the directed relationship");
             Inventory.Move(item.Id,PossessionPlace.Ground,"",0,0,false,out _);item.Position=frame.Position(motion.X,motion.Z+1);item.GroundRotation=new V(90,0,0);inventoryNearbyAt=0;
-            var direction=new Vector3(0,(float)(CampFloor(motion.X,motion.Z+1)+.03-motion.Y),1).normalized;heading=0;pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;paused=false;npcThoughts=true;UpdateCamera();yield return NpcLifeImage(output,"owned-items-and-witness");paused=true;
+            RefreshInventoryNearby(true);var groundItem=inventoryNearby.First(n=>n.Item==item);
+            for(int aim=0;aim<6;aim++){UpdateCamera();var direction=transform.InverseTransformDirection(transform.TransformPoint(groundItem.Point)-view.transform.position).normalized;heading=Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;}
+            paused=false;npcThoughts=true;UpdateCamera();yield return NpcLifeImage(output,"owned-items-and-witness");paused=true;
+            File.WriteAllText(Path.Combine(output,"aim-diagnostic.txt"),"item="+item.Id+"; actual="+AimedPossession()?.Item?.Id+"; bounds="+groundItem.Bounds+"; ray="+new Ray(view.transform.localPosition,view.transform.forward));
             Check(AimedPossession()?.Item==item&&pickupPromptTheft!=null&&pickupPromptTheft.normal.textColor.r>.8f&&pickupPromptTheft.normal.textColor.g<.5f,"The aimed owned item uses the actual red theft-prompt style");
             var privateBed=Camp.Objects.FirstOrDefault(c=>c.Kind==CampKind.Bedding&&c.NpcGroup==actor.GroupId&&c.NpcHousehold!=PlayerRules.Identity.Person.Household);
             if(privateBed!=null)Check(!PlayerMayUseCamp(privateBed),"An actual other household's bedding has private-use status");

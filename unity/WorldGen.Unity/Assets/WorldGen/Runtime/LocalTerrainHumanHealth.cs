@@ -5,7 +5,7 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    void DamageHuman(HumanActor actor,double damage,CombatHit hit,Vector3 direction,double momentum=0)
+    void DamageHuman(HumanActor actor,double damage,CombatHit hit,Vector3 direction,double momentum=0,long aggressor=0,ulong animal=0,bool woundOnly=false)
     {
         if(actor==null||damage<=0||!ItemUseRules.Finite(damage))return;
         if(actor==humanPlayer)
@@ -14,7 +14,9 @@ public sealed partial class LocalTerrainExplorer
             if(Vitals.Health<before){PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f,true);PaintHumanBlood(actor,hit,before-Vitals.Health);PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();CapturePlayerBlood();}
             return;
         }
-        if(actor.Health<=0)return;actor.Health=Math.Max(0,actor.Health-damage);PaintHumanBlood(actor,hit,damage);AlarmLivingGroup(actor);QueueNpcEvent(actor,"You were struck and your group is alarmed.",priority:3);
+        if(actor.Health<=0)return;
+        if(!woundOnly)WitnessNpcAssault(actor,aggressor==0&&animal==0?PlayerPropertyKey:aggressor,animal);
+        actor.Health=Math.Max(0,actor.Health-damage);PaintHumanBlood(actor,hit,damage);
         PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f);
         if(actor.Health<=0)
         {
@@ -26,7 +28,7 @@ public sealed partial class LocalTerrainExplorer
             actor.Ragdoll.Begin(actor.Root,(x,z)=>(float)(actor.ResidentId==0?Ground(x+originX,z+originZ):VisibleGround(x+originX,z+originZ,actor.Motor.Y-TerrainMotion.EyeHeightM)),movement+direction*(float)Math.Min(4,momentum/70));
             foreach(var renderer in actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>())renderer.updateWhenOffscreen=true;
         }
-        else
+        else if(actor.Resident==null)
         {actor.TargetYaw=(float)(Math.Atan2(actor.Motor.X-motion.X,actor.Motor.Z-motion.Z)*180/Math.PI);actor.TargetSpeed=6;actor.Decision=Time.unscaledTime+8;}
     }
 }

@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
         public PlayerInventory Belongings;public double GearAt,NpcWorkDone;public string TaskDetail="",GearRole="";public bool TaskWaiting;
         public V GearTarget;public bool FetchingGear;
         public int GearVisualHash=int.MinValue;
+        public NpcThreat Threat;public double NpcAttackAt,NpcAttackStarted=-10;
         public bool NpcCrouching;
         public bool NpcCrawling;
         public bool Natural;
