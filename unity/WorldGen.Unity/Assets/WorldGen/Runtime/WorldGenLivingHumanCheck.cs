@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public sealed class NpcSceneCheckInfo
     {
-        public string Context,HistoryHash,Residence,Design,Cover;public double Year,MeanC,Rain,Canopy,Aridity,LocalHour;public int People,Houses;
+        public string Context,HistoryHash,Residence,Design,Cover;public double Year,MeanC,Rain,Canopy,Aridity,Coast,River,LocalHour;public int People,Houses;
     }
     public static IEnumerator CheckLivingHumans(string path,string output)
     {
@@ -44,6 +44,8 @@ public sealed partial class LocalTerrainExplorer
         var planner=new HumanLocalLife(world,engine);HumanGroupSituation chosen=null;
         foreach(var cohort in state.Foragers.Cohorts.Where(c=>engine.ForagerBandCount(state,c)>0&&(residence=="any"||state.Foragers.Cultures[c.Culture].Residence.ToString()==residence)).OrderByDescending(Suitability).ThenByDescending(c=>c.Population))
         {
+            var region=state.Foragers.Districts[cohort.District];
+            if(context=="cold"&&region.MeanC>=8||context=="coast"&&region.Coast<.15||context=="wet"&&region.AnnualRainMm<1400)continue;
             for(int ordinal=0;ordinal<engine.ForagerBandCount(state,cohort);ordinal++)
             {
                 long id=((long)(cohort.Id+1)<<32)|(uint)(ordinal+1);if(!HumanLocalLife.SpatialAdmission(world.Recipe.Seed,id,scale))continue;
@@ -143,7 +145,7 @@ public sealed partial class LocalTerrainExplorer
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf"))yield return MeasureLivingHumans(owner,output);
         File.WriteAllText(Path.Combine(output,"physical-residents.json"),WorldJson.Write(owner.livingPeople.Values.Select(a=>new NpcResidentCheckRow{Id=a.ResidentId,Group=a.GroupId,Name=a.Resident.Name,Age=a.Resident.AgeYears,Activity=a.CurrentActivity.ToString(),Role=a.Routine.Role,Speed=a.Speed,TargetSpeed=a.TargetSpeed,Action=a.Shared.ActionRole,AgeBody=a.AgeModel?.Years??99,X=a.Root.transform.localPosition.x,Y=a.Root.transform.localPosition.y,Z=a.Root.transform.localPosition.z,Props=a.NpcProps.Select(p=>p.Item.Name).ToArray()}).ToArray()));
         var district=state.Foragers.Districts[chosen.Band.District];
-        File.WriteAllText(Path.Combine(output,"scene-info.json"),WorldJson.Write(new NpcSceneCheckInfo{Context=context,HistoryHash=state.Hash,Year=SimulationTime.Seconds(state)/(double)SimulationTime.Year,Residence=chosen.Band.Residence.ToString(),Design=chosen.Camp.Design.ToString(),Cover=chosen.Camp.Cover.ToString(),MeanC=district.MeanC,Rain=district.AnnualRainMm,Canopy=district.Canopy,Aridity=district.Aridity,LocalHour=groupRuntime.Situation.LocalHour,People=groupRuntime.Residents.Members.Length,Houses=owner.Camp.Objects.Count(c=>c.NpcGroup==chosen.Band.Id&&c.Blueprint!=null)}));
+        File.WriteAllText(Path.Combine(output,"scene-info.json"),WorldJson.Write(new NpcSceneCheckInfo{Context=context,HistoryHash=state.Hash,Year=SimulationTime.Seconds(state)/(double)SimulationTime.Year,Residence=chosen.Band.Residence.ToString(),Design=chosen.Camp.Design.ToString(),Cover=chosen.Camp.Cover.ToString(),MeanC=district.MeanC,Rain=district.AnnualRainMm,Canopy=district.Canopy,Aridity=district.Aridity,Coast=district.Coast,River=district.River,LocalHour=groupRuntime.Situation.LocalHour,People=groupRuntime.Residents.Members.Length,Houses=owner.Camp.Objects.Count(c=>c.NpcGroup==chosen.Band.Id&&c.Blueprint!=null)}));
         File.WriteAllText(Path.Combine(output,"community.json"),WorldJson.Write(groupRuntime.Residents));
         var packet=new PlaySession();owner.StorePlayer(packet);packet.Validate();var restored=WorldJson.Read<PlaySession>(WorldJson.Write(packet));restored.Validate();
         Check(restored.Humans.Camps.Count==packet.Humans.Camps.Count&&restored.Camp.Objects.Select(c=>c.Id).SequenceEqual(packet.Camp.Objects.Select(c=>c.Id)),"Named camp objects and local memories survive actual player capture and serialization");

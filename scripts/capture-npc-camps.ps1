@@ -5,6 +5,7 @@ param(
     [ValidateSet('wet','collector','morning','cold','evening','sleep')]
     [string[]]$Cases=@('wet','collector','morning','cold','evening','sleep'),
     [switch]$Performance,
+    [switch]$Cycle,
     [ValidateRange(5,180)][int]$Seconds=30
 )
 $ErrorActionPreference='Stop'
@@ -27,6 +28,7 @@ foreach($case in $Cases){
     New-Item -ItemType Directory -Path $output|Out-Null
     $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
+    if($Cycle){$arguments+='--worldgen-npc-cycle'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
     & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor Rightmost
     @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor='Rightmost';build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $output 'owned-process.json')
