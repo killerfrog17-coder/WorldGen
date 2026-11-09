@@ -72,10 +72,16 @@ public sealed partial class LocalTerrainExplorer
         double delay=owner.NpcTravel(group).DelayCalendarDays;
         // Explicit coarse travel skip, not a claim of following every metre.
         // The packed inventories remain real saved possessions throughout.
-        owner.CaptureLivingHumans();Date(initial.JourneyEndDay+delay+.001*baseline.CalendarRate);
+        owner.CaptureLivingHumans();
+        // Exercise the real unload/reload boundary for the explicit coarse
+        // journey skip. Keeping nearby physical actors alive would instead
+        // require them to walk the remaining hundreds of metres in real time.
+        foreach(var actor in owner.livingPeople.Values.Where(p=>p.GroupId==band).ToArray())
+        {owner.CaptureLivingPerson(actor);owner.DestroyHuman(actor);owner.humanNpcs.Remove(actor);owner.livingPeople.Remove(actor.ResidentId);}
+        Date(initial.JourneyEndDay+delay+.001*baseline.CalendarRate);
         var probe=new HumanLocalLife(owner.sourceWorld,new Prehistory(owner.sourceWorld));int ordinal=unchecked((int)(uint)band)-1;
         var at=probe.Group(owner.sourceWorld.Prehistory,NpcCampWork.ItineraryClock(owner.LivingClock,delay),initial.Band.Cohort,ordinal);
-        if(owner.HumanDistance(owner.Position,at.Position)>500)owner.Teleport(at.Position);
+        owner.Teleport(at.Position);
         yield return Await(()=>group.Situation.Camp.Id!=oldSite&&group.CampLoaded,"The same community reaches its next terrain-validated camp after a coarse journey skip");
         long newSite=group.Situation.Camp.Id;
         var building=owner.Camp.Objects.Where(c=>c.NpcGroup==band&&c.NpcSite==newSite&&c.Blueprint!=null).ToArray();
