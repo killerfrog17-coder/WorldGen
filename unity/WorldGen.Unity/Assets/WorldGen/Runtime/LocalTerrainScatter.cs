@@ -30,11 +30,6 @@ public sealed partial class LocalTerrainExplorer
         public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();public int Count;public long Key;public bool CompactProperties;public ArtModel Model;public ShadowCastingMode Shadows;public Bounds Bounds;
         public Matrix4x4[][] PartMatrices;
     }
-    sealed class ScatterBatchComparer:IEqualityComparer<(long,int)>
-    {
-        public bool Equals((long,int) a,(long,int) b)=>a.Item1==b.Item1&&a.Item2==b.Item2;
-        public int GetHashCode((long,int) key)=>unchecked(((int)key.Item1^(int)(key.Item1>>32))*397^key.Item2);
-    }
     long scatterAppendAllocations,scatterAppendBuilds;
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
     Texture2DArray treeLeaves;

@@ -11,23 +11,6 @@ public sealed partial class LocalTerrainExplorer
 {
     struct NpcCoverProbe{public Vector4 Position,Color,Shape,Normal,Grasses,Herbs;}
     sealed class NpcScatterSlot{public ulong Id;public Matrix4x4 Matrix;public Vector4 Color,Fade;public Matrix4x4[] Parts;public float Wind;}
-    public sealed class NpcBatchLookupProof{public int Keys,Iterations;public long DefaultBytes,ExplicitBytes;public double DefaultMs,ExplicitMs;public int Checksum;}
-    static void CheckNpcBatchLookups(LocalTerrainExplorer owner,string output,List<string> checks)
-    {
-        var keys=owner.activeScatterBatches.Keys.ToArray();if(keys.Length==0)throw new InvalidOperationException("No actual scatter batch keys to test.");
-        var baseline=new Dictionary<(long,int),int>();var candidate=new Dictionary<(long,int),int>(new ScatterBatchComparer());
-        for(int i=0;i<keys.Length;i++){baseline.Add(keys[i],i);candidate.Add(keys[i],i);}
-        int Run(Dictionary<(long,int),int> map,out long allocated,out double milliseconds)
-        {
-            for(int i=0;i<3000;i++)map.TryGetValue(keys[i%keys.Length],out _);
-            long before=GC.GetAllocatedBytesForCurrentThread(),started=System.Diagnostics.Stopwatch.GetTimestamp();int sum=0;
-            for(int i=0;i<500000;i++){if(!map.TryGetValue(keys[i%keys.Length],out int value))throw new InvalidOperationException("Lost actual batch key");sum+=value;}
-            allocated=GC.GetAllocatedBytesForCurrentThread()-before;milliseconds=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;return sum;
-        }
-        var proof=new NpcBatchLookupProof{Keys=keys.Length,Iterations=500000};int first=Run(baseline,out proof.DefaultBytes,out proof.DefaultMs),second=Run(candidate,out proof.ExplicitBytes,out proof.ExplicitMs);proof.Checksum=first;
-        if(first!=second)throw new InvalidOperationException("Explicit scatter comparer changed actual key lookup results.");
-        File.WriteAllText(Path.Combine(output,"npc-batch-lookup-proof.json"),WorldJson.Write(proof));checks.Add("PASS Explicit and default batch key comparers return the same actual keys; allocation/timing recorded as Mono component evidence only");
-    }
     static void CheckNpcNaturalRemoval(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC SCATTER REMOVAL "+text);checks.Add("PASS "+text);}
@@ -127,6 +110,6 @@ public sealed partial class LocalTerrainExplorer
             finally{foreach(var buffer in visible)buffer?.Dispose();Destroy(shader);}
         }
         File.WriteAllText(Path.Combine(output,"camp-site-survey.txt"),group.SiteSurvey.Solids.Length+" natural solids; "+group.SiteSurvey.Milliseconds.ToString("F2")+"ms background; "+group.PlacementAttempt+" bounded candidate tests");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-removal-proof")){CheckNpcNaturalRemoval(owner,group,output,checks);CheckNpcBatchLookups(owner,output,checks);}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-removal-proof"))CheckNpcNaturalRemoval(owner,group,output,checks);
     }
 }

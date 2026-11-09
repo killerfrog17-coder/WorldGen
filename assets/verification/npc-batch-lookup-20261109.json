@@ -1,0 +1,14 @@
+{
+  "tested_build": "fa5282da",
+  "scope": "Unity Mono component only;500000dictionarylookups over177actualbatchkeys,notFPS",
+  "result": {
+    "Checksum": 43998100,
+    "DefaultBytes": 0,
+    "DefaultMs": 9.8582,
+    "ExplicitBytes": 0,
+    "ExplicitMs": 10.2524,
+    "Iterations": 500000,
+    "Keys": 177
+  },
+  "decision": "Explicit comparer rejected: bothallocate0bytes and candidate hasno meaningfultimingbenefit. Production comparer unchanged. Experimentalcode removed."
+}
