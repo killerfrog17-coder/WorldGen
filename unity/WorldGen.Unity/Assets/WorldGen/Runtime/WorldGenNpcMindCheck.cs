@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         yield return new WaitForSecondsRealtime(.5f);Check(actor.CurrentActivity==HumanActivity.Rest,"rest intention changes actual activity");
         yield return new WaitForSecondsRealtime(3);Check(!npcPlans.ContainsKey(actor.ResidentId),"temporary action expires and resumes schedule");
         npcModel.Config.ConversationTurns=2;npcModel.Config.Temperature=.2f;
-        string nonce="kelun"+UnityEngine.Random.Range(1000,9999),lastSpeech="";
+        string nonce="kelun"+new[]{"kavelo","miparu","nusami","vekani"}[UnityEngine.Random.Range(0,4)],lastSpeech="";
         var dialogueProof=new List<string>();
         IEnumerator Talk(string words)
         {

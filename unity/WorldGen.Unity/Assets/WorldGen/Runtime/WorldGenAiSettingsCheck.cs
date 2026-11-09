@@ -25,7 +25,8 @@ public sealed partial class WorldGenRuntime
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
         string originalPath=NpcModelClient.ConfigPath;byte[] original=File.ReadAllBytes(originalPath);var originalConfig=NpcModelClient.LoadSettings();
         NpcModelClient.TestSettingsPath=Path.Combine(output,"settings.json");
-        var suite=new DialogueQualitySuite{Passkey="talun"+new System.Random(Environment.TickCount).Next(1000,9999),Conditions="Same16turns/model, CUDA,hardware-aware Maxspeed preset,2recentexchanges,durableattributedstatements,temperature0.2,15FPSwhilebusy. Synthetic facts through the production client and prompt builder. Known answers must not also claim ignorance. Manual review remains necessary."};
+        var random=new System.Random(Environment.TickCount);var syllables=new[]{"ka","mi","ru","so","ve","ni","pa","lu"};
+        var suite=new DialogueQualitySuite{Passkey="talun"+syllables[random.Next(syllables.Length)]+syllables[random.Next(syllables.Length)]+syllables[random.Next(syllables.Length)],Conditions="Same16turns/model,random alphabetic secret WORD,CUDA,hardware-aware Maxspeed preset,2recentexchanges,durableattributedstatements,temperature0.2,15FPSwhilebusy. Synthetic facts through the production client and prompt builder. Known answers must not also claim ignorance. Manual review remains necessary."};
         void Save()=>File.WriteAllText(Path.Combine(output,"dialogue-quality.json"),JsonUtility.ToJson(suite,true));
         IEnumerator Wait(Task task)
         {double deadline=Time.realtimeSinceStartupAsDouble+240;while(!task.IsCompleted&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;}
