@@ -17,9 +17,10 @@ public sealed partial class LocalTerrainExplorer
         var people=livingPeople.Values.Where(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18&&p.Health>0).Take(2).ToArray();Check(people.Length==2,"Actual adult residents exist for local violence checks");
         var victim=people[0];var hidden=people[1];paused=true;
         void Place(HumanActor p,double x,double z,float yaw){p.Motor.Place(x,z,CampFloor(x,z));p.Planet=frame.Position(x,z);p.Root.transform.localPosition=new Vector3((float)(x-originX),(float)(p.Motor.Y-TerrainMotion.EyeHeightM),(float)(z-originZ));p.Yaw=p.TargetYaw=yaw;p.Root.transform.localRotation=Quaternion.Euler(0,yaw,0);p.CurrentActivity=HumanActivity.Watch;p.Threat=null;}
-        double x=victim.Motor.X,z=victim.Motor.Z;Place(victim,x,z,270);motion.Place(x-1.4,z,CampFloor(x-1.4,z));UpdateCamera();Place(hidden,x-5,z,90);
+        double x=victim.Motor.X,z=victim.Motor.Z;motion.Place(x-1.4,z,CampFloor(x-1.4,z));UpdateHumans();UpdateCamera();Place(victim,x,z,270);Place(hidden,x-5,z,90);
         var wall=new GameObject("Attack hidden witness fixture");wall.layer=27;wall.transform.SetParent(transform,false);wall.transform.localPosition=new Vector3((float)(x-originX-3),(float)(victim.Motor.Y-TerrainMotion.EyeHeightM)+1.5f,(float)(z-originZ));wall.AddComponent<BoxCollider>().size=new Vector3(.3f,5,8);Physics.SyncTransforms();
         var spear=HumanEquipment.Item(PossessionKind.WoodenSpear,victim.ResidentId,"defender-probe",victim.Planet);NpcOwnership.Assign(spear,victim.Resident,victim.GroupId);victim.Belongings.Items.Add(spear);NpcBelongings.Equip(victim.Belongings,new[]{spear},victim.Planet);PublishNpcGroundGoods(victim);
+        yield return null;foreach(var surface in humanCombatSurfaces.Values)surface.Frame=-1;
         int hiddenBefore=NpcMemoryFor(hidden.ResidentId).Social.EventSequence>int.MaxValue?0:NpcMemoryFor(hidden.ResidentId).Social.Incidents.Count;
         try
         {
@@ -30,6 +31,7 @@ public sealed partial class LocalTerrainExplorer
             Check(victim.Threat.Response==NpcDangerResponse.Defend&&victim.CurrentActivity==HumanActivity.Watch,"A healthy armed adult can stand and defend instead of universally fleeing");
             // The contact path uses the real weapon and posed collision surface.
             double before=Vitals.Health;PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();victim.NpcAttackAt=0;TryNpcDefensiveAttack(victim,victim.Threat);
+            File.WriteAllText(Path.Combine(output,"defence-contact.txt"),"visible="+victim.Threat.Visible+"; attacker="+victim.Threat.Human+"; player="+PlayerPropertyKey+"; eye="+NpcEye(victim)+"; target="+NpcThreatBody(PlayerPropertyKey,0,out _)+"; playerRoot="+humanPlayer.Root.transform.position+"; weapon="+victim.Belongings.QuickHeld?.Kind+"; attackAt="+victim.NpcAttackAt+"; health="+Vitals.Health);
             Check(Vitals.Health<before,"An NPC defensive strike with a real spear can hit the player's actual body");
             PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();
             int incidents=NpcMemoryFor(victim.ResidentId).Social.Incidents.Count;

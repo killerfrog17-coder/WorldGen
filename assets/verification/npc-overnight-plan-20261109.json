@@ -12,13 +12,13 @@
     },
     {
       "id": "possessions",
-      "status": "in_progress",
+      "status": "first_native_pass_15_checks; nested_container_and_natural_ledger_followup_core_pass_9_native_regression_pending",
       "scope": "Persistent real NPC inventories, owned camp goods and beds, task props from held items, physical transfer and red theft/trespass prompts, witnessed reactions.",
       "acceptance": "No item factory on task change. Repeated tasks/reloads conserve identities and quantities. Taking owned goods updates possession once and is known only to witnesses."
     },
     {
       "id": "social_response",
-      "status": "pending",
+      "status": "core_pass_9; native_local_assault_defence_death_test_running",
       "scope": "Directed trust/respect/grievances, moods, bravery, meaningful leadership, player membership/leadership foundations, witnessed attack/death, protective and collective responses.",
       "acceptance": "Child retreats; capable armed allies can protect each other. Bystanders remember actual attacker, victim and cause. No group-wide supernatural alarm or death knowledge."
     },
@@ -72,5 +72,11 @@
       "use": "Portable shelter materials, pole/cover combinations and camp construction; distinguish Paleolithic options from later pastoral transport."
     }
   ],
-  "monitor_policy": "Overnight Unity/player RIGHTMOST; final PDF Chrome LEFTMOST."
+  "monitor_policy": "Overnight Unity/player RIGHTMOST; final PDF Chrome LEFTMOST.",
+  "next_material_work": [
+    "Transfer existing physical fuel rather than producing fuel from the FireWoodKg counter.",
+    "Use actual loaded natural branches and flora products with the same collection/harvest ledgers as the player.",
+    "NPCs physically approach, work, carry and consume/feed the finite materials; no role-change item factory.",
+    "Cancel or preserve references when a crafting tool leaves its inventory; transfer container subtrees and natural identity together."
+  ]
 }

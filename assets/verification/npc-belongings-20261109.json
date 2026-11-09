@@ -1,0 +1,39 @@
+{
+  "checkpoint": "Persistent belongings and witnessed ownership",
+  "tested_build": "58694a2843b05c324891ad1c6a68b28be53987ca",
+  "native_exit": {
+    "finishedUtc": "/Date(1794222527566)/",
+    "exitCode": 0
+  },
+  "checks": [
+    "PASS Two actual adult residents exist",
+    "PASS The physical actor uses its saved inventory rather than a prop-only loadout",
+    "PASS Repeated visual task changes create or delete no actual goods",
+    "PASS Every displayed NPC possession is a real carried item",
+    "PASS A healthy resident's complete belongings survive session copying",
+    "PASS Personal belongings remain marked as another person's property",
+    "PASS An owned real ground item can actually be stolen",
+    "PASS A seeing owner remembers who took the specific item",
+    "PASS A resident behind a real wall does not learn the theft magically",
+    "PASS Possession changes physically while the original ownership remains recorded",
+    "PASS Witnessed theft changes mood and the directed relationship",
+    "PASS The aimed owned item uses the actual red theft-prompt style",
+    "PASS No possession ID exists in both the world and an NPC inventory",
+    "PASS Owned goods and social consequences validate after the real transfer",
+    "PASS captured session validates with conversation memories"
+  ],
+  "core_checks": {
+    "npc_individual": 10,
+    "npc_belongings": 9,
+    "npc_social_response": 9
+  },
+  "limits": [
+    "First native pass predates the nested-container/natural-ledger conservation correction, which has two additional core checks and awaits combined native regression.",
+    "No actual private bed was loaded at this foraging-site fixture; private-bed rules are core-tested, not claimed native-tested.",
+    "Campfire supply still uses the old synthetic stock and is the next material-work change.",
+    "These capped functional checks are not FPS evidence."
+  ],
+  "artifacts": "artifacts/npc-overnight-20261109/social-v1-belongings",
+  "owner_ai_settings_sha256": "b9cad371276c552ae499d818272577acf90efea8de2678eacf47126aa61dbed0",
+  "window": "Rightmost DISPLAY3, verified at 2072,50"
+}
