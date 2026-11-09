@@ -10,6 +10,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public string Purpose="";public ScatterInstance Plant;public ForageProduct Product;public Possession Loose;
         public V Point;public bool Natural,Grass,Delivering;public double Work,SearchAt,Needed=30;
+        public CampBlueprint Construction;public string ConstructionKey="";
     }
     int npcMaterialSearchFrame=-1;int npcMaterialSearches,npcMaterialHarvests,npcMaterialFeeds,npcMaterialMeals,npcMaterialFlakes;
     double NpcWorkSeconds(float dt)=>dt*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
@@ -34,7 +35,8 @@ public sealed partial class LocalTerrainExplorer
         if(npcMaterialSearchFrame==Time.frameCount||actor.SimulationAge<task.SearchAt)return false;
         npcMaterialSearchFrame=Time.frameCount;npcMaterialSearches++;task.SearchAt=actor.SimulationAge+3+HumanHash(actor.ResidentId)%20*.1;
         task.Purpose=purpose;task.Natural=false;task.Grass=false;task.Loose=null;task.Product=null;task.Work=0;
-        bool Match(Possession p)=>purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p);
+        var construction=purpose=="shelter"?task.Construction:null;var component=construction==null?null:CampBlueprints.Components(construction).FirstOrDefault(c=>c.Key==task.ConstructionKey);
+        bool Match(Possession p)=>component!=null?CampBlueprints.Suitable(construction,component,p):p.CampMaterial==0&&(purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p));
         var community=livingGroups[actor.GroupId];bool wild=actor.CurrentActivity==HumanActivity.GatherFuel||actor.CurrentActivity==HumanActivity.GatherPlants;
         if(community.MaterialStockRadius<=0||community.MaterialStockSite!=community.Situation.Camp.Id)
         {community.MaterialStockSite=community.Situation.Camp.Id;community.MaterialStockRadius=HumanCampLayout.Radius(community.Residents,community.Situation.Camp.Id,sourceWorld.Recipe.Seed)+5;}
@@ -52,24 +54,31 @@ public sealed partial class LocalTerrainExplorer
                 foreach(int i in group.Indices)
                 {
                     var plant=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-here).sqrMagnitude;if(distance>=best||CollectedRock(plant)||CampClearedPlant(plant))continue;
-                    if(purpose=="fuel")
+                    if(purpose=="fuel"||component!=null&&component.Kg==0)
                     {
-                        if(plant.Kind!=ScatterKind.Branch)continue;var branch=RockPossession(plant);if(branch.MassKg>4||branch.MassKg<.025)continue;
+                        if(plant.Kind!=ScatterKind.Branch)continue;var branch=RockPossession(plant);if(component!=null?!Match(branch):branch.MassKg>4||branch.MassKg<.025)continue;
                         task.Plant=plant;task.Product=null;task.Point=plant.Position;task.Natural=true;task.Needed=8;best=distance;continue;
                     }
                     if(plant.Kind!=ScatterKind.GeneratedTree&&plant.Kind!=ScatterKind.MidPlant&&!IsSpecialist(plant.Kind))continue;
                     if(++considered>128)break;
-                    var product=NpcPlantProducts(plant).FirstOrDefault(p=>(purpose=="food"?p.KcalPerKg>0:NpcMaterialUse.Tinder(p.Kind))&&NpcProductReady(actor,plant,p));
+                    bool ProductKind(ForageProduct p)=>component!=null?component.Kind==CampPartKind.Cover&&(construction.Cover==CampCover.Bark?p.Kind==PossessionKind.BarkSheet:construction.Cover==CampCover.Reed?p.Kind==PossessionKind.ReedBundle:construction.Cover==CampCover.Brush&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle)):purpose=="food"?p.KcalPerKg>0:NpcMaterialUse.Tinder(p.Kind);
+                    var product=NpcPlantProducts(plant).FirstOrDefault(p=>ProductKind(p)&&NpcProductReady(actor,plant,p));
                     if(product==null)continue;
                     task.Plant=plant;task.Product=product;task.Point=plant.Position;task.Natural=true;task.Needed=product.Kind==PossessionKind.EdibleRoot?120:35;best=distance;
                 }
             }
         }
         if(task.Natural)return true;
-        if(purpose=="tinder")
+        if(purpose=="tinder"||component?.Kind==CampPartKind.Cover&&construction.Cover==CampCover.Brush)
         {
             var sample=walkingPatch.Sample(actor.Planet);var record=ToolResource("grass-"+GroundWorkKey(actor.Planet));
             if(CampGrassAvailable(here,sample)&&(record.HarvestYear!=ForageYear||record.Harvests<3)){task.Grass=true;task.Point=actor.Planet;task.Needed=40;return true;}
+            if(component!=null)for(int k=0;k<6;k++)
+            {
+                double angle=(HumanHash(actor.ResidentId)%628)*.01+k*Math.PI/3,x=actor.Motor.X+Math.Cos(angle)*18,z=actor.Motor.Z+Math.Sin(angle)*18;var point=frame.Position(x,z);var ground=walkingPatch.Sample(point);var used=ToolResource("grass-"+GroundWorkKey(point));
+                var local=new Vector3((float)(x-originX),(float)(CampFloor(x,z)),(float)(z-originZ));
+                if((used.HarvestYear!=ForageYear||used.Harvests<3)&&CampGrassAvailable(local,ground)){task.Grass=true;task.Point=point;task.Needed=40;return true;}
+            }
         }
         return false;
     }
@@ -125,7 +134,7 @@ public sealed partial class LocalTerrainExplorer
             bool needsFine=!fire.Burning&&fire.EmberSeconds<=0&&fire.Materials.Where(CampRules.Kindling).Sum(p=>p.MassKg)<.1;
             purpose=needsTinder?"tinder":needsFine?"kindling":fire.FuelKg<1.4?"fuel":!fire.Burning&&!NpcMaterialUse.HasIgnitionKit(actor.Belongings)?"kit":"";
             if(purpose=="kindling"&&NpcSplitKindling(actor,dt)){target=actor.Planet;return true;}
-            bool Match(Possession p)=>purpose=="tinder"?CampRules.Tinder(p):purpose=="kindling"?CampRules.Kindling(p)&&NpcMaterialUse.Fuel(p):purpose=="fuel"?NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p):false;
+            bool Match(Possession p)=>p.CampMaterial==0&&(purpose=="tinder"?CampRules.Tinder(p):purpose=="kindling"?CampRules.Kindling(p)&&NpcMaterialUse.Fuel(p):purpose=="fuel"?NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p):false);
             var material=actor.Belongings.Items.FirstOrDefault(p=>actor.Belongings.Carried(p)&&Match(p));
             if(material!=null)
             {
@@ -170,7 +179,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool NpcSplitKindling(HumanActor actor,float dt)
     {
-        var stock=actor.Belongings;var branch=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.Kind==PossessionKind.Branch&&p.WidthM<=.06&&p.WidthM>.025);if(branch==null)return false;
+        var stock=actor.Belongings;var branch=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.CampMaterial==0&&p.Kind==PossessionKind.Branch&&p.WidthM<=.06&&p.WidthM>.025);if(branch==null)return false;
         var job=stock.Crafts.FirstOrDefault(j=>j.RecipeId=="split-kindling");
         if(job==null||!job.Running){if(!PortableCrafting.Plan(stock,stock.Items.Where(stock.Carried),PortableCrafting.Recipe("split-kindling"),branch.Id,out var plan,out _))return false;job=PortableCrafting.Start(stock,plan);}
         actor.TaskDetail="splitting actual wood into thin kindling";actor.TaskWaiting=false;

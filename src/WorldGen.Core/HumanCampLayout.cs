@@ -67,7 +67,7 @@ namespace WorldGen.Core
             if(homes.Length==0)return new V();var sum=new V();foreach(long h in homes)sum+=HouseholdOffset(people,h,site,seed);
             return sum/homes.Length*(people.Residence==ForagerResidence.CollectorCamps?.96:people.Residence==ForagerResidence.AquaticResidence?.85:.42);
         }
-        public static CampObject[] Create(HumanGroupSituation group,ForagerBandSample people,V anchor,double radiusM,int seed,double campSeconds=0)
+        public static CampObject[] Create(HumanGroupSituation group,ForagerBandSample people,V anchor,double radiusM,int seed,double campSeconds=0,bool supplyMaterials=true)
         {
             var result=new List<CampObject>();long band=group.Band.Id,site=group.Camp.Id;
             string prefix="npc-"+band.ToString("x")+"-"+site.ToString("x");
@@ -111,18 +111,18 @@ namespace WorldGen.Core
                         {plan=CampBlueprints.Create(CampDesign.LongHut,Math.Max(3,plan.WidthM),Math.Min(8,places*1.7/.75/Math.Max(3,plan.WidthM)),plan.Cover);shelter.Blueprint=plan;}
                     }
                     floorW=plan.WidthM;floorD=plan.DepthM;
-                    FillShelter(shelter,completion);
-                    if(plan.Parts.Count>0)result.Add(shelter);
+                    if(supplyMaterials)FillShelter(shelter,completion);
+                    if(plan.Parts.Count>0||!supplyMaterials)result.Add(shelter);
                 }
-                if(completion>.25)
+                if(completion>.25||!supplyMaterials)
                 {
                     var bed=Object(CampKind.Bedding,"bed-"+household.Key,position);bed.Heading=bearing*180/Math.PI;
                     bed.NpcHousehold=household.Key;
                     bed.ClearedWidthM=floorW;bed.ClearedDepthM=floorD;
-                    bed.Materials.Add(Item(group.Camp.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass,position,"bed-"+household.Key,.9+Math.Min(5,household.Count())*.5));result.Add(bed);
+                    if(supplyMaterials)bed.Materials.Add(Item(group.Camp.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass,position,"bed-"+household.Key,.9+Math.Min(5,household.Count())*.5));result.Add(bed);
                 }
             }
-            if(group.Band.Techniques[5]&&completion>.1)
+            if(group.Band.Techniques[5]&&(completion>.1||!supplyMaterials))
             {
                 int hearths=Math.Max(1,(int)Math.Ceiling(households.Length/3d));
                 for(int k=0;k<hearths;k++)
@@ -135,7 +135,7 @@ namespace WorldGen.Core
                     fire.Materials.Add(Item(PossessionKind.KindlingBundle,position,"hearth-"+k+"-kindling",.18));
                     var wood=Item(PossessionKind.Branch,position,"hearth-"+k+"-wood",2.4);wood.HeightM=.4;wood.WidthM=.04;wood.DepthM=.04;fire.Materials.Add(wood);
                     bool active=group.LocalHour<8||group.LocalHour>16||group.Camp.Cover==CampCover.Hide;
-                    fire.Burning=active&&group.Phase!=HumanCampPhase.Packing;fire.EmberSeconds=active?3600:1600;result.Add(fire);
+                    fire.Burning=supplyMaterials&&active&&group.Phase!=HumanCampPhase.Packing;fire.EmberSeconds=supplyMaterials?(active?3600:1600):0;if(!supplyMaterials){fire.Materials.Clear();fire.AshKg=0;}result.Add(fire);
                 }
             }
             foreach(var obj in result)foreach(var material in obj.OwnedMaterials()){material.OwnerGroup=band;material.OwnerHousehold=obj.NpcHousehold;material.OwnerName=people.Name;}

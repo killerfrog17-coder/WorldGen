@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
         Check(PlayerRules.Identity.Person.Mother==original.Person.Mother&&PlayerRules.Identity.Person.Father==original.Person.Father&&PlayerRules.Identity.Person.Partner==original.Person.Partner,"Joining preserves ancestry and existing family relationships");
         Check(originalIds.All(id=>Inventory.Find(id)!=null)&&Inventory.Items.Select(p=>p.Id).Distinct().Count()==Inventory.Items.Count,"Joining neither creates a replacement loadout nor loses carried possessions");
         Check(group.Residents.Members.Count(p=>p.Id==person)==1,"The joined resident occurs once in the local roster");
+        var hostTie=NpcMemoryFor(host.ResidentId).Social.Tie(person,PlayerRules.SolarDays);hostTie.Trust=.7;hostTie.Respect=.6;hostTie.Grievance=hostTie.Fear=0;
         var endorsement=new NpcDecision{action="endorse",target="player"};Check(ApplyNpcCommunityDecision(host,endorsement)&&NpcCoordinator(group)!=person,"One valid endorsement records support without making the player chief");
         local.LeaderCandidate=person;local.LeaderSupport=group.Residents.Members.Where(p=>p.AgeYears>=18&&p.Id!=person).Select(p=>p.Id).ToList();
         Check(NpcCommunityRules.Elect(local,group.Residents,EffectiveNpcCulture(group),person)&&NpcCoordinator(group)==person,"A controlled majority of actual adult members establishes the new coordinator");

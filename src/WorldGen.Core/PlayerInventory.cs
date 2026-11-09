@@ -17,6 +17,7 @@ namespace WorldGen.Core
     {
         public string Id="",ContainerId="";
         [System.Runtime.Serialization.OptionalField] public long OwnerPerson,OwnerGroup,OwnerHousehold;
+        [System.Runtime.Serialization.OptionalField] public long CampMaterial;
         [System.Runtime.Serialization.OptionalField] public string OwnerName;
         [System.Runtime.Serialization.OptionalField] public string BoundContainerId;
         public PossessionKind Kind;

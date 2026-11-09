@@ -63,7 +63,7 @@ namespace WorldGen.Core
             IEnumerable<Possession> items=inventory.Items;
             if(role=="WorkKnapping")return items.Where(p=>StoneCrafting.Rock(p)).OrderByDescending(p=>p.MassKg).Take(2).ToArray();
             if(role=="SpearReady1")return items.Where(p=>p.Kind==PossessionKind.WoodenSpear||p.Kind==PossessionKind.StoneTippedSpear||p.Kind==PossessionKind.BoneTippedSpear).Take(1).ToArray();
-            if(role=="CarryLarge"||role=="FuelTend")return items.Where(p=>p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.KindlingBundle||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.TinderBundle).Take(1).ToArray();
+            if(role=="CarryLarge"||role=="FuelTend")return items.Where(p=>p.CampMaterial==0&&(p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.KindlingBundle||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.TinderBundle)).Take(1).ToArray();
             if(role=="ToolReady")return items.Where(p=>p.Kind==PossessionKind.WovenBasket||p.Kind==PossessionKind.DiggingStick).OrderBy(p=>p.Kind==PossessionKind.WovenBasket?0:1).Take(1).ToArray();
             if(role=="Eat")return items.Where(Foraging.Food).Take(1).ToArray();
             if(role=="Drink"||role=="WaterCarry")return items.Where(p=>p.Kind==PossessionKind.HidePouch||p.Kind==PossessionKind.BarkContainer).Take(1).ToArray();

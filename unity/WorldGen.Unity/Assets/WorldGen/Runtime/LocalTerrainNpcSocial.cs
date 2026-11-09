@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
             var kin=band.Members.Where(p=>p.Id!=subject.Id).Select(p=>(person:p,relation:ForagerSocialLife.Relationship(subject,p,band))).Where(p=>p.relation!="a fellow band member"&&p.relation!="a member of your household").Take(8);
             text.Append(subject.Id==actor.ResidentId?" YOUR known relatives here: ":" SPEAKER's known relatives here: ");foreach(var k in kin)text.Append(k.person.Name).Append(" is ").Append(k.relation.Replace("your ",subject.Id==actor.ResidentId?"your ":"their ")).Append("; ");
         }
-        var situation=group.Situation;double days=(situation.DepartureDay-LivingClock.CalendarDay)/LivingClock.CalendarRate;
+        var situation=group.Situation;double itineraryDelay=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId)?.Travel?.DelayCalendarDays??0;double days=(situation.DepartureDay+itineraryDelay-LivingClock.CalendarDay)/LivingClock.CalendarRate;
         text.Append(" Current camp phase: ").Append(situation.Phase).Append('.');
         if(situation.PermanentBase)text.Append(" This is a long-term base; no departure is currently planned.");
         else if(situation.Phase==HumanCampPhase.Travelling)text.Append(" Your group is moving to the next seasonal camp.");

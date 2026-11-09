@@ -21,7 +21,7 @@ namespace WorldGen.Core
             if(People.Select(p=>p.Person).Distinct().Count()!=People.Count||Camps.Select(c=>c.Site).Distinct().Count()!=Camps.Count||Groups.Select(g=>g.Group).Distinct().Count()!=Groups.Count)throw new ArgumentException("Duplicate local human identity.");
             foreach(var p in People)if(p.Person<=0||!double.IsFinite(p.Health)||p.Health<0||p.Health>100||!double.IsFinite(p.SolarDays)||p.SolarDays<0||!double.IsFinite(p.Position.Length)||p.Position.Length>0&&Math.Abs(p.Position.Length-1)>1e-5)throw new ArgumentException("Invalid local person memory.");
             foreach(var p in People){p.Inventory?.Validate();p.Nutrition?.Validate();if(!double.IsFinite(p.NextMealSolarDay)||p.NextMealSolarDay<0)throw new ArgumentException("Invalid local meal time.");}
-            foreach(var g in Groups){g.Community?.Validate();if(!double.IsFinite(g.Trust)||g.Trust< -1||g.Trust>1||!double.IsFinite(g.Fear)||g.Fear<0||g.Fear>1||!double.IsFinite(g.AlarmUntilSolarDay)||!double.IsFinite(g.FireWoodKg)||g.FireWoodKg<0||g.FireWoodKg>1000||!double.IsFinite(g.SuppliesUpdatedSolarDay)||g.SuppliesUpdatedSolarDay< -1||g.FuelContributions<0)throw new ArgumentException("Invalid group relationship/supply memory.");}
+            foreach(var g in Groups){g.Travel?.Validate();g.Community?.Validate();if(!double.IsFinite(g.Trust)||g.Trust< -1||g.Trust>1||!double.IsFinite(g.Fear)||g.Fear<0||g.Fear>1||!double.IsFinite(g.AlarmUntilSolarDay)||!double.IsFinite(g.FireWoodKg)||g.FireWoodKg<0||g.FireWoodKg>1000||!double.IsFinite(g.SuppliesUpdatedSolarDay)||g.SuppliesUpdatedSolarDay< -1||g.FuelContributions<0)throw new ArgumentException("Invalid group relationship/supply memory.");}
             foreach(var c in Camps){if(c.Objects==null||!double.IsFinite(c.LastSolarDay)||!double.IsFinite(c.AbandonedCalendarDay)||c.AbandonedCalendarDay< -1||!double.IsFinite(c.LastDecayCalendarDay)||c.LastDecayCalendarDay< -1||!double.IsFinite(c.Position.Length)||Math.Abs(c.Position.Length-1)>1e-5)throw new ArgumentException("Invalid visited camp.");new CampState{Objects=c.Objects}.Validate();}
         }
     }
@@ -46,6 +46,7 @@ namespace WorldGen.Core
         public long Group;public double Trust,Fear,AlarmUntilSolarDay,LastSolarDay;public V ThreatPosition;
         public double FireWoodKg,SuppliesUpdatedSolarDay=-1;public int FuelContributions;
         [System.Runtime.Serialization.OptionalField] public NpcCommunityState Community;
-        public HumanGroupMemory Copy(){var copy=(HumanGroupMemory)MemberwiseClone();copy.Community=Community?.Copy();return copy;}
+        [System.Runtime.Serialization.OptionalField] public NpcCampTravel Travel;
+        public HumanGroupMemory Copy(){var copy=(HumanGroupMemory)MemberwiseClone();copy.Community=Community?.Copy();copy.Travel=Travel?.Copy();return copy;}
     }
 }

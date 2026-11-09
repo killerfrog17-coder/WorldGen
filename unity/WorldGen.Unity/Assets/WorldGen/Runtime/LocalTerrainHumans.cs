@@ -37,6 +37,7 @@ public sealed partial class LocalTerrainExplorer
         public int GearVisualHash=int.MinValue;
         public NpcThreat Threat;public double NpcAttackAt,NpcAttackStarted=-10;
         public NpcMaterialTask MaterialTask;
+        public NpcCampTask CampTask;
         public double LoadAt,CarriedKg;
         public NpcDailyState Daily;
         public bool NpcCrouching;

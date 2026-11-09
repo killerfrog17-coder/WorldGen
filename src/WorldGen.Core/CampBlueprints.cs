@@ -172,6 +172,14 @@ namespace WorldGen.Core
         {
             if(!double.IsFinite(seconds)||seconds<0)throw new ArgumentException("Invalid construction work.");
             var c=Components(p).FirstOrDefault(c=>c.Key==key);if(c==null||c.Stage!=Stage(p)||!HasMaterial(p,c))return 0;
+            return WorkContribution(p,c,seconds);
+        }
+        // The physical NPC worker retains its immutable component geometry;
+        // callers check stage readiness before entering this allocation-free path.
+        public static double WorkContribution(CampBlueprint p,CampComponent c,double seconds)
+        {
+            if(!double.IsFinite(seconds)||seconds<0)throw new ArgumentException("Invalid construction work.");
+            if(c==null||!HasMaterial(p,c))return 0;
             var s=State(p,c);double work=Math.Min(seconds,c.Seconds-s.WorkSeconds);s.WorkSeconds+=work;if(work>0&&s.WorkSeconds>=c.Seconds)p.Revision++;return work;
         }
         public static double CoverFraction(CampBlueprint p)

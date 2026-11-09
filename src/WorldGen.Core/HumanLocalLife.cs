@@ -62,7 +62,7 @@ namespace WorldGen.Core
             {plans.Clear();spatialCandidates=null;domain=state.DomainToken;planYear=year;planScale=clock.HorizontalScale;planDay=clock.DayMinutes;planCalendar=clock.CalendarRate;}
             snapshot=state;
         }
-        public HumanGroupSituation[] Nearby(PrehistoryState state,HumanLifeClock clock,V observer,double radiusM=50000)
+        public HumanGroupSituation[] Nearby(PrehistoryState state,HumanLifeClock clock,V observer,double radiusM=50000,System.Collections.Generic.IReadOnlyDictionary<long,double> localDelays=null)
         {
             if(!Prehistory.Foraging(state)||radiusM<0)return Array.Empty<HumanGroupSituation>();Rebase(state,clock);
             // Cache a conservative wider footprint query. Exact current camp
@@ -79,7 +79,12 @@ namespace WorldGen.Core
             foreach(var band in candidates)
             {
                 retained.Add(band.Id);if(!plans.TryGetValue(band.Id,out var plan))plans[band.Id]=plan=MakePlan(state,band,clock);
-                var group=Situation(plan,clock);group.DistanceToPlayerM=Angle(observer,group.Position)*world.Recipe.RadiusKm*1000*clock.HorizontalScale;
+                double delay=localDelays!=null&&localDelays.TryGetValue(band.Id,out var held)?held:0;
+                var group=Situation(plan,NpcCampWork.ItineraryClock(clock,delay));
+                // Holding an observed departure changes the itinerary, not the
+                // actual sun, weather, ages or the rest of the world's history.
+                if(delay>0){double hour=clock.SolarDays*24+9+(Math.Atan2(group.Position.Y,group.Position.X)*180/Math.PI-clock.PrimeLongitude)/15;group.LocalHour=(hour%24+24)%24;}
+                group.DistanceToPlayerM=Angle(observer,group.Position)*world.Recipe.RadiusKm*1000*clock.HorizontalScale;
                 // Include the camp catchment: a foraging party can be near the
                 // observer even while the hearth is several hundred metres away.
                 if(group.DistanceToPlayerM<=radiusM+ForageRadius(group,clock))found.Add(group);
