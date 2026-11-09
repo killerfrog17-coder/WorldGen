@@ -47,5 +47,12 @@
     "tested_build": "535ddc46",
     "caption": "Later simulated world:17-person collector band,seven brush huts,annualmean-1.13C. This view is not a winter-exposure test.",
     "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "coastal-reed-camp": {
+    "file": "coastal-reed-camp.jpg",
+    "source": "artifacts/npc-20261103/npc-coast-confirm-v2-evening/camp-first.png",
+    "tested_build": "29f29aef",
+    "caption": "35-person aquatic-residence band;ten reed-covered long-hut plans at20:00. Actualcoastal district(Coast1,River.57),laterworldyear120000.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
   }
 }
