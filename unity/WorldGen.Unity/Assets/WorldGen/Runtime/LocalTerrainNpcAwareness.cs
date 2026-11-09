@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var eye=NpcEye(actor);var delta=target-eye;double distance=delta.magnitude;if(distance>maximum)return false;if(distance<.1)return true;
         if(distance>3&&Vector3.Dot(actor.Root.transform.forward,delta.normalized)<-.1f)return false;
-        if(TraceCombatObstacle(new Ray(eye,delta.normalized),Math.Max(0,distance-.15),checkGround:false)!=null)return false;
+        if(TraceCombatObstacle(new Ray(eye,delta.normalized),(float)Math.Max(0,distance-.15),checkGround:false)!=null)return false;
         var from=transform.InverseTransformPoint(eye);var to=transform.InverseTransformPoint(target);double depth=0;
         for(int i=0;i<8;i++)
         {
