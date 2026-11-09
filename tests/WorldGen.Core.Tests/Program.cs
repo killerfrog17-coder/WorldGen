@@ -11,6 +11,7 @@ if(args.Contains("--npc-material-use")){NpcMaterialUseTests.Run();return;}
 if(args.Contains("--human-daily-life")){HumanDailyLifeTests.Run();return;}
 if(args.Contains("--npc-community")){NpcCommunityTests.Run();return;}
 if(args.Contains("--npc-camp-work")){NpcCampWorkTests.Run();return;}
+if(args.Contains("--npc-camp-architecture")){HumanCampArchitectureTests.Run();return;}
 if(args.Contains("--npc-ai-settings")){NpcAiSettingsTests.Run();return;}
 if(args.Contains("--world-entry")){WorldEntryTests.Run(args[1],args[2]);return;}
 if(args.Contains("--forest-pruning-sites")){ForestPruningSites.Prepare(args[1],args[2]);return;}

@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
     NpcCampTravel NpcTravel(LivingGroup group)
     {var record=NpcGroupRecord(group.Situation.Band.Id);return record.Travel??(record.Travel=new NpcCampTravel());}
     bool NpcCarryCampPoles(LivingGroup group)
-        =>sourceWorld.Prehistory.Foragers.Districts[group.Residents.District].Canopy<.2||group.Situation.Camp.Design==CampDesign.ConicalTent;
+        =>group.Situation.Camp.CarryPoles||sourceWorld.Prehistory.Foragers.Districts[group.Residents.District].Canopy<.2||group.Situation.Camp.Design==CampDesign.ConicalTent;
     bool NpcCampNeedsPacking(LivingGroup group)
         =>Camp.Objects.Any(c=>c.NpcGroup==group.Situation.Band.Id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&NpcCampParts(c).Any(p=>NpcCampWork.Portable(c.Blueprint,p,NpcCarryCampPoles(group))&&CampBlueprints.State(c.Blueprint,p)?.Materials.Count>0));
     bool HoldNpcCampDeparture(LivingGroup group,HumanGroupSituation incoming)

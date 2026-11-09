@@ -17,7 +17,7 @@ namespace WorldGen.Core
     public sealed class HumanCampSite
     {
         public long Id;public int Index,Cell;public V Position;public double ShelterWidth,ShelterDepth,WaterAccess,FoodOpportunity;
-        public CampDesign Design;public CampCover Cover;public string Purpose="";public bool LongStay,ShelterAvailable;
+        public CampDesign Design;public CampCover Cover;public string Purpose="";public bool LongStay,ShelterAvailable,CarryPoles;
     }
     public sealed class HumanGroupSituation
     {
@@ -120,14 +120,11 @@ namespace WorldGen.Core
                 int cell=source.Cell;double best=-2;foreach(int candidate in d.Cells){double dot=RawDot(position,world.Surface.Cells[candidate].Position);if(dot>best){best=dot;cell=candidate;}}
                 var local=ForagerHabitat.For(world,state).Cell(cell);var h=local?.Habitat??world.Ecology.Habitat[cell];
                 bool cold=h.ColdTenthsC<0,longStay=permanent||culture.Residence==ForagerResidence.CollectorCamps||culture.Residence==ForagerResidence.AquaticResidence;
-                bool hides=Has(6)&&Has(35);
-                CampCover cover=cold&&hides?CampCover.Hide:d.River>.3&&Has(36)?CampCover.Reed:d.Canopy>.45&&Has(3)&&d.AnnualRainMm>900?CampCover.Bark:d.Aridity<.4&&hides?CampCover.Hide:CampCover.Brush;
-                bool framed=Has(7)&&(Has(34)||Has(31));bool stoneScreen=!framed&&d.Stone>.62&&Unit(band.Id,world.Recipe.Seed,"stone-windbreak",i)<.45;
-                CampDesign design=framed?cold&&cover==CampCover.Hide?CampDesign.ConicalTent:longStay&&d.Canopy>.2?CampDesign.BrushHut:d.AnnualRainMm>1200?CampDesign.RidgeTent:CampDesign.LeanTo:stoneScreen?CampDesign.StoneWindbreak:CampDesign.Windbreak;
+                var architecture=HumanCampArchitecture.Select(culture,d,h,band.Techniques,source.Season,longStay);
                 // Religion/preferences affect shared meeting space and camp
                 // organisation; there is no universal hereditary chief's house.
                 double communal=D.Clamp(belief.CollectiveRites*culture.GuestAccess);
-                sites[i]=new HumanCampSite{Id=SiteId(band.Id,i),Index=i,Cell=cell,Position=position,Design=design,Cover=cover,LongStay=longStay,ShelterAvailable=framed||stoneScreen,
+                sites[i]=new HumanCampSite{Id=SiteId(band.Id,i),Index=i,Cell=cell,Position=position,Design=architecture.Design,Cover=architecture.Cover,LongStay=longStay,ShelterAvailable=architecture.Available,CarryPoles=architecture.CarryPoles,
                     ShelterWidth=2.1+.5*communal+.3*Unit(band.Id,world.Recipe.Seed,"camp-width",i),ShelterDepth=2.4+.5*Unit(band.Id,world.Recipe.Seed,"camp-depth",i),
                     WaterAccess=local?.WaterAccess??source.WaterAccess,FoodOpportunity=source.FoodOpportunity,Purpose=source.Purpose};
                 weights[i]=.65+.7*Unit(band.Id,world.Recipe.Seed,"camp-stay",i);
