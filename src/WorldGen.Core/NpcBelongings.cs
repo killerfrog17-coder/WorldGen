@@ -31,7 +31,7 @@ namespace WorldGen.Core
             if(destination.Items.Any(p=>ids.Contains(p.Id)))throw new ArgumentException("Possession already exists at destination.");
             source.Crafts.RemoveAll(j=>ids.Any(id=>PortableCrafting.Affects(j,id)));
             foreach(var item in items)
-            {source.Items.Remove(item);destination.Items.Add(item);if(item.NaturalId!=0&&!destination.CollectedNatural.Contains(item.NaturalId))destination.CollectedNatural.Add(item.NaturalId);}
+            {source.Items.Remove(item);destination.Items.Add(item);foreach(var material in new[]{item}.Concat(item.BundledMaterials??Enumerable.Empty<Possession>()))if(material.NaturalId!=0&&!destination.CollectedNatural.Contains(material.NaturalId))destination.CollectedNatural.Add(material.NaturalId);}
             return items.ToArray();
         }
         public static bool TaskItem(Possession p,string role)

@@ -123,10 +123,11 @@ public sealed partial class LocalTerrainExplorer
         if(band.Techniques!=null)for(int i=0;i<Math.Min(band.Techniques.Length,ForagerTechnology.All.Length);i++)if(band.Techniques[i])s.Append(ForagerTechnology.All[i].Name).Append(", ");
         s.Append(". Available targets: ").Append(string.Join(", ",targets)).Append('.');
         foreach(var id in targets.Where(t=>t.StartsWith("person:")))if(long.TryParse(id.Substring(7),out long person)&&livingPeople.TryGetValue(person,out var other))s.Append(' ').Append(id).Append(" is ").Append(other.Resident.Name).Append(other.GroupId==actor.GroupId?" (nearby band member).":" (nearby visitor).");
-        var speakerPerson=NpcSpeaker(actor,item.Speaker,out bool sameBand);
-        string relation=sameBand?ForagerSocialLife.Relationship(actor.Resident,speakerPerson,band):"no confirmed relationship";
+        var speakerPerson=NpcSpeaker(actor,item.Speaker,out bool knownSpeaker);
+        bool sameBand=item.Speaker==0?PlayerRules.Identity?.Group==actor.GroupId:livingPeople.TryGetValue(item.Speaker,out var speakingPeer)&&speakingPeer.GroupId==actor.GroupId;
+        string relation=knownSpeaker?ForagerSocialLife.Relationship(actor.Resident,speakerPerson,band):"no confirmed relationship";
         string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer?.Definition?.Variant):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible.Definition?.Variant):"not available";
-        s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,sameBand,appearance));
+        s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,knownSpeaker,appearance));
         s.Append(" SPEAKER relationship to YOU: ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; speaker target ID=").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
         s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(NpcBelongingsContext(actor));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
         return s.ToString();

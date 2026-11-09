@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
         if(actor.Bones==null)actor.Bones=actor.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
         int signature=17,count=0;
         if(actor.Belongings!=null)foreach(var item in actor.Belongings.Items)if(item.Place==PossessionPlace.RightHand||item.Place==PossessionPlace.LeftHand||PortableTechnology.Worn(item.Place))
-        {signature=unchecked(signature*31+item.Id.GetHashCode()*7+(int)item.Place*13+(int)item.Kind);count++;}
+        {signature=unchecked(signature*31+item.Id.GetHashCode()*7+(int)item.Place*13+(int)item.Kind+(item.Kind==PossessionKind.CampBundle?item.Variant*17:0));count++;}
         if(actor.GearVisualHash!=signature||actor.NpcProps.Count!=count)
         {
             ClearNpcProps(actor);actor.GearVisualHash=signature;actor.PropRole=role;

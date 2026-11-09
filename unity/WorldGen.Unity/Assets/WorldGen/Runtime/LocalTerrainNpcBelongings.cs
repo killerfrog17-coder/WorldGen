@@ -40,7 +40,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(Inventory.Carried(item)||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage||item.Place==PossessionPlace.Container&&item.OwnerPerson!=actor.ResidentId||Inventory.Crafts.Any(j=>j.Running&&PortableCrafting.Affects(j,item.Id)))return false;
         var culture=EffectiveNpcCulture(livingGroups[actor.GroupId]);
-        return NpcOwnership.Allowed(item,actor.ResidentId,actor.GroupId,actor.Resident.Household,culture.FoodSharing)&&HumanDistance(NpcWorldItemPosition(item),actor.Planet)<35;
+        bool campWork=item.CampMaterial==actor.GroupId&&item.OwnerGroup==actor.GroupId&&item.OwnerPerson==0&&(actor.CurrentActivity==HumanActivity.BuildCamp||actor.CurrentActivity==HumanActivity.PackCamp||actor.CurrentActivity==HumanActivity.RepairShelter);
+        return (campWork||NpcOwnership.Allowed(item,actor.ResidentId,actor.GroupId,actor.Resident.Household,culture.FoodSharing))&&HumanDistance(NpcWorldItemPosition(item),actor.Planet)<35;
     }
     bool AcquireNpcItem(HumanActor actor,Possession item)
     {

@@ -27,7 +27,8 @@ public sealed partial class WorldGenRuntime
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)
         {if(worldEntryError.Length>0)throw new InvalidOperationException(worldEntryError);yield return null;}
         if(terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)throw new InvalidOperationException("NPC test ground failed to load");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check"))yield return terrainExplorer.CheckNpcCampWork(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-dialogue-check"))yield return terrainExplorer.CheckNpcGroundedDialogue(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check"))yield return terrainExplorer.CheckNpcCampWork(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-community-check"))yield return terrainExplorer.CheckNpcCommunity(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-social-check"))yield return terrainExplorer.CheckNpcSocialActions(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-daily-check"))yield return terrainExplorer.CheckNpcDailyLife(output,report);

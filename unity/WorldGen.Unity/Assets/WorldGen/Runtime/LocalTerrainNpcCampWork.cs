@@ -49,7 +49,13 @@ public sealed partial class LocalTerrainExplorer
         {actor.TaskWaiting=false;actor.TaskDetail="carrying the family's actual shelter materials to the next camp";return true;}
         bool building=group.CampLoaded&&(routine.Activity==HumanActivity.BuildCamp||routine.Activity==HumanActivity.RepairShelter||routine.Activity==HumanActivity.Craft);
         if(!packing&&!building){actor.CampTask=null;return false;}
-        var task=actor.CampTask??(actor.CampTask=new NpcCampTask());
+        bool beginning=actor.CampTask==null;var task=actor.CampTask??(actor.CampTask=new NpcCampTask());
+        if(packing&&(beginning||!task.Packing)){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);}
+        if(building&&!packing)
+        {
+            var bundle=actor.Belongings.Items.FirstOrDefault(p=>actor.Belongings.Carried(p)&&p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId);
+            if(bundle!=null){target=LivingHouse(actor)?.Position??group.Anchor;actor.TaskDetail="bringing and opening the actual bound shelter materials";actor.TaskWaiting=false;if(HumanDistance(actor.Planet,target)<2){NpcCampWork.Unbundle(actor.Belongings,bundle,actor.Planet);PublishNpcGroundGoods(actor);}return true;}
+        }
         CampObject shelter=Camp.Objects.FirstOrDefault(c=>c.Id==task.Object&&c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id);
         CampComponent part=shelter?.Blueprint==null?null:NpcCampParts(shelter).FirstOrDefault(c=>c.Key==task.Part);
         if(task.Packing!=packing||part==null||packing&&CampBlueprints.State(shelter.Blueprint,part)?.Materials.Count==0||!packing&&CampBlueprints.Done(shelter.Blueprint,part))
@@ -66,7 +72,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(shelter==null||part==null)
         {
-            if(packing){actor.TaskDetail="finished packing this household's shelter; waiting for the others";actor.TaskWaiting=false;target=group.Anchor;return true;}
+            if(packing){if(RecoverNpcCampCargo(actor,dt,ref target))return true;actor.TaskDetail="finished packing this household's shelter; waiting for the others";actor.TaskWaiting=false;target=group.Anchor;return true;}
             actor.CampTask=null;return false;
         }
         routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=packing?HumanActivity.PackCamp:HumanActivity.BuildCamp,Position=shelter.Position,Destination=shelter.Position};actor.CurrentActivity=routine.Activity;
@@ -81,6 +87,7 @@ public sealed partial class LocalTerrainExplorer
                 bool carried=stock.CarriedMassKg<28&&(NpcBelongings.Pack(stock,material)||stock.Hold(material.Id,out _));
                 if(!carried){material.Place=PossessionPlace.Ground;material.ContainerId="";material.GroundOffsetM=.04;material.GroundRotation=new V(90,0,0);}
             }
+            NpcCampWork.Bundle(actor.Belongings,actor.GroupId,shelter.NpcHousehold,actor.Planet,actor.Resident.AgeYears<16?12:24);
             PublishNpcGroundGoods(actor);npcCampPacked++;InvalidateCampVisual(shelter);task.Object=task.Part="";task.Work=0;task.ChooseAt=actor.SimulationAge+.2;StoreLivingCamp(group);return true;
         }
         var blueprint=shelter.Blueprint;
@@ -109,5 +116,23 @@ public sealed partial class LocalTerrainExplorer
         TerrainHandoff.Coordinates(frame,shelter.Position,out double x,out double z);double yaw=shelter.Heading*Math.PI/180;V p=part.Points.Aggregate(new V(),(a,b)=>a+b)/Math.Max(1,part.Points.Length);
         double length=Math.Sqrt(p.X*p.X+p.Z*p.Z),scale=length>.1?(length+.55)/length:0;double east=p.X*scale,north=p.Z*scale;
         return frame.Position(x+east*Math.Cos(yaw)+north*Math.Sin(yaw),z+north*Math.Cos(yaw)-east*Math.Sin(yaw));
+    }
+    bool RecoverNpcCampCargo(HumanActor actor,float dt,ref V target)
+    {
+        var stock=actor.Belongings;var bundle=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&stock.Carried(p));
+        double limit=actor.Resident.AgeYears<16?12:24;
+        var loose=Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&NpcCanUseWorldItem(actor,p)&&
+            (p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.Kind!=PossessionKind.CampBundle&&(bundle==null||bundle.MassKg+p.MassKg<=limit)||p.OwnerPerson==actor.ResidentId&&p.CampMaterial==0))
+            .OrderBy(p=>p.OwnerPerson==actor.ResidentId?1:0).ThenBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();
+        if(loose==null)return false;target=loose.Position;actor.TaskWaiting=false;actor.TaskDetail="collecting the household's real packed belongings before leaving";
+        if(HumanDistance(target,actor.Planet)>1.7)return true;
+        actor.CampTask.Work+=NpcWorkSeconds(dt);if(actor.CampTask.Work<15)return true;actor.CampTask.Work=0;
+        if(loose.CampMaterial==actor.GroupId)
+        {
+            NpcBelongings.TransferTree(Inventory,stock,loose);NpcCampWork.Bundle(stock,actor.GroupId,actor.Resident.Household,actor.Planet,limit);
+            if(stock.Items.Contains(loose)&&!NpcBelongings.Pack(stock,loose))stock.Hold(loose.Id,out _);PublishNpcGroundGoods(actor);
+        }
+        else if(!AcquireNpcItem(actor,loose))return false;
+        return true;
     }
 }

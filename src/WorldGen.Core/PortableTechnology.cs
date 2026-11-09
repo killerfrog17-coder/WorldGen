@@ -97,7 +97,8 @@ namespace WorldGen.Core
             D(PossessionKind.FibreBelt,"Fibre belt",PortableForm.Belt,.15,.05,.15,.12,sw:4,sh:5,wear:PossessionPlace.Waist,aliases:"belt|fiber belt"),
             D(PossessionKind.HideBelt,"Hide belt",PortableForm.Belt,.15,.05,.15,.16,sw:4,sh:5,wear:PossessionPlace.Waist),
             D(PossessionKind.NeedleCase,"Bone needle case",PortableForm.Case,.04,.14,.04,.06,sw:1,sh:2,aliases:"needle case"),
-            D(PossessionKind.KnifeSheath,"Hide knife sheath",PortableForm.Case,.07,.3,.03,.09,sw:1,sh:3,wear:PossessionPlace.Waist,aliases:"sheath|knife sheath")
+            D(PossessionKind.KnifeSheath,"Hide knife sheath",PortableForm.Case,.07,.3,.03,.09,sw:1,sh:3,wear:PossessionPlace.Waist,aliases:"sheath|knife sheath"),
+            D(PossessionKind.CampBundle,"Bound shelter materials",PortableForm.Frame,.25,2,.25,.1,wear:PossessionPlace.Shoulder,hands:2)
         };
         static readonly Dictionary<PossessionKind,PortableItem> byKind=Items.ToDictionary(p=>p.Kind);
         public static PortableItem Item(PossessionKind kind)=>byKind.TryGetValue(kind,out var item)?item:null;

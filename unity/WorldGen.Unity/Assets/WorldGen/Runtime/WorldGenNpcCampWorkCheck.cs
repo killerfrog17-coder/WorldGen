@@ -40,6 +40,12 @@ public sealed partial class LocalTerrainExplorer
         Check(ids.SequenceEqual(BeforeIds())&&Math.Abs(mass-Mass())<1e-8,"Reassembly conserves the same material identities and mass");
         var newCamp=HumanCampLayout.Create(group.Situation,group.Residents,group.Anchor,frame.RadiusM,sourceWorld.Recipe.Seed,Camp.SimulatedSeconds,false);
         Check(newCamp.Any(c=>c.Blueprint!=null)&&newCamp.All(c=>!c.OwnedMaterials().Any()),"An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel");
+        var available=NpcCampParts(workedShelter);var tie=available.FirstOrDefault(c=>c.Kind==CampPartKind.Binding&&CampBlueprints.State(workedShelter.Blueprint,c)?.Materials.Count>0);var poles=available.Where(c=>(c.Kind==CampPartKind.Post||c.Kind==CampPartKind.Beam||c.Kind==CampPartKind.Rib)&&CampBlueprints.State(workedShelter.Blueprint,c)?.Materials.Count>0).Take(2).ToArray();
+        Check(tie!=null&&poles.Length==2,"The actual shelter has real lashing and poles for the bound-load check");
+        var bundleIds=new List<string>();foreach(var part in poles.Concat(new[]{tie}))foreach(var p in NpcCampWork.Remove(workedShelter,part.Key)){bundleIds.Add(p.Id);actor.Belongings.Items.Add(p);}
+        var bundle=NpcCampWork.Bundle(actor.Belongings,actor.GroupId,workedShelter.NpcHousehold,actor.Planet);Check(bundle!=null&&bundle.Place==PossessionPlace.Shoulder&&bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Actual recovered poles and lashing become one carried bound load with their exact contents preserved");
+        UpdateNpcProps(actor,group,ActualNpcCarryRole(actor));Check(actor.NpcProps.Any(p=>p.Item==bundle&&p.Back&&p.Root.GetComponentsInChildren<Renderer>().Length>=2),"The bound load appears on the actual person using the existing material models");
+        StoreLivingCamp(group);CaptureLivingPerson(actor);InvalidateCampVisual(workedShelter);
         LivingState.Copy().Validate();Check(true,"Physical camp work and local itinerary state validate for saving");
         actor.Routine=routine;group.Situation.Phase=initialPhase;npcThoughts=true;
         motion.Place(actor.Motor.X-5,actor.Motor.Z+2,CampFloor(actor.Motor.X-5,actor.Motor.Z+2));humanCamera.Restore(0,false);UpdateHumans();

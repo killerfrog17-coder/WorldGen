@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack,Corpse,CampStorage }
-    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet }
+    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle }
     [Serializable] public sealed class NaturalToolRecord
     {
         public string Id="";public double Work;public int Bark,Branches,Digging;
@@ -18,6 +18,7 @@ namespace WorldGen.Core
         public string Id="",ContainerId="";
         [System.Runtime.Serialization.OptionalField] public long OwnerPerson,OwnerGroup,OwnerHousehold;
         [System.Runtime.Serialization.OptionalField] public long CampMaterial;
+        [System.Runtime.Serialization.OptionalField] public List<Possession> BundledMaterials;
         [System.Runtime.Serialization.OptionalField] public string OwnerName;
         [System.Runtime.Serialization.OptionalField] public string BoundContainerId;
         public PossessionKind Kind;
@@ -59,7 +60,7 @@ namespace WorldGen.Core
         public int PackedHeight=>Rotated?CellsWide:CellsHigh;
         public int ContainerWidth=>Kind==PossessionKind.TestBag?6:PortableTechnology.Item(Kind)?.StorageWidth??0;
         public int ContainerHeight=>Kind==PossessionKind.TestBag?7:PortableTechnology.Item(Kind)?.StorageHeight??0;
-        public Possession Copy(){var p=(Possession)MemberwiseClone();p.MaterialOrigins=MaterialOrigins?.Select(x=>x.Copy()).ToList();return p;}
+        public Possession Copy(){var p=(Possession)MemberwiseClone();p.MaterialOrigins=MaterialOrigins?.Select(x=>x.Copy()).ToList();p.BundledMaterials=BundledMaterials?.Select(x=>x.Copy()).ToList();return p;}
     }
     /// <summary>Physical ownership, independently of UI/terrain LOD or historical world state.</summary>
     [Serializable]
@@ -172,7 +173,9 @@ namespace WorldGen.Core
                 if(item.AppearanceSpecies!=null&&(item.AppearanceSpecies.Length>80||item.AppearanceSpecies.Any(c=>!char.IsLetterOrDigit(c)&&c!='-'&&c!='_'))||item.AppearanceCoat<0||item.AppearanceCoat>4095||item.MaterialOrigins!=null&&item.MaterialOrigins.Any(o=>o==null||o.Species==null||o.Species.Length>80||o.Coat<0||o.Coat>4095))throw new ArgumentException("Invalid material provenance.");
                 if(!Finite(item.UseDamage)||item.UseDamage<0||item.UseDamage>1)throw new ArgumentException("Invalid item wear.");
                 if(item.OwnerPerson<0||item.OwnerGroup<0||item.OwnerHousehold<0||item.OwnerName!=null&&item.OwnerName.Length>80)throw new ArgumentException("Invalid item ownership.");
-                Foraging.ValidateFood(item);
+                Foraging.ValidateFood(item);NpcCampWork.ValidateBundle(item);
+                foreach(var part in item.BundledMaterials??Enumerable.Empty<Possession>())
+                {if(!ids.Add(part.Id)||part.NaturalId!=0&&(!natural.Add(part.NaturalId)||!CollectedNatural.Contains(part.NaturalId)))throw new ArgumentException("Duplicate or unrecorded bundled material.");}
                 if(!Finite(item.DryingSeconds)||item.DryingSeconds<0||item.CampOwner!=null&&item.CampOwner.Length>80)throw new ArgumentException("Invalid stored food or camp ownership.");
                 if(!Finite(item.WoodStraightness)||item.WoodStraightness<0||item.WoodStraightness>1||!Finite(item.WoodSoundness)||item.WoodSoundness<0||item.WoodSoundness>1)throw new ArgumentException("Invalid wood traits.");
                 if(!Finite(item.GroundVelocity.Length)||!Finite(item.GroundSpin.Length)||!Finite(item.AttachedLocalPoint.Length)||!Finite(item.AttachedDirection.Length)||item.AttachedBone<0||item.AttachedBone>=128||item.AttachedHuman<0)throw new ArgumentException("Invalid projectile pose.");
