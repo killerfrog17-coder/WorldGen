@@ -12,15 +12,18 @@ public sealed partial class LocalTerrainExplorer
 {
     public sealed class NpcPerformanceRow
     {
-        public string Mode;public int Residents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
+        public string Mode;public int Residents,MinResidents,MaxResidents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
         public double MeanNpcMs,P95NpcMs,P99NpcMs,MaxNpcMs,MeanFrameMs,P95FrameMs,P99FrameMs,MaxFrameMs,BackgroundQueryMs;
         public int UnfocusedFrames,Over10Ms,Over1667Ms,Width,Height,TreeQuality;public double Seconds,ViewDistanceM;public string Route;
         public double[] MeanStagesMs;
     }
     static IEnumerator MeasureLivingHumans(LocalTerrainExplorer owner,string output)
     {
-        double deadline=Time.realtimeSinceStartupAsDouble+180;
-        while((!owner.AllReady||owner.scatterJobs.Count>0||owner.installingScatter!=null||owner.scatterChunks.Count<Math.Min(4,owner.scatterWanted.Count))&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        double deadline=Time.realtimeSinceStartupAsDouble+300;
+        if(Math.Abs(owner.viewDistance-6000)>.01)throw new InvalidOperationException("NPC benchmark view distance is not the requested 6000 metres: "+owner.viewDistance);
+        while((!owner.AllReady||owner.installingScatter!=null||owner.scatterChunks.Count<Math.Min(4,owner.scatterWanted.Count))&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        File.WriteAllText(Path.Combine(output,"performance-readiness.txt"),owner.CheckStreamingState+"; ready="+owner.AllReady+"; view="+owner.viewDistance);
+        if(!owner.AllReady)throw new InvalidOperationException("NPC benchmark did not finish initial terrain loading; no FPS data accepted.");
         int cap=Application.targetFrameRate;Application.targetFrameRate=-1;var report=new List<NpcPerformanceRow>();
         var arguments=Environment.GetCommandLineArgs();int option=Array.IndexOf(arguments,"--worldgen-npc-perf-seconds");double duration=30;
         if(option>=0&&option+1<arguments.Length)duration=Math.Max(5,Math.Min(180,double.Parse(arguments[option+1],System.Globalization.CultureInfo.InvariantCulture)));
@@ -38,11 +41,11 @@ public sealed partial class LocalTerrainExplorer
             foreach(var actor in owner.livingPeople.Values){actor.Root.SetActive(mode!="no-residents");if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(mode!="no-residents");}
             Debug.Log("NPC performance begins "+mode+" / "+owner.livingPeople.Count+" residents / "+owner.tiles.Count+" tiles; ready "+owner.AllReady);
             double warmUntil=Time.realtimeSinceStartupAsDouble+2;while(Time.realtimeSinceStartupAsDouble<warmUntil){CameraAt(0);yield return null;}
-            var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous;int unfocused=0;
+            var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous;int unfocused=0,minPeople=owner.livingPeople.Count,maxPeople=minPeople;
             while(Time.realtimeSinceStartupAsDouble-start<duration)
-            {CameraAt(Time.realtimeSinceStartupAsDouble-start);yield return null;double now=Time.realtimeSinceStartupAsDouble;ticks.Add(owner.livingTickMs);frames.Add((now-previous)*1000);previous=now;if(!Application.isFocused)unfocused++;for(int k=0;k<stages.Length;k++)stages[k]+=owner.livingCosts[k];}
+            {CameraAt(Time.realtimeSinceStartupAsDouble-start);if(mode=="no-residents")foreach(var resident in owner.livingPeople.Values)if(resident.Root.activeSelf)resident.Root.SetActive(false);yield return null;minPeople=Math.Min(minPeople,owner.livingPeople.Count);maxPeople=Math.Max(maxPeople,owner.livingPeople.Count);double now=Time.realtimeSinceStartupAsDouble;ticks.Add(owner.livingTickMs);frames.Add((now-previous)*1000);previous=now;if(!Application.isFocused)unfocused++;for(int k=0;k<stages.Length;k++)stages[k]+=owner.livingCosts[k];}
             for(int k=0;k<stages.Length;k++)stages[k]/=ticks.Count;
-            ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
+            ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route="Radius24m scenic camp orbit; same path and duration per mode"});
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         }

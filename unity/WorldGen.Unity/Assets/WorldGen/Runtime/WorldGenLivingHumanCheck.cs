@@ -60,6 +60,7 @@ public sealed partial class LocalTerrainExplorer
         var producer=new TerrainMeshProcess(workerPath,world,scale,Path.GetFullPath(path));
         var setup=Task.Run(()=>{producer.Prepare(default);return LocalTerrainDerivationCache.Create(world,horizontalScale:scale);});
         bool performance=Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf");
+        TerrainVideoOptions.Current.ViewDistanceM=performance?6000:1800;TerrainVideoOptions.Revision++;
         if(performance){TerrainVideoOptions.ApplyAllPlantQuality(2);TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.SurfaceQuality=2;TerrainVideoOptions.SurfaceTextures=true;}
         var owner=new GameObject("Living human actual-terrain fixture").AddComponent<LocalTerrainExplorer>();owner.viewDistance=performance?6000:1800;
         owner.Initialize(setup,chosen.Position,()=>{},world,play,worker:producer);
