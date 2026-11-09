@@ -21,6 +21,12 @@ static class NpcBelongingsTests
         Check(NpcOwnership.BedAllowed(bed,7,2)&&!NpcOwnership.BedAllowed(bed,7,3)&&!NpcOwnership.BedAllowed(bed,8,2),"Family sleeping places respect actual group and household membership");
         var state=new HumanLocalState();state.People.Add(new HumanPersonMemory{Person=191,Group=7,Position=new V(1,0,0),Inventory=stock});state.Validate();var copy=state.Copy();copy.People[0].Inventory.Items.Clear();
         Check(state.People[0].Inventory.Items.Count==count,"NPC belongings deep-copy independently");
+        var source=new PlayerInventory();var destination=new PlayerInventory();var bag=PortableTechnology.Create(PossessionKind.WovenBasket,new V(1,0,0));bag.Place=PossessionPlace.Ground;source.Items.Add(bag);
+        var natural=HumanEquipment.Item(PossessionKind.SmallRock,92,"r",new V(1,0,0));natural.NaturalId=71;natural.Place=PossessionPlace.Container;natural.ContainerId=bag.Id;source.Items.Add(natural);source.CollectedNatural.Add(71);
+        bag.Place=PossessionPlace.RightHand;NpcBelongings.TransferTree(source,destination,bag);source.Validate();destination.Validate();
+        Check(source.Items.Count==0&&destination.Items.Count==2&&destination.CollectedNatural.Contains(71),"Picking up a filled container transfers its contents and natural-collection identity atomically");
+        bag.Place=PossessionPlace.Ground;NpcBelongings.TransferTree(destination,source,bag);source.Validate();destination.Validate();
+        Check(source.Items.Count==2&&destination.Items.Count==0&&source.Items.Single(p=>p.NaturalId==71).ContainerId==bag.Id,"Putting the same container back conserves its contents and packing");
         Console.WriteLine("NPC belongings checks PASS: "+n);
     }
 }

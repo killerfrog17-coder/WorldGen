@@ -14,6 +14,7 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckNpcMindRuntime()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;var report=new List<string>();
+        Application.logMessageReceived+=(message,trace,type)=>{if(type==LogType.Exception){File.WriteAllLines(Path.Combine(output,"unhandled-test-exception.txt"),new[]{message,trace});Application.Quit(1);}};
         SetDisplayOptions(false,30,false); // Functional QA does not need uncapped rendering or persisted display changes.
         string profile=Argument("--worldgen-ai-profile","");
         if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);

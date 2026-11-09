@@ -22,6 +22,18 @@ namespace WorldGen.Core
     // Initial conditions are generated once. Tasks rearrange these same goods.
     public static class NpcBelongings
     {
+        public static Possession[] TransferTree(PlayerInventory source,PlayerInventory destination,Possession root)
+        {
+            if(source==destination||!source.Items.Contains(root))throw new ArgumentException("Missing source possession.");
+            var ids=new HashSet<string>{root.Id};var items=new List<Possession>{root};
+            for(int i=0;i<items.Count;i++)foreach(var child in source.Items)
+                if(child.Place==PossessionPlace.Container&&child.ContainerId==items[i].Id&&ids.Add(child.Id))items.Add(child);
+            if(destination.Items.Any(p=>ids.Contains(p.Id)))throw new ArgumentException("Possession already exists at destination.");
+            source.Crafts.RemoveAll(j=>ids.Any(id=>PortableCrafting.Affects(j,id)));
+            foreach(var item in items)
+            {source.Items.Remove(item);destination.Items.Add(item);if(item.NaturalId!=0&&!destination.CollectedNatural.Contains(item.NaturalId))destination.CollectedNatural.Add(item.NaturalId);}
+            return items.ToArray();
+        }
         public static bool TaskItem(Possession p,string role)
             =>role=="WorkKnapping"?StoneCrafting.Rock(p):role=="SpearReady1"?p.Kind==PossessionKind.WoodenSpear||p.Kind==PossessionKind.StoneTippedSpear||p.Kind==PossessionKind.BoneTippedSpear:role=="CarryLarge"||role=="FuelTend"?p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.KindlingBundle||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.TinderBundle:role=="ToolReady"?p.Kind==PossessionKind.WovenBasket||p.Kind==PossessionKind.DiggingStick:role=="Eat"?Foraging.Food(p):role=="Drink"||role=="WaterCarry"?p.Kind==PossessionKind.HidePouch||p.Kind==PossessionKind.BarkContainer:false;
         public static PlayerInventory Seed(ForagerPersonSample person,ForagerBandSample band,V position)

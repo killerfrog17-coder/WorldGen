@@ -75,6 +75,7 @@ public sealed partial class WorldGenRuntime
                     foreach(var item in stock.Items.Where(p=>p.Place==PossessionPlace.Ground).ToArray())NpcBelongings.Pack(stock,item);
                 }
                 foreach(var item in stock.Items)if(session.Inventory.Find(item.Id)==null)session.Inventory.Items.Add(item);
+                foreach(var natural in stock.CollectedNatural)if(!session.Inventory.CollectedNatural.Contains(natural))session.Inventory.CollectedNatural.Add(natural);
                 memory.Inventory=new PlayerInventory{PlayerName=entry.Identity.Person.Name};
             }
             session.Validate();if(diagnostic)Debug.Log("ENTRY prepared "+session.Mode+" / resident="+(session.Identity?.Person.Id??0));return session;

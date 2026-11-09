@@ -28,8 +28,7 @@ public sealed partial class LocalTerrainExplorer
         var stock=actor.Belongings;if(stock==null)return;
         bool changed=false;foreach(var ground in stock.Items.Where(i=>i.Place==PossessionPlace.Ground).ToArray())
         {
-            var transfer=new List<Possession>{ground};for(int j=0;j<transfer.Count;j++)foreach(var child in stock.Items.Where(p=>p.Place==PossessionPlace.Container&&p.ContainerId==transfer[j].Id))if(!transfer.Contains(child))transfer.Add(child);
-            foreach(var item in transfer){stock.Items.Remove(item);if(Inventory.Find(item.Id)==null)Inventory.Items.Add(item);changed=true;}
+            NpcBelongings.TransferTree(stock,Inventory,ground);changed=true;
         }
         if(changed)inventoryNearbyAt=0;
     }
@@ -39,15 +38,17 @@ public sealed partial class LocalTerrainExplorer
     }
     bool NpcCanUseWorldItem(HumanActor actor,Possession item)
     {
-        if(Inventory.Carried(item)||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage||item.Place==PossessionPlace.Container&&item.OwnerPerson!=actor.ResidentId)return false;
+        if(Inventory.Carried(item)||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage||item.Place==PossessionPlace.Container&&item.OwnerPerson!=actor.ResidentId||Inventory.Crafts.Any(j=>j.Running&&PortableCrafting.Affects(j,item.Id)))return false;
         var culture=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[actor.GroupId].Residents.Culture];
         return NpcOwnership.Allowed(item,actor.ResidentId,actor.GroupId,actor.Resident.Household,culture.FoodSharing)&&HumanDistance(NpcWorldItemPosition(item),actor.Planet)<35;
     }
     bool AcquireNpcItem(HumanActor actor,Possession item)
     {
         if(!NpcCanUseWorldItem(actor,item)||HumanDistance(NpcWorldItemPosition(item),actor.Planet)>1.7)return false;
-        var stock=actor.Belongings;stock.Items.Add(item);if(!stock.Hold(item.Id,out _)&&!NpcBelongings.Pack(stock,item)){stock.Items.Remove(item);return false;}
-        Inventory.Items.Remove(item);if(item.OwnerPerson==0&&item.OwnerGroup==0)NpcOwnership.Assign(item,actor.Resident,actor.GroupId);RemoveDroppedBody(item.Id);DestroyInventoryVisual(inventoryVisuals.TryGetValue(item.Id,out var root)?root:null);inventoryVisuals.Remove(item.Id);inventoryNearbyAt=0;return true;
+        var stock=actor.Belongings;stock.Items.Add(item);bool fits=stock.Hold(item.Id,out _)||NpcBelongings.Pack(stock,item);stock.Items.Remove(item);if(!fits)return false;
+        foreach(var moved in NpcBelongings.TransferTree(Inventory,stock,item))
+        {if(moved.OwnerPerson==0&&moved.OwnerGroup==0)NpcOwnership.Assign(moved,actor.Resident,actor.GroupId);RemoveDroppedBody(moved.Id);DestroyInventoryVisual(inventoryVisuals.TryGetValue(moved.Id,out var root)?root:null);inventoryVisuals.Remove(moved.Id);}
+        inventoryNearbyAt=0;return true;
     }
     void PrepareNpcTaskGear(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
     {

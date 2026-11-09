@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
         void Place(HumanActor p,double x,double z,float yaw){p.Motor.Place(x,z,CampFloor(x,z));p.Planet=frame.Position(x,z);p.Root.transform.localPosition=new Vector3((float)(x-originX),(float)(p.Motor.Y-TerrainMotion.EyeHeightM),(float)(z-originZ));p.Yaw=p.TargetYaw=yaw;p.Root.transform.localRotation=Quaternion.Euler(0,yaw,0);p.CurrentActivity=HumanActivity.Watch;p.Threat=null;}
         double x=victim.Motor.X,z=victim.Motor.Z;Place(victim,x,z,270);motion.Place(x-1.4,z,CampFloor(x-1.4,z));UpdateCamera();Place(hidden,x-5,z,90);
         var wall=new GameObject("Attack hidden witness fixture");wall.layer=27;wall.transform.SetParent(transform,false);wall.transform.localPosition=new Vector3((float)(x-originX-3),(float)(victim.Motor.Y-TerrainMotion.EyeHeightM)+1.5f,(float)(z-originZ));wall.AddComponent<BoxCollider>().size=new Vector3(.3f,5,8);Physics.SyncTransforms();
-        var spear=PortableTechnology.Create(PossessionKind.WoodenSpear,victim.Planet);spear.Id="defender-probe-"+victim.ResidentId;NpcOwnership.Assign(spear,victim.Resident,victim.GroupId);victim.Belongings.Items.Add(spear);NpcBelongings.Equip(victim.Belongings,new[]{spear},victim.Planet);PublishNpcGroundGoods(victim);
+        var spear=HumanEquipment.Item(PossessionKind.WoodenSpear,victim.ResidentId,"defender-probe",victim.Planet);NpcOwnership.Assign(spear,victim.Resident,victim.GroupId);victim.Belongings.Items.Add(spear);NpcBelongings.Equip(victim.Belongings,new[]{spear},victim.Planet);PublishNpcGroundGoods(victim);
         int hiddenBefore=NpcMemoryFor(hidden.ResidentId).Social.EventSequence>int.MaxValue?0:NpcMemoryFor(hidden.ResidentId).Social.Incidents.Count;
         try
         {
