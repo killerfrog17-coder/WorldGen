@@ -30,6 +30,7 @@ public sealed partial class LocalTerrainExplorer
         public double AnimationAt,VisitorCheckAt,WorkSoundAt;public bool SeesVisitor;public GameObject WorkProp;
         public double SimulationAge,PoseAge,AvoidUntil;public float AvoidYaw;
         public float PoseGroundLift;
+        public double NavigationX,NavigationZ;
         public Collider NpcWallCollider;public float NpcWallSide;public double NpcWallUntil;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";
         public HumanActivity CurrentActivity;

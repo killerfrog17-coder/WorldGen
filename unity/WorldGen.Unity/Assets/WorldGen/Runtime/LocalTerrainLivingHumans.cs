@@ -349,7 +349,7 @@ public sealed partial class LocalTerrainExplorer
         string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);
         var house=LivingHouse(actor);
-        bool doorway=house!=null&&LivingDoorwayGoal(actor,house,ref tx,ref tz);
+        bool doorway=house!=null&&LivingDoorwayGoal(actor,house,ref tx,ref tz);actor.NavigationX=tx;actor.NavigationZ=tz;
         cost=LivingCost(0,cost);
         if(dt>0)
         {
@@ -367,7 +367,7 @@ public sealed partial class LocalTerrainExplorer
                 // Slow down while turning, particularly near a precise work or
                 // entrance target. Otherwise a walking-speed minimum makes a
                 // small target unreachable because the actor circles around it.
-                if(actor.TargetSpeed>0)actor.TargetSpeed*=Mathf.Clamp01((Mathf.Cos(Mathf.DeltaAngle(actor.Yaw,actor.TargetYaw)*Mathf.Deg2Rad)+.05f)/.6f);
+
             }
             // Unfamiliar visitors attract a look, not supernatural detection or
             // an immediate full-speed flight response. Aggression raises alarm.
@@ -375,6 +375,9 @@ public sealed partial class LocalTerrainExplorer
             if(!alarm&&PlayerRules.Identity?.Group!=actor.GroupId&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
                 actor.TargetYaw=(float)(Math.Atan2(motion.X-actor.Motor.X,motion.Z-actor.Motor.Z)*180/Math.PI);
             if(actor.SimulationAge<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
+            // Turning slowdown follows the chosen avoidance heading too; using
+            // the blocked goal heading can stop all lateral escape movement.
+            if(actor.TargetSpeed>0)actor.TargetSpeed*=Mathf.Clamp01((Mathf.Cos(Mathf.DeltaAngle(actor.Yaw,actor.TargetYaw)*Mathf.Deg2Rad)+.05f)/.6f);
             if(actor.SimulationAge>=actor.LoadAt){actor.LoadAt=actor.SimulationAge+.25;actor.CarriedKg=actor.Belongings?.CarriedMassKg??0;}
             actor.TargetSpeed*=(float)(1/(1+Math.Pow(Math.Max(0,actor.CarriedKg-8)/25,1.5)));
             ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35)*(1+actor.CarriedKg/30),CurrentWeather.TemperatureC);

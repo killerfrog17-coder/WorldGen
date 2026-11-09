@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public string Purpose="";public ScatterInstance Plant;public ForageProduct Product;public Possession Loose;
         public V Point;public bool Natural,Grass,Delivering;public double Work,SearchAt,Needed=30;
-        public CampBlueprint Construction;public string ConstructionKey="";public int Deliveries;public string[] LastDelivered=Array.Empty<string>();
+        public CampBlueprint Construction;public string ConstructionKey="";public CampObject WorkFire;public V WorkPoint;public double WorkPointUntil;public int Deliveries;public string[] LastDelivered=Array.Empty<string>();
     }
     readonly NpcMaterialAdmission npcMaterialAdmission=new NpcMaterialAdmission();int npcMaterialSearches,npcMaterialHarvests,npcMaterialFeeds,npcMaterialMeals,npcMaterialFlakes;
     double NpcWorkSeconds(float dt)=>dt*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
@@ -210,7 +210,28 @@ public sealed partial class LocalTerrainExplorer
         if(result!=null&&result.Place==PossessionPlace.Ground){stock.Items.Remove(result);NpcCarryProduced(actor,result);}return true;
     }
     V NpcFireWorkPoint(HumanActor actor,CampObject fire)
-    {TerrainHandoff.Coordinates(frame,fire.Position,out double x,out double z);double angle=HumanHash(actor.ResidentId)%628/100d;return frame.Position(x+Math.Cos(angle)*1.3,z+Math.Sin(angle)*1.3);}
+    {
+        var task=actor.MaterialTask; if(task.WorkFire==fire&&actor.SimulationAge<task.WorkPointUntil)return task.WorkPoint;
+        TerrainHandoff.Coordinates(frame,fire.Position,out double x,out double z);double ground=CampFloor(x,z);
+        bool Clear(V point)
+        {
+            TerrainHandoff.Coordinates(frame,point,out double px,out double pz);
+            foreach(var shelter in Camp.Objects)
+            {
+                if(shelter.Blueprint==null||HumanDistance(shelter.Position,point)>12)continue;
+                TerrainHandoff.Coordinates(frame,shelter.Position,out double sx,out double sz);double a=shelter.Heading*Math.PI/180,dx=px-sx,dz=pz-sz,lx=dx*Math.Cos(a)-dz*Math.Sin(a),lz=dx*Math.Sin(a)+dz*Math.Cos(a);
+                if(Math.Abs(lx)<shelter.Blueprint.WidthM*.5+.35&&Math.Abs(lz)<shelter.Blueprint.DepthM*.5+.35)return false;
+            }
+            double floor=CampFloor(px,pz);if(double.IsNaN(floor)||Math.Abs(floor-ground)>.6||walkingPatch.Sample(point).Underwater)return false;
+            return !Physics.CheckSphere(transform.TransformPoint(new Vector3((float)(px-originX),(float)floor+.65f,(float)(pz-originZ))),.28f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
+        }
+        task.WorkPointUntil=actor.SimulationAge+6;
+        if(task.WorkFire==fire&&Clear(task.WorkPoint))return task.WorkPoint;
+        task.WorkFire=fire;TerrainHandoff.Coordinates(frame,actor.Planet,out double ax,out double az);double angle=Math.Atan2(ax-x,az-z);
+        for(int radius=0;radius<2;radius++)for(int k=0;k<8;k++)
+        {double a=angle+(k==0?0:(k%2==1?1:-1)*((k+1)/2)*Math.PI/4),r=radius==0?1.3:1.75;var point=frame.Position(x+Math.Sin(a)*r,z+Math.Cos(a)*r);if(Clear(point))return task.WorkPoint=point;}
+        return task.WorkPoint=frame.Position(x+Math.Sin(angle)*1.3,z+Math.Cos(angle)*1.3);
+    }
     void AdvanceNpcMaterialUse(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,V target)
     {
         if(dt<=0||actor.TaskWaiting||HumanDistance(actor.Planet,target)>1.8||actor.Threat!=null)return;
