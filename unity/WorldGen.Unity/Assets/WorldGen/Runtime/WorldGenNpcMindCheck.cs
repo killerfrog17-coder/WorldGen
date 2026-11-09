@@ -6,6 +6,8 @@ using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
 using WorldGen.Presentation;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 public sealed partial class WorldGenRuntime
 {
@@ -69,7 +71,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(npcThinking!=null&&!npcThinking.IsCompleted&&npcSpeech.Values.Any(s=>s.Pace.Shown>0))sawStream=true;
             if(npcSpeech.Values.Any(s=>s.Voice!=null&&s.Voice.spatialBlend==1&&s.Voice.transform.parent==s.Actor.Root.transform))sawSpatialVoice=true;
-            if(sawStream&&!File.Exists(Path.Combine(output,"stream-preview.png"))&&npcSpeech.Values.Any(s=>s.Pace.Shown>=12)){Capture(Path.Combine(output,"stream-preview.png"));}
+            if(sawStream&&!File.Exists(Path.Combine(output,"stream-preview.png"))&&npcSpeech.Values.Any(s=>s.Pace.Shown>=12)){yield return NpcLifeImage(output,"stream-preview");}
             yield return null;
         }
         Check(npcUtterances>=1,"actual local model replied and the executor delivered speech nearby: "+npcLastError+" / "+npcModel?.Status+" / "+npcModel?.BackendInfo);
@@ -152,12 +154,22 @@ public sealed partial class LocalTerrainExplorer
         check(Quaternion.Angle(humanPlayer.Root.transform.localRotation,pose)<45,"Waiting preserves an upright player pose");
         check(Math.Abs(actor.SimulationAge-humanAge-advanced)<3.3,"NPC movement and avoidance use the same advanced scene time");
         check(animal==null||Math.Abs(animal.Life-animalAge-advanced)<3.3,"Visible wildlife advances with the waiting clock");
-        Capture(Path.Combine(output,"standing-wait.png"));
+        yield return NpcLifeImage(output,"standing-wait");
         File.WriteAllText(Path.Combine(output,"wait-clock.txt"),"Advanced equivalent seconds="+advanced+"\nHuman="+(actor.SimulationAge-humanAge)+"\nAnimal="+(animal==null?"not present":(animal.Life-animalAge).ToString())+"\nSteps="+LocalSceneSteps);
         Vitals.Health-=1;CheckWaitInterrupt();check(!campResting&&CampTimeRate==1,"Damage immediately restores normal time");Vitals.Restore();
         BeginCampSleep(0,true);ulong threatId=ulong.MaxValue;while(animals.ContainsKey(threatId))threatId--;
         animals.Add(threatId,new Animal{Health=100,MassKg=50,Planet=Position,Behaviour=new WildlifeBehaviourProfile{Predator=true}});
         try{CheckWaitInterrupt();check(!campResting,"A controlled nearby predator threat interrupts waiting before another time step");}finally{animals.Remove(threatId);}
+        var oldKeyboard=Keyboard.current;var oldBackground=InputSystem.settings.backgroundBehavior;var keyboard=InputSystem.AddDevice<Keyboard>();TestKeyboard(keyboard);keyboard.MakeCurrent();InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+        IEnumerator KeyPress(Key key){InputSystem.QueueStateEvent(keyboard,new KeyboardState(key));yield return null;yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;}
+        try
+        {
+            yield return KeyPress(Key.Z);check(campSleepMenu&&!paused,"Z opens rest choices through the actual keyboard path");
+            yield return KeyPress(Key.Escape);check(!CampUiOpen&&!paused,"Closing rest choices does not open pause");
+            BeginCampSleep(0,true);yield return KeyPress(Key.Space);check(!campResting&&!paused&&CampTimeRate==1,"Space cancels standing waiting through the actual keyboard path");
+            BeginCampSleep(0,true);yield return KeyPress(Key.W);check(!campResting&&!paused,"Movement cancels waiting immediately");
+        }
+        finally{InputSystem.RemoveDevice(keyboard);TestKeyboard(null);if(oldKeyboard!=null&&oldKeyboard.added)oldKeyboard.MakeCurrent();InputSystem.settings.backgroundBehavior=oldBackground;}
         BeginCampSleep(0,true);npcModel.Config.BackgroundReactions=true;npcWaitSocialDay=PlayerRules.SolarDays;WaitNpcApproach();
         check(!campResting&&npcPlans.Values.Any(p=>p.Decision.action=="approach"&&p.Decision.target=="player"),"A bandmate approaching to talk interrupts waiting");
         npcModel.Config.BackgroundReactions=false;npcPlans.Clear();npcEvents.Clear();npcTalkTarget=null;
@@ -172,9 +184,11 @@ public sealed partial class LocalTerrainExplorer
         {if(npcConversation!=null){met=true;one=npcConversation.A;two=npcConversation.B;}yield return null;}
         check(met&&npcUtterances>=before+2,"Nearby residents actually exchange locally generated conversational turns");
         check(NpcMemoryFor(one).Conversation.Any(t=>t.Speaker==two)&&NpcMemoryFor(two).Conversation.Any(t=>t.Speaker==one),"Both participants retain what the other person actually said");
-        Capture(Path.Combine(output,"npc-social-exchange.png"));File.WriteAllText(Path.Combine(output,"social-one.json"),JsonUtility.ToJson(NpcMemoryFor(one),true));File.WriteAllText(Path.Combine(output,"social-two.json"),JsonUtility.ToJson(NpcMemoryFor(two),true));
+        npcTalkTarget=null;OpenChat();yield return NpcLifeImage(output,"npc-social-exchange");CloseChat();File.WriteAllText(Path.Combine(output,"social-one.json"),JsonUtility.ToJson(NpcMemoryFor(one),true));File.WriteAllText(Path.Combine(output,"social-two.json"),JsonUtility.ToJson(NpcMemoryFor(two),true));
         CancelNpcConversation();npcModel.Config.BackgroundReactions=false;
         until=Time.realtimeSinceStartupAsDouble+15;while(npcThinking!=null&&Time.realtimeSinceStartupAsDouble<until)yield return null;
         check(npcConversation==null&&!npcPlans.Values.Any(p=>p.Listening),"Ending the local exchange releases listening holds back to the ordinary schedule");
     }
+    IEnumerator NpcLifeImage(string output,string name)
+    {yield return new WaitForEndOfFrame();var shot=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,name+".png"),shot.EncodeToPNG());Destroy(shot);}
 }
