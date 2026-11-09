@@ -13,6 +13,7 @@ public sealed partial class LocalTerrainExplorer
     {
         bool active=group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp;
         group.NeedsCampWork=active&&NeedsNpcCampWork(group);
+        UpdateNpcCampWorkers(group);
         if(!active){group.TenderDuty=null;group.TendedFire=null;return;}
         if(!group.CampLoaded||group.TraceOnly||group.Residents==null||!group.BandHas(5))return;
         double now=UnityEngine.Time.unscaledTimeAsDouble;
@@ -33,6 +34,17 @@ public sealed partial class LocalTerrainExplorer
             .OrderByDescending(p=>!fire.Burning&&fire.EmberSeconds<=0&&(NpcMaterialUse.HasIgnitionKit(p.Belongings)||Inventory.Items.Any(i=>i.Kind==PossessionKind.HandDrillSet&&i.OwnerPerson==p.ResidentId&&NpcCanUseWorldItem(p,i)))?1000:0).ThenBy(p=>HumanDistance(p.Planet,fire.Position)).FirstOrDefault();
         if(person==null)return;
         group.TendedFire=fire;group.TendUntil=now+180;group.TenderDuty=new HumanActivitySample{Person=person.ResidentId,Group=band,Activity=HumanActivity.TendFire,Position=fire.Position,Destination=fire.Position};
+    }
+    void UpdateNpcCampWorkers(LivingGroup group)
+    {
+        if(!group.NeedsCampWork){group.CampWorkers.Clear();return;}
+        double now=UnityEngine.Time.unscaledTimeAsDouble;if(now<group.CampWorkersAt)return;group.CampWorkersAt=now+3;
+        // A limited setup crew suspends noncritical outings; most of the band
+        // remains free to gather, care for children and keep watch. Actual
+        // social/safety priorities can still interrupt an assigned worker.
+        var available=livingPeople.Values.Where(p=>p.GroupId==group.Situation.Band.Id&&p.Health>40&&p.Resident.AgeYears>=14&&p.Threat==null&&p.Routine!=null&&p.Routine.Activity!=HumanActivity.Sleep&&p.Routine.Activity!=HumanActivity.Childcare&&p.Routine.Activity!=HumanActivity.Watch&&group.TenderDuty?.Person!=p.ResidentId&&p.MaterialTask?.Delivering!=true&&HumanDistance(p.Planet,group.Anchor)<80).ToArray();
+        group.CampWorkers.Clear();int count=Math.Min(4,Math.Max(1,available.Length/4));
+        foreach(var p in available.OrderByDescending(p=>p.Routine.Activity==HumanActivity.BuildCamp||p.Routine.Activity==HumanActivity.RepairShelter||p.Routine.Activity==HumanActivity.Craft?1:0).ThenByDescending(p=>p.Resident.Skills?.Length>4?p.Resident.Skills[4]:0).ThenBy(p=>p.ResidentId).Take(count))group.CampWorkers.Add(p.ResidentId);
     }
     double NpcBeddingGoal(LivingGroup group,long household)=>.9+Math.Min(5,group.Residents.Members.Count(p=>p.Household==household))*.5;
     bool NeedsNpcCampWork(LivingGroup group)

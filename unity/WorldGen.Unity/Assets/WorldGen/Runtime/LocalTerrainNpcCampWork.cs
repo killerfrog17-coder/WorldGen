@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         // Reaching the end of a broad setup window does not finish its physical
         // shelters. Awake, available adults at camp keep working on them.
         bool localRepair=group.NeedsCampWork&&actor.Resident.AgeYears>=14&&(routine.Activity==HumanActivity.Rest||routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach)&&HumanDistance(actor.Planet,group.Anchor)<80;
-        bool building=group.CampLoaded&&(localRepair||routine.Activity==HumanActivity.BuildCamp||routine.Activity==HumanActivity.RepairShelter||routine.Activity==HumanActivity.Craft);
+        bool building=group.CampLoaded&&(localRepair||group.CampWorkers.Contains(actor.ResidentId)||routine.Activity==HumanActivity.BuildCamp||routine.Activity==HumanActivity.RepairShelter||routine.Activity==HumanActivity.Craft);
         if(!packing&&!building){actor.CampTask=null;return false;}
         bool beginning=actor.CampTask==null;var task=actor.CampTask??(actor.CampTask=new NpcCampTask());
         if(packing&&(beginning||!task.Packing)){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);}
