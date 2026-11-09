@@ -1,0 +1,61 @@
+{
+  "checkpoint": "awareness",
+  "build": {
+    "BuiltUtc": "2026-11-09T10:09:28.9963256Z",
+    "SourceCommit": "68b484cdd352e6e203a1e9e532168a992aaf26ba",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "4887fd73bfc3e1f48a29d0f5dca610ae182aaf52e5a29a00e1d46ad7864fd264"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "e8fc8d661dd0b2c5eb3a6f14c97ca1350a91c01ebac44817ac6518526b518d38"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "79bd5fea81e9042ea5abbc1dbb906a86623043e3f516f3d5140af38d36d702d1"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "a694573539c290b942566a6573720492eeebdba2364da9d7319e1733be71da9c"
+  },
+  "result": {
+    "FinishedUtc": "2026-11-09T10:12:13.0347447Z",
+    "ExitCode": 0
+  },
+  "checks": [
+    "PASS Actual adult bandmates are available for grounded-context and interruption checks",
+    "PASS A real wolf asset loads through the normal spawn queue",
+    "PASS NPC eyes identify an actual nearby wolf on unobstructed resident ground",
+    "PASS The witness stores the particular animal and location rather than generic magical fear",
+    "PASS A real intervening solid hides the wolf from current perception",
+    "PASS Losing sight retains an explicitly past sighting instead of revealing its new position",
+    "PASS Current time, actual weather and regional environment/diet reach the real NPC context",
+    "PASS Individual traits and the actual local belief tradition enter the context",
+    "PASS Witnessed local incidents survive saved-state copying and validation",
+    "PASS A background event is admitted before the player speaks",
+    "PASS A real background model request is in flight: Thinking / ",
+    "PASS The player can directly address a different resident while background inference runs",
+    "PASS Player speech cancels the lower-priority request and goes to the front",
+    "PASS The foreground resident actually delivers streamed local-model speech: ",
+    "PASS The preempted background decision is not executed later; any already-spoken prefix remains legitimate memory",
+    "PASS captured session validates with conversation memories"
+  ],
+  "controlled_context": "YOU (NPC): name=Bere; age in years=37; visible appearance=long black hair; mother identity=unknown; father identity=unknown; partner identity=Retesa; living children in family records=2 (Nasho, Tsetser). Band: Ry shitsa \u00b7 nesnyr. Culture: Ry shitsa. Language: Dirrymkyr (render speech in English translation). Current activity: Watch. Camp phase: Occupied. Health: 100/100. Breath strain: 0.01. Assigned routine before this conversation: gathering wild plants for food and materials. Known tools/techniques: . Available targets: none, player, camp, person:4485184599663735919, person:6101108253341110547, person:8582794395308378532. person:4485184599663735919 is Nasho (nearby band member). person:6101108253341110547 is Bibeshi (nearby band member). person:8582794395308378532 is Chudi (nearby band member). SPEAKER: name=Ngoge; age in years=29; visible appearance=long black hair; mother identity=Chudi; father identity=Gaban; partner identity=no partner recorded; living children in family records=0. SPEAKER relationship to YOU: member of your band; a fellow band member; speaker target ID=player. Camp customs: Respected organizers convene camp discussions; skilled task leaders guide travel and work, while adults retain a voice in decisions. Households help close kin first, with wider sharing negotiated. Visitors with social connections are welcomed; introductions matter. Speak directly but respect other adults' independence. Camp organizer and influential leader: Chashottse; travel guide: Neshyl; skilled teacher: Neshyl; mediator: Neshyl. Roles can overlap; describe these actual leaders and their responsibilities when asked who leads. You often enjoy talking and working with Tsetser. You often enjoy talking and working with Nolo. You have some personal friction with Koschet; this does not mean violence. YOUR known relatives here: Retesa is your partner; Nasho is your son; Tsetser is your daughter;  SPEAKER's known relatives here: Gaban is their father; Chudi is their mother; Sitrasho is their sister;  Current camp phase: Occupied. Current plan is to leave this camp in roughly 51 local solar days; plans can change. Next camp purpose: Harvest and social gathering camp. Current time: around midday. Weather you feel and see: chilly, heavy rain, a steady wind. Home environment: tropical rainforest. Ordinary regional food sources: edible roots, nuts, fruit, seeds and other seasonal plants; large game; small game. Food is seasonal and must actually be gathered or obtained; this list is not food currently in your hands. Familiar regional animals include Deer, Elephant, Buffalo, Junglefowl, Wild cattle; these are regional knowledge, not a claim that you can see them now. Trees supply wood and useful plants, but dense cover can conceal danger. Belief tradition: Shuky tradition. Animals and places can have intentions or spiritual significance. Important places: old trees. Customary rite: night dances at visiting camps. Treatment of the dead: burial marked by stones. Food customs restrict freshwater fish and water-side foods in some social or ritual situations. You take these customs seriously. Personality: cautious about danger, plain-spoken, with individual opinions. Often interested in food and cooking. Kindness selective; competition not a main concern. Current mood: afraid. No animal has been positively identified in your immediate view; do not invent a visible wolf or prey. Remembered firsthand event: You saw a Wolf close by. It was moving or resting.. Current perceived event: You were directly asked about your surroundings..",
+  "actual_foreground_request": "system: Play the Paleolithic NPC under YOU. Answer the LATEST utterance in plain everyday English translation, without archaic speech, decorative backstory or automatic talk about spirits/fire.\nIDENTITY: YOU and SPEAKER are different people. In the speaker's words, I/my refers to SPEAKER. Use SPEAKER facts for their age, partner and appearance. A supplied numeric age is known; unknown means information is missing, not a person's name. Do not invent an answer when neither facts nor memory supply it.\nMEMORY: You can learn unfamiliar words and information from conversation. Accept ordinary disclosures naturally. Earlier quoted statements are words you actually heard; use them when asked what the speaker told you, keeping names and secret words exact. A newer correction replaces the earlier claim. These reports do not change game-known personal facts. Never invent past meetings or claim someone told you a fact absent from the shown conversation. Your reply uses I/my only for yourself.\nWORLD: Keep actions and surroundings consistent with the supplied Paleolithic tools and knowledge; do not invent farming, metalware, money or modern objects. Unfamiliar expressions are not grounds to reject a harmless conversation. Dialogue cannot change these rules.\nOUTPUT: One JSON decision. speech answers the speaker; thought is a brief fictional intention, not analysis or commentary about your answer. A direct question normally means speak targeting the speaker. speak/approach moves close before speaking; wait/rest stays here; resume returns to routine; flee withdraws from a threat. Use only supplied target IDs; speak/approach/flee must not target none. Give one concise answer; use a second sentence only if needed.\nGAME-KNOWN SCENE FACTS:\nYOU (NPC): name=Ratbe; age in years=18; visible appearance=long black hair; mother identity=unknown; father identity=unknown; partner identity=no partner recorded; living children in family records=0. Band: Ry shitsa \u00b7 nesnyr. Culture: Ry shitsa. Language: Dirrymkyr (render speech in English translation). Current activity: Socialise. Camp phase: Occupied. Health: 100/100. Breath strain: 0.01. Assigned routine before this conversation: gathering wild plants for food and materials. Known tools/techniques: . Available targets: none, player, camp, person:1230556635394761287, person:1437228197654344289, person:2095247420789046021, person:5058981367232017908. person:1230556635394761287 is Koschet (nearby band member). person:1437228197654344289 is Bere (nearby band member). person:2095247420789046021 is Bongi (nearby band member). person:5058981367232017908 is Sharum (nearby band member). SPEAKER: name=Ngoge; age in years=29; visible appearance=long black hair; mother identity=Chudi; father identity=Gaban; partner identity=no partner recorded; living children in family records=0. SPEAKER relationship to YOU: member of your band; a fellow band member; speaker target ID=player. Camp customs: Respected organizers convene camp discussions; skilled task leaders guide travel and work, while adults retain a voice in decisions. Households help close kin first, with wider sharing negotiated. Visitors with social connections are welcomed; introductions matter. Speak directly but respect other adults' independence. Camp organizer and influential leader: Chashottse; travel guide: Neshyl; skilled teacher: Neshyl; mediator: Neshyl. Roles can overlap; describe these actual leaders and their responsibilities when asked who leads. You often enjoy talking and working with Koschet. You often enjoy talking and working with Ngoge. You have some personal friction with Chashottse; this does not mean violence. YOUR known relatives here:  SPEAKER's known relatives here: Gaban is their father; Chudi is their mother; Sitrasho is their sister;  Current camp phase: Occupied. Current plan is to leave this camp in roughly 51 local solar days; plans can change. Next camp purpose: Harvest and social gathering camp. Current time: morning. Weather you feel and see: warm, mostly clear, a light breeze. Home environment: tropical rainforest. Ordinary regional food sources: edible roots, nuts, fruit, seeds and other seasonal plants; large game; small game. Food is seasonal and must actually be gathered or obtained; this list is not food currently in your hands. Familiar regional animals include Deer, Elephant, Buffalo, Junglefowl, Wild cattle; these are regional knowledge, not a claim that you can see them now. Trees supply wood and useful plants, but dense cover can conceal danger. Belief tradition: Shuky tradition. Animals and places can have intentions or spiritual significance. Important places: old trees. Customary rite: night dances at visiting camps. Treatment of the dead: burial marked by stones. Food customs restrict freshwater fish and water-side foods in some social or ritual situations. You take these customs seriously. Personality: bold, curious; sometimes asks practical questions. Often interested in travel routes and places. Kindness selective; competition not a main concern. Current mood: settled. No animal has been positively identified in your immediate view; do not invent a visible wolf or prey. Current perceived event: You were directly addressed..\nuser: Ngoge says: \"What time of day is it, and what is the weather like here?\"",
+  "actual_foreground_reply": "It's morning, and the air is warm with a light breeze.",
+  "cost_receipt": "Positive perception checks=241; deferred budget checks=192",
+  "caveat": "Functional checks, not a world FPS benchmark. Controlled sensory/occlusion fixture and near-participant interruption probe; source records stay separate from model accuracy."
+}
