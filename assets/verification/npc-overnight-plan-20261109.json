@@ -12,7 +12,7 @@
     },
     {
       "id": "possessions",
-      "status": "first_native_pass_15_checks; nested_container_and_natural_ledger_followup_core_pass_9_native_regression_pending",
+      "status": "native84c5_15PASS; actual_private_bed_daily_case_PASS",
       "scope": "Persistent real NPC inventories, owned camp goods and beds, task props from held items, physical transfer and red theft/trespass prompts, witnessed reactions.",
       "acceptance": "No item factory on task change. Repeated tasks/reloads conserve identities and quantities. Taking owned goods updates possession once and is known only to witnesses."
     },
@@ -24,7 +24,7 @@
     },
     {
       "id": "daily_life",
-      "status": "pending",
+      "status": "core407+broad18052PASS; native17PASS; ten_second_moving_play_and_infant_test_pending",
       "scope": "Less synchronized schedules, daily sleep variation/awakenings, affinity/family company, child play groups and chase/hide behavior, risk/culture-dependent watch duties, grief and overdue-person concern/search.",
       "acceptance": "Across varied camps/day-night times show different actual activities and sleepers; family beds coherent; play involves peers; observers cannot search on omniscient death flags."
     },
@@ -86,5 +86,12 @@
     "current_bytes": 0,
     "scope": "CoreCLR carrying ancestry component; not FPS",
     "core_inventory_checks": 90
-  }
+  },
+  "next_priorities": [
+    "Finish native social gifts/restitution/disagreement and moving-play checks on f091bb8e.",
+    "Meaningful local leadership, membership and custom-change foundations tied to earned directed trust/respect and actual cultural decision rules. Do not let model claims unconditionally confer authority.",
+    "Real camp packing/cargo/setup with conserved materials and physical work; retain hides/bindings and carry poles where wood scarce. Existing progress-driven factory replacement still MUST be replaced.",
+    "More regional/seasonal camp designs, actual 9B dialogue/context review and representative stable camp screenshots/performance.",
+    "Final concise screenshot PDF only at end, select candidate shortcut only after acceptance, Git pushes."
+  ]
 }

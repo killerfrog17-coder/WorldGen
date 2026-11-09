@@ -28,12 +28,64 @@
     "npc_social_response": 9
   },
   "limits": [
-    "First native pass predates the nested-container/natural-ledger conservation correction, which has two additional core checks and awaits combined native regression.",
-    "No actual private bed was loaded at this foraging-site fixture; private-bed rules are core-tested, not claimed native-tested.",
-    "Campfire supply still uses the old synthetic stock and is the next material-work change.",
+    "Actual private-family bedding separately passed in daily-v2-daily.",
     "These capped functional checks are not FPS evidence."
   ],
   "artifacts": "artifacts/npc-overnight-20261109/social-v1-belongings",
   "owner_ai_settings_sha256": "b9cad371276c552ae499d818272577acf90efea8de2678eacf47126aa61dbed0",
-  "window": "Rightmost DISPLAY3, verified at 2072,50"
+  "window": "Rightmost DISPLAY3, verified at 2072,50",
+  "latest_native": {
+    "build": {
+      "BuiltUtc": "2026-11-09T12:03:28.1355197Z",
+      "SourceCommit": "84c5e834ff52bc3885c5b882c0c19031f74cbfa5",
+      "SourceChanges": [],
+      "Backend": "Mono",
+      "Development": false,
+      "ScriptsOnly": true,
+      "Inputs": [
+        {
+          "Assembly": "WorldGen.Core",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+          "Sha256": "83d70813b885d17087f2db040ab9648e1f6ee344f213f39b860ea086794088d7"
+        },
+        {
+          "Assembly": "WorldGen.Serialization",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+          "Sha256": "a04eef96f43613a00ce27310bf4173d59e622b3e8b6e215263e8d5ac256fc5d3"
+        },
+        {
+          "Assembly": "WorldGen.Presentation",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+          "Sha256": "302758c5fc91f533f2647c2da6bde629cd7db1fee3b25058fd94fff0b6709a1c"
+        },
+        {
+          "Assembly": "DelaunatorSharp",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+          "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+        }
+      ],
+      "TerrainWorkerSha256": "b0c198735ea9b44017ce8114ef2d34fc3d17f95dc320e1b867e3932620d7ca12"
+    },
+    "result": {
+      "finishedUtc": "/Date(1794226059029)/",
+      "exitCode": 0
+    },
+    "checks": [
+      "PASS Two actual adult residents exist",
+      "PASS The physical actor uses its saved inventory rather than a prop-only loadout",
+      "PASS Repeated visual task changes create or delete no actual goods",
+      "PASS Every displayed NPC possession is a real carried item",
+      "PASS A healthy resident's complete belongings survive session copying",
+      "PASS Personal belongings remain marked as another person's property",
+      "PASS An owned real ground item can actually be stolen",
+      "PASS A seeing owner remembers who took the specific item",
+      "PASS A resident behind a real wall does not learn the theft magically",
+      "PASS Possession changes physically while the original ownership remains recorded",
+      "PASS Witnessed theft changes mood and the directed relationship",
+      "PASS The aimed owned item uses the actual red theft-prompt style",
+      "PASS No possession ID exists in both the world and an NPC inventory",
+      "PASS Owned goods and social consequences validate after the real transfer",
+      "PASS captured session validates with conversation memories"
+    ]
+  }
 }
