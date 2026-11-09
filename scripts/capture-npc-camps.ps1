@@ -14,6 +14,10 @@ $ErrorActionPreference='Stop'
 if($Trace -and !$Performance){throw 'Frame tracing requires -Performance.'}
 if($RemovalProof -and $Performance){throw 'Material-removal fixtures must not alter a performance scene.'}
 $repo=Split-Path -Parent $PSScriptRoot
+Add-Type -AssemblyName System.Windows.Forms
+$npcReviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
+$npcReviewMonitorIndex=[regex]::Match($npcReviewMonitor.DeviceName,'\d+$').Value
+if(!$npcReviewMonitorIndex){throw 'Cannot identify the rightmost NPC review monitor'}
 $player=Join-Path $repo ('builds/'+$Slot+'/WorldGen.exe')
 $fixture=Join-Path $repo $World
 if(!(Test-Path -LiteralPath $fixture)){throw 'Generate the disposable human-world fixture first.'}
@@ -30,7 +34,7 @@ foreach($case in $Cases){
     $output=Join-Path $repo ('artifacts/npc-20261103/'+$Prefix+'-'+$case)
     if(Test-Path -LiteralPath $output){throw ('Keep prior captures; choose a new prefix: '+$output)}
     New-Item -ItemType Directory -Path $output|Out-Null
-    $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
+    $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
     if($Trace){$arguments+='--worldgen-stutter-trace'}
