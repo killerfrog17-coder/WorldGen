@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
         public NpcResourceSites Resources;
         public ForagerSocialLife Social;public ForagerCulture SocialCulture;
         public ForagerCulture PolicyBasis,PolicyCulture;public double PolicySharing=-2,PolicyVisitors=-2;
-        public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200;public bool NeedsCampWork;
+        public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200,PlannedSolarDay;public bool NeedsCampWork;
         public readonly HashSet<long> CampWorkers=new HashSet<long>();public double CampWorkersAt;
         public long MaterialStockSite;public double MaterialStockRadius;
     }
@@ -108,12 +108,13 @@ public sealed partial class LocalTerrainExplorer
             }
             if(group.Grounded&&!group.CampLoaded&&HumanDistance(group.Anchor,Position)<700)
             {LoadLivingCamp(group);if(ElapsedHumanMs(started)>1.5)break;}
-            if(group.Activities==null)continue;
+            // A sleep/time jump can invalidate an old travel plan before its
+            // replacement packet arrives. Do not instantiate new residents at
+            // those stale positions, or before a settled camp is validated.
+            if(group.Activities==null||Math.Abs(PlayerRules.SolarDays-group.PlannedSolarDay)*PlayerRules.Settings.RealMinutesPerDay*60>=5||!group.Grounded&&group.Situation.Phase!=HumanCampPhase.Travelling)continue;
             foreach(var activity in group.Activities)
             {
                 if(livingPeople.ContainsKey(activity.Person)||PlayerRules.Identity?.Person.Id==activity.Person)continue;
-                bool away=activity.Activity==HumanActivity.Travel||activity.Activity==HumanActivity.GatherPlants||activity.Activity==HumanActivity.GatherFuel||activity.Activity==HumanActivity.FetchWater||activity.Activity==HumanActivity.Carried;
-                if(!group.Grounded&&group.Situation.Phase!=HumanCampPhase.Travelling&&!away)continue;
                 V point=LivingPosition(group,activity.Position);
                 if(HumanDistance(point,Position)>650)continue;
                 var memory=LivingState.People.FirstOrDefault(p=>p.Person==activity.Person);if(memory?.Dead==true)continue;
@@ -158,7 +159,7 @@ public sealed partial class LocalTerrainExplorer
             if(HoldNpcCampDeparture(group,situation)){group.LastSeen=Time.unscaledTimeAsDouble;continue;}
             if(group.Situation.Camp.Id!=situation.Camp.Id||situation.Phase==HumanCampPhase.Travelling&&group.CampLoaded)
             {UnloadLivingCamp(group,true);group.Grounded=false;group.PlacementAttempt=0;group.Resources=null;group.SiteSurvey=null;group.SiteSurveyRadius=200;group.Anchor=situation.Camp.Position;}
-            group.Situation=situation;group.LastSeen=Time.unscaledTimeAsDouble;
+            group.Situation=situation;group.LastSeen=Time.unscaledTimeAsDouble;group.PlannedSolarDay=packet.SolarDay;
             if(packet.Residents.TryGetValue(id,out var residents)){group.Residents=residents;if(packet.Activities.TryGetValue(id,out var activities))group.Activities=activities;}
             if(group.CampLoaded&&(situation.Phase==HumanCampPhase.SettingUp||situation.Phase==HumanCampPhase.Packing||previousPhase==HumanCampPhase.SettingUp&&situation.Phase==HumanCampPhase.Occupied))UpdateLivingCampConstruction(group);
             foreach(var actor in livingPeople.Values.Where(p=>p.GroupId==id))
