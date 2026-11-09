@@ -1,5 +1,5 @@
 {
-  "purpose": "Three additional local NPC dialogue candidates; installed weights are not yet evaluated or selected in-game.",
+  "purpose": "Registered local NPC models for in-game comparison. Loading and structured replies tested on CUDA/Vulkan; no comprehensive intelligence ranking established.",
   "storage_policy": "One shared copy outside artifacts/builds. Move or delete losing candidates after comparison.",
   "models": [
     {

@@ -1,0 +1,157 @@
+{
+  "title": "WorldGen - Local NPC Models",
+  "section": "LOCAL NPC MODELS",
+  "date": "08 NOVEMBER 2026",
+  "footer": "Actual game UI - local models - warmed menu samples, not world FPS",
+  "pages": [
+    {
+      "title": "Four models, one AI tab",
+      "subtitle": "Switch local NPC models without rebuilding the game or duplicating their weights.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "model-selector.jpg",
+              "caption": "Actual AI settings: all four installed models, resource presets and CUDA/Vulkan selection."
+            }
+          ],
+          "max_height": 285
+        },
+        {
+          "heading": "Try a model"
+        },
+        {
+          "text": "Open <b>Settings &gt; AI</b>. Choose a model and a hardware preset, then <b>Apply &amp; restart AI</b>. Use <b>Load model</b>, followed by <b>Test saved settings</b>. Repeat the short test after loading. The same selection is used by NPC conversations and event-driven thoughts."
+        },
+        {
+          "table": {
+            "headers": [
+              "Model",
+              "Weights",
+              "Role in comparison"
+            ],
+            "widths": [
+              0.39,
+              0.15,
+              0.46
+            ],
+            "rows": [
+              [
+                "Qwen3-4B-Instruct-2507",
+                "2.3 GiB",
+                "Existing fast baseline"
+              ],
+              [
+                "Qwen3.5-9B",
+                "5.3 GiB",
+                "Larger dense-model trial"
+              ],
+              [
+                "Gemma 4 12B IT",
+                "6.6 GiB",
+                "Alternative larger dense-model trial"
+              ],
+              [
+                "GPT-OSS 20B",
+                "10.8 GiB",
+                "Expert model, with adjustable CPU/GPU split"
+              ]
+            ]
+          }
+        },
+        {
+          "text": "The three additional models remain in <b>D:\\WorldGenModels\\NpcAI</b>. D is a mechanical drive, so initial loading can be slow. Keep one shared copy; after comparison, delete losing candidates and consider moving the winner to C. Your existing saved AI profile was preserved."
+        }
+      ]
+    },
+    {
+      "title": "Give AI the resources",
+      "subtitle": "Ordinary presets remain available. Max speed deliberately trades rendering smoothness for inference.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "model-status.jpg",
+              "caption": "Actual GPT-OSS status. Layer offload includes GPU attention; 12 expert layers intentionally remain on CPU."
+            }
+          ],
+          "max_height": 180
+        },
+        {
+          "table": {
+            "headers": [
+              "Warmed short task",
+              "CUDA tokens/s",
+              "Vulkan tokens/s"
+            ],
+            "widths": [
+              0.46,
+              0.27,
+              0.27
+            ],
+            "rows": [
+              [
+                "Qwen3-4B",
+                "61.7",
+                "63.3"
+              ],
+              [
+                "Qwen3.5-9B",
+                "34.2",
+                "29.8"
+              ],
+              [
+                "Gemma 4 12B",
+                "14.0",
+                "16.7"
+              ],
+              [
+                "GPT-OSS 20B",
+                "21.3",
+                "19.5"
+              ]
+            ]
+          }
+        },
+        {
+          "text": "One repeated short menu prompt per model/backend; 298-359 input tokens with model-specific tokenization. Brief structured replies, 2,048 context, Ryzen 5700X / RTX 4060 8 GB / 32 GB RAM. These samples establish usable output, not an intelligence ranking or gameplay FPS guarantee. A full scene can leave less GPU memory available.",
+          "size": 9
+        },
+        {
+          "table": {
+            "headers": [
+              "Control",
+              "Effect"
+            ],
+            "widths": [
+              0.27,
+              0.73
+            ],
+            "rows": [
+              [
+                "Max speed",
+                "High CPU priority, 8 generation / 16 prompt threads on this PC, active polling, and 15 FPS while AI works. Normal FPS and VSync return afterward."
+              ],
+              [
+                "VRAM reserve",
+                "GPU preset: 1,024 MiB. Max speed: 512 MiB. Manual 0 remains available; memory spill can make it slower."
+              ],
+              [
+                "Expert split / preload",
+                "GPT-OSS starts with 12 expert layers on CPU, with explicit RAM loading. Both controls remain adjustable."
+              ],
+              [
+                "Backend / threads",
+                "Compare CUDA and Vulkan. More workers or more offload do not always produce a faster reply."
+              ]
+            ]
+          }
+        },
+        {
+          "text": "Verified: 70 settings checks across all eight model/backend combinations, plus 18 in-world NPC checks with Qwen3.5-9B. Current presentation uses complete validated replies; streamed speech text remains a separate next step. Switching and unloading release the single model host.",
+          "size": 9
+        }
+      ]
+    }
+  ]
+}

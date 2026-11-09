@@ -1,0 +1,270 @@
+{
+  "timestampUtc": "2026-11-09T01:53:30.910139+00:00",
+  "status": "Local model selector and resource controls accepted",
+  "build": {
+    "BuiltUtc": "2026-11-09T01:47:19.9450544Z",
+    "SourceCommit": "e0b31d82e48949b057c5bf48339323a081fe4cc5",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "9b73bd91b9cd790dccc0013b7ff0b0da8c60fe0247ce42d9a214d8f5bbad8eb0"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "91883b104a85c5dd3d5d06d236e915cce2cc0d235dc6ca69265358fc3d36d53a"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "25a9223b0c2c3b12892f6b5d03753086b882079de7c71167fbabd45ac865d1c6"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "4ab2ed7657f703038b992f9dcf1c254636604c4206c7fb3daf41338856348006"
+  },
+  "menuChecksSourceCommit": "b69399e7",
+  "note": "Final e0b31d82 changes only direct-conversation expiry and tests; model selector, resource settings and client code are unchanged from the 70-check menu run.",
+  "coreChecks": {
+    "npcAiSettings": 19,
+    "npcMind": 20
+  },
+  "nativeMenuChecks": [
+    "PASS AI tab is available in shared settings",
+    "PASS Apply persists automatic GPU preset without changing the model",
+    "PASS asynchronous AI operation completed",
+    "PASS GPU host starts from saved settings",
+    "PASS asynchronous AI operation completed",
+    "PASS parallel requests are rejected without another host",
+    "PASS menu test reports actual response time and a validated reply",
+    "PASS GPU backend confirms all 37 layers actually offloaded: vulkan: offloaded 37/37 layers to GPU",
+    "PASS idle unload releases the GPU model process",
+    "PASS CPU preset persists after restart",
+    "PASS asynchronous AI operation completed",
+    "PASS manual unload closes the CPU model process",
+    "PASS the current model and all three installed candidates appear in the selector",
+    "PASS model selection and maximum-speed controls persist: Qwen3-4B-Instruct-2507 / cuda",
+    "PASS AI-priority request temporarily limits rendering: Qwen3-4B-Instruct-2507",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: Qwen3-4B-Instruct-2507",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: Qwen3-4B-Instruct-2507",
+    "PASS normal display settings return after inference: Qwen3-4B-Instruct-2507",
+    "PASS model selection and maximum-speed controls persist: Qwen3-4B-Instruct-2507 / vulkan",
+    "PASS AI-priority request temporarily limits rendering: Qwen3-4B-Instruct-2507",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: Qwen3-4B-Instruct-2507",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: Qwen3-4B-Instruct-2507",
+    "PASS normal display settings return after inference: Qwen3-4B-Instruct-2507",
+    "PASS model selection and maximum-speed controls persist: Qwen3.5-9B / cuda",
+    "PASS AI-priority request temporarily limits rendering: Qwen3.5-9B",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: Qwen3.5-9B",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: Qwen3.5-9B",
+    "PASS normal display settings return after inference: Qwen3.5-9B",
+    "PASS model selection and maximum-speed controls persist: Qwen3.5-9B / vulkan",
+    "PASS AI-priority request temporarily limits rendering: Qwen3.5-9B",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: Qwen3.5-9B",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: Qwen3.5-9B",
+    "PASS normal display settings return after inference: Qwen3.5-9B",
+    "PASS model selection and maximum-speed controls persist: Gemma 4 12B IT / cuda",
+    "PASS AI-priority request temporarily limits rendering: Gemma 4 12B IT",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: Gemma 4 12B IT",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: Gemma 4 12B IT",
+    "PASS normal display settings return after inference: Gemma 4 12B IT",
+    "PASS model selection and maximum-speed controls persist: Gemma 4 12B IT / vulkan",
+    "PASS AI-priority request temporarily limits rendering: Gemma 4 12B IT",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: Gemma 4 12B IT",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: Gemma 4 12B IT",
+    "PASS normal display settings return after inference: Gemma 4 12B IT",
+    "PASS model selection and maximum-speed controls persist: GPT-OSS 20B / cuda",
+    "PASS AI-priority request temporarily limits rendering: GPT-OSS 20B",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: GPT-OSS 20B",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: GPT-OSS 20B",
+    "PASS normal display settings return after inference: GPT-OSS 20B",
+    "PASS model selection and maximum-speed controls persist: GPT-OSS 20B / vulkan",
+    "PASS AI-priority request temporarily limits rendering: GPT-OSS 20B",
+    "PASS asynchronous AI operation completed",
+    "PASS selected model returns a validated menu decision: GPT-OSS 20B",
+    "PASS asynchronous AI operation completed",
+    "PASS model switch releases the previous host: GPT-OSS 20B",
+    "PASS normal display settings return after inference: GPT-OSS 20B",
+    "PASS test leaves the owner's saved AI settings untouched"
+  ],
+  "nativeNpcChecks": [
+    "PASS actual adult resident exists in the player's community",
+    "PASS aimed E interaction reaches the resident using the real hit surface",
+    "PASS ordinary schedule ticks do not invoke the model",
+    "PASS typed dialogue reaches selected resident",
+    "PASS addressed NPC listens immediately while the model runs",
+    "PASS pending direct dialogue keeps listening beyond the old timeout",
+    "PASS actual local model replied and the executor delivered speech nearby:  / Ready / cuda: offloaded 33/33 layers to GPU",
+    "PASS validated fictional thought is available to debug",
+    "PASS second real event produces a separate decision",
+    "PASS model intention becomes an executable temporary plan",
+    "PASS distant reply waits for physical approach",
+    "PASS NPC physically approaches before speaking",
+    "PASS rest intention changes actual activity",
+    "PASS temporary action expires and resumes schedule",
+    "PASS short memories survive the session copy",
+    "PASS conversation input keeps NPC simulation running",
+    "PASS leaving the explorer terminates its own local host",
+    "PASS captured session validates with conversation memories"
+  ],
+  "warmedMenuMeasurements": [
+    {
+      "model": "Qwen3-4B-Instruct-2507",
+      "backend": "cuda",
+      "actualOffload": "cuda: offloaded 37/37 layers to GPU",
+      "warmedRequestSeconds": 0.736,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 61.7,
+      "promptTokens": 298,
+      "generatedTokens": 43,
+      "result": "Short test: 0.74 s. Reply: Looking for firewood."
+    },
+    {
+      "model": "Qwen3-4B-Instruct-2507",
+      "backend": "vulkan",
+      "actualOffload": "vulkan: offloaded 37/37 layers to GPU",
+      "warmedRequestSeconds": 0.736,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 63.3,
+      "promptTokens": 298,
+      "generatedTokens": 46,
+      "result": "Short test: 0.74 s. Reply: Looking for dry branches for the fire."
+    },
+    {
+      "model": "Qwen3.5-9B",
+      "backend": "cuda",
+      "actualOffload": "cuda: offloaded 33/33 layers to GPU",
+      "warmedRequestSeconds": 2.004,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 34.2,
+      "promptTokens": 302,
+      "generatedTokens": 66,
+      "result": "Short test: 2.00 s. Reply: Gathering wood to keep the fire burning."
+    },
+    {
+      "model": "Qwen3.5-9B",
+      "backend": "vulkan",
+      "actualOffload": "vulkan: offloaded 33/33 layers to GPU",
+      "warmedRequestSeconds": 1.403,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 29.8,
+      "promptTokens": 302,
+      "generatedTokens": 40,
+      "result": "Short test: 1.40 s. Reply: I gather dry branches to keep our fire burning."
+    },
+    {
+      "model": "Gemma 4 12B IT",
+      "backend": "cuda",
+      "actualOffload": "cuda: offloaded 43/49 layers to GPU",
+      "warmedRequestSeconds": 4.808,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 14.0,
+      "promptTokens": 305,
+      "generatedTokens": 65,
+      "result": "Short test: 4.81 s. Reply: I am gathering wood for the fire."
+    },
+    {
+      "model": "Gemma 4 12B IT",
+      "backend": "vulkan",
+      "actualOffload": "vulkan: offloaded 45/49 layers to GPU",
+      "warmedRequestSeconds": 4.276,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 16.7,
+      "promptTokens": 305,
+      "generatedTokens": 65,
+      "result": "Short test: 4.28 s. Reply: I am gathering branches for the fire."
+    },
+    {
+      "model": "GPT-OSS 20B",
+      "backend": "cuda",
+      "actualOffload": "cuda: offloaded 25/25 layers to GPU; 12 expert layers on CPU",
+      "warmedRequestSeconds": 2.87,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 21.3,
+      "promptTokens": 359,
+      "generatedTokens": 61,
+      "result": "Short test: 2.87 s. Reply: I am gathering branches for the fire."
+    },
+    {
+      "model": "GPT-OSS 20B",
+      "backend": "vulkan",
+      "actualOffload": "vulkan: offloaded 25/25 layers to GPU; 12 expert layers on CPU",
+      "warmedRequestSeconds": 2.471,
+      "loadSecondsDuringWarmedRequest": 0.0,
+      "generatedTokensPerSecond": 19.5,
+      "promptTokens": 359,
+      "generatedTokens": 48,
+      "result": "Short test: 2.47 s. Reply: I collect branches for the fire."
+    }
+  ],
+  "conditions": "Same short task, model-specific tokenization, repeated after load; Max speed 8 generation /16 prompt threads, priority high, polling100, reserve512MiB, temporary15FPS while busy; main menu, not gameplay FPS. Ryzen5700X/RTX4060 8GB/32GB RAM.",
+  "actualNpcReceipt": "Qwen3.5-9B / threads 8 / requests 2 / last seconds 2.362255 / prompt tokens 708 / generated tokens 62",
+  "secondNpcDecision": {
+    "thought": "I will walk to Janapsip now.",
+    "action": "approach",
+    "target": "player",
+    "speech": "I am here. What do you need?",
+    "seconds": 2
+  },
+  "finalNpcMemory": {
+    "Person": 3532157404193304671,
+    "Thought": "I will walk to Janapsip now.",
+    "Trigger": "You were directly addressed.",
+    "Recent": [
+      "Janapsip said: Hello Fojuce. What are you doing?",
+      "Intention: speak player. I will answer the question while gathering.",
+      "Said: I am gathering wild plants for food and materials.",
+      "Janapsip said: Come here please. I want to speak with you.",
+      "Intention: approach player. I will walk to Janapsip now.",
+      "Said: I am here. What do you need?"
+    ]
+  },
+  "ownerProfileSha256BeforeAndAfter": "193a4b2eaa04996277ca34967f15aa3a255155bbcee250ba4ee7fa0cd8c2a957",
+  "storage": "Three extra models remain D:\\WorldGenModels\\NpcAI; do not duplicate. Delete losers or move winner to C after owner comparison.",
+  "report": "docs/reports/local-models-20261108/WorldGen - Local NPC Models.pdf",
+  "screenshots": [
+    "docs/reports/local-models-20261108/model-selector.jpg",
+    "docs/reports/local-models-20261108/model-status.jpg",
+    "docs/reports/local-models-20261108/qwen35-world-conversation.jpg"
+  ],
+  "limitations": [
+    "Replies currently displayed on completed decision; streaming is not part of this pass.",
+    "One short warmed sample per model/backend is not a quality ranking or an FPS guarantee.",
+    "First model loads can be slow from mechanical D drive.",
+    "Zero VRAM reserve remains a manual option; a zero-reserve Gemma CUDA trial timed out. The accepted preset uses512MiB."
+  ],
+  "failedTrialsRetained": {
+    "native-v1": "Batch-mode screenshots black, rejected. Gemma CUDA reserve0 startup timeout; fixed preset retains512MiB.",
+    "npc-qwen35-v1": "Old45second reply expiry/35second listening timeout discarded cold-start dialogue; corrected and regression-tested in v2.",
+    "gpt-cuda-split-preload": "Old no-mmap CLI spelling rejected; correct b12211 flags --load-mode none --lazy-mode off tested in v2."
+  },
+  "reportSha256": "ad21ed844efdd428ebafd8fd3d946f657829bfd162f260b641d02f441290213b",
+  "selectedShortcut": {
+    "target": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+    "workingDirectory": "C:\\Users\\kille\\Desktop\\WorldGen",
+    "arguments": ""
+  }
+}

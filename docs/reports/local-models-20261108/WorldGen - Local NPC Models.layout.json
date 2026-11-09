@@ -1,0 +1,94 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 428.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\local-models-20261108\\model-selector.jpg",
+    "bottom": 444.08976377952774,
+    "height": 285
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 398.4897637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 367.8897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 172.4897637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 533.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\local-models-20261108\\model-status.jpg",
+    "bottom": 549.0897637795277,
+    "height": 180
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 338.64976377952775,
+    "height": 34.56
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 122.60976377952775,
+    "height": 23.04
+  }
+]
