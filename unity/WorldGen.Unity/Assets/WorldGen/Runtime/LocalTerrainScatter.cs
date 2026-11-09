@@ -30,6 +30,12 @@ public sealed partial class LocalTerrainExplorer
         public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();public int Count;public long Key;public bool CompactProperties;public ArtModel Model;public ShadowCastingMode Shadows;public Bounds Bounds;
         public Matrix4x4[][] PartMatrices;
     }
+    sealed class ScatterBatchComparer:IEqualityComparer<(long,int)>
+    {
+        public bool Equals((long,int) a,(long,int) b)=>a.Item1==b.Item1&&a.Item2==b.Item2;
+        public int GetHashCode((long,int) key)=>unchecked(((int)key.Item1^(int)(key.Item1>>32))*397^key.Item2);
+    }
+    long scatterAppendAllocations,scatterAppendBuilds;
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
     Texture2DArray treeLeaves;
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
@@ -550,7 +556,7 @@ public sealed partial class LocalTerrainExplorer
             finally{scatterParallelCollecting=false;}
         }
         else foreach(var chunk in scatterCollectWork)CollectScatterChunk(chunk,eye);
-        WorldGenPerformance.TraceEnd(29,classifyTrace);long appendTrace=WorldGenPerformance.TraceBegin();
+        WorldGenPerformance.TraceEnd(29,classifyTrace);long appendTrace=WorldGenPerformance.TraceBegin();long appendAllocated=WorldGenPerformance.TraceEnabled?GC.GetAllocatedBytesForCurrentThread():0;
         foreach(var chunk in scatterCollectWork)
         {
             var counts=chunk.AdmissionCounts;ScatterObjects+=counts.Objects;SpecialistObjects+=counts.Specialists;MidPlantObjects+=counts.Mid;GeneratedTreeObjects+=counts.Trees;
@@ -558,6 +564,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var item in chunk.Admissions){ref readonly var plant=ref chunk.Source.Instances[item.Index];AddScatterInstance(chunk,item.Index,plant,item.Lod,item.Low,item.High,item.ShadowOnly);}
         }
         WorldGenPerformance.TraceEnd(30,appendTrace);
+        if(WorldGenPerformance.TraceEnabled){scatterAppendAllocations+=GC.GetAllocatedBytesForCurrentThread()-appendAllocated;scatterAppendBuilds++;}
         WorldGenPerformance.TraceEnd(24,batchPhaseTrace);batchPhaseTrace=WorldGenPerformance.TraceBegin();
         foreach(var batch in drawBatches)
         {
@@ -731,7 +738,7 @@ public sealed partial class LocalTerrainExplorer
         if(!activeScatterBatches.TryGetValue(batchKey,out var batch)||batch.Count==batch.Matrices.Length)
         {
             if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
-            batch.Key=key;batch.Model=Art(p.Kind,variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
+            batch.Key=key;long artTrace=WorldGenPerformance.TraceBegin();batch.Model=Art(p.Kind,variant,lod);WorldGenPerformance.TraceEnd(51,artTrace);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
             var firstPart=batch.Model.Parts[0];batch.WindSlots.Clear();
             batch.SharedWind=UseSharedTreeWind&&p.Kind==ScatterKind.GeneratedTree&&batch.Model.Parts.Length==1&&IsTreeSurfaceShader(firstPart.Material.shader)&&firstPart.Material.GetFloat("_Impostor")<.5f;
             batch.WindFlex=batch.SharedWind?firstPart.Material.GetVector("_PlantTraits").x:0;

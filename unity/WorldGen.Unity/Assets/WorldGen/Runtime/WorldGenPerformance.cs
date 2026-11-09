@@ -72,8 +72,8 @@ public static class WorldGenPerformance
     public static bool DetailedFoliageComparison;
     // Diagnostic gross managed-heap growth, inclusive of nested work and any
     // background allocations. This is not a per-thread allocation counter.
-    public static readonly long[] HeapGrowth=new long[51];
-    public static readonly int[] HeapCollectionIntervals=new int[51];
+    public static readonly long[] HeapGrowth=new long[52];
+    public static readonly int[] HeapCollectionIntervals=new int[52];
     public static int HeapIntervalCollections{get{int total=0;foreach(int value in HeapCollectionIntervals)total+=value;return total;}}
     static readonly Dictionary<long,(long bytes,int collection)> heapStarts=new Dictionary<long,(long,int)>(64);
     public static bool NarrowScatterGuard;
@@ -96,7 +96,7 @@ public static class WorldGenPerformance
         File.WriteAllLines(path,new[]{"t_s,animal,stage"}.Concat(faunaStages.Select(e=>
             ((e.Time-start)/(double)System.Diagnostics.Stopwatch.Frequency).ToString("R",CultureInfo.InvariantCulture)+","+e.Animal+","+e.Stage)));
     }
-    public static readonly double[] TraceMilliseconds=new double[51];static int traceFrame=-1;
+    public static readonly double[] TraceMilliseconds=new double[52];static int traceFrame=-1;
     public static bool SuppressIdleScatter,SkipMapUploads,ForceFreshCoverCull,NoLocalTrees,ForceFreshForestOwnership,TreeLegacyAlpha,SuppressFarForest,ForceIndividualTreeAdmission,DrainEachFrame,LegacyTreeQueues;
     public static long TraceBegin()
     {
