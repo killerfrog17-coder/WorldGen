@@ -16,11 +16,29 @@ public sealed partial class LocalTerrainExplorer
         var source=actor.Root.transform.position+Vector3.up;var ear=view.transform.position;var delta=source-ear;float distance=delta.magnitude;if(distance>=10)return false;
         double now=Time.unscaledTimeAsDouble;
         if(npcHearing.TryGetValue(actor.ResidentId,out var cached)&&now-cached.At<.3&&(ear-cached.Ear).sqrMagnitude<.25f&&(source-cached.Source).sqrMagnitude<.25f){if(cached.Audible)npcLastHeard[actor.ResidentId]=now;return cached.Audible;}
-        bool audible=distance<.1f||TraceCombatObstacle(new Ray(ear,delta/distance),Math.Max(0,distance-.15f))==null;
+        bool audible=distance<.1f||NpcSpeechPathClear(ear,source);
         if(npcHearing.Count>=128){npcHearing.Clear();npcLastHeard.Clear();}npcHearing[actor.ResidentId]=(now,ear,source,audible);if(audible)npcLastHeard[actor.ResidentId]=now;return audible;
     }
     bool NpcPlayerCanHearRecently(HumanActor actor)=>NpcPlayerCanHear(actor)||actor?.Root!=null&&actor.Health>0&&
-        (actor.Root.transform.position-view.transform.position).sqrMagnitude<144&&npcLastHeard.TryGetValue(actor.ResidentId,out double at)&&Time.unscaledTimeAsDouble-at<2;
+        view!=null&&(actor.Root.transform.position-view.transform.position).sqrMagnitude<144&&npcLastHeard.TryGetValue(actor.ResidentId,out double at)&&Time.unscaledTimeAsDouble-at<2;
+    bool NpcSpeechPathClear(Vector3 from,Vector3 to)
+    {
+        var delta=to-from;float distance=delta.magnitude;if(distance<.15f)return true;
+        var ray=new Ray(from,delta/distance);
+        foreach(var hit in Physics.RaycastAll(ray,distance-.1f,~(1<<29),QueryTriggerInteraction.Ignore))
+        {
+            // A trunk, stick or loose stone is not an acoustic wall. Nearby
+            // buildings and substantial rocks use their existing solid geometry.
+            if(scatterSolidSources.TryGetValue(hit.collider,out var solid)&&solid.Tree)continue;
+            var size=hit.collider.bounds.size;if(size.y<.8f||Math.Max(size.x,size.z)<1)continue;
+            return false;
+        }
+        // Speech can pass a little ground relief, but not through a hillside.
+        // A bounded coarse profile avoids the combat trace's dense terrain scan.
+        int steps=Math.Max(2,(int)Math.Ceiling(distance));
+        for(int i=1;i<steps;i++){var p=transform.InverseTransformPoint(Vector3.Lerp(from,to,i/(float)steps));if(p.y+.15<SurfaceGround(p.x+originX,p.z+originZ))return false;}
+        return true;
+    }
     bool NpcBackgroundRelevant(NpcEventQueue.Event item)
         =>NpcBackgroundRelevant(item,false);
     bool NpcBackgroundStillRelevant(NpcEventQueue.Event item)=>NpcBackgroundRelevant(item,true);
@@ -29,7 +47,7 @@ public sealed partial class LocalTerrainExplorer
         (item.Speaker==0||livingPeople.TryGetValue(item.Speaker,out var peer)&&(recent?NpcPlayerCanHearRecently(peer):NpcPlayerCanHear(peer))&&NpcCanHear(actor,peer.Root.transform.position+Vector3.up,5));
     bool NpcBackgroundAvailable=>npcThinking==null&&npcModel?.IsBusy!=true&&npcEvents.Count==0&&!npcSpeech.Values.Any(s=>!s.Delivered)&&!(chatOpen&&npcTalkTarget!=null);
     bool NpcCanHear(HumanActor listener,Vector3 source,float radius)
-    {var at=listener.Root.transform.position+Vector3.up;var delta=source-at;return delta.magnitude<radius&&(delta.magnitude<.1f||TraceCombatObstacle(new Ray(at,delta.normalized),Math.Max(0,delta.magnitude-.1f),checkGround:false)==null);}
+    {var at=listener.Root.transform.position+Vector3.up;return (source-at).sqrMagnitude<radius*radius&&NpcSpeechPathClear(at,source);}
     string NpcSocialContext(HumanActor actor,LivingGroup group,ForagerPersonSample speaker)
     {
         var band=group.Residents;var culture=EffectiveNpcCulture(group);NpcCoordinator(group);

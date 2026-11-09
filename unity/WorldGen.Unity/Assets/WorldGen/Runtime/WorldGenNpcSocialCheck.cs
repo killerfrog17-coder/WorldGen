@@ -65,7 +65,8 @@ public sealed partial class LocalTerrainExplorer
         unfinished.SetCanceled();npcThinking=null;npcPending=null;npcSuppressed=null;npcEvents.Clear();npcPlans.Clear();npcTalkTarget=null;
         npcModel.Config.Enabled=false;npcHearing.Clear();
         var barrier=new GameObject("Social hearing test wall");barrier.transform.position=(view.transform.position+recipient.Root.transform.position+Vector3.up)*.5f;
-        var wall=barrier.AddComponent<BoxCollider>();wall.size=new Vector3(.3f,3,3);Physics.SyncTransforms();
+        var wall=barrier.AddComponent<BoxCollider>();wall.size=new Vector3(.1f,3,.1f);Physics.SyncTransforms();
+        Check(NpcPlayerCanHear(recipient),"A thin post does not act as an opaque acoustic wall");wall.size=new Vector3(.3f,3,3);npcHearing.Clear();Physics.SyncTransforms();
         Check(!NpcPlayerCanHear(recipient),"A nearby solid wall blocks player earshot");
         Check(NpcPlayerCanHearRecently(recipient),"A brief occlusion does not instantly cancel an already audible exchange");
         npcLastHeard[recipient.ResidentId]=Time.unscaledTimeAsDouble-3;
@@ -80,6 +81,9 @@ public sealed partial class LocalTerrainExplorer
         if(Environment.GetCommandLineArgs().Contains("--worldgen-social-model"))
         {
             npcModel.Config.Enabled=true;npcModel.Config.BackgroundReactions=true;npcEvents.Clear();npcPlans.Clear();npcAmbientAt=npcSocialAt=0;npcSocialScanAt=Time.unscaledTimeAsDouble+300;npcTalkTarget=null;CloseChat();npcSocialCheckTrace=true;
+            // Run speech in open ground, independently of the earlier gift /
+            // ownership fixture's actual household shelter and moving props.
+            motion.Place(motion.X+32,motion.Z,CampFloor(motion.X+32,motion.Z));UpdateCamera();
             Place(recipient,motion.X+4,motion.Z-.7,270);Place(other,motion.X+4,motion.Z+.7,270);UpdateCamera();npcHearing.Clear();Physics.SyncTransforms();yield return null;
             int start=npcUtterances;PerformNpcSocialExchange(recipient,other);
             Check(npcConversation!=null&&npcEvents.Count==1,"An audible procedural encounter admits one optional live-model conversation");
