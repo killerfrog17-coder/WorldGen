@@ -187,14 +187,62 @@
     },
     {
       "title": "Measured costs and remaining work",
-      "subtitle": "Pending corrected moving-camera capture; previous timing rows are diagnostic only.",
+      "subtitle": "Verified camera poses; first-loading and steady-state intervals shown separately.",
       "blocks": [
         {
-          "text": "Earlier NPC scenic captures exposed substantial scatter-batching costs, but a camera audit found normal camera updates could reset the culling pose between requested review poses. Their measured times remain diagnostic data; they are not accepted moving-camera benchmarks. The corrected harness holds and verifies the pose across actual gameplay updates. Replace this page with its accepted results before the final PDF."
+          "text": "One occupied woodland camp: 34 residents, nine shelters, Medium vegetation/surfaces, 1536 x 864, 6 km view, local model disabled. Four30-second scenic camera orbits around a stationary observer. Every sampled pose was verified: zero camera error and zero unfocused frames. Sequential modes advance the world and loading, so they are not a static causal A/B."
+        },
+        {
+          "table": {
+            "headers": [
+              "Mode",
+              "FPS",
+              "p99 frame",
+              "Worst frame",
+              "NPC update"
+            ],
+            "rows": [
+              [
+                "normal",
+                "43.5",
+                "55.30 ms",
+                "61.00 ms",
+                "2.95 ms"
+              ],
+              [
+                "render-only",
+                "126.5",
+                "16.78 ms",
+                "49.36 ms",
+                "0.04 ms"
+              ],
+              [
+                "no-residents",
+                "165.8",
+                "13.03 ms",
+                "38.79 ms",
+                "0.03 ms"
+              ],
+              [
+                "normal-repeat",
+                "110.9",
+                "18.63 ms",
+                "30.32 ms",
+                "1.64 ms"
+              ]
+            ],
+            "widths": [
+              0.29,
+              0.12,
+              0.2,
+              0.2,
+              0.19
+            ]
+          }
         },
         {
           "heading": "The unresolved slow frames",
-          "text": "The first orbit remains too slow. Measured worst CPU samples spend 31–40 ms appending scatter batches. Incremental NPC resource removal avoids a full vegetation invalidation and preserves 55,916 other admitted instances exactly in its native check, but it has not solved the first-orbit spikes. Additional model-preparation/allocation traces are underway. No whole-world 100 FPS floor is claimed."
+          "text": "The first orbit included substantial forest loading: 28 to429 pages, with nearby rendering readiness becoming available. The repeat orbit had644 stable pages. Slow frames remain unacceptable; the100FPS floor is unmet. Older NPC orbit timings were demoted to diagnostic-only data after a camera/culling mismatch was found and corrected. The current shadow-policy change preserves all70,782 tested source decisions, but has no causal speedup claim."
         },
         {
           "heading": "Migration verification is still active",

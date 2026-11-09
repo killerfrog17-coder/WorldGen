@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-11-09T19:42:00Z",
+  "recorded_utc": "2026-11-09T19:53:00Z",
   "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
   "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
   "cases": {
@@ -1397,6 +1397,11 @@
       "build": "19c162fa",
       "folder": "artifacts/npc-20261103/npc-material-cycle-v7-morning",
       "result": "FAIL Packingdeadline.170componentsremoved thenloosepickups resetWork everyframe when no shelterPart. b65 fixesstate-transitionreset; new25assertioncase willuse repeated .05taskticks instead ofsingle largeRecovercall. Nativepending."
+    },
+    "departure_kit_045": {
+      "folder": "artifacts/npc-overnight-20261109/departure-kit-v2-camp",
+      "build": "0458995b",
+      "result": "25PASS, includes repeated .05PrepareNpcCampTask ticks preserving pickup progress, actual personalcuttingedge retrieved, then departurehold releases. Allprevious component material conservation checks pass."
     }
   },
   "performance_limits": [
@@ -1432,12 +1437,82 @@
     "note": "Whole fixture preparation/write duration, not an isolated sim throughput measurement."
   },
   "regional_qa_note": "Initial year0 cold/coast labels were rankings, not real regional coverage.29f/535 require annual<8C or coast>=.15. Old E82 cold/evening19PASS only mechanics/day-night; do not label them cold/coastal geography.",
-  "pending_source": "0458995b BUILD RUNNING B session71559; includesb65cargoWorkreset/newrepeatedtaskregression andbenchmarkcameraposeguard. No ownplayer,selectedAprotected. Nextrestoreautos, nativecamp, thenv8migration/removal, thencorrectedperformance. Allsourcepushed.",
+  "pending_source": "No runtimeedits. B045 clean, ownrunner79660/player25020 RIGHTMOST full migrationv8; nooverwrite/heavyjobs. Camps25PASS/correctedperformancePASS, frame-spikesUNMET. Followupoffscreenmaterialcontinuity remainsunaudited.",
   "shadow_policy_component": {
     "build": "19c162fa",
     "folder": "artifacts/npc-20261103/npc-material-cycle-v7-morning",
     "root_decisions": 70782,
     "result": "literal/snapshot EXACT; incremental removalproof alsoemitted. Overallcasefailedlater atpacking, so notfullnativecasepass."
   },
-  "camera_audit": "045 preservesactualreviewpose throughnormalUpdateCamera; before045NpcPerformance rows are diagnostic only, notvalidatedmovingroutes. Awaitnewrunbeforeanymoving-performanceclaim."
+  "camera_audit": "045 preservesactualreviewpose throughnormalUpdateCamera; before045NpcPerformance rows are diagnostic only, notvalidatedmovingroutes. Awaitnewrunbeforeanymoving-performanceclaim.",
+  "corrected_performance_045": {
+    "folder": "artifacts/npc-20261103/npc-cull-pose-trace-v1-morning",
+    "rows": [
+      {
+        "Mode": "normal",
+        "MeanFrameMs": 23.012942714723913,
+        "P99FrameMs": 55.301299999996445,
+        "MaxFrameMs": 61.00339999998994,
+        "MeanNpcMs": 2.9538404141104326,
+        "Frames": 1304,
+        "UnfocusedFrames": 0,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "MaximumScatterEyeDeltaM": 0.49933087825775146,
+        "ForestPagesStart": 28,
+        "ForestPagesEnd": 429,
+        "ResidentForestReadyStart": false,
+        "ResidentForestReadyEnd": true
+      },
+      {
+        "Mode": "render-only",
+        "MeanFrameMs": 7.90731781760675,
+        "P99FrameMs": 16.775600000002555,
+        "MaxFrameMs": 49.36059999999998,
+        "MeanNpcMs": 0.03859280442804437,
+        "Frames": 3794,
+        "UnfocusedFrames": 0,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "MaximumScatterEyeDeltaM": 0.4999344050884247,
+        "ForestPagesStart": 436,
+        "ForestPagesEnd": 583,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true
+      },
+      {
+        "Mode": "no-residents",
+        "MeanFrameMs": 6.030045699356907,
+        "P99FrameMs": 13.034399999980906,
+        "MaxFrameMs": 38.78729999999564,
+        "MeanNpcMs": 0.03171348472668805,
+        "Frames": 4976,
+        "UnfocusedFrames": 0,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "MaximumScatterEyeDeltaM": 0.4998916685581207,
+        "ForestPagesStart": 594,
+        "ForestPagesEnd": 644,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true
+      },
+      {
+        "Mode": "normal-repeat",
+        "MeanFrameMs": 9.017723624887287,
+        "P99FrameMs": 18.634999999989077,
+        "MaxFrameMs": 30.31590000000506,
+        "MeanNpcMs": 1.640281094078747,
+        "Frames": 3327,
+        "UnfocusedFrames": 0,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "MaximumScatterEyeDeltaM": 0.4999490976333618,
+        "ForestPagesStart": 644,
+        "ForestPagesEnd": 644,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true
+      }
+    ],
+    "note": "Validcameraorbits, no causaloptimizationgainclaim, no100floor. Firstloadsforest28->429;repeat644pagesstable."
+  }
 }
