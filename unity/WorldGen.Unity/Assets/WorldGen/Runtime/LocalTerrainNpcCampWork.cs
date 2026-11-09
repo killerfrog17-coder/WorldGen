@@ -57,7 +57,27 @@ public sealed partial class LocalTerrainExplorer
     {
         if(dt<=0||actor.Resident.AgeYears<12||actor.Belongings==null)return false;
         bool packing=group.Situation.Phase==HumanCampPhase.Packing;
-        if(!packing&&routine.Activity==HumanActivity.Travel&&actor.Belongings.Items.Any(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId))
+        bool settled=group.CampLoaded&&(group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp);
+        if(packing)actor.CampCargoDeliveredSite=0;
+        bool arrival=settled&&actor.CampCargoDeliveredSite!=group.Situation.Camp.Id,hasCargo=false;
+        if(arrival)foreach(var item in actor.Belongings.Items)if(item.CampMaterial==actor.GroupId&&actor.Belongings.Carried(item)){hasCargo=true;break;}
+        if(arrival&&!hasCargo)actor.CampCargoDeliveredSite=group.Situation.Camp.Id;
+        // Delivery precedes the next outing, even for a scheduled forager.
+        // Otherwise a family can carry its still-bound roof out to gather food
+        // while the builders at the new site have nothing to assemble.
+        if(arrival&&hasCargo)
+        {
+            target=LivingHouse(actor)?.Position??group.Anchor;actor.TaskWaiting=false;actor.TaskDetail="delivering the family's actual shelter materials before the next outing";actor.CurrentActivity=HumanActivity.BuildCamp;
+            if(HumanDistance(actor.Planet,target)<2)
+            {
+                foreach(var cargo in actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId).ToArray())
+                    if(cargo.Kind==PossessionKind.CampBundle)NpcCampWork.Unbundle(actor.Belongings,cargo,actor.Planet);
+                    else{cargo.Place=PossessionPlace.Ground;cargo.ContainerId="";cargo.Position=actor.Planet;cargo.GroundMoving=cargo.InFlight=false;cargo.GroundOffsetM=.05;cargo.GroundRotation=new V(90,0,0);}
+                PublishNpcGroundGoods(actor);actor.CampCargoDeliveredSite=group.Situation.Camp.Id;
+            }
+            return true;
+        }
+        if(group.Situation.Phase==HumanCampPhase.Travelling&&routine.Activity==HumanActivity.Travel&&actor.Belongings.Items.Any(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId))
         {actor.TaskWaiting=false;actor.TaskDetail="carrying the family's actual shelter materials to the next camp";return true;}
         // Reaching the end of a broad setup window does not finish its physical
         // shelters. Awake, available adults at camp keep working on them.

@@ -56,6 +56,12 @@ public sealed partial class LocalTerrainExplorer
         V retrieve=bundle.Position;Check(RecoverNpcCampCargo(carrier,.1f,ref retrieve)&&carrier.Belongings.Find(bundle.Id)==bundle&&carrier.Belongings.Carried(bundle)&&Inventory.Find(bundle.Id)==null,"A real packed load is retrieved with both hands initially occupied, stowing or setting down the held tools automatically");
         Check(bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Occupied-hand retrieval preserves every original bound contribution");
         foreach(var tool in heldProof){carrier.Belongings.Items.Remove(tool);Inventory.Items.Remove(tool);}carrier.Belongings.Validate();
+        var foraging=new HumanActivitySample{Activity=HumanActivity.Travel,Person=carrier.ResidentId,Group=carrier.GroupId,Position=frame.Position(carrier.Motor.X+50,carrier.Motor.Z)};
+        V delivery=foraging.Position;group.Situation.Phase=HumanCampPhase.Occupied;carrier.CampCargoDeliveredSite=0;PrepareNpcCampTask(carrier,group,ref foraging,.05f,ref delivery);
+        Check(HumanDistance(delivery,LivingHouse(carrier)?.Position??group.Anchor)<.01,"A scheduled forager delivers the real shelter load home before setting off on a new outing");
+        TerrainHandoff.Coordinates(frame,delivery,out double deliveryX,out double deliveryZ);carrier.Motor.Place(deliveryX,deliveryZ,CampFloor(deliveryX,deliveryZ));carrier.Planet=delivery;
+        PrepareNpcCampTask(carrier,group,ref foraging,.05f,ref delivery);
+        Check(carrier.Belongings.Find(bundle.Id)==null&&bundleIds.All(id=>Inventory.Find(id)!=null),"Arrival delivery opens the same actual bound load and stages its original materials for builders instead of carrying it away foraging");
         // Isolate the departure predicate from still-fitted tents and other
         // loads so this specifically tests personal kit, not a vacuous hold.
         var hiddenObjects=Camp.Objects.Where(c=>c.NpcGroup==actor.GroupId).ToArray();
