@@ -34,7 +34,7 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<513;i++)
         {
             double bearing=i*2.399963229728653,distance=i==0?0:Math.Sqrt(i/512d)*(survey.Radius-survey.FootprintRadius-10);
-            double px=x+Math.Sin(bearing)*distance,pz=z+Math.Cos(bearing)*distance;bool literal=Literal(px,pz),indexed=owner.LivingSiteClear(group,px,pz);
+            double sampleX=x+Math.Sin(bearing)*distance,sampleZ=z+Math.Cos(bearing)*distance;bool literal=Literal(sampleX,sampleZ),indexed=owner.LivingSiteClear(group,sampleX,sampleZ);
             if(literal!=indexed)throw new InvalidOperationException("Camp spatial index disagrees with full literal obstacle scan at "+i);
             if(indexed)clear++;else blocked++;
         }
