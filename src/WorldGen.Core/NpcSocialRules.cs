@@ -45,5 +45,22 @@ namespace WorldGen.Core
             var tie=memory?.Relationships.FirstOrDefault(t=>t.Other==person);if(tie==null)return "no recent personal dispute or earned obligation";
             return tie.Grievance>.5?"a serious unresolved grievance":tie.Fear>.6?"afraid of them":tie.Trust<-.35?"distrust after past dealings":tie.Trust>.5?"earned personal trust":tie.Affection>.5?"personal affection":"mixed feelings from past dealings";
         }
+        public static void Gift(NpcSocialState memory,long giver,long recipient,double day,V at,string name,bool restitution,bool personal,double usefulness)
+        {
+            memory.Advance(day);var tie=memory.Tie(giver,day);usefulness=Math.Max(0,Math.Min(1,usefulness));
+            if(tie.GiftDay<0||day-tie.GiftDay>=1){tie.GiftDay=day;tie.GiftCredits=0;}
+            if(restitution)
+            {tie.Grievance=Math.Max(0,tie.Grievance-.45);tie.Trust=Math.Min(1,tie.Trust+.12);memory.Anger*=.55;}
+            else if(personal&&tie.GiftCredits<2)
+            {tie.GiftCredits++;tie.Trust=Math.Min(1,tie.Trust+.04+.08*usefulness);tie.Respect=Math.Min(1,tie.Respect+.02+.05*usefulness);tie.Affection=Math.Min(1,tie.Affection+.03);}
+            memory.Record(new NpcIncident{Kind=restitution?NpcIncidentKind.Reconciliation:NpcIncidentKind.Help,Actor=giver,Subject=recipient,SolarDay=day,Position=at,Detail=restitution?"The person returned your "+name+". This repairs part of the dispute; it does not erase what happened.":"You actually received "+name+" from the person you were speaking with."});
+        }
+        public static void SharedConversation(NpcSocialState memory,long other,double day,bool disagreement,string topic)
+        {
+            memory.Advance(day);var tie=memory.Tie(other,day);
+            if(disagreement)
+            {tie.Grievance=Math.Min(1,tie.Grievance+.035);memory.Anger=Math.Max(memory.Anger,.18);memory.Record(new NpcIncident{Kind=NpcIncidentKind.Argument,Subject=other,SolarDay=day,Detail="You disagreed with this person about "+topic+". This was a disagreement, not a fight."});}
+            else {tie.Affection=Math.Min(1,tie.Affection+.018);if(tie.Grievance<.3)tie.Trust=Math.Min(1,tie.Trust+.008);memory.Contentment=Math.Min(1,memory.Contentment+.04);}
+        }
     }
 }

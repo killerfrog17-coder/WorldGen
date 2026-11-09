@@ -6,7 +6,7 @@ using WorldGen.Core;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class SocialConversation {public long A,B;public int Turns=4;public double Until;}
+    sealed class SocialConversation {public long A,B;public int Turns=4;public double Until;public NpcDiscussion Discussion;public bool Recorded;}
     SocialConversation npcConversation;double npcSocialAt,npcWaitSocialDay;long npcSocialSequence;
     bool NpcCanHear(HumanActor listener,Vector3 source,float radius)
     {var at=listener.Root.transform.position+Vector3.up;var delta=source-at;return delta.magnitude<radius&&(delta.magnitude<.1f||TraceCombatObstacle(new Ray(at,delta.normalized),Math.Max(0,delta.magnitude-.1f),checkGround:false)==null);}
@@ -46,14 +46,19 @@ public sealed partial class LocalTerrainExplorer
             if(a.ResidentId>=b.ResidentId||a.GroupId!=b.GroupId||HumanDistance(a.Planet,b.Planet)>6)continue;
             var group=livingGroups[a.GroupId];var c=sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture];
             double score=NpcSocialRules.Affinity(c,a.Resident,b.Resident,group.Residents,NpcMemoryFor(a.ResidentId).Social)+Rng.Value(c.Seed,"conversation-pair",unchecked((int)(++npcSocialSequence)^ (int)a.ResidentId^(int)b.ResidentId))*.6;
+            if(Rng.Value(c.Seed,"disagreement-opportunity",(int)(now/60))<.16)
+            {var d=NpcDiscussion.For(NpcAwarenessFor(a).Personality,NpcAwarenessFor(b).Personality,c,a.Resident.AgeYears<14||b.Resident.AgeYears<14);if(d.Disagreement)score+=1.4;}
             if(score>best){best=score;first=a;second=b;}
         }
         if(first==null)return;
         var ray=new Ray(first.Root.transform.position+Vector3.up,second.Root.transform.position-first.Root.transform.position);
         if(TraceCombatObstacle(ray,(float)HumanDistance(first.Planet,second.Planet),checkGround:false)!=null)return;
-        npcConversation=new SocialConversation{A=first.ResidentId,B=second.ResidentId,Until=now+100};
+        var customs=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[first.GroupId].Residents.Culture];
+        var discussion=NpcDiscussion.For(NpcAwarenessFor(first).Personality,NpcAwarenessFor(second).Personality,customs,first.Resident.AgeYears<14||second.Resident.AgeYears<14);
+        npcConversation=new SocialConversation{A=first.ResidentId,B=second.ResidentId,Until=now+100,Discussion=discussion};
         NpcListen(second,first.ResidentId);
-        if(!QueueNpcEvent(first,"You are near a bandmate. Start a short, natural conversation with them about your current work, camp plans or shared acquaintances. Do not invent events or possessions.",priority:2,speaker:second.ResidentId)){EndNpcConversation();return;}
+        string topic=discussion.Disagreement?"You and "+second.Resident.Name+" have different views on "+discussion.Topic+". Your view: "+discussion.FirstView+". Their tendency: "+discussion.SecondView+". Express your own view without inventing a missing meal, past insult or fight.":"Start a short natural conversation about actual current work, camp plans or your own interest in "+NpcAwarenessFor(first).Personality.Interest+". Do not invent events or possessions.";
+        if(!QueueNpcEvent(first,topic,priority:2,speaker:second.ResidentId)){EndNpcConversation();return;}
         NpcListen(first,second.ResidentId);var culture=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[first.GroupId].Residents.Culture];npcSocialAt=now+Math.Max(npcModel.Config.VisitorCooldownSeconds,40+55*(1-culture.GuestAccess));
     }
     void EndNpcConversation()
@@ -83,8 +88,16 @@ public sealed partial class LocalTerrainExplorer
             if(target!="person:"+observer.ResidentId)NpcMemoryFor(observer.ResidentId).Hear(actor.ResidentId,actor.Resident.Name,speech);
         if(target=="player"){if(campResting||campSleeping)WakeCamp(actor.Resident.Name+" is speaking to you.");return;}
         if(!target.StartsWith("person:")||!long.TryParse(target.Substring(7),out var id)||!livingPeople.TryGetValue(id,out var other)||HumanDistance(actor.Planet,other.Planet)>5)return;
+        if(!NpcCanHear(other,actor.Root.transform.position+transform.up,5))return;
+        if(npcConversation!=null&&!npcConversation.Recorded&&(actor.ResidentId==npcConversation.A||actor.ResidentId==npcConversation.B))
+        {
+            npcConversation.Recorded=true;var d=npcConversation.Discussion;
+            NpcSocialRules.SharedConversation(NpcMemoryFor(actor.ResidentId).Social,other.ResidentId,PlayerRules.SolarDays,d?.Disagreement==true,d?.Topic??"their actual work");
+            NpcSocialRules.SharedConversation(NpcMemoryFor(other.ResidentId).Social,actor.ResidentId,PlayerRules.SolarDays,d?.Disagreement==true,d?.Topic??"their actual work");
+        }
         bool continuing=npcConversation!=null&&(actor.ResidentId==npcConversation.A||actor.ResidentId==npcConversation.B)&&--npcConversation.Turns>0&&heard.Depth<3&&HumanDistance(actor.Planet,Position)<12;
-        if(continuing&&QueueNpcEvent(other,"A nearby bandmate addressed you. Respond to what they actually said; you may ask one relevant follow-up, or finish naturally.",speech,2,actor.ResidentId,heard.Depth+1))
+        string personalView=npcConversation?.Discussion?.Disagreement==true?" Your own view on "+npcConversation.Discussion.Topic+": "+(other.ResidentId==npcConversation.A?npcConversation.Discussion.FirstView:npcConversation.Discussion.SecondView)+". You can disagree naturally without inventing events.":"";
+        if(continuing&&QueueNpcEvent(other,"A nearby bandmate addressed you. Respond to what they actually said; you may ask one relevant follow-up, or finish naturally."+personalView,speech,2,actor.ResidentId,heard.Depth+1))
         {npcConversation.Until=Time.unscaledTimeAsDouble+60;NpcListen(actor,other.ResidentId);NpcListen(other,actor.ResidentId);}
         else {NpcMemoryFor(id).Hear(actor.ResidentId,actor.Resident.Name,speech);EndNpcConversation();}
     }

@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
         while((!livingGroups.TryGetValue(PlayerRules.Identity.Group,out var ready)||!ready.CampLoaded||livingPeople.Values.Count(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=3&&p.Resident.AgeYears<14)<2)&&Time.unscaledTimeAsDouble<until)yield return null;
         Check(livingGroups.TryGetValue(PlayerRules.Identity.Group,out var group)&&group.CampLoaded,"The controlled resident's actual camp is loaded");
         var kids=livingPeople.Values.Where(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=3&&p.Resident.AgeYears<14).Take(2).ToArray();Check(kids.Length==2,"Two actual generated children are present, without inserting fake residents");paused=true;
+        livingQueryAt=Time.unscaledTimeAsDouble+45;while(livingWork!=null)yield return null;
         var fire=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.Kind==CampKind.Fire);Check(fire!=null,"The actual community has a shared hearth");
         if(!fire.Burning&&CampRules.IgniteReason(fire,false).Length==0)CampRules.Ignite(fire,false);
         TerrainHandoff.Coordinates(frame,fire.Position,out double cx,out double cz);campMaskCheckAt=0;UpdateCampClearing();Check(CampGroundClearing(cx,cz)>.9,"The actual hearth's trampled clearing is available to perception");
@@ -46,7 +47,14 @@ public sealed partial class LocalTerrainExplorer
         // unrelated horizon. This is an evidence scene, not an FPS benchmark.
         motion.Place(cx-7,cz+3,CampFloor(cx-7,cz+3));humanCamera.Restore(0,false);UpdateHumans();
         for(int i=0;i<8;i++){UpdateCamera();var d=transform.InverseTransformDirection(kids[0].Root.transform.position+transform.up*.6f-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
-        npcThoughts=true;paused=false;UpdateCamera();yield return NpcLifeImage(output,"children-at-camp");paused=true;
+        var startA=kids[0].Planet;var startB=kids[1].Planet;double playUntil=Time.unscaledTimeAsDouble+10;bool captured=false;npcThoughts=true;paused=false;UpdateCamera();
+        while(Time.unscaledTimeAsDouble<playUntil)
+        {
+            if(!captured&&kids.Any(p=>p.Speed>.7f)){captured=true;yield return NpcLifeImage(output,"children-at-camp");}
+            yield return null;
+        }
+        paused=true;Check(Math.Max(HumanDistance(startA,kids[0].Planet),HumanDistance(startB,kids[1].Planet))>.8&&kids.Any(p=>p.CurrentActivity==HumanActivity.Play),"Children actually move through the camp during ten seconds of normal play updates");
+        Check(captured,"The play evidence image is captured during actual movement");
         File.WriteAllText(Path.Combine(output,"daily-memory.json"),JsonUtility.ToJson(NpcMemoryFor(parent.ResidentId),true));paused=false;DisposeNpcMinds();
     }
 }

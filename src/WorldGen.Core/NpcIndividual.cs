@@ -31,6 +31,8 @@ namespace WorldGen.Core
     [Serializable] public sealed class NpcRelationship
     {
         public long Other;public double Trust,Affection,Respect,Grievance,Fear,LastSolarDay;
+        [System.Runtime.Serialization.OptionalField] public double GiftDay=-1;
+        [System.Runtime.Serialization.OptionalField] public int GiftCredits;
         public NpcRelationship Copy()=>(NpcRelationship)MemberwiseClone();
     }
     [Serializable] public sealed class NpcKnownPerson

@@ -80,6 +80,8 @@ public sealed partial class LocalTerrainExplorer
         if(p.Kind==PossessionKind.HandLine||p.Kind==PossessionKind.FibreNet)ActionButton(p.Kind==PossessionKind.FibreNet?"Gather nearby fish":"Fish with hand-line",true,"",()=>{BeginFishing(p);inventoryContext=null;});
         if(worldToolWork!=null)ActionButton("Stop tool work",true,"",()=>{CancelWorldToolWork();inventoryContext=null;});
         GUILayout.Space(5*scale);
+        var recipient=Inventory.Carried(p)?NpcGiftRecipient():null;
+        if(recipient!=null)ActionButton((p.OwnerPerson==recipient.ResidentId?"Return to ":"Give to ")+recipient.Resident.Name,ActiveItemCraft==null&&worldToolWork==null,"Finish or pause the current work first.",()=>{if(GiveNpcItem(recipient,p))inventoryContext=null;});
         ActionButton("Hold in right hand",true,"",()=>{RequestPossession(p.Id,PossessionPlace.RightHand);inventoryContext=null;});
         ActionButton("Hold in left hand",true,"",()=>{RequestPossession(p.Id,PossessionPlace.LeftHand);inventoryContext=null;});
         ActionButton("Stow in worn carrier",true,"",()=>{RequestPossession(p.Id,PossessionPlace.Container,autoStow:true);inventoryContext=null;});
