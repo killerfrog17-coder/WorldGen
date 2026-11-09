@@ -1,0 +1,18 @@
+﻿{
+    "VerifiedUtc":  "2026-11-09T08:17:00.6914836Z",
+    "BuildCommit":  "a738fe956bdc9265d6087b2ac4045f7ba65b5855",
+    "Before":  {
+                   "WindowStyle":  1,
+                   "Icon":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe,0",
+                   "Arguments":  "",
+                   "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
+                   "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen"
+               },
+    "After":  {
+                  "WindowStyle":  1,
+                  "Icon":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe,0",
+                  "Arguments":  "",
+                  "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+                  "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen"
+              }
+}

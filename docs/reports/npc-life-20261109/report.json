@@ -1,0 +1,117 @@
+{
+  "title": "WorldGen - NPC Camp Life and Waiting",
+  "section": "NPC LIFE UPDATE",
+  "date": "09 NOVEMBER 2026",
+  "footer": "Actual in-game captures | Qwen3.5-9B local inference | Functional QA, not an FPS comparison",
+  "pages": [
+    {
+      "title": "Conversations in the camp",
+      "subtitle": "Scripted lives continue; nearby conversations use the local model when you can hear them.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "npc-social-exchange.jpg",
+              "caption": "Actual camp with an overheard NPC exchange displayed. Full replies below come from the participants’ saved memories."
+            }
+          ],
+          "max_height": 195
+        },
+        {
+          "table": {
+            "headers": [
+              "Speaker",
+              "Actual generated words"
+            ],
+            "widths": [
+              0.15,
+              0.85
+            ],
+            "rows": [
+              [
+                "Huwi",
+                "I&#x27;m just finishing up some plant fibers for a basket, Pesophip. Want to see how I&#x27;m doing it?"
+              ],
+              [
+                "Pesophip",
+                "Sure, Huwi, show me how you&#x27;re making that basket. I&#x27;d love to see your work."
+              ]
+            ]
+          }
+        },
+        {
+          "heading": "Speech arrives as it is generated"
+        },
+        {
+          "images": [
+            {
+              "file": "stream-text-crop.jpg",
+              "caption": "HUD crop during generation: the reply is still arriving. Display is capped to the chosen reading pace."
+            }
+          ],
+          "max_height": 42
+        },
+        {
+          "text": "NPCs take short, bounded conversational turns, listen and face their partner, and remember words they actually hear. Nearby witnesses store dialogue without each invoking a model. Leaving or interrupting an exchange releases the participants back to their routines."
+        },
+        {
+          "text": "<b>Try it:</b> aim at a resident and press <b>E</b>; type and press <b>Enter</b>. Wait near people to overhear them. <b>/npcthoughts on</b> shows actual activity and the generated intention. Under <b>Settings &gt; AI</b>, adjust reading pace or disable the provisional positional mumble."
+        }
+      ]
+    },
+    {
+      "title": "People, plans and passing time",
+      "subtitle": "Camp knowledge comes from world data; waiting keeps the local scene running.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "standing-wait.jpg",
+              "caption": "Standing wait: the elapsed-time label stays visible while people and wildlife continue moving."
+            }
+          ],
+          "max_height": 175
+        },
+        {
+          "heading": "Who knows whom, and who leads?"
+        },
+        {
+          "text": "Extended kin follows the generated family graph: grandparents, aunts, uncles, nieces, nephews and cousins. Stable personal affinities affect conversational partners. Existing sharing, prestige, kinship and residence norms produce different decision traditions, speech styles and social timing. Competence and experience select named guides, teachers, mediators and coordinators; leadership is not male-only. These are local cultural roles, not simulated states."
+        },
+        {
+          "text": "People receive their actual camp phase, planned departure and next camp purpose. In this test Fojuce reported the supplied plan of roughly 51 local days. Plans and knowledge remain grounded in the current group data."
+        },
+        {
+          "heading": "Wait, without lying down"
+        },
+        {
+          "text": "Press <b>Z &gt; Rest</b>. Processing headroom controls acceleration, with small movement steps and shared clocks for the calendar, survival, NPCs and wildlife. The run advanced 29.45 equivalent normal-speed seconds during the short wait. <b>Space, movement or Escape</b> cancels it; damage, nearby danger and a bandmate approaching to talk also interrupt it."
+        },
+        {
+          "heading": "Checked, and still limited"
+        },
+        {
+          "text": "<b>56 actual-game functional checks, 79 focused core checks and 18,052 world-life assertions passed.</b> Native checks include keyboard cancellation, streaming before completion, mutual NPC memory and model-host cleanup. Two separate model-recall probes are preserved with the full replies. Shared-GPU QA used 18 layers, 8 threads, a 2 GB reserve and capped rendering. Your saved AI settings were unchanged."
+        },
+        {
+          "text": "The model’s children-claim recall passed some runs and failed others despite a correct supplied quote; it can still invent details or misattribute facts. Mumble is optional synthetic placeholder sound, not voiced English. Real NPC inventories, hunting and food supplies remain for the next update; close-body spacing and prop poses are also still rough.",
+          "size": 9
+        }
+      ],
+      "sources": [
+        [
+          "Hill et al.: camp co-residence",
+          "https://pubmed.ncbi.nlm.nih.gov/21393537/"
+        ],
+        [
+          "Garfield et al.: leadership variation",
+          "https://anthro.vancouver.wsu.edu/documents/584/garfield_et_al_2019.pdf"
+        ],
+        [
+          "Forager institutions",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC8020663/"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 518.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\npc-social-exchange.jpg",
+    "bottom": 534.0897637795277,
+    "height": 195
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 395.4897637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 338.5330128470785,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\stream-text-crop.jpg",
+    "bottom": 354.4130128470785,
+    "height": 36.07675093244924
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 285.1330128470785,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 247.53301284707848,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 538.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\standing-wait.jpg",
+    "bottom": 554.0897637795277,
+    "height": 175
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 508.4897637795277,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 452.28976377952773,
+    "height": 51.2
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 414.6897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 387.9697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 344.56976377952765,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 317.8497637795276,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 261.64976377952763,
+    "height": 51.2
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 215.08976377952763,
+    "height": 34.56
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  }
+]
