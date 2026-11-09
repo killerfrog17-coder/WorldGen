@@ -16,16 +16,16 @@ public sealed partial class WorldGenRuntime
         void Check(bool ok,string text){if(!ok){UnityEngine.Debug.LogError("AI SETTINGS "+text);File.WriteAllLines(Path.Combine(output,"failed-checks.txt"),report);Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);UnityEngine.Debug.Log("AI SETTINGS PASS "+text);}
         bool Alive(int pid){try{return !Process.GetProcessById(pid).HasExited;}catch(ArgumentException){return false;}}
         IEnumerator Await(Task task)
-        {double deadline=Time.realtimeSinceStartupAsDouble+75;while(!task.IsCompleted&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;Check(task.IsCompleted&&!task.IsFaulted&&!task.IsCanceled,task.IsFaulted?task.Exception.GetBaseException().Message:"asynchronous AI operation completed");}
+        {double deadline=Time.realtimeSinceStartupAsDouble+200;while(!task.IsCompleted&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;Check(task.IsCompleted&&!task.IsFaulted&&!task.IsCanceled,task.IsFaulted?task.Exception.GetBaseException().Message:"asynchronous AI operation completed");}
         string originalPath=NpcModelClient.ConfigPath;byte[] original=File.ReadAllBytes(originalPath);var settings=NpcModelClient.LoadSettings();
         NpcModelClient.TestSettingsPath=Path.Combine(output,"settings.json");NpcModelClient.SaveSettings(settings);
         try
         {
             screen="Options";settingsCategory=8;ReloadAiDraft();Check(SettingsTabs[8]=="AI","AI tab is available in shared settings");
             aiDraft.Preset(2,Environment.ProcessorCount);ApplyAiSettings();var saved=NpcModelClient.LoadSettings();
-            Check(saved.GpuLayers==37&&saved.BriefReplies&&saved.ModelPath==settings.ModelPath,"Apply persists GPU preset without changing the model");
+            Check(saved.GpuLayers==999&&saved.BriefReplies&&saved.ModelPath==settings.ModelPath,"Apply persists automatic GPU preset without changing the model");
             var client=EnsureSettingsAiClient();var watch=Stopwatch.StartNew();yield return Await(client.WarmUp());double boot=watch.Elapsed.TotalSeconds;
-            int gpuHost=client.OwnedProcessId;Check(gpuHost>0&&client.Config.GpuLayers==37,"GPU host starts from saved settings");
+            int gpuHost=client.OwnedProcessId;Check(gpuHost>0&&client.Config.GpuLayers==999,"GPU host starts from saved settings");
             var first=TestAiForSettings();var duplicate=client.Ask("duplicate","[\"player\"]");
             yield return Await(first);Check(duplicate.IsFaulted&&duplicate.Exception.GetBaseException() is InvalidOperationException,"parallel requests are rejected without another host");
             Check(client.LastSeconds>0&&client.LastGeneratedTokens>0&&first.Result.Contains("Reply:"),"menu test reports actual response time and a validated reply");
@@ -39,6 +39,21 @@ public sealed partial class WorldGenRuntime
             aiDraft.Preset(0,Environment.ProcessorCount);ApplyAiSettings();Check(NpcModelClient.LoadSettings().GpuLayers==0,"CPU preset persists after restart");
             client=EnsureSettingsAiClient();yield return Await(client.WarmUp());int cpuHost=client.OwnedProcessId;DisposeAiPreview();yield return new WaitForSecondsRealtime(.3f);
             Check(!Alive(cpuHost),"manual unload closes the CPU model process");
+            Check(aiModels.Length==4,"the current model and all three installed candidates appear in the selector");
+            var trials=new List<string>();
+            foreach(var model in aiModels)
+            {
+                aiDraft.SelectModel(model);aiDraft.Preset(3,Environment.ProcessorCount);ApplyAiSettings();saved=NpcModelClient.LoadSettings();
+                Check(saved.ModelPath==model.Path&&saved.Priority==2&&saved.GpuReserveMiB==0&&saved.Polling==100,"model selection and maximum-speed controls persist: "+model.Name);
+                var test=TestAiForSettings();yield return Await(test);client=SettingsAiClient;int trialHost=client.OwnedProcessId;
+                Check(test.Result.Contains("Reply:")&&client.LastGeneratedTokens>0,"selected model returns a validated menu decision: "+model.Name);
+                trials.Add(model.Name+" | "+client.BackendInfo+" | "+client.LastSeconds.ToString("0.000")+"s total / "+client.LastLoadSeconds.ToString("0.000")+"s load / "+client.LastTokensPerSecond.ToString("0.0")+" tokens/s | "+client.LastPromptTokens+" input / "+client.LastGeneratedTokens+" output | "+test.Result);
+                File.WriteAllLines(Path.Combine(output,"model-trials.txt"),trials);
+                aiNotice=test.Result;settingsScroll=Vector2.zero;aiAdvanced=true;yield return new WaitForEndOfFrame();
+                image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"model-"+model.Family+".png"),image.EncodeToPNG());Destroy(image);
+                DisposeAiPreview();yield return new WaitForSecondsRealtime(.3f);Check(!Alive(trialHost),"model switch releases the previous host: "+model.Name);
+            }
+            File.WriteAllLines(Path.Combine(output,"model-trials.txt"),trials);
             Check(Convert.ToBase64String(File.ReadAllBytes(originalPath))==Convert.ToBase64String(original),"test leaves the owner's saved AI settings untouched");
             File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
         }

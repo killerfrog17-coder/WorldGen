@@ -6,11 +6,12 @@ using WorldGen.Presentation;
 public sealed partial class WorldGenRuntime
 {
     NpcAiSettings aiDraft;int aiDraftRevision=-1;bool aiAdvanced,aiDirty;string aiNotice="";
+    NpcAiModel[] aiModels=Array.Empty<NpcAiModel>();
     NpcModelClient aiPreview;Task<string> aiSettingsTest;
     NpcModelClient SettingsAiClient=>terrainExplorer!=null?terrainExplorer.NpcAiRuntime:aiPreview;
     NpcModelClient EnsureSettingsAiClient()=>terrainExplorer!=null?terrainExplorer.EnsureNpcAiRuntime():aiPreview??(aiPreview=new NpcModelClient());
     void DisposeAiPreview(){aiPreview?.Dispose();aiPreview=null;if(aiSettingsTest!=null)aiSettingsTest.ContinueWith(t=>{var ignored=t.Exception;},TaskContinuationOptions.OnlyOnFaulted);aiSettingsTest=null;}
-    void ReloadAiDraft(){aiDraft=NpcModelClient.LoadSettings();aiDraftRevision=NpcModelClient.SettingsRevision;aiDirty=false;}
+    void ReloadAiDraft(){aiDraft=NpcModelClient.LoadSettings();aiModels=NpcModelClient.InstalledModels(aiDraft);aiDraftRevision=NpcModelClient.SettingsRevision;aiDirty=false;}
     void ApplyAiSettings()
     {
         try{NpcModelClient.SaveSettings(aiDraft);DisposeAiPreview();terrainExplorer?.ReloadNpcAiSettings();ReloadAiDraft();aiNotice="Saved. The AI host will use these settings on its next load.";}
@@ -31,22 +32,37 @@ public sealed partial class WorldGenRuntime
             aiNotice=task.IsFaulted?task.Exception.GetBaseException().Message:task.IsCanceled?"AI test cancelled.":task.Result;
         }
         GUILayout.Label("NPC AI",SectionStyle());
-        GUILayout.Label("Model: "+aiDraft.ModelName);GUILayout.Label("Local, free inference. Schedules continue independently; thinking is prompted by events.",MutedStyle());
+        GUILayout.Label("Local, free inference. Schedules continue independently; thinking is prompted by events.",MutedStyle());
         bool prior=GUI.changed;GUI.changed=false;
+        GUILayout.Label("Model");
+        int selected=Array.FindIndex(aiModels,m=>string.Equals(m.Path,aiDraft.ModelPath,StringComparison.OrdinalIgnoreCase));
+        string[] modelNames=Array.ConvertAll(aiModels,m=>m.Name+(m.Bytes>0?" ("+(m.Bytes/1073741824d).ToString("0.0")+" GiB)":""));
+        if(aiModels.Length>0)
+        {
+            int next=GUILayout.SelectionGrid(selected,modelNames,2);
+            if(next>=0&&next!=selected){aiDraft.SelectModel(aiModels[next]);aiDirty=true;}
+        }
+        GUILayout.Label(aiDraft.ModelPath,MutedStyle());
         aiDraft.Enabled=GUILayout.Toggle(aiDraft.Enabled,"Enable NPC thoughts and dialogue");
         GUILayout.Space(8);GUILayout.Label("Hardware starting points");
         GUILayout.BeginHorizontal();
-        foreach(var preset in new[]{"CPU","Hybrid","GPU"})if(GUILayout.Button(preset)){aiDraft.Preset(preset=="CPU"?0:preset=="Hybrid"?1:2,Environment.ProcessorCount);aiDirty=true;}
-        GUILayout.EndHorizontal();GUILayout.Label("CPU: protects GPU resources. Hybrid: shares work. GPU: prioritizes response speed. All use the same model.",MutedStyle());
-        aiDraft.GpuLayers=AiSlider("GPU layers (requested)",aiDraft.GpuLayers,0,37,"0 = CPU only. 37 requests full offload; status shows the actual result. More layers use more VRAM and can compete with rendering.");
+        int presetIndex=0;foreach(var preset in new[]{"CPU","Hybrid","GPU","Max speed"}){if(GUILayout.Button(preset)){aiDraft.Preset(presetIndex,Environment.ProcessorCount);aiDirty=true;}presetIndex++;}
+        GUILayout.EndHorizontal();GUILayout.Label("Max speed gives AI priority: zero VRAM reserve, high CPU priority and active polling. Game FPS can suffer. Thread tuning may still improve speed.",MutedStyle());
+        bool autoGpu=GUILayout.Toggle(aiDraft.GpuLayers==999,"Automatically fit as much as possible on the GPU");
+        if(autoGpu)aiDraft.GpuLayers=999;
+        else{if(aiDraft.GpuLayers==999)aiDraft.GpuLayers=Math.Min(18,aiDraft.ModelLayers);aiDraft.GpuLayers=AiSlider("GPU layers (requested)",aiDraft.GpuLayers,0,aiDraft.ModelLayers,"0 = CPU only. The maximum depends on the selected model. Status shows actual offload.");}
         GUILayout.Label(SystemInfo.graphicsDeviceName+" · "+(SystemInfo.graphicsMemorySize/1024f).ToString("0.0")+" GB total VRAM",MutedStyle());
-        aiDraft.Threads=AiSlider("CPU threads",aiDraft.Threads,1,Environment.ProcessorCount,"More CPU workers may speed up inference, but can compete with the game. More is not always faster.");
+        aiDraft.Threads=AiSlider("Generation CPU threads",aiDraft.Threads,1,Environment.ProcessorCount,"More CPU workers may speed up inference, but can compete with the game. More is not always faster.");
         aiDraft.BriefReplies=GUILayout.Toggle(aiDraft.BriefReplies,"Brief replies");GUILayout.Label("Shorter speech and thoughts reduce the amount of text the model must generate.",MutedStyle());
         bool dirtyBeforeFold=GUI.changed;GUI.changed=false;aiAdvanced=GUILayout.Toggle(aiAdvanced,"Advanced AI settings");GUI.changed=dirtyBeforeFold;
         if(aiAdvanced)
         {
-            GUILayout.Space(8);GUILayout.Label("CPU priority");aiDraft.Priority=GUILayout.SelectionGrid(aiDraft.Priority<0?0:1,new[]{"Low","Normal"},2)==0?-1:0;
-            GUILayout.Label("Low gives the game preference when CPU work competes. Normal can improve AI responsiveness at the expense of gameplay.",MutedStyle());
+            GUILayout.Space(8);GUILayout.Label("CPU priority");aiDraft.Priority=GUILayout.SelectionGrid(aiDraft.Priority+1,new[]{"Low","Normal","Above normal","High"},4)-1;
+            GUILayout.Label("Higher priority lets AI compete more aggressively with the game. It does not guarantee higher token throughput.",MutedStyle());
+            aiDraft.BatchThreads=AiSlider("Prompt-processing threads",aiDraft.BatchThreads,1,Environment.ProcessorCount,"Used while reading the prompt. Can benefit from more workers than generation does.");
+            aiDraft.Polling=AiSlider("Active CPU polling (%)",aiDraft.Polling,0,100,"Keeps workers awake for lower scheduling latency; uses CPU even while waiting during inference.");
+            aiDraft.GpuReserveMiB=AiSlider("Free VRAM reserve (MiB)",aiDraft.GpuReserveMiB,0,2048,"Automatic fitting leaves this margin for rendering. 0 prioritizes the AI model; 1,024 is the ordinary preset.");
+            if(aiDraft.ModelExpertLayers>0)aiDraft.CpuExpertLayers=AiSlider("Expert layers kept on CPU",aiDraft.CpuExpertLayers,0,aiDraft.ModelExpertLayers,"For expert models: keep expert weights in RAM while attention runs on GPU. This helps larger models fit; compare values for speed.");
             GUILayout.Label("Context window");int window=aiDraft.ContextTokens<=2048?0:aiDraft.ContextTokens<=4096?1:2;
             window=GUILayout.SelectionGrid(window,new[]{"2,048 tokens","4,096 tokens","8,192 tokens"},3);aiDraft.ContextTokens=window==0?2048:window==1?4096:8192;
             GUILayout.Label("Maximum input/output capacity, not intelligence. Larger windows reserve more memory. Keep 2,048 unless you need more history.",MutedStyle());
@@ -64,6 +80,7 @@ public sealed partial class WorldGenRuntime
         var client=SettingsAiClient;GUILayout.Space(12);GUILayout.Label("AI STATUS",SectionStyle());
         GUILayout.Label(client?.Status??"Not loaded");if(client!=null)GUILayout.Label(client.BackendInfo,MutedStyle());
         if(client?.LastSeconds>0)GUILayout.Label("Last request: "+client.LastSeconds.ToString("0.00")+" s · "+client.LastPromptTokens+" input / "+client.LastGeneratedTokens+" output tokens");
+        if(client?.LastTokensPerSecond>0)GUILayout.Label("Generation: "+client.LastTokensPerSecond.ToString("0.0")+" tokens/s; model load: "+client.LastLoadSeconds.ToString("0.00")+" s",MutedStyle());
         bool enabled=GUI.enabled;GUI.enabled=enabled&&!aiDirty&&aiSettingsTest==null&&client?.IsBusy!=true&&aiDraft.Enabled;
         GUILayout.BeginHorizontal();
         if(GUILayout.Button("Load model"))aiSettingsTest=WarmAiForSettings();

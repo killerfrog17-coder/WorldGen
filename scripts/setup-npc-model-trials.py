@@ -6,6 +6,7 @@ Interrupted downloads resume; only complete SHA-256-verified files are published
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import time
@@ -104,7 +105,25 @@ def main():
         install(record, directory)
     inventory = dict(manifest, directory=str(directory), status='Downloaded and SHA-256 verified; not benchmarked')
     (directory / 'installed-trials.json').write_text(json.dumps(inventory, indent=2) + '\n')
+    register_catalog(manifest, directory)
     print('All three candidates ready. Live AI settings were not changed.', flush=True)
+
+
+def register_catalog(manifest, directory):
+    catalog_path = Path(os.environ['LOCALAPPDATA']) / 'WorldGen/NpcAI/models.json'
+    models = json.loads(catalog_path.read_text()).get('Models', []) if catalog_path.exists() else []
+    for item in manifest['models']:
+        path = directory / item['file']
+        if path.stat().st_size != item['bytes']:
+            raise RuntimeError('Candidate is incomplete: ' + str(path))
+        models = [m for m in models if m['Path'].lower() != str(path).lower()]
+        models.append({'Name': item['name'], 'Path': str(path), 'Family': item['family'],
+                       'Layers': item['layers'], 'ExpertLayers': item['expert_layers'], 'Bytes': item['bytes']})
+    catalog_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = catalog_path.with_suffix('.json.tmp')
+    temporary.write_text(json.dumps({'Models': models}, indent=2) + '\n')
+    temporary.replace(catalog_path)
+    print('Registered local model choices: ' + str(catalog_path), flush=True)
 
 
 if __name__ == '__main__':

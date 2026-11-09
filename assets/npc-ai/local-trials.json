@@ -4,6 +4,9 @@
   "models": [
     {
       "name": "Qwen3.5-9B",
+      "family": "qwen35",
+      "layers": 33,
+      "expert_layers": 0,
       "file": "Qwen3.5-9B-Q4_K_M.gguf",
       "repository": "unsloth/Qwen3.5-9B-GGUF",
       "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
@@ -14,6 +17,9 @@
     },
     {
       "name": "Gemma 4 12B IT",
+      "family": "gemma4",
+      "layers": 49,
+      "expert_layers": 0,
       "file": "gemma-4-12b-it-Q4_K_M.gguf",
       "repository": "unsloth/gemma-4-12B-it-GGUF",
       "revision": "fc034cfff751157913579611efad8462ac1be606",
@@ -24,6 +30,9 @@
     },
     {
       "name": "GPT-OSS 20B",
+      "family": "gpt-oss",
+      "layers": 25,
+      "expert_layers": 24,
       "file": "gpt-oss-20b-Q4_K_M.gguf",
       "repository": "unsloth/gpt-oss-20b-GGUF",
       "revision": "d449b42d93e1c2c7bda5312f5c25c8fb91dfa9b4",

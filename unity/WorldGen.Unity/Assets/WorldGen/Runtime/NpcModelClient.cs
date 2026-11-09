@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,25 +12,38 @@ using UnityEngine;
 using WorldGen.Presentation;
 
 // A single lazy process for the active explorer. No inference in Update(), no
-// GPU allocation, and no downloaded files in either disposable build slot.
+// background inference in Update(), and no weights in either build slot.
 sealed class NpcModelClient : IDisposable
 {
     [Serializable] sealed class Message {public string role,content;}
     [Serializable] sealed class Choice {public Message message;public string finish_reason;}
     [Serializable] sealed class Usage {public int prompt_tokens,completion_tokens;}
-    [Serializable] sealed class Response {public Choice[] choices;public Usage usage;}
+    [Serializable] sealed class Timings {public double predicted_per_second;}
+    [Serializable] sealed class Response {public Choice[] choices;public Usage usage;public Timings timings;}
     [Serializable] sealed class Template {public bool enable_thinking=false;}
     [Serializable] sealed class Request {public Message[] messages;public string model;public int max_tokens;public float temperature=.5f;public bool stream=false;public Template chat_template_kwargs=new Template();}
     readonly CancellationTokenSource lifetime=new CancellationTokenSource();
-    readonly HttpClient http=new HttpClient{Timeout=TimeSpan.FromSeconds(45)};
+    readonly HttpClient http=new HttpClient{Timeout=TimeSpan.FromSeconds(180)};
     readonly NpcOwnedJob job=new NpcOwnedJob();
     public int OwnedProcessId=>owned?.Id??0;
-    Process owned;string endpoint,key;bool disposed;
+    Process owned;string endpoint,key,hostError="";bool disposed;
     public int LastPromptTokens,LastGeneratedTokens;
     public NpcAiSettings Config;public string Status="Waiting for an event";public int Requests;public double LastSeconds;
+    public double LastLoadSeconds,LastTokensPerSecond;
     internal static string TestSettingsPath;
     public string BackendInfo="CPU / not loaded";
     public static string ConfigPath=>TestSettingsPath??Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"WorldGen","NpcAI","settings.json");
+    public static string CatalogPath=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"WorldGen","NpcAI","models.json");
+    public static NpcAiModel[] InstalledModels(NpcAiSettings current)
+    {
+        var result=new List<NpcAiModel>();
+        void Add(NpcAiModel model){if(model!=null&&File.Exists(model.Path)&&!result.Exists(m=>string.Equals(m.Path,model.Path,StringComparison.OrdinalIgnoreCase)))result.Add(model);}
+        string baseline=Path.Combine(Path.GetDirectoryName(CatalogPath),"Qwen3-4B-Instruct-2507-Q4_K_M.gguf");
+        Add(new NpcAiModel{Name="Qwen3-4B-Instruct-2507",Path=baseline,Family="qwen3",Layers=37});
+        try{if(File.Exists(CatalogPath)){var catalog=JsonUtility.FromJson<NpcAiCatalog>(File.ReadAllText(CatalogPath));if(catalog?.Models!=null)foreach(var model in catalog.Models)Add(model);}}catch(Exception ex){UnityEngine.Debug.LogWarning("NPC model catalog: "+ex.Message);}
+        Add(new NpcAiModel{Name=current.ModelName,Path=current.ModelPath,Family=current.ModelFamily,Layers=current.ModelLayers,ExpertLayers=current.ModelExpertLayers});
+        return result.ToArray();
+    }
     public static int SettingsRevision;
     public bool IsBusy {get;private set;}
     long lastUse=Stopwatch.GetTimestamp();
@@ -64,7 +78,7 @@ sealed class NpcModelClient : IDisposable
     {
         if(disposed||!Config.Enabled)throw new InvalidOperationException("NPC model is disabled or missing. Run scripts/setup-npc-ai.py, then /npcai on.");
         if(IsBusy)throw new InvalidOperationException("An AI request is already running.");
-        IsBusy=true;var watch=Stopwatch.StartNew();try{await Start();Status="Thinking";Requests++;
+        IsBusy=true;var watch=Stopwatch.StartNew();try{await Start();LastLoadSeconds=watch.Elapsed.TotalSeconds;Status="Thinking";Requests++;
         var request=new Request{model=Config.ModelName,max_tokens=Config.MaxTokens,temperature=Config.Temperature,messages=new[]{
             new Message{role="system",content=SystemPrompt+(Config.BriefReplies?" Keep speech to one short sentence; keep the private thought under ten words.":"")},
             new Message{role="user",content=context}}};
@@ -84,7 +98,7 @@ sealed class NpcModelClient : IDisposable
                 string body=await response.Content.ReadAsStringAsync();if(body.Length>32768)throw new InvalidOperationException("NPC response too large");
                 var result=JsonUtility.FromJson<Response>(body);
                 if(result?.choices==null||result.choices.Length==0||result.choices[0].finish_reason=="length")throw new InvalidOperationException("NPC response incomplete");
-                LastSeconds=watch.Elapsed.TotalSeconds;LastPromptTokens=result.usage?.prompt_tokens??0;LastGeneratedTokens=result.usage?.completion_tokens??0;Status="Ready";return result.choices[0].message.content;
+                LastSeconds=watch.Elapsed.TotalSeconds;LastTokensPerSecond=result.timings?.predicted_per_second??0;LastPromptTokens=result.usage?.prompt_tokens??0;LastGeneratedTokens=result.usage?.completion_tokens??0;Status="Ready";return result.choices[0].message.content;
             }
         }
             }catch(Exception ex){if(endpoint==null)ReleaseHost();Status="Error: "+ex.Message;throw;}finally{IsBusy=false;lastUse=Stopwatch.GetTimestamp();}
@@ -99,14 +113,14 @@ sealed class NpcModelClient : IDisposable
         string executable=Config.GpuLayers>0?Config.GpuServerPath:Config.ServerPath;
         if(!File.Exists(executable)||!File.Exists(Config.ModelPath))throw new FileNotFoundException("Local NPC model is not installed; run scripts/setup-npc-ai.py.");
         Status="Loading local model";int port;var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();port=((IPEndPoint)listener.LocalEndpoint).Port;listener.Stop();key=Guid.NewGuid().ToString("N");
-        string root=Path.GetDirectoryName(ConfigPath);string args="-m \""+Config.ModelPath.Replace("\"","")+"\" --host 127.0.0.1 --port "+port+" --api-key "+key+" -t "+Config.Threads+" -tb "+Config.Threads+" -c "+Config.ContextTokens+" -np 1 -ngl "+Config.GpuLayers+" --poll 0 --prio "+Config.Priority+" --no-webui --verbosity 5 --reasoning off --reasoning-budget 0";
+        string root=Path.GetDirectoryName(ConfigPath);string args="-m \""+Config.ModelPath.Replace("\"","")+"\" --host 127.0.0.1 --port "+port+" --api-key "+key+Config.HardwareArguments();hostError="";
         BackendInfo=Config.GpuLayers>0?"GPU requested; loading":"CPU";
         owned=new Process{StartInfo=new ProcessStartInfo(executable,args){UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=root,RedirectStandardOutput=true,RedirectStandardError=true}};
-        owned.OutputDataReceived+=(s,e)=>{};owned.ErrorDataReceived+=(s,e)=>{if(e.Data!=null&&e.Data.Contains("offloaded "))BackendInfo=e.Data.Substring(e.Data.IndexOf("offloaded "));};owned.Start();job.Attach(owned);owned.BeginOutputReadLine();owned.BeginErrorReadLine();
+        owned.OutputDataReceived+=(s,e)=>{};owned.ErrorDataReceived+=(s,e)=>{if(e.Data==null)return;if(e.Data.Contains("offloaded "))BackendInfo=e.Data.Substring(e.Data.IndexOf("offloaded "))+(Config.CpuExpertLayers>0?"; "+Config.CpuExpertLayers+" expert layers on CPU":"");if(e.Data.IndexOf("error",StringComparison.OrdinalIgnoreCase)>=0||e.Data.IndexOf("failed",StringComparison.OrdinalIgnoreCase)>=0)hostError=e.Data.Length>400?e.Data.Substring(0,400):e.Data;};owned.Start();job.Attach(owned);owned.BeginOutputReadLine();owned.BeginErrorReadLine();
         string url="http://127.0.0.1:"+port;
-        for(int i=0;i<80;i++)
+        for(int i=0;i<720;i++)
         {
-            lifetime.Token.ThrowIfCancellationRequested();if(owned.HasExited)throw new InvalidOperationException("Local NPC host exited ("+owned.ExitCode+")");
+            lifetime.Token.ThrowIfCancellationRequested();if(owned.HasExited)throw new InvalidOperationException("Local NPC host exited ("+owned.ExitCode+"). "+hostError);
             try{using(var result=await http.GetAsync(url+"/health",lifetime.Token)){if(result.IsSuccessStatusCode){endpoint=url;return;}}}catch(HttpRequestException){}
             await Task.Delay(250,lifetime.Token);
         }
