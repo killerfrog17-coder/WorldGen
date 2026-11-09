@@ -56,6 +56,24 @@ public sealed partial class LocalTerrainExplorer
         V retrieve=bundle.Position;Check(RecoverNpcCampCargo(carrier,.1f,ref retrieve)&&carrier.Belongings.Find(bundle.Id)==bundle&&carrier.Belongings.Carried(bundle)&&Inventory.Find(bundle.Id)==null,"A real packed load is retrieved with both hands initially occupied, stowing or setting down the held tools automatically");
         Check(bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Occupied-hand retrieval preserves every original bound contribution");
         foreach(var tool in heldProof){carrier.Belongings.Items.Remove(tool);Inventory.Items.Remove(tool);}carrier.Belongings.Validate();
+        // Isolate the departure predicate from still-fitted tents and other
+        // loads so this specifically tests personal kit, not a vacuous hold.
+        var hiddenObjects=Camp.Objects.Where(c=>c.NpcGroup==actor.GroupId).ToArray();
+        var hiddenGoods=Inventory.Items.Where(p=>p.OwnerGroup==actor.GroupId||p.CampMaterial==actor.GroupId).ToArray();
+        var kit=HumanEquipment.Item(PossessionKind.StoneFlake,carrier.ResidentId,"departure-proof",carrier.Planet);NpcOwnership.Assign(kit,carrier.Resident,carrier.GroupId);kit.Place=PossessionPlace.Ground;
+        var priorTask=carrier.CampTask;
+        try
+        {
+            foreach(var obj in hiddenObjects)Camp.Objects.Remove(obj);foreach(var item in hiddenGoods)Inventory.Items.Remove(item);Inventory.Items.Add(kit);carrier.CampTask=new NpcCampTask();
+            Check(NpcBelongings.CanTake(carrier.Belongings,kit)&&NpcCampNeedsPacking(group),"A departure with all tent loads ready still waits for a nearby owner's useful cutting tool when real carrying space remains");
+            V kitTarget=carrier.Planet;
+            Check(RecoverNpcCampCargo(carrier,1,ref kitTarget)&&carrier.Belongings.Find(kit.Id)==kit&&Inventory.Find(kit.Id)==null,"The owner physically retrieves that same real cutting edge before leaving");
+            Check(!NpcCampNeedsPacking(group),"Retrieving the last feasible useful kit releases the isolated departure hold");
+        }
+        finally
+        {
+            carrier.Belongings.Items.Remove(kit);Inventory.Items.Remove(kit);Inventory.Items.AddRange(hiddenGoods);Camp.Objects.AddRange(hiddenObjects);carrier.CampTask=priorTask;
+        }
         // A previously unvisited partial camp receives its missing INITIAL
         // stock once as real loose/bound goods, not a future progress factory.
         var initial=new CampObject{Id=shelter.Id+"-initial-stock-proof",Kind=CampKind.Blueprint,NpcGroup=actor.GroupId,NpcHousehold=actor.Resident.Household,Position=shelter.Position,Blueprint=CampBlueprints.Create(CampDesign.LeanTo,2,2,CampCover.Hide)};

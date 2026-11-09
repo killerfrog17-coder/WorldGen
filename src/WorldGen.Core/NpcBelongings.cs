@@ -87,6 +87,23 @@ namespace WorldGen.Core
                     if(inventory.Move(item.Id,PossessionPlace.Container,bag.Id,x,y,r==1,out _))return true;
             return false;
         }
+        public static int PackingPriority(Possession p)=>WoodCrafting.Cutter(p)?0:p.Kind==PossessionKind.HandDrillSet?1:p.ContainerWidth>0?2:p.Kind==PossessionKind.StoneTippedSpear||p.Kind==PossessionKind.WoodenSpear||p.Kind==PossessionKind.BoneTippedSpear?3:4;
+        // Preview only: preserve the actual item's place, identity and contents.
+        public static bool CanTake(PlayerInventory stock,Possession item)
+        {
+            bool external=!stock.Items.Contains(item);if(external)stock.Items.Add(item);
+            try
+            {
+                var wear=PortableTechnology.Wear(item);
+                if(wear.HasValue&&stock.CanMove(item.Id,wear.Value,"",0,0,false,out _)||stock.CanMove(item.Id,PossessionPlace.RightHand,"",0,0,false,out _)||stock.CanMove(item.Id,PossessionPlace.LeftHand,"",0,0,false,out _))return true;
+                foreach(var bag in stock.Items)
+                    if(bag!=item&&bag.ContainerWidth>0&&(stock.InWornEquipment(bag)||bag.Place==PossessionPlace.RightHand||bag.Place==PossessionPlace.LeftHand))
+                        for(int r=0;r<2;r++)for(int y=0;y<bag.ContainerHeight;y++)for(int x=0;x<bag.ContainerWidth;x++)
+                            if(stock.CanMove(item.Id,PossessionPlace.Container,bag.Id,x,y,r==1,out _))return true;
+                return false;
+            }
+            finally{if(external)stock.Items.Remove(item);}
+        }
         public static void Equip(PlayerInventory inventory,IEnumerable<Possession> requested,V position)
         {
             var wanted=requested.ToArray();

@@ -29,6 +29,11 @@ public sealed partial class LocalTerrainExplorer
         if(Camp.Objects.Any(c=>c.NpcGroup==id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&(c.NpcNeedsInitialStock||NpcCampParts(c).Any(p=>NpcCampWork.Portable(c.Blueprint,p,NpcCarryCampPoles(group))&&CampBlueprints.State(c.Blueprint,p)?.Materials.Count>0))))return true;
         foreach(var load in Inventory.Items)if(load.Kind==PossessionKind.CampBundle&&load.Place==PossessionPlace.Ground&&load.CampMaterial==id&&HumanDistance(load.Position,group.Anchor)<60)
             if(livingPeople.Values.Any(p=>p.GroupId==id&&p.Health>40&&p.Resident.AgeYears>=12&&load.OwnerHousehold==p.Resident.Household&&load.MassKg<=(p.Resident.AgeYears<16?12:24)&&!p.Belongings.Items.Any(i=>i.Kind==PossessionKind.CampBundle&&p.Belongings.Carried(i))))return true;
+        // Do not leave a useful personal cutting/fire kit behind merely
+        // because the final tent bundle was picked up first. Only wait for
+        // present capable owners with actual remaining carrying space.
+        foreach(var item in Inventory.Items)
+            if(item.Place==PossessionPlace.Ground&&item.CampMaterial==0&&item.OwnerPerson>0&&NpcBelongings.PackingPriority(item)<3&&livingPeople.TryGetValue(item.OwnerPerson,out var owner)&&owner.GroupId==id&&owner.Health>40&&owner.Resident.AgeYears>=12&&NpcCanUseWorldItem(owner,item)&&NpcBelongings.CanTake(owner.Belongings,item))return true;
         return false;
     }
     bool HoldNpcCampDeparture(LivingGroup group,HumanGroupSituation incoming)
@@ -179,8 +184,8 @@ public sealed partial class LocalTerrainExplorer
             return true;
         }
         var loose=Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&NpcCanUseWorldItem(actor,p)&&
-            (p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.Kind!=PossessionKind.CampBundle&&(bundle==null||bundle.MassKg+p.MassKg<=limit)||p.OwnerPerson==actor.ResidentId&&p.CampMaterial==0))
-            .OrderBy(p=>p.OwnerPerson==actor.ResidentId?1:0).ThenBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();
+            (p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.Kind!=PossessionKind.CampBundle&&(bundle==null||bundle.MassKg+p.MassKg<=limit)||p.OwnerPerson==actor.ResidentId&&p.CampMaterial==0&&NpcBelongings.CanTake(stock,p)))
+            .OrderBy(p=>p.OwnerPerson==actor.ResidentId?1:0).ThenBy(NpcBelongings.PackingPriority).ThenBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();
         if(loose==null)return false;target=loose.Position;actor.TaskWaiting=false;actor.TaskDetail="collecting the household's real packed belongings before leaving";
         if(HumanDistance(target,actor.Planet)>1.7)return true;
         actor.CampTask.Work+=NpcWorkSeconds(dt);if(actor.CampTask.Work<15)return true;actor.CampTask.Work=0;

@@ -30,6 +30,13 @@ static class NpcBelongingsTests
         Check(source.Items.Count==0&&destination.Items.Count==2&&destination.CollectedNatural.Contains(71),"Picking up a filled container transfers its contents and natural-collection identity atomically");
         bag.Place=PossessionPlace.Ground;NpcBelongings.TransferTree(destination,source,bag);source.Validate();destination.Validate();
         Check(source.Items.Count==2&&destination.Items.Count==0&&source.Items.Single(p=>p.NaturalId==71).ContainerId==bag.Id,"Putting the same container back conserves its contents and packing");
+        var bare=new PlayerInventory();var knife=HumanEquipment.Item(PossessionKind.StoneFlake,191,"packing",new V(1,0,0));
+        Check(NpcBelongings.CanTake(bare,knife)&&bare.Items.Count==0&&knife.Place==PossessionPlace.Ground,"Packing capacity preview leaves an external real knife and its inventory unchanged");
+        for(int k=0;k<2;k++){var rock=HumanEquipment.Item(PossessionKind.SmallRock,191,"packing-"+k,new V(1,0,0));rock.Place=k==0?PossessionPlace.RightHand:PossessionPlace.LeftHand;bare.Items.Add(rock);}
+        Check(!NpcBelongings.CanTake(bare,knife)&&bare.Items.Count==2,"Full bare hands cannot claim capacity for another tool");
+        var carrier=PortableTechnology.Create(PossessionKind.HidePack,new V(1,0,0));carrier.Place=PortableTechnology.Wear(carrier).Value;bare.Items.Add(carrier);
+        Check(NpcBelongings.CanTake(bare,knife)&&bare.Items.Count==3&&knife.Place==PossessionPlace.Ground,"A real worn carrier can receive the small tool without changing it during preview");
+        Check(NpcBelongings.PackingPriority(knife)<NpcBelongings.PackingPriority(bare.Items[0]),"A cutting edge is retrieved before spare loose stones during departure");
         Console.WriteLine("NPC belongings checks PASS: "+n);
     }
 }
