@@ -21,6 +21,14 @@ public sealed partial class LocalTerrainExplorer
         foreach(string role in new[]{"SpearReady1","WorkKnapping","ToolReady","Eat","FuelTend",null})UpdateNpcProps(actor,group,role);
         Check(before.SequenceEqual(actor.Belongings.Items.Concat(Inventory.Items).Select(p=>p.Id).OrderBy(x=>x)),"Repeated visual task changes create or delete no actual goods");
         Check(actor.NpcProps.All(p=>actor.Belongings.Items.Contains(p.Item)&&actor.Belongings.Carried(p.Item)),"Every displayed NPC possession is a real carried item");
+        var worn=actor.NpcProps.FirstOrDefault(p=>p.Back);Check(worn!=null,"The real resident wears a persistent carrier for the visual transfer test");int wornRoot=worn.Root.GetInstanceID();
+        var blade=PortableTechnology.Create(PossessionKind.StoneBlade,actor.Planet);blade.Id="visual-transfer-probe-"+actor.ResidentId;blade.Place=PossessionPlace.RightHand;
+        var oldHands=actor.Belongings.Items.Where(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand).Select(p=>(Item:p,Place:p.Place)).ToArray();
+        foreach(var old in oldHands)old.Item.Place=PossessionPlace.Ground;actor.Belongings.Items.Add(blade);UpdateNpcProps(actor,group,"ToolReady");
+        int bladeRoot=actor.NpcProps.First(p=>p.Item==blade).Root.GetInstanceID();blade.Place=PossessionPlace.LeftHand;UpdateNpcProps(actor,group,"ToolReady");
+        Check(actor.NpcProps.First(p=>p.Item==blade).Root.GetInstanceID()==bladeRoot&&actor.NpcProps.First(p=>p.Item==blade).Side=="l","Switching the same actual tool between hands preserves its visual object and updates the grip");
+        actor.Belongings.Items.Remove(blade);foreach(var old in oldHands)old.Item.Place=old.Place;UpdateNpcProps(actor,group,"");
+        Check(actor.NpcProps.Any(p=>p.Item==worn.Item&&p.Root.GetInstanceID()==wornRoot)&&actor.NpcProps.All(p=>p.Item!=blade),"Adding and removing a held item retains the unchanged worn carrier and removes only that item visual");
         var copied=LivingState.Copy();copied.Validate();Check(copied.People.Any(p=>p.Person==actor.ResidentId&&p.Inventory!=null),"A healthy resident's complete belongings survive session copying");
         // Controlled property fixture: real item and physical witnesses, with
         // one resident behind a solid. This tests evidence, not random camp layout.

@@ -82,9 +82,22 @@ public sealed partial class LocalTerrainExplorer
         var expectedHome=groupRuntime.Activities.Where(p=>p.Activity!=HumanActivity.Travel&&p.Activity!=HumanActivity.GatherPlants&&p.Activity!=HumanActivity.GatherFuel&&p.Activity!=HumanActivity.FetchWater&&p.Activity!=HumanActivity.Carried)
             .Where(p=>owner.HumanDistance(owner.LivingPosition(groupRuntime,p.Position),owner.Position)<450).Select(p=>p.Person).ToArray();
         int expectedNear=expectedHome.Length;
-        double statusAt=0;
+        double statusAt=0;bool followedValidatedCamp=false;
         while((!groupRuntime.CampLoaded||expectedHome.Any(id=>!owner.livingPeople.ContainsKey(id)))&&Time.realtimeSinceStartupAsDouble<deadline)
         {
+            // The broad camp estimate is not its terrain-validated clearing.
+            // Follow the real accepted site before asking its near field to load;
+            // otherwise a valid camp beyond 700m can never satisfy this fixture.
+            if(groupRuntime.Grounded&&!followedValidatedCamp)
+            {
+                followedValidatedCamp=true;double distance=owner.HumanDistance(groupRuntime.Anchor,owner.Position);
+                File.WriteAllText(Path.Combine(output,"validated-site-follow.txt"),"Actual accepted camp distance from initial review position: "+distance+"m; attempts="+groupRuntime.PlacementAttempt);
+                if(distance>450)
+                {
+                    TerrainHandoff.Coordinates(owner.frame,groupRuntime.Anchor,out double siteX,out double siteZ);owner.motion.Place(siteX,siteZ,owner.VisibleGround(siteX,siteZ,0));
+                    deadline=Math.Max(deadline,Time.realtimeSinceStartupAsDouble+120);
+                }
+            }
             if(Time.realtimeSinceStartupAsDouble>=statusAt){statusAt=Time.realtimeSinceStartupAsDouble+5;File.WriteAllText(Path.Combine(output,"streaming-status.txt"),"People "+owner.livingPeople.Count+" / expected near "+expectedNear+"; ground "+groupRuntime.Grounded+"; loaded "+groupRuntime.CampLoaded+"; attempt "+groupRuntime.PlacementAttempt+"; survey "+groupRuntime.SiteSurveyRadius+"m / "+groupRuntime.SiteSurvey?.Milliseconds+"ms; objects "+owner.Camp.Objects.Count);}
             yield return null;
         }

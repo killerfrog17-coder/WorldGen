@@ -5,7 +5,7 @@ using WorldGen.Core;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class NpcProp{public Possession Item;public GameObject Root;public string Side;public bool Back;}
+    sealed class NpcProp{public Possession Item;public GameObject Root;public string Side,PoseRole;public bool Back;public PossessionKind Kind;public int Variant;public double PoseAge=double.NaN;}
     void ClearNpcProps(HumanActor actor){foreach(var prop in actor.NpcProps)DestroyInventoryVisual(prop.Root);actor.NpcProps.Clear();actor.PropRole="";actor.GearVisualHash=int.MinValue;}
     string NpcCarryRole(HumanActor actor,LivingGroup group)
     {
@@ -29,15 +29,30 @@ public sealed partial class LocalTerrainExplorer
         {signature=unchecked(signature*31+item.Id.GetHashCode()*7+(int)item.Place*13+(int)item.Kind+(item.Kind==PossessionKind.CampBundle?item.Variant*17:0));count++;}
         if(actor.GearVisualHash!=signature||actor.NpcProps.Count!=count)
         {
-            ClearNpcProps(actor);actor.GearVisualHash=signature;actor.PropRole=role;
+            // A hand transfer or one gathered item must not destroy/rebuild
+            // every otherwise unchanged basket, pouch and weapon on this person.
+            for(int i=actor.NpcProps.Count-1;i>=0;i--)
+            {
+                var prop=actor.NpcProps[i];var item=actor.Belongings?.Find(prop.Item.Id);
+                bool visible=item!=null&&(item.Place==PossessionPlace.RightHand||item.Place==PossessionPlace.LeftHand||PortableTechnology.Worn(item.Place));
+                if(!visible||item.Kind!=prop.Kind||item.Kind==PossessionKind.CampBundle&&item.Variant!=prop.Variant)
+                {DestroyInventoryVisual(prop.Root);actor.NpcProps.RemoveAt(i);continue;}
+                prop.Item=item;prop.Side=item.Place==PossessionPlace.LeftHand?"l":"r";prop.Back=PortableTechnology.Worn(item.Place);prop.PoseAge=double.NaN;
+            }
+            actor.GearVisualHash=signature;actor.PropRole=role;
             foreach(var item in actor.Belongings?.Items??Enumerable.Empty<Possession>())
             {
                 if(item.Place!=PossessionPlace.RightHand&&item.Place!=PossessionPlace.LeftHand&&!PortableTechnology.Worn(item.Place))continue;
-                var root=CreatePossessionVisual(item,30);root.transform.SetParent(actor.Root.transform,true);actor.NpcProps.Add(new NpcProp{Item=item,Root=root,Side=item.Place==PossessionPlace.LeftHand?"l":"r",Back=PortableTechnology.Worn(item.Place)});
+                bool exists=false;foreach(var old in actor.NpcProps)if(old.Item.Id==item.Id){exists=true;break;}if(exists)continue;
+                var root=CreatePossessionVisual(item,30);root.transform.SetParent(actor.Root.transform,true);actor.NpcProps.Add(new NpcProp{Item=item,Root=root,Kind=item.Kind,Variant=item.Variant,Side=item.Place==PossessionPlace.LeftHand?"l":"r",Back=PortableTechnology.Worn(item.Place)});
             }
         }
         foreach(var prop in actor.NpcProps)
         {
+            // Roots are parented to the actor: its motion already moves them.
+            // Refit only when the skeleton/hold pose actually changed.
+            if(prop.PoseAge==actor.PoseAge&&prop.PoseRole==role)continue;
+            prop.PoseAge=actor.PoseAge;prop.PoseRole=role;
             if(prop.Back){PosePortableWear(prop.Root,prop.Item,actor.Root.transform,actor.Bones);continue;}
             string side=prop.Side;var hand=actor.Bones["hand_"+side];var middle=actor.Bones["middle_01_"+side];
             Vector3 grip=Vector3.Lerp(hand.position,middle.position,.7f),axis=(actor.Bones["index_01_"+side].position-actor.Bones["pinky_01_"+side].position)*(side=="r"?-1:1);axis.Normalize();
