@@ -9,7 +9,7 @@ public sealed partial class LocalTerrainExplorer
     string CraftLabel(ItemCraftJob job)=>PortableCrafting.IsJob(job)?PortableCrafting.Recipe(job.RecipeId)?.Name??"Craft":WoodCrafting.Label(job.Action);
     Possession[] CraftAccessible()
     {
-        RefreshInventoryNearby();return Inventory.Items.Where(AccessiblePossession).Concat(inventoryNearby.Where(n=>n.Natural).Select(n=>n.Item)).GroupBy(p=>p.Id).Select(g=>g.First()).ToArray();
+        RefreshInventoryNearby();return Inventory.Items.Where(p=>AccessiblePossession(p)&&PlayerMayUseForCraft(p)).Concat(inventoryNearby.Where(n=>n.Natural).Select(n=>n.Item)).GroupBy(p=>p.Id).Select(g=>g.First()).ToArray();
     }
     bool PortablePlan(PortableRecipe recipe,string primaryId,out PortableCraftPlan plan,out string reason)
     {

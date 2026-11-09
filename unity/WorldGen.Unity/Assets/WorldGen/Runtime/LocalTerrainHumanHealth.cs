@@ -18,6 +18,7 @@ public sealed partial class LocalTerrainExplorer
         PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f);
         if(actor.Health<=0)
         {
+            DropNpcPossessions(actor);
             ClearNpcProps(actor);
             DestroyInventoryVisual(actor.InfantCarrier);actor.InfantCarrier=null;
             actor.Graph.Stop();actor.Animator.enabled=false;actor.Ragdoll=gameObject.AddComponent<WorldGenHumanRagdoll>();

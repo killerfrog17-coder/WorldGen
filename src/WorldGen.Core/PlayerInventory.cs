@@ -16,6 +16,8 @@ namespace WorldGen.Core
     public sealed class Possession
     {
         public string Id="",ContainerId="";
+        [System.Runtime.Serialization.OptionalField] public long OwnerPerson,OwnerGroup,OwnerHousehold;
+        [System.Runtime.Serialization.OptionalField] public string OwnerName;
         [System.Runtime.Serialization.OptionalField] public string BoundContainerId;
         public PossessionKind Kind;
         public PossessionPlace Place;
@@ -168,6 +170,7 @@ namespace WorldGen.Core
                 if(item==null||string.IsNullOrWhiteSpace(item.Id)||!ids.Add(item.Id)||!Enum.IsDefined(typeof(PossessionKind),item.Kind)||!Enum.IsDefined(typeof(PossessionPlace),item.Place)||item.CellsWide<1||item.CellsHigh<1||item.CellsWide>10000||item.CellsHigh>10000||!Finite(item.MassKg)||item.MassKg<=0||!Finite(item.WidthM)||item.WidthM<=0||!Finite(item.HeightM)||item.HeightM<=0||!Finite(item.DepthM)||item.DepthM<=0||!Finite(item.Tint.X)||!Finite(item.Tint.Y)||!Finite(item.Tint.Z)||item.Variant<0||item.Variant>1000)throw new ArgumentException("Invalid inventory item.");
                 if(item.AppearanceSpecies!=null&&(item.AppearanceSpecies.Length>80||item.AppearanceSpecies.Any(c=>!char.IsLetterOrDigit(c)&&c!='-'&&c!='_'))||item.AppearanceCoat<0||item.AppearanceCoat>4095||item.MaterialOrigins!=null&&item.MaterialOrigins.Any(o=>o==null||o.Species==null||o.Species.Length>80||o.Coat<0||o.Coat>4095))throw new ArgumentException("Invalid material provenance.");
                 if(!Finite(item.UseDamage)||item.UseDamage<0||item.UseDamage>1)throw new ArgumentException("Invalid item wear.");
+                if(item.OwnerPerson<0||item.OwnerGroup<0||item.OwnerHousehold<0||item.OwnerName!=null&&item.OwnerName.Length>80)throw new ArgumentException("Invalid item ownership.");
                 Foraging.ValidateFood(item);
                 if(!Finite(item.DryingSeconds)||item.DryingSeconds<0||item.CampOwner!=null&&item.CampOwner.Length>80)throw new ArgumentException("Invalid stored food or camp ownership.");
                 if(!Finite(item.WoodStraightness)||item.WoodStraightness<0||item.WoodStraightness>1||!Finite(item.WoodSoundness)||item.WoodSoundness<0||item.WoodSoundness>1)throw new ArgumentException("Invalid wood traits.");

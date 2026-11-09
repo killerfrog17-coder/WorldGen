@@ -23,6 +23,7 @@ namespace WorldGen.Core
                 var kind=part.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:part.Kind==CampPartKind.Bonework?PossessionKind.Bone:part.Kind==CampPartKind.Binding?PossessionKind.Cordage:part.Kind==CampPartKind.Cover?plan.Cover==CampCover.Hide?PossessionKind.WorkedHide:plan.Cover==CampCover.Bark?PossessionKind.BarkSheet:plan.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass:PossessionKind.Branch;
                 var material=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,shelter.Position):new Possession{Kind=kind,Position=shelter.Position,WoodSoundness=.9,WoodStraightness=.8};
                 material.Id=shelter.Id+"-material-"+part.Key;
+                material.OwnerGroup=shelter.NpcGroup;material.OwnerHousehold=shelter.NpcHousehold;
                 if(part.Kg>0)material.MassKg=part.Kg;
                 if(part.Kind==CampPartKind.Deck){material.HeightM=1;material.WidthM=.03;material.WoodSoundness=.9;}
                 if(part.Kg==0){material.HeightM=part.LengthM+.01;material.WidthM=part.WidthM*1.1;material.DepthM=material.WidthM;material.MassKg=Math.Max(.01,material.HeightM*material.WidthM*material.WidthM*450);}
@@ -80,7 +81,7 @@ namespace WorldGen.Core
             Possession Item(PossessionKind kind,V position,string key,double kg=0)
             {
                 var p=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,position):new Possession{Kind=kind,Position=position,WoodSoundness=.9,WoodStraightness=.8};
-                p.Id=prefix+"-material-"+key;if(kg>0)p.MassKg=kg;return p;
+                p.Id=prefix+"-material-"+key;p.OwnerGroup=band;p.OwnerName=people.Name;if(kg>0)p.MassKg=kg;return p;
             }
             double completion=group.Phase==HumanCampPhase.SettingUp?group.Progress:group.Phase==HumanCampPhase.Packing?1-group.Progress:group.Phase==HumanCampPhase.Travelling?0:1;
             var households=people.Members.GroupBy(p=>p.Household).OrderBy(h=>h.Key).ToArray();
@@ -137,6 +138,7 @@ namespace WorldGen.Core
                     fire.Burning=active&&group.Phase!=HumanCampPhase.Packing;fire.EmberSeconds=active?3600:1600;result.Add(fire);
                 }
             }
+            foreach(var obj in result)foreach(var material in obj.OwnedMaterials()){material.OwnerGroup=band;material.OwnerHousehold=obj.NpcHousehold;material.OwnerName=people.Name;}
             return result.ToArray();
         }
     }

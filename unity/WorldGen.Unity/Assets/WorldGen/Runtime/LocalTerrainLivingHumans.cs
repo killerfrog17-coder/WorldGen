@@ -318,7 +318,7 @@ public sealed partial class LocalTerrainExplorer
             double heightFactor=person.AgeYears<ageModel.Years?1-(ageModel.Years-person.AgeYears)*.035:1+(person.AgeYears-ageModel.Years)*.018;
             actor.Root.transform.localScale=Vector3.one*(float)(person.AgeYears<3?.58+.14*person.AgeYears:Math.Max(.78,Math.Min(1.09,heightFactor)));
         }
-        livingPeople.Add(person.Id,actor);humanNpcs.Add(actor);return true;
+        actor.CurrentActivity=activity.Activity;InitializeNpcBelongings(actor,group);livingPeople.Add(person.Id,actor);humanNpcs.Add(actor);return true;
     }
     void UpdateLivingHuman(HumanActor actor,bool stopped,float dt)
     {
@@ -334,6 +334,7 @@ public sealed partial class LocalTerrainExplorer
         V target=tending?routine.Position:LivingPosition(group,routine.Position);
         bool mind=ApplyNpcPlan(actor,ref routine,ref target);
         if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
+        if(!mind)PrepareNpcTaskGear(actor,group,routine,ref target);
         target=LivingDryGoal(actor,target);
         string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);
@@ -370,7 +371,8 @@ public sealed partial class LocalTerrainExplorer
             if(!alarm&&PlayerRules.Identity?.Group!=actor.GroupId&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
                 actor.TargetYaw=(float)(Math.Atan2(motion.X-actor.Motor.X,motion.Z-actor.Motor.Z)*180/Math.PI);
             if(actor.SimulationAge<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
-            ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35),CurrentWeather.TemperatureC);
+            actor.TargetSpeed*=(float)(actor.Belongings?.LoadSpeedScale??1);
+            ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35)*(actor.Belongings?.LoadEffort??1),CurrentWeather.TemperatureC);
             actor.TargetSpeed=Math.Min(actor.TargetSpeed,6*(float)actor.Exertion.PowerScale);
             actor.Yaw=Mathf.MoveTowardsAngle(actor.Yaw,actor.TargetYaw,dt*95);actor.Speed=Mathf.MoveTowards(actor.Speed,actor.TargetSpeed,dt*1.6f);
             if(actor.SimulationAge>=actor.ObstacleAt)
@@ -407,7 +409,7 @@ public sealed partial class LocalTerrainExplorer
                 bool crouch=actor.NpcCrouching;
                 float elapsed=(float)Math.Max(dt,actor.SimulationAge-actor.PoseAge);actor.PoseAge=actor.SimulationAge;actor.AnimationAt=NextLivingAnimation(actor.ResidentId,interval);AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);
                 bool hearth=routine.Role=="HearthMeal"||routine.Role=="HearthSocial";
-                string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):hearth?"SitGround":LivingWorkRole(routine.Activity);
+                string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):hearth||actor.TaskWaiting?"SitGround":LivingWorkRole(routine.Activity);
                 if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater!=true)role="SitGround";
                 if(crouch&&actual<=.2f&&role!="SleepSide")role="SitGround";
                 actor.Shared?.Routine(role,(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
@@ -498,10 +500,11 @@ public sealed partial class LocalTerrainExplorer
     static string LivingWorkRole(HumanActivity activity)=>activity==HumanActivity.Sleep?"SleepSide":activity==HumanActivity.Rest||activity==HumanActivity.Childcare||activity==HumanActivity.Teach?"SitGround":activity==HumanActivity.Socialise?"Social":activity==HumanActivity.GatherPlants||activity==HumanActivity.GatherFuel||activity==HumanActivity.TendFire?"Gather":activity==HumanActivity.FetchWater?"Drink":activity==HumanActivity.PrepareFood?"Eat":activity==HumanActivity.Craft?"WorkKneeling":activity==HumanActivity.BuildCamp||activity==HumanActivity.RepairShelter?"WorkTwist":null;
     void CaptureLivingPerson(HumanActor actor)
     {
-        if(actor.ResidentId==0||actor.Health>=100&&(actor.Bleeding==null||actor.Bleeding.Rate<=0))return;
+        if(actor.ResidentId==0)return;
         var memory=LivingState.People.FirstOrDefault(p=>p.Person==actor.ResidentId);
         if(memory==null){memory=new HumanPersonMemory{Person=actor.ResidentId,Group=actor.GroupId};LivingState.People.Add(memory);}
         memory.Health=actor.Health;memory.Dead=actor.Health<=0;memory.Position=actor.Planet;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=actor.Bleeding?.Copy();
+        memory.Inventory=actor.Belongings;
     }
     void CaptureLivingHumans()
     {

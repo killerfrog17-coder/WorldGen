@@ -1,0 +1,106 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using WorldGen.Core;
+using WorldGen.Presentation;
+
+public sealed partial class LocalTerrainExplorer
+{
+    HumanPersonMemory NpcPersonRecord(HumanActor actor)
+    {
+        var record=LivingState.People.FirstOrDefault(p=>p.Person==actor.ResidentId);
+        if(record==null){record=new HumanPersonMemory{Person=actor.ResidentId,Group=actor.GroupId,Position=actor.Planet,SolarDays=PlayerRules.SolarDays,Health=actor.Health};LivingState.People.Add(record);}return record;
+    }
+    void InitializeNpcBelongings(HumanActor actor,LivingGroup group)
+    {
+        var record=NpcPersonRecord(actor);bool fresh=record.Inventory==null;actor.Belongings=record.Inventory??(record.Inventory=NpcBelongings.Seed(actor.Resident,group.Residents,actor.Planet));
+        if(fresh)
+        {
+            string role=HumanEquipment.Role(actor.Resident,actor.Routine,actor.CurrentActivity,group.Residents.Techniques);
+            foreach(var item in NpcBelongings.ForTask(actor.Belongings,role))actor.Belongings.Hold(item.Id,out _);
+            foreach(var item in actor.Belongings.Items.Where(p=>p.Place==PossessionPlace.Ground).ToArray())NpcBelongings.Pack(actor.Belongings,item);
+        }
+        PublishNpcGroundGoods(actor);
+    }
+    void PublishNpcGroundGoods(HumanActor actor)
+    {
+        var stock=actor.Belongings;if(stock==null)return;
+        bool changed=false;foreach(var ground in stock.Items.Where(i=>i.Place==PossessionPlace.Ground).ToArray())
+        {
+            var transfer=new List<Possession>{ground};for(int j=0;j<transfer.Count;j++)foreach(var child in stock.Items.Where(p=>p.Place==PossessionPlace.Container&&p.ContainerId==transfer[j].Id))if(!transfer.Contains(child))transfer.Add(child);
+            foreach(var item in transfer){stock.Items.Remove(item);if(Inventory.Find(item.Id)==null)Inventory.Items.Add(item);changed=true;}
+        }
+        if(changed)inventoryNearbyAt=0;
+    }
+    V NpcWorldItemPosition(Possession item)
+    {
+        var seen=new HashSet<string>();while(item.Place==PossessionPlace.Container&&seen.Add(item.Id)){var parent=Inventory.Find(item.ContainerId);if(parent==null)break;item=parent;}return item.Position;
+    }
+    bool NpcCanUseWorldItem(HumanActor actor,Possession item)
+    {
+        if(Inventory.Carried(item)||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage||item.Place==PossessionPlace.Container&&item.OwnerPerson!=actor.ResidentId)return false;
+        var culture=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[actor.GroupId].Residents.Culture];
+        return NpcOwnership.Allowed(item,actor.ResidentId,actor.GroupId,actor.Resident.Household,culture.FoodSharing)&&HumanDistance(NpcWorldItemPosition(item),actor.Planet)<35;
+    }
+    bool AcquireNpcItem(HumanActor actor,Possession item)
+    {
+        if(!NpcCanUseWorldItem(actor,item)||HumanDistance(NpcWorldItemPosition(item),actor.Planet)>1.7)return false;
+        var stock=actor.Belongings;stock.Items.Add(item);if(!stock.Hold(item.Id,out _)&&!NpcBelongings.Pack(stock,item)){stock.Items.Remove(item);return false;}
+        Inventory.Items.Remove(item);if(item.OwnerPerson==0&&item.OwnerGroup==0)NpcOwnership.Assign(item,actor.Resident,actor.GroupId);RemoveDroppedBody(item.Id);DestroyInventoryVisual(inventoryVisuals.TryGetValue(item.Id,out var root)?root:null);inventoryVisuals.Remove(item.Id);inventoryNearbyAt=0;return true;
+    }
+    void PrepareNpcTaskGear(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
+    {
+        if(actor.Belongings==null)InitializeNpcBelongings(actor,group);
+        if(actor.SimulationAge<actor.GearAt){if(actor.FetchingGear)target=actor.GearTarget;return;}actor.GearAt=actor.SimulationAge+.5;actor.TaskWaiting=false;actor.FetchingGear=false;
+        string desired=HumanEquipment.Role(actor.Resident,routine,actor.CurrentActivity,group.Residents.Techniques);actor.GearRole=desired??"";
+        if(desired==null)
+        {
+            if(routine.Activity==HumanActivity.Sleep&&HumanDistance(actor.Planet,target)<1.5){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);}
+            actor.TaskDetail=NpcActivityText(actor.CurrentActivity);return;
+        }
+        var stock=actor.Belongings;var wanted=NpcBelongings.ForTask(stock,desired);
+        // Consider actual nearby owned/shared goods, never a newly-made prop.
+        if(wanted.Length==0||desired=="WorkKnapping"&&wanted.Length<2)
+        {
+            var nearby=Inventory.Items.Where(p=>NpcBelongings.TaskItem(p,desired)&&NpcCanUseWorldItem(actor,p)).OrderBy(p=>HumanDistance(NpcWorldItemPosition(p),actor.Planet)).ToList();
+            var viewOfGoods=new PlayerInventory{Items=nearby};var needed=NpcBelongings.ForTask(viewOfGoods,desired);
+            if(needed.Length>0)
+            {
+                NpcBelongings.Equip(stock,wanted,actor.Planet);PublishNpcGroundGoods(actor);
+                var item=needed[0];V point=NpcWorldItemPosition(item);
+                if(HumanDistance(point,actor.Planet)>1.7){target=point;actor.GearTarget=point;actor.FetchingGear=true;actor.TaskWaiting=true;actor.TaskDetail="going to retrieve "+item.Name;return;}
+                if(AcquireNpcItem(actor,item))wanted=NpcBelongings.ForTask(stock,desired);
+            }
+        }
+        NpcBelongings.Equip(stock,wanted,actor.Planet);PublishNpcGroundGoods(actor);
+        bool ready=desired==null||wanted.Length>0&&wanted.All(p=>stock.Carried(p));
+        if(desired=="WorkKnapping")ready=wanted.Length==2&&wanted.All(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand);
+        if(desired=="Drink"&&(group.Resources?.HasWater!=true||HumanDistance(actor.Planet,group.Resources.Water)>2.5))ready=false;
+        actor.TaskWaiting=!ready&&(routine.Activity==HumanActivity.Craft||routine.Activity==HumanActivity.PrepareFood||routine.Activity==HumanActivity.FetchWater||routine.Activity==HumanActivity.TendFire);
+        actor.TaskDetail=actor.TaskWaiting?desired=="Eat"?"looking for food; no meal is available":desired=="WorkKnapping"?"needs suitable stones before knapping":desired=="Drink"?"looking for reachable drinking water":"waiting for the actual required material":NpcActivityText(actor.CurrentActivity);
+        if(actor.TaskWaiting)actor.GearRole="";
+    }
+    string ActualNpcCarryRole(HumanActor actor)
+    {
+        var stock=actor.Belongings;if(stock==null)return null;var held=stock.AtHand(PossessionPlace.RightHand)??stock.AtHand(PossessionPlace.LeftHand);
+        if(held==null)return null;
+        if(StoneCrafting.Rock(held)&&StoneCrafting.Rock(stock.AtHand(PossessionPlace.LeftHand)))return "WorkKnapping";
+        if(held.Kind==PossessionKind.WoodenSpear||held.Kind==PossessionKind.StoneTippedSpear||held.Kind==PossessionKind.BoneTippedSpear)return "SpearReady1";
+        if(Foraging.Food(held))return actor.CurrentActivity==HumanActivity.PrepareFood?"Eat":"ToolReady";
+        if(held.Kind==PossessionKind.KindlingBundle||held.Kind==PossessionKind.Branch)return "CarryLarge";
+        if(held.Kind==PossessionKind.HidePouch||held.Kind==PossessionKind.BarkContainer)return actor.CurrentActivity==HumanActivity.FetchWater?"Drink":"WaterCarry";
+        return "ToolReady";
+    }
+    void DropNpcPossessions(HumanActor actor)
+    {
+        if(actor.Belongings==null)return;
+        foreach(var item in actor.Belongings.Items.Where(p=>p.Place!=PossessionPlace.Container).ToArray())
+        {item.Place=PossessionPlace.Ground;item.ContainerId="";item.Position=actor.Planet;item.GroundOffsetM=.15;}
+        PublishNpcGroundGoods(actor);CaptureLivingPerson(actor);
+    }
+    string NpcBelongingsContext(HumanActor actor)
+    {
+        var stock=actor.Belongings;return stock==null?"":" Actual physical task: "+actor.TaskDetail+". Items actually carried: "+string.Join(", ",stock.Items.Where(stock.Carried).Take(10).Select(p=>p.Name+(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand?" (in hand)":" (packed/worn)")))+". Do not claim to eat, make, carry or use an item that is not actually present. A scheduled task is a plan, not proof that its materials exist.";
+    }
+}

@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
         if(bed!=null)
         {
             if(!Camp.Objects.Contains(bed)||(Position-bed.Position).Length*frame.RadiusM>4){InventoryFeedback("The bedding is out of reach.");return;}
+            if(!PlayerMayUseCamp(bed))WitnessPropertyUse(null,bed,true);
             TerrainHandoff.Coordinates(frame,bed.Position,out double x,out double z);
             var bedWater=SampleMotionWater(x,z);
             if(double.IsFinite(bedWater.Surface)&&bedWater.Surface>CampFloor(x,z)+.02){InventoryFeedback("This bedding is underwater. Choose dry ground.");return;}

@@ -20,11 +20,12 @@ public sealed partial class LocalTerrainExplorer
     string inventoryNotice="",inventorySelected="";float inventoryNoticeUntil;
     Material inventoryBagMaterial;
     readonly HashSet<ArtModel> inventoryPinnedArt=new HashSet<ArtModel>();
-    readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-item-use-check")||Environment.GetCommandLineArgs().Contains("--worldgen-portable-craft-check")||Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check")||Environment.GetCommandLineArgs().Contains("--worldgen-stone-craft-check");
+    readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-item-use-check")||Environment.GetCommandLineArgs().Contains("--worldgen-portable-craft-check")||Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check")||Environment.GetCommandLineArgs().Contains("--worldgen-stone-craft-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-belongings-check");
     Transform inventoryBoneOwner;Dictionary<string,Transform> inventoryBones;
     void InitializeInventory()
     {
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();PrepareItemAudio();PrepareItemPhysics();PreparePickupIcons();
+        foreach(var item in Inventory.Items.Where(Inventory.Carried))ClaimPlayerItem(item);
         // Demo NPC humans are not restored with the session. Their numeric
         // IDs can be reused, so an old arrow must not bind to a new person.
         foreach(var item in Inventory.Items.Where(p=>p.AttachedHuman!=0))ReleaseProjectileAttachment(item);
@@ -115,7 +116,7 @@ public sealed partial class LocalTerrainExplorer
     bool MovePossession(string id,PossessionPlace place,string bag="",int x=0,int y=0,bool rotated=false,bool autoStow=false,bool autoHand=false)
     {
         CancelItemCharge();CancelWorldToolWork();RefreshInventoryNearby(true);var candidate=InventoryCandidate(id);if(candidate==null)return false;
-        var item=candidate.Item;var previousPlace=item.Place;
+        var item=candidate.Item;var previousPlace=item.Place;bool wasCarried=Inventory.Carried(item);
         if(candidate.Natural&&!inventoryNearby.Any(n=>n.Item.Id==id)||!candidate.Natural&&!AccessiblePossession(item)){InventoryFeedback("That item is out of reach.");return false;}
         if(place==PossessionPlace.Container)
         {var dest=autoStow?Inventory.WornContainers.FirstOrDefault():Inventory.Find(bag);if(dest==null||!AccessiblePossession(dest)){InventoryFeedback("That bag is out of reach.");return false;}}
@@ -123,6 +124,7 @@ public sealed partial class LocalTerrainExplorer
         if(candidate.Natural)Inventory.Items.Add(item);
         string reason;bool moved=autoStow?Inventory.Stow(id,out reason):autoHand?Inventory.Hold(id,out reason):Inventory.Move(id,place,bag,x,y,rotated,out reason);
         if(!moved){if(candidate.Natural)Inventory.Items.Remove(item);InventoryFeedback(reason);return false;}
+        if(!wasCarried&&Inventory.Carried(item)){WitnessPropertyUse(item);ClaimPlayerItem(item);}
         foreach(var job in Inventory.Crafts.Where(j=>PortableCrafting.Affects(j,id)))
         {job.Equipment?.PreviousHands.RemoveAll(p=>p.Id==id);PauseItemCraft(job);}
         if(candidate.Natural){inventoryCollected.Add(item.NaturalId);Inventory.CollectedNatural.Add(item.NaturalId);scatterDirty=true;}

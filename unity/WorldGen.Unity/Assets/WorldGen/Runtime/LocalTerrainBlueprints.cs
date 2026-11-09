@@ -210,11 +210,12 @@ public sealed partial class LocalTerrainExplorer
         if(CampBlueprints.Deposit(c,Inventory,item.Id,out var why)){RemoveDroppedBody(item.Id);InvalidateCampVisual(c);inventoryNearbyAt=0;}else InventoryFeedback(why);
     }
     void TakeBlueprintItem(CampObject c,Possession item)
-    {if(!CampStoreReach(item))return;if(!Inventory.Hold(item.Id,out _)&&!Inventory.Stow(item.Id,out _)){Inventory.Move(item.Id,PossessionPlace.Ground,"",0,0,false,out _);item.Position=Position;item.GroundMoving=true;item.GroundOffsetM=.08;}item.CampOwner=null;c.Blueprint.Revision++;InvalidateCampVisual(c);inventoryNearbyAt=0;}
+    {if(!CampStoreReach(item))return;WitnessPropertyUse(item);if(!Inventory.Hold(item.Id,out _)&&!Inventory.Stow(item.Id,out _)){Inventory.Move(item.Id,PossessionPlace.Ground,"",0,0,false,out _);item.Position=Position;item.GroundMoving=true;item.GroundOffsetM=.08;}item.CampOwner=null;c.Blueprint.Revision++;InvalidateCampVisual(c);inventoryNearbyAt=0;}
     void UndoBlueprintPart(CampObject c)
     {
         if(StoredAt(c).Length>0){InventoryFeedback("Empty the rack or store first.");return;}CancelBlueprintWork();var p=c.Blueprint;
         var last=CampBlueprints.Components(p).LastOrDefault(d=>CampBlueprints.State(p,d)!=null);if(last==null){RemoveCamp(c);return;}
+        WitnessPropertyUse(null,c);
         var state=CampBlueprints.State(p,last);int index=0;foreach(var item in state.Materials)DropBlueprintMaterial(c,item,last,index++);p.Parts.Remove(state);p.Revision++;InvalidateCampVisual(c);inventoryNearbyAt=0;
     }
     void DropBlueprintMaterial(CampObject c,Possession item,CampComponent component=null,int index=0)

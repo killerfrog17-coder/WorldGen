@@ -32,6 +32,9 @@ public sealed partial class LocalTerrainExplorer
         public float PoseGroundLift;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";
         public HumanActivity CurrentActivity;
+        public PlayerInventory Belongings;public double GearAt,NpcWorkDone;public string TaskDetail="",GearRole="";public bool TaskWaiting;
+        public V GearTarget;public bool FetchingGear;
+        public int GearVisualHash=int.MinValue;
         public bool NpcCrouching;
         public bool NpcCrawling;
         public bool Natural;

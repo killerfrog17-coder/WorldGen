@@ -53,6 +53,7 @@ public sealed partial class WorldGenRuntime
                     var memory=session.Humans.People.FirstOrDefault(p=>p.Person==session.Identity.Person.Id);
                     if(memory==null){memory=new HumanPersonMemory{Person=session.Identity.Person.Id,Group=session.Identity.Group};session.Humans.People.Add(memory);}
                     memory.Position=session.PlayerPosition;memory.Health=session.Survival.Health;memory.Dead=session.Survival.Dead;memory.SolarDays=session.SolarDays;memory.Bleeding=session.Survival.Bleeding?.Copy();
+                    memory.Inventory=new PlayerInventory{PlayerName=session.Identity.Person.Name};
                 }
             }
             session.Inventory.Crafts.Clear();session.Inventory.ToolWorkEquipment=null;
@@ -65,11 +66,16 @@ public sealed partial class WorldGenRuntime
                 entry.Position=point;
                 var memory=session.Humans.People.FirstOrDefault(p=>p.Person==entry.Identity.Person.Id);
                 if(memory!=null){session.Survival.Health=Math.Max(1,memory.Health);session.Survival.Bleeding=memory.Bleeding?.Copy();}
-                foreach(var item in HumanEquipment.Held(entry))
+                if(memory==null){memory=new HumanPersonMemory{Person=entry.Identity.Person.Id,Group=entry.Identity.Group,Position=point};session.Humans.People.Add(memory);}
+                var stock=memory.Inventory??NpcBelongings.Seed(entry.Identity.Person,entry.Group.Band,point);
+                if(memory.Inventory==null)
                 {
-                    var old=session.Inventory.Find(item.Id);if(old!=null)session.Inventory.Items.Remove(old);
-                    session.Inventory.Items.Add(item);
+                    string role=HumanEquipment.Role(entry.Identity.Person,entry.Activity,entry.Activity.Activity,entry.Identity.Techniques);
+                    foreach(var item in NpcBelongings.ForTask(stock,role))stock.Hold(item.Id,out _);
+                    foreach(var item in stock.Items.Where(p=>p.Place==PossessionPlace.Ground).ToArray())NpcBelongings.Pack(stock,item);
                 }
+                foreach(var item in stock.Items)if(session.Inventory.Find(item.Id)==null)session.Inventory.Items.Add(item);
+                memory.Inventory=new PlayerInventory{PlayerName=entry.Identity.Person.Name};
             }
             session.Validate();if(diagnostic)Debug.Log("ENTRY prepared "+session.Mode+" / resident="+(session.Identity?.Person.Id??0));return session;
         });

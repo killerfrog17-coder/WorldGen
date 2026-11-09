@@ -21,6 +21,7 @@ public sealed partial class LocalTerrainExplorer
     NpcEventQueue.Event npcSuppressed;
     string[] npcPendingTargets;HumanActor npcTalkTarget,npcAimed;double npcObserveAt,npcAimAt,npcNextBackground;
     bool npcThoughts;string npcLastError="";int npcDecisions,npcUtterances;
+    readonly Dictionary<long,int> npcMemorySlots=new Dictionary<long,int>();List<NpcMemory> npcMemorySource;
     bool CommandChatStopped=>chatOpen&&(npcTalkTarget==null||chatText.StartsWith("/"));
     long NpcSpeakerKey(long speaker)=>speaker==0?PlayerRules.Identity?.Person?.Id??0:speaker;
     ForagerPersonSample NpcSpeaker(HumanActor listener,long speaker,out bool known)
@@ -31,8 +32,11 @@ public sealed partial class LocalTerrainExplorer
     static string NpcVisibleHair(string variant)=>variant=="A"?"black, tightly curled hair":variant=="B"?"short dark brown hair":variant=="C"?"brown braided hair":variant=="D"?"long black hair":variant=="E"?"black braided hair":variant=="F"?"short grey hair":"hair appearance unavailable";
     NpcMemory NpcMemoryFor(long person)
     {
-        LivingState.Minds??=new List<NpcMemory>();var memory=LivingState.Minds.FirstOrDefault(m=>m.Person==person);
-        if(memory==null){memory=new NpcMemory{Person=person};LivingState.Minds.Add(memory);}return memory;
+        LivingState.Minds??=new List<NpcMemory>();var list=LivingState.Minds;
+        if(!ReferenceEquals(npcMemorySource,list)||npcMemorySlots.Count!=list.Count)
+        {npcMemorySource=list;npcMemorySlots.Clear();for(int i=0;i<list.Count;i++)npcMemorySlots[list[i].Person]=i;}
+        if(npcMemorySlots.TryGetValue(person,out int slot)&&slot<list.Count&&list[slot].Person==person)return list[slot];
+        var memory=new NpcMemory{Person=person};npcMemorySlots[person]=list.Count;list.Add(memory);return memory;
     }
     bool QueueNpcEvent(HumanActor actor,string trigger,string words="",int priority=1,long speaker=0,int depth=0)
     {
@@ -122,7 +126,7 @@ public sealed partial class LocalTerrainExplorer
         string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer?.Definition?.Variant):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible.Definition?.Variant):"not available";
         s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,sameBand,appearance));
         s.Append(" SPEAKER relationship to YOU: ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; speaker target ID=").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
-        s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
+        s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(NpcBelongingsContext(actor));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
         return s.ToString();
     }
     static string NpcActivityText(HumanActivity activity)=>activity==HumanActivity.GatherPlants?"gathering wild plants for food and materials":activity==HumanActivity.GatherFuel?"collecting fallen branches for the campfire":activity==HumanActivity.PrepareFood?"preparing wild gathered or hunted food":activity.ToString();
@@ -237,7 +241,7 @@ public sealed partial class LocalTerrainExplorer
             "\nHealth "+focus.Health.ToString("0")+" · breath "+focus.Exertion.Breath.ToString("0.00")+" · fatigue "+focus.Exertion.Fatigue.ToString("0.00")+
             "\nRoutine: "+focus.Routine?.Activity+" · camp "+(livingGroups.TryGetValue(focus.GroupId,out var group)?group.Situation.Phase.ToString():"unloaded")+
             "\nMind: "+(npcPending?.Person==focus.ResidentId?"thinking":plan?.Stage??"following schedule")+" · queue "+npcEvents.Count+
-            "\nTrigger: "+memory.Trigger+"\nThought: "+memory.Thought+(plan==null?"":"\nIntent: "+plan.Decision.action+" → "+plan.Decision.target);
+            "\nMood: "+memory.Social.Mood+" · "+focus.TaskDetail+"\nTrigger: "+memory.Trigger+"\nThought: "+memory.Thought+(plan==null?"":"\nIntent: "+plan.Decision.action+" → "+plan.Decision.target);
         var style=new GUIStyle(GUI.skin.label){wordWrap=true,richText=false,fontSize=14};float height=style.CalcHeight(new GUIContent(text),360)+20;
         GUI.Box(new Rect(10,Screen.height*.22f,380,height),GUIContent.none);GUI.Label(new Rect(20,Screen.height*.22f+8,360,height-12),text,style);
     }

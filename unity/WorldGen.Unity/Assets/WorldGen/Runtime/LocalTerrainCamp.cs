@@ -74,7 +74,9 @@ public sealed partial class LocalTerrainExplorer
     }
     string CampPrompt(float maximum)
     {
+        campPromptRestricted=false;
         if(CampBusy&&blueprintJob==null)return null;var c=AimedCamp(out float d);
+        if(c!=null&&d<maximum)campPromptRestricted=(c.Kind==CampKind.Bedding||IsBlueprint(c))&&!PlayerMayUseCamp(c);
         if(IsBlueprint(c)&&d<maximum)return BlueprintPrompt(c);
         if(c!=null&&d<maximum)return c.Kind==CampKind.Fire?QuickFirePrompt(c):(c.Kind==CampKind.FrameWood?"Frame wood - "+FrameSummary(c):c.Kind==CampKind.Stake?(FrameRules.Fork(c.Materials[0])?"Forked post - ":"Planted stick - ")+c.EmbedM.ToString("0.00")+" m embedded":"Bedding - "+(c.BeddingDepthM*100).ToString("0")+" cm")+"  [E]";
         if(maximum<float.MaxValue||!CampGround(out var point,out var s)||!CampGrassAvailable(point,s))return null;
@@ -192,6 +194,7 @@ public sealed partial class LocalTerrainExplorer
     void RemoveCamp(CampObject c)
     {
         if(c.Burning||c.EmberSeconds>0){InventoryFeedback("Extinguish and cool the fire first.");return;}
+        WitnessPropertyUse(null,c);
         if(c.Kind==CampKind.FrameWood){foreach(var p in c.Materials)DropFrameMaterial(c,p,true);foreach(var j in c.FrameJoints)foreach(var p in j.Bindings)DropFrameBinding(c,j,p);}
         else if(IsBlueprint(c)){CancelBlueprintWork();ReleaseBlueprintMaterials(c);}
         else foreach(var p in c.Materials.Concat(c.CookingItems)){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundVelocity=p.GroundSpin=new V();p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}

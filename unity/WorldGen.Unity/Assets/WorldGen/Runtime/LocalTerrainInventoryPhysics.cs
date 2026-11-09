@@ -40,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
         return target;
     }
     GUISkin pickupPromptSkin;int pickupPromptFont;
-    GUIStyle pickupPromptText,pickupPromptShadow;
+    GUIStyle pickupPromptText,pickupPromptShadow,pickupPromptTheft;
     void PreparePickupPromptStyles(int fontSize)
     {
         if(pickupPromptSkin==GUI.skin&&pickupPromptFont==fontSize&&pickupPromptText!=null)return;
@@ -48,6 +48,7 @@ public sealed partial class LocalTerrainExplorer
         pickupPromptShadow=new GUIStyle(GUI.skin.label){fontSize=fontSize,alignment=TextAnchor.MiddleCenter,padding=new RectOffset(),wordWrap=false};
         pickupPromptShadow.normal.textColor=Color.black;
         pickupPromptText=new GUIStyle(pickupPromptShadow);pickupPromptText.normal.textColor=new Color(.95f,.95f,.89f);
+        pickupPromptTheft=new GUIStyle(pickupPromptText);pickupPromptTheft.normal.textColor=new Color(1,.24f,.2f);
     }
     void DrawPickupPrompt()
     {
@@ -79,8 +80,10 @@ public sealed partial class LocalTerrainExplorer
         PreparePickupPromptStyles(Mathf.RoundToInt(17*scale));
         var rect=new Rect(Screen.width*.5f-180*scale,Screen.height*.5f+31*scale,360*scale,30*scale);
         string prompt=nature??(InventoryDisplayName(target.Item)+"  [E]");
+        bool restricted=nature!=null?campPromptRestricted:target!=null&&!PlayerMayTake(target.Item);
+        if(restricted&&nature==null)prompt="Steal "+InventoryDisplayName(target.Item)+"  [E]";
         GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),prompt,pickupPromptShadow);
-        GUI.Label(rect,prompt,pickupPromptText);
+        GUI.Label(rect,prompt,restricted?pickupPromptTheft:pickupPromptText);
     }
     void ReleasePossession(Possession item,bool fromContainer)
     {
