@@ -54,6 +54,13 @@ public sealed partial class LocalTerrainExplorer
         double mealMass=meal.MassKg;var record=NpcPersonRecord(actor);record.Nutrition??=new PlayerSurvival();double consumed=NpcMaterialUse.Eat(actor.Belongings,record.Nutrition,meal);
         Check(consumed>0&&(!actor.Belongings.Items.Contains(meal)||meal.MassKg<mealMass),"Eating reduces the real harvested food quantity");
         NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);
+        // Establish a real unmet flake need and an unambiguous pair. Earlier
+        // autonomous work may already have filled the three-flake quota or
+        // left other valid cores in the carried kit. Set them down, conserving
+        // their identities, rather than testing which identical-mass core wins.
+        foreach(var prior in actor.Belongings.Items.Where(p=>StoneCrafting.Rock(p)||p.Kind==PossessionKind.StoneFlake).ToArray())
+        {prior.Place=PossessionPlace.Ground;prior.ContainerId="";prior.Position=actor.Planet;}
+        PublishNpcGroundGoods(actor);
         var core=HumanEquipment.Item(PossessionKind.SmallRock,actor.ResidentId,"material-probe-l",actor.Planet);core.Variant=ToolStone.Encode(ToolStoneMaterial.Chert,3);core.MassKg=.6;core.WidthM=.095;core.HeightM=.11;core.DepthM=.085;
         var hammer=HumanEquipment.Item(PossessionKind.SmallRock,actor.ResidentId,"material-probe-r",actor.Planet);hammer.Variant=ToolStone.Encode(ToolStoneMaterial.Granite,3);
         actor.Belongings.Items.Add(core);actor.Belongings.Items.Add(hammer);actor.Belongings.Hold(core.Id,out _);actor.Belongings.Hold(hammer.Id,out _);double oldMass=core.MassKg;actor.TaskWaiting=false;actor.Threat=null;actor.CurrentActivity=HumanActivity.Craft;
