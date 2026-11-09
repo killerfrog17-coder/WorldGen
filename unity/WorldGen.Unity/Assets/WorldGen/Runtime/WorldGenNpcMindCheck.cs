@@ -54,8 +54,15 @@ public sealed partial class LocalTerrainExplorer
         Check((npcModel?.Requests??0)==initial,"ordinary schedule ticks do not invoke the model");
         npcTalkTarget=actor;Check(SpeakToNpc("Hello "+actor.Resident.Name+". What are you doing?"),"typed dialogue reaches selected resident");
         yield return new WaitForSecondsRealtime(1);Check(npcDecisions>0||actor.Speed<.15f,"addressed NPC listens immediately while the model runs");
-        deadline=Time.realtimeSinceStartupAsDouble+70;while(npcUtterances<1&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        Check(npcUtterances>=1,"actual local model replied and the executor delivered speech nearby: "+npcLastError);
+        if(npcThinking!=null&&!npcThinking.IsCompleted&&npcPending!=null)
+        {
+            npcPending.At=Time.unscaledTimeAsDouble-60;
+            if(npcPlans.TryGetValue(actor.ResidentId,out var waiting))waiting.Until=Time.unscaledTimeAsDouble-1;
+            yield return new WaitForSecondsRealtime(.3f);
+            Check(npcPlans.TryGetValue(actor.ResidentId,out waiting)&&waiting.Listening,"pending direct dialogue keeps listening beyond the old timeout");
+        }
+        deadline=Time.realtimeSinceStartupAsDouble+200;while(npcUtterances<1&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        Check(npcUtterances>=1,"actual local model replied and the executor delivered speech nearby: "+npcLastError+" / "+npcModel?.Status+" / "+npcModel?.BackendInfo);
         Check(npcDecisions>=1&&NpcMemoryFor(actor.ResidentId).Thought.Length>0,"validated fictional thought is available to debug");
         npcThoughts=true;yield return new WaitForEndOfFrame();var screen=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"npc-conversation.png"),screen.EncodeToPNG());Destroy(screen);
         File.WriteAllText(Path.Combine(output,"first-memory.json"),JsonUtility.ToJson(NpcMemoryFor(actor.ResidentId),true));

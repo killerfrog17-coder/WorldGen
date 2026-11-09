@@ -45,7 +45,8 @@ public sealed partial class LocalTerrainExplorer
             try
             {
                 if(work.IsFaulted)throw work.Exception.GetBaseException();if(work.IsCanceled)throw new OperationCanceledException();
-                if(livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<50&&now-item.At<45)
+                bool direct=item.Priority>=3&&npcTalkTarget?.ResidentId==item.Person;
+                if(livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<50&&now-item.At<(direct?240:45))
                 {
                     var decision=JsonUtility.FromJson<NpcDecision>(work.Result);
                     if(decision==null||!decision.Validate(npcPendingTargets))throw new InvalidOperationException("Invalid NPC decision");
@@ -122,6 +123,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!npcPlans.TryGetValue(actor.ResidentId,out var plan))return false;
         double now=Time.unscaledTimeAsDouble;var alarm=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId);
+        if(plan.Listening&&npcTalkTarget==actor&&HumanDistance(actor.Planet,Position)<24&&
+            ((npcPending?.Person==actor.ResidentId&&npcPending.Priority>=3&&npcThinking!=null&&!npcThinking.IsCompleted)||npcEvents.HasDirect(actor.ResidentId)))plan.Until=now+2;
         if(now>plan.Until||alarm!=null&&alarm.AlarmUntilSolarDay>PlayerRules.SolarDays||!NpcGoal(actor,plan.Decision.target,out var goal))
         {npcPlans.Remove(actor.ResidentId);return false;}
         var d=plan.Decision;double distance=HumanDistance(actor.Planet,goal);target=actor.Planet;

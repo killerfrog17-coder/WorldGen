@@ -42,8 +42,9 @@ namespace WorldGen.Core
         }
         public Event Take(double now)
         {
-            events.RemoveAll(e=>now-e.At>40);var item=events.OrderByDescending(e=>e.Priority).ThenBy(e=>e.At).FirstOrDefault();if(item!=null)events.Remove(item);return item;
+            events.RemoveAll(e=>now-e.At>(e.Priority>=3?240:40));var item=events.OrderByDescending(e=>e.Priority).ThenBy(e=>e.At).FirstOrDefault();if(item!=null)events.Remove(item);return item;
         }
+        public bool HasDirect(long person)=>events.Any(e=>e.Person==person&&e.Priority>=3);
         public void Clear(){events.Clear();admitted.Clear();direct.Clear();}
     }
 }

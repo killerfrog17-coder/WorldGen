@@ -22,6 +22,9 @@ static class NpcMindTests
         Check(q.Count==8,"Bounded world-independent queue");
         Check(q.Add(new NpcEventQueue.Event{Person=20,Priority=3},4)&&q.Take(4).Person==20,"Speech priority over passive events");
         Check(q.Take(100)==null,"Stale events dropped");
+        var cold=new NpcEventQueue();cold.Add(new NpcEventQueue.Event{Person=1,Priority=3},0);Check(cold.HasDirect(1)&&cold.Take(90)?.Person==1,"Direct dialogue survives a cold model load");
+        cold.Add(new NpcEventQueue.Event{Person=2,Priority=1},0);Check(cold.Take(90)==null,"Passive observations retain their short expiry");
+        cold.Add(new NpcEventQueue.Event{Person=3,Priority=3},0);Check(cold.Take(241)==null&&!cold.HasDirect(3),"Direct dialogue still has a bounded lifetime");
         var decision=new NpcDecision{action="teleport",target="player"};
         Check(!decision.Validate(new[]{"player","none"}),"No arbitrary executor action");
         decision.action="approach";decision.target="person:500";Check(!decision.Validate(new[]{"player","none"}),"No unseen target");
