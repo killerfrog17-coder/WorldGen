@@ -12,8 +12,11 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckNpcMindRuntime()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;var report=new List<string>();
+        SetDisplayOptions(false,30,false); // Functional QA does not need uncapped rendering or persisted display changes.
         string profile=Argument("--worldgen-ai-profile","");
-        if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
+        if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-shared-gpu")){config.GpuReserveMiB=2048;config.Threads=Math.Max(1,Environment.ProcessorCount/2);config.BatchThreads=config.Threads;config.Priority=-1;config.Polling=0;config.InferenceFps=15;}
+        NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
         while((Busy||!worldReady||humans==null||humanStep!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humanStep!=null)throw new InvalidOperationException("NPC test world failed to load");
