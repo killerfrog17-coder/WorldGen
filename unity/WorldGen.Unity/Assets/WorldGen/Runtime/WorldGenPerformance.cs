@@ -84,7 +84,7 @@ public static class WorldGenPerformance
     public static bool Measuring,ProfileRenderCompletion;
     public static double CompletedRenderMs;
     public static readonly double[] Milliseconds=new double[4];
-    public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
+    public static readonly bool TraceEnabled=(Enabled||Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf"))&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
     public static readonly bool FineCullTrace=TraceEnabled&&Environment.GetCommandLineArgs().Contains("--worldgen-fine-cull-trace");
     static readonly List<(long Time,string Animal,string Stage)> faunaStages=TraceEnabled?new List<(long,string,string)>(256):null;
     public static void TraceFauna(string animal,string stage)

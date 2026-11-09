@@ -10,6 +10,9 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
+    public sealed class NpcCyclePersonRow{public string Name,TaskDetail;public float Speed;public double NavigationX,NavigationZ,Kg;}
+    public sealed class NpcCycleStatus
+    {public string WaitingFor,Phase;public bool CampLoaded,Grounded;public int PlacementAttempt,OldParts,Packed,Supplied,Worked;public NpcCampTravel Travel;public NpcCyclePersonRow[] People;}
     static IEnumerator CheckLivingCampCycle(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP CYCLE "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP CYCLE "+text);}
@@ -43,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
                 if(Time.realtimeSinceStartupAsDouble>=statusAt)
                 {
                     statusAt=Time.realtimeSinceStartupAsDouble+3;
-                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new{WaitingFor=description,Phase=group.Situation.Phase.ToString(),group.CampLoaded,group.Grounded,group.PlacementAttempt,OldParts=Parts(),owner.npcCampPacked,owner.npcCampSupplied,owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new{p.Resident.Name,p.TaskDetail,p.Speed,p.NavigationX,p.NavigationZ,Kg=p.Belongings.CarriedMassKg}).ToArray()}));
+                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg}).ToArray()}));
                 }
                 yield return null;
             }
