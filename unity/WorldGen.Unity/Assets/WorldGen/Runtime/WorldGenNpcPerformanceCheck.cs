@@ -19,6 +19,7 @@ public sealed partial class LocalTerrainExplorer
         public double[] MeanMainThreadTraceMs;public NpcSlowFrame[] SlowFrames;public int Gen0Collections,Gen1Collections,Gen2Collections;
         public long ScatterAppendAllocatedBytes,ScatterBuilds;public int ArtModelsStart,ArtModelsEnd;
         public bool ResidentForestReadyStart,ResidentForestReadyEnd;public int ForestPagesStart,ForestPagesEnd,ForestRootsStart,ForestRootsEnd;
+        public double MaximumCameraErrorM,MaximumCameraAngleError,MaximumScatterEyeDeltaM;
     }
     public sealed class NpcSlowFrame
     {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
@@ -38,7 +39,15 @@ public sealed partial class LocalTerrainExplorer
         // Repeat the same slow scenic orbit in every mode. No head whipping,
         // no invisible off-screen-only render target and no model inference.
         owner.npcModel??=new NpcModelClient();owner.npcModel.Config.Enabled=false;
-        void CameraAt(double seconds){var offset=Quaternion.Euler(0,(float)(seconds/duration*360),0)*new Vector3(0,6,24);owner.view.transform.localPosition=focus+offset;owner.view.transform.LookAt(owner.transform.TransformPoint(focus));}
+        var priorReviewCamera=owner.landscapeReviewCamera;var priorReviewRotation=owner.landscapeReviewRotation;
+        void CameraAt(double seconds)
+        {
+            var offset=Quaternion.Euler(0,(float)(seconds/duration*360),0)*new Vector3(0,6,24);
+            // Use the production review override so UpdateCamera, culling and
+            // rendering all see the same requested pose across the frame.
+            owner.landscapeReviewCamera=focus+offset;owner.view.transform.localPosition=owner.landscapeReviewCamera.Value;
+            owner.view.transform.LookAt(owner.transform.TransformPoint(focus));owner.landscapeReviewRotation=owner.view.transform.localRotation;
+        }
         owner.view.targetTexture=null;
         bool trace=WorldGenPerformance.TraceEnabled,priorQueryTrace=TerrainQueryTiming.Enabled;
         if(trace)
@@ -58,10 +67,13 @@ public sealed partial class LocalTerrainExplorer
             long appendBytes=owner.scatterAppendAllocations,appendBuilds=owner.scatterAppendBuilds;int artModels=owner.scatterArt.Count;
             bool forestReady=owner.residentForestReady;int forestPages=owner.forestFields.Count,forestRoots=owner.forestRootCount;
             int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);long windowTick=System.Diagnostics.Stopwatch.GetTimestamp();
+            double maxCameraError=0,maxAngleError=0,maxCullDelta=0;
             if(trace){WorldGenPerformance.ClearFaunaTrace();WorldGenPerformance.Measuring=true;}
             while(Time.realtimeSinceStartupAsDouble-start<duration)
             {
                 CameraAt(Time.realtimeSinceStartupAsDouble-start);if(mode=="no-residents")foreach(var resident in owner.livingPeople.Values)if(resident.Root.activeSelf)resident.Root.SetActive(false);yield return null;
+                maxCameraError=Math.Max(maxCameraError,Vector3.Distance(owner.view.transform.localPosition,owner.landscapeReviewCamera.Value));maxAngleError=Math.Max(maxAngleError,Quaternion.Angle(owner.view.transform.localRotation,owner.landscapeReviewRotation));maxCullDelta=Math.Max(maxCullDelta,Vector3.Distance(owner.scatterEye,owner.view.transform.localPosition));
+                if(maxCameraError>.001||maxAngleError>.05)throw new InvalidOperationException("NPC scenic benchmark camera was overwritten during a measured frame; reject its moving-view results.");
                 minPeople=Math.Min(minPeople,owner.livingPeople.Count);maxPeople=Math.Max(maxPeople,owner.livingPeople.Count);double now=Time.realtimeSinceStartupAsDouble,frameMs=(now-previous)*1000;ticks.Add(owner.livingTickMs);frames.Add(frameMs);previous=now;if(!Application.isFocused)unfocused++;for(int k=0;k<stages.Length;k++)stages[k]+=owner.livingCosts[k];
                 if(trace)
                 {
@@ -78,10 +90,12 @@ public sealed partial class LocalTerrainExplorer
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route="Radius24m scenic camp orbit; same path and duration per mode"});
             var recorded=report[report.Count-1];recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
+            recorded.MaximumCameraErrorM=maxCameraError;recorded.MaximumCameraAngleError=maxAngleError;recorded.MaximumScatterEyeDeltaM=maxCullDelta;
             recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         }
         owner.livingBenchmarkFreeze=false;foreach(var actor in owner.livingPeople.Values)actor.Root.SetActive(true);Application.targetFrameRate=cap;
+        owner.landscapeReviewCamera=priorReviewCamera;owner.landscapeReviewRotation=priorReviewRotation;owner.UpdateCamera();
         if(trace)TerrainQueryTiming.Enabled=priorQueryTrace;
         File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         Debug.Log("NPC measured main-thread normal "+report[0].MeanNpcMs.ToString("F3")+"ms / repeat "+report[3].MeanNpcMs.ToString("F3")+"ms; "+owner.livingPeople.Count+" residents");
