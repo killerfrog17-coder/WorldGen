@@ -1,0 +1,448 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 676.7697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 633.3697637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 606.6497637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 563.2497637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 285.3697637795277,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\grounded-dialogue.jpg",
+    "bottom": 301.2497637795277,
+    "height": 250
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 690.6897637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 663.9697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 633.3697637795277,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 606.6497637795277,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 563.2497637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 391.011003937008,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\children-in-camp.jpg",
+    "bottom": 406.891003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 391.011003937008,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\night-household.jpg",
+    "bottom": 406.891003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 676.7697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 633.3697637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 606.6497637795277,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 563.2497637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 290.3697637795277,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\completed-fire-routine.jpg",
+    "bottom": 306.2497637795277,
+    "height": 245
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 690.6897637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 663.9697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 620.5697637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 593.8497637795277,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 563.2497637795277,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 536.5297637795277,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 505.92976377952766,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 479.20976377952763,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 448.6097637795276,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 531.251003937008,
+    "height": 10.88
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\morning-camp.jpg",
+    "bottom": 547.131003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 520.371003937008,
+    "height": 21.76
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\rainforest-ridge-tents.jpg",
+    "bottom": 547.131003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 334.25224409448833,
+    "height": 21.76
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\cold-region-brush-huts.jpg",
+    "bottom": 361.0122440944883,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 334.25224409448833,
+    "height": 21.76
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\npc-overnight-20261109\\coastal-reed-camp.jpg",
+    "bottom": 361.0122440944883,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 304.5322440944883,
+    "height": 14.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 261.1322440944883,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 690.6897637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 518.9697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 475.56976377952776,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 448.84976377952773,
+    "height": 14.72
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 405.44976377952776,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 378.72976377952773,
+    "height": 14.72
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 348.1297637795277,
+    "height": 25.6
+  }
+]

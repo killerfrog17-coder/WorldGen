@@ -96,7 +96,7 @@
           "images": [
             {
               "file": "completed-fire-routine.jpg",
-              "caption": "After actual gathering,return and cold fire starting. Controlled qualified firemaker/one real drill; fuel and tinder were gathered physically."
+              "caption": "After actual gathering, return and cold fire starting. Controlled qualified firemaker/one real drill; fuel and tinder were gathered physically."
             }
           ],
           "max_height": 245
@@ -151,7 +151,7 @@
             },
             {
               "file": "rainforest-ridge-tents.jpg",
-              "caption": "Humid forest: 43 people, ten bark ridge tents;26?C annual mean, 2,209 mm rainfall."
+              "caption": "Humid forest: 43 people, ten bark ridge tents; 26 C annual mean, 2,209 mm rainfall."
             }
           ],
           "max_height": 145
@@ -160,11 +160,11 @@
           "images": [
             {
               "file": "cold-region-brush-huts.jpg",
-              "caption": "Colder forest: 17 people, seven brush huts;annual mean ?1.13?C. This view is not a winter-weather test."
+              "caption": "Colder forest: 17 people, seven brush huts; annual mean -1.13 C. This view is not a winter-weather test."
             },
             {
               "file": "coastal-reed-camp.jpg",
-              "caption": "Coast: 35 people, ten reed-covered huts at 20:00. Later-world fixture,simulated year 120,000."
+              "caption": "Coast: 35 people, ten reed-covered huts at 20:00. Later-world fixture, simulated year 120,000."
             }
           ],
           "max_height": 145
@@ -176,11 +176,11 @@
       ],
       "sources": [
         [
-          "HRAF:Hunter-gatherers",
+          "HRAF: Hunter-gatherers",
           "https://hraf.yale.edu/ehc/summaries/hunter-gatherers"
         ],
         [
-          "NPS:Portable tents",
+          "NPS: Portable tents",
           "https://home.nps.gov/articles/000/nunamiut-caribou-skin-clothing-tents.htm"
         ]
       ]
@@ -190,7 +190,7 @@
       "subtitle": "Verified camera poses; first-loading and steady-state intervals shown separately.",
       "blocks": [
         {
-          "text": "One occupied woodland camp: 34 residents, nine shelters, Medium vegetation/surfaces, 1536 x 864, 6 km view, local model disabled. Four30-second scenic camera orbits around a stationary observer. Every sampled pose was verified: zero camera error and zero unfocused frames. Sequential modes advance the world and loading, so they are not a static causal A/B."
+          "text": "One occupied woodland camp: 34 residents, nine shelters, Medium vegetation/surfaces, 1536 x 864, 6 km view, local model disabled. Four 30-second scenic camera orbits around a stationary observer. Every sampled pose was verified: zero camera error and zero unfocused frames. Sequential modes advance the world and loading, so they are not a static causal A/B."
         },
         {
           "table": {
@@ -242,7 +242,7 @@
         },
         {
           "heading": "The unresolved slow frames",
-          "text": "The first orbit included substantial forest loading: 28 to429 pages, with nearby rendering readiness becoming available. The repeat orbit had644 stable pages. Slow frames remain unacceptable; the100FPS floor is unmet. Older NPC orbit timings were demoted to diagnostic-only data after a camera/culling mismatch was found and corrected. The current shadow-policy change preserves all70,782 tested source decisions, but has no causal speedup claim."
+          "text": "The first orbit included substantial forest loading: 28 to 429 pages, with nearby rendering readiness becoming available. The repeat orbit had 644 stable pages. Slow frames remain unacceptable; the 100 FPS floor is unmet. Older NPC orbit timings were demoted to diagnostic-only data after a camera/culling mismatch was found and corrected. The current shadow-policy change preserves all 70,782 tested source decisions, but has no causal speedup claim."
         },
         {
           "heading": "Migration verification is still active",

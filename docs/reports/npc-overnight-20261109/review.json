@@ -1,0 +1,262 @@
+{
+  "title": "WorldGen | NPC Life Playtest Checkpoint",
+  "section": "NPC LIFE REVIEW",
+  "date": "09 November 2026",
+  "footer": "Actual game captures; controlled checks and ordinary camp views are identified separately.",
+  "draft": false,
+  "pages": [
+    {
+      "title": "People who know their world",
+      "subtitle": "Grounded conditions, individual character and local social life.",
+      "blocks": [
+        {
+          "text": "NPC requests now include the actual time of day and weather, their home environment, regional food and familiar animals. A current animal sighting is distinguished from regional knowledge or an older sighting."
+        },
+        {
+          "heading": "Character and culture",
+          "text": "People have stable differences in courage, sociability, kindness, curiosity, competitiveness and interests. Local belief details, food customs, rites, decision-making and sharing practices inform what they say; influence can be task-specific rather than a universal chief."
+        },
+        {
+          "heading": "A real local-model check",
+          "text": "Qwen3.5-9B correctly named the camp organizers, described the current morning weather, listed regional foods and explained the actual mortuary custom. Its generated invitation also granted guest access through the game executor. This was one controlled welcoming host, not a guarantee that every model response will be correct."
+        },
+        {
+          "images": [
+            {
+              "file": "grounded-dialogue.jpg",
+              "caption": "Actual Qwen3.5-9B replies and an executed invitation; controlled welcoming host."
+            }
+          ],
+          "max_height": 250
+        }
+      ],
+      "sources": [
+        [
+          "Leadership study",
+          "https://anthro.vancouver.wsu.edu/documents/584/garfield_et_al_2019.pdf"
+        ]
+      ]
+    },
+    {
+      "title": "Families, company and concern",
+      "subtitle": "Individual routines and relationships give the camp more than a shared timetable.",
+      "blocks": [
+        {
+          "text": "Extended kinship includes cousins, aunts, uncles and grandparents. Personal friendships, friction, trust, respect and grievances affect company and responses. Gifts and returning stolen property transfer real items and change the recipient's view of the player."
+        },
+        {
+          "heading": "Children and nights",
+          "text": "Children can chase, hide and make believe with actual peers. Infants depend on a nearby caregiver. Sleep timing and occasional awakenings vary; risk and local custom influence watches. Family sleeping places remain household property."
+        },
+        {
+          "heading": "People are not omniscient",
+          "text": "A caregiver can worry about an overdue relative and ask nearby people to search the last known place. Helpers receive a reported concern, not the missing person's present location or fate. Seeing a return brings relief; learning of a death can produce grief. Dialogue family facts reflect only losses the observer has learned about."
+        },
+        {
+          "images": [
+            {
+              "file": "children-in-camp.jpg",
+              "caption": "Daytime camp during children's play checks; seated adult in foreground."
+            },
+            {
+              "file": "night-household.jpg",
+              "caption": "Camp at 23:00 during household sleep and watch checks."
+            }
+          ],
+          "max_height": 170
+        }
+      ],
+      "sources": [
+        [
+          "Chronotype variation",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC5524507/"
+        ],
+        [
+          "Children and play",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC5662667/"
+        ]
+      ]
+    },
+    {
+      "title": "Real belongings, real camp work",
+      "subtitle": "Scheduled intentions use finite materials instead of summoning task props.",
+      "blocks": [
+        {
+          "text": "Each person's inventory persists. Displayed tools are actual held or carried items; task changes do not create replacements. Private property and household beds produce red restricted prompts, and only witnesses learn who took an item."
+        },
+        {
+          "heading": "Building and moving",
+          "text": "Workers use real components and materials. They carry useful personal gear when space permits, deliver shelter loads before foraging, and assign a small setup crew. Recovered lashing binds existing poles and coverings into loads; unbinding returns the original pieces. Uncarried frames, bedding and hearths can remain behind."
+        },
+        {
+          "heading": "What was actually checked",
+          "text": "Individual dismantling, carrying and rebuilding conserve identities and mass. The complete walking/gathering/return/cold-fire routine passes. Full-band packing and arrival preserved every original portable contribution, but the last complete relocation check timed out during rebuilding. Reliable post-move reconstruction remains unfinished."
+        },
+        {
+          "images": [
+            {
+              "file": "completed-fire-routine.jpg",
+              "caption": "After actual gathering, return and cold fire starting. Controlled qualified firemaker/one real drill; fuel and tinder were gathered physically."
+            }
+          ],
+          "max_height": 245
+        }
+      ],
+      "sources": [
+        [
+          "Portable shelter materials",
+          "https://home.nps.gov/articles/000/nunamiut-caribou-skin-clothing-tents.htm"
+        ]
+      ]
+    },
+    {
+      "title": "Danger and consequences",
+      "subtitle": "Reactions depend on what a person witnessed and can realistically do.",
+      "blocks": [
+        {
+          "text": "A lone child can retreat, while capable armed adults can protect one another or defend against an identified attacker. Courage, health, weapons and nearby support affect the choice. Actual animal contact can wound a person and cause bleeding; defensive attacks use the real weapon."
+        },
+        {
+          "heading": "Witnesses remember specifics",
+          "text": "Seeing a wolf attack a companion records that animal and event. An occluded witness does not learn the attacker magically. A person who only hears distress knows less than someone who saw the attack. Bodies, possessions, wounds and local incidents persist."
+        },
+        {
+          "heading": "Joining and influence",
+          "text": "Welcoming, membership, support for a coordinator and local changes to sharing, visitors or watches have game rules. Earned relationships and adult support matter; a language-model claim alone cannot grant leadership."
+        },
+        {
+          "heading": "Deliberately outside this update",
+          "text": "Advanced NPC hunting, animal tracking and full food procurement are deferred. This pass provides material-backed gathering and local production routines, not a completed NPC survival economy."
+        },
+        {
+          "heading": "Playtest suggestions",
+          "text": "Enter as a person, talk to campmates and ask about their relatives, organizers, weather or plans. Use /npcthoughts on to inspect intentions and current conditions; /npcthoughts off hides them. Try actual belongings, private beds and family activity."
+        }
+      ],
+      "sources": [
+        [
+          "Sharing and property",
+          "https://cpb-us-w2.wpmucdn.com/sites.uwm.edu/dist/d/225/files/2020/07/Sharing_ch3.pdf"
+        ]
+      ]
+    },
+    {
+      "title": "Camps follow place and tradition",
+      "subtitle": "Actual generated communities, using the existing Paleolithic building models.",
+      "blocks": [
+        {
+          "text": "Ecology, season, mobility, available techniques and building tradition choose forms and coverings. Unvisited camps come from deterministic regional data. Once observed, their objects, goods and local itinerary become persistent state."
+        },
+        {
+          "images": [
+            {
+              "file": "morning-camp.jpg",
+              "caption": "Woodland: 34 people, nine bark lean-tos. Early-world fixture."
+            },
+            {
+              "file": "rainforest-ridge-tents.jpg",
+              "caption": "Humid forest: 43 people, ten bark ridge tents; 26 C annual mean, 2,209 mm rainfall."
+            }
+          ],
+          "max_height": 145
+        },
+        {
+          "images": [
+            {
+              "file": "cold-region-brush-huts.jpg",
+              "caption": "Colder forest: 17 people, seven brush huts; annual mean -1.13 C. This view is not a winter-weather test."
+            },
+            {
+              "file": "coastal-reed-camp.jpg",
+              "caption": "Coast: 35 people, ten reed-covered huts at 20:00. Later-world fixture, simulated year 120,000."
+            }
+          ],
+          "max_height": 145
+        },
+        {
+          "heading": "What these views establish",
+          "text": "These camps pass real terrain/trunk clearance, fitted-component, persistent identity and binary save/reload checks. They are sampled communities, not every possible camp or season. Conical tents and open canopies are also supported by the planner but are not pictured here."
+        }
+      ],
+      "sources": [
+        [
+          "HRAF: Hunter-gatherers",
+          "https://hraf.yale.edu/ehc/summaries/hunter-gatherers"
+        ],
+        [
+          "NPS: Portable tents",
+          "https://home.nps.gov/articles/000/nunamiut-caribou-skin-clothing-tents.htm"
+        ]
+      ]
+    },
+    {
+      "title": "Test checkpoint and limits",
+      "subtitle": "Actual tests, measured costs and the work still to finish.",
+      "blocks": [
+        {
+          "text": "34 residents, nine shelters; Medium vegetation/surfaces, 1536 x 864, 6 km view, model disabled. Four 30-second camera orbits around a stationary observer. Every sampled camera pose matched; all frames were focused. Sequential modes advance loading and the world, so these are not static A/B comparisons."
+        },
+        {
+          "table": {
+            "headers": [
+              "Mode",
+              "FPS",
+              "p99 frame",
+              "Worst frame",
+              "NPC update"
+            ],
+            "rows": [
+              [
+                "First: loading",
+                "43.5",
+                "55.30 ms",
+                "61.00 ms",
+                "2.95 ms"
+              ],
+              [
+                "NPC updates frozen",
+                "126.5",
+                "16.78 ms",
+                "49.36 ms",
+                "0.04 ms"
+              ],
+              [
+                "Residents hidden",
+                "165.8",
+                "13.03 ms",
+                "38.79 ms",
+                "0.03 ms"
+              ],
+              [
+                "Active repeat",
+                "110.9",
+                "18.63 ms",
+                "30.32 ms",
+                "1.64 ms"
+              ]
+            ],
+            "widths": [
+              0.29,
+              0.12,
+              0.2,
+              0.2,
+              0.19
+            ]
+          }
+        },
+        {
+          "heading": "The unresolved slow frames",
+          "text": "The first orbit loaded forest pages from 28 to 429; the repeat had 644 stable pages. The 100 FPS floor remains unmet, with noticeable slow frames. Older NPC camera timings were rejected as moving-view evidence after a culling-pose mismatch was found. The current capture verifies its pose every frame."
+        },
+        {
+          "heading": "Migration is not finished",
+          "text": "Packing, real carrying, arrival and material conservation pass. Complete rebuilding after relocation has not passed the end-to-end check. Off-screen material work for previously observed bands also needs implementation. Do not treat this checkpoint as a completed nomadic camp economy."
+        },
+        {
+          "heading": "Other boundaries",
+          "text": "Advanced hunting/tracking, a complete NPC food and physiology economy, and transported embers are not included. Camp and character art/poses remain prototypes. Dialogue uses real context, but a local model can still answer incorrectly."
+        }
+      ]
+    }
+  ]
+}

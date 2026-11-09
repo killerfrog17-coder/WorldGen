@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-11-09T19:53:00Z",
+  "recorded_utc": "2026-11-09T20:51:00Z",
   "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
   "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
   "cases": {
@@ -1402,6 +1402,95 @@
       "folder": "artifacts/npc-overnight-20261109/departure-kit-v2-camp",
       "build": "0458995b",
       "result": "25PASS, includes repeated .05PrepareNpcCampTask ticks preserving pickup progress, actual personalcuttingedge retrieved, then departurehold releases. Allprevious component material conservation checks pass."
+    },
+    "final_camp": {
+      "build": "14c07aee (runtime same as final06e; later edits QAonly)",
+      "folder": "artifacts/npc-overnight-20261109/final-logistics-v1-camp",
+      "checks": [
+        "PASS The actual generated household camp is loaded",
+        "PASS The actual shelter contains recoverable portable contributions",
+        "PASS An itinerary progress change alone does not remove, create or swap any material",
+        "PASS A real adult claims a specific existing component",
+        "PASS The worker walks to the structure and spends work time before dismantling a component",
+        "PASS The removed component no longer owns its recovered goods",
+        "PASS The same recovered materials are carried or physically set down, rather than deleted",
+        "PASS Physical dismantling conserves all material identities and mass",
+        "PASS Recovered shelter cargo is really carried and excluded from automatic fire fuel",
+        "PASS A worker physically supplies and finishes the missing component using the recovered stock",
+        "PASS Reassembly conserves the same material identities and mass",
+        "PASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel",
+        "PASS An empty observed arrival does not erase the grass beneath unbuilt shelters, empty beds or unlit hearths",
+        "PASS The actual shelter has real lashing and poles for the bound-load check",
+        "PASS Actual recovered poles and lashing become one carried bound load with their exact contents preserved",
+        "PASS The bound load appears on the actual person using the existing material models",
+        "PASS A real packed load is retrieved with both hands initially occupied, stowing or setting down the held tools automatically",
+        "PASS Occupied-hand retrieval preserves every original bound contribution",
+        "PASS A scheduled forager delivers the real shelter load home before setting off on a new outing",
+        "PASS Arrival delivery opens the same actual bound load and stages its original materials for builders instead of carrying it away foraging",
+        "PASS A departure with all tent loads ready still waits for a nearby owner's useful cutting tool when real carrying space remains",
+        "PASS The owner retrieves the same cutting edge through repeated real camp-task ticks without resetting pickup work each frame",
+        "PASS Retrieving the last feasible useful kit releases the isolated departure hold",
+        "PASS An initial partially erected camp stages its complete finite stock once with exact original IDs and mass",
+        "PASS A second initial-stock request cannot manufacture another load",
+        "PASS Physical camp work and local itinerary state validate for saving",
+        "PASS captured session validates with conversation memories"
+      ],
+      "result": "27PASS"
+    },
+    "final_materials": {
+      "build": "06e3cb4bf8b145bf2a634bf1eab0dd4e4a6bea01",
+      "folder": "artifacts/npc-overnight-20261109/final-logistics-v3-material",
+      "checks": [
+        "PASS An actual adult resident exists for material work",
+        "PASS A real uncollected fallen branch exists in loaded scatter",
+        "PASS A second actual worker is available to coordinate a material target",
+        "PASS An active single-item claim excludes another worker without excluding its owner",
+        "PASS An interrupted worker's expired claim releases the actual resource",
+        "PASS Gathering the actual fallen branch uses the player's shared depletion ledger",
+        "PASS The gathered branch is a single real owned possession",
+        "PASS The same natural branch cannot be gathered twice",
+        "PASS A depleted single-item target is abandoned immediately so a worker can choose another source",
+        "PASS A real harvested branch transfers its finite mass to the hearth",
+        "PASS The worker finds actual local tinder material",
+        "PASS Gathering fine material creates a real carried bundle",
+        "PASS Actually feeding the fine bundle relights live embers",
+        "PASS A real placed regional plant has a known edible above-ground product",
+        "PASS The worker harvests the actual regional plant in its controlled fruiting season",
+        "PASS Eating reduces the real harvested food quantity",
+        "PASS NPC knapping uses the same real stone recipe and removes mass from its core",
+        "PASS Harvested goods, natural ledgers, actual food consumption and crafting validate together",
+        "PASS captured session validates with conversation memories"
+      ],
+      "result": "19PASS; controlledexistingstone/flakekitsetdownforunambiguousknappingprobe; sourcechoicesnotforcedinproduction."
+    },
+    "material_qa_failures": {
+      "v1": "Paused before second worker spawned; correctedwaitfor2actualworkers.",
+      "v2": "16material assertionspassed; oldknappingassertionfailedwithexistingcores/flakeneeds mixedwithprobe. Correctedfixture stagesexistingstones/flakes preservingIDs, thenrealrecipeactsontwo controlledstones. V3all19PASS."
+    },
+    "migration_v9": {
+      "build": "21be8201",
+      "folder": "artifacts/npc-20261103/npc-material-cycle-v9-morning",
+      "result": "Packing/travel/coarsearrival/originalID+massPASS; fulloriginal-materialreassemblytimedout. Finalspawnstamp/claimsfixeswereaddedafter; nofullrerunbeforeownerhandoff. DoNOTclaimreliablecompletedrelocation.",
+      "last_status": {
+        "CampLoaded": true,
+        "CurrentSite": -5602618401484172396,
+        "Grounded": true,
+        "LocalHour": 12.99169158646042,
+        "OldParts": 0,
+        "OldSite": 7749639028905460530,
+        "Packed": 172,
+        "Phase": "Occupied",
+        "PlacementAttempt": 3,
+        "Supplied": 15,
+        "Travel": {
+          "DelayCalendarDays": 0.5358125295702081,
+          "DepartingSite": 7749639028905460530,
+          "HoldCalendarDay": -1,
+          "RebuildRequired": true
+        },
+        "WaitingFor": "A real worker supplies and works with an original recovered contribution at the new camp",
+        "Worked": 4135
+      }
     }
   },
   "performance_limits": [
@@ -1411,11 +1500,11 @@
     "Rejected 191130m-view-distance performance case is excluded."
   ],
   "remaining": [
-    "V6 physical migration/reassembly test active on c542 B, no build/overwrite until exits.",
-    "First occupied-camp orbit remains slow;51.42FPS/p9953.15/max67.09 vsrepeat114.53. Zeroappendmanagedbytes; artpreparation notprimarycost. Newshadow policy snapshot pending native exact proof and FPS comparison.",
-    "SignedcampID itinerary regression Core423PASS/f9cb not yet packaged.",
-    "Finite ember transport unimplemented; no advancedhunting/fullfood economy.",
-    "Final onePDF/shortcut/handoff deferred; owner has not asked wrap."
+    "Reliable complete rebuilding after a band relocates: last full run timed out; targeted delivery/pickup/material tests pass.",
+    "Coarse off-screen material work for previously observed bands is not implemented. Preserve actual goods and player edits; no re-seeding factories.",
+    "Frame spikes and 100FPSfloor unresolved; verified045benchmark firstloading43.45FPS/max61ms,stableactive110.89/max30.32 at1536x864/Medium6km. No globalworst-caseclaim.",
+    "Finite ember carrying, fullNPCfood/physiology economy and advancedhunting/tracking not included.",
+    "Prototype character/camp art/poses unchanged; modelresponsesmaystillincorrect despitegroundedcontext."
   ],
   "new_camp_index": {
     "source": "91f4566b",
@@ -1437,7 +1526,7 @@
     "note": "Whole fixture preparation/write duration, not an isolated sim throughput measurement."
   },
   "regional_qa_note": "Initial year0 cold/coast labels were rankings, not real regional coverage.29f/535 require annual<8C or coast>=.15. Old E82 cold/evening19PASS only mechanics/day-night; do not label them cold/coastal geography.",
-  "pending_source": "No runtimeedits. B045 clean, ownrunner79660/player25020 RIGHTMOST full migrationv8; nooverwrite/heavyjobs. Camps25PASS/correctedperformancePASS, frame-spikesUNMET. Followupoffscreenmaterialcontinuity remainsunaudited.",
+  "pending_source": "None. Runtimeallpushed; final06eQA-onlybuildselectedB. Owner testing pause; no newfeatures/jobs.",
   "shadow_policy_component": {
     "build": "19c162fa",
     "folder": "artifacts/npc-20261103/npc-material-cycle-v7-morning",
@@ -1514,5 +1603,47 @@
       }
     ],
     "note": "Validcameraorbits, no causaloptimizationgainclaim, no100floor. Firstloadsforest28->429;repeat644pagesstable."
+  },
+  "handoff": {
+    "status": "Playable checkpoint, owner requested pause for testing. Full NPC overhaul remains incomplete.",
+    "selected_slot": "slot-b",
+    "build": {
+      "BuiltUtc": "2026-11-09T20:46:40.9546507Z",
+      "SourceCommit": "06e3cb4bf8b145bf2a634bf1eab0dd4e4a6bea01",
+      "SourceChanges": [],
+      "Backend": "Mono",
+      "Development": false,
+      "ScriptsOnly": true,
+      "Inputs": [
+        {
+          "Assembly": "WorldGen.Core",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+          "Sha256": "4a8f034b006f9c6e0a6042d40a978ca4b2a8c2a094017c1c75f3c662ad4d8d52"
+        },
+        {
+          "Assembly": "WorldGen.Serialization",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+          "Sha256": "891d373400be011e1a3cb63774c79a04aea8df2e9940c33ea60a58cdde40ff2c"
+        },
+        {
+          "Assembly": "WorldGen.Presentation",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+          "Sha256": "154dcf84fd654131d6f9f0c18754aecce46d23c5585c52ff377f638cfc31897f"
+        },
+        {
+          "Assembly": "DelaunatorSharp",
+          "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+          "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+        }
+      ],
+      "TerrainWorkerSha256": "72bb00678abe4aed5c6ce37dc8153cc4ef0cb59e0cc3ab2f09489b81e69cf3db"
+    },
+    "shortcut": "WorldGen.exe - Shortcut.lnk;Target/Iconupdatedonly;rootWorkingDirectory/Argumentspreserved",
+    "report": "docs/reports/npc-overnight-20261109/WorldGen - NPC Life Checkpoint 2026-11-09.pdf",
+    "report_pages": 6,
+    "report_images": 8,
+    "review": "All six rendered PDF pages inspected; changed page2 re-rendered/reviewed; openednewChrome tab/windowLEFTMOST.",
+    "monitor": "Leftmost per latest owner instruction",
+    "owner_ai_settings_sha256": "b9cad371276c552ae499d818272577acf90efea8de2678eacf47126aa61dbed0"
   }
 }
