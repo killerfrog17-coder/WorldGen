@@ -1,0 +1,64 @@
+{
+  "scope": "Actual local Qwen3.5-9B grounded replies and executable invitation",
+  "build": {
+    "BuiltUtc": "2026-11-09T14:01:28.0293668Z",
+    "SourceCommit": "199d6730c99da49fd3428214c9ae2915fa940acd",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "ea1968424de245ca33a360fde24e254a56c3d06edf7d0f458f922643761bc16d"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "8d77e2da01a0dfe39ba45dcdef2eec3769c18881cc28a99bfc2df98c4347bb54"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "611d9e5e9274d3f10e69ec02bf351d03f2974c9e5e722bb4bda6767b64e40c49"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "3865d0aa8384c633c1126c134f8dc21964473cb7fab95e25983079b1e7e30bb9"
+  },
+  "result": {
+    "finishedUtc": "/Date(1794233142410)/",
+    "exitCode": 0
+  },
+  "checks": [
+    "PASS An actual adult resident is available for the real-model dialogue review",
+    "PASS The real player dialogue queue admits question 1",
+    "PASS Qwen delivers the streamed reply to question 1: ",
+    "PASS The real player dialogue queue admits question 2",
+    "PASS Qwen delivers the streamed reply to question 2: ",
+    "PASS The real player dialogue queue admits question 3",
+    "PASS Qwen delivers the streamed reply to question 3: ",
+    "PASS The real player dialogue queue admits question 4",
+    "PASS Qwen delivers the streamed reply to question 4: ",
+    "PASS The controlled welcoming host has an actual invitation action",
+    "PASS The visitor asks to stay through the real player interaction queue",
+    "PASS The real model responds through the expanded community-action schema: ",
+    "PASS The generated invitation actually establishes guest permission before the conversation ends",
+    "PASS Actual model conversations and their local state validate for saving",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limitations": [
+    "Four informational replies manually reviewed separately from mechanics.",
+    "Invitation guest access tested through actual model-generated action.",
+    "One host and one conversation sequence; not a guarantee of arbitrary model correctness.",
+    "Shared-GPU capped functional QA, not performance evidence."
+  ],
+  "artifacts": "artifacts\\npc-overnight-20261109\\action-dialogue-v3-dialogue",
+  "monitor": "Rightmost DISPLAY3",
+  "actual_replies": "PLAYER: Who helps lead this band, and what does that person do?\nFojuce: Jirmace organizes our camp discussions, and Natot guides our travel and helps settle disputes.\nPLAYER: What time of day is it now, and what is the weather like?\nFojuce: It is morning. The sky is overcast with a light breeze.\nPLAYER: What kinds of food do people here normally gather or hunt?\nFojuce: We gather edible roots, nuts, fruit, and seeds. We also hunt large game like deer and wild cattle, as well as smaller animals.\nPLAYER: What do your people do when someone in the band dies?\nFojuce: We bury the dead and mark the spot with stones to remember them.\n"
+}

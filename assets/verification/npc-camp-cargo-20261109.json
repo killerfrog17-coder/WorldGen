@@ -1,0 +1,64 @@
+{
+  "scope": "Actual walking packing, reassembly and carried bound shelter load",
+  "build": {
+    "BuiltUtc": "2026-11-09T13:27:03.9091002Z",
+    "SourceCommit": "37bbb7e8ff18705ee0a8c7c2296b98e6847c8d27",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "33e0185b2bbd871145b1ea7fbe8827d91d787338769094819dfe66fd3b8dfe09"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "5fa40951ff835335c4d292cf82cb8e6fd8f072deb03d13973508f0ef6a089161"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "9282332ad955bdf5ede479b746beae0a907be04f03dfe178f5bac671e0af5926"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "653df39c77daf371c39db05b0a93222e5b91851bbe8b5d49de3990e21a05e586"
+  },
+  "result": {
+    "finishedUtc": "/Date(1794230965839)/",
+    "exitCode": 0
+  },
+  "checks": [
+    "PASS The actual generated household camp is loaded",
+    "PASS The actual shelter contains recoverable portable contributions",
+    "PASS An itinerary progress change alone does not remove, create or swap any material",
+    "PASS A real adult claims a specific existing component",
+    "PASS The worker walks to the structure and spends work time before dismantling a component",
+    "PASS The removed component no longer owns its recovered goods",
+    "PASS The same recovered materials are carried or physically set down, rather than deleted",
+    "PASS Physical dismantling conserves all material identities and mass",
+    "PASS Recovered shelter cargo is really carried and excluded from automatic fire fuel",
+    "PASS A worker physically supplies and finishes the missing component using the recovered stock",
+    "PASS Reassembly conserves the same material identities and mass",
+    "PASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel",
+    "PASS The actual shelter has real lashing and poles for the bound-load check",
+    "PASS Actual recovered poles and lashing become one carried bound load with their exact contents preserved",
+    "PASS The bound load appears on the actual person using the existing material models",
+    "PASS Physical camp work and local itinerary state validate for saving",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limitations": [
+    "Controlled local worker and materials; not an entire followed camp migration.",
+    "Capped functional QA, not performance evidence.",
+    "Dark functional screenshot, not final scenic showcase."
+  ],
+  "artifacts": "artifacts\\npc-overnight-20261109\\social-cargo-v2-camp",
+  "monitor": "Rightmost DISPLAY3"
+}
