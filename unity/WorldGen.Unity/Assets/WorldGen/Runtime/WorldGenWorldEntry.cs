@@ -25,7 +25,7 @@ public sealed partial class WorldGenRuntime
         {
             var terrain=await preparing;if(diagnostic)Debug.Log("ENTRY sampler ready");var rng=new System.Random(seed);var landRng=new Rng(seed,"world-entry-land",0);ResidentEntry entry=resident?PlayerWorldEntry.RandomResident(source,session,seed):null;
             V point=entry?.Position??ExplorerNavigation.RandomPoint(ref landRng);bool dry=false;
-            if(entry!=null&&(Environment.GetCommandLineArgs().Contains("--worldgen-npc-daily-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-routine-check")))point=entry.Position=entry.Group.Position;
+            if(entry!=null&&(Environment.GetCommandLineArgs().Contains("--worldgen-npc-daily-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-routine-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-navigation-check")))point=entry.Position=entry.Group.Position;
             for(int attempt=0;attempt<1024;attempt++)
             {
                 if(entry==null)point=ExplorerNavigation.RandomPoint(ref landRng);

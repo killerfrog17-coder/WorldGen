@@ -39,6 +39,10 @@ static class NpcConversationTests
         string known=NpcPersonContext.Describe("SPEAKER",speaker,band,true,"black hair");
         Check(known.Contains("age in years=27")&&known.Contains("partner identity=Tava")&&known.Contains("records=2"),"Known speaker facts come from their own identity and family");
         string stranger=NpcPersonContext.Describe("SPEAKER",speaker,band,false,"black hair");Check(!stranger.Contains("27")&&!stranger.Contains("Tava")&&stranger.Contains("black hair"),"Stranger context exposes appearance without omniscient age or family knowledge");
+        var witnessed=new NpcSocialState();witnessed.KnownPeople.Add(new NpcKnownPerson{Person=400,SeenDead=true});witnessed.KnownPeople.Add(new NpcKnownPerson{Person=300,SeenDead=true});
+        string bereaved=NpcPersonContext.Describe("SPEAKER",speaker,band,true,"black hair",witnessed);
+        Check(bereaved.Contains("records=1")&&bereaved.Contains("Tava (deceased)"),"Personally witnessed local losses update family dialogue facts");
+        Check(NpcPersonContext.Describe("SPEAKER",speaker,band,true,"black hair",new NpcSocialState()).Contains("records=2"),"An uninformed observer does not learn the same deaths from global state");
         var requests=new NpcMemory{Person=100};requests.Hear(200,"Wufihi","I want you to remember this secret word: navuli. OK?");
         Check(requests.Statements.Single().Important,"An explicit remember request remains important even with a confirming question");
         requests.Hear(200,"Wufihi","What was the word I asked you to remember?");requests.Hear(200,"Wufihi","Remember what I asked before?");

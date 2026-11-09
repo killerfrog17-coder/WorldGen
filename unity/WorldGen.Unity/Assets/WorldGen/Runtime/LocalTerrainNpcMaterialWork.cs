@@ -54,7 +54,18 @@ public sealed partial class LocalTerrainExplorer
         var loose=Inventory.Items.Where(p=>Match(p)&&NpcCanUseWorldItem(actor,p)&&(!wild||HumanDistance(NpcWorldItemPosition(p),community.Anchor)>campRadius)).OrderBy(p=>HumanDistance(actor.Planet,NpcWorldItemPosition(p))).FirstOrDefault();
         if(loose!=null){task.Loose=loose;task.Point=NpcWorldItemPosition(loose);task.Needed=5;return true;}
         if(purpose=="kit"||purpose=="cutter")return false;
-        var here=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(actor.Motor.Z-originZ));double best=47*47;int considered=0;
+        var here=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(actor.Motor.Z-originZ));
+        if(purpose=="tinder"||purpose=="bedding")
+        {
+            var ground=walkingPatch.Sample(actor.Planet);var used=ToolResource("grass-"+GroundWorkKey(actor.Planet));
+            if(CampGrassAvailable(here,ground)&&(used.HarvestYear!=ForageYear||used.Harvests<3)){task.Grass=true;task.Point=actor.Planet;task.Needed=40;return true;}
+            for(int k=0;k<8;k++)
+            {
+                double angle=HumanHash(actor.ResidentId)%628*.01+(k%4)*Math.PI/2,range=k<4?8:16,x=actor.Motor.X+Math.Cos(angle)*range,z=actor.Motor.Z+Math.Sin(angle)*range;var point=frame.Position(x,z);var sample=walkingPatch.Sample(point);var record=ToolResource("grass-"+GroundWorkKey(point));
+                if((record.HarvestYear!=ForageYear||record.Harvests<3)&&CampGrassAvailable(new Vector3((float)(x-originX),(float)CampFloor(x,z),(float)(z-originZ)),sample)){task.Grass=true;task.Point=point;task.Needed=40;return true;}
+            }
+        }
+        double best=47*47;int considered=0;
         foreach(var chunk in scatterChunks.Values)
         {
             if(chunk.Roots==null||chunk.AllBounds.SqrDistance(here)>best)continue;

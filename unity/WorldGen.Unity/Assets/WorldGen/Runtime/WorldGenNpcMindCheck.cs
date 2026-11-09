@@ -27,7 +27,8 @@ public sealed partial class WorldGenRuntime
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)
         {if(worldEntryError.Length>0)throw new InvalidOperationException(worldEntryError);yield return null;}
         if(terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)throw new InvalidOperationException("NPC test ground failed to load");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-routine-check"))yield return terrainExplorer.CheckNpcMaterialRoutine(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-navigation-check"))yield return terrainExplorer.CheckNpcLocalNavigation(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-routine-check"))yield return terrainExplorer.CheckNpcMaterialRoutine(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-encounter-check"))yield return terrainExplorer.CheckNpcAnimalContact(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-grounded-dialogue-check"))yield return terrainExplorer.CheckNpcGroundedDialogue(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check"))yield return terrainExplorer.CheckNpcCampWork(output,report);

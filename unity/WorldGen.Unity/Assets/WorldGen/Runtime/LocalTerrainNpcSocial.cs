@@ -16,14 +16,14 @@ public sealed partial class LocalTerrainExplorer
         if(group.Social==null||group.SocialCulture!=culture){group.Social=ForagerSocialLife.Create(culture,band);group.SocialCulture=culture;}
         var social=group.Social;var text=new StringBuilder(" Camp customs: "+social.DecisionMaking+" "+social.Sharing+" "+social.Visitors+" "+social.SpeechStyle+" "+social.Roles(band));
         var personal=NpcMemoryFor(actor.ResidentId).Social;
-        var ties=band.Members.Where(p=>p.Id!=actor.ResidentId&&p.AgeYears>=4).Select(p=>(person:p,affinity:NpcSocialRules.Affinity(culture,actor.Resident,p,band,personal))).OrderByDescending(p=>p.affinity).ToArray();
+        var ties=band.Members.Where(p=>p.Id!=actor.ResidentId&&p.AgeYears>=4&&!personal.KnownPeople.Any(k=>k.Person==p.Id&&k.SeenDead)).Select(p=>(person:p,affinity:NpcSocialRules.Affinity(culture,actor.Resident,p,band,personal))).OrderByDescending(p=>p.affinity).ToArray();
         if(speaker!=null)text.Append(" Your actual feelings toward the speaker: ").Append(NpcSocialRules.Opinion(personal,speaker.Id)).Append('.');
         foreach(var tie in ties.Take(2))if(tie.affinity>.45)text.Append(" You often enjoy talking and working with ").Append(tie.person.Name).Append('.');
         if(ties.Length>0&&ties[ties.Length-1].affinity<-.25)text.Append(" You have some personal friction with ").Append(ties[ties.Length-1].person.Name).Append("; this does not mean violence.");
         foreach(var subject in new[]{actor.Resident,speaker})if(subject!=null&&band.Members.Any(p=>p.Id==subject.Id))
         {
             var kin=band.Members.Where(p=>p.Id!=subject.Id).Select(p=>(person:p,relation:ForagerSocialLife.Relationship(subject,p,band))).Where(p=>p.relation!="a fellow band member"&&p.relation!="a member of your household").Take(8);
-            text.Append(subject.Id==actor.ResidentId?" YOUR known relatives here: ":" SPEAKER's known relatives here: ");foreach(var k in kin)text.Append(k.person.Name).Append(" is ").Append(k.relation.Replace("your ",subject.Id==actor.ResidentId?"your ":"their ")).Append("; ");
+            text.Append(subject.Id==actor.ResidentId?" YOUR known relatives here: ":" SPEAKER's known relatives here: ");foreach(var k in kin)text.Append(k.person.Name).Append(" is ").Append(k.relation.Replace("your ",subject.Id==actor.ResidentId?"your ":"their ")).Append(personal.KnownPeople.Any(p=>p.Person==k.person.Id&&p.SeenDead)?" (known deceased); ":"; ");
         }
         var situation=group.Situation;double itineraryDelay=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId)?.Travel?.DelayCalendarDays??0;double days=(situation.DepartureDay+itineraryDelay-LivingClock.CalendarDay)/LivingClock.CalendarRate;
         text.Append(" Current camp phase: ").Append(situation.Phase).Append('.');

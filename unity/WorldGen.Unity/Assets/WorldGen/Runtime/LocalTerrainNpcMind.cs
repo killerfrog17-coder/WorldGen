@@ -115,7 +115,7 @@ public sealed partial class LocalTerrainExplorer
     string NpcContext(HumanActor actor,NpcEventQueue.Event item,string[] targets)
     {
         var group=livingGroups[actor.GroupId];var band=group.Residents;var f=sourceWorld.Prehistory.Foragers;
-        var s=new StringBuilder(NpcPersonContext.Describe("YOU (NPC)",actor.Resident,band,true,NpcVisibleHair(actor.Definition?.Variant)));s.Append(" Band: ").Append(band.Name);
+        var s=new StringBuilder(NpcPersonContext.Describe("YOU (NPC)",actor.Resident,band,true,NpcVisibleHair(actor.Definition?.Variant),NpcMemoryFor(actor.ResidentId).Social));s.Append(" Band: ").Append(band.Name);
         s.Append(". Culture: ").Append(f.Cultures[band.Culture].Name).Append(". Language: ").Append(f.Languages[band.Language].Name).Append(" (render speech in English translation).");
         s.Append(" Current activity: ").Append(NpcActivityText(actor.CurrentActivity)).Append(". Camp phase: ").Append(group.Situation.Phase).Append(". Health: ").Append(actor.Health.ToString("0")).Append("/100. Breath strain: ").Append(actor.Exertion.Breath.ToString("0.00"));
         if(actor.Routine!=null)s.Append(". Assigned routine before this conversation: ").Append(NpcActivityText(actor.Routine.Activity));
@@ -127,7 +127,7 @@ public sealed partial class LocalTerrainExplorer
         bool sameBand=item.Speaker==0?PlayerRules.Identity?.Group==actor.GroupId:livingPeople.TryGetValue(item.Speaker,out var speakingPeer)&&speakingPeer.GroupId==actor.GroupId;
         string relation=knownSpeaker?ForagerSocialLife.Relationship(actor.Resident,speakerPerson,band):"no confirmed relationship";
         string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer?.Definition?.Variant):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible.Definition?.Variant):"not available";
-        s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,knownSpeaker,appearance));
+        s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,knownSpeaker,appearance,NpcMemoryFor(actor.ResidentId).Social));
         s.Append(" SPEAKER relationship to YOU: ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; speaker target ID=").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
         s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(NpcBelongingsContext(actor));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
         return s.ToString();

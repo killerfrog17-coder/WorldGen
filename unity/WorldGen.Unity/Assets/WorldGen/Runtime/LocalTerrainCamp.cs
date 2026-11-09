@@ -44,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
     bool CampGrassAvailable(Vector3 point,LocalTerrainSample sample)
     {
         if(sample.Underwater||sample.Cover.Grasses.Length<=.08)return false;
-        double x=point.x+originX,z=point.z+originZ,gx=CampFloor(x+.5,z)-CampFloor(x-.5,z),gz=CampFloor(x,z+.5)-CampFloor(x,z-.5);
+        double x=point.x+originX,z=point.z+originZ;if(CampGroundClearing(x,z)>.6)return false;double gx=CampFloor(x+.5,z)-CampFloor(x-.5,z),gz=CampFloor(x,z+.5)-CampFloor(x,z-.5);
         return sample.Cover.Grasses.Length*GroundFlora.GrassSlopeAdmission(1/Math.Sqrt(1+gx*gx+gz*gz))>.08;
     }
     CampObject AimedCamp(out float distance)
