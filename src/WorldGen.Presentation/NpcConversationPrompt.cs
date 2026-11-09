@@ -20,10 +20,15 @@ namespace WorldGen.Presentation
             {
                 var result=new List<NpcChatMessage>{system};
                 void Add(string role,string text){if(result.Count>1&&result[result.Count-1].role==role)result[result.Count-1].content+="\n"+text;else result.Add(new NpcChatMessage{role=role,content=text});}
-                // Templates that require user/assistant alternation also accept
-                // coalesced consecutive utterances; never start with assistant.
+                // Overheard voices provide background, not extra direct user turns.
+                // Keeping those exchanges in the trained dialogue roles makes small
+                // models answer somebody else's old question or adopt their identity.
+                bool Direct(NpcDialogueTurn t)=>current!=null&&(t.FromNpc?t.Interlocutor==current.Speaker:t.Speaker==current.Speaker);
+                var background=turns.Where(t=>!Direct(t)).TakeLast(4).ToArray();
+                if(background.Length>0)Add("user","BACKGROUND: words from other conversations you heard nearby, not the current speaker addressing you. Keep each person's words attributed to their name; do not answer these old remarks:\n"+string.Join("\n",background.Select(t=>t.Name+" said: "+Quote(t.Text))));
+                // Coalesce consecutive roles for templates requiring alternation.
                 bool started=false;
-                foreach(var turn in turns){if(!started&&turn.FromNpc)continue;started=true;Add(turn.FromNpc?"assistant":"user",turn.FromNpc?turn.Text:turn.Name+" says: "+Quote(turn.Text));}
+                foreach(var turn in turns.Where(Direct)){if(!started&&turn.FromNpc)continue;started=true;Add(turn.FromNpc?"assistant":"user",turn.FromNpc?turn.Text:turn.Name+" says: "+Quote(turn.Text));}
                 if(notes.Count>0)Add("user","Retrieved words actually spoken by this speaker, oldest sequence first. When asked what they SAID, use their quotes even if game records disagree; your own corrections are not their words:\n"+string.Join("\n",notes.OrderBy(n=>n.Sequence).Select(n=>"["+n.Sequence+"] "+n.Name+" told you: "+Quote(n.Text))));
                 Add("user",current==null?"React to the current perceived event. No one has spoken.":current.Name+" says: "+Quote(current.Text));return result;
             }

@@ -43,6 +43,9 @@ static class NpcConversationTests
         Check(requests.Statements.Single().Important,"An explicit remember request remains important even with a confirming question");
         requests.Hear(200,"Wufihi","What was the word I asked you to remember?");requests.Hear(200,"Wufihi","Remember what I asked before?");
         Check(requests.Statements.Count==1,"Recall questions do not crowd out actual remembered statements");
+        var room=new NpcMemory{Person=100};room.Hear(300,"Other person","I have seven children.");var addressed=room.Hear(200,"Wufihi","How is your work going?");
+        var scene=NpcConversationPrompt.Build("YOU: Doyomu. SPEAKER: Wufihi.",addressed,room.SceneDialogue(addressed.Sequence,6),Array.Empty<NpcHeardStatement>(),true,2048,160);
+        Check(scene.Last().content.Contains("BACKGROUND:")&&scene.Last().content.Contains("Other person said:")&&scene.Last().content.EndsWith("Wufihi says: \"How is your work going?\""),"Overheard claims are explicitly attributed background before the current direct question");
         Console.WriteLine("NPC conversation checks PASS: "+n);
     }
 }

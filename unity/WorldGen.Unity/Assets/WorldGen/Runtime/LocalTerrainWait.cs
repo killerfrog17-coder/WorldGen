@@ -36,6 +36,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawWaiting()
     {
-        var box=new Rect(Screen.width*.5f-170,Screen.height-70,340,34);GUI.Box(box,"Waiting · "+LocalWaitClock.Elapsed(PlayerRules.SolarDays-waitStarted)+" passed");
+        var box=new Rect(Screen.width*.5f-170,Screen.height-70,340,34);
+        var style=new GUIStyle(GUI.skin.box){alignment=TextAnchor.MiddleCenter,fontSize=16,padding=new RectOffset(8,8,4,4),wordWrap=false};
+        GUI.Box(box,"Waiting · "+LocalWaitClock.Elapsed(PlayerRules.SolarDays-waitStarted)+" passed",style);
     }
 }
