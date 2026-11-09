@@ -67,7 +67,14 @@ namespace WorldGen.Core
         public void Record(NpcIncident item)
         {
             var old=Incidents.LastOrDefault(e=>e.Kind==item.Kind&&e.Actor==item.Actor&&e.Subject==item.Subject&&e.Animal==item.Animal&&item.SolarDay-e.SolarDay<.08);
-            if(old!=null){old.SolarDay=item.SolarDay;old.Position=item.Position;old.Detail=NpcDecision.Clean(item.Detail,220);return;}
+            if(old!=null)
+            {
+                // Seeing an event personally supersedes a rumor about it.
+                // A later report must never downgrade existing eyewitness evidence.
+                if(!item.FirstHand&&old.FirstHand)return;
+                old.SolarDay=item.SolarDay;old.Position=item.Position;old.Detail=NpcDecision.Clean(item.Detail,220);
+                old.Confidence=item.Confidence;old.FirstHand=item.FirstHand;old.OriginPerson=item.OriginPerson;old.OriginSequence=item.OriginSequence;old.Reporter=item.Reporter;return;
+            }
             item.Sequence=++EventSequence;item.Detail=NpcDecision.Clean(item.Detail,220);Incidents.Add(item);while(Incidents.Count>24)Incidents.RemoveAt(0);
         }
         public string Mood=>Grief>.5?"grieving":Fear>.55?"afraid":Anger>.55?"angry":Grief>.2?"sad":Fear>.2?"uneasy":Anger>.2?"irritated":Contentment>.65?"content":"settled";

@@ -46,6 +46,10 @@ static class NpcSocialRulesTests
         listener.NextSocialSolarDay=4;var copied=listener.Copy();copied.Incidents[0].Detail="changed";Check(listener.Incidents[0].Detail!="changed"&&copied.NextSocialSolarDay==4,"Social exchange state copies independently");
         var serializer=new DataContractSerializer(typeof(NpcSocialState));using(var stream=new MemoryStream())
         {serializer.WriteObject(stream,listener);stream.Position=0;var loaded=(NpcSocialState)serializer.ReadObject(stream);loaded.Validate();Check(loaded.NextSocialSolarDay==4&&loaded.Incidents.Any(e=>e.OriginPerson==1&&!e.FirstHand),"Cooldowns and hearsay survive save/reload");}
+        var upgrade=new NpcSocialState();NpcSocialExchange.ShareOne(witness,upgrade,1,"Ari",3.7);
+        var reported=upgrade.Incidents.Single().Copy();var personal=reported.Copy();personal.FirstHand=true;personal.Confidence=1;personal.Reporter=personal.OriginPerson=personal.OriginSequence=0;personal.SolarDay+=.01;personal.Detail="Personally witnessed this event.";upgrade.Record(personal);
+        Check(upgrade.Incidents.Count==1&&upgrade.Incidents[0].FirstHand&&upgrade.Incidents[0].Reporter==0&&upgrade.Incidents[0].Confidence==1,"Personal observation upgrades existing hearsay without duplicating the event");
+        upgrade.Record(reported);Check(upgrade.Incidents[0].FirstHand&&upgrade.Incidents[0].Confidence==1,"A later report cannot downgrade an eyewitness memory");
         Console.WriteLine("NPC social response checks PASS: "+checks);
     }
 }

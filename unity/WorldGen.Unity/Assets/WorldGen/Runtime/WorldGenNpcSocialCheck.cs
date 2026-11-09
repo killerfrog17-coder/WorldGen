@@ -69,6 +69,8 @@ public sealed partial class LocalTerrainExplorer
         Check(!NpcPlayerCanHear(recipient),"A nearby solid wall blocks player earshot");DestroyImmediate(barrier);npcHearing.Clear();
         // This capture shows actual residents, not a fabricated generated conversation.
         npcThoughts=true;NpcMemoryFor(recipient.ResidentId).Trigger="Procedural social exchange";NpcMemoryFor(recipient.ResidentId).Thought="Shared a witnessed theft report; no generated transcript.";
+        Place(recipient,motion.X+4,motion.Z-.7,270);Place(other,motion.X+4,motion.Z+.7,270);UpdateCamera();
+        var toward=transform.InverseTransformDirection((recipient.Root.transform.position+other.Root.transform.position)*.5f+Vector3.up*1.2f-view.transform.position).normalized;heading=Mathf.Atan2(toward.x,toward.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(toward.y)*Mathf.Rad2Deg;UpdateCamera();npcAimed=recipient;npcAimAt=Time.unscaledTimeAsDouble+2;
         paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"procedural-social-exchange");livingBenchmarkFreeze=false;paused=true;
         var all=Inventory.Items.Concat(livingPeople.Values.Where(p=>p.Belongings!=null).SelectMany(p=>p.Belongings.Items)).ToArray();Check(all.Select(p=>p.Id).Distinct().Count()==all.Length,"No gift or refusal duplicates a possession ID");
         LivingState.Copy().Validate();Inventory.Validate();foreach(var p in adults)p.Belongings.Validate();Check(true,"Social transactions and their real possessions validate together");
@@ -78,10 +80,11 @@ public sealed partial class LocalTerrainExplorer
             Place(recipient,motion.X+1.5,motion.Z,270);Place(other,motion.X+1.5,motion.Z+1.4,180);UpdateCamera();npcHearing.Clear();
             int start=npcUtterances;PerformNpcSocialExchange(recipient,other);
             Check(npcConversation!=null&&npcEvents.Count==1,"An audible procedural encounter admits one optional live-model conversation");
-            paused=false;until=Time.unscaledTimeAsDouble+180;bool streamed=false;int maxQueue=0;
+            paused=false;until=Time.unscaledTimeAsDouble+180;bool streamed=false;int maxQueue=0;double statusAt=0;
             while(npcUtterances<start+2&&npcLastError.Length==0&&Time.unscaledTimeAsDouble<until)
             {
                 maxQueue=Math.Max(maxQueue,npcEvents.Count);streamed|=npcSpeech.Values.Any(s=>s.Pace.Shown>0&&!s.Final);
+                if(Time.unscaledTimeAsDouble>=statusAt){statusAt=Time.unscaledTimeAsDouble+1;File.WriteAllText(Path.Combine(output,"live-social-status.txt"),"Queue="+npcEvents.Count+" pending="+npcPending?.Person+" thinking="+(npcThinking!=null)+" model="+npcModel.Status+" busy="+npcModel.IsBusy+" errors="+npcLastError+" speech="+npcSpeech.Count+" utterances="+(npcUtterances-start)+" conversation="+(npcConversation!=null)+" hearing="+NpcPlayerCanHear(recipient)+","+NpcPlayerCanHear(other)+" flags="+paused+","+mapOpen+","+ecologyOpen+","+CommandChatStopped+" ready="+Ready+" pose="+humanReviewPose);}
                 yield return null;
             }
             Check(npcUtterances>=start+2,"Both actual residents deliver a live Qwen conversational turn: "+npcLastError);
