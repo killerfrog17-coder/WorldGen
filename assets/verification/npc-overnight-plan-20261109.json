@@ -18,7 +18,7 @@
     },
     {
       "id": "social_response",
-      "status": "core_pass_9; native_local_assault_defence_death_test_running",
+      "status": "native_local_assault_defence_death_14_checks_pass; wider social politics still pending",
       "scope": "Directed trust/respect/grievances, moods, bravery, meaningful leadership, player membership/leadership foundations, witnessed attack/death, protective and collective responses.",
       "acceptance": "Child retreats; capable armed allies can protect each other. Bystanders remember actual attacker, victim and cause. No group-wide supernatural alarm or death knowledge."
     },
@@ -78,5 +78,13 @@
     "Use actual loaded natural branches and flora products with the same collection/harvest ledgers as the player.",
     "NPCs physically approach, work, carry and consume/feed the finite materials; no role-change item factory.",
     "Cancel or preserve references when a crafting tool leaves its inventory; transfer container subtrees and natural identity together."
-  ]
+  ],
+  "material_checkpoint": "native15PASS; walking-and-cold-start-itinerary followup pending",
+  "inventory_query_allocation": {
+    "queries": 40000,
+    "reference_bytes": 7040000,
+    "current_bytes": 0,
+    "scope": "CoreCLR carrying ancestry component; not FPS",
+    "core_inventory_checks": 90
+  }
 }

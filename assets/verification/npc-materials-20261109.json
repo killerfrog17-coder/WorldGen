@@ -1,0 +1,64 @@
+{
+  "scope": "Real fallen-branch collection, shared depletion, finite fire feeding/ember relighting, real regional food harvesting/consumption and core-reducing knapping",
+  "build": {
+    "BuiltUtc": "2026-11-09T11:38:57.1331516Z",
+    "SourceCommit": "837c2040bfa8214f5cee7bec10c82b0de51ad7ac",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "0fa84c71664c11e32665709ff640cf60f484f5d4e0b47871381dba5121235f3a"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "7c48213ade2f5eaf1969439c375b073db814e2f78e89a7680ea2e19f29feb669"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "eeb27499fb2a7c6259e71bed11a596b8e7256f5d6c2c622489ee9befedccd20f"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "225df9d9e48a8189f721776e174cf81fa97643559399c0b618233072a9f0b9a4"
+  },
+  "result": {
+    "finishedUtc": "/Date(1794224440203)/",
+    "exitCode": 0
+  },
+  "checks": [
+    "PASS An actual adult resident exists for material work",
+    "PASS A real uncollected fallen branch exists in loaded scatter",
+    "PASS Gathering the actual fallen branch uses the player's shared depletion ledger",
+    "PASS The gathered branch is a single real owned possession",
+    "PASS The same natural branch cannot be gathered twice",
+    "PASS A real harvested branch transfers its finite mass to the hearth",
+    "PASS The worker finds actual local tinder material",
+    "PASS Gathering fine material creates a real carried bundle",
+    "PASS Actually feeding the fine bundle relights live embers",
+    "PASS A real placed regional plant has a known edible above-ground product",
+    "PASS The worker harvests the actual regional plant in its controlled fruiting season",
+    "PASS Eating reduces the real harvested food quantity",
+    "PASS NPC knapping uses the same real stone recipe and removes mass from its core",
+    "PASS Harvested goods, natural ledgers, actual food consumption and crafting validate together",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limitations": [
+    "The food test explicitly sets the placed species fruiting season, then restores the normal date.",
+    "This test positions the worker at the actual resource; full walking/return/tending itinerary needs separate observed review.",
+    "Cold fire starting needs a physical kit and is implemented, but this native test demonstrates live-ember relighting only.",
+    "Nutrition records food/water consumption; full NPC hunger/illness/death behavior is not claimed.",
+    "These capped checks do not measure FPS."
+  ],
+  "artifacts": "artifacts\\npc-overnight-20261109\\work-v2-material",
+  "monitor": "Rightmost DISPLAY3, verified 2072,50"
+}

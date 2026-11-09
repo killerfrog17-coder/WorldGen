@@ -38,6 +38,7 @@ public sealed partial class LocalTerrainExplorer
         public NpcThreat Threat;public double NpcAttackAt,NpcAttackStarted=-10;
         public NpcMaterialTask MaterialTask;
         public double LoadAt,CarriedKg;
+        public NpcDailyState Daily;
         public bool NpcCrouching;
         public bool NpcCrawling;
         public bool Natural;
@@ -158,12 +159,14 @@ public sealed partial class LocalTerrainExplorer
         }
         double dx=motion.X-humanLastX,dz=motion.Z-humanLastZ;humanLastX=motion.X;humanLastZ=motion.Z;
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
+        humanPlayer.Motor=motion;humanPlayer.Speed=humanPlayer.TargetSpeed=speed;
         bool crouch=(Application.isFocused||testKeyboard!=null)&&PlayerCrouching;
         if(!deathPresented){
         if(SharedHumanMotion&&(humanCamera.FirstPerson||SharedDeliberateAim||NaturalBow!=null&&sharedBowRaise>.02f))humanPlayer.TargetYaw=heading+NaturalBowYaw;
         else if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
         humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
+        humanPlayer.Planet=Position;
         humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,humanPlayer.Yaw,0);
         var localVelocity=Quaternion.Inverse(humanPlayer.Root.transform.localRotation)*new Vector3((float)dx,0,(float)dz);
         humanPlayer.LocalVelocity=new Vector2(localVelocity.x,localVelocity.z);

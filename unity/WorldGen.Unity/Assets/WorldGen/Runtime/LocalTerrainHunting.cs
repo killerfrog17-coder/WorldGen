@@ -25,6 +25,7 @@ public sealed partial class LocalTerrainExplorer
             double Node(int xx,int zz,int c)=>tile.Cover[(zz*side+xx)*16+c];
             double At(int c){double h00=Node(a,b,c),h10=Node(a+1,b,c),h01=Node(a,b+1,c),h11=Node(a+1,b+1,c);return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);}
             cover=new GroundCoverProfile{Grasses=new V(At(4),At(5),At(6)),Herbs=new V(At(7),At(8),At(9)),Stature=At(13)};ground=At(15);
+            double clearing=CampGroundClearing(x,z);cover.Grasses*=1-clearing;cover.Herbs*=1-clearing;
             double step=size/n,sx=u+v<=1?(Node(a+1,b,15)-Node(a,b,15))/step:(Node(a+1,b+1,15)-Node(a,b+1,15))/step;
             double sz=u+v<=1?(Node(a,b+1,15)-Node(a,b,15))/step:(Node(a+1,b+1,15)-Node(a+1,b,15))/step;
             admission=GroundFlora.GrassSlopeAdmission(1/Math.Sqrt(1+sx*sx+sz*sz));return true;

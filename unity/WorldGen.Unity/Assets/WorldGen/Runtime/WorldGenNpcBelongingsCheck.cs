@@ -24,14 +24,14 @@ public sealed partial class LocalTerrainExplorer
         var copied=LivingState.Copy();copied.Validate();Check(copied.People.Any(p=>p.Person==actor.ResidentId&&p.Inventory!=null),"A healthy resident's complete belongings survive session copying");
         // Controlled property fixture: real item and physical witnesses, with
         // one resident behind a solid. This tests evidence, not random camp layout.
-        motion.Place(actor.Motor.X-2,actor.Motor.Z,CampFloor(actor.Motor.X-2,actor.Motor.Z));motion.Flying=false;humanCamera.Restore(0,false);UpdateCamera();
+        motion.Place(actor.Motor.X-2,actor.Motor.Z,CampFloor(actor.Motor.X-2,actor.Motor.Z));motion.Flying=false;humanCamera.Restore(0,false);UpdateHumans();UpdateCamera();
         actor.Yaw=actor.TargetYaw=270;actor.Root.transform.localRotation=Quaternion.Euler(0,270,0);actor.CurrentActivity=HumanActivity.Watch;
         hidden.Motor.Place(motion.X-4,motion.Z,CampFloor(motion.X-4,motion.Z));hidden.Planet=frame.Position(hidden.Motor.X,hidden.Motor.Z);hidden.Root.transform.localPosition=new Vector3((float)(hidden.Motor.X-originX),(float)(hidden.Motor.Y-TerrainMotion.EyeHeightM),(float)(hidden.Motor.Z-originZ));hidden.CurrentActivity=HumanActivity.Watch;hidden.Root.transform.localRotation=Quaternion.Euler(0,90,0);
         var wall=new GameObject("Property hidden witness fixture");wall.layer=27;wall.transform.position=transform.TransformPoint(new Vector3((float)(motion.X-originX-2), (float)(motion.Y-TerrainMotion.EyeHeightM)+1.5f,(float)(motion.Z-originZ)));wall.transform.rotation=transform.rotation;wall.AddComponent<BoxCollider>().size=new Vector3(.3f,5,8);Physics.SyncTransforms();
         try
         {
             var item=PortableTechnology.Create(PossessionKind.StoneBlade,frame.Position(motion.X,motion.Z+1));item.Id="property-probe-"+actor.ResidentId;item.Place=PossessionPlace.Ground;NpcOwnership.Assign(item,actor.Resident,actor.GroupId);Inventory.Items.Add(item);
-            foreach(var old in Inventory.Items.Where(p=>p!=item&&(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand)).ToArray()){old.Place=PossessionPlace.Ground;old.Position=Position;}
+            foreach(var old in Inventory.Items.Where(p=>p!=item&&(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand)).ToArray()){old.Place=PossessionPlace.Ground;old.Position=frame.Position(motion.X+2,motion.Z-2);old.GroundRotation=new V(90,0,0);}
             RefreshInventoryNearby(true);Check(!PlayerMayTake(item),"Personal belongings remain marked as another person's property");
             int seen=NpcMemoryFor(actor.ResidentId).Social.Incidents.Count,unseen=NpcMemoryFor(hidden.ResidentId).Social.Incidents.Count;
             Check(MovePossession(item.Id,PossessionPlace.RightHand),"An owned real ground item can actually be stolen");
@@ -41,7 +41,7 @@ public sealed partial class LocalTerrainExplorer
             Check(NpcMemoryFor(actor.ResidentId).Social.Anger>0&&NpcMemoryFor(actor.ResidentId).Social.Relationships.Any(t=>t.Other==PlayerPropertyKey&&t.Grievance>0),"Witnessed theft changes mood and the directed relationship");
             Inventory.Move(item.Id,PossessionPlace.Ground,"",0,0,false,out _);item.Position=frame.Position(motion.X,motion.Z+1);item.GroundRotation=new V(90,0,0);inventoryNearbyAt=0;
             RefreshInventoryNearby(true);var groundItem=inventoryNearby.First(n=>n.Item==item);
-            for(int aim=0;aim<6;aim++){UpdateCamera();var direction=transform.InverseTransformDirection(transform.TransformPoint(groundItem.Point)-view.transform.position).normalized;heading=Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;}
+            for(int aim=0;aim<8;aim++){UpdateHumans();UpdateCamera();var direction=transform.InverseTransformDirection(transform.TransformPoint(groundItem.Point)-view.transform.position).normalized;heading=Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;}
             paused=false;npcThoughts=true;UpdateCamera();yield return NpcLifeImage(output,"owned-items-and-witness");paused=true;
             File.WriteAllText(Path.Combine(output,"aim-diagnostic.txt"),"item="+item.Id+"; actual="+AimedPossession()?.Item?.Id+"; bounds="+groundItem.Bounds+"; ray="+new Ray(view.transform.localPosition,view.transform.forward));
             Check(AimedPossession()?.Item==item&&pickupPromptTheft!=null&&pickupPromptTheft.normal.textColor.r>.8f&&pickupPromptTheft.normal.textColor.g<.5f,"The aimed owned item uses the actual red theft-prompt style");

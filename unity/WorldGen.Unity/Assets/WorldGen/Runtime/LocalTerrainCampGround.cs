@@ -61,6 +61,12 @@ public sealed partial class LocalTerrainExplorer
         if(campClearingTexture==null){campClearingTexture=new Texture2D(CampMaskSide,CampMaskSide,TextureFormat.R8,false,true){name="Local camp ground wear",filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};}
         campClearingTexture.LoadRawTextureData(campClearingPixels);campClearingTexture.Apply(false,false);coverVisibilityRevision++;scatterDirty=true;
     }
+    double CampGroundClearing(double x,double z)
+    {
+        if(campMaskCount==0||campMaskFrame!=frame||campClearingPixels==null)return 0;
+        int px=(int)Math.Floor(x-campMaskX),pz=(int)Math.Floor(z-campMaskZ);
+        return px>=0&&pz>=0&&px<CampMaskSide&&pz<CampMaskSide?campClearingPixels[pz*CampMaskSide+px]/255d:0;
+    }
     bool CampClearedPlant(in ScatterInstance item)
     {
         bool plant=item.Kind==ScatterKind.MidPlant||item.Kind==ScatterKind.Shrub||item.Kind==ScatterKind.Herb||item.Kind==ScatterKind.Fungus||item.Kind==ScatterKind.GeneratedTree&&item.HeightM<1.8;

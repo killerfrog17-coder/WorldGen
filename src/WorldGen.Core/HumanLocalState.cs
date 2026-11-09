@@ -28,6 +28,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class HumanPersonMemory
     {
         public long Person,Group;public double Health=100,SolarDays;public bool Dead;public V Position;public BleedingState Bleeding;
+        [System.Runtime.Serialization.OptionalField] public long Caregiver;
         [System.Runtime.Serialization.OptionalField] public PlayerInventory Inventory;
         [System.Runtime.Serialization.OptionalField] public PlayerSurvival Nutrition;
         [System.Runtime.Serialization.OptionalField] public double NextMealSolarDay;

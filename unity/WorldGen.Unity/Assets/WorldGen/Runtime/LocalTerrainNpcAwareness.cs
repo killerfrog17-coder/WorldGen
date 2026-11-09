@@ -83,6 +83,8 @@ public sealed partial class LocalTerrainExplorer
             foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.GroupId==actor.GroupId&&HumanDistance(actor.Planet,p.Planet)<Math.Min(22,range)).Take(12))
                 if(NpcSees(actor,other.Root.transform.position+transform.up*.7f,range))
                 {if(other.Health<=0)DiscoverNpcDeath(actor,other);else state.See(other.ResidentId,other.Planet,PlayerRules.SolarDays);}
+            if(humanPlayer?.Resident!=null&&humanPlayer.GroupId==actor.GroupId&&HumanDistance(actor.Planet,Position)<Math.Min(22,range)&&NpcSees(actor,transform.TransformPoint(PlayerFeet())+transform.up,range))
+            {if(DeathVisible)DiscoverNpcDeath(actor,humanPlayer);else state.See(humanPlayer.ResidentId,Position,PlayerRules.SolarDays);}
         }
         finally{npcSenseTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-began;}
     }

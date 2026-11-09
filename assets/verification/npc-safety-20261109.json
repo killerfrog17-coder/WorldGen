@@ -1,0 +1,61 @@
+{
+  "scope": "Local assault evidence, actual defensive spear contact, independent hidden witnesses, wound attribution and observed-body grief",
+  "build": {
+    "BuiltUtc": "2026-11-09T11:32:22.8291698Z",
+    "SourceCommit": "4a4bfc5bf06c2df4178eaa20c8e07682cb19d2da",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "67592654102d14716d823287876df764993d24a4299a86a7cfde169f3cfb9acb"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "6b3d5f2a934bf21e707a6afc3009c7e53cb81c0db3c768983f521f57667506cf"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "2480ee980eaaffe95740788cf0aa4c18bee398ac1cbe247b5aab26f21a6ea6c8"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "f8a2cebfec7bcb28d08c0e062742a972979fedb589d46f800b2f82cbe22e8d8c"
+  },
+  "result": {
+    "finishedUtc": "/Date(1794224051223)/",
+    "exitCode": 0
+  },
+  "checks": [
+    "PASS Actual adult residents exist for local violence checks",
+    "PASS The defender physically equips the actual spear",
+    "PASS The hurt resident identifies the actually visible attacker",
+    "PASS A person behind a real solid receives no telepathic group alarm",
+    "PASS A witnessed threat overrides the actual physical routine",
+    "PASS A healthy armed adult can stand and defend instead of universally fleeing",
+    "PASS An NPC defensive strike with a real spear can hit the player's actual body",
+    "PASS Ongoing wound damage is not reported as a new player assault",
+    "PASS A real resident dies and becomes a physical ragdoll",
+    "PASS A hidden bandmate does not know that the resident died",
+    "PASS Actually discovering the body creates remembered death and grief",
+    "PASS Finding the body does not reveal an unwitnessed killer",
+    "PASS Witnessed consequences and dropped possessions validate together",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limitations": [
+    "Native adult defence is tested; child flight and protective dispositions currently have Core checks.",
+    "This is capped functional QA, not a camp performance result.",
+    "The witness screenshot faces away from the body; retain as diagnostic only, not final report showcase."
+  ],
+  "artifacts": "artifacts\\npc-overnight-20261109\\work-v1-safety",
+  "monitor": "Rightmost DISPLAY3, verified 2072,50"
+}

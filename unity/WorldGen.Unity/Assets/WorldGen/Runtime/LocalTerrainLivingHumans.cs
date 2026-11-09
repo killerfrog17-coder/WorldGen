@@ -336,9 +336,11 @@ public sealed partial class LocalTerrainExplorer
         bool mind=ApplyNpcPlan(actor,ref routine,ref target);
         bool safety=!stopped&&ApplyNpcSafety(actor,ref routine,ref target);mind|=safety;
         if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
-        bool materialTask=!mind&&PrepareNpcMaterialTask(actor,group,routine,dt,ref target);
-        if(!stopped&&!mind&&!materialTask)PrepareNpcTaskGear(actor,group,routine,ref target);
-        if(!mind&&!materialTask)AdvanceNpcMaterialUse(actor,group,routine,dt,target);
+        bool dailyTask=!stopped&&!mind&&PrepareNpcDailyTask(actor,group,routine,ref target);
+        if(dailyTask&&actor.CurrentActivity==HumanActivity.Watch&&routine.Activity!=HumanActivity.Watch)routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=HumanActivity.Watch,Role="SearchMissing",Position=target,Destination=target};
+        bool materialTask=!mind&&!dailyTask&&PrepareNpcMaterialTask(actor,group,routine,dt,ref target);
+        if(!stopped&&!mind&&!materialTask&&!dailyTask)PrepareNpcTaskGear(actor,group,routine,ref target);
+        if(!mind&&!materialTask&&!dailyTask)AdvanceNpcMaterialUse(actor,group,routine,dt,target);
         target=LivingDryGoal(actor,target);
         string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);
@@ -352,6 +354,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 actor.TargetSpeed=distance>(doorway?.2:.35)?(float)Math.Min(actor.Resident.AgeYears<10?1:1.35,Math.Max(.12,distance*1.5)):0;
                 if(mind&&routine.Activity==HumanActivity.Retreat&&distance>2)actor.TargetSpeed=personRunSpeed(actor.Resident);
+                if(dailyTask&&routine.Activity==HumanActivity.Play&&routine.Role=="PlayChase"&&distance>1.5)actor.TargetSpeed=(float)routine.SpeedMps;
                 if(safety&&actor.Threat.Response==NpcDangerResponse.Withdraw)actor.TargetSpeed=Math.Min(actor.TargetSpeed,1.6f);
                 if(actor.TargetSpeed>0)actor.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
                 else if(routine.Activity==HumanActivity.Sleep&&house!=null)actor.TargetYaw=(float)house.Heading;
@@ -408,6 +411,7 @@ public sealed partial class LocalTerrainExplorer
                 float elapsed=(float)Math.Max(dt,actor.SimulationAge-actor.PoseAge);actor.PoseAge=actor.SimulationAge;actor.AnimationAt=NextLivingAnimation(actor.ResidentId,interval);AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);
                 bool hearth=routine.Role=="HearthMeal"||routine.Role=="HearthSocial";
                 string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):hearth||actor.TaskWaiting?"SitGround":LivingWorkRole(routine.Activity);
+                if(actual<.2f&&(routine.Role=="BriefNightWaking"||routine.Role=="PlayMakeBelieve"))role="SitGround";
                 if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater!=true)role="SitGround";
                 if(crouch&&actual<=.2f&&role!="SleepSide")role="SitGround";
                 actor.Shared?.Routine(role,(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
@@ -438,12 +442,22 @@ public sealed partial class LocalTerrainExplorer
     void UpdateCarriedHuman(HumanActor actor,float dt)
     {
         actor.CurrentActivity=HumanActivity.Carried;
-        if(!livingPeople.TryGetValue(actor.Routine.Partner,out var guardian)||guardian.Health<=0)
+        var record=NpcPersonRecord(actor);long guardianId=record.Caregiver>0?record.Caregiver:actor.Routine.Partner;
+        livingPeople.TryGetValue(guardianId,out var guardian);
+        if(humanPlayer?.ResidentId==guardianId&&!DeathVisible)guardian=humanPlayer;
+        if(guardian==null||guardian.Health<=0)
         {
-            guardian=livingPeople.Values.FirstOrDefault(p=>p.GroupId==actor.GroupId&&p.Resident.AgeYears>=18&&p.Health>0);
-            if(guardian==null){actor.Root.SetActive(false);if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(false);return;}
+            guardian=livingPeople.Values.Where(p=>p.GroupId==actor.GroupId&&p.Resident.AgeYears>=16&&p.Health>0&&HumanDistance(p.Planet,actor.Planet)<1.6&&NpcSees(p,actor.Root.transform.position+transform.up*.35f,3)).OrderBy(p=>HumanDistance(p.Planet,actor.Planet)).FirstOrDefault();
+            if(guardian==null)
+            {
+                actor.Root.SetActive(true);if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(false);actor.CurrentActivity=HumanActivity.Rest;actor.TaskDetail="without a nearby caregiver; waiting where last put down";
+                TerrainHandoff.Coordinates(frame,actor.Planet,out double x,out double z);double floor=VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM);actor.Motor.Place(x,z,floor);
+                actor.Root.transform.localPosition=new Vector3((float)(x-originX),(float)floor,(float)(z-originZ));actor.Shared?.Routine("SitGround",actor.SimulationAge,dt);actor.Graph.Evaluate(0);return;
+            }
+            record.Caregiver=guardian.ResidentId;
+            NpcMemoryFor(guardian.ResidentId).Social.Record(new NpcIncident{Kind=NpcIncidentKind.Help,Subject=actor.ResidentId,SolarDay=PlayerRules.SolarDays,Position=actor.Planet,Detail="You reached "+actor.Resident.Name+" without a caregiver and took them into your care."});
         }
-        actor.Root.SetActive(true);bool asleep=guardian.Routine?.Activity==HumanActivity.Sleep&&guardian.Speed<.1f&&guardian.TargetSpeed<.1f;
+        actor.Root.SetActive(true);bool asleep=guardian==humanPlayer?campSleeping:guardian.Routine?.Activity==HumanActivity.Sleep&&guardian.Speed<.1f&&guardian.TargetSpeed<.1f;
         bool beside=asleep||guardian.Speed<.1f&&(guardian.Shared.ActionRole=="SitGround"||guardian.Shared.ActionRole=="WorkKneeling");
         if(guardian.Bones==null)guardian.Bones=guardian.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
         string role=asleep?"SleepSide":"SitGround";

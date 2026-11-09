@@ -13,6 +13,7 @@ namespace WorldGen.Core
             if(routine.Role=="FuelReturn")return "CarryLarge";
             if(routine.Role.StartsWith("Water"))return Has(29)?activity==HumanActivity.FetchWater?"Drink":"WaterCarry":null;
             if(activity==HumanActivity.TendFire)return "FuelTend";
+            if(activity==HumanActivity.Watch&&routine.Role=="NightWatch"&&Has(3))return "SpearReady1";
             if(activity==HumanActivity.Craft)return "WorkKnapping";
             if(activity==HumanActivity.PrepareFood)return "Eat";
             if(activity==HumanActivity.FetchWater)return "Drink";
