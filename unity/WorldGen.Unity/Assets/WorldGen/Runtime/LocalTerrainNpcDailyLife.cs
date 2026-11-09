@@ -16,7 +16,13 @@ public sealed partial class LocalTerrainExplorer
         if(actor.Resident.AgeYears>=3&&actor.Resident.AgeYears<14&&routine.Activity==HumanActivity.Play)
         {PrepareNpcPlay(actor,group,routine,ref target);return true;}
         if(actor.Resident.AgeYears<16)return false;
-        var daily=actor.Daily??(actor.Daily=new NpcDailyState());var social=NpcMemoryFor(actor.ResidentId).Social;
+        bool resume=actor.Daily==null;var daily=actor.Daily??(actor.Daily=new NpcDailyState());var social=NpcMemoryFor(actor.ResidentId).Social;
+        if(resume)
+        {
+            double realDay=PlayerRules.Settings.RealMinutesPerDay*60;
+            var request=social.Incidents.LastOrDefault(e=>e.Kind==NpcIncidentKind.Missing&&(PlayerRules.SolarDays-e.SolarDay)*realDay<100&&!social.Incidents.Any(r=>r.Kind==NpcIncidentKind.Returned&&r.Subject==e.Subject&&r.SolarDay>=e.SolarDay)&&!social.KnownPeople.Any(p=>p.Person==e.Subject&&p.SeenDead));
+            if(request!=null){daily.Missing=request.Subject;daily.SearchAnchor=daily.SearchGoal=request.Position;daily.SearchUntil=actor.SimulationAge+Math.Max(1,100-(PlayerRules.SolarDays-request.SolarDay)*realDay);daily.SearchPointAt=actor.SimulationAge+2;}
+        }
         if(social.Grief>.3&&(routine.Activity==HumanActivity.Rest||routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach))
         {
             var loss=social.Incidents.LastOrDefault(e=>e.Kind==NpcIncidentKind.Death&&PlayerRules.SolarDays-e.SolarDay<2);

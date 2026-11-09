@@ -27,7 +27,8 @@ public sealed partial class WorldGenRuntime
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)
         {if(worldEntryError.Length>0)throw new InvalidOperationException(worldEntryError);yield return null;}
         if(terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)throw new InvalidOperationException("NPC test ground failed to load");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-grounded-dialogue-check"))yield return terrainExplorer.CheckNpcGroundedDialogue(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-encounter-check"))yield return terrainExplorer.CheckNpcAnimalContact(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-grounded-dialogue-check"))yield return terrainExplorer.CheckNpcGroundedDialogue(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check"))yield return terrainExplorer.CheckNpcCampWork(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-community-check"))yield return terrainExplorer.CheckNpcCommunity(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-social-check"))yield return terrainExplorer.CheckNpcSocialActions(output,report);
@@ -39,7 +40,8 @@ public sealed partial class WorldGenRuntime
         else yield return terrainExplorer.CheckNpcMinds(output,report);
         CapturePlayer();play.Copy().Validate();report.Add("PASS captured session validates with conversation memories");
         ReturnFromPlay("Simulation");while(terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
-        yield return new WaitForSecondsRealtime(1);File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Application.Quit(0);
+        yield return new WaitForSecondsRealtime(1);File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
+        File.WriteAllText(Path.Combine(output,"npc-check-kind.txt"),Environment.GetCommandLineArgs().FirstOrDefault(a=>a.StartsWith("--worldgen-npc-",StringComparison.Ordinal)&&a.EndsWith("-check",StringComparison.Ordinal))??"");Application.Quit(0);
     }
 }
 public sealed partial class LocalTerrainExplorer

@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
         public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual,Retired;public Vector4 Parts;
         public V Planet;public Rng Random;public AmbientFaunaSpecies Firefly;public float FireflyGlow;
-        public double BehaviourAt,ObstacleAt,NextPoseAt,AttackAt,AirHeight,AirTargetHeight,PerchHeight,PerchUntil,NextPerch;public bool PerchSelected,Perched,ThreatWasPlayer,FishingTethered;public V PerchPosition,FishingAnchor;public double FishingReach;
+        public double BehaviourAt,ObstacleAt,NextPoseAt,AttackAt,AirHeight,AirTargetHeight,PerchHeight,PerchUntil,NextPerch;public bool PerchSelected,Perched,ThreatWasPlayer,FishingTethered;public V PerchPosition,FishingAnchor;public double FishingReach;public long NpcAssailant,NpcHuntTarget;
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
         public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();public ExertionProfile EffortProfile;public WildlifeSenses Senses;public WildlifeAwarenessState Awareness=new WildlifeAwarenessState();
         public double LastPerception,ActionUntil,NextScan,AlertVoiceAt;public string BehaviourAction="";public Vector3 LastMove;public bool SeekingCover;

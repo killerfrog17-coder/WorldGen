@@ -73,6 +73,7 @@ public sealed partial class LocalTerrainExplorer
         if(shelter==null||part==null)
         {
             if(packing){if(RecoverNpcCampCargo(actor,dt,ref target))return true;actor.TaskDetail="finished packing this household's shelter; waiting for the others";actor.TaskWaiting=false;target=group.Anchor;return true;}
+            if(PrepareNpcCampBedding(actor,group,dt,ref target))return true;
             actor.CampTask=null;return false;
         }
         routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=packing?HumanActivity.PackCamp:HumanActivity.BuildCamp,Position=shelter.Position,Destination=shelter.Position};actor.CurrentActivity=routine.Activity;
@@ -116,6 +117,23 @@ public sealed partial class LocalTerrainExplorer
         TerrainHandoff.Coordinates(frame,shelter.Position,out double x,out double z);double yaw=shelter.Heading*Math.PI/180;V p=part.Points.Aggregate(new V(),(a,b)=>a+b)/Math.Max(1,part.Points.Length);
         double length=Math.Sqrt(p.X*p.X+p.Z*p.Z),scale=length>.1?(length+.55)/length:0;double east=p.X*scale,north=p.Z*scale;
         return frame.Position(x+east*Math.Cos(yaw)+north*Math.Sin(yaw),z+north*Math.Cos(yaw)-east*Math.Sin(yaw));
+    }
+    bool PrepareNpcCampBedding(HumanActor actor,LivingGroup group,float dt,ref V target)
+    {
+        var bed=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Kind==CampKind.Bedding&&c.NpcHousehold==actor.Resident.Household);
+        int sleepers=group.Residents.Members.Count(p=>p.Household==actor.Resident.Household);double wanted=1+Math.Min(6,sleepers)*.5;
+        if(bed==null||bed.Materials.Sum(p=>p.MassKg)>=wanted)return false;
+        var stock=actor.Belongings;var material=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.CampMaterial==0&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle));
+        actor.CurrentActivity=HumanActivity.BuildCamp;actor.TaskWaiting=false;
+        if(material!=null)
+        {
+            target=bed.Position;actor.TaskDetail="bringing gathered bedding to the household's sleeping place";
+            if(HumanDistance(actor.Planet,target)<1.8){actor.CampTask.Work+=NpcWorkSeconds(dt);if(actor.CampTask.Work>=30){CampRules.Add(bed,material);stock.Items.Remove(material);actor.CampTask.Work=0;InvalidateCampVisual(bed);StoreLivingCamp(group);}}return true;
+        }
+        var task=actor.MaterialTask??(actor.MaterialTask=new NpcMaterialTask());
+        if(task.Purpose!="bedding"){task.Purpose="bedding";task.Construction=null;task.Loose=null;task.Natural=task.Grass=false;task.SearchAt=0;}
+        if(!NpcHasMaterialTarget(task))NpcFindMaterial(actor,task,"bedding");
+        actor.TaskDetail="gathering actual dry plant material for the household bedding";if(NpcHasMaterialTarget(task))NpcGatherMaterial(actor,task,dt,ref target);else actor.TaskWaiting=true;return true;
     }
     bool RecoverNpcCampCargo(HumanActor actor,float dt,ref V target)
     {

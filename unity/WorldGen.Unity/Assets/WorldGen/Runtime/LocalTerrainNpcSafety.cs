@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
                 continue;
             }
             string detail=seeingAttacker?attackerName+" attacked "+(self?"you":victim.Resident.Name)+".":self?"You were struck; you have not identified who struck you.":"You saw "+victim.Resident.Name+" being hurt, but did not identify the attacker.";
-            NpcSocialRules.Assault(NpcMemoryFor(witness.ResidentId).Social,witness.ResidentId,victim.ResidentId,seeingAttacker?aggressor:0,NpcCloseness(witness,victim),PlayerRules.SolarDays,victim.Planet,detail);
+            NpcSocialRules.Assault(NpcMemoryFor(witness.ResidentId).Social,witness.ResidentId,victim.ResidentId,seeingAttacker?aggressor:0,NpcCloseness(witness,victim),PlayerRules.SolarDays,victim.Planet,detail,seeingAttacker?animal:0);
             SetNpcThreat(witness,seeingAttacker?aggressor:0,seeingAttacker?animal:0,victim.ResidentId,attackPoint,self,seeingAttacker);
             QueueNpcEvent(witness,"You personally witnessed: "+detail+" Your immediate safety response happens physically. Do not claim anyone unseen knows this.",priority:3);
         }
@@ -135,6 +135,6 @@ public sealed partial class LocalTerrainExplorer
         double damage=ItemUseRules.MeleeDamage(item,.65+.2*NpcAwarenessFor(actor).Personality.Courage);
         RegisterCombatWound(hit,item,damage,delta.normalized);
         if(hit.Human!=null)DamageHuman(hit.Human,damage,hit,delta.normalized,0,actor.ResidentId);
-        else DamageAnimal(hit.Animal,damage,hit.Point,delta.normalized,0,false);
+        else {DamageAnimal(hit.Animal,damage,hit.Point,delta.normalized,0,false);hit.Animal.NpcAssailant=actor.ResidentId;}
     }
 }

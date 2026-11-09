@@ -36,7 +36,7 @@ public sealed partial class LocalTerrainExplorer
         npcMaterialSearchFrame=Time.frameCount;npcMaterialSearches++;task.SearchAt=actor.SimulationAge+3+HumanHash(actor.ResidentId)%20*.1;
         task.Purpose=purpose;task.Natural=false;task.Grass=false;task.Loose=null;task.Product=null;task.Work=0;
         var construction=purpose=="shelter"?task.Construction:null;var component=construction==null?null:CampBlueprints.Components(construction).FirstOrDefault(c=>c.Key==task.ConstructionKey);
-        bool Match(Possession p)=>component!=null?CampBlueprints.Suitable(construction,component,p):p.CampMaterial==0&&(purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p));
+        bool Match(Possession p)=>component!=null?CampBlueprints.Suitable(construction,component,p):p.CampMaterial==0&&(purpose=="bedding"?p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle:purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p));
         var community=livingGroups[actor.GroupId];bool wild=actor.CurrentActivity==HumanActivity.GatherFuel||actor.CurrentActivity==HumanActivity.GatherPlants;
         if(community.MaterialStockRadius<=0||community.MaterialStockSite!=community.Situation.Camp.Id)
         {community.MaterialStockSite=community.Situation.Camp.Id;community.MaterialStockRadius=HumanCampLayout.Radius(community.Residents,community.Situation.Camp.Id,sourceWorld.Recipe.Seed)+5;}
@@ -61,7 +61,7 @@ public sealed partial class LocalTerrainExplorer
                     }
                     if(plant.Kind!=ScatterKind.GeneratedTree&&plant.Kind!=ScatterKind.MidPlant&&!IsSpecialist(plant.Kind))continue;
                     if(++considered>128)break;
-                    bool ProductKind(ForageProduct p)=>component!=null?component.Kind==CampPartKind.Cover&&(construction.Cover==CampCover.Bark?p.Kind==PossessionKind.BarkSheet:construction.Cover==CampCover.Reed?p.Kind==PossessionKind.ReedBundle:construction.Cover==CampCover.Brush&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle)):purpose=="food"?p.KcalPerKg>0:NpcMaterialUse.Tinder(p.Kind);
+                    bool ProductKind(ForageProduct p)=>component!=null?component.Kind==CampPartKind.Cover&&(construction.Cover==CampCover.Bark?p.Kind==PossessionKind.BarkSheet:construction.Cover==CampCover.Reed?p.Kind==PossessionKind.ReedBundle:construction.Cover==CampCover.Brush&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle)):purpose=="bedding"?(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle):purpose=="food"?p.KcalPerKg>0:NpcMaterialUse.Tinder(p.Kind);
                     var product=NpcPlantProducts(plant).FirstOrDefault(p=>ProductKind(p)&&NpcProductReady(actor,plant,p));
                     if(product==null)continue;
                     task.Plant=plant;task.Product=product;task.Point=plant.Position;task.Natural=true;task.Needed=product.Kind==PossessionKind.EdibleRoot?120:35;best=distance;
@@ -69,11 +69,11 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         if(task.Natural)return true;
-        if(purpose=="tinder"||component?.Kind==CampPartKind.Cover&&construction.Cover==CampCover.Brush)
+        if(purpose=="tinder"||purpose=="bedding"||component?.Kind==CampPartKind.Cover&&construction.Cover==CampCover.Brush)
         {
             var sample=walkingPatch.Sample(actor.Planet);var record=ToolResource("grass-"+GroundWorkKey(actor.Planet));
             if(CampGrassAvailable(here,sample)&&(record.HarvestYear!=ForageYear||record.Harvests<3)){task.Grass=true;task.Point=actor.Planet;task.Needed=40;return true;}
-            if(component!=null)for(int k=0;k<6;k++)
+            if(component!=null||purpose=="bedding")for(int k=0;k<6;k++)
             {
                 double angle=(HumanHash(actor.ResidentId)%628)*.01+k*Math.PI/3,x=actor.Motor.X+Math.Cos(angle)*18,z=actor.Motor.Z+Math.Sin(angle)*18;var point=frame.Position(x,z);var ground=walkingPatch.Sample(point);var used=ToolResource("grass-"+GroundWorkKey(point));
                 var local=new Vector3((float)(x-originX),(float)(CampFloor(x,z)),(float)(z-originZ));

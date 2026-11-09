@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WorldGen.Core;
+using WorldGen.Serialization;
 
 static class NpcCampWorkTests
 {
@@ -42,6 +43,7 @@ static class NpcCampWorkTests
         var original=hauling.Items.Select(p=>p.Id).ToHashSet();double kg=hauling.Items.Sum(p=>p.MassKg);var bundle=NpcCampWork.Bundle(hauling,7,11,new V(1,0,0));
         Check(bundle!=null&&bundle.Place==PossessionPlace.Shoulder&&bundle.BundledMaterials.Count==4&&Math.Abs(bundle.MassKg-kg)<1e-9,"Existing rope binds real poles into a wearable load without adding or losing mass");hauling.Validate();
         var destination=new PlayerInventory();NpcBelongings.TransferTree(hauling,destination,bundle);destination.Validate();Check(destination.CollectedNatural.Count==3,"A transferred load carries the actual natural identity ledger with its contents");
+        var saved=WorldJson.Read<PlayerInventory>(WorldJson.Write(destination));saved.Validate();Check(saved.Items.Single().BundledMaterials.Count==4&&Math.Abs(saved.CarriedMassKg-kg)<1e-9,"The bound load and original contributions survive an actual inventory serialization round trip");
         var separate=NpcCampWork.Unbundle(destination,bundle,new V(1,0,0));destination.Validate();Check(original.SetEquals(separate.Select(p=>p.Id))&&Math.Abs(destination.Items.Sum(p=>p.MassKg)-kg)<1e-9,"Opening a bound load recovers exactly its original rope and poles");
         Console.WriteLine("NPC camp material checks PASS: "+n);
     }

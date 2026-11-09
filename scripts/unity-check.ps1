@@ -17,6 +17,14 @@ if($BuildPlayer){
     if($LASTEXITCODE -ne 0){throw 'A permanent input depends on disposable scratch; repair the project layout before building.'}
 }
 $sourceProject=Join-Path $repoRoot 'unity/WorldGen.Unity'
+$runtimeGuids=@{}
+foreach($meta in Get-ChildItem -LiteralPath (Join-Path $sourceProject 'Assets/WorldGen/Runtime') -Filter '*.cs.meta'){
+    $match=[regex]::Match([IO.File]::ReadAllText($meta.FullName),'(?m)^guid: ([0-9a-fA-F]{32})\r?$')
+    if(!$match.Success){throw ('Invalid script asset GUID: '+$meta.FullName)}
+    $guidKey=$match.Groups[1].Value.ToLowerInvariant()
+    if($runtimeGuids.ContainsKey($guidKey)){throw ('Duplicate script asset GUID: '+$meta.FullName+' and '+$runtimeGuids[$guidKey])}
+    $runtimeGuids[$guidKey]=$meta.FullName
+}
 $buildSourceCommit=(& git -C $repoRoot rev-parse HEAD).Trim()
 $buildSourceChanges=@(& git -C $repoRoot status --porcelain -- src unity assets scripts/unity-check.ps1)
 $validationRoot=if($Isolated){Join-Path $repoRoot 'artifacts/unity-v2'}else{$repoRoot}

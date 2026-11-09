@@ -20,6 +20,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var key=((int)Math.Floor(animal.X/40),(int)Math.Floor(animal.Z/40));if(!wildlifeNeighbours.TryGetValue(key,out var list)){list=new List<Animal>();wildlifeNeighbours.Add(key,list);}list.Add(animal);
         }
+        IndexWildlifeHumans();
     }
     IEnumerable<Animal> NearbyAnimals(Animal animal)
     {
@@ -74,6 +75,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainMapViewport.Degrees(animal.Planet,out double latitude,out _);
         PerceivePlayer(animal,dt,distance);
         if(animal.BehaviourAction=="attack"&&animal.Life<animal.ActionUntil){animal.TargetSpeed=0;return;}
+        animal.NpcHuntTarget=0;
         wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group);
         bool hungry=group==null?animal.Life%180>100:group.Hunger>(behaviour.Predator?.35:.8);
         Animal threat=null,prey=null,secondPrey=null,carrion=null;double threatDistance=double.MaxValue,preyDistance=double.MaxValue,secondPreyDistance=double.MaxValue,carrionDistance=double.MaxValue;int considered=0;
@@ -120,6 +122,7 @@ public sealed partial class LocalTerrainExplorer
         }
         bool mayHuntPlayer=MayHuntPlayer(animal,behaviour,group,distance);
         if(DefendPlayer(animal,behaviour,distance))return;
+        if(AnimalNpcResponse(animal,group,hungry,preyDistance,dt))return;
         if(distance>behaviour.DefendM*1.5)animal.DefendWarnUntil=0;
         if(animal.Awareness.Mode==WildlifeAwareness.Fleeing&&!mayHuntPlayer)
         {
@@ -191,6 +194,7 @@ public sealed partial class LocalTerrainExplorer
         // expensive posed contact/blood work remains limited by AttackAt.
         if(!WildlifeBehaviourEnabled||animal.Retired||animal.Dead||animal.Life<animal.AttackAt)return;
         if(animal.BehaviourAction!="hunt"&&animal.BehaviourAction!="defend")return;
+        if(animal.NpcHuntTarget>0&&livingPeople.TryGetValue(animal.NpcHuntTarget,out var human)){AnimalContactNpc(animal,human);return;}
         if(animal.BehaviourAction=="hunt"&&animal.HuntTargetId!=0)
         {
             if(!animals.TryGetValue(animal.HuntTargetId,out var prey)||prey.Dead)return;

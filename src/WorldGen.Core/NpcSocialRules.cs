@@ -23,7 +23,7 @@ namespace WorldGen.Core
             if(tie==null)return baseline;
             return Math.Max(-1,Math.Min(1,baseline+tie.Trust*.45+tie.Affection*.5+tie.Respect*.12-tie.Grievance*.8-tie.Fear*.2));
         }
-        public static void Assault(NpcSocialState memory,long observer,long victim,long aggressor,double closeness,double day,V point,string detail)
+        public static void Assault(NpcSocialState memory,long observer,long victim,long aggressor,double closeness,double day,V point,string detail,ulong animal=0)
         {
             memory.Advance(day);bool self=observer==victim;
             memory.Fear=Math.Max(memory.Fear,self?.75:.25+.3*closeness);memory.Anger=Math.Max(memory.Anger,self?.75:.2+.5*closeness);
@@ -31,7 +31,7 @@ namespace WorldGen.Core
             {
                 var tie=memory.Tie(aggressor,day);tie.Trust=Math.Max(-1,tie.Trust-(self?.65:.25+.3*closeness));tie.Grievance=Math.Min(1,tie.Grievance+(self?.7:.2+.4*closeness));tie.Fear=Math.Max(tie.Fear,.3);
             }
-            memory.Record(new NpcIncident{Kind=NpcIncidentKind.Assault,Actor=aggressor,Subject=victim,SolarDay=day,Position=point,Detail=detail});
+            memory.Record(new NpcIncident{Kind=NpcIncidentKind.Assault,Actor=aggressor,Subject=victim,Animal=animal,SolarDay=day,Position=point,Detail=detail});
         }
         public static bool DiscoverDeath(NpcSocialState memory,long victim,double closeness,double day,V point,string name)
         {
