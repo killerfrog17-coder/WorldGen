@@ -24,6 +24,12 @@ public sealed partial class LocalTerrainExplorer
         double lateral=0,progressAt=0;end=Time.unscaledTimeAsDouble+65;
         while(actor.Motor.X<x+6&&Time.unscaledTimeAsDouble<end){actor.Threat=null;UpdateLivingHuman(actor,false,Math.Min(.1f,Time.unscaledDeltaTime));lateral=Math.Max(lateral,Math.Abs(actor.Motor.Z-z));if(Time.unscaledTimeAsDouble>=progressAt){progressAt=Time.unscaledTimeAsDouble+1;File.WriteAllText(Path.Combine(output,"navigation-state.txt"),"x="+(actor.Motor.X-x)+"; z="+(actor.Motor.Z-z)+"; speed="+actor.Speed+"; yaw="+actor.Yaw+"; avoid="+actor.AvoidYaw+"; lateral="+lateral);}yield return null;}
         Check(actor.Motor.X>x+6&&lateral>3,"The real capsule walks around a six-metre solid barrier instead of crossing it or spinning against it");
+        // A thin head-height beam is deliberately above the old chest sphere.
+        // Only actual swept-body contact can reveal this obstruction.
+        actor.Motor.Place(x,z,floor);actor.Planet=frame.Position(x,z);actor.Yaw=actor.TargetYaw=90;actor.Speed=0;actor.HasSafeGoal=false;actor.NpcWallCollider=null;actor.AvoidUntil=0;
+        npcPlans[actor.ResidentId].Until=Time.unscaledTimeAsDouble+120;wall.transform.localPosition=new Vector3((float)(x+4-originX),(float)floor+1.4f,(float)(z-originZ));wall.transform.localScale=new Vector3(.45f,.18f,6);Physics.SyncTransforms();lateral=0;end=Time.unscaledTimeAsDouble+65;
+        while(actor.Motor.X<x+6&&Time.unscaledTimeAsDouble<end){actor.Threat=null;UpdateLivingHuman(actor,false,Math.Min(.1f,Time.unscaledDeltaTime));lateral=Math.Max(lateral,Math.Abs(actor.Motor.Z-z));yield return null;}
+        Check(actor.Motor.X>x+6&&lateral>3,"Actual swept-body contact routes around a head-height beam missed by the chest look-ahead sphere");
         Destroy(wall);npcPlans.Remove(actor.ResidentId);CaptureLivingPerson(actor);LivingState.Copy().Validate();Check(true,"The collision-aware resident retains a valid persistent identity and position");yield return null;DisposeNpcMinds();
     }
 }

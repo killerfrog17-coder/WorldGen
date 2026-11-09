@@ -119,6 +119,27 @@ public sealed partial class LocalTerrainExplorer
         if(!from&&Math.Abs(actorX)<.32&&actorZ*entrySide>plan.DepthM*.5-.15)return false;
         x=doorX;z=doorZ;return true;
     }
+    void AvoidNpcSolid(HumanActor actor,Collider collider,Vector3 hitNormal)
+    {
+        var normal=transform.InverseTransformDirection(hitNormal);normal.y=0;
+        if(normal.sqrMagnitude<.05f)
+        {
+            var center=transform.InverseTransformPoint(collider.bounds.center);
+            normal=new Vector3((float)(actor.Motor.X-originX)-center.x,0,(float)(actor.Motor.Z-originZ)-center.z);
+        }
+        if(normal.sqrMagnitude>.001f)
+        {
+            normal.Normalize();var tangent=new Vector3(-normal.z,0,normal.x);
+            if(actor.NpcWallCollider!=collider||actor.SimulationAge>actor.NpcWallUntil)
+            {
+                var toward=new Vector3((float)(actor.NavigationX-actor.Motor.X),0,(float)(actor.NavigationZ-actor.Motor.Z));float side=Vector3.Dot(tangent,toward);
+                actor.NpcWallSide=side<0||Math.Abs(side)<.01f&&(HumanHash(actor.ResidentId)&1)==0?-1:1;
+            }
+            actor.NpcWallCollider=collider;actor.NpcWallUntil=actor.SimulationAge+3;tangent*=actor.NpcWallSide;actor.AvoidYaw=Mathf.Atan2(tangent.x,tangent.z)*Mathf.Rad2Deg;
+        }
+        else actor.AvoidYaw=actor.Yaw+55;
+        actor.AvoidUntil=actor.SimulationAge+.9;
+    }
     void ResolveLivingSolidContact(HumanActor actor,double oldX,double oldY,double oldZ)
     {
         var motor=actor.Motor;var delta=new Vector3((float)(motor.X-oldX),0,(float)(motor.Z-oldZ));float distance=delta.magnitude;if(distance<.00001f)return;
@@ -129,6 +150,9 @@ public sealed partial class LocalTerrainExplorer
         Vector3 direction=transform.TransformDirection(delta/distance);
         if(!Physics.CapsuleCast(bottom,top,radius,direction,out var hit,distance+.015f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))return;
         float allowed=Mathf.Clamp(hit.distance-.015f,0,distance);Vector3 travel=direction*allowed;
+        // The swept body can hit eaves/heads even when the chest-height
+        // look-ahead ray is clear. Feed that REAL contact back to steering.
+        if(allowed<distance*.35f)AvoidNpcSolid(actor,hit.collider,hit.normal);
         Vector3 remainder=Vector3.ProjectOnPlane(direction*(distance-allowed),hit.normal);remainder.y=0;
         if(remainder.sqrMagnitude>.00001f)
         {

@@ -398,20 +398,7 @@ public sealed partial class LocalTerrainExplorer
                 if(double.IsNaN(nextFloor)||next.Underwater||Math.Abs(nextFloor-floor)>.65){actor.Speed=0;actor.AvoidYaw=actor.Yaw+65;actor.AvoidUntil=actor.SimulationAge+1.2;}
                 var origin=transform.TransformPoint(new Vector3((float)(actor.Motor.X-originX),(float)floor+(actor.NpcCrawling?.3f:.8f),(float)(actor.Motor.Z-originZ)));
                 if(Physics.SphereCast(origin,actor.NpcCrawling?.12f:.23f,transform.TransformDirection(new Vector3((float)Math.Sin(a),0,(float)Math.Cos(a))),out var hit,1.3f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))
-                {actor.Speed=Math.Min(actor.Speed,.25f);var normal=transform.InverseTransformDirection(hit.normal);normal.y=0;
-                    if(normal.sqrMagnitude>.05f)
-                    {
-                        normal.Normalize();var tangent=new Vector3(-normal.z,0,normal.x);
-                        if(actor.NpcWallCollider!=hit.collider||actor.SimulationAge>actor.NpcWallUntil)
-                        {
-                            var toward=new Vector3((float)(tx-actor.Motor.X),0,(float)(tz-actor.Motor.Z));float side=Vector3.Dot(tangent,toward);
-                            actor.NpcWallSide=side<0||Math.Abs(side)<.01f&&(HumanHash(actor.ResidentId)&1)==0?-1:1;
-                        }
-                        // Keep the chosen hand on this wall until clear. Picking
-                        // the nearest tangent anew flips direction at its centre.
-                        actor.NpcWallCollider=hit.collider;actor.NpcWallUntil=actor.SimulationAge+3;tangent*=actor.NpcWallSide;actor.AvoidYaw=Mathf.Atan2(tangent.x,tangent.z)*Mathf.Rad2Deg;
-                    }
-                    else actor.AvoidYaw=actor.Yaw+55;actor.AvoidUntil=actor.SimulationAge+.9;}
+                {actor.Speed=Math.Min(actor.Speed,.25f);AvoidNpcSolid(actor,hit.collider,hit.normal);}
                 }
             }
             if(actor.NpcCrawling){actor.Speed=Math.Min(actor.Speed,.6f);actor.TargetSpeed=Math.Min(actor.TargetSpeed,.6f);}
