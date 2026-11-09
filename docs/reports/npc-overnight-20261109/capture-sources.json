@@ -33,5 +33,19 @@
     "file": "night-household.jpg",
     "caption": "Household sleep at23:00; a few campmates remain awake by the fire. Existing dark night lighting, no brightness edit.",
     "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "rainforest-ridge-tents": {
+    "file": "rainforest-ridge-tents.jpg",
+    "source": "artifacts/npc-20261103/npc-site-index-v2-wet/camp-first.png",
+    "tested_build": "7a408aea",
+    "caption": "Actual10-bark-ridge-tent camp in a26C/2209mm climate;43 band members. Footprints clear121756 surveyed obstacles.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
+  },
+  "cold-region-brush-huts": {
+    "file": "cold-region-brush-huts.jpg",
+    "source": "artifacts/npc-20261103/npc-later-regional-v1-cold/camp-first.png",
+    "tested_build": "535ddc46",
+    "caption": "Later simulated world:17-person collector band,seven brush huts,annualmean-1.13C. This view is not a winter-exposure test.",
+    "processing": "PNG to JPEG compression only; no crop,colour or brightness alteration"
   }
 }

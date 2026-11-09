@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-11-09T16:47:47.275485+00:00",
+  "recorded_utc": "2026-11-09T17:23:06.895470+00:00",
   "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
   "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
   "cases": {
@@ -1113,6 +1113,261 @@
         "finishedUtc": "/Date(1794243543079)/",
         "exitCode": 0
       }
+    },
+    "wet_shelters_index_proof": {
+      "folder": "artifacts/npc-20261103/npc-site-index-v2-wet",
+      "accepted": true,
+      "checks": [
+        "PASS An admitted real simulated community exists",
+        "PASS Actual local terrain and centre tiles are ready",
+        "PASS Natural residents stream from world history, without a spawn command",
+        "PASS Natural camp passes local ground validation and is loaded",
+        "PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp",
+        "PASS Camp consists of real player-compatible objects/materials",
+        "PASS Native camp validates with real terrain footing surveys",
+        "PASS Occupied camp shelters retain every fitted roof/frame component",
+        "PASS Actual surrounding scatter pages are resident before accepting camp environment captures",
+        "PASS Physical NPCs retain named family identities and actual scheduled tasks",
+        "PASS Broad local group tracking is bounded at 50km plus foraging catchment",
+        "PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders",
+        "PASS 513 real camp candidates have identical indexed and full-scan clearance, including clear and blocked sites",
+        "PASS Occupied shelter floor has a full-strength ground clearing mask",
+        "PASS Packed compute shader removes grass inside the real camp floor and retains grass outside",
+        "PASS Named camp objects and local memories survive actual player capture and serialization",
+        "PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects",
+        "PASS Aggression preserves wounds and the actual victim's local memory",
+        "PASS Unloading/revisiting a camp does not duplicate its objects"
+      ],
+      "scene-info.json": {
+        "Aridity": 1.3228122497440258,
+        "Canopy": 0.9500000000000003,
+        "Context": "wet",
+        "Cover": "Bark",
+        "Design": "RidgeTent",
+        "HistoryHash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+        "Houses": 10,
+        "LocalHour": 11,
+        "MeanC": 26.09306694826595,
+        "People": 43,
+        "Rain": 2209.9302874837576,
+        "Residence": "ResidentialMobility",
+        "Year": 0
+      },
+      "package.json": {
+        "AssemblySha256": "e3daf6744898ea2ccd2d05e3725db0954ab58703b150228945b02b0b15c7d05d",
+        "BuiltUtc": "2026-11-09T16:57:16.4705411Z",
+        "CoreSha256": "1c921974a8e09c540c69f81ec8da48cdf0635fde6b14dd079638a1c11cee20d4",
+        "WorkerSha256": "13359ebf08a83f12e3cf13e20749af3159da96f9457a379e28e8d014119d4c55"
+      },
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 17180,
+        "startedUtc": "/Date(1794243577558)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T16:57:16.3485442Z",
+          "SourceCommit": "7a408aeaebf22c39f354d598bfb9dad3a6a172d3",
+          "SourceChanges": [
+            " M assets/verification/npc-overnight-plan-20261109.json",
+            "?? assets/verification/npc-current-checkpoint-20261109.json"
+          ],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "1c921974a8e09c540c69f81ec8da48cdf0635fde6b14dd079638a1c11cee20d4"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "1f19cc9fe927747d0649afb9771215a784eaed227d1da29fc897baee9d75ad96"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "f15176d366e2cc343b11b763775fca2c34439576f52e1b601ba0c218962b6f76"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "13359ebf08a83f12e3cf13e20749af3159da96f9457a379e28e8d014119d4c55"
+        }
+      },
+      "camp-site-index-proof.txt": "513 literal/index pairs exact; clear=268; blocked=245; solids=121756",
+      "validated-site-follow.txt": "Actual accepted camp distance from initial review position: 978.92360266421m; attempts=19558",
+      "exit-code.txt": "0"
+    },
+    "camp_ground_wear": {
+      "folder": "artifacts/npc-overnight-20261109/groundwear-v1-camp",
+      "accepted": true,
+      "checks": [
+        "PASS The actual generated household camp is loaded",
+        "PASS The actual shelter contains recoverable portable contributions",
+        "PASS An itinerary progress change alone does not remove, create or swap any material",
+        "PASS A real adult claims a specific existing component",
+        "PASS The worker walks to the structure and spends work time before dismantling a component",
+        "PASS The removed component no longer owns its recovered goods",
+        "PASS The same recovered materials are carried or physically set down, rather than deleted",
+        "PASS Physical dismantling conserves all material identities and mass",
+        "PASS Recovered shelter cargo is really carried and excluded from automatic fire fuel",
+        "PASS A worker physically supplies and finishes the missing component using the recovered stock",
+        "PASS Reassembly conserves the same material identities and mass",
+        "PASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel",
+        "PASS An empty observed arrival does not erase the grass beneath unbuilt shelters, empty beds or unlit hearths",
+        "PASS The actual shelter has real lashing and poles for the bound-load check",
+        "PASS Actual recovered poles and lashing become one carried bound load with their exact contents preserved",
+        "PASS The bound load appears on the actual person using the existing material models",
+        "PASS An initial partially erected camp stages its complete finite stock once with exact original IDs and mass",
+        "PASS A second initial-stock request cannot manufacture another load",
+        "PASS Physical camp work and local itinerary state validate for saving",
+        "PASS captured session validates with conversation memories"
+      ],
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 27920,
+        "startedUtc": "/Date(1794243919444)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T17:04:56.8721953Z",
+          "SourceCommit": "e82b1301752b3c98359e79f5dc6df449b74ca497",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "40480024d14a4a4b8074f0b7b437ab4bb64ef61c19c702fe536d8802927a3caf"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "a042dd02ffd11adf9a4de7992df4d940271224741f22dfdc4255a9644e49aa73"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "37a3a41d0395b8f9ea6b9455909d277d21dd68dedff0dc4e7594af775edf02da"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "9b413940b59d599d038ffe943997d12f4542415de06dcbb684d32f034d40144a"
+        }
+      },
+      "result.json": {
+        "finishedUtc": "/Date(1794244020516)/",
+        "exitCode": 0
+      }
+    },
+    "later_cold_actual": {
+      "folder": "artifacts/npc-20261103/npc-later-regional-v1-cold",
+      "accepted": true,
+      "checks": [
+        "PASS An admitted real simulated community exists",
+        "PASS Actual local terrain and centre tiles are ready",
+        "PASS Natural residents stream from world history, without a spawn command",
+        "PASS Natural camp passes local ground validation and is loaded",
+        "PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp",
+        "PASS Camp consists of real player-compatible objects/materials",
+        "PASS Native camp validates with real terrain footing surveys",
+        "PASS Occupied camp shelters retain every fitted roof/frame component",
+        "PASS Actual surrounding scatter pages are resident before accepting camp environment captures",
+        "PASS Physical NPCs retain named family identities and actual scheduled tasks",
+        "PASS Broad local group tracking is bounded at 50km plus foraging catchment",
+        "PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders",
+        "PASS 513 real camp candidates have identical indexed and full-scan clearance, including clear and blocked sites",
+        "PASS Occupied shelter floor has a full-strength ground clearing mask",
+        "PASS Packed compute shader removes grass inside the real camp floor and retains grass outside",
+        "PASS Named camp objects and local memories survive actual player capture and serialization",
+        "PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects",
+        "PASS Aggression preserves wounds and the actual victim's local memory",
+        "PASS Unloading/revisiting a camp does not duplicate its objects"
+      ],
+      "scene-info.json": {
+        "Aridity": 1.1031790034490416,
+        "Canopy": 0.7500000000000001,
+        "Coast": 0.08263043875283718,
+        "Context": "cold",
+        "Cover": "Brush",
+        "Design": "BrushHut",
+        "HistoryHash": "daad578266ab9bfbac10b863647603183019dd0025b6a1f4357a29c60976dadd",
+        "Houses": 7,
+        "LocalHour": 11,
+        "MeanC": -1.126001847249946,
+        "People": 17,
+        "Rain": 330.7526119338133,
+        "Residence": "CollectorCamps",
+        "River": 0.07607774682428148,
+        "Year": 120000
+      },
+      "package.json": {
+        "AssemblySha256": "3f780026bfb552948dc63b08ccf2b4038764a30ddd3bc765afffd57464de3aa0",
+        "BuiltUtc": "2026-11-09T17:14:16.0805484Z",
+        "CoreSha256": "ebcae6dac85a0c213dc50458da950729c9c41a518fd62cc8fd07994e7f46ede5",
+        "WorkerSha256": "dcbfc7c05e57ce1395b4c084fc049b2df063e13757d5bd0815df41a567f8b2c3"
+      },
+      "owned-process.json": {
+        "monitor": "Rightmost",
+        "pid": 16512,
+        "startedUtc": "/Date(1794244510885)/",
+        "build": {
+          "BuiltUtc": "2026-11-09T17:14:15.9605498Z",
+          "SourceCommit": "535ddc46988baf69a2235eb089a1096df02b5896",
+          "SourceChanges": [],
+          "Backend": "Mono",
+          "Development": false,
+          "ScriptsOnly": true,
+          "Inputs": [
+            {
+              "Assembly": "WorldGen.Core",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+              "Sha256": "ebcae6dac85a0c213dc50458da950729c9c41a518fd62cc8fd07994e7f46ede5"
+            },
+            {
+              "Assembly": "WorldGen.Serialization",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+              "Sha256": "c3ae91c68dafc770a43fbd27231f35dd2fe072c5e6c745c6a1c371b9dad9e6c1"
+            },
+            {
+              "Assembly": "WorldGen.Presentation",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+              "Sha256": "1bd578424b46e9b3ed97f2555055bb1174a73b7a0d1c7048c2245339086718c5"
+            },
+            {
+              "Assembly": "DelaunatorSharp",
+              "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+              "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+            }
+          ],
+          "TerrainWorkerSha256": "dcbfc7c05e57ce1395b4c084fc049b2df063e13757d5bd0815df41a567f8b2c3"
+        }
+      },
+      "camp-site-index-proof.txt": "513 literal/index pairs exact; clear=152; blocked=361; solids=1522",
+      "validated-site-follow.txt": "Actual accepted camp distance from initial review position: 23.2160844908869m; attempts=12",
+      "exit-code.txt": "0"
+    },
+    "failed_review_camera": {
+      "folder": "artifacts/npc-20261103/npc-site-index-v1-wet",
+      "accepted": false,
+      "failure.txt": "InvalidOperationException: LIVING HUMANS Natural camp passes local ground validation and is loaded\nLocalTerrainExplorer+<>c__DisplayClass2886_0.<CheckLivingHumans>g__Check|1 (System.Boolean ok, System.String message) (at <99eebe44b5544c93a4dbca7a6b1de408>:0)\nLocalTerrainExplorer+<CheckLivingHumans>d__2886.MoveNext () (at <99eebe44b5544c93a4dbca7a6b1de408>:0)\nUnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <9cbb64a954b741deb68ec58553207f43>:0)\nUnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&, String&)\n",
+      "streaming-status.txt": "People 17 / expected near 26; ground True; loaded False; attempt 19558; survey 1200m / 14170.357ms; objects 0",
+      "exit-code.txt": "1"
+    },
+    "sparse_coast_proof_assertion": {
+      "folder": "artifacts/npc-20261103/npc-later-regional-v1-evening",
+      "accepted": false,
+      "failure.txt": "InvalidOperationException: NPC CAMP GROUND 513 real camp candidates have identical indexed and full-scan clearance, including clear and blocked sites\nLocalTerrainExplorer+<>c__DisplayClass2909_0.<CheckLivingCampGround>g__Check|0 (System.Boolean ok, System.String text) (at <22354dc1049e4c4394d603ed160e2544>:0)\nLocalTerrainExplorer.CheckLivingCampGround (LocalTerrainExplorer owner, LocalTerrainExplorer+LivingGroup group, System.String output, System.Collections.Generic.List`1[T] checks) (at <22354dc1049e4c4394d603ed160e2544>:0)\nLocalTerrainExplorer+<CheckLivingHumans>d__2887.MoveNext () (at <22354dc1049e4c4394d603ed160e2544>:0)\nUnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <9cbb64a954b741deb68ec58553207f43>:0)\nUnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&, String&)\n",
+      "streaming-status.txt": "People 1 / expected near 35; ground True; loaded True; attempt 1; survey 200m / 213.3466ms; objects 24",
+      "exit-code.txt": "1"
     }
   },
   "performance_limits": [
@@ -1122,11 +1377,10 @@
     "Rejected 191130m-view-distance performance case is excluded."
   ],
   "remaining": [
-    "New exact camp spatial index needs native literal/index equivalence and dense-forest placement retry.",
-    "Full followed migration not yet proven.",
-    "Finite transported embers unimplemented.",
-    "Cold and coastal scenic retries still pending.",
-    "Final report, accepted checkpoint shortcut and final handoff not yet done."
+    "29f coastal retry and final moving performance pending.",
+    "Updated535 material-backed packing/brief observed travel/coarsejourneyskip/arrival/reassembly QA built but UNRUN. Do not claim uninterrupted whole migration.",
+    "Finite ember transport unimplemented.",
+    "Final report/shortcut/handoff not yet done."
   ],
   "new_camp_index": {
     "source": "91f4566b",
@@ -1135,6 +1389,17 @@
     "full_scan_reference_visits": 18000000,
     "warm_queries": 20000,
     "warm_allocated_bytes": 0,
-    "native": "7a408aea wet retry RUNNING; ab59184f test found validsite~980m butcameraoutsidecamploadrange, retainedFAIL"
-  }
+    "native": "7a408aea wet19PASS; 513 full-scan/index pairs EXACT,268clear245blocked,121756solids. Actual10ridge-tent camp43bandmembers.535ddc46 actualcold19PASS,513pairsEXACT100+blocked; source29f removes false requirement for blocked candidates on genuinely open coast."
+  },
+  "later_world_fixture": {
+    "generation": "dotnet run --no-build --project tests/WorldGen.Core.Tests -- --human-fixture artifacts/terrain-surfaces-20261107/playable.world artifacts/npc-overnight-20261109/human-120k.world 120000",
+    "history_hash": "daad578266ab9bfbac10b863647603183019dd0025b6a1f4357a29c60976dadd",
+    "years": 120000,
+    "occupied_aggregates": 416,
+    "minimum_annual_C": -1.126001847249946,
+    "aggregates_below8C": 23,
+    "whole_prepare_and_write_seconds": 32.91,
+    "note": "Whole fixture preparation/write duration, not an isolated sim throughput measurement."
+  },
+  "regional_qa_note": "Initial year0 cold/coast labels were rankings, not real regional coverage.29f/535 require annual<8C or coast>=.15. Old E82 cold/evening19PASS only mechanics/day-night; do not label them cold/coastal geography."
 }
