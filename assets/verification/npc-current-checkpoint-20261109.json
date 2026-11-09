@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-11-09T17:23:06.895470+00:00",
+  "recorded_utc": "2026-11-09T19:19:00Z",
   "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
   "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
   "cases": {
@@ -1368,6 +1368,21 @@
       "failure.txt": "InvalidOperationException: NPC CAMP GROUND 513 real camp candidates have identical indexed and full-scan clearance, including clear and blocked sites\nLocalTerrainExplorer+<>c__DisplayClass2909_0.<CheckLivingCampGround>g__Check|0 (System.Boolean ok, System.String text) (at <22354dc1049e4c4394d603ed160e2544>:0)\nLocalTerrainExplorer.CheckLivingCampGround (LocalTerrainExplorer owner, LocalTerrainExplorer+LivingGroup group, System.String output, System.Collections.Generic.List`1[T] checks) (at <22354dc1049e4c4394d603ed160e2544>:0)\nLocalTerrainExplorer+<CheckLivingHumans>d__2887.MoveNext () (at <22354dc1049e4c4394d603ed160e2544>:0)\nUnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <9cbb64a954b741deb68ec58553207f43>:0)\nUnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&, String&)\n",
       "streaming-status.txt": "People 1 / expected near 35; ground True; loaded True; attempt 1; survey 200m / 213.3466ms; objects 24",
       "exit-code.txt": "1"
+    },
+    "coastal_actual": {
+      "build": "29f29aef",
+      "folder": "artifacts/npc-20261103/npc-coast-confirm-v2-evening",
+      "result": "19PASS;35people/10reedLongHuts;Coast1/River.569/annual26.62C. Dark20h images mechanically accepted; not polished art."
+    },
+    "fair_person_sight": {
+      "build": "c5426071",
+      "folder": "artifacts/npc-overnight-20261109/fair-person-sight-v1-daily",
+      "result": "29PASS, including14actualnearbybandmates beyondfirst12, play/missing/reunion/reportedsearch/caregiver/privatebed/save."
+    },
+    "migration_v5": {
+      "build": "3a8a3167",
+      "folder": "artifacts/npc-20261103/npc-material-cycle-v5-morning",
+      "result": "FAIL reassembly deadline240s. Packing/18sobservedtravel/coarseunload-reload/arrival exactalloriginalportable IDs+mass passed. 24woodsupplies/6823workcontributions; multiple falsefamilysearches delayednewframe construction. Fair sight corrected c542; v6running with600s actualworkdeadline. No uninterrupted route claim."
     }
   },
   "performance_limits": [
@@ -1377,10 +1392,11 @@
     "Rejected 191130m-view-distance performance case is excluded."
   ],
   "remaining": [
-    "29f coastal retry and final moving performance pending.",
-    "Updated535 material-backed packing/brief observed travel/coarsejourneyskip/arrival/reassembly QA built but UNRUN. Do not claim uninterrupted whole migration.",
-    "Finite ember transport unimplemented.",
-    "Final report/shortcut/handoff not yet done."
+    "V6 physical migration/reassembly test active on c542 B, no build/overwrite until exits.",
+    "First occupied-camp orbit remains slow;51.42FPS/p9953.15/max67.09 vsrepeat114.53. Zeroappendmanagedbytes; artpreparation notprimarycost. Newshadow policy snapshot pending native exact proof and FPS comparison.",
+    "SignedcampID itinerary regression Core423PASS/f9cb not yet packaged.",
+    "Finite ember transport unimplemented; no advancedhunting/fullfood economy.",
+    "Final onePDF/shortcut/handoff deferred; owner has not asked wrap."
   ],
   "new_camp_index": {
     "source": "91f4566b",
