@@ -98,6 +98,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 perception.PeopleCursor=(start+count)%people.Count;
             }
+            people.Clear(); // Retain scratch capacity, not retired resident actors.
             if(humanPlayer?.Resident!=null&&humanPlayer.GroupId==actor.GroupId&&HumanDistance(actor.Planet,Position)<Math.Min(22,range)&&NpcSees(actor,transform.TransformPoint(PlayerFeet())+transform.up,range))
             {if(DeathVisible)DiscoverNpcDeath(actor,humanPlayer);else state.See(humanPlayer.ResidentId,Position,PlayerRules.SolarDays);}
         }

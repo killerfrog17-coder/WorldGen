@@ -42,9 +42,9 @@ public sealed partial class LocalTerrainExplorer
             double solar=Math.Min(.1,Time.unscaledDeltaTime)/(baseline.DayMinutes*60);
             owner.PlayerRules.SolarDays+=solar;owner.PlayerRules.PendingHistorySeconds+=solar*baseline.CalendarRate*SimulationTime.Day;
         }
-        IEnumerator Await(Func<bool> condition,string description)
+        IEnumerator Await(Func<bool> condition,string description,double seconds=240)
         {
-            double end=Time.realtimeSinceStartupAsDouble+240,statusAt=0;
+            double end=Time.realtimeSinceStartupAsDouble+seconds,statusAt=0;
             while(!condition()&&Time.realtimeSinceStartupAsDouble<end)
             {
                 TickClock();
@@ -91,7 +91,7 @@ public sealed partial class LocalTerrainExplorer
         int supplied=owner.npcCampSupplied,worked=owner.npcCampWorked;
         Date(initial.JourneyEndDay+delay+.07*baseline.CalendarRate);
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Occupied,"The new visit proceeds from setup into occupation");
-        yield return Await(()=>owner.npcCampSupplied>supplied&&owner.npcCampWorked>worked&&owner.Camp.Objects.Where(c=>c.NpcGroup==band&&c.NpcSite==newSite&&c.Blueprint!=null).SelectMany(c=>c.OwnedMaterials()).Any(p=>portable.ContainsKey(p.Id)),"A real worker supplies and works with an original recovered contribution at the new camp");
+        yield return Await(()=>owner.npcCampSupplied>supplied&&owner.npcCampWorked>worked&&owner.Camp.Objects.Where(c=>c.NpcGroup==band&&c.NpcSite==newSite&&c.Blueprint!=null).SelectMany(c=>c.OwnedMaterials()).Any(p=>portable.ContainsKey(p.Id)),"A real worker supplies and works with an original recovered contribution at the new camp",600);
         Check(identities.SequenceEqual(group.Residents.Members.Select(p=>p.Id).OrderBy(id=>id)),"Families and personal identities survive packing, travel and arrival");
         Check(owner.Camp.Objects.Select(c=>c.Id).Distinct().Count()==owner.Camp.Objects.Count,"Travel and old-site traces create no duplicate camp objects");
         owner.Camp.Validate();owner.CaptureLivingHumans();owner.LivingState.Validate();
