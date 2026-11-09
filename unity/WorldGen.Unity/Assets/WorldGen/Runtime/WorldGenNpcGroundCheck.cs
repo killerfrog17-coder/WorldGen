@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
 using WorldGen.Presentation;
+using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
@@ -19,9 +20,9 @@ public sealed partial class LocalTerrainExplorer
         int Run(Dictionary<(long,int),int> map,out long allocated,out double milliseconds)
         {
             for(int i=0;i<3000;i++)map.TryGetValue(keys[i%keys.Length],out _);
-            long before=GC.GetAllocatedBytesForCurrentThread();var timer=System.Diagnostics.Stopwatch.StartNew();int sum=0;
+            long before=GC.GetAllocatedBytesForCurrentThread(),started=System.Diagnostics.Stopwatch.GetTimestamp();int sum=0;
             for(int i=0;i<500000;i++){if(!map.TryGetValue(keys[i%keys.Length],out int value))throw new InvalidOperationException("Lost actual batch key");sum+=value;}
-            milliseconds=timer.Elapsed.TotalMilliseconds;allocated=GC.GetAllocatedBytesForCurrentThread()-before;return sum;
+            allocated=GC.GetAllocatedBytesForCurrentThread()-before;milliseconds=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;return sum;
         }
         var proof=new NpcBatchLookupProof{Keys=keys.Length,Iterations=500000};int first=Run(baseline,out proof.DefaultBytes,out proof.DefaultMs),second=Run(candidate,out proof.ExplicitBytes,out proof.ExplicitMs);proof.Checksum=first;
         if(first!=second)throw new InvalidOperationException("Explicit scatter comparer changed actual key lookup results.");
