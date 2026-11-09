@@ -52,7 +52,9 @@ sealed class NpcModelClient : IDisposable
     {
         try
         {
-            var config=new NpcAiSettings();if(File.Exists(path??ConfigPath))JsonUtility.FromJsonOverwrite(File.ReadAllText(path??ConfigPath),config);else config.Enabled=false;config.Normalize(Environment.ProcessorCount);return config;
+            var config=new NpcAiSettings();if(File.Exists(path??ConfigPath))JsonUtility.FromJsonOverwrite(File.ReadAllText(path??ConfigPath),config);else config.Enabled=false;
+            string cuda=Path.Combine(Path.GetDirectoryName(CatalogPath),"llama-b12211-cuda","llama-server.exe");if(string.IsNullOrEmpty(config.CudaServerPath)&&File.Exists(cuda))config.CudaServerPath=cuda;
+            config.Normalize(Environment.ProcessorCount);return config;
         }
         catch{return new NpcAiSettings{Enabled=false};}
     }
@@ -110,13 +112,13 @@ sealed class NpcModelClient : IDisposable
         if(endpoint!=null)return;
         if(!string.IsNullOrWhiteSpace(Config.BaseUrl))
         {endpoint=Config.BaseUrl.TrimEnd('/');if(endpoint.EndsWith("/v1"))endpoint=endpoint.Substring(0,endpoint.Length-3);key=string.IsNullOrWhiteSpace(Config.ApiKeyEnvironment)?null:Environment.GetEnvironmentVariable(Config.ApiKeyEnvironment);return;}
-        string executable=Config.GpuLayers>0?Config.GpuServerPath:Config.ServerPath;
+        string executable=Config.ServerExecutable;
         if(!File.Exists(executable)||!File.Exists(Config.ModelPath))throw new FileNotFoundException("Local NPC model is not installed; run scripts/setup-npc-ai.py.");
         Status="Loading local model";int port;var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();port=((IPEndPoint)listener.LocalEndpoint).Port;listener.Stop();key=Guid.NewGuid().ToString("N");
         string root=Path.GetDirectoryName(ConfigPath);string args="-m \""+Config.ModelPath.Replace("\"","")+"\" --host 127.0.0.1 --port "+port+" --api-key "+key+Config.HardwareArguments();hostError="";
-        BackendInfo=Config.GpuLayers>0?"GPU requested; loading":"CPU";
+        BackendInfo=Config.GpuLayers>0?Config.GpuBackend+" requested; loading":"CPU";
         owned=new Process{StartInfo=new ProcessStartInfo(executable,args){UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=root,RedirectStandardOutput=true,RedirectStandardError=true}};
-        owned.OutputDataReceived+=(s,e)=>{};owned.ErrorDataReceived+=(s,e)=>{if(e.Data==null)return;if(e.Data.Contains("offloaded "))BackendInfo=e.Data.Substring(e.Data.IndexOf("offloaded "))+(Config.CpuExpertLayers>0?"; "+Config.CpuExpertLayers+" expert layers on CPU":"");if(e.Data.IndexOf("error",StringComparison.OrdinalIgnoreCase)>=0||e.Data.IndexOf("failed",StringComparison.OrdinalIgnoreCase)>=0)hostError=e.Data.Length>400?e.Data.Substring(0,400):e.Data;};owned.Start();job.Attach(owned);owned.BeginOutputReadLine();owned.BeginErrorReadLine();
+        owned.OutputDataReceived+=(s,e)=>{};owned.ErrorDataReceived+=(s,e)=>{if(e.Data==null)return;if(e.Data.Contains("offloaded "))BackendInfo=Config.GpuBackend+": "+e.Data.Substring(e.Data.IndexOf("offloaded "))+(Config.CpuExpertLayers>0?"; "+Config.CpuExpertLayers+" expert layers on CPU":"");if(e.Data.IndexOf("error",StringComparison.OrdinalIgnoreCase)>=0||e.Data.IndexOf("failed",StringComparison.OrdinalIgnoreCase)>=0)hostError=e.Data.Length>400?e.Data.Substring(0,400):e.Data;};owned.Start();job.Attach(owned);owned.BeginOutputReadLine();owned.BeginErrorReadLine();
         string url="http://127.0.0.1:"+port;
         for(int i=0;i<720;i++)
         {

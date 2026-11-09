@@ -25,6 +25,8 @@ static class NpcAiSettingsTests
         settings.SelectModel(new NpcAiModel{Name="Qwen",Path="qwen.gguf",Family="qwen35",Layers=33});
         Check(settings.CpuExpertLayers==0&&!settings.HardwareArguments().Contains("--n-cpu-moe")&&!settings.HardwareArguments().Contains("--reasoning-effort"),"Switching to a dense model clears expert-only configuration");
         settings.Preset(2,16);Check(settings.Polling==0&&settings.Priority==-1&&settings.GpuReserveMiB==1024,"Ordinary GPU preset reverses maximum-resource settings");
+        settings.CudaServerPath="cuda-server";settings.Preset(3,16);Check(settings.ServerExecutable=="cuda-server"&&settings.GpuBackend=="cuda","Maximum preset can select the NVIDIA backend");
+        settings.GpuBackend="vulkan";Check(settings.ServerExecutable=="gpu","Manual backend selection uses Vulkan executable");settings.GpuLayers=0;Check(settings.ServerExecutable=="cpu","CPU mode never launches a GPU backend");
         Console.WriteLine("AI settings checks PASS: "+n);
     }
 }

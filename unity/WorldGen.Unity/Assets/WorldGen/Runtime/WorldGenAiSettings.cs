@@ -48,6 +48,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.BeginHorizontal();
         int presetIndex=0;foreach(var preset in new[]{"CPU","Hybrid","GPU","Max speed"}){if(GUILayout.Button(preset)){aiDraft.Preset(presetIndex,Environment.ProcessorCount);aiDirty=true;}presetIndex++;}
         GUILayout.EndHorizontal();GUILayout.Label("Max speed gives AI priority: zero VRAM reserve, high CPU priority and active polling. Game FPS can suffer. Thread tuning may still improve speed.",MutedStyle());
+        if(System.IO.File.Exists(aiDraft.CudaServerPath)){GUILayout.Label("GPU backend");aiDraft.GpuBackend=GUILayout.SelectionGrid(aiDraft.GpuBackend=="cuda"?1:0,new[]{"Vulkan","CUDA (NVIDIA)"},2)==1?"cuda":"vulkan";}
         bool autoGpu=GUILayout.Toggle(aiDraft.GpuLayers==999,"Automatically fit as much as possible on the GPU");
         if(autoGpu)aiDraft.GpuLayers=999;
         else{if(aiDraft.GpuLayers==999)aiDraft.GpuLayers=Math.Min(18,aiDraft.ModelLayers);aiDraft.GpuLayers=AiSlider("GPU layers (requested)",aiDraft.GpuLayers,0,aiDraft.ModelLayers,"0 = CPU only. The maximum depends on the selected model. Status shows actual offload.");}

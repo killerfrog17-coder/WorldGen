@@ -51,6 +51,25 @@
     "license": "Apache-2.0",
     "upstream": "https://huggingface.co/Qwen/Qwen3.5-2B"
   },
+  "cuda_runtime": {
+    "version": "b12211",
+    "name": "llama.cpp CUDA 12.4",
+    "license": "MIT for llama.cpp; bundled NVIDIA runtime components retain their included licenses",
+    "packages": [
+      {
+        "file": "llama-b12211-bin-win-cuda-12.4-x64.zip",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b12211/llama-b12211-bin-win-cuda-12.4-x64.zip",
+        "bytes": 288918486,
+        "sha256": "e5914eb78199ee0874c4f2febc9fc45b9b3fafbbedd36663f203716b9289a83f"
+      },
+      {
+        "file": "cudart-llama-bin-win-cuda-12.4-x64.zip",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b12211/cudart-llama-bin-win-cuda-12.4-x64.zip",
+        "bytes": 391443627,
+        "sha256": "8c79a9b226de4b3cacfd1f83d24f962d0773be79f1e7b75c6af4ded7e32ae1d6"
+      }
+    ]
+  },
   "gpu_runtime": {
     "name": "llama.cpp Vulkan",
     "version": "b12211",
