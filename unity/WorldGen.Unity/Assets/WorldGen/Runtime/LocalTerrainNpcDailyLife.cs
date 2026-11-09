@@ -39,6 +39,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(known.SeenDead)continue;var person=group.Residents.Members.FirstOrDefault(p=>p.Id==known.Person);if(person==null)continue;
             bool closeKin=person.Mother==actor.ResidentId||person.Father==actor.ResidentId||actor.Resident.Partner==person.Id||actor.Resident.Mother==person.Id||actor.Resident.Father==person.Id;
+            if(person.AgeYears<14&&(person.Household==actor.Resident.Household||routine.Activity==HumanActivity.Childcare&&sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture].ChildcareCooperation>.5))closeKin=true;
             double absence=(PlayerRules.SolarDays-known.LastSeenSolarDay)*24;bool evening=group.Situation.LocalHour>19||group.Situation.LocalHour<5;
             if(!closeKin||absence<(person.AgeYears<7?.35:person.AgeYears<14?evening?1:2:evening?4:12))continue;
             if(social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==person.Id&&PlayerRules.SolarDays-e.SolarDay<.18))continue;
