@@ -22,7 +22,7 @@ public sealed partial class WorldGenRuntime
     {public string Passkey,Conditions;public List<DialogueQualityModel> Models=new List<DialogueQualityModel>();}
     IEnumerator CheckNpcDialogueRuntime()
     {
-        string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
+        string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;SetDisplayOptions(false,30,false);
         string originalPath=NpcModelClient.ConfigPath;byte[] original=File.ReadAllBytes(originalPath);var originalConfig=NpcModelClient.LoadSettings();
         NpcModelClient.TestSettingsPath=Path.Combine(output,"settings.json");
         var random=new System.Random(Environment.TickCount);var syllables=new[]{"ka","mi","ru","so","ve","ni","pa","lu"};
@@ -57,6 +57,7 @@ public sealed partial class WorldGenRuntime
             {
                 if(Argument("--worldgen-ai-model","").Length>0&&model.Family!=Argument("--worldgen-ai-model",""))continue;
                 var config=originalConfig.Copy();config.SelectModel(model);config.Preset(3,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);config.Enabled=true;config.ConversationTurns=2;config.Temperature=.2f;
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-shared-gpu")){config.GpuLayers=Math.Min(18,model.Layers);config.GpuReserveMiB=2048;config.Threads=Math.Max(1,Environment.ProcessorCount/2);config.BatchThreads=config.Threads;config.Priority=-1;config.Polling=0;config.PreloadModel=true;suite.Conditions="Same production16turnfixture;sharedGPU18layers/2048MiBreserve/8CPUthreads/30FPSmenu+15FPSbusy;temperature.2,2recentexchanges+savedstatements. Functionalregression,NOTspeedcomparison.";}
                 var row=new DialogueQualityModel{Model=model.Name,Family=model.Family,Backend=config.GpuBackend,ContextTokens=config.ContextTokens,GpuReserveMiB=config.GpuReserveMiB,PreloadModel=config.PreloadModel};suite.Models.Add(row);
                 NpcModelClient.SaveSettings(config);screen="Options";settingsCategory=8;ReloadAiDraft();aiPreview=new NpcModelClient(config);
                 var loadWatch=Stopwatch.StartNew();var load=aiPreview.WarmUp();yield return Wait(load);row.LoadSeconds=loadWatch.Elapsed.TotalSeconds;

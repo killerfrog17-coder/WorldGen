@@ -39,6 +39,10 @@ static class NpcConversationTests
         string known=NpcPersonContext.Describe("SPEAKER",speaker,band,true,"black hair");
         Check(known.Contains("age in years=27")&&known.Contains("partner identity=Tava")&&known.Contains("records=2"),"Known speaker facts come from their own identity and family");
         string stranger=NpcPersonContext.Describe("SPEAKER",speaker,band,false,"black hair");Check(!stranger.Contains("27")&&!stranger.Contains("Tava")&&stranger.Contains("black hair"),"Stranger context exposes appearance without omniscient age or family knowledge");
+        var requests=new NpcMemory{Person=100};requests.Hear(200,"Wufihi","I want you to remember this secret word: navuli. OK?");
+        Check(requests.Statements.Single().Important,"An explicit remember request remains important even with a confirming question");
+        requests.Hear(200,"Wufihi","What was the word I asked you to remember?");requests.Hear(200,"Wufihi","Remember what I asked before?");
+        Check(requests.Statements.Count==1,"Recall questions do not crowd out actual remembered statements");
         Console.WriteLine("NPC conversation checks PASS: "+n);
     }
 }

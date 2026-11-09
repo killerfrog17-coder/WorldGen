@@ -37,7 +37,8 @@ namespace WorldGen.Core
             Conversation??=new List<NpcDialogueTurn>();Statements??=new List<NpcHeardStatement>();
             string text=NpcDecision.Clean(words,256);var turn=new NpcDialogueTurn{Sequence=++ConversationSequence,Speaker=speaker,Interlocutor=speaker,Name=NpcDecision.Clean(name,80),Text=text};
             Conversation.Add(turn);while(Conversation.Count>64)Conversation.RemoveAt(0);
-            var tokens=Words(text);bool important=tokens.Take(2).Contains("remember")||tokens.Contains("remember")&&!Question(text)||text.IndexOf("you to remember",StringComparison.OrdinalIgnoreCase)>=0||text.IndexOf("keep in mind",StringComparison.OrdinalIgnoreCase)>=0;
+            var tokens=Words(text);bool leadingRequest=tokens.Take(2).Contains("remember")&&!tokens.Take(3).Any(w=>new[]{"what","which","who","where","when","why","how"}.Contains(w));
+            bool important=leadingRequest||tokens.Contains("remember")&&!Question(text)||new[]{"I want you to remember","I need you to remember","I'd like you to remember","Keep in mind","Please keep in mind"}.Any(prefix=>text.StartsWith(prefix,StringComparison.OrdinalIgnoreCase));
             // Store what was actually heard, never an assistant-generated fact.
             // Questions and small talk remain in conversation, not durable claims.
             if(important||tokens.Length>=3&&!Question(text))
