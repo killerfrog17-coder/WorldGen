@@ -9,6 +9,7 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NpcCampTask {public string Object="",Part="";public double Work,ChooseAt;public bool Packing;}
     int npcCampPacked,npcCampSupplied,npcCampWorked;
+    readonly Queue<CampObject> npcInitialSupplyQueue=new Queue<CampObject>();
     sealed class NpcCampDefinition {public CampBlueprint Plan;public double Width,Depth,Height;public double[] Floor;public CampComponent[] Parts;}
     readonly Dictionary<string,NpcCampDefinition> npcCampGeometry=new Dictionary<string,NpcCampDefinition>();
     CampComponent[] NpcCampParts(CampObject shelter)
@@ -23,7 +24,13 @@ public sealed partial class LocalTerrainExplorer
     bool NpcCarryCampPoles(LivingGroup group)
         =>group.Situation.Camp.CarryPoles||sourceWorld.Prehistory.Foragers.Districts[group.Residents.District].Canopy<.2||group.Situation.Camp.Design==CampDesign.ConicalTent;
     bool NpcCampNeedsPacking(LivingGroup group)
-        =>Camp.Objects.Any(c=>c.NpcGroup==group.Situation.Band.Id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&NpcCampParts(c).Any(p=>NpcCampWork.Portable(c.Blueprint,p,NpcCarryCampPoles(group))&&CampBlueprints.State(c.Blueprint,p)?.Materials.Count>0));
+    {
+        long id=group.Situation.Band.Id;
+        if(Camp.Objects.Any(c=>c.NpcGroup==id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&(c.NpcNeedsInitialStock||NpcCampParts(c).Any(p=>NpcCampWork.Portable(c.Blueprint,p,NpcCarryCampPoles(group))&&CampBlueprints.State(c.Blueprint,p)?.Materials.Count>0))))return true;
+        foreach(var load in Inventory.Items)if(load.Kind==PossessionKind.CampBundle&&load.Place==PossessionPlace.Ground&&load.CampMaterial==id&&HumanDistance(load.Position,group.Anchor)<60)
+            if(livingPeople.Values.Any(p=>p.GroupId==id&&p.Health>40&&p.Resident.AgeYears>=12&&load.OwnerHousehold==p.Resident.Household&&load.MassKg<=(p.Resident.AgeYears<16?12:24)&&!p.Belongings.Items.Any(i=>i.Kind==PossessionKind.CampBundle&&p.Belongings.Carried(i))))return true;
+        return false;
+    }
     bool HoldNpcCampDeparture(LivingGroup group,HumanGroupSituation incoming)
     {
         if(!group.CampLoaded||group.Residents==null||group.Situation.PermanentBase)return false;
@@ -55,6 +62,8 @@ public sealed partial class LocalTerrainExplorer
         {
             var bundle=actor.Belongings.Items.FirstOrDefault(p=>actor.Belongings.Carried(p)&&p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId);
             if(bundle!=null){target=LivingHouse(actor)?.Position??group.Anchor;actor.TaskDetail="bringing and opening the actual bound shelter materials";actor.TaskWaiting=false;if(HumanDistance(actor.Planet,target)<2){NpcCampWork.Unbundle(actor.Belongings,bundle,actor.Planet);PublishNpcGroundGoods(actor);}return true;}
+            var staged=Inventory.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId&&NpcCanUseWorldItem(actor,p));
+            if(staged!=null){target=staged.Position;actor.TaskDetail="collecting the real staged shelter load";actor.TaskWaiting=false;if(HumanDistance(actor.Planet,target)<1.7){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);AcquireNpcItem(actor,staged);}return true;}
         }
         CampObject shelter=Camp.Objects.FirstOrDefault(c=>c.Id==task.Object&&c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id);
         CampComponent part=shelter?.Blueprint==null?null:NpcCampParts(shelter).FirstOrDefault(c=>c.Key==task.Part);
@@ -118,6 +127,21 @@ public sealed partial class LocalTerrainExplorer
         double length=Math.Sqrt(p.X*p.X+p.Z*p.Z),scale=length>.1?(length+.55)/length:0;double east=p.X*scale,north=p.Z*scale;
         return frame.Position(x+east*Math.Cos(yaw)+north*Math.Sin(yaw),z+north*Math.Cos(yaw)-east*Math.Sin(yaw));
     }
+    void StageInitialNpcSupplies(CampObject shelter)
+    {
+        // Initial conditions for a previously unvisited camp already being
+        // erected. Subsequent observed moves never enter this supply path.
+        var complete=shelter.Copy();HumanCampLayout.FitShelter(complete,shelter.Blueprint.FloorHeights??new double[9]);
+        var installed=shelter.OwnedMaterials().Select(p=>p.Id).ToHashSet();var staged=new PlayerInventory();
+        foreach(var item in complete.OwnedMaterials())if(!installed.Contains(item.Id)&&Inventory.Find(item.Id)==null)
+        {item.CampMaterial=shelter.NpcGroup;item.Position=shelter.Position;item.GroundRotation=new V(90,0,0);item.GroundOffsetM=.05;staged.Items.Add(item);}
+        for(int k=0;k<16;k++)
+        {
+            var bundle=NpcCampWork.Bundle(staged,shelter.NpcGroup,shelter.NpcHousehold,shelter.Position);if(bundle==null)break;
+            bundle.Place=PossessionPlace.Ground;bundle.GroundRotation=new V(90,0,0);bundle.GroundOffsetM=.05;NpcBelongings.TransferTree(staged,Inventory,bundle);
+        }
+        foreach(var item in staged.Items.ToArray())NpcBelongings.TransferTree(staged,Inventory,item);shelter.NpcNeedsInitialStock=false;inventoryNearbyAt=0;
+    }
     bool PrepareNpcCampBedding(HumanActor actor,LivingGroup group,float dt,ref V target)
     {
         var bed=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Kind==CampKind.Bedding&&c.NpcHousehold==actor.Resident.Household);
@@ -139,6 +163,8 @@ public sealed partial class LocalTerrainExplorer
     {
         var stock=actor.Belongings;var bundle=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&stock.Carried(p));
         double limit=actor.Resident.AgeYears<16?12:24;
+        var packed=bundle==null?Inventory.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.MassKg<=limit&&NpcCanUseWorldItem(actor,p)):null;
+        if(packed!=null){target=packed.Position;actor.TaskDetail="retrieving the household's already bound shelter load";actor.TaskWaiting=false;if(HumanDistance(target,actor.Planet)<=1.7)AcquireNpcItem(actor,packed);return true;}
         var loose=Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&NpcCanUseWorldItem(actor,p)&&
             (p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.Kind!=PossessionKind.CampBundle&&(bundle==null||bundle.MassKg+p.MassKg<=limit)||p.OwnerPerson==actor.ResidentId&&p.CampMaterial==0))
             .OrderBy(p=>p.OwnerPerson==actor.ResidentId?1:0).ThenBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();

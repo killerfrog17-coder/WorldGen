@@ -17,11 +17,11 @@ namespace WorldGen.Core
     {
         public static Possession Bundle(PlayerInventory stock,long group,long household,V position,double maximumKg=24)
         {
-            bool Part(Possession p)=>p.CampMaterial==group&&p.OwnerHousehold==household&&(WoodCrafting.Wood(p)||CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle);
+            bool Part(Possession p)=>p.CampMaterial==group&&p.OwnerHousehold==household&&(WoodCrafting.Wood(p)||CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle||FrameRules.Binding(p));
             var existing=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==group&&p.OwnerHousehold==household&&p.BundledMaterials!=null);
             var tie=existing==null?stock.Items.FirstOrDefault(p=>p.CampMaterial==group&&p.OwnerHousehold==household&&FrameRules.Binding(p)):null;
             if(existing==null&&tie==null)return null;
-            var goods=stock.Items.Where(Part).OrderByDescending(WoodCrafting.Wood).ToArray();double mass=existing?.MassKg??tie.MassKg;
+            var goods=stock.Items.Where(p=>p!=tie&&Part(p)).OrderByDescending(WoodCrafting.Wood).ToArray();double mass=existing?.MassKg??tie.MassKg;
             var chosen=new List<Possession>();foreach(var p in goods)if(mass+p.MassKg<=maximumKg&&(existing?.BundledMaterials.Count??0)+chosen.Count<24){chosen.Add(p);mass+=p.MassKg;}
             if(chosen.Count==0||existing==null&&chosen.Count<2)return null;
             if(existing==null)

@@ -89,6 +89,7 @@ public sealed partial class LocalTerrainExplorer
             else if(!closed&&PrehistoryState.SameDomain(work.Result.Source,sourceWorld.Prehistory)&&Math.Abs(PlayerRules.SolarDays-work.Result.SolarDay)*PlayerRules.Settings.RealMinutesPerDay*60<5)ApplyLivingPacket(work.Result);
         }
         if(stopped)return;
+        if(npcInitialSupplyQueue.Count>0){var pending=npcInitialSupplyQueue.Dequeue();if(Camp.Objects.Contains(pending)&&pending.NpcNeedsInitialStock)StageInitialNpcSupplies(pending);}
         UpdateCampClearing();
         UpdateLivingSites();
         UpdateLivingResources();
@@ -226,7 +227,9 @@ public sealed partial class LocalTerrainExplorer
         {
             if(Camp.Objects.Any(c=>c.Id==obj.Id))continue;
             if(obj.Blueprint!=null&&obj.Blueprint.FloorHeights==null)SurveyLivingShelter(obj,!newStock);
-            obj.LastSimulatedSeconds=Camp.SimulatedSeconds;Camp.Objects.Add(obj);
+            CatchUpNpcHearth(obj);obj.LastSimulatedSeconds=Camp.SimulatedSeconds;Camp.Objects.Add(obj);
+            if(newStock&&existing.Length==0&&memory==null&&(group.Situation.Phase==HumanCampPhase.SettingUp||group.Situation.Phase==HumanCampPhase.Packing)&&obj.Blueprint!=null)obj.NpcNeedsInitialStock=true;
+            if(obj.NpcNeedsInitialStock)npcInitialSupplyQueue.Enqueue(obj);
         }
         group.CampLoaded=true;
     }
@@ -247,6 +250,7 @@ public sealed partial class LocalTerrainExplorer
     void UnloadLivingCamp(LivingGroup group,bool abandoned=false)
     {
         if(!group.CampLoaded)return;
+        group.TenderDuty=null;group.TendedFire=null;
         var localTravel=LivingState.Groups.FirstOrDefault(g=>g.Group==group.Situation.Band.Id)?.Travel;
         if(localTravel?.HoldCalendarDay>=0&&!abandoned){localTravel.DelayCalendarDays=Math.Max(localTravel.DelayCalendarDays,LivingClock.CalendarDay-localTravel.HoldCalendarDay);localTravel.HoldCalendarDay=-1;}
         StoreLivingCamp(group);
@@ -254,7 +258,8 @@ public sealed partial class LocalTerrainExplorer
         {
             var memory=LivingState.Camps.First(c=>c.Site==group.Situation.Camp.Id);memory.AbandonedCalendarDay=LivingClock.CalendarDay;
             // Uncarried frames, roofing and disturbed bedding remain at this site.
-            foreach(var fire in memory.Objects.Where(c=>c.Kind==CampKind.Fire)){fire.Burning=false;fire.EmberSeconds=0;fire.Materials.RemoveAll(p=>CampRules.Fuel(p));fire.AshKg=Math.Max(.08,fire.AshKg);}
+            // Leaving does not instantly extinguish the fire or delete its wood.
+            // Analytic catch-up consumes its finite remaining fuel when revisited.
         }
         foreach(var obj in Camp.Objects.Where(c=>c.NpcSite==group.Situation.Camp.Id&&c.NpcGroup==group.Situation.Band.Id).ToArray())
         {InvalidateCampVisual(obj);Camp.Objects.Remove(obj);npcCampGeometry.Remove(obj.Id);}group.CampLoaded=false;
@@ -266,7 +271,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(memory.AbandonedCalendarDay<0)memory.AbandonedCalendarDay=group.Situation.DepartureDay;
             foreach(var obj in memory.Objects)
-                if(!Camp.Objects.Any(c=>c.Id==obj.Id)){var copy=obj.Copy();copy.LastSimulatedSeconds=Camp.SimulatedSeconds;copy.Burning=false;copy.EmberSeconds=0;Camp.Objects.Add(copy);}
+                if(!Camp.Objects.Any(c=>c.Id==obj.Id)){var copy=obj.Copy();CatchUpNpcHearth(copy);copy.LastSimulatedSeconds=Camp.SimulatedSeconds;Camp.Objects.Add(copy);}
         }
         else if(group.Residents!=null)
         {
@@ -327,7 +332,7 @@ public sealed partial class LocalTerrainExplorer
         if(!livingGroups.TryGetValue(actor.GroupId,out var group)||actor.Routine==null)return;
         if(actor.Routine.Activity==HumanActivity.Carried){UpdateCarriedHuman(actor,dt);return;}
         long cost=profileLiving?System.Diagnostics.Stopwatch.GetTimestamp():0;
-        bool tending=group.TenderDuty?.Person==actor.ResidentId&&Time.unscaledTimeAsDouble<group.TendUntil;
+        bool tending=(group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp)&&group.TenderDuty?.Person==actor.ResidentId&&Time.unscaledTimeAsDouble<group.TendUntil;
         var routine=tending?group.TenderDuty:actor.Routine;actor.CurrentActivity=routine.Activity;
         if(!stopped)UpdateNpcAwareness(actor);
         V target=tending?routine.Position:LivingPosition(group,routine.Position);
@@ -528,7 +533,7 @@ public sealed partial class LocalTerrainExplorer
             memory.Position=Position;memory.Health=Vitals.Health;memory.Dead=Vitals.Dead;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=Vitals.Bleeding?.Copy();
         }
         foreach(var actor in livingPeople.Values)CaptureLivingPerson(actor);foreach(var group in livingGroups.Values)StoreLivingCamp(group);foreach(var trace in livingTraces.Values)StoreLivingCamp(trace);}
-    void DisposeLivingHumans(){DisposeCampClearing();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
+    void DisposeLivingHumans(){DisposeCampClearing();npcInitialSupplyQueue.Clear();npcCampGeometry.Clear();wildlifeHumanNeighbours.Clear();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
     PlayCommandResult ExecuteLivingCamps(string[] words)
     {
         var groups=livingGroups.Values.OrderBy(g=>g.Situation.DistanceToPlayerM).ToArray();

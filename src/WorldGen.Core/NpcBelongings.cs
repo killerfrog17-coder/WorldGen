@@ -22,6 +22,16 @@ namespace WorldGen.Core
     // Initial conditions are generated once. Tasks rearrange these same goods.
     public static class NpcBelongings
     {
+        public static void PrepareInitial(PlayerInventory stock,string role,V home)
+        {
+            foreach(var item in ForTask(stock,role))stock.Hold(item.Id,out _);
+            foreach(var item in stock.Items.Where(p=>p.Place==PossessionPlace.Ground).OrderBy(p=>p.Kind==PossessionKind.StoneFlake?0:p.Kind==PossessionKind.HandDrillSet?1:2).ToArray())
+            {
+                if(Pack(stock,item))continue;
+                if((item.Kind==PossessionKind.StoneFlake||item.Kind==PossessionKind.HandDrillSet)&&stock.Hold(item.Id,out _))continue;
+                item.Position=home;
+            }
+        }
         public static Possession[] TransferTree(PlayerInventory source,PlayerInventory destination,Possession root)
         {
             if(source==destination||!source.Items.Contains(root))throw new ArgumentException("Missing source possession.");

@@ -10,6 +10,9 @@ static class NpcBelongingsTests
         var person=new ForagerPersonSample{Id=191,Name="Tester",Household=2,AgeYears=30};var band=new ForagerBandSample{Id=7,Techniques=Enumerable.Repeat(true,43).ToArray()};
         var stock=NpcBelongings.Seed(person,band,new V(1,0,0));stock.Validate();int count=stock.Items.Count;var ids=stock.Items.Select(p=>p.Id).OrderBy(x=>x).ToArray();
         Check(count>3&&stock.Items.All(p=>p.OwnerPerson==191&&p.OwnerGroup==7),"Initial tools and containers have persistent personal/group ownership");
+        Check(stock.Items.Any(p=>p.Kind==PossessionKind.StoneFlake&&WoodCrafting.Cutter(p)&&p.MassKg<.1),"A starting cutting flake has a working edge and sensible physical size");
+        var initial=NpcBelongings.Seed(person,band,new V(1,0,0));NpcBelongings.PrepareInitial(initial,"SpearReady1",new V(0,1,0));initial.Validate();
+        Check(initial.Items.Count==count&&initial.Items.Where(p=>p.Place==PossessionPlace.Ground).All(p=>p.Position.Y==1),"The initial load conserves items and leaves spare uncarried tools at the supplied home position");
         foreach(string role in new[]{"WorkKnapping","ToolReady","SpearReady1","Eat","FuelTend","Drink",null})
         {NpcBelongings.Equip(stock,NpcBelongings.ForTask(stock,role),new V(1,0,0));stock.Validate();}
         Check(stock.Items.Count==count&&ids.SequenceEqual(stock.Items.Select(p=>p.Id).OrderBy(x=>x)),"Task changes conserve identities and create no fake meals or fuel");

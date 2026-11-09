@@ -25,7 +25,7 @@ public sealed partial class WorldGenRuntime
         {
             var terrain=await preparing;if(diagnostic)Debug.Log("ENTRY sampler ready");var rng=new System.Random(seed);var landRng=new Rng(seed,"world-entry-land",0);ResidentEntry entry=resident?PlayerWorldEntry.RandomResident(source,session,seed):null;
             V point=entry?.Position??ExplorerNavigation.RandomPoint(ref landRng);bool dry=false;
-            if(entry!=null&&(Environment.GetCommandLineArgs().Contains("--worldgen-npc-daily-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check")))point=entry.Position=entry.Group.Position;
+            if(entry!=null&&(Environment.GetCommandLineArgs().Contains("--worldgen-npc-daily-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-camp-check")||Environment.GetCommandLineArgs().Contains("--worldgen-npc-routine-check")))point=entry.Position=entry.Group.Position;
             for(int attempt=0;attempt<1024;attempt++)
             {
                 if(entry==null)point=ExplorerNavigation.RandomPoint(ref landRng);
@@ -72,8 +72,7 @@ public sealed partial class WorldGenRuntime
                 if(memory.Inventory==null)
                 {
                     string role=HumanEquipment.Role(entry.Identity.Person,entry.Activity,entry.Activity.Activity,entry.Identity.Techniques);
-                    foreach(var item in NpcBelongings.ForTask(stock,role))stock.Hold(item.Id,out _);
-                    foreach(var item in stock.Items.Where(p=>p.Place==PossessionPlace.Ground).ToArray())NpcBelongings.Pack(stock,item);
+                    NpcBelongings.PrepareInitial(stock,role,point);
                 }
                 foreach(var item in stock.Items)if(session.Inventory.Find(item.Id)==null)session.Inventory.Items.Add(item);
                 foreach(var natural in stock.CollectedNatural)if(!session.Inventory.CollectedNatural.Contains(natural))session.Inventory.CollectedNatural.Add(natural);

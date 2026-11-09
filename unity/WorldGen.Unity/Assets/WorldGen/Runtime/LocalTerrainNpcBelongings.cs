@@ -18,8 +18,9 @@ public sealed partial class LocalTerrainExplorer
         if(fresh)
         {
             string role=HumanEquipment.Role(actor.Resident,actor.Routine,actor.CurrentActivity,group.Residents.Techniques);
-            foreach(var item in NpcBelongings.ForTask(actor.Belongings,role))actor.Belongings.Hold(item.Id,out _);
-            foreach(var item in actor.Belongings.Items.Where(p=>p.Place==PossessionPlace.Ground).ToArray())NpcBelongings.Pack(actor.Belongings,item);
+            V home=actor.Planet;
+            if(group.Grounded){TerrainHandoff.Coordinates(frame,group.Anchor,out double x,out double z);var offset=HumanCampLayout.HouseholdOffset(group.Residents,actor.Resident.Household,group.Situation.Camp.Id,sourceWorld.Recipe.Seed);home=frame.Position(x+offset.X,z+offset.Z);}
+            NpcBelongings.PrepareInitial(actor.Belongings,role,home);
         }
         PublishNpcGroundGoods(actor);
     }
@@ -46,7 +47,7 @@ public sealed partial class LocalTerrainExplorer
     bool AcquireNpcItem(HumanActor actor,Possession item)
     {
         if(!NpcCanUseWorldItem(actor,item)||HumanDistance(NpcWorldItemPosition(item),actor.Planet)>1.7)return false;
-        var stock=actor.Belongings;stock.Items.Add(item);bool fits=stock.Hold(item.Id,out _)||NpcBelongings.Pack(stock,item);stock.Items.Remove(item);if(!fits)return false;
+        var stock=actor.Belongings;stock.Items.Add(item);var wear=PortableTechnology.Wear(item);bool fits=wear.HasValue&&stock.Move(item.Id,wear.Value,"",0,0,false,out _)||stock.Hold(item.Id,out _)||NpcBelongings.Pack(stock,item);stock.Items.Remove(item);if(!fits)return false;
         foreach(var moved in NpcBelongings.TransferTree(Inventory,stock,item))
         {if(moved.OwnerPerson==0&&moved.OwnerGroup==0)NpcOwnership.Assign(moved,actor.Resident,actor.GroupId);RemoveDroppedBody(moved.Id);DestroyInventoryVisual(inventoryVisuals.TryGetValue(moved.Id,out var root)?root:null);inventoryVisuals.Remove(moved.Id);}
         inventoryNearbyAt=0;return true;

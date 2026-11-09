@@ -192,6 +192,7 @@ public sealed partial class LocalTerrainExplorer
         if(item.Kind==PossessionKind.CampBundle&&item.BundledMaterials!=null)
         {
             var pieces=item.BundledMaterials.Where(p=>!FrameRules.Binding(p)).OrderByDescending(WoodCrafting.Wood).Take(6).ToArray();
+            if(pieces.Length==0)pieces=item.BundledMaterials.Take(1).ToArray();
             for(int i=0;i<pieces.Length;i++)
             {
                 var p=pieces[i];var child=CreatePossessionVisual(p,layer);child.transform.SetParent(root.transform,false);double angle=i*2.399963;

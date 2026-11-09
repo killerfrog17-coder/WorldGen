@@ -9,6 +9,7 @@ namespace WorldGen.Core
     {
         public string Id="camp-"+Guid.NewGuid().ToString("N");public CampKind Kind;public V Position;
         [System.Runtime.Serialization.OptionalField] public long NpcGroup,NpcSite,NpcHousehold;
+        [System.Runtime.Serialization.OptionalField] public bool NpcNeedsInitialStock;
         [System.Runtime.Serialization.OptionalField] public double ClearedWidthM,ClearedDepthM;
         public double Heading,EmbedM,SoilDepthM,SoilFirmness=1,Wetness,EmberSeconds,LastSimulatedSeconds;
         public bool Burning;public double AshKg;

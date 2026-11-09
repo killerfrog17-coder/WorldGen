@@ -27,6 +27,7 @@ namespace WorldGen.Core
         {
             var item=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,position):new Possession{Kind=kind,Position=position,WoodSoundness=.9,WoodStraightness=.8};
             item.Id="npc-tool-"+person.ToString("x")+"-"+side+"-"+kind;
+            if(kind==PossessionKind.StoneFlake){item.EdgeSharpness=.85;item.MassKg=.06;item.WidthM=.045;item.HeightM=.08;item.DepthM=.008;item.CellsWide=item.CellsHigh=1;item.Variant=ToolStone.Encode(ToolStoneMaterial.Chert,(int)(Rng.Mix((uint)person)%12));}
             if(kind==PossessionKind.SmallRock){item.MassKg=side=="l"?.6:.16;item.WidthM=side=="l"?.095:.065;item.HeightM=side=="l"?.11:.07;item.DepthM=side=="l"?.085:.055;item.Variant=ToolStone.Encode(side=="l"?ToolStoneMaterial.Chert:ToolStoneMaterial.Granite,(int)(Rng.Mix((uint)person^(uint)(person>>32))%12));}
             if(kind==PossessionKind.WoodenSpear){item.MassKg=.9;item.WidthM=.025;item.DepthM=.025;item.HeightM=1.8;item.CellsWide=1;item.CellsHigh=18;}
             return item;
