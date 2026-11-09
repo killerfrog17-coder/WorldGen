@@ -335,7 +335,9 @@ public sealed partial class LocalTerrainExplorer
         bool mind=ApplyNpcPlan(actor,ref routine,ref target);
         bool safety=!stopped&&ApplyNpcSafety(actor,ref routine,ref target);mind|=safety;
         if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
-        if(!mind)PrepareNpcTaskGear(actor,group,routine,ref target);
+        bool materialTask=!mind&&PrepareNpcMaterialTask(actor,group,routine,dt,ref target);
+        if(!stopped&&!mind&&!materialTask)PrepareNpcTaskGear(actor,group,routine,ref target);
+        if(!mind&&!materialTask)AdvanceNpcMaterialUse(actor,group,routine,dt,target);
         target=LivingDryGoal(actor,target);
         string carryRole=NpcCarryRole(actor,group);
         TerrainHandoff.Coordinates(frame,target,out double tx,out double tz);

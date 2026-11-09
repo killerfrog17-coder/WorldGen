@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('belongings','safety','world')][string[]]$Cases=@('belongings','safety'),
+    [ValidateSet('belongings','safety','world','material')][string[]]$Cases=@('belongings','safety'),
     [Parameter(Mandatory=$true)][ValidatePattern('^[a-z0-9-]+$')][string]$Prefix,
     [string]$World='artifacts/terrain-surfaces-20261107/playable.world'
 )

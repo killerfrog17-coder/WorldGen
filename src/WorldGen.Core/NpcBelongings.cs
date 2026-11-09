@@ -50,7 +50,7 @@ namespace WorldGen.Core
                 if(Has(3)&&hash%3==0)Add(PossessionKind.DiggingStick);
                 if(Has(28)&&hash%3!=0)Add(PossessionKind.WovenBasket);
                 if(Has(29))Add(Has(6)?PossessionKind.HidePouch:PossessionKind.BarkContainer,"water");
-                if(Has(9)&&hash%5==0)Add(PossessionKind.HandDrillSet);
+                if(Has(9)&&(hash%5==0||(band.Members??Array.Empty<ForagerPersonSample>()).Where(p=>p.AgeYears>=14).OrderByDescending(p=>p.Skills.Length>5?p.Skills[5]:0).ThenBy(p=>p.Id).FirstOrDefault()?.Id==person.Id))Add(PossessionKind.HandDrillSet);
                 if(Has(6)&&Has(7)&&hash%3==0)
                 {var carrier=Add(hash%2==0?PossessionKind.HidePack:PossessionKind.HideSatchel,"carrier");carrier.Place=PortableTechnology.Wear(carrier).Value;}
                 if(Has(6)&&Has(7))

@@ -27,7 +27,8 @@ public sealed partial class WorldGenRuntime
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)
         {if(worldEntryError.Length>0)throw new InvalidOperationException(worldEntryError);yield return null;}
         if(terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)throw new InvalidOperationException("NPC test ground failed to load");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-safety-check"))yield return terrainExplorer.CheckNpcSafety(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-material-check"))yield return terrainExplorer.CheckNpcMaterials(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-safety-check"))yield return terrainExplorer.CheckNpcSafety(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-belongings-check"))yield return terrainExplorer.CheckNpcBelongings(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-world-check"))yield return terrainExplorer.CheckNpcWorld(output,report);
         else yield return terrainExplorer.CheckNpcMinds(output,report);
