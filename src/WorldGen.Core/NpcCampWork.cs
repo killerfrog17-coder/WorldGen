@@ -10,7 +10,7 @@ namespace WorldGen.Core
         public long DepartingSite;
         public bool RebuildRequired;
         public NpcCampTravel Copy()=>(NpcCampTravel)MemberwiseClone();
-        public void Validate(){if(!double.IsFinite(DelayCalendarDays)||DelayCalendarDays<0||!double.IsFinite(HoldCalendarDay)||HoldCalendarDay< -1||DepartingSite<0)throw new ArgumentException("Invalid local camp itinerary.");}
+        public void Validate(){if(!double.IsFinite(DelayCalendarDays)||DelayCalendarDays<0||!double.IsFinite(HoldCalendarDay)||HoldCalendarDay< -1)throw new ArgumentException("Invalid local camp itinerary.");}
     }
     public static class NpcShelterRouting
     {

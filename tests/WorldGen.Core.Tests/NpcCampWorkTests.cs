@@ -37,6 +37,11 @@ static class NpcCampWorkTests
         Check(delayed.CalendarDay==488&&Math.Abs(delayed.SolarDays-48.8)<1e-8&&delayed.CalendarRate==clock.CalendarRate,"Only an observed group's itinerary shifts by the recorded local delay");
         var travel=new NpcCampTravel{DelayCalendarDays=12,HoldCalendarDay=488,DepartingSite=6,RebuildRequired=true};var state=new HumanGroupMemory{Group=7,Travel=travel};var copy=state.Copy();copy.Travel.DelayCalendarDays=13;
         Check(travel.DelayCalendarDays==12,"Saved local travel state deep-copies independently");travel.Validate();
+        // Camp identities are full signed hashes: a later migration may leave
+        // a site whose identifier is negative even though elapsed days cannot be.
+        travel.DepartingSite=-5602618401484172396L;travel.Validate();
+        var negativeSite=WorldJson.Read<HumanGroupMemory>(WorldJson.Write(state));negativeSite.Travel.Validate();
+        Check(negativeSite.Travel.DepartingSite==travel.DepartingSite,"A real negative hashed camp identity survives itinerary validation and serialization");
         var hauling=new PlayerInventory();
         for(int k=0;k<3;k++){var pole=new Possession{Id="pole-"+k,Kind=PossessionKind.Branch,Position=new V(1,0,0),HeightM=2,WidthM=.03,DepthM=.03,MassKg=1,CampMaterial=7,OwnerGroup=7,OwnerHousehold=11,WoodSoundness=.9,CellsHigh=20,NaturalId=(ulong)k+1};hauling.Items.Add(pole);hauling.CollectedNatural.Add(pole.NaturalId);}
         var rope=PortableTechnology.Create(PossessionKind.Cordage,new V(1,0,0));rope.CampMaterial=rope.OwnerGroup=7;rope.OwnerHousehold=11;hauling.Items.Add(rope);
