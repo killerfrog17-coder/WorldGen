@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     {
         void Check(bool ok,string text){if(!ok){File.WriteAllLines(Path.Combine(output,"failed-checks.txt"),report.Concat(new[]{"FAIL "+text}));Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);Debug.Log("NPC MATERIAL PASS "+text);}
         npcModel??=new NpcModelClient();npcModel.Config.Enabled=false;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
-        double until=Time.unscaledTimeAsDouble+90;while(!livingPeople.Values.Any(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18)&&Time.unscaledTimeAsDouble<until)yield return null;
+        double until=Time.unscaledTimeAsDouble+90;while((!livingPeople.Values.Any(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18)||livingPeople.Values.Count(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=14)<2)&&Time.unscaledTimeAsDouble<until)yield return null;
         var actor=livingPeople.Values.FirstOrDefault(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18);Check(actor!=null,"An actual adult resident exists for material work");var group=livingGroups[actor.GroupId];
         void Stand(V at)
         {TerrainHandoff.Coordinates(frame,at,out double x,out double z);actor.Motor.Place(x,z,VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM));actor.Planet=frame.Position(x,z);actor.Root.transform.localPosition=new Vector3((float)(x-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(z-originZ));}
