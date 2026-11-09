@@ -14,6 +14,32 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP GROUND "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP GROUND "+text);}
         TerrainHandoff.Coordinates(owner.frame,group.Anchor,out double x,out double z);
         Check(group.SiteSurvey!=null&&owner.LivingSiteClear(group,x,z),"Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders");
+        var survey=group.SiteSurvey;
+        bool Literal(double cx,double cz)
+        {
+            for(int i=0;i<survey.Solids.Length;i++)
+            {
+                if(!SolidTree(survey.Solids[i].Kind)&&owner.CollectedRock(survey.Solids[i]))continue;
+                double sx=survey.SolidX[i],sz=survey.SolidZ[i],r=survey.SolidRadius[i];
+                if((sx-cx)*(sx-cx)+(sz-cz)*(sz-cz)>Math.Pow(survey.FootprintRadius+r,2))continue;
+                foreach(var shape in survey.Shapes)
+                {
+                    double dx=sx-(cx+shape.X),dz=sz-(cz+shape.Z),lx=dx*shape.Cos-dz*shape.Sin,lz=dx*shape.Sin+dz*shape.Cos;
+                    if(Math.Abs(lx)<shape.Width*.5+r+.35&&Math.Abs(lz)<shape.Depth*.5+r+.35)return false;
+                }
+            }
+            return true;
+        }
+        int clear=0,blocked=0;
+        for(int i=0;i<513;i++)
+        {
+            double bearing=i*2.399963229728653,distance=i==0?0:Math.Sqrt(i/512d)*(survey.Radius-survey.FootprintRadius-10);
+            double px=x+Math.Sin(bearing)*distance,pz=z+Math.Cos(bearing)*distance;bool literal=Literal(px,pz),indexed=owner.LivingSiteClear(group,px,pz);
+            if(literal!=indexed)throw new InvalidOperationException("Camp spatial index disagrees with full literal obstacle scan at "+i);
+            if(indexed)clear++;else blocked++;
+        }
+        Check(clear>0&&blocked>0,"513 real camp candidates have identical indexed and full-scan clearance, including clear and blocked sites");
+        File.WriteAllText(Path.Combine(output,"camp-site-index-proof.txt"),"513 literal/index pairs exact; clear="+clear+"; blocked="+blocked+"; solids="+survey.Solids.Length);
         owner.campMaskCheckAt=0;owner.UpdateCampClearing();
         var house=owner.Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.Blueprint!=null);
         if(house==null)return;

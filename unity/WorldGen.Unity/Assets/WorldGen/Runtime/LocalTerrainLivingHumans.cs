@@ -184,10 +184,11 @@ public sealed partial class LocalTerrainExplorer
         var memory=LivingState.Camps.FirstOrDefault(c=>c.Site==group.Situation.Camp.Id);
         if(memory!=null){anchor=memory.Position;return true;}
         anchor=default;var at=group.Situation.Camp.Position;TerrainHandoff.Coordinates(frame,at,out double cx,out double cz);
-        if(group.SiteSurvey==null)return false;
+        if(group.SiteSurvey==null||group.SiteSurvey.ProjectionFrame!=frame)return false;
         // Stable expanding search, resumed across frames. Dry, modest slopes
         // and room for the household ring are required before a camp appears.
-        for(int step=0;step<2;step++)
+        long searchStarted=System.Diagnostics.Stopwatch.GetTimestamp();
+        for(int step=0;step<16&&(step==0||ElapsedHumanMs(searchStarted)<.35);step++)
         {
             int attempt=group.PlacementAttempt++;double bearing=attempt*2.399963229728653,range=attempt==0?0:Math.Sqrt(attempt)*7;
             if(range+group.SiteSurvey.FootprintRadius+10>group.SiteSurvey.Radius)
