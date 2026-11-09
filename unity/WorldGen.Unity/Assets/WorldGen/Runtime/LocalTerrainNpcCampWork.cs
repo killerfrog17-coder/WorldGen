@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
         }
         CampObject shelter=Camp.Objects.FirstOrDefault(c=>c.Id==task.Object&&c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id);
         CampComponent part=shelter?.Blueprint==null?null:NpcCampParts(shelter).FirstOrDefault(c=>c.Key==task.Part);
-        if(task.Packing!=packing||part==null||packing&&CampBlueprints.State(shelter.Blueprint,part)?.Materials.Count==0||!packing&&CampBlueprints.Done(shelter.Blueprint,part))
+        if(task.Packing!=packing||part==null&&task.Part.Length>0||packing&&part!=null&&CampBlueprints.State(shelter.Blueprint,part)?.Materials.Count==0||!packing&&part!=null&&CampBlueprints.Done(shelter.Blueprint,part))
         {shelter=null;part=null;task.Object=task.Part="";task.Work=0;}
         if(shelter==null&&actor.SimulationAge>=task.ChooseAt)
         {
@@ -84,7 +84,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var plan=house.Blueprint;var definitions=NpcCampParts(house);int stage=definitions.Where(c=>!CampBlueprints.Done(plan,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
                 var choices=packing?definitions.Where(c=>NpcCampWork.Portable(plan,c,NpcCarryCampPoles(group))&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage):definitions.Where(c=>c.Stage==stage&&!CampBlueprints.Done(plan,c)).OrderBy(c=>c.Key);
-                part=choices.FirstOrDefault(c=>!NpcCampPartClaimed(actor,house,c.Key));if(part==null)continue;shelter=house;task.Object=house.Id;task.Part=part.Key;break;
+                part=choices.FirstOrDefault(c=>!NpcCampPartClaimed(actor,house,c.Key));if(part==null)continue;shelter=house;task.Object=house.Id;task.Part=part.Key;task.Work=0;break;
             }
         }
         if(shelter==null||part==null)

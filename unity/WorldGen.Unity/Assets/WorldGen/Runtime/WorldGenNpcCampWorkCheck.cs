@@ -61,18 +61,20 @@ public sealed partial class LocalTerrainExplorer
         var hiddenObjects=Camp.Objects.Where(c=>c.NpcGroup==actor.GroupId).ToArray();
         var hiddenGoods=Inventory.Items.Where(p=>p.OwnerGroup==actor.GroupId||p.CampMaterial==actor.GroupId).ToArray();
         var kit=HumanEquipment.Item(PossessionKind.StoneFlake,carrier.ResidentId,"departure-proof",carrier.Planet);NpcOwnership.Assign(kit,carrier.Resident,carrier.GroupId);kit.Place=PossessionPlace.Ground;
-        var priorTask=carrier.CampTask;
+        var priorTask=carrier.CampTask;var kitPhase=group.Situation.Phase;
         try
         {
             foreach(var obj in hiddenObjects)Camp.Objects.Remove(obj);foreach(var item in hiddenGoods)Inventory.Items.Remove(item);Inventory.Items.Add(kit);carrier.CampTask=new NpcCampTask();
             Check(NpcBelongings.CanTake(carrier.Belongings,kit)&&NpcCampNeedsPacking(group),"A departure with all tent loads ready still waits for a nearby owner's useful cutting tool when real carrying space remains");
-            V kitTarget=carrier.Planet;
-            Check(RecoverNpcCampCargo(carrier,1,ref kitTarget)&&carrier.Belongings.Find(kit.Id)==kit&&Inventory.Find(kit.Id)==null,"The owner physically retrieves that same real cutting edge before leaving");
+            V kitTarget=carrier.Planet;group.Situation.Phase=HumanCampPhase.Packing;
+            var kitRoutine=new HumanActivitySample{Activity=HumanActivity.PackCamp,Person=carrier.ResidentId,Group=carrier.GroupId,Position=carrier.Planet};
+            for(int i=0;i<30&&Inventory.Find(kit.Id)!=null;i++)PrepareNpcCampTask(carrier,group,ref kitRoutine,.05f,ref kitTarget);
+            Check(carrier.Belongings.Find(kit.Id)==kit&&Inventory.Find(kit.Id)==null,"The owner retrieves the same cutting edge through repeated real camp-task ticks without resetting pickup work each frame");
             Check(!NpcCampNeedsPacking(group),"Retrieving the last feasible useful kit releases the isolated departure hold");
         }
         finally
         {
-            carrier.Belongings.Items.Remove(kit);Inventory.Items.Remove(kit);Inventory.Items.AddRange(hiddenGoods);Camp.Objects.AddRange(hiddenObjects);carrier.CampTask=priorTask;
+            carrier.Belongings.Items.Remove(kit);Inventory.Items.Remove(kit);Inventory.Items.AddRange(hiddenGoods);Camp.Objects.AddRange(hiddenObjects);carrier.CampTask=priorTask;group.Situation.Phase=kitPhase;
         }
         // A previously unvisited partial camp receives its missing INITIAL
         // stock once as real loose/bound goods, not a future progress factory.
