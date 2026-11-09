@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
             for(int i=0;i<batch.Count&&item==null;i++)foreach(var chunk in owner.scatterChunks.Values)
             {
                 foreach(var plant in chunk.Source.Instances)if(plant.Id==batch.SourceIds[i]&&!owner.CollectedRock(plant))
-                {var candidate=owner.RockPossession(plant);if(candidate.MassKg<=3){source=plant;item=candidate;}break;}
+                {var candidate=RockPossession(plant);if(candidate.MassKg<=3){source=plant;item=candidate;}break;}
                 if(item!=null)break;
             }
             if(item!=null)break;
@@ -38,8 +38,8 @@ public sealed partial class LocalTerrainExplorer
             var old=before[batch].ToDictionary(s=>s.Id);
             for(int i=0;i<batch.Count;i++)
             {
-                if(!old.TryGetValue(batch.SourceIds[i],out var prior)||prior.Id==source.Id||prior.Matrix!=batch.Matrices[i]||prior.Color!=batch.Colors[i]||prior.Fade!=batch.Fades[i]||batch.SharedWind&&prior.Wind!=batch.WindSlots[i]){exact=false;break;}
-                for(int j=0;j<batch.Model.Parts.Length;j++)if(prior.Parts[j]!=(batch.Model.Parts[j].Local==Matrix4x4.identity?batch.Matrices[i]:batch.PartMatrices[j][i]))exact=false;
+                if(!old.TryGetValue(batch.SourceIds[i],out var prior)||prior.Id==source.Id||!prior.Matrix.Equals(batch.Matrices[i])||!prior.Color.Equals(batch.Colors[i])||!prior.Fade.Equals(batch.Fades[i])||batch.SharedWind&&prior.Wind!=batch.WindSlots[i]){exact=false;break;}
+                for(int j=0;j<batch.Model.Parts.Length;j++)if(!prior.Parts[j].Equals(batch.Model.Parts[j].Local==Matrix4x4.identity?batch.Matrices[i]:batch.PartMatrices[j][i]))exact=false;
             }
         }
         Check(exact,"All surviving root/child transforms, tints, fades and wind slots remain bit-exact after compaction");
