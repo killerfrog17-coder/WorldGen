@@ -129,6 +129,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void StageInitialNpcSupplies(CampObject shelter)
     {
+        if(!shelter.NpcNeedsInitialStock)return;
         // Initial conditions for a previously unvisited camp already being
         // erected. Subsequent observed moves never enter this supply path.
         var complete=shelter.Copy();HumanCampLayout.FitShelter(complete,shelter.Blueprint.FloorHeights??new double[9]);

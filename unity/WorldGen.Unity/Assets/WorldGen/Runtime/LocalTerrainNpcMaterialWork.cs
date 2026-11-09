@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
         public V Point;public bool Natural,Grass,Delivering;public double Work,SearchAt,Needed=30;
         public CampBlueprint Construction;public string ConstructionKey="";public int Deliveries;public string[] LastDelivered=Array.Empty<string>();
     }
-    int npcMaterialSearchFrame=-1;int npcMaterialSearches,npcMaterialHarvests,npcMaterialFeeds,npcMaterialMeals,npcMaterialFlakes;
+    readonly NpcMaterialAdmission npcMaterialAdmission=new NpcMaterialAdmission();int npcMaterialSearches,npcMaterialHarvests,npcMaterialFeeds,npcMaterialMeals,npcMaterialFlakes;
     double NpcWorkSeconds(float dt)=>dt*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
     ForageProduct[] NpcPlantProducts(ScatterInstance p)
     {
@@ -30,10 +30,20 @@ public sealed partial class LocalTerrainExplorer
         var record=Inventory.ToolResources.FirstOrDefault(r=>r.Id=="forage-"+plant.Id.ToString("x16")+"-"+product.Kind);
         return record==null||record.HarvestYear!=ForageYear||record.Harvests==0;
     }
+    V NpcPlantWorkPoint(HumanActor actor,ScatterInstance plant)
+    {
+        if(plant.Kind!=ScatterKind.GeneratedTree)return plant.Position;
+        // Tree products are reached from beside the actual trunk. A target at
+        // its centre can sit inside a trunk wider than the pickup radius.
+        double clearance=plant.WidthM*new TreeMorphology(plant.Variant).TrunkRadius+.75;
+        double range=HumanDistance(plant.Position,actor.Planet);
+        if(range>.01)return HumanLocalLife.Interpolate(plant.Position,actor.Planet,Math.Min(1,clearance/range));
+        TerrainHandoff.Coordinates(frame,plant.Position,out double x,out double z);return frame.Position(x+clearance,z);
+    }
     bool NpcFindMaterial(HumanActor actor,NpcMaterialTask task,string purpose)
     {
-        if(npcMaterialSearchFrame==Time.frameCount||actor.SimulationAge<task.SearchAt)return false;
-        npcMaterialSearchFrame=Time.frameCount;npcMaterialSearches++;task.SearchAt=actor.SimulationAge+3+HumanHash(actor.ResidentId)%20*.1;
+        if(actor.SimulationAge<task.SearchAt||!npcMaterialAdmission.Try(actor.ResidentId,Time.frameCount,Time.unscaledTimeAsDouble))return false;
+        npcMaterialSearches++;task.SearchAt=actor.SimulationAge+3+HumanHash(actor.ResidentId)%20*.1;
         task.Purpose=purpose;task.Natural=false;task.Grass=false;task.Loose=null;task.Product=null;task.Work=0;
         var construction=purpose=="shelter"?task.Construction:null;var component=construction==null?null:CampBlueprints.Components(construction).FirstOrDefault(c=>c.Key==task.ConstructionKey);
         bool Match(Possession p)=>component!=null?CampBlueprints.Suitable(construction,component,p):p.CampMaterial==0&&(purpose=="bedding"?p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle:purpose=="food"?Foraging.Food(p):purpose=="tinder"?CampRules.Tinder(p):purpose=="kit"?p.Kind==PossessionKind.HandDrillSet:purpose=="cutter"?WoodCrafting.Cutter(p):NpcMaterialUse.Fuel(p)&&!CampRules.Tinder(p));
@@ -64,7 +74,7 @@ public sealed partial class LocalTerrainExplorer
                     bool ProductKind(ForageProduct p)=>component!=null?component.Kind==CampPartKind.Cover&&(construction.Cover==CampCover.Bark?p.Kind==PossessionKind.BarkSheet:construction.Cover==CampCover.Reed?p.Kind==PossessionKind.ReedBundle:construction.Cover==CampCover.Brush&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle)):purpose=="bedding"?(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle):purpose=="food"?p.KcalPerKg>0:NpcMaterialUse.Tinder(p.Kind);
                     var product=NpcPlantProducts(plant).FirstOrDefault(p=>ProductKind(p)&&NpcProductReady(actor,plant,p));
                     if(product==null)continue;
-                    task.Plant=plant;task.Product=product;task.Point=plant.Position;task.Natural=true;task.Needed=product.Kind==PossessionKind.EdibleRoot?120:35;best=distance;
+                    task.Plant=plant;task.Product=product;task.Point=NpcPlantWorkPoint(actor,plant);task.Natural=true;task.Needed=product.Kind==PossessionKind.EdibleRoot?120:35;best=distance;
                 }
             }
         }

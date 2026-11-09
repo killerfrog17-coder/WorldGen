@@ -3,7 +3,9 @@ param(
     [ValidatePattern('^[a-z0-9-]+$')][string]$Prefix='npc-report-20261104',
     [string]$World='artifacts/npc-20261103/current-190k.world',
     [ValidateSet('wet','collector','morning','cold','evening','sleep')]
-    [string[]]$Cases=@('wet','collector','morning','cold','evening','sleep')
+    [string[]]$Cases=@('wet','collector','morning','cold','evening','sleep'),
+    [switch]$Performance,
+    [ValidateRange(5,180)][int]$Seconds=30
 )
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
@@ -24,7 +26,10 @@ foreach($case in $Cases){
     if(Test-Path -LiteralPath $output){throw ('Keep prior captures; choose a new prefix: '+$output)}
     New-Item -ItemType Directory -Path $output|Out-Null
     $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
-    $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
+    if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
+    $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
+    & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor Rightmost
+    @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor='Rightmost';build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $output 'owned-process.json')
     Write-Output ($case+' capture PID '+$process.Id)
     $process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)

@@ -61,6 +61,7 @@ public sealed partial class LocalTerrainExplorer
         var setup=Task.Run(()=>{producer.Prepare(default);return LocalTerrainDerivationCache.Create(world,horizontalScale:scale);});
         var owner=new GameObject("Living human actual-terrain fixture").AddComponent<LocalTerrainExplorer>();owner.viewDistance=1800;
         owner.Initialize(setup,chosen.Position,()=>{},world,play,worker:producer);
+        owner.npcModel??=new NpcModelClient();owner.npcModel.Config.Enabled=false;
         double deadline=Time.realtimeSinceStartupAsDouble+180;
         double firstStatusAt=0;
         while((!owner.Ready||!owner.CenterReady||owner.livingPeople.Count==0)&&Time.realtimeSinceStartupAsDouble<deadline)
@@ -121,6 +122,7 @@ public sealed partial class LocalTerrainExplorer
             owner.view.transform.localPosition=focus+Quaternion.Euler(0,resident.Yaw,0)*new Vector3(2,.25f,3);owner.view.transform.LookAt(owner.transform.TransformPoint(focus));
             owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;var closeImage=new Texture2D(1536,864,TextureFormat.RGB24,false);closeImage.ReadPixels(new Rect(0,0,1536,864),0,0);closeImage.Apply();File.WriteAllBytes(Path.Combine(output,"task-"+resident.CurrentActivity+".png"),closeImage.EncodeToPNG());Destroy(closeImage);RenderTexture.active=prior;
         }
+        owner.view.targetTexture=null;
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-walk"))yield return CheckLivingWalking(owner,groupRuntime,output,checks);
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf"))yield return MeasureLivingHumans(owner,output);
         File.WriteAllText(Path.Combine(output,"physical-residents.json"),WorldJson.Write(owner.livingPeople.Values.Select(a=>new NpcResidentCheckRow{Id=a.ResidentId,Group=a.GroupId,Name=a.Resident.Name,Age=a.Resident.AgeYears,Activity=a.CurrentActivity.ToString(),Role=a.Routine.Role,Speed=a.Speed,TargetSpeed=a.TargetSpeed,Action=a.Shared.ActionRole,AgeBody=a.AgeModel?.Years??99,X=a.Root.transform.localPosition.x,Y=a.Root.transform.localPosition.y,Z=a.Root.transform.localPosition.z,Props=a.NpcProps.Select(p=>p.Item.Name).ToArray()}).ToArray()));

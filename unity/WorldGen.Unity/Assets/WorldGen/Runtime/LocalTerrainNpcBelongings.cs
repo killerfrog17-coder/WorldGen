@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     }
     V NpcWorldItemPosition(Possession item)
     {
-        var seen=new HashSet<string>();while(item.Place==PossessionPlace.Container&&seen.Add(item.Id)){var parent=Inventory.Find(item.ContainerId);if(parent==null)break;item=parent;}return item.Position;
+        for(int remaining=Inventory.Items.Count+1;item.Place==PossessionPlace.Container&&remaining-->0;){var parent=Inventory.Find(item.ContainerId);if(parent==null)break;item=parent;}return item.Position;
     }
     bool NpcCanUseWorldItem(HumanActor actor,Possession item)
     {

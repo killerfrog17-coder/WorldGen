@@ -1,8 +1,25 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace WorldGen.Core
 {
+    // One expensive natural-resource search per rendered frame, fairly shared
+    // even when accelerated waiting makes every actor due on every frame.
+    public sealed class NpcMaterialAdmission
+    {
+        readonly Queue<long> order=new Queue<long>();
+        readonly Dictionary<long,double> requested=new Dictionary<long,double>();
+        int usedFrame=-1;
+        public bool Try(long person,int frame,double now)
+        {
+            if(!requested.ContainsKey(person))order.Enqueue(person);requested[person]=now;
+            while(order.Count>0&&(!requested.TryGetValue(order.Peek(),out double at)||now-at>1))requested.Remove(order.Dequeue());
+            if(frame==usedFrame||order.Count==0||order.Peek()!=person)return false;
+            order.Dequeue();requested.Remove(person);usedFrame=frame;return true;
+        }
+        public void Clear(){order.Clear();requested.Clear();usedFrame=-1;}
+    }
     public static class NpcMaterialUse
     {
         public static bool Tinder(PossessionKind kind)=>kind==PossessionKind.TinderBundle||kind==PossessionKind.DryGrass||kind==PossessionKind.PreparedFibre||kind==PossessionKind.RawFibre||kind==PossessionKind.BarkStrips||kind==PossessionKind.LeafLitter||kind==PossessionKind.ReedBundle;

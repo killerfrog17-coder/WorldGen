@@ -46,6 +46,16 @@ public sealed partial class LocalTerrainExplorer
         var bundle=NpcCampWork.Bundle(actor.Belongings,actor.GroupId,workedShelter.NpcHousehold,actor.Planet);File.WriteAllText(Path.Combine(output,"bound-load.json"),JsonUtility.ToJson(bundle,true));
         Check(bundle!=null&&actor.Belongings.Carried(bundle)&&bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Actual recovered poles and lashing become one carried bound load with their exact contents preserved");
         UpdateNpcProps(actor,group,ActualNpcCarryRole(actor));Check(actor.NpcProps.Any(p=>p.Item==bundle&&p.Root.GetComponentsInChildren<Renderer>().Length>=2),"The bound load appears on the actual person using the existing material models");
+        // A previously unvisited partial camp receives its missing INITIAL
+        // stock once as real loose/bound goods, not a future progress factory.
+        var initial=new CampObject{Id=shelter.Id+"-initial-stock-proof",Kind=CampKind.Blueprint,NpcGroup=actor.GroupId,NpcHousehold=actor.Resident.Household,Position=shelter.Position,Blueprint=CampBlueprints.Create(CampDesign.LeanTo,2,2,CampCover.Hide)};
+        HumanCampLayout.FitShelter(initial,new double[9]);var expectedGoods=initial.OwnedMaterials().ToArray();var expectedIds=expectedGoods.Select(p=>p.Id).OrderBy(id=>id).ToArray();double expectedMass=expectedGoods.Sum(p=>p.MassKg);
+        initial.Blueprint.Parts.Clear();initial.NpcNeedsInitialStock=true;Camp.Objects.Add(initial);StageInitialNpcSupplies(initial);
+        var staged=Inventory.Items.Where(p=>p.Id.StartsWith(initial.Id+"-material-",StringComparison.Ordinal)||p.BundledMaterials?.Any(m=>m.Id.StartsWith(initial.Id+"-material-",StringComparison.Ordinal))==true).ToArray();
+        var recovered=staged.SelectMany(p=>p.BundledMaterials??new List<Possession>{p}).ToArray();
+        Check(!initial.NpcNeedsInitialStock&&!initial.OwnedMaterials().Any()&&expectedIds.SequenceEqual(recovered.Select(p=>p.Id).OrderBy(id=>id))&&Math.Abs(expectedMass-staged.Sum(p=>p.MassKg))<1e-8,"An initial partially erected camp stages its complete finite stock once with exact original IDs and mass");
+        int countBefore=Inventory.Items.Count;StageInitialNpcSupplies(initial);Check(Inventory.Items.Count==countBefore,"A second initial-stock request cannot manufacture another load");
+        foreach(var p in staged)Inventory.Items.Remove(p);Camp.Objects.Remove(initial);
         StoreLivingCamp(group);CaptureLivingPerson(actor);InvalidateCampVisual(workedShelter);
         LivingState.Copy().Validate();Check(true,"Physical camp work and local itinerary state validate for saving");
         actor.Routine=routine;group.Situation.Phase=initialPhase;npcThoughts=true;

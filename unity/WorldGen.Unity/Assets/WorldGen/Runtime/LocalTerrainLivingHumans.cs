@@ -533,7 +533,7 @@ public sealed partial class LocalTerrainExplorer
             memory.Position=Position;memory.Health=Vitals.Health;memory.Dead=Vitals.Dead;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=Vitals.Bleeding?.Copy();
         }
         foreach(var actor in livingPeople.Values)CaptureLivingPerson(actor);foreach(var group in livingGroups.Values)StoreLivingCamp(group);foreach(var trace in livingTraces.Values)StoreLivingCamp(trace);}
-    void DisposeLivingHumans(){DisposeCampClearing();npcInitialSupplyQueue.Clear();npcCampGeometry.Clear();wildlifeHumanNeighbours.Clear();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
+    void DisposeLivingHumans(){DisposeCampClearing();npcInitialSupplyQueue.Clear();npcMaterialAdmission.Clear();npcCampGeometry.Clear();wildlifeHumanNeighbours.Clear();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
     PlayCommandResult ExecuteLivingCamps(string[] words)
     {
         var groups=livingGroups.Values.OrderBy(g=>g.Situation.DistanceToPlayerM).ToArray();

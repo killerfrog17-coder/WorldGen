@@ -18,6 +18,11 @@ static class NpcMaterialUseTests
         Check(NpcMaterialUse.Eat(stock,needs,meal)>.19&&!stock.Items.Contains(meal)&&needs.DigestingKcal>energy+119,"Eating consumes actual food mass and adds its actual calories");
         Check(!NpcMaterialUse.HasIgnitionKit(stock),"Technology knowledge alone is not a physical fire drill");
         var drill=PortableTechnology.Create(PossessionKind.HandDrillSet,at);stock.Items.Add(drill);Check(!NpcMaterialUse.HasIgnitionKit(stock),"An ignition kit lying on the ground is not being carried");stock.Hold(drill.Id,out _);Check(NpcMaterialUse.HasIgnitionKit(stock),"Actually holding the ignition kit enables cold fire starting");
+        var admission=new NpcMaterialAdmission();var turns=new int[40];
+        for(int frame=0;frame<40;frame++){int granted=0;for(int person=0;person<40;person++)if(admission.Try(person+1,frame,frame*.016)){turns[person]++;granted++;}Check(granted==1,"At most one material search is admitted per rendered frame");}
+        Check(turns.All(t=>t==1),"All forty constantly due workers receive a search turn; array order cannot starve later residents");
+        admission.Clear();Check(admission.Try(1,100,0)&&!admission.Try(2,100,0),"The admission budget cannot be reused within a frame");
+        Check(admission.Try(3,101,2),"A worker who stops requesting cannot permanently block the queue");
         Console.WriteLine("NPC material use checks PASS: "+n);
     }
 }
