@@ -79,7 +79,7 @@
     "NPCs physically approach, work, carry and consume/feed the finite materials; no role-change item factory.",
     "Cancel or preserve references when a crafting tool leaves its inventory; transfer container subtrees and natural identity together."
   ],
-  "material_checkpoint": "520634a7 native v8 safe cold-fire routine10PASS and body/eave navigation5PASS. v5 full camp19, belongings15 and material15PASS; latest actual safety14/animalcontact13PASS. 91f4566b exact spatial camp obstacle index Core1002PASS, native pending.",
+  "material_checkpoint": "Safe real hauling/coldfire10PASS and collision5PASS520; belongings18PASS7a; camp20PASS e82; incremental natural removal24PASS327 with55916unaffectedadmissionsEXACT. Full cycle exposed active/abandoned trace conflict; e925 guard+continuous fixture clock nowbuilt fa5282, new combined nativev3RUNNING.",
   "inventory_query_allocation": {
     "queries": 40000,
     "reference_bytes": 7040000,
@@ -88,12 +88,12 @@
     "core_inventory_checks": 90
   },
   "next_priorities": [
-    "Finish actual wall-collision and full walking/return/cold-fire routine checks; retain failures and diagnose actual state rather than accepting isolated helper calls.",
-    "Validate partial-initial-camp finite stock and existing physical cargo/reassembly after these changes. Follow an entire migration if feasible; current old cycle check contains obsolete clock-factory assumptions and is not evidence.",
-    "Representative cultural/ecological camp scenic review and longer isolated performance orbits; no performance claims from capped functional tests.",
-    "Finite ember transport for non-firemaking bands remains unimplemented; do not imply it works.",
-    "Final concise screenshot PDF only at end, select candidate shortcut only after acceptance, Git pushes."
+    "Finish running fa5282 combined material-cycle-v3 withRemovalProof (includes actual Mono key lookup allocation comparison).",
+    "Verify active camp trace fix and actual packing/carrying/arrival/reassembly. Retain failures; new test explicitly skips coarse travel, not an uninterrupted whole-routefollow.",
+    "Diagnose first-orbit scatter append spikes using new52-slot trace/modelcounts/allocatedbytes. Do not claim partialremoval fixedperformance.",
+    "Finite ember transport remains unimplemented; no advanced hunting or complete NPCnutrition economy.",
+    "Final report inputs/captions/sources/performance limits, PDFemit/review/openleftmost onlyatEND; acceptedshortcut thenfinalpush."
   ],
   "current_note": "All game/Unity tests RIGHTMOST. Owner selected A a738 protected; candidate B539d native sequence currently running. New family context includes only personally learned local deaths. Core conversation22 and material51 checks pass. Actual Qwen9B15PASS on199d includes working guest invitation. No final PDF/shortcut update yet.",
-  "verification_checkpoint": "Actual nine-shelter34-person morning/night camps pass; first two valid performance sites are OPEN-AIR and not shelter evidence. Sheltered morning normal60FPS/repeat124FPS/max61.49ms; no100FPSfloor. Denseforest rigid layout still failed; new exact index and faster budgeted search under verification."
+  "verification_checkpoint": "Actual woodland9LeanTo/34, rainforest10RidgeTent/43, latercold7BrushHut/17 and latercoastal10ReedLongHut/35 native19PASS. Laterworld120000elapsedyears. Performance firstorbit still~61FPS, no100floor. Model preparation/key allocation diagnostics pending; comparer not applied."
 }
