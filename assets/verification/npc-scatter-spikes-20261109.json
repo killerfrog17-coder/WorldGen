@@ -19468,5 +19468,12 @@
     "Further model-preparation and Mono dictionary allocation instrumentation is built in fa5282da but not yet measured. Candidate key comparer remains UNUSED in production pending actual Mono proof.",
     "GC counters0/1/2 may alias the same Mono collector; do not add the reported generation counts together.",
     "No GPU timing/whole-world100FPSfloor claim."
-  ]
+  ],
+  "camera_audit": {
+    "discovered_utc": "2026-11-09T19:38Z",
+    "affected": "All earlier NPC MeasureLivingHumans scenic-orbit captures before0458995b, including retained c9/327/c542 diagnostics. Geography performance uses other harnesses and is not covered by this finding.",
+    "problem": "CoroutineCameraAt directly changed view transform, but normal UpdateCamera reset it before gameplay culling; the rendered review pose and culling pose were not consistently controlled.",
+    "interpretation": "Retain actual frame and component timings as diagnostics only. Do not describe these as validated moving-camera routes or use as accepted motion-performance comparisons.",
+    "correction": "0458995b uses existing landscapeReviewCamera/rotation override through UpdateCamera, verifies every sampled pose, records maxcameraerror/angle and culling-eye delta. UNBUILT/nativeunverified."
+  }
 }

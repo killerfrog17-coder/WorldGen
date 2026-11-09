@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-11-09T19:30:00Z",
+  "recorded_utc": "2026-11-09T19:42:00Z",
   "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
   "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
   "cases": {
@@ -1388,6 +1388,15 @@
       "build": "c5426071",
       "folder": "artifacts/npc-20261103/npc-material-cycle-v6-morning",
       "result": "FAIL original-material reuse600sdeadline. Actual packing/travel/coarsearrival/conservation passed.39newwoodsupplies/11040workcontributions before nighttime;22Sleep/11gathering atlate snapshot. New19c fixture advances clock forward consistently to09:00 when needed before daylight post-setup check; does not force waking production sleepers."
+    },
+    "departure_kit_19c": {
+      "folder": "artifacts/npc-overnight-20261109/departure-kit-v1-camp",
+      "result": "25PASS: actual componentwork/material conservation and direct usefulkitretrieval. Followupv7 found repeatedtaskticksresetloosepickupWork; teststrengthened b65. Do not use directsinglecallPASSasproof ofrepeatednativecamp-taskprogress."
+    },
+    "migration_v7": {
+      "build": "19c162fa",
+      "folder": "artifacts/npc-20261103/npc-material-cycle-v7-morning",
+      "result": "FAIL Packingdeadline.170componentsremoved thenloosepickups resetWork everyframe when no shelterPart. b65 fixesstate-transitionreset; new25assertioncase willuse repeated .05taskticks instead ofsingle largeRecovercall. Nativepending."
     }
   },
   "performance_limits": [
@@ -1423,5 +1432,12 @@
     "note": "Whole fixture preparation/write duration, not an isolated sim throughput measurement."
   },
   "regional_qa_note": "Initial year0 cold/coast labels were rankings, not real regional coverage.29f/535 require annual<8C or coast>=.15. Old E82 cold/evening19PASS only mechanics/day-night; do not label them cold/coastal geography.",
-  "pending_source": "19c162fa packaging B. b88 shadow policy snapshot + literal native rootproof/forestreadiness diagnostics, f9 signedcampIDfix,449 strictmatchingwoodcutprerequisites, d78 feasible usefulpersonalkitretrieval(Core15PASS) +3nativeassertions,19c daytime reassembly QA. Allpushed; native/performanceunvalidated. A/rootshortcut unchanged."
+  "pending_source": "0458995b BUILD RUNNING B session71559; includesb65cargoWorkreset/newrepeatedtaskregression andbenchmarkcameraposeguard. No ownplayer,selectedAprotected. Nextrestoreautos, nativecamp, thenv8migration/removal, thencorrectedperformance. Allsourcepushed.",
+  "shadow_policy_component": {
+    "build": "19c162fa",
+    "folder": "artifacts/npc-20261103/npc-material-cycle-v7-morning",
+    "root_decisions": 70782,
+    "result": "literal/snapshot EXACT; incremental removalproof alsoemitted. Overallcasefailedlater atpacking, so notfullnativecasepass."
+  },
+  "camera_audit": "045 preservesactualreviewpose throughnormalUpdateCamera; before045NpcPerformance rows are diagnostic only, notvalidatedmovingroutes. Awaitnewrunbeforeanymoving-performanceclaim."
 }

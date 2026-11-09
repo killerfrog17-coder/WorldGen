@@ -187,58 +187,10 @@
     },
     {
       "title": "Measured costs and remaining work",
-      "subtitle": "Draft diagnostic results; replace with the final accepted build before handoff.",
+      "subtitle": "Pending corrected moving-camera capture; previous timing rows are diagnostic only.",
       "blocks": [
         {
-          "text": "One occupied woodland camp: 34 residents, nine shelters, Medium vegetation/surfaces, 1536 × 864, 6 km view, local model disabled. Four 30-second scenic orbits were focused with initial terrain ready. These rows include optional CPU tracing, so they are not strict comparisons with untraced captures."
-        },
-        {
-          "table": {
-            "headers": [
-              "Mode",
-              "FPS",
-              "p99 frame",
-              "Worst frame",
-              "NPC update"
-            ],
-            "rows": [
-              [
-                "Active NPCs",
-                "60.7",
-                "50.84 ms",
-                "58.02 ms",
-                "2.43 ms"
-              ],
-              [
-                "Poses frozen",
-                "134.2",
-                "16.79 ms",
-                "55.40 ms",
-                "0.03 ms"
-              ],
-              [
-                "Residents hidden",
-                "170.8",
-                "11.80 ms",
-                "24.86 ms",
-                "0.03 ms"
-              ],
-              [
-                "Active repeat",
-                "118.6",
-                "16.61 ms",
-                "30.85 ms",
-                "1.51 ms"
-              ]
-            ],
-            "widths": [
-              0.29,
-              0.12,
-              0.2,
-              0.2,
-              0.19
-            ]
-          }
+          "text": "Earlier NPC scenic captures exposed substantial scatter-batching costs, but a camera audit found normal camera updates could reset the culling pose between requested review poses. Their measured times remain diagnostic data; they are not accepted moving-camera benchmarks. The corrected harness holds and verifies the pose across actual gameplay updates. Replace this page with its accepted results before the final PDF."
         },
         {
           "heading": "The unresolved slow frames",
@@ -246,7 +198,7 @@
         },
         {
           "heading": "Migration verification is still active",
-          "text": "A real test found abandoned-site cleanup could delete a camp whose departure was held for packing. That guard now preserves portable materials through actual packing and arrival. The next gap was unfinished shelters losing priority when the setup timetable ended; its correction is under native verification. The migration test includes an explicit coarse journey skip; it is not an uninterrupted follow of every metre."
+          "text": "The tests found and corrected active-camp deletion by abandoned traces, unfinished work losing priority, a fixed first-twelve-person visual limit, and loose pickup progress resetting every frame. A further test correction keeps the repair check in daylight rather than demanding that sleeping families keep building. Full packing-to-original-material-reuse verification remains in progress; explicit coarse journey and clock advances are part of its scope."
         },
         {
           "heading": "Deliberately incomplete",
