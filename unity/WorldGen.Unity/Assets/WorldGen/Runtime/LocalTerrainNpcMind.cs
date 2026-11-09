@@ -205,6 +205,7 @@ public sealed partial class LocalTerrainExplorer
         if(QueueNpcEvent(actor,"You were directly addressed.",message,3))
         {
             CancelNpcConversation();
+            foreach(var line in npcSpeech.Values.Where(s=>s.Event.Background&&!s.Delivered).ToArray())AbortNpcSpeech(line.Event);
             if(npcPending!=null&&(npcPending.Background||npcPending.Person!=actor.ResidentId))
             {var interrupted=npcPending;npcSuppressed=interrupted;npcModel.CancelCurrent();AbortNpcSpeech(interrupted);npcPlans.Remove(interrupted.Person);}
             NpcListen(actor);foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,transform.TransformPoint(PlayerFeet())+Vector3.up,4)).Take(3))NpcMemoryFor(other.ResidentId).Hear(NpcSpeakerKey(0),PlayerRules.Identity?.Person?.Name??"Visitor",message);

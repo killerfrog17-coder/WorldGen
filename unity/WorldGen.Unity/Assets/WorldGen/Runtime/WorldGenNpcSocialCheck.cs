@@ -72,6 +72,27 @@ public sealed partial class LocalTerrainExplorer
         paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"procedural-social-exchange");livingBenchmarkFreeze=false;paused=true;
         var all=Inventory.Items.Concat(livingPeople.Values.Where(p=>p.Belongings!=null).SelectMany(p=>p.Belongings.Items)).ToArray();Check(all.Select(p=>p.Id).Distinct().Count()==all.Length,"No gift or refusal duplicates a possession ID");
         LivingState.Copy().Validate();Inventory.Validate();foreach(var p in adults)p.Belongings.Validate();Check(true,"Social transactions and their real possessions validate together");
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-social-model"))
+        {
+            npcModel.Config.Enabled=true;npcModel.Config.BackgroundReactions=true;npcEvents.Clear();npcPlans.Clear();npcAmbientAt=npcSocialAt=0;npcSocialScanAt=Time.unscaledTimeAsDouble+300;npcTalkTarget=null;CloseChat();
+            Place(recipient,motion.X+1.5,motion.Z,270);Place(other,motion.X+1.5,motion.Z+1.4,180);UpdateCamera();npcHearing.Clear();
+            int start=npcUtterances;PerformNpcSocialExchange(recipient,other);
+            Check(npcConversation!=null&&npcEvents.Count==1,"An audible procedural encounter admits one optional live-model conversation");
+            paused=false;until=Time.unscaledTimeAsDouble+180;bool streamed=false;int maxQueue=0;
+            while(npcUtterances<start+2&&npcLastError.Length==0&&Time.unscaledTimeAsDouble<until)
+            {
+                maxQueue=Math.Max(maxQueue,npcEvents.Count);streamed|=npcSpeech.Values.Any(s=>s.Pace.Shown>0&&!s.Final);
+                yield return null;
+            }
+            Check(npcUtterances>=start+2,"Both actual residents deliver a live Qwen conversational turn: "+npcLastError);
+            Check(streamed&&maxQueue<=1,"Live ambient speech streams without building more than one queued request");
+            File.WriteAllText(Path.Combine(output,"live-social-first.json"),JsonUtility.ToJson(NpcMemoryFor(recipient.ResidentId),true));
+            File.WriteAllText(Path.Combine(output,"live-social-second.json"),JsonUtility.ToJson(NpcMemoryFor(other.ResidentId),true));
+            npcTalkTarget=recipient;int before=npcUtterances;npcLastError="";SpeakToNpc("What time of day is it now?");
+            until=Time.unscaledTimeAsDouble+180;while(npcUtterances==before&&npcLastError.Length==0&&Time.unscaledTimeAsDouble<until)yield return null;
+            Check(npcUtterances>before&&npcConversation==null,"Player dialogue interrupts the ambient exchange and receives a real model reply: "+npcLastError);
+            npcThoughts=true;OpenChat();yield return NpcLifeImage(output,"audible-social-and-player-reply");CloseChat();paused=true;
+        }
         File.WriteAllText(Path.Combine(output,"recipient-memory.json"),JsonUtility.ToJson(NpcMemoryFor(recipient.ResidentId),true));paused=false;DisposeNpcMinds();
     }
 }

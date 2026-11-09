@@ -4,6 +4,7 @@ param(
     [ValidateSet('Leftmost','Rightmost')][string]$Monitor='Leftmost',
     [ValidateSet('slot-a','slot-b')][string]$Slot='slot-b',
     [string]$World='artifacts/terrain-surfaces-20261107/playable.world',
+    [switch]$SocialModel,
     [switch]$ContinueOnFailure
 )
 $ErrorActionPreference='Stop'
@@ -20,6 +21,7 @@ foreach($case in $Cases){
     New-Item -ItemType Directory -Force $out|Out-Null
     $testName=if($case -eq 'dialogue'){'grounded-dialogue'}else{$case}
     $arguments=@(('--worldgen-npc-'+$testName+'-check'),('"'+(Join-Path $repo $World)+'"'),'--worldgen-entry-seed','3','--worldgen-ai-profile','hybrid','--worldgen-ai-model','qwen35','--worldgen-shared-gpu','--worldgen-output',('"'+$out+'"'),'--worldgen-library-root',('"'+(Join-Path $out 'library')+'"'),'-force-d3d11','-screen-width','1600','-screen-height','900','-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'-logFile',('"'+(Join-Path $out 'player.log')+'"'))
+    if($SocialModel -and $case -eq 'social'){$arguments+='--worldgen-social-model'}
     # Visible review uses the owner's currently selected monitor.
     $process=Start-Process -FilePath (Join-Path $repo ('builds/'+$Slot+'/WorldGen.exe')) -ArgumentList $arguments -PassThru
     @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor=$Monitor;build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $out 'owned-process.json')
