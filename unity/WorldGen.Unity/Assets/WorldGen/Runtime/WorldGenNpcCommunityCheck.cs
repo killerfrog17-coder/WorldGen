@@ -18,8 +18,10 @@ public sealed partial class LocalTerrainExplorer
         var group=livingGroups[host.GroupId];var local=NpcCommunity(group);local.Coordinator=host.ResidentId;local.Visitors=.85;local.Sharing=.9;group.PolicyCulture=null;
         // Controlled council fixture: the same real resident returns from
         // another actual nearby community. No additional body is generated.
-        var other=livingGroups.Values.FirstOrDefault(g=>g.Situation.Band.Id!=host.GroupId);Check(other!=null,"Another actual nearby community exists for the membership fixture");
-        var original=PlayerRules.Identity.Copy();PlayerRules.Identity=original.Copy();PlayerRules.Identity.Group=other.Situation.Band.Id;PlayerRules.Identity.BandName=other.Situation.Band.Name;humanPlayer.GroupId=PlayerRules.Identity.Group;
+        var history=new Prehistory(sourceWorld);ForagerBandSample other=null;
+        foreach(var cohort in sourceWorld.Prehistory.Foragers.Cohorts){for(int ordinal=0;ordinal<2;ordinal++){var candidate=history.ForagerBand(sourceWorld.Prehistory,cohort.Id,ordinal);if(candidate!=null&&candidate.Id!=host.GroupId){other=candidate;break;}}if(other!=null)break;}
+        Check(other!=null,"Another real projected community exists as the returning resident's origin");
+        var original=PlayerRules.Identity.Copy();PlayerRules.Identity=original.Copy();PlayerRules.Identity.Group=other.Id;PlayerRules.Identity.BandName=other.Name;humanPlayer.GroupId=PlayerRules.Identity.Group;
         motion.Place(host.Motor.X-1.5,host.Motor.Z,CampFloor(host.Motor.X-1.5,host.Motor.Z));UpdateHumans();host.Threat=null;long person=PlayerPropertyKey;var originalIds=Inventory.Items.Select(p=>p.Id).OrderBy(x=>x).ToArray();
         Check(NpcWelcomeAvailable(host)==NpcWelcome.Guest,"An established welcoming host can offer guest status before sufficient membership support");
         var share=PortableTechnology.Create(PossessionKind.Berries,Position);share.Id="council-shared-food";share.Place=PossessionPlace.Ground;share.OwnerGroup=host.GroupId;Inventory.Items.Add(share);
