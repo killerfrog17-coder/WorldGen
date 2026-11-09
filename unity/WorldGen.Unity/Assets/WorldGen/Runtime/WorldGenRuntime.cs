@@ -119,6 +119,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")){screen="Setup";BeginWork(false,Argument("--worldgen-local-terrain-check",""));StartCoroutine(CheckLocalTerrain());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-ai-settings-check")){StartCoroutine(CheckAiSettingsRuntime());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-dialogue-check")){StartCoroutine(CheckNpcDialogueRuntime());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-mind-check")){pendingPlay=new PlaySession();screen="Setup";BeginWork(false,Argument("--worldgen-npc-mind-check",""));StartCoroutine(CheckNpcMindRuntime());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-entry-check")){pendingPlay=new PlaySession();screen="Setup";BeginWork(false,Argument("--worldgen-entry-check",""));StartCoroutine(CheckWorldEntry());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-death-check")){screen="Setup";BeginWork(false,Argument("--worldgen-death-check",""));StartCoroutine(CheckPlayerDeathFlow());}

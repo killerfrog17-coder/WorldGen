@@ -17,18 +17,20 @@ namespace WorldGen.Core
         }
         public static string Clean(string value,int length)=>new string((value??"").Where(c=>!char.IsControl(c)||c=='\n').Take(length).ToArray()).Replace('\n',' ');
     }
-    [Serializable] public sealed class NpcMemory
+    [Serializable] public sealed partial class NpcMemory
     {
         public long Person;public string Thought="",Trigger="";
         public List<string> Recent=new List<string>();
         public void Remember(string text){Recent.Add(NpcDecision.Clean(text,360));while(Recent.Count>12)Recent.RemoveAt(0);}
-        public NpcMemory Copy()=>new NpcMemory{Person=Person,Thought=Thought,Trigger=Trigger,Recent=new List<string>(Recent??new List<string>())};
+        public NpcMemory Copy()=>new NpcMemory{Person=Person,Thought=Thought,Trigger=Trigger,Recent=new List<string>(Recent??new List<string>()),
+            ConversationSequence=ConversationSequence,Conversation=(Conversation??new List<NpcDialogueTurn>()).Select(t=>t.Copy()).ToList(),
+            Statements=(Statements??new List<NpcHeardStatement>()).Select(t=>t.Copy()).ToList()};
     }
     // Only physical, perceived events enter this bounded queue. No world-scale
     // thinking ticks; direct speech supersedes an older observation for a person.
     public sealed class NpcEventQueue
     {
-        public sealed class Event {public long Person;public string Trigger,Words;public long Speaker;public int Priority,Depth;public double At;}
+        public sealed class Event {public long Person;public string Trigger,Words;public long Speaker,DialogueSequence;public int Priority,Depth;public double At;}
         readonly List<Event> events=new List<Event>();readonly Dictionary<long,double> admitted=new Dictionary<long,double>(),direct=new Dictionary<long,double>();
         public int Count=>events.Count;
         public bool Add(Event item,double now)

@@ -14,7 +14,7 @@ if args.model_family:
     config['ModelPath']=candidate['Path'];config['ModelName']=candidate['Name'];expert_layers=(candidate['ExpertLayers']+1)//2
 if args.cpu_experts>=0:expert_layers=args.cpu_experts
 gpu_server=str(Path(os.environ['LOCALAPPDATA'])/'WorldGen/NpcAI/llama-b12211-cuda/llama-server.exe') if args.backend=='cuda' else config['GpuServerPath']
-source=(ROOT/'unity/WorldGen.Unity/Assets/WorldGen/Runtime/NpcModelClient.cs').read_text()
+source=(ROOT/'src/WorldGen.Presentation/NpcConversationPrompt.cs').read_text()
 line=next(l for l in source.splitlines() if 'const string SystemPrompt=' in l)
 prompt=json.loads(line.split('=',1)[1].strip().rstrip(';'))
 with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]

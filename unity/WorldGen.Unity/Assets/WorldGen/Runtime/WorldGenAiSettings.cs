@@ -68,8 +68,8 @@ public sealed partial class WorldGenRuntime
             aiDraft.PreloadModel=GUILayout.Toggle(aiDraft.PreloadModel,"Preload CPU model weights into RAM");GUILayout.Label("Uses explicit RAM buffers instead of mapped files. Recommended for CPU expert weights on a hard drive; leave off if memory is tight.",MutedStyle());
             GUILayout.Label("Context window");int window=aiDraft.ContextTokens<=2048?0:aiDraft.ContextTokens<=4096?1:2;
             window=GUILayout.SelectionGrid(window,new[]{"2,048 tokens","4,096 tokens","8,192 tokens"},3);aiDraft.ContextTokens=window==0?2048:window==1?4096:8192;
-            GUILayout.Label("Maximum input/output capacity, not intelligence. Larger windows reserve more memory. Keep 2,048 unless you need more history.",MutedStyle());
-            aiDraft.HistoryRecords=AiSlider("Recent memory entries",aiDraft.HistoryRecords,0,12,"Recent conversation and intentions included with each request. More history gives context but adds processing work.");
+            GUILayout.Label("4,096 is recommended for conversation. Larger windows reserve more memory. Older exchanges are trimmed to fit; remembered statements are kept separately.",MutedStyle());
+            aiDraft.ConversationTurns=AiSlider("Recent conversation turns",aiDraft.ConversationTurns,0,12,"Each turn includes what the speaker said and the NPC's spoken reply. Private intentions are excluded. Relevant remembered statements persist beyond this window.");
             aiDraft.MaxTokens=AiSlider("Output token limit",aiDraft.MaxTokens,128,384,"A token is roughly a word fragment. This is a hard ceiling, not a requested reply length; too low can cut off a valid response.");
             GUILayout.Label("Creativity  "+aiDraft.Temperature.ToString("0.00"));aiDraft.Temperature=Mathf.Round(GUILayout.HorizontalSlider(aiDraft.Temperature,0,1.2f)*20)/20;
             GUILayout.Label("Higher values increase variation and the chance of mistakes. This does not make the model smarter.",MutedStyle());

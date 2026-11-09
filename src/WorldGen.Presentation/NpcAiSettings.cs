@@ -14,7 +14,7 @@ namespace WorldGen.Presentation
         public string ServerPath="",GpuServerPath="",ModelPath="",ModelName="local",BaseUrl="",ApiKeyEnvironment="";
         public string ModelFamily="";
         public string CudaServerPath="",GpuBackend="vulkan";
-        public int Threads=2,ContextTokens=2048,MaxTokens=160,GpuLayers,HistoryRecords=2,Priority=-1,IdleMinutes=10,VisitorCooldownSeconds=20;
+        public int Threads=2,ContextTokens=4096,MaxTokens=160,GpuLayers,ConversationTurns=6,Priority=-1,IdleMinutes=10,VisitorCooldownSeconds=20;
         public int BatchThreads,ModelLayers=37,ModelExpertLayers,CpuExpertLayers,GpuReserveMiB=1024,Polling,InferenceFps;
         public bool Enabled=true,BriefReplies,BackgroundReactions=true,PreloadModel;
         public float Temperature=.5f;
@@ -31,7 +31,7 @@ namespace WorldGen.Presentation
             GpuReserveMiB=Math.Max(0,Math.Min(2048,GpuReserveMiB));Polling=Math.Max(0,Math.Min(100,Polling));
             InferenceFps=InferenceFps<=0?0:Math.Max(15,Math.Min(120,InferenceFps));
             ContextTokens=ContextTokens<=2048?2048:ContextTokens<=4096?4096:8192;
-            MaxTokens=Math.Max(128,Math.Min(384,MaxTokens));HistoryRecords=Math.Max(0,Math.Min(12,HistoryRecords));
+            MaxTokens=Math.Max(128,Math.Min(384,MaxTokens));ConversationTurns=Math.Max(0,Math.Min(12,ConversationTurns));
             Priority=Math.Max(-1,Math.Min(2,Priority));IdleMinutes=Math.Max(0,Math.Min(30,IdleMinutes));VisitorCooldownSeconds=Math.Max(20,Math.Min(300,VisitorCooldownSeconds));
             Temperature=float.IsNaN(Temperature)||float.IsInfinity(Temperature)?.5f:Math.Max(0,Math.Min(1.2f,Temperature));
         }
@@ -43,12 +43,13 @@ namespace WorldGen.Presentation
             Priority=maximum?2:-1;Polling=maximum?100:0;GpuReserveMiB=maximum?512:1024;
             InferenceFps=maximum?15:0;
             if(maximum&&!string.IsNullOrEmpty(CudaServerPath))GpuBackend="cuda";
-            BriefReplies=choice!=0;ContextTokens=2048;MaxTokens=160;HistoryRecords=2;Normalize(processors);
+            BriefReplies=choice!=0;ContextTokens=4096;MaxTokens=160;ConversationTurns=6;Normalize(processors);
         }
         public void SelectModel(NpcAiModel model)
         {
             if(model==null)throw new ArgumentNullException(nameof(model));
             ModelPath=model.Path;ModelName=model.Name;ModelFamily=model.Family;ModelLayers=model.Layers;ModelExpertLayers=model.ExpertLayers;
+            BaseUrl="";
             if(GpuLayers>0)GpuLayers=999;
             CpuExpertLayers=(model.ExpertLayers+1)/2;PreloadModel=model.ExpertLayers>0;
             Normalize(Environment.ProcessorCount);
