@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-11-09T19:19:00Z",
+  "recorded_utc": "2026-11-09T19:30:00Z",
   "scope": "NPC overnight ongoing; not a handoff or a completed survival economy",
   "candidate_gameplay": "520634a7 before new unverified 91f4566b camp spatial index",
   "cases": {
@@ -1383,6 +1383,11 @@
       "build": "3a8a3167",
       "folder": "artifacts/npc-20261103/npc-material-cycle-v5-morning",
       "result": "FAIL reassembly deadline240s. Packing/18sobservedtravel/coarseunload-reload/arrival exactalloriginalportable IDs+mass passed. 24woodsupplies/6823workcontributions; multiple falsefamilysearches delayednewframe construction. Fair sight corrected c542; v6running with600s actualworkdeadline. No uninterrupted route claim."
+    },
+    "migration_v6": {
+      "build": "c5426071",
+      "folder": "artifacts/npc-20261103/npc-material-cycle-v6-morning",
+      "result": "FAIL original-material reuse600sdeadline. Actual packing/travel/coarsearrival/conservation passed.39newwoodsupplies/11040workcontributions before nighttime;22Sleep/11gathering atlate snapshot. New19c fixture advances clock forward consistently to09:00 when needed before daylight post-setup check; does not force waking production sleepers."
     }
   },
   "performance_limits": [
@@ -1417,5 +1422,6 @@
     "whole_prepare_and_write_seconds": 32.91,
     "note": "Whole fixture preparation/write duration, not an isolated sim throughput measurement."
   },
-  "regional_qa_note": "Initial year0 cold/coast labels were rankings, not real regional coverage.29f/535 require annual<8C or coast>=.15. Old E82 cold/evening19PASS only mechanics/day-night; do not label them cold/coastal geography."
+  "regional_qa_note": "Initial year0 cold/coast labels were rankings, not real regional coverage.29f/535 require annual<8C or coast>=.15. Old E82 cold/evening19PASS only mechanics/day-night; do not label them cold/coastal geography.",
+  "pending_source": "19c162fa packaging B. b88 shadow policy snapshot + literal native rootproof/forestreadiness diagnostics, f9 signedcampIDfix,449 strictmatchingwoodcutprerequisites, d78 feasible usefulpersonalkitretrieval(Core15PASS) +3nativeassertions,19c daytime reassembly QA. Allpushed; native/performanceunvalidated. A/rootshortcut unchanged."
 }
