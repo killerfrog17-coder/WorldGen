@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public sealed class NpcCyclePersonRow{public string Name,TaskDetail,Hands;public int Loads;public float Speed;public double X,Z,NavigationX,NavigationZ,Kg;}
     public sealed class NpcCycleStatus
-    {public string WaitingFor,Phase;public bool CampLoaded,Grounded;public long CurrentSite,OldSite;public int PlacementAttempt,OldParts,Packed,Supplied,Worked;public NpcCampTravel Travel;public NpcCyclePersonRow[] People;}
+    {public string WaitingFor,Phase;public bool CampLoaded,Grounded;public long CurrentSite,OldSite;public int PlacementAttempt,OldParts,Packed,Supplied,Worked;public double LocalHour;public NpcCampTravel Travel;public NpcCyclePersonRow[] People;}
     static IEnumerator CheckLivingCampCycle(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP CYCLE "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP CYCLE "+text);}
@@ -53,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
                 if(Time.realtimeSinceStartupAsDouble>=statusAt)
                 {
                     statusAt=Time.realtimeSinceStartupAsDouble+3;
-                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,CurrentSite=group.Situation.Camp.Id,OldSite=oldSite,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,X=p.Motor.X,Z=p.Motor.Z,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg,Hands=string.Join(" / ",p.Belongings.Items.Where(i=>i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand).Select(i=>i.Name)),Loads=p.Belongings.Items.Count(i=>i.Kind==PossessionKind.CampBundle&&p.Belongings.Carried(i))}).ToArray()}));
+                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,LocalHour=group.Situation.LocalHour,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,CurrentSite=group.Situation.Camp.Id,OldSite=oldSite,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,X=p.Motor.X,Z=p.Motor.Z,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg,Hands=string.Join(" / ",p.Belongings.Items.Where(i=>i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand).Select(i=>i.Name)),Loads=p.Belongings.Items.Count(i=>i.Kind==PossessionKind.CampBundle&&p.Belongings.Carried(i))}).ToArray()}));
                 }
                 yield return null;
             }
@@ -90,6 +90,14 @@ public sealed partial class LocalTerrainExplorer
         Check(arrived.Length==portable.Count&&arrived.Select(p=>p.Id).Distinct().Count()==portable.Count&&arrived.All(p=>Math.Abs(p.MassKg-portable[p.Id])<1e-8),"Original portable contributions persist exactly once with unchanged mass through packing and coarse travel to arrival");
         int supplied=owner.npcCampSupplied,worked=owner.npcCampWorked;
         Date(initial.JourneyEndDay+delay+.07*baseline.CalendarRate);
+        // Check unfinished work outside the setup timetable while adults are
+        // awake. A nighttime arrival must not require sleeping families to
+        // reconstruct every wooden frame before this wall-clock test expires.
+        if(owner.LocalSolarHour<8||owner.LocalSolarHour>14)
+        {
+            double toMorning=((9-owner.LocalSolarHour+24)%24)/24;
+            Date(owner.LivingClock.CalendarDay+toMorning*baseline.CalendarRate);
+        }
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Occupied,"The new visit proceeds from setup into occupation");
         yield return Await(()=>owner.npcCampSupplied>supplied&&owner.npcCampWorked>worked&&owner.Camp.Objects.Where(c=>c.NpcGroup==band&&c.NpcSite==newSite&&c.Blueprint!=null).SelectMany(c=>c.OwnedMaterials()).Any(p=>portable.ContainsKey(p.Id)),"A real worker supplies and works with an original recovered contribution at the new camp",600);
         Check(identities.SequenceEqual(group.Residents.Members.Select(p=>p.Id).OrderBy(id=>id)),"Families and personal identities survive packing, travel and arrival");
@@ -98,7 +106,7 @@ public sealed partial class LocalTerrainExplorer
         // Construction may legitimately portion bark/rope or cut poles, so do
         // not demand unchanged original piece masses after that work.
         var goods=ActualGoods();Check(goods.Select(p=>p.Id).Distinct().Count()==goods.Length,"Physical reassembly creates no duplicated goods across people, active camps and abandoned memories");
-        File.WriteAllText(Path.Combine(output,"camp-cycle-scope.txt"),"Actual worker packing, observed initial travel, explicit coarse journey skip, actual terrain arrival and original-material reassembly. Not an uninterrupted whole-route follow; not proof that every shelter finishes.");
+        File.WriteAllText(Path.Combine(output,"camp-cycle-scope.txt"),"Actual worker packing, observed initial travel, explicit coarse journey skip, actual terrain arrival and daylight original-material reassembly after an explicit morning clock advance when needed. Not an uninterrupted whole-route follow; not proof that every shelter finishes.");
         File.WriteAllText(Path.Combine(output,"after-camp-cycle.json"),WorldJson.Write(owner.Camp));
     }
 }
