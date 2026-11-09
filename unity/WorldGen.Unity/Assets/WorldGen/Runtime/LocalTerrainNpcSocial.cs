@@ -96,6 +96,7 @@ public sealed partial class LocalTerrainExplorer
             npcPlans[participant.ResidentId]=new MindPlan{Decision=new NpcDecision{action="wait",target="person:"+partner.ResidentId,seconds=8},Event=new NpcEventQueue.Event{Person=participant.ResidentId,Speaker=partner.ResidentId,Background=true},Until=now+8+6*Rng.Value(culture.Seed,"social-duration",sequence),Spoke=true,ProceduralSocial=true,Stage="Socialising"};
         }
         // The social event has already happened. Rendering words is optional, never its executor.
+        if(npcSocialCheckTrace)Debug.Log("NPC SOCIAL RENDER eligible sleep="+campSleeping+" rest="+campResting+" existing="+(npcConversation!=null)+" available="+NpcBackgroundAvailable+" delay="+(now<npcSocialAt)+" enabled="+npcModel?.Config.Enabled+" reactions="+npcModel?.Config.BackgroundReactions+" hearing="+NpcPlayerCanHear(first)+","+NpcPlayerCanHear(second)+" range="+HumanDistance(first.Planet,Position)+","+HumanDistance(second.Planet,Position));
         if(campSleeping||campResting||npcConversation!=null||!NpcBackgroundAvailable||now<npcSocialAt||npcModel?.Config.Enabled!=true||npcModel.Config.BackgroundReactions!=true||!NpcPlayerCanHear(first)||!NpcPlayerCanHear(second))return;
         var customs=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[first.GroupId].Residents.Culture];
         npcConversation=new SocialConversation{A=first.ResidentId,B=second.ResidentId,Until=now+100,Discussion=discussion,Recorded=true};

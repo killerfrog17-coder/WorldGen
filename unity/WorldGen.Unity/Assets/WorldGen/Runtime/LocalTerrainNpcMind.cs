@@ -48,6 +48,7 @@ public sealed partial class LocalTerrainExplorer
         if(!direct)
         {
             bool reply=speaker>0&&npcConversation!=null&&(npcConversation.A==actor.ResidentId||npcConversation.B==actor.ResidentId);
+            if(npcSocialCheckTrace)Debug.Log("NPC SOCIAL ADMISSION person="+actor.ResidentId+" available="+NpcBackgroundAvailable+" relevant="+NpcBackgroundRelevant(item)+" ambient="+Time.unscaledTimeAsDouble+"/"+npcAmbientAt+" peer="+(speaker>0&&livingPeople.TryGetValue(speaker,out var tracePeer)?NpcCanHear(actor,tracePeer.Root.transform.position+Vector3.up,5).ToString():"none"));
             if(!npcModel.Config.BackgroundReactions||!NpcBackgroundAvailable||!NpcBackgroundRelevant(item)||!reply&&Time.unscaledTimeAsDouble<npcAmbientAt)return false;
         }
         if(!npcEvents.Add(item,Time.unscaledTimeAsDouble))return false;
