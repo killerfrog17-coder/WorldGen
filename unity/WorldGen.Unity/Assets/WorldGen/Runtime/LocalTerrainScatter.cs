@@ -31,6 +31,9 @@ public sealed partial class LocalTerrainExplorer
         public Matrix4x4[][] PartMatrices;
     }
     long scatterAppendAllocations,scatterAppendBuilds;
+    bool scatterTreeShadowProxies,scatterCoarseTreeShadows;
+    bool ScatterReplacesTreeShadow(in ScatterInstance p)=>p.Kind==ScatterKind.GeneratedTree&&scatterTreeShadowProxies&&
+        (scatterCoarseTreeShadows||treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(p.Variant)));
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
     Texture2DArray treeLeaves;
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
@@ -531,6 +534,10 @@ public sealed partial class LocalTerrainExplorer
         GeometryUtility.CalculateFrustumPlanes(view,scatterFrustum);
         PrepareVegetationShadowVisibility();
         long shadowTrace=WorldGenPerformance.TraceBegin();BuildTreeShadowBatches();WorldGenPerformance.TraceEnd(13,shadowTrace);
+        // These engine/settings queries are constant throughout one synchronous
+        // batch build. Avoid repeating Unity object-liveness checks for every
+        // admitted tree, including distant trees that cannot cast at all.
+        scatterTreeShadowProxies=UseTreeShadowProxies;scatterCoarseTreeShadows=CoarseTreeShadows;
         ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;GeneratedTreeObjects=0;ScatterFrustumRejected=ScatterTerrainRejected=ScatterShadowOnly=0;
         long batchPhaseTrace=WorldGenPerformance.TraceBegin();
         scatterCollectWork.Clear();
@@ -708,7 +715,7 @@ public sealed partial class LocalTerrainExplorer
         if(high-low<.0001f)return;
         bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&
             (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
-        if(ReplaceTreeShadow(p))casts=false;
+        if(casts&&ScatterReplacesTreeShadow(p))casts=false;
         if(casts&&!MayCastVisibleShadow(chunk.Bounds[index],scatterEye))casts=false;
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;

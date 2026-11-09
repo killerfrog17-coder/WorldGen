@@ -14,6 +14,14 @@ public sealed partial class LocalTerrainExplorer
     static void CheckNpcNaturalRemoval(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC SCATTER REMOVAL "+text);checks.Add("PASS "+text);}
+        owner.BuildScatterBatches();int shadowChecks=0;
+        foreach(var chunk in owner.scatterChunks.Values)foreach(var plant in chunk.Source.Instances)
+        {
+            if(owner.ReplaceTreeShadow(plant)!=owner.ScatterReplacesTreeShadow(plant))throw new InvalidOperationException("Cached tree-shadow policy changed an actual source decision");
+            shadowChecks++;
+        }
+        Check(shadowChecks>1000,"Every actual source root retains the literal tree-shadow replacement decision after build-scoped settings capture");
+        File.WriteAllText(Path.Combine(output,"shadow-policy-proof.txt"),shadowChecks+" actual source roots; literal/snapshot tree-shadow decisions exact.");
         owner.ApplyNaturalScatterRemovals();var batches=owner.drawBatches.ToArray();
         ScatterInstance source=default;Possession item=null;
         foreach(var batch in batches)

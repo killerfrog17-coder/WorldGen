@@ -18,9 +18,10 @@ public sealed partial class LocalTerrainExplorer
         public double[] MeanStagesMs;
         public double[] MeanMainThreadTraceMs;public NpcSlowFrame[] SlowFrames;public int Gen0Collections,Gen1Collections,Gen2Collections;
         public long ScatterAppendAllocatedBytes,ScatterBuilds;public int ArtModelsStart,ArtModelsEnd;
+        public bool ResidentForestReadyStart,ResidentForestReadyEnd;public int ForestPagesStart,ForestPagesEnd,ForestRootsStart,ForestRootsEnd;
     }
     public sealed class NpcSlowFrame
-    {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes;}
+    {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
     static IEnumerator MeasureLivingHumans(LocalTerrainExplorer owner,string output)
     {
         double deadline=Time.realtimeSinceStartupAsDouble+300;
@@ -55,6 +56,7 @@ public sealed partial class LocalTerrainExplorer
             var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous;int unfocused=0,minPeople=owner.livingPeople.Count,maxPeople=minPeople;
             var traceTotals=trace?new double[WorldGenPerformance.TraceMilliseconds.Length]:null;var slow=trace?new List<NpcSlowFrame>(24):null;
             long appendBytes=owner.scatterAppendAllocations,appendBuilds=owner.scatterAppendBuilds;int artModels=owner.scatterArt.Count;
+            bool forestReady=owner.residentForestReady;int forestPages=owner.forestFields.Count,forestRoots=owner.forestRootCount;
             int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);long windowTick=System.Diagnostics.Stopwatch.GetTimestamp();
             if(trace){WorldGenPerformance.ClearFaunaTrace();WorldGenPerformance.Measuring=true;}
             while(Time.realtimeSinceStartupAsDouble-start<duration)
@@ -66,7 +68,7 @@ public sealed partial class LocalTerrainExplorer
                     var current=WorldGenPerformance.TraceMilliseconds;for(int k=0;k<current.Length;k++)traceTotals[k]+=current[k];
                     if(slow.Count<24||frameMs>slow[slow.Count-1].FrameMs)
                     {
-                        var sample=new NpcSlowFrame{AtSeconds=now-start,FrameMs=frameMs,NpcMs=owner.livingTickMs,MainThreadTraceMs=(double[])current.Clone(),Gen0=GC.CollectionCount(0)-gc0,Gen1=GC.CollectionCount(1)-gc1,Gen2=GC.CollectionCount(2)-gc2,MainAllocatedBytes=GC.GetAllocatedBytesForCurrentThread()};
+                        var sample=new NpcSlowFrame{AtSeconds=now-start,FrameMs=frameMs,NpcMs=owner.livingTickMs,MainThreadTraceMs=(double[])current.Clone(),Gen0=GC.CollectionCount(0)-gc0,Gen1=GC.CollectionCount(1)-gc1,Gen2=GC.CollectionCount(2)-gc2,MainAllocatedBytes=GC.GetAllocatedBytesForCurrentThread(),ScatterObjects=owner.ScatterObjects,TreeInstances=owner.GeneratedTreeObjects,Batches=owner.drawBatches.Count,ForestPages=owner.forestFields.Count,ResidentForestReady=owner.residentForestReady};
                         int at=0;while(at<slow.Count&&slow[at].FrameMs>=frameMs)at++;if(slow.Count==24)slow.RemoveAt(23);slow.Insert(at,sample);
                     }
                 }
@@ -76,6 +78,7 @@ public sealed partial class LocalTerrainExplorer
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route="Radius24m scenic camp orbit; same path and duration per mode"});
             var recorded=report[report.Count-1];recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
+            recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         }
         owner.livingBenchmarkFreeze=false;foreach(var actor in owner.livingPeople.Values)actor.Root.SetActive(true);Application.targetFrameRate=cap;
