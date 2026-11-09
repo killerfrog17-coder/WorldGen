@@ -6,11 +6,13 @@ namespace WorldGen.Core
 {
     [Serializable] public sealed class NpcDecision
     {
-        public string thought="",action="resume",target="none",speech="";
+        public string thought="",action="resume",target="none",speech="",proposal="";
         public int seconds=8;
         public bool Validate(IEnumerable<string> targets)
         {
-            if(!new[]{"resume","speak","approach","wait","rest","flee"}.Contains(action)||!targets.Contains(target))return false;
+            if(!new[]{"resume","speak","approach","wait","rest","flee","invite","endorse","support_custom"}.Contains(action)||!targets.Contains(target))return false;
+            if((action=="invite"||action=="endorse"||action=="support_custom")&&target!="player")return false;
+            if(action=="support_custom"&&(!Enum.TryParse(proposal,out NpcCustom custom)||custom==NpcCustom.None))return false;
             thought=Clean(thought,160);speech=Clean(speech,280);seconds=Math.Max(2,Math.Min(30,seconds));
             if((action=="approach"||action=="flee"||action=="speak")&&target=="none")return false;
             return true;

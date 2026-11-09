@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
     readonly NpcEventQueue npcEvents=new NpcEventQueue();
     NpcModelClient npcModel;Task<string> npcThinking;NpcEventQueue.Event npcPending;
     NpcEventQueue.Event npcSuppressed;
-    string[] npcPendingTargets;HumanActor npcTalkTarget,npcAimed;double npcObserveAt,npcAimAt,npcNextBackground;
+    string[] npcPendingTargets,npcPendingSocialActions;HumanActor npcTalkTarget,npcAimed;double npcObserveAt,npcAimAt,npcNextBackground;
     bool npcThoughts;string npcLastError="";int npcDecisions,npcUtterances;
     readonly Dictionary<long,int> npcMemorySlots=new Dictionary<long,int>();List<NpcMemory> npcMemorySource;
     bool CommandChatStopped=>chatOpen&&(npcTalkTarget==null||chatText.StartsWith("/"));
@@ -27,6 +27,7 @@ public sealed partial class LocalTerrainExplorer
     ForagerPersonSample NpcSpeaker(HumanActor listener,long speaker,out bool known)
     {
         known=speaker==0?PlayerRules.Identity?.Group==listener.GroupId:livingPeople.TryGetValue(speaker,out var peer)&&peer.GroupId==listener.GroupId;
+        if(speaker==0&&PlayerRules.Identity?.Person!=null&&livingGroups.TryGetValue(listener.GroupId,out var home)&&home.Residents.Members.Any(p=>p.Id==PlayerRules.Identity.Person.Id))known=true;
         return speaker==0?PlayerRules.Identity?.Person:livingPeople.TryGetValue(speaker,out var actor)?actor.Resident:null;
     }
     static string NpcVisibleHair(string variant)=>variant=="A"?"black, tightly curled hair":variant=="B"?"short dark brown hair":variant=="C"?"brown braided hair":variant=="D"?"long black hair":variant=="E"?"black braided hair":variant=="F"?"short grey hair":"hair appearance unavailable";
@@ -67,6 +68,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var decision=JsonUtility.FromJson<NpcDecision>(work.Result);
                     if(decision==null||!decision.Validate(npcPendingTargets))throw new InvalidOperationException("Invalid NPC decision");
+                    if((decision.action=="invite"||decision.action=="endorse"||decision.action=="support_custom")&&npcPendingSocialActions?.Contains(decision.action)!=true)throw new InvalidOperationException("NPC social action was not available");
                     if((campSleeping||campResting)&&decision.target=="player"&&(decision.action=="speak"||decision.action=="approach"))WakeCamp(actor.Resident.Name+" approaches to speak to you.");
                     var memory=NpcMemoryFor(actor.ResidentId);memory.Thought=decision.thought;memory.Trigger=NpcDecision.Clean(item.Trigger,160);
                     memory.Remember("Intention: "+decision.action+" "+decision.target+". "+decision.thought);
@@ -84,11 +86,11 @@ public sealed partial class LocalTerrainExplorer
             {
                 npcModel??=new NpcModelClient();if(npcModel.Config.Enabled)
                 {
-                    npcPending=item;npcPendingTargets=NpcTargets(actor,item.Speaker).ToArray();
+                    npcPending=item;npcPendingTargets=NpcTargets(actor,item.Speaker).ToArray();npcPendingSocialActions=NpcSocialActions(actor,item);
                     var list="["+string.Join(",",npcPendingTargets.Select(t=>"\""+t+"\""))+"]";
                     var memory=NpcMemoryFor(actor.ResidentId);long speaker=NpcSpeakerKey(item.Speaker);
                     var current=memory.Conversation?.FirstOrDefault(t=>t.Sequence==item.DialogueSequence);
-                    npcThinking=npcModel.Ask(NpcContext(actor,item,npcPendingTargets),list,current==null?Array.Empty<NpcDialogueTurn>():memory.SceneDialogue(item.DialogueSequence,npcModel.Config.ConversationTurns),current,current==null?Array.Empty<NpcHeardStatement>():memory.Recall(speaker,item.Words,item.DialogueSequence-1));
+                    npcThinking=npcModel.Ask(NpcContext(actor,item,npcPendingTargets)+" Additional available actions: "+string.Join(", ",npcPendingSocialActions)+". invite offers only the stated welcome; endorse records your own support for the speaker to coordinate; support_custom records support for a supplied proposal. Use these only when that topic is actually requested.",list,current==null?Array.Empty<NpcDialogueTurn>():memory.SceneDialogue(item.DialogueSequence,npcModel.Config.ConversationTurns),current,current==null?Array.Empty<NpcHeardStatement>():memory.Recall(speaker,item.Words,item.DialogueSequence-1),npcPendingSocialActions,NpcSupportedCustoms(actor));
                 }
             }
         }
@@ -148,7 +150,8 @@ public sealed partial class LocalTerrainExplorer
         {npcPlans.Remove(actor.ResidentId);return false;}
         var d=plan.Decision;double distance=HumanDistance(actor.Planet,goal);target=actor.Planet;
         if(NpcSpeaking(actor.ResidentId))plan.Until=Math.Max(plan.Until,now+2);
-        bool move=(d.action=="approach"||d.action=="speak")&&distance>2.2;
+        bool socialAction=d.action=="invite"||d.action=="endorse"||d.action=="support_custom";
+        bool move=(d.action=="approach"||d.action=="speak"||socialAction)&&distance>2.2;
         if(move){target=goal;plan.Stage="Approaching "+d.target;}
         else
         {
@@ -162,6 +165,7 @@ public sealed partial class LocalTerrainExplorer
                 if(!plan.Spoke)
                 {
                     plan.Spoke=true;plan.Until=now+d.seconds;
+                    if(socialAction&&!ApplyNpcCommunityDecision(actor,d))InventoryFeedback(actor.Resident.Name+" cannot carry out that social proposal under the current conditions.");
                     if(d.speech.Length>0)NpcSay(actor,plan);
                 }
             }

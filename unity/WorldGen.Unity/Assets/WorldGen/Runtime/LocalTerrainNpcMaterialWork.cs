@@ -80,7 +80,7 @@ public sealed partial class LocalTerrainExplorer
         if(!NpcBelongings.Pack(stock,item)&&!stock.Hold(item.Id,out _))
         {stock.Items.Remove(item);NpcBelongings.Equip(stock,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);stock.Items.Add(item);stock.Hold(item.Id,out _);}
         item.Position=actor.Planet;item.OwnerPerson=0;item.OwnerGroup=actor.GroupId;item.OwnerHousehold=0;item.OwnerName=livingGroups[actor.GroupId].Residents.Name;
-        if(Foraging.Food(item)&&sourceWorld.Prehistory.Foragers.Cultures[livingGroups[actor.GroupId].Residents.Culture].FoodSharing<=.65)item.OwnerHousehold=actor.Resident.Household;
+        if(Foraging.Food(item)&&EffectiveNpcCulture(livingGroups[actor.GroupId]).FoodSharing<=.65)item.OwnerHousehold=actor.Resident.Household;
         if(item.NaturalId!=0)
         {if(!stock.CollectedNatural.Contains(item.NaturalId))stock.CollectedNatural.Add(item.NaturalId);if(inventoryCollected.Add(item.NaturalId)&&!Inventory.CollectedNatural.Contains(item.NaturalId))Inventory.CollectedNatural.Add(item.NaturalId);scatterDirty=true;}
         PublishNpcGroundGoods(actor);return true;

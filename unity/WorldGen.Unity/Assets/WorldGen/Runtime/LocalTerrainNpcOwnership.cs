@@ -9,9 +9,13 @@ public sealed partial class LocalTerrainExplorer
     long PlayerPropertyKey=>PlayerRules.Identity?.Person?.Id??long.MaxValue;
     double PlayerFoodSharing
     {
-        get{int culture=PlayerRules.Identity?.Culture??-1;var cultures=sourceWorld.Prehistory?.Foragers?.Cultures;return cultures!=null&&culture>=0&&culture<cultures.Length?cultures[culture].FoodSharing:0;}
+        get{if(PlayerRules.Identity!=null&&livingGroups.TryGetValue(PlayerRules.Identity.Group,out var home))return EffectiveNpcCulture(home).FoodSharing;int culture=PlayerRules.Identity?.Culture??-1;var cultures=sourceWorld.Prehistory?.Foragers?.Cultures;return cultures!=null&&culture>=0&&culture<cultures.Length?cultures[culture].FoodSharing:0;}
     }
-    bool PlayerMayTake(Possession item)=>NpcOwnership.Allowed(item,PlayerPropertyKey,PlayerRules.Identity?.Group??0,PlayerRules.Identity?.Person?.Household??0,PlayerFoodSharing);
+    bool PlayerMayTake(Possession item)
+    {
+        if(NpcOwnership.Allowed(item,PlayerPropertyKey,PlayerRules.Identity?.Group??0,PlayerRules.Identity?.Person?.Household??0,PlayerFoodSharing))return true;
+        return item.OwnerGroup>0&&livingGroups.TryGetValue(item.OwnerGroup,out var host)&&LivingState.Groups.FirstOrDefault(g=>g.Group==item.OwnerGroup)?.Community?.Guests.Contains(PlayerPropertyKey)==true&&NpcOwnership.Allowed(item,PlayerPropertyKey,item.OwnerGroup,0,EffectiveNpcCulture(host).FoodSharing);
+    }
     bool PlayerMayUseCamp(CampObject obj)=>obj==null||NpcOwnership.BedAllowed(obj,PlayerRules.Identity?.Group??0,PlayerRules.Identity?.Person?.Household??0);
     void ClaimPlayerItem(Possession item)
     {

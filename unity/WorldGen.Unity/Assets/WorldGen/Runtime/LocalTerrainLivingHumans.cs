@@ -16,6 +16,7 @@ public sealed partial class LocalTerrainExplorer
         public HumanActivitySample TenderDuty;public CampObject TendedFire;public double TendUntil,NextTend;
         public NpcResourceSites Resources;
         public ForagerSocialLife Social;public ForagerCulture SocialCulture;
+        public ForagerCulture PolicyBasis,PolicyCulture;public double PolicySharing=-2,PolicyVisitors=-2;
         public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200;
         public long MaterialStockSite;public double MaterialStockRadius;
     }
@@ -54,6 +55,7 @@ public sealed partial class LocalTerrainExplorer
         livingQueryAt=Time.unscaledTimeAsDouble+Math.Max(.05,2/Math.Max(1,CampTimeRate));var state=sourceWorld.Prehistory;var clock=LivingClock;var observer=Position;
         var physicalGroups=livingPeople.Values.Select(p=>p.GroupId).ToHashSet();
         double temperature=CurrentWeather.TemperatureC,rain=CurrentWeather.RainMmPerHour;
+        var localCommunities=LivingState.Groups.Where(g=>g.Community!=null).ToDictionary(g=>g.Group,g=>g.Community.Copy());
         livingWork=Task.Run(()=>
         {
             var timer=System.Diagnostics.Stopwatch.StartNew();var packet=new LivingPacket{Groups=livingPlanner.Nearby(state,clock,observer,50000),SolarDay=clock.SolarDays,Source=state};
@@ -66,8 +68,10 @@ public sealed partial class LocalTerrainExplorer
                 // Include the whole foraging catchment, not only the camp's
                 // centre. A party can be encountered far from its shelter.
                 if(group.DistanceToPlayerM>2400&&!physicalGroups.Contains(group.Band.Id))continue;
-                var residents=livingPlanner.Residents(group);packet.Residents[group.Band.Id]=residents;
-                packet.Activities[group.Band.Id]=residents.Members.Select(p=>livingPlanner.Activity(group,residents,p,clock,temperature,rain)).ToArray();
+                var residents=livingPlanner.Residents(group);ForagerCulture localCulture=null;
+                if(localCommunities.TryGetValue(group.Band.Id,out var community)){residents=NpcCommunityRules.WithJoined(residents,community);localCulture=NpcCommunityRules.Culture(state.Foragers.Cultures[residents.Culture],community);group.WatchPolicy=community.Watch;}
+                packet.Residents[group.Band.Id]=residents;
+                packet.Activities[group.Band.Id]=residents.Members.Select(p=>livingPlanner.Activity(group,residents,p,clock,temperature,rain,localCulture)).ToArray();
             }
             packet.Milliseconds=timer.Elapsed.TotalMilliseconds;return packet;
         });

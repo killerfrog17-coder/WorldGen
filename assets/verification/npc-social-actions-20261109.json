@@ -1,0 +1,56 @@
+{
+  "scope": "Actual gifts, restitution, refusal, owned goods and executor-delivered interpersonal disagreement",
+  "build": {
+    "BuiltUtc": "2026-11-09T12:18:09.2919928Z",
+    "SourceCommit": "639d79c80ba37db548ef728a14729ba2a5e55105",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "f9623b82b3e14354f65bc23e416d5a99830678c306b282319c8a2624b08b4fa9"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "be4af437d62582d65f59a6dd5720395ea91cd24abf38bcd201903d0f5dfa305a"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "2433e099626d50725b9f4a938779a3430b27f52826f1782679492688257b508d"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "8f885f70ded27d8f3e90aa8dbd559422161ff640735f92bc33b698cdf84aa52b"
+  },
+  "result": {
+    "finishedUtc": "/Date(1794226871374)/",
+    "exitCode": 0
+  },
+  "checks": [
+    "PASS Two actual adult residents exist",
+    "PASS A carried real item can be given to the nearby resident",
+    "PASS The gift changes inventory and ownership exactly once",
+    "PASS The recipient remembers the specific actual gift and gains personal trust",
+    "PASS Returning actual property partly repairs the dispute without erasing distrust",
+    "PASS A recipient without physical room refuses a gift without deleting it",
+    "PASS An executor-delivered local disagreement changes both participants' named relationships",
+    "PASS No gift or refusal duplicates a possession ID",
+    "PASS Social transactions and their real possessions validate together",
+    "PASS captured session validates with conversation memories"
+  ],
+  "limitations": [
+    "AI disabled: conversation delivery and effects tested, not model semantics.",
+    "Capped functional QA, not FPS evidence."
+  ],
+  "artifacts": "artifacts\\npc-overnight-20261109\\social-life-v1-social",
+  "monitor": "Rightmost DISPLAY3"
+}

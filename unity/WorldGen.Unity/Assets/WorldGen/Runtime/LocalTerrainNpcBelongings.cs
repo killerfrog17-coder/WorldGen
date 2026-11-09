@@ -39,7 +39,7 @@ public sealed partial class LocalTerrainExplorer
     bool NpcCanUseWorldItem(HumanActor actor,Possession item)
     {
         if(Inventory.Carried(item)||item.Place==PossessionPlace.Corpse||item.Place==PossessionPlace.CampStorage||item.Place==PossessionPlace.Container&&item.OwnerPerson!=actor.ResidentId||Inventory.Crafts.Any(j=>j.Running&&PortableCrafting.Affects(j,item.Id)))return false;
-        var culture=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[actor.GroupId].Residents.Culture];
+        var culture=EffectiveNpcCulture(livingGroups[actor.GroupId]);
         return NpcOwnership.Allowed(item,actor.ResidentId,actor.GroupId,actor.Resident.Household,culture.FoodSharing)&&HumanDistance(NpcWorldItemPosition(item),actor.Planet)<35;
     }
     bool AcquireNpcItem(HumanActor actor,Possession item)

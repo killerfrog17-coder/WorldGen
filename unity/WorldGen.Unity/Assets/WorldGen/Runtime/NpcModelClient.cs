@@ -86,7 +86,7 @@ sealed class NpcModelClient : IDisposable
         if(!IsBusy&&owned!=null&&Config.IdleMinutes>0&&(Stopwatch.GetTimestamp()-lastUse)/(double)Stopwatch.Frequency>Config.IdleMinutes*60){ReleaseHost();Status="Unloaded after inactivity";}
     }
     void ReleaseHost(){job.Dispose();try{if(owned!=null&&!owned.HasExited)owned.Kill();}catch{}owned?.Dispose();owned=null;endpoint=null;key=null;BackendInfo="Not loaded";}
-    public async Task<string> Ask(string context,string targets,NpcDialogueTurn[] history=null,NpcDialogueTurn current=null,NpcHeardStatement[] statements=null)
+    public async Task<string> Ask(string context,string targets,NpcDialogueTurn[] history=null,NpcDialogueTurn current=null,NpcHeardStatement[] statements=null,string[] socialActions=null,string[] customs=null)
     {
         if(disposed||!Config.Enabled)throw new InvalidOperationException("NPC model is disabled or missing. Run scripts/setup-npc-ai.py, then /npcai on.");
         if(IsBusy)throw new InvalidOperationException("An AI request is already running.");
@@ -109,9 +109,13 @@ sealed class NpcModelClient : IDisposable
         LastMessages=request.messages;
         string fields="{\"type\":\"object\",\"properties\":{\"speech\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?220:280)+"},\"thought\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?70:120)+"},\"action\":{\"type\":\"string\",\"enum\":ACTIONS},\"target\":{\"type\":\"string\",\"enum\":TARGETS},\"seconds\":{\"type\":\"integer\",\"minimum\":2,\"maximum\":30}},\"required\":[\"speech\",\"thought\",\"action\",\"target\",\"seconds\"],\"additionalProperties\":false}";
         string directed=targets.Replace("\"none\",","").Replace(",\"none\"","").Replace("\"none\"","");
-        string moving=fields.Replace("ACTIONS","[\"speak\",\"approach\",\"flee\"]").Replace("TARGETS",directed);
+        string extra=string.Concat((socialActions??Array.Empty<string>()).Where(a=>a!="support_custom").Select(a=>",\""+a+"\""));
+        string moving=fields.Replace("ACTIONS","[\"speak\",\"approach\",\"flee\""+extra+"]").Replace("TARGETS",directed);
         string resting=fields.Replace("ACTIONS","[\"wait\",\"rest\",\"resume\"]").Replace("TARGETS",targets);
-        string schema="{\"type\":\"json_schema\",\"json_schema\":{\"name\":\"decision\",\"strict\":true,\"schema\":{\"anyOf\":["+moving+","+resting+"]}}}";
+        string policy="";
+        if(socialActions?.Contains("support_custom")==true&&customs?.Length>0)
+        {string choices="["+string.Join(",",customs.Select(c=>"\""+c+"\""))+"]";policy=","+fields.Replace("ACTIONS","[\"support_custom\"]").Replace("TARGETS","[\"player\"]").Replace("\"seconds\":{","\"proposal\":{\"type\":\"string\",\"enum\":"+choices+"},\"seconds\":{").Replace("\"required\":[","\"required\":[\"proposal\",");}
+        string schema="{\"type\":\"json_schema\",\"json_schema\":{\"name\":\"decision\",\"strict\":true,\"schema\":{\"anyOf\":["+moving+","+resting+policy+"]}}}";
         string json=JsonUtility.ToJson(request);json=json.Substring(0,json.Length-1)+",\"response_format\":"+schema+"}";
         using(var message=new HttpRequestMessage(HttpMethod.Post,endpoint+"/v1/chat/completions"))
         {

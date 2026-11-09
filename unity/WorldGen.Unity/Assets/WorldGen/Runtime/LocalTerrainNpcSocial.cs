@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
     {var at=listener.Root.transform.position+Vector3.up;var delta=source-at;return delta.magnitude<radius&&(delta.magnitude<.1f||TraceCombatObstacle(new Ray(at,delta.normalized),Math.Max(0,delta.magnitude-.1f),checkGround:false)==null);}
     string NpcSocialContext(HumanActor actor,LivingGroup group,ForagerPersonSample speaker)
     {
-        var band=group.Residents;var culture=sourceWorld.Prehistory.Foragers.Cultures[band.Culture];
+        var band=group.Residents;var culture=EffectiveNpcCulture(group);NpcCoordinator(group);
         if(group.Social==null||group.SocialCulture!=culture){group.Social=ForagerSocialLife.Create(culture,band);group.SocialCulture=culture;}
         var social=group.Social;var text=new StringBuilder(" Camp customs: "+social.DecisionMaking+" "+social.Sharing+" "+social.Visitors+" "+social.SpeechStyle+" "+social.Roles(band));
         var personal=NpcMemoryFor(actor.ResidentId).Social;
@@ -30,7 +30,7 @@ public sealed partial class LocalTerrainExplorer
         if(situation.PermanentBase)text.Append(" This is a long-term base; no departure is currently planned.");
         else if(situation.Phase==HumanCampPhase.Travelling)text.Append(" Your group is moving to the next seasonal camp.");
         else text.Append(" Current plan is to leave this camp in roughly ").Append(days>=2?Math.Ceiling(days).ToString("0")+" local solar days":Math.Max(0,Math.Round(days*24/2)*2).ToString("0")+" local solar hours").Append("; plans can change. Next camp purpose: ").Append(situation.Destination?.Purpose??"the next seasonal camp").Append('.');
-        return text.ToString();
+        return text.Append(NpcCommunityContext(actor)).ToString();
     }
     void UpdateNpcSocial()
     {
@@ -86,7 +86,7 @@ public sealed partial class LocalTerrainExplorer
     {
         foreach(var observer in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,actor.Root.transform.position+Vector3.up,4)).Take(4))
             if(target!="person:"+observer.ResidentId)NpcMemoryFor(observer.ResidentId).Hear(actor.ResidentId,actor.Resident.Name,speech);
-        if(target=="player"){if(campResting||campSleeping)WakeCamp(actor.Resident.Name+" is speaking to you.");return;}
+        if(target=="player"){if(!string.IsNullOrEmpty(heard.Words))NpcSocialRules.SharedConversation(NpcMemoryFor(actor.ResidentId).Social,PlayerPropertyKey,PlayerRules.SolarDays,false,"the actual conversation");if(campResting||campSleeping)WakeCamp(actor.Resident.Name+" is speaking to you.");return;}
         if(!target.StartsWith("person:")||!long.TryParse(target.Substring(7),out var id)||!livingPeople.TryGetValue(id,out var other)||HumanDistance(actor.Planet,other.Planet)>5)return;
         if(!NpcCanHear(other,actor.Root.transform.position+transform.up,5))return;
         if(npcConversation!=null&&!npcConversation.Recorded&&(actor.ResidentId==npcConversation.A||actor.ResidentId==npcConversation.B))

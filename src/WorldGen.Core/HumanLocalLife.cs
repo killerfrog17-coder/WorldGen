@@ -23,7 +23,7 @@ namespace WorldGen.Core
     {
         public ForagerBandSample Band;public HumanCampSite Camp,Destination;public V Position;
         public HumanCampPhase Phase;public double ArrivalDay,DepartureDay,JourneyEndDay,Progress,DistanceToPlayerM;
-        public double DaylightHours,LocalHour,SecurityRisk;public int ForageParties;
+        public double DaylightHours,LocalHour,SecurityRisk,WatchPolicy=-1;public int ForageParties;
         public bool PermanentBase,JourneyRest;
     }
     public sealed class HumanActivitySample
@@ -180,9 +180,9 @@ namespace WorldGen.Core
             duration=Math.Max(6.5,duration+(daily-.5)*.55-(social-.5)*.3);
             return(wake,(wake+24-duration)%24,duration);
         }
-        public HumanActivitySample Activity(HumanGroupSituation group,ForagerBandSample residents,ForagerPersonSample person,HumanLifeClock clock,double temperatureC=18,double rainMmHour=0)
+        public HumanActivitySample Activity(HumanGroupSituation group,ForagerBandSample residents,ForagerPersonSample person,HumanLifeClock clock,double temperatureC=18,double rainMmHour=0,ForagerCulture localCulture=null)
         {
-            var f=snapshot.Foragers;var culture=f.Cultures[group.Band.Culture];var belief=f.Beliefs[group.Band.Belief];int seed=world.Recipe.Seed;
+            var f=snapshot.Foragers;var culture=localCulture??f.Cultures[group.Band.Culture];var belief=f.Beliefs[group.Band.Belief];int seed=world.Recipe.Seed;
             double age=person.AgeYears,personality=Unit(person.Id,seed,"human-work-personality"),social=Unit(person.Id,seed,"human-social-personality"),day=Math.Floor(clock.SolarDays);
             var result=new HumanActivitySample{Person=person.Id,Group=group.Band.Id,Position=group.Position,Destination=group.Position,Role=person.Role};
             var homeOffset=HumanCampLayout.HouseholdOffset(residents,person.Household,group.Camp.Id,seed);

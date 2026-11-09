@@ -14,7 +14,8 @@ namespace WorldGen.Core
             double localOffset=((hour-solarDays*24)%24+24)%24/24;
             int day=(int)Math.Floor(solarDays+localOffset-dusk/24);
             double phase=(hour-dusk+24)%24;
-            if(group.SecurityRisk>.45&&phase<duration&&Unit(band.Id,culture.Seed,"night-watch-custom")<.25+.5*group.SecurityRisk+(1-culture.GuestAccess)*.15)
+            bool formal=group.WatchPolicy>.5||group.WatchPolicy<0&&group.SecurityRisk>.45&&Unit(band.Id,culture.Seed,"night-watch-custom")<.25+.5*group.SecurityRisk+(1-culture.GuestAccess)*.15;
+            if(formal&&phase<duration)
             {
                 var roster=band.Members.Where(p=>p.AgeYears>=18&&p.AgeYears<=65&&!band.Members.Any(k=>k.AgeYears<3&&k.Mother==p.Id)).OrderBy(p=>Unit(p.Id,culture.Seed,"night-watch-roster",day)).ThenBy(p=>p.Id).Take(3).ToArray();
                 int shift=Math.Min(roster.Length-1,(int)(phase/duration*Math.Min(3,roster.Length)));
