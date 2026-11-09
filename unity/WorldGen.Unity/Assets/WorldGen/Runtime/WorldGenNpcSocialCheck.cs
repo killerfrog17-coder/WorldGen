@@ -95,10 +95,11 @@ public sealed partial class LocalTerrainExplorer
                 if(npcEvents.Count==0&&npcThinking==null&&npcSpeech.Count==0&&Time.unscaledTimeAsDouble>until-170)break;
                 yield return null;
             }
-            Check(npcUtterances>=start+2,"Both actual residents deliver a live Qwen conversational turn: "+npcLastError);
-            Check(streamed&&maxQueue<=1,"Live ambient speech streams without building more than one queued request");
             File.WriteAllText(Path.Combine(output,"live-social-first.json"),JsonUtility.ToJson(NpcMemoryFor(recipient.ResidentId),true));
             File.WriteAllText(Path.Combine(output,"live-social-second.json"),JsonUtility.ToJson(NpcMemoryFor(other.ResidentId),true));
+            File.WriteAllText(Path.Combine(output,"live-social-result.txt"),"utterances="+(npcUtterances-start)+" decisions="+npcDecisions+" queue="+npcEvents.Count+" pending="+npcPending?.Person+" errors="+npcLastError+" conversation="+(npcConversation!=null));
+            Check(npcUtterances>=start+2,"Both actual residents deliver a live Qwen conversational turn ("+(npcUtterances-start)+"): "+npcLastError);
+            Check(streamed&&maxQueue<=1,"Live ambient speech streams without building more than one queued request");
             npcTalkTarget=recipient;int before=npcUtterances;npcLastError="";SpeakToNpc("What time of day is it now?");
             until=Time.unscaledTimeAsDouble+180;while(npcUtterances==before&&npcLastError.Length==0&&Time.unscaledTimeAsDouble<until)yield return null;
             Check(npcUtterances>before&&npcConversation==null,"Player dialogue interrupts the ambient exchange and receives a real model reply: "+npcLastError);

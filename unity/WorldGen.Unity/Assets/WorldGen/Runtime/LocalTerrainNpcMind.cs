@@ -79,6 +79,10 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var decision=JsonUtility.FromJson<NpcDecision>(work.Result);
                     if(decision==null||!decision.Validate(npcPendingTargets))throw new InvalidOperationException("Invalid NPC decision");
+                    // A spoken reply may resume the routine afterwards. It is
+                    // still addressed to the person in this exchange, not "none".
+                    if(decision.speech.Length>0&&decision.target=="none")
+                    {string addressed=item.Speaker>0?"person:"+item.Speaker:item.Direct?"player":"none";if(npcPendingTargets.Contains(addressed))decision.target=addressed;}
                     if((decision.action=="invite"||decision.action=="endorse"||decision.action=="support_custom")&&npcPendingSocialActions?.Contains(decision.action)!=true)throw new InvalidOperationException("NPC social action was not available");
                     if((campSleeping||campResting)&&decision.target=="player"&&(decision.action=="speak"||decision.action=="approach"))WakeCamp(actor.Resident.Name+" approaches to speak to you.");
                     var memory=NpcMemoryFor(actor.ResidentId);memory.Thought=decision.thought;memory.Trigger=NpcDecision.Clean(item.Trigger,160);
