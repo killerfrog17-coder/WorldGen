@@ -111,12 +111,13 @@ sealed class NpcModelClient : IDisposable
         string fields="{\"type\":\"object\",\"properties\":{\"speech\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?220:280)+"},\"thought\":{\"type\":\"string\",\"maxLength\":"+(Config.BriefReplies?70:120)+"},\"action\":{\"type\":\"string\",\"enum\":ACTIONS},\"target\":{\"type\":\"string\",\"enum\":TARGETS},\"seconds\":{\"type\":\"integer\",\"minimum\":2,\"maximum\":30}},\"required\":[\"speech\",\"thought\",\"action\",\"target\",\"seconds\"],\"additionalProperties\":false}";
         string directed=targets.Replace("\"none\",","").Replace(",\"none\"","").Replace("\"none\"","");
         string extra=string.Concat((socialActions??Array.Empty<string>()).Where(a=>a!="support_custom").Select(a=>",\""+a+"\""));
-        string moving=fields.Replace("ACTIONS","[\"speak\",\"approach\",\"flee\""+extra+"]").Replace("TARGETS",directed);
+        string moving=fields.Replace("ACTIONS","[\"speak\",\"approach\",\"flee\"]").Replace("TARGETS",directed);
         string resting=fields.Replace("ACTIONS","[\"wait\",\"rest\",\"resume\"]").Replace("TARGETS",targets);
+        string community=extra.Length>0?","+fields.Replace("ACTIONS","["+extra.Substring(1)+"]").Replace("TARGETS","[\"player\"]"):"";
         string policy="";
         if(socialActions?.Contains("support_custom")==true&&customs?.Length>0)
         {string choices="["+string.Join(",",customs.Select(c=>"\""+c+"\""))+"]";policy=","+fields.Replace("ACTIONS","[\"support_custom\"]").Replace("TARGETS","[\"player\"]").Replace("\"seconds\":{","\"proposal\":{\"type\":\"string\",\"enum\":"+choices+"},\"seconds\":{").Replace("\"required\":[","\"required\":[\"proposal\",");}
-        string schema="{\"type\":\"json_schema\",\"json_schema\":{\"name\":\"decision\",\"strict\":true,\"schema\":{\"anyOf\":["+moving+","+resting+policy+"]}}}";
+        string schema="{\"type\":\"json_schema\",\"json_schema\":{\"name\":\"decision\",\"strict\":true,\"schema\":{\"anyOf\":["+moving+","+resting+community+policy+"]}}}";
         string json=JsonUtility.ToJson(request);json=json.Substring(0,json.Length-1)+",\"response_format\":"+schema+"}";
         using(var message=new HttpRequestMessage(HttpMethod.Post,endpoint+"/v1/chat/completions"))
         {

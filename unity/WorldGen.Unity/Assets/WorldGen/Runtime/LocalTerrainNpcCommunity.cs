@@ -44,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
         var group=livingGroups[actor.GroupId];long coordinator=NpcCoordinator(group);var welcome=NpcWelcomeAvailable(actor);var local=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId)?.Community;
         bool guest=local?.Guests.Contains(PlayerPropertyKey)==true;
         string text=" Actual local coordinator: "+(group.Residents.Members.FirstOrDefault(p=>p.Id==coordinator)?.Name??"not presently established")+". Speaker's status here: "+(PlayerRules.Identity?.Group==actor.GroupId?"member":guest?"welcomed guest":"visitor")+".";
-        if(welcome!=NpcWelcome.None)text+=" If the speaker asks to stay or join, the available invite action currently offers "+welcome.ToString().ToLowerInvariant()+" status; do not promise stronger status.";
+        if(welcome!=NpcWelcome.None)text+=" If the speaker asks to stay or join, the available invite action currently offers "+welcome.ToString().ToLowerInvariant()+" status; do not promise stronger status. If you agree to welcome them, choose invite targeting player. A verbal welcome with speak alone does not grant guest access or membership.";
         if(PlayerRules.Identity?.Group==actor.GroupId&&coordinator==PlayerPropertyKey)text+=" The speaker is the actual current coordinator. You still have your own opinion. Custom proposals you personally could support: "+string.Join(", ",NpcSupportedCustoms(actor))+". support_custom records your support; it does not unilaterally change the band. Use it only when discussing that specific proposal.";
         return text;
     }
