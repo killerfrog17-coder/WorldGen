@@ -19,14 +19,25 @@ public sealed partial class LocalTerrainExplorer
         {TerrainHandoff.Coordinates(frame,at,out double x,out double z);actor.Motor.Place(x,z,VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM));actor.Planet=frame.Position(x,z);actor.Root.transform.localPosition=new Vector3((float)(x-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(z-originZ));}
         ScatterInstance branch=default;until=Time.unscaledTimeAsDouble+60;
         while(branch.Id==0&&Time.unscaledTimeAsDouble<until)
-        {branch=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.Branch&&!CollectedRock(p)&&RockPossession(p).MassKg<=4).OrderBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();if(branch.Id==0)yield return null;}
+        {branch=scatterChunks.Values.Where(c=>c.Roots!=null).SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.Branch&&!CollectedRock(p)&&!NpcMaterialClaimed(actor,p.Id)&&RockPossession(p).MassKg<=4).OrderBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();if(branch.Id==0)yield return null;}
         paused=true;File.WriteAllText(Path.Combine(output,"material-site.txt"),"chunks="+scatterChunks.Count+"; biome="+walkingPatch.Sample(actor.Planet).Biome+"; cell="+walkingPatch.Sample(actor.Planet).Cell+"; branch="+branch.Id);
         Check(branch.Id!=0,"A real uncollected fallen branch exists in loaded scatter");Stand(branch.Position);
         var task=new NpcMaterialTask{Purpose="fuel",Plant=branch,Point=branch.Position,Natural=true,Needed=8};V target=actor.Planet;int before=npcMaterialHarvests;
+        var colleague=livingPeople.Values.FirstOrDefault(p=>p!=actor&&p.GroupId==actor.GroupId&&p.Resident.AgeYears>=14);Check(colleague!=null,"A second actual worker is available to coordinate a material target");
+        var savedTask=actor.MaterialTask;
+        try
+        {
+            actor.MaterialTask=task;task.ClaimUntil=Time.unscaledTimeAsDouble+3;
+            Check(NpcMaterialClaimed(colleague,branch.Id)&&!NpcMaterialClaimed(actor,branch.Id),"An active single-item claim excludes another worker without excluding its owner");
+            task.ClaimUntil=Time.unscaledTimeAsDouble-1;
+            Check(!NpcMaterialClaimed(colleague,branch.Id),"An interrupted worker's expired claim releases the actual resource");
+        }
+        finally{actor.MaterialTask=savedTask;task.ClaimUntil=0;}
         NpcGatherMaterial(actor,task,1,ref target);
         Check(npcMaterialHarvests==before+1&&inventoryCollected.Contains(branch.Id)&&Inventory.CollectedNatural.Contains(branch.Id),"Gathering the actual fallen branch uses the player's shared depletion ledger");
         var actual=actor.Belongings.Items.Concat(Inventory.Items).Single(p=>p.NaturalId==branch.Id);Check(actual.OwnerGroup==actor.GroupId&&actual.Kind==PossessionKind.Branch,"The gathered branch is a single real owned possession");
         var repeat=new NpcMaterialTask{Purpose="fuel",Plant=branch,Point=branch.Position,Natural=true,Needed=8};NpcGatherMaterial(actor,repeat,1,ref target);Check(npcMaterialHarvests==before+1,"The same natural branch cannot be gathered twice");
+        Check(!repeat.Natural&&repeat.ClaimUntil==0&&repeat.SearchAt==0,"A depleted single-item target is abandoned immediately so a worker can choose another source");
         if(!actor.Belongings.Items.Contains(actual)){Check(AcquireNpcItem(actor,actual),"The worker can physically retrieve its gathered branch");}
         var fire=new CampObject{Kind=CampKind.Fire,Position=actor.Planet,NpcGroup=actor.GroupId,NpcSite=group.Situation.Camp.Id,EmberSeconds=900};Camp.Objects.Add(fire);double mass=actual.MassKg;
         Check(NpcMaterialUse.Feed(actor.Belongings,fire,actual)&&Math.Abs(fire.FuelKg-mass)<1e-9,"A real harvested branch transfers its finite mass to the hearth");

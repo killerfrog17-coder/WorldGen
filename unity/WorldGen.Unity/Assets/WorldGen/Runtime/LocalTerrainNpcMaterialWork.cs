@@ -9,7 +9,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class NpcMaterialTask
     {
         public string Purpose="";public ScatterInstance Plant;public ForageProduct Product;public Possession Loose;
-        public V Point;public bool Natural,Grass,Delivering;public double Work,SearchAt,Needed=30;
+        public V Point;public bool Natural,Grass,Delivering;public double Work,SearchAt,Needed=30,ClaimUntil;
         public CampBlueprint Construction;public string ConstructionKey="";public CampObject WorkFire;public V WorkPoint;public double WorkPointUntil;public int Deliveries;public string[] LastDelivered=Array.Empty<string>();
     }
     readonly NpcMaterialAdmission npcMaterialAdmission=new NpcMaterialAdmission();int npcMaterialSearches,npcMaterialHarvests,npcMaterialFeeds,npcMaterialMeals,npcMaterialFlakes;
@@ -40,6 +40,16 @@ public sealed partial class LocalTerrainExplorer
         if(range>.01)return HumanLocalLife.Interpolate(plant.Position,actor.Planet,Math.Min(1,clearance/range));
         TerrainHandoff.Coordinates(frame,plant.Position,out double x,out double z);return frame.Position(x+clearance,z);
     }
+    bool NpcMaterialClaimed(HumanActor actor,ulong natural,string loose=null)
+    {
+        double now=Time.unscaledTimeAsDouble;
+        foreach(var other in livingPeople.Values)
+        {
+            var task=other.MaterialTask;if(other==actor||other.Health<=0||task==null||task.ClaimUntil<now)continue;
+            if(loose!=null?task.Loose?.Id==loose:task.Natural&&task.Plant.Id==natural)return true;
+        }
+        return false;
+    }
     bool NpcFindMaterial(HumanActor actor,NpcMaterialTask task,string purpose)
     {
         if(actor.SimulationAge<task.SearchAt||!npcMaterialAdmission.Try(actor.ResidentId,Time.frameCount,Time.unscaledTimeAsDouble))return false;
@@ -55,8 +65,8 @@ public sealed partial class LocalTerrainExplorer
         if(community.MaterialStockRadius<=0||community.MaterialStockSite!=community.Situation.Camp.Id)
         {community.MaterialStockSite=community.Situation.Camp.Id;community.MaterialStockRadius=HumanCampLayout.Radius(community.Residents,community.Situation.Camp.Id,sourceWorld.Recipe.Seed)+5;}
         double campRadius=community.MaterialStockRadius;
-        var loose=Inventory.Items.Where(p=>Match(p)&&NpcCanUseWorldItem(actor,p)&&(!wild||HumanDistance(NpcWorldItemPosition(p),community.Anchor)>campRadius)).OrderBy(p=>HumanDistance(actor.Planet,NpcWorldItemPosition(p))).FirstOrDefault();
-        if(loose!=null){task.Loose=loose;task.Point=NpcWorldItemPosition(loose);task.Needed=5;return true;}
+        var loose=Inventory.Items.Where(p=>Match(p)&&NpcCanUseWorldItem(actor,p)&&!NpcMaterialClaimed(actor,0,p.Id)&&(!wild||HumanDistance(NpcWorldItemPosition(p),community.Anchor)>campRadius)).OrderBy(p=>HumanDistance(actor.Planet,NpcWorldItemPosition(p))).FirstOrDefault();
+        if(loose!=null){task.Loose=loose;task.Point=NpcWorldItemPosition(loose);task.Needed=5;task.ClaimUntil=Time.unscaledTimeAsDouble+3;return true;}
         if(purpose=="kit"||purpose=="cutter")return false;
         var here=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(actor.Motor.Z-originZ));
         if(purpose=="tinder"||purpose=="bedding")
@@ -81,7 +91,7 @@ public sealed partial class LocalTerrainExplorer
                     var plant=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-here).sqrMagnitude;if(distance>=best||CollectedRock(plant)||CampClearedPlant(plant))continue;
                     if(purpose=="fuel"||component!=null&&component.Kg==0)
                     {
-                        if(plant.Kind!=ScatterKind.Branch)continue;var branch=RockPossession(plant);if(component!=null?!Match(branch):branch.MassKg>4||branch.MassKg<.025)continue;
+                        if(plant.Kind!=ScatterKind.Branch||NpcMaterialClaimed(actor,plant.Id))continue;var branch=RockPossession(plant);if(component!=null?!Match(branch):branch.MassKg>4||branch.MassKg<.025)continue;
                         task.Plant=plant;task.Product=null;task.Point=plant.Position;task.Natural=true;task.Needed=8;best=distance;continue;
                     }
                     if(plant.Kind!=ScatterKind.GeneratedTree&&plant.Kind!=ScatterKind.MidPlant&&!IsSpecialist(plant.Kind))continue;
@@ -93,7 +103,7 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        if(task.Natural)return true;
+        if(task.Natural){task.ClaimUntil=Time.unscaledTimeAsDouble+3;return true;}
         if(purpose=="tinder"||purpose=="bedding"||component?.Kind==CampPartKind.Cover&&construction.Cover==CampCover.Brush)
         {
             var sample=walkingPatch.Sample(actor.Planet);var record=ToolResource("grass-"+GroundWorkKey(actor.Planet));
@@ -121,6 +131,12 @@ public sealed partial class LocalTerrainExplorer
     }
     void NpcGatherMaterial(HumanActor actor,NpcMaterialTask task,float dt,ref V target)
     {
+        // An interrupted worker releases its claim after three real seconds.
+        // A live worker refreshes it while walking/working, and abandons a
+        // single item immediately if another actor has already collected it.
+        if(task.Loose!=null&&!Inventory.Items.Contains(task.Loose)||task.Natural&&task.Product==null&&(CollectedRock(task.Plant)||NpcMaterialClaimed(actor,task.Plant.Id)))
+        {task.Loose=null;task.Natural=task.Grass=false;task.Product=null;task.Work=0;task.SearchAt=task.ClaimUntil=0;target=actor.Planet;return;}
+        task.ClaimUntil=Time.unscaledTimeAsDouble+3;
         target=task.Point;actor.TaskDetail="going to gather "+(task.Purpose=="food"?"a known local food":task.Purpose=="tinder"?"fine fire material":task.Purpose=="kit"?"the fire-making kit":"fallen wood");actor.TaskWaiting=true;
         if(HumanDistance(actor.Planet,task.Point)>1.7)return;
         actor.TaskDetail="gathering "+(task.Loose?.Name??task.Product?.Species??(task.Grass?"dry grass":"fallen wood"));actor.TaskWaiting=false;task.Work+=NpcWorkSeconds(dt);if(task.Work<task.Needed)return;
@@ -146,7 +162,7 @@ public sealed partial class LocalTerrainExplorer
             {gathered=NpcCarryProduced(actor,PortableTechnology.Create(PossessionKind.DryGrass,actor.Planet));if(gathered)record.Harvests++;}
         }
         if(gathered){npcMaterialHarvests++;if(task.Purpose=="fuel"||task.Purpose=="food"&&actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&Foraging.Food(p)).Sum(p=>p.MassKg)>=.4)task.Delivering=true;}
-        task.Loose=null;task.Natural=task.Grass=false;task.Product=null;task.Work=0;task.SearchAt=actor.SimulationAge+(gathered?1:3);inventoryNearbyAt=0;
+        task.Loose=null;task.Natural=task.Grass=false;task.Product=null;task.Work=0;task.ClaimUntil=0;task.SearchAt=actor.SimulationAge+(gathered?1:3);inventoryNearbyAt=0;
     }
     bool PrepareNpcMaterialTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,ref V target)
     {
