@@ -11,6 +11,12 @@ public sealed partial class LocalTerrainExplorer
     LocalTerrainFrame campMaskFrame;
     sealed class GroundFootprint{public CampObject Source;public double X,Z,W,D,Heading,Strength;public bool Fire;}
     readonly List<GroundFootprint> campFootprints=new List<GroundFootprint>();
+    static bool NpcCampHasGroundWear(CampObject obj)
+    {
+        if(obj.NpcSite==0)return true;
+        if(obj.Blueprint!=null){foreach(var part in obj.Blueprint.Parts)if(part.Materials.Count>0)return true;return false;}
+        return obj.Materials.Count>0||obj.Kind==CampKind.Fire&&obj.AshKg>0;
+    }
     void UpdateCampClearing()
     {
         if(frame==null||Time.unscaledTimeAsDouble<campMaskCheckAt)return;campMaskCheckAt=Time.unscaledTimeAsDouble+1;
@@ -19,6 +25,9 @@ public sealed partial class LocalTerrainExplorer
         foreach(var obj in Camp.Objects)
         {
             if(obj.Kind!=CampKind.Blueprint&&obj.Kind!=CampKind.Fire&&obj.Kind!=CampKind.Bedding||HumanDistance(obj.Position,Position)>800)continue;
+            // An observed arrival only lays out empty intentions. Vegetation
+            // wears down after material-backed work, not on a calendar phase.
+            if(!NpcCampHasGroundWear(obj))continue;
             TerrainHandoff.Coordinates(frame,obj.Position,out double x,out double z);double strength=1;
             if(obj.NpcSite!=0)
             {
