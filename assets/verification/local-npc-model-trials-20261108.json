@@ -1,0 +1,54 @@
+{
+  "timestampUtc": "2026-11-09T00:51:33.214251+00:00",
+  "status": "Three candidates downloaded; inference quality and speed NOT evaluated",
+  "directory": "D:\\WorldGenModels\\NpcAI",
+  "additionalBytes": 24427143392,
+  "models": [
+    {
+      "name": "Qwen3.5-9B",
+      "file": "Qwen3.5-9B-Q4_K_M.gguf",
+      "repository": "unsloth/Qwen3.5-9B-GGUF",
+      "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+      "bytes": 5680522464,
+      "sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+      "license": "Apache-2.0",
+      "upstream": "https://huggingface.co/Qwen/Qwen3.5-9B",
+      "path": "D:\\WorldGenModels\\NpcAI\\Qwen3.5-9B-Q4_K_M.gguf",
+      "verification": "Full SHA-256 checked during download; expected size and GGUF header confirmed after publication"
+    },
+    {
+      "name": "Gemma 4 12B IT",
+      "file": "gemma-4-12b-it-Q4_K_M.gguf",
+      "repository": "unsloth/gemma-4-12B-it-GGUF",
+      "revision": "fc034cfff751157913579611efad8462ac1be606",
+      "bytes": 7121861440,
+      "sha256": "0a270ec9fe6b34f4a0d33992b6135117b484ebc4766ab76b51d4ae8c457e4c42",
+      "license": "Apache-2.0",
+      "upstream": "https://huggingface.co/google/gemma-4-12B-it",
+      "path": "D:\\WorldGenModels\\NpcAI\\gemma-4-12b-it-Q4_K_M.gguf",
+      "verification": "Full SHA-256 checked during download; expected size and GGUF header confirmed after publication"
+    },
+    {
+      "name": "GPT-OSS 20B",
+      "file": "gpt-oss-20b-Q4_K_M.gguf",
+      "repository": "unsloth/gpt-oss-20b-GGUF",
+      "revision": "d449b42d93e1c2c7bda5312f5c25c8fb91dfa9b4",
+      "bytes": 11624759488,
+      "sha256": "c27536640e410032865dc68781d80a08b98f8db5e93575919af8ccc0568aeb4f",
+      "license": "Apache-2.0",
+      "upstream": "https://developers.openai.com/api/docs/models/gpt-oss-20b",
+      "path": "D:\\WorldGenModels\\NpcAI\\gpt-oss-20b-Q4_K_M.gguf",
+      "verification": "Full SHA-256 checked during download; expected size and GGUF header confirmed after publication"
+    }
+  ],
+  "existingModel": "Qwen3-4B-Instruct-2507 unchanged",
+  "settingsSha256BeforeAndAfter": "193a4b2eaa04996277ca34967f15aa3a255155bbcee250ba4ee7fa0cd8c2a957",
+  "artifactsGiBAtInspection": 1.596,
+  "artifactsDeleted": false,
+  "reasonForD": "C had 19.2 GiB free, only 20.8 GiB even after hypothetical artifacts deletion; selected weights require 22.75 GiB plus reserve.",
+  "cleanupReminder": "After comparison, delete losing trial weights. Move the chosen model to C if desired and sufficient free space exists; update its configured path. Keep only one shared copy.",
+  "freeGiBAfter": {
+    "C": 19.21,
+    "D": 85.31
+  }
+}
