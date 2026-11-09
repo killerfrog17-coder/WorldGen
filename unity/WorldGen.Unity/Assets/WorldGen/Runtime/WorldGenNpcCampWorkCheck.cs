@@ -47,6 +47,15 @@ public sealed partial class LocalTerrainExplorer
         var bundle=NpcCampWork.Bundle(actor.Belongings,actor.GroupId,workedShelter.NpcHousehold,actor.Planet);File.WriteAllText(Path.Combine(output,"bound-load.json"),JsonUtility.ToJson(bundle,true));
         Check(bundle!=null&&actor.Belongings.Carried(bundle)&&bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Actual recovered poles and lashing become one carried bound load with their exact contents preserved");
         UpdateNpcProps(actor,group,ActualNpcCarryRole(actor));Check(actor.NpcProps.Any(p=>p.Item==bundle&&p.Root.GetComponentsInChildren<Renderer>().Length>=2),"The bound load appears on the actual person using the existing material models");
+        var carrier=livingPeople.Values.First(p=>p.GroupId==actor.GroupId&&p.Resident.Household==bundle.OwnerHousehold&&p.Resident.AgeYears>=18);
+        bundle.Place=PossessionPlace.Ground;bundle.ContainerId="";bundle.Position=actor.Planet;PublishNpcGroundGoods(actor);
+        NpcBelongings.Equip(carrier.Belongings,Array.Empty<Possession>(),carrier.Planet);PublishNpcGroundGoods(carrier);
+        var heldProof=new[]{PortableTechnology.Create(PossessionKind.StoneBlade,carrier.Planet),PortableTechnology.Create(PossessionKind.StoneBlade,carrier.Planet)};
+        heldProof[0].Place=PossessionPlace.RightHand;heldProof[1].Place=PossessionPlace.LeftHand;foreach(var tool in heldProof)carrier.Belongings.Items.Add(tool);
+        TerrainHandoff.Coordinates(frame,bundle.Position,out double loadX,out double loadZ);carrier.Motor.Place(loadX,loadZ,CampFloor(loadX,loadZ));carrier.Planet=bundle.Position;
+        V retrieve=bundle.Position;Check(RecoverNpcCampCargo(carrier,.1f,ref retrieve)&&carrier.Belongings.Find(bundle.Id)==bundle&&carrier.Belongings.Carried(bundle)&&Inventory.Find(bundle.Id)==null,"A real packed load is retrieved with both hands initially occupied, stowing or setting down the held tools automatically");
+        Check(bundleIds.All(id=>bundle.BundledMaterials.Any(p=>p.Id==id)),"Occupied-hand retrieval preserves every original bound contribution");
+        foreach(var tool in heldProof){carrier.Belongings.Items.Remove(tool);Inventory.Items.Remove(tool);}carrier.Belongings.Validate();
         // A previously unvisited partial camp receives its missing INITIAL
         // stock once as real loose/bound goods, not a future progress factory.
         var initial=new CampObject{Id=shelter.Id+"-initial-stock-proof",Kind=CampKind.Blueprint,NpcGroup=actor.GroupId,NpcHousehold=actor.Resident.Household,Position=shelter.Position,Blueprint=CampBlueprints.Create(CampDesign.LeanTo,2,2,CampCover.Hide)};

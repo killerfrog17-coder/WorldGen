@@ -52,9 +52,12 @@ public sealed partial class LocalTerrainExplorer
     {
         if(dt<=0||actor.Resident.AgeYears<12||actor.Belongings==null)return false;
         bool packing=group.Situation.Phase==HumanCampPhase.Packing;
-        if(routine.Activity==HumanActivity.Travel&&actor.Belongings.Items.Any(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId))
+        if(!packing&&routine.Activity==HumanActivity.Travel&&actor.Belongings.Items.Any(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId))
         {actor.TaskWaiting=false;actor.TaskDetail="carrying the family's actual shelter materials to the next camp";return true;}
-        bool building=group.CampLoaded&&(routine.Activity==HumanActivity.BuildCamp||routine.Activity==HumanActivity.RepairShelter||routine.Activity==HumanActivity.Craft);
+        // Reaching the end of a broad setup window does not finish its physical
+        // shelters. Awake, available adults at camp keep working on them.
+        bool localRepair=group.NeedsCampWork&&actor.Resident.AgeYears>=14&&(routine.Activity==HumanActivity.Rest||routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach)&&HumanDistance(actor.Planet,group.Anchor)<80;
+        bool building=group.CampLoaded&&(localRepair||routine.Activity==HumanActivity.BuildCamp||routine.Activity==HumanActivity.RepairShelter||routine.Activity==HumanActivity.Craft);
         if(!packing&&!building){actor.CampTask=null;return false;}
         bool beginning=actor.CampTask==null;var task=actor.CampTask??(actor.CampTask=new NpcCampTask());
         if(packing&&(beginning||!task.Packing)){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);}
@@ -146,7 +149,7 @@ public sealed partial class LocalTerrainExplorer
     bool PrepareNpcCampBedding(HumanActor actor,LivingGroup group,float dt,ref V target)
     {
         var bed=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Kind==CampKind.Bedding&&c.NpcHousehold==actor.Resident.Household);
-        int sleepers=group.Residents.Members.Count(p=>p.Household==actor.Resident.Household);double wanted=1+Math.Min(6,sleepers)*.5;
+        double wanted=NpcBeddingGoal(group,actor.Resident.Household);
         if(bed==null||bed.Materials.Sum(p=>p.MassKg)>=wanted)return false;
         var stock=actor.Belongings;var material=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.CampMaterial==0&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle));
         actor.CurrentActivity=HumanActivity.BuildCamp;actor.TaskWaiting=false;
@@ -165,7 +168,16 @@ public sealed partial class LocalTerrainExplorer
         var stock=actor.Belongings;var bundle=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&stock.Carried(p));
         double limit=actor.Resident.AgeYears<16?12:24;
         var packed=bundle==null?Inventory.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.MassKg<=limit&&NpcCanUseWorldItem(actor,p)):null;
-        if(packed!=null){target=packed.Position;actor.TaskDetail="retrieving the household's already bound shelter load";actor.TaskWaiting=false;if(HumanDistance(target,actor.Planet)<=1.7)AcquireNpcItem(actor,packed);return true;}
+        if(packed!=null)
+        {
+            target=packed.Position;actor.TaskDetail="retrieving the household's already bound shelter load";actor.TaskWaiting=false;
+            if(HumanDistance(target,actor.Planet)<=1.7)
+            {
+                NpcBelongings.Equip(stock,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);
+                if(AcquireNpcItem(actor,packed))stock.Move(packed.Id,PossessionPlace.Shoulder,"",0,0,false,out _);
+            }
+            return true;
+        }
         var loose=Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&NpcCanUseWorldItem(actor,p)&&
             (p.CampMaterial==actor.GroupId&&p.OwnerHousehold==actor.Resident.Household&&p.Kind!=PossessionKind.CampBundle&&(bundle==null||bundle.MassKg+p.MassKg<=limit)||p.OwnerPerson==actor.ResidentId&&p.CampMaterial==0))
             .OrderBy(p=>p.OwnerPerson==actor.ResidentId?1:0).ThenBy(p=>HumanDistance(p.Position,actor.Planet)).FirstOrDefault();

@@ -10,7 +10,7 @@ using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
 {
-    public sealed class NpcCyclePersonRow{public string Name,TaskDetail;public float Speed;public double NavigationX,NavigationZ,Kg;}
+    public sealed class NpcCyclePersonRow{public string Name,TaskDetail,Hands;public int Loads;public float Speed;public double X,Z,NavigationX,NavigationZ,Kg;}
     public sealed class NpcCycleStatus
     {public string WaitingFor,Phase;public bool CampLoaded,Grounded;public long CurrentSite,OldSite;public int PlacementAttempt,OldParts,Packed,Supplied,Worked;public NpcCampTravel Travel;public NpcCyclePersonRow[] People;}
     static IEnumerator CheckLivingCampCycle(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
@@ -53,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
                 if(Time.realtimeSinceStartupAsDouble>=statusAt)
                 {
                     statusAt=Time.realtimeSinceStartupAsDouble+3;
-                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,CurrentSite=group.Situation.Camp.Id,OldSite=oldSite,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg}).ToArray()}));
+                    File.WriteAllText(Path.Combine(output,"camp-cycle-status.json"),WorldJson.Write(new NpcCycleStatus{WaitingFor=description,Phase=group.Situation.Phase.ToString(),CampLoaded=group.CampLoaded,Grounded=group.Grounded,CurrentSite=group.Situation.Camp.Id,OldSite=oldSite,PlacementAttempt=group.PlacementAttempt,OldParts=Parts(),Packed=owner.npcCampPacked,Supplied=owner.npcCampSupplied,Worked=owner.npcCampWorked,Travel=owner.NpcTravel(group),People=owner.livingPeople.Values.Where(p=>p.GroupId==band).Select(p=>new NpcCyclePersonRow{Name=p.Resident.Name,TaskDetail=p.TaskDetail,Speed=p.Speed,X=p.Motor.X,Z=p.Motor.Z,NavigationX=p.NavigationX,NavigationZ=p.NavigationZ,Kg=p.Belongings.CarriedMassKg,Hands=string.Join(" / ",p.Belongings.Items.Where(i=>i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand).Select(i=>i.Name)),Loads=p.Belongings.Items.Count(i=>i.Kind==PossessionKind.CampBundle&&p.Belongings.Carried(i))}).ToArray()}));
                 }
                 yield return null;
             }

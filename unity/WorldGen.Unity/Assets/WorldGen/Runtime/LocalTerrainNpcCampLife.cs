@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
     void AdvanceLivingCampLife(LivingGroup group)
     {
         bool active=group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp;
+        group.NeedsCampWork=active&&NeedsNpcCampWork(group);
         if(!active){group.TenderDuty=null;group.TendedFire=null;return;}
         if(!group.CampLoaded||group.TraceOnly||group.Residents==null||!group.BandHas(5))return;
         double now=UnityEngine.Time.unscaledTimeAsDouble;
@@ -32,5 +33,17 @@ public sealed partial class LocalTerrainExplorer
             .OrderByDescending(p=>!fire.Burning&&fire.EmberSeconds<=0&&(NpcMaterialUse.HasIgnitionKit(p.Belongings)||Inventory.Items.Any(i=>i.Kind==PossessionKind.HandDrillSet&&i.OwnerPerson==p.ResidentId&&NpcCanUseWorldItem(p,i)))?1000:0).ThenBy(p=>HumanDistance(p.Planet,fire.Position)).FirstOrDefault();
         if(person==null)return;
         group.TendedFire=fire;group.TendUntil=now+180;group.TenderDuty=new HumanActivitySample{Person=person.ResidentId,Group=band,Activity=HumanActivity.TendFire,Position=fire.Position,Destination=fire.Position};
+    }
+    double NpcBeddingGoal(LivingGroup group,long household)=>.9+Math.Min(5,group.Residents.Members.Count(p=>p.Household==household))*.5;
+    bool NeedsNpcCampWork(LivingGroup group)
+    {
+        if(!group.CampLoaded||group.TraceOnly||group.Residents==null)return false;
+        foreach(var obj in Camp.Objects)
+        {
+            if(obj.NpcGroup!=group.Situation.Band.Id||obj.NpcSite!=group.Situation.Camp.Id)continue;
+            if(obj.Blueprint!=null){foreach(var part in NpcCampParts(obj))if(!CampBlueprints.Done(obj.Blueprint,part))return true;}
+            else if(obj.Kind==CampKind.Bedding&&obj.Materials.Sum(p=>p.MassKg)+.00001<NpcBeddingGoal(group,obj.NpcHousehold))return true;
+        }
+        return false;
     }
 }

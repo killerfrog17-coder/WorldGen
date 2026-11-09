@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
         public NpcResourceSites Resources;
         public ForagerSocialLife Social;public ForagerCulture SocialCulture;
         public ForagerCulture PolicyBasis,PolicyCulture;public double PolicySharing=-2,PolicyVisitors=-2;
-        public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200;
+        public NpcSiteSurvey SiteSurvey;public double SiteSurveyRadius=200;public bool NeedsCampWork;
         public long MaterialStockSite;public double MaterialStockRadius;
     }
     sealed class LivingPacket
