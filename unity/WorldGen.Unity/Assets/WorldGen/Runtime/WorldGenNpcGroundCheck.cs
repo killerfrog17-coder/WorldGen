@@ -9,6 +9,44 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     struct NpcCoverProbe{public Vector4 Position,Color,Shape,Normal,Grasses,Herbs;}
+    sealed class NpcScatterSlot{public ulong Id;public Matrix4x4 Matrix;public Vector4 Color,Fade;public Matrix4x4[] Parts;public float Wind;}
+    static void CheckNpcNaturalRemoval(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
+    {
+        void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC SCATTER REMOVAL "+text);checks.Add("PASS "+text);}
+        owner.ApplyNaturalScatterRemovals();var batches=owner.drawBatches.ToArray();
+        ScatterInstance source=default;Possession item=null;
+        foreach(var batch in batches)
+        {
+            var kind=(ScatterKind)((batch.Key>>2)&63);if(kind!=ScatterKind.Stone&&kind!=ScatterKind.Branch)continue;
+            for(int i=0;i<batch.Count&&item==null;i++)foreach(var chunk in owner.scatterChunks.Values)
+            {
+                foreach(var plant in chunk.Source.Instances)if(plant.Id==batch.SourceIds[i]&&!owner.CollectedRock(plant))
+                {var candidate=owner.RockPossession(plant);if(candidate.MassKg<=3){source=plant;item=candidate;}break;}
+                if(item!=null)break;
+            }
+            if(item!=null)break;
+        }
+        Check(item!=null,"A real admitted stone or branch is available for the incremental removal fixture");
+        var before=batches.ToDictionary(b=>b,b=>Enumerable.Range(0,b.Count).Select(i=>new NpcScatterSlot{Id=b.SourceIds[i],Matrix=b.Matrices[i],Color=b.Colors[i],Fade=b.Fades[i],Wind=b.SharedWind?b.WindSlots[i]:0,Parts=b.Model.Parts.Select((p,j)=>p.Local==Matrix4x4.identity?b.Matrices[i]:b.PartMatrices[j][i]).ToArray()}).ToArray());
+        int expected=before.Values.Sum(a=>a.Count(s=>s.Id!=source.Id));var actor=owner.livingPeople.Values.First(p=>p.GroupId==group.Situation.Band.Id&&p.Resident.AgeYears>=18);
+        bool wasDirty=owner.scatterDirty;owner.scatterDirty=false;owner.NpcCarryProduced(actor,item);
+        Check(!owner.scatterDirty&&owner.inventoryCollected.Contains(source.Id)&&actor.Belongings.Find(item.Id)==item,"Actual NPC collection records depletion and transfers the real item without invalidating the whole vegetation scene");
+        owner.ApplyNaturalScatterRemovals();Check(batches.SequenceEqual(owner.drawBatches)&&owner.drawBatches.Sum(b=>b.Count)==expected&&owner.drawBatches.All(b=>!Enumerable.Range(0,b.Count).Any(i=>b.SourceIds[i]==source.Id)),"Every admitted LOD/shadow copy is removed from the existing batches without rebuilding them");
+        bool exact=true;
+        foreach(var batch in batches)
+        {
+            var old=before[batch].ToDictionary(s=>s.Id);
+            for(int i=0;i<batch.Count;i++)
+            {
+                if(!old.TryGetValue(batch.SourceIds[i],out var prior)||prior.Id==source.Id||prior.Matrix!=batch.Matrices[i]||prior.Color!=batch.Colors[i]||prior.Fade!=batch.Fades[i]||batch.SharedWind&&prior.Wind!=batch.WindSlots[i]){exact=false;break;}
+                for(int j=0;j<batch.Model.Parts.Length;j++)if(prior.Parts[j]!=(batch.Model.Parts[j].Local==Matrix4x4.identity?batch.Matrices[i]:batch.PartMatrices[j][i]))exact=false;
+            }
+        }
+        Check(exact,"All surviving root/child transforms, tints, fades and wind slots remain bit-exact after compaction");
+        owner.scatterDirty=wasDirty;owner.BuildScatterBatches();
+        Check(owner.drawBatches.All(b=>!Enumerable.Range(0,b.Count).Any(i=>b.SourceIds[i]==source.Id)),"A subsequent ordinary full rebuild does not resurrect the collected natural item");
+        actor.Belongings.Validate();owner.Inventory.Validate();File.WriteAllText(Path.Combine(output,"incremental-removal-proof.txt"),"Source="+source.Id+"; remaining admissions="+expected+"; existing batches="+batches.Length+"; unaffected root/child attributes EXACT.");
+    }
     static void CheckLivingCampGround(LocalTerrainExplorer owner,LivingGroup group,string output,List<string> checks)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP GROUND "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP GROUND "+text);}
@@ -71,5 +109,6 @@ public sealed partial class LocalTerrainExplorer
             finally{foreach(var buffer in visible)buffer?.Dispose();Destroy(shader);}
         }
         File.WriteAllText(Path.Combine(output,"camp-site-survey.txt"),group.SiteSurvey.Solids.Length+" natural solids; "+group.SiteSurvey.Milliseconds.ToString("F2")+"ms background; "+group.PlacementAttempt+" bounded candidate tests");
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-removal-proof"))CheckNpcNaturalRemoval(owner,group,output,checks);
     }
 }

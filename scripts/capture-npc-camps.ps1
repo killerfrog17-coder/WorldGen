@@ -7,10 +7,12 @@ param(
     [switch]$Performance,
     [switch]$Cycle,
     [switch]$Trace,
+    [switch]$RemovalProof,
     [ValidateRange(5,180)][int]$Seconds=30
 )
 $ErrorActionPreference='Stop'
 if($Trace -and !$Performance){throw 'Frame tracing requires -Performance.'}
+if($RemovalProof -and $Performance){throw 'Material-removal fixtures must not alter a performance scene.'}
 $repo=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repo ('builds/'+$Slot+'/WorldGen.exe')
 $fixture=Join-Path $repo $World
@@ -32,6 +34,7 @@ foreach($case in $Cases){
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
     if($Trace){$arguments+='--worldgen-stutter-trace'}
+    if($RemovalProof){$arguments+='--worldgen-npc-removal-proof'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
     & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor Rightmost
     @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor='Rightmost';build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $output 'owned-process.json')

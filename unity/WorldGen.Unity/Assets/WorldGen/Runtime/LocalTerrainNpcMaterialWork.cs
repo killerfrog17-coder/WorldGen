@@ -112,7 +112,7 @@ public sealed partial class LocalTerrainExplorer
         item.Position=actor.Planet;item.OwnerPerson=0;item.OwnerGroup=actor.GroupId;item.OwnerHousehold=0;item.OwnerName=livingGroups[actor.GroupId].Residents.Name;
         if(Foraging.Food(item)&&EffectiveNpcCulture(livingGroups[actor.GroupId]).FoodSharing<=.65)item.OwnerHousehold=actor.Resident.Household;
         if(item.NaturalId!=0)
-        {if(!stock.CollectedNatural.Contains(item.NaturalId))stock.CollectedNatural.Add(item.NaturalId);if(inventoryCollected.Add(item.NaturalId)&&!Inventory.CollectedNatural.Contains(item.NaturalId))Inventory.CollectedNatural.Add(item.NaturalId);scatterDirty=true;}
+        {if(!stock.CollectedNatural.Contains(item.NaturalId))stock.CollectedNatural.Add(item.NaturalId);if(inventoryCollected.Add(item.NaturalId)){if(!Inventory.CollectedNatural.Contains(item.NaturalId))Inventory.CollectedNatural.Add(item.NaturalId);QueueNaturalScatterRemoval(item.NaturalId);}}
         PublishNpcGroundGoods(actor);return true;
     }
     void NpcGatherMaterial(HumanActor actor,NpcMaterialTask task,float dt,ref V target)
@@ -132,7 +132,7 @@ public sealed partial class LocalTerrainExplorer
             else if(!CollectedRock(task.Plant)&&NpcProductReady(actor,task.Plant,task.Product))
             {
                 gathered=NpcCarryProduced(actor,Foraging.Gather(task.Product,actor.Planet));
-                if(gathered){var record=ToolResource("forage-"+task.Plant.Id.ToString("x16")+"-"+task.Product.Kind);record.HarvestYear=ForageYear;record.Harvests=1;if(task.Plant.Kind==ScatterKind.Fungus&&inventoryCollected.Add(task.Plant.Id)){Inventory.CollectedNatural.Add(task.Plant.Id);scatterDirty=true;}}
+                if(gathered){var record=ToolResource("forage-"+task.Plant.Id.ToString("x16")+"-"+task.Product.Kind);record.HarvestYear=ForageYear;record.Harvests=1;if(task.Plant.Kind==ScatterKind.Fungus&&inventoryCollected.Add(task.Plant.Id)){Inventory.CollectedNatural.Add(task.Plant.Id);QueueNaturalScatterRemoval(task.Plant.Id);}}
             }
         }
         else if(task.Grass)

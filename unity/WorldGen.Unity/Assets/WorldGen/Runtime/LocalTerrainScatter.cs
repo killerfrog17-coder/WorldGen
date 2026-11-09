@@ -24,6 +24,7 @@ public sealed partial class LocalTerrainExplorer
         // Nonuniform scale needs both transform and inverse; stay below the platform's 511-instance limit.
         public readonly Matrix4x4[] Matrices=new Matrix4x4[256];public readonly Vector4[] Colors=new Vector4[256];
         public readonly Vector4[] Fades=new Vector4[256];
+        public readonly ulong[] SourceIds=new ulong[256];
         public readonly List<float> WindSlots=new List<float>(256);public bool SharedWind;public float WindFlex;
         public readonly List<Vector4> UsedColors=new List<Vector4>(256),UsedFades=new List<Vector4>(256);
         public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();public int Count;public long Key;public bool CompactProperties;public ArtModel Model;public ShadowCastingMode Shadows;public Bounds Bounds;
@@ -751,7 +752,35 @@ public sealed partial class LocalTerrainExplorer
         {var actual=ReedFarPigment(reedSpecies);var shared=ReedFarPigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/shared.X),(float)(p.Color.Y*actual.Y/shared.Y),(float)(p.Color.Z*actual.Z/shared.Z),1);}
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&lod==2)
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
-        batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
+        batch.SourceIds[batch.Count]=p.Id;batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
+    }
+    readonly HashSet<ulong> scatterNaturalRemovals=new HashSet<ulong>();
+    void QueueNaturalScatterRemoval(ulong id)
+    {if(WorldGenPerformance.Original){scatterDirty=true;return;}scatterNaturalRemovals.Add(id);}
+    void ApplyNaturalScatterRemovals()
+    {
+        if(scatterNaturalRemovals.Count==0)return;
+        foreach(var batch in drawBatches)
+        {
+            bool changed=false;
+            for(int i=batch.Count-1;i>=0;i--)
+            {
+                if(!scatterNaturalRemovals.Contains(batch.SourceIds[i]))continue;
+                int last=--batch.Count;changed=true;
+                if(i!=last)
+                {
+                    batch.SourceIds[i]=batch.SourceIds[last];batch.Matrices[i]=batch.Matrices[last];batch.Colors[i]=batch.Colors[last];batch.Fades[i]=batch.Fades[last];
+                    if(batch.PartMatrices!=null)foreach(var part in batch.PartMatrices)if(part!=null&&!ReferenceEquals(part,batch.Matrices))part[i]=part[last];
+                    if(batch.SharedWind)batch.WindSlots[i]=batch.WindSlots[last];
+                }
+                if(batch.SharedWind)batch.WindSlots.RemoveAt(last);
+            }
+            if(!changed)continue;
+            batch.UsedColors.Clear();batch.UsedFades.Clear();for(int i=0;i<batch.Count;i++){batch.UsedColors.Add(batch.Colors[i]);batch.UsedFades.Add(batch.Fades[i]);}
+            batch.Properties.Clear();batch.CompactProperties=true;
+            if(batch.Count>0){batch.Properties.SetVectorArray("_Tint",batch.UsedColors);batch.Properties.SetVectorArray("_LodTransition",batch.UsedFades);if(batch.SharedWind)batch.Properties.SetFloatArray("_TreeWindSlot",batch.WindSlots);}
+        }
+        scatterNaturalRemovals.Clear();
     }
     void LateUpdate()
     {
@@ -770,6 +799,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawScatter()
     {
+        ApplyNaturalScatterRemovals();
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
         ScatterDrawCalls=ForestDrawCalls=TreeShadowDraws=0;if(!Ready||frame==null||terrain==null||!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
         // Cache publication/teleport invalidation can happen in LateUpdate.
@@ -784,6 +814,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var batch in drawBatches)batch.Model.LastUsed=drawnAt;
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)
         {
+            if(batch.Count==0)continue;
             var kind=(ScatterKind)((batch.Key>>2)&63);
             if(TerrainDiagnostics.HideTrees&&(kind==ScatterKind.GeneratedTree||kind==ScatterKind.Broadleaf||kind==ScatterKind.Conifer||kind==ScatterKind.SavannaTree))continue;
             var part=batch.Model.Parts[j];
