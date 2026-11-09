@@ -59,7 +59,9 @@ public sealed partial class LocalTerrainExplorer
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
         var producer=new TerrainMeshProcess(workerPath,world,scale,Path.GetFullPath(path));
         var setup=Task.Run(()=>{producer.Prepare(default);return LocalTerrainDerivationCache.Create(world,horizontalScale:scale);});
-        var owner=new GameObject("Living human actual-terrain fixture").AddComponent<LocalTerrainExplorer>();owner.viewDistance=1800;
+        bool performance=Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf");
+        if(performance){TerrainVideoOptions.ApplyAllPlantQuality(2);TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.SurfaceQuality=2;TerrainVideoOptions.SurfaceTextures=true;}
+        var owner=new GameObject("Living human actual-terrain fixture").AddComponent<LocalTerrainExplorer>();owner.viewDistance=performance?6000:1800;
         owner.Initialize(setup,chosen.Position,()=>{},world,play,worker:producer);
         owner.npcModel??=new NpcModelClient();owner.npcModel.Config.Enabled=false;
         double deadline=Time.realtimeSinceStartupAsDouble+180;

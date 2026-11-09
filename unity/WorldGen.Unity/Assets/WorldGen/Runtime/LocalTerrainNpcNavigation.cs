@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     }
     V LivingDryGoal(HumanActor actor,V proposal)
     {
-        if(actor.HasSafeGoal&&HumanDistance(actor.GoalProposal,proposal)<2)return actor.GoalSafe;
+        if(actor.HasSafeGoal&&HumanDistance(actor.GoalProposal,proposal)<.08)return actor.GoalSafe;
         actor.GoalProposal=proposal;
         if(!ResolveLivingDryPoint(proposal,actor.Planet,out var safe))return actor.Planet;
         actor.HasSafeGoal=true;actor.GoalSafe=safe;return safe;
@@ -102,7 +102,15 @@ public sealed partial class LocalTerrainExplorer
             if(plan.Design==CampDesign.LongHut){double end=Math.Max(0,Math.Abs(lz)-Math.Max(0,plan.DepthM-plan.WidthM)*.5);return lx*lx+end*end<Math.Pow(plan.WidthM*.5+.05,2);}
             return Math.Abs(lx)<plan.WidthM*.5+.05&&Math.Abs(lz)<plan.DepthM*.5+.05;
         }
-        bool from=Inside(actor.Motor.X,actor.Motor.Z),to=Inside(x,z);if(from==to)return false;
+        bool from=Inside(actor.Motor.X,actor.Motor.Z),to=Inside(x,z);
+        if(!from&&!to)
+        {
+            double startX=(actor.Motor.X-cx)*Math.Cos(a)-(actor.Motor.Z-cz)*Math.Sin(a),startZ=(actor.Motor.X-cx)*Math.Sin(a)+(actor.Motor.Z-cz)*Math.Cos(a);
+            double goalX=(x-cx)*Math.Cos(a)-(z-cz)*Math.Sin(a),goalZ=(x-cx)*Math.Sin(a)+(z-cz)*Math.Cos(a);
+            if(NpcShelterRouting.OutsideWaypoint(startX,startZ,goalX,goalZ,plan.WidthM*.5+.05,plan.DepthM*.5+.05,out double wx,out double wz)){x=cx+wx*Math.Cos(a)+wz*Math.Sin(a);z=cz+wz*Math.Cos(a)-wx*Math.Sin(a);return true;}
+            return false;
+        }
+        if(from==to)return false;
         double entrySide=plan.Design==CampDesign.LeanTo?-1:1;
         double doorX=cx+Math.Sin(a)*(plan.DepthM*.5+.85)*entrySide,doorZ=cz+Math.Cos(a)*(plan.DepthM*.5+.85)*entrySide;
         double actorX=(actor.Motor.X-cx)*Math.Cos(a)-(actor.Motor.Z-cz)*Math.Sin(a),actorZ=(actor.Motor.X-cx)*Math.Sin(a)+(actor.Motor.Z-cz)*Math.Cos(a);

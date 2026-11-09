@@ -168,7 +168,7 @@ public sealed partial class LocalTerrainExplorer
             if(purpose.Length==0)
             {
                 target=NpcFireWorkPoint(actor,fire);actor.TaskWaiting=false;actor.TaskDetail=fire.Burning?"checking the hearth":"working the fire drill";
-                if(HumanDistance(actor.Planet,fire.Position)<2.2)
+                if(HumanDistance(actor.Planet,target)<.55)
                 {
                     if(!fire.Burning&&NpcMaterialUse.HasIgnitionKit(actor.Belongings)&&group.BandHas(9)&&CampRules.IgniteReason(fire,true).Length==0)
                     {task.Work+=NpcWorkSeconds(dt);if(task.Work>=150){CampRules.Ignite(fire,true);InvalidateCampVisual(fire);}}

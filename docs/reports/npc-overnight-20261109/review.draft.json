@@ -1,0 +1,98 @@
+{
+  "title": "WorldGen | NPC Life Overnight",
+  "section": "NPC LIFE REVIEW",
+  "date": "09 November 2026",
+  "footer": "Actual game captures; controlled checks and ordinary camp views are identified separately.",
+  "draft": true,
+  "pages": [
+    {
+      "title": "People who know their world",
+      "subtitle": "Grounded conditions, individual character and local social life.",
+      "blocks": [
+        {
+          "text": "NPC requests now include the actual time of day and weather, their home environment, regional food and familiar animals. A current animal sighting is distinguished from regional knowledge or an older sighting."
+        },
+        {
+          "heading": "Character and culture",
+          "text": "People have stable differences in courage, sociability, kindness, curiosity, competitiveness and interests. Local belief details, food customs, rites, decision-making and sharing practices inform what they say; influence can be task-specific rather than a universal chief."
+        },
+        {
+          "heading": "A real local-model check",
+          "text": "Qwen3.5-9B correctly named the camp organizers, described the current morning weather, listed regional foods and explained the actual mortuary custom. Its generated invitation also granted guest access through the game executor. This was one controlled welcoming host, not a guarantee that every model response will be correct."
+        }
+      ]
+    },
+    {
+      "title": "Families, company and concern",
+      "subtitle": "Individual routines and relationships give the camp more than a shared timetable.",
+      "blocks": [
+        {
+          "text": "Extended kinship includes cousins, aunts, uncles and grandparents. Personal friendships, friction, trust, respect and grievances affect company and responses. Gifts and returning stolen property transfer real items and change the recipient?s view of the player."
+        },
+        {
+          "heading": "Children and nights",
+          "text": "Children can chase, hide and make believe with actual peers. Infants depend on a nearby caregiver. Sleep timing and occasional awakenings vary; risk and local custom influence watches. Family sleeping places remain household property."
+        },
+        {
+          "heading": "People are not omniscient",
+          "text": "A caregiver can worry about an overdue relative and ask nearby people to search the last known place. Helpers receive a reported concern, not the missing person?s present location or fate. Seeing a return brings relief; learning of a death can produce grief. Dialogue family facts reflect only losses the observer has learned about."
+        }
+      ]
+    },
+    {
+      "title": "Real belongings, real camp work",
+      "subtitle": "Scheduled intentions use finite materials instead of summoning task props.",
+      "blocks": [
+        {
+          "text": "Each person?s inventory persists. Displayed tools are actual held or carried items; task changes do not create replacements. Private property and household beds produce red restricted prompts, and only witnesses learn who took an item."
+        },
+        {
+          "heading": "Building and moving",
+          "text": "Workers approach a particular component, spend work time, remove its actual materials and carry or set them down. Recovered lashing can bind poles and coverings into a load. Unbinding returns the original pieces and their provenance. Wood is carried where scarce; uncarried frames and old hearths can remain."
+        },
+        {
+          "heading": "Acceptance still pending",
+          "text": "Component dismantling, reassembly and a carried load passed native checks with exact identities and mass conserved. Full followed migration and the complete cold-fire routine remain under active verification; these must not be presented as finished."
+        }
+      ]
+    },
+    {
+      "title": "Danger and consequences",
+      "subtitle": "Reactions depend on what a person witnessed and can realistically do.",
+      "blocks": [
+        {
+          "text": "A lone child can retreat, while capable armed adults can protect one another or defend against an identified attacker. Courage, health, weapons and nearby support affect the choice. Actual animal contact can wound a person and cause bleeding; defensive attacks use the real weapon."
+        },
+        {
+          "heading": "Witnesses remember specifics",
+          "text": "Seeing a wolf attack a companion records that animal and event. An occluded witness does not learn the attacker magically. A person who only hears distress knows less than someone who saw the attack. Bodies, possessions, wounds and local incidents persist."
+        },
+        {
+          "heading": "Joining and influence",
+          "text": "Welcoming, membership, support for a coordinator and local changes to sharing, visitors or watches have game rules. Earned relationships and adult support matter; a language-model claim alone cannot grant leadership."
+        },
+        {
+          "heading": "Deliberately outside this update",
+          "text": "Advanced NPC hunting, animal tracking and full food procurement are deferred. This pass provides material-backed gathering and local production routines, not a completed NPC survival economy."
+        }
+      ]
+    },
+    {
+      "title": "Different camps, measured costs",
+      "subtitle": "Ecology, season, mobility and culture guide existing shelter families.",
+      "blocks": [
+        {
+          "text": "The camp planner can select lean-tos, ridge and conical tents, brush huts, longer huts and open canopies where the available techniques support them. Winter and warm-season covering choices differ; useful fitted poles can travel with the household."
+        },
+        {
+          "heading": "Performance verification pending",
+          "text": "The new benchmark repeats a slow scenic camp orbit with normal NPC updates, rendering alone and residents hidden. It records frame tails and focus as well as the NPC update cost. Capped functional tests are not FPS evidence. Results will be inserted only after the isolated runs finish."
+        },
+        {
+          "heading": "Remaining limits",
+          "text": "Camp and hand poses still use existing prototype assets. NPC nutrition is not a complete starvation or illness simulation. Ember transport and full observed migration still need work. No claim of a universal 100-FPS floor is made."
+        }
+      ]
+    }
+  ]
+}

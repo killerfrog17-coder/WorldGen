@@ -1,11 +1,13 @@
 param(
     [ValidateSet('belongings','safety','world','material','daily','social','community','camp','dialogue','encounter','routine','navigation')][string[]]$Cases=@('belongings','safety'),
     [Parameter(Mandatory=$true)][ValidatePattern('^[a-z0-9-]+$')][string]$Prefix,
-    [string]$World='artifacts/terrain-surfaces-20261107/playable.world'
+    [string]$World='artifacts/terrain-surfaces-20261107/playable.world',
+    [switch]$ContinueOnFailure
 )
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'A game is already open; leave it untouched.'}
+$failedCases=@()
 foreach($case in $Cases){
     $out=Join-Path $repo ('artifacts/npc-overnight-20261109/'+$Prefix+'-'+$case)
     if(Test-Path -LiteralPath $out){throw 'Use a new prefix to retain earlier test evidence.'}
@@ -18,7 +20,9 @@ foreach($case in $Cases){
     & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor Rightmost
     $process.WaitForExit()
     @{exitCode=$process.ExitCode;finishedUtc=[DateTime]::UtcNow}|ConvertTo-Json|Set-Content (Join-Path $out 'result.json')
-    if($process.ExitCode -ne 0 -or !(Test-Path -LiteralPath (Join-Path $out 'checks.txt'))){Get-Content (Join-Path $out 'failed-checks.txt') -ErrorAction SilentlyContinue;throw ('NPC '+$case+' failed: '+$out)}
+    if($process.ExitCode -ne 0 -or !(Test-Path -LiteralPath (Join-Path $out 'checks.txt'))){Get-Content (Join-Path $out 'failed-checks.txt') -ErrorAction SilentlyContinue;if($ContinueOnFailure){$failedCases+=$case;continue};throw ('NPC '+$case+' failed: '+$out)}
     Get-Content (Join-Path $out 'checks.txt')
     if((Get-Content (Join-Path $out 'npc-check-kind.txt') -Raw).Trim() -ne ('--worldgen-npc-'+$testName+'-check')){throw 'Wrong or missing native test completion receipt.'}
 }
+
+if($failedCases.Count -gt 0){throw ('NPC checks failed (all independent cases were attempted): '+($failedCases -join ', '))}

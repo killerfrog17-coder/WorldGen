@@ -45,6 +45,20 @@ static class NpcCampWorkTests
         var destination=new PlayerInventory();NpcBelongings.TransferTree(hauling,destination,bundle);destination.Validate();Check(destination.CollectedNatural.Count==3,"A transferred load carries the actual natural identity ledger with its contents");
         var saved=WorldJson.Read<PlayerInventory>(WorldJson.Write(destination));saved.Validate();Check(saved.Items.Single().BundledMaterials.Count==4&&Math.Abs(saved.CarriedMassKg-kg)<1e-9,"The bound load and original contributions survive an actual inventory serialization round trip");
         var separate=NpcCampWork.Unbundle(destination,bundle,new V(1,0,0));destination.Validate();Check(original.SetEquals(separate.Select(p=>p.Id))&&Math.Abs(destination.Items.Sum(p=>p.MassKg)-kg)<1e-9,"Opening a bound load recovers exactly its original rope and poles");
+        foreach(var route in new[]{(-4d,0d,4d,0d),(0d,4d,0d,-4d),(-4d,-3d,4d,3d),(3d,-4d,-3d,4d),(0d,2.7,0d,-4d)})
+        {
+            double x=route.Item1,z=route.Item2,gx=route.Item3,gz=route.Item4;int steps=0;
+            while(Math.Sqrt((gx-x)*(gx-x)+(gz-z)*(gz-z))>.15&&steps++<20)
+            {
+                NpcShelterRouting.OutsideWaypoint(x,z,gx,gz,1.5,1.8,out double nx,out double nz);
+                for(int k=1;k<=30;k++){double t=k/30d,px=x+(nx-x)*t,pz=z+(nz-z)*t;Check(Math.Abs(px)>=1.5||Math.Abs(pz)>=1.8,"An outside route does not cut back through the shelter");}
+                x=nx;z=nz;
+            }
+            Check(steps<20,"Corner routing reaches the far side without returning endlessly to the doorway");
+        }
+        for(int i=0;i<100;i++)NpcShelterRouting.OutsideWaypoint(-4,0,4,0,1.5,1.8,out _,out _);
+        long beforeRouting=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<20000;i++)NpcShelterRouting.OutsideWaypoint(-4,0,4,0,1.5,1.8,out _,out _);long routingBytes=GC.GetAllocatedBytesForCurrentThread()-beforeRouting;
+        Check(routingBytes==0,"Twenty thousand corner-routing queries allocate no managed memory after warmup");
         Console.WriteLine("NPC camp material checks PASS: "+n);
     }
 }

@@ -12,6 +12,37 @@ namespace WorldGen.Core
         public NpcCampTravel Copy()=>(NpcCampTravel)MemberwiseClone();
         public void Validate(){if(!double.IsFinite(DelayCalendarDays)||DelayCalendarDays<0||!double.IsFinite(HoldCalendarDay)||HoldCalendarDay< -1||DepartingSite<0)throw new ArgumentException("Invalid local camp itinerary.");}
     }
+    public static class NpcShelterRouting
+    {
+        // At most four corners and sixteen two-corner paths, no allocation,
+        // physics queries or per-frame navigation mesh construction.
+        public static bool OutsideWaypoint(double x,double z,double goalX,double goalZ,double halfWidth,double halfDepth,out double nextX,out double nextZ)
+        {
+            nextX=goalX;nextZ=goalZ;double w=halfWidth+.3,d=halfDepth+.3;
+            bool Cross(double ax,double az,double bx,double bz)
+            {
+                double low=0,high=1;
+                bool Axis(double a,double delta,double half)
+                {if(Math.Abs(delta)<1e-9)return Math.Abs(a)<half;double near=(-half-a)/delta,far=(half-a)/delta;if(near>far)(near,far)=(far,near);low=Math.Max(low,near);high=Math.Min(high,far);return high>low+1e-7;}
+                return Axis(ax,bx-ax,w)&&Axis(az,bz-az,d)&&high>1e-7&&low<1-1e-7;
+            }
+            if(!Cross(x,z,goalX,goalZ))return false;
+            V Corner(int i)=>new V((i==0||i==3?-1:1)*(halfWidth+1),0,(i<2?-1:1)*(halfDepth+1));
+            double Distance(double ax,double az,double bx,double bz)=>Math.Sqrt((ax-bx)*(ax-bx)+(az-bz)*(az-bz));
+            if(Math.Abs(x)<w&&Math.Abs(z)<d)
+            {V c=Corner(0);double nearest=Distance(x,z,c.X,c.Z);for(int i=1;i<4;i++){var candidate=Corner(i);double range=Distance(x,z,candidate.X,candidate.Z);if(range<nearest){c=candidate;nearest=range;}}nextX=c.X;nextZ=c.Z;return true;}
+            double best=double.PositiveInfinity;V chosen=default;
+            for(int i=0;i<4;i++)
+            {
+                var a=Corner(i);if(Cross(x,z,a.X,a.Z))continue;double first=Distance(x,z,a.X,a.Z);
+                if(!Cross(a.X,a.Z,goalX,goalZ))
+                {double cost=first+Distance(a.X,a.Z,goalX,goalZ);if(cost<best){best=cost;chosen=first<.28?new V(goalX,0,goalZ):a;}}
+                for(int j=0;j<4;j++)
+                {var b=Corner(j);if(i==j||Cross(a.X,a.Z,b.X,b.Z)||Cross(b.X,b.Z,goalX,goalZ))continue;double cost=first+Distance(a.X,a.Z,b.X,b.Z)+Distance(b.X,b.Z,goalX,goalZ);if(cost<best){best=cost;chosen=first<.28?b:a;}}
+            }
+            if(double.IsInfinity(best))return false;nextX=chosen.X;nextZ=chosen.Z;return true;
+        }
+    }
     // Move existing contributions; never generate replacement goods on a task change.
     public static class NpcCampWork
     {

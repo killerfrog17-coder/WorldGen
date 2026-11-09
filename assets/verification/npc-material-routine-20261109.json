@@ -1,0 +1,284 @@
+{
+  "scope": "Local NPC material and collision-aware work verification",
+  "native_build": "9e4131ca",
+  "native_cases": [
+    {
+      "case": "navigation",
+      "build": {
+        "BuiltUtc": "2026-11-09T15:03:56.8249692Z",
+        "SourceCommit": "9e4131cac05af006b2625dcae8ac907a20195c1b",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": true,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "0e1092055c9e58af7d7d81fb6f5e8f24f5b8c039db6e8884ec2a62a4296258d3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "34c9d82069abc0f308762bc645e02e3d142dad2d0eddd82486a167300ebe33dd"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "15ea2c8b62353e2eb83c389623a2545d3a6882bf8ffee560e5bf9008867b3e9f"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "11d6da3bd85e3a82380d01983b73a862e5397c885dd48896dc910396d9132d5a"
+      },
+      "result": {
+        "finishedUtc": "/Date(1794236757005)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS A real camp and adult resident load for collision-aware local navigation",
+        "PASS The real capsule walks around a six-metre solid barrier instead of crossing it or spinning against it",
+        "PASS The collision-aware resident retains a valid persistent identity and position",
+        "PASS captured session validates with conversation memories"
+      ],
+      "artifacts": "artifacts\\npc-overnight-20261109\\routine-work-v5-navigation"
+    },
+    {
+      "case": "routine",
+      "build": {
+        "BuiltUtc": "2026-11-09T15:03:56.8249692Z",
+        "SourceCommit": "9e4131cac05af006b2625dcae8ac907a20195c1b",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": true,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "0e1092055c9e58af7d7d81fb6f5e8f24f5b8c039db6e8884ec2a62a4296258d3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "34c9d82069abc0f308762bc645e02e3d142dad2d0eddd82486a167300ebe33dd"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "15ea2c8b62353e2eb83c389623a2545d3a6882bf8ffee560e5bf9008867b3e9f"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "11d6da3bd85e3a82380d01983b73a862e5397c885dd48896dc910396d9132d5a"
+      },
+      "result": {
+        "finishedUtc": "/Date(1794236953072)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS The real camp and surrounding natural-resource tiles load",
+        "PASS The worker actually walks out, gathers a real resource, and returns a load to the household",
+        "PASS The delivered items really leave the hands/carrier and exist once on the ground",
+        "PASS The actual delivered load is on the household doorstep rather than left at its source",
+        "PASS The delivered load includes an actual shared-ledger natural branch",
+        "PASS A qualified worker completes a cold start through physical material retrieval, preparation and fire-drill work",
+        "PASS The fire-making kit is actually retrieved and carried, rather than assumed to exist",
+        "PASS The full movement/material/fire cycle validates for saving",
+        "PASS captured session validates with conversation memories"
+      ],
+      "artifacts": "artifacts\\npc-overnight-20261109\\routine-work-v5-routine"
+    },
+    {
+      "case": "camp",
+      "build": {
+        "BuiltUtc": "2026-11-09T15:03:56.8249692Z",
+        "SourceCommit": "9e4131cac05af006b2625dcae8ac907a20195c1b",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": true,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "0e1092055c9e58af7d7d81fb6f5e8f24f5b8c039db6e8884ec2a62a4296258d3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "34c9d82069abc0f308762bc645e02e3d142dad2d0eddd82486a167300ebe33dd"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "15ea2c8b62353e2eb83c389623a2545d3a6882bf8ffee560e5bf9008867b3e9f"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "11d6da3bd85e3a82380d01983b73a862e5397c885dd48896dc910396d9132d5a"
+      },
+      "result": {
+        "finishedUtc": "/Date(1794237051898)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS The actual generated household camp is loaded",
+        "PASS The actual shelter contains recoverable portable contributions",
+        "PASS An itinerary progress change alone does not remove, create or swap any material",
+        "PASS A real adult claims a specific existing component",
+        "PASS The worker walks to the structure and spends work time before dismantling a component",
+        "PASS The removed component no longer owns its recovered goods",
+        "PASS The same recovered materials are carried or physically set down, rather than deleted",
+        "PASS Physical dismantling conserves all material identities and mass",
+        "PASS Recovered shelter cargo is really carried and excluded from automatic fire fuel",
+        "PASS A worker physically supplies and finishes the missing component using the recovered stock",
+        "PASS Reassembly conserves the same material identities and mass",
+        "PASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel",
+        "PASS The actual shelter has real lashing and poles for the bound-load check",
+        "PASS Actual recovered poles and lashing become one carried bound load with their exact contents preserved",
+        "PASS The bound load appears on the actual person using the existing material models",
+        "PASS An initial partially erected camp stages its complete finite stock once with exact original IDs and mass",
+        "PASS A second initial-stock request cannot manufacture another load",
+        "PASS Physical camp work and local itinerary state validate for saving",
+        "PASS captured session validates with conversation memories"
+      ],
+      "artifacts": "artifacts\\npc-overnight-20261109\\routine-work-v5-camp"
+    },
+    {
+      "case": "belongings",
+      "build": {
+        "BuiltUtc": "2026-11-09T15:03:56.8249692Z",
+        "SourceCommit": "9e4131cac05af006b2625dcae8ac907a20195c1b",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": true,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "0e1092055c9e58af7d7d81fb6f5e8f24f5b8c039db6e8884ec2a62a4296258d3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "34c9d82069abc0f308762bc645e02e3d142dad2d0eddd82486a167300ebe33dd"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "15ea2c8b62353e2eb83c389623a2545d3a6882bf8ffee560e5bf9008867b3e9f"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "11d6da3bd85e3a82380d01983b73a862e5397c885dd48896dc910396d9132d5a"
+      },
+      "result": {
+        "finishedUtc": "/Date(1794237121781)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS Two actual adult residents exist",
+        "PASS The physical actor uses its saved inventory rather than a prop-only loadout",
+        "PASS Repeated visual task changes create or delete no actual goods",
+        "PASS Every displayed NPC possession is a real carried item",
+        "PASS A healthy resident's complete belongings survive session copying",
+        "PASS Personal belongings remain marked as another person's property",
+        "PASS An owned real ground item can actually be stolen",
+        "PASS A seeing owner remembers who took the specific item",
+        "PASS A resident behind a real wall does not learn the theft magically",
+        "PASS Possession changes physically while the original ownership remains recorded",
+        "PASS Witnessed theft changes mood and the directed relationship",
+        "PASS The aimed owned item uses the actual red theft-prompt style",
+        "PASS No possession ID exists in both the world and an NPC inventory",
+        "PASS Owned goods and social consequences validate after the real transfer",
+        "PASS captured session validates with conversation memories"
+      ],
+      "artifacts": "artifacts\\npc-overnight-20261109\\routine-work-v5-belongings"
+    },
+    {
+      "case": "material",
+      "build": {
+        "BuiltUtc": "2026-11-09T15:03:56.8249692Z",
+        "SourceCommit": "9e4131cac05af006b2625dcae8ac907a20195c1b",
+        "SourceChanges": [],
+        "Backend": "Mono",
+        "Development": false,
+        "ScriptsOnly": true,
+        "Inputs": [
+          {
+            "Assembly": "WorldGen.Core",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+            "Sha256": "0e1092055c9e58af7d7d81fb6f5e8f24f5b8c039db6e8884ec2a62a4296258d3"
+          },
+          {
+            "Assembly": "WorldGen.Serialization",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+            "Sha256": "34c9d82069abc0f308762bc645e02e3d142dad2d0eddd82486a167300ebe33dd"
+          },
+          {
+            "Assembly": "WorldGen.Presentation",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+            "Sha256": "15ea2c8b62353e2eb83c389623a2545d3a6882bf8ffee560e5bf9008867b3e9f"
+          },
+          {
+            "Assembly": "DelaunatorSharp",
+            "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+            "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+          }
+        ],
+        "TerrainWorkerSha256": "11d6da3bd85e3a82380d01983b73a862e5397c885dd48896dc910396d9132d5a"
+      },
+      "result": {
+        "finishedUtc": "/Date(1794237192078)/",
+        "exitCode": 0
+      },
+      "checks": [
+        "PASS An actual adult resident exists for material work",
+        "PASS A real uncollected fallen branch exists in loaded scatter",
+        "PASS Gathering the actual fallen branch uses the player's shared depletion ledger",
+        "PASS The gathered branch is a single real owned possession",
+        "PASS The same natural branch cannot be gathered twice",
+        "PASS A real harvested branch transfers its finite mass to the hearth",
+        "PASS The worker finds actual local tinder material",
+        "PASS Gathering fine material creates a real carried bundle",
+        "PASS Actually feeding the fine bundle relights live embers",
+        "PASS A real placed regional plant has a known edible above-ground product",
+        "PASS The worker harvests the actual regional plant in its controlled fruiting season",
+        "PASS Eating reduces the real harvested food quantity",
+        "PASS NPC knapping uses the same real stone recipe and removes mass from its core",
+        "PASS Harvested goods, natural ledgers, actual food consumption and crafting validate together",
+        "PASS captured session validates with conversation memories"
+      ],
+      "artifacts": "artifacts\\npc-overnight-20261109\\routine-work-v5-material"
+    }
+  ],
+  "limits": [
+    "Capped functional QA; no performance claim.",
+    "Routine fixture explicitly grants one cold-fire technique and one real hand-drill kit, without generating tinder, kindling or fuel.",
+    "Whole followed migration remains unproven.",
+    "The subsequently prepared shelter-corner/fine-goal safety followup has not yet been built."
+  ],
+  "core_followup": {
+    "camp_checks": 422,
+    "allocation_component": "20,000 warmed CoreCLR shelter-corner queries: zero managed allocation. Not native FPS.",
+    "status": "Source tests; runtime followup pending build."
+  }
+}
