@@ -10,8 +10,14 @@ public sealed partial class WorldGenRuntime
     bool simulationRenderBudget;
     void PollSimulationRenderBudget()
     {
+        var ai=SettingsAiClient;
+        int aiFps=ai?.IsBusy==true?ai.Config.InferenceFps:0;
         bool fast=screen=="Simulation"&&terrainExplorer==null&&humanPlaying&&!simulationPaused&&humanPlayback.Rate>=100*WorldGen.Core.SimulationTime.Year;
-        if(fast)
+        if(aiFps>0)
+        {
+            QualitySettings.vSyncCount=0;Application.targetFrameRate=displayMaxFps==0?aiFps:Math.Min(aiFps,displayMaxFps);simulationRenderBudget=true;
+        }
+        else if(fast)
         {
             // Map presentation does not need hundreds of redundant redraws
             // while the history executor needs CPU/cache bandwidth. Keep the

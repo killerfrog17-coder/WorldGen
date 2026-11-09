@@ -47,7 +47,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(8);GUILayout.Label("Hardware starting points");
         GUILayout.BeginHorizontal();
         int presetIndex=0;foreach(var preset in new[]{"CPU","Hybrid","GPU","Max speed"}){if(GUILayout.Button(preset)){aiDraft.Preset(presetIndex,Environment.ProcessorCount);aiDirty=true;}presetIndex++;}
-        GUILayout.EndHorizontal();GUILayout.Label("Max speed gives AI priority: zero VRAM reserve, high CPU priority and active polling. Game FPS can suffer. Thread tuning may still improve speed.",MutedStyle());
+        GUILayout.EndHorizontal();GUILayout.Label("Max speed prioritizes AI: high CPU priority, active polling and 15 FPS while generating. Your normal frame limit returns afterward. Thread tuning may still improve speed.",MutedStyle());
         if(System.IO.File.Exists(aiDraft.CudaServerPath)){GUILayout.Label("GPU backend");aiDraft.GpuBackend=GUILayout.SelectionGrid(aiDraft.GpuBackend=="cuda"?1:0,new[]{"Vulkan","CUDA (NVIDIA)"},2)==1?"cuda":"vulkan";}
         bool autoGpu=GUILayout.Toggle(aiDraft.GpuLayers==999,"Automatically fit as much as possible on the GPU");
         if(autoGpu)aiDraft.GpuLayers=999;
@@ -62,8 +62,10 @@ public sealed partial class WorldGenRuntime
             GUILayout.Label("Higher priority lets AI compete more aggressively with the game. It does not guarantee higher token throughput.",MutedStyle());
             aiDraft.BatchThreads=AiSlider("Prompt-processing threads",aiDraft.BatchThreads,1,Environment.ProcessorCount,"Used while reading the prompt. Can benefit from more workers than generation does.");
             aiDraft.Polling=AiSlider("Active CPU polling (%)",aiDraft.Polling,0,100,"Keeps workers awake for lower scheduling latency; uses CPU even while waiting during inference.");
-            aiDraft.GpuReserveMiB=AiSlider("Free VRAM reserve (MiB)",aiDraft.GpuReserveMiB,0,2048,"Automatic fitting leaves this margin for rendering. 0 prioritizes the AI model; 1,024 is the ordinary preset.");
+            aiDraft.GpuReserveMiB=AiSlider("Free VRAM reserve (MiB)",aiDraft.GpuReserveMiB,0,2048,"Automatic fitting leaves this margin. Max speed uses 512; ordinary GPU uses 1,024. You can try 0, but spilling into shared memory can be much slower.");
+            aiDraft.InferenceFps=AiSlider("Game FPS limit while AI works",aiDraft.InferenceFps,0,120,"0 keeps your normal display settings. A lower limit frees rendering time for inference; normal FPS and VSync return when the request ends.");
             if(aiDraft.ModelExpertLayers>0)aiDraft.CpuExpertLayers=AiSlider("Expert layers kept on CPU",aiDraft.CpuExpertLayers,0,aiDraft.ModelExpertLayers,"For expert models: keep expert weights in RAM while attention runs on GPU. This helps larger models fit; compare values for speed.");
+            aiDraft.PreloadModel=GUILayout.Toggle(aiDraft.PreloadModel,"Preload CPU model weights into RAM");GUILayout.Label("Uses explicit RAM buffers instead of mapped files. Recommended for CPU expert weights on a hard drive; leave off if memory is tight.",MutedStyle());
             GUILayout.Label("Context window");int window=aiDraft.ContextTokens<=2048?0:aiDraft.ContextTokens<=4096?1:2;
             window=GUILayout.SelectionGrid(window,new[]{"2,048 tokens","4,096 tokens","8,192 tokens"},3);aiDraft.ContextTokens=window==0?2048:window==1?4096:8192;
             GUILayout.Label("Maximum input/output capacity, not intelligence. Larger windows reserve more memory. Keep 2,048 unless you need more history.",MutedStyle());

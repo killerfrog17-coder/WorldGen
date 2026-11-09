@@ -18,6 +18,7 @@ public sealed partial class WorldGenRuntime
         IEnumerator Await(Task task)
         {double deadline=Time.realtimeSinceStartupAsDouble+200;while(!task.IsCompleted&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;Check(task.IsCompleted&&!task.IsFaulted&&!task.IsCanceled,task.IsFaulted?task.Exception.GetBaseException().Message:"asynchronous AI operation completed");}
         string originalPath=NpcModelClient.ConfigPath;byte[] original=File.ReadAllBytes(originalPath);var settings=NpcModelClient.LoadSettings();
+        int normalFps=Application.targetFrameRate,normalVsync=QualitySettings.vSyncCount;
         NpcModelClient.TestSettingsPath=Path.Combine(output,"settings.json");settings.Enabled=true;NpcModelClient.SaveSettings(settings);
         try
         {
@@ -44,15 +45,21 @@ public sealed partial class WorldGenRuntime
             foreach(var model in aiModels)
             foreach(var backend in new[]{"cuda","vulkan"})
             {
+                if(Argument("--worldgen-ai-model","").Length>0&&model.Family!=Argument("--worldgen-ai-model",""))continue;
+                if(Argument("--worldgen-ai-backend","").Length>0&&backend!=Argument("--worldgen-ai-backend",""))continue;
                 aiDraft.SelectModel(model);aiDraft.Preset(3,Environment.ProcessorCount);aiDraft.GpuBackend=backend;ApplyAiSettings();saved=NpcModelClient.LoadSettings();
-                Check(saved.ModelPath==model.Path&&saved.GpuBackend==backend&&saved.Priority==2&&saved.GpuReserveMiB==0&&saved.Polling==100,"model selection and maximum-speed controls persist: "+model.Name+" / "+backend);
-                var test=TestAiForSettings();yield return Await(test);client=SettingsAiClient;int trialHost=client.OwnedProcessId;
+                Check(saved.ModelPath==model.Path&&saved.GpuBackend==backend&&saved.Priority==2&&saved.GpuReserveMiB==512&&saved.Polling==100,"model selection and maximum-speed controls persist: "+model.Name+" / "+backend);
+                var test=TestAiForSettings();yield return null;Check(Application.targetFrameRate<=15&&QualitySettings.vSyncCount==0,"AI-priority request temporarily limits rendering: "+model.Name);yield return Await(test);client=SettingsAiClient;int trialHost=client.OwnedProcessId;
                 Check(test.Result.Contains("Reply:")&&client.LastGeneratedTokens>0,"selected model returns a validated menu decision: "+model.Name);
+                var repeated=TestAiForSettings();yield return Await(repeated);test=repeated;
                 trials.Add(model.Name+" | "+client.BackendInfo+" | "+client.LastSeconds.ToString("0.000")+"s total / "+client.LastLoadSeconds.ToString("0.000")+"s load / "+client.LastTokensPerSecond.ToString("0.0")+" tokens/s | "+client.LastPromptTokens+" input / "+client.LastGeneratedTokens+" output | "+test.Result);
                 File.WriteAllLines(Path.Combine(output,"model-trials.txt"),trials);
                 aiNotice=test.Result;settingsScroll=Vector2.zero;aiAdvanced=true;yield return new WaitForEndOfFrame();
                 image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"model-"+model.Family+"-"+backend+".png"),image.EncodeToPNG());Destroy(image);
+                settingsScroll=new Vector2(0,10000);yield return null;yield return new WaitForEndOfFrame();
+                image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"status-"+model.Family+"-"+backend+".png"),image.EncodeToPNG());Destroy(image);
                 DisposeAiPreview();yield return new WaitForSecondsRealtime(.3f);Check(!Alive(trialHost),"model switch releases the previous host: "+model.Name);
+                Check(Application.targetFrameRate==normalFps&&QualitySettings.vSyncCount==normalVsync,"normal display settings return after inference: "+model.Name);
             }
             File.WriteAllLines(Path.Combine(output,"model-trials.txt"),trials);
             Check(Convert.ToBase64String(File.ReadAllBytes(originalPath))==Convert.ToBase64String(original),"test leaves the owner's saved AI settings untouched");

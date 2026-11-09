@@ -13,7 +13,7 @@ public sealed partial class WorldGenRuntime
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;var report=new List<string>();
         string profile=Argument("--worldgen-ai-profile","");
-        if(profile.Length>0){var config=NpcModelClient.LoadSettings();config.Preset(profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount);NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
+        if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount);NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
         while((Busy||!worldReady||humans==null||humanStep!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humanStep!=null)throw new InvalidOperationException("NPC test world failed to load");
