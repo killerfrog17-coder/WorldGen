@@ -72,7 +72,7 @@ public sealed partial class LocalTerrainExplorer
         if(!WildlifeBehaviourEnabled||paused||mapOpen||ecologyOpen||chatOpen)return;
         if(wildlifeGroupWork.Count==0)
         {
-            if(Time.unscaledTimeAsDouble<nextWildlifeGroupTick)return;nextWildlifeGroupTick=Time.unscaledTimeAsDouble+1;
+            if(Time.unscaledTimeAsDouble<nextWildlifeGroupTick)return;nextWildlifeGroupTick=Time.unscaledTimeAsDouble+Math.Max(.02,1/Math.Max(1,CampTimeRate));
             EnsureWildlifeGroupIndex();activeWildlifeGroups.Clear();var center=GroupIndexKey(Position);
             for(int x=-2;x<=2;x++)for(int y=-2;y<=2;y++)for(int z=-2;z<=2;z++)if(wildlifeGroupIndex.TryGetValue((center.Item1+x,center.Item2+y,center.Item3+z),out var bucket))foreach(var id in bucket)activeWildlifeGroups.Add(id);
             foreach(var id in activeWildlifeGroups.OrderBy(id=>id))wildlifeGroupWork.Enqueue(id);

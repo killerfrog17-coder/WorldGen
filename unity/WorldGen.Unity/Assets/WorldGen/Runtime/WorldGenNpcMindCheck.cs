@@ -105,6 +105,7 @@ public sealed partial class LocalTerrainExplorer
             lastSpeech=NpcMemoryFor(actor.ResidentId).Conversation.Last(t=>t.FromNpc).Text;
             dialogueProof.Add("You: "+words+"\n"+actor.Resident.Name+": "+lastSpeech);
             File.WriteAllLines(Path.Combine(output,"memory-conversation.txt"),dialogueProof);
+            File.WriteAllText(Path.Combine(output,"request-"+dialogueProof.Count+".txt"),string.Join("\n",npcModel.LastMessages.Select(m=>m.role+": "+m.content)));
         }
         yield return Talk("Please remember this secret passkey: "+nonce+".");
         yield return Talk("I have two children.");
@@ -120,6 +121,16 @@ public sealed partial class LocalTerrainExplorer
         var context=string.Join("\n",npcModel.LastMessages.Select(m=>m.role+": "+m.content));
         Check(context.Contains("SPEAKER: name="+PlayerRules.Identity.Person.Name)&&context.Contains("age in years="+Math.Floor(PlayerRules.Identity.Person.AgeYears).ToString("0"))&&context.Contains(NpcVisibleHair(humanPlayer.Definition.Variant)),"actual request includes the controlled person's identity, age and rendered hair");
         File.WriteAllText(Path.Combine(output,"actual-request.txt"),context);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-life-check"))
+        {
+            yield return Talk("Roughly how long until our group plans to leave this camp?");
+            File.WriteAllText(Path.Combine(output,"camp-plans.txt"),lastSpeech);
+            Check(npcModel.LastMessages[0].content.Contains("Current plan is to leave")||npcModel.LastMessages[0].content.Contains("no departure is currently planned"),"NPC receives the actual camp itinerary rather than inventing a departure");
+            yield return Talk("How do people decide things here, and who do people listen to?");
+            File.WriteAllText(Path.Combine(output,"social-customs.txt"),lastSpeech);
+            Check(npcModel.LastMessages[0].content.Contains("Camp customs:")&&npcModel.LastMessages[0].content.Contains("travel guide:"),"NPC knows the local decision tradition and actual named social roles");
+            yield return CheckNpcLife(actor,output,Check);
+        }
         npcThoughts=true;npcTalkTarget=actor;OpenChat();yield return new WaitForEndOfFrame();screen=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"npc-memory.png"),screen.EncodeToPNG());Destroy(screen);CloseChat();
         var saved=LivingState.Copy();saved.Validate();Check(saved.Minds.Any(m=>m.Person==actor.ResidentId&&m.Recent.Count>0),"short memories survive the session copy");
         npcTalkTarget=actor;OpenChat();Check(!CommandChatStopped,"conversation input keeps NPC simulation running");CloseChat();
@@ -128,5 +139,42 @@ public sealed partial class LocalTerrainExplorer
         int host=npcModel.OwnedProcessId;DisposeNpcMinds();yield return new WaitForSecondsRealtime(.5f);
         bool alive=false;try{alive=!System.Diagnostics.Process.GetProcessById(host).HasExited;}catch(ArgumentException){}
         Check(host>0&&!alive,"leaving the explorer terminates its own local host");
+    }
+    IEnumerator CheckNpcLife(HumanActor actor,string output,Action<bool,string> check)
+    {
+        npcModel.Config.BackgroundReactions=false;npcPlans.Clear();npcEvents.Clear();npcTalkTarget=null;CloseChat();paused=mapOpen=ecologyOpen=false;
+        var animal=animals.Values.Where(a=>!a.Dead&&!a.Retired).OrderBy(a=>HumanDistance(a.Planet,Position)).FirstOrDefault();
+        double solar=PlayerRules.SolarDays,humanAge=actor.SimulationAge,animalAge=animal?.Life??0;Quaternion pose=humanPlayer.Root.transform.localRotation;
+        BeginCampSleep(0,true);check(campResting&&!campSleeping&&sleepingBed==null,"Waiting starts standing without bedding or sleep");
+        double until=Time.realtimeSinceStartupAsDouble+2.5;while(campResting&&Time.realtimeSinceStartupAsDouble<until)yield return null;
+        double advanced=(PlayerRules.SolarDays-solar)*PlayerRules.Settings.RealMinutesPerDay*60;
+        check(campResting&&advanced>4,"Waiting advances the real solar/calendar clock faster than normal time");
+        check(Quaternion.Angle(humanPlayer.Root.transform.localRotation,pose)<45,"Waiting preserves an upright player pose");
+        check(Math.Abs(actor.SimulationAge-humanAge-advanced)<3.3,"NPC movement and avoidance use the same advanced scene time");
+        check(animal==null||Math.Abs(animal.Life-animalAge-advanced)<3.3,"Visible wildlife advances with the waiting clock");
+        Capture(Path.Combine(output,"standing-wait.png"));
+        File.WriteAllText(Path.Combine(output,"wait-clock.txt"),"Advanced equivalent seconds="+advanced+"\nHuman="+(actor.SimulationAge-humanAge)+"\nAnimal="+(animal==null?"not present":(animal.Life-animalAge).ToString())+"\nSteps="+LocalSceneSteps);
+        Vitals.Health-=1;CheckWaitInterrupt();check(!campResting&&CampTimeRate==1,"Damage immediately restores normal time");Vitals.Restore();
+        BeginCampSleep(0,true);ulong threatId=ulong.MaxValue;while(animals.ContainsKey(threatId))threatId--;
+        animals.Add(threatId,new Animal{Health=100,MassKg=50,Planet=Position,Behaviour=new WildlifeBehaviourProfile{Predator=true}});
+        try{CheckWaitInterrupt();check(!campResting,"A controlled nearby predator threat interrupts waiting before another time step");}finally{animals.Remove(threatId);}
+        BeginCampSleep(0,true);npcModel.Config.BackgroundReactions=true;npcWaitSocialDay=PlayerRules.SolarDays;WaitNpcApproach();
+        check(!campResting&&npcPlans.Values.Any(p=>p.Decision.action=="approach"&&p.Decision.target=="player"),"A bandmate approaching to talk interrupts waiting");
+        npcModel.Config.BackgroundReactions=false;npcPlans.Clear();npcEvents.Clear();npcTalkTarget=null;
+        var people=livingPeople.Values.Where(p=>p.Health>40&&p.Resident.AgeYears>=7).ToArray();
+        var pair=(from a in people from b in people where a.ResidentId<b.ResidentId&&a.GroupId==b.GroupId&&HumanDistance(a.Planet,b.Planet)<6&&HumanDistance(a.Planet,Position)<200 select new[]{a,b}).FirstOrDefault();
+        check(pair!=null,"An actual nearby pair of camp residents exists for a social encounter");
+        double x=(pair[0].Motor.X+pair[1].Motor.X)*.5,z=(pair[0].Motor.Z+pair[1].Motor.Z)*.5-2;motion.Place(x,z,Ground(x,z));UpdateHumans();UpdateCamera();
+        var toward=transform.InverseTransformDirection(pair[0].Root.transform.position+Vector3.up*1.2f-view.transform.position).normalized;heading=Mathf.Atan2(toward.x,toward.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(toward.y)*Mathf.Rad2Deg;UpdateCamera();
+        int before=npcUtterances;npcModel.Config.BackgroundReactions=true;npcSocialAt=0;npcObserveAt=0;
+        until=Time.realtimeSinceStartupAsDouble+130;bool met=false;long one=0,two=0;
+        while(npcUtterances<before+2&&Time.realtimeSinceStartupAsDouble<until)
+        {if(npcConversation!=null){met=true;one=npcConversation.A;two=npcConversation.B;}yield return null;}
+        check(met&&npcUtterances>=before+2,"Nearby residents actually exchange locally generated conversational turns");
+        check(NpcMemoryFor(one).Conversation.Any(t=>t.Speaker==two)&&NpcMemoryFor(two).Conversation.Any(t=>t.Speaker==one),"Both participants retain what the other person actually said");
+        Capture(Path.Combine(output,"npc-social-exchange.png"));File.WriteAllText(Path.Combine(output,"social-one.json"),JsonUtility.ToJson(NpcMemoryFor(one),true));File.WriteAllText(Path.Combine(output,"social-two.json"),JsonUtility.ToJson(NpcMemoryFor(two),true));
+        CancelNpcConversation();npcModel.Config.BackgroundReactions=false;
+        until=Time.realtimeSinceStartupAsDouble+15;while(npcThinking!=null&&Time.realtimeSinceStartupAsDouble<until)yield return null;
+        check(npcConversation==null&&!npcPlans.Values.Any(p=>p.Listening),"Ending the local exchange releases listening holds back to the ordinary schedule");
     }
 }

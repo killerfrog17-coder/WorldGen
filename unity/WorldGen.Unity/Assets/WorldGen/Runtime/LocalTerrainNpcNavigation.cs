@@ -9,8 +9,8 @@ public sealed partial class LocalTerrainExplorer
     sealed class NpcSolid{public double X,Z,Y,Radius,Height;}
     bool LivingNoticesVisitor(HumanActor actor,double distance)
     {
-        if(Time.unscaledTimeAsDouble<actor.VisitorCheckAt)return actor.SeesVisitor;
-        actor.VisitorCheckAt=Time.unscaledTimeAsDouble+.55+(HumanHash(actor.ResidentId)%11)*.027;
+        if(actor.SimulationAge<actor.VisitorCheckAt)return actor.SeesVisitor;
+        actor.VisitorCheckAt=actor.SimulationAge+.55+(HumanHash(actor.ResidentId)%11)*.027;
         var eye=actor.SneakNeck.position+transform.up*.08f;var localEye=transform.InverseTransformPoint(eye);
         var target=transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ)));
         actor.SeesVisitor=!Physics.Linecast(eye,target,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
@@ -81,14 +81,14 @@ public sealed partial class LocalTerrainExplorer
             double dx=solid.X-actor.Motor.X,dz=solid.Z-actor.Motor.Z,along=dx*fx+dz*fz,cross=dx*fz-dz*fx;
             if(along<-.15||along>1.6+solid.Radius||Math.Abs(cross)>solid.Radius+.35)continue;
             double side=Math.Abs(cross)>.05?-Math.Sign(cross):((HumanHash(actor.ResidentId)&1)==0?1:-1);
-            actor.AvoidYaw=actor.TargetYaw+(float)(side*65);actor.AvoidUntil=Time.unscaledTime+.65f;return;
+            actor.AvoidYaw=actor.TargetYaw+(float)(side*65);actor.AvoidUntil=actor.SimulationAge+.65;return;
         }
     }
     CampObject LivingHouse(HumanActor actor)
     {
         if(!livingGroups.TryGetValue(actor.GroupId,out var group)||group.Situation.Phase==HumanCampPhase.Travelling)return null;
-        if(actor.HouseSite==group.Situation.Camp.Id&&Time.unscaledTime<actor.HouseCheckAt)return actor.CampHouse;
-        actor.HouseSite=group.Situation.Camp.Id;actor.HouseCheckAt=Time.unscaledTime+1;actor.CampHouse=null;
+        if(actor.HouseSite==group.Situation.Camp.Id&&actor.SimulationAge<actor.HouseCheckAt)return actor.CampHouse;
+        actor.HouseSite=group.Situation.Camp.Id;actor.HouseCheckAt=actor.SimulationAge+1;actor.CampHouse=null;
         foreach(var house in Camp.Objects)if(house.NpcGroup==actor.GroupId&&house.NpcHousehold==actor.Resident.Household&&house.Blueprint!=null){actor.CampHouse=house;break;}
         return actor.CampHouse;
     }

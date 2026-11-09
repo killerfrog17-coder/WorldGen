@@ -290,7 +290,7 @@ public sealed partial class LocalTerrainExplorer
             Heading=(float)(rng.Unit()*360),Time=rng.Unit()*7,GroundY=frame.SurfaceY(spawn.Position,spawn.GroundM)};
         TerrainHandoff.Coordinates(frame,spawn.Position,out animal.X,out animal.Z);animal.HomeX=animal.X;animal.HomeZ=animal.Z;animal.Planet=spawn.Position;
         if(spawn.Profile.derivedFirefly)animal.Firefly=AmbientFauna.For(sourceWorld).Region(sourceWorld.Ecology.Region[terrain.NearestCell(spawn.Position)]).FirstOrDefault(s=>s.Family==AmbientFaunaFamily.Firefly);
-        animal.TargetHeading=animal.Heading;animal.Random=rng;animal.AirHeight=animal.AirTargetHeight=spawn.HeightM;animal.NextPerch=4+spawn.Hash%15;animal.ObstacleAt=Time.unscaledTimeAsDouble+(spawn.Hash%100)*.004;PlaceTrackedAnimal(animal);InitializeAnimalHealth(animal);
+        animal.TargetHeading=animal.Heading;animal.Random=rng;animal.AirHeight=animal.AirTargetHeight=spawn.HeightM;animal.NextPerch=4+spawn.Hash%15;animal.ObstacleAt=animal.Life+(spawn.Hash%100)*.004;PlaceTrackedAnimal(animal);InitializeAnimalHealth(animal);
         int coat=wildlifeRecords.TryGetValue(spawn.Id,out var record)?Mathf.Clamp(record.Coat,0,model.Asset.Variations.Length-1):ChooseAnimalCoat(model.Asset,spawn);animal.Coat=coat;var options=model.Asset.Variations[coat].options;
         int option=(int)(spawn.Hash%(uint)options.Length);
         if(spawn.Profile.slug=="deer")

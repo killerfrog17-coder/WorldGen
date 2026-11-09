@@ -10,8 +10,8 @@ public sealed partial class LocalTerrainExplorer
 
     double AnimalCover(Animal animal)
     {
-        if(Time.unscaledTimeAsDouble<animal.CoverAt)return animal.VisualCover;
-        animal.CoverAt=Time.unscaledTimeAsDouble+2.5;
+        if(animal.Life<animal.CoverAt)return animal.VisualCover;
+        animal.CoverAt=animal.Life+2.5;
         if(animal.Spawn.Profile.medium!="ground")return animal.VisualCover=0;
         var sample=walkingPatch.Sample(animal.Planet);
         double height=Math.Max(.1,animal.Spawn.Profile.lengthM*animal.Model.Asset.Height);

@@ -20,11 +20,11 @@ namespace WorldGen.Presentation
             {
                 var result=new List<NpcChatMessage>{system};
                 void Add(string role,string text){if(result.Count>1&&result[result.Count-1].role==role)result[result.Count-1].content+="\n"+text;else result.Add(new NpcChatMessage{role=role,content=text});}
-                if(notes.Count>0)Add("user","Earlier words you heard directly from this speaker, oldest sequence first:\n"+string.Join("\n",notes.OrderBy(n=>n.Sequence).Select(n=>"["+n.Sequence+"] "+n.Name+" told you: "+Quote(n.Text))));
                 // Templates that require user/assistant alternation also accept
                 // coalesced consecutive utterances; never start with assistant.
                 bool started=false;
                 foreach(var turn in turns){if(!started&&turn.FromNpc)continue;started=true;Add(turn.FromNpc?"assistant":"user",turn.FromNpc?turn.Text:turn.Name+" says: "+Quote(turn.Text));}
+                if(notes.Count>0)Add("user","Retrieved words actually spoken by this speaker, oldest sequence first. When asked what they SAID, use their quotes even if game records disagree; your own corrections are not their words:\n"+string.Join("\n",notes.OrderBy(n=>n.Sequence).Select(n=>"["+n.Sequence+"] "+n.Name+" told you: "+Quote(n.Text))));
                 Add("user",current==null?"React to the current perceived event. No one has spoken.":current.Name+" says: "+Quote(current.Text));return result;
             }
             var messages=Compose();

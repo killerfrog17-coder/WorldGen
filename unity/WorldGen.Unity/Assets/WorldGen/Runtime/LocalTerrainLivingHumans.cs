@@ -324,6 +324,7 @@ public sealed partial class LocalTerrainExplorer
     {
         UpdateLivingDetail(actor);
         if(actor.Health<=0){actor.Ragdoll?.SetPaused(stopped);return;}
+        actor.SimulationAge+=dt;
         if(!livingGroups.TryGetValue(actor.GroupId,out var group)||actor.Routine==null)return;
         if(actor.Routine.Activity==HumanActivity.Carried){UpdateCarriedHuman(actor,dt);return;}
         long cost=profileLiving?System.Diagnostics.Stopwatch.GetTimestamp():0;
@@ -367,14 +368,14 @@ public sealed partial class LocalTerrainExplorer
             double playerRange=Math.Sqrt(Math.Pow(actor.Motor.X-motion.X,2)+Math.Pow(actor.Motor.Z-motion.Z,2));
             if(!alarm&&PlayerRules.Identity?.Group!=actor.GroupId&&playerRange<12&&playerRange>2&&actor.TargetSpeed<.1&&routine.Activity!=HumanActivity.Sleep&&LivingNoticesVisitor(actor,playerRange))
                 actor.TargetYaw=(float)(Math.Atan2(motion.X-actor.Motor.X,motion.Z-actor.Motor.Z)*180/Math.PI);
-            if(Time.unscaledTime<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
+            if(actor.SimulationAge<actor.AvoidUntil)actor.TargetYaw=actor.AvoidYaw;
             ExertionRules.Advance(actor.Exertion,ExertionProfile.Human(),dt,Math.Pow(Math.Min(1,actor.TargetSpeed/6),1.35),CurrentWeather.TemperatureC);
             actor.TargetSpeed=Math.Min(actor.TargetSpeed,6*(float)actor.Exertion.PowerScale);
             actor.Yaw=Mathf.MoveTowardsAngle(actor.Yaw,actor.TargetYaw,dt*95);actor.Speed=Mathf.MoveTowards(actor.Speed,actor.TargetSpeed,dt*1.6f);
-            if(Time.unscaledTime>=actor.ObstacleAt)
+            if(actor.SimulationAge>=actor.ObstacleAt)
             {
                 bool moving=actor.Speed>.05f||actor.TargetSpeed>.05f;
-                actor.ObstacleAt=Time.unscaledTime+(moving?.4:1.2);double a=actor.Yaw*Math.PI/180,px=actor.Motor.X+Math.Sin(a)*1.4,pz=actor.Motor.Z+Math.Cos(a)*1.4;
+                actor.ObstacleAt=actor.SimulationAge+(moving?.4:1.2);double a=actor.Yaw*Math.PI/180,px=actor.Motor.X+Math.Sin(a)*1.4,pz=actor.Motor.Z+Math.Cos(a)*1.4;
                 float clearance=Math.Min(LivingHeadroom(actor),LivingHeadroom(actor,actor.Motor.X+Math.Sin(a)*.65,actor.Motor.Z+Math.Cos(a)*.65));
                 float bodyHeight=(actor.AgeModel?.EyeHeight??actor.Definition.EyeHeight)*actor.Root.transform.localScale.y+.12f;
                 actor.NpcCrawling=clearance<Math.Min(bodyHeight,1.22f);actor.NpcCrouching=clearance<bodyHeight;
@@ -383,10 +384,10 @@ public sealed partial class LocalTerrainExplorer
                 CacheLivingSolids(actor);SteerLivingScatter(actor,tx,tz);
                 var next=walkingPatch.Sample(frame.Position(px,pz));double floor=VisibleGround(actor.Motor.X,actor.Motor.Z,actor.Motor.Y-TerrainMotion.EyeHeightM);
                 double nextFloor=VisibleGround(px,pz,double.NaN);
-                if(double.IsNaN(nextFloor)||next.Underwater||Math.Abs(nextFloor-floor)>.65){actor.Speed=0;actor.AvoidYaw=actor.Yaw+65;actor.AvoidUntil=Time.unscaledTime+1.2f;}
+                if(double.IsNaN(nextFloor)||next.Underwater||Math.Abs(nextFloor-floor)>.65){actor.Speed=0;actor.AvoidYaw=actor.Yaw+65;actor.AvoidUntil=actor.SimulationAge+1.2;}
                 var origin=transform.TransformPoint(new Vector3((float)(actor.Motor.X-originX),(float)floor+(actor.NpcCrawling?.3f:.8f),(float)(actor.Motor.Z-originZ)));
                 if(Physics.SphereCast(origin,actor.NpcCrawling?.12f:.23f,transform.TransformDirection(new Vector3((float)Math.Sin(a),0,(float)Math.Cos(a))),out var hit,1.3f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))
-                {actor.Speed=Math.Min(actor.Speed,.25f);actor.AvoidYaw=actor.Yaw+55;actor.AvoidUntil=Time.unscaledTime+1.2f;}
+                {actor.Speed=Math.Min(actor.Speed,.25f);actor.AvoidYaw=actor.Yaw+55;actor.AvoidUntil=actor.SimulationAge+1.2;}
                 }
             }
             if(actor.NpcCrawling){actor.Speed=Math.Min(actor.Speed,.6f);actor.TargetSpeed=Math.Min(actor.TargetSpeed,.6f);}
@@ -403,14 +404,14 @@ public sealed partial class LocalTerrainExplorer
             if(Time.unscaledTimeAsDouble>=actor.AnimationAt)
             {
                 bool crouch=actor.NpcCrouching;
-                float elapsed=Math.Max(dt,interval);actor.AnimationAt=NextLivingAnimation(actor.ResidentId,interval);AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);
+                float elapsed=(float)Math.Max(dt,actor.SimulationAge-actor.PoseAge);actor.PoseAge=actor.SimulationAge;actor.AnimationAt=NextLivingAnimation(actor.ResidentId,interval);AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);
                 bool hearth=routine.Role=="HearthMeal"||routine.Role=="HearthSocial";
                 string role=actual>.2f?(actor.NpcCrawling?"Crawl":null):hearth?"SitGround":LivingWorkRole(routine.Activity);
                 if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater!=true)role="SitGround";
                 if(crouch&&actual<=.2f&&role!="SleepSide")role="SitGround";
-                actor.Shared?.Routine(role,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
+                actor.Shared?.Routine(role,(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
                 string upperRole=hearth&&actual<=.2f&&routine.Activity==HumanActivity.Socialise?"Social":carryRole=="WaterCarry"?"ToolReady":carryRole;
-                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:upperRole,Time.unscaledTime+HumanHash(actor.ResidentId)%100,elapsed);
+                actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:upperRole,(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
                 actor.Graph.Evaluate(0);if(crouch&&role==null)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);
                 string groundRole=role??(actual<.08f?"Idle":actual<2?"Walk":actual<4.5f?"Run":"Sprint");
                 actor.PoseGroundLift=0;

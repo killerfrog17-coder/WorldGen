@@ -28,7 +28,7 @@ public sealed partial class LocalTerrainExplorer
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
         public double AnimationAt,VisitorCheckAt,WorkSoundAt;public bool SeesVisitor;public GameObject WorkProp;
-        public float AvoidUntil,AvoidYaw;
+        public double SimulationAge,PoseAge,AvoidUntil;public float AvoidYaw;
         public float PoseGroundLift;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";
         public HumanActivity CurrentActivity;
@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
         public GameObject InfantCarrier;
         public V GoalProposal,GoalSafe;public bool HasSafeGoal;
         public SkinnedMeshRenderer[] DetailRenderers;public byte[] DetailKinds;public float DetailAt;
-        public CampObject CampHouse;public long HouseSite;public float HouseCheckAt;
+        public CampObject CampHouse;public long HouseSite;public double HouseCheckAt;
         public readonly List<NpcSolid> NearbySolids=new List<NpcSolid>();
         public HumanAgeModel AgeModel;public Dictionary<Transform,Vector3> YoungRest;public Transform YoungPelvis;public Vector3 AdultPelvisRest;public float AgeMotionRatio=1;
     }

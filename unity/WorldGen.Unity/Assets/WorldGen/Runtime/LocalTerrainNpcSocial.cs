@@ -37,7 +37,7 @@ public sealed partial class LocalTerrainExplorer
         if(campResting){WaitNpcApproach();return;}
         if(npcConversation!=null||npcTalkTarget!=null&&chatOpen||npcThinking!=null||npcEvents.Count>0||npcSpeech.Count>0||now<npcSocialAt||campSleeping)return;
         npcSocialAt=now+12; if(npcModel?.Config.BackgroundReactions!=true)return;
-        var nearby=livingPeople.Values.Where(p=>p.Health>40&&p.Resident.AgeYears>=7&&p.Speed<.25f&&p.CurrentActivity!=HumanActivity.Sleep&&p.CurrentActivity!=HumanActivity.Retreat&&HumanDistance(p.Planet,Position)<10).OrderBy(p=>p.ResidentId).ToArray();
+        var nearby=livingPeople.Values.Where(p=>p.Health>40&&p.Resident.AgeYears>=7&&p.Speed<.6f&&p.CurrentActivity!=HumanActivity.Sleep&&p.CurrentActivity!=HumanActivity.Retreat&&HumanDistance(p.Planet,Position)<10).OrderBy(p=>p.ResidentId).ToArray();
         HumanActor first=null,second=null;double best=double.MinValue;
         foreach(var a in nearby)foreach(var b in nearby)
         {
@@ -52,7 +52,7 @@ public sealed partial class LocalTerrainExplorer
         npcConversation=new SocialConversation{A=first.ResidentId,B=second.ResidentId,Until=now+100};
         NpcListen(second,first.ResidentId);
         if(!QueueNpcEvent(first,"You are near a bandmate. Start a short, natural conversation with them about your current work, camp plans or shared acquaintances. Do not invent events or possessions.",priority:2,speaker:second.ResidentId)){EndNpcConversation();return;}
-        NpcListen(first,second.ResidentId);var culture=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[first.GroupId].Residents.Culture];npcSocialAt=now+40+55*(1-culture.GuestAccess);
+        NpcListen(first,second.ResidentId);var culture=sourceWorld.Prehistory.Foragers.Cultures[livingGroups[first.GroupId].Residents.Culture];npcSocialAt=now+Math.Max(npcModel.Config.VisitorCooldownSeconds,40+55*(1-culture.GuestAccess));
     }
     void EndNpcConversation()
     {
@@ -77,7 +77,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ContinueNpcConversation(HumanActor actor,NpcEventQueue.Event heard,string speech,string target)
     {
-        foreach(var observer in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&NpcCanHear(p,actor.Root.transform.position+Vector3.up,4)).Take(4))
+        foreach(var observer in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,actor.Root.transform.position+Vector3.up,4)).Take(4))
             if(target!="person:"+observer.ResidentId)NpcMemoryFor(observer.ResidentId).Hear(actor.ResidentId,actor.Resident.Name,speech);
         if(target=="player"){if(campResting||campSleeping)WakeCamp(actor.Resident.Name+" is speaking to you.");return;}
         if(!target.StartsWith("person:")||!long.TryParse(target.Substring(7),out var id)||!livingPeople.TryGetValue(id,out var other)||HumanDistance(actor.Planet,other.Planet)>5)return;
