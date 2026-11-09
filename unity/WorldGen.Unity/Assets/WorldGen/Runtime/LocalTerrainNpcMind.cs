@@ -38,6 +38,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(actor?.Resident==null||actor.Health<=0||actor.Resident.AgeYears<4||closed)return false;
         npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled)return false;
+        if(priority<3&&!npcModel.Config.BackgroundReactions)return false;
         var item=new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth};
         if(!npcEvents.Add(item,Time.unscaledTimeAsDouble))return false;
         if(item.Words.Length>0){var person=NpcSpeaker(actor,speaker,out bool known);item.DialogueSequence=NpcMemoryFor(actor.ResidentId).Hear(NpcSpeakerKey(speaker),known?person?.Name??"Visitor":"Visitor",item.Words).Sequence;}
@@ -121,7 +122,7 @@ public sealed partial class LocalTerrainExplorer
         string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer?.Definition?.Variant):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible.Definition?.Variant):"not available";
         s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,sameBand,appearance));
         s.Append(" SPEAKER relationship to YOU: ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; speaker target ID=").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
-        s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
+        s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
         return s.ToString();
     }
     static string NpcActivityText(HumanActivity activity)=>activity==HumanActivity.GatherPlants?"gathering wild plants for food and materials":activity==HumanActivity.GatherFuel?"collecting fallen branches for the campfire":activity==HumanActivity.PrepareFood?"preparing wild gathered or hunted food":activity.ToString();
@@ -183,7 +184,14 @@ public sealed partial class LocalTerrainExplorer
     {
         var actor=npcTalkTarget;if(actor==null||actor.Health<=0||HumanDistance(actor.Planet,Position)>20)return false;
         npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled){PostExplorerChat("Local NPC model disabled or not installed. /npcai status",true);return true;}
-        if(QueueNpcEvent(actor,"You were directly addressed.",message,3)){CancelNpcConversation();NpcListen(actor);foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&NpcCanHear(p,transform.TransformPoint(PlayerFeet())+Vector3.up,4)).Take(3))NpcMemoryFor(other.ResidentId).Hear(NpcSpeakerKey(0),PlayerRules.Identity?.Person?.Name??"Visitor",message);}else PostExplorerChat(actor.Resident.Name+" is still responding.");return true;
+        if(QueueNpcEvent(actor,"You were directly addressed.",message,3))
+        {
+            CancelNpcConversation();
+            if(npcPending!=null&&(npcPending.Priority<3||npcPending.Person!=actor.ResidentId))
+            {var interrupted=npcPending;npcSuppressed=interrupted;npcModel.CancelCurrent();AbortNpcSpeech(interrupted);npcPlans.Remove(interrupted.Person);}
+            NpcListen(actor);foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,transform.TransformPoint(PlayerFeet())+Vector3.up,4)).Take(3))NpcMemoryFor(other.ResidentId).Hear(NpcSpeakerKey(0),PlayerRules.Identity?.Person?.Name??"Visitor",message);
+        }
+        else PostExplorerChat(actor.Resident.Name+" is still responding.");return true;
     }
     void NpcListen(HumanActor actor,long speaker=0)
     {

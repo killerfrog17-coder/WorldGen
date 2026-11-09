@@ -20,11 +20,12 @@ namespace WorldGen.Core
     [Serializable] public sealed partial class NpcMemory
     {
         public long Person;public string Thought="",Trigger="";
+        [System.Runtime.Serialization.OptionalField] public NpcSocialState Social=new NpcSocialState();
         public List<string> Recent=new List<string>();
         public void Remember(string text){Recent.Add(NpcDecision.Clean(text,360));while(Recent.Count>12)Recent.RemoveAt(0);}
         public NpcMemory Copy()=>new NpcMemory{Person=Person,Thought=Thought,Trigger=Trigger,Recent=new List<string>(Recent??new List<string>()),
             ConversationSequence=ConversationSequence,Conversation=(Conversation??new List<NpcDialogueTurn>()).Select(t=>t.Copy()).ToList(),
-            Statements=(Statements??new List<NpcHeardStatement>()).Select(t=>t.Copy()).ToList()};
+            Statements=(Statements??new List<NpcHeardStatement>()).Select(t=>t.Copy()).ToList(),Social=Social?.Copy()??new NpcSocialState()};
     }
     // Only physical, perceived events enter this bounded queue. No world-scale
     // thinking ticks; direct speech supersedes an older observation for a person.

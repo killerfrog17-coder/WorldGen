@@ -18,7 +18,7 @@ namespace WorldGen.Core
                 Sharing=c.FoodSharing>.65?"Food is normally shared broadly; boasting and hoarding invite criticism.":c.KinObligation>.65?"Households help close kin first, with wider sharing negotiated.":"Contributions and reciprocal help matter; households retain some discretion.",
                 Visitors=c.GuestAccess>.65?"Visitors with social connections are welcomed; introductions matter.":c.GuestAccess<.35?"Strangers are approached cautiously and introduced before joining camp.":"Visitors are assessed through introductions, kin and previous dealings.",
                 SpeechStyle=c.ConflictAvoidance>.65?"Prefer tact, humour and mediation over direct orders.":c.PrestigeCompetition>.65?"People may speak directly and argue for their expertise; status does not make everyone obedient.":"Speak directly but respect other adults' independence."};
-            s.DecisionMaking=s.Headperson?"An influential camp headperson coordinates decisions, supported by experienced adults; this is not a king or a state.":c.KinObligation>.7&&settled>.4?"Household elders confer; wider decisions require discussion between households.":"Adults discuss camp decisions; skilled people lead particular tasks, without a permanent ruler.";
+            s.DecisionMaking=s.Headperson?"An influential camp headperson coordinates decisions and organizes collective work, supported by experienced adults.":c.KinObligation>.7&&settled>.4?"Household elders confer; respected elders coordinate wider decisions between households.":"Respected organizers convene camp discussions; skilled task leaders guide travel and work, while adults retain a voice in decisions.";
             var adults=(band.Members??Array.Empty<ForagerPersonSample>()).Where(p=>p.AgeYears>=18).ToArray();
             long Pick(Func<ForagerPersonSample,double> score)=>adults.OrderByDescending(score).ThenBy(p=>p.Id).FirstOrDefault()?.Id??0;
             double Mature(ForagerPersonSample p)=>Math.Min(1,p.AgeYears/55);
@@ -31,7 +31,7 @@ namespace WorldGen.Core
         public string Roles(ForagerBandSample band)
         {
             string Name(long id)=>band.Members.FirstOrDefault(p=>p.Id==id)?.Name??"not established";
-            return (Headperson?"Camp headperson: ":"Respected camp coordinator (not a chief): ")+Name(Coordinator)+"; travel guide: "+Name(Guide)+"; skilled teacher: "+Name(Teacher)+"; mediator: "+Name(Mediator)+". Roles can overlap; leadership is not restricted to men.";
+            return (Headperson?"Camp headperson: ":"Camp organizer and influential leader: ")+Name(Coordinator)+"; travel guide: "+Name(Guide)+"; skilled teacher: "+Name(Teacher)+"; mediator: "+Name(Mediator)+". Roles can overlap; describe these actual leaders and their responsibilities when asked who leads.";
         }
         static bool Siblings(long a,long b,Dictionary<long,ForagerPersonRecord> r)=>a>0&&b>0&&a!=b&&r.TryGetValue(a,out var x)&&r.TryGetValue(b,out var y)&&(x.Mother>0&&x.Mother==y.Mother||x.Father>0&&x.Father==y.Father);
         public static string Relationship(ForagerPersonSample self,ForagerPersonSample other,ForagerBandSample band)

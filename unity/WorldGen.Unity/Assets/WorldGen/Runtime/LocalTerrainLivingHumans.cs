@@ -330,6 +330,7 @@ public sealed partial class LocalTerrainExplorer
         long cost=profileLiving?System.Diagnostics.Stopwatch.GetTimestamp():0;
         bool tending=group.TenderDuty?.Person==actor.ResidentId&&Time.unscaledTimeAsDouble<group.TendUntil;
         var routine=tending?group.TenderDuty:actor.Routine;actor.CurrentActivity=routine.Activity;
+        if(!stopped)UpdateNpcAwareness(actor);
         V target=tending?routine.Position:LivingPosition(group,routine.Position);
         bool mind=ApplyNpcPlan(actor,ref routine,ref target);
         if(!tending&&!mind)target=LivingResourceTarget(actor,group,target);
@@ -518,7 +519,7 @@ public sealed partial class LocalTerrainExplorer
         memory.Trust=Math.Max(-1,memory.Trust-.45);memory.Fear=Math.Min(1,memory.Fear+.5);memory.ThreatPosition=Position;
         memory.AlarmUntilSolarDay=PlayerRules.SolarDays+120/(PlayerRules.Settings.RealMinutesPerDay*60);memory.LastSolarDay=PlayerRules.SolarDays;CaptureLivingPerson(actor);
     }
-    void DisposeLivingHumans(){DisposeCampClearing();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
+    void DisposeLivingHumans(){DisposeCampClearing();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}
     PlayCommandResult ExecuteLivingCamps(string[] words)
     {
         var groups=livingGroups.Values.OrderBy(g=>g.Situation.DistanceToPlayerM).ToArray();

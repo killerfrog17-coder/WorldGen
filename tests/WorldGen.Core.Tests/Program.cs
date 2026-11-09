@@ -4,6 +4,7 @@ using WorldGen.Presentation;
 if(args.Contains("--npc-mind")){NpcMindTests.Run();return;}
 if(args.Contains("--npc-conversation")){NpcConversationTests.Run();return;}
 if(args.Contains("--npc-life")){NpcLifeTests.Run();return;}
+if(args.Contains("--npc-individual")){NpcIndividualTests.Run();return;}
 if(args.Contains("--npc-ai-settings")){NpcAiSettingsTests.Run();return;}
 if(args.Contains("--world-entry")){WorldEntryTests.Run(args[1],args[2]);return;}
 if(args.Contains("--forest-pruning-sites")){ForestPruningSites.Prepare(args[1],args[2]);return;}

@@ -15,7 +15,7 @@ namespace WorldGen.Core
         public void Validate()
         {
             Minds??=new List<NpcMemory>();
-            foreach(var memory in Minds)memory?.ValidateDialogue();
+            foreach(var memory in Minds){memory?.ValidateDialogue();if(memory!=null){memory.Social??=new NpcSocialState();memory.Social.Validate();}}
             if(Minds.Any(m=>m==null||m.Person<=0||m.Recent==null||m.Recent.Count>12||m.Recent.Any(s=>s==null||s.Length>360)||(m.Thought??"").Length>160||(m.Trigger??"").Length>160)||Minds.Select(m=>m.Person).Distinct().Count()!=Minds.Count)throw new ArgumentException("Invalid NPC memories.");
             if(People==null||Camps==null||Groups==null||People.Any(p=>p==null)||Camps.Any(c=>c==null)||Groups.Any(g=>g==null))throw new ArgumentException("Invalid local human records.");
             if(People.Select(p=>p.Person).Distinct().Count()!=People.Count||Camps.Select(c=>c.Site).Distinct().Count()!=Camps.Count||Groups.Select(g=>g.Group).Distinct().Count()!=Groups.Count)throw new ArgumentException("Duplicate local human identity.");

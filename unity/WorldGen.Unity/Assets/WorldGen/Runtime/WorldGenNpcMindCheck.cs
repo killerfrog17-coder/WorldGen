@@ -26,7 +26,8 @@ public sealed partial class WorldGenRuntime
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)
         {if(worldEntryError.Length>0)throw new InvalidOperationException(worldEntryError);yield return null;}
         if(terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)throw new InvalidOperationException("NPC test ground failed to load");
-        yield return terrainExplorer.CheckNpcMinds(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-world-check"))yield return terrainExplorer.CheckNpcWorld(output,report);
+        else yield return terrainExplorer.CheckNpcMinds(output,report);
         CapturePlayer();play.Copy().Validate();report.Add("PASS captured session validates with conversation memories");
         ReturnFromPlay("Simulation");while(terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
         yield return new WaitForSecondsRealtime(1);File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Application.Quit(0);
