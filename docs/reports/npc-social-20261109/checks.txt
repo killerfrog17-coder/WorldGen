@@ -1,0 +1,26 @@
+PASS Two actual adult residents exist
+PASS A carried real item can be given to the nearby resident
+PASS The gift changes inventory and ownership exactly once
+PASS The recipient remembers the specific actual gift and gains personal trust
+PASS Returning actual property partly repairs the dispute without erasing distrust
+PASS A recipient without physical room refuses a gift without deleting it
+PASS An executor-delivered local disagreement changes both participants' named relationships
+PASS Both social participants are outside player earshot
+PASS The actual local scheduler exchanges a witnessed fact with the model disabled and player out of earshot
+PASS Procedural social outcomes create no model requests, transcripts or queued dialogue
+PASS Saved social cooldown prevents repeating the same encounter each scan
+PASS Even high-priority incidental reactions cannot enter the queue outside earshot
+PASS An audible incidental reaction is eligible when the model is free
+PASS A busy model rejects background chatter instead of accumulating a backlog
+PASS Player speech preempts a high-priority background reaction from the same NPC
+PASS A thin post does not act as an opaque acoustic wall
+PASS A nearby solid wall blocks player earshot
+PASS A brief occlusion does not instantly cancel an already audible exchange
+PASS Sustained occlusion expires the in-progress conversation grace period
+PASS No gift or refusal duplicates a possession ID
+PASS Social transactions and their real possessions validate together
+PASS An audible procedural encounter admits one optional live-model conversation
+PASS Both actual residents deliver a live Qwen conversational turn (2): 
+PASS Live ambient speech streams without building more than one queued request
+PASS Player dialogue interrupts the ambient exchange and receives a real model reply: 
+PASS captured session validates with conversation memories

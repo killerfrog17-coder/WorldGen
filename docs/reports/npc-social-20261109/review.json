@@ -1,0 +1,61 @@
+{
+  "title": "WorldGen - NPC Social Update",
+  "section": "NPC SOCIAL UPDATE",
+  "date": "9 November 2026",
+  "footer": "Actual packaged-game capture | Functional QA at 30 FPS | Runtime 9cb8034f",
+  "pages": [
+    {
+      "title": "Social life without a backlog",
+      "subtitle": "Local interactions have procedural outcomes. Generated dialogue is an optional audible layer.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Interaction",
+              "Behavior"
+            ],
+            "widths": [
+              0.25,
+              0.75
+            ],
+            "rows": [
+              [
+                "Company & gossip",
+                "Local people spend time together without model requests. Some encounters affect relationships; recent witnessed events can spread as reports."
+              ],
+              [
+                "Reliable information",
+                "Reports retain their origin and date, lose confidence when forwarded, and do not become personal eyewitness memories. Duplicates do not farm trust penalties."
+              ],
+              [
+                "Nearby speech",
+                "Model dialogue starts only within earshot (10 m), subject to substantial barriers. Small objects do not mute voices. Brief occlusion has a two-second grace for work already in progress."
+              ],
+              [
+                "Player priority",
+                "Busy background requests are rejected; stale narration is discarded. Player dialogue interrupts incidental reactions, including those from the same NPC."
+              ]
+            ]
+          }
+        },
+        {
+          "images": [
+            {
+              "file": "live-social-and-player-reply.jpg",
+              "caption": "Actual Qwen exchange between Nusa and Natot, followed by the player interrupting. The existing thoughts overlay shows the active intention and queue. Actor positions were controlled for functional testing."
+            }
+          ],
+          "max_height": 200
+        },
+        {
+          "heading": "Verified",
+          "text": "87 Core checks passed, plus all 26 final packaged social checks and 14 packaged safety checks. Tests include AI-disabled gossip outside earshot, obstruction, no backlog under thirty incidental requests, live streaming, turn-taking, player interruption and saved-state validation."
+        },
+        {
+          "heading": "Scope",
+          "text": "Only loaded local people take part; no world-wide simulation of individual conversations. Model speed and prose quality are unchanged. These are functional checks, not evidence of an FPS gain."
+        }
+      ]
+    }
+  ]
+}

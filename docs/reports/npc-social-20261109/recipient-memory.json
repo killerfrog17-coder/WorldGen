@@ -1,0 +1,226 @@
+{
+    "ConversationSequence": 6,
+    "Conversation": [
+        {
+            "Sequence": 1,
+            "Speaker": 7482625005717170781,
+            "Interlocutor": 7527617101150865818,
+            "ReplyTo": 0,
+            "Name": "Nusa",
+            "Text": "I think households should share food broadly.",
+            "FromNpc": true
+        },
+        {
+            "Sequence": 2,
+            "Speaker": 2908442790556087916,
+            "Interlocutor": 2908442790556087916,
+            "ReplyTo": 0,
+            "Name": "Janapsip",
+            "Text": "What happened to your scraper?",
+            "FromNpc": false
+        },
+        {
+            "Sequence": 3,
+            "Speaker": 7482625005717170781,
+            "Interlocutor": 7527617101150865818,
+            "ReplyTo": 0,
+            "Name": "Nusa",
+            "Text": "I'm gathering some roots and nuts near the old trees. Want to join me?",
+            "FromNpc": true
+        },
+        {
+            "Sequence": 4,
+            "Speaker": 7527617101150865818,
+            "Interlocutor": 7527617101150865818,
+            "ReplyTo": 0,
+            "Name": "Natot",
+            "Text": "I'm heading out to gather roots and nuts near the old trees. Want to come along?",
+            "FromNpc": false
+        },
+        {
+            "Sequence": 5,
+            "Speaker": 2908442790556087916,
+            "Interlocutor": 2908442790556087916,
+            "ReplyTo": 0,
+            "Name": "Janapsip",
+            "Text": "What time of day is it now?",
+            "FromNpc": false
+        },
+        {
+            "Sequence": 6,
+            "Speaker": 7482625005717170781,
+            "Interlocutor": 2908442790556087916,
+            "ReplyTo": 5,
+            "Name": "Nusa",
+            "Text": "I fixed my scraper, Janapsip. It is morning.",
+            "FromNpc": true
+        }
+    ],
+    "Statements": [],
+    "Person": 7482625005717170781,
+    "Thought": "Answering partner's questions.",
+    "Trigger": "You were directly addressed.",
+    "Social": {
+        "UpdatedSolarDay": 0.016019181138888915,
+        "Fear": 0.0,
+        "Anger": 0.17406897906691288,
+        "Grief": 0.0,
+        "Contentment": 0.4680147362839713,
+        "NextSocialSolarDay": 0.019324857353902183,
+        "EventSequence": 4,
+        "Incidents": [
+            {
+                "Sequence": 1,
+                "Actor": 2908442790556087916,
+                "Subject": 7482625005717170781,
+                "Animal": 0,
+                "Kind": 6,
+                "SolarDay": 0.003454731583333335,
+                "Confidence": 1.0,
+                "Position": {
+                    "X": 0.9916591,
+                    "Y": 0.08916693,
+                    "Z": -0.093067111
+                },
+                "Detail": "You actually received Stone blade from the person you were speaking with.",
+                "FirstHand": true,
+                "OriginPerson": 0,
+                "OriginSequence": 0,
+                "Reporter": 0
+            },
+            {
+                "Sequence": 2,
+                "Actor": 2908442790556087916,
+                "Subject": 7482625005717170781,
+                "Animal": 0,
+                "Kind": 10,
+                "SolarDay": 0.003454731583333335,
+                "Confidence": 1.0,
+                "Position": {
+                    "X": 0.9916591,
+                    "Y": 0.08916693,
+                    "Z": -0.093067111
+                },
+                "Detail": "The person returned your Stone scraper. This repairs part of the dispute; it does not erase what happened.",
+                "FirstHand": true,
+                "OriginPerson": 0,
+                "OriginSequence": 0,
+                "Reporter": 0
+            },
+            {
+                "Sequence": 3,
+                "Actor": 0,
+                "Subject": 7527617101150865818,
+                "Animal": 0,
+                "Kind": 9,
+                "SolarDay": 0.003454731583333335,
+                "Confidence": 1.0,
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Detail": "You disagreed with this person about how households share food. This was a disagreement, not a fight.",
+                "FirstHand": true,
+                "OriginPerson": 0,
+                "OriginSequence": 0,
+                "Reporter": 0
+            },
+            {
+                "Sequence": 4,
+                "Actor": 2908442790556087916,
+                "Subject": 7482625005717170781,
+                "Animal": 0,
+                "Kind": 4,
+                "SolarDay": 0.003454731583333335,
+                "Confidence": 1.0,
+                "Position": {
+                    "X": 0.991655796,
+                    "Y": 0.089203668,
+                    "Z": -0.093067111
+                },
+                "Detail": "You saw a visitor take a stone scraper.",
+                "FirstHand": true,
+                "OriginPerson": 0,
+                "OriginSequence": 0,
+                "Reporter": 0
+            }
+        ],
+        "Relationships": [
+            {
+                "Other": 2908442790556087916,
+                "Trust": -0.48,
+                "Affection": 0.048,
+                "Respect": 0.0625,
+                "Grievance": 0.35000000000000003,
+                "Fear": 0.0,
+                "LastSolarDay": 0.003454731583333335,
+                "GiftDay": 0.003454731583333335,
+                "GiftCredits": 1
+            },
+            {
+                "Other": 7527617101150865818,
+                "Trust": 0.016,
+                "Affection": 0.036,
+                "Respect": 0.0,
+                "Grievance": 0.035,
+                "Fear": 0.0,
+                "LastSolarDay": 0.003454731583333335,
+                "GiftDay": -1.0,
+                "GiftCredits": 0
+            }
+        ],
+        "KnownPeople": [
+            {
+                "Person": 2908442790556087916,
+                "LastSeenSolarDay": 0.015991407500000027,
+                "LastPosition": {
+                    "X": 0.991654812,
+                    "Y": 0.089214611,
+                    "Z": -0.093067111
+                },
+                "SeenDead": false
+            },
+            {
+                "Person": 4826791378763290456,
+                "LastSeenSolarDay": 0.015991407500000027,
+                "LastPosition": {
+                    "X": 0.991654812,
+                    "Y": 0.089214611,
+                    "Z": -0.093067111
+                },
+                "SeenDead": false
+            },
+            {
+                "Person": 7527617101150865818,
+                "LastSeenSolarDay": 0.015991407500000027,
+                "LastPosition": {
+                    "X": 0.991656186,
+                    "Y": 0.089195934,
+                    "Z": -0.093070374
+                },
+                "SeenDead": false
+            },
+            {
+                "Person": 3532157404193304671,
+                "LastSeenSolarDay": 0.015991407500000027,
+                "LastPosition": {
+                    "X": 0.991654449,
+                    "Y": 0.089206005,
+                    "Z": -0.093079231
+                },
+                "SeenDead": false
+            }
+        ]
+    },
+    "Recent": [
+        "Said: I think households should share food broadly.",
+        "Janapsip said: What happened to your scraper?",
+        "Intention: speak person:7527617101150865818. Start talking about gathering work.",
+        "Said: I'm gathering some roots and nuts near the old trees. Want to join me?",
+        "Natot said: I'm heading out to gather roots and nuts near the old trees. Want to come along?",
+        "Janapsip said: What time of day is it now?",
+        "Intention: speak player. Answering partner's questions.",
+        "Said: I fixed my scraper, Janapsip. It is morning."
+    ]
+}

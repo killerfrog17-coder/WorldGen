@@ -1,0 +1,57 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 309.32976377952775,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-social-20261109\\live-social-and-player-reply.jpg",
+    "bottom": 336.08976377952774,
+    "height": 200
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 279.6097637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 236.20976377952772,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 209.48976377952772,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 178.88976377952773,
+    "height": 25.6
+  }
+]

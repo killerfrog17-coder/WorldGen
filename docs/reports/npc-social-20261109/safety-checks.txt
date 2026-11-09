@@ -1,0 +1,14 @@
+PASS Actual adult residents exist for local violence checks
+PASS The defender physically equips the actual spear
+PASS The hurt resident identifies the actually visible attacker
+PASS A person behind a real solid receives no telepathic group alarm
+PASS A witnessed threat overrides the actual physical routine
+PASS A healthy armed adult can stand and defend instead of universally fleeing
+PASS An NPC defensive strike with a real spear can hit the player's actual body
+PASS Ongoing wound damage is not reported as a new player assault
+PASS A real resident dies and becomes a physical ragdoll
+PASS A hidden bandmate does not know that the resident died
+PASS Actually discovering the body creates remembered death and grief
+PASS Finding the body does not reveal an unwitnessed killer
+PASS Witnessed consequences and dropped possessions validate together
+PASS captured session validates with conversation memories

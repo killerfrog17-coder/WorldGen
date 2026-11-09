@@ -1,0 +1,147 @@
+{
+  "scope": "Procedural local social exchanges, audible-only LLM narration and queue backpressure",
+  "source": "9cb8034f",
+  "core": {
+    "npc-mind": {
+      "passed": true,
+      "checks": 27
+    },
+    "npc-social-response": {
+      "passed": true,
+      "checks": 28
+    },
+    "npc-conversation": {
+      "passed": true,
+      "checks": 22
+    },
+    "npc-individual": {
+      "passed": true,
+      "checks": 10
+    }
+  },
+  "runtime": "PASS",
+  "limits": [
+    "Only loaded local individuals participate; no global per-tribe conversation simulation.",
+    "NPC social exchange does not require model inference; natural-language rendering still depends on local model speed.",
+    "No FPS improvement claimed; functional tests are capped at 30 FPS."
+  ],
+  "owner_settings_sha256": "b9cad371276c552ae499d818272577acf90efea8de2678eacf47126aa61dbed0",
+  "native_runs": [
+    {
+      "prefix": "procedural-social-v1-social",
+      "source": "2f947535",
+      "passed": true,
+      "checks": 19,
+      "live_model": false
+    },
+    {
+      "prefix": "procedural-social-v2-social",
+      "source": "e7d37d20",
+      "passed": false,
+      "reason": "Live optional conversation admitted but no inference started; investigating admission versus physical hearing at subsequent frames."
+    },
+    {
+      "prefix": "procedural-social-v3-social",
+      "source": "5c153187",
+      "passed": false,
+      "reason": "Live model optional exchange was discarded before inference. Dispatch trace added to distinguish hearing, expiry and spatial eligibility."
+    },
+    {
+      "prefix": "procedural-social-v3-safety",
+      "source": "5c153187",
+      "passed": true,
+      "checks": 14
+    },
+    {
+      "prefix": "procedural-social-v4-social",
+      "source": "29949bf1",
+      "passed": false,
+      "reason": "Live speech fixture did not satisfy actual hearing admission after settling."
+    },
+    {
+      "prefix": "procedural-social-v5-social",
+      "source": "0cf56564",
+      "passed": false,
+      "reason": "Dispatch started model loading, then momentary hearing occlusion canceled it. Trace preserved; led to bounded in-progress hearing grace."
+    },
+    {
+      "prefix": "procedural-social-v6-social",
+      "source": "5c1d2c6d",
+      "passed": false,
+      "reason": "Grace checks passed, but combat-style hearing obstruction still rejected the physical live fixture. Replaced with acoustic barrier rules; moved speech fixture away from household structures."
+    },
+    {
+      "prefix": "procedural-social-v7-social",
+      "source": "2c1900dc",
+      "passed": false,
+      "reason": "Stable audible inference and streaming established; reply chain did not complete. Added explicit recipient fallback for spoken replies whose target is none."
+    },
+    {
+      "prefix": "procedural-social-v8-social",
+      "source": "9cb8034f",
+      "passed": true,
+      "checks": 26,
+      "live_model": "Qwen3.5-9B Q4_K_M, hybrid CUDA, 2 GiB GPU reserve, 15 FPS inference cap",
+      "proof": [
+        "Actual scheduler shares a witnessed theft with AI disabled and player out of earshot.",
+        "Thirty incidental requests rejected while a response is pending; no backlog.",
+        "Player speech preempts high-priority reaction from same NPC.",
+        "Thin post transmits speech; solid wall blocks; brief versus sustained occlusion checked.",
+        "Two actual residents deliver streamed live-model turns, then player interrupts and receives a real reply.",
+        "Captured state and real possession IDs validate."
+      ]
+    },
+    {
+      "prefix": "procedural-social-final-safety",
+      "source": "9cb8034f",
+      "passed": true,
+      "checks": 14,
+      "note": "Final-source rerun after acoustic hearing changes."
+    }
+  ],
+  "report": "docs/reports/npc-social-20261109/WorldGen - NPC Social Update 2026-11-09.pdf",
+  "functional_settings": "30 FPS display cap; this is not an FPS performance measurement.",
+  "build_receipt": {
+    "BuiltUtc": "2026-11-09T22:08:41.1238998Z",
+    "SourceCommit": "9cb8034fb9b26e8fadc46017ae6ec55fbd964397",
+    "SourceChanges": [
+      "?? assets/verification/npc-procedural-social-20261109.json"
+    ],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "42c8f56a0b8367b08acb2e8fb1bfde4f040b5b35a646442d3fe2d8aad33d1ebf"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "de003c5bb809c26f1af5886a117ebd03f621899823fe861eb21ed42afeb549fa"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "09eaa15e09b5c0c3e0c21067ac4660f54c1c9a4f6f29fe0fe65ed0e9721f33ab"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "bb923a470b38932940d9eeb73596f534a521a4e8cc8574bf9ae705b9ebc0bd7d"
+  },
+  "handoff": {
+    "selected_slot": "slot-a",
+    "fallback_slot": "slot-b",
+    "shortcut_arguments_preserved": true,
+    "shortcut_working_directory_preserved": true,
+    "owner_settings_unchanged": true,
+    "runtime_source_clean": true,
+    "build_dirty_input_note": "SourceChanges lists only the then-untracked verification JSON, not runtime code.",
+    "report_review": "One page rendered and visually inspected."
+  }
+}
