@@ -30,7 +30,7 @@ public sealed partial class LocalTerrainExplorer
         if(!actor.Belongings.Items.Contains(actual)){Check(AcquireNpcItem(actor,actual),"The worker can physically retrieve its gathered branch");}
         var fire=new CampObject{Kind=CampKind.Fire,Position=actor.Planet,NpcGroup=actor.GroupId,NpcSite=group.Situation.Camp.Id,EmberSeconds=900};Camp.Objects.Add(fire);double mass=actual.MassKg;
         Check(NpcMaterialUse.Feed(actor.Belongings,fire,actual)&&Math.Abs(fire.FuelKg-mass)<1e-9,"A real harvested branch transfers its finite mass to the hearth");
-        var fine=new NpcMaterialTask{Purpose="tinder"};npcMaterialSearchFrame=-1;Check(NpcFindMaterial(actor,fine,"tinder"),"The worker finds actual local tinder material");Stand(fine.Point);NpcGatherMaterial(actor,fine,10,ref target);
+        var fine=new NpcMaterialTask{Purpose="tinder"};npcMaterialAdmission.Clear();Check(NpcFindMaterial(actor,fine,"tinder"),"The worker finds actual local tinder material");Stand(fine.Point);NpcGatherMaterial(actor,fine,10,ref target);
         var tinder=actor.Belongings.Items.FirstOrDefault(p=>actor.Belongings.Carried(p)&&CampRules.Tinder(p));Check(tinder!=null,"Gathering fine material creates a real carried bundle");
         Check(NpcMaterialUse.Feed(actor.Belongings,fire,tinder)&&fire.Burning,"Actually feeding the fine bundle relights live embers");
         // A real regional food plant, tested in its own fruiting season.
