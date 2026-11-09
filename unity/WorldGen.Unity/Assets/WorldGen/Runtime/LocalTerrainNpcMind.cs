@@ -80,7 +80,7 @@ public sealed partial class LocalTerrainExplorer
                     var list="["+string.Join(",",npcPendingTargets.Select(t=>"\""+t+"\""))+"]";
                     var memory=NpcMemoryFor(actor.ResidentId);long speaker=NpcSpeakerKey(item.Speaker);
                     var current=memory.Conversation?.FirstOrDefault(t=>t.Sequence==item.DialogueSequence);
-                    npcThinking=npcModel.Ask(NpcContext(actor,item,npcPendingTargets),list,memory.DialogueFor(speaker,item.DialogueSequence,npcModel.Config.ConversationTurns),current,memory.Recall(speaker,item.Words,item.DialogueSequence));
+                    npcThinking=npcModel.Ask(NpcContext(actor,item,npcPendingTargets),list,memory.DialogueFor(speaker,item.DialogueSequence,npcModel.Config.ConversationTurns),current,memory.Recall(speaker,item.Words,item.DialogueSequence>0?item.DialogueSequence-1:long.MaxValue));
                 }
             }
         }
@@ -107,6 +107,7 @@ public sealed partial class LocalTerrainExplorer
         var s=new StringBuilder(NpcPersonContext.Describe("YOU (NPC)",actor.Resident,band,true,NpcVisibleHair(actor.Definition?.Variant)));s.Append(" Band: ").Append(band.Name);
         s.Append(". Culture: ").Append(f.Cultures[band.Culture].Name).Append(". Language: ").Append(f.Languages[band.Language].Name).Append(" (render speech in English translation).");
         s.Append(" Current activity: ").Append(NpcActivityText(actor.CurrentActivity)).Append(". Camp phase: ").Append(group.Situation.Phase).Append(". Health: ").Append(actor.Health.ToString("0")).Append("/100. Breath strain: ").Append(actor.Exertion.Breath.ToString("0.00"));
+        if(actor.Routine!=null)s.Append(". Assigned routine before this conversation: ").Append(NpcActivityText(actor.Routine.Activity));
         s.Append(". Temperature: ").Append(CurrentWeather.TemperatureC.ToString("0")).Append(" C. Known tools/techniques: ");
         if(band.Techniques!=null)for(int i=0;i<Math.Min(band.Techniques.Length,ForagerTechnology.All.Length);i++)if(band.Techniques[i])s.Append(ForagerTechnology.All[i].Name).Append(", ");
         s.Append(". Available targets: ").Append(string.Join(", ",targets)).Append('.');

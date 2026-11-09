@@ -13,7 +13,7 @@ public sealed partial class WorldGenRuntime
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;var report=new List<string>();
         string profile=Argument("--worldgen-ai-profile","");
-        if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount);NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
+        if(profile.Length>0){var config=NpcModelClient.LoadSettings();string family=Argument("--worldgen-ai-model","");if(family.Length>0)config.SelectModel(NpcModelClient.InstalledModels(config).First(m=>m.Family==family));config.Preset(profile=="max"?3:profile=="gpu"?2:profile=="hybrid"?1:0,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);NpcModelClient.TestSettingsPath=Path.Combine(output,"ai-profile.json");NpcModelClient.SaveSettings(config);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
         while((Busy||!worldReady||humans==null||humanStep!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humanStep!=null)throw new InvalidOperationException("NPC test world failed to load");
@@ -81,6 +81,34 @@ public sealed partial class LocalTerrainExplorer
         npcPlans[actor.ResidentId]=new MindPlan{Decision=new NpcDecision{action="rest",target="none",thought="I need a moment.",seconds=2},Event=new NpcEventQueue.Event{Person=actor.ResidentId},Until=Time.unscaledTimeAsDouble+10};
         yield return new WaitForSecondsRealtime(.5f);Check(actor.CurrentActivity==HumanActivity.Rest,"rest intention changes actual activity");
         yield return new WaitForSecondsRealtime(3);Check(!npcPlans.ContainsKey(actor.ResidentId),"temporary action expires and resumes schedule");
+        npcModel.Config.ConversationTurns=2;npcModel.Config.Temperature=.2f;
+        string nonce="kelun"+UnityEngine.Random.Range(1000,9999),lastSpeech="";
+        var dialogueProof=new List<string>();
+        IEnumerator Talk(string words)
+        {
+            npcPlans.Remove(actor.ResidentId);Stand(2);npcTalkTarget=actor;int before=npcUtterances;
+            Check(SpeakToNpc(words),"actual resident accepts: "+words);
+            double until=Time.realtimeSinceStartupAsDouble+200;while(npcUtterances==before&&Time.realtimeSinceStartupAsDouble<until&&npcLastError.Length==0)yield return null;
+            Check(npcUtterances>before,"actual resident delivers the next reply: "+npcLastError);
+            lastSpeech=NpcMemoryFor(actor.ResidentId).Conversation.Last(t=>t.FromNpc).Text;
+            dialogueProof.Add("You: "+words+"\n"+actor.Resident.Name+": "+lastSpeech);
+            File.WriteAllLines(Path.Combine(output,"memory-conversation.txt"),dialogueProof);
+        }
+        yield return Talk("Please remember this secret passkey: "+nonce+".");
+        yield return Talk("I have two children.");
+        yield return Talk("What are you doing?");
+        var copied=LivingState.Copy();copied.Validate();var copiedMind=copied.Minds.Single(m=>m.Person==actor.ResidentId);
+        LivingState.Minds[LivingState.Minds.FindIndex(m=>m.Person==actor.ResidentId)]=copiedMind;
+        Check(!copiedMind.DialogueFor(NpcSpeakerKey(0),long.MaxValue,2).Any(t=>t.Text.Contains(nonce)),"passkey has left the two-exchange live history before recall");
+        yield return Talk("What is the secret passkey I asked you to remember?");
+        Check(lastSpeech.IndexOf(nonce,StringComparison.OrdinalIgnoreCase)>=0,"actual resident recalls a random passkey after distraction and saved-memory restoration");
+        yield return Talk("How many children did I say I have?");
+        Check(lastSpeech.IndexOf("two",StringComparison.OrdinalIgnoreCase)>=0||lastSpeech.Contains("2"),"actual resident recalls the player's reported children separately from generated family records");
+        yield return Talk("How old am I?");
+        var context=string.Join("\n",npcModel.LastMessages.Select(m=>m.role+": "+m.content));
+        Check(context.Contains("SPEAKER: name="+PlayerRules.Identity.Person.Name)&&context.Contains("age in years="+Math.Floor(PlayerRules.Identity.Person.AgeYears).ToString("0"))&&context.Contains(NpcVisibleHair(humanPlayer.Definition.Variant)),"actual request includes the controlled person's identity, age and rendered hair");
+        File.WriteAllText(Path.Combine(output,"actual-request.txt"),context);
+        npcThoughts=true;npcTalkTarget=actor;OpenChat();yield return new WaitForEndOfFrame();screen=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"npc-memory.png"),screen.EncodeToPNG());Destroy(screen);CloseChat();
         var saved=LivingState.Copy();saved.Validate();Check(saved.Minds.Any(m=>m.Person==actor.ResidentId&&m.Recent.Count>0),"short memories survive the session copy");
         npcTalkTarget=actor;OpenChat();Check(!CommandChatStopped,"conversation input keeps NPC simulation running");CloseChat();
         File.WriteAllText(Path.Combine(output,"final-memory.json"),JsonUtility.ToJson(NpcMemoryFor(actor.ResidentId),true));

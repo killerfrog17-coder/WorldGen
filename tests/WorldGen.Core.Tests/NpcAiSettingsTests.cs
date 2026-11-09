@@ -20,6 +20,8 @@ static class NpcAiSettingsTests
         Check(settings.GpuLayers==49&&settings.ModelLayers==49,"Larger models are not limited to the original 37 layers");
         settings.Preset(3,16);Check(settings.Threads==8&&settings.BatchThreads==16&&settings.Priority==2&&settings.GpuReserveMiB==512&&settings.Polling==100&&settings.InferenceFps==15,"Maximum-speed preset gives AI CPU and VRAM priority while avoiding memory spill");
         Check(settings.HardwareArguments().Contains("-ngl auto --fit on --fit-target 512")&&settings.HardwareArguments().Contains("-tb 16"),"Automatic fit and independent prefill threads reach the host");
+        settings.Preset(3,16,8192);Check(settings.ContextTokens==2048&&settings.GpuReserveMiB==1024&&settings.PreloadModel,"Gemma uses compact context and sequential preloading on an 8GB GPU");
+        settings.Preset(3,16,16384);Check(settings.ContextTokens==4096&&settings.GpuReserveMiB==512,"Larger GPUs retain the full preset context");
         settings.GpuReserveMiB=0;settings.Normalize(16);Check(settings.HardwareArguments().Contains("--fit-target 0"),"Zero VRAM reserve remains available as a manual override");
         settings.SelectModel(new NpcAiModel{Name="GPT",Path="gpt.gguf",Family="gpt-oss",Layers=25,ExpertLayers=24});
         Check(settings.CpuExpertLayers==12&&settings.HardwareArguments().Contains("--n-cpu-moe 12")&&settings.HardwareArguments().Contains("--load-mode none --lazy-mode off")&&settings.HardwareArguments().Contains("--reasoning-effort low"),"Expert model splits experts and preloads CPU weights for sequential disk access");

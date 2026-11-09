@@ -46,7 +46,7 @@ public sealed partial class WorldGenRuntime
         aiDraft.Enabled=GUILayout.Toggle(aiDraft.Enabled,"Enable NPC thoughts and dialogue");
         GUILayout.Space(8);GUILayout.Label("Hardware starting points");
         GUILayout.BeginHorizontal();
-        int presetIndex=0;foreach(var preset in new[]{"CPU","Hybrid","GPU","Max speed"}){if(GUILayout.Button(preset)){aiDraft.Preset(presetIndex,Environment.ProcessorCount);aiDirty=true;}presetIndex++;}
+        int presetIndex=0;foreach(var preset in new[]{"CPU","Hybrid","GPU","Max speed"}){if(GUILayout.Button(preset)){aiDraft.Preset(presetIndex,Environment.ProcessorCount,SystemInfo.graphicsMemorySize);aiDirty=true;}presetIndex++;}
         GUILayout.EndHorizontal();GUILayout.Label("Max speed prioritizes AI: high CPU priority, active polling and 15 FPS while generating. Your normal frame limit returns afterward. Thread tuning may still improve speed.",MutedStyle());
         if(System.IO.File.Exists(aiDraft.CudaServerPath)){GUILayout.Label("GPU backend");aiDraft.GpuBackend=GUILayout.SelectionGrid(aiDraft.GpuBackend=="cuda"?1:0,new[]{"Vulkan","CUDA (NVIDIA)"},2)==1?"cuda":"vulkan";}
         bool autoGpu=GUILayout.Toggle(aiDraft.GpuLayers==999,"Automatically fit as much as possible on the GPU");
@@ -68,7 +68,7 @@ public sealed partial class WorldGenRuntime
             aiDraft.PreloadModel=GUILayout.Toggle(aiDraft.PreloadModel,"Preload CPU model weights into RAM");GUILayout.Label("Uses explicit RAM buffers instead of mapped files. Recommended for CPU expert weights on a hard drive; leave off if memory is tight.",MutedStyle());
             GUILayout.Label("Context window");int window=aiDraft.ContextTokens<=2048?0:aiDraft.ContextTokens<=4096?1:2;
             window=GUILayout.SelectionGrid(window,new[]{"2,048 tokens","4,096 tokens","8,192 tokens"},3);aiDraft.ContextTokens=window==0?2048:window==1?4096:8192;
-            GUILayout.Label("4,096 is recommended for conversation. Larger windows reserve more memory. Older exchanges are trimmed to fit; remembered statements are kept separately.",MutedStyle());
+            GUILayout.Label("4,096 is recommended; Gemma presets use 2,048 on 8 GB GPUs to reduce memory pressure. You can override it. Older exchanges trim to fit; remembered statements are separate.",MutedStyle());
             aiDraft.ConversationTurns=AiSlider("Recent conversation turns",aiDraft.ConversationTurns,0,12,"Each turn includes what the speaker said and the NPC's spoken reply. Private intentions are excluded. Relevant remembered statements persist beyond this window.");
             aiDraft.MaxTokens=AiSlider("Output token limit",aiDraft.MaxTokens,128,384,"A token is roughly a word fragment. This is a hard ceiling, not a requested reply length; too low can cut off a valid response.");
             GUILayout.Label("Creativity  "+aiDraft.Temperature.ToString("0.00"));aiDraft.Temperature=Mathf.Round(GUILayout.HorizontalSlider(aiDraft.Temperature,0,1.2f)*20)/20;

@@ -57,12 +57,12 @@ namespace WorldGen.Core
         }
         public NpcDialogueTurn[] DialogueFor(long speaker,long before,int turns)
             =>(Conversation??new List<NpcDialogueTurn>()).Where(t=>t.Interlocutor==speaker&&(before<=0||t.Sequence<before||t.FromNpc&&t.ReplyTo>0&&t.ReplyTo<before)).TakeLast(Math.Max(0,turns)*2).Select(t=>t.Copy()).ToArray();
-        public NpcHeardStatement[] Recall(long speaker,string query,long through,int maximum=8)
+        public NpcHeardStatement[] Recall(long speaker,string query,long through=long.MaxValue,int maximum=8)
         {
             var terms=new HashSet<string>(Words(query).Select(Term).Where(w=>!StopWords.Contains(w)));
-            return (Statements??new List<NpcHeardStatement>()).Where(s=>s.Speaker==speaker&&(through<=0||s.Sequence<=through))
+            return (Statements??new List<NpcHeardStatement>()).Where(s=>s.Speaker==speaker&&s.Sequence<=through)
                 .OrderByDescending(s=>Words(s.Text).Select(Term).Distinct().Count(terms.Contains))
-                .ThenByDescending(s=>s.Important).ThenByDescending(s=>Math.Min(s.LastSequence,through<=0?long.MaxValue:through))
+                .ThenByDescending(s=>s.Important).ThenByDescending(s=>Math.Min(s.LastSequence,through))
                 .Take(maximum).Select(s=>s.Copy()).ToArray();
         }
         public void ValidateDialogue()

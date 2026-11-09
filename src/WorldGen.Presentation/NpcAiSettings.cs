@@ -35,15 +35,17 @@ namespace WorldGen.Presentation
             Priority=Math.Max(-1,Math.Min(2,Priority));IdleMinutes=Math.Max(0,Math.Min(30,IdleMinutes));VisitorCooldownSeconds=Math.Max(20,Math.Min(300,VisitorCooldownSeconds));
             Temperature=float.IsNaN(Temperature)||float.IsInfinity(Temperature)?.5f:Math.Max(0,Math.Min(1.2f,Temperature));
         }
-        public void Preset(int choice,int processors)
+        public void Preset(int choice,int processors,int gpuMemoryMiB=0)
         {
             bool maximum=choice==3;
+            bool compactGemma=ModelFamily=="gemma4"&&gpuMemoryMiB>0&&gpuMemoryMiB<=8192&&choice>0;
             Threads=maximum?Math.Max(1,processors/2):choice==0?2:4;BatchThreads=maximum?processors:Threads;
             GpuLayers=choice==0?0:choice==1?Math.Min(18,ModelLayers):999;
-            Priority=maximum?2:-1;Polling=maximum?100:0;GpuReserveMiB=maximum?512:1024;
+            Priority=maximum?2:-1;Polling=maximum?100:0;GpuReserveMiB=maximum&&!compactGemma?512:1024;
             InferenceFps=maximum?15:0;
             if(maximum&&!string.IsNullOrEmpty(CudaServerPath))GpuBackend="cuda";
-            BriefReplies=choice!=0;ContextTokens=4096;MaxTokens=160;ConversationTurns=6;Normalize(processors);
+            if(compactGemma)PreloadModel=true;
+            BriefReplies=choice!=0;ContextTokens=compactGemma?2048:4096;MaxTokens=160;ConversationTurns=6;Normalize(processors);
         }
         public void SelectModel(NpcAiModel model)
         {
@@ -51,7 +53,7 @@ namespace WorldGen.Presentation
             ModelPath=model.Path;ModelName=model.Name;ModelFamily=model.Family;ModelLayers=model.Layers;ModelExpertLayers=model.ExpertLayers;
             BaseUrl="";
             if(GpuLayers>0)GpuLayers=999;
-            CpuExpertLayers=(model.ExpertLayers+1)/2;PreloadModel=model.ExpertLayers>0;
+            CpuExpertLayers=(model.ExpertLayers+1)/2;PreloadModel=model.ExpertLayers>0||model.Family=="gemma4";
             Normalize(Environment.ProcessorCount);
         }
         public string HardwareArguments()=>" -t "+Threads+" -tb "+BatchThreads+" -c "+ContextTokens+" -np 1 -ngl "+(GpuLayers==999?"auto":GpuLayers.ToString())+
