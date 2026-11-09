@@ -76,15 +76,16 @@ public sealed partial class LocalTerrainExplorer
         LivingState.Copy().Validate();Inventory.Validate();foreach(var p in adults)p.Belongings.Validate();Check(true,"Social transactions and their real possessions validate together");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-social-model"))
         {
-            npcModel.Config.Enabled=true;npcModel.Config.BackgroundReactions=true;npcEvents.Clear();npcPlans.Clear();npcAmbientAt=npcSocialAt=0;npcSocialScanAt=Time.unscaledTimeAsDouble+300;npcTalkTarget=null;CloseChat();
-            Place(recipient,motion.X+1.5,motion.Z,270);Place(other,motion.X+1.5,motion.Z+1.4,180);UpdateCamera();npcHearing.Clear();
+            npcModel.Config.Enabled=true;npcModel.Config.BackgroundReactions=true;npcEvents.Clear();npcPlans.Clear();npcAmbientAt=npcSocialAt=0;npcSocialScanAt=Time.unscaledTimeAsDouble+300;npcTalkTarget=null;CloseChat();npcSocialCheckTrace=true;
+            Place(recipient,motion.X+4,motion.Z-.7,270);Place(other,motion.X+4,motion.Z+.7,270);UpdateCamera();npcHearing.Clear();Physics.SyncTransforms();yield return null;
             int start=npcUtterances;PerformNpcSocialExchange(recipient,other);
             Check(npcConversation!=null&&npcEvents.Count==1,"An audible procedural encounter admits one optional live-model conversation");
             paused=false;until=Time.unscaledTimeAsDouble+180;bool streamed=false;int maxQueue=0;double statusAt=0;
             while(npcUtterances<start+2&&npcLastError.Length==0&&Time.unscaledTimeAsDouble<until)
             {
                 maxQueue=Math.Max(maxQueue,npcEvents.Count);streamed|=npcSpeech.Values.Any(s=>s.Pace.Shown>0&&!s.Final);
-                if(Time.unscaledTimeAsDouble>=statusAt){statusAt=Time.unscaledTimeAsDouble+1;File.WriteAllText(Path.Combine(output,"live-social-status.txt"),"Queue="+npcEvents.Count+" pending="+npcPending?.Person+" thinking="+(npcThinking!=null)+" model="+npcModel.Status+" busy="+npcModel.IsBusy+" errors="+npcLastError+" speech="+npcSpeech.Count+" utterances="+(npcUtterances-start)+" conversation="+(npcConversation!=null)+" hearing="+NpcPlayerCanHear(recipient)+","+NpcPlayerCanHear(other)+" flags="+paused+","+mapOpen+","+ecologyOpen+","+CommandChatStopped+" ready="+Ready+" pose="+humanReviewPose);}
+                if(Time.unscaledTimeAsDouble>=statusAt){statusAt=Time.unscaledTimeAsDouble+1;File.AppendAllText(Path.Combine(output,"live-social-status.txt"),"Queue="+npcEvents.Count+" pending="+npcPending?.Person+" thinking="+(npcThinking!=null)+" model="+npcModel.Status+" busy="+npcModel.IsBusy+" errors="+npcLastError+" speech="+npcSpeech.Count+" utterances="+(npcUtterances-start)+" conversation="+(npcConversation!=null)+" hearing="+NpcPlayerCanHear(recipient)+","+NpcPlayerCanHear(other)+" peer="+NpcCanHear(recipient,other.Root.transform.position+Vector3.up,5)+" gap="+HumanDistance(recipient.Planet,other.Planet)+" flags="+paused+","+mapOpen+","+ecologyOpen+","+CommandChatStopped+" ready="+Ready+" pose="+humanReviewPose+"\n");}
+                if(npcEvents.Count==0&&npcThinking==null&&npcSpeech.Count==0&&Time.unscaledTimeAsDouble>until-170)break;
                 yield return null;
             }
             Check(npcUtterances>=start+2,"Both actual residents deliver a live Qwen conversational turn: "+npcLastError);

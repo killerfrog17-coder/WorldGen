@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
     NpcModelClient npcModel;Task<string> npcThinking;NpcEventQueue.Event npcPending;
     NpcEventQueue.Event npcSuppressed;
     string[] npcPendingTargets,npcPendingSocialActions;HumanActor npcTalkTarget,npcAimed;double npcObserveAt,npcAimAt,npcNextBackground;
-    bool npcThoughts;string npcLastError="";int npcDecisions,npcUtterances;
+    bool npcThoughts,npcSocialCheckTrace;string npcLastError="";int npcDecisions,npcUtterances;
     readonly Dictionary<long,int> npcMemorySlots=new Dictionary<long,int>();List<NpcMemory> npcMemorySource;
     bool CommandChatStopped=>chatOpen&&(npcTalkTarget==null||chatText.StartsWith("/"));
     long NpcSpeakerKey(long speaker)=>speaker==0?PlayerRules.Identity?.Person?.Id??0:speaker;
@@ -62,6 +62,7 @@ public sealed partial class LocalTerrainExplorer
         if(npcTalkTarget!=null&&(npcTalkTarget.Health<=0||!livingPeople.ContainsKey(npcTalkTarget.ResidentId)||HumanDistance(npcTalkTarget.Planet,Position)>24))npcTalkTarget=null;
         if(stopped)return;
         double now=Time.unscaledTimeAsDouble;
+        if(npcSocialCheckTrace&&npcEvents.Count>0)Debug.Log("NPC SOCIAL DISPATCH before prune="+npcEvents.Count+" now="+now);
         npcEvents.PruneBackground(NpcBackgroundRelevant);
         if(npcPending?.Background==true&&npcPending!=npcSuppressed&&!NpcBackgroundRelevant(npcPending))
         {npcSuppressed=npcPending;npcModel?.CancelCurrent();AbortNpcSpeech(npcPending);npcPlans.Remove(npcPending.Person);}
@@ -91,6 +92,7 @@ public sealed partial class LocalTerrainExplorer
         if(npcThinking==null&&npcEvents.Count>0&&npcModel?.IsBusy!=true)
         {
             var item=npcEvents.Take(now,id=>!NpcSpeaking(id));
+            if(npcSocialCheckTrace)Debug.Log("NPC SOCIAL DISPATCH item="+item?.Person+" at="+item?.At+" actor="+(item!=null&&livingPeople.ContainsKey(item.Person))+" enabled="+npcModel?.Config.Enabled+" remaining="+npcEvents.Count);
             if(item!=null&&livingPeople.TryGetValue(item.Person,out var actor)&&actor.Health>0&&HumanDistance(actor.Planet,Position)<40&&(!item.Background||NpcBackgroundRelevant(item)))
             {
                 npcModel??=new NpcModelClient();if(npcModel.Config.Enabled)
