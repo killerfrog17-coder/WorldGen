@@ -1,0 +1,124 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 423.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-conversation-20261108\\qwen9b-camp.jpg",
+    "bottom": 439.08976377952774,
+    "height": 290
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 393.4897637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 350.08976377952774,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 323.3697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 292.7697637795277,
+    "height": 25.6
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 266.04976377952767,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 209.84976377952768,
+    "height": 51.2
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 538.0097637795277,
+    "height": 46.08
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 385.1297637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\npc-conversation-20261108\\qwen-chat.jpg",
+    "bottom": 401.0097637795277,
+    "height": 125
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 355.4097637795277,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 299.2097637795277,
+    "height": 51.2
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 264.16976377952767,
+    "height": 23.04
+  }
+]

@@ -1,0 +1,112 @@
+{
+  "title": "WorldGen - Local NPC Conversation Update",
+  "section": "LOCAL NPC DIALOGUE",
+  "date": "08 NOVEMBER 2026",
+  "footer": "Actual in-game captures and local-model responses | No cloud inference",
+  "pages": [
+    {
+      "title": "NPC memory and identity",
+      "subtitle": "Qwen3.5-9B is selected after testing. All four local models remain available.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "qwen9b-camp.jpg",
+              "caption": "Actual camp: Nusa recalls the secret word, distinguishes the player’s claim from their shared family records, and answers age 20."
+            }
+          ],
+          "max_height": 290
+        },
+        {
+          "heading": "What changed"
+        },
+        {
+          "text": "Spoken dialogue now uses proper user/assistant history. Important things a person says are saved separately and attributed to them; private intentions no longer crowd out speech. Recall questions are excluded from durable statements. NPC requests include separate identities, ages, family relationships and rendered hair colours."
+        },
+        {
+          "heading": "A useful difference"
+        },
+        {
+          "text": "When the player claimed two children, Nusa replied: <b>“That is not true. We only have one child, Taho.”</b> Asked later what the player <i>said</i>, Nusa correctly recalled two. The game’s family records remained unchanged."
+        },
+        {
+          "heading": "Ready to try"
+        },
+        {
+          "text": "Use the existing shortcut. Qwen9B uses temperature 0.2, six recent exchanges, a 4k context and RAM preloading. The single shared 9B file is now on the C-drive SSD (12.7 GB remains free); the other candidates stay available on D. Your CPU/GPU hardware choices are retained. Change models under <b>Settings &gt; AI</b>; GPU and Max speed remain available. Max speed temporarily limits game rendering while the model works."
+        }
+      ]
+    },
+    {
+      "title": "Read the replies, too",
+      "subtitle": "Comparison includes failures; the automatic score is a narrow check, not an intelligence rating.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Local model",
+              "Auto checks",
+              "Median reply",
+              "Observed behaviour"
+            ],
+            "widths": [
+              0.24,
+              0.13,
+              0.15,
+              0.48
+            ],
+            "rows": [
+              [
+                "Qwen3-4B-Instruct-2507",
+                "10/11*",
+                "1.13s",
+                "Fastest; extra chatter and approach wording slips."
+              ],
+              [
+                "Qwen3.5-9B",
+                "11/11",
+                "2.14s",
+                "Best balance observed; handled actual camp family facts."
+              ],
+              [
+                "Gemma 4 12B IT",
+                "11/11",
+                "7.05s",
+                "Clean short fixture; ignored supplied age in camp once."
+              ],
+              [
+                "GPT-OSS 20B",
+                "11/11",
+                "3.21s",
+                "Retrieved facts, but pronoun/setup replies were inconsistent."
+              ]
+            ]
+          }
+        },
+        {
+          "text": "16 turns per model; CUDA/Max speed, temperature 0.2, two recent exchanges to exercise saved recall. Gemma used 2k context; others 4k. Observed menu times exclude initial loading. They are not controlled world-performance benchmarks. Observed D-drive loads varied from 4 to 157 seconds; cache state was not controlled. The selected 9B file has since moved to the SSD. *4B gave the correct player age, but also stated its own age, triggering the strict matcher.",
+          "size": 9
+        },
+        {
+          "images": [
+            {
+              "file": "qwen-chat.jpg",
+              "caption": "Actual spoken replies from Qwen9B in the camp. The questions and full requests are preserved in the verification record."
+            }
+          ],
+          "max_height": 125
+        },
+        {
+          "heading": "Verified and still limited"
+        },
+        {
+          "text": "60 core checks passed. Two physical camp runs passed 34 functional checks each: interaction, listening, approach, temporary actions, saved-memory restoration and host cleanup. Manual review separately caught Gemma’s wrong age answer. A final 16-turn Qwen regression passed after the recall-question fix. Camp tests used 18 GPU layers, 8 CPU threads, 2 GB VRAM reserve and capped rendering to leave room for video."
+        },
+        {
+          "text": "Local replies can still invent details: Qwen gave the correct age but incorrectly said the player had told it that age. The current display still waits for a complete validated reply; streamed text and voice are not part of this update.",
+          "size": 9
+        }
+      ]
+    }
+  ]
+}
