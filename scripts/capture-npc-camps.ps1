@@ -1,5 +1,6 @@
 param(
     [ValidateSet('slot-a','slot-b')][string]$Slot='slot-b',
+    [ValidateSet('Leftmost','Rightmost')][string]$Monitor='Leftmost',
     [ValidatePattern('^[a-z0-9-]+$')][string]$Prefix='npc-report-20261104',
     [string]$World='artifacts/npc-20261103/current-190k.world',
     [ValidateSet('wet','collector','morning','cold','evening','sleep')]
@@ -15,9 +16,9 @@ if($Trace -and !$Performance){throw 'Frame tracing requires -Performance.'}
 if($RemovalProof -and $Performance){throw 'Material-removal fixtures must not alter a performance scene.'}
 $repo=Split-Path -Parent $PSScriptRoot
 Add-Type -AssemblyName System.Windows.Forms
-$npcReviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending|Select-Object -First 1
+$npcReviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending:($Monitor -eq 'Rightmost')|Select-Object -First 1
 $npcReviewMonitorIndex=[regex]::Match($npcReviewMonitor.DeviceName,'\d+$').Value
-if(!$npcReviewMonitorIndex){throw 'Cannot identify the rightmost NPC review monitor'}
+if(!$npcReviewMonitorIndex){throw 'Cannot identify the selected NPC review monitor'}
 $player=Join-Path $repo ('builds/'+$Slot+'/WorldGen.exe')
 $fixture=Join-Path $repo $World
 if(!(Test-Path -LiteralPath $fixture)){throw 'Generate the disposable human-world fixture first.'}
@@ -40,8 +41,8 @@ foreach($case in $Cases){
     if($Trace){$arguments+='--worldgen-stutter-trace'}
     if($RemovalProof){$arguments+='--worldgen-npc-removal-proof'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
-    & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor Rightmost
-    @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor='Rightmost';build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $output 'owned-process.json')
+    & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $Monitor
+    @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor=$Monitor;build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $output 'owned-process.json')
     Write-Output ($case+' capture PID '+$process.Id)
     $process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
