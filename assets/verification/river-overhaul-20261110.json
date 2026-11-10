@@ -6183,7 +6183,7 @@
       "status": "Removed from current runtime and tests. Original unaccepted implementation retained in checkpoint4e30634e."
     }
   },
-  "next": "Native visual review in candidateB only, selectedA/shortcut protected. Then fix actual major confluence boundary failure and grade test before any acceptance; enable longitudinal variation only after foundation stable.",
+  "next": "Resolve actual confluence overlap/field discontinuity, then major LOD/open-edge and actual native confluence controls. Foundation must pass before longitudinal variation. SlotA/shortcut protected.",
   "latest_controls": {
     "join_and_bank_bounds_pure": 424,
     "actual_join_checks": 384,
@@ -6205,5 +6205,37 @@
       "test": "footprint-bank-contact-v6",
       "status": "INVALID started before build completion; owned audit killed, build rerun successfully. Not evidence."
     }
-  ]
+  ],
+  "latest_diagnosis": {
+    "source_commit": "e456fc76",
+    "major_source": 126812,
+    "tile_m": 3276.8,
+    "segments": 16,
+    "grid_offset_fraction": [
+      0.37,
+      0.27
+    ],
+    "mesh_local_probe": [
+      769.416,
+      1247.855
+    ],
+    "drawn_ground_m": -22.5053937145,
+    "actual_field_m": 5.9799161223,
+    "water_m": 5.28,
+    "deep_edge_vertex_field_m": -37.4404106715,
+    "finding": "Exact shifted-grid reproduction. Ground vertices agree with scalar field; one water-bank endpoint enters another deep channel while the edge midpoint retains a high bank guard. Unequal overlapping confluence heads and discontinuous bank support remain unresolved. Original centered-grid diagnostics sampled another position and are excluded. Temporary trace removed after recording.",
+    "trace_receipt": "assets/verification/river-major-bank-trace-20261110.json"
+  },
+  "surface_grade_control": {
+    "status": "PASS after correcting fixture selection",
+    "current_checks": 8050,
+    "reference_slot_a_checks": 10048,
+    "reason": "Old hardcoded point did not select actual river geometry in supplied seed73421, and failed unchanged slotA too. Test now selects an actual submerged graded span and additionally requires nonzero rendered grade payload."
+  },
+  "native_review": {
+    "slot": "B",
+    "source": "e456fc76",
+    "meandering_pinned_143549": "FAILED suitable actual landscape context selection; no capture accepted",
+    "alluvial_pinned_115180": "EXIT0; actual overview, ground and wide captures inspected. Broad flowing forest channel and point bar; does not waive major-boundary failure."
+  }
 }

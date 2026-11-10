@@ -49,4 +49,11 @@ static class RiverColdPreparationAudit
         assembly.GetType("RiverBankContactAudit",true)!.GetMethod("Run",BindingFlags.Public|BindingFlags.Static)!
             .Invoke(null,new object[]{worldPath,output});
     }
+    public static void Grades(string worldPath,string directory)
+    {
+        var context=new ModelContext(Path.GetFullPath(directory));
+        var assembly=context.LoadFromAssemblyPath(typeof(RiverColdPreparationAudit).Assembly.Location);
+        assembly.GetType("RiverSurfaceGradeTests",true)!.GetMethod("Run",BindingFlags.Public|BindingFlags.Static)!
+            .Invoke(null,new object[]{worldPath});
+    }
 }

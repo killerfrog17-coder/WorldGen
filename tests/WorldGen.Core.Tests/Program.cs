@@ -1,10 +1,12 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-mesh-diagnose")){RiverMeshDiagnostic.Run(args[1],int.Parse(args[2]),double.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture),double.Parse(args[4],System.Globalization.CultureInfo.InvariantCulture),args[5]);return;}
 if(args.Contains("--river-node-joins")){RiverNodeJoinTests.Controls();return;}
 if(args.Contains("--river-node-joins-world")){RiverNodeJoinTests.World(args[1],args.Length>2?args[2]:null);return;}
 if(args.Contains("--river-longitudinal-profile")){RiverLongitudinalProfileTests.Run();return;}
 if(args.Contains("--river-cold-preparation")){RiverColdPreparationAudit.Run(args[1],args[2],args[3]);return;}
+if(args.Contains("--river-surface-grades-reference")){RiverColdPreparationAudit.Grades(args[1],args[2]);return;}
 if(args.Contains("--river-bank-contact-reference")){RiverColdPreparationAudit.Contact(args[1],args[2],args[3]);return;}
 if(args.Contains("--river-bank-contact")){RiverBankContactAudit.Run(args[1],args[2]);return;}
 if(args.Contains("--camp-blueprint-queries")){CampBlueprintQueryTests.Run();return;}

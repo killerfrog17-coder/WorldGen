@@ -1,0 +1,162 @@
+{
+  "Version": "local-terrain-bank-composition-83",
+  "Source": 126812,
+  "Center": [
+    0.675511278,
+    -0.686383514,
+    0.269373691
+  ],
+  "X": 769.416,
+  "Z": 1247.855,
+  "FieldY": 5.979916122276336,
+  "PreWaterY": 9.102913268958218,
+  "BeforeIndex": 6.562,
+  "AfterIndex": 6.562,
+  "BeforeWater": 5.685390547715285,
+  "AfterWater": 5.685390547715285,
+  "TargetTrace": [
+    {
+      "Source": 127045,
+      "Bank": 6.562349123226468,
+      "Distance": 2.000863096671933,
+      "Applying": false
+    }
+  ],
+  "ContainingGroundTriangles": [
+    {
+      "Triangle": 6882,
+      "Area": -485.25910626351833,
+      "U": 0.6583629515658814,
+      "V": 4.894283953015541E-06,
+      "DrawnY": -22.505393714481038,
+      "Vertices": [
+        {
+          "Id": 2820,
+          "X": 732.90283203125,
+          "Z": 1251.1204833984375,
+          "DrawnY": 6.276223659515381,
+          "FieldY": 6.276223579421639,
+          "PreWaterY": 9.060220840503462,
+          "WaterY": 5.0586153250187635,
+          "Kind": "River",
+          "WaterBodyKey": 126436,
+          "WaterMaskM": -1.2174143286619508,
+          "Trace": [
+            {
+              "Source": 127045,
+              "Bank": 6.902804876377236,
+              "Distance": 2.0009119652235676,
+              "Applying": false
+            },
+            {
+              "Source": 127045,
+              "Bank": 5.685672993559041,
+              "Distance": 0.0008069881250168904,
+              "Applying": false
+            }
+          ]
+        },
+        {
+          "Id": 2817,
+          "X": 788.3629760742188,
+          "Z": 1246.16064453125,
+          "DrawnY": -37.44041061401367,
+          "FieldY": -37.44041067152284,
+          "PreWaterY": 9.138548427028582,
+          "WaterY": 5.1259424983290955,
+          "Kind": "River",
+          "WaterBodyKey": 126436,
+          "WaterMaskM": 42.565927102174605,
+          "Trace": []
+        },
+        {
+          "Id": 2819,
+          "X": 786.8110961914062,
+          "Z": 1228.800048828125,
+          "DrawnY": -35.80203628540039,
+          "FieldY": -35.802037238376215,
+          "PreWaterY": 9.140922476770356,
+          "WaterY": 5.1143166336696595,
+          "Kind": "River",
+          "WaterBodyKey": 126436,
+          "WaterMaskM": 40.916689806390984,
+          "Trace": []
+        }
+      ]
+    }
+  ],
+  "NearbyProbes": [
+    {
+      "dx": -0.02,
+      "dz": -0.02,
+      "Height": 5.988132870872505,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8847179488115788
+    },
+    {
+      "dx": 0,
+      "dz": -0.02,
+      "Height": 5.986973555991426,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8838647126983279
+    },
+    {
+      "dx": 0.02,
+      "dz": -0.02,
+      "Height": 5.985821167821996,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8830485738074163
+    },
+    {
+      "dx": -0.02,
+      "dz": 0,
+      "Height": 5.981240129913203,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.877561340849633
+    },
+    {
+      "dx": 0,
+      "dz": 0,
+      "Height": 5.979916122276336,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8769585755111837
+    },
+    {
+      "dx": 0.02,
+      "dz": 0,
+      "Height": 5.978928427095525,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8758919658454278
+    },
+    {
+      "dx": -0.02,
+      "dz": 0.02,
+      "Height": 5.974182696081698,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8706552036624888
+    },
+    {
+      "dx": 0,
+      "dz": 0.02,
+      "Height": 5.972858688328415,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8700524383240751
+    },
+    {
+      "dx": 0.02,
+      "dz": 0.02,
+      "Height": 5.971870993147604,
+      "WaterSurfaceM": 5.685390547715285,
+      "WaterBodyKey": 126436,
+      "WaterMaskM": -0.8689858286582837
+    }
+  ]
+}
