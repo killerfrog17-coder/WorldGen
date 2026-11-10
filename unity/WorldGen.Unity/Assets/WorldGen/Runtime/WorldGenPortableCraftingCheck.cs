@@ -59,7 +59,15 @@ public sealed partial class WorldGenRuntime
         var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception)errors.Add(m);};Application.logMessageReceived+=listener;
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Portable crafting fixture unavailable");
-        TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
+        var fixturePoint=TerrainMapViewport.FromDegrees(50,10);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-clay-heat-review"))
+        {
+            var ground=GroundEnvironment.For(world);
+            int cell=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.ElevationM[i]>30&&world.ElevationM[i]<800&&world.Ecology.Habitat[i].MeanTenthsC>80&&PaleolithicClay.ClayGround(ground.Cell(i))).OrderBy(i=>(world.Surface.Cells[i].Position-fixturePoint).Length).DefaultIfEmpty(-1).First();
+            if(cell<0)throw new InvalidOperationException("Fixture world has no suitable mapped clay deposit.");
+            fixturePoint=world.Surface.Cells[cell].Position;Debug.Log("CLAY mapped fixture cell="+cell+" clay="+ground.Cell(cell).Clay+" depth="+ground.Cell(cell).DepthM);
+        }
+        TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(fixturePoint);deadline=Time.realtimeSinceStartupAsDouble+120;
         while((terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new InvalidOperationException("Portable terrain unavailable");
         yield return terrainExplorer.CheckPortableFlow(output,report);CapturePlayer();play.Validate();ReturnFromPlay("Simulation");yield return null;yield return null;

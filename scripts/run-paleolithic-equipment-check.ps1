@@ -24,7 +24,7 @@ if($Kind -eq 'Water'){$arguments+=@('--worldgen-water-update-check','--worldgen-
 # swap chain produced black captures despite valid native skin geometry.
 $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Normal -PassThru
 Write-Output ('Paleolithic '+$Kind+' review PID '+$process.Id+' on leftmost monitor')
-$process.WaitForExit()
+if(!$process.WaitForExit(600000)){$process.Kill();throw ('Native review exceeded ten minutes: '+$output)}
 [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
 if($process.ExitCode -ne 0){throw ('Native clothing check failed: '+$output)}
 if(!(Test-Path -LiteralPath (Join-Path $output 'checks.txt'))){throw 'Player exited without finishing the checks.'}
