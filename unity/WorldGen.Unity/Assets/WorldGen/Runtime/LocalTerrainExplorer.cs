@@ -111,11 +111,34 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         PublishTerrainScene();
     }
     LocalTerrainFrame groundMemoFrame;double groundMemoX,groundMemoZ,groundMemoY,groundMemoElevation;
+    Task<LocalTerrain.LocalTerrainPatch> walkingPreparation;int walkingPreparationGeneration;
+    double walkingPreparationAt,nextWalkingPreparation;
+    void PrepareWalkingSampler(double x,double z)
+    {
+        if(walkingPreparation!=null||Time.realtimeSinceStartupAsDouble<nextWalkingPreparation)return;
+        double speed=Math.Sqrt(streamingVX*streamingVX+streamingVZ*streamingVZ);if(speed<20)return;
+        nextWalkingPreparation=Time.realtimeSinceStartupAsDouble+.15;
+        double lead=Math.Min(1000,speed*.9);var target=frame.Position(x+streamingVX/speed*lead,z+streamingVZ/speed*lead);
+        if(walkingPatch!=null&&(target-walkingPatch.Center).Length*terrain.RadiusM*HorizontalScale<400)return;
+        var model=terrain;double extent=2048/HorizontalScale;var token=cancellation.Token;
+        walkingPreparationGeneration=generation;walkingPreparationAt=Time.realtimeSinceStartupAsDouble;
+        walkingPreparation=Task.Run(()=>{token.ThrowIfCancellationRequested();var patch=model.Patch(target,extent);patch.RiverSpans();patch.Elevation(target);token.ThrowIfCancellationRequested();return patch;},token);
+    }
     double Ground(double x,double z)
     {
         if(!WorldGenPerformance.Original&&ReferenceEquals(frame,groundMemoFrame)&&x==groundMemoX&&z==groundMemoZ&&walkingPatch!=null)return groundMemoY;
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         var at=frame.Position(x,z);
+        if(walkingPreparation!=null&&walkingPreparation.IsCompleted)
+        {
+            if(walkingPreparation.IsCompletedSuccessfully&&walkingPreparationGeneration==generation)
+            {
+                var prepared=walkingPreparation.Result;
+                if((at-prepared.Center).Length*terrain.RadiusM*HorizontalScale<=450){walkingPatch=prepared;walkingPreparation=null;}
+                else if(Time.realtimeSinceStartupAsDouble-walkingPreparationAt>2)walkingPreparation=null;
+            }
+            else walkingPreparation=null;
+        }
         if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
         if(WorldGenPerformance.IndexedWalkingRivers)walkingPatch.RiverSpans();
         double elevation=WorldGenPerformance.Original?walkingPatch.Sample(at).ElevationM:walkingPatch.Elevation(at);double height=frame.SurfaceY(at,elevation);
@@ -125,6 +148,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(WorldGenPerformance.TraceEnabled)WorldGenPerformance.TraceMilliseconds[4]+=elapsed;
         if(elapsed>20)Debug.Log("Local ground query "+elapsed.ToString("F2")+"ms");
         groundMemoFrame=frame;groundMemoX=x;groundMemoZ=z;groundMemoY=height;
+        PrepareWalkingSampler(x,z);
         return height;
     }
     public void Teleport(V point)

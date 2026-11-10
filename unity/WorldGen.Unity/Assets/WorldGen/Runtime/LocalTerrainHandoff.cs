@@ -27,6 +27,7 @@ public sealed partial class LocalTerrainExplorer
     }
     sealed class RetiringFrame {public GameObject Root;public Queue<Tile> Tiles;}
     PreparedFrame preparedFrame;
+    Task<LocalTerrainFrame> preparingAnchor;System.Threading.CancellationTokenSource anchorStop;
     readonly Queue<RetiringFrame> retiringFrames=new Queue<RetiringFrame>();
     double nextHandoffCheck;
     public int ReanchorCount {get;private set;}
@@ -89,6 +90,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CancelPreparedFrame()
     {
+        anchorStop?.Cancel();anchorStop?.Dispose();anchorStop=null;preparingAnchor=null;
         if(preparedFrame==null)return;
         preparedFrame.DetailStop?.Cancel();preparedFrame.DetailStop?.Dispose();
         RetireFrame(preparedFrame.Root,preparedFrame.Tiles);preparedFrame=null;
@@ -123,12 +125,22 @@ public sealed partial class LocalTerrainExplorer
         double limit=TerrainHandoff.Limit(frame),distance=ReanchorDistance;
         if(preparedFrame==null)
         {
-            if(distance<limit*.5||retiringFrames.Count>0)return;
-            // Aim the next chart toward the approaching boundary, not behind
-            // the traveller. No change to the current frame or loaded products.
-            double lead=distance<limit?limit/distance:1;
-            var point=frame.Position(motion.X*lead,motion.Z*lead);
-            var next=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
+            if(preparingAnchor==null)
+            {
+                if(distance<limit*.5||retiringFrames.Count>0)return;
+                // The altitude datum requires a real terrain query. Warm it on
+                // a bounded background job instead of stalling the flight frame.
+                double lead=distance<limit?limit/distance:1;
+                var point=frame.Position(motion.X*lead,motion.Z*lead);var model=terrain;double scale=HorizontalScale;
+                anchorStop=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=anchorStop.Token;
+                preparingAnchor=Task.Run(()=>{token.ThrowIfCancellationRequested();var next=new LocalTerrainFrame(point,model.RadiusM,model.Patch(point).Sample(0,0).ElevationM,scale);token.ThrowIfCancellationRequested();return next;},token);
+                return;
+            }
+            if(!preparingAnchor.IsCompleted)return;
+            var ready=preparingAnchor;preparingAnchor=null;anchorStop.Dispose();anchorStop=null;
+            if(!ready.IsCompletedSuccessfully){if(ready.IsFaulted)Debug.LogWarning("Terrain anchor preparation: "+ready.Exception.GetBaseException().Message);return;}
+            if(distance<limit*.3)return;
+            var next=ready.Result;
             preparedFrame=new PreparedFrame{Frame=next,Root=NewTerrainRoot(false),Estimator=new TerrainDetailEstimator(terrain,next),DetailStop=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token)};
         }
         UpdatePreparedFrameActive(preparedFrame,limit,distance);
