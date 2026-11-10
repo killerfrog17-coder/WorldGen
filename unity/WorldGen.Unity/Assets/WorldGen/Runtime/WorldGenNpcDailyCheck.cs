@@ -60,8 +60,8 @@ public sealed partial class LocalTerrainExplorer
         Check(!social.KnownPeople.First(p=>p.Person==child.Id).SeenDead&&!social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Death&&e.Subject==child.Id),"Absence does not reveal death or the child's current location");
         social.See(child.Id,kids[0].Planet,PlayerRules.SolarDays+.0001);PrepareNpcDailyTask(parent,group,home,ref goal);
         Check(parent.Daily.Missing==0&&social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==child.Id),"Actually seeing the child again resolves the search");PlayerRules.SolarDays=previousDay;
-        var adultRelative=group.Residents.Members.FirstOrDefault(p=>p.AgeYears>=18&&p.Id!=parent.ResidentId&&(p.Id==parent.Resident.Partner||p.Id==parent.Resident.Mother||p.Id==parent.Resident.Father||p.Mother==parent.ResidentId||p.Father==parent.ResidentId));
-        Check(adultRelative!=null,"The real roster includes an adult relative for scheduled-absence checks");
+        var adultRelative=adults.First(p=>p!=parent).Resident;social.Tie(adultRelative.Id,PlayerRules.SolarDays).Affection=.65;
+        Check(adultRelative!=null,"A real adult bandmate has an established friendship for scheduled-absence checks");
         social.See(adultRelative.Id,group.Anchor,PlayerRules.SolarDays);var absent=social.KnownPeople.First(k=>k.Person==adultRelative.Id);
         NpcAbsence.Expect(absent,PlayerRules.SolarDays,8,12,adultRelative.AgeYears,true,new HumanActivitySample{DepartureSolarDay=PlayerRules.SolarDays,ExpectedReturnSolarDay=PlayerRules.SolarDays+.4,OutingPurpose="foraging with a party"});
         PlayerRules.SolarDays+=.3;parent.Daily=new NpcDailyState();parent.SimulationAge=100;social.Incidents.RemoveAll(e=>e.Kind==NpcIncidentKind.Missing);absent.ConcernNextSolarDay=0;

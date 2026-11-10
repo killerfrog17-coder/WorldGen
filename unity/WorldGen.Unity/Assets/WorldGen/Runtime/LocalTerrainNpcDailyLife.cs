@@ -55,6 +55,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(known.SeenDead)continue;var person=group.Residents.Members.FirstOrDefault(p=>p.Id==known.Person);if(person==null)continue;
             bool closeKin=person.Mother==actor.ResidentId||person.Father==actor.ResidentId||actor.Resident.Partner==person.Id||actor.Resident.Mother==person.Id||actor.Resident.Father==person.Id;
+            var tie=social.Relationships.FirstOrDefault(t=>t.Other==person.Id);closeKin|=person.Household==actor.Resident.Household||tie!=null&&(tie.Affection>.5||tie.Trust>.65);
             if(person.AgeYears<14&&(person.Household==actor.Resident.Household||routine.Activity==HumanActivity.Childcare&&sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture].ChildcareCooperation>.5))closeKin=true;
             if(!closeKin||known.ConcernNextSolarDay>PlayerRules.SolarDays||social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==person.Id&&PlayerRules.SolarDays-e.SolarDay<.08))continue;
             if(string.IsNullOrEmpty(known.ExpectedReason))
