@@ -287,6 +287,22 @@ namespace WorldGen.Core
             }
             public LocalTerrainSample Sample(double eastM, double northM) => Sample(Position(eastM, northM));
             public LocalTerrainSample Sample(V point)=>SampleAt(point,0);
+            public LocalTerrainSample Ecology(V point,LocalTerrainSample geometry)=>SampleAt(point,0,geometry);
+            /// <summary>Interpolate only ecological attributes. Geometry/water come
+            /// from the exact query, independently of the material sampling grid.</summary>
+            public static LocalTerrainSample BlendEcology(LocalTerrainSample a,LocalTerrainSample b,LocalTerrainSample c,LocalTerrainSample d,double x,double y,LocalTerrainSample geometry)
+            {
+                double wa=(1-x)*(1-y),wb=x*(1-y),wc=(1-x)*y,wd=x*y;
+                var dominant=y<.5?(x<.5?a:b):(x<.5?c:d);
+                geometry.Cell=dominant.Cell;geometry.Biome=dominant.Biome;geometry.Landscape=dominant.Landscape;
+                var ground=new GroundProfile{Bedrock=dominant.Ground.Bedrock,Deposit=dominant.Ground.Deposit};
+                ground.Add(a.Ground,wa);ground.Add(b.Ground,wb);ground.Add(c.Ground,wc);ground.Add(d.Ground,wd);geometry.Ground=ground;
+                var cover=new GroundCoverProfile();cover.Add(a.Cover,wa);cover.Add(b.Cover,wb);cover.Add(c.Cover,wc);cover.Add(d.Cover,wd);geometry.Cover=cover;
+                var mid=new MidCoverProfile();mid.Add(a.MidCover,wa);mid.Add(b.MidCover,wb);mid.Add(c.MidCover,wc);mid.Add(d.MidCover,wd);geometry.MidCover=mid;
+                var forest=new ForestCoverProfile();forest.Add(a.Forest,wa);forest.Add(b.Forest,wb);forest.Add(c.Forest,wc);forest.Add(d.Forest,wd);geometry.Forest=forest;
+                geometry.OceanInfluence=a.OceanInfluence*wa+b.OceanInfluence*wb+c.OceanInfluence*wc+d.OceanInfluence*wd;
+                return geometry;
+            }
             /// <summary>The exact dominant community selected by Sample, without
             /// evaluating height, waterways, soil or local landforms. Coarse ocean
             /// winners retain the full shoreline test because refined dry ground
@@ -337,11 +353,27 @@ namespace WorldGen.Core
                 if((dx*dx+dy*dy+dz*dz)*owner.RadiusM*owner.RadiusM>HalfExtentM*HalfExtentM*2.01+1)throw new ArgumentOutOfRangeException(nameof(point),"Point outside indexed terrain patch.");
                 return D.Q(amplified.Sample(point,dry,0).Height,1000);
             }
+            /// <summary>Canonical geometry and hydrology without soil/flora blending.
+            /// Deliberately excludes ecological attributes; use Sample for those.</summary>
+            public LocalTerrainSample Geometry(V point)
+            {
+                if(amplified==null)return SampleAt(point,0);
+                double norm=point.X*point.X+point.Y*point.Y+point.Z*point.Z;
+                if(double.IsNaN(norm)||Math.Abs(norm-1)>.000001)throw new ArgumentOutOfRangeException(nameof(point));
+                double dx=point.X-Center.X,dy=point.Y-Center.Y,dz=point.Z-Center.Z;
+                if((dx*dx+dy*dy+dz*dz)*owner.RadiusM*owner.RadiusM>HalfExtentM*HalfExtentM*2.01+1)throw new ArgumentOutOfRangeException(nameof(point));
+                var s=amplified.Sample(point,dry,0);
+                return new LocalTerrainSample{ElevationM=D.Q(s.Height,1000),PreWaterElevationM=D.Q(s.UnshapedHeight,1000),BaseElevationM=D.Q(s.UnshapedHeight,1000),
+                    WaterSurfaceM=s.Water,WaterMaskM=s.Mask,RiverInfluence=s.RiverInfluence,RiverSand=s.RiverSand,RiverGravel=s.RiverGravel,
+                    WaterKind=s.Kind,WaterBodyKey=s.BodyKey,WaterGradient=s.Gradient,WaterFootprintM=s.Footprint,WaterFlow=s.Flow,
+                    WaterSpeedMPerS=s.Speed,WaterTurbulence=s.Turbulence,ContinuousWaterSurface=s.Kind==LocalWaterKind.River,
+                    WaterMinimumM=s.Minimum,WaterMaximumM=s.Maximum,Province=s.Landscape};
+            }
             /// <summary>Display-only sampling of the SAME terrain hierarchy at a
             /// pixel footprint. Zero retains the literal full-detail query.</summary>
             public LocalTerrainSample SampleMap(V point,double spacingM)
             {if(double.IsNaN(spacingM)||double.IsInfinity(spacingM)||spacingM<0)throw new ArgumentOutOfRangeException(nameof(spacingM));return SampleAt(point,spacingM);}
-            LocalTerrainSample SampleAt(V point,double mapSpacingM)
+            LocalTerrainSample SampleAt(V point,double mapSpacingM,LocalTerrainSample? geometry=null)
             {
                 double norm = point.X * point.X + point.Y * point.Y + point.Z * point.Z;
                 if (double.IsNaN(norm) || Math.Abs(norm - 1) > .000001) throw new ArgumentOutOfRangeException(nameof(point), "A unit planetary position is required.");
@@ -388,7 +420,10 @@ namespace WorldGen.Core
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 if(amplified!=null)
                 {
-                    var surface=amplified.Sample(point,dry,mapSpacingM);
+                    var g=geometry.GetValueOrDefault();
+                    var surface=geometry.HasValue?new HyperAmplification.Surface{Height=g.ElevationM,UnshapedHeight=g.PreWaterElevationM,Water=g.WaterSurfaceM,Mask=g.WaterMaskM,
+                        RiverInfluence=g.RiverInfluence,RiverSand=g.RiverSand,RiverGravel=g.RiverGravel,Kind=g.WaterKind,BodyKey=g.WaterBodyKey,Gradient=g.WaterGradient,
+                        Footprint=g.WaterFootprintM,Flow=g.WaterFlow,Speed=g.WaterSpeedMPerS,Turbulence=g.WaterTurbulence,Minimum=g.WaterMinimumM,Maximum=g.WaterMaximumM,Landscape=g.Province}:amplified.Sample(point,dry,mapSpacingM);
                     // A refined headland/bar can cross a coarse ocean cell.
                     // Dry ground uses the adjacent land community. Preserve a
                     // mapped tidal community just below mean sea level too:

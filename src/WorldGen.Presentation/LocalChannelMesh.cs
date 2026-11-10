@@ -135,7 +135,7 @@ namespace WorldGen.Presentation
                     if(shared.TryGetValue((key.Item1+dx,key.Item2+dz),out var nearby))foreach(int found in nearby)
                     {double ex=positions[found*3]-p.X,ez=positions[found*3+2]-p.Z;if(ex*ex+ez*ez<.000001)return found;}
                 V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);var s=patch.Sample(at);
-                double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Sample(v).ElevationM);}
+                double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Elevation(v));}
                 double here=frame.SurfaceY(at,s.ElevationM);
                 double nx=(here-Height(p.X+1,p.Z)),nz=(here-Height(p.X,p.Z+1));
                 double length=Math.Sqrt(nx*nx+1+nz*nz),up=1/length;

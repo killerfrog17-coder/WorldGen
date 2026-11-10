@@ -16,7 +16,7 @@ static class TerrainLayerCostTests
             foreach(var request in new[]{(102.4,64),(819.2,64),(1638.4,32)})
             {
                 var timing=new TerrainBuildTiming();var mesh=LocalTerrainMesh.Build(model,frame,0,0,request.Item1,request.Item2,timing:timing);
-                rows.Add(new{Site=label,Size=request.Item1,Segments=request.Item2,mesh.BuildMilliseconds,timing.GeometrySamples,timing.MaterialSamples,Stages=TerrainBuildTiming.Names.Select((name,i)=>new{Name=name,Ms=timing.Milliseconds[i],Percent=100*timing.Milliseconds[i]/timing.Milliseconds.Sum()}).ToArray()});
+                rows.Add(new{Site=label,Size=request.Item1,Segments=request.Item2,mesh.BuildMilliseconds,timing.GeometrySamples,timing.MaterialSamples,timing.FullSurfaceQueries,timing.GeometryQueries,timing.SurfaceFallbacks,Stages=TerrainBuildTiming.Names.Select((name,i)=>new{Name=name,Ms=timing.Milliseconds[i],Percent=100*timing.Milliseconds[i]/timing.Milliseconds.Sum()}).ToArray()});
                 Console.WriteLine(label+" "+request+" "+mesh.BuildMilliseconds.ToString("F1")+"ms: "+string.Join("; ",timing.Milliseconds.Select((n,i)=>TerrainBuildTiming.Names[i]+" "+n.ToString("F1"))));
                 File.WriteAllText(Path.Combine(output,"mesh-stages.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
             }

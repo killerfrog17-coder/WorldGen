@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
         public static readonly string[] Names={"patch/index setup","height/water sampling","surface materials","edge stitching","channel refinement","water meshes","cover masks"};
         public readonly double[] Milliseconds=new double[7];
         readonly Stopwatch clock=Stopwatch.StartNew();double last;
-        public long GeometrySamples,MaterialSamples;
+        public long GeometrySamples,MaterialSamples,FullSurfaceQueries,GeometryQueries,SurfaceFallbacks;
         public void Mark(int stage){double now=clock.Elapsed.TotalMilliseconds;Milliseconds[stage]+=now-last;last=now;}
     }
 }

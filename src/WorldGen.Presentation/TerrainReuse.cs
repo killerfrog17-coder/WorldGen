@@ -35,6 +35,8 @@ namespace WorldGen.Presentation
         readonly object gate=new object();readonly int capacity;
         readonly Dictionary<(double,double,double),LocalTerrainSample> samples=new Dictionary<(double,double,double),LocalTerrainSample>();
         readonly Queue<(double,double,double)> fifo=new Queue<(double,double,double)>();
+        readonly Dictionary<(double,double,double),LocalTerrainSample> geometry=new Dictionary<(double,double,double),LocalTerrainSample>();
+        readonly Queue<(double,double,double)> geometryFifo=new Queue<(double,double,double)>();
         public long Hits {get;private set;}public long Misses {get;private set;}
         public int Count{get{lock(gate)return samples.Count;}}
         public TerrainSampleCache(int capacity=32768){this.capacity=Math.Max(1,capacity);}
@@ -47,6 +49,17 @@ namespace WorldGen.Presentation
                 var key=(p.X,p.Y,p.Z);if(samples.ContainsKey(key))return;
                 while(samples.Count>=capacity)samples.Remove(fifo.Dequeue());
                 samples.Add(key,sample);fifo.Enqueue(key);
+            }
+        }
+        public bool TryGetGeometry(V p,out LocalTerrainSample sample)
+        {lock(gate){var key=(p.X,p.Y,p.Z);return samples.TryGetValue(key,out sample)||geometry.TryGetValue(key,out sample);}}
+        public void StoreGeometry(V p,LocalTerrainSample sample)
+        {
+            lock(gate)
+            {
+                var key=(p.X,p.Y,p.Z);if(geometry.ContainsKey(key)||samples.ContainsKey(key))return;
+                while(geometry.Count>=capacity)geometry.Remove(geometryFifo.Dequeue());
+                geometry.Add(key,sample);geometryFifo.Enqueue(key);
             }
         }
     }

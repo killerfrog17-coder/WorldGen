@@ -88,13 +88,14 @@ namespace WorldGen.Presentation
             token.ThrowIfCancellationRequested();patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
-            LocalTerrainSample Sample(double x,double z,V p)
+            LocalTerrainSample Sample(double x,double z,V p,bool geometryOnly=false,LocalTerrainSample? knownGeometry=null)
             {
-                if(sampleCache!=null&&sampleCache.TryGet(p,out var cachedSample))return cachedSample;
+                if(sampleCache!=null&&(geometryOnly?sampleCache.TryGetGeometry(p,out var cachedSample):sampleCache.TryGet(p,out cachedSample)))return cachedSample;
+                if(timing!=null){if(geometryOnly)timing.GeometryQueries++;else timing.FullSurfaceQueries++;}
                 // LOD changes tessellation, never the value of a shared point.
                 // Stopping the height hierarchy at a tile-dependent depth made
                 // adjacent detail levels disagree and exposed their skirts.
-                if(patch!=null){var value=patch.Sample(p);sampleCache?.Store(p,value);return value;}
+                if(patch!=null){var value=geometryOnly?patch.Geometry(p):knownGeometry.HasValue?patch.Ecology(p,knownGeometry.Value):patch.Sample(p);if(geometryOnly)sampleCache?.StoreGeometry(p,value);else sampleCache?.Store(p,value);return value;}
                 // A far tile on a shrunken planet spans a large geographical area.
                 // Query bounded subpatches instead of constructing a planet-sized candidate bag.
                 double box=100000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
@@ -103,7 +104,30 @@ namespace WorldGen.Presentation
                 // take longer than sampling the complete coarse tile.
                 // Keep the ordinary exact point query here; dense regular
                 // tiles still prime their shared batch index above.
-                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);token.ThrowIfCancellationRequested();patchCache.Add((a,b),local);}var sampled=local.Sample(p);sampleCache?.Store(p,sampled);return sampled;
+                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);token.ThrowIfCancellationRequested();patchCache.Add((a,b),local);}var sampled=geometryOnly?local.Geometry(p):local.Sample(p);if(geometryOnly)sampleCache?.StoreGeometry(p,sampled);else sampleCache?.Store(p,sampled);return sampled;
+            }
+            // Material resolution is independent of tessellation. This chart-
+            // anchored grid is shared by adjacent tiles, not restarted per tile.
+            const double materialStep=32;
+            bool sparseMaterials=terrain.Amplification!=null&&step<16;
+            var materials=new System.Collections.Generic.Dictionary<(int,int),LocalTerrainSample>();
+            LocalTerrainSample MaterialNode(int x,int z)
+            {
+                if(materials.TryGetValue((x,z),out var found))return found;
+                double xx=x*materialStep,zz=z*materialStep;var value=Sample(xx,zz,frame.Position(xx,zz));
+                materials.Add((x,z),value);return value;
+            }
+            LocalTerrainSample SurfaceSample(double x,double z,LocalTerrainSample geometry)
+            {
+                // Narrow channels and wet boundaries retain full local material
+                // queries; do not blur river gravel or a shoreline across land.
+                if(!sparseMaterials||geometry.Underwater||geometry.WaterKind==LocalWaterKind.River&&geometry.WaterFootprintM> -materialStep)
+                {if(timing!=null)timing.SurfaceFallbacks++;return Sample(x,z,frame.Position(x,z),knownGeometry:geometry);}
+                int ix=(int)Math.Floor(x/materialStep),iz=(int)Math.Floor(z/materialStep);
+                var a=MaterialNode(ix,iz);var b=MaterialNode(ix+1,iz);var c=MaterialNode(ix,iz+1);var d=MaterialNode(ix+1,iz+1);
+                if(a.Biome!=b.Biome||a.Biome!=c.Biome||a.Biome!=d.Biome||a.Underwater||b.Underwater||c.Underwater||d.Underwater)
+                {if(timing!=null)timing.SurfaceFallbacks++;return Sample(x,z,frame.Position(x,z),knownGeometry:geometry);}
+                return LocalTerrain.LocalTerrainPatch.BlendEcology(a,b,c,d,x/materialStep-ix,z/materialStep-iz,geometry);
             }
             int side = segments + 1, halo = side + 2, ground = side * side;
             mesh.GroundVertices = ground;
@@ -118,7 +142,8 @@ namespace WorldGen.Presentation
                 token.ThrowIfCancellationRequested();
                 for (int x = -1; x <= side; x++)
                 {
-                    var position = frame.Position(eastM + x * step, northM + z * step); var sample = Sample(eastM+x*step,northM+z*step,position);
+                    bool interior=x>=0&&x<side&&z>=0&&z<side;
+                    var position = frame.Position(eastM + x * step, northM + z * step); var sample = Sample(eastM+x*step,northM+z*step,position,sparseMaterials||!interior);
                     if(timing!=null)timing.GeometrySamples++;
                     double height = frame.SurfaceY(position, sample.ElevationM); heights[(z + 1) * halo + x + 1] = height;
                     if (x >= 0 && x < side && z >= 0 && z < side) samples[z * side + x] = sample;
@@ -132,7 +157,7 @@ namespace WorldGen.Presentation
             mesh.WaterPositions = new float[ground * 3]; mesh.WaterColors = new float[ground * 4];
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
             {
-                int i = z * side + x, at = (z + 1) * halo + x + 1; var sample = samples[i]; double y = heights[at];
+                int i = z * side + x, at = (z + 1) * halo + x + 1; var sample = sparseMaterials?SurfaceSample(eastM+x*step,northM+z*step,samples[i]):samples[i]; double y = heights[at];
                 mesh.MinHeightM = Math.Min(mesh.MinHeightM, y); mesh.MaxHeightM = Math.Max(mesh.MaxHeightM, y);
                 mesh.Positions[i * 3] = (float)(x * step); mesh.Positions[i * 3 + 1] = (float)y; mesh.Positions[i * 3 + 2] = (float)(z * step);
                 mesh.WaterPositions[i * 3] = (float)(x * step); mesh.WaterPositions[i * 3 + 1] = (float)frame.SurfaceY(frame.Position(eastM + x * step, northM + z * step), 0); mesh.WaterPositions[i * 3 + 2] = (float)(z * step);
@@ -153,7 +178,7 @@ namespace WorldGen.Presentation
             {
                 double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
                 var p=frame.Position(x,z);
-                var sample=ix>=0&&ix<side&&iz>=0&&iz<side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7?samples[iz*side+ix]:Sample(x,z,p);
+                var sample=h<16&&sparseMaterials?SurfaceSample(x,z,Sample(x,z,p,true)):Sample(x,z,p);
                 return TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
             }
             timing?.Mark(2);TerrainSurfaceEdges.Apply(mesh,edgeSteps,Boundary,token);timing?.Mark(3);

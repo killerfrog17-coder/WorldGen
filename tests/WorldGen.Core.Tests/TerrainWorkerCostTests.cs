@@ -29,16 +29,16 @@ static class TerrainWorkerCostTests
         double elapsed=mesh.BuildMilliseconds;
         float[] original=mesh.Colors;
         var surface=mesh.SurfaceWeights;var second=mesh.GroundWeightsB;
-        var ground=mesh.GroundCover;var mid=mesh.MidCover;var forest=mesh.ForestCover;
+        var ground=mesh.GroundCover;var mid=mesh.MidCover;var forest=mesh.ForestCover;var lithology=mesh.Lithology;
         using var bytes=new MemoryStream();
         try
         {
             mesh.BuildMilliseconds=0;
             if(geometryOnly){mesh.Colors=(float[])original.Clone();for(int i=0;i<mesh.Colors.Length;i++)if(i%4!=3)mesh.Colors[i]=0;}
-            if(surfaceAttributesOnly)mesh.Colors=mesh.SurfaceWeights=mesh.GroundWeightsB=mesh.GroundCover=mesh.MidCover=mesh.ForestCover=Array.Empty<float>();
+            if(surfaceAttributesOnly)mesh.Colors=mesh.SurfaceWeights=mesh.GroundWeightsB=mesh.GroundCover=mesh.MidCover=mesh.ForestCover=mesh.Lithology=Array.Empty<float>();
             using(var writer=new BinaryWriter(bytes,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteMesh(writer,mesh);
         }
-        finally{mesh.BuildMilliseconds=elapsed;mesh.Colors=original;mesh.SurfaceWeights=surface;mesh.GroundWeightsB=second;mesh.GroundCover=ground;mesh.MidCover=mid;mesh.ForestCover=forest;}
+        finally{mesh.BuildMilliseconds=elapsed;mesh.Colors=original;mesh.SurfaceWeights=surface;mesh.GroundWeightsB=second;mesh.GroundCover=ground;mesh.MidCover=mid;mesh.ForestCover=forest;mesh.Lithology=lithology;}
         return Convert.ToHexString(SHA256.HashData(bytes.ToArray())).ToLowerInvariant();
     }
     // Explicit offline audit of packaged workers. It never starts Unity or
