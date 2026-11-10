@@ -154,6 +154,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public void Teleport(V point)
     {
         if(terrain==null)return;
+        activeWatercraft=null;PlayerRules.WatercraftId="";
         ClearInventoryPhysics();CancelPreparedFrame();
         ResetStreamingReuse(true);
         generation++;startingPoint=point;walkingPatch=null;originX=originZ=0;

@@ -204,7 +204,7 @@ public sealed partial class LocalTerrainExplorer
         if(c.Kind==CampKind.FrameWood){foreach(var p in c.Materials)DropFrameMaterial(c,p,true);foreach(var j in c.FrameJoints)foreach(var p in j.Bindings)DropFrameBinding(c,j,p);}
         else if(IsBlueprint(c)){CancelBlueprintWork();ReleaseBlueprintMaterials(c);}
         else foreach(var p in c.Materials.Concat(c.CookingItems)){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundVelocity=p.GroundSpin=new V();p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}
-        c.Materials.Clear();Camp.Objects.Remove(c);InvalidateCampVisual(c);frameDirty=true;RefreshFrameStructure();campMenu=null;inventoryNearbyAt=0;CaptureMouse();
+        if(c.Blueprint!=null)watercraftHydro.Remove(c.Blueprint);c.Materials.Clear();Camp.Objects.Remove(c);InvalidateCampVisual(c);frameDirty=true;RefreshFrameStructure();campMenu=null;inventoryNearbyAt=0;CaptureMouse();
     }
     void GatherCampGrass()
     {

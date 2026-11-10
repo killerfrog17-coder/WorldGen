@@ -84,7 +84,7 @@ public sealed partial class LocalTerrainExplorer
         if(PaleolithicBinders.Haft(p)){var why=BondHaftReason(p);ActionButton("Seal the haft with adhesive",why.Length==0,why,()=>BeginBondHaft(p));}
         if(PaleolithicBinders.Paintable(p)){var why=PaintItemReason(p);ActionButton("Apply ochre markings",why.Length==0,why,()=>BeginPaintItem(p));}
         if(p.Kind==PossessionKind.DeadfallTrigger)ActionButton("Set out a deadfall",true,"",()=>BeginCampPlacement(p,CampKind.Deadfall));
-        if(p.Kind==PossessionKind.StoneAxe||p.Kind==PossessionKind.StoneAdze){var why=HeavyLimbReason();ActionButton("Cut a thick reachable limb",why.Length==0,why,()=>CutHeavyLimb(p));}
+        if((PortableTechnology.Capabilities(p)&CraftCapability.Chop)!=0){var why=HeavyLimbReason();ActionButton("Cut a thick reachable limb",why.Length==0,why,()=>CutHeavyLimb(p));}
         if(CampRules.Plantable(p))ActionButton("Plant upright in the ground",true,"",()=>BeginCampPlacement(p,CampKind.Stake));
         if(CampRules.Tinder(p))ActionButton("Lay a campfire here",true,"",()=>BeginCampPlacement(p,CampKind.Fire));
         if(CampRules.Bedding(p))ActionButton("Spread as bedding",true,"",()=>BeginCampPlacement(p,CampKind.Bedding));

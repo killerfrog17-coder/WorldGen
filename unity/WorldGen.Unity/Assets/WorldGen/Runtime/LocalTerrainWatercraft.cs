@@ -7,22 +7,27 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     CampObject activeWatercraft;bool watercraftRestored;
-    CampBlueprint watercraftCheckedPlan;int watercraftCheckedRevision=-1;bool watercraftCheckedComplete;
+    sealed class WatercraftHydrostatics {public int Revision;public double Mass,Plane,Height;public bool Complete;}
+    readonly System.Collections.Generic.Dictionary<CampBlueprint,WatercraftHydrostatics> watercraftHydro=new System.Collections.Generic.Dictionary<CampBlueprint,WatercraftHydrostatics>();
+    WatercraftHydrostatics WatercraftShape(CampObject c)
+    {var p=c.Blueprint;if(!watercraftHydro.TryGetValue(p,out var shape)||shape.Revision!=p.Revision){shape=new WatercraftHydrostatics{Revision=p.Revision,Mass=c.MassKg,Plane=PrimitiveWatercraft.Waterplane(c),Height=PrimitiveWatercraft.Height(c),Complete=CampBlueprints.Complete(p)&&p.Parts.All(part=>part.Weathering<.65)};watercraftHydro[p]=shape;}return shape;}
+    double WatercraftDraft(CampObject c,double load){var shape=WatercraftShape(c);return Math.Max(.035,(shape.Mass+Math.Max(0,load))/(1000*shape.Plane));}
     readonly Collider[] watercraftContacts=new Collider[32];
     static readonly (double,double)[] watercraftCorners={(-.45,-.45),(-.45,.45),(.45,-.45),(.45,.45)};
     bool WatercraftUsable(CampObject c)
-    {if(!PrimitiveWatercraft.Boat(c))return false;if(watercraftCheckedPlan!=c.Blueprint||watercraftCheckedRevision!=c.Blueprint.Revision){watercraftCheckedPlan=c.Blueprint;watercraftCheckedRevision=c.Blueprint.Revision;watercraftCheckedComplete=CampBlueprints.Complete(c.Blueprint)&&c.Blueprint.Parts.All(p=>p.Weathering<.65);}return watercraftCheckedComplete&&WatercraftLoad<=PrimitiveWatercraft.CapacityKg(c);}
+    {if(!PrimitiveWatercraft.Boat(c))return false;var shape=WatercraftShape(c);return shape.Complete&&WatercraftLoad<=Math.Max(0,1000*shape.Plane*(shape.Height-.12)-shape.Mass);}
+    CombatObstacle HeavyLimbTarget()=>TraceCombatObstacle(new Ray(view.transform.position,view.transform.forward),3+(float)humanCamera.Distance);
     string HeavyLimbReason()
-    {var tree=TraceCombatObstacle(PlayerAttackRay(),3);if(tree==null||!tree.Tree||tree.Source.HeightM<8)return "Look at a reachable trunk of a tree at least eight metres tall.";return ToolResource("tree-"+tree.Source.Id.ToString("x16")).Branches>=3?"The reachable limbs have already been gathered.":"";}
+    {var tree=HeavyLimbTarget();if(tree==null||!tree.Tree||!InventoryReach(transform.InverseTransformPoint(tree.Point))||tree.Source.HeightM<8)return "Look at a reachable trunk of a tree at least eight metres tall.";return ToolResource("tree-"+tree.Source.Id.ToString("x16")).Branches>=3?"The reachable limbs have already been gathered.":"";}
     void CutHeavyLimb(Possession axe)
     {
-        if(axe==null||(axe.Kind!=PossessionKind.StoneAxe&&axe.Kind!=PossessionKind.StoneAdze)||axe.UseDamage>=1)return;
-        string why=HeavyLimbReason();if(why.Length>0){InventoryFeedback(why);return;}var tree=TraceCombatObstacle(PlayerAttackRay(),3).Source;var record=ToolResource("tree-"+tree.Id.ToString("x16"));
-        BeginWorldToolWork(axe,"Cutting a thick reachable limb",1800,()=>{if(record.Branches>=3||(tree.Position-Position).Length*frame.RadiusM>4){InventoryFeedback("The reachable limb is no longer available.");return;}record.Branches++;var branch=WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=Math.Min(2.2,Math.Max(1.6,tree.HeightM*.1)),HeightM=Math.Min(.14,.12+tree.HeightM*.001),Variant=0});branch.Id="heavy-limb-"+Guid.NewGuid().ToString("N");branch.NaturalId=0;branch.Position=Position;ReceiveToolMaterial(branch);});inventoryContext=null;
+        if(axe==null||(PortableTechnology.Capabilities(axe)&CraftCapability.Chop)==0||axe.UseDamage>=1)return;
+        string why=HeavyLimbReason();if(why.Length>0){InventoryFeedback(why);return;}var tree=HeavyLimbTarget().Source;var record=ToolResource("tree-"+tree.Id.ToString("x16"));
+        BeginWorldToolWork(axe,"Cutting a thick reachable limb",axe.Kind==PossessionKind.StoneAxe||axe.Kind==PossessionKind.StoneAdze?1800:7200,()=>{if(record.Branches>=3||(tree.Position-Position).Length*frame.RadiusM>4){InventoryFeedback("The reachable limb is no longer available.");return;}record.Branches++;var branch=WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=Math.Min(2.2,Math.Max(1.6,tree.HeightM*.1)),HeightM=Math.Min(.14,.12+tree.HeightM*.001),Variant=0});branch.Id="heavy-limb-"+Guid.NewGuid().ToString("N");branch.NaturalId=0;branch.Position=Position;ReceiveToolMaterial(branch);});inventoryContext=null;
     }
     double WatercraftLoad=>70*Math.Pow((humanPlayer?.Definition.EyeHeight??1.65f)/1.65,3)+Inventory.CarriedMassKg;
     double WatercraftFloor(CampObject c,double x,double z)
-    {var water=SampleMotionWater(x,z);double ground=CampFloor(x,z);return double.IsFinite(water.Surface)&&water.Surface>ground?Math.Max(ground,water.Surface-PrimitiveWatercraft.Draft(c,activeWatercraft==c?WatercraftLoad:0)):ground;}
+    {var water=SampleMotionWater(x,z);double ground=CampFloor(x,z);return double.IsFinite(water.Surface)&&water.Surface>ground?Math.Max(ground,water.Surface-WatercraftDraft(c,activeWatercraft==c?WatercraftLoad:0)):ground;}
     double BlueprintPlacementFloor(double x,double z)
     {double ground=CampFloor(x,z);if(blueprintPlacement==null||!PrimitiveWatercraft.Design(blueprintPlacement.Design))return ground;var water=SampleMotionWater(x,z);return double.IsFinite(water.Surface)?Math.Max(ground,water.Surface):ground;}
     bool WatercraftSite(CampBlueprint p,Vector3 center,float yaw,out string reason)
@@ -39,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(activeWatercraft!=null||!WatercraftUsable(c)){InventoryFeedback("Finish the hull and seals, and keep the load within its buoyancy.");return;}
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);var water=SampleMotionWater(x,z);
-        if(!double.IsFinite(water.Surface)||water.Surface-CampFloor(x,z)<PrimitiveWatercraft.Draft(c,WatercraftLoad)+.02){InventoryFeedback("The hull is grounded; it needs slightly deeper water.");return;}
+        if(!double.IsFinite(water.Surface)||water.Surface-CampFloor(x,z)<WatercraftDraft(c,WatercraftLoad)+.02){InventoryFeedback("The hull is grounded; it needs slightly deeper water.");return;}
         activeWatercraft=c;PlayerRules.WatercraftId=c.Id;CancelItemCharge();CancelWorldToolWork();CancelBlueprintWork();campMenu=null;CaptureMouse();
         PlaceOnWatercraft(c,x,z);InventoryFeedback("Aboard. W/S paddle, A/D turn, E leave. Hold a paddle to propel the craft.");
     }
@@ -47,7 +52,7 @@ public sealed partial class LocalTerrainExplorer
     {double floor=WatercraftFloor(c,x,z)+(c.Blueprint.Design==CampDesign.ReedRaft?.4:.08);motion.Place(x,z,floor);survivalSprinting=false;}
     bool WatercraftClear(CampObject c,double x,double z)
     {
-        double a=c.Heading*Math.PI/180,s=Math.Sin(a),co=Math.Cos(a),draft=PrimitiveWatercraft.Draft(c,WatercraftLoad);
+        double a=c.Heading*Math.PI/180,s=Math.Sin(a),co=Math.Cos(a),draft=WatercraftDraft(c,WatercraftLoad);
         foreach(var corner in watercraftCorners)
         {double dx=corner.Item1*c.Blueprint.WidthM,dz=corner.Item2*c.Blueprint.DepthM,px=x+co*dx+s*dz,pz=z-s*dx+co*dz;var water=SampleMotionWater(px,pz);if(!double.IsFinite(water.Surface)||water.Surface-CampFloor(px,pz)<draft+.02)return false;}
         var center=transform.TransformPoint(new Vector3((float)(x-originX),(float)(SampleMotionWater(x,z).Surface+.18),(float)(z-originZ)));
@@ -59,7 +64,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!Ready)return;if(!watercraftRestored){watercraftRestored=true;if(!string.IsNullOrEmpty(PlayerRules.WatercraftId))activeWatercraft=Camp.Objects.FirstOrDefault(c=>c.Id==PlayerRules.WatercraftId&&PrimitiveWatercraft.Boat(c));}
         var c=activeWatercraft;if(c==null)return;
-        if(DeathVisible||Spectating||!Camp.Objects.Contains(c)||!WatercraftUsable(c)){LeaveWatercraft();return;}
+        if(DeathVisible||Spectating){activeWatercraft=null;PlayerRules.WatercraftId="";return;}
+        if(!Camp.Objects.Contains(c)||!WatercraftUsable(c)){LeaveWatercraft();return;}
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double dt=Math.Max(0,Math.Min(.1,Time.unscaledDeltaTime));
         if(!paused&&!mapOpen&&!ecologyOpen&&!chatOpen)
         {

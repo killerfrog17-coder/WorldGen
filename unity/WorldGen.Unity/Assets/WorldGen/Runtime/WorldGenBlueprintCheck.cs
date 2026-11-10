@@ -47,6 +47,8 @@ public sealed partial class LocalTerrainExplorer
             yield return KeyPress(Key.B);Check(campPlansOpen&&!paused,"B opens camp plans through actual keyboard input");yield return KeyPress(Key.Escape);Check(!campPlansOpen&&!paused,"Escape closes plans without pausing");
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.LeftCtrl));for(int crouchFrame=0;crouchFrame<30;crouchFrame++)yield return null;
             var sneakAxis=(humanPlayer.SneakNeck.position-humanPlayer.SneakSpine.position).normalized;Check(Vector3.Dot(sneakAxis,Vector3.up)>.9f,"Crouching keeps an upright sneaking torso instead of a folded riding posture");CaptureNaturalImage(output,"crouch-revised-front",0);CaptureNaturalImage(output,"crouch-revised-side",1);InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+            double readyUntil=Time.unscaledTimeAsDouble+90;while((!residentForestReady||scatterJobs.Count>0||installingScatter!=null)&&Time.unscaledTimeAsDouble<readyUntil)yield return null;
+            Debug.Log("BLUEPRINT scene readiness forest="+residentForestReady+" chunks="+scatterChunks.Count);
             double startX=motion.X,startZ=motion.Z;
             foreach(CampDesign design in Enum.GetValues(typeof(CampDesign)))
             {
@@ -55,7 +57,7 @@ public sealed partial class LocalTerrainExplorer
                 for(int ring=0;ring<90&&bestGrade>.3;ring++)for(int step=0;step<24&&bestGrade>.3;step++)
                 {
                     double a=step*Math.PI/12,x=startX+Math.Sin(a)*(ring+1)*3,z=startZ+Math.Cos(a)*(ring+1)*3;var at=frame.Position(x,z);if(made.Any(other=>(other.Position-at).Length*frame.RadiusM<8))continue;
-                    var point=Floor(x,z);if(BlueprintSite(plan,point,0,out _)){double grade=plan.FloorHeights.Max()-plan.FloorHeights.Min();if(grade<bestGrade){site=point;found=true;bestGrade=grade;}}
+                    var point=Floor(x,z);motion.Place(x-2,z-2,Ground(x-2,z-2));PreparePlayerSolids();if(BlueprintSite(plan,point,0,out _)){double grade=plan.FloorHeights.Max()-plan.FloorHeights.Min();if(grade<bestGrade){site=point;found=true;bestGrade=grade;}}
                 }
                 Check(found,"A clear dry footprint can be found for "+design);
                 double cx=site.x+originX,cz=site.z+originZ;motion.Place(cx-2,cz-2,Ground(cx-2,cz-2));heading=0;pitch=45;UpdateHumans();UpdateCamera();
