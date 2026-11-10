@@ -351,9 +351,9 @@ public sealed partial class LocalTerrainExplorer
         int effortOption=Array.IndexOf(arguments,"--worldgen-chunk-effort");
         if(arguments.Contains("--worldgen-chunk-loading-check")&&effortOption>=0)TerrainVideoOptions.Current.Effort=Math.Max(0,Math.Min(3,int.Parse(arguments[effortOption+1])));
         if(arguments.Contains("--worldgen-chunk-loading-check"))TerrainVideoOptions.HardChunkUpdates=arguments.Contains("--worldgen-chunk-hard-updates");
-        int rangeOption=Array.IndexOf(arguments,"--worldgen-chunk-view"),qualityOption=Array.IndexOf(arguments,"--worldgen-chunk-quality");
+        int rangeOption=Array.IndexOf(arguments,"--worldgen-chunk-view"),terrainQualityOption=Array.IndexOf(arguments,"--worldgen-chunk-quality");
         if(rangeOption>=0)reviewRange=Math.Max(1000,Math.Min(250000,double.Parse(arguments[rangeOption+1],System.Globalization.CultureInfo.InvariantCulture)));
-        if(qualityOption>=0)TerrainVideoOptions.Current.Quality=Math.Max(0,Math.Min(4,int.Parse(arguments[qualityOption+1])));
+        if(terrainQualityOption>=0)TerrainVideoOptions.Current.Quality=Math.Max(0,Math.Min(4,int.Parse(arguments[terrainQualityOption+1])));
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
