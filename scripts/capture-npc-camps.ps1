@@ -37,7 +37,8 @@ foreach($case in $Cases){
     $output=Join-Path $repo ('artifacts/npc-20261103/'+$Prefix+'-'+$case)
     if(Test-Path -LiteralPath $output){throw ('Keep prior captures; choose a new prefix: '+$output)}
     New-Item -ItemType Directory -Path $output|Out-Null
-    $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
+    $captureWidth=if($Crowd){'1920'}else{'1536'};$captureHeight=if($Crowd){'1080'}else{'864'}
+    $arguments=@('-screen-width',$captureWidth,'-screen-height',$captureHeight,'-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
     if($Crowd){if(!$Performance){throw 'Crowd is a controlled performance fixture only.'};$arguments+='--worldgen-npc-crowd'}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
