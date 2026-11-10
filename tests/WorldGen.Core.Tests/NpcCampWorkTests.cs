@@ -25,6 +25,10 @@ static class NpcCampWorkTests
         var forestHut=shelter.Copy();forestHut.Blueprint.Cover=CampCover.Brush;HumanCampLayout.FitShelter(forestHut,new double[9]);
         Check(NpcCampWork.NextPacking(forestHut.Blueprint,false,false)==null&&CampBlueprints.Complete(forestHut.Blueprint),"A woodland shelter left for reuse is not dismantled at all");
         var inventory=new PlayerInventory{Items=cargo};var replacement=CampBlueprints.Create(CampDesign.LeanTo,2,2,CampCover.Hide);
+        var rolledStock=new PlayerInventory{Items=cargo.Select(p=>p.Copy()).ToList()};var roll=NpcCampWork.Bundle(rolledStock,7,11,new V(1,0,0));
+        Check(roll!=null&&roll.BundledMaterials.All(CampRules.Hide),"Hide covers roll together without stripping the frame's cordage");
+        for(int i=0;i<2;i++){var wood=new Possession{Id="unlashed-test-pole-"+i,Kind=PossessionKind.Branch,MassKg=1,HeightM=2,WidthM=.03,DepthM=.03,CampMaterial=7,OwnerHousehold=11,Place=PossessionPlace.Ground};rolledStock.Items.Add(wood);}
+        Check(NpcCampWork.Bundle(rolledStock,7,11,new V(1,0,0))==null&&!roll.BundledMaterials.Any(WoodCrafting.Wood),"An existing rolled hide load cannot bind wooden poles without actual cordage");
         foreach(var part in shelter.Blueprint.Parts)replacement.Parts.Add(part.Copy());
         for(int k=0;k<100;k++)
         {

@@ -49,13 +49,14 @@ namespace WorldGen.Core
         public static Possession Bundle(PlayerInventory stock,long group,long household,V position,double maximumKg=24)
         {
             bool Part(Possession p)=>p.CampMaterial==group&&p.OwnerHousehold==household&&(WoodCrafting.Wood(p)||CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle||FrameRules.Binding(p));
-            var existing=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==group&&p.OwnerHousehold==household&&p.BundledMaterials!=null);
+            bool looseWood=stock.Items.Any(p=>Part(p)&&WoodCrafting.Wood(p));
+            var existing=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==group&&p.OwnerHousehold==household&&p.BundledMaterials!=null&&(!looseWood||p.BundledMaterials.Any(FrameRules.Binding)));
             var tie=existing==null?stock.Items.FirstOrDefault(p=>p.CampMaterial==group&&p.OwnerHousehold==household&&FrameRules.Binding(p)):null;
             // Flexible covers can roll together in their own outer sheet.
             // This does not let an unlashed hide bind a load of wooden poles.
             if(existing==null&&tie==null)tie=stock.Items.FirstOrDefault(p=>Part(p)&&(CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle));
             if(existing==null&&tie==null)return null;
-            bool wrapped=tie!=null&&!FrameRules.Binding(tie);
+            bool wrapped=existing!=null?!existing.BundledMaterials.Any(FrameRules.Binding):tie!=null&&!FrameRules.Binding(tie);
             var goods=stock.Items.Where(p=>p!=tie&&Part(p)&&(!wrapped||CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle)).OrderByDescending(WoodCrafting.Wood).ToArray();double mass=existing?.MassKg??tie.MassKg;
             var chosen=new List<Possession>();foreach(var p in goods)if(mass+p.MassKg<=maximumKg&&(existing?.BundledMaterials.Count??0)+chosen.Count<24){chosen.Add(p);mass+=p.MassKg;}
             if(chosen.Count==0||existing==null&&chosen.Count<2)return null;
