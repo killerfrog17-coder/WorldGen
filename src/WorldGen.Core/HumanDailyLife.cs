@@ -5,6 +5,8 @@ namespace WorldGen.Core
 {
     public static class HumanDailyLife
     {
+        public static int LocalDay(double solarDays,double localHour)
+            =>(int)Math.Floor(solarDays+Math.IEEERemainder(localHour-solarDays*24,24)/24+1e-8);
         static double Unit(long person,int seed,string field,int day=0)=>Rng.Value(seed,field,unchecked((int)person^(int)(person>>32)^day*7919));
         public static string NightRole(HumanGroupSituation group,ForagerCulture culture,ForagerPersonSample person,ForagerBandSample band,double solarDays,bool sleeping)
         {
@@ -30,7 +32,7 @@ namespace WorldGen.Core
         }
         public static HumanActivitySample Play(HumanGroupSituation group,ForagerBandSample band,ForagerPersonSample person,HumanLifeClock clock,int seed)
         {
-            int day=(int)Math.Floor(clock.SolarDays),session=(int)Math.Floor(clock.SolarDays*48);
+            int day=LocalDay(clock.SolarDays,group.LocalHour),session=(int)Math.Floor(clock.SolarDays*48);
             var peers=band.Members.Where(p=>p.Id!=person.Id&&p.AgeYears>=3&&p.AgeYears<14).OrderBy(p=>Math.Abs(p.AgeYears-person.AgeYears)*.03-Unit(Math.Min(p.Id,person.Id)^Math.Max(p.Id,person.Id),seed,"play-friend",day)).ThenBy(p=>p.Id).ToArray();
             long partner=peers.FirstOrDefault()?.Id??-1;int game=(int)(Unit(band.Id,seed,"play-game",session)*3);
             double phase=clock.SolarDays*clock.DayMinutes*60/18+Unit(person.Id,seed,"play-phase")*Math.PI*2;

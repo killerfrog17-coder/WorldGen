@@ -8,6 +8,8 @@ static class NpcAbsenceTests
     public static void Run()
     {
         int checks=0;void Check(bool ok,string text){if(!ok)throw new Exception(text);checks++;}
+        Check(HumanDailyLife.LocalDay(.99,8.76)==HumanDailyLife.LocalDay(1.01,9.24),"Daily work assignments do not reroll during the morning when the global solar counter crosses an integer");
+        Check(HumanDailyLife.LocalDay(.624,23.976)+1==HumanDailyLife.LocalDay(.626,.024),"Daily assignment seeds advance at local midnight");
         var known=new NpcKnownPerson{Person=7,LastSeenSolarDay=10};
         var trip=new HumanActivitySample{DepartureSolarDay=10,ExpectedReturnSolarDay=10.4,OutingPurpose="foraging with a party"};
         NpcAbsence.Expect(known,10,8,12,30,true,trip);

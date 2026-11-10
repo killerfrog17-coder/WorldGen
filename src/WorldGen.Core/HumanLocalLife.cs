@@ -186,7 +186,7 @@ namespace WorldGen.Core
         public HumanActivitySample Activity(HumanGroupSituation group,ForagerBandSample residents,ForagerPersonSample person,HumanLifeClock clock,double temperatureC=18,double rainMmHour=0,ForagerCulture localCulture=null)
         {
             var f=snapshot.Foragers;var culture=localCulture??f.Cultures[group.Band.Culture];var belief=f.Beliefs[group.Band.Belief];int seed=world.Recipe.Seed;
-            double age=person.AgeYears,personality=Unit(person.Id,seed,"human-work-personality"),social=Unit(person.Id,seed,"human-social-personality"),day=Math.Floor(clock.SolarDays);
+            double age=person.AgeYears,personality=Unit(person.Id,seed,"human-work-personality"),social=Unit(person.Id,seed,"human-social-personality"),day=HumanDailyLife.LocalDay(clock.SolarDays,group.LocalHour);
             var result=new HumanActivitySample{Person=person.Id,Group=group.Band.Id,Position=group.Position,Destination=group.Position,Role=person.Role};
             var homeOffset=HumanCampLayout.HouseholdOffset(residents,person.Household,group.Camp.Id,seed);
             var family=residents.Members.Where(p=>p.Household==person.Household).OrderBy(p=>p.BirthYear).ToArray();
