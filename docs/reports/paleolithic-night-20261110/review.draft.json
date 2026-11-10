@@ -409,7 +409,7 @@
           }
         },
         {
-          "text": "<b>Acceptance:</b> PENDING FINAL EXISTING-EQUIPMENT AUDIT. Native captures are functional checks capped at 60 FPS, not performance benchmarks. Failed intermediate captures are excluded."
+          "text": "<b>Acceptance:</b> All 43 technology families have a representative playable route. Final native checks cover portable crafting (38), combat (184), woodwork (16), camps (98), nature (32), land blueprints (261), fishing (14) and boats (32), alongside the new equipment checks. Functional captures are capped at 60 FPS and are not performance benchmarks. Finished art, every regional variant and autonomous NPC manufacture are outside this pass."
         },
         {
           "text": "<b>Next priorities:</b> PENDING CROWD/RIVER STATUS. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."

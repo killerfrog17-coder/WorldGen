@@ -1,10 +1,10 @@
 {
-  "status": "Functional watercraft prototype accepted; native v7 exit0, images inspected",
+  "status": "Functional watercraft prototype accepted; latest native v8 exit0/32 checks, images inspected",
   "core_checks": 85,
   "native_checks": 32,
   "blueprint_controls": 14566,
-  "native": "artifacts/paleolithic-night-20261110/watercraft-native-v7",
-  "source": "9f820eff",
+  "native": "artifacts/paleolithic-night-20261110/watercraft-native-v8",
+  "source": "f93dfdc2",
   "scope": [
     "Actual generated tree thick-limb gathering with a real axe; hew the same limb into the working paddle",
     "B menu resizable reed raft and hide-frame boat; finite supplied raw hull goods consumed through normal survival construction",

@@ -2,8 +2,8 @@
   "purpose": "Implementation checklist, not an in-game recipe book. A simulation technique does not by itself mean its playable implementation is complete.",
   "stages": [
     "1. Focused simulation audit (completed)",
-    "2. Paleolithic content (current)",
-    "3. Crowded NPC performance (not started)",
+    "2. Representative Paleolithic content functional pass completed",
+    "3. Crowded NPC performance (current)",
     "4. River overhaul (not started)",
     "5. Previous streaming/geography follow-ups only after 1?4"
   ],
@@ -281,8 +281,8 @@
     "https://doi.org/10.1126/science.1218643"
   ],
   "next": [
-    "Focused final audit of existing technology families",
-    "Then crowds and realistic rivers; old geography remains last"
+    "100 nearby real NPC crowd performance",
+    "Then realistic rivers; old geography remains last"
   ],
   "existing_audit": {
     "portable_crafting_native": 38,
@@ -291,11 +291,13 @@
     "stone_pure": 45,
     "npc_belongings_pure": 18,
     "foraging_pure": 33,
-    "remaining_native": "Actual line/net fishing and latest-source boat cache/parking regression",
+    "remaining_native": "None in the focused representative equipment audit",
     "item_use_native": 184,
     "woodwork_native": 16,
     "camp_native": 98,
     "nature_native": 32,
-    "blueprints_native": 261
+    "blueprints_native": 261,
+    "fishing_native": 14,
+    "watercraft_native": 32
   }
 }

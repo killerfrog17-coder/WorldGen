@@ -13,7 +13,7 @@ PASS Ordinary boarding puts the player on the actual floating hull
 PASS Hull visual follows the physical loaded waterline rather than the seabed
 PASS Rendered game content: reed-raft-afloat
 PASS Shallow launch site connects to a real navigable water corridor
-PASS Actual held-paddle W input moves the craft and carries the player over real water: 2.85 m
+PASS Actual held-paddle W input moves the craft and carries the player over real water: 3.71 m
 PASS Boarded craft, motion and original hull goods survive full session capture/reload
 PASS Actual E input leaves the craft without removing its physical hull
 PASS Actual coastal terrain provides a complete shallow-water footprint for SkinBoat: 
@@ -26,7 +26,7 @@ PASS Ordinary boarding puts the player on the actual floating hull
 PASS Hull visual follows the physical loaded waterline rather than the seabed
 PASS Rendered game content: deer-hide-frame-boat
 PASS Shallow launch site connects to a real navigable water corridor
-PASS Actual held-paddle W input moves the craft and carries the player over real water: 5.10 m
+PASS Actual held-paddle W input moves the craft and carries the player over real water: 5.04 m
 PASS Boarded craft, motion and original hull goods survive full session capture/reload
 PASS Actual E input leaves the craft without removing its physical hull
 PASS no runtime errors or exceptions
