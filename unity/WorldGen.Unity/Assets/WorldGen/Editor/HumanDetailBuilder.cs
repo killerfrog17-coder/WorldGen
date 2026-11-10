@@ -10,6 +10,21 @@ public static class HumanDetailBuilder
 {
     const string Folder="Assets/WorldGen/Resources/HumanDetail";
     [Serializable] public sealed class Row {public string Source;public int Original,Middle,Far;}
+    public static void CheckBatching()
+    {
+        var shader=Resources.Load<Shader>("WorldGenHuman");
+        var flags=System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic;
+        var codeMethod=typeof(ShaderUtil).GetMethod("GetSRPBatcherCompatibilityCode",flags);
+        var reasonMethod=typeof(ShaderUtil).GetMethod("GetSRPBatcherCompatibilityIssueReason",flags);
+        string previousPipeline=Shader.globalRenderPipeline;Shader.globalRenderPipeline="UniversalPipeline";
+        var material=new Material(shader);ShaderUtil.CompilePass(material,0,true);material.SetPass(0);
+        int code=(int)codeMethod.Invoke(null,new object[]{shader,0});UnityEngine.Object.DestroyImmediate(material);Shader.globalRenderPipeline=previousPipeline;
+        string reason=code==0?"Compatible":(string)reasonMethod.Invoke(null,new object[]{shader,0,code});
+        string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
+        File.WriteAllText(Path.Combine(repo,"artifacts/human-srp-batching.txt"),"Code="+code+"; "+reason);
+        if(code!=0)throw new InvalidDataException("Human shader still breaks SRP batching: "+reason);
+        Debug.Log("HUMAN SRP BATCHING compatible");
+    }
     public static void Build()
     {
         Directory.CreateDirectory(Folder);AssetDatabase.Refresh();

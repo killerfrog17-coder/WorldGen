@@ -19,8 +19,9 @@ Shader "WorldGen/Human"
         TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);
         CBUFFER_START(UnityPerMaterial)
         float4 _BloodColor;float _BloodEnabled;
-        float4 _BaseMap_ST;float _Roughness,_Cutoff,_HumanViewId;
+        float4 _BaseMap_ST;float _Roughness,_Cutoff,_HumanViewId,_VegetationSceneEnabled;
         CBUFFER_END
+        #define WORLDGEN_VEGETATION_SCENE_MATERIAL_SWITCH
         // Camera-scoped identity, never a global mutation of a person's mesh.
         float _WorldGenFirstPersonHumanId;
         float _WorldGenFirstPersonBodyVisible;

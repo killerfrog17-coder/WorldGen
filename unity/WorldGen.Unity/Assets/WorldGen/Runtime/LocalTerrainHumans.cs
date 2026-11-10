@@ -105,7 +105,10 @@ public sealed partial class LocalTerrainExplorer
                 foreach(var material in materials){material.SetFloat("_HumanViewId",id);actor.OwnedMaterials.Add(material);}
                 renderer.sharedMaterials=materials;
             }
-            var props=new MaterialPropertyBlock();props.SetFloat("_HumanViewId",id);renderer.SetPropertyBlock(props);
+            // Only the local player needs a camera-hide identity. Ordinary
+            // people use the material's zero identity and keep the SRP batcher
+            // path; a real blood stain can still install its own property block.
+            if(id==1){var props=new MaterialPropertyBlock();props.SetFloat("_HumanViewId",id);renderer.SetPropertyBlock(props);}
             renderer.shadowCastingMode=ShadowCastingMode.On;renderer.receiveShadows=true;
         }
         // FBX prefab transforms need not start in the evaluated idle pose.

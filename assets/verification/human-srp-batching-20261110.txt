@@ -1,0 +1,3 @@
+Code=0; Compatible
+Proof uses actual D3D11 compiled UniversalPipeline variant in Unity Editor; initial headless/no-pipeline attempts returned Not initialized and were rejected.
+Ordinary NPCs retain shader identity0; local player keeps private identity1 and blood retains per-person mask overrides.

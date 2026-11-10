@@ -5,7 +5,9 @@
 CBUFFER_START(WorldGenTerrainScene)
 float4 _VegetationSceneData[19];
 CBUFFER_END
+#ifndef WORLDGEN_VEGETATION_SCENE_MATERIAL_SWITCH
 float _VegetationSceneEnabled;
+#endif
 float4 VegetationFog(float4 legacy){return _VegetationSceneEnabled>.5?_VegetationSceneData[0]:legacy;}
 // Shared colours are already linear; callers convert only their legacy input.
 float3 VegetationFogLinear(float3 legacyLinear){return _VegetationSceneEnabled>.5?_VegetationSceneData[0].rgb:legacyLinear;}
