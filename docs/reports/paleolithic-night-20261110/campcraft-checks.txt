@@ -1,0 +1,16 @@
+PASS Start with a spear in hand
+PASS Actual contextual action starts: weave-mat
+PASS Timed native work completes: weave-mat
+PASS Actual strip bundles become one rolled mat and restore the spear hand
+PASS Actual contextual action starts: bone-pendant
+PASS Timed native work completes: bone-pendant
+PASS Actual source-bone pendant equips on its independent neck attachment
+PASS Actual character portrait renders this worn jewellery
+PASS Rendered native game content: bone-pendant-and-reed-mat
+PASS A real woven mat places as bedding through existing placement controls
+PASS Placement transfers the same mat to the actual bed
+PASS Bedding renders the actual spread woven surface
+PASS Rendered native game content: spread-woven-bedding
+PASS Woven bedding contributes actual comfort and insulation
+PASS Full native capture/reload accepts jewellery, woven material and its placed bed
+PASS no runtime errors or exceptions

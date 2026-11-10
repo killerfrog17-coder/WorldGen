@@ -1,0 +1,24 @@
+{
+  "status": "Functional native first pass accepted; prototype art",
+  "core_checks": 15,
+  "native_checks": 15,
+  "portable_tree_checks": 1043,
+  "native": "artifacts/paleolithic-night-20261110/deadfall-native-v1",
+  "scope": [
+    "Carve a real sound branch with a cutting tool into a notched trigger",
+    "Place trigger, add actual broad 2-12 kg stone and 25 g portion of real food; timed set/disarm/reset/recovery",
+    "Actual small ground fauna swept contact; finite mass/height impact damage and ordinary persistent wildlife health/corpse path",
+    "No offscreen catch timer, meat factory, new wildlife population agent or player-attribution through unseen trap"
+  ],
+  "native_result": "Controlled crossing of an ordinary spawned rabbit sprung the actual runtime trap and wounded it; the rabbit survived and fled without attributing the trap to the player. No claim of a lethal native result.",
+  "limits": [
+    "Representative deadfall foundation; no snare, pitfall, bait lure or autonomous NPC trap tending yet",
+    "Works with locally simulated physical animals only; offscreen simulation does not fabricate catches",
+    "A heavy falling rock may wound rather than kill; no locational crushing injuries in this pass",
+    "Stone drops immediately to its sprung pose; bespoke collapse animation deferred"
+  ],
+  "sources": [
+    "https://www.gutenberg.org/cache/epub/34110/pg34110-images.html",
+    "https://americanindian.si.edu/collections-search/edan-record/ead_component%3Asova-nmai-ac-001-032-ref702"
+  ]
+}

@@ -161,8 +161,8 @@
     {
       "id": 25,
       "technology": "Snares and traps",
-      "status": "not implemented",
-      "scope": "Basic constructible snares/traps, excluding the deferred advanced tracking/hunting pass"
+      "status": "New functional prototype: 15 pure and 15 native checks; actual-material deadfall, small-fauna contact, finite damage, reset and save",
+      "scope": "Representative deadfall only; snares/pitfalls and autonomous trap tending remain variants for later"
     },
     {
       "id": 26,
@@ -281,8 +281,7 @@
     "https://doi.org/10.1126/science.1218643"
   ],
   "next": [
-    "Pigments and compound hafting adhesives",
-    "Fire transport, basic traps and watercraft",
+    "Finish actual watercraft launch/paddle/save and torch first-person visual acceptance",
     "Focused final audit of existing technology families",
     "Then crowds and realistic rivers; old geography remains last"
   ]

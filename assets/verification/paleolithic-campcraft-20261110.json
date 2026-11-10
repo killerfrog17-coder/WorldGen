@@ -25,5 +25,8 @@
     "run": "campcraft-native-v1",
     "checks": 16,
     "source": "caaeeb53"
-  }
+  },
+  "native_final": "artifacts/paleolithic-night-20261110/campcraft-native-v3",
+  "native_final_checks": 16,
+  "visual_review": "Actual placed woven mat visible; pre-existing timed ground clearing settled before capture. Replaces rejected v1 no-bed view and early v2 plant-clipped view."
 }

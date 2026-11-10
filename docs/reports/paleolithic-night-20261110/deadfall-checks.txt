@@ -1,0 +1,15 @@
+PASS Actual contextual trigger carving starts
+PASS Actual branch becomes a carved trigger and preserves its cutting tool
+PASS Ordinary ground placement accepts the actual trigger
+PASS Adding bait takes only twenty-five grams and keeps the remaining real food
+PASS Timed balancing returns the same wooden trigger into an armed physical trap
+PASS Rendered game content: armed-stone-deadfall
+PASS Actual armed trap and original owned materials pass full session capture/reload
+PASS Rabbit uses the ordinary animal spawn command
+PASS A real loaded rabbit actor is available for the controlled crossing
+PASS The actual runtime sweep springs the trap when the real actor crosses its footprint
+PASS Springing consumes the original bait but retains stone and trigger
+PASS A surviving animal reacts to the physical trap without magically blaming the unseen player
+PASS Rendered game content: sprung-deadfall
+PASS Sprung mechanism and actual injured or dead wildlife persist in the normal full save
+PASS no runtime errors or exceptions
