@@ -56,7 +56,7 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckPortableCraftingRuntime()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
-        var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception)errors.Add(m);};Application.logMessageReceived+=listener;
+        var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){errors.Add(m);Application.Quit(1);}};Application.logMessageReceived+=listener;
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Portable crafting fixture unavailable");
         var fixturePoint=TerrainMapViewport.FromDegrees(50,10);

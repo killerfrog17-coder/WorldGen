@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
         IEnumerator Shot(string name)
         {for(int i=0;i<20;i++)yield return null;yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();Check(image.GetPixels32().Any(p=>p.r>45||p.g>45||p.b>45),"Rendered native game content: "+name);File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);}
         Possession Add(PossessionKind kind)
-        {var p=PortableTechnology.Create(kind,Position);Inventory.Items.Add(p);SetCraftWorkArea(p);return p;}
+        {var p=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,Position):HumanEquipment.Item(kind,321,"native-clay-tool",Position);Inventory.Items.Add(p);SetCraftWorkArea(p);return p;}
         InitializeInventory();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();PlayerRules.Settings.ItemCraftingTimeMultiplier=.1;
         WeatherControl.Set("clear");PlayerRules.SetLocalSolarHour(12,Math.Atan2(Position.Y,Position.X)*180/Math.PI);SetDaylight(LocalSolarHour,skyYear);
         // Locate real clay in the fixture, without changing the ground profile.
