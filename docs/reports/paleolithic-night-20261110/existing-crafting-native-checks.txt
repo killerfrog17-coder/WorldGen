@@ -1,0 +1,38 @@
+PASS Craft equipment fixture fills both hands
+PASS Craft starts with occupied hands without a put-away prompt
+PASS No bag: previous items are real ground drops
+PASS Previous equipment survives saved work
+PASS Pause retrieves the same dropped spear and rock into their original hands
+PASS Resume automatically borrows hands again
+PASS Completion restores original hands and keeps the finished product
+PASS Another action automatically stages hands
+PASS Cancellation restores equipment without consuming inputs
+PASS Self bow is slung on the back before using hands
+PASS Slung bow returns to the original hand
+PASS No starter equipment is silently granted
+PASS Live contextual action starts: prepare-fibres
+PASS Live work completes: prepare-fibres
+PASS Live contextual action starts: twist-cord
+PASS Live work completes: twist-cord
+PASS Raw fibres become a reusable physical binding ingredient
+PASS Live contextual action starts: scrape-hide
+PASS Live work completes: scrape-hide
+PASS Live contextual action starts: work-hide
+PASS Live work completes: work-hide
+PASS Hide preparation preserves source object
+PASS Multi-input sewing/lacing action starts
+PASS Inputs and tools share job/progress
+PASS Multi-material reservations survive save/reload
+PASS Resume preserves work
+PASS Exactly the ingredients consumed; tools retained
+PASS Specific animal coat survives pouch crafting
+PASS Automatically equipped finished pouch can be set down before fitting a belt
+PASS Back, shoulder and waist equipment coexist
+PASS Belt actually carries a knife
+PASS Quick stow searches available worn carriers
+PASS Existing source animal coat loads for hide equipment
+PASS Actual unchanged animal texture array is bound to hide mesh
+PASS Native character portrait includes carrying equipment and belt tool
+PASS Full session accepts equipment, contents and provenance
+PASS Species-specific material give command accepts coat index
+PASS no runtime errors or exceptions

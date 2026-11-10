@@ -1,0 +1,28 @@
+{
+  "status": "Functional watercraft prototype accepted; native v7 exit0, images inspected",
+  "core_checks": 85,
+  "native_checks": 32,
+  "blueprint_controls": 14566,
+  "native": "artifacts/paleolithic-night-20261110/watercraft-native-v7",
+  "source": "9f820eff",
+  "scope": [
+    "Actual generated tree thick-limb gathering with a real axe; hew the same limb into the working paddle",
+    "B menu resizable reed raft and hide-frame boat; finite supplied raw hull goods consumed through normal survival construction",
+    "Specific donor hide texture actually bound to fitted hull panels",
+    "Mass-based draft/capacity, actual keyboard W paddling and E boarding/disembarking, shore/obstacle tests, normal full-session save/reload",
+    "Only the active occupied craft runs motion; no world fleet agents; structural readiness cached by plan revision, nonalloc physics contacts"
+  ],
+  "native_result": "Both built in actual coastal shallows from finite QA-provided raw hull supplies. The paddle limb was gathered from an actual generated tree. W input travelled over a metre for both; E left each real hull behind. Native current site was ocean; river-current response is a pure-rule control, not a native river test.",
+  "limits": [
+    "Prototype hull art, standing rider and no authored rowing stroke",
+    "Unoccupied craft remain at saved location; no unattended drifting/anchoring simulation",
+    "No capsizing, hull flooding, cargo bays or autonomous NPC sailing in this first route",
+    "First representative reed raft and skin boat, not every possible dugout/bark/raft variant",
+    "Earlier native failures and head-masked review photos are retained as failed evidence, excluded from final report"
+  ],
+  "sources": [
+    "https://iscc.marinersmuseum.org/watercraft/chatti-raft/",
+    "https://collection.sciencemuseumgroup.org.uk/search/objects/object_type/coracle",
+    "https://americanhistory.si.edu/collections/object/nmah_1315869"
+  ]
+}

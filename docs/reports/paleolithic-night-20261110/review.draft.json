@@ -1,0 +1,420 @@
+{
+  "title": "WorldGen - Paleolithic Equipment 2026-11-10",
+  "section": "PALEOLITHIC UPDATE",
+  "date": "10 NOV 2026",
+  "footer": "Actual game captures and labelled simulation audits | Functional prototype",
+  "pages": [
+    {
+      "title": "A larger Paleolithic toolkit",
+      "subtitle": "27 new item types, actual materials and usable camp equipment. Prototype art; functional acceptance is tracked separately.",
+      "blocks": [
+        {
+          "text": "The pass follows the agreed order: regional sapiens audit, Paleolithic content, crowded NPC performance, then rivers. These pages distinguish tested gameplay from the work still ahead."
+        },
+        {
+          "images": [
+            {
+              "file": "ochre-marked-bonded-spear.jpg",
+              "caption": "Actual in-game spear: warmed compound adhesive on the haft and measured ochre markings."
+            }
+          ],
+          "max_height": 220
+        },
+        {
+          "table": {
+            "headers": [
+              "New family",
+              "What it adds"
+            ],
+            "rows": [
+              [
+                "Clothing and carrying water",
+                "Six wearable garments; 2 L waterskin and 1.5 L bark vessel."
+              ],
+              [
+                "Food, pottery and stonework",
+                "Grinding surface, meal and cakes; gathered clay, drying, firing and 3 L pots; prepared cores and pressure finishing."
+              ],
+              [
+                "Campcraft and materials",
+                "Reed mats, bone pendants, gum/resin adhesives, pigments and charcoal."
+              ],
+              [
+                "Travel and trapping",
+                "Finite-fuel torches and ember carriers; real-material deadfalls; reed rafts, hide-frame boats and carved paddles."
+              ]
+            ],
+            "widths": [
+              0.28,
+              0.72
+            ]
+          }
+        },
+        {
+          "text": "Craft through the existing item context actions, using carried or nearby materials. Previous hands are borrowed and restored through the existing work system. No in-game recipe book or starter bag was added."
+        }
+      ]
+    },
+    {
+      "title": "Different worlds, bounded dispersal",
+      "subtitle": "Four fresh 200,000-cell maps; elapsed years 0 to 190,000. These are data-audit maps, not new geography.",
+      "blocks": [
+        {
+          "text": "Pangeae, Iceage, Continents and Archipelago were checked at seven dates. Regional climate, carrying capacity, technology and water crossings constrain expansion; distant regions do not become one uniform population."
+        },
+        {
+          "images": [
+            {
+              "file": "continents-0.png",
+              "caption": "Continents seed 84613, starting distribution."
+            },
+            {
+              "file": "continents-190000.png",
+              "caption": "Same world after 190,000 elapsed years. Teal: sapiens; ochre: other hominins."
+            }
+          ],
+          "max_height": 145
+        },
+        {
+          "images": [
+            {
+              "file": "islands-0.png",
+              "caption": "Archipelago seed 95341, starting distribution."
+            },
+            {
+              "file": "islands-190000.png",
+              "caption": "Separated landmasses retain distinct occupation histories."
+            }
+          ],
+          "max_height": 145
+        },
+        {
+          "text": "<b>Specific fix:</b> when carrying capacity falls to zero, analytic projection now retains the calculated cold/starvation mortality instead of replacing it with a gentler fixed decline. The simulation still works on regional aggregates; local camps and people are generated when needed."
+        },
+        {
+          "text": "<b>Evidence:</b> 52 mechanism checks and 12 temporal/save/cancellation checks. The targeted zero-capacity test changes correctly; two paired sampled world totals remained identical. This is a focused correction and audit, not a claim that every migration rate was retuned."
+        }
+      ],
+      "sources": [
+        [
+          "Nature: niche expansion",
+          "https://www.nature.com/articles/s41586-025-09154-0"
+        ],
+        [
+          "Nature: Arabian occupation windows",
+          "https://www.nature.com/articles/s41586-021-03863-y"
+        ]
+      ]
+    },
+    {
+      "title": "Clothes and portable water",
+      "subtitle": "Owned, worn and filled possessions with real mass and material provenance.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "clothes-front.jpg",
+              "caption": "Garments fitted to the actual character."
+            },
+            {
+              "file": "filled-waterskin.jpg",
+              "caption": "Finite carried water and its normal inventory context."
+            }
+          ],
+          "max_height": 180
+        },
+        {
+          "table": {
+            "headers": [
+              "Equipment",
+              "Use"
+            ],
+            "rows": [
+              [
+                "Hide wrap, tunic or fur coat",
+                "Independent torso attachment. Worn insulation affects exposure; packing clothes provides no protection. Heavy insulation increases hot-weather effort."
+              ],
+              [
+                "Leggings, footwear and hood",
+                "Separate legs, feet and head attachments coexist with bags and weapons. Hood handles existing hair visibility."
+              ],
+              [
+                "Waterskin / bark water vessel",
+                "2 L / 1.5 L. Fill at real water, drink a portion or pour it away. Contents add actual mass and retain salinity and contamination."
+              ]
+            ],
+            "widths": [
+              0.32,
+              0.68
+            ]
+          }
+        },
+        {
+          "text": "Hide equipment preserves the donor animal and coat. Local NPC outfits use their band's practiced techniques and scale to children. Garment silhouettes are a functional first pass using native body weights, not finished draped clothing art."
+        },
+        {
+          "text": "Water actions retain the player's actual hands. Boiling addresses biological contamination; it does not turn salt water fresh. Adding untreated water can contaminate a previously boiled supply."
+        }
+      ]
+    },
+    {
+      "title": "From gathered soil to a meal",
+      "subtitle": "Measured ingredients, elapsed time and actual fire heat.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "fired-pot-and-boiled-water.jpg",
+              "caption": "Fired pot with measured boiled water."
+            },
+            {
+              "file": "ground-food-equipment.jpg",
+              "caption": "Grinding surface and reusable pounding/cutting equipment."
+            }
+          ],
+          "max_height": 165
+        },
+        {
+          "table": {
+            "headers": [
+              "Progression",
+              "What happens"
+            ],
+            "rows": [
+              [
+                "Clay to fired pot",
+                "Dig suitable mapped clay with a digging stick. Shape with 100 ml water, air-dry for roughly a solar day, then fire the same pot in a well-fueled hearth."
+              ],
+              [
+                "Boiling",
+                "Heat a fired pot directly. Bark/skin vessels use actual heated hearth stones, with a finite stored-heat budget."
+              ],
+              [
+                "Meal and cake",
+                "Peck an ordinary cobble into a grinding surface. Grind nuts or roots with a separate pounder. Mix meal with 80 ml carried water and cook the cake at a fire."
+              ]
+            ],
+            "widths": [
+              0.25,
+              0.75
+            ]
+          }
+        },
+        {
+          "text": "Mass, calories and plant toxins follow the source food. Mixing does not manufacture calories or make poisonous plants safe. Wet clay, water quality, drying, firing and cooking survive saving."
+        },
+        {
+          "text": "<b>Limits:</b> elapsed weather uses the current local conditions as an approximation; pottery and food models remain prototype art."
+        }
+      ],
+      "sources": [
+        [
+          "Early plant processing",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC2973873/"
+        ]
+      ]
+    },
+    {
+      "title": "Work the material, keep its identity",
+      "subtitle": "Prepared faces, finer edges and compound hafting.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "prepared-flaking-face.jpg",
+              "caption": "An ordinary stone with its prepared working face."
+            },
+            {
+              "file": "pressure-finished-blade.jpg",
+              "caption": "Fine chert finishing with an actual antler retoucher."
+            }
+          ],
+          "max_height": 150
+        },
+        {
+          "images": [
+            {
+              "file": "ochre-marked-bonded-spear.jpg",
+              "caption": "Source pigment and adhesive carried through to the actual weapon."
+            }
+          ],
+          "max_height": 185
+        },
+        {
+          "text": "<b>Stonework:</b> prepare a suitable ordinary core, then strike a controlled flake. Preparing and removing the flake consumes real stone. Pressure finishing currently uses fine chert; finished point quality remains through hafting."
+        },
+        {
+          "text": "<b>Adhesives:</b> collect tree gum or resin, grind ochre or recover charcoal, then warm a mixed binder on actual hearth stones. Apply five grams while workable to seal a real haft. Ochre markings use two grams and five millilitres of water."
+        },
+        {
+          "text": "Actual-world resource checks found suitable clay/ochre soil and generated gum/resin trees. The native glue test used supplied raw gum; it did not claim a tree-harvesting test. No ordinary stone was renamed into an abstract hammerstone or core item."
+        }
+      ],
+      "sources": [
+        [
+          "Experimental gum/ochre adhesives",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC2700998/"
+        ],
+        [
+          "Resin/charcoal experiments",
+          "https://exarc.net/issue-2021-4/ea/beeswax-addition-production-european-stone-age-adhesives"
+        ]
+      ]
+    },
+    {
+      "title": "A working camp, carried forward",
+      "subtitle": "Woven bedding, simple adornment, transported fire and physical traps.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "spread-woven-bedding.jpg",
+              "caption": "Actual placed reed mat, after ground clearing settles."
+            },
+            {
+              "file": "bone-pendant-and-reed-mat.jpg",
+              "caption": "Wearable bone pendant; its own neck attachment."
+            }
+          ],
+          "max_height": 145
+        },
+        {
+          "images": [
+            {
+              "file": "carried-torch-at-night.jpg",
+              "caption": "Lit torch in the real first-person view."
+            },
+            {
+              "file": "armed-stone-deadfall.jpg",
+              "caption": "A carved trigger, actual stone and a small portion of food bait."
+            }
+          ],
+          "max_height": 145
+        },
+        {
+          "text": "<b>Mat:</b> eight weaving-strip bundles and a binding become a rolled mat. Spread it as bedding, layer it for more protection, or use it as reed covering. <b>Pendant:</b> carve and pierce source bone, then string and wear it."
+        },
+        {
+          "text": "<b>Fire:</b> wrapped bark/resin torches have finite fuel. An insulated carrier takes five grams of actual hearth coals and twenty grams of tinder. Both can light a prepared fire in survival. Wind, rain, shelter, immersion and elapsed fuel are handled."
+        },
+        {
+          "text": "<b>Deadfall:</b> place a carved trigger, add a broad 2-12 kg stone and 25 g of real food, then set it. A locally simulated small animal must cross the footprint. The native rabbit was wounded and escaped; the trap did not guarantee a kill or invent a catch."
+        },
+        {
+          "text": "First-pass limits: approximate 90-minute torch / eight-hour ember durations; no offscreen catches, snare variants or autonomous NPC trap tending. Fire shares the existing four-light budget."
+        }
+      ],
+      "sources": [
+        [
+          "Deadfall mechanics, primary trapping manual",
+          "https://www.gutenberg.org/cache/epub/34110/pg34110-images.html"
+        ]
+      ]
+    },
+    {
+      "title": "Launch from the shore",
+      "subtitle": "Reed floats and donor-hide frame boats, assembled from finite materials.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "reed-raft-afloat.jpg",
+              "caption": "Actual constructed raft, afloat with the player."
+            }
+          ],
+          "max_height": 210
+        },
+        {
+          "images": [
+            {
+              "file": "deer-hide-frame-boat.jpg",
+              "caption": "Skin hull with the real donated deer coat texture."
+            }
+          ],
+          "max_height": 210
+        },
+        {
+          "text": "Use <b>B</b> for the adjustable watercraft plans and lay them out in shallow water. Add crosspieces, reed floats or bent ribs, lashings and fitted hides; the skin boat also needs sealed seams. Hew a paddle from a genuinely thick limb using chopping and cutting tools."
+        },
+        {
+          "text": "<b>E</b> boards/leaves; <b>W/S</b> paddle and <b>A/D</b> turn. Actual hull/load mass controls draft and overloads; shores and obstacles stop travel; currents carry the active craft. Both passed actual keyboard paddling and full save/reload checks; hull supplies were finite QA inputs."
+        },
+        {
+          "text": "<b>Limits:</b> prototype models and standing rider; no authored rowing animation, capsizing or unattended voyage simulation. Unoccupied craft remain at their saved location."
+        }
+      ],
+      "sources": [
+        [
+          "Mariners' Museum: reed raft",
+          "https://iscc.marinersmuseum.org/watercraft/chatti-raft/"
+        ],
+        [
+          "Science Museum: hide-frame coracle",
+          "https://collection.sciencemuseumgroup.org.uk/search/objects/object_type/coracle"
+        ]
+      ]
+    },
+    {
+      "title": "Try it in progression",
+      "subtitle": "External testing guide; nothing here was added as an in-game recipe book.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Start with",
+              "Action / next use"
+            ],
+            "rows": [
+              [
+                "Ordinary stone and striker",
+                "Flake a cutting edge; prepare a grinding surface; later prepare a core or pressure-finish fine chert."
+              ],
+              [
+                "Fibre, reeds and hides",
+                "Prepare fibres, twist bindings/thread, split reeds; scrape and soften hide. These support clothing, water containers, mats and existing carriers."
+              ],
+              [
+                "Worked hide + binding",
+                "Cut a wrap. Cutting/piercing tools and extra hide/thread make fitted garments. Hide + thread + binding + cutting/piercing tools makes a waterskin."
+              ],
+              [
+                "Suitable clay + 100 ml water",
+                "Dig, shape, dry, fire; fill and boil. A pot holds up to 3 L."
+              ],
+              [
+                "Nuts/roots + mill + pounder",
+                "Grind meal; add 80 ml water for a cake and cook it."
+              ],
+              [
+                "Gum/ochre or resin/charcoal",
+                "Mix, warm on a hearth stone, then seal a haft. Ground ochre can mark equipment."
+              ],
+              [
+                "Pole + bark + binding + fuel",
+                "Wrap and light a torch. Bark container + bark sheet + binding + piercing tool makes an ember carrier."
+              ],
+              [
+                "Sound branch + cutting edge",
+                "Carve a deadfall trigger. Add an actual stone and a little bait after placement."
+              ],
+              [
+                "Reeds / wood / hides / bindings",
+                "Build the two watercraft through B. A paddle requires a thick limb, a chopping tool and a cutting edge."
+              ]
+            ],
+            "widths": [
+              0.32,
+              0.68
+            ]
+          }
+        },
+        {
+          "text": "<b>Acceptance:</b> PENDING FINAL EXISTING-EQUIPMENT AUDIT. Native captures are functional checks capped at 60 FPS, not performance benchmarks. Failed intermediate captures are excluded."
+        },
+        {
+          "text": "<b>Next priorities:</b> PENDING CROWD/RIVER STATUS. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
+        }
+      ]
+    }
+  ]
+}

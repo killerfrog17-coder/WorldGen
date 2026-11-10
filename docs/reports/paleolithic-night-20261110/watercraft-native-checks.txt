@@ -1,0 +1,32 @@
+PASS Actual dry bank is available for hewing the heavy limb
+PASS An actual generated tree offers a reachable thick limb
+PASS Actual timed axe work gathers a finite thick limb from that generated tree
+PASS Actual thick limb, axe and blade start paddle hewing
+PASS Timed hewing produces the actual usable wooden paddle; kind=Paddle jobs=
+PASS The completed paddle is physically picked up before moving to the launch site
+PASS Actual coastal terrain provides a complete shallow-water footprint for ReedRaft: 
+PASS Every actual hull component and lashing consumes finite supplied goods in survival: ReedRaft
+PASS Completed real hull supports the player and carried gear
+PASS Native completed watercraft mesh is resident
+PASS The real carved paddle can be held for propulsion: Construction complete.
+PASS Ordinary boarding puts the player on the actual floating hull
+PASS Hull visual follows the physical loaded waterline rather than the seabed
+PASS Rendered game content: reed-raft-afloat
+PASS Shallow launch site connects to a real navigable water corridor
+PASS Actual held-paddle W input moves the craft and carries the player over real water: 2.85 m
+PASS Boarded craft, motion and original hull goods survive full session capture/reload
+PASS Actual E input leaves the craft without removing its physical hull
+PASS Actual coastal terrain provides a complete shallow-water footprint for SkinBoat: 
+PASS Every actual hull component and lashing consumes finite supplied goods in survival: SkinBoat
+PASS Completed real hull supports the player and carried gear
+PASS Native completed watercraft mesh is resident
+PASS Fitted hull panels bind the actual donated deer coat texture
+PASS The real carved paddle can be held for propulsion: Construction complete.
+PASS Ordinary boarding puts the player on the actual floating hull
+PASS Hull visual follows the physical loaded waterline rather than the seabed
+PASS Rendered game content: deer-hide-frame-boat
+PASS Shallow launch site connects to a real navigable water corridor
+PASS Actual held-paddle W input moves the craft and carries the player over real water: 5.10 m
+PASS Boarded craft, motion and original hull goods survive full session capture/reload
+PASS Actual E input leaves the craft without removing its physical hull
+PASS no runtime errors or exceptions

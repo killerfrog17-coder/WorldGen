@@ -1,0 +1,16 @@
+PASS Nearby branch/cutter starts TrimBranch with initially empty hands
+PASS Completion unregisters result physics before destroying/replacing its old visual: TrimBranch
+PASS Next frames retain only valid drop bodies after TrimBranch
+PASS Nearby branch/cutter starts StripBark with initially empty hands
+PASS Completion unregisters result physics before destroying/replacing its old visual: StripBark
+PASS Next frames retain only valid drop bodies after StripBark
+PASS Nearby branch/cutter starts DiggingStick with initially empty hands
+PASS Completion unregisters result physics before destroying/replacing its old visual: DiggingStick
+PASS Next frames retain only valid drop bodies after DiggingStick
+PASS Work keeps the same branch identity and cutter without losing/duplicating items
+PASS Finished wooden item can still be picked up
+PASS Finished wooden item can still be physically dropped
+PASS Inventory/physics capture remains saveable after woodworking
+PASS Unexpected retired native body cannot poison subsequent updates or save capture
+PASS World/menu cleanup retires all item physics without exceptions
+PASS no runtime errors or exceptions

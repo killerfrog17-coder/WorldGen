@@ -1,0 +1,26 @@
+PASS Actual contextual action starts: wrap-torch
+PASS Timed native crafting completes: wrap-torch
+PASS Actual pole, bark, binding and resin become a finite unlit torch
+PASS Actual flat ground accepts the source hearth
+PASS Actual burning hearth permits lighting this torch
+PASS Timed portable-fire work completes
+PASS Timed native lighting creates the carried flame
+PASS Lit torch can be held in the off hand
+PASS The actual held torch renders its own flame sheets
+PASS Portable flame illuminates the scene within the existing four-light limit
+PASS The carried flame survives ordinary frame updates before capture
+PASS The actual held flame is inside the first-person camera frustum
+PASS Rendered native game content: carried-torch-at-night
+PASS Timed portable-fire work completes
+PASS Survival lighting uses the real carried torch without a drill or creative bypass
+PASS Actual contextual action starts: ember-carrier
+PASS Timed native crafting completes: ember-carrier
+PASS Real burned fuel provides transferable hearth coals
+PASS Actual coals and loose tinder permit an ember nest
+PASS Timed portable-fire work completes
+PASS Loading the actual carrier transfers coals and twenty grams of tinder
+PASS Timed portable-fire work completes
+PASS The carrier independently starts a new fire from its finite embers
+PASS Rendered native game content: ember-carrier
+PASS Full native capture/reload retains fuel, live coals and transported fire
+PASS no runtime errors or exceptions

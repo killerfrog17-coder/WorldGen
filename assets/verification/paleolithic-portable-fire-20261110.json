@@ -1,9 +1,10 @@
 {
-  "status": "Functional native v1 passed; upright-carry correction and clearer night capture pending",
+  "status": "Functional source, pure checks and native v5 passed; actual first-person flame screenshot inspected",
   "controls": {
     "portable_fire": 21,
     "portable_tree": 1034,
-    "native_v1": 24
+    "native_v1": 24,
+    "native_final": 26
   },
   "scope": [
     "Actual bark/resin-or-fat torch recipe and real-fuel rewrapping",
@@ -16,13 +17,14 @@
     "Ninety-minute torch and eight-hour ember-carrier durations are first-pass gameplay calibration",
     "Current local weather approximates unobserved elapsed fuel history",
     "No autonomous NPC manufacture or scheduled torch use added",
-    "Prototype flame sheets reuse the existing campfire shader; no new bespoke fire animation",
-    "First native night photo is too dark to demonstrate the carried flame; excluded from final report pending corrected capture."
+    "Prototype flame sheets reuse the existing campfire shader; no new bespoke fire animation"
   ],
   "sources": [
     "https://npshistory.com/nature_notes/grca/vol9-1c.htm",
     "https://www.uwlax.edu/mvac/educators/archaeology-terms/?letter=t&term=126652",
     "https://www.fs.usda.gov/psw/publications/lake/psw_2013_lake001_anderson.pdf"
   ],
-  "native": "artifacts/paleolithic-night-20261110/portable-fire-native-v1"
+  "native": "artifacts/paleolithic-night-20261110/portable-fire-native-v1",
+  "native_final": "artifacts/paleolithic-night-20261110/portable-fire-native-v5",
+  "rejected_visuals": "v1-v4 night photos excluded: flame was out of first-person view. Eye-relative carry corrected; v5 has explicit frustum gate and inspected actual flame screenshot."
 }

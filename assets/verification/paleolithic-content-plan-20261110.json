@@ -131,8 +131,8 @@
     {
       "id": 20,
       "technology": "Rafts",
-      "status": "not implemented",
-      "scope": "Constructible usable raft with water movement"
+      "status": "Functional representative prototype: 85 pure and 32 actual native checks, real supplied materials, actual generated-tree paddle limb, keyboard paddling and save/reload",
+      "scope": "Reed raft"
     },
     {
       "id": 21,
@@ -191,8 +191,8 @@
     {
       "id": 30,
       "technology": "Boats",
-      "status": "not implemented",
-      "scope": "Usable basic boat; no metal tools assumed"
+      "status": "Functional representative prototype: 85 pure and 32 actual native checks, real supplied materials, actual generated-tree paddle limb, keyboard paddling and save/reload",
+      "scope": "Sealed hide-frame boat; other hull variants remain later"
     },
     {
       "id": 31,
@@ -281,8 +281,16 @@
     "https://doi.org/10.1126/science.1218643"
   ],
   "next": [
-    "Finish actual watercraft launch/paddle/save and torch first-person visual acceptance",
     "Focused final audit of existing technology families",
     "Then crowds and realistic rivers; old geography remains last"
-  ]
+  ],
+  "existing_audit": {
+    "portable_crafting_native": 38,
+    "portable_crafting_pure": 1052,
+    "blueprint_pure": 14566,
+    "stone_pure": 45,
+    "npc_belongings_pure": 18,
+    "foraging_pure": 33,
+    "remaining_native": "Melee/ranged, woodwork, shelters/fire/bedding, nature and actual fishing still running or pending."
+  }
 }
