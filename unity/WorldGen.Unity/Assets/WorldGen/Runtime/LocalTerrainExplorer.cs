@@ -324,7 +324,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         bool coveredFlight=motion.Flying&&WorkerLimit>1&&!double.IsNaN(VisibleGround(motion.X,motion.Z,double.NaN));
         // Free ONE occupied lane only if neither lane is serving near ground.
         // Continually cancelling all background work would itself cause churn.
-        if(nearPending&&ActiveWorkerCount>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
+        bool urgentContact=!coveredFlight||HeightAboveGround<=detailOptions.FullRadius(HorizontalScale);
+        if(nearPending&&urgentContact&&ActiveWorkerCount>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
         {
             var background=jobs.LastOrDefault(j=>j.Prepared==null&&!ImmediateTerrain(j.Key)&&!j.Task.IsCompleted);
             if(background!=null){if(background.Cancellation?.IsCancellationRequested==false)streamingPreempted++;background.Cancellation?.Cancel();}
