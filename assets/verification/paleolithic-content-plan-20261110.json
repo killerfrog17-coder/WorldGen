@@ -167,13 +167,13 @@
     {
       "id": 26,
       "technology": "Grinding tools",
-      "status": "not implemented",
+      "status": "functional prototype: 17 pure and 21 actual native checks passed; source nutrition, measured water and fueled campfire cooking; presentation refinement remains",
       "scope": "Explicit grinding stone and repeatable grinding uses"
     },
     {
       "id": 27,
       "technology": "Plant processing",
-      "status": "not implemented",
+      "status": "functional prototype: 17 pure and 21 actual native checks passed; source nutrition, measured water and fueled campfire cooking; presentation refinement remains",
       "scope": "Processed plant foods with conserved nutritional/material properties"
     },
     {

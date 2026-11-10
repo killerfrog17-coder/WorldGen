@@ -1,0 +1,21 @@
+PROCESSING CHECK PASS Start with an occupied spear hand
+PROCESSING CHECK PASS Actual context action starts: peck-grindstone
+PROCESSING CHECK PASS Timed native crafting completes: peck-grindstone
+PROCESSING CHECK PASS Nonflaking granite becomes a real grinding tool and the spear is restored
+PROCESSING CHECK PASS Actual context action starts: grind-nuts
+PROCESSING CHECK PASS Timed native crafting completes: grind-nuts
+PROCESSING CHECK PASS Native grinding preserves source-specific food calories
+PROCESSING CHECK PASS Actual context action starts: plant-cake
+PROCESSING CHECK PASS Timed native crafting completes: plant-cake
+PROCESSING CHECK PASS Native mixing uses 80 ml and retains the actual reusable vessel
+PROCESSING CHECK PASS Rendered native game content: ground-food-equipment
+PROCESSING CHECK PASS Actual dry ground accepts the cooking fire: Aim at reachable ground.
+PROCESSING CHECK PASS The real campfire is burning
+PROCESSING CHECK PASS The new cake appears in the existing quick-fire cooking choices
+PROCESSING CHECK PASS Adding the cake transfers its actual ownership to the fire
+PROCESSING CHECK PASS The fueled fire cooks the actual crafted cake
+PROCESSING CHECK PASS The cooked cake can be retrieved through the same fire controls
+PROCESSING CHECK PASS Taking cooked food returns the same item exactly once
+PROCESSING CHECK PASS Rendered native game content: cooked-plant-cake
+PROCESSING CHECK PASS Full native player/camp capture accepts processing and cooked food
+PORTABLE FLOW PASS 21
