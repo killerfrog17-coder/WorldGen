@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 using WorldGen.Serialization;
 using WorldGen.Core;
 using WorldGen.Presentation;
@@ -13,6 +14,7 @@ public sealed partial class LocalTerrainExplorer
     public sealed class NpcPerformanceRow
     {
         public double MeanLateNpcMs;public bool AutomaticPoses,GcIncremental;public ulong GcSliceNanoseconds;public string GcMode;public long HeapStart,HeapEnd;
+        public int ExplorationRenders,UnexpectedCameraRenders;
         public int EnabledSkins;public long EnabledSkinVertices;public bool AllocationCounterAvailable;
         public long ClockBefore,ClockNative,ClockAfter,ClockFrequency,ManagedFrequency;
         public string Mode;public int Residents,MinResidents,MaxResidents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
@@ -27,6 +29,15 @@ public sealed partial class LocalTerrainExplorer
     public sealed class NpcSlowFrame
     {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes,ManagedFrameEnd;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
     public sealed class NpcCrowdProof {public int Residents,Groups,SkinnedRenderers,EnabledSkinnedRenderers,NativePropertyBlockedSkins;public bool SrpBatching;public long Vertices,EnabledVertices;public string Scope;public NpcResidentCheckRow[] People;}
+    sealed class NpcRenderProof:IDisposable
+    {
+        readonly Camera expected;public int ExpectedRenders,UnexpectedRenders;public bool Measuring;public string UnexpectedName="";
+        public NpcRenderProof(Camera camera){expected=camera;RenderPipelineManager.beginCameraRendering+=BeforeCamera;}
+        public void Start(){ExpectedRenders=UnexpectedRenders=0;UnexpectedName="";Measuring=true;}
+        void BeforeCamera(ScriptableRenderContext context,Camera camera)
+        {if(!Measuring)return;if(camera==expected)ExpectedRenders++;else{UnexpectedRenders++;if(UnexpectedName.Length==0)UnexpectedName=camera==null?"null":camera.name;}}
+        public void Dispose(){Measuring=false;RenderPipelineManager.beginCameraRendering-=BeforeCamera;}
+    }
     Vector3? npcCrowdFocus;
     static IEnumerator PrepareLivingCrowd(LocalTerrainExplorer owner,string output)
     {
@@ -135,6 +146,7 @@ public sealed partial class LocalTerrainExplorer
         long allocationBefore=GC.GetAllocatedBytesForCurrentThread();var allocationProbe=new byte[65536];bool allocationCounterAvailable=GC.GetAllocatedBytesForCurrentThread()>allocationBefore;GC.KeepAlive(allocationProbe);
         bool compareAutomatic=arguments.Contains("--worldgen-npc-automatic-comparison"),requestedAutomatic=owner.npcAutomaticPoses;
         ulong priorGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
+        using var cameraProof=new NpcRenderProof(owner.view);
         string[] modes=allocationProfile?new[]{"normal"}:compareAutomatic?new[]{"normal","automatic-poses","automatic-half-ms-gc","normal-half-ms-gc","normal-repeat"}:new[]{"normal","render-only","no-residents","normal-repeat"};
         foreach(string mode in modes)
         {
@@ -159,6 +171,7 @@ public sealed partial class LocalTerrainExplorer
             int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);long windowTick=System.Diagnostics.Stopwatch.GetTimestamp();var clockBridge=WorldGenPerformance.CaptureNativeClock();
             double maxCameraError=0,maxAngleError=0,maxCullDelta=0;
             if(trace){WorldGenPerformance.ClearFaunaTrace();WorldGenPerformance.Measuring=true;}
+            cameraProof.Start();
             if(allocationProfile)
             {
                 UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,"crowd-allocations.raw");
@@ -187,6 +200,7 @@ public sealed partial class LocalTerrainExplorer
             }
             finally
             {
+                cameraProof.Measuring=false;
                 if(allocationProfile)
                 {
                     UnityEngine.Profiling.Profiler.enabled=false;
@@ -195,11 +209,13 @@ public sealed partial class LocalTerrainExplorer
                     UnityEngine.Profiling.Profiler.logFile="";
                 }
             }
+            if(cameraProof.UnexpectedRenders>0||cameraProof.ExpectedRenders<frames.Count-1||cameraProof.ExpectedRenders>frames.Count+1)throw new InvalidOperationException("NPC performance requires one actual exploration-camera render per frame: expected="+cameraProof.ExpectedRenders+", frames="+frames.Count+", unexpected="+cameraProof.UnexpectedRenders+" / "+cameraProof.UnexpectedName);
             if(trace){WorldGenPerformance.Measuring=false;WorldGenPerformance.WriteFaunaTrace(Path.Combine(output,mode+"-fauna-events.csv"),windowTick);for(int k=0;k<traceTotals.Length;k++)traceTotals[k]/=ticks.Count;}
             for(int k=0;k<stages.Length;k++)stages[k]/=ticks.Count;
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route=closeCrowd?"Radius10m eye-height crowd orbit; same path and duration per mode":"Radius24m elevated scenic camp orbit; same path and duration per mode"});
             var recorded=report[report.Count-1];recorded.HeapStart=heapStart;recorded.HeapEnd=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();recorded.AutomaticPoses=owner.npcAutomaticPoses;recorded.MeanLateNpcMs=lateNpcMs/ticks.Count;recorded.GcIncremental=UnityEngine.Scripting.GarbageCollector.isIncremental;recorded.GcMode=UnityEngine.Scripting.GarbageCollector.GCMode.ToString();recorded.GcSliceNanoseconds=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;recorded.AllocationCounterAvailable=allocationCounterAvailable;recorded.ClockBefore=clockBridge.Before;recorded.ClockNative=clockBridge.Native;recorded.ClockAfter=clockBridge.After;recorded.ClockFrequency=clockBridge.Frequency;recorded.ManagedFrequency=System.Diagnostics.Stopwatch.Frequency;recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
+            recorded.ExplorationRenders=cameraProof.ExpectedRenders;recorded.UnexpectedCameraRenders=cameraProof.UnexpectedRenders;
             recorded.MaximumCameraErrorM=maxCameraError;recorded.MaximumCameraAngleError=maxAngleError;recorded.MaximumScatterEyeDeltaM=maxCullDelta;
             recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));

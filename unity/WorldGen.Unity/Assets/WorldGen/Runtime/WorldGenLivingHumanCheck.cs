@@ -64,6 +64,10 @@ public sealed partial class LocalTerrainExplorer
         bool performance=Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf");
         TerrainVideoOptions.Current.ViewDistanceM=performance?6000:1800;TerrainVideoOptions.Revision++;
         if(performance){TerrainVideoOptions.ApplyAllPlantQuality(2);TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.SurfaceQuality=2;TerrainVideoOptions.SurfaceTextures=true;}
+        // Match ExploreTerrain: the world-map/menu camera does not render
+        // underneath the physical exploration scene in ordinary play.
+        var backdropCamera=Camera.main;
+        if(backdropCamera!=null){File.WriteAllText(Path.Combine(output,"world-camera-control.txt"),"Disabled bootstrap camera before exploration, matching production ExploreTerrain: "+backdropCamera.name+"; previous enabled="+backdropCamera.enabled+"; mask="+backdropCamera.cullingMask);backdropCamera.enabled=false;}
         var owner=new GameObject("Living human actual-terrain fixture").AddComponent<LocalTerrainExplorer>();owner.viewDistance=performance?6000:1800;
         owner.Initialize(setup,chosen.Position,()=>{},world,play,worker:producer);
         owner.npcModel??=new NpcModelClient();owner.npcModel.Config.Enabled=false;
