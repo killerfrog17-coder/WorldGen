@@ -12,7 +12,9 @@ param(
     [switch]$LongFlight,
     [switch]$EnduranceFlight,
     [switch]$HardUpdates,
-    [ValidateRange(0,2000)][double]$FlightSpeed=0
+    [ValidateRange(0,2000)][double]$FlightSpeed=0,
+    [ValidateRange(0,250000)][double]$ViewDistance=0,
+    [ValidateRange(-1,4)][int]$TerrainQuality=-1
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -35,6 +37,8 @@ if($FastFlight){$arguments+='--worldgen-chunk-fast-flight'}
 if($LongFlight){$arguments+='--worldgen-chunk-long-flight'}
 if($EnduranceFlight){$arguments+='--worldgen-chunk-endurance-flight'}
 if($HardUpdates){$arguments+='--worldgen-chunk-hard-updates'}
+if($ViewDistance -gt 0){$arguments+=@('--worldgen-chunk-view',$ViewDistance.ToString('R',[Globalization.CultureInfo]::InvariantCulture))}
+if($TerrainQuality -ge 0){$arguments+=@('--worldgen-chunk-quality',[string]$TerrainQuality)}
 if($FlightSpeed -gt 0){$arguments+=@('--worldgen-chunk-flight-speed',$FlightSpeed.ToString('R',[Globalization.CultureInfo]::InvariantCulture))}
 $arguments+=@('--worldgen-chunk-effort',[string]$Effort)
 $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru

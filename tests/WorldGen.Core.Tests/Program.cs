@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--terrain-layer-cost")){TerrainLayerCostTests.Run(args[1],args[2]);return;}
 if(args.Contains("--npc-mind")){NpcMindTests.Run();return;}
 if(args.Contains("--npc-absence")){NpcAbsenceTests.Run();return;}
 if(args.Contains("--npc-camp-weather")){CampWeatheringTests.Run();return;}

@@ -75,7 +75,7 @@ namespace WorldGen.Presentation
             return indices;
         }
         public static LocalTerrainMesh Build(LocalTerrain terrain, LocalTerrainFrame frame, double eastM, double northM,
-            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null,TerrainSampleCache? sampleCache=null)
+            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null,TerrainSampleCache? sampleCache=null,TerrainBuildTiming? timing=null)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
@@ -86,6 +86,7 @@ namespace WorldGen.Presentation
             // The same index was previously prepared only by channel refinement,
             // after the regular grid had already scanned every river station.
             token.ThrowIfCancellationRequested();patch?.RiverSpans();
+            timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             LocalTerrainSample Sample(double x,double z,V p)
             {
@@ -118,11 +119,13 @@ namespace WorldGen.Presentation
                 for (int x = -1; x <= side; x++)
                 {
                     var position = frame.Position(eastM + x * step, northM + z * step); var sample = Sample(eastM+x*step,northM+z*step,position);
+                    if(timing!=null)timing.GeometrySamples++;
                     double height = frame.SurfaceY(position, sample.ElevationM); heights[(z + 1) * halo + x + 1] = height;
                     if (x >= 0 && x < side && z >= 0 && z < side) samples[z * side + x] = sample;
                 }
             }
             mesh.Positions = new float[ground * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[ground * 4];
+            timing?.Mark(1);
             mesh.SurfaceWeights=new float[mesh.Colors.Length];
             mesh.GroundWeightsB=new float[mesh.Colors.Length];
             mesh.Lithology=new float[ground*6];
@@ -136,6 +139,7 @@ namespace WorldGen.Presentation
                 mesh.WaterColors[i * 4] = .13f; mesh.WaterColors[i * 4 + 1] = .37f; mesh.WaterColors[i * 4 + 2] = .46f; mesh.WaterColors[i * 4 + 3] = (float)sample.OceanInfluence;
                 double nx = (heights[at - 1] - heights[at + 1]) / (2 * step), nz = (heights[at - halo] - heights[at + halo]) / (2 * step);
                 var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,frame.Position(eastM+x*step,northM+z*step),sample,nx,nz);
+                if(timing!=null)timing.MaterialSamples++;
                 TerrainSurfaceVertex.Write(mesh,i,vertex,vertex,0);
             }
             double Height(double x,double z)
@@ -152,16 +156,19 @@ namespace WorldGen.Presentation
                 var sample=ix>=0&&ix<side&&iz>=0&&iz<side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7?samples[iz*side+ix]:Sample(x,z,p);
                 return TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
             }
-            TerrainSurfaceEdges.Apply(mesh,edgeSteps,Boundary,token);
+            timing?.Mark(2);TerrainSurfaceEdges.Apply(mesh,edgeSteps,Boundary,token);timing?.Mark(3);
             mesh.Triangles=SurfaceTriangles(segments);
             // Planned neighbors already share collapsed triangle edges above.
             // The old >=80m perimeter skirts also appeared on INTERIOR fallback
             // boundaries, making manufactured cliffs through loaded terrain.
             // Keep the sampled land surface; never extrude those opaque walls.
             var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
+            timing?.Mark(4);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null,patch==null?null:new Func<ulong,V,SmallLake>(patch.LocalLakeAt));
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
+            timing?.Mark(5);
             GroundCoverGrid.ExcludeWater(mesh);
+            timing?.Mark(6);
             // Distant vegetation is now a separately culled baked-tree field.
             // Do not bake unrelated statistical ovals into terrain products.
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
