@@ -138,6 +138,7 @@ public sealed partial class LocalTerrainExplorer
                 nextAudit=now+5;lastPixelGaps=CheckFlightGroundPixels(Path.Combine(output,"flight-ground-"+audits+".png"));
                 Capture(Path.Combine(output,"flight-view-"+audits+".png"));audits++;
                 workRows.Add(t.ToString("F2",CultureInfo.InvariantCulture)+"s: "+StreamingWorkReceipt);
+                File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
             }
             if(now>=next)
             {next=now+.2;rows.Add(string.Join(",",new[]{t,speed,east,HeightAboveGround,viewDistance,terrainRevealRadius,forestRevealRadius,tiles.Count,jobs.Count,NearReady?1d:0,playerGround?1d:0,missing,ReanchorCount,TerrainBuildRequests-initialBuilds,VisibleGround(x,z,double.NaN)-Ground(x,z),PreparedTileCount,lastPixelGaps}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));}

@@ -18,7 +18,7 @@ namespace WorldGen.Presentation
         static TerrainTileKey Parent(TerrainTileKey key)=>new TerrainTileKey(
             (int)Math.Floor(key.X/2.0),(int)Math.Floor(key.Z/2.0),key.Level+1,key.Scale);
         public static bool Ready(IReadOnlyDictionary<TerrainTileKey,int> wanted,
-            IReadOnlyDictionary<TerrainTileKey,int> resident,double x,double z,double nearRadius,bool coverageMasksReady=false)
+            IReadOnlyDictionary<TerrainTileKey,int> resident,double x,double z,double nearRadius,bool coverageMasksReady=false,double coverageRadius=double.PositiveInfinity)
         {
             if(wanted.Count==0)return false;
             var ancestors=new HashSet<TerrainTileKey>();
@@ -30,6 +30,10 @@ namespace WorldGen.Presentation
                 Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
             bool Covered(TerrainTileKey key)
             {
+                // A perimeter leaf can extend many kilometres beyond the
+                // actual view disk. Only that disk needs replacement coverage;
+                // otherwise preparing a chart waits for invisible land too.
+                if(TerrainLod.DistanceSquared(key,x,z)>coverageRadius*coverageRadius)return true;
                 if(resident.ContainsKey(key))return true;
                 if(key.Level==0||!ancestors.Contains(key))return false;
                 if(memo.TryGetValue(key,out bool found))return found;

@@ -69,8 +69,8 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in p.Wanted)if(TerrainLod.DistanceSquared(pair.Key,x,z)<=near*near)
         {if(!p.Tiles.TryGetValue(pair.Key,out var tile)||tile.Segments<pair.Value)missingNear++;else if(!TerrainEdges.Equal(tile.Edges,p.Edges[pair.Key]))wrongEdges++;}
         return "tiles "+p.Tiles.Count+"/"+p.Wanted.Count+"; calibrated="+p.Calibrated+" detail="+p.Detail?.Status+" missing near="+missingNear+" edge mismatches="+wrongEdges+"; pending jobs "+jobs.Count(j=>j.Prepared!=null)+
-            "; coverage "+TerrainHandoff.Ready(p.Wanted,resident,1e20,1e20,0)+
-            "; near ready "+TerrainHandoff.Ready(p.Wanted,resident,x,z,near,coverageMasksReady:true);
+            "; coverage "+TerrainHandoff.Ready(p.Wanted,resident,x,z,0,coverageMasksReady:true,coverageRadius:viewDistance)+
+            "; near ready "+TerrainHandoff.Ready(p.Wanted,resident,x,z,near,coverageMasksReady:true,coverageRadius:viewDistance);
     }
     public void TestAdvanceEast(double metres){motion.X+=metres;motion.Y=Math.Max(motion.Y,Ground(motion.X,motion.Z)+450);}
     public void TestBoundaryGround()
@@ -228,22 +228,21 @@ public sealed partial class LocalTerrainExplorer
             if(dx*dx+dz*dz<=near*near&&
                 (!pending.Tiles.TryGetValue(key,out var tile)||!TerrainEdges.Equal(tile.Edges,pending.Edges[key])))return;
         }
-        if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near,coverageMasksReady:true))return;
+        if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near,coverageMasksReady:true,coverageRadius:viewDistance))return;
         if(!motion.Flying&&!PrepareGroundScatter(pending,x,z))return;
         if(TestHoldHandoff){TestHandoffWaiting=true;return;}
         CommitPreparedFrame(pending,x,z);
     }
-    void SchedulePreparedWork(bool reserveCurrentSlot,bool coveredFlight=false)
+    void SchedulePreparedWork(bool reserveCurrentSlot,bool coveredFlight=false,bool nearOnly=false)
     {
         var pending=preparedFrame;if(pending?.Wanted==null||!coveredFlight&&NearTerrainPending())return;
         if(reserveCurrentSlot&&jobs.Any(j=>j.Prepared!=null))return;
         double near=2048*HorizontalScale;
-        var order=pending.Priority.Where(k=>TerrainLod.DistanceSquared(k,pending.X,pending.Z)<=near*near)
-            .Concat(pending.Backdrops.Keys.OrderBy(k=>TerrainLod.DistanceSquared(k,pending.X,pending.Z)))
-            .Concat(pending.Priority);
+        var nearby=pending.Priority.Where(k=>TerrainLod.DistanceSquared(k,pending.X,pending.Z)<=near*near);
+        var order=nearOnly?nearby:nearby.Concat(pending.Backdrops.Keys.OrderBy(k=>TerrainLod.DistanceSquared(k,pending.X,pending.Z))).Concat(pending.Priority);
         foreach(var key in order)
         {
-            if(!CanRequest||ActiveWorkerCount>=WorkerLimit)return;
+            if(!CanRequest||ActiveWorkerCount>=WorkerLimit-(nearOnly?1:0))return;
             bool backdrop=!pending.Wanted.ContainsKey(key);
             int detail=backdrop?32:pending.Wanted[key];var edges=backdrop?pending.Backdrops[key]:pending.Edges[key];
             if(backdrop&&(pending.Tiles.ContainsKey(key)||!pending.Wanted.Keys.Any(w=>Overlaps(key,w)&&!PreparedCovered(pending,w))))continue;

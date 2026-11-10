@@ -57,6 +57,19 @@ static class LocalTerrainTests
         resident[new TerrainTileKey(-1,-1,0,.1)]=128;
         foreach(var pair in wanted)resident[pair.Key]=pair.Value;
         check(TerrainHandoff.Ready(wanted,resident,-100,-100,0),"A coarse ancestor may retire only once its full exact replacement set is ready");
+        foreach(double scale in new[]{.01,.1,1d,2d})
+        {
+            var farLeaf=new TerrainTileKey(0,0,3,scale);
+            var partialWanted=new Dictionary<TerrainTileKey,int>{{farLeaf,64}};
+            var partialResident=new Dictionary<TerrainTileKey,int>{{new TerrainTileKey(0,0,1,scale),32}};
+            double x=-512*scale,z=512*scale,radius=1024*scale;
+            check(!TerrainHandoff.Ready(partialWanted,partialResident,x,z,0,coverageMasksReady:true),"Unbounded handoff still rejects uncovered remote quarters");
+            check(TerrainHandoff.Ready(partialWanted,partialResident,x,z,0,coverageMasksReady:true,coverageRadius:radius),"Bounded handoff accepts complete actual-view coverage without invisible remote quarters");
+            partialResident.Clear();
+            check(!TerrainHandoff.Ready(partialWanted,partialResident,x,z,0,coverageMasksReady:true,coverageRadius:radius),"Bounded handoff rejects an actual-view hole");
+            partialResident.Add(new TerrainTileKey(0,0,0,scale),64);
+            check(!TerrainHandoff.Ready(partialWanted,partialResident,x,z,0,coverageMasksReady:true,coverageRadius:2048*scale),"Bounded handoff rejects a missing visible ring around an otherwise present foot tile");
+        }
     }
     public static void Run(Action<bool, string> check)
     {

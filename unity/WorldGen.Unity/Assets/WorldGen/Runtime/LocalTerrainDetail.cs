@@ -49,8 +49,10 @@ public sealed partial class LocalTerrainExplorer
         // At least one CPU lane remains for the active terrain. Alternate the
         // other lane between forest continuity and the approaching chart,
         // instead of starving either until every fine request has finished.
-        if(ActiveWorkerCount>=WorkerLimit-1||forestJobs.Any(j=>!j.Task.IsCompleted)||jobs.Any(j=>j.Prepared!=null&&!j.Task.IsCompleted))return;
         bool chartDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit*.65;
+        if(chartDue&&ActiveWorkerCount<WorkerLimit-1)
+            SchedulePreparedWork(reserveCurrentSlot:false,coveredFlight:true,nearOnly:true);
+        if(ActiveWorkerCount>=WorkerLimit-1||forestJobs.Any(j=>!j.Task.IsCompleted)||jobs.Any(j=>j.Prepared!=null&&!j.Task.IsCompleted))return;
         long prior=TerrainBuildRequests;
         if(!flightForestTurn&&chartDue)SchedulePreparedWork(reserveCurrentSlot:true,coveredFlight:true);
         if(TerrainBuildRequests>prior){flightForestTurn=true;return;}
