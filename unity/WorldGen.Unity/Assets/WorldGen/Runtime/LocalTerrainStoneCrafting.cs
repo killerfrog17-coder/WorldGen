@@ -121,7 +121,7 @@ public sealed partial class LocalTerrainExplorer
         if(body!=null)foreach(var drop in inventoryDrops.Values.Where(d=>d.Body==body).ToArray())
         {CaptureDroppedPose(drop);RemoveDroppedBody(drop.Item.Id);}
         if(inventoryCraftMeshes.TryGetValue(root,out var meshes)){foreach(var mesh in meshes)Destroy(mesh);inventoryCraftMeshes.Remove(root);}
-        garmentVisuals.Remove(root);portableRoots.Remove(root);root.SetActive(false);Destroy(root);
+        RestoreFoldedGarment(root);garmentVisuals.Remove(root);portableRoots.Remove(root);root.SetActive(false);Destroy(root);
     }
     void AddCraftMesh(GameObject root,Mesh mesh,Material material,Possession item,int layer)
     {

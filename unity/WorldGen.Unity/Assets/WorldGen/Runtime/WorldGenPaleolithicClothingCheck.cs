@@ -11,7 +11,12 @@ public sealed partial class LocalTerrainExplorer
     IEnumerator CheckPaleolithicClothingFlow(string output,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException(text);report.Add("PASS "+text);Debug.Log("CLOTHING CHECK PASS "+text);}
-        IEnumerator Shot(string name){yield return new WaitForEndOfFrame();var capture=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,name+".png"),capture.EncodeToPNG());Destroy(capture);}
+        IEnumerator Shot(string name)
+        {
+            yield return new WaitForEndOfFrame();var capture=ScreenCapture.CaptureScreenshotAsTexture();
+            var pixels=capture.GetPixels32();bool visible=pixels.Any(p=>p.r>45||p.g>45||p.b>45);
+            Check(visible,"Screenshot contains rendered game content: "+name);File.WriteAllBytes(Path.Combine(output,name+".png"),capture.EncodeToPNG());Destroy(capture);
+        }
         InitializeInventory();SetInventoryOpen(true);yield return null;
         var garments=new List<Possession>();
         foreach(var kind in new[]{PossessionKind.FurCoat,PossessionKind.HideLeggings,PossessionKind.HideFootwear,PossessionKind.HideHood})
@@ -23,8 +28,8 @@ public sealed partial class LocalTerrainExplorer
         UpdateInventoryVisuals();double until=Time.unscaledTimeAsDouble+30;
         while((inventoryPreviewActor==null||!animalModels.ContainsKey("deer"))&&Time.unscaledTimeAsDouble<until)yield return null;
         Check(inventoryPreviewActor!=null,"Actual native inventory actor exists");
-        UpdatePortableAppearances();inventoryPreviewYaw=0;RenderInventoryPreview();yield return Shot("clothes-front");
-        inventoryPreviewYaw=140;RenderInventoryPreview();yield return Shot("clothes-back");
+        UpdatePortableAppearances();inventoryPreviewYaw=180;RenderInventoryPreview();yield return Shot("clothes-front");
+        inventoryPreviewYaw=0;RenderInventoryPreview();yield return Shot("clothes-back");
         foreach(var item in garments)
         {
             var root=inventoryVisuals[item.Id];Check(garmentVisuals.TryGetValue(root,out var visual)&&visual.Skin.sharedMesh.vertexCount>0,"Garment uses the actor's skin weights: "+item.Kind);
@@ -34,6 +39,11 @@ public sealed partial class LocalTerrainExplorer
         var coat=garments[0];Check(MovePossession(coat.Id,PossessionPlace.Ground),"Take coat off without losing it");UpdateInventoryVisuals();
         var folded=garmentVisuals[inventoryVisuals[coat.Id]];Check(!folded.Skin.enabled&&folded.Folded.All(r=>r.enabled),"Removing clothing restores the folded ground item");
         Check(MovePossession(coat.Id,PossessionPlace.Torso),"Re-equip the same coat");UpdateInventoryVisuals();
+        var hood=garments[3];var hoodVisual=garmentVisuals[inventoryVisuals[hood.Id]];
+        Check(hoodVisual.HoodHair.All(r=>!r.enabled),"Hood covers hair without scalp clipping");
+        Check(MovePossession(hood.Id,PossessionPlace.Ground),"Remove hood");UpdateInventoryVisuals();
+        Check(hoodVisual.HoodHair.Where((r,i)=>hoodVisual.HairEnabled[i]).All(r=>r.enabled),"Removing hood restores the wearer's original hair");
+        Check(MovePossession(hood.Id,PossessionPlace.Head),"Put hood back on");UpdateInventoryVisuals();
         var npc=CreateHuman(0,9051);var npcCoat=PortableTechnology.Create(PossessionKind.FurCoat,Position,"deer",1);npcCoat.Place=PossessionPlace.Torso;
         var npcProp=CreatePossessionVisual(npcCoat,30);npcProp.transform.SetParent(npc.Root.transform,false);var bones=npc.Root.GetComponentsInChildren<Transform>(true).GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());
         PosePortableWear(npcProp,npcCoat,npc.Root.transform,bones);var properties=new MaterialPropertyBlock();garmentVisuals[npcProp].Skin.GetPropertyBlock(properties);
@@ -41,7 +51,8 @@ public sealed partial class LocalTerrainExplorer
         var visualNpc=garmentVisuals[npcProp];var poseMesh=new Mesh();
         for(int frame=0;frame<30;frame++)AnimateHuman(npc,2.5f,false,false,1f/30);
         PosePortableWear(npcProp,npcCoat,npc.Root.transform,bones);visualNpc.Skin.BakeMesh(poseMesh,true);
-        Check(poseMesh.vertices.All(p=>float.IsFinite(p.x)&&float.IsFinite(p.y)&&float.IsFinite(p.z))&&poseMesh.bounds.size.sqrMagnitude>0,"Native walking pose produces finite garment skin geometry");
+        var points=poseMesh.vertices;var worldBounds=new Bounds(visualNpc.Skin.transform.TransformPoint(points[0]),Vector3.zero);foreach(var p in points)worldBounds.Encapsulate(visualNpc.Skin.transform.TransformPoint(p));
+        Check(points.All(p=>float.IsFinite(p.x)&&float.IsFinite(p.y)&&float.IsFinite(p.z))&&worldBounds.size.y>.5f&&worldBounds.size.y<1.8f&&worldBounds.size.x<2,"Native walking pose retains finite, metre-scale garment geometry");
         Destroy(poseMesh);DestroyInventoryVisual(npcProp);DestroyHuman(npc);
         Inventory.Validate();Check(PaleolithicClothing.Insulation(Inventory)>.85,"Native inventory supplies full cold outfit protection");
         inventoryPreviewYaw=25;RenderInventoryPreview();yield return Shot("clothes-outfit");SetInventoryOpen(false);

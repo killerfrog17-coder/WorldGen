@@ -377,6 +377,147 @@
             "IceSapiens": 0,
             "MaxLatitude": 29.864975178196833,
             "Elapsed": 18.5769116
+          },
+          {
+            "Year": 100000,
+            "Population": 1085235.6366189444,
+            "Sapiens": 391784.95965891087,
+            "Occupied": 560,
+            "SapiensRegions": 239,
+            "SapiensRealms": 8,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 30.278995890698564,
+            "Elapsed": 23.7964084
+          },
+          {
+            "Year": 150000,
+            "Population": 1042547.0305972488,
+            "Sapiens": 385441.02526465454,
+            "Occupied": 547,
+            "SapiensRegions": 245,
+            "SapiensRealms": 8,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 29.864975178196833,
+            "Elapsed": 28.8989514
+          },
+          {
+            "Year": 190000,
+            "Population": 1191014.3578092016,
+            "Sapiens": 440127.4399088098,
+            "Occupied": 564,
+            "SapiensRegions": 248,
+            "SapiensRealms": 7,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 30.278995890698564,
+            "Elapsed": 32.4641548
+          }
+        ]
+      },
+      {
+        "input": {
+          "seed": 95341,
+          "detail": 200000,
+          "preset": "Archipelago",
+          "end": 190000,
+          "generation": 10.8305008,
+          "Cells": 200000,
+          "Regions": 2539,
+          "InitialSpecies": [
+            {
+              "Id": 0,
+              "ScientificName": "Homo sapiens",
+              "OriginDistrict": 1216,
+              "PlayerSpecies": true
+            }
+          ]
+        },
+        "snapshots": [
+          {
+            "Year": 0,
+            "Population": 4710.753831787033,
+            "Sapiens": 4710.753831787033,
+            "Occupied": 22,
+            "SapiensRegions": 22,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.459778711319302,
+            "Elapsed": 12.9764493
+          },
+          {
+            "Year": 10000,
+            "Population": 21060.471852560713,
+            "Sapiens": 21060.471852560713,
+            "Occupied": 26,
+            "SapiensRegions": 26,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.459778711319302,
+            "Elapsed": 13.3118722
+          },
+          {
+            "Year": 25000,
+            "Population": 40124.44593242305,
+            "Sapiens": 40124.44593242305,
+            "Occupied": 29,
+            "SapiensRegions": 29,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.616107118911046,
+            "Elapsed": 13.6813602
+          },
+          {
+            "Year": 50000,
+            "Population": 36155.18867473822,
+            "Sapiens": 36155.18867473822,
+            "Occupied": 29,
+            "SapiensRegions": 29,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.616107118911046,
+            "Elapsed": 14.1680938
+          },
+          {
+            "Year": 100000,
+            "Population": 40096.082351772355,
+            "Sapiens": 40096.082351772355,
+            "Occupied": 32,
+            "SapiensRegions": 32,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.616107118911046,
+            "Elapsed": 14.6675129
+          },
+          {
+            "Year": 150000,
+            "Population": 40265.32801270063,
+            "Sapiens": 40265.32801270063,
+            "Occupied": 32,
+            "SapiensRegions": 32,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.616107118911046,
+            "Elapsed": 15.1318134
+          },
+          {
+            "Year": 190000,
+            "Population": 41995.28536528783,
+            "Sapiens": 41995.28536528783,
+            "Occupied": 32,
+            "SapiensRegions": 32,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 21.616107118911046,
+            "Elapsed": 15.5272533
           }
         ]
       }
@@ -388,8 +529,8 @@
     ]
   },
   "progress": {
-    "sim": "focused audit complete, two additional random worlds running",
-    "content": "catalogue audit in progress",
+    "sim": "complete: four distinct 200k-cell procedural worlds, 0?190k elapsed years, aggregate/map inspection and targeted controls",
+    "content": "clothing rule tests pass; candidate native visual checks running; missing techniques explicitly listed in paleolithic-content-plan-20261110.json",
     "crowds": "not started",
     "rivers": "not started"
   }

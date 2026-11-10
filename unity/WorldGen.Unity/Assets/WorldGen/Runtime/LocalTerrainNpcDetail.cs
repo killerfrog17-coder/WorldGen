@@ -16,9 +16,10 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         double distance=HumanDistance(actor.Planet,Position);
+        bool hood=actor.Belongings?.Items.Exists(p=>p.Place==WorldGen.Core.PossessionPlace.Head&&p.Kind==WorldGen.Core.PossessionKind.HideHood)==true;
         for(int i=0;i<actor.DetailRenderers.Length;i++)
         {
-            var renderer=actor.DetailRenderers[i];byte kind=actor.DetailKinds[i];bool visible=kind==1?distance<18:kind==2?distance<40:true;
+            var renderer=actor.DetailRenderers[i];byte kind=actor.DetailKinds[i];bool visible=kind==3&&hood?false:kind==1?distance<18:kind==2?distance<40:true;
             if(renderer.enabled!=visible)renderer.enabled=visible;
             var shadows=kind==0||kind==3&&distance<40?ShadowCastingMode.On:ShadowCastingMode.Off;
             if(renderer.shadowCastingMode!=shadows)renderer.shadowCastingMode=shadows;

@@ -1,0 +1,288 @@
+{
+  "purpose": "Implementation checklist, not an in-game recipe book. A simulation technique does not by itself mean its playable implementation is complete.",
+  "stages": [
+    "1. Focused simulation audit (completed)",
+    "2. Paleolithic content (current)",
+    "3. Crowded NPC performance (not started)",
+    "4. River overhaul (not started)",
+    "5. Previous streaming/geography follow-ups only after 1?4"
+  ],
+  "technology": [
+    {
+      "id": 0,
+      "technology": "Flake cutting",
+      "status": "existing, requires focused final audit",
+      "scope": "Stone flake knapping and cutting"
+    },
+    {
+      "id": 1,
+      "technology": "Prepared cores",
+      "status": "not implemented",
+      "scope": "Explicit prepared-core work and resulting controlled flake production"
+    },
+    {
+      "id": 2,
+      "technology": "Scraping",
+      "status": "existing, requires focused final audit",
+      "scope": "Scrapers and hide scraping"
+    },
+    {
+      "id": 3,
+      "technology": "Woodworking and wooden spears",
+      "status": "existing, requires focused final audit",
+      "scope": "Wood shaping, digging sticks and spears"
+    },
+    {
+      "id": 4,
+      "technology": "Spearhead hafting",
+      "status": "existing, requires focused final audit",
+      "scope": "Bound spear assembly"
+    },
+    {
+      "id": 5,
+      "technology": "Fire tending",
+      "status": "existing, requires focused final audit",
+      "scope": "Fuel, embers and relighting"
+    },
+    {
+      "id": 6,
+      "technology": "Hide working",
+      "status": "existing, requires focused final audit",
+      "scope": "Scrape/soften hides with provenance"
+    },
+    {
+      "id": 7,
+      "technology": "Binding and cordage",
+      "status": "existing, requires focused final audit",
+      "scope": "Plant/bark/sinew cord and thread"
+    },
+    {
+      "id": 8,
+      "technology": "Hide wraps",
+      "status": "new code, native visual QA pending",
+      "scope": "Six actual craftable garments, body attachments, source-hide provenance, hot/cold effects and NPC routine equipment"
+    },
+    {
+      "id": 9,
+      "technology": "Fire making",
+      "status": "existing, requires focused final audit",
+      "scope": "Hand drill set and fire interaction"
+    },
+    {
+      "id": 10,
+      "technology": "Compound adhesives",
+      "status": "not implemented",
+      "scope": "Gatherable resin/charcoal, compound adhesive preparation and hafting use"
+    },
+    {
+      "id": 11,
+      "technology": "Piercing tools and bone awls",
+      "status": "existing, requires focused final audit",
+      "scope": "Bone awls and stone borers"
+    },
+    {
+      "id": 12,
+      "technology": "Sewing",
+      "status": "existing, requires focused final audit",
+      "scope": "Lacing/sewing items"
+    },
+    {
+      "id": 13,
+      "technology": "Fitted clothing",
+      "status": "new code, native visual QA pending",
+      "scope": "Six actual craftable garments, body attachments, source-hide provenance, hot/cold effects and NPC routine equipment"
+    },
+    {
+      "id": 14,
+      "technology": "Insulated clothing",
+      "status": "new code, native visual QA pending",
+      "scope": "Six actual craftable garments, body attachments, source-hide provenance, hot/cold effects and NPC routine equipment"
+    },
+    {
+      "id": 15,
+      "technology": "Bone points",
+      "status": "existing, requires focused final audit",
+      "scope": "Bone points and spears"
+    },
+    {
+      "id": 16,
+      "technology": "Pressure flaking",
+      "status": "not implemented",
+      "scope": "Distinct pressure-flaking operation requiring a suitable retoucher"
+    },
+    {
+      "id": 17,
+      "technology": "Bows",
+      "status": "existing, requires focused final audit",
+      "scope": "Bow, ammunition and ranged attacks"
+    },
+    {
+      "id": 18,
+      "technology": "Barbed points",
+      "status": "existing, requires focused final audit",
+      "scope": "Barbed points and harpoons"
+    },
+    {
+      "id": 19,
+      "technology": "Fishing lines and gorges",
+      "status": "existing, requires focused final audit",
+      "scope": "Gorges, line and local fishing"
+    },
+    {
+      "id": 20,
+      "technology": "Rafts",
+      "status": "not implemented",
+      "scope": "Constructible usable raft with water movement"
+    },
+    {
+      "id": 21,
+      "technology": "Eyed needles",
+      "status": "existing, requires focused final audit",
+      "scope": "Needles and needle cases"
+    },
+    {
+      "id": 22,
+      "technology": "Spear throwers",
+      "status": "existing, requires focused final audit",
+      "scope": "Thrower, darts and ranged attacks"
+    },
+    {
+      "id": 23,
+      "technology": "Food preservation",
+      "status": "existing, requires focused final audit",
+      "scope": "Drying/smoking on racks"
+    },
+    {
+      "id": 24,
+      "technology": "Fishing nets",
+      "status": "existing, requires focused final audit",
+      "scope": "Fibre net and local fish collection"
+    },
+    {
+      "id": 25,
+      "technology": "Snares and traps",
+      "status": "not implemented",
+      "scope": "Basic constructible snares/traps, excluding the deferred advanced tracking/hunting pass"
+    },
+    {
+      "id": 26,
+      "technology": "Grinding tools",
+      "status": "not implemented",
+      "scope": "Explicit grinding stone and repeatable grinding uses"
+    },
+    {
+      "id": 27,
+      "technology": "Plant processing",
+      "status": "not implemented",
+      "scope": "Processed plant foods with conserved nutritional/material properties"
+    },
+    {
+      "id": 28,
+      "technology": "Baskets and woven carriers",
+      "status": "existing, requires focused final audit",
+      "scope": "Woven carriers and inventory packing"
+    },
+    {
+      "id": 29,
+      "technology": "Water containers",
+      "status": "not implemented",
+      "scope": "Finite portable water, fill/drink/pour/heat, water quality and carried mass"
+    },
+    {
+      "id": 30,
+      "technology": "Boats",
+      "status": "not implemented",
+      "scope": "Usable basic boat; no metal tools assumed"
+    },
+    {
+      "id": 31,
+      "technology": "Cold-weather shelters",
+      "status": "existing, requires focused final audit",
+      "scope": "Covered shelters and exposure protection"
+    },
+    {
+      "id": 32,
+      "technology": "Food storage",
+      "status": "existing, requires focused final audit",
+      "scope": "Camp storage/cache access"
+    },
+    {
+      "id": 33,
+      "technology": "Bifacial hand tools",
+      "status": "existing, requires focused final audit",
+      "scope": "Handaxes and edge maintenance"
+    },
+    {
+      "id": 34,
+      "technology": "Shelter frames",
+      "status": "existing, requires focused final audit",
+      "scope": "Adjustable camp shelter frames"
+    },
+    {
+      "id": 35,
+      "technology": "Hide coverings",
+      "status": "existing, requires focused final audit",
+      "scope": "Source-specific hide coverings"
+    },
+    {
+      "id": 36,
+      "technology": "Woven mats",
+      "status": "not implemented",
+      "scope": "Woven mats used in bedding and shelter covering"
+    },
+    {
+      "id": 37,
+      "technology": "Fishhooks",
+      "status": "existing, requires focused final audit",
+      "scope": "Fishhooks and hand line"
+    },
+    {
+      "id": 38,
+      "technology": "Ground-edge axes",
+      "status": "existing, requires focused final audit",
+      "scope": "Grind/haft axes and adzes"
+    },
+    {
+      "id": 39,
+      "technology": "Fired clay vessels",
+      "status": "not implemented",
+      "scope": "Gatherable clay, forming/drying/firing and usable vessels"
+    },
+    {
+      "id": 40,
+      "technology": "Slings",
+      "status": "existing, requires focused final audit",
+      "scope": "Slings and physical stone projectiles"
+    },
+    {
+      "id": 41,
+      "technology": "Personal adornment",
+      "status": "not implemented",
+      "scope": "Craftable wearable adornments"
+    },
+    {
+      "id": 42,
+      "technology": "Pigment preparation",
+      "status": "not implemented",
+      "scope": "Gatherable pigment, grinding and application"
+    }
+  ],
+  "preserve": [
+    "Contextual crafting and nearby materials",
+    "No starter bag",
+    "No reintroduced material-store, bone-lodge or stone-hut blueprints",
+    "No per-tribe global simulation",
+    "No advanced locational injuries or NPC hunting/animal tracking pass",
+    "Only two reusable build slots; artifacts disposable"
+  ],
+  "research": [
+    "https://pubmed.ncbi.nlm.nih.gov/38941472/",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC2973873/",
+    "https://doi.org/10.1126/science.1216295"
+  ],
+  "next": [
+    "Finish actual garment visual and physical QA",
+    "Finite water vessels and gathering/processing toolchain",
+    "Complete other missing techniques and structures before moving to crowds/rivers"
+  ]
+}

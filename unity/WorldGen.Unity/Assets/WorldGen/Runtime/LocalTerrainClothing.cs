@@ -10,6 +10,8 @@ public sealed partial class LocalTerrainExplorer
     {
         public SkinnedMeshRenderer Skin,Source;
         public MeshRenderer[] Folded;
+        public SkinnedMeshRenderer[] HoodHair=Array.Empty<SkinnedMeshRenderer>();
+        public bool[] HairEnabled=Array.Empty<bool>();
     }
     readonly Dictionary<GameObject,GarmentVisual> garmentVisuals=new Dictionary<GameObject,GarmentVisual>();
     readonly Dictionary<(Mesh,PossessionKind),Mesh> garmentMeshes=new Dictionary<(Mesh,PossessionKind),Mesh>();
@@ -26,7 +28,7 @@ public sealed partial class LocalTerrainExplorer
         var key=(source.sharedMesh,kind);if(garmentMeshes.TryGetValue(key,out var cached))return cached;
         var original=source.sharedMesh;var vertices=original.vertices;var normals=original.normals;var weights=original.boneWeights;var bones=source.bones;
         if(weights.Length!=vertices.Length)throw new InvalidOperationException("Garment source has no native skin weights: "+source.name);
-        float height=original.bounds.size.y,thickness=height*(kind==PossessionKind.FurCoat?.018f:.008f);
+        float height=original.bounds.size.y,thickness=height*(kind==PossessionKind.HideHood?.023f:kind==PossessionKind.FurCoat?.018f:.008f);
         var forward=source.transform.InverseTransformDirection(body.forward).normalized;
         bool Included(int index)
         {
@@ -68,8 +70,14 @@ public sealed partial class LocalTerrainExplorer
             var renderer=child.AddComponent<SkinnedMeshRenderer>();renderer.sharedMesh=GarmentMesh(source,item.Kind,body);renderer.bones=source.bones;renderer.rootBone=source.rootBone;renderer.sharedMaterial=PortableMaterial();renderer.localBounds=source.localBounds;
             renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.On;renderer.receiveShadows=true;
             visual=new GarmentVisual{Skin=renderer,Source=source,Folded=root.GetComponentsInChildren<MeshRenderer>()};garmentVisuals.Add(root,visual);
+            if(item.Kind==PossessionKind.HideHood)
+            {
+                visual.HoodHair=body.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r=>GarmentHair(r.name)).ToArray();
+                visual.HairEnabled=visual.HoodHair.Select(r=>r.enabled).ToArray();
+            }
         }
         foreach(var folded in visual.Folded)folded.enabled=false;
+        foreach(var hair in visual.HoodHair)if(hair!=null)hair.enabled=false;
         visual.Skin.enabled=true;root.transform.SetPositionAndRotation(visual.Source.transform.position,visual.Source.transform.rotation);
         var size=visual.Source.transform.lossyScale;var parent=root.transform.parent==null?Vector3.one:root.transform.parent.lossyScale;
         root.transform.localScale=new Vector3(size.x/parent.x,size.y/parent.y,size.z/parent.z);RefreshPortableRoot(root,item);
@@ -78,7 +86,10 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!garmentVisuals.TryGetValue(root,out var visual))return;
         visual.Skin.enabled=false;foreach(var folded in visual.Folded)folded.enabled=true;
+        for(int i=0;i<visual.HoodHair.Length;i++)if(visual.HoodHair[i]!=null)visual.HoodHair[i].enabled=visual.HairEnabled[i];
     }
+    static bool GarmentHair(string name)
+    {name=name.ToLowerInvariant();return name.Contains("hair")||name.Contains("ponytail")||name.Contains("short0");}
     void DisposeGarments()
     {garmentVisuals.Clear();foreach(var mesh in garmentMeshes.Values)if(mesh!=null)Destroy(mesh);garmentMeshes.Clear();}
 }
