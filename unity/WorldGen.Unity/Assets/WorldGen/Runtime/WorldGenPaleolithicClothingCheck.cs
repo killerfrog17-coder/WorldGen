@@ -36,6 +36,11 @@ public sealed partial class LocalTerrainExplorer
             Check(visual.Skin.bones.Length==visual.Source.bones.Length&&visual.Skin.sharedMesh.bindposes.Length==visual.Source.sharedMesh.bindposes.Length,"Skin bind poses are retained: "+item.Kind);
             Check(visual.Folded.All(r=>!r.enabled),"Folded object is hidden while worn: "+item.Kind);
         }
+        var markedItem=garments[0];var markedRoot=inventoryVisuals[markedItem.Id];var markedSkin=garmentVisuals[markedRoot].Skin;var markProps=new MaterialPropertyBlock();
+        markedItem.PigmentMarked=true;markedItem.PigmentColour=new V(.7,.15,.03);RefreshPortableRoot(markedRoot,markedItem);markedSkin.GetPropertyBlock(markProps);
+        Check(markProps.GetFloat("_MarkCoverage")==1&&Math.Abs(markProps.GetColor("_MarkColour").r-.7)<.001,"Cached appearance invalidates when actual pigment changes");
+        RefreshPortableRoot(markedRoot,markedItem);markedSkin.GetPropertyBlock(markProps);Check(markProps.GetFloat("_HasFur")==1&&markProps.GetFloat("_Wearer")==1,"Repeated cached appearance retains actual fur and player visibility");
+        markedItem.PigmentMarked=false;RefreshPortableRoot(markedRoot,markedItem);markedSkin.GetPropertyBlock(markProps);Check(markProps.GetFloat("_MarkCoverage")==0,"Removing pigment refreshes the same native garment skin");
         var coat=garments[0];Check(MovePossession(coat.Id,PossessionPlace.Ground),"Take coat off without losing it");UpdateInventoryVisuals();
         var folded=garmentVisuals[inventoryVisuals[coat.Id]];Check(!folded.Skin.enabled&&folded.Folded.All(r=>r.enabled),"Removing clothing restores the folded ground item");
         Check(MovePossession(coat.Id,PossessionPlace.Torso),"Re-equip the same coat");UpdateInventoryVisuals();

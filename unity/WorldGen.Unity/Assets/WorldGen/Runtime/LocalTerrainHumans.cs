@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
         public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
         public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();
-        public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
+        public TerrainMotion Motor;public Func<double,double,double> ResidentFloor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
         public double AnimationAt,VisitorCheckAt,WorkSoundAt;public bool SeesVisitor;public GameObject WorkProp;
         public double SimulationAge,PoseAge,AvoidUntil;public float AvoidYaw;
@@ -70,6 +70,7 @@ public sealed partial class LocalTerrainExplorer
         if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-loading-check"))return;
         humanLibrary=Resources.Load<WorldGenHumanLibrary>("HumanAppearance/Library")??Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
         kimodoHumanLibrary=Resources.Load<WorldGenHumanMotionBank>("HumanKimodo/Library");
+        EnsureHumanDetail(); // Load the small mesh bank during entry, before NPC spawning.
         if(humanLibrary==null||humanLibrary.People==null||humanLibrary.People.Length!=6){Debug.LogWarning("MPFB human library unavailable");return;}
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;

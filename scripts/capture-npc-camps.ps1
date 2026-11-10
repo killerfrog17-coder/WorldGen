@@ -7,6 +7,7 @@ param(
     [string[]]$Cases=@('wet','collector','morning','cold','evening','sleep'),
     [switch]$Performance,
     [switch]$Crowd,
+    [string]$GcProbe="",
     [switch]$Cycle,
     [switch]$HaulFrame,
     [switch]$Trace,
@@ -44,6 +45,7 @@ foreach($case in $Cases){
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
     if($HaulFrame){if(!$Cycle){throw 'HaulFrame is a controlled cycle fixture only.'};$arguments+='--worldgen-npc-haul-frame'}
     if($Trace){$arguments+='--worldgen-stutter-trace'}
+    if($GcProbe){$probePath=[IO.Path]::GetFullPath((Join-Path $repo $GcProbe));if(!(Test-Path -LiteralPath $probePath)){throw 'Build the optional native GC probe first.'};$arguments+=@('--worldgen-gc-probe',('"'+$probePath+'"'))}
     if($RemovalProof){$arguments+='--worldgen-npc-removal-proof'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
     & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $Monitor

@@ -29,15 +29,27 @@ public sealed partial class LocalTerrainExplorer
         if(p.Kind==PossessionKind.Bow)CreateBowString(root,layer);
         if(PortableFur(p))portableCoatWanted.Add(p.AppearanceSpecies);RefreshPortableRoot(root,p);
     }
+    sealed class PortableAppearanceStamp
+    {
+        public int Layer,Children,Coat;public PossessionKind Kind;public bool Marked,Wearer;
+        public double X,Y,Z;public string Species;public Texture Coats;
+    }
+    readonly Dictionary<GameObject,PortableAppearanceStamp> portableAppearanceStamps=new Dictionary<GameObject,PortableAppearanceStamp>();
     void RefreshPortableRoot(GameObject root,Possession p)
     {
         if(root==null)return;
         if(portableCoatRegions==null)
         {var text=Resources.Load<TextAsset>("PortableCoatRegions");portableCoatRegions=text==null?new Dictionary<string,PortableCoatRegion>():JsonUtility.FromJson<PortableCoatRegionList>(text.text).regions.ToDictionary(r=>r.slug);}
-        portableItemProps.Clear();portableItemProps.SetFloat("_Preview",root.layer==29?1:0);
         bool worn=PortableTechnology.Worn(p.Place)||p.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(p.ContainerId))&&Inventory.Carried(p);
+        bool wearer=root.layer!=29&&worn&&Inventory.Items.Contains(p);Texture coats=null;
+        if(PortableFur(p)&&animalModels.TryGetValue(p.AppearanceSpecies,out var available))coats=available.Asset.Coats;
+        int children=root.transform.childCount;
+        if(portableAppearanceStamps.TryGetValue(root,out var stamp)&&stamp.Layer==root.layer&&stamp.Children==children&&stamp.Kind==p.Kind&&stamp.Coat==p.AppearanceCoat&&stamp.Marked==p.PigmentMarked&&stamp.Wearer==wearer&&stamp.X==p.PigmentColour.X&&stamp.Y==p.PigmentColour.Y&&stamp.Z==p.PigmentColour.Z&&stamp.Species==p.AppearanceSpecies&&stamp.Coats==coats)return;
+        if(stamp==null)portableAppearanceStamps[root]=stamp=new PortableAppearanceStamp();
+        stamp.Layer=root.layer;stamp.Children=children;stamp.Kind=p.Kind;stamp.Coat=p.AppearanceCoat;stamp.Marked=p.PigmentMarked;stamp.Wearer=wearer;stamp.X=p.PigmentColour.X;stamp.Y=p.PigmentColour.Y;stamp.Z=p.PigmentColour.Z;stamp.Species=p.AppearanceSpecies;stamp.Coats=coats;
+        portableItemProps.Clear();portableItemProps.SetFloat("_Preview",root.layer==29?1:0);
         portableItemProps.SetColor("_MarkColour",new Color((float)p.PigmentColour.X,(float)p.PigmentColour.Y,(float)p.PigmentColour.Z));portableItemProps.SetFloat("_MarkCoverage",p.PigmentMarked?1:0);
-        portableItemProps.SetFloat("_Wearer",root.layer!=29&&worn&&Inventory.Items.Contains(p)?1:0);
+        portableItemProps.SetFloat("_Wearer",wearer?1:0);
         if(PortableFur(p)&&animalModels.TryGetValue(p.AppearanceSpecies,out var model))
         {
             if(portableCoatPins.Add(p.AppearanceSpecies))model.Users++;
@@ -49,7 +61,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdatePortableAppearances()
     {
         if(Time.unscaledTimeAsDouble<portableAppearanceAt)return;portableAppearanceAt=Time.unscaledTimeAsDouble+.5;
-        foreach(var dead in portableRoots.Keys.Where(k=>k==null).ToArray())portableRoots.Remove(dead);
+        foreach(var dead in portableRoots.Keys.Where(k=>k==null).ToArray()){portableRoots.Remove(dead);portableAppearanceStamps.Remove(dead);}
         int pins=portableCoatPins.Count;foreach(var pair in portableRoots)if(pair.Key!=null)RefreshPortableRoot(pair.Key,pair.Value);
         if(pins!=portableCoatPins.Count&&inventoryOpen)RenderInventoryPreview();
     }
@@ -57,7 +69,7 @@ public sealed partial class LocalTerrainExplorer
     {
         DisposeGarments();
         foreach(var slug in portableCoatPins)if(animalModels.TryGetValue(slug,out var model))model.Users=Math.Max(0,model.Users-1);
-        portableCoatPins.Clear();portableCoatWanted.Clear();portableRoots.Clear();DisposePortableIcons();portableItemMaterial=null;
+        portableCoatPins.Clear();portableCoatWanted.Clear();portableRoots.Clear();portableAppearanceStamps.Clear();DisposePortableIcons();portableItemMaterial=null;
     }
     void PosePortableWear(GameObject root,Possession p,Transform body,Dictionary<string,Transform> bones)
     {

@@ -12,7 +12,8 @@ public sealed partial class LocalTerrainExplorer
 {
     public sealed class NpcPerformanceRow
     {
-        public int EnabledSkins;public long EnabledSkinVertices;
+        public int EnabledSkins;public long EnabledSkinVertices;public bool AllocationCounterAvailable;
+        public long ClockBefore,ClockNative,ClockAfter,ClockFrequency,ManagedFrequency;
         public string Mode;public int Residents,MinResidents,MaxResidents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
         public double MeanNpcMs,P95NpcMs,P99NpcMs,MaxNpcMs,MeanFrameMs,P95FrameMs,P99FrameMs,MaxFrameMs,BackgroundQueryMs;
         public int UnfocusedFrames,Over10Ms,Over1667Ms,Width,Height,TreeQuality;public double Seconds,ViewDistanceM;public string Route;
@@ -23,7 +24,7 @@ public sealed partial class LocalTerrainExplorer
         public double MaximumCameraErrorM,MaximumCameraAngleError,MaximumScatterEyeDeltaM;
     }
     public sealed class NpcSlowFrame
-    {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
+    {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes,ManagedFrameEnd;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
     public sealed class NpcCrowdProof {public int Residents,Groups,SkinnedRenderers,EnabledSkinnedRenderers,NativePropertyBlockedSkins;public bool SrpBatching;public long Vertices,EnabledVertices;public string Scope;public NpcResidentCheckRow[] People;}
     Vector3? npcCrowdFocus;
     static IEnumerator PrepareLivingCrowd(LocalTerrainExplorer owner,string output)
@@ -119,6 +120,8 @@ public sealed partial class LocalTerrainExplorer
             File.WriteAllText(Path.Combine(output,"trace-legend.json"),WorldJson.Write(new[]{"Update","Map","Scatter","Weather","Ground","Fog","Coverage","Sky","CameraRender","Batches","Bakes","Projection","Forest","Shadows","CoverDraw","Canopy","ForestDraw","Survival","Prepared","Humans","Player","Fauna","AnimalMove","AnimalPose","BatchCollect","BatchUpload","TerrainOcclusion","FrustumTest","InstanceAppend","ScatterClassify","ScatterAppend","ForestGround","GroundPublication","Inventory","Planning","Install","Retirement","Scheduling","Readout","Solids","PlayerCamera","PlayerWater","PlayerCombat","PlayerBlood","PlayerFootsteps","PlayerFeedback","PlayerHud","PlayerAltitude","Late","Gui","ScatterPlan","ScatterArt"}));
             File.WriteAllText(Path.Combine(output,"trace-scope.txt"),"Optional release-player main-thread scopes; nested/inclusive, not additive and not GPU timings. Wall intervals bracket coroutine resumes; render/GC work may fall in adjacent frames. Only24 slowest samples per mode retained; no profiler binary capture or per-frame file IO.");
         }
+        int probeOption=Array.IndexOf(arguments,"--worldgen-gc-probe");if(probeOption>=0&&probeOption+1<arguments.Length)WorldGenNativeGcProbe.Start(arguments[probeOption+1]);
+        long allocationBefore=GC.GetAllocatedBytesForCurrentThread();var allocationProbe=new byte[65536];bool allocationCounterAvailable=GC.GetAllocatedBytesForCurrentThread()>allocationBefore;GC.KeepAlive(allocationProbe);
         foreach(string mode in new[]{"normal","render-only","no-residents","normal-repeat"})
         {
             owner.livingBenchmarkFreeze=mode=="render-only"||mode=="no-residents";
@@ -135,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
             var traceTotals=trace?new double[WorldGenPerformance.TraceMilliseconds.Length]:null;var slow=trace?new List<NpcSlowFrame>(24):null;
             long appendBytes=owner.scatterAppendAllocations,appendBuilds=owner.scatterAppendBuilds;int artModels=owner.scatterArt.Count;
             bool forestReady=owner.residentForestReady;int forestPages=owner.forestFields.Count,forestRoots=owner.forestRootCount;
-            int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);long windowTick=System.Diagnostics.Stopwatch.GetTimestamp();
+            int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);long windowTick=System.Diagnostics.Stopwatch.GetTimestamp();var clockBridge=WorldGenPerformance.CaptureNativeClock();
             double maxCameraError=0,maxAngleError=0,maxCullDelta=0;
             if(trace){WorldGenPerformance.ClearFaunaTrace();WorldGenPerformance.Measuring=true;}
             while(Time.realtimeSinceStartupAsDouble-start<duration)
@@ -149,7 +152,7 @@ public sealed partial class LocalTerrainExplorer
                     var current=WorldGenPerformance.TraceMilliseconds;for(int k=0;k<current.Length;k++)traceTotals[k]+=current[k];
                     if(slow.Count<24||frameMs>slow[slow.Count-1].FrameMs)
                     {
-                        var sample=new NpcSlowFrame{AtSeconds=now-start,FrameMs=frameMs,NpcMs=owner.livingTickMs,MainThreadTraceMs=(double[])current.Clone(),Gen0=GC.CollectionCount(0)-gc0,Gen1=GC.CollectionCount(1)-gc1,Gen2=GC.CollectionCount(2)-gc2,MainAllocatedBytes=GC.GetAllocatedBytesForCurrentThread(),ScatterObjects=owner.ScatterObjects,TreeInstances=owner.GeneratedTreeObjects,Batches=owner.drawBatches.Count,ForestPages=owner.forestFields.Count,ResidentForestReady=owner.residentForestReady};
+                        var sample=new NpcSlowFrame{ManagedFrameEnd=System.Diagnostics.Stopwatch.GetTimestamp(),AtSeconds=now-start,FrameMs=frameMs,NpcMs=owner.livingTickMs,MainThreadTraceMs=(double[])current.Clone(),Gen0=GC.CollectionCount(0)-gc0,Gen1=GC.CollectionCount(1)-gc1,Gen2=GC.CollectionCount(2)-gc2,MainAllocatedBytes=GC.GetAllocatedBytesForCurrentThread(),ScatterObjects=owner.ScatterObjects,TreeInstances=owner.GeneratedTreeObjects,Batches=owner.drawBatches.Count,ForestPages=owner.forestFields.Count,ResidentForestReady=owner.residentForestReady};
                         int at=0;while(at<slow.Count&&slow[at].FrameMs>=frameMs)at++;if(slow.Count==24)slow.RemoveAt(23);slow.Insert(at,sample);
                     }
                 }
@@ -158,11 +161,12 @@ public sealed partial class LocalTerrainExplorer
             for(int k=0;k<stages.Length;k++)stages[k]/=ticks.Count;
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route="Radius24m scenic camp orbit; same path and duration per mode"});
-            var recorded=report[report.Count-1];recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
+            var recorded=report[report.Count-1];recorded.AllocationCounterAvailable=allocationCounterAvailable;recorded.ClockBefore=clockBridge.Before;recorded.ClockNative=clockBridge.Native;recorded.ClockAfter=clockBridge.After;recorded.ClockFrequency=clockBridge.Frequency;recorded.ManagedFrequency=System.Diagnostics.Stopwatch.Frequency;recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
             recorded.MaximumCameraErrorM=maxCameraError;recorded.MaximumCameraAngleError=maxAngleError;recorded.MaximumScatterEyeDeltaM=maxCullDelta;
             recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         }
+        WorldGenNativeGcProbe.Write(output);
         owner.livingBenchmarkFreeze=false;foreach(var actor in owner.livingPeople.Values)actor.Root.SetActive(true);Application.targetFrameRate=cap;
         owner.landscapeReviewCamera=priorReviewCamera;owner.landscapeReviewRotation=priorReviewRotation;owner.UpdateCamera();
         if(trace)TerrainQueryTiming.Enabled=priorQueryTrace;

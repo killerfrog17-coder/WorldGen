@@ -363,7 +363,7 @@ public sealed partial class LocalTerrainExplorer
             BleedingRules.Advance(actor.Bleeding,elapsed,.15);actor.Health=Math.Min(actor.Health,BleedingRules.HealthLimit(actor.Bleeding,100));
             if(actor.Health<=0){memory.Dead=true;memory.Health=0;DestroyHuman(actor);return false;}
         }
-        actor.Motor=new TerrainMotion();actor.Motor.Place(x,z,residentFloor);actor.Planet=point;
+        actor.Motor=new TerrainMotion();actor.ResidentFloor=(px,pz)=>VisibleGround(px,pz,actor.Motor.Y-TerrainMotion.EyeHeightM);actor.Motor.Place(x,z,residentFloor);actor.Planet=point;
         actor.Yaw=actor.TargetYaw=(float)(hash%360);actor.Root.transform.localPosition=new Vector3((float)(x-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM),(float)(z-originZ));
         actor.Root.transform.localRotation=Quaternion.Euler(0,actor.Yaw,0);
         if(ageModel!=null)
@@ -455,7 +455,7 @@ public sealed partial class LocalTerrainExplorer
             double beforeX=actor.Motor.X,beforeY=actor.Motor.Y,beforeZ=actor.Motor.Z;
             bool walk=actor.Speed<1.7f,run=actor.Speed>4.2f;
             if(actor.Speed>.005f||!actor.Motor.Grounded)actor.Motor.Move(dt,actor.Speed/(walk?TerrainMotion.WalkSpeedMps:run?TerrainMotion.RunSpeedMps:TerrainMotion.JogSpeedMps),0,0,actor.Yaw,0,run,false,
-                (x,z)=>VisibleGround(x,z,actor.Motor.Y-TerrainMotion.EyeHeightM),walk);
+                actor.ResidentFloor,walk);
             ResolveLivingSolidContact(actor,beforeX,beforeY,beforeZ);
             ResolveLivingScatterContact(actor);
             float actual=(float)(Math.Sqrt(Math.Pow(actor.Motor.X-beforeX,2)+Math.Pow(actor.Motor.Z-beforeZ,2))/dt);

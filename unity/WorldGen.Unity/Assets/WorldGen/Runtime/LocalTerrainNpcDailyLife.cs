@@ -14,6 +14,20 @@ public sealed partial class LocalTerrainExplorer
     }
     bool PrepareNpcDailyTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
     {
+        // Keep continuous observation and active grief/search behavior exact,
+        // without allocating the rare concern-handler's captured predicates on
+        // every frame for every otherwise unconcerned adult.
+        var daily=actor.Daily;
+        if(actor.Resident.AgeYears>=16&&daily!=null&&daily.Missing<=0&&NpcMemoryFor(actor.ResidentId).Social.Grief<=.3&&
+            (actor.SimulationAge<8||actor.SimulationAge<daily.ConcernAt||routine.Activity==HumanActivity.Sleep||routine.Activity==HumanActivity.Travel||HumanDistance(actor.Planet,group.Anchor)>35))
+        {
+            if(daily.ObservedAtSolarDay<0||PlayerRules.SolarDays-daily.ObservedAtSolarDay>.125)daily.WatchingSinceSolarDay=PlayerRules.SolarDays;
+            daily.ObservedAtSolarDay=PlayerRules.SolarDays;return false;
+        }
+        return AdvanceNpcDailyTask(actor,group,routine,ref target);
+    }
+    bool AdvanceNpcDailyTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
+    {
         if(actor.Resident.AgeYears>=3&&actor.Resident.AgeYears<14&&routine.Activity==HumanActivity.Play)
         {PrepareNpcPlay(actor,group,routine,ref target);return true;}
         if(actor.Resident.AgeYears<16)return false;
