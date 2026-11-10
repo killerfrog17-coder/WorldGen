@@ -93,7 +93,7 @@ namespace WorldGen.Core
             R("hide-belt","Cut and lace a hide belt",PossessionKind.HideBelt,P(PossessionKind.WorkedHide),360,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("needle-case","Carve and close a bone needle case",PossessionKind.NeedleCase,P(PossessionKind.Bone),420,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("knife-sheath","Cut and lace a knife sheath",PossessionKind.KnifeSheath,P(PossessionKind.WorkedHide),480,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.25)
-        }.Concat(PaleolithicClothing.Recipes).Concat(PaleolithicWater.Recipes).Concat(PaleolithicProcessing.Recipes).Concat(ItemMaintenance.Recipes()).ToArray();
+        }.Concat(PaleolithicClothing.Recipes).Concat(PaleolithicWater.Recipes).Concat(PaleolithicProcessing.Recipes).Concat(PaleolithicClay.Recipes).Concat(ItemMaintenance.Recipes()).ToArray();
         public static PortableRecipe Recipe(string id)=>Recipes.FirstOrDefault(r=>r.Id==id);
         public static bool IsJob(ItemCraftJob job)=>job!=null&&!string.IsNullOrEmpty(job.RecipeId);
         public static bool Affects(ItemCraftJob job,string id)=>job.WorkpieceId==id||job.ToolId==id||(job.IngredientIds?.Contains(id)??false)||(job.ToolIds?.Contains(id)??false);
@@ -103,7 +103,7 @@ namespace WorldGen.Core
             if(!r.Accepts(p))return "Start with "+r.PrimaryName+".";
             if(r.WholeStone&&p.Kind==PossessionKind.Grindstone)return "This stone already has a prepared grinding surface.";
             if(!r.WholeStone&&StoneCrafting.Rock(p)&&StoneCrafting.FractureQuality(p)<=0)return "This stone is unsuitable for flaking; use basalt, chert, quartzite, quartz or silicified sandstone.";
-            if(p.MassKg<r.MinMassKg||p.WidthM<r.MinWidthM)return "Needs a stone at least "+r.MinMassKg.ToString("0.##")+" kg and "+(r.MinWidthM*100).ToString("0")+" cm across.";
+            if(p.MassKg<r.MinMassKg||p.WidthM<r.MinWidthM)return "Needs at least "+r.MinMassKg.ToString("0.##")+" kg"+(r.MinWidthM>0?" and "+(r.MinWidthM*100).ToString("0")+" cm across":"")+".";
             if(r.MinLength>0&&p.HeightM<r.MinLength)return "Needs at least "+r.MinLength.ToString("G3")+" m of wood.";
             if(p.WidthM>r.MaxThickness)return "This piece is too thick for this method.";
             if(r.SoundWood&&(p.WoodSoundness<.5||p.WoodStraightness<.45))return "Needs reasonably sound, straight wood.";

@@ -18,8 +18,8 @@ public sealed partial class LocalTerrainExplorer
         foreach(var food in fire.CookingItems??Enumerable.Empty<Possession>())campChoices.Add(new CampChoice{Item=food,Label="Take "+food.Name.ToLowerInvariant(),Action=1});
         if(!fire.Burning)campChoices.Add(new CampChoice{Label=fire.EmberSeconds>0?"Revive fire":"Light fire",Action=2});
         var held=Inventory.QuickHeld;
-        foreach(var item in CraftAccessible().Where(p=>CampRules.Fuel(p)||CampRules.FireStone(p)&&fire.Materials.Count(CampRules.FireStone)<12||CampRules.Cookable(p)&&!p.Burnt&&!p.Cooked).OrderBy(p=>p==held?0:1).GroupBy(p=>p.Kind).Select(g=>g.First()))
-            campChoices.Add(new CampChoice{Item=item,Label=(CampRules.Cookable(item)?"Cook ":"Add ")+item.Name.ToLowerInvariant(),Action=0});
+        foreach(var item in CraftAccessible().Where(p=>CampRules.Fuel(p)||CampRules.FireStone(p)&&fire.Materials.Count(CampRules.FireStone)<12||CampRules.NeedsHeat(p)).OrderBy(p=>p==held?0:1).GroupBy(p=>p.Kind).Select(g=>g.First()))
+            campChoices.Add(new CampChoice{Item=item,Label=(CampRules.HeatItem(item)?CampRules.HeatLabel(item):"Add ")+item.Name.ToLowerInvariant(),Action=0});
         if(fire.Burning||fire.EmberSeconds>0)campChoices.Add(new CampChoice{Label="Smother fire",Action=3});
         int retained=changed?-1:campChoices.FindIndex(c=>(c.Item?.Id??"action-"+c.Action)==campChoiceId);
         campChoiceIndex=retained>=0?retained:0;RememberCampChoice();
@@ -37,9 +37,9 @@ public sealed partial class LocalTerrainExplorer
         {if(fire.CookingItems.Remove(choice.Item)){choice.Item.Position=Position;choice.Item.Place=PossessionPlace.Ground;ReceiveToolMaterial(choice.Item);InvalidateCampVisual(fire);}}
         else if(choice.Action==2)LightCamp(fire);
         else if(choice.Action==3){fire.Burning=false;fire.EmberSeconds=0;InvalidateCampVisual(fire);}
-        else if(CampRules.Cookable(choice.Item))
+        else if(CampRules.HeatItem(choice.Item))
         {
-            if(fire.FirePowerKw<.2){InventoryFeedback("Light the fire before placing food.");return true;}
+            if(fire.FirePowerKw<.2){InventoryFeedback("Light the fire before heating items.");return true;}
             var food=TakeCampMaterial(choice.Item);if(food!=null){food.ContainerId="";food.Place=PossessionPlace.Ground;food.GroundMoving=food.InFlight=false;fire.CookingItems.Add(food);InvalidateCampVisual(fire);}
         }
         else AddCampMaterial(fire,choice.Item);
@@ -66,6 +66,6 @@ public sealed partial class LocalTerrainExplorer
         }
         GUI.color=old;GUI.Label(new Rect(cx-220*scale,cy+30*scale,440*scale,25*scale),campChoices[campChoiceIndex].Label+"  ·  E  ·  Scroll",text);
         var food=campChoices[campChoiceIndex].Item;if(food!=null&&fire.CookingItems.Contains(food))
-        {float progress=(float)Math.Min(1,food.CookingSeconds/CampRules.CookingDuration(food));var bar=new Rect(cx-70*scale,cy+56*scale,140*scale,3*scale);InventoryFill(bar,new Color(.15f,.13f,.1f,.7f));bar.width*=progress;InventoryFill(bar,food.Burnt?Color.gray:food.Cooked?new Color(.7f,.65f,.25f):new Color(.8f,.4f,.1f));}
+        {float progress=(float)Math.Min(1,CampRules.HeatProgress(food));var bar=new Rect(cx-70*scale,cy+56*scale,140*scale,3*scale);InventoryFill(bar,new Color(.15f,.13f,.1f,.7f));bar.width*=progress;InventoryFill(bar,food.Burnt?Color.gray:(food.Cooked||food.WaterBoiled||food.Kind==PossessionKind.FiredClayPot)?new Color(.7f,.65f,.25f):new Color(.8f,.4f,.1f));}
     }
 }

@@ -71,8 +71,10 @@ public sealed partial class LocalTerrainExplorer
             bool source=AimedWater(float.PositiveInfinity)!=null,space=PaleolithicWater.Space(p)>.001;
             ActionButton("Fill from water",source&&space,space?"Look at water within reach.":"The vessel is full.",()=>{FillWaterVessel(p);inventoryContext=null;});
             ActionButton("Drink a mouthful",p.WaterLitres>0,"The vessel is empty.",()=>{DrinkWaterVessel(p);inventoryContext=null;});
+            var boilReason=StoneBoilReason(p);ActionButton("Boil with heated stones",boilReason.Length==0,boilReason,()=>BeginStoneBoiling(p));
             ActionButton("Pour out water",p.WaterLitres>0,"The vessel is empty.",()=>{EmptyWaterVessel(p);inventoryContext=null;});
         }
+        if(PaleolithicClay.Green(p))GUILayout.Label(p.Dried?"Air-dried; ready for a well-fueled fire.":"Drying "+Math.Round(p.DryingSeconds/PaleolithicClay.DrySeconds*100)+"%",label);
         if(CampRules.Plantable(p))ActionButton("Plant upright in the ground",true,"",()=>BeginCampPlacement(p,CampKind.Stake));
         if(CampRules.Tinder(p))ActionButton("Lay a campfire here",true,"",()=>BeginCampPlacement(p,CampKind.Fire));
         if(CampRules.Bedding(p))ActionButton("Spread as bedding",true,"",()=>BeginCampPlacement(p,CampKind.Bedding));
@@ -90,7 +92,11 @@ public sealed partial class LocalTerrainExplorer
                 ()=>{if(job?.Running==true)PauseItemCraft(job);else StartPortableCraft(recipe.Id,job?.WorkpieceId??p.Id);inventoryContext=null;});
         }
         if(job!=null)ActionButton("Cancel work; keep materials",true,"",()=>{CancelItemCraft(job);});
-        if(p.Kind==PossessionKind.DiggingStick)ActionButton("Dig fibrous roots here",true,"",()=>{BeginDigging(p);inventoryContext=null;});
+        if(p.Kind==PossessionKind.DiggingStick)
+        {
+            ActionButton("Dig fibrous roots here",true,"",()=>{BeginDigging(p);inventoryContext=null;});
+            var clayReason=DigClayReason();ActionButton("Dig clay here",clayReason.Length==0,clayReason,()=>{BeginDigClay(p);inventoryContext=null;});
+        }
         if(p.Kind==PossessionKind.HandLine||p.Kind==PossessionKind.FibreNet)ActionButton(p.Kind==PossessionKind.FibreNet?"Gather nearby fish":"Fish with hand-line",true,"",()=>{BeginFishing(p);inventoryContext=null;});
         if(worldToolWork!=null)ActionButton("Stop tool work",true,"",()=>{CancelWorldToolWork();inventoryContext=null;});
         GUILayout.Space(5*scale);

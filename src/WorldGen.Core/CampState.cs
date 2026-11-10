@@ -14,6 +14,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double ClearedWidthM,ClearedDepthM;
         public double Heading,EmbedM,SoilDepthM,SoilFirmness=1,Wetness,EmberSeconds,LastSimulatedSeconds;
         public bool Burning;public double AshKg;
+        [System.Runtime.Serialization.OptionalField] public double StoneHeatJ;
         public List<Possession> Materials=new List<Possession>();
         [System.Runtime.Serialization.OptionalField] public List<Possession> CookingItems=new List<Possession>();
         // Axis components are east/up/north, not renderer or tile coordinates.
@@ -42,14 +43,15 @@ namespace WorldGen.Core
             foreach(var c in Objects)
             {
                 bool Finite(double n)=>double.IsFinite(n);
-                if(c==null||string.IsNullOrEmpty(c.Id)||!ids.Add(c.Id)||!Enum.IsDefined(typeof(CampKind),c.Kind)||!Finite(c.Position.Length)||Math.Abs(c.Position.Length-1)>1e-5||!Finite(c.Heading)||!Finite(c.EmbedM)||c.EmbedM<0||!Finite(c.SoilDepthM)||c.SoilDepthM<0||!Finite(c.SoilFirmness)||c.SoilFirmness<=0||!Finite(c.Wetness)||c.Wetness<0||c.Wetness>1||!Finite(c.EmberSeconds)||c.EmberSeconds<0||!Finite(c.AshKg)||c.AshKg<0||!Finite(c.WeatheredThroughCalendarDay)||c.WeatheredThroughCalendarDay< -1||!Finite(c.LastSimulatedSeconds)||c.LastSimulatedSeconds<0||c.Materials==null)throw new ArgumentException("Invalid placed camp object.");
+                if(c==null||string.IsNullOrEmpty(c.Id)||!ids.Add(c.Id)||!Enum.IsDefined(typeof(CampKind),c.Kind)||!Finite(c.Position.Length)||Math.Abs(c.Position.Length-1)>1e-5||!Finite(c.Heading)||!Finite(c.EmbedM)||c.EmbedM<0||!Finite(c.SoilDepthM)||c.SoilDepthM<0||!Finite(c.SoilFirmness)||c.SoilFirmness<=0||!Finite(c.Wetness)||c.Wetness<0||c.Wetness>1||!Finite(c.EmberSeconds)||c.EmberSeconds<0||!Finite(c.StoneHeatJ)||c.StoneHeatJ<0||!Finite(c.AshKg)||c.AshKg<0||!Finite(c.WeatheredThroughCalendarDay)||c.WeatheredThroughCalendarDay< -1||!Finite(c.LastSimulatedSeconds)||c.LastSimulatedSeconds<0||c.Materials==null)throw new ArgumentException("Invalid placed camp object.");
                 if(c.CookingItems==null)c.CookingItems=new List<Possession>();
                 if(!Finite(c.ClearedWidthM)||!Finite(c.ClearedDepthM)||c.ClearedWidthM<0||c.ClearedDepthM<0||c.ClearedWidthM>100||c.ClearedDepthM>100)throw new ArgumentException("Invalid camp ground footprint.");
                 if(c.FrameJoints==null)c.FrameJoints=new List<FrameJoint>();
                 if(c.FrameJoints.Any(j=>j==null||j.Bindings==null))throw new ArgumentException("Invalid frame joint.");
                 CampBlueprints.Validate(c);
                 foreach(var p in c.OwnedMaterials())if(p==null||string.IsNullOrEmpty(p.Id)||!materials.Add(p.Id)||!Finite(p.MassKg)||p.MassKg<=0||!Finite(p.HeightM)||p.HeightM<=0||!Finite(p.WidthM)||p.WidthM<=0)throw new ArgumentException("Invalid camp material.");
-                if(c.CookingItems.Any(p=>!CampRules.Cookable(p)||!Finite(p.CookingSeconds)||p.CookingSeconds<0))throw new ArgumentException("Invalid camp food.");
+                foreach(var p in c.CookingItems)PaleolithicWater.Validate(p);
+                if(c.CookingItems.Any(p=>!CampRules.HeatItem(p)||!Finite(p.CookingSeconds)||p.CookingSeconds<0))throw new ArgumentException("Invalid camp food.");
                 if(c.Kind==CampKind.Stake&&(c.Materials.Count!=1||c.EmbedM>c.Materials[0].HeightM*.7+.001))throw new ArgumentException("Invalid planted stick.");
             }
             FrameRules.Validate(this);
@@ -66,6 +68,10 @@ namespace WorldGen.Core
         public static double FuelEnergy(Possession p)=>WoodCrafting.Wood(p)||p.Kind==PossessionKind.KindlingBundle?1:p.Kind==PossessionKind.BarkSheet?.85:p.Kind==PossessionKind.ReedBundle?.4:.22;
         public static bool Cookable(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.EdibleRoot||p.Kind==PossessionKind.Mushroom||p.Kind==PossessionKind.PlantCake);
         public static double CookingDuration(Possession p)=>Math.Max(240,(p.Kind==PossessionKind.EdibleRoot?1200:600)*Math.Pow(Math.Max(.03,p.MassKg)/.25,.35));
+        public static bool HeatItem(Possession p)=>Cookable(p)||PaleolithicClay.Green(p)||CampWaterHeating.DirectVessel(p);
+        public static bool NeedsHeat(Possession p)=>PaleolithicClay.Green(p)?p.Dried:CampWaterHeating.DirectVessel(p)?p.WaterLitres>0&&!p.WaterBoiled:Cookable(p)&&!p.Cooked&&!p.Burnt;
+        public static string HeatLabel(Possession p)=>PaleolithicClay.Green(p)?"Fire ":CampWaterHeating.DirectVessel(p)?"Boil water in ":"Cook ";
+        public static double HeatProgress(Possession p)=>PaleolithicClay.Green(p)?p.CookingSeconds/PaleolithicClay.FiringSeconds:CampWaterHeating.DirectVessel(p)?p.WaterBoiled?1:p.CookingSeconds/(120+240*p.WaterLitres):p.CookingSeconds/CookingDuration(p);
         public static bool Bedding(Possession p)=>p!=null&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Hide(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Plantable(Possession p)=>WoodCrafting.Wood(p)&&p.HeightM>=.35&&p.WidthM<=.09&&p.WoodSoundness>=.35;
@@ -127,8 +133,13 @@ namespace WorldGen.Core
             }
             double heatDose=heated*Math.Min(2,power/3);
             if(!c.Burning){heatDose+=Math.Min(remaining,c.EmberSeconds/(rain>.1?3:1))*.22*D.Clamp(c.EmberSeconds/1200);c.EmberSeconds=Math.Max(0,c.EmberSeconds-remaining*(rain>.1?3:1));}
+            CampWaterHeating.AdvanceStones(c,heated,remaining,power,c.EmberSeconds>0);
             foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())
-            {p.CookingSeconds+=heatDose;double duration=CookingDuration(p);if(p.CookingSeconds>=duration)p.Cooked=true;if(p.CookingSeconds>=duration*3)p.Burnt=true;}
+            {
+                if(PaleolithicClay.Green(p)){if(heated>0&&power>=3)PaleolithicClay.Fire(p,heated*Math.Min(2,power/3));}
+                else if(CampWaterHeating.DirectVessel(p))CampWaterHeating.HeatPot(p,heatDose);
+                else {p.CookingSeconds+=heatDose;double duration=CookingDuration(p);if(p.CookingSeconds>=duration)p.Cooked=true;if(p.CookingSeconds>=duration*3)p.Burnt=true;}
+            }
         }
         public static double RadiantWarmth(CampObject c,double distance)=>c.FirePowerKw*10/(.8+distance*distance);
         public static double ContactDamagePerSecond(CampObject c,double distance,double feetHeight)

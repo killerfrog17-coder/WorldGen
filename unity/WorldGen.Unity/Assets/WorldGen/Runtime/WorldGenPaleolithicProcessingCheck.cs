@@ -15,7 +15,7 @@ public sealed partial class LocalTerrainExplorer
         Application.targetFrameRate=60;
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException(text);report.Add("PASS "+text);Debug.Log("PROCESSING CHECK PASS "+text);}
         IEnumerator Shot(string name)
-        {yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();Check(image.GetPixels32().Any(p=>p.r>45||p.g>45||p.b>45),"Rendered native game content: "+name);File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);}
+        {for(int i=0;i<16;i++)yield return null;yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();Check(image.GetPixels32().Any(p=>p.r>45||p.g>45||p.b>45),"Rendered native game content: "+name);File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);}
         int supplied=0;
         Possession Add(PossessionKind kind)
         {var p=PortableTechnology.Create(kind,Position);Inventory.Items.Add(p);SetCraftWorkArea(p,supplied++);return p;}

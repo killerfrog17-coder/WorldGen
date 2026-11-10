@@ -181,7 +181,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateInventory()
     {
-        if(!Ready)return;InitializeInventory();UpdatePickupIconLoads();UpdateItemAudioLoads();UpdateGiveItems();UpdatePortableAppearances();
+        if(!Ready)return;InitializeInventory();UpdatePickupIconLoads();UpdateItemAudioLoads();UpdateGiveItems();UpdatePortableAppearances();UpdateClayDrying();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
         if(DeathVisible){PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();return;}
         if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();UpdateWorldToolWork();UpdateItemThumbnails();

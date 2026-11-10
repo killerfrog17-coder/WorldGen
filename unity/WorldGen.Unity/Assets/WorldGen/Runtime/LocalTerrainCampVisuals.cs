@@ -8,7 +8,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class CampVisual {public GameObject Root;public AudioSource Sound;public ParticleSystem Smoke;public Quaternion SurfaceRotation;public int GroundLevel=-1;public double Mass;public bool Burning,Glowing;public double Embed;public int FoodState;public MeshRenderer[] FlameRenderers;public MaterialPropertyBlock FlameProperties=new MaterialPropertyBlock();}
-    static int CampFoodState(CampObject c){int hash=17;foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())hash=unchecked(hash*31+p.Id.GetHashCode()+(p.Cooked?1:0)+(p.Burnt?2:0));return hash;}
+    static int CampFoodState(CampObject c){int hash=17;foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())hash=unchecked(hash*31+p.Id.GetHashCode()+(int)p.Kind*3+(p.Cooked?1:0)+(p.Burnt?2:0));return hash;}
     readonly Dictionary<string,CampVisual> campVisuals=new Dictionary<string,CampVisual>();
     Material campFlameMaterial,campEmberMaterial;
     readonly Vector4[] campLightPositions=new Vector4[4],campLightColours=new Vector4[4];bool campLightTestOff;int campLightCount;

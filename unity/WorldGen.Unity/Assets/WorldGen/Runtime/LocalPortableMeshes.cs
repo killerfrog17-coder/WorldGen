@@ -134,6 +134,23 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.Clay:
+                b.Crown(new Vector3(0,.48f,0),new Vector3(.48f,.43f,.46f),20,8,new Color(.47f,.31f,.21f,0),57,.035f);break;
+            case PortableForm.Pot:
+            {
+                // One closed, thick-walled lathed surface: rounded belly,
+                // open mouth, continuous rim and interior, rather than a box.
+                Color clay=item.Kind==PossessionKind.FiredClayPot?new Color(.62f,.35f,.19f,0):new Color(.42f,.29f,.2f,0);
+                var profile=new[]{new Vector2(.001f,.03f),new Vector2(.24f,.03f),new Vector2(.36f,.12f),new Vector2(.48f,.35f),new Vector2(.49f,.57f),new Vector2(.43f,.8f),new Vector2(.35f,.97f),new Vector2(.31f,.98f),new Vector2(.39f,.79f),new Vector2(.45f,.56f),new Vector2(.44f,.35f),new Vector2(.32f,.16f),new Vector2(.22f,.1f),new Vector2(.001f,.1f)};
+                const int sides=36;int begin=b.V.Count;
+                for(int ring=0;ring<profile.Length;ring++)for(int side=0;side<=sides;side++)
+                {
+                    float a=side*Mathf.PI*2/sides,r=profile[ring].x*(1+.014f*Mathf.Sin(a*3)+.008f*Mathf.Sin(a*7));
+                    b.Add(new Vector3(Mathf.Cos(a)*r,profile[ring].y,Mathf.Sin(a)*r),clay,new Vector2(side/(float)sides,profile[ring].y));
+                }
+                for(int ring=0;ring<profile.Length-1;ring++)for(int side=0;side<sides;side++){int v=begin+ring*(sides+1)+side;b.Triangle(v,v+sides+1,v+1);b.Triangle(v+1,v+sides+1,v+sides+2);}
+                break;
+            }
             case PortableForm.GrindingStone:
                 const int segments=28;int first=b.V.Count;
                 for(int ring=0;ring<=4;ring++)for(int side=0;side<=segments;side++)
@@ -247,6 +264,6 @@ static partial class LocalScatterMeshes
         }
         if(d.Form==PortableForm.Bow){var vertices=mesh.vertices;float depth=(float)(item.WidthM/item.DepthM);for(int i=0;i<vertices.Length;i++)vertices[i].z*=depth;mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateBounds();}
         var colors=mesh.colors;var tags=new System.Collections.Generic.List<Vector2>(colors.Length);var palette=new[]{stone,wood,new Color(.3f,.22f,.14f,0),new Color(.65f,.5f,.32f,0),leather,bone,cord,new Color(.57f,.56f,.28f,0)};
-        foreach(var color in colors){int best=0;float error=float.MaxValue;for(int i=0;i<palette.Length;i++){var delta=(Vector4)(color-palette[i]);float e=delta.x*delta.x+delta.y*delta.y+delta.z*delta.z;if(e<error){best=i;error=e;}}if(color.a>.5f)best=4;if(d.Form==PortableForm.Food)best=8;tags.Add(new Vector2(best,0));}mesh.SetUVs(1,tags);return mesh;
+        foreach(var color in colors){int best=0;float error=float.MaxValue;for(int i=0;i<palette.Length;i++){var delta=(Vector4)(color-palette[i]);float e=delta.x*delta.x+delta.y*delta.y+delta.z*delta.z;if(e<error){best=i;error=e;}}if(color.a>.5f)best=4;if(d.Form==PortableForm.Food||d.Form==PortableForm.Clay||d.Form==PortableForm.Pot)best=8;tags.Add(new Vector2(best,0));}mesh.SetUVs(1,tags);return mesh;
     }
 }

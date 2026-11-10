@@ -1,0 +1,31 @@
+{
+  "status": "source and pure checks complete; native review pending",
+  "scope": [
+    "Finite actual-soil clay digging",
+    "Measured-water hand coiling",
+    "Elapsed-day air drying with humidity/rain and conserved water loss",
+    "Fueled campfire firing of the same pot",
+    "Three-litre earthenware water vessel with direct heating",
+    "Finite hearth-stone heat reservoir and timed stone boiling of bark/hide vessels"
+  ],
+  "controls": {
+    "clay_heat": 19,
+    "portable_tree": 903,
+    "camp": 69,
+    "water": 17,
+    "processing_regression": 17
+  },
+  "limits": [
+    "Functional prototype meshes, no new generated pottery texture yet",
+    "Air-drying catch-up uses present local weather, not a historical weather replay",
+    "Stone heat capacity and water heat are approximated; hearth fuel/power remains the existing gameplay model",
+    "Native contextual collection, transfer and rendering not yet accepted"
+  ],
+  "sources": [
+    "https://pubmed.ncbi.nlm.nih.gov/22745428/",
+    "https://publications.asia.si.edu/publications/seaceramics/materials/clays.php",
+    "https://www.uwlax.edu/mvac/past-cultures/native-knowledge/technologies/",
+    "https://home.nps.gov/yell/learn/historyculture/archeologyarchaic.htm",
+    "https://repository.si.edu/bitstream/handle/10088/10123/USNMB_1391926_unit.pdf"
+  ]
+}

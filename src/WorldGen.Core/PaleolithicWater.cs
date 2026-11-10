@@ -14,7 +14,7 @@ namespace WorldGen.Core
             new PortableRecipe{Id="bark-water-vessel",Name="Fold and lace a bark water vessel",Output=PossessionKind.BarkWaterVessel,Primary=new[]{PossessionKind.BarkSheet},WorkSeconds=900,Yield=.9,
                 Materials=new[]{new CraftMaterialNeed(1,PossessionKind.Cordage,PossessionKind.RawhideStrips,PossessionKind.SinewCord)},Tools=new[]{CraftCapability.Cut,CraftCapability.Pierce}}
         };
-        public static double Capacity(Possession p)=>p?.Kind==PossessionKind.Waterskin?2:p?.Kind==PossessionKind.BarkWaterVessel?1.5:0;
+        public static double Capacity(Possession p)=>p?.Kind==PossessionKind.FiredClayPot?3:p?.Kind==PossessionKind.Waterskin?2:p?.Kind==PossessionKind.BarkWaterVessel?1.5:0;
         public static bool Vessel(Possession p)=>Capacity(p)>0;
         public static double Space(Possession p)=>Math.Max(0,Capacity(p)-(p?.WaterLitres??0));
         public static WaterQuality Quality(Possession p)=>p!=null&&p.WaterLitres>0?new WaterQuality(p.StoredWaterKind,p.WaterSalinityPpt,p.WaterContamination,p.WaterTurbidity):default;
@@ -27,7 +27,7 @@ namespace WorldGen.Core
             p.WaterContamination=(p.WaterContamination*before+quality.Contamination*added)/total;
             p.WaterTurbidity=(p.WaterTurbidity*before+quality.Turbidity*added)/total;
             p.StoredWaterKind=before>0?p.StoredWaterKind:quality.Kind;p.WaterBoiled=boiled&&(before<=0||p.WaterBoiled);
-            p.WaterLitres=total;p.MassKg+=added;p.WaterHeatSeconds=0;return added;
+            p.WaterLitres=total;p.MassKg+=added;p.WaterHeatSeconds=0;p.CookingSeconds=0;return added;
         }
         public static double Drain(Possession p,double litres)
         {

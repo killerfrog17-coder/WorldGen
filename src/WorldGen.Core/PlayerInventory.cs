@@ -5,11 +5,12 @@ using System.Linq;
 namespace WorldGen.Core
 {
     public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack,Corpse,CampStorage,Torso,Legs,Feet,Head }
-    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle,HideWrap,HideTunic,FurCoat,HideLeggings,HideFootwear,HideHood,Waterskin,BarkWaterVessel,Grindstone,PlantMeal,PlantCake }
+    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle,HideWrap,HideTunic,FurCoat,HideLeggings,HideFootwear,HideHood,Waterskin,BarkWaterVessel,Grindstone,PlantMeal,PlantCake,RawClay,UnfiredClayPot,FiredClayPot }
     [Serializable] public sealed class NaturalToolRecord
     {
         public string Id="";public double Work;public int Bark,Branches,Digging;
         [System.Runtime.Serialization.OptionalField] public int HarvestYear,Harvests;
+        [System.Runtime.Serialization.OptionalField] public int Clay;
         public NaturalToolRecord Copy()=>(NaturalToolRecord)MemberwiseClone();
     }
     [Serializable]
@@ -59,6 +60,8 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double WaterLitres,WaterSalinityPpt,WaterContamination,WaterTurbidity,WaterHeatSeconds;
         [System.Runtime.Serialization.OptionalField] public LocalWaterKind StoredWaterKind;
         [System.Runtime.Serialization.OptionalField] public bool WaterBoiled;
+        [System.Runtime.Serialization.OptionalField] public double ProcessSolarDays;
+        [System.Runtime.Serialization.OptionalField] public bool ProcessClockSet;
         public string Name=>Kind==PossessionKind.Grindstone?PortableTechnology.Name(this):StoneCrafting.Rock(this)?StoneCrafting.SizeName(this):PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
         public int Hands=>StoneCrafting.Rock(this)||Kind==PossessionKind.Grindstone?StoneCrafting.CarryHands(this):PortableTechnology.Item(Kind)?.Hands??1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
@@ -181,7 +184,7 @@ namespace WorldGen.Core
                 Foraging.ValidateFood(item);PaleolithicWater.Validate(item);NpcCampWork.ValidateBundle(item);
                 foreach(var part in item.BundledMaterials??Enumerable.Empty<Possession>())
                 {if(!ids.Add(part.Id)||part.NaturalId!=0&&(!natural.Add(part.NaturalId)||!CollectedNatural.Contains(part.NaturalId)))throw new ArgumentException("Duplicate or unrecorded bundled material.");}
-                if(!Finite(item.DryingSeconds)||item.DryingSeconds<0||item.CampOwner!=null&&item.CampOwner.Length>80)throw new ArgumentException("Invalid stored food or camp ownership.");
+                if(!Finite(item.ProcessSolarDays)||item.ProcessSolarDays<0||!Finite(item.DryingSeconds)||item.DryingSeconds<0||item.CampOwner!=null&&item.CampOwner.Length>80)throw new ArgumentException("Invalid stored food or camp ownership.");
                 if(!Finite(item.WoodStraightness)||item.WoodStraightness<0||item.WoodStraightness>1||!Finite(item.WoodSoundness)||item.WoodSoundness<0||item.WoodSoundness>1)throw new ArgumentException("Invalid wood traits.");
                 if(!Finite(item.GroundVelocity.Length)||!Finite(item.GroundSpin.Length)||!Finite(item.AttachedLocalPoint.Length)||!Finite(item.AttachedDirection.Length)||item.AttachedBone<0||item.AttachedBone>=128||item.AttachedHuman<0)throw new ArgumentException("Invalid projectile pose.");
                 if(!Finite(item.GroundOffsetM)||Math.Abs(item.GroundOffsetM)>1e7||!Finite(item.GroundRotation.X)||!Finite(item.GroundRotation.Y)||!Finite(item.GroundRotation.Z))throw new ArgumentException("Invalid dropped item pose.");
@@ -192,7 +195,7 @@ namespace WorldGen.Core
             }
             if(new HashSet<ulong>(CollectedNatural).Count!=CollectedNatural.Count)throw new ArgumentException("Duplicate collected identities.");
             Crafts=Crafts??new List<ItemCraftJob>();StoneCrafting.Validate(this);
-            ToolResources=ToolResources??new List<NaturalToolRecord>();if(ToolResources.Any(r=>r==null||string.IsNullOrEmpty(r.Id)||!ItemUseRules.Finite(r.Work)||r.Work<0||r.Bark<0||r.Branches<0||r.Digging<0)||ToolResources.Select(r=>r.Id).Distinct().Count()!=ToolResources.Count)throw new ArgumentException("Invalid natural tool-work ledger.");
+            ToolResources=ToolResources??new List<NaturalToolRecord>();if(ToolResources.Any(r=>r==null||string.IsNullOrEmpty(r.Id)||!ItemUseRules.Finite(r.Work)||r.Work<0||r.Bark<0||r.Branches<0||r.Digging<0||r.Clay<0)||ToolResources.Select(r=>r.Id).Distinct().Count()!=ToolResources.Count)throw new ArgumentException("Invalid natural tool-work ledger.");
             ToolWorkEquipment?.Validate();
         }
     }
