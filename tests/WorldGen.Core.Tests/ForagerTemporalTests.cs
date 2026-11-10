@@ -33,8 +33,10 @@ static class ForagerTemporalTests
         Check(session.Seconds==before&&session.Hash==beforeHash,"Cancellation cannot commit a partial private checkpoint");
         using(var cancel=new CancellationTokenSource())
         {
-            engine.WorkObserver=m=>{if(m.Stage=="forager migration")cancel.Cancel();};
-            try{session.AdvanceSeconds(30*SimulationTime.Year,int.MaxValue,cancel.Token);throw new Exception("Expected mid-transaction cancellation");}catch(OperationCanceledException){}
+            engine.WorkObserver=m=>{if(m.Stage=="regional process 2"&&m.Items>0)cancel.Cancel();};
+            // Migration is staggered over 200–600 years; thirty years can
+            // legitimately contain no migration work in the regional model.
+            try{session.AdvanceSeconds(601*SimulationTime.Year,int.MaxValue,cancel.Token);throw new Exception("Expected mid-transaction cancellation");}catch(OperationCanceledException){}
             engine.WorkObserver=null;
             Check(session.Seconds==before&&session.Hash==beforeHash&&session.Snapshot().Hash==beforeHash,"Cancellation after migration rolls back the entire private demographic transaction");
         }

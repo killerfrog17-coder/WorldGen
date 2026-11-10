@@ -48,7 +48,11 @@ namespace WorldGen.Core
             double shock=years>0?Math.Max(0,Math.Min(end,c.ShockEnd)-Math.Max(start,c.ShockStart))/(SimulationTime.Year*years)*c.ShockSeverity:0;
             double growth=D.Clamp(.04-mortality-shock,-.5,.025),capacity=Math.Max(.000001,c.Capacity);
             double next=growth>0?capacity/(1+(capacity/population-1)*Math.Exp(-growth*years)):population*Math.Exp(growth*years);
-            if(c.Capacity<1)next=population*Math.Exp(-.12*years);
+            // A lost habitat has no logistic refuge. Retain the food/cold
+            // mortality computed by Rates rather than replacing it with a
+            // gentler twelve-percent decline that lets an icebound remnant
+            // persist for decades. This remains an analytic regional query.
+            if(c.Capacity<1)next=population*Math.Exp(-Math.Max(.12,mortality+shock)*years);
             next=Math.Max(0,next);double mean=(population+next)*.5;
             double bornRate=(c.Ages[2]+c.Ages[3]*.18)/population*c.BirthRate;
             births=Math.Max(Math.Max(0,next-population),mean*bornRate*years);deaths=Math.Max(0,population+births-next);

@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--paleo-dispersal-audit")){PaleolithicDispersalAudit.Run(args[1],int.Parse(args[2]),args.Length>3?int.Parse(args[3]):200000,args.Length>4?args[4]:"Continents",args.Length>5?int.Parse(args[5]):190000);return;}
 if(args.Contains("--terrain-layer-contract")){TerrainLayerContractTests.Run(args[1],args[2]);return;}
 if(args.Contains("--terrain-layer-cost")){TerrainLayerCostTests.Run(args[1],args[2]);return;}
 if(args.Contains("--npc-mind")){NpcMindTests.Run();return;}

@@ -1,0 +1,396 @@
+{
+  "priorities": [
+    "Focused regional sapiens/technology audit",
+    "Complete Paleolithic playable technology, items and structures",
+    "Crowded NPC performance for 100 nearby people",
+    "Realistic full-globe river hydraulics and morphology",
+    "Only then earlier streaming/environment follow-ups"
+  ],
+  "sim": {
+    "fix": "Empty carrying capacity now retains calculated food/cold mortality instead of overriding it with a gentler 0.12/year decline. Continuous analytic regional projection; no tribe simulation added.",
+    "checks": [
+      "52 mechanism checks passed",
+      "12 temporal, cancellation, isolation and save/reload checks passed"
+    ],
+    "sources": [
+      "https://www.nature.com/articles/s41586-025-09154-0",
+      "https://www.nature.com/articles/s41586-021-03863-y"
+    ],
+    "maps": [
+      {
+        "input": {
+          "seed": 52783,
+          "detail": 200000,
+          "preset": "Pangeae",
+          "end": 190000,
+          "generation": 10.9401115,
+          "Cells": 200000,
+          "Regions": 1760,
+          "InitialSpecies": [
+            {
+              "Id": 0,
+              "ScientificName": "Homo sapiens",
+              "OriginDistrict": 209,
+              "PlayerSpecies": true
+            },
+            {
+              "Id": 1,
+              "ScientificName": "Homo nuensis",
+              "OriginDistrict": 732,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 2,
+              "ScientificName": "Homo maensis",
+              "OriginDistrict": 545,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 3,
+              "ScientificName": "Homo biensis",
+              "OriginDistrict": 330,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 4,
+              "ScientificName": "Homo pitensis",
+              "OriginDistrict": 1253,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 5,
+              "ScientificName": "Homo daensis",
+              "OriginDistrict": 956,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 6,
+              "ScientificName": "Homo nanensis",
+              "OriginDistrict": 568,
+              "PlayerSpecies": false
+            }
+          ]
+        },
+        "snapshots": [
+          {
+            "Year": 0,
+            "Population": 96623.06731260971,
+            "Sapiens": 41221.22883706548,
+            "Occupied": 377,
+            "SapiensRegions": 85,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 18.6608280224759,
+            "Elapsed": 13.5724126
+          },
+          {
+            "Year": 10000,
+            "Population": 1070206.546677039,
+            "Sapiens": 260533.81002257075,
+            "Occupied": 638,
+            "SapiensRegions": 166,
+            "SapiensRealms": 6,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 29.798372780829034,
+            "Elapsed": 15.1976583
+          },
+          {
+            "Year": 25000,
+            "Population": 1088729.3508790743,
+            "Sapiens": 326364.5832800834,
+            "Occupied": 720,
+            "SapiensRegions": 200,
+            "SapiensRealms": 7,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 33.35108803657368,
+            "Elapsed": 17.8295484
+          },
+          {
+            "Year": 50000,
+            "Population": 1077401.8549835251,
+            "Sapiens": 259995.89961905283,
+            "Occupied": 783,
+            "SapiensRegions": 217,
+            "SapiensRealms": 7,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 35.947305717103525,
+            "Elapsed": 22.9064651
+          },
+          {
+            "Year": 100000,
+            "Population": 1566778.7451997008,
+            "Sapiens": 317937.4117458605,
+            "Occupied": 909,
+            "SapiensRegions": 260,
+            "SapiensRealms": 10,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 43.47075892080296,
+            "Elapsed": 33.7726505
+          },
+          {
+            "Year": 150000,
+            "Population": 1391446.3744954066,
+            "Sapiens": 326383.57495328883,
+            "Occupied": 879,
+            "SapiensRegions": 262,
+            "SapiensRealms": 10,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 43.47075892080296,
+            "Elapsed": 43.7173897
+          },
+          {
+            "Year": 190000,
+            "Population": 1826158.568928693,
+            "Sapiens": 350789.79455033503,
+            "Occupied": 900,
+            "SapiensRegions": 288,
+            "SapiensRealms": 10,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 46.00605156841351,
+            "Elapsed": 50.7827299
+          }
+        ]
+      },
+      {
+        "input": {
+          "seed": 78191,
+          "detail": 200000,
+          "preset": "Ice age",
+          "end": 190000,
+          "generation": 10.9897655,
+          "Cells": 200000,
+          "Regions": 1649,
+          "InitialSpecies": [
+            {
+              "Id": 0,
+              "ScientificName": "Homo sapiens",
+              "OriginDistrict": 846,
+              "PlayerSpecies": true
+            },
+            {
+              "Id": 1,
+              "ScientificName": "Homo quensis",
+              "OriginDistrict": 831,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 2,
+              "ScientificName": "Homo pruensis",
+              "OriginDistrict": 561,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 3,
+              "ScientificName": "Homo naensis",
+              "OriginDistrict": 607,
+              "PlayerSpecies": false
+            }
+          ]
+        },
+        "snapshots": [
+          {
+            "Year": 0,
+            "Population": 25583.3831761239,
+            "Sapiens": 2178.516361532714,
+            "Occupied": 176,
+            "SapiensRegions": 28,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 19.847582694203783,
+            "Elapsed": 13.1338451
+          },
+          {
+            "Year": 10000,
+            "Population": 331965.97078836255,
+            "Sapiens": 21250.23713532382,
+            "Occupied": 305,
+            "SapiensRegions": 60,
+            "SapiensRealms": 2,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 33.211742849633225,
+            "Elapsed": 14.1971173
+          },
+          {
+            "Year": 25000,
+            "Population": 434062.0953510645,
+            "Sapiens": 57637.28872467817,
+            "Occupied": 403,
+            "SapiensRegions": 107,
+            "SapiensRealms": 3,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 43.83441985145451,
+            "Elapsed": 15.2134813
+          },
+          {
+            "Year": 50000,
+            "Population": 430423.1605638271,
+            "Sapiens": 68765.22187371177,
+            "Occupied": 422,
+            "SapiensRegions": 133,
+            "SapiensRealms": 6,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 51.5102668597159,
+            "Elapsed": 17.1494467
+          },
+          {
+            "Year": 100000,
+            "Population": 534085.9335176363,
+            "Sapiens": 92144.80702591274,
+            "Occupied": 473,
+            "SapiensRegions": 156,
+            "SapiensRealms": 7,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 53.96637428586144,
+            "Elapsed": 21.2498055
+          },
+          {
+            "Year": 150000,
+            "Population": 504773.8015701316,
+            "Sapiens": 98498.95200881838,
+            "Occupied": 455,
+            "SapiensRegions": 151,
+            "SapiensRealms": 6,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 51.5102668597159,
+            "Elapsed": 25.4082486
+          },
+          {
+            "Year": 190000,
+            "Population": 622965.3438431671,
+            "Sapiens": 109146.21719145888,
+            "Occupied": 460,
+            "SapiensRegions": 159,
+            "SapiensRealms": 6,
+            "ColdSapiens": 38.931742867991304,
+            "IceSapiens": 0,
+            "MaxLatitude": 57.055134812603946,
+            "Elapsed": 28.6783825
+          }
+        ]
+      },
+      {
+        "input": {
+          "seed": 84613,
+          "detail": 200000,
+          "preset": "Continents",
+          "end": 190000,
+          "generation": 10.8441383,
+          "Cells": 200000,
+          "Regions": 2170,
+          "InitialSpecies": [
+            {
+              "Id": 0,
+              "ScientificName": "Homo sapiens",
+              "OriginDistrict": 956,
+              "PlayerSpecies": true
+            },
+            {
+              "Id": 1,
+              "ScientificName": "Homo tsuensis",
+              "OriginDistrict": 874,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 2,
+              "ScientificName": "Homo yaensis",
+              "OriginDistrict": 1519,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 3,
+              "ScientificName": "Homo muensis",
+              "OriginDistrict": 592,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 4,
+              "ScientificName": "Homo nuensis",
+              "OriginDistrict": 1175,
+              "PlayerSpecies": false
+            },
+            {
+              "Id": 5,
+              "ScientificName": "Homo batensis",
+              "OriginDistrict": 597,
+              "PlayerSpecies": false
+            }
+          ]
+        },
+        "snapshots": [
+          {
+            "Year": 0,
+            "Population": 78203.23981261723,
+            "Sapiens": 31219.152337798143,
+            "Occupied": 276,
+            "SapiensRegions": 53,
+            "SapiensRealms": 1,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 22.06964917883248,
+            "Elapsed": 13.360869
+          },
+          {
+            "Year": 10000,
+            "Population": 797028.0739399052,
+            "Sapiens": 326478.36502515356,
+            "Occupied": 439,
+            "SapiensRegions": 154,
+            "SapiensRealms": 2,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 23.685407368197055,
+            "Elapsed": 14.6210399
+          },
+          {
+            "Year": 25000,
+            "Population": 918623.2584549431,
+            "Sapiens": 372856.0321871699,
+            "Occupied": 480,
+            "SapiensRegions": 197,
+            "SapiensRealms": 5,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 26.54802261572259,
+            "Elapsed": 16.0575755
+          },
+          {
+            "Year": 50000,
+            "Population": 940500.2155836559,
+            "Sapiens": 364047.90361515153,
+            "Occupied": 492,
+            "SapiensRegions": 219,
+            "SapiensRealms": 8,
+            "ColdSapiens": 0,
+            "IceSapiens": 0,
+            "MaxLatitude": 29.864975178196833,
+            "Elapsed": 18.5769116
+          }
+        ]
+      }
+    ],
+    "limits": [
+      "Regional average climate and ancestry; does not assert every local campsite is habitable.",
+      "Two paired random worlds unchanged at sampled milestones; the empty-habitat defect is exercised by targeted collapse/recovery controls.",
+      "No fixed Earth dates force a global technological unlock."
+    ]
+  },
+  "progress": {
+    "sim": "focused audit complete, two additional random worlds running",
+    "content": "catalogue audit in progress",
+    "crowds": "not started",
+    "rivers": "not started"
+  }
+}
