@@ -1,6 +1,6 @@
 param(
     [ValidateSet('slot-a','slot-b')][string]$Slot='slot-b',
-    [ValidateSet('Clothing','Water','Processing','ClayHeat','Stonework','Campcraft','Binders','Fire','Deadfall','Watercraft','Existing')][string]$Kind='Clothing',
+    [ValidateSet('Clothing','Water','Processing','ClayHeat','Stonework','Campcraft','Binders','Fire','Deadfall','Watercraft','Existing','Fishing')][string]$Kind='Clothing',
     [ValidatePattern('^[a-z0-9-]+$')][string]$Name='clothing-native-v3'
 )
 $ErrorActionPreference='Stop'
@@ -19,13 +19,13 @@ $check=if($Kind -eq 'Water'){'--worldgen-item-use-check'}else{'--worldgen-portab
 $arguments=@('-monitor',$monitor,'-screen-width','1280','-screen-height','800','-screen-fullscreen','0',
     $check,('"'+$fixture+'"'),
     '--worldgen-output',('"'+$output+'"'),'--worldgen-library-root',('"'+$output+'/save-library"'),'-logFile',('"'+$output+'/player.log"'))
-if($Kind -eq 'Water'){$arguments+=@('--worldgen-water-update-check','--worldgen-water-vessels-review')}elseif($Kind -eq 'Watercraft'){$arguments+='--worldgen-watercraft-review'}elseif($Kind -eq 'Deadfall'){$arguments+='--worldgen-deadfall-review'}elseif($Kind -eq 'Fire'){$arguments+='--worldgen-portable-fire-review'}elseif($Kind -eq 'Binders'){$arguments+='--worldgen-binders-review'}elseif($Kind -eq 'Campcraft'){$arguments+='--worldgen-campcraft-review'}elseif($Kind -eq 'Stonework'){$arguments+='--worldgen-stonework-review'}elseif($Kind -eq 'ClayHeat'){$arguments+='--worldgen-clay-heat-review'}elseif($Kind -eq 'Processing'){$arguments+='--worldgen-processing-review'}elseif($Kind -ne 'Existing'){$arguments+='--worldgen-clothing-review'}
+if($Kind -eq 'Water'){$arguments+=@('--worldgen-water-update-check','--worldgen-water-vessels-review')}elseif($Kind -eq 'Fishing'){$arguments+='--worldgen-paleo-fishing-review'}elseif($Kind -eq 'Watercraft'){$arguments+='--worldgen-watercraft-review'}elseif($Kind -eq 'Deadfall'){$arguments+='--worldgen-deadfall-review'}elseif($Kind -eq 'Fire'){$arguments+='--worldgen-portable-fire-review'}elseif($Kind -eq 'Binders'){$arguments+='--worldgen-binders-review'}elseif($Kind -eq 'Campcraft'){$arguments+='--worldgen-campcraft-review'}elseif($Kind -eq 'Stonework'){$arguments+='--worldgen-stonework-review'}elseif($Kind -eq 'ClayHeat'){$arguments+='--worldgen-clay-heat-review'}elseif($Kind -eq 'Processing'){$arguments+='--worldgen-processing-review'}elseif($Kind -ne 'Existing'){$arguments+='--worldgen-clothing-review'}
 # These checks include the actual inventory OnGUI output. A hidden batch-mode
 # swap chain produced black captures despite valid native skin geometry.
 $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Normal -PassThru
 Write-Output ('Paleolithic '+$Kind+' review PID '+$process.Id+' on leftmost monitor')
 if(!$process.WaitForExit(600000)){$process.Kill();throw ('Native review exceeded ten minutes: '+$output)}
 [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
-if($process.ExitCode -ne 0){throw ('Native clothing check failed: '+$output)}
+if($process.ExitCode -ne 0){throw ('Native '+$Kind+' check failed: '+$output)}
 if(!(Test-Path -LiteralPath (Join-Path $output 'checks.txt'))){throw 'Player exited without finishing the checks.'}
 Write-Output ('PASS '+$output)
