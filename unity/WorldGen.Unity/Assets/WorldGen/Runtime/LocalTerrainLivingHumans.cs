@@ -111,6 +111,7 @@ public sealed partial class LocalTerrainExplorer
             // A sleep/time jump can invalidate an old travel plan before its
             // replacement packet arrives. Do not instantiate new residents at
             // those stale positions, or before a settled camp is validated.
+            if(npcCampCatchUps.ContainsKey(group.Situation.Band.Id))continue;
             if(group.Activities==null||Math.Abs(PlayerRules.SolarDays-group.PlannedSolarDay)*PlayerRules.Settings.RealMinutesPerDay*60>=5||!group.Grounded&&group.Situation.Phase!=HumanCampPhase.Travelling)continue;
             foreach(var activity in group.Activities)
             {
@@ -164,7 +165,16 @@ public sealed partial class LocalTerrainExplorer
             long id=situation.Band.Id;present.Add(id);
             if(!livingGroups.TryGetValue(id,out var group))livingGroups[id]=group=new LivingGroup{Situation=situation,Anchor=situation.Camp.Position};
             var previousPhase=group.Situation.Phase;
-            if(HoldNpcCampDeparture(group,situation)){group.LastSeen=Time.unscaledTimeAsDouble;continue;}
+            if(HoldNpcCampDeparture(group,situation))
+            {
+                group.LastSeen=Time.unscaledTimeAsDouble;group.PlannedSolarDay=packet.SolarDay;
+                // The local packing hold also holds the actors' schedules.
+                // Do not leave children/foragers following a stale destination
+                // while their actual family is still dismantling this camp.
+                foreach(var actor in livingPeople.Values.Where(p=>p.GroupId==id&&p.Resident.AgeYears>=3))
+                    actor.Routine=new HumanActivitySample{Person=actor.ResidentId,Group=id,Activity=actor.Resident.AgeYears>=12?HumanActivity.PackCamp:HumanActivity.Play,Role=actor.Resident.AgeYears>=12?"PackCamp":"PlayMakeBelieve",Position=group.Situation.Camp.Position,Destination=group.Situation.Camp.Position};
+                continue;
+            }
             if(group.Situation.Camp.Id!=situation.Camp.Id||situation.Phase==HumanCampPhase.Travelling&&group.CampLoaded)
             {UnloadLivingCamp(group,true);group.Grounded=false;group.PlacementAttempt=0;group.Resources=null;group.SiteSurvey=null;group.SiteSurveyRadius=200;group.Anchor=situation.Camp.Position;}
             group.Situation=situation;group.LastSeen=Time.unscaledTimeAsDouble;group.PlannedSolarDay=packet.SolarDay;
@@ -233,6 +243,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void LoadLivingCamp(LivingGroup group)
     {
+        if(npcCampCatchUps.TryGetValue(group.Situation.Band.Id,out var pending)&&!pending.Work.IsCompleted)return;
         var memory=LivingState.Camps.FirstOrDefault(c=>c.Site==group.Situation.Camp.Id);
         if(memory!=null&&memory.AbandonedCalendarDay>=0&&group.Situation.ArrivalDay>memory.AbandonedCalendarDay)
         {
@@ -240,8 +251,10 @@ public sealed partial class LocalTerrainExplorer
             memory.Disturbed=true;memory.AbandonedCalendarDay=-1;memory.LastDecayCalendarDay=-1;
         }
         var existing=Camp.Objects.Where(c=>c.NpcSite==group.Situation.Camp.Id&&c.NpcGroup==group.Situation.Band.Id).ToArray();
-        bool newStock=NpcGroupRecord(group.Situation.Band.Id).Travel?.RebuildRequired!=true;
+        bool newStock=NpcGroupRecord(group.Situation.Band.Id).Travel?.RebuildRequired!=true&&!LivingState.Camps.Any(c=>c.Group==group.Situation.Band.Id&&c.Site!=group.Situation.Camp.Id);
         var objects=existing.Length>0?existing:memory!=null&&memory.Disturbed?memory.Objects.Select(o=>o.Copy()).ToArray():HumanCampLayout.Create(group.Situation,group.Residents,group.Anchor,frame.RadiusM,sourceWorld.Recipe.Seed,Camp.SimulatedSeconds,newStock);
+        foreach(var obj in objects)if(obj.Blueprint!=null&&obj.Blueprint.FloorHeights==null)SurveyLivingShelter(obj,!newStock);
+        if(!PrepareUnobservedNpcCamp(group,ref objects))return;
         foreach(var obj in objects)
         {
             if(Camp.Objects.Any(c=>c.Id==obj.Id))continue;

@@ -149,7 +149,13 @@ public sealed partial class LocalTerrainExplorer
                 bool sees=NpcSees(actor,peer.Root.transform.position+transform.up*.6f,28);bool seeker=(Math.Min(actor.ResidentId,peer.ResidentId)==actor.ResidentId)^((int)(actor.SimulationAge/18)%2==1);
                 if(routine.Role=="PlayChase"&&seeker&&sees)daily.PlayGoal=peer.Planet;
                 else if(routine.Role=="PlayMakeBelieve")
-                {TerrainHandoff.Coordinates(frame,peer.Planet,out double x,out double z);daily.PlayGoal=frame.Position(x+1,z+1);}
+                {
+                    // A shared fixed play area, not each child's moving
+                    // position plus an offset (which makes friends drift
+                    // indefinitely out of camp while following each other).
+                    TerrainHandoff.Coordinates(frame,group.Anchor,out double x,out double z);double angle=HumanHash(actor.ResidentId)%628*.01;
+                    daily.PlayGoal=frame.Position(x+Math.Cos(angle)*7,z+Math.Sin(angle)*7);
+                }
                 else if(routine.Role=="PlayHideSeek")
                 {
                     if(seeker&&sees)daily.PlayGoal=peer.Planet;
@@ -158,6 +164,8 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
+        double fromCamp=HumanDistance(group.Anchor,daily.PlayGoal);
+        if(fromCamp>25)daily.PlayGoal=HumanLocalLife.Interpolate(group.Anchor,daily.PlayGoal,25/fromCamp);
         target=NpcPlayAroundHearth(actor,daily.PlayGoal);actor.TaskWaiting=false;
         actor.TaskDetail=routine.Role=="PlayHideSeek"?"playing hide and seek":routine.Role=="PlayChase"?"playing a chasing game":"playing at making a camp";
         if(daily.Playmate>0&&livingPeople.TryGetValue(daily.Playmate,out var partner))actor.TaskDetail+=" with "+partner.Resident.Name;

@@ -152,7 +152,15 @@ public sealed partial class LocalTerrainExplorer
     V NpcCampWorkPoint(HumanActor actor,CampObject shelter,CampComponent part)
     {
         TerrainHandoff.Coordinates(frame,shelter.Position,out double x,out double z);double yaw=shelter.Heading*Math.PI/180;V p=part.Points.Aggregate(new V(),(a,b)=>a+b)/Math.Max(1,part.Points.Length);
-        double length=Math.Sqrt(p.X*p.X+p.Z*p.Z),scale=length>.1?(length+.55)/length:0;double east=p.X*scale,north=p.Z*scale;
+        // Reach a real component from its nearest exposed edge, rather than
+        // targeting the centre underneath a broad still-collidable roof.
+        if(part.Kind==CampPartKind.Cover&&part.Points.Length>1)
+        {
+            double dx=actor.Motor.X-x,dz=actor.Motor.Z-z;
+            double lx=dx*Math.Cos(yaw)-dz*Math.Sin(yaw),lz=dx*Math.Sin(yaw)+dz*Math.Cos(yaw);
+            p=part.Points.OrderBy(v=>Math.Pow(v.X-lx,2)+Math.Pow(v.Z-lz,2)).First();
+        }
+        double length=Math.Sqrt(p.X*p.X+p.Z*p.Z),scale=length>.1?(length+.65)/length:0;double east=p.X*scale,north=p.Z*scale;
         return frame.Position(x+east*Math.Cos(yaw)+north*Math.Sin(yaw),z+north*Math.Cos(yaw)-east*Math.Sin(yaw));
     }
     void StageInitialNpcSupplies(CampObject shelter)

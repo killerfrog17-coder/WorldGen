@@ -96,6 +96,10 @@ public sealed partial class LocalTerrainExplorer
         Check(NpcPersonRecord(infant).Caregiver==helper.ResidentId&&HumanDistance(infant.Planet,helper.Planet)<.1,"An actual adult who approaches within reach can take over care");
         Check(NpcMemoryFor(helper.ResidentId).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Help&&e.Subject==infant.ResidentId),"The real caregiver remembers taking responsibility for the child");
         LivingState.Copy().Validate();Check(true,"Sleep/play/search and social memories remain valid local state");
+        // Isolate the movement probe from the preceding search fixture and
+        // from a perfectly valid pause to socialise during those ten seconds.
+        Place(kids[0],cx-2.8,cz+1,90);Place(kids[1],cx+2.8,cz+1,270);
+        for(int i=0;i<2;i++){kids[i].Routine=new HumanActivitySample{Person=kids[i].ResidentId,Group=kids[i].GroupId,Activity=HumanActivity.Play,Role="PlayChase",Partner=kids[1-i].ResidentId,Position=kids[i].Planet,Destination=kids[1-i].Planet,SpeedMps=2};NpcMemoryFor(kids[i].ResidentId).Social.NextSocialSolarDay=PlayerRules.SolarDays+.1;npcPlans.Remove(kids[i].ResidentId);}
         // Aim the actual first-person camera at children in the camp, not an
         // unrelated horizon. This is an evidence scene, not an FPS benchmark.
         motion.Place(cx-7,cz+3,CampFloor(cx-7,cz+3));humanCamera.Restore(0,false);UpdateHumans();
