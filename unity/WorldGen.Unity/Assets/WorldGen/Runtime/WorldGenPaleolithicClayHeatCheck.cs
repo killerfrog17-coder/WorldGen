@@ -38,7 +38,8 @@ public sealed partial class LocalTerrainExplorer
         while(worldToolWork!=null&&Time.unscaledTimeAsDouble<limit)yield return null;
         var clay=Inventory.Items.LastOrDefault(p=>p.Kind==PossessionKind.RawClay);Check(clay!=null&&worldToolWork==null,"Timed digging produces clay from the finite ground ledger");
         var skin=Add(PossessionKind.Waterskin);PaleolithicWater.Fill(skin,new WaterQuality(LocalWaterKind.River,.05,.3,0),1);
-        var spear=Add(PossessionKind.StoneTippedSpear);MovePossession(spear.Id,PossessionPlace.RightHand);MovePossession(skin.Id,PossessionPlace.Shoulder);
+        Check(MovePossession(clay.Id,PossessionPlace.Ground),"Set freshly gathered clay in the work area");
+        var spear=Add(PossessionKind.StoneTippedSpear);Check(MovePossession(spear.Id,PossessionPlace.RightHand),"Spear actually occupies the right hand before shaping");Check(MovePossession(skin.Id,PossessionPlace.Shoulder),"Water vessel is worn before shaping");
         SetInventoryOpen(true);RefreshInventoryNearby(true);Check(StartPortableCraft("shape-clay-pot",clay.Id),"Real contextual clay shaping starts with occupied hands");limit=Time.unscaledTimeAsDouble+20;
         while(Inventory.Crafts.Any(j=>j.WorkpieceId==clay.Id)&&Time.unscaledTimeAsDouble<limit)yield return null;
         Check(clay.Kind==PossessionKind.UnfiredClayPot&&Math.Abs(skin.WaterLitres-.9)<1e-8,"Native crafting makes greenware and consumes exactly 100 ml");
