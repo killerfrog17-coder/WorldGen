@@ -47,10 +47,11 @@ public sealed partial class LocalTerrainExplorer
         public GlacialTroughReceipt Trough;
         public FjordReceipt Fjord;
         public int RiverReach=-1;
+        public V RiverCenter;public double RiverWidth;
         public string Coast,Landform;
         public DuneLandmark Dune;
     }
-    sealed class LandscapeReviewSite{public V Position,CoastDirection;public SmallLake Pond,WetlandPool;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public FjordCoasts.Inlet? Fjord;public RiverscapeSpan? Fall;public DuneLandmark Dune;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
+    sealed class LandscapeReviewSite{public V Position,CoastDirection,RiverCenter;public SmallLake Pond,WetlandPool;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public FjordCoasts.Inlet? Fjord;public RiverscapeSpan? Fall;public DuneLandmark Dune;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
     public static IEnumerator CheckLandscape(string path,string output,string kind)
     {
         Directory.CreateDirectory(output);RecordNpcCheckPackage(output);var checks=new List<string>();
@@ -235,6 +236,21 @@ public sealed partial class LocalTerrainExplorer
                     return new LandscapeReviewSite{Position=volcano.Center,Sample=s,Volcano=volcano};
                 }
             }
+            else if(kind=="MajorRiver")
+            {
+                foreach(var channel in model.Hydrology.Channels.Where(c=>pinnedSource<0||c.From==pinnedSource).OrderByDescending(c=>c.WidthM).ThenBy(c=>c.From).Take(250))
+                foreach(var span in model.Amplification.RiverReach(channel.From).Where(s=>s.LevelA>5&&s.LevelB>1&&Math.Min(s.WidthA,s.WidthB)>250).OrderBy(s=>Math.Abs(s.LevelA-s.LevelB)))
+                {
+                    V center=(span.A+span.B).Unit;var patch=model.Patch(center,40000);var water=patch.Sample(center);
+                    if(!water.Underwater||water.WaterKind!=LocalWaterKind.River||water.WaterSurfaceM-water.ElevationM<10)continue;
+                    double half=(span.WidthA+span.WidthB)*.5;V side=(span.SideA+span.SideB).Unit;
+                    foreach(double extra in new[]{15d,75,200})foreach(int sign in new[]{-1,1})
+                    {
+                        V bank=(center+side*(sign*(half+extra)/(model.RadiusM*.1))).Unit;var sample=patch.Sample(bank);if(sample.Underwater)continue;
+                        return new LandscapeReviewSite{Position=bank,Sample=sample,RiverCenter=center,RiverReach=channel.From,RiverWidth=half*2,CoastDirection=side*-sign};
+                    }
+                }
+            }
             else if(kind=="AlluvialRiver")
             {
                 foreach(var channel in model.Hydrology.Channels.Where(c=>(pinnedSource<0||c.From==pinnedSource)&&c.WidthM>12&&c.WidthM<180&&c.StartM>15&&c.StartM<1800&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008)
@@ -337,7 +353,7 @@ public sealed partial class LocalTerrainExplorer
         while(!choose.IsCompleted)yield return null;var site=choose.GetAwaiter().GetResult();Check(site!=null,"Actual generated world supplies the requested context");
         var localHabitat=world.Ecology.Habitat[site.Sample.Cell];
         File.WriteAllText(Path.Combine(output,"review-climate.txt"),$"cell={site.Sample.Cell}; biome={localHabitat.Biome}; cold={localHabitat.ColdTenthsC*.1:R}C; warm={localHabitat.WarmTenthsC*.1:R}C; mean={localHabitat.MeanTenthsC*.1:R}C");
-        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,Coast=site.Coast,Landform=site.Landform,Dune=site.Dune,Elevation=site.Sample.ElevationM}));
+        File.WriteAllText(Path.Combine(output,"review-site.json"),WorldJson.Write(new LandscapeSceneReceipt{Requested=kind,Position=site.Position,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,RiverCenter=site.RiverCenter,RiverWidth=site.RiverWidth,Coast=site.Coast,Landform=site.Landform,Dune=site.Dune,Elevation=site.Sample.ElevationM}));
         if(site.Volcano!=null){reviewRange=Math.Max(10000,site.Volcano.RadiusM*4.5);reviewFootprint=site.Volcano.RadiusM*3.6;}
         if(site.RiverReach>=0){reviewRange=3500;reviewFootprint=1800;}
         if(site.Coast!=null){reviewRange=3000;reviewFootprint=1600;}
@@ -447,6 +463,12 @@ public sealed partial class LocalTerrainExplorer
             var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
             if(faceCenter)look=new Vector3(0,y+.5f,0)-camera;
             if(inspectionTarget.HasValue)look=inspectionTarget.Value-camera;
+            if(site.RiverCenter.Length>.1)
+            {
+                TerrainHandoff.Coordinates(owner.frame,site.RiverCenter,out double rx,out double rz);
+                var river=model.Patch(site.RiverCenter,4000).Geometry(site.RiverCenter);
+                look=new Vector3((float)rx,(float)owner.frame.SurfaceY(site.RiverCenter,river.WaterSurfaceM),(float)rz)-camera;
+            }
             if(site.Fall.HasValue)
             {
                 var fall=site.Fall.Value;V at=(fall.A+fall.B).Unit;TerrainHandoff.Coordinates(owner.frame,at,out double fx,out double fz);
@@ -611,7 +633,7 @@ public sealed partial class LocalTerrainExplorer
         if(kind=="AlluvialRiver")width=(float)Math.Min(350,Math.Max(160,site.RiverWidth*3));
         Quaternion orientation=Quaternion.identity;
         if(site.WetlandPool!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
-        if(kind=="AlluvialRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
+        if(kind=="AlluvialRiver"||kind=="MajorRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Dune!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));

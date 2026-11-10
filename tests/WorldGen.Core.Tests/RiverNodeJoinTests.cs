@@ -16,6 +16,12 @@ static class RiverNodeJoinTests
         Check(fitted.Any(p=>Math.Abs((p-points[0]).Length*radius-150)<.003),"Source collar ends at its actual radius instead of the next coarse station");
         Check(fitted.Any(p=>Math.Abs((p-points[^1]).Length*radius-180)<.003),"Receiving collar ends at its actual radius instead of the preceding coarse station");
         for(int i=1;i<fitted.Length;i++)Check(fitted[i].Y>fitted[i-1].Y,"Inserted collar stations remain in channel order");
+        foreach(double angle in new[]{15d,30,60,90,120,175,180})
+        {
+            double theta=angle*Math.PI/180,half=75,r=RiverscapeKernel.ConfluenceRadius(half,Math.Cos(theta));
+            Check(double.IsFinite(r)&&r>=RiverscapeKernel.JunctionRadius(half)-1e-8,"Confluence stage includes its node disk");
+            Check(Math.Abs(r*Math.Sin(theta*.5)-RiverscapeKernel.JunctionRadius(half))<1e-7,"Shared stage includes the farthest overlap of incident corridors");
+        }
         var first=RiverPlanform.Build(t=>P(t*1000),64,1000,20,.001,.8,.1,radius,81,new V(0,1,.3),new V(0,1,-.2));
         var again=RiverPlanform.Build(t=>P(t*1000),64,1000,20,.001,.8,.1,radius,81,new V(0,1,.3),new V(0,1,-.2));
         Check(first.SequenceEqual(again)&&first[0].Equals(P(0))&&first[^1].Equals(P(1000)),"Shared-tangent channel fitting is deterministic and keeps endpoints");

@@ -27,7 +27,8 @@ static class RiverScaleWorldTests
                     {
                         double ax=(x-6)*Math.Min(shape.size/15,span.WidthA/7),az=(z-6)*Math.Min(shape.size/15,span.WidthA/7);var point=frame.Position(ax,az);var actual=patch.Sample(point);if(!actual.Underwater||actual.WaterKind!=LocalWaterKind.River)continue;
                         probes++;double ground=RiverRepairTests.Height(mesh.Positions,mesh.Triangles,ax-east,az-north),water=RiverRepairTests.Height(mesh.WaterPositions,mesh.WaterTriangles,ax-east,az-north),expected=frame.SurfaceY(point,actual.WaterSurfaceM);
-                        double delta=Math.Abs(water-expected);error=Math.Max(error,delta);if(!double.IsFinite(water)||water<ground-.005||delta>Math.Max(.03,Math.Pow(shape.size/shape.n,2)/frame.RadiusM*.5))failures++;
+                        double delta=Math.Abs(water-expected);error=Math.Max(error,delta);if(!double.IsFinite(water)||water<ground-.005||delta>Math.Max(.03,Math.Pow(shape.size/shape.n,2)/frame.RadiusM*.5))
+                        {failures++;Console.WriteLine($"   FAILED probe {ax-east:R},{az-north:R}: drawn ground={ground:R}, water={water:R}, expected={expected:R}, scalar ground={frame.SurfaceY(point,actual.ElevationM):R}, body={actual.WaterBodyKey}");}
                     }
                     bad+=failures;rows.Add(new{id,shape.size,shape.n,failures,error,vertices=mesh.Positions.Length/3,waterTriangles=mesh.WaterTriangles.Length/3,ms=mesh.BuildMilliseconds});Console.WriteLine($"  {shape.size}m/{shape.n}: failures={failures}, level error={error:F5}m, triangles={mesh.WaterTriangles.Length/3}, build={mesh.BuildMilliseconds:F1}ms");
                     RiverscapeTests.Boundary(mesh,(ok,why)=>{if(!ok)throw new Exception("Major river "+id+": "+why);},frame,patch);

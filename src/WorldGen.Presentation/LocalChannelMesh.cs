@@ -11,11 +11,12 @@ namespace WorldGen.Presentation
     public static class LocalChannelMesh
     {
         struct Point {public double X,Z;public Point(double x,double z){X=x;Z=z;}}
-        struct Cut {public double X,Z,DX,DZ,Length,Half;}
+        struct Cut {public double X,Z,DX,DZ,Length,Half;public bool Bank;}
         public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default)
         {
             double step=mesh.SizeM/mesh.Segments;if(patch==null)return original;
             if(step>32&&terrain.Amplification==null)return original;
+            var bankEdges=new HashSet<(V,V)>();
             var source=terrain.Amplification==null?patch.ChannelPieces(Math.Max(16,step*2)):Array.Empty<LocalHydrology.Piece>();
             if(terrain.Amplification!=null)
             {
@@ -31,12 +32,12 @@ namespace WorldGen.Presentation
                 {
                     V al=(s.A+s.SideA*(s.WidthA/frame.RadiusM)).Unit,ar=(s.A-s.SideA*(s.WidthA/frame.RadiusM)).Unit;
                     V bl=(s.B+s.SideB*(s.WidthB/frame.RadiusM)).Unit,br=(s.B-s.SideB*(s.WidthB/frame.RadiusM)).Unit;
-                    void Edge(V a,V b){exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});}
+                    void Edge(V a,V b,bool bank=false){exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});if(bank)bankEdges.Add((a,b));}
                     void Pool(int id,V at,double width)
                     {
                         if(id<0||width<=0||!pools.Add(id))return;
                         foreach(double r in new[]{width,RiverscapeKernel.JunctionRadius(width)})
-                        for(int i=0;i<RiverscapeKernel.JunctionSides;i++)Edge(RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM));
+                        for(int i=0;i<RiverscapeKernel.JunctionSides;i++)Edge(RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),r>width);
                     }
                     if(s.PoolA)Pool(s.From,s.A,s.WidthA);if(s.PoolB)Pool(s.To,s.B,s.WidthB);
                     Edge(s.A,s.B);Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);
@@ -47,7 +48,7 @@ namespace WorldGen.Presentation
                     {
                         V ol=(s.A+s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit,orr=(s.A-s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit;
                         V pl=(s.B+s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit,pr=(s.B-s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit;
-                        Edge(ol,pl);Edge(orr,pr);Edge(ol,orr);Edge(pl,pr);
+                        Edge(ol,pl,true);Edge(orr,pr,true);Edge(ol,orr);Edge(pl,pr);
                     }
                 }
                 // A known pond also needs its basin in the drawn land. A coarse
@@ -97,7 +98,7 @@ namespace WorldGen.Presentation
                 int minX=Math.Max(0,(int)Math.Floor((Math.Min(ax,bx)-pad)/step)),maxX=Math.Min(mesh.Segments-1,(int)Math.Floor((Math.Max(ax,bx)+pad)/step));
                 int minZ=Math.Max(0,(int)Math.Floor((Math.Min(az,bz)-pad)/step)),maxZ=Math.Min(mesh.Segments-1,(int)Math.Floor((Math.Max(az,bz)+pad)/step));
                 if(minX>maxX||minZ>maxZ)continue;
-                int id=cuts.Count;cuts.Add(new Cut{X=ax,Z=az,DX=dx/length,DZ=dz/length,Length=length,Half=p.HalfWidthM});
+                int id=cuts.Count;cuts.Add(new Cut{X=ax,Z=az,DX=dx/length,DZ=dz/length,Length=length,Half=p.HalfWidthM,Bank=bankEdges.Contains((p.A,p.B))});
                 for(int z=minZ;z<=maxZ;z++)for(int x=minX;x<=maxX;x++)
                 {
                     double cx=(x+.5)*step-ax,cz=(z+.5)*step-az;
@@ -127,6 +128,19 @@ namespace WorldGen.Presentation
             static (long,long) Key(double x,double z)=>((long)Math.Floor(x*1000),(long)Math.Floor(z*1000));
             void Remember((long,long) key,int id){if(!shared.TryGetValue(key,out var list)){list=new List<int>();shared.Add(key,list);}list.Add(id);}
             for(int i=0;i<original.Length;i++)Remember(Key(positions[i*3],positions[i*3+2]),i);
+            bool Perimeter(Point p)=>Math.Abs(p.X)<1e-7||Math.Abs(p.X-mesh.SizeM)<1e-7||Math.Abs(p.Z)<1e-7||Math.Abs(p.Z-mesh.SizeM)<1e-7;
+            bool Bank(Point p)
+            {
+                int x=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(p.X/step))),z=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(p.Z/step)));
+                if(!buckets.TryGetValue(z*mesh.Segments+x,out var nearby))return false;
+                double tolerance=Math.Max(.001,mesh.SizeM*2e-7);
+                foreach(int id in nearby)
+                {
+                    var cut=cuts[id];if(!cut.Bank)continue;double px=p.X-cut.X,pz=p.Z-cut.Z,along=px*cut.DX+pz*cut.DZ;
+                    if(along>=-tolerance&&along<=cut.Length+tolerance&&Math.Abs(px*cut.DZ-pz*cut.DX)<tolerance)return true;
+                }
+                return false;
+            }
             int Vertex(Point p)
             {
                 token.ThrowIfCancellationRequested();
@@ -137,7 +151,11 @@ namespace WorldGen.Presentation
                 // vertices, creating needle triangles and holes in water clips.
                 for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
                     if(shared.TryGetValue((key.Item1+dx,key.Item2+dz),out var nearby))foreach(int found in nearby)
-                    {double ex=positions[found*3]-p.X,ez=positions[found*3+2]-p.Z;if(ex*ex+ez*ez<.000001)return found;}
+                    {
+                        double ex=positions[found*3]-p.X,ez=positions[found*3+2]-p.Z;if(ex*ex+ez*ez>=.000001)continue;
+                        if(Perimeter(p)&&Bank(p)){V bankPoint=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);positions[found*3+1]=(float)frame.SurfaceY(bankPoint,patch.Elevation(bankPoint));}
+                        return found;
+                    }
                 V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);var s=patch.Sample(at);
                 double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Elevation(v));}
                 double here=frame.SurfaceY(at,s.ElevationM);
@@ -147,9 +165,11 @@ namespace WorldGen.Presentation
                     s.Province.ExposedRock*(1-D.Clamp(s.RiverSand+s.RiverGravel)));
                 int id=samples.Count;samples.Add(s);Remember(key,id);
                 double height=frame.SurfaceY(at,s.ElevationM);
-                // Keep the existing collapsed tile perimeter exactly linear;
-                // channel refinement cannot open cracks against another LOD.
-                if(!s.Underwater&&(Math.Abs(p.X)<1e-7||Math.Abs(p.X-mesh.SizeM)<1e-7||Math.Abs(p.Z)<1e-7||Math.Abs(p.Z-mesh.SizeM)<1e-7))
+                // Both neighbours refine these same finite bank constraints.
+                // Preserve their canonical dry-bank height as well as the wet
+                // bed. Flattening a bank onto the old coarse grid can put it
+                // metres below its water and expose the ribbon at tile borders.
+                if(!s.Underwater&&Perimeter(p)&&!Bank(p))
                 {
                     bool vertical=Math.Abs(p.X)<1e-7||Math.Abs(p.X-mesh.SizeM)<1e-7;
                     double along=(vertical?p.Z:p.X)/step;int low=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(along)));double t=along-low;

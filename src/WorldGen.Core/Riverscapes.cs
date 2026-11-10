@@ -24,6 +24,14 @@ namespace WorldGen.Core
     {
         public const int JunctionSides=32;
         public static double JunctionRadius(double halfWidth)=>halfWidth<=0?0:(halfWidth+2)/Math.Cos(Math.PI/JunctionSides);
+        // Two channel corridors remain joined beyond their node disk when
+        // they approach at an acute angle. End their shared stage after that
+        // overlap, not at an arbitrary multiple of the node width.
+        public static double ConfluenceRadius(double halfWidth,double directionCosine)
+        {
+            double radius=JunctionRadius(halfWidth);
+            return radius/Math.Sqrt(Math.Max(1e-12,(1-Math.Max(-1,Math.Min(1,directionCosine)))*.5));
+        }
         public static V JunctionPoint(V at,double radius,double angle,double planetRadius)
         {
             V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
@@ -90,7 +98,8 @@ namespace WorldGen.Core
         // 637km planet has squared length below that quantum. Preserve double
         // precision here, without changing canonical world-generation math.
         static double RiverDot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
-        double[] riverDatums,riverNodeWidths,riverNodeDepths;
+        double[] riverDatums,riverNodeWidths,riverNodeDepths,riverCollarRadii;
+        int[] riverIncidentOffsets,riverIncidents;
         int[] riverReceivers,riverFaceOffsets,riverFaces,riverPrevious;
         bool[] riverActive;
         int[] riverIncoming;
@@ -142,6 +151,24 @@ namespace WorldGen.Core
             }
             for(int i=0;i<count;i++)if(riverNodeWidths[i]>0)
                 riverNodeDepths[i]=Math.Min(riverNodeDepths[i],riverNodeWidths[i]*.75);
+            riverIncidentOffsets=new int[count+1];
+            for(int i=0;i<count;i++)if(riverActive[i]){riverIncidentOffsets[i+1]++;riverIncidentOffsets[riverReceivers[i]+1]++;}
+            for(int i=1;i<=count;i++)riverIncidentOffsets[i]+=riverIncidentOffsets[i-1];
+            riverIncidents=new int[riverIncidentOffsets[count]];cursor=(int[])riverIncidentOffsets.Clone();
+            for(int i=0;i<count;i++)if(riverActive[i]){int next=riverReceivers[i];riverIncidents[cursor[i]++]=next;riverIncidents[cursor[next]++]=i;}
+            riverCollarRadii=new double[count];
+            for(int node=0;node<count;node++)
+            {
+                if(riverIncoming[node]==0||ThroughRiverNode(node))continue;
+                double collar=RiverscapeKernel.JunctionRadius(riverNodeWidths[node]);V at=rootNodes[node].Position;
+                for(int i=riverIncidentOffsets[node];i<riverIncidentOffsets[node+1];i++)
+                for(int j=i+1;j<riverIncidentOffsets[node+1];j++)
+                {
+                    V a=(rootNodes[riverIncidents[i]].Position-at).Unit,b=(rootNodes[riverIncidents[j]].Position-at).Unit;
+                    collar=Math.Max(collar,RiverscapeKernel.ConfluenceRadius(riverNodeWidths[node],RiverDot(a,b)));
+                }
+                riverCollarRadii[node]=collar;
+            }
             // Construct the inherited troughs BEFORE bank fitting. Cached and
             // freshly derived water levels then sample exactly the same ground.
             // Final reconciled levels remain the shared trough-floor reference.
@@ -203,14 +230,25 @@ namespace WorldGen.Core
             }
             var ids=new int[faceSet.Count];faceSet.CopyTo(ids);var bare=new Patch(this,ids);double ceiling=riverDatums[node];
             double width=riverNodeWidths[node];
-            // Collars now stop exactly at the pool, rather than extending to
-            // 2.5 radii plus an entire coarse station. Fit that actual footprint
-            // and its square corners, not an unrelated distant floodplain ring.
+            // Fit the disk and the actual shared-stage corridors. Their outer
+            // banks matter too when acute tributaries overlap past the disk.
             foreach(double r in new[]{RiverscapeKernel.JunctionRadius(width)})
             for(int direction=0;direction<16;direction++)
             {
                 var p=RiverscapeKernel.JunctionPoint(rootNodes[node].Position,r,direction*Math.PI/8,radius*scale);
                 ceiling=Math.Min(ceiling,bare.Sample(p,true).Height-RiverHydraulics.BankFreeboard(width));
+            }
+            double collar=riverCollarRadii[node],physical=radius*scale;
+            if(collar>RiverscapeKernel.JunctionRadius(width)+.01)
+            for(int i=riverIncidentOffsets[node];i<riverIncidentOffsets[node+1];i++)
+            {
+                int other=riverIncidents[i];V at=rootNodes[node].Position,d=(rootNodes[other].Position-at).Unit,side=V.Cross(at,d).Unit;
+                double length=(rootNodes[other].Position-at).Length*physical;
+                foreach(double fraction in new[]{.5,1d})foreach(int sign in new[]{-1,1})
+                {
+                    V p=(at+d*(Math.Min(collar*fraction,length)/physical)+side*(sign*(width+2)/physical)).Unit;
+                    ceiling=Math.Min(ceiling,bare.Sample(p,true).Height-RiverHydraulics.BankFreeboard(width));
+                }
             }
             return ceiling;
         }
@@ -234,7 +272,7 @@ namespace WorldGen.Core
                 var points=RiverPlanform.Build(t=>RiverPoint(source,t),n,length,width,(start-end)/Math.Max(1,length),
                     a.Sediment,a.Hardness,radius*scale,a.Key,throughA?RiverNodeTangent(source):(V?)null,throughB?RiverNodeTangent(target):(V?)null);
                 points[0]=a.Position;points[n]=b.Position;
-                double collarA=poolA?RiverscapeKernel.JunctionRadius(riverNodeWidths[source]):0,collarB=poolB?RiverscapeKernel.JunctionRadius(riverNodeWidths[target]):0;
+                double collarA=poolA?riverCollarRadii[source]:0,collarB=poolB?riverCollarRadii[target]:0;
                 points=RiverscapeKernel.InsertJunctionCollars(points,radius*scale,collarA,collarB);n=points.Length-1;
                 var levels=new double[n+1];var widths=new double[n+1];var depths=new double[n+1];
                 var faceSet=new SortedSet<int>();

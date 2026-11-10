@@ -6237,5 +6237,13 @@
     "source": "e456fc76",
     "meandering_pinned_143549": "FAILED suitable actual landscape context selection; no capture accepted",
     "alluvial_pinned_115180": "EXIT0; actual overview, ground and wide captures inspected. Broad flowing forest channel and point bar; does not waive major-boundary failure."
+  },
+  "confluence_overlap_trial": {
+    "version": 85,
+    "status": "UNACCEPTED",
+    "method": "Incident-angle shared-stage collars; fit actual corridor banks; canonical dry-bank constraint height retained across tile perimeters.",
+    "results": "All three selected major shorelines pass (worst 0.011m). One submerged point remains obscured by 0.062m of interpolated terrain in source127655. Exact scalar field is 0.36m underwater. Diagnostic shows a steep narrow ridge from bank composition; next compare retiring that provisional guard approach now that confluence stages agree.",
+    "cold_fitting_ms": 37752.9,
+    "scope": "No loading or FPS acceptance. More expensive fitting remains to be addressed."
   }
 }
