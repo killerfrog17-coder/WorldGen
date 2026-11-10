@@ -181,7 +181,7 @@ public sealed partial class LocalTerrainExplorer
         // Readiness gates NEW reveal only. Walking into a finer LOD request or
         // replacing a forest page must not pull the whole visible world inward.
         // A late product uses its local transition instead of restarting fog.
-        streamedFog=TerrainStreamingReveal.Advance(streamedFog,fogSafeRadius,viewDistance*.98,Time.unscaledDeltaTime);
+        streamedFog=TerrainStreamingReveal.Advance(streamedFog,fogSafeRadius,viewDistance*.98,Time.unscaledDeltaTime,TerrainVideoOptions.LoadingFogSeconds);
         renderedStreamingFog=TerrainStreamingReveal.Smooth(renderedStreamingFog,TerrainVideoOptions.LoadingFog?streamedFog:viewDistance*.98,Time.unscaledDeltaTime,TerrainVideoOptions.LoadingFogSeconds);
         SetFog();
     }

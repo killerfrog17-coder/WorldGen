@@ -8,12 +8,12 @@ namespace WorldGen.Presentation
     public static class TerrainStreamingReveal
     {
         public const double InitialDistance=8;
-        public static double Advance(double current,double ready,double limit,double seconds)
+        public static double Advance(double current,double ready,double limit,double seconds,double transitionSeconds=3)
         {
             limit=Math.Max(0,limit);current=Math.Min(limit,Math.Max(0,current));
             double target=Math.Min(limit,Math.Max(current,ready));
             if(target==current)return current;
-            return Smooth(current,target,seconds,3);
+            return Smooth(current,target,seconds,transitionSeconds);
         }
         // Blend apparent distance rather than racing across the first few
         // hundred metres at the same speed as a distant horizon.

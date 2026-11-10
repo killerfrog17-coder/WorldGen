@@ -66,6 +66,7 @@ public sealed partial class LocalTerrainExplorer
         Array.Clear(batch.DirtyBlocks,0,batch.DirtyBlocks.Length);batch.Dirty=batch.AllDirty=false;batch.CullValid=false;
     }
     readonly List<ForestWork> forestJobs=new List<ForestWork>();readonly HashSet<ForestPageKey> forestWanted=new HashSet<ForestPageKey>();
+    Comparison<ForestWork> forestCompletionComparison;
     readonly Dictionary<ForestPageKey,bool> forestOwnership=new Dictionary<ForestPageKey,bool>();int forestOwnershipRevision=-1,forestOwnershipEpoch;
     ForestPageKey[] forestPriority=Array.Empty<ForestPageKey>();Task<ForestPageKey[]> forestPlan;
     readonly Stack<int> forestFreeIds=new Stack<int>();int forestNextId,forestRootCount,forestHashMask,forestRevision,forestRootTopologyRevision,forestOptions=-1,forestNextRequest;bool forestMaintenanceDirty;
@@ -181,6 +182,14 @@ public sealed partial class LocalTerrainExplorer
         }
         if(forestHashDirty)foreach(var field in forestFields.Values)
         {bool ready=field.EvaluateReady();if(ready!=field.WasReady){field.WasReady=ready;scatterDirty=true;forestRevision++;forestOwnershipEpoch++;forestMaintenanceDirty=true;}}
+        // The reverse removal loop used to install the newest completed page
+        // first. A stream of quick far pages could indefinitely bypass the
+        // oldest nearby page and keep the reveal disk at zero.
+        if(!legacyLoader&&forestJobs.Count>1)
+        {
+            forestCompletionComparison??=(a,b)=>ForestGapDistance(b.Key).CompareTo(ForestGapDistance(a.Key));
+            forestJobs.Sort(forestCompletionComparison);
+        }
         for(int i=forestJobs.Count-1;i>=0;i--)
         {
             var job=forestJobs[i];if(!job.Task.IsCompleted)continue;
