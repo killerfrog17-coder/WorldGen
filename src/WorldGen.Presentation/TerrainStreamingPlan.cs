@@ -8,6 +8,23 @@ namespace WorldGen.Presentation
     /// synchronously; movement cannot replace known relief with a flat guess.</summary>
     public static class TerrainStreamingPlan
     {
+        public static Dictionary<TerrainTileKey,int> Coverage(double x,double z,double scale,double range)
+        {
+            var result=new Dictionary<TerrainTileKey,int>();
+            void Add(int level,double radius,int segments)
+            {
+                double size=TerrainLod.BaseSizeM*scale*(1<<level);
+                for(int j=(int)Math.Floor((z-radius)/size);j<=(int)Math.Floor((z+radius)/size);j++)
+                    for(int i=(int)Math.Floor((x-radius)/size);i<=(int)Math.Floor((x+radius)/size);i++)
+                    {var key=new TerrainTileKey(i,j,level,scale);if(TerrainLod.DistanceSquared(key,x,z)<=radius*radius)result[key]=segments;}
+            }
+            Add(TerrainAdaptiveLod.BackdropLevel(scale,range),range,8);
+            // Bound the fine fallback disk independently of an enormous view
+            // distance. At most a few hundred work units, including on small
+            // planets, rather than a uniform 2km grid over a 250km horizon.
+            int near=Math.Max(0,(int)Math.Floor(Math.Log(2048/(TerrainLod.BaseSizeM*scale),2)));
+            Add(near,Math.Min(range,8192),32);return result;
+        }
         public static Dictionary<TerrainTileKey,int> CompleteCoverage(IReadOnlyDictionary<TerrainTileKey,int> held,IReadOnlyDictionary<TerrainTileKey,int> fallback)
         {
             var result=new Dictionary<TerrainTileKey,int>(held.Count+32);

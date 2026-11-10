@@ -7,6 +7,19 @@ static class TerrainStreamingPlanTests
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
         foreach(double scale in new[]{.01,.1,1d,2d})
         {
+            foreach(double range in new[]{1000d,6000d,250000d})
+            {
+                double cx=-17321.5,cz=9234.25;var cover=TerrainStreamingPlan.Coverage(cx,cz,scale,range);
+                Check(cover.Count<350,"Fallback coverage remains bounded even at maximum horizon on compressed planets");
+                foreach(double radius in new[]{0d,Math.Min(range,8192)*.999,range*.999})
+                    for(int angle=0;angle<32;angle++)
+                    {
+                        double x=cx+Math.Cos(angle*Math.PI/16)*radius,z=cz+Math.Sin(angle*Math.PI/16)*radius;
+                        var spans=cover.Where(p=>x>=p.Key.X*p.Key.SizeM&&x<(p.Key.X+1)*p.Key.SizeM&&z>=p.Key.Z*p.Key.SizeM&&z<(p.Key.Z+1)*p.Key.SizeM).ToArray();
+                        Check(spans.Length>0,"Fallback covers the whole distant horizon including negative chart coordinates");
+                        if(radius<=8192)Check(spans.Any(p=>p.Key.SizeM/p.Value<=64),"Near flight fallback samples at most every 64 metres");
+                    }
+            }
             var o=new TerrainDetailOptions{ViewDistanceM=6000};double full=o.FullRadius(scale);
             Check(o.ProtectedRadius(scale,TerrainMotion.EyeHeightM)==full,"Walking retains its full-detail contact radius");
             Check(o.ProtectedRadius(scale,100000)==0,"High flight does not request a ground-contact micro-mesh floor");

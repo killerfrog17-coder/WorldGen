@@ -182,11 +182,8 @@ public sealed partial class LocalTerrainExplorer
             // Its regular grid is at most 64m; the normal wanted plan still
             // decides the final mesh resolution and quality reveal gate.
             pending.Backdrops.Clear();
-            int level=Math.Max(0,(int)Math.Floor(Math.Log(2048/(TerrainLod.BaseSizeM*HorizontalScale),2)));
-            double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level),step=size/32;
-            for(int j=(int)Math.Floor((z-viewDistance)/size);j<=(int)Math.Floor((z+viewDistance)/size);j++)
-                for(int i=(int)Math.Floor((x-viewDistance)/size);i<=(int)Math.Floor((x+viewDistance)/size);i++)
-                {var key=new TerrainTileKey(i,j,level,HorizontalScale);if(TerrainLod.DistanceSquared(key,x,z)<=viewDistance*viewDistance)pending.Backdrops.Add(key,new[]{step,step,step,step});}
+            foreach(var pair in TerrainStreamingPlan.Coverage(x,z,HorizontalScale,viewDistance))
+            {double step=pair.Key.SizeM/pair.Value;pending.Backdrops.Add(pair.Key,new[]{step,step,step,step});}
             pending.SortAt=0;
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)&&!pending.Wanted.Keys.Any(w=>Overlaps(k,w))).ToArray())
             {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);pending.Revision++;}
@@ -244,7 +241,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(!CanRequest||ActiveWorkerCount>=WorkerLimit-(nearOnly?1:0))return;
             bool backdrop=!pending.Wanted.ContainsKey(key);
-            int detail=backdrop?32:pending.Wanted[key];var edges=backdrop?pending.Backdrops[key]:pending.Edges[key];
+            var edges=backdrop?pending.Backdrops[key]:pending.Edges[key];int detail=backdrop?(int)Math.Round(key.SizeM/edges[0]):pending.Wanted[key];
             if(backdrop&&(pending.Tiles.ContainsKey(key)||!pending.Wanted.Keys.Any(w=>Overlaps(key,w)&&!PreparedCovered(pending,w))))continue;
             if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;

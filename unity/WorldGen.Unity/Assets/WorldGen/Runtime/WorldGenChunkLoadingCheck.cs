@@ -138,7 +138,9 @@ public sealed partial class LocalTerrainExplorer
             {
                 nextAudit=now+5;lastPixelGaps=CheckFlightGroundPixels(Path.Combine(output,"flight-ground-"+audits+".png"));
                 Capture(Path.Combine(output,"flight-view-"+audits+".png"));audits++;
+                int perspectiveGaps=CheckFlightGroundPixels(Path.Combine(output,"flight-perspective-ground-"+(audits-1)+".png"),overhead:false);
                 workRows.Add(t.ToString("F2",CultureInfo.InvariantCulture)+"s: "+StreamingWorkReceipt);
+                workRows.Add("perspective bottom-third ground gaps="+perspectiveGaps+"/3072");
                 File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
                 var snapshot=new List<string>{"scope,x,z,level,scale,segments",$"observer,{motion.X:R},{motion.Z:R},0,{HorizontalScale:R},{viewDistance:R}"};
                 void Save(string scope,IEnumerable<KeyValuePair<TerrainTileKey,int>> entries)
@@ -168,7 +170,7 @@ public sealed partial class LocalTerrainExplorer
         File.WriteAllText(Path.Combine(output,"fast-flight.txt"),(fixedSpeed>0?fixedSpeed+" m/s":"200 then 600 m/s")+" forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; max handoff ms="+LargestHandoffMs+" "+LargestHandoffProfile+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
     }
-    int CheckFlightGroundPixels(string path)
+    int CheckFlightGroundPixels(string path,bool overhead=true)
     {
         // Positive-controlled actual shader audit. Only the production ground
         // renderers enter this camera; the original coverage/fade materials
@@ -184,8 +186,8 @@ public sealed partial class LocalTerrainExplorer
         var target=new RenderTexture(96,96,24);var pixels=new Texture2D(96,96,TextureFormat.RGB24,false);
         try
         {
-            view.transform.position=new Vector3((float)(motion.X-originX),(float)(Ground(motion.X,motion.Z)+10000),(float)(motion.Z-originZ));view.transform.rotation=Quaternion.Euler(90,0,0);
-            view.orthographic=true;view.orthographicSize=40;view.farClipPlane=20000;view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=Color.magenta;view.targetTexture=target;
+            if(overhead){view.transform.position=new Vector3((float)(motion.X-originX),(float)(Ground(motion.X,motion.Z)+10000),(float)(motion.Z-originZ));view.transform.rotation=Quaternion.Euler(90,0,0);view.orthographic=true;view.orthographicSize=40;view.farClipPlane=20000;}
+            view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=Color.magenta;view.targetTexture=target;
             Color32[] Read(){view.Render();RenderTexture.active=target;pixels.ReadPixels(new Rect(0,0,96,96),0,0);pixels.Apply();return pixels.GetPixels32();}
             view.cullingMask=0;var empty=Read();var repeated=Read();
             bool Equal(Color32 a,Color32 b)=>Math.Abs(a.r-b.r)<4&&Math.Abs(a.g-b.g)<4&&Math.Abs(a.b-b.b)<4;
@@ -195,7 +197,7 @@ public sealed partial class LocalTerrainExplorer
             // that every empty pixel has one uniform postprocessed colour.
             if(stable<empty.Length*.99){File.WriteAllBytes(path+"-unstable-control.png",pixels.EncodeToPNG());throw new InvalidOperationException("Flight ground audit has an unstable empty positive control");}
             view.cullingMask=1<<29;var actual=Read();int gaps=0;
-            for(int i=0;i<actual.Length;i++)if(Equal(actual[i],empty[i]))gaps++;
+            for(int i=0;i<(overhead?actual.Length:96*32);i++)if(Equal(actual[i],empty[i]))gaps++;
             File.WriteAllBytes(path,pixels.EncodeToPNG());return gaps;
         }
         finally

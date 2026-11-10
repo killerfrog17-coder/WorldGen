@@ -142,31 +142,38 @@ public sealed partial class LocalTerrainExplorer
     }
     void PlanBackdrop()
     {
-        backdrops.Clear();backdropRevision++;int root=TerrainAdaptiveLod.BackdropLevel(HorizontalScale,viewDistance);
-        double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<root);
-        for(int z=(int)Math.Floor((motion.Z-viewDistance)/size);z<=(int)Math.Floor((motion.Z+viewDistance)/size);z++)
-            for(int x=(int)Math.Floor((motion.X-viewDistance)/size);x<=(int)Math.Floor((motion.X+viewDistance)/size);x++)
-            {
-                var key=new TerrainTileKey(x,z,root,HorizontalScale);
-                if(TerrainLod.DistanceSquared(key,motion.X,motion.Z)>viewDistance*viewDistance)continue;
-                double step=key.SizeM/8;backdrops[key]=new[]{step,step,step,step};
-            }
+        backdrops.Clear();backdropRevision++;
+        foreach(var pair in TerrainStreamingPlan.Coverage(motion.X,motion.Z,HorizontalScale,viewDistance))
+        {double step=pair.Key.SizeM/pair.Value;backdrops.Add(pair.Key,new[]{step,step,step,step});}
     }
-    bool BackdropNeeded(TerrainTileKey key){foreach(var p in wanted)if(Overlaps(key,p.Key)&&!HasResidentCoverage(p.Key))return true;return false;}
-    bool HasResidentCoverage(TerrainTileKey key)
+    bool BackdropNeeded(TerrainTileKey key)
+    {
+        double spacing=backdrops.TryGetValue(key,out var edges)?edges[0]:double.PositiveInfinity;
+        foreach(var p in wanted)if(Overlaps(key,p.Key))
+        {
+            if(tiles.TryGetValue(p.Key,out var exact)&&exact.Segments==p.Value)continue;
+            if(!HasResidentCoverage(p.Key,spacing))return true;
+        }
+        return false;
+    }
+    bool HasResidentCoverage(TerrainTileKey key,double maximumSpacing=double.PositiveInfinity)
     {
         for(int depth=0;depth<24-key.Level;depth++)
-            if(tiles.ContainsKey(new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale)))return true;
+        {
+            var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
+            if(tiles.TryGetValue(ancestor,out var tile)&&ancestor.SizeM/tile.Segments<=maximumSpacing*1.000001)return true;
+        }
         return false;
     }
     void ScheduleBackdrop()
     {
         if(detailBaseline)return;
-        if(NearTerrainPending()||!CanRequest)return;
+        bool coveredFlight=motion.Flying&&CenterReady;
+        if(!coveredFlight&&NearTerrainPending()||!CanRequest)return;
         // Coarse background charts do not satisfy the requested-quality reveal
         // gate. Fill the first visible neighbourhood before spending the same
         // limited lanes on distant fallback charts.
-        if(!legacyLoader&&terrainRevealRadius<Math.Min(600,viewDistance*.75))return;
+        if(!coveredFlight&&!legacyLoader&&terrainRevealRadius<Math.Min(600,viewDistance*.75))return;
         if(sortedBackdropRevision!=backdropRevision)
         {
             backdropOrder.Clear();int order=0;foreach(var p in backdrops)backdropOrder.Add(new BackdropEntry{Key=p.Key,Value=p.Value,Order=order++});
@@ -180,7 +187,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(ActiveWorkerCount>=WorkerLimit)return;
             if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
-            RequestTerrain(p.Key,8,p.Value,backdrop:true);if(!CanRequest)return;
+            RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);if(!CanRequest)return;
         }
     }
     int CompareBackdrop(BackdropEntry a,BackdropEntry b)
