@@ -133,6 +133,11 @@ public sealed partial class LocalTerrainExplorer
         foreach(var item in Inventory.Items)
         {
             if(item.Place!=PossessionPlace.Ground||(item.AttachedAnimal==0&&item.AttachedHuman==0))continue;
+            UpdateAttachedProjectile(item);
+        }
+    }
+    void UpdateAttachedProjectile(Possession item)
+    {
             Matrix4x4 matrix=Matrix4x4.identity;bool found=false;
             if(item.AttachedAnimal!=0&&animals.TryGetValue(item.AttachedAnimal,out var animal)&&!animal.Retired&&animal.Root!=null&&wildlifeSkeletons!=null&&wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton)&&item.AttachedBone>=0&&item.AttachedBone<skeleton.bones.Length)
             {matrix=AnimalBoneWorld(animal,item.AttachedBone,skeleton);found=true;}
@@ -149,10 +154,9 @@ public sealed partial class LocalTerrainExplorer
                 bool liveAnimal=item.AttachedAnimal!=0&&animals.ContainsKey(item.AttachedAnimal);
                 bool liveHuman=item.AttachedHuman!=0&&humanNpcs.Any(h=>h.Id==item.AttachedHuman&&h.Root!=null);
                 if(!savedAnimal&&!liveAnimal&&!liveHuman)ReleaseProjectileAttachment(item);
-                continue;
+                return;
             }
             var point=transform.InverseTransformPoint(matrix.MultiplyPoint3x4(UnityVector(item.AttachedLocalPoint)));var direction=transform.InverseTransformDirection(matrix.MultiplyVector(UnityVector(item.AttachedDirection))).normalized;
             item.Position=frame.Position(point.x+originX,point.z+originZ);item.GroundOffsetM=point.y-Ground(point.x+originX,point.z+originZ);item.GroundRotation=CoreVector(Quaternion.FromToRotation(Vector3.up,direction).eulerAngles);
-        }
     }
 }

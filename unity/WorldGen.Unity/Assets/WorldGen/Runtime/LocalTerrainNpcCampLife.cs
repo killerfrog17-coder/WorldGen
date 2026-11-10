@@ -49,7 +49,8 @@ public sealed partial class LocalTerrainExplorer
         var chosen=available.OrderByDescending(p=>group.CampWorkers.Contains(p.ResidentId)?1:0).ThenByDescending(p=>p.Routine.Activity==HumanActivity.BuildCamp||p.Routine.Activity==HumanActivity.RepairShelter||p.Routine.Activity==HumanActivity.Craft?1:0).ThenByDescending(p=>p.Resident.Skills?.Length>4?p.Resident.Skills[4]:0).ThenBy(p=>p.ResidentId).Take(Math.Min(4,Math.Max(group.CampWorkers.Count,Math.Max(1,available.Length/4)))).Select(p=>p.ResidentId).ToArray();
         group.CampWorkers.Clear();foreach(long person in chosen)group.CampWorkers.Add(person);
     }
-    double NpcBeddingGoal(LivingGroup group,long household)=>.9+Math.Min(5,group.Residents.Members.Count(p=>p.Household==household))*.5;
+    double NpcBeddingGoal(LivingGroup group,long household)
+    {int count=0;foreach(var person in group.Residents.Members)if(person.Household==household)count++;return .9+Math.Min(5,count)*.5;}
     bool NeedsNpcCampWork(LivingGroup group)
     {
         if(!group.CampLoaded||group.TraceOnly||group.Residents==null)return false;

@@ -170,7 +170,7 @@ public sealed partial class LocalTerrainExplorer
     bool ApplyNpcPlan(HumanActor actor,ref HumanActivitySample routine,ref V target)
     {
         if(!npcPlans.TryGetValue(actor.ResidentId,out var plan))return false;
-        double now=Time.unscaledTimeAsDouble;var alarm=LivingState.Groups.FirstOrDefault(g=>g.Group==actor.GroupId);
+        double now=Time.unscaledTimeAsDouble;HumanGroupMemory alarm=null;foreach(var known in LivingState.Groups)if(known.Group==actor.GroupId){alarm=known;break;}
         if(plan.Listening&&HumanDistance(actor.Planet,Position)<24&&
             ((npcPending?.Person==actor.ResidentId&&npcThinking!=null&&!npcThinking.IsCompleted)||npcEvents.HasDirect(actor.ResidentId)||npcConversation!=null&&(npcConversation.A==actor.ResidentId||npcConversation.B==actor.ResidentId)))plan.Until=now+2;
         if(now>plan.Until||alarm!=null&&alarm.AlarmUntilSolarDay>PlayerRules.SolarDays||!NpcGoal(actor,plan.Decision.target,out var goal))

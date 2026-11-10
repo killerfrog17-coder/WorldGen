@@ -11,6 +11,6 @@ public sealed class WorldGenHumanAgeLibrary : ScriptableObject
 {
     public string Variant;public int Years;public float EyeHeight;public GameObject Prefab;
     public HumanGroundOffset[] Grounding=Array.Empty<HumanGroundOffset>();
-    public float Offset(string role)=>Grounding.FirstOrDefault(g=>g.Role==role)?.Metres??0;
+    public float Offset(string role){foreach(var ground in Grounding)if(ground.Role==role)return ground.Metres;return 0;}
 }
 [Serializable] public sealed class HumanGroundOffset{public string Role;public float Metres;}

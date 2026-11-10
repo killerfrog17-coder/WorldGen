@@ -33,6 +33,15 @@ static class NpcIndividualTests
         var belief=new ForagerBelief{Name="River tradition",Animacy=.8,AncestorPresence=.8,SacredLandscape="river pools",SeasonalRite="remembering the dead",MortuaryPractice="burial marked by stones"};
         string beliefs=NpcLocalKnowledge.Beliefs(belief,Biome.TemperateForest,.8);
         Check(beliefs.Contains("river pools")&&beliefs.Contains("burial marked by stones")&&beliefs.Contains("seriously"),"Faith context includes actual local sacred places, rites, mortuary customs and personal devotion");
-        Console.WriteLine("NPC individual checks PASS: "+checks);
+        var sightings=new NpcSocialState();for(int i=1;i<=65;i++)sightings.See(i,new V(1,0,0),0);
+        Check(sightings.KnownPerson(1)==null&&sightings.KnownPerson(65)!=null&&sightings.KnownPeople.Count==64,"Equal-age sighting eviction preserves first-seen ordering and the new observation");
+        var observed=sightings.KnownPerson(2);observed.ReportedPresence=true;
+        sightings.Record(new NpcIncident{Kind=NpcIncidentKind.Missing,Subject=2,SolarDay=.1});sightings.See(2,new V(0,1,0),.2);sightings.See(2,new V(0,0,1),.3);
+        Check(!observed.ReportedPresence&&observed.LastPosition.Z==1&&sightings.Incidents.Count(e=>e.Kind==NpcIncidentKind.Returned)==1,"A real sighting resolves a missing report once, without repeated return incidents");
+        for(int i=0;i<100;i++)sightings.See(2,new V(1,0,0),.4);
+        long allocatedBefore=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<10000;i++)sightings.See(2,new V(1,0,0),.4);
+        long allocated=GC.GetAllocatedBytesForCurrentThread()-allocatedBefore;
+        Check(allocated<1024,"Repeated known sightings allocate "+allocated+" bytes");
+        Console.WriteLine("NPC individual checks PASS: "+checks+"; warmed 10000 sightings allocated "+allocated+" bytes");
     }
 }

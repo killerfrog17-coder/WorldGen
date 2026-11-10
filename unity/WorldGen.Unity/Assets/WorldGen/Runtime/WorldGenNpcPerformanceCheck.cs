@@ -39,6 +39,36 @@ public sealed partial class LocalTerrainExplorer
         public void Dispose(){Measuring=false;RenderPipelineManager.beginCameraRendering-=BeforeCamera;}
     }
     Vector3? npcCrowdFocus;
+    static void VerifyCampPartSelection(LocalTerrainExplorer owner,string output)
+    {
+        int checks=0,construction=0,packingChoices=0;
+        void Compare(HumanActor actor,bool packing)
+        {
+            var group=owner.livingGroups[actor.GroupId];CampObject expected=null;CampComponent expectedPart=null;
+            // Original stable LINQ ordering, retained only in this native
+            // verifier. The production selector must choose these exact objects.
+            foreach(var house in owner.Camp.Objects.Where(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null).OrderBy(c=>c.NpcHousehold==actor.Resident.Household?0:1).ThenBy(c=>owner.HumanDistance(c.Position,actor.Planet)))
+            {
+                var plan=house.Blueprint;var definitions=owner.NpcCampParts(house);int stage=definitions.Where(c=>!CampBlueprints.Done(plan,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
+                var choices=packing?definitions.Where(c=>NpcCampWork.Portable(plan,c,owner.NpcCarryCampPoles(group),owner.NpcTakeCampCover(group))&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage):definitions.Where(c=>c.Stage==stage&&!CampBlueprints.Done(plan,c)).OrderBy(c=>c.Key);
+                expectedPart=choices.FirstOrDefault(c=>!owner.NpcCampPartClaimed(actor,house,c.Key));if(expectedPart==null)continue;expected=house;break;
+            }
+            owner.ChooseNpcCampPart(actor,group,packing,out var actual,out var part);
+            if(actual!=expected||part!=expectedPart)throw new InvalidOperationException("Allocation-free camp selector changed household/distance/stage/key/claim ordering for "+actor.Resident.Name);
+            checks++;if(actual!=null){if(packing)packingChoices++;else construction++;}
+        }
+        var host=owner.livingGroups.Values.First(g=>g.Residents!=null&&owner.Camp.Objects.Any(c=>c.NpcGroup==g.Residents.Id&&c.Blueprint?.Parts.Count>0));
+        var shelter=owner.Camp.Objects.First(c=>c.NpcGroup==host.Residents.Id&&c.Blueprint?.Parts.Count>0);var state=shelter.Blueprint.Parts[0];double work=state.WorkSeconds;bool carry=host.Situation.Camp.CarryPoles;
+        try
+        {
+            foreach(var actor in owner.livingPeople.Values){Compare(actor,false);Compare(actor,true);}
+            state.WorkSeconds=0;foreach(var actor in owner.livingPeople.Values){Compare(actor,false);Compare(actor,true);}
+            host.Situation.Camp.CarryPoles=true;foreach(var actor in owner.livingPeople.Values)if(actor.GroupId==host.Residents.Id)Compare(actor,true);
+        }
+        finally{state.WorkSeconds=work;host.Situation.Camp.CarryPoles=carry;}
+        if(checks<400||construction==0||packingChoices==0)throw new InvalidOperationException("Camp selector verification lacks actual construction/portable packing choices.");
+        File.WriteAllText(Path.Combine(output,"camp-selection-controls.txt"),"PASS "+checks+" exact native selections versus previous stable ordering; construction="+construction+", packing="+packingChoices+". Includes restored temporary incomplete-work and carry-poles fixtures; no material or schedule mutation retained.");
+    }
     static IEnumerator PrepareLivingCrowd(LocalTerrainExplorer owner,string output)
     {
         // Controlled gathering, not a change to world population or camp density.
@@ -91,6 +121,7 @@ public sealed partial class LocalTerrainExplorer
             skin.BakeMesh(posed);if(posed.vertices.Any(p=>!float.IsFinite(p.x)||!float.IsFinite(p.y)||!float.IsFinite(p.z))||posed.bounds.size.y<.8f||posed.bounds.size.y>2.5f)throw new InvalidOperationException("Reduced native skin has invalid posed geometry.");
         }
         Destroy(posed);owner.view.transform.position=eye;subject.DetailAt=0;owner.UpdateLivingDetail(subject);
+        VerifyCampPartSelection(owner,output);
         File.WriteAllText(Path.Combine(output,"human-detail-controls.txt"),"PASS original/middle/far/original restoration, unchanged source identity, and finite metre-scale baked native poses. Full native bones/weights/UVs checked during offline generation.");
         // Let the unchanged surrounding forest and actor assets finish before
         // measuring a crowd, instead of attributing initial page publication to AI.

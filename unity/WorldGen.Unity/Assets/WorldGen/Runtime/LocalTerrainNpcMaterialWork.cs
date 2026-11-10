@@ -167,7 +167,13 @@ public sealed partial class LocalTerrainExplorer
     bool PrepareNpcMaterialTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,ref V target)
     {
         if(dt<=0||actor.Resident.AgeYears<7)return false;
-        var task=actor.MaterialTask??(actor.MaterialTask=new NpcMaterialTask());string purpose=routine.Activity==HumanActivity.GatherFuel?"fuel":routine.Activity==HumanActivity.GatherPlants?"food":"";
+        actor.MaterialTask??=new NpcMaterialTask();
+        if(routine.Activity!=HumanActivity.GatherFuel&&routine.Activity!=HumanActivity.GatherPlants&&!(routine.Activity==HumanActivity.TendFire&&group.TenderDuty?.Person==actor.ResidentId))return false;
+        return AdvanceNpcMaterialTask(actor,group,routine,dt,ref target);
+    }
+    bool AdvanceNpcMaterialTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,ref V target)
+    {
+        var task=actor.MaterialTask;string purpose=routine.Activity==HumanActivity.GatherFuel?"fuel":routine.Activity==HumanActivity.GatherPlants?"food":"";
         if(routine.Activity==HumanActivity.TendFire&&group.TenderDuty?.Person==actor.ResidentId)
         {
             var fire=group.TendedFire;if(fire==null)return false;
@@ -255,7 +261,13 @@ public sealed partial class LocalTerrainExplorer
     void AdvanceNpcMaterialUse(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,V target)
     {
         if(dt<=0||actor.TaskWaiting||HumanDistance(actor.Planet,target)>1.8||actor.Threat!=null)return;
-        var stock=actor.Belongings;var record=NpcPersonRecord(actor);
+        var record=NpcPersonRecord(actor);
+        if(routine.Activity!=HumanActivity.PrepareFood&&routine.Activity!=HumanActivity.FetchWater&&routine.Activity!=HumanActivity.Craft)return;
+        WorkNpcMaterialUse(actor,group,routine,dt,target,record);
+    }
+    void WorkNpcMaterialUse(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,V target,HumanPersonMemory record)
+    {
+        var stock=actor.Belongings;
         if(routine.Activity==HumanActivity.PrepareFood&&PlayerRules.SolarDays<record.NextMealSolarDay){actor.TaskWaiting=true;actor.TaskDetail="resting after the last meal";return;}
         if(routine.Activity==HumanActivity.PrepareFood&&PlayerRules.SolarDays>=record.NextMealSolarDay)
         {

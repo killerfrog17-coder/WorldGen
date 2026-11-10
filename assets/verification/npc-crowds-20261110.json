@@ -29791,5 +29791,643 @@
     },
     "native_checks": "PASS An admitted real simulated community exists\nPASS Actual local terrain and centre tiles are ready\nPASS Natural residents stream from world history, without a spawn command\nPASS Natural camp passes local ground validation and is loaded\nPASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp\nPASS Camp consists of real player-compatible objects/materials\nPASS Native camp validates with real terrain footing surveys\nPASS Occupied camp shelters retain every fitted roof/frame component\nPASS Actual surrounding scatter pages are resident before accepting camp environment captures\nPASS Physical NPCs retain named family identities and actual scheduled tasks\nPASS Broad local group tracking is bounded at 50km plus foraging catchment\nPASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders\nPASS 513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates\nPASS Occupied shelter floor has a full-strength ground clearing mask\nPASS Packed compute shader removes grass inside the real camp floor and retains grass outside\nPASS Named camp objects and local memories survive actual player capture and serialization\nPASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects\nPASS Aggression preserves wounds and the actual victim's local memory\nPASS Unloading/revisiting a camp does not duplicate its objects\n"
   },
-  "historical_fixture_qualification": "All performance windows before correction of WorldGenLivingHumanCheck bootstrap camera have an extra active Main Camera. Use only internally paired comparisons; representative absolute results require the corrected single-camera fixture."
+  "historical_fixture_qualification": "All performance windows before correction of WorldGenLivingHumanCheck bootstrap camera have an extra active Main Camera. Use only internally paired comparisons; representative absolute results require the corrected single-camera fixture.",
+  "single_camera_baseline": {
+    "source": "d463d42e",
+    "scope": "Corrected production-equivalent single exploration camera; controlled 100 real people, radius10m eye-height orbit, Medium1080p/6km, four30s modes, no model inference. Counts checked through actual SRP camera events. This is a new fixture, not a production FPS optimization attributable to disabling a previously-active gameplay camera.",
+    "camera_control": "Disabled bootstrap camera before exploration, matching production ExploreTerrain: Main Camera; previous enabled=True; mask=-1",
+    "windows": [
+      {
+        "Mode": "normal",
+        "Frames": 3931,
+        "MeanFrameMs": 7.631968862884779,
+        "P95FrameMs": 9.0271,
+        "P99FrameMs": 10.2773,
+        "MaxFrameMs": 25.6297,
+        "MeanNpcMs": 2.8775668532180076,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 4,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 58,
+        "ExplorationRenders": 3930,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 481,
+        "EnabledSkinVertices": 1565375,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      },
+      {
+        "Mode": "render-only",
+        "Frames": 5624,
+        "MeanFrameMs": 5.335629676386923,
+        "P95FrameMs": 7.5335,
+        "P99FrameMs": 11.8188,
+        "MaxFrameMs": 31.012,
+        "MeanNpcMs": 0.08089457681365564,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 1,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 153,
+        "ExplorationRenders": 5624,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 477,
+        "EnabledSkinVertices": 1522833,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      },
+      {
+        "Mode": "no-residents",
+        "Frames": 7982,
+        "MeanFrameMs": 3.758458970182915,
+        "P95FrameMs": 7.1068,
+        "P99FrameMs": 11.2396,
+        "MaxFrameMs": 18.4952,
+        "MeanNpcMs": 0.0709058381358054,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 1,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 310,
+        "ExplorationRenders": 7982,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 477,
+        "EnabledSkinVertices": 1522833,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      },
+      {
+        "Mode": "normal-repeat",
+        "Frames": 3942,
+        "MeanFrameMs": 7.610893226788456,
+        "P95FrameMs": 9.0338,
+        "P99FrameMs": 10.2054,
+        "MaxFrameMs": 27.3913,
+        "MeanNpcMs": 2.8539841451040138,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 4,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 48,
+        "ExplorationRenders": 3942,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 481,
+        "EnabledSkinVertices": 1540490,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      }
+    ],
+    "native_checks": "PASS An admitted real simulated community exists\nPASS Actual local terrain and centre tiles are ready\nPASS Natural residents stream from world history, without a spawn command\nPASS Natural camp passes local ground validation and is loaded\nPASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp\nPASS Camp consists of real player-compatible objects/materials\nPASS Native camp validates with real terrain footing surveys\nPASS Occupied camp shelters retain every fitted roof/frame component\nPASS Actual surrounding scatter pages are resident before accepting camp environment captures\nPASS Physical NPCs retain named family identities and actual scheduled tasks\nPASS Broad local group tracking is bounded at 50km plus foraging catchment\nPASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders\nPASS 513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates\nPASS Occupied shelter floor has a full-strength ground clearing mask\nPASS Packed compute shader removes grass inside the real camp floor and retains grass outside\nPASS Named camp objects and local memories survive actual player capture and serialization\nPASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects\nPASS Aggression preserves wounds and the actual victim's local memory\nPASS Unloading/revisiting a camp does not duplicate its objects\n",
+    "gc_analysis": {
+      "scope": "Native Mono pre-stop to post-restart intervals overlapping recorded slow frames; overlap is evidence, not proof of sole causation.",
+      "events": 120,
+      "complete_stop_resume_intervals": 20,
+      "unmatched_intervals": 0,
+      "windows": [
+        {
+          "mode": "normal",
+          "clock_bridge_uncertainty_ms": 0.0794,
+          "mean_frame_ms": 7.631968862884779,
+          "p99_frame_ms": 10.2773,
+          "worst_frames": [
+            {
+              "frame_ms": 25.6297,
+              "npc_ms": 5.0561,
+              "stop_resume_overlap_ms": 6.2066
+            },
+            {
+              "frame_ms": 24.9729,
+              "npc_ms": 4.6989,
+              "stop_resume_overlap_ms": 5.5036
+            },
+            {
+              "frame_ms": 24.5311,
+              "npc_ms": 4.9664,
+              "stop_resume_overlap_ms": 6.2
+            },
+            {
+              "frame_ms": 23.2195,
+              "npc_ms": 4.686,
+              "stop_resume_overlap_ms": 5.4604
+            },
+            {
+              "frame_ms": 16.8669,
+              "npc_ms": 4.8369,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 13.1071,
+              "npc_ms": 4.3361,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.667,
+              "npc_ms": 4.1549,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.4214,
+              "npc_ms": 3.6584,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.222,
+              "npc_ms": 3.7624,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2165,
+              "npc_ms": 3.034,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.8977,
+              "npc_ms": 3.2386,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6908,
+              "npc_ms": 3.6368,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.5882,
+              "npc_ms": 5.0202,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.5858,
+              "npc_ms": 3.5278,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.2171,
+              "npc_ms": 7.6577,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.1402,
+              "npc_ms": 6.2021,
+              "stop_resume_overlap_ms": 3.1985
+            },
+            {
+              "frame_ms": 11.0919,
+              "npc_ms": 3.3684,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.0868,
+              "npc_ms": 2.7375,
+              "stop_resume_overlap_ms": 2.9034
+            },
+            {
+              "frame_ms": 11.0763,
+              "npc_ms": 3.8932,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.0106,
+              "npc_ms": 3.499,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9812,
+              "npc_ms": 4.1574,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.7988,
+              "npc_ms": 6.2037,
+              "stop_resume_overlap_ms": 3.1925
+            },
+            {
+              "frame_ms": 10.7949,
+              "npc_ms": 6.1028,
+              "stop_resume_overlap_ms": 3.1425
+            },
+            {
+              "frame_ms": 10.7084,
+              "npc_ms": 4.4172,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "render-only",
+          "clock_bridge_uncertainty_ms": 0.00015,
+          "mean_frame_ms": 5.335629676386923,
+          "p99_frame_ms": 11.8188,
+          "worst_frames": [
+            {
+              "frame_ms": 31.012,
+              "npc_ms": 0.0897,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 18.9183,
+              "npc_ms": 0.0897,
+              "stop_resume_overlap_ms": 5.818
+            },
+            {
+              "frame_ms": 13.4019,
+              "npc_ms": 0.074,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 13.0508,
+              "npc_ms": 0.0694,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.814,
+              "npc_ms": 0.088,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.7551,
+              "npc_ms": 0.0867,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.6414,
+              "npc_ms": 0.0988,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.5852,
+              "npc_ms": 0.0868,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.5262,
+              "npc_ms": 0.0847,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.4415,
+              "npc_ms": 0.0857,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3888,
+              "npc_ms": 0.0848,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3861,
+              "npc_ms": 0.0744,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3813,
+              "npc_ms": 0.0873,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3704,
+              "npc_ms": 0.0842,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3542,
+              "npc_ms": 0.1018,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3223,
+              "npc_ms": 0.0851,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3153,
+              "npc_ms": 0.0738,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3111,
+              "npc_ms": 0.0927,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2882,
+              "npc_ms": 0.0851,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2806,
+              "npc_ms": 0.0742,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2551,
+              "npc_ms": 0.0851,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2393,
+              "npc_ms": 0.0846,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2209,
+              "npc_ms": 0.0752,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.2007,
+              "npc_ms": 0.0707,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "no-residents",
+          "clock_bridge_uncertainty_ms": 0.00015,
+          "mean_frame_ms": 3.758458970182915,
+          "p99_frame_ms": 11.2396,
+          "worst_frames": [
+            {
+              "frame_ms": 18.4952,
+              "npc_ms": 0.071,
+              "stop_resume_overlap_ms": 5.2139
+            },
+            {
+              "frame_ms": 12.9795,
+              "npc_ms": 0.0653,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.8331,
+              "npc_ms": 0.0674,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.614,
+              "npc_ms": 0.0783,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.5447,
+              "npc_ms": 0.0772,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.4084,
+              "npc_ms": 0.0762,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.3484,
+              "npc_ms": 0.0719,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.1716,
+              "npc_ms": 0.0682,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.8247,
+              "npc_ms": 0.064,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.8048,
+              "npc_ms": 0.0687,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.751,
+              "npc_ms": 0.068,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.7155,
+              "npc_ms": 0.0923,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.7092,
+              "npc_ms": 0.0864,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6866,
+              "npc_ms": 0.0657,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6741,
+              "npc_ms": 0.0964,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6393,
+              "npc_ms": 0.0741,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6359,
+              "npc_ms": 0.0807,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6359,
+              "npc_ms": 0.0779,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6325,
+              "npc_ms": 0.0673,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.6088,
+              "npc_ms": 0.0847,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.5925,
+              "npc_ms": 0.0797,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.5803,
+              "npc_ms": 0.0654,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.574,
+              "npc_ms": 0.083,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.5633,
+              "npc_ms": 0.0652,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "normal-repeat",
+          "clock_bridge_uncertainty_ms": 0.00015,
+          "mean_frame_ms": 7.610893226788456,
+          "p99_frame_ms": 10.2054,
+          "worst_frames": [
+            {
+              "frame_ms": 27.3913,
+              "npc_ms": 6.2115,
+              "stop_resume_overlap_ms": 6.3132
+            },
+            {
+              "frame_ms": 26.7331,
+              "npc_ms": 17.7678,
+              "stop_resume_overlap_ms": 6.2405
+            },
+            {
+              "frame_ms": 25.5225,
+              "npc_ms": 4.7255,
+              "stop_resume_overlap_ms": 5.8826
+            },
+            {
+              "frame_ms": 23.7729,
+              "npc_ms": 4.6753,
+              "stop_resume_overlap_ms": 6.3706
+            },
+            {
+              "frame_ms": 13.6017,
+              "npc_ms": 4.5107,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.823,
+              "npc_ms": 3.8475,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.722,
+              "npc_ms": 4.8214,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.0974,
+              "npc_ms": 4.0703,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.045,
+              "npc_ms": 4.2775,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.8823,
+              "npc_ms": 3.9908,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.7683,
+              "npc_ms": 3.7137,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.5133,
+              "npc_ms": 3.3725,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.3399,
+              "npc_ms": 3.4346,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.0914,
+              "npc_ms": 3.1267,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.0413,
+              "npc_ms": 4.118,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9485,
+              "npc_ms": 3.0812,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9324,
+              "npc_ms": 5.2829,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8852,
+              "npc_ms": 3.246,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8769,
+              "npc_ms": 3.2559,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8645,
+              "npc_ms": 5.3219,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.6413,
+              "npc_ms": 3.2888,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.6405,
+              "npc_ms": 3.1893,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.5787,
+              "npc_ms": 3.4237,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.5403,
+              "npc_ms": 3.7808,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        }
+      ]
+    },
+    "floor_met": false
+  },
+  "pending": "Second allocation pass removes inactive perception/plan/material checks, repeated known-person/age/bedding lookups, attachment-loop closures and camp decision sorting. Native exact old/new camp selector controls added; UNBUILT/unaccepted. No second-pass performance gain claimed."
 }

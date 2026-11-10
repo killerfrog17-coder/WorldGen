@@ -55,7 +55,12 @@ public sealed partial class LocalTerrainExplorer
     void PrepareNpcTaskGear(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
     {
         if(actor.Belongings==null)InitializeNpcBelongings(actor,group);
-        if(actor.SimulationAge<actor.GearAt){if(actor.FetchingGear)target=actor.GearTarget;return;}actor.GearAt=actor.SimulationAge+.5;actor.TaskWaiting=false;actor.FetchingGear=false;
+        if(actor.SimulationAge<actor.GearAt){if(actor.FetchingGear)target=actor.GearTarget;return;}
+        AdvanceNpcTaskGear(actor,group,routine,ref target);
+    }
+    void AdvanceNpcTaskGear(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
+    {
+        actor.GearAt=actor.SimulationAge+.5;actor.TaskWaiting=false;actor.FetchingGear=false;
         string desired=HumanEquipment.Role(actor.Resident,routine,actor.CurrentActivity,group.Residents.Techniques);actor.GearRole=desired??"";
         if(desired==null)
         {

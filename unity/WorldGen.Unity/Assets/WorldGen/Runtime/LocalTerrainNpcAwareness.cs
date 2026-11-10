@@ -57,6 +57,10 @@ public sealed partial class LocalTerrainExplorer
         if(npcSenseFrame!=Time.frameCount){npcSenseFrame=Time.frameCount;npcSenseTicks=0;}
         double budget=campSleeping||campResting?2:1;
         if(npcSenseTicks*1000d/System.Diagnostics.Stopwatch.Frequency>budget){npcSenseDeferred++;perception.NextSense=actor.SimulationAge+.05;return;}
+        AdvanceNpcAwareness(actor,perception);
+    }
+    void AdvanceNpcAwareness(HumanActor actor,NpcAwareness perception)
+    {
         long began=System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
@@ -108,7 +112,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var social=NpcMemoryFor(observer.ResidentId).Social;social.See(person.ResidentId,point,PlayerRules.SolarDays);
         if(!livingGroups.TryGetValue(observer.GroupId,out var group))return;
-        var known=social.KnownPeople.First(k=>k.Person==person.ResidentId);
+        var known=social.KnownPerson(person.ResidentId);if(known==null)throw new InvalidOperationException("A just-seen bandmate has no sighting record.");
         NpcAbsence.Expect(known,PlayerRules.SolarDays,group.Situation.LocalHour,group.Situation.DaylightHours,person.Resident.AgeYears,HumanDistance(point,group.Anchor)<35,plan);
     }
     string NpcWorldContext(HumanActor actor,LivingGroup group)

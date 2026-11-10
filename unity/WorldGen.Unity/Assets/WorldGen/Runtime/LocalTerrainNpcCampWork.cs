@@ -54,7 +54,29 @@ public sealed partial class LocalTerrainExplorer
         travel.HoldCalendarDay=-1;return false;
     }
     bool NpcCampPartClaimed(HumanActor actor,CampObject obj,string part)
-        =>livingPeople.Values.Any(p=>p!=actor&&p.GroupId==actor.GroupId&&p.Health>0&&p.Threat==null&&p.CampTask?.Object==obj.Id&&p.CampTask.Part==part&&p.SimulationAge<p.CampTask.ChooseAt+5);
+    {foreach(var person in livingPeople.Values)if(person!=actor&&person.GroupId==actor.GroupId&&person.Health>0&&person.Threat==null&&person.CampTask?.Object==obj.Id&&person.CampTask.Part==part&&person.SimulationAge<person.CampTask.ChooseAt+5)return true;return false;}
+    void ChooseNpcCampPart(HumanActor actor,LivingGroup group,bool packing,out CampObject shelter,out CampComponent part)
+    {
+        shelter=null;part=null;int bestHousehold=int.MaxValue;double bestDistance=0;
+        foreach(var house in Camp.Objects)
+        {
+            if(house.NpcGroup!=actor.GroupId||house.NpcSite!=group.Situation.Camp.Id||house.Blueprint==null)continue;
+            int household=house.NpcHousehold==actor.Resident.Household?0:1;double distance=HumanDistance(house.Position,actor.Planet);
+            if(shelter!=null&&(household>bestHousehold||household==bestHousehold&&distance.CompareTo(bestDistance)>=0))continue;
+            var plan=house.Blueprint;var definitions=NpcCampParts(house);int stage=int.MaxValue;
+            foreach(var definition in definitions)if(!CampBlueprints.Done(plan,definition))stage=Math.Min(stage,definition.Stage);
+            if(stage==int.MaxValue)stage=4;
+            CampComponent selected=null;
+            foreach(var candidate in definitions)
+            {
+                bool eligible=packing?NpcCampWork.Portable(plan,candidate,NpcCarryCampPoles(group),NpcTakeCampCover(group))&&CampBlueprints.State(plan,candidate)?.Materials.Count>0:candidate.Stage==stage&&!CampBlueprints.Done(plan,candidate);
+                if(!eligible||selected!=null&&(packing?candidate.Stage<=selected.Stage:Comparer<string>.Default.Compare(candidate.Key,selected.Key)>=0)||NpcCampPartClaimed(actor,house,candidate.Key))continue;
+                selected=candidate;
+            }
+            if(selected==null)continue;
+            shelter=house;part=selected;bestHousehold=household;bestDistance=distance;
+        }
+    }
     static bool HasNpcCampCargo(HumanActor actor)
     {foreach(var item in actor.Belongings.Items)if(item.CampMaterial==actor.GroupId&&actor.Belongings.Carried(item))return true;return false;}
     bool DeliverNpcCampCargo(HumanActor actor,LivingGroup group,ref V target)
@@ -98,24 +120,20 @@ public sealed partial class LocalTerrainExplorer
         if(packing&&(beginning||!task.Packing)){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);}
         if(building&&!packing)
         {
-            var bundle=actor.Belongings.Items.FirstOrDefault(p=>actor.Belongings.Carried(p)&&p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId);
+            Possession bundle=null;foreach(var item in actor.Belongings.Items)if(actor.Belongings.Carried(item)&&item.Kind==PossessionKind.CampBundle&&item.CampMaterial==actor.GroupId){bundle=item;break;}
             if(bundle!=null){target=LivingHouse(actor)?.Position??group.Anchor;actor.TaskDetail="bringing and opening the actual bound shelter materials";actor.TaskWaiting=false;if(HumanDistance(actor.Planet,target)<2){NpcCampWork.Unbundle(actor.Belongings,bundle,actor.Planet);PublishNpcGroundGoods(actor);}return true;}
-            var staged=Inventory.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==actor.GroupId&&NpcCanUseWorldItem(actor,p));
+            Possession staged=null;foreach(var item in Inventory.Items)if(item.Kind==PossessionKind.CampBundle&&item.CampMaterial==actor.GroupId&&NpcCanUseWorldItem(actor,item)){staged=item;break;}
             if(staged!=null){target=staged.Position;actor.TaskDetail="collecting the real staged shelter load";actor.TaskWaiting=false;if(HumanDistance(actor.Planet,target)<1.7){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);AcquireNpcItem(actor,staged);}return true;}
         }
-        CampObject shelter=Camp.Objects.FirstOrDefault(c=>c.Id==task.Object&&c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id);
-        CampComponent part=shelter?.Blueprint==null?null:NpcCampParts(shelter).FirstOrDefault(c=>c.Key==task.Part);
+        CampObject shelter=null;foreach(var house in Camp.Objects)if(house.Id==task.Object&&house.NpcGroup==actor.GroupId&&house.NpcSite==group.Situation.Camp.Id){shelter=house;break;}
+        CampComponent part=null;if(shelter?.Blueprint!=null)foreach(var definition in NpcCampParts(shelter))if(definition.Key==task.Part){part=definition;break;}
         if(task.Packing!=packing||part==null&&task.Part.Length>0||packing&&part!=null&&CampBlueprints.State(shelter.Blueprint,part)?.Materials.Count==0||!packing&&part!=null&&CampBlueprints.Done(shelter.Blueprint,part))
         {shelter=null;part=null;task.Object=task.Part="";task.Work=0;}
         if(shelter==null&&actor.SimulationAge>=task.ChooseAt)
         {
             task.ChooseAt=actor.SimulationAge+1;task.Packing=packing;
-            foreach(var house in Camp.Objects.Where(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null).OrderBy(c=>c.NpcHousehold==actor.Resident.Household?0:1).ThenBy(c=>HumanDistance(c.Position,actor.Planet)))
-            {
-                var plan=house.Blueprint;var definitions=NpcCampParts(house);int stage=definitions.Where(c=>!CampBlueprints.Done(plan,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
-                var choices=packing?definitions.Where(c=>NpcCampWork.Portable(plan,c,NpcCarryCampPoles(group),NpcTakeCampCover(group))&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage):definitions.Where(c=>c.Stage==stage&&!CampBlueprints.Done(plan,c)).OrderBy(c=>c.Key);
-                part=choices.FirstOrDefault(c=>!NpcCampPartClaimed(actor,house,c.Key));if(part==null)continue;shelter=house;task.Object=house.Id;task.Part=part.Key;task.Work=0;break;
-            }
+            ChooseNpcCampPart(actor,group,packing,out shelter,out part);
+            if(shelter!=null){task.Object=shelter.Id;task.Part=part.Key;task.Work=0;}
         }
         if(shelter==null||part==null)
         {
@@ -123,6 +141,10 @@ public sealed partial class LocalTerrainExplorer
             if(PrepareNpcCampBedding(actor,group,dt,ref target))return true;
             actor.CampTask=null;return false;
         }
+        return WorkNpcCampPart(actor,group,ref routine,dt,ref target,packing,task,shelter,part);
+    }
+    bool WorkNpcCampPart(HumanActor actor,LivingGroup group,ref HumanActivitySample routine,float dt,ref V target,bool packing,NpcCampTask task,CampObject shelter,CampComponent part)
+    {
         routine=new HumanActivitySample{Person=actor.ResidentId,Group=actor.GroupId,Activity=packing?HumanActivity.PackCamp:HumanActivity.BuildCamp,Position=shelter.Position,Destination=shelter.Position};actor.CurrentActivity=routine.Activity;
         target=NpcCampWorkPoint(actor,shelter,part);actor.TaskWaiting=false;actor.TaskDetail=(packing?"taking down ":"assembling ")+part.Name+" for "+(shelter.NpcHousehold==actor.Resident.Household?"the household shelter":"a bandmate's shelter");
         if(packing)
@@ -191,9 +213,13 @@ public sealed partial class LocalTerrainExplorer
     }
     bool PrepareNpcCampBedding(HumanActor actor,LivingGroup group,float dt,ref V target)
     {
-        var bed=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Kind==CampKind.Bedding&&c.NpcHousehold==actor.Resident.Household);
+        CampObject bed=null;foreach(var obj in Camp.Objects)if(obj.NpcGroup==actor.GroupId&&obj.NpcSite==group.Situation.Camp.Id&&obj.Kind==CampKind.Bedding&&obj.NpcHousehold==actor.Resident.Household){bed=obj;break;}
         double wanted=NpcBeddingGoal(group,actor.Resident.Household);
-        if(bed==null||bed.Materials.Sum(p=>p.MassKg)>=wanted)return false;
+        if(bed==null)return false;double mass=0;foreach(var material in bed.Materials)mass+=material.MassKg;if(mass>=wanted)return false;
+        return AdvanceNpcCampBedding(actor,group,bed,dt,ref target);
+    }
+    bool AdvanceNpcCampBedding(HumanActor actor,LivingGroup group,CampObject bed,float dt,ref V target)
+    {
         var stock=actor.Belongings;var material=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.CampMaterial==0&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.WovenMat));
         actor.CurrentActivity=HumanActivity.BuildCamp;actor.TaskWaiting=false;
         if(material!=null)

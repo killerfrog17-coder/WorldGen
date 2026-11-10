@@ -62,10 +62,22 @@ namespace WorldGen.Core
             tie=new NpcRelationship{Other=id,LastSolarDay=day};Relationships.Add(tie);
             if(Relationships.Count>48)Relationships.Remove(Relationships.Where(t=>t!=tie).OrderBy(t=>Math.Abs(t.Trust)+Math.Abs(t.Affection)+t.Grievance+t.Fear).ThenBy(t=>t.LastSolarDay).First());return tie;
         }
+        public NpcKnownPerson KnownPerson(long person)
+        {foreach(var known in KnownPeople)if(known.Person==person)return known;return null;}
         public void See(long person,V position,double day,bool dead=false)
         {
-            var known=KnownPeople.FirstOrDefault(p=>p.Person==person);if(known==null){known=new NpcKnownPerson{Person=person};KnownPeople.Add(known);if(KnownPeople.Count>64)KnownPeople.Remove(KnownPeople.Where(p=>p!=known).OrderBy(p=>p.LastSeenSolarDay).First());}
-            bool resolved=!dead&&(known.ConcernSinceSolarDay>0||known.SearchUntilSolarDay>0||known.SeenDead||Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==person&&e.SolarDay>=known.LastSeenSolarDay));
+            var known=KnownPerson(person);
+            if(known==null)
+            {
+                known=new NpcKnownPerson{Person=person};KnownPeople.Add(known);
+                if(KnownPeople.Count>64)
+                {
+                    NpcKnownPerson oldest=null;foreach(var candidate in KnownPeople)if(candidate!=known&&(oldest==null||candidate.LastSeenSolarDay.CompareTo(oldest.LastSeenSolarDay)<0))oldest=candidate;
+                    KnownPeople.Remove(oldest);
+                }
+            }
+            bool resolved=!dead&&(known.ConcernSinceSolarDay>0||known.SearchUntilSolarDay>0||known.SeenDead);
+            if(!dead&&!resolved)foreach(var incident in Incidents)if(incident.Kind==NpcIncidentKind.Missing&&incident.Subject==person&&incident.SolarDay>=known.LastSeenSolarDay){resolved=true;break;}
             known.LastPosition=position;known.LastSeenSolarDay=day;known.SeenDead=dead;
             known.ReportedPresence=false;
             known.ConcernSinceSolarDay=known.SearchUntilSolarDay=0;
