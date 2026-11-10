@@ -54,12 +54,14 @@ namespace WorldGen.Core
             double energy=KineticEnergy(massKg,speedMps);if(energy<=.05)return 0;
             return 9*Math.Pow(energy/15,.7)*(1+Clamp(penetration))*(.3+.7*Clamp(condition));
         }
+        public static double EffectivePenetration(Possession item)
+        {var profile=Profile(item);return profile.Penetration*(item?.PressureFinished==true&&profile.Primary==ItemPrimaryUse.Thrust?1.1:1);}
         public static double MeleeDamage(Possession item,double effort=1)
         {
             var profile=Profile(item);if(!profile.Weapon||profile.EnergyJ<=0)return 0;
             double materialMass=item==null?.3:Math.Max(.02,item.MassKg),energy=profile.EnergyJ*Math.Max(.15,Math.Min(1.8,Math.Sqrt(materialMass/.5)))*Clamp(effort);
             double sharp=item!=null&&(profile.Primary==ItemPrimaryUse.Edge)?Math.Max(.15,item.EdgeSharpness):1;
-            return 9*Math.Pow(energy/15,.7)*(1+profile.Penetration*sharp)*Condition(item);
+            return 9*Math.Pow(energy/15,.7)*(1+EffectivePenetration(item)*sharp)*Condition(item);
         }
         public static double ThrowSpeed(Possession item,double charge,double staminaFraction=1,bool sling=false,bool thrower=false)
         {

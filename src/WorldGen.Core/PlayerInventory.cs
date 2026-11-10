@@ -39,6 +39,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public string AttachedBoneName;
         [System.Runtime.Serialization.OptionalField] public V AttachedLocalPoint,AttachedDirection;
         [System.Runtime.Serialization.OptionalField] public int FlakeRemovals;
+        [System.Runtime.Serialization.OptionalField] public bool CorePrepared,PressureFinished;
         [System.Runtime.Serialization.OptionalField] public double WoodStraightness,WoodSoundness;
         [System.Runtime.Serialization.OptionalField] public bool BarkRemoved;
         [System.Runtime.Serialization.OptionalField] public double EdgeSharpness;

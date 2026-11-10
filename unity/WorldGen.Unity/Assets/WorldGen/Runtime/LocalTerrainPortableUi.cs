@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var action in legacy)
         {
             bool ok=CraftInputs(job?.WorkpieceId??p.Id,out _,out _,out string reason,action);
-            ActionButton(job!=null?(job.Running?"Pause: ":"Resume: ")+WoodCrafting.Label(action):WoodCrafting.Label(action),ok||job?.Running==true,reason,
+            ActionButton(job!=null?(job.Running?"Pause: ":"Resume: ")+WoodCrafting.Label(action):(p.CorePrepared&&action==ItemCraftAction.Flake?"Strike a controlled cutting flake":WoodCrafting.Label(action)),ok||job?.Running==true,reason,
                 ()=>{if(job?.Running==true)PauseItemCraft(job);else StartInventoryKnapping(job?.WorkpieceId??p.Id,action);inventoryContext=null;});
         }
         foreach(var recipe in recipes)

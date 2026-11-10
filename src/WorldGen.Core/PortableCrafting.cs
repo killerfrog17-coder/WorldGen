@@ -13,8 +13,8 @@ namespace WorldGen.Core
     public sealed class PortableRecipe
     {
         public string Id,Name;public PossessionKind Output;public PossessionKind[] Primary;public CraftMaterialNeed[] Materials;public CraftCapability[] Tools;
-        public double WorkSeconds,Yield=.85,MinLength,MaxThickness=10,MinMassKg,MinWidthM,WaterLitres;public bool SoundWood,Maintenance,RestoreEdge,WholeStone,PreserveNutrition,DistinctTools;
-        public bool Accepts(Possession p)=>p!=null&&(Primary.Contains(p.Kind)||p.Kind==PossessionKind.Grindstone&&Primary.Any(k=>k==PossessionKind.SmallRock||k==PossessionKind.LargeRock));
+        public double WorkSeconds,Yield=.85,MinLength,MaxThickness=10,MinMassKg,MinWidthM,WaterLitres;public bool SoundWood,Maintenance,RestoreEdge,WholeStone,PreserveNutrition,DistinctTools,PrepareCore,PressureFinish;
+        public bool Accepts(Possession p)=>p!=null&&(Primary.Contains(p.Kind)||!PrepareCore&&p.Kind==PossessionKind.Grindstone&&Primary.Any(k=>k==PossessionKind.SmallRock||k==PossessionKind.LargeRock));
         public string Category=>PortableTechnology.Item(Output)?.Form.ToString()??"Materials";
         public string PrimaryName=>string.Join(" / ",Primary.Select(k=>PortableTechnology.Item(k)?.Name??k.ToString()));
         public string Requirements=>"Start with "+PrimaryName+"; "+(Materials.Length==0?"no extra materials":string.Join(", ",Materials.Select(m=>m.Description)))+". Tools: "+(Tools.Length==0?"hands only":string.Join(", ",Tools.Select(t=>t.ToString())))+".";
@@ -93,7 +93,7 @@ namespace WorldGen.Core
             R("hide-belt","Cut and lace a hide belt",PossessionKind.HideBelt,P(PossessionKind.WorkedHide),360,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("needle-case","Carve and close a bone needle case",PossessionKind.NeedleCase,P(PossessionKind.Bone),420,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("knife-sheath","Cut and lace a knife sheath",PossessionKind.KnifeSheath,P(PossessionKind.WorkedHide),480,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.25)
-        }.Concat(PaleolithicClothing.Recipes).Concat(PaleolithicWater.Recipes).Concat(PaleolithicProcessing.Recipes).Concat(PaleolithicClay.Recipes).Concat(ItemMaintenance.Recipes()).ToArray();
+        }.Concat(PaleolithicClothing.Recipes).Concat(PaleolithicWater.Recipes).Concat(PaleolithicProcessing.Recipes).Concat(PaleolithicClay.Recipes).Concat(AdvancedStonework.Recipes()).Concat(ItemMaintenance.Recipes()).ToArray();
         public static PortableRecipe Recipe(string id)=>Recipes.FirstOrDefault(r=>r.Id==id);
         public static bool IsJob(ItemCraftJob job)=>job!=null&&!string.IsNullOrEmpty(job.RecipeId);
         public static bool Affects(ItemCraftJob job,string id)=>job.WorkpieceId==id||job.ToolId==id||(job.IngredientIds?.Contains(id)??false)||(job.ToolIds?.Contains(id)??false);
@@ -101,6 +101,10 @@ namespace WorldGen.Core
         static string PrimaryReason(PortableRecipe r,Possession p)
         {
             if(!r.Accepts(p))return "Start with "+r.PrimaryName+".";
+            if(r.PrepareCore&&p.CorePrepared)return "This stone already has a prepared flaking face.";
+            if(r.PrepareCore&&StoneCrafting.WorkpieceReason(p).Length>0)return StoneCrafting.WorkpieceReason(p);
+            if(r.PressureFinish&&ToolStone.Material(p.Variant)!=ToolStoneMaterial.Chert)return "Pressure finishing needs fine, glassy chert in this first technique.";
+            if(r.PressureFinish&&p.PressureFinished&&p.EdgeSharpness>=.95)return "This edge is already finely pressure-finished.";
             if(r.WholeStone&&p.Kind==PossessionKind.Grindstone)return "This stone already has a prepared grinding surface.";
             if(!r.WholeStone&&StoneCrafting.Rock(p)&&StoneCrafting.FractureQuality(p)<=0)return "This stone is unsuitable for flaking; use basalt, chert, quartzite, quartz or silicified sandstone.";
             if(p.MassKg<r.MinMassKg||p.WidthM<r.MinWidthM)return "Needs at least "+r.MinMassKg.ToString("0.##")+" kg"+(r.MinWidthM>0?" and "+(r.MinWidthM*100).ToString("0")+" cm across":"")+".";
@@ -168,7 +172,7 @@ namespace WorldGen.Core
             {
                 var maintained=s.Find(plan.PrimaryId);
                 foreach(var id in plan.Ingredients.Where(id=>id!=maintained.Id))s.Items.Remove(s.Find(id));
-                ItemMaintenance.Complete(maintained,plan.Recipe.RestoreEdge);s.Crafts.Remove(job);return maintained;
+                if(plan.Recipe.PrepareCore)AdvancedStonework.Prepare(maintained);else if(plan.Recipe.PressureFinish)AdvancedStonework.PressureFinish(maintained);else ItemMaintenance.Complete(maintained,plan.Recipe.RestoreEdge);s.Crafts.Remove(job);return maintained;
             }
             var ingredients=plan.Ingredients.Select(s.Find).ToArray();var p=s.Find(plan.PrimaryId);var r=plan.Recipe;var template=PortableTechnology.Create(r.Output,p.Position);double length=p.HeightM;
             var origins=ingredients.SelectMany(i=>i.MaterialOrigins??(string.IsNullOrEmpty(i.AppearanceSpecies)?new List<MaterialOrigin>():new List<MaterialOrigin>{new MaterialOrigin{Species=i.AppearanceSpecies,Coat=i.AppearanceCoat,Seed=i.AppearanceSeed,AnimalId=i.SourceAnimalId}})).Select(o=>o.Copy()).ToList();
@@ -180,9 +184,10 @@ namespace WorldGen.Core
             // Shaping discards offcuts: a carved arrow must not retain a whole
             // thick pole or coil mass. Multi-hide packs retain their frame mass.
             if(r.Output!=PossessionKind.HidePack&&!r.PreserveNutrition&&!r.WholeStone){double ratio=(r.Output==PossessionKind.NotchedShaft||r.Output==PossessionKind.LooseStoneSpear||r.Output==PossessionKind.StoneTippedSpear||r.Output==PossessionKind.BoneTippedSpear||r.Output==PossessionKind.Harpoon||r.Output==PossessionKind.Bow)?length/template.HeightM:1;mass=Math.Min(mass,template.MassKg*ratio);}
+            bool pressure=stone?.PressureFinished??p.PressureFinished;
             int variant=stone?.Variant??p.Variant;double straight=p.WoodStraightness,sound=p.WoodSoundness;
             foreach(var other in ingredients.Where(i=>i.Id!=p.Id))s.Items.Remove(other);
-            p.Kind=template.Kind;p.WidthM=template.WidthM;p.HeightM=template.HeightM;p.DepthM=template.DepthM;p.MassKg=mass;p.CellsWide=template.CellsWide;p.CellsHigh=template.CellsHigh;p.EdgeSharpness=template.EdgeSharpness;p.Tint=template.Tint;p.Variant=variant;p.MaterialOrigins=origins;p.FlakeRemovals=0;
+            p.Kind=template.Kind;p.WidthM=template.WidthM;p.HeightM=template.HeightM;p.DepthM=template.DepthM;p.MassKg=mass;p.CellsWide=template.CellsWide;p.CellsHigh=template.CellsHigh;p.EdgeSharpness=template.EdgeSharpness;p.Tint=template.Tint;p.Variant=variant;p.MaterialOrigins=origins;p.FlakeRemovals=0;p.CorePrepared=false;p.PressureFinished=pressure;
             p.WoodStraightness=straight;p.WoodSoundness=sound;
             if(water!=null)PaleolithicWater.Drain(water,r.WaterLitres);
             if(r.PreserveNutrition){p.MassKg=template.MassKg;Foraging.Resize(p,mass);PaleolithicProcessing.ApplyNutrition(p,food);}

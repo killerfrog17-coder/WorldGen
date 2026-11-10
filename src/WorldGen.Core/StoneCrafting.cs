@@ -65,7 +65,7 @@ namespace WorldGen.Core
             {
                 var stone=inventory.Find(workpiece);
                 // A preparation-and-flaking cycle, not a claim that one blow takes minutes.
-                double required=120*(.85+.25*Math.Min(4,stone.MassKg))/(.6+.4*FractureQuality(stone));
+                double required=(stone.CorePrepared?35:120)*(.85+.25*Math.Min(4,stone.MassKg))/(.6+.4*FractureQuality(stone));
                 job=new ItemCraftJob{WorkpieceId=workpiece,RequiredSeconds=required};inventory.Crafts.Add(job);
             }
             foreach(var other in inventory.Crafts)other.Running=false;
@@ -82,11 +82,12 @@ namespace WorldGen.Core
             if(PairReason(core,tool).Length>0){job.Running=false;return null;}
             job.WorkSeconds=Math.Min(job.RequiredSeconds,job.WorkSeconds+realSeconds*86400/(settings.RealMinutesPerDay*60*settings.ItemCraftingTimeMultiplier));
             if(job.WorkSeconds<job.RequiredSeconds)return null;
-            double quality=FractureQuality(core),w=Math.Min(.14,core.WidthM*.72),d=Math.Min(.09,core.DepthM*.62),h=Math.Min(.014,core.HeightM*.25);
+            bool prepared=core.CorePrepared;
+            double quality=FractureQuality(core),w=Math.Min(prepared?.18:.14,core.WidthM*(prepared?.85:.72)),d=Math.Min(prepared?.12:.09,core.DepthM*(prepared?.75:.62)),h=Math.Min(prepared?.012:.014,core.HeightM*.25);
             double mass=Math.Min(core.MassKg*.18,w*d*h*.4*2600);h=mass/(w*d*.4*2600);
             var flake=new Possession{Id="flake-"+Guid.NewGuid().ToString("N"),Kind=PossessionKind.StoneFlake,Place=PossessionPlace.Ground,Position=core.Position,
-                WidthM=w,HeightM=h,DepthM=d,MassKg=mass,Variant=core.Variant,Tint=core.Tint,CellsWide=Math.Max(1,(int)Math.Ceiling(w/.1)),CellsHigh=Math.Max(1,(int)Math.Ceiling(d/.1)),EdgeSharpness=.6+.4*quality};
-            double shrink=Math.Pow((core.MassKg-mass)/core.MassKg,1.0/3);core.MassKg-=mass;core.WidthM*=shrink;core.HeightM*=shrink;core.DepthM*=shrink;core.FlakeRemovals++;
+                WidthM=w,HeightM=h,DepthM=d,MassKg=mass,Variant=core.Variant,Tint=core.Tint,CellsWide=Math.Max(1,(int)Math.Ceiling(w/.1)),CellsHigh=Math.Max(1,(int)Math.Ceiling(d/.1)),EdgeSharpness=Math.Min(1,(prepared?.7:.6)+.4*quality)};
+            double shrink=Math.Pow((core.MassKg-mass)/core.MassKg,1.0/3);core.MassKg-=mass;core.WidthM*=shrink;core.HeightM*=shrink;core.DepthM*=shrink;core.FlakeRemovals++;core.CorePrepared=false;
             core.CellsWide=Math.Max(1,(int)Math.Ceiling(core.WidthM/.1));core.CellsHigh=Math.Max(1,(int)Math.Ceiling(core.HeightM/.1));
             core.Kind=core.WidthM<=.2&&core.MassKg<=2?PossessionKind.SmallRock:PossessionKind.LargeRock;
             inventory.Items.Add(flake);inventory.Crafts.Remove(job);return flake;

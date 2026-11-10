@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
-    [Flags] public enum CraftCapability { None=0,Cut=1,Strike=2,Scrape=4,Pierce=8,Chop=16,Sew=32,Grind=64,GrindingSurface=128 }
+    [Flags] public enum CraftCapability { None=0,Cut=1,Strike=2,Scrape=4,Pierce=8,Chop=16,Sew=32,Grind=64,GrindingSurface=128,Pressure=256 }
     public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft,Food,Garment,GrindingStone,Clay,Pot }
     public sealed class PortableItem
     {
@@ -65,7 +65,7 @@ namespace WorldGen.Core
             D(PossessionKind.BarbedPoint,"Barbed antler point",PortableForm.Point,.04,.2,.025,.09,aliases:"barbed point|harpoon head"),
             D(PossessionKind.FishingGorge,"Bone fishing gorge",PortableForm.Needle,.012,.055,.008,.008,aliases:"gorge"),
             D(PossessionKind.Fishhook,"Bone fishhook",PortableForm.Hook,.04,.065,.008,.012,aliases:"fishhook|hook"),
-            D(PossessionKind.AntlerRetoucher,"Antler retoucher",PortableForm.Antler,.04,.18,.03,.08,CraftCapability.Strike,aliases:"retoucher"),
+            D(PossessionKind.AntlerRetoucher,"Antler retoucher",PortableForm.Antler,.04,.18,.03,.08,CraftCapability.Strike|CraftCapability.Pressure,aliases:"retoucher"),
             D(PossessionKind.WoodHandle,"Wooden handle",PortableForm.Shaft,.03,.22,.025,.09,aliases:"handle"),
             D(PossessionKind.NotchedShaft,"Notched spear shaft",PortableForm.Shaft,.03,1.8,.03,.8,aliases:"notched shaft"),
             D(PossessionKind.LooseStoneSpear,"Unbound stone spear",PortableForm.Spear,.07,1.9,.03,.95,aliases:"unbound spear"),

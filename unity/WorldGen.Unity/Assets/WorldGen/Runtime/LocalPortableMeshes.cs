@@ -24,7 +24,7 @@ static partial class LocalScatterMeshes
         void Head(float y,float height,float width,Color color,bool barbed=false)
         {
             const int segments=24;var rim=new Vector3[segments];var shoulder=new Vector3[segments];bool round=d.Form==PortableForm.Chopper||item.Kind==PossessionKind.StoneScraper;
-            for(int i=0;i<segments;i++){float angle=i*Mathf.PI*2/segments,t=(1+Mathf.Cos(angle))*.5f;float taper=round?1:.35f+.65f*(1-t);float chip=1-.04f*Mathf.Sin(i*2.1f+item.Variant);rim[i]=new Vector3(Mathf.Sin(angle)*width*.5f*taper*chip,y+t*height,0);shoulder[i]=new Vector3(rim[i].x*.63f,y+(t*.7f+.13f)*height,.12f+.04f*Mathf.Sin(i*1.9f));}
+            for(int i=0;i<segments;i++){float angle=i*Mathf.PI*2/segments,t=(1+Mathf.Cos(angle))*.5f;float taper=round?1:.35f+.65f*(1-t);float chip=1-(item.PressureFinished?.012f:.04f)*Mathf.Sin(i*2.1f+item.Variant);rim[i]=new Vector3(Mathf.Sin(angle)*width*.5f*taper*chip,y+t*height,0);shoulder[i]=new Vector3(rim[i].x*.63f,y+(t*.7f+.13f)*height,.12f+.04f*Mathf.Sin(i*1.9f));}
             for(int side=0;side<2;side++)for(int i=0;i<segments;i++)
             {
                 int j=(i+1)%segments;float sign=side==0?1:-1;Vector3 r0=rim[i],r1=rim[j],s0=shoulder[i],s1=shoulder[j];s0.z*=sign;s1.z*=sign;

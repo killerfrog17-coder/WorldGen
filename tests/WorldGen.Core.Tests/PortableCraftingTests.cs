@@ -22,7 +22,7 @@ static class PortableCraftingTests
             var state=new PlayerInventory();state.Items.Add(Make(recipe.Primary[0]));
             if(recipe.WholeStone){state.Items[0].MassKg=Math.Max(state.Items[0].MassKg,recipe.MinMassKg);state.Items[0].WidthM=Math.Max(state.Items[0].WidthM,recipe.MinWidthM);}
             foreach(var need in recipe.Materials)for(int i=0;i<need.Count;i++)state.Items.Add(Make(need.Kinds[0]));
-            foreach(var kind in new[]{PossessionKind.SmallRock,PossessionKind.HaftedKnife,PossessionKind.BoneAwl,PossessionKind.BoneNeedle,PossessionKind.Grindstone})state.Items.Add(Make(kind));
+            foreach(var kind in new[]{PossessionKind.SmallRock,PossessionKind.HaftedKnife,PossessionKind.BoneAwl,PossessionKind.BoneNeedle,PossessionKind.Grindstone,PossessionKind.AntlerRetoucher})state.Items.Add(Make(kind));
             if(recipe.WaterLitres>0){var vessel=Make(PossessionKind.Waterskin);PaleolithicWater.Fill(vessel,new WaterQuality(LocalWaterKind.River,.08,0,0),recipe.WaterLitres);state.Items.Add(vessel);}
             return state;
         }

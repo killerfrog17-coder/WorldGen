@@ -67,7 +67,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void HitProjectile(ItemProjectile p,CombatHit hit)
     {
-        var velocity=p.Velocity.sqrMagnitude>.01f?p.Velocity:p.Drop.Body.linearVelocity;float speed=velocity.magnitude;double penetration=ItemUseRules.Profile(p.Item).Penetration;
+        var velocity=p.Velocity.sqrMagnitude>.01f?p.Velocity:p.Drop.Body.linearVelocity;float speed=velocity.magnitude;double penetration=ItemUseRules.EffectivePenetration(p.Item);
         double damage=ItemUseRules.ImpactDamage(p.Item.MassKg,speed,penetration,ItemUseRules.Condition(p.Item));
         ApplyCombatHit(hit,damage,velocity.normalized,p.Item.MassKg*speed,p.Item);ApplyItemImpactWear(p.Item,ItemUseRules.KineticEnergy(p.Item.MassKg,speed),false);
         bool stick=PointedProjectile(p.Item)&&penetration>.25&&speed>4&&p.Item.Kind!=PossessionKind.LooseStoneSpear;
