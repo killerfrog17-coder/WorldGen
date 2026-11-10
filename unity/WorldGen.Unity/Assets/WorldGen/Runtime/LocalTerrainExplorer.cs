@@ -260,7 +260,17 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         AdvanceGroundPublication();
         long installTrace=WorldGenPerformance.TraceBegin();
         // Completed nearby products precede cache-only/hidden background work.
-        terrainJobPriorityComparison??=(a,b)=>{double Score(Work w)=>WorkMatchesCurrent(w)?StreamingPriority(w.Key):double.MaxValue;return Score(b).CompareTo(Score(a));};
+        terrainJobPriorityComparison??=(a,b)=>{double Score(Work w)
+        {
+            // Once the next chart is due, its finished contact meshes must
+            // actually reach the scene. An endless current-frame upload stream
+            // otherwise starves them even after the worker did the work.
+            var pending=w.Prepared;
+            if(pending!=null&&ReferenceEquals(pending,preparedFrame)&&ReanchorDistance>=ReanchorLimit*.8&&
+                TerrainLod.DistanceSquared(w.Key,pending.X,pending.Z)<=Math.Pow(2048*HorizontalScale,2))
+                return -1e12+TerrainLod.DistanceSquared(w.Key,pending.X,pending.Z);
+            return WorkMatchesCurrent(w)?StreamingPriority(w.Key):double.MaxValue;
+        }return Score(b).CompareTo(Score(a));};
         jobs.Sort(terrainJobPriorityComparison);
         for(int i=jobs.Count-1;i>=0;i--)
         {
