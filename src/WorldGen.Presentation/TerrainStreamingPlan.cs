@@ -8,6 +8,30 @@ namespace WorldGen.Presentation
     /// synchronously; movement cannot replace known relief with a flat guess.</summary>
     public static class TerrainStreamingPlan
     {
+        public static Dictionary<TerrainTileKey,int> CompleteCoverage(IReadOnlyDictionary<TerrainTileKey,int> held,IReadOnlyDictionary<TerrainTileKey,int> fallback)
+        {
+            var result=new Dictionary<TerrainTileKey,int>(held.Count+32);
+            var ancestors=new HashSet<TerrainTileKey>();
+            foreach(var pair in held)
+            {
+                result.Add(pair.Key,pair.Value);
+                for(int depth=1;depth<24-pair.Key.Level;depth++)
+                    ancestors.Add(new TerrainTileKey(pair.Key.X>>depth,pair.Key.Z>>depth,pair.Key.Level+depth,pair.Key.Scale));
+            }
+            void Visit(TerrainTileKey key,int segments)
+            {
+                for(int depth=0;depth<24-key.Level;depth++)
+                    if(result.ContainsKey(new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale)))return;
+                if(key.Level>0&&ancestors.Contains(key))
+                {
+                    for(int j=0;j<2;j++)for(int i=0;i<2;i++)
+                        Visit(new TerrainTileKey(key.X*2+i,key.Z*2+j,key.Level-1,key.Scale),segments);
+                }
+                else result.Add(key,segments);
+            }
+            foreach(var pair in fallback)Visit(pair.Key,pair.Value);
+            return result;
+        }
         public static Dictionary<TerrainTileKey,int> ProtectNear(IReadOnlyDictionary<TerrainTileKey,int> previous,
             double x,double z,double scale,double radius,int finestSegments=64,double range=double.PositiveInfinity)
         {

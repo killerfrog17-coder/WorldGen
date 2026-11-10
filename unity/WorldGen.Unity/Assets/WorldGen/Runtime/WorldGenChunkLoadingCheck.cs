@@ -26,7 +26,8 @@ public sealed partial class LocalTerrainExplorer
             double now=Time.realtimeSinceStartupAsDouble,elapsed=now-start;
             frames.Add((now-last)*1000);last=now;
             if(Error!="")throw new InvalidOperationException(Error);
-            if(Ready&&walkingPatch!=null&&!viewed){TestView(3,20,5);viewed=true;}
+            if(Ready&&walkingPatch!=null&&!viewed)
+            {TestView(3,20,5);TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,viewDistance*1.5),2,1,3,0);SetDaylight(12,190000.5);viewed=true;}
             if(NearReady&&!milestones.ContainsKey("near"))milestones["near"]=elapsed;
             foreach(double radius in radii)
             {

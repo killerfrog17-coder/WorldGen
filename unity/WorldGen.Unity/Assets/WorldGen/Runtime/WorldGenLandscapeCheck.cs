@@ -347,6 +347,7 @@ public sealed partial class LocalTerrainExplorer
         if(site.Canyon!=null){reviewRange=Math.Max(6000,site.Canyon.HalfWidth*4.5);reviewFootprint=site.Canyon.HalfWidth*3.6;}
         if(site.Trough.HasValue){reviewRange=Math.Max(6000,site.Trough.Value.HalfWidth*4.5);reviewFootprint=site.Trough.Value.HalfWidth*3.6;}
         if(site.Fjord.HasValue){reviewRange=Math.Max(6000,site.Fjord.Value.HalfWidth*4.5);reviewFootprint=site.Fjord.Value.HalfWidth*3.6;}
+        if(arguments.Contains("--worldgen-chunk-fast-flight"))reviewRange=Math.Max(6000,reviewRange);
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;

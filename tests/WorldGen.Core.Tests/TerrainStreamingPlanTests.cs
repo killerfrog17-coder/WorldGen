@@ -47,6 +47,20 @@ static class TerrainStreamingPlanTests
             // ground, and cannot retain an unbounded corridor of old requests.
             var far=TerrainStreamingPlan.ProtectNear(held,100000,0,scale,full,64,6000);
             Check(far.Count>0&&far.Keys.All(k=>TerrainLod.DistanceSquared(k,100000,0)<=full*full),"Distant movement bounds old residency and fills the new nearby floor");
+            var pending=TerrainStreamingPlan.ProtectNear(held,100000,0,scale,0,64,6000);
+            var fallback=TerrainAdaptiveLod.Plan(100000,0,500,scale,o,(_,__)=>0);
+            var covered=TerrainStreamingPlan.CompleteCoverage(pending,fallback);
+            Check(covered.Count>0,"Airborne movement beyond the old disk still requests continuous fallback coverage");
+            var merged=TerrainStreamingPlan.CompleteCoverage(detailed,flat);
+            Check(merged.Count==detailed.Count&&detailed.All(p=>merged[p.Key]==p.Value),"Fallback fills gaps without replacing any already planned terrain-aware detail");
+            var movedFallback=TerrainAdaptiveLod.Plan(full*2,full,500,scale,o,(_,__)=>0);
+            merged=TerrainStreamingPlan.CompleteCoverage(detailed,movedFallback);
+            Check(detailed.All(p=>merged.TryGetValue(p.Key,out int n)&&n==p.Value),"Fast-flight fallback never overwrites retained fine terrain");
+            foreach(var probe in movedFallback.Keys)
+            {
+                double px=(probe.X+.37)*probe.SizeM,pz=(probe.Z+.63)*probe.SizeM;
+                Check(merged.Count(q=>px>=q.Key.X*q.Key.SizeM&&px<(q.Key.X+1)*q.Key.SizeM&&pz>=q.Key.Z*q.Key.SizeM&&pz<(q.Key.Z+1)*q.Key.SizeM)==1,"Merged fallback is complete and non-overlapping at each requested probe");
+            }
         }
         Console.WriteLine("PASS "+checks+" streaming-plan continuity checks.");
     }

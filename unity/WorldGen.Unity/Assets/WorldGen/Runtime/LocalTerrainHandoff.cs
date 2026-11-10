@@ -21,6 +21,9 @@ public sealed partial class LocalTerrainExplorer
         public int Revision,ScatterRevision=-1;
         public double ScatterOriginX,ScatterOriginZ;
         public readonly Dictionary<ScatterKey,ScatterChunk> Scatter=new Dictionary<ScatterKey,ScatterChunk>();
+        public TerrainDetailEstimator Estimator;public Task<Dictionary<TerrainTileKey,int>> Detail;
+        public System.Threading.CancellationTokenSource DetailStop;
+        public double DetailX,DetailZ;public bool DetailDirty=true,Calibrated;
     }
     sealed class RetiringFrame {public GameObject Root;public Queue<Tile> Tiles;}
     PreparedFrame preparedFrame;
@@ -87,6 +90,7 @@ public sealed partial class LocalTerrainExplorer
     void CancelPreparedFrame()
     {
         if(preparedFrame==null)return;
+        preparedFrame.DetailStop?.Cancel();preparedFrame.DetailStop?.Dispose();
         RetireFrame(preparedFrame.Root,preparedFrame.Tiles);preparedFrame=null;
     }
     void RetireFrame(GameObject root,Dictionary<TerrainTileKey,Tile> products)
@@ -125,7 +129,7 @@ public sealed partial class LocalTerrainExplorer
             double lead=distance<limit?limit/distance:1;
             var point=frame.Position(motion.X*lead,motion.Z*lead);
             var next=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
-            preparedFrame=new PreparedFrame{Frame=next,Root=NewTerrainRoot(false)};
+            preparedFrame=new PreparedFrame{Frame=next,Root=NewTerrainRoot(false),Estimator=new TerrainDetailEstimator(terrain,next),DetailStop=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token)};
         }
         UpdatePreparedFrameActive(preparedFrame,limit,distance);
     }
@@ -134,12 +138,25 @@ public sealed partial class LocalTerrainExplorer
         if(V.Dot(Position,pending.Frame.Origin)<=0){CancelPreparedFrame();return;}
         TerrainHandoff.Coordinates(pending.Frame,Position,out double x,out double z);
         double altitude=HeightAboveGround;
+        bool publishDetail=false;
+        if(pending.Detail!=null&&pending.Detail.IsCompleted)
+        {
+            if(pending.Detail.IsCompletedSuccessfully&&Math.Max(Math.Abs(pending.DetailX-x),Math.Abs(pending.DetailZ-z))<=Math.Max(detailOptions.FullRadius(HorizontalScale),Math.Abs(altitude)))
+            {pending.Wanted=TerrainStreamingPlan.ProtectNear(pending.Detail.Result,x,z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,altitude),detailOptions.FinestSegments);pending.Calibrated=true;publishDetail=true;}
+            else if(pending.Detail.IsFaulted&&!pending.DetailStop.IsCancellationRequested)
+                Debug.LogWarning("Prepared terrain detail: "+pending.Detail.Exception.GetBaseException().Message);
+            else pending.DetailDirty=true;
+            pending.Detail=null;
+        }
         double preparationStep=TerrainLod.ReplanDistance(HorizontalScale);
-        if(double.IsNaN(pending.X)||pending.Range!=viewDistance||Math.Abs(x-pending.X)>preparationStep||Math.Abs(z-pending.Z)>preparationStep||
+        if(publishDetail||double.IsNaN(pending.X)||pending.Range!=viewDistance||Math.Abs(x-pending.X)>preparationStep||Math.Abs(z-pending.Z)>preparationStep||
             Math.Abs(altitude-pending.Altitude)>Math.Max(150,pending.Altitude*.3))
         {
             pending.X=x;pending.Z=z;pending.Altitude=altitude;pending.Range=viewDistance;
-            pending.Wanted=InitialDetailPlan(x,z,altitude);
+            var fallback=InitialDetailPlan(x,z,altitude);
+            if(!publishDetail)
+                pending.Wanted=pending.Wanted==null?fallback:TerrainStreamingPlan.CompleteCoverage(TerrainStreamingPlan.ProtectNear(pending.Wanted,x,z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,altitude),detailOptions.FinestSegments,Math.Max(1000,viewDistance)),fallback);
+            pending.DetailDirty|=!publishDetail;
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
             foreach(var pair in terrainEdgeWorkspace.Build(pending.Wanted))pending.Edges.Add(pair.Key,pair.Value);
             pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
@@ -152,20 +169,28 @@ public sealed partial class LocalTerrainExplorer
                 if(pending.Wanted.Where(w=>Overlaps(key,w.Key)).All(w=>pending.Tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
                 {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);pending.Revision++;}
         }
+        if(pending.Detail==null&&pending.DetailDirty)
+        {
+            pending.DetailDirty=false;pending.DetailX=x;pending.DetailZ=z;
+            var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;TerrainDiagnostics.Detail(options);
+            var previous=new Dictionary<TerrainTileKey,int>(pending.Wanted);var estimator=pending.Estimator;var token=pending.DetailStop.Token;
+            int pixels=Screen.height;double fov=view.fieldOfView,scale=HorizontalScale;
+            pending.Detail=Task.Run(()=>TerrainAdaptiveLod.Plan(x,z,altitude,scale,options,estimator.Error,pixels,fov,previous,token),token);
+        }
         if(Time.realtimeSinceStartupAsDouble>=pending.SortAt)
         {
             pending.SortAt=Time.realtimeSinceStartupAsDouble+.1;
             double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,x,z);
             pending.Priority.Sort((a,b)=>Distance(a).CompareTo(Distance(b)));
         }
-        if(distance<limit||Time.realtimeSinceStartupAsDouble<nextHandoffCheck)return;
+        if(!pending.Calibrated||distance<limit||Time.realtimeSinceStartupAsDouble<nextHandoffCheck)return;
         nextHandoffCheck=Time.realtimeSinceStartupAsDouble+.1;
         // Turning back or travelling in a completely different direction must
         // not hand over into a worse chart, nor accumulate hidden charts.
         if(Math.Max(Math.Abs(x),Math.Abs(z))>=distance*.85){CancelPreparedFrame();return;}
         var resident=new Dictionary<TerrainTileKey,int>(pending.Tiles.Count);
         foreach(var pair in pending.Tiles)resident.Add(pair.Key,pair.Value.Segments);
-        double near=motion.Flying?0:2048*HorizontalScale;
+        double near=motion.Flying?Math.Max(2048*HorizontalScale,Math.Min(1500,Math.Abs(altitude)*2)):2048*HorizontalScale;
         foreach(var pair in pending.Wanted)
         {
             var key=pair.Key;
@@ -211,6 +236,7 @@ public sealed partial class LocalTerrainExplorer
         var oldRoot=terrainRoot;var oldTiles=tiles;
         ClearInventoryPhysics();ResetStreamingReuse(false);
         frame=pending.Frame;tiles=pending.Tiles;terrainRoot=pending.Root;preparedFrame=null;
+        pending.DetailStop?.Cancel();pending.DetailStop?.Dispose();
         double previousFog=streamedFog,previousRenderedFog=renderedStreamingFog;ResetDetailFrame();streamedFog=previousFog;renderedStreamingFog=previousRenderedFog;fogSafeRadius=previousFog;
         generation++;walkingPatch=null;originX=Math.Floor(x/2048)*2048;originZ=Math.Floor(z/2048)*2048;
         // The remaining prepared jobs already use the adopted chart: keep them,

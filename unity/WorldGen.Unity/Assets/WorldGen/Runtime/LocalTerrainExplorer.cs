@@ -339,7 +339,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         bool bootstrap=resetDetail||detailBaseline||legacyPlanRefresh||double.IsNaN(plannedX);
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
         if(bootstrap)detailCancellation?.Cancel();detailDirty=true;
-        wanted=bootstrap?InitialDetailPlan(motion.X,motion.Z,plannedAltitude):TerrainStreamingPlan.ProtectNear(wanted,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,plannedAltitude),detailOptions.FinestSegments,Math.Max(1000,viewDistance));
+        var fallback=InitialDetailPlan(motion.X,motion.Z,plannedAltitude);
+        wanted=bootstrap?fallback:TerrainStreamingPlan.CompleteCoverage(TerrainStreamingPlan.ProtectNear(wanted,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,plannedAltitude),detailOptions.FinestSegments,Math.Max(1000,viewDistance)),fallback);
         priority.Clear();priority.AddRange(wanted.Keys);PlanBackdrop();
         wantedEdges.Clear();foreach(var pair in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;}
