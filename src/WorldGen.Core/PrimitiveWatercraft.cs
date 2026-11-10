@@ -16,7 +16,7 @@ namespace WorldGen.Core
    {double length=0;for(int i=1;i<points.Length;i++)length+=(points[i]-points[i-1]).Length;list.Add(new CampComponent{Key="boat"+id++,Name=name,Kind=kind,Stage=stage,Points=points,WidthM=width,LengthM=length,Kg=mass,Seconds=seconds});}
    if(p.Design==CampDesign.ReedRaft)
    {
-    foreach(double z in new[]{-d*.3,d*.3})Part("Crosspiece",CampPartKind.Beam,0,new[]{new V(-w*.5,.34,z),new V(w*.5,.34,z)},.045);
+    foreach(double z in new[]{-d*.3,d*.3})Part("Crosspiece",CampPartKind.Beam,0,new[]{new V(-w*.5,.34,z),new V(w*.5,.34,z)},.035);
     int floats=(int)Math.Ceiling(w/.38);for(int i=0;i<floats;i++){double x=-w*.5+(i+.5)*w/floats;Part("Bound reed float",CampPartKind.Reedwork,1,new[]{new V(x,.19,-d*.5),new V(x,.19,d*.5)},w/floats,30*w*d/(1.5*2.5)/floats,900);}
     for(int i=0;i<floats;i++)foreach(double z in new[]{-d*.3,d*.3})Part("Float lashing",CampPartKind.Binding,2,new[]{new V(-w*.5+(i+.5)*w/floats,.36,z)},mass:.05,seconds:180);
    }

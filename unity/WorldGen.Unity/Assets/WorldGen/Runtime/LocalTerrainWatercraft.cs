@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(axe==null||(axe.Kind!=PossessionKind.StoneAxe&&axe.Kind!=PossessionKind.StoneAdze)||axe.UseDamage>=1)return;
         string why=HeavyLimbReason();if(why.Length>0){InventoryFeedback(why);return;}var tree=TraceCombatObstacle(PlayerAttackRay(),3).Source;var record=ToolResource("tree-"+tree.Id.ToString("x16"));
-        BeginWorldToolWork(axe,"Cutting a thick reachable limb",1800,()=>{if(record.Branches>=3||(tree.Position-Position).Length*frame.RadiusM>4){InventoryFeedback("The reachable limb is no longer available.");return;}record.Branches++;var branch=WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=Math.Min(4.5,Math.Max(1.6,tree.HeightM*.18)),HeightM=Math.Min(.18,.12+tree.HeightM*.001),Variant=0});branch.Id="heavy-limb-"+Guid.NewGuid().ToString("N");branch.NaturalId=0;branch.Position=Position;ReceiveToolMaterial(branch);});inventoryContext=null;
+        BeginWorldToolWork(axe,"Cutting a thick reachable limb",1800,()=>{if(record.Branches>=3||(tree.Position-Position).Length*frame.RadiusM>4){InventoryFeedback("The reachable limb is no longer available.");return;}record.Branches++;var branch=WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=Math.Min(2.2,Math.Max(1.6,tree.HeightM*.1)),HeightM=Math.Min(.14,.12+tree.HeightM*.001),Variant=0});branch.Id="heavy-limb-"+Guid.NewGuid().ToString("N");branch.NaturalId=0;branch.Position=Position;ReceiveToolMaterial(branch);});inventoryContext=null;
     }
     double WatercraftLoad=>70*Math.Pow((humanPlayer?.Definition.EyeHeight??1.65f)/1.65,3)+Inventory.CarriedMassKg;
     double WatercraftFloor(CampObject c,double x,double z)
