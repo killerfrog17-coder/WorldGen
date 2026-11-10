@@ -17,7 +17,7 @@
     {
       "id": 1,
       "technology": "Prepared cores",
-      "status": "not implemented",
+      "status": "functional prototype: pure and native checks passed; actual ordinary-stone preparation, antler finishing and saved hafting provenance",
       "scope": "Explicit prepared-core work and resulting controlled flake production"
     },
     {
@@ -107,7 +107,7 @@
     {
       "id": 16,
       "technology": "Pressure flaking",
-      "status": "not implemented",
+      "status": "functional prototype: pure and native checks passed; actual ordinary-stone preparation, antler finishing and saved hafting provenance",
       "scope": "Distinct pressure-flaking operation requiring a suitable retoucher"
     },
     {

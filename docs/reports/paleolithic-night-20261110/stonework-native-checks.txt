@@ -1,0 +1,16 @@
+STONEWORK CHECK PASS Spear occupies the previous working hand
+STONEWORK CHECK PASS Actual contextual action starts: prepare-core-SmallRock
+STONEWORK CHECK PASS Timed work completes: prepare-core-SmallRock
+STONEWORK CHECK PASS Native preparation works the same ordinary rock, without renaming it
+STONEWORK CHECK PASS Preparation restores the previous spear hand
+STONEWORK CHECK PASS Rendered native game content: prepared-flaking-face
+STONEWORK CHECK PASS Existing flaking control uses the prepared face
+STONEWORK CHECK PASS Actual native removal produces a material-matched flake and consumes the prepared face
+STONEWORK CHECK PASS Actual contextual action starts: stone-blade
+STONEWORK CHECK PASS Timed work completes: stone-blade
+STONEWORK CHECK PASS Actual contextual action starts: pressure-finish-StoneBlade
+STONEWORK CHECK PASS Timed work completes: pressure-finish-StoneBlade
+STONEWORK CHECK PASS Real antler pressure work refines the same blade and retains the reusable tool
+STONEWORK CHECK PASS Rendered native game content: pressure-finished-blade
+STONEWORK CHECK PASS Full native capture/reload retains worked stones and finishing state
+PORTABLE FLOW PASS 16
