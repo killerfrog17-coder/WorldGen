@@ -326,11 +326,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         long priorTerrainRequests=TerrainBuildRequests;
         if(!nearPending&&!handoffDue&&forestRevealRadius<terrainRevealRadius&&(!forestScheduledFirst||WorkerLimit>1))
             if(ScheduleForestWork())forestScheduledFirst=true;
-        if(!handoffDue){ScheduleBackdrop();SchedulePredictiveTerrain();}
+        if(!handoffDue||coveredFlight){ScheduleBackdrop();SchedulePredictiveTerrain();}
         foreach(var key in priority)
         {
             int detail=wanted[key];
-            if(handoffDue&&!ImmediateTerrain(key))continue;
+            if(handoffDue&&!coveredFlight&&!ImmediateTerrain(key))continue;
             if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
             if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key],false))){RestoreTerrain(key,detail,wantedEdges[key]);continue;}
             if(!CanRequest||ActiveWorkerCount>=WorkerLimit||HasMatchingTerrainJob(key))continue;

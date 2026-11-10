@@ -17,7 +17,7 @@ static class LocalTerrainTests
         }
         Console.WriteLine($"{world.Surface.Cells.Length} cells, {times.Count} full-detail near tiles: mean {times.Average():F1}ms, worst {times.Max():F1}ms, serial total {times.Sum():F1}ms");
     }
-    static void Handoffs(Action<bool,string> check)
+    public static void Handoffs(Action<bool,string> check)
     {
         foreach(double scale in new[]{.01,.1,1.0,2})
         foreach(var point in new[]{new V(1,0,0),new V(0,0,1),new V(0,0,-1),new V(1,2,3).Unit})
@@ -51,6 +51,10 @@ static class LocalTerrainTests
         foreach(int z in new[]{-2,-1})foreach(int x in new[]{-2,-1})wanted.Add(new TerrainTileKey(x,z,0,.1),128);
         resident.Add(new TerrainTileKey(-1,-1,0,.1),128);
         check(!TerrainHandoff.Ready(wanted,resident,-100,-100,0),"An overlapping coarse ancestor cannot occlude a ready near tile while its other replacements are missing");
+        check(TerrainHandoff.Ready(wanted,resident,-100,-100,0,coverageMasksReady:true),"Published child masks permit an exact near tile and retained distant ancestor without waiting for remote siblings");
+        resident[new TerrainTileKey(-1,-1,0,.1)]=64;
+        check(!TerrainHandoff.Ready(wanted,resident,-100,-100,0,coverageMasksReady:true),"Coverage masks cannot replace missing near sampling detail");
+        resident[new TerrainTileKey(-1,-1,0,.1)]=128;
         foreach(var pair in wanted)resident[pair.Key]=pair.Value;
         check(TerrainHandoff.Ready(wanted,resident,-100,-100,0),"A coarse ancestor may retire only once its full exact replacement set is ready");
     }

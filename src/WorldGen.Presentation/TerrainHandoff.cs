@@ -18,7 +18,7 @@ namespace WorldGen.Presentation
         static TerrainTileKey Parent(TerrainTileKey key)=>new TerrainTileKey(
             (int)Math.Floor(key.X/2.0),(int)Math.Floor(key.Z/2.0),key.Level+1,key.Scale);
         public static bool Ready(IReadOnlyDictionary<TerrainTileKey,int> wanted,
-            IReadOnlyDictionary<TerrainTileKey,int> resident,double x,double z,double nearRadius)
+            IReadOnlyDictionary<TerrainTileKey,int> resident,double x,double z,double nearRadius,bool coverageMasksReady=false)
         {
             if(wanted.Count==0)return false;
             var ancestors=new HashSet<TerrainTileKey>();
@@ -49,7 +49,7 @@ namespace WorldGen.Presentation
                 bool covered=Covered(key);
                 for(var p=Parent(key);!covered&&p.Level<=20;p=Parent(p))covered=resident.ContainsKey(p);
                 if(!covered)return false;
-                if(dx*dx+dz*dz<=nearRadius*nearRadius)
+                if(!coverageMasksReady&&dx*dx+dz*dz<=nearRadius*nearRadius)
                     foreach(var old in resident.Keys)
                     {
                         if(wanted.ContainsKey(old)||!Overlaps(old,key))continue;

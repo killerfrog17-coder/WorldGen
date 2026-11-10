@@ -211,7 +211,7 @@ public sealed partial class LocalTerrainExplorer
             if(dx*dx+dz*dz<=near*near&&
                 (!pending.Tiles.TryGetValue(key,out var tile)||!TerrainEdges.Equal(tile.Edges,pending.Edges[key])))return;
         }
-        if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near))return;
+        if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near,coverageMasksReady:true))return;
         if(!motion.Flying&&!PrepareGroundScatter(pending,x,z))return;
         if(TestHoldHandoff){TestHandoffWaiting=true;return;}
         CommitPreparedFrame(pending,x,z);
@@ -275,7 +275,11 @@ public sealed partial class LocalTerrainExplorer
         Mark("scatter");
         ResetWeatherFrame();SetDaylight(LocalSolarHour,skyYear);Mark("sky/weather");
         // Both roots switch in the same Update. Never render an empty frame.
-        terrainRoot.SetActive(true);coverageDirty=true;RetireFrame(oldRoot,oldTiles);ReanchorCount++;
+        // Publish actual child coverage before this root can draw. Retained
+        // ancestors then cover unfinished DISTANT siblings without obscuring
+        // the completed near surface or postponing the whole handoff.
+        coverageDirty=true;UpdateTerrainCoverage();
+        terrainRoot.SetActive(true);RetireFrame(oldRoot,oldTiles);ReanchorCount++;
         Mark("activate");
         if(timer.Elapsed.TotalMilliseconds>LargestHandoffMs){LargestHandoffMs=timer.Elapsed.TotalMilliseconds;LargestHandoffProfile=profile.ToString();}
     }
