@@ -21426,5 +21426,726 @@
     "far": "assets/verification/npc-crowd-gc-20261110.json",
     "close": "assets/verification/npc-crowd-close-gc-20261110.json",
     "interpretation": "Many slow frames overlap actual7-9ms collector stops; some large outliers have no overlap. Stop/resume overhead is dominated by stopped work, not suspension/resumption. No claim GC explains every spike."
+  },
+  "scheduled_pose_experiment": {
+    "source": "821cb81e",
+    "scope": "Same session, 5x30s, radius10m eye-height route, 100 distinct people. All zero unfocused frames. Automatic poses remain OFF by default; ~3% average improvement is modest and does not meet crowd goal. Half-ms GC slice remains experimental only.",
+    "controls": "PASS 70 actual head/hand/leg/spine bone poses match immediate native evaluation; maximum local position error=0",
+    "windows": [
+      {
+        "Mode": "normal",
+        "Frames": 2646,
+        "MeanFrameMs": 11.339388964474692,
+        "P99FrameMs": 19.3244,
+        "MaxFrameMs": 43.1192,
+        "MeanNpcMs": 3.6170266817838352,
+        "MeanLateNpcMs": 0,
+        "GcSliceNanoseconds": 3000000,
+        "Gen0Collections": 19,
+        "UnfocusedFrames": 0
+      },
+      {
+        "Mode": "automatic-poses",
+        "Frames": 2724,
+        "MeanFrameMs": 11.01633351688692,
+        "P99FrameMs": 18.0495,
+        "MaxFrameMs": 34.7178,
+        "MeanNpcMs": 1.720662812041114,
+        "MeanLateNpcMs": 0.5325495961820838,
+        "GcSliceNanoseconds": 3000000,
+        "Gen0Collections": 21,
+        "UnfocusedFrames": 0
+      },
+      {
+        "Mode": "automatic-half-ms-gc",
+        "Frames": 2732,
+        "MeanFrameMs": 10.981676207906302,
+        "P99FrameMs": 16.1213,
+        "MaxFrameMs": 41.0959,
+        "MeanNpcMs": 1.7269701683748204,
+        "MeanLateNpcMs": 0.5369549048316263,
+        "GcSliceNanoseconds": 500000,
+        "Gen0Collections": 20,
+        "UnfocusedFrames": 0
+      },
+      {
+        "Mode": "normal-half-ms-gc",
+        "Frames": 2639,
+        "MeanFrameMs": 11.367972716938224,
+        "P99FrameMs": 16.6511,
+        "MaxFrameMs": 35.8188,
+        "MeanNpcMs": 3.6449030314513062,
+        "MeanLateNpcMs": 0,
+        "GcSliceNanoseconds": 500000,
+        "Gen0Collections": 19,
+        "UnfocusedFrames": 0
+      },
+      {
+        "Mode": "normal-repeat",
+        "Frames": 2634,
+        "MeanFrameMs": 11.390159491268053,
+        "P99FrameMs": 19.7299,
+        "MaxFrameMs": 37.8919,
+        "MeanNpcMs": 3.635870197418376,
+        "MeanLateNpcMs": 0,
+        "GcSliceNanoseconds": 3000000,
+        "Gen0Collections": 20,
+        "UnfocusedFrames": 0
+      }
+    ],
+    "checks": "PASS An admitted real simulated community exists\nPASS Actual local terrain and centre tiles are ready\nPASS Natural residents stream from world history, without a spawn command\nPASS Natural camp passes local ground validation and is loaded\nPASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp\nPASS Camp consists of real player-compatible objects/materials\nPASS Native camp validates with real terrain footing surveys\nPASS Occupied camp shelters retain every fitted roof/frame component\nPASS Actual surrounding scatter pages are resident before accepting camp environment captures\nPASS Physical NPCs retain named family identities and actual scheduled tasks\nPASS Broad local group tracking is bounded at 50km plus foraging catchment\nPASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders\nPASS 513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates\nPASS Occupied shelter floor has a full-strength ground clearing mask\nPASS Packed compute shader removes grass inside the real camp floor and retains grass outside\nPASS Named camp objects and local memories survive actual player capture and serialization\nPASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects\nPASS Aggression preserves wounds and the actual victim's local memory\nPASS Unloading/revisiting a camp does not duplicate its objects\n",
+    "gc": {
+      "scope": "Native Mono pre-stop to post-restart intervals overlapping recorded slow frames; overlap is evidence, not proof of sole causation.",
+      "events": 1290,
+      "complete_stop_resume_intervals": 215,
+      "unmatched_intervals": 0,
+      "windows": [
+        {
+          "mode": "normal",
+          "clock_bridge_uncertainty_ms": 0.07645,
+          "mean_frame_ms": 11.339388964474692,
+          "p99_frame_ms": 19.3244,
+          "worst_frames": [
+            {
+              "frame_ms": 43.1192,
+              "npc_ms": 8.3174,
+              "stop_resume_overlap_ms": 10.8351
+            },
+            {
+              "frame_ms": 34.868,
+              "npc_ms": 6.0407,
+              "stop_resume_overlap_ms": 6.6939
+            },
+            {
+              "frame_ms": 34.1921,
+              "npc_ms": 6.9948,
+              "stop_resume_overlap_ms": 6.6488
+            },
+            {
+              "frame_ms": 32.2875,
+              "npc_ms": 18.5819,
+              "stop_resume_overlap_ms": 6.5592
+            },
+            {
+              "frame_ms": 31.8096,
+              "npc_ms": 6.0389,
+              "stop_resume_overlap_ms": 6.9547
+            },
+            {
+              "frame_ms": 31.6958,
+              "npc_ms": 6.0232,
+              "stop_resume_overlap_ms": 7.2393
+            },
+            {
+              "frame_ms": 31.5199,
+              "npc_ms": 5.8821,
+              "stop_resume_overlap_ms": 6.2746
+            },
+            {
+              "frame_ms": 30.7625,
+              "npc_ms": 5.5014,
+              "stop_resume_overlap_ms": 6.9021
+            },
+            {
+              "frame_ms": 30.627,
+              "npc_ms": 5.6558,
+              "stop_resume_overlap_ms": 6.7869
+            },
+            {
+              "frame_ms": 30.1319,
+              "npc_ms": 5.6477,
+              "stop_resume_overlap_ms": 7.0112
+            },
+            {
+              "frame_ms": 29.9817,
+              "npc_ms": 5.3329,
+              "stop_resume_overlap_ms": 7.8517
+            },
+            {
+              "frame_ms": 29.7549,
+              "npc_ms": 5.085,
+              "stop_resume_overlap_ms": 7.208
+            },
+            {
+              "frame_ms": 29.0029,
+              "npc_ms": 6.0121,
+              "stop_resume_overlap_ms": 7.1138
+            },
+            {
+              "frame_ms": 28.9885,
+              "npc_ms": 9.2531,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 28.938,
+              "npc_ms": 5.3957,
+              "stop_resume_overlap_ms": 7.7486
+            },
+            {
+              "frame_ms": 28.9177,
+              "npc_ms": 5.4711,
+              "stop_resume_overlap_ms": 7.829
+            },
+            {
+              "frame_ms": 28.8646,
+              "npc_ms": 6.0348,
+              "stop_resume_overlap_ms": 6.529
+            },
+            {
+              "frame_ms": 28.0081,
+              "npc_ms": 5.7387,
+              "stop_resume_overlap_ms": 6.9205
+            },
+            {
+              "frame_ms": 27.9247,
+              "npc_ms": 5.5475,
+              "stop_resume_overlap_ms": 5.8186
+            },
+            {
+              "frame_ms": 26.4784,
+              "npc_ms": 5.3721,
+              "stop_resume_overlap_ms": 7.239
+            },
+            {
+              "frame_ms": 23.5301,
+              "npc_ms": 4.8961,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 21.5524,
+              "npc_ms": 4.4094,
+              "stop_resume_overlap_ms": 3.7096
+            },
+            {
+              "frame_ms": 21.1389,
+              "npc_ms": 8.3351,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 20.4989,
+              "npc_ms": 5.2215,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "automatic-poses",
+          "clock_bridge_uncertainty_ms": 0.00045,
+          "mean_frame_ms": 11.01633351688692,
+          "p99_frame_ms": 18.0495,
+          "worst_frames": [
+            {
+              "frame_ms": 34.7178,
+              "npc_ms": 17.8434,
+              "stop_resume_overlap_ms": 6.833
+            },
+            {
+              "frame_ms": 33.8076,
+              "npc_ms": 3.3301,
+              "stop_resume_overlap_ms": 7.9145
+            },
+            {
+              "frame_ms": 32.7565,
+              "npc_ms": 1.8499,
+              "stop_resume_overlap_ms": 9.557
+            },
+            {
+              "frame_ms": 31.0696,
+              "npc_ms": 17.258,
+              "stop_resume_overlap_ms": 7.5406
+            },
+            {
+              "frame_ms": 31.0009,
+              "npc_ms": 16.9564,
+              "stop_resume_overlap_ms": 7.0847
+            },
+            {
+              "frame_ms": 30.6845,
+              "npc_ms": 2.5589,
+              "stop_resume_overlap_ms": 6.7125
+            },
+            {
+              "frame_ms": 30.4728,
+              "npc_ms": 2.3926,
+              "stop_resume_overlap_ms": 8.0956
+            },
+            {
+              "frame_ms": 30.4407,
+              "npc_ms": 2.4837,
+              "stop_resume_overlap_ms": 6.8699
+            },
+            {
+              "frame_ms": 30.4304,
+              "npc_ms": 2.164,
+              "stop_resume_overlap_ms": 8.0886
+            },
+            {
+              "frame_ms": 30.366,
+              "npc_ms": 2.4328,
+              "stop_resume_overlap_ms": 7.8307
+            },
+            {
+              "frame_ms": 29.9409,
+              "npc_ms": 2.1191,
+              "stop_resume_overlap_ms": 8.5163
+            },
+            {
+              "frame_ms": 29.5209,
+              "npc_ms": 2.2373,
+              "stop_resume_overlap_ms": 8.0911
+            },
+            {
+              "frame_ms": 29.2588,
+              "npc_ms": 2.8576,
+              "stop_resume_overlap_ms": 7.3355
+            },
+            {
+              "frame_ms": 29.244,
+              "npc_ms": 2.6194,
+              "stop_resume_overlap_ms": 8.8255
+            },
+            {
+              "frame_ms": 28.9282,
+              "npc_ms": 1.8711,
+              "stop_resume_overlap_ms": 8.0768
+            },
+            {
+              "frame_ms": 28.9137,
+              "npc_ms": 2.19,
+              "stop_resume_overlap_ms": 6.5624
+            },
+            {
+              "frame_ms": 28.3892,
+              "npc_ms": 2.0267,
+              "stop_resume_overlap_ms": 7.5072
+            },
+            {
+              "frame_ms": 27.6886,
+              "npc_ms": 1.8873,
+              "stop_resume_overlap_ms": 6.564
+            },
+            {
+              "frame_ms": 27.498,
+              "npc_ms": 2.3232,
+              "stop_resume_overlap_ms": 8.0613
+            },
+            {
+              "frame_ms": 26.1357,
+              "npc_ms": 2.0784,
+              "stop_resume_overlap_ms": 7.3063
+            },
+            {
+              "frame_ms": 25.2126,
+              "npc_ms": 1.6343,
+              "stop_resume_overlap_ms": 6.4925
+            },
+            {
+              "frame_ms": 24.4611,
+              "npc_ms": 3.02,
+              "stop_resume_overlap_ms": 4.9247
+            },
+            {
+              "frame_ms": 20.5382,
+              "npc_ms": 2.4079,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 20.1725,
+              "npc_ms": 4.1508,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "automatic-half-ms-gc",
+          "clock_bridge_uncertainty_ms": 0.0001,
+          "mean_frame_ms": 10.981676207906302,
+          "p99_frame_ms": 16.1213,
+          "worst_frames": [
+            {
+              "frame_ms": 41.0959,
+              "npc_ms": 3.9323,
+              "stop_resume_overlap_ms": 12.0361
+            },
+            {
+              "frame_ms": 32.6361,
+              "npc_ms": 2.4774,
+              "stop_resume_overlap_ms": 9.0814
+            },
+            {
+              "frame_ms": 31.9224,
+              "npc_ms": 2.1717,
+              "stop_resume_overlap_ms": 8.7729
+            },
+            {
+              "frame_ms": 31.6569,
+              "npc_ms": 2.5783,
+              "stop_resume_overlap_ms": 8.8883
+            },
+            {
+              "frame_ms": 31.1854,
+              "npc_ms": 18.7905,
+              "stop_resume_overlap_ms": 8.0098
+            },
+            {
+              "frame_ms": 30.5031,
+              "npc_ms": 18.5235,
+              "stop_resume_overlap_ms": 9.2774
+            },
+            {
+              "frame_ms": 30.4128,
+              "npc_ms": 2.0192,
+              "stop_resume_overlap_ms": 8.1811
+            },
+            {
+              "frame_ms": 30.3433,
+              "npc_ms": 1.993,
+              "stop_resume_overlap_ms": 9.4128
+            },
+            {
+              "frame_ms": 30.2412,
+              "npc_ms": 18.404,
+              "stop_resume_overlap_ms": 8.2937
+            },
+            {
+              "frame_ms": 30.2037,
+              "npc_ms": 2.9457,
+              "stop_resume_overlap_ms": 8.1024
+            },
+            {
+              "frame_ms": 29.8585,
+              "npc_ms": 1.7019,
+              "stop_resume_overlap_ms": 8.1885
+            },
+            {
+              "frame_ms": 29.6139,
+              "npc_ms": 2.2503,
+              "stop_resume_overlap_ms": 8.3144
+            },
+            {
+              "frame_ms": 29.3351,
+              "npc_ms": 2.7323,
+              "stop_resume_overlap_ms": 8.4751
+            },
+            {
+              "frame_ms": 29.3287,
+              "npc_ms": 18.1537,
+              "stop_resume_overlap_ms": 8.3976
+            },
+            {
+              "frame_ms": 28.8336,
+              "npc_ms": 1.9601,
+              "stop_resume_overlap_ms": 8.522
+            },
+            {
+              "frame_ms": 28.8291,
+              "npc_ms": 2.1531,
+              "stop_resume_overlap_ms": 8.6126
+            },
+            {
+              "frame_ms": 28.5962,
+              "npc_ms": 2.0652,
+              "stop_resume_overlap_ms": 8.583
+            },
+            {
+              "frame_ms": 27.667,
+              "npc_ms": 1.7845,
+              "stop_resume_overlap_ms": 8.7649
+            },
+            {
+              "frame_ms": 26.6218,
+              "npc_ms": 15.0261,
+              "stop_resume_overlap_ms": 7.3158
+            },
+            {
+              "frame_ms": 26.5445,
+              "npc_ms": 1.9991,
+              "stop_resume_overlap_ms": 7.7069
+            },
+            {
+              "frame_ms": 26.0804,
+              "npc_ms": 4.5031,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 23.195,
+              "npc_ms": 4.719,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 22.1671,
+              "npc_ms": 3.7463,
+              "stop_resume_overlap_ms": 0.7729
+            },
+            {
+              "frame_ms": 17.367,
+              "npc_ms": 2.2278,
+              "stop_resume_overlap_ms": 0.5168
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "normal-half-ms-gc",
+          "clock_bridge_uncertainty_ms": 0.0002,
+          "mean_frame_ms": 11.367972716938224,
+          "p99_frame_ms": 16.6511,
+          "worst_frames": [
+            {
+              "frame_ms": 35.8188,
+              "npc_ms": 6.789,
+              "stop_resume_overlap_ms": 9.8665
+            },
+            {
+              "frame_ms": 34.1688,
+              "npc_ms": 6.9833,
+              "stop_resume_overlap_ms": 8.4637
+            },
+            {
+              "frame_ms": 33.4698,
+              "npc_ms": 6.5344,
+              "stop_resume_overlap_ms": 9.3265
+            },
+            {
+              "frame_ms": 33.1294,
+              "npc_ms": 22.6622,
+              "stop_resume_overlap_ms": 8.9716
+            },
+            {
+              "frame_ms": 32.7276,
+              "npc_ms": 6.1276,
+              "stop_resume_overlap_ms": 8.317
+            },
+            {
+              "frame_ms": 32.568,
+              "npc_ms": 6.5451,
+              "stop_resume_overlap_ms": 9.8373
+            },
+            {
+              "frame_ms": 32.3718,
+              "npc_ms": 5.9069,
+              "stop_resume_overlap_ms": 8.4485
+            },
+            {
+              "frame_ms": 31.9262,
+              "npc_ms": 6.315,
+              "stop_resume_overlap_ms": 8.1625
+            },
+            {
+              "frame_ms": 31.8754,
+              "npc_ms": 19.0475,
+              "stop_resume_overlap_ms": 7.3292
+            },
+            {
+              "frame_ms": 31.7311,
+              "npc_ms": 5.6193,
+              "stop_resume_overlap_ms": 8.9779
+            },
+            {
+              "frame_ms": 31.6303,
+              "npc_ms": 21.0021,
+              "stop_resume_overlap_ms": 8.3094
+            },
+            {
+              "frame_ms": 31.6084,
+              "npc_ms": 6.1068,
+              "stop_resume_overlap_ms": 8.3341
+            },
+            {
+              "frame_ms": 31.056,
+              "npc_ms": 5.5596,
+              "stop_resume_overlap_ms": 8.0121
+            },
+            {
+              "frame_ms": 30.5478,
+              "npc_ms": 5.622,
+              "stop_resume_overlap_ms": 8.818
+            },
+            {
+              "frame_ms": 30.3772,
+              "npc_ms": 6.2306,
+              "stop_resume_overlap_ms": 8.1332
+            },
+            {
+              "frame_ms": 29.8312,
+              "npc_ms": 5.0615,
+              "stop_resume_overlap_ms": 8.73
+            },
+            {
+              "frame_ms": 29.7471,
+              "npc_ms": 20.2817,
+              "stop_resume_overlap_ms": 8.336
+            },
+            {
+              "frame_ms": 26.7387,
+              "npc_ms": 4.0615,
+              "stop_resume_overlap_ms": 6.7116
+            },
+            {
+              "frame_ms": 26.6869,
+              "npc_ms": 6.7723,
+              "stop_resume_overlap_ms": 7.4451
+            },
+            {
+              "frame_ms": 24.2129,
+              "npc_ms": 5.4562,
+              "stop_resume_overlap_ms": 0.9204
+            },
+            {
+              "frame_ms": 18.1685,
+              "npc_ms": 5.0015,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 17.7116,
+              "npc_ms": 5.3943,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 17.574,
+              "npc_ms": 5.1109,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 17.4682,
+              "npc_ms": 6.7872,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "normal-repeat",
+          "clock_bridge_uncertainty_ms": 0.0003,
+          "mean_frame_ms": 11.390159491268053,
+          "p99_frame_ms": 19.7299,
+          "worst_frames": [
+            {
+              "frame_ms": 37.8919,
+              "npc_ms": 22.3074,
+              "stop_resume_overlap_ms": 7.5288
+            },
+            {
+              "frame_ms": 37.2692,
+              "npc_ms": 8.2162,
+              "stop_resume_overlap_ms": 10.4838
+            },
+            {
+              "frame_ms": 36.1483,
+              "npc_ms": 7.6985,
+              "stop_resume_overlap_ms": 8.2301
+            },
+            {
+              "frame_ms": 36.1203,
+              "npc_ms": 6.0469,
+              "stop_resume_overlap_ms": 8.6198
+            },
+            {
+              "frame_ms": 35.248,
+              "npc_ms": 6.7282,
+              "stop_resume_overlap_ms": 7.8313
+            },
+            {
+              "frame_ms": 35.0907,
+              "npc_ms": 6.3764,
+              "stop_resume_overlap_ms": 7.9689
+            },
+            {
+              "frame_ms": 34.4,
+              "npc_ms": 6.4503,
+              "stop_resume_overlap_ms": 8.0863
+            },
+            {
+              "frame_ms": 34.355,
+              "npc_ms": 7.085,
+              "stop_resume_overlap_ms": 7.9798
+            },
+            {
+              "frame_ms": 34.3255,
+              "npc_ms": 6.1413,
+              "stop_resume_overlap_ms": 7.717
+            },
+            {
+              "frame_ms": 34.1597,
+              "npc_ms": 6.1342,
+              "stop_resume_overlap_ms": 7.6529
+            },
+            {
+              "frame_ms": 34.0779,
+              "npc_ms": 6.3038,
+              "stop_resume_overlap_ms": 7.8004
+            },
+            {
+              "frame_ms": 34.0147,
+              "npc_ms": 6.3142,
+              "stop_resume_overlap_ms": 8.0017
+            },
+            {
+              "frame_ms": 33.9528,
+              "npc_ms": 5.9262,
+              "stop_resume_overlap_ms": 8.3224
+            },
+            {
+              "frame_ms": 33.4068,
+              "npc_ms": 6.882,
+              "stop_resume_overlap_ms": 7.9122
+            },
+            {
+              "frame_ms": 32.6383,
+              "npc_ms": 6.0794,
+              "stop_resume_overlap_ms": 7.8666
+            },
+            {
+              "frame_ms": 32.131,
+              "npc_ms": 5.8252,
+              "stop_resume_overlap_ms": 8.0655
+            },
+            {
+              "frame_ms": 31.7728,
+              "npc_ms": 7.0026,
+              "stop_resume_overlap_ms": 6.83
+            },
+            {
+              "frame_ms": 31.571,
+              "npc_ms": 5.8389,
+              "stop_resume_overlap_ms": 8.0721
+            },
+            {
+              "frame_ms": 28.7545,
+              "npc_ms": 16.2794,
+              "stop_resume_overlap_ms": 6.4651
+            },
+            {
+              "frame_ms": 27.7801,
+              "npc_ms": 6.8723,
+              "stop_resume_overlap_ms": 5.7895
+            },
+            {
+              "frame_ms": 27.3097,
+              "npc_ms": 5.4084,
+              "stop_resume_overlap_ms": 7.4583
+            },
+            {
+              "frame_ms": 24.8809,
+              "npc_ms": 8.4187,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 21.5576,
+              "npc_ms": 7.8861,
+              "stop_resume_overlap_ms": 2.9261
+            },
+            {
+              "frame_ms": 21.1098,
+              "npc_ms": 6.0769,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        }
+      ]
+    }
   }
 }

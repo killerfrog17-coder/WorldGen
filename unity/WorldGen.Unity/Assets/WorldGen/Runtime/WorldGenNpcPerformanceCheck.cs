@@ -98,6 +98,13 @@ public sealed partial class LocalTerrainExplorer
         int cap=Application.targetFrameRate;Application.targetFrameRate=-1;var report=new List<NpcPerformanceRow>();
         var arguments=Environment.GetCommandLineArgs();int option=Array.IndexOf(arguments,"--worldgen-npc-perf-seconds");double duration=30;
         if(option>=0&&option+1<arguments.Length)duration=Math.Max(5,Math.Min(180,double.Parse(arguments[option+1],System.Globalization.CultureInfo.InvariantCulture)));
+        bool allocationProfile=arguments.Contains("--worldgen-npc-allocation-profile");
+        if(allocationProfile)
+        {
+            if(!Debug.isDebugBuild||arguments.Contains("--worldgen-npc-automatic-comparison"))throw new InvalidOperationException("Allocation capture requires a separate diagnostic DevelopmentPlayer without performance comparisons.");
+            duration=3; // Bounded diagnostic; never capture the lengthy loading phase.
+            File.WriteAllText(Path.Combine(output,"allocation-profile.txt"),"Three-second DevelopmentPlayer allocation diagnostic after terrain/forest/crowd readiness. Timings include profiler overhead and MUST NOT be used as release throughput.\n");
+        }
         var group=owner.livingGroups.Values.Where(g=>g.CampLoaded&&!g.TraceOnly).OrderBy(g=>owner.HumanDistance(g.Anchor,owner.Position)).First();
         TerrainHandoff.Coordinates(owner.frame,group.Anchor,out double campX,out double campZ);float floor=(float)owner.VisibleGround(campX,campZ,0);
         var focus=owner.npcCrowdFocus??new Vector3((float)(campX-owner.originX),floor+1,(float)(campZ-owner.originZ));
@@ -128,7 +135,7 @@ public sealed partial class LocalTerrainExplorer
         long allocationBefore=GC.GetAllocatedBytesForCurrentThread();var allocationProbe=new byte[65536];bool allocationCounterAvailable=GC.GetAllocatedBytesForCurrentThread()>allocationBefore;GC.KeepAlive(allocationProbe);
         bool compareAutomatic=arguments.Contains("--worldgen-npc-automatic-comparison"),requestedAutomatic=owner.npcAutomaticPoses;
         ulong priorGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
-        string[] modes=compareAutomatic?new[]{"normal","automatic-poses","automatic-half-ms-gc","normal-half-ms-gc","normal-repeat"}:new[]{"normal","render-only","no-residents","normal-repeat"};
+        string[] modes=allocationProfile?new[]{"normal"}:compareAutomatic?new[]{"normal","automatic-poses","automatic-half-ms-gc","normal-half-ms-gc","normal-repeat"}:new[]{"normal","render-only","no-residents","normal-repeat"};
         foreach(string mode in modes)
         {
             UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=mode.Contains("half-ms-gc")?500000UL:priorGcSlice;
@@ -152,6 +159,15 @@ public sealed partial class LocalTerrainExplorer
             int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);long windowTick=System.Diagnostics.Stopwatch.GetTimestamp();var clockBridge=WorldGenPerformance.CaptureNativeClock();
             double maxCameraError=0,maxAngleError=0,maxCullDelta=0;
             if(trace){WorldGenPerformance.ClearFaunaTrace();WorldGenPerformance.Measuring=true;}
+            if(allocationProfile)
+            {
+                UnityEngine.Profiling.Profiler.logFile=Path.Combine(output,"crowd-allocations.raw");
+                UnityEngine.Profiling.Profiler.enableBinaryLog=true;
+                UnityEngine.Profiling.Profiler.enableAllocationCallstacks=true;
+                UnityEngine.Profiling.Profiler.enabled=true;
+            }
+            try
+            {
             while(Time.realtimeSinceStartupAsDouble-start<duration)
             {
                 CameraAt(Time.realtimeSinceStartupAsDouble-start);if(mode=="no-residents")foreach(var resident in owner.livingPeople.Values)if(resident.Root.activeSelf)resident.Root.SetActive(false);yield return null;
@@ -166,6 +182,17 @@ public sealed partial class LocalTerrainExplorer
                         var sample=new NpcSlowFrame{ManagedFrameEnd=frameEndTick,AtSeconds=now-start,FrameMs=frameMs,NpcMs=owner.livingTickMs,MainThreadTraceMs=(double[])current.Clone(),Gen0=GC.CollectionCount(0)-gc0,Gen1=GC.CollectionCount(1)-gc1,Gen2=GC.CollectionCount(2)-gc2,MainAllocatedBytes=GC.GetAllocatedBytesForCurrentThread(),ScatterObjects=owner.ScatterObjects,TreeInstances=owner.GeneratedTreeObjects,Batches=owner.drawBatches.Count,ForestPages=owner.forestFields.Count,ResidentForestReady=owner.residentForestReady};
                         int at=0;while(at<slow.Count&&slow[at].FrameMs>=frameMs)at++;if(slow.Count==24)slow.RemoveAt(23);slow.Insert(at,sample);
                     }
+                }
+            }
+            }
+            finally
+            {
+                if(allocationProfile)
+                {
+                    UnityEngine.Profiling.Profiler.enabled=false;
+                    UnityEngine.Profiling.Profiler.enableAllocationCallstacks=false;
+                    UnityEngine.Profiling.Profiler.enableBinaryLog=false;
+                    UnityEngine.Profiling.Profiler.logFile="";
                 }
             }
             if(trace){WorldGenPerformance.Measuring=false;WorldGenPerformance.WriteFaunaTrace(Path.Combine(output,mode+"-fauna-events.csv"),windowTick);for(int k=0;k<traceTotals.Length;k++)traceTotals[k]/=ticks.Count;}

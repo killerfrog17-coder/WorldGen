@@ -9,6 +9,7 @@ param(
     [switch]$Crowd,
     [switch]$CrowdClose,
     [switch]$AutomaticComparison,
+    [switch]$AllocationProfile,
     [string]$GcProbe="",
     [switch]$Cycle,
     [switch]$HaulFrame,
@@ -19,12 +20,14 @@ param(
 $ErrorActionPreference='Stop'
 if($Trace -and !$Performance){throw 'Frame tracing requires -Performance.'}
 if($RemovalProof -and $Performance){throw 'Material-removal fixtures must not alter a performance scene.'}
+if($AllocationProfile -and (!$Crowd -or !$Performance -or $AutomaticComparison)){throw 'AllocationProfile requires a controlled crowd, Performance, and no comparison.'}
 $repo=Split-Path -Parent $PSScriptRoot
 Add-Type -AssemblyName System.Windows.Forms
 $npcReviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending:($Monitor -eq 'Rightmost')|Select-Object -First 1
 $npcReviewMonitorIndex=[regex]::Match($npcReviewMonitor.DeviceName,'\d+$').Value
 if(!$npcReviewMonitorIndex){throw 'Cannot identify the selected NPC review monitor'}
 $player=Join-Path $repo ('builds/'+$Slot+'/WorldGen.exe')
+if($AllocationProfile -and !(Get-Content -Raw (Join-Path (Split-Path -Parent $player) 'build-inputs.json')|ConvertFrom-Json).Development){throw 'Allocation capture requires an explicitly built diagnostic DevelopmentPlayer.'}
 $fixture=Join-Path $repo $World
 if(!(Test-Path -LiteralPath $fixture)){throw 'Generate the disposable human-world fixture first.'}
 if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'A game is already open; leave that session untouched.'}
@@ -45,6 +48,7 @@ foreach($case in $Cases){
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
     if($Crowd){if(!$Performance){throw 'Crowd is a controlled performance fixture only.'};$arguments+='--worldgen-npc-crowd'}
     if($AutomaticComparison){if(!$Crowd){throw 'AutomaticComparison requires controlled crowd.'};$arguments+='--worldgen-npc-automatic-comparison'}
+    if($AllocationProfile){$arguments+='--worldgen-npc-allocation-profile'}
     if($CrowdClose){if(!$Crowd){throw 'CrowdClose requires the controlled crowd fixture.'};$arguments+='--worldgen-npc-crowd-close'}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
     if($HaulFrame){if(!$Cycle){throw 'HaulFrame is a controlled cycle fixture only.'};$arguments+='--worldgen-npc-haul-frame'}
