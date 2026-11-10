@@ -65,6 +65,32 @@ static partial class LocalScatterMeshes
         }
         void Container(bool basket,bool bark)
         {
+            if(item.Kind==PossessionKind.Waterskin)
+            {
+                // A closed soft flask with gathered shoulders, narrow neck,
+                // stopper and carrying strap, rather than an open food pouch.
+                const int ns=20,nr=12;int first=b.V.Count;
+                for(int ring=0;ring<=nr;ring++)for(int side=0;side<=ns;side++)
+                {
+                    float t=ring/(float)nr,a=side*Mathf.PI*2/ns;
+                    float radius=t>.72f?Mathf.Lerp(.43f,.09f,(t-.72f)/.28f):.12f+.36f*Mathf.Sin(t*Mathf.PI/.95f);
+                    radius*=1+.025f*Mathf.Sin(a*5+t*7);
+                    b.Add(new Vector3(Mathf.Cos(a)*radius,.04f+t*.84f,Mathf.Sin(a)*radius),leather,new Vector2(side/(float)ns,t));
+                }
+                for(int ring=0;ring<nr;ring++)for(int side=0;side<ns;side++)
+                {int v=first+ring*(ns+1)+side;b.Triangle(v,v+1,v+ns+1);b.Triangle(v+1,v+ns+2,v+ns+1);}
+                int bottom=b.Add(Vector3.up*.04f,leather,new Vector2(.5f,.5f));for(int side=0;side<ns;side++)b.Triangle(bottom,first+side+1,first+side);
+                Tube(Vector3.up*.84f,Vector3.up*.96f,.095f,wood,10);Arc(Vector3.zero,.11f,.11f,.86f,cord,.018f,20);
+                for(int i=0;i<10;i++)
+                {float y=.14f+i*.055f;Tube(new Vector3(-.37f,y,.24f),new Vector3(-.32f,y+.024f,.29f),.009f,cord,5);}
+                for(int i=0;i<12;i++)
+                {
+                    float a=i*Mathf.PI/12,c=(i+1)*Mathf.PI/12;
+                    Vector3 p=new Vector3(Mathf.Cos(a)*.37f,.69f+Mathf.Sin(a)*.95f,-.12f),q=new Vector3(Mathf.Cos(c)*.37f,.69f+Mathf.Sin(c)*.95f,-.12f);
+                    Quad(p-Vector3.forward*.035f,p+Vector3.forward*.035f,q+Vector3.forward*.035f,q-Vector3.forward*.035f,leather);
+                }
+                return;
+            }
             int sides=bark?4:28,rings=bark?4:10;
             if(!basket&&!bark)
             {

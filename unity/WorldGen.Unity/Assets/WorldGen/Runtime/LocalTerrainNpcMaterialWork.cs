@@ -273,7 +273,7 @@ public sealed partial class LocalTerrainExplorer
                 if(quality.Kind==LocalWaterKind.None||!quality.Fresh){actor.TaskDetail="looking for fresh water";actor.NpcWorkDone=0;return;}
                 record.Nutrition??=new PlayerSurvival();double draw=Rng.Value(sourceWorld.Recipe.Seed,"npc-water-exposure",unchecked((int)actor.ResidentId+record.Nutrition.WaterExposureSequence));
                 WaterDrinking.Drink(record.Nutrition,quality,.35,draw,GameMode.Survival);
-                var vessel=stock.Items.FirstOrDefault(p=>PaleolithicWater.Vessel(p)&&stock.Carried(p));if(vessel!=null)PaleolithicWater.Fill(vessel,quality,PaleolithicWater.Space(vessel));
+                PaleolithicWater.FillCarried(stock,quality);var vessel=stock.Items.FirstOrDefault(p=>PaleolithicWater.Vessel(p)&&stock.Carried(p));
                 NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Drank,"water","fresh water at the local source",PlayerRules.SolarDays);actor.NpcWorkDone=-600;
                 actor.TaskDetail=vessel?.WaterLitres>0?"drank and filled "+vessel.Name.ToLowerInvariant():"drinking at the actual water source";
             }

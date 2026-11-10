@@ -34,6 +34,10 @@ static class PaleolithicWaterTests
         var nonVessel=PortableTechnology.Create(PossessionKind.HidePouch,point);Check(PaleolithicWater.Fill(nonVessel,fresh,1)==0,"An ordinary inventory pouch is not silently treated as watertight");
         var tiny=PortableTechnology.Create(PossessionKind.Waterskin,point);for(int i=0;i<20;i++)PaleolithicWater.Fill(tiny,fresh,.1);
         Check(Math.Abs(tiny.WaterLitres-2)<1e-9&&Math.Abs(tiny.WaterContamination-.2)<1e-9,"Repeated small fills cannot overflow or erase contamination");
+        var npcStock=new PlayerInventory{Items={PortableTechnology.Create(PossessionKind.Waterskin,point)}};
+        Check(PaleolithicWater.FillCarried(npcStock,fresh)==0&&npcStock.Items[0].WaterLitres==0,"Fetching water cannot magically fill a vessel left on the ground at camp");
+        npcStock.Move(npcStock.Items[0].Id,PossessionPlace.RightHand,"",0,0,false,out _);
+        Check(PaleolithicWater.FillCarried(npcStock,fresh)==2&&npcStock.Items.Count==1&&npcStock.Items[0].WaterLitres==2,"An NPC carrying an actual vessel fills that same object without creating goods");
         Console.WriteLine($"PASS {checks} finite water, salinity, source provenance, thermal and ownership checks");
     }
 }

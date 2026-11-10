@@ -41,6 +41,12 @@ namespace WorldGen.Core
             if(from==null||to==null||ReferenceEquals(from,to)||!double.IsFinite(litres)||litres<=0)return 0;
             double moved=Fill(to,Quality(from),Math.Min(from.WaterLitres,litres),from.WaterBoiled);Drain(from,moved);return moved;
         }
+        public static double FillCarried(PlayerInventory inventory,WaterQuality source)
+        {
+            foreach(var p in inventory.Items)
+                if(Vessel(p)&&inventory.Carried(p)&&Space(p)>.001)return Fill(p,source,Space(p));
+            return 0;
+        }
         public static double Drink(Possession p,PlayerSurvival state,GameMode mode,double litres,double susceptibility)
         {
             if(state==null||state.Incapacitated||!Vessel(p)||!double.IsFinite(litres)||litres<=0)return 0;

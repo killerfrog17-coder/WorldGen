@@ -28,7 +28,12 @@ public sealed partial class LocalTerrainExplorer
             if(row>=clip.y&&row+26*scale<=clip.yMax)InventoryLabel(new Rect(clip.x,row,clip.width,26*scale),bag.Name+"  "+bag.ContainerWidth+" x "+bag.ContainerHeight,Mathf.RoundToInt(14*scale),InventoryGold);
             DrawInventoryGrid(bag,new Rect(clip.x,row+30*scale,bag.ContainerWidth*cell,bag.ContainerHeight*cell),cell,clip);height+=bag.ContainerHeight*cell+48*scale;
         }
-        if(containers.Length==0)InventoryLabel(clip,"No carrier equipped. Hold items, or make carrying equipment.",Mathf.RoundToInt(15*scale));
+        if(containers.Length==0)
+        {
+            float row=clip.y+height-inventoryMiddleScroll;
+            if(row>=clip.y&&row+50*scale<=clip.yMax)InventoryLabel(new Rect(clip.x,row,clip.width,50*scale),"No carrier equipped. Hold items, or make carrying equipment.",Mathf.RoundToInt(15*scale));
+            height+=60*scale;
+        }
         inventoryMiddleScroll=Mathf.Clamp(inventoryMiddleScroll,0,Mathf.Max(0,height-clip.height));
         if(height>clip.height)inventoryMiddleScroll=GUI.VerticalScrollbar(new Rect(middle.xMax-inset-11*scale,clip.y,11*scale,clip.height),inventoryMiddleScroll,clip.height,0,height);
         if(inventoryContext==null&&Event.current.type==EventType.ScrollWheel&&clip.Contains(Event.current.mousePosition)){inventoryMiddleScroll=Mathf.Clamp(inventoryMiddleScroll+Event.current.delta.y*cell,0,Mathf.Max(0,height-clip.height));Event.current.Use();}

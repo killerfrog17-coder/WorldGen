@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
     MaterialPropertyBlock portableItemProps=>portableItemPropsCache??(portableItemPropsCache=new MaterialPropertyBlock());
     bool PendingPortableCoats=>portableCoatWanted.Any(s=>!animalModels.ContainsKey(s)&&!animalLoadFailures.Contains(s));
     bool PortableFur(Possession p)
-    {var form=PortableTechnology.Item(p.Kind)?.Form;return !string.IsNullOrEmpty(p.AppearanceSpecies)&&(form==PortableForm.Hide||form==PortableForm.Pouch||form==PortableForm.Pack||form==PortableForm.Satchel||form==PortableForm.Quiver||form==PortableForm.Garment);}
+    {var form=PortableTechnology.Item(p.Kind)?.Form;return p.Kind!=PossessionKind.Waterskin&&!string.IsNullOrEmpty(p.AppearanceSpecies)&&(form==PortableForm.Hide||form==PortableForm.Pouch||form==PortableForm.Pack||form==PortableForm.Satchel||form==PortableForm.Quiver||form==PortableForm.Garment);}
     Material PortableMaterial()
     {
         if(portableItemMaterial!=null)return portableItemMaterial;
