@@ -97,6 +97,22 @@ public sealed partial class LocalTerrainExplorer
         actor.Routine=routine;group.Situation.Phase=initialPhase;npcThoughts=true;
         motion.Place(actor.Motor.X-5,actor.Motor.Z+2,CampFloor(actor.Motor.X-5,actor.Motor.Z+2));humanCamera.Restore(0,false);UpdateHumans();
         for(int i=0;i<8;i++){UpdateCamera();var d=transform.InverseTransformDirection(actor.Root.transform.position+transform.up*.7f-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
-        paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"material-backed-camp-work");livingBenchmarkFreeze=false;DisposeNpcMinds();
+        paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"material-backed-camp-work");livingBenchmarkFreeze=false;paused=true;
+        var offlineHouse=Camp.Objects.First(o=>o.NpcGroup==group.Situation.Band.Id&&o.Blueprint!=null&&CampBlueprints.Complete(o.Blueprint)&&NpcCampParts(o).Any(c=>c.Kind==CampPartKind.Cover));
+        var offlinePart=NpcCampParts(offlineHouse).First(c=>c.Kind==CampPartKind.Cover);
+        var offlineGoods=NpcCampWork.Remove(offlineHouse,offlinePart.Key);Inventory.Items.AddRange(offlineGoods);
+        var offlineIds=offlineGoods.Select(p=>p.Id).ToHashSet();double offlineMass=offlineGoods.Sum(p=>p.MassKg);
+        CaptureLivingHumans();UnloadLivingCamp(group);
+        foreach(var person in livingPeople.Values.Where(p=>p.GroupId==group.Situation.Band.Id).ToArray())
+        {CaptureLivingPerson(person);DestroyHuman(person);humanNpcs.Remove(person);livingPeople.Remove(person.ResidentId);}
+        double savedSolar=PlayerRules.SolarDays;PlayerRules.SolarDays+=.1;
+        double catchUpUntil=Time.unscaledTimeAsDouble+20;
+        while(!group.CampLoaded&&Time.unscaledTimeAsDouble<catchUpUntil){LoadLivingCamp(group);yield return null;}
+        Check(group.CampLoaded,"A previously visited unloaded camp returns through the actual asynchronous catch-up path");
+        var returnedHouse=Camp.Objects.First(o=>o.Id==offlineHouse.Id);var restored=CampBlueprints.State(returnedHouse.Blueprint,offlinePart)?.Materials??new List<Possession>();
+        Check(CampBlueprints.Done(returnedHouse.Blueprint,offlinePart)&&restored.Any(p=>offlineIds.Contains(p.Id))&&Math.Abs(restored.Sum(p=>p.MassKg)-offlineMass)<1e-8,"Unobserved repair uses the same finite staged roof material after unload and return");
+        Check(!Inventory.Items.Any(p=>offlineIds.Contains(p.Id)),"The returned shelter does not leave a duplicate loose roof material behind");
+        PlayerRules.SolarDays=savedSolar;LivingState.Copy().Validate();Check(true,"Unloaded camp catch-up preserves valid saved local state");
+        paused=false;DisposeNpcMinds();
     }
 }

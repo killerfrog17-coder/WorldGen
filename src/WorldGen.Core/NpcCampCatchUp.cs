@@ -14,6 +14,7 @@ namespace WorldGen.Core
             var adults=people.Where(p=>!p.Dead&&p.Health>40&&p.Inventory!=null&&roster.Any(r=>r.Id==p.Person&&r.AgeYears>=14)).ToArray();
             if(adults.Length==0)return;
             bool moved=origin.Site!=destination.Site;
+            bool AtDestination(Possession item)=>!moved||HumanLocalLife.Angle(item.Position,destination.Position)<1e-8;
             if(moved)
             {
                 foreach(var shelter in origin.Objects.Where(o=>o.Blueprint!=null))
@@ -54,7 +55,7 @@ namespace WorldGen.Core
                     if(item.Kind==PossessionKind.CampBundle)NpcCampWork.Unbundle(stock,item,destination.Position);
                     else{item.Place=PossessionPlace.Ground;item.ContainerId="";}
                 }
-                foreach(var item in stock.Items.Where(p=>p.Place==PossessionPlace.Ground&&p.CampMaterial==group&&HumanLocalLife.Angle(p.Position,destination.Position)<1e-8).ToArray())NpcBelongings.TransferTree(stock,loose,item);
+                foreach(var item in stock.Items.Where(p=>p.Place==PossessionPlace.Ground&&p.CampMaterial==group&&AtDestination(p)).ToArray())NpcBelongings.TransferTree(stock,loose,item);
             }
             bool canCut=adults.Any(p=>p.Inventory.Items.Any(i=>p.Inventory.Carried(i)&&WoodCrafting.Cutter(i)));
             foreach(var shelter in destination.Objects.Where(o=>o.Blueprint!=null))
@@ -69,7 +70,7 @@ namespace WorldGen.Core
                     {
                         if(!CampBlueprints.HasMaterial(plan,part))
                         {
-                            var material=loose.Items.Where(p=>p.Place==PossessionPlace.Ground&&p.CampMaterial==group&&p.OwnerHousehold==shelter.NpcHousehold&&HumanLocalLife.Angle(p.Position,destination.Position)<1e-8&&CampBlueprints.Suitable(plan,part,p)&&(part.Kg>0||p.HeightM<=part.LengthM+.1||canCut)).OrderBy(p=>p.Id.EndsWith("-material-"+part.Key,StringComparison.Ordinal)?0:1).ThenBy(p=>part.Kg>0?Math.Abs(p.MassKg-part.Kg):p.HeightM).FirstOrDefault();
+                            var material=loose.Items.Where(p=>p.Place==PossessionPlace.Ground&&p.CampMaterial==group&&p.OwnerHousehold==shelter.NpcHousehold&&AtDestination(p)&&CampBlueprints.Suitable(plan,part,p)&&(part.Kg>0||p.HeightM<=part.LengthM+.1||canCut)).OrderBy(p=>p.Id.EndsWith("-material-"+part.Key,StringComparison.Ordinal)?0:1).ThenBy(p=>part.Kg>0?Math.Abs(p.MassKg-part.Kg):p.HeightM).FirstOrDefault();
                             if(material==null)continue;
                             progressed|=CampBlueprints.Supply(plan,part.Key,loose,material.Id,canCut,out _,out _);
                         }
