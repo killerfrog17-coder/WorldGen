@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class NpcDailyState
     {
-        public long Playmate,Missing;public double ChooseAt,ConcernAt,SearchUntil,SearchPointAt,HideUntil;
+        public long Playmate,Missing;public double ChooseAt,ConcernAt,SearchUntil,SearchStarted,SearchPointAt,HideUntil;
         public V PlayGoal,HideGoal,SearchAnchor,SearchGoal;public string PlayRole="";
     }
     bool PrepareNpcDailyTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
@@ -19,9 +19,10 @@ public sealed partial class LocalTerrainExplorer
         bool resume=actor.Daily==null;var daily=actor.Daily??(actor.Daily=new NpcDailyState());var social=NpcMemoryFor(actor.ResidentId).Social;
         if(resume)
         {
-            double realDay=PlayerRules.Settings.RealMinutesPerDay*60;
-            var request=social.Incidents.LastOrDefault(e=>e.Kind==NpcIncidentKind.Missing&&(PlayerRules.SolarDays-e.SolarDay)*realDay<100&&!social.Incidents.Any(r=>r.Kind==NpcIncidentKind.Returned&&r.Subject==e.Subject&&r.SolarDay>=e.SolarDay)&&!social.KnownPeople.Any(p=>p.Person==e.Subject&&p.SeenDead));
-            if(request!=null){daily.Missing=request.Subject;daily.SearchAnchor=daily.SearchGoal=request.Position;daily.SearchUntil=actor.SimulationAge+Math.Max(1,100-(PlayerRules.SolarDays-request.SolarDay)*realDay);daily.SearchPointAt=actor.SimulationAge+2;}
+            // Only a saved, explicitly accepted search resumes. A reported
+            // absence or general worry is not an instruction to go searching.
+            var accepted=social.KnownPeople.FirstOrDefault(k=>!k.SeenDead&&k.SearchUntilSolarDay>PlayerRules.SolarDays);
+            if(accepted!=null)BeginNpcSearch(actor,accepted.Person,accepted.LastPosition,accepted.SearchUntilSolarDay,false);
         }
         if(social.Grief>.3&&(routine.Activity==HumanActivity.Rest||routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach))
         {
@@ -36,7 +37,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var last=social.KnownPeople.FirstOrDefault(p=>p.Person==daily.Missing);
             var concern=social.Incidents.LastOrDefault(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==daily.Missing);
-            if(last?.SeenDead==true||actor.SimulationAge>daily.SearchUntil){daily.Missing=0;daily.ConcernAt=actor.SimulationAge+60;}
+            if(last?.SeenDead==true||actor.SimulationAge>daily.SearchUntil||last!=null&&last.SearchUntilSolarDay>0&&last.SearchUntilSolarDay<=PlayerRules.SolarDays||social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==daily.Missing&&e.SolarDay>=(concern?.SolarDay??0))){if(last!=null){last.SearchUntilSolarDay=0;last.ConcernNextSolarDay=PlayerRules.SolarDays+.12;}daily.Missing=0;daily.ConcernAt=actor.SimulationAge+60;}
             else if(last!=null&&concern!=null&&last.LastSeenSolarDay>concern.SolarDay+1e-8)
             {
                 social.Record(new NpcIncident{Kind=NpcIncidentKind.Returned,Subject=daily.Missing,SolarDay=PlayerRules.SolarDays,Position=last.LastPosition,Detail="You personally found the person you were worried about alive."});social.Contentment=Math.Min(1,social.Contentment+.25);daily.Missing=0;daily.ConcernAt=actor.SimulationAge+60;
@@ -44,26 +45,70 @@ public sealed partial class LocalTerrainExplorer
             else
             {
                 if(actor.SimulationAge>=daily.SearchPointAt)
-                {daily.SearchPointAt=actor.SimulationAge+8;TerrainHandoff.Coordinates(frame,daily.SearchAnchor,out double x,out double z);double phase=actor.SimulationAge*.15+HumanHash(actor.ResidentId)%628*.01;double radius=Math.Min(35,Math.Max(0,(actor.SimulationAge-daily.SearchUntil+100)*.2));daily.SearchGoal=frame.Position(x+Math.Cos(phase)*radius,z+Math.Sin(phase)*radius);}
+                {daily.SearchPointAt=actor.SimulationAge+8;TerrainHandoff.Coordinates(frame,daily.SearchAnchor,out double x,out double z);double phase=actor.SimulationAge*.15+HumanHash(actor.ResidentId)%628*.01;double radius=Math.Min(65,Math.Max(0,(actor.SimulationAge-daily.SearchStarted)*.25));daily.SearchGoal=frame.Position(x+Math.Cos(phase)*radius,z+Math.Sin(phase)*radius);}
                 target=daily.SearchGoal.Length>.9?daily.SearchGoal:daily.SearchAnchor;actor.CurrentActivity=HumanActivity.Watch;actor.TaskWaiting=false;actor.TaskDetail="searching near the last seen place for "+(group.Residents.Members.FirstOrDefault(p=>p.Id==daily.Missing)?.Name??"a missing bandmate");return true;
             }
         }
-        if(actor.SimulationAge<daily.ConcernAt||routine.Activity==HumanActivity.Sleep||routine.Activity==HumanActivity.Travel||HumanDistance(actor.Planet,group.Anchor)>35)return false;
+        if(actor.SimulationAge<8||actor.SimulationAge<daily.ConcernAt||routine.Activity==HumanActivity.Sleep||routine.Activity==HumanActivity.Travel||HumanDistance(actor.Planet,group.Anchor)>35)return false;
         daily.ConcernAt=actor.SimulationAge+8+HumanHash(actor.ResidentId)%50*.1;
         foreach(var known in social.KnownPeople.OrderBy(p=>p.LastSeenSolarDay))
         {
             if(known.SeenDead)continue;var person=group.Residents.Members.FirstOrDefault(p=>p.Id==known.Person);if(person==null)continue;
             bool closeKin=person.Mother==actor.ResidentId||person.Father==actor.ResidentId||actor.Resident.Partner==person.Id||actor.Resident.Mother==person.Id||actor.Resident.Father==person.Id;
             if(person.AgeYears<14&&(person.Household==actor.Resident.Household||routine.Activity==HumanActivity.Childcare&&sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture].ChildcareCooperation>.5))closeKin=true;
-            double absence=(PlayerRules.SolarDays-known.LastSeenSolarDay)*24;bool evening=group.Situation.LocalHour>19||group.Situation.LocalHour<5;
-            if(!closeKin||absence<(person.AgeYears<7?.35:person.AgeYears<14?evening?1:2:evening?4:12))continue;
-            if(social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==person.Id&&PlayerRules.SolarDays-e.SolarDay<.18))continue;
-            social.Fear=Math.Max(social.Fear,.22);social.Record(new NpcIncident{Kind=NpcIncidentKind.Missing,Subject=person.Id,SolarDay=PlayerRules.SolarDays,Position=known.LastPosition,Detail="You are worried because "+person.Name+" has not been seen back when expected. Their fate is unknown; the last known place is only a starting point."});
-            daily.Missing=person.Id;daily.SearchAnchor=daily.SearchGoal=known.LastPosition;daily.SearchUntil=actor.SimulationAge+100;daily.SearchPointAt=actor.SimulationAge+5;
-            RecruitNpcSearch(actor,person,known.LastPosition);
-            QueueNpcEvent(actor,"You are worried that "+person.Name+" is overdue. You only know where you last saw them; you do not know they are hurt or dead. You are looking for them.",priority:2);break;
+            if(!closeKin||known.ConcernNextSolarDay>PlayerRules.SolarDays||social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==person.Id&&PlayerRules.SolarDays-e.SolarDay<.08))continue;
+            if(string.IsNullOrEmpty(known.ExpectedReason))
+            {
+                // Bootstrap only from the saved last sighting and customary
+                // check-in. Never inspect the absent actor's current position.
+                double lastHour=((group.Situation.LocalHour-(PlayerRules.SolarDays-known.LastSeenSolarDay)*24)%24+24)%24;
+                NpcAbsence.Expect(known,known.LastSeenSolarDay,lastHour,group.Situation.DaylightHours,person.AgeYears,HumanDistance(known.LastPosition,group.Anchor)<35,null);
+            }
+            double overdue=NpcAbsence.OverdueHours(known,PlayerRules.SolarDays,person.AgeYears,CurrentWeather.RainMmPerHour);
+            var personality=NpcAwarenessFor(actor).Personality;bool light=group.Situation.LocalHour>12-group.Situation.DaylightHours/2+.2&&group.Situation.LocalHour<12+group.Situation.DaylightHours/2-.2;
+            bool duty=routine.Activity==HumanActivity.Childcare||routine.Activity==HumanActivity.Watch||routine.Role=="NightWatch";
+            bool distress=social.Incidents.Any(e=>e.Kind==NpcIncidentKind.DistressHeard&&e.Subject==person.Id&&PlayerRules.SolarDays-e.SolarDay<.08);
+            double variation=Rng.Value(sourceWorld.Recipe.Seed,"absence-response",unchecked((int)actor.ResidentId^(int)person.Id^(int)(known.ExpectedReturnSolarDay*24)));
+            var response=NpcAbsence.Response(overdue,person.AgeYears,.9,personality.Courage,personality.Kindness,personality.Patience,group.Situation.SecurityRisk,light,duty,distress,variation);
+            if(response==NpcAbsenceResponse.None)continue;
+            bool first=!social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==person.Id&&e.SolarDay>=known.LastSeenSolarDay);
+            if(first)
+            {
+                known.ConcernSinceSolarDay=PlayerRules.SolarDays;social.Fear=Math.Max(social.Fear,person.AgeYears<14?.2:.1);
+                social.Record(new NpcIncident{Kind=NpcIncidentKind.Missing,Subject=person.Id,SolarDay=PlayerRules.SolarDays,Position=known.LastPosition,Detail=person.Name+" is overdue after "+known.ExpectedReason+". You do not know their present location or fate."});
+                QueueNpcEvent(actor,"You are concerned that "+person.Name+" is overdue after "+known.ExpectedReason+". This is concern, not proof of harm; you have not automatically decided to search.",priority:2);
+            }
+            known.ConcernNextSolarDay=PlayerRules.SolarDays+.02;
+            if(response==NpcAbsenceResponse.Search)
+            {BeginNpcSearch(actor,person.Id,known.LastPosition,PlayerRules.SolarDays+.06,true);RecruitNpcSearch(actor,person,known.LastPosition);break;}
+            actor.TaskDetail=response==NpcAbsenceResponse.WaitForDaylight?"concerned about "+person.Name+"; staying at camp until daylight":response==NpcAbsenceResponse.AskAround?"asking bandmates whether they have heard from "+person.Name:"concerned about "+person.Name+" being overdue; continuing normal duties";
+            if(response==NpcAbsenceResponse.AskAround)AskNpcForNews(actor,person);
         }
         return false;
+    }
+    void BeginNpcSearch(HumanActor actor,long missing,V anchor,double until,bool notify,double sourceSightDay=-1)
+    {
+        var daily=actor.Daily??(actor.Daily=new NpcDailyState());var social=NpcMemoryFor(actor.ResidentId).Social;
+        var known=social.KnownPeople.FirstOrDefault(k=>k.Person==missing);
+        if(known==null){known=new NpcKnownPerson{Person=missing,LastPosition=anchor,LastSeenSolarDay=Math.Max(0,sourceSightDay>=0?sourceSightDay:PlayerRules.SolarDays-.1),ReportedPresence=true,ExpectedReason="a reported overdue return"};social.KnownPeople.Add(known);if(social.KnownPeople.Count>64)social.KnownPeople.RemoveAt(0);}
+        known.SearchUntilSolarDay=until;daily.Missing=missing;daily.SearchAnchor=daily.SearchGoal=anchor;daily.SearchStarted=actor.SimulationAge;daily.SearchUntil=actor.SimulationAge+Math.Max(1,(until-PlayerRules.SolarDays)*PlayerRules.Settings.RealMinutesPerDay*60);daily.SearchPointAt=actor.SimulationAge+2;
+        if(notify)QueueNpcEvent(actor,"You have decided to make a bounded search near the last known place for an overdue bandmate. Their actual whereabouts and fate are unknown.",priority:2);
+    }
+    void AskNpcForNews(HumanActor actor,ForagerPersonSample missing)
+    {
+        foreach(var peer in livingPeople.Values)
+        {
+            if(peer==actor||peer.GroupId!=actor.GroupId||peer.Health<=0||HumanDistance(peer.Planet,actor.Planet)>5||!NpcCanHear(actor,peer.Root.transform.position+Vector3.up,5))continue;
+            var heard=NpcMemoryFor(peer.ResidentId).Social.KnownPeople.FirstOrDefault(k=>k.Person==missing.Id);
+            var own=NpcMemoryFor(actor.ResidentId).Social.KnownPeople.First(k=>k.Person==missing.Id);
+            if(heard==null||heard.LastSeenSolarDay<=own.LastSeenSolarDay||heard.SeenDead)continue;
+            // A report can reassure without pretending the listener saw it.
+            if(PlayerRules.SolarDays-heard.LastSeenSolarDay<.03)
+            {
+                NpcMemoryFor(actor.ResidentId).Social.Record(new NpcIncident{Kind=NpcIncidentKind.Returned,Actor=peer.ResidentId,Subject=missing.Id,SolarDay=PlayerRules.SolarDays,Position=heard.LastPosition,FirstHand=false,Reporter=peer.ResidentId,Confidence=.75,Detail=peer.Resident.Name+" reports recently seeing "+missing.Name+" alive. You did not personally see this."});
+                own.ConcernSinceSolarDay=own.SearchUntilSolarDay=0;own.ConcernNextSolarDay=PlayerRules.SolarDays+.08;return;
+            }
+        }
     }
     int RecruitNpcSearch(HumanActor requester,ForagerPersonSample missing,V lastKnown)
     {
@@ -74,7 +119,7 @@ public sealed partial class LocalTerrainExplorer
             if(HumanDistance(helper.Planet,requester.Planet)>12||!NpcCanHear(helper,requester.Root.transform.position+transform.up,12))continue;
             var personality=NpcAwarenessFor(helper).Personality;double closeness=NpcCloseness(helper,requester);
             if(personality.Kindness+closeness<.65||personality.Courage<.2)continue;
-            var daily=helper.Daily??(helper.Daily=new NpcDailyState());daily.Missing=missing.Id;daily.SearchAnchor=daily.SearchGoal=lastKnown;daily.SearchUntil=helper.SimulationAge+100;daily.SearchPointAt=helper.SimulationAge+2;
+            BeginNpcSearch(helper,missing.Id,lastKnown,PlayerRules.SolarDays+.06,false,NpcMemoryFor(requester.ResidentId).Social.KnownPeople.FirstOrDefault(k=>k.Person==missing.Id)?.LastSeenSolarDay??-1);
             var social=NpcMemoryFor(helper.ResidentId).Social;social.Record(new NpcIncident{Kind=NpcIncidentKind.Missing,Actor=requester.ResidentId,Subject=missing.Id,SolarDay=PlayerRules.SolarDays,Position=lastKnown,FirstHand=false,Confidence=.75,Detail=requester.Resident.Name+" asked for help finding "+missing.Name+" and described the last known place. Their present whereabouts and fate are unknown."});
             QueueNpcEvent(helper,requester.Resident.Name+" has just asked you to help look for "+missing.Name+". You heard a last known place, not a current location or proof of an injury.",priority:2);
             if(++recruited==2)break;

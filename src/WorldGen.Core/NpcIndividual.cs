@@ -39,6 +39,9 @@ namespace WorldGen.Core
     [Serializable] public sealed class NpcKnownPerson
     {
         public long Person;public double LastSeenSolarDay;public V LastPosition;public bool SeenDead;
+        [System.Runtime.Serialization.OptionalField] public double ExpectedReturnSolarDay,ConcernSinceSolarDay,SearchUntilSolarDay,ConcernNextSolarDay;
+        [System.Runtime.Serialization.OptionalField] public string ExpectedReason="";
+        [System.Runtime.Serialization.OptionalField] public bool ReportedPresence;
         public NpcKnownPerson Copy()=>(NpcKnownPerson)MemberwiseClone();
     }
     [Serializable] public sealed class NpcSocialState
@@ -62,7 +65,11 @@ namespace WorldGen.Core
         public void See(long person,V position,double day,bool dead=false)
         {
             var known=KnownPeople.FirstOrDefault(p=>p.Person==person);if(known==null){known=new NpcKnownPerson{Person=person};KnownPeople.Add(known);if(KnownPeople.Count>64)KnownPeople.Remove(KnownPeople.Where(p=>p!=known).OrderBy(p=>p.LastSeenSolarDay).First());}
-            known.LastPosition=position;known.LastSeenSolarDay=day;known.SeenDead|=dead;
+            bool resolved=!dead&&(known.ConcernSinceSolarDay>0||known.SearchUntilSolarDay>0||known.SeenDead||Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==person&&e.SolarDay>=known.LastSeenSolarDay));
+            known.LastPosition=position;known.LastSeenSolarDay=day;known.SeenDead=dead;
+            known.ReportedPresence=false;
+            known.ConcernSinceSolarDay=known.SearchUntilSolarDay=0;
+            if(resolved)Record(new NpcIncident{Kind=NpcIncidentKind.Returned,Subject=person,SolarDay=day,Position=position,Detail="You personally saw this person alive again; your earlier concern is resolved."});
         }
         public void Record(NpcIncident item)
         {
@@ -80,6 +87,7 @@ namespace WorldGen.Core
         public string Mood=>Grief>.5?"grieving":Fear>.55?"afraid":Anger>.55?"angry":Grief>.2?"sad":Fear>.2?"uneasy":Anger>.2?"irritated":Contentment>.65?"content":"settled";
         public void Validate()
         {
+            if(KnownPeople!=null)foreach(var person in KnownPeople)if(person!=null&&(!double.IsFinite(person.ExpectedReturnSolarDay)||!double.IsFinite(person.SearchUntilSolarDay)||!double.IsFinite(person.ConcernSinceSolarDay)||!double.IsFinite(person.ConcernNextSolarDay)||(person.ExpectedReason??"").Length>120))throw new ArgumentException("Invalid local return expectation.");
             bool Unit(double v)=>double.IsFinite(v)&&v>=0&&v<=1;
             if(!double.IsFinite(UpdatedSolarDay)||UpdatedSolarDay< -1||!double.IsFinite(NextSocialSolarDay)||NextSocialSolarDay<0||!Unit(Fear)||!Unit(Anger)||!Unit(Grief)||!Unit(Contentment)||EventSequence<0||Incidents==null||Relationships==null||KnownPeople==null||Incidents.Count>24||Relationships.Count>48||KnownPeople.Count>64)throw new ArgumentException("Invalid local social state.");
             if(Incidents.Any(e=>e==null||e.Sequence<1||e.Sequence>EventSequence||!double.IsFinite(e.SolarDay)||e.SolarDay<0||!Unit(e.Confidence)||e.Detail==null||e.Detail.Length>220)||Relationships.Any(r=>r==null||r.Other<=0||!double.IsFinite(r.Trust)||Math.Abs(r.Trust)>1||!double.IsFinite(r.Affection)||Math.Abs(r.Affection)>1||!Unit(r.Respect)||!Unit(r.Grievance)||!Unit(r.Fear))||KnownPeople.Any(p=>p==null||p.Person<=0||!double.IsFinite(p.LastSeenSolarDay)))throw new ArgumentException("Invalid local social record.");

@@ -2,6 +2,7 @@ using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
 if(args.Contains("--npc-mind")){NpcMindTests.Run();return;}
+if(args.Contains("--npc-absence")){NpcAbsenceTests.Run();return;}
 if(args.Contains("--npc-conversation")){NpcConversationTests.Run();return;}
 if(args.Contains("--npc-life")){NpcLifeTests.Run();return;}
 if(args.Contains("--npc-individual")){NpcIndividualTests.Run();return;}

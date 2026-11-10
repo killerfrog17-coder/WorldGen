@@ -1,0 +1,29 @@
+{
+  "scope": [
+    "Schedule-aware absence, concern and selective searches",
+    "Grounded dialogue and actual completed-action evidence",
+    "Packing/travel/rebuilding including leaving and returning",
+    "Greetings, joining, interruptions and natural conversation endings"
+  ],
+  "order": [
+    "absence",
+    "grounding",
+    "camp migration",
+    "social encounters"
+  ],
+  "constraints": [
+    "No global per-person or per-conversation simulation",
+    "No LLM requests outside audible nearby interaction; retain queue backpressure",
+    "Preserve actual item identity, mass, ownership and player edits",
+    "No advanced hunting, geographical features or new model downloads",
+    "Build B, protect selected A; game LEFTMOST; final concise screenshot PDF"
+  ],
+  "acceptance": [
+    "Normal foraging/water/fuel outing does not create missing incidents before expected return",
+    "Overdue party creates concern without revealing present location or death; duty/risk/daylight/personality affect searching",
+    "Rumour alone does not automatically launch a search; actual return or credible returned report resolves concern",
+    "Dialogue separates firsthand, reported, planned and completed facts and focuses on current speaker/question",
+    "Full actual camp cycle conserves goods and reuses original materials; off-screen known-group progress never reseeds stock",
+    "Conversation joins/interruptions/ending release holds and keep direct player requests ahead of ambient work"
+  ]
+}

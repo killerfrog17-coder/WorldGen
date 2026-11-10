@@ -30,6 +30,7 @@ namespace WorldGen.Core
     {
         public long Person,Group,Partner=-1;public HumanActivity Activity;public V Position,Destination;
         public double SpeedMps,Effort,Progress;public int Party=-1;public string Role="";
+        public double DepartureSolarDay=-1,ExpectedReturnSolarDay=-1;public string OutingPurpose="";
     }
     public sealed class HumanCampTrace
     {
@@ -276,6 +277,7 @@ namespace WorldGen.Core
             if(age<13&&workRank>.45){result=HumanDailyLife.Play(group,residents,person,clock,seed);result.Position=result.Destination=Offset(group.Position,.009/clock.HorizontalScale,result.Progress*Math.PI*2);return result;}
             int party=(int)(Unit(person.Household,seed,"forage-party",(int)day)*group.ForageParties);result.Party=party;
             double begin=wake+1.3+.5*Unit(group.Band.Id,seed,"party-leave",party),end=Math.Max(begin+2,Math.Min(dusk-1,begin+6.5));
+            result.DepartureSolarDay=clock.SolarDays+(begin-hour)/24;result.ExpectedReturnSolarDay=clock.SolarDays+(end-hour)/24;result.OutingPurpose="foraging with a party";
             double span=(end-begin)/24*clock.DayMinutes*60,range=Math.Min(ForageRadius(group,clock),span*1.15*.28);
             double direction=Unit(group.Band.Id,seed,"party-bearing",unchecked((int)day*31+party))*Math.PI*2;
             V target=Offset(group.Position,range/(1000*clock.HorizontalScale),direction);
@@ -289,6 +291,7 @@ namespace WorldGen.Core
         }
         void WorkTrip(HumanActivitySample result,V home,V work,double hour,double begin,double end,HumanLifeClock clock,HumanActivity activity,string label)
         {
+            result.DepartureSolarDay=clock.SolarDays+(begin-hour)/24;result.ExpectedReturnSolarDay=clock.SolarDays+(end-hour)/24;result.OutingPurpose=label=="Water"?"fetching water":"collecting fuel";
             double distance=Angle(home,work)*world.Recipe.RadiusKm*1000*clock.HorizontalScale;
             double maxDistance=(end-begin)/24*clock.DayMinutes*60*.32*1.15;
             if(distance>maxDistance){work=Interpolate(home,work,maxDistance/distance);distance=maxDistance;}

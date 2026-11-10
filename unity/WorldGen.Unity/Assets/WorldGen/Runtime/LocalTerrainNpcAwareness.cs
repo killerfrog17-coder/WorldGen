@@ -94,15 +94,22 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var other=people[(start+i)%people.Count];
                     if(NpcSees(actor,other.Root.transform.position+transform.up*.7f,range))
-                    {if(other.Health<=0)DiscoverNpcDeath(actor,other);else state.See(other.ResidentId,other.Planet,PlayerRules.SolarDays);}
+                    {if(other.Health<=0)DiscoverNpcDeath(actor,other);else ObserveNpcBandmate(actor,other,other.Planet,other.Routine);}
                 }
                 perception.PeopleCursor=(start+count)%people.Count;
             }
             people.Clear(); // Retain scratch capacity, not retired resident actors.
             if(humanPlayer?.Resident!=null&&humanPlayer.GroupId==actor.GroupId&&HumanDistance(actor.Planet,Position)<Math.Min(22,range)&&NpcSees(actor,transform.TransformPoint(PlayerFeet())+transform.up,range))
-            {if(DeathVisible)DiscoverNpcDeath(actor,humanPlayer);else state.See(humanPlayer.ResidentId,Position,PlayerRules.SolarDays);}
+            {if(DeathVisible)DiscoverNpcDeath(actor,humanPlayer);else ObserveNpcBandmate(actor,humanPlayer,Position,null);}
         }
         finally{npcSenseTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-began;}
+    }
+    void ObserveNpcBandmate(HumanActor observer,HumanActor person,V point,HumanActivitySample plan)
+    {
+        var social=NpcMemoryFor(observer.ResidentId).Social;social.See(person.ResidentId,point,PlayerRules.SolarDays);
+        if(!livingGroups.TryGetValue(observer.GroupId,out var group))return;
+        var known=social.KnownPeople.First(k=>k.Person==person.ResidentId);
+        NpcAbsence.Expect(known,PlayerRules.SolarDays,group.Situation.LocalHour,group.Situation.DaylightHours,person.Resident.AgeYears,HumanDistance(point,group.Anchor)<35,plan);
     }
     string NpcWorldContext(HumanActor actor,LivingGroup group)
     {

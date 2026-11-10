@@ -25,7 +25,7 @@ namespace WorldGen.Core
                     var known=listener.KnownPeople.FirstOrDefault(p=>p.Person==heard.Subject);
                     if(known==null)
                     {
-                        known=new NpcKnownPerson{Person=heard.Subject,LastSeenSolarDay=heard.SolarDay,LastPosition=heard.Position};listener.KnownPeople.Add(known);
+                        known=new NpcKnownPerson{Person=heard.Subject,LastSeenSolarDay=heard.SolarDay,LastPosition=heard.Position,ReportedPresence=true};listener.KnownPeople.Add(known);
                         if(listener.KnownPeople.Count>64)listener.KnownPeople.Remove(listener.KnownPeople.Where(p=>p!=known).OrderBy(p=>p.LastSeenSolarDay).First());
                     }
                     known.SeenDead=true;listener.Grief=Math.Max(listener.Grief,.1+.5*Math.Max(0,Math.Min(1,closeness)));
