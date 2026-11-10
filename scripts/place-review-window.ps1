@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][int]$ReviewProcessId,[ValidateSet('Leftmost','Rightmost')][string]$Monitor='Rightmost')
+param([Parameter(Mandatory=$true)][int]$ReviewProcessId,[ValidateSet('Leftmost','Rightmost')][string]$Monitor='Rightmost',[ValidateRange(1,120)][int]$WaitSeconds=15)
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.Windows.Forms
 if(-not ('WorldGenReviewWindowPlacement' -as [type])){
@@ -16,7 +16,7 @@ public static class WorldGenReviewWindowPlacement {
 $previousReviewDpi=[WorldGenReviewWindowPlacement]::SetThreadDpiAwarenessContext([IntPtr]::new(-4))
 try{
     $reviewMonitor=[System.Windows.Forms.Screen]::AllScreens|Sort-Object {$_.Bounds.X} -Descending:($Monitor -eq 'Rightmost')|Select-Object -First 1
-    $reviewDeadline=[DateTime]::UtcNow.AddSeconds(15)
+    $reviewDeadline=[DateTime]::UtcNow.AddSeconds($WaitSeconds)
     do{
         $reviewProcess=Get-Process -Id $ReviewProcessId -ErrorAction Stop
         $reviewProcess.Refresh()

@@ -124,12 +124,18 @@ namespace WorldGen.Core
             }
             return list.OrderBy(c=>c.Stage).ToList();
         }
-        public static CampPartState State(CampBlueprint p,CampComponent c)=>p.Parts.FirstOrDefault(s=>s.Key==c.Key);
-        public static double Supplied(CampBlueprint p,CampComponent c)=>State(p,c)?.Materials.Sum(m=>m.MassKg)??0;
+        public static CampPartState State(CampBlueprint p,CampComponent c)
+        {foreach(var state in p.Parts)if(state.Key==c.Key)return state;return null;}
+        static double MaterialMass(CampPartState state)
+        {double mass=0;if(state!=null)foreach(var item in state.Materials)mass+=item.MassKg;return mass;}
+        public static double Supplied(CampBlueprint p,CampComponent c)=>MaterialMass(State(p,c));
         public static bool HasMaterial(CampBlueprint p,CampComponent c)=>c.Kg>0?Supplied(p,c)+1e-8>=c.Kg:State(p,c)?.Materials.Count==1;
-        public static bool Done(CampBlueprint p,CampComponent c)=>HasMaterial(p,c)&&(State(p,c)?.WorkSeconds??0)+1e-8>=c.Seconds;
-        public static bool Complete(CampBlueprint p)=>Components(p).All(c=>Done(p,c));
-        public static int Stage(CampBlueprint p)=>Components(p).Where(c=>!Done(p,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
+        public static bool Done(CampBlueprint p,CampComponent c)
+        {var state=State(p,c);return (c.Kg>0?MaterialMass(state)+1e-8>=c.Kg:state?.Materials.Count==1)&&(state?.WorkSeconds??0)+1e-8>=c.Seconds;}
+        public static bool Complete(CampBlueprint p)
+        {foreach(var part in QueryComponents(p))if(!Done(p,part))return false;return true;}
+        public static int Stage(CampBlueprint p)
+        {int stage=int.MaxValue;foreach(var part in QueryComponents(p))if(!Done(p,part))stage=Math.Min(stage,part.Stage);return stage==int.MaxValue?4:stage;}
         public static bool CoverMaterial(CampBlueprint p,Possession item)=>item!=null&&(p.Cover==CampCover.Hide?CampRules.Hide(item):p.Cover==CampCover.Bark?item.Kind==PossessionKind.BarkSheet:p.Cover==CampCover.Reed?item.Kind==PossessionKind.ReedBundle||item.Kind==PossessionKind.WovenMat:item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle||item.Kind==PossessionKind.WovenMat);
         public static bool Suitable(CampBlueprint p,CampComponent c,Possession item)
         {

@@ -54,8 +54,8 @@ public sealed partial class LocalTerrainExplorer
             if(prop.PoseAge==actor.PoseAge&&prop.PoseRole==role)continue;
             prop.PoseAge=actor.PoseAge;prop.PoseRole=role;
             if(prop.Back){PosePortableWear(prop.Root,prop.Item,actor.Root.transform,actor.Bones);continue;}
-            string side=prop.Side;var hand=actor.Bones["hand_"+side];var middle=actor.Bones["middle_01_"+side];
-            Vector3 grip=Vector3.Lerp(hand.position,middle.position,.7f),axis=(actor.Bones["index_01_"+side].position-actor.Bones["pinky_01_"+side].position)*(side=="r"?-1:1);axis.Normalize();
+            string side=prop.Side;var hand=actor.Bones[side=="l"?"hand_l":"hand_r"];var middle=actor.Bones[side=="l"?"middle_01_l":"middle_01_r"];
+            Vector3 grip=Vector3.Lerp(hand.position,middle.position,.7f),axis=(actor.Bones[side=="l"?"index_01_l":"index_01_r"].position-actor.Bones[side=="l"?"pinky_01_l":"pinky_01_r"].position)*(side=="r"?-1:1);axis.Normalize();
             if(role=="CarryLarge")grip=(Vector3.Lerp(actor.Bones["hand_l"].position,actor.Bones["middle_01_l"].position,.7f)+grip)*.5f;
             var normal=Vector3.Cross(middle.position-hand.position,axis).normalized;
             prop.Root.transform.rotation=normal.sqrMagnitude>.001f?Quaternion.LookRotation(normal,axis):Quaternion.FromToRotation(Vector3.up,axis);

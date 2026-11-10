@@ -9,8 +9,8 @@ public sealed partial class LocalTerrainExplorer
 {
     HumanPersonMemory NpcPersonRecord(HumanActor actor)
     {
-        var record=LivingState.People.FirstOrDefault(p=>p.Person==actor.ResidentId);
-        if(record==null){record=new HumanPersonMemory{Person=actor.ResidentId,Group=actor.GroupId,Position=actor.Planet,SolarDays=PlayerRules.SolarDays,Health=actor.Health};LivingState.People.Add(record);}return record;
+        foreach(var known in LivingState.People)if(known.Person==actor.ResidentId)return known;
+        var record=new HumanPersonMemory{Person=actor.ResidentId,Group=actor.GroupId,Position=actor.Planet,SolarDays=PlayerRules.SolarDays,Health=actor.Health};LivingState.People.Add(record);return record;
     }
     void InitializeNpcBelongings(HumanActor actor,LivingGroup group)
     {

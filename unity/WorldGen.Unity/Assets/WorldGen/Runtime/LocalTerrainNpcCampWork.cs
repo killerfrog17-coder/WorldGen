@@ -55,37 +55,45 @@ public sealed partial class LocalTerrainExplorer
     }
     bool NpcCampPartClaimed(HumanActor actor,CampObject obj,string part)
         =>livingPeople.Values.Any(p=>p!=actor&&p.GroupId==actor.GroupId&&p.Health>0&&p.Threat==null&&p.CampTask?.Object==obj.Id&&p.CampTask.Part==part&&p.SimulationAge<p.CampTask.ChooseAt+5);
+    static bool HasNpcCampCargo(HumanActor actor)
+    {foreach(var item in actor.Belongings.Items)if(item.CampMaterial==actor.GroupId&&actor.Belongings.Carried(item))return true;return false;}
+    bool DeliverNpcCampCargo(HumanActor actor,LivingGroup group,ref V target)
+    {
+        target=LivingHouse(actor)?.Position??group.Anchor;actor.TaskWaiting=false;actor.TaskDetail="delivering the family's actual shelter materials before the next outing";actor.CurrentActivity=HumanActivity.BuildCamp;
+        if(HumanDistance(actor.Planet,target)<2)
+        {
+            foreach(var cargo in actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId).ToArray())
+                if(cargo.Kind==PossessionKind.CampBundle)NpcCampWork.Unbundle(actor.Belongings,cargo,actor.Planet);
+                else{cargo.Place=PossessionPlace.Ground;cargo.ContainerId="";cargo.Position=actor.Planet;cargo.GroundMoving=cargo.InFlight=false;cargo.GroundOffsetM=.05;cargo.GroundRotation=new V(90,0,0);}
+            PublishNpcGroundGoods(actor);actor.CampCargoDeliveredSite=group.Situation.Camp.Id;
+        }
+        return true;
+    }
     bool PrepareNpcCampTask(HumanActor actor,LivingGroup group,ref HumanActivitySample routine,float dt,ref V target)
     {
         if(dt<=0||actor.Resident.AgeYears<12||actor.Belongings==null)return false;
         bool packing=group.Situation.Phase==HumanCampPhase.Packing;
         bool settled=group.CampLoaded&&(group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp);
         if(packing)actor.CampCargoDeliveredSite=0;
-        bool arrival=settled&&actor.CampCargoDeliveredSite!=group.Situation.Camp.Id,hasCargo=false;
-        if(arrival)foreach(var item in actor.Belongings.Items)if(item.CampMaterial==actor.GroupId&&actor.Belongings.Carried(item)){hasCargo=true;break;}
+        bool arrival=settled&&actor.CampCargoDeliveredSite!=group.Situation.Camp.Id,hasCargo=arrival&&HasNpcCampCargo(actor);
         if(arrival&&!hasCargo)actor.CampCargoDeliveredSite=group.Situation.Camp.Id;
         // Delivery precedes the next outing, even for a scheduled forager.
         // Otherwise a family can carry its still-bound roof out to gather food
         // while the builders at the new site have nothing to assemble.
-        if(arrival&&hasCargo)
-        {
-            target=LivingHouse(actor)?.Position??group.Anchor;actor.TaskWaiting=false;actor.TaskDetail="delivering the family's actual shelter materials before the next outing";actor.CurrentActivity=HumanActivity.BuildCamp;
-            if(HumanDistance(actor.Planet,target)<2)
-            {
-                foreach(var cargo in actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId).ToArray())
-                    if(cargo.Kind==PossessionKind.CampBundle)NpcCampWork.Unbundle(actor.Belongings,cargo,actor.Planet);
-                    else{cargo.Place=PossessionPlace.Ground;cargo.ContainerId="";cargo.Position=actor.Planet;cargo.GroundMoving=cargo.InFlight=false;cargo.GroundOffsetM=.05;cargo.GroundRotation=new V(90,0,0);}
-                PublishNpcGroundGoods(actor);actor.CampCargoDeliveredSite=group.Situation.Camp.Id;
-            }
-            return true;
-        }
-        if(group.Situation.Phase==HumanCampPhase.Travelling&&routine.Activity==HumanActivity.Travel&&actor.Belongings.Items.Any(p=>actor.Belongings.Carried(p)&&p.CampMaterial==actor.GroupId))
+        if(arrival&&hasCargo)return DeliverNpcCampCargo(actor,group,ref target);
+        if(group.Situation.Phase==HumanCampPhase.Travelling&&routine.Activity==HumanActivity.Travel&&HasNpcCampCargo(actor))
         {actor.TaskWaiting=false;actor.TaskDetail="carrying the family's actual shelter materials to the next camp";return true;}
         // Reaching the end of a broad setup window does not finish its physical
         // shelters. Awake, available adults at camp keep working on them.
         bool localRepair=group.NeedsCampWork&&actor.Resident.AgeYears>=14&&(routine.Activity==HumanActivity.Rest||routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach)&&HumanDistance(actor.Planet,group.Anchor)<80;
         bool building=group.CampLoaded&&(localRepair||group.CampWorkers.Contains(actor.ResidentId)||routine.Activity==HumanActivity.BuildCamp||routine.Activity==HumanActivity.RepairShelter||routine.Activity==HumanActivity.Craft);
         if(!packing&&!building){actor.CampTask=null;return false;}
+        // Captured construction predicates belong to real construction work,
+        // rather than allocating for every unrelated NPC on every frame.
+        return AdvanceNpcCampTask(actor,group,ref routine,dt,ref target,packing,building);
+    }
+    bool AdvanceNpcCampTask(HumanActor actor,LivingGroup group,ref HumanActivitySample routine,float dt,ref V target,bool packing,bool building)
+    {
         bool beginning=actor.CampTask==null;var task=actor.CampTask??(actor.CampTask=new NpcCampTask());
         if(packing&&(beginning||!task.Packing)){NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);}
         if(building&&!packing)

@@ -46,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var tile=pair.Value;
             if(tile.FadeIn>0&&Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds){tile.FadeIn=0;coverageDirty=true;}
-            if(tile.FadeOut>0&&!wanted.ContainsKey(pair.Key)&&wanted.Keys.Any(k=>k.Level<pair.Key.Level&&Overlaps(pair.Key,k)))
+            if(tile.FadeOut>0&&!wanted.ContainsKey(pair.Key)&&HasFinerWantedOverlap(pair.Key))
             {
                 // The camera reversed a coarsening decision. New fine products
                 // inherit this parent's visibility, so an old outgoing stamp
@@ -63,6 +63,8 @@ public sealed partial class LocalTerrainExplorer
             }
         }
     }
+    bool HasFinerWantedOverlap(TerrainTileKey key)
+    {foreach(var candidate in wanted.Keys)if(candidate.Level<key.Level&&Overlaps(key,candidate))return true;return false;}
     void RetireObsoleteTerrain()
     {
         if(GroundPublicationPending)return;

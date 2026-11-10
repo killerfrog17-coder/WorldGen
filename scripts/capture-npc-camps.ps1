@@ -56,8 +56,8 @@ foreach($case in $Cases){
     if($GcProbe){$probePath=[IO.Path]::GetFullPath((Join-Path $repo $GcProbe));if(!(Test-Path -LiteralPath $probePath)){throw 'Build the optional native GC probe first.'};$arguments+=@('--worldgen-gc-probe',('"'+$probePath+'"'))}
     if($RemovalProof){$arguments+='--worldgen-npc-removal-proof'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
-    & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $Monitor
     @{pid=$process.Id;startedUtc=[DateTime]::UtcNow;monitor=$Monitor;build=(Get-Content (Join-Path $repo ('builds/'+$Slot+'/build-inputs.json')) -Raw|ConvertFrom-Json)}|ConvertTo-Json -Depth 8|Set-Content (Join-Path $output 'owned-process.json')
+    & (Join-Path $repo 'scripts/place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $Monitor -WaitSeconds 60
     Write-Output ($case+' capture PID '+$process.Id)
     $process.WaitForExit()
     [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
