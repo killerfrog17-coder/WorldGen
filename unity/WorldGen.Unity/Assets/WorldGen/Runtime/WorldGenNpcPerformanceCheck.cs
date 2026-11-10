@@ -104,12 +104,15 @@ public sealed partial class LocalTerrainExplorer
         // no invisible off-screen-only render target and no model inference.
         owner.npcModel??=new NpcModelClient();owner.npcModel.Config.Enabled=false;
         var priorReviewCamera=owner.landscapeReviewCamera;var priorReviewRotation=owner.landscapeReviewRotation;
+        bool closeCrowd=owner.npcCrowdFocus.HasValue&&arguments.Contains("--worldgen-npc-crowd-close");
         void CameraAt(double seconds)
         {
-            var offset=Quaternion.Euler(0,(float)(seconds/duration*360),0)*new Vector3(0,6,24);
+            var offset=Quaternion.Euler(0,(float)(seconds/duration*360),0)*(closeCrowd?new Vector3(0,.65f,10):new Vector3(0,6,24));
+            var eye=focus+offset;
+            if(closeCrowd)eye.y=(float)owner.VisibleGround(eye.x+owner.originX,eye.z+owner.originZ,floor)+1.65f;
             // Use the production review override so UpdateCamera, culling and
             // rendering all see the same requested pose across the frame.
-            owner.landscapeReviewCamera=focus+offset;owner.view.transform.localPosition=owner.landscapeReviewCamera.Value;
+            owner.landscapeReviewCamera=eye;owner.view.transform.localPosition=owner.landscapeReviewCamera.Value;
             owner.view.transform.LookAt(owner.transform.TransformPoint(focus));owner.landscapeReviewRotation=owner.view.transform.localRotation;
         }
         owner.view.targetTexture=null;
@@ -160,7 +163,7 @@ public sealed partial class LocalTerrainExplorer
             if(trace){WorldGenPerformance.Measuring=false;WorldGenPerformance.WriteFaunaTrace(Path.Combine(output,mode+"-fauna-events.csv"),windowTick);for(int k=0;k<traceTotals.Length;k++)traceTotals[k]/=ticks.Count;}
             for(int k=0;k<stages.Length;k++)stages[k]/=ticks.Count;
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
-                MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route="Radius24m scenic camp orbit; same path and duration per mode"});
+                MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route=closeCrowd?"Radius10m eye-height crowd orbit; same path and duration per mode":"Radius24m elevated scenic camp orbit; same path and duration per mode"});
             var recorded=report[report.Count-1];recorded.AllocationCounterAvailable=allocationCounterAvailable;recorded.ClockBefore=clockBridge.Before;recorded.ClockNative=clockBridge.Native;recorded.ClockAfter=clockBridge.After;recorded.ClockFrequency=clockBridge.Frequency;recorded.ManagedFrequency=System.Diagnostics.Stopwatch.Frequency;recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
             recorded.MaximumCameraErrorM=maxCameraError;recorded.MaximumCameraAngleError=maxAngleError;recorded.MaximumScatterEyeDeltaM=maxCullDelta;
             recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
