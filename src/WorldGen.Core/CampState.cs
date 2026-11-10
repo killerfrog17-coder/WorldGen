@@ -15,6 +15,7 @@ namespace WorldGen.Core
         public double Heading,EmbedM,SoilDepthM,SoilFirmness=1,Wetness,EmberSeconds,LastSimulatedSeconds;
         public bool Burning;public double AshKg;
         [System.Runtime.Serialization.OptionalField] public bool TrapArmed,TrapSprung;
+        [System.Runtime.Serialization.OptionalField] public double BoatVelocityEast,BoatVelocityNorth;
         [System.Runtime.Serialization.OptionalField] public double StoneHeatJ;
         public List<Possession> Materials=new List<Possession>();
         [System.Runtime.Serialization.OptionalField] public List<Possession> CookingItems=new List<Possession>();
@@ -50,6 +51,7 @@ namespace WorldGen.Core
                 if(c.FrameJoints==null)c.FrameJoints=new List<FrameJoint>();
                 if(c.FrameJoints.Any(j=>j==null||j.Bindings==null))throw new ArgumentException("Invalid frame joint.");
                 CampBlueprints.Validate(c);Deadfalls.Validate(c);
+                if(!Finite(c.BoatVelocityEast)||!Finite(c.BoatVelocityNorth)||Math.Abs(c.BoatVelocityEast)>30||Math.Abs(c.BoatVelocityNorth)>30)throw new ArgumentException("Invalid watercraft velocity.");
                 foreach(var p in c.OwnedMaterials())if(p==null||string.IsNullOrEmpty(p.Id)||!materials.Add(p.Id)||!Finite(p.MassKg)||p.MassKg<=0||!Finite(p.HeightM)||p.HeightM<=0||!Finite(p.WidthM)||p.WidthM<=0)throw new ArgumentException("Invalid camp material.");
                 foreach(var p in c.CookingItems)PaleolithicWater.Validate(p);
                 if(c.CookingItems.Any(p=>!CampRules.HeatItem(p)||!Finite(p.CookingSeconds)||p.CookingSeconds<0))throw new ArgumentException("Invalid camp food.");

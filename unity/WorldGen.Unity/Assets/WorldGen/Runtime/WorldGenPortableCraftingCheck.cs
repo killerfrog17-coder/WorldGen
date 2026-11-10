@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public IEnumerator CheckPortableFlow(string output,List<string> report)
     {
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-watercraft-review")){yield return CheckWatercraftFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-deadfall-review")){yield return CheckDeadfallFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-portable-fire-review")){yield return CheckPortableFireFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-binders-review")){yield return CheckPaleolithicBindersFlow(output,report);yield break;}
@@ -65,6 +66,7 @@ public sealed partial class WorldGenRuntime
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Portable crafting fixture unavailable");
         var fixturePoint=TerrainMapViewport.FromDegrees(50,10);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-watercraft-review"))fixturePoint=TerrainMapViewport.FromDegrees(.17930170506363216,117.31300341710354);
         bool binderReview=Environment.GetCommandLineArgs().Contains("--worldgen-binders-review");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-clay-heat-review")||binderReview)
         {

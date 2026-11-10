@@ -191,8 +191,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         UpdatePlayerDeath();
         long solidsTrace=WorldGenPerformance.TraceBegin();PreparePlayerSolids();WorldGenPerformance.TraceEnd(39,solidsTrace);
-        motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;
-        if(!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null||blueprintPlacement!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&(Application.isFocused||testKeyboard!=null))
+        motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;UpdateWatercraft();
+        if(activeWatercraft==null&&!DeathVisible&&!inventoryOpen&&(!inventoryInput||campPlaceMaterial!=null||blueprintPlacement!=null)&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&(Application.isFocused||testKeyboard!=null))
         {
             if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck&&!inventoryReviewMode){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 ReadHumanCameraInput(mouse,keyboard);}
@@ -212,7 +212,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
             }
         }
-        if((!Application.isFocused&&testKeyboard==null||inventoryOpen)&&!DeathVisible&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
+        if(activeWatercraft==null&&(!Application.isFocused&&testKeyboard==null||inventoryOpen)&&!DeathVisible&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
         {
             survivalSprinting=false;motion.Move(Time.unscaledDeltaTime,0,0,0,heading,pitch,false,false,PlayerSolidGround,speedScale:1);
             playerDeathVelocity=new Vector3(0,(float)motion.VerticalSpeed,0);
@@ -453,7 +453,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
-    public void StorePlayer(PlaySession session){CancelItemCharge();CaptureInventoryPhysics();CaptureWildlife();CapturePlayerBlood();CaptureLivingHumans();session.Humans=ReferenceEquals(session,PlayerRules)?LivingState:LivingState.Copy();session.Wildlife=ReferenceEquals(session,PlayerRules)?Wildlife:Wildlife.Copy();session.Camp=ReferenceEquals(session,PlayerRules)?Camp:Camp.Copy();session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Spectating?HeightAboveGround:Math.Max(0,HeightAboveGround);session.Mode=Mode;session.Survival=Vitals.Copy();session.Inventory=ReferenceEquals(session,PlayerRules)?Inventory:Inventory.Copy();session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
+    public void StorePlayer(PlaySession session){CancelItemCharge();CaptureInventoryPhysics();CaptureWildlife();CapturePlayerBlood();CaptureLivingHumans();session.Humans=ReferenceEquals(session,PlayerRules)?LivingState:LivingState.Copy();session.Wildlife=ReferenceEquals(session,PlayerRules)?Wildlife:Wildlife.Copy();session.Camp=ReferenceEquals(session,PlayerRules)?Camp:Camp.Copy();session.WatercraftId=activeWatercraft?.Id??"";session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Spectating?HeightAboveGround:Math.Max(0,HeightAboveGround);session.Mode=Mode;session.Survival=Vitals.Copy();session.Inventory=ReferenceEquals(session,PlayerRules)?Inventory:Inventory.Copy();session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
     public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyFlatGround()

@@ -86,9 +86,10 @@ public sealed partial class LocalTerrainExplorer
                 if(c.NpcGroup!=0&&(npcVisualsAdded>=2||npcVisualsAdded>0&&ElapsedHumanMs(npcVisualStart)>2))continue;
                 v=CreateCampVisual(c);campVisuals.Add(c.Id,v);if(c.NpcGroup!=0)npcVisualsAdded++;
             }
-            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);
+            TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(PrimitiveWatercraft.Boat(c)?WatercraftFloor(c,x,z):double.IsNaN(visible)?Ground(x,z):visible);
             if(v.GroundLevel!=level){v.SurfaceRotation=CampSurfaceRotation(c);v.GroundLevel=level;}
             if(c.Kind==CampKind.FrameWood)v.SurfaceRotation=FrameRotation(c);
+            if(PrimitiveWatercraft.Boat(c))v.SurfaceRotation=Quaternion.Euler(0,(float)c.Heading,0);
             v.Root.transform.localPosition=new Vector3((float)(x-originX),floor+(c.Kind==CampKind.FrameWood?(float)c.FrameHeightM:0),(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
             UpdateCampVoice(c,v);
             UpdateCampSmoke(v.Smoke);

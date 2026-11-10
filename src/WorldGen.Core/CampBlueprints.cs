@@ -4,10 +4,10 @@ using System.Linq;
 namespace WorldGen.Core
 {
     // Append only: existing saves store the numeric design and component keys.
-    public enum CampDesign { LeanTo,Windbreak,DryingRack,MaterialStore,BrushHut,ConicalTent,RidgeTent,LongHut,OpenCanopy,BoneLodge,StoneShelter,RaisedBed,HideFrame,RaisedCache,StoneWindbreak }
+    public enum CampDesign { LeanTo,Windbreak,DryingRack,MaterialStore,BrushHut,ConicalTent,RidgeTent,LongHut,OpenCanopy,BoneLodge,StoneShelter,RaisedBed,HideFrame,RaisedCache,StoneWindbreak,ReedRaft,SkinBoat }
     public enum CampCover { Brush,Hide,Bark,Reed }
     public enum CampStore { Wood,Stone,Vegetation }
-    public enum CampPartKind { Post,Beam,Rib,Binding,Cover,Stonework,Bonework,Deck }
+    public enum CampPartKind { Post,Beam,Rib,Binding,Cover,Stonework,Bonework,Deck,Reedwork,Seal }
     [Serializable] public sealed class CampPartState
     {
         public string Key=""; public double WorkSeconds;
@@ -51,6 +51,7 @@ namespace WorldGen.Core
         }
         public static List<CampComponent> Components(CampBlueprint p)
         {
+            if(PrimitiveWatercraft.Design(p.Design))return PrimitiveWatercraft.Components(p);
             if((int)p.Design>(int)CampDesign.BrushHut)return ShelterComponents(p);
             var list=new List<CampComponent>();double w=p.WidthM,d=p.DepthM,h=Height(p),front=.35+Math.Max(0,p.FloorHeights?.Max()??0);int sequence=0;
             void Wood(CampPartKind kind,V[] points,double width,int stage=1)
@@ -133,6 +134,9 @@ namespace WorldGen.Core
         public static bool Suitable(CampBlueprint p,CampComponent c,Possession item)
         {
             if(item==null||item.MassKg<=0||item.UseDamage>=.8)return false;
+            if(PrimitiveWatercraft.Design(p.Design)&&c.Kind==CampPartKind.Cover)return CampRules.Hide(item);
+            if(c.Kind==CampPartKind.Reedwork)return item.Kind==PossessionKind.ReedBundle;
+            if(c.Kind==CampPartKind.Seal)return item.Kind==PossessionKind.CompoundAdhesive;
             if(c.Kind==CampPartKind.Binding)return FrameRules.Binding(item);
             if(c.Kind==CampPartKind.Cover)return CoverMaterial(p,item);
             if(c.Kind==CampPartKind.Stonework)return StoneCrafting.Rock(item);
@@ -196,6 +200,7 @@ namespace WorldGen.Core
         }
         public static CampProtection Protection(CampBlueprint p,double x,double z,double windX,double windZ,double knownCover=-1)
         {
+            if(PrimitiveWatercraft.Design(p.Design))return default;
             double cover=knownCover>=0?knownCover:CoverFraction(p);if(cover<=0)return default;
             if(p.Design==CampDesign.Windbreak||p.Design==CampDesign.StoneWindbreak)
             {double down=Math.Sign(windZ);if(down==0||z*down<0||z*down>Height(p)*3||Math.Abs(x-z*windX/Math.Max(.1,Math.Abs(windZ)))>p.WidthM*.5)return default;return new CampProtection(0,Math.Min(.95,.8*cover)*(1-z*down/(Height(p)*3)),0);}

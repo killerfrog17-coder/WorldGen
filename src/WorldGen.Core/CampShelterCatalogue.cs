@@ -36,7 +36,9 @@ namespace WorldGen.Core
             new CampDesignDefinition(CampDesign.RaisedBed,"Sleeping platform","A low branch deck with replaceable grass, reed, bark or hide bedding.",CampFunction.Sleeping,1,3,1.75,3),
             new CampDesignDefinition(CampDesign.HideFrame,"Hide-working frame","A braced upright frame; hang one actual hide to work or dry it.",CampFunction.HideWorking|CampFunction.Storage,1,3,.7,.7),
             new CampDesignDefinition(CampDesign.RaisedCache,"Raised cache","An elevated, roofed food and equipment store; does not make food predator-proof.",CampFunction.Storage,1,3,1,2.5),
-            new CampDesignDefinition(CampDesign.StoneWindbreak,"Stone windbreak","A low dry-laid stone screen; no bindings or roof required.",CampFunction.Screen,1,6,.5,.5)
+            new CampDesignDefinition(CampDesign.StoneWindbreak,"Stone windbreak","A low dry-laid stone screen; no bindings or roof required.",CampFunction.Screen,1,6,.5,.5),
+            new CampDesignDefinition(CampDesign.ReedRaft,"Reed raft","Bound reed floats with wooden crosspieces.",CampFunction.None,1.5,2.5,2.5,4),
+            new CampDesignDefinition(CampDesign.SkinBoat,"Hide-frame boat","A sealed hide hull over bent wooden ribs.",CampFunction.None,1.75,2.5,1.75,2.5,true)
         };
         public static IReadOnlyList<CampDesignDefinition> Catalogue=>Array.AsReadOnly(catalogue);
         public static CampDesignDefinition Definition(CampDesign design)
@@ -50,6 +52,8 @@ namespace WorldGen.Core
         {
             switch(p.Design)
             {
+                case CampDesign.ReedRaft:return .4;
+                case CampDesign.SkinBoat:return .55;
                 case CampDesign.Windbreak:return p.ScreenHeightM>0?Math.Max(.6,Math.Min(2.2,p.ScreenHeightM)):1.35;
                 case CampDesign.StoneWindbreak:return p.ScreenHeightM>0?Math.Max(.5,Math.Min(1.5,p.ScreenHeightM)):1;
                 case CampDesign.DryingRack:return p.Version>=2?1.65:1.15;

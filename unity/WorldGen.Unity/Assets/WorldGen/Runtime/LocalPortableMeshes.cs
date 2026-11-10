@@ -134,6 +134,9 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.Paddle:
+                Tube(new Vector3(0,.24f,0),new Vector3(0,1,0),.065f,wood,10);
+                b.Crown(new Vector3(0,.2f,0),new Vector3(.48f,.21f,.45f),16,8,wood,19,.015f);break;
             case PortableForm.Trigger:
                 Tube(new Vector3(-.18f,0,0),new Vector3(-.18f,.86f,0),.032f,wood,8);
                 Tube(new Vector3(-.18f,.8f,0),new Vector3(.45f,.08f,0),.03f,wood,8);

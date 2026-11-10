@@ -33,6 +33,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public int MeridianVersion;
         [System.Runtime.Serialization.OptionalField] public double PrimeMeridianLongitude;
         public bool HasPlayer,Flying;
+        [System.Runtime.Serialization.OptionalField] public string WatercraftId="";
         [System.Runtime.Serialization.OptionalField] public int PlayerHumanVariant=-1;
         [System.Runtime.Serialization.OptionalField] public PlayerIdentity Identity;
         [System.Runtime.Serialization.OptionalField] public double CameraDistance;
@@ -59,6 +60,7 @@ namespace WorldGen.Core
             Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
             Camp=Camp??new CampState();Camp.Validate();Humans=Humans??new HumanLocalState();Humans.Validate();
             CampBlueprints.ValidateContents(Camp,Inventory);
+            if(!string.IsNullOrEmpty(WatercraftId)&&!Camp.Objects.Any(c=>c.Id==WatercraftId&&PrimitiveWatercraft.Boat(c)))throw new ArgumentException("Missing boarded watercraft.");
             var carriedIds=new System.Collections.Generic.HashSet<string>(Inventory.Items.ConvertAll(p=>p.Id));
             foreach(var c in Camp.Objects)foreach(var p in c.OwnedMaterials())if(carriedIds.Contains(p.Id))throw new ArgumentException("A placed material cannot also be in the inventory.");
             if(PlayerHumanVariant< -1||PlayerHumanVariant>5||HumanRunStyle<0||HumanRunStyle>3||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");

@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     [Flags] public enum CraftCapability { None=0,Cut=1,Strike=2,Scrape=4,Pierce=8,Chop=16,Sew=32,Grind=64,GrindingSurface=128,Pressure=256 }
-    public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft,Food,Garment,GrindingStone,Clay,Pot,Mat,Necklace,Torch,Trigger }
+    public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft,Food,Garment,GrindingStone,Clay,Pot,Mat,Necklace,Torch,Trigger,Paddle }
     public sealed class PortableItem
     {
         public PossessionKind Kind;public string Name,Aliases;public PortableForm Form;public double Width,Height,Depth,Mass;
@@ -99,7 +99,7 @@ namespace WorldGen.Core
             D(PossessionKind.NeedleCase,"Bone needle case",PortableForm.Case,.04,.14,.04,.06,sw:1,sh:2,aliases:"needle case"),
             D(PossessionKind.KnifeSheath,"Hide knife sheath",PortableForm.Case,.07,.3,.03,.09,sw:1,sh:3,wear:PossessionPlace.Waist,aliases:"sheath|knife sheath"),
             D(PossessionKind.CampBundle,"Bound shelter materials",PortableForm.Frame,.25,2,.25,.1,wear:PossessionPlace.Shoulder,hands:2)
-        }.Concat(PaleolithicClothing.Items).Concat(PaleolithicWater.Items).Concat(PaleolithicProcessing.Items).Concat(PaleolithicClay.Items).Concat(PaleolithicCampcraft.Items).Concat(PaleolithicBinders.Items).Concat(PortableFire.Items).Concat(Deadfalls.Items).ToArray();
+        }.Concat(PaleolithicClothing.Items).Concat(PaleolithicWater.Items).Concat(PaleolithicProcessing.Items).Concat(PaleolithicClay.Items).Concat(PaleolithicCampcraft.Items).Concat(PaleolithicBinders.Items).Concat(PortableFire.Items).Concat(Deadfalls.Items).Concat(PrimitiveWatercraft.Items).ToArray();
         static readonly Dictionary<PossessionKind,PortableItem> byKind=Items.ToDictionary(p=>p.Kind);
         public static PortableItem Item(PossessionKind kind)=>byKind.TryGetValue(kind,out var item)?item:null;
         public static string Key(string value)=>new string((value??"").Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());

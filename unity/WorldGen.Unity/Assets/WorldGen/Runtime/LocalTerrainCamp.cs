@@ -93,6 +93,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool HandleCampKeys(Keyboard k)
     {
+        if(activeWatercraft!=null&&!inventoryOpen&&k.eKey.wasPressedThisFrame){LeaveWatercraft();return true;}
         if(HandleBlueprintKeys(k))return true;
         if(blueprintJob!=null&&k.escapeKey.wasPressedThisFrame){CancelBlueprintWork();return true;}
         if(campSleeping||campResting){if(k.escapeKey.wasPressedThisFrame||k.spaceKey.wasPressedThisFrame||campResting&&(k.wKey.wasPressedThisFrame||k.aKey.wasPressedThisFrame||k.sKey.wasPressedThisFrame||k.dKey.wasPressedThisFrame||k.eKey.wasPressedThisFrame))WakeCamp(campResting?"You stop waiting.":"You wake up.");return true;}

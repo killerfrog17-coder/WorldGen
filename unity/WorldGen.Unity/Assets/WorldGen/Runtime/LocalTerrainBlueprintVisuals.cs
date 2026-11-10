@@ -17,7 +17,13 @@ static partial class LocalScatterMeshes
             bool done=CampBlueprints.Done(plan,c);if(!preview&&done!=completed)continue;
             if(omitHide&&c.Kind==CampPartKind.Cover&&plan.Cover==CampCover.Hide)continue;
             int start=b.V.Count;int surface=1;var points=c.Points.Select(P).ToArray();float weather=(float)(CampBlueprints.State(plan,c)?.Weathering??0);
-            if(c.Kind==CampPartKind.Cover)
+            if(c.Kind==CampPartKind.Reedwork)
+            {
+                surface=7;var a=points[0];var e=points[1];float radius=(float)c.WidthM*.49f;
+                for(int bundle=0;bundle<7;bundle++){float angle=bundle*Mathf.PI/3;var offset=bundle==0?Vector3.zero:new Vector3(Mathf.Cos(angle)*radius*.47f,Mathf.Sin(angle)*radius*.47f,0);b.Tube(a+offset,e+offset,radius*.38f,radius*.3f,10,new Color(.57f,.52f,.28f,0));}
+            }
+            else if(c.Kind==CampPartKind.Seal)continue;
+            else if(c.Kind==CampPartKind.Cover)
             {
                 surface=plan.Cover==CampCover.Hide?4:plan.Cover==CampCover.Bark?2:7;
                 var color=plan.Cover==CampCover.Hide?new Color(.55f,.4f,.27f,0):plan.Cover==CampCover.Bark?new Color(.42f,.32f,.22f,0):new Color(.54f,.46f,.24f,0);
