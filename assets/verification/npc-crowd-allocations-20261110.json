@@ -214,5 +214,214 @@
       "watercraft": 85
     },
     "candidate_status": "Unbuilt allocation reductions; no speed or allocation improvement claim yet."
-  }
+  },
+  "after": {
+    "scope": "Same bounded 3-second DevelopmentPlayer allocation diagnostic. Frame count differs because profiling/allocation work changed; compare bytes per recorded frame, never diagnostic FPS.",
+    "source": "7ba5a2b1",
+    "frames": 169,
+    "total_allocated_bytes": 15596253,
+    "bytes_per_recorded_frame": 92285.52071005917,
+    "raw_bytes": 184594401,
+    "raw_sha256": "0dfc094d699076716b3cde2bc60c767a44c1f9b7cf43b1943a815d7109e88bf8",
+    "native_checks": "PASS An admitted real simulated community exists\nPASS Actual local terrain and centre tiles are ready\nPASS Natural residents stream from world history, without a spawn command\nPASS Natural camp passes local ground validation and is loaded\nPASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp\nPASS Camp consists of real player-compatible objects/materials\nPASS Native camp validates with real terrain footing surveys\nPASS Occupied camp shelters retain every fitted roof/frame component\nPASS Actual surrounding scatter pages are resident before accepting camp environment captures\nPASS Physical NPCs retain named family identities and actual scheduled tasks\nPASS Broad local group tracking is bounded at 50km plus foraging catchment\nPASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders\nPASS 513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates\nPASS Occupied shelter floor has a full-strength ground clearing mask\nPASS Packed compute shader removes grass inside the real camp floor and retains grass outside\nPASS Named camp objects and local memories survive actual player capture and serialization\nPASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects\nPASS Aggression preserves wounds and the actual victim's local memory\nPASS Unloading/revisiting a camp does not duplicate its objects\n",
+    "reader": "Diagnostic DevelopmentPlayer only. Frames 0..168; thread frames 11492; GC.Alloc bytes 15596253. Inclusive timings overlap; not release FPS.\n",
+    "top_project_callers": [
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.AdvanceNpcCampTask()",
+        "bytes": 4889040,
+        "calls": 57540,
+        "bytes_per_frame": 28929.23076923077
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.PrepareNpcCampBedding()",
+        "bytes": 1048320,
+        "calls": 15120,
+        "bytes_per_frame": 6203.076923076923
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.UpdateAttachedProjectiles()",
+        "bytes": 909816,
+        "calls": 37909,
+        "bytes_per_frame": 5383.526627218935
+      },
+      {
+        "caller": "WorldGen.Core.dll!WorldGen.Core::NpcSocialState.See()",
+        "bytes": 899024,
+        "calls": 12215,
+        "bytes_per_frame": 5319.668639053254
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.ApplyNpcPlan()",
+        "bytes": 796320,
+        "calls": 21480,
+        "bytes_per_frame": 4711.952662721894
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.NpcBeddingGoal()",
+        "bytes": 773904,
+        "calls": 12618,
+        "bytes_per_frame": 4579.3136094674555
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.UpdateNpcAwareness()",
+        "bytes": 692832,
+        "calls": 18956,
+        "bytes_per_frame": 4099.597633136094
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.PrepareNpcTaskGear()",
+        "bytes": 640224,
+        "calls": 13022,
+        "bytes_per_frame": 3788.3076923076924
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.PrepareNpcMaterialTask()",
+        "bytes": 551488,
+        "calls": 14294,
+        "bytes_per_frame": 3263.242603550296
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.PrepareWalkingSampler()",
+        "bytes": 503296,
+        "calls": 7864,
+        "bytes_per_frame": 2978.0828402366865
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.ObserveNpcBandmate()",
+        "bytes": 469056,
+        "calls": 7329,
+        "bytes_per_frame": 2775.4792899408285
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.AdvanceNpcMaterialUse()",
+        "bytes": 399504,
+        "calls": 14966,
+        "bytes_per_frame": 2363.9289940828403
+      },
+      {
+        "caller": "WorldGen.Core.dll!WorldGen.Core::PlayerInventory.get_CarriedMassKg()",
+        "bytes": 253600,
+        "calls": 2536,
+        "bytes_per_frame": 1500.5917159763314
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::HumanAgeModel.Offset()",
+        "bytes": 220248,
+        "calls": 3591,
+        "bytes_per_frame": 1303.2426035502958
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.NpcFindMaterial()",
+        "bytes": 183888,
+        "calls": 1733,
+        "bytes_per_frame": 1088.094674556213
+      },
+      {
+        "caller": "WorldGen.Core.dll!::<>c.<get_MassKg>b__33_2()",
+        "bytes": 155120,
+        "calls": 3878,
+        "bytes_per_frame": 917.8698224852071
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.NpcGoal()",
+        "bytes": 139608,
+        "calls": 2338,
+        "bytes_per_frame": 826.0828402366864
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.EffectiveNpcCulture()",
+        "bytes": 139200,
+        "calls": 2175,
+        "bytes_per_frame": 823.6686390532544
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.NpcCanUseWorldItem()",
+        "bytes": 138240,
+        "calls": 2160,
+        "bytes_per_frame": 817.9881656804733
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.AdvanceNpcDailyTask()",
+        "bytes": 125396,
+        "calls": 2591,
+        "bytes_per_frame": 741.9881656804733
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.TraceCombatObstacle()",
+        "bytes": 125136,
+        "calls": 1008,
+        "bytes_per_frame": 740.4497041420118
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.BlueprintProtectionAt()",
+        "bytes": 117600,
+        "calls": 1176,
+        "bytes_per_frame": 695.8579881656805
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.PrepareNpcPlay()",
+        "bytes": 116824,
+        "calls": 1782,
+        "bytes_per_frame": 691.2662721893491
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.<UpdateCamp>b__488_0()",
+        "bytes": 112896,
+        "calls": 1764,
+        "bytes_per_frame": 668.0236686390532
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.DrawNpcMind()",
+        "bytes": 87738,
+        "calls": 1024,
+        "bytes_per_frame": 519.1597633136095
+      },
+      {
+        "caller": "engine/other",
+        "bytes": 87219,
+        "calls": 1198,
+        "bytes_per_frame": 516.0887573964498
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::DrawBatch..ctor()",
+        "bytes": 72416,
+        "calls": 22,
+        "bytes_per_frame": 428.49704142011836
+      },
+      {
+        "caller": "WorldGen.Presentation.dll!WorldGen.Presentation::FaunaPrototypePlanner.Build()",
+        "bytes": 63706,
+        "calls": 776,
+        "bytes_per_frame": 376.9585798816568
+      },
+      {
+        "caller": "WorldGen.Core.dll!WorldGen.Core::CampObject.get_MassKg()",
+        "bytes": 57120,
+        "calls": 1428,
+        "bytes_per_frame": 337.9881656804734
+      },
+      {
+        "caller": "Assembly-CSharp.dll!::LocalTerrainExplorer.StoredAt()",
+        "bytes": 56448,
+        "calls": 756,
+        "bytes_per_frame": 334.0118343195266
+      },
+      {
+        "caller": "WorldGen.Core.dll!WorldGen.Core::NpcBelongings.ForTask()",
+        "bytes": 56208,
+        "calls": 1062,
+        "bytes_per_frame": 332.5917159763314
+      },
+      {
+        "caller": "WorldGen.Presentation.dll!::<>c__DisplayClass20_0.<Build>g__Population|1()",
+        "bytes": 55444,
+        "calls": 1154,
+        "bytes_per_frame": 328.07100591715977
+      }
+    ],
+    "strengthened_cache_controls": 3877,
+    "warm_query_bytes": 0,
+    "status": "Allocation reduction confirmed; normal-player performance pending."
+  },
+  "per_frame_reduction_percent": 77.04052306825959
 }

@@ -7,6 +7,12 @@ static class CampBlueprintQueryTests
     {
         int checks=0;
         void Check(bool value,string reason){if(!value)throw new Exception(reason);checks++;}
+        void Fill(CampBlueprint plan)
+        {
+            plan.Parts.Clear();
+            foreach(var part in CampBlueprints.Components(plan))plan.Parts.Add(new CampPartState{Key=part.Key,WorkSeconds=part.Seconds,Materials=new(){new Possession{MassKg=part.Kg}}});
+            Check(CampBlueprints.Complete(plan)&&CampBlueprints.Stage(plan)==4,"A fully supplied/worked plan completes before each geometry edit");
+        }
         void Compare(CampBlueprint plan,string context)
         {
             // Fresh public geometry and direct state reads are independent of
@@ -23,18 +29,18 @@ static class CampBlueprintQueryTests
         foreach(var design in Enum.GetValues<CampDesign>())foreach(var cover in Enum.GetValues<CampCover>())
         {
             var plan=CampBlueprints.Create(design,2,2,cover);
-            foreach(var part in CampBlueprints.Components(plan))plan.Parts.Add(new CampPartState{Key=part.Key,WorkSeconds=part.Seconds,Materials=new(){new Possession{MassKg=part.Kg}}});
+            Fill(plan);
             Compare(plan,"Initial "+design);
             var before=WorldJson.Write(plan);for(int i=0;i<8;i++)Compare(plan,"Warm "+design);
             Check(WorldJson.Write(plan)==before,"Query cache must not enter serialized state");
             var exposed=CampBlueprints.Components(plan);exposed.Clear();Compare(plan,"Caller-owned list");
             plan.Parts[0].WorkSeconds=0;Compare(plan,"Work changed without revision");plan.Parts[0].WorkSeconds=1000;
             plan.Parts[0].Materials.Clear();Compare(plan,"Removed material without revision");
-            plan.WidthM+=1;Compare(plan,"Width changed");plan.DepthM+=.75;Compare(plan,"Depth changed");
-            plan.ScreenHeightM=2;Compare(plan,"Screen height changed");plan.Cover=(CampCover)(((int)cover+1)%4);Compare(plan,"Cover changed");
-            plan.FloorHeights=new double[9];Compare(plan,"Floor assigned");plan.FloorHeights[0]=.7;Compare(plan,"Same floor array edited");
-            plan.FloorHeights=(double[])plan.FloorHeights.Clone();Compare(plan,"Equal floor array replaced");
-            plan.Version=1;Compare(plan,"Version changed");plan.Design=CampDesign.RidgeTent;Compare(plan,"Design changed");
+            Fill(plan);plan.WidthM+=1;Compare(plan,"Width changed");Fill(plan);plan.DepthM+=.75;Compare(plan,"Depth changed");
+            Fill(plan);plan.ScreenHeightM=2;Compare(plan,"Screen height changed");Fill(plan);plan.Cover=(CampCover)(((int)cover+1)%4);Compare(plan,"Cover changed");
+            Fill(plan);plan.FloorHeights=new double[9];Compare(plan,"Floor assigned");Fill(plan);plan.FloorHeights[0]=.7;Compare(plan,"Same floor array edited");
+            Fill(plan);plan.FloorHeights=(double[])plan.FloorHeights.Clone();Compare(plan,"Equal floor array replaced");
+            Fill(plan);plan.Version=1;Compare(plan,"Version changed");Fill(plan);plan.Design=CampDesign.RidgeTent;Compare(plan,"Design changed");
             Compare(plan.Copy(),"Independent copied plan");Compare(WorldJson.Read<CampBlueprint>(WorldJson.Write(plan)),"Reloaded plan");
         }
         var stable=CampBlueprints.Create(CampDesign.LeanTo,3,2);
