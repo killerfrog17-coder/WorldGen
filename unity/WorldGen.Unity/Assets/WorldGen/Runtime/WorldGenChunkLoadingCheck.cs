@@ -121,12 +121,13 @@ public sealed partial class LocalTerrainExplorer
         var origin=frame;var rows=new List<string>{"seconds,speed,east,altitude,viewM,terrainM,forestM,tiles,jobs,nearReady,groundAtPlayer,missingNearProbes,handoffs,buildRequests,meshHeightError,preparedTiles,groundPixelsMissing"};
         TestView(500,90,12);double start=Time.realtimeSinceStartupAsDouble,last=start,east=0,next=start;
         long initialBuilds=TerrainBuildRequests;int missingFrames=0,lastPixelGaps=0,audits=0;double nextAudit=start+1;BeginLoadingProfile();
-        while(Time.realtimeSinceStartupAsDouble-start<40)
+        bool longFlight=Environment.GetCommandLineArgs().Contains("--worldgen-chunk-long-flight");double duration=longFlight?80:40,turnAt=longFlight?56:24;
+        while(Time.realtimeSinceStartupAsDouble-start<duration)
         {
-            double now=Time.realtimeSinceStartupAsDouble,t=now-start,dt=Math.Min(.1,now-last);last=now;
-            double speed=t<8?200:600;if(t>=24)speed=-600;
+            double now=Time.realtimeSinceStartupAsDouble,t=now-start,dt=Math.Min(.25,now-last);last=now;
+            double speed=t<8?200:600;if(t>=turnAt)speed=-600;
             east+=speed*dt;var at=origin.Position(east,0);TerrainHandoff.Coordinates(frame,at,out double x,out double z);
-            TrackStreamingMotion(x-motion.X,z-motion.Z,Math.Max(.001,dt));motion.X=x;motion.Z=z;motion.Y=Ground(x,z)+500;motion.Flying=true;
+            TrackStreamingMotion(x-motion.X,z-motion.Z,Math.Max(.001,dt));motion.X=x;motion.Z=z;double floor=Ground(x,z);var water=SampleMotionWater(x,z);if(double.IsFinite(water.Surface))floor=Math.Max(floor,water.Surface);motion.Y=floor+500;motion.Flying=true;
             heading=(float)(Math.Atan2(V.Dot(origin.East,frame.East),V.Dot(origin.East,frame.North))*180/Math.PI)+(speed<0?180:0);UpdateCamera();
             int missing=0;foreach(double distance in new[]{0d,200,600})foreach(double angle in new[]{0d,Math.PI*.5,Math.PI,Math.PI*1.5})
                 if(double.IsNaN(VisibleGround(x+Math.Cos(angle)*distance,z+Math.Sin(angle)*distance,double.NaN)))missing++;
@@ -142,7 +143,7 @@ public sealed partial class LocalTerrainExplorer
             yield return null;
         }
         File.WriteAllLines(Path.Combine(output,"fast-flight.csv"),rows);
-        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse, 500m altitude; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
+        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
     }
     int CheckFlightGroundPixels(string path)

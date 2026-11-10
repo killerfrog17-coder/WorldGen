@@ -43,6 +43,20 @@ public sealed partial class LocalTerrainExplorer
         return count;
     }}
     bool reserveScatterFrame;double lastStreamingOpportunity;
+    bool flightForestTurn=true;
+    void ScheduleFlightBackground()
+    {
+        // At least one CPU lane remains for the active terrain. Alternate the
+        // other lane between forest continuity and the approaching chart,
+        // instead of starving either until every fine request has finished.
+        if(ActiveWorkerCount>=WorkerLimit-1||forestJobs.Any(j=>!j.Task.IsCompleted)||jobs.Any(j=>j.Prepared!=null&&!j.Task.IsCompleted))return;
+        bool chartDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit*.65;
+        long prior=TerrainBuildRequests;
+        if(!flightForestTurn&&chartDue)SchedulePreparedWork(reserveCurrentSlot:true,coveredFlight:true);
+        if(TerrainBuildRequests>prior){flightForestTurn=true;return;}
+        if(ScheduleForestWork(coveredFlight:true)){flightForestTurn=false;return;}
+        if(chartDue)SchedulePreparedWork(reserveCurrentSlot:true,coveredFlight:true);
+    }
     // A necessary visible-set rebuild cannot be delayed when the camera turns.
     // Prefer a different frame for optional uploads, but guarantee an upload
     // opportunity every 100 ms even during uninterrupted fast movement.

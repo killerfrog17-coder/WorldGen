@@ -148,7 +148,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(WorldGenPerformance.TraceEnabled)WorldGenPerformance.TraceMilliseconds[4]+=elapsed;
         if(elapsed>20)Debug.Log("Local ground query "+elapsed.ToString("F2")+"ms");
         groundMemoFrame=frame;groundMemoX=x;groundMemoZ=z;groundMemoY=height;
-        PrepareWalkingSampler(x,z);
+        PrepareWalkingSampler(motion.X,motion.Z);
         return height;
     }
     public void Teleport(V point)
@@ -309,18 +309,16 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         // Continually cancelling all background work would itself cause churn.
         if(nearPending&&ActiveWorkerCount>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
         {
-            var forest=forestJobs.LastOrDefault(j=>!j.Task.IsCompleted&&!j.Cancellation.IsCancellationRequested);
-            if(forest!=null)forest.Cancellation.Cancel();
-            else
+            var background=jobs.LastOrDefault(j=>j.Prepared==null&&!ImmediateTerrain(j.Key)&&!j.Task.IsCompleted);
+            if(background!=null)background.Cancellation?.Cancel();
+            else if(!coveredFlight||forestJobs.Count(j=>!j.Task.IsCompleted)+jobs.Count(j=>j.Prepared!=null&&!j.Task.IsCompleted)>=WorkerLimit)
             {
-                var background=jobs.LastOrDefault(j=>j.Prepared==null&&!ImmediateTerrain(j.Key));
-                if(background!=null)background.Cancellation?.Cancel();
-                else if(!coveredFlight)jobs.LastOrDefault(j=>j.Prepared!=null)?.Cancellation?.Cancel();
+                var forest=forestJobs.LastOrDefault(j=>!j.Task.IsCompleted&&!j.Cancellation.IsCancellationRequested);
+                if(forest!=null)forest.Cancellation.Cancel();else jobs.LastOrDefault(j=>j.Prepared!=null&&!j.Task.IsCompleted)?.Cancellation?.Cancel();
             }
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
-        if(coveredFlight&&preparedFrame!=null&&ReanchorDistance>=ReanchorLimit*.65)
-            SchedulePreparedWork(reserveCurrentSlot:true,coveredFlight:true);
+        if(coveredFlight)ScheduleFlightBackground();
         // Share the outward loading front instead of finishing a bare horizon
         // before the forest gets any worker time. Alternate with terrain on a
         // single-worker machine; never reserve this turn ahead of near ground

@@ -237,11 +237,11 @@ public sealed partial class LocalTerrainExplorer
         }
         if(residentForestReady!=ready){residentForestReady=ready;scatterDirty=true;}
     }
-    bool ScheduleForestWork()
+    bool ScheduleForestWork(bool coveredFlight=false)
     {
         // Near ground retains priority. When forest coverage is the reveal
         // blocker, it also gets a turn before distant terrain fills every lane.
-        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||!CenterReady||forestCull==null||NearTerrainPending()||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||ActiveWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=524288)return false;
+        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||!CenterReady||forestCull==null||!coveredFlight&&NearTerrainPending()||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||ActiveWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=524288)return false;
         while(forestNextRequest<forestPriority.Length)
         {
             var key=forestPriority[forestNextRequest++];
