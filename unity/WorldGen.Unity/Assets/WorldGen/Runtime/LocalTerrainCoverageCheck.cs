@@ -148,18 +148,20 @@ public sealed partial class LocalTerrainExplorer
         WorldGenPerformance.StagedGroundPublication=oldStaging;
         File.WriteAllText(Path.Combine(output,"fallback-publication.txt"),"PASS: a useful staged 8-segment fallback publishes while its same-address final request still requires 16 segments and different edges; no reject/restage loop.");
         bool oldHard=TerrainVideoOptions.HardChunkUpdates;TerrainVideoOptions.HardChunkUpdates=false;
-        var hardReplacement=new Tile{Root=Quad("Hard-update replacement",1024,1,Color.blue),Segments=16,Edges=new[]{64d,64d,64d,64d},Heights=new float[289]};
+        var hardReplacement=new Tile{Root=Quad("Hard-update replacement",1024,-1,Color.blue),Segments=16,Edges=new[]{64d,64d,64d,64d},Heights=new float[289]};
         fallbackOwner.BeginTerrainReplacement(fallbackKey,hardReplacement,fallbackTile);fallbackOwner.tiles[fallbackKey]=hardReplacement;
         if(fallbackOwner.previousTerrain.Count!=1||hardReplacement.FadeIn==0)throw new Exception("Hard-update regression did not begin with a live smooth transition");
         TerrainVideoOptions.HardChunkUpdates=true;fallbackOwner.UpdateTerrainTransitions();fallbackOwner.UpdateTerrainCoverage();
-        if(fallbackOwner.previousTerrain.Count!=0||fallbackTile.Root.activeSelf||hardReplacement.FadeIn!=0||hardReplacement.Materials.Any(m=>m.GetFloat("_TransitionEnabled")!=0))
+        if(fallbackOwner.previousTerrain.Count!=0||fallbackTile.Root.activeSelf||hardReplacement.FadeIn!=0||Array.Exists(hardReplacement.Materials,m=>m.GetFloat("_TransitionEnabled")!=0))
             throw new Exception("Hard chunk updates retained an old surface or an active fade");
-        var nextHard=new Tile{Root=Quad("Next instant replacement",1024,2,Color.green),Segments=16,Edges=hardReplacement.Edges,Heights=new float[289]};
+        var hardImage=Capture("hard-replacement");if(hardImage[32*128+32].b<=hardImage[32*128+32].g)throw new Exception("Old higher surface still occludes the instant replacement");
+        var nextHard=new Tile{Root=Quad("Next instant replacement",1024,-2,Color.green),Segments=16,Edges=hardReplacement.Edges,Heights=new float[289]};
         fallbackOwner.BeginTerrainReplacement(fallbackKey,nextHard,hardReplacement);fallbackOwner.tiles[fallbackKey]=nextHard;
         fallbackOwner.UpdateTerrainCoverage();
         if(nextHard.FadeIn!=0||fallbackOwner.previousTerrain.Count!=0||hardReplacement.Root.activeSelf)throw new Exception("New hard replacement still waited for a fade");
+        var hardNextImage=Capture("hard-next-replacement");if(hardNextImage[32*128+32].g<=hardNextImage[32*128+32].b)throw new Exception("Subsequent instant replacement was not visible in the production shader");
         TerrainVideoOptions.HardChunkUpdates=false;fallbackOwner.UpdateTerrainTransitions();fallbackOwner.UpdateTerrainCoverage();
-        if(nextHard.Materials.Any(m=>m.GetFloat("_TransitionEnabled")!=1))throw new Exception("Turning hard chunk updates off did not restore smooth rendering");
+        if(Array.Exists(nextHard.Materials,m=>m.GetFloat("_TransitionEnabled")!=1))throw new Exception("Turning hard chunk updates off did not restore smooth rendering");
         TerrainVideoOptions.HardChunkUpdates=oldHard;
         File.WriteAllText(Path.Combine(output,"hard-chunk-updates.txt"),"PASS: toggling during an active same-address replacement removes the old draw and all fade stamps immediately; subsequent ready replacements snap; disabling restores smooth shader transitions.");
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
