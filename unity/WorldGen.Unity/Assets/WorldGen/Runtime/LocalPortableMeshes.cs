@@ -129,6 +129,16 @@ static partial class LocalScatterMeshes
             case PortableForm.Belt:Arc(Vector3.zero,.46f,.46f,.5f,item.Kind==PossessionKind.HideBelt?leather:cord,.09f,28);for(int i=0;i<4;i++)Arc(new Vector3((i-1.5f)*.2f,0,.35f),.06f,.08f,.5f,cord,.02f,8);break;
             case PortableForm.Case:
                 Tube(Vector3.zero,Vector3.up,.34f,item.Kind==PossessionKind.NeedleCase?bone:leather,10);Arc(Vector3.zero,.38f,.38f,.95f,cord,.04f,12);if(item.Kind==PossessionKind.KnifeSheath)for(int i=0;i<8;i++)Tube(new Vector3(.34f,i*.1f,.1f),new Vector3(.36f,i*.1f+.03f,-.1f),.025f,cord);break;
+            case PortableForm.Garment:
+                // Folded soft clothing when carried or laid on the ground.
+                // Equipped garments use the wearer's native skin weights.
+                for(int fold=0;fold<3;fold++)
+                {
+                    float y=.12f+fold*.22f;
+                    Quad(new Vector3(-.46f,y,-.35f),new Vector3(.46f,y+.05f,-.35f),new Vector3(.43f,y+.18f,.35f),new Vector3(-.43f,y+.13f,.35f),fur);
+                    Quad(new Vector3(-.46f,y,-.35f),new Vector3(-.43f,y+.13f,.35f),new Vector3(-.43f,y+.08f,.35f),new Vector3(-.46f,y-.04f,-.35f),fur);
+                }
+                break;
             case PortableForm.Hide:
                 var outline=new[]{new Vector2(-.2f,0),new Vector2(-.48f,.08f),new Vector2(-.35f,.3f),new Vector2(-.48f,.48f),new Vector2(-.35f,.7f),new Vector2(-.5f,.94f),new Vector2(-.3f,1),new Vector2(-.15f,.83f),new Vector2(.15f,.83f),new Vector2(.3f,1),new Vector2(.5f,.94f),new Vector2(.35f,.7f),new Vector2(.48f,.48f),new Vector2(.35f,.3f),new Vector2(.48f,.08f),new Vector2(.2f,0)};
                 for(int i=0;i<outline.Length;i++){var a=outline[i];var c=outline[(i+1)%outline.Length];int v=b.Add(new Vector3(0,.5f,0),fur,new Vector2(.5f,.5f)),e=b.Add(new Vector3(a.x,a.y,Mathf.Sin(i)*.035f),fur,new Vector2(a.x+.5f,a.y)),f=b.Add(new Vector3(c.x,c.y,Mathf.Sin(i+1)*.035f),fur,new Vector2(c.x+.5f,c.y));b.Triangle(v,e,f);}break;

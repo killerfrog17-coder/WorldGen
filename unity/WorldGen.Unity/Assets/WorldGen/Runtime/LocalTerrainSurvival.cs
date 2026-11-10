@@ -85,7 +85,9 @@ public sealed partial class LocalTerrainExplorer
         survivalEnvironment.LocalHour=LocalSolarHour;survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
         survivalEnvironment.EffortLoad=Inventory.LoadEffort;
         survivalEnvironment.Swimming=motion.Swimming;survivalEnvironment.SwimEffort=motion.SwimEffort;
-        survivalEnvironment.Insulation=campSleeping?CampRules.BedInsulation(sleepingBed):0;
+        double clothes=PaleolithicClothing.Insulation(Inventory),bed=campSleeping?CampRules.BedInsulation(sleepingBed):0;
+        survivalEnvironment.Insulation=1-(1-clothes)*(1-bed);
+        survivalEnvironment.ClothingInsulation=clothes;
         double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,campResting||campSleeping?LocalSceneDelta:dt,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
         foreach(var fire in Camp.Objects)

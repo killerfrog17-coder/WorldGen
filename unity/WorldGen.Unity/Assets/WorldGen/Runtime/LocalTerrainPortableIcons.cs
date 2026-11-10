@@ -24,6 +24,7 @@ public sealed partial class LocalTerrainExplorer
                     case PortableForm.Belt:case PortableForm.Cord:
                         float r=Mathf.Sqrt(u*u+(v-.5f)*(v-.5f)*4);inside=(r>.35f&&r<.49f)||(r>.55f&&r<.69f)||(r>.75f&&r<.86f);break;
                     case PortableForm.Frame:inside=v>.05f&&v<.95f&&(Mathf.Abs(Mathf.Abs(u)-.6f)<.08f||Mathf.Abs(u)<.6f&&Mathf.Abs(v*4-Mathf.Round(v*4))<.1f);break;
+                    case PortableForm.Garment:inside=v>.12f&&v<.9f&&Mathf.Abs(u)<(v>.65f?.8f:.55f)&&!(v>.82f&&Mathf.Abs(u)<.17f);break;
                     case PortableForm.Hide:inside=v>.08f&&v<.92f&&Mathf.Abs(u)<.6f+.16f*Mathf.Cos(v*18);break;
                     case PortableForm.Fibre:case PortableForm.Reed:case PortableForm.Strip:inside=v>.08f&&v<.92f&&Mathf.Abs(u)<.65f&&Mathf.Abs((u+.05f*Mathf.Sin(v*9))*5-Mathf.Round((u+.05f*Mathf.Sin(v*9))*5))<.18f;break;
                     case PortableForm.Bone:inside=v>.1f&&v<.9f&&Mathf.Abs(u)<(v<.23f||v>.77f?.42f:.15f);color=new Color(.84f,.8f,.66f);break;

@@ -262,7 +262,7 @@ public sealed partial class LocalTerrainExplorer
             var sharedCharge=itemCharge??pendingRanged?.Charge;
             if(SharedHumanMotion&&sharedCharge!=null&&!sharedCharge.Throw&&sharedCharge.Ammo==item)
             {root.SetActive(false);continue;}
-            if(PortableTechnology.Item(item.Kind)!=null&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var priorPortable)||priorPortable!=item.Place)){root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)item.DepthM);RefreshPortableRoot(root,item);inventoryVisualPlaces[item.Id]=item.Place;}
+            if(PortableTechnology.Item(item.Kind)!=null&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var priorPortable)||priorPortable!=item.Place)){RestoreFoldedGarment(root);root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)item.DepthM);RefreshPortableRoot(root,item);inventoryVisualPlaces[item.Id]=item.Place;}
             if(item.Kind==PossessionKind.TestBag&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var previous)||previous!=item.Place))
             {
                 inventoryVisualPlaces[item.Id]=item.Place;

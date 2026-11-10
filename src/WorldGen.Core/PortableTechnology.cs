@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     [Flags] public enum CraftCapability { None=0,Cut=1,Strike=2,Scrape=4,Pierce=8,Chop=16,Sew=32,Grind=64 }
-    public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft,Food }
+    public enum PortableForm { Fibre,Cord,Reed,Hide,Strip,Bone,Antler,Feather,Blade,Point,Chopper,Needle,Hook,Knife,Axe,Spear,Arrow,Bow,Thrower,Sling,Net,Pouch,Satchel,Pack,Basket,BarkBox,Frame,Quiver,Belt,Case,Shaft,Food,Garment }
     public sealed class PortableItem
     {
         public PossessionKind Kind;public string Name,Aliases;public PortableForm Form;public double Width,Height,Depth,Mass;
@@ -21,7 +21,7 @@ namespace WorldGen.Core
     {
         static PortableItem D(PossessionKind kind,string name,PortableForm form,double w,double h,double d,double mass,CraftCapability capability=0,int sw=0,int sh=0,PossessionPlace? wear=null,string aliases="",int hands=1)
             =>new PortableItem{Kind=kind,Name=name,Form=form,Width=w,Height=h,Depth=d,Mass=mass,Capability=capability,StorageWidth=sw,StorageHeight=sh,Wear=wear,Aliases=aliases,Hands=hands};
-        public static readonly PortableItem[] Items={
+        public static readonly PortableItem[] Items=new[]{
             D(PossessionKind.DryGrass,"Dry grass bundle",PortableForm.Fibre,.25,.4,.2,.6,aliases:"grass|dry grass|bedding grass"),
             D(PossessionKind.LeafLitter,"Leaf litter",PortableForm.Fibre,.25,.25,.2,.4,aliases:"leaves|leaf litter"),
             D(PossessionKind.TinderBundle,"Tinder bundle",PortableForm.Fibre,.14,.1,.14,.08,aliases:"tinder"),
@@ -99,7 +99,7 @@ namespace WorldGen.Core
             D(PossessionKind.NeedleCase,"Bone needle case",PortableForm.Case,.04,.14,.04,.06,sw:1,sh:2,aliases:"needle case"),
             D(PossessionKind.KnifeSheath,"Hide knife sheath",PortableForm.Case,.07,.3,.03,.09,sw:1,sh:3,wear:PossessionPlace.Waist,aliases:"sheath|knife sheath"),
             D(PossessionKind.CampBundle,"Bound shelter materials",PortableForm.Frame,.25,2,.25,.1,wear:PossessionPlace.Shoulder,hands:2)
-        };
+        }.Concat(PaleolithicClothing.Items).ToArray();
         static readonly Dictionary<PossessionKind,PortableItem> byKind=Items.ToDictionary(p=>p.Kind);
         public static PortableItem Item(PossessionKind kind)=>byKind.TryGetValue(kind,out var item)?item:null;
         public static string Key(string value)=>new string((value??"").Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
@@ -115,7 +115,7 @@ namespace WorldGen.Core
             if(p.Kind==PossessionKind.RawhideStrips)return species+" rawhide strips";
             return d.Name.StartsWith("Hide ")?species+"-hide "+d.Name.Substring(5):d.Name;
         }
-        public static bool Worn(PossessionPlace place)=>place==PossessionPlace.Back||place==PossessionPlace.Shoulder||place==PossessionPlace.Waist||place==PossessionPlace.SlungBack;
+        public static bool Worn(PossessionPlace place)=>place==PossessionPlace.Back||place==PossessionPlace.Shoulder||place==PossessionPlace.Waist||place==PossessionPlace.SlungBack||PaleolithicClothing.Place(place);
         public static PossessionPlace? Wear(Possession p)=>p.Kind==PossessionKind.TestBag?PossessionPlace.Back:Item(p.Kind)?.Wear;
         public static bool Belt(Possession p)=>p!=null&&Item(p.Kind)?.Form==PortableForm.Belt;
         public static bool Holds(Possession bag,Possession item)

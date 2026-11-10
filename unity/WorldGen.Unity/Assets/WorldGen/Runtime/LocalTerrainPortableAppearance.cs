@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
     MaterialPropertyBlock portableItemProps=>portableItemPropsCache??(portableItemPropsCache=new MaterialPropertyBlock());
     bool PendingPortableCoats=>portableCoatWanted.Any(s=>!animalModels.ContainsKey(s)&&!animalLoadFailures.Contains(s));
     bool PortableFur(Possession p)
-    {var form=PortableTechnology.Item(p.Kind)?.Form;return !string.IsNullOrEmpty(p.AppearanceSpecies)&&(form==PortableForm.Hide||form==PortableForm.Pouch||form==PortableForm.Pack||form==PortableForm.Satchel||form==PortableForm.Quiver);}
+    {var form=PortableTechnology.Item(p.Kind)?.Form;return !string.IsNullOrEmpty(p.AppearanceSpecies)&&(form==PortableForm.Hide||form==PortableForm.Pouch||form==PortableForm.Pack||form==PortableForm.Satchel||form==PortableForm.Quiver||form==PortableForm.Garment);}
     Material PortableMaterial()
     {
         if(portableItemMaterial!=null)return portableItemMaterial;
@@ -36,7 +36,7 @@ public sealed partial class LocalTerrainExplorer
         {var text=Resources.Load<TextAsset>("PortableCoatRegions");portableCoatRegions=text==null?new Dictionary<string,PortableCoatRegion>():JsonUtility.FromJson<PortableCoatRegionList>(text.text).regions.ToDictionary(r=>r.slug);}
         portableItemProps.Clear();portableItemProps.SetFloat("_Preview",root.layer==29?1:0);
         bool worn=PortableTechnology.Worn(p.Place)||p.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(p.ContainerId))&&Inventory.Carried(p);
-        portableItemProps.SetFloat("_Wearer",root.layer!=29&&worn?1:0);
+        portableItemProps.SetFloat("_Wearer",root.layer!=29&&worn&&Inventory.Items.Contains(p)?1:0);
         if(PortableFur(p)&&animalModels.TryGetValue(p.AppearanceSpecies,out var model))
         {
             if(portableCoatPins.Add(p.AppearanceSpecies))model.Users++;
@@ -54,11 +54,13 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposePortableAppearance()
     {
+        DisposeGarments();
         foreach(var slug in portableCoatPins)if(animalModels.TryGetValue(slug,out var model))model.Users=Math.Max(0,model.Users-1);
         portableCoatPins.Clear();portableCoatWanted.Clear();portableRoots.Clear();DisposePortableIcons();portableItemMaterial=null;
     }
     void PosePortableWear(GameObject root,Possession p,Transform body,Dictionary<string,Transform> bones)
     {
+        if(PaleolithicClothing.Garment(p)){PoseGarment(root,p,body);return;}
         root.transform.rotation=body.rotation;
         if(p.Place==PossessionPlace.SlungBack)
         {root.transform.position=bones["spine_02"].position-body.forward*.23f-Vector3.up*(float)p.HeightM*.48f;root.transform.rotation=body.rotation*Quaternion.Euler(0,0,28);}

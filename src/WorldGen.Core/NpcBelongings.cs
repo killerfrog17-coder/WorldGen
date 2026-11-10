@@ -52,6 +52,21 @@ namespace WorldGen.Core
             uint hash=Rng.Mix((uint)person.Id^(uint)(person.Id>>32));
             Possession Add(PossessionKind kind,string slot="stock")
             {var item=HumanEquipment.Item(kind,person.Id,slot,position);NpcOwnership.Assign(item,person,band.Id);item.Place=PossessionPlace.Ground;stock.Items.Add(item);return item;}
+            // Use this band's actual routine practice, rather than clothing
+            // every culture identically because a distant specialist knows it.
+            bool Wears(int k)=>Has(k)&&k<band.RoutineTechniques.Length&&band.RoutineTechniques[k];
+            void Garment(PossessionKind kind)
+            {
+                var p=Add(kind,"clothing");p.Place=PortableTechnology.Wear(p).Value;
+                double size=D.Clamp((person.AgeYears+3)/20,.35,1);p.MassKg*=size*size;p.WidthM*=size;p.HeightM*=size;p.DepthM*=size;
+                p.CellsWide=Math.Max(1,(int)Math.Ceiling(p.WidthM/.1));p.CellsHigh=Math.Max(1,(int)Math.Ceiling(p.HeightM/.1));
+            }
+            if(person.AgeYears>=1)
+            {
+                if(Wears(14))Garment(PossessionKind.FurCoat);else if(Wears(13))Garment(PossessionKind.HideTunic);else if(Wears(8))Garment(PossessionKind.HideWrap);
+                if(Wears(13)){Garment(PossessionKind.HideLeggings);Garment(PossessionKind.HideFootwear);}
+                if(Wears(14))Garment(PossessionKind.HideHood);
+            }
             if(person.AgeYears<7)return stock;
             if(person.AgeYears>=12)
             {

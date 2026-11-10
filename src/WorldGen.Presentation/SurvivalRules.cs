@@ -5,7 +5,7 @@ namespace WorldGen.Presentation
 {
     public struct SurvivalEnvironment
     {
-        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort,LocalHour,EffortLoad,GroundGrade,SwimEffort;
+        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,ClothingInsulation,RadiantHeatC,SleepComfort,LocalHour,EffortLoad,GroundGrade,SwimEffort;
         public bool Immersed,Sleeping,Swimming;
     }
     /// <summary>Approximate gameplay physiology, not a clinical thermoregulation model.</summary>
@@ -51,6 +51,7 @@ namespace WorldGen.Presentation
             if(!double.IsFinite(seconds)||seconds<0||seconds>86400||!double.IsFinite(minutesPerDay)||minutesPerDay<1||minutesPerDay>10080)throw new ArgumentOutOfRangeException(nameof(seconds));
             if(!double.IsFinite(speed)||speed<0)throw new ArgumentOutOfRangeException(nameof(speed));
             if(!double.IsFinite(environment.SwimEffort)||environment.SwimEffort<0||environment.SwimEffort>1)throw new ArgumentException("Invalid swimming effort.");
+            if(!double.IsFinite(environment.ClothingInsulation)||environment.ClothingInsulation<0||environment.ClothingInsulation>1)throw new ArgumentException("Invalid clothing insulation.");
             if(!double.IsFinite(environment.AirTemperatureC)||!double.IsFinite(environment.Humidity)||!double.IsFinite(environment.WindMps)||!double.IsFinite(environment.RainMmPerHour)||!double.IsFinite(environment.Sunlight)||!double.IsFinite(environment.Insulation)||!double.IsFinite(environment.RadiantHeatC)||!double.IsFinite(environment.SleepComfort))throw new ArgumentException("Invalid survival environment.");
             if(state.Dead)return;
             if(seconds>0&&ResolveFatalCold(state))return;
@@ -72,8 +73,10 @@ namespace WorldGen.Presentation
             if(e.Immersed)cold+=Math.Max(0,30-e.AirTemperatureC)*1.5;
             double coldLoad=Math.Max(0,cold-5-activity*8-e.RadiantHeatC);
             coldLoad*=1+(1-s.BodyCondition)*.8;
-            double evaporation=3*(1-humidity*.75)*(1+wind*.03)*(1-Clamp((s.Thirst-45)/55)*.8);
+            double clothing=Clamp(e.ClothingInsulation);
+            double evaporation=3*(1-humidity*.75)*(1+wind*.03)*(1-Clamp((s.Thirst-45)/55)*.8)*(1-clothing*.45);
             double heatLoad=Math.Max(0,Math.Max(0,e.AirTemperatureC-28)*.28+Math.Max(0,e.AirTemperatureC-35)*humidity*.35+activity*1.5+sun*1.5+Math.Max(0,e.RadiantHeatC-12)*.2-evaporation);
+            heatLoad+=clothing*(activity*2+Math.Max(0,e.AirTemperatureC-20)*.08);
             // Uncompensated heat loss/gain accumulates. A fixed cold equilibrium
             // could otherwise leave a naked person at subfreezing temperatures
             // indefinitely without progressing beyond mild hypothermia.

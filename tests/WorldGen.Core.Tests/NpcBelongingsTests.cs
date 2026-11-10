@@ -37,6 +37,12 @@ static class NpcBelongingsTests
         var carrier=PortableTechnology.Create(PossessionKind.HidePack,new V(1,0,0));carrier.Place=PortableTechnology.Wear(carrier).Value;bare.Items.Add(carrier);
         Check(NpcBelongings.CanTake(bare,knife)&&bare.Items.Count==3&&knife.Place==PossessionPlace.Ground,"A real worn carrier can receive the small tool without changing it during preview");
         Check(NpcBelongings.PackingPriority(knife)<NpcBelongings.PackingPriority(bare.Items[0]),"A cutting edge is retrieved before spare loose stones during departure");
+        Check(!stock.Items.Any(PaleolithicClothing.Garment),"Knowledge alone does not give a warm-climate culture a uniform fur outfit");
+        band.RoutineTechniques=Enumerable.Repeat(true,43).ToArray();
+        var dressed=NpcBelongings.Seed(person,band,new V(1,0,0));dressed.Validate();
+        Check(PaleolithicClothing.Insulation(dressed)>.85&&dressed.Items.Count(PaleolithicClothing.Garment)==4,"A band that actually uses insulated clothing starts with owned, wearable cold-weather gear");
+        var child=new ForagerPersonSample{Id=192,Name="Child",Household=2,AgeYears=5};var childStock=NpcBelongings.Seed(child,band,new V(1,0,0));childStock.Validate();
+        Check(childStock.Items.Count==4&&childStock.Items.All(PaleolithicClothing.Garment)&&childStock.CarriedMassKg<dressed.Items.Where(PaleolithicClothing.Garment).Sum(p=>p.MassKg),"Young children receive scaled clothing without adult weapons or task inventories");
         Console.WriteLine("NPC belongings checks PASS: "+n);
     }
 }
