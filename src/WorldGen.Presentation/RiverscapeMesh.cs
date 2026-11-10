@@ -17,16 +17,101 @@ namespace WorldGen.Presentation
                 Z=a.Z+(b.Z-a.Z)*t,U=a.U+(b.U-a.U)*t,V=a.V+(b.V-a.V)*t,T=a.T+(b.T-a.T)*t,H=a.H+(b.H-a.H)*t,W=a.W+(b.W-a.W)*t};
         }
         sealed class JunctionPool {public Point Center;public Point[] Ring=Array.Empty<Point>();public double Radius;public bool Outgoing;}
+        sealed class SurfaceUnion
+        {
+            sealed class Footprint
+            {
+                public Point[] Ring;public double MinX,MaxX,MinZ,MaxZ,Sign;
+                public Footprint(Point[] ring)
+                {
+                    Ring=ring;MinX=MinZ=double.PositiveInfinity;MaxX=MaxZ=double.NegativeInfinity;double area=0;
+                    for(int i=0;i<ring.Length;i++){var p=ring[i];var q=ring[(i+1)%ring.Length];MinX=Math.Min(MinX,p.X);MaxX=Math.Max(MaxX,p.X);MinZ=Math.Min(MinZ,p.Z);MaxZ=Math.Max(MaxZ,p.Z);area+=p.X*q.Z-p.Z*q.X;}
+                    Sign=area>=0?1:-1;
+                }
+            }
+            readonly List<Footprint> shapes=new List<Footprint>();
+            readonly Dictionary<(int,int),List<int>> bins=new Dictionary<(int,int),List<int>>();
+            const double Bin=128;
+            public void Add(Point[] polygon)
+            {
+                var shape=new Footprint(polygon);int id=shapes.Count;shapes.Add(shape);
+                for(int z=(int)Math.Floor(shape.MinZ/Bin);z<=(int)Math.Floor(shape.MaxZ/Bin);z++)
+                for(int x=(int)Math.Floor(shape.MinX/Bin);x<=(int)Math.Floor(shape.MaxX/Bin);x++)
+                {if(!bins.TryGetValue((x,z),out var list)){list=new List<int>();bins.Add((x,z),list);}list.Add(id);}
+            }
+            static bool Overlap(Footprint a,Footprint b)
+            {
+                if(a.MinX>=b.MaxX-1e-7||a.MaxX<=b.MinX+1e-7||a.MinZ>=b.MaxZ-1e-7||a.MaxZ<=b.MinZ+1e-7)return false;
+                bool Separated(Footprint f,Footprint g)
+                {
+                    for(int i=0;i<f.Ring.Length;i++)
+                    {
+                        var p=f.Ring[i];var q=f.Ring[(i+1)%f.Ring.Length];double largest=double.NegativeInfinity;
+                        foreach(var v in g.Ring)largest=Math.Max(largest,f.Sign*((q.X-p.X)*(v.Z-p.Z)-(q.Z-p.Z)*(v.X-p.X)));
+                        if(largest<=1e-7)return true;
+                    }
+                    return false;
+                }
+                return !Separated(a,b)&&!Separated(b,a);
+            }
+            static void Split(List<Point> polygon,Footprint clip,bool retainInside,List<List<Point>> result)
+            {
+                var inside=polygon;
+                for(int edge=0;edge<clip.Ring.Length&&inside.Count>=3;edge++)
+                {
+                    var a=clip.Ring[edge];var b=clip.Ring[(edge+1)%clip.Ring.Length];var next=new List<Point>();var outside=new List<Point>();
+                    for(int i=0;i<inside.Count;i++)
+                    {
+                        var p=inside[i];var q=inside[(i+1)%inside.Count];
+                        double d=clip.Sign*((b.X-a.X)*(p.Z-a.Z)-(b.Z-a.Z)*(p.X-a.X));
+                        double e=clip.Sign*((b.X-a.X)*(q.Z-a.Z)-(b.Z-a.Z)*(q.X-a.X));
+                        if(d>=0)next.Add(p);else outside.Add(p);
+                        if((d>=0)!=(e>=0)){var v=Point.Between(p,q,d/(d-e));next.Add(v);outside.Add(v);}
+                    }
+                    if(outside.Count>=3)result.Add(outside);inside=next;
+                }
+                if(retainInside&&inside.Count>=3)result.Add(inside);
+            }
+            public void Emit(Action<Point,Point,Point> emit,System.Threading.CancellationToken token)
+            {
+                var seen=new HashSet<int>();var candidates=new List<int>();
+                for(int id=0;id<shapes.Count;id++)
+                {
+                    token.ThrowIfCancellationRequested();var shape=shapes[id];seen.Clear();candidates.Clear();
+                    for(int z=(int)Math.Floor(shape.MinZ/Bin);z<=(int)Math.Floor(shape.MaxZ/Bin);z++)
+                    for(int x=(int)Math.Floor(shape.MinX/Bin);x<=(int)Math.Floor(shape.MaxX/Bin);x++)
+                        if(bins.TryGetValue((x,z),out var list))foreach(int other in list)if(other!=id&&seen.Add(other)&&Overlap(shape,shapes[other]))candidates.Add(other);
+                    candidates.Sort();var polygons=new List<List<Point>>{new List<Point>(shape.Ring)};
+                    foreach(int other in candidates)
+                    {
+                        var next=new List<List<Point>>();foreach(var polygon in polygons)Split(polygon,shapes[other],other>id,next);polygons=next;
+                        if(polygons.Count==0)break;
+                    }
+                    foreach(var polygon in polygons)for(int i=2;i<polygon.Count;i++)emit(polygon[0],polygon[i-1],polygon[i]);
+                }
+            }
+        }
         public static void Append(LocalTerrainMesh mesh,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] samples,CancellationToken token=default)
         {
             if(patch==null)return;
             double step=mesh.SizeM/mesh.Segments;
             var spans=patch.RiverSpans(step>32?step*.1:0);if(spans.Length==0)return;
             var positions=new List<float>(mesh.WaterPositions);var colors=new List<float>(mesh.WaterColors);var indices=new List<int>(mesh.WaterTriangles);
+            var waterHeads=new List<double>();for(int i=0;i<positions.Count/3;i++)waterHeads.Add(double.NaN);
+            int firstRiverIndex=indices.Count;
             // Reusable Sutherland-Hodgman buffers: no per-pixel/vertex noise
             // raster, physics query or dynamic water simulation is involved.
             var input=new Point[20];var output=new Point[20];
             var junctions=new Dictionary<int,JunctionPool>();
+            var surfaceUnion=new SurfaceUnion();
+            var waterQueries=new Dictionary<(long,long),RiverWaterState>();
+            RiverWaterState Water(Point p)
+            {
+                var key=((long)Math.Round(p.X*10000),(long)Math.Round(p.Z*10000));
+                if(waterQueries.TryGetValue(key,out var water))return water;
+                water=patch.RiverWater(frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z));waterQueries.Add(key,water);return water;
+            }
+            double Head(Point p)=>p.W>2.05?p.H:Water(p).Present?Water(p).Level:p.H;
             int Clip(int count,Func<Point,double> signed)
             {
                 int n=0;for(int k=0;k<count;k++)
@@ -36,6 +121,11 @@ namespace WorldGen.Presentation
             var vertices=new Dictionary<(long,long,long),List<int>>();
             int Vertex(Point p)
             {
+                p.X=(float)p.X;p.Z=(float)p.Z;
+                if(p.W<=2.05)
+                {
+                    var water=Water(p);if(water.Present){p.H=water.Level;p.U=V.Dot(water.Flow,frame.East)*water.Speed;p.V=V.Dot(water.Flow,frame.North)*water.Speed;p.T=water.Turbulence;}
+                }
                 // A kilometre-wide river cannot be approximated by one chord
                 // across the spherical datum. Interpolate its elevation, then
                 // project each final (also clipped) vertex back onto that datum.
@@ -51,7 +141,7 @@ namespace WorldGen.Presentation
                         if(fall!=otherFall||fall&&(Math.Abs(colors[found*4+2]-p.T)>.0001||Math.Abs(colors[found*4+3]-p.W)>.0001))continue;
                         double ex=positions[found*3]-p.X,ey=positions[found*3+1]-p.Y,ez=positions[found*3+2]-p.Z;if(ex*ex+ey*ey+ez*ez<.000004)return found;
                     }
-                int id=positions.Count/3;if(!vertices.TryGetValue(key,out var list)){list=new List<int>();vertices.Add(key,list);}list.Add(id);positions.Add((float)p.X);positions.Add((float)p.Y);positions.Add((float)p.Z);
+                int id=positions.Count/3;if(!vertices.TryGetValue(key,out var list)){list=new List<int>();vertices.Add(key,list);}list.Add(id);positions.Add((float)p.X);positions.Add((float)p.Y);positions.Add((float)p.Z);waterHeads.Add(p.H);
                 colors.Add((float)p.U);colors.Add((float)p.V);colors.Add((float)p.T);colors.Add((float)p.W);return id;
             }
             void Final(Point a,Point b,Point c,int depth=0)
@@ -61,11 +151,19 @@ namespace WorldGen.Presentation
                 // coarse tiles. A tile-size-dependent limit left centimetre
                 // steps where a junction fan met its clipped ribbon.
                 double ab=Square(a,b),bc=Square(b,c),ca=Square(c,a),limit=Math.Min(128,Math.Max(4,Math.Sqrt(frame.RadiusM*.008)));
-                if(depth<18&&Math.Max(ab,Math.Max(bc,ca))>limit*limit)
+                var mab=Point.Between(a,b,.5);var mbc=Point.Between(b,c,.5);var mca=Point.Between(c,a,.5);
+                double error=0;int split=0;
+                if(a.W<=2.05&&b.W<=2.05&&c.W<=2.05)
                 {
-                    if(ab>=bc&&ab>=ca){var m=Point.Between(a,b,.5);Final(a,m,c,depth+1);Final(m,b,c,depth+1);}
-                    else if(bc>=ca){var m=Point.Between(b,c,.5);Final(a,b,m,depth+1);Final(a,m,c,depth+1);}
-                    else{var m=Point.Between(c,a,.5);Final(a,b,m,depth+1);Final(m,b,c,depth+1);}return;
+                    double ea=Math.Abs(Head(mab)-(Head(a)+Head(b))*.5),eb=Math.Abs(Head(mbc)-(Head(b)+Head(c))*.5),ec=Math.Abs(Head(mca)-(Head(c)+Head(a))*.5);
+                    error=Math.Max(ea,Math.Max(eb,ec));split=ea>=eb&&ea>=ec?0:eb>=ec?1:2;
+                }
+                if(depth<18&&(Math.Max(ab,Math.Max(bc,ca))>limit*limit||error>.012&&Math.Max(ab,Math.Max(bc,ca))>1))
+                {
+                    if(error<=.012)split=ab>=bc&&ab>=ca?0:bc>=ca?1:2;
+                    if(split==0){Final(a,mab,c,depth+1);Final(mab,b,c,depth+1);}
+                    else if(split==1){Final(a,b,mbc,depth+1);Final(a,mbc,c,depth+1);}
+                    else{Final(a,b,mca,depth+1);Final(mca,b,c,depth+1);}return;
                 }
                 double area=(b.X-a.X)*(c.Z-a.Z)-(b.Z-a.Z)*(c.X-a.X);if(Math.Abs(area)<1e-9)return;
                 int first=Vertex(a),second=Vertex(b),third=Vertex(c);if(first==second||first==third||second==third)return;
@@ -83,10 +181,8 @@ namespace WorldGen.Presentation
                 n=Clip(n,p=>mesh.SizeM-p.X);if(n<3)return;
                 n=Clip(n,p=>p.Z);if(n<3)return;
                 n=Clip(n,p=>mesh.SizeM-p.Z);if(n<3)return;
-                for(int k=2;k<n;k++)
-                {
-                    Final(input[0],input[k-1],input[k]);
-                }
+                if(a.W>2.05||b.W>2.05||c.W>2.05){for(int k=2;k<n;k++)Final(input[0],input[k-1],input[k]);return;}
+                var polygon=new Point[n];Array.Copy(input,polygon,n);surfaceUnion.Add(polygon);
             }
             Point At(V position,double height,V flow,double speed,double turbulence)
             {
@@ -176,6 +272,64 @@ namespace WorldGen.Presentation
                     Emit(center,junction.Ring[k],junction.Ring[(k+1)%junction.Ring.Length]);
                 }
             }
+            surfaceUnion.Emit((a,b,c)=>Final(a,b,c),token);
+            // Adaptive height fitting must also share the edge subdivision.
+            // Otherwise one curved face interpolates over a neighbour's middle
+            // vertex, opening a crack despite both sampling the same water.
+            const double stitchBin=32;double tolerance=Math.Max(.002,mesh.SizeM*2e-7);
+            var waterBins=new Dictionary<(int,int),List<int>>();int beforeStitch=positions.Count/3;
+            for(int id=0;id<beforeStitch;id++)
+            {
+                if(colors[id*4+3]<1.5||colors[id*4+3]>2.05)continue;
+                var key=((int)Math.Floor(positions[id*3]/stitchBin),(int)Math.Floor(positions[id*3+2]/stitchBin));
+                if(!waterBins.TryGetValue(key,out var list)){list=new List<int>();waterBins.Add(key,list);}list.Add(id);
+            }
+            var stitched=new List<int>(indices.Count);for(int i=0;i<firstRiverIndex;i++)stitched.Add(indices[i]);
+            for(int tri=firstRiverIndex;tri<indices.Count;tri+=3)
+            {
+                if(colors[indices[tri]*4+3]>2.05||colors[indices[tri+1]*4+3]>2.05||colors[indices[tri+2]*4+3]>2.05)
+                {stitched.Add(indices[tri]);stitched.Add(indices[tri+1]);stitched.Add(indices[tri+2]);continue;}
+                var polygon=new List<int>();
+                for(int k=0;k<3;k++)
+                {
+                    int a=indices[tri+k],b=indices[tri+(k+1)%3];polygon.Add(a);
+                    double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2],dx=bx-ax,dz=bz-az,len=dx*dx+dz*dz;
+                    if(len<1e-12)continue;var inside=new List<(double,int)>();
+                    void Candidates(int x,int z)
+                    {
+                        if(!waterBins.TryGetValue((x,z),out var list))return;
+                        foreach(int id in list)
+                        {
+                            if(id==a||id==b)continue;double px=positions[id*3]-ax,pz=positions[id*3+2]-az,t=(px*dx+pz*dz)/len;
+                            if(t>1e-6&&t<1-1e-6&&Math.Abs(px*dz-pz*dx)<tolerance*Math.Sqrt(len))inside.Add((t,id));
+                        }
+                    }
+                    bool alongX=Math.Abs(dx)>=Math.Abs(dz);double begin=alongX?ax:az,end=alongX?bx:bz,delta=end-begin;
+                    int low=(int)Math.Floor((Math.Min(begin,end)-tolerance)/stitchBin),high=(int)Math.Floor((Math.Max(begin,end)+tolerance)/stitchBin);
+                    for(int major=low;major<=high;major++)
+                    {
+                        double t0=D.Clamp((major*stitchBin-tolerance-begin)/delta),t1=D.Clamp(((major+1)*stitchBin+tolerance-begin)/delta);
+                        double v0=(alongX?az:ax)+(alongX?dz:dx)*t0,v1=(alongX?az:ax)+(alongX?dz:dx)*t1;
+                        for(int minor=(int)Math.Floor((Math.Min(v0,v1)-tolerance)/stitchBin);minor<=(int)Math.Floor((Math.Max(v0,v1)+tolerance)/stitchBin);minor++)Candidates(alongX?major:minor,alongX?minor:major);
+                    }
+                    inside.Sort((p,q)=>p.Item1.CompareTo(q.Item1));double previous=-1;
+                    foreach(var p in inside){if(previous>=0&&(p.Item1-previous)*Math.Sqrt(len)<.001)continue;polygon.Add(p.Item2);previous=p.Item1;}
+                }
+                if(polygon.Count==3){stitched.AddRange(polygon);continue;}
+                Point Center()
+                {
+                    int a=indices[tri],b=indices[tri+1],c=indices[tri+2];
+                    return new Point{X=(positions[a*3]+positions[b*3]+positions[c*3])/3d,Z=(positions[a*3+2]+positions[b*3+2]+positions[c*3+2])/3d,
+                        H=(waterHeads[a]+waterHeads[b]+waterHeads[c])/3d,W=(colors[a*4+3]+colors[b*4+3]+colors[c*4+3])/3d};
+                }
+                int center=Vertex(Center());for(int i=0;i<polygon.Count;i++)
+                {
+                    int a=polygon[i],b=polygon[(i+1)%polygon.Count];if(a==b||a==center||b==center)continue;
+                    double area=(positions[a*3]-positions[center*3])*(positions[b*3+2]-positions[center*3+2])-(positions[a*3+2]-positions[center*3+2])*(positions[b*3]-positions[center*3]);
+                    if(Math.Abs(area)<1e-7)continue;stitched.Add(center);stitched.Add(a);stitched.Add(b);
+                }
+            }
+            indices=stitched;
             mesh.WaterPositions=positions.ToArray();mesh.WaterColors=colors.ToArray();mesh.WaterTriangles=indices.ToArray();
         }
     }

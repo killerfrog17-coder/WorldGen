@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-confluence-wide-fit-76";
+        public const string Version = "hyper-amplification-combined-river-water-79";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -1023,6 +1023,7 @@ namespace WorldGen.Core
             public LandscapeControls Landscape;
             public double LandscapeOffset;
             public double Height, UnshapedHeight, Water, Mask, RiverInfluence,Footprint,Minimum,Maximum,Speed,Turbulence,DetailProtection,RiverSand,RiverGravel;
+            public int RiverContributors;
             public LocalWaterKind Kind;public ulong BodyKey;public V Gradient,Flow;
         }
         internal Patch Region(int[] triangleOffsets) => new Patch(this, triangleOffsets);

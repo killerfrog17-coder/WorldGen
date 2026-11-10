@@ -6269,5 +6269,16 @@
       "fresh_world_fitting_ms": 87379.1,
       "status": "REJECTED cold preparation cost; also FAILED32/5558 saved-world edges and5/5392 fresh Continents edges. Concurrent functional audits; no controlled performance or startup claim."
     }
-  ]
+  ],
+  "combined_surface_prototype": {
+    "version": 92,
+    "status": "UNACCEPTED; current actual mesh controls running",
+    "design": "Local compact cross-channel stage blend, each reach counted once, one partitioned water surface, dedicated128m hydro index; actual standing-water shores still use fine geometry. Retired global corridor fitting and restored original fine inner-perimeter datum pass.",
+    "pure_controls": 109,
+    "rejected_trials": {
+      "v90": "Failed internal edge audit; independent adaptive edges were nonconforming. 47k coarse water triangles,7.63s build unacceptable.",
+      "v91": "Rejected; span-constant speed in stage weights caused discontinuous head at stations and pathological refinement (~1M water triangles after stitching). Stage influence now uses continuous station width/depth only."
+    },
+    "selected_game": "A8388fa77 unchanged; B still older e456fc76 until next native candidate build."
+  }
 }

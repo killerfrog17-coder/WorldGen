@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-water-blend")){RiverWaterBlendTests.Run();return;}
+if(args.Contains("--river-water-field-world")){RiverWaterBlendTests.World(args[1],args[2],args.Skip(3).Select(int.Parse).ToArray());return;}
 if(args.Contains("--river-node-diagnose")){RiverMeshDiagnostic.Nodes(args[1],args[2],args.Skip(3).Select(int.Parse).ToArray());return;}
 if(args.Contains("--river-mesh-diagnose")){RiverMeshDiagnostic.Run(args[1],int.Parse(args[2]),double.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture),double.Parse(args[4],System.Globalization.CultureInfo.InvariantCulture),args[5]);return;}
 if(args.Contains("--river-node-joins")){RiverNodeJoinTests.Controls();return;}
