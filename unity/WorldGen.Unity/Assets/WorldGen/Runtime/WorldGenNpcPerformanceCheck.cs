@@ -23,6 +23,52 @@ public sealed partial class LocalTerrainExplorer
     }
     public sealed class NpcSlowFrame
     {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
+    Vector3? npcCrowdFocus;
+    static IEnumerator PrepareLivingCrowd(LocalTerrainExplorer owner,string output)
+    {
+        // Controlled gathering, not a change to world population or camp density.
+        // Every actor comes from a distinct real sampled person and retains the
+        // production motor, belongings, perception, daily tasks and pose graph.
+        owner.livingQueryAt=double.PositiveInfinity;
+        while(owner.livingWork!=null)yield return null;
+        var host=owner.livingGroups.Values.Where(g=>g.CampLoaded&&!g.TraceOnly).OrderBy(g=>owner.HumanDistance(g.Anchor,owner.Position)).First();
+        foreach(var g in owner.livingGroups.Values)g.Activities=g.Activities?.Where(a=>owner.livingPeople.ContainsKey(a.Person)).ToArray();
+        TerrainHandoff.Coordinates(owner.frame,host.Anchor,out double hx,out double hz);
+        var world=owner.sourceWorld;var history=new Prehistory(world);var state=world.Prehistory;
+        var groups=new List<LivingGroup>();groups.Add(host);
+        foreach(var cohort in state.Foragers.Cohorts.OrderBy(c=>(state.Foragers.Districts[c.District].Center-host.Anchor).Length))
+        {
+            int count=history.ForagerBandCount(state,cohort);
+            for(int ordinal=0;ordinal<Math.Min(count,12)&&owner.livingPeople.Count<100;ordinal++)
+            {
+                var band=history.ForagerBand(state,cohort.Id,ordinal);if(owner.livingGroups.ContainsKey(band.Id))continue;
+                var site=new HumanCampSite{Id=band.Id,Position=host.Anchor,Cell=host.Situation.Camp.Cell,ShelterAvailable=false};
+                var situation=new HumanGroupSituation{Band=band,Camp=site,Position=host.Anchor,Phase=HumanCampPhase.Occupied,LocalHour=12,DepartureDay=owner.LivingClock.CalendarDay+1000,ArrivalDay=owner.LivingClock.CalendarDay,PermanentBase=true};
+                var group=new LivingGroup{Situation=situation,Residents=band,Anchor=host.Anchor,Grounded=true,CampLoaded=true,Resources=host.Resources??new NpcResourceSites(),PlannedSolarDay=owner.PlayerRules.SolarDays};
+                owner.livingGroups.Add(band.Id,group);groups.Add(group);var activities=new List<HumanActivitySample>();
+                foreach(var person in band.Members.Where(p=>p.AgeYears>=16))
+                {
+                    if(owner.livingPeople.Count>=100)break;
+                    int index=owner.livingPeople.Count;double x=hx+(index%10-4.5)*2,z=hz+(index/10-4.5)*2;
+                    var point=owner.frame.Position(x,z);var activity=new HumanActivitySample{Person=person.Id,Group=band.Id,Activity=index%4==0?HumanActivity.Watch:index%4==1?HumanActivity.Craft:HumanActivity.Socialise,Position=point,Destination=point,Role="CrowdGathering"};
+                    if(owner.CreateLivingHuman(group,person,activity,point,null))activities.Add(activity);
+                    yield return null;
+                }
+                group.Activities=activities.ToArray();
+            }
+            if(owner.livingPeople.Count>=100)break;
+        }
+        owner.livingOrdered=owner.livingGroups.Values.OrderBy(g=>g.Situation.DistanceToPlayerM).ToArray();
+        if(owner.livingPeople.Count!=100||owner.livingPeople.Keys.Distinct().Count()!=100)throw new InvalidOperationException("Crowd benchmark requires exactly 100 distinct real residents.");
+        owner.npcCrowdFocus=new Vector3((float)(hx-owner.originX),(float)owner.VisibleGround(hx,hz,0)+1,(float)(hz-owner.originZ));
+        File.WriteAllText(Path.Combine(output,"crowd-fixture.json"),WorldJson.Write(new{Residents=owner.livingPeople.Count,Groups=groups.Count,Scope="Controlled local gathering of distinct real sampled people; natural population/encounter density unchanged. Normal physical NPC systems active, broad itinerary projection held fixed for this benchmark only.",People=owner.livingPeople.Values.Select(a=>new{a.ResidentId,a.GroupId,a.Resident.Name,a.Resident.AgeYears}).ToArray()}));
+        // Let the unchanged surrounding forest and actor assets finish before
+        // measuring a crowd, instead of attributing initial page publication to AI.
+        double deadline=Time.realtimeSinceStartupAsDouble+180;
+        while((!owner.AllReady||!owner.residentForestReady||owner.installingScatter!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        if(!owner.AllReady||!owner.residentForestReady)throw new InvalidOperationException("Crowd benchmark surroundings not resident; no performance claim accepted.");
+        double settle=Time.realtimeSinceStartupAsDouble+5;while(Time.realtimeSinceStartupAsDouble<settle)yield return null;
+    }
     static IEnumerator MeasureLivingHumans(LocalTerrainExplorer owner,string output)
     {
         double deadline=Time.realtimeSinceStartupAsDouble+300;
@@ -35,7 +81,7 @@ public sealed partial class LocalTerrainExplorer
         if(option>=0&&option+1<arguments.Length)duration=Math.Max(5,Math.Min(180,double.Parse(arguments[option+1],System.Globalization.CultureInfo.InvariantCulture)));
         var group=owner.livingGroups.Values.Where(g=>g.CampLoaded&&!g.TraceOnly).OrderBy(g=>owner.HumanDistance(g.Anchor,owner.Position)).First();
         TerrainHandoff.Coordinates(owner.frame,group.Anchor,out double campX,out double campZ);float floor=(float)owner.VisibleGround(campX,campZ,0);
-        var focus=new Vector3((float)(campX-owner.originX),floor+1,(float)(campZ-owner.originZ));
+        var focus=owner.npcCrowdFocus??new Vector3((float)(campX-owner.originX),floor+1,(float)(campZ-owner.originZ));
         // Repeat the same slow scenic orbit in every mode. No head whipping,
         // no invisible off-screen-only render target and no model inference.
         owner.npcModel??=new NpcModelClient();owner.npcModel.Config.Enabled=false;

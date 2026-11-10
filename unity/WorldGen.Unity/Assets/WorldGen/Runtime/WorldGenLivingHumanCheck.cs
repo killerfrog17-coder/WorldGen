@@ -142,6 +142,7 @@ public sealed partial class LocalTerrainExplorer
         }
         owner.view.targetTexture=null;
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-walk"))yield return CheckLivingWalking(owner,groupRuntime,output,checks);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-crowd"))yield return PrepareLivingCrowd(owner,output);
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-perf"))yield return MeasureLivingHumans(owner,output);
         File.WriteAllText(Path.Combine(output,"physical-residents.json"),WorldJson.Write(owner.livingPeople.Values.Select(a=>new NpcResidentCheckRow{Id=a.ResidentId,Group=a.GroupId,Name=a.Resident.Name,Age=a.Resident.AgeYears,Activity=a.CurrentActivity.ToString(),Role=a.Routine.Role,Speed=a.Speed,TargetSpeed=a.TargetSpeed,Action=a.Shared.ActionRole,AgeBody=a.AgeModel?.Years??99,X=a.Root.transform.localPosition.x,Y=a.Root.transform.localPosition.y,Z=a.Root.transform.localPosition.z,Props=a.NpcProps.Select(p=>p.Item.Name).ToArray()}).ToArray()));
         var district=state.Foragers.Districts[chosen.Band.District];

@@ -6,6 +6,7 @@ param(
     [ValidateSet('wet','collector','morning','cold','evening','sleep')]
     [string[]]$Cases=@('wet','collector','morning','cold','evening','sleep'),
     [switch]$Performance,
+    [switch]$Crowd,
     [switch]$Cycle,
     [switch]$HaulFrame,
     [switch]$Trace,
@@ -38,6 +39,7 @@ foreach($case in $Cases){
     New-Item -ItemType Directory -Path $output|Out-Null
     $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
+    if($Crowd){if(!$Performance){throw 'Crowd is a controlled performance fixture only.'};$arguments+='--worldgen-npc-crowd'}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
     if($HaulFrame){if(!$Cycle){throw 'HaulFrame is a controlled cycle fixture only.'};$arguments+='--worldgen-npc-haul-frame'}
     if($Trace){$arguments+='--worldgen-stutter-trace'}
