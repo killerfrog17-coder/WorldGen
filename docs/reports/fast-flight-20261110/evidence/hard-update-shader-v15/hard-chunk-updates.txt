@@ -1,0 +1,1 @@
+PASS: toggling during an active same-address replacement removes the old draw and all fade stamps immediately; subsequent ready replacements snap; disabling restores smooth shader transitions.

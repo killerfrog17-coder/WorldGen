@@ -1,0 +1,557 @@
+{
+  "source": "b13b1b513641c1470851d67795f2b026117944f2",
+  "results": [
+    {
+      "name": "flight-forest-normal-v14",
+      "label": "Normal forest / smooth",
+      "package": {
+        "AssemblySha256": "6917ce8c049c318ebdb4ebb34ae058a7d1f1964384389028f55e735c463c4753",
+        "BuiltUtc": "2026-11-10T07:39:23.2890603Z",
+        "CoreSha256": "2e48c47361b46c32ea3b1d570cf7db87eea56ece05570285715a10525a966dcb",
+        "WorkerSha256": "1892fd798f4d29e027e295d7d63fa485b2dcd746b8c3ba9629cfc1e3192afac4"
+      },
+      "no_resident_frames": 0,
+      "handoffs": 0,
+      "max_land_forward_empty_pixels": 2,
+      "forward_audits": [
+        {
+          "seconds": 1.01,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 6.01,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 11.02,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 16.03,
+          "empty_pixels": 2,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 21.04,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 26.05,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 31.06,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 36.08,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 41.09,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 46.1,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 51.1,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 56.12,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 61.13,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 66.14,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 71.16,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 76.16,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        }
+      ],
+      "final_east_m": 6427.603959999986,
+      "peak_east_m": 11173.018119999997,
+      "summary": "200 m/s forward and reverse; 80 seconds, 500m above land/water; frames with no resident ground at player=0; builds=2304; handoffs=0; max handoff ms=0 ; pixel audits=16 (extra GPU renders/readbacks included; not an FPS benchmark)\n4622 frames; median 16.67ms; p99 17.19ms; worst 352.08ms; over100ms 14; collections 10; largest mesh apply/bind 11.45ms; largest controller query 3.29ms; incremental True / Enabled\n478 / 148 tiles \u00b7 last 1.2 ms \u00b7 max 1670.1 ms/tile\nfields 51/677, roots 31949, pending True, baked local 9, baked forest 9, pending models 0, texture bytes 50331648; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=False detail=False jobs=4 previous=31 retiring=0 fades=188 scatter=False scatterJobs=0 coverRequests=0"
+    },
+    {
+      "name": "flight-canyon-hard-v15",
+      "label": "Boosted canyon / hard",
+      "package": {
+        "AssemblySha256": "089cc08266e63524bc3ae5e30ad2874470418a2234a18e5296b20df2108e0f90",
+        "BuiltUtc": "2026-11-10T08:03:20.5678427Z",
+        "CoreSha256": "a40768b5ef4d7d6301b575aa4bb18a54ec8774c4448d3ffe766cdc1c813f3287",
+        "WorkerSha256": "e3e83e0b1f8d15f15a380f9ee4cc24d881e390a754d9b73d4f4fdb5c614f7648"
+      },
+      "no_resident_frames": 0,
+      "handoffs": 0,
+      "max_land_forward_empty_pixels": 2,
+      "forward_audits": [
+        {
+          "seconds": 1.01,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 6.01,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 11.01,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 16.01,
+          "empty_pixels": 1,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 21.02,
+          "empty_pixels": 1,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 26.03,
+          "empty_pixels": 1,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 31.05,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 36.06,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 41.08,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 46.09,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 51.09,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 56.1,
+          "empty_pixels": 1,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 61.12,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 66.13,
+          "empty_pixels": 2,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 71.14,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 76.15,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        }
+      ],
+      "final_east_m": 16098.42713999993,
+      "peak_east_m": 30385.150499999952,
+      "summary": "200 then 600 m/s forward and reverse; 80 seconds, 500m above land/water; frames with no resident ground at player=0; builds=3104; handoffs=0; max handoff ms=0 ; pixel audits=16 (extra GPU renders/readbacks included; not an FPS benchmark)\n4626 frames; median 16.74ms; p99 17.20ms; worst 302.25ms; over100ms 10; collections 13; largest mesh apply/bind 11.00ms; largest controller query 4.91ms; incremental True / Enabled\n282 / 163 tiles \u00b7 last 185.7 ms \u00b7 max 7024.0 ms/tile\nfields 75/1191, roots 20, pending True, baked local 1, baked forest 10, pending models 0, texture bytes 30758229; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=False detail=True jobs=2 previous=0 retiring=0 fades=0 scatter=False scatterJobs=0 coverRequests=0"
+    },
+    {
+      "name": "flight-forest-hard-normal-v15",
+      "label": "Normal forest / hard",
+      "package": {
+        "AssemblySha256": "089cc08266e63524bc3ae5e30ad2874470418a2234a18e5296b20df2108e0f90",
+        "BuiltUtc": "2026-11-10T08:03:20.5678427Z",
+        "CoreSha256": "a40768b5ef4d7d6301b575aa4bb18a54ec8774c4448d3ffe766cdc1c813f3287",
+        "WorkerSha256": "e3e83e0b1f8d15f15a380f9ee4cc24d881e390a754d9b73d4f4fdb5c614f7648"
+      },
+      "no_resident_frames": 0,
+      "handoffs": 0,
+      "max_land_forward_empty_pixels": 4,
+      "forward_audits": [
+        {
+          "seconds": 1.0,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 6.02,
+          "empty_pixels": 1,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 11.03,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 16.04,
+          "empty_pixels": 3,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 21.05,
+          "empty_pixels": 4,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 26.05,
+          "empty_pixels": 3,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 31.06,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 36.06,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        }
+      ],
+      "final_east_m": 1620.7506000000094,
+      "peak_east_m": 4791.12212,
+      "summary": "200 m/s forward and reverse; 40 seconds, 500m above land/water; frames with no resident ground at player=0; builds=1159; handoffs=0; max handoff ms=0 ; pixel audits=8 (extra GPU renders/readbacks included; not an FPS benchmark)\n2309 frames; median 16.67ms; p99 17.21ms; worst 288.78ms; over100ms 6; collections 3; largest mesh apply/bind 10.58ms; largest controller query 0.26ms; incremental True / Enabled\n498 / 164 tiles \u00b7 last 31.6 ms \u00b7 max 1621.6 ms/tile\nfields 724/853, roots 261251, pending True, baked local 9, baked forest 9, pending models 0, texture bytes 50331648; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=False detail=True jobs=4 previous=0 retiring=0 fades=0 scatter=False scatterJobs=0 coverRequests=0"
+    },
+    {
+      "name": "flight-forest-endurance-v14",
+      "label": "Long flight / smooth",
+      "package": {
+        "AssemblySha256": "6917ce8c049c318ebdb4ebb34ae058a7d1f1964384389028f55e735c463c4753",
+        "BuiltUtc": "2026-11-10T07:39:23.2890603Z",
+        "CoreSha256": "2e48c47361b46c32ea3b1d570cf7db87eea56ece05570285715a10525a966dcb",
+        "WorkerSha256": "1892fd798f4d29e027e295d7d63fa485b2dcd746b8c3ba9629cfc1e3192afac4"
+      },
+      "no_resident_frames": 0,
+      "handoffs": 1,
+      "max_land_forward_empty_pixels": 3,
+      "forward_audits": [
+        {
+          "seconds": 1.01,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 6.02,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 11.03,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 16.03,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 21.04,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 26.05,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 31.05,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 36.05,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 41.05,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 46.06,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 51.07,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 56.09,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 61.09,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 66.1,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 71.12,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 76.12,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 81.12,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 86.13,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 91.14,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 96.14,
+          "empty_pixels": 2,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 101.15,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 106.16,
+          "empty_pixels": 0,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 111.17,
+          "empty_pixels": 3,
+          "height_above_ground": 500.0
+        },
+        {
+          "seconds": 116.18,
+          "empty_pixels": 0,
+          "height_above_ground": 506.9641637471706
+        },
+        {
+          "seconds": 121.19,
+          "empty_pixels": 0,
+          "height_above_ground": 786.6131616122937
+        },
+        {
+          "seconds": 126.2,
+          "empty_pixels": 1,
+          "height_above_ground": 1285.1962507879527
+        },
+        {
+          "seconds": 131.22,
+          "empty_pixels": 5,
+          "height_above_ground": 1530.761518080359
+        },
+        {
+          "seconds": 136.23,
+          "empty_pixels": 0,
+          "height_above_ground": 1820.6813018111786
+        },
+        {
+          "seconds": 141.25,
+          "empty_pixels": 630,
+          "height_above_ground": 2059.9533077557594
+        },
+        {
+          "seconds": 146.26,
+          "empty_pixels": 3,
+          "height_above_ground": 2254.378822182635
+        },
+        {
+          "seconds": 151.27,
+          "empty_pixels": 16,
+          "height_above_ground": 2441.66851899755
+        },
+        {
+          "seconds": 156.27,
+          "empty_pixels": 227,
+          "height_above_ground": 2663.3593461001274
+        },
+        {
+          "seconds": 161.27,
+          "empty_pixels": 962,
+          "height_above_ground": 2855.8209031043234
+        },
+        {
+          "seconds": 166.29,
+          "empty_pixels": 187,
+          "height_above_ground": 3082.4587425486075
+        },
+        {
+          "seconds": 171.29,
+          "empty_pixels": 53,
+          "height_above_ground": 3247.5873765194765
+        },
+        {
+          "seconds": 176.3,
+          "empty_pixels": 291,
+          "height_above_ground": 3375.8524882234487
+        },
+        {
+          "seconds": 181.3,
+          "empty_pixels": 914,
+          "height_above_ground": 3515.3319504696583
+        },
+        {
+          "seconds": 186.31,
+          "empty_pixels": 2062,
+          "height_above_ground": 3588.8715651442876
+        },
+        {
+          "seconds": 191.32,
+          "empty_pixels": 21,
+          "height_above_ground": 3612.9604128137657
+        },
+        {
+          "seconds": 196.33,
+          "empty_pixels": 3,
+          "height_above_ground": 3556.5018575546387
+        },
+        {
+          "seconds": 201.35,
+          "empty_pixels": 2,
+          "height_above_ground": 3435.7334478499674
+        },
+        {
+          "seconds": 206.37,
+          "empty_pixels": 0,
+          "height_above_ground": 3307.4249522042383
+        },
+        {
+          "seconds": 211.38,
+          "empty_pixels": 1,
+          "height_above_ground": 3156.3141577296074
+        },
+        {
+          "seconds": 216.39,
+          "empty_pixels": 12,
+          "height_above_ground": 2970.5720178504375
+        },
+        {
+          "seconds": 221.39,
+          "empty_pixels": 1,
+          "height_above_ground": 2759.7697356853446
+        },
+        {
+          "seconds": 226.4,
+          "empty_pixels": 0,
+          "height_above_ground": 2536.7428745149805
+        },
+        {
+          "seconds": 231.41,
+          "empty_pixels": 1,
+          "height_above_ground": 2348.4196584119463
+        },
+        {
+          "seconds": 236.41,
+          "empty_pixels": 0,
+          "height_above_ground": 2148.4508154714226
+        },
+        {
+          "seconds": 241.42,
+          "empty_pixels": 1,
+          "height_above_ground": 1939.8648038375618
+        },
+        {
+          "seconds": 246.42,
+          "empty_pixels": 0,
+          "height_above_ground": 1646.1751021109005
+        },
+        {
+          "seconds": 251.44,
+          "empty_pixels": 0,
+          "height_above_ground": 1399.23452086701
+        },
+        {
+          "seconds": 256.45,
+          "empty_pixels": 2,
+          "height_above_ground": 947.9104461824974
+        }
+      ],
+      "final_east_m": 71968.86539999954,
+      "peak_east_m": 113909.14950000026,
+      "summary": "600 m/s forward and reverse; 260 seconds, 500m above land/water; frames with no resident ground at player=0; builds=9919; handoffs=1; max handoff ms=39.9802 frame/plan 3.31ms; scatter 33.40ms; sky/weather 1.48ms; activate 1.77ms; ; pixel audits=52 (extra GPU renders/readbacks included; not an FPS benchmark)\n15074 frames; median 16.74ms; p99 17.23ms; worst 290.53ms; over100ms 31; collections 36; largest mesh apply/bind 13.28ms; largest controller query 11.60ms; incremental True / Enabled\n154 / 171 tiles \u00b7 last 13.5 ms \u00b7 max 3522.9 ms/tile\nfields 64/1111, roots 5472, pending True, baked local 9, baked forest 9, pending models 0, texture bytes 50331648; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=False detail=True jobs=4 previous=11 retiring=0 fades=55 scatter=False scatterJobs=0 coverRequests=0"
+    }
+  ],
+  "native_checks": {
+    "hard-update-shader-v15/coverage-shader.txt": "PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.",
+    "hard-update-shader-v15/fallback-publication.txt": "PASS: a useful staged 8-segment fallback publishes while its same-address final request still requires 16 segments and different edges; no reject/restage loop.",
+    "hard-update-shader-v15/hard-chunk-updates.txt": "PASS: toggling during an active same-address replacement removes the old draw and all fade stamps immediately; subsequent ready replacements snap; disabling restores smooth shader transitions.",
+    "hard-settings-v15/complete.txt": "PASS fog toggle and transition survive preference reload without rebuilding chunks\nPASS hard chunk updates persist without invalidating the terrain plan\nPASS actual Terrain settings render without GUI exceptions; no world, humans, animals or model host started\n"
+  },
+  "pure_checks": {
+    "streaming_plan": 104883,
+    "handoff": 187
+  },
+  "limitations": [
+    "No qualified FPS claim on the shared PC",
+    "A measured geographic handoff still took 40 ms",
+    "Distant terrain and canopy remain approximate"
+  ],
+  "excluded": [
+    "v8 uniform-empty-control assumption failed",
+    "v12/v13 fallback staging loop caught and fixed before delivery",
+    "early forest captures at dusk rejected"
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "title": "WorldGen - Fast Flight and Chunk Updates",
+  "section": "STREAMING REVIEW",
+  "date": "10 NOVEMBER 2026",
+  "footer": "Actual native captures / empty spectator / shared PC / no FPS-floor claim",
+  "pages": [
+    {
+      "title": "Fast-flight streaming",
+      "subtitle": "Terrain continuity, bounded forest coverage, and an optional instant replacement mode.",
+      "blocks": [
+        {
+          "heading": "What changed",
+          "text": "Movement retains the last terrain-aware detail plan while its successor is calculated. The old path repeatedly replaced it with a coarse guess. Near flight coverage now uses background tiles with at most 64 m sampling instead of relying solely on enormous eight-segment placeholders. Existing coarse forest stands load ahead of exact tree pages; planting and item/tree identities are unchanged."
+        },
+        {
+          "text": "Ground-query and terrain-anchor preparation move off the main thread where possible. Covered flight no longer repeatedly cancels useful background work. Geographic frames last longer, independently of the small floating render origin. A reversed coarsening fade and a fallback-publication loop were found and fixed."
+        },
+        {
+          "heading": "Actual traversal checks",
+          "table": {
+            "headers": [
+              "Run",
+              "Missing foot frames",
+              "Worst land-view audit",
+              "Handoffs"
+            ],
+            "rows": [
+              [
+                "Normal forest / smooth",
+                "0",
+                "2/3072",
+                "0"
+              ],
+              [
+                "Boosted canyon / hard",
+                "0",
+                "2/3072",
+                "0"
+              ],
+              [
+                "Normal forest / hard",
+                "0",
+                "4/3072",
+                "0"
+              ],
+              [
+                "Long flight / smooth",
+                "0",
+                "3/3072",
+                "1"
+              ]
+            ],
+            "widths": [
+              0.35,
+              0.2,
+              0.29,
+              0.16
+            ]
+          }
+        },
+        {
+          "text": "Normal flight: 200 m/s. Boosted canyon: 200 then 600 m/s, with a reversal. Normal smooth and canyon runs last 80 s; normal hard lasts 40 s. The long run lasts 260 s at 600 m/s, travelling about 156 km and crossing a geographic frame boundary. All runs use High terrain, Medium vegetation and a 6 km or 7.2 km view. Normal forest uses Balanced loading (two workers); canyon and the long run use Maximum (four).",
+          "size": 9
+        },
+        {
+          "heading": "Hard chunk updates",
+          "text": "Settings > Terrain > Hard chunk updates. Enabled: ready replacements snap into view. Disabled: the existing smooth transitions remain. Switching on during a fade immediately clears the old draw. The setting persists without rebuilding terrain or changing loading fog."
+        },
+        {
+          "heading": "What the numbers mean",
+          "text": "The forward audit checks the bottom third of a ground-only render against repeated empty controls; land samples use a height above ground of at most 550 m. Deep ocean can legitimately have no seabed within the camera range and is excluded from this land column. These are sampled coverage checks, not a proof that every possible view is flawless.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "Moving-world captures",
+      "subtitle": "Native player screenshots from the routes above; this is a streaming pass, not an art overhaul.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "forest.jpg",
+              "caption": "200 m/s forest flight, Balanced loading, smooth updates. Existing aggregate stands provide coverage while exact trees load."
+            }
+          ],
+          "max_height": 245
+        },
+        {
+          "images": [
+            {
+              "file": "canyon.jpg",
+              "caption": "Boosted canyon route with Hard chunk updates enabled. Terrain is present ahead instead of the former large flat fallback patches."
+            }
+          ],
+          "max_height": 245
+        },
+        {
+          "text": "Screenshots show different positions and environments; they are not a matched before/after pair. Distant canopy and temporary terrain detail remain approximate.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "Boundary check and limits",
+      "subtitle": "A real geographic handoff, plus the remaining costs and verification scope.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "before-chart.jpg",
+              "caption": "Long flight before the geographic-frame change, about 58 km from the start."
+            },
+            {
+              "file": "after-chart.jpg",
+              "caption": "Same continuous route after the frame change, about 70 km from the start."
+            }
+          ],
+          "max_height": 185
+        },
+        {
+          "heading": "What passed",
+          "text": "The 260 s run kept resident ground beneath the player and completed one actual frame handoff. Pure checks cover 104,883 plan/coverage assertions and 187 coordinate/handoff assertions. Native production-shader checks cover complementary fades, reversed coarsening, valid nonfinal fallback publication, and instant replacements. Preference tests verify persistence and restore the original saved keys."
+        },
+        {
+          "heading": "Remaining work",
+          "text": "One geographic handoff took about 40 ms, including 33 ms projecting local scatter. Spreading that projection over earlier frames remains follow-up work. Temporary terrain, distant canopy and some boundaries still need visual refinement; this update does not finish terrain art or guarantee a 100 FPS floor."
+        },
+        {
+          "heading": "Measurement conditions",
+          "text": "MapleLegends and YouTube shared the PC. Tests render at a paced 60 FPS and deliberately add extra camera renders, GPU readbacks and screenshots. Their frame timings are not gameplay FPS benchmarks. Chunk-ready timings exclude world-file reading and worker preparation. All scenes omit humans, camps, fauna and LLM workloads.",
+          "size": 9
+        },
+        {
+          "heading": "Reproducible inputs",
+          "text": "The evidence folder preserves CSV samples, native reports, exact package receipts and source sites. This PDF and its four JPEG inputs live outside disposable artifacts. Earlier failed and visually rejected trials were retained as diagnostics and are not presented as successful results.",
+          "size": 9
+        }
+      ]
+    }
+  ]
+}

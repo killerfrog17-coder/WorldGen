@@ -1,0 +1,104 @@
+1.01s: completed=319, canceled=262, discarded key/detail/edges=0/19/0, uploaded=300, preemptions=262, useful worker ms=37013.5; requests missing/resolution/edges=526/39/24; plans accepted/stale=22/0 max ms=137.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+6.02s: completed=492, canceled=300, discarded key/detail/edges=9/19/10, uploaded=449, preemptions=298, useful worker ms=42458.8; requests missing/resolution/edges=662/39/94; plans accepted/stale=121/0 max ms=137.7; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+11.03s: completed=616, canceled=355, discarded key/detail/edges=9/19/15, uploaded=567, preemptions=352, useful worker ms=48078.6; requests missing/resolution/edges=802/42/129; plans accepted/stale=219/0 max ms=137.7; no preparation; active jobs 2
+perspective bottom-third ground gaps=0/3072
+16.03s: completed=734, canceled=476, discarded key/detail/edges=9/19/17, uploaded=683, preemptions=467, useful worker ms=55885.4; requests missing/resolution/edges=998/52/168; plans accepted/stale=317/0 max ms=137.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+21.04s: completed=806, canceled=602, discarded key/detail/edges=13/19/20, uploaded=747, preemptions=588, useful worker ms=62459.8; requests missing/resolution/edges=1163/63/185; plans accepted/stale=412/0 max ms=137.7; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+26.05s: completed=928, canceled=681, discarded key/detail/edges=14/20/24, uploaded=862, preemptions=664, useful worker ms=68324.7; requests missing/resolution/edges=1326/72/212; plans accepted/stale=510/0 max ms=137.7; no preparation; active jobs 1
+perspective bottom-third ground gaps=0/3072
+31.05s: completed=1063, canceled=758, discarded key/detail/edges=17/20/24, uploaded=993, preemptions=734, useful worker ms=74699.9; requests missing/resolution/edges=1506/72/245; plans accepted/stale=608/0 max ms=137.7; no preparation; active jobs 2
+perspective bottom-third ground gaps=0/3072
+36.05s: completed=1151, canceled=903, discarded key/detail/edges=19/20/26, uploaded=1076, preemptions=878, useful worker ms=79943.7; requests missing/resolution/edges=1708/80/270; plans accepted/stale=706/0 max ms=137.7; no preparation; active jobs 4
+perspective bottom-third ground gaps=0/3072
+41.05s: completed=1226, canceled=1041, discarded key/detail/edges=19/20/28, uploaded=1149, preemptions=1014, useful worker ms=86028.0; requests missing/resolution/edges=1900/96/275; plans accepted/stale=801/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=0/3072
+46.06s: completed=1342, canceled=1093, discarded key/detail/edges=19/20/32, uploaded=1260, preemptions=1060, useful worker ms=91566.3; requests missing/resolution/edges=2035/100/301; plans accepted/stale=897/0 max ms=259.2; no preparation; active jobs 1
+perspective bottom-third ground gaps=0/3072
+51.07s: completed=1461, canceled=1186, discarded key/detail/edges=21/22/35, uploaded=1371, preemptions=1150, useful worker ms=98058.5; requests missing/resolution/edges=2210/107/331; plans accepted/stale=995/0 max ms=259.2; no preparation; active jobs 1
+perspective bottom-third ground gaps=0/3072
+56.09s: completed=1582, canceled=1296, discarded key/detail/edges=22/22/42, uploaded=1482, preemptions=1256, useful worker ms=102202.5; requests missing/resolution/edges=2410/109/363; plans accepted/stale=1093/0 max ms=259.2; tiles 0/135; calibrated=True detail=RanToCompletion missing near=8 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+61.09s: completed=1637, canceled=1492, discarded key/detail/edges=23/23/44, uploaded=1533, preemptions=1446, useful worker ms=112014.7; requests missing/resolution/edges=2631/116/386; plans accepted/stale=1188/0 max ms=259.2; tiles 0/143; calibrated=True detail=RanToCompletion missing near=8 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+66.10s: completed=1720, canceled=1650, discarded key/detail/edges=23/23/48, uploaded=1611, preemptions=1596, useful worker ms=117925.5; requests missing/resolution/edges=2846/124/403; plans accepted/stale=1286/0 max ms=259.2; tiles 0/138; calibrated=True detail= missing near=8 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+71.12s: completed=1822, canceled=1756, discarded key/detail/edges=23/24/49, uploaded=1711, preemptions=1697, useful worker ms=124409.5; requests missing/resolution/edges=3014/130/417; plans accepted/stale=1383/0 max ms=259.2; tiles 19/146; calibrated=True detail=RanToCompletion missing near=3 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+76.12s: completed=1919, canceled=1850, discarded key/detail/edges=23/24/51, uploaded=1805, preemptions=1781, useful worker ms=130526.3; requests missing/resolution/edges=3159/137/423; plans accepted/stale=1481/0 max ms=259.2; tiles 51/136; calibrated=True detail= missing near=3 edge mismatches=0; pending jobs 2; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+81.12s: completed=2052, canceled=1986, discarded key/detail/edges=23/25/56, uploaded=1932, preemptions=1908, useful worker ms=136396.0; requests missing/resolution/edges=3353/149/440; plans accepted/stale=1575/0 max ms=259.2; tiles 79/145; calibrated=True detail= missing near=6 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+86.13s: completed=2210, canceled=2067, discarded key/detail/edges=23/26/59, uploaded=2086, preemptions=1983, useful worker ms=142375.3; requests missing/resolution/edges=3518/156/457; plans accepted/stale=1673/0 max ms=259.2; tiles 82/135; calibrated=True detail= missing near=7 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+91.14s: completed=2423, canceled=2117, discarded key/detail/edges=25/28/64, uploaded=2288, preemptions=2028, useful worker ms=148084.2; requests missing/resolution/edges=3704/160/478; plans accepted/stale=1771/0 max ms=259.2; tiles 102/144; calibrated=True detail= missing near=0 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+96.14s: completed=2618, canceled=2168, discarded key/detail/edges=27/30/68, uploaded=2474, preemptions=2079, useful worker ms=153581.2; requests missing/resolution/edges=3876/163/503; plans accepted/stale=1869/0 max ms=259.2; tiles 103/150; calibrated=True detail= missing near=3 edge mismatches=0; pending jobs 1; coverage False; near ready False
+perspective bottom-third ground gaps=2/3072
+101.15s: completed=2765, canceled=2213, discarded key/detail/edges=28/32/70, uploaded=2615, preemptions=2123, useful worker ms=159219.6; requests missing/resolution/edges=4014/169/512; plans accepted/stale=1963/0 max ms=259.2; tiles 101/148; calibrated=True detail= missing near=3 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+106.16s: completed=2927, canceled=2238, discarded key/detail/edges=28/37/72, uploaded=2770, preemptions=2143, useful worker ms=165830.0; requests missing/resolution/edges=4147/170/519; plans accepted/stale=2060/0 max ms=259.2; tiles 97/172; calibrated=True detail= missing near=3 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+111.17s: completed=3018, canceled=2429, discarded key/detail/edges=28/38/76, uploaded=2855, preemptions=2322, useful worker ms=172860.9; requests missing/resolution/edges=4405/172/526; plans accepted/stale=2157/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=3/3072
+116.18s: completed=3087, canceled=2648, discarded key/detail/edges=30/50/84, uploaded=2902, preemptions=2536, useful worker ms=180734.1; requests missing/resolution/edges=4684/179/528; plans accepted/stale=2255/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=0/3072
+121.19s: completed=3223, canceled=2651, discarded key/detail/edges=31/54/89, uploaded=3028, preemptions=2536, useful worker ms=189947.8; requests missing/resolution/edges=4794/184/553; plans accepted/stale=2350/0 max ms=259.2; no preparation; active jobs 5
+perspective bottom-third ground gaps=0/3072
+126.20s: completed=3388, canceled=2662, discarded key/detail/edges=33/60/93, uploaded=3179, preemptions=2536, useful worker ms=199042.3; requests missing/resolution/edges=4928/190/588; plans accepted/stale=2447/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=1/3072
+131.22s: completed=3593, canceled=2676, discarded key/detail/edges=33/61/102, uploaded=3373, preemptions=2536, useful worker ms=209870.3; requests missing/resolution/edges=5057/212/656; plans accepted/stale=2545/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=5/3072
+136.23s: completed=3742, canceled=2689, discarded key/detail/edges=34/63/107, uploaded=3511, preemptions=2543, useful worker ms=221563.2; requests missing/resolution/edges=5136/232/720; plans accepted/stale=2642/0 max ms=259.2; no preparation; active jobs 5
+perspective bottom-third ground gaps=0/3072
+141.25s: completed=3872, canceled=2715, discarded key/detail/edges=34/64/109, uploaded=3638, preemptions=2554, useful worker ms=232238.3; requests missing/resolution/edges=5214/252/776; plans accepted/stale=2738/0 max ms=259.2; no preparation; active jobs 3
+perspective bottom-third ground gaps=630/3072
+146.26s: completed=4012, canceled=2728, discarded key/detail/edges=34/64/114, uploaded=3772, preemptions=2554, useful worker ms=244909.8; requests missing/resolution/edges=5295/274/828; plans accepted/stale=2836/0 max ms=259.2; no preparation; active jobs 5
+perspective bottom-third ground gaps=3/3072
+151.27s: completed=4125, canceled=2736, discarded key/detail/edges=34/68/118, uploaded=3876, preemptions=2555, useful worker ms=260007.9; requests missing/resolution/edges=5353/296/868; plans accepted/stale=2934/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=16/3072
+156.27s: completed=4217, canceled=2755, discarded key/detail/edges=34/73/122, uploaded=3957, preemptions=2560, useful worker ms=275810.1; requests missing/resolution/edges=5413/312/903; plans accepted/stale=3032/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=227/3072
+161.27s: completed=4304, canceled=2762, discarded key/detail/edges=34/77/125, uploaded=4035, preemptions=2560, useful worker ms=292225.2; requests missing/resolution/edges=5466/325/931; plans accepted/stale=3128/0 max ms=259.2; no preparation; active jobs 4
+perspective bottom-third ground gaps=962/3072
+166.29s: completed=4400, canceled=2781, discarded key/detail/edges=34/81/127, uploaded=4124, preemptions=2560, useful worker ms=307380.1; requests missing/resolution/edges=5520/351/966; plans accepted/stale=3225/0 max ms=259.2; tiles 0/75; calibrated=True detail=RanToCompletion missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=187/3072
+171.29s: completed=4512, canceled=2836, discarded key/detail/edges=34/85/134, uploaded=4223, preemptions=2560, useful worker ms=321715.2; requests missing/resolution/edges=5588/409/1007; plans accepted/stale=3322/0 max ms=259.2; tiles 0/64; calibrated=True detail=RanToCompletion missing near=4 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=53/3072
+176.30s: completed=4627, canceled=3003, discarded key/detail/edges=34/86/145, uploaded=4325, preemptions=2560, useful worker ms=332583.9; requests missing/resolution/edges=5649/499/1137; plans accepted/stale=3421/0 max ms=259.2; tiles 0/55; calibrated=True detail= missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=291/3072
+181.30s: completed=4749, canceled=3079, discarded key/detail/edges=36/90/155, uploaded=4431, preemptions=2560, useful worker ms=344813.8; requests missing/resolution/edges=5707/515/1247; plans accepted/stale=3515/0 max ms=259.2; tiles 13/53; calibrated=True detail= missing near=0 edge mismatches=0; pending jobs 1; coverage False; near ready False
+perspective bottom-third ground gaps=914/3072
+186.31s: completed=4850, canceled=3168, discarded key/detail/edges=37/92/155, uploaded=4528, preemptions=2560, useful worker ms=358575.9; requests missing/resolution/edges=5757/525/1357; plans accepted/stale=3613/0 max ms=259.2; tiles 24/54; calibrated=True detail= missing near=0 edge mismatches=1; pending jobs 1; coverage False; near ready False
+perspective bottom-third ground gaps=2062/3072
+191.32s: completed=4985, canceled=3201, discarded key/detail/edges=38/98/158, uploaded=4651, preemptions=2560, useful worker ms=373505.9; requests missing/resolution/edges=5828/543/1414; plans accepted/stale=3710/0 max ms=259.2; tiles 32/51; calibrated=True detail= missing near=0 edge mismatches=0; pending jobs 0; coverage True; near ready True
+perspective bottom-third ground gaps=21/3072
+196.33s: completed=5098, canceled=3355, discarded key/detail/edges=38/99/166, uploaded=4754, preemptions=2560, useful worker ms=384417.6; requests missing/resolution/edges=5902/583/1539; plans accepted/stale=3809/0 max ms=259.2; tiles 45/47; calibrated=True detail= missing near=0 edge mismatches=0; pending jobs 1; coverage False; near ready False
+perspective bottom-third ground gaps=3/3072
+201.35s: completed=5202, canceled=3391, discarded key/detail/edges=38/99/172, uploaded=4852, preemptions=2562, useful worker ms=399660.4; requests missing/resolution/edges=5978/601/1570; plans accepted/stale=3905/0 max ms=259.2; tiles 36/63; calibrated=True detail=RanToCompletion missing near=0 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=2/3072
+206.37s: completed=5303, canceled=3476, discarded key/detail/edges=38/103/181, uploaded=4940, preemptions=2562, useful worker ms=412962.1; requests missing/resolution/edges=6036/664/1633; plans accepted/stale=4003/0 max ms=259.2; tiles 22/53; calibrated=True detail= missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+211.38s: completed=5394, canceled=3551, discarded key/detail/edges=38/107/186, uploaded=5021, preemptions=2562, useful worker ms=427455.2; requests missing/resolution/edges=6099/744/1656; plans accepted/stale=4101/0 max ms=259.2; tiles 11/53; calibrated=True detail= missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=1/3072
+216.39s: completed=5481, canceled=3723, discarded key/detail/edges=38/111/187, uploaded=5102, preemptions=2562, useful worker ms=438467.1; requests missing/resolution/edges=6156/838/1764; plans accepted/stale=4199/0 max ms=259.2; tiles 6/60; calibrated=True detail= missing near=2 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=12/3072
+221.39s: completed=5568, canceled=3743, discarded key/detail/edges=38/111/187, uploaded=5189, preemptions=2562, useful worker ms=454139.2; requests missing/resolution/edges=6208/852/1805; plans accepted/stale=4295/0 max ms=259.2; tiles 1/62; calibrated=True detail= missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=1/3072
+226.40s: completed=5663, canceled=3778, discarded key/detail/edges=38/111/190, uploaded=5281, preemptions=2563, useful worker ms=468474.6; requests missing/resolution/edges=6267/863/1865; plans accepted/stale=4393/0 max ms=259.2; tiles 0/61; calibrated=True detail= missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+231.41s: completed=5766, canceled=3793, discarded key/detail/edges=38/115/192, uploaded=5377, preemptions=2565, useful worker ms=482904.0; requests missing/resolution/edges=6320/881/1911; plans accepted/stale=4491/0 max ms=259.2; tiles 0/81; calibrated=True detail= missing near=2 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=1/3072
+236.41s: completed=5921, canceled=3804, discarded key/detail/edges=38/116/198, uploaded=5520, preemptions=2565, useful worker ms=495351.2; requests missing/resolution/edges=6425/896/1957; plans accepted/stale=4589/0 max ms=259.2; tiles 0/82; calibrated=True detail= missing near=1 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+241.42s: completed=6045, canceled=3819, discarded key/detail/edges=38/119/204, uploaded=5635, preemptions=2569, useful worker ms=504697.7; requests missing/resolution/edges=6506/910/2002; plans accepted/stale=4685/0 max ms=259.2; tiles 0/105; calibrated=True detail= missing near=2 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=1/3072
+246.42s: completed=6185, canceled=3845, discarded key/detail/edges=38/126/211, uploaded=5758, preemptions=2581, useful worker ms=514555.8; requests missing/resolution/edges=6584/933/2066; plans accepted/stale=4784/0 max ms=259.2; tiles 0/122; calibrated=True detail= missing near=2 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+251.44s: completed=6359, canceled=3862, discarded key/detail/edges=38/135/217, uploaded=5914, preemptions=2581, useful worker ms=524864.1; requests missing/resolution/edges=6706/946/2122; plans accepted/stale=4882/0 max ms=259.2; tiles 0/145; calibrated=True detail= missing near=2 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=0/3072
+256.45s: completed=6483, canceled=3869, discarded key/detail/edges=38/144/219, uploaded=6027, preemptions=2583, useful worker ms=534734.5; requests missing/resolution/edges=6811/948/2145; plans accepted/stale=4979/0 max ms=259.2; tiles 0/166; calibrated=True detail= missing near=4 edge mismatches=0; pending jobs 0; coverage False; near ready False
+perspective bottom-third ground gaps=2/3072

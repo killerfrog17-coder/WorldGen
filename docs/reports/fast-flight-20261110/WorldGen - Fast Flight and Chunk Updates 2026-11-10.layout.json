@@ -1,0 +1,216 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 714.3697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 658.1697637795277,
+    "height": 51.2
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 607.7697637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 581.0497637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 396.48976377952766,
+    "height": 34.56
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 369.76976377952764,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 326.3697637795276,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 299.6497637795276,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 260.0897637795276,
+    "height": 34.56
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 468.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\fast-flight-20261110\\forest.jpg",
+    "bottom": 484.08976377952774,
+    "height": 245
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 192.32976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\fast-flight-20261110\\canyon.jpg",
+    "bottom": 208.20976377952775,
+    "height": 245
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 154.28976377952776,
+    "height": 23.04
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 541.9311417322837,
+    "height": 21.76
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\fast-flight-20261110\\before-chart.jpg",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 541.9311417322837,
+    "height": 21.76
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\fast-flight-20261110\\after-chart.jpg",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 512.2111417322836,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 456.01114173228365,
+    "height": 51.2
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 429.2911417322836,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 385.8911417322836,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 359.17114173228356,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 319.61114173228356,
+    "height": 34.56
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 292.89114173228353,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 264.8511417322835,
+    "height": 23.04
+  }
+]
