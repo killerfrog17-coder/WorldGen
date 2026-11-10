@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!Ready)return;if(!watercraftRestored){watercraftRestored=true;if(!string.IsNullOrEmpty(PlayerRules.WatercraftId))activeWatercraft=Camp.Objects.FirstOrDefault(c=>c.Id==PlayerRules.WatercraftId&&PrimitiveWatercraft.Boat(c));}
         var c=activeWatercraft;if(c==null)return;
-        if(DeathVisible||Spectating){activeWatercraft=null;PlayerRules.WatercraftId="";return;}
+        if(DeathVisible||Spectating){DetachWatercraft();return;}
         if(!Camp.Objects.Contains(c)||!WatercraftUsable(c)){LeaveWatercraft();return;}
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double dt=Math.Max(0,Math.Min(.1,Time.unscaledDeltaTime));
         if(!paused&&!mapOpen&&!ecologyOpen&&!chatOpen)
@@ -80,9 +80,11 @@ public sealed partial class LocalTerrainExplorer
         PlaceOnWatercraft(c,x,z);
         if(campVisuals.TryGetValue(c.Id,out var visual)){visual.Root.transform.localPosition=BlueprintOrigin(c);visual.Root.transform.localRotation=Quaternion.Euler(0,(float)c.Heading,0);}
     }
+    void DetachWatercraft()
+    {if(activeWatercraft!=null)activeWatercraft.BoatVelocityEast=activeWatercraft.BoatVelocityNorth=0;activeWatercraft=null;PlayerRules.WatercraftId="";}
     void LeaveWatercraft()
     {
-        var c=activeWatercraft;if(c==null)return;activeWatercraft=null;PlayerRules.WatercraftId="";TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);
+        var c=activeWatercraft;if(c==null)return;DetachWatercraft();TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);
         double bx=x,bz=z,best=double.PositiveInfinity;
         for(int i=0;i<12;i++){double a=i*Math.PI/6,px=x+Math.Sin(a)*(c.Blueprint.WidthM*.5+.85),pz=z+Math.Cos(a)*(c.Blueprint.DepthM*.5+.85);var water=SampleMotionWater(px,pz);double ground=CampFloor(px,pz),depth=double.IsFinite(water.Surface)?Math.Max(0,water.Surface-ground):0;if(depth<best){best=depth;bx=px;bz=pz;}}
         var wet=SampleMotionWater(bx,bz);double floor=CampFloor(bx,bz);if(double.IsFinite(wet.Surface)&&wet.Surface>floor+1)floor=wet.Surface-1.1;

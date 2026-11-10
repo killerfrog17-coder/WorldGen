@@ -18,10 +18,19 @@ public sealed partial class LocalTerrainExplorer
   Check(wet,"Actual coast provides shallow rendered water for both line and hand-net controls");motion.Place(wx-.9,wz,CampFloor(wx-.9,wz));
   double readyUntil=Time.unscaledTimeAsDouble+90;while((animalPlanner==null||!CenterReady)&&Time.unscaledTimeAsDouble<readyUntil)yield return null;var spawned=ExecuteAnimalSpawnCommand("/spawn coastal-forage-fish-guild 2");Check(spawned.Success,"Two real fish enter the ordinary actor spawn queue: "+string.Join(" ",spawned.Lines));double until=Time.unscaledTimeAsDouble+90;while(animals.Values.Count(a=>a.Manual&&a.Spawn.Profile.slug=="coastal-forage-fish-guild")<2&&Time.unscaledTimeAsDouble<until)yield return null;
   var fish=animals.Values.Where(a=>a.Manual&&a.Spawn.Profile.slug=="coastal-forage-fish-guild").Take(2).ToArray();Check(fish.Length==2,"Actual fish skins and normal wildlife health load");
+  // Re-select the working shallows after the final nearby terrain and fish
+  // skins arrive. An early coarse shore sample must never become a NaN pose.
+  bool settledWet=false;double baseX=motion.X,baseZ=motion.Z;
+  for(int ring=1;ring<=24&&!settledWet;ring++)for(int direction=0;direction<16&&!settledWet;direction++)
+  {
+   double angle=direction*Math.PI/8,x=baseX+Math.Sin(angle)*ring*.5,z=baseZ+Math.Cos(angle)*ring*.5;var surface=SampleMotionWater(x,z);double depth=surface.Surface-CampFloor(x,z);if(!double.IsFinite(surface.Surface)||depth<1||depth>1.5)continue;
+   motion.Place(x-.9,z,CampFloor(x-.9,z));for(int settle=0;settle<8;settle++)yield return null;surface=SampleMotionWater(x,z);depth=surface.Surface-CampFloor(x,z);if(!double.IsFinite(surface.Surface)||depth<.5)continue;wx=x;wz=z;settledWet=true;
+  }
+  Check(settledWet,"A settled actual water column remains valid after shoreline detail arrives");
   for(int i=0;i<2;i++)
   {
    var a=fish[i];a.X=wx;a.Z=wz;a.Planet=frame.Position(wx,wz);a.GroundY=CampFloor(wx,wz);a.Speed=a.TargetSpeed=0;a.NextDecision=a.Life+1000;a.Fade=1;
-   a.Root.transform.localPosition=new Vector3((float)(wx-originX),(float)SampleMotionWater(wx,wz).Surface-.35f,(float)(wz-originZ));var target=a.Renderer.bounds.center;view.transform.LookAt(target);
+   double level=SampleMotionWater(wx,wz).Surface;Check(double.IsFinite(level),"Controlled fish pose uses a finite current water surface");UpdateAnimal(a,0);a.Root.transform.localPosition=new Vector3((float)(wx-originX),(float)level-.35f,(float)(wz-originZ));var target=a.Renderer.bounds.center;view.transform.LookAt(target);
    var gear=PortableTechnology.Create(i==0?PossessionKind.HandLine:PossessionKind.FibreNet,Position);Inventory.Items.Add(gear);SetCraftWorkArea(gear);RefreshInventoryNearby(true);Debug.Log("FISHING contact id="+a.Spawn.Id+" mass="+a.MassKg+" medium="+a.Spawn.Profile.medium+" centerDistance="+Vector3.Distance(a.Renderer.bounds.center,view.transform.position)+" rootDot="+Vector3.Dot(view.transform.forward,(a.Root.transform.position-view.transform.position).normalized)+" kind="+walkingPatch.Sample(a.Planet).WaterKind+" gearAccessible="+AccessiblePossession(gear));BeginFishing(gear);Debug.Log("FISHING result notice="+inventoryNotice+" target="+worldToolWork?.Fish?.Spawn.Id+" expected="+a.Spawn.Id);
    Check(worldToolWork?.Fish==a&&a.FishingTethered,"The real "+gear.Name.ToLowerInvariant()+" works on this actual shallow-water fish");
    until=Time.unscaledTimeAsDouble+15;while(worldToolWork!=null&&Time.unscaledTimeAsDouble<until)yield return null;

@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
     Check(bestHeading>=0,"Shallow launch site connects to a real navigable water corridor");c.Heading=bestHeading;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.W));until=Time.unscaledTimeAsDouble+3;while(Time.unscaledTimeAsDouble<until)yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
     double travelled=(c.Position-frame.Position(cx,cz)).Length*frame.RadiusM;Check(travelled>1&&activeWatercraft==c&&!motion.Swimming,"Actual held-paddle W input moves the craft and carries the player over real water: "+travelled.ToString("0.00")+" m");
     var saved=new PlaySession();StorePlayer(saved);var restored=WorldJson.Read<PlaySession>(WorldJson.Write(saved));restored.Validate();Check(restored.WatercraftId==c.Id&&restored.Camp.Objects.Any(b=>b.Id==c.Id),"Boarded craft, motion and original hull goods survive full session capture/reload");
-    InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.E));yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;Check(activeWatercraft==null&&PlayerRules.WatercraftId=="","Actual E input leaves the craft without removing its physical hull");
+    InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.E));yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;Check(activeWatercraft==null&&PlayerRules.WatercraftId==""&&c.BoatVelocityEast==0&&c.BoatVelocityNorth==0,"Actual E input leaves the craft without removing its physical hull");
     PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();motion.Place(0,0,CampFloor(0,0));
    }
   }
