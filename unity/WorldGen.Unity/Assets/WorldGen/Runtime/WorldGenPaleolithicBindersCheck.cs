@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
+using WorldGen.Presentation;
 using WorldGen.Serialization;
 
 public sealed partial class LocalTerrainExplorer
