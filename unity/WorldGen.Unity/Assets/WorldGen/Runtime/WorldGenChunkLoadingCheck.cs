@@ -122,11 +122,12 @@ public sealed partial class LocalTerrainExplorer
         var workRows=new List<string>();
         TestView(500,90,12);double start=Time.realtimeSinceStartupAsDouble,last=start,east=0,next=start;
         long initialBuilds=TerrainBuildRequests;int missingFrames=0,lastPixelGaps=0,audits=0;double nextAudit=start+1;BeginLoadingProfile();
-        bool longFlight=Environment.GetCommandLineArgs().Contains("--worldgen-chunk-long-flight");double duration=longFlight?80:40,turnAt=longFlight?56:24;
+        var flightArguments=Environment.GetCommandLineArgs();bool longFlight=flightArguments.Contains("--worldgen-chunk-long-flight"),endurance=flightArguments.Contains("--worldgen-chunk-endurance-flight");double duration=endurance?260:longFlight?80:40,turnAt=endurance?190:longFlight?56:24;
+        int speedIndex=Array.IndexOf(flightArguments,"--worldgen-chunk-flight-speed");double fixedSpeed=speedIndex>=0?double.Parse(flightArguments[speedIndex+1],CultureInfo.InvariantCulture):0;
         while(Time.realtimeSinceStartupAsDouble-start<duration)
         {
             double now=Time.realtimeSinceStartupAsDouble,t=now-start,dt=Math.Min(.25,now-last);last=now;
-            double speed=t<8?200:600;if(t>=turnAt)speed=-600;
+            double speed=fixedSpeed>0?fixedSpeed:t<8?200:600;if(t>=turnAt)speed=-Math.Abs(speed);
             east+=speed*dt;var at=origin.Position(east,0);TerrainHandoff.Coordinates(frame,at,out double x,out double z);
             TrackStreamingMotion(x-motion.X,z-motion.Z,Math.Max(.001,dt));motion.X=x;motion.Z=z;double floor=Ground(x,z);var water=SampleMotionWater(x,z);if(double.IsFinite(water.Surface))floor=Math.Max(floor,water.Surface);motion.Y=floor+500;motion.Flying=true;
             heading=(float)(Math.Atan2(V.Dot(origin.East,frame.East),V.Dot(origin.East,frame.North))*180/Math.PI)+(speed<0?180:0);UpdateCamera();
@@ -139,6 +140,23 @@ public sealed partial class LocalTerrainExplorer
                 Capture(Path.Combine(output,"flight-view-"+audits+".png"));audits++;
                 workRows.Add(t.ToString("F2",CultureInfo.InvariantCulture)+"s: "+StreamingWorkReceipt);
                 File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
+                var snapshot=new List<string>{"scope,x,z,level,scale,segments",$"observer,{motion.X:R},{motion.Z:R},0,{HorizontalScale:R},{viewDistance:R}"};
+                void Save(string scope,IEnumerable<KeyValuePair<TerrainTileKey,int>> entries)
+                {foreach(var p in entries){var k=p.Key;snapshot.Add(string.Join(",",scope,k.X,k.Z,k.Level,k.Scale.ToString("R",CultureInfo.InvariantCulture),p.Value));}}
+                Save("wanted",wanted);Save("resident",tiles.Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)));
+                foreach(var p in tiles){var k=p.Key;snapshot.Add(string.Join(",","fade",k.X,k.Z,k.Level,k.Scale.ToString("R",CultureInfo.InvariantCulture),p.Value.FadeIn.ToString("R",CultureInfo.InvariantCulture),p.Value.FadeOut.ToString("R",CultureInfo.InvariantCulture)));}
+                if(preparedFrame!=null)
+                {var p=preparedFrame;snapshot.Add($"prepared-observer,{p.X:R},{p.Z:R},0,{HorizontalScale:R},{viewDistance:R}");Save("prepared-wanted",p.Wanted);Save("prepared-resident",p.Tiles.Select(t=>new KeyValuePair<TerrainTileKey,int>(t.Key,t.Value.Segments)));}
+                File.WriteAllLines(Path.Combine(output,"flight-snapshot-"+(audits-1)+".csv"),snapshot);
+                if(audits%4==0)
+                {
+                    foreach(var tile in tiles.Values.Concat(previousTerrain.Values))foreach(var material in tile.Materials)material.SetFloat("_TransitionEnabled",0);
+                    Capture(Path.Combine(output,"flight-no-transitions-"+(audits-1)+".png"));
+                    foreach(var tile in tiles.Values.Concat(previousTerrain.Values))foreach(var material in tile.Materials)material.SetFloat("_TransitionEnabled",1);
+                    var flags=TerrainDiagnostics.Flags;TerrainDiagnostics.Flags|=TerrainDiagnosticFlags.NoCoverage;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();
+                    Capture(Path.Combine(output,"flight-no-coverage-"+(audits-1)+".png"));
+                    TerrainDiagnostics.Flags=flags;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();
+                }
             }
             if(now>=next)
             {next=now+.2;rows.Add(string.Join(",",new[]{t,speed,east,HeightAboveGround,viewDistance,terrainRevealRadius,forestRevealRadius,tiles.Count,jobs.Count,NearReady?1d:0,playerGround?1d:0,missing,ReanchorCount,TerrainBuildRequests-initialBuilds,VisibleGround(x,z,double.NaN)-Ground(x,z),PreparedTileCount,lastPixelGaps}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));}
@@ -147,7 +165,7 @@ public sealed partial class LocalTerrainExplorer
         }
         File.WriteAllLines(Path.Combine(output,"fast-flight.csv"),rows);
         File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
-        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
+        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),(fixedSpeed>0?fixedSpeed+" m/s":"200 then 600 m/s")+" forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; max handoff ms="+LargestHandoffMs+" "+LargestHandoffProfile+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
     }
     int CheckFlightGroundPixels(string path)

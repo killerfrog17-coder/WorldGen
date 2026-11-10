@@ -9,7 +9,9 @@ param(
     [switch]$LegacyPlan,
     [switch]$FastFlight,
     [ValidateRange(0,3)][int]$Effort=1,
-    [switch]$LongFlight
+    [switch]$LongFlight,
+    [switch]$EnduranceFlight,
+    [ValidateRange(0,2000)][double]$FlightSpeed=0
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -30,6 +32,8 @@ if($Motion){$arguments+='--worldgen-chunk-motion'}
 if($LegacyPlan){$arguments+='--worldgen-plan-bootstrap-legacy'}
 if($FastFlight){$arguments+='--worldgen-chunk-fast-flight'}
 if($LongFlight){$arguments+='--worldgen-chunk-long-flight'}
+if($EnduranceFlight){$arguments+='--worldgen-chunk-endurance-flight'}
+if($FlightSpeed -gt 0){$arguments+=@('--worldgen-chunk-flight-speed',$FlightSpeed.ToString('R',[Globalization.CultureInfo]::InvariantCulture))}
 $arguments+=@('--worldgen-chunk-effort',[string]$Effort)
 $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
 Write-Output ($Name+' PID '+$process.Id)

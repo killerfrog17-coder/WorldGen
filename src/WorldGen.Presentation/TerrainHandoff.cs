@@ -14,7 +14,12 @@ namespace WorldGen.Presentation
             x=V.Dot(point,frame.East)*frame.RadiusM/dot;
             z=V.Dot(point,frame.North)*frame.RadiusM/dot;
         }
-        public static double Limit(LocalTerrainFrame frame)=>Math.Min(65536,frame.RadiusM*.01);
+        // Render precision is maintained independently by the 2km floating
+        // origin. Rebuilding the geographic chart every 0.01 planet radii
+        // duplicated the whole visible hierarchy after only seconds of flight.
+        // Keep the same double-precision gnomonic chart over a bounded 0.1-radian
+        // neighbourhood; existing distant terrain already spans larger angles.
+        public static double Limit(LocalTerrainFrame frame)=>Math.Min(65536,frame.RadiusM*.1);
         static TerrainTileKey Parent(TerrainTileKey key)=>new TerrainTileKey(
             (int)Math.Floor(key.X/2.0),(int)Math.Floor(key.Z/2.0),key.Level+1,key.Scale);
         public static bool Ready(IReadOnlyDictionary<TerrainTileKey,int> wanted,

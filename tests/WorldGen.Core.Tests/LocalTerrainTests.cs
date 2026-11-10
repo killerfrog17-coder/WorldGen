@@ -23,13 +23,13 @@ static class LocalTerrainTests
         foreach(var point in new[]{new V(1,0,0),new V(0,0,1),new V(0,0,-1),new V(1,2,3).Unit})
         {
             var frame=new LocalTerrainFrame(point,6371000,800,scale);
-            foreach(double fraction in new[]{-.03,-.01,0,.01,.03})
+            foreach(double fraction in new[]{-.15,-.1,-.03,-.01,0,.01,.03,.1,.15})
             {
                 double x=frame.RadiusM*fraction,z=frame.RadiusM*.004;
                 TerrainHandoff.Coordinates(frame,frame.Position(x,z),out double actualX,out double actualZ);
                 check(Math.Abs(actualX-x)<.03&&Math.Abs(actualZ-z)<.03,"Hidden-frame coordinates preserve position within the existing quantized planetary-vector precision (3cm at up to 2x Earth)");
             }
-            check(TerrainHandoff.Limit(frame)==Math.Min(65536,6371000*scale*.01),"Preparation does not change the existing reanchor distance");
+            check(TerrainHandoff.Limit(frame)==Math.Min(65536,6371000*scale*.1),"Geographic chart span is bounded independently of the small floating render origin");
         }
         var parent=new TerrainTileKey(-1,-1,1,.1);
         var wanted=new Dictionary<TerrainTileKey,int>{{parent,64}};
