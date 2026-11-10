@@ -17,6 +17,10 @@ public sealed partial class LocalTerrainExplorer
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP CYCLE "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP CYCLE "+text);}
         if(group.Situation.PermanentBase){Check(true,"Dependable aquatic base remains occupied rather than undergoing a forced annual migration");yield break;}
+        // Functional logistics fixture at the supported 15-minute day. This
+        // advances the real work/solar clock together; movement and resource
+        // requirements are unchanged. It is not a default-day balance test.
+        owner.PlayerRules.Settings.RealMinutesPerDay=15;
         var baseline=owner.LivingClock;var initial=group.Situation;long oldSite=initial.Camp.Id,band=initial.Band.Id;
         var identities=group.Residents.Members.Select(p=>p.Id).OrderBy(id=>id).ToArray();
         int fullParts=owner.Camp.Objects.Where(o=>o.NpcGroup==band&&o.NpcSite==oldSite&&o.Blueprint!=null).Sum(o=>o.Blueprint.Parts.Count);
@@ -106,7 +110,7 @@ public sealed partial class LocalTerrainExplorer
         // Construction may legitimately portion bark/rope or cut poles, so do
         // not demand unchanged original piece masses after that work.
         var goods=ActualGoods();Check(goods.Select(p=>p.Id).Distinct().Count()==goods.Length,"Physical reassembly creates no duplicated goods across people, active camps and abandoned memories");
-        File.WriteAllText(Path.Combine(output,"camp-cycle-scope.txt"),"Actual worker packing, observed initial travel, explicit coarse journey skip, actual terrain arrival and daylight original-material reassembly after an explicit morning clock advance when needed. Not an uninterrupted whole-route follow; not proof that every shelter finishes.");
+        File.WriteAllText(Path.Combine(output,"camp-cycle-scope.txt"),"Supported 15-minute solar day. Actual worker packing, observed initial travel, explicit coarse journey skip, actual terrain arrival and daylight original-material reassembly after an explicit morning clock advance when needed. Not an uninterrupted whole-route follow, default-day balance test or proof that every shelter finishes.");
         File.WriteAllText(Path.Combine(output,"after-camp-cycle.json"),WorldJson.Write(owner.Camp));
     }
 }
